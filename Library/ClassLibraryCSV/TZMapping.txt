@@ -1,0 +1,376 @@
+﻿#Tab delimited List of IDs that should be used to determine the windows time zone
+(UTC-05:00) Bogota, Lima, Quito	SA Pacific Standard Time
+(UTC-02:00) Mid-Atlantic	Mid-Atlantic Standard Time
+(UTC) Monrovia, Reykjavik	UTC
+(GMT) Dublin, Edinburgh, Lisbon, London	GMT Standard Time
+(UTC+02:00) E. Europe	E. Europe Standard Time
+(UTC+03:00) Moscow, St. Petersburg, Volgograd (RTZ 2)	Russian Standard Time
+(UTC+05:00) Ekaterinburg (RTZ 4)	Ekaterinburg Standard Time
+(UTC+05:00) Tashkent	West Asia Standard Time
+(UTC+06:00) Novosibirsk (RTZ 5)	N. Central Asia Standard Time
+(UTC+07:00) Krasnoyarsk (RTZ 6)	North Asia Standard Time
+(UTC+08:00) Irkutsk (RTZ 7)	North Asia East Standard Time
+(UTC+09:00) Yakutsk (RTZ 8)	Yakutsk Standard Time
+(UTC-03:00) Buenos Aires	Argentina Standard Time
+(UTC) Casablanca	Morocco Standard Time
+(UTC+03:00) Amman	Jordan Standard Time
+(UTC+12:00) Petropavlovsk-Kamchatsky	Kamchatka Standard Time
+(UTC+02:00) Kaliningrad (RTZ 1)	Kaliningrad Standard Time
+(UTC+10:00) Vladivostok, Magadan (RTZ 9)	Vladivostok Standard Time
+(UTC+04:00) Izhevsk, Samara (RTZ 3)	Russia Time Zone 3
+(UTC+11:00) Chokurdakh (RTZ 10)	Russia Time Zone 10
+ACST	Cen. Australia Standard Time
+ACT	AUS Central Standard Time
+AEST	E. Australia Standard Time
+AET	AUS Eastern Standard Time
+AGT	SA Eastern Standard Time
+AKST	Alaskan Standard Time
+ALMT	Central Asia Standard Time
+AMT	Central Brazilian Standard Time
+ART	Argentina Standard Time
+AST	Atlantic Standard Time
+AWST	W. Australia Standard Time
+AZOT	Azores Standard Time
+AZT	Azerbaijan Standard Time
+BRT	Bahia Standard Time
+BRT-BRST	E. South America Standard Time
+BST	Bangladesh Standard Time
+CDT	Central Standard Time (Mexico)
+CET	W. Europe Standard Time
+CNT	Newfoundland Standard Time
+COT	SA Pacific Standard Time
+CST	Central Standard Time
+CTT	China Standard Time
+CVT	Cape Verde Standard Time
+EAT	Arabic Standard Time
+EEST	Turkey Standard Time
+EET	E. Europe Standard Time
+KALT	Kaliningrad Standard Time
+EST	Eastern Standard Time
+GET	Georgian Standard Time
+GMT	GMT Standard Time
+GST	Arabian Standard Time
+HST	Hawaiian Standard Time
+IET	US Eastern Standard Time
+IRKT	North Asia East Standard Time
+IsraelST	Israel Standard Time
+IST	India Standard Time
+JST	Tokyo Standard Time
+KRAT	North Asia Standard Time
+KST	Korea Standard Time
+MET	Iran Standard Time
+MIT	Samoa Standard Time
+MMT	Myanmar Standard Time
+MSK	Russian Standard Time
+MST	Mountain Standard Time
+MUT	Mauritius Standard Time
+MYT	Singapore Standard Time
+NET	Caucasus Standard Time
+NOVT	Omsk Standard Time
+OMST	Omsk Standard Time
+NPT	Nepal Standard Time
+NST	Fiji Standard Time
+NZST	New Zealand Standard Time
+PETT	Kamchatka Standard Time
+PKT	Pakistan Standard Time
+PNT	US Mountain Standard Time
+PRT	Pacific SA Standard Time
+PST	Pacific Standard Time
+PYT	Paraguay Standard Time
+SAMT	Russia Time Zone 3
+SRET	Russia Time Zone 10
+SST	Central Pacific Standard Time
+ULAT	Ulaanbaatar Standard Time
+UTC+7	SE Asia Standard Time
+UYT	Montevideo Standard Time
+VET	Venezuela Standard Time
+VLAT	Vladivostok Standard Time
+WAST	West Asia Standard Time
+WAT	Namibia Standard Time
+WET	Morocco Standard Time
+YAKT	Yakutsk Standard Time
+YEKT	Ekaterinburg Standard Time
+1	Dateline Standard Time
+2	Samoa Standard Time
+3	Hawaiian Standard Time
+4	Alaskan Standard Time
+5	Pacific Standard Time
+6	US Mountain Standard Time
+8	Mountain Standard Time
+9	Central America Standard Time
+10	Central Standard Time
+12	Canada Central Standard Time
+13	SA Pacific Standard Time
+14	Eastern Standard Time
+15	US Eastern Standard Time
+16	Atlantic Standard Time
+17	SA Western Standard Time
+18	Pacific SA Standard Time
+19	Newfoundland Standard Time
+20	E. South America Standard Time
+21	SA Eastern Standard Time
+22	Greenland Standard Time
+23	Mid-Atlantic Standard Time
+24	Azores Standard Time
+25	Cape Verde Standard Time
+26	UTC
+27	GMT Standard Time
+28	W. Europe Standard Time
+29	Central Europe Standard Time
+30	Romance Standard Time
+31	Central European Standard Time
+32	W. Central Africa Standard Time
+33	GTB Standard Time
+34	E. Europe Standard Time
+35	Egypt Standard Time
+36	South Africa Standard Time
+37	FLE Standard Time
+38	Israel Standard Time
+39	Arabic Standard Time
+40	Arab Standard Time
+41	Russian Standard Time
+42	E. Africa Standard Time
+43	Iran Standard Time
+44	Arabian Standard Time
+45	Caucasus Standard Time
+46	Afghanistan Standard Time
+47	Ekaterinburg Standard Time
+48	West Asia Standard Time
+49	India Standard Time
+50	Nepal Standard Time
+51	N. Central Asia Standard Time
+52	Central Asia Standard Time
+53	Sri Lanka Standard Time
+54	Myanmar Standard Time
+55	SE Asia Standard Time
+56	North Asia Standard Time
+57	China Standard Time
+58	North Asia East Standard Time
+59	Singapore Standard Time
+60	W. Australia Standard Time
+61	Taipei Standard Time
+62	Tokyo Standard Time
+63	Korea Standard Time
+64	Yakutsk Standard Time
+65	Cen. Australia Standard Time
+66	AUS Central Standard Time
+67	E. Australia Standard Time
+68	AUS Eastern Standard Time
+69	West Pacific Standard Time
+70	Tasmania Standard Time
+71	Vladivostok Standard Time
+72	Central Pacific Standard Time
+73	New Zealand Standard Time
+74	Fiji Standard Time
+75	Tonga Standard Time
+76	UTC-11
+77	Pacific Standard Time (Mexico)
+78	Mountain Standard Time (Mexico)
+79	Central Standard Time (Mexico)
+80	Venezuela Standard Time
+81	Paraguay Standard Time
+82	Central Brazilian Standard Time
+83	Argentina Standard Time
+84	Montevideo Standard Time
+85	UTC-02
+86	Morocco Standard Time
+87	UTC
+88	Jordan Standard Time
+89	Middle East Standard Time
+90	Syria Standard Time
+92	Namibia Standard Time
+93	Azerbaijan Standard Time
+94	Mauritius Standard Time
+95	Georgian Standard Time
+97	Pakistan Standard Time
+98	Bangladesh Standard Time
+100	Ulaanbaatar Standard Time
+101	UTC+12
+102	Kamchatka Standard Time
+103	Bahia Standard Time
+104	Turkey Standard Time
+105	Kaliningrad Standard Time
+106	Vladivostok Standard Time
+107	Russia Time Zone 3
+108	Russia Time Zone 10
+109	Aus Central W. Standard Time
+Casablanca	Morocco Standard Time
+Abu Dhabi	Arabian Standard Time
+Adelaide	Cen. Australia Standard Time
+Alaska	Alaskan Standard Time
+Aleutian Islands	Aleutian Standard Time
+Amman	Jordan Standard Time
+Amsterdam	W. Europe Standard Time
+Anadyr	Russia Time Zone 11
+Araguaina	Tocantins Standard Time
+Arizona	US Mountain Standard Time
+Ashgabat	West Asia Standard Time
+Astana	Central Asia Standard Time
+Astrakhan	Astrakhan Standard Time
+Asuncion	Paraguay Standard Time
+Athens	GTB Standard Time
+Auckland	New Zealand Standard Time
+Azores	Azores Standard Time
+Baghdad	Arabic Standard Time
+Baja California	Pacific Standard Time (Mexico)
+Baku	Azerbaijan Standard Time
+Bangkok	SE Asia Standard Time
+Barnaul	Altai Standard Time
+Beijing	China Standard Time
+Beirut	Middle East Standard Time
+Belgrade	Central Europe Standard Time
+Berlin	W. Europe Standard Time
+München	W. Europe Standard Time
+Munich	W. Europe Standard Time
+Hamburg	W. Europe Standard Time
+Köln	W. Europe Standard Time
+Cologne	W. Europe Standard Time
+Bern	W. Europe Standard Time
+Bogota	SA Pacific Standard Time
+Brasilia	E. South America Standard Time
+Bratislava	Central Europe Standard Time
+Brisbane	E. Australia Standard Time
+Brussels	Romance Standard Time
+Bucharest	GTB Standard Time
+Budapest	Central Europe Standard Time
+Cabo Verde Is.	Cape Verde Standard Time
+Cairo	Egypt Standard Time
+Canberra	AUS Eastern Standard Time
+Caracas	Venezuela Standard Time
+Cayenne	SA Eastern Standard Time
+Chatham Islands	Chatham Islands Standard Time
+Chennai	India Standard Time
+Chetumal	Eastern Standard Time (Mexico)
+Chihuahua	Mountain Standard Time (Mexico)
+Chisinau	E. Europe Standard Time
+Chita	Transbaikal Standard Time
+Chokurdakh	Russia Time Zone 10
+Chongqing	China Standard Time
+City of Buenos Aires	Argentina Standard Time
+Copenhagen	Romance Standard Time
+Cuiaba	Central Brazilian Standard Time
+Damascus	Syria Standard Time
+Darwin	AUS Central Standard Time
+Dhaka	Bangladesh Standard Time
+Dublin	GMT Standard Time
+Edinburgh	GMT Standard Time
+Ekaterinburg	Ekaterinburg Standard Time
+Eucla	Aus Central W. Standard Time
+Fiji	Fiji Standard Time
+Fortaleza	SA Eastern Standard Time
+Gaza	West Bank Standard Time
+Georgetown	SA Western Standard Time
+Gorno-Altaysk	Altai Standard Time
+Greenland	Greenland Standard Time
+Guadalajara	Central Standard Time (Mexico)
+Guam	West Pacific Standard Time
+Haiti	Haiti Standard Time
+Hanoi	SE Asia Standard Time
+Harare	South Africa Standard Time
+Havana	Cuba Standard Time
+Hawaii	Hawaiian Standard Time
+Hebron	West Bank Standard Time
+Helsinki	FLE Standard Time
+Hobart	Tasmania Standard Time
+Hong Kong	China Standard Time
+Hovd	W. Mongolia Standard Time
+Irkutsk	North Asia East Standard Time
+Islamabad	Pakistan Standard Time
+Istanbul	Turkey Standard Time
+Izhevsk	Russia Time Zone 3
+Jakarta	SE Asia Standard Time
+Jerusalem	Israel Standard Time
+Kabul	Afghanistan Standard Time
+Kaliningrad	Kaliningrad Standard Time
+Karachi	Pakistan Standard Time
+Kathmandu	Nepal Standard Time
+Kiritimati Island	Line Islands Standard Time
+Kolkata	India Standard Time
+Krasnoyarsk	North Asia Standard Time
+Kuala Lumpur	Singapore Standard Time
+Kuwait	Arab Standard Time
+Kyiv	FLE Standard Time
+La Paz	Mountain Standard Time (Mexico)
+Lima	SA Pacific Standard Time
+Lisbon	GMT Standard Time
+Ljubljana	Central Europe Standard Time
+London	GMT Standard Time
+Lord Howe Island	Lord Howe Standard Time
+Madrid	Romance Standard Time
+Magadan	Vladivostok Standard Time
+Manaus	SA Western Standard Time
+Marquesas Islands	Marquesas Standard Time
+Mazatlan	Mountain Standard Time (Mexico)
+Melbourne	AUS Eastern Standard Time
+Mexico City	Central Standard Time (Mexico)
+Minsk	Belarus Standard Time
+Monrovia	Greenwich Standard Time
+Monterrey	Central Standard Time (Mexico)
+Montevideo	Montevideo Standard Time
+Moscow	Russian Standard Time
+Mumbai	India Standard Time
+Muscat	Arabian Standard Time
+Nairobi	E. Africa Standard Time
+New Caledonia	Central Pacific Standard Time
+New Delhi	India Standard Time
+Newfoundland	Newfoundland Standard Time
+Novosibirsk	N. Central Asia Standard Time
+Nuku'alofa	Tonga Standard Time
+Omsk	Omsk Standard Time
+Osaka	Tokyo Standard Time
+Paris	Romance Standard Time
+Perth	W. Australia Standard Time
+Petropavlovsk-Kamchatsky	Russia Time Zone 11
+Port Louis	Mauritius Standard Time
+Port Moresby	West Pacific Standard Time
+Prague	Central Europe Standard Time
+Pretoria	South Africa Standard Time
+Punta Arenas	Magallanes Standard Time
+Pyongyang	North Korea Standard Time
+Quito	SA Pacific Standard Time
+Reykjavik	Greenwich Standard Time
+Riga	FLE Standard Time
+Rio Branco	SA Pacific Standard Time
+Riyadh	Arab Standard Time
+Rome	W. Europe Standard Time
+Saint Pierre and Miquelon	Saint Pierre Standard Time
+Salvador	Bahia Standard Time
+Samara	Russia Time Zone 3
+Samoa	Samoa Standard Time
+San Juan	SA Western Standard Time
+Santiago	Pacific SA Standard Time
+Sapporo	Tokyo Standard Time
+Sarajevo	Central European Standard Time
+Saratov	Saratov Standard Time
+Saskatchewan	Canada Central Standard Time
+Seoul	Korea Standard Time
+Singapore	Singapore Standard Time
+Skopje	Central European Standard Time
+Sofia	FLE Standard Time
+Solomon Is.	Central Pacific Standard Time
+Sri Jayawardenepura	Sri Lanka Standard Time
+St. Petersburg	Russian Standard Time
+Stockholm	W. Europe Standard Time
+Sydney	AUS Eastern Standard Time
+Taipei	Taipei Standard Time
+Tallinn	FLE Standard Time
+Tashkent	West Asia Standard Time
+Tbilisi	Georgian Standard Time
+Tehran	Iran Standard Time
+Tokyo	Tokyo Standard Time
+Tomsk	Tomsk Standard Time
+Tripoli	Libya Standard Time
+Turks and Caicos	Turks And Caicos Standard Time
+Ulaanbaatar	Ulaanbaatar Standard Time
+Ulyanovsk	Astrakhan Standard Time
+Urumqi	China Standard Time
+Vienna	W. Europe Standard Time
+Vilnius	FLE Standard Time
+Vladivostok	Vladivostok Standard Time
+Volgograd	Russian Standard Time
+Warsaw	Central European Standard Time
+Wellington	New Zealand Standard Time
+Windhoek	Namibia Standard Time
+Yakutsk	Yakutsk Standard Time
+Yerevan	Caucasus Standard Time
+Zagreb	Central European Standard Time

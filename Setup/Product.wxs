@@ -28,7 +28,7 @@
             <File Id="Ude.DLL" Name="Ude.dll" Source="$(var.CSVQuickViewer.TargetDir)\Ude.dll" />
             <File Id="BouncyCastle.OpenPgp.dll" Name="BouncyCastle.OpenPgp.dll" Source="$(var.CSVQuickViewer.TargetDir)\BouncyCastle.OpenPgp.dll" />
             <File Id="Pri.LongPath.dll" Name="Pri.LongPath.dll" Source="$(var.CSVQuickViewer.TargetDir)\Pri.LongPath.dll" />
-            <File Id="COPYING.TXT" Name="COPYING.txt" Source="$(var.CSVQuickViewer.ProjectDir)\COPYING.txt" />
+            <File Id="LICENSE" Name="LICENSE" Source="$(var.CSVQuickViewer.ProjectDir)\LICENSE" />
             <File Id="README.TXT" Name="README.txt" Source="$(var.CSVQuickViewer.ProjectDir)\README.txt" />
             <RemoveFolder Id="PRODUCTDIR" On="uninstall" />
             <RegistryValue Root="HKCU" Key="Software\CsvQuickViewer.exe" Name="installed" Type="integer" Value="1" KeyPath="yes" />

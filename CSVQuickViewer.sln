@@ -18,15 +18,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UnitTest", "UnitTest", "{88
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSVQuickViewerUnitTest", "UnitTest\CSVQuickViewerUnitTest.csproj", "{EA4920CD-39FF-471F-9CEC-2917C9B5C772}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClassLibraryCSV", "..\CSVLibrary\ClassLibraryCSV\ClassLibraryCSV.csproj", "{0B6AEE5A-8005-4B1D-987F-5790C34A2D52}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClassLibraryCSV", "Library\ClassLibraryCSV\ClassLibraryCSV.csproj", "{0B6AEE5A-8005-4B1D-987F-5790C34A2D52}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinFormControls", "..\CSVLibrary\WinFormControls\WinFormControls.csproj", "{55AD0A98-C175-4B38-A3D0-321740820D41}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinFormControls", "Library\WinFormControls\WinFormControls.csproj", "{55AD0A98-C175-4B38-A3D0-321740820D41}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Unit Test", "Unit Test", "{6D8BDF9A-D7B6-4F9F-B075-F2378B3943F9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClassLibraryCSVUnitTest", "..\CSVLibrary\ClassLibraryCSVUnitTest\ClassLibraryCSVUnitTest.csproj", "{DDFEC05C-94F0-4329-9CB2-96D2B4B57050}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClassLibraryCSVUnitTest", "Library\ClassLibraryCSVUnitTest\ClassLibraryCSVUnitTest.csproj", "{DDFEC05C-94F0-4329-9CB2-96D2B4B57050}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinFormControlsUnitTest", "..\CSVLibrary\WinFormControlsUnitTest\WinFormControlsUnitTest.csproj", "{CE5F0052-F13F-4F51-AA08-4D691EC59D93}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinFormControlsUnitTest", "Library\WinFormControlsUnitTest\WinFormControlsUnitTest.csproj", "{CE5F0052-F13F-4F51-AA08-4D691EC59D93}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

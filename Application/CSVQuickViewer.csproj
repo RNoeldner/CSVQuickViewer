@@ -277,11 +277,11 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="COPYING.txt" />
     <Content Include="csv_text.ico" />
     <Content Include="Featurelist.txt" />
-    <Content Include="README.txt" />
+    <None Include="LICENSE" />
     <None Include="packages.config" />
+    <None Include="README.txt" />
     <None Include="Resources\view.png" />
     <None Include="App.config" />
     <None Include="app.manifest" />
@@ -295,8 +295,7 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Pri.LongPath, Version=2.0.45.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Pri.LongPath.2.0.45\lib\net45\Pri.LongPath.dll</HintPath>
-      <Private>True</Private>
+      <HintPath>..\packages\Pri.LongPath.2.0.45\lib\net45\Pri.LongPath.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -459,11 +458,11 @@
     </PublishFile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\CSVLibrary\ClassLibraryCSV\ClassLibraryCSV.csproj">
+    <ProjectReference Include="..\Library\ClassLibraryCSV\ClassLibraryCSV.csproj">
       <Project>{0b6aee5a-8005-4b1d-987f-5790c34a2d52}</Project>
       <Name>ClassLibraryCSV</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\CSVLibrary\WinFormControls\WinFormControls.csproj">
+    <ProjectReference Include="..\Library\WinFormControls\WinFormControls.csproj">
       <Project>{55ad0a98-c175-4b38-a3d0-321740820d41}</Project>
       <Name>WinFormControls</Name>
     </ProjectReference>
