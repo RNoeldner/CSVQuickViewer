@@ -205,7 +205,7 @@
     <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="..\..\CSVLibrary\SharedAssemblyInfo.cs">
+    <Compile Include="..\Library\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="FormMain.cs">
@@ -278,7 +278,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="csv_text.ico" />
-    <Content Include="Featurelist.txt" />
     <None Include="LICENSE" />
     <None Include="packages.config" />
     <None Include="README.txt" />
