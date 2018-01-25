@@ -212,5 +212,50 @@ namespace CsvTools.Tests
       Assert.AreEqual("Slash: /", FileFormat.GetDescription("/"));
       Assert.AreEqual("Nothing", FileFormat.GetDescription("Nothing"));
     }
+
+    [TestMethod]
+    public void CommentLine()
+    {
+      var test = new FileFormat
+      {
+        CommentLine = "a comment Line"
+      };
+      Assert.AreEqual("a comment Line", test.CommentLine);
+    }
+
+    [TestMethod]
+    public void FieldDelimiter()
+    {
+      var test = new FileFormat
+      {
+        FieldDelimiter = "Tabulator"
+      };
+      Assert.AreEqual("Tabulator", test.FieldDelimiter);
+      Assert.AreEqual('\t', test.FieldDelimiterChar);
+
+      test.FieldDelimiter = "hash";
+      Assert.AreEqual('#', test.FieldDelimiterChar);
+
+      test.FieldDelimiter = "@";
+      Assert.AreEqual('@', test.FieldDelimiterChar);
+
+      test.FieldDelimiter = "underscore";
+      Assert.AreEqual('_', test.FieldDelimiterChar);
+
+      test.FieldDelimiter = "dot";
+      Assert.AreEqual('.', test.FieldDelimiterChar);
+
+      test.FieldDelimiter = "ampersand";
+      Assert.AreEqual('&', test.FieldDelimiterChar);
+
+      test.FieldDelimiter = "Pipe";
+      Assert.AreEqual('|', test.FieldDelimiterChar);
+
+      test.FieldDelimiter = "Semicolon";
+      Assert.AreEqual(';', test.FieldDelimiterChar);
+
+      test.FieldDelimiter = "Doublequotes";
+      Assert.AreEqual('\"', test.FieldDelimiterChar);
+    }
   }
 }

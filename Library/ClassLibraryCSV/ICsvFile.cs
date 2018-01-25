@@ -12,6 +12,7 @@
  *
  */
 
+using System;
 using System.Text;
 
 namespace CsvTools
@@ -19,7 +20,7 @@ namespace CsvTools
   /// <summary>
   ///   Interface for the setting of a CSV file
   /// </summary>
-  public interface ICsvFile : IFileSettingRemoteDownload
+  public interface ICsvFile : IFileSettingRemoteDownload, IEquatable<ICsvFile>
   {
     /// <summary>
     ///   Gets or sets a value indicating whether this instance should use alternate quoting

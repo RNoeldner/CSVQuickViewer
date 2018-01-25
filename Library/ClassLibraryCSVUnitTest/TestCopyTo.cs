@@ -7,13 +7,11 @@ using System.Reflection;
 
 namespace CsvTools.Tests
 {
-  [TestClass]
-  public class TestCopyTo
+  public static class CopyToTest
   {
-    [TestMethod]
-    public void RunCopyTo()
+    public static void RunCopyTo(IEnumerable<Type> list)
     {
-      foreach (var type in GetAllIColoneable())
+      foreach (var type in list)
       {
         var obj1 = Activator.CreateInstance(type);
         var obj2 = Activator.CreateInstance(type);
@@ -77,15 +75,25 @@ namespace CsvTools.Tests
       }
     }
 
-    private IEnumerable<Type> GetAllIColoneable()
+    public static IEnumerable<Type> GetAllIColoneable(string startsWith)
     {
       foreach (var a in AppDomain.CurrentDomain.GetAssemblies())
-        if (a.FullName.StartsWith("ClassLibraryCSV", StringComparison.Ordinal))
+        if (a.FullName.StartsWith(startsWith, StringComparison.Ordinal))
           foreach (var t in a.GetExportedTypes())
             if (t.IsClass && !t.IsAbstract)
               foreach (var i in t.GetInterfaces())
                 if (i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICloneable<>))
                   yield return t;
+    }
+  }
+
+  [TestClass]
+  public class TestCopyTo
+  {
+    [TestMethod]
+    public void RunCopyTo()
+    {
+      CopyToTest.RunCopyTo(CopyToTest.GetAllIColoneable("ClassLibraryCSV"));
     }
   }
 }

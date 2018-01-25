@@ -28,7 +28,7 @@ namespace CsvTools
   [Serializable]
   [DebuggerDisplay("CsvFile: {m_Id} {m_FullPath} ({m_Column.Count()} Columns)")]
 #pragma warning disable CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
-  public class CsvFile : BaseSettings, IEquatable<ICsvFile>, ICsvFile
+  public class CsvFile : BaseSettings, ICsvFile
 #pragma warning restore CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
   {
     /// <summary>
