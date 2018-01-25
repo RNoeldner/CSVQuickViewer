@@ -993,6 +993,9 @@ namespace CsvTools
       Samples.CollectionCopy(other.Samples);
       Errors.CollectionCopy(other.Errors);
       other.NumErrors = m_NumErrors;
+
+      if (!(other is IFileSettingRemoteDownload otherRemote)) return;
+      otherRemote.RemoteFileName = RemoteFileName;
     }
 
     public abstract bool Equals(IFileSetting other);

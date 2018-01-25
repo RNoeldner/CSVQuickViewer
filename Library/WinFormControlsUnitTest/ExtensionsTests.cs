@@ -60,7 +60,7 @@ namespace CsvTools.Tests
       {
         FileName = "Test.pgp"
       };
-      ApplicationSetting.ToolSetting.PGPInformation.AddPrivateKey(PGPKeyStorageTests.PRIVATE);
+      ApplicationSetting.ToolSetting.PGPInformation.AddPrivateKey(PGPKeyStorageTestHelper.PRIVATE);
       ApplicationSetting.ToolSetting.PGPInformation.EncryptedPassphase = "Hello";
       Assert.AreEqual("Hello", setting.GetEncryptedPassphrase());
       setting.Passphrase = "World";
