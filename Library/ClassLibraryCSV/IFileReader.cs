@@ -115,7 +115,7 @@ namespace CsvTools
     ///   Number of records in the file if known (use determineColumnSize), -1 otherwise
     /// </returns>
     long Open(CancellationToken cancellationToken, bool determineColumnSize,
-      Action<string, string, IProcessDisplay> handleRemoteFile);
+      Action<string, string, IProcessDisplay, bool> handleRemoteFile);
 
     /// <summary>
     ///   Overrides the column format with values from settings

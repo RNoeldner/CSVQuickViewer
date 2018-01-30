@@ -10,9 +10,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Setup", "Setup", "{DC98E363-87E9-48CD-9C7A-A7BDEC8D73E1}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Library", "Library", "{A375BE4E-D74E-4D70-9C61-7E21FED23D2C}"
-	ProjectSection(SolutionItems) = preProject
-		..\CSVLib\SharedAssemblyInfo.cs = ..\CSVLib\SharedAssemblyInfo.cs
-	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UnitTest", "UnitTest", "{88999FFC-3B3E-4F71-ACA9-3150143FBC06}"
 EndProject

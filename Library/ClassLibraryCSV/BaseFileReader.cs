@@ -512,7 +512,7 @@ namespace CsvTools
     /// <exception cref="System.IO.FileNotFoundException"></exception>
     [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope")]
     public long Open(CancellationToken cancellationToken, bool determineColumnSize,
-      Action<string, string, IProcessDisplay> handleRemoteFile)
+      Action<string, string, IProcessDisplay, bool> handleRemoteFile)
     {
       m_CancellationToken = cancellationToken;
       try
@@ -523,7 +523,7 @@ namespace CsvTools
           if (!string.IsNullOrEmpty(fsfs?.RemoteFileName))
           {
             HandleShowProgress("Handling Remote file ...");
-            handleRemoteFile(fsfs.RemoteFileName, m_FileSetting.FullPath, ProcessDisplay);
+            handleRemoteFile(fsfs.RemoteFileName, m_FileSetting.FullPath, ProcessDisplay, fsfs.ThrowErrorIfNotExists);
           }
         }
 

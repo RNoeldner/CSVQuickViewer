@@ -24,5 +24,13 @@ namespace CsvTools
     ///   Path to the file on sFTP Server
     /// </summary>
     string RemoteFileName { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether tho throw an error if the remote file could not be found .
+    /// </summary>
+    /// <value>
+    ///   <c>true</c> if throw an error if not exists; otherwise, <c>false</c>.
+    /// </value>
+    bool ThrowErrorIfNotExists { get; set; }
   }
 }

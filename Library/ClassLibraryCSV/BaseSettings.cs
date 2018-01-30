@@ -60,6 +60,7 @@ namespace CsvTools
     private string m_Recipient = string.Empty;
     private uint m_RecordLimit;
     private string m_RemoteFileName = string.Empty;
+    private bool m_ThrowErrorIfNotExists = true;
     private bool m_ShowProgress = true;
     private int m_SkipRows;
     private string m_SourceSetting = string.Empty;
@@ -171,6 +172,23 @@ namespace CsvTools
       }
     }
 
+    /// <summary>
+    ///   Gets or sets the name of the file.
+    /// </summary>
+    /// <value>The name of the file.</value>
+    [XmlAttribute]
+    [DefaultValue(true)]
+    public virtual bool ThrowErrorIfNotExists
+    {
+      get => m_ThrowErrorIfNotExists;
+      set
+      {
+        if (m_ThrowErrorIfNotExists.Equals(value)) return;
+        m_ThrowErrorIfNotExists = value;
+        NotifyPropertyChanged("ThrowErrorIfNotExists");
+      }
+    }
+
     [XmlIgnore] public virtual bool SamplesSpecified => Samples.Count > 0;
 
     /// <summary>
@@ -212,6 +230,12 @@ namespace CsvTools
     {
       if (other is null) return false;
       if (ReferenceEquals(this, other)) return true;
+
+      if (other is IFileSettingRemoteDownload otherRemote)
+      {
+        if (otherRemote.RemoteFileName != m_RemoteFileName || otherRemote.ThrowErrorIfNotExists != m_ThrowErrorIfNotExists)
+          return false;
+      }
       return string.Equals(other.TemplateName, m_TemplateName, StringComparison.OrdinalIgnoreCase) &&
              other.SkipRows == m_SkipRows &&
              other.IsEnabled == m_IsEnabled &&
@@ -995,7 +1019,8 @@ namespace CsvTools
       other.NumErrors = m_NumErrors;
 
       if (!(other is IFileSettingRemoteDownload otherRemote)) return;
-      otherRemote.RemoteFileName = RemoteFileName;
+      otherRemote.RemoteFileName = m_RemoteFileName;
+      otherRemote.ThrowErrorIfNotExists = m_ThrowErrorIfNotExists;
     }
 
     public abstract bool Equals(IFileSetting other);
