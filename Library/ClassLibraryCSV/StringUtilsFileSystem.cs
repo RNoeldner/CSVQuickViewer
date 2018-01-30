@@ -368,30 +368,36 @@ namespace CsvTools
     {
       if (string.IsNullOrEmpty(longPath)) return longPath;
       var fi = FileInfo(longPath);
-      var nameChars = new char[4000];
+
+      uint bufferSize = 512;
+      var shortNameBuffer = new StringBuilder((int)bufferSize);
+
       // we might be asked to build a short path when the file does not exist yet, this would fail
       if (fi.Exists)
       {
-        var length = GetShortPathName(longPath, nameChars, nameChars.Length);
+        var length = GetShortPathName(longPath, shortNameBuffer, bufferSize);
         if (length > 0)
-          return new string(nameChars).Substring(0, length).RemoveLongPathPrefix();
-      }
-      // if we have at least the directory shorten this...
-      else if (fi.Directory.Exists)
-      {
-        var length = GetShortPathName(fi.Directory.FullName, nameChars, nameChars.Length);
-        if (length > 0)
-          return (new string(nameChars).Substring(0, length) + "\\" + fi.Name).RemoveLongPathPrefix();
+        {
+          return shortNameBuffer.ToString().RemoveLongPathPrefix();
+        }
       }
 
-      return longPath;
+      // if we have at least the directory shorten this...
+      if (fi.Directory.Exists)
+      {
+        var length = GetShortPathName(fi.Directory.FullName, shortNameBuffer, bufferSize);
+        if (length > 0)
+          return (shortNameBuffer.ToString() + "\\" + fi.Name).RemoveLongPathPrefix();
+      }
+
+      throw new ApplicationException($"Could not get a short path for the file ${longPath}");
     }
 
     [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
     private static extern int GetLongPathName(string lpszShortPath, [Out] StringBuilder lpszLongPath, int cchBuffer);
 
-    [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-    private static extern int GetShortPathName(string lpszLongPath, char[] lpszShortPath, int cchBuffer);
+    [DllImport("kernel32.dll", CharSet = CharSet.Unicode, EntryPoint = "GetShortPathNameW", SetLastError = true)]
+    private static extern int GetShortPathName(string pathName, StringBuilder shortName, uint cbShortName);
 
     private static string LongFileNameKernel(this string shortPath)
     {
