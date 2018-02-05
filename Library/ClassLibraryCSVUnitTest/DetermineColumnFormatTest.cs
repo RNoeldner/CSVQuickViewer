@@ -205,7 +205,7 @@ namespace CsvTools.Tests
       setting.HasFieldHeader = true;
       using (var test = new CsvFileReader(setting))
       {
-        test.Open(CancellationToken.None, false, null);
+        test.Open(CancellationToken.None, false);
         var samples = DetermineColumnFormat.GetSampleValues(test, 1000, CancellationToken.None, 0, 20, "NULL");
         Assert.AreEqual(7, samples.Count());
 
@@ -222,7 +222,7 @@ namespace CsvTools.Tests
       setting.HasFieldHeader = true;
       using (var test = new CsvFileReader(setting))
       {
-        test.Open(CancellationToken.None, false, null);
+        test.Open(CancellationToken.None, false);
         var samples = DetermineColumnFormat.GetSampleValues(test, 100, CancellationToken.None, 0, 20, "NULL");
         Assert.AreEqual(0, samples.Count());
       }

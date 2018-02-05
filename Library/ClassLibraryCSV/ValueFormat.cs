@@ -348,6 +348,8 @@ namespace CsvTools
       if (other is null) return false;
       if (ReferenceEquals(this, other)) return true;
 
+      if (other.DataType != m_DataType) return false;
+
       switch (m_DataType)
       {
         case DataType.Integer:

@@ -73,7 +73,7 @@ namespace CsvTools
 
       using (var fileReader = fileSetting.GetFileReader())
       {
-        fileReader.Open(CancellationToken.None, false, null);
+        fileReader.Open(CancellationToken.None, false);
         retValue = GetColumnHeadersFromReader(fileReader, includeIgnored);
         if (ApplicationSetting.CacheList != null)
           ApplicationSetting.CacheList.Set(key, retValue);
@@ -138,7 +138,7 @@ namespace CsvTools
       {
         Contract.Assume(fileReader != null);
         fileReader.ProcessDisplay = processDisplay;
-        fileReader.Open(processDisplay.CancellationToken, true, null);
+        fileReader.Open(processDisplay.CancellationToken, true);
 
         if (fileSetting is CsvFile)
         {
@@ -284,7 +284,7 @@ namespace CsvTools
 
       using (var csvDataReader = new CsvFileReader(setting))
       {
-        csvDataReader.Open(token, false, null);
+        csvDataReader.Open(token, false);
 
         var defaultNames = 0;
 

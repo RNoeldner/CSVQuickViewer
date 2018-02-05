@@ -100,7 +100,7 @@ namespace CsvTools.Tests
 
       using (var test = setting.GetFileReader())
       {
-        test.Open(CancellationToken.None, false, null);
+        test.Open(CancellationToken.None, false);
         var list = new List<string>();
         CsvHelper.CacheColumnHeader(setting, test, false);
         CsvHelper.InvalidateColumnHeader(setting);

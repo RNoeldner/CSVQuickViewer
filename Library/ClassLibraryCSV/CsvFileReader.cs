@@ -110,10 +110,12 @@ namespace CsvTools
       if (string.IsNullOrEmpty(m_CsvFile.FileName))
         throw new ApplicationException("FileName must be set");
 
-      if (!FileSystemUtils.FileExists(m_CsvFile.FullPath))
-        throw new FileNotFoundException(
-          $"The file '{FileSystemUtils.GetShortDisplayFileName(m_CsvFile.FileName, 80)}' does not exist or is not accessible.", m_CsvFile.FileName);
-
+      if (ApplicationSetting.RemoteFileHandler != null && string.IsNullOrEmpty(m_CsvFile?.RemoteFileName))
+      {
+        if (!FileSystemUtils.FileExists(m_CsvFile.FullPath))
+          throw new FileNotFoundException(
+            $"The file '{FileSystemUtils.GetShortDisplayFileName(m_CsvFile.FileName, 80)}' does not exist or is not accessible.", m_CsvFile.FileName);
+      }
       if (m_CsvFile.FileFormat.FieldDelimiterChar == c_Cr ||
           m_CsvFile.FileFormat.FieldDelimiterChar == c_Lf ||
           m_CsvFile.FileFormat.FieldDelimiterChar == ' ' ||

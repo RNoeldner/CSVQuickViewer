@@ -25,7 +25,7 @@ namespace CsvTools
   /// </summary>
   [Serializable]
 #pragma warning disable CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
-  public class StructuredFile : BaseSettings, IFileSettingRemoteDownload, IEquatable<StructuredFile>
+  public class StructuredFile : BaseSettings, IFileSetting, IEquatable<StructuredFile>
 #pragma warning restore CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
   {
     private readonly string m_Footer = string.Empty;
