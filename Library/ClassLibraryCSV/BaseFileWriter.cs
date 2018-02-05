@@ -206,7 +206,7 @@ namespace CsvTools
 
         clone.RecordLimit = recordLimit;
         var fileReader = clone.GetFileReader();
-        fileReader.Open(m_CancellationToken, false, null);
+        fileReader.Open(m_CancellationToken, false);
         return fileReader;
       }
 
@@ -242,7 +242,7 @@ namespace CsvTools
       {
         if (Progress != null)
           dataReader.ProcessDisplay = ProcessDisplay;
-        dataReader.Open(m_CancellationToken, true, null);
+        dataReader.Open(m_CancellationToken, true);
         HandleProgress("Reading returned data");
         return dataReader.WriteToDataTable(sourceSetting, recordLimit, null, m_CancellationToken);
       }

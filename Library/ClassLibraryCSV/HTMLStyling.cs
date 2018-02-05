@@ -29,6 +29,40 @@ namespace CsvTools
   /// </remarks>
   public class HTMLStyle
   {
+    public string TabTableToHTML(string text, bool firstLineHeader, bool addTable)
+    {
+      var sbHtml = new StringBuilder();
+      if (addTable)
+        sbHtml.Append(TableOpen);
+
+      int lineNo = 0;
+      foreach (string line in text.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries))
+      {
+        lineNo++;
+        if (lineNo == 1 && firstLineHeader)
+        {
+          sbHtml.Append(TROpenAlt);
+          foreach (string column in line.Split(new[] { '\t' }, StringSplitOptions.None))
+          {
+            sbHtml.Append(HTMLStyle.AddTd(TH, column));
+          }
+          sbHtml.AppendLine(TRClose);
+        }
+        else
+        {
+          sbHtml.Append(TROpen);
+          foreach (string column in line.Split(new[] { '\t' }, StringSplitOptions.None))
+          {
+            sbHtml.Append(HTMLStyle.AddTd(TD, column));
+          }
+          sbHtml.AppendLine(TRClose);
+        }
+      }
+      if (addTable)
+        sbHtml.Append(TableClose);
+      return sbHtml.ToString();
+    }
+
     /// <summary>
     ///   Adds an HTML TD, with the given contend
     /// </summary>
@@ -383,7 +417,7 @@ namespace CsvTools
     private const string c_Th = "<td class='info'>{0}</td>";
     private const string c_TrClose = "</tr>\r\n";
     private const string c_TrOpen = "<tr>\r\n";
-    private const string c_TrOpenAlt = "<tr class='alt';\">\r\n";
+    private const string c_TrOpenAlt = "<tr class='alt'>\r\n";
     private const string c_ValueError = "{0}<br><span class='err'>{1}</span>";
     private const string c_ValueErrorWarning = "{0}<br><span class='err'>{1}</span><br><span class='war'>{2}</span>";
     private const string c_ValueWarning = "{0}<br><span class='war'>{1}</span>";

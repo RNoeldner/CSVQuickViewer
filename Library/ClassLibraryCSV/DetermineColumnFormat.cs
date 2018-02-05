@@ -70,7 +70,7 @@ namespace CsvTools
         {
           Contract.Assume(fileReader != null);
           fileReader.ProcessDisplay = null;
-          fileReader.Open(processDisplay.CancellationToken, false, null);
+          fileReader.Open(processDisplay.CancellationToken, false);
           if (fileReader.FieldCount == 0)
             return result;
 

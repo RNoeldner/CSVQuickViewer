@@ -511,19 +511,18 @@ namespace CsvTools
     /// <returns></returns>
     /// <exception cref="System.IO.FileNotFoundException"></exception>
     [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope")]
-    public long Open(CancellationToken cancellationToken, bool determineColumnSize,
-      Action<string, string, IProcessDisplay, bool> handleRemoteFile)
+    public long Open(CancellationToken cancellationToken, bool determineColumnSize)
     {
       m_CancellationToken = cancellationToken;
       try
       {
-        if (handleRemoteFile != null)
+        if (ApplicationSetting.RemoteFileHandler != null)
         {
           var fsfs = m_FileSetting as IFileSettingRemoteDownload;
           if (!string.IsNullOrEmpty(fsfs?.RemoteFileName))
           {
             HandleShowProgress("Handling Remote file ...");
-            handleRemoteFile(fsfs.RemoteFileName, m_FileSetting.FullPath, ProcessDisplay, fsfs.ThrowErrorIfNotExists);
+            ApplicationSetting.RemoteFileHandler(fsfs.RemoteFileName, m_FileSetting.FullPath, ProcessDisplay, fsfs.ThrowErrorIfNotExists);
           }
         }
 

@@ -30,6 +30,7 @@ namespace CsvTools
     public static Func<IFileSetting, string> WritePreProcessing = null;
     private static readonly FillGuessSettings m_FillGuessSettings = new FillGuessSettings();
     private static readonly HTMLStyle m_HTMLStyle = new HTMLStyle();
+    private static Action<string, string, IProcessDisplay, bool> m_RemoteFileHandler;
 
     /// <summary>
     ///   Sets the cache to store already fetched parent,
@@ -101,6 +102,8 @@ namespace CsvTools
         m_SQLDataReader = value;
       }
     }
+
+    public static Action<string, string, IProcessDisplay, bool> RemoteFileHandler { get => m_RemoteFileHandler; set => m_RemoteFileHandler = value; }
 
     /// <summary>
     ///   Flushes cached items in the all caches

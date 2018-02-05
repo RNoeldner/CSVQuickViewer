@@ -556,7 +556,7 @@ namespace CsvTools
 
       using (var fileReader = m_FileSetting.GetFileReader())
       {
-        fileReader.Open(m_CancellationTokenSource.Token, false, null);
+        fileReader.Open(m_CancellationTokenSource.Token, false);
         return DetermineColumnFormat.GetSampleValues(fileReader, ApplicationSetting.FillGuessSettings.CheckedRecords,
           m_CancellationTokenSource.Token, colIndex, ApplicationSetting.FillGuessSettings.SampleValues,
           m_FileSetting.TreatTextAsNull);
