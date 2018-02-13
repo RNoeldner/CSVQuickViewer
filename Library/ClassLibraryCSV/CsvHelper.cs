@@ -817,7 +817,7 @@ namespace CsvTools
       return dc;
     }
 
-    private static Stream GetStream(IFileSetting setting, out FileStream baseStream)
+    public static Stream GetStream(IFileSetting setting, out FileStream baseStream)
     {
       Contract.Requires(setting != null);
       Contract.Ensures(Contract.Result<Stream>() != null);

@@ -534,7 +534,7 @@ namespace CsvTools
             csvDataReader.ProcessDisplay = processDisplay;
             csvDataReader.Warning += warnings.Add;
             csvDataReader.Warning += AddWarning;
-            csvDataReader.Open(processDisplay.CancellationToken, false, null);
+            csvDataReader.Open(processDisplay.CancellationToken, false);
             if (warnings.CountRows > 0)
               MessageBox.Show(this, warnings.Display, "Opening CSV File", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             if (!textPanel.Visible)

@@ -32,6 +32,6 @@ namespace CsvTools
 
     public virtual PGPKeyStorage PGPInformation { get; } = new PGPKeyStorage();
 
-    public virtual TimeZoneInfo DestionationTimeZone => TimeZoneInfo.Local;
+    public virtual TimeZoneInfo DestinationTimeZone => TimeZoneInfo.Local;
   }
 }

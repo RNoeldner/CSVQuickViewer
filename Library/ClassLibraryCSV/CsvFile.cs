@@ -26,7 +26,7 @@ namespace CsvTools
   ///   Setting file for CSV files, its an implementation of <see cref="BaseSettings" />
   /// </summary>
   [Serializable]
-  [DebuggerDisplay("CsvFile: {m_Id} {m_FullPath} ({m_Column.Count()} Columns)")]
+  [DebuggerDisplay("CsvFile: {ID} {m_FullPath} ({m_Column.Count()} Columns)")]
 #pragma warning disable CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
   public class CsvFile : BaseSettings, ICsvFile
 #pragma warning restore CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()

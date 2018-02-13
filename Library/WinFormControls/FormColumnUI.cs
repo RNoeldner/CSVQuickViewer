@@ -151,7 +151,7 @@ namespace CsvTools
             {
               MessageBox.Show(this,
                 "No Format could be determined, there are not enough sample values:\n" +
-                string.Join("\t", enumerable.Take(42)), comboBoxColumnName.Text, MessageBoxButtons.OK,
+                 enumerable.Take(42).Join("\t"), comboBoxColumnName.Text, MessageBoxButtons.OK,
                 MessageBoxIcon.Warning);
             }
             else
@@ -167,7 +167,7 @@ namespace CsvTools
                 foreach (var smp in enumerable)
                   if (smp.Length > len)
                     len = smp.Length;
-                sb.Append(string.Join("\t", checkResult.ExampleNonMatch.Concat(enumerable).Take(42)));
+                sb.Append(checkResult.ExampleNonMatch.Concat(enumerable).Take(42).Join("\t"));
 
                 MessageBox.Show(this,
                   $"Determined Format: {checkResult.FoundValueFormat.GetTypeAndFormatDescription()}\n\nValues:\n{sb}",
@@ -181,7 +181,7 @@ namespace CsvTools
                 if (enumerable.Count() < ApplicationSetting.FillGuessSettings.MinSamplesForIntDate)
                 {
                   MessageBox.Show(this,
-                    $"No Format found in:\n{string.Join("\t", examples)}.\n\nMaybe not enough distinct values have been found.",
+                    $"No Format found in:\n{examples.Join("\t")}.\n\nMaybe not enough distinct values have been found.",
                     comboBoxColumnName.Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 else
@@ -189,13 +189,13 @@ namespace CsvTools
                   if (m_ColumnEdit.ValueFormat.DataType == DataType.String)
                   {
                     MessageBox.Show(this,
-                      $"No Format found in:\n{string.Join("\t", examples)}",
+                      $"No Format found in:\n{examples.Join("\t")}",
                       comboBoxColumnName.Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
                   }
                   else
                   {
                     if (MessageBox.Show(this,
-                          $"No Format found in:\n{string.Join("\t", examples)}\nShould this be set to text?",
+                          $"No Format found in:\n{examples.Join("\t")}\nShould this be set to text?",
                           comboBoxColumnName.Text, MessageBoxButtons.YesNo, MessageBoxIcon.Question) ==
                         DialogResult.Yes)
                       m_ColumnEdit.ValueFormat.DataType = DataType.String;
@@ -278,7 +278,7 @@ namespace CsvTools
           MessageBox.Show(this, string.Format(c_NoSampleDate, ApplicationSetting.FillGuessSettings.CheckedRecords),
             comboBoxColumnName.Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
         else
-          MessageBox.Show(this, "Found values:\n" + string.Join("\t", enumerable.Take(42)), comboBoxColumnName.Text,
+          MessageBox.Show(this, "Found values:\n" + enumerable.Take(42).Join("\t"), comboBoxColumnName.Text,
             MessageBoxButtons.OK, MessageBoxIcon.Information);
       }
       catch (Exception ex)
@@ -323,12 +323,12 @@ namespace CsvTools
         if (e.NewValue == CheckState.Checked && !isInList)
         {
           parts.Add(format);
-          m_ColumnEdit.DateFormat = string.Join(";", parts);
+          m_ColumnEdit.DateFormat = parts.Join(";");
         }
 
         if (e.NewValue == CheckState.Checked || !isInList) return;
         parts.Remove(format);
-        m_ColumnEdit.DateFormat = string.Join(";", parts);
+        m_ColumnEdit.DateFormat = parts.Join(";");
       }
     }
 

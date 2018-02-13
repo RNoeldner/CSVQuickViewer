@@ -326,7 +326,7 @@ namespace CsvTools
       }
       else
       {
-        dataObject = dataObject.AdjustTZ(sourceTimeZoneName, ApplicationSetting.ToolSetting.DestionationTimeZone,
+        dataObject = dataObject.AdjustTZ(sourceTimeZoneName, ApplicationSetting.ToolSetting.DestinationTimeZone,
           out var issue);
         if (issue)
           HandleWarning(columnInfo.Header, $"Time Zone '{sourceTimeZoneName}' not found");

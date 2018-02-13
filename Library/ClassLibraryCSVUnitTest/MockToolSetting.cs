@@ -20,6 +20,6 @@ namespace CsvTools.Tests
 
     public PGPKeyStorage PGPInformation => new PGPKeyStorage();
 
-    public TimeZoneInfo DestionationTimeZone => TimeZoneInfo.Local;
+    public TimeZoneInfo DestinationTimeZone => TimeZoneInfo.Local;
   }
 }

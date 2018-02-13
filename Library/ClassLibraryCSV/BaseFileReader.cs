@@ -911,9 +911,9 @@ namespace CsvTools
       }
       else
       {
-        if (!ApplicationSetting.ToolSetting.DestionationTimeZone.Equals(sourceTimeZoneInfo))
+        if (!ApplicationSetting.ToolSetting.DestinationTimeZone.Equals(sourceTimeZoneInfo))
           return TimeZoneInfo.ConvertTime(new DateTime(input.Value.Ticks, DateTimeKind.Unspecified),
-            sourceTimeZoneInfo, ApplicationSetting.ToolSetting.DestionationTimeZone);
+            sourceTimeZoneInfo, ApplicationSetting.ToolSetting.DestinationTimeZone);
       }
 
       return input;

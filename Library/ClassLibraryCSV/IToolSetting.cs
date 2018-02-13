@@ -50,6 +50,6 @@ namespace CsvTools
 
     ICache<string, ValidationResult> ValidationResultCache { get; }
 
-    TimeZoneInfo DestionationTimeZone { get; }
+    TimeZoneInfo DestinationTimeZone { get; }
   }
 }
