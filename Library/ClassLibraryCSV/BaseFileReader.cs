@@ -516,13 +516,12 @@ namespace CsvTools
       m_CancellationToken = cancellationToken;
       try
       {
-        if (ApplicationSetting.RemoteFileHandler != null)
+        if (ApplicationSetting.RemoteFileHandler != null && m_FileSetting is IFileSettingRemoteDownload remote)
         {
-          var fsfs = m_FileSetting as IFileSettingRemoteDownload;
-          if (!string.IsNullOrEmpty(fsfs?.RemoteFileName))
+          if (!string.IsNullOrEmpty(remote?.RemoteFileName))
           {
             HandleShowProgress("Handling Remote file ...");
-            ApplicationSetting.RemoteFileHandler(fsfs.RemoteFileName, m_FileSetting.FullPath, ProcessDisplay, fsfs.ThrowErrorIfNotExists);
+            ApplicationSetting.RemoteFileHandler(remote.RemoteFileName, m_FileSetting.FullPath, ProcessDisplay, remote.ThrowErrorIfNotExists);
           }
         }
 
@@ -533,10 +532,8 @@ namespace CsvTools
 
         if (m_CancellationToken.IsCancellationRequested)
           return 0;
+
         var ret = IndividualOpen(m_FileSetting.FullPath, determineColumnSize);
-        if (FieldCount <= 0) return ret;
-        // Override the column settings and store the columns for later reference
-        OverrideColumnFormatFromSetting(FieldCount);
 
         var valuesInclude = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         var valuesAll = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -549,15 +546,19 @@ namespace CsvTools
               valuesInclude.Add(Column[colindex].Name);
           }
 
-        CsvHelper.CacheColumnHeader(m_FileSetting, valuesAll, true);
-        CsvHelper.CacheColumnHeader(m_FileSetting, valuesInclude, false);
+        CsvHelper.CacheColumnHeader(m_FileSetting, true, valuesAll);
+        CsvHelper.CacheColumnHeader(m_FileSetting, false, valuesInclude);
+
+        if (FieldCount > 0)
+          // Override the column settings and store the columns for later reference
+          OverrideColumnFormatFromSetting(FieldCount);
 
         return ret;
       }
       catch (Exception ex)
       {
         var appEx = new ApplicationException(
-          string.IsNullOrEmpty(m_FileSetting.FullPath)
+          m_FileSetting is IFileSettingRemoteDownload // ICsvFile or IExcelFile more meaning full interface is not defined here
             ? "Can not access service for reading.\nPlease make sure the service is reachable and does react to calls."
             : "Can not open file for reading.\nPlease make sure the file does exist, is of the right type and is not locked by another process.",
           ex);

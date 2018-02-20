@@ -41,7 +41,6 @@
             <RemoveFolder Id="ProgramMenuDir" On="uninstall" />
             <Shortcut Id="ApplicationStartMenintcut" Name="$(var.Application)" Target="[PRODUCTDIR]CsvQuickViewer.exe" Icon="IconID" IconIndex="0" />
             <Shortcut Id="UninstallProduct" Name="Uninstall $(var.Application)" Description="Uninstalls the application" Target="[System64Folder]msiexec.exe" Arguments="/x [ProductCode]" />
-            <util:InternetShortcut Id="WebsiteShortcut" Name="Visit $(var.Application) Web Site" Target="http://csvquickviewer.com/" xmlns:util="http://schemas.microsoft.com/wix/UtilExtension" />
             <RegistryValue Root="HKCU" Key="Software\CsvQuickViewer.exe\StartMenu" Name="installed" Type="integer" Value="1" KeyPath="yes" />
           </Component>
         </Directory>

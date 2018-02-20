@@ -30,7 +30,9 @@ namespace CsvTools
     public static Func<IFileSetting, string> WritePreProcessing = null;
     private static readonly FillGuessSettings m_FillGuessSettings = new FillGuessSettings();
     private static readonly HTMLStyle m_HTMLStyle = new HTMLStyle();
-    private static Action<string, string, IProcessDisplay, bool> m_RemoteFileHandler;
+
+    private static Action<string, string, IProcessDisplay, bool> m_RemoteFileHandler =
+          delegate (string path, string localName, IProcessDisplay processDisplay, bool throwNotFileExists) { return; };
 
     /// <summary>
     ///   Sets the cache to store already fetched parent,
@@ -39,7 +41,7 @@ namespace CsvTools
     ///   The cache source by destination.
     /// </value>
     /// <remarks>The key is the name of the template table, the value is a list of the combined IDs in that table</remarks>
-    public static ICache<string, ICollection<string>> CacheList { get; set; } = null;
+    public static ICache<string, ICollection<string>> CacheList { get; } = new Cache<string, ICollection<string>>(600);
 
     /// <summary>
     ///   FillGuessSettings

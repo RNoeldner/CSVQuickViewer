@@ -156,8 +156,8 @@
   </Choose>
   <ItemGroup>
     <Compile Include="ApplicationSettingTest.cs" />
-    <Compile Include="CacheTest.cs" />
     <Compile Include="AAAPerfromanceTest.cs" />
+    <Compile Include="CacheTest.cs" />
     <Compile Include="CheckResultTests.cs" />
     <Compile Include="ColumnFormatTest.cs" />
     <Compile Include="ColumnSizeTests.cs" />

@@ -33,53 +33,46 @@ namespace CsvTools
   public static class CsvHelper
   {
     /// <summary>
-    ///   Invalidate the column header cache of a file
+    /// Caches the column header.
     /// </summary>
     /// <param name="fileSetting">The file setting.</param>
-    /// <param name="fileReader">The file reader.</param>
     /// <param name="includeIgnored">if set to <c>true</c> [include ignored].</param>
-    public static void CacheColumnHeader(IFileSetting fileSetting, IFileReader fileReader, bool includeIgnored)
+    /// <param name="columns">The columns.</param>
+    public static void CacheColumnHeader(IFileSetting fileSetting, bool includeIgnored, ICollection<string> columns)
     {
       Contract.Requires(fileSetting != null);
-      CacheColumnHeader(fileSetting, GetColumnHeadersFromReader(fileReader, false), includeIgnored);
-    }
-
-    public static void CacheColumnHeader(IFileSetting fileSetting, ICollection<string> columns, bool includeIgnored)
-    {
-      Contract.Requires(fileSetting != null);
-      if (ApplicationSetting.CacheList != null)
-        ApplicationSetting.CacheList.Set(CacheListKeyColumnHeader(fileSetting, includeIgnored), columns);
+      var key = CacheListKeyColumnHeader(fileSetting, includeIgnored);
+      if (key.Length > 2)
+        ApplicationSetting.CacheList.Set(key, columns);
     }
 
     /// <summary>
-    ///   Gets the column header of a file
+    /// Gets the column header of a file
     /// </summary>
     /// <param name="fileSetting">The file setting.</param>
-    /// <param name="includeIgnored">
-    ///   Set to <c>true</c> if ignored columns should be listed as well, otherwise they will not be
-    ///   listed
-    /// </param>
+    /// <param name="includeIgnored">Set to <c>true</c> if ignored columns should be listed as well, otherwise they will not be
+    /// listed</param>
+    /// <param name="processDisplay">The process display.</param>
     /// <returns>
-    ///   An array of string with the column headers
+    /// An array of string with the column headers
     /// </returns>
-    public static ICollection<string> GetColumnHeader(IFileSetting fileSetting, bool includeIgnored)
+    public static ICollection<string> GetColumnHeader(IFileSetting fileSetting, bool includeIgnored, IProcessDisplay processDisplay)
     {
       Contract.Requires(fileSetting != null);
       Contract.Ensures(Contract.Result<IEnumerable<string>>() != null);
       var key = CacheListKeyColumnHeader(fileSetting, includeIgnored);
-
-      if (ApplicationSetting.CacheList != null && ApplicationSetting.CacheList.TryGet(key, out var retValue))
+      if (key.Length < 3)
+        return null;
+      if (ApplicationSetting.CacheList.TryGet(key, out var retValue))
         return retValue;
 
       using (var fileReader = fileSetting.GetFileReader())
       {
-        fileReader.Open(CancellationToken.None, false);
-        retValue = GetColumnHeadersFromReader(fileReader, includeIgnored);
-        if (ApplicationSetting.CacheList != null)
-          ApplicationSetting.CacheList.Set(key, retValue);
-      }
+        fileReader.ProcessDisplay = processDisplay;
+        fileReader.Open(processDisplay?.CancellationToken ?? CancellationToken.None, false);
 
-      return retValue;
+        return ApplicationSetting.CacheList.Get(key);
+      }
     }
 
     public static ICollection<string> GetColumnHeadersFromReader(IFileReader fileReader, bool includeIgnored)
@@ -109,7 +102,7 @@ namespace CsvTools
     {
       if (string.IsNullOrEmpty(columnName) || fileSetting == null) return -1;
       var columnIndex = 0;
-      foreach (var col in GetColumnHeader(fileSetting, true))
+      foreach (var col in GetColumnHeader(fileSetting, true, null))
       {
         if (col.Equals(columnName, StringComparison.OrdinalIgnoreCase))
           return columnIndex;
@@ -268,14 +261,14 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Opens the csv file, and tries to read the headers
+    /// Opens the csv file, and tries to read the headers
     /// </summary>
     /// <param name="setting">The CSVFile fileSetting</param>
-    /// <param name="token">The CancellationToken.</param>
+    /// <param name="processDisplay">The process display.</param>
     /// <returns>
     ///   <c>True</c> we could use the first row as header, <c>false</c> should not use first row as header
     /// </returns>
-    public static bool GuessHasHeader(ICsvFile setting, CancellationToken token)
+    public static bool GuessHasHeader(ICsvFile setting, IProcessDisplay processDisplay)
     {
       Contract.Requires(setting != null);
       // Only do so if HasFieldHeader is still true
@@ -284,7 +277,8 @@ namespace CsvTools
 
       using (var csvDataReader = new CsvFileReader(setting))
       {
-        csvDataReader.Open(token, false);
+        csvDataReader.ProcessDisplay = processDisplay;
+        csvDataReader.Open(processDisplay?.CancellationToken ?? CancellationToken.None, false);
 
         var defaultNames = 0;
 
@@ -433,9 +427,13 @@ namespace CsvTools
     public static void InvalidateColumnHeader(IFileSetting fileSetting)
     {
       Contract.Requires(fileSetting != null);
-      if (ApplicationSetting.CacheList == null) return;
-      ApplicationSetting.CacheList.Remove(CacheListKeyColumnHeader(fileSetting, true));
-      ApplicationSetting.CacheList.Remove(CacheListKeyColumnHeader(fileSetting, false));
+      var key = CacheListKeyColumnHeader(fileSetting, true);
+      if (key.Length > 2)
+      {
+        ApplicationSetting.CacheList.Remove(key);
+        key = CacheListKeyColumnHeader(fileSetting, false);
+        ApplicationSetting.CacheList.Remove(key);
+      }
     }
 
     /// <summary>
@@ -465,7 +463,7 @@ namespace CsvTools
       if (display.CancellationToken.IsCancellationRequested) return;
       display.SetProcess("Start Row: " + file.SkipRows.ToString(CultureInfo.InvariantCulture));
 
-      file.HasFieldHeader = GuessHasHeader(file, display.CancellationToken);
+      file.HasFieldHeader = GuessHasHeader(file, display);
       display.SetProcess("Header: " + file.HasFieldHeader);
     }
 

@@ -8,6 +8,23 @@ namespace CsvTools.Tests
   public class StringUtilsTests
   {
     [TestMethod]
+    public void CountOccurance()
+    {
+      Assert.AreEqual(0, StringUtils.CountOccurance("", "."));
+      Assert.AreEqual(1, StringUtils.CountOccurance(",.,", "."));
+      Assert.AreEqual(2, StringUtils.CountOccurance(",.,", ","));
+    }
+
+    [TestMethod]
+    public void Join()
+    {
+      Assert.AreEqual("", StringUtils.Join(new string[] { }, ","));
+      Assert.AreEqual("2", StringUtils.Join(new string[] { "2" }, ","));
+      Assert.AreEqual("2,3", StringUtils.Join(new string[] { "2", "3" }, ","));
+      Assert.AreEqual("2; 3", StringUtils.Join(new string[] { "2", "3" }, "; "));
+    }
+
+    [TestMethod]
     public void ColumnNameEndsOnID()
     {
       Assert.AreEqual(0, StringUtils.AssumeStingBasedOnColumnName(null));

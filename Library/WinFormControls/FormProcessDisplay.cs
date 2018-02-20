@@ -34,6 +34,10 @@ namespace CsvTools
 
     private string m_Title;
 
+    public FormProcessDisplay(string windowTitle) : this(windowTitle, CancellationToken.None)
+    {
+    }
+
     /// <summary>
     ///   Initializes a new instance of the <see cref="FormProcessDisplay" /> class.
     /// </summary>
@@ -61,39 +65,6 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets or sets the cancellation token.
-    /// </summary>
-    /// <value>
-    ///   The cancellation token.
-    /// </value>
-    public CancellationTokenSource CancellationTokenSource { get; }
-
-    public string Title
-    {
-      get => m_Title;
-      set
-      {
-        var newVal = value ?? string.Empty;
-        if (newVal.Equals(m_Title)) return;
-        m_Title = newVal;
-        this.SafeInvoke(() => { Text = m_Title; });
-      }
-    }
-
-    public new Form Owner
-    {
-      get => base.Owner;
-      set
-      {
-        base.Owner = value;
-        if (value == null) return;
-        StartPosition = FormStartPosition.Manual;
-        Location = new Point(value.Location.X + (value.Width - Width) / 2,
-          value.Location.Y + (value.Height - Height) / 2);
-      }
-    }
-
-    /// <summary>
     ///   Event handler called as progress should be displayed
     /// </summary>
     public event EventHandler<ProgressEventArgs> Progress;
@@ -105,6 +76,14 @@ namespace CsvTools
     ///   The cancellation token.
     /// </value>
     public CancellationToken CancellationToken => CancellationTokenSource.Token;
+
+    /// <summary>
+    ///   Gets or sets the cancellation token.
+    /// </summary>
+    /// <value>
+    ///   The cancellation token.
+    /// </value>
+    public CancellationTokenSource CancellationTokenSource { get; }
 
     /// <summary>
     ///   Gets or sets the maximum value for the Progress
@@ -131,7 +110,32 @@ namespace CsvTools
       }
     }
 
+    public new Form Owner
+    {
+      get => base.Owner;
+      set
+      {
+        base.Owner = value;
+        if (value == null) return;
+        StartPosition = FormStartPosition.Manual;
+        Location = new Point(value.Location.X + (value.Width - Width) / 2,
+          value.Location.Y + (value.Height - Height) / 2);
+      }
+    }
+
     public TimeToCompletion TimeToCompletion { get; }
+
+    public string Title
+    {
+      get => m_Title;
+      set
+      {
+        var newVal = value ?? string.Empty;
+        if (newVal.Equals(m_Title)) return;
+        m_Title = newVal;
+        this.SafeInvoke(() => { Text = m_Title; });
+      }
+    }
 
     /// <summary>
     ///   Closes the form used by Events
@@ -141,6 +145,16 @@ namespace CsvTools
       m_ClosedByUI = false;
       CancellationTokenSource.Cancel();
       Close();
+    }
+
+    /// <summary>
+    ///   Hides the form used by Events
+    /// </summary>
+    /// <param name="sender">The sender.</param>
+    /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
+    public void DoHide(object sender, EventArgs e)
+    {
+      Hide();
     }
 
     /// <summary>
@@ -179,16 +193,6 @@ namespace CsvTools
     {
       if (e == null) return;
       SetProcess(e.Text, e.Value);
-    }
-
-    /// <summary>
-    ///   Hides the form used by Events
-    /// </summary>
-    /// <param name="sender">The sender.</param>
-    /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
-    public void DoHide(object sender, EventArgs e)
-    {
-      Hide();
     }
 
     /// <summary>
