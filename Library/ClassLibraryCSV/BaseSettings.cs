@@ -166,7 +166,7 @@ namespace CsvTools
       {
         var newVal = value ?? string.Empty;
         if (m_RemoteFileName.Equals(newVal)) return;
-        CsvHelper.InvalidateColumnHeader(this);
+
         m_RemoteFileName = newVal;
         NotifyPropertyChanged("RemoteFileName");
       }
@@ -523,6 +523,8 @@ namespace CsvTools
       {
         var newVal = value ?? string.Empty;
         if (m_Id.Equals(newVal)) return;
+        CsvHelper.InvalidateColumnHeader(this);
+
         m_InternalId = null;
         var oldValue = m_Id;
         m_Id = newVal;
@@ -558,12 +560,8 @@ namespace CsvTools
       get
       {
         if (m_InternalId != null) return m_InternalId;
-        m_InternalId = ApplicationSetting.ToolSetting.RootFolder;
-
-        if (string.IsNullOrEmpty(m_FileName))
-          m_InternalId += m_Id;
-        else
-          m_InternalId += m_FileName;
+        if (string.IsNullOrEmpty(m_FileName) && string.IsNullOrEmpty(m_Id)) return string.Empty;
+        m_InternalId = string.IsNullOrEmpty(m_Id) ? m_FileName : m_Id;
 
         return m_InternalId;
       }
@@ -770,6 +768,7 @@ namespace CsvTools
       {
         var newVal = (value ?? string.Empty).NoControlCharaters();
         if (m_SqlStatement.Equals(newVal)) return;
+        CsvHelper.InvalidateColumnHeader(this);
         if (!string.IsNullOrEmpty(m_SqlStatement))
           FileLastWriteTimeUtc = DateTime.MinValue;
         m_SqlStatement = newVal;
@@ -999,8 +998,7 @@ namespace CsvTools
       other.RecordLimit = m_RecordLimit;
       other.SkipRows = m_SkipRows;
       other.SkipEmptyLines = SkipEmptyLines;
-      other.FileName = m_FileName;
-      other.ID = m_Id;
+
       other.Passphrase = m_Passphrase;
       other.Recipient = m_Recipient;
       other.TreatNBSPAsSpace = m_TreatNbspAsSpace;
@@ -1017,6 +1015,10 @@ namespace CsvTools
       Samples.CollectionCopy(other.Samples);
       Errors.CollectionCopy(other.Errors);
       other.NumErrors = m_NumErrors;
+
+      // FileName and ID are set at the end otherwise column collection changes will invalidate the column header cache of the source
+      other.FileName = m_FileName;
+      other.ID = m_Id;
 
       if (!(other is IFileSettingRemoteDownload otherRemote)) return;
       otherRemote.RemoteFileName = m_RemoteFileName;
@@ -1170,7 +1172,8 @@ namespace CsvTools
       if (e.NewItems != null)
         foreach (Column item in e.NewItems)
           item.PropertyChanged += ColumnFormatPropertyChanged;
-      ColumnFormatPropertyChanged(sender, null);
+      if (e.NewItems != null || e.OldItems != null)
+        ColumnFormatPropertyChanged(sender, null);
     }
 
     /// <summary>

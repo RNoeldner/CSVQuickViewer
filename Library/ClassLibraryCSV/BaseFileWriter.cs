@@ -206,6 +206,8 @@ namespace CsvTools
 
         clone.RecordLimit = recordLimit;
         var fileReader = clone.GetFileReader();
+        if (Progress != null)
+          fileReader.ProcessDisplay = ProcessDisplay;
         fileReader.Open(m_CancellationToken, false);
         return fileReader;
       }

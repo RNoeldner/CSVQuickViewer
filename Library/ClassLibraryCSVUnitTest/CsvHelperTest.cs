@@ -42,12 +42,12 @@ namespace CsvTools.Tests
       Assert.IsTrue(CsvHelper.GuessHasHeader(new CsvFile
       {
         FileName = Path.Combine(m_ApplicationDirectory, "BasicCSV.txt")
-      }, CancellationToken.None), "BasicCSV.txt");
+      }, new DummyProcessDisplay()), "BasicCSV.txt");
 
       Assert.IsFalse(CsvHelper.GuessHasHeader(new CsvFile
       {
         FileName = Path.Combine(m_ApplicationDirectory, "txTranscripts.txt")
-      }, CancellationToken.None), "txTranscripts.txt");
+      }, new DummyProcessDisplay()), "txTranscripts.txt");
     }
 
     [TestMethod]
@@ -102,7 +102,6 @@ namespace CsvTools.Tests
       {
         test.Open(CancellationToken.None, false);
         var list = new List<string>();
-        CsvHelper.CacheColumnHeader(setting, test, false);
         CsvHelper.InvalidateColumnHeader(setting);
       }
     }
@@ -110,10 +109,11 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GetColumnHeader_FileEmpty()
     {
-      var setting = new CsvFile();
-      setting.FileName = Path.Combine(m_ApplicationDirectory, "CSVTestEmpty.txt");
-      setting.HasFieldHeader = true;
-      var headers = CsvHelper.GetColumnHeader(setting, false).ToArray();
+      var headers = CsvHelper.GetColumnHeader(new CsvFile
+      {
+        FileName = Path.Combine(m_ApplicationDirectory, "CSVTestEmpty.txt"),
+        HasFieldHeader = true
+      }, false, null).ToArray();
       Assert.AreEqual(0, headers.Length);
     }
 
@@ -124,7 +124,7 @@ namespace CsvTools.Tests
       setting.FileName = Path.Combine(m_ApplicationDirectory, "BasicCSV.txt");
       setting.FileFormat.FieldDelimiter = ",";
       setting.HasFieldHeader = true;
-      var headers = CsvHelper.GetColumnHeader(setting, false).ToArray();
+      var headers = CsvHelper.GetColumnHeader(setting, false, null).ToArray();
       Assert.AreEqual(6, headers.Length);
       Assert.AreEqual("ID", headers[0]);
       Assert.AreEqual("IsNativeLang", headers[5]);
@@ -139,7 +139,7 @@ namespace CsvTools.Tests
         HasFieldHeader = false
       };
 
-      Assert.AreEqual("Column1", CsvHelper.GetColumnHeader(setting, false).First());
+      Assert.AreEqual("Column1", CsvHelper.GetColumnHeader(setting, false, null).First());
     }
 
     [TestMethod]

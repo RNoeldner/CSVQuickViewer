@@ -443,14 +443,16 @@ namespace CsvTools
               SetProcess("Start Row: " + m_FileSetting.SkipRows.ToString(CultureInfo.InvariantCulture));
             }
 
-            if (analyse && Settings.Default.GuessHasHeader)
-              m_FileSetting.HasFieldHeader = CsvHelper.GuessHasHeader(m_FileSetting, cancellationTokenSource.Token);
-
             if (analyse)
             {
               using (var processDisplay = m_FileSetting.GetProcessDisplay(this, cancellationTokenSource.Token))
               {
                 processDisplay.Progress += SetProcess;
+                if (Settings.Default.GuessHasHeader)
+                {
+                  m_FileSetting.HasFieldHeader = CsvHelper.GuessHasHeader(m_FileSetting, processDisplay);
+                }
+
                 m_FileSetting.FillGuessColumnFormatReader(false, processDisplay);
               }
 

@@ -10,29 +10,11 @@ namespace CsvTools.Tests
     [TestMethod]
     public void ApplicationSetting_CacheList()
     {
-      using (var test = new MockCache<string, ICollection<string>>())
-      {
-        ApplicationSetting.CacheList = test;
-        Assert.AreSame(test, ApplicationSetting.CacheList);
-        var value = new[] { "A", "B" };
-        test.Set("Hallo", value);
-        Assert.AreSame(value, ApplicationSetting.CacheList.Get("Hallo"));
-      }
-    }
-
-    [TestMethod]
-    public void ApplicationSetting_FlushAll()
-    {
-      ApplicationSetting.CacheList = null;
+      var value = new[] { "A", "B" };
+      ApplicationSetting.CacheList.Set("Hallo", value);
+      Assert.AreSame(value, ApplicationSetting.CacheList.Get("Hallo"));
       ApplicationSetting.FlushAll();
-
-      using (var test = new MockCache<string, ICollection<string>>())
-      {
-        ApplicationSetting.CacheList = test;
-        Assert.IsFalse(test.Flushed);
-        ApplicationSetting.FlushAll();
-        Assert.IsTrue(test.Flushed);
-      }
+      Assert.IsFalse(ApplicationSetting.CacheList.ContainsKey("Hello"));
     }
 
     [TestMethod]

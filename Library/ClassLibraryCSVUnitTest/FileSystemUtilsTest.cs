@@ -8,6 +8,33 @@ namespace CsvTools.Tests
   public class FileSystemUtilsTest
   {
     [TestMethod]
+    public void GetShortestPath()
+    {
+      Assert.AreEqual("C:\\CsvHelperTest.cs", FileSystemUtils.GetShortestPath("C:\\CsvHelperTest.cs", "."));
+      Assert.AreEqual("..\\CsvHelperTest.cs", FileSystemUtils.GetShortestPath("..\\CsvHelperTest.cs", "."));
+    }
+
+    [TestMethod]
+    public void GetRelativePath()
+    {
+      var root = FileSystemUtils.ExecutableDirectoryName();
+      Assert.AreEqual("TestFiles\\BasicCSV.txt", FileSystemUtils.GetRelativePath(root + "\\TestFiles\\BasicCSV.txt", root));
+    }
+
+    [TestMethod]
+    public void SafePath()
+    {
+      Assert.AreEqual("Test$Files\\Basic$CSV.txt", FileSystemUtils.SafePath("Test|Files\\Basic<CSV.txt", "$"));
+    }
+
+    [TestMethod]
+    public void ShortFileName()
+    {
+      var root = FileSystemUtils.ExecutableDirectoryName();
+      Assert.AreEqual(root + "\\TestFiles\\BasicCSV.txt", FileSystemUtils.ShortFileName(root + "\\TestFiles\\BasicCSV.txt"));
+    }
+
+    [TestMethod]
     public void GetFiles()
     {
       var root = FileSystemUtils.ExecutableDirectoryName();

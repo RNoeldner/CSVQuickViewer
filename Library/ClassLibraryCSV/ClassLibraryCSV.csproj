@@ -146,6 +146,7 @@
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="BaseSettings.cs" />
+    <Compile Include="Cache.cs" />
     <Compile Include="CheckResult.cs" />
     <Compile Include="CsvFileWriter.cs" />
     <Compile Include="DummyToolSetting.cs" />

@@ -51,7 +51,7 @@ namespace CsvTools
       var selfOpened = false;
       if (processDisplay == null)
       {
-        processDisplay = new DummyProcessDisplay();
+        processDisplay = new ProcessDisplayTime(CancellationToken.None);
         selfOpened = true;
       }
 
@@ -69,7 +69,8 @@ namespace CsvTools
         using (var fileReader = fileSetting.GetFileReader())
         {
           Contract.Assume(fileReader != null);
-          fileReader.ProcessDisplay = null;
+          fileReader.ProcessDisplay = processDisplay;
+
           fileReader.Open(processDisplay.CancellationToken, false);
           if (fileReader.FieldCount == 0)
             return result;

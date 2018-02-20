@@ -372,34 +372,37 @@ namespace CsvTools
         else
         {
           comboBoxColumnName.Visible = true;
-
-          // get the columns from the file
           ICollection<string> allColumns;
-          try
+          using (var frm = new FormProcessDisplay("Get Columns"))
           {
-            allColumns = CsvHelper.GetColumnHeader(m_FileSetting, true);
-          }
-          catch (Exception ex)
-          {
-            MessageBox.Show(this, ex.SourceExceptionMessage(), "Could not open file to determine columns");
-            allColumns = new List<string>();
-          }
+            // get the columns from the file
 
-          // in case its a write setting, we can check the source setting
-          if (allColumns.IsEmpty() && m_WriteSetting)
-          {
-            var source = BaseFileWriter.GetSourceSetting(m_FileSetting);
-            if (source != null)
-              try
-              {
-                allColumns = CsvHelper.GetColumnHeader(source, true);
-              }
-              catch (Exception ex)
-              {
-                MessageBox.Show(this, ex.SourceExceptionMessage(),
-                  "Could not open source setting to determine columns");
-                allColumns = new List<string>();
-              }
+            try
+            {
+              allColumns = CsvHelper.GetColumnHeader(m_FileSetting, true, frm);
+            }
+            catch (Exception ex)
+            {
+              MessageBox.Show(this, ex.SourceExceptionMessage(), "Could not open file to determine columns");
+              allColumns = new List<string>();
+            }
+
+            // in case its a write setting, we can check the source setting
+            if (allColumns.IsEmpty() && m_WriteSetting)
+            {
+              var source = BaseFileWriter.GetSourceSetting(m_FileSetting);
+              if (source != null)
+                try
+                {
+                  allColumns = CsvHelper.GetColumnHeader(source, true, frm);
+                }
+                catch (Exception ex)
+                {
+                  MessageBox.Show(this, ex.SourceExceptionMessage(),
+                    "Could not open source setting to determine columns");
+                  allColumns = new List<string>();
+                }
+            }
           }
 
           var columnsConf = allColumns.ToArray();
