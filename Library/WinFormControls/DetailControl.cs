@@ -51,7 +51,6 @@ namespace CsvTools
 
     private DataTable m_DataTable;
 
-    private bool m_ExtendedVersion;
     private IFileSetting m_FileSetting;
     private bool m_FillingErrorTable = true;
     private FilterDataTable m_FilterDataTable;
@@ -240,25 +239,6 @@ namespace CsvTools
       get => m_FilteredDataGridView.DefaultCellStyle;
 
       set => m_FilteredDataGridView.DefaultCellStyle = value;
-    }
-
-    /// <summary>
-    ///   Gets or sets a value indicating whether to allow filtering.
-    /// </summary>
-    /// <value><c>true</c> if filter button should be shown; otherwise, <c>false</c>.</value>
-    [Browsable(true)]
-    [DefaultValue(false)]
-    [Category("Appearance")]
-    public bool ExtendedVersion
-    {
-      get => m_ExtendedVersion;
-      set
-      {
-        if (m_ExtendedVersion == value) return;
-        m_ExtendedVersion = value;
-        m_FilteredDataGridView.AllowUserToAddRows = m_ExtendedVersion;
-        SetButtonVisibility();
-      }
     }
 
     /// <summary>
@@ -1027,10 +1007,10 @@ namespace CsvTools
       // Filter
       m_ToolStripButtonErrors.Visible = m_ShowButtons && m_ShowFilter;
       // Extended
-      m_ToolStripButtonHierachy.Visible = m_ShowButtons && m_ExtendedVersion;
+      m_ToolStripButtonHierachy.Visible = m_ShowButtons;
       m_ToolStripButtonStore.Visible =
-        m_ShowButtons && m_ExtendedVersion && m_FileSetting is CsvFile;
-      m_ToolStripButtonSource.Visible = m_ShowButtons && m_ExtendedVersion && m_HasButtonShowSource;
+        m_ShowButtons && m_FileSetting is CsvFile;
+      m_ToolStripButtonSource.Visible = m_ShowButtons && m_HasButtonShowSource;
 
       // Settings
       m_ToolStripButtonSettings.Visible = m_ShowButtons && m_ShowSettingsButtons;
