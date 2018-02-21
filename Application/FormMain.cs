@@ -37,7 +37,7 @@ namespace CsvTools
   {
     private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
     private readonly StringBuilder m_Messages = new StringBuilder();
-    private readonly Timer m_SettingsChangedTimerChange = new Timer(100);
+    private readonly Timer m_SettingsChangedTimerChange = new Timer(200);
     private readonly Collection<Column> m_StoreColumns = new Collection<Column>();
     private bool m_ConfigChanged;
     private CancellationTokenSource m_CurrentCancellationTokenSource;
@@ -68,10 +68,6 @@ namespace CsvTools
       csvTextDisplay.Dock = DockStyle.Fill;
       textPanel.ResumeLayout();
       ShowTextPanel(true);
-
-#if ExtendedVersion
-      detailControl.ExtendedVersion = true;
-#endif
 
       Text = AssemblyTitle;
 
@@ -109,9 +105,9 @@ namespace CsvTools
       else
       {
         detailControl.ButtonAsTextCaption = "Text";
-        m_FileSetting.Column.Clear();
-        m_FileSetting.Column.CollectionCopy(m_StoreColumns);
+        m_StoreColumns.CollectionCopy(m_FileSetting.Column);
       }
+      OpenDataReader(true);
     }
 
     private void AddWarning(object sender, WarningEventArgs args)
@@ -508,6 +504,8 @@ namespace CsvTools
     /// </summary>
     private void OpenDataReader(bool clear)
     {
+      m_SettingsChangedTimerChange.Stop();
+
       var oldCursor = Cursor.Current == Cursors.WaitCursor ? Cursors.WaitCursor : Cursors.Default;
       Cursor.Current = Cursors.WaitCursor;
 
@@ -515,7 +513,6 @@ namespace CsvTools
       // We might store data in the FileSetting
       m_FileSetting.PropertyChanged -= FileSetting_PropertyChanged;
 
-      m_SettingsChangedTimerChange.Stop();
       try
       {
         if (clear)

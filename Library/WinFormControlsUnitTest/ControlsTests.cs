@@ -113,7 +113,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void FormDetail()
     {
-      using (var ctrl = new FormDetail(dataTable, null, null, true, true, false, 0))
+      using (var ctrl = new FormDetail(dataTable, null, null, true, false, 0))
       {
         ctrl.Show();
         ctrl.Close();

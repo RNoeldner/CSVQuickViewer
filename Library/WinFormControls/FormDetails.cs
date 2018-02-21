@@ -31,17 +31,16 @@ namespace CsvTools
     /// <param name="uniqueFieldName">Name of the unique field.</param>
     /// <param name="setting">a FileSetting</param>
     /// <param name="readOnly">if set to <c>true</c> the data will not be editable</param>
-    /// <param name="extendedVersion">if set to <c>true</c> the extended version features are shown.</param>
     /// <param name="onlyErrors">if set to <c>true</c> non error will be hidden</param>
     /// <param name="frozenColumns">The frozen columns.</param>
+    ///
     public FormDetail(DataTable dataTable, IEnumerable<string> uniqueFieldName, IFileSetting setting, bool readOnly,
-      bool extendedVersion, bool onlyErrors, int frozenColumns)
+      bool onlyErrors, int frozenColumns)
     {
       Contract.Requires(dataTable != null);
       InitializeComponent();
       detailControl.FileSetting = setting;
       detailControl.ReadOnly = readOnly;
-      detailControl.ExtendedVersion = extendedVersion;
       detailControl.DataTable = dataTable;
       // Need to set UniqueFieldName last
       detailControl.UniqueFieldName = uniqueFieldName;
