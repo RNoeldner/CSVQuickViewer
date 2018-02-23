@@ -12,7 +12,6 @@
  *
  */
 
-using System.ComponentModel;
 using System.Windows.Forms;
 
 namespace CsvTools
@@ -22,34 +21,13 @@ namespace CsvTools
   /// </summary>
   public partial class FillGuessSettingEdit : UserControl
   {
-    private FillGuessSettings m_FillGuessSettings = new FillGuessSettings();
-
     /// <summary>
     ///   Initializes a new instance of the <see cref="FillGuessSettingEdit" /> class.
     /// </summary>
     public FillGuessSettingEdit()
     {
       InitializeComponent();
-      fillGuessSettingsBindingSource.DataSource = m_FillGuessSettings;
-    }
-
-    /// <summary>
-    ///   Set the FillGuessSettings that will be modified here
-    /// </summary>
-    /// <value>
-    ///   The fill guess setting.
-    /// </value>
-    [Browsable(false)]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    [DefaultValue(null)]
-    public FillGuessSettings FillGuessSetting
-    {
-      set
-      {
-        m_FillGuessSettings = value ?? new FillGuessSettings();
-        fillGuessSettingsBindingSource.DataSource = m_FillGuessSettings;
-      }
-      get => m_FillGuessSettings;
+      fillGuessSettingsBindingSource.DataSource = ApplicationSetting.FillGuessSettings;
     }
 
     /// <summary>

@@ -393,8 +393,7 @@
       this.tabPageFormat.Text = "Detect Types";
       // 
       // fillGuessSettingEdit
-      // 
-      this.fillGuessSettingEdit.FillGuessSetting = ((CsvTools.FillGuessSettings)(resources.GetObject("fillGuessSettingEdit.FillGuessSetting")));
+      //       
       this.fillGuessSettingEdit.Location = new System.Drawing.Point(3, 3);
       this.fillGuessSettingEdit.Name = "fillGuessSettingEdit";
       this.fillGuessSettingEdit.Size = new System.Drawing.Size(715, 271);
