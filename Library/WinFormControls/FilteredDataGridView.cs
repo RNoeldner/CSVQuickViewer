@@ -534,7 +534,10 @@ namespace CsvTools
 
           toolStripMenuItemRemoveOne.Enabled &= e.ColumnIndex != -1;
 
-          m_MenuStripDropDownCellValue = e.ColumnIndex > -1 ? Rows[0].Cells[e.ColumnIndex] : null;
+          if (e.ColumnIndex > -1 && Rows.Count > 0)
+            m_MenuStripDropDownCellValue = Rows[0]?.Cells[e.ColumnIndex];
+          else
+            m_MenuStripDropDownCellValue = null;
           contextMenuStripHeader.Show(Cursor.Position);
         }
 

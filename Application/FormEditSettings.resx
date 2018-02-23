@@ -117,72 +117,17 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <metadata name="fileSettingBindingSource.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+  <data name="fileSettingBindingSource.TrayLocation" type="System.Drawing.Point, System.Drawing">
     <value>17, 17</value>
-  </metadata>
-  <metadata name="fileSettingBindingSource.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>17, 17</value>
-  </metadata>
-  <metadata name="toolTip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>387, 17</value>
-  </metadata>
-  <data name="fillGuessSettingEdit.FillGuessSetting" mimetype="application/x-microsoft.net.object.binary.base64">
-    <value>
-        AAEAAAD/////AQAAAAAAAAAMAgAAAEhDbGFzc0xpYnJhcnlDU1YsIFZlcnNpb249MS40LjkuMjE4LCBD
-        dWx0dXJlPW5ldXRyYWwsIFB1YmxpY0tleVRva2VuPW51bGwMAwAAAElTeXN0ZW0sIFZlcnNpb249NC4w
-        LjAuMCwgQ3VsdHVyZT1uZXV0cmFsLCBQdWJsaWNLZXlUb2tlbj1iNzdhNWM1NjE5MzRlMDg5BQEAAAAa
-        Q3N2VG9vbHMuRmlsbEd1ZXNzU2V0dGluZ3MQAAAAEG1fQ2hlY2tlZFJlY29yZHMRbV9DaGVja05hbWVk
-        RGF0ZXMLbV9EYXRlUGFydHMPbV9EYXRlVGltZVZhbHVlEG1fRGVjdGVjdE51bWJlcnMTbV9EZWN0ZWN0
-        UGVyY2VudGFnZQ9tX0RldGVjdEJvb2xlYW4QbV9EZXRlY3REYXRlVGltZQxtX0RldGVjdEd1aWQMbV9G
-        YWxzZVZhbHVlEG1fSWdub3JlSWRDb2x1bXMWbV9NaW5TYW1wbGVzRm9ySW50RGF0ZQ5tX1NhbXBsZVZh
-        bHVlcxBtX1NlcmlhbERhdGVUaW1lC21fVHJ1ZVZhbHVlD1Byb3BlcnR5Q2hhbmdlZAAAAAEAAAAAAAEA
-        AAAAAQQIAQEBAQEBAQEICAEiU3lzdGVtLkRlbGVnYXRlU2VyaWFsaXphdGlvbkhvbGRlcgMAAAACAAAA
-        ECcAAAEACgEBAQEABgQAAAAFRmFsc2UBBAAAAPoAAAABBgUAAAAEVHJ1ZQkGAAAADAcAAACVAUNsYXNz
-        TGlicmFyeUNTViwgVmVyc2lvbj0xLjQuOS4yMTgsIEN1bHR1cmU9bmV1dHJhbCwgUHVibGljS2V5VG9r
-        ZW49bnVsbF1dLCBTeXN0ZW0sIFZlcnNpb249NC4wLjAuMCwgQ3VsdHVyZT1uZXV0cmFsLCBQdWJsaWNL
-        ZXlUb2tlbj1iNzdhNWM1NjE5MzRlMDg5BQYAAAAiU3lzdGVtLkRlbGVnYXRlU2VyaWFsaXphdGlvbkhv
-        bGRlcgMAAAAIRGVsZWdhdGUHdGFyZ2V0MAdtZXRob2QwAwQDMFN5c3RlbS5EZWxlZ2F0ZVNlcmlhbGl6
-        YXRpb25Ib2xkZXIrRGVsZWdhdGVFbnRyeT9TeXN0ZW0uQ29tcG9uZW50TW9kZWwuQmluZGluZ0xpc3Rg
-        MVtbQ3N2VG9vbHMuRmlsbEd1ZXNzU2V0dGluZ3MHAAAAL1N5c3RlbS5SZWZsZWN0aW9uLk1lbWJlcklu
-        Zm9TZXJpYWxpemF0aW9uSG9sZGVyAwAAAAkIAAAACQkAAAAJCgAAAAQIAAAAMFN5c3RlbS5EZWxlZ2F0
-        ZVNlcmlhbGl6YXRpb25Ib2xkZXIrRGVsZWdhdGVFbnRyeQcAAAAEdHlwZQhhc3NlbWJseQZ0YXJnZXQS
-        dGFyZ2V0VHlwZUFzc2VtYmx5DnRhcmdldFR5cGVOYW1lCm1ldGhvZE5hbWUNZGVsZWdhdGVFbnRyeQEB
-        AgEBAQMwU3lzdGVtLkRlbGVnYXRlU2VyaWFsaXphdGlvbkhvbGRlcitEZWxlZ2F0ZUVudHJ5BgsAAAAx
-        U3lzdGVtLkNvbXBvbmVudE1vZGVsLlByb3BlcnR5Q2hhbmdlZEV2ZW50SGFuZGxlcgYMAAAASVN5c3Rl
-        bSwgVmVyc2lvbj00LjAuMC4wLCBDdWx0dXJlPW5ldXRyYWwsIFB1YmxpY0tleVRva2VuPWI3N2E1YzU2
-        MTkzNGUwODkGDQAAAAd0YXJnZXQwCQwAAAAGDwAAAIsBU3lzdGVtLkNvbXBvbmVudE1vZGVsLkJpbmRp
-        bmdMaXN0YDFbW0NzdlRvb2xzLkZpbGxHdWVzc1NldHRpbmdzLCBDbGFzc0xpYnJhcnlDU1YsIFZlcnNp
-        b249MS40LjkuMjE4LCBDdWx0dXJlPW5ldXRyYWwsIFB1YmxpY0tleVRva2VuPW51bGxdXQYQAAAAFUNo
-        aWxkX1Byb3BlcnR5Q2hhbmdlZAoMEQAAAJcBQ2xhc3NMaWJyYXJ5Q1NWLCBWZXJzaW9uPTEuNC45LjIx
-        OCwgQ3VsdHVyZT1uZXV0cmFsLCBQdWJsaWNLZXlUb2tlbj1udWxsXV0sIG1zY29ybGliLCBWZXJzaW9u
-        PTQuMC4wLjAsIEN1bHR1cmU9bmV1dHJhbCwgUHVibGljS2V5VG9rZW49Yjc3YTVjNTYxOTM0ZTA4OQUJ
-        AAAAP1N5c3RlbS5Db21wb25lbnRNb2RlbC5CaW5kaW5nTGlzdGAxW1tDc3ZUb29scy5GaWxsR3Vlc3NT
-        ZXR0aW5ncwgAAAAJYWRkTmV3UG9zFnJhaXNlTGlzdENoYW5nZWRFdmVudHMWcmFpc2VJdGVtQ2hhbmdl
-        ZEV2ZW50cwhhbGxvd05ldwlhbGxvd0VkaXQLYWxsb3dSZW1vdmUPdXNlclNldEFsbG93TmV3EkNvbGxl
-        Y3Rpb25gMStpdGVtcwAAAAAAAAAECAEBAQEBAT1TeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYy5MaXN0
-        YDFbW0NzdlRvb2xzLkZpbGxHdWVzc1NldHRpbmdzEQAAAAcAAAD/////AQEBAQEACRIAAAAECgAAAC9T
-        eXN0ZW0uUmVmbGVjdGlvbi5NZW1iZXJJbmZvU2VyaWFsaXphdGlvbkhvbGRlcgcAAAAETmFtZQxBc3Nl
-        bWJseU5hbWUJQ2xhc3NOYW1lCVNpZ25hdHVyZQpTaWduYXR1cmUyCk1lbWJlclR5cGUQR2VuZXJpY0Fy
-        Z3VtZW50cwEBAQEBAAMIDVN5c3RlbS5UeXBlW10JEAAAAAkMAAAACQ8AAAAGFgAAAFlWb2lkIENoaWxk
-        X1Byb3BlcnR5Q2hhbmdlZChTeXN0ZW0uT2JqZWN0LCBTeXN0ZW0uQ29tcG9uZW50TW9kZWwuUHJvcGVy
-        dHlDaGFuZ2VkRXZlbnRBcmdzKQYXAAAAYFN5c3RlbS5Wb2lkIENoaWxkX1Byb3BlcnR5Q2hhbmdlZChT
-        eXN0ZW0uT2JqZWN0LCBTeXN0ZW0uQ29tcG9uZW50TW9kZWwuUHJvcGVydHlDaGFuZ2VkRXZlbnRBcmdz
-        KQgAAAAKBRIAAAA9U3lzdGVtLkNvbGxlY3Rpb25zLkdlbmVyaWMuTGlzdGAxW1tDc3ZUb29scy5GaWxs
-        R3Vlc3NTZXR0aW5ncwMAAAAGX2l0ZW1zBV9zaXplCF92ZXJzaW9uBAAAHENzdlRvb2xzLkZpbGxHdWVz
-        c1NldHRpbmdzW10CAAAACAgRAAAACRgAAAABAAAAAQAAAAcYAAAAAAEAAAAEAAAABBpDc3ZUb29scy5G
-        aWxsR3Vlc3NTZXR0aW5ncwIAAAAJAQAAAA0DCw==
-</value>
   </data>
-  <metadata name="fileFormatBindingSource.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>202, 17</value>
-  </metadata>
-  <metadata name="fileFormatBindingSource.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>202, 17</value>
-  </metadata>
-  <metadata name="toolTip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+  <data name="toolTip.TrayLocation" type="System.Drawing.Point, System.Drawing">
     <value>387, 17</value>
-  </metadata>
-  <metadata name="errorProvider.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+  </data>
+  <data name="fileFormatBindingSource.TrayLocation" type="System.Drawing.Point, System.Drawing">
+    <value>202, 17</value>
+  </data>
+  <data name="errorProvider.TrayLocation" type="System.Drawing.Point, System.Drawing">
     <value>477, 17</value>
-  </metadata>
+  </data>
 </root>

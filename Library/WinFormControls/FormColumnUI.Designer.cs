@@ -47,7 +47,6 @@
       System.Windows.Forms.Label labelSepBy;
       System.Windows.Forms.Label labelPart;
       System.Windows.Forms.Label label3;
-      System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormColumnUI));
       this.labelAllowedDateFormats = new System.Windows.Forms.Label();
       this.labelDateOutput = new System.Windows.Forms.Label();
       this.comboBoxTPFormat = new System.Windows.Forms.ComboBox();
@@ -452,6 +451,7 @@
       // 
       // comboBoxTimePart
       // 
+      this.comboBoxTimePart.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Suggest;
       this.comboBoxTimePart.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.columnBindingSource, "TimePart", true));
       this.comboBoxTimePart.FormattingEnabled = true;
       this.comboBoxTimePart.Location = new System.Drawing.Point(288, 11);
@@ -498,7 +498,7 @@
       this.comboBoxDateFormat.Name = "comboBoxDateFormat";
       this.comboBoxDateFormat.Size = new System.Drawing.Size(208, 21);
       this.comboBoxDateFormat.TabIndex = 11;
-      this.toolTip.SetToolTip(this.comboBoxDateFormat, CsvToolLib.Resources.TimeFomat);
+      this.toolTip.SetToolTip(this.comboBoxDateFormat, global::CsvToolLib.Resources.TimeFomat);
       this.comboBoxDateFormat.TextChanged += new System.EventHandler(this.DateFormatChanged);
       // 
       // label4

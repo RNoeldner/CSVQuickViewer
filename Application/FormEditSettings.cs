@@ -135,21 +135,21 @@ namespace CsvTools
       Settings.Default.QuotePlaceholder = quotingControl.CsvFile.FileFormat.QuotePlaceholder;
       Settings.Default.MenuDown = checkBoxMenuDown.Checked;
 
-      Settings.Default.DectectPercentage = fillGuessSettingEdit.FillGuessSetting.DectectPercentage;
-      Settings.Default.DetectBoolean = fillGuessSettingEdit.FillGuessSetting.DetectBoolean;
-      Settings.Default.DectectNumbers = fillGuessSettingEdit.FillGuessSetting.DectectNumbers;
-      Settings.Default.DetectDateTime = fillGuessSettingEdit.FillGuessSetting.DetectDateTime;
-      Settings.Default.DetectGUID = fillGuessSettingEdit.FillGuessSetting.DetectGUID;
-      Settings.Default.ExcelSerialDateTime = fillGuessSettingEdit.FillGuessSetting.SerialDateTime;
-      Settings.Default.TrueValue = fillGuessSettingEdit.FillGuessSetting.TrueValue;
-      Settings.Default.FalseValue = fillGuessSettingEdit.FillGuessSetting.FalseValue;
-      Settings.Default.DateTimeValue = fillGuessSettingEdit.FillGuessSetting.DateTimeValue;
-      Settings.Default.IgnoreIdColums = fillGuessSettingEdit.FillGuessSetting.IgnoreIdColums;
-      Settings.Default.SampleValues = fillGuessSettingEdit.FillGuessSetting.SampleValues;
-      Settings.Default.CheckedRecords = fillGuessSettingEdit.FillGuessSetting.CheckedRecords;
-      Settings.Default.MinSamplesForIntDate = fillGuessSettingEdit.FillGuessSetting.MinSamplesForIntDate;
-      Settings.Default.CheckNamedDates = fillGuessSettingEdit.FillGuessSetting.CheckNamedDates;
-      Settings.Default.DateParts = fillGuessSettingEdit.FillGuessSetting.DateParts;
+      Settings.Default.DectectPercentage = ApplicationSetting.FillGuessSettings.DectectPercentage;
+      Settings.Default.DetectBoolean = ApplicationSetting.FillGuessSettings.DetectBoolean;
+      Settings.Default.DectectNumbers = ApplicationSetting.FillGuessSettings.DectectNumbers;
+      Settings.Default.DetectDateTime = ApplicationSetting.FillGuessSettings.DetectDateTime;
+      Settings.Default.DetectGUID = ApplicationSetting.FillGuessSettings.DetectGUID;
+      Settings.Default.ExcelSerialDateTime = ApplicationSetting.FillGuessSettings.SerialDateTime;
+      Settings.Default.TrueValue = ApplicationSetting.FillGuessSettings.TrueValue;
+      Settings.Default.FalseValue = ApplicationSetting.FillGuessSettings.FalseValue;
+      Settings.Default.DateTimeValue = ApplicationSetting.FillGuessSettings.DateTimeValue;
+      Settings.Default.IgnoreIdColums = ApplicationSetting.FillGuessSettings.IgnoreIdColums;
+      Settings.Default.SampleValues = ApplicationSetting.FillGuessSettings.SampleValues;
+      Settings.Default.CheckedRecords = ApplicationSetting.FillGuessSettings.CheckedRecords;
+      Settings.Default.MinSamplesForIntDate = ApplicationSetting.FillGuessSettings.MinSamplesForIntDate;
+      Settings.Default.CheckNamedDates = ApplicationSetting.FillGuessSettings.CheckNamedDates;
+      Settings.Default.DateParts = ApplicationSetting.FillGuessSettings.DateParts;
       Settings.Default.DefaultPassphrase = ApplicationSetting.ToolSetting.PGPInformation.EncryptedPassphase;
       Settings.Default.PrivateKey = new StringCollection();
       Settings.Default.PrivateKey.AddRange(ApplicationSetting.ToolSetting.PGPInformation.PrivateKeys);
@@ -233,7 +233,6 @@ namespace CsvTools
     {
       fileSettingBindingSource.DataSource = m_CsvFileCopy;
       fileFormatBindingSource.DataSource = m_CsvFileCopy.FileFormat;
-      fillGuessSettingEdit.FillGuessSetting = ApplicationSetting.FillGuessSettings;
 
       // Fill Drop down
       foreach (var cp in EncodingHelper.CommonCodePages)
