@@ -176,6 +176,7 @@
     <Compile Include="Helper.cs" />
     <Compile Include="HTMLStyleTests.cs" />
     <Compile Include="IntervalActionTests.cs" />
+    <Compile Include="CsvDataReaderPGP_FilesTest.cs" />
     <Compile Include="PGPKeyStorageTests.cs" />
     <Compile Include="PropertyChangedEventArgsTests.cs" />
     <Compile Include="ErrorInformationTests.cs" />
@@ -385,6 +386,15 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="TestFiles\BasicCSV.gpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestFiles\BasicCSV.pgp">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestFiles\BasicCSV.txt.gz">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

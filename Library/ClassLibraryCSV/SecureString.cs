@@ -19,6 +19,9 @@ using System.Text;
 
 namespace CsvTools
 {
+  /// <summary>
+  /// Class to encrypt and decrypt text, any information that needs to be stored in a secure way should be encrypted
+  /// </summary>
   public static class SecureString
   {
     private const int c_SlatSize = 8;
@@ -28,6 +31,10 @@ namespace CsvTools
       {112, 101, 109, 50, 97, 105, 108, 57, 117, 122, 108, 103, 122, 106, 55, 97};
 
     private static string m_Phrase;
+
+    /// <summary>
+    /// A central Random instance that should be decently random, please use for any random number generation
+    /// </summary>
     public static Random Random = new Random(Guid.NewGuid().GetHashCode());
 
     private static string DefaultPhrase
@@ -40,6 +47,12 @@ namespace CsvTools
       }
     }
 
+    /// <summary>
+    /// Decrypts the Base64 encoded salted encrypted text using the specified password
+    /// </summary>
+    /// <param name="cipherText">The Base64 encoded encrypted cipher text.</param>
+    /// <param name="pwd">The password</param>
+    /// <returns>Plain decrypted text</returns>
     public static string Decrypt(this string cipherText, string pwd = null)
     {
       if (string.IsNullOrEmpty(cipherText))
@@ -66,6 +79,12 @@ namespace CsvTools
       }
     }
 
+    /// <summary>
+    /// Encrypts the text using the specified password resulting in a Base64 encoded encrypted cipher
+    /// </summary>
+    /// <param name="plainText">The plain text.</param>
+    /// <param name="pwd">The password.</param>
+    /// <returns>Base64 encoded salted encrypted cipher</returns>
     public static string Encrypt(this string plainText, string pwd = null)
     {
       var plainTextBytes = Encoding.UTF8.GetBytes(plainText);

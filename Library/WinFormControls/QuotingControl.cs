@@ -575,7 +575,7 @@ namespace CsvTools
 
     private void m_CsvFile_PropertyChanged(object sender, PropertyChangedEventArgs e)
     {
-      if (e.PropertyName == "FieldDelimiter") SetDelimiter();
+      if (e.PropertyName == nameof(FileFormat.FieldDelimiter)) SetDelimiter();
     }
 
     private void SetCboTrim(TrimmingOption trim)

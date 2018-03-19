@@ -62,7 +62,7 @@ namespace CsvTools
       {
         if (m_JSONEncode == value) return;
         m_JSONEncode = value;
-        NotifyPropertyChanged("JSONEncode");
+        NotifyPropertyChanged(nameof(JSONEncode));
       }
     }
 
@@ -80,7 +80,7 @@ namespace CsvTools
         var newVal = value ?? string.Empty;
         if (m_Row.Equals(newVal, StringComparison.Ordinal)) return;
         m_Row = newVal;
-        NotifyPropertyChanged("Row");
+        NotifyPropertyChanged(nameof(Row));
       }
     }
 
@@ -96,7 +96,7 @@ namespace CsvTools
       {
         if (m_XMLEncode == value) return;
         m_XMLEncode = value;
-        NotifyPropertyChanged("XMLEncode");
+        NotifyPropertyChanged(nameof(XMLEncode));
       }
     }
 

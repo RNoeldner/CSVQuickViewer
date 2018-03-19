@@ -203,7 +203,7 @@ namespace CsvTools
         {
           m_Operator = newVal;
           FilterChanged();
-          NotifyPropertyChanged("Operator");
+          NotifyPropertyChanged(nameof(Operator));
         }
       }
     }
@@ -221,7 +221,7 @@ namespace CsvTools
       {
         if (m_ValueDateTime.Equals(value)) return;
         m_ValueDateTime = value;
-        NotifyPropertyChanged("ValueDateTime");
+        NotifyPropertyChanged(nameof(ValueDateTime));
       }
     }
 
@@ -242,7 +242,7 @@ namespace CsvTools
         var newVal = (value ?? string.Empty).Trim();
         if (m_ValueText.Equals(newVal)) return;
         m_ValueText = newVal;
-        NotifyPropertyChanged("ValueText");
+        NotifyPropertyChanged(nameof(ValueText));
       }
     }
 

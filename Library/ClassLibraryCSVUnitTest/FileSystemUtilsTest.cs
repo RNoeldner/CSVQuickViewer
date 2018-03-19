@@ -28,13 +28,6 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void ShortFileName()
-    {
-      var root = FileSystemUtils.ExecutableDirectoryName();
-      Assert.AreEqual(root + "\\TestFiles\\BasicCSV.txt", FileSystemUtils.ShortFileName(root + "\\TestFiles\\BasicCSV.txt"));
-    }
-
-    [TestMethod]
     public void GetFiles()
     {
       var root = FileSystemUtils.ExecutableDirectoryName();

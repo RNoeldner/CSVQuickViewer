@@ -427,12 +427,10 @@ namespace CsvTools
     public static void InvalidateColumnHeader(IFileSetting fileSetting)
     {
       Contract.Requires(fileSetting != null);
-      var key = CacheListKeyColumnHeader(fileSetting, true);
-      if (key.Length > 2)
+      if (fileSetting.InternalID.Length > 0)
       {
-        ApplicationSetting.CacheList.Remove(key);
-        key = CacheListKeyColumnHeader(fileSetting, false);
-        ApplicationSetting.CacheList.Remove(key);
+        ApplicationSetting.CacheList.Remove(CacheListKeyColumnHeader(fileSetting, true));
+        ApplicationSetting.CacheList.Remove(CacheListKeyColumnHeader(fileSetting, false));
       }
     }
 
@@ -826,12 +824,13 @@ namespace CsvTools
 
       if (!setting.FileName.AssumePgp()) return baseStream;
       // get the encrypted Passphrase and more sure we can decrypt it
-      string encryptedPassphrase;
-      string decryptedPassphrase;
+      string encryptedPassphrase = setting.GetEncryptedPassphraseFunction();
+      if (string.IsNullOrEmpty(encryptedPassphrase))
+        throw new ApplicationException("Please provide a passphrase.");
+      System.Security.SecureString decryptedPassphrase;
       try
       {
-        encryptedPassphrase = setting.GetEncryptedPassphraseFunction();
-        decryptedPassphrase = encryptedPassphrase.Decrypt();
+        decryptedPassphrase = encryptedPassphrase.Decrypt().ToSecureString();
       }
       catch (Exception)
       {
@@ -841,29 +840,44 @@ namespace CsvTools
       try
       {
         var returnStream =
-          ApplicationSetting.ToolSetting.PGPInformation.PgpDecrypt(baseStream, decryptedPassphrase.ToSecureString());
+          ApplicationSetting.ToolSetting.PGPInformation.PgpDecrypt(baseStream, decryptedPassphrase);
 
-        // being here means the passphrase was correct...
+        // arriving here means the passphrase was correct...
         if (ApplicationSetting.ToolSetting.PGPInformation.EncryptedPassphase.Length == 0)
           ApplicationSetting.ToolSetting.PGPInformation.EncryptedPassphase = encryptedPassphrase;
         else
           setting.Passphrase = encryptedPassphrase;
         return returnStream;
       }
-      catch (PgpException)
+      catch (PgpException ex)
       {
         // removed possibly stored passphrase
         if (setting.Passphrase.Length == 0)
           ApplicationSetting.ToolSetting.PGPInformation.EncryptedPassphase = string.Empty;
         else
           setting.Passphrase = string.Empty;
-        throw;
+        var recipinet = string.Empty;
+        try
+        {
+          recipinet = ApplicationSetting.ToolSetting.PGPInformation.GetEncryptedKeyID(baseStream);
+        }
+        catch
+        {
+          // ignore
+        }
+
+        if (recipinet.Length > 0)
+          throw new ApplicationException($"The message is encrypted for '{recipinet}'.", ex);
+        else
+          throw;
       }
     }
 
     private class DelimiterCounter
     {
-      private const string c_DefaultSeparators = "\t,;|¦￤*`";
+      // Added INFORMATION SEPARATOR ONE to FOUR
+      private const string c_DefaultSeparators = "\t,;|¦￤*`\u001F\u001E\u001D\u001C";
+
       public readonly int NumRows;
       public readonly int[] SeparatorRows;
       public readonly string Separators;

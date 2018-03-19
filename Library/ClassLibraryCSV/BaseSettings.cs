@@ -76,10 +76,9 @@ namespace CsvTools
     ///   Initializes a new instance of the <see cref="BaseSettings" /> class.
     /// </summary>
     /// <param name="fileName">The filename.</param>
-    protected BaseSettings(string fileName)
+    protected BaseSettings(string fileName) : this()
     {
       FileName = fileName;
-      m_Column.CollectionChanged += ColumnCollectionChanged;
     }
 
     /// <summary>
@@ -88,8 +87,8 @@ namespace CsvTools
     protected BaseSettings()
     {
       m_Column.CollectionChanged += ColumnCollectionChanged;
-      Samples.CollectionChanged += delegate { NotifyPropertyChanged("SampleRecords"); };
-      Errors.CollectionChanged += delegate { NotifyPropertyChanged("ErrorRecords"); };
+      Samples.CollectionChanged += delegate { NotifyPropertyChanged(nameof(Samples)); };
+      Errors.CollectionChanged += delegate { NotifyPropertyChanged(nameof(Errors)); };
     }
 
     /// <summary>
@@ -168,7 +167,7 @@ namespace CsvTools
         if (m_RemoteFileName.Equals(newVal)) return;
 
         m_RemoteFileName = newVal;
-        NotifyPropertyChanged("RemoteFileName");
+        NotifyPropertyChanged(nameof(RemoteFileName));
       }
     }
 
@@ -185,7 +184,7 @@ namespace CsvTools
       {
         if (m_ThrowErrorIfNotExists.Equals(value)) return;
         m_ThrowErrorIfNotExists = value;
-        NotifyPropertyChanged("ThrowErrorIfNotExists");
+        NotifyPropertyChanged(nameof(ThrowErrorIfNotExists));
       }
     }
 
@@ -296,7 +295,7 @@ namespace CsvTools
         if (value < 0)
           value = 0;
         m_ConsecutiveEmptyRows = value;
-        NotifyPropertyChanged("ConsecutiveEmptyRows");
+        NotifyPropertyChanged(nameof(ConsecutiveEmptyRows));
       }
     }
 
@@ -326,7 +325,7 @@ namespace CsvTools
       {
         if (m_DisplayEndLineNo.Equals(value)) return;
         m_DisplayEndLineNo = value;
-        NotifyPropertyChanged("DisplayEndLineNo");
+        NotifyPropertyChanged(nameof(DisplayEndLineNo));
       }
     }
 
@@ -344,7 +343,7 @@ namespace CsvTools
       {
         if (m_DisplayRecordNo.Equals(value)) return;
         m_DisplayRecordNo = value;
-        NotifyPropertyChanged("DisplayRecordNo");
+        NotifyPropertyChanged(nameof(DisplayRecordNo));
       }
     }
 
@@ -362,7 +361,7 @@ namespace CsvTools
       {
         if (m_DisplayStartLineNo.Equals(value)) return;
         m_DisplayStartLineNo = value;
-        NotifyPropertyChanged("DisplayStartLineNo");
+        NotifyPropertyChanged(nameof(DisplayStartLineNo));
       }
     }
 
@@ -393,7 +392,7 @@ namespace CsvTools
       {
         if (m_FileLastWriteTimeUtc.Equals(value)) return;
         m_FileLastWriteTimeUtc = value;
-        NotifyPropertyChanged("FileLastWriteTimeUtc");
+        NotifyPropertyChanged(nameof(FileLastWriteTimeUtc));
       }
     }
 
@@ -417,7 +416,7 @@ namespace CsvTools
         m_FileName = newVal;
         m_FullPath = null;
         m_InternalId = null;
-        NotifyPropertyChanged("FileName");
+        NotifyPropertyChanged(nameof(FileName));
       }
     }
 
@@ -434,7 +433,7 @@ namespace CsvTools
       {
         if (value == m_FileSize) return;
         m_FileSize = value;
-        NotifyPropertyChanged("FileSize");
+        NotifyPropertyChanged(nameof(FileSize));
       }
     }
 
@@ -452,7 +451,7 @@ namespace CsvTools
         var newVal = StringUtils.HandleCRLFCombinations(value ?? string.Empty, Environment.NewLine);
         if (m_Footer.Equals(newVal)) return;
         m_Footer = newVal;
-        NotifyPropertyChanged("Footer");
+        NotifyPropertyChanged(nameof(Footer));
       }
     }
 
@@ -485,7 +484,7 @@ namespace CsvTools
         if (m_HasFieldHeader.Equals(value)) return;
         CsvHelper.InvalidateColumnHeader(this);
         m_HasFieldHeader = value;
-        NotifyPropertyChanged("HasFieldHeader");
+        NotifyPropertyChanged(nameof(HasFieldHeader));
       }
     }
 
@@ -503,7 +502,7 @@ namespace CsvTools
         var newVal = StringUtils.HandleCRLFCombinations(value ?? string.Empty, Environment.NewLine);
         if (m_Header.Equals(newVal)) return;
         m_Header = newVal;
-        NotifyPropertyChanged("Header");
+        NotifyPropertyChanged(nameof(Header));
       }
     }
 
@@ -528,7 +527,7 @@ namespace CsvTools
         m_InternalId = null;
         var oldValue = m_Id;
         m_Id = newVal;
-        NotifyPropertyChanged("ID");
+        NotifyPropertyChanged(nameof(ID));
         PropertyChangedString?.Invoke(this, new PropertyChangedEventArgs<string>("ID", oldValue, newVal));
       }
     }
@@ -547,7 +546,7 @@ namespace CsvTools
       {
         if (m_InOverview.Equals(value)) return;
         m_InOverview = value;
-        NotifyPropertyChanged("InOverview");
+        NotifyPropertyChanged(nameof(InOverview));
       }
     }
 
@@ -581,7 +580,7 @@ namespace CsvTools
       {
         if (m_IsEnabled.Equals(value)) return;
         m_IsEnabled = value;
-        NotifyPropertyChanged("IsEnabled");
+        NotifyPropertyChanged(nameof(IsEnabled));
       }
     }
 
@@ -615,7 +614,7 @@ namespace CsvTools
       {
         if (m_NumErrors == value) return;
         m_NumErrors = value;
-        NotifyPropertyChanged("NumErrors");
+        NotifyPropertyChanged(nameof(NumErrors));
       }
     }
 
@@ -632,7 +631,7 @@ namespace CsvTools
         var newVal = (value ?? string.Empty).Trim();
         if (m_Passphrase.Equals(newVal)) return;
         m_Passphrase = newVal;
-        NotifyPropertyChanged("Passphrase");
+        NotifyPropertyChanged(nameof(Passphrase));
       }
     }
 
@@ -656,7 +655,7 @@ namespace CsvTools
         var newVal = (value ?? string.Empty).Trim();
         if (m_Recipient.Equals(newVal)) return;
         m_Recipient = newVal;
-        NotifyPropertyChanged("Recipient");
+        NotifyPropertyChanged(nameof(Recipient));
       }
     }
 
@@ -674,7 +673,7 @@ namespace CsvTools
       {
         if (m_RecordLimit.Equals(value)) return;
         m_RecordLimit = value;
-        NotifyPropertyChanged("RecordLimit");
+        NotifyPropertyChanged(nameof(RecordLimit));
       }
     }
 
@@ -696,7 +695,7 @@ namespace CsvTools
       {
         if (m_ShowProgress.Equals(value)) return;
         m_ShowProgress = value;
-        NotifyPropertyChanged("ShowProgress");
+        NotifyPropertyChanged(nameof(ShowProgress));
       }
     }
 
@@ -723,7 +722,7 @@ namespace CsvTools
         if (m_SkipRows.Equals(value)) return;
         CsvHelper.InvalidateColumnHeader(this);
         m_SkipRows = value;
-        NotifyPropertyChanged("SkipRows");
+        NotifyPropertyChanged(nameof(SkipRows));
       }
     }
 
@@ -746,7 +745,7 @@ namespace CsvTools
         var newVal = value ?? string.Empty;
         if (m_SourceSetting.Equals(newVal, StringComparison.OrdinalIgnoreCase)) return;
         m_SourceSetting = newVal;
-        NotifyPropertyChanged("SourceSetting");
+        NotifyPropertyChanged(nameof(SourceSetting));
       }
     }
 
@@ -772,7 +771,7 @@ namespace CsvTools
         if (!string.IsNullOrEmpty(m_SqlStatement))
           FileLastWriteTimeUtc = DateTime.MinValue;
         m_SqlStatement = newVal;
-        NotifyPropertyChanged("SQLStatement");
+        NotifyPropertyChanged(nameof(SqlStatement));
       }
     }
 
@@ -790,7 +789,7 @@ namespace CsvTools
       {
         if (m_SqlTimeout.Equals(value)) return;
         m_SqlTimeout = value;
-        NotifyPropertyChanged("SQLTimeout");
+        NotifyPropertyChanged(nameof(SQLTimeout));
       }
     }
 
@@ -813,7 +812,7 @@ namespace CsvTools
         var newVal = value ?? string.Empty;
         if (m_TemplateName.Equals(newVal)) return;
         m_TemplateName = newVal;
-        NotifyPropertyChanged("TemplateName");
+        NotifyPropertyChanged(nameof(TemplateName));
       }
     }
 
@@ -831,7 +830,7 @@ namespace CsvTools
       {
         if (m_TreatNbspAsSpace.Equals(value)) return;
         m_TreatNbspAsSpace = value;
-        NotifyPropertyChanged("TreatNBSPAsSpace");
+        NotifyPropertyChanged(nameof(TreatNBSPAsSpace));
       }
     }
 
@@ -852,7 +851,7 @@ namespace CsvTools
         var newVal = value ?? string.Empty;
         if (m_TreatTextAsNull.Equals(newVal)) return;
         m_TreatTextAsNull = newVal;
-        NotifyPropertyChanged("TreatTextAsNull");
+        NotifyPropertyChanged(nameof(TreatTextAsNull));
       }
     }
 
@@ -909,7 +908,7 @@ namespace CsvTools
       {
         if (m_Validate.Equals(value)) return;
         m_Validate = value;
-        NotifyPropertyChanged("Validate");
+        NotifyPropertyChanged(nameof(Validate));
       }
     }
 
@@ -923,7 +922,7 @@ namespace CsvTools
       {
         if (m_ValidationResult != null && m_ValidationResult.Equals(value)) return;
         m_ValidationResult = value;
-        NotifyPropertyChanged("ValidationResult");
+        NotifyPropertyChanged(nameof(ValidationResult));
       }
     }
 
@@ -1095,7 +1094,7 @@ namespace CsvTools
         foreach (var column in existing)
           m_Column.Add(column);
       m_Column.CollectionChanged += ColumnCollectionChanged;
-      ColumnFormatPropertyChanged(this, null);
+      CsvHelper.InvalidateColumnHeader(this);
     }
 
     public abstract override bool Equals(object obj);
@@ -1171,23 +1170,14 @@ namespace CsvTools
     {
       if (e.NewItems != null)
         foreach (Column item in e.NewItems)
-          item.PropertyChanged += ColumnFormatPropertyChanged;
+          item.PropertyChanged += delegate (object s_, PropertyChangedEventArgs colEvent)
+          {
+            if (colEvent.PropertyName == nameof(CsvTools.Column.Ignore))
+              CsvHelper.InvalidateColumnHeader(this);
+          };
       if (e.NewItems != null || e.OldItems != null)
-        ColumnFormatPropertyChanged(sender, null);
+        CsvHelper.InvalidateColumnHeader(this);
     }
-
-    /// <summary>
-    ///   Called when a <see cref="Column" /> for this instance changes, is added or updated
-    /// </summary>
-    /// <param name="sender">The sender.</param>
-    /// <param name="e">The <see cref="PropertyChangedEventArgs" /> instance containing the event data.</param>
-    private void ColumnFormatPropertyChanged(object sender, PropertyChangedEventArgs e)
-    {
-      CsvHelper.InvalidateColumnHeader(this);
-      NotifyPropertyChanged("ColumnFormat");
-    }
-
-    #region InFRONT
 
     [XmlIgnore]
     public Func<string> GetEncryptedPassphraseFunction
@@ -1208,7 +1198,5 @@ namespace CsvTools
       }
       set => m_GetEncryptedPassphrase = value;
     }
-
-    #endregion InFRONT
   }
 }

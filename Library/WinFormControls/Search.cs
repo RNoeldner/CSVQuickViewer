@@ -165,8 +165,7 @@ namespace CsvTools
 
     private void SearchChanged()
     {
-      Debug.Assert(OnSearchChanged != null, nameof(OnSearchChanged) + " != null");
-      OnSearchChanged(this, new SearchEventArgs(m_SearchTextBoxText.Text));
+      OnSearchChanged?.Invoke(this, new SearchEventArgs(m_SearchTextBoxText.Text));
     }
 
     private void SearchText_TextChanged(object sender, EventArgs e)

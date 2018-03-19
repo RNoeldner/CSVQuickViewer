@@ -78,7 +78,7 @@ namespace CsvTools
         var newVal = (value ?? string.Empty).Trim();
         if (m_CommentLine.Equals(value)) return;
         m_CommentLine = newVal;
-        NotifyPropertyChanged("CommentLine");
+        NotifyPropertyChanged(nameof(CommentLine));
       }
     }
 
@@ -100,7 +100,7 @@ namespace CsvTools
         var newVal = (value ?? string.Empty).Trim();
         if (m_DelimiterPlaceholder.Equals(newVal)) return;
         m_DelimiterPlaceholder = newVal;
-        NotifyPropertyChanged("DelimiterPlaceholder");
+        NotifyPropertyChanged(nameof(DelimiterPlaceholder));
       }
     }
 
@@ -124,7 +124,7 @@ namespace CsvTools
         if (m_EscapeCharacter.Equals(newVal)) return;
         m_EscapeCharacterChar = GetChar(newVal);
         m_EscapeCharacter = newVal;
-        NotifyPropertyChanged("EscapeCharacter");
+        NotifyPropertyChanged(nameof(EscapeCharacter));
       }
     }
 
@@ -154,7 +154,7 @@ namespace CsvTools
         if (m_FieldDelimiter.Equals(newVal)) return;
         m_FieldDelimiterChar = GetChar(newVal);
         m_FieldDelimiter = newVal;
-        NotifyPropertyChanged("FieldDelimiter");
+        NotifyPropertyChanged(nameof(FieldDelimiter));
       }
     }
 
@@ -184,7 +184,7 @@ namespace CsvTools
         if (m_FieldQualifier.Equals(newVal)) return;
         m_FieldQualifierChar = GetChar(newVal);
         m_FieldQualifier = newVal;
-        NotifyPropertyChanged("FieldQualifier");
+        NotifyPropertyChanged(nameof(FieldQualifier));
       }
     }
 
@@ -221,7 +221,7 @@ namespace CsvTools
         var newVal = value ?? c_NewLineDefault;
         if (m_NewLine.Equals(newVal)) return;
         m_NewLine = newVal;
-        NotifyPropertyChanged("NewLine");
+        NotifyPropertyChanged(nameof(NewLine));
       }
     }
 
@@ -243,7 +243,7 @@ namespace CsvTools
         var newVal = value ?? c_NewLinePlaceholderDefault;
         if (m_NewLinePlaceholder.Equals(newVal, StringComparison.OrdinalIgnoreCase)) return;
         m_NewLinePlaceholder = newVal;
-        NotifyPropertyChanged("NewLinePlaceholder");
+        NotifyPropertyChanged(nameof(NewLinePlaceholder));
       }
     }
 
@@ -261,7 +261,7 @@ namespace CsvTools
       {
         if (m_QualifyOnlyIfNeeded.Equals(value)) return;
         m_QualifyOnlyIfNeeded = value;
-        NotifyPropertyChanged("QualifyOnlyIfNeeded");
+        NotifyPropertyChanged(nameof(QualifyOnlyIfNeeded));
       }
     }
 
@@ -278,7 +278,7 @@ namespace CsvTools
       {
         if (m_QualifyAlways.Equals(value)) return;
         m_QualifyAlways = value;
-        NotifyPropertyChanged("QualifyAlways");
+        NotifyPropertyChanged(nameof(QualifyAlways));
       }
     }
 
@@ -300,7 +300,7 @@ namespace CsvTools
         var newVal = (value ?? string.Empty).Trim();
         if (m_QuotePlaceholder.Equals(newVal)) return;
         m_QuotePlaceholder = newVal;
-        NotifyPropertyChanged("QuotePlaceholder");
+        NotifyPropertyChanged(nameof(QuotePlaceholder));
       }
     }
 
@@ -322,7 +322,7 @@ namespace CsvTools
         var newVal = value ?? new ValueFormat();
         if (m_ValueFormat.Equals(newVal)) return;
         m_ValueFormat = newVal;
-        NotifyPropertyChanged("ValueFormat");
+        NotifyPropertyChanged(nameof(ValueFormat));
       }
     }
 

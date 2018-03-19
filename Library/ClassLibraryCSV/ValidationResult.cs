@@ -46,8 +46,8 @@ namespace CsvTools
       {
         if (m_ErrorCount == value) return;
         m_ErrorCount = value;
-        NotifyPropertyChanged("ErrorCount");
-        NotifyPropertyChanged("ErrorRatio");
+        NotifyPropertyChanged(nameof(ErrorCount));
+        NotifyPropertyChanged(nameof(ErrorRatio));
       }
     }
 
@@ -73,8 +73,8 @@ namespace CsvTools
       {
         if (m_FileSize == value) return;
         m_FileSize = value;
-        NotifyPropertyChanged("FileSize");
-        NotifyPropertyChanged("FileSizeDisplay");
+        NotifyPropertyChanged(nameof(FileSize));
+        NotifyPropertyChanged(nameof(FileSizeDisplay));
       }
     }
 
@@ -100,9 +100,9 @@ namespace CsvTools
       {
         if (m_NumberRecords == value) return;
         m_NumberRecords = value;
-        NotifyPropertyChanged("NumberRecords");
-        NotifyPropertyChanged("ErrorRatio");
-        NotifyPropertyChanged("WarningRatio");
+        NotifyPropertyChanged(nameof(NumberRecords));
+        NotifyPropertyChanged(nameof(ErrorRatio));
+        NotifyPropertyChanged(nameof(WarningRatio));
       }
     }
 
@@ -133,8 +133,8 @@ namespace CsvTools
       {
         if (m_WarningCount == value) return;
         m_WarningCount = value;
-        NotifyPropertyChanged("WarningCount");
-        NotifyPropertyChanged("WarningRatio");
+        NotifyPropertyChanged(nameof(WarningCount));
+        NotifyPropertyChanged(nameof(WarningRatio));
       }
     }
 

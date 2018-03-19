@@ -52,12 +52,13 @@ namespace CsvTools
 
     private void BtnOK_Click(object sender, EventArgs e)
     {
-      var isPgpKeyRingBundle = PGPKeyStorage.IsValidKeyRingBundle(textBox.Text, m_PrivateKey);
+      var isPgpKeyRingBundle = PGPKeyStorage.IsValidKeyRingBundle(textBox.Text, m_PrivateKey, out var message);
 
       if (!isPgpKeyRingBundle)
       {
-        MessageBox.Show(
-          "The entered text does not seem to be a valid PGP Key Block File.\nThe text should start with -----BEGIN PGP");
+        if (MessageBox.Show(
+          $"The entered text does not seem to be a valid PGP Key Block File.\nThe text should start with -----BEGIN PGP\nException: \n{message}", "Issue with Key", MessageBoxButtons.OKCancel) == DialogResult.Cancel)
+          return;
       }
       else
       {

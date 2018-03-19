@@ -96,8 +96,8 @@ iXhkjSU70YAKCIqMlrQALUBB9n6zVsfpRw5ShrKqm7URQTHCkuTLXYf6juGI
     [TestMethod]
     public void IsValidKeyRingBundleTest()
     {
-      Assert.IsFalse(PGPKeyStorage.IsValidKeyRingBundle("Hello Test", true));
-      Assert.IsFalse(PGPKeyStorage.IsValidKeyRingBundle("", false));
+      Assert.IsFalse(PGPKeyStorage.IsValidKeyRingBundle("Hello Test", true, out _));
+      Assert.IsFalse(PGPKeyStorage.IsValidKeyRingBundle("", false, out _));
 
       Assert.IsTrue(PGPKeyStorage.IsValidKeyRingBundle(@"-----BEGIN PGP PRIVATE KEY BLOCK-----
 Version: GnuPG v2
@@ -181,7 +181,7 @@ y7xFqHwdElh01h09BHi1J+LyrKqPo9fWeciCmbkeo64Gfw+VjcDweQnSHR38Pntd
 GKe9gdAaCalKwICC09msrUMsdl9x0ovgSzpUErwY97OlA7iO2WJkevutvLq2ZZAw
 LfIxI01Zm309Zq63t8TKgPHJ0l3kIPkMvSVx+8lp3UqCnS5etOA=
 =Bz2c
------END PGP PRIVATE KEY BLOCK-----", true));
+-----END PGP PRIVATE KEY BLOCK-----", true, out _));
 
       Assert.IsTrue(PGPKeyStorage.IsValidKeyRingBundle(@"-----BEGIN PGP PUBLIC KEY BLOCK-----
 Version: GnuPG v2
@@ -223,7 +223,7 @@ rKqPo9fWeciCmbkeo64Gfw+VjcDweQnSHR38Pntd91C8seD7AQ5pToOKVlnK4DNq
 dl9x0ovgSzpUErwY97OlA7iO2WJkevutvLq2ZZAwLfIxI01Zm309Zq63t8TKgPHJ
 0l3kIPkMvSVx+8lp3UqCnS5etOA=
 =g7cd
------END PGP PUBLIC KEY BLOCK-----", false));
+-----END PGP PUBLIC KEY BLOCK-----", false, out _));
     }
 
     [TestMethod]
@@ -313,6 +313,23 @@ dl9x0ovgSzpUErwY97OlA7iO2WJkevutvLq2ZZAwLfIxI01Zm309Zq63t8TKgPHJ
         }
       }
     }
+
+    private readonly string m_ApplicationDirectory = FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles";
+
+    //[TestMethod]
+    //public void PgpEncryptTestFile()
+    //{
+    //  using (var pdt = new ProcessDisplayTime(CancellationToken.None))
+    //  {
+    //    using (var input = File.OpenRead(m_ApplicationDirectory + "\\BasicCSV.txt"))
+    //    {
+    //      using (var output = File.OpenWrite(m_ApplicationDirectory + "\\BasicCSV.pgp"))
+    //      {
+    //        m_PGPKeyStorage.PgpEncrypt(input, output, m_PGPKeyStorage.GetRecipientList().First(), pdt);
+    //      }
+    //    }
+    //  }
+    //}
 
     [TestMethod]
     public void PgpEncryptTest()
