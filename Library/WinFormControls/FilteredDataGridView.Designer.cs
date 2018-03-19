@@ -130,7 +130,7 @@ namespace CsvTools
             this.toolStripSeparator4,
             this.toolStripMenuItemApplyFilter});
       this.contextMenuStripFilter.Name = "contextMenuStripFilter";
-      this.contextMenuStripFilter.OwnerItem = this.toolStripMenuItem2;
+      this.contextMenuStripFilter.OwnerItem = this.toolStripMenuItemFilterAdd;
       this.contextMenuStripFilter.Size = new System.Drawing.Size(106, 32);
       this.contextMenuStripFilter.Text = "contextMenuStripFilter";
       // 
@@ -173,7 +173,7 @@ namespace CsvTools
             this.toolStripMenuItemFilled,
             this.toolStripMenuItemColumnVisibility});
       this.contextMenuStripColumns.Name = "contextMenuStripColumns";
-      this.contextMenuStripColumns.OwnerItem = this.toolStripMenuItemColumns;
+      this.contextMenuStripColumns.OwnerItem = this.toolStripMenuItem1;
       this.contextMenuStripColumns.ShowImageMargin = false;
       this.contextMenuStripColumns.Size = new System.Drawing.Size(163, 98);
       // 

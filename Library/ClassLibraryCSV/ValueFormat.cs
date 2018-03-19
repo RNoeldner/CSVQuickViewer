@@ -30,7 +30,7 @@ namespace CsvTools
   ///   Setting for a value format
   /// </summary>
   [Serializable]
-  [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
+  [DebuggerDisplay("{DebuggerDisplay,nq}")]
 #pragma warning disable CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
   public class ValueFormat : ICloneable<ValueFormat>, IEquatable<ValueFormat>, INotifyPropertyChanged
 #pragma warning restore CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
@@ -102,7 +102,7 @@ namespace CsvTools
       {
         if (m_DataType.Equals(value)) return;
         m_DataType = value;
-        NotifyPropertyChanged("DataType");
+        NotifyPropertyChanged(nameof(DataType));
       }
     }
 
@@ -120,7 +120,7 @@ namespace CsvTools
         var newVal = value ?? string.Empty;
         if (m_DateFormat.Equals(newVal)) return;
         m_DateFormat = newVal;
-        NotifyPropertyChanged("DateFormat");
+        NotifyPropertyChanged(nameof(DateFormat));
       }
     }
 
@@ -141,7 +141,7 @@ namespace CsvTools
         var newVal = chr != '\0' ? chr.ToString() : string.Empty;
         if (m_DateSeparator.Equals(newVal, StringComparison.Ordinal)) return;
         m_DateSeparator = newVal;
-        NotifyPropertyChanged("DateSeparator");
+        NotifyPropertyChanged(nameof(DateSeparator));
       }
     }
 
@@ -166,11 +166,11 @@ namespace CsvTools
         if (m_GroupSeparator.Equals(newVal, StringComparison.Ordinal))
         {
           m_GroupSeparator = m_DecimalSeparator;
-          NotifyPropertyChanged("GroupSeparator");
+          NotifyPropertyChanged(nameof(GroupSeparator));
         }
 
         m_DecimalSeparator = newVal;
-        NotifyPropertyChanged("DecimalSeparator");
+        NotifyPropertyChanged(nameof(DecimalSeparator));
       }
     }
 
@@ -190,7 +190,7 @@ namespace CsvTools
         var newVal = value ?? string.Empty;
         if (m_False.Equals(newVal)) return;
         m_False = newVal;
-        NotifyPropertyChanged("False");
+        NotifyPropertyChanged(nameof(False));
       }
     }
 
@@ -214,11 +214,11 @@ namespace CsvTools
         if (m_DecimalSeparator.Equals(newVal, StringComparison.Ordinal))
         {
           m_DecimalSeparator = m_GroupSeparator;
-          NotifyPropertyChanged("DecimalSeparator");
+          NotifyPropertyChanged(nameof(DecimalSeparator));
         }
 
         m_GroupSeparator = newVal;
-        NotifyPropertyChanged("GroupSeparator");
+        NotifyPropertyChanged(nameof(GroupSeparator));
       }
     }
 
@@ -236,7 +236,7 @@ namespace CsvTools
         var newVal = value ?? string.Empty;
         if (m_NumberFormat.Equals(newVal)) return;
         m_NumberFormat = newVal;
-        NotifyPropertyChanged("NumberFormat");
+        NotifyPropertyChanged(nameof(NumberFormat));
       }
     }
 
@@ -255,7 +255,7 @@ namespace CsvTools
         var newval = chr != '\0' ? chr.ToString() : string.Empty;
         if (m_TimeSeparator.Equals(newval)) return;
         m_TimeSeparator = newval;
-        NotifyPropertyChanged("TimeSeparator");
+        NotifyPropertyChanged(nameof(TimeSeparator));
       }
     }
 
@@ -274,7 +274,7 @@ namespace CsvTools
         var newVal = value ?? string.Empty;
         if (m_True.Equals(newVal)) return;
         m_True = newVal;
-        NotifyPropertyChanged("True");
+        NotifyPropertyChanged(nameof(True));
       }
     }
 

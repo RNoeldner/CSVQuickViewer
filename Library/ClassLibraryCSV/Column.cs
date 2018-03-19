@@ -84,7 +84,7 @@ namespace CsvTools
       {
         if (m_Convert.Equals(value)) return;
         m_Convert = value;
-        NotifyPropertyChanged("Convert");
+        NotifyPropertyChanged(nameof(Convert));
       }
     }
 
@@ -115,7 +115,7 @@ namespace CsvTools
         if (m_DataType.Equals(value)) return;
         m_DataType = value;
         Convert |= m_DataType != DataType.String;
-        NotifyPropertyChanged("DataType");
+        NotifyPropertyChanged(nameof(DataType));
       }
     }
 
@@ -134,7 +134,7 @@ namespace CsvTools
         var newVal = value ?? string.Empty;
         if (m_DateFormat.Equals(newVal)) return;
         m_DateFormat = newVal;
-        NotifyPropertyChanged("DateFormat");
+        NotifyPropertyChanged(nameof(DateFormat));
       }
     }
 
@@ -167,7 +167,7 @@ namespace CsvTools
         var newVal = chr != '\0' ? chr.ToString() : string.Empty;
         if (m_DateSeparator.Equals(newVal, StringComparison.Ordinal)) return;
         m_DateSeparator = newVal;
-        NotifyPropertyChanged("DateSeparator");
+        NotifyPropertyChanged(nameof(DateSeparator));
       }
     }
 
@@ -206,12 +206,12 @@ namespace CsvTools
         if (m_GroupSeparator.Equals(newVal, StringComparison.Ordinal))
         {
           m_GroupSeparator = m_DecimalSeparator;
-          NotifyPropertyChanged("GroupSeparator");
+          NotifyPropertyChanged(nameof(GroupSeparator));
         }
 
         m_DecimalSeparator = newVal;
         m_DecimalSeparatorChar = m_DecimalSeparator.GetFirstChar();
-        NotifyPropertyChanged("DecimalSeparator");
+        NotifyPropertyChanged(nameof(DecimalSeparator));
       }
     }
 
@@ -242,7 +242,7 @@ namespace CsvTools
         var newVal = value ?? string.Empty;
         if (m_DestinationName.Equals(newVal)) return;
         m_DestinationName = newVal;
-        NotifyPropertyChanged("DestinationName");
+        NotifyPropertyChanged(nameof(DestinationName));
       }
     }
 
@@ -262,7 +262,7 @@ namespace CsvTools
       {
         if (m_False != null && m_False.Equals(value)) return;
         m_False = value;
-        NotifyPropertyChanged("False");
+        NotifyPropertyChanged(nameof(False));
       }
     }
 
@@ -301,12 +301,12 @@ namespace CsvTools
         if (m_DecimalSeparator.Equals(newVal, StringComparison.Ordinal))
         {
           m_DecimalSeparator = m_GroupSeparator;
-          NotifyPropertyChanged("DecimalSeparator");
+          NotifyPropertyChanged(nameof(DecimalSeparator));
         }
 
         m_GroupSeparator = newVal;
         GroupSeparatorChar = m_GroupSeparator.GetFirstChar();
-        NotifyPropertyChanged("GroupSeparator");
+        NotifyPropertyChanged(nameof(GroupSeparator));
       }
     }
 
@@ -337,7 +337,7 @@ namespace CsvTools
       {
         if (m_Ignore.Equals(value)) return;
         m_Ignore = value;
-        NotifyPropertyChanged("Ignore");
+        NotifyPropertyChanged(nameof(Ignore));
       }
     }
 
@@ -355,7 +355,7 @@ namespace CsvTools
         if (m_Name.Equals(newVal)) return;
         m_Name = newVal;
 
-        NotifyPropertyChanged("Name");
+        NotifyPropertyChanged(nameof(Name));
         if (m_DestinationName.Length == 0)
           DestinationName = newVal;
       }
@@ -375,7 +375,7 @@ namespace CsvTools
         var newVal = value ?? string.Empty;
         if (m_NumberFormat.Equals(newVal)) return;
         m_NumberFormat = newVal;
-        NotifyPropertyChanged("NumberFormat");
+        NotifyPropertyChanged(nameof(NumberFormat));
       }
     }
 
@@ -405,7 +405,7 @@ namespace CsvTools
       {
         if (m_Part.Equals(value)) return;
         m_Part = value;
-        NotifyPropertyChanged("Part");
+        NotifyPropertyChanged(nameof(Part));
       }
     }
 
@@ -434,7 +434,7 @@ namespace CsvTools
       {
         if (m_PartSplitter.Equals(value)) return;
         m_PartSplitter = value;
-        NotifyPropertyChanged("PartSplitter");
+        NotifyPropertyChanged(nameof(PartSplitter));
       }
     }
 
@@ -465,7 +465,7 @@ namespace CsvTools
       {
         if (m_PartToEnd.Equals(value)) return;
         m_PartToEnd = value;
-        NotifyPropertyChanged("PartToEnd");
+        NotifyPropertyChanged(nameof(PartToEnd));
       }
     }
 
@@ -507,7 +507,7 @@ namespace CsvTools
         var newVal = value ?? string.Empty;
         if (m_TimePart.Equals(newVal)) return;
         m_TimePart = newVal;
-        NotifyPropertyChanged("TimePart");
+        NotifyPropertyChanged(nameof(TimePart));
       }
     }
 
@@ -526,7 +526,7 @@ namespace CsvTools
         var newVal = value ?? string.Empty;
         if (m_TimeZonePart.Equals(newVal)) return;
         m_TimeZonePart = newVal;
-        NotifyPropertyChanged("TimeZonePart");
+        NotifyPropertyChanged(nameof(TimeZonePart));
       }
     }
 
@@ -544,7 +544,7 @@ namespace CsvTools
         var newVal = value ?? cDefaultTimePartFormat;
         if (m_TimePartFormat.Equals(newVal)) return;
         m_TimePartFormat = newVal;
-        NotifyPropertyChanged("TimePartFormat");
+        NotifyPropertyChanged(nameof(TimePartFormat));
       }
     }
 
@@ -587,7 +587,7 @@ namespace CsvTools
         var newval = chr != '\0' ? chr.ToString() : string.Empty;
         if (m_TimeSeparator.Equals(newval)) return;
         m_TimeSeparator = newval;
-        NotifyPropertyChanged("TimeSeparator");
+        NotifyPropertyChanged(nameof(TimeSeparator));
       }
     }
 
@@ -617,7 +617,7 @@ namespace CsvTools
       {
         if (m_True != null && m_True.Equals(value)) return;
         m_True = value;
-        NotifyPropertyChanged("True");
+        NotifyPropertyChanged(nameof(True));
       }
     }
 

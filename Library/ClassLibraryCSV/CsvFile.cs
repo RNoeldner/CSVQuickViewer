@@ -119,7 +119,7 @@ namespace CsvTools
       {
         if (m_CodePageId.Equals(value)) return;
         m_CodePageId = value;
-        NotifyPropertyChanged("CodePageID");
+        NotifyPropertyChanged(nameof(CodePageId));
       }
     }
 
@@ -166,7 +166,7 @@ namespace CsvTools
       {
         if (m_NoDelimitedFile.Equals(value)) return;
         m_NoDelimitedFile = value;
-        NotifyPropertyChanged("NoDelimitedFile");
+        NotifyPropertyChanged(nameof(NoDelimitedFile));
       }
     }
 
@@ -184,7 +184,7 @@ namespace CsvTools
       {
         if (m_NumWarnings.Equals(value)) return;
         m_NumWarnings = value;
-        NotifyPropertyChanged("NumWarnings");
+        NotifyPropertyChanged(nameof(NumWarnings));
       }
     }
 
@@ -202,7 +202,7 @@ namespace CsvTools
       {
         if (m_TreatUnknowCharaterAsSpace.Equals(value)) return;
         m_TreatUnknowCharaterAsSpace = value;
-        NotifyPropertyChanged("TreatUnknowCharaterAsSpace");
+        NotifyPropertyChanged(nameof(TreatUnknowCharaterAsSpace));
       }
     }
 
@@ -222,7 +222,7 @@ namespace CsvTools
       {
         if (m_WarnDelimiterInValue.Equals(value)) return;
         m_WarnDelimiterInValue = value;
-        NotifyPropertyChanged("WarnDelimiterInValue");
+        NotifyPropertyChanged(nameof(WarnDelimiterInValue));
       }
     }
 
@@ -240,7 +240,7 @@ namespace CsvTools
       {
         if (m_WarnEmptyTailingColumns.Equals(value)) return;
         m_WarnEmptyTailingColumns = value;
-        NotifyPropertyChanged("WarnEmptyTailingColumns");
+        NotifyPropertyChanged(nameof(WarnEmptyTailingColumns));
       }
     }
 
@@ -260,7 +260,7 @@ namespace CsvTools
       {
         if (m_WarnLineFeed.Equals(value)) return;
         m_WarnLineFeed = value;
-        NotifyPropertyChanged("WarnLineFeed");
+        NotifyPropertyChanged(nameof(WarnLineFeed));
       }
     }
 
@@ -278,7 +278,7 @@ namespace CsvTools
       {
         if (m_WarnNbsp.Equals(value)) return;
         m_WarnNbsp = value;
-        NotifyPropertyChanged("WarnNBSP");
+        NotifyPropertyChanged(nameof(WarnNBSP));
       }
     }
 
@@ -296,7 +296,7 @@ namespace CsvTools
       {
         if (m_WarnQuotes.Equals(value)) return;
         m_WarnQuotes = value;
-        NotifyPropertyChanged("WarnQuotes");
+        NotifyPropertyChanged(nameof(WarnQuotes));
       }
     }
 
@@ -314,7 +314,7 @@ namespace CsvTools
       {
         if (m_WarnQuotesInQuotes.Equals(value)) return;
         m_WarnQuotesInQuotes = value;
-        NotifyPropertyChanged("WarnQuotesInQuotes");
+        NotifyPropertyChanged(nameof(WarnQuotesInQuotes));
       }
     }
 
@@ -334,7 +334,7 @@ namespace CsvTools
       {
         if (m_WarnUnknowCharacter.Equals(value)) return;
         m_WarnUnknowCharacter = value;
-        NotifyPropertyChanged("WarnUnknowCharater");
+        NotifyPropertyChanged(nameof(WarnUnknowCharater));
       }
     }
 

@@ -520,8 +520,16 @@ namespace CsvTools
         {
           if (!string.IsNullOrEmpty(remote?.RemoteFileName))
           {
-            HandleShowProgress("Handling Remote file ...");
-            ApplicationSetting.RemoteFileHandler(remote.RemoteFileName, m_FileSetting.FullPath, ProcessDisplay, remote.ThrowErrorIfNotExists);
+            try
+            {
+              HandleShowProgress("Handling Remote file ...");
+              ApplicationSetting.RemoteFileHandler(remote.RemoteFileName, m_FileSetting.FullPath, ProcessDisplay, remote.ThrowErrorIfNotExists);
+            }
+            catch (Exception)
+            {
+              if (remote.ThrowErrorIfNotExists)
+                throw;
+            }
           }
         }
 

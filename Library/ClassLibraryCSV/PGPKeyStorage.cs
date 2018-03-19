@@ -59,7 +59,7 @@ namespace CsvTools
         m_PrivateKeyRingBundle.Clear();
         if (value != null)
           m_PrivateKeyRingBundle.AddRange(value);
-        NotifyPropertyChanged("PrivateKeys");
+        NotifyPropertyChanged(nameof(PrivateKeys));
         m_Recipients = null;
       }
     }
@@ -79,7 +79,7 @@ namespace CsvTools
         m_PublicKeyRingBundle.Clear();
         if (value != null)
           m_PublicKeyRingBundle.AddRange(value);
-        NotifyPropertyChanged("PublicKeys");
+        NotifyPropertyChanged(nameof(PublicKeys));
         m_Recipients = null;
       }
     }
@@ -101,7 +101,7 @@ namespace CsvTools
         var newVal = value ?? string.Empty;
         if (m_EncryptedPassphase.Equals(newVal, StringComparison.Ordinal)) return;
         m_EncryptedPassphase = newVal;
-        NotifyPropertyChanged("EncryptedPassphase");
+        NotifyPropertyChanged(nameof(EncryptedPassphase));
       }
     }
 
@@ -116,7 +116,7 @@ namespace CsvTools
       {
         if (m_AllowSavingPassphrase == value) return;
         m_AllowSavingPassphrase = value;
-        NotifyPropertyChanged("AllowSavingPassphrase");
+        NotifyPropertyChanged(nameof(AllowSavingPassphrase));
       }
     }
 
@@ -154,8 +154,9 @@ namespace CsvTools
     /// </summary>
     public virtual event PropertyChangedEventHandler PropertyChanged;
 
-    public static bool IsValidKeyRingBundle(string input, bool privateKey)
+    public static bool IsValidKeyRingBundle(string input, bool privateKey, out string message)
     {
+      message = string.Empty;
       if (string.IsNullOrEmpty(input))
         return false;
       using (var keyIn = new MemoryStream(Encoding.UTF8.GetBytes(input)))
@@ -173,8 +174,9 @@ namespace CsvTools
             return testPub.Count != 0;
           }
         }
-        catch
+        catch (Exception ex)
         {
+          message = ex.SourceExceptionMessage();
           // ignored
         }
       }
@@ -184,21 +186,21 @@ namespace CsvTools
 
     public virtual void AddPrivateKey(string key)
     {
-      if (!IsValidKeyRingBundle(key, true)) return;
+      if (!IsValidKeyRingBundle(key, true, out _)) return;
       var encKey = key.Encrypt(m_PgpDecryption);
       if (m_PrivateKeyRingBundle.Any(x => key.Equals(x.Decrypt(m_PgpDecryption)))) return;
       m_PrivateKeyRingBundle.Add(encKey);
-      NotifyPropertyChanged("PrivateKeys");
+      NotifyPropertyChanged(nameof(PrivateKeys));
       m_Recipients = null;
     }
 
     public virtual void AddPublicKey(string key)
     {
-      if (!IsValidKeyRingBundle(key, false)) return;
+      if (!IsValidKeyRingBundle(key, false, out _)) return;
       var encKey = key.Encrypt(m_PgpDecryption);
       if (m_PublicKeyRingBundle.Any(x => key.Equals(x.Decrypt(m_PgpDecryption)))) return;
       m_PublicKeyRingBundle.Add(encKey);
-      NotifyPropertyChanged("PublicKeys");
+      NotifyPropertyChanged(nameof(PublicKeys));
       m_Recipients = null;
     }
 
@@ -351,34 +353,58 @@ namespace CsvTools
       PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(info));
     }
 
-    public virtual Stream PgpDecrypt(Stream toDecrypt, System.Security.SecureString passphrase)
+    /// <summary>
+    /// Decrypts the encrypted stream
+    /// </summary>
+    /// <param name="inputFile">To decrypt.</param>
+    /// <param name="passphrase">The passphrase.</param>
+    /// <returns></returns>
+    /// <exception cref="PgpException">
+    /// Encrypted message contains a signed message - not literal data.
+    /// or
+    /// Message is not a simple encrypted file - type unknown.
+    /// </exception>
+    public virtual Stream PgpDecrypt(Stream inputFile, System.Security.SecureString passphrase)
     {
-      toDecrypt = PgpUtilities.GetDecoderStream(toDecrypt);
-      var pgpF = new PgpObjectFactory(toDecrypt);
-      PgpEncryptedDataList enc;
+      // Never use using here this would close the decoder stream and we would not be
+      // able to read later on from the input stream
+      var decoderStream = PgpUtilities.GetDecoderStream(inputFile);
 
-      var o = pgpF.NextPgpObject();
-      if (o is PgpEncryptedDataList list)
-        enc = list;
-      else
-        enc = (PgpEncryptedDataList)pgpF.NextPgpObject();
+      var encryptedDataList = (PgpEncryptedDataList)new PgpObjectFactory(decoderStream)?.NextPgpObject();
 
-      var plainFact = new PgpObjectFactory(GetDecyptedDataStream(enc, passphrase));
-      var message = plainFact.NextPgpObject();
+      var pgpObject = new PgpObjectFactory(GetDecyptedDataStream(encryptedDataList, passphrase)).NextPgpObject();
+      if (pgpObject is PgpCompressedData data)
+        pgpObject = (new PgpObjectFactory(data.GetDataStream())).NextPgpObject();
 
-      if (message is PgpCompressedData data)
-      {
-        var pgpFact = new PgpObjectFactory(data.GetDataStream());
-        message = pgpFact.NextPgpObject();
-      }
-
-      if (message is PgpLiteralData literalData)
+      if (pgpObject is PgpLiteralData literalData)
         return literalData.GetInputStream();
 
-      if (message is PgpOnePassSignatureList)
+      if (pgpObject is PgpOnePassSignatureList)
         throw new PgpException("Encrypted message contains a signed message - not literal data.");
 
       throw new PgpException("Message is not a simple encrypted file - type unknown.");
+    }
+
+    /// <summary>
+    /// Gets the encrypted key identifier for an input stream
+    /// </summary>
+    /// <param name="inputFile">The input file.</param>
+    /// <returns></returns>
+    public virtual string GetEncryptedKeyID(Stream inputFile)
+    {
+      using (var decoderStream = PgpUtilities.GetDecoderStream(inputFile))
+      {
+        var encryptedDataList = (PgpEncryptedDataList)new PgpObjectFactory(decoderStream)?.NextPgpObject();
+        var encryptedData = encryptedDataList.GetEncryptedDataObjects().Cast<PgpPublicKeyEncryptedData>().FirstOrDefault();
+
+        var knownRecipient = GetRecipients()?.Values.Where(x => x.KeyId == encryptedData.KeyId).First();
+        if (knownRecipient != null)
+          foreach (var userID in knownRecipient.GetUserIds())
+            return userID.ToString();
+        else
+          return $"Unknown recipient, KeyID {encryptedData.KeyId:X}";
+      }
+      return string.Empty;
     }
 
     public virtual void PgpEncrypt(Stream toEncrypt, Stream outStream, string recipient, IProcessDisplay processDispay)
@@ -420,14 +446,14 @@ namespace CsvTools
     public virtual void RemovePrivateKey(int index)
     {
       m_PrivateKeyRingBundle.RemoveAt(index);
-      NotifyPropertyChanged("PrivateKeys");
+      NotifyPropertyChanged(nameof(PrivateKeys));
       m_Recipients = null;
     }
 
     public virtual void RemovePublicKey(int index)
     {
       m_PublicKeyRingBundle.RemoveAt(index);
-      NotifyPropertyChanged("PublicKeys");
+      NotifyPropertyChanged(nameof(PublicKeys));
       m_Recipients = null;
     }
 

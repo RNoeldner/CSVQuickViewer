@@ -180,6 +180,7 @@ namespace CsvTools
         m_LabelPercent.Text = TimeToCompletion.PercentDisplay;
         m_LabelEtr.Text = TimeToCompletion.EstimatedTimeRemainingDisplay;
         m_LabelEtl.Visible = m_LabelEtr.Text.Length > 0;
+        m_LabelPercent.Visible = m_LabelEtr.Text.Length > 0;
       });
       Progress?.Invoke(this, new ProgressEventArgs(text, value));
     }

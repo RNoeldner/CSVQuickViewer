@@ -58,7 +58,6 @@ namespace CsvTools
       DataError += FilteredDataGridView_DataError;
       toolStripMenuItemColumnVisibility.ItemCheck += CheckedListBox_ItemCheck;
       var tableLayoutSettings = contextMenuStripHeader.LayoutSettings as TableLayoutSettings;
-      Debug.Assert(tableLayoutSettings != null, nameof(tableLayoutSettings) + " != null");
       tableLayoutSettings.ColumnCount = 3;
 
       ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
@@ -1150,7 +1149,6 @@ namespace CsvTools
         {
           var itemName = toolStripMenuItemColumnVisibility.CheckedListBoxControl.Items[index].ToString();
           var dataGridViewColumn = Columns[itemName];
-          Debug.Assert(dataGridViewColumn != null, nameof(dataGridViewColumn) + " != null");
           if (dataGridViewColumn.Visible) continue;
           dataGridViewColumn.Visible = true;
           changes = true;

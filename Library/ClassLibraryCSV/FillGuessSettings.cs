@@ -56,7 +56,7 @@ namespace CsvTools
       {
         if (m_CheckedRecords == value) return;
         m_CheckedRecords = value;
-        NotifyPropertyChanged("CheckedRecords");
+        NotifyPropertyChanged(nameof(CheckedRecords));
       }
     }
 
@@ -73,7 +73,7 @@ namespace CsvTools
       {
         if (m_CheckNamedDates == value) return;
         m_CheckNamedDates = value;
-        NotifyPropertyChanged("CheckNamedDates");
+        NotifyPropertyChanged(nameof(CheckNamedDates));
       }
     }
 
@@ -90,7 +90,7 @@ namespace CsvTools
       {
         if (m_DateTimeValue == value) return;
         m_DateTimeValue = value;
-        NotifyPropertyChanged("DateTimeValue");
+        NotifyPropertyChanged(nameof(DateTimeValue));
       }
     }
 
@@ -107,7 +107,7 @@ namespace CsvTools
       {
         if (m_DectectNumbers == value) return;
         m_DectectNumbers = value;
-        NotifyPropertyChanged("DectectNumbers");
+        NotifyPropertyChanged(nameof(DectectNumbers));
       }
     }
 
@@ -124,7 +124,7 @@ namespace CsvTools
       {
         if (m_DectectPercentage == value) return;
         m_DectectPercentage = value;
-        NotifyPropertyChanged("DectectPercentage");
+        NotifyPropertyChanged(nameof(DectectPercentage));
       }
     }
 
@@ -141,7 +141,7 @@ namespace CsvTools
       {
         if (m_DetectBoolean == value) return;
         m_DetectBoolean = value;
-        NotifyPropertyChanged("DetectBoolean");
+        NotifyPropertyChanged(nameof(DetectBoolean));
       }
     }
 
@@ -158,7 +158,7 @@ namespace CsvTools
       {
         if (m_DetectDateTime == value) return;
         m_DetectDateTime = value;
-        NotifyPropertyChanged("DetectDateTime");
+        NotifyPropertyChanged(nameof(DetectDateTime));
       }
     }
 
@@ -175,7 +175,7 @@ namespace CsvTools
       {
         if (m_DetectGuid == value) return;
         m_DetectGuid = value;
-        NotifyPropertyChanged("DetectGUID");
+        NotifyPropertyChanged(nameof(DetectGUID));
       }
     }
 
@@ -201,7 +201,7 @@ namespace CsvTools
         var newVal = value ?? string.Empty;
         if (m_FalseValue.Equals(newVal)) return;
         m_FalseValue = newVal;
-        NotifyPropertyChanged("FalseValue");
+        NotifyPropertyChanged(nameof(FalseValue));
       }
     }
 
@@ -218,7 +218,7 @@ namespace CsvTools
       {
         if (m_IgnoreIdColums == value) return;
         m_IgnoreIdColums = value;
-        NotifyPropertyChanged("IgnoreIdColums");
+        NotifyPropertyChanged(nameof(IgnoreIdColums));
       }
     }
 
@@ -235,7 +235,7 @@ namespace CsvTools
       {
         if (m_MinSamplesForIntDate == value || value <= 0 || value >= m_SampleValues) return;
         m_MinSamplesForIntDate = value;
-        NotifyPropertyChanged("MinSamplesForIntDate");
+        NotifyPropertyChanged(nameof(MinSamplesForIntDate));
       }
     }
 
@@ -252,7 +252,7 @@ namespace CsvTools
       {
         if (m_SampleValues == value || value <= 0 || value <= m_MinSamplesForIntDate) return;
         m_SampleValues = value;
-        NotifyPropertyChanged("SampleValues");
+        NotifyPropertyChanged(nameof(SampleValues));
       }
     }
 
@@ -269,7 +269,7 @@ namespace CsvTools
       {
         if (m_SerialDateTime == value) return;
         m_SerialDateTime = value;
-        NotifyPropertyChanged("SerialDateTime");
+        NotifyPropertyChanged(nameof(SerialDateTime));
       }
     }
 
@@ -295,7 +295,7 @@ namespace CsvTools
         var newVal = value ?? string.Empty;
         if (m_TrueValue.Equals(newVal)) return;
         m_TrueValue = newVal;
-        NotifyPropertyChanged("TrueValue");
+        NotifyPropertyChanged(nameof(TrueValue));
       }
     }
 
