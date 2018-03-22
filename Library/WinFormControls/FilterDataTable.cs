@@ -15,7 +15,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Diagnostics.Contracts;
 
 namespace CsvTools
 {
@@ -25,15 +24,9 @@ namespace CsvTools
   /// <seealso cref="System.IDisposable" />
   public class FilterDataTable : IDisposable
   {
-    private readonly DataTable m_DataTable;
-
-    private readonly DataRow[] m_ErrorRows;
-
-    private ICollection<string> m_ColumnWithErrors;
-
-    private ICollection<string> m_ColumnWithoutErrors;
-
-    private ICollection<string> m_UniqueFieldName = new List<string>();
+    private readonly DataTable m_ErrorTable;
+    private readonly List<string> m_UniqueFieldName = new List<string>();
+    private HashSet<string> m_ColumnWithoutErrors;
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="FilterDataTable" /> class.
@@ -42,22 +35,15 @@ namespace CsvTools
     /// <param name="limit">The limit.</param>
     public FilterDataTable(DataTable init, int limit)
     {
-      m_DataTable = init;
+      m_ErrorTable = init.Clone();
+      var errorRows = init.GetErrors();
+      var max = errorRows.GetLength(0);
+      CutAtLimit = (max > limit);
+      if (CutAtLimit)
+        max = limit;
 
-      m_ErrorRows = m_DataTable.GetErrors();
-      ErrorTable = m_DataTable.Clone();
-      var counter = 0;
-      CutAtLimit = false;
-      foreach (var r in m_ErrorRows)
-      {
-        if (counter++ > limit)
-        {
-          CutAtLimit = true;
-          break;
-        }
-
-        ErrorTable.ImportRow(r);
-      }
+      for (int counter = 0; counter < max; counter++)
+        m_ErrorTable.ImportRow(errorRows[counter]);
     }
 
     /// <summary>
@@ -70,8 +56,16 @@ namespace CsvTools
     {
       get
       {
-        if (m_ColumnWithErrors == null)
-          SetColumnLists();
+        var m_ColumnWithErrors = new List<string>();
+        foreach (DataColumn col in m_ErrorTable.Columns)
+        {
+          // Always ignore line number and ErrorField
+          if (col.ColumnName.Equals(BaseFileReader.cErrorField, StringComparison.OrdinalIgnoreCase))
+            continue;
+
+          if (!m_ColumnWithoutErrors.Contains(col.ColumnName))
+            m_ColumnWithErrors.Add(col.ColumnName);
+        }
 
         return m_ColumnWithErrors;
       }
@@ -88,7 +82,45 @@ namespace CsvTools
       get
       {
         if (m_ColumnWithoutErrors == null)
-          SetColumnLists();
+        {
+          m_ColumnWithoutErrors = new HashSet<string>();
+
+          // m_ColumnWithoutErrors will not contain UniqueFields nor line number / error
+          foreach (DataColumn col in m_ErrorTable.Columns)
+          {
+            // Always keep the line number, error field and any uniques
+            if (col.ColumnName.Equals(BaseFileReader.cStartLineNumberFieldName, StringComparison.OrdinalIgnoreCase) ||
+                col.ColumnName.Equals(BaseFileReader.cErrorField, StringComparison.OrdinalIgnoreCase) ||
+                m_UniqueFieldName.Contains(col.ColumnName))
+              continue;
+
+            // Check if there are errors in this column
+            var hasErrors = false;
+            var inRowErrorDesc0 = "[" + col.ColumnName + "]";
+            var inRowErrorDesc1 = "[" + col.ColumnName + ",";
+            var inRowErrorDesc2 = "," + col.ColumnName + "]";
+            var inRowErrorDesc3 = "," + col.ColumnName + ",";
+            foreach (DataRow row in ErrorTable.Rows)
+            {
+              // In case there is a column error..
+              if (row.GetColumnError(col).Length > 0)
+              {
+                hasErrors = true;
+                break;
+              }
+
+              if (string.IsNullOrEmpty(row.RowError)) continue;
+              if (!row.RowError.Contains(inRowErrorDesc0, StringComparison.OrdinalIgnoreCase) && !row.RowError.Contains(inRowErrorDesc1, StringComparison.OrdinalIgnoreCase) &&
+                  !row.RowError.Contains(inRowErrorDesc2, StringComparison.OrdinalIgnoreCase) && !row.RowError.Contains(inRowErrorDesc3, StringComparison.OrdinalIgnoreCase)) continue;
+
+              hasErrors = true;
+              break;
+            }
+
+            if (!hasErrors)
+              m_ColumnWithoutErrors.Add(col.ColumnName);
+          }
+        }
         return m_ColumnWithoutErrors;
       }
     }
@@ -101,19 +133,20 @@ namespace CsvTools
     /// <value>
     ///   The error table.
     /// </value>
-    public DataTable ErrorTable { get; }
+    public DataTable ErrorTable { get => m_ErrorTable; }
 
     /// <summary>
     ///   Sets the name of the unique field.
     /// </summary>
     /// <value>The name of the unique field.</value>
+    /// <remarks>Setting the UniqueFieldName will update ColumnWithoutErrors</remarks>
     public virtual IEnumerable<string> UniqueFieldName
     {
       set
       {
         m_UniqueFieldName.Clear();
         if (!value.IsEmpty())
-          m_UniqueFieldName = new List<string>(value);
+          m_UniqueFieldName.AddRange(value);
         m_ColumnWithoutErrors = null;
       }
     }
@@ -133,67 +166,7 @@ namespace CsvTools
     private void Dispose(bool disposing)
     {
       if (!disposing) return;
-      m_DataTable?.Dispose();
-
       ErrorTable?.Dispose();
-    }
-
-    /// <summary>
-    ///   Sets the column lists <see cref="m_ColumnWithoutErrors" /> and <see cref="m_ColumnWithErrors" />
-    /// </summary>
-    private void SetColumnLists()
-    {
-      m_ColumnWithoutErrors = new List<string>();
-
-      // m_ColumnWithoutErrors will not contain UniqueFields nor line number / error
-      foreach (DataColumn col in m_DataTable.Columns)
-      {
-        // Always keep the line number
-        if (col.ColumnName.Equals(BaseFileReader.cStartLineNumberFieldName, StringComparison.OrdinalIgnoreCase) ||
-            col.ColumnName.Equals(BaseFileReader.cErrorField, StringComparison.OrdinalIgnoreCase))
-          continue;
-
-        // If its a unique ID keep it as well
-        if (m_UniqueFieldName.Contains(col.ColumnName))
-          continue;
-
-        // Check if there are errors in this column
-        var hasErrors = false;
-        var inRowErrorDesc0 = "[" + col.ColumnName + "]";
-        var inRowErrorDesc1 = "[" + col.ColumnName + ",";
-        var inRowErrorDesc2 = "," + col.ColumnName + "]";
-        var inRowErrorDesc3 = "," + col.ColumnName + ",";
-        foreach (var row in m_ErrorRows)
-        {
-          Contract.Assume(row != null);
-          // In case there is a column error..
-          if (row.GetColumnError(col).Length > 0)
-          {
-            hasErrors = true;
-            break;
-          }
-
-          if (string.IsNullOrEmpty(row.RowError)) continue;
-          if (!row.RowError.Contains(inRowErrorDesc0) && !row.RowError.Contains(inRowErrorDesc1) &&
-              !row.RowError.Contains(inRowErrorDesc2) && !row.RowError.Contains(inRowErrorDesc3)) continue;
-          hasErrors = true;
-          break;
-        }
-
-        if (!hasErrors)
-          m_ColumnWithoutErrors.Add(col.ColumnName);
-      }
-
-      m_ColumnWithErrors = new List<string>();
-      foreach (DataColumn col in m_DataTable.Columns)
-      {
-        // Always ignore line number and ErrorField
-        if (col.ColumnName.Equals(BaseFileReader.cErrorField, StringComparison.OrdinalIgnoreCase))
-          continue;
-
-        if (!m_ColumnWithoutErrors.Contains(col.ColumnName))
-          m_ColumnWithErrors.Add(col.ColumnName);
-      }
     }
   }
 }

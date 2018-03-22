@@ -88,7 +88,12 @@ namespace CsvTools
     {
       m_Column.CollectionChanged += ColumnCollectionChanged;
       Samples.CollectionChanged += delegate { NotifyPropertyChanged(nameof(Samples)); };
-      Errors.CollectionChanged += delegate { NotifyPropertyChanged(nameof(Errors)); };
+      Errors.CollectionChanged += delegate
+      {
+        if (m_NumErrors > 0 && Errors.Count > m_NumErrors)
+          NumErrors = Errors.Count;
+        NotifyPropertyChanged(nameof(Errors));
+      };
     }
 
     /// <summary>
@@ -612,6 +617,9 @@ namespace CsvTools
       }
       set
       {
+        // can not be smaller than the number of named errors
+        if (value > 0 && value < Errors.Count)
+          value = Errors.Count;
         if (m_NumErrors == value) return;
         m_NumErrors = value;
         NotifyPropertyChanged(nameof(NumErrors));

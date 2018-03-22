@@ -392,6 +392,11 @@ namespace CsvTools
       return securePassword;
     }
 
+    public static bool Contains(this string text, string toCheck, StringComparison comp)
+    {
+      return text?.IndexOf(toCheck, comp) >= 0;
+    }
+
     public static int CountOccurance(this string text, string pattern)
     {
       var count = 0;
