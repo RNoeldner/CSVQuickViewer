@@ -450,6 +450,11 @@ namespace CsvTools
         case '*': return "Asterisk: *";
         case '`': return "Tick Mark: `";
         case '✓': return "Check mark: ✓";
+        case '\u001F': return "Unit Separator: Char 31";
+        case '\u001E': return "Record Separator: Char 30";
+        case '\u001D': return "Group Separator: Char 29";
+        case '\u001C': return "File Separator: Char 28";
+
         default:
           return inputString;
       }

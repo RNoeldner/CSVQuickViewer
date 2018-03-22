@@ -275,8 +275,7 @@ namespace CsvTools
     /// </returns>
     public static long WriteFileWithInfo(this IFileSetting fileSetting, bool showSummary,
       CancellationToken cancellationToken,
-      FileSettingChecker fileSettingSourcesCurrent, Func<IFileSetting, CancellationToken, bool> settingLaterThanSources,
-      bool ask)
+      FileSettingChecker fileSettingSourcesCurrent, bool ask, bool onlyOlder)
     {
       if (fileSetting == null)
         return 0;
@@ -305,9 +304,8 @@ namespace CsvTools
         {
           fileSettingSourcesCurrent?.Invoke(fileSetting, processDisplay);
 
-          if (settingLaterThanSources != null)
-            if (settingLaterThanSources(fileSetting, processDisplay.CancellationToken))
-              return 0;
+          if (onlyOlder && fileSetting.SettingLaterThanSources(processDisplay.CancellationToken))
+            return 0;
 
           fileSetting.FullPath.DeleteFileQuestion(ask);
 
@@ -322,7 +320,31 @@ namespace CsvTools
           if (showSummary || hasIssues)
           {
             fi = FileSystemUtils.FileInfo(fileSetting.FullPath);
+
+            // if all source settings are file settings, get the latest file time and set this fileTime
+            var latest = DateTime.MinValue;
+            var dummy = fileSetting.GetSourceFileSettings(cancellationToken, delegate (IFileSetting setting)
+            {
+              if (!(setting is IFileSettingRemoteDownload))
+              {
+                if (latest < setting.FileLastWriteTimeUtc)
+                  latest = setting.FileLastWriteTimeUtc;
+              }
+              else
+              {
+                var fiSrc = FileSystemUtils.FileInfo(setting.FullPath);
+                if (fiSrc.Exists && latest < fiSrc.LastWriteTimeUtc)
+                  latest = fiSrc.LastWriteTimeUtc;
+              }
+              return false;
+            });
             stringBuilder.Append($"Finished writing file\r\rRecords: {written:N0}\rFile size: {fi.Length / 1048576.0:N} MB");
+            if (latest < DateTime.MaxValue && latest > DateTime.MinValue)
+            {
+              stringBuilder.Append($"\rTime adjusted to latest source file: {latest.ToLocalTime():D}");
+              fi.LastWriteTimeUtc = latest;
+              fileSetting.FileLastWriteTimeUtc = latest;
+            }
 
             if (hasIssues)
               stringBuilder.Append("\rIssues:\r");

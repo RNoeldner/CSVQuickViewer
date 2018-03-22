@@ -541,6 +541,62 @@ namespace CsvTools
     }
 
     /// <summary>
+    ///   Check if the Source settings are all read before the write was done
+    /// </summary>
+    /// <param name="fileSettingWrite"></param>
+    /// <param name="token"></param>
+    /// <returns><c>true</c> if the file written is older than all sources</returns>
+    public static bool SettingLaterThanSources(this IFileSetting fileSettingWrite, CancellationToken token)
+    {
+      if (fileSettingWrite.FileLastWriteTimeUtc.Ticks < 10)
+        return false;
+      return fileSettingWrite.GetSourceFileSettings(token,
+               setting => setting.FileLastWriteTimeUtc < fileSettingWrite.FileLastWriteTimeUtc).Count > 0;
+    }
+
+    /// <summary>
+    ///   A function to check and address that used tables might not be current and need to be read again
+    /// </summary>
+    /// <param name="parentFileSetting">The file setting.</param>
+    /// <param name="cancellationToken">The cancellation token source.</param>
+    /// <param name="check">The check.</param>
+    /// <param name="level">The level.</param>
+    /// <returns>
+    ///   A set of IFileSetting that should be checked
+    /// </returns>
+    public static ICollection<IFileSetting> GetSourceFileSettings(this IFileSetting parentFileSetting,
+      CancellationToken cancellationToken, Func<IFileSetting, bool> check, int level = 0)
+    {
+      Contract.Requires(parentFileSetting != null);
+      Contract.Ensures(Contract.Result<ICollection<IFileSetting>>() != null);
+
+      var outList = new List<IFileSetting>();
+
+      // Prevent infinite recursion in case we have a cycle
+      if (level >= 5) return outList;
+      if (string.IsNullOrWhiteSpace(parentFileSetting.SqlStatement)) return outList;
+      var tables = parentFileSetting.SqlStatement.GetSQLTableNames();
+      foreach (var tbl in tables)
+      {
+        if (cancellationToken.IsCancellationRequested)
+          break;
+        // get the Setting to match the table
+        foreach (var setting in ApplicationSetting.ToolSetting.Input.Where(x =>
+          tbl.Equals(x.ID, StringComparison.OrdinalIgnoreCase) && !Equals(x, parentFileSetting)))
+        {
+          foreach (var src in GetSourceFileSettings(setting, cancellationToken, check, level + 1))
+            if (outList.Contains(src))
+              outList.Add(src);
+
+          if (check(setting))
+            outList.Add(setting);
+        }
+      }
+
+      return outList;
+    }
+
+    /// <summary>
     ///   Remove all mapping that do not have a source
     /// </summary>
     /// <param name="columns">List of columns</param>
@@ -939,6 +995,27 @@ namespace CsvTools
           inputString.Equals("LF", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("Line feed", StringComparison.OrdinalIgnoreCase))
         return '\n';
+
+      if (inputString.StartsWith("Unit separator", StringComparison.OrdinalIgnoreCase) ||
+          inputString.Contains("31") ||
+          inputString.Equals("US", StringComparison.OrdinalIgnoreCase))
+        return '\u001F';
+
+      if (inputString.StartsWith("Record separator", StringComparison.OrdinalIgnoreCase) ||
+          inputString.Contains("30") ||
+          inputString.Equals("RS", StringComparison.OrdinalIgnoreCase))
+        return '\u001E';
+
+      if (inputString.StartsWith("Group separator", StringComparison.OrdinalIgnoreCase) ||
+          inputString.Contains("29") ||
+          inputString.Equals("GS", StringComparison.OrdinalIgnoreCase))
+        return '\u001D';
+
+      if (inputString.StartsWith("File separator", StringComparison.OrdinalIgnoreCase) ||
+          inputString.Contains("28") ||
+          inputString.Equals("FS", StringComparison.OrdinalIgnoreCase))
+        return '\u001C';
+
       return '\0';
     }
   }

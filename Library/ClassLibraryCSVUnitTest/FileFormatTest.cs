@@ -211,6 +211,13 @@ namespace CsvTools.Tests
       Assert.AreEqual("Backslash: \\", FileFormat.GetDescription("\\"));
       Assert.AreEqual("Slash: /", FileFormat.GetDescription("/"));
       Assert.AreEqual("Nothing", FileFormat.GetDescription("Nothing"));
+      Assert.AreEqual("Unit Separator: Char 31", FileFormat.GetDescription("US"));
+      Assert.AreEqual("Unit Separator: Char 31", FileFormat.GetDescription("Unit Separator"));
+      Assert.AreEqual("Unit Separator: Char 31", FileFormat.GetDescription("char(31)"));
+
+      Assert.AreEqual("Group Separator: Char 29", FileFormat.GetDescription("GS"));
+      Assert.AreEqual("Record Separator: Char 30", FileFormat.GetDescription("RS"));
+      Assert.AreEqual("File Separator: Char 28", FileFormat.GetDescription("FS"));
     }
 
     [TestMethod]
