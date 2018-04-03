@@ -647,7 +647,7 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        MessageBox.Show(this, ex.ExceptionMessages(), "Error trying to determine the length of the columns",
+        MessageBox.Show(this.ParentForm, ex.ExceptionMessages(), "Error trying to determine the length of the columns",
           MessageBoxButtons.OK, MessageBoxIcon.Warning);
       }
       finally
@@ -681,7 +681,7 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        MessageBox.Show(this, ex.ExceptionMessages(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        MessageBox.Show(this.ParentForm, ex.ExceptionMessages(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
       }
       finally
       {
@@ -720,7 +720,7 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        MessageBox.Show(this, ex.ExceptionMessages(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        MessageBox.Show(this.ParentForm, ex.ExceptionMessages(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
       }
       finally
       {
@@ -751,7 +751,7 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        MessageBox.Show(this, ex.ExceptionMessages(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        MessageBox.Show(this.ParentForm, ex.ExceptionMessages(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
       }
       finally
       {

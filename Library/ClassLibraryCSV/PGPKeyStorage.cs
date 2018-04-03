@@ -135,6 +135,7 @@ namespace CsvTools
       other.PrivateKeys = PrivateKeys;
       other.PublicKeys = PublicKeys;
       other.EncryptedPassphase = EncryptedPassphase;
+      other.AllowSavingPassphrase = AllowSavingPassphrase;
     }
 
     public virtual bool Equals(PGPKeyStorage other)

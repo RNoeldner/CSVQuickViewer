@@ -30,7 +30,7 @@ namespace CsvTools
     ///   Gets or sets the column formats
     /// </summary>
     /// <value>The column format.</value>
-    Collection<Column> Column { get; }
+    ObservableCollection<Column> Column { get; }
 
     /// <summary>
     ///   Gets or sets the consecutive empty rows.

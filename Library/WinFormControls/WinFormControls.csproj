@@ -238,9 +238,6 @@
     <Compile Include="TimedMessage.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="TimedMessage.Designer.cs">
-      <DependentUpon>TimedMessage.cs</DependentUpon>
-    </Compile>
     <Compile Include="ToolStripCheckedListBox.cs">
       <SubType>Component</SubType>
     </Compile>

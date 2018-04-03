@@ -54,9 +54,8 @@ namespace CsvTools
         ? fileName.Substring(fileName.LastIndexOf("\\", StringComparison.Ordinal) + 1)
         : fileName;
 
-      if (MessageBox.Show(
-            $"The file {disp} does exist, do you want to remove it?", "File", MessageBoxButtons.YesNo,
-            MessageBoxIcon.Question) == DialogResult.Yes)
+      if (_MessageBox.Show(null,
+            $"The file {disp} does exist, do you want to remove it?", "File", MessageBoxButtons.YesNo) == DialogResult.Yes)
       {
         retry:
         try
@@ -357,7 +356,7 @@ namespace CsvTools
           }
         }
         if (stringBuilder.Length > 0)
-          MessageBox.Show(stringBuilder.ToString(), FileSystemUtils.GetShortDisplayFileName(fileSetting.FileName, 80), MessageBoxButtons.OK, MessageBoxIcon.Information);
+          _MessageBox.Show(null, stringBuilder.ToString(), FileSystemUtils.GetShortDisplayFileName(fileSetting.FileName, 80), MessageBoxButtons.OK);
       }
       catch (Exception exc)
       {

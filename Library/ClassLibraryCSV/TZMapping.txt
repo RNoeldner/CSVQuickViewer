@@ -77,6 +77,7 @@ PNT	US Mountain Standard Time
 PRT	Pacific SA Standard Time
 PST	Pacific Standard Time
 PYT	Paraguay Standard Time
+SGT	Singapore Standard Time
 SAMT	Russia Time Zone 3
 SRET	Russia Time Zone 10
 SST	Central Pacific Standard Time

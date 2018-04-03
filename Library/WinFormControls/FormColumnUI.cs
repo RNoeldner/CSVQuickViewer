@@ -117,7 +117,7 @@ namespace CsvTools
             if (found.DataType == DataType.String) return;
             m_ColumnEdit.DataType = found.DataType;
             RefreshData();
-            MessageBox.Show(this,
+            _MessageBox.Show(this,
               $"Based on DataType of the source column this is {m_ColumnEdit.GetTypeAndFormatDescription()}.\nPlease choose the desired output format",
               comboBoxColumnName.Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
           }
@@ -149,10 +149,9 @@ namespace CsvTools
               ApplicationSetting.FillGuessSettings.CheckNamedDates);
             if (checkResult == null)
             {
-              MessageBox.Show(this,
+              _MessageBox.Show(this,
                 "No Format could be determined, there are not enough sample values:\n" +
-                 enumerable.Take(42).Join("\t"), comboBoxColumnName.Text, MessageBoxButtons.OK,
-                MessageBoxIcon.Warning);
+                 enumerable.Take(42).Join("\t"), comboBoxColumnName.Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             else
             {
@@ -169,9 +168,9 @@ namespace CsvTools
                     len = smp.Length;
                 sb.Append(checkResult.ExampleNonMatch.Concat(enumerable).Take(42).Join("\t"));
 
-                MessageBox.Show(this,
+                _MessageBox.Show(this,
                   $"Determined Format: {checkResult.FoundValueFormat.GetTypeAndFormatDescription()}\n\nValues:\n{sb}",
-                  comboBoxColumnName.Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                  comboBoxColumnName.Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
               }
               else
               {
@@ -180,7 +179,7 @@ namespace CsvTools
 
                 if (enumerable.Count() < ApplicationSetting.FillGuessSettings.MinSamplesForIntDate)
                 {
-                  MessageBox.Show(this,
+                  _MessageBox.Show(this,
                     $"No Format found in:\n{examples.Join("\t")}.\n\nMaybe not enough distinct values have been found.",
                     comboBoxColumnName.Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
@@ -188,16 +187,15 @@ namespace CsvTools
                 {
                   if (m_ColumnEdit.ValueFormat.DataType == DataType.String)
                   {
-                    MessageBox.Show(this,
+                    _MessageBox.Show(this,
                       $"No Format found in:\n{examples.Join("\t")}",
                       comboBoxColumnName.Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
                   }
                   else
                   {
-                    if (MessageBox.Show(this,
+                    if (_MessageBox.Show(this,
                           $"No Format found in:\n{examples.Join("\t")}\nShould this be set to text?",
-                          comboBoxColumnName.Text, MessageBoxButtons.YesNo, MessageBoxIcon.Question) ==
-                        DialogResult.Yes)
+                          comboBoxColumnName.Text, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                       m_ColumnEdit.ValueFormat.DataType = DataType.String;
                   }
                 }
@@ -275,16 +273,16 @@ namespace CsvTools
         Cursor.Current = Cursors.Default;
         var enumerable = values.ToList();
         if (enumerable.IsEmpty())
-          MessageBox.Show(this, string.Format(c_NoSampleDate, ApplicationSetting.FillGuessSettings.CheckedRecords),
+          _MessageBox.Show(this, string.Format(c_NoSampleDate, ApplicationSetting.FillGuessSettings.CheckedRecords),
             comboBoxColumnName.Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
         else
-          MessageBox.Show(this, "Found values:\n" + enumerable.Take(42).Join("\t"), comboBoxColumnName.Text,
+          _MessageBox.Show(this, "Found values:\n" + enumerable.Take(42).Join("\t"), comboBoxColumnName.Text,
             MessageBoxButtons.OK, MessageBoxIcon.Information);
       }
       catch (Exception ex)
       {
         Cursor.Current = Cursors.Default;
-        MessageBox.Show(this, ex.ExceptionMessages(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        MessageBox.Show(this, ex.ExceptionMessages(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
       }
       finally
       {
@@ -434,7 +432,7 @@ namespace CsvTools
       catch (Exception ex)
       {
         Cursor.Current = Cursors.Default;
-        MessageBox.Show(this, ex.ExceptionMessages(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        MessageBox.Show(this, ex.ExceptionMessages(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
       }
       finally
       {

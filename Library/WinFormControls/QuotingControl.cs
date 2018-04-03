@@ -603,10 +603,16 @@ namespace CsvTools
 
     private void SetDelimiter()
     {
-      var delimiter = m_CsvFile.FileFormat.FieldDelimiterChar;
-      // richTextBox11.Delimiter = m_Delimiter; richTextBox10.Delimiter = m_Delimiter;
-      m_RichTextBox.Delimiter = delimiter;
-      SetToolTipPlaceholder(null, null);
+      try
+      {
+        var delimiter = m_CsvFile.FileFormat.FieldDelimiterChar;
+        m_RichTextBox.Delimiter = delimiter;
+        SetToolTipPlaceholder(null, null);
+      }
+      catch
+      {
+        // ignore
+      }
     }
 
     private void SetToolTipPlaceholder(object sender, EventArgs e)
@@ -649,8 +655,8 @@ namespace CsvTools
         // richTextBox11.Quote = quote[0];
 
         var newToolTip = m_IsWriteSetting
-          ? "Start the column with a quote, if a quote is part of the text the quote is replaced with a placeholder."
-          : "If the placeholder is part of the text it will be replaced with the quoting character.";
+      ? "Start the column with a quote, if a quote is part of the text the quote is replaced with a placeholder."
+      : "If the placeholder is part of the text it will be replaced with the quoting character.";
 
         var sampleText = quote + "This is " + quote + m_RichTextBox.Delimiter + quote + "Column with:" +
                          m_RichTextBox.Delimiter + " Delimiter" + quote + "\r\n" +

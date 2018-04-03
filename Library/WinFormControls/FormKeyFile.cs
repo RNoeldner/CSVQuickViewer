@@ -194,8 +194,7 @@ namespace CsvTools
             continue;
           if (new FileInfo(absoluteFile).Length > 32768)
           {
-            MessageBox.Show(this, "The dropped file must be less than 32k Byte", "File too large", MessageBoxButtons.OK,
-              MessageBoxIcon.Information);
+            _MessageBox.Show(this, "The dropped file must be less than 32k Byte", "File too large", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             continue;
           }
 
@@ -205,7 +204,7 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        MessageBox.Show(this, ex.ExceptionMessages(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        MessageBox.Show(this, ex.ExceptionMessages(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
       }
       finally
       {

@@ -757,6 +757,18 @@ namespace CsvTools
       // The last column is empty but we expect a header column, assume if a trailing separator
       if (!hasFieldHeader || headerRow.Count <= 1 || !string.IsNullOrEmpty(headerRow[headerRow.Count - 1]))
         return headerRow.Count;
+      // check if the next lines do have data in the last column
+      for (int additional = 0; !EndOfFile && additional < 10; additional++)
+      {
+        var nextLine = ReadNextRow(false, false);
+        // if we have less columns than in the header exit the loop
+        if (nextLine.GetLength(0) < headerRow.Count)
+          break;
+        // if we have data in the column assume the header was missing
+        if (!string.IsNullOrEmpty(nextLine[headerRow.Count - 1]))
+          return headerRow.Count;
+      }
+
       HandleWarning(headerRow.Count,
         "The last column does not have a column name, this column will be ignored.".AddWarningId());
       return headerRow.Count - 1;

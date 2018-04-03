@@ -33,6 +33,13 @@ namespace CsvTools
     bool CheckDbHasTable(string tableName);
 
     /// <summary>
+    /// Loads the data table with the result from the SQL statement
+    /// </summary>
+    /// <param name="sql">The SQL.</param>
+    /// <returns></returns>
+    DataTable LoadDataTable(string sql);
+
+    /// <summary>
     ///   Checks if the embedded database does have the field in the table.
     /// </summary>
     /// <param name="tableName">Name of the table.</param>

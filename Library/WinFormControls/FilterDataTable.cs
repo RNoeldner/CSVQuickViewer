@@ -57,13 +57,14 @@ namespace CsvTools
       get
       {
         var m_ColumnWithErrors = new List<string>();
+        var withoutErrors = ColumnsWithoutErrors;
         foreach (DataColumn col in m_ErrorTable.Columns)
         {
           // Always ignore line number and ErrorField
           if (col.ColumnName.Equals(BaseFileReader.cErrorField, StringComparison.OrdinalIgnoreCase))
             continue;
 
-          if (!m_ColumnWithoutErrors.Contains(col.ColumnName))
+          if (!withoutErrors.Contains(col.ColumnName))
             m_ColumnWithErrors.Add(col.ColumnName);
         }
 
