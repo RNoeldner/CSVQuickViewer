@@ -311,7 +311,7 @@ namespace CsvTools
     ///   The column options
     /// </value>
     [XmlElement("Format")]
-    public virtual Collection<Column> Column
+    public virtual ObservableCollection<Column> Column
     {
       get => m_Column;
     }
@@ -1184,7 +1184,9 @@ namespace CsvTools
               CsvHelper.InvalidateColumnHeader(this);
           };
       if (e.NewItems != null || e.OldItems != null)
+      {
         CsvHelper.InvalidateColumnHeader(this);
+      }
     }
 
     [XmlIgnore]
