@@ -48,8 +48,6 @@ namespace CsvTools
     /// </summary>
     void Cancel();
 
-    void RefreshScreen();
-
     /// <summary>
     ///   Event to be called if the display should be updated
     /// </summary>

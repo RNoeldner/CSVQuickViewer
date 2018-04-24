@@ -66,10 +66,6 @@ namespace CsvTools
         m_CancellationTokenSource.Cancel();
     }
 
-    public virtual void RefreshScreen()
-    {
-    }
-
     /// <summary>
     ///   Sets the process.
     /// </summary>

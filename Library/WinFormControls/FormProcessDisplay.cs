@@ -241,11 +241,6 @@ namespace CsvTools
 
     #region Windows Form Designer generated code
 
-    public void RefreshScreen()
-    {
-      Application.DoEvents();
-    }
-
     /// <summary>
     ///   Required method for Designer support - do not modify the contents of this method with the
     ///   code editor.

@@ -357,7 +357,7 @@ namespace CsvTools
         if (m_WriteSetting)
           labelAllowedDateFormats.Text = "Date Format:";
         Height = 307 - checkBoxIgnore.Height;
-        Application.DoEvents();
+        Extensions.ProcessUIElements();
 
         columnBindingSource.DataSource = m_ColumnEdit;
         SystemEvents.UserPreferenceChanged += SystemEvents_UserPreferenceChanged;

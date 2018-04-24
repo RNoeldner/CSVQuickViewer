@@ -326,7 +326,7 @@ namespace CsvTools
         if ((DateTime.Now - lastRefresh).TotalSeconds > 0.2)
         {
           lastRefresh = DateTime.Now;
-          Application.DoEvents();
+          Extensions.ProcessUIElements();
         }
 
         row.Height = GetDesiredRowHeight(row, visible);

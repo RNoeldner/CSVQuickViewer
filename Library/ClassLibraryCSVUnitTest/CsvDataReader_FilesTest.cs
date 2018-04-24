@@ -598,14 +598,36 @@ namespace CsvTools.Tests
       {
         test.Open(CancellationToken.None, false);
         Assert.AreEqual(6, test.FieldCount);
+
         Assert.AreEqual("a", test.GetName(0));
         Assert.AreEqual("f", test.GetName(5));
-        Assert.AreEqual(1U, test.StartLineNumber, "LineNumber");
 
         Assert.IsTrue(test.Read());
         Assert.AreEqual(2U, test.StartLineNumber, "LineNumber");
         Assert.AreEqual("1", test.GetString(0));
         Assert.AreEqual("6", test.GetString(5));
+      }
+    }
+
+    [TestMethod]
+    public void LastRowWithRowDelimiterNoHeader()
+    {
+      var setting = new CsvFile
+      {
+        HasFieldHeader = false
+      };
+      setting.FileFormat.FieldDelimiter = ",";
+      setting.FileName = Path.Combine(m_ApplicationDirectory, "LastRowWithRowDelimiter.txt");
+
+      using (var test = new CsvFileReader(setting))
+      {
+        test.Open(CancellationToken.None, false);
+        Assert.AreEqual(6, test.FieldCount);
+
+        Assert.IsTrue(test.Read());
+        Assert.AreEqual(1U, test.StartLineNumber, "LineNumber");
+        Assert.AreEqual("a", test.GetString(0));
+        Assert.AreEqual("f", test.GetString(5));
       }
     }
 
@@ -1158,7 +1180,7 @@ namespace CsvTools.Tests
       using (var test = new CsvFileReader(setting))
       {
         test.Open(CancellationToken.None, false);
-        Assert.AreEqual(6, test.FieldCount);
+        Assert.AreEqual(5, test.FieldCount);
         Assert.IsTrue(test.Read());
         Assert.AreEqual(1U, test.StartLineNumber, "LineNumber");
         // a,b",c"c,d""d,"e""e",""f

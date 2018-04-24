@@ -839,7 +839,7 @@ namespace CsvTools
       try
       {
         m_ToolStripButtonErrors.Enabled = false;
-        Application.DoEvents();
+        Extensions.ProcessUIElements();
 
         // Cancel the current search
         if (m_CurrentSearch != null && m_CurrentSearch.IsRunning)
@@ -877,7 +877,7 @@ namespace CsvTools
       finally
       {
         m_ToolStripButtonErrors.Enabled = true;
-        Application.DoEvents();
+        Extensions.ProcessUIElements();
       }
     }
 
@@ -924,7 +924,7 @@ namespace CsvTools
           Debug.WriteLine(ex.InnerExceptionMessages());
         }
       });
-      Application.DoEvents();
+      Extensions.ProcessUIElements();
     }
 
     /// <summary>

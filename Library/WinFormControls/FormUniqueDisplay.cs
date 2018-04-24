@@ -104,7 +104,7 @@ namespace CsvTools
         detailControl.Visible = false;
         detailControl.SuspendLayout();
       });
-      Application.DoEvents();
+      Extensions.ProcessUIElements();
       try
       {
         this.SafeBeginInvoke(() =>

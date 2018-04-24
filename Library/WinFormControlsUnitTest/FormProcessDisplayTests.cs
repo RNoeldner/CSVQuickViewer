@@ -90,14 +90,5 @@ namespace CsvTools.Tests
         Assert.AreEqual(20, called);
       }
     }
-
-    [TestMethod()]
-    public void RefreshScreenTest()
-    {
-      using (var frm = new FormProcessDisplay())
-      {
-        frm.RefreshScreen();
-      }
-    }
   }
 }

@@ -545,7 +545,7 @@ namespace CsvTools
         }
         else
         {
-          endLineNumberIncudingComments = EndLineNumber;
+          endLineNumberIncudingComments = (m_CsvFile.HasFieldHeader) ? EndLineNumber : 0;
           // Get the column count
           FieldCount = ParseFieldCount(headerRow, m_CsvFile.HasFieldHeader);
 
@@ -565,19 +565,12 @@ namespace CsvTools
       }
       finally
       {
-        if (m_CsvFile.HasFieldHeader)
-        {
-          if (determineColumnSize)
-          {
-            ResetPositionToStart();
-            while (EndLineNumber < endLineNumberIncudingComments)
-              ReadToEOL();
-          }
-        }
-        else
-        {
-          ResetPositionToStart();
-        }
+        // Need to re-position on the first data row
+        // would not be need if we had a column header did not look into first rows in case there is a column header missing or we parsed the size
+        // for simplicity done all the time though
+        ResetPositionToStart();
+        while (EndLineNumber < endLineNumberIncudingComments)
+          ReadToEOL();
       }
     }
 
@@ -755,7 +748,7 @@ namespace CsvTools
         return 0;
 
       // The last column is empty but we expect a header column, assume if a trailing separator
-      if (!hasFieldHeader || headerRow.Count <= 1 || !string.IsNullOrEmpty(headerRow[headerRow.Count - 1]))
+      if (headerRow.Count <= 1 || !string.IsNullOrEmpty(headerRow[headerRow.Count - 1]))
         return headerRow.Count;
       // check if the next lines do have data in the last column
       for (int additional = 0; !EndOfFile && additional < 10; additional++)
