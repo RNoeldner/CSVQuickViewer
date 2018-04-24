@@ -152,6 +152,15 @@ namespace CsvTools
     string Passphrase { get; set; }
 
     /// <summary>
+    ///   As the data is loaded and not further validation is done this will be set to true
+    ///   Once validation is happening and  validation errors are stored this is false again.
+    ///
+    ///   This is stored on FileSetting level even as it actually is used for determine
+    ///   th freshness of a loaded data in the validator, but there is not suitable data structure
+    /// </summary>
+    bool RecentlyLoaded { get; set; }
+
+    /// <summary>
     ///   Gets or sets a value indicating whether the file has been read to completion
     /// </summary>
     /// <value><c>true</c> if line no should be displayed; otherwise, <c>false</c>.</value>

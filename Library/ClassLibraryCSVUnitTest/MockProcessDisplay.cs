@@ -28,10 +28,6 @@ namespace CsvTools.Tests
     {
     }
 
-    public void RefreshScreen()
-    {
-    }
-
     public void SetProcess(string text, int value = -1)
     {
       Text = text;

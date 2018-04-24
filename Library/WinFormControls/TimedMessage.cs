@@ -40,71 +40,72 @@ namespace CsvTools
       this.button2 = new System.Windows.Forms.Button();
       this.button3 = new System.Windows.Forms.Button();
       this.SuspendLayout();
-      // 
+      //
       // button1
-      // 
+      //
       this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-      this.button1.Location = new System.Drawing.Point(155, 112);
+      this.button1.Location = new System.Drawing.Point(205, 127);
       this.button1.Name = "button1";
       this.button1.Size = new System.Drawing.Size(75, 23);
-      this.button1.TabIndex = 0;
+      this.button1.TabIndex = 1;
       this.button1.Text = "button1";
       this.button1.UseVisualStyleBackColor = true;
       this.button1.Click += new System.EventHandler(this.button1_Click);
-      // 
+      //
       // richTextBox
-      // 
+      //
       this.richTextBox.BackColor = System.Drawing.SystemColors.Control;
       this.richTextBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
       this.richTextBox.Location = new System.Drawing.Point(45, 8);
       this.richTextBox.Name = "richTextBox";
       this.richTextBox.Size = new System.Drawing.Size(335, 88);
-      this.richTextBox.TabIndex = 1;
+      this.richTextBox.TabIndex = 0;
       this.richTextBox.Text = "";
-      // 
+      //
       // label
-      // 
+      //
       this.label.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
       this.label.AutoSize = true;
-      this.label.Location = new System.Drawing.Point(35, 117);
+      this.label.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
+      this.label.Location = new System.Drawing.Point(2, 132);
       this.label.Name = "label";
       this.label.Size = new System.Drawing.Size(104, 13);
       this.label.TabIndex = 2;
-      this.label.Text = "Closing in 5 seconds";
-      // 
+      this.label.Text = "Default in 5 seconds";
+      //
       // timer
-      // 
+      //
       this.timer.Interval = 500;
       this.timer.Tick += new System.EventHandler(this.timer_Tick);
-      // 
+      //
       // button2
-      // 
+      //
       this.button2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
       this.button2.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-      this.button2.Location = new System.Drawing.Point(235, 112);
+      this.button2.Location = new System.Drawing.Point(285, 127);
       this.button2.Name = "button2";
       this.button2.Size = new System.Drawing.Size(75, 23);
-      this.button2.TabIndex = 3;
+      this.button2.TabIndex = 2;
       this.button2.Text = "button2";
       this.button2.UseVisualStyleBackColor = true;
       this.button2.Click += new System.EventHandler(this.button2_Click);
-      // 
+      //
       // button3
-      // 
+      //
       this.button3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-      this.button3.Location = new System.Drawing.Point(316, 112);
+      this.button3.Location = new System.Drawing.Point(366, 127);
       this.button3.Name = "button3";
       this.button3.Size = new System.Drawing.Size(75, 23);
-      this.button3.TabIndex = 0;
+      this.button3.TabIndex = 3;
       this.button3.Text = "button3";
       this.button3.UseVisualStyleBackColor = true;
       this.button3.Click += new System.EventHandler(this.button3_Click);
-      // 
+      //
       // TimedMessage
-      // 
+      //
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-      this.ClientSize = new System.Drawing.Size(395, 137);
+      this.ClientSize = new System.Drawing.Size(445, 152);
       this.Controls.Add(this.button2);
       this.Controls.Add(this.label);
       this.Controls.Add(this.button3);
@@ -124,7 +125,6 @@ namespace CsvTools
       this.Resize += new System.EventHandler(this.TimedMessage_Resize);
       this.ResumeLayout(false);
       this.PerformLayout();
-
     }
 
     #endregion Windows Form Designer generated code
@@ -163,7 +163,6 @@ namespace CsvTools
       m_MessageBoxButtons = buttons;
 
       UpdateButtons();
-
       return this.ShowDialog(owner);
     }
 
@@ -259,7 +258,14 @@ namespace CsvTools
       counter++;
       int displ = Convert.ToInt32((m_Duration - (counter * timer.Interval) / 1000 + .75));
       if (displ > 0)
-        label.Text = $"Closing in {displ:N0} seconds";
+      {
+        if (m_DefaultButton == MessageBoxDefaultButton.Button1)
+          label.Text = $"{button1.Text.Substring(1)} in {displ:N0} seconds";
+        if (m_DefaultButton == MessageBoxDefaultButton.Button2)
+          label.Text = $"{button2.Text.Substring(1)} in {displ:N0} seconds";
+        if (m_DefaultButton == MessageBoxDefaultButton.Button3)
+          label.Text = $"{button3.Text.Substring(1)} in {displ:N0} seconds";
+      }
       else
         label.Text = string.Empty;
 
@@ -291,23 +297,7 @@ namespace CsvTools
       {
         button3.Visible = false;
         button1.Location = button2.Location;
-        button1.Location = button3.Location;
-      }
-
-      if (m_DefaultButton == MessageBoxDefaultButton.Button1)
-      {
-        this.AcceptButton = this.button1;
-        this.CancelButton = this.button2;
-      }
-      else if (m_DefaultButton == MessageBoxDefaultButton.Button2)
-      {
-        this.AcceptButton = this.button2;
-        this.CancelButton = this.button1;
-      }
-      else if (m_DefaultButton == MessageBoxDefaultButton.Button3)
-      {
-        this.AcceptButton = this.button3;
-        this.CancelButton = this.button1;
+        button2.Location = button3.Location;
       }
 
       if ((m_MessageBoxButtons == MessageBoxButtons.OK
@@ -343,6 +333,7 @@ namespace CsvTools
         || m_MessageBoxButtons == MessageBoxButtons.OKCancel) && button2.Text != "&Cancel")
       {
         button2.Text = "&Cancel";
+        CancelButton = button2;
       }
 
       // Button 3
@@ -353,7 +344,23 @@ namespace CsvTools
       if (m_MessageBoxButtons == MessageBoxButtons.YesNoCancel && button3.Text != "&Cancel")
       {
         button3.Text = "&Cancel";
+        CancelButton = button3;
       }
+
+      if (m_DefaultButton == MessageBoxDefaultButton.Button1)
+      {
+        AcceptButton = button1;
+      }
+      else if (m_DefaultButton == MessageBoxDefaultButton.Button2)
+      {
+        AcceptButton = button2;
+      }
+      else if (m_DefaultButton == MessageBoxDefaultButton.Button3)
+      {
+        AcceptButton = button3;
+      }
+
+      timer_Tick(this, null);
     }
 
     private void TimedMessage_Resize(object sender, EventArgs e)

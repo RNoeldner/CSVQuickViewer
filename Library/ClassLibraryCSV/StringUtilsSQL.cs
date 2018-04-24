@@ -169,6 +169,30 @@ namespace CsvTools
       return contents.Replace("'", "''");
     }
 
+    public static string ConnectionStringEscape(string contents)
+    {
+      Contract.Ensures(Contract.Result<string>() != null);
+      if (string.IsNullOrEmpty(contents))
+        return string.Empty;
+
+      if (contents.IndexOf(';') > -1)
+      {
+        if (contents.StartsWith("\""))
+          return "'" + contents + "'";
+        else
+          return "\"" + contents + "\"";
+      }
+      if (contents.IndexOf('\'') > -1)
+      {
+        return "\"" + contents + "\"";
+      }
+      if (contents.IndexOf('\"') > -1)
+      {
+        return "'" + contents + "'";
+      }
+      return contents;
+    }
+
     /// <summary>
     ///   Gets the sql command text without comment.
     /// </summary>

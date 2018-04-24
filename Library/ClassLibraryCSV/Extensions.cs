@@ -242,6 +242,25 @@ namespace CsvTools
         WarningCount = warningCount
       };
 
+      // Do not remove validation result information if one is present and the new one is empty
+      if (fileSetting.ValidationResult != null)
+      {
+        if (numberRecords < 1 && fileSetting.ValidationResult.NumberRecords > 0)
+        {
+          ret.NumberRecords = fileSetting.ValidationResult.NumberRecords;
+        }
+
+        if (errorCount < 0 && fileSetting.ValidationResult.ErrorCount >= 0)
+        {
+          ret.ErrorCount = fileSetting.ValidationResult.ErrorCount;
+        }
+
+        if (warningCount < 0 && fileSetting.ValidationResult.WarningCount >= 0)
+        {
+          ret.WarningCount = fileSetting.ValidationResult.WarningCount;
+        }
+      }
+
       // TODO: Improve this, to check if we have a physical file, IFileSettingNoFile is defined in other assembly.
       if (fileSetting is IFileSettingRemoteDownload && FileSystemUtils.FileExists(fileSetting.FullPath))
         ret.FileSize = FileSystemUtils.FileInfo(fileSetting.FullPath).Length;

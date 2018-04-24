@@ -202,7 +202,7 @@ namespace CsvTools
         buffer.AppendLine();
         if (!((DateTime.Now - lastRefresh).TotalSeconds > 0.2)) continue;
         lastRefresh = DateTime.Now;
-        Application.DoEvents();
+        Extensions.ProcessUIElements();
       }
 
       sbHtml.AppendLine(m_HtmlStyle.TableClose);
@@ -337,7 +337,7 @@ namespace CsvTools
         buffer.AppendLine();
         if (!((DateTime.Now - lastRefresh).TotalSeconds > 0.2)) continue;
         lastRefresh = DateTime.Now;
-        Application.DoEvents();
+        Extensions.ProcessUIElements();
       }
 
       sbHtml.AppendLine(m_HtmlStyle.TableClose);

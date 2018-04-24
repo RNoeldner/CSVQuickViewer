@@ -528,18 +528,24 @@ namespace CsvTools
             catch (Exception)
             {
               if (remote.ThrowErrorIfNotExists)
+              {
                 throw;
+              }
             }
           }
         }
 
         if (m_ProcessDisplay != null)
+        {
           m_ProcessDisplay.Maximum = cMaxValue;
+        }
 
         HandleShowProgress("Opening...");
 
         if (m_CancellationToken.IsCancellationRequested)
+        {
           return 0;
+        }
 
         var ret = IndividualOpen(m_FileSetting.FullPath, determineColumnSize);
 
@@ -547,19 +553,25 @@ namespace CsvTools
         var valuesAll = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
         for (var colindex = 0; colindex < FieldCount; colindex++)
+        {
           if (!string.IsNullOrEmpty(Column[colindex].Name))
           {
             valuesAll.Add(Column[colindex].Name);
             if (!Column[colindex].Ignore)
+            {
               valuesInclude.Add(Column[colindex].Name);
+            }
           }
+        }
 
         CsvHelper.CacheColumnHeader(m_FileSetting, true, valuesAll);
         CsvHelper.CacheColumnHeader(m_FileSetting, false, valuesInclude);
 
         if (FieldCount > 0)
+        {
           // Override the column settings and store the columns for later reference
           OverrideColumnFormatFromSetting(FieldCount);
+        }
 
         return ret;
       }
@@ -599,7 +611,11 @@ namespace CsvTools
         }
 
         if (Column[colindex].DataType != DataType.DateTime || setting == null || !setting.Convert ||
-            setting.Ignore) continue;
+            setting.Ignore)
+        {
+          continue;
+        }
+
         AssociatedTimeCol[colindex] = GetOrdinal(Column[colindex].TimePart);
         AssociatedTimeZoneCol[colindex] = GetOrdinal(Column[colindex].TimeZonePart);
       }

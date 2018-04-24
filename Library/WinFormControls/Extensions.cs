@@ -27,6 +27,29 @@ namespace CsvTools
   /// </summary>
   public static class Extensions
   {
+    public static void TimeOutWait(Func<bool> whileTrue, CancellationToken cancellationToken = default(CancellationToken), int millisecondsSleep = 0, double timeoutMinutes = 5.0)
+    {
+      var start = DateTime.Now;
+      while (!cancellationToken.IsCancellationRequested && whileTrue())
+      {
+        if ((DateTime.Now - start).TotalMinutes > timeoutMinutes)
+          throw new ApplicationException($"Waited longer than {timeoutMinutes} minutes, assuming something is wrong");
+        ProcessUIElements(millisecondsSleep);
+      }
+    }
+
+    public static void ProcessUIElements(int milliseconds = 0)
+    {
+#if wpf
+      Application.Current.Dispatcher.Invoke(DispatcherPriority.Background,
+                                          new Action(delegate { }));
+#else
+      Application.DoEvents();
+      if (milliseconds > 10)
+        Thread.Sleep(milliseconds);
+#endif
+    }
+
     public static void WriteBinding(this Control ctrl)
     {
       var bind = ctrl.GetTextBindng();
@@ -185,7 +208,7 @@ namespace CsvTools
         uiElement.Invoke(action);
       else
         action();
-      Application.DoEvents();
+      ProcessUIElements();
     }
 
     /// <summary>

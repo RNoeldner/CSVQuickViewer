@@ -474,6 +474,16 @@ namespace CsvTools
     }
 
     /// <summary>
+    /// As the data is loaded and not further validation is done this will be set to true
+    /// Once validation is happening and  validation errors are stored this is false again.
+    /// This is stored on FileSetting level even as it actually is used for determine
+    /// th freshness of a loaded data in the validator, but there is not suitable data structure
+    /// </summary>
+    [XmlIgnore]
+    [DefaultValue(false)]
+    public virtual bool RecentlyLoaded { get; set; } = false;
+
+    /// <summary>
     ///   Gets or sets a value indicating whether this instance has field header.
     /// </summary>
     /// <value>
