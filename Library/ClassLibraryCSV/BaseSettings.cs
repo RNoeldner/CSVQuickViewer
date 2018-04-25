@@ -117,7 +117,11 @@ namespace CsvTools
     [XmlIgnore]
     public virtual bool ColumnSpecified => m_Column.Count > 0;
 
-    [XmlIgnore] public virtual bool ErrorsSpecified => Errors.Count > 0;
+    [XmlIgnore]
+    public virtual bool ErrorsSpecified => Errors.Count > 0;
+
+    [XmlIgnore]
+    public ICollection<IFileSetting> SourceFileSettings { get; set; }
 
     /// <summary>
     ///   Gets a value indicating whether FileFormat is specified.
@@ -466,8 +470,9 @@ namespace CsvTools
       get
       {
         if (m_FullPath == null || !FileSystemUtils.FileExists(m_FullPath))
-          m_FullPath =
-            FileSystemUtils.ResolvePattern(m_FileName.GetAbsolutePath(ApplicationSetting.ToolSetting.RootFolder));
+        {
+          m_FullPath = FileSystemUtils.ResolvePattern(m_FileName.GetAbsolutePath(ApplicationSetting.ToolSetting.RootFolder));
+        }
 
         return m_FullPath;
       }
@@ -789,6 +794,7 @@ namespace CsvTools
         if (!string.IsNullOrEmpty(m_SqlStatement))
           FileLastWriteTimeUtc = DateTime.MinValue;
         m_SqlStatement = newVal;
+        SourceFileSettings = null;
         NotifyPropertyChanged(nameof(SqlStatement));
       }
     }

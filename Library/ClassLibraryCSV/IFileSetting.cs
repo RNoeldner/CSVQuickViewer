@@ -32,6 +32,8 @@ namespace CsvTools
     /// <value>The column format.</value>
     ObservableCollection<Column> Column { get; }
 
+    ICollection<IFileSetting> SourceFileSettings { get; set; }
+
     /// <summary>
     ///   Gets or sets the consecutive empty rows.
     /// </summary>
