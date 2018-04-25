@@ -82,7 +82,8 @@ namespace CsvTools
     {
       Contract.Requires(!string.IsNullOrEmpty(folder));
       Contract.Requires(!string.IsNullOrEmpty(searchPattern));
-
+      if (!Directory.Exists(folder))
+        return null;
       var files = GetFiles(folder, searchPattern);
 
       if (files.Length == 0)
@@ -180,6 +181,31 @@ namespace CsvTools
       return relative.Length < absolute.Length ? relative : absolute;
     }
 
+    public static string GetRelativePathQuick(this string otherDir, string basePath)
+    {
+      if (otherDir.StartsWith(basePath, StringComparison.OrdinalIgnoreCase))
+        return otherDir.Substring(basePath.Length + 1);
+
+      var startPathParts = basePath.Split(Path.DirectorySeparatorChar);
+      var destinationPathParts = otherDir.Split(Path.DirectorySeparatorChar);
+      var sameCounter = 0;
+      while (sameCounter < startPathParts.Length && sameCounter < destinationPathParts.Length &&
+             startPathParts[sameCounter].Equals(destinationPathParts[sameCounter], StringComparison.OrdinalIgnoreCase))
+        sameCounter++;
+      if (sameCounter == 0)
+        return otherDir;
+
+      var sbuilder = new StringBuilder();
+      for (var i = sameCounter; i < startPathParts.Length; i++)
+        sbuilder.Append(".." + Path.DirectorySeparatorChar);
+
+      for (var i = sameCounter; i < destinationPathParts.Length; i++)
+        sbuilder.Append(destinationPathParts[i] + Path.DirectorySeparatorChar);
+      sbuilder.Length--;
+
+      return sbuilder.ToString();
+    }
+
     /// <summary>
     ///   Get a relative path to the file
     /// </summary>
@@ -203,24 +229,7 @@ namespace CsvTools
         return fileName.Substring(basePath.Length + 1);
       var otherDir = Path.GetFullPath(fileName).RemoveLongPathPrefix();
 
-      var startPathParts = basePath.Split(Path.DirectorySeparatorChar);
-      var destinationPathParts = otherDir.Split(Path.DirectorySeparatorChar);
-      var sameCounter = 0;
-      while (sameCounter < startPathParts.Length && sameCounter < destinationPathParts.Length &&
-             startPathParts[sameCounter].Equals(destinationPathParts[sameCounter], StringComparison.OrdinalIgnoreCase))
-        sameCounter++;
-      if (sameCounter == 0)
-        return fileName;
-
-      var sbuilder = new StringBuilder();
-      for (var i = sameCounter; i < startPathParts.Length; i++)
-        sbuilder.Append(".." + Path.DirectorySeparatorChar);
-
-      for (var i = sameCounter; i < destinationPathParts.Length; i++)
-        sbuilder.Append(destinationPathParts[i] + Path.DirectorySeparatorChar);
-      sbuilder.Length--;
-
-      return sbuilder.ToString();
+      return GetRelativePathQuick(otherDir, basePath);
     }
 
     /// <summary>

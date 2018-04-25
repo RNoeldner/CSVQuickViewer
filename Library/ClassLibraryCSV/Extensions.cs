@@ -581,19 +581,24 @@ namespace CsvTools
     /// <param name="check">The check.</param>
     /// <param name="level">The level.</param>
     /// <returns>
-    ///   A set of IFileSetting that should be checked
+    ///   A set of IFileSetting that should be checked, this is a depth first recursion
     /// </returns>
     public static ICollection<IFileSetting> GetSourceFileSettings(this IFileSetting parentFileSetting,
       CancellationToken cancellationToken, Func<IFileSetting, bool> check, int level = 0)
     {
       Contract.Requires(parentFileSetting != null);
       Contract.Ensures(Contract.Result<ICollection<IFileSetting>>() != null);
+      if ((parentFileSetting.SourceFileSettings != null) && (level == 0))
+        return parentFileSetting.SourceFileSettings;
 
-      var outList = new List<IFileSetting>();
+      if ((parentFileSetting.SourceFileSettings == null))
+      {
+        parentFileSetting.SourceFileSettings = new List<IFileSetting>();
+      }
 
       // Prevent infinite recursion in case we have a cycle
-      if (level >= 5) return outList;
-      if (string.IsNullOrWhiteSpace(parentFileSetting.SqlStatement)) return outList;
+      if (level >= 5) return parentFileSetting.SourceFileSettings;
+      if (string.IsNullOrWhiteSpace(parentFileSetting.SqlStatement)) return parentFileSetting.SourceFileSettings;
       var tables = parentFileSetting.SqlStatement.GetSQLTableNames();
       foreach (var tbl in tables)
       {
@@ -604,15 +609,15 @@ namespace CsvTools
           tbl.Equals(x.ID, StringComparison.OrdinalIgnoreCase) && !Equals(x, parentFileSetting)))
         {
           foreach (var src in GetSourceFileSettings(setting, cancellationToken, check, level + 1))
-            if (outList.Contains(src))
-              outList.Add(src);
+            if (parentFileSetting.SourceFileSettings.Contains(src))
+              parentFileSetting.SourceFileSettings.Add(src);
 
           if (check(setting))
-            outList.Add(setting);
+            parentFileSetting.SourceFileSettings.Add(setting);
         }
       }
 
-      return outList;
+      return parentFileSetting.SourceFileSettings;
     }
 
     /// <summary>

@@ -314,21 +314,38 @@ namespace CsvTools
     public static IEnumerable<string> GetSQLTableNames(this string sqlText)
     {
       Contract.Ensures(Contract.Result<IEnumerable<string>>() != null);
+
+      const string plcaeholder = "\u2028";
       var ret = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
       if (string.IsNullOrEmpty(sqlText)) return ret;
       sqlText = sqlText.GetCommandTextWithoutComment();
 
       foreach (Match match in m_PatternTable1.Value.Matches(sqlText, 0))
         if (!string.IsNullOrEmpty(match.Groups[2].Value))
-          ret.Add(match.Groups[2].Value.Replace("]]", "]"));
+        {
+          var tabName = match.Groups[2].Value.Replace("]]", plcaeholder);
+          if (tabName.IndexOf(']') > 0)
+            tabName = tabName.Substring(0, tabName.IndexOf(']'));
+          ret.Add(tabName.Replace(plcaeholder, "]"));
+        }
 
       foreach (Match match in m_PatternTable2.Value.Matches(sqlText, 0))
         if (!string.IsNullOrEmpty(match.Groups[2].Value))
-          ret.Add(match.Groups[2].Value.Replace("]]", "]"));
+        {
+          var tabName = match.Groups[2].Value.Replace("]]", plcaeholder);
+          if (tabName.IndexOf(']') > 0)
+            tabName = tabName.Substring(0, tabName.IndexOf(']'));
+          ret.Add(tabName.Replace(plcaeholder, "]"));
+        }
 
       foreach (Match match in m_PatternTable3.Value.Matches(sqlText, 0))
         if (!string.IsNullOrEmpty(match.Groups[2].Value))
-          ret.Add(match.Groups[2].Value.Replace("]]", "]"));
+        {
+          var tabName = match.Groups[2].Value.Replace("]]", plcaeholder);
+          if (tabName.IndexOf(']') > 0)
+            tabName = tabName.Substring(0, tabName.IndexOf(']'));
+          ret.Add(tabName.Replace(plcaeholder, "]"));
+        }
 
       return ret;
     }
