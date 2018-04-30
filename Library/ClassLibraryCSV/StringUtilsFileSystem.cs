@@ -183,6 +183,8 @@ namespace CsvTools
 
     public static string GetRelativePathQuick(this string otherDir, string basePath)
     {
+      if (otherDir.Equals(basePath, StringComparison.OrdinalIgnoreCase))
+        return otherDir;
       if (otherDir.StartsWith(basePath, StringComparison.OrdinalIgnoreCase))
         return otherDir.Substring(basePath.Length + 1);
 
