@@ -659,15 +659,14 @@ namespace CsvTools
       // either there are no columns or they are all empty
       if (allEmpty)
       {
+        RecordNumber--;
         m_ConsecutiveEmptyRows++;
         EndOfFile |= m_ConsecutiveEmptyRows >= m_CsvFile.ConsecutiveEmptyRows;
         if (EndOfFile)
           return false;
+
         if (m_CsvFile.SkipEmptyLines)
-        {
-          RecordNumber--;
           goto Restart;
-        }
       }
       else
       {
