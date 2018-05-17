@@ -163,6 +163,7 @@ namespace CsvTools
       m_MessageBoxButtons = buttons;
 
       UpdateButtons();
+      TimedMessage_Resize(this, null);
       return this.ShowDialog(owner);
     }
 
@@ -365,7 +366,7 @@ namespace CsvTools
 
     private void TimedMessage_Resize(object sender, EventArgs e)
     {
-      richTextBox.Width = this.Width - richTextBox.Left;
+      richTextBox.Width = this.Width - richTextBox.Left - 12;
       richTextBox.Height = button1.Top - richTextBox.Top - 5;
     }
   }

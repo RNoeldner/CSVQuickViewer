@@ -593,9 +593,19 @@ namespace CsvTools
       while (numRows > 0 && !EndOfFile && !CancellationToken.IsCancellationRequested)
       {
         HandleShowProgressPeriodic("Determine column length", RecordNumber);
-        ReadNextRow(true, false);
-        RecordNumber++;
-        numRows--;
+
+        if (!AllEmptyAndCountConsecutiveEmptyRows(ReadNextRow(true, false)))
+        {
+          // Regular row with data
+          RecordNumber++;
+          numRows--;
+        }
+        else
+        {
+          // an empty line
+          if (!EndOfFile && !m_CsvFile.SkipEmptyLines)
+            RecordNumber++;
+        }
       }
 
       return RecordNumber;
@@ -627,6 +637,25 @@ namespace CsvTools
       return (int)((double)m_PositionStream.Position / m_PositionStream.Length * cMaxValue);
     }
 
+    private bool AllEmptyAndCountConsecutiveEmptyRows(string[] columns)
+    {
+      if (columns != null)
+      {
+        var rowLength = columns.Length;
+        for (var col = 0; col < rowLength && col < FieldCount; col++)
+        {
+          if (!string.IsNullOrEmpty(columns[col]))
+          {
+            m_ConsecutiveEmptyRows = 0;
+            return false;
+          }
+        }
+      }
+      m_ConsecutiveEmptyRows++;
+      EndOfFile |= m_ConsecutiveEmptyRows >= m_CsvFile.ConsecutiveEmptyRows;
+      return true;
+    }
+
     /// <summary>
     ///   Gets a row of the CSV file
     /// </summary>
@@ -637,42 +666,30 @@ namespace CsvTools
     private bool GetNextRecord()
     {
       Restart:
-      RecordNumber++;
-
       CurrentRowColumnText = ReadNextRow(true, true);
-      if (CurrentRowColumnText == null)
+
+      if (!AllEmptyAndCountConsecutiveEmptyRows(CurrentRowColumnText))
       {
-        RecordNumber--;
-        return false;
-      }
-
-      var rowLength = CurrentRowColumnText.Length;
-
-      var allEmpty = true;
-      for (var col = 0; col < rowLength && col < FieldCount; col++)
-      {
-        if (string.IsNullOrEmpty(CurrentRowColumnText[col])) continue;
-        allEmpty = false;
-        break;
-      }
-
-      // either there are no columns or they are all empty
-      if (allEmpty)
-      {
-        RecordNumber--;
-        m_ConsecutiveEmptyRows++;
-        EndOfFile |= m_ConsecutiveEmptyRows >= m_CsvFile.ConsecutiveEmptyRows;
-        if (EndOfFile)
-          return false;
-
-        if (m_CsvFile.SkipEmptyLines)
-          goto Restart;
+        // Regular row with data
+        RecordNumber++;
       }
       else
       {
-        m_ConsecutiveEmptyRows = 0;
+        if (EndOfFile)
+          return false;
+
+        // an empty line
+        if (m_CsvFile.SkipEmptyLines)
+        {
+          goto Restart;
+        }
+        else
+        {
+          RecordNumber++;
+        }
       }
 
+      var rowLength = CurrentRowColumnText.Length;
       // If less columns are present...
       if (rowLength < FieldCount)
       {

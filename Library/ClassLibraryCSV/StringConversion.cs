@@ -1097,6 +1097,11 @@ namespace CsvTools
       return value.ToString(format.NumberFormat, CultureInfo.InvariantCulture).ReplaceDefaults(
         CultureInfo.InvariantCulture.NumberFormat.NumberDecimalSeparator, format.DecimalSeparator,
         CultureInfo.InvariantCulture.NumberFormat.NumberGroupSeparator, format.GroupSeparator);
+    }    
+
+    public static bool IsTimeOnly(DateTime dateTime)
+    {
+      return (dateTime >= m_FirstDateTime && dateTime < m_FirstDateTimeNextDay);
     }
 
     /// <summary>
@@ -1109,7 +1114,7 @@ namespace CsvTools
     {
       Contract.Ensures(Contract.Result<string>() != null);
       // if we only have a time:
-      if (dateTime >= m_FirstDateTime && dateTime < m_FirstDateTimeNextDay)
+      if (IsTimeOnly(dateTime))
         return dateTime.ToString("T", culture);
 
       if (dateTime.Hour == 0 && dateTime.Minute == 0 && dateTime.Second == 0)

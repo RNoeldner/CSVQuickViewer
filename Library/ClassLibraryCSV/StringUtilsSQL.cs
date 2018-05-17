@@ -145,7 +145,30 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Puts a name in barracks if needed
+    ///   Puts a name always in brackets
+    /// </summary>
+    /// <param name="contents">The column or table name.</param>
+    /// <returns>The names in brackets (if needed)</returns>
+    public static string SqlNameSmart(string contents)
+    {
+      Contract.Ensures(Contract.Result<string>() != null);
+      if (string.IsNullOrEmpty(contents))
+      {
+        return string.Empty;
+      }
+
+      if (SqlNameNeedsQuoting(contents))
+      {
+        return $"[{SqlName(contents)}]";
+      }
+      else
+      {
+        return SqlName(contents);
+      }
+    }
+
+    /// <summary>
+    ///   Puts a name always in brackets
     /// </summary>
     /// <param name="contents">The column or table name.</param>
     /// <returns>The names in brackets (if needed)</returns>
