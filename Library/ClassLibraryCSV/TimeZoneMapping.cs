@@ -40,6 +40,38 @@ namespace CsvTools
           yield return item.Key;
     }
 
+    public static string GetAbbreviation(this TimeZoneInfo selectedTimeZone)
+    {
+      // get a 3 letter abbreviation
+      foreach (var item in GetAlternateNames(selectedTimeZone))
+      {
+        if (item.StartsWith("(", StringComparison.Ordinal))
+          continue;
+        if (int.TryParse(item, out _))
+          continue;
+
+        if (item.Length == 3)
+        {
+          return item;
+        }
+      }
+      // or a 4 letter abbreviation
+      foreach (var item in GetAlternateNames(selectedTimeZone))
+      {
+        if (item.StartsWith("(", StringComparison.Ordinal))
+          continue;
+        if (int.TryParse(item, out _))
+          continue;
+
+        if (item.Length == 4)
+        {
+          return item;
+        }
+      }
+      // return the name in Windows
+      return selectedTimeZone.DisplayName;
+    }
+
     public static IEnumerable<TimeZoneInfo> WithSameRule(TimeZoneInfo timeZoneInfo, int year)
     {
       TimeZoneInfo.AdjustmentRule adjustmentRuleThis = null;

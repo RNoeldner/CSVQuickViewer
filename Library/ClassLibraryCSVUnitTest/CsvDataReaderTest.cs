@@ -390,18 +390,85 @@ namespace CvsTool.Tests
     }
 
     [TestMethod]
+    public void CsvDataReader_RecordNumberEmptyLines()
+    {
+      var setting = new CsvFile
+      {
+        FileName = Path.Combine(m_ApplicationDirectory, "BasicCSVEmptyLine.txt"),
+        HasFieldHeader = true
+      };
+
+      using (var test = new CsvFileReader(setting))
+      {
+        Assert.AreEqual(2, test.Open(CancellationToken.None, true));
+      }
+
+      using (var test = new CsvFileReader(setting))
+      {
+        test.Open(CancellationToken.None, false);
+        int row = 0;
+        while (test.Read())
+          row++;
+        Assert.AreEqual(row, test.RecordNumber);
+        Assert.AreEqual(2, row);
+      }
+    }
+
+    [TestMethod]
+    public void CsvDataReader_RecordNumberEmptyLinesSkipEmptyLines()
+    {
+      var setting = new CsvFile
+      {
+        FileName = Path.Combine(m_ApplicationDirectory, "BasicCSVEmptyLine.txt"),
+        HasFieldHeader = true,
+        SkipEmptyLines = false,
+        ConsecutiveEmptyRows = 3
+      };
+      /*
+       * ID,LangCode,ExamDate,Score,Proficiency,IsNativeLang
+1
+2 00001,German,20/01/2010,276,0.94,Y
+3 ,,,,,
+4 ,,,,,
+5 00001,English,22/01/2012,190,,N
+6 ,,,,,
+7 ,,,,,
+8 ,,,,,
+9 ,,,,,
+10 ...
+*/
+      // Stop on the 7th record since we would be on the 3rd empty line
+      using (var test = new CsvFileReader(setting))
+      {
+        Assert.AreEqual(7, test.Open(CancellationToken.None, true), "Counter");
+      }
+
+      using (var test = new CsvFileReader(setting))
+      {
+        test.Open(CancellationToken.None, false);
+        int row = 0;
+        while (test.Read())
+          row++;
+        Assert.AreEqual(row, test.RecordNumber, "Compare with read numbers");
+        Assert.AreEqual(7, row, "Read");
+      }
+    }
+
+    [TestMethod]
     public void CsvDataReader_Properties()
     {
-      var test = new CsvFileReader(m_ValidSetting);
-      test.Open(CancellationToken.None, false);
+      using (var test = new CsvFileReader(m_ValidSetting))
+      {
+        test.Open(CancellationToken.None, false);
 
-      Assert.AreEqual(0, test.Depth, "Depth");
-      Assert.AreEqual(6, test.FieldCount, "FieldCount");
-      Assert.AreEqual(0U, test.RecordNumber, "RecordNumber");
-      Assert.AreEqual(-1, test.RecordsAffected, "RecordsAffected");
+        Assert.AreEqual(0, test.Depth, "Depth");
+        Assert.AreEqual(6, test.FieldCount, "FieldCount");
+        Assert.AreEqual(0U, test.RecordNumber, "RecordNumber");
+        Assert.AreEqual(-1, test.RecordsAffected, "RecordsAffected");
 
-      Assert.IsFalse(test.EndOfFile, "EndOfFile");
-      Assert.IsFalse(test.IsClosed, "IsClosed");
+        Assert.IsFalse(test.EndOfFile, "EndOfFile");
+        Assert.IsFalse(test.IsClosed, "IsClosed");
+      }
     }
 
     [TestMethod]

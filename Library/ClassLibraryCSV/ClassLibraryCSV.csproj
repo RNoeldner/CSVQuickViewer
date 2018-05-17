@@ -150,6 +150,8 @@
     <Compile Include="CheckResult.cs" />
     <Compile Include="CsvFileWriter.cs" />
     <Compile Include="DummyToolSetting.cs" />
+    <Compile Include="IExcelFile.cs" />
+    <Compile Include="IExcelFileReader.cs" />
     <Compile Include="IFileSettingRemoteDownload.cs" />
     <Compile Include="IProcessDisplayTime.cs" />
     <Compile Include="ProcessDisplayTime.cs" />

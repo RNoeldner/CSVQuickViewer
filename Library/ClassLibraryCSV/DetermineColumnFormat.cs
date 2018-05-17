@@ -155,6 +155,33 @@ namespace CsvTools
 
           // The fileReader does not have the column information yet, let the reader know
           fileReader.OverrideColumnFormatFromSetting(fileReader.FieldCount);
+          // in case its Excel, check all doubles if they could be integer
+          if (fileSetting is IExcelFile)
+          {
+            for (var colindex = 0; colindex < fileReader.FieldCount; colindex++)
+            {
+              var oldColumn = fileReader.GetColumn(colindex);
+              if (oldColumn != null && oldColumn.DataType == DataType.Double)
+              {
+                var samples = GetSampleValues(fileReader, ApplicationSetting.FillGuessSettings.CheckedRecords,
+                          processDisplay.CancellationToken, colindex, ApplicationSetting.FillGuessSettings.SampleValues,
+                          fileSetting.TreatTextAsNull);
+                if (!samples.IsEmpty())
+                {
+                  var checkResult = GuessNumeric(processDisplay.CancellationToken, samples, false, true);
+                  if (checkResult != null && checkResult.FoundValueFormat.DataType != DataType.Double)
+                  {
+                    var newColumn = fileSetting.GetColumn(oldColumn.Name);
+                    if (newColumn == null)
+                      newColumn = fileSetting.ColumnAdd(oldColumn);
+
+                    newColumn.DataType = checkResult.FoundValueFormat.DataType;
+                  }
+                }
+              }
+            }
+          }
+
           if (ApplicationSetting.FillGuessSettings.DateParts)
           {
             // Try to find a time for a date if the date does not already have a time
