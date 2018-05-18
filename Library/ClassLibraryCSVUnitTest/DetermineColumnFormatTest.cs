@@ -146,8 +146,10 @@ namespace CsvTools.Tests
       setting.ByteOrderMark = true;
       setting.FileFormat.FieldDelimiter = ",";
       setting.SkipRows = 1;
-      setting.FillGuessColumnFormatReader(false, null);
-
+      using (var processDisplay = new DummyProcessDisplay())
+      {
+        setting.FillGuessColumnFormatReader(false, processDisplay);
+      }
       Assert.AreEqual(DataType.DateTime, setting.Column[2].DataType);
       Assert.AreEqual(DataType.DateTime, setting.Column[3].DataType);
       Assert.AreEqual(DataType.DateTime, setting.Column[4].DataType);
@@ -189,8 +191,10 @@ namespace CsvTools.Tests
       setting.ByteOrderMark = true;
       setting.FileFormat.FieldDelimiter = ",";
       setting.SkipRows = 1;
-      setting.FillGuessColumnFormatReader(true, null);
-
+      using (var processDisplay = new DummyProcessDisplay())
+      {
+        setting.FillGuessColumnFormatReader(true, processDisplay);
+      }
       Assert.AreEqual(DataType.DateTime, setting.Column[7].DataType);
       Assert.AreEqual(DataType.DateTime, setting.Column[8].DataType);
       Assert.AreEqual(DataType.DateTime, setting.Column[9].DataType);

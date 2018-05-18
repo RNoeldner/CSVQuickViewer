@@ -22,6 +22,6 @@ using System.Resources;
 //
 // You can specify all the values or you can default the Build and Revision Numbers by using the '*'
 // as shown below: [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.4.13.262")]
-[assembly: AssemblyFileVersion("1.4.13.262")]
-[assembly: AssemblyInformationalVersion("1.4.13.262")] // a.k.a. "Product version"
+[assembly: AssemblyVersion("1.4.13.263")]
+[assembly: AssemblyFileVersion("1.4.13.263")]
+[assembly: AssemblyInformationalVersion("1.4.13.263")] // a.k.a. "Product version"

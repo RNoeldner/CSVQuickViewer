@@ -383,7 +383,6 @@ namespace CsvTools
             m_CurrentCancellationTokenSource = cancellationTokenSource;
             var fromRecordLimitSet = true;
             FrmLimitSize limitSizeForm;
-            // run in background...
             if (fileInfo.Length > maxsize)
             {
               fromRecordLimitSet = false;
@@ -436,19 +435,25 @@ namespace CsvTools
             if (analyse && Settings.Default.GuessStartRow)
             {
               m_FileSetting.SkipRows = CsvHelper.GuessStartRow(m_FileSetting);
-              SetProcess("Start Row: " + m_FileSetting.SkipRows.ToString(CultureInfo.InvariantCulture));
+              if (m_FileSetting.SkipRows > 0)
+                SetProcess("Start Row: " + m_FileSetting.SkipRows.ToString(CultureInfo.InvariantCulture));
             }
 
             if (analyse)
             {
+              if (Settings.Default.GuessHasHeader)
+              {
+                m_FileSetting.HasFieldHeader = CsvHelper.GuessHasHeader(m_FileSetting, null);
+              }
+
+              if (m_FileSetting.HasFieldHeader)
+                SetProcess("With Header Row");
+              else
+                SetProcess("Without Header Row");
+
               using (var processDisplay = m_FileSetting.GetProcessDisplay(this, cancellationTokenSource.Token))
               {
                 processDisplay.Progress += SetProcess;
-                if (Settings.Default.GuessHasHeader)
-                {
-                  m_FileSetting.HasFieldHeader = CsvHelper.GuessHasHeader(m_FileSetting, processDisplay);
-                }
-
                 m_FileSetting.FillGuessColumnFormatReader(false, processDisplay);
               }
 
@@ -487,7 +492,7 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        MessageBox.Show(this, ex.ExceptionMessages(), "Opening File", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+        _MessageBox.Show(this, ex.ExceptionMessages(), "Opening File", MessageBoxButtons.OK, MessageBoxIcon.Stop, timeout: 20);
         return false;
       }
       finally
@@ -505,12 +510,14 @@ namespace CsvTools
     private void OpenDataReader(bool clear)
     {
       m_SettingsChangedTimerChange.Stop();
+      if (m_FileSetting == null) return;
 
       var oldCursor = Cursor.Current == Cursors.WaitCursor ? Cursors.WaitCursor : Cursors.Default;
       Cursor.Current = Cursors.WaitCursor;
 
       // Stop Property changed events for the time this is processed
       // We might store data in the FileSetting
+
       m_FileSetting.PropertyChanged -= FileSetting_PropertyChanged;
 
       try
@@ -535,13 +542,13 @@ namespace CsvTools
             csvDataReader.Warning += AddWarning;
             csvDataReader.Open(processDisplay.CancellationToken, false);
             if (warnings.CountRows > 0)
-              MessageBox.Show(this, warnings.Display, "Opening CSV File", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+              _MessageBox.Show(this, warnings.Display, "Opening CSV File", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             if (!textPanel.Visible)
               ShowTextPanel(true);
 
             SetProcess("Reading data…");
             data = csvDataReader.WriteToDataTable(m_FileSetting, m_FileSetting.RecordLimit, warnings,
-              processDisplay.CancellationToken);
+                processDisplay.CancellationToken);
 
             foreach (var columnName in data.GetRealColumns())
               if (m_FileSetting.GetColumn(columnName) == null)
@@ -549,8 +556,8 @@ namespace CsvTools
             if (processDisplay.CancellationToken.IsCancellationRequested)
             {
               SetProcess("Cancellation was requested.");
-              if (MessageBox.Show(this,
-                    "The load was not completed since cancellation was requested.\rDo you want to display the already loaded data?",
+              if (_MessageBox.Show(this,
+                    "The load was not completed, cancellation was requested.\rDo you want to display the already loaded data?",
                     "Cancellation Requested", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
                 Close();
             }
@@ -571,7 +578,7 @@ namespace CsvTools
       }
       catch (Exception exc)
       {
-        MessageBox.Show(this, exc.ExceptionMessages(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        _MessageBox.Show(this, exc.ExceptionMessages(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error, timeout: 20);
       }
       finally
       {
@@ -698,7 +705,7 @@ namespace CsvTools
         }
         else
         {
-          answer = MessageBox.Show(this,
+          answer = _MessageBox.Show(this,
             $"Store settings in {pathSetting} for faster processing next time?", "Settings", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
         }
 
