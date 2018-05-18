@@ -37,6 +37,11 @@ namespace CsvTools
     public static IList<string> FillGuessColumnFormatReader(this IFileSetting fileSetting, bool addTextColumns,
       IProcessDisplay processDisplay)
     {
+      if (processDisplay == null)
+      {
+        throw new ArgumentNullException(nameof(processDisplay));
+      }
+
       Contract.Requires(fileSetting != null);
       var result = new List<string>();
 
@@ -47,13 +52,6 @@ namespace CsvTools
           !ApplicationSetting.FillGuessSettings.DectectPercentage &&
           !ApplicationSetting.FillGuessSettings.SerialDateTime)
         return result;
-
-      var selfOpened = false;
-      if (processDisplay == null)
-      {
-        processDisplay = new ProcessDisplayTime(CancellationToken.None);
-        selfOpened = true;
-      }
 
       var resetSkipRows = false;
       try
@@ -69,7 +67,7 @@ namespace CsvTools
         using (var fileReader = fileSetting.GetFileReader())
         {
           Contract.Assume(fileReader != null);
-          fileReader.ProcessDisplay = processDisplay;
+          // fileReader.ProcessDisplay = processDisplay;
 
           fileReader.Open(processDisplay.CancellationToken, false);
           if (fileReader.FieldCount == 0)
@@ -297,8 +295,6 @@ namespace CsvTools
       {
         if (resetSkipRows)
           fileSetting.SkipRows = 0;
-        if (selfOpened)
-          processDisplay.Dispose();
       }
 
       return result;

@@ -212,7 +212,7 @@ namespace CsvTools
           }
           catch (Exception exc)
           {
-            MessageBox.Show(this, exc.ExceptionMessages(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            _MessageBox.Show(this, exc.ExceptionMessages(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
           }
         }
 
@@ -324,7 +324,7 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        MessageBox.Show(this, ex.ExceptionMessages(), "Error");
+        _MessageBox.Show(this, ex.ExceptionMessages(), "Error", timeout: 30);
       }
     }
 
