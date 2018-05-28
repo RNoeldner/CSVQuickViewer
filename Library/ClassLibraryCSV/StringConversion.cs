@@ -979,8 +979,9 @@ namespace CsvTools
       else
         timeColunIssues = false;
 
+      // It could be that the dateValue is indeed m_FirstDateTime, but only if the text matches the proper formated value
       if (dateValue == m_FirstDateTime && dateColumn == null &&
-          (string.IsNullOrEmpty(dateColumnText) || !dateColumnText.StartsWith("00:00", StringComparison.Ordinal)))
+          (string.IsNullOrEmpty(dateColumnText) || !dateColumnText.Equals(DateTimeToString(m_FirstDateTime, df.ValueFormat), StringComparison.Ordinal)))
         return null;
 
       return dateValue;
@@ -1097,7 +1098,7 @@ namespace CsvTools
       return value.ToString(format.NumberFormat, CultureInfo.InvariantCulture).ReplaceDefaults(
         CultureInfo.InvariantCulture.NumberFormat.NumberDecimalSeparator, format.DecimalSeparator,
         CultureInfo.InvariantCulture.NumberFormat.NumberGroupSeparator, format.GroupSeparator);
-    }    
+    }
 
     public static bool IsTimeOnly(DateTime dateTime)
     {
