@@ -136,8 +136,7 @@ namespace CsvTools
           }
           else
           {
-            value = TextEncodeField(m_StructuredWriterFile.FileFormat, col, columnInfo, false,
-              () => reader.GetString(columnInfo.ColumnOridinalTimeZoneReader), null);
+            value = TextEncodeField(m_StructuredWriterFile.FileFormat, col, columnInfo, false, reader, null);
             if (m_StructuredWriterFile.XMLEncode)
               value = SecurityElement.Escape(value);
             else if (m_StructuredWriterFile.JSONEncode)

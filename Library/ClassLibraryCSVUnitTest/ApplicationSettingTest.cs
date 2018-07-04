@@ -47,12 +47,6 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void ApplicationSetting_TimeZoneMapping()
-    {
-      Assert.IsNotNull(TimeZoneMapping.GetTimeZone("UTC"));
-    }
-
-    [TestMethod]
     public void SQLDataReaderText()
     {
       try

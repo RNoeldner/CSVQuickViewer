@@ -221,12 +221,17 @@
     <Reference Include="BouncyCastle.OpenPgp, Version=1.8.1.0, Culture=neutral, PublicKeyToken=0e99375e54769942, processorArchitecture=MSIL">
       <HintPath>..\..\..\CSVFileValidator\packages\BouncyCastle.OpenPgp.1.8.1.1\lib\net20\BouncyCastle.OpenPgp.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="NodaTime, Version=2.3.0.0, Culture=neutral, PublicKeyToken=4226afe0d9b296d1, processorArchitecture=MSIL">
+      <HintPath>..\..\..\CSVFileValidator\packages\NodaTime.2.3.0\lib\net45\NodaTime.dll</HintPath>
+    </Reference>
     <Reference Include="Pri.LongPath">
       <HintPath>..\..\..\CSVQuickViewer\packages\Pri.LongPath.2.0.45\lib\net45\Pri.LongPath.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Numerics" />
     <Reference Include="System.XML" />
     <Reference Include="Ude, Version=0.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\..\CSVQuickViewer\packages\UDE.CSharp.1.1.0\lib\Ude.dll</HintPath>

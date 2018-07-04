@@ -155,21 +155,24 @@ namespace CsvTools
             }
             else
             {
-              if (checkResult.FoundValueFormat != null)
+              if (checkResult.FoundValueFormat != null && checkResult.PossibleMatch)
               {
                 m_ColumnEdit.ValueFormat = checkResult.FoundValueFormat;
+                if (checkResult.ValueFormatPossibleMatch.DataType == DataType.DateTime)
+                  AddFormatToComboBoxDateFormat(checkResult.ValueFormatPossibleMatch.DateFormat);
+
                 if (checkResult.FoundValueFormat.DataType == DataType.DateTime)
                   AddFormatToComboBoxDateFormat(m_ColumnEdit.DateFormat);
+
                 RefreshData();
+
                 var sb = new StringBuilder();
-                var len = 0;
-                foreach (var smp in enumerable)
-                  if (smp.Length > len)
-                    len = smp.Length;
-                sb.Append(checkResult.ExampleNonMatch.Concat(enumerable).Take(42).Join("\t"));
+                if (checkResult.ExampleNonMatch.Count > 0)
+                  sb.AppendFormat("Not matching\t: {0}\n", checkResult.ExampleNonMatch.Take(3).Join("\t"));
+                sb.AppendFormat("Samples     \t: {0}", enumerable.Take(42).Join("\t"));
 
                 _MessageBox.Show(this,
-                  $"Determined Format: {checkResult.FoundValueFormat.GetTypeAndFormatDescription()}\n\nValues:\n{sb}",
+                  $"Determined Format\t: {checkResult.FoundValueFormat.GetTypeAndFormatDescription()}\n\nClose match\t: {checkResult.ValueFormatPossibleMatch.GetTypeAndFormatDescription()}\n\n{sb}",
                   comboBoxColumnName.Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
               }
               else

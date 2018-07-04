@@ -22,6 +22,11 @@ namespace CsvTools
   /// </summary>
   public class CheckResult
   {
+    /// <summary>
+    ///   The value format for a possible match
+    /// </summary>
+    public ValueFormat ValueFormatPossibleMatch { get; set; }
+
     public ICollection<string> ExampleNonMatch { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
@@ -38,14 +43,21 @@ namespace CsvTools
     ///   Combines a Sub check to an overall check
     /// </summary>
     /// <param name="subResult">The sub result.</param>
-    public void CombineCheckResult(CheckResult subResult)
+    public void KeepBestPossibleMatch(CheckResult subResult)
     {
       if (subResult == null || !subResult.PossibleMatch) return;
-      foreach (var ex in subResult.ExampleNonMatch)
+
+      if (this.PossibleMatch == false || subResult.ExampleNonMatch.Count < this.ExampleNonMatch.Count)
       {
-        if (string.IsNullOrEmpty(ex)) continue;
-        PossibleMatch = true;
-        ExampleNonMatch.Add(ex);
+        ExampleNonMatch.Clear();
+        this.PossibleMatch = true;
+        this.ValueFormatPossibleMatch = subResult.ValueFormatPossibleMatch;
+
+        foreach (var ex in subResult.ExampleNonMatch)
+        {
+          if (string.IsNullOrEmpty(ex)) continue;
+          this.ExampleNonMatch.Add(ex);
+        }
       }
     }
   }

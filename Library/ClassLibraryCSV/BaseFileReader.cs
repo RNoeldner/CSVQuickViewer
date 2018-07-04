@@ -927,21 +927,15 @@ namespace CsvTools
           timeZone = GetString(colTimeZone);
       }
 
-      if (string.IsNullOrEmpty(timeZone)) return input;
-      var sourceTimeZoneInfo = TimeZoneMapping.GetTimeZone(timeZone);
-      if (sourceTimeZoneInfo == null)
+      try
       {
-        HandleWarning(column.ColumnOrdinal,
-          $"Time zone adjustment not calculated because time zone {timeZone} is unknown.");
+        return TimeZoneMapping.ConvertTime(input.Value, timeZone, ApplicationSetting.ToolSetting.DestinationTimeZone);
       }
-      else
+      catch (ApplicationException ex)
       {
-        if (!ApplicationSetting.ToolSetting.DestinationTimeZone.Equals(sourceTimeZoneInfo))
-          return TimeZoneInfo.ConvertTime(new DateTime(input.Value.Ticks, DateTimeKind.Unspecified),
-            sourceTimeZoneInfo, ApplicationSetting.ToolSetting.DestinationTimeZone);
+        HandleWarning(column.ColumnOrdinal, ex.Message);
+        return null;
       }
-
-      return input;
     }
 
     /// <summary>

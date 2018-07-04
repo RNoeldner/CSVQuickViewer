@@ -116,8 +116,7 @@ namespace CsvTools
           if (col == DBNull.Value)
             emptyColumns++;
 
-          sb.Append(TextEncodeField(m_CsvFile.FileFormat, col, columnInfo, false,
-            () => reader.GetString(columnInfo.ColumnOridinalTimeZoneReader), QualifyText));
+          sb.Append(TextEncodeField(m_CsvFile.FileFormat, col, columnInfo, false, reader, QualifyText));
 
           if (hasFieldDelimiter)
             sb.Append(m_CsvFile.FileFormat.FieldDelimiterChar);

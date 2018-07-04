@@ -163,7 +163,7 @@ namespace CsvTools
         // Its a data table retrieve information from columns
         foreach (DataColumn col in dataTable.Columns)
           fieldInfoList.AddRange(GetColumnInformationForOneColumn(m_FileSetting, readerFileSetting, headers,
-            col.ColumnName, col.DataType, col.Ordinal, col.MaxLength, allColums));
+            col.ColumnName, col.DataType, col.Ordinal, col.MaxLength, allColums, -1));
       }
 
       return fieldInfoList;
@@ -317,23 +317,34 @@ namespace CsvTools
       Progress?.Invoke(this, new ProgressEventArgs(text, progress));
     }
 
-    protected DateTime HandleTimeZone(DateTime dataObject, ColumnInfo columnInfo, Func<string> getTimeZoneName)
+    /// <summary>
+    /// Handles the time zone for da date time column
+    /// </summary>
+    /// <param name="dataObject">The data object.</param>
+    /// <param name="columnInfo">The column information.</param>
+    /// <param name="reader">The reader.</param>
+    /// <returns></returns>
+    protected DateTime HandleTimeZone(DateTime dataObject, ColumnInfo columnInfo, IDataReader reader)
     {
-      if (columnInfo.ColumnOridinalTimeZoneReader <= -1) return dataObject;
-      string sourceTimeZoneName = null;
-      if (getTimeZoneName != null) sourceTimeZoneName = getTimeZoneName.Invoke();
-      if (string.IsNullOrEmpty(sourceTimeZoneName))
+      if (columnInfo.ColumnOridinalTimeZoneReader > -1)
       {
-        HandleWarning(columnInfo.Header, "Time Zone is empty, value not converted");
+        var sourcetimeZoneID = reader.GetString(columnInfo.ColumnOridinalTimeZoneReader);
+        if (string.IsNullOrEmpty(sourcetimeZoneID))
+        {
+          HandleWarning(columnInfo.Header, "Time zone is empty, value not converted");
+        }
+        else
+        {
+          try
+          {
+            return TimeZoneMapping.ConvertTime(dataObject, sourcetimeZoneID, ApplicationSetting.ToolSetting.DestinationTimeZone);
+          }
+          catch (ApplicationException ex)
+          {
+            HandleWarning(columnInfo.Header, ex.Message);
+          }
+        }
       }
-      else
-      {
-        dataObject = dataObject.AdjustTZ(sourceTimeZoneName, ApplicationSetting.ToolSetting.DestinationTimeZone,
-          out var issue);
-        if (issue)
-          HandleWarning(columnInfo.Header, $"Time Zone '{sourceTimeZoneName}' not found");
-      }
-
       return dataObject;
     }
 
@@ -378,7 +389,7 @@ namespace CsvTools
     /// <param name="handleQualify"></param>
     /// <returns>proper formated CSV / Fix Length field</returns>
     protected string TextEncodeField(FileFormat fileFormat, object dataObject, ColumnInfo columnInfo, bool isHeader,
-      Func<string> getTimeZone, Func<string, ColumnInfo, FileFormat, string> handleQualify)
+      IDataReader reader, Func<string, ColumnInfo, FileFormat, string> handleQualify)
     {
       Contract.Requires(fileFormat != null);
       if (fileFormat.IsFixedLength && columnInfo.FieldLength == 0)
@@ -426,7 +437,7 @@ namespace CsvTools
 
               case DataType.DateTime:
                 displayAs = StringConversion.DateTimeToString(
-                  HandleTimeZone((DateTime)dataObject, columnInfo, getTimeZone), columnInfo.ValueFormat);
+                  HandleTimeZone((DateTime)dataObject, columnInfo, reader), columnInfo.ValueFormat);
                 break;
 
               case DataType.Guid:
@@ -510,7 +521,7 @@ namespace CsvTools
     /// </returns>
     private static IEnumerable<ColumnInfo> GetColumnInformationForOneColumn(IFileSetting writerFileSetting,
       IFileSetting readerFileSetting, ICollection<string> headers, string columnName, Type columnDataType,
-      int columnOrdinal, int columnSize, ICollection<string> columns, int columnOridinalTimeZoneReader = -1)
+      int columnOrdinal, int columnSize, ICollection<string> columns, int columnOridinalTimeZoneReader)
     {
       Contract.Requires(headers != null);
 
