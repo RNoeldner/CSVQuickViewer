@@ -12,7 +12,6 @@
  *
  */
 
-using System;
 using System.Collections.Generic;
 
 namespace CsvTools
@@ -50,6 +49,6 @@ namespace CsvTools
 
     ICache<string, ValidationResult> ValidationResultCache { get; }
 
-    TimeZoneInfo DestinationTimeZone { get; }
+    string DestinationTimeZone { get; }
   }
 }

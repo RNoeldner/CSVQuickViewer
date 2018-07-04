@@ -514,7 +514,7 @@ namespace CsvTools
               if (res.FoundValueFormat != null)
                 return res;
 
-              checkResult.CombineCheckResult(res);
+              checkResult.KeepBestPossibleMatch(res);
             }
           }
           else
@@ -524,7 +524,7 @@ namespace CsvTools
             if (res.FoundValueFormat != null)
               return res;
 
-            checkResult.CombineCheckResult(res);
+            checkResult.KeepBestPossibleMatch(res);
           }
         }
       }
@@ -553,7 +553,7 @@ namespace CsvTools
             if (res.FoundValueFormat != null)
               return res;
 
-            checkResult.CombineCheckResult(res);
+            checkResult.KeepBestPossibleMatch(res);
           }
         }
         else
@@ -562,7 +562,7 @@ namespace CsvTools
           if (res.FoundValueFormat != null)
             return res;
 
-          checkResult.CombineCheckResult(res);
+          checkResult.KeepBestPossibleMatch(res);
         }
       }
 
@@ -619,7 +619,7 @@ namespace CsvTools
           if (res.FoundValueFormat != null)
             return res;
 
-          checkResult.CombineCheckResult(res);
+          checkResult.KeepBestPossibleMatch(res);
         }
 
       return checkResult;
@@ -747,7 +747,7 @@ namespace CsvTools
         var res = StringConversion.CheckDate(samples, "yyyyMMdd", string.Empty, ":");
         if (res.FoundValueFormat != null)
           return res;
-        checkResult.CombineCheckResult(res);
+        checkResult.KeepBestPossibleMatch(res);
       }
 
       if (cancellationToken.IsCancellationRequested)
@@ -759,7 +759,7 @@ namespace CsvTools
         var res = StringConversion.CheckSerialDate(samples, true);
         if (res.FoundValueFormat != null)
           return res;
-        checkResult.CombineCheckResult(res);
+        checkResult.KeepBestPossibleMatch(res);
       }
 
       if (cancellationToken.IsCancellationRequested)
@@ -770,7 +770,7 @@ namespace CsvTools
         var res = GuessNumeric(cancellationToken, samples, guessPercentage, false);
         if (res.FoundValueFormat != null)
           return res;
-        checkResult.CombineCheckResult(res);
+        checkResult.KeepBestPossibleMatch(res);
       }
 
       // Minimum length of a date is 4 characters
@@ -779,7 +779,7 @@ namespace CsvTools
         var res = GuessDateTime(cancellationToken, samples, checkNamedDates, extraDateTime);
         if (res.FoundValueFormat != null)
           return res;
-        checkResult.CombineCheckResult(res);
+        checkResult.KeepBestPossibleMatch(res);
       }
 
       // if we have dates and allow serial dates, but do not guess numeric (this would be a fit) try
@@ -789,7 +789,7 @@ namespace CsvTools
         var res = StringConversion.CheckSerialDate(samples, false);
         if (res.FoundValueFormat != null)
           return res;
-        checkResult.CombineCheckResult(res);
+        checkResult.KeepBestPossibleMatch(res);
       }
       return checkResult;
     }

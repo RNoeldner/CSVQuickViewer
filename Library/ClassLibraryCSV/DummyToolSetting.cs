@@ -12,7 +12,6 @@
  *
  */
 
-using System;
 using System.Collections.Generic;
 
 namespace CsvTools
@@ -32,6 +31,6 @@ namespace CsvTools
 
     public virtual PGPKeyStorage PGPInformation { get; } = new PGPKeyStorage();
 
-    public virtual TimeZoneInfo DestinationTimeZone => TimeZoneInfo.Local;
+    public virtual string DestinationTimeZone => TimeZoneMapping.cIdLocal;
   }
 }

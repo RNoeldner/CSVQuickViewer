@@ -13,37 +13,39 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Windows.Forms;
 
 namespace CsvTools
 {
-  public sealed class FormPassphrase : Form
+  public sealed class FormSelectTimeZone : Form
   {
     private Button m_BtnCancel;
+    private Label label1;
+    private TimeZoneSelector timeZoneSelector1;
     private Button m_BtnOk;
-    private CheckBox m_CheckBoxShowHide;
-    private TextBox m_TextBox;
 
-    public FormPassphrase()
+    public string TimeZoneID
+    {
+      set
+      {
+        timeZoneSelector1.TimeZoneID = value;
+      }
+      get
+      {
+        return timeZoneSelector1.TimeZoneID;
+      }
+    }
+
+    public FormSelectTimeZone()
     {
       InitializeComponent();
     }
 
-    public FormPassphrase(string title)
+    public FormSelectTimeZone(string title)
     {
       InitializeComponent();
       Text = title;
-    }
-
-    public string EncryptedPassphrase
-    {
-      get
-      {
-        if (string.IsNullOrEmpty(m_TextBox.Text))
-          return null;
-        else
-          return m_TextBox.Text.Encrypt();
-      }
     }
 
     /// <summary>
@@ -53,72 +55,70 @@ namespace CsvTools
     private void InitializeComponent()
     {
       this.m_BtnOk = new System.Windows.Forms.Button();
-      this.m_TextBox = new System.Windows.Forms.TextBox();
       this.m_BtnCancel = new System.Windows.Forms.Button();
-      this.m_CheckBoxShowHide = new System.Windows.Forms.CheckBox();
+      this.label1 = new System.Windows.Forms.Label();
+      this.timeZoneSelector1 = new CsvTools.TimeZoneSelector();
       this.SuspendLayout();
       //
       // m_BtnOk
       //
-      this.m_BtnOk.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+      this.m_BtnOk.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
       this.m_BtnOk.DialogResult = System.Windows.Forms.DialogResult.OK;
-      this.m_BtnOk.Location = new System.Drawing.Point(513, 23);
+      this.m_BtnOk.Location = new System.Drawing.Point(424, 97);
       this.m_BtnOk.Name = "m_BtnOk";
       this.m_BtnOk.Size = new System.Drawing.Size(61, 23);
       this.m_BtnOk.TabIndex = 4;
       this.m_BtnOk.Text = "OK";
       this.m_BtnOk.Click += new System.EventHandler(this.BtnOK_Click);
       //
-      // m_TextBox
-      //
-      this.m_TextBox.Dock = System.Windows.Forms.DockStyle.Top;
-      this.m_TextBox.Location = new System.Drawing.Point(0, 0);
-      this.m_TextBox.Name = "m_TextBox";
-      this.m_TextBox.PasswordChar = '*';
-      this.m_TextBox.Size = new System.Drawing.Size(577, 20);
-      this.m_TextBox.TabIndex = 0;
-      //
       // m_BtnCancel
       //
-      this.m_BtnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+      this.m_BtnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
       this.m_BtnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-      this.m_BtnCancel.Location = new System.Drawing.Point(450, 23);
+      this.m_BtnCancel.Location = new System.Drawing.Point(361, 97);
       this.m_BtnCancel.Name = "m_BtnCancel";
       this.m_BtnCancel.Size = new System.Drawing.Size(61, 23);
       this.m_BtnCancel.TabIndex = 3;
       this.m_BtnCancel.Text = "Cancel";
       this.m_BtnCancel.Click += new System.EventHandler(this.BtnCancel_Click);
       //
-      // m_CheckBoxShowHide
+      // label1
       //
-      this.m_CheckBoxShowHide.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-      this.m_CheckBoxShowHide.AutoSize = true;
-      this.m_CheckBoxShowHide.Location = new System.Drawing.Point(363, 27);
-      this.m_CheckBoxShowHide.Name = "m_CheckBoxShowHide";
-      this.m_CheckBoxShowHide.Size = new System.Drawing.Size(80, 17);
-      this.m_CheckBoxShowHide.TabIndex = 2;
-      this.m_CheckBoxShowHide.Text = "Show Entry";
-      this.m_CheckBoxShowHide.UseVisualStyleBackColor = true;
-      this.m_CheckBoxShowHide.CheckedChanged += new System.EventHandler(this.CheckBoxShowHide_CheckedChanged);
+      this.label1.AutoSize = true;
+      this.label1.Location = new System.Drawing.Point(13, 13);
+      this.label1.Name = "label1";
+      this.label1.Size = new System.Drawing.Size(389, 39);
+      this.label1.TabIndex = 5;
+      this.label1.Text = "At least one column with a time has been found without time zone information.\r\n\r\n" +
+    "Please determine the timezone of all date/time columns without explicit time zon" +
+    "e.";
       //
-      // FormPassphrase
+      // timeZoneSelector1
+      //
+      this.timeZoneSelector1.Location = new System.Drawing.Point(16, 67);
+      this.timeZoneSelector1.Name = "timeZoneSelector1";
+      this.timeZoneSelector1.Size = new System.Drawing.Size(469, 29);
+      this.timeZoneSelector1.TabIndex = 6;
+      this.timeZoneSelector1.TimeZoneID = "(local)";
+      //
+      // FormSelectTimeZone
       //
       this.AcceptButton = this.m_BtnOk;
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.CancelButton = this.m_BtnCancel;
-      this.ClientSize = new System.Drawing.Size(577, 51);
+      this.ClientSize = new System.Drawing.Size(488, 125);
       this.ControlBox = false;
-      this.Controls.Add(this.m_TextBox);
-      this.Controls.Add(this.m_CheckBoxShowHide);
+      this.Controls.Add(this.timeZoneSelector1);
+      this.Controls.Add(this.label1);
       this.Controls.Add(this.m_BtnCancel);
       this.Controls.Add(this.m_BtnOk);
       this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
-      this.MaximumSize = new System.Drawing.Size(700, 85);
+      this.MaximumSize = new System.Drawing.Size(700, 300);
       this.MinimumSize = new System.Drawing.Size(380, 85);
-      this.Name = "FormPassphrase";
+      this.Name = "FormSelectTimeZone";
       this.ShowIcon = false;
-      this.Text = "PGP Private Key Passphrase";
+      this.Text = "Select Time Zone";
       this.TopMost = true;
       this.ResumeLayout(false);
       this.PerformLayout();
@@ -134,11 +134,6 @@ namespace CsvTools
     {
       DialogResult = DialogResult.Cancel;
       Close();
-    }
-
-    private void CheckBoxShowHide_CheckedChanged(object sender, EventArgs e)
-    {
-      m_TextBox.PasswordChar = m_CheckBoxShowHide.Checked ? '\0' : '*';
     }
   }
 }

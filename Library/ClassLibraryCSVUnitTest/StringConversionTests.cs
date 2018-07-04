@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NodaTime;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -81,26 +82,6 @@ namespace CsvTools.Tests
       Assert.AreEqual((short)-17, StringConversion.StringToInt16("-17", ',', '.'));
       Assert.AreEqual((short)5337, StringConversion.StringToInt16("5336,7", ',', '.'));
       Assert.AreEqual((short)5333, StringConversion.StringToInt16("5.333", ',', '.'));
-    }
-
-    [TestMethod]
-    public void AdjustTZ()
-    {
-      var utc1 = new DateTime(2017, 12, 30, 12, 05, 11, DateTimeKind.Utc);
-      var India = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
-      var Europe = TimeZoneInfo.FindSystemTimeZoneById("W. Europe Standard Time");
-
-      Assert.AreEqual(new DateTime(2017, 12, 30, 17, 35, 11, DateTimeKind.Unspecified),
-                    StringConversion.AdjustTZ(utc1, "UTC", India, out var issues1));
-
-      Assert.AreEqual(new DateTime(2017, 12, 30, 13, 05, 11, DateTimeKind.Unspecified),
-                    StringConversion.AdjustTZ(utc1, "UTC", Europe, out var issues2));
-
-      Assert.AreEqual(utc1, StringConversion.AdjustTZ(utc1, "", Europe, out var issues3));
-      Assert.IsFalse(issues3);
-
-      StringConversion.AdjustTZ(utc1, "ShitId", Europe, out var issues4);
-      Assert.IsTrue(issues4);
     }
 
     [TestMethod]

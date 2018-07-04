@@ -32,9 +32,9 @@ namespace CsvTools
     ///   Gets or sets the reader column ordinal
     /// </summary>
     /// <value>The column ordinal.</value>
-    public virtual int ColumnOridinalReader { get; set; }
+    public virtual int ColumnOridinalReader { get; set; } = -1;
 
-    public int ColumnOridinalTimeZoneReader { get; set; }
+    public int ColumnOridinalTimeZoneReader { get; set; } = -1;
 
     /// <summary>
     ///   Gets or sets the type of the data.

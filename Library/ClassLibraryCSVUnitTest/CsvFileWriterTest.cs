@@ -313,9 +313,11 @@ namespace CsvTools.Tests
     {
       var pd = new MockProcessDisplay();
 
-      var writeFile = new CsvFile();
-      writeFile.ID = "Write";
-      writeFile.FileName = Path.Combine(m_ApplicationDirectory, "BasicCSVOut2.txt");
+      var writeFile = new CsvFile
+      {
+        ID = "Write",
+        FileName = Path.Combine(m_ApplicationDirectory, "BasicCSVOut2.txt")
+      };
 
       FileSystemUtils.FileDelete(writeFile.FileName);
 

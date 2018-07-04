@@ -604,12 +604,34 @@ namespace CsvTools
           checkResult.ExampleNonMatch.Add(value);
           // try to get some positive matches, in case the first record is invalid
           if (counter >= 3)
+          {
+            if (checkResult.ValueFormatPossibleMatch == null)
+            {
+              checkResult.ValueFormatPossibleMatch = new ValueFormat
+              {
+                DataType = DataType.DateTime,
+                DateFormat = shortDateFormat,
+                DateSeparator = dateSeparator,
+                TimeSeparator = timeSeparator
+              };
+            }
             break;
+          }
         }
         else
         {
           positiveMatches++;
-          checkResult.PossibleMatch |= positiveMatches > 5;
+          if (positiveMatches > 5 && !checkResult.PossibleMatch)
+          {
+            checkResult.PossibleMatch = true;
+            checkResult.ValueFormatPossibleMatch = new ValueFormat
+            {
+              DataType = DataType.DateTime,
+              DateFormat = shortDateFormat,
+              DateSeparator = dateSeparator,
+              TimeSeparator = timeSeparator
+            };
+          }
         }
       }
 
@@ -686,7 +708,16 @@ namespace CsvTools
         else
         {
           positiveMatches++;
-          checkResult.PossibleMatch |= positiveMatches > 5;
+          if (positiveMatches > 5 && !checkResult.PossibleMatch)
+          {
+            checkResult.PossibleMatch = true;
+            checkResult.ValueFormatPossibleMatch = new ValueFormat
+            {
+              DataType = assumeInteger ? DataType.Integer : DataType.Numeric,
+              DecimalSeparator = decimalSeparator.ToString(),
+              GroupSeparator = thousandSeparator.ToString()
+            };
+          }
           // if the value contains the decimal separator or is too large to be an integer, its not
           // an integer
           if (value.IndexOf(decimalSeparator) != -1)
@@ -753,7 +784,15 @@ namespace CsvTools
           else
           {
             positiveMatches++;
-            checkResult.PossibleMatch |= positiveMatches > 5;
+            if (positiveMatches > 5 && !checkResult.PossibleMatch)
+            {
+              checkResult.PossibleMatch = true;
+              checkResult.ValueFormatPossibleMatch = new ValueFormat
+              {
+                DataType = DataType.DateTime,
+                DateFormat = "SerialDate"
+              };
+            }
           }
         }
       }
@@ -880,34 +919,6 @@ namespace CsvTools
       if (time.HasValue)
         return m_FirstDateTime.Add(time.Value);
       return date;
-    }
-
-    /// <summary>
-    ///   Converts a time to the time in a particular time zone.
-    /// </summary>
-    /// <param name="dateTime">The date and time to convert.</param>
-    /// <param name="sourceTimeZone">The source time zone given as text</param>
-    /// <param name="destinationTimeZonInfo">The time zone to convert dateTime to.</param>
-    /// <param name="timeZoneIssue">Will be set to <c>true</c> if the source timezone can not be found</param>
-    /// <returns>The converted time</returns>
-    public static DateTime AdjustTZ(this DateTime dateTime, string sourceTimeZone, TimeZoneInfo destinationTimeZonInfo,
-      out bool timeZoneIssue)
-    {
-      Contract.Requires(destinationTimeZonInfo != null);
-      timeZoneIssue = false;
-      if (string.IsNullOrEmpty(sourceTimeZone))
-        return dateTime;
-
-      var sourceTimeZoneInfo = TimeZoneMapping.GetTimeZone(sourceTimeZone);
-      timeZoneIssue = sourceTimeZoneInfo == null;
-
-      if (!timeZoneIssue && !destinationTimeZonInfo.Equals(sourceTimeZoneInfo))
-        return TimeZoneInfo.ConvertTime(
-          dateTime.Kind == DateTimeKind.Unspecified ? dateTime : new DateTime(dateTime.Ticks, DateTimeKind.Unspecified)
-          , sourceTimeZoneInfo
-          , destinationTimeZonInfo);
-
-      return dateTime;
     }
 
     /// <summary>
