@@ -18,6 +18,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
@@ -39,6 +40,7 @@ namespace CsvTools
     private readonly StringBuilder m_Messages = new StringBuilder();
     private readonly Timer m_SettingsChangedTimerChange = new Timer(200);
     private readonly Collection<Column> m_StoreColumns = new Collection<Column>();
+
     private bool m_ConfigChanged;
     private CancellationTokenSource m_CurrentCancellationTokenSource;
     private bool m_FileChanged;
@@ -58,8 +60,8 @@ namespace CsvTools
 
       InitializeComponent();
       m_SettingsChangedTimerChange.AutoReset = false;
-      m_SettingsChangedTimerChange.Elapsed += delegate { this.SafeInvoke(() => OpenDataReader(true)); };
-      m_SettingsChangedTimerChange.Start();
+      //m_SettingsChangedTimerChange.Elapsed += delegate { this.SafeInvoke(() => OpenDataReader(true)); };
+      //m_SettingsChangedTimerChange.Start();
 
       // Done in code to be able to select controls in the designer
       textPanel.SuspendLayout();
@@ -93,21 +95,37 @@ namespace CsvTools
       }
     }
 
-    private void DetailControl_ButtonAsText(object sender, EventArgs e)
+    private static void SetFileSettingDefault(CsvFile fileSetting)
     {
-      // Assume data type is not recognize
-      if (m_FileSetting.Column.Any(x => x.DataType != DataType.String))
-      {
-        m_FileSetting.Column.CollectionCopy(m_StoreColumns);
-        m_FileSetting.Column.Clear();
-        detailControl.ButtonAsTextCaption = "Values";
-      }
-      else
-      {
-        detailControl.ButtonAsTextCaption = "Text";
-        m_StoreColumns.CollectionCopy(m_FileSetting.Column);
-      }
-      OpenDataReader(true);
+      if (fileSetting == null)
+        return;
+      fileSetting.TreatTextAsNull = Settings.Default.TreatTextAsNull;
+      fileSetting.FileFormat.CommentLine = Settings.Default.Comment;
+      fileSetting.FileFormat.DelimiterPlaceholder = Settings.Default.DelimiterPlaceholder;
+      fileSetting.FileFormat.NewLinePlaceholder = Settings.Default.NLPlaceholder;
+      fileSetting.NumWarnings = Settings.Default.NumWarnings;
+      fileSetting.TreatUnknowCharaterAsSpace = Settings.Default.TreatUnknowCharaterAsSpace;
+      fileSetting.TreatNBSPAsSpace = Settings.Default.TreatNBSPAsSpace;
+      fileSetting.ShowProgress = Settings.Default.ShowProgress;
+      fileSetting.WarnLineFeed = Settings.Default.WarnLineFeed;
+      fileSetting.WarnDelimiterInValue = Settings.Default.WarnDelimiterInValue;
+      fileSetting.WarnQuotes = Settings.Default.WarnQuotes;
+      fileSetting.WarnEmptyTailingColumns = Settings.Default.WarnEmptyTailingColumns;
+      fileSetting.SkipEmptyLines = Settings.Default.SkipEmptyLines;
+      fileSetting.AlternateQuoting = Settings.Default.AlternateQuoting;
+      fileSetting.DisplayStartLineNo = Settings.Default.DisplayStartLineNo;
+      fileSetting.FileFormat.EscapeCharacter = Settings.Default.EscapeCharacter;
+      fileSetting.FileFormat.QuotePlaceholder = Settings.Default.QuotePlaceholder;
+      fileSetting.TreatTextAsNull = Settings.Default.TreatTextAsNull;
+      fileSetting.WarnNBSP = Settings.Default.WarnNBSP;
+      fileSetting.WarnUnknowCharater = Settings.Default.WarnUnknowCharater;
+
+      if (Settings.Default.TrimmingOptions.Equals("None", StringComparison.OrdinalIgnoreCase))
+        fileSetting.TrimmingOption = TrimmingOption.None;
+      if (Settings.Default.TrimmingOptions.Equals("All", StringComparison.OrdinalIgnoreCase))
+        fileSetting.TrimmingOption = TrimmingOption.All;
+      if (Settings.Default.TrimmingOptions.Equals("Unquoted", StringComparison.OrdinalIgnoreCase))
+        fileSetting.TrimmingOption = TrimmingOption.Unquoted;
     }
 
     private void AddWarning(object sender, WarningEventArgs args)
@@ -162,6 +180,23 @@ namespace CsvTools
     private void DataGridView_DragEnter(object sender, DragEventArgs e)
     {
       if (e.Data.GetDataPresent(DataFormats.FileDrop, false)) e.Effect = DragDropEffects.All;
+    }
+
+    private void DetailControl_ButtonAsText(object sender, EventArgs e)
+    {
+      // Assume data type is not recognize
+      if (m_FileSetting.Column.Any(x => x.DataType != DataType.String))
+      {
+        m_FileSetting.Column.CollectionCopy(m_StoreColumns);
+        m_FileSetting.Column.Clear();
+        detailControl.ButtonAsTextCaption = "Values";
+      }
+      else
+      {
+        detailControl.ButtonAsTextCaption = "Text";
+        m_StoreColumns.CollectionCopy(m_FileSetting.Column);
+      }
+      OpenDataReader(true);
     }
 
     private void DetailControl_ButtonShowSource(object sender, EventArgs e)
@@ -311,39 +346,6 @@ namespace CsvTools
       SetFileSettingDefault(m_FileSetting);
     }
 
-    private static void SetFileSettingDefault(CsvFile fileSetting)
-    {
-      if (fileSetting == null)
-        return;
-      fileSetting.TreatTextAsNull = Settings.Default.TreatTextAsNull;
-      fileSetting.FileFormat.CommentLine = Settings.Default.Comment;
-      fileSetting.FileFormat.DelimiterPlaceholder = Settings.Default.DelimiterPlaceholder;
-      fileSetting.FileFormat.NewLinePlaceholder = Settings.Default.NLPlaceholder;
-      fileSetting.NumWarnings = Settings.Default.NumWarnings;
-      fileSetting.TreatUnknowCharaterAsSpace = Settings.Default.TreatUnknowCharaterAsSpace;
-      fileSetting.TreatNBSPAsSpace = Settings.Default.TreatNBSPAsSpace;
-      fileSetting.ShowProgress = Settings.Default.ShowProgress;
-      fileSetting.WarnLineFeed = Settings.Default.WarnLineFeed;
-      fileSetting.WarnDelimiterInValue = Settings.Default.WarnDelimiterInValue;
-      fileSetting.WarnQuotes = Settings.Default.WarnQuotes;
-      fileSetting.WarnEmptyTailingColumns = Settings.Default.WarnEmptyTailingColumns;
-      fileSetting.SkipEmptyLines = Settings.Default.SkipEmptyLines;
-      fileSetting.AlternateQuoting = Settings.Default.AlternateQuoting;
-      fileSetting.DisplayStartLineNo = Settings.Default.DisplayStartLineNo;
-      fileSetting.FileFormat.EscapeCharacter = Settings.Default.EscapeCharacter;
-      fileSetting.FileFormat.QuotePlaceholder = Settings.Default.QuotePlaceholder;
-      fileSetting.TreatTextAsNull = Settings.Default.TreatTextAsNull;
-      fileSetting.WarnNBSP = Settings.Default.WarnNBSP;
-      fileSetting.WarnUnknowCharater = Settings.Default.WarnUnknowCharater;
-
-      if (Settings.Default.TrimmingOptions.Equals("None", StringComparison.OrdinalIgnoreCase))
-        fileSetting.TrimmingOption = TrimmingOption.None;
-      if (Settings.Default.TrimmingOptions.Equals("All", StringComparison.OrdinalIgnoreCase))
-        fileSetting.TrimmingOption = TrimmingOption.All;
-      if (Settings.Default.TrimmingOptions.Equals("Unquoted", StringComparison.OrdinalIgnoreCase))
-        fileSetting.TrimmingOption = TrimmingOption.Unquoted;
-    }
-
     /// <summary>
     ///   Initializes the file settings.
     /// </summary>
@@ -381,11 +383,9 @@ namespace CsvTools
           try
           {
             m_CurrentCancellationTokenSource = cancellationTokenSource;
-            var fromRecordLimitSet = true;
-            FrmLimitSize limitSizeForm;
+            FrmLimitSize limitSizeForm = null;
             if (fileInfo.Length > maxsize)
             {
-              fromRecordLimitSet = false;
               limitSizeForm = new FrmLimitSize();
 
               // As the form closes it will store the information
@@ -393,8 +393,8 @@ namespace CsvTools
               {
                 if (limitSizeForm.DialogResult == DialogResult.Cancel)
                   cancellationTokenSource.Cancel();
-                fromRecordLimitSet = true;
                 m_FileSetting.RecordLimit = limitSizeForm.RecordLimit.ToUint();
+                limitSizeForm = null;
               };
               limitSizeForm.Show();
             }
@@ -453,6 +453,10 @@ namespace CsvTools
 
               using (var processDisplay = m_FileSetting.GetProcessDisplay(this, cancellationTokenSource.Token))
               {
+                if (processDisplay is Form frm && limitSizeForm != null)
+                {
+                  frm.Left = limitSizeForm.Left + limitSizeForm.Width;
+                }
                 processDisplay.Progress += SetProcess;
                 m_FileSetting.FillGuessColumnFormatReader(false, processDisplay);
               }
@@ -464,12 +468,17 @@ namespace CsvTools
               }
             }
 
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
             // Wait for the RecordLimit to be set or a cancellation caused by the outside
-            while (!fromRecordLimitSet && !cancellationTokenSource.IsCancellationRequested)
+            while (limitSizeForm != null && !cancellationTokenSource.IsCancellationRequested && stopwatch.Elapsed.Seconds < 5)
             {
               Thread.Sleep(50);
               Application.DoEvents();
             }
+            stopwatch.Stop();
+            if (limitSizeForm != null)
+              limitSizeForm.Close();
 
             if (cancellationTokenSource.IsCancellationRequested)
               return false;
@@ -594,6 +603,46 @@ namespace CsvTools
       }
     }
 
+    private void SaveSetting()
+    {
+      try
+      {
+        var pathSetting = m_FileSetting.FileName + CsvFile.cCsvSettingExtension;
+        m_FileSetting.FileName = m_FileSetting.FileName.Substring(m_FileSetting.FileName.LastIndexOf('\\'));
+        var answer = DialogResult.No;
+
+        if (FileSystemUtils.FileExists(pathSetting))
+        {
+          // No need to save if nothing has changed
+          var compare = SerializedFilesLib.LoadCsvFile(pathSetting);
+          // These entries can be ignored...
+          compare.ID = m_FileSetting.ID;
+          compare.FileName = m_FileSetting.FileName;
+
+          if (!compare.Equals(m_FileSetting))
+            answer = MessageBox.Show(this,
+              $"Replace changed settings in {pathSetting} ?", "Settings",
+              MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+          if (answer == DialogResult.Yes)
+            FileSystemUtils.FileDelete(pathSetting);
+        }
+        else
+        {
+          answer = _MessageBox.Show(this,
+            $"Store settings in {pathSetting} for faster processing next time?", "Settings", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+        }
+
+        if (answer != DialogResult.Yes) return;
+        SerializedFilesLib.SaveCsvFile(pathSetting, m_FileSetting);
+        m_ConfigChanged = false;
+      }
+      catch (Exception ex)
+      {
+        MessageBox.Show(this, ex.ExceptionMessages(), "Storing Settings", MessageBoxButtons.OK, MessageBoxIcon.Error);
+      }
+    }
+
     /// <summary>
     ///   Sets the process.
     /// </summary>
@@ -676,46 +725,6 @@ namespace CsvTools
         case PowerModes.Resume:
           this.LoadWindowState(Settings.Default.WindowPosition, Settings.Default.WindowState);
           break;
-      }
-    }
-
-    private void SaveSetting()
-    {
-      try
-      {
-        var pathSetting = m_FileSetting.FileName + CsvFile.cCsvSettingExtension;
-        m_FileSetting.FileName = m_FileSetting.FileName.Substring(m_FileSetting.FileName.LastIndexOf('\\'));
-        var answer = DialogResult.No;
-
-        if (FileSystemUtils.FileExists(pathSetting))
-        {
-          // No need to save if nothing has changed
-          var compare = SerializedFilesLib.LoadCsvFile(pathSetting);
-          // These entries can be ignored...
-          compare.ID = m_FileSetting.ID;
-          compare.FileName = m_FileSetting.FileName;
-
-          if (!compare.Equals(m_FileSetting))
-            answer = MessageBox.Show(this,
-              $"Replace changed settings in {pathSetting} ?", "Settings",
-              MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-
-          if (answer == DialogResult.Yes)
-            FileSystemUtils.FileDelete(pathSetting);
-        }
-        else
-        {
-          answer = _MessageBox.Show(this,
-            $"Store settings in {pathSetting} for faster processing next time?", "Settings", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-        }
-
-        if (answer != DialogResult.Yes) return;
-        SerializedFilesLib.SaveCsvFile(pathSetting, m_FileSetting);
-        m_ConfigChanged = false;
-      }
-      catch (Exception ex)
-      {
-        MessageBox.Show(this, ex.ExceptionMessages(), "Storing Settings", MessageBoxButtons.OK, MessageBoxIcon.Error);
       }
     }
   }
