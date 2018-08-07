@@ -89,6 +89,12 @@ namespace CsvTools
       return Instant.FromDateTimeUtc(dateTimeUTC).InZone(GetTimeZone(destTZName)).ToDateTimeUnspecified();
     }
 
+    /// <summary>
+    /// Gets the time zone savings times in a year.
+    /// </summary>
+    /// <param name="timeZoneName">Name of the time zone.</param>
+    /// <param name="year">The year.</param>
+    /// <returns></returns>
     public static Tuple<DateTime, DateTime> GetTranstionTimes(this string timeZoneName, int year)
     {
       foreach (var saving in IntervalsInYear(timeZoneName, year).Where(x => x.Savings.Seconds >= cMinSavingSeconds))
@@ -220,6 +226,11 @@ namespace CsvTools
     {
       if (!dic.ContainsKey(key))
         dic.Add(key, value);
+    }
+
+    public static string GetTimeZoneID(string timeZoneName)
+    {
+      return GetTimeZone(timeZoneName).Id;
     }
 
     /// <summary>

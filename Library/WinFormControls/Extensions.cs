@@ -50,6 +50,33 @@ namespace CsvTools
 #endif
     }
 
+    /// <summary>
+    ///   Handles a CTRL-A select all in the form.
+    /// </summary>
+    /// <param name="sender">The sender.</param>
+    /// <param name="e">
+    ///   The <see cref="KeyEventArgs" /> instance containing the event data.
+    /// </param>
+    public static void CtrlA(this Form frm, object sender, KeyEventArgs e)
+    {
+      if (e == null || !e.Control || e.KeyCode.ToString() != "A") return;
+      var tb = sender as TextBox;
+      if (sender == frm) tb = frm.ActiveControl as TextBox;
+
+      if (tb != null)
+      {
+        tb.SelectAll();
+        return;
+      }
+
+      var lv = sender as ListView;
+      if (sender == frm) lv = frm.ActiveControl as ListView;
+
+      if (lv == null || !lv.MultiSelect) return;
+      foreach (ListViewItem item in lv.Items)
+        item.Selected = true;
+    }
+
     public static void WriteBinding(this Control ctrl)
     {
       var bind = ctrl.GetTextBindng();
