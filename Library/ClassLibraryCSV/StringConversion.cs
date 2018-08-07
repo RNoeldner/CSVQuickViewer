@@ -1116,6 +1116,11 @@ namespace CsvTools
       return (dateTime >= m_FirstDateTime && dateTime < m_FirstDateTimeNextDay);
     }
 
+    public static bool IsDuration(DateTime dateTime)
+    {
+      return (dateTime >= m_FirstDateTime && dateTime < m_FirstDateTime.AddHours(240));
+    }
+
     /// <summary>
     ///   Displays the date time in local format
     /// </summary>
@@ -1132,6 +1137,12 @@ namespace CsvTools
       if (dateTime.Hour == 0 && dateTime.Minute == 0 && dateTime.Second == 0)
         return dateTime.ToString("d", culture);
 
+      if (IsDuration(dateTime))
+      {
+        return (dateTime - m_FirstDateTime).TotalHours.ToString((dateTime - m_FirstDateTime).TotalHours >= 100 ? "000" : "00")
+              + ":" + (dateTime - m_FirstDateTime).Minutes.ToString("00")
+              + ":" + (dateTime - m_FirstDateTime).Seconds.ToString("00");
+      }
       return dateTime.ToString("G", culture);
     }
 
@@ -1278,6 +1289,15 @@ namespace CsvTools
           && (string.IsNullOrEmpty(timeSeparator) ||
               stringDateValue.IndexOf(timeSeparator, StringComparison.Ordinal) == -1))
         return SerialStringToDateTime(stringDateValue);
+
+      // in case its time only and we do not have any date separator try a timespan
+      if (stringDateValue.IndexOf(dateSeparator, StringComparison.Ordinal) == -1 &&
+          dateFormat.IndexOf('/') == -1)
+      {
+        var ts = StringToTimeSpan(originalValue, timeSeparator, false);
+        if (ts.HasValue)
+          return new DateTime(ts.Value.Ticks);
+      }
 
       return null;
     }
