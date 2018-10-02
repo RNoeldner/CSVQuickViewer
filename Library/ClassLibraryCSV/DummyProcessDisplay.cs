@@ -31,9 +31,10 @@ namespace CsvTools
     /// <param name="cancellationToken">The cancellation token.</param>
     public DummyProcessDisplay(CancellationToken cancellationToken)
     {
-      m_CancellationTokenSource = cancellationToken == CancellationToken.None
-        ? new CancellationTokenSource()
-        : CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+      if (cancellationToken == CancellationToken.None || cancellationToken.IsCancellationRequested)
+        m_CancellationTokenSource = new CancellationTokenSource();
+      else
+        m_CancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
     }
 
     /// <summary>
