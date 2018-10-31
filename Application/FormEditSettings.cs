@@ -370,5 +370,11 @@ namespace CsvTools
           labelPassphrase.Text = "Passphrase is set but invalid";
         }
     }
+
+    private void cboCodePage_SelectedIndexChanged(object sender, EventArgs e)
+    {
+      if (cboCodePage.SelectedItem != null)
+        m_CsvFileCopy.CodePageId = ((DisplayItem<int>)cboCodePage.SelectedItem).ID;
+    }
   }
 }
