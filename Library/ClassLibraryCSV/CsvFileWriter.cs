@@ -158,41 +158,14 @@ namespace CsvTools
     /// <returns>
     ///   Number of records written
     /// </returns>
-    protected override void Write(IDataReader reader, IFileSetting fileSetting, CancellationToken cancellationToken)
+    protected override void Write(IFileSetting fileSetting, IDataReader reader, Stream output, CancellationToken cancellationToken)
     {
       Contract.Assume(!string.IsNullOrEmpty(m_CsvFile.FullPath));
-      var dest = m_CsvFile.FullPath;
-      try
-      {
-        if (ApplicationSetting.WritePreProcessing != null)
-        {
-          HandleProgress("Preparing processing");
-          dest = ApplicationSetting.WritePreProcessing.Invoke(m_CsvFile);
-        }
-        FileSystemUtils.FileDelete(dest);
 
-        using (var writer = new StreamWriter(dest, false,
-          EncodingHelper.GetEncoding(m_CsvFile.CodePageId, m_CsvFile.ByteOrderMark), 8192))
-        {
-          DataReader2Stream(reader, writer, fileSetting, cancellationToken);
-        }
-
-        // PGP Encryption
-        if (ApplicationSetting.WritePostProcessing == null) return;
-        HandleProgress("Post processing");
-        ApplicationSetting.WritePostProcessing.Invoke(m_CsvFile, ProcessDisplay, dest);
-      }
-      catch (Exception exc)
+      using (var writer = new StreamWriter(output,
+        EncodingHelper.GetEncoding(m_CsvFile.CodePageId, m_CsvFile.ByteOrderMark), 8192))
       {
-        ErrorMessage = $"Could not write file '{m_CsvFile.FileName}'.\r\n{exc.ExceptionMessages()}";
-        if (m_CsvFile.InOverview)
-          throw;
-      }
-      finally
-      {
-        if (!m_CsvFile.FullPath.Equals(dest, StringComparison.OrdinalIgnoreCase))
-          FileSystemUtils.FileDelete(dest);
-        HandleWriteFinished();
+        DataReader2Stream(reader, writer, fileSetting, cancellationToken);
       }
     }
 

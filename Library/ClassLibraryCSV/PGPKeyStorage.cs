@@ -408,7 +408,7 @@ namespace CsvTools
       return string.Empty;
     }
 
-    public virtual void PgpEncrypt(Stream toEncrypt, Stream outStream, string recipient, IProcessDisplay processDispay)
+    public virtual void PgpEncrypt(Stream toEncrypt, Stream outStream, string recipient, IProcessDisplay processDisplay)
     {
       var encryptionKey = GetEncryptionKey(recipient);
       var encryptor = new PgpEncryptedDataGenerator(SymmetricKeyAlgorithmTag.TripleDes, false, new SecureRandom());
@@ -424,17 +424,17 @@ namespace CsvTools
           using (var literalStream = literalizer.Open(compressedStream, PgpLiteralDataGenerator.Utf8, "PGPStream",
             DateTime.Now, new byte[4096]))
           {
-            var processDispayTime = processDispay as IProcessDisplayTime;
+            var processDispayTime = processDisplay as IProcessDisplayTime;
             var max = (int)(toEncrypt.Length / copyBuffer.Length);
-            processDispay.Maximum = max;
+            processDisplay.Maximum = max;
             var count = 0;
             int length;
             while ((length = toEncrypt.Read(copyBuffer, 0, copyBuffer.Length)) > 0)
             {
-              processDispay.CancellationToken.ThrowIfCancellationRequested();
+              processDisplay.CancellationToken.ThrowIfCancellationRequested();
               literalStream.Write(copyBuffer, 0, length);
               count++;
-              processDispay.SetProcess(
+              processDisplay.SetProcess(
                 processDispayTime != null
                   ? $"PGP Encrypt {processDispayTime.TimeToCompletion.PercentDisplay}{processDispayTime.TimeToCompletion.EstimatedTimeRemainingDisplaySeperator}"
                   : $"PGP Encrypt {count:N0}/{max:N0}", count);

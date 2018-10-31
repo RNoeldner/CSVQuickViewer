@@ -94,7 +94,7 @@ namespace CsvTools
     {
       if (string.IsNullOrEmpty(comboBoxColumnName.Text))
       {
-        MessageBox.Show("Please select a column first");
+        _MessageBox.Show(this, "Please select a column first", "Guess");
         return;
       }
 
@@ -134,7 +134,7 @@ namespace CsvTools
           var enumerable = samples.ToList();
           if (enumerable.IsEmpty())
           {
-            MessageBox.Show(this, string.Format(c_NoSampleDate, ApplicationSetting.FillGuessSettings.CheckedRecords),
+            _MessageBox.Show(this, string.Format(c_NoSampleDate, ApplicationSetting.FillGuessSettings.CheckedRecords),
               "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
           }
           else
@@ -209,8 +209,7 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        Cursor.Current = Cursors.Default;
-        MessageBox.Show(this, ex.ExceptionMessages(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        this.ShowError(ex);
       }
       finally
       {
@@ -226,13 +225,22 @@ namespace CsvTools
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
     public void buttonOK_Click(object sender, EventArgs e)
     {
-      if (!m_ColumnEdit.Equals(m_ColumnRef))
+      try
       {
-        m_ColumnEdit.CopyTo(m_ColumnRef);
-        DialogResult = DialogResult.Yes;
+        if (!m_ColumnEdit.Equals(m_ColumnRef))
+        {
+          m_ColumnEdit.CopyTo(m_ColumnRef);
+          DialogResult = DialogResult.Yes;
+        }
       }
-
-      Close();
+      catch (Exception ex)
+      {
+        this.ShowError(ex);
+      }
+      finally
+      {
+        Close();
+      }
     }
 
     private static void AddNotExisting(List<string> list, string value, List<string> otherList = null)
@@ -243,15 +251,22 @@ namespace CsvTools
 
     private void AddFormatToComboBoxDateFormat(string format)
     {
-      if (string.IsNullOrEmpty(format))
-        return;
+      try
+      {
+        if (string.IsNullOrEmpty(format))
+          return;
 
-      foreach (int ind in checkedListBoxDateFormats.CheckedIndices)
-        checkedListBoxDateFormats.SetItemChecked(ind, false);
-      var index = checkedListBoxDateFormats.Items.IndexOf(format);
-      if (index < 0) index = checkedListBoxDateFormats.Items.Add(format);
-      checkedListBoxDateFormats.SetItemChecked(index, true);
-      checkedListBoxDateFormats.TopIndex = index;
+        foreach (int ind in checkedListBoxDateFormats.CheckedIndices)
+          checkedListBoxDateFormats.SetItemChecked(ind, false);
+        var index = checkedListBoxDateFormats.Items.IndexOf(format);
+        if (index < 0) index = checkedListBoxDateFormats.Items.Add(format);
+        checkedListBoxDateFormats.SetItemChecked(index, true);
+        checkedListBoxDateFormats.TopIndex = index;
+      }
+      catch (Exception ex)
+      {
+        this.ShowError(ex);
+      }
     }
 
     /// <summary>
@@ -284,8 +299,7 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        Cursor.Current = Cursors.Default;
-        MessageBox.Show(this, ex.ExceptionMessages(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        this.ShowError(ex);
       }
       finally
       {
@@ -384,7 +398,7 @@ namespace CsvTools
             }
             catch (Exception ex)
             {
-              MessageBox.Show(this, ex.SourceExceptionMessage(), "Could not open file to determine columns");
+              this.ShowError(ex, "Could not open file to determine columns");
               allColumns = new List<string>();
             }
 
@@ -399,8 +413,7 @@ namespace CsvTools
                 }
                 catch (Exception ex)
                 {
-                  MessageBox.Show(this, ex.SourceExceptionMessage(),
-                    "Could not open source setting to determine columns");
+                  this.ShowError(ex, "Could not open source setting to determine columns");
                   allColumns = new List<string>();
                 }
             }
@@ -434,8 +447,7 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        Cursor.Current = Cursors.Default;
-        MessageBox.Show(this, ex.ExceptionMessages(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        this.ShowError(ex);
       }
       finally
       {
@@ -445,9 +457,16 @@ namespace CsvTools
 
     private void comboBoxColumnName_SelectedIndexChanged(object sender, EventArgs e)
     {
-      buttonGuess.Enabled = m_FileSetting != null && comboBoxColumnName.SelectedItem != null;
-      buttonDisplayValues.Enabled = m_FileSetting != null && comboBoxColumnName.SelectedItem != null;
-      comboBoxColumnName_TextUpdate(sender, e);
+      try
+      {
+        buttonGuess.Enabled = m_FileSetting != null && comboBoxColumnName.SelectedItem != null;
+        buttonDisplayValues.Enabled = m_FileSetting != null && comboBoxColumnName.SelectedItem != null;
+        comboBoxColumnName_TextUpdate(sender, e);
+      }
+      catch (Exception ex)
+      {
+        this.ShowError(ex);
+      }
     }
 
     private void comboBoxColumnName_TextUpdate(object sender, EventArgs e)
@@ -462,23 +481,30 @@ namespace CsvTools
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
     private void comboBoxDataType_SelectedIndexChanged(object sender, EventArgs e)
     {
-      if (comboBoxDataType.SelectedValue == null)
-        return;
-      var selType = (DataType)comboBoxDataType.SelectedValue;
-      m_ColumnEdit.DataType = selType;
+      try
+      {
+        if (comboBoxDataType.SelectedValue == null)
+          return;
+        var selType = (DataType)comboBoxDataType.SelectedValue;
+        m_ColumnEdit.DataType = selType;
 
-      groupBoxNumber.Visible = selType == DataType.Numeric || selType == DataType.Double;
-      if (groupBoxNumber.Visible)
-        NumberFormatChanged(null, null);
+        groupBoxNumber.Visible = selType == DataType.Numeric || selType == DataType.Double;
+        if (groupBoxNumber.Visible)
+          NumberFormatChanged(null, null);
 
-      groupBoxDate.Visible = selType == DataType.DateTime;
-      if (groupBoxDate.Visible)
-        DateFormatChanged(null, null);
+        groupBoxDate.Visible = selType == DataType.DateTime;
+        if (groupBoxDate.Visible)
+          DateFormatChanged(null, null);
 
-      groupBoxBoolean.Visible = selType == DataType.Boolean;
-      groupBoxSplit.Visible = selType == DataType.TextPart;
-      if (groupBoxSplit.Visible)
-        SetSamplePart(null, null);
+        groupBoxBoolean.Visible = selType == DataType.Boolean;
+        groupBoxSplit.Visible = selType == DataType.TextPart;
+        if (groupBoxSplit.Visible)
+          SetSamplePart(null, null);
+      }
+      catch (Exception ex)
+      {
+        this.ShowError(ex);
+      }
     }
 
     /// <summary>
@@ -548,23 +574,31 @@ namespace CsvTools
       if (colIndex < 0)
         throw new ApplicationException($"The file does not contain the column {comboBoxColumnName.Text}.");
 
-      if (m_WriteSetting)
+      try
       {
-        var fileWriter = m_FileSetting.GetFileWriter(m_CancellationTokenSource.Token);
-        var data = fileWriter.GetSourceDataTable((uint)ApplicationSetting.FillGuessSettings.CheckedRecords);
+        if (m_WriteSetting)
         {
-          return DetermineColumnFormat.GetSampleValues(data, m_CancellationTokenSource.Token, colIndex,
-            ApplicationSetting.FillGuessSettings.SampleValues, m_FileSetting.TreatTextAsNull);
+          var fileWriter = m_FileSetting.GetFileWriter(m_CancellationTokenSource.Token);
+          var data = fileWriter.GetSourceDataTable((uint)ApplicationSetting.FillGuessSettings.CheckedRecords);
+          {
+            return DetermineColumnFormat.GetSampleValues(data, m_CancellationTokenSource.Token, colIndex,
+              ApplicationSetting.FillGuessSettings.SampleValues, m_FileSetting.TreatTextAsNull);
+          }
+        }
+
+        using (var fileReader = m_FileSetting.GetFileReader())
+        {
+          fileReader.Open(m_CancellationTokenSource.Token, false);
+          return DetermineColumnFormat.GetSampleValues(fileReader, ApplicationSetting.FillGuessSettings.CheckedRecords,
+            m_CancellationTokenSource.Token, colIndex, ApplicationSetting.FillGuessSettings.SampleValues,
+            m_FileSetting.TreatTextAsNull);
         }
       }
-
-      using (var fileReader = m_FileSetting.GetFileReader())
+      catch (Exception ex)
       {
-        fileReader.Open(m_CancellationTokenSource.Token, false);
-        return DetermineColumnFormat.GetSampleValues(fileReader, ApplicationSetting.FillGuessSettings.CheckedRecords,
-          m_CancellationTokenSource.Token, colIndex, ApplicationSetting.FillGuessSettings.SampleValues,
-          m_FileSetting.TreatTextAsNull);
+        this.ShowError(ex);
       }
+      return new List<string>();
     }
 
     /// <summary>
@@ -641,7 +675,7 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        Debug.WriteLine(ex.InnerExceptionMessages());
+        this.ShowError(ex);
       }
     }
 

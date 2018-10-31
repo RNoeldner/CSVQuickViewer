@@ -168,32 +168,17 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Get a StreamReader for the CSvFile, does return a base stream to determine the current position
+    /// Gets the <see cref="Encoding"/> of the textFile
     /// </summary>
-    /// <param name="setting">The CSVFile fileSetting</param>
-    /// <returns>A <see cref="StreamReader" /> to read from the csv file </returns>
-    public static StreamReader GetStreamReader(ICsvFile setting)
+    /// <param name="setting">The setting.</param>
+    /// <returns></returns>
+    public static Encoding GetEncoding(this ICsvFile setting)
     {
       Contract.Requires(setting != null);
-      return GetStreamReader(setting, out FileStream _);
-    }
-
-    /// <summary>
-    ///   Get a StreamReader for the CSvFile, does return a base stream to determine the current position
-    /// </summary>
-    /// <param name="setting">The CSVFile fileSetting</param>
-    /// <param name="baseStream">Output Parameter for the Position stream </param>
-    /// <returns>A <see cref="StreamReader" /> to read from the csv file </returns>
-    public static StreamReader GetStreamReader(ICsvFile setting, out FileStream baseStream)
-    {
-      Contract.Requires(setting != null);
-      Contract.Ensures(Contract.Result<StreamReader>() != null);
-
       if (setting.CodePageId < 0)
         GuessCodePage(setting);
 
-      var encoding = Encoding.GetEncoding(setting.CodePageId);
-      return new StreamReader(GetStream(setting, out baseStream), encoding, setting.ByteOrderMark);
+      return Encoding.GetEncoding(setting.CodePageId);
     }
 
     /// <summary>
@@ -210,9 +195,9 @@ namespace CsvTools
       // Read 256 kBytes
       var buff = new byte[262144];
       int length;
-      using (var fileStream = GetStream(setting, out FileStream _))
+      using (var fileStream = ImprovedStream.OpenRead(setting, null))
       {
-        length = fileStream.Read(buff, 0, buff.Length);
+        length = fileStream.Stream.Read(buff, 0, buff.Length);
       }
 
       if (length >= 2)
@@ -252,7 +237,8 @@ namespace CsvTools
     {
       Contract.Requires(setting != null);
       Contract.Ensures(Contract.Result<string>() != null);
-      using (var streamReader = GetStreamReader(setting))
+      using (var improvedStream = ImprovedStream.OpenRead(setting, null))
+      using (var streamReader = new StreamReader(improvedStream.Stream, setting.GetEncoding(), setting.ByteOrderMark))
       {
         for (int i = 0; i < setting.SkipRows; i++)
           streamReader.ReadLine();
@@ -314,7 +300,8 @@ namespace CsvTools
     public static string GuessNewline(ICsvFile setting)
     {
       Contract.Requires(setting != null);
-      using (var streamReader = GetStreamReader(setting))
+      using (var improvedStream = ImprovedStream.OpenRead(setting, null))
+      using (var streamReader = new StreamReader(improvedStream.Stream, setting.GetEncoding(), setting.ByteOrderMark))
       {
         for (int i = 0; i < setting.SkipRows; i++)
           streamReader.ReadLine();
@@ -330,7 +317,8 @@ namespace CsvTools
     public static bool GuessNotADelimitedFile(ICsvFile setting)
     {
       Contract.Requires(setting != null);
-      using (var streamReader = GetStreamReader(setting))
+      using (var improvedStream = ImprovedStream.OpenRead(setting, null))
+      using (var streamReader = new StreamReader(improvedStream.Stream, setting.GetEncoding(), setting.ByteOrderMark))
       {
         for (int i = 0; i < setting.SkipRows; i++)
           streamReader.ReadLine();
@@ -358,7 +346,8 @@ namespace CsvTools
     public static int GuessStartRow(ICsvFile setting)
     {
       Contract.Requires(setting != null);
-      using (var streamReader = GetStreamReader(setting))
+      using (var improvedStream = ImprovedStream.OpenRead(setting, null))
+      using (var streamReader = new StreamReader(improvedStream.Stream, setting.GetEncoding(), setting.ByteOrderMark))
       {
         return GuessStartRow(streamReader, setting.FileFormat.FieldDelimiterChar,
           setting.FileFormat.FieldQualifierChar);
@@ -380,7 +369,8 @@ namespace CsvTools
       if (string.IsNullOrEmpty(setting.FileFormat.FieldQualifier) || token.IsCancellationRequested)
         return false;
 
-      using (var streamReader = GetStreamReader(setting))
+      using (var improvedStream = ImprovedStream.OpenRead(setting, null))
+      using (var streamReader = new StreamReader(improvedStream.Stream, setting.GetEncoding(), setting.ByteOrderMark))
       {
         for (int i = 0; i < setting.SkipRows; i++)
           streamReader.ReadLine();
@@ -811,66 +801,6 @@ namespace CsvTools
       }
 
       return dc;
-    }
-
-    public static Stream GetStream(IFileSetting setting, out FileStream baseStream)
-    {
-      Contract.Requires(setting != null);
-      Contract.Ensures(Contract.Result<Stream>() != null);
-
-      baseStream = File.OpenRead(setting.FullPath);
-      if (setting.FileName.AssumeGZip())
-        return new GZipStream(baseStream, CompressionMode.Decompress);
-
-      if (!setting.FileName.AssumePgp()) return baseStream;
-      // get the encrypted Passphrase and more sure we can decrypt it
-      string encryptedPassphrase = setting.GetEncryptedPassphraseFunction();
-      if (string.IsNullOrEmpty(encryptedPassphrase))
-        throw new ApplicationException("Please provide a passphrase.");
-      System.Security.SecureString decryptedPassphrase;
-      try
-      {
-        decryptedPassphrase = encryptedPassphrase.Decrypt().ToSecureString();
-      }
-      catch (Exception)
-      {
-        throw new ApplicationException("Please reenter the passphrase, the passphrase could not be decrypted.");
-      }
-
-      try
-      {
-        var returnStream =
-          ApplicationSetting.ToolSetting.PGPInformation.PgpDecrypt(baseStream, decryptedPassphrase);
-
-        // arriving here means the passphrase was correct...
-        if (ApplicationSetting.ToolSetting.PGPInformation.EncryptedPassphase.Length == 0)
-          ApplicationSetting.ToolSetting.PGPInformation.EncryptedPassphase = encryptedPassphrase;
-        else
-          setting.Passphrase = encryptedPassphrase;
-        return returnStream;
-      }
-      catch (PgpException ex)
-      {
-        // removed possibly stored passphrase
-        if (setting.Passphrase.Length == 0)
-          ApplicationSetting.ToolSetting.PGPInformation.EncryptedPassphase = string.Empty;
-        else
-          setting.Passphrase = string.Empty;
-        var recipinet = string.Empty;
-        try
-        {
-          recipinet = ApplicationSetting.ToolSetting.PGPInformation.GetEncryptedKeyID(baseStream);
-        }
-        catch
-        {
-          // ignore
-        }
-
-        if (recipinet.Length > 0)
-          throw new ApplicationException($"The message is encrypted for '{recipinet}'.", ex);
-        else
-          throw;
-      }
     }
 
     private class DelimiterCounter

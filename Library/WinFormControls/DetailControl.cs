@@ -647,8 +647,7 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        MessageBox.Show(this.ParentForm, ex.ExceptionMessages(), "Error trying to determine the length of the columns",
-          MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        this.ParentForm.ShowError(ex, "Error trying to determine the length of the columns");
       }
       finally
       {
@@ -681,7 +680,7 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        MessageBox.Show(this.ParentForm, ex.ExceptionMessages(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        this.ParentForm.ShowError(ex);
       }
       finally
       {
@@ -720,7 +719,7 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        MessageBox.Show(this.ParentForm, ex.ExceptionMessages(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        this.ParentForm.ShowError(ex);
       }
       finally
       {
@@ -751,7 +750,7 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        MessageBox.Show(this.ParentForm, ex.ExceptionMessages(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        this.ParentForm.ShowError(ex);
       }
       finally
       {
@@ -871,7 +870,7 @@ namespace CsvTools
         }
         catch (Exception ex)
         {
-          MessageBox.Show("Error setting the DataSource of the grid:\r\n" + ex.InnerExceptionMessages());
+          this.ParentForm.ShowError(ex, "Error setting the DataSource of the grid");
         }
       }
       finally
@@ -1080,7 +1079,7 @@ namespace CsvTools
           "Text file (*.txt)|*.txt|Comma delimited (*.csv)|*.csv|Tab delimited (*.tab;*.tsv)|*.tab;*.tsv|All files (*.*)|*.*";
         saveFileDialog.OverwritePrompt = true;
         saveFileDialog.Title = "Delimited File";
-        saveFileDialog.InitialDirectory = fi.DirectoryName.RemoveLongPathPrefix();
+        saveFileDialog.InitialDirectory = FileSystemUtils.GetDirectoryName(fi.FullName).RemovePrefix();
 
         if (saveFileDialog.ShowDialog() != DialogResult.OK) return;
         var writeFile = m_FileSetting.Clone();

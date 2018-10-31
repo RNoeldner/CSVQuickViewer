@@ -12,7 +12,7 @@ namespace CsvTools.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "14.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "15.6.0.0")]
     internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
         
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
@@ -489,16 +489,18 @@ namespace CsvTools.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute(@"<STYLE type=""text/css"">
-          td { border: 1px solid lightgrey; padding:2px; }
-          td.value { color:DarkBlue; }
-          td.text { mso-number-format:\@; color:black; }
-          tr.alt { background: #EEEEEE; }
-          br { mso-data-placement:same-cell; }
-          span { background: #F7F8E0; }
-          span.err { color:#B40404; }
-          span.war { color:#2E64FE; }
-</STYLE>")]
+        [global::System.Configuration.DefaultSettingValueAttribute(@"
+        <STYLE type=""text/css"">
+        td { border: 1px solid lightgrey; padding:2px; }
+        td.value { color:DarkBlue; }
+        td.text { mso-number-format:\@; color:black; }
+        tr.alt { background: #EEEEEE; }
+        br { mso-data-placement:same-cell; }
+        span { background: #F7F8E0; }
+        span.err { color:#B40404; }
+        span.war { color:#2E64FE; }
+        </STYLE>
+      ")]
         public string HTMLStyle {
             get {
                 return ((string)(this["HTMLStyle"]));
@@ -612,6 +614,18 @@ namespace CsvTools.Properties {
             }
             set {
                 this["DefaultPassphrase"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("\"")]
+        public string FieldQualifier {
+            get {
+                return ((string)(this["FieldQualifier"]));
+            }
+            set {
+                this["FieldQualifier"] = value;
             }
         }
     }

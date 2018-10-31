@@ -29,7 +29,6 @@
     private void InitializeComponent()
     {
       this.components = new System.ComponentModel.Container();
-      System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormEditSettings));
       this.textBoxSkipRows = new System.Windows.Forms.TextBox();
       this.fileSettingBindingSource = new System.Windows.Forms.BindingSource(this.components);
       this.labelSkipFirstLines = new System.Windows.Forms.Label();
@@ -393,7 +392,7 @@
       this.tabPageFormat.Text = "Detect Types";
       // 
       // fillGuessSettingEdit
-      //       
+      // 
       this.fillGuessSettingEdit.Location = new System.Drawing.Point(3, 3);
       this.fillGuessSettingEdit.Name = "fillGuessSettingEdit";
       this.fillGuessSettingEdit.Size = new System.Drawing.Size(715, 271);

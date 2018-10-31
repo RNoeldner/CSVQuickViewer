@@ -1215,8 +1215,7 @@ namespace CsvTools
           {
             if (!string.IsNullOrEmpty(m_Passphrase))
               return m_Passphrase;
-            if (ApplicationSetting.ToolSetting.PGPInformation != null &&
-                !string.IsNullOrEmpty(ApplicationSetting.ToolSetting.PGPInformation.EncryptedPassphase))
+            if (!string.IsNullOrEmpty(ApplicationSetting.ToolSetting?.PGPInformation?.EncryptedPassphase))
               return ApplicationSetting.ToolSetting.PGPInformation.EncryptedPassphase;
             return string.Empty;
           };

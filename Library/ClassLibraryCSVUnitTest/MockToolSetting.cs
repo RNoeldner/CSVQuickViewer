@@ -1,6 +1,4 @@
-﻿using NodaTime;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace CsvTools.Tests
 {
@@ -22,5 +20,7 @@ namespace CsvTools.Tests
     public PGPKeyStorage PGPInformation => new PGPKeyStorage();
 
     public string DestinationTimeZone => TimeZoneMapping.cIdLocal;
+
+    public RemoteAccess RemoteAccess => new RemoteAccess() { Protocol = AccessProtocol.Local };
   }
 }

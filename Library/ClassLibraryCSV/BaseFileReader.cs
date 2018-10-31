@@ -516,7 +516,7 @@ namespace CsvTools
       m_CancellationToken = cancellationToken;
       try
       {
-        if (ApplicationSetting.RemoteFileHandler != null && m_FileSetting is IFileSettingRemoteDownload remote)
+        if (ApplicationSetting.RemoteFileHandler != null && m_FileSetting is IFileSettingRemoteDownload remote && !m_FileSetting.FileName.IsSFTP())
         {
           if (!string.IsNullOrEmpty(remote?.RemoteFileName))
           {
@@ -547,7 +547,7 @@ namespace CsvTools
           return 0;
         }
 
-        var ret = IndividualOpen(m_FileSetting.FullPath, determineColumnSize);
+        var ret = IndividualOpen(determineColumnSize);
 
         var valuesInclude = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         var valuesAll = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -1121,12 +1121,11 @@ namespace CsvTools
     /// <summary>
     ///   Open that is specific to an implementation of the reader
     /// </summary>
-    /// <param name="path"></param>
     /// <param name="determineColumnSize">if set to <c>true</c> [determine column size].</param>
     /// <returns>
     ///   Number of records in the file if known (use determineColumnSize), -1 otherwise
     /// </returns>
-    protected abstract long IndividualOpen(string path, bool determineColumnSize);
+    protected abstract long IndividualOpen(bool determineColumnSize);
 
     protected abstract void IndividualClose();
 

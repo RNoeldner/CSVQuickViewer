@@ -19,6 +19,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using System.Diagnostics.Contracts;
+using System.Threading;
 using System.Windows.Forms;
 
 namespace CsvTools
@@ -31,9 +32,12 @@ namespace CsvTools
     private readonly DataRow[] m_DataRow;
     private readonly DataTable m_DataTable;
     private readonly string m_InitialColumn;
-    private bool m_Closing;
+
     private string m_LastDataColumnName = string.Empty;
     private bool m_LastIgnoreNull = true;
+
+    private readonly CancellationTokenSource m_CancellationTokenSource =
+      new CancellationTokenSource();
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="FormDuplicatesDisplay" /> class.
@@ -65,7 +69,7 @@ namespace CsvTools
 
     private void DuplicatesDisplay_FormClosing(object sender, FormClosingEventArgs e)
     {
-      m_Closing = true;
+      m_CancellationTokenSource.Cancel();
     }
 
     /// <summary>
@@ -100,7 +104,6 @@ namespace CsvTools
       m_LastIgnoreNull = ignoreNull;
       this.SafeInvoke(() =>
       {
-        labelInfo.Visible = true;
         detailControl.Visible = false;
         detailControl.SuspendLayout();
       });
@@ -114,82 +117,89 @@ namespace CsvTools
           Text = $"Duplicate Display - {dataColumnName}");
 
         var intervalAction = new IntervalAction();
-
-        for (var rowIdex = 0; rowIdex < m_DataRow.Length; rowIdex++)
+        using (var display = new FormProcessDisplay($"Processing {dataColumnName}", m_CancellationTokenSource.Token))
         {
-          if (m_Closing)
-            return;
-          intervalAction.Invoke(delegate
+          display.Maximum = m_DataRow.Length;
+          for (var rowIdex = 0; rowIdex < m_DataRow.Length; rowIdex++)
           {
-            labelInfo.SafeInvoke(() => labelInfo.Text = $"Getting duplicate values {rowIdex}/{m_DataRow.Length}");
-          });
-
-          var id = m_DataRow[rowIdex][dataColumnID.Ordinal].ToString().Trim();
-          //if (id != null)
-          //  id = id.Trim();
-          if (ignoreNull && string.IsNullOrEmpty(id))
-            continue;
-          if (dictIDToRow.TryGetValue(id, out var dupliacteRowIndex))
-          {
-            if (!dictFirstIDStored.Contains(dupliacteRowIndex))
+            if (display.CancellationToken.IsCancellationRequested)
+              return;
+            intervalAction.Invoke(delegate
             {
-              dupliacteList.Add(dupliacteRowIndex);
-              dictFirstIDStored.Add(dupliacteRowIndex);
-            }
+              display.SetProcess("Getting duplicate values", rowIdex);
+            });
 
-            dupliacteList.Add(rowIdex);
-          }
-          else
-          {
-            dictIDToRow.Add(id, rowIdex);
-          }
-        }
-
-        dictFirstIDStored.Clear();
-        dictIDToRow.Clear();
-
-        this.SafeInvoke(() => Text =
-          $"Duplicate Display - {dataColumnName} - Rows {dupliacteList.Count} / {m_DataRow.Length}");
-
-        m_DataTable.BeginLoadData();
-        m_DataTable.Clear();
-        var counter = 0;
-        foreach (var rowIdex in dupliacteList)
-        {
-          if (m_Closing)
-            return;
-          counter++;
-          intervalAction.Invoke(delegate
-          {
-            labelInfo.SafeInvoke(() => labelInfo.Text = $"Importing Rows to Grid {counter}/{dupliacteList.Count}");
-          });
-          m_DataTable.ImportRow(m_DataRow[rowIdex]);
-        }
-
-        m_DataTable.EndLoadData();
-        labelInfo.SafeInvoke(() => labelInfo.Text = "Sorting");
-        detailControl.SafeInvoke(() =>
-        {
-          try
-          {
-            foreach (DataGridViewColumn col in detailControl.DataGridView.Columns)
-              if (col.DataPropertyName == dataColumnName)
+            var id = m_DataRow[rowIdex][dataColumnID.Ordinal].ToString().Trim();
+            //if (id != null)
+            //  id = id.Trim();
+            if (ignoreNull && string.IsNullOrEmpty(id))
+              continue;
+            if (dictIDToRow.TryGetValue(id, out var dupliacteRowIndex))
+            {
+              if (!dictFirstIDStored.Contains(dupliacteRowIndex))
               {
-                detailControl.DataGridView.Sort(col, ListSortDirection.Ascending);
-                break;
+                dupliacteList.Add(dupliacteRowIndex);
+                dictFirstIDStored.Add(dupliacteRowIndex);
               }
+
+              dupliacteList.Add(rowIdex);
+            }
+            else
+            {
+              dictIDToRow.Add(id, rowIdex);
+            }
           }
-          catch (Exception ex)
+
+          dictFirstIDStored.Clear();
+          dictIDToRow.Clear();
+
+          this.SafeInvoke(() => Text =
+            $"Duplicate Display - {dataColumnName} - Rows {dupliacteList.Count} / {m_DataRow.Length}");
+
+          m_DataTable.BeginLoadData();
+          m_DataTable.Clear();
+          var counter = 0;
+
+          display.Maximum = dupliacteList.Count;
+          display.Show(this);
+          foreach (var rowIdex in dupliacteList)
           {
-            Debug.WriteLine(ex.InnerExceptionMessages());
+            if (display.CancellationToken.IsCancellationRequested)
+              return;
+            counter++;
+            intervalAction.Invoke(delegate
+            {
+              display.SetProcess("Importing Rows to Grid", counter);
+            });
+            m_DataTable.ImportRow(m_DataRow[rowIdex]);
           }
-        });
+
+          m_DataTable.EndLoadData();
+          display.Maximum = 0;
+          display.SetProcess("Sorting");
+
+          detailControl.SafeInvoke(() =>
+          {
+            try
+            {
+              foreach (DataGridViewColumn col in detailControl.DataGridView.Columns)
+                if (col.DataPropertyName == dataColumnName)
+                {
+                  detailControl.DataGridView.Sort(col, ListSortDirection.Ascending);
+                  break;
+                }
+            }
+            catch (Exception ex)
+            {
+              Debug.WriteLine(ex.InnerExceptionMessages());
+            }
+          });
+        }
       }
       finally
       {
         this.SafeInvoke(() =>
         {
-          labelInfo.Visible = false;
           detailControl.Visible = true;
           detailControl.ResumeLayout(true);
         });

@@ -95,12 +95,12 @@ namespace CsvTools
     private ushort m_NumWarningsQuote;
     private ushort m_NumWarningsUnknownChar;
 
-    private FileStream m_PositionStream;
-
     /// <summary>
     ///   The TextReader to read the file
     /// </summary>
     private StreamReader m_TextReader;
+
+    private ImprovedStream m_ImprovedStream;
 
     public CsvFileReader(ICsvFile fileSetting)
       : base(fileSetting)
@@ -509,6 +509,7 @@ namespace CsvTools
       m_NumWarningsNbspChar = 0;
 
       m_TextReader?.Dispose();
+      m_ImprovedStream?.Dispose();
 
       EndOfFile = true;
     }
@@ -516,12 +517,11 @@ namespace CsvTools
     /// <summary>
     ///   Open the file Reader; Start processing the Headers and determine the maximum column size
     /// </summary>
-    /// <param name="path">The file to be read</param>
     /// <param name="determineColumnSize">
     ///   If set to <c>true</c> go through the file and get the maximum column length for each column
     /// </param>
     /// <returns>Number of records</returns>
-    protected override long IndividualOpen(string path, bool determineColumnSize)
+    protected override long IndividualOpen(bool determineColumnSize)
     {
       m_HasQualifier |= m_CsvFile.FileFormat.FieldQualifierChar != '\0';
 
@@ -535,24 +535,34 @@ namespace CsvTools
           $"Only the first character of '{m_CsvFile.FileFormat.FieldDelimiter}' is used as delimiter.");
 
       long endLineNumberIncudingComments = 0;
+      bool needReset = false;
       try
       {
         ResetPositionToStart();
         var headerRow = ReadNextRow(false, false);
         if (headerRow.IsEmpty())
-        {
           InitColumn(0);
-        }
         else
         {
           endLineNumberIncudingComments = (m_CsvFile.HasFieldHeader) ? EndLineNumber : 0;
           // Get the column count
-          FieldCount = ParseFieldCount(headerRow, m_CsvFile.HasFieldHeader);
+          FieldCount = ParseFieldCount(headerRow, m_CsvFile.HasFieldHeader, out var hasReadFurther);
+
+          if (hasReadFurther)
+            needReset = true;
 
           // Get the column names
           ParseColumnName(headerRow);
-          if (!determineColumnSize) return 0;
+
+          // in case there was no header we need to go back
+          if (!m_CsvFile.HasFieldHeader)
+            needReset = true;
+
+          if (!determineColumnSize)
+            return 0;
+
           m_MaxRecordNumber = ParseColumnSize();
+          needReset = true;
           return m_MaxRecordNumber;
         }
 
@@ -566,11 +576,12 @@ namespace CsvTools
       finally
       {
         // Need to re-position on the first data row
-        // would not be need if we had a column header did not look into first rows in case there is a column header missing or we parsed the size
-        // for simplicity done all the time though
-        ResetPositionToStart();
-        while (EndLineNumber < endLineNumberIncudingComments)
-          ReadToEOL();
+        if (needReset)
+        {
+          ResetPositionToStart();
+          while (EndLineNumber < endLineNumberIncudingComments)
+            ReadToEOL();
+        }
       }
     }
 
@@ -634,7 +645,7 @@ namespace CsvTools
       if (m_MaxRecordNumber > 0)
         return (int)((double)RecordNumber / m_MaxRecordNumber * cMaxValue);
 
-      return (int)((double)m_PositionStream.Position / m_PositionStream.Length * cMaxValue);
+      return (int)(m_ImprovedStream.Percentage * cMaxValue);
     }
 
     private bool AllEmptyAndCountConsecutiveEmptyRows(string[] columns)
@@ -757,15 +768,18 @@ namespace CsvTools
     /// <summary>
     ///   Gets the number of fields.
     /// </summary>
-    private int ParseFieldCount(IList<string> headerRow, bool hasFieldHeader)
+    private int ParseFieldCount(IList<string> headerRow, bool hasFieldHeader, out bool readFurther)
     {
       Contract.Ensures(Contract.Result<int>() >= 0);
+      readFurther = false;
       if (headerRow.IsEmpty() || string.IsNullOrEmpty(headerRow[0]))
         return 0;
 
       // The last column is empty but we expect a header column, assume if a trailing separator
       if (headerRow.Count <= 1 || !string.IsNullOrEmpty(headerRow[headerRow.Count - 1]))
         return headerRow.Count;
+
+      readFurther = true;
       // check if the next lines do have data in the last column
       for (int additional = 0; !EndOfFile && additional < 10; additional++)
       {
@@ -1160,20 +1174,21 @@ namespace CsvTools
     /// </summary>
     private void ResetPositionToStart()
     {
-      // The m_PositionStream is need to get a relative position, reading the file,
-      // in case of a gzip or PGP stream the reader base stream does not have a position, but the underlying stream is still progressed.
-      if (m_TextReader == null || !m_TextReader.BaseStream.CanSeek)
+      if (m_ImprovedStream == null)
+        m_ImprovedStream = ImprovedStream.OpenRead(m_CsvFile, ProcessDisplay);
+      m_ImprovedStream.ResetToStart(delegate (Stream str)
       {
-        m_TextReader = CsvHelper.GetStreamReader(m_CsvFile, out m_PositionStream);
-      }
-      else
-      {
-        if (m_TextReader.BaseStream.Position != 0)
+        // in case we can not seek need to reopen the stream reader
+        if (!str.CanSeek || m_TextReader==null)
         {
-          m_TextReader.BaseStream.Position = 0;
-          m_TextReader.DiscardBufferedData();
+          if (m_TextReader != null)
+            m_TextReader.Dispose();
+          m_TextReader = new StreamReader(str, m_CsvFile.GetEncoding(), m_CsvFile.ByteOrderMark);
         }
-      }
+        else
+          // only need to discard the buffer
+          m_TextReader.DiscardBufferedData();
+      });
 
       m_CsvFile.CurrentEncoding = m_TextReader.CurrentEncoding;
       m_BufferPos = 0;

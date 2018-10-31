@@ -106,11 +106,18 @@ namespace CsvTools
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
     private void ComboBoxOperator_SelectedIndexChanged(object sender, EventArgs e)
     {
-      dateTimePickerValue.Enabled = comboBoxOperator.Text != ColumnFilterLogic.cOPisNotNull &&
-                                    comboBoxOperator.Text != ColumnFilterLogic.cOPisNull;
-      textBoxValue.Enabled = comboBoxOperator.Text != ColumnFilterLogic.cOPisNotNull &&
-                             comboBoxOperator.Text != ColumnFilterLogic.cOPisNull;
-      m_DataGridViewColumnFilter.Operator = comboBoxOperator.Text;
+      try
+      {
+        dateTimePickerValue.Enabled = comboBoxOperator.Text != ColumnFilterLogic.cOPisNotNull &&
+                                      comboBoxOperator.Text != ColumnFilterLogic.cOPisNull;
+        textBoxValue.Enabled = comboBoxOperator.Text != ColumnFilterLogic.cOPisNotNull &&
+                               comboBoxOperator.Text != ColumnFilterLogic.cOPisNull;
+        m_DataGridViewColumnFilter.Operator = comboBoxOperator.Text;
+      }
+      catch (Exception ex)
+      {
+        ParentForm.ShowError(ex);
+      }
     }
 
     /// <summary>
@@ -120,19 +127,26 @@ namespace CsvTools
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
     private void FilterValueChanged(object sender, EventArgs e)
     {
-      if (m_DataGridViewColumnFilter.ColumnDataType == typeof(DateTime))
+      try
       {
-        if (!(sender is DateTimePicker dtp))
-          return;
+        if (m_DataGridViewColumnFilter.ColumnDataType == typeof(DateTime))
+        {
+          if (!(sender is DateTimePicker dtp))
+            return;
 
-        m_DataGridViewColumnFilter.ValueDateTime = dtp.Value;
+          m_DataGridViewColumnFilter.ValueDateTime = dtp.Value;
+        }
+        else
+        {
+          if (!(sender is TextBox tb))
+            return;
+
+          m_DataGridViewColumnFilter.ValueText = tb.Text;
+        }
       }
-      else
+      catch (Exception ex)
       {
-        if (!(sender is TextBox tb))
-          return;
-
-        m_DataGridViewColumnFilter.ValueText = tb.Text;
+        ParentForm.ShowError(ex);
       }
     }
 

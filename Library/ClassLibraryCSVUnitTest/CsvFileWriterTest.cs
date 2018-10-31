@@ -144,41 +144,6 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void WritePrePostProcessing()
-    {
-      bool executedPre = false;
-      bool executedPost = false;
-
-      ApplicationSetting.WritePreProcessing += delegate (IFileSetting setting)
-      {
-        executedPre = true;
-        return "SomeName.txt";
-      };
-
-      ApplicationSetting.WritePostProcessing += delegate (IFileSetting setting, IProcessDisplay display, string input)
-      {
-        executedPost = true;
-      };
-
-      var writeFile = new CsvFile
-      {
-        ID = "Write",
-        FileName = "WritePrePostProcessing.txt",
-        SourceSetting = Helper.ReaderGetAllFormats(ApplicationSetting.ToolSetting).ID
-      };
-
-      Assert.IsFalse(executedPre);
-      Assert.IsFalse(executedPost);
-
-      new CsvFileWriter(writeFile, CancellationToken.None).Write();
-      ApplicationSetting.WritePostProcessing = null;
-      ApplicationSetting.WritePreProcessing = null;
-
-      Assert.IsTrue(executedPre);
-      Assert.IsTrue(executedPost);
-    }
-
-    [TestMethod]
     public void WriteFileLocked()
     {
       var dataTable = new DataTable

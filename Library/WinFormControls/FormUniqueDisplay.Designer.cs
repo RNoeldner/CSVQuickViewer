@@ -36,10 +36,9 @@
       System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
       System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
       System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+      this.detailControl = new CsvTools.DetailControl();
       this.comboBoxID = new System.Windows.Forms.ComboBox();
       this.checkBoxIgnoreNull = new System.Windows.Forms.CheckBox();
-      this.labelInfo = new System.Windows.Forms.Label();
-      this.detailControl = new CsvTools.DetailControl();
       label1 = new System.Windows.Forms.Label();
       tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
       tableLayoutPanel1.SuspendLayout();
@@ -74,41 +73,6 @@
       tableLayoutPanel1.Size = new System.Drawing.Size(484, 500);
       tableLayoutPanel1.TabIndex = 10;
       // 
-      // comboBoxID
-      // 
-      this.comboBoxID.Dock = System.Windows.Forms.DockStyle.Top;
-      this.comboBoxID.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-      this.comboBoxID.FormattingEnabled = true;
-      this.comboBoxID.Location = new System.Drawing.Point(73, 3);
-      this.comboBoxID.Name = "comboBoxID";
-      this.comboBoxID.Size = new System.Drawing.Size(313, 21);
-      this.comboBoxID.TabIndex = 10;
-      this.comboBoxID.SelectedIndexChanged += new System.EventHandler(this.comboBoxID_SelectedIndexChanged);
-      // 
-      // checkBoxIgnoreNull
-      // 
-      this.checkBoxIgnoreNull.Anchor = System.Windows.Forms.AnchorStyles.Left;
-      this.checkBoxIgnoreNull.AutoSize = true;
-      this.checkBoxIgnoreNull.Location = new System.Drawing.Point(392, 5);
-      this.checkBoxIgnoreNull.Name = "checkBoxIgnoreNull";
-      this.checkBoxIgnoreNull.Size = new System.Drawing.Size(87, 17);
-      this.checkBoxIgnoreNull.TabIndex = 12;
-      this.checkBoxIgnoreNull.Text = "Ignore NULL";
-      this.checkBoxIgnoreNull.UseVisualStyleBackColor = true;
-      this.checkBoxIgnoreNull.CheckedChanged += new System.EventHandler(this.comboBoxID_SelectedIndexChanged);
-      // 
-      // labelInfo
-      // 
-      this.labelInfo.BackColor = System.Drawing.SystemColors.Info;
-      this.labelInfo.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-      this.labelInfo.ForeColor = System.Drawing.SystemColors.InfoText;
-      this.labelInfo.Location = new System.Drawing.Point(32, 36);
-      this.labelInfo.Name = "labelInfo";
-      this.labelInfo.Size = new System.Drawing.Size(424, 38);
-      this.labelInfo.TabIndex = 12;
-      this.labelInfo.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-      this.labelInfo.Visible = false;
-      // 
       // detailControl
       // 
       dataGridViewCellStyle1.BackColor = System.Drawing.Color.Gainsboro;
@@ -133,12 +97,34 @@
       this.detailControl.Size = new System.Drawing.Size(478, 467);
       this.detailControl.TabIndex = 11;
       // 
+      // comboBoxID
+      // 
+      this.comboBoxID.Dock = System.Windows.Forms.DockStyle.Top;
+      this.comboBoxID.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+      this.comboBoxID.FormattingEnabled = true;
+      this.comboBoxID.Location = new System.Drawing.Point(73, 3);
+      this.comboBoxID.Name = "comboBoxID";
+      this.comboBoxID.Size = new System.Drawing.Size(313, 21);
+      this.comboBoxID.TabIndex = 10;
+      this.comboBoxID.SelectedIndexChanged += new System.EventHandler(this.comboBoxID_SelectedIndexChanged);
+      // 
+      // checkBoxIgnoreNull
+      // 
+      this.checkBoxIgnoreNull.Anchor = System.Windows.Forms.AnchorStyles.Left;
+      this.checkBoxIgnoreNull.AutoSize = true;
+      this.checkBoxIgnoreNull.Location = new System.Drawing.Point(392, 5);
+      this.checkBoxIgnoreNull.Name = "checkBoxIgnoreNull";
+      this.checkBoxIgnoreNull.Size = new System.Drawing.Size(87, 17);
+      this.checkBoxIgnoreNull.TabIndex = 12;
+      this.checkBoxIgnoreNull.Text = "Ignore NULL";
+      this.checkBoxIgnoreNull.UseVisualStyleBackColor = true;
+      this.checkBoxIgnoreNull.CheckedChanged += new System.EventHandler(this.comboBoxID_SelectedIndexChanged);
+      // 
       // FormUniqueDisplay
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.ClientSize = new System.Drawing.Size(484, 500);
-      this.Controls.Add(this.labelInfo);
       this.Controls.Add(tableLayoutPanel1);
       this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
       this.Name = "FormUniqueDisplay";
@@ -155,7 +141,6 @@
 
     private System.Windows.Forms.ComboBox comboBoxID;
     private DetailControl detailControl;
-    private System.Windows.Forms.Label labelInfo;
     private System.Windows.Forms.CheckBox checkBoxIgnoreNull;
    
   }

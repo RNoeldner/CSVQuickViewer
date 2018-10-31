@@ -60,8 +60,8 @@ namespace CsvTools
 
       InitializeComponent();
       m_SettingsChangedTimerChange.AutoReset = false;
-      //m_SettingsChangedTimerChange.Elapsed += delegate { this.SafeInvoke(() => OpenDataReader(true)); };
-      //m_SettingsChangedTimerChange.Start();
+      m_SettingsChangedTimerChange.Elapsed += delegate { this.SafeInvoke(() => OpenDataReader(true)); };
+      m_SettingsChangedTimerChange.Stop();
 
       // Done in code to be able to select controls in the designer
       textPanel.SuspendLayout();
@@ -116,6 +116,7 @@ namespace CsvTools
       fileSetting.DisplayStartLineNo = Settings.Default.DisplayStartLineNo;
       fileSetting.FileFormat.EscapeCharacter = Settings.Default.EscapeCharacter;
       fileSetting.FileFormat.QuotePlaceholder = Settings.Default.QuotePlaceholder;
+      fileSetting.FileFormat.FieldQualifier = Settings.Default.FieldQualifier;
       fileSetting.TreatTextAsNull = Settings.Default.TreatTextAsNull;
       fileSetting.WarnNBSP = Settings.Default.WarnNBSP;
       fileSetting.WarnUnknowCharater = Settings.Default.WarnUnknowCharater;
@@ -223,9 +224,8 @@ namespace CsvTools
     private void Display_Activated(object sender, EventArgs e)
     {
       if (!m_FileChanged) return;
-      m_FileChanged = false;
-      if (MessageBox.Show(this, "The displayed file has changed do you want to reload the data?", "File changed",
-            MessageBoxButtons.YesNo) == DialogResult.Yes) OpenDataReader(true);
+
+      if (MessageBox.Show(this, "The displayed file has changed do you want to reload the data?", "File changed", MessageBoxButtons.YesNo) == DialogResult.Yes) OpenDataReader(true);
     }
 
     private void Display_FormClosing(object sender, FormClosingEventArgs e)
@@ -298,10 +298,13 @@ namespace CsvTools
     private void FileSetting_PropertyChanged(object sender, PropertyChangedEventArgs e)
     {
       m_ConfigChanged = true;
-      if (e.PropertyName != "ColumnFormat") return;
+      // if (e.PropertyName != "ColumnFormat") return;
       // reload the data
-      m_SettingsChangedTimerChange.Stop();
-      m_SettingsChangedTimerChange.Start();
+      if (e.PropertyName == nameof(Column.DataType))
+      {
+        m_SettingsChangedTimerChange.Stop();
+        m_SettingsChangedTimerChange.Start();
+      }
     }
 
     /// <summary>
@@ -365,12 +368,14 @@ namespace CsvTools
 
       var oldCursor = Cursor.Current == Cursors.WaitCursor ? Cursors.WaitCursor : Cursors.Default;
       Cursor.Current = Cursors.WaitCursor;
+      if (m_FileSetting != null)
+        m_FileSetting.PropertyChanged -= FileSetting_PropertyChanged;
       try
       {
         var analyse = true;
 
         m_FileSetting = new CsvFile(m_FileName);
-        m_FileSetting.GetEncryptedPassphraseFunction = m_FileSetting.GetEncryptedPassphrase;
+        m_FileSetting.GetEncryptedPassphraseFunction = m_FileSetting.GetEncryptedPassphraseOpenForm;
         SetFileSettingDefault(m_FileSetting);
         var fileInfo = FileSystemUtils.FileInfo(m_FileName);
 
@@ -486,6 +491,9 @@ namespace CsvTools
           finally
           {
             Cursor.Current = oldCursor;
+            m_FileSetting.FileFormat.PropertyChanged += FileSetting_PropertyChanged;
+            foreach (var col in m_FileSetting.Column)
+              col.PropertyChanged += FileSetting_PropertyChanged;
             m_CurrentCancellationTokenSource = null;
           }
         }
@@ -493,11 +501,8 @@ namespace CsvTools
         if (Settings.Default.DetectFileChanges)
         {
           fileSystemWatcher.Filter = fileInfo.Name;
-          fileSystemWatcher.Path = fileInfo.DirectoryName;
+          fileSystemWatcher.Path = FileSystemUtils.GetDirectoryName(fileInfo.FullName);
         }
-
-        // Add a ColumnProperty for each column
-        m_FileSetting.PropertyChanged += FileSetting_PropertyChanged;
       }
       catch (Exception ex)
       {
@@ -506,6 +511,7 @@ namespace CsvTools
       }
       finally
       {
+        m_FileSetting.PropertyChanged += FileSetting_PropertyChanged;
         Cursor.Current = Cursors.Default;
         ShowTextPanel(false);
       }
@@ -534,8 +540,6 @@ namespace CsvTools
         if (clear)
           ClearProcess();
         SetProcess("Opening File…");
-
-        m_FileChanged = false;
 
         Text =
           $"{AssemblyTitle} : {FileSystemUtils.GetShortDisplayFileName(m_FileSetting.FileName, 80)}  - {EncodingHelper.GetEncodingName(m_FileSetting.CurrentEncoding.CodePage, true, m_FileSetting.ByteOrderMark)}";
@@ -597,7 +601,12 @@ namespace CsvTools
           // if (!m_FileSetting.NoDelimitedFile)
           ShowTextPanel(false);
         Cursor.Current = oldCursor;
-
+        foreach (var col in m_FileSetting.Column)
+        {
+          col.PropertyChanged += FileSetting_PropertyChanged;
+        }
+        m_ConfigChanged = false;
+        m_FileChanged = false;
         // Re enable event watching
         m_FileSetting.PropertyChanged += FileSetting_PropertyChanged;
       }
@@ -694,8 +703,16 @@ namespace CsvTools
       using (var frm = new FormEditSettings(m_FileSetting))
       {
         var res = frm.ShowDialog(MdiParent);
-        if (res == DialogResult.Cancel) return;
+        if (res == DialogResult.Cancel)
+        {
+          m_ConfigChanged = false;
+          return;
+        }
         FillFromProperites(false);
+        if (m_ConfigChanged)
+        {
+          if (MessageBox.Show(this, "The configuration has changed do you want to reload the data?", "Configuration changed", MessageBoxButtons.YesNo) == DialogResult.Yes) OpenDataReader(true);
+        }
         detailControl.MoveMenu();
       }
     }

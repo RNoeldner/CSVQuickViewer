@@ -84,6 +84,12 @@ namespace CsvTools
       SystemEvents.UserPreferenceChanged += SystemEvents_UserPreferenceChanged;
     }
 
+    /// <summary>
+    /// Sets the frozen columns.
+    /// </summary>
+    /// <value>
+    /// The frozen columns.
+    /// </value>
     public int FrozenColumns
     {
       set
@@ -529,7 +535,7 @@ namespace CsvTools
           toolStripMenuItemCF.Visible = columnFormat != null;
           toolStripSeparatorCF.Visible = columnFormat != null;
           if (columnFormat != null)
-            toolStripMenuItemCF.Text = $"Change column format: {columnFormat.DataType}";
+            toolStripMenuItemCF.Text = $"Change column format: {columnFormat.DataType.DataTypeDisplay()}";
 
           toolStripMenuItemRemoveOne.Enabled &= e.ColumnIndex != -1;
 
@@ -1015,10 +1021,16 @@ namespace CsvTools
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
     private void toolStripMenuItemFilled_Click(object sender, EventArgs e)
     {
-      if (!HideEmptyColumns()) return;
-      if (!ColumnVisibilityChanged(sender)) return;
-      SetRowHeight();
-      DataViewChanged?.Invoke(sender, null);
+      try
+      {
+        if (!HideEmptyColumns()) return;
+        if (!ColumnVisibilityChanged(sender)) return;
+        SetRowHeight();
+        DataViewChanged?.Invoke(sender, null);
+      }
+      catch
+      {
+      }
     }
 
     /// <summary>
@@ -1028,10 +1040,16 @@ namespace CsvTools
     /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
     private void toolStripMenuItemFilterRemoveAll_Click(object sender, EventArgs e)
     {
-      foreach (var toolStripFilter in m_Filter)
-        if (toolStripFilter != null && toolStripFilter.ColumnFilterLogic.Active)
-          toolStripFilter.ColumnFilterLogic.Active = false;
-      ApplyFilters();
+      try
+      {
+        foreach (var toolStripFilter in m_Filter)
+          if (toolStripFilter != null && toolStripFilter.ColumnFilterLogic.Active)
+            toolStripFilter.ColumnFilterLogic.Active = false;
+        ApplyFilters();
+      }
+      catch
+      {
+      }
     }
 
     /// <summary>
@@ -1041,10 +1059,16 @@ namespace CsvTools
     /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
     private void toolStripMenuItemFilterRemoveOne_Click(object sender, EventArgs e)
     {
-      if (m_Filter[m_MenuStripDropDownCellValue.ColumnIndex] == null ||
+      try
+      {
+        if (m_Filter[m_MenuStripDropDownCellValue.ColumnIndex] == null ||
           !m_Filter[m_MenuStripDropDownCellValue.ColumnIndex].ColumnFilterLogic.Active) return;
-      m_Filter[m_MenuStripDropDownCellValue.ColumnIndex].ColumnFilterLogic.Active = false;
-      ApplyFilters();
+        m_Filter[m_MenuStripDropDownCellValue.ColumnIndex].ColumnFilterLogic.Active = false;
+        ApplyFilters();
+      }
+      catch
+      {
+      }
     }
 
     /// <summary>
@@ -1054,10 +1078,16 @@ namespace CsvTools
     /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
     private void toolStripMenuItemFilterValue_Click(object sender, EventArgs e)
     {
-      if (m_MenuStripDropDownCellValue == null) return;
-      m_Filter[m_MenuStripDropDownCellValue.ColumnIndex].ColumnFilterLogic
-        .SetFilter(m_MenuStripDropDownCellValue.Value);
-      ApplyFilters();
+      try
+      {
+        if (m_MenuStripDropDownCellValue == null) return;
+        m_Filter[m_MenuStripDropDownCellValue.ColumnIndex].ColumnFilterLogic
+          .SetFilter(m_MenuStripDropDownCellValue.Value);
+        ApplyFilters();
+      }
+      catch
+      {
+      }
     }
 
     /// <summary>

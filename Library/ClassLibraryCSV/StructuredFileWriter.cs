@@ -174,26 +174,14 @@ namespace CsvTools
     /// <returns>
     ///   Number of records written
     /// </returns>
-    protected override void Write(IDataReader reader, IFileSetting fileSetting, CancellationToken cancellationToken)
+    protected override void Write(IFileSetting fileSetting, IDataReader reader, Stream output, CancellationToken cancellationToken)
     {
       Contract.Assume(!string.IsNullOrEmpty(m_StructuredWriterFile.FullPath));
 
-      try
+      using (var writer = new StreamWriter(output, new UTF8Encoding(true), 4096))
       {
-        FileSystemUtils.FileDelete(m_StructuredWriterFile.FullPath);
-        using (var writer = new StreamWriter(m_StructuredWriterFile.FullPath.LongPathPrefix(), false,
-          new UTF8Encoding(true), 4096))
-        {
-          DataReader2Stream(reader, writer, fileSetting, cancellationToken);
-        }
+        DataReader2Stream(reader, writer, fileSetting, cancellationToken);
       }
-      catch (Exception exc)
-      {
-        ErrorMessage = $"Could not write file '{m_StructuredWriterFile.FileName}'.\r\n{exc.ExceptionMessages()}";
-        if (m_StructuredWriterFile.InOverview) throw;
-      }
-
-      HandleWriteFinished();
     }
   }
 }
