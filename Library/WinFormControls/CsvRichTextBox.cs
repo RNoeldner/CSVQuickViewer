@@ -144,76 +144,81 @@ namespace CsvTools
       rtf.AppendLine(
         @"{\colortbl ;\red0\green0\blue0;\red255\green0\blue0;\red0\green0\blue255;\red255\green168\blue0;}");
       rtf.AppendLine(@"\viewkind4\uc1\pard\f0\fs24 ");
-
-      if (!string.IsNullOrEmpty(inputString))
+      try
       {
-        m_CurrentColor = -1;
-        var curChar = '\0';
-        m_InQuote = false;
-
-        for (var pos = 0; pos < inputString.Length; pos++)
+        if (!string.IsNullOrEmpty(inputString))
         {
-          // get the charters and the surroundings
-          var lastChar = curChar;
-          curChar = inputString[pos];
-          var nextChar = pos < inputString.Length - 1 ? inputString[pos + 1] : '\0';
+          m_CurrentColor = -1;
+          var curChar = '\0';
+          m_InQuote = false;
 
-          if (curChar == '\r' || curChar == '\n')
+          for (var pos = 0; pos < inputString.Length; pos++)
           {
-            AddChar(rtf, 4, curChar);
-            AddText(rtf, 1, "\\par\n");
-            if (curChar == '\r' && nextChar == '\n' || curChar == '\n' && nextChar == '\r')
-              pos++;
-            continue;
-          }
+            // get the charters and the surroundings
+            var lastChar = curChar;
+            curChar = inputString[pos];
+            var nextChar = pos < inputString.Length - 1 ? inputString[pos + 1] : '\0';
 
-          if (m_DisplaySpace && curChar == ' ')
-          {
-            AddText(rtf, 4, "\\bullet");
-            continue;
-          }
-
-          if (curChar == m_Delimiter && !m_InQuote)
-          {
-            AddChar(rtf, 2, curChar);
-            continue;
-          }
-
-          if (curChar == m_Quote)
-          {
-            // Start m_InQuote
-            if (!m_InQuote)
+            if (curChar == '\r' || curChar == '\n')
             {
-              AddChar(rtf, 3, curChar);
-              m_InQuote = true;
+              AddChar(rtf, 4, curChar);
+              AddText(rtf, 1, "\\par\n");
+              if (curChar == '\r' && nextChar == '\n' || curChar == '\n' && nextChar == '\r')
+                pos++;
               continue;
             }
 
-            // Stop quote but skip internal Quotes
-            if (!(lastChar == m_Escape || nextChar == m_Quote))
+            if (m_DisplaySpace && curChar == ' ')
             {
-              AddChar(rtf, 3, curChar);
-              m_InQuote = false;
+              AddText(rtf, 4, "\\bullet");
               continue;
             }
 
-            if (nextChar == m_Quote)
+            if (curChar == m_Delimiter && !m_InQuote)
             {
+              AddChar(rtf, 2, curChar);
+              continue;
+            }
+
+            if (curChar == m_Quote)
+            {
+              // Start m_InQuote
+              if (!m_InQuote)
+              {
+                AddChar(rtf, 3, curChar);
+                m_InQuote = true;
+                continue;
+              }
+
+              // Stop quote but skip internal Quotes
+              if (!(lastChar == m_Escape || nextChar == m_Quote))
+              {
+                AddChar(rtf, 3, curChar);
+                m_InQuote = false;
+                continue;
+              }
+
+              if (nextChar == m_Quote)
+              {
+                AddChar(rtf, 1, curChar);
+                AddChar(rtf, 1, nextChar);
+                pos++;
+                continue;
+              }
+            }
+
+            if (curChar >= 32 && curChar <= 127 || curChar == '\t')
               AddChar(rtf, 1, curChar);
-              AddChar(rtf, 1, nextChar);
-              pos++;
-              continue;
-            }
+            else
+              // others need to be passed on with their decimal code
+              AddText(rtf, 1, $"\\u{(int)curChar}?");
           }
-
-          if (curChar >= 32 && curChar <= 127 || curChar == '\t')
-            AddChar(rtf, 1, curChar);
-          else
-            // others need to be passed on with their decimal code
-            AddText(rtf, 1, $"\\u{(int)curChar}?");
         }
       }
-
+      catch (System.Exception ex)
+      {
+        FindForm().ShowError(ex);
+      }
       rtf.AppendLine(@"\par");
       rtf.AppendLine("}");
       return rtf.ToString();

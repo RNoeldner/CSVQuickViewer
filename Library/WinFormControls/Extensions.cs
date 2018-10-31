@@ -12,11 +12,13 @@
  *
  */
 
+using log4net;
 using Pri.LongPath;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Drawing;
+using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -27,6 +29,15 @@ namespace CsvTools
   /// </summary>
   public static class Extensions
   {
+    public static readonly ILog Log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+
+    public static void ShowError(this Form from, Exception ex, string additionalTitle = "")
+    {
+      Log.Warn($"Issue in UI {nameof(from)}", ex);
+      Cursor.Current = Cursors.Default;
+      MessageBox.Show(from, ex.ExceptionMessages(), string.IsNullOrEmpty(additionalTitle) ? "Error" : $"Error {additionalTitle}", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+    }
+
     public static void TimeOutWait(Func<bool> whileTrue, CancellationToken cancellationToken = default(CancellationToken), int millisecondsSleep = 0, double timeoutMinutes = 5.0)
     {
       var start = DateTime.Now;
@@ -93,7 +104,7 @@ namespace CsvTools
           File.Delete(fileName);
           return true;
         }
-        catch (Exception)
+        catch
         {
           // ignored
         }
@@ -115,7 +126,7 @@ namespace CsvTools
         }
         catch (Exception ex)
         {
-          if (MessageBox.Show(
+          if (_MessageBox.Show(null,
                 $"The file {disp} could not be deleted.\n{ex.ExceptionMessages()}", "File",
                 MessageBoxButtons.RetryCancel, MessageBoxIcon.Question) == DialogResult.Retry)
             goto retry;
@@ -124,18 +135,22 @@ namespace CsvTools
       return false;
     }
 
-    public static string GetEncryptedPassphrase(this IFileSetting setting)
+    /// <summary>
+    /// Gets the encrypted passphrase of a setting, if needed it will open a windows form
+    /// </summary>
+    /// <param name="setting">The setting.</param>
+    /// <returns></returns>
+    /// <exception cref="ApplicationException">
+    /// The private key for decryption has not been setup
+    /// or
+    /// A passphrase is needed for decryption.
+    /// </exception>
+    public static string GetEncryptedPassphraseOpenForm(this IFileSetting setting)
     {
-      Contract.Ensures(Contract.Result<string>() != null);
-
-      if (!setting.FileName.AssumePgp())
-        return string.Empty;
-
-      if ( // setting.ToolSetting == null ||
-        ApplicationSetting.ToolSetting.PGPInformation.PrivateKeys.IsEmpty())
+      if (ApplicationSetting.ToolSetting?.PGPInformation?.PrivateKeys?.IsEmpty() ?? true)
         throw new ApplicationException("The private key for decryption has not been setup");
 
-      if (!string.IsNullOrEmpty(setting.Passphrase))
+      if (!string.IsNullOrEmpty(setting?.Passphrase))
         return setting.Passphrase;
 
       if (!string.IsNullOrEmpty(ApplicationSetting.ToolSetting.PGPInformation.EncryptedPassphase))
@@ -145,11 +160,10 @@ namespace CsvTools
       using (var frm = new FormPassphrase())
       {
         if (frm.ShowDialog() == DialogResult.OK)
-
           return frm.EncryptedPassphrase;
+        else
+          throw new ApplicationException("A passphrase is needed for decryption.");
       }
-
-      throw new ApplicationException("A passphrase is needed for decryption.");
     }
 
     public static string GetProcessDisplayTitle(this IFileSetting fileSetting)
@@ -271,7 +285,7 @@ namespace CsvTools
 
         return new Tuple<Rectangle, FormWindowState>(windowPosition, windowState);
       }
-      catch (Exception)
+      catch
       {
         return null;
       }
@@ -333,12 +347,13 @@ namespace CsvTools
       try
       {
         var fi = FileSystemUtils.FileInfo(fileSetting.FullPath);
-        if (!FileSystemUtils.DirectoryExists(fi.DirectoryName))
-          if (MessageBox.Show(
-                $"The directory {fi.DirectoryName.RemoveLongPathPrefix()} does not exist, should it be created?",
+        var dir = FileSystemUtils.GetDirectoryName(fi.FullName);
+        if (!FileSystemUtils.DirectoryExists(dir))
+          if (_MessageBox.Show(null,
+                $"The directory {dir.RemovePrefix()} does not exist, should it be created?",
                 "Directory", MessageBoxButtons.OKCancel,
                 MessageBoxIcon.Question) == DialogResult.OK)
-            Directory.CreateDirectory(fi.DirectoryName);
+            FileSystemUtils.CreateDirectory(dir);
           else
             return 0;
 
@@ -410,7 +425,7 @@ namespace CsvTools
       }
       catch (Exception exc)
       {
-        MessageBox.Show(
+        _MessageBox.Show(null,
           $"Error processing files : {exc.ExceptionMessages()}", FileSystemUtils.GetShortDisplayFileName(fileSetting.FileName, 80), MessageBoxButtons.OK, MessageBoxIcon.Error);
       }
 

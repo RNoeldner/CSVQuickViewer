@@ -119,6 +119,7 @@ namespace CsvTools
       Settings.Default.DisplayStartLineNo = checkBoxDisplayStartLineNo.Checked;
       Settings.Default.TreatTextAsNull = textBoxTextAsNull.Text;
       Settings.Default.AlternateQuoting = quotingControl.CsvFile.AlternateQuoting;
+
       Settings.Default.SkipEmptyLines = checkBoxSkipEmptyLines.Checked;
       Settings.Default.GuessCodePage = checkBoxGuessCodePage.Checked;
       Settings.Default.GuessStartRow = checkBoxGuessStartRow.Checked;
@@ -133,6 +134,7 @@ namespace CsvTools
       Settings.Default.TreatNBSPAsSpace = checkBoxTreatNBSPAsSpace.Checked;
       Settings.Default.EscapeCharacter = quotingControl.CsvFile.FileFormat.EscapeCharacter;
       Settings.Default.QuotePlaceholder = quotingControl.CsvFile.FileFormat.QuotePlaceholder;
+      Settings.Default.FieldQualifier = quotingControl.CsvFile.FileFormat.FieldQualifier;
       Settings.Default.MenuDown = checkBoxMenuDown.Checked;
 
       Settings.Default.DectectPercentage = ApplicationSetting.FillGuessSettings.DectectPercentage;
@@ -318,7 +320,7 @@ namespace CsvTools
         using (var kf = new FormKeyFile("Private PGP Key", true))
         {
           if (kf.ShowDialog(this) != DialogResult.OK) return;
-          ApplicationSetting.ToolSetting.PGPInformation.AddPrivateKey(kf.textBox.Text);
+          ApplicationSetting.ToolSetting.PGPInformation.AddPrivateKey(kf.KeyBlock);
           GetPrivateKeys();
         }
       }

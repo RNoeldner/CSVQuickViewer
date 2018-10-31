@@ -62,9 +62,9 @@ namespace CsvTools.Tests
       };
       ApplicationSetting.ToolSetting.PGPInformation.AddPrivateKey(PGPKeyStorageTestHelper.PRIVATE);
       ApplicationSetting.ToolSetting.PGPInformation.EncryptedPassphase = "Hello";
-      Assert.AreEqual("Hello", setting.GetEncryptedPassphrase());
+      Assert.AreEqual("Hello", setting.GetEncryptedPassphraseOpenForm());
       setting.Passphrase = "World";
-      Assert.AreEqual("World", setting.GetEncryptedPassphrase());
+      Assert.AreEqual("World", setting.GetEncryptedPassphraseOpenForm());
     }
 
     [TestMethod()]

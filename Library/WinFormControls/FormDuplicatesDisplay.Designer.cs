@@ -17,6 +17,7 @@
       {
         components.Dispose();
       }      
+      m_CancellationTokenSource.Dispose();
       base.Dispose(disposing);
     }
 
@@ -35,7 +36,6 @@
       this.detailControl = new CsvTools.DetailControl();
       this.comboBoxID = new System.Windows.Forms.ComboBox();
       this.checkBoxIgnoreNull = new System.Windows.Forms.CheckBox();
-      this.labelInfo = new System.Windows.Forms.Label();
       tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
       label1 = new System.Windows.Forms.Label();
       tableLayoutPanel1.SuspendLayout();
@@ -117,22 +117,11 @@
       this.checkBoxIgnoreNull.UseVisualStyleBackColor = true;
       this.checkBoxIgnoreNull.CheckedChanged += new System.EventHandler(this.comboBoxID_SelectedIndexChanged);
       // 
-      // labelInfo
-      // 
-      this.labelInfo.BackColor = System.Drawing.SystemColors.Info;
-      this.labelInfo.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-      this.labelInfo.Location = new System.Drawing.Point(41, 36);
-      this.labelInfo.Name = "labelInfo";
-      this.labelInfo.Size = new System.Drawing.Size(424, 38);
-      this.labelInfo.TabIndex = 12;
-      this.labelInfo.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-      // 
       // FormDuplicatesDisplay
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.ClientSize = new System.Drawing.Size(496, 508);
-      this.Controls.Add(this.labelInfo);
       this.Controls.Add(tableLayoutPanel1);
       this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
       this.Name = "FormDuplicatesDisplay";
@@ -148,7 +137,6 @@
     #endregion
 
     private System.Windows.Forms.ComboBox comboBoxID;
-    private System.Windows.Forms.Label labelInfo;
     private DetailControl detailControl;
     private System.Windows.Forms.CheckBox checkBoxIgnoreNull;
     

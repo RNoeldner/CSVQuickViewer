@@ -95,12 +95,12 @@ namespace CsvTools
         return;
       if (dataColumnName.Equals(m_LastDataColumnName) && m_LastIgnoreNull == ignoreNull)
         return;
+
       m_LastDataColumnName = dataColumnName;
       m_LastIgnoreNull = ignoreNull;
 
       this.SafeInvoke(() =>
       {
-        labelInfo.Visible = true;
         detailControl.Visible = false;
         detailControl.SuspendLayout();
       });
@@ -114,64 +114,76 @@ namespace CsvTools
         var dictIDToRow = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
         var intervalAction = new IntervalAction();
 
-        labelInfo.SafeBeginInvoke(() => labelInfo.Text = "Getting Unique values");
-        for (var rowIdex = 0; rowIdex < m_DataRow.Length; rowIdex++)
+        using (var display = new FormProcessDisplay($"Processing {dataColumnName}", m_CancellationTokenSource.Token))
         {
-          m_CancellationTokenSource.Token.ThrowIfCancellationRequested();
-          intervalAction.Invoke(delegate
+          display.Maximum = m_DataRow.Length;
+          display.Show(this);
+
+          for (var rowIdex = 0; rowIdex < m_DataRow.Length; rowIdex++)
           {
-            labelInfo.SafeInvoke(() => labelInfo.Text = $"Getting Unique values {rowIdex}/{m_DataRow.Length}");
-          });
-          var id = m_DataRow[rowIdex][dataColumnID.Ordinal].ToString().Trim();
-          if (ignoreNull && string.IsNullOrEmpty(id)) continue;
-          if (!dictIDToRow.ContainsKey(id))
-            dictIDToRow.Add(id, rowIdex);
-        }
-
-        this.SafeInvoke(() => Text =
-          $"Unique Values Display - {dataColumnName} - Rows {dictIDToRow.Count}/{m_DataRow.Length}");
-
-        m_DataTable.BeginLoadData();
-        m_DataTable.Clear();
-
-        var counter = 0;
-        foreach (var rowIdex in dictIDToRow.Values)
-        {
-          m_CancellationTokenSource.Token.ThrowIfCancellationRequested();
-          counter++;
-          if (counter % 100 == 0)
+            if (display.CancellationToken.IsCancellationRequested)
+              return;
             intervalAction.Invoke(delegate
             {
-              labelInfo.SafeBeginInvoke(() => labelInfo.Text = $"Importing Rows to Grid {counter}/{dictIDToRow.Count}");
+              display.SetProcess("Getting Unique values", rowIdex);
             });
-          m_DataTable.ImportRow(m_DataRow[rowIdex]);
-        }
+            var id = m_DataRow[rowIdex][dataColumnID.Ordinal].ToString().Trim();
+            if (ignoreNull && string.IsNullOrEmpty(id)) continue;
+            if (!dictIDToRow.ContainsKey(id))
+              dictIDToRow.Add(id, rowIdex);
+          }
 
-        m_DataTable.EndLoadData();
+          this.SafeInvoke(() => Text =
+            $"Unique Values Display - {dataColumnName} - Rows {dictIDToRow.Count}/{m_DataRow.Length}");
 
-        labelInfo.SafeBeginInvoke(() => labelInfo.Text = "Sorting");
-        detailControl.SafeInvoke(() =>
-        {
-          try
+          m_DataTable.BeginLoadData();
+          m_DataTable.Clear();
+          display.Maximum = dictIDToRow.Count;
+
+          var counter = 0;
+          foreach (var rowIdex in dictIDToRow.Values)
           {
-            foreach (DataGridViewColumn col in detailControl.DataGridView.Columns)
-              if (col.DataPropertyName == dataColumnName)
+            if (display.CancellationToken.IsCancellationRequested)
+              return;
+            counter++;
+            if (counter % 100 == 0)
+              intervalAction.Invoke(delegate
               {
-                detailControl.DataGridView.Sort(col, ListSortDirection.Ascending);
-                break;
-              }
+                display.SetProcess("Importing Rows to Grid", counter);
+              });
+            m_DataTable.ImportRow(m_DataRow[rowIdex]);
           }
-          catch (Exception ex)
+
+          m_DataTable.EndLoadData();
+
+          display.Maximum = 0;
+          display.SetProcess("Sorting");
+          detailControl.SafeInvoke(() =>
           {
-            Debug.WriteLine(ex.InnerExceptionMessages());
-          }
-        });
+            try
+            {
+              foreach (DataGridViewColumn col in detailControl.DataGridView.Columns)
+                if (col.DataPropertyName == dataColumnName)
+                {
+                  detailControl.DataGridView.Sort(col, ListSortDirection.Ascending);
+                  break;
+                }
+            }
+            catch (Exception ex)
+            {
+              Debug.WriteLine(ex.InnerExceptionMessages());
+            }
+          });
+        }
+      }
+      catch (Exception ex)
+      {
+        this.ShowError(ex);
       }
       finally
       {
         this.SafeInvoke(() =>
         {
-          labelInfo.Visible = false;
           detailControl.Visible = true;
           detailControl.ResumeLayout(true);
         });

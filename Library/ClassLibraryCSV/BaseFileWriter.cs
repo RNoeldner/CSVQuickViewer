@@ -51,6 +51,27 @@ namespace CsvTools
     }
 
     /// <summary>
+    ///   Event handler called as progress should be displayed
+    /// </summary>
+    public event EventHandler<ProgressEventArgs> Progress;
+
+    /// <summary>
+    ///   Event handler called if a warning or error occurred
+    /// </summary>
+    public virtual event EventHandler<WarningEventArgs> Warning;
+
+    /// <summary>
+    ///   Event to be raised if writing is finished
+    /// </summary>
+    public event EventHandler WriteFinished;
+
+    /// <summary>
+    ///   Gets or sets the error message.
+    /// </summary>
+    /// <value>The error message.</value>
+    public virtual string ErrorMessage { get; protected internal set; }
+
+    /// <summary>
     ///   A Process Display
     /// </summary>
     public virtual IProcessDisplay ProcessDisplay
@@ -65,27 +86,6 @@ namespace CsvTools
         Progress += m_ProcessDisplay.SetProcess;
       }
     }
-
-    /// <summary>
-    ///   Gets or sets the error message.
-    /// </summary>
-    /// <value>The error message.</value>
-    public virtual string ErrorMessage { get; protected internal set; }
-
-    /// <summary>
-    ///   Event handler called as progress should be displayed
-    /// </summary>
-    public event EventHandler<ProgressEventArgs> Progress;
-
-    /// <summary>
-    ///   Event handler called if a warning or error occurred
-    /// </summary>
-    public virtual event EventHandler<WarningEventArgs> Warning;
-
-    /// <summary>
-    ///   Event to be raised if writing is finished
-    /// </summary>
-    public event EventHandler WriteFinished;
 
     /// <summary>
     ///   In case the connection string contains a file setting find it.
@@ -255,21 +255,21 @@ namespace CsvTools
       return GetSourceSetting(m_FileSetting);
     }
 
+    public void HandleProgress(string text, int progress)
+    {
+      Progress?.Invoke(this, new ProgressEventArgs(text, progress));
+    }
+
     /// <summary>
     ///   Writes the specified file.
     /// </summary>
     /// <returns>Number of records written</returns>
     public virtual long Write()
     {
-      if (m_ProcessDisplay != null) m_ProcessDisplay.Maximum = -1;
-
-      using (var reader = GetOpenDataReader(0))
+      using (IDataReader reader = GetOpenDataReader(0))
       {
-        if (reader != null)
-          Write(reader, GetSourceSetting(), m_CancellationToken);
+        return Write(reader);
       }
-      m_FileSetting.FileLastWriteTimeUtc = new Pri.LongPath.FileInfo(m_FileSetting.FullPath).LastWriteTimeUtc;
-      return m_Records;
     }
 
     /// <summary>
@@ -279,12 +279,10 @@ namespace CsvTools
     /// <returns>Number of records written</returns>
     public virtual long WriteDataTable(DataTable source)
     {
-      using (IDataReader reader = source.CreateDataReader())
+      using (var reader = source.CreateDataReader())
       {
-        Write(reader, m_FileSetting, m_CancellationToken);
+        return Write(reader);
       }
-
-      return m_Records;
     }
 
     protected internal virtual string ReplacePlaceHolder(string input)
@@ -312,11 +310,6 @@ namespace CsvTools
       Progress?.Invoke(this, new ProgressEventArgs(text));
     }
 
-    public void HandleProgress(string text, int progress)
-    {
-      Progress?.Invoke(this, new ProgressEventArgs(text, progress));
-    }
-
     /// <summary>
     /// Handles the time zone for da date time column
     /// </summary>
@@ -324,7 +317,7 @@ namespace CsvTools
     /// <param name="columnInfo">The column information.</param>
     /// <param name="reader">The reader.</param>
     /// <returns></returns>
-    protected DateTime HandleTimeZone(DateTime dataObject, ColumnInfo columnInfo, IDataReader reader)
+    protected DateTime HandleTimeZone(DateTime dataObject, ColumnInfo columnInfo, IDataRecord reader)
     {
       if (columnInfo.ColumnOridinalTimeZoneReader > -1)
       {
@@ -493,15 +486,13 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Writes the specified file reading from the given reader
+    /// Writes to the given stream file reading from the given reader
     /// </summary>
+    /// <param name="fileSetting">The source setting or the data that could be different than the setting for is writer</param>
     /// <param name="reader">Data Reader</param>
-    /// <param name="fileSetting">
-    ///   The source setting or the data that could be different than the setting for is writer
-    /// </param>
+    /// <param name="output">The output.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>Number of records written</returns>
-    protected abstract void Write(IDataReader reader, IFileSetting fileSetting, CancellationToken cancellationToken);
+    protected abstract void Write(IFileSetting fileSetting, IDataReader reader, System.IO.Stream output, CancellationToken cancellationToken);
 
     /// <summary>
     ///   Gets the column information for one column, can return up to two columns for a date time column because of TimePart
@@ -636,6 +627,34 @@ namespace CsvTools
         fieldName = defaultName + (++counter).ToString(CultureInfo.InvariantCulture);
       headers.Add(fieldName);
       return fieldName;
+    }
+
+    private long Write(IDataReader reader)
+    {
+      if (reader == null)
+        return -1;
+      m_Records = 0;
+      if (m_ProcessDisplay != null) m_ProcessDisplay.Maximum = -1;
+      try
+      {
+        using (var improvedStream = ImprovedStream.OpenWrite(m_FileSetting.FullPath, ProcessDisplay, m_FileSetting.Recipient))
+        {
+          Write(GetSourceSetting(), reader, improvedStream.Stream, m_CancellationToken);
+        }
+
+        m_FileSetting.FileLastWriteTimeUtc = DateTime.UtcNow;
+      }
+      catch (Exception exc)
+      {
+        ErrorMessage = $"Could not write file '{m_FileSetting.FileName}'.\r\n{exc.ExceptionMessages()}";
+        if (m_FileSetting.InOverview)
+          throw;
+      }
+      finally
+      {
+        HandleWriteFinished();
+      }
+      return m_Records;
     }
   }
 }

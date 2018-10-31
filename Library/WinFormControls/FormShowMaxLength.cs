@@ -144,70 +144,77 @@ namespace CsvTools
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
     private void ShowMaxLength_Load(object sender, EventArgs e)
     {
-      var dataTable = new DataTable
+      try
       {
-        TableName = "DataTable",
-        Locale = CultureInfo.InvariantCulture
-      };
-      var dataColumnName = dataTable.Columns.Add("Name", typeof(string));
-      dataColumnName.AllowDBNull = false;
+        var dataTable = new DataTable
+        {
+          TableName = "DataTable",
+          Locale = CultureInfo.InvariantCulture
+        };
+        var dataColumnName = dataTable.Columns.Add("Name", typeof(string));
+        dataColumnName.AllowDBNull = false;
 
-      var dataColumnLength = dataTable.Columns.Add("Length", typeof(int));
-      dataColumnLength.AllowDBNull = false;
+        var dataColumnLength = dataTable.Columns.Add("Length", typeof(int));
+        dataColumnLength.AllowDBNull = false;
 
-      var dataColumnNo = dataTable.Columns.Add("ColumnNo", typeof(int));
-      dataColumnNo.AllowDBNull = false;
+        var dataColumnNo = dataTable.Columns.Add("ColumnNo", typeof(int));
+        dataColumnNo.AllowDBNull = false;
 
-      var maxLength = new Dictionary<string, int>();
-      var colIndex = new Dictionary<string, int>();
-      var checkCols = new Dictionary<string, int>();
+        var maxLength = new Dictionary<string, int>();
+        var colIndex = new Dictionary<string, int>();
+        var checkCols = new Dictionary<string, int>();
 
-      foreach (var col in m_DataTable.GetRealDataColumns())
-      {
-        checkCols.Add(col.ColumnName, col.Ordinal);
-        maxLength.Add(col.ColumnName, -1);
-        colIndex.Add(col.ColumnName, col.Ordinal + 1);
-      }
+        foreach (var col in m_DataTable.GetRealDataColumns())
+        {
+          checkCols.Add(col.ColumnName, col.Ordinal);
+          maxLength.Add(col.ColumnName, -1);
+          colIndex.Add(col.ColumnName, col.Ordinal + 1);
+        }
 
-      if (colIndex.Count > 0)
-        foreach (var row in m_DataRow)
-          foreach (var col in checkCols)
-          {
-            var cl = (row[col.Value] == DBNull.Value) ? 0 : row[col.Value].ToString().Length;
-            if (cl > maxLength[col.Key])
+        if (colIndex.Count > 0)
+          foreach (var row in m_DataRow)
+            foreach (var col in checkCols)
             {
-              maxLength[col.Key] = cl;
+              var cl = (row[col.Value] == DBNull.Value) ? 0 : row[col.Value].ToString().Length;
+              if (cl > maxLength[col.Key])
+              {
+                maxLength[col.Key] = cl;
+              }
             }
-          }
 
-      var colNo = 1;
-      foreach (var len in maxLength)
-      {
-        var lastRow = dataTable.NewRow();
-        lastRow[dataColumnName] = len.Key;
+        var colNo = 1;
+        foreach (var len in maxLength)
+        {
+          var lastRow = dataTable.NewRow();
+          lastRow[dataColumnName] = len.Key;
 
-        if (len.Value != -1)
-          lastRow[dataColumnLength] = len.Value.ToString();
-        else
-          lastRow[dataColumnLength] = m_DataTable.Columns[len.Key].DataType.Name;
+          if (len.Value != -1)
+            lastRow[dataColumnLength] = len.Value.ToString();
+          else
+            lastRow[dataColumnLength] = m_DataTable.Columns[len.Key].DataType.Name;
 
-        lastRow[dataColumnNo] = colNo++;
-        dataTable.Rows.Add(lastRow);
+          lastRow[dataColumnNo] = colNo++;
+          dataTable.Rows.Add(lastRow);
+        }
+
+        m_DataGridView.DataSource = dataTable;
+
+        m_DataGridView.Columns[dataColumnName.ColumnName].Width = 150;
+
+        m_DataGridView.Columns[dataColumnLength.ColumnName].Width = 60;
+        m_DataGridView.Columns[dataColumnLength.ColumnName].DefaultCellStyle.Alignment =
+          DataGridViewContentAlignment.MiddleRight;
+        m_DataGridView.Columns[dataColumnLength.ColumnName].DefaultCellStyle.Format = "0";
+
+        m_DataGridView.Columns[dataColumnNo.ColumnName].Width = 60;
+        m_DataGridView.Columns[dataColumnNo.ColumnName].DefaultCellStyle.Alignment =
+          DataGridViewContentAlignment.MiddleRight;
+        m_DataGridView.Columns[dataColumnNo.ColumnName].DefaultCellStyle.Format = "0";
       }
-
-      m_DataGridView.DataSource = dataTable;
-
-      m_DataGridView.Columns[dataColumnName.ColumnName].Width = 150;
-
-      m_DataGridView.Columns[dataColumnLength.ColumnName].Width = 60;
-      m_DataGridView.Columns[dataColumnLength.ColumnName].DefaultCellStyle.Alignment =
-        DataGridViewContentAlignment.MiddleRight;
-      m_DataGridView.Columns[dataColumnLength.ColumnName].DefaultCellStyle.Format = "0";
-
-      m_DataGridView.Columns[dataColumnNo.ColumnName].Width = 60;
-      m_DataGridView.Columns[dataColumnNo.ColumnName].DefaultCellStyle.Alignment =
-        DataGridViewContentAlignment.MiddleRight;
-      m_DataGridView.Columns[dataColumnNo.ColumnName].DefaultCellStyle.Format = "0";
+      catch (Exception ex)
+      {
+        this.ShowError(ex);
+      }
     }
   }
 }

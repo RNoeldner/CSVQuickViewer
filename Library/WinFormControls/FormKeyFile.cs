@@ -29,7 +29,22 @@ namespace CsvTools
     private Button m_BtnOk;
     private Label m_Label1;
     private SplitContainer m_SplitContainer1;
-    public TextBox textBox;
+    private TextBox textBox;
+
+    /// <summary>
+    /// The text shown in this from
+    /// </summary>
+    public string KeyBlock
+    {
+      get
+      {
+        return textBox.Text;
+      }
+      set
+      {
+        textBox.Text = value;
+      }
+    }
 
     public FormKeyFile()
     {
@@ -40,7 +55,7 @@ namespace CsvTools
     {
       InitializeComponent();
       TextBox_Leave(this, null);
-      Text = title;
+      KeyBlock = title;
       m_PrivateKey = privateKey;
     }
 
@@ -56,7 +71,7 @@ namespace CsvTools
 
       if (!isPgpKeyRingBundle)
       {
-        if (MessageBox.Show(
+        if (_MessageBox.Show(this,
           $"The entered text does not seem to be a valid PGP Key Block File.\nThe text should start with -----BEGIN PGP\nException: \n{message}", "Issue with Key", MessageBoxButtons.OKCancel) == DialogResult.Cancel)
           return;
       }
@@ -169,7 +184,7 @@ namespace CsvTools
       this.MinimumSize = new System.Drawing.Size(380, 200);
       this.Name = "FormKeyFile";
       this.ShowIcon = false;
-      this.Text = "PGP Key File";
+      this.KeyBlock = "PGP Key File";
       this.TopMost = true;
       this.m_SplitContainer1.Panel1.ResumeLayout(false);
       this.m_SplitContainer1.Panel1.PerformLayout();
@@ -204,7 +219,7 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        MessageBox.Show(this, ex.ExceptionMessages(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        this.ShowError(ex);
       }
       finally
       {

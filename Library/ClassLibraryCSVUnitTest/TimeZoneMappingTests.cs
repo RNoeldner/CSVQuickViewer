@@ -135,7 +135,7 @@ namespace CsvTools.Tests
       Assert.IsTrue(tzCET.SupportsDaylightSavingTime(2018));
     }
 
-    [TestInitialize()]
+    [TestInitialize]
     public void Init()
     {
       tzCET.GetTZAbbreviation();

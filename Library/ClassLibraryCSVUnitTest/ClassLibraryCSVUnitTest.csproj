@@ -141,8 +141,8 @@
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
-    <Reference Include="NodaTime, Version=2.3.0.0, Culture=neutral, PublicKeyToken=4226afe0d9b296d1, processorArchitecture=MSIL">
-      <HintPath>..\..\..\CSVFileValidator\packages\NodaTime.2.3.0\lib\net45\NodaTime.dll</HintPath>
+    <Reference Include="NodaTime, Version=2.4.1.0, Culture=neutral, PublicKeyToken=4226afe0d9b296d1, processorArchitecture=MSIL">
+      <HintPath>..\..\..\CSVFileValidator\packages\NodaTime.2.4.1\lib\net45\NodaTime.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -150,6 +150,7 @@
     <Reference Include="System.Numerics" />
     <Reference Include="System.XML" />
     <Reference Include="WindowsBase" />
+    <Reference Include="WinSCPnet, Version=1.5.6.8731, Culture=neutral, PublicKeyToken=2271ec4a3c56d0bf" />
   </ItemGroup>
   <Choose>
     <When Condition="('$(VisualStudioVersion)' == '10.0' or '$(VisualStudioVersion)' == '') and '$(TargetFrameworkVersion)' == 'v3.5'">
@@ -180,6 +181,7 @@
     <Compile Include="FillGuessSettingsTests.cs" />
     <Compile Include="Helper.cs" />
     <Compile Include="HTMLStyleTests.cs" />
+    <Compile Include="ImprovedStreamTests.cs" />
     <Compile Include="IntervalActionTests.cs" />
     <Compile Include="CsvDataReaderPGP_FilesTest.cs" />
     <Compile Include="PGPKeyStorageTests.cs" />
@@ -189,6 +191,7 @@
     <Compile Include="SampleRecordEntryTests.cs" />
     <Compile Include="SecureStringTest.cs" />
     <Compile Include="SerializedFilesLibTests.cs" />
+    <Compile Include="sFTPTests.cs" />
     <Compile Include="SQLUtilsTest.cs" />
     <Compile Include="StringConversionTests.cs" />
     <Compile Include="MessageLocationTest.cs" />

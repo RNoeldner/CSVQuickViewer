@@ -49,6 +49,8 @@ namespace CsvTools
 
     ICache<string, ValidationResult> ValidationResultCache { get; }
 
+    RemoteAccess RemoteAccess { get; }
+
     string DestinationTimeZone { get; }
   }
 }

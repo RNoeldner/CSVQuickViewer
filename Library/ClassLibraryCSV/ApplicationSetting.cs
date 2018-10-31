@@ -26,8 +26,6 @@ namespace CsvTools
   {
     private static IToolSetting m_ToolSetting = new DummyToolSetting();
     private static Func<string, IDataReader> m_SQLDataReader;
-    public static Action<IFileSetting, IProcessDisplay, string> WritePostProcessing = null;
-    public static Func<IFileSetting, string> WritePreProcessing = null;
     private static readonly FillGuessSettings m_FillGuessSettings = new FillGuessSettings();
     private static readonly HTMLStyle m_HTMLStyle = new HTMLStyle();
 

@@ -104,12 +104,14 @@ namespace CsvTools
         return;
       try
       {
-        using (var sr = CsvHelper.GetStreamReader(m_CsvFile))
+        using (var procDisp = new ProcessDisplayTime(System.Threading.CancellationToken.None))
+        using (var istream = ImprovedStream.OpenRead(m_CsvFile, procDisp))
+        using (var sr = new StreamReader(istream.Stream, m_CsvFile.GetEncoding(), m_CsvFile.ByteOrderMark))
         {
           // Some stream do not support seek...
-          if (sr.BaseStream.CanSeek)
+          if (istream.Stream.CanSeek)
           {
-            sr.BaseStream.Seek(m_DisplayedAt, SeekOrigin.Begin);
+            istream.Stream.Seek(m_DisplayedAt, SeekOrigin.Begin);
             if (m_DisplayedAt != 0)
             {
               // find the line start

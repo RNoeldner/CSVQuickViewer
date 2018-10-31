@@ -68,8 +68,7 @@ namespace CsvTools
       }
       catch (Exception exc)
       {
-        MessageBox.Show(exc.ExceptionMessages(), "Error filling clipboard", MessageBoxButtons.OK,
-          MessageBoxIcon.Warning);
+        dataGridView.FindForm().ShowError(exc, "Error filling clipboard");
       }
       finally
       {
