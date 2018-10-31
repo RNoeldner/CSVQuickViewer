@@ -54,17 +54,12 @@
       this.textBoxNumWarnings = new System.Windows.Forms.TextBox();
       this.buttonOK = new System.Windows.Forms.Button();
       this.buttonCancel = new System.Windows.Forms.Button();
-      this.label29 = new System.Windows.Forms.Label();
       this.tabPageFormat = new System.Windows.Forms.TabPage();
       this.fillGuessSettingEdit = new CsvTools.FillGuessSettingEdit();
       this.tabPageWarnings = new System.Windows.Forms.TabPage();
       this.tabPageAdvanced = new System.Windows.Forms.TabPage();
-      this.chkUseFileSettings = new System.Windows.Forms.CheckBox();
-      this.checkBoxDetectFileChanges = new System.Windows.Forms.CheckBox();
-      this.checkBoxMenuDown = new System.Windows.Forms.CheckBox();
       this.buttonSkipLine = new System.Windows.Forms.Button();
       this.textBoxTextAsNull = new System.Windows.Forms.TextBox();
-      this.checkBoxGuessStartRow = new System.Windows.Forms.CheckBox();
       this.checkBoxSkipEmptyLines = new System.Windows.Forms.CheckBox();
       this.textBoxDelimiterPlaceholder = new System.Windows.Forms.TextBox();
       this.fileFormatBindingSource = new System.Windows.Forms.BindingSource(this.components);
@@ -73,9 +68,6 @@
       this.checkBoxDisplayStartLineNo = new System.Windows.Forms.CheckBox();
       this.General = new System.Windows.Forms.TabControl();
       this.tabPageFile = new System.Windows.Forms.TabPage();
-      this.checkBoxGuessHasHeader = new System.Windows.Forms.CheckBox();
-      this.checkBoxGuessDelimiter = new System.Windows.Forms.CheckBox();
-      this.checkBoxGuessCodePage = new System.Windows.Forms.CheckBox();
       this.buttonGuessDelimiter = new System.Windows.Forms.Button();
       this.buttonGuessCP = new System.Windows.Forms.Button();
       this.labelDelimiter = new System.Windows.Forms.Label();
@@ -96,6 +88,14 @@
       this.btnPassp = new System.Windows.Forms.Button();
       this.toolTip = new System.Windows.Forms.ToolTip(this.components);
       this.errorProvider = new System.Windows.Forms.ErrorProvider(this.components);
+      this.tabPage1 = new System.Windows.Forms.TabPage();
+      this.chkUseFileSettings = new System.Windows.Forms.CheckBox();
+      this.checkBoxDetectFileChanges = new System.Windows.Forms.CheckBox();
+      this.checkBoxMenuDown = new System.Windows.Forms.CheckBox();
+      this.checkBoxGuessCodePage = new System.Windows.Forms.CheckBox();
+      this.checkBoxGuessDelimiter = new System.Windows.Forms.CheckBox();
+      this.checkBoxGuessHasHeader = new System.Windows.Forms.CheckBox();
+      this.checkBoxGuessStartRow = new System.Windows.Forms.CheckBox();
       ((System.ComponentModel.ISupportInitialize)(this.fileSettingBindingSource)).BeginInit();
       this.groupBoxNBSP.SuspendLayout();
       this.groupBoxUnknownCharacter.SuspendLayout();
@@ -108,6 +108,7 @@
       this.tabPageQuoting.SuspendLayout();
       this.tabPagePGP.SuspendLayout();
       ((System.ComponentModel.ISupportInitialize)(this.errorProvider)).BeginInit();
+      this.tabPage1.SuspendLayout();
       this.SuspendLayout();
       // 
       // textBoxSkipRows
@@ -166,7 +167,7 @@
       // 
       this.checkBoxBOM.AutoSize = true;
       this.checkBoxBOM.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fileSettingBindingSource, "ByteOrderMark", true));
-      this.checkBoxBOM.Location = new System.Drawing.Point(313, 61);
+      this.checkBoxBOM.Location = new System.Drawing.Point(275, 61);
       this.checkBoxBOM.Name = "checkBoxBOM";
       this.checkBoxBOM.Size = new System.Drawing.Size(50, 17);
       this.checkBoxBOM.TabIndex = 42;
@@ -368,18 +369,6 @@
       this.buttonCancel.UseVisualStyleBackColor = true;
       this.buttonCancel.Click += new System.EventHandler(this.ButtonCancel_Click);
       // 
-      // label29
-      // 
-      this.label29.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-      this.label29.AutoSize = true;
-      this.label29.BackColor = System.Drawing.SystemColors.Info;
-      this.label29.ForeColor = System.Drawing.SystemColors.InfoText;
-      this.label29.Location = new System.Drawing.Point(245, 337);
-      this.label29.Name = "label29";
-      this.label29.Size = new System.Drawing.Size(322, 13);
-      this.label29.TabIndex = 89;
-      this.label29.Text = "Note: Some Settings will be applied the next time a file is examined.";
-      // 
       // tabPageFormat
       // 
       this.tabPageFormat.BackColor = System.Drawing.SystemColors.Control;
@@ -418,9 +407,7 @@
       // tabPageAdvanced
       // 
       this.tabPageAdvanced.BackColor = System.Drawing.SystemColors.Control;
-      this.tabPageAdvanced.Controls.Add(this.chkUseFileSettings);
-      this.tabPageAdvanced.Controls.Add(this.checkBoxDetectFileChanges);
-      this.tabPageAdvanced.Controls.Add(this.checkBoxMenuDown);
+      this.tabPageAdvanced.Controls.Add(this.checkBoxGuessStartRow);
       this.tabPageAdvanced.Controls.Add(this.buttonSkipLine);
       this.tabPageAdvanced.Controls.Add(this.textBoxSkipRows);
       this.tabPageAdvanced.Controls.Add(this.labelSkipFirstLines);
@@ -428,7 +415,6 @@
       this.tabPageAdvanced.Controls.Add(this.textBoxLimitRows);
       this.tabPageAdvanced.Controls.Add(this.textBoxTextAsNull);
       this.tabPageAdvanced.Controls.Add(this.label1);
-      this.tabPageAdvanced.Controls.Add(this.checkBoxGuessStartRow);
       this.tabPageAdvanced.Controls.Add(this.checkBoxSkipEmptyLines);
       this.tabPageAdvanced.Controls.Add(this.labelDelimiterPlaceholer);
       this.tabPageAdvanced.Controls.Add(this.textBoxDelimiterPlaceholder);
@@ -441,43 +427,11 @@
       this.tabPageAdvanced.TabIndex = 2;
       this.tabPageAdvanced.Text = "Advanced";
       // 
-      // chkUseFileSettings
-      // 
-      this.chkUseFileSettings.AutoSize = true;
-      this.chkUseFileSettings.Location = new System.Drawing.Point(6, 228);
-      this.chkUseFileSettings.Name = "chkUseFileSettings";
-      this.chkUseFileSettings.Size = new System.Drawing.Size(132, 17);
-      this.chkUseFileSettings.TabIndex = 123;
-      this.chkUseFileSettings.Text = "Persist Settings for File";
-      this.toolTip.SetToolTip(this.chkUseFileSettings, "Store the settings for each individual file, do not use this is structure or form" +
-        "atting of columns does change over time");
-      this.chkUseFileSettings.UseVisualStyleBackColor = true;
-      // 
-      // checkBoxDetectFileChanges
-      // 
-      this.checkBoxDetectFileChanges.AutoSize = true;
-      this.checkBoxDetectFileChanges.Location = new System.Drawing.Point(6, 182);
-      this.checkBoxDetectFileChanges.Name = "checkBoxDetectFileChanges";
-      this.checkBoxDetectFileChanges.Size = new System.Drawing.Size(122, 17);
-      this.checkBoxDetectFileChanges.TabIndex = 122;
-      this.checkBoxDetectFileChanges.Text = "Detect File Changes";
-      this.checkBoxDetectFileChanges.UseVisualStyleBackColor = true;
-      // 
-      // checkBoxMenuDown
-      // 
-      this.checkBoxMenuDown.AutoSize = true;
-      this.checkBoxMenuDown.Location = new System.Drawing.Point(6, 205);
-      this.checkBoxMenuDown.Name = "checkBoxMenuDown";
-      this.checkBoxMenuDown.Size = new System.Drawing.Size(182, 17);
-      this.checkBoxMenuDown.TabIndex = 121;
-      this.checkBoxMenuDown.Text = "Display Actions in Navigation Bar";
-      this.checkBoxMenuDown.UseVisualStyleBackColor = true;
-      // 
       // buttonSkipLine
       // 
       this.buttonSkipLine.AutoSize = true;
       this.buttonSkipLine.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-      this.buttonSkipLine.Location = new System.Drawing.Point(188, 6);
+      this.buttonSkipLine.Location = new System.Drawing.Point(189, 6);
       this.buttonSkipLine.Name = "buttonSkipLine";
       this.buttonSkipLine.Size = new System.Drawing.Size(142, 23);
       this.buttonSkipLine.TabIndex = 120;
@@ -497,21 +451,11 @@
       this.textBoxTextAsNull.Size = new System.Drawing.Size(187, 20);
       this.textBoxTextAsNull.TabIndex = 109;
       // 
-      // checkBoxGuessStartRow
-      // 
-      this.checkBoxGuessStartRow.AutoSize = true;
-      this.checkBoxGuessStartRow.Location = new System.Drawing.Point(356, 10);
-      this.checkBoxGuessStartRow.Name = "checkBoxGuessStartRow";
-      this.checkBoxGuessStartRow.Size = new System.Drawing.Size(158, 17);
-      this.checkBoxGuessStartRow.TabIndex = 106;
-      this.checkBoxGuessStartRow.Text = "Guess Start Row on Startup";
-      this.checkBoxGuessStartRow.UseVisualStyleBackColor = true;
-      // 
       // checkBoxSkipEmptyLines
       // 
       this.checkBoxSkipEmptyLines.AutoSize = true;
       this.checkBoxSkipEmptyLines.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fileSettingBindingSource, "SkipEmptyLines", true));
-      this.checkBoxSkipEmptyLines.Location = new System.Drawing.Point(6, 159);
+      this.checkBoxSkipEmptyLines.Location = new System.Drawing.Point(118, 161);
       this.checkBoxSkipEmptyLines.Name = "checkBoxSkipEmptyLines";
       this.checkBoxSkipEmptyLines.Size = new System.Drawing.Size(107, 17);
       this.checkBoxSkipEmptyLines.TabIndex = 105;
@@ -560,7 +504,7 @@
       this.checkBoxDisplayStartLineNo.AutoSize = true;
       this.checkBoxDisplayStartLineNo.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
       this.checkBoxDisplayStartLineNo.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fileSettingBindingSource, "DisplayStartLineNo", true));
-      this.checkBoxDisplayStartLineNo.Location = new System.Drawing.Point(6, 136);
+      this.checkBoxDisplayStartLineNo.Location = new System.Drawing.Point(118, 138);
       this.checkBoxDisplayStartLineNo.Name = "checkBoxDisplayStartLineNo";
       this.checkBoxDisplayStartLineNo.Size = new System.Drawing.Size(161, 17);
       this.checkBoxDisplayStartLineNo.TabIndex = 51;
@@ -575,6 +519,7 @@
       this.General.Controls.Add(this.tabPageWarnings);
       this.General.Controls.Add(this.tabPageFormat);
       this.General.Controls.Add(this.tabPagePGP);
+      this.General.Controls.Add(this.tabPage1);
       this.General.Dock = System.Windows.Forms.DockStyle.Top;
       this.General.Location = new System.Drawing.Point(0, 0);
       this.General.Name = "General";
@@ -608,41 +553,11 @@
       this.tabPageFile.TabIndex = 6;
       this.tabPageFile.Text = "File";
       // 
-      // checkBoxGuessHasHeader
-      // 
-      this.checkBoxGuessHasHeader.AutoSize = true;
-      this.checkBoxGuessHasHeader.Location = new System.Drawing.Point(512, 33);
-      this.checkBoxGuessHasHeader.Name = "checkBoxGuessHasHeader";
-      this.checkBoxGuessHasHeader.Size = new System.Drawing.Size(159, 17);
-      this.checkBoxGuessHasHeader.TabIndex = 108;
-      this.checkBoxGuessHasHeader.Text = "Guess Header Row on Start";
-      this.checkBoxGuessHasHeader.UseVisualStyleBackColor = true;
-      // 
-      // checkBoxGuessDelimiter
-      // 
-      this.checkBoxGuessDelimiter.AutoSize = true;
-      this.checkBoxGuessDelimiter.Location = new System.Drawing.Point(512, 91);
-      this.checkBoxGuessDelimiter.Name = "checkBoxGuessDelimiter";
-      this.checkBoxGuessDelimiter.Size = new System.Drawing.Size(151, 17);
-      this.checkBoxGuessDelimiter.TabIndex = 107;
-      this.checkBoxGuessDelimiter.Text = "Guess Delimiter on Startup";
-      this.checkBoxGuessDelimiter.UseVisualStyleBackColor = true;
-      // 
-      // checkBoxGuessCodePage
-      // 
-      this.checkBoxGuessCodePage.AutoSize = true;
-      this.checkBoxGuessCodePage.Location = new System.Drawing.Point(512, 61);
-      this.checkBoxGuessCodePage.Name = "checkBoxGuessCodePage";
-      this.checkBoxGuessCodePage.Size = new System.Drawing.Size(164, 17);
-      this.checkBoxGuessCodePage.TabIndex = 101;
-      this.checkBoxGuessCodePage.Text = "Guess Code Page on Startup";
-      this.checkBoxGuessCodePage.UseVisualStyleBackColor = true;
-      // 
       // buttonGuessDelimiter
       // 
       this.buttonGuessDelimiter.AutoSize = true;
       this.buttonGuessDelimiter.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-      this.buttonGuessDelimiter.Location = new System.Drawing.Point(369, 87);
+      this.buttonGuessDelimiter.Location = new System.Drawing.Point(331, 87);
       this.buttonGuessDelimiter.Name = "buttonGuessDelimiter";
       this.buttonGuessDelimiter.Size = new System.Drawing.Size(134, 23);
       this.buttonGuessDelimiter.TabIndex = 50;
@@ -654,7 +569,7 @@
       // 
       this.buttonGuessCP.AutoSize = true;
       this.buttonGuessCP.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-      this.buttonGuessCP.Location = new System.Drawing.Point(369, 57);
+      this.buttonGuessCP.Location = new System.Drawing.Point(331, 57);
       this.buttonGuessCP.Name = "buttonGuessCP";
       this.buttonGuessCP.Size = new System.Drawing.Size(134, 23);
       this.buttonGuessCP.TabIndex = 49;
@@ -703,14 +618,14 @@
       // 
       // cboCodePage
       // 
-      this.cboCodePage.DataBindings.Add(new System.Windows.Forms.Binding("SelectedValue", this.fileSettingBindingSource, "CodePageId", true));
       this.cboCodePage.DisplayMember = "Display";
       this.cboCodePage.FormattingEnabled = true;
       this.cboCodePage.Location = new System.Drawing.Point(90, 59);
       this.cboCodePage.Name = "cboCodePage";
-      this.cboCodePage.Size = new System.Drawing.Size(217, 21);
+      this.cboCodePage.Size = new System.Drawing.Size(179, 21);
       this.cboCodePage.TabIndex = 41;
       this.cboCodePage.ValueMember = "ID";
+      this.cboCodePage.SelectedIndexChanged += new System.EventHandler(this.cboCodePage_SelectedIndexChanged);
       // 
       // textBoxFile
       // 
@@ -719,13 +634,13 @@
       this.textBoxFile.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.fileSettingBindingSource, "FileName", true));
       this.textBoxFile.Location = new System.Drawing.Point(90, 6);
       this.textBoxFile.Name = "textBoxFile";
-      this.textBoxFile.Size = new System.Drawing.Size(413, 20);
+      this.textBoxFile.Size = new System.Drawing.Size(521, 20);
       this.textBoxFile.TabIndex = 38;
       this.textBoxFile.Validating += new System.ComponentModel.CancelEventHandler(this.TextBoxFile_Validating);
       // 
       // btnOpenFile
       // 
-      this.btnOpenFile.Location = new System.Drawing.Point(512, 5);
+      this.btnOpenFile.Location = new System.Drawing.Point(617, 6);
       this.btnOpenFile.Name = "btnOpenFile";
       this.btnOpenFile.Size = new System.Drawing.Size(96, 22);
       this.btnOpenFile.TabIndex = 40;
@@ -757,6 +672,7 @@
       // 
       // tabPagePGP
       // 
+      this.tabPagePGP.BackColor = System.Drawing.SystemColors.Control;
       this.tabPagePGP.Controls.Add(this.labelPassphrase);
       this.tabPagePGP.Controls.Add(this.listBoxPrivKeys);
       this.tabPagePGP.Controls.Add(this.btnRemPrivKey);
@@ -769,14 +685,13 @@
       this.tabPagePGP.Size = new System.Drawing.Size(721, 300);
       this.tabPagePGP.TabIndex = 8;
       this.tabPagePGP.Text = "PGP";
-      this.tabPagePGP.UseVisualStyleBackColor = true;
       // 
       // labelPassphrase
       // 
       this.labelPassphrase.AutoSize = true;
       this.labelPassphrase.BackColor = System.Drawing.SystemColors.Info;
       this.labelPassphrase.ForeColor = System.Drawing.SystemColors.InfoText;
-      this.labelPassphrase.Location = new System.Drawing.Point(523, 40);
+      this.labelPassphrase.Location = new System.Drawing.Point(523, 45);
       this.labelPassphrase.Name = "labelPassphrase";
       this.labelPassphrase.Size = new System.Drawing.Size(133, 13);
       this.labelPassphrase.TabIndex = 123;
@@ -792,7 +707,7 @@
       // 
       // btnRemPrivKey
       // 
-      this.btnRemPrivKey.Location = new System.Drawing.Point(380, 42);
+      this.btnRemPrivKey.Location = new System.Drawing.Point(385, 48);
       this.btnRemPrivKey.Name = "btnRemPrivKey";
       this.btnRemPrivKey.Size = new System.Drawing.Size(127, 23);
       this.btnRemPrivKey.TabIndex = 121;
@@ -811,7 +726,7 @@
       // 
       // btnAddPrivKey
       // 
-      this.btnAddPrivKey.Location = new System.Drawing.Point(380, 13);
+      this.btnAddPrivKey.Location = new System.Drawing.Point(385, 19);
       this.btnAddPrivKey.Name = "btnAddPrivKey";
       this.btnAddPrivKey.Size = new System.Drawing.Size(127, 23);
       this.btnAddPrivKey.TabIndex = 119;
@@ -821,7 +736,7 @@
       // 
       // btnPassp
       // 
-      this.btnPassp.Location = new System.Drawing.Point(526, 14);
+      this.btnPassp.Location = new System.Drawing.Point(522, 19);
       this.btnPassp.Name = "btnPassp";
       this.btnPassp.Size = new System.Drawing.Size(187, 23);
       this.btnPassp.TabIndex = 118;
@@ -833,6 +748,91 @@
       // 
       this.errorProvider.ContainerControl = this;
       // 
+      // tabPage1
+      // 
+      this.tabPage1.BackColor = System.Drawing.SystemColors.Control;
+      this.tabPage1.Controls.Add(this.chkUseFileSettings);
+      this.tabPage1.Controls.Add(this.checkBoxDetectFileChanges);
+      this.tabPage1.Controls.Add(this.checkBoxMenuDown);
+      this.tabPage1.Location = new System.Drawing.Point(4, 22);
+      this.tabPage1.Name = "tabPage1";
+      this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
+      this.tabPage1.Size = new System.Drawing.Size(721, 300);
+      this.tabPage1.TabIndex = 9;
+      this.tabPage1.Text = "Behaviour";
+      // 
+      // chkUseFileSettings
+      // 
+      this.chkUseFileSettings.AutoSize = true;
+      this.chkUseFileSettings.Location = new System.Drawing.Point(8, 52);
+      this.chkUseFileSettings.Name = "chkUseFileSettings";
+      this.chkUseFileSettings.Size = new System.Drawing.Size(132, 17);
+      this.chkUseFileSettings.TabIndex = 126;
+      this.chkUseFileSettings.Text = "Persist Settings for File";
+      this.toolTip.SetToolTip(this.chkUseFileSettings, "Store the settings for each individual file, do not use this is structure or form" +
+        "atting of columns does change over time");
+      this.chkUseFileSettings.UseVisualStyleBackColor = true;
+      // 
+      // checkBoxDetectFileChanges
+      // 
+      this.checkBoxDetectFileChanges.AutoSize = true;
+      this.checkBoxDetectFileChanges.Location = new System.Drawing.Point(8, 6);
+      this.checkBoxDetectFileChanges.Name = "checkBoxDetectFileChanges";
+      this.checkBoxDetectFileChanges.Size = new System.Drawing.Size(122, 17);
+      this.checkBoxDetectFileChanges.TabIndex = 125;
+      this.checkBoxDetectFileChanges.Text = "Detect File Changes";
+      this.checkBoxDetectFileChanges.UseVisualStyleBackColor = true;
+      // 
+      // checkBoxMenuDown
+      // 
+      this.checkBoxMenuDown.AutoSize = true;
+      this.checkBoxMenuDown.Location = new System.Drawing.Point(8, 29);
+      this.checkBoxMenuDown.Name = "checkBoxMenuDown";
+      this.checkBoxMenuDown.Size = new System.Drawing.Size(182, 17);
+      this.checkBoxMenuDown.TabIndex = 124;
+      this.checkBoxMenuDown.Text = "Display Actions in Navigation Bar";
+      this.checkBoxMenuDown.UseVisualStyleBackColor = true;
+      // 
+      // checkBoxGuessCodePage
+      // 
+      this.checkBoxGuessCodePage.AutoSize = true;
+      this.checkBoxGuessCodePage.Location = new System.Drawing.Point(471, 61);
+      this.checkBoxGuessCodePage.Name = "checkBoxGuessCodePage";
+      this.checkBoxGuessCodePage.Size = new System.Drawing.Size(194, 17);
+      this.checkBoxGuessCodePage.TabIndex = 110;
+      this.checkBoxGuessCodePage.Text = "Determine Code Page automatically";
+      this.checkBoxGuessCodePage.UseVisualStyleBackColor = true;
+      // 
+      // checkBoxGuessDelimiter
+      // 
+      this.checkBoxGuessDelimiter.AutoSize = true;
+      this.checkBoxGuessDelimiter.Location = new System.Drawing.Point(471, 91);
+      this.checkBoxGuessDelimiter.Name = "checkBoxGuessDelimiter";
+      this.checkBoxGuessDelimiter.Size = new System.Drawing.Size(181, 17);
+      this.checkBoxGuessDelimiter.TabIndex = 111;
+      this.checkBoxGuessDelimiter.Text = "Determine Delimiter automatically";
+      this.checkBoxGuessDelimiter.UseVisualStyleBackColor = true;
+      // 
+      // checkBoxGuessHasHeader
+      // 
+      this.checkBoxGuessHasHeader.AutoSize = true;
+      this.checkBoxGuessHasHeader.Location = new System.Drawing.Point(471, 33);
+      this.checkBoxGuessHasHeader.Name = "checkBoxGuessHasHeader";
+      this.checkBoxGuessHasHeader.Size = new System.Drawing.Size(232, 17);
+      this.checkBoxGuessHasHeader.TabIndex = 122;
+      this.checkBoxGuessHasHeader.Text = "Determine if Header is present automatically";
+      this.checkBoxGuessHasHeader.UseVisualStyleBackColor = true;
+      // 
+      // checkBoxGuessStartRow
+      // 
+      this.checkBoxGuessStartRow.AutoSize = true;
+      this.checkBoxGuessStartRow.Location = new System.Drawing.Point(337, 10);
+      this.checkBoxGuessStartRow.Name = "checkBoxGuessStartRow";
+      this.checkBoxGuessStartRow.Size = new System.Drawing.Size(188, 17);
+      this.checkBoxGuessStartRow.TabIndex = 121;
+      this.checkBoxGuessStartRow.Text = "Determine Start Row automatically";
+      this.checkBoxGuessStartRow.UseVisualStyleBackColor = true;
+      // 
       // FormEditSettings
       // 
       this.AcceptButton = this.buttonOK;
@@ -843,7 +843,6 @@
       this.Controls.Add(this.General);
       this.Controls.Add(this.buttonCancel);
       this.Controls.Add(this.buttonOK);
-      this.Controls.Add(this.label29);
       this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
       this.MaximizeBox = false;
       this.MinimizeBox = false;
@@ -872,8 +871,9 @@
       this.tabPagePGP.ResumeLayout(false);
       this.tabPagePGP.PerformLayout();
       ((System.ComponentModel.ISupportInitialize)(this.errorProvider)).EndInit();
+      this.tabPage1.ResumeLayout(false);
+      this.tabPage1.PerformLayout();
       this.ResumeLayout(false);
-      this.PerformLayout();
 
     }
 
@@ -881,7 +881,6 @@
 
     private System.Windows.Forms.Button buttonOK;
     private System.Windows.Forms.Button buttonCancel;
-    private System.Windows.Forms.Label label29;
     private System.Windows.Forms.TabPage tabPageFormat;
     private FillGuessSettingEdit fillGuessSettingEdit;
     private System.Windows.Forms.TabPage tabPageWarnings;
@@ -890,7 +889,6 @@
     private System.Windows.Forms.CheckBox checkBoxTreatNBSPAsSpace;
     private System.Windows.Forms.CheckBox checkBoxWarnNBSP;
     private System.Windows.Forms.TabPage tabPageAdvanced;
-    private System.Windows.Forms.CheckBox checkBoxGuessStartRow;
     private System.Windows.Forms.CheckBox checkBoxSkipEmptyLines;
     private System.Windows.Forms.TextBox textBoxDelimiterPlaceholder;
     private System.Windows.Forms.TextBox textBoxNLPlaceholder;
@@ -933,12 +931,6 @@
     private System.Windows.Forms.CheckBox checkBoxBOM;
     private System.Windows.Forms.CheckBox checkBoxHeader;
     private System.Windows.Forms.Label labelDelimitedFile;
-    private System.Windows.Forms.CheckBox checkBoxGuessDelimiter;
-    private System.Windows.Forms.CheckBox checkBoxGuessCodePage;
-    private System.Windows.Forms.CheckBox checkBoxGuessHasHeader;
-    private System.Windows.Forms.CheckBox checkBoxDetectFileChanges;
-    private System.Windows.Forms.CheckBox checkBoxMenuDown;
-    private System.Windows.Forms.CheckBox chkUseFileSettings;
     private System.Windows.Forms.TabPage tabPagePGP;
     private System.Windows.Forms.Label labelPassphrase;
     private System.Windows.Forms.ListBox listBoxPrivKeys;
@@ -946,5 +938,13 @@
     private System.Windows.Forms.Label label30;
     private System.Windows.Forms.Button btnAddPrivKey;
     private System.Windows.Forms.Button btnPassp;
+    private System.Windows.Forms.TabPage tabPage1;
+    private System.Windows.Forms.CheckBox chkUseFileSettings;
+    private System.Windows.Forms.CheckBox checkBoxDetectFileChanges;
+    private System.Windows.Forms.CheckBox checkBoxMenuDown;
+    private System.Windows.Forms.CheckBox checkBoxGuessStartRow;
+    private System.Windows.Forms.CheckBox checkBoxGuessHasHeader;
+    private System.Windows.Forms.CheckBox checkBoxGuessDelimiter;
+    private System.Windows.Forms.CheckBox checkBoxGuessCodePage;
   }
 }

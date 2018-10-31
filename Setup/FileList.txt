@@ -1,7 +1,3 @@
 ﻿..\Application\bin\Release\CsvQuickViewer.exe
-..\Application\bin\Release\ClassLibraryCSV.dll
-..\Application\bin\Release\WinFormControlsCSV.dll
-..\Application\bin\Release\BouncyCastle.OpenPgp.dll
-..\Application\bin\Release\Ude.dll
-..\Application\bin\Release\Pri.LongPath.dll
+..\Application\bin\Release\*.dll
 ..\Application\*.txt
