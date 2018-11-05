@@ -11,6 +11,24 @@ namespace CsvTools.Tests
     private readonly string m_ApplicationDirectory = FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles";
 
     [TestMethod]
+    public void GetAllPossibleFormatsD()
+    {
+      var res = DetermineColumnFormat.GetAllPossibleFormats("30-Oct-18 04:26:28 AM");
+      bool found = false;
+
+      foreach (var item in res)
+      {
+        if (item.DateFormat.Equals("dd/MMM/yy HH:mm:ss tt"))
+        {
+          found = true;
+          break;
+        }
+      }
+
+      Assert.IsTrue(found);
+    }
+
+    [TestMethod]
     public void FillGuessColumnFormat_DoNotIgnoreID()
     {
       var setting = new CsvFile();

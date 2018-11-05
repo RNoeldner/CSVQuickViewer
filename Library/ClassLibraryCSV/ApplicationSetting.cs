@@ -29,8 +29,8 @@ namespace CsvTools
     private static readonly FillGuessSettings m_FillGuessSettings = new FillGuessSettings();
     private static readonly HTMLStyle m_HTMLStyle = new HTMLStyle();
 
-    private static Action<string, string, IProcessDisplay, bool> m_RemoteFileHandler =
-          delegate (string path, string localName, IProcessDisplay processDisplay, bool throwNotFileExists) { return; };
+    private static Action<string, string, string, IProcessDisplay, bool> m_RemoteFileHandler =
+          delegate (string path, string fileName, string localName, IProcessDisplay processDisplay, bool throwNotFileExists) { return; };
 
     /// <summary>
     ///   Sets the cache to store already fetched parent,
@@ -103,7 +103,7 @@ namespace CsvTools
       }
     }
 
-    public static Action<string, string, IProcessDisplay, bool> RemoteFileHandler { get => m_RemoteFileHandler; set => m_RemoteFileHandler = value; }
+    public static Action<string, string, string, IProcessDisplay, bool> RemoteFileHandler { get => m_RemoteFileHandler; set => m_RemoteFileHandler = value; }
 
     /// <summary>
     ///   Flushes cached items in the all caches

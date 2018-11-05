@@ -18,8 +18,8 @@ namespace CsvTools
 {
   public class DummyToolSetting : IToolSetting
   {
-    private readonly RemoteAccess m_RemoteAccess = new RemoteAccess() { Protocol = AccessProtocol.Local };
     private readonly List<IFileSetting> m_Input = new List<IFileSetting>();
+
     private readonly List<IFileSetting> m_Output = new List<IFileSetting>();
 
     public virtual ICollection<IFileSetting> Input => m_Input;
@@ -33,7 +33,5 @@ namespace CsvTools
     public virtual PGPKeyStorage PGPInformation { get; } = new PGPKeyStorage();
 
     public virtual string DestinationTimeZone => TimeZoneMapping.cIdLocal;
-
-    public virtual RemoteAccess RemoteAccess => m_RemoteAccess;
   }
 }
