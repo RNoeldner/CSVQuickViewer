@@ -516,14 +516,14 @@ namespace CsvTools
       m_CancellationToken = cancellationToken;
       try
       {
-        if (ApplicationSetting.RemoteFileHandler != null && m_FileSetting is IFileSettingRemoteDownload remote && !m_FileSetting.FileName.IsSFTP())
+        if (ApplicationSetting.RemoteFileHandler != null && m_FileSetting is IFileSettingRemoteDownload remote)
         {
           if (!string.IsNullOrEmpty(remote?.RemoteFileName))
           {
             try
             {
               HandleShowProgress("Handling Remote file ...");
-              ApplicationSetting.RemoteFileHandler(remote.RemoteFileName, m_FileSetting.FullPath, ProcessDisplay, remote.ThrowErrorIfNotExists);
+              ApplicationSetting.RemoteFileHandler(remote.RemoteFileName, m_FileSetting.FileName, m_FileSetting.FullPath, ProcessDisplay, remote.ThrowErrorIfNotExists);
             }
             catch (Exception)
             {

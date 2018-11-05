@@ -26,7 +26,6 @@ namespace CsvTools
     private IProcessDisplay ProcessDisplay;
     private string Recipient;
     private string BasePath;
-    private bool sFTPProcessing = false;
     private string TempFile;
     private string WritePath;
     private string EncryptedPassphrase;
@@ -174,9 +173,8 @@ namespace CsvTools
         ProcessDisplay = processDisplay,
         Recipient = recipient
       };
-      if (path.IsSFTP() || path.AssumePgp() || path.AssumeGZip())
+      if (path.AssumePgp() || path.AssumeGZip())
       {
-        retVal.sFTPProcessing = true;
         retVal.TempFile = Path.GetTempFileName();
 
         // download the file to a temp file
@@ -224,7 +222,6 @@ namespace CsvTools
     {
       var retVal = new ImprovedStream
       {
-        sFTPProcessing = path.IsSFTP(),
         AssumePGP = path.AssumePgp(),
         AssumeGZip = path.AssumeGZip(),
       };
@@ -234,21 +231,8 @@ namespace CsvTools
       }
       try
       {
-        if (retVal.sFTPProcessing)
-        {
-          retVal.TempFile = Path.GetTempFileName();
-
-          // download the file to a temp file
-          sFTP.ProcessRemoteFileRead(path.RemovePrefix(), retVal.TempFile, processDisplay, true);
-          retVal.BasePath = retVal.TempFile;
-          retVal.BaseStream = File.OpenRead(retVal.TempFile);
-        }
-        else
-        {
-          retVal.BasePath = path.LongPathPrefix();
-          retVal.BaseStream = File.OpenRead(path.LongPathPrefix());
-        }
-
+        retVal.BasePath = path.LongPathPrefix();
+        retVal.BaseStream = File.OpenRead(path.LongPathPrefix());
         return retVal;
       }
       catch (Exception)
@@ -268,64 +252,55 @@ namespace CsvTools
         ProcessDisplay = new DummyProcessDisplay();
 
       if (WritePath.AssumeGZip() || WritePath.AssumePgp())
-      {
-        // if we
-        var destiation = sFTPProcessing ? Path.GetTempFileName() : WritePath;
-
-        // Compress the file
-        if (WritePath.AssumeGZip())
+        try
         {
-          using (var inFile = File.OpenRead(TempFile))
+          // Compress the file
+          if (WritePath.AssumeGZip())
           {
-            // Create the compressed file.
-            using (var outFile = File.Create(destiation))
+            using (var inFile = File.OpenRead(TempFile))
             {
-              using (var compress = new System.IO.Compression.GZipStream(outFile, System.IO.Compression.CompressionMode.Compress))
+              // Create the compressed file.
+              using (var outFile = File.Create(WritePath))
               {
-                var processDispayTime = ProcessDisplay as IProcessDisplayTime;
-                var inputBuffer = new byte[16384];
-                var max = (int)(inFile.Length / inputBuffer.Length);
-                ProcessDisplay.Maximum = max;
-                var count = 0;
-                int length;
-                while ((length = inFile.Read(inputBuffer, 0, inputBuffer.Length)) > 0)
+                using (var compress = new System.IO.Compression.GZipStream(outFile, System.IO.Compression.CompressionMode.Compress))
                 {
-                  compress.Write(inputBuffer, 0, length);
-                  ProcessDisplay.CancellationToken.ThrowIfCancellationRequested();
+                  var processDispayTime = ProcessDisplay as IProcessDisplayTime;
+                  var inputBuffer = new byte[16384];
+                  var max = (int)(inFile.Length / inputBuffer.Length);
+                  ProcessDisplay.Maximum = max;
+                  var count = 0;
+                  int length;
+                  while ((length = inFile.Read(inputBuffer, 0, inputBuffer.Length)) > 0)
+                  {
+                    compress.Write(inputBuffer, 0, length);
+                    ProcessDisplay.CancellationToken.ThrowIfCancellationRequested();
 
-                  if (processDispayTime != null)
-                    ProcessDisplay.SetProcess(
-                      $"GZip {processDispayTime.TimeToCompletion.PercentDisplay}{processDispayTime.TimeToCompletion.EstimatedTimeRemainingDisplaySeperator}", count);
-                  else
-                    ProcessDisplay.SetProcess($"GZip {count:N0}/{max:N0}",
-                      count);
-                  count++;
+                    if (processDispayTime != null)
+                      ProcessDisplay.SetProcess(
+                        $"GZip {processDispayTime.TimeToCompletion.PercentDisplay}{processDispayTime.TimeToCompletion.EstimatedTimeRemainingDisplaySeperator}", count);
+                    else
+                      ProcessDisplay.SetProcess($"GZip {count:N0}/{max:N0}",
+                        count);
+                    count++;
+                  }
                 }
               }
             }
           }
-        }
-        // need to encrypt the file
-        else if (WritePath.AssumePgp())
-        {
-          using (FileStream inputStream = new FileInfo(TempFile).OpenRead(),
-                                 output = new FileStream(destiation, FileMode.Create))
+          // need to encrypt the file
+          else if (WritePath.AssumePgp())
           {
-            ApplicationSetting.ToolSetting.PGPInformation.PgpEncrypt(inputStream, output, Recipient, ProcessDisplay);
+            using (FileStream inputStream = new FileInfo(TempFile).OpenRead(),
+                                   output = new FileStream(WritePath, FileMode.Create))
+            {
+              ApplicationSetting.ToolSetting.PGPInformation.PgpEncrypt(inputStream, output, Recipient, ProcessDisplay);
+            }
           }
         }
-
-        File.Delete(TempFile);
-        if (sFTPProcessing)
-          TempFile = destiation;
-        else
-          TempFile = null;
-      }
-      // the upload the file
-      if (sFTPProcessing)
-      {
-        sFTP.ProcessRemoteFileWrite(WritePath, TempFile, ProcessDisplay);
-      }
+        finally
+        {
+          File.Delete(TempFile);
+        }
     }
 
     #region IDisposable Support

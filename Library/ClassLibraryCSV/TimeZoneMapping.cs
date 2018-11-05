@@ -12,13 +12,12 @@
  *
  */
 
-using NodaTime;
-using NodaTime.TimeZones;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using NodaTime;
 
 namespace CsvTools
 {
@@ -154,7 +153,7 @@ namespace CsvTools
       var ret = new Dictionary<TimeZoneInfo, string>();
       foreach (var wintz in TimeZoneInfo.GetSystemTimeZones())
       {
-        if (TzdbDateTimeZoneSource.Default.WindowsMapping.PrimaryMapping.TryGetValue(wintz.Id, out var zoneID) &&
+        if (NodaTime.TimeZones.TzdbDateTimeZoneSource.Default.WindowsMapping.PrimaryMapping.TryGetValue(wintz.Id, out var zoneID) &&
             DateTimeZoneProviders.Tzdb.Ids.Contains(zoneID))
           ret.Add(wintz, zoneID);
       }
@@ -300,7 +299,7 @@ namespace CsvTools
       }
     }
 
-    private static IEnumerable<ZoneInterval> IntervalsInYear(this string timeZoneName, int year)
+    private static IEnumerable<NodaTime.TimeZones.ZoneInterval> IntervalsInYear(this string timeZoneName, int year)
     {
       DateTimeZone dateTimeZone = GetTimeZone(timeZoneName);
       return dateTimeZone.GetZoneIntervals(

@@ -20,7 +20,5 @@ namespace CsvTools.Tests
     public PGPKeyStorage PGPInformation => new PGPKeyStorage();
 
     public string DestinationTimeZone => TimeZoneMapping.cIdLocal;
-
-    public RemoteAccess RemoteAccess => new RemoteAccess() { Protocol = AccessProtocol.Local };
   }
 }

@@ -336,7 +336,7 @@ namespace CsvTools
           var dvalue = StringConversion.StringToDateTime(value,
             CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern,
             CultureInfo.CurrentCulture.DateTimeFormat.DateSeparator,
-            CultureInfo.CurrentCulture.DateTimeFormat.TimeSeparator, false);
+            CultureInfo.CurrentCulture.DateTimeFormat.TimeSeparator, false, CultureInfo.CurrentCulture);
           return dvalue.HasValue ? string.Format(CultureInfo.InvariantCulture, @"#{0:MM\/dd\/yyyy}#", dvalue.Value) : $"'{StringUtilsSQL.SqlQuote(value)}'";
 
         case TypeCode.Byte:

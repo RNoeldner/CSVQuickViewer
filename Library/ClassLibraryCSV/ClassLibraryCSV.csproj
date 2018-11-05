@@ -152,7 +152,6 @@
     <Compile Include="CheckResult.cs" />
     <Compile Include="CsvFileWriter.cs" />
     <Compile Include="DummyToolSetting.cs" />
-    <Compile Include="GenericFileInfo.cs" />
     <Compile Include="IExcelFile.cs" />
     <Compile Include="IExcelFileReader.cs" />
     <Compile Include="IFileSettingRemoteDownload.cs" />
@@ -161,10 +160,8 @@
     <Compile Include="ProcessDisplayTime.cs" />
     <Compile Include="IFileSetting.cs" />
     <Compile Include="PGPKeyStorage.cs" />
-    <Compile Include="RemoteAccess.cs" />
     <Compile Include="SampleRecordEntry.cs" />
     <Compile Include="SecureString.cs" />
-    <Compile Include="sFTP.cs" />
     <Compile Include="StringUtilsFileSystem.cs" />
     <Compile Include="RowErrorCollection.cs" />
   </ItemGroup>
@@ -228,8 +225,8 @@
       <HintPath>..\..\..\CSVFileValidator\packages\BouncyCastle.OpenPgp.1.8.1.1\lib\net20\BouncyCastle.OpenPgp.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="NodaTime, Version=2.4.1.0, Culture=neutral, PublicKeyToken=4226afe0d9b296d1, processorArchitecture=MSIL">
-      <HintPath>..\..\..\CSVFileValidator\packages\NodaTime.2.4.1\lib\net45\NodaTime.dll</HintPath>
+    <Reference Include="NodaTime, Version=2.4.2.0, Culture=neutral, PublicKeyToken=4226afe0d9b296d1, processorArchitecture=MSIL">
+      <HintPath>..\..\..\CSVFileValidator\packages\NodaTime.2.4.2\lib\net45\NodaTime.dll</HintPath>
     </Reference>
     <Reference Include="Pri.LongPath, Version=2.0.45.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\..\CSVQuickViewer\packages\Pri.LongPath.2.0.45\lib\net45\Pri.LongPath.dll</HintPath>
@@ -242,10 +239,6 @@
     <Reference Include="System.XML" />
     <Reference Include="Ude, Version=0.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\..\CSVQuickViewer\packages\UDE.CSharp.1.1.0\lib\Ude.dll</HintPath>
-    </Reference>
-    <Reference Include="WinSCPnet, Version=1.5.6.8731, Culture=neutral, PublicKeyToken=2271ec4a3c56d0bf, processorArchitecture=MSIL">
-      <HintPath>..\..\..\CSVFileValidator\packages\WinSCP.5.13.4\lib\net\WinSCPnet.dll</HintPath>
-      <EmbedInteropTypes>False</EmbedInteropTypes>
     </Reference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

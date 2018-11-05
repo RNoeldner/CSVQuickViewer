@@ -151,390 +151,14 @@ namespace CsvTools
       "MMM/dd/yy", "MMM/dd/yy HH:mm:ss", "MMM/dd/yy HH:mm", "MMM/dd/yy H:mm", "MMM/dd/yy hh:mm:ss tt",
       "MMM/dd/yy  hh:mm tt", "MMM/dd/yy h:mm tt",
       "ddd, d MMM, yyyy", "ddd, d MMM, yyyy HH:mm:ss", "ddd, d MMM, yyyy HH:mm", "ddd, d MMM, yyyy H:mm",
-      "ddd, d MMM, yyyy hh:mm:ss tt", "ddd, d MMM, yyyy hh:mm tt", "ddd, d MMM, yyyy h:mm tt"
+      "ddd, d MMM, yyyy hh:mm:ss tt", "ddd, d MMM, yyyy hh:mm tt", "ddd, d MMM, yyyy h:mm tt",
+      "dd/MMM/yy HH:mm:ss tt", "d/MMM/yy HH:mm:ss tt", "dd/MMM/yy h:mm:ss tt", "d/MMM/yy h:mm:ss tt",
     });
 
     /// <summary>
     ///   The possible length of a date for a given format
     /// </summary>
-    private static readonly Dictionary<string, Tuple<int, int>> m_DateLengthMinMax =
-      new Dictionary<string, Tuple<int, int>>
-      {
-        {"yyyyMMdd", new Tuple<int, int>(8, 8)},
-        {"dd/MM/yyyy", new Tuple<int, int>(10, 10)},
-        {"yyyy/MM/ddTHH:mm:ss", new Tuple<int, int>(19, 19)},
-        {"yyyy/MM/ddTHH:mm:sszz", new Tuple<int, int>(22, 22)},
-        {"yyyy/MM/ddTHH:mm:sszzz", new Tuple<int, int>(25, 25)},
-        {"yyyy/MM/ddTHH:mm:sszz00", new Tuple<int, int>(24, 24)},
-        {"yyyy/MM/ddTHH:mm:ss.FFFK", new Tuple<int, int>(23, 26)},
-        {"yyyy/MM/ddTHH:mm:ss,FFFK", new Tuple<int, int>(23, 26)},
-        {"dd/MM/yyyy HH:mm:ss", new Tuple<int, int>(19, 19)},
-        {"dd/MM/yyyy H:mm:ss", new Tuple<int, int>(18, 19)},
-        {"dd/MM/yyyy HH:mm", new Tuple<int, int>(16, 16)},
-        {"dd/MM/yyyy H:mm", new Tuple<int, int>(15, 16)},
-        {"dd/MM/yyyy hh:mm:ss tt", new Tuple<int, int>(22, 22)},
-        {"dd/MM/yyyy hh:mm tt", new Tuple<int, int>(19, 19)},
-        {"dd/MM/yyyy h:mm:ss tt", new Tuple<int, int>(21, 22)},
-        {"dd/MM/yyyy h:mm tt", new Tuple<int, int>(18, 19)},
-        {"MM/dd/yyyy", new Tuple<int, int>(10, 10)},
-        {"MM/dd/yyyy HH:mm:ss", new Tuple<int, int>(19, 19)},
-        {"MM/dd/yyyy H:mm:ss", new Tuple<int, int>(18, 19)},
-        {"MM/dd/yyyy HH:mm", new Tuple<int, int>(16, 16)},
-        {"MM/dd/yyyy H:mm", new Tuple<int, int>(15, 16)},
-        {"MM/dd/yyyy hh:mm:ss tt", new Tuple<int, int>(22, 22)},
-        {"MM/dd/yyyy hh:mm tt", new Tuple<int, int>(19, 19)},
-        {"MM/dd/yyyy h:mm:ss tt", new Tuple<int, int>(21, 22)},
-        {"MM/dd/yyyy h:mm tt", new Tuple<int, int>(18, 19)},
-        {"yyyy/MM/dd", new Tuple<int, int>(10, 10)},
-        {"yyyy/MM/dd HH:mm:ss", new Tuple<int, int>(19, 19)},
-        {"yyyy/MM/dd H:mm:ss", new Tuple<int, int>(18, 19)},
-        {"yyyy/MM/dd HH:mm", new Tuple<int, int>(16, 16)},
-        {"yyyy/MM/dd H:mm", new Tuple<int, int>(15, 16)},
-        {"yyyy/MM/dd hh:mm:ss tt", new Tuple<int, int>(22, 22)},
-        {"yyyy/MM/dd hh:mm tt", new Tuple<int, int>(19, 19)},
-        {"yyyy/MM/dd h:mm:ss tt", new Tuple<int, int>(21, 22)},
-        {"yyyy/MM/dd h:mm tt", new Tuple<int, int>(18, 19)},
-        {"d/M/yyyy", new Tuple<int, int>(8, 10)},
-        {"d/M/yyyy HH:mm:ss", new Tuple<int, int>(17, 19)},
-        {"d/M/yyyy H:mm:ss", new Tuple<int, int>(16, 19)},
-        {"d/M/yyyy HH:mm", new Tuple<int, int>(14, 16)},
-        {"d/M/yyyy H:mm", new Tuple<int, int>(13, 16)},
-        {"d/M/yyyy hh:mm:ss tt", new Tuple<int, int>(20, 22)},
-        {"d/M/yyyy hh:mm tt", new Tuple<int, int>(17, 19)},
-        {"d/M/yyyy h:mm:ss tt", new Tuple<int, int>(19, 22)},
-        {"d/M/yyyy h:mm tt", new Tuple<int, int>(16, 19)},
-        {"M/d/yyyy", new Tuple<int, int>(8, 10)},
-        {"M/d/yyyy HH:mm:ss", new Tuple<int, int>(17, 19)},
-        {"M/d/yyyy H:mm:ss", new Tuple<int, int>(16, 19)},
-        {"M/d/yyyy HH:mm", new Tuple<int, int>(14, 16)},
-        {"M/d/yyyy H:mm", new Tuple<int, int>(13, 16)},
-        {"M/d/yyyy hh:mm:ss tt", new Tuple<int, int>(20, 22)},
-        {"M/d/yyyy hh:mm tt", new Tuple<int, int>(17, 19)},
-        {"M/d/yyyy h:mm:ss tt", new Tuple<int, int>(19, 22)},
-        {"M/d/yyyy h:mm tt", new Tuple<int, int>(16, 19)},
-        {"dd/MM/yy", new Tuple<int, int>(8, 8)},
-        {"dd/MM/yy HH:mm:ss", new Tuple<int, int>(17, 17)},
-        {"dd/MM/yy H:mm:ss", new Tuple<int, int>(16, 17)},
-        {"dd/MM/yy HH:mm", new Tuple<int, int>(14, 14)},
-        {"dd/MM/yy H:mm", new Tuple<int, int>(13, 14)},
-        {"dd/MM/yy hh:mm:ss tt", new Tuple<int, int>(20, 20)},
-        {"dd/MM/yy hh:mm tt", new Tuple<int, int>(17, 17)},
-        {"dd/MM/yy h:mm:ss tt", new Tuple<int, int>(19, 20)},
-        {"dd/MM/yy h:mm tt", new Tuple<int, int>(16, 17)},
-        {"MM/dd/yy", new Tuple<int, int>(8, 8)},
-        {"MM/dd/yy HH:mm:ss", new Tuple<int, int>(17, 17)},
-        {"MM/dd/yy H:mm:ss", new Tuple<int, int>(16, 17)},
-        {"MM/dd/yy HH:mm", new Tuple<int, int>(14, 14)},
-        {"MM/dd/yy H:mm", new Tuple<int, int>(13, 14)},
-        {"MM/dd/yy hh:mm:ss tt", new Tuple<int, int>(20, 20)},
-        {"MM/dd/yy hh:mm tt", new Tuple<int, int>(17, 17)},
-        {"MM/dd/yy h:mm:ss tt", new Tuple<int, int>(19, 20)},
-        {"MM/dd/yy h:mm tt", new Tuple<int, int>(16, 17)},
-        {"d/M/yy", new Tuple<int, int>(6, 8)},
-        {"d/M/yy HH:mm:ss", new Tuple<int, int>(15, 17)},
-        {"d/M/yy H:mm:ss", new Tuple<int, int>(14, 17)},
-        {"d/M/yy HH:mm", new Tuple<int, int>(12, 14)},
-        {"d/M/yy H:mm", new Tuple<int, int>(11, 14)},
-        {"d/M/yy hh:mm:ss tt", new Tuple<int, int>(18, 20)},
-        {"d/M/yy hh:mm tt", new Tuple<int, int>(15, 17)},
-        {"d/M/yy h:mm:ss tt", new Tuple<int, int>(17, 20)},
-        {"d/M/yy h:mm tt", new Tuple<int, int>(14, 17)},
-        {"M/d/yy", new Tuple<int, int>(6, 8)},
-        {"M/d/yy HH:mm:ss", new Tuple<int, int>(15, 17)},
-        {"M/d/yy H:mm:ss", new Tuple<int, int>(14, 17)},
-        {"M/d/yy HH:mm", new Tuple<int, int>(12, 14)},
-        {"M/d/yy H:mm", new Tuple<int, int>(11, 14)},
-        {"M/d/yy hh:mm:ss tt", new Tuple<int, int>(18, 20)},
-        {"M/d/yy hh:mm tt", new Tuple<int, int>(15, 17)},
-        {"M/d/yy h:mm:ss tt", new Tuple<int, int>(17, 20)},
-        {"M/d/yy h:mm tt", new Tuple<int, int>(14, 17)},
-        {"HH:mm:ss", new Tuple<int, int>(8, 8)},
-        {"H:mm:ss", new Tuple<int, int>(7, 8)},
-        {"HH:mm", new Tuple<int, int>(5, 5)},
-        {"H:mm", new Tuple<int, int>(4, 5)},
-        {"hh:mm:ss tt", new Tuple<int, int>(11, 11)},
-        {"hh:mm tt", new Tuple<int, int>(8, 8)},
-        {"h:mm:ss tt", new Tuple<int, int>(10, 11)},
-        {"h:mm tt", new Tuple<int, int>(7, 8)},
-        {"yyyyMMddTHH:mm:ss", new Tuple<int, int>(17, 17)},
-        {"yyyy/MM/dd HH:mm:ss.FFF", new Tuple<int, int>(23, 23)},
-        {"yyyy/MM/dd HH:mm:ss,FFF", new Tuple<int, int>(23, 23)},
-        {"yyyyMMddTHH:mm:ss.FFF", new Tuple<int, int>(21, 21)},
-        {"yyyyMMddTHH:mm", new Tuple<int, int>(14, 14)},
-        {"dddd, d. MMMM yyyy", new Tuple<int, int>(14, 39)},
-        {"dd/MMMM/yyyy", new Tuple<int, int>(11, 23)},
-        {"dd/MMMM/yyyy HH:mm:ss", new Tuple<int, int>(20, 32)},
-        {"dd/MMMM/yyyy HH:mm", new Tuple<int, int>(17, 29)},
-        {"dd/MMMM/yyyy H:mm", new Tuple<int, int>(16, 29)},
-        {"dd/MMMM/yyyy hh:mm:ss tt", new Tuple<int, int>(23, 35)},
-        {"dd/MMMM/yyyy  hh:mm tt", new Tuple<int, int>(21, 33)},
-        {"dd/MMMM/yyyy h:mm tt", new Tuple<int, int>(19, 32)},
-        {"d. MMMM yyyy", new Tuple<int, int>(11, 24)},
-        {"d. MMMM yyyy HH:mm:ss", new Tuple<int, int>(20, 33)},
-        {"d. MMMM yyyy HH:mm", new Tuple<int, int>(17, 30)},
-        {"d. MMMM yyyy H:mm", new Tuple<int, int>(16, 30)},
-        {"d. MMMM yyyy hh:mm:ss tt", new Tuple<int, int>(23, 36)},
-        {"d. MMMM yyyy  hh:mm tt", new Tuple<int, int>(21, 34)},
-        {"d. MMMM yyyy h:mm tt", new Tuple<int, int>(19, 33)},
-        {"dddd, d. MMMM yyyy HH:mm:ss", new Tuple<int, int>(23, 48)},
-        {"dddd, d. MMMM yyyy HH:mm", new Tuple<int, int>(20, 45)},
-        {"dddd, d. MMMM yyyy H:mm", new Tuple<int, int>(19, 45)},
-        {"dddd, d. MMMM yyyy hh:mm:ss tt", new Tuple<int, int>(26, 51)},
-        {"dddd, d. MMMM yyyy  hh:mm tt", new Tuple<int, int>(24, 49)},
-        {"dddd, d. MMMM yyyy h:mm tt", new Tuple<int, int>(22, 48)},
-        {"dddd, d MMMM yyyy", new Tuple<int, int>(13, 38)},
-        {"dddd, d MMMM yyyy HH:mm:ss", new Tuple<int, int>(22, 47)},
-        {"dddd, d MMMM yyyy HH:mm", new Tuple<int, int>(19, 44)},
-        {"dddd, d MMMM yyyy H:mm", new Tuple<int, int>(18, 44)},
-        {"dddd, d MMMM yyyy hh:mm:ss tt", new Tuple<int, int>(25, 50)},
-        {"dddd, d MMMM yyyy  hh:mm tt", new Tuple<int, int>(23, 48)},
-        {"dddd, d MMMM yyyy h:mm tt", new Tuple<int, int>(21, 47)},
-        {"dddd, MMMM dd, yyyy", new Tuple<int, int>(14, 39)},
-        {"dddd, MMMM dd, yyyy HH:mm:ss", new Tuple<int, int>(23, 48)},
-        {"dddd, MMMM dd, yyyy HH:mm", new Tuple<int, int>(20, 45)},
-        {"dddd, MMMM dd, yyyy H:mm", new Tuple<int, int>(19, 45)},
-        {"dddd, MMMM dd, yyyy hh:mm:ss tt", new Tuple<int, int>(26, 51)},
-        {"dddd, MMMM dd, yyyy  hh:mm tt", new Tuple<int, int>(24, 49)},
-        {"dddd, MMMM dd, yyyy h:mm tt", new Tuple<int, int>(22, 48)},
-        {"dddd d MMMM yyyy", new Tuple<int, int>(12, 37)},
-        {"dddd d MMMM yyyy HH:mm:ss", new Tuple<int, int>(21, 46)},
-        {"dddd d MMMM yyyy HH:mm", new Tuple<int, int>(18, 43)},
-        {"dddd d MMMM yyyy H:mm", new Tuple<int, int>(17, 43)},
-        {"dddd d MMMM yyyy hh:mm:ss tt", new Tuple<int, int>(24, 49)},
-        {"dddd d MMMM yyyy  hh:mm tt", new Tuple<int, int>(22, 47)},
-        {"dddd d MMMM yyyy h:mm tt", new Tuple<int, int>(20, 46)},
-        {"dddd dd MMMM yyyy", new Tuple<int, int>(12, 37)},
-        {"dddd dd MMMM yyyy HH:mm:ss", new Tuple<int, int>(21, 46)},
-        {"dddd dd MMMM yyyy HH:mm", new Tuple<int, int>(18, 43)},
-        {"dddd dd MMMM yyyy H:mm", new Tuple<int, int>(17, 43)},
-        {"dddd dd MMMM yyyy hh:mm:ss tt", new Tuple<int, int>(24, 49)},
-        {"dddd dd MMMM yyyy  hh:mm tt", new Tuple<int, int>(22, 47)},
-        {"dddd dd MMMM yyyy h:mm tt", new Tuple<int, int>(20, 46)},
-        {"d MMMM yyyy", new Tuple<int, int>(10, 23)},
-        {"d MMMM yyyy HH:mm:ss", new Tuple<int, int>(19, 32)},
-        {"d MMMM yyyy HH:mm", new Tuple<int, int>(16, 29)},
-        {"d MMMM yyyy H:mm", new Tuple<int, int>(15, 29)},
-        {"d MMMM yyyy hh:mm:ss tt", new Tuple<int, int>(22, 35)},
-        {"d MMMM yyyy  hh:mm tt", new Tuple<int, int>(20, 33)},
-        {"d MMMM yyyy h:mm tt", new Tuple<int, int>(18, 32)},
-        {"dd MMMM yyyy dddd", new Tuple<int, int>(12, 37)},
-        {"dd MMMM yyyy dddd HH:mm:ss", new Tuple<int, int>(21, 46)},
-        {"dd MMMM yyyy dddd HH:mm", new Tuple<int, int>(18, 43)},
-        {"dd MMMM yyyy dddd H:mm", new Tuple<int, int>(17, 43)},
-        {"dd MMMM yyyy dddd hh:mm:ss tt", new Tuple<int, int>(24, 49)},
-        {"dd MMMM yyyy dddd  hh:mm tt", new Tuple<int, int>(22, 47)},
-        {"dd MMMM yyyy dddd h:mm tt", new Tuple<int, int>(20, 46)},
-        {"dd MMMM, yyyy", new Tuple<int, int>(12, 24)},
-        {"dd MMMM, yyyy HH:mm:ss", new Tuple<int, int>(21, 33)},
-        {"dd MMMM, yyyy HH:mm", new Tuple<int, int>(18, 30)},
-        {"dd MMMM, yyyy H:mm", new Tuple<int, int>(17, 30)},
-        {"dd MMMM, yyyy hh:mm:ss tt", new Tuple<int, int>(24, 36)},
-        {"dd MMMM, yyyy  hh:mm tt", new Tuple<int, int>(22, 34)},
-        {"dd MMMM, yyyy h:mm tt", new Tuple<int, int>(20, 33)},
-        {"dd MMMM yyyy", new Tuple<int, int>(11, 23)},
-        {"dd MMMM yyyy HH:mm:ss", new Tuple<int, int>(20, 32)},
-        {"dd MMMM yyyy HH:mm", new Tuple<int, int>(17, 29)},
-        {"dd MMMM yyyy H:mm", new Tuple<int, int>(16, 29)},
-        {"dd MMMM yyyy hh:mm:ss tt", new Tuple<int, int>(23, 35)},
-        {"dd MMMM yyyy  hh:mm tt", new Tuple<int, int>(21, 33)},
-        {"dd MMMM yyyy h:mm tt", new Tuple<int, int>(19, 32)},
-        {"d MMMM, yyyy", new Tuple<int, int>(11, 24)},
-        {"d MMMM, yyyy HH:mm:ss", new Tuple<int, int>(20, 33)},
-        {"d MMMM, yyyy HH:mm", new Tuple<int, int>(17, 30)},
-        {"d MMMM, yyyy H:mm", new Tuple<int, int>(16, 30)},
-        {"d MMMM, yyyy hh:mm:ss tt", new Tuple<int, int>(23, 36)},
-        {"d MMMM, yyyy  hh:mm tt", new Tuple<int, int>(21, 34)},
-        {"d MMMM, yyyy h:mm tt", new Tuple<int, int>(19, 33)},
-        {"dddd, dd MMMM yyyy", new Tuple<int, int>(13, 38)},
-        {"dddd, dd MMMM yyyy HH:mm:ss", new Tuple<int, int>(22, 47)},
-        {"dddd, dd MMMM yyyy HH:mm", new Tuple<int, int>(19, 44)},
-        {"dddd, dd MMMM yyyy H:mm", new Tuple<int, int>(18, 44)},
-        {"dddd, dd MMMM yyyy hh:mm:ss tt", new Tuple<int, int>(25, 50)},
-        {"dddd, dd MMMM yyyy  hh:mm tt", new Tuple<int, int>(23, 48)},
-        {"dddd, dd MMMM yyyy h:mm tt", new Tuple<int, int>(21, 47)},
-        {"yyyy,MMMM dd, dddd", new Tuple<int, int>(13, 38)},
-        {"yyyy,MMMM dd, dddd HH:mm:ss", new Tuple<int, int>(22, 47)},
-        {"yyyy,MMMM dd, dddd HH:mm", new Tuple<int, int>(19, 44)},
-        {"yyyy,MMMM dd, dddd H:mm", new Tuple<int, int>(18, 44)},
-        {"yyyy,MMMM dd, dddd hh:mm:ss tt", new Tuple<int, int>(25, 50)},
-        {"yyyy,MMMM dd, dddd  hh:mm tt", new Tuple<int, int>(23, 48)},
-        {"yyyy,MMMM dd, dddd h:mm tt", new Tuple<int, int>(21, 47)},
-        {"ddd, MMMM dd,yyyy", new Tuple<int, int>(13, 26)},
-        {"ddd, MMMM dd,yyyy HH:mm:ss", new Tuple<int, int>(22, 35)},
-        {"ddd, MMMM dd,yyyy HH:mm", new Tuple<int, int>(19, 32)},
-        {"ddd, MMMM dd,yyyy H:mm", new Tuple<int, int>(18, 32)},
-        {"ddd, MMMM dd,yyyy hh:mm:ss tt", new Tuple<int, int>(25, 38)},
-        {"ddd, MMMM dd,yyyy  hh:mm tt", new Tuple<int, int>(23, 36)},
-        {"ddd, MMMM dd,yyyy h:mm tt", new Tuple<int, int>(21, 35)},
-        {"dddd, dd MMMM, yyyy", new Tuple<int, int>(14, 39)},
-        {"dddd, dd MMMM, yyyy HH:mm:ss", new Tuple<int, int>(23, 48)},
-        {"dddd, dd MMMM, yyyy HH:mm", new Tuple<int, int>(20, 45)},
-        {"dddd, dd MMMM, yyyy H:mm", new Tuple<int, int>(19, 45)},
-        {"dddd, dd MMMM, yyyy hh:mm:ss tt", new Tuple<int, int>(26, 51)},
-        {"dddd, dd MMMM, yyyy  hh:mm tt", new Tuple<int, int>(24, 49)},
-        {"dddd, dd MMMM, yyyy h:mm tt", new Tuple<int, int>(22, 48)},
-        {"dddd,MMMM dd,yyyy", new Tuple<int, int>(12, 37)},
-        {"dddd,MMMM dd,yyyy HH:mm:ss", new Tuple<int, int>(21, 46)},
-        {"dddd,MMMM dd,yyyy HH:mm", new Tuple<int, int>(18, 43)},
-        {"dddd,MMMM dd,yyyy H:mm", new Tuple<int, int>(17, 43)},
-        {"dddd,MMMM dd,yyyy hh:mm:ss tt", new Tuple<int, int>(24, 49)},
-        {"dddd,MMMM dd,yyyy  hh:mm tt", new Tuple<int, int>(22, 47)},
-        {"dddd,MMMM dd,yyyy h:mm tt", new Tuple<int, int>(20, 46)},
-        {"dddd, dd. MMMM yyyy", new Tuple<int, int>(14, 39)},
-        {"dddd, dd. MMMM yyyy HH:mm:ss", new Tuple<int, int>(23, 48)},
-        {"dddd, dd. MMMM yyyy HH:mm", new Tuple<int, int>(20, 45)},
-        {"dddd, dd. MMMM yyyy H:mm", new Tuple<int, int>(19, 45)},
-        {"dddd, dd. MMMM yyyy hh:mm:ss tt", new Tuple<int, int>(26, 51)},
-        {"dddd, dd. MMMM yyyy  hh:mm tt", new Tuple<int, int>(24, 49)},
-        {"dddd, dd. MMMM yyyy h:mm tt", new Tuple<int, int>(22, 48)},
-        {"MMMM/dd/yy", new Tuple<int, int>(9, 21)},
-        {"MMMM/dd/yy HH:mm:ss", new Tuple<int, int>(18, 30)},
-        {"MMMM/dd/yy HH:mm", new Tuple<int, int>(15, 27)},
-        {"MMMM/dd/yy H:mm", new Tuple<int, int>(14, 27)},
-        {"MMMM/dd/yy hh:mm:ss tt", new Tuple<int, int>(21, 33)},
-        {"MMMM/dd/yy  hh:mm tt", new Tuple<int, int>(19, 31)},
-        {"MMMM/dd/yy h:mm tt", new Tuple<int, int>(17, 30)},
-        {"dddd, d MMMM, yyyy", new Tuple<int, int>(14, 39)},
-        {"dddd, d MMMM, yyyy HH:mm:ss", new Tuple<int, int>(23, 48)},
-        {"dddd, d MMMM, yyyy HH:mm", new Tuple<int, int>(20, 45)},
-        {"dddd, d MMMM, yyyy H:mm", new Tuple<int, int>(19, 45)},
-        {"dddd, d MMMM, yyyy hh:mm:ss tt", new Tuple<int, int>(26, 51)},
-        {"dddd, d MMMM, yyyy  hh:mm tt", new Tuple<int, int>(24, 49)},
-        {"dddd, d MMMM, yyyy h:mm tt", new Tuple<int, int>(22, 48)},
-        {"dd/MMM/yyyy", new Tuple<int, int>(11, 12)},
-        {"dd/MMM/yyyy HH:mm:ss", new Tuple<int, int>(20, 21)},
-        {"dd/MMM/yyyy HH:mm", new Tuple<int, int>(17, 18)},
-        {"dd/MMM/yyyy H:mm", new Tuple<int, int>(16, 18)},
-        {"dd/MMM/yyyy hh:mm:ss tt", new Tuple<int, int>(23, 24)},
-        {"dd/MMM/yyyy  hh:mm tt", new Tuple<int, int>(21, 22)},
-        {"dd/MMM/yyyy h:mm tt", new Tuple<int, int>(19, 21)},
-        {"d. MMM yyyy", new Tuple<int, int>(11, 13)},
-        {"d. MMM yyyy HH:mm:ss", new Tuple<int, int>(20, 22)},
-        {"d. MMM yyyy HH:mm", new Tuple<int, int>(17, 19)},
-        {"d. MMM yyyy H:mm", new Tuple<int, int>(16, 19)},
-        {"d. MMM yyyy hh:mm:ss tt", new Tuple<int, int>(23, 25)},
-        {"d. MMM yyyy  hh:mm tt", new Tuple<int, int>(21, 23)},
-        {"d. MMM yyyy h:mm tt", new Tuple<int, int>(19, 22)},
-        {"ddd, d. MMM yyyy", new Tuple<int, int>(14, 16)},
-        {"ddd, d. MMM yyyy HH:mm:ss", new Tuple<int, int>(23, 25)},
-        {"ddd, d. MMM yyyy HH:mm", new Tuple<int, int>(20, 22)},
-        {"ddd, d. MMM yyyy H:mm", new Tuple<int, int>(19, 22)},
-        {"ddd, d. MMM yyyy hh:mm:ss tt", new Tuple<int, int>(26, 28)},
-        {"ddd, d. MMM yyyy  hh:mm tt", new Tuple<int, int>(24, 26)},
-        {"ddd, d. MMM yyyy h:mm tt", new Tuple<int, int>(22, 25)},
-        {"ddd, d MMM yyyy", new Tuple<int, int>(13, 15)},
-        {"ddd, d MMM yyyy HH:mm:ss", new Tuple<int, int>(22, 24)},
-        {"ddd, d MMM yyyy HH:mm", new Tuple<int, int>(19, 21)},
-        {"ddd, d MMM yyyy H:mm", new Tuple<int, int>(18, 21)},
-        {"ddd, d MMM yyyy hh:mm:ss tt", new Tuple<int, int>(25, 27)},
-        {"ddd, d MMM yyyy  hh:mm tt", new Tuple<int, int>(23, 25)},
-        {"ddd, d MMM yyyy h:mm tt", new Tuple<int, int>(21, 24)},
-        {"ddd, MMM dd, yyyy", new Tuple<int, int>(14, 16)},
-        {"ddd, MMM dd, yyyy HH:mm:ss", new Tuple<int, int>(23, 25)},
-        {"ddd, MMM dd, yyyy HH:mm", new Tuple<int, int>(20, 22)},
-        {"ddd, MMM dd, yyyy H:mm", new Tuple<int, int>(19, 22)},
-        {"ddd, MMM dd, yyyy hh:mm:ss tt", new Tuple<int, int>(26, 28)},
-        {"ddd, MMM dd, yyyy  hh:mm tt", new Tuple<int, int>(24, 26)},
-        {"ddd, MMM dd, yyyy h:mm tt", new Tuple<int, int>(22, 25)},
-        {"ddd d MMM yyyy", new Tuple<int, int>(12, 14)},
-        {"ddd d MMM yyyy HH:mm:ss", new Tuple<int, int>(21, 23)},
-        {"ddd d MMM yyyy HH:mm", new Tuple<int, int>(18, 20)},
-        {"ddd d MMM yyyy H:mm", new Tuple<int, int>(17, 20)},
-        {"ddd d MMM yyyy hh:mm:ss tt", new Tuple<int, int>(24, 26)},
-        {"ddd d MMM yyyy  hh:mm tt", new Tuple<int, int>(22, 24)},
-        {"ddd d MMM yyyy h:mm tt", new Tuple<int, int>(20, 23)},
-        {"ddd dd MMM yyyy", new Tuple<int, int>(12, 14)},
-        {"ddd dd MMM yyyy HH:mm:ss", new Tuple<int, int>(21, 23)},
-        {"ddd dd MMM yyyy HH:mm", new Tuple<int, int>(18, 20)},
-        {"ddd dd MMM yyyy H:mm", new Tuple<int, int>(17, 20)},
-        {"ddd dd MMM yyyy hh:mm:ss tt", new Tuple<int, int>(24, 26)},
-        {"ddd dd MMM yyyy  hh:mm tt", new Tuple<int, int>(22, 24)},
-        {"ddd dd MMM yyyy h:mm tt", new Tuple<int, int>(20, 23)},
-        {"d MMM yyyy", new Tuple<int, int>(10, 12)},
-        {"d MMM yyyy HH:mm:ss", new Tuple<int, int>(19, 21)},
-        {"d MMM yyyy HH:mm", new Tuple<int, int>(16, 18)},
-        {"d MMM yyyy H:mm", new Tuple<int, int>(15, 18)},
-        {"d MMM yyyy hh:mm:ss tt", new Tuple<int, int>(22, 24)},
-        {"d MMM yyyy  hh:mm tt", new Tuple<int, int>(20, 22)},
-        {"d MMM yyyy h:mm tt", new Tuple<int, int>(18, 21)},
-        {"dd MMM yyyy ddd", new Tuple<int, int>(12, 14)},
-        {"dd MMM yyyy ddd HH:mm:ss", new Tuple<int, int>(21, 23)},
-        {"dd MMM yyyy ddd HH:mm", new Tuple<int, int>(18, 20)},
-        {"dd MMM yyyy ddd H:mm", new Tuple<int, int>(17, 20)},
-        {"dd MMM yyyy ddd hh:mm:ss tt", new Tuple<int, int>(24, 26)},
-        {"dd MMM yyyy ddd  hh:mm tt", new Tuple<int, int>(22, 24)},
-        {"dd MMM yyyy ddd h:mm tt", new Tuple<int, int>(20, 23)},
-        {"dd MMM, yyyy", new Tuple<int, int>(12, 13)},
-        {"dd MMM, yyyy HH:mm:ss", new Tuple<int, int>(21, 22)},
-        {"dd MMM, yyyy HH:mm", new Tuple<int, int>(18, 19)},
-        {"dd MMM, yyyy H:mm", new Tuple<int, int>(17, 19)},
-        {"dd MMM, yyyy hh:mm:ss tt", new Tuple<int, int>(24, 25)},
-        {"dd MMM, yyyy  hh:mm tt", new Tuple<int, int>(22, 23)},
-        {"dd MMM, yyyy h:mm tt", new Tuple<int, int>(20, 22)},
-        {"dd MMM yyyy", new Tuple<int, int>(11, 12)},
-        {"dd MMM yyyy HH:mm:ss", new Tuple<int, int>(20, 21)},
-        {"dd MMM yyyy HH:mm", new Tuple<int, int>(17, 18)},
-        {"dd MMM yyyy H:mm", new Tuple<int, int>(16, 18)},
-        {"dd MMM yyyy hh:mm:ss tt", new Tuple<int, int>(23, 24)},
-        {"dd MMM yyyy  hh:mm tt", new Tuple<int, int>(21, 22)},
-        {"dd MMM yyyy h:mm tt", new Tuple<int, int>(19, 21)},
-        {"d MMM, yyyy", new Tuple<int, int>(11, 13)},
-        {"d MMM, yyyy HH:mm:ss", new Tuple<int, int>(20, 22)},
-        {"d MMM, yyyy HH:mm", new Tuple<int, int>(17, 19)},
-        {"d MMM, yyyy H:mm", new Tuple<int, int>(16, 19)},
-        {"d MMM, yyyy hh:mm:ss tt", new Tuple<int, int>(23, 25)},
-        {"d MMM, yyyy  hh:mm tt", new Tuple<int, int>(21, 23)},
-        {"d MMM, yyyy h:mm tt", new Tuple<int, int>(19, 22)},
-        {"ddd, dd MMM yyyy", new Tuple<int, int>(13, 15)},
-        {"ddd, dd MMM yyyy HH:mm:ss", new Tuple<int, int>(22, 24)},
-        {"ddd, dd MMM yyyy HH:mm", new Tuple<int, int>(19, 21)},
-        {"ddd, dd MMM yyyy H:mm", new Tuple<int, int>(18, 21)},
-        {"ddd, dd MMM yyyy hh:mm:ss tt", new Tuple<int, int>(25, 27)},
-        {"ddd, dd MMM yyyy  hh:mm tt", new Tuple<int, int>(23, 25)},
-        {"ddd, dd MMM yyyy h:mm tt", new Tuple<int, int>(21, 24)},
-        {"ddd, MMM dd,yyyy", new Tuple<int, int>(13, 15)},
-        {"ddd, MMM dd,yyyy HH:mm:ss", new Tuple<int, int>(22, 24)},
-        {"ddd, MMM dd,yyyy HH:mm", new Tuple<int, int>(19, 21)},
-        {"ddd, MMM dd,yyyy H:mm", new Tuple<int, int>(18, 21)},
-        {"ddd, MMM dd,yyyy hh:mm:ss tt", new Tuple<int, int>(25, 27)},
-        {"ddd, MMM dd,yyyy  hh:mm tt", new Tuple<int, int>(23, 25)},
-        {"ddd, MMM dd,yyyy h:mm tt", new Tuple<int, int>(21, 24)},
-        {"ddd, dd MMM, yyyy", new Tuple<int, int>(14, 16)},
-        {"ddd, dd MMM, yyyy HH:mm:ss", new Tuple<int, int>(23, 25)},
-        {"ddd, dd MMM, yyyy HH:mm", new Tuple<int, int>(20, 22)},
-        {"ddd, dd MMM, yyyy H:mm", new Tuple<int, int>(19, 22)},
-        {"ddd, dd MMM, yyyy hh:mm:ss tt", new Tuple<int, int>(26, 28)},
-        {"ddd, dd MMM, yyyy  hh:mm tt", new Tuple<int, int>(24, 26)},
-        {"ddd, dd MMM, yyyy h:mm tt", new Tuple<int, int>(22, 25)},
-        {"ddd,MMM dd,yyyy", new Tuple<int, int>(12, 14)},
-        {"ddd,MMM dd,yyyy HH:mm:ss", new Tuple<int, int>(21, 23)},
-        {"ddd,MMM dd,yyyy HH:mm", new Tuple<int, int>(18, 20)},
-        {"ddd,MMM dd,yyyy H:mm", new Tuple<int, int>(17, 20)},
-        {"ddd,MMM dd,yyyy hh:mm:ss tt", new Tuple<int, int>(24, 26)},
-        {"ddd,MMM dd,yyyy  hh:mm tt", new Tuple<int, int>(22, 24)},
-        {"ddd,MMM dd,yyyy h:mm tt", new Tuple<int, int>(20, 23)},
-        {"ddd, dd. MMM yyyy", new Tuple<int, int>(14, 16)},
-        {"ddd, dd. MMM yyyy HH:mm:ss", new Tuple<int, int>(23, 25)},
-        {"ddd, dd. MMM yyyy HH:mm", new Tuple<int, int>(20, 22)},
-        {"ddd, dd. MMM yyyy H:mm", new Tuple<int, int>(19, 22)},
-        {"ddd, dd. MMM yyyy hh:mm:ss tt", new Tuple<int, int>(26, 28)},
-        {"ddd, dd. MMM yyyy  hh:mm tt", new Tuple<int, int>(24, 26)},
-        {"ddd, dd. MMM yyyy h:mm tt", new Tuple<int, int>(22, 25)},
-        {"MMM/dd/yy", new Tuple<int, int>(9, 10)},
-        {"MMM/dd/yy HH:mm:ss", new Tuple<int, int>(18, 19)},
-        {"MMM/dd/yy HH:mm", new Tuple<int, int>(15, 16)},
-        {"MMM/dd/yy H:mm", new Tuple<int, int>(14, 16)},
-        {"MMM/dd/yy hh:mm:ss tt", new Tuple<int, int>(21, 22)},
-        {"MMM/dd/yy  hh:mm tt", new Tuple<int, int>(19, 20)},
-        {"MMM/dd/yy h:mm tt", new Tuple<int, int>(17, 19)},
-        {"ddd, d MMM, yyyy", new Tuple<int, int>(14, 16)},
-        {"ddd, d MMM, yyyy HH:mm:ss", new Tuple<int, int>(23, 25)},
-        {"ddd, d MMM, yyyy HH:mm", new Tuple<int, int>(20, 22)},
-        {"ddd, d MMM, yyyy H:mm", new Tuple<int, int>(19, 22)},
-        {"ddd, d MMM, yyyy hh:mm:ss tt", new Tuple<int, int>(26, 28)},
-        {"ddd, d MMM, yyyy hh:mm tt", new Tuple<int, int>(23, 25)},
-        {"ddd, d MMM, yyyy h:mm tt", new Tuple<int, int>(22, 25)}
-      };
+    private static readonly Dictionary<string, Tuple<int, int>> m_DateLengthMinMax = new Dictionary<string, Tuple<int, int>>();
 
     /// <summary>
     ///   A static value any time only value will have this date
@@ -573,6 +197,157 @@ namespace CsvTools
 
     public static HashSet<string> DateSeparators =
       new HashSet<string>(new[] { CultureInfo.CurrentCulture.DateTimeFormat.DateSeparator, "/", ".", "-" });
+
+    private static string SetMinMax(string format, string search, ref int min, ref int max, int minLength, int maxLength)
+    {
+      int pos = format.IndexOf(search, StringComparison.Ordinal);
+      while (pos != -1)
+      {
+        min += minLength - search.Length;
+        max += maxLength - search.Length;
+        format = format.Remove(pos, search.Length);
+        pos = format.IndexOf(search, StringComparison.Ordinal);
+      }
+      return format;
+    }
+
+    private static int minDayLong = int.MaxValue;
+    private static int maxDayLong = int.MinValue;
+    private static int minDayMid = int.MaxValue;
+    private static int maxDayMid = int.MinValue;
+
+    private static int minMonthLong = int.MaxValue;
+    private static int maxMonthLong = int.MinValue;
+    private static int minMonthMid = int.MaxValue;
+    private static int maxMonthMid = int.MinValue;
+    private static int maxDesignator = 2;
+
+    private static void DetermineLenth()
+    {
+      for (int weekday = 0; weekday < 7; weekday++)
+      {
+        var cul = string.Format(CultureInfo.CurrentCulture, "{0:dddd}", DateTime.Now.AddDays(weekday));
+        var incul = string.Format(CultureInfo.InvariantCulture, "{0:dddd}", DateTime.Now.AddDays(weekday));
+        if (cul.Length < minDayLong)
+          minDayLong = cul.Length;
+        if (incul.Length < minDayLong)
+          minDayLong = incul.Length;
+        if (cul.Length > maxDayLong)
+          maxDayLong = cul.Length;
+        if (incul.Length > maxDayLong)
+          maxDayLong = incul.Length;
+
+        cul = string.Format(CultureInfo.CurrentCulture, "{0:ddd}", DateTime.Now.AddDays(weekday));
+        incul = string.Format(CultureInfo.InvariantCulture, "{0:ddd}", DateTime.Now.AddDays(weekday));
+        if (cul.Length < minDayMid)
+          minDayMid = cul.Length;
+        if (incul.Length < minDayMid)
+          minDayMid = incul.Length;
+        if (cul.Length > maxDayMid)
+          maxDayMid = cul.Length;
+        if (incul.Length > maxDayMid)
+          maxDayMid = incul.Length;
+      }
+
+      for (int month = 0; month < 12; month++)
+      {
+        var cul = string.Format(CultureInfo.CurrentCulture, "{0:MMMM}", DateTime.Now.AddMonths(month));
+        var incul = string.Format(CultureInfo.InvariantCulture, "{0:MMMM}", DateTime.Now.AddMonths(month));
+        if (cul.Length < minMonthLong)
+          minMonthLong = cul.Length;
+        if (incul.Length < minMonthLong)
+          minMonthLong = incul.Length;
+        if (cul.Length > maxMonthLong)
+          maxMonthLong = cul.Length;
+        if (incul.Length > maxMonthLong)
+          maxMonthLong = incul.Length;
+
+        cul = string.Format(CultureInfo.CurrentCulture, "{0:MMM}", DateTime.Now.AddMonths(month));
+        incul = string.Format(CultureInfo.InvariantCulture, "{0:MMM}", DateTime.Now.AddMonths(month));
+        if (cul.Length < minMonthMid)
+          minMonthMid = cul.Length;
+        if (incul.Length < minMonthMid)
+          minMonthMid = incul.Length;
+        if (cul.Length > maxMonthMid)
+          maxMonthMid = cul.Length;
+        if (incul.Length > maxMonthMid)
+          maxMonthMid = incul.Length;
+      }
+
+      {
+        if (CultureInfo.CurrentCulture.DateTimeFormat.AMDesignator.Length > 2)
+          maxDesignator = CultureInfo.CurrentCulture.DateTimeFormat.AMDesignator.Length;
+        if (CultureInfo.CurrentCulture.DateTimeFormat.PMDesignator.Length > 2)
+          maxDesignator = CultureInfo.CurrentCulture.DateTimeFormat.AMDesignator.Length;
+      }
+    }
+
+    public static Tuple<int, int> DeterminLength(string format)
+    {
+      var min = format.Length;
+      var max = format.Length;
+
+      if (minDayLong == int.MaxValue)
+        DetermineLenth();
+
+      format = SetMinMax(format, "dddd", ref min, ref max, minDayLong, maxDayLong);
+      format = SetMinMax(format, "ddd", ref min, ref max, minDayMid, maxDayMid);
+      format = SetMinMax(format, "dd", ref min, ref max, 2, 2);
+      format = SetMinMax(format, "d", ref min, ref max, 1, 2);
+
+      format = SetMinMax(format, "yyyy", ref min, ref max, 4, 4);
+      format = SetMinMax(format, "yy", ref min, ref max, 2, 2);
+      format = SetMinMax(format, "y", ref min, ref max, 1, 2);
+
+      format = SetMinMax(format, "HH", ref min, ref max, 2, 2);
+      format = SetMinMax(format, "H", ref min, ref max, 1, 2);
+      format = SetMinMax(format, "hh", ref min, ref max, 2, 2);
+      format = SetMinMax(format, "h", ref min, ref max, 1, 2);
+
+      format = SetMinMax(format, "mm", ref min, ref max, 2, 2);
+      format = SetMinMax(format, "m", ref min, ref max, 1, 2);
+
+      format = SetMinMax(format, "MMMM", ref min, ref max, minMonthLong, maxMonthLong);
+      format = SetMinMax(format, "MMM", ref min, ref max, minMonthMid, maxMonthMid);
+      format = SetMinMax(format, "MM", ref min, ref max, 2, 2);
+      format = SetMinMax(format, "M", ref min, ref max, 1, 2);
+
+      format = SetMinMax(format, "ss", ref min, ref max, 2, 2);
+      format = SetMinMax(format, "s", ref min, ref max, 1, 2);
+
+      format = SetMinMax(format, "K", ref min, ref max, 0, 6);
+      format = SetMinMax(format, "zzz", ref min, ref max, 0, 6);
+      format = SetMinMax(format, "zz", ref min, ref max, 3, 3);
+      format = SetMinMax(format, "z", ref min, ref max, 2, 3);
+
+      format = SetMinMax(format, "tt", ref min, ref max, 2, maxDesignator);
+
+      return new Tuple<int, int>(min, max);
+    }
+
+    /// <summary>
+    /// Initializes the <see cref="StringConversion"/> class.
+    /// </summary>
+    static StringConversion()
+    {
+      foreach (var fmt in StringConversion.WrittenDateTimeFormats)
+      {
+        if (!m_DateLengthMinMax.ContainsKey(fmt))
+        {
+          var res = DeterminLength(fmt);
+          m_DateLengthMinMax.Add(fmt, res);
+        }
+      }
+
+      foreach (var fmt in StringConversion.StandardDateTimeFormats)
+      {
+        if (!m_DateLengthMinMax.ContainsKey(fmt))
+        {
+          var res = DeterminLength(fmt);
+          m_DateLengthMinMax.Add(fmt, res);
+        }
+      }
+    }
 
     /// <summary>
     ///   Checks if the values are dates.
@@ -1028,7 +803,8 @@ namespace CsvTools
       // Either the format is known then use the determined length restrictions
       if (m_DateLengthMinMax.TryGetValue(dateFormat, out var lengthMinMax))
         return length >= lengthMinMax.Item1 && length <= lengthMinMax.Item2;
-      return true;
+      else
+        return true;
     }
 
     /// <summary>
@@ -1275,11 +1051,13 @@ namespace CsvTools
     ///   If the date part is not filled its the 1/1/1
     /// </remarks>
     public static DateTime? StringToDateTime(string originalValue, string dateFormat, string dateSeparator,
-      string timeSeparator, bool serialDateTime)
+      string timeSeparator, bool serialDateTime, CultureInfo culture = null)
     {
       var stringDateValue = originalValue?.Trim() ?? string.Empty;
+      if (culture == null)
+        culture = CultureInfo.CurrentCulture;
 
-      var result = StringToDateTimeNoSerial(originalValue, dateFormat, dateSeparator, timeSeparator);
+      var result = StringToDateTimeNoSerial(originalValue, dateFormat, dateSeparator, timeSeparator, culture);
       if (result.HasValue)
         return result.Value;
 
@@ -1660,7 +1438,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="value">The Value as string</param>
     /// <returns></returns>
-    private static DateTime? SerialStringToDateTime(string value)
+    public static DateTime? SerialStringToDateTime(string value)
     {
       var stringDateValue = value?.Trim() ?? string.Empty;
       try
@@ -1746,7 +1524,7 @@ namespace CsvTools
     }
 
     private static DateTime? StringToDateTimeNoSerial(string originalValue, string dateFormat, string dateSeparator,
-      string timeSeparator)
+      string timeSeparator, CultureInfo culture)
     {
       var stringDateValue = originalValue?.Trim() ?? string.Empty;
 
@@ -1765,7 +1543,7 @@ namespace CsvTools
         return null;
 
       var result = StringToDateTimeByCulture(stringDateValue, dateTimeFormats, dateSeparator, timeSeparator,
-        CultureInfo.CurrentCulture, true);
+        culture, true);
       if (result.HasValue)
         return result.Value;
 

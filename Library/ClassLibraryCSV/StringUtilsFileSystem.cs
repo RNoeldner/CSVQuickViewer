@@ -31,14 +31,8 @@ namespace CsvTools
   /// </summary>
   public static class FileSystemUtils
   {
-    private const string c_FTPPrefix = @"\\\Secure FTP";
     private const string c_LongPathPrefix = @"\\?\";
     private const string c_UncLongPathPrefix = @"\\?\UNC\";
-
-    public static bool IsSFTP(this string path)
-    {
-      return path.StartsWith(c_FTPPrefix, StringComparison.OrdinalIgnoreCase);
-    }
 
     /// <summary>
     ///   Folder of the executing assembly, mainly used in Unit testing
@@ -61,14 +55,13 @@ namespace CsvTools
       if (string.IsNullOrEmpty(fileName))
         return string.Empty;
 
-      if (!fileName.IsSFTP() && !Path.IsPathRooted(fileName))
+      if (!Path.IsPathRooted(fileName))
       {
         if (string.IsNullOrEmpty(basePath))
           return Path.GetFullPath(fileName);
         else
         {
-          if (!basePath.IsSFTP())
-            return Path.GetFullPath(Path.Combine(basePath, fileName));
+          return Path.GetFullPath(Path.Combine(basePath, fileName));
         }
       }
 
@@ -79,10 +72,7 @@ namespace CsvTools
     {
       if (FileExists(fileName))
       {
-        if (fileName.IsSFTP())
-          sFTP.FileDelete(fileName.RemovePrefix());
-        else
-          File.Delete(fileName);
+        File.Delete(fileName);
       }
     }
 
@@ -93,17 +83,7 @@ namespace CsvTools
 
       if (folder.IndexOfAny(new[] { '*', '?', '[', ']' }) == -1)
       {
-        if (folder.IsSFTP())
-        {
-          List<string> files = new List<string>();
-          foreach (var info in sFTP.EnumerateRemoteFiles(folder, searchPattern))
-          {
-            files.Add(info.FullName.FTPPrefix());
-          }
-          return files.ToArray();
-        }
-        else
-          return Directory.GetFiles(folder, searchPattern, SearchOption.TopDirectoryOnly);
+        return Directory.GetFiles(folder, searchPattern, SearchOption.TopDirectoryOnly);
       }
 
       return new string[] { };
@@ -160,22 +140,12 @@ namespace CsvTools
     {
       if (string.IsNullOrEmpty(fileName))
         return false;
-      if (fileName.IsSFTP())
-      {
-        return sFTP.FileExists(fileName.RemovePrefix());
-      }
-      else
-      {
-        return File.Exists(fileName);
-      }
+      return File.Exists(fileName);
     }
 
     public static void CreateDirectory(string directoryName)
     {
       if (string.IsNullOrEmpty(directoryName)) return;
-
-      if (directoryName.IsSFTP())
-        sFTP.DirectoryExists(directoryName);
 
       Directory.CreateDirectory(directoryName);
     }
@@ -184,22 +154,13 @@ namespace CsvTools
     {
       if (string.IsNullOrEmpty(directoryName))
         return false;
-      if (directoryName.IsSFTP())
-        return sFTP.DirectoryExists(directoryName);
 
       return Directory.Exists(directoryName);
     }
 
-    public static GenericFileInfo FileInfo(string fileOrDirectory)
+    public static Pri.LongPath.FileInfo FileInfo(string fileOrDirectory)
     {
-      if (fileOrDirectory.IsSFTP())
-      {
-        return GenericFileInfo.GetFileInfo(sFTP.GetFileInfo(fileOrDirectory.RemovePrefix()));
-      }
-      else
-      {
-        return GenericFileInfo.GetFileInfo(new FileInfo(fileOrDirectory));
-      }
+      return new FileInfo(fileOrDirectory);
     }
 
     /// <summary>
@@ -271,8 +232,6 @@ namespace CsvTools
     /// </returns>
     public static string GetRelativePath(this string fileName, string basePath)
     {
-      if (fileName.IsSFTP())
-        return fileName;
       if (string.IsNullOrEmpty(fileName) || fileName.StartsWith(".", StringComparison.Ordinal) ||
           fileName.IndexOf("\\", StringComparison.Ordinal) == -1)
         return fileName;
@@ -326,8 +285,6 @@ namespace CsvTools
 
     public static string LongFileName(this string shortPath)
     {
-      if (shortPath.IsSFTP())
-        return shortPath;
       if (string.IsNullOrEmpty(shortPath)) return shortPath;
       if (shortPath.Contains("~"))
         return shortPath.LongFileNameKernel();
@@ -345,8 +302,6 @@ namespace CsvTools
         return path.Substring(c_LongPathPrefix.Length);
       if (path.StartsWith(c_UncLongPathPrefix, StringComparison.Ordinal))
         return path.Substring(c_UncLongPathPrefix.Length);
-      if (path.StartsWith(c_FTPPrefix, StringComparison.Ordinal))
-        return path.Substring(c_FTPPrefix.Length);
       return path;
     }
 
@@ -379,16 +334,6 @@ namespace CsvTools
       {
         // ignored
       }
-    }
-
-    public static string FTPPrefix(this string path)
-    {
-      // In case the directory is 248 we need long path as well
-      if (string.IsNullOrEmpty(path) || path.StartsWith(c_FTPPrefix, StringComparison.Ordinal) ||
-          path.StartsWith(c_LongPathPrefix, StringComparison.Ordinal) ||
-          path.StartsWith(c_UncLongPathPrefix, StringComparison.Ordinal))
-        return path;
-      return c_FTPPrefix + path;
     }
 
     public static string LongPathPrefix(this string path)
@@ -446,7 +391,7 @@ namespace CsvTools
 
     public static string ShortFileName(this string longPath)
     {
-      if (string.IsNullOrEmpty(longPath) || longPath.IsSFTP()) return longPath;
+      if (string.IsNullOrEmpty(longPath)) return longPath;
 
       var fi = new FileInfo(longPath);
 
