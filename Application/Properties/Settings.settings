@@ -163,5 +163,14 @@
     <Setting Name="FieldQualifier" Type="System.String" Scope="User">
       <Value Profile="(Default)">"</Value>
     </Setting>
+    <Setting Name="TreatLFAsSpace" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="TryToSolveMoreColumns" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="AllowRowCombining" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

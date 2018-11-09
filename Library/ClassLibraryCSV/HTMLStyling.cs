@@ -280,6 +280,9 @@ namespace CsvTools
     {
       if (text == null)
         return null;
+      if (text.StartsWith("<![CDATA[", StringComparison.OrdinalIgnoreCase) && text.EndsWith("]]>", StringComparison.OrdinalIgnoreCase))
+        return text.Substring(9, text.Length - 12);
+
       return StringUtils.HandleCRLFCombinations(text, "<br>").Replace((char)0xA0, ' ').Replace('\t', ' ')
         .Replace("  ", " ").Replace("  ", " ");
     }

@@ -120,6 +120,9 @@ namespace CsvTools
       fileSetting.TreatTextAsNull = Settings.Default.TreatTextAsNull;
       fileSetting.WarnNBSP = Settings.Default.WarnNBSP;
       fileSetting.WarnUnknowCharater = Settings.Default.WarnUnknowCharater;
+      fileSetting.TreatLFAsSpace = Settings.Default.TreatLFAsSpace;
+      fileSetting.TryToSolveMoreColumns = Settings.Default.TryToSolveMoreColumns;
+      fileSetting.AllowRowCombining = Settings.Default.AllowRowCombining;
 
       if (Settings.Default.TrimmingOptions.Equals("None", StringComparison.OrdinalIgnoreCase))
         fileSetting.TrimmingOption = TrimmingOption.None;
@@ -336,6 +339,7 @@ namespace CsvTools
       ApplicationSetting.FillGuessSettings.MinSamplesForIntDate = Settings.Default.MinSamplesForIntDate;
       ApplicationSetting.FillGuessSettings.CheckNamedDates = Settings.Default.CheckNamedDates;
       ApplicationSetting.FillGuessSettings.DateParts = Settings.Default.DateParts;
+
       ApplicationSetting.MenuDown = Settings.Default.MenuDown;
 
       ApplicationSetting.ToolSetting.PGPInformation.EncryptedPassphase = Settings.Default.DefaultPassphrase;

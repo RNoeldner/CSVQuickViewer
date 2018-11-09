@@ -160,6 +160,7 @@
     <Compile Include="ProcessDisplayTime.cs" />
     <Compile Include="IFileSetting.cs" />
     <Compile Include="PGPKeyStorage.cs" />
+    <Compile Include="RealignColumns.cs" />
     <Compile Include="SampleRecordEntry.cs" />
     <Compile Include="SecureString.cs" />
     <Compile Include="StringUtilsFileSystem.cs" />

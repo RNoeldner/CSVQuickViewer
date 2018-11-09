@@ -12,7 +12,6 @@
  *
  */
 
-using CsvToolLib;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -45,14 +44,13 @@ namespace CsvTools
     private BindingNavigator m_BindingNavigator;
     private BindingSource m_BindingSource;
 
+    private CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
     private DataColumnCollection m_Columns;
 
     private ProcessInformaton m_CurrentSearch;
 
     private DataTable m_DataTable;
-
     private IFileSetting m_FileSetting;
-    private bool m_FillingErrorTable = true;
     private FilterDataTable m_FilterDataTable;
 
     /// <summary>
@@ -65,8 +63,6 @@ namespace CsvTools
     private bool m_HasButtonShowSource;
 
     private FormHierachyDisplay m_HierachyDisplay;
-
-    private bool m_IsClosing;
 
     private Form m_ParentForm;
 
@@ -86,8 +82,6 @@ namespace CsvTools
     private ToolStripButton m_ToolStripButtonDefaults;
 
     private ToolStripButton m_ToolStripButtonDuplicates;
-
-    private ToolStripButton m_ToolStripButtonErrors;
 
     private ToolStripButton m_ToolStripButtonHierachy;
 
@@ -115,6 +109,7 @@ namespace CsvTools
 
     private ToolStripTextBox m_ToolStripTextBoxRecSize;
     private ToolStrip m_ToolStripTop;
+    private ToolStripComboBox toolStripComboBoxFilterType;
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="DetailControl" /> class.
@@ -127,9 +122,80 @@ namespace CsvTools
       MoveMenu();
     }
 
-    public string ButtonAsTextCaption
+    /// <summary>
+    ///   Event handler called as the suer changes the batch size
+    /// </summary>
+    public event EventHandler BatchSizeChanged
     {
-      set => m_ToolStripButtonAsText.Text = value;
+      add
+      {
+        m_BatchSizeChangedEvent = value;
+        m_ToolStripTextBoxRecSize.TextChanged += value;
+      }
+      remove => m_ToolStripTextBoxRecSize.TextChanged -= value;
+    }
+
+    public event EventHandler ButtonAsText
+    {
+      add
+      {
+        m_ToolStripButtonAsText.Click += value;
+        m_HasButtonAsText = true;
+        SetButtonVisibility();
+      }
+      remove
+      {
+        m_ToolStripButtonAsText.Click -= value;
+        m_HasButtonAsText = false;
+        SetButtonVisibility();
+      }
+    }
+
+    /// <summary>
+    ///   Handled the click of the GeneralSettings Button
+    /// </summary>
+    public event EventHandler ButtonShowGeneralSettings
+    {
+      add
+      {
+        m_ToolStripButtonDefaults.Click += value;
+        m_HasButtonGeneralSettings = true;
+        SetButtonVisibility();
+      }
+      remove
+      {
+        m_ToolStripButtonDefaults.Click -= value;
+        m_HasButtonGeneralSettings = false;
+        SetButtonVisibility();
+      }
+    }
+
+    /// <summary>
+    ///   Handled the click of the ShowSource Button
+    /// </summary>
+    public event EventHandler ButtonShowSource
+    {
+      add
+      {
+        m_ToolStripButtonSource.Click += value;
+        m_HasButtonShowSource = true;
+        SetButtonVisibility();
+      }
+      remove
+      {
+        m_ToolStripButtonSource.Click -= value;
+        m_HasButtonShowSource = false;
+        SetButtonVisibility();
+      }
+    }
+
+    /// <summary>
+    ///   Event handler called as the used clicks on settings
+    /// </summary>
+    public event EventHandler OnSettingsClick
+    {
+      add => m_ToolStripButtonSettings.Click += value;
+      remove => m_ToolStripButtonSettings.Click -= value;
     }
 
     /// <summary>
@@ -181,6 +247,11 @@ namespace CsvTools
       }
     }
 
+    public string ButtonAsTextCaption
+    {
+      set => m_ToolStripButtonAsText.Text = value;
+    }
+
     /// <summary>
     ///   Gets the data grid view.
     /// </summary>
@@ -204,27 +275,18 @@ namespace CsvTools
           return;
         m_Columns = m_DataTable.Columns;
 
-        m_FillingErrorTable = true;
-        ThreadPool.QueueUserWorkItem(delegate
+        m_FilterDataTable = new FilterDataTable(m_DataTable, m_CancellationTokenSource.Token);
+        m_FilterDataTable.StartFilter(int.MaxValue, FilterType.ErrorsAndWarning, () =>
         {
-          try
+          if (m_FilterDataTable.FilterTable.Rows.Count == 0)
           {
-            m_FilterDataTable = new FilterDataTable(m_DataTable, int.MaxValue);
-          }
-          catch (Exception ex)
-          {
-            Debug.WriteLine(ex.InnerExceptionMessages());
-          }
-          finally
-          {
-            if (m_FilterDataTable.ErrorTable.Rows.Count > 0)
-              this.SafeInvoke(() => m_ToolStripButtonErrors.Enabled = true);
-            m_FillingErrorTable = false;
+            ShowFilter = false;
           }
         });
         m_FilteredDataGridView.FileSetting = m_FileSetting;
+        toolStripComboBoxFilterType.SelectedIndex = 0;
 
-        SetDataSource(false);
+        //SetDataSource(FilterType.All);
       }
     }
 
@@ -355,7 +417,7 @@ namespace CsvTools
         // need to wait until m_FilterDataTable is set in the background
         var start = DateTime.Now;
         // wait for it to be set by background process
-        while (m_FillingErrorTable && !m_IsClosing && (DateTime.Now - start).TotalSeconds < 5d)
+        while (m_FilterDataTable.Filtering && !m_CancellationTokenSource.IsCancellationRequested && (DateTime.Now - start).TotalSeconds < 5d)
           Thread.Sleep(100);
 
         if (m_FilterDataTable != null)
@@ -367,82 +429,6 @@ namespace CsvTools
     {
       get => m_FilteredDataGridView.ToolDataReader;
       set => m_FilteredDataGridView.ToolDataReader = value;
-    }
-
-    /// <summary>
-    ///   Event handler called as the suer changes the batch size
-    /// </summary>
-    public event EventHandler BatchSizeChanged
-    {
-      add
-      {
-        m_BatchSizeChangedEvent = value;
-        m_ToolStripTextBoxRecSize.TextChanged += value;
-      }
-      remove => m_ToolStripTextBoxRecSize.TextChanged -= value;
-    }
-
-    public event EventHandler ButtonAsText
-    {
-      add
-      {
-        m_ToolStripButtonAsText.Click += value;
-        m_HasButtonAsText = true;
-        SetButtonVisibility();
-      }
-      remove
-      {
-        m_ToolStripButtonAsText.Click -= value;
-        m_HasButtonAsText = false;
-        SetButtonVisibility();
-      }
-    }
-
-    /// <summary>
-    ///   Handled the click of the GeneralSettings Button
-    /// </summary>
-    public event EventHandler ButtonShowGeneralSettings
-    {
-      add
-      {
-        m_ToolStripButtonDefaults.Click += value;
-        m_HasButtonGeneralSettings = true;
-        SetButtonVisibility();
-      }
-      remove
-      {
-        m_ToolStripButtonDefaults.Click -= value;
-        m_HasButtonGeneralSettings = false;
-        SetButtonVisibility();
-      }
-    }
-
-    /// <summary>
-    ///   Handled the click of the ShowSource Button
-    /// </summary>
-    public event EventHandler ButtonShowSource
-    {
-      add
-      {
-        m_ToolStripButtonSource.Click += value;
-        m_HasButtonShowSource = true;
-        SetButtonVisibility();
-      }
-      remove
-      {
-        m_ToolStripButtonSource.Click -= value;
-        m_HasButtonShowSource = false;
-        SetButtonVisibility();
-      }
-    }
-
-    /// <summary>
-    ///   Event handler called as the used clicks on settings
-    /// </summary>
-    public event EventHandler OnSettingsClick
-    {
-      add => m_ToolStripButtonSettings.Click += value;
-      remove => m_ToolStripButtonSettings.Click -= value;
     }
 
     /// <summary>
@@ -459,9 +445,8 @@ namespace CsvTools
         m_ToolStripTop.Items.Remove(m_ToolStripButtonDefaults);
         m_BindingNavigator.Items.Add(m_ToolStripButtonDefaults);
         m_ToolStripButtonDefaults.DisplayStyle = ToolStripItemDisplayStyle.Image;
-        m_ToolStripTop.Items.Remove(m_ToolStripButtonErrors);
-        m_BindingNavigator.Items.Add(m_ToolStripButtonErrors);
-        m_ToolStripButtonErrors.DisplayStyle = ToolStripItemDisplayStyle.Image;
+        m_ToolStripTop.Items.Remove(toolStripComboBoxFilterType);
+        m_BindingNavigator.Items.Add(toolStripComboBoxFilterType);
         m_ToolStripTop.Items.Remove(m_ToolStripButtonUniqueValues);
         m_BindingNavigator.Items.Add(m_ToolStripButtonUniqueValues);
         m_ToolStripButtonUniqueValues.DisplayStyle = ToolStripItemDisplayStyle.Image;
@@ -494,8 +479,8 @@ namespace CsvTools
         m_BindingNavigator.Items.Remove(m_ToolStripButtonDefaults);
         m_ToolStripTop.Items.Add(m_ToolStripButtonDefaults);
         m_ToolStripButtonDefaults.DisplayStyle = ToolStripItemDisplayStyle.ImageAndText;
-        m_BindingNavigator.Items.Remove(m_ToolStripButtonErrors);
-        m_ToolStripTop.Items.Add(m_ToolStripButtonErrors);
+        m_BindingNavigator.Items.Remove(toolStripComboBoxFilterType);
+        m_ToolStripTop.Items.Add(toolStripComboBoxFilterType);
         m_BindingNavigator.Items.Remove(m_ToolStripButtonUniqueValues);
         m_ToolStripTop.Items.Add(m_ToolStripButtonUniqueValues);
         m_ToolStripButtonUniqueValues.DisplayStyle = ToolStripItemDisplayStyle.ImageAndText;
@@ -529,7 +514,7 @@ namespace CsvTools
     /// </summary>
     public void OnlyShowErrors()
     {
-      m_ToolStripButtonErrors.Checked = true;
+      toolStripComboBoxFilterType.SelectedIndex = 1;
     }
 
     /// <summary>
@@ -554,15 +539,16 @@ namespace CsvTools
     /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
     protected override void Dispose(bool disposing)
     {
-      if (disposing) components?.Dispose();
+      if (!disposing) return;
+      m_CancellationTokenSource.Cancel();
+      components?.Dispose();
       m_CurrentSearch?.Dispose();
-
       m_DataTable?.Dispose();
 
       m_FilterDataTable?.Dispose();
 
       m_HierachyDisplay?.Dispose();
-
+      m_CancellationTokenSource.Dispose();
       base.Dispose(disposing);
     }
 
@@ -608,8 +594,7 @@ namespace CsvTools
           Contract.Assume(cell.Key != null);
           Contract.Assume(cell.Value != null);
 
-          if (processInformation.CancellationToken != null &&
-              processInformation.CancellationToken.IsCancellationRequested)
+          if (processInformation.CancellationTokenSource?.IsCancellationRequested ?? false)
             return;
 
           if (cell.Key.IndexOf(processInformation.SearchText, StringComparison.OrdinalIgnoreCase) <= -1) continue;
@@ -695,7 +680,7 @@ namespace CsvTools
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
     private void ButtonErrors_CheckedChanged(object sender, EventArgs e)
     {
-      SetDataSource(m_ToolStripButtonErrors.Checked);
+      //SetDataSource(m_ToolStripButtonErrors.Checked);
     }
 
     /// <summary>
@@ -775,7 +760,7 @@ namespace CsvTools
       m_SearchCellsDirty = true;
       if (!m_Search.Visible) return;
       if (m_CurrentSearch != null && m_CurrentSearch.IsRunning)
-        m_CurrentSearch.CancellationToken.Cancel();
+        m_CurrentSearch.Cancel();
       m_Search.Results = 0;
       m_Search.Hide();
       ClearSearch(sender, args);
@@ -811,7 +796,7 @@ namespace CsvTools
         return;
       }
 
-      if (m_FilterDataTable.ErrorTable.Rows.Count <= 0) return;
+      if (m_FilterDataTable.FilterTable.Rows.Count <= 0) return;
       if (m_FilterDataTable.ColumnsWithoutErrors.Count == m_Columns.Count) return;
       foreach (DataGridViewColumn dgcol in m_FilteredDataGridView.Columns)
         if (dgcol.Visible && m_FilterDataTable.ColumnsWithoutErrors.Contains(dgcol.DataPropertyName))
@@ -833,39 +818,30 @@ namespace CsvTools
     ///   Filters the rows and hides columns that do not have errors
     /// </summary>
     /// <param name="onlyErrors">if set to <c>true</c> only rows with errors and columns with errors are shown.</param>
-    private void FilterRowsAndColumns(bool onlyErrors)
+    private void FilterRowsAndColumns(FilterType type)
     {
       try
       {
-        m_ToolStripButtonErrors.Enabled = false;
         Extensions.ProcessUIElements();
 
         // Cancel the current search
         if (m_CurrentSearch != null && m_CurrentSearch.IsRunning)
-          m_CurrentSearch.CancellationToken.Cancel();
+          m_CurrentSearch.Cancel();
         // Hide any showing search
         m_Search.Visible = false;
-
-        if (onlyErrors)
+        if (type != FilterType.All && type != m_FilterDataTable.FilterType)
         {
-          var start = DateTime.Now;
-
-          // wait for it to be set by background process
-          while (m_FillingErrorTable && !m_IsClosing && (DateTime.Now - start).TotalSeconds < 5d)
-            Thread.Sleep(100);
-
-          if (m_IsClosing || (DateTime.Now - start).TotalSeconds >= 5d)
-            return;
+          m_FilterDataTable.Filter(int.MaxValue, type);
         }
 
-        var newDt = onlyErrors ? m_FilterDataTable.ErrorTable : m_DataTable;
+        var newDt = (type == FilterType.All) ? m_DataTable : m_FilterDataTable.FilterTable;
         if (newDt == m_BindingSource.DataSource) return;
         m_FilteredDataGridView.DataSource = null;
         m_BindingSource.DataSource = newDt;
         try
         {
           m_FilteredDataGridView.DataSource = m_BindingSource; // bindingSource;
-          FilterColumns(onlyErrors);
+          FilterColumns(!type.HasFlag(FilterType.ShowIssueFree));
           AutoResizeColumns(newDt);
         }
         catch (Exception ex)
@@ -875,7 +851,6 @@ namespace CsvTools
       }
       finally
       {
-        m_ToolStripButtonErrors.Enabled = true;
         Extensions.ProcessUIElements();
       }
     }
@@ -896,7 +871,7 @@ namespace CsvTools
         m_CurrentSearch.SearchCompleteEvent += StartSearch;
 
         // Cancel the current search
-        m_CurrentSearch.CancellationToken.Cancel();
+        m_CurrentSearch.Cancel();
       }
       else
       {
@@ -935,9 +910,10 @@ namespace CsvTools
     {
       m_ParentForm.Closing -= ParentForm_Closing;
       m_ParentForm = null;
-      if (m_CurrentSearch != null && m_CurrentSearch.IsRunning)
-        m_CurrentSearch.CancellationToken.Cancel();
-      m_IsClosing = true;
+      if (m_CurrentSearch?.IsRunning ?? false)
+        m_CurrentSearch.Cancel();
+      if (m_FilterDataTable?.Filtering ?? false)
+        m_FilterDataTable.Cancel();
     }
 
     private void PopulateSearchCellList()
@@ -996,52 +972,58 @@ namespace CsvTools
 
     private void SetButtonVisibility()
     {
-      // Need to set the control containing the buttons to visible
-      //
-      // Regular
-      m_ToolStripButtonColumnLength.Visible = m_ShowButtons;
-      m_ToolStripButtonDuplicates.Visible = m_ShowButtons;
-      m_ToolStripButtonUniqueValues.Visible = m_ShowButtons;
-      m_ToolStripButtonAsText.Visible = m_ShowButtons && m_HasButtonAsText;
-      // Filter
-      m_ToolStripButtonErrors.Visible = m_ShowButtons && m_ShowFilter;
-      // Extended
-      m_ToolStripButtonHierachy.Visible = m_ShowButtons;
-      m_ToolStripButtonStore.Visible =
-        m_ShowButtons && m_FileSetting is CsvFile;
-      m_ToolStripButtonSource.Visible = m_ShowButtons && m_HasButtonShowSource;
+      this.SafeInvoke(() =>
+      {
+        // Need to set the control containing the buttons to visible
+        //
+        // Regular
+        m_ToolStripButtonColumnLength.Visible = m_ShowButtons;
+        m_ToolStripButtonDuplicates.Visible = m_ShowButtons;
+        m_ToolStripButtonUniqueValues.Visible = m_ShowButtons;
+        m_ToolStripButtonAsText.Visible = m_ShowButtons && m_HasButtonAsText;
+        // Filter
+        toolStripComboBoxFilterType.Visible = m_ShowButtons && m_ShowFilter;
+        // Extended
+        m_ToolStripButtonHierachy.Visible = m_ShowButtons;
+        m_ToolStripButtonStore.Visible =
+          m_ShowButtons && m_FileSetting is CsvFile;
+        m_ToolStripButtonSource.Visible = m_ShowButtons && m_HasButtonShowSource;
 
-      // Settings
-      m_ToolStripButtonSettings.Visible = m_ShowButtons && m_ShowSettingsButtons;
-      m_ToolStripButtonDefaults.Visible = m_ShowButtons && m_ShowSettingsButtons && m_HasButtonGeneralSettings;
+        // Settings
+        m_ToolStripButtonSettings.Visible = m_ShowButtons && m_ShowSettingsButtons;
+        m_ToolStripButtonDefaults.Visible = m_ShowButtons && m_ShowSettingsButtons && m_HasButtonGeneralSettings;
 
-      m_ToolStripTop.Visible = m_ShowButtons;
+        m_ToolStripTop.Visible = m_ShowButtons;
+      });
     }
 
     /// <summary>
     ///   Sets the data source.
     /// </summary>
-    private void SetDataSource(bool onlyErrors)
+    private void SetDataSource(FilterType type)
     {
-      this.SafeInvoke(() =>
-      {
-        if (m_ToolStripButtonErrors.Checked != onlyErrors)
-        {
-          m_ToolStripButtonErrors.CheckedChanged -= ButtonErrors_CheckedChanged;
-          m_ToolStripButtonErrors.Checked = onlyErrors;
-          m_ToolStripButtonErrors.CheckedChanged += ButtonErrors_CheckedChanged;
-        }
-
-        m_ToolStripButtonErrors.Image = onlyErrors ? Resources.Errors2 : Resources.Errors;
-        m_ToolStripButtonErrors.ToolTipText = onlyErrors ? "Show all" : "Show Errors/Warnings Only";
-      });
       if (m_DataTable == null)
         return;
+
+      // update the dropdown
+      this.SafeInvoke(() =>
+      {
+        if (type == FilterType.All & toolStripComboBoxFilterType.SelectedIndex != 0)
+          toolStripComboBoxFilterType.SelectedIndex = 0;
+        if (type == FilterType.ErrorsAndWarning & toolStripComboBoxFilterType.SelectedIndex != 1)
+          toolStripComboBoxFilterType.SelectedIndex = 1;
+        if (type == FilterType.ShowErrors & toolStripComboBoxFilterType.SelectedIndex != 2)
+          toolStripComboBoxFilterType.SelectedIndex = 2;
+        if (type == FilterType.ShowWarning & toolStripComboBoxFilterType.SelectedIndex != 3)
+          toolStripComboBoxFilterType.SelectedIndex = 3;
+        if (type == FilterType.ShowIssueFree & toolStripComboBoxFilterType.SelectedIndex != 4)
+          toolStripComboBoxFilterType.SelectedIndex = 4;
+      });
 
       var oldSortedColumn = m_FilteredDataGridView.SortedColumn?.DataPropertyName;
       var oldOrder = m_FilteredDataGridView.SortOrder;
       // bindingSource.SuspendBinding();
-      FilterRowsAndColumns(onlyErrors);
+      FilterRowsAndColumns(type);
       // bindingSource.ResumeBinding();
       m_FilteredDataGridView.ColumnVisibilityChanged(this);
       m_FilteredDataGridView.SetRowHeight();
@@ -1059,8 +1041,9 @@ namespace CsvTools
       var processInformaton = new ProcessInformaton
       {
         SearchText = e.SearchText,
-        CancellationToken = new CancellationTokenSource()
+        CancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(m_CancellationTokenSource.Token)
       };
+
       processInformaton.FoundResultEvent += ResultFound;
       processInformaton.SearchCompleteEvent += SearchComplete;
       processInformaton.SearchEventArgs = e;
@@ -1109,27 +1092,21 @@ namespace CsvTools
     private void InitializeComponent()
     {
       this.components = new System.ComponentModel.Container();
-      System.ComponentModel.ComponentResourceManager resources =
-        new System.ComponentModel.ComponentResourceManager(typeof(DetailControl));
-      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 =
-        new System.Windows.Forms.DataGridViewCellStyle();
-      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 =
-        new System.Windows.Forms.DataGridViewCellStyle();
-      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 =
-        new System.Windows.Forms.DataGridViewCellStyle();
-      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 =
-        new System.Windows.Forms.DataGridViewCellStyle();
+      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
+      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
       this.m_ToolStripTop = new System.Windows.Forms.ToolStrip();
       this.m_ToolStripButtonSettings = new System.Windows.Forms.ToolStripButton();
-      this.m_ToolStripButtonErrors = new System.Windows.Forms.ToolStripButton();
+      this.toolStripComboBoxFilterType = new System.Windows.Forms.ToolStripComboBox();
       this.m_ToolStripButtonDefaults = new System.Windows.Forms.ToolStripButton();
       this.m_ToolStripButtonUniqueValues = new System.Windows.Forms.ToolStripButton();
       this.m_ToolStripButtonColumnLength = new System.Windows.Forms.ToolStripButton();
       this.m_ToolStripButtonDuplicates = new System.Windows.Forms.ToolStripButton();
       this.m_ToolStripButtonHierachy = new System.Windows.Forms.ToolStripButton();
       this.m_ToolStripButtonSource = new System.Windows.Forms.ToolStripButton();
-      this.m_ToolStripButtonStore = new System.Windows.Forms.ToolStripButton();
       this.m_ToolStripButtonAsText = new System.Windows.Forms.ToolStripButton();
+      this.m_ToolStripButtonStore = new System.Windows.Forms.ToolStripButton();
       this.m_ToolStripContainer = new System.Windows.Forms.ToolStripContainer();
       this.m_BindingNavigator = new System.Windows.Forms.BindingNavigator(this.components);
       this.m_BindingSource = new System.Windows.Forms.BindingSource(this.components);
@@ -1153,31 +1130,29 @@ namespace CsvTools
       ((System.ComponentModel.ISupportInitialize)(this.m_FilteredDataGridView)).BeginInit();
       this.SuspendLayout();
       //
-      // toolStripTop
+      // m_ToolStripTop
       //
       this.m_ToolStripTop.Dock = System.Windows.Forms.DockStyle.None;
       this.m_ToolStripTop.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
-      this.m_ToolStripTop.Items.AddRange(new System.Windows.Forms.ToolStripItem[]
-      {
-        this.m_ToolStripButtonSettings,
-        this.m_ToolStripButtonErrors,
-        this.m_ToolStripButtonDefaults,
-        this.m_ToolStripButtonUniqueValues,
-        this.m_ToolStripButtonColumnLength,
-        this.m_ToolStripButtonDuplicates,
-        this.m_ToolStripButtonHierachy,
-        this.m_ToolStripButtonSource,
-        this.m_ToolStripButtonAsText,
-        this.m_ToolStripButtonStore
-      });
+      this.m_ToolStripTop.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.m_ToolStripButtonSettings,
+            this.toolStripComboBoxFilterType,
+            this.m_ToolStripButtonDefaults,
+            this.m_ToolStripButtonUniqueValues,
+            this.m_ToolStripButtonColumnLength,
+            this.m_ToolStripButtonDuplicates,
+            this.m_ToolStripButtonHierachy,
+            this.m_ToolStripButtonSource,
+            this.m_ToolStripButtonAsText,
+            this.m_ToolStripButtonStore});
       this.m_ToolStripTop.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.HorizontalStackWithOverflow;
       this.m_ToolStripTop.Location = new System.Drawing.Point(3, 0);
       this.m_ToolStripTop.Name = "m_ToolStripTop";
-      this.m_ToolStripTop.Size = new System.Drawing.Size(784, 25);
+      this.m_ToolStripTop.Size = new System.Drawing.Size(473, 25);
       this.m_ToolStripTop.TabIndex = 1;
       this.m_ToolStripTop.Text = "toolStripTop";
       //
-      // toolStripButtonSettings
+      // m_ToolStripButtonSettings
       //
       this.m_ToolStripButtonSettings.Image = global::CsvToolLib.Resources.Settings;
       this.m_ToolStripButtonSettings.Name = "m_ToolStripButtonSettings";
@@ -1186,18 +1161,22 @@ namespace CsvTools
       this.m_ToolStripButtonSettings.ToolTipText = "Show CSV Settings";
       this.m_ToolStripButtonSettings.Visible = false;
       //
-      // toolStripButtonErrors
+      // toolStripComboBoxFilterType
       //
-      this.m_ToolStripButtonErrors.CheckOnClick = true;
-      this.m_ToolStripButtonErrors.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-      this.m_ToolStripButtonErrors.Enabled = false;
-      this.m_ToolStripButtonErrors.Image = global::CsvToolLib.Resources.Errors;
-      this.m_ToolStripButtonErrors.Name = "m_ToolStripButtonErrors";
-      this.m_ToolStripButtonErrors.Size = new System.Drawing.Size(23, 22);
-      this.m_ToolStripButtonErrors.ToolTipText = "Show Errors/Warnings Only";
-      this.m_ToolStripButtonErrors.CheckedChanged += new System.EventHandler(this.ButtonErrors_CheckedChanged);
+      this.toolStripComboBoxFilterType.DropDownHeight = 90;
+      this.toolStripComboBoxFilterType.DropDownWidth = 130;
+      this.toolStripComboBoxFilterType.IntegralHeight = false;
+      this.toolStripComboBoxFilterType.Items.AddRange(new object[] {
+            "All Records",
+            "Error or Warning",
+            "Only Errors",
+            "Only Warning",
+            "No Error or Warning"});
+      this.toolStripComboBoxFilterType.Name = "toolStripComboBoxFilterType";
+      this.toolStripComboBoxFilterType.Size = new System.Drawing.Size(125, 25);
+      this.toolStripComboBoxFilterType.SelectedIndexChanged += new System.EventHandler(this.toolStripComboBoxFilterType_SelectedIndexChanged);
       //
-      // toolStripButtonDefaults
+      // m_ToolStripButtonDefaults
       //
       this.m_ToolStripButtonDefaults.Image = global::CsvToolLib.Resources.Settings2;
       this.m_ToolStripButtonDefaults.Name = "m_ToolStripButtonDefaults";
@@ -1205,7 +1184,7 @@ namespace CsvTools
       this.m_ToolStripButtonDefaults.Text = "Defaults";
       this.m_ToolStripButtonDefaults.Visible = false;
       //
-      // toolStripButtonUniqueValues
+      // m_ToolStripButtonUniqueValues
       //
       this.m_ToolStripButtonUniqueValues.Image = global::CsvToolLib.Resources.Values;
       this.m_ToolStripButtonUniqueValues.Name = "m_ToolStripButtonUniqueValues";
@@ -1214,7 +1193,7 @@ namespace CsvTools
       this.m_ToolStripButtonUniqueValues.ToolTipText = "Display Unique Values";
       this.m_ToolStripButtonUniqueValues.Click += new System.EventHandler(this.ButtonUniqueValues_Click);
       //
-      // toolStripButtonColumnLength
+      // m_ToolStripButtonColumnLength
       //
       this.m_ToolStripButtonColumnLength.Image = global::CsvToolLib.Resources.Shema;
       this.m_ToolStripButtonColumnLength.Name = "m_ToolStripButtonColumnLength";
@@ -1223,7 +1202,7 @@ namespace CsvTools
       this.m_ToolStripButtonColumnLength.ToolTipText = "Display Schema information including Length";
       this.m_ToolStripButtonColumnLength.Click += new System.EventHandler(this.ButtonColumnLength_Click);
       //
-      // toolStripButtonDuplicates
+      // m_ToolStripButtonDuplicates
       //
       this.m_ToolStripButtonDuplicates.Image = global::CsvToolLib.Resources.Duplicates;
       this.m_ToolStripButtonDuplicates.Name = "m_ToolStripButtonDuplicates";
@@ -1232,7 +1211,7 @@ namespace CsvTools
       this.m_ToolStripButtonDuplicates.ToolTipText = "Display Duplicate Values";
       this.m_ToolStripButtonDuplicates.Click += new System.EventHandler(this.ButtonDuplicates_Click);
       //
-      // toolStripButtonHierachy
+      // m_ToolStripButtonHierachy
       //
       this.m_ToolStripButtonHierachy.Image = global::CsvToolLib.Resources.Hierarchy;
       this.m_ToolStripButtonHierachy.Name = "m_ToolStripButtonHierachy";
@@ -1242,7 +1221,7 @@ namespace CsvTools
       this.m_ToolStripButtonHierachy.Visible = false;
       this.m_ToolStripButtonHierachy.Click += new System.EventHandler(this.ButtonHierachy_Click);
       //
-      // toolStripButtonSource
+      // m_ToolStripButtonSource
       //
       this.m_ToolStripButtonSource.Image = global::CsvToolLib.Resources.View;
       this.m_ToolStripButtonSource.Name = "m_ToolStripButtonSource";
@@ -1250,7 +1229,15 @@ namespace CsvTools
       this.m_ToolStripButtonSource.Text = "View Source";
       this.m_ToolStripButtonSource.Visible = false;
       //
-      // toolStripButtonStore
+      // m_ToolStripButtonAsText
+      //
+      this.m_ToolStripButtonAsText.Image = global::CsvToolLib.Resources.text;
+      this.m_ToolStripButtonAsText.ImageTransparentColor = System.Drawing.Color.Magenta;
+      this.m_ToolStripButtonAsText.Name = "m_ToolStripButtonAsText";
+      this.m_ToolStripButtonAsText.Size = new System.Drawing.Size(49, 22);
+      this.m_ToolStripButtonAsText.Text = "Text";
+      //
+      // m_ToolStripButtonStore
       //
       this.m_ToolStripButtonStore.Image = global::CsvToolLib.Resources.Save;
       this.m_ToolStripButtonStore.ImageTransparentColor = System.Drawing.Color.Magenta;
@@ -1261,22 +1248,14 @@ namespace CsvTools
       this.m_ToolStripButtonStore.Visible = false;
       this.m_ToolStripButtonStore.Click += new System.EventHandler(this.ToolStripButtonStore_Click);
       //
-      // toolStripButtonAsText
-      //
-      this.m_ToolStripButtonAsText.Image = global::CsvToolLib.Resources.text;
-      this.m_ToolStripButtonAsText.ImageTransparentColor = System.Drawing.Color.Magenta;
-      this.m_ToolStripButtonAsText.Name = "m_ToolStripButtonAsText";
-      this.m_ToolStripButtonAsText.Size = new System.Drawing.Size(49, 22);
-      this.m_ToolStripButtonAsText.Text = "Text";
-      //
-      // toolStripContainer
+      // m_ToolStripContainer
       //
       //
-      // toolStripContainer.BottomToolStripPanel
+      // m_ToolStripContainer.BottomToolStripPanel
       //
       this.m_ToolStripContainer.BottomToolStripPanel.Controls.Add(this.m_BindingNavigator);
       //
-      // toolStripContainer.ContentPanel
+      // m_ToolStripContainer.ContentPanel
       //
       this.m_ToolStripContainer.ContentPanel.Controls.Add(this.m_Search);
       this.m_ToolStripContainer.ContentPanel.Controls.Add(this.m_FilteredDataGridView);
@@ -1290,11 +1269,11 @@ namespace CsvTools
       this.m_ToolStripContainer.TabIndex = 13;
       this.m_ToolStripContainer.Text = "toolStripContainer";
       //
-      // toolStripContainer.TopToolStripPanel
+      // m_ToolStripContainer.TopToolStripPanel
       //
       this.m_ToolStripContainer.TopToolStripPanel.Controls.Add(this.m_ToolStripTop);
       //
-      // bindingNavigator
+      // m_BindingNavigator
       //
       this.m_BindingNavigator.AddNewItem = null;
       this.m_BindingNavigator.BindingSource = this.m_BindingSource;
@@ -1302,16 +1281,14 @@ namespace CsvTools
       this.m_BindingNavigator.DeleteItem = null;
       this.m_BindingNavigator.Dock = System.Windows.Forms.DockStyle.None;
       this.m_BindingNavigator.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
-      this.m_BindingNavigator.Items.AddRange(new System.Windows.Forms.ToolStripItem[]
-      {
-        this.m_ToolStripButtonMoveFirstItem,
-        this.m_ToolStripButtonMovePreviousItem,
-        this.m_ToolStripTextBox1,
-        this.m_ToolStripLabelCount,
-        this.m_ToolStripButtonMoveNextItem,
-        this.m_ToolStripButtonMoveLastItem,
-        this.m_ToolStripTextBoxRecSize
-      });
+      this.m_BindingNavigator.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.m_ToolStripButtonMoveFirstItem,
+            this.m_ToolStripButtonMovePreviousItem,
+            this.m_ToolStripTextBox1,
+            this.m_ToolStripLabelCount,
+            this.m_ToolStripButtonMoveNextItem,
+            this.m_ToolStripButtonMoveLastItem,
+            this.m_ToolStripTextBoxRecSize});
       this.m_BindingNavigator.Location = new System.Drawing.Point(3, 0);
       this.m_BindingNavigator.MoveFirstItem = this.m_ToolStripButtonMoveFirstItem;
       this.m_BindingNavigator.MoveLastItem = this.m_ToolStripButtonMoveLastItem;
@@ -1322,7 +1299,7 @@ namespace CsvTools
       this.m_BindingNavigator.Size = new System.Drawing.Size(182, 25);
       this.m_BindingNavigator.TabIndex = 7;
       //
-      // toolStripLabelCount
+      // m_ToolStripLabelCount
       //
       this.m_ToolStripLabelCount.Name = "m_ToolStripLabelCount";
       this.m_ToolStripLabelCount.Size = new System.Drawing.Size(35, 22);
@@ -1330,7 +1307,7 @@ namespace CsvTools
       this.m_ToolStripLabelCount.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
       this.m_ToolStripLabelCount.ToolTipText = "Total number of items";
       //
-      // toolStripButtonMoveFirstItem
+      // m_ToolStripButtonMoveFirstItem
       //
       this.m_ToolStripButtonMoveFirstItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
       this.m_ToolStripButtonMoveFirstItem.Image = global::CsvToolLib.Resources.MoveFirstItem;
@@ -1339,7 +1316,7 @@ namespace CsvTools
       this.m_ToolStripButtonMoveFirstItem.Size = new System.Drawing.Size(23, 22);
       this.m_ToolStripButtonMoveFirstItem.Text = "Move first";
       //
-      // toolStripButtonMovePreviousItem
+      // m_ToolStripButtonMovePreviousItem
       //
       this.m_ToolStripButtonMovePreviousItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
       this.m_ToolStripButtonMovePreviousItem.Image = global::CsvToolLib.Resources.MovePreviousItem;
@@ -1348,7 +1325,7 @@ namespace CsvTools
       this.m_ToolStripButtonMovePreviousItem.Size = new System.Drawing.Size(23, 22);
       this.m_ToolStripButtonMovePreviousItem.Text = "Move previous";
       //
-      // toolStripTextBox1
+      // m_ToolStripTextBox1
       //
       this.m_ToolStripTextBox1.AccessibleName = "Position";
       this.m_ToolStripTextBox1.Name = "m_ToolStripTextBox1";
@@ -1356,7 +1333,7 @@ namespace CsvTools
       this.m_ToolStripTextBox1.Text = "0";
       this.m_ToolStripTextBox1.ToolTipText = "Current position";
       //
-      // toolStripButtonMoveNextItem
+      // m_ToolStripButtonMoveNextItem
       //
       this.m_ToolStripButtonMoveNextItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
       this.m_ToolStripButtonMoveNextItem.Image = global::CsvToolLib.Resources.MoveNextItem;
@@ -1365,7 +1342,7 @@ namespace CsvTools
       this.m_ToolStripButtonMoveNextItem.Size = new System.Drawing.Size(23, 22);
       this.m_ToolStripButtonMoveNextItem.Text = "Move next";
       //
-      // toolStripButtonMoveLastItem
+      // m_ToolStripButtonMoveLastItem
       //
       this.m_ToolStripButtonMoveLastItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
       this.m_ToolStripButtonMoveLastItem.Image = global::CsvToolLib.Resources.MoveLastItem;
@@ -1374,18 +1351,16 @@ namespace CsvTools
       this.m_ToolStripButtonMoveLastItem.Size = new System.Drawing.Size(23, 22);
       this.m_ToolStripButtonMoveLastItem.Text = "Move last";
       //
-      // toolStripTextBoxRecSize
+      // m_ToolStripTextBoxRecSize
       //
       this.m_ToolStripTextBoxRecSize.Name = "m_ToolStripTextBoxRecSize";
       this.m_ToolStripTextBoxRecSize.Size = new System.Drawing.Size(45, 25);
       this.m_ToolStripTextBoxRecSize.ToolTipText = "Change the number of records to be fetched (0 for all records)";
       this.m_ToolStripTextBoxRecSize.Visible = false;
       //
-      // search
+      // m_Search
       //
-      this.m_Search.Anchor =
-      ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top |
-                                             System.Windows.Forms.AnchorStyles.Right)));
+      this.m_Search.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
       this.m_Search.AutoSize = true;
       this.m_Search.BackColor = System.Drawing.SystemColors.Info;
       this.m_Search.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
@@ -1399,7 +1374,7 @@ namespace CsvTools
       this.m_Search.OnSearchChanged += new System.EventHandler<CsvTools.SearchEventArgs>(this.OnSearchChanged);
       this.m_Search.OnSearchClear += new System.EventHandler(this.ClearSearch);
       //
-      // filteredDataGridView
+      // m_FilteredDataGridView
       //
       this.m_FilteredDataGridView.AllowUserToOrderColumns = true;
       dataGridViewCellStyle1.BackColor = System.Drawing.Color.Gainsboro;
@@ -1407,19 +1382,16 @@ namespace CsvTools
       this.m_FilteredDataGridView.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
       dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
       dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Control;
-      dataGridViewCellStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F,
-        System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+      dataGridViewCellStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
       dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.WindowText;
       dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
       dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
       dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
       this.m_FilteredDataGridView.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle2;
-      this.m_FilteredDataGridView.ColumnHeadersHeightSizeMode =
-        System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+      this.m_FilteredDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
       dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
       dataGridViewCellStyle3.BackColor = System.Drawing.SystemColors.Window;
-      dataGridViewCellStyle3.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F,
-        System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+      dataGridViewCellStyle3.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
       dataGridViewCellStyle3.ForeColor = System.Drawing.Color.Black;
       dataGridViewCellStyle3.SelectionBackColor = System.Drawing.SystemColors.Highlight;
       dataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
@@ -1430,8 +1402,7 @@ namespace CsvTools
       this.m_FilteredDataGridView.Name = "m_FilteredDataGridView";
       dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
       dataGridViewCellStyle4.BackColor = System.Drawing.SystemColors.Control;
-      dataGridViewCellStyle4.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F,
-        System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+      dataGridViewCellStyle4.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
       dataGridViewCellStyle4.ForeColor = System.Drawing.SystemColors.WindowText;
       dataGridViewCellStyle4.SelectionBackColor = System.Drawing.SystemColors.Highlight;
       dataGridViewCellStyle4.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
@@ -1439,8 +1410,7 @@ namespace CsvTools
       this.m_FilteredDataGridView.RowHeadersDefaultCellStyle = dataGridViewCellStyle4;
       this.m_FilteredDataGridView.Size = new System.Drawing.Size(872, 301);
       this.m_FilteredDataGridView.TabIndex = 10;
-      this.m_FilteredDataGridView.CellFormatting +=
-        new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.FilteredDataGridView_CellFormatting);
+      this.m_FilteredDataGridView.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.FilteredDataGridView_CellFormatting);
       //
       // DetailControl
       //
@@ -1470,9 +1440,30 @@ namespace CsvTools
 
     #endregion Windows Form Designer generated code
 
+    private void toolStripComboBoxFilterType_SelectedIndexChanged(object sender, EventArgs e)
+    {
+      /*
+       * All Records
+       * Error or Warning
+       * Only Errors
+       * Only Warning
+       * No Error or Warning
+      */
+      if (toolStripComboBoxFilterType.SelectedIndex == 0)
+        SetDataSource(FilterType.All);
+      if (toolStripComboBoxFilterType.SelectedIndex == 1)
+        SetDataSource(FilterType.ErrorsAndWarning);
+      if (toolStripComboBoxFilterType.SelectedIndex == 2)
+        SetDataSource(FilterType.ShowErrors);
+      if (toolStripComboBoxFilterType.SelectedIndex == 3)
+        SetDataSource(FilterType.ShowWarning);
+      if (toolStripComboBoxFilterType.SelectedIndex == 4)
+        SetDataSource(FilterType.ShowIssueFree);
+    }
+
     private class ProcessInformaton : IDisposable
     {
-      public CancellationTokenSource CancellationToken;
+      public CancellationTokenSource CancellationTokenSource;
       public int Found;
       public EventHandler<FoundEventArgs> FoundResultEvent;
       public bool IsRunning;
@@ -1480,9 +1471,14 @@ namespace CsvTools
       public SearchEventArgs SearchEventArgs;
       public string SearchText;
 
+      public void Cancel()
+      {
+        CancellationTokenSource?.Cancel();
+      }
+
       public void Dispose()
       {
-        ((IDisposable)CancellationToken).Dispose();
+        CancellationTokenSource?.Dispose();
       }
     }
   }

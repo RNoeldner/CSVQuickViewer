@@ -71,6 +71,8 @@ namespace CsvTools
     private string m_TreatTextAsNull = "NULL";
     private bool m_Validate = true;
     private ValidationResult m_ValidationResult;
+    private bool m_SkipDuplicateHeader = false;
+    private bool m_SkipEmptyLines = true;
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="BaseSettings" /> class.
@@ -266,6 +268,7 @@ namespace CsvTools
              other.Recipient.Equals(m_Recipient) &&
              other.NumErrors == m_NumErrors &&
              other.SkipEmptyLines == SkipEmptyLines &&
+             other.SkipDuplicateHeader == SkipDuplicateHeader &&
              other.FileSize == FileSize &&
              other.ReadToEndOfFile == ReadToEndOfFile &&
              other.SQLTimeout == SQLTimeout &&
@@ -633,7 +636,7 @@ namespace CsvTools
       set
       {
         // can not be smaller than the number of named errors
-        if (value > 0 && value < Errors.Count)
+        if (Errors.Count > 0 && value < Errors.Count)
           value = Errors.Count;
         if (m_NumErrors == value) return;
         m_NumErrors = value;
@@ -728,7 +731,29 @@ namespace CsvTools
     /// <value>if <c>true</c> the reader will skip empty lines.</value>
     [XmlAttribute]
     [DefaultValue(true)]
-    public virtual bool SkipEmptyLines { get; set; } = true;
+    public virtual bool SkipEmptyLines
+    {
+      get => m_SkipEmptyLines;
+      set
+      {
+        if (m_SkipEmptyLines.Equals(value)) return;
+        m_SkipEmptyLines = value;
+        NotifyPropertyChanged(nameof(SkipEmptyLines));
+      }
+    }
+
+    [XmlAttribute]
+    [DefaultValue(false)]
+    public virtual bool SkipDuplicateHeader
+    {
+      get => m_SkipDuplicateHeader;
+      set
+      {
+        if (m_SkipDuplicateHeader.Equals(value)) return;
+        m_SkipDuplicateHeader = value;
+        NotifyPropertyChanged(nameof(SkipDuplicateHeader));
+      }
+    }
 
     /// <summary>
     ///   Gets or sets the number of rows that should be skipped at the start of the file
@@ -1021,6 +1046,7 @@ namespace CsvTools
       other.RecordLimit = m_RecordLimit;
       other.SkipRows = m_SkipRows;
       other.SkipEmptyLines = SkipEmptyLines;
+      other.SkipDuplicateHeader = SkipDuplicateHeader;
 
       other.Passphrase = m_Passphrase;
       other.Recipient = m_Recipient;

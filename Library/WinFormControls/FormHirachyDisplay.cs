@@ -383,7 +383,6 @@ namespace CsvTools
     /// </summary>
     private void InitializeComponent()
     {
-      this.components = new System.ComponentModel.Container();
       System.Windows.Forms.Label label1;
       System.Windows.Forms.Label label2;
       System.Windows.Forms.Label label3;
@@ -402,7 +401,7 @@ namespace CsvTools
       label1 = new System.Windows.Forms.Label();
       label2 = new System.Windows.Forms.Label();
       label3 = new System.Windows.Forms.Label();
-      contextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
+      contextMenuStrip = new System.Windows.Forms.ContextMenuStrip();
       expandAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       closeAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       label4 = new System.Windows.Forms.Label();

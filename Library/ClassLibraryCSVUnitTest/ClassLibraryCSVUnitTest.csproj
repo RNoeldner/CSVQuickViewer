@@ -393,6 +393,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="TestFiles\BadIssues.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="TestFiles\BasicCSV.gpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

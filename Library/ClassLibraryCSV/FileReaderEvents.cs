@@ -118,6 +118,11 @@ namespace CsvTools
     public WarningEventArgs(long recordNumber, int columnNumber, string message, long lineNumberStart,
       long lineNumberEnd, string columnName)
     {
+      if (string.IsNullOrEmpty(message))
+      {
+        throw new ArgumentException("message", nameof(message));
+      }
+
       RecordNumber = recordNumber;
       ColumnNumber = columnNumber;
       Message = message;
