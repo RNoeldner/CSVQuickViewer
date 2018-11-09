@@ -184,12 +184,12 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   All combination of \r \n will be made to a single \n
+    ///   All combination of \r \n will be made to a single replacement
     /// </summary>
     /// <param name="text">The Text</param>
-    /// <param name="replace">The replacement value.</param>
+    /// <param name="replace">The replacement value default is \n.</param>
     /// <returns>
-    ///   The text with every combination f line feed as \n
+    ///   The text with every combination of line feed replaced with <see cref="replace"/>
     /// </returns>
     public static string HandleCRLFCombinations(string text, string replace = "\n")
     {

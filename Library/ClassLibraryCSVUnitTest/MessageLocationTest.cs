@@ -23,10 +23,22 @@ namespace CsvTools.Tests
       var messageList = new RowErrorCollection();
       Assert.AreEqual(0, messageList.CountRows);
 
-      messageList.Add(null, new WarningEventArgs(1, 2, null, 0, 0, null));
-      Assert.AreEqual(0, messageList.CountRows);
-      messageList.Add(null, new WarningEventArgs(1, 2, string.Empty, 0, 0, null));
-      Assert.AreEqual(0, messageList.CountRows);
+      try
+      {
+        messageList.Add(null, new WarningEventArgs(1, 2, null, 0, 0, null));
+        Assert.Fail("Exception not thrown");
+      }
+      catch (System.ArgumentException)
+      {
+      }
+      try
+      {
+        messageList.Add(null, new WarningEventArgs(1, 2, string.Empty, 0, 0, null));
+        Assert.Fail("Exception not thrown");
+      }
+      catch (System.ArgumentException)
+      {
+      }
     }
 
     [TestMethod]

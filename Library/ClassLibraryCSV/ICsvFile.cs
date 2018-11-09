@@ -97,6 +97,14 @@ namespace CsvTools
     bool WarnNBSP { get; set; }
 
     /// <summary>
+    /// Gets or sets a value indicating whether to treat a single LF as space
+    /// </summary>
+    /// <value>
+    ///   <c>true</c> if LF should be treated as space; otherwise, <c>false</c>.
+    /// </value>
+    bool TreatLFAsSpace { get; set; }
+
+    /// <summary>
     ///   Gets or sets a value indicating whether the byte order mark should be written in Unicode files.
     /// </summary>
     /// <value><c>true</c> write byte order mark; otherwise, <c>false</c>.</value>
@@ -122,5 +130,21 @@ namespace CsvTools
     ///   <c>true</c> if the file is assumed to be a non delimited file; otherwise, <c>false</c>.
     /// </value>
     bool NoDelimitedFile { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether the reader should try to solve more columns.
+    /// </summary>
+    /// <value>
+    ///   <c>true</c> if it should be try to solve misalignment more columns; otherwise, <c>false</c>.
+    /// </value>
+    bool TryToSolveMoreColumns { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether rows should combined if there are less columns.
+    /// </summary>
+    /// <value>
+    ///   <c>true</c> if row combining is allowed; otherwise, <c>false</c>.
+    /// </value>
+    bool AllowRowCombining { get; set; }
   }
 }

@@ -115,10 +115,13 @@ namespace CsvTools
       Settings.Default.WarnNBSP = checkBoxWarnNBSP.Checked;
       Settings.Default.WarnEmptyTailingColumns = checkBoxWarnEmptyTailingColumns.Checked;
       Settings.Default.WarnUnknowCharater = checkBoxWarnUnknowCharater.Checked;
+      Settings.Default.TreatLFAsSpace = checkBoxTreatLFasSpace.Checked;
+      Settings.Default.TryToSolveMoreColumns = checkBoxTryToSolveMoreColumns.Checked;
       Settings.Default.WarnDelimiterInValue = checkBoxWarnDelimiterInValue.Checked;
       Settings.Default.DisplayStartLineNo = checkBoxDisplayStartLineNo.Checked;
       Settings.Default.TreatTextAsNull = textBoxTextAsNull.Text;
       Settings.Default.AlternateQuoting = quotingControl.CsvFile.AlternateQuoting;
+      Settings.Default.AllowRowCombining = checkBoxAllowRowCombining.Checked;
 
       Settings.Default.SkipEmptyLines = checkBoxSkipEmptyLines.Checked;
       Settings.Default.GuessCodePage = checkBoxGuessCodePage.Checked;
@@ -152,6 +155,7 @@ namespace CsvTools
       Settings.Default.MinSamplesForIntDate = ApplicationSetting.FillGuessSettings.MinSamplesForIntDate;
       Settings.Default.CheckNamedDates = ApplicationSetting.FillGuessSettings.CheckNamedDates;
       Settings.Default.DateParts = ApplicationSetting.FillGuessSettings.DateParts;
+
       Settings.Default.DefaultPassphrase = ApplicationSetting.ToolSetting.PGPInformation.EncryptedPassphase;
       Settings.Default.PrivateKey = new StringCollection();
       Settings.Default.PrivateKey.AddRange(ApplicationSetting.ToolSetting.PGPInformation.PrivateKeys);

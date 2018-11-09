@@ -628,5 +628,41 @@ namespace CsvTools.Properties {
                 this["FieldQualifier"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool TreatLFAsSpace {
+            get {
+                return ((bool)(this["TreatLFAsSpace"]));
+            }
+            set {
+                this["TreatLFAsSpace"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool TryToSolveMoreColumns {
+            get {
+                return ((bool)(this["TryToSolveMoreColumns"]));
+            }
+            set {
+                this["TryToSolveMoreColumns"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool AllowRowCombining {
+            get {
+                return ((bool)(this["AllowRowCombining"]));
+            }
+            set {
+                this["AllowRowCombining"] = value;
+            }
+        }
     }
 }

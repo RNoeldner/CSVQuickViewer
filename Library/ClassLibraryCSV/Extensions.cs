@@ -305,7 +305,7 @@ namespace CsvTools
           return "Text Part";
 
         case DataType.TextToHtml:
-          return "Encode HTML (Linefeed only)";
+          return "Encode HTML (Linefeeds and CData Tags)";
 
         case DataType.TextToHtmlFull:
           return "Encode HTML ('<' -> '&lt;')";

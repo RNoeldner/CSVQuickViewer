@@ -11,6 +11,19 @@ namespace CsvTools.Tests
   public class StringConversionTests
   {
     [TestMethod]
+    public void StringToDateTime()
+    {
+      Assert.AreEqual(new DateTime(2009, 12, 10, 17, 43, 0, 0, DateTimeKind.Unspecified),
+        StringConversion.StringToDateTime("12/10/2009 17:43", "MM/dd/yyyy HH:mm", "/", ":", false).Value);
+
+      Assert.AreEqual(new DateTime(2009, 10, 12, 17, 43, 0, 0, DateTimeKind.Unspecified),
+        StringConversion.StringToDateTime("12/10/2009 17:43", "dd/MM/yyyy HH:mm", "/", ":", false).Value);
+
+      Assert.AreEqual(new DateTime(2009, 10, 12, 17, 43, 0, 0, DateTimeKind.Unspecified),
+        StringConversion.StringToDateTime("12/10/2009 17:43 PM", "dd/MM/yyyy HH:mm tt", "/", ":", false).Value);
+    }
+
+    [TestMethod]
     public void DecimalToString()
     {
       Assert.AreEqual("53.336,24", StringConversion.DecimalToString((decimal)53336.2373, new ValueFormat()

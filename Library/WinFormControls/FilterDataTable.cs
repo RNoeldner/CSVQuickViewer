@@ -15,35 +15,47 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
+using System.Threading;
 
 namespace CsvTools
 {
+  [Flags]
+  public enum FilterType
+  {
+    ShowIssueFree = 1,
+    ShowWarning = 2,
+    ShowErrors = 4,
+    ErrorsAndWarning = 2 + 4,
+    All = 1 + 2 + 4,
+    OnlyTrueErrors = 8
+  }
+
   /// <summary>
   ///   Utility Class to filter a DataTable for Errors
   /// </summary>
   /// <seealso cref="System.IDisposable" />
   public class FilterDataTable : IDisposable
   {
-    private readonly DataTable m_ErrorTable;
+    private readonly DataTable m_SourceTable;
     private readonly List<string> m_UniqueFieldName = new List<string>();
     private HashSet<string> m_ColumnWithoutErrors;
+    private bool m_CutAtLimit;
+    private DataTable m_FilteredTable;
+    private volatile bool m_Filtering = false;
+    private FilterType m_FilterType;
+    private readonly CancellationToken m_CancellationToken;
+    private CancellationTokenSource m_CurrentFilter;
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="FilterDataTable" /> class.
     /// </summary>
     /// <param name="init">The initial DataTable</param>
     /// <param name="limit">The limit.</param>
-    public FilterDataTable(DataTable init, int limit)
+    public FilterDataTable(DataTable init, CancellationToken cancellationToken)
     {
-      m_ErrorTable = init.Clone();
-      var errorRows = init.GetErrors();
-      var max = errorRows.GetLength(0);
-      CutAtLimit = (max > limit);
-      if (CutAtLimit)
-        max = limit;
-
-      for (int counter = 0; counter < max; counter++)
-        m_ErrorTable.ImportRow(errorRows[counter]);
+      m_SourceTable = init;
+      m_CancellationToken = cancellationToken;
     }
 
     /// <summary>
@@ -58,7 +70,7 @@ namespace CsvTools
       {
         var m_ColumnWithErrors = new List<string>();
         var withoutErrors = ColumnsWithoutErrors;
-        foreach (DataColumn col in m_ErrorTable.Columns)
+        foreach (DataColumn col in m_FilteredTable.Columns)
         {
           // Always ignore line number and ErrorField
           if (col.ColumnName.Equals(BaseFileReader.cErrorField, StringComparison.OrdinalIgnoreCase))
@@ -69,6 +81,24 @@ namespace CsvTools
         }
 
         return m_ColumnWithErrors;
+      }
+    }
+
+    public void Cancel()
+    {
+      // stop old filtering
+      m_CurrentFilter?.Cancel();
+      // wait in order to start new one
+      WaitForFilter();
+    }
+
+    private void WaitForFilter()
+    {
+      // wait for filtering to finish
+      while (m_Filtering)
+      {
+        m_CancellationToken.ThrowIfCancellationRequested();
+        Thread.Sleep(200);
       }
     }
 
@@ -86,9 +116,13 @@ namespace CsvTools
         {
           m_ColumnWithoutErrors = new HashSet<string>();
 
+          // wait for filtering to finish
+          WaitForFilter();
+
           // m_ColumnWithoutErrors will not contain UniqueFields nor line number / error
-          foreach (DataColumn col in m_ErrorTable.Columns)
+          foreach (DataColumn col in m_FilteredTable.Columns)
           {
+            m_CancellationToken.ThrowIfCancellationRequested();
             // Always keep the line number, error field and any uniques
             if (col.ColumnName.Equals(BaseFileReader.cStartLineNumberFieldName, StringComparison.OrdinalIgnoreCase) ||
                 col.ColumnName.Equals(BaseFileReader.cErrorField, StringComparison.OrdinalIgnoreCase) ||
@@ -101,7 +135,7 @@ namespace CsvTools
             var inRowErrorDesc1 = "[" + col.ColumnName + ",";
             var inRowErrorDesc2 = "," + col.ColumnName + "]";
             var inRowErrorDesc3 = "," + col.ColumnName + ",";
-            foreach (DataRow row in ErrorTable.Rows)
+            foreach (DataRow row in FilterTable.Rows)
             {
               // In case there is a column error..
               if (row.GetColumnError(col).Length > 0)
@@ -126,7 +160,7 @@ namespace CsvTools
       }
     }
 
-    public bool CutAtLimit { get; }
+    public bool CutAtLimit => m_CutAtLimit;
 
     /// <summary>
     ///   Gets the error table.
@@ -134,7 +168,11 @@ namespace CsvTools
     /// <value>
     ///   The error table.
     /// </value>
-    public DataTable ErrorTable { get => m_ErrorTable; }
+    public DataTable FilterTable { get => m_FilteredTable; }
+
+    public bool Filtering { get => m_Filtering; }
+
+    public FilterType FilterType { get => m_FilterType; }
 
     /// <summary>
     ///   Sets the name of the unique field.
@@ -160,6 +198,77 @@ namespace CsvTools
       Dispose(true);
     }
 
+    public void Filter(int limit, FilterType type)
+    {
+      if (m_Filtering)
+        Cancel();
+
+      try
+      {
+        m_CurrentFilter = CancellationTokenSource.CreateLinkedTokenSource(m_CancellationToken);
+        m_Filtering = true;
+        m_CancellationToken.ThrowIfCancellationRequested();
+        m_FilteredTable = m_SourceTable.Clone();
+        m_FilterType = type;
+
+        int rows = 0;
+        var max = m_SourceTable.Rows.Count;
+
+        for (int counter = 0; counter < max && rows < limit; counter++)
+        {
+          if (m_CurrentFilter.IsCancellationRequested)
+            return;
+          var ErrorOrWarning = m_SourceTable.Rows[counter].GetErrorInformation();
+
+          if (type.HasFlag(FilterType.OnlyTrueErrors) && ErrorOrWarning == "-")
+            continue;
+
+          bool import = false;
+          if (string.IsNullOrEmpty(ErrorOrWarning))
+          {
+            if (type.HasFlag(FilterType.ShowIssueFree))
+              import = true;
+          }
+          else
+          {
+            if (!import && ErrorOrWarning.IsWarningMessage())
+            {
+              if (type.HasFlag(FilterType.ShowWarning))
+                import = true;
+            }
+            else
+            {
+              // is an error
+              if (type.HasFlag(FilterType.ShowErrors))
+                import = true;
+            }
+          }
+          if (import)
+            m_FilteredTable.ImportRow(m_SourceTable.Rows[counter]);
+
+          rows++;
+        }
+        m_CutAtLimit = (rows >= limit);
+      }
+      catch (Exception ex)
+      {
+        Debug.WriteLine(ex.InnerExceptionMessages());
+      }
+      finally
+      {
+        m_Filtering = false;
+      }
+    }
+
+    public void StartFilter(int limit, FilterType type, Action finishedAction)
+    {
+      ThreadPool.QueueUserWorkItem(delegate
+        {
+          Filter(limit, type);
+          finishedAction?.Invoke();
+        });
+    }
+
     /// <summary>
     ///   Clean up any resources being used.
     /// </summary>
@@ -167,7 +276,18 @@ namespace CsvTools
     private void Dispose(bool disposing)
     {
       if (!disposing) return;
-      ErrorTable?.Dispose();
+
+      try
+      {
+        m_CurrentFilter?.Cancel();
+        m_CurrentFilter?.Dispose();
+      }
+      catch
+      {
+        // ignore
+      }
+
+      FilterTable?.Dispose();
     }
   }
 }

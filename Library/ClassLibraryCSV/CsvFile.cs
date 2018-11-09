@@ -48,6 +48,9 @@ namespace CsvTools
     private bool m_WarnEmptyTailingColumns = true;
     private bool m_WarnLineFeed;
     private bool m_WarnNbsp = true;
+    private bool m_TreatLFAsSpace = false;
+    private bool m_TryToSolveMoreColumns = false;
+    private bool m_AllowRowCombining = false;
     private bool m_WarnQuotes;
     private bool m_WarnQuotesInQuotes = true;
     private bool m_WarnUnknowCharacter = true;
@@ -265,6 +268,60 @@ namespace CsvTools
     }
 
     /// <summary>
+    /// Gets or sets a value indicating whether to treat a single LF as space
+    /// </summary>
+    /// <value>
+    ///   <c>true</c> if LF should be treated as space; otherwise, <c>false</c>.
+    /// </value>
+    [XmlAttribute]
+    [DefaultValue(false)]
+    public virtual bool TreatLFAsSpace
+    {
+      get => m_TreatLFAsSpace;
+
+      set
+      {
+        if (m_TreatLFAsSpace.Equals(value)) return;
+        m_TreatLFAsSpace = value;
+        NotifyPropertyChanged(nameof(TreatLFAsSpace));
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether the reader should try to solve more columns.
+    /// </summary>
+    /// <value>
+    ///   <c>true</c> if it should be try to solve misalignment more columns; otherwise, <c>false</c>.
+    /// </value>
+    [XmlAttribute]
+    [DefaultValue(false)]
+    public virtual bool TryToSolveMoreColumns
+    {
+      get => m_TryToSolveMoreColumns;
+
+      set
+      {
+        if (m_TryToSolveMoreColumns.Equals(value)) return;
+        m_TryToSolveMoreColumns = value;
+        NotifyPropertyChanged(nameof(TryToSolveMoreColumns));
+      }
+    }
+
+    [XmlAttribute]
+    [DefaultValue(false)]
+    public virtual bool AllowRowCombining
+    {
+      get => m_AllowRowCombining;
+
+      set
+      {
+        if (m_AllowRowCombining.Equals(value)) return;
+        m_AllowRowCombining = value;
+        NotifyPropertyChanged(nameof(AllowRowCombining));
+      }
+    }
+
+    /// <summary>
     ///   Gets or sets a value indicating whether to warn occurrence of NBSP.
     /// </summary>
     /// <value><c>true</c> to issue a writing if there is a NBSP; otherwise, <c>false</c>.</value>
@@ -371,6 +428,9 @@ namespace CsvTools
       csv.WarnUnknowCharater = m_WarnUnknowCharacter;
       csv.WarnLineFeed = m_WarnLineFeed;
       csv.WarnNBSP = m_WarnNbsp;
+      csv.TreatLFAsSpace = m_TreatLFAsSpace;
+      csv.TryToSolveMoreColumns = m_TryToSolveMoreColumns;
+      csv.AllowRowCombining = m_AllowRowCombining;
 
       csv.TreatUnknowCharaterAsSpace = m_TreatUnknowCharaterAsSpace;
       csv.CodePageId = m_CodePageId;
@@ -442,6 +502,9 @@ namespace CsvTools
              m_TreatUnknowCharaterAsSpace == other.TreatUnknowCharaterAsSpace &&
              m_WarnDelimiterInValue == other.WarnDelimiterInValue &&
              m_WarnEmptyTailingColumns == other.WarnEmptyTailingColumns && m_WarnLineFeed == other.WarnLineFeed &&
+             m_TryToSolveMoreColumns == other.TryToSolveMoreColumns &&
+             m_AllowRowCombining == other.AllowRowCombining &&
+             m_TreatLFAsSpace == other.TreatLFAsSpace &&
              m_WarnNbsp == other.WarnNBSP && m_WarnQuotes == other.WarnQuotes &&
              m_WarnQuotesInQuotes == other.WarnQuotesInQuotes &&
              m_WarnUnknowCharacter == other.WarnUnknowCharater &&

@@ -111,7 +111,7 @@ namespace CsvTools
     /// <param name="args"></param>
     public virtual void Add(object sender, WarningEventArgs args)
     {
-      if (string.IsNullOrEmpty(args.Message) || CountRows >= m_MaxRows)
+      if (CountRows >= m_MaxRows)
         return;
 
       if (!m_RowErrorCollection.TryGetValue(args.RecordNumber, out var columnErrorCollection))

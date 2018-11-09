@@ -36,6 +36,105 @@ namespace CvsTool.Tests
     }
 
     [TestMethod]
+    public void IssueReader()
+    {
+      CsvFile basIssues = new CsvFile
+      {
+        TreatLFAsSpace = true,
+        TryToSolveMoreColumns = true,
+        AllowRowCombining = true,
+        FileName = Path.Combine(m_ApplicationDirectory, "BadIssues.csv")
+      };
+      basIssues.FileFormat.FieldDelimiter = "TAB";
+      basIssues.FileFormat.FieldQualifier = string.Empty;
+      basIssues.ColumnAdd(new Column
+      {
+        DataType = DataType.DateTime,
+        DateFormat = "yyyy/MM/dd",
+        DateSeparator = "-",
+        Name = "effectiveDate"
+      });
+      basIssues.ColumnAdd(new Column
+      {
+        DataType = DataType.DateTime,
+        DateFormat = "yyyy/MM/ddTHH:mm:ss",
+        DateSeparator = "-",
+        Name = "timestamp"
+      });
+      basIssues.ColumnAdd(new Column
+      {
+        DataType = DataType.Integer,
+        Name = "version"
+      });
+      basIssues.ColumnAdd(new Column
+      {
+        DataType = DataType.Boolean,
+        Name = "retrainingRequired"
+      });
+      basIssues.ColumnAdd(new Column
+      {
+        DataType = DataType.Boolean,
+        Name = "classroomTraining"
+      });
+      basIssues.ColumnAdd(new Column
+      {
+        DataType = DataType.TextToHtml,
+        Name = "webLink"
+      });
+      var warningList = new RowErrorCollection();
+      using (var test = new CsvFileReader(basIssues))
+      {
+        test.Warning += warningList.Add;
+        test.Open(CancellationToken.None, false);
+        // need 22 columns
+        Assert.AreEqual(22, test.GetSchemaTable().Rows.Count());
+
+        // This should work
+        test.Read();
+        Assert.AreEqual(0, warningList.CountRows);
+
+        Assert.AreEqual("Eagle_sop020517", test.GetValue(0));
+        Assert.AreEqual("de-DE", test.GetValue(2));
+
+        // There are more columns
+        test.Read();
+        Assert.AreEqual(1, warningList.CountRows);
+        Assert.AreEqual("Eagle_SRD-0137699", test.GetValue(0));
+        Assert.AreEqual("de-DE", test.GetValue(2));
+        Assert.AreEqual(3, test.StartLineNumber);
+
+        test.Read();
+        Assert.AreEqual("Eagle_600.364", test.GetValue(0));
+
+        test.Read();
+        Assert.AreEqual("Eagle_spt029698", test.GetValue(0));
+
+        test.Read();
+        Assert.AreEqual("Eagle_SRD-0137698", test.GetValue(0));
+        Assert.AreEqual(2, warningList.CountRows);
+
+        test.Read();
+        Assert.AreEqual("Eagle_SRD-0138074", test.GetValue(0));
+
+        test.Read();
+        Assert.AreEqual("Eagle_SRD-0125563", test.GetValue(0));
+
+        test.Read();
+        Assert.AreEqual("doc_1004040002982", test.GetValue(0));
+        Assert.AreEqual(3, warningList.CountRows);
+
+        test.Read();
+        Assert.AreEqual("doc_1004040002913", test.GetValue(0));
+        Assert.AreEqual(10, test.StartLineNumber);
+        Assert.AreEqual(5, warningList.CountRows);
+
+        test.Read();
+        Assert.AreEqual("doc_1003001000427", test.GetValue(0));
+        Assert.AreEqual(12, test.StartLineNumber);
+      }
+    }
+
+    [TestMethod]
     public void TestGetDataTypeName()
     {
       using (var test = new CsvFileReader(m_ValidSetting))

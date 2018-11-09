@@ -199,6 +199,8 @@ namespace CsvTools
     /// <value>if <c>true</c> the reader or writer will skip empty lines.</value>
     bool SkipEmptyLines { get; set; }
 
+    bool SkipDuplicateHeader { get; set; }
+
     /// <summary>
     ///   Gets or sets the skip rows.
     /// </summary>
