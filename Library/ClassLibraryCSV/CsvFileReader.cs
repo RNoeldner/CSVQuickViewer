@@ -703,6 +703,7 @@ namespace CsvTools
           RecordNumber++;
         }
       }
+      bool hasWarningCombinedWrning = false;
       Restart2:
       var rowLength = CurrentRowColumnText.Length;
 
@@ -736,9 +737,6 @@ namespace CsvTools
           HandleWarning(-1, $"Line {StartLineNumber}{cLessColumns}({rowLength}/{FieldCount}).");
         else
         {
-          HandleWarning(-1,
-           $"Line {StartLineNumber}{cLessColumns}. Trying to combine rows.");
-
           var oldPos = m_BufferPos;
           var startLine = StartLineNumber;
           // get the next row
@@ -751,19 +749,20 @@ namespace CsvTools
             var combined = new List<string>(CurrentRowColumnText);
 
             // the first column belongs to the last column of the previous
-            if (!string.IsNullOrEmpty(nextRow[0]))
-            {
-              // ignore NumWarningsLinefeed otherwise as this is important information
-              m_NumWarningsLinefeed++;
-              HandleWarning(rowLength - 1,
-                $"Added first column from line {EndLineNumber}, assuming a linefeed has split the rows.");
-              combined[rowLength - 1] += ' ' + nextRow[0];
-            }
-            else
-              WarnLinefeed(rowLength - 1);
+            // ignore NumWarningsLinefeed otherwise as this is important information
+            m_NumWarningsLinefeed++;
+            HandleWarning(rowLength - 1,
+              $"Added first column from line {EndLineNumber}, assuming a linefeed has split the rows into an additional line.");
+            combined[rowLength - 1] += ' ' + nextRow[0];
 
             for (int col = 1; col < nextRow.Length; col++)
               combined.Add(nextRow[col]);
+
+            if (!hasWarningCombinedWrning)
+            {
+              HandleWarning(-1, $"Line {StartLineNumber}{cLessColumns}. Rows have been combined.");
+              hasWarningCombinedWrning = true;
+            }
 
             CurrentRowColumnText = combined.ToArray();
             goto Restart2;
@@ -772,11 +771,13 @@ namespace CsvTools
           {
             if (m_BufferPos < oldPos)
               // we have an issue we went into the next  Buffer there is no way back.
-              HandleError(-1,
-                $"Lines have been read that is now lost as records, please turn off Row Combination");
+              HandleError(-1, $"Line {StartLineNumber}{cLessColumns}\nAttempting to combined lines some line have been read that is now lost, please turn off Row Combination");
             else
-              // return to the old position so reading the next row does not matter
+            {
+              // return to the old position so reading the next row did not matter
+              HandleWarning(-1, $"Line {StartLineNumber}{cLessColumns}({rowLength}/{FieldCount}).");
               m_BufferPos = oldPos;
+            }
           }
         }
       }
