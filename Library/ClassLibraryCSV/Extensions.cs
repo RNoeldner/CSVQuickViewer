@@ -19,9 +19,9 @@ using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics.Contracts;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 
 namespace CsvTools
@@ -305,7 +305,7 @@ namespace CsvTools
           return "Text Part";
 
         case DataType.TextToHtml:
-          return "Encode HTML (Linefeeds and CData Tags)";
+          return "Encode HTML (Linefeed and CData Tags)";
 
         case DataType.TextToHtmlFull:
           return "Encode HTML ('<' -> '&lt;')";
@@ -418,20 +418,33 @@ namespace CsvTools
       Contract.Requires(path != null);
       Contract.Ensures(Contract.Result<string>() != null);
 
-      var fileName = Path.GetFileNameWithoutExtension(path);
-      if (path.AssumePgp() || path.AssumeGZip())
-        fileName = Path.GetFileNameWithoutExtension(fileName);
+      var fileName = StringUtils.ProcessByCategory(FileSystemUtils.SplitPath(path).FileName, x =>
+           x == UnicodeCategory.UppercaseLetter || x == UnicodeCategory.LowercaseLetter || x == UnicodeCategory.OtherLetter ||
+           x == UnicodeCategory.ConnectorPunctuation || x == UnicodeCategory.DashPunctuation || x == UnicodeCategory.OtherPunctuation ||
+           x == UnicodeCategory.DecimalDigitNumber);
 
-      // get rid of _PM and _AM
-      if (fileName != null && (fileName.EndsWith("_PM", StringComparison.OrdinalIgnoreCase) ||
-                               fileName.EndsWith("_AM", StringComparison.OrdinalIgnoreCase)))
-        fileName = fileName.Substring(0, fileName.Length - 3);
+      const string T = @"(:|-|_)";
+      const string HH = @"(2[0-3]|((0|1)?\d))";    // 0-9 10-19 20-23
+      const string MS = @"([0-5][0-9])";           // 00-59
+      const string TT = @"((_| )?(AM|PM))?";
+      const string S = @"(\/|.|-|_)?";
+      const string YYYY = @"((19\d{2})|(2\d{3}))"; // 1900 - 2999
+      const string MM = @"([0,1]?\d{1})";
+      const string DD = @"(([0-2]?\d{1})|([3][0,1]{1}))";
+      // Replace Times 3_53_34_AM
+      fileName = Regex.Replace(fileName, T + "?" + HH + T + MS + T + "?" + MS + "?" + TT, string.Empty, RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.CultureInvariant);
 
-      return StringUtils.ProcessByCategory(fileName, x =>
-          x == UnicodeCategory.UppercaseLetter || x == UnicodeCategory.LowercaseLetter
-                                               || x == UnicodeCategory.ConnectorPunctuation ||
-                                               x == UnicodeCategory.DashPunctuation)
-        .Trim('_', '-').Replace("__", "_").Replace("__", "_").Replace("--", "-").Replace("--", "-");
+      // Replace Dates YYYYMMDDHHMMSS
+      fileName = Regex.Replace(fileName, S + YYYY + S + MM + S + DD + T + "?" + HH + T + MS + T + "?" + MS + "?" + TT, string.Empty, RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.CultureInvariant);
+
+      // Replace Dates DDMMYYYY
+      fileName = Regex.Replace(fileName, S + YYYY + S + MM + S + DD, string.Empty, RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.CultureInvariant);
+      // Replace Dates MMDDYYYY
+      fileName = Regex.Replace(fileName, S + MM + S + DD + S + YYYY, string.Empty, RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.CultureInvariant);
+      // Replace Dates DDMMYYYY
+      fileName = Regex.Replace(fileName, S + DD + S + MM + S + YYYY, string.Empty, RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.CultureInvariant);
+
+      return fileName.Trim('_', '-', ' ', '\t').Replace("__", "_").Replace("__", "_").Replace("--", "-").Replace("--", "-");
     }
 
     /// <summary>

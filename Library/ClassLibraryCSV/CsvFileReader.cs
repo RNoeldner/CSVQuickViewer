@@ -706,11 +706,10 @@ namespace CsvTools
       bool hasWarningCombinedWrning = false;
       Restart2:
       var rowLength = CurrentRowColumnText.Length;
-
       if (rowLength == FieldCount)
       {
         // Check if we have row that matches the header row
-        if (m_HeaderRow != null && m_CsvFile.HasFieldHeader)
+        if (m_HeaderRow != null && m_CsvFile.HasFieldHeader && !hasWarningCombinedWrning)
         {
           bool isRepeatedHeader = true;
           for (int col = 0; col < FieldCount; col++)
@@ -740,11 +739,11 @@ namespace CsvTools
           var oldPos = m_BufferPos;
           var startLine = StartLineNumber;
           // get the next row
-          var nextRow = ReadNextRow(true, true);
+          var nextLine = ReadNextRow(true, true);
           StartLineNumber = startLine;
 
           // allow up to two extra columns they can be combined later
-          if (nextRow.Length > 0 && nextRow.Length + rowLength < FieldCount + 4)
+          if (nextLine.Length > 0 && nextLine.Length + rowLength < FieldCount + 4)
           {
             var combined = new List<string>(CurrentRowColumnText);
 
@@ -753,14 +752,14 @@ namespace CsvTools
             m_NumWarningsLinefeed++;
             HandleWarning(rowLength - 1,
               $"Added first column from line {EndLineNumber}, assuming a linefeed has split the rows into an additional line.");
-            combined[rowLength - 1] += ' ' + nextRow[0];
+            combined[rowLength - 1] += ' ' + nextLine[0];
 
-            for (int col = 1; col < nextRow.Length; col++)
-              combined.Add(nextRow[col]);
+            for (int col = 1; col < nextLine.Length; col++)
+              combined.Add(nextLine[col]);
 
             if (!hasWarningCombinedWrning)
             {
-              HandleWarning(-1, $"Line {StartLineNumber}{cLessColumns}. Rows have been combined.");
+              HandleWarning(-1, $"Line {StartLineNumber}-{EndLineNumber - 1}{cLessColumns}. Lines have been combined.");
               hasWarningCombinedWrning = true;
             }
 
@@ -775,14 +774,23 @@ namespace CsvTools
             else
             {
               // return to the old position so reading the next row did not matter
-              HandleWarning(-1, $"Line {StartLineNumber}{cLessColumns}({rowLength}/{FieldCount}).");
+              if (!hasWarningCombinedWrning)
+                HandleWarning(-1, $"Line {StartLineNumber}{cLessColumns}({rowLength}/{FieldCount}).");
               m_BufferPos = oldPos;
             }
           }
         }
       }
-      else if (rowLength > FieldCount && m_CsvFile.WarnEmptyTailingColumns)
+
+      // if we still have only one column and we should have a number of columns assume this was nonsense like a report footer
+      if (rowLength == 1 && FieldCount > 3)
+      {
+        RecordNumber--;
+        goto Restart;
+      }
+
       // If more columns are present...
+      if (rowLength > FieldCount && (m_CsvFile.WarnEmptyTailingColumns || m_RealignColumns != null))
       {
         // check if the additional columns have contents
         var hasContens = false;
@@ -1014,7 +1022,7 @@ namespace CsvTools
           if (IsWhiteSpace(character))
           {
             // Store the white spaces if we do any kind of trimming
-            if (m_CsvFile.TrimmingOption != TrimmingOption.None)
+            if (m_CsvFile.TrimmingOption == TrimmingOption.None)
               // Values will be trimmed later but we need to find out, if the filed is quoted first
               stringBuilder.Append(character);
             continue;
@@ -1285,7 +1293,7 @@ namespace CsvTools
     private void ResetPositionToStart()
     {
       if (m_ImprovedStream == null)
-        m_ImprovedStream = ImprovedStream.OpenRead(m_CsvFile, ProcessDisplay);
+        m_ImprovedStream = ImprovedStream.OpenRead(m_CsvFile);
       m_ImprovedStream.ResetToStart(delegate (Stream str)
       {
         // in case we can not seek need to reopen the stream reader

@@ -46,8 +46,7 @@
       this.SuspendLayout();
       // 
       // fileSystemWatcher
-      // 
-      this.fileSystemWatcher.EnableRaisingEvents = true;
+      //       
       this.fileSystemWatcher.NotifyFilter = ((System.IO.NotifyFilters)((System.IO.NotifyFilters.Size | System.IO.NotifyFilters.LastWrite)));
       this.fileSystemWatcher.SynchronizingObject = this;
       this.fileSystemWatcher.Changed += new System.IO.FileSystemEventHandler(this.FileSystemWatcher_Changed);

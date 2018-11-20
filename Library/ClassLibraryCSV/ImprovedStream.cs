@@ -14,6 +14,8 @@
 
 using System;
 using System.IO;
+using File = Pri.LongPath.File;
+using FileInfo = Pri.LongPath.FileInfo;
 
 namespace CsvTools
 {
@@ -114,16 +116,15 @@ namespace CsvTools
     /// </summary>
     /// <param name="path">The path.</param>
     /// <param name="decryptedPassphrase">The decrypted passphrase.</param>
-    /// <param name="processDisplay">The process display.</param>
     /// <returns></returns>
     /// <exception cref="ArgumentException">Path must be set - path</exception>
-    public static ImprovedStream OpenRead(string path, Func<string> encryptedPassphrase = null, IProcessDisplay processDisplay = null)
+    public static ImprovedStream OpenRead(string path, Func<string> encryptedPassphrase = null)
     {
       if (string.IsNullOrEmpty(path))
       {
         throw new ArgumentException("Path must be set", nameof(path));
       }
-      var retVal = OpenBaseStream(path, encryptedPassphrase, processDisplay);
+      var retVal = OpenBaseStream(path, encryptedPassphrase);
       retVal.ResetToStart(null);
       return retVal;
     }
@@ -132,16 +133,15 @@ namespace CsvTools
     /// Opens the a setting for reading
     /// </summary>
     /// <param name="setting">The setting.</param>
-    /// <param name="processDisplay">The process display.</param>
     /// <returns></returns>
     /// <exception cref="ApplicationException">
     /// Please provide a passphrase.
     /// or
     /// Please reenter the passphrase, the passphrase could not be decrypted.
     /// </exception>
-    public static ImprovedStream OpenRead(IFileSetting setting, IProcessDisplay processDisplay)
+    public static ImprovedStream OpenRead(IFileSetting setting)
     {
-      var retVal = OpenBaseStream(setting.FullPath, setting.GetEncryptedPassphraseFunction, processDisplay);
+      var retVal = OpenBaseStream(setting.FullPath, setting.GetEncryptedPassphraseFunction);
 
       retVal.ResetToStart(delegate (Stream sr)
       {
@@ -193,7 +193,6 @@ namespace CsvTools
     /// <summary>
     /// Closes the stream in case of a file opened for writing it would be uploaded to the sFTP
     /// </summary>
-    /// <param name="processDisplay">The display.</param>
     public void Close()
     {
       if (Stream != null)
@@ -216,9 +215,11 @@ namespace CsvTools
     /// Opens the base stream, handling sFTP access
     /// </summary>
     /// <param name="path">The path.</param>
-    /// <param name="processDisplay">The process display.</param>
-    /// <returns>An improved stream where the base stream is set</returns>
-    private static ImprovedStream OpenBaseStream(string path, Func<string> encryptedPassphraseFunc, IProcessDisplay processDisplay = null)
+    /// <param name="encryptedPassphraseFunc">The encrypted passphrase function.</param>
+    /// <returns>
+    /// An improved stream where the base stream is set
+    /// </returns>
+    private static ImprovedStream OpenBaseStream(string path, Func<string> encryptedPassphraseFunc)
     {
       var retVal = new ImprovedStream
       {
@@ -231,8 +232,8 @@ namespace CsvTools
       }
       try
       {
-        retVal.BasePath = path.LongPathPrefix();
-        retVal.BaseStream = File.OpenRead(path.LongPathPrefix());
+        retVal.BasePath = path;
+        retVal.BaseStream = File.OpenRead(path);
         return retVal;
       }
       catch (Exception)
@@ -291,7 +292,7 @@ namespace CsvTools
           else if (WritePath.AssumePgp())
           {
             using (FileStream inputStream = new FileInfo(TempFile).OpenRead(),
-                                   output = new FileStream(WritePath, FileMode.Create))
+                                   output = new FileStream(WritePath.LongPathPrefix(), FileMode.Create))
             {
               ApplicationSetting.ToolSetting.PGPInformation.PgpEncrypt(inputStream, output, Recipient, ProcessDisplay);
             }

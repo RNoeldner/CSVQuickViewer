@@ -16,7 +16,6 @@ using log4net;
 using Pri.LongPath;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
 using System.Drawing;
 using System.Reflection;
 using System.Threading;
@@ -110,10 +109,8 @@ namespace CsvTools
         }
         return false;
       }
-
-      var disp = fileName.Length > fileName.LastIndexOf("\\", StringComparison.Ordinal) + 1
-        ? fileName.Substring(fileName.LastIndexOf("\\", StringComparison.Ordinal) + 1)
-        : fileName;
+      var res = FileSystemUtils.SplitPath(fileName);
+      var disp = res.FileName;
 
       if (_MessageBox.Show(null,
             $"The file {disp} does exist, do you want to remove it?", "File", MessageBoxButtons.YesNo) == DialogResult.Yes)
@@ -344,90 +341,83 @@ namespace CsvTools
         return 0;
 
       long written = 0;
-      try
+
+      var fi = FileSystemUtils.FileInfo(fileSetting.FullPath);
+      var dir = FileSystemUtils.GetDirectoryName(fi.FullName);
+      if (!FileSystemUtils.DirectoryExists(dir))
+        if (_MessageBox.Show(null,
+              $"The directory {dir.RemovePrefix()} does not exist, should it be created?",
+              "Directory", MessageBoxButtons.OKCancel,
+              MessageBoxIcon.Question) == DialogResult.OK)
+          FileSystemUtils.CreateDirectory(dir);
+        else
+          return 0;
+
+      var fileInfo = new FileInfo(fileSetting.FullPath);
+      if (fileInfo.Exists)
       {
-        var fi = FileSystemUtils.FileInfo(fileSetting.FullPath);
-        var dir = FileSystemUtils.GetDirectoryName(fi.FullName);
-        if (!FileSystemUtils.DirectoryExists(dir))
-          if (_MessageBox.Show(null,
-                $"The directory {dir.RemovePrefix()} does not exist, should it be created?",
-                "Directory", MessageBoxButtons.OKCancel,
-                MessageBoxIcon.Question) == DialogResult.OK)
-            FileSystemUtils.CreateDirectory(dir);
-          else
-            return 0;
+        fileSetting.FileLastWriteTimeUtc = fi.LastWriteTimeUtc;
+      }
 
-        var fileInfo = new FileInfo(fileSetting.FullPath);
-        if (fileInfo.Exists)
+      var stringBuilder = new System.Text.StringBuilder();
+      using (var processDisplay = fileSetting.GetProcessDisplay(null, cancellationToken))
+      {
+        fileSettingSourcesCurrent?.Invoke(fileSetting, processDisplay);
+
+        if (onlyOlder && fileSetting.SettingLaterThanSources(processDisplay.CancellationToken))
+          return 0;
+
+        fileSetting.FullPath.DeleteFileQuestion(ask);
+
+        var errors = new RowErrorCollection(50);
+        var writer = fileSetting.GetFileWriter(processDisplay.CancellationToken);
+        writer.ProcessDisplay = processDisplay;
+        writer.Warning += errors.Add;
+        written = writer.Write();
+
+        var hasIssues = !string.IsNullOrEmpty(writer.ErrorMessage) || (errors.CountRows > 0);
+
+        if (showSummary || hasIssues)
         {
-          fileSetting.FileLastWriteTimeUtc = fi.LastWriteTimeUtc;
-        }
+          fi = FileSystemUtils.FileInfo(fileSetting.FullPath);
 
-        var stringBuilder = new System.Text.StringBuilder();
-        using (var processDisplay = fileSetting.GetProcessDisplay(null, cancellationToken))
-        {
-          fileSettingSourcesCurrent?.Invoke(fileSetting, processDisplay);
-
-          if (onlyOlder && fileSetting.SettingLaterThanSources(processDisplay.CancellationToken))
-            return 0;
-
-          fileSetting.FullPath.DeleteFileQuestion(ask);
-
-          var errors = new RowErrorCollection(50);
-          var writer = fileSetting.GetFileWriter(processDisplay.CancellationToken);
-          writer.ProcessDisplay = processDisplay;
-          writer.Warning += errors.Add;
-          written = writer.Write();
-
-          var hasIssues = !string.IsNullOrEmpty(writer.ErrorMessage) || (errors.CountRows > 0);
-
-          if (showSummary || hasIssues)
+          // if all source settings are file settings, get the latest file time and set this fileTime
+          var latest = DateTime.MinValue;
+          var dummy = fileSetting.GetSourceFileSettings(cancellationToken, delegate (IFileSetting setting)
           {
-            fi = FileSystemUtils.FileInfo(fileSetting.FullPath);
-
-            // if all source settings are file settings, get the latest file time and set this fileTime
-            var latest = DateTime.MinValue;
-            var dummy = fileSetting.GetSourceFileSettings(cancellationToken, delegate (IFileSetting setting)
+            if (!(setting is IFileSettingRemoteDownload))
             {
-              if (!(setting is IFileSettingRemoteDownload))
-              {
-                if (latest < setting.FileLastWriteTimeUtc)
-                  latest = setting.FileLastWriteTimeUtc;
-              }
-              else
-              {
-                var fiSrc = FileSystemUtils.FileInfo(setting.FullPath);
-                if (fiSrc.Exists && latest < fiSrc.LastWriteTimeUtc)
-                  latest = fiSrc.LastWriteTimeUtc;
-              }
-              return false;
-            });
-            stringBuilder.Append($"Finished writing file\r\rRecords: {written:N0}\rFile size: {fi.Length / 1048576.0:N} MB");
-            if (latest < DateTime.MaxValue && latest > DateTime.MinValue)
-            {
-              stringBuilder.Append($"\rTime adjusted to latest source file: {latest.ToLocalTime():D}");
-              fi.LastWriteTimeUtc = latest;
-              fileSetting.FileLastWriteTimeUtc = latest;
+              if (latest < setting.FileLastWriteTimeUtc)
+                latest = setting.FileLastWriteTimeUtc;
             }
-
-            if (hasIssues)
-              stringBuilder.Append("\rIssues:\r");
-
-            if (!string.IsNullOrEmpty(writer.ErrorMessage))
-              stringBuilder.Append(writer.ErrorMessage);
-
-            if (errors.CountRows > 0)
-              stringBuilder.Append(errors.DisplayByRecordNumber);
+            else
+            {
+              var fiSrc = FileSystemUtils.FileInfo(setting.FullPath);
+              if (fiSrc.Exists && latest < fiSrc.LastWriteTimeUtc)
+                latest = fiSrc.LastWriteTimeUtc;
+            }
+            return false;
+          });
+          stringBuilder.Append($"Finished writing file\r\rRecords: {written:N0}\rFile size: {fi.Length / 1048576.0:N} MB");
+          if (latest < DateTime.MaxValue && latest > DateTime.MinValue)
+          {
+            stringBuilder.Append($"\rTime adjusted to latest source file: {latest.ToLocalTime():D}");
+            fi.LastWriteTimeUtc = latest;
+            fileSetting.FileLastWriteTimeUtc = latest;
           }
+
+          if (hasIssues)
+            stringBuilder.Append("\rIssues:\r");
+
+          if (!string.IsNullOrEmpty(writer.ErrorMessage))
+            stringBuilder.Append(writer.ErrorMessage);
+
+          if (errors.CountRows > 0)
+            stringBuilder.Append(errors.DisplayByRecordNumber);
         }
-        if (stringBuilder.Length > 0)
-          _MessageBox.Show(null, stringBuilder.ToString(), FileSystemUtils.GetShortDisplayFileName(fileSetting.FileName, 80), MessageBoxButtons.OK);
       }
-      catch (Exception exc)
-      {
-        _MessageBox.Show(null,
-          $"Error processing files : {exc.ExceptionMessages()}", FileSystemUtils.GetShortDisplayFileName(fileSetting.FileName, 80), MessageBoxButtons.OK, MessageBoxIcon.Error);
-      }
+      if (stringBuilder.Length > 0)
+        _MessageBox.Show(null, stringBuilder.ToString(), FileSystemUtils.GetShortDisplayFileName(fileSetting.FileName, 80), MessageBoxButtons.OK);
 
       return written;
     }

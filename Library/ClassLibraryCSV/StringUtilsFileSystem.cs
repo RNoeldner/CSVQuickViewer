@@ -116,6 +116,33 @@ namespace CsvTools
       return lastFile;
     }
 
+    public class SplitResult
+    {
+      public readonly string DirectoryName;
+      public readonly string FileName;
+
+      public SplitResult(string dir, string file)
+      {
+        DirectoryName = dir;
+        FileName = file;
+      }
+    }
+
+    public static SplitResult SplitPath(string path)
+    {
+      if (string.IsNullOrEmpty(path))
+        return new SplitResult(string.Empty, string.Empty);
+
+      if (path[0] == '.')
+        path = Path.GetFullPath(path);
+
+      var lastIndex = path.LastIndexOf(Path.DirectorySeparatorChar);
+      if (lastIndex != -1)
+        return new SplitResult(path.Substring(0, lastIndex), path.Substring(lastIndex + 1));
+      else
+        return new SplitResult(string.Empty, path);
+    }
+
     public static string ResolvePattern(string fileName)
     {
       Contract.Ensures(Contract.Result<string>() != null);
@@ -124,9 +151,9 @@ namespace CsvTools
       if (fileName.IndexOfAny(new[] { '*', '?', '[', ']' }) == -1)
         return fileName;
 
-      var lastIndex = fileName.LastIndexOf('\\');
-      var folder = GetDirectoryName(fileName);
-      var searchPattern = (lastIndex != -1) ? fileName.Substring(lastIndex + 1) : fileName;
+      var split = SplitPath(fileName);
+      var folder = split.DirectoryName;
+      var searchPattern = split.FileName;
 
       var lastFile = GetLatestFileOfPattern(folder, searchPattern);
 

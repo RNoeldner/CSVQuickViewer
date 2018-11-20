@@ -40,9 +40,9 @@ namespace CsvTools
       this.button2 = new System.Windows.Forms.Button();
       this.button3 = new System.Windows.Forms.Button();
       this.SuspendLayout();
-      //
+      // 
       // button1
-      //
+      // 
       this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
       this.button1.Location = new System.Drawing.Point(205, 127);
       this.button1.Name = "button1";
@@ -51,19 +51,24 @@ namespace CsvTools
       this.button1.Text = "button1";
       this.button1.UseVisualStyleBackColor = true;
       this.button1.Click += new System.EventHandler(this.button1_Click);
-      //
+      this.button1.MouseEnter += new System.EventHandler(this.MouseEnterElement);
+      this.button1.MouseLeave += new System.EventHandler(this.MouseLeaveElement);
+      // 
       // richTextBox
-      //
+      // 
       this.richTextBox.BackColor = System.Drawing.SystemColors.Control;
       this.richTextBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
       this.richTextBox.Location = new System.Drawing.Point(45, 8);
       this.richTextBox.Name = "richTextBox";
+      this.richTextBox.ReadOnly = true;
       this.richTextBox.Size = new System.Drawing.Size(335, 88);
       this.richTextBox.TabIndex = 0;
       this.richTextBox.Text = "";
-      //
+      this.richTextBox.MouseEnter += new System.EventHandler(this.MouseEnterElement);
+      this.richTextBox.MouseLeave += new System.EventHandler(this.MouseLeaveElement);
+      // 
       // label
-      //
+      // 
       this.label.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
       this.label.AutoSize = true;
       this.label.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
@@ -72,14 +77,14 @@ namespace CsvTools
       this.label.Size = new System.Drawing.Size(104, 13);
       this.label.TabIndex = 2;
       this.label.Text = "Default in 5 seconds";
-      //
+      // 
       // timer
-      //
+      // 
       this.timer.Interval = 500;
       this.timer.Tick += new System.EventHandler(this.timer_Tick);
-      //
+      // 
       // button2
-      //
+      // 
       this.button2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
       this.button2.DialogResult = System.Windows.Forms.DialogResult.Cancel;
       this.button2.Location = new System.Drawing.Point(285, 127);
@@ -89,9 +94,11 @@ namespace CsvTools
       this.button2.Text = "button2";
       this.button2.UseVisualStyleBackColor = true;
       this.button2.Click += new System.EventHandler(this.button2_Click);
-      //
+      this.button2.MouseEnter += new System.EventHandler(this.MouseEnterElement);
+      this.button2.MouseLeave += new System.EventHandler(this.MouseLeaveElement);
+      // 
       // button3
-      //
+      // 
       this.button3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
       this.button3.Location = new System.Drawing.Point(366, 127);
       this.button3.Name = "button3";
@@ -100,9 +107,11 @@ namespace CsvTools
       this.button3.Text = "button3";
       this.button3.UseVisualStyleBackColor = true;
       this.button3.Click += new System.EventHandler(this.button3_Click);
-      //
+      this.button3.MouseEnter += new System.EventHandler(this.MouseEnterElement);
+      this.button3.MouseLeave += new System.EventHandler(this.MouseLeaveElement);
+      // 
       // TimedMessage
-      //
+      // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.ClientSize = new System.Drawing.Size(445, 152);
@@ -125,6 +134,7 @@ namespace CsvTools
       this.Resize += new System.EventHandler(this.TimedMessage_Resize);
       this.ResumeLayout(false);
       this.PerformLayout();
+
     }
 
     #endregion Windows Form Designer generated code
@@ -368,6 +378,16 @@ namespace CsvTools
     {
       richTextBox.Width = this.Width - richTextBox.Left - 12;
       richTextBox.Height = button1.Top - richTextBox.Top - 5;
+    }
+
+    private void MouseEnterElement(object sender, EventArgs e)
+    {
+      timer.Stop();
+    }
+
+    private void MouseLeaveElement(object sender, EventArgs e)
+    {
+      timer.Start();
     }
   }
 

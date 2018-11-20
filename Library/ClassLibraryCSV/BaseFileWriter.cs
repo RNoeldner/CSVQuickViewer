@@ -215,6 +215,23 @@ namespace CsvTools
       return null;
     }
 
+    public virtual IDataReader GetOpenSourceReader(uint recordLimit)
+    {
+      var sourceSetting = GetSourceSetting();
+      if (sourceSetting == null)
+      {
+        // Using the connection string
+        if (string.IsNullOrEmpty(m_FileSetting.SqlStatement)) return null;
+        return ApplicationSetting.SQLDataReader(m_FileSetting.SqlStatement);
+      }
+      else
+      {
+        var reader = sourceSetting.GetFileReader();
+        reader.Open(m_CancellationToken, true);
+        return reader;
+      }
+    }
+
     /// <summary>
     ///   Gets the source data table.
     /// </summary>

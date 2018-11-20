@@ -227,8 +227,9 @@ namespace CsvTools
     private void Display_Activated(object sender, EventArgs e)
     {
       if (!m_FileChanged) return;
-
-      if (MessageBox.Show(this, "The displayed file has changed do you want to reload the data?", "File changed", MessageBoxButtons.YesNo) == DialogResult.Yes) OpenDataReader(true);
+      m_FileChanged = false;
+      if (_MessageBox.Show(this, "The displayed file has changed do you want to reload the data?", "File changed", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
+        OpenDataReader(true);
     }
 
     private void Display_FormClosing(object sender, FormClosingEventArgs e)
@@ -294,7 +295,6 @@ namespace CsvTools
       }
 
       if (doClose) return;
-      fileSystemWatcher.EnableRaisingEvents = Settings.Default.DetectFileChanges;
       OpenDataReader(false);
     }
 
@@ -528,8 +528,10 @@ namespace CsvTools
     /// </summary>
     private void OpenDataReader(bool clear)
     {
-      m_SettingsChangedTimerChange.Stop();
       if (m_FileSetting == null) return;
+
+      m_SettingsChangedTimerChange.Stop();
+      fileSystemWatcher.EnableRaisingEvents = false;
 
       var oldCursor = Cursor.Current == Cursors.WaitCursor ? Cursors.WaitCursor : Cursors.Default;
       Cursor.Current = Cursors.WaitCursor;
@@ -610,6 +612,7 @@ namespace CsvTools
           col.PropertyChanged += FileSetting_PropertyChanged;
         }
         m_ConfigChanged = false;
+        fileSystemWatcher.EnableRaisingEvents = Settings.Default.DetectFileChanges;
         m_FileChanged = false;
         // Re enable event watching
         m_FileSetting.PropertyChanged += FileSetting_PropertyChanged;
@@ -621,7 +624,7 @@ namespace CsvTools
       try
       {
         var pathSetting = m_FileSetting.FileName + CsvFile.cCsvSettingExtension;
-        m_FileSetting.FileName = m_FileSetting.FileName.Substring(m_FileSetting.FileName.LastIndexOf('\\'));
+        m_FileSetting.FileName = FileSystemUtils.SplitPath(m_FileSetting.FileName).FileName;
         var answer = DialogResult.No;
 
         if (FileSystemUtils.FileExists(pathSetting))

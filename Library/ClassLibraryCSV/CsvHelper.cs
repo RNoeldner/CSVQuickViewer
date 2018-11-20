@@ -195,7 +195,7 @@ namespace CsvTools
       // Read 256 kBytes
       var buff = new byte[262144];
       int length;
-      using (var fileStream = ImprovedStream.OpenRead(setting, null))
+      using (var fileStream = ImprovedStream.OpenRead(setting))
       {
         length = fileStream.Stream.Read(buff, 0, buff.Length);
       }
@@ -237,7 +237,7 @@ namespace CsvTools
     {
       Contract.Requires(setting != null);
       Contract.Ensures(Contract.Result<string>() != null);
-      using (var improvedStream = ImprovedStream.OpenRead(setting, null))
+      using (var improvedStream = ImprovedStream.OpenRead(setting))
       using (var streamReader = new StreamReader(improvedStream.Stream, setting.GetEncoding(), setting.ByteOrderMark))
       {
         for (int i = 0; i < setting.SkipRows; i++)
@@ -300,7 +300,7 @@ namespace CsvTools
     public static string GuessNewline(ICsvFile setting)
     {
       Contract.Requires(setting != null);
-      using (var improvedStream = ImprovedStream.OpenRead(setting, null))
+      using (var improvedStream = ImprovedStream.OpenRead(setting))
       using (var streamReader = new StreamReader(improvedStream.Stream, setting.GetEncoding(), setting.ByteOrderMark))
       {
         for (int i = 0; i < setting.SkipRows; i++)
@@ -317,7 +317,7 @@ namespace CsvTools
     public static bool GuessNotADelimitedFile(ICsvFile setting)
     {
       Contract.Requires(setting != null);
-      using (var improvedStream = ImprovedStream.OpenRead(setting, null))
+      using (var improvedStream = ImprovedStream.OpenRead(setting))
       using (var streamReader = new StreamReader(improvedStream.Stream, setting.GetEncoding(), setting.ByteOrderMark))
       {
         for (int i = 0; i < setting.SkipRows; i++)
@@ -346,7 +346,7 @@ namespace CsvTools
     public static int GuessStartRow(ICsvFile setting)
     {
       Contract.Requires(setting != null);
-      using (var improvedStream = ImprovedStream.OpenRead(setting, null))
+      using (var improvedStream = ImprovedStream.OpenRead(setting))
       using (var streamReader = new StreamReader(improvedStream.Stream, setting.GetEncoding(), setting.ByteOrderMark))
       {
         return GuessStartRow(streamReader, setting.FileFormat.FieldDelimiterChar,
@@ -369,7 +369,7 @@ namespace CsvTools
       if (string.IsNullOrEmpty(setting.FileFormat.FieldQualifier) || token.IsCancellationRequested)
         return false;
 
-      using (var improvedStream = ImprovedStream.OpenRead(setting, null))
+      using (var improvedStream = ImprovedStream.OpenRead(setting))
       using (var streamReader = new StreamReader(improvedStream.Stream, setting.GetEncoding(), setting.ByteOrderMark))
       {
         for (int i = 0; i < setting.SkipRows; i++)

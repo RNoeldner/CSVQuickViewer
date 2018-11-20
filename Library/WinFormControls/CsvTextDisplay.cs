@@ -105,7 +105,7 @@ namespace CsvTools
       try
       {
         using (var procDisp = new ProcessDisplayTime(System.Threading.CancellationToken.None))
-        using (var istream = ImprovedStream.OpenRead(m_CsvFile, procDisp))
+        using (var istream = ImprovedStream.OpenRead(m_CsvFile))
         using (var sr = new StreamReader(istream.Stream, m_CsvFile.GetEncoding(), m_CsvFile.ByteOrderMark))
         {
           // Some stream do not support seek...
