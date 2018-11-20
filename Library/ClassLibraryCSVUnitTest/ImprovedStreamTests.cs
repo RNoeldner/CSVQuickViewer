@@ -19,7 +19,7 @@ namespace CsvTools.Tests
     {
       CsvFile setting = new CsvFile();
       setting.FileName = Path.Combine(m_ApplicationDirectory, "BasicCsV.txt");
-      using (var res = ImprovedStream.OpenRead(setting, null))
+      using (var res = ImprovedStream.OpenRead(setting))
       {
         Assert.IsNotNull(res);
         Assert.IsNotNull(res.Stream);

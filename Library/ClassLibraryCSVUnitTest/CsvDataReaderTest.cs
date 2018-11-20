@@ -131,6 +131,31 @@ namespace CvsTool.Tests
         test.Read();
         Assert.AreEqual("doc_1003001000427", test.GetValue(0));
         Assert.AreEqual(12, test.StartLineNumber);
+
+        test.Read();
+        Assert.AreEqual("doc_1008017000611", test.GetValue(0));
+
+        test.Read();
+        Assert.AreEqual("doc_1004040000268", test.GetValue(0));
+
+        test.Read();
+        Assert.AreEqual("doc_1008011000554", test.GetValue(0));
+        test.Read();
+        Assert.AreEqual("doc_1003001000936", test.GetValue(0));
+
+        test.Read();
+        Assert.AreEqual("doc_1200000124471", test.GetValue(0));
+
+        test.Read();
+        Assert.AreEqual("doc_1200000134529", test.GetValue(0));
+
+        test.Read();
+        Assert.AreEqual("doc_1004040003504", test.GetValue(0));
+
+        test.Read();
+        Assert.AreEqual("doc_1200000016068", test.GetValue(0));
+
+        test.Read();
       }
     }
 
