@@ -743,7 +743,7 @@ namespace CsvTools
           StartLineNumber = startLine;
 
           // allow up to two extra columns they can be combined later
-          if (nextLine.Length > 0 && nextLine.Length + rowLength < FieldCount + 4)
+          if (nextLine != null && nextLine.Length > 0 && nextLine.Length + rowLength < FieldCount + 4)
           {
             var combined = new List<string>(CurrentRowColumnText);
 

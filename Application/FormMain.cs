@@ -597,6 +597,7 @@ namespace CsvTools
       }
       catch (Exception exc)
       {
+        SetProcess($"{exc.ToString()}");
         _MessageBox.Show(this, exc.ExceptionMessages(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error, timeout: 20);
       }
       finally
