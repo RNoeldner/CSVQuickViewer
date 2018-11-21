@@ -286,7 +286,7 @@ namespace CsvTools
         m_FilteredDataGridView.FileSetting = m_FileSetting;
         toolStripComboBoxFilterType.SelectedIndex = 0;
 
-        //SetDataSource(FilterType.All);
+        SetDataSource(FilterType.All);
       }
     }
 
@@ -1260,12 +1260,12 @@ namespace CsvTools
       //
       this.m_ToolStripContainer.ContentPanel.Controls.Add(this.m_Search);
       this.m_ToolStripContainer.ContentPanel.Controls.Add(this.m_FilteredDataGridView);
-      this.m_ToolStripContainer.ContentPanel.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+      this.m_ToolStripContainer.ContentPanel.Margin = new System.Windows.Forms.Padding(4);
       this.m_ToolStripContainer.ContentPanel.Size = new System.Drawing.Size(1163, 377);
       this.m_ToolStripContainer.Dock = System.Windows.Forms.DockStyle.Fill;
       this.m_ToolStripContainer.LeftToolStripPanelVisible = false;
       this.m_ToolStripContainer.Location = new System.Drawing.Point(0, 0);
-      this.m_ToolStripContainer.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+      this.m_ToolStripContainer.Margin = new System.Windows.Forms.Padding(4);
       this.m_ToolStripContainer.Name = "m_ToolStripContainer";
       this.m_ToolStripContainer.RightToolStripPanelVisible = false;
       this.m_ToolStripContainer.Size = new System.Drawing.Size(1163, 432);
@@ -1369,7 +1369,7 @@ namespace CsvTools
       this.m_Search.BackColor = System.Drawing.SystemColors.Info;
       this.m_Search.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
       this.m_Search.Location = new System.Drawing.Point(723, 4);
-      this.m_Search.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+      this.m_Search.Margin = new System.Windows.Forms.Padding(4);
       this.m_Search.Name = "m_Search";
       this.m_Search.Results = 0;
       this.m_Search.Size = new System.Drawing.Size(439, 41);
@@ -1404,7 +1404,7 @@ namespace CsvTools
       this.m_FilteredDataGridView.DefaultCellStyle = dataGridViewCellStyle3;
       this.m_FilteredDataGridView.Dock = System.Windows.Forms.DockStyle.Fill;
       this.m_FilteredDataGridView.Location = new System.Drawing.Point(0, 0);
-      this.m_FilteredDataGridView.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+      this.m_FilteredDataGridView.Margin = new System.Windows.Forms.Padding(4);
       this.m_FilteredDataGridView.Name = "m_FilteredDataGridView";
       dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
       dataGridViewCellStyle4.BackColor = System.Drawing.SystemColors.Control;
@@ -1423,7 +1423,7 @@ namespace CsvTools
       this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.Controls.Add(this.m_ToolStripContainer);
-      this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+      this.Margin = new System.Windows.Forms.Padding(4);
       this.Name = "DetailControl";
       this.Size = new System.Drawing.Size(1163, 432);
       this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.DetailControl_KeyDown);
