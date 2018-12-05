@@ -208,12 +208,6 @@ namespace CsvTools
     int SkipRows { get; set; }
 
     /// <summary>
-    ///   Gets or sets the connection string.
-    /// </summary>
-    /// <value>The connection string.</value>
-    string SourceSetting { get; set; }
-
-    /// <summary>
     ///   Gets or sets the SQL statement.
     /// </summary>
     /// <value>The SQL statement.</value>

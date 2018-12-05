@@ -36,8 +36,7 @@
       // detailControl
       // 
       dataGridViewCellStyle1.BackColor = System.Drawing.Color.Gainsboro;
-      this.detailControl.AlternatingRowDefaultCellSyle = dataGridViewCellStyle1;
-      this.detailControl.BatchSize = ((uint)(0u));
+      this.detailControl.AlternatingRowDefaultCellSyle = dataGridViewCellStyle1;      
       this.detailControl.DataTable = null;
       dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
       dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;

@@ -83,6 +83,8 @@ namespace CsvTools
     private bool m_EndOfLine;
 
     private bool m_HasQualifier;
+    private string[] m_HeaderRow = null;
+    private ImprovedStream m_ImprovedStream;
     private long m_MaxRecordNumber;
 
     /// <summary>
@@ -95,14 +97,12 @@ namespace CsvTools
     private ushort m_NumWarningsQuote;
     private ushort m_NumWarningsUnknownChar;
 
+    private ReAlignColumns m_RealignColumns = null;
+
     /// <summary>
     ///   The TextReader to read the file
     /// </summary>
     private StreamReader m_TextReader;
-
-    private ImprovedStream m_ImprovedStream;
-    private ReAlignColumns m_RealignColumns = null;
-    private string[] m_HeaderRow = null;
 
     public CsvFileReader(ICsvFile fileSetting)
       : base(fileSetting)
@@ -146,47 +146,20 @@ namespace CsvTools
     public bool IsClosed => m_TextReader == null;
 
     /// <summary>
-    ///   Gets the value of the specified column as a Boolean.
+    ///   Releases unmanaged and - optionally - managed resources
     /// </summary>
-    /// <param name="i">The zero-based column ordinal.</param>
-    /// <returns>The value of the column.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">i</exception>
-    /// <exception cref="FormatException"></exception>
-    /// <exception cref="T:System.IndexOutOfRangeException">
-    ///   The index passed was outside the range of 0 through <see cref="P:System.Data.IDataRecord.FieldCount" />.
-    /// </exception>
-    public override bool GetBoolean(int i)
+    /// <param name="disposing">
+    ///   <c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only
+    ///   unmanaged resources.
+    /// </param>
+    public override void Dispose(bool disposing)
     {
-      Contract.Assume(CurrentRowColumnText != null);
-      var parsed = GetBooleanNull(CurrentRowColumnText[i], i);
-      if (parsed.HasValue)
-        return parsed.Value;
-
-      // Warning was added by GetBooleanNull
-      throw new FormatException(
-        $"'{CurrentRowColumnText[i]}' is not a boolean ({GetColumn(i).True}/{GetColumn(i).False})");
-    }
-
-    /// <summary>
-    ///   Gets the 8-bit unsigned integer value of the specified column.
-    /// </summary>
-    /// <param name="i">The zero-based column ordinal.</param>
-    /// <returns>The 8-bit unsigned integer value of the specified column.</returns>
-    /// <exception cref="T:System.IndexOutOfRangeException">
-    ///   The index passed was outside the range of 0 through <see cref="P:System.Data.IDataRecord.FieldCount" />.
-    /// </exception>
-    public byte GetByte(int i)
-    {
-      Contract.Assume(CurrentRowColumnText != null);
-      try
-      {
-        return byte.Parse(CurrentRowColumnText[i], CultureInfo.InvariantCulture);
-      }
-      catch (Exception)
-      {
-        throw WarnAddFormatException(i,
-          $"'{CurrentRowColumnText[i]}' is not byte");
-      }
+      // Dispose-time code should also set references of all owned objects to null, after disposing
+      // them. This will allow the referenced objects to be garbage collected even if not all
+      // references to the "parent" are released. It may be a significant memory consumption win if
+      // the referenced objects are large, such as big arrays, collections, etc.
+      if (disposing)
+        IndividualClose();
     }
 
     /// <summary>
@@ -204,45 +177,6 @@ namespace CsvTools
     ///   The index passed was outside the range of 0 through <see cref="P:System.Data.IDataRecord.FieldCount" />.
     /// </exception>
     public long GetBytes(int i, long fieldOffset, byte[] buffer, int bufferoffset, int length) => throw new NotImplementedException();
-
-    /// <summary>
-    ///   Gets the character value of the specified column.
-    /// </summary>
-    /// <param name="i">The zero-based column ordinal.</param>
-    /// <returns>The character value of the specified column.</returns>
-    /// <exception cref="T:System.IndexOutOfRangeException">
-    ///   The index passed was outside the range of 0 through <see cref="P:System.Data.IDataRecord.FieldCount" />.
-    /// </exception>
-    public char GetChar(int i)
-    {
-      Contract.Assume(CurrentRowColumnText != null);
-      return CurrentRowColumnText[i][0];
-    }
-
-    /// <summary>
-    ///   Reads a stream of characters from the specified column offset into the buffer as an array,
-    ///   starting at the given buffer offset.
-    /// </summary>
-    /// <param name="i">The zero-based column ordinal.</param>
-    /// <param name="fieldoffset">The index within the row from which to start the read operation.</param>
-    /// <param name="buffer">The buffer into which to read the stream of bytes.</param>
-    /// <param name="bufferoffset">The index for <paramref name="buffer" /> to start the read operation.</param>
-    /// <param name="length">The number of bytes to read.</param>
-    /// <returns>The actual number of characters read.</returns>
-    /// <exception cref="T:System.IndexOutOfRangeException">
-    ///   The index passed was outside the range of 0 through <see cref="P:System.Data.IDataRecord.FieldCount" />.
-    /// </exception>
-    public long GetChars(int i, long fieldoffset, char[] buffer, int bufferoffset, int length)
-    {
-      Debug.Assert(CurrentRowColumnText != null);
-      var offset = (int)fieldoffset;
-      var maxLen = CurrentRowColumnText[i].Length - offset;
-      if (maxLen > length)
-        maxLen = length;
-      CurrentRowColumnText[i].CopyTo(offset, buffer ?? throw new ArgumentNullException(nameof(buffer)), bufferoffset,
-        maxLen);
-      return maxLen;
-    }
 
     /// <summary>
     ///   Returns an <see cref="T:System.Data.IDataReader" /> for the specified column ordinal.
@@ -266,165 +200,6 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets the date and time data value of the specified field.
-    /// </summary>
-    /// <param name="i">The index of the field to find.</param>
-    /// <returns>The date and time data value of the specified field.</returns>
-    /// <exception cref="T:System.IndexOutOfRangeException">
-    ///   The index passed was outside the range of 0 through <see cref="P:System.Data.IDataRecord.FieldCount" />.
-    /// </exception>
-    public override DateTime GetDateTime(int i)
-    {
-      Contract.Assume(CurrentRowColumnText != null);
-      var dt = GetDateTimeNull(null, CurrentRowColumnText[i], null, GetTimeValue(i), GetColumn(i));
-      if (dt.HasValue)
-        return dt.Value;
-
-      // Warning was added by GetDecimalNull
-      throw WarnAddFormatException(i,
-        $"'{CurrentRowColumnText[i]}' is not a date of the format {GetColumn(i).DateFormat}");
-    }
-
-    /// <summary>
-    ///   Gets the fixed-position numeric value of the specified field.
-    /// </summary>
-    /// <param name="i">The index of the field to find.</param>
-    /// <returns>The fixed-position numeric value of the specified field.</returns>
-    /// <exception cref="T:System.IndexOutOfRangeException">
-    ///   The index passed was outside the range of 0 through <see cref="P:System.Data.IDataRecord.FieldCount" />.
-    /// </exception>
-    public override decimal GetDecimal(int i)
-    {
-      Contract.Assume(CurrentRowColumnText != null);
-      var decimalValue = GetDecimalNull(CurrentRowColumnText[i], i);
-      if (decimalValue.HasValue)
-        return decimalValue.Value;
-
-      // Warning was added by GetDecimalNull
-      throw WarnAddFormatException(i,
-        $"'{CurrentRowColumnText[i]}' is not a decimal");
-    }
-
-    /// <summary>
-    ///   Gets the double-precision floating point number of the specified field.
-    /// </summary>
-    /// <param name="i">The index of the field to find.</param>
-    /// <returns>The double-precision floating point number of the specified field.</returns>
-    /// <exception cref="T:System.IndexOutOfRangeException">
-    ///   The index passed was outside the range of 0 through <see cref="P:System.Data.IDataRecord.FieldCount" />.
-    /// </exception>
-    public override double GetDouble(int i)
-    {
-      Contract.Assume(CurrentRowColumnText != null);
-      var decimalValue = GetDecimalNull(CurrentRowColumnText[i], i);
-      if (decimalValue.HasValue)
-        return Convert.ToDouble(decimalValue.Value);
-
-      // Warning was added by GetDecimalNull
-      throw WarnAddFormatException(i,
-        $"'{CurrentRowColumnText[i]}' is not a double");
-    }
-
-    /// <summary>
-    ///   Gets the single-precision floating point number of the specified field.
-    /// </summary>
-    /// <param name="i">The index of the field to find.</param>
-    /// <returns>The single-precision floating point number of the specified field.</returns>
-    /// <exception cref="T:System.IndexOutOfRangeException">
-    ///   The index passed was outside the range of 0 through <see cref="P:System.Data.IDataRecord.FieldCount" />.
-    /// </exception>
-    public float GetFloat(int i)
-    {
-      Contract.Assume(CurrentRowColumnText != null);
-      var decimalValue = GetDecimalNull(CurrentRowColumnText[i], i);
-      if (decimalValue.HasValue)
-        return Convert.ToSingle(decimalValue, CultureInfo.InvariantCulture);
-
-      // Warning was added by GetDecimalNull
-      throw WarnAddFormatException(i,
-        $"'{CurrentRowColumnText[i]}' is not a float");
-    }
-
-    /// <summary>
-    ///   Returns the GUID value of the specified field.
-    /// </summary>
-    /// <param name="i">The index of the field to find.</param>
-    /// <returns>The GUID value of the specified field.</returns>
-    /// <exception cref="T:System.IndexOutOfRangeException">
-    ///   The index passed was outside the range of 0 through <see cref="P:System.Data.IDataRecord.FieldCount" />.
-    /// </exception>
-    public override Guid GetGuid(int i)
-    {
-      Contract.Assume(CurrentRowColumnText != null);
-      try
-      {
-        return new Guid(CurrentRowColumnText[i]);
-      }
-      catch (Exception)
-      {
-        throw WarnAddFormatException(i,
-          $"'{CurrentRowColumnText[i]}' is not a Guid");
-      }
-    }
-
-    /// <summary>
-    ///   Gets the 16-bit signed integer value of the specified field.
-    /// </summary>
-    /// <param name="i">The index of the field to find.</param>
-    /// <returns>The 16-bit signed integer value of the specified field.</returns>
-    /// <exception cref="T:System.IndexOutOfRangeException">
-    ///   The index passed was outside the range of 0 through <see cref="P:System.Data.IDataRecord.FieldCount" />.
-    /// </exception>
-    public short GetInt16(int i)
-    {
-      Contract.Assume(CurrentRowColumnText != null);
-      return GetInt16(CurrentRowColumnText[i], i);
-    }
-
-    /// <summary>
-    ///   Gets the 32-bit signed integer value of the specified field.
-    /// </summary>
-    /// <param name="i">The index of the field to find.</param>
-    /// <returns>The 32-bit signed integer value of the specified field.</returns>
-    /// <exception cref="T:System.IndexOutOfRangeException">
-    ///   The index passed was outside the range of 0 through <see cref="P:System.Data.IDataRecord.FieldCount" />.
-    /// </exception>
-    public override int GetInt32(int i)
-    {
-      Contract.Assume(CurrentRowColumnText != null);
-      return GetInt32(CurrentRowColumnText[i], i);
-    }
-
-    /// <summary>
-    ///   Gets the 64-bit signed integer value of the specified field.
-    /// </summary>
-    /// <param name="i">The index of the field to find.</param>
-    /// <returns>The 64-bit signed integer value of the specified field.</returns>
-    /// <exception cref="T:System.IndexOutOfRangeException">
-    ///   The index passed was outside the range of 0 through <see cref="P:System.Data.IDataRecord.FieldCount" />.
-    /// </exception>
-    public override long GetInt64(int i)
-    {
-      Contract.Assume(CurrentRowColumnText != null);
-      return GetInt64(CurrentRowColumnText[i], i);
-    }
-
-    /// <summary>
-    ///   Gets the string value of the specified field.
-    /// </summary>
-    /// <param name="i">The index of the field to find.</param>
-    /// <returns>The string value of the specified field.</returns>
-    /// <exception cref="T:System.IndexOutOfRangeException">
-    ///   The index passed was outside the range of 0 through <see cref="P:System.Data.IDataRecord.FieldCount" />.
-    /// </exception>
-    public override string GetString(int i)
-    {
-      Contract.Assume(CurrentRowColumnText != null);
-
-      return CurrentRowColumnText[i];
-    }
-
-    /// <summary>
     ///   Return the value of the specified field.
     /// </summary>
     /// <param name="columnNumber">The index of the field to find.</param>
@@ -442,21 +217,6 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets all the attribute fields in the collection for the current record.
-    /// </summary>
-    /// <param name="values">
-    ///   An array of <see cref="T:object" /> to copy the attribute fields into.
-    /// </param>
-    /// <returns>The number of instances of <see cref="T:object" /> in the array.</returns>
-    public int GetValues(object[] values)
-    {
-      Debug.Assert(CurrentRowColumnText != null);
-      for (var col = 0; col < FieldCount; col++)
-        values[col] = CurrentRowColumnText[col];
-      return FieldCount;
-    }
-
-    /// <summary>
     ///   Advances the <see cref="T:System.Data.IDataReader" /> to the next record.
     /// </summary>
     /// <returns>true if there are more rows; otherwise, false.</returns>
@@ -468,38 +228,6 @@ namespace CsvTools
       if (couldRead && !CancellationToken.IsCancellationRequested && !IsClosed) return true;
       HandleReadFinished();
       return false;
-    }
-
-    /// <summary>
-    ///   Releases unmanaged and - optionally - managed resources
-    /// </summary>
-    /// <param name="disposing">
-    ///   <c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only
-    ///   unmanaged resources.
-    /// </param>
-    public override void Dispose(bool disposing)
-    {
-      // Dispose-time code should also set references of all owned objects to null, after disposing
-      // them. This will allow the referenced objects to be garbage collected even if not all
-      // references to the "parent" are released. It may be a significant memory consumption win if
-      // the referenced objects are large, such as big arrays, collections, etc.
-      if (disposing)
-        IndividualClose();
-    }
-
-    /// <summary>
-    ///   Gets the associated value.
-    /// </summary>
-    /// <param name="i">The i.</param>
-    /// <returns></returns>
-    private string GetTimeValue(int i)
-    {
-      Contract.Assume(i >= 0);
-      Contract.Assume(i < FieldCount);
-      var colTime = AssociatedTimeCol[i];
-      if (colTime == -1) return null;
-      Contract.Assume(CurrentRowColumnText != null);
-      return CurrentRowColumnText[colTime];
     }
 
     protected override void IndividualClose()
@@ -783,7 +511,7 @@ namespace CsvTools
       }
 
       // if we still have only one column and we should have a number of columns assume this was nonsense like a report footer
-      if (rowLength == 1 && FieldCount > 3)
+      if (rowLength == 1 && FieldCount > 3 && CurrentRowColumnText[0].Length < 10)
       {
         RecordNumber--;
         goto Restart;
@@ -889,6 +617,27 @@ namespace CsvTools
       HandleWarning(headerRow.Count,
         "The last column does not have a column name, this column will be ignored.".AddWarningId());
       return headerRow.Count - 1;
+    }
+
+    /// <summary>
+    ///   Fills the buffer with data from the reader.
+    /// </summary>
+    /// <returns><c>true</c> if data was successfully read; otherwise, <c>false</c>.</returns>
+    private void ReadIntoBuffer()
+    {
+      Contract.Requires(m_TextReader != null);
+      Contract.Requires(m_Buffer != null);
+
+      if (EndOfFile)
+        return;
+      m_BufferFilled = m_TextReader.Read(m_Buffer, 0, c_Buffersize);
+      EndOfFile |= m_BufferFilled == 0;
+      // Handle double decoding
+      if (!m_CsvFile.DoubleDecode || m_BufferFilled <= 0) return;
+      var result = Encoding.UTF8.GetChars(Encoding.GetEncoding(28591).GetBytes(m_Buffer, 0, m_BufferFilled));
+      // The twice decode text is smaller
+      m_BufferFilled = result.GetLength(0);
+      result.CopyTo(m_Buffer, 0);
     }
 
     /// <summary>
@@ -1121,27 +870,6 @@ namespace CsvTools
         WarnLinefeed(columnNo);
 
       return returnValue;
-    }
-
-    /// <summary>
-    ///   Fills the buffer with data from the reader.
-    /// </summary>
-    /// <returns><c>true</c> if data was successfully read; otherwise, <c>false</c>.</returns>
-    private void ReadIntoBuffer()
-    {
-      Contract.Requires(m_TextReader != null);
-      Contract.Requires(m_Buffer != null);
-
-      if (EndOfFile)
-        return;
-      m_BufferFilled = m_TextReader.Read(m_Buffer, 0, c_Buffersize);
-      EndOfFile |= m_BufferFilled == 0;
-      // Handle double decoding
-      if (!m_CsvFile.DoubleDecode || m_BufferFilled <= 0) return;
-      var result = Encoding.UTF8.GetChars(Encoding.GetEncoding(28591).GetBytes(m_Buffer, 0, m_BufferFilled));
-      // The twice decode text is smaller
-      m_BufferFilled = result.GetLength(0);
-      result.CopyTo(m_Buffer, 0);
     }
 
     /// <summary>

@@ -387,35 +387,31 @@ namespace CsvTools
         else
         {
           comboBoxColumnName.Visible = true;
-          ICollection<string> allColumns;
+          ICollection<string> allColumns = new List<string>();
           using (var frm = new FormProcessDisplay("Get Columns"))
           {
-            // get the columns from the file
-
+            frm.Show(this);
             try
             {
-              allColumns = CsvHelper.GetColumnHeader(m_FileSetting, true, frm);
+              if (!m_WriteSetting)
+              {
+                // get the columns from the file
+                allColumns = CsvHelper.GetColumnHeader(m_FileSetting, true, frm);
+              }
+              else
+              {
+                frm.SetProcess("Executing SQL");
+                // get the columns from the SQL
+                using (var dataReader = ApplicationSetting.SQLDataReader(m_FileSetting.SqlStatement))
+                {
+                  for (int i = 0; i < dataReader.FieldCount; i++)
+                    allColumns.Add(dataReader.GetName(i));
+                }
+              }
             }
             catch (Exception ex)
             {
-              this.ShowError(ex, "Could not open file to determine columns");
-              allColumns = new List<string>();
-            }
-
-            // in case its a write setting, we can check the source setting
-            if (allColumns.IsEmpty() && m_WriteSetting)
-            {
-              var source = BaseFileWriter.GetSourceSetting(m_FileSetting);
-              if (source != null)
-                try
-                {
-                  allColumns = CsvHelper.GetColumnHeader(source, true, frm);
-                }
-                catch (Exception ex)
-                {
-                  this.ShowError(ex, "Could not open source setting to determine columns");
-                  allColumns = new List<string>();
-                }
+              this.ShowError(ex, "Could not determine columns");
             }
           }
 

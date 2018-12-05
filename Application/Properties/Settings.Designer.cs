@@ -25,7 +25,7 @@ namespace CsvTools.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("250")]
+        [global::System.Configuration.DefaultSettingValueAttribute("200")]
         public int SampleValues {
             get {
                 return ((int)(this["SampleValues"]));
@@ -37,7 +37,7 @@ namespace CsvTools.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("10000")]
+        [global::System.Configuration.DefaultSettingValueAttribute("20000")]
         public int CheckedRecords {
             get {
                 return ((int)(this["CheckedRecords"]));
@@ -524,7 +524,7 @@ namespace CsvTools.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("4")]
+        [global::System.Configuration.DefaultSettingValueAttribute("5")]
         public int MinSamplesForIntDate {
             get {
                 return ((int)(this["MinSamplesForIntDate"]));

@@ -67,13 +67,13 @@ namespace CsvTools
     /// <returns>
     ///   Number of rows written
     /// </returns>
-    protected void DataReader2Stream(IDataReader reader, TextWriter writer, IFileSetting readerFileSetting,
+    protected void DataReader2Stream(IDataReader reader, TextWriter writer,
       CancellationToken cancellationToken)
     {
       Contract.Requires(reader != null);
       Contract.Requires(writer != null);
 
-      var columnInfos = GetColumnInformation(reader.GetSchemaTable(), readerFileSetting);
+      var columnInfos = GetColumnInformation(reader);
       var enumerable = columnInfos.ToList();
       if (enumerable.IsEmpty())
         throw new ApplicationException("No columns defined to be written.");
@@ -150,9 +150,6 @@ namespace CsvTools
         if (emptyColumns == numColumns)
         {
           numEmptyRows++;
-          // Stop if we do encounter the given number of consecutive empty rows
-          if (readerFileSetting.ConsecutiveEmptyRows > 0 && numEmptyRows > readerFileSetting.ConsecutiveEmptyRows)
-            break;
         }
         else
         {
@@ -174,13 +171,13 @@ namespace CsvTools
     /// <returns>
     ///   Number of records written
     /// </returns>
-    protected override void Write(IFileSetting fileSetting, IDataReader reader, Stream output, CancellationToken cancellationToken)
+    protected override void Write(IDataReader reader, Stream output, CancellationToken cancellationToken)
     {
       Contract.Assume(!string.IsNullOrEmpty(m_StructuredWriterFile.FullPath));
 
       using (var writer = new StreamWriter(output, new UTF8Encoding(true), 4096))
       {
-        DataReader2Stream(reader, writer, fileSetting, cancellationToken);
+        DataReader2Stream(reader, writer, cancellationToken);
       }
     }
   }

@@ -3,10 +3,10 @@
   <Profiles />
   <Settings>
     <Setting Name="SampleValues" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">250</Value>
+      <Value Profile="(Default)">200</Value>
     </Setting>
     <Setting Name="CheckedRecords" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">10000</Value>
+      <Value Profile="(Default)">20000</Value>
     </Setting>
     <Setting Name="DetectGUID" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
@@ -137,7 +137,7 @@
       <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="MinSamplesForIntDate" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">4</Value>
+      <Value Profile="(Default)">5</Value>
     </Setting>
     <Setting Name="WindowMaximized" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>

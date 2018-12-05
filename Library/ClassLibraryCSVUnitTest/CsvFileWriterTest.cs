@@ -12,13 +12,13 @@ namespace CsvTools.Tests
   public class CsvFileWriterTest
   {
     private readonly string m_ApplicationDirectory = FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles";
-    private readonly CsvFile m_ReadFile = new CsvFile();
+
     private CsvFile m_WriteFile = new CsvFile();
+    public MimicSQLReader mimicReader = new MimicSQLReader();
 
     [TestMethod]
     public void ProcessDisplay()
     {
-      var Schema = GetShema();
       var writer = new CsvFileWriter(m_WriteFile, CancellationToken.None);
       IProcessDisplay prc = new MockProcessDisplay
       {
@@ -37,110 +37,6 @@ namespace CsvTools.Tests
     private void Prc_Progress(object sender, ProgressEventArgs e)
     {
       throw new NotImplementedException();
-    }
-
-    [TestMethod]
-    public void GetColumnInformationDT()
-    {
-      var Schema = GetShema();
-      var cols = new CsvFileWriter(m_WriteFile, CancellationToken.None).GetColumnInformation(Schema, null);
-
-      Assert.AreEqual(6, cols.Count());
-      Assert.AreEqual("ID", cols.First().Header, "ID");
-      Assert.AreEqual("LangCodeID", cols.ToArray()[1].Header, "LangCodeID");
-      Assert.AreEqual("ExamDate", cols.ToArray()[2].Header, "ExamDate");
-      Assert.AreEqual("ExamTime", cols.ToArray()[3].Header, "ExamTime");
-    }
-
-    [TestMethod]
-    public void GetColumnInformationNoDT()
-    {
-      var cols = new CsvFileWriter(m_WriteFile, CancellationToken.None).GetColumnInformation(null, null);
-
-      Assert.AreEqual(6, cols.Count());
-      Assert.AreEqual("ID", cols.First().Header, "ID");
-      Assert.AreEqual("LangCodeID", cols.ToArray()[1].Header, "LangCodeID");
-      Assert.AreEqual("ExamDate", cols.ToArray()[2].Header, "ExamDate");
-      Assert.AreEqual("ExamTime", cols.ToArray()[3].Header, "ExamTime");
-    }
-
-    [TestMethod]
-    public void GetColumnInformationWithReadFormat()
-    {
-      var Schema = GetShema();
-      var writer = new CsvFileWriter(m_WriteFile, CancellationToken.None);
-
-      var cols = writer.GetColumnInformation(Schema, m_ReadFile);
-
-      Assert.IsNull(writer.ErrorMessage, "Error Message");
-      // IsNativeLang is gone
-      Assert.AreEqual(5, cols.Count(), "Column Count");
-      Assert.AreEqual("ID", cols.First().Header, "ID");
-      Assert.AreEqual("LangCodeID", cols.ToArray()[1].Header, "LangCodeID");
-      Assert.AreEqual("ExamDate", cols.ToArray()[2].Header, "ExamDate");
-      Assert.AreEqual("ExamTime", cols.ToArray()[3].Header, "ExamTime");
-    }
-
-    [TestMethod]
-    public void GetDataReaderSchema()
-    {
-      var Schema = GetShema();
-      Assert.AreEqual(6, Schema.Rows.Count, "ColumnCount");
-      Assert.AreEqual("ID", Schema.Rows[0]["ColumnName"], "Column1");
-    }
-
-    [TestMethod]
-    public void GetDataReaderSchemaNull()
-    {
-      try
-      {
-        var Schema = new CsvFileWriter(null, CancellationToken.None).GetDataReaderSchema();
-      }
-      catch (ArgumentNullException)
-      {
-      }
-      catch (NullReferenceException)
-      {
-      }
-      catch
-      {
-        Assert.Fail();
-      }
-    }
-
-    [TestMethod]
-    public void GetSourceDataTableWriteFile0()
-    {
-      var writeFile = new CsvFile();
-      writeFile.ID = "Write";
-      writeFile.SourceSetting = "Read";
-
-      var dt = new CsvFileWriter(writeFile, CancellationToken.None).GetSourceDataTable(10);
-      Assert.AreEqual(7, dt.Rows.Count);
-    }
-
-    [TestMethod]
-    public void GetSourceDataTableWriteFile1()
-    {
-      var writeFile = new CsvFile();
-      writeFile.ID = "Write";
-      writeFile.SourceSetting = "Read";
-
-      var dt = new CsvFileWriter(m_WriteFile, CancellationToken.None).GetSourceDataTable(1);
-      Assert.AreEqual(1, dt.Rows.Count);
-    }
-
-    [TestMethod]
-    public void GetSourceDataTableWriteFileAllFormats()
-    {
-      var writeFile = new CsvFile
-      {
-        ID = "Write",
-        SourceSetting = Helper.ReaderGetAllFormats(ApplicationSetting.ToolSetting).ID
-      };
-
-      var dt = new CsvFileWriter(writeFile, CancellationToken.None).GetSourceDataTable(0);
-      Assert.AreEqual(1065, dt.Rows.Count);
     }
 
     [TestMethod]
@@ -212,6 +108,7 @@ namespace CsvTools.Tests
     [TestInitialize]
     public void Init()
     {
+      CsvFile m_ReadFile = new CsvFile();
       m_ReadFile.ID = "Read";
       m_ReadFile.FileName = Path.Combine(m_ApplicationDirectory, "BasicCSV.txt");
       m_ReadFile.FileFormat.FieldDelimiter = ",";
@@ -230,10 +127,11 @@ namespace CsvTools.Tests
       });
 
       ApplicationSetting.ToolSetting.Input.Add(m_ReadFile);
+      mimicReader.AddSetting(m_ReadFile);
 
       m_WriteFile = new CsvFile();
       m_WriteFile.ID = "Write";
-      m_WriteFile.SourceSetting = "Read";
+      m_WriteFile.SqlStatement = m_ReadFile.ID;
 
       var add = new Column();
       add.Name = "ExamDate";
@@ -262,7 +160,7 @@ namespace CsvTools.Tests
 
       FileSystemUtils.FileDelete(writeFile.FileName);
 
-      writeFile.SourceSetting = "Read";
+      writeFile.SqlStatement = "Read";
       writeFile.FileFormat.FieldDelimiter = "|";
 
       var writer = new CsvFileWriter(writeFile, CancellationToken.None);
@@ -285,8 +183,9 @@ namespace CsvTools.Tests
       };
 
       FileSystemUtils.FileDelete(writeFile.FileName);
-
-      writeFile.SourceSetting = Helper.ReaderGetAllFormats(ApplicationSetting.ToolSetting).ID;
+      var setting = Helper.ReaderGetAllFormats(ApplicationSetting.ToolSetting);
+      mimicReader.AddSetting(setting);
+      writeFile.SqlStatement = setting.ID;
 
       writeFile.FileFormat.FieldDelimiter = "|";
       var cf = writeFile.ColumnAdd(new Column { Name = "DateTime", DataType = DataType.DateTime });
@@ -301,40 +200,46 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    [ExpectedException(typeof(ApplicationException))]
     public void WriteSameAsReader()
     {
       var writeFile = new CsvFile();
       writeFile.ID = "Write";
-      writeFile.FileName = m_ReadFile.FileName;
-      writeFile.SourceSetting = "Read";
+      writeFile.FileName = mimicReader.ReadSettings.FirstOrDefault(x => x.ID == "Read").FileName;
+      writeFile.SqlStatement = "Read";
       writeFile.FileFormat.FieldDelimiter = "|";
 
       var writer = new CsvFileWriter(writeFile, CancellationToken.None);
-
+      Assert.IsTrue(string.IsNullOrEmpty(writer.ErrorMessage));
       var res = writer.Write();
-      Assert.AreEqual(0, res);
+      Assert.IsFalse(string.IsNullOrEmpty(writer.ErrorMessage));
     }
 
     [TestMethod]
-    [ExpectedException(typeof(ApplicationException))]
     public void WriteSameAsReaderCritical()
     {
       var writeFile = new CsvFile();
       writeFile.ID = "Write";
-      writeFile.FileName = m_ReadFile.FileName;
-      writeFile.SourceSetting = "Read";
+      writeFile.FileName = mimicReader.ReadSettings.FirstOrDefault(x => x.ID == "Read").FileName;
+      writeFile.SqlStatement = "Read";
       writeFile.InOverview = true;
       writeFile.FileFormat.FieldDelimiter = "|";
+      try
+      {
+        var writer = new CsvFileWriter(writeFile, CancellationToken.None);
 
-      var writer = new CsvFileWriter(writeFile, CancellationToken.None);
-
-      var res = writer.Write();
-    }
-
-    private DataTable GetShema()
-    {
-      return new CsvFileWriter(m_WriteFile, CancellationToken.None).GetDataReaderSchema();
+        var res = writer.Write();
+        Assert.Fail("No Exception");
+      }
+      catch (ApplicationException)
+      {
+      }
+      catch (System.IO.IOException)
+      {
+      }
+      catch (Exception)
+      {
+        Assert.Fail("Wrong exception");
+      }
     }
   }
 }

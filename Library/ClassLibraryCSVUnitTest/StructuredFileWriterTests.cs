@@ -9,11 +9,12 @@ namespace CsvTools.Tests
   public class StructuredFileWriterTests
   {
     private readonly string m_ApplicationDirectory = FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles";
-    private readonly CsvFile m_ReadFile = new CsvFile();
+    public MimicSQLReader mimicReader = new MimicSQLReader();
 
     [TestInitialize]
     public void Init()
     {
+      CsvFile m_ReadFile = new CsvFile();
       m_ReadFile.ID = "Read";
       m_ReadFile.FileName = Path.Combine(m_ApplicationDirectory, "BasicCSV.txt");
       var cf = m_ReadFile.ColumnAdd(new Column { Name = "ExamDate", DataType = DataType.DateTime });
@@ -29,6 +30,8 @@ namespace CsvTools.Tests
         DataType = DataType.Boolean,
         Ignore = true
       });
+
+      mimicReader.AddSetting(m_ReadFile);
       ApplicationSetting.ToolSetting.Input.Clear();
       ApplicationSetting.ToolSetting.Input.Add(m_ReadFile);
     }
@@ -39,8 +42,7 @@ namespace CsvTools.Tests
       var writeFile = new StructuredFile();
       writeFile.ID = "Write";
       writeFile.FileName = Path.Combine(m_ApplicationDirectory, "StructuredFileOutputJSON.txt");
-      ;
-      writeFile.SourceSetting = "Read";
+      writeFile.SqlStatement = "Read";
       writeFile.InOverview = true;
       writeFile.JSONEncode = true;
       var cols = DetermineColumnFormat.GetWriterSourceColumns(CancellationToken.None, writeFile);
@@ -64,8 +66,8 @@ namespace CsvTools.Tests
       var writeFile = new StructuredFile();
       writeFile.ID = "Write";
       writeFile.FileName = Path.Combine(m_ApplicationDirectory, "StructuredFileOutputXML.txt");
-      ;
-      writeFile.SourceSetting = "Read";
+
+      writeFile.SqlStatement = "Read";
       writeFile.InOverview = true;
       writeFile.JSONEncode = false;
       var cols = DetermineColumnFormat.GetWriterSourceColumns(CancellationToken.None, writeFile);

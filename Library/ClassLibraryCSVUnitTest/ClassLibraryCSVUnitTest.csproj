@@ -211,6 +211,7 @@
     <Compile Include="TestCopyTo.cs" />
     <Compile Include="ContractFailedHandlerIgnore.cs" />
     <Compile Include="ColumnInfoTest.cs" />
+    <Compile Include="MimicSQLReader.cs" />
     <Compile Include="TimeToCompletionTests.cs" />
     <Compile Include="TimeZoneMappingTests.cs" />
     <Compile Include="ValidationResultTests.cs" />

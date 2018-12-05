@@ -149,6 +149,7 @@
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="BaseFileReaderTyped.cs" />
     <Compile Include="BaseSettings.cs" />
     <Compile Include="Cache.cs" />
     <Compile Include="CheckResult.cs" />

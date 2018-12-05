@@ -49,11 +49,6 @@ namespace CsvTools
     public const string cStartLineNumberFieldName = "#Line";
 
     /// <summary>
-    ///   The maximum value
-    /// </summary>
-    protected const int cMaxValue = 10000;
-
-    /// <summary>
     ///   Collection of the artificial field names
     /// </summary>
     public static ICollection<string> ArtificalFields = new HashSet<string>
@@ -64,8 +59,10 @@ namespace CsvTools
       cErrorField
     };
 
-    private readonly IFileSetting m_FileSetting;
-    private readonly IntervalAction m_IntervalAction = new IntervalAction();
+    /// <summary>
+    ///   The maximum value
+    /// </summary>
+    protected const int cMaxValue = 10000;
 
     /// <summary>
     ///   An array of associated col
@@ -87,6 +84,8 @@ namespace CsvTools
     /// </summary>
     protected string[] CurrentRowColumnText;
 
+    private readonly IFileSetting m_FileSetting;
+    private readonly IntervalAction m_IntervalAction = new IntervalAction();
     private CancellationToken m_CancellationToken;
     private int m_FieldCount;
     private IProcessDisplay m_ProcessDisplay;
@@ -96,6 +95,16 @@ namespace CsvTools
       Debug.Assert(fileSetting != null);
       m_FileSetting = fileSetting;
     }
+
+    /// <summary>
+    ///   Event to be raised if reading the files is completed
+    /// </summary>
+    public virtual event EventHandler ReadFinished;
+
+    /// <summary>
+    ///   Event handler called if a warning or error occurred
+    /// </summary>
+    public virtual event EventHandler<WarningEventArgs> Warning;
 
     /// <summary>
     ///   A cancellation token, to stop long running processes
@@ -206,14 +215,12 @@ namespace CsvTools
     public object this[int columnNumber] => GetValue(columnNumber);
 
     /// <summary>
-    ///   Event to be raised if reading the files is completed
+    ///   Closes the <see cref="T:System.Data.IDataReader" /> Object.
     /// </summary>
-    public virtual event EventHandler ReadFinished;
-
-    /// <summary>
-    ///   Event handler called if a warning or error occurred
-    /// </summary>
-    public virtual event EventHandler<WarningEventArgs> Warning;
+    public void Close()
+    {
+      IndividualClose();
+    }
 
     /// <summary>
     ///   Performs application-defined tasks associated with freeing, releasing, or resetting
@@ -241,7 +248,82 @@ namespace CsvTools
     /// </summary>
     /// <param name="i">The i.</param>
     /// <returns></returns>
-    public abstract bool GetBoolean(int i);
+    public virtual bool GetBoolean(int i)
+    {
+      Debug.Assert(i >= 0);
+      Debug.Assert(CurrentRowColumnText != null);
+
+      var parsed = GetBooleanNull(CurrentRowColumnText[i], i);
+      if (parsed.HasValue)
+        return parsed.Value;
+      // Warning was added by GetBooleanNull
+      throw WarnAddFormatException(i,
+        $"'{CurrentRowColumnText[i]}' is not a boolean ({GetColumn(i).True}/{GetColumn(i).False})");
+    }
+
+    /// <summary>
+    ///   Gets the 8-bit unsigned integer value of the specified column.
+    /// </summary>
+    /// <param name="i">The zero-based column ordinal.</param>
+    /// <returns>The 8-bit unsigned integer value of the specified column.</returns>
+    /// <exception cref="T:System.IndexOutOfRangeException">
+    ///   The index passed was outside the range of 0 through <see cref="P:System.Data.IDataRecord.FieldCount" />.
+    /// </exception>
+    public virtual byte GetByte(int i)
+    {
+      Debug.Assert(i >= 0);
+      Debug.Assert(i < FieldCount);
+      Debug.Assert(CurrentRowColumnText != null);
+      try
+      {
+        return byte.Parse(CurrentRowColumnText[i], CultureInfo.InvariantCulture);
+      }
+      catch (Exception)
+      {
+        throw WarnAddFormatException(i,
+          $"'{CurrentRowColumnText[i]}' is not byte");
+      }
+    }
+
+    /// <summary>
+    ///   Gets the character value of the specified column.
+    /// </summary>
+    /// <param name="i">The zero-based column ordinal.</param>
+    /// <returns>The character value of the specified column.</returns>
+    /// <exception cref="T:System.IndexOutOfRangeException">
+    ///   The index passed was outside the range of 0 through <see cref="P:System.Data.IDataRecord.FieldCount" />.
+    /// </exception>
+    public virtual char GetChar(int i)
+    {
+      Debug.Assert(i >= 0);
+      Debug.Assert(CurrentRowColumnText != null);
+      return CurrentRowColumnText[i][0];
+    }
+
+    /// <summary>
+    ///   Reads a stream of characters from the specified column offset into the buffer as an array,
+    ///   starting at the given buffer offset.
+    /// </summary>
+    /// <param name="i">The zero-based column ordinal.</param>
+    /// <param name="fieldoffset">The index within the row from which to start the read operation.</param>
+    /// <param name="buffer">The buffer into which to read the stream of bytes.</param>
+    /// <param name="bufferoffset">The index for <paramref name="buffer" /> to start the read operation.</param>
+    /// <param name="length">The number of bytes to read.</param>
+    /// <returns>The actual number of characters read.</returns>
+    /// <exception cref="T:System.IndexOutOfRangeException">
+    ///   The index passed was outside the range of 0 through <see cref="P:System.Data.IDataRecord.FieldCount" />.
+    /// </exception>
+    public virtual long GetChars(int i, long fieldoffset, char[] buffer, int bufferoffset, int length)
+    {
+      Debug.Assert(CurrentRowColumnText != null);
+      var offset = (int)fieldoffset;
+      var maxLen = CurrentRowColumnText[i].Length - offset;
+      if (maxLen > length)
+        maxLen = length;
+      CurrentRowColumnText[i].CopyTo(offset, buffer ?? throw new ArgumentNullException(nameof(buffer)), bufferoffset,
+        maxLen);
+      return maxLen;
+    }
 
     /// <summary>
     ///   Gets the column format.
@@ -250,32 +332,69 @@ namespace CsvTools
     /// <returns></returns>
     public virtual Column GetColumn(int columnNumber)
     {
-      Debug.Assert(columnNumber >= 0);
-      Debug.Assert(Column != null);
-      Debug.Assert(columnNumber < Column.Length);
+      Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount);
+      Debug.Assert(Column != null && columnNumber < Column.Length);
+
       return Column[columnNumber];
     }
 
     /// <summary>
-    ///   Gets the date time.
+    ///   Gets the date and time data value of the specified field.
     /// </summary>
-    /// <param name="i">The i.</param>
-    /// <returns></returns>
-    public abstract DateTime GetDateTime(int i);
+    /// <param name="columnNumber">The index of the field to find.</param>
+    /// <returns>
+    ///   The date and time data value of the specified field.
+    /// </returns>
+    public virtual DateTime GetDateTime(int columnNumber)
+    {
+      Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount);
+      Debug.Assert(CurrentRowColumnText != null && columnNumber < CurrentRowColumnText.Length);
+
+      var dt = GetDateTimeNull(null, CurrentRowColumnText[columnNumber], null, GetTimeValue(columnNumber), GetColumn(columnNumber));
+      if (dt.HasValue)
+        return dt.Value;
+
+      // Warning was added by GetDecimalNull
+      throw WarnAddFormatException(columnNumber,
+        $"'{CurrentRowColumnText[columnNumber]}' is not a date of the format {GetColumn(columnNumber).DateFormat}");
+    }
 
     /// <summary>
     ///   Gets the decimal.
     /// </summary>
-    /// <param name="i">The i.</param>
+    /// <param name="columnNumber">The i.</param>
     /// <returns></returns>
-    public abstract decimal GetDecimal(int i);
+    public virtual decimal GetDecimal(int columnNumber)
+    {
+      Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount);
+      Debug.Assert(CurrentRowColumnText != null && columnNumber < CurrentRowColumnText.Length);
+
+      var decimalValue = GetDecimalNull(CurrentRowColumnText[columnNumber], columnNumber);
+      if (decimalValue.HasValue)
+        return decimalValue.Value;
+      // Warning was added by GetDecimalNull
+      throw WarnAddFormatException(columnNumber,
+        $"'{CurrentRowColumnText[columnNumber]}' is not a decimal");
+    }
 
     /// <summary>
     ///   Gets the double.
     /// </summary>
-    /// <param name="i">The i.</param>
+    /// <param name="columnNumber">The i.</param>
     /// <returns></returns>
-    public abstract double GetDouble(int i);
+    public virtual double GetDouble(int columnNumber)
+    {
+      Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount);
+      Debug.Assert(CurrentRowColumnText != null && columnNumber < CurrentRowColumnText.Length);
+
+      var decimalValue = GetDecimalNull(CurrentRowColumnText[columnNumber], columnNumber);
+      if (decimalValue.HasValue)
+        return Convert.ToDouble(decimalValue.Value);
+
+      // Warning was added by GetDecimalNull
+      throw WarnAddFormatException(columnNumber,
+        $"'{CurrentRowColumnText[columnNumber]}' is not a double");
+    }
 
     /// <summary>
     ///   Gets the type of the field.
@@ -284,9 +403,26 @@ namespace CsvTools
     /// <returns>The .NET type of the column</returns>
     public virtual Type GetFieldType(int columnNumber)
     {
-      Debug.Assert(columnNumber >= 0);
-      Debug.Assert(columnNumber < FieldCount);
       return GetColumn(columnNumber).DataType.GetNetType();
+    }
+
+    /// <summary>
+    ///   Gets the single-precision floating point number of the specified field.
+    /// </summary>
+    /// <param name="columnNumber">The index of the field to find.</param>
+    /// <returns>
+    ///   The single-precision floating point number of the specified field.
+    /// </returns>
+    public virtual float GetFloat(int columnNumber)
+    {
+      Debug.Assert(0 <= columnNumber);
+
+      var decimalValue = GetDecimalNull(CurrentRowColumnText[columnNumber], columnNumber);
+      if (decimalValue.HasValue)
+        return Convert.ToSingle(decimalValue, CultureInfo.InvariantCulture);
+      // Warning was added by GetDecimalNull
+      throw WarnAddFormatException(columnNumber,
+        $"'{CurrentRowColumnText[columnNumber]}' is not a float");
     }
 
     /// <summary>
@@ -294,21 +430,108 @@ namespace CsvTools
     /// </summary>
     /// <param name="i">The i.</param>
     /// <returns></returns>
-    public abstract Guid GetGuid(int i);
+    public virtual Guid GetGuid(int columnNumber)
+    {
+      Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount);
+      Debug.Assert(CurrentRowColumnText != null && columnNumber < CurrentRowColumnText.Length);
+
+      try
+      {
+        return new Guid(CurrentRowColumnText[columnNumber]);
+      }
+      catch (Exception)
+      {
+        throw WarnAddFormatException(columnNumber,
+          $"'{CurrentRowColumnText[columnNumber]}' is not a Guid");
+      }
+    }
+
+    /// <summary>
+    ///   Gets the 16-bit signed integer value of the specified field.
+    /// </summary>
+    /// <param name="columnNumber">The index of the field to find.</param>
+    /// <returns>
+    ///   The 16-bit signed integer value of the specified field.
+    /// </returns>
+    public virtual short GetInt16(int columnNumber)
+    {
+      Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount);
+      Debug.Assert(CurrentRowColumnText != null && columnNumber < CurrentRowColumnText.Length);
+
+      return GetInt16(CurrentRowColumnText[columnNumber], columnNumber);
+    }
 
     /// <summary>
     ///   Gets the int32.
     /// </summary>
-    /// <param name="i">The i.</param>
+    /// <param name="columnNumber">The i.</param>
     /// <returns></returns>
-    public abstract int GetInt32(int i);
+    public virtual int GetInt32(int columnNumber)
+    {
+      Debug.Assert(CurrentRowColumnText != null && columnNumber < CurrentRowColumnText.Length);
+      var column = GetColumn(columnNumber);
+
+      var parsed = StringConversion.StringToInt32(CurrentRowColumnText[columnNumber], column.DecimalSeparatorChar, column.GroupSeparatorChar);
+      if (parsed.HasValue)
+        return parsed.Value;
+
+      // Warning was added by GetInt32Null
+      throw WarnAddFormatException(columnNumber,
+        $"'{CurrentRowColumnText[columnNumber]}' is not an integer");
+    }
+
+    /// <summary>
+    ///   Gets the int32 value or null.
+    /// </summary>
+    /// <param name="inputValue">The input.</param>
+    /// <param name="column">The column.</param>
+    /// <returns></returns>
+    public virtual int? GetInt32Null(string inputValue, Column column)
+    {
+      Debug.Assert(column != null);
+      var ret = StringConversion.StringToInt32(inputValue, column.DecimalSeparatorChar, column.GroupSeparatorChar);
+      if (ret.HasValue)
+        return ret.Value;
+
+      HandleError(column.ColumnOrdinal,
+        $"'{inputValue}' is not an integer");
+      return null;
+    }
 
     /// <summary>
     ///   Gets the int64.
     /// </summary>
-    /// <param name="i">The i.</param>
+    /// <param name="columnNumber">The i.</param>
     /// <returns></returns>
-    public abstract long GetInt64(int i);
+    public virtual long GetInt64(int columnNumber)
+    {
+      var column = GetColumn(columnNumber);
+
+      var parsed = StringConversion.StringToInt64(CurrentRowColumnText[columnNumber], column.DecimalSeparatorChar, column.GroupSeparatorChar);
+      if (parsed.HasValue)
+        return parsed.Value;
+
+      throw WarnAddFormatException(columnNumber,
+        $"'{CurrentRowColumnText[columnNumber]}' is not an long integer");
+    }
+
+    /// <summary>
+    ///   Gets the int32 value or null.
+    /// </summary>
+    /// <param name="inputValue">The input.</param>
+    /// <param name="column">The column.</param>
+    /// <returns></returns>
+    public virtual long? GetInt64Null(string inputValue, Column column)
+    {
+      Debug.Assert(column != null);
+      var ret = StringConversion.StringToInt64(inputValue, column.DecimalSeparatorChar, column.GroupSeparatorChar);
+      if (ret.HasValue)
+        return ret.Value;
+
+      HandleError(column.ColumnOrdinal,
+        $"'{inputValue}' is not an long integer");
+      return null;
+    }
 
     /// <summary>
     ///   Gets the name for the field to find.
@@ -320,7 +543,6 @@ namespace CsvTools
     /// </exception>
     public virtual string GetName(int columnNumber)
     {
-      Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount);
       return GetColumn(columnNumber).Name;
     }
 
@@ -343,6 +565,21 @@ namespace CsvTools
       }
 
       return -1;
+    }
+
+    /// <summary>
+    ///   Gets the part of a text
+    /// </summary>
+    /// <param name="inputValue">The input.</param>
+    /// <param name="column">The column.</param>
+    /// <returns>
+    ///   The parsed value if conversion is not successful: <c>NULL</c> is returned and the event
+    ///   handler for warnings is called
+    /// </returns>
+    public virtual string GetPart(string inputValue, Column column)
+    {
+      Debug.Assert(column != null);
+      return StringConversion.StringToTextPart(inputValue, column.PartSplitter, column.Part, column.PartToEnd);
     }
 
     /// <summary>
@@ -380,14 +617,25 @@ namespace CsvTools
     }
 
     /// <summary>
+    /// Gets the string.
+    /// </summary>
+    /// <param name="i">The i.</param>
+    /// <returns></returns>
+    public virtual string GetString(int columnNumber)
+    {
+      Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount);
+      Debug.Assert(CurrentRowColumnText != null && columnNumber < CurrentRowColumnText.Length);
+
+      return CurrentRowColumnText[columnNumber];
+    }
+
+    /// <summary>
     ///   Gets the value of a column
     /// </summary>
     /// <param name="columnNumber">The column number.</param>
     /// <returns>The value of the specific field</returns>
     public virtual object GetValue(int columnNumber)
     {
-      Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount);
-
       if (IsDBNull(columnNumber))
         return DBNull.Value;
       var column = GetColumn(columnNumber);
@@ -423,7 +671,7 @@ namespace CsvTools
 
           default:
             /* TextToHTML and  TextToHTMLFull have been handled in the CSV Reader as the length of the fields would change */
-            ret = CurrentRowColumnText[columnNumber];
+            ret = GetString(columnNumber);
             break;
         }
       }
@@ -435,6 +683,33 @@ namespace CsvTools
       if (ret == null)
         return DBNull.Value;
       return ret;
+    }
+
+    /// <summary>
+    ///   Gets all the attribute fields in the collection for the current record.
+    /// </summary>
+    /// <param name="values">
+    ///   An array of <see cref="T:object" /> to copy the attribute fields into.
+    /// </param>
+    /// <returns>The number of instances of <see cref="T:object" /> in the array.</returns>
+    public virtual int GetValues(object[] values)
+    {
+      Debug.Assert(CurrentRowColumnText != null);
+      for (var col = 0; col < FieldCount; col++)
+        values[col] = CurrentRowColumnText[col];
+      return FieldCount;
+    }
+
+    /// <summary>
+    ///   Shows the process.
+    /// </summary>
+    /// <param name="text">Leading Text</param>
+    /// <param name="recordNumber">The record number.</param>
+    /// <param name="progress">The progress (a value between 0 and MaxValue)</param>
+    public void HandleShowProgress(string text, long recordNumber, int progress)
+    {
+      m_ProcessDisplay?.SetProcess(
+        $"{text}\r\nRecord {recordNumber:N0}", progress);
     }
 
     /// <summary>
@@ -714,7 +989,7 @@ namespace CsvTools
     /// <returns>
     ///   The Boolean, if conversion is not successful: <c>NULL</c> the event handler for warnings is called
     /// </returns>
-    protected virtual bool? GetBooleanNull(string inputBoolean, int columnNumber)
+    private bool? GetBooleanNull(string inputBoolean, int columnNumber)
     {
       Debug.Assert(columnNumber >= 0);
       Debug.Assert(columnNumber < FieldCount);
@@ -728,8 +1003,8 @@ namespace CsvTools
       return null;
     }
 
-    protected virtual DateTime? GetDateTimeNull(object inputDate, string strInputDate, object inputTime,
-      string strInputTime, Column column)
+    protected DateTime? GetDateTimeNull(object inputDate, string strInputDate, object inputTime,
+          string strInputTime, Column column)
     {
       var dateTime = StringConversion.CombineObjectsToDateTime(inputDate, strInputDate, inputTime, strInputTime,
         ApplicationSetting.FillGuessSettings.SerialDateTime, column, out var timeSpanLongerThanDay);
@@ -772,7 +1047,7 @@ namespace CsvTools
     ///   The decimal value if conversion is not successful: <c>NULL</c> the event handler for
     ///   warnings is called
     /// </returns>
-    protected virtual decimal? GetDecimalNull(string inputValue, Column column)
+    protected decimal? GetDecimalNull(string inputValue, Column column)
     {
       Debug.Assert(column != null);
       var decimalValue =
@@ -781,7 +1056,7 @@ namespace CsvTools
         return decimalValue.Value;
 
       HandleError(column.ColumnOrdinal,
-        $"'{inputValue}' is not a floating point value");
+        $"'{inputValue}' is not a decimal value");
       return null;
     }
 
@@ -794,7 +1069,7 @@ namespace CsvTools
     ///   The decimal value if conversion is not successful: <c>NULL</c> the event handler for
     ///   warnings is called
     /// </returns>
-    protected virtual decimal? GetDecimalNull(string inputValue, int columnNumber)
+    protected decimal? GetDecimalNull(string inputValue, int columnNumber)
     {
       Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount);
       return GetDecimalNull(inputValue, GetColumn(columnNumber));
@@ -809,12 +1084,15 @@ namespace CsvTools
     ///   The parsed value if conversion is not successful: <c>NULL</c> is returned and the event
     ///   handler for warnings is called
     /// </returns>
-    protected virtual double? GetDoubleNull(string inputValue, Column column)
+    protected double? GetDoubleNull(string inputValue, Column column)
     {
       Debug.Assert(column != null);
       var decimalValue = GetDecimalNull(inputValue, column);
       if (decimalValue.HasValue)
         return decimal.ToDouble(decimalValue.Value);
+
+      HandleError(column.ColumnOrdinal,
+        $"'{inputValue}' is not a double value");
       return null;
     }
 
@@ -827,7 +1105,7 @@ namespace CsvTools
     ///   The parsed value if conversion is not successful: <c>NULL</c> is returned and the event
     ///   handler for warnings is called
     /// </returns>
-    protected virtual short GetInt16(string value, int columnNumber)
+    protected short GetInt16(string value, int columnNumber)
     {
       Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount);
       var column = GetColumn(columnNumber);
@@ -842,100 +1120,26 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets the integer value
-    /// </summary>
-    /// <param name="value">The input.</param>
-    /// <param name="columnNumber">The column number for retrieving the Format information.</param>
-    /// <returns>
-    ///   The parsed value if conversion is not successful: <c>NULL</c> is returned and the event
-    ///   handler for warnings is called
-    /// </returns>
-    protected virtual int GetInt32(string value, int columnNumber)
-    {
-      Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount);
-      var column = GetColumn(columnNumber);
-
-      var parsed = StringConversion.StringToInt32(value, column.DecimalSeparatorChar, column.GroupSeparatorChar);
-      if (parsed.HasValue)
-        return parsed.Value;
-
-      // Warning was added by GetInt32Null
-      throw WarnAddFormatException(columnNumber,
-        $"'{value}' is not an integer");
-    }
-
-    /// <summary>
-    ///   Gets the integer value
-    /// </summary>
-    /// <param name="value">The input.</param>
-    /// <param name="columnNumber">The column number for retrieving the Format information.</param>
-    /// <returns>
-    ///   The parsed value if conversion is not successful: <c>NULL</c> is returned and the event
-    ///   handler for warnings is called
-    /// </returns>
-    protected virtual long GetInt64(string value, int columnNumber)
-    {
-      Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount);
-      var column = GetColumn(columnNumber);
-
-      var parsed = StringConversion.StringToInt64(value, column.DecimalSeparatorChar, column.GroupSeparatorChar);
-      if (parsed.HasValue)
-        return parsed.Value;
-
-      throw WarnAddFormatException(columnNumber,
-        $"'{value}' is not an long integer");
-    }
-
-    /// <summary>
-    ///   Gets the part of a text
-    /// </summary>
-    /// <param name="inputValue">The input.</param>
-    /// <param name="column">The column.</param>
-    /// <returns>
-    ///   The parsed value if conversion is not successful: <c>NULL</c> is returned and the event
-    ///   handler for warnings is called
-    /// </returns>
-    public virtual string GetPart(string inputValue, Column column)
-    {
-      Debug.Assert(column != null);
-      return StringConversion.StringToTextPart(inputValue, column.PartSplitter, column.Part, column.PartToEnd);
-    }
-
-    /// <summary>
     ///   Gets the relative position.
     /// </summary>
     /// <returns>A value between 0 and MaxValue</returns>
     protected abstract int GetRelativePosition();
 
-    public abstract string GetString(int i);
-
-    private DateTime? AdjustTz(DateTime? input, Column column)
+    /// <summary>
+    ///   Gets the associated value.
+    /// </summary>
+    /// <param name="i">The i.</param>
+    /// <returns></returns>
+    protected string GetTimeValue(int i)
     {
-      if (!input.HasValue) return null;
-      string timeZone = null;
-      // Constant value
-      if (column.TimeZonePart.StartsWith("\"", StringComparison.Ordinal) &&
-          column.TimeZonePart.EndsWith("\"", StringComparison.Ordinal))
-      {
-        timeZone = column.TimeZonePart.Substring(1, column.TimeZonePart.Length - 2);
-      }
-      // lookup in other column
-      else
-      {
-        var colTimeZone = AssociatedTimeZoneCol[column.ColumnOrdinal];
-        if (colTimeZone > -1 && colTimeZone < FieldCount)
-          timeZone = GetString(colTimeZone);
-      }
+      Debug.Assert(i >= 0);
+      Debug.Assert(i < FieldCount);
+      Debug.Assert(CurrentRowColumnText != null);
+      Debug.Assert(AssociatedTimeCol != null);
 
-      try
-      {
-        return TimeZoneMapping.ConvertTime(input.Value, timeZone, ApplicationSetting.ToolSetting.DestinationTimeZone);
-      }
-      catch (ApplicationException ex)
-      {
-        HandleWarning(column.ColumnOrdinal, ex.Message);
-        return null;
-      }
+      var colTime = AssociatedTimeCol[i];
+      if (colTime == -1) return null;
+      return CurrentRowColumnText[colTime];
     }
 
     /// <summary>
@@ -1004,6 +1208,25 @@ namespace CsvTools
     }
 
     /// <summary>
+    ///   Handles the waring for a date.
+    /// </summary>
+    /// <param name="inputDate">The input date.</param>
+    /// <param name="inputTime">The input time.</param>
+    /// <param name="columnNumber">The column.</param>
+    protected virtual void HandleDateError(string inputDate, string inputTime, int columnNumber)
+    {
+      Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount);
+      var column = GetColumn(columnNumber);
+
+      var disp = column.DateFormat.ReplaceDefaults("/", column.DateSeparator, ":", column.TimeSeparator);
+
+      HandleError(columnNumber,
+        !string.IsNullOrEmpty(inputTime)
+          ? $"'{inputDate} {inputTime}' is not a date of the format {disp} {column.TimePartFormat}"
+          : $"'{inputDate}' is not a date of the format {disp}");
+    }
+
+    /// <summary>
     ///   Handles the error.
     /// </summary>
     /// <param name="columnNumber">The column number.</param>
@@ -1023,14 +1246,6 @@ namespace CsvTools
     {
       HandleShowProgress("Finished Reading", RecordNumber, cMaxValue);
       ReadFinished?.Invoke(this, null);
-    }
-
-    /// <summary>
-    ///   Closes the <see cref="T:System.Data.IDataReader" /> Object.
-    /// </summary>
-    public void Close()
-    {
-      IndividualClose();
     }
 
     /// <summary>
@@ -1086,25 +1301,6 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Handles the waring for a date.
-    /// </summary>
-    /// <param name="inputDate">The input date.</param>
-    /// <param name="inputTime">The input time.</param>
-    /// <param name="columnNumber">The column.</param>
-    protected virtual void HandleDateError(string inputDate, string inputTime, int columnNumber)
-    {
-      Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount);
-      var column = GetColumn(columnNumber);
-
-      var disp = column.DateFormat.ReplaceDefaults("/", column.DateSeparator, ":", column.TimeSeparator);
-
-      HandleError(columnNumber,
-        !string.IsNullOrEmpty(inputTime)
-          ? $"'{inputDate} {inputTime}' is not a date of the format {disp} {column.TimePartFormat}"
-          : $"'{inputDate}' is not a date of the format {disp}");
-    }
-
-    /// <summary>
     ///   Calls the event handler for warnings
     /// </summary>
     /// <param name="columnNumber">The column.</param>
@@ -1118,6 +1314,8 @@ namespace CsvTools
           : null));
     }
 
+    protected abstract void IndividualClose();
+
     /// <summary>
     ///   Open that is specific to an implementation of the reader
     /// </summary>
@@ -1126,8 +1324,6 @@ namespace CsvTools
     ///   Number of records in the file if known (use determineColumnSize), -1 otherwise
     /// </returns>
     protected abstract long IndividualOpen(bool determineColumnSize);
-
-    protected abstract void IndividualClose();
 
     /// <summary>
     ///   Initializes the column array to a give count.
@@ -1152,7 +1348,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets the field headers.
+    ///   Gets the field headers and Initialized the columns
     /// </summary>
     protected void ParseColumnName(IList<string> headerRow)
     {
@@ -1214,52 +1410,33 @@ namespace CsvTools
       return new FormatException(message);
     }
 
-    /// <summary>
-    ///   Gets the int32 value or null.
-    /// </summary>
-    /// <param name="inputValue">The input.</param>
-    /// <param name="column">The column.</param>
-    /// <returns></returns>
-    public virtual int? GetInt32Null(string inputValue, Column column)
+    private DateTime? AdjustTz(DateTime? input, Column column)
     {
-      Debug.Assert(column != null);
-      var ret = StringConversion.StringToInt32(inputValue, column.DecimalSeparatorChar, column.GroupSeparatorChar);
-      if (ret.HasValue)
-        return ret.Value;
+      if (!input.HasValue) return null;
+      string timeZone = null;
+      // Constant value
+      if (column.TimeZonePart.StartsWith("\"", StringComparison.Ordinal) &&
+          column.TimeZonePart.EndsWith("\"", StringComparison.Ordinal))
+      {
+        timeZone = column.TimeZonePart.Substring(1, column.TimeZonePart.Length - 2);
+      }
+      // lookup in other column
+      else
+      {
+        var colTimeZone = AssociatedTimeZoneCol[column.ColumnOrdinal];
+        if (colTimeZone > -1 && colTimeZone < FieldCount)
+          timeZone = GetString(colTimeZone);
+      }
 
-      HandleError(column.ColumnOrdinal,
-        $"'{inputValue}' is not an integer");
-      return null;
-    }
-
-    /// <summary>
-    ///   Gets the int32 value or null.
-    /// </summary>
-    /// <param name="inputValue">The input.</param>
-    /// <param name="column">The column.</param>
-    /// <returns></returns>
-    public virtual long? GetInt64Null(string inputValue, Column column)
-    {
-      Debug.Assert(column != null);
-      var ret = StringConversion.StringToInt64(inputValue, column.DecimalSeparatorChar, column.GroupSeparatorChar);
-      if (ret.HasValue)
-        return ret.Value;
-
-      HandleError(column.ColumnOrdinal,
-        $"'{inputValue}' is not an integer");
-      return null;
-    }
-
-    /// <summary>
-    ///   Shows the process.
-    /// </summary>
-    /// <param name="text">Leading Text</param>
-    /// <param name="recordNumber">The record number.</param>
-    /// <param name="progress">The progress (a value between 0 and MaxValue)</param>
-    public void HandleShowProgress(string text, long recordNumber, int progress)
-    {
-      m_ProcessDisplay?.SetProcess(
-        $"{text}\r\nRecord {recordNumber:N0}", progress);
+      try
+      {
+        return TimeZoneMapping.ConvertTime(input.Value, timeZone, ApplicationSetting.ToolSetting.DestinationTimeZone);
+      }
+      catch (ApplicationException ex)
+      {
+        HandleWarning(column.ColumnOrdinal, ex.Message);
+        return null;
+      }
     }
   }
 }

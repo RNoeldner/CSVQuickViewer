@@ -906,7 +906,7 @@ namespace CsvTools.Tests
         Assert.IsTrue(test.Read());
         Assert.AreEqual(3U, test.StartLineNumber, "LineNumber");
         // g,h,i , j,k,l
-        Assert.AreEqual("j", test.GetString(3));
+        Assert.AreEqual(" j", test.GetString(3));
 
         //    #A NBSP: Create with Alt+01602
         // 7,8,9,10 ,11,12

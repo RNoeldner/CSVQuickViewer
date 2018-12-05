@@ -101,7 +101,6 @@
       // 
       dataGridViewCellStyle1.BackColor = System.Drawing.Color.Gainsboro;
       this.detailControl.AlternatingRowDefaultCellSyle = dataGridViewCellStyle1;
-      this.detailControl.BatchSize = ((uint)(0u));
       this.detailControl.DataTable = null;
       dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
       dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
@@ -113,8 +112,7 @@
       this.detailControl.DefaultCellStyle = dataGridViewCellStyle2;
       this.detailControl.Dock = System.Windows.Forms.DockStyle.Fill;
       this.detailControl.Location = new System.Drawing.Point(0, 0);
-      this.detailControl.Name = "detailControl";
-      this.detailControl.ShowSettingsButtons = true;
+      this.detailControl.Name = "detailControl";      
       this.detailControl.Size = new System.Drawing.Size(684, 362);
       this.detailControl.TabIndex = 1;
       this.detailControl.ButtonShowSource += new System.EventHandler(this.DetailControl_ButtonShowSource);

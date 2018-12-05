@@ -64,15 +64,13 @@ namespace CsvTools
     ///   Number of rows written
     /// </returns>
     /// <exception cref="ApplicationException">No columns defined to be written.</exception>
-    protected void DataReader2Stream(IDataReader reader, TextWriter writer, IFileSetting readerFileSetting,
+    protected void DataReader2Stream(IDataReader reader, TextWriter writer,
       CancellationToken cancellationToken)
     {
       Contract.Requires(reader != null);
       Contract.Requires(writer != null);
 
-      var skipEmptyLines = readerFileSetting == null || readerFileSetting.SkipEmptyLines;
-
-      var columnInfos = GetColumnInformation(reader.GetSchemaTable(), readerFileSetting);
+      var columnInfos = GetColumnInformation(reader);
       var enumerable = columnInfos as ColumnInfo[] ?? columnInfos.ToArray();
       if (enumerable.IsEmpty())
         throw new ApplicationException("No columns defined to be written.");
@@ -127,13 +125,11 @@ namespace CsvTools
         if (emptyColumns == numColumns)
         {
           // Remove the delimiters again
-          if (skipEmptyLines && hasFieldDelimiter)
+          if (hasFieldDelimiter)
             sb.Length -= numColumns;
           numEmptyRows++;
-          // Stop if we do encounter the given number of consecutive empty rows
-          if (readerFileSetting != null && readerFileSetting.ConsecutiveEmptyRows > 0 &&
-              numEmptyRows > readerFileSetting.ConsecutiveEmptyRows)
-            break;
+
+          break;
           continue;
         }
 
@@ -158,14 +154,14 @@ namespace CsvTools
     /// <returns>
     ///   Number of records written
     /// </returns>
-    protected override void Write(IFileSetting fileSetting, IDataReader reader, Stream output, CancellationToken cancellationToken)
+    protected override void Write(IDataReader reader, Stream output, CancellationToken cancellationToken)
     {
       Contract.Assume(!string.IsNullOrEmpty(m_CsvFile.FullPath));
 
       using (var writer = new StreamWriter(output,
         EncodingHelper.GetEncoding(m_CsvFile.CodePageId, m_CsvFile.ByteOrderMark), 8192))
       {
-        DataReader2Stream(reader, writer, fileSetting, cancellationToken);
+        DataReader2Stream(reader, writer, cancellationToken);
       }
     }
 
