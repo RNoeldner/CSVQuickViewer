@@ -18,7 +18,6 @@ namespace CsvTools.Tests
       var test = new CsvFile();
       Assert.AreEqual(test.ByteOrderMark, true, "ByteOrderMark");
       Assert.AreEqual(test.CodePageId, 65001, "CodePageId");
-      Assert.AreEqual(test.SourceSetting, string.Empty, "SourceSetting");
       Assert.IsTrue(test.ConsecutiveEmptyRows > 1, "ConsecutiveEmptyRows");
       Assert.AreEqual(test.CurrentEncoding, Encoding.UTF8, "CurrentEncoding");
       Assert.AreEqual(test.DisplayStartLineNo, true, "DisplayStartLineNo");
@@ -314,7 +313,6 @@ namespace CsvTools.Tests
       m_CsvFile.CurrentEncoding = Encoding.UTF8;
       Assert.AreEqual(Encoding.UTF8, m_CsvFile.CurrentEncoding, "CurrentEncoding");
 
-      m_CsvFile.SourceSetting = "SourceSetting";
       m_CsvFile.ConsecutiveEmptyRows = 1;
       m_CsvFile.DisplayStartLineNo = false;
       m_CsvFile.DisplayEndLineNo = true;
@@ -393,7 +391,6 @@ namespace CsvTools.Tests
 
       Assert.IsFalse(m_CsvFile.ByteOrderMark, "ByteOrderMark");
 
-      Assert.AreEqual("SourceSetting", m_CsvFile.SourceSetting, "SourceSetting");
       Assert.AreEqual(1, m_CsvFile.ConsecutiveEmptyRows, "ConsecutiveEmptyRows");
       Assert.IsFalse(m_CsvFile.DisplayStartLineNo, "DisplayStartLineNo");
       Assert.IsTrue(m_CsvFile.DisplayEndLineNo, "DisplayEndLineNo");

@@ -280,7 +280,9 @@ namespace CsvTools
     {
       if (m_Recipients != null) return m_Recipients;
       m_Recipients = new Dictionary<string, PgpPublicKey>(StringComparer.OrdinalIgnoreCase);
+
       if (PrivateKeys != null)
+      {
         foreach (var encryptedKey in PrivateKeys)
           using (var keyIn = new MemoryStream(Encoding.UTF8.GetBytes(encryptedKey.Decrypt(m_PgpDecryption))))
           {
@@ -299,8 +301,9 @@ namespace CsvTools
                   m_Recipients[userID.ToString()] = key;
             }
           }
+      }
 
-      if (PublicKeys == null) return m_Recipients;
+      if (PublicKeys != null)
       {
         foreach (var encryptedKey in PublicKeys)
           using (var keyIn = new MemoryStream(Encoding.UTF8.GetBytes(encryptedKey.Decrypt(m_PgpDecryption))))

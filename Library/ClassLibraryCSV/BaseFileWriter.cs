@@ -87,39 +87,25 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   In case the connection string contains a file setting find it.
-    /// </summary>
-    /// <returns>An File setting if the writer is based on a reader, <c>null</c> if not</returns>
-    public static IFileSetting GetSourceSetting(IFileSetting writerSetting)
-    {
-      if (ApplicationSetting.ToolSetting == null || string.IsNullOrEmpty(writerSetting?.SourceSetting)) return null;
-      foreach (var sibling in ApplicationSetting.ToolSetting.Input)
-      {
-        if (ReferenceEquals(sibling, writerSetting))
-          continue;
-        if (writerSetting.SourceSetting.Equals(sibling.ID, StringComparison.OrdinalIgnoreCase))
-          return sibling;
-      }
-
-      return null;
-    }
+    protected abstract void Write(IDataReader reader, System.IO.Stream output, CancellationToken cancellationToken);
 
     /// <summary>
-    ///   Gets the column information.
+    ///   Gets the column information based on the SQL Source, but overwritten with the definitions
     /// </summary>
     /// <param name="dataTable">The schema.</param>
     /// <param name="readerFileSetting">The file format of the reader, can be null.</param>
     /// <returns></returns>
-    public IEnumerable<ColumnInfo> GetColumnInformation(DataTable dataTable, IFileSetting readerFileSetting)
+    public IEnumerable<ColumnInfo> GetColumnInformation(IDataReader reader)
     {
-      //TODO: Why pass in readerFileSetting and not use GetSourceSetting?
+      if (reader == null)
+        throw new ArgumentNullException(nameof(reader));
+
       Contract.Ensures(Contract.Result<IEnumerable<ColumnInfo>>() != null);
-      if (dataTable == null)
-        dataTable = GetDataReaderSchema();
+      var dataTable = reader.GetSchemaTable();
 
       if (dataTable == null)
-        throw new ArgumentNullException(nameof(dataTable));
+        throw new ArgumentNullException(nameof(reader));
+
       var headers = new HashSet<string>();
       var fieldInfoList = new List<ColumnInfo>();
 
@@ -151,7 +137,7 @@ namespace CsvTools
               break;
             }
 
-          fieldInfoList.AddRange(GetColumnInformationForOneColumn(m_FileSetting, readerFileSetting, headers,
+          fieldInfoList.AddRange(GetColumnInformationForOneColumn(m_FileSetting, headers,
             schemaRow[SchemaTableColumn.ColumnName].ToString(), (Type)schemaRow[SchemaTableColumn.DataType],
             (int)schemaRow[SchemaTableColumn.ColumnOrdinal], (int)schemaRow[SchemaTableColumn.ColumnSize], allColums,
             timeZonePartOrdinal));
@@ -162,7 +148,7 @@ namespace CsvTools
         foreach (DataColumn col in dataTable.Columns) allColums.Add(col.ColumnName);
         // Its a data table retrieve information from columns
         foreach (DataColumn col in dataTable.Columns)
-          fieldInfoList.AddRange(GetColumnInformationForOneColumn(m_FileSetting, readerFileSetting, headers,
+          fieldInfoList.AddRange(GetColumnInformationForOneColumn(m_FileSetting, headers,
             col.ColumnName, col.DataType, col.Ordinal, col.MaxLength, allColums, -1));
       }
 
@@ -173,63 +159,28 @@ namespace CsvTools
     ///   Gets the data reader schema.
     /// </summary>
     /// <returns>A Data Table</returns>
-    public virtual DataTable GetDataReaderSchema()
+    public virtual IDataReader GetSchemaReader()
     {
-      using (var reader = GetOpenDataReader(5))
+      if (string.IsNullOrEmpty(m_FileSetting.SqlStatement))
       {
-        return reader?.GetSchemaTable();
-      }
-    }
-
-    /// <summary>
-    ///   Get the data Reader for the file
-    /// </summary>
-    /// <param name="recordLimit">The records limit</param>
-    /// <returns></returns>
-    public virtual IDataReader GetOpenDataReader(uint recordLimit)
-    {
-      HandleProgress("Open source data");
-      var readFrom = GetSourceSetting();
-
-      if (readFrom == null)
-      {
-        if (!string.IsNullOrEmpty(m_FileSetting.SqlStatement))
-          return ApplicationSetting.SQLDataReader(m_FileSetting.SqlStatement);
-      }
-      else
-      {
-        // Using a file setting
-        if (m_FileSetting.FileName.Equals(readFrom.FileName, StringComparison.OrdinalIgnoreCase))
-          throw new ApplicationException("Source and target can not be the same file");
-
-        var clone = readFrom.Clone();
-
-        clone.RecordLimit = recordLimit;
-        var fileReader = clone.GetFileReader();
-        if (Progress != null)
-          fileReader.ProcessDisplay = ProcessDisplay;
-        fileReader.Open(m_CancellationToken, false);
-        return fileReader;
+        return null;
       }
 
-      return null;
-    }
+      var parts = m_FileSetting.SqlStatement.SplitCommandTextByGo();
+      // only use the last command
+      string sql = parts[parts.Count - 1];
+      // in case there is no filter add a filer that filters all we only need the Schema
+      if (sql.Contains("SELECT", StringComparison.OrdinalIgnoreCase) &&
+         !sql.Contains("WHERE", StringComparison.OrdinalIgnoreCase))
+      {
+        var idxof = sql.IndexOf("ORDER BY", StringComparison.OrdinalIgnoreCase);
+        if (idxof == -1)
+          sql += " WHERE 1=0";
+        else
+          sql = sql.Substring(0, idxof) + "WHERE 1=0";
+      }
 
-    public virtual IDataReader GetOpenSourceReader(uint recordLimit)
-    {
-      var sourceSetting = GetSourceSetting();
-      if (sourceSetting == null)
-      {
-        // Using the connection string
-        if (string.IsNullOrEmpty(m_FileSetting.SqlStatement)) return null;
-        return ApplicationSetting.SQLDataReader(m_FileSetting.SqlStatement);
-      }
-      else
-      {
-        var reader = sourceSetting.GetFileReader();
-        reader.Open(m_CancellationToken, true);
-        return reader;
-      }
+      return ApplicationSetting.SQLDataReader(sql);
     }
 
     /// <summary>
@@ -239,37 +190,18 @@ namespace CsvTools
     /// <returns>A data table with all source data</returns>
     public virtual DataTable GetSourceDataTable(uint recordLimit)
     {
-      var sourceSetting = GetSourceSetting();
-      if (sourceSetting == null)
+      // Using the connection string
+      if (string.IsNullOrEmpty(m_FileSetting.SqlStatement)) return null;
+      HandleProgress("Executing SQL Statement");
+      using (var dataReader = ApplicationSetting.SQLDataReader(m_FileSetting.SqlStatement))
       {
-        // Using the connection string
-        if (string.IsNullOrEmpty(m_FileSetting.SqlStatement)) return null;
-        HandleProgress("Executing SQL Statement");
-        using (var dataReader = ApplicationSetting.SQLDataReader(m_FileSetting.SqlStatement))
-        {
-          HandleProgress("Reading returned data");
-          var dt = new DataTable();
-          dt.BeginLoadData();
-          dt.Load(dataReader);
-          dt.EndLoadData();
-          return dt;
-        }
-      }
-
-      HandleProgress("Opening File Reader");
-      using (var dataReader = sourceSetting.GetFileReader())
-      {
-        if (Progress != null)
-          dataReader.ProcessDisplay = ProcessDisplay;
-        dataReader.Open(m_CancellationToken, true);
         HandleProgress("Reading returned data");
-        return dataReader.WriteToDataTable(sourceSetting, recordLimit, null, m_CancellationToken);
+        var dt = new DataTable();
+        dt.BeginLoadData();
+        dt.Load(dataReader);
+        dt.EndLoadData();
+        return dt;
       }
-    }
-
-    public virtual IFileSetting GetSourceSetting()
-    {
-      return GetSourceSetting(m_FileSetting);
     }
 
     public void HandleProgress(string text, int progress)
@@ -283,7 +215,7 @@ namespace CsvTools
     /// <returns>Number of records written</returns>
     public virtual long Write()
     {
-      using (IDataReader reader = GetOpenDataReader(0))
+      using (IDataReader reader = ApplicationSetting.SQLDataReader(m_FileSetting.SqlStatement))
       {
         return Write(reader);
       }
@@ -503,15 +435,6 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Writes to the given stream file reading from the given reader
-    /// </summary>
-    /// <param name="fileSetting">The source setting or the data that could be different than the setting for is writer</param>
-    /// <param name="reader">Data Reader</param>
-    /// <param name="output">The output.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    protected abstract void Write(IFileSetting fileSetting, IDataReader reader, System.IO.Stream output, CancellationToken cancellationToken);
-
-    /// <summary>
     ///   Gets the column information for one column, can return up to two columns for a date time column because of TimePart
     /// </summary>
     /// <param name="writerFileSetting">The writer file setting.</param>
@@ -528,27 +451,17 @@ namespace CsvTools
     ///   not hidden it will be returned when looking at it)
     /// </returns>
     private static IEnumerable<ColumnInfo> GetColumnInformationForOneColumn(IFileSetting writerFileSetting,
-      IFileSetting readerFileSetting, ICollection<string> headers, string columnName, Type columnDataType,
+       ICollection<string> headers, string columnName, Type columnDataType,
       int columnOrdinal, int columnSize, ICollection<string> columns, int columnOridinalTimeZoneReader)
     {
       Contract.Requires(headers != null);
 
       var columnFormat = writerFileSetting.GetColumn(columnName);
-      if (readerFileSetting != null)
-      {
-        var columnFormatRead = readerFileSetting.GetColumn(columnName);
-        // If the column should not be read skip it
-        if (columnFormatRead != null && columnFormatRead.Ignore)
-          yield break;
-        if (columnFormatRead != null && columnFormatRead.DestinationNameSpecified)
-          columnName = columnFormatRead.DestinationName;
-      }
-
-      var valueFormat = columnFormat != null ? columnFormat.ValueFormat : writerFileSetting.FileFormat.ValueFormat;
-
-      var dataType = columnDataType.GetDataType();
       if (columnFormat != null && columnFormat.Ignore)
         yield break;
+
+      var valueFormat = columnFormat != null ? columnFormat.ValueFormat : writerFileSetting.FileFormat.ValueFormat;
+      var dataType = columnDataType.GetDataType();
 
       yield return new ColumnInfo
       {
@@ -564,17 +477,7 @@ namespace CsvTools
       var addTimeFormat = false;
       // Without TimePart we are done, otherwise we need to add a field for this
       if (!string.IsNullOrEmpty(columnFormat?.TimePart))
-        if (readerFileSetting == null)
-        {
-          addTimeFormat |= !columns.Contains(columnFormat.TimePart);
-        }
-        else
-        {
-          var columnFormatTime = readerFileSetting.GetColumn(columnFormat.TimePart);
-          // If the column should not be read skip it
-          if (columnFormatTime == null || columnFormatTime.Ignore)
-            addTimeFormat = true;
-        }
+        addTimeFormat |= !columns.Contains(columnFormat.TimePart);
 
       if (!addTimeFormat) yield break;
       var columnNameTime = GetUniqueFieldName(headers, columnFormat.TimePart);
@@ -656,7 +559,7 @@ namespace CsvTools
       {
         using (var improvedStream = ImprovedStream.OpenWrite(m_FileSetting.FullPath, ProcessDisplay, m_FileSetting.Recipient))
         {
-          Write(GetSourceSetting(), reader, improvedStream.Stream, m_CancellationToken);
+          Write(reader, improvedStream.Stream, m_CancellationToken);
         }
 
         m_FileSetting.FileLastWriteTimeUtc = DateTime.UtcNow;

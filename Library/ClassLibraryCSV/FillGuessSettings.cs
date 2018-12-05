@@ -27,7 +27,7 @@ namespace CsvTools
   public class FillGuessSettings : INotifyPropertyChanged, ICloneable<FillGuessSettings>, IEquatable<FillGuessSettings>
 #pragma warning restore CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
   {
-    private int m_CheckedRecords = 10000;
+    private int m_CheckedRecords = 30000;
     private bool m_CheckNamedDates = true;
     private bool m_DateParts;
     private string m_DateTimeValue;
@@ -38,8 +38,8 @@ namespace CsvTools
     private bool m_DetectGuid;
     private string m_FalseValue = "False";
     private bool m_IgnoreIdColums = true;
-    private int m_MinSamplesForIntDate = 4;
-    private int m_SampleValues = 250;
+    private int m_MinSamplesForIntDate = 5;
+    private int m_SampleValues = 200;
     private bool m_SerialDateTime = true;
     private string m_TrueValue = "True";
 
@@ -47,7 +47,7 @@ namespace CsvTools
     ///   Number of records to parse to et the sample values
     /// </summary>
     [XmlAttribute]
-    [DefaultValue(10000)]
+    [DefaultValue(30000)]
     public virtual int CheckedRecords
     {
       get => m_CheckedRecords;
@@ -225,7 +225,7 @@ namespace CsvTools
     /// <summary>
     ///   Number of sample values
     /// </summary>
-    [DefaultValue(4)]
+    [DefaultValue(5)]
     [XmlAttribute]
     public virtual int MinSamplesForIntDate
     {
@@ -242,7 +242,7 @@ namespace CsvTools
     /// <summary>
     ///   Number of sample values
     /// </summary>
-    [DefaultValue(250)]
+    [DefaultValue(200)]
     [XmlAttribute]
     public virtual int SampleValues
     {

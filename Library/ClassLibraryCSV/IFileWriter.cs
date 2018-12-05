@@ -46,28 +46,18 @@ namespace CsvTools
     event EventHandler<WarningEventArgs> Warning;
 
     /// <summary>
-    ///   Gets the column information.
-    /// </summary>
-    /// <param name="schema">
-    ///   The schema table or a data table, if left <c>NULL</c> the associated reader file setting will be
-    ///   used
-    /// </param>
-    /// <param name="readerFileSetting">The file format of the reader, can be null.</param>
-    /// <returns>An array of <see cref="ColumnInfo" /></returns>
-    IEnumerable<ColumnInfo> GetColumnInformation(DataTable schema, IFileSetting readerFileSetting);
-
-    /// <summary>
     ///   Gets the source data table.
     /// </summary>
     /// <param name="recordLimit">The record limit.</param>
     /// <returns>A data table with all source data</returns>
     DataTable GetSourceDataTable(uint recordLimit);
 
-    /// <summary>
-    ///   Gets the source file setting.
-    /// </summary>
-    /// <returns>An File setting if the writer is based on a reader, <c>null</c> if not</returns>
-    IFileSetting GetSourceSetting();
+    /// <summary>Gets the column information from the reader and overwrite setting with definition from the setting.</summary>
+    /// <param name="reader">Any data reader</param>
+    IEnumerable<ColumnInfo> GetColumnInformation(IDataReader reader);
+
+    /// <summary>Gets the a data reader for the allowing to look at the schema.</summary>
+    IDataReader GetSchemaReader();
 
     /// <summary>
     ///   Writes the specified file.

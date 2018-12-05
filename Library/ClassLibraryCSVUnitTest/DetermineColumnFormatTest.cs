@@ -95,10 +95,12 @@ namespace CsvTools.Tests
       reader.HasFieldHeader = true;
       ApplicationSetting.ToolSetting.Input.Clear();
       ApplicationSetting.ToolSetting.Input.Add(reader);
+      MimicSQLReader mimic = new MimicSQLReader();
+      mimic.AddSetting(reader);
 
       reader.FileFormat.FieldDelimiter = ",";
       var writer = new CsvFile();
-      writer.SourceSetting = "Reader";
+      writer.SqlStatement = reader.ID;
       ApplicationSetting.ToolSetting.Output.Clear();
       ApplicationSetting.ToolSetting.Output.Add(writer);
 

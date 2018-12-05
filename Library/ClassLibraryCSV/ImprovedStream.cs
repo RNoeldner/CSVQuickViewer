@@ -206,8 +206,7 @@ namespace CsvTools
       }
       finally
       {
-        if (!string.IsNullOrEmpty(TempFile))
-          File.Delete(TempFile);
+        FileSystemUtils.FileDelete(TempFile);
       }
     }
 

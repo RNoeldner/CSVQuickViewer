@@ -15,6 +15,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
 using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.Globalization;
@@ -101,7 +102,11 @@ namespace CsvTools
             {
               var detect = !(ApplicationSetting.FillGuessSettings.IgnoreIdColums &&
                              StringUtils.AssumeStingBasedOnColumnName(newColumn.Name) > 0);
-              processDisplay.SetProcess(newColumn.Name + " – Examining format", colindex);
+
+              if (samples.Count < 10)
+                processDisplay.SetProcess($"{newColumn.Name} – Only {samples.Count} values found in {ApplicationSetting.FillGuessSettings.CheckedRecords} rows", colindex);
+              else
+                processDisplay.SetProcess($"{newColumn.Name} – {samples.Count} values found – Examining format", colindex);
 
               var checkResult = GuessValueFormat(processDisplay.CancellationToken, samples,
                 ApplicationSetting.FillGuessSettings.MinSamplesForIntDate,
@@ -128,14 +133,14 @@ namespace CsvTools
                 var oldValueFormat = oldColumn.GetTypeAndFormatDescription();
 
                 if (checkResult.FoundValueFormat.Equals(oldColumn.ValueFormat))
-                  processDisplay.SetProcess(newColumn.Name + " – Format : " + oldValueFormat + "  - not changed",
+                  processDisplay.SetProcess($"{newColumn.Name} – Format : {oldValueFormat} – not changed",
                     colindex);
                 else
                   oldColumn.ValueFormat = checkResult.FoundValueFormat;
 
                 var newValueFormat = checkResult.FoundValueFormat.GetTypeAndFormatDescription();
                 if (oldValueFormat.Equals(newValueFormat)) continue;
-                var msg = $"{newColumn.Name}  – Format : {newValueFormat} - updated from {oldValueFormat}";
+                var msg = $"{newColumn.Name} – Format : {newValueFormat} – updated from {oldValueFormat}";
                 result.Add(msg);
                 processDisplay.SetProcess(msg, colindex);
               }
@@ -143,7 +148,7 @@ namespace CsvTools
               {
                 if (!addTextColumns && checkResult.FoundValueFormat.DataType == DataType.String) continue;
                 newColumn.ValueFormat = checkResult.FoundValueFormat;
-                var msg = $"{newColumn.Name}  – Format : {newColumn.GetTypeAndFormatDescription()}";
+                var msg = $"{newColumn.Name} – Format : {newColumn.GetTypeAndFormatDescription()}";
                 processDisplay.SetProcess(msg, colindex);
                 result.Add(msg);
                 fileSetting.ColumnAdd(newColumn);
@@ -309,18 +314,25 @@ namespace CsvTools
     public static void FillGuessColumnFormatWriter(this IFileSetting fileSettings, CancellationToken cancellationToken,
       bool all)
     {
-      var columnInformation = GetWriterSourceColumns(cancellationToken, fileSettings);
-      // Put the information into the list
-      foreach (var column in columnInformation)
+      var fileWriter = fileSettings.GetFileWriter(cancellationToken);
+      if (string.IsNullOrEmpty(fileSettings.SqlStatement))
+        throw new ApplicationException("No SQL Statement given");
+      using (var dataReader = ApplicationSetting.SQLDataReader(fileSettings.SqlStatement))
       {
-        if (!all && (column.DataType == DataType.String || column.IsTimePart)) continue;
-        var fsColumn = new Column
+        // Put the information into the list
+        foreach (DataRow schemaRow in dataReader.GetSchemaTable().Rows)
         {
-          Name = column.Header,
-          ValueFormat = column.ValueFormat,
-          DataType = column.DataType
-        };
-        fileSettings.ColumnAdd(fsColumn);
+          string header = schemaRow[SchemaTableColumn.ColumnName].ToString();
+          DataType colType = ((Type)schemaRow[SchemaTableColumn.DataType]).GetDataType();
+
+          if (!all && (colType == DataType.String)) continue;
+          var fsColumn = new Column
+          {
+            Name = header,
+            DataType = colType
+          };
+          fileSettings.ColumnAdd(fsColumn);
+        }
       }
     }
 
@@ -488,7 +500,7 @@ namespace CsvTools
     {
       Contract.Requires(fileSettings != null);
       var writer = fileSettings.GetFileWriter(cancellationToken);
-      return writer.GetColumnInformation(null, writer.GetSourceSetting());
+      return writer.GetColumnInformation(writer.GetSchemaReader());
     }
 
     /// <summary>

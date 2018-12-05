@@ -63,7 +63,6 @@ namespace CsvTools
     private bool m_ThrowErrorIfNotExists = true;
     private bool m_ShowProgress = true;
     private int m_SkipRows;
-    private string m_SourceSetting = string.Empty;
     private string m_SqlStatement = string.Empty;
     private int m_SqlTimeout = 360;
     private string m_TemplateName = string.Empty;
@@ -276,7 +275,6 @@ namespace CsvTools
              string.Equals(other.SqlStatement, SqlStatement, StringComparison.OrdinalIgnoreCase) &&
              string.Equals(other.Footer, Footer, StringComparison.OrdinalIgnoreCase) &&
              string.Equals(other.Header, Header, StringComparison.OrdinalIgnoreCase) &&
-             string.Equals(other.SourceSetting, SourceSetting, StringComparison.OrdinalIgnoreCase) &&
              m_ColumnMapping.CollectionEqual(other.Mapping) && Samples.CollectionEqual(other.Samples) &&
              Errors.CollectionEqual(other.Errors) && m_Column.CollectionEqual(other.Column);
     }
@@ -435,7 +433,7 @@ namespace CsvTools
     /// <summary>
     ///   Gets or sets the date the file when it was read
     /// </summary>
-    /// <value>The consecutive empty rows.</value>
+    /// <value>The consecutive empty rows.</value>    
     [XmlAttribute]
     [DefaultValue(0)]
     public virtual long FileSize
@@ -775,29 +773,6 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets or sets the connection string.
-    /// </summary>
-    /// <value>The connection string.</value>
-    [XmlElement]
-    [DefaultValue("")]
-    public virtual string SourceSetting
-    {
-      get
-      {
-        Contract.Ensures(Contract.Result<string>() != null);
-        return m_SourceSetting;
-      }
-
-      set
-      {
-        var newVal = value ?? string.Empty;
-        if (m_SourceSetting.Equals(newVal, StringComparison.OrdinalIgnoreCase)) return;
-        m_SourceSetting = newVal;
-        NotifyPropertyChanged(nameof(SourceSetting));
-      }
-    }
-
-    /// <summary>
     ///   Gets or sets the SQL statement.
     /// </summary>
     /// <value>The SQL statement.</value>
@@ -1052,7 +1027,6 @@ namespace CsvTools
       other.Recipient = m_Recipient;
       other.TreatNBSPAsSpace = m_TreatNbspAsSpace;
       m_Column.CollectionCopy(other.Column);
-      other.SourceSetting = m_SourceSetting;
       other.SqlStatement = m_SqlStatement;
       other.InOverview = m_InOverview;
       other.SQLTimeout = m_SqlTimeout;

@@ -35,8 +35,7 @@ namespace CsvTools
     /// </summary>
     public FormEditSettings(CsvFile fileSettings)
     {
-      Contract.Requires(fileSettings != null);
-      m_CsvFileRef = fileSettings;
+      m_CsvFileRef = fileSettings ?? throw new ArgumentNullException(nameof(fileSettings));
       fileSettings.CopyTo(m_CsvFileCopy);
       m_CsvFileCopy.PropertyChanged += CsvFile_PropertyChanged;
 

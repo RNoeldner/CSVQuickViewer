@@ -374,15 +374,33 @@ namespace CsvTools
       Cursor.Current = Cursors.WaitCursor;
       if (m_FileSetting != null)
         m_FileSetting.PropertyChanged -= FileSetting_PropertyChanged;
+
+      m_FileSetting = new CsvFile(m_FileName);
+
+      SetFileSettingDefault(m_FileSetting);
+
+      if (m_FileName.AssumePgp() && (ApplicationSetting.ToolSetting?.PGPInformation?.PrivateKeys?.IsEmpty() ?? false))
+      {
+        var res = _MessageBox.Show(this, "The private key for decryption has not been setup.\n\nDo you want to add them now ?", "Decryption", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, timeout: 5);
+        if (res == DialogResult.Cancel)
+          return false;
+
+        if (res == DialogResult.Yes)
+        {
+          using (var frm = new FormEditSettings(m_FileSetting))
+          {
+            frm.tabControl.SelectedTab = frm.tabPagePGP;
+            frm.ShowDialog(this);
+          }
+        }
+      }
+
+      m_FileSetting.GetEncryptedPassphraseFunction = m_FileSetting.GetEncryptedPassphraseOpenForm;
+
       try
       {
         var analyse = true;
-
-        m_FileSetting = new CsvFile(m_FileName);
-        m_FileSetting.GetEncryptedPassphraseFunction = m_FileSetting.GetEncryptedPassphraseOpenForm;
-        SetFileSettingDefault(m_FileSetting);
         var fileInfo = FileSystemUtils.FileInfo(m_FileName);
-
         m_FileSetting.ID = m_FileName.GetIdFromFileName();
         SetProcess($"Size of file: {StringConversion.DynamicStorageSize(fileInfo.Length)}");
 
