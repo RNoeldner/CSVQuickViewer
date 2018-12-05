@@ -130,7 +130,6 @@ namespace CsvTools
           numEmptyRows++;
 
           break;
-          continue;
         }
 
         numEmptyRows = 0;
@@ -188,9 +187,12 @@ namespace CsvTools
       var qualifyThis = fileFormat.QualifyAlways;
       if (!qualifyThis)
         if (fileFormat.QualifyOnlyIfNeeded)
-          // Qualify the text if the delimiter is present
+        {
+          var trim = displayAs.TrimStart();
+          // Qualify the text if the delimiter is present, or if the text starts with the Qualifier
           qualifyThis = displayAs.Length > 0 && (displayAs.IndexOfAny(m_QualifyCharArray) > -1 ||
-                                                 displayAs[0].Equals(fileFormat.FieldQualifierChar));
+                                                 (trim.Length > 0 && trim[0].Equals(fileFormat.FieldQualifierChar)));
+        }
         else
           // quality any text or something containing a Qualify Char
           qualifyThis = columnInfo.DataType == DataType.String || columnInfo.DataType == DataType.TextToHtml ||

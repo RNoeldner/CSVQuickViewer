@@ -111,7 +111,7 @@
       <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="EscapeCharacter" Type="string" Scope="User">
-      <Value Profile="(Default)">\</Value>
+      <Value Profile="(Default)" />
     </Setting>
     <Setting Name="QuotePlaceholder" Type="string" Scope="User">
       <Value Profile="(Default)" />
