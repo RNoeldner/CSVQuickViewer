@@ -25,17 +25,18 @@ namespace CsvTools
   /// </summary>
   public class QuotingControl : UserControl
   {
-    private CheckBox m_CheckBoxAlternateQuoting;
-    private ComboBox m_ComboBoxTrim;
-
     /// <summary>
     ///   The components
     /// </summary>
     private IContainer components;
 
+    private CheckBox m_CheckBoxAlternateQuoting;
+    private ComboBox m_ComboBoxTrim;
+    private CsvFile m_CsvFile;
     private ErrorProvider m_ErrorProvider;
     private BindingSource m_FileFormatBindingSource;
     private BindingSource m_FileSettingBindingSource;
+    private bool m_IsWriteSetting;
     private Label m_Label1;
     private Label m_Label2;
     private Label m_Label3;
@@ -46,8 +47,6 @@ namespace CsvTools
     private Label m_LabelQuote;
     private Label m_LabelQuotePlaceholer;
     private Label m_LabelTrim;
-    private CsvFile m_CsvFile;
-    private bool m_IsWriteSetting;
     private CSVRichTextBox m_RichTextBox;
     private CSVRichTextBox m_RichTextBox00;
     private CSVRichTextBox m_RichTextBox01;
@@ -113,6 +112,82 @@ namespace CsvTools
     #region
 
     /// <summary>
+    ///   Dispose
+    /// </summary>
+    /// <param name="disposing">
+    ///   true to release both managed and unmanaged resources; false to release only unmanaged
+    ///   resources.
+    /// </param>
+    protected override void Dispose(bool disposing)
+    {
+      if (disposing) components?.Dispose();
+      base.Dispose(disposing);
+    }
+
+    private void comboBoxTrim_SelectedIndexChanged(object sender, EventArgs e)
+    {
+      Contract.Requires(m_ComboBoxTrim != null);
+      if (m_ComboBoxTrim.SelectedItem == null) return;
+
+      if (!m_IsWriteSetting)
+      {
+        m_RichTextBox00.Clear();
+        m_RichTextBox01.Clear();
+        m_RichTextBox02.Clear();
+        switch (((DisplayItem<int>)m_ComboBoxTrim.SelectedItem).ID)
+        {
+          case 1:
+            m_CsvFile.TrimmingOption = TrimmingOption.Unquoted;
+
+            m_RichTextBox00.SelectionColor = Color.Black;
+            m_RichTextBox00.Text = "This is ";
+            m_RichTextBox00.Select(m_RichTextBox00.TextLength - 1, 1);
+            m_RichTextBox00.SelectionBackColor = Color.Yellow;
+
+            m_RichTextBox01.Text = " a Trimming ";
+            m_RichTextBox01.Select(0, 1);
+            m_RichTextBox01.SelectionBackColor = Color.Yellow;
+            m_RichTextBox01.SelectionColor = Color.Orange;
+            m_RichTextBox01.Select(m_RichTextBox01.TextLength - 1, 1);
+            m_RichTextBox01.SelectionBackColor = Color.Yellow;
+            m_RichTextBox02.Text = "Example";
+            m_LabelInfoQuoting.Text = "Import of leading or training spaces possible, but the field has to be quoted";
+            break;
+
+          case 3:
+            m_CsvFile.TrimmingOption = TrimmingOption.All;
+
+            m_RichTextBox00.Text = "This is";
+            m_RichTextBox01.Text = "a Trimming";
+            m_RichTextBox02.Text = "Example";
+            m_LabelInfoQuoting.Text = "Not possible to have leading nor trailing spaces";
+            break;
+
+          default:
+            m_CsvFile.TrimmingOption = TrimmingOption.None;
+
+            m_RichTextBox00.Text = "This is ";
+            m_RichTextBox00.Select(m_RichTextBox00.TextLength - 1, 1);
+            m_RichTextBox00.SelectionBackColor = Color.Yellow;
+
+            m_RichTextBox01.Text = " a Trimming ";
+            m_RichTextBox01.Select(0, 1);
+            m_RichTextBox01.SelectionBackColor = Color.Yellow;
+            m_RichTextBox01.SelectionColor = Color.Orange;
+            m_RichTextBox01.Select(m_RichTextBox01.TextLength - 1, 1);
+            m_RichTextBox01.SelectionBackColor = Color.Yellow;
+
+            m_RichTextBox02.Text = "Example ";
+            m_RichTextBox02.Select(m_RichTextBox02.TextLength - 1, 1);
+            m_RichTextBox02.SelectionBackColor = Color.Yellow;
+
+            m_LabelInfoQuoting.Text = "Leading or training spaces will stay as they are";
+            break;
+        }
+      }
+    }
+
+    /// <summary>
     ///   Initializes the component.
     /// </summary>
     private void InitializeComponent()
@@ -154,33 +229,30 @@ namespace CsvTools
       // m_LabelQuote
       //
       this.m_LabelQuote.AutoSize = true;
-      this.m_LabelQuote.Location = new System.Drawing.Point(103, 4);
-      this.m_LabelQuote.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+      this.m_LabelQuote.Location = new System.Drawing.Point(77, 3);
       this.m_LabelQuote.Name = "m_LabelQuote";
-      this.m_LabelQuote.Size = new System.Drawing.Size(51, 17);
+      this.m_LabelQuote.Size = new System.Drawing.Size(39, 13);
       this.m_LabelQuote.TabIndex = 21;
       this.m_LabelQuote.Text = "Quote:";
       //
       // m_LabelQuotePlaceholer
       //
       this.m_LabelQuotePlaceholer.AutoSize = true;
-      this.m_LabelQuotePlaceholer.Location = new System.Drawing.Point(67, 63);
-      this.m_LabelQuotePlaceholer.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+      this.m_LabelQuotePlaceholer.Location = new System.Drawing.Point(50, 51);
       this.m_LabelQuotePlaceholer.Name = "m_LabelQuotePlaceholer";
-      this.m_LabelQuotePlaceholer.Size = new System.Drawing.Size(87, 17);
+      this.m_LabelQuotePlaceholer.Size = new System.Drawing.Size(66, 13);
       this.m_LabelQuotePlaceholer.TabIndex = 22;
       this.m_LabelQuotePlaceholer.Text = "Placeholder:";
       //
       // m_TextBoxEscape
       //
       this.m_TextBoxEscape.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.m_FileFormatBindingSource, "EscapeCharacter", true));
-      this.m_TextBoxEscape.Location = new System.Drawing.Point(163, 30);
-      this.m_TextBoxEscape.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+      this.m_TextBoxEscape.Location = new System.Drawing.Point(122, 24);
       this.m_TextBoxEscape.Name = "m_TextBoxEscape";
-      this.m_TextBoxEscape.Size = new System.Drawing.Size(59, 22);
+      this.m_TextBoxEscape.Size = new System.Drawing.Size(45, 20);
       this.m_TextBoxEscape.TabIndex = 34;
-      this.m_ToolTip.SetToolTip(this.m_TextBoxEscape, "Character to escape an embedded quote, if left empty embedded quotes need to be d" +
-        "uplicated");
+      this.m_ToolTip.SetToolTip(this.m_TextBoxEscape, "Character to escape an embedded char, if left empty embedded quotes need to be du" +
+        "plicated");
       //
       // m_FileFormatBindingSource
       //
@@ -190,33 +262,31 @@ namespace CsvTools
       // m_LabelEscapeCharacter
       //
       this.m_LabelEscapeCharacter.AutoSize = true;
-      this.m_LabelEscapeCharacter.Location = new System.Drawing.Point(28, 33);
-      this.m_LabelEscapeCharacter.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+      this.m_LabelEscapeCharacter.Location = new System.Drawing.Point(21, 27);
       this.m_LabelEscapeCharacter.Name = "m_LabelEscapeCharacter";
-      this.m_LabelEscapeCharacter.Size = new System.Drawing.Size(125, 17);
+      this.m_LabelEscapeCharacter.Size = new System.Drawing.Size(95, 13);
       this.m_LabelEscapeCharacter.TabIndex = 33;
       this.m_LabelEscapeCharacter.Text = "Escape Character:";
       //
       // m_LabelTrim
       //
       this.m_LabelTrim.AutoSize = true;
-      this.m_LabelTrim.Location = new System.Drawing.Point(40, 95);
-      this.m_LabelTrim.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+      this.m_LabelTrim.Location = new System.Drawing.Point(30, 77);
       this.m_LabelTrim.Name = "m_LabelTrim";
-      this.m_LabelTrim.Size = new System.Drawing.Size(116, 17);
+      this.m_LabelTrim.Size = new System.Drawing.Size(86, 13);
       this.m_LabelTrim.TabIndex = 89;
       this.m_LabelTrim.Text = "Trimming Option:";
       //
       // m_TextBoxQuote
       //
       this.m_TextBoxQuote.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.m_FileFormatBindingSource, "FieldQualifier", true));
-      this.m_TextBoxQuote.Location = new System.Drawing.Point(163, 1);
-      this.m_TextBoxQuote.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+      this.m_TextBoxQuote.Location = new System.Drawing.Point(122, 1);
       this.m_TextBoxQuote.Name = "m_TextBoxQuote";
-      this.m_TextBoxQuote.Size = new System.Drawing.Size(59, 22);
+      this.m_TextBoxQuote.Size = new System.Drawing.Size(45, 20);
       this.m_TextBoxQuote.TabIndex = 19;
       this.m_ToolTip.SetToolTip(this.m_TextBoxQuote, "Columns may be delimited with a quoting character; the quotes are removed by the " +
         "reading applications.");
+      this.m_TextBoxQuote.TextChanged += new System.EventHandler(this.m_TextBoxQuote_TextChanged);
       //
       // m_TextBoxQuotePlaceHolder
       //
@@ -225,22 +295,21 @@ namespace CsvTools
             "&quot;"});
       this.m_TextBoxQuotePlaceHolder.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
       this.m_TextBoxQuotePlaceHolder.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.m_FileFormatBindingSource, "QuotePlaceholder", true));
-      this.m_TextBoxQuotePlaceHolder.Location = new System.Drawing.Point(163, 59);
-      this.m_TextBoxQuotePlaceHolder.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+      this.m_TextBoxQuotePlaceHolder.Location = new System.Drawing.Point(122, 48);
       this.m_TextBoxQuotePlaceHolder.Name = "m_TextBoxQuotePlaceHolder";
-      this.m_TextBoxQuotePlaceHolder.Size = new System.Drawing.Size(59, 22);
+      this.m_TextBoxQuotePlaceHolder.Size = new System.Drawing.Size(45, 20);
       this.m_TextBoxQuotePlaceHolder.TabIndex = 20;
       this.m_ToolTip.SetToolTip(this.m_TextBoxQuotePlaceHolder, "If this placeholder is part of the text it will be replaced with the quoting char" +
         "acter");
+      this.m_TextBoxQuotePlaceHolder.TextChanged += new System.EventHandler(this.m_TextBoxQuotePlaceHolder_TextChanged);
       //
       // m_CheckBoxAlternateQuoting
       //
       this.m_CheckBoxAlternateQuoting.AutoSize = true;
       this.m_CheckBoxAlternateQuoting.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.m_FileSettingBindingSource, "AlternateQuoting", true));
-      this.m_CheckBoxAlternateQuoting.Location = new System.Drawing.Point(315, 5);
-      this.m_CheckBoxAlternateQuoting.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+      this.m_CheckBoxAlternateQuoting.Location = new System.Drawing.Point(236, 4);
       this.m_CheckBoxAlternateQuoting.Name = "m_CheckBoxAlternateQuoting";
-      this.m_CheckBoxAlternateQuoting.Size = new System.Drawing.Size(192, 21);
+      this.m_CheckBoxAlternateQuoting.Size = new System.Drawing.Size(148, 17);
       this.m_CheckBoxAlternateQuoting.TabIndex = 18;
       this.m_CheckBoxAlternateQuoting.Text = "Context Sensitive Quoting";
       this.m_ToolTip.SetToolTip(this.m_CheckBoxAlternateQuoting, "A quote is only regarded as closing quote if it is followed by linefeed or delimi" +
@@ -256,10 +325,9 @@ namespace CsvTools
       //
       this.m_ComboBoxTrim.DisplayMember = "Display";
       this.m_ComboBoxTrim.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-      this.m_ComboBoxTrim.Location = new System.Drawing.Point(163, 91);
-      this.m_ComboBoxTrim.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+      this.m_ComboBoxTrim.Location = new System.Drawing.Point(122, 74);
       this.m_ComboBoxTrim.Name = "m_ComboBoxTrim";
-      this.m_ComboBoxTrim.Size = new System.Drawing.Size(139, 24);
+      this.m_ComboBoxTrim.Size = new System.Drawing.Size(105, 21);
       this.m_ComboBoxTrim.TabIndex = 90;
       this.m_ToolTip.SetToolTip(this.m_ComboBoxTrim, "None will not remove whitespaces; Unquoted will remove whitespaces if the column " +
         "was not quoted; All will remove whitespaces even if the column was quoted");
@@ -271,7 +339,7 @@ namespace CsvTools
       this.m_TableLayoutPanel1.BackColor = System.Drawing.SystemColors.Window;
       this.m_TableLayoutPanel1.CellBorderStyle = System.Windows.Forms.TableLayoutPanelCellBorderStyle.Outset;
       this.m_TableLayoutPanel1.ColumnCount = 3;
-      this.m_TableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 23F));
+      this.m_TableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 17F));
       this.m_TableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 38.88889F));
       this.m_TableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 61.11111F));
       this.m_TableLayoutPanel1.Controls.Add(this.m_Label2, 0, 0);
@@ -284,24 +352,22 @@ namespace CsvTools
       this.m_TableLayoutPanel1.Controls.Add(this.m_Label1, 0, 1);
       this.m_TableLayoutPanel1.Controls.Add(this.m_Label3, 0, 2);
       this.m_TableLayoutPanel1.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-      this.m_TableLayoutPanel1.Location = new System.Drawing.Point(417, 124);
-      this.m_TableLayoutPanel1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+      this.m_TableLayoutPanel1.Location = new System.Drawing.Point(313, 101);
       this.m_TableLayoutPanel1.Name = "m_TableLayoutPanel1";
       this.m_TableLayoutPanel1.RowCount = 3;
       this.m_TableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.m_TableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.m_TableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.m_TableLayoutPanel1.Size = new System.Drawing.Size(436, 102);
+      this.m_TableLayoutPanel1.Size = new System.Drawing.Size(327, 100);
       this.m_TableLayoutPanel1.TabIndex = 92;
       //
       // m_Label2
       //
       this.m_Label2.AutoSize = true;
       this.m_Label2.ForeColor = System.Drawing.Color.Teal;
-      this.m_Label2.Location = new System.Drawing.Point(6, 2);
-      this.m_Label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+      this.m_Label2.Location = new System.Drawing.Point(5, 2);
       this.m_Label2.Name = "m_Label2";
-      this.m_Label2.Size = new System.Drawing.Size(15, 24);
+      this.m_Label2.Size = new System.Drawing.Size(11, 18);
       this.m_Label2.TabIndex = 102;
       this.m_Label2.Text = "1\r\n";
       //
@@ -312,12 +378,12 @@ namespace CsvTools
       this.m_RichTextBox02.DisplaySpace = true;
       this.m_RichTextBox02.Dock = System.Windows.Forms.DockStyle.Fill;
       this.m_RichTextBox02.Escape = '\\';
-      this.m_RichTextBox02.Location = new System.Drawing.Point(27, 66);
+      this.m_RichTextBox02.Location = new System.Drawing.Point(21, 54);
       this.m_RichTextBox02.Margin = new System.Windows.Forms.Padding(0);
       this.m_RichTextBox02.Name = "m_RichTextBox02";
       this.m_RichTextBox02.Quote = '\"';
       this.m_RichTextBox02.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
-      this.m_RichTextBox02.Size = new System.Drawing.Size(157, 48);
+      this.m_RichTextBox02.Size = new System.Drawing.Size(117, 44);
       this.m_RichTextBox02.TabIndex = 101;
       this.m_RichTextBox02.Text = "Example ";
       this.m_RichTextBox02.WordWrap = false;
@@ -329,12 +395,12 @@ namespace CsvTools
       this.m_RichTextBox01.DisplaySpace = true;
       this.m_RichTextBox01.Dock = System.Windows.Forms.DockStyle.Fill;
       this.m_RichTextBox01.Escape = '\\';
-      this.m_RichTextBox01.Location = new System.Drawing.Point(27, 34);
+      this.m_RichTextBox01.Location = new System.Drawing.Point(21, 28);
       this.m_RichTextBox01.Margin = new System.Windows.Forms.Padding(0);
       this.m_RichTextBox01.Name = "m_RichTextBox01";
       this.m_RichTextBox01.Quote = '\"';
       this.m_RichTextBox01.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
-      this.m_RichTextBox01.Size = new System.Drawing.Size(157, 30);
+      this.m_RichTextBox01.Size = new System.Drawing.Size(117, 24);
       this.m_RichTextBox01.TabIndex = 100;
       this.m_RichTextBox01.Text = " a Trimming ";
       this.m_RichTextBox01.WordWrap = false;
@@ -346,12 +412,12 @@ namespace CsvTools
       this.m_RichTextBox00.DisplaySpace = true;
       this.m_RichTextBox00.Dock = System.Windows.Forms.DockStyle.Fill;
       this.m_RichTextBox00.Escape = '\\';
-      this.m_RichTextBox00.Location = new System.Drawing.Point(27, 2);
+      this.m_RichTextBox00.Location = new System.Drawing.Point(21, 2);
       this.m_RichTextBox00.Margin = new System.Windows.Forms.Padding(0);
       this.m_RichTextBox00.Name = "m_RichTextBox00";
       this.m_RichTextBox00.Quote = '\"';
       this.m_RichTextBox00.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
-      this.m_RichTextBox00.Size = new System.Drawing.Size(157, 30);
+      this.m_RichTextBox00.Size = new System.Drawing.Size(117, 24);
       this.m_RichTextBox00.TabIndex = 99;
       this.m_RichTextBox00.Text = "This is ";
       this.m_RichTextBox00.WordWrap = false;
@@ -363,12 +429,12 @@ namespace CsvTools
       this.m_RichTextBox10.DisplaySpace = true;
       this.m_RichTextBox10.Dock = System.Windows.Forms.DockStyle.Fill;
       this.m_RichTextBox10.Escape = '\\';
-      this.m_RichTextBox10.Location = new System.Drawing.Point(186, 2);
+      this.m_RichTextBox10.Location = new System.Drawing.Point(140, 2);
       this.m_RichTextBox10.Margin = new System.Windows.Forms.Padding(0);
       this.m_RichTextBox10.Name = "m_RichTextBox10";
       this.m_RichTextBox10.Quote = '\"';
       this.m_RichTextBox10.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
-      this.m_RichTextBox10.Size = new System.Drawing.Size(248, 30);
+      this.m_RichTextBox10.Size = new System.Drawing.Size(185, 24);
       this.m_RichTextBox10.TabIndex = 98;
       this.m_RichTextBox10.Text = "Column with:, Delimiter";
       this.m_RichTextBox10.WordWrap = false;
@@ -380,14 +446,14 @@ namespace CsvTools
       this.m_RichTextBox11.DisplaySpace = true;
       this.m_RichTextBox11.Dock = System.Windows.Forms.DockStyle.Fill;
       this.m_RichTextBox11.Escape = '\\';
-      this.m_RichTextBox11.Location = new System.Drawing.Point(186, 34);
+      this.m_RichTextBox11.Location = new System.Drawing.Point(140, 28);
       this.m_RichTextBox11.Margin = new System.Windows.Forms.Padding(0);
       this.m_RichTextBox11.Name = "m_RichTextBox11";
       this.m_RichTextBox11.Quote = '\"';
       this.m_RichTextBox11.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
-      this.m_RichTextBox11.Size = new System.Drawing.Size(248, 30);
+      this.m_RichTextBox11.Size = new System.Drawing.Size(185, 24);
       this.m_RichTextBox11.TabIndex = 99;
-      this.m_RichTextBox11.Text = "Column with:\" Quote";
+      this.m_RichTextBox11.Text = "Column with \" Quote";
       this.m_RichTextBox11.WordWrap = false;
       //
       // m_RichTextBox12
@@ -397,12 +463,12 @@ namespace CsvTools
       this.m_RichTextBox12.DisplaySpace = true;
       this.m_RichTextBox12.Dock = System.Windows.Forms.DockStyle.Fill;
       this.m_RichTextBox12.Escape = '\\';
-      this.m_RichTextBox12.Location = new System.Drawing.Point(186, 66);
+      this.m_RichTextBox12.Location = new System.Drawing.Point(140, 54);
       this.m_RichTextBox12.Margin = new System.Windows.Forms.Padding(0);
       this.m_RichTextBox12.Name = "m_RichTextBox12";
       this.m_RichTextBox12.Quote = '\"';
       this.m_RichTextBox12.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
-      this.m_RichTextBox12.Size = new System.Drawing.Size(248, 48);
+      this.m_RichTextBox12.Size = new System.Drawing.Size(185, 44);
       this.m_RichTextBox12.TabIndex = 99;
       this.m_RichTextBox12.Text = "Column with \nLinefeed";
       this.m_RichTextBox12.WordWrap = false;
@@ -411,10 +477,9 @@ namespace CsvTools
       //
       this.m_Label1.AutoSize = true;
       this.m_Label1.ForeColor = System.Drawing.Color.Teal;
-      this.m_Label1.Location = new System.Drawing.Point(6, 34);
-      this.m_Label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+      this.m_Label1.Location = new System.Drawing.Point(5, 28);
       this.m_Label1.Name = "m_Label1";
-      this.m_Label1.Size = new System.Drawing.Size(15, 24);
+      this.m_Label1.Size = new System.Drawing.Size(11, 18);
       this.m_Label1.TabIndex = 103;
       this.m_Label1.Text = "2";
       //
@@ -422,10 +487,9 @@ namespace CsvTools
       //
       this.m_Label3.AutoSize = true;
       this.m_Label3.ForeColor = System.Drawing.Color.Teal;
-      this.m_Label3.Location = new System.Drawing.Point(6, 66);
-      this.m_Label3.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+      this.m_Label3.Location = new System.Drawing.Point(5, 54);
       this.m_Label3.Name = "m_Label3";
-      this.m_Label3.Size = new System.Drawing.Size(15, 24);
+      this.m_Label3.Size = new System.Drawing.Size(11, 18);
       this.m_Label3.TabIndex = 103;
       this.m_Label3.Text = "3";
       //
@@ -435,10 +499,9 @@ namespace CsvTools
       this.m_LabelInfoQuoting.BackColor = System.Drawing.SystemColors.Info;
       this.m_LabelInfoQuoting.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
       this.m_LabelInfoQuoting.ForeColor = System.Drawing.SystemColors.InfoText;
-      this.m_LabelInfoQuoting.Location = new System.Drawing.Point(311, 95);
-      this.m_LabelInfoQuoting.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+      this.m_LabelInfoQuoting.Location = new System.Drawing.Point(233, 77);
       this.m_LabelInfoQuoting.Name = "m_LabelInfoQuoting";
-      this.m_LabelInfoQuoting.Size = new System.Drawing.Size(301, 19);
+      this.m_LabelInfoQuoting.Size = new System.Drawing.Size(225, 15);
       this.m_LabelInfoQuoting.TabIndex = 93;
       this.m_LabelInfoQuoting.Text = "Not possible to have leading or trailing spaces";
       this.m_LabelInfoQuoting.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -448,10 +511,9 @@ namespace CsvTools
       this.m_Label8.AutoSize = true;
       this.m_Label8.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
       this.m_Label8.ForeColor = System.Drawing.Color.Teal;
-      this.m_Label8.Location = new System.Drawing.Point(-5, 124);
-      this.m_Label8.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+      this.m_Label8.Location = new System.Drawing.Point(-4, 101);
       this.m_Label8.Name = "m_Label8";
-      this.m_Label8.Size = new System.Drawing.Size(23, 100);
+      this.m_Label8.Size = new System.Drawing.Size(18, 80);
       this.m_Label8.TabIndex = 95;
       this.m_Label8.Text = "1\r\n2\r\n3\r\n4";
       //
@@ -462,10 +524,9 @@ namespace CsvTools
       // m_Label5
       //
       this.m_Label5.AutoSize = true;
-      this.m_Label5.Location = new System.Drawing.Point(20, 231);
-      this.m_Label5.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+      this.m_Label5.Location = new System.Drawing.Point(15, 204);
       this.m_Label5.Name = "m_Label5";
-      this.m_Label5.Size = new System.Drawing.Size(447, 17);
+      this.m_Label5.Size = new System.Drawing.Size(336, 13);
       this.m_Label5.TabIndex = 98;
       this.m_Label5.Text = "Tab visualized as »   Linefeed visualized as ¶    Space visualized as ●";
       //
@@ -476,12 +537,11 @@ namespace CsvTools
       this.m_RichTextBox.DisplaySpace = true;
       this.m_RichTextBox.Escape = '>';
       this.m_RichTextBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-      this.m_RichTextBox.Location = new System.Drawing.Point(24, 124);
-      this.m_RichTextBox.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+      this.m_RichTextBox.Location = new System.Drawing.Point(18, 101);
       this.m_RichTextBox.Name = "m_RichTextBox";
       this.m_RichTextBox.Quote = '\"';
       this.m_RichTextBox.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
-      this.m_RichTextBox.Size = new System.Drawing.Size(392, 102);
+      this.m_RichTextBox.Size = new System.Drawing.Size(294, 98);
       this.m_RichTextBox.TabIndex = 97;
       this.m_RichTextBox.Text = "\"This is \";Column with:, Delimiter\n a Trimming ;Column with \"\" Quote\nExample ;\"Co" +
     "lumn with \nLinefeed\"";
@@ -489,7 +549,7 @@ namespace CsvTools
       //
       // QuotingControl
       //
-      this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+      this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.Controls.Add(this.m_Label5);
       this.Controls.Add(this.m_RichTextBox);
@@ -505,9 +565,8 @@ namespace CsvTools
       this.Controls.Add(this.m_LabelQuotePlaceholer);
       this.Controls.Add(this.m_TextBoxQuotePlaceHolder);
       this.Controls.Add(this.m_CheckBoxAlternateQuoting);
-      this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
       this.Name = "QuotingControl";
-      this.Size = new System.Drawing.Size(853, 258);
+      this.Size = new System.Drawing.Size(640, 224);
       ((System.ComponentModel.ISupportInitialize)(this.m_FileFormatBindingSource)).EndInit();
       ((System.ComponentModel.ISupportInitialize)(this.m_FileSettingBindingSource)).EndInit();
       this.m_TableLayoutPanel1.ResumeLayout(false);
@@ -519,85 +578,21 @@ namespace CsvTools
 
     #endregion Vom Komponenten-Designer generierter Code
 
-    /// <summary>
-    ///   Dispose
-    /// </summary>
-    /// <param name="disposing">
-    ///   true to release both managed and unmanaged resources; false to release only unmanaged
-    ///   resources.
-    /// </param>
-    protected override void Dispose(bool disposing)
-    {
-      if (disposing) components?.Dispose();
-      base.Dispose(disposing);
-    }
-
-    private void comboBoxTrim_SelectedIndexChanged(object sender, EventArgs e)
-    {
-      Contract.Requires(m_ComboBoxTrim != null);
-      if (m_ComboBoxTrim.SelectedItem == null) return;
-      m_RichTextBox00.Clear();
-      m_RichTextBox01.Clear();
-      m_RichTextBox02.Clear();
-      switch (((DisplayItem<int>)m_ComboBoxTrim.SelectedItem).ID)
-      {
-        case 1:
-          m_CsvFile.TrimmingOption = TrimmingOption.Unquoted;
-
-          m_RichTextBox00.SelectionColor = Color.Black;
-          m_RichTextBox00.Text = "This is ";
-          m_RichTextBox00.Select(m_RichTextBox00.TextLength - 1, 1);
-          m_RichTextBox00.SelectionBackColor = Color.Yellow;
-
-          m_RichTextBox01.Text = " a Trimming ";
-          m_RichTextBox01.Select(0, 1);
-          m_RichTextBox01.SelectionBackColor = Color.Yellow;
-          m_RichTextBox01.SelectionColor = Color.Orange;
-          m_RichTextBox01.Select(m_RichTextBox01.TextLength - 1, 1);
-          m_RichTextBox01.SelectionBackColor = Color.Yellow;
-          m_RichTextBox02.Text = "Example";
-          m_LabelInfoQuoting.Text = "Import of leading or training spaces possible, but the field has to be quoted";
-          break;
-
-        case 3:
-          m_CsvFile.TrimmingOption = TrimmingOption.All;
-
-          m_RichTextBox00.Text = "This is";
-          m_RichTextBox01.Text = "a Trimming";
-          m_RichTextBox02.Text = "Example";
-          m_LabelInfoQuoting.Text = "Not possible to have leading nor trailing spaces";
-          break;
-
-        default:
-          m_CsvFile.TrimmingOption = TrimmingOption.None;
-
-          m_RichTextBox00.Text = "This is ";
-          m_RichTextBox00.Select(m_RichTextBox00.TextLength - 1, 1);
-          m_RichTextBox00.SelectionBackColor = Color.Yellow;
-
-          m_RichTextBox01.Text = " a Trimming ";
-          m_RichTextBox01.Select(0, 1);
-          m_RichTextBox01.SelectionBackColor = Color.Yellow;
-          m_RichTextBox01.SelectionColor = Color.Orange;
-          m_RichTextBox01.Select(m_RichTextBox01.TextLength - 1, 1);
-          m_RichTextBox01.SelectionBackColor = Color.Yellow;
-
-          m_RichTextBox02.Text = "Example ";
-          m_RichTextBox02.Select(m_RichTextBox02.TextLength - 1, 1);
-          m_RichTextBox02.SelectionBackColor = Color.Yellow;
-
-          m_LabelInfoQuoting.Text = "Leading or training spaces will stay as they are";
-          break;
-      }
-    }
-
-    private void label2_Click(object sender, EventArgs e)
-    {
-    }
-
     private void m_CsvFile_PropertyChanged(object sender, PropertyChangedEventArgs e)
     {
       if (e.PropertyName == nameof(FileFormat.FieldDelimiter)) SetDelimiter();
+    }
+
+    private void m_TextBoxQuote_TextChanged(object sender, EventArgs e)
+    {
+      comboBoxTrim_SelectedIndexChanged(sender, e);
+      SetToolTipPlaceholder(sender, e);
+    }
+
+    private void m_TextBoxQuotePlaceHolder_TextChanged(object sender, EventArgs e)
+    {
+      comboBoxTrim_SelectedIndexChanged(sender, e);
+      SetToolTipPlaceholder(sender, e);
     }
 
     private void SetCboTrim(TrimmingOption trim)
@@ -705,7 +700,6 @@ namespace CsvTools
         }
 
         m_RichTextBox.Text = sampleText;
-
         m_RichTextBox.Quote = quote?[0] ?? '\0';
 
         m_ToolTip.SetToolTip(m_TextBoxQuotePlaceHolder, newToolTip);

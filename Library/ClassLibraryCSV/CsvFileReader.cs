@@ -640,6 +640,25 @@ namespace CsvTools
       result.CopyTo(m_Buffer, 0);
     }
 
+    private char EatNextCRLF(char character)
+    {
+      EndLineNumber++;
+      if (!EndOfFile)
+      {
+        var nextChar = NextChar();
+        if (character == c_Cr && nextChar == c_Lf || character == c_Lf && nextChar == c_Cr)
+        {
+          // New line sequence is either CRLF or LFCR, disregard the character
+          m_BufferPos++;
+          // Very special a LF CR is counted as two lines.
+          if (character == c_Lf && nextChar == c_Cr)
+            EndLineNumber++;
+          return nextChar;
+        }
+      }
+      return '\0';
+    }
+
     /// <summary>
     ///   Gets the next column in the buffer.
     /// </summary>
@@ -676,14 +695,12 @@ namespace CsvTools
         if (character == m_CsvFile.FileFormat.EscapeCharacterChar && !postdata)
         {
           var nextChar = NextChar();
-
           if (!EndOfFile)
           {
             m_BufferPos++;
-
             stringBuilder.Append(nextChar);
             if (nextChar == c_Cr || nextChar == c_Lf)
-              EndLineNumber++;
+              EatNextCRLF(nextChar);
             predata = false;
             continue;
           }
@@ -731,20 +748,14 @@ namespace CsvTools
 
           case c_Cr:
           case c_Lf:
-            EndLineNumber++;
-            if (!EndOfFile)
+            var nextChar = EatNextCRLF(character);
+            if (character == c_Cr && nextChar == c_Lf || character == c_Lf && nextChar == c_Cr)
             {
-              var nextChar = NextChar();
-              if (character == c_Cr && nextChar == c_Lf || character == c_Lf && nextChar == c_Cr)
+              if (quoted && !postdata)
               {
-                // New line sequence is either CRLF or LFCR, disregard the character
-                m_BufferPos++;
-                if (quoted && !postdata)
-                {
-                  stringBuilder.Append(character);
-                  stringBuilder.Append(nextChar);
-                  continue;
-                }
+                stringBuilder.Append(character);
+                stringBuilder.Append(nextChar);
+                continue;
               }
             }
 
@@ -1004,12 +1015,7 @@ namespace CsvTools
         var character = NextChar();
         m_BufferPos++;
         if (character != c_Cr && character != c_Lf) continue;
-        EndLineNumber++;
-        if (EndOfFile) return;
-        var nextChar = NextChar();
-        // eat a following LF / CR as well
-        if (character == c_Cr && nextChar == c_Lf || character == c_Lf && nextChar == c_Cr)
-          m_BufferPos++;
+        EatNextCRLF(character);
         return;
       }
     }
