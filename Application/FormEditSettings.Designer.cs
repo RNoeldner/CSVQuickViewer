@@ -29,6 +29,7 @@
     private void InitializeComponent()
     {
       this.components = new System.ComponentModel.Container();
+      System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormEditSettings));
       this.textBoxSkipRows = new System.Windows.Forms.TextBox();
       this.fileSettingBindingSource = new System.Windows.Forms.BindingSource(this.components);
       this.labelSkipFirstLines = new System.Windows.Forms.Label();
@@ -51,6 +52,7 @@
       this.buttonOK = new System.Windows.Forms.Button();
       this.buttonCancel = new System.Windows.Forms.Button();
       this.tabPageFormat = new System.Windows.Forms.TabPage();
+      this.fillGuessSettingEdit = new CsvTools.FillGuessSettingEdit();
       this.tabPageWarnings = new System.Windows.Forms.TabPage();
       this.tabPageAdvanced = new System.Windows.Forms.TabPage();
       this.checkBoxGuessStartRow = new System.Windows.Forms.CheckBox();
@@ -68,7 +70,9 @@
       this.checkBoxGuessCodePage = new System.Windows.Forms.CheckBox();
       this.buttonGuessDelimiter = new System.Windows.Forms.Button();
       this.buttonGuessCP = new System.Windows.Forms.Button();
+      this.label3 = new System.Windows.Forms.Label();
       this.labelDelimiter = new System.Windows.Forms.Label();
+      this.textBox1 = new System.Windows.Forms.TextBox();
       this.textBoxDelimiter = new System.Windows.Forms.TextBox();
       this.label2 = new System.Windows.Forms.Label();
       this.textBoxComment = new System.Windows.Forms.TextBox();
@@ -76,6 +80,7 @@
       this.textBoxFile = new System.Windows.Forms.TextBox();
       this.btnOpenFile = new System.Windows.Forms.Button();
       this.tabPageQuoting = new System.Windows.Forms.TabPage();
+      this.quotingControl = new CsvTools.QuotingControl();
       this.tabPagePGP = new System.Windows.Forms.TabPage();
       this.labelPassphrase = new System.Windows.Forms.Label();
       this.listBoxPrivKeys = new System.Windows.Forms.ListBox();
@@ -95,8 +100,6 @@
       this.checkBoxMenuDown = new System.Windows.Forms.CheckBox();
       this.toolTip = new System.Windows.Forms.ToolTip(this.components);
       this.errorProvider = new System.Windows.Forms.ErrorProvider(this.components);
-      this.quotingControl = new CsvTools.QuotingControl();
-      this.fillGuessSettingEdit = new CsvTools.FillGuessSettingEdit();
       ((System.ComponentModel.ISupportInitialize)(this.fileSettingBindingSource)).BeginInit();
       this.tabPageFormat.SuspendLayout();
       this.tabPageWarnings.SuspendLayout();
@@ -237,7 +240,7 @@
       // label1
       // 
       this.label1.AutoSize = true;
-      this.label1.Location = new System.Drawing.Point(8, 90);
+      this.label1.Location = new System.Drawing.Point(9, 90);
       this.label1.Name = "label1";
       this.label1.Size = new System.Drawing.Size(104, 13);
       this.label1.TabIndex = 108;
@@ -331,6 +334,13 @@
       this.tabPageFormat.Size = new System.Drawing.Size(724, 300);
       this.tabPageFormat.TabIndex = 0;
       this.tabPageFormat.Text = "Detect Types";
+      // 
+      // fillGuessSettingEdit
+      // 
+      this.fillGuessSettingEdit.Location = new System.Drawing.Point(3, 3);
+      this.fillGuessSettingEdit.Name = "fillGuessSettingEdit";
+      this.fillGuessSettingEdit.Size = new System.Drawing.Size(715, 271);
+      this.fillGuessSettingEdit.TabIndex = 101;
       // 
       // tabPageWarnings
       // 
@@ -436,7 +446,7 @@
       // labelLineFeedPlaceHolder
       // 
       this.labelLineFeedPlaceHolder.AutoSize = true;
-      this.labelLineFeedPlaceHolder.Location = new System.Drawing.Point(2, 64);
+      this.labelLineFeedPlaceHolder.Location = new System.Drawing.Point(3, 64);
       this.labelLineFeedPlaceHolder.Name = "labelLineFeedPlaceHolder";
       this.labelLineFeedPlaceHolder.Size = new System.Drawing.Size(110, 13);
       this.labelLineFeedPlaceHolder.TabIndex = 55;
@@ -478,7 +488,9 @@
       this.tabPageFile.Controls.Add(this.checkBoxGuessCodePage);
       this.tabPageFile.Controls.Add(this.buttonGuessDelimiter);
       this.tabPageFile.Controls.Add(this.buttonGuessCP);
+      this.tabPageFile.Controls.Add(this.label3);
       this.tabPageFile.Controls.Add(this.labelDelimiter);
+      this.tabPageFile.Controls.Add(this.textBox1);
       this.tabPageFile.Controls.Add(this.textBoxDelimiter);
       this.tabPageFile.Controls.Add(this.label2);
       this.tabPageFile.Controls.Add(this.textBoxComment);
@@ -550,6 +562,15 @@
       this.buttonGuessCP.UseVisualStyleBackColor = true;
       this.buttonGuessCP.Click += new System.EventHandler(this.ButtonGuessCP_Click);
       // 
+      // label3
+      // 
+      this.label3.AutoSize = true;
+      this.label3.Location = new System.Drawing.Point(170, 92);
+      this.label3.Name = "label3";
+      this.label3.Size = new System.Drawing.Size(46, 13);
+      this.label3.TabIndex = 46;
+      this.label3.Text = "Escape:";
+      // 
       // labelDelimiter
       // 
       this.labelDelimiter.AutoSize = true;
@@ -558,6 +579,20 @@
       this.labelDelimiter.Size = new System.Drawing.Size(50, 13);
       this.labelDelimiter.TabIndex = 46;
       this.labelDelimiter.Text = "Delimiter:";
+      // 
+      // textBox1
+      // 
+      this.textBox1.AutoCompleteCustomSource.AddRange(new string[] {
+            "\\"});
+      this.textBox1.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Suggest;
+      this.textBox1.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.CustomSource;
+      this.textBox1.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.fileFormatBindingSource, "EscapeCharacter", true));
+      this.textBox1.Location = new System.Drawing.Point(222, 89);
+      this.textBox1.Name = "textBox1";
+      this.textBox1.Size = new System.Drawing.Size(45, 20);
+      this.textBox1.TabIndex = 45;
+      this.toolTip.SetToolTip(this.textBox1, resources.GetString("textBox1.ToolTip"));
+      this.textBox1.TextChanged += new System.EventHandler(this.TextBoxDelimiter_TextChanged);
       // 
       // textBoxDelimiter
       // 
@@ -631,6 +666,17 @@
       this.tabPageQuoting.TabIndex = 7;
       this.tabPageQuoting.Text = "Quoting";
       this.tabPageQuoting.UseVisualStyleBackColor = true;
+      // 
+      // quotingControl
+      // 
+      this.quotingControl.BackColor = System.Drawing.SystemColors.Control;
+      this.quotingControl.CsvFile = null;
+      this.quotingControl.Dock = System.Windows.Forms.DockStyle.Fill;
+      this.quotingControl.IsWriteSetting = false;
+      this.quotingControl.Location = new System.Drawing.Point(3, 3);
+      this.quotingControl.Name = "quotingControl";
+      this.quotingControl.Size = new System.Drawing.Size(718, 294);
+      this.quotingControl.TabIndex = 2;
       // 
       // tabPagePGP
       // 
@@ -836,24 +882,6 @@
       // 
       this.errorProvider.ContainerControl = this;
       // 
-      // quotingControl
-      // 
-      this.quotingControl.BackColor = System.Drawing.SystemColors.Control;
-      this.quotingControl.CsvFile = null;
-      this.quotingControl.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.quotingControl.IsWriteSetting = false;
-      this.quotingControl.Location = new System.Drawing.Point(3, 3);
-      this.quotingControl.Name = "quotingControl";
-      this.quotingControl.Size = new System.Drawing.Size(718, 294);
-      this.quotingControl.TabIndex = 2;
-      // 
-      // fillGuessSettingEdit
-      // 
-      this.fillGuessSettingEdit.Location = new System.Drawing.Point(3, 3);
-      this.fillGuessSettingEdit.Name = "fillGuessSettingEdit";
-      this.fillGuessSettingEdit.Size = new System.Drawing.Size(715, 271);
-      this.fillGuessSettingEdit.TabIndex = 101;
-      // 
       // FormEditSettings
       // 
       this.AcceptButton = this.buttonOK;
@@ -964,5 +992,7 @@
     internal System.Windows.Forms.TabControl tabControl;
     internal System.Windows.Forms.TabPage tabPageFile;
     internal System.Windows.Forms.TabPage tabPagePGP;
+    private System.Windows.Forms.Label label3;
+    private System.Windows.Forms.TextBox textBox1;
   }
 }

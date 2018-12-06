@@ -123,6 +123,10 @@
   <metadata name="m_ToolTip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>423, 17</value>
   </metadata>
+  <data name="m_TextBoxEscape.ToolTip" xml:space="preserve">
+    <value>Character to escape an embedded char, if left empty embedded quotes need to be repeated
+Usage of this is often not well supported: It may lead to issues if the last character of a column matches the escape character, the column end is not recognized.</value>
+  </data>
   <metadata name="m_FileSettingBindingSource.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>220, 17</value>
   </metadata>
