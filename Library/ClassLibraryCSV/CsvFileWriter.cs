@@ -30,7 +30,9 @@ namespace CsvTools
   {
     private readonly ICsvFile m_CsvFile;
     private readonly string m_FieldQualifier;
+    private readonly string m_FieldDelimiter;
     private readonly string m_FieldQualifierEscaped;
+    private readonly string m_FieldDelimiterEscaped;
     private readonly char[] m_QualifyCharArray;
 
     /// <summary>
@@ -44,13 +46,20 @@ namespace CsvTools
       Contract.Requires(file != null);
       m_CsvFile = file;
 
-      // SOme caching of values need for quoting
-      m_QualifyCharArray = new[] { (char)0x0a, (char)0x0d, m_CsvFile.FileFormat.FieldDelimiterChar };
       m_FieldQualifier = m_CsvFile.FileFormat.FieldQualifierChar.ToString();
+      m_FieldDelimiter = m_CsvFile.FileFormat.FieldDelimiterChar.ToString();
       if (!string.IsNullOrEmpty(file.FileFormat.EscapeCharacter))
+      {
+        m_QualifyCharArray = new[] { (char)0x0a, (char)0x0d };
         m_FieldQualifierEscaped = file.FileFormat.EscapeCharacterChar + m_FieldQualifier;
+        m_FieldDelimiterEscaped = file.FileFormat.EscapeCharacterChar + m_FieldDelimiter;
+      }
       else
-        m_FieldQualifierEscaped = m_FieldQualifier + m_FieldQualifier;
+      {
+        m_QualifyCharArray = new[] { (char)0x0a, (char)0x0d, m_CsvFile.FileFormat.FieldDelimiterChar };
+        m_FieldQualifierEscaped = new String(m_CsvFile.FileFormat.FieldQualifierChar, 2);
+        m_FieldDelimiterEscaped = new String(m_CsvFile.FileFormat.FieldDelimiterChar, 1);
+      }
     }
 
     /// <summary>
@@ -186,17 +195,22 @@ namespace CsvTools
     {
       var qualifyThis = fileFormat.QualifyAlways;
       if (!qualifyThis)
+      {
         if (fileFormat.QualifyOnlyIfNeeded)
         {
-          var trim = displayAs.TrimStart();
           // Qualify the text if the delimiter is present, or if the text starts with the Qualifier
           qualifyThis = displayAs.Length > 0 && (displayAs.IndexOfAny(m_QualifyCharArray) > -1 ||
-                                                 (trim.Length > 0 && trim[0].Equals(fileFormat.FieldQualifierChar)));
+                                                 displayAs[0].Equals(fileFormat.FieldQualifierChar) ||
+                                                 displayAs[0].Equals(' '));
         }
         else
           // quality any text or something containing a Qualify Char
           qualifyThis = columnInfo.DataType == DataType.String || columnInfo.DataType == DataType.TextToHtml ||
                         displayAs.IndexOfAny(m_QualifyCharArray) > -1;
+      }
+      if (m_FieldDelimiter != m_FieldDelimiterEscaped)
+        displayAs = displayAs.Replace(m_FieldDelimiter, m_FieldDelimiterEscaped);
+
       if (qualifyThis)
         return m_FieldQualifier + displayAs.Replace(m_FieldQualifier, m_FieldQualifierEscaped) + m_FieldQualifier;
 

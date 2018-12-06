@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Reflection;
-using System.Resources;
 
 // General Information about an assembly is controlled through the following set of attributes.
 // Change these attribute values to modify the information associated with an assembly.
@@ -22,6 +21,6 @@ using System.Resources;
 //
 // You can specify all the values or you can default the Build and Revision Numbers by using the '*'
 // as shown below: [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.5.4.298")]
-[assembly: AssemblyFileVersion("1.5.4.298")]
-[assembly: AssemblyInformationalVersion("1.5.4.298")] // a.k.a. "Product version"
+[assembly: AssemblyVersion("1.5.4.299")]
+[assembly: AssemblyFileVersion("1.5.4.299")]
+[assembly: AssemblyInformationalVersion("1.5.4.299")] // a.k.a. "Product version"
