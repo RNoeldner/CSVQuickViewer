@@ -600,10 +600,11 @@ namespace CsvTools
             }
           }
         }
+        detailControl.CancellationToken =  m_CancellationTokenSource.Token;
 
         if (data != null)
         {
-          SetProcess("Showing loaded data…");
+          SetProcess("Showing loaded data…");          
           // Show the data
           detailControl.DataTable = data;
         }

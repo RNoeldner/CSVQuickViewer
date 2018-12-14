@@ -731,7 +731,7 @@ namespace CsvTools
       if (!hasReadRow)
         HandleReadFinished();
       else
-        HandleShowProgressPeriodic("Reading from source", RecordNumber);
+        HandleShowProgressPeriodic("Reading from source", RecordNumber-1);
     }
 
     /// <summary>

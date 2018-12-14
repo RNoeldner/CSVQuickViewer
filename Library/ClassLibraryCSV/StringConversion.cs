@@ -349,18 +349,16 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   Checks if the values are dates.
-    /// </summary>
+    /// <summary>Checks if the values are dates.</summary>
     /// <param name="samples">The sample values to be checked.</param>
     /// <param name="shortDateFormat">The short date format.</param>
     /// <param name="dateSeparator">The date separator.</param>
     /// <param name="timeSeparator">The time separator.</param>
+    /// <param name="culture">the culture to check (important for named Days or month)</param>
     /// <returns>
-    ///   <c>true</c> if all values can be interpreted as date, <c>false</c> otherwise.
-    /// </returns>
+    ///   <c>true</c> if all values can be interpreted as date, <c>false</c> otherwise.</returns>
     public static CheckResult CheckDate(ICollection<string> samples, string shortDateFormat, string dateSeparator,
-      string timeSeparator)
+      string timeSeparator, CultureInfo culture)
     {
       var checkResult = new CheckResult();
       if (samples.IsEmpty())
@@ -371,8 +369,7 @@ namespace CsvTools
       foreach (var value in samples)
       {
         counter++;
-        var ret = StringToDateTimeExact(value, shortDateFormat, dateSeparator, timeSeparator,
-          CultureInfo.CurrentCulture);
+        var ret = StringToDateTimeExact(value, shortDateFormat, dateSeparator, timeSeparator, culture);
         if (!ret.HasValue)
         {
           allParsed = false;

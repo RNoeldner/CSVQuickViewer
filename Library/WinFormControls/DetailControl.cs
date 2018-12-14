@@ -44,7 +44,6 @@ namespace CsvTools
     private BindingNavigator m_BindingNavigator;
 
     private BindingSource m_BindingSource;
-
     private CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
     private DataColumnCollection m_Columns;
 
@@ -352,6 +351,12 @@ namespace CsvTools
     {
       get => m_FilteredDataGridView.ToolDataReader;
       set => m_FilteredDataGridView.ToolDataReader = value;
+    }
+
+    public CancellationToken CancellationToken
+    {
+      get => m_CancellationTokenSource.Token;
+      set => m_CancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(value);
     }
 
     /// <summary>

@@ -226,59 +226,58 @@ namespace CsvTools
       this.m_TableLayoutPanel1.SuspendLayout();
       ((System.ComponentModel.ISupportInitialize)(this.m_ErrorProvider)).BeginInit();
       this.SuspendLayout();
-      // 
+      //
       // m_LabelQuote
-      // 
+      //
       this.m_LabelQuote.AutoSize = true;
       this.m_LabelQuote.Location = new System.Drawing.Point(77, 3);
       this.m_LabelQuote.Name = "m_LabelQuote";
       this.m_LabelQuote.Size = new System.Drawing.Size(39, 13);
       this.m_LabelQuote.TabIndex = 21;
       this.m_LabelQuote.Text = "Quote:";
-      // 
+      //
       // m_LabelQuotePlaceholer
-      // 
+      //
       this.m_LabelQuotePlaceholer.AutoSize = true;
       this.m_LabelQuotePlaceholer.Location = new System.Drawing.Point(50, 51);
       this.m_LabelQuotePlaceholer.Name = "m_LabelQuotePlaceholer";
       this.m_LabelQuotePlaceholer.Size = new System.Drawing.Size(66, 13);
       this.m_LabelQuotePlaceholer.TabIndex = 22;
       this.m_LabelQuotePlaceholer.Text = "Placeholder:";
-      // 
+      //
       // m_TextBoxEscape
-      // 
+      //
       this.m_TextBoxEscape.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.m_FileFormatBindingSource, "EscapeCharacter", true));
       this.m_TextBoxEscape.Location = new System.Drawing.Point(122, 24);
       this.m_TextBoxEscape.Name = "m_TextBoxEscape";
       this.m_TextBoxEscape.Size = new System.Drawing.Size(45, 20);
       this.m_TextBoxEscape.TabIndex = 34;
-      this.m_ToolTip.SetToolTip(this.m_TextBoxEscape, resources.GetString("m_TextBoxEscape.ToolTip"));
-      // 
+      //
       // m_FileFormatBindingSource
-      // 
+      //
       this.m_FileFormatBindingSource.AllowNew = false;
       this.m_FileFormatBindingSource.DataSource = typeof(CsvTools.FileFormat);
-      // 
+      //
       // m_LabelEscapeCharacter
-      // 
+      //
       this.m_LabelEscapeCharacter.AutoSize = true;
       this.m_LabelEscapeCharacter.Location = new System.Drawing.Point(21, 27);
       this.m_LabelEscapeCharacter.Name = "m_LabelEscapeCharacter";
       this.m_LabelEscapeCharacter.Size = new System.Drawing.Size(95, 13);
       this.m_LabelEscapeCharacter.TabIndex = 33;
       this.m_LabelEscapeCharacter.Text = "Escape Character:";
-      // 
+      //
       // m_LabelTrim
-      // 
+      //
       this.m_LabelTrim.AutoSize = true;
       this.m_LabelTrim.Location = new System.Drawing.Point(30, 77);
       this.m_LabelTrim.Name = "m_LabelTrim";
       this.m_LabelTrim.Size = new System.Drawing.Size(86, 13);
       this.m_LabelTrim.TabIndex = 89;
       this.m_LabelTrim.Text = "Trimming Option:";
-      // 
+      //
       // m_TextBoxQuote
-      // 
+      //
       this.m_TextBoxQuote.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.m_FileFormatBindingSource, "FieldQualifier", true));
       this.m_TextBoxQuote.Location = new System.Drawing.Point(122, 1);
       this.m_TextBoxQuote.Name = "m_TextBoxQuote";
@@ -287,9 +286,9 @@ namespace CsvTools
       this.m_ToolTip.SetToolTip(this.m_TextBoxQuote, "Columns may be delimited with a quoting character; the quotes are removed by the " +
         "reading applications.");
       this.m_TextBoxQuote.TextChanged += new System.EventHandler(this.m_TextBoxQuote_TextChanged);
-      // 
+      //
       // m_TextBoxQuotePlaceHolder
-      // 
+      //
       this.m_TextBoxQuotePlaceHolder.AutoCompleteCustomSource.AddRange(new string[] {
             "{q}",
             "&quot;"});
@@ -302,9 +301,9 @@ namespace CsvTools
       this.m_ToolTip.SetToolTip(this.m_TextBoxQuotePlaceHolder, "If this placeholder is part of the text it will be replaced with the quoting char" +
         "acter");
       this.m_TextBoxQuotePlaceHolder.TextChanged += new System.EventHandler(this.m_TextBoxQuotePlaceHolder_TextChanged);
-      // 
+      //
       // m_CheckBoxAlternateQuoting
-      // 
+      //
       this.m_CheckBoxAlternateQuoting.AutoSize = true;
       this.m_CheckBoxAlternateQuoting.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.m_FileSettingBindingSource, "AlternateQuoting", true));
       this.m_CheckBoxAlternateQuoting.Location = new System.Drawing.Point(236, 4);
@@ -315,14 +314,14 @@ namespace CsvTools
       this.m_ToolTip.SetToolTip(this.m_CheckBoxAlternateQuoting, "A quote is only regarded as closing quote if it is followed by linefeed or delimi" +
         "ter");
       this.m_CheckBoxAlternateQuoting.UseVisualStyleBackColor = true;
-      // 
+      //
       // m_FileSettingBindingSource
-      // 
+      //
       this.m_FileSettingBindingSource.AllowNew = false;
       this.m_FileSettingBindingSource.DataSource = typeof(CsvTools.CsvFile);
-      // 
+      //
       // m_ComboBoxTrim
-      // 
+      //
       this.m_ComboBoxTrim.DisplayMember = "Display";
       this.m_ComboBoxTrim.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
       this.m_ComboBoxTrim.Location = new System.Drawing.Point(122, 74);
@@ -333,9 +332,9 @@ namespace CsvTools
         "was not quoted; All will remove whitespaces even if the column was quoted");
       this.m_ComboBoxTrim.ValueMember = "ID";
       this.m_ComboBoxTrim.SelectedIndexChanged += new System.EventHandler(this.comboBoxTrim_SelectedIndexChanged);
-      // 
+      //
       // m_TableLayoutPanel1
-      // 
+      //
       this.m_TableLayoutPanel1.BackColor = System.Drawing.SystemColors.Window;
       this.m_TableLayoutPanel1.CellBorderStyle = System.Windows.Forms.TableLayoutPanelCellBorderStyle.Outset;
       this.m_TableLayoutPanel1.ColumnCount = 3;
@@ -360,9 +359,9 @@ namespace CsvTools
       this.m_TableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.m_TableLayoutPanel1.Size = new System.Drawing.Size(327, 100);
       this.m_TableLayoutPanel1.TabIndex = 92;
-      // 
+      //
       // m_Label2
-      // 
+      //
       this.m_Label2.AutoSize = true;
       this.m_Label2.ForeColor = System.Drawing.Color.Teal;
       this.m_Label2.Location = new System.Drawing.Point(5, 2);
@@ -370,9 +369,9 @@ namespace CsvTools
       this.m_Label2.Size = new System.Drawing.Size(11, 18);
       this.m_Label2.TabIndex = 102;
       this.m_Label2.Text = "1\r\n";
-      // 
+      //
       // m_RichTextBox02
-      // 
+      //
       this.m_RichTextBox02.BorderStyle = System.Windows.Forms.BorderStyle.None;
       this.m_RichTextBox02.Delimiter = ',';
       this.m_RichTextBox02.DisplaySpace = true;
@@ -387,9 +386,9 @@ namespace CsvTools
       this.m_RichTextBox02.TabIndex = 101;
       this.m_RichTextBox02.Text = "Example ";
       this.m_RichTextBox02.WordWrap = false;
-      // 
+      //
       // m_RichTextBox01
-      // 
+      //
       this.m_RichTextBox01.BorderStyle = System.Windows.Forms.BorderStyle.None;
       this.m_RichTextBox01.Delimiter = ',';
       this.m_RichTextBox01.DisplaySpace = true;
@@ -404,9 +403,9 @@ namespace CsvTools
       this.m_RichTextBox01.TabIndex = 100;
       this.m_RichTextBox01.Text = " a Trimming ";
       this.m_RichTextBox01.WordWrap = false;
-      // 
+      //
       // m_RichTextBox00
-      // 
+      //
       this.m_RichTextBox00.BorderStyle = System.Windows.Forms.BorderStyle.None;
       this.m_RichTextBox00.Delimiter = ',';
       this.m_RichTextBox00.DisplaySpace = true;
@@ -421,9 +420,9 @@ namespace CsvTools
       this.m_RichTextBox00.TabIndex = 99;
       this.m_RichTextBox00.Text = "This is ";
       this.m_RichTextBox00.WordWrap = false;
-      // 
+      //
       // m_RichTextBox10
-      // 
+      //
       this.m_RichTextBox10.BorderStyle = System.Windows.Forms.BorderStyle.None;
       this.m_RichTextBox10.Delimiter = ',';
       this.m_RichTextBox10.DisplaySpace = true;
@@ -438,9 +437,9 @@ namespace CsvTools
       this.m_RichTextBox10.TabIndex = 98;
       this.m_RichTextBox10.Text = "Column with:, Delimiter";
       this.m_RichTextBox10.WordWrap = false;
-      // 
+      //
       // m_RichTextBox11
-      // 
+      //
       this.m_RichTextBox11.BorderStyle = System.Windows.Forms.BorderStyle.None;
       this.m_RichTextBox11.Delimiter = ',';
       this.m_RichTextBox11.DisplaySpace = true;
@@ -455,9 +454,9 @@ namespace CsvTools
       this.m_RichTextBox11.TabIndex = 99;
       this.m_RichTextBox11.Text = "Column with \" Quote";
       this.m_RichTextBox11.WordWrap = false;
-      // 
+      //
       // m_RichTextBox12
-      // 
+      //
       this.m_RichTextBox12.BorderStyle = System.Windows.Forms.BorderStyle.None;
       this.m_RichTextBox12.Delimiter = ',';
       this.m_RichTextBox12.DisplaySpace = true;
@@ -472,9 +471,9 @@ namespace CsvTools
       this.m_RichTextBox12.TabIndex = 99;
       this.m_RichTextBox12.Text = "Column with \nLinefeed";
       this.m_RichTextBox12.WordWrap = false;
-      // 
+      //
       // m_Label1
-      // 
+      //
       this.m_Label1.AutoSize = true;
       this.m_Label1.ForeColor = System.Drawing.Color.Teal;
       this.m_Label1.Location = new System.Drawing.Point(5, 28);
@@ -482,9 +481,9 @@ namespace CsvTools
       this.m_Label1.Size = new System.Drawing.Size(11, 18);
       this.m_Label1.TabIndex = 103;
       this.m_Label1.Text = "2";
-      // 
+      //
       // m_Label3
-      // 
+      //
       this.m_Label3.AutoSize = true;
       this.m_Label3.ForeColor = System.Drawing.Color.Teal;
       this.m_Label3.Location = new System.Drawing.Point(5, 54);
@@ -492,9 +491,9 @@ namespace CsvTools
       this.m_Label3.Size = new System.Drawing.Size(11, 18);
       this.m_Label3.TabIndex = 103;
       this.m_Label3.Text = "3";
-      // 
+      //
       // m_LabelInfoQuoting
-      // 
+      //
       this.m_LabelInfoQuoting.AutoSize = true;
       this.m_LabelInfoQuoting.BackColor = System.Drawing.SystemColors.Info;
       this.m_LabelInfoQuoting.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
@@ -505,9 +504,9 @@ namespace CsvTools
       this.m_LabelInfoQuoting.TabIndex = 93;
       this.m_LabelInfoQuoting.Text = "Not possible to have leading or trailing spaces";
       this.m_LabelInfoQuoting.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-      // 
+      //
       // m_Label8
-      // 
+      //
       this.m_Label8.AutoSize = true;
       this.m_Label8.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
       this.m_Label8.ForeColor = System.Drawing.Color.Teal;
@@ -516,22 +515,22 @@ namespace CsvTools
       this.m_Label8.Size = new System.Drawing.Size(18, 80);
       this.m_Label8.TabIndex = 95;
       this.m_Label8.Text = "1\r\n2\r\n3\r\n4";
-      // 
+      //
       // m_ErrorProvider
-      // 
+      //
       this.m_ErrorProvider.ContainerControl = this;
-      // 
+      //
       // m_Label5
-      // 
+      //
       this.m_Label5.AutoSize = true;
       this.m_Label5.Location = new System.Drawing.Point(15, 204);
       this.m_Label5.Name = "m_Label5";
       this.m_Label5.Size = new System.Drawing.Size(336, 13);
       this.m_Label5.TabIndex = 98;
       this.m_Label5.Text = "Tab visualized as »   Linefeed visualized as ¶    Space visualized as ●";
-      // 
+      //
       // m_RichTextBox
-      // 
+      //
       this.m_RichTextBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
       this.m_RichTextBox.Delimiter = ';';
       this.m_RichTextBox.DisplaySpace = true;
@@ -546,9 +545,9 @@ namespace CsvTools
       this.m_RichTextBox.Text = "\"This is \";Column with:, Delimiter\n a Trimming ;Column with \"\" Quote\nExample ;\"Co" +
     "lumn with \nLinefeed\"";
       this.m_RichTextBox.WordWrap = false;
-      // 
+      //
       // QuotingControl
-      // 
+      //
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.Controls.Add(this.m_Label5);
@@ -574,7 +573,6 @@ namespace CsvTools
       ((System.ComponentModel.ISupportInitialize)(this.m_ErrorProvider)).EndInit();
       this.ResumeLayout(false);
       this.PerformLayout();
-
     }
 
     #endregion Vom Komponenten-Designer generierter Code

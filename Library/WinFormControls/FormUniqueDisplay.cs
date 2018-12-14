@@ -155,7 +155,7 @@ namespace CsvTools
           }
 
           m_DataTable.EndLoadData();
-
+          detailControl.CancellationToken = m_CancellationTokenSource.Token;
           display.Maximum = 0;
           display.SetProcess("Sorting");
           detailControl.SafeInvoke(() =>
