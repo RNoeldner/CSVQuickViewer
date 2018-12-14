@@ -29,6 +29,23 @@ namespace CsvTools
   /// </summary>
   public static class DetermineColumnFormat
   {
+    public static ValueFormat CommonDateFormat(IEnumerable<ValueFormat> columns)
+    {
+      Dictionary<ValueFormat, int> counterByFormat = new Dictionary<ValueFormat, int>();
+      foreach (var newColumn in columns.Where(x => x != null && x.DataType == DataType.DateTime))
+      {
+        if (!counterByFormat.ContainsKey(newColumn))
+          counterByFormat.Add(newColumn, 0);
+        counterByFormat[newColumn]++;
+      }
+      
+      if (counterByFormat.Count==0)
+        return null;
+
+      int maxOccur = counterByFormat.Values.Max();
+      return counterByFormat.FirstOrDefault(x => x.Value == maxOccur).Key;
+    }
+
     /// <summary>
     ///   Fills the Column Format for reader fileSettings
     /// </summary>
@@ -64,6 +81,7 @@ namespace CsvTools
           fileSetting.SkipRows = 1;
           resetSkipRows = true;
         }
+        ValueFormat othersValueFormatDate = CommonDateFormat(fileSetting.Column.Select(x => x.ValueFormat));
 
         using (var fileReader = fileSetting.GetFileReader())
         {
@@ -119,7 +137,8 @@ namespace CsvTools
                 ApplicationSetting.FillGuessSettings.DectectPercentage && detect,
                 ApplicationSetting.FillGuessSettings.SerialDateTime && detect,
                 ApplicationSetting.FillGuessSettings.DateTimeValue,
-                ApplicationSetting.FillGuessSettings.CheckNamedDates);
+                ApplicationSetting.FillGuessSettings.CheckNamedDates,
+                othersValueFormatDate);
 
               if (checkResult == null)
                 if (addTextColumns)
@@ -132,11 +151,16 @@ namespace CsvTools
               {
                 var oldValueFormat = oldColumn.GetTypeAndFormatDescription();
 
+                // if we have a date value format already store this
+                if (othersValueFormatDate == null && checkResult.FoundValueFormat.DataType == DataType.DateTime && checkResult.PossibleMatch)
+                  othersValueFormatDate = checkResult.FoundValueFormat;
+
                 if (checkResult.FoundValueFormat.Equals(oldColumn.ValueFormat))
                   processDisplay.SetProcess($"{newColumn.Name} – Format : {oldValueFormat} – not changed",
                     colindex);
                 else
                   oldColumn.ValueFormat = checkResult.FoundValueFormat;
+
 
                 var newValueFormat = checkResult.FoundValueFormat.GetTypeAndFormatDescription();
                 if (oldValueFormat.Equals(newValueFormat)) continue;
@@ -580,7 +604,7 @@ namespace CsvTools
           {
             foreach (var sep in StringConversion.DateSeparators)
             {
-              var res = StringConversion.CheckDate(samples, fmt, sep, ":");
+              var res = StringConversion.CheckDate(samples, fmt, sep, ":", CultureInfo.CurrentCulture);
               if (res.FoundValueFormat != null)
                 return res;
 
@@ -590,7 +614,7 @@ namespace CsvTools
           else
           {
             var res = StringConversion.CheckDate(samples, fmt,
-              CultureInfo.CurrentCulture.DateTimeFormat.DateSeparator, ":");
+              CultureInfo.CurrentCulture.DateTimeFormat.DateSeparator, ":", CultureInfo.CurrentCulture);
             if (res.FoundValueFormat != null)
               return res;
 
@@ -619,7 +643,7 @@ namespace CsvTools
             // Only thy this if the DateSeparators is present
             if (firstValue.IndexOf(sep, StringComparison.Ordinal) == -1)
               continue;
-            var res = StringConversion.CheckDate(samples, fmt, sep, ":");
+            var res = StringConversion.CheckDate(samples, fmt, sep, ":", CultureInfo.CurrentCulture);
             if (res.FoundValueFormat != null)
               return res;
 
@@ -628,7 +652,7 @@ namespace CsvTools
         }
         else
         {
-          var res = StringConversion.CheckDate(samples, fmt, string.Empty, ":");
+          var res = StringConversion.CheckDate(samples, fmt, string.Empty, ":", CultureInfo.CurrentCulture);
           if (res.FoundValueFormat != null)
             return res;
 
@@ -714,7 +738,7 @@ namespace CsvTools
     /// <returns><c>Null</c> if no format could be determined otherwise a <see cref="ValueFormat" /></returns>
     public static CheckResult GuessValueFormat(CancellationToken cancellationToken, IList<string> samples,
       int minRequiredSamples, string trueValue, string falseValue, bool guessBoolean, bool guessGuid, bool guessNumeric,
-      bool guessDateTime, bool guessPercentage, bool serialDateTime, string extraDateTime, bool checkNamedDates)
+      bool guessDateTime, bool guessPercentage, bool serialDateTime, string extraDateTime, bool checkNamedDates, ValueFormat othersValueFormatDate)
     {
       Contract.Requires(samples != null);
 
@@ -784,6 +808,7 @@ namespace CsvTools
       if (cancellationToken.IsCancellationRequested)
         return null;
 
+      // in case we have named dates, this is not feasible 
       if (!checkNamedDates)
       {
         // Trying some chars, if they are in, assume its a string
@@ -802,6 +827,13 @@ namespace CsvTools
         }
       }
 
+      if (count < minRequiredSamples && guessDateTime && othersValueFormatDate != null)
+      {
+       var res = StringConversion.CheckDate(samples, othersValueFormatDate.DateFormat, othersValueFormatDate.DateSeparator, othersValueFormatDate.TimeSeparator, CultureInfo.CurrentCulture);
+        if (res.FoundValueFormat != null)
+          return res;      
+      }
+
       // if we have less than the required samples values do not try and try to get a type
       if (count < minRequiredSamples || cancellationToken.IsCancellationRequested)
         return null;
@@ -814,7 +846,7 @@ namespace CsvTools
       // Guess a date format that could be interpreted as number before testing numbers
       if (guessDateTime && firstValue.Length == 8)
       {
-        var res = StringConversion.CheckDate(samples, "yyyyMMdd", string.Empty, ":");
+        var res = StringConversion.CheckDate(samples, "yyyyMMdd", string.Empty, ":", CultureInfo.InvariantCulture);
         if (res.FoundValueFormat != null)
           return res;
         checkResult.KeepBestPossibleMatch(res);
@@ -835,6 +867,18 @@ namespace CsvTools
       if (cancellationToken.IsCancellationRequested)
         return null;
 
+      // assume dates are of the same format across the files we check if the dates 
+      // we have would possibly match no matter how many samples we have
+      if (guessDateTime && othersValueFormatDate != null)
+      {
+        var res = StringConversion.CheckDate(samples, othersValueFormatDate.DateFormat, othersValueFormatDate.DateSeparator, othersValueFormatDate.TimeSeparator, CultureInfo.CurrentCulture);
+        if (res.FoundValueFormat != null)
+          return res;
+      }
+
+      if (cancellationToken.IsCancellationRequested)
+        return null;
+
       if (guessNumeric)
       {
         var res = GuessNumeric(cancellationToken, samples, guessPercentage, false);
@@ -842,6 +886,9 @@ namespace CsvTools
           return res;
         checkResult.KeepBestPossibleMatch(res);
       }
+
+      if (cancellationToken.IsCancellationRequested)
+        return null;
 
       // Minimum length of a date is 4 characters
       if (guessDateTime && firstValue.Length > 3)
@@ -852,9 +899,14 @@ namespace CsvTools
         checkResult.KeepBestPossibleMatch(res);
       }
 
+      if (cancellationToken.IsCancellationRequested)
+        return null;
+
       // if we have dates and allow serial dates, but do not guess numeric (this would be a fit) try
       // if the dates are all serial
-      if (!guessDateTime || !serialDateTime || guessNumeric) return checkResult;
+      if (!guessDateTime || !serialDateTime || guessNumeric)
+        return checkResult;
+
       {
         var res = StringConversion.CheckSerialDate(samples, false);
         if (res.FoundValueFormat != null)

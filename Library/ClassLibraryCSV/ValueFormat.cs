@@ -450,7 +450,6 @@ namespace CsvTools
       return (obj is ValueFormat typed) && Equals(typed);
     }
 
-    /*
     /// <summary>Serves as the default hash function. </summary>
     /// <returns>A hash code for the current object.</returns>
     public override int GetHashCode()
@@ -474,7 +473,7 @@ namespace CsvTools
 
           case DataType.DateTime:
             hashCode = (hashCode * 397) ^ m_DateFormat.GetHashCode();
-            hashCode = (hashCode * 397) ^ m_DateFormat.GetHashCode();
+            hashCode = (hashCode * 397) ^ m_DateSeparator.GetHashCode();
             hashCode = (hashCode * 397) ^ m_TimeSeparator.GetHashCode();
             break;
 
@@ -483,14 +482,12 @@ namespace CsvTools
             hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(m_True);
             break;
 
-          default:
+          default:            
             hashCode = (hashCode * 397) ^ m_DateFormat.GetHashCode();
-            hashCode = (hashCode * 397) ^ m_DateFormat.GetHashCode();
+            hashCode = (hashCode * 397) ^ m_DateSeparator.GetHashCode();
             hashCode = (hashCode * 397) ^ m_TimeSeparator.GetHashCode();
             hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(m_False);
             hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(m_True);
-            hashCode = (hashCode * 397) ^ m_DateFormat.GetHashCode();
-            hashCode = (hashCode * 397) ^ m_DateFormat.GetHashCode();
             hashCode = (hashCode * 397) ^ m_TimeSeparator.GetHashCode();
             hashCode = (hashCode * 397) ^ m_GroupSeparator.GetHashCode();
             hashCode = (hashCode * 397) ^ m_DecimalSeparator.GetHashCode();
@@ -501,6 +498,5 @@ namespace CsvTools
         return hashCode;
       }
     }
-    */
   }
 }

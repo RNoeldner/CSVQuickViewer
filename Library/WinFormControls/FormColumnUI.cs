@@ -146,7 +146,7 @@ namespace CsvTools
               ApplicationSetting.FillGuessSettings.DetectDateTime,
               ApplicationSetting.FillGuessSettings.DectectPercentage,
               ApplicationSetting.FillGuessSettings.SerialDateTime, ApplicationSetting.FillGuessSettings.DateTimeValue,
-              ApplicationSetting.FillGuessSettings.CheckNamedDates);
+              ApplicationSetting.FillGuessSettings.CheckNamedDates, DetermineColumnFormat.CommonDateFormat(m_FileSetting.Column.Select(x => x.ValueFormat)));
             if (checkResult == null)
             {
               _MessageBox.Show(this,
@@ -225,6 +225,7 @@ namespace CsvTools
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
     public void buttonOK_Click(object sender, EventArgs e)
     {
+      ValidateChildren();
       try
       {
         if (!m_ColumnEdit.Equals(m_ColumnRef))

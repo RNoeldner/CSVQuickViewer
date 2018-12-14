@@ -383,7 +383,6 @@ namespace CsvTools
     /// </summary>
     private void InitializeComponent()
     {
-      this.components = new System.ComponentModel.Container();
       System.Windows.Forms.Label label1;
       System.Windows.Forms.Label label2;
       System.Windows.Forms.Label label3;
@@ -402,7 +401,7 @@ namespace CsvTools
       label1 = new System.Windows.Forms.Label();
       label2 = new System.Windows.Forms.Label();
       label3 = new System.Windows.Forms.Label();
-      contextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
+      contextMenuStrip = new System.Windows.Forms.ContextMenuStrip();
       expandAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       closeAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       label4 = new System.Windows.Forms.Label();
@@ -410,9 +409,9 @@ namespace CsvTools
       this.m_TableLayoutPanel1.SuspendLayout();
       this.m_FlowLayoutPanel1.SuspendLayout();
       this.SuspendLayout();
-      //
+      // 
       // label1
-      //
+      // 
       label1.Anchor = System.Windows.Forms.AnchorStyles.Right;
       label1.AutoSize = true;
       label1.Location = new System.Drawing.Point(49, 5);
@@ -420,9 +419,9 @@ namespace CsvTools
       label1.Size = new System.Drawing.Size(18, 13);
       label1.TabIndex = 3;
       label1.Text = "ID";
-      //
+      // 
       // label2
-      //
+      // 
       label2.Anchor = System.Windows.Forms.AnchorStyles.Right;
       label2.AutoSize = true;
       label2.Location = new System.Drawing.Point(26, 29);
@@ -430,9 +429,9 @@ namespace CsvTools
       label2.Size = new System.Drawing.Size(41, 13);
       label2.TabIndex = 5;
       label2.Text = "Display";
-      //
+      // 
       // label3
-      //
+      // 
       label3.Anchor = System.Windows.Forms.AnchorStyles.Right;
       label3.AutoSize = true;
       label3.Location = new System.Drawing.Point(15, 53);
@@ -440,31 +439,31 @@ namespace CsvTools
       label3.Size = new System.Drawing.Size(52, 13);
       label3.TabIndex = 7;
       label3.Text = "Parent ID";
-      //
+      // 
       // contextMenuStrip
-      //
+      // 
       contextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             expandAllToolStripMenuItem,
             closeAllToolStripMenuItem});
       contextMenuStrip.Name = "contextMenuStrip";
-      contextMenuStrip.Size = new System.Drawing.Size(130, 48);
-      //
+      contextMenuStrip.Size = new System.Drawing.Size(125, 48);
+      // 
       // expandAllToolStripMenuItem
-      //
+      // 
       expandAllToolStripMenuItem.Name = "expandAllToolStripMenuItem";
-      expandAllToolStripMenuItem.Size = new System.Drawing.Size(129, 22);
+      expandAllToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
       expandAllToolStripMenuItem.Text = "Expand All";
       expandAllToolStripMenuItem.Click += new System.EventHandler(this.expandAllToolStripMenuItem_Click);
-      //
+      // 
       // closeAllToolStripMenuItem
-      //
+      // 
       closeAllToolStripMenuItem.Name = "closeAllToolStripMenuItem";
-      closeAllToolStripMenuItem.Size = new System.Drawing.Size(129, 22);
+      closeAllToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
       closeAllToolStripMenuItem.Text = "Close All";
       closeAllToolStripMenuItem.Click += new System.EventHandler(this.closeAllToolStripMenuItem_Click);
-      //
+      // 
       // label4
-      //
+      // 
       label4.Anchor = System.Windows.Forms.AnchorStyles.Right;
       label4.AutoSize = true;
       label4.Location = new System.Drawing.Point(40, 77);
@@ -472,9 +471,9 @@ namespace CsvTools
       label4.Size = new System.Drawing.Size(27, 13);
       label4.TabIndex = 5;
       label4.Text = "Find";
-      //
+      // 
       // m_TableLayoutPanel1
-      //
+      // 
       this.m_TableLayoutPanel1.ColumnCount = 2;
       this.m_TableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 70F));
       this.m_TableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
@@ -498,9 +497,9 @@ namespace CsvTools
       this.m_TableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
       this.m_TableLayoutPanel1.Size = new System.Drawing.Size(376, 443);
       this.m_TableLayoutPanel1.TabIndex = 10;
-      //
+      // 
       // m_ComboBoxID
-      //
+      // 
       this.m_ComboBoxID.Dock = System.Windows.Forms.DockStyle.Top;
       this.m_ComboBoxID.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
       this.m_ComboBoxID.FormattingEnabled = true;
@@ -509,9 +508,9 @@ namespace CsvTools
       this.m_ComboBoxID.Size = new System.Drawing.Size(300, 21);
       this.m_ComboBoxID.TabIndex = 10;
       this.m_ComboBoxID.SelectedIndexChanged += new System.EventHandler(this.comboBox_SelectionChangeCommitted);
-      //
+      // 
       // m_ComboBoxParentID
-      //
+      // 
       this.m_ComboBoxParentID.Dock = System.Windows.Forms.DockStyle.Top;
       this.m_ComboBoxParentID.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
       this.m_ComboBoxParentID.FormattingEnabled = true;
@@ -520,9 +519,9 @@ namespace CsvTools
       this.m_ComboBoxParentID.Size = new System.Drawing.Size(300, 21);
       this.m_ComboBoxParentID.TabIndex = 12;
       this.m_ComboBoxParentID.SelectedIndexChanged += new System.EventHandler(this.comboBox_SelectionChangeCommitted);
-      //
+      // 
       // m_FlowLayoutPanel1
-      //
+      // 
       this.m_FlowLayoutPanel1.Controls.Add(this.m_ComboBoxDisplay1);
       this.m_FlowLayoutPanel1.Controls.Add(this.m_ComboBoxDisplay2);
       this.m_FlowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -531,27 +530,27 @@ namespace CsvTools
       this.m_FlowLayoutPanel1.Name = "m_FlowLayoutPanel1";
       this.m_FlowLayoutPanel1.Size = new System.Drawing.Size(306, 24);
       this.m_FlowLayoutPanel1.TabIndex = 14;
-      //
+      // 
       // m_ComboBoxDisplay1
-      //
+      // 
       this.m_ComboBoxDisplay1.FormattingEnabled = true;
       this.m_ComboBoxDisplay1.Location = new System.Drawing.Point(3, 3);
       this.m_ComboBoxDisplay1.Name = "m_ComboBoxDisplay1";
       this.m_ComboBoxDisplay1.Size = new System.Drawing.Size(148, 21);
       this.m_ComboBoxDisplay1.TabIndex = 11;
       this.m_ComboBoxDisplay1.SelectedIndexChanged += new System.EventHandler(this.comboBox_SelectionChangeCommitted);
-      //
+      // 
       // m_ComboBoxDisplay2
-      //
+      // 
       this.m_ComboBoxDisplay2.FormattingEnabled = true;
       this.m_ComboBoxDisplay2.Location = new System.Drawing.Point(157, 3);
       this.m_ComboBoxDisplay2.Name = "m_ComboBoxDisplay2";
       this.m_ComboBoxDisplay2.Size = new System.Drawing.Size(137, 21);
       this.m_ComboBoxDisplay2.TabIndex = 11;
       this.m_ComboBoxDisplay2.SelectedIndexChanged += new System.EventHandler(this.comboBox_SelectionChangeCommitted);
-      //
+      // 
       // m_TreeView
-      //
+      // 
       this.m_TableLayoutPanel1.SetColumnSpan(this.m_TreeView, 2);
       this.m_TreeView.ContextMenuStrip = contextMenuStrip;
       this.m_TreeView.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -559,17 +558,17 @@ namespace CsvTools
       this.m_TreeView.Name = "m_TreeView";
       this.m_TreeView.Size = new System.Drawing.Size(370, 341);
       this.m_TreeView.TabIndex = 9;
-      //
+      // 
       // m_TextBoxValue
-      //
+      // 
       this.m_TextBoxValue.Location = new System.Drawing.Point(73, 75);
       this.m_TextBoxValue.Name = "m_TextBoxValue";
       this.m_TextBoxValue.Size = new System.Drawing.Size(148, 20);
       this.m_TextBoxValue.TabIndex = 15;
       this.m_TextBoxValue.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
-      //
+      // 
       // FormHierachyDisplay
-      //
+      // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.ClientSize = new System.Drawing.Size(376, 443);
@@ -585,6 +584,7 @@ namespace CsvTools
       this.m_TableLayoutPanel1.PerformLayout();
       this.m_FlowLayoutPanel1.ResumeLayout(false);
       this.ResumeLayout(false);
+
     }
 
     private bool MarkInCycle(TreeData treeData, ICollection<TreeData> visitedEntries)

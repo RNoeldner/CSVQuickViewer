@@ -700,8 +700,16 @@ namespace CsvTools
             m_BufferPos++;
             stringBuilder.Append(nextChar);
             if (nextChar == c_Cr || nextChar == c_Lf)
-              EatNextCRLF(nextChar);
-            predata = false;
+            {
+              var nextNext = EatNextCRLF(nextChar);
+              if (nextNext == c_Cr || nextNext == c_Lf)
+              {
+                m_EndOfLine = true;
+                break;
+              }
+            }
+            else
+              predata = false;
             continue;
           }
         }

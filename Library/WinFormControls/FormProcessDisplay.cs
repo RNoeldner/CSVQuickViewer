@@ -173,14 +173,22 @@ namespace CsvTools
         if (!Visible)
           Show();
         m_LabelText.Text = text;
+
+        if (value <= 0)
+        {
+          m_LabelEtl.Visible = false;
+          m_LabelPercent.Visible = false;
+        }
+        else
+        {
+          m_ProgressBar.Value = TimeToCompletion.Value;
+          m_LabelPercent.Text = TimeToCompletion.PercentDisplay;
+          m_LabelEtr.Text = TimeToCompletion.EstimatedTimeRemainingDisplay;
+          m_LabelEtl.Visible = m_LabelEtr.Text.Length > 0;
+          m_LabelPercent.Visible = m_LabelEtr.Text.Length > 0;
+        }
         m_LabelText.Refresh();
 
-        if (value <= 0) return;
-        m_ProgressBar.Value = TimeToCompletion.Value;
-        m_LabelPercent.Text = TimeToCompletion.PercentDisplay;
-        m_LabelEtr.Text = TimeToCompletion.EstimatedTimeRemainingDisplay;
-        m_LabelEtl.Visible = m_LabelEtr.Text.Length > 0;
-        m_LabelPercent.Visible = m_LabelEtr.Text.Length > 0;
       });
       Progress?.Invoke(this, new ProgressEventArgs(text, value));
     }

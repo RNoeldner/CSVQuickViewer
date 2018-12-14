@@ -258,7 +258,7 @@ namespace CsvTools.Tests
               for (var min = 24; min < 26; min++)
                 samples.Add(new DateTime(2010, month, day, hrs, min, 10, 16, DateTimeKind.Local).ToString(fmt, culture));
 
-        Assert.IsNotNull(StringConversion.CheckDate(samples, fmt, dateSep, ":").FoundValueFormat,
+        Assert.IsNotNull(StringConversion.CheckDate(samples, fmt, dateSep, ":", CultureInfo.CurrentCulture).FoundValueFormat,
           string.Format("Test format {0}\nFirst not matching: {1}", fmt, samples.First()));
       }
     }

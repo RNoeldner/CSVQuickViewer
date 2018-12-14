@@ -515,6 +515,7 @@ namespace CsvTools.Tests
       {
         HasFieldHeader = false
       };
+      setting.TrimmingOption = TrimmingOption.None;
       setting.FileFormat.FieldDelimiter = ",";
       setting.FileFormat.EscapeCharacter = "\\";
       setting.FileName = Path.Combine(m_ApplicationDirectory, "EscapedCharacterAtEndOfRowDelimiter.txt");
@@ -526,10 +527,35 @@ namespace CsvTools.Tests
         Assert.IsTrue(test.Read());
         Assert.IsTrue(test.Read());
         Assert.IsTrue(test.Read());
-        Assert.AreEqual("l", test.GetString(5), @"l\");
+        Assert.AreEqual("l\r", test.GetString(5));  // Important to not trim the value otherwise the \r is gone
         Assert.IsTrue(test.Read());
         Assert.AreEqual("7", test.GetString(0), @"Next Row");
-        Assert.AreEqual(5U, test.StartLineNumber);
+        Assert.AreEqual(4U, test.StartLineNumber);
+        Assert.AreEqual(4U, test.RecordNumber);
+      }
+    }
+    [TestMethod]
+    public void EscapedCharacterAtEndOfRowDelimiterNoEscape()
+    {
+      var setting = new CsvFile
+      {
+        HasFieldHeader = false
+      };
+      setting.FileFormat.FieldDelimiter = ",";
+      setting.FileFormat.EscapeCharacter = "";
+      setting.FileName = Path.Combine(m_ApplicationDirectory, "EscapedCharacterAtEndOfRowDelimiter.txt");
+
+      using (var test = new CsvFileReader(setting))
+      {
+        test.Open(CancellationToken.None, false);
+        Assert.AreEqual(6, test.FieldCount);
+        Assert.IsTrue(test.Read());
+        Assert.IsTrue(test.Read());
+        Assert.IsTrue(test.Read());
+        Assert.AreEqual(@"l\", test.GetString(5), @"l\");
+        Assert.IsTrue(test.Read());
+        Assert.AreEqual("7", test.GetString(0), @"Next Row");
+        Assert.AreEqual(4U, test.StartLineNumber);
         Assert.AreEqual(4U, test.RecordNumber);
       }
     }
