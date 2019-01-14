@@ -27,19 +27,19 @@ namespace CsvTools.Tests
     [TestMethod]
     public void ColumnNameEndsOnID()
     {
-      Assert.AreEqual(0, StringUtils.AssumeStingBasedOnColumnName(null));
-      Assert.AreEqual(0, StringUtils.AssumeStingBasedOnColumnName(" "));
+      Assert.AreEqual(0, StringUtils.AssumeIDColumn(null));
+      Assert.AreEqual(0, StringUtils.AssumeIDColumn(" "));
 
-      Assert.AreEqual(3, StringUtils.AssumeStingBasedOnColumnName("Rating ID"));
-      Assert.AreEqual(2, StringUtils.AssumeStingBasedOnColumnName("RatingId"));
-      Assert.AreEqual(0, StringUtils.AssumeStingBasedOnColumnName("Acid"));
+      Assert.AreEqual(3, StringUtils.AssumeIDColumn("Rating ID"));
+      Assert.AreEqual(2, StringUtils.AssumeIDColumn("RatingId"));
+      Assert.AreEqual(0, StringUtils.AssumeIDColumn("Acid"));
 
-      Assert.AreEqual(4, StringUtils.AssumeStingBasedOnColumnName("Rating Ref"));
-      Assert.AreEqual(3, StringUtils.AssumeStingBasedOnColumnName("RatingRef"));
+      Assert.AreEqual(4, StringUtils.AssumeIDColumn("Rating Ref"));
+      Assert.AreEqual(3, StringUtils.AssumeIDColumn("RatingRef"));
 
-      Assert.AreEqual(5, StringUtils.AssumeStingBasedOnColumnName("Rating Text"));
-      Assert.AreEqual(4, StringUtils.AssumeStingBasedOnColumnName("RatingText"));
-      Assert.AreEqual(0, StringUtils.AssumeStingBasedOnColumnName("Videotext"));
+      Assert.AreEqual(5, StringUtils.AssumeIDColumn("Rating Text"));
+      Assert.AreEqual(4, StringUtils.AssumeIDColumn("RatingText"));
+      Assert.AreEqual(0, StringUtils.AssumeIDColumn("Videotext"));
     }
 
     [TestMethod]

@@ -12,7 +12,6 @@
  *
  */
 
-using Org.BouncyCastle.Bcpg.OpenPgp;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -20,10 +19,8 @@ using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics.Contracts;
 using System.Globalization;
 using System.IO;
-using System.IO.Compression;
 using System.Text;
 using System.Threading;
-using File = Pri.LongPath.File;
 
 namespace CsvTools
 {
@@ -41,7 +38,7 @@ namespace CsvTools
     public static void CacheColumnHeader(IFileSetting fileSetting, bool includeIgnored, ICollection<string> columns)
     {
       Contract.Requires(fileSetting != null);
-      var key = CacheListKeyColumnHeader(fileSetting, includeIgnored);
+      var key = CacheListKeyColumnHeader(fileSetting.ID, includeIgnored);
       if (key.Length > 2)
         ApplicationSetting.CacheList.Set(key, columns);
     }
@@ -56,15 +53,18 @@ namespace CsvTools
     /// <returns>
     /// An array of string with the column headers
     /// </returns>
-    public static ICollection<string> GetColumnHeader(IFileSetting fileSetting, bool includeIgnored, IProcessDisplay processDisplay)
+    public static ICollection<string> GetColumnHeader(IFileSetting fileSetting, bool includeIgnored, bool openIfNeeded, IProcessDisplay processDisplay)
     {
       Contract.Requires(fileSetting != null);
-      Contract.Ensures(Contract.Result<IEnumerable<string>>() != null);
-      var key = CacheListKeyColumnHeader(fileSetting, includeIgnored);
+
+      var key = CacheListKeyColumnHeader(fileSetting.ID, includeIgnored);
       if (key.Length < 3)
         return null;
       if (ApplicationSetting.CacheList.TryGet(key, out var retValue))
         return retValue;
+
+      if (!openIfNeeded)
+        return null;
 
       using (var fileReader = fileSetting.GetFileReader())
       {
@@ -90,6 +90,7 @@ namespace CsvTools
       return values;
     }
 
+  
     /// <summary>
     ///   Get sample values for a column
     /// </summary>
@@ -102,7 +103,7 @@ namespace CsvTools
     {
       if (string.IsNullOrEmpty(columnName) || fileSetting == null) return -1;
       var columnIndex = 0;
-      foreach (var col in GetColumnHeader(fileSetting, true, null))
+      foreach (var col in GetColumnHeader(fileSetting, true, false, null))
       {
         if (col.Equals(columnName, StringComparison.OrdinalIgnoreCase))
           return columnIndex;
@@ -112,7 +113,7 @@ namespace CsvTools
       return -1;
     }
 
-    /// <summary>
+   /// <summary>
     ///   Gets the column header of a file
     /// </summary>
     /// <param name="fileSetting">The file setting.</param>
@@ -181,7 +182,7 @@ namespace CsvTools
       return Encoding.GetEncoding(setting.CodePageId);
     }
 
-    /// <summary>
+      /// <summary>
     ///   Guesses the code page ID of a file
     /// </summary>
     /// <param name="setting">The CSVFile fileSetting</param>
@@ -221,7 +222,7 @@ namespace CsvTools
       setting.CodePageId = detected;
     }
 
-    /// <summary>
+     /// <summary>
     ///   Guesses the delimiter for a files. Done with a rather simple csv parsing, and trying to find
     ///   the delimiter that has the least variance in the read rows, if that is not possible the
     ///   delimiter with the highest number of occurrences.
@@ -246,7 +247,7 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
+   /// <summary>
     /// Opens the csv file, and tries to read the headers
     /// </summary>
     /// <param name="setting">The CSVFile fileSetting</param>
@@ -294,7 +295,7 @@ namespace CsvTools
 
     /// <summary>
     ///   Try to guess the new line sequence
-    /// </summary>
+     /// </summary>
     /// <param name="setting"><see cref="ICsvFile" /> with the information</param>
     /// <returns>The NewLine Combination used</returns>
     public static string GuessNewline(ICsvFile setting)
@@ -336,7 +337,7 @@ namespace CsvTools
       return true;
     }
 
-    /// <summary>
+     /// <summary>
     ///   Determines the start row in the file
     /// </summary>
     /// <param name="setting"><see cref="ICsvFile" /> with the information</param>
@@ -350,11 +351,11 @@ namespace CsvTools
       using (var streamReader = new StreamReader(improvedStream.Stream, setting.GetEncoding(), setting.ByteOrderMark))
       {
         return GuessStartRow(streamReader, setting.FileFormat.FieldDelimiterChar,
-          setting.FileFormat.FieldQualifierChar);
+         setting.FileFormat.FieldQualifierChar);
       }
     }
 
-    /// <summary>
+     /// <summary>
     ///   Does check if quoting was actually used in the file
     /// </summary>
     /// <param name="setting">The setting.</param>
@@ -419,8 +420,8 @@ namespace CsvTools
       Contract.Requires(fileSetting != null);
       if (fileSetting.InternalID.Length > 0)
       {
-        ApplicationSetting.CacheList.Remove(CacheListKeyColumnHeader(fileSetting, true));
-        ApplicationSetting.CacheList.Remove(CacheListKeyColumnHeader(fileSetting, false));
+        ApplicationSetting.CacheList.Remove(CacheListKeyColumnHeader(fileSetting.ID, true));
+        ApplicationSetting.CacheList.Remove(CacheListKeyColumnHeader(fileSetting.ID, false));
       }
     }
 
@@ -441,7 +442,7 @@ namespace CsvTools
       GuessCodePage(file);
       if (display.CancellationToken.IsCancellationRequested) return;
       display.SetProcess("Code Page: " +
-                         EncodingHelper.GetEncodingName(file.CurrentEncoding.CodePage, true, file.ByteOrderMark));
+                EncodingHelper.GetEncodingName(file.CurrentEncoding.CodePage, true, file.ByteOrderMark));
 
       file.FileFormat.FieldDelimiter = GuessDelimiter(file);
       if (display.CancellationToken.IsCancellationRequested) return;
@@ -480,7 +481,7 @@ namespace CsvTools
 
       // Limit everything to 100 columns max, the sum might get too big otherwise 100 * 100
       var startRow = dc.LastRow > 60 ? 15 :
-        dc.LastRow > 20 ? 5 : 0;
+       dc.LastRow > 20 ? 5 : 0;
       for (var index = 0; index < dc.Separators.Length; index++)
       {
         if (dc.SeparatorRows[index] < 1)
@@ -716,7 +717,7 @@ namespace CsvTools
           }
           // In case we have an empty line but the next line are roughly good match take that empty line
           else if (columnCount[row + 1] == columnCount[row + 2]
-                   && columnCount[row + 1] >= avg - 1)
+               && columnCount[row + 1] >= avg - 1)
           {
             return row + 1;
           }
@@ -728,9 +729,9 @@ namespace CsvTools
       return 0;
     }
 
-    private static string CacheListKeyColumnHeader(IFileSetting fileSetting, bool evenIgnored)
+    public static string CacheListKeyColumnHeader(string tableName, bool evenIgnored)
     {
-      return (evenIgnored ? "A:" : "I:") + fileSetting.InternalID;
+      return (evenIgnored ? "A:" : "I:") + tableName;
     }
 
     private static DelimiterCounter GetDelimiterCounter(StreamReader streamReader, char escapeCharacter, int numRows)
@@ -805,14 +806,18 @@ namespace CsvTools
 
     private class DelimiterCounter
     {
+      public readonly int NumRows;
+
+      public readonly int[] SeparatorRows;
+
+      public readonly string Separators;
+
+      public readonly int[,] SeparatorsCount;
+
+      public int LastRow;
+
       // Added INFORMATION SEPARATOR ONE to FOUR
       private const string c_DefaultSeparators = "\t,;|¦￤*`\u001F\u001E\u001D\u001C";
-
-      public readonly int NumRows;
-      public readonly int[] SeparatorRows;
-      public readonly string Separators;
-      public readonly int[,] SeparatorsCount;
-      public int LastRow;
 
       public DelimiterCounter(int numRows)
       {

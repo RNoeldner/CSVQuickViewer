@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using CsvTools.Properties;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
 
 namespace CsvTools.Tests
@@ -23,16 +24,11 @@ namespace CsvTools.Tests
     [TestMethod]
     public void FormEditSettings()
     {
-      var csvFile = new CsvFile
-      {
-        FileName = @"\TestFiles\BasicCSV.txt"
-      };
 
-      using (var frm = new FormEditSettings(csvFile))
+      using (var frm = new FormEditSettings(new ViewSettings()))
       {
         frm.Show();
-        System.Threading.Thread.Sleep(200);
-        csvFile.CodePageId = 650001;
+        System.Threading.Thread.Sleep(200);        
       }
     }
 

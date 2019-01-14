@@ -20,6 +20,7 @@ using Ude;
 
 namespace CsvTools
 {
+  
   /// <summary>
   ///   Class to help with encodings
   /// </summary>
@@ -32,13 +33,154 @@ namespace CsvTools
 
     private static readonly Lazy<int[]> m_CommonCodePages = new Lazy<int[]>(() => new[]
     {
-      -1, (int) CodePage.UTF8, (int) CodePage.UTF16Le, (int) CodePage.UTF16Be, (int) CodePage.UTF32Le,
-      (int) CodePage.UTF32Be, 1250, (int) CodePage.WIN1252, 1253, 1255, (int) CodePage.UTF7, 850, 852, 437, 28591,
-      10029, 20127, 28597, 50220, 28592, 28595, 28598, 20866, 932, 54936
-    });
+   -1, (int) CodePage.UTF8, (int) CodePage.UTF16Le, (int) CodePage.UTF16Be, (int) CodePage.UTF32Le,
+   (int) CodePage.UTF32Be, 1250, (int) CodePage.WIN1252, 1253, 1255, (int) CodePage.UTF7, 850, 852, 437, 28591,
+   10029, 20127, 28597, 50220, 28592, 28595, 28598, 20866, 932, 54936
+  });
 
     /// <summary>
-    ///   Gets a collection of the most common code pages.
+    ///  A code page is a table of values that describes the character set for encoding a particular language.
+    /// </summary>
+    private enum CodePage
+    {
+      /// <summary>
+      ///  Artificial CodePage to show no ode page has been determined
+      /// </summary>
+      None = 0,
+
+      /// <summary>
+      ///  The vast majority of code pages in current use are supersets of ASCII, a 7-bit code
+      ///  representing 128 control codes and printable characters.
+      /// </summary>
+      ASCII = 20127,
+
+      /// <summary>
+      ///  ANSI/OEM Traditional Chinese (Taiwan; Hong Kong SAR, PRC); Chinese Traditional (Big5)
+      /// </summary>
+      BIG5 = 10002,
+
+      /// <summary>
+      ///  EUC Japanese
+      /// </summary>
+      EUCJP = 51932,
+
+      /// <summary>
+      ///  EUC Korean
+      /// </summary>
+      EUCKR = 51949,
+
+      /// <summary>
+      ///  GB18030 Simplified Chinese (4 byte); Chinese Simplified (GB18030)
+      /// </summary>
+      GB18030 = 54936,
+
+      /// <summary>
+      ///  OEM Cyrillic (primarily Russian)
+      /// </summary>
+      IBM855 = 855,
+
+      /// <summary>
+      ///  OEM Russian; Cyrillic (DOS)
+      /// </summary>
+      IBM866 = 866,
+
+      /// <summary>
+      ///  ISO 8859-7 Greek
+      /// </summary>
+      ISO88597 = 28597,
+
+      /// <summary>
+      ///  ISO 8859-2 Central European; Central European (ISO)
+      /// </summary>
+      ISO88592 = 28592,
+
+      /// <summary>
+      ///  ISO 8859-5 Cyrillic
+      /// </summary>
+      ISO88595 = 28595,
+
+      /// <summary>
+      ///  ISO 8859-8 Hebrew; Hebrew (ISO-Visual)
+      /// </summary>
+      ISO88598 = 28598,
+
+      /// <summary>
+      ///  Russian (KOI8-R); Cyrillic (KOI8-R)
+      /// </summary>
+      KOI8R = 20866,
+
+      /// <summary>
+      ///  Cyrillic (Mac)
+      /// </summary>
+      MacCyrillic = 10007,
+
+      /// <summary>
+      ///  ANSI/OEM Japanese; Japanese (Shift-JIS)
+      /// </summary>
+      ShiftJis = 932,
+
+      /// <summary>
+      ///  Unicode UTF-16, big endian byte order;
+      /// </summary>
+      UTF16Be = 1201,
+
+      /// <summary>
+      ///  Unicode UTF-16, little endian byte order (BMP of ISO 10646);
+      /// </summary>
+      UTF16Le = 1200,
+
+      /// <summary>
+      ///  Unicode UTF-32, big endian byte order
+      /// </summary>
+      UTF32Be = 12001,
+
+      /// <summary>
+      ///  Unicode UTF-32, little endian byte order
+      /// </summary>
+      UTF32Le = 12000,
+
+      /// <summary>
+      ///  Unicode (UTF-7)
+      /// </summary>
+      UTF7 = 65000,
+
+      /// <summary>
+      ///  Unicode (UTF-8)
+      /// </summary>
+      UTF8 = 65001,
+
+      /// <summary>
+      ///  ANSI Central European; Central European (Windows)
+      /// </summary>
+      WIN1250 = 1250,
+
+      /// <summary>
+      ///  ANSI Cyrillic; Cyrillic (Windows)
+      /// </summary>
+      WIN1251 = 1251,
+
+      /// <summary>
+      ///  ANSI Latin 1; Western European (Windows)
+      /// </summary>
+      WIN1252 = 1252,
+
+      /// <summary>
+      ///  ANSI Greek; Greek (Windows)
+      /// </summary>
+      WIN1253 = 1253,
+
+      /// <summary>
+      ///  ANSI Turkish; Turkish (Windows)
+      /// </summary>
+      WIN1255 = 1254,
+
+      MSLatin = 850,
+      OEMLatin = 852,
+      MSDos = 437
+    }
+
+    /// <summary>
+    ///  Gets a collection of the most common code pages.
     /// </summary>
     /// <value>An array of common code pages.</value>
     [SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays")]
@@ -71,7 +213,7 @@ namespace CsvTools
         if (buff[0] == 0x84 && buff[1] == 0x31 && buff[2] == 0x95 && buff[3] == 0x33)
           return (int)CodePage.GB18030;
         if (buff[0] == 0x2B && buff[1] == 0x2F && buff[2] == 0x76 &&
-            (buff[3] == 0x38 || buff[3] == 0x39 || buff[3] == 0x2B || buff[3] == 0xef))
+          (buff[3] == 0x38 || buff[3] == 0x39 || buff[3] == 0x2B || buff[3] == 0xef))
           return (int)CodePage.UTF7;
       }
 
@@ -134,7 +276,7 @@ namespace CsvTools
       const string suffixWithBom = " with BOM";
       string name;
       var suffixBom = hasBom ? suffixWithBom :
-        showBom ? cSuffixWithoutBom : string.Empty;
+       showBom ? cSuffixWithoutBom : string.Empty;
       switch (codePage)
       {
         case -1:
@@ -172,7 +314,7 @@ namespace CsvTools
       return $"CP {codePage} - {name}";
     }
 
-    /// <summary>
+      /// <summary>
     ///   Guesses the code page.
     /// </summary>
     /// <param name="buff">The buff containing the characters.</param>
@@ -238,147 +380,6 @@ namespace CsvTools
         detectedCodePage = CodePage.UTF32Le;
 
       return (int)detectedCodePage;
-    }
-
-    /// <summary>
-    ///   A code page is a table of values that describes the character set for encoding a particular language.
-    /// </summary>
-    private enum CodePage
-    {
-      /// <summary>
-      ///   Artificial CodePage to show no ode page has been determined
-      /// </summary>
-      None = 0,
-
-      /// <summary>
-      ///   The vast majority of code pages in current use are supersets of ASCII, a 7-bit code
-      ///   representing 128 control codes and printable characters.
-      /// </summary>
-      ASCII = 20127,
-
-      /// <summary>
-      ///   ANSI/OEM Traditional Chinese (Taiwan; Hong Kong SAR, PRC); Chinese Traditional (Big5)
-      /// </summary>
-      BIG5 = 10002,
-
-      /// <summary>
-      ///   EUC Japanese
-      /// </summary>
-      EUCJP = 51932,
-
-      /// <summary>
-      ///   EUC Korean
-      /// </summary>
-      EUCKR = 51949,
-
-      /// <summary>
-      ///   GB18030 Simplified Chinese (4 byte); Chinese Simplified (GB18030)
-      /// </summary>
-      GB18030 = 54936,
-
-      /// <summary>
-      ///   OEM Cyrillic (primarily Russian)
-      /// </summary>
-      IBM855 = 855,
-
-      /// <summary>
-      ///   OEM Russian; Cyrillic (DOS)
-      /// </summary>
-      IBM866 = 866,
-
-      /// <summary>
-      ///   ISO 8859-7 Greek
-      /// </summary>
-      ISO88597 = 28597,
-
-      /// <summary>
-      ///   ISO 8859-2 Central European; Central European (ISO)
-      /// </summary>
-      ISO88592 = 28592,
-
-      /// <summary>
-      ///   ISO 8859-5 Cyrillic
-      /// </summary>
-      ISO88595 = 28595,
-
-      /// <summary>
-      ///   ISO 8859-8 Hebrew; Hebrew (ISO-Visual)
-      /// </summary>
-      ISO88598 = 28598,
-
-      /// <summary>
-      ///   Russian (KOI8-R); Cyrillic (KOI8-R)
-      /// </summary>
-      KOI8R = 20866,
-
-      /// <summary>
-      ///   Cyrillic (Mac)
-      /// </summary>
-      MacCyrillic = 10007,
-
-      /// <summary>
-      ///   ANSI/OEM Japanese; Japanese (Shift-JIS)
-      /// </summary>
-      ShiftJis = 932,
-
-      /// <summary>
-      ///   Unicode UTF-16, big endian byte order;
-      /// </summary>
-      UTF16Be = 1201,
-
-      /// <summary>
-      ///   Unicode UTF-16, little endian byte order (BMP of ISO 10646);
-      /// </summary>
-      UTF16Le = 1200,
-
-      /// <summary>
-      ///   Unicode UTF-32, big endian byte order
-      /// </summary>
-      UTF32Be = 12001,
-
-      /// <summary>
-      ///   Unicode UTF-32, little endian byte order
-      /// </summary>
-      UTF32Le = 12000,
-
-      /// <summary>
-      ///   Unicode (UTF-7)
-      /// </summary>
-      UTF7 = 65000,
-
-      /// <summary>
-      ///   Unicode (UTF-8)
-      /// </summary>
-      UTF8 = 65001,
-
-      /// <summary>
-      ///   ANSI Central European; Central European (Windows)
-      /// </summary>
-      WIN1250 = 1250,
-
-      /// <summary>
-      ///   ANSI Cyrillic; Cyrillic (Windows)
-      /// </summary>
-      WIN1251 = 1251,
-
-      /// <summary>
-      ///   ANSI Latin 1; Western European (Windows)
-      /// </summary>
-      WIN1252 = 1252,
-
-      /// <summary>
-      ///   ANSI Greek; Greek (Windows)
-      /// </summary>
-      WIN1253 = 1253,
-
-      /// <summary>
-      ///   ANSI Turkish; Turkish (Windows)
-      /// </summary>
-      WIN1255 = 1254,
-
-      MSLatin = 850,
-      OEMLatin = 852,
-      MSDos = 437
     }
   }
 }

@@ -17,14 +17,27 @@
     <PropertyRef Id="NETFRAMEWORK45" />
     <Condition Message="This application requires .NET Framework 4.5">
       <![CDATA[Installed OR NETFRAMEWORK45]]>
-    </Condition>
+    </Condition>  
     <Directory Id="TARGETDIR" Name="SourceDir">
+       <Directory Id="AppDataFolder">
+        <Directory Id="AppRootDirectory" Name="$(var.ApplicationShort)">
+          <Component Id="DefaultSetting" DiskId="1" Guid="DE676798-A9E3-45F5-A9C1-E44B240F54C9">
+            <CreateFolder />
+            <RemoveFile Id="PurgeAppFolder" Name="*.*" On="uninstall" />
+            <RemoveFolder Id="RemoveAppRootDirectory" On="uninstall" />                         
+            <!-- registry entry to be used as key path -->
+            <RegistryValue Root="HKCU" Key="Software\$(var.ApplicationShort)\DefaultSetting" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+          </Component>
+        </Directory>
+      </Directory>
       <Directory Id="LocalAppDataFolder" Name="[AppData]">
         <Directory Id="PRODUCTDIR" Name="$(var.Application)">
           <Component Id="EXECUTABLE" DiskId="1" Guid="DE676698-99E3-45F5-A9C1-E44B240F54C9">
             <File Id="ExecutableID" Name="CsvQuickViewer.exe" Source="$(var.CSVQuickViewer.TargetPath)" />
             <!--   <File Id="CsvQuickViewer.pdb" Name="CsvQuickViewer.pdb" Source="$(var.CSVQuickViewer.TargetDir)\CsvQuickViewer.pdb" />-->
             <File Id="ClassLibraryCSV.DLL" Name="ClassLibraryCSV.dll" Source="$(var.CSVQuickViewer.TargetDir)\ClassLibraryCSV.dll" />
+            <File Id="DateTimeFormats.txt" Name="DateTimeFormats.txt" Source="$(var.CSVQuickViewer.TargetDir)\DateTimeFormats.txt" />
+            <File Id="DateTimeFormatsWritten.txt" Name="DateTimeFormatsWritten.txt" Source="$(var.CSVQuickViewer.TargetDir)\DateTimeFormatsWritten.txt" />
             <!--   <File Id="ClassLibraryCSV.pdb" Name="ClassLibraryCSV.pdb" Source="$(var.CSVQuickViewer.TargetDir)\ClassLibraryCSV.pdb" /> -->
             <File Id="WinFormControls.DLL" Name="WinFormControls.dll" Source="$(var.CSVQuickViewer.TargetDir)\WinFormControls.dll" />
             <File Id="Ude.DLL" Name="Ude.dll" Source="$(var.CSVQuickViewer.TargetDir)\Ude.dll" />
@@ -106,7 +119,8 @@
       </Component>
     </Directory>
     <Feature Id="Complete" Title="$(var.Application)" Level="1" Description="The application $(var.Application) and all used libraries">
-      <ComponentRef Id="EXECUTABLE" />
+      <ComponentRef Id="EXECUTABLE" />      
+      <ComponentRef Id="DefaultSetting" />
       <Feature Id="FeatureMenu" Title="Startmenu Shortcuts" Level="1" Description="Adding the $(var.Application) to the Start Menu">
         <ComponentRef Id="StartMenintcuts" />
       </Feature>

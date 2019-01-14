@@ -21,43 +21,43 @@ using System.Timers;
 namespace CsvTools
 {
   /// <summary>
-  ///   Temporarily stores object that are expensive to create in memory in order to
-  ///   improve application performance.
+  ///  Temporarily stores object that are expensive to create in memory in order to
+  ///  improve application performance.
   /// </summary>
   public class Cache<TKey, TValue> : ICache<TKey, TValue>
-    where TKey : IComparable
-    where TValue : class
+   where TKey : IComparable
+   where TValue : class
   {
     /// <summary>
-    ///   Minimum interval (in milliseconds) between two cleanup runs.
+    ///  Minimum interval (in milliseconds) between two cleanup runs.
     /// </summary>
     private const int c_CleanupInterval = 10000;
 
     private readonly int m_DefaultLifetime;
 
     /// <summary>
-    ///   Dictionary that stores the cache items
+    ///  Dictionary that stores the cache items
     /// </summary>
     private readonly ConcurrentDictionary<TKey, CacheItem<TValue>> m_Dictionary;
 
     /// <summary>
-    ///   Timer that calls Cleanup periodically.
+    ///  Timer that calls Cleanup periodically.
     /// </summary>
     private Timer m_CleanupTimer;
 
     /// <summary>
-    ///   Initializes a new instance of the <see cref="T:Cache" /> class.
+    ///  Initializes a new instance of the <see cref="T:Cache" /> class.
     /// </summary>
     /// <remarks>
-    ///   The default time for an item is set to 5 minutes
+    ///  The default time for an item is set to 5 minutes
     /// </remarks>
     public Cache()
-      : this(300)
+     : this(300)
     {
     }
 
     /// <summary>
-    ///   Initializes a new instance of the <see cref="T:Cache" /> class.
+    ///  Initializes a new instance of the <see cref="T:Cache" /> class.
     /// </summary>
     /// <param name="defaultLifeTime">The default life time for a cache item in seconds.</param>
     public Cache(int defaultLifeTime)
@@ -68,7 +68,31 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Removes all items from the cache.
+    ///  Event fired for Element that have expired
+    /// </summary>
+    public virtual event EventHandler<TKey> ElementExpired;
+
+    /// <summary>
+    ///  Determines whether the specified key contains key.
+    /// </summary>
+    /// <param name="key">The key.</param>
+    /// <returns><c>true</c> if the key is in the cache, <c>false</c> otherwise</returns>
+    public virtual bool ContainsKey(TKey key)
+    {
+      return m_Dictionary.ContainsKey(key);
+    }
+
+    /// <summary>
+    ///  Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+    /// </summary>
+    public void Dispose()
+    {
+      Dispose(true);
+      GC.SuppressFinalize(this);
+    }
+
+    /// <summary>
+    ///  Removes all items from the cache.
     /// </summary>
     public virtual void Flush()
     {
@@ -79,27 +103,17 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Determines whether the specified key contains key.
-    /// </summary>
-    /// <param name="key">The key.</param>
-    /// <returns><c>true</c> if the key is in the cache, <c>false</c> otherwise</returns>
-    public virtual bool ContainsKey(TKey key)
-    {
-      return m_Dictionary.ContainsKey(key);
-    }
-
-    /// <summary>
-    ///   Retrieves an item of a defined type from the cache.
-    ///   If an item is found, but its type does not the specified type,
-    ///   then null is returned.
-    ///   This ensures that assignment of cached items can be performed
-    ///   without error handlers for invalid casts.
+    ///  Retrieves an item of a defined type from the cache.
+    ///  If an item is found, but its type does not the specified type,
+    ///  then null is returned.
+    ///  This ensures that assignment of cached items can be performed
+    ///  without error handlers for invalid casts.
     /// </summary>
     /// <param name="key">Specifies items inside the cache.</param>
     /// <returns>
-    ///   The object found in the cache. If no object could be found in the cache,
-    ///   or the found object has exceeded its lifetime, null is returned. No exception
-    ///   is thrown.
+    ///  The object found in the cache. If no object could be found in the cache,
+    ///  or the found object has exceeded its lifetime, null is returned. No exception
+    ///  is thrown.
     /// </returns>
     public virtual TValue Get(TKey key)
     {
@@ -115,8 +129,17 @@ namespace CsvTools
       // Set return value;
     }
 
+    public virtual ICollection<TKey> Keys
+    {
+      get
+      {
+        CleanupCache(this, null);
+        return m_Dictionary.Keys;
+      }
+    }
+
     /// <summary>
-    ///   Removes an item from the cache.
+    ///  Removes an item from the cache.
     /// </summary>
     /// <param name="key">Specifies an item in the cache.</param>
     public virtual void Remove(TKey key)
@@ -127,13 +150,13 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Adds an item to the cache with a default lifetime of 5 minutes (300 seconds)
+    ///  Adds an item to the cache with a default lifetime of 5 minutes (300 seconds)
     /// </summary>
     /// <param name="key">Identifies an item in the cache. The key is not case-sensitive.</param>
     /// <param name="item">Object to store in the cache.</param>
     /// <remarks>
-    ///   If an item with the same key exists in the cache, it is overwritten.
-    ///   The default lifetime is applied. If the item is <c>null</c> the item will be removed from cache.
+    ///  If an item with the same key exists in the cache, it is overwritten.
+    ///  The default lifetime is applied. If the item is <c>null</c> the item will be removed from cache.
     /// </remarks>
     public virtual void Set(TKey key, TValue item)
     {
@@ -141,14 +164,14 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Adds an item to the cache.
+    ///  Adds an item to the cache.
     /// </summary>
     /// <param name="key">Identifies an item in the cache. The key is not case-sensitive.</param>
     /// <param name="item">Object to store in the cache.</param>
     /// <param name="lifetime">Life time of the item in seconds.</param>
     /// <remarks>
-    ///   If an item with the same key exists in the cache, it is overwritten.
-    ///   The default lifetime is applied.
+    ///  If an item with the same key exists in the cache, it is overwritten.
+    ///  The default lifetime is applied.
     /// </remarks>
     public virtual void Set(TKey key, TValue item, int lifetime)
     {
@@ -172,12 +195,12 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Check if an item is valid in the cache
+    ///  Check if an item is valid in the cache
     /// </summary>
     /// <param name="key">Specifies items inside the cache.</param>
     /// <param name="item">The item to be set</param>
     /// <returns>
-    ///   <c>true</c> if the item is there, <c>false</c> if the item is not present or expired
+    ///  <c>true</c> if the item is there, <c>false</c> if the item is not present or expired
     /// </returns>
     public virtual bool TryGet(TKey key, out TValue item)
     {
@@ -196,35 +219,11 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-    /// </summary>
-    public void Dispose()
-    {
-      Dispose(true);
-      GC.SuppressFinalize(this);
-    }
-
-    /// <summary>
-    ///   Event fired for Element that have expired
-    /// </summary>
-    public virtual event EventHandler<TKey> ElementExpired;
-
-    private bool RemoveKey(TKey key)
-    {
-      if (key == null) return false;
-      ElementExpired?.Invoke(this, key);
-
-      m_Dictionary.TryRemove(key, out var item);
-      item?.FreeItem();
-      return true;
-    }
-
-    /// <summary>
-    ///   Releases unmanaged and - optionally - managed resources.
+    ///  Releases unmanaged and - optionally - managed resources.
     /// </summary>
     /// <param name="disposing">
-    ///   <c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only
-    ///   unmanaged resources.
+    ///  <c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only
+    ///  unmanaged resources.
     /// </param>
     protected virtual void Dispose(bool disposing)
     {
@@ -233,7 +232,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Removes all items with an expired lifetime from the cache.
+    ///  Removes all items with an expired lifetime from the cache.
     /// </summary>
     private void CleanupCache(object sender, ElapsedEventArgs args)
     {
@@ -261,7 +260,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Disables the cleanup timer.
+    ///  Disables the cleanup timer.
     /// </summary>
     private void DisableCleanupTimer()
     {
@@ -272,7 +271,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Enables or disables the cleanup timer, depending on whether the
+    ///  Enables or disables the cleanup timer, depending on whether the
     /// </summary>
     private void EnableCleanupTimer()
     {
@@ -290,16 +289,26 @@ namespace CsvTools
       m_CleanupTimer.Start();
     }
 
+    private bool RemoveKey(TKey key)
+    {
+      if (key == null) return false;
+      ElementExpired?.Invoke(this, key);
+
+      m_Dictionary.TryRemove(key, out var item);
+      item?.FreeItem();
+      return true;
+    }
+
     /// <summary>
-    ///   Wraps an item in the cache Dictionary,
-    ///   storing an object, the time it has been entered
-    ///   to the cache, and its lifetime in seconds.
+    ///  Wraps an item in the cache Dictionary,
+    ///  storing an object, the time it has been entered
+    ///  to the cache, and its lifetime in seconds.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     private class CacheItem<T>
     {
       /// <summary>
-      ///   Initializes a new instance of the CacheItem class.
+      ///  Initializes a new instance of the CacheItem class.
       /// </summary>
       /// <param name="item">The object added to the cache.</param>
       /// <param name="lifetime">The lifetime (in seconds). After this time, the item is removed.</param>
@@ -311,22 +320,22 @@ namespace CsvTools
       }
 
       /// <summary>
-      ///   The item stored in the cache.
+      ///  The item stored in the cache.
       /// </summary>
       internal T Item { get; private set; }
 
       /// <summary>
-      ///   Time (in seconds) the object is to remain in the cache.
+      ///  Time (in seconds) the object is to remain in the cache.
       /// </summary>
       internal int Lifetime { get; }
 
       /// <summary>
-      ///   Time the object has been entered into the cache.
+      ///  Time the object has been entered into the cache.
       /// </summary>
       internal DateTime TimeEntered { get; }
 
       /// <summary>
-      ///   Frees the item.
+      ///  Frees the item.
       /// </summary>
       internal void FreeItem()
       {

@@ -21,26 +21,19 @@ using System.Threading;
 namespace CsvTools
 {
   /// <summary>
-  ///   Interface for a database connector
+  ///  Interface for a database connector
   /// </summary>
   public interface IDbConnector
   {
     /// <summary>
-    ///   Checks if the database has table.
+    ///  Checks if the database has table.
     /// </summary>
     /// <param name="tableName">Name of the table.</param>
     /// <returns></returns>
     bool CheckDbHasTable(string tableName);
 
     /// <summary>
-    /// Loads the data table with the result from the SQL statement
-    /// </summary>
-    /// <param name="sql">The SQL.</param>
-    /// <returns></returns>
-    DataTable LoadDataTable(string sql);
-
-    /// <summary>
-    ///   Checks if the embedded database does have the field in the table.
+    ///  Checks if the embedded database does have the field in the table.
     /// </summary>
     /// <param name="tableName">Name of the table.</param>
     /// <param name="fieldName">Name of the field.</param>
@@ -48,90 +41,7 @@ namespace CsvTools
     bool CheckTableHasField(string tableName, string fieldName);
 
     /// <summary>
-    ///   Drops the given table.
-    /// </summary>
-    /// <param name="tableName">Name of the table.</param>
-    /// <returns></returns>
-    void DropTable(string tableName);
-
-    /// <summary>
-    ///   Removes all existing tables
-    /// </summary>
-    void EmptyDatabase();
-
-    /// <summary>
-    ///   Makes sure the database does exist and is accessible
-    /// </summary>
-    /// <returns>True if the database was created</returns>
-    bool EnsureDBExists();
-
-    /// <summary>
-    ///   Executes a commands that can be separated by GO without returning a result.
-    /// </summary>
-    /// <param name="sqlStatement">The sql statement.</param>
-    /// <returns>Number of affected records</returns>
-    int ExecuteNonQueries(string sqlStatement);
-
-    /// <summary>
-    ///   Executes a commands that can be separated by GO without returning a result.
-    /// </summary>
-    /// <param name="parts">The parts.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>
-    ///   Number of affected records
-    /// </returns>
-    int ExecuteNonQueries(IEnumerable<string> parts, CancellationToken cancellationToken);
-
-    /// <summary>
-    ///   Executes a command without returning a result.
-    /// </summary>
-    /// <param name="commandText">The command text.</param>
-    /// <returns>Number of affected records</returns>
-    int ExecuteNonQuery(string commandText);
-
-    /// <summary>
-    ///   Executes a sql command, and returns a data reader.
-    /// </summary>
-    /// <param name="sqlStatement">The sql statement.</param>
-    /// <returns>An open data reader.</returns>
-    /// <remarks>
-    ///   Please use this with caution, the command and connection can not be disposed
-    /// </remarks>
-    DbDataReader ExecuteReader(string sqlStatement);
-
-    /// <summary>
-    ///   Loop though a returned SQL statement and invoke passed in method for each record
-    /// </summary>
-    /// <param name="sqlStatement">The sql statement.</param>
-    /// <param name="beforeLoop">The before loop.</param>
-    /// <param name="eachRecord">delegate (DbDataReader dataReader)/</param>
-    /// <param name="cancellationToken">A cancellation Token</param>
-    void ProcessReader(string sqlStatement, Action<DbDataReader> beforeLoop, Action<DbDataReader> eachRecord,
-      CancellationToken cancellationToken);
-
-    /// <summary>
-    ///   Executes the a scalar query
-    /// </summary>
-    /// <param name="sqlStatement">The command text.</param>
-    /// <param name="commandTimeout">The command timeout.</param>
-    /// <returns>
-    ///   The first column of the first row returned by the command
-    /// </returns>
-    object ExecuteScalar(string sqlStatement, int commandTimeout = 360);
-
-    /// <summary>
-    ///   Flushes all caches of this instance.
-    /// </summary>
-    void Flush();
-
-    /// <summary>
-    ///   Gets the connection.
-    /// </summary>
-    /// <returns>The database connection object</returns>
-    DbConnection GetConnection();
-
-    /// <summary>
-    ///   Gets a create table statement based on the passed in columns, adds generic fields based on flags
+    ///  Gets a create table statement based on the passed in columns, adds generic fields based on flags
     /// </summary>
     /// <param name="columns">An enumeration of <see cref="Column" />, each of these will be created</param>
     /// <param name="tableName">Name of the table.</param>
@@ -141,46 +51,119 @@ namespace CsvTools
     /// <param name="includeEndLineNo">if set to <c>true</c> add an end-line no field.</param>
     /// <param name="useIdentity">if set to <c>true</c> [use identity].</param>
     void CreateTable(IEnumerable<Column> columns, string tableName, bool includeErrorField, bool includeLineNo,
-      bool includeRecordNo, bool includeEndLineNo, bool useIdentity);
+     bool includeRecordNo, bool includeEndLineNo, bool useIdentity);
 
     /// <summary>
-    ///   Gets the <see cref="DataType" /> of the table.
+    ///  Drops the given table.
+    /// </summary>
+    /// <param name="tableName">Name of the table.</param>
+    /// <returns></returns>
+    void DropTable(string tableName);
+
+    /// <summary>
+    ///  Removes all existing tables
+    /// </summary>
+    void EmptyDatabase();
+
+    /// <summary>
+    ///  Makes sure the database does exist and is accessible
+    /// </summary>
+    /// <returns>True if the database was created</returns>
+    bool EnsureDBExists();
+
+    /// <summary>
+    ///  Executes a commands that can be separated by GO without returning a result.
+    /// </summary>
+    /// <param name="sqlStatement">The sql statement.</param>
+    /// <returns>Number of affected records</returns>
+    int ExecuteNonQueries(string sqlStatement);
+
+    /// <summary>
+    ///  Executes a commands that can be separated by GO without returning a result.
+    /// </summary>
+    /// <param name="parts">The parts.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>
+    ///  Number of affected records
+    /// </returns>
+    int ExecuteNonQueries(IEnumerable<string> parts, CancellationToken cancellationToken);
+
+    /// <summary>
+    ///  Executes a command without returning a result.
+    /// </summary>
+    /// <param name="commandText">The command text.</param>
+    /// <returns>Number of affected records</returns>
+    int ExecuteNonQuery(string commandText);
+
+    /// <summary>
+    ///  Executes a sql command, and returns a data reader.
+    /// </summary>
+    /// <param name="sqlStatement">The sql statement.</param>
+    /// <returns>An open data reader.</returns>
+    /// <remarks>
+    ///  Please use this with caution, the command and connection can not be disposed
+    /// </remarks>
+    DbDataReader ExecuteReader(string sqlStatement);
+
+    /// <summary>
+    ///  Executes the a scalar query
+    /// </summary>
+    /// <param name="sqlStatement">The command text.</param>
+    /// <param name="commandTimeout">The command timeout.</param>
+    /// <returns>
+    ///  The first column of the first row returned by the command
+    /// </returns>
+    object ExecuteScalar(string sqlStatement, int commandTimeout = 360);
+
+    /// <summary>
+    ///  Flushes all caches of this instance.
+    /// </summary>
+    void Flush();
+
+    /// <summary>
+    ///  Gets the connection.
+    /// </summary>
+    /// <returns>The database connection object</returns>
+    DbConnection GetConnection();
+
+    /// <summary>
+    ///  Gets the <see cref="DataType" /> of the table.
     /// </summary>
     /// <param name="tableName">Name of the table.</param>
     /// <returns>
-    ///   A Dictionary with name of the column and <see cref="DataType" />
+    ///  A Dictionary with name of the column and <see cref="DataType" />
     /// </returns>
     IDictionary<string, DataType> GetDataTypes(string tableName);
 
     /// <summary>
-    ///   Gets the number of rows in a table
+    ///  Gets the number of rows in a table
     /// </summary>
     /// <param name="tableName">Name of the table.</param>
     /// <param name="where">A where condition</param>
     /// <returns>
-    ///   The number of rows in the table
+    ///  The number of rows in the table
     /// </returns>
     long GetRowCount(string tableName, string where);
 
     /// <summary>
-    ///   Gets a dynamic SQL command.
+    ///  Gets a dynamic SQL command.
     /// </summary>
     /// <param name="sqlStatement">The SQL.</param>
     /// <param name="connection">The connection.</param>
     /// <param name="commandTimeout">The command timeout.</param>
     /// <returns>
-    ///   A <see cref="DbCommand" /> with the SQL statement provided
+    ///  A <see cref="DbCommand" /> with the SQL statement provided
     /// </returns>
     DbCommand GetSqlCommand(string sqlStatement, DbConnection connection, int commandTimeout = 360);
 
     /// <summary>
-    ///   Gets the tables in the database
+    ///  Gets the tables in the database
     /// </summary>
     /// <returns>An array of table names</returns>
     ICollection<string> GetTables();
 
     /// <summary>
-    ///   Gets the values of a column in a table
+    ///  Gets the values of a column in a table
     /// </summary>
     /// <param name="columnName">Name of the column.</param>
     /// <param name="tableName">Name of the table.</param>
@@ -189,28 +172,45 @@ namespace CsvTools
     ICollection<string> GetValues(string columnName, string tableName, CancellationToken cancellationToken);
 
     /// <summary>
-    ///   Removes all existing tables
+    ///  Removes all existing tables
     /// </summary>
     void LeaveDatabase();
+
+    /// <summary>
+    /// Loads the data table with the result from the SQL statement
+    /// </summary>
+    /// <param name="sql">The SQL.</param>
+    /// <returns></returns>
+    DataTable LoadDataTable(string sql);
 
     void ProcessColumnLength(string tableName, IProcessDisplay processDisplay, ICollection<string> fields);
 
     /// <summary>
-    ///   Stores a list of number in a table and executes a SQL statement that can reference the lines the integer are in table
-    ///   (#)
+    ///  Stores a list of number in a table and executes a SQL statement that can reference the lines the integer are in table
+    ///  (#)
     /// </summary>
     /// <param name="numbers">The line numbers.</param>
     /// <param name="commandText">
-    ///   The command text make sure the command has a placeholder (#) for the name of the temporary
-    ///   table.
+    ///  The command text make sure the command has a placeholder (#) for the name of the temporary
+    ///  table.
     /// </param>
     /// <param name="processDisplay">a process Display to show progress</param>
     /// <param name="description">The lead description in the progress</param>
     void ProcessForNumber(ICollection<long> numbers, string commandText, IProcessDisplay processDisplay,
-      string description);
+     string description);
 
     /// <summary>
-    ///   Checks if the database has table.
+    ///  Loop though a returned SQL statement and invoke passed in method for each record
+    /// </summary>
+    /// <param name="sqlStatement">The sql statement.</param>
+    /// <param name="beforeLoop">The before loop.</param>
+    /// <param name="eachRecord">delegate (DbDataReader dataReader)/</param>
+    /// <param name="cancellationToken">A cancellation Token</param>
+    void ProcessReader(string sqlStatement, Action<DbDataReader> beforeLoop, Action<DbDataReader> eachRecord,
+   CancellationToken cancellationToken);
+
+    /// <summary>
+    ///  Checks if the database has table.
     /// </summary>
     /// <param name="oldTableName">Name of the table.</param>
     /// <param name="newTableName">New Name of the table.</param>
@@ -218,17 +218,17 @@ namespace CsvTools
     bool RenameTable(string oldTableName, string newTableName);
 
     /// <summary>
-    ///   Stores the data table.
+    ///  Stores the data table.
     /// </summary>
     /// <param name="dataTable">The data table.</param>
     /// <param name="destinationTableName">Name of the destination table.</param>
     /// <param name="cancellationToken">A cancellation Token</param>
     /// <param name="eventHandler">Event called after some records have been processed</param>
     void StoreDataTable(DataTable dataTable, string destinationTableName, CancellationToken cancellationToken,
-      EventHandler<long> eventHandler);
+     EventHandler<long> eventHandler);
 
     /// <summary>
-    ///   Stores the partion information.
+    ///  Stores the partion information.
     /// </summary>
     /// <param name="tableName">Name of the table.</param>
     /// <param name="keyField">The key field.</param>
@@ -236,6 +236,6 @@ namespace CsvTools
     /// <param name="maxPartion">The maximum partion.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     void StorePartionInformation(string tableName, string keyField, ICollection<string>[] collectionArray,
-      int maxPartion, CancellationToken cancellationToken);
+     int maxPartion, CancellationToken cancellationToken);
   }
 }

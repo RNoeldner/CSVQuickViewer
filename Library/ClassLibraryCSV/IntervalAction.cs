@@ -17,15 +17,15 @@ using System;
 namespace CsvTools
 {
   /// <summary>
-  ///   Class to notify only after a given period of time
+  ///  Class to notify only after a given period of time
   /// </summary>
   public class IntervalAction
   {
-    private readonly double m_NotifyAfterSeconds;
+    private double m_NotifyAfterSeconds;
     private DateTime m_LastNotification = DateTime.MinValue;
 
     /// <summary>
-    ///   Initializes a new instance of the <see cref="IntervalAction" /> class.
+    ///  Initializes a new instance of the <see cref="IntervalAction" /> class.
     /// </summary>
     /// <remarks>If no notification period is set 1/5 a second is assumed</remarks>
     public IntervalAction()
@@ -34,7 +34,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Initializes a new instance of the <see cref="IntervalAction" /> class.
+    ///  Initializes a new instance of the <see cref="IntervalAction" /> class.
     /// </summary>
     /// <param name="notifyAfterSeconds">Notify only after this time in seconds</param>
     public IntervalAction(double notifyAfterSeconds)
@@ -42,8 +42,11 @@ namespace CsvTools
       m_NotifyAfterSeconds = notifyAfterSeconds;
     }
 
+    public double NotifyAfterSeconds { get => m_NotifyAfterSeconds; set => m_NotifyAfterSeconds = value; }
+
+
     /// <summary>
-    ///   Invoke the given action if the set interval has passed
+    ///  Invoke the given action if the set interval has passed
     /// </summary>
     /// <param name="action">the action to invoke</param>
     public void Invoke(Action action)

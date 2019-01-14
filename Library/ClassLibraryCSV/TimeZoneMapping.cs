@@ -12,12 +12,12 @@
  *
  */
 
+using NodaTime;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using NodaTime;
 
 namespace CsvTools
 {
@@ -86,6 +86,11 @@ namespace CsvTools
       if (dateTimeUTC.Kind != DateTimeKind.Utc)
         dateTimeUTC = DateTime.SpecifyKind(dateTimeUTC, DateTimeKind.Utc);
       return Instant.FromDateTimeUtc(dateTimeUTC).InZone(GetTimeZone(destTZName)).ToDateTimeUnspecified();
+    }
+
+    public static string GetTimeZoneID(string timeZoneName)
+    {
+      return GetTimeZone(timeZoneName).Id;
     }
 
     /// <summary>
@@ -225,11 +230,6 @@ namespace CsvTools
     {
       if (!dic.ContainsKey(key))
         dic.Add(key, value);
-    }
-
-    public static string GetTimeZoneID(string timeZoneName)
-    {
-      return GetTimeZone(timeZoneName).Id;
     }
 
     /// <summary>

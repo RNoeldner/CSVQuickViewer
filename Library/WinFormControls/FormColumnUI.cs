@@ -145,7 +145,7 @@ namespace CsvTools
               ApplicationSetting.FillGuessSettings.DetectGUID, ApplicationSetting.FillGuessSettings.DectectNumbers,
               ApplicationSetting.FillGuessSettings.DetectDateTime,
               ApplicationSetting.FillGuessSettings.DectectPercentage,
-              ApplicationSetting.FillGuessSettings.SerialDateTime, ApplicationSetting.FillGuessSettings.DateTimeValue,
+              ApplicationSetting.FillGuessSettings.SerialDateTime, 
               ApplicationSetting.FillGuessSettings.CheckNamedDates, DetermineColumnFormat.CommonDateFormat(m_FileSetting.Column.Select(x => x.ValueFormat)));
             if (checkResult == null)
             {
@@ -397,7 +397,7 @@ namespace CsvTools
               if (!m_WriteSetting)
               {
                 // get the columns from the file
-                allColumns = CsvHelper.GetColumnHeader(m_FileSetting, true, frm);
+                allColumns = CsvHelper.GetColumnHeader(m_FileSetting, true, true, frm);
               }
               else
               {

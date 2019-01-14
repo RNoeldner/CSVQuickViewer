@@ -24,24 +24,24 @@ using System.Threading;
 namespace CsvTools
 {
   /// <summary>
-  ///   A Class to write CSV Files
+  ///  A Class to write CSV Files
   /// </summary>
   public class CsvFileWriter : BaseFileWriter, IFileWriter
   {
     private readonly ICsvFile m_CsvFile;
-    private readonly string m_FieldQualifier;
     private readonly string m_FieldDelimiter;
-    private readonly string m_FieldQualifierEscaped;
     private readonly string m_FieldDelimiterEscaped;
+    private readonly string m_FieldQualifier;
+    private readonly string m_FieldQualifierEscaped;
     private readonly char[] m_QualifyCharArray;
 
     /// <summary>
-    ///   Initializes a new instance of the <see cref="CsvFileWriter" /> class.
+    ///  Initializes a new instance of the <see cref="CsvFileWriter" /> class.
     /// </summary>
     /// <param name="file">The file.</param>
     /// <param name="cancellationToken">A cancellation token to stop writing the file</param>
     public CsvFileWriter(ICsvFile file, CancellationToken cancellationToken)
-      : base(file, cancellationToken)
+     : base(file, cancellationToken)
     {
       Contract.Requires(file != null);
       m_CsvFile = file;
@@ -63,18 +63,18 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Stores that data in the given stream.
+    ///  Stores that data in the given stream.
     /// </summary>
     /// <param name="reader">The data reader.</param>
     /// <param name="writer">The writer.</param>
     /// <param name="readerFileSetting">The file.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>
-    ///   Number of rows written
+    ///  Number of rows written
     /// </returns>
     /// <exception cref="ApplicationException">No columns defined to be written.</exception>
     protected void DataReader2Stream(IDataReader reader, TextWriter writer,
-      CancellationToken cancellationToken)
+     CancellationToken cancellationToken)
     {
       Contract.Requires(reader != null);
       Contract.Requires(writer != null);
@@ -84,14 +84,14 @@ namespace CsvTools
       if (enumerable.IsEmpty())
         throw new ApplicationException("No columns defined to be written.");
       var recordEnd = m_CsvFile.FileFormat.NewLine.Replace("CR", "\r").Replace("LF", "\n").Replace(" ", "")
-        .Replace("\t", "");
+       .Replace("\t", "");
 
       HandleWriteStart();
 
       var numEmptyRows = 0;
       var numColumns = enumerable.Count();
       var
-        sb = new StringBuilder(1024); // Assume a capacity of 1024 characters to start , data is flushed every 512 chars
+       sb = new StringBuilder(1024); // Assume a capacity of 1024 characters to start , data is flushed every 512 chars
       var hasFieldDelimiter = !m_CsvFile.FileFormat.IsFixedLength;
       if (!string.IsNullOrEmpty(m_CsvFile.Header))
       {
@@ -154,20 +154,20 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Writes the specified file reading from the given reader
+    ///  Writes the specified file reading from the given reader
     /// </summary>
     /// <param name="reader">A Data Reader with the data</param>
     /// <param name="fileSetting">The source setting or the data that could be different than the setting for is writer</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>
-    ///   Number of records written
+    ///  Number of records written
     /// </returns>
     protected override void Write(IDataReader reader, Stream output, CancellationToken cancellationToken)
     {
       Contract.Assume(!string.IsNullOrEmpty(m_CsvFile.FullPath));
 
       using (var writer = new StreamWriter(output,
-        EncodingHelper.GetEncoding(m_CsvFile.CodePageId, m_CsvFile.ByteOrderMark), 8192))
+       EncodingHelper.GetEncoding(m_CsvFile.CodePageId, m_CsvFile.ByteOrderMark), 8192))
       {
         DataReader2Stream(reader, writer, cancellationToken);
       }
@@ -200,13 +200,13 @@ namespace CsvTools
         {
           // Qualify the text if the delimiter is present, or if the text starts with the Qualifier
           qualifyThis = displayAs.Length > 0 && (displayAs.IndexOfAny(m_QualifyCharArray) > -1 ||
-                                                 displayAs[0].Equals(fileFormat.FieldQualifierChar) ||
-                                                 displayAs[0].Equals(' '));
+                              displayAs[0].Equals(fileFormat.FieldQualifierChar) ||
+                              displayAs[0].Equals(' '));
         }
         else
           // quality any text or something containing a Qualify Char
           qualifyThis = columnInfo.DataType == DataType.String || columnInfo.DataType == DataType.TextToHtml ||
-                        displayAs.IndexOfAny(m_QualifyCharArray) > -1;
+                 displayAs.IndexOfAny(m_QualifyCharArray) > -1;
       }
       if (m_FieldDelimiter != m_FieldDelimiterEscaped)
         displayAs = displayAs.Replace(m_FieldDelimiter, m_FieldDelimiterEscaped);

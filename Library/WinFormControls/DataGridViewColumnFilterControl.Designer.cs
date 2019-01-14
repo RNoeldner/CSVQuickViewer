@@ -44,7 +44,7 @@
       this.textBoxValue.Location = new System.Drawing.Point(105, 21);
       this.textBoxValue.Name = "textBoxValue";
       this.textBoxValue.Size = new System.Drawing.Size(116, 20);
-      this.textBoxValue.TabIndex = 0;
+      this.textBoxValue.TabIndex = 1;
       this.textBoxValue.Visible = false;
       this.textBoxValue.TextChanged += new System.EventHandler(this.FilterValueChanged);
       this.textBoxValue.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.HandleEnterKeyPress);
@@ -66,7 +66,7 @@
       this.comboBoxOperator.Location = new System.Drawing.Point(5, 21);
       this.comboBoxOperator.Name = "comboBoxOperator";
       this.comboBoxOperator.Size = new System.Drawing.Size(97, 21);
-      this.comboBoxOperator.TabIndex = 1;
+      this.comboBoxOperator.TabIndex = 0;
       this.comboBoxOperator.SelectedIndexChanged += new System.EventHandler(this.ComboBoxOperator_SelectedIndexChanged);
       this.comboBoxOperator.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.HandleEnterKeyPress);
       // 

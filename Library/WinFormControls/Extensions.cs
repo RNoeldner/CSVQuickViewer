@@ -196,26 +196,20 @@ namespace CsvTools
       return null;
     }
 
-    public static void LoadWindowState(this Form form, Rectangle windowPosition, FormWindowState windowState)
+    public static void LoadWindowState(this Form form, WindowState windowPosition)
     {
-      if (windowPosition != Rectangle.Empty)
-      {
-        form.StartPosition = FormStartPosition.Manual;
+      if (windowPosition == null || windowPosition.Width == 0 || windowPosition.Height == 0)
+        return;
+      form.StartPosition = FormStartPosition.Manual;
 
-        var screen = Screen.FromRectangle(windowPosition);
-        var width = Math.Min(windowPosition.Width, screen.WorkingArea.Width);
-        var height = Math.Min(windowPosition.Height, screen.WorkingArea.Height);
-        var left = Math.Min(screen.WorkingArea.Right - width, Math.Max(windowPosition.Left, screen.WorkingArea.Left));
-        var top = Math.Min(screen.WorkingArea.Bottom - height, Math.Max(windowPosition.Top, screen.WorkingArea.Top));
+      var screen = Screen.FromRectangle(new Rectangle(windowPosition.Left, windowPosition.Top, windowPosition.Width, windowPosition.Height));
+      var width = Math.Min(windowPosition.Width, screen.WorkingArea.Width);
+      var height = Math.Min(windowPosition.Height, screen.WorkingArea.Height);
+      var left = Math.Min(screen.WorkingArea.Right - width, Math.Max(windowPosition.Left, screen.WorkingArea.Left));
+      var top = Math.Min(screen.WorkingArea.Bottom - height, Math.Max(windowPosition.Top, screen.WorkingArea.Top));
 
-        form.DesktopBounds = new Rectangle(left, top, width, height);
-        form.WindowState = windowState;
-      }
-      else
-      {
-        form.WindowState = FormWindowState.Normal;
-        form.StartPosition = FormStartPosition.WindowsDefaultBounds;
-      }
+      form.DesktopBounds = new Rectangle(left, top, width, height);
+      form.WindowState = (FormWindowState)windowPosition.State;
     }
 
     /// <summary>
@@ -264,30 +258,29 @@ namespace CsvTools
         action();
     }
 
-    public static Tuple<Rectangle, FormWindowState> StoreWindowState(this Form form)
+    public static WindowState StoreWindowState(this Form form)
     {
       try
       {
         var windowPosition = form.DesktopBounds;
         var windowState = form.WindowState;
         // Get the original WindowPosition in case of maximize or minimize
-        if (windowState == FormWindowState.Normal)
-          return new Tuple<Rectangle, FormWindowState>(windowPosition, windowState);
-        var oldVis = form.Visible;
-        form.Visible = false;
-        form.WindowState = FormWindowState.Normal;
-        windowPosition = form.DesktopBounds;
-        form.WindowState = windowState;
-        form.Visible = oldVis;
-
-        return new Tuple<Rectangle, FormWindowState>(windowPosition, windowState);
+        if (windowState != FormWindowState.Normal)
+        {
+          var oldVis = form.Visible;
+          form.Visible = false;
+          form.WindowState = FormWindowState.Normal;
+          windowPosition = form.DesktopBounds;
+          form.WindowState = windowState;
+          form.Visible = oldVis;
+        }
+        return new WindowState { Left = windowPosition.Left, Top = windowPosition.Top, Height = windowPosition.Height, Width = windowPosition.Width, State = (int)windowState };
       }
       catch
       {
         return null;
       }
     }
-
     /// <summary>
     ///   Updates the list view column format.
     /// </summary>

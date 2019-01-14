@@ -113,7 +113,7 @@ namespace CsvTools.Tests
       {
         FileName = Path.Combine(m_ApplicationDirectory, "CSVTestEmpty.txt"),
         HasFieldHeader = true
-      }, false, null).ToArray();
+      }, false, true, null).ToArray();
       Assert.AreEqual(0, headers.Length);
     }
 
@@ -124,7 +124,7 @@ namespace CsvTools.Tests
       setting.FileName = Path.Combine(m_ApplicationDirectory, "BasicCSV.txt");
       setting.FileFormat.FieldDelimiter = ",";
       setting.HasFieldHeader = true;
-      var headers = CsvHelper.GetColumnHeader(setting, false, null).ToArray();
+      var headers = CsvHelper.GetColumnHeader(setting, false,true, null).ToArray();
       Assert.AreEqual(6, headers.Length);
       Assert.AreEqual("ID", headers[0]);
       Assert.AreEqual("IsNativeLang", headers[5]);
@@ -139,7 +139,7 @@ namespace CsvTools.Tests
         HasFieldHeader = false
       };
 
-      Assert.AreEqual("Column1", CsvHelper.GetColumnHeader(setting, false, null).First());
+      Assert.AreEqual("Column1", CsvHelper.GetColumnHeader(setting, false, true, null).First());
     }
 
     [TestMethod]

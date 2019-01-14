@@ -29,8 +29,7 @@ namespace CsvTools
   {
     private int m_CheckedRecords = 30000;
     private bool m_CheckNamedDates = true;
-    private bool m_DateParts;
-    private string m_DateTimeValue;
+    private bool m_DateParts;    
     private bool m_DectectNumbers = true;
     private bool m_DectectPercentage = true;
     private bool m_DetectBoolean = true;
@@ -76,23 +75,7 @@ namespace CsvTools
         NotifyPropertyChanged(nameof(CheckNamedDates));
       }
     }
-
-    /// <summary>
-    ///   List of text to be check trying to determine a date
-    /// </summary>
-    [DefaultValue(null)]
-    [XmlElement]
-    public virtual string DateTimeValue
-    {
-      get => m_DateTimeValue;
-
-      set
-      {
-        if (m_DateTimeValue == value) return;
-        m_DateTimeValue = value;
-        NotifyPropertyChanged(nameof(DateTimeValue));
-      }
-    }
+   
 
     /// <summary>
     ///   If set to <c>True</c> values are checked if they could be Numeric
@@ -330,8 +313,7 @@ namespace CsvTools
         return;
 
       other.CheckedRecords = m_CheckedRecords;
-      other.CheckNamedDates = m_CheckNamedDates;
-      other.DateTimeValue = m_DateTimeValue;
+      other.CheckNamedDates = m_CheckNamedDates;      
       other.DectectNumbers = m_DectectNumbers;
       other.DectectPercentage = m_DectectPercentage;
       other.DetectBoolean = m_DetectBoolean;
@@ -357,8 +339,7 @@ namespace CsvTools
       if (other is null) return false;
       if (ReferenceEquals(this, other)) return true;
       return m_CheckedRecords == other.m_CheckedRecords && m_CheckNamedDates == other.m_CheckNamedDates &&
-             m_DateParts == other.m_DateParts &&
-             string.Equals(m_DateTimeValue, other.m_DateTimeValue, StringComparison.Ordinal) &&
+             m_DateParts == other.m_DateParts &&             
              m_DectectNumbers == other.m_DectectNumbers && m_DectectPercentage == other.m_DectectPercentage &&
              m_DetectBoolean == other.m_DetectBoolean && m_DetectDateTime == other.m_DetectDateTime &&
              m_DetectGuid == other.m_DetectGuid &&

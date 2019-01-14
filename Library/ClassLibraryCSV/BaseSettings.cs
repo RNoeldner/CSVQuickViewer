@@ -28,8 +28,8 @@ namespace CsvTools
 {
   // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
   /// <summary>
-  ///   Abstract calls containing the basic setting for an IFileSetting if contains <see cref="Column" />,
-  ///   <see cref="Mapping" /> and <see cref="FileFormat" />
+  ///  Abstract calls containing the basic setting for an IFileSetting if contains <see cref="Column" />,
+  ///  <see cref="Mapping" /> and <see cref="FileFormat" />
   /// </summary>
 #pragma warning disable CS0659
 
@@ -74,16 +74,20 @@ namespace CsvTools
     private bool m_SkipEmptyLines = true;
 
     /// <summary>
-    ///   Initializes a new instance of the <see cref="BaseSettings" /> class.
+    ///  Initializes a new instance of the <see cref="BaseSettings" /> class.
     /// </summary>
     /// <param name="fileName">The filename.</param>
     protected BaseSettings(string fileName) : this()
     {
       FileName = fileName;
+       PropertyChangedString += delegate (object sender, PropertyChangedEventArgs<string> e)
+        {
+          if (e.PropertyName == nameof(ID) && !string.IsNullOrEmpty(e.OldValue)) ApplicationSetting.FlushSQLResultByTable(e.OldValue);
+        };
     }
 
     /// <summary>
-    ///   Initializes a new instance of the <see cref="BaseSettings" /> class.
+    ///  Initializes a new instance of the <see cref="BaseSettings" /> class.
     /// </summary>
     protected BaseSettings()
     {
@@ -98,22 +102,22 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets a value indicating whether field mapping specified.
+    ///  Gets a value indicating whether field mapping specified.
     /// </summary>
     /// <value>
-    ///   <c>true</c> if field mapping is specified; otherwise, <c>false</c>.
+    ///  <c>true</c> if field mapping is specified; otherwise, <c>false</c>.
     /// </value>
     /// <remarks>
-    ///   Used for XML Serialization
+    ///  Used for XML Serialization
     /// </remarks>
     [XmlIgnore]
     public virtual bool ColumnMappingSpecified => m_ColumnMapping.Count > 0;
 
     /// <summary>
-    ///   Gets a value indicating whether column format specified.
+    ///  Gets a value indicating whether column format specified.
     /// </summary>
     /// <value>
-    ///   <c>true</c> if column format specified; otherwise, <c>false</c>.
+    ///  <c>true</c> if column format specified; otherwise, <c>false</c>.
     /// </value>
     [XmlIgnore]
     public virtual bool ColumnSpecified => m_Column.Count > 0;
@@ -125,25 +129,25 @@ namespace CsvTools
     public ICollection<IFileSetting> SourceFileSettings { get; set; }
 
     /// <summary>
-    ///   Gets a value indicating whether FileFormat is specified.
+    ///  Gets a value indicating whether FileFormat is specified.
     /// </summary>
     /// <value>
-    ///   <c>true</c> if specified; otherwise, <c>false</c>.
+    ///  <c>true</c> if specified; otherwise, <c>false</c>.
     /// </value>
     /// <remarks>
-    ///   Used for XML Serialization
+    ///  Used for XML Serialization
     /// </remarks>
     [XmlIgnore]
     public virtual bool FileFormatSpecified => !m_FileFormat.Equals(new FileFormat());
 
     /// <summary>
-    ///   Gets a value indicating whether FileLastWriteTimeUtc is specified.
+    ///  Gets a value indicating whether FileLastWriteTimeUtc is specified.
     /// </summary>
     /// <value>
-    ///   <c>true</c> if specified; otherwise, <c>false</c>.
+    ///  <c>true</c> if specified; otherwise, <c>false</c>.
     /// </value>
     /// <remarks>
-    ///   Used for XML Serialization
+    ///  Used for XML Serialization
     /// </remarks>
     [XmlIgnore]
     public virtual bool FileLastWriteTimeUtcSpecified => m_FileLastWriteTimeUtc != DateTime.MinValue;
@@ -158,12 +162,12 @@ namespace CsvTools
 
         // In case the individual passphrase matches the general Passphrase do not store it
         return ApplicationSetting.ToolSetting.PGPInformation.AllowSavingPassphrase &&
-               !m_Passphrase.Equals(ApplicationSetting.ToolSetting.PGPInformation.EncryptedPassphase);
+            !m_Passphrase.Equals(ApplicationSetting.ToolSetting.PGPInformation.EncryptedPassphase);
       }
     }
 
     /// <summary>
-    ///   Gets or sets the name of the file.
+    ///  Gets or sets the name of the file.
     /// </summary>
     /// <value>The name of the file.</value>
     [XmlAttribute]
@@ -182,7 +186,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets or sets the name of the file.
+    ///  Gets or sets the name of the file.
     /// </summary>
     /// <value>The name of the file.</value>
     [XmlAttribute]
@@ -201,10 +205,10 @@ namespace CsvTools
     [XmlIgnore] public virtual bool SamplesSpecified => Samples.Count > 0;
 
     /// <summary>
-    ///   Utility calls to get or set the SQL Statement as CDataSection
+    ///  Utility calls to get or set the SQL Statement as CDataSection
     /// </summary>
     [SuppressMessage("Microsoft.Design", "CA1059:MembersShouldNotExposeCertainConcreteTypes", MessageId =
-      "System.Xml.XmlNode")]
+     "System.Xml.XmlNode")]
     [SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public virtual methods", MessageId = "0")]
     [DefaultValue("")]
     public virtual XmlCDataSection SqlStatementCData
@@ -218,13 +222,13 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets a value indicating whether SqlStatementCData is specified.
+    ///  Gets a value indicating whether SqlStatementCData is specified.
     /// </summary>
     /// <value>
-    ///   <c>true</c> if specified; otherwise, <c>false</c>.
+    ///  <c>true</c> if specified; otherwise, <c>false</c>.
     /// </value>
     /// <remarks>
-    ///   Used for XML Serialization
+    ///  Used for XML Serialization
     /// </remarks>
     [XmlIgnore]
     public virtual bool SqlStatementCDataSpecified => !string.IsNullOrEmpty(SqlStatement);
@@ -232,8 +236,8 @@ namespace CsvTools
     /// <summary>Indicates whether the current object is equal to another object of the same type.</summary>
     /// <param name="other">An object to compare with this object.</param>
     /// <returns>
-    ///   <see langword="true" /> if the current object is equal to the <paramref name="other" /> parameter; otherwise,
-    ///   <see langword="false" />.
+    ///  <see langword="true" /> if the current object is equal to the <paramref name="other" /> parameter; otherwise,
+    ///  <see langword="false" />.
     /// </returns>
     public bool Equals(BaseSettings other)
     {
@@ -246,51 +250,51 @@ namespace CsvTools
           return false;
       }
       return string.Equals(other.TemplateName, m_TemplateName, StringComparison.OrdinalIgnoreCase) &&
-             other.SkipRows == m_SkipRows &&
-             other.IsEnabled == m_IsEnabled &&
-             other.TreatNBSPAsSpace == m_TreatNbspAsSpace &&
-             string.Equals(other.FileName, m_FileName, StringComparison.OrdinalIgnoreCase) &&
-             other.DisplayStartLineNo == m_DisplayStartLineNo &&
-             other.DisplayEndLineNo == m_DisplayEndLineNo &&
-             other.HasFieldHeader == m_HasFieldHeader &&
-             other.InOverview == m_InOverview &&
-             other.Validate == m_Validate &&
-             other.TrimmingOption == TrimmingOption &&
-             other.ConsecutiveEmptyRows == m_ConsecutiveEmptyRows &&
-             string.Equals(other.TreatTextAsNull, m_TreatTextAsNull, StringComparison.OrdinalIgnoreCase) &&
-             other.DisplayRecordNo == m_DisplayRecordNo &&
-             other.RecordLimit == m_RecordLimit &&
-             other.ShowProgress == m_ShowProgress &&
-             string.Equals(other.ID, m_Id, StringComparison.OrdinalIgnoreCase) &&
-             other.FileFormat.Equals(m_FileFormat) &&
-             other.Passphrase.Equals(m_Passphrase) &&
-             other.Recipient.Equals(m_Recipient) &&
-             other.NumErrors == m_NumErrors &&
-             other.SkipEmptyLines == SkipEmptyLines &&
-             other.SkipDuplicateHeader == SkipDuplicateHeader &&
-             other.FileSize == FileSize &&
-             other.ReadToEndOfFile == ReadToEndOfFile &&
-             other.SQLTimeout == SQLTimeout &&
-             other.FileLastWriteTimeUtc == FileLastWriteTimeUtc &&
-             string.Equals(other.SqlStatement, SqlStatement, StringComparison.OrdinalIgnoreCase) &&
-             string.Equals(other.Footer, Footer, StringComparison.OrdinalIgnoreCase) &&
-             string.Equals(other.Header, Header, StringComparison.OrdinalIgnoreCase) &&
-             m_ColumnMapping.CollectionEqual(other.Mapping) && Samples.CollectionEqual(other.Samples) &&
-             Errors.CollectionEqual(other.Errors) && m_Column.CollectionEqual(other.Column);
+          other.SkipRows == m_SkipRows &&
+          other.IsEnabled == m_IsEnabled &&
+          other.TreatNBSPAsSpace == m_TreatNbspAsSpace &&
+          string.Equals(other.FileName, m_FileName, StringComparison.OrdinalIgnoreCase) &&
+          other.DisplayStartLineNo == m_DisplayStartLineNo &&
+          other.DisplayEndLineNo == m_DisplayEndLineNo &&
+          other.HasFieldHeader == m_HasFieldHeader &&
+          other.InOverview == m_InOverview &&
+          other.Validate == m_Validate &&
+          other.TrimmingOption == TrimmingOption &&
+          other.ConsecutiveEmptyRows == m_ConsecutiveEmptyRows &&
+          string.Equals(other.TreatTextAsNull, m_TreatTextAsNull, StringComparison.OrdinalIgnoreCase) &&
+          other.DisplayRecordNo == m_DisplayRecordNo &&
+          other.RecordLimit == m_RecordLimit &&
+          other.ShowProgress == m_ShowProgress &&
+          string.Equals(other.ID, m_Id, StringComparison.OrdinalIgnoreCase) &&
+          other.FileFormat.Equals(m_FileFormat) &&
+          other.Passphrase.Equals(m_Passphrase) &&
+          other.Recipient.Equals(m_Recipient) &&
+          other.NumErrors == m_NumErrors &&
+          other.SkipEmptyLines == SkipEmptyLines &&
+          other.SkipDuplicateHeader == SkipDuplicateHeader &&
+          other.FileSize == FileSize &&
+          other.ReadToEndOfFile == ReadToEndOfFile &&
+          other.SQLTimeout == SQLTimeout &&
+          other.FileLastWriteTimeUtc == FileLastWriteTimeUtc &&
+          string.Equals(other.SqlStatement, SqlStatement, StringComparison.OrdinalIgnoreCase) &&
+          string.Equals(other.Footer, Footer, StringComparison.OrdinalIgnoreCase) &&
+          string.Equals(other.Header, Header, StringComparison.OrdinalIgnoreCase) &&
+          m_ColumnMapping.CollectionEqual(other.Mapping) && Samples.CollectionEqual(other.Samples) &&
+          Errors.CollectionEqual(other.Errors) && m_Column.CollectionEqual(other.Column);
     }
 
     /// <summary>
-    ///   Occurs after a property value changes.
+    ///  Occurs after a property value changes.
     /// </summary>
     public virtual event PropertyChangedEventHandler PropertyChanged;
 
     /// <summary>
-    ///   Occurs when a string value property changed providing information on old and new value
+    ///  Occurs when a string value property changed providing information on old and new value
     /// </summary>
     public virtual event EventHandler<PropertyChangedEventArgs<string>> PropertyChangedString;
 
     /// <summary>
-    ///   Gets or sets the number consecutive empty rows that should finish a read
+    ///  Gets or sets the number consecutive empty rows that should finish a read
     /// </summary>
     /// <value>The consecutive empty rows.</value>
     [XmlAttribute]
@@ -310,10 +314,10 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets or sets the options for a column
+    ///  Gets or sets the options for a column
     /// </summary>
     /// <value>
-    ///   The column options
+    ///  The column options
     /// </value>
     [XmlElement("Format")]
     public virtual ObservableCollection<Column> Column
@@ -322,7 +326,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets or sets a value indicating whether to display end line numbers.
+    ///  Gets or sets a value indicating whether to display end line numbers.
     /// </summary>
     /// <value><c>true</c> if end line no should be displayed; otherwise, <c>false</c>.</value>
     [XmlElement]
@@ -340,9 +344,9 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets or sets a value indicating whether to display record no.
+    ///  Gets or sets a value indicating whether to display record no.
     /// </summary>
-    /// <value><c>true</c> if [display record no]; otherwise, <c>false</c>.</value>
+    /// <value><c>true</c> if record number should be displayed; otherwise, <c>false</c>.</value>
     [XmlElement]
     [DefaultValue(false)]
     public virtual bool DisplayRecordNo
@@ -358,7 +362,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets or sets a value indicating whether to display start line numbers
+    ///  Gets or sets a value indicating whether to display start line numbers
     /// </summary>
     /// <value><c>true</c> if start line no should be displayed; otherwise, <c>false</c>.</value>
     [XmlElement]
@@ -378,10 +382,10 @@ namespace CsvTools
     public ObservableCollection<SampleRecordEntry> Errors { get; } = new ObservableCollection<SampleRecordEntry>();
 
     /// <summary>
-    ///   Gets or sets the file format.
+    ///  Gets or sets the file format.
     /// </summary>
     /// <value>
-    ///   The file format.
+    ///  The file format.
     /// </value>
     [XmlElement]
     public virtual FileFormat FileFormat
@@ -391,7 +395,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   The UTC time the file was last written to
+    ///  The UTC time the file was last written to
     /// </summary>
     [XmlAttribute]
     public virtual DateTime FileLastWriteTimeUtc
@@ -407,10 +411,11 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets or sets the name of the file.
+    ///  Gets or sets the name of the file.
     /// </summary>
     /// <value>The name of the file.</value>
     [XmlAttribute]
+    [DefaultValue("")]
     public virtual string FileName
     {
       get => m_FileName;
@@ -431,9 +436,9 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets or sets the date the file when it was read
+    ///  Gets or sets the date the file when it was read
     /// </summary>
-    /// <value>The consecutive empty rows.</value>    
+    /// <value>The consecutive empty rows.</value>
     [XmlAttribute]
     [DefaultValue(0)]
     public virtual long FileSize
@@ -448,7 +453,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets or sets the Footer.
+    ///  Gets or sets the Footer.
     /// </summary>
     /// <value>The Footer for outbound data.</value>
     [DefaultValue("")]
@@ -481,7 +486,7 @@ namespace CsvTools
 
     /// <summary>
     /// As the data is loaded and not further validation is done this will be set to true
-    /// Once validation is happening and  validation errors are stored this is false again.
+    /// Once validation is happening and validation errors are stored this is false again.
     /// This is stored on FileSetting level even as it actually is used for determine
     /// th freshness of a loaded data in the validator, but there is not suitable data structure
     /// </summary>
@@ -490,10 +495,10 @@ namespace CsvTools
     public virtual bool RecentlyLoaded { get; set; } = false;
 
     /// <summary>
-    ///   Gets or sets a value indicating whether this instance has field header.
+    ///  Gets or sets a value indicating whether this instance has field header.
     /// </summary>
     /// <value>
-    ///   <c>true</c> if this instance has field header; otherwise, <c>false</c>.
+    ///  <c>true</c> if this instance has field header; otherwise, <c>false</c>.
     /// </value>
     [XmlAttribute]
     [DefaultValue(true)]
@@ -510,7 +515,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets or sets the Footer.
+    ///  Gets or sets the Footer.
     /// </summary>
     /// <value>The Footer for outbound data.</value>
     [DefaultValue("")]
@@ -528,10 +533,10 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets or sets the ID.
+    ///  Gets or sets the ID.
     /// </summary>
     /// <value>
-    ///   The ID.
+    ///  The ID.
     /// </value>
     [XmlAttribute]
     [DefaultValue("")]
@@ -554,7 +559,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets or sets a value indicating whether this instance is critical.
+    ///  Gets or sets a value indicating whether this instance is critical.
     /// </summary>
     /// <value><c>true</c> if this file is critical for the export; otherwise, <c>false</c>.</value>
     [XmlAttribute(AttributeName = "IsCritical")]
@@ -572,7 +577,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   The identified to find this specific instance
+    ///  The identified to find this specific instance
     /// </summary>
     [XmlIgnore]
     public virtual string InternalID
@@ -588,7 +593,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets or sets a value indicating whether this instance is enabled.
+    ///  Gets or sets a value indicating whether this instance is enabled.
     /// </summary>
     /// <value><c>true</c> if this file is enabled; otherwise, <c>false</c>.</value>
     [XmlAttribute]
@@ -606,7 +611,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets or sets the field mapping.
+    ///  Gets or sets the field mapping.
     /// </summary>
     /// <value>The field mapping.</value>
     [XmlElement]
@@ -616,10 +621,10 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets or sets the ID.
+    ///  Gets or sets the ID.
     /// </summary>
     /// <value>
-    ///   The ID.
+    ///  The ID.
     /// </value>
     [XmlAttribute]
     [DefaultValue(-1)]
@@ -643,7 +648,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Pass phrase for Decryption
+    ///  Pass phrase for Decryption
     /// </summary>
     [XmlAttribute]
     [DefaultValue("")]
@@ -660,14 +665,14 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets or sets a value indicating whether to display end line numbers.
+    ///  Gets or sets a value indicating whether to display end line numbers.
     /// </summary>
     /// <value><c>true</c> if end line no should be displayed; otherwise, <c>false</c>.</value>
     [XmlIgnore]
     public virtual bool ReadToEndOfFile { get; set; }
 
     /// <summary>
-    ///   Recipient for a outbound PGP encryption
+    ///  Recipient for a outbound PGP encryption
     /// </summary>
     [XmlAttribute]
     [DefaultValue("")]
@@ -684,7 +689,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets or sets the record limit.
+    ///  Gets or sets the record limit.
     /// </summary>
     /// <value>The record limit.</value>
     [XmlElement]
@@ -704,10 +709,10 @@ namespace CsvTools
     public ObservableCollection<SampleRecordEntry> Samples { get; } = new ObservableCollection<SampleRecordEntry>();
 
     /// <summary>
-    ///   Gets or sets a value indicating whether to show progress.
+    ///  Gets or sets a value indicating whether to show progress.
     /// </summary>
     /// <value>
-    ///   <c>true</c> if progress should be shown; otherwise, <c>false</c>.
+    ///  <c>true</c> if progress should be shown; otherwise, <c>false</c>.
     /// </value>
     [XmlAttribute]
     [DefaultValue(true)]
@@ -724,7 +729,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets or sets a value indicating if the reader will skip empty lines.
+    ///  Gets or sets a value indicating if the reader will skip empty lines.
     /// </summary>
     /// <value>if <c>true</c> the reader will skip empty lines.</value>
     [XmlAttribute]
@@ -754,7 +759,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets or sets the number of rows that should be skipped at the start of the file
+    ///  Gets or sets the number of rows that should be skipped at the start of the file
     /// </summary>
     /// <value>The skip rows.</value>
     [XmlAttribute]
@@ -773,7 +778,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets or sets the SQL statement.
+    ///  Gets or sets the SQL statement.
     /// </summary>
     /// <value>The SQL statement.</value>
     [XmlIgnore]
@@ -800,7 +805,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets or sets the SQL statement.
+    ///  Gets or sets the SQL statement.
     /// </summary>
     /// <value>The SQL statement.</value>
     [XmlAttribute]
@@ -818,7 +823,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets or sets the template used for the file
+    ///  Gets or sets the template used for the file
     /// </summary>
     /// <value>The connection string.</value>
     [XmlElement]
@@ -841,7 +846,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets or sets a value indicating whether to treat NBSP as space.
+    ///  Gets or sets a value indicating whether to treat NBSP as space.
     /// </summary>
     /// <value><c>true</c> if NBSP should be treated as space; otherwise, <c>false</c>.</value>
     [XmlAttribute]
@@ -859,7 +864,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets or sets a value indicating whether this instance should treat any text listed here as Null
+    ///  Gets or sets a value indicating whether this instance should treat any text listed here as Null
     /// </summary>
     [XmlAttribute]
     [DefaultValue("NULL")]
@@ -880,10 +885,10 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets or sets a value indicating whether this instance should treat the text "NULL" as Null
+    ///  Gets or sets a value indicating whether this instance should treat the text "NULL" as Null
     /// </summary>
     /// <value>
-    ///   <c>true</c> if any occurrence of "Null" should be treated as a Null; otherwise, <c>false</c>.
+    ///  <c>true</c> if any occurrence of "Null" should be treated as a Null; otherwise, <c>false</c>.
     /// </value>
     [XmlAttribute]
     [DefaultValue(true)]
@@ -908,7 +913,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets or sets a value indicating of and if training and leading spaces should be trimmed.
+    ///  Gets or sets a value indicating of and if training and leading spaces should be trimmed.
     /// </summary>
     /// <value><c>true</c> ; otherwise, <c>false</c>.</value>
     [XmlAttribute]
@@ -916,10 +921,10 @@ namespace CsvTools
     public virtual TrimmingOption TrimmingOption { get; set; } = TrimmingOption.Unquoted;
 
     /// <summary>
-    ///   Gets or sets a value indicating whether this instance is imported
+    ///  Gets or sets a value indicating whether this instance is imported
     /// </summary>
     /// <remarks>
-    ///   Only used in CSV Validator to distinguish between imported files and extracts for reference checks
+    ///  Only used in CSV Validator to distinguish between imported files and extracts for reference checks
     /// </remarks>
     /// <value><c>true</c> if this file is imported; otherwise, <c>false</c>.</value>
     [XmlAttribute(AttributeName = "IsImported")]
@@ -937,7 +942,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets or sets the <see cref="ValidationResult" />
+    ///  Gets or sets the <see cref="ValidationResult" />
     /// </summary>
     public ValidationResult ValidationResult
     {
@@ -951,7 +956,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Add a Fields mapping
+    ///  Add a Fields mapping
     /// </summary>
     /// <param name="fieldMapping">The field mapping.</param>
     /// <returns>true if the destination was changed</returns>
@@ -964,7 +969,7 @@ namespace CsvTools
       foreach (var x in m_ColumnMapping)
       {
         if (!x.FileColumn.Equals(fieldMapping.FileColumn, StringComparison.OrdinalIgnoreCase) ||
-            !x.TemplateField.Equals(fieldMapping.TemplateField, StringComparison.OrdinalIgnoreCase)) continue;
+          !x.TemplateField.Equals(fieldMapping.TemplateField, StringComparison.OrdinalIgnoreCase)) continue;
         found = true;
         break;
       }
@@ -976,13 +981,13 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Clones this instance.
+    ///  Clones this instance.
     /// </summary>
     /// <returns></returns>
     public abstract IFileSetting Clone();
 
     /// <summary>
-    ///   Adds the <see cref="Column" /> format to the column list if it does not exist yet
+    ///  Adds the <see cref="Column" /> format to the column list if it does not exist yet
     /// </summary>
     /// <remarks>If the column name already exist it does nothing but return the already defined column</remarks>
     /// <param name="columnFormat">The column format.</param>
@@ -996,7 +1001,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Copies all values to other instance
+    ///  Copies all values to other instance
     /// </summary>
     /// <param name="other">The other.</param>
     public virtual void CopyTo(IFileSetting other)
@@ -1051,7 +1056,7 @@ namespace CsvTools
     public abstract bool Equals(IFileSetting other);
 
     /// <summary>
-    ///   Gets the <see cref="CsvTools.Column" /> with the specified field name.
+    ///  Gets the <see cref="CsvTools.Column" /> with the specified field name.
     /// </summary>
     /// <param name="fieldName"></param>
     /// <returns></returns>
@@ -1065,7 +1070,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets the <see cref="CsvTools.Mapping" /> with the specified source.
+    ///  Gets the <see cref="CsvTools.Mapping" /> with the specified source.
     /// </summary>
     /// <param name="columnName">Name of the file column</param>
     /// <returns>Return all FieldMapping for a column. There can be multiple</returns>
@@ -1081,7 +1086,7 @@ namespace CsvTools
     public abstract IFileWriter GetFileWriter(CancellationToken cancellationToken);
 
     /// <summary>
-    ///   Remove a Fields mapping.
+    ///  Remove a Fields mapping.
     /// </summary>
     /// <param name="source">The source name.</param>
     public virtual void RemoveMapping(string source)
@@ -1130,51 +1135,51 @@ namespace CsvTools
     /// <returns>A hash code for the current object.</returns>
     protected int GetBaseHashCode()
     {
-      unchecked
-      {
-        var hashCode = m_ConsecutiveEmptyRows;
-        hashCode = (hashCode * 397) ^ m_Column.CollectionHashCode();
-        hashCode = (hashCode * 397) ^ m_ColumnMapping.CollectionHashCode();
-        hashCode = (hashCode * 397) ^ m_FileFormat.GetHashCode();
-        hashCode = (hashCode * 397) ^ m_DisplayEndLineNo.GetHashCode();
-        hashCode = (hashCode * 397) ^ m_DisplayRecordNo.GetHashCode();
-        hashCode = (hashCode * 397) ^ m_DisplayStartLineNo.GetHashCode();
-        hashCode = (hashCode * 397) ^ m_FileLastWriteTimeUtc.GetHashCode();
-        hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(m_FileName);
-        hashCode = (hashCode * 397) ^ m_FileSize.GetHashCode();
-        hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(m_Footer);
-        hashCode = (hashCode * 397) ^ m_HasFieldHeader.GetHashCode();
-        hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(m_Header);
-        hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(m_Id);
-        hashCode = (hashCode * 397) ^ m_InOverview.GetHashCode();
-        hashCode = (hashCode * 397) ^ m_IsEnabled.GetHashCode();
-        hashCode = (hashCode * 397) ^ m_NumErrors;
-        hashCode = (hashCode * 397) ^ m_Passphrase.GetHashCode();
-        hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(m_Recipient);
-        hashCode = (hashCode * 397) ^ (int)m_RecordLimit;
-        hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(m_RemoteFileName);
-        hashCode = (hashCode * 397) ^ m_ShowProgress.GetHashCode();
-        hashCode = (hashCode * 397) ^ m_SkipRows;
-        hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(m_SourceSetting);
-        hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(m_SqlStatement);
-        hashCode = (hashCode * 397) ^ m_SqlTimeout;
-        hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(m_TemplateName);
-        hashCode = (hashCode * 397) ^ m_TreatNbspAsSpace.GetHashCode();
-        hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(m_TreatTextAsNull);
-        hashCode = (hashCode * 397) ^ m_Validate.GetHashCode();
-        hashCode = (hashCode * 397) ^ (m_ValidationResult?.GetHashCode() ?? 0);
-        hashCode = (hashCode * 397) ^ Errors.CollectionHashCode();
-        hashCode = (hashCode * 397) ^ ReadToEndOfFile.GetHashCode();
-        hashCode = (hashCode * 397) ^ Samples.CollectionHashCode();
-        hashCode = (hashCode * 397) ^ SkipEmptyLines.GetHashCode();
-        hashCode = (hashCode * 397) ^ (int)TrimmingOption;
-        return hashCode;
-      }
+     unchecked
+     {
+      var hashCode = m_ConsecutiveEmptyRows;
+      hashCode = (hashCode * 397) ^ m_Column.CollectionHashCode();
+      hashCode = (hashCode * 397) ^ m_ColumnMapping.CollectionHashCode();
+      hashCode = (hashCode * 397) ^ m_FileFormat.GetHashCode();
+      hashCode = (hashCode * 397) ^ m_DisplayEndLineNo.GetHashCode();
+      hashCode = (hashCode * 397) ^ m_DisplayRecordNo.GetHashCode();
+      hashCode = (hashCode * 397) ^ m_DisplayStartLineNo.GetHashCode();
+      hashCode = (hashCode * 397) ^ m_FileLastWriteTimeUtc.GetHashCode();
+      hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(m_FileName);
+      hashCode = (hashCode * 397) ^ m_FileSize.GetHashCode();
+      hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(m_Footer);
+      hashCode = (hashCode * 397) ^ m_HasFieldHeader.GetHashCode();
+      hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(m_Header);
+      hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(m_Id);
+      hashCode = (hashCode * 397) ^ m_InOverview.GetHashCode();
+      hashCode = (hashCode * 397) ^ m_IsEnabled.GetHashCode();
+      hashCode = (hashCode * 397) ^ m_NumErrors;
+      hashCode = (hashCode * 397) ^ m_Passphrase.GetHashCode();
+      hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(m_Recipient);
+      hashCode = (hashCode * 397) ^ (int)m_RecordLimit;
+      hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(m_RemoteFileName);
+      hashCode = (hashCode * 397) ^ m_ShowProgress.GetHashCode();
+      hashCode = (hashCode * 397) ^ m_SkipRows;
+      hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(m_SourceSetting);
+      hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(m_SqlStatement);
+      hashCode = (hashCode * 397) ^ m_SqlTimeout;
+      hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(m_TemplateName);
+      hashCode = (hashCode * 397) ^ m_TreatNbspAsSpace.GetHashCode();
+      hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(m_TreatTextAsNull);
+      hashCode = (hashCode * 397) ^ m_Validate.GetHashCode();
+      hashCode = (hashCode * 397) ^ (m_ValidationResult?.GetHashCode() ?? 0);
+      hashCode = (hashCode * 397) ^ Errors.CollectionHashCode();
+      hashCode = (hashCode * 397) ^ ReadToEndOfFile.GetHashCode();
+      hashCode = (hashCode * 397) ^ Samples.CollectionHashCode();
+      hashCode = (hashCode * 397) ^ SkipEmptyLines.GetHashCode();
+      hashCode = (hashCode * 397) ^ (int)TrimmingOption;
+      return hashCode;
+     }
     }
     */
 
     /// <summary>
-    ///   Notifies the completed property changed.
+    ///  Notifies the completed property changed.
     /// </summary>
     /// <param name="info">The info.</param>
     public virtual void NotifyPropertyChanged(string info)

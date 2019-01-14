@@ -29,38 +29,59 @@ namespace CsvTools
   /// </remarks>
   public class HTMLStyle
   {
-    public string TabTableToHTML(string text, bool firstLineHeader, bool addTable)
+    /// <summary>
+    ///   Adds a HTML TD cell.
+    /// </summary>
+    /// <param name="sbHtml">A StringBuilder for the HTML.</param>
+    /// <param name="tdTemplate">The table cell template.</param>
+    /// <param name="regularText">The regular test for the cell.</param>
+    /// <param name="errorText">Additional information displayed underneath.</param>
+    /// <param name="addErrorInfo">if set to <c>true</c> add the errorText.</param>
+    public static void AddHtmlCell(StringBuilder sbHtml, string tdTemplate, string regularText, string errorText,
+      bool addErrorInfo)
     {
-      var sbHtml = new StringBuilder();
-      if (addTable)
-        sbHtml.Append(TableOpen);
-
-      int lineNo = 0;
-      foreach (string line in text.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries))
+      if (sbHtml == null)
+        return;
+      if (!addErrorInfo || string.IsNullOrEmpty(errorText))
       {
-        lineNo++;
-        if (lineNo == 1 && firstLineHeader)
-        {
-          sbHtml.Append(TROpenAlt);
-          foreach (string column in line.Split(new[] { '\t' }, StringSplitOptions.None))
-          {
-            sbHtml.Append(HTMLStyle.AddTd(TH, column));
-          }
-          sbHtml.AppendLine(TRClose);
-        }
-        else
-        {
-          sbHtml.Append(TROpen);
-          foreach (string column in line.Split(new[] { '\t' }, StringSplitOptions.None))
-          {
-            sbHtml.Append(HTMLStyle.AddTd(TD, column));
-          }
-          sbHtml.AppendLine(TRClose);
-        }
+        sbHtml.Append(AddTd(tdTemplate, regularText));
+        return;
       }
-      if (addTable)
-        sbHtml.Append(TableClose);
-      return sbHtml.ToString();
+
+      var errorsAndWarings = errorText.GetErrorsAndWarings();
+      if (string.IsNullOrEmpty(regularText))
+      {
+        if (errorsAndWarings.Item2.Length == 0 && errorsAndWarings.Item1.Length > 0)
+        {
+          sbHtml.Append(string.Format(tdTemplate, AddTd(c_Error, errorsAndWarings.Item1)));
+          return;
+        }
+
+        if (errorsAndWarings.Item2.Length > 0 && errorsAndWarings.Item1.Length == 0)
+        {
+          sbHtml.Append(string.Format(tdTemplate, AddTd(c_Warning, errorsAndWarings.Item2)));
+          return;
+        }
+
+        sbHtml.Append(string.Format(tdTemplate, AddTd(c_ErrorWarning, errorsAndWarings.Item1, errorsAndWarings.Item2)));
+      }
+      else
+      {
+        if (errorsAndWarings.Item2.Length == 0 && errorsAndWarings.Item1.Length > 0)
+        {
+          sbHtml.Append(string.Format(tdTemplate, AddTd(c_ValueError, regularText, errorsAndWarings.Item1)));
+          return;
+        }
+
+        if (errorsAndWarings.Item2.Length > 0 && errorsAndWarings.Item1.Length == 0)
+        {
+          sbHtml.Append(string.Format(tdTemplate, AddTd(c_ValueWarning, regularText, errorsAndWarings.Item2)));
+          return;
+        }
+
+        sbHtml.Append(string.Format(tdTemplate,
+          AddTd(c_ValueErrorWarning, regularText, errorsAndWarings.Item1, errorsAndWarings.Item2)));
+      }
     }
 
     /// <summary>
@@ -183,6 +204,35 @@ namespace CsvTools
     }
 
     /// <summary>
+    ///   Get the JSON element / variable name
+    /// </summary>
+    /// <param name="text">The text.</param>
+    /// <returns></returns>
+    public static string JsonElementName(string text)
+    {
+      Contract.Ensures(Contract.Result<string>() != null);
+      var allowed = StringUtils.ProcessByCategory(text, x => x == UnicodeCategory.TitlecaseLetter ||
+                                                             x == UnicodeCategory.LowercaseLetter ||
+                                                             x == UnicodeCategory.UppercaseLetter ||
+                                                             x == UnicodeCategory.ModifierLetter ||
+                                                             x == UnicodeCategory.OtherLetter ||
+                                                             x == UnicodeCategory.LetterNumber ||
+                                                             x == UnicodeCategory.NonSpacingMark ||
+                                                             x == UnicodeCategory.DecimalDigitNumber ||
+                                                             x == UnicodeCategory.ConnectorPunctuation);
+      if (allowed.Length <= 0) return allowed;
+      var oc = CharUnicodeInfo.GetUnicodeCategory(allowed[0]);
+      if (oc != UnicodeCategory.TitlecaseLetter
+          && oc != UnicodeCategory.LowercaseLetter
+          && oc != UnicodeCategory.UppercaseLetter
+          && oc != UnicodeCategory.ModifierLetter
+          && oc != UnicodeCategory.OtherLetter
+          && oc != UnicodeCategory.LetterNumber)
+        return "_" + allowed;
+      return allowed;
+    }
+
+    /// <summary>
     ///   Evaluates all characters in a string and returns a new string,
     ///   properly formatted for JSON compliance and bounded by double-quotes.
     /// </summary>
@@ -216,32 +266,19 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Get the JSON element / variable name
+    ///   Replace special characters from an HTML text
     /// </summary>
-    /// <param name="text">The text.</param>
-    /// <returns></returns>
-    public static string JsonElementName(string text)
+    /// <param name="text">The text possibly containing HTML codes.</param>
+    /// <returns>The same text with HTML Tags for linefeed, tab and quote</returns>
+    public static string TextToHtmlEncode(string text)
     {
-      Contract.Ensures(Contract.Result<string>() != null);
-      var allowed = StringUtils.ProcessByCategory(text, x => x == UnicodeCategory.TitlecaseLetter ||
-                                                             x == UnicodeCategory.LowercaseLetter ||
-                                                             x == UnicodeCategory.UppercaseLetter ||
-                                                             x == UnicodeCategory.ModifierLetter ||
-                                                             x == UnicodeCategory.OtherLetter ||
-                                                             x == UnicodeCategory.LetterNumber ||
-                                                             x == UnicodeCategory.NonSpacingMark ||
-                                                             x == UnicodeCategory.DecimalDigitNumber ||
-                                                             x == UnicodeCategory.ConnectorPunctuation);
-      if (allowed.Length <= 0) return allowed;
-      var oc = CharUnicodeInfo.GetUnicodeCategory(allowed[0]);
-      if (oc != UnicodeCategory.TitlecaseLetter
-          && oc != UnicodeCategory.LowercaseLetter
-          && oc != UnicodeCategory.UppercaseLetter
-          && oc != UnicodeCategory.ModifierLetter
-          && oc != UnicodeCategory.OtherLetter
-          && oc != UnicodeCategory.LetterNumber)
-        return "_" + allowed;
-      return allowed;
+      if (text == null)
+        return null;
+      if (text.StartsWith("<![CDATA[", StringComparison.OrdinalIgnoreCase) && text.EndsWith("]]>", StringComparison.OrdinalIgnoreCase))
+        return text.Substring(9, text.Length - 12);
+
+      return StringUtils.HandleCRLFCombinations(text, "<br>").Replace((char)0xA0, ' ').Replace('\t', ' ')
+        .Replace("  ", " ").Replace("  ", " ");
     }
 
     /// <summary>
@@ -269,77 +306,6 @@ namespace CsvTools
         return allowed;
 
       return "_" + allowed;
-    }
-
-    /// <summary>
-    ///   Replace special characters from an HTML text
-    /// </summary>
-    /// <param name="text">The text possibly containing HTML codes.</param>
-    /// <returns>The same text with HTML Tags for linefeed, tab and quote</returns>
-    public static string TextToHtmlEncode(string text)
-    {
-      if (text == null)
-        return null;
-      if (text.StartsWith("<![CDATA[", StringComparison.OrdinalIgnoreCase) && text.EndsWith("]]>", StringComparison.OrdinalIgnoreCase))
-        return text.Substring(9, text.Length - 12);
-
-      return StringUtils.HandleCRLFCombinations(text, "<br>").Replace((char)0xA0, ' ').Replace('\t', ' ')
-        .Replace("  ", " ").Replace("  ", " ");
-    }
-
-    /// <summary>
-    ///   Adds a HTML TD cell.
-    /// </summary>
-    /// <param name="sbHtml">A StringBuilder for the HTML.</param>
-    /// <param name="tdTemplate">The table cell template.</param>
-    /// <param name="regularText">The regular test for the cell.</param>
-    /// <param name="errorText">Additional information displayed underneath.</param>
-    /// <param name="addErrorInfo">if set to <c>true</c> add the errorText.</param>
-    public static void AddHtmlCell(StringBuilder sbHtml, string tdTemplate, string regularText, string errorText,
-      bool addErrorInfo)
-    {
-      if (sbHtml == null)
-        return;
-      if (!addErrorInfo || string.IsNullOrEmpty(errorText))
-      {
-        sbHtml.Append(AddTd(tdTemplate, regularText));
-        return;
-      }
-
-      var errorsAndWarings = errorText.GetErrorsAndWarings();
-      if (string.IsNullOrEmpty(regularText))
-      {
-        if (errorsAndWarings.Item2.Length == 0 && errorsAndWarings.Item1.Length > 0)
-        {
-          sbHtml.Append(string.Format(tdTemplate, AddTd(c_Error, errorsAndWarings.Item1)));
-          return;
-        }
-
-        if (errorsAndWarings.Item2.Length > 0 && errorsAndWarings.Item1.Length == 0)
-        {
-          sbHtml.Append(string.Format(tdTemplate, AddTd(c_Warning, errorsAndWarings.Item2)));
-          return;
-        }
-
-        sbHtml.Append(string.Format(tdTemplate, AddTd(c_ErrorWarning, errorsAndWarings.Item1, errorsAndWarings.Item2)));
-      }
-      else
-      {
-        if (errorsAndWarings.Item2.Length == 0 && errorsAndWarings.Item1.Length > 0)
-        {
-          sbHtml.Append(string.Format(tdTemplate, AddTd(c_ValueError, regularText, errorsAndWarings.Item1)));
-          return;
-        }
-
-        if (errorsAndWarings.Item2.Length > 0 && errorsAndWarings.Item1.Length == 0)
-        {
-          sbHtml.Append(string.Format(tdTemplate, AddTd(c_ValueWarning, regularText, errorsAndWarings.Item2)));
-          return;
-        }
-
-        sbHtml.Append(string.Format(tdTemplate,
-          AddTd(c_ValueErrorWarning, regularText, errorsAndWarings.Item1, errorsAndWarings.Item2)));
-      }
     }
 
     /// <summary>
@@ -380,6 +346,40 @@ namespace CsvTools
 
       return string.Format(CultureInfo.InvariantCulture, markerBlock, prefixLength, prefixLength + html.Length,
         startFragment, endFragment, source, html);
+    }
+
+    public string TabTableToHTML(string text, bool firstLineHeader, bool addTable)
+    {
+      var sbHtml = new StringBuilder();
+      if (addTable)
+        sbHtml.Append(TableOpen);
+
+      int lineNo = 0;
+      foreach (string line in text.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries))
+      {
+        lineNo++;
+        if (lineNo == 1 && firstLineHeader)
+        {
+          sbHtml.Append(TROpenAlt);
+          foreach (string column in line.Split(new[] { '\t' }, StringSplitOptions.None))
+          {
+            sbHtml.Append(HTMLStyle.AddTd(TH, column));
+          }
+          sbHtml.AppendLine(TRClose);
+        }
+        else
+        {
+          sbHtml.Append(TROpen);
+          foreach (string column in line.Split(new[] { '\t' }, StringSplitOptions.None))
+          {
+            sbHtml.Append(HTMLStyle.AddTd(TD, column));
+          }
+          sbHtml.AppendLine(TRClose);
+        }
+      }
+      if (addTable)
+        sbHtml.Append(TableClose);
+      return sbHtml.ToString();
     }
 
     #region Defaults

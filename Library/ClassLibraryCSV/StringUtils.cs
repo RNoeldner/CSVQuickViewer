@@ -46,9 +46,9 @@ namespace CsvTools
     /// </summary>
     /// <param name="columnName">The column name</param>
     /// <returns>The number of charters at the end that did match, 0 if it does not end on ID</returns>
-    public static int AssumeStingBasedOnColumnName(string columnName)
+    public static int AssumeIDColumn(string columnName)
     {
-      if (string.IsNullOrEmpty(columnName))
+      if (string.IsNullOrWhiteSpace(columnName))
         return 0;
 
       if (columnName.EndsWith(" Text", StringComparison.OrdinalIgnoreCase))
@@ -69,51 +69,22 @@ namespace CsvTools
       return 0;
     }
 
-    /// <summary>
-    /// Joins the strings
-    /// </summary>
-    /// <param name="parts">The parts to be joined.</param>
-    /// <param name="joinWith">The join with.</param>
-    ///<example>JoinParts(new [] {"My","","Test")=> My, Test</example>
-    /// <remarks>Any empty string will be ignored.</remarks>
-    /// <returns>A string</returns>
-    public static string Join(this IEnumerable<string> parts, string joinWith = ", ")
+    public static bool Contains(this string text, string toCheck, StringComparison comp)
     {
-      if (parts.IsEmpty())
-        return string.Empty;
-
-      var sb = new StringBuilder();
-      foreach (var part in parts)
-      {
-        if (string.IsNullOrEmpty(part)) continue;
-        if (sb.Length > 0)
-          sb.Append(joinWith);
-        sb.Append(part);
-      }
-      return sb.ToString();
+      return text?.IndexOf(toCheck, comp) >= 0;
     }
 
-    /// <summary>
-    /// Joins the strings
-    /// </summary>
-    /// <param name="parts">The parts to be joined.</param>
-    /// <param name="joinWith">The join with.</param>
-    ///<example>JoinParts(new [] {"My","","Test")=> My, Test</example>
-    /// <remarks>Any empty string will be ignored.</remarks>
-    /// <returns>A string</returns>
-    public static string Join(this IEnumerable<int> parts, string joinWith = ", ")
+    public static int CountOccurance(this string text, string pattern)
     {
-      if (parts.IsEmpty())
-        return string.Empty;
-
-      var sb = new StringBuilder();
-      foreach (var part in parts)
+      var count = 0;
+      var i = 0;
+      while ((i = text.IndexOf(pattern, i, StringComparison.OrdinalIgnoreCase)) != -1)
       {
-        if (sb.Length > 0)
-          sb.Append(joinWith);
-        sb.Append(part);
+        i += pattern.Length;
+        count++;
       }
-      return sb.ToString();
+
+      return count;
     }
 
     /// <summary>
@@ -204,6 +175,53 @@ namespace CsvTools
       text = text.Replace('\n', placeholerChar);
       // now replace this with the desired replace (no matter if string or char)
       return text.Replace(placeholerStr, replace);
+    }
+
+    /// <summary>
+    /// Joins the strings
+    /// </summary>
+    /// <param name="parts">The parts to be joined.</param>
+    /// <param name="joinWith">The join with.</param>
+    ///<example>JoinParts(new [] {"My","","Test")=> My, Test</example>
+    /// <remarks>Any empty string will be ignored.</remarks>
+    /// <returns>A string</returns>
+    public static string Join(this IEnumerable<string> parts, string joinWith = ", ")
+    {
+      if (parts.IsEmpty())
+        return string.Empty;
+
+      var sb = new StringBuilder();
+      foreach (var part in parts)
+      {
+        if (string.IsNullOrEmpty(part)) continue;
+        if (sb.Length > 0)
+          sb.Append(joinWith);
+        sb.Append(part);
+      }
+      return sb.ToString();
+    }
+
+    /// <summary>
+    /// Joins the strings
+    /// </summary>
+    /// <param name="parts">The parts to be joined.</param>
+    /// <param name="joinWith">The join with.</param>
+    ///<example>JoinParts(new [] {"My","","Test")=> My, Test</example>
+    /// <remarks>Any empty string will be ignored.</remarks>
+    /// <returns>A string</returns>
+    public static string Join(this IEnumerable<int> parts, string joinWith = ", ")
+    {
+      if (parts.IsEmpty())
+        return string.Empty;
+
+      var sb = new StringBuilder();
+      foreach (var part in parts)
+      {
+        if (sb.Length > 0)
+          sb.Append(joinWith);
+        sb.Append(part);
+      }
+      return sb.ToString();
     }
 
     /// <summary>
@@ -390,24 +408,6 @@ namespace CsvTools
 
       securePassword.MakeReadOnly();
       return securePassword;
-    }
-
-    public static bool Contains(this string text, string toCheck, StringComparison comp)
-    {
-      return text?.IndexOf(toCheck, comp) >= 0;
-    }
-
-    public static int CountOccurance(this string text, string pattern)
-    {
-      var count = 0;
-      var i = 0;
-      while ((i = text.IndexOf(pattern, i, StringComparison.OrdinalIgnoreCase)) != -1)
-      {
-        i += pattern.Length;
-        count++;
-      }
-
-      return count;
     }
   }
 }

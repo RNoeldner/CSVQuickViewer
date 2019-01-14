@@ -20,29 +20,71 @@ using System.Diagnostics.Contracts;
 namespace CsvTools
 {
   /// <summary>
-  ///   Static class to access application wide settings, currently HTMLStyle, FillGuessSetting and a ColumnHeaderCache
+  ///  Static class to access application wide settings, currently HTMLStyle, FillGuessSetting and a ColumnHeaderCache
   /// </summary>
   public static class ApplicationSetting
   {
-    private static IToolSetting m_ToolSetting = new DummyToolSetting();
-    private static Func<string, IDataReader> m_SQLDataReader;
     private static readonly FillGuessSettings m_FillGuessSettings = new FillGuessSettings();
     private static readonly HTMLStyle m_HTMLStyle = new HTMLStyle();
 
     private static Action<string, string, string, IProcessDisplay, bool> m_RemoteFileHandler =
-          delegate (string path, string fileName, string localName, IProcessDisplay processDisplay, bool throwNotFileExists) { return; };
+     delegate (string path, string fileName, string localName, IProcessDisplay processDisplay, bool throwNotFileExists) { return; };
+
+    private static Func<string, IDataReader> m_SQLDataReader;
+    private static IToolSetting m_ToolSetting = new DummyToolSetting();
 
     /// <summary>
-    ///   Sets the cache to store already fetched parent,
+    ///  Sets the cache to store already fetched parent,
     /// </summary>
     /// <value>
-    ///   The cache source by destination.
+    ///  The cache source by destination.
     /// </value>
     /// <remarks>The key is the name of the template table, the value is a list of the combined IDs in that table</remarks>
     public static ICache<string, ICollection<string>> CacheList { get; } = new Cache<string, ICollection<string>>(600);
 
+    public static ICollection<string> CacheSQLResult(string sql, Func<ICollection<string>> uncachedCall)
+    {
+      if (!ApplicationSetting.CacheList.TryGet(sql, out var parentIDs))
+      {
+        parentIDs = uncachedCall();
+        ApplicationSetting.CacheList.Set(sql, parentIDs);
+      }
+
+      return parentIDs;
+    }
+
+    public static void FlushSQLResultByTable(string tableName)
+    {
+      if (string.IsNullOrEmpty(tableName))
+        return;
+      var key1 = CsvHelper.CacheListKeyColumnHeader(tableName,true);
+      var key2 = CsvHelper.CacheListKeyColumnHeader(tableName,false);
+      var uncache = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+      foreach (var sql in CacheList.Keys)
+      {
+        if (sql == key1 || sql== key2)
+        {
+          uncache.Add(sql);
+          continue;
+        }          
+        var tables = StringUtilsSQL.GetSQLTableNames(sql);
+        foreach (var tab in tables)
+        {
+          if (tableName.Equals(tab, StringComparison.OrdinalIgnoreCase))
+          {
+            uncache.Add(sql);
+            break;
+          }
+        }        
+      }
+      foreach (var sql in uncache)
+      {
+        CacheList.Remove(sql);
+      }
+    }
+
     /// <summary>
-    ///   FillGuessSettings
+    ///  FillGuessSettings
     /// </summary>
     public static FillGuessSettings FillGuessSettings
     {
@@ -54,7 +96,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   The Application wide HTMLStyle
+    ///  The Application wide HTMLStyle
     /// </summary>
     public static HTMLStyle HTMLStyle
     {
@@ -66,19 +108,11 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   General Setting that determines if the menu is display in the bottom of a detail control
+    ///  General Setting that determines if the menu is display in the bottom of a detail control
     /// </summary>
     public static bool MenuDown { get; set; } = false;
 
-    public static IToolSetting ToolSetting
-    {
-      get
-      {
-        Contract.Ensures(Contract.Result<IToolSetting>() != null);
-        return m_ToolSetting;
-      }
-      set => m_ToolSetting = value ?? new DummyToolSetting();
-    }
+    public static Action<string, string, string, IProcessDisplay, bool> RemoteFileHandler { get => m_RemoteFileHandler; set => m_RemoteFileHandler = value; }
 
     /// <summary>
     /// Gets or sets the SQL data reader.
@@ -103,10 +137,18 @@ namespace CsvTools
       }
     }
 
-    public static Action<string, string, string, IProcessDisplay, bool> RemoteFileHandler { get => m_RemoteFileHandler; set => m_RemoteFileHandler = value; }
+    public static IToolSetting ToolSetting
+    {
+      get
+      {
+        Contract.Ensures(Contract.Result<IToolSetting>() != null);
+        return m_ToolSetting;
+      }
+      set => m_ToolSetting = value ?? new DummyToolSetting();
+    }
 
     /// <summary>
-    ///   Flushes cached items in the all caches
+    ///  Flushes cached items in the all caches
     /// </summary>
     public static void FlushAll()
     {
@@ -114,7 +156,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Get file setting column by template field
+    ///  Get file setting column by template field
     /// </summary>
     /// <param name="fileSetting">The file setting.</param>
     /// <param name="templateFieldName">The template column.</param>
@@ -130,7 +172,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Get DB column by template column
+    ///  Get DB column by template column
     /// </summary>
     /// <param name="fileSetting">The file setting.</param>
     /// <param name="templateField">The template column.</param>
@@ -142,7 +184,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Get the IFileSetting  Mapping by template column
+    ///  Get the IFileSetting Mapping by template column
     /// </summary>
     /// <param name="fileSetting">The file setting.</param>
     /// <param name="templateField">The template column.</param>

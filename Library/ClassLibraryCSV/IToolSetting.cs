@@ -21,6 +21,8 @@ namespace CsvTools
   /// </summary>
   public interface IToolSetting
   {
+    string DestinationTimeZone { get; }
+
     /// <summary>
     ///   Gets the input settings
     /// </summary>
@@ -37,6 +39,8 @@ namespace CsvTools
     /// </value>
     ICollection<IFileSetting> Output { get; }
 
+    PGPKeyStorage PGPInformation { get; }
+
     /// <summary>
     ///   Gets the root folder of the Tool Setting
     /// </summary>
@@ -45,10 +49,6 @@ namespace CsvTools
     /// </value>
     string RootFolder { get; }
 
-    PGPKeyStorage PGPInformation { get; }
-
     ICache<string, ValidationResult> ValidationResultCache { get; }
-
-    string DestinationTimeZone { get; }
   }
 }

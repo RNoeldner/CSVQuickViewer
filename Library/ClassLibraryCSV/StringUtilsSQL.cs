@@ -44,154 +44,6 @@ namespace CsvTools
     private static readonly Lazy<Regex> m_PatternTable3 = new Lazy<Regex>(() => new Regex(@"\b(FROM|JOIN)\s+(\w*)\b",
       RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Multiline));
 
-    /// <summary>
-    ///   Checks if a string is a SQL keyword
-    /// </summary>
-    /// <param name="contents">The contents.</param>
-    /// <returns><c>true</c> if the value is a reserved SQL keyword, <c>false</c> otherwise</returns>
-    public static bool SqlIsKeyword(string contents)
-    {
-      if (string.IsNullOrEmpty(contents)) return false;
-      foreach (var keyword in c_SQLKeywords.Split(' '))
-        if (contents.Equals(keyword, StringComparison.OrdinalIgnoreCase))
-          return true;
-      return false;
-    }
-
-    public static string RenameSQLTable(this string sql, string oldTableName, string newTableName)
-    {
-      if (string.IsNullOrEmpty(sql) || sql.IndexOf(oldTableName, StringComparison.OrdinalIgnoreCase) <= 0) return sql;
-      // this should cover 80%
-      //SQL = SQL.ReplaceCaseInsensitive(string.Format("[{0}]", SqlName(oldTableName)),
-      //                                 string.Format("[{0}]", SqlName(newTableName)));
-      //SQL = SQL.ReplaceCaseInsensitive(string.Format("\"{0}\"", SqlName(oldTableName)),
-      //                                 string.Format("\"{0}\"", SqlName(newTableName)));
-      //SQL = SQL.ReplaceCaseInsensitive(string.Format("'{0}'", SqlQuote(oldTableName)),
-      //                                 string.Format("'{0}'", SqlQuote(newTableName)));
-
-      var regex1 =
-        new Regex(
-          @"(?<start>\b(FROM|JOIN)\b\s*)(?<open>\[|\"")(?<tablename>" + Regex.Escape(oldTableName) +
-          @")(?<close>\]|\"")", RegexOptions.IgnoreCase | RegexOptions.Multiline);
-      sql = regex1.Replace(sql, "${start}${open}" + newTableName + "${close}");
-
-      var regex2 =
-        new Regex(
-          @"(?<start>\b(FROM|JOIN)\b)(?<open>\s*)(?<tablename>" + Regex.Escape(oldTableName) + @")(?<close>\b)",
-          RegexOptions.IgnoreCase | RegexOptions.Multiline);
-      sql = regex2.Replace(sql, "${start}${open}" + newTableName + "${close}");
-
-      return sql;
-    }
-
-    /// <summary>
-    ///   Escapes SQL names; does not include the brackets or quotes
-    /// </summary>
-    /// <param name="contents">The column or table name.</param>
-    /// <returns>The names as it can be placed into brackets</returns>
-    public static string SqlName(string contents)
-    {
-      Contract.Ensures(Contract.Result<string>() != null);
-      if (string.IsNullOrEmpty(contents))
-        return string.Empty;
-
-      return contents.Replace("]", "]]");
-    }
-
-    /// <summary>
-    ///   Checks if a name needs quoting
-    /// </summary>
-    /// <param name="contents">The column or table name.</param>
-    /// <returns><c>true</c> the name should be quoted, <c>false</c> otherwise</returns>
-    public static bool SqlNameNeedsQuoting(string contents)
-    {
-      if (string.IsNullOrEmpty(contents))
-        return false;
-
-      // Shortcut: If a space preset we need to quote
-      if (contents.IndexOf(' ') != -1 || contents.IndexOf('.') != -1)
-        return true;
-
-      // May not be keyword
-      if (SqlIsKeyword(contents))
-        return true;
-
-      // The name must start with a Unicode letter, _, @, or #;
-      var oc = CharUnicodeInfo.GetUnicodeCategory(contents[0]);
-      if (oc != UnicodeCategory.UppercaseLetter
-          && oc != UnicodeCategory.LowercaseLetter
-          && oc != UnicodeCategory.OtherLetter
-          && contents[0] != '_'
-          && contents[0] != '@'
-          && contents[0] != '#')
-        return true;
-
-      // followed by one or more letters, numbers, @, $, #, or _.
-      foreach (var c in contents)
-      {
-        oc = CharUnicodeInfo.GetUnicodeCategory(c);
-        if (oc != UnicodeCategory.UppercaseLetter
-            && oc != UnicodeCategory.LowercaseLetter
-            && oc != UnicodeCategory.OtherLetter
-            && oc != UnicodeCategory.DecimalDigitNumber
-            && c != '@'
-            && c != '$'
-            && c != '#'
-            && c != '_')
-          return true;
-      }
-
-      return false;
-    }
-
-    /// <summary>
-    ///   Puts a name always in brackets
-    /// </summary>
-    /// <param name="contents">The column or table name.</param>
-    /// <returns>The names in brackets (if needed)</returns>
-    public static string SqlNameSmart(string contents)
-    {
-      Contract.Ensures(Contract.Result<string>() != null);
-      if (string.IsNullOrEmpty(contents))
-      {
-        return string.Empty;
-      }
-
-      if (SqlNameNeedsQuoting(contents))
-      {
-        return $"[{SqlName(contents)}]";
-      }
-      else
-      {
-        return SqlName(contents);
-      }
-    }
-
-    /// <summary>
-    ///   Puts a name always in brackets
-    /// </summary>
-    /// <param name="contents">The column or table name.</param>
-    /// <returns>The names in brackets (if needed)</returns>
-    public static string SqlNameSafe(string contents)
-    {
-      Contract.Ensures(Contract.Result<string>() != null);
-      return string.IsNullOrEmpty(contents) ? string.Empty : $"[{SqlName(contents)}]";
-    }
-
-    /// <summary>
-    ///   SQLs the quote, does not include the outer quotes
-    /// </summary>
-    /// <param name="contents">The contents.</param>
-    /// <returns></returns>
-    public static string SqlQuote(string contents)
-    {
-      Contract.Ensures(Contract.Result<string>() != null);
-      if (string.IsNullOrEmpty(contents))
-        return string.Empty;
-
-      return contents.Replace("'", "''");
-    }
-
     public static string ConnectionStringEscape(string contents)
     {
       Contract.Ensures(Contract.Result<string>() != null);
@@ -373,6 +225,32 @@ namespace CsvTools
       return ret;
     }
 
+    public static string RenameSQLTable(this string sql, string oldTableName, string newTableName)
+    {
+      if (string.IsNullOrEmpty(sql) || sql.IndexOf(oldTableName, StringComparison.OrdinalIgnoreCase) <= 0) return sql;
+      // this should cover 80%
+      //SQL = SQL.ReplaceCaseInsensitive(string.Format("[{0}]", SqlName(oldTableName)),
+      //                                 string.Format("[{0}]", SqlName(newTableName)));
+      //SQL = SQL.ReplaceCaseInsensitive(string.Format("\"{0}\"", SqlName(oldTableName)),
+      //                                 string.Format("\"{0}\"", SqlName(newTableName)));
+      //SQL = SQL.ReplaceCaseInsensitive(string.Format("'{0}'", SqlQuote(oldTableName)),
+      //                                 string.Format("'{0}'", SqlQuote(newTableName)));
+
+      var regex1 =
+        new Regex(
+          @"(?<start>\b(FROM|JOIN)\b\s*)(?<open>\[|\"")(?<tablename>" + Regex.Escape(oldTableName) +
+          @")(?<close>\]|\"")", RegexOptions.IgnoreCase | RegexOptions.Multiline);
+      sql = regex1.Replace(sql, "${start}${open}" + newTableName + "${close}");
+
+      var regex2 =
+        new Regex(
+          @"(?<start>\b(FROM|JOIN)\b)(?<open>\s*)(?<tablename>" + Regex.Escape(oldTableName) + @")(?<close>\b)",
+          RegexOptions.IgnoreCase | RegexOptions.Multiline);
+      sql = regex2.Replace(sql, "${start}${open}" + newTableName + "${close}");
+
+      return sql;
+    }
+
     /// <summary>
     ///   Splits the command text by go and removes all comments
     /// </summary>
@@ -401,6 +279,128 @@ namespace CsvTools
       }
 
       return statements;
+    }
+
+    /// <summary>
+    ///   Checks if a string is a SQL keyword
+    /// </summary>
+    /// <param name="contents">The contents.</param>
+    /// <returns><c>true</c> if the value is a reserved SQL keyword, <c>false</c> otherwise</returns>
+    public static bool SqlIsKeyword(string contents)
+    {
+      if (string.IsNullOrEmpty(contents)) return false;
+      foreach (var keyword in c_SQLKeywords.Split(' '))
+        if (contents.Equals(keyword, StringComparison.OrdinalIgnoreCase))
+          return true;
+      return false;
+    }
+
+    /// <summary>
+    ///   Escapes SQL names; does not include the brackets or quotes
+    /// </summary>
+    /// <param name="contents">The column or table name.</param>
+    /// <returns>The names as it can be placed into brackets</returns>
+    public static string SqlName(string contents)
+    {
+      Contract.Ensures(Contract.Result<string>() != null);
+      if (string.IsNullOrEmpty(contents))
+        return string.Empty;
+
+      return contents.Replace("]", "]]");
+    }
+
+    /// <summary>
+    ///   Checks if a name needs quoting
+    /// </summary>
+    /// <param name="contents">The column or table name.</param>
+    /// <returns><c>true</c> the name should be quoted, <c>false</c> otherwise</returns>
+    public static bool SqlNameNeedsQuoting(string contents)
+    {
+      if (string.IsNullOrEmpty(contents))
+        return false;
+
+      // Shortcut: If a space preset we need to quote
+      if (contents.IndexOf(' ') != -1 || contents.IndexOf('.') != -1)
+        return true;
+
+      // May not be keyword
+      if (SqlIsKeyword(contents))
+        return true;
+
+      // The name must start with a Unicode letter, _, @, or #;
+      var oc = CharUnicodeInfo.GetUnicodeCategory(contents[0]);
+      if (oc != UnicodeCategory.UppercaseLetter
+          && oc != UnicodeCategory.LowercaseLetter
+          && oc != UnicodeCategory.OtherLetter
+          && contents[0] != '_'
+          && contents[0] != '@'
+          && contents[0] != '#')
+        return true;
+
+      // followed by one or more letters, numbers, @, $, #, or _.
+      foreach (var c in contents)
+      {
+        oc = CharUnicodeInfo.GetUnicodeCategory(c);
+        if (oc != UnicodeCategory.UppercaseLetter
+            && oc != UnicodeCategory.LowercaseLetter
+            && oc != UnicodeCategory.OtherLetter
+            && oc != UnicodeCategory.DecimalDigitNumber
+            && c != '@'
+            && c != '$'
+            && c != '#'
+            && c != '_')
+          return true;
+      }
+
+      return false;
+    }
+
+    /// <summary>
+    ///   Puts a name always in brackets
+    /// </summary>
+    /// <param name="contents">The column or table name.</param>
+    /// <returns>The names in brackets (if needed)</returns>
+    public static string SqlNameSafe(string contents)
+    {
+      Contract.Ensures(Contract.Result<string>() != null);
+      return string.IsNullOrEmpty(contents) ? string.Empty : $"[{SqlName(contents)}]";
+    }
+
+    /// <summary>
+    ///   Puts a name always in brackets
+    /// </summary>
+    /// <param name="contents">The column or table name.</param>
+    /// <returns>The names in brackets (if needed)</returns>
+    public static string SqlNameSmart(string contents)
+    {
+      Contract.Ensures(Contract.Result<string>() != null);
+      if (string.IsNullOrEmpty(contents))
+      {
+        return string.Empty;
+      }
+
+      if (SqlNameNeedsQuoting(contents))
+      {
+        return $"[{SqlName(contents)}]";
+      }
+      else
+      {
+        return SqlName(contents);
+      }
+    }
+
+    /// <summary>
+    ///   SQLs the quote, does not include the outer quotes
+    /// </summary>
+    /// <param name="contents">The contents.</param>
+    /// <returns></returns>
+    public static string SqlQuote(string contents)
+    {
+      Contract.Ensures(Contract.Result<string>() != null);
+      if (string.IsNullOrEmpty(contents))
+        return string.Empty;
+
+      return contents.Replace("'", "''");
     }
   }
 }

@@ -31,6 +31,33 @@ namespace CsvTools
   /// </summary>
   public static class ClassLibraryCsvExtensionMethods
   {
+    public static void AddComma(this StringBuilder sb)
+    {
+      if (sb.Length > 0)
+        sb.Append(", ");
+    }
+
+    /// <summary>
+    ///   Check if the application should assume its gZIP
+    /// </summary>
+    /// <param name="fileName">Name of the file.</param>
+    /// <returns></returns>
+    public static bool AssumeGZip(this string fileName)
+    {
+      return fileName.EndsWith(".gz", StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>
+    ///   Check if the application should assume its PGP.
+    /// </summary>
+    /// <param name="fileName">Name of the file.</param>
+    /// <returns></returns>
+    public static bool AssumePgp(this string fileName)
+    {
+      return fileName.EndsWith(".pgp", StringComparison.OrdinalIgnoreCase) ||
+             fileName.EndsWith(".gpg", StringComparison.OrdinalIgnoreCase);
+    }
+
     /// <summary>
     ///   Copies all elements from one collection to the other
     /// </summary>
@@ -45,12 +72,6 @@ namespace CsvTools
       other.Clear();
       foreach (var item in self)
         other.Add(item.Clone());
-    }
-
-    public static void AddComma(this StringBuilder sb)
-    {
-      if (sb.Length > 0)
-        sb.Append(", ");
     }
 
     /// <summary>
@@ -70,24 +91,6 @@ namespace CsvTools
     }
 
 #if !GetHashByGUID
-
-    /// <summary>
-    /// Get the hash code of a collection, the order of items should not matter.
-    /// </summary>
-    /// <param name="collection">The collection itself.</param>
-    /// <returns></returns>
-    public static int CollectionHashCode(this ICollection collection)
-    {
-      unchecked
-      {
-        int hashCode = 387;
-        foreach (var item in collection)
-          hashCode += item.GetHashCode();
-        return hashCode;
-      }
-    }
-
-#endif
 
     /// <summary>
     ///   Check if a collection is equal, the items can be in any order as long as all exist in the th other
@@ -151,6 +154,24 @@ namespace CsvTools
     }
 
     /// <summary>
+    /// Get the hash code of a collection, the order of items should not matter.
+    /// </summary>
+    /// <param name="collection">The collection itself.</param>
+    /// <returns></returns>
+    public static int CollectionHashCode(this ICollection collection)
+    {
+      unchecked
+      {
+        int hashCode = 387;
+        foreach (var item in collection)
+          hashCode += item.GetHashCode();
+        return hashCode;
+      }
+    }
+
+#endif
+
+    /// <summary>
     ///   Writes the current record into a data table.
     /// </summary>
     /// <param name="reader">The reader.</param>
@@ -205,6 +226,15 @@ namespace CsvTools
       dataTable.Rows.Add(dataRow);
     }
 
+    public static int ToInt(this long value)
+    {
+      if (value > int.MaxValue)
+        return int.MaxValue;
+      if (value < int.MinValue)
+        return int.MinValue;
+      return Convert.ToInt32(value);
+    }
+
     /// <summary>
     ///   Counts the items in the enumeration
     /// </summary>
@@ -222,54 +252,6 @@ namespace CsvTools
       foreach (var unused in items)
         counter++;
       return counter;
-    }
-
-    /// <summary>
-    ///   Sets the validation result.
-    /// </summary>
-    /// <param name="fileSetting">The file setting.</param>
-    /// <param name="numberRecords">The number records.</param>
-    /// <param name="errorCount">The error count.</param>
-    /// <param name="warningCount">The warning count.</param>
-    public static void SetValidationResult(this IFileSetting fileSetting, long numberRecords, long errorCount,
-      long warningCount)
-    {
-      var ret = new ValidationResult
-      {
-        TableName = fileSetting.ID,
-        NumberRecords = numberRecords,
-        ErrorCount = errorCount,
-        WarningCount = warningCount
-      };
-
-      // Do not remove validation result information if one is present and the new one is empty
-      if (fileSetting.ValidationResult != null)
-      {
-        if (numberRecords < 1 && fileSetting.ValidationResult.NumberRecords > 0)
-        {
-          ret.NumberRecords = fileSetting.ValidationResult.NumberRecords;
-        }
-
-        if (errorCount < 0 && fileSetting.ValidationResult.ErrorCount >= 0)
-        {
-          ret.ErrorCount = fileSetting.ValidationResult.ErrorCount;
-        }
-
-        if (warningCount < 0 && fileSetting.ValidationResult.WarningCount >= 0)
-        {
-          ret.WarningCount = fileSetting.ValidationResult.WarningCount;
-        }
-      }
-
-      // TODO: Improve this, to check if we have a physical file, IFileSettingNoFile is defined in other assembly.
-      if (fileSetting is IFileSettingRemoteDownload && FileSystemUtils.FileExists(fileSetting.FullPath))
-        ret.FileSize = FileSystemUtils.FileInfo(fileSetting.FullPath).Length;
-
-      fileSetting.ValidationResult = ret;
-
-      // ToolSetting is guaranteed to be set but we might not have a Cache
-      if (ApplicationSetting.ToolSetting.ValidationResultCache != null)
-        ApplicationSetting.ToolSetting.ValidationResultCache.Set(fileSetting.ID, ret);
     }
 
     /// <summary>
@@ -388,27 +370,6 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Check if the application should assume its PGP.
-    /// </summary>
-    /// <param name="fileName">Name of the file.</param>
-    /// <returns></returns>
-    public static bool AssumePgp(this string fileName)
-    {
-      return fileName.EndsWith(".pgp", StringComparison.OrdinalIgnoreCase) ||
-             fileName.EndsWith(".gpg", StringComparison.OrdinalIgnoreCase);
-    }
-
-    /// <summary>
-    ///   Check if the application should assume its gZIP
-    /// </summary>
-    /// <param name="fileName">Name of the file.</param>
-    /// <returns></returns>
-    public static bool AssumeGZip(this string fileName)
-    {
-      return fileName.EndsWith(".gz", StringComparison.OrdinalIgnoreCase);
-    }
-
-    /// <summary>
     ///   Gets a suitable ID for a filename
     /// </summary>
     /// <param name="path">The complete path to a file</param>
@@ -510,17 +471,50 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Combines all inner exceptions to one formatted string for logging.
+    ///   A function to check and address that used tables might not be current and need to be read again
     /// </summary>
-    /// <param name="exception">The exception of type <see cref="Exception" /></param>
-    [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
-    public static string SourceExceptionMessage(this Exception exception)
+    /// <param name="parentFileSetting">The file setting.</param>
+    /// <param name="cancellationToken">The cancellation token source.</param>
+    /// <param name="check">The check.</param>
+    /// <param name="level">The level.</param>
+    /// <returns>
+    ///   A set of IFileSetting that should be checked, this is a depth first recursion
+    /// </returns>
+    public static ICollection<IFileSetting> GetSourceFileSettings(this IFileSetting parentFileSetting,
+      CancellationToken cancellationToken, Func<IFileSetting, bool> check, int level = 0)
     {
-      Contract.Ensures(Contract.Result<string>() != null);
-      if (exception.InnerException == null)
-        return exception.Message;
+      Contract.Requires(parentFileSetting != null);
+      Contract.Ensures(Contract.Result<ICollection<IFileSetting>>() != null);
+      if ((parentFileSetting.SourceFileSettings != null) && (level == 0))
+        return parentFileSetting.SourceFileSettings;
 
-      return exception.InnerException.SourceExceptionMessage();
+      if ((parentFileSetting.SourceFileSettings == null))
+      {
+        parentFileSetting.SourceFileSettings = new List<IFileSetting>();
+      }
+
+      // Prevent infinite recursion in case we have a cycle
+      if (level >= 5) return parentFileSetting.SourceFileSettings;
+      if (string.IsNullOrWhiteSpace(parentFileSetting.SqlStatement)) return parentFileSetting.SourceFileSettings;
+      var tables = parentFileSetting.SqlStatement.GetSQLTableNames();
+      foreach (var tbl in tables)
+      {
+        if (cancellationToken.IsCancellationRequested)
+          break;
+        // get the Setting to match the table
+        foreach (var setting in ApplicationSetting.ToolSetting.Input.Where(x =>
+          tbl.Equals(x.ID, StringComparison.OrdinalIgnoreCase) && !Equals(x, parentFileSetting)))
+        {
+          foreach (var src in GetSourceFileSettings(setting, cancellationToken, check, level + 1))
+            if (parentFileSetting.SourceFileSettings.Contains(src))
+              parentFileSetting.SourceFileSettings.Add(src);
+
+          if (check(setting))
+            parentFileSetting.SourceFileSettings.Add(setting);
+        }
+      }
+
+      return parentFileSetting.SourceFileSettings;
     }
 
     /// <summary>
@@ -573,64 +567,32 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Check if the Source settings are all read before the write was done
+    /// Replaces a placeholders with a text. The placeholder are identified surrounding { or a leading #
     /// </summary>
-    /// <param name="fileSettingWrite"></param>
-    /// <param name="token"></param>
-    /// <returns><c>true</c> if the file written is older than all sources</returns>
-    public static bool SettingLaterThanSources(this IFileSetting fileSettingWrite, CancellationToken token)
+    /// <param name="input">The input.</param>
+    /// <param name="placeholder">The placeholder.</param>
+    /// <param name="replacement">The replacement.</param>
+    /// <returns>The new text based on input</returns>
+    public static string PlaceholderReplace(this string input, string placeholder, string replacement)
     {
-      if (fileSettingWrite.FileLastWriteTimeUtc.Ticks < 10)
-        return false;
-      return fileSettingWrite.GetSourceFileSettings(token,
-               setting => setting.FileLastWriteTimeUtc < fileSettingWrite.FileLastWriteTimeUtc).Count > 0;
-    }
-
-    /// <summary>
-    ///   A function to check and address that used tables might not be current and need to be read again
-    /// </summary>
-    /// <param name="parentFileSetting">The file setting.</param>
-    /// <param name="cancellationToken">The cancellation token source.</param>
-    /// <param name="check">The check.</param>
-    /// <param name="level">The level.</param>
-    /// <returns>
-    ///   A set of IFileSetting that should be checked, this is a depth first recursion
-    /// </returns>
-    public static ICollection<IFileSetting> GetSourceFileSettings(this IFileSetting parentFileSetting,
-      CancellationToken cancellationToken, Func<IFileSetting, bool> check, int level = 0)
-    {
-      Contract.Requires(parentFileSetting != null);
-      Contract.Ensures(Contract.Result<ICollection<IFileSetting>>() != null);
-      if ((parentFileSetting.SourceFileSettings != null) && (level == 0))
-        return parentFileSetting.SourceFileSettings;
-
-      if ((parentFileSetting.SourceFileSettings == null))
+      var type = "{" + placeholder + "}";
+      if (input.IndexOf(type, StringComparison.OrdinalIgnoreCase) != -1)
       {
-        parentFileSetting.SourceFileSettings = new List<IFileSetting>();
-      }
-
-      // Prevent infinite recursion in case we have a cycle
-      if (level >= 5) return parentFileSetting.SourceFileSettings;
-      if (string.IsNullOrWhiteSpace(parentFileSetting.SqlStatement)) return parentFileSetting.SourceFileSettings;
-      var tables = parentFileSetting.SqlStatement.GetSQLTableNames();
-      foreach (var tbl in tables)
-      {
-        if (cancellationToken.IsCancellationRequested)
-          break;
-        // get the Setting to match the table
-        foreach (var setting in ApplicationSetting.ToolSetting.Input.Where(x =>
-          tbl.Equals(x.ID, StringComparison.OrdinalIgnoreCase) && !Equals(x, parentFileSetting)))
+        // remove leading delimiters " - " along with the empty text
+        if (string.IsNullOrEmpty(replacement))
         {
-          foreach (var src in GetSourceFileSettings(setting, cancellationToken, check, level + 1))
-            if (parentFileSetting.SourceFileSettings.Contains(src))
-              parentFileSetting.SourceFileSettings.Add(src);
-
-          if (check(setting))
-            parentFileSetting.SourceFileSettings.Add(setting);
+          if (input.IndexOf(" - " + type, StringComparison.OrdinalIgnoreCase) != -1)
+            type = " - " + type;
+          else if (input.IndexOf(" " + type, StringComparison.OrdinalIgnoreCase) != -1)
+            type = " " + type;
         }
+        input = input.ReplaceCaseInsensitive(type, replacement);
       }
 
-      return parentFileSetting.SourceFileSettings;
+      if (input.EndsWith("#" + placeholder, StringComparison.OrdinalIgnoreCase))
+        input = input.Substring(0, input.Length - placeholder.Length - 1) + replacement;
+
+      return input.ReplaceCaseInsensitive("#" + placeholder + " ", replacement + " ");
     }
 
     /// <summary>
@@ -699,35 +661,6 @@ namespace CsvTools
       if (position0 == 0) return original;
       for (var i = position0; i < original.Length; ++i) chars[count++] = original[i];
       return new string(chars, 0, count);
-    }
-
-    /// <summary>
-    /// Replaces a placeholders with a text. The placeholder are identified surrounding { or a leading #
-    /// </summary>
-    /// <param name="input">The input.</param>
-    /// <param name="placeholder">The placeholder.</param>
-    /// <param name="replacement">The replacement.</param>
-    /// <returns>The new text based on input</returns>
-    public static string PlaceholderReplace(this string input, string placeholder, string replacement)
-    {
-      var type = "{" + placeholder + "}";
-      if (input.IndexOf(type, StringComparison.OrdinalIgnoreCase) != -1)
-      {
-        // remove leading delimiters " - " along with the empty text
-        if (string.IsNullOrEmpty(replacement))
-        {
-          if (input.IndexOf(" - " + type, StringComparison.OrdinalIgnoreCase) != -1)
-            type = " - " + type;
-          else if (input.IndexOf(" " + type, StringComparison.OrdinalIgnoreCase) != -1)
-            type = " " + type;
-        }
-        input = input.ReplaceCaseInsensitive(type, replacement);
-      }
-
-      if (input.EndsWith("#" + placeholder, StringComparison.OrdinalIgnoreCase))
-        input = input.Substring(0, input.Length - placeholder.Length - 1) + replacement;
-
-      return input.ReplaceCaseInsensitive("#" + placeholder + " ", replacement + " ");
     }
 
     /// <summary>
@@ -811,6 +744,82 @@ namespace CsvTools
       }
 
       return inputValue;
+    }
+
+    /// <summary>
+    ///   Check if the Source settings are all read before the write was done
+    /// </summary>
+    /// <param name="fileSettingWrite"></param>
+    /// <param name="token"></param>
+    /// <returns><c>true</c> if the file written is older than all sources</returns>
+    public static bool SettingLaterThanSources(this IFileSetting fileSettingWrite, CancellationToken token)
+    {
+      if (fileSettingWrite.FileLastWriteTimeUtc.Ticks < 10)
+        return false;
+      return fileSettingWrite.GetSourceFileSettings(token,
+               setting => setting.FileLastWriteTimeUtc < fileSettingWrite.FileLastWriteTimeUtc).Count > 0;
+    }
+
+    /// <summary>
+    ///   Sets the validation result.
+    /// </summary>
+    /// <param name="fileSetting">The file setting.</param>
+    /// <param name="numberRecords">The number records.</param>
+    /// <param name="errorCount">The error count.</param>
+    /// <param name="warningCount">The warning count.</param>
+    public static void SetValidationResult(this IFileSetting fileSetting, long numberRecords, long errorCount,
+      long warningCount)
+    {
+      var ret = new ValidationResult
+      {
+        TableName = fileSetting.ID,
+        NumberRecords = numberRecords,
+        ErrorCount = errorCount,
+        WarningCount = warningCount
+      };
+
+      // Do not remove validation result information if one is present and the new one is empty
+      if (fileSetting.ValidationResult != null)
+      {
+        if (numberRecords < 1 && fileSetting.ValidationResult.NumberRecords > 0)
+        {
+          ret.NumberRecords = fileSetting.ValidationResult.NumberRecords;
+        }
+
+        if (errorCount < 0 && fileSetting.ValidationResult.ErrorCount >= 0)
+        {
+          ret.ErrorCount = fileSetting.ValidationResult.ErrorCount;
+        }
+
+        if (warningCount < 0 && fileSetting.ValidationResult.WarningCount >= 0)
+        {
+          ret.WarningCount = fileSetting.ValidationResult.WarningCount;
+        }
+      }
+
+      // TODO: Improve this, to check if we have a physical file, IFileSettingNoFile is defined in other assembly.
+      if (fileSetting is IFileSettingRemoteDownload && FileSystemUtils.FileExists(fileSetting.FullPath))
+        ret.FileSize = FileSystemUtils.FileInfo(fileSetting.FullPath).Length;
+
+      fileSetting.ValidationResult = ret;
+
+      // ToolSetting is guaranteed to be set but we might not have a Cache
+      if (ApplicationSetting.ToolSetting.ValidationResultCache != null)
+        ApplicationSetting.ToolSetting.ValidationResultCache.Set(fileSetting.ID, ret);
+    }
+
+    /// <summary>
+    ///   Combines all inner exceptions to one formatted string for logging.
+    /// </summary>
+    /// <param name="exception">The exception of type <see cref="Exception" /></param>
+    [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
+    public static string SourceExceptionMessage(this Exception exception)
+    {
+      Contract.Ensures(Contract.Result<string>() != null);
+      if (exception.InnerException == null)
+        return exception.Message;
+
+      return exception.InnerException.SourceExceptionMessage();
     }
 
     /// <summary>

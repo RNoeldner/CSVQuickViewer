@@ -13,82 +13,86 @@
  */
 
 using System;
+using System.Collections.Generic;
 
 namespace CsvTools
 {
   /// <summary>
-  ///   A Cache that does invalidate entries after a give set of time
+  ///  A Cache that does invalidate entries after a give set of time
   /// </summary>
   /// <typeparam name="TKey">The type of the key.</typeparam>
   /// <typeparam name="TValue">The type of the value.</typeparam>
-  public interface ICache<in TKey, TValue> : IDisposable
-    where TKey : IComparable
-    where TValue : class
+  public interface ICache<TKey, TValue> : IDisposable
+   where TKey : IComparable
+   where TValue : class
   {
     /// <summary>
-    ///   Retrieves an item of a defined type from the cache.
-    ///   If an item is found, but its type does not the specified type,
-    ///   then null is returned.
-    ///   This ensures that assignment of cached items can be performed
-    ///   without error handlers for invalid casts.
-    /// </summary>
-    /// <param name="key">Specifies items inside the cache.</param>
-    /// <returns>
-    ///   The object found in the cache. If no object could be found in the cache,
-    ///   or the found object has exceeded its lifetime, null is returned. No exception
-    ///   is thrown.
-    /// </returns>
-    TValue Get(TKey key);
-
-    /// <summary>
-    ///   Determines whether the specified key contains key.
+    ///  Determines whether the specified key contains key.
     /// </summary>
     /// <param name="key">The key.</param>
     /// <returns><c>true</c> if the key is in the cache, <c>false</c> otherwise</returns>
     bool ContainsKey(TKey key);
 
+    /// <summary>Collection of all stored Keys</summary>
+    ICollection<TKey> Keys { get; }
+
     /// <summary>
-    ///   Removes an item from the cache.
+    ///  Flushes all cached items in the cache
+    /// </summary>
+    void Flush();
+
+    /// <summary>
+    ///  Retrieves an item of a defined type from the cache.
+    ///  If an item is found, but its type does not the specified type,
+    ///  then null is returned.
+    ///  This ensures that assignment of cached items can be performed
+    ///  without error handlers for invalid casts.
+    /// </summary>
+    /// <param name="key">Specifies items inside the cache.</param>
+    /// <returns>
+    ///  The object found in the cache. If no object could be found in the cache,
+    ///  or the found object has exceeded its lifetime, null is returned. No exception
+    ///  is thrown.
+    /// </returns>
+    TValue Get(TKey key);
+
+    /// <summary>
+    ///  Removes an item from the cache.
     /// </summary>
     /// <param name="key">Specifies an item in the cache.</param>
     void Remove(TKey key);
 
     /// <summary>
-    ///   Adds an item to the cache with a default lifetime of 5 minutes (300 seconds)
+    ///  Adds an item to the cache with a default lifetime of 5 minutes (300 seconds)
     /// </summary>
     /// <param name="key">Identifies an item in the cache. The key is not case-sensitive.</param>
     /// <param name="item">Object to store in the cache.</param>
     /// <remarks>
-    ///   If an item with the same key exists in the cache, it is overwritten.
-    ///   The default lifetime is applied. If the item is <c>null</c> the item will be removed from cache.
+    ///  If an item with the same key exists in the cache, it is overwritten.
+    ///  The default lifetime is applied. If the item is <c>null</c> the item will be removed from cache.
     /// </remarks>
     void Set(TKey key, TValue item);
 
     /// <summary>
-    ///   Adds an item to the cache.
+    ///  Adds an item to the cache.
     /// </summary>
     /// <param name="key">Identifies an item in the cache. The key is not case-sensitive.</param>
     /// <param name="item">Object to store in the cache.</param>
     /// <param name="lifetime">Life time of the cache in seconds.</param>
     /// <remarks>
-    ///   If an item with the same key exists in the cache, it is overwritten.
-    ///   The default lifetime is applied. If the item is <c>null</c> the item will be removed from cache.
+    ///  If an item with the same key exists in the cache, it is overwritten.
+    ///  The default lifetime is applied. If the item is <c>null</c> the item will be removed from cache.
     /// </remarks>
     void Set(TKey key, TValue item, int lifetime);
 
     /// <summary>
-    ///   Check if an item is valid in the cache
+    ///  Check if an item is valid in the cache
     /// </summary>
     /// <param name="key">Specifies items inside the cache.</param>
     /// <param name="item">The item to be set</param>
     /// <returns>
-    ///   <c>true</c> if the item is there, <c>false</c> if the item is not present or expired
+    ///  <c>true</c> if the item is there, <c>false</c> if the item is not present or expired
     /// </returns>
     bool TryGet(TKey key, out TValue item);
-
-    /// <summary>
-    ///   Flushes all cached items in the cache
-    /// </summary>
-    void Flush();
   }
 }

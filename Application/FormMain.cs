@@ -27,6 +27,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
+using System.Xml.Serialization;
 using Timer = System.Timers.Timer;
 
 namespace CsvTools
@@ -36,15 +37,18 @@ namespace CsvTools
   /// </summary>
   public sealed partial class FormMain : Form
   {
+    private static readonly XmlSerializer m_SerializerViewSettings = new XmlSerializer(typeof(ViewSettings));
+    private static string cSettingFolder = Environment.ExpandEnvironmentVariables("%APPDATA%\\CSVQuickViewer");
+    private static string cSettingPath = cSettingFolder + "\\Setting.xml";
     private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
     private readonly StringBuilder m_Messages = new StringBuilder();
     private readonly Timer m_SettingsChangedTimerChange = new Timer(200);
     private readonly Collection<Column> m_StoreColumns = new Collection<Column>();
-
+    private readonly ViewSettings m_ViewSettings;
+    private string m_FileName;
     private bool m_ConfigChanged;
     private CancellationTokenSource m_CurrentCancellationTokenSource;
     private bool m_FileChanged;
-    private string m_FileName;
     private CsvFile m_FileSetting;
     private string m_LastMessage = string.Empty;
     private int m_WarningCount;
@@ -56,9 +60,15 @@ namespace CsvTools
     public FormMain(string fileName)
     {
       m_FileName = fileName;
-      FillFromProperites(true);
+      m_ViewSettings = LoadDefault();
+      m_ViewSettings.FileName = string.Empty;
+      m_ViewSettings.PGPInformation.AllowSavingPassphrase = true;
+      ApplicationSetting.ToolSetting = m_ViewSettings;
 
       InitializeComponent();
+
+      FillFromProperites(true);
+
       m_SettingsChangedTimerChange.AutoReset = false;
       m_SettingsChangedTimerChange.Elapsed += delegate { this.SafeInvoke(() => OpenDataReader(true)); };
       m_SettingsChangedTimerChange.Stop();
@@ -77,8 +87,6 @@ namespace CsvTools
       SystemEvents.PowerModeChanged += SystemEvents_PowerModeChanged;
     }
 
-    public TimeZoneInfo DestionationTimeZone => TimeZoneInfo.Local;
-
     private static string AssemblyTitle
     {
       get
@@ -95,42 +103,6 @@ namespace CsvTools
       }
     }
 
-    private static void SetFileSettingDefault(CsvFile fileSetting)
-    {
-      if (fileSetting == null)
-        return;
-      fileSetting.TreatTextAsNull = Settings.Default.TreatTextAsNull;
-      fileSetting.FileFormat.CommentLine = Settings.Default.Comment;
-      fileSetting.FileFormat.DelimiterPlaceholder = Settings.Default.DelimiterPlaceholder;
-      fileSetting.FileFormat.NewLinePlaceholder = Settings.Default.NLPlaceholder;
-      fileSetting.NumWarnings = Settings.Default.NumWarnings;
-      fileSetting.TreatUnknowCharaterAsSpace = Settings.Default.TreatUnknowCharaterAsSpace;
-      fileSetting.TreatNBSPAsSpace = Settings.Default.TreatNBSPAsSpace;
-      fileSetting.ShowProgress = Settings.Default.ShowProgress;
-      fileSetting.WarnLineFeed = Settings.Default.WarnLineFeed;
-      fileSetting.WarnDelimiterInValue = Settings.Default.WarnDelimiterInValue;
-      fileSetting.WarnQuotes = Settings.Default.WarnQuotes;
-      fileSetting.WarnEmptyTailingColumns = Settings.Default.WarnEmptyTailingColumns;
-      fileSetting.SkipEmptyLines = Settings.Default.SkipEmptyLines;
-      fileSetting.AlternateQuoting = Settings.Default.AlternateQuoting;
-      fileSetting.DisplayStartLineNo = Settings.Default.DisplayStartLineNo;
-      fileSetting.FileFormat.EscapeCharacter = Settings.Default.EscapeCharacter;
-      fileSetting.FileFormat.QuotePlaceholder = Settings.Default.QuotePlaceholder;
-      fileSetting.FileFormat.FieldQualifier = Settings.Default.FieldQualifier;
-      fileSetting.TreatTextAsNull = Settings.Default.TreatTextAsNull;
-      fileSetting.WarnNBSP = Settings.Default.WarnNBSP;
-      fileSetting.WarnUnknowCharater = Settings.Default.WarnUnknowCharater;
-      fileSetting.TreatLFAsSpace = Settings.Default.TreatLFAsSpace;
-      fileSetting.TryToSolveMoreColumns = Settings.Default.TryToSolveMoreColumns;
-      fileSetting.AllowRowCombining = Settings.Default.AllowRowCombining;
-
-      if (Settings.Default.TrimmingOptions.Equals("None", StringComparison.OrdinalIgnoreCase))
-        fileSetting.TrimmingOption = TrimmingOption.None;
-      if (Settings.Default.TrimmingOptions.Equals("All", StringComparison.OrdinalIgnoreCase))
-        fileSetting.TrimmingOption = TrimmingOption.All;
-      if (Settings.Default.TrimmingOptions.Equals("Unquoted", StringComparison.OrdinalIgnoreCase))
-        fileSetting.TrimmingOption = TrimmingOption.Unquoted;
-    }
 
     private void AddWarning(object sender, WarningEventArgs args)
     {
@@ -235,15 +207,12 @@ namespace CsvTools
     private void Display_FormClosing(object sender, FormClosingEventArgs e)
     {
       m_CancellationTokenSource.Cancel();
-
       var res = this.StoreWindowState();
       if (res != null)
-      {
-        Settings.Default.WindowPosition = res.Item1;
-        Settings.Default.WindowState = res.Item2;
-      }
+        m_ViewSettings.WindowPosition = res;
 
-      if (m_ConfigChanged && Settings.Default.UseFileSettings)
+      SaveDefault();
+      if (m_ConfigChanged && m_ViewSettings.StoreSettingsByFile)
         SaveSetting();
     }
 
@@ -254,12 +223,12 @@ namespace CsvTools
     /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
     private void Display_Shown(object sender, EventArgs e)
     {
-      this.LoadWindowState(Settings.Default.WindowPosition, Settings.Default.WindowState);
+      this.LoadWindowState(m_ViewSettings.WindowPosition);
 
       if (string.IsNullOrEmpty(m_FileName) || !FileSystemUtils.FileExists(m_FileName))
         using (var openFileDialog = new OpenFileDialog())
         {
-          if (Settings.Default.UseFileSettings)
+          if (m_ViewSettings.StoreSettingsByFile)
             openFileDialog.Filter =
               "Delimited files (*.csv;*.txt;*.tab;*.tsv;*.dat)|*.csv;*.txt;*.tab;*.tsv;*.dat|Setting files (*" +
               CsvFile.cCsvSettingExtension + ")|*" + CsvFile.cCsvSettingExtension + "|All files (*.*)|*.*";
@@ -324,33 +293,12 @@ namespace CsvTools
 
     private void FillFromProperites(bool changeSetting)
     {
-      ApplicationSetting.FillGuessSettings.SampleValues = Settings.Default.SampleValues;
-      ApplicationSetting.FillGuessSettings.CheckedRecords = Settings.Default.CheckedRecords;
-      ApplicationSetting.FillGuessSettings.DectectNumbers = Settings.Default.DectectNumbers;
-      ApplicationSetting.FillGuessSettings.DectectPercentage = Settings.Default.DectectPercentage;
-      ApplicationSetting.FillGuessSettings.DetectBoolean = Settings.Default.DetectBoolean;
-      ApplicationSetting.FillGuessSettings.DetectDateTime = Settings.Default.DetectDateTime;
-      ApplicationSetting.FillGuessSettings.DetectGUID = Settings.Default.DetectGUID;
-      ApplicationSetting.FillGuessSettings.SerialDateTime = Settings.Default.ExcelSerialDateTime;
-      ApplicationSetting.FillGuessSettings.TrueValue = Settings.Default.TrueValue;
-      ApplicationSetting.FillGuessSettings.FalseValue = Settings.Default.FalseValue;
-      ApplicationSetting.FillGuessSettings.IgnoreIdColums = Settings.Default.IgnoreIdColums;
-      ApplicationSetting.FillGuessSettings.DateTimeValue = Settings.Default.DateTimeValue;
-      ApplicationSetting.FillGuessSettings.MinSamplesForIntDate = Settings.Default.MinSamplesForIntDate;
-      ApplicationSetting.FillGuessSettings.CheckNamedDates = Settings.Default.CheckNamedDates;
-      ApplicationSetting.FillGuessSettings.DateParts = Settings.Default.DateParts;
-
-      ApplicationSetting.MenuDown = Settings.Default.MenuDown;
-
-      ApplicationSetting.ToolSetting.PGPInformation.EncryptedPassphase = Settings.Default.DefaultPassphrase;
-      if (Settings.Default.PrivateKey != null)
-        ApplicationSetting.ToolSetting.PGPInformation.PrivateKeys =
-          Settings.Default.PrivateKey.OfType<string>().ToArray();
-
+      ApplicationSetting.MenuDown = m_ViewSettings.MenuDown;
+      detailControl.MoveMenu();
       if (m_FileSetting == null || !changeSetting)
         return;
-
-      SetFileSettingDefault(m_FileSetting);
+      m_ViewSettings.CopyTo(m_FileSetting);
+      m_FileSetting.FileName = m_FileName;
     }
 
     /// <summary>
@@ -375,9 +323,9 @@ namespace CsvTools
       if (m_FileSetting != null)
         m_FileSetting.PropertyChanged -= FileSetting_PropertyChanged;
 
-      m_FileSetting = new CsvFile(m_FileName);
-
-      SetFileSettingDefault(m_FileSetting);
+      m_FileSetting = new CsvFile();
+      m_ViewSettings.CopyTo(m_FileSetting);
+      m_FileSetting.FileName = m_FileName;
 
       if (m_FileName.AssumePgp() && (ApplicationSetting.ToolSetting?.PGPInformation?.PrivateKeys?.IsEmpty() ?? false))
       {
@@ -387,11 +335,12 @@ namespace CsvTools
 
         if (res == DialogResult.Yes)
         {
-          using (var frm = new FormEditSettings(m_FileSetting))
+          using (var frm = new FormEditSettings(m_ViewSettings))
           {
             frm.tabControl.SelectedTab = frm.tabPagePGP;
             frm.ShowDialog(this);
           }
+          SaveDefault();
         }
       }
 
@@ -445,7 +394,7 @@ namespace CsvTools
               MessageBox.Show(this, exc.ExceptionMessages(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
 
-            if (analyse && Settings.Default.GuessCodePage)
+            if (analyse && m_ViewSettings.GuessCodePage)
             {
               CsvHelper.GuessCodePage(m_FileSetting);
               SetProcess("Detected Code Page: " + EncodingHelper.GetEncodingName(m_FileSetting.CurrentEncoding.CodePage,
@@ -453,13 +402,13 @@ namespace CsvTools
             }
 
             if (analyse) m_FileSetting.NoDelimitedFile = CsvHelper.GuessNotADelimitedFile(m_FileSetting);
-            if (analyse && Settings.Default.GuessDelimiter)
+            if (analyse && m_ViewSettings.GuessDelimiter)
             {
               m_FileSetting.FileFormat.FieldDelimiter = CsvHelper.GuessDelimiter(m_FileSetting);
               SetProcess("Delimiter: " + m_FileSetting.FileFormat.FieldDelimiter);
             }
 
-            if (analyse && Settings.Default.GuessStartRow)
+            if (analyse && m_ViewSettings.GuessStartRow)
             {
               m_FileSetting.SkipRows = CsvHelper.GuessStartRow(m_FileSetting);
               if (m_FileSetting.SkipRows > 0)
@@ -468,7 +417,7 @@ namespace CsvTools
 
             if (analyse)
             {
-              if (Settings.Default.GuessHasHeader)
+              if (m_ViewSettings.GuessHasHeader)
               {
                 m_FileSetting.HasFieldHeader = CsvHelper.GuessHasHeader(m_FileSetting, null);
               }
@@ -520,7 +469,7 @@ namespace CsvTools
           }
         }
 
-        if (Settings.Default.DetectFileChanges)
+        if (m_ViewSettings.DetectFileChanges)
         {
           fileSystemWatcher.Filter = fileInfo.Name;
           fileSystemWatcher.Path = FileSystemUtils.GetDirectoryName(fileInfo.FullName);
@@ -539,6 +488,25 @@ namespace CsvTools
       }
 
       return true;
+    }
+
+    private static ViewSettings LoadDefault()
+    {
+      try
+      {
+        if (FileSystemUtils.FileExists(cSettingPath))
+        {
+          var serial = File.ReadAllText(cSettingPath);
+          using (TextReader reader = new StringReader(serial))
+          {
+            return (ViewSettings)m_SerializerViewSettings.Deserialize(reader);
+          }
+        }
+      }
+      catch (Exception)
+      {
+      }
+      return new ViewSettings();
     }
 
     /// <summary>
@@ -600,11 +568,11 @@ namespace CsvTools
             }
           }
         }
-        detailControl.CancellationToken =  m_CancellationTokenSource.Token;
+        detailControl.CancellationToken = m_CancellationTokenSource.Token;
 
         if (data != null)
         {
-          SetProcess("Showing loaded data…");          
+          SetProcess("Showing loaded data…");
           // Show the data
           detailControl.DataTable = data;
         }
@@ -613,6 +581,9 @@ namespace CsvTools
 
         // if (m_FileSetting.NoDelimitedFile)
         //  detailControl_ButtonShowSource(this, null);
+      }
+      catch (ObjectDisposedException)
+      {
       }
       catch (Exception exc)
       {
@@ -632,10 +603,29 @@ namespace CsvTools
           col.PropertyChanged += FileSetting_PropertyChanged;
         }
         m_ConfigChanged = false;
-        fileSystemWatcher.EnableRaisingEvents = Settings.Default.DetectFileChanges;
+        fileSystemWatcher.EnableRaisingEvents = m_ViewSettings.DetectFileChanges;
         m_FileChanged = false;
         // Re enable event watching
         m_FileSetting.PropertyChanged += FileSetting_PropertyChanged;
+      }
+    }
+
+    private void SaveDefault()
+    {
+      try
+      {
+        if (!FileSystemUtils.DirectoryExists(cSettingFolder))
+          FileSystemUtils.CreateDirectory(cSettingFolder);
+
+        FileSystemUtils.DeleteWithBackup(cSettingPath, false);
+        using (var stringWriter = new StringWriter(CultureInfo.InvariantCulture))
+        {
+          m_SerializerViewSettings.Serialize(stringWriter, m_ViewSettings, SerializedFilesLib.EmptyXmlSerializerNamespaces.Value);
+          File.WriteAllText(cSettingPath, stringWriter.ToString());
+        }
+      }
+      catch (Exception)
+      {
       }
     }
 
@@ -726,22 +716,17 @@ namespace CsvTools
 
     private void ShowSettings(object sender, EventArgs e)
     {
-      if (m_FileSetting == null) m_FileSetting = new CsvFile();
-      using (var frm = new FormEditSettings(m_FileSetting))
+      using (var frm = new FormEditSettings(m_ViewSettings))
       {
         var res = frm.ShowDialog(MdiParent);
-        if (res == DialogResult.Cancel)
-        {
-          m_ConfigChanged = false;
-          return;
-        }
         FillFromProperites(false);
         if (m_ConfigChanged)
         {
           if (MessageBox.Show(this, "The configuration has changed do you want to reload the data?", "Configuration changed", MessageBoxButtons.YesNo) == DialogResult.Yes) OpenDataReader(true);
         }
-        detailControl.MoveMenu();
       }
+      detailControl.MoveMenu();
+      SaveDefault();
     }
 
     private void ShowTextPanel(bool visible)
@@ -752,7 +737,7 @@ namespace CsvTools
 
     private void SystemEvents_DisplaySettingsChanged(object sender, EventArgs e)
     {
-      this.LoadWindowState(Settings.Default.WindowPosition, Settings.Default.WindowState);
+      this.LoadWindowState(m_ViewSettings.WindowPosition);
     }
 
     private void SystemEvents_PowerModeChanged(object sender, PowerModeChangedEventArgs e)
@@ -762,12 +747,11 @@ namespace CsvTools
         case PowerModes.Suspend:
           var res = this.StoreWindowState();
           if (res == null) return;
-          Settings.Default.WindowPosition = res.Item1;
-          Settings.Default.WindowState = res.Item2;
+          m_ViewSettings.WindowPosition = res;
           break;
 
         case PowerModes.Resume:
-          this.LoadWindowState(Settings.Default.WindowPosition, Settings.Default.WindowState);
+          this.LoadWindowState(m_ViewSettings.WindowPosition);
           break;
       }
     }
