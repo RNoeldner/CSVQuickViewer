@@ -46,6 +46,29 @@ namespace CsvTools
     /// <value>The number of warnings</value>
     public virtual int CountRows => m_RowErrorCollection.Count;
 
+    /// <summary>
+    ///   Combines all messages in order to display them
+    /// </summary>
+    /// <value>One string with all messages</value>
+    public virtual string Display
+    {
+      get
+      {
+        var sb = new StringBuilder();
+        // Go though all rows
+        foreach (var errorsInColumn in m_RowErrorCollection.Values)
+          // And all columns
+          foreach (var message in errorsInColumn.Dictionary.Values)
+          {
+            if (sb.Length > 0)
+              sb.Append(ErrorInformation.cSeparator);
+            sb.Append(message);
+          }
+
+        return sb.ToString();
+      }
+    }
+
     public virtual string DisplayByRecordNumber
     {
       get
@@ -76,29 +99,6 @@ namespace CsvTools
             first = false;
           }
         }
-
-        return sb.ToString();
-      }
-    }
-
-    /// <summary>
-    ///   Combines all messages in order to display them
-    /// </summary>
-    /// <value>One string with all messages</value>
-    public virtual string Display
-    {
-      get
-      {
-        var sb = new StringBuilder();
-        // Go though all rows
-        foreach (var errorsInColumn in m_RowErrorCollection.Values)
-          // And all columns
-          foreach (var message in errorsInColumn.Dictionary.Values)
-          {
-            if (sb.Length > 0)
-              sb.Append(ErrorInformation.cSeparator);
-            sb.Append(message);
-          }
 
         return sb.ToString();
       }

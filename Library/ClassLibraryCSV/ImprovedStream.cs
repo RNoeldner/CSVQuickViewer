@@ -25,14 +25,14 @@ namespace CsvTools
   /// <seealso cref="System.IDisposable" />
   public class ImprovedStream : IDisposable
   {
-    private IProcessDisplay ProcessDisplay;
-    private string Recipient;
-    private string BasePath;
-    private string TempFile;
-    private string WritePath;
-    private string EncryptedPassphrase;
     private bool AssumeGZip;
     private bool AssumePGP;
+    private string BasePath;
+    private string EncryptedPassphrase;
+    private IProcessDisplay ProcessDisplay;
+    private string Recipient;
+    private string TempFile;
+    private string WritePath;
 
     public double Percentage
     {
@@ -44,72 +44,6 @@ namespace CsvTools
 
     public Stream Stream { get; set; }
     private FileStream BaseStream { get; set; }
-
-    public void ResetToStart(Action<Stream> AfterInit)
-    {
-      try
-      {
-        // in case the stream is at the beginning do nothing
-        if (Stream != null && Stream.CanSeek)
-          Stream.Position = 0;
-        else
-        {
-          if (Stream != null)
-          {
-            Stream.Close();
-            // need to reopen the base stream
-            BaseStream = File.OpenRead(BasePath);
-          }
-
-          if (AssumeGZip)
-            Stream = new System.IO.Compression.GZipStream(BaseStream, System.IO.Compression.CompressionMode.Decompress);
-          else if (AssumePGP)
-          {
-            System.Security.SecureString DecryptedPassphrase = null;
-            // need to use the setting function, opening a form to enter the passphase is not in this library
-            if (string.IsNullOrEmpty(EncryptedPassphrase))
-              throw new ApplicationException("Please provide a passphrase.");
-            try
-            {
-              DecryptedPassphrase = EncryptedPassphrase.Decrypt().ToSecureString();
-            }
-            catch (Exception)
-            {
-              throw new ApplicationException("Please reenter the passphrase, the passphrase could not be decrypted.");
-            }
-
-            try
-            {
-              Stream = ApplicationSetting.ToolSetting.PGPInformation.PgpDecrypt(BaseStream, DecryptedPassphrase);
-            }
-            catch (Org.BouncyCastle.Bcpg.OpenPgp.PgpException ex)
-            {
-              // removed possibly stored passphrase
-              var recipinet = string.Empty;
-              try
-              {
-                recipinet = ApplicationSetting.ToolSetting?.PGPInformation?.GetEncryptedKeyID(BaseStream);
-              }
-              catch
-              {
-                // ignore
-              }
-
-              if (recipinet.Length > 0)
-                throw new ApplicationException($"The message is encrypted for '{recipinet}'.", ex);
-              else
-                throw;
-            }
-          }
-          else
-            Stream = BaseStream;
-        }
-      }
-      finally
-      {
-        AfterInit?.Invoke(Stream);
-      }
-    }
 
     /// <summary>
     /// Opens a file for reading
@@ -210,6 +144,72 @@ namespace CsvTools
       }
     }
 
+    public void ResetToStart(Action<Stream> AfterInit)
+    {
+      try
+      {
+        // in case the stream is at the beginning do nothing
+        if (Stream != null && Stream.CanSeek)
+          Stream.Position = 0;
+        else
+        {
+          if (Stream != null)
+          {
+            Stream.Close();
+            // need to reopen the base stream
+            BaseStream = File.OpenRead(BasePath);
+          }
+
+          if (AssumeGZip)
+            Stream = new System.IO.Compression.GZipStream(BaseStream, System.IO.Compression.CompressionMode.Decompress);
+          else if (AssumePGP)
+          {
+            System.Security.SecureString DecryptedPassphrase = null;
+            // need to use the setting function, opening a form to enter the passphase is not in this library
+            if (string.IsNullOrEmpty(EncryptedPassphrase))
+              throw new ApplicationException("Please provide a passphrase.");
+            try
+            {
+              DecryptedPassphrase = EncryptedPassphrase.Decrypt().ToSecureString();
+            }
+            catch (Exception)
+            {
+              throw new ApplicationException("Please reenter the passphrase, the passphrase could not be decrypted.");
+            }
+
+            try
+            {
+              Stream = ApplicationSetting.ToolSetting.PGPInformation.PgpDecrypt(BaseStream, DecryptedPassphrase);
+            }
+            catch (Org.BouncyCastle.Bcpg.OpenPgp.PgpException ex)
+            {
+              // removed possibly stored passphrase
+              var recipinet = string.Empty;
+              try
+              {
+                recipinet = ApplicationSetting.ToolSetting?.PGPInformation?.GetEncryptedKeyID(BaseStream);
+              }
+              catch
+              {
+                // ignore
+              }
+
+              if (recipinet.Length > 0)
+                throw new ApplicationException($"The message is encrypted for '{recipinet}'.", ex);
+              else
+                throw;
+            }
+          }
+          else
+            Stream = BaseStream;
+        }
+      }
+      finally
+      {
+        AfterInit?.Invoke(Stream);
+      }
+    }
+
     /// <summary>
     /// Opens the base stream, handling sFTP access
     /// </summary>
@@ -277,10 +277,10 @@ namespace CsvTools
 
                     if (processDispayTime != null)
                       ProcessDisplay.SetProcess(
-                        $"GZip {processDispayTime.TimeToCompletion.PercentDisplay}{processDispayTime.TimeToCompletion.EstimatedTimeRemainingDisplaySeperator}", count);
+                       $"GZip {processDispayTime.TimeToCompletion.PercentDisplay}{processDispayTime.TimeToCompletion.EstimatedTimeRemainingDisplaySeperator}", count);
                     else
                       ProcessDisplay.SetProcess($"GZip {count:N0}/{max:N0}",
-                        count);
+                       count);
                     count++;
                   }
                 }
@@ -291,7 +291,7 @@ namespace CsvTools
           else if (WritePath.AssumePgp())
           {
             using (FileStream inputStream = new FileInfo(TempFile).OpenRead(),
-                                   output = new FileStream(WritePath.LongPathPrefix(), FileMode.Create))
+                        output = new FileStream(WritePath.LongPathPrefix(), FileMode.Create))
             {
               ApplicationSetting.ToolSetting.PGPInformation.PgpEncrypt(inputStream, output, Recipient, ProcessDisplay);
             }
@@ -335,8 +335,8 @@ namespace CsvTools
 
     // TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
     // ~ValidatorFileStream() {
-    //   // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
-    //   Dispose(false);
+    //  // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+    //  Dispose(false);
     // }
 
     #endregion IDisposable Support

@@ -28,6 +28,8 @@ namespace CsvTools
       TimeToCompletion = new TimeToCompletion();
     }
 
+    public virtual event EventHandler<int> SetMaximum;
+
     /// <summary>
     ///   Gets or sets the maximum value for the Progress
     /// </summary>
@@ -56,7 +58,5 @@ namespace CsvTools
       TimeToCompletion.Value = value;
       base.SetProcess(text, value);
     }
-
-    public virtual event EventHandler<int> SetMaximum;
   }
 }

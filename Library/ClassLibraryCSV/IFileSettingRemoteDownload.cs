@@ -21,7 +21,7 @@ namespace CsvTools
   public interface IFileSettingRemoteDownload : IFileSetting
   {
     /// <summary>
-    ///   Path to the file on sFTP Server
+    ///  Path to the file on sFTP Server
     /// </summary>
     string RemoteFileName { get; set; }
 
@@ -29,7 +29,7 @@ namespace CsvTools
     /// Gets or sets a value indicating whether tho throw an error if the remote file could not be found .
     /// </summary>
     /// <value>
-    ///   <c>true</c> if throw an error if not exists; otherwise, <c>false</c>.
+    ///  <c>true</c> if throw an error if not exists; otherwise, <c>false</c>.
     /// </value>
     bool ThrowErrorIfNotExists { get; set; }
   }

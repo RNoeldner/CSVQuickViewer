@@ -34,7 +34,6 @@
       System.Windows.Forms.Label label4;
       System.Windows.Forms.Label label6;
       System.Windows.Forms.Label label7;
-      
       this.buttonOK = new System.Windows.Forms.Button();
       this.buttonCancel = new System.Windows.Forms.Button();
       this.trackBarLimit = new System.Windows.Forms.TrackBar();
@@ -107,7 +106,7 @@
       this.buttonOK.Location = new System.Drawing.Point(239, 112);
       this.buttonOK.Name = "buttonOK";
       this.buttonOK.Size = new System.Drawing.Size(75, 23);
-      this.buttonOK.TabIndex = 0;
+      this.buttonOK.TabIndex = 2;
       this.buttonOK.Text = "&OK";
       this.buttonOK.UseVisualStyleBackColor = true;
       this.buttonOK.Click += new System.EventHandler(this.buttonOK_Click);
@@ -130,8 +129,8 @@
       this.trackBarLimit.Maximum = 4;
       this.trackBarLimit.Minimum = 1;
       this.trackBarLimit.Name = "trackBarLimit";
-      this.trackBarLimit.Size = new System.Drawing.Size(285, 45);
-      this.trackBarLimit.TabIndex = 2;
+      this.trackBarLimit.Size = new System.Drawing.Size(285, 42);
+      this.trackBarLimit.TabIndex = 0;
       this.trackBarLimit.Value = 4;
       // 
       // label5
@@ -143,7 +142,7 @@
       this.label5.TabIndex = 3;
       this.label5.Text = "All";
       // 
-      // frmLimitSize
+      // FrmLimitSize
       // 
       this.AcceptButton = this.buttonOK;
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -161,8 +160,7 @@
       this.Controls.Add(this.buttonCancel);
       this.Controls.Add(this.buttonOK);
       this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
-      
-      this.Name = "frmLimitSize";
+      this.Name = "FrmLimitSize";
       this.ShowInTaskbar = false;
       this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
       this.Text = "Limit Records";

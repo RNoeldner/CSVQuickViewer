@@ -74,6 +74,8 @@ namespace CsvTools.Tests
 
       public bool Flushed;
 
+      public ICollection<TKey> Keys => m_Dictionary.Keys;
+
       public TValue Get(TKey key)
       {
         return m_Dictionary[key];

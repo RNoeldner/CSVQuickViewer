@@ -58,31 +58,31 @@ namespace CsvTools
       this.label1 = new System.Windows.Forms.Label();
       this.timeZoneSelector1 = new CsvTools.TimeZoneSelector();
       this.SuspendLayout();
-      //
+      // 
       // m_BtnOk
-      //
+      // 
       this.m_BtnOk.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
       this.m_BtnOk.DialogResult = System.Windows.Forms.DialogResult.OK;
       this.m_BtnOk.Location = new System.Drawing.Point(424, 97);
       this.m_BtnOk.Name = "m_BtnOk";
       this.m_BtnOk.Size = new System.Drawing.Size(61, 23);
-      this.m_BtnOk.TabIndex = 4;
+      this.m_BtnOk.TabIndex = 2;
       this.m_BtnOk.Text = "OK";
       this.m_BtnOk.Click += new System.EventHandler(this.BtnOK_Click);
-      //
+      // 
       // m_BtnCancel
-      //
+      // 
       this.m_BtnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
       this.m_BtnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
       this.m_BtnCancel.Location = new System.Drawing.Point(361, 97);
       this.m_BtnCancel.Name = "m_BtnCancel";
       this.m_BtnCancel.Size = new System.Drawing.Size(61, 23);
-      this.m_BtnCancel.TabIndex = 3;
+      this.m_BtnCancel.TabIndex = 1;
       this.m_BtnCancel.Text = "Cancel";
       this.m_BtnCancel.Click += new System.EventHandler(this.BtnCancel_Click);
-      //
+      // 
       // label1
-      //
+      // 
       this.label1.AutoSize = true;
       this.label1.Location = new System.Drawing.Point(13, 13);
       this.label1.Name = "label1";
@@ -91,17 +91,17 @@ namespace CsvTools
       this.label1.Text = "At least one column with a time has been found without time zone information.\r\n\r\n" +
     "Please determine the timezone of all date/time columns without explicit time zon" +
     "e.";
-      //
+      // 
       // timeZoneSelector1
-      //
+      // 
       this.timeZoneSelector1.Location = new System.Drawing.Point(16, 67);
       this.timeZoneSelector1.Name = "timeZoneSelector1";
       this.timeZoneSelector1.Size = new System.Drawing.Size(469, 29);
-      this.timeZoneSelector1.TabIndex = 6;
+      this.timeZoneSelector1.TabIndex = 0;
       this.timeZoneSelector1.TimeZoneID = "(local)";
-      //
+      // 
       // FormSelectTimeZone
-      //
+      // 
       this.AcceptButton = this.m_BtnOk;
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -121,6 +121,7 @@ namespace CsvTools
       this.TopMost = true;
       this.ResumeLayout(false);
       this.PerformLayout();
+
     }
 
     private void BtnOK_Click(object sender, EventArgs e)

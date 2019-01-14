@@ -18,13 +18,53 @@ using System.Text;
 namespace CsvTools
 {
   /// <summary>
-  ///   Property Changed Event Argument providing information of old and new value
+  ///  Argument for a ProgressEvent
+  /// </summary>
+  public class ProgressEventArgs : EventArgs
+  {
+    /// <summary>
+    ///  Initializes a new instance of the <see cref="ProgressEventArgs" /> class.
+    /// </summary>
+    /// <param name="text">The text.</param>
+    public ProgressEventArgs(string text)
+     : this(text, -1)
+    {
+    }
+
+    /// <summary>
+    ///  Initializes a new instance of the <see cref="ProgressEventArgs" /> class.
+    /// </summary>
+    /// <param name="text">The text.</param>
+    /// <param name="value">The value.</param>
+    public ProgressEventArgs(string text, int value)
+    {
+      Text = text;
+      Value = value;
+    }
+
+    /// <summary>
+    ///  Gets or sets the text.
+    /// </summary>
+    /// <value>The text.</value>
+    public string Text { get; set; }
+
+    /// <summary>
+    ///  Gets or sets the value.
+    /// </summary>
+    /// <value>
+    ///  The value.
+    /// </value>
+    public int Value { get; set; }
+  }
+
+  /// <summary>
+  ///  Property Changed Event Argument providing information of old and new value
   /// </summary>
   /// <typeparam name="T"></typeparam>
   public class PropertyChangedEventArgs<T> : EventArgs
   {
     /// <summary>
-    ///   Initializes a new instance of the <see cref="PropertyChangedEventArgs{T}" /> class.
+    ///  Initializes a new instance of the <see cref="PropertyChangedEventArgs{T}" /> class.
     /// </summary>
     /// <param name="propertyName">Name of the property.</param>
     /// <param name="oldValue">The old value.</param>
@@ -37,77 +77,37 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets or sets the new value.
+    ///  Gets or sets the new value.
     /// </summary>
     /// <value>
-    ///   The new value.
+    ///  The new value.
     /// </value>
     public T NewValue { get; set; }
 
     /// <summary>
-    ///   Gets or sets the old value.
+    ///  Gets or sets the old value.
     /// </summary>
     /// <value>
-    ///   The old value.
+    ///  The old value.
     /// </value>
     public T OldValue { get; set; }
 
     /// <summary>
-    ///   Gets or sets the name of the property.
+    ///  Gets or sets the name of the property.
     /// </summary>
     /// <value>
-    ///   The name of the property.
+    ///  The name of the property.
     /// </value>
     public string PropertyName { get; }
   }
 
   /// <summary>
-  ///   Argument for a ProgressEvent
-  /// </summary>
-  public class ProgressEventArgs : EventArgs
-  {
-    /// <summary>
-    ///   Initializes a new instance of the <see cref="ProgressEventArgs" /> class.
-    /// </summary>
-    /// <param name="text">The text.</param>
-    public ProgressEventArgs(string text)
-      : this(text, -1)
-    {
-    }
-
-    /// <summary>
-    ///   Initializes a new instance of the <see cref="ProgressEventArgs" /> class.
-    /// </summary>
-    /// <param name="text">The text.</param>
-    /// <param name="value">The value.</param>
-    public ProgressEventArgs(string text, int value)
-    {
-      Text = text;
-      Value = value;
-    }
-
-    /// <summary>
-    ///   Gets or sets the text.
-    /// </summary>
-    /// <value>The text.</value>
-    public string Text { get; set; }
-
-    /// <summary>
-    ///   Gets or sets the value.
-    /// </summary>
-    /// <value>
-    ///   The value.
-    /// </value>
-    public int Value { get; set; }
-  }
-
-  /// <summary>
-  ///   Argument for a WarningEvent
+  ///  Argument for a WarningEvent
   /// </summary>
   public class WarningEventArgs : EventArgs
   {
     /// <summary>
-    ///   Initializes a new instance of the <see cref="WarningEventArgs" /> class.
+    ///  Initializes a new instance of the <see cref="WarningEventArgs" /> class.
     /// </summary>
     /// <param name="recordNumber">Number of the record</param>
     /// <param name="columnNumber">Ordinal number of the column</param>
@@ -116,7 +116,7 @@ namespace CsvTools
     /// <param name="lineNumberStart">Line Number where the record started</param>
     /// <param name="columnName">Name of the column</param>
     public WarningEventArgs(long recordNumber, int columnNumber, string message, long lineNumberStart,
-      long lineNumberEnd, string columnName)
+     long lineNumberEnd, string columnName)
     {
       if (string.IsNullOrEmpty(message))
       {
@@ -132,43 +132,43 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets or sets the name of the column.
+    ///  Gets or sets the name of the column.
     /// </summary>
     /// <value>The name of the column.</value>
     public string ColumnName { get; set; }
 
     /// <summary>
-    ///   Gets or sets the column number.
+    ///  Gets or sets the column number.
     /// </summary>
     /// <value>The column number.</value>
     public int ColumnNumber { get; set; }
 
     /// <summary>
-    ///   Gets or sets the line number the record ends.
+    ///  Gets or sets the line number the record ends.
     /// </summary>
     /// <value>The line number end.</value>
     public long LineNumberEnd { get; set; }
 
     /// <summary>
-    ///   Gets or sets the line number the record started.
+    ///  Gets or sets the line number the record started.
     /// </summary>
     /// <value>The line number start.</value>
     public long LineNumberStart { get; set; }
 
     /// <summary>
-    ///   Gets or sets the Message to be stored for the column.
+    ///  Gets or sets the Message to be stored for the column.
     /// </summary>
     /// <value>The message.</value>
     public string Message { get; set; }
 
     /// <summary>
-    ///   Gets or sets the record number.
+    ///  Gets or sets the record number.
     /// </summary>
     /// <value>The record number.</value>
     public long RecordNumber { get; set; }
 
     /// <summary>
-    ///   Gets the information for display
+    ///  Gets the information for display
     /// </summary>
     /// <param name="addLocationInfoToWarning">Add line number information if set true</param>
     /// <param name="addColumnInfoToWarning">Add column information if set true</param>

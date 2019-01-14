@@ -482,7 +482,7 @@ namespace CsvTools
             hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(m_True);
             break;
 
-          default:            
+          default:
             hashCode = (hashCode * 397) ^ m_DateFormat.GetHashCode();
             hashCode = (hashCode * 397) ^ m_DateSeparator.GetHashCode();
             hashCode = (hashCode * 397) ^ m_TimeSeparator.GetHashCode();

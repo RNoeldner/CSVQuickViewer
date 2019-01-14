@@ -42,9 +42,12 @@ namespace CsvTools
 
     private readonly List<string> m_PrivateKeyRingBundle = new List<string>();
     private readonly List<string> m_PublicKeyRingBundle = new List<string>();
-    private bool m_AllowSavingPassphrase;
+    private bool m_AllowSavingPassphrase = false;
     private string m_EncryptedPassphase = string.Empty;
     private IDictionary<string, PgpPublicKey> m_Recipients;
+
+    [XmlIgnore]
+    public virtual bool Specified => m_PrivateKeyRingBundle.Count > 0 || m_PublicKeyRingBundle.Count > 0 || !string.IsNullOrEmpty(EncryptedPassphase);
 
     [XmlElement]
     public virtual string[] PrivateKeys
@@ -64,8 +67,6 @@ namespace CsvTools
       }
     }
 
-    [XmlIgnore] public virtual bool PrivateKeysSpecified => m_PrivateKeyRingBundle.Count > 0;
-
     [XmlElement]
     public virtual string[] PublicKeys
     {
@@ -83,8 +84,6 @@ namespace CsvTools
         m_Recipients = null;
       }
     }
-
-    [XmlIgnore] public virtual bool PublicKeysSpecified => m_PublicKeyRingBundle.Count > 0;
 
     [XmlElement]
     [DefaultValue("")]
@@ -108,6 +107,8 @@ namespace CsvTools
     [XmlIgnore]
     public virtual bool EncryptedPassphaseSpecified => m_AllowSavingPassphrase && m_EncryptedPassphase.Length > 0;
 
+    [XmlElement]
+    [DefaultValue(false)]
     public virtual bool AllowSavingPassphrase
     {
       get => m_AllowSavingPassphrase;

@@ -22,16 +22,14 @@ namespace CsvTools
 
     private readonly List<IFileSetting> m_Output = new List<IFileSetting>();
 
+    public virtual string DestinationTimeZone => TimeZoneMapping.cIdLocal;
     public virtual ICollection<IFileSetting> Input => m_Input;
 
     public virtual ICollection<IFileSetting> Output => m_Output;
 
+    public virtual PGPKeyStorage PGPInformation { get; } = new PGPKeyStorage();
     public virtual string RootFolder => ".";
 
     public virtual ICache<string, ValidationResult> ValidationResultCache => null;
-
-    public virtual PGPKeyStorage PGPInformation { get; } = new PGPKeyStorage();
-
-    public virtual string DestinationTimeZone => TimeZoneMapping.cIdLocal;
   }
 }

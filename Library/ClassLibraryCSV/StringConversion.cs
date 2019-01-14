@@ -28,147 +28,22 @@ namespace CsvTools
   public static class StringConversion
   {
     /// <summary>
-    ///   Standard Date Time formats
-    /// </summary>
-    public static readonly IEnumerable<string> StandardDateTimeFormats = new HashSet<string>(new[]
-    {
-      "dd/MM/yyyy", "dd/MM/yyyy HH:mm:ss", "dd/MM/yyyy H:mm:ss", "dd/MM/yyyy HH:mm", "dd/MM/yyyy H:mm",
-      "dd/MM/yyyy hh:mm:ss tt", "dd/MM/yyyy hh:mm tt", "dd/MM/yyyy h:mm:ss tt", "dd/MM/yyyy h:mm tt",
-      "MM/dd/yyyy", "MM/dd/yyyy HH:mm:ss", "MM/dd/yyyy H:mm:ss", "MM/dd/yyyy HH:mm", "MM/dd/yyyy H:mm",
-      "MM/dd/yyyy hh:mm:ss tt", "MM/dd/yyyy hh:mm tt", "MM/dd/yyyy h:mm:ss tt", "MM/dd/yyyy h:mm tt",
-      "yyyyMMdd", "yyyyMMddTHH:mm:ss", "yyyyMMddTHH:mm:ss.FFF", "yyyyMMddTHH:mm",
-      "yyyy/MM/ddTHH:mm:ss", "yyyy/MM/dd HH:mm:ss.FFF", "yyyy/MM/dd HH:mm:ss,FFF", "yyyy/MM/ddTHH:mm:ss.FFFK",
-      "yyyy/MM/ddTHH:mm:ss,FFFK", "yyyy/MM/ddTHH:mm:sszz", "yyyy/MM/ddTHH:mm:sszz00", "yyyy/MM/ddTHH:mm:sszzz",
-      "yyyy/MM/dd", "yyyy/MM/dd HH:mm:ss", "yyyy/MM/dd H:mm:ss", "yyyy/MM/dd HH:mm", "yyyy/MM/dd H:mm",
-      "yyyy/MM/dd hh:mm:ss tt", "yyyy/MM/dd hh:mm tt", "yyyy/MM/dd h:mm:ss tt", "yyyy/MM/dd h:mm tt",
-      CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern.ReplaceDefaults(
-        CultureInfo.CurrentCulture.DateTimeFormat.DateSeparator, "/",
-        CultureInfo.CurrentCulture.DateTimeFormat.TimeSeparator, ":"),
-      "d/M/yyyy", "d/M/yyyy HH:mm:ss", "d/M/yyyy H:mm:ss", "d/M/yyyy HH:mm", "d/M/yyyy H:mm",
-      "d/M/yyyy hh:mm:ss tt", "d/M/yyyy hh:mm tt", "d/M/yyyy h:mm:ss tt", "d/M/yyyy h:mm tt",
-      "M/d/yyyy", "M/d/yyyy HH:mm:ss", "M/d/yyyy H:mm:ss", "M/d/yyyy HH:mm", "M/d/yyyy H:mm",
-      "M/d/yyyy hh:mm:ss tt", "M/d/yyyy hh:mm tt", "M/d/yyyy h:mm:ss tt", "M/d/yyyy h:mm tt",
-      "dd/MM/yy", "dd/MM/yy HH:mm:ss", "dd/MM/yy H:mm:ss", "dd/MM/yy HH:mm", "dd/MM/yy H:mm",
-      "dd/MM/yy hh:mm:ss tt", "dd/MM/yy hh:mm tt", "dd/MM/yy h:mm:ss tt", "dd/MM/yy h:mm tt",
-      "MM/dd/yy", "MM/dd/yy HH:mm:ss", "MM/dd/yy H:mm:ss", "MM/dd/yy HH:mm", "MM/dd/yy H:mm",
-      "MM/dd/yy hh:mm:ss tt", "MM/dd/yy hh:mm tt", "MM/dd/yy h:mm:ss tt", "MM/dd/yy h:mm tt",
-      "d/M/yy", "d/M/yy HH:mm:ss", "d/M/yy H:mm:ss", "d/M/yy HH:mm", "d/M/yy H:mm", "d/M/yy hh:mm:ss tt",
-      "d/M/yy hh:mm tt", "d/M/yy h:mm:ss tt", "d/M/yy h:mm tt",
-      "M/d/yy", "M/d/yy HH:mm:ss", "M/d/yy H:mm:ss", "M/d/yy HH:mm", "M/d/yy H:mm", "M/d/yy hh:mm:ss tt",
-      "M/d/yy hh:mm tt", "M/d/yy h:mm:ss tt", "M/d/yy h:mm tt",
-      CultureInfo.CurrentCulture.DateTimeFormat.LongTimePattern.ReplaceDefaults(
-        CultureInfo.CurrentCulture.DateTimeFormat.DateSeparator, "/",
-        CultureInfo.CurrentCulture.DateTimeFormat.TimeSeparator, ":"),
-      CultureInfo.CurrentCulture.DateTimeFormat.ShortTimePattern.ReplaceDefaults(
-        CultureInfo.CurrentCulture.DateTimeFormat.DateSeparator, "/",
-        CultureInfo.CurrentCulture.DateTimeFormat.TimeSeparator, ":"),
-      "HH:mm:ss", "H:mm:ss", "HH:mm", "H:mm", "hh:mm:ss tt", "hh:mm tt", "h:mm:ss tt", "h:mm tt"
-    });
-
-    /// <summary>
-    ///   Date Time formats with written month / day
-    /// </summary>
-    public static readonly IEnumerable<string> WrittenDateTimeFormats = new HashSet<string>(new[]
-    {
-      CultureInfo.CurrentCulture.DateTimeFormat.LongDatePattern,
-      "dd/MMMM/yyyy", "dd/MMMM/yyyy HH:mm:ss", "dd/MMMM/yyyy HH:mm", "dd/MMMM/yyyy H:mm",
-      "dd/MMMM/yyyy hh:mm:ss tt", "dd/MMMM/yyyy  hh:mm tt", "dd/MMMM/yyyy h:mm tt",
-      "d. MMMM yyyy", "d. MMMM yyyy HH:mm:ss", "d. MMMM yyyy HH:mm", "d. MMMM yyyy H:mm",
-      "d. MMMM yyyy hh:mm:ss tt", "d. MMMM yyyy  hh:mm tt", "d. MMMM yyyy h:mm tt",
-      "dddd, d. MMMM yyyy", "dddd, d. MMMM yyyy HH:mm:ss", "dddd, d. MMMM yyyy HH:mm", "dddd, d. MMMM yyyy H:mm",
-      "dddd, d. MMMM yyyy hh:mm:ss tt", "dddd, d. MMMM yyyy  hh:mm tt", "dddd, d. MMMM yyyy h:mm tt",
-      "dddd, d MMMM yyyy", "dddd, d MMMM yyyy HH:mm:ss", "dddd, d MMMM yyyy HH:mm", "dddd, d MMMM yyyy H:mm",
-      "dddd, d MMMM yyyy hh:mm:ss tt", "dddd, d MMMM yyyy  hh:mm tt", "dddd, d MMMM yyyy h:mm tt",
-      "dddd, MMMM dd, yyyy", "dddd, MMMM dd, yyyy HH:mm:ss", "dddd, MMMM dd, yyyy HH:mm",
-      "dddd, MMMM dd, yyyy H:mm", "dddd, MMMM dd, yyyy hh:mm:ss tt", "dddd, MMMM dd, yyyy  hh:mm tt",
-      "dddd, MMMM dd, yyyy h:mm tt",
-      "dddd d MMMM yyyy", "dddd d MMMM yyyy HH:mm:ss", "dddd d MMMM yyyy HH:mm", "dddd d MMMM yyyy H:mm",
-      "dddd d MMMM yyyy hh:mm:ss tt", "dddd d MMMM yyyy  hh:mm tt", "dddd d MMMM yyyy h:mm tt",
-      "dddd dd MMMM yyyy", "dddd dd MMMM yyyy HH:mm:ss", "dddd dd MMMM yyyy HH:mm", "dddd dd MMMM yyyy H:mm",
-      "dddd dd MMMM yyyy hh:mm:ss tt", "dddd dd MMMM yyyy  hh:mm tt", "dddd dd MMMM yyyy h:mm tt",
-      "d MMMM yyyy", "d MMMM yyyy HH:mm:ss", "d MMMM yyyy HH:mm", "d MMMM yyyy H:mm", "d MMMM yyyy hh:mm:ss tt",
-      "d MMMM yyyy  hh:mm tt", "d MMMM yyyy h:mm tt",
-      "dd MMMM yyyy dddd", "dd MMMM yyyy dddd HH:mm:ss", "dd MMMM yyyy dddd HH:mm", "dd MMMM yyyy dddd H:mm",
-      "dd MMMM yyyy dddd hh:mm:ss tt", "dd MMMM yyyy dddd  hh:mm tt", "dd MMMM yyyy dddd h:mm tt",
-      "dd MMMM, yyyy", "dd MMMM, yyyy HH:mm:ss", "dd MMMM, yyyy HH:mm", "dd MMMM, yyyy H:mm",
-      "dd MMMM, yyyy hh:mm:ss tt", "dd MMMM, yyyy  hh:mm tt", "dd MMMM, yyyy h:mm tt",
-      "dd MMMM yyyy", "dd MMMM yyyy HH:mm:ss", "dd MMMM yyyy HH:mm", "dd MMMM yyyy H:mm",
-      "dd MMMM yyyy hh:mm:ss tt", "dd MMMM yyyy  hh:mm tt", "dd MMMM yyyy h:mm tt",
-      "d MMMM, yyyy", "d MMMM, yyyy HH:mm:ss", "d MMMM, yyyy HH:mm", "d MMMM, yyyy H:mm",
-      "d MMMM, yyyy hh:mm:ss tt", "d MMMM, yyyy  hh:mm tt", "d MMMM, yyyy h:mm tt",
-      "dddd, dd MMMM yyyy", "dddd, dd MMMM yyyy HH:mm:ss", "dddd, dd MMMM yyyy HH:mm", "dddd, dd MMMM yyyy H:mm",
-      "dddd, dd MMMM yyyy hh:mm:ss tt", "dddd, dd MMMM yyyy  hh:mm tt", "dddd, dd MMMM yyyy h:mm tt",
-      "yyyy,MMMM dd, dddd", "yyyy,MMMM dd, dddd HH:mm:ss", "yyyy,MMMM dd, dddd HH:mm", "yyyy,MMMM dd, dddd H:mm",
-      "yyyy,MMMM dd, dddd hh:mm:ss tt", "yyyy,MMMM dd, dddd  hh:mm tt", "yyyy,MMMM dd, dddd h:mm tt",
-      "ddd, MMMM dd,yyyy", "ddd, MMMM dd,yyyy HH:mm:ss", "ddd, MMMM dd,yyyy HH:mm", "ddd, MMMM dd,yyyy H:mm",
-      "ddd, MMMM dd,yyyy hh:mm:ss tt", "ddd, MMMM dd,yyyy  hh:mm tt", "ddd, MMMM dd,yyyy h:mm tt",
-      "dddd, dd MMMM, yyyy", "dddd, dd MMMM, yyyy HH:mm:ss", "dddd, dd MMMM, yyyy HH:mm",
-      "dddd, dd MMMM, yyyy H:mm", "dddd, dd MMMM, yyyy hh:mm:ss tt", "dddd, dd MMMM, yyyy  hh:mm tt",
-      "dddd, dd MMMM, yyyy h:mm tt",
-      "dddd,MMMM dd,yyyy", "dddd,MMMM dd,yyyy HH:mm:ss", "dddd,MMMM dd,yyyy HH:mm", "dddd,MMMM dd,yyyy H:mm",
-      "dddd,MMMM dd,yyyy hh:mm:ss tt", "dddd,MMMM dd,yyyy  hh:mm tt", "dddd,MMMM dd,yyyy h:mm tt",
-      "dddd, dd. MMMM yyyy", "dddd, dd. MMMM yyyy HH:mm:ss", "dddd, dd. MMMM yyyy HH:mm",
-      "dddd, dd. MMMM yyyy H:mm", "dddd, dd. MMMM yyyy hh:mm:ss tt", "dddd, dd. MMMM yyyy  hh:mm tt",
-      "dddd, dd. MMMM yyyy h:mm tt",
-      "MMMM/dd/yy", "MMMM/dd/yy HH:mm:ss", "MMMM/dd/yy HH:mm", "MMMM/dd/yy H:mm", "MMMM/dd/yy hh:mm:ss tt",
-      "MMMM/dd/yy  hh:mm tt", "MMMM/dd/yy h:mm tt",
-      "dddd, d MMMM, yyyy", "dddd, d MMMM, yyyy HH:mm:ss", "dddd, d MMMM, yyyy HH:mm", "dddd, d MMMM, yyyy H:mm",
-      "dddd, d MMMM, yyyy hh:mm:ss tt", "dddd, d MMMM, yyyy  hh:mm tt", "dddd, d MMMM, yyyy h:mm tt",
-      "dd/MMM/yyyy", "dd/MMM/yyyy HH:mm:ss", "dd/MMM/yyyy HH:mm", "dd/MMM/yyyy H:mm", "dd/MMM/yyyy hh:mm:ss tt",
-      "dd/MMM/yyyy  hh:mm tt", "dd/MMM/yyyy h:mm tt",
-      "d. MMM yyyy", "d. MMM yyyy HH:mm:ss", "d. MMM yyyy HH:mm", "d. MMM yyyy H:mm", "d. MMM yyyy hh:mm:ss tt",
-      "d. MMM yyyy  hh:mm tt", "d. MMM yyyy h:mm tt",
-      "ddd, d. MMM yyyy", "ddd, d. MMM yyyy HH:mm:ss", "ddd, d. MMM yyyy HH:mm", "ddd, d. MMM yyyy H:mm",
-      "ddd, d. MMM yyyy hh:mm:ss tt", "ddd, d. MMM yyyy  hh:mm tt", "ddd, d. MMM yyyy h:mm tt",
-      "ddd, d MMM yyyy", "ddd, d MMM yyyy HH:mm:ss", "ddd, d MMM yyyy HH:mm", "ddd, d MMM yyyy H:mm",
-      "ddd, d MMM yyyy hh:mm:ss tt", "ddd, d MMM yyyy  hh:mm tt", "ddd, d MMM yyyy h:mm tt",
-      "ddd, MMM dd, yyyy", "ddd, MMM dd, yyyy HH:mm:ss", "ddd, MMM dd, yyyy HH:mm", "ddd, MMM dd, yyyy H:mm",
-      "ddd, MMM dd, yyyy hh:mm:ss tt", "ddd, MMM dd, yyyy  hh:mm tt", "ddd, MMM dd, yyyy h:mm tt",
-      "ddd d MMM yyyy", "ddd d MMM yyyy HH:mm:ss", "ddd d MMM yyyy HH:mm", "ddd d MMM yyyy H:mm",
-      "ddd d MMM yyyy hh:mm:ss tt", "ddd d MMM yyyy  hh:mm tt", "ddd d MMM yyyy h:mm tt",
-      "ddd dd MMM yyyy", "ddd dd MMM yyyy HH:mm:ss", "ddd dd MMM yyyy HH:mm", "ddd dd MMM yyyy H:mm",
-      "ddd dd MMM yyyy hh:mm:ss tt", "ddd dd MMM yyyy  hh:mm tt", "ddd dd MMM yyyy h:mm tt",
-      "d MMM yyyy", "d MMM yyyy HH:mm:ss", "d MMM yyyy HH:mm", "d MMM yyyy H:mm", "d MMM yyyy hh:mm:ss tt",
-      "d MMM yyyy  hh:mm tt", "d MMM yyyy h:mm tt",
-      "dd MMM yyyy ddd", "dd MMM yyyy ddd HH:mm:ss", "dd MMM yyyy ddd HH:mm", "dd MMM yyyy ddd H:mm",
-      "dd MMM yyyy ddd hh:mm:ss tt", "dd MMM yyyy ddd  hh:mm tt", "dd MMM yyyy ddd h:mm tt",
-      "dd MMM, yyyy", "dd MMM, yyyy HH:mm:ss", "dd MMM, yyyy HH:mm", "dd MMM, yyyy H:mm",
-      "dd MMM, yyyy hh:mm:ss tt", "dd MMM, yyyy  hh:mm tt", "dd MMM, yyyy h:mm tt",
-      "dd MMM yyyy", "dd MMM yyyy HH:mm:ss", "dd MMM yyyy HH:mm", "dd MMM yyyy H:mm", "dd MMM yyyy hh:mm:ss tt",
-      "dd MMM yyyy  hh:mm tt", "dd MMM yyyy h:mm tt",
-      "d MMM, yyyy", "d MMM, yyyy HH:mm:ss", "d MMM, yyyy HH:mm", "d MMM, yyyy H:mm", "d MMM, yyyy hh:mm:ss tt",
-      "d MMM, yyyy  hh:mm tt", "d MMM, yyyy h:mm tt",
-      "ddd, dd MMM yyyy", "ddd, dd MMM yyyy HH:mm:ss", "ddd, dd MMM yyyy HH:mm", "ddd, dd MMM yyyy H:mm",
-      "ddd, dd MMM yyyy hh:mm:ss tt", "ddd, dd MMM yyyy  hh:mm tt", "ddd, dd MMM yyyy h:mm tt",
-      "ddd, MMM dd,yyyy", "ddd, MMM dd,yyyy HH:mm:ss", "ddd, MMM dd,yyyy HH:mm", "ddd, MMM dd,yyyy H:mm",
-      "ddd, MMM dd,yyyy hh:mm:ss tt", "ddd, MMM dd,yyyy  hh:mm tt", "ddd, MMM dd,yyyy h:mm tt",
-      "ddd, dd MMM, yyyy", "ddd, dd MMM, yyyy HH:mm:ss", "ddd, dd MMM, yyyy HH:mm", "ddd, dd MMM, yyyy H:mm",
-      "ddd, dd MMM, yyyy hh:mm:ss tt", "ddd, dd MMM, yyyy  hh:mm tt", "ddd, dd MMM, yyyy h:mm tt",
-      "ddd,MMM dd,yyyy", "ddd,MMM dd,yyyy HH:mm:ss", "ddd,MMM dd,yyyy HH:mm", "ddd,MMM dd,yyyy H:mm",
-      "ddd,MMM dd,yyyy hh:mm:ss tt", "ddd,MMM dd,yyyy  hh:mm tt", "ddd,MMM dd,yyyy h:mm tt",
-      "ddd, dd. MMM yyyy", "ddd, dd. MMM yyyy HH:mm:ss", "ddd, dd. MMM yyyy HH:mm", "ddd, dd. MMM yyyy H:mm",
-      "ddd, dd. MMM yyyy hh:mm:ss tt", "ddd, dd. MMM yyyy  hh:mm tt", "ddd, dd. MMM yyyy h:mm tt",
-      "MMM/dd/yy", "MMM/dd/yy HH:mm:ss", "MMM/dd/yy HH:mm", "MMM/dd/yy H:mm", "MMM/dd/yy hh:mm:ss tt",
-      "MMM/dd/yy  hh:mm tt", "MMM/dd/yy h:mm tt",
-      "ddd, d MMM, yyyy", "ddd, d MMM, yyyy HH:mm:ss", "ddd, d MMM, yyyy HH:mm", "ddd, d MMM, yyyy H:mm",
-      "ddd, d MMM, yyyy hh:mm:ss tt", "ddd, d MMM, yyyy hh:mm tt", "ddd, d MMM, yyyy h:mm tt",
-      "dd/MMM/yy HH:mm:ss tt", "d/MMM/yy HH:mm:ss tt", "dd/MMM/yy h:mm:ss tt", "d/MMM/yy h:mm:ss tt",
-    });
-
-    /// <summary>
     ///   The possible length of a date for a given format
     /// </summary>
-    private static readonly Dictionary<string, Tuple<int, int>> m_DateLengthMinMax = new Dictionary<string, Tuple<int, int>>();
+    public static readonly DateTimeFormatCollection StandardDateTimeFormats =
+      new DateTimeFormatCollection("DateTimeFormats.txt");
+   
+    public static HashSet<string> DateSeparators =
+          new HashSet<string>(new[] { CultureInfo.CurrentCulture.DateTimeFormat.DateSeparator, "/", ".", "-" });
 
-    /// <summary>
-    ///   A static value any time only value will have this date
-    /// </summary>
-    private static DateTime m_FirstDateTime = new DateTime(1899, 12, 30, 0, 0, 0, 0);
+    public static HashSet<char> DecimalGroupings = new HashSet<char>(new[]
+          {'\0', CultureInfo.CurrentCulture.NumberFormat.NumberGroupSeparator[0], '.', ',', ' '});
 
-    private static readonly DateTime m_FirstDateTimeNextDay = new DateTime(1899, 12, 30, 0, 0, 0, 0).AddDays(1);
+    public static HashSet<char> DecimalSeparators = new HashSet<char>(new[]
+          {CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator[0], '.', ','});
 
     private static readonly string[] m_FalseValues =
-    {
+        {
       "False", "No", "n", "F", "Non", "Nein", "Falsch", "無", "无",
       "假", "없음", "거짓", "ไม่ใช่", "เท็จ", "नहीं", "झूठी", "نہيں", "نه", "نادرست", "لا", "كاذبة",
       "جھوٹا", "שווא", "לא", "いいえ", "Фалшиви", "Ні", "Нет", "Не", "ЛОЖЬ", "Ψευδείς", "Όχι", "Yanlış",
@@ -177,8 +52,10 @@ namespace CsvTools
       "Foloz", "Ffug", "Faux", "Fałszywe", "Falso", "Falske", "Falska", "Falsk", "Fals", "Falošné", "Ei"
     };
 
+    private static readonly DateTime m_FirstDateTimeNextDay = new DateTime(1899, 12, 30, 0, 0, 0, 0).AddDays(1);
+
     private static readonly string[] m_TrueValues =
-    {
+        {
       "True", "yes", "y", "t", "Wahr", "Sì", "Si", "Ja",
       "active", "Правда", "Да", "Вярно", "Vero", "Veritable", "Vera", "Jah", "igen", "真實", "真实",
       "真", "是啊", "예", "사실", "อย่างแท้จริง", "ใช่", "हाँ", "सच", "نعم", "صحيح",
@@ -189,165 +66,10 @@ namespace CsvTools
       "áno", "Ano", "Adevărat"
     };
 
-    public static HashSet<char> DecimalSeparators = new HashSet<char>(new[]
-      {CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator[0], '.', ','});
-
-    public static HashSet<char> DecimalGroupings = new HashSet<char>(new[]
-      {'\0', CultureInfo.CurrentCulture.NumberFormat.NumberGroupSeparator[0], '.', ',', ' '});
-
-    public static HashSet<string> DateSeparators =
-      new HashSet<string>(new[] { CultureInfo.CurrentCulture.DateTimeFormat.DateSeparator, "/", ".", "-" });
-
-    private static string SetMinMax(string format, string search, ref int min, ref int max, int minLength, int maxLength)
-    {
-      int pos = format.IndexOf(search, StringComparison.Ordinal);
-      while (pos != -1)
-      {
-        min += minLength - search.Length;
-        max += maxLength - search.Length;
-        format = format.Remove(pos, search.Length);
-        pos = format.IndexOf(search, StringComparison.Ordinal);
-      }
-      return format;
-    }
-
-    private static int minDayLong = int.MaxValue;
-    private static int maxDayLong = int.MinValue;
-    private static int minDayMid = int.MaxValue;
-    private static int maxDayMid = int.MinValue;
-
-    private static int minMonthLong = int.MaxValue;
-    private static int maxMonthLong = int.MinValue;
-    private static int minMonthMid = int.MaxValue;
-    private static int maxMonthMid = int.MinValue;
-    private static int maxDesignator = 2;
-
-    private static void DetermineLenth()
-    {
-      for (int weekday = 0; weekday < 7; weekday++)
-      {
-        var cul = string.Format(CultureInfo.CurrentCulture, "{0:dddd}", DateTime.Now.AddDays(weekday));
-        var incul = string.Format(CultureInfo.InvariantCulture, "{0:dddd}", DateTime.Now.AddDays(weekday));
-        if (cul.Length < minDayLong)
-          minDayLong = cul.Length;
-        if (incul.Length < minDayLong)
-          minDayLong = incul.Length;
-        if (cul.Length > maxDayLong)
-          maxDayLong = cul.Length;
-        if (incul.Length > maxDayLong)
-          maxDayLong = incul.Length;
-
-        cul = string.Format(CultureInfo.CurrentCulture, "{0:ddd}", DateTime.Now.AddDays(weekday));
-        incul = string.Format(CultureInfo.InvariantCulture, "{0:ddd}", DateTime.Now.AddDays(weekday));
-        if (cul.Length < minDayMid)
-          minDayMid = cul.Length;
-        if (incul.Length < minDayMid)
-          minDayMid = incul.Length;
-        if (cul.Length > maxDayMid)
-          maxDayMid = cul.Length;
-        if (incul.Length > maxDayMid)
-          maxDayMid = incul.Length;
-      }
-
-      for (int month = 0; month < 12; month++)
-      {
-        var cul = string.Format(CultureInfo.CurrentCulture, "{0:MMMM}", DateTime.Now.AddMonths(month));
-        var incul = string.Format(CultureInfo.InvariantCulture, "{0:MMMM}", DateTime.Now.AddMonths(month));
-        if (cul.Length < minMonthLong)
-          minMonthLong = cul.Length;
-        if (incul.Length < minMonthLong)
-          minMonthLong = incul.Length;
-        if (cul.Length > maxMonthLong)
-          maxMonthLong = cul.Length;
-        if (incul.Length > maxMonthLong)
-          maxMonthLong = incul.Length;
-
-        cul = string.Format(CultureInfo.CurrentCulture, "{0:MMM}", DateTime.Now.AddMonths(month));
-        incul = string.Format(CultureInfo.InvariantCulture, "{0:MMM}", DateTime.Now.AddMonths(month));
-        if (cul.Length < minMonthMid)
-          minMonthMid = cul.Length;
-        if (incul.Length < minMonthMid)
-          minMonthMid = incul.Length;
-        if (cul.Length > maxMonthMid)
-          maxMonthMid = cul.Length;
-        if (incul.Length > maxMonthMid)
-          maxMonthMid = incul.Length;
-      }
-
-      {
-        if (CultureInfo.CurrentCulture.DateTimeFormat.AMDesignator.Length > 2)
-          maxDesignator = CultureInfo.CurrentCulture.DateTimeFormat.AMDesignator.Length;
-        if (CultureInfo.CurrentCulture.DateTimeFormat.PMDesignator.Length > 2)
-          maxDesignator = CultureInfo.CurrentCulture.DateTimeFormat.AMDesignator.Length;
-      }
-    }
-
-    public static Tuple<int, int> DeterminLength(string format)
-    {
-      var min = format.Length;
-      var max = format.Length;
-
-      if (minDayLong == int.MaxValue)
-        DetermineLenth();
-
-      format = SetMinMax(format, "dddd", ref min, ref max, minDayLong, maxDayLong);
-      format = SetMinMax(format, "ddd", ref min, ref max, minDayMid, maxDayMid);
-      format = SetMinMax(format, "dd", ref min, ref max, 2, 2);
-      format = SetMinMax(format, "d", ref min, ref max, 1, 2);
-
-      format = SetMinMax(format, "yyyy", ref min, ref max, 4, 4);
-      format = SetMinMax(format, "yy", ref min, ref max, 2, 2);
-      format = SetMinMax(format, "y", ref min, ref max, 1, 2);
-
-      format = SetMinMax(format, "HH", ref min, ref max, 2, 2);
-      format = SetMinMax(format, "H", ref min, ref max, 1, 2);
-      format = SetMinMax(format, "hh", ref min, ref max, 2, 2);
-      format = SetMinMax(format, "h", ref min, ref max, 1, 2);
-
-      format = SetMinMax(format, "mm", ref min, ref max, 2, 2);
-      format = SetMinMax(format, "m", ref min, ref max, 1, 2);
-
-      format = SetMinMax(format, "MMMM", ref min, ref max, minMonthLong, maxMonthLong);
-      format = SetMinMax(format, "MMM", ref min, ref max, minMonthMid, maxMonthMid);
-      format = SetMinMax(format, "MM", ref min, ref max, 2, 2);
-      format = SetMinMax(format, "M", ref min, ref max, 1, 2);
-
-      format = SetMinMax(format, "ss", ref min, ref max, 2, 2);
-      format = SetMinMax(format, "s", ref min, ref max, 1, 2);
-
-      format = SetMinMax(format, "K", ref min, ref max, 0, 6);
-      format = SetMinMax(format, "zzz", ref min, ref max, 0, 6);
-      format = SetMinMax(format, "zz", ref min, ref max, 3, 3);
-      format = SetMinMax(format, "z", ref min, ref max, 2, 3);
-
-      format = SetMinMax(format, "tt", ref min, ref max, 2, maxDesignator);
-
-      return new Tuple<int, int>(min, max);
-    }
-
     /// <summary>
-    /// Initializes the <see cref="StringConversion"/> class.
+    ///   A static value any time only value will have this date
     /// </summary>
-    static StringConversion()
-    {
-      foreach (var fmt in StringConversion.WrittenDateTimeFormats)
-      {
-        if (!m_DateLengthMinMax.ContainsKey(fmt))
-        {
-          var res = DeterminLength(fmt);
-          m_DateLengthMinMax.Add(fmt, res);
-        }
-      }
-
-      foreach (var fmt in StringConversion.StandardDateTimeFormats)
-      {
-        if (!m_DateLengthMinMax.ContainsKey(fmt))
-        {
-          var res = DeterminLength(fmt);
-          m_DateLengthMinMax.Add(fmt, res);
-        }
-      }
-    }
+    private static DateTime m_FirstDateTime = new DateTime(1899, 12, 30, 0, 0, 0, 0);
 
     /// <summary>Checks if the values are dates.</summary>
     /// <param name="samples">The sample values to be checked.</param>
@@ -636,64 +358,6 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Excel NPOI Time is one day off, the time needs to be adjusted
-    /// </summary>
-    /// <param name="dateTime">The original time.</param>
-    /// <returns>The correct date time</returns>
-    public static DateTime FixExcelNPOIDate(DateTime dateTime)
-    {
-      if (dateTime >= m_FirstDateTimeNextDay && dateTime < m_FirstDateTime.AddDays(2))
-        return dateTime.AddDays(-1);
-
-      return dateTime;
-    }
-
-    /// <summary>
-    ///   Gets the time from ticks.
-    /// </summary>
-    /// <param name="ticks">The ticks.</param>
-    /// <returns>A Time</returns>
-    public static DateTime GetTimeFromTicks(long ticks)
-    {
-      return m_FirstDateTime.Add(new TimeSpan(ticks));
-    }
-
-    /// <summary>
-    ///   Combines two strings to one date time.
-    /// </summary>
-    /// <param name="datePart">The date part.</param>
-    /// <param name="dateFormat">The date format.</param>
-    /// <param name="timePart">The time part.</param>
-    /// <param name="dateSeparator">The date separator.</param>
-    /// <param name="timeSeparator">The time separator.</param>
-    /// <param name="serialDateTime">Allow Date Time values ion serial format</param>
-    /// <returns></returns>
-    public static DateTime? CombineStringsToDateTime(string datePart, string dateFormat, string timePart,
-      string dateSeparator, string timeSeparator, bool serialDateTime)
-    {
-      //DateTime? date = null;
-      //TimeSpan? time;
-      if (string.IsNullOrEmpty(dateFormat))
-        return null;
-
-      var date = StringToDateTime(datePart, dateFormat, dateSeparator, timeSeparator, serialDateTime);
-
-      // In case a value is read that just is a time, need to adjust c# and Excel behavior
-      // the application assumes all dates on cFirstDatetime is a time only
-      if (date.HasValue && date.Value.Year == 1 && date.Value.Month == 1 && string.IsNullOrWhiteSpace(timePart))
-        return GetTimeFromTicks(date.Value.Ticks);
-
-      var time = StringToTimeSpan(timePart, timeSeparator, serialDateTime);
-
-      if (time.HasValue && date.HasValue)
-        // this can be problematic if both are in fact times...
-        return date.Value.Add(time.Value);
-      if (time.HasValue)
-        return m_FirstDateTime.Add(time.Value);
-      return date;
-    }
-
-    /// <summary>
     /// Combine date / time for excel, the individual values could already be typed.
     /// </summary>
     /// <param name="dateColumn">The date column entry</param>
@@ -770,19 +434,39 @@ namespace CsvTools
       return dateValue;
     }
 
-    public static IEnumerable<string> MatchingforLength(int length, IEnumerable<string> original)
+    /// <summary>
+    ///   Combines two strings to one date time.
+    /// </summary>
+    /// <param name="datePart">The date part.</param>
+    /// <param name="dateFormat">The date format.</param>
+    /// <param name="timePart">The time part.</param>
+    /// <param name="dateSeparator">The date separator.</param>
+    /// <param name="timeSeparator">The time separator.</param>
+    /// <param name="serialDateTime">Allow Date Time values ion serial format</param>
+    /// <returns></returns>
+    public static DateTime? CombineStringsToDateTime(string datePart, string dateFormat, string timePart,
+      string dateSeparator, string timeSeparator, bool serialDateTime)
     {
-      var ret = new List<string>();
-      foreach (var dateFormat in original)
-      {
-        if (string.IsNullOrEmpty(dateFormat))
-          continue;
-        // if we do not know the length take it
-        if (DateLengthMatches(length, dateFormat))
-          ret.Add(dateFormat);
-      }
+      //DateTime? date = null;
+      //TimeSpan? time;
+      if (string.IsNullOrEmpty(dateFormat))
+        return null;
 
-      return ret;
+      var date = StringToDateTime(datePart, dateFormat, dateSeparator, timeSeparator, serialDateTime);
+
+      // In case a value is read that just is a time, need to adjust c# and Excel behavior
+      // the application assumes all dates on cFirstDatetime is a time only
+      if (date.HasValue && date.Value.Year == 1 && date.Value.Month == 1 && string.IsNullOrWhiteSpace(timePart))
+        return GetTimeFromTicks(date.Value.Ticks);
+
+      var time = StringToTimeSpan(timePart, timeSeparator, serialDateTime);
+
+      if (time.HasValue && date.HasValue)
+        // this can be problematic if both are in fact times...
+        return date.Value.Add(time.Value);
+      if (time.HasValue)
+        return m_FirstDateTime.Add(time.Value);
+      return date;
     }
 
     /// <summary>
@@ -798,8 +482,8 @@ namespace CsvTools
       Contract.Requires(!string.IsNullOrEmpty(dateFormat));
 
       // Either the format is known then use the determined length restrictions
-      if (m_DateLengthMinMax.TryGetValue(dateFormat, out var lengthMinMax))
-        return length >= lengthMinMax.Item1 && length <= lengthMinMax.Item2;
+      if (StandardDateTimeFormats.TryGetValue(dateFormat, out var lengthMinMax))
+        return length >= lengthMinMax.MinLength && length <= lengthMinMax.MaxLength;
       else
         return true;
     }
@@ -884,16 +568,6 @@ namespace CsvTools
         CultureInfo.InvariantCulture.NumberFormat.NumberGroupSeparator, format.GroupSeparator);
     }
 
-    public static bool IsTimeOnly(DateTime dateTime)
-    {
-      return (dateTime >= m_FirstDateTime && dateTime < m_FirstDateTimeNextDay);
-    }
-
-    public static bool IsDuration(DateTime dateTime)
-    {
-      return (dateTime >= m_FirstDateTime && dateTime < m_FirstDateTime.AddHours(240));
-    }
-
     /// <summary>
     ///   Displays the date time in local format
     /// </summary>
@@ -976,6 +650,72 @@ namespace CsvTools
       }
 
       return $"{dblScaledValue:N3} {strUnits}";
+    }
+
+    /// <summary>
+    ///   Excel NPOI Time is one day off, the time needs to be adjusted
+    /// </summary>
+    /// <param name="dateTime">The original time.</param>
+    /// <returns>The correct date time</returns>
+    public static DateTime FixExcelNPOIDate(DateTime dateTime)
+    {
+      if (dateTime >= m_FirstDateTimeNextDay && dateTime < m_FirstDateTime.AddDays(2))
+        return dateTime.AddDays(-1);
+
+      return dateTime;
+    }
+
+    /// <summary>
+    ///   Gets the time from ticks.
+    /// </summary>
+    /// <param name="ticks">The ticks.</param>
+    /// <returns>A Time</returns>
+    public static DateTime GetTimeFromTicks(long ticks)
+    {
+      return m_FirstDateTime.Add(new TimeSpan(ticks));
+    }
+
+    public static bool IsDuration(DateTime dateTime)
+    {
+      return (dateTime >= m_FirstDateTime && dateTime < m_FirstDateTime.AddHours(240));
+    }
+
+    public static bool IsTimeOnly(DateTime dateTime)
+    {
+      return (dateTime >= m_FirstDateTime && dateTime < m_FirstDateTimeNextDay);
+    }
+
+    /// <summary>
+    ///   Tries to determine the date time assuming its an Excel serial date time, using regional and
+    ///   common decimal separators
+    /// </summary>
+    /// <param name="value">The Value as string</param>
+    /// <returns></returns>
+    public static DateTime? SerialStringToDateTime(string value)
+    {
+      var stringDateValue = value?.Trim() ?? string.Empty;
+      try
+      {
+        var numberFormatProvider = new NumberFormatInfo
+        {
+          NegativeSign = "-",
+          PositiveSign = "+",
+          NumberGroupSeparator = string.Empty
+        };
+        foreach (var decimalSeparator in DecimalSeparators)
+        {
+          numberFormatProvider.NumberDecimalSeparator = decimalSeparator.ToString();
+          if (!double.TryParse(stringDateValue, NumberStyles.Float, numberFormatProvider, out var timeSerial)) continue;
+          if (timeSerial >= -657435 && timeSerial < 2958466)
+            return DateTime.FromOADate(timeSerial);
+        }
+      }
+      catch (Exception ex)
+      {
+        Debug.WriteLine("{0} is not a serial date. Error: {1}", value, ex.Message);
+      }
+
+      return null;
     }
 
     /// <summary>
@@ -1429,38 +1169,7 @@ namespace CsvTools
       return complete.ToArray();
     }
 
-    /// <summary>
-    ///   Tries to determine the date time assuming its an Excel serial date time, using regional and
-    ///   common decimal separators
-    /// </summary>
-    /// <param name="value">The Value as string</param>
-    /// <returns></returns>
-    public static DateTime? SerialStringToDateTime(string value)
-    {
-      var stringDateValue = value?.Trim() ?? string.Empty;
-      try
-      {
-        var numberFormatProvider = new NumberFormatInfo
-        {
-          NegativeSign = "-",
-          PositiveSign = "+",
-          NumberGroupSeparator = string.Empty
-        };
-        foreach (var decimalSeparator in DecimalSeparators)
-        {
-          numberFormatProvider.NumberDecimalSeparator = decimalSeparator.ToString();
-          if (!double.TryParse(stringDateValue, NumberStyles.Float, numberFormatProvider, out var timeSerial)) continue;
-          if (timeSerial >= -657435 && timeSerial < 2958466)
-            return DateTime.FromOADate(timeSerial);
-        }
-      }
-      catch (Exception ex)
-      {
-        Debug.WriteLine("{0} is not a serial date. Error: {1}", value, ex.Message);
-      }
-
-      return null;
-    }
+    
 
     /// <summary>
     ///   Strings to date time by culture.

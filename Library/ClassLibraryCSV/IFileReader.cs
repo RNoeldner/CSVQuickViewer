@@ -19,87 +19,87 @@ using System.Threading;
 namespace CsvTools
 {
   /// <summary>
-  ///   Interface for a File Reader.
+  ///  Interface for a File Reader.
   /// </summary>
   public interface IFileReader : IDataReader
   {
     /// <summary>
-    ///   The Cancellation Token used by the progress form
+    ///  Event handler called as the read is done
+    /// </summary>
+    event EventHandler ReadFinished;
+
+    /// <summary>
+    ///  Event handler called if a warning or error occurred
+    /// </summary>
+    event EventHandler<WarningEventArgs> Warning;
+
+    /// <summary>
+    ///  The Cancellation Token used by the progress form
     /// </summary>
     CancellationToken CancellationToken { set; }
 
     /// <summary>
-    ///   Gets the end line number
+    ///  Gets the end line number
     /// </summary>
     /// <value>The line number in which the record ended</value>
     long EndLineNumber { get; }
 
     /// <summary>
-    ///   Gets the end name of the line number field.
+    ///  Gets the end name of the line number field.
     /// </summary>
     /// <value>The end name of the line number field.</value>
     string EndLineNumberFieldName { get; }
 
     /// <summary>
-    ///   Determine if the data Reader is at the end of the file
+    ///  Determine if the data Reader is at the end of the file
     /// </summary>
     /// <returns>True if you can read; otherwise, false.</returns>
     bool EndOfFile { get; }
 
     /// <summary>
-    ///   Gets the field name for persisted error information
+    ///  Gets the field name for persisted error information
     /// </summary>
     /// <value>The error field.</value>
     string ErrorField { get; }
 
     /// <summary>
-    ///   Process display for this File Reader
+    ///  Process display for this File Reader
     /// </summary>
     IProcessDisplay ProcessDisplay { set; }
 
     /// <summary>
-    ///   Gets the record number.
+    ///  Gets the record number.
     /// </summary>
     /// <value>The record number.</value>
     long RecordNumber { get; }
 
     /// <summary>
-    ///   Gets the name of the record number field.
+    ///  Gets the name of the record number field.
     /// </summary>
     /// <value>The name of the record number field.</value>
     string RecordNumberFieldName { get; }
 
     /// <summary>
-    ///   Gets the start line number.
+    ///  Gets the start line number.
     /// </summary>
     /// <value>The line number in which the record started.</value>
     long StartLineNumber { get; }
 
     /// <summary>
-    ///   Gets the start name of the line number field.
+    ///  Gets the start name of the line number field.
     /// </summary>
     /// <value>The start name of the line number field.</value>
     string StartLineNumberFieldName { get; }
 
     /// <summary>
-    ///   Event handler called as the read is done
-    /// </summary>
-    event EventHandler ReadFinished;
-
-    /// <summary>
-    ///   Event handler called if a warning or error occurred
-    /// </summary>
-    event EventHandler<WarningEventArgs> Warning;
-
-    /// <summary>
-    ///   Gets the column information for a given column number
+    ///  Gets the column information for a given column number
     /// </summary>
     /// <param name="column">The column.</param>
     /// <returns>A <see cref="Column" /> with all information on the column</returns>
     Column GetColumn(int column);
 
     /// <summary>
-    ///   Checks if the column should be read
+    ///  Checks if the column should be read
     /// </summary>
     /// <param name="column">The column number.</param>
     /// <returns><c>true</c> if this column should not be read</returns>
@@ -116,13 +116,13 @@ namespace CsvTools
     long Open(CancellationToken cancellationToken, bool determineColumnSize);
 
     /// <summary>
-    ///   Overrides the column format with values from settings
+    ///  Overrides the column format with values from settings
     /// </summary>
     /// <param name="fieldCount">The field count.</param>
     void OverrideColumnFormatFromSetting(int fieldCount);
 
     /// <summary>
-    ///   Resets the position and buffer to the header in case the file has a header
+    ///  Resets the position and buffer to the header in case the file has a header
     /// </summary>
     void ResetPositionToFirstDataRow();
   }

@@ -154,6 +154,8 @@
     <Compile Include="Cache.cs" />
     <Compile Include="CheckResult.cs" />
     <Compile Include="CsvFileWriter.cs" />
+    <Compile Include="DateTimeFormatCollection.cs" />
+    <Compile Include="DateTimeFormatInformation.cs" />
     <Compile Include="DummyToolSetting.cs" />
     <Compile Include="IExcelFile.cs" />
     <Compile Include="IExcelFileReader.cs" />
@@ -217,6 +219,9 @@
     <Compile Include="ValueFormat.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="DateTimeFormats.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="TZMapping.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -229,8 +234,8 @@
       <HintPath>..\..\..\CSVFileValidator\packages\BouncyCastle.OpenPgp.1.8.1.1\lib\net20\BouncyCastle.OpenPgp.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="NodaTime, Version=2.4.2.0, Culture=neutral, PublicKeyToken=4226afe0d9b296d1, processorArchitecture=MSIL">
-      <HintPath>..\..\..\CSVFileValidator\packages\NodaTime.2.4.2\lib\net45\NodaTime.dll</HintPath>
+    <Reference Include="NodaTime, Version=2.4.4.0, Culture=neutral, PublicKeyToken=4226afe0d9b296d1, processorArchitecture=MSIL">
+      <HintPath>..\..\..\CSVFileValidator\packages\NodaTime.2.4.4\lib\net45\NodaTime.dll</HintPath>
     </Reference>
     <Reference Include="Pri.LongPath, Version=2.0.45.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\..\CSVQuickViewer\packages\Pri.LongPath.2.0.45\lib\net45\Pri.LongPath.dll</HintPath>

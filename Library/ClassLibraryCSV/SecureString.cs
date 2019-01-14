@@ -24,6 +24,11 @@ namespace CsvTools
   /// </summary>
   public static class SecureString
   {
+    /// <summary>
+    /// A central Random instance that should be decently random, please use for any random number generation
+    /// </summary>
+    public static Random Random = new Random(Guid.NewGuid().GetHashCode());
+
     private const int c_SlatSize = 8;
     private const int c_SlatSplit = 3;
 
@@ -31,11 +36,6 @@ namespace CsvTools
       {112, 101, 109, 50, 97, 105, 108, 57, 117, 122, 108, 103, 122, 106, 55, 97};
 
     private static string m_Phrase;
-
-    /// <summary>
-    /// A central Random instance that should be decently random, please use for any random number generation
-    /// </summary>
-    public static Random Random = new Random(Guid.NewGuid().GetHashCode());
 
     private static string DefaultPhrase
     {

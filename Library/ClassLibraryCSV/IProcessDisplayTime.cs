@@ -15,7 +15,7 @@
 namespace CsvTools
 {
   /// <summary>
-  ///   Interface for an ProcessDisplay
+  ///  Interface for an ProcessDisplay
   /// </summary>
   public interface IProcessDisplayTime : IProcessDisplay
   {

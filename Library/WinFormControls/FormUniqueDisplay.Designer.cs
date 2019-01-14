@@ -94,7 +94,7 @@
       this.detailControl.ShowFilter = false;
       this.detailControl.ShowInfoButtons = false;
       this.detailControl.Size = new System.Drawing.Size(478, 467);
-      this.detailControl.TabIndex = 11;
+      this.detailControl.TabIndex = 2;
       // 
       // comboBoxID
       // 
@@ -104,7 +104,7 @@
       this.comboBoxID.Location = new System.Drawing.Point(73, 3);
       this.comboBoxID.Name = "comboBoxID";
       this.comboBoxID.Size = new System.Drawing.Size(313, 21);
-      this.comboBoxID.TabIndex = 10;
+      this.comboBoxID.TabIndex = 0;
       this.comboBoxID.SelectedIndexChanged += new System.EventHandler(this.comboBoxID_SelectedIndexChanged);
       // 
       // checkBoxIgnoreNull
@@ -114,7 +114,7 @@
       this.checkBoxIgnoreNull.Location = new System.Drawing.Point(392, 5);
       this.checkBoxIgnoreNull.Name = "checkBoxIgnoreNull";
       this.checkBoxIgnoreNull.Size = new System.Drawing.Size(87, 17);
-      this.checkBoxIgnoreNull.TabIndex = 12;
+      this.checkBoxIgnoreNull.TabIndex = 1;
       this.checkBoxIgnoreNull.Text = "Ignore NULL";
       this.checkBoxIgnoreNull.UseVisualStyleBackColor = true;
       this.checkBoxIgnoreNull.CheckedChanged += new System.EventHandler(this.comboBoxID_SelectedIndexChanged);

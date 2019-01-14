@@ -11,8 +11,7 @@ namespace CsvTools.Tests
       var a = new FillGuessSettings
       {
         CheckedRecords = 10,
-        CheckNamedDates = true,
-        DateTimeValue = "Test",
+        CheckNamedDates = true,        
         DectectNumbers = true,
         DectectPercentage = true,
         DetectBoolean = true,
@@ -36,8 +35,7 @@ namespace CsvTools.Tests
       var a = new FillGuessSettings
       {
         CheckedRecords = 10,
-        CheckNamedDates = true,
-        DateTimeValue = "Test",
+        CheckNamedDates = true,        
         DectectNumbers = true,
         DectectPercentage = true,
         DetectBoolean = true,
@@ -54,8 +52,7 @@ namespace CsvTools.Tests
       var b = new FillGuessSettings
       {
         CheckedRecords = 11,
-        CheckNamedDates = !a.CheckNamedDates,
-        DateTimeValue = "Hallo",
+        CheckNamedDates = !a.CheckNamedDates,        
         DectectNumbers = !a.DectectNumbers,
         DectectPercentage = !a.DectectPercentage,
         DetectBoolean = !a.DetectBoolean,
@@ -80,8 +77,7 @@ namespace CsvTools.Tests
       var a = new FillGuessSettings
       {
         CheckedRecords = 10,
-        CheckNamedDates = true,
-        DateTimeValue = "Test",
+        CheckNamedDates = true,        
         DectectNumbers = true,
         DectectPercentage = true,
         DetectBoolean = true,

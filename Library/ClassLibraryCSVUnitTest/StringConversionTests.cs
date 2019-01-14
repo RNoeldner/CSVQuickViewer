@@ -1,5 +1,4 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NodaTime;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -248,7 +247,7 @@ namespace CsvTools.Tests
       var culture = new CultureInfo("en-US");
 
       // Try the date formats
-      foreach (var fmt in StringConversion.StandardDateTimeFormats)
+      foreach (var fmt in StringConversion.StandardDateTimeFormats.Keys)
       {
         // Fill Samples
         var samples = new HashSet<string>();
