@@ -32,7 +32,7 @@ namespace CsvTools
     /// </summary>
     public static readonly DateTimeFormatCollection StandardDateTimeFormats =
       new DateTimeFormatCollection("DateTimeFormats.txt");
-   
+
     public static HashSet<string> DateSeparators =
           new HashSet<string>(new[] { CultureInfo.CurrentCulture.DateTimeFormat.DateSeparator, "/", ".", "-" });
 
@@ -788,13 +788,13 @@ namespace CsvTools
     ///   If the date part is not filled its the 1/1/1
     /// </remarks>
     public static DateTime? StringToDateTime(string originalValue, string dateFormat, string dateSeparator,
-      string timeSeparator, bool serialDateTime, CultureInfo culture = null)
+      string timeSeparator, bool serialDateTime, CultureInfo culture = null, bool fallback = true)
     {
       var stringDateValue = originalValue?.Trim() ?? string.Empty;
       if (culture == null)
         culture = CultureInfo.CurrentCulture;
 
-      var result = StringToDateTimeNoSerial(originalValue, dateFormat, dateSeparator, timeSeparator, culture);
+      var result = StringToDateTimeExact(originalValue, dateFormat, dateSeparator, timeSeparator, culture, fallback);
       if (result.HasValue)
         return result.Value;
 
@@ -817,31 +817,39 @@ namespace CsvTools
       return null;
     }
 
+
     /// <summary>
-    ///   Strings to date time exact.
+    ///   Converts Strings to date time using the culture information
     /// </summary>
     /// <param name="originalValue">The original value.</param>
-    /// <param name="dateFormat">The short date format.</param>
+    /// <param name="dateFormats">The date formats.</param>
     /// <param name="dateSeparator">The date separator.</param>
     /// <param name="timeSeparator">The time separator.</param>
-    /// <param name="culture">The culture for month and day names.</param>
+    /// <param name="culture">The culture.</param>
+    /// <param name="fallback">if set to <c>true</c> try to fall back to some defaults using / and only parsing the date.</param>
+    /// <remarks>Similar to <see cref="StringToDateTimeByCulture"/> but checks if we have a format that would fit the length of the value.
+    /// </remarks>
     /// <returns></returns>
-    public static DateTime? StringToDateTimeExact(string originalValue, string dateFormat, string dateSeparator,
-      string timeSeparator, CultureInfo culture)
+    public static DateTime? StringToDateTimeExact(string originalValue, string dateFormats, string dateSeparator,
+      string timeSeparator, CultureInfo culture, bool fallback = true)
     {
-      Contract.Requires(culture != null);
-      var stringDateValue = (originalValue ?? string.Empty).Trim();
+      var stringDateValue = originalValue?.Trim() ?? string.Empty;
 
-      // Sometimes TryParseExact does return true even though it should be false
-      // For this to happen the culture has a separator equaling"." but the stringDateValue contains a "/"
-      // Still the date is parsed without issue even though we do have the wrong delimiter
-      if (stringDateValue.Length < 4 || stringDateValue == "00000000" || stringDateValue == "99999999" ||
-          !stringDateValue.Contains(dateSeparator) && dateFormat.IndexOf('/') > 0 ||
-          !DateLengthMatches(stringDateValue.Length, dateFormat))
+      // Quick check: If the entry is empty, or a constant string, or the length does not make
+      // sense, we do not need to try and parse
+      if (stringDateValue == "00000000" || stringDateValue == "99999999" || stringDateValue.Length < 4)
         return null;
 
-      return StringToDateTimeByCulture(stringDateValue, new[] { dateFormat }, dateSeparator, timeSeparator, culture,
-        false);
+      var matchingDateTimeFormats = new List<string>();
+      foreach (var format in GetDateFormats(dateFormats))
+        if (DateLengthMatches(stringDateValue.Length, format) || stringDateValue.Contains(dateSeparator) && format.IndexOf('/') > 0)
+          matchingDateTimeFormats.Add(format);
+
+      if (matchingDateTimeFormats.Count == 0)
+        return null;
+
+      return StringToDateTimeByCulture(stringDateValue, matchingDateTimeFormats.ToArray(), dateSeparator, timeSeparator,
+        culture, fallback);
     }
 
     /// <summary>
@@ -1169,10 +1177,10 @@ namespace CsvTools
       return complete.ToArray();
     }
 
-    
+
 
     /// <summary>
-    ///   Strings to date time by culture.
+    ///   Converts Strings to date time using the culture information
     /// </summary>
     /// <param name="stringDateValue">The string date value make sure the text is trimmed</param>
     /// <param name="dateTimeFormats">The date time formats.</param>
@@ -1207,11 +1215,16 @@ namespace CsvTools
         DateTimeStyles.NoCurrentDateDefault, out var result))
         return result;
 
-      if (!fallback) return null;
-      // try with date separator of /
-      if (dateSeparator != "/")
+      // try InvariantCulture
+      if (fallback && culture.Name != "en-US" && culture != CultureInfo.InvariantCulture)
       {
-        dateTimeFormatInfo.DateSeparator = "/";
+        dateTimeFormatInfo.AbbreviatedDayNames = CultureInfo.InvariantCulture.DateTimeFormat.AbbreviatedDayNames;
+        dateTimeFormatInfo.DayNames = CultureInfo.InvariantCulture.DateTimeFormat.DayNames;
+        dateTimeFormatInfo.MonthNames = CultureInfo.InvariantCulture.DateTimeFormat.MonthNames;
+        dateTimeFormatInfo.AbbreviatedMonthNames = CultureInfo.InvariantCulture.DateTimeFormat.AbbreviatedMonthNames;
+        dateTimeFormatInfo.DateSeparator = CultureInfo.InvariantCulture.DateTimeFormat.DateSeparator;
+        dateTimeFormatInfo.TimeSeparator = CultureInfo.InvariantCulture.DateTimeFormat.TimeSeparator;
+
         if (DateTime.TryParseExact(stringDateValue, dateTimeFormats, dateTimeFormatInfo,
           DateTimeStyles.NoCurrentDateDefault, out result))
           return result;
@@ -1224,38 +1237,9 @@ namespace CsvTools
       // Only do this if we have at least 6 characters
       if (foundSpace > 6)
         return StringToDateTimeByCulture(stringDateValue.Substring(0, foundSpace), dateTimeFormats, dateSeparator,
-          timeSeparator, culture, true);
+          timeSeparator, culture, fallback);
 
       return null;
-    }
-
-    private static DateTime? StringToDateTimeNoSerial(string originalValue, string dateFormat, string dateSeparator,
-      string timeSeparator, CultureInfo culture)
-    {
-      var stringDateValue = originalValue?.Trim() ?? string.Empty;
-
-      // Quick check: If the entry is empty, or a constant string, or the length does not make
-      // sense, we do not need to try and parse
-      if (stringDateValue == "00000000" || stringDateValue == "99999999" || stringDateValue.Length < 4)
-        return null;
-
-      var dateTimeFormats = GetDateFormats(dateFormat);
-      var macthingDateTimeFormats = new List<string>();
-      foreach (var format in dateTimeFormats)
-        if (DateLengthMatches(stringDateValue.Length, format))
-          macthingDateTimeFormats.Add(format);
-
-      if (macthingDateTimeFormats.Count == 0)
-        return null;
-
-      var result = StringToDateTimeByCulture(stringDateValue, dateTimeFormats, dateSeparator, timeSeparator,
-        culture, true);
-      if (result.HasValue)
-        return result.Value;
-
-      var result2 = StringToDateTimeByCulture(stringDateValue, dateTimeFormats, dateSeparator, timeSeparator,
-        CultureInfo.InvariantCulture, true);
-      return result2;
     }
   }
 }

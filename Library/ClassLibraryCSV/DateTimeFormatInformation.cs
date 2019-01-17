@@ -4,7 +4,7 @@ using System.Globalization;
 
 namespace CsvTools
 {
-  [DebuggerDisplay("{m_MinLength}-{m_MaxLength}")]
+  [DebuggerDisplay("{m_MinLength} - {m_MaxLength}")]
   public class DateTimeFormatInformation
   {
     private static int maxDayLong = int.MinValue;

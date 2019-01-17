@@ -389,28 +389,19 @@ namespace CsvTools
     /// <returns></returns>
     public static IEnumerable<ValueFormat> GetAllPossibleFormats(string value, CultureInfo culture = null)
     {
+      if (culture == null)
+        culture = CultureInfo.CurrentCulture;
+
       // Standard Date Time formats
       foreach (var fmt in StringConversion.StandardDateTimeFormats.MatchingforLength(value.Length, true))
       {
-        if (fmt.IndexOf('/') > 0)
+        foreach (var sep in StringConversion.DateSeparators)
         {
-          foreach (var sep in StringConversion.DateSeparators)
-          {
-            if (StringConversion.StringToDateTime(value, fmt, sep, ":", false, culture).HasValue)
-              yield return new ValueFormat(DataType.DateTime)
-              {
-                DateFormat = fmt,
-                DateSeparator = sep,
-              };
-          }
-        }
-        else
-        {
-          if (StringConversion.StringToDateTime(value, fmt, CultureInfo.CurrentCulture.DateTimeFormat.DateSeparator, ":", false, culture).HasValue)
+          if (StringConversion.StringToDateTimeExact(value, fmt, sep, culture.DateTimeFormat.TimeSeparator, culture, false).HasValue)
             yield return new ValueFormat(DataType.DateTime)
             {
               DateFormat = fmt,
-              DateSeparator = CultureInfo.CurrentCulture.DateTimeFormat.DateSeparator,
+              DateSeparator = sep,
             };
         }
       }

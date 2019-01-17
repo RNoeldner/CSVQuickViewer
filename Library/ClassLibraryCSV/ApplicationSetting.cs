@@ -57,16 +57,16 @@ namespace CsvTools
     {
       if (string.IsNullOrEmpty(tableName))
         return;
-      var key1 = CsvHelper.CacheListKeyColumnHeader(tableName,true);
-      var key2 = CsvHelper.CacheListKeyColumnHeader(tableName,false);
+      var key1 = CsvHelper.CacheListKeyColumnHeader(tableName, true);
+      var key2 = CsvHelper.CacheListKeyColumnHeader(tableName, false);
       var uncache = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
       foreach (var sql in CacheList.Keys)
       {
-        if (sql == key1 || sql== key2)
+        if (sql == key1 || sql == key2)
         {
           uncache.Add(sql);
           continue;
-        }          
+        }
         var tables = StringUtilsSQL.GetSQLTableNames(sql);
         foreach (var tab in tables)
         {
@@ -75,7 +75,7 @@ namespace CsvTools
             uncache.Add(sql);
             break;
           }
-        }        
+        }
       }
       foreach (var sql in uncache)
       {
@@ -179,31 +179,7 @@ namespace CsvTools
     /// <returns>Null if the template table field is not mapped</returns>
     public static string GetColumNameByField(this IFileSetting fileSetting, string templateField)
     {
-      var ret = GetMappingByField(fileSetting, templateField);
-      return ret?.FileColumn;
-    }
-
-    /// <summary>
-    ///  Get the IFileSetting Mapping by template column
-    /// </summary>
-    /// <param name="fileSetting">The file setting.</param>
-    /// <param name="templateField">The template column.</param>
-    /// <returns>Null if the template table field is not mapped</returns>
-    public static Mapping GetMappingByField(this IFileSetting fileSetting, string templateField)
-    {
-      Contract.Requires(fileSetting != null);
-      if (string.IsNullOrEmpty(templateField))
-        return null;
-
-      Contract.Assume(fileSetting.Mapping != null);
-      foreach (var map in fileSetting.Mapping)
-      {
-        Contract.Assume(map != null);
-        if (map.TemplateField.Equals(templateField, StringComparison.OrdinalIgnoreCase))
-          return map;
-      }
-
-      return null;
-    }
+      return fileSetting.GetMappingByField(templateField)?.FileColumn;
+    }   
   }
 }
