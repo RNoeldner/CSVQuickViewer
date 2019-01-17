@@ -39,7 +39,7 @@ namespace CsvTools
 
     public IEnumerable<string> Keys => m_DateLengthMinMax.Keys;
 
-    public IEnumerable<string> MatchingforLength(int length, bool checkNamedDates) => m_DateLengthMinMax.Where(x => checkNamedDates && x.Value.NamedDate && length >= x.Value.MinLength && length <= x.Value.MaxLength).Select(x => x.Key);
+    public IEnumerable<string> MatchingforLength(int length, bool checkNamedDates) => m_DateLengthMinMax.Where(x => (checkNamedDates || !x.Value.NamedDate) && length >= x.Value.MinLength && length <= x.Value.MaxLength).Select(x => x.Key);
 
     public void Replace(string[] cusomList)
     {

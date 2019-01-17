@@ -1282,15 +1282,11 @@ namespace CvsTool.Tests
         {
           test.GetString(666);
         }
-        catch (ArgumentException)
-        {
-          Exception = true;
-        }
         catch (IndexOutOfRangeException)
         {
           Exception = true;
         }
-        catch (NullReferenceException)
+        catch (InvalidOperationException)
         {
           Exception = true;
         }

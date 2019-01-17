@@ -80,10 +80,10 @@ namespace CsvTools
     protected BaseSettings(string fileName) : this()
     {
       FileName = fileName;
-       PropertyChangedString += delegate (object sender, PropertyChangedEventArgs<string> e)
-        {
-          if (e.PropertyName == nameof(ID) && !string.IsNullOrEmpty(e.OldValue)) ApplicationSetting.FlushSQLResultByTable(e.OldValue);
-        };
+      PropertyChangedString += delegate (object sender, PropertyChangedEventArgs<string> e)
+       {
+         if (e.PropertyName == nameof(ID) && !string.IsNullOrEmpty(e.OldValue)) ApplicationSetting.FlushSQLResultByTable(e.OldValue);
+       };
     }
 
     /// <summary>
@@ -966,10 +966,10 @@ namespace CsvTools
         return false;
 
       var found = false;
-      foreach (var x in m_ColumnMapping)
+      foreach (var map in m_ColumnMapping)
       {
-        if (!x.FileColumn.Equals(fieldMapping.FileColumn, StringComparison.OrdinalIgnoreCase) ||
-          !x.TemplateField.Equals(fieldMapping.TemplateField, StringComparison.OrdinalIgnoreCase)) continue;
+        if (!map.FileColumn.Equals(fieldMapping.FileColumn, StringComparison.OrdinalIgnoreCase) ||
+            !map.TemplateField.Equals(fieldMapping.TemplateField, StringComparison.OrdinalIgnoreCase)) continue;
         found = true;
         break;
       }
@@ -978,6 +978,22 @@ namespace CsvTools
         m_ColumnMapping.Add(fieldMapping);
 
       return !found;
+    }
+
+    /// <summary>
+    ///  Get the IFileSetting Mapping by template column
+    /// </summary>
+    /// <param name="fileSetting">The file setting.</param>
+    /// <param name="templateField">The template column.</param>
+    /// <returns>Null if the template table field is not mapped</returns>
+    public Mapping GetMappingByField(string templateField)
+    {
+      foreach (var map in m_ColumnMapping)
+      {
+        if (map.TemplateField.Equals(templateField, StringComparison.OrdinalIgnoreCase))
+          return map;
+      }
+      return null;
     }
 
     /// <summary>

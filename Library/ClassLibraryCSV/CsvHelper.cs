@@ -58,9 +58,8 @@ namespace CsvTools
       Contract.Requires(fileSetting != null);
 
       var key = CacheListKeyColumnHeader(fileSetting.ID, includeIgnored);
-      if (key.Length < 3)
-        return null;
-      if (ApplicationSetting.CacheList.TryGet(key, out var retValue))
+
+      if (key.Length > 3 && ApplicationSetting.CacheList.TryGet(key, out var retValue))
         return retValue;
 
       if (!openIfNeeded)
@@ -70,8 +69,20 @@ namespace CsvTools
       {
         fileReader.ProcessDisplay = processDisplay;
         fileReader.Open(processDisplay?.CancellationToken ?? CancellationToken.None, false);
-
-        return ApplicationSetting.CacheList.Get(key);
+        // if teh key was long enough it has been stored
+        if (key.Length > 3)
+          return ApplicationSetting.CacheList.Get(key);
+        else
+        {
+          var header = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+          for (var colindex = 0; colindex < fileReader.FieldCount; colindex++)
+          {
+            var col = fileReader.GetColumn(colindex);
+            if (includeIgnored || !col.Ignore)
+              header.Add(col.Name);
+          }
+          return header;
+        }
       }
     }
 
@@ -90,7 +101,7 @@ namespace CsvTools
       return values;
     }
 
-  
+
     /// <summary>
     ///   Get sample values for a column
     /// </summary>
@@ -99,21 +110,24 @@ namespace CsvTools
     /// <returns>
     ///   The index of the given name, -1 if not found.
     /// </returns>
-    public static int GetColumnIndex(IFileSetting fileSetting, string columnName)
+    public static int GetColumnIndex(IFileSetting fileSetting, string columnName, bool openIfNeeded = false)
     {
       if (string.IsNullOrEmpty(columnName) || fileSetting == null) return -1;
       var columnIndex = 0;
-      foreach (var col in GetColumnHeader(fileSetting, true, false, null))
+      var headers = GetColumnHeader(fileSetting, true, openIfNeeded, null);
+      if (headers != null)
       {
-        if (col.Equals(columnName, StringComparison.OrdinalIgnoreCase))
-          return columnIndex;
-        columnIndex++;
+        foreach (var col in headers)
+        {
+          if (col.Equals(columnName, StringComparison.OrdinalIgnoreCase))
+            return columnIndex;
+          columnIndex++;
+        }
       }
-
       return -1;
     }
 
-   /// <summary>
+    /// <summary>
     ///   Gets the column header of a file
     /// </summary>
     /// <param name="fileSetting">The file setting.</param>
@@ -182,7 +196,7 @@ namespace CsvTools
       return Encoding.GetEncoding(setting.CodePageId);
     }
 
-      /// <summary>
+    /// <summary>
     ///   Guesses the code page ID of a file
     /// </summary>
     /// <param name="setting">The CSVFile fileSetting</param>
@@ -222,7 +236,7 @@ namespace CsvTools
       setting.CodePageId = detected;
     }
 
-     /// <summary>
+    /// <summary>
     ///   Guesses the delimiter for a files. Done with a rather simple csv parsing, and trying to find
     ///   the delimiter that has the least variance in the read rows, if that is not possible the
     ///   delimiter with the highest number of occurrences.
@@ -247,7 +261,7 @@ namespace CsvTools
       }
     }
 
-   /// <summary>
+    /// <summary>
     /// Opens the csv file, and tries to read the headers
     /// </summary>
     /// <param name="setting">The CSVFile fileSetting</param>
@@ -295,7 +309,7 @@ namespace CsvTools
 
     /// <summary>
     ///   Try to guess the new line sequence
-     /// </summary>
+    /// </summary>
     /// <param name="setting"><see cref="ICsvFile" /> with the information</param>
     /// <returns>The NewLine Combination used</returns>
     public static string GuessNewline(ICsvFile setting)
@@ -337,7 +351,7 @@ namespace CsvTools
       return true;
     }
 
-     /// <summary>
+    /// <summary>
     ///   Determines the start row in the file
     /// </summary>
     /// <param name="setting"><see cref="ICsvFile" /> with the information</param>
@@ -355,7 +369,7 @@ namespace CsvTools
       }
     }
 
-     /// <summary>
+    /// <summary>
     ///   Does check if quoting was actually used in the file
     /// </summary>
     /// <param name="setting">The setting.</param>

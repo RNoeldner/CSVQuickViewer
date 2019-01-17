@@ -283,10 +283,22 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile();
       setting.FileName = Path.Combine(m_ApplicationDirectory, "EmptyColumns.txt");
-      setting.FileFormat.FieldDelimiter = ",";
+      setting.FileFormat.FieldDelimiter = ",";      
       setting.HasFieldHeader = true;
-      Assert.AreEqual(0, CsvHelper.GetColumnIndex(setting, "ID"));
-      Assert.AreEqual(2, CsvHelper.GetColumnIndex(setting, "ExamDate"));
+      Assert.AreEqual(0, CsvHelper.GetColumnIndex(setting, "ID", true));
+      Assert.AreEqual(2, CsvHelper.GetColumnIndex(setting, "ExamDate", true));
+    }
+
+    [TestMethod]
+    public void GetColumnIndexTestID()
+    {
+      var setting = new CsvFile();
+      setting.FileName = Path.Combine(m_ApplicationDirectory, "EmptyColumns.txt");
+      setting.ID = "MyLittleTest";
+      setting.FileFormat.FieldDelimiter = ",";      
+      setting.HasFieldHeader = true;
+      Assert.AreEqual(0, CsvHelper.GetColumnIndex(setting, "ID", true));
+      Assert.AreEqual(2, CsvHelper.GetColumnIndex(setting, "ExamDate", false));
     }
 
     [TestMethod]

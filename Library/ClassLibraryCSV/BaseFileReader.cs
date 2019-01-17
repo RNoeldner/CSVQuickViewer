@@ -337,8 +337,10 @@ namespace CsvTools
     /// <returns></returns>
     public virtual Column GetColumn(int columnNumber)
     {
-      Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount);
-      Debug.Assert(Column != null && columnNumber < Column.Length);
+      if (Column == null)
+        throw new InvalidOperationException("File has not been read");
+      if (columnNumber < 0 || columnNumber >= FieldCount || columnNumber >= Column.Length)
+        throw new IndexOutOfRangeException(nameof(columnNumber));
 
       return Column[columnNumber];
     }
@@ -622,14 +624,18 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Gets the string.
+    /// Gets the originally provided text in a column
     /// </summary>
-    /// <param name="i">The i.</param>
+    /// <param name="columnNumber">The column number.</param>
     /// <returns></returns>
+    /// <exception cref="InvalidOperationException">Row has not been read</exception>
+    /// <exception cref="ArgumentOutOfRangeException">ColumnNumber invalid</exception>
     public virtual string GetString(int columnNumber)
     {
-      Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount);
-      Debug.Assert(CurrentRowColumnText != null && columnNumber < CurrentRowColumnText.Length);
+      if (CurrentRowColumnText == null)
+        throw new InvalidOperationException("Row has not been read");
+      if (columnNumber < 0 || columnNumber >= FieldCount || columnNumber >= CurrentRowColumnText.Length)
+        throw new IndexOutOfRangeException(nameof(columnNumber));
 
       return CurrentRowColumnText[columnNumber];
     }
@@ -655,7 +661,10 @@ namespace CsvTools
             break;
 
           case DataType.Integer:
-            ret = IntPtr.Size == 4 ? GetInt32(columnNumber) : GetInt64(columnNumber);
+            if (IntPtr.Size == 4)
+              ret = GetInt32(columnNumber);
+            else
+              ret = GetInt64(columnNumber);
             break;
 
           case DataType.Double:
