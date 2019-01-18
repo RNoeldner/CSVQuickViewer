@@ -1215,7 +1215,6 @@ namespace CsvTools.Tests
         Assert.AreEqual("c\"c", test.GetString(2));
         Assert.AreEqual("d\"\"d", test.GetString(3));
         Assert.AreEqual("e\"e", test.GetString(4));
-        Assert.IsNull(test.GetString(5));
 
         //"g,h,i"",j,k,l"
         Assert.IsTrue(test.Read());

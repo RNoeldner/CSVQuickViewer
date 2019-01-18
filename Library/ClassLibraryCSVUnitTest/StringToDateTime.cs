@@ -115,7 +115,8 @@ namespace CsvTools.Tests
     [TestMethod]
     public void ParseStringToDateTime_FormatNotMatchingseparatorOK4()
     {
-      TestDate(new DateTime(1999, 01, 02), @"MM/dd/yyyy", ".");
+      TestDate(new DateTime(1999, 01, 02), @"MM/dd/yyyy", "/");
+      TestDate(new DateTime(1999, 01, 02), @"MM.dd.yyyy", ".");
     }
 
     [TestMethod]
@@ -235,7 +236,7 @@ namespace CsvTools.Tests
         var expected = new DateTime(1799, 01, 02);
         var dtString = GetFormattedDate(expected, @"MM/dd/yyyy");
 
-        var actual = StringConversion.StringToDateTime(dtString, @"dd/MM/yyyy", ".", ":", false);
+        var actual = StringConversion.StringToDateTime(dtString, @"dd/MM/yyyy", "/", ":", false);
 
         // if this passes we would expect the month and day to be swapped
         Assert.AreEqual(expected.Year, ((DateTime)actual).Year);

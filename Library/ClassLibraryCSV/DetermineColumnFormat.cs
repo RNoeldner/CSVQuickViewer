@@ -397,7 +397,7 @@ namespace CsvTools
       {
         foreach (var sep in StringConversion.DateSeparators)
         {
-          if (StringConversion.StringToDateTimeExact(value, fmt, sep, culture.DateTimeFormat.TimeSeparator, culture, false).HasValue)
+          if (StringConversion.StringToDateTimeExact(value, fmt, sep, culture.DateTimeFormat.TimeSeparator, culture).HasValue)
             yield return new ValueFormat(DataType.DateTime)
             {
               DateFormat = fmt,
