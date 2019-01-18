@@ -42,12 +42,12 @@ namespace CsvTools.Tests
       Assert.IsTrue(CsvHelper.GuessHasHeader(new CsvFile
       {
         FileName = Path.Combine(m_ApplicationDirectory, "BasicCSV.txt")
-      }, new DummyProcessDisplay()), "BasicCSV.txt");
+      }, CancellationToken.None), "BasicCSV.txt");
 
       Assert.IsFalse(CsvHelper.GuessHasHeader(new CsvFile
       {
         FileName = Path.Combine(m_ApplicationDirectory, "txTranscripts.txt")
-      }, new DummyProcessDisplay()), "txTranscripts.txt");
+      }, CancellationToken.None), "txTranscripts.txt");
     }
 
     [TestMethod]

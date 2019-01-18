@@ -269,7 +269,7 @@ namespace CsvTools
     /// <returns>
     ///   <c>True</c> we could use the first row as header, <c>false</c> should not use first row as header
     /// </returns>
-    public static bool GuessHasHeader(ICsvFile setting, IProcessDisplay processDisplay)
+    public static bool GuessHasHeader(ICsvFile setting, CancellationToken cancellationToken)
     {
       Contract.Requires(setting != null);
       // Only do so if HasFieldHeader is still true
@@ -278,8 +278,7 @@ namespace CsvTools
 
       using (var csvDataReader = new CsvFileReader(setting))
       {
-        csvDataReader.ProcessDisplay = processDisplay;
-        csvDataReader.Open(processDisplay?.CancellationToken ?? CancellationToken.None, false);
+        csvDataReader.Open(cancellationToken, false);
 
         var defaultNames = 0;
 
@@ -452,7 +451,7 @@ namespace CsvTools
       var root = ApplicationSetting.ToolSetting.RootFolder;
       file.FileName.GetAbsolutePath(root);
 
-      display.SetProcess("Refreshing file");
+      display.SetProcess("Checking delimited file");
       GuessCodePage(file);
       if (display.CancellationToken.IsCancellationRequested) return;
       display.SetProcess("Code Page: " +
@@ -464,10 +463,11 @@ namespace CsvTools
 
       file.SkipRows = GuessStartRow(file);
       if (display.CancellationToken.IsCancellationRequested) return;
-      display.SetProcess("Start Row: " + file.SkipRows.ToString(CultureInfo.InvariantCulture));
+      if (file.SkipRows > 0)
+        display.SetProcess("Start Row: " + file.SkipRows.ToString(CultureInfo.InvariantCulture));
 
-      file.HasFieldHeader = GuessHasHeader(file, display);
-      display.SetProcess("Header: " + file.HasFieldHeader);
+      file.HasFieldHeader = GuessHasHeader(file, display.CancellationToken);
+      display.SetProcess("Column Header: " + file.HasFieldHeader);
     }
 
     /// <summary>

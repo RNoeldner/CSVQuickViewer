@@ -419,7 +419,7 @@ namespace CsvTools
             {
               if (m_ViewSettings.GuessHasHeader)
               {
-                m_FileSetting.HasFieldHeader = CsvHelper.GuessHasHeader(m_FileSetting, null);
+                m_FileSetting.HasFieldHeader = CsvHelper.GuessHasHeader(m_FileSetting, cancellationTokenSource.Token);
               }
 
               if (m_FileSetting.HasFieldHeader)

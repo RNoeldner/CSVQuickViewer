@@ -30,12 +30,12 @@ namespace CsvTools
     /// <summary>
     ///  Constant: Line has fewer columns than expected
     /// </summary>
-    public const string cLessColumns = " has fewer columns than expected ";
+    public const string cLessColumns = " has fewer columns than expected";
 
     /// <summary>
     ///  Constant: Line has more columns than expected
     /// </summary>
-    public const string cMoreColumns = " has more columns than expected ";
+    public const string cMoreColumns = " has more columns than expected";
 
     // Buffer size set to 64kB, if set to large the display in percentage will jump
     private const int c_Buffersize = 65536;
@@ -478,8 +478,17 @@ namespace CsvTools
       // If less columns are present...
       else if (rowLength < FieldCount)
       {
+        // if we still have only one column and we should have a number of columns assume this was nonsense like a report footer
+        if (rowLength == 1 && EndOfFile && CurrentRowColumnText[0].Length < 10)
+        {
+          RecordNumber--;
+          HandleWarning(-1, $"Last line {StartLineNumber}{cLessColumns}. Assumed to be a EOF marker and ignored.");
+          return false;
+        }
         if (!m_CsvFile.AllowRowCombining)
-          HandleWarning(-1, $"Line {StartLineNumber}{cLessColumns}({rowLength}/{FieldCount}).");
+        {
+          HandleWarning(-1, $"Line {StartLineNumber}{cLessColumns} ({rowLength}/{FieldCount}).");
+        }
         else
         {
           var oldPos = m_BufferPos;
@@ -521,18 +530,11 @@ namespace CsvTools
             {
               // return to the old position so reading the next row did not matter
               if (!hasWarningCombinedWrning)
-                HandleWarning(-1, $"Line {StartLineNumber}{cLessColumns}({rowLength}/{FieldCount}).");
+                HandleWarning(-1, $"Line {StartLineNumber}{cLessColumns} ({rowLength}/{FieldCount}).");
               m_BufferPos = oldPos;
             }
           }
         }
-      }
-
-      // if we still have only one column and we should have a number of columns assume this was nonsense like a report footer
-      if (rowLength == 1 && FieldCount > 3 && CurrentRowColumnText[0].Length < 10)
-      {
-        RecordNumber--;
-        goto Restart;
       }
 
       // If more columns are present...
@@ -560,7 +562,7 @@ namespace CsvTools
           else
           {
             HandleWarning(-1,
-            $"Line {StartLineNumber}{cMoreColumns}({rowLength}/{FieldCount}). The data in these extra columns is not read.");
+            $"Line {StartLineNumber}{cMoreColumns} ({rowLength}/{FieldCount}). The data in extra columns is not read.");
           }
         }
       }
