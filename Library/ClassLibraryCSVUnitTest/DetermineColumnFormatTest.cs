@@ -1,24 +1,26 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Data;
+using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Threading;
 
 namespace CsvTools.Tests
 {
   [TestClass]
   public class DetermineColumnFormatTest
-  {
+  {    
     private readonly string m_ApplicationDirectory = FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles";
 
     [TestMethod]
     public void GetAllPossibleFormatsD()
-    {
+    {      
       var res = DetermineColumnFormat.GetAllPossibleFormats("30-Oct-18 04:26:28 AM");
       bool found = false;
 
       foreach (var item in res)
       {
-        if (item.DateFormat.Equals("dd/MMM/yy HH:mm:ss tt"))
+        if (item.DateFormat.Equals("dd/MMM/yy HH:mm:ss tt") && item.DateSeparator == "-")
         {
           found = true;
           break;
@@ -26,6 +28,48 @@ namespace CsvTools.Tests
       }
 
       Assert.IsTrue(found);
+    }
+
+    [TestMethod]
+    public void GetAllPossibleFormatsGer()
+    {
+      CultureInfo ci = new CultureInfo("de-DE");
+      var res = DetermineColumnFormat.GetAllPossibleFormats("12/13/2019 04:26", ci).ToList();
+
+      bool found = false;
+      foreach (var item in res)
+      {
+        if (item.DateFormat.Equals("MM/dd/yyyy HH:mm") && item.DateSeparator == "/")
+        {
+          found = true;
+          break;
+        }
+      }
+      Assert.IsTrue(found);
+
+      // we should have MM/dd/yyyy HH:mm, M/d/yyyy HH:mm, MM/dd/yyyy H:mm, M/d/yyyy H:mm
+      Assert.AreEqual(4, res.Count);
+    }
+
+    [TestMethod]
+    public void GetAllPossibleFormatsFR()
+    {
+      CultureInfo ci = new CultureInfo("fr-FR");
+      var res = DetermineColumnFormat.GetAllPossibleFormats("1/2/2019 3:26:10", ci).ToList();
+
+      bool found = false;
+      foreach (var item in res)
+      {
+        if (item.DateFormat.Equals("M/d/yyyy H:mm:ss") && item.DateSeparator == "/")
+        {
+          found = true;
+          break;
+        }
+      }
+
+      Assert.IsTrue(found);
+      // we should have M/d/yyyy H:mm:ss  and d/M/yyyy H:mm:ss 
+      Assert.AreEqual(2, res.Count);
     }
 
     [TestMethod]
@@ -310,7 +354,7 @@ namespace CsvTools.Tests
     public void GuessColumnFormat_Guid()
     {
       string[] values = { "{0799A029-8B85-4589-8341-C7038AFF5B48}", "99DDD263-2E2D-434F-9265-33CF893B02DF" };
-      
+
       var res = DetermineColumnFormat.GuessValueFormat(CancellationToken.None, values, 4, null, "false", false, true,
         false, false, false, false, false, null);
       Assert.AreEqual(DataType.Guid, res.FoundValueFormat.DataType);
@@ -421,7 +465,7 @@ namespace CsvTools.Tests
     {
 
       string[] values = { "1.0.1.2", "1.0.2.1", "1.0.2.2", "1.0.2.3", "1.0.2.3" };
-      
+
       var res = DetermineColumnFormat.GuessValueFormat(CancellationToken.None, values, 4, null, "False", false, false,
         true, false, false, false, false, null);
       Assert.IsTrue(res == null || res.FoundValueFormat.DataType != DataType.Integer);

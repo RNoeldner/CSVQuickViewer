@@ -37,7 +37,6 @@
             <!--   <File Id="CsvQuickViewer.pdb" Name="CsvQuickViewer.pdb" Source="$(var.CSVQuickViewer.TargetDir)\CsvQuickViewer.pdb" />-->
             <File Id="ClassLibraryCSV.DLL" Name="ClassLibraryCSV.dll" Source="$(var.CSVQuickViewer.TargetDir)\ClassLibraryCSV.dll" />
             <File Id="DateTimeFormats.txt" Name="DateTimeFormats.txt" Source="$(var.CSVQuickViewer.TargetDir)\DateTimeFormats.txt" />
-            <File Id="DateTimeFormatsWritten.txt" Name="DateTimeFormatsWritten.txt" Source="$(var.CSVQuickViewer.TargetDir)\DateTimeFormatsWritten.txt" />
             <!--   <File Id="ClassLibraryCSV.pdb" Name="ClassLibraryCSV.pdb" Source="$(var.CSVQuickViewer.TargetDir)\ClassLibraryCSV.pdb" /> -->
             <File Id="WinFormControls.DLL" Name="WinFormControls.dll" Source="$(var.CSVQuickViewer.TargetDir)\WinFormControls.dll" />
             <File Id="Ude.DLL" Name="Ude.dll" Source="$(var.CSVQuickViewer.TargetDir)\Ude.dll" />
