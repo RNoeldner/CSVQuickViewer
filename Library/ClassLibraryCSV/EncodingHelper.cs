@@ -20,7 +20,7 @@ using Ude;
 
 namespace CsvTools
 {
-  
+
   /// <summary>
   ///   Class to help with encodings
   /// </summary>
@@ -214,12 +214,17 @@ namespace CsvTools
           return (int)CodePage.GB18030;
         if (buff[0] == 0x2B && buff[1] == 0x2F && buff[2] == 0x76 &&
           (buff[3] == 0x38 || buff[3] == 0x39 || buff[3] == 0x2B || buff[3] == 0xef))
+        {
           return (int)CodePage.UTF7;
+        }
       }
 
       if (buff.Length >= 3)
+      {
         if (buff[0] == 0xEF && buff[1] == 0xBB && buff[2] == 0xBF)
           return (int)CodePage.UTF8;
+      }
+
       if (buff.Length < 2) return (int)CodePage.None;
       if (buff[0] == 0xFE && buff[1] == 0xFF)
         return (int)CodePage.UTF16Be;
@@ -314,7 +319,7 @@ namespace CsvTools
       return $"CP {codePage} - {name}";
     }
 
-      /// <summary>
+    /// <summary>
     ///   Guesses the code page.
     /// </summary>
     /// <param name="buff">The buff containing the characters.</param>
@@ -332,53 +337,54 @@ namespace CsvTools
       cdet.DataEnd();
 
       if (cdet.Charset == null) return (int)detectedCodePage;
-      if (cdet.Charset.ToLower() == "ascii")
+#pragma warning disable CA1308 // Normalize strings to uppercase
+      if (cdet.Charset.ToLowerInvariant() == "ascii")
         detectedCodePage = CodePage.ASCII;
-      else if (cdet.Charset.ToLower() == "windows-1252")
+      else if (cdet.Charset.ToLowerInvariant() == "windows-1252")
         detectedCodePage = CodePage.WIN1252;
-      else if (cdet.Charset.ToLower() == "big-5")
+      else if (cdet.Charset.ToLowerInvariant() == "big-5")
         detectedCodePage = CodePage.BIG5;
-      else if (cdet.Charset.ToLower() == "euc-jp")
+      else if (cdet.Charset.ToLowerInvariant() == "euc-jp")
         detectedCodePage = CodePage.EUCJP;
-      else if (cdet.Charset.ToLower() == "euc-kr")
+      else if (cdet.Charset.ToLowerInvariant() == "euc-kr")
         detectedCodePage = CodePage.EUCKR;
-      else if (cdet.Charset.ToLower() == "gb18030")
+      else if (cdet.Charset.ToLowerInvariant() == "gb18030")
         detectedCodePage = CodePage.GB18030;
-      else if (cdet.Charset.ToLower() == "shift-jis")
+      else if (cdet.Charset.ToLowerInvariant() == "shift-jis")
         detectedCodePage = CodePage.ShiftJis;
-      else if (cdet.Charset.ToLower() == "iso-8859-8")
+      else if (cdet.Charset.ToLowerInvariant() == "iso-8859-8")
         detectedCodePage = CodePage.ISO88598;
-      else if (cdet.Charset.ToLower() == "windows-1255")
+      else if (cdet.Charset.ToLowerInvariant() == "windows-1255")
         detectedCodePage = CodePage.WIN1255;
-      else if (cdet.Charset.ToLower() == "windows-1250")
+      else if (cdet.Charset.ToLowerInvariant() == "windows-1250")
         detectedCodePage = CodePage.WIN1250;
-      else if (cdet.Charset.ToLower() == "windows-1253")
+      else if (cdet.Charset.ToLowerInvariant() == "windows-1253")
         detectedCodePage = CodePage.WIN1253;
-      else if (cdet.Charset.ToLower() == "ibm866")
+      else if (cdet.Charset.ToLowerInvariant() == "ibm866")
         detectedCodePage = CodePage.IBM866;
-      else if (cdet.Charset.ToLower() == "ibm855")
+      else if (cdet.Charset.ToLowerInvariant() == "ibm855")
         detectedCodePage = CodePage.IBM855;
-      else if (cdet.Charset.ToLower() == "x-mac-cyrillic")
+      else if (cdet.Charset.ToLowerInvariant() == "x-mac-cyrillic")
         detectedCodePage = CodePage.MacCyrillic;
-      else if (cdet.Charset.ToLower() == "iso-8859-5")
+      else if (cdet.Charset.ToLowerInvariant() == "iso-8859-5")
         detectedCodePage = CodePage.ISO88595;
-      else if (cdet.Charset.ToLower() == "windows-1251")
+      else if (cdet.Charset.ToLowerInvariant() == "windows-1251")
         detectedCodePage = CodePage.WIN1251;
-      else if (cdet.Charset.ToLower() == "iso-8859-7")
+      else if (cdet.Charset.ToLowerInvariant() == "iso-8859-7")
         detectedCodePage = CodePage.ISO88597;
-      else if (cdet.Charset.ToLower() == "iso-8859-2")
+      else if (cdet.Charset.ToLowerInvariant() == "iso-8859-2")
         detectedCodePage = CodePage.ISO88592;
-      else if (cdet.Charset.ToLower() == "koi8-r")
+      else if (cdet.Charset.ToLowerInvariant() == "koi8-r")
         detectedCodePage = CodePage.KOI8R;
-      else if (cdet.Charset.ToLower() == "utf-16le")
+      else if (cdet.Charset.ToLowerInvariant() == "utf-16le")
         detectedCodePage = CodePage.UTF16Le;
-      else if (cdet.Charset.ToLower() == "utf-16be")
+      else if (cdet.Charset.ToLowerInvariant() == "utf-16be")
         detectedCodePage = CodePage.UTF16Be;
-      else if (cdet.Charset.ToLower() == "utf-32be")
+      else if (cdet.Charset.ToLowerInvariant() == "utf-32be")
         detectedCodePage = CodePage.UTF32Be;
-      else if (cdet.Charset.ToLower() == "utf-32le")
+      else if (cdet.Charset.ToLowerInvariant() == "utf-32le")
         detectedCodePage = CodePage.UTF32Le;
-
+#pragma warning restore CA1308 // Normalize strings to uppercase
       return (int)detectedCodePage;
     }
   }

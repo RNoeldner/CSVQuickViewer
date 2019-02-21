@@ -26,10 +26,12 @@ using Path = Pri.LongPath.Path;
 
 namespace CsvTools
 {
+#pragma warning disable CA1060 // Move pinvokes to native methods class
   /// <summary>
   ///   Extensions for string in the file system
   /// </summary>
   public static class FileSystemUtils
+#pragma warning restore CA1060 // Move pinvokes to native methods class
   {
     private const string c_LongPathPrefix = @"\\?\";
     private const string c_UncLongPathPrefix = @"\\?\UNC\";
@@ -434,7 +436,7 @@ namespace CsvTools
         return new SplitResult(string.Empty, path);
     }
 
-    [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+    [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
     private static extern int GetLongPathName(string lpszShortPath, [Out] StringBuilder lpszLongPath, int cchBuffer);
 
     [DllImport("kernel32.dll", CharSet = CharSet.Unicode, EntryPoint = "GetShortPathNameW", SetLastError = true)]
@@ -448,10 +450,14 @@ namespace CsvTools
       return length > 0 ? longNameBuffer.ToString(0, length) : shortPath;
     }
 
+#pragma warning disable CA1034 // Nested types should not be visible
     public class SplitResult
+#pragma warning restore CA1034 // Nested types should not be visible
     {
+#pragma warning disable CA1051 // Do not declare visible instance fields
       public readonly string DirectoryName;
       public readonly string FileName;
+#pragma warning restore CA1051 // Do not declare visible instance fields
 
       public SplitResult(string dir, string file)
       {

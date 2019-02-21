@@ -19,6 +19,7 @@ namespace CsvTools
   /// </summary>
   public enum DataType
   {
+#pragma warning disable CA1720 // Identifier contains type name
     /// <summary>
     ///   An 32 Bit Integer
     /// </summary>
@@ -69,4 +70,5 @@ namespace CsvTools
     /// </summary>
     TextPart = 13
   }
+#pragma warning restore CA1720 // Identifier contains type name
 }

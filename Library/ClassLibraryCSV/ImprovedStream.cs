@@ -327,6 +327,9 @@ namespace CsvTools
             Stream.Dispose();
           if (BaseStream != null)
             BaseStream.Dispose();
+          if (ProcessDisplay != null)
+            ProcessDisplay.Dispose();
+
         }
 
         disposedValue = true;

@@ -21,7 +21,9 @@ namespace CsvTools
     {
       None = 0,
       Empty = 1,
+#pragma warning disable CA1720 // Identifier contains type name
       Integer = 2,         // Only 0-9
+#pragma warning restore CA1720 // Identifier contains type name
       DecimalChars = 4,    // Only . ,  + -
       DateTimeChars = 8,   // Only / \ - . : T (space)
       Word = 16,           // 0-9 A-Z _ - (noSpace)

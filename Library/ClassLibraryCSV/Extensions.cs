@@ -350,9 +350,9 @@ namespace CsvTools
           return DataType.Integer;
 
         case TypeCode.Object:
-          if (type.ToString().Equals("System.TimeSpan"))
+          if (type.ToString().Equals("System.TimeSpan", StringComparison.Ordinal))
             return DataType.DateTime;
-          if (type.ToString().Equals("System.Guid"))
+          if (type.ToString().Equals("System.Guid", StringComparison.Ordinal))
             return DataType.Guid;
           return DataType.String;
 
@@ -474,14 +474,14 @@ namespace CsvTools
     ///   A function to check and address that used tables might not be current and need to be read again
     /// </summary>
     /// <param name="parentFileSetting">The file setting.</param>
-    /// <param name="cancellationToken">The cancellation token source.</param>
     /// <param name="check">The check.</param>
+    /// <param name="cancellationToken">The cancellation token source.</param>
     /// <param name="level">The level.</param>
     /// <returns>
     ///   A set of IFileSetting that should be checked, this is a depth first recursion
     /// </returns>
     public static ICollection<IFileSetting> GetSourceFileSettings(this IFileSetting parentFileSetting,
-      CancellationToken cancellationToken, Func<IFileSetting, bool> check, int level = 0)
+      Func<IFileSetting, bool> check, CancellationToken cancellationToken, int level = 0)
     {
       Contract.Requires(parentFileSetting != null);
       Contract.Ensures(Contract.Result<ICollection<IFileSetting>>() != null);
@@ -505,7 +505,7 @@ namespace CsvTools
         foreach (var setting in ApplicationSetting.ToolSetting.Input.Where(x =>
           tbl.Equals(x.ID, StringComparison.OrdinalIgnoreCase) && !Equals(x, parentFileSetting)))
         {
-          foreach (var src in GetSourceFileSettings(setting, cancellationToken, check, level + 1))
+          foreach (var src in GetSourceFileSettings(setting, check, cancellationToken, level + 1))
             if (parentFileSetting.SourceFileSettings.Contains(src))
               parentFileSetting.SourceFileSettings.Add(src);
 
@@ -645,8 +645,8 @@ namespace CsvTools
       if (string.IsNullOrEmpty(pattern))
         return original;
 
-      var upperString = original.ToUpper();
-      var upperPattern = pattern.ToUpper();
+      var upperString = original.ToUpperInvariant();
+      var upperPattern = pattern.ToUpperInvariant();
 
       var inc = original.Length / pattern.Length * (1 - pattern.Length);
       var chars = new char[original.Length + Math.Max(0, inc)];
@@ -756,8 +756,8 @@ namespace CsvTools
     {
       if (fileSettingWrite.FileLastWriteTimeUtc.Ticks < 10)
         return false;
-      return fileSettingWrite.GetSourceFileSettings(token,
-               setting => setting.FileLastWriteTimeUtc < fileSettingWrite.FileLastWriteTimeUtc).Count > 0;
+      return fileSettingWrite.GetSourceFileSettings(setting => setting.FileLastWriteTimeUtc < fileSettingWrite.FileLastWriteTimeUtc,
+        token).Count > 0;
     }
 
     /// <summary>

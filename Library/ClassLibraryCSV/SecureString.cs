@@ -24,10 +24,12 @@ namespace CsvTools
   /// </summary>
   public static class SecureString
   {
-    /// <summary>
-    /// A central Random instance that should be decently random, please use for any random number generation
-    /// </summary>
+#pragma warning disable CA2211 // Non-constant fields should not be visible
+                              /// <summary>
+                              /// A central Random instance that should be decently random, please use for any random number generation
+                              /// </summary>
     public static Random Random = new Random(Guid.NewGuid().GetHashCode());
+#pragma warning restore CA2211 // Non-constant fields should not be visible
 
     private const int c_SlatSize = 8;
     private const int c_SlatSplit = 3;

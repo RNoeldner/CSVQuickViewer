@@ -53,7 +53,7 @@ namespace CsvTools.Tests
       {
         var row = dataTable.NewRow();
         row["ID"] = i;
-        row["Text"] = i.ToString();
+        row["Text"] = i.ToString(CultureInfo.InvariantCulture);
         dataTable.Rows.Add(row);
       }
       var writeFile = new CsvFile
@@ -91,7 +91,7 @@ namespace CsvTools.Tests
       {
         var row = dataTable.NewRow();
         row["ID"] = i;
-        row["Text"] = i.ToString();
+        row["Text"] = i.ToString(CultureInfo.CurrentCulture);
         dataTable.Rows.Add(row);
       }
       var writeFile = new CsvFile

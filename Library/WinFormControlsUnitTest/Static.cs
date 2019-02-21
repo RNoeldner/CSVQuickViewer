@@ -4,8 +4,9 @@ using System.Globalization;
 
 namespace CsvTools.Tests
 {
-  public class Static
+  public static class UnitTestStatic
   {
+#pragma warning disable CA2211 // Non-constant fields should not be visible
     public static Column[] ColumnsDT2 =
     {
       new Column {Name = "string", DataType = DataType.String} //0
@@ -23,6 +24,7 @@ namespace CsvTools.Tests
       new Column {Name = "PartEmpty", DataType = DataType.String}, //7
       new Column {Name = "ID", DataType = DataType.Integer} //8
     };
+#pragma warning restore CA2211 // Non-constant fields should not be visible
 
     private static string GetRandomText(int length)
     {
@@ -42,7 +44,7 @@ namespace CsvTools.Tests
       for (long i = 1; i <= numRecords; i++)
       {
         var dr = dataTable.NewRow();
-        dr[0] = i.ToString();
+        dr[0] = i.ToString(CultureInfo.InvariantCulture);
         dataTable.Rows.Add(dr);
       }
 

@@ -18,7 +18,7 @@ namespace CsvTools.Tests
 
     public event EventHandler<ProgressEventArgs> Progress;
 
-    public void Dispose()
+    public virtual void Dispose()
     {
       Visible = true;
       m_Disposed = true;

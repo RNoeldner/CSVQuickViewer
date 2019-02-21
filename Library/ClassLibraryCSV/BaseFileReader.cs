@@ -48,10 +48,12 @@ namespace CsvTools
     /// </summary>
     public const string cStartLineNumberFieldName = "#Line";
 
+#pragma warning disable CA2211 // Non-constant fields should not be visible
     /// <summary>
     ///  Collection of the artificial field names
     /// </summary>
     public static ICollection<string> ArtificalFields = new HashSet<string>
+#pragma warning restore CA2211 // Non-constant fields should not be visible
   {
    cRecordNumberFieldName,
    cStartLineNumberFieldName,
@@ -64,25 +66,33 @@ namespace CsvTools
     /// </summary>
     protected const int cMaxValue = 10000;
 
+#pragma warning disable CA1051 // Do not declare visible instance fields
     /// <summary>
     ///  An array of associated col
     /// </summary>
     protected int[] AssociatedTimeCol;
+#pragma warning restore CA1051 // Do not declare visible instance fields
 
+#pragma warning disable CA1051 // Do not declare visible instance fields
     /// <summary>
     ///  An array of associated col
     /// </summary>
     protected int[] AssociatedTimeZoneCol;
+#pragma warning restore CA1051 // Do not declare visible instance fields
 
+#pragma warning disable CA1051 // Do not declare visible instance fields
     /// <summary>
     ///  An array of column
     /// </summary>
     protected Column[] Column;
+#pragma warning restore CA1051 // Do not declare visible instance fields
 
+#pragma warning disable CA1051 // Do not declare visible instance fields
     /// <summary>
     ///  An array of current row column text
     /// </summary>
     protected string[] CurrentRowColumnText;
+#pragma warning restore CA1051 // Do not declare visible instance fields
 
     private readonly IFileSetting m_FileSetting;
     private readonly IntervalAction m_IntervalAction = new IntervalAction();
@@ -220,7 +230,7 @@ namespace CsvTools
     public object this[int columnNumber] => GetValue(columnNumber);
 
     /// <summary>
-    ///  Closes the <see cref="T:System.Data.IDataReader" /> Object.
+    ///  Closes the <see cref="Data.IDataReader" /> Object.
     /// </summary>
     public void Close()
     {
@@ -258,7 +268,7 @@ namespace CsvTools
       Debug.Assert(i >= 0);
       Debug.Assert(CurrentRowColumnText != null);
 
-      var parsed = GetBooleanNull(CurrentRowColumnText[i], i);
+      bool? parsed = GetBooleanNull(CurrentRowColumnText[i], i);
       if (parsed.HasValue)
         return parsed.Value;
       // Warning was added by GetBooleanNull
@@ -271,8 +281,8 @@ namespace CsvTools
     /// </summary>
     /// <param name="i">The zero-based column ordinal.</param>
     /// <returns>The 8-bit unsigned integer value of the specified column.</returns>
-    /// <exception cref="T:System.IndexOutOfRangeException">
-    ///  The index passed was outside the range of 0 through <see cref="P:System.Data.IDataRecord.FieldCount" />.
+    /// <exception cref="IndexOutOfRangeException">
+    ///  The index passed was outside the range of 0 through <see cref="IDataRecord.FieldCount" />.
     /// </exception>
     public virtual byte GetByte(int i)
     {
@@ -295,8 +305,8 @@ namespace CsvTools
     /// </summary>
     /// <param name="i">The zero-based column ordinal.</param>
     /// <returns>The character value of the specified column.</returns>
-    /// <exception cref="T:System.IndexOutOfRangeException">
-    ///  The index passed was outside the range of 0 through <see cref="P:System.Data.IDataRecord.FieldCount" />.
+    /// <exception cref="IndexOutOfRangeException">
+    ///  The index passed was outside the range of 0 through <see cref="IDataRecord.FieldCount" />.
     /// </exception>
     public virtual char GetChar(int i)
     {
@@ -315,14 +325,14 @@ namespace CsvTools
     /// <param name="bufferoffset">The index for <paramref name="buffer" /> to start the read operation.</param>
     /// <param name="length">The number of bytes to read.</param>
     /// <returns>The actual number of characters read.</returns>
-    /// <exception cref="T:System.IndexOutOfRangeException">
-    ///  The index passed was outside the range of 0 through <see cref="P:System.Data.IDataRecord.FieldCount" />.
+    /// <exception cref="IndexOutOfRangeException">
+    ///  The index passed was outside the range of 0 through <see cref="IDataRecord.FieldCount" />.
     /// </exception>
     public virtual long GetChars(int i, long fieldoffset, char[] buffer, int bufferoffset, int length)
     {
       Debug.Assert(CurrentRowColumnText != null);
-      var offset = (int)fieldoffset;
-      var maxLen = CurrentRowColumnText[i].Length - offset;
+      int offset = (int)fieldoffset;
+      int maxLen = CurrentRowColumnText[i].Length - offset;
       if (maxLen > length)
         maxLen = length;
       CurrentRowColumnText[i].CopyTo(offset, buffer ?? throw new ArgumentNullException(nameof(buffer)), bufferoffset,
@@ -376,7 +386,7 @@ namespace CsvTools
       Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount);
       Debug.Assert(CurrentRowColumnText != null && columnNumber < CurrentRowColumnText.Length);
 
-      var decimalValue = GetDecimalNull(CurrentRowColumnText[columnNumber], columnNumber);
+      decimal? decimalValue = GetDecimalNull(CurrentRowColumnText[columnNumber], columnNumber);
       if (decimalValue.HasValue)
         return decimalValue.Value;
       // Warning was added by GetDecimalNull
@@ -394,7 +404,7 @@ namespace CsvTools
       Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount);
       Debug.Assert(CurrentRowColumnText != null && columnNumber < CurrentRowColumnText.Length);
 
-      var decimalValue = GetDecimalNull(CurrentRowColumnText[columnNumber], columnNumber);
+      decimal? decimalValue = GetDecimalNull(CurrentRowColumnText[columnNumber], columnNumber);
       if (decimalValue.HasValue)
         return Convert.ToDouble(decimalValue.Value);
 
@@ -424,7 +434,7 @@ namespace CsvTools
     {
       Debug.Assert(0 <= columnNumber);
 
-      var decimalValue = GetDecimalNull(CurrentRowColumnText[columnNumber], columnNumber);
+      decimal? decimalValue = GetDecimalNull(CurrentRowColumnText[columnNumber], columnNumber);
       if (decimalValue.HasValue)
         return Convert.ToSingle(decimalValue, CultureInfo.InvariantCulture);
       // Warning was added by GetDecimalNull
@@ -478,7 +488,7 @@ namespace CsvTools
       Debug.Assert(CurrentRowColumnText != null && columnNumber < CurrentRowColumnText.Length);
       var column = GetColumn(columnNumber);
 
-      var parsed = StringConversion.StringToInt32(CurrentRowColumnText[columnNumber], column.DecimalSeparatorChar, column.GroupSeparatorChar);
+      int? parsed = StringConversion.StringToInt32(CurrentRowColumnText[columnNumber], column.DecimalSeparatorChar, column.GroupSeparatorChar);
       if (parsed.HasValue)
         return parsed.Value;
 
@@ -496,7 +506,7 @@ namespace CsvTools
     public virtual int? GetInt32Null(string inputValue, Column column)
     {
       Debug.Assert(column != null);
-      var ret = StringConversion.StringToInt32(inputValue, column.DecimalSeparatorChar, column.GroupSeparatorChar);
+      int? ret = StringConversion.StringToInt32(inputValue, column.DecimalSeparatorChar, column.GroupSeparatorChar);
       if (ret.HasValue)
         return ret.Value;
 
@@ -514,7 +524,7 @@ namespace CsvTools
     {
       var column = GetColumn(columnNumber);
 
-      var parsed = StringConversion.StringToInt64(CurrentRowColumnText[columnNumber], column.DecimalSeparatorChar, column.GroupSeparatorChar);
+      long? parsed = StringConversion.StringToInt64(CurrentRowColumnText[columnNumber], column.DecimalSeparatorChar, column.GroupSeparatorChar);
       if (parsed.HasValue)
         return parsed.Value;
 
@@ -531,7 +541,7 @@ namespace CsvTools
     public virtual long? GetInt64Null(string inputValue, Column column)
     {
       Debug.Assert(column != null);
-      var ret = StringConversion.StringToInt64(inputValue, column.DecimalSeparatorChar, column.GroupSeparatorChar);
+      long? ret = StringConversion.StringToInt64(inputValue, column.DecimalSeparatorChar, column.GroupSeparatorChar);
       if (ret.HasValue)
         return ret.Value;
 
@@ -545,8 +555,8 @@ namespace CsvTools
     /// </summary>
     /// <param name="columnNumber">The index of the field to find.</param>
     /// <returns>The name of the field or the empty string (""), if there is no value to return.</returns>
-    /// <exception cref="T:System.IndexOutOfRangeException">
-    ///  The index passed was outside the range of 0 through <see cref="P:System.Data.IDataRecord.FieldCount" />.
+    /// <exception cref="IndexOutOfRangeException">
+    ///  The index passed was outside the range of 0 through <see cref="IDataRecord.FieldCount" />.
     /// </exception>
     public virtual string GetName(int columnNumber)
     {
@@ -563,7 +573,7 @@ namespace CsvTools
       Debug.Assert(columnName != null);
 
       if (string.IsNullOrEmpty(columnName) || Column == null) return -1;
-      var count = 0;
+      int count = 0;
       foreach (var column in Column)
       {
         if (columnName.Equals(column.Name, StringComparison.OrdinalIgnoreCase))
@@ -590,19 +600,19 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///  Returns a <see cref="T:System.Data.DataTable" /> that describes the column meta data of the
-    ///  <see cref="T:System.Data.IDataReader" />.
+    ///  Returns a <see cref="Data.DataTable" /> that describes the column meta data of the
+    ///  <see cref="Data.IDataReader" />.
     /// </summary>
-    /// <returns>A <see cref="T:System.Data.DataTable" /> that describes the column meta data.</returns>
-    /// <exception cref="T:System.InvalidOperationException">
-    ///  The <see cref="T:System.Data.IDataReader" /> is closed.
+    /// <returns>A <see cref="Data.DataTable" /> that describes the column meta data.</returns>
+    /// <exception cref="InvalidOperationException">
+    ///  The <see cref="Data.IDataReader" /> is closed.
     /// </exception>
     public virtual DataTable GetSchemaTable()
     {
       var dataTable = GetEmptySchemaTable();
-      var schemaRow = GetDefaultSchemaRowArray();
+      object[] schemaRow = GetDefaultSchemaRowArray();
 
-      for (var col = 0; col < FieldCount; col++)
+      for (int col = 0; col < FieldCount; col++)
       {
         var column = GetColumn(col);
 
@@ -703,13 +713,13 @@ namespace CsvTools
     ///  Gets all the attribute fields in the collection for the current record.
     /// </summary>
     /// <param name="values">
-    ///  An array of <see cref="T:object" /> to copy the attribute fields into.
+    ///  An array of object to copy the attribute fields into.
     /// </param>
-    /// <returns>The number of instances of <see cref="T:object" /> in the array.</returns>
+    /// <returns>The number of instances of object in the array.</returns>
     public virtual int GetValues(object[] values)
     {
       Debug.Assert(CurrentRowColumnText != null);
-      for (var col = 0; col < FieldCount; col++)
+      for (int col = 0; col < FieldCount; col++)
         values[col] = CurrentRowColumnText[col];
       return FieldCount;
     }
@@ -755,9 +765,9 @@ namespace CsvTools
     /// <returns>
     ///  true if the specified field is set to null; otherwise, false.
     /// </returns>
-    /// <exception cref="T:System.IndexOutOfRangeException">
+    /// <exception cref="IndexOutOfRangeException">
     ///  The index passed was outside the range of 0 through
-    ///  <see cref="P:System.Data.IDataRecord.FieldCount" />.
+    ///  <see cref="IDataRecord.FieldCount" />.
     /// </exception>
     public virtual bool IsDBNull(int columnNumber)
     {
@@ -800,7 +810,7 @@ namespace CsvTools
     /// <returns></returns>
     /// <exception cref="System.IO.FileNotFoundException"></exception>
     [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope")]
-    public long Open(CancellationToken cancellationToken, bool determineColumnSize)
+    public long Open(bool determineColumnSize, CancellationToken cancellationToken)
     {
       m_CancellationToken = cancellationToken;
       try
@@ -836,12 +846,12 @@ namespace CsvTools
           return 0;
         }
 
-        var ret = IndividualOpen(determineColumnSize);
+        long ret = IndividualOpen(determineColumnSize);
 
         var valuesInclude = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         var valuesAll = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-        for (var colindex = 0; colindex < FieldCount; colindex++)
+        for (int colindex = 0; colindex < FieldCount; colindex++)
         {
           if (!string.IsNullOrEmpty(Column[colindex].Name))
           {
@@ -889,7 +899,7 @@ namespace CsvTools
     {
       Debug.Assert(AssociatedTimeCol != null);
 
-      for (var colindex = 0; colindex < FieldCount; colindex++)
+      for (int colindex = 0; colindex < FieldCount; colindex++)
       {
         var setting = m_FileSetting.GetColumn(Column[colindex].Name);
         if (setting != null)
@@ -999,10 +1009,10 @@ namespace CsvTools
          string strInputTime, Column column)
     {
       var dateTime = StringConversion.CombineObjectsToDateTime(inputDate, strInputDate, inputTime, strInputTime,
-       ApplicationSetting.FillGuessSettings.SerialDateTime, column, out var timeSpanLongerThanDay);
+       ApplicationSetting.FillGuessSettings.SerialDateTime, column, out bool timeSpanLongerThanDay);
       if (timeSpanLongerThanDay)
       {
-        var passedIn = strInputTime;
+        string passedIn = strInputTime;
         if (inputTime != null)
           passedIn = inputTime.ToString();
         HandleWarning(column.ColumnOrdinal, $"'{passedIn}' is outside expected range 00:00 - 23:59, the date has been adjusted");
@@ -1010,12 +1020,12 @@ namespace CsvTools
       if (!dateTime.HasValue && !string.IsNullOrEmpty(strInputDate) && !string.IsNullOrEmpty(column.DateFormat) &&
         strInputDate.Length > column.DateFormat.Length)
       {
-        var inputDateNew = strInputDate.Substring(0, column.DateFormat.Length);
+        string inputDateNew = strInputDate.Substring(0, column.DateFormat.Length);
         dateTime = StringConversion.CombineStringsToDateTime(inputDateNew, column.DateFormat, strInputTime,
          column.DateSeparator, column.TimeSeparator, ApplicationSetting.FillGuessSettings.SerialDateTime);
         if (dateTime.HasValue)
         {
-          var disp = column.DateFormat.ReplaceDefaults("/", column.DateSeparator, ":", column.TimeSeparator);
+          string disp = column.DateFormat.ReplaceDefaults("/", column.DateSeparator, ":", column.TimeSeparator);
           HandleWarning(column.ColumnOrdinal,
            !string.IsNullOrEmpty(strInputTime)
             ? $"'{strInputDate} {strInputTime}' is not a date of the format {disp} {column.TimePartFormat}, used '{inputDateNew} {strInputTime}'"
@@ -1042,7 +1052,7 @@ namespace CsvTools
     protected decimal? GetDecimalNull(string inputValue, Column column)
     {
       Debug.Assert(column != null);
-      var decimalValue =
+      decimal? decimalValue =
        StringConversion.StringToDecimal(inputValue, column.DecimalSeparatorChar, column.GroupSeparatorChar, true);
       if (decimalValue.HasValue)
         return decimalValue.Value;
@@ -1079,7 +1089,7 @@ namespace CsvTools
     protected double? GetDoubleNull(string inputValue, Column column)
     {
       Debug.Assert(column != null);
-      var decimalValue = GetDecimalNull(inputValue, column);
+      decimal? decimalValue = GetDecimalNull(inputValue, column);
       if (decimalValue.HasValue)
         return decimal.ToDouble(decimalValue.Value);
 
@@ -1102,7 +1112,7 @@ namespace CsvTools
       Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount);
       var column = GetColumn(columnNumber);
 
-      var parsed = StringConversion.StringToInt16(value, column.DecimalSeparatorChar, column.GroupSeparatorChar);
+      short? parsed = StringConversion.StringToInt16(value, column.DecimalSeparatorChar, column.GroupSeparatorChar);
       if (parsed.HasValue)
         return parsed.Value;
 
@@ -1129,7 +1139,7 @@ namespace CsvTools
       Debug.Assert(CurrentRowColumnText != null);
       Debug.Assert(AssociatedTimeCol != null);
 
-      var colTime = AssociatedTimeCol[i];
+      int colTime = AssociatedTimeCol[i];
       if (colTime == -1) return null;
       return CurrentRowColumnText[colTime];
     }
@@ -1192,7 +1202,7 @@ namespace CsvTools
 
     protected virtual string GetUniqueName(ICollection<string> previousColumns, int ordinal, string nametoadd)
     {
-      var newName = StringUtils.MakeUniqueInCollection(previousColumns, nametoadd);
+      string newName = StringUtils.MakeUniqueInCollection(previousColumns, nametoadd);
       if (newName != nametoadd)
         HandleWarning(ordinal,
          $"Column '{nametoadd}' exists more than once replaced with {newName}");
@@ -1210,7 +1220,7 @@ namespace CsvTools
       Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount);
       var column = GetColumn(columnNumber);
 
-      var disp = column.DateFormat.ReplaceDefaults("/", column.DateSeparator, ":", column.TimeSeparator);
+      string disp = column.DateFormat.ReplaceDefaults("/", column.DateSeparator, ":", column.TimeSeparator);
 
       HandleError(columnNumber,
        !string.IsNullOrEmpty(inputTime)
@@ -1328,7 +1338,7 @@ namespace CsvTools
       Column = new Column[fieldCount];
       AssociatedTimeCol = new int[fieldCount];
       AssociatedTimeZoneCol = new int[fieldCount];
-      for (var counter = 0; counter < fieldCount; counter++)
+      for (int counter = 0; counter < fieldCount; counter++)
       {
         Column[counter] = new Column
         {
@@ -1354,15 +1364,15 @@ namespace CsvTools
       // The last column is empty but we expect a header column, assume if a trailing separator
       if (!m_FileSetting.HasFieldHeader)
       {
-        for (var i = 0; i < FieldCount; i++)
+        for (int i = 0; i < FieldCount; i++)
           GetColumn(i).Name = GetDefaultName(i);
         return;
       }
 
       var previousColumns = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-      for (var counter = 0; counter < FieldCount; counter++)
+      for (int counter = 0; counter < FieldCount; counter++)
       {
-        var columnname = headerRow[counter];
+        string columnname = headerRow[counter];
         string resultingName;
         if (string.IsNullOrEmpty(columnname))
         {
@@ -1415,7 +1425,7 @@ namespace CsvTools
       // lookup in other column
       else
       {
-        var colTimeZone = AssociatedTimeZoneCol[column.ColumnOrdinal];
+        int colTimeZone = AssociatedTimeZoneCol[column.ColumnOrdinal];
         if (colTimeZone > -1 && colTimeZone < FieldCount)
           timeZone = GetString(colTimeZone);
       }

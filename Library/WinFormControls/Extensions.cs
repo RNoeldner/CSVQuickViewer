@@ -37,7 +37,7 @@ namespace CsvTools
       MessageBox.Show(from, ex.ExceptionMessages(), string.IsNullOrEmpty(additionalTitle) ? "Error" : $"Error {additionalTitle}", MessageBoxButtons.OK, MessageBoxIcon.Warning);
     }
 
-    public static void TimeOutWait(Func<bool> whileTrue, CancellationToken cancellationToken = default(CancellationToken), int millisecondsSleep = 0, double timeoutMinutes = 5.0)
+    public static void TimeOutWait(Func<bool> whileTrue, int millisecondsSleep = 0, double timeoutMinutes = 5.0, CancellationToken cancellationToken = default(CancellationToken))
     {
       var start = DateTime.Now;
       while (!cancellationToken.IsCancellationRequested && whileTrue())
@@ -327,8 +327,8 @@ namespace CsvTools
     ///   Number of record written to file
     /// </returns>
     public static long WriteFileWithInfo(this IFileSetting fileSetting, bool showSummary,
-      CancellationToken cancellationToken,
-      FileSettingChecker fileSettingSourcesCurrent, bool ask, bool onlyOlder)
+      FileSettingChecker fileSettingSourcesCurrent,
+      bool ask, bool onlyOlder, CancellationToken cancellationToken)
     {
       if (fileSetting == null)
         return 0;
@@ -376,7 +376,7 @@ namespace CsvTools
 
           // if all source settings are file settings, get the latest file time and set this fileTime
           var latest = DateTime.MinValue;
-          var dummy = fileSetting.GetSourceFileSettings(cancellationToken, delegate (IFileSetting setting)
+          fileSetting.GetSourceFileSettings(delegate (IFileSetting setting)
           {
             if (!(setting is IFileSettingRemoteDownload))
             {
@@ -390,7 +390,7 @@ namespace CsvTools
                 latest = fiSrc.LastWriteTimeUtc;
             }
             return false;
-          });
+          }, cancellationToken);
           stringBuilder.Append($"Finished writing file\r\rRecords: {written:N0}\rFile size: {fi.Length / 1048576.0:N} MB");
           if (latest < DateTime.MaxValue && latest > DateTime.MinValue)
           {

@@ -6,7 +6,6 @@ namespace CsvTools.Tests
   [TestClass]
   public class ValidationResultTests
   {
-    private string m_ApplicationDirectory = FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles";
     private readonly ValidationResult m_ValidationResult = new ValidationResult();
 
     [TestMethod]

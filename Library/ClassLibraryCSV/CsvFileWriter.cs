@@ -46,8 +46,8 @@ namespace CsvTools
       Contract.Requires(file != null);
       m_CsvFile = file;
 
-      m_FieldQualifier = m_CsvFile.FileFormat.FieldQualifierChar.ToString();
-      m_FieldDelimiter = m_CsvFile.FileFormat.FieldDelimiterChar.ToString();
+      m_FieldQualifier = m_CsvFile.FileFormat.FieldQualifierChar.ToString(System.Globalization.CultureInfo.CurrentCulture);
+      m_FieldDelimiter = m_CsvFile.FileFormat.FieldDelimiterChar.ToString(System.Globalization.CultureInfo.CurrentCulture);
       if (!string.IsNullOrEmpty(file.FileFormat.EscapeCharacter))
       {
         m_QualifyCharArray = new[] { (char)0x0a, (char)0x0d };
@@ -57,8 +57,8 @@ namespace CsvTools
       else
       {
         m_QualifyCharArray = new[] { (char)0x0a, (char)0x0d, m_CsvFile.FileFormat.FieldDelimiterChar };
-        m_FieldQualifierEscaped = new String(m_CsvFile.FileFormat.FieldQualifierChar, 2);
-        m_FieldDelimiterEscaped = new String(m_CsvFile.FileFormat.FieldDelimiterChar, 1);
+        m_FieldQualifierEscaped = new string(m_CsvFile.FileFormat.FieldQualifierChar, 2);
+        m_FieldDelimiterEscaped = new string(m_CsvFile.FileFormat.FieldDelimiterChar, 1);
       }
     }
 

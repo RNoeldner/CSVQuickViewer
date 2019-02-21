@@ -13,7 +13,9 @@ namespace CsvTools.Properties
   public class ViewSettings : CsvFile, INotifyPropertyChanged, IToolSetting
   {
     [XmlElement]
+#pragma warning disable CA1051 // Do not declare visible instance fields
     public WindowState WindowPosition;
+#pragma warning restore CA1051 // Do not declare visible instance fields
 
     [NonSerialized]
     private readonly List<IFileSetting> m_Input = new List<IFileSetting>();

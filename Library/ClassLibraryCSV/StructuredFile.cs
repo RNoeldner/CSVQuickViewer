@@ -110,9 +110,9 @@ namespace CsvTools
     {
       if (other is null) return false;
       if (ReferenceEquals(this, other)) return true;
-      return base.Equals(other) && string.Equals(m_Footer, other.m_Footer, StringComparison.OrdinalIgnoreCase) && string.Equals(m_Header, other.m_Header, StringComparison.OrdinalIgnoreCase) &&
-             m_JSONEncode == other.m_JSONEncode && string.Equals(m_Row, other.m_Row) &&
-             m_XMLEncode == other.m_XMLEncode;
+      return base.Equals(other) && string.Equals(m_Footer, other.Footer, StringComparison.OrdinalIgnoreCase) && string.Equals(m_Header, other.Header, StringComparison.OrdinalIgnoreCase) &&
+             m_JSONEncode == other.JSONEncode && string.Equals(m_Row, other.Row, StringComparison.Ordinal) &&
+             m_XMLEncode == other.XMLEncode;
     }
 
     /// <summary>

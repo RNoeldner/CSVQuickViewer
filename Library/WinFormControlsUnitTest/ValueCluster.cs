@@ -6,7 +6,7 @@ namespace CsvTools.Tests
   public class ValueClusterTests
   {
     [TestMethod]
-    public void ValueCluster_Ctor()
+    public void ValueClusterCtor()
     {
       var tst1 = new ValueCluster();
       Assert.AreEqual("", tst1.Display);

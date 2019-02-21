@@ -39,10 +39,10 @@ namespace CsvTools
     public ICollection<TreeNode> SelectedTreeNode { get; } = new HashSet<TreeNode>();
 
     /// <summary>
-    ///   Raises the <see cref="E:System.Windows.Forms.TreeView.AfterSelect" /> event.
+    ///   Raises the <see cref="AfterSelect" /> event.
     /// </summary>
     /// <param name="e">
-    ///   A <see cref="T:System.Windows.Forms.TreeViewEventArgs" /> that contains the event data.
+    ///   A <see cref="TreeViewEventArgs" /> that contains the event data.
     /// </param>
     protected override void OnAfterSelect(TreeViewEventArgs e)
     {
@@ -158,10 +158,10 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Raises the <see cref="E:System.Windows.Forms.TreeView.BeforeSelect" /> event.
+    ///   Raises the <see cref="BeforeSelect" /> event.
     /// </summary>
     /// <param name="e">
-    ///   A <see cref="T:System.Windows.Forms.TreeViewCancelEventArgs" /> that contains the event data.
+    ///   A <see cref="TreeViewCancelEventArgs" /> that contains the event data.
     /// </param>
     protected override void OnBeforeSelect(TreeViewCancelEventArgs e)
     {
@@ -187,10 +187,10 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Raises the <see cref="E:System.Windows.Forms.Control.KeyDown" /> event.
+    ///   Raises the <see cref="KeyDown" /> event.
     /// </summary>
     /// <param name="e">
-    ///   A <see cref="T:System.Windows.Forms.KeyEventArgs" /> that contains the event data.
+    ///   A <see cref="KeyEventArgs" /> that contains the event data.
     /// </param>
     protected override void OnKeyDown(KeyEventArgs e)
     {
@@ -253,7 +253,7 @@ namespace CsvTools
             if (level < item.Level)
               sbHtml.Append(style.TDEmpty);
             if (level != item.Level) continue;
-            sbHtml.Append(HTMLStyle.AddTd("<td colspan='{0}'>{1}</td>", (maxLevel - level + 1).ToString(), text));
+            sbHtml.Append(HTMLStyle.AddTd("<td colspan='{0}'>{1}</td>", (maxLevel - level + 1).ToString(System.Globalization.CultureInfo.InvariantCulture), text));
             buffer.Append(item.Text);
           }
 

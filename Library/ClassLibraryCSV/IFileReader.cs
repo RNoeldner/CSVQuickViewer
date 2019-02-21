@@ -108,12 +108,12 @@ namespace CsvTools
     /// <summary>
     /// Opens the text file and begins to read the meta data, like columns
     /// </summary>
-    /// <param name="cancellationToken">The cancellation token.</param>
     /// <param name="determineColumnSize">Determine the maximum column size.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>
     /// Number of records in the file if known (use determineColumnSize), -1 otherwise
     /// </returns>
-    long Open(CancellationToken cancellationToken, bool determineColumnSize);
+    long Open(bool determineColumnSize, CancellationToken cancellationToken);
 
     /// <summary>
     ///  Overrides the column format with values from settings

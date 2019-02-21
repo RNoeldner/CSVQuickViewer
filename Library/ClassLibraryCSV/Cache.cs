@@ -46,7 +46,7 @@ namespace CsvTools
     private Timer m_CleanupTimer;
 
     /// <summary>
-    ///  Initializes a new instance of the <see cref="T:Cache" /> class.
+    ///  Initializes a new instance of the <see cref="Cache" /> class.
     /// </summary>
     /// <remarks>
     ///  The default time for an item is set to 5 minutes
@@ -57,7 +57,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///  Initializes a new instance of the <see cref="T:Cache" /> class.
+    ///  Initializes a new instance of the <see cref="Cache" /> class.
     /// </summary>
     /// <param name="defaultLifeTime">The default life time for a cache item in seconds.</param>
     public Cache(int defaultLifeTime)
@@ -77,10 +77,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="key">The key.</param>
     /// <returns><c>true</c> if the key is in the cache, <c>false</c> otherwise</returns>
-    public virtual bool ContainsKey(TKey key)
-    {
-      return m_Dictionary.ContainsKey(key);
-    }
+    public virtual bool ContainsKey(TKey key) => m_Dictionary.ContainsKey(key);
 
     /// <summary>
     ///  Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
@@ -158,10 +155,7 @@ namespace CsvTools
     ///  If an item with the same key exists in the cache, it is overwritten.
     ///  The default lifetime is applied. If the item is <c>null</c> the item will be removed from cache.
     /// </remarks>
-    public virtual void Set(TKey key, TValue item)
-    {
-      Set(key, item, m_DefaultLifetime);
-    }
+    public virtual void Set(TKey key, TValue item) => Set(key, item, m_DefaultLifetime);
 
     /// <summary>
     ///  Adds an item to the cache.

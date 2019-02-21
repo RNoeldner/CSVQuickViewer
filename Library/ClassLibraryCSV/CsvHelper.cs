@@ -68,7 +68,7 @@ namespace CsvTools
       using (var fileReader = fileSetting.GetFileReader())
       {
         fileReader.ProcessDisplay = processDisplay;
-        fileReader.Open(processDisplay?.CancellationToken ?? CancellationToken.None, false);
+        fileReader.Open(false, processDisplay?.CancellationToken ?? CancellationToken.None);
         // if teh key was long enough it has been stored
         if (key.Length > 3)
           return ApplicationSetting.CacheList.Get(key);
@@ -146,7 +146,7 @@ namespace CsvTools
       {
         Contract.Assume(fileReader != null);
         fileReader.ProcessDisplay = processDisplay;
-        fileReader.Open(processDisplay.CancellationToken, true);
+        fileReader.Open(true, processDisplay.CancellationToken);
 
         if (fileSetting is CsvFile)
         {
@@ -278,7 +278,7 @@ namespace CsvTools
 
       using (var csvDataReader = new CsvFileReader(setting))
       {
-        csvDataReader.Open(cancellationToken, false);
+        csvDataReader.Open(false, cancellationToken);
 
         var defaultNames = 0;
 
@@ -289,7 +289,7 @@ namespace CsvTools
           var columnName = csvDataReader.GetName(counter);
 
           // if replaced by a default assume no header
-          if (columnName.Equals(BaseFileReader.GetDefaultName(counter)))
+          if (columnName.Equals(BaseFileReader.GetDefaultName(counter), StringComparison.OrdinalIgnoreCase))
             if (defaultNames++ == (int)Math.Ceiling(csvDataReader.FieldCount / 2.0))
               return false;
 
@@ -489,7 +489,7 @@ namespace CsvTools
       Contract.Ensures(Contract.Result<string>() != null);
       var match = '\t';
       if (streamReader == null)
-        return match.ToString();
+        return match.ToString(CultureInfo.CurrentCulture);
 
       var dc = GetDelimiterCounter(streamReader, escapeCharacter, 300);
 
@@ -554,7 +554,7 @@ namespace CsvTools
         bestScore = score;
       }
 
-      return match == '\t' ? "TAB" : match.ToString();
+      return match == '\t' ? "TAB" : match.ToString(CultureInfo.CurrentCulture);
     }
 
     internal static string GuessNewline(StreamReader streamReader, char fieldQualifier)
@@ -826,6 +826,7 @@ namespace CsvTools
 
       public readonly string Separators;
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
       public readonly int[,] SeparatorsCount;
 
       public int LastRow;
@@ -852,5 +853,6 @@ namespace CsvTools
         }
       }
     }
+#pragma warning restore CA1814 // Prefer jagged arrays over multidimensional
   }
 }

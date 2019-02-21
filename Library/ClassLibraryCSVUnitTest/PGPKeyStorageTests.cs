@@ -313,9 +313,7 @@ dl9x0ovgSzpUErwY97OlA7iO2WJkevutvLq2ZZAwLfIxI01Zm309Zq63t8TKgPHJ
         }
       }
     }
-
-    private readonly string m_ApplicationDirectory = FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles";
-
+    
     //[TestMethod]
     //public void PgpEncryptTestFile()
     //{

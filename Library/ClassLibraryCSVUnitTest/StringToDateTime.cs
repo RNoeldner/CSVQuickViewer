@@ -10,13 +10,11 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CheckTimeConversionNoSeconds()
     {
-      var dateTime = new DateTime(2001, 10, 17, 12, 01, 02, 64);
+      _ = new DateTime(2001, 10, 17, 12, 01, 02, 64);
       var dateFormat = "dd.MM.yyyy HH:mm:ss";
       var dateSep = ".";
       var timeSep = ":";
-      DateTime? fromString = null;
-
-      fromString = StringConversion.StringToDateTime("10.08.2010 10:38", dateFormat, dateSep, timeSep, false);
+      _ = StringConversion.StringToDateTime("10.08.2010 10:38", dateFormat, dateSep, timeSep, false);
     }
 
     [TestMethod]
@@ -26,14 +24,8 @@ namespace CsvTools.Tests
       var dateFormat = "dd.MM.yyyy HH:mm:ss";
       var dateSep = ".";
       var timeSep = "-";
-      string toString = null;
-      DateTime? fromString = null;
-
-      dateFormat = "dd.MM.yyyy HH:mm:ss";
-      dateSep = ".";
-      timeSep = "-";
-      toString = StringConversion.DateTimeToString(dateTime, dateFormat, dateSep, timeSep);
-      fromString = StringConversion.StringToDateTime(toString, dateFormat, dateSep, timeSep, false);
+      var toString = StringConversion.DateTimeToString(dateTime, dateFormat, dateSep, timeSep);
+      var fromString = StringConversion.StringToDateTime(toString, dateFormat, dateSep, timeSep, false);
       Assert.AreEqual(dateTime, fromString, dateFormat);
 
       dateFormat = @"MM/dd/yyyy HH:mm:ss";
@@ -55,17 +47,12 @@ namespace CsvTools.Tests
     public void ConvertBackAndForthWithMillisecond()
     {
       var dateTime = new DateTime(2001, 10, 17, 12, 01, 02, 64);
+
       var dateFormat = "dd.MM.yyyy HH:mm:ss.fff";
       var dateSep = ".";
       var timeSep = "-";
-      string toString = null;
-      DateTime? fromString = null;
-
-      dateFormat = "dd.MM.yyyy HH:mm:ss.fff";
-      dateSep = ".";
-      timeSep = "-";
-      toString = StringConversion.DateTimeToString(dateTime, dateFormat, dateSep, timeSep);
-      fromString = StringConversion.StringToDateTime(toString, dateFormat, dateSep, timeSep, false);
+      var toString = StringConversion.DateTimeToString(dateTime, dateFormat, dateSep, timeSep);
+      var fromString = StringConversion.StringToDateTime(toString, dateFormat, dateSep, timeSep, false);
       Assert.AreEqual(dateTime, fromString, dateFormat);
 
       dateFormat = @"MM/dd/yyyy HH:mm:ss.fff";
@@ -95,32 +82,23 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void ParseStringToDateTime_FormatNotMatchingseparatorOK()
-    {
-      TestDate(new DateTime(1999, 01, 02), @"yyyyMMdd", ".");
-    }
+    public void ParseStringToDateTimeFormatNotMatchingseparatorOK() => TestDate(new DateTime(1999, 01, 02), @"yyyyMMdd", ".");
 
     [TestMethod]
-    public void ParseStringToDateTime_FormatNotMatchingseparatorOK2()
-    {
-      Assert.IsNull(StringConversion.StringToDateTime("01-02-1999", @"MM/dd/yyyy", "", "", false));
-    }
+    public void ParseStringToDateTimeFormatNotMatchingseparatorOK2() => Assert.IsNull(StringConversion.StringToDateTime("01-02-1999", @"MM/dd/yyyy", "", "", false));
 
     [TestMethod]
-    public void ParseStringToDateTime_FormatNotMatchingseparatorOK3()
-    {
-      Assert.IsNull(StringConversion.StringToDateTime("01-02-1999", @"MM/dd/yyyy", ".", "", false));
-    }
+    public void ParseStringToDateTimeFormatNotMatchingseparatorOK3() => Assert.IsNull(StringConversion.StringToDateTime("01-02-1999", @"MM/dd/yyyy", ".", "", false));
 
     [TestMethod]
-    public void ParseStringToDateTime_FormatNotMatchingseparatorOK4()
+    public void ParseStringToDateTimeFormatNotMatchingseparatorOK4()
     {
       TestDate(new DateTime(1999, 01, 02), @"MM/dd/yyyy", "/");
       TestDate(new DateTime(1999, 01, 02), @"MM.dd.yyyy", ".");
     }
 
     [TestMethod]
-    public void ParseStringToDateTime_SerialDate()
+    public void ParseStringToDateTimeSerialDate()
     {
       // 01:00:00
       var actual = StringConversion.StringToDateTime("0.0416666666666667", @"mm\dd\yyyy", @"\", ":", true);
@@ -140,7 +118,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void ParseStringToDateTime_Short()
+    public void ParseStringToDateTimeShort()
     {
       // this should work
       var year = DateTime.Now.Year;
@@ -267,7 +245,10 @@ namespace CsvTools.Tests
     {
       var stringDateValue = originalValue == null ? string.Empty : originalValue.Trim();
       if (string.IsNullOrEmpty(stringDateValue) || stringDateValue == "00000000" ||
-          stringDateValue == "99999999") return null;
+          stringDateValue == "99999999")
+      {
+        return null;
+      }
 
       DateTime? dateFieldValue = null;
       try

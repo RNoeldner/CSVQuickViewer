@@ -21,7 +21,7 @@ namespace CsvTools.Tests
         throw new ArgumentNullException(nameof(setting));
       }
 
-      if (!m_ReadSetting.Any(x => x.ID.Equals(setting.ID)))
+      if (!m_ReadSetting.Any(x => x.ID.Equals(setting.ID, StringComparison.OrdinalIgnoreCase)))
         m_ReadSetting.Add(setting);
     }
 
@@ -33,7 +33,7 @@ namespace CsvTools.Tests
       if (setting == null)
         throw new ApplicationException($"{settingName} not found");
       var reader = setting.GetFileReader();
-      reader.Open(System.Threading.CancellationToken.None, false);
+      reader.Open(false, System.Threading.CancellationToken.None);
       return reader;
     }
   }

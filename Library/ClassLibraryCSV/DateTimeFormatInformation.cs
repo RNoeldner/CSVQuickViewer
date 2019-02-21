@@ -15,8 +15,7 @@ namespace CsvTools
     private static int minDayLong = int.MaxValue;
     private static int minDayMid = int.MaxValue;
     private static int minMonthLong = int.MaxValue;
-    private static int minMonthMid = int.MaxValue;
-    private readonly string m_Format = string.Empty;
+    private static int minMonthMid = int.MaxValue;    
     private int m_MaxLength;
     private int m_MinLength;
 

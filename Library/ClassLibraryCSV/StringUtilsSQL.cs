@@ -52,7 +52,7 @@ namespace CsvTools
 
       if (contents.IndexOf(';') > -1)
       {
-        if (contents.StartsWith("\""))
+        if (contents.StartsWith("\"", StringComparison.Ordinal))
           return "'" + contents + "'";
         else
           return "\"" + contents + "\"";

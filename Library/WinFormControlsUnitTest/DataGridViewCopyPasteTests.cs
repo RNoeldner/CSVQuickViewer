@@ -13,13 +13,13 @@ namespace CsvTools.Tests
       using (var dgv = new DataGridView())
       {
         dgv.AutoGenerateColumns = true;
-        dgv.DataSource = Static.GetDataTable(100);
+        dgv.DataSource = UnitTestStatic.GetDataTable(100);
         using (var frm = new Form())
         {
           frm.Controls.Add(dgv);
           frm.Show();
           dgv.SelectAll();
-          dgv.SelectedDataIntoClipboard(CancellationToken.None, true, false);
+          dgv.SelectedDataIntoClipboard(true, false, CancellationToken.None);
         }
       }
     }
@@ -30,13 +30,13 @@ namespace CsvTools.Tests
       using (var dgv = new DataGridView())
       {
         dgv.AutoGenerateColumns = true;
-        dgv.DataSource = Static.GetDataTable(100);
+        dgv.DataSource = UnitTestStatic.GetDataTable(100);
         using (var frm = new Form())
         {
           frm.Controls.Add(dgv);
           frm.Show();
 
-          dgv.SelectedDataIntoClipboard(CancellationToken.None, true, false);
+          dgv.SelectedDataIntoClipboard(true, false, CancellationToken.None);
         }
       }
     }

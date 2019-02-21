@@ -10,7 +10,7 @@ namespace CsvTools.Tests
     [TestMethod()]
     public void BuildValueClustersTest()
     {
-      var data = Static.GetDataTable(200);
+      var data = UnitTestStatic.GetDataTable(200);
       var dataview = new DataView(data, null, null, DataViewRowState.CurrentRows);
 
       var test0a = new ValueClusterCollection();
@@ -43,7 +43,7 @@ namespace CsvTools.Tests
     [TestMethod()]
     public void GetActiveValueClusterTest()
     {
-      var data = Static.GetDataTable(200);
+      var data = UnitTestStatic.GetDataTable(200);
       var dataview = new DataView(data, null, null, DataViewRowState.CurrentRows);
 
       var test0a = new ValueClusterCollection();

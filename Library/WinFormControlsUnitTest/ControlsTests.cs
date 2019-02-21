@@ -7,7 +7,7 @@ namespace CsvTools.Tests
   [TestClass]
   public class ControlsTests
   {
-    private static readonly DataTable dataTable = Static.GetDataTable(50);
+    private static readonly DataTable dataTable = UnitTestStatic.GetDataTable(50);
 
     [TestMethod]
     public void CsvRichTextBox()

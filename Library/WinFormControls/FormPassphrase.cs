@@ -123,6 +123,7 @@ namespace CsvTools
       this.m_BtnCancel.Size = new System.Drawing.Size(64, 28);
       this.m_BtnCancel.TabIndex = 4;
       this.m_BtnCancel.Text = "Cancel";
+      this.m_BtnCancel.Click += new System.EventHandler(this.BtnCancel_Click);
       // 
       // FormPassphrase
       // 

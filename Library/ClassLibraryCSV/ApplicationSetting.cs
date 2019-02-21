@@ -57,10 +57,10 @@ namespace CsvTools
     {
       if (string.IsNullOrEmpty(tableName))
         return;
-      var key1 = CsvHelper.CacheListKeyColumnHeader(tableName, true);
-      var key2 = CsvHelper.CacheListKeyColumnHeader(tableName, false);
+      string key1 = CsvHelper.CacheListKeyColumnHeader(tableName, true);
+      string key2 = CsvHelper.CacheListKeyColumnHeader(tableName, false);
       var uncache = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-      foreach (var sql in CacheList.Keys)
+      foreach (string sql in CacheList.Keys)
       {
         if (sql == key1 || sql == key2)
         {
@@ -68,7 +68,7 @@ namespace CsvTools
           continue;
         }
         var tables = StringUtilsSQL.GetSQLTableNames(sql);
-        foreach (var tab in tables)
+        foreach (string tab in tables)
         {
           if (tableName.Equals(tab, StringComparison.OrdinalIgnoreCase))
           {
@@ -77,7 +77,7 @@ namespace CsvTools
           }
         }
       }
-      foreach (var sql in uncache)
+      foreach (string sql in uncache)
       {
         CacheList.Remove(sql);
       }
@@ -180,6 +180,6 @@ namespace CsvTools
     public static string GetColumNameByField(this IFileSetting fileSetting, string templateField)
     {
       return fileSetting.GetMappingByField(templateField)?.FileColumn;
-    }   
+    }
   }
 }

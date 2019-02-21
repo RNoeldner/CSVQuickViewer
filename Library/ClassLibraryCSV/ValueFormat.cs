@@ -83,10 +83,7 @@ namespace CsvTools
     ///   Initializes a new instance of the <see cref="ValueFormat" /> class.
     /// </summary>
     /// <param name="dataType">Type of the data.</param>
-    public ValueFormat(DataType dataType)
-    {
-      m_DataType = dataType;
-    }
+    public ValueFormat(DataType dataType) => m_DataType = dataType;
 
     /// <summary>
     ///   Gets or sets the type of the data.
@@ -118,7 +115,7 @@ namespace CsvTools
       set
       {
         var newVal = value ?? string.Empty;
-        if (m_DateFormat.Equals(newVal)) return;
+        if (m_DateFormat.Equals(newVal, StringComparison.Ordinal)) return;
         m_DateFormat = newVal;
         NotifyPropertyChanged(nameof(DateFormat));
       }
@@ -138,7 +135,7 @@ namespace CsvTools
       {
         // Translate written punctuation into a character
         var chr = FileFormat.GetChar(value);
-        var newVal = chr != '\0' ? chr.ToString() : string.Empty;
+        var newVal = chr != '\0' ? chr.ToString(CultureInfo.CurrentCulture) : string.Empty;
         if (m_DateSeparator.Equals(newVal, StringComparison.Ordinal)) return;
         m_DateSeparator = newVal;
         NotifyPropertyChanged(nameof(DateSeparator));
@@ -159,7 +156,7 @@ namespace CsvTools
       {
         // Translate written punctuation into a character
         var chr = FileFormat.GetChar(value);
-        var newVal = chr != '\0' ? chr.ToString() : string.Empty;
+        var newVal = chr != '\0' ? chr.ToString(CultureInfo.CurrentCulture) : string.Empty;
         if (m_DecimalSeparator.Equals(newVal, StringComparison.Ordinal)) return;
         // If we set the DecimalSeparator to be the Group separator, store the old
         // DecimalSeparator in the group separator;
@@ -188,7 +185,7 @@ namespace CsvTools
       set
       {
         var newVal = value ?? string.Empty;
-        if (m_False.Equals(newVal)) return;
+        if (m_False.Equals(newVal, StringComparison.Ordinal)) return;
         m_False = newVal;
         NotifyPropertyChanged(nameof(False));
       }
@@ -206,7 +203,7 @@ namespace CsvTools
       set
       {
         var chr = FileFormat.GetChar(value);
-        var newVal = chr != '\0' ? chr.ToString() : string.Empty;
+        var newVal = chr != '\0' ? chr.ToString(CultureInfo.CurrentCulture) : string.Empty;
 
         if (m_GroupSeparator.Equals(newVal, StringComparison.Ordinal)) return;
         // If we set the DecimalSeparator to be the group separator, store the old
@@ -234,7 +231,7 @@ namespace CsvTools
       set
       {
         var newVal = value ?? string.Empty;
-        if (m_NumberFormat.Equals(newVal)) return;
+        if (m_NumberFormat.Equals(newVal, StringComparison.Ordinal)) return;
         m_NumberFormat = newVal;
         NotifyPropertyChanged(nameof(NumberFormat));
       }
@@ -252,8 +249,8 @@ namespace CsvTools
       set
       {
         var chr = FileFormat.GetChar(value);
-        var newval = chr != '\0' ? chr.ToString() : string.Empty;
-        if (m_TimeSeparator.Equals(newval)) return;
+        var newval = chr != '\0' ? chr.ToString(CultureInfo.CurrentCulture) : string.Empty;
+        if (m_TimeSeparator.Equals(newval, StringComparison.Ordinal)) return;
         m_TimeSeparator = newval;
         NotifyPropertyChanged(nameof(TimeSeparator));
       }
@@ -272,7 +269,7 @@ namespace CsvTools
       set
       {
         var newVal = value ?? string.Empty;
-        if (m_True.Equals(newVal)) return;
+        if (m_True.Equals(newVal, StringComparison.Ordinal)) return;
         m_True = newVal;
         NotifyPropertyChanged(nameof(True));
       }
@@ -433,10 +430,7 @@ namespace CsvTools
     ///   Notifies the property changed.
     /// </summary>
     /// <param name="info">The info.</param>
-    public virtual void NotifyPropertyChanged(string info)
-    {
-      PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(info));
-    }
+    public virtual void NotifyPropertyChanged(string info) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(info));
 
     /// <summary>Determines whether the specified object is equal to the current object.</summary>
     /// <param name="obj">The object to compare with the current object. </param>

@@ -313,15 +313,18 @@ namespace CsvTools
   /// </summary>
   public class FoundEventArgs : EventArgs
   {
-    /// <summary>
-    ///   The cell
-    /// </summary>
+#pragma warning disable CA1051 // Do not declare visible instance fields
+                              /// <summary>
+                              ///   The cell
+                              /// </summary>
     public DataGridViewCell Cell;
+
 
     /// <summary>
     ///   The index
     /// </summary>
     public int Index;
+#pragma warning restore CA1051 // Do not declare visible instance fields
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="FoundEventArgs" /> class.

@@ -88,7 +88,7 @@ namespace CsvTools.Tests
       var test = new Column();
       test.PropertyChanged += delegate (object sender, PropertyChangedEventArgs e)
       {
-        Assert.IsTrue(e.PropertyName.Equals("DataType") || e.PropertyName.Equals("Convert"));
+        Assert.IsTrue(e.PropertyName == nameof(Column.DataType) || e.PropertyName == nameof(Column.Convert));
         numCalled++;
       };
       test.DataType = DataType.DateTime;

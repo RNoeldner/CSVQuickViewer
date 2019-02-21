@@ -237,7 +237,7 @@ namespace CsvTools
       return input.PlaceholderReplace("ID", m_FileSetting.ID)
        .PlaceholderReplace("FileName", m_FileSetting.FileName)
        .PlaceholderReplace("Records", string.Format(new CultureInfo("en-US"), "{0:n0}", m_Records))
-       .PlaceholderReplace("Delim", m_FileSetting.FileFormat.FieldDelimiterChar.ToString())
+       .PlaceholderReplace("Delim", m_FileSetting.FileFormat.FieldDelimiterChar.ToString(CultureInfo.CurrentCulture))
        .PlaceholderReplace("CDate", string.Format(new CultureInfo("en-US"), "{0:dd-MMM-yyyy}", DateTime.Now))
        .PlaceholderReplace("CDateLong", string.Format(new CultureInfo("en-US"), "{0:MMMM dd\\, yyyy}", DateTime.Now));
     }
@@ -395,7 +395,7 @@ namespace CsvTools
                   displayAs = StringUtils.HandleCRLFCombinations(displayAs, fileFormat.NewLinePlaceholder);
 
                 if (fileFormat.DelimiterPlaceholder.Length > 0)
-                  displayAs = displayAs.Replace(fileFormat.FieldDelimiterChar.ToString(),
+                  displayAs = displayAs.Replace(fileFormat.FieldDelimiterChar.ToString(CultureInfo.CurrentCulture),
                    fileFormat.DelimiterPlaceholder);
 
                 if (fileFormat.QuotePlaceholder.Length > 0 && fileFormat.FieldQualifier.Length > 0)

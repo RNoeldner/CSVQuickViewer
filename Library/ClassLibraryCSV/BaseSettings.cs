@@ -162,7 +162,7 @@ namespace CsvTools
 
         // In case the individual passphrase matches the general Passphrase do not store it
         return ApplicationSetting.ToolSetting.PGPInformation.AllowSavingPassphrase &&
-            !m_Passphrase.Equals(ApplicationSetting.ToolSetting.PGPInformation.EncryptedPassphase);
+            !m_Passphrase.Equals(ApplicationSetting.ToolSetting.PGPInformation.EncryptedPassphase, StringComparison.Ordinal);
       }
     }
 
@@ -178,7 +178,7 @@ namespace CsvTools
       set
       {
         var newVal = value ?? string.Empty;
-        if (m_RemoteFileName.Equals(newVal)) return;
+        if (m_RemoteFileName.Equals(newVal, StringComparison.Ordinal)) return;
 
         m_RemoteFileName = newVal;
         NotifyPropertyChanged(nameof(RemoteFileName));
@@ -267,8 +267,8 @@ namespace CsvTools
           other.ShowProgress == m_ShowProgress &&
           string.Equals(other.ID, m_Id, StringComparison.OrdinalIgnoreCase) &&
           other.FileFormat.Equals(m_FileFormat) &&
-          other.Passphrase.Equals(m_Passphrase) &&
-          other.Recipient.Equals(m_Recipient) &&
+          other.Passphrase.Equals(m_Passphrase, StringComparison.Ordinal) &&
+          other.Recipient.Equals(m_Recipient, StringComparison.Ordinal) &&
           other.NumErrors == m_NumErrors &&
           other.SkipEmptyLines == SkipEmptyLines &&
           other.SkipDuplicateHeader == SkipDuplicateHeader &&
@@ -320,10 +320,7 @@ namespace CsvTools
     ///  The column options
     /// </value>
     [XmlElement("Format")]
-    public virtual ObservableCollection<Column> Column
-    {
-      get => m_Column;
-    }
+    public virtual ObservableCollection<Column> Column => m_Column;
 
     /// <summary>
     ///  Gets or sets a value indicating whether to display end line numbers.
@@ -425,7 +422,7 @@ namespace CsvTools
         if (newVal.StartsWith(".\\", StringComparison.Ordinal))
           newVal = newVal.Substring(2);
 
-        if (m_FileName.Equals(newVal)) return;
+        if (m_FileName.Equals(newVal, StringComparison.Ordinal)) return;
         CsvHelper.InvalidateColumnHeader(this);
 
         m_FileName = newVal;
@@ -464,7 +461,7 @@ namespace CsvTools
       set
       {
         var newVal = StringUtils.HandleCRLFCombinations(value ?? string.Empty, Environment.NewLine);
-        if (m_Footer.Equals(newVal)) return;
+        if (m_Footer.Equals(newVal, StringComparison.Ordinal)) return;
         m_Footer = newVal;
         NotifyPropertyChanged(nameof(Footer));
       }
@@ -526,7 +523,7 @@ namespace CsvTools
       set
       {
         var newVal = StringUtils.HandleCRLFCombinations(value ?? string.Empty, Environment.NewLine);
-        if (m_Header.Equals(newVal)) return;
+        if (m_Header.Equals(newVal, StringComparison.Ordinal)) return;
         m_Header = newVal;
         NotifyPropertyChanged(nameof(Header));
       }
@@ -547,14 +544,14 @@ namespace CsvTools
       set
       {
         var newVal = value ?? string.Empty;
-        if (m_Id.Equals(newVal)) return;
+        if (m_Id.Equals(newVal, StringComparison.Ordinal)) return;
         CsvHelper.InvalidateColumnHeader(this);
 
         m_InternalId = null;
         var oldValue = m_Id;
         m_Id = newVal;
         NotifyPropertyChanged(nameof(ID));
-        PropertyChangedString?.Invoke(this, new PropertyChangedEventArgs<string>("ID", oldValue, newVal));
+        PropertyChangedString?.Invoke(this, new PropertyChangedEventArgs<string>(nameof(ID), oldValue, newVal));
       }
     }
 
@@ -615,10 +612,7 @@ namespace CsvTools
     /// </summary>
     /// <value>The field mapping.</value>
     [XmlElement]
-    public virtual Collection<Mapping> Mapping
-    {
-      get => m_ColumnMapping;
-    }
+    public virtual Collection<Mapping> Mapping => m_ColumnMapping;
 
     /// <summary>
     ///  Gets or sets the ID.
@@ -658,7 +652,7 @@ namespace CsvTools
       set
       {
         var newVal = (value ?? string.Empty).Trim();
-        if (m_Passphrase.Equals(newVal)) return;
+        if (m_Passphrase.Equals(newVal, StringComparison.Ordinal)) return;
         m_Passphrase = newVal;
         NotifyPropertyChanged(nameof(Passphrase));
       }
@@ -682,7 +676,7 @@ namespace CsvTools
       set
       {
         var newVal = (value ?? string.Empty).Trim();
-        if (m_Recipient.Equals(newVal)) return;
+        if (m_Recipient.Equals(newVal, StringComparison.Ordinal)) return;
         m_Recipient = newVal;
         NotifyPropertyChanged(nameof(Recipient));
       }
@@ -794,7 +788,7 @@ namespace CsvTools
       set
       {
         var newVal = (value ?? string.Empty).NoControlCharaters();
-        if (m_SqlStatement.Equals(newVal)) return;
+        if (m_SqlStatement.Equals(newVal, StringComparison.Ordinal)) return;
         CsvHelper.InvalidateColumnHeader(this);
         if (!string.IsNullOrEmpty(m_SqlStatement))
           FileLastWriteTimeUtc = DateTime.MinValue;
@@ -839,7 +833,7 @@ namespace CsvTools
       set
       {
         var newVal = value ?? string.Empty;
-        if (m_TemplateName.Equals(newVal)) return;
+        if (m_TemplateName.Equals(newVal, StringComparison.Ordinal)) return;
         m_TemplateName = newVal;
         NotifyPropertyChanged(nameof(TemplateName));
       }
@@ -878,7 +872,7 @@ namespace CsvTools
       set
       {
         var newVal = value ?? string.Empty;
-        if (m_TreatTextAsNull.Equals(newVal)) return;
+        if (m_TreatTextAsNull.Equals(newVal, StringComparison.Ordinal)) return;
         m_TreatTextAsNull = newVal;
         NotifyPropertyChanged(nameof(TreatTextAsNull));
       }
@@ -969,7 +963,11 @@ namespace CsvTools
       foreach (var map in m_ColumnMapping)
       {
         if (!map.FileColumn.Equals(fieldMapping.FileColumn, StringComparison.OrdinalIgnoreCase) ||
-            !map.TemplateField.Equals(fieldMapping.TemplateField, StringComparison.OrdinalIgnoreCase)) continue;
+            !map.TemplateField.Equals(fieldMapping.TemplateField, StringComparison.OrdinalIgnoreCase))
+        {
+          continue;
+        }
+
         found = true;
         break;
       }
@@ -1080,8 +1078,11 @@ namespace CsvTools
     public virtual Column GetColumn(string fieldName)
     {
       foreach (var column in m_Column)
+      {
         if (column.Name.Equals(fieldName, StringComparison.OrdinalIgnoreCase))
           return column;
+      }
+
       return null;
     }
 
@@ -1093,8 +1094,10 @@ namespace CsvTools
     public virtual IEnumerable<Mapping> GetColumnMapping(string columnName)
     {
       foreach (var mapping in m_ColumnMapping)
+      {
         if (mapping.FileColumn.Equals(columnName, StringComparison.OrdinalIgnoreCase))
           yield return mapping;
+      }
     }
 
     public abstract IFileReader GetFileReader();
@@ -1109,8 +1112,11 @@ namespace CsvTools
     {
       var toBeRemoved = new List<Mapping>();
       foreach (var fieldMapping in m_ColumnMapping)
+      {
         if (fieldMapping.FileColumn.Equals(source, StringComparison.OrdinalIgnoreCase))
           toBeRemoved.Add(fieldMapping);
+      }
+
       foreach (var fieldMapping in toBeRemoved)
         m_ColumnMapping.Remove(fieldMapping);
     }
@@ -1121,23 +1127,30 @@ namespace CsvTools
       // 1st columns as they are in the list
       var existing = new Collection<Column>();
       foreach (var colName in columnNames)
+      {
         foreach (var col in Column)
         {
           if (!col.Name.Equals(colName, StringComparison.OrdinalIgnoreCase)) continue;
           existing.Add(col);
           break;
         }
+      }
 
       // 2nd columns defined but not in list
       foreach (var col in Column)
+      {
         if (!existing.Contains(col))
           existing.Add(col);
+      }
 
       m_Column.CollectionChanged -= ColumnCollectionChanged;
       m_Column.Clear();
       if (existing != null)
+      {
         foreach (var column in existing)
           m_Column.Add(column);
+      }
+
       m_Column.CollectionChanged += ColumnCollectionChanged;
       CsvHelper.InvalidateColumnHeader(this);
     }
@@ -1214,12 +1227,17 @@ namespace CsvTools
     private void ColumnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
       if (e.NewItems != null)
+      {
         foreach (Column item in e.NewItems)
+        {
           item.PropertyChanged += delegate (object s_, PropertyChangedEventArgs colEvent)
           {
             if (colEvent.PropertyName == nameof(CsvTools.Column.Ignore))
               CsvHelper.InvalidateColumnHeader(this);
           };
+        }
+      }
+
       if (e.NewItems != null || e.OldItems != null)
       {
         CsvHelper.InvalidateColumnHeader(this);
@@ -1232,6 +1250,7 @@ namespace CsvTools
       get
       {
         if (m_GetEncryptedPassphrase == null)
+        {
           return () =>
           {
             if (!string.IsNullOrEmpty(m_Passphrase))
@@ -1240,6 +1259,8 @@ namespace CsvTools
               return ApplicationSetting.ToolSetting.PGPInformation.EncryptedPassphase;
             return string.Empty;
           };
+        }
+
         return m_GetEncryptedPassphrase;
       }
       set => m_GetEncryptedPassphrase = value;

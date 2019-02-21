@@ -128,8 +128,11 @@ namespace CsvTools
       // Un-escape the name again
       if (dataPropertyName.StartsWith("[", StringComparison.Ordinal) &&
           dataPropertyName.EndsWith("]", StringComparison.Ordinal))
+      {
         dataPropertyName1 = dataPropertyName.Substring(1, dataPropertyName.Length - 2).Replace(@"\]", "]")
           .Replace(@"\\", @"\");
+      }
+
       m_DataPropertyNameEscape = $"[{StringUtilsSQL.SqlName(dataPropertyName1)}]";
 
       m_ColumnDataType = columnDataType;
@@ -199,7 +202,7 @@ namespace CsvTools
         Contract.Assume(m_Operator != null);
 
         var newVal = value ?? string.Empty;
-        if (!m_Operator.Equals(newVal))
+        if (!m_Operator.Equals(newVal, StringComparison.Ordinal))
         {
           m_Operator = newVal;
           FilterChanged();
@@ -240,7 +243,7 @@ namespace CsvTools
         Contract.Assume(m_ValueText != null);
 
         var newVal = (value ?? string.Empty).Trim();
-        if (m_ValueText.Equals(newVal)) return;
+        if (m_ValueText.Equals(newVal, StringComparison.Ordinal)) return;
         m_ValueText = newVal;
         NotifyPropertyChanged(nameof(ValueText));
       }
@@ -251,10 +254,7 @@ namespace CsvTools
     /// <summary>
     ///   Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
     /// </summary>
-    public virtual void Dispose()
-    {
-      ColumnFilterChanged?.Invoke(this, null);
-    }
+    public virtual void Dispose() => ColumnFilterChanged?.Invoke(this, null);
 
     /// <summary>
     ///   Occurs when a property value changes.
@@ -274,10 +274,7 @@ namespace CsvTools
     /// <summary>
     ///   Applies the filter.
     /// </summary>
-    public virtual void ApplyFilter()
-    {
-      ColumnFilterApply?.Invoke(this, new EventArgs());
-    }
+    public virtual void ApplyFilter() => ColumnFilterApply?.Invoke(this, new EventArgs());
 
     /// <summary>
     ///   Builds the SQL command.
@@ -296,10 +293,7 @@ namespace CsvTools
     ///   Notifies the property changed.
     /// </summary>
     /// <param name="info">The info.</param>
-    public virtual void NotifyPropertyChanged(string info)
-    {
-      PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(info));
-    }
+    public virtual void NotifyPropertyChanged(string info) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(info));
 
     /// <summary>
     ///   Set the Filter to a value
@@ -383,6 +377,7 @@ namespace CsvTools
         return string.Empty;
       var returnVal = new StringBuilder(inputValue.Length);
       foreach (var c in inputValue)
+      {
         switch (c)
         {
           case '%':
@@ -400,6 +395,8 @@ namespace CsvTools
             returnVal.Append(c);
             break;
         }
+      }
+
       return returnVal.ToString();
     }
 
@@ -423,29 +420,38 @@ namespace CsvTools
     {
       Contract.Ensures(Contract.Result<string>() != null);
       if (m_Operator == cOPisNull)
+      {
         if (Type.GetTypeCode(m_ColumnDataType) == TypeCode.String)
           return string.Format(CultureInfo.InvariantCulture, "({0} IS NULL or {0} = '')", m_DataPropertyNameEscape);
         else
           return string.Format(CultureInfo.InvariantCulture, "{0} IS NULL", m_DataPropertyNameEscape);
+      }
 
       if (m_Operator == cOPisNotNull)
+      {
         if (Type.GetTypeCode(m_ColumnDataType) == TypeCode.String)
           return string.Format(CultureInfo.InvariantCulture, "NOT({0} IS NULL or {0} = '')", m_DataPropertyNameEscape);
         else
           return string.Format(CultureInfo.InvariantCulture, "NOT {0} IS NULL", m_DataPropertyNameEscape);
+      }
 
       if (string.IsNullOrEmpty(m_ValueText) &&
           (m_Operator == cOPcontains || m_Operator == cOpLonger || m_Operator == cOPshorter ||
            m_Operator == cOPbegins ||
            m_Operator == cOPends))
+      {
         return string.Empty;
+      }
 
       switch (m_Operator)
       {
         case cOPcontains:
           if (!string.IsNullOrEmpty(m_ValueText))
+          {
             return string.Format(CultureInfo.InvariantCulture, "{0} LIKE '%{1}%'", m_DataPropertyNameEscape,
               StringEscapeLike(m_ValueText));
+          }
+
           break;
 
         case cOpLonger:
@@ -480,8 +486,11 @@ namespace CsvTools
           }
 
           if (!string.IsNullOrEmpty(filterValue))
+          {
             return string.Format(CultureInfo.InvariantCulture, "{0} {1} {2}", m_DataPropertyNameEscape, m_Operator,
               filterValue);
+          }
+
           break;
       }
 

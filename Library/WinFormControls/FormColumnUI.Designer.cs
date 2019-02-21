@@ -20,9 +20,9 @@
       {
         components.Dispose();
       }
-      if (m_CancellationTokenSource != null)              
+      if (m_CancellationTokenSource != null)
         m_CancellationTokenSource.Dispose();
-      
+
       base.Dispose(disposing);
     }
 
@@ -198,7 +198,7 @@
       // 
       // labelSepBy
       // 
-      labelSepBy.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+      labelSepBy.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
       labelSepBy.AutoSize = true;
       labelSepBy.Location = new System.Drawing.Point(55, 15);
@@ -210,7 +210,7 @@
       // 
       // labelPart
       // 
-      labelPart.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+      labelPart.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
       labelPart.AutoSize = true;
       labelPart.Location = new System.Drawing.Point(94, 41);
@@ -303,7 +303,7 @@
       this.textBoxDecimalSeparator.Text = ".";
       this.textBoxDecimalSeparator.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
       this.textBoxDecimalSeparator.TextChanged += new System.EventHandler(this.NumberFormatChanged);
-      this.textBoxDecimalSeparator.Validating += new System.ComponentModel.CancelEventHandler(this.textBoxDecimalSeparator_Validating);
+      this.textBoxDecimalSeparator.Validating += new System.ComponentModel.CancelEventHandler(this.TextBoxDecimalSeparator_Validating);
       // 
       // textBoxDateSeparator
       // 
@@ -333,7 +333,7 @@
       this.comboBoxDataType.Size = new System.Drawing.Size(175, 21);
       this.comboBoxDataType.TabIndex = 3;
       this.comboBoxDataType.ValueMember = "ID";
-      this.comboBoxDataType.SelectedIndexChanged += new System.EventHandler(this.comboBoxDataType_SelectedIndexChanged);
+      this.comboBoxDataType.SelectedIndexChanged += new System.EventHandler(this.ComboBoxDataType_SelectedIndexChanged);
       // 
       // buttonCancel
       // 
@@ -346,7 +346,7 @@
       this.buttonCancel.TabIndex = 4;
       this.buttonCancel.Text = "&Cancel";
       this.buttonCancel.UseVisualStyleBackColor = true;
-      this.buttonCancel.Click += new System.EventHandler(this.buttonCancel_Click);
+      this.buttonCancel.Click += new System.EventHandler(this.ButtonCancelClick);
       // 
       // buttonOK
       // 
@@ -359,7 +359,7 @@
       this.buttonOK.TabIndex = 3;
       this.buttonOK.Text = "&Ok";
       this.buttonOK.UseVisualStyleBackColor = true;
-      this.buttonOK.Click += new System.EventHandler(this.buttonOK_Click);
+      this.buttonOK.Click += new System.EventHandler(this.ButtonOKClick);
       // 
       // labelNumber
       // 
@@ -468,7 +468,7 @@
       this.buttonAddFormat.TabIndex = 18;
       this.buttonAddFormat.Text = "Add to List";
       this.buttonAddFormat.UseVisualStyleBackColor = true;
-      this.buttonAddFormat.Click += new System.EventHandler(this.buttonAddFormat_Click);
+      this.buttonAddFormat.Click += new System.EventHandler(this.ButtonAddFormat_Click);
       // 
       // linkLabel1
       // 
@@ -488,7 +488,7 @@
       this.checkedListBoxDateFormats.Name = "checkedListBoxDateFormats";
       this.checkedListBoxDateFormats.Size = new System.Drawing.Size(208, 79);
       this.checkedListBoxDateFormats.TabIndex = 11;
-      this.checkedListBoxDateFormats.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.checkedListBoxDateFormats_ItemCheck);
+      this.checkedListBoxDateFormats.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.CheckedListBoxDateFormats_ItemCheck);
       this.checkedListBoxDateFormats.SelectedIndexChanged += new System.EventHandler(this.DateFormatChanged);
       // 
       // comboBoxDateFormat
@@ -589,8 +589,8 @@
       this.comboBoxColumnName.Size = new System.Drawing.Size(220, 21);
       this.comboBoxColumnName.TabIndex = 2;
       this.comboBoxColumnName.Visible = false;
-      this.comboBoxColumnName.SelectedIndexChanged += new System.EventHandler(this.comboBoxColumnName_SelectedIndexChanged);
-      this.comboBoxColumnName.TextUpdate += new System.EventHandler(this.comboBoxColumnName_TextUpdate);
+      this.comboBoxColumnName.SelectedIndexChanged += new System.EventHandler(this.ComboBoxColumnName_SelectedIndexChanged);
+      this.comboBoxColumnName.TextUpdate += new System.EventHandler(this.ComboBoxColumnName_TextUpdate);
       // 
       // buttonGuess
       // 
@@ -604,7 +604,7 @@
       this.buttonGuess.TabIndex = 2;
       this.buttonGuess.Text = "&Guess";
       this.buttonGuess.UseVisualStyleBackColor = true;
-      this.buttonGuess.Click += new System.EventHandler(this.buttonGuess_Click);
+      this.buttonGuess.Click += new System.EventHandler(this.ButtonGuessClick);
       // 
       // checkBoxIgnore
       // 
@@ -675,7 +675,7 @@
       this.textBoxSplit.Text = ":";
       this.textBoxSplit.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
       this.textBoxSplit.TextChanged += new System.EventHandler(this.SetSamplePart);
-      this.textBoxSplit.Validating += new System.ComponentModel.CancelEventHandler(this.textBoxSplit_Validating);
+      this.textBoxSplit.Validating += new System.ComponentModel.CancelEventHandler(this.TextBoxSplit_Validating);
       // 
       // textBoxPart
       // 
@@ -745,7 +745,7 @@
       this.buttonDisplayValues.TabIndex = 1;
       this.buttonDisplayValues.Text = "     Display Values";
       this.buttonDisplayValues.UseVisualStyleBackColor = true;
-      this.buttonDisplayValues.Click += new System.EventHandler(this.buttonDisplayValues_Click);
+      this.buttonDisplayValues.Click += new System.EventHandler(this.ButtonDisplayValues_Click);
       // 
       // FormColumnUI
       // 

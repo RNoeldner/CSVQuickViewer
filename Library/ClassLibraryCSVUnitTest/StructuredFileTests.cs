@@ -106,7 +106,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void StructuredFileTest_CTOR()
+    public void StructuredFileTestCTOR()
     {
       var test = new StructuredFile();
       Assert.IsTrue(string.IsNullOrEmpty(test.FileName));

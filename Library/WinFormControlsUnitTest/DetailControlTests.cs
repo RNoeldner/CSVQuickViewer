@@ -37,7 +37,7 @@ namespace CsvTools.Tests
         {
           var row = dt.NewRow();
           row[0] = line;
-          row[1] = string.Format("This is text {0}", line / 2);
+          row[1] = $"This is text {line / 2}";
           row[2] = new DateTime(2001, 6, 6).AddHours(line * 3);
           row[3] = line % 3 == 0;
           if (SecureString.Random.Next(1, 10) == 5)
@@ -86,7 +86,7 @@ namespace CsvTools.Tests
         {
           var row = dt.NewRow();
           row[0] = SecureString.Random.Next(1, 5000);
-          row[1] = string.Format("This is text {0}", line / 2);
+          row[1] = $"This is text {line / 2}";
           row[2] = new DateTime(2001, 6, 6).AddHours(line * 3);
           row[3] = line % 3 == 0;
           dt.Rows.Add(row);
