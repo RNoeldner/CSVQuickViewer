@@ -215,7 +215,7 @@ namespace CsvTools
         bool same = true;
         for (int i = 0; i < otherSaving.Count() && same; i++)
         {
-          same = (saving[i].Name.Equals(otherSaving[i].Name) && saving[i].StandardOffset.Equals(otherSaving[i].StandardOffset));
+          same = (saving[i].Name.Equals(otherSaving[i].Name, StringComparison.OrdinalIgnoreCase) && saving[i].StandardOffset.Equals(otherSaving[i].StandardOffset));
           if (same && saving[i].HasStart && otherSaving[i].HasStart)
             same = (saving[i].Start == otherSaving[i].Start);
           if (same && saving[i].HasEnd && otherSaving[i].HasEnd)

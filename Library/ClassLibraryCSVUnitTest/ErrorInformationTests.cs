@@ -6,7 +6,7 @@ using System.Linq;
 namespace CsvTools.Tests
 {
   [TestClass]
-  public class ErrorInformationTests
+  public class ErrorInformationTests : System.IDisposable
   {
     private readonly DataTable m_DataTable = new DataTable();
 
@@ -146,5 +146,7 @@ namespace CsvTools.Tests
       Assert.AreEqual(dr.GetColumnError(1), dr2.GetColumnError(1));
       Assert.AreEqual(dr.GetColumnError(2), dr2.GetColumnError(2));
     }
+
+    public void Dispose() => m_DataTable.Dispose();
   }
 }

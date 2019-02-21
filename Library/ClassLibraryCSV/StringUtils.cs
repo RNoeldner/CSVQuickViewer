@@ -342,7 +342,7 @@ namespace CsvTools
     /// </remarks>
     public static string RReplace(this string original, string search, string replace)
     {
-      if (string.IsNullOrEmpty(search) || search.Equals(replace))
+      if (string.IsNullOrEmpty(search) || search.Equals(replace, StringComparison.Ordinal))
         return original;
 
       var ret = original;

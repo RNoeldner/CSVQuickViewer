@@ -76,7 +76,7 @@ namespace CsvTools
       set
       {
         var newVal = (value ?? string.Empty).Trim();
-        if (m_CommentLine.Equals(value)) return;
+        if (m_CommentLine.Equals(value, StringComparison.Ordinal)) return;
         m_CommentLine = newVal;
         NotifyPropertyChanged(nameof(CommentLine));
       }
@@ -98,7 +98,7 @@ namespace CsvTools
       set
       {
         var newVal = (value ?? string.Empty).Trim();
-        if (m_DelimiterPlaceholder.Equals(newVal)) return;
+        if (m_DelimiterPlaceholder.Equals(newVal, StringComparison.Ordinal)) return;
         m_DelimiterPlaceholder = newVal;
         NotifyPropertyChanged(nameof(DelimiterPlaceholder));
       }
@@ -121,7 +121,7 @@ namespace CsvTools
       set
       {
         var newVal = (value ?? string.Empty).Trim();
-        if (m_EscapeCharacter.Equals(newVal)) return;
+        if (m_EscapeCharacter.Equals(newVal, StringComparison.Ordinal)) return;
         m_EscapeCharacterChar = GetChar(newVal);
         m_EscapeCharacter = newVal;
         NotifyPropertyChanged(nameof(EscapeCharacter));
@@ -151,7 +151,7 @@ namespace CsvTools
       set
       {
         var newVal = (value ?? string.Empty).Trim(StringUtils.Spaces);
-        if (m_FieldDelimiter.Equals(newVal)) return;
+        if (m_FieldDelimiter.Equals(newVal, StringComparison.Ordinal)) return;
         m_FieldDelimiterChar = GetChar(newVal);
         m_FieldDelimiter = newVal;
         NotifyPropertyChanged(nameof(FieldDelimiter));
@@ -181,7 +181,7 @@ namespace CsvTools
       set
       {
         var newVal = (value ?? string.Empty).Trim();
-        if (m_FieldQualifier.Equals(newVal)) return;
+        if (m_FieldQualifier.Equals(newVal, StringComparison.Ordinal)) return;
         m_FieldQualifierChar = GetChar(newVal);
         m_FieldQualifier = newVal;
         NotifyPropertyChanged(nameof(FieldQualifier));
@@ -219,7 +219,7 @@ namespace CsvTools
       set
       {
         var newVal = value ?? c_NewLineDefault;
-        if (m_NewLine.Equals(newVal)) return;
+        if (m_NewLine.Equals(newVal, StringComparison.Ordinal)) return;
         m_NewLine = newVal;
         NotifyPropertyChanged(nameof(NewLine));
       }
@@ -298,7 +298,7 @@ namespace CsvTools
       set
       {
         var newVal = (value ?? string.Empty).Trim();
-        if (m_QuotePlaceholder.Equals(newVal)) return;
+        if (m_QuotePlaceholder.Equals(newVal, StringComparison.Ordinal)) return;
         m_QuotePlaceholder = newVal;
         NotifyPropertyChanged(nameof(QuotePlaceholder));
       }
@@ -389,17 +389,17 @@ namespace CsvTools
     {
       if (other is null) return false;
       if (ReferenceEquals(this, other)) return true;
-      return string.Equals(m_CommentLine, other.m_CommentLine) &&
-             string.Equals(m_DelimiterPlaceholder, other.m_DelimiterPlaceholder) &&
-             string.Equals(m_EscapeCharacter, other.m_EscapeCharacter) &&
+      return string.Equals(m_CommentLine, other.m_CommentLine, StringComparison.Ordinal) &&
+             string.Equals(m_DelimiterPlaceholder, other.m_DelimiterPlaceholder, StringComparison.Ordinal) &&
+             string.Equals(m_EscapeCharacter, other.m_EscapeCharacter, StringComparison.Ordinal) &&
              m_EscapeCharacterChar == other.m_EscapeCharacterChar &&
-             string.Equals(m_FieldDelimiter, other.m_FieldDelimiter) &&
+             string.Equals(m_FieldDelimiter, other.m_FieldDelimiter, StringComparison.Ordinal) &&
              m_FieldDelimiterChar == other.m_FieldDelimiterChar &&
-             string.Equals(m_FieldQualifier, other.m_FieldQualifier) &&
-             m_FieldQualifierChar == other.m_FieldQualifierChar && string.Equals(m_NewLine, other.m_NewLine) &&
-             string.Equals(m_NewLinePlaceholder, other.m_NewLinePlaceholder) &&
+             string.Equals(m_FieldQualifier, other.m_FieldQualifier, StringComparison.Ordinal) &&
+             m_FieldQualifierChar == other.m_FieldQualifierChar && string.Equals(m_NewLine, other.m_NewLine, StringComparison.Ordinal) &&
+             string.Equals(m_NewLinePlaceholder, other.m_NewLinePlaceholder, StringComparison.Ordinal) &&
              m_QualifyAlways == other.m_QualifyAlways && m_QualifyOnlyIfNeeded == other.m_QualifyOnlyIfNeeded &&
-             string.Equals(m_QuotePlaceholder, other.m_QuotePlaceholder) && Equals(m_ValueFormat, other.m_ValueFormat);
+             string.Equals(m_QuotePlaceholder, other.m_QuotePlaceholder, StringComparison.Ordinal) && Equals(m_ValueFormat, other.m_ValueFormat);
     }
 
     /// <summary>

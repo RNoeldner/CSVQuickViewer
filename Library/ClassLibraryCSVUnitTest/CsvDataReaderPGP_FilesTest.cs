@@ -4,7 +4,7 @@ using System.Threading;
 namespace CsvTools.Tests
 {
   [TestClass]
-  public class CsvDataReaderPGP_FilesTest
+  public class CsvDataReaderPGPFilesTest
   {
     [TestMethod]
     public void ReadGZip()
@@ -33,7 +33,7 @@ namespace CsvTools.Tests
       });
       using (var test = new CsvFileReader(setting))
       {
-        test.Open(CancellationToken.None, true);
+        test.Open(true, CancellationToken.None);
         int row = 0;
         while (test.Read())
           row++;
@@ -72,7 +72,7 @@ namespace CsvTools.Tests
       });
       using (var test = new CsvFileReader(setting))
       {
-        test.Open(CancellationToken.None, true);
+        test.Open(true, CancellationToken.None);
         int row = 0;
         while (test.Read())
           row++;
@@ -110,7 +110,7 @@ namespace CsvTools.Tests
       });
       using (var test = new CsvFileReader(setting))
       {
-        test.Open(CancellationToken.None, true);
+        test.Open(true, CancellationToken.None);
         int row = 0;
         while (test.Read())
           row++;

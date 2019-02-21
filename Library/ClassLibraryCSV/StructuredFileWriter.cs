@@ -96,7 +96,7 @@ namespace CsvTools
       var colNum = 0;
       foreach (var columnInfo in enumerable)
       {
-        var placeHolder = string.Format(cHeaderPlaceholder, colNum);
+        var placeHolder = string.Format(System.Globalization.CultureInfo.CurrentCulture, cHeaderPlaceholder, colNum);
         if (m_StructuredWriterFile.XMLEncode)
           withHeader = withHeader.Replace(placeHolder, HTMLStyle.XmlElementName(columnInfo.Header));
         else if (m_StructuredWriterFile.JSONEncode)
@@ -125,9 +125,9 @@ namespace CsvTools
         foreach (var columnInfo in enumerable)
         {
           Contract.Assume(columnInfo != null);
-          var placeHolder1 = string.Format(cFieldPlaceholderByNumber, colNum);
+          var placeHolder1 = string.Format(System.Globalization.CultureInfo.CurrentCulture,  cFieldPlaceholderByNumber, colNum);
           var value = string.Empty;
-          var placeHolder2 = string.Format(cFieldPlaceholderByName, columnInfo.Header);
+          var placeHolder2 = string.Format(System.Globalization.CultureInfo.CurrentCulture, cFieldPlaceholderByName, columnInfo.Header);
 
           var col = reader.GetValue(columnInfo.ColumnOridinalReader);
           if (col == DBNull.Value)

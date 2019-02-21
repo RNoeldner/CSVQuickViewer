@@ -53,33 +53,33 @@ namespace CsvTools
       {
         if (errorsAndWarings.Item2.Length == 0 && errorsAndWarings.Item1.Length > 0)
         {
-          sbHtml.Append(string.Format(tdTemplate, AddTd(c_Error, errorsAndWarings.Item1)));
+          sbHtml.Append(string.Format(CultureInfo.CurrentCulture, tdTemplate, AddTd(c_Error, errorsAndWarings.Item1)));
           return;
         }
 
         if (errorsAndWarings.Item2.Length > 0 && errorsAndWarings.Item1.Length == 0)
         {
-          sbHtml.Append(string.Format(tdTemplate, AddTd(c_Warning, errorsAndWarings.Item2)));
+          sbHtml.Append(string.Format(CultureInfo.CurrentCulture, tdTemplate, AddTd(c_Warning, errorsAndWarings.Item2)));
           return;
         }
 
-        sbHtml.Append(string.Format(tdTemplate, AddTd(c_ErrorWarning, errorsAndWarings.Item1, errorsAndWarings.Item2)));
+        sbHtml.Append(string.Format(CultureInfo.CurrentCulture, tdTemplate, AddTd(c_ErrorWarning, errorsAndWarings.Item1, errorsAndWarings.Item2)));
       }
       else
       {
         if (errorsAndWarings.Item2.Length == 0 && errorsAndWarings.Item1.Length > 0)
         {
-          sbHtml.Append(string.Format(tdTemplate, AddTd(c_ValueError, regularText, errorsAndWarings.Item1)));
+          sbHtml.Append(string.Format(CultureInfo.CurrentCulture, tdTemplate, AddTd(c_ValueError, regularText, errorsAndWarings.Item1)));
           return;
         }
 
         if (errorsAndWarings.Item2.Length > 0 && errorsAndWarings.Item1.Length == 0)
         {
-          sbHtml.Append(string.Format(tdTemplate, AddTd(c_ValueWarning, regularText, errorsAndWarings.Item2)));
+          sbHtml.Append(string.Format(CultureInfo.CurrentCulture, tdTemplate, AddTd(c_ValueWarning, regularText, errorsAndWarings.Item2)));
           return;
         }
 
-        sbHtml.Append(string.Format(tdTemplate,
+        sbHtml.Append(string.Format(CultureInfo.CurrentCulture, tdTemplate,
           AddTd(c_ValueErrorWarning, regularText, errorsAndWarings.Item1, errorsAndWarings.Item2)));
       }
     }
@@ -99,7 +99,7 @@ namespace CsvTools
       for (var i = 0; i < contents.Length; i++)
         contents[i] = HtmlEncode(contents[i].ToString()).Replace("�", "<span style=\"color:Red; font-size:larger\">&diams;</span>");
 
-      return string.Format(template, contents);
+      return string.Format(CultureInfo.CurrentCulture, template, contents);
     }
 
     /// <summary>
@@ -120,6 +120,7 @@ namespace CsvTools
       var sb = new StringBuilder(text.Length);
       var len = text.Length;
       for (var i = 0; i < len; i++)
+      {
         switch (text[i])
         {
           case '\n':
@@ -157,6 +158,8 @@ namespace CsvTools
 
             break;
         }
+      }
+
       return sb.ToString();
     }
 
@@ -173,6 +176,7 @@ namespace CsvTools
       var sb = new StringBuilder(text.Length);
 
       foreach (var oneChar in text)
+      {
         switch (oneChar)
         {
           case '\n':
@@ -199,6 +203,7 @@ namespace CsvTools
             sb.Append(oneChar);
             break;
         }
+      }
 
       return sb.ToString();
     }
@@ -228,7 +233,10 @@ namespace CsvTools
           && oc != UnicodeCategory.ModifierLetter
           && oc != UnicodeCategory.OtherLetter
           && oc != UnicodeCategory.LetterNumber)
+      {
         return "_" + allowed;
+      }
+
       return allowed;
     }
 
@@ -244,6 +252,7 @@ namespace CsvTools
         return null;
       var output = new StringBuilder();
       foreach (var c in text)
+      {
         if (c == 8) //Backspace
           output.Append("\\b");
         else if (c == 9) //Horizontal tab
@@ -262,6 +271,8 @@ namespace CsvTools
           output.Append("\\\\");
         else if (c > 31)
           output.Append(c);
+      }
+
       return "\"" + output + "\"";
     }
 
@@ -354,14 +365,14 @@ namespace CsvTools
       if (addTable)
         sbHtml.Append(TableOpen);
 
-      int lineNo = 0;
-      foreach (string line in text.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries))
+      var lineNo = 0;
+      foreach (var line in text.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries))
       {
         lineNo++;
         if (lineNo == 1 && firstLineHeader)
         {
           sbHtml.Append(TROpenAlt);
-          foreach (string column in line.Split(new[] { '\t' }, StringSplitOptions.None))
+          foreach (var column in line.Split(new[] { '\t' }, StringSplitOptions.None))
           {
             sbHtml.Append(HTMLStyle.AddTd(TH, column));
           }
@@ -370,7 +381,7 @@ namespace CsvTools
         else
         {
           sbHtml.Append(TROpen);
-          foreach (string column in line.Split(new[] { '\t' }, StringSplitOptions.None))
+          foreach (var column in line.Split(new[] { '\t' }, StringSplitOptions.None))
           {
             sbHtml.Append(HTMLStyle.AddTd(TD, column));
           }

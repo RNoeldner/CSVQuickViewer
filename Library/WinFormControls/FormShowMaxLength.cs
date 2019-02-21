@@ -189,7 +189,7 @@ namespace CsvTools
           lastRow[dataColumnName] = len.Key;
 
           if (len.Value != -1)
-            lastRow[dataColumnLength] = len.Value.ToString();
+            lastRow[dataColumnLength] = len.Value.ToString(CultureInfo.CurrentCulture);
           else
             lastRow[dataColumnLength] = m_DataTable.Columns[len.Key].DataType.Name;
 

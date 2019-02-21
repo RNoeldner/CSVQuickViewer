@@ -92,6 +92,7 @@ namespace CsvTools
       Contract.Requires(dataView != null);
 
       if (m_Result == BuildValueClustersResult.NotRun)
+      {
         try
         {
           if (columnType == typeof(string) || columnType == typeof(bool))
@@ -102,7 +103,9 @@ namespace CsvTools
                    columnType == typeof(uint) || columnType == typeof(int) || columnType == typeof(float) ||
                    columnType == typeof(double) || columnType == typeof(long) || columnType == typeof(ulong) ||
                    columnType == typeof(decimal))
+          {
             m_Result = BuildValueClustersNumeric(dataView.Table, columnIndex, maxNumber, columnType);
+          }
           else
             m_Result = BuildValueClustersResult.WrongType;
         }
@@ -110,6 +113,7 @@ namespace CsvTools
         {
           m_Result = BuildValueClustersResult.WrongType;
         }
+      }
 
       if (m_Result != BuildValueClustersResult.ListFilled) return m_Result;
       foreach (var item in m_ValueClusters)
@@ -148,40 +152,19 @@ namespace CsvTools
       }
     }
 
-    private static string GetDaySort(DateTime date)
-    {
-      return date.ToString("s");
-    }
+    private static string GetDaySort(DateTime date) => date.ToString("s", CultureInfo.CurrentCulture);
 
-    private static long GetHourKey(DateTime date)
-    {
-      return date.TimeOfDay.Ticks / c_TicksPerGroup;
-    }
+    private static long GetHourKey(DateTime date) => date.TimeOfDay.Ticks / c_TicksPerGroup;
 
-    private static string GetHourSort(long ticks)
-    {
-      return ticks.ToString("000000");
-    }
+    private static string GetHourSort(long ticks) => ticks.ToString("000000", CultureInfo.InvariantCulture);
 
-    private static DateTime GetMonthKey(DateTime date)
-    {
-      return new DateTime(date.Year, date.Month, 1);
-    }
+    private static DateTime GetMonthKey(DateTime date) => new DateTime(date.Year, date.Month, 1);
 
-    private static string GetMonthSort(DateTime date)
-    {
-      return date.ToString("s");
-    }
+    private static string GetMonthSort(DateTime date) => date.ToString("s", CultureInfo.InvariantCulture);
 
-    private static int GetYearKey(DateTime date)
-    {
-      return date.Year;
-    }
+    private static int GetYearKey(DateTime date) => date.Year;
 
-    private static string GetYearSort(int year)
-    {
-      return year.ToString("000000");
-    }
+    private static string GetYearSort(int year) => year.ToString("000000", CultureInfo.InvariantCulture);
 
     /// <summary>
     ///   Builds the value clusters date.
@@ -243,6 +226,7 @@ namespace CsvTools
       {
         m_Type = ValueClustersGroupType.DateHours;
         foreach (var dic in clusterHour)
+        {
           if (dic != 0)
           {
             var from = StringConversion.GetTimeFromTicks(dic * c_TicksPerGroup);
@@ -266,21 +250,26 @@ namespace CsvTools
               Sort = string.Empty
             });
           }
+        }
       }
       else if (clusterDay.Count < maxNumber)
       {
         m_Type = ValueClustersGroupType.DateDay;
         foreach (var dic in clusterDay)
+        {
           if (dic != DateTime.MinValue)
+          {
             m_ValueClusters.Add(new ValueCluster
             {
-              Display = dic.ToString("d"),
+              Display = dic.ToString("d", CultureInfo.CurrentCulture),
               SQLCondition = string.Format(CultureInfo.InvariantCulture,
                 @"({0} >= #{1:MM\/dd\/yyyy}# AND {0} < #{2:MM\/dd\/yyyy}#)", StringUtilsSQL.SqlNameSafe(columnName),
                 dic, dic.AddDays(1)),
               Sort = GetDaySort(dic)
             });
+          }
           else
+          {
             m_ValueClusters.Add(new ValueCluster
             {
               Display = ColumnFilterLogic.cOPisNull,
@@ -288,21 +277,27 @@ namespace CsvTools
                 string.Format(CultureInfo.InvariantCulture, c_IsNull, StringUtilsSQL.SqlNameSafe(columnName)),
               Sort = string.Empty
             });
+          }
+        }
       }
       else if (clusterMonth.Count < maxNumber)
       {
         m_Type = ValueClustersGroupType.DateMonth;
         foreach (var dic in clusterMonth)
+        {
           if (dic != DateTime.MinValue)
+          {
             m_ValueClusters.Add(new ValueCluster
             {
-              Display = dic.ToString("Y"), // Year month pattern
+              Display = dic.ToString("Y", CultureInfo.CurrentCulture), // Year month pattern
               SQLCondition = string.Format(CultureInfo.InvariantCulture,
                 @"({0} >= #{1:MM\/dd\/yyyy}# AND {0} < #{2:MM\/dd\/yyyy}#)", StringUtilsSQL.SqlNameSafe(columnName),
                 dic, dic.AddMonths(1)),
               Sort = GetMonthSort(dic)
             });
+          }
           else
+          {
             m_ValueClusters.Add(new ValueCluster
             {
               Display = ColumnFilterLogic.cOPisNull,
@@ -310,21 +305,27 @@ namespace CsvTools
                 string.Format(CultureInfo.InvariantCulture, c_IsNull, StringUtilsSQL.SqlNameSafe(columnName)),
               Sort = string.Empty
             });
+          }
+        }
       }
       else
       {
         m_Type = ValueClustersGroupType.DateYear;
         foreach (var dic in clusterYear)
+        {
           if (dic != 0)
+          {
             m_ValueClusters.Add(new ValueCluster
             {
-              Display = dic.ToString("D"), // Decimal
+              Display = dic.ToString("D", CultureInfo.CurrentCulture), // Decimal
               SQLCondition = string.Format(CultureInfo.InvariantCulture,
                 "({0} >= #01/01/{1:d4}# AND {0} < #01/01/{2:d4}#)", StringUtilsSQL.SqlNameSafe(columnName), dic,
                 dic + 1),
               Sort = GetYearSort(dic)
             });
+          }
           else
+          {
             m_ValueClusters.Add(new ValueCluster
             {
               Display = ColumnFilterLogic.cOPisNull,
@@ -332,6 +333,8 @@ namespace CsvTools
                 string.Format(CultureInfo.InvariantCulture, c_IsNull, StringUtilsSQL.SqlNameSafe(columnName)),
               Sort = string.Empty
             });
+          }
+        }
       }
 
       return BuildValueClustersResult.ListFilled;
@@ -369,11 +372,11 @@ namespace CsvTools
         {
           if (columnType == typeof(decimal) || columnType == typeof(float) || columnType == typeof(double))
           {
-            var rounded = Math.Floor(Convert.ToDouble(dataRow[columnIndex]) * 10d) / 10d;
+            var rounded = Math.Floor(Convert.ToDouble(dataRow[columnIndex], CultureInfo.CurrentCulture) * 10d) / 10d;
             clusterFractions.Add(rounded);
           }
 
-          var key = Convert.ToInt64(dataRow[columnIndex]);
+          var key = Convert.ToInt64(dataRow[columnIndex], CultureInfo.CurrentCulture);
           clusterOne.Add(key);
           clusterTen.Add(key / 10);
           clusterHundered.Add(key / 100);
@@ -397,101 +400,131 @@ namespace CsvTools
       {
         m_Type = ValueClustersGroupType.NumericFraction;
         foreach (var dic in clusterFractions)
+        {
           if (Math.Abs(dic - int.MinValue) > .1)
+          {
             m_ValueClusters.Add(new ValueCluster
             {
               Display = dic.ToString(CultureInfo.CurrentCulture), // Decimal
               SQLCondition = string.Format(CultureInfo.InvariantCulture, "({0} >= {1} AND {0} < {2})", colNameEsc, dic,
                 dic + .1),
-              Sort = (dic * 10d).ToString("0000000000000000000")
+              Sort = (dic * 10d).ToString("0000000000000000000", CultureInfo.InvariantCulture)
             });
+          }
           else
+          {
             m_ValueClusters.Add(new ValueCluster
             {
               Display = ColumnFilterLogic.cOPisNull,
               SQLCondition = string.Format(CultureInfo.InvariantCulture, "({0} IS NULL)", colNameEsc),
               Sort = string.Empty
             });
+          }
+        }
       }
       else if (clusterOne.Count < maxNumber)
       {
         m_Type = ValueClustersGroupType.NumericOnes;
         foreach (var dic in clusterOne)
+        {
           if (dic != int.MinValue)
+          {
             m_ValueClusters.Add(new ValueCluster
             {
-              Display = dic.ToString("D"), // Decimal
+              Display = dic.ToString("D", CultureInfo.CurrentCulture), // Decimal
               SQLCondition = string.Format(CultureInfo.InvariantCulture, "({0} >= {1} AND {0} < {2})", colNameEsc, dic,
                 dic + 1),
-              Sort = dic.ToString("0000000000000000000")
+              Sort = dic.ToString("0000000000000000000", CultureInfo.InvariantCulture)
             });
+          }
           else
+          {
             m_ValueClusters.Add(new ValueCluster
             {
               Display = ColumnFilterLogic.cOPisNull,
               SQLCondition = string.Format(CultureInfo.InvariantCulture, "({0} IS NULL)", colNameEsc),
               Sort = string.Empty
             });
+          }
+        }
       }
       else if (clusterTen.Count < maxNumber)
       {
         m_Type = ValueClustersGroupType.NumericTens;
         foreach (var dic in clusterTen)
+        {
           if (dic != int.MinValue)
+          {
             m_ValueClusters.Add(new ValueCluster
             {
               Display = $"{dic * 10} - {dic * 10 + 9}", // Decimal
               SQLCondition = string.Format(CultureInfo.InvariantCulture, "({0} >= {1} AND {0} < {2})", colNameEsc,
                 dic * 10, (dic + 1) * 10),
-              Sort = dic.ToString("0000000000000000000")
+              Sort = dic.ToString("0000000000000000000", CultureInfo.InvariantCulture)
             });
+          }
           else
+          {
             m_ValueClusters.Add(new ValueCluster
             {
               Display = ColumnFilterLogic.cOPisNull,
               SQLCondition = string.Format(CultureInfo.InvariantCulture, "({0} IS NULL)", colNameEsc),
               Sort = string.Empty
             });
+          }
+        }
       }
       else if (clusterHundered.Count < maxNumber)
       {
         m_Type = ValueClustersGroupType.NumericHundreds;
         foreach (var dic in clusterHundered)
+        {
           if (dic != int.MinValue)
+          {
             m_ValueClusters.Add(new ValueCluster
             {
               Display = $"{dic * 100} - {dic * 100 + 99}", // Decimal
               SQLCondition = string.Format(CultureInfo.InvariantCulture, "({0} >= {1} AND {0} < {2})", colNameEsc,
                 dic * 100, (dic + 1) * 100),
-              Sort = dic.ToString("0000000000000000000")
+              Sort = dic.ToString("0000000000000000000", CultureInfo.InvariantCulture)
             });
+          }
           else
+          {
             m_ValueClusters.Add(new ValueCluster
             {
               Display = ColumnFilterLogic.cOPisNull,
               SQLCondition = string.Format(CultureInfo.InvariantCulture, "({0} IS NULL)", colNameEsc),
               Sort = string.Empty
             });
+          }
+        }
       }
       else
       {
         m_Type = ValueClustersGroupType.NumericThousands;
         foreach (var dic in clusterThousand)
+        {
           if (dic != int.MinValue)
+          {
             m_ValueClusters.Add(new ValueCluster
             {
               Display = $"{dic * 1000} - {dic * 1000 + 999}", // Decimal
               SQLCondition = string.Format(CultureInfo.InvariantCulture, "({0} >= {1} AND {0} < {2})", colNameEsc,
                 dic * 1000, (dic + 1) * 1000),
-              Sort = dic.ToString("0000000000000000000")
+              Sort = dic.ToString("0000000000000000000", CultureInfo.InvariantCulture)
             });
+          }
           else
+          {
             m_ValueClusters.Add(new ValueCluster
             {
               Display = ColumnFilterLogic.cOPisNull,
               SQLCondition = string.Format(CultureInfo.InvariantCulture, "({0} IS NULL)", colNameEsc),
               Sort = string.Empty
             });
+          }
+        }
       }
 
       return BuildValueClustersResult.ListFilled;
@@ -528,11 +561,13 @@ namespace CsvTools
       }
 
       foreach (var text in cluster)
+      {
         m_ValueClusters.Add(new ValueCluster
         {
           Display = text,
           Sort = text == ColumnFilterLogic.cOPisNull ? string.Empty : text
         });
+      }
 
       return BuildValueClustersResult.ListFilled;
     }
@@ -572,11 +607,13 @@ namespace CsvTools
 
         if (sort == null) continue;
         foreach (var item in m_ValueClusters)
+        {
           if (sort.Equals(item.Sort, StringComparison.Ordinal))
           {
             item.Count++;
             break;
           }
+        }
       }
     }
 
@@ -591,38 +628,40 @@ namespace CsvTools
         }
         else
         {
-          var key = Convert.ToInt64(dataRow[columnIndex]);
+          var key = Convert.ToInt64(dataRow[columnIndex], CultureInfo.CurrentCulture);
           switch (m_Type)
           {
             case ValueClustersGroupType.NumericFraction:
-              sort = Math.Floor(Convert.ToDouble(dataRow[columnIndex]) * 10d).ToString("0000000000000000000");
+              sort = Math.Floor(Convert.ToDouble(dataRow[columnIndex], CultureInfo.CurrentCulture) * 10d).ToString("0000000000000000000", CultureInfo.InvariantCulture);
               break;
 
             case ValueClustersGroupType.NumericOnes:
-              sort = key.ToString("0000000000000000000");
+              sort = key.ToString("0000000000000000000", CultureInfo.InvariantCulture);
               break;
 
             case ValueClustersGroupType.NumericTens:
-              sort = (key / 10).ToString("0000000000000000000");
+              sort = (key / 10).ToString("0000000000000000000", CultureInfo.InvariantCulture);
               break;
 
             case ValueClustersGroupType.NumericHundreds:
-              sort = (key / 100).ToString("0000000000000000000");
+              sort = (key / 100).ToString("0000000000000000000", CultureInfo.InvariantCulture);
               break;
 
             case ValueClustersGroupType.NumericThousands:
-              sort = (key / 1000).ToString("0000000000000000000");
+              sort = (key / 1000).ToString("0000000000000000000", CultureInfo.InvariantCulture);
               break;
           }
         }
 
         if (sort == null) continue;
         foreach (var item in m_ValueClusters)
+        {
           if (sort.Equals(item.Sort, StringComparison.Ordinal))
           {
             item.Count++;
             break;
           }
+        }
       }
     }
 
@@ -633,11 +672,13 @@ namespace CsvTools
         var key = dataRow[columnIndex] == DBNull.Value ? ColumnFilterLogic.cOPisNull : dataRow[columnIndex].ToString();
 
         foreach (var item in m_ValueClusters)
+        {
           if (key.Equals(item.Sort, StringComparison.Ordinal))
           {
             item.Count++;
             break;
           }
+        }
       }
     }
 

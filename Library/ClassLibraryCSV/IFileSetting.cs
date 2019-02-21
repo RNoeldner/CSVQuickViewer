@@ -31,11 +31,13 @@ namespace CsvTools
     /// </summary>
     event EventHandler<PropertyChangedEventArgs<string>> PropertyChangedString;
 
-    /// <summary>
-    ///  Gets or sets the column formats
-    /// </summary>
-    /// <value>The column format.</value>
+#pragma warning disable CA1721 // Property names should not match get methods
+                              /// <summary>
+                              ///  Gets or sets the column formats
+                              /// </summary>
+                              /// <value>The column format.</value>
     ObservableCollection<Column> Column { get; }
+#pragma warning restore CA1721 // Property names should not match get methods
 
     /// <summary>
     ///  Gets or sets the consecutive empty rows.

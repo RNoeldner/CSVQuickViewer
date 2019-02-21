@@ -111,21 +111,21 @@ namespace CsvTools
     /// </summary>
     /// <param name="recordNumber">Number of the record</param>
     /// <param name="columnNumber">Ordinal number of the column</param>
-    /// <param name="message">Message to be stored for the column</param>
+    /// <param name="warningMessage">Message to be stored for the column</param>
     /// <param name="lineNumberEnd">Line Number where the record ended</param>
     /// <param name="lineNumberStart">Line Number where the record started</param>
     /// <param name="columnName">Name of the column</param>
-    public WarningEventArgs(long recordNumber, int columnNumber, string message, long lineNumberStart,
+    public WarningEventArgs(long recordNumber, int columnNumber, string warningMessage, long lineNumberStart,
      long lineNumberEnd, string columnName)
     {
-      if (string.IsNullOrEmpty(message))
+      if (string.IsNullOrEmpty(warningMessage))
       {
-        throw new ArgumentException("message", nameof(message));
+        throw new ArgumentException("message", nameof(warningMessage));
       }
 
       RecordNumber = recordNumber;
       ColumnNumber = columnNumber;
-      Message = message;
+      Message = warningMessage;
       LineNumberStart = lineNumberStart;
       LineNumberEnd = lineNumberEnd;
       ColumnName = columnName;

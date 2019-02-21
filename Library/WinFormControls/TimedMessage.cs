@@ -224,14 +224,7 @@ namespace CsvTools
       if (m_MessageBoxButtons == MessageBoxButtons.YesNoCancel)
         DialogResult = DialogResult.Cancel;
       Close();
-    }
-
-    private void DrawIconSample(Graphics gr, ref int x, int y,
-    Icon ico)
-    {
-      gr.DrawIconUnstretched(ico,
-          new Rectangle(x, y, ico.Width, ico.Height));
-    }
+    }   
 
     private bool m_IconSet = false;
 
@@ -391,7 +384,9 @@ namespace CsvTools
     }
   }
 
+#pragma warning disable CA1707 // Identifiers should not contain underscores
   public static class _MessageBox
+#pragma warning restore CA1707 // Identifiers should not contain underscores
   {
     public static DialogResult Show(Form owner, string message, string title,
           MessageBoxButtons buttons = MessageBoxButtons.OKCancel,

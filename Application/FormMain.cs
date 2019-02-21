@@ -499,7 +499,9 @@ namespace CsvTools
           var serial = File.ReadAllText(cSettingPath);
           using (TextReader reader = new StringReader(serial))
           {
+#pragma warning disable CA3075 // Insecure DTD processing in XML
             return (ViewSettings)m_SerializerViewSettings.Deserialize(reader);
+#pragma warning restore CA3075 // Insecure DTD processing in XML
           }
         }
       }
@@ -545,7 +547,7 @@ namespace CsvTools
             csvDataReader.ProcessDisplay = processDisplay;
             csvDataReader.Warning += warnings.Add;
             csvDataReader.Warning += AddWarning;
-            csvDataReader.Open(processDisplay.CancellationToken, false);
+            csvDataReader.Open(false, processDisplay.CancellationToken);
             if (warnings.CountRows > 0)
               _MessageBox.Show(this, warnings.Display, "Opening CSV File", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             if (!textPanel.Visible)
@@ -718,7 +720,7 @@ namespace CsvTools
     {
       using (var frm = new FormEditSettings(m_ViewSettings))
       {
-        var res = frm.ShowDialog(MdiParent);
+        frm.ShowDialog(MdiParent);
         FillFromProperites(false);
         if (m_ConfigChanged)
         {

@@ -9,7 +9,9 @@ namespace CsvTools
   /// </summary>
   public abstract class BaseFileReaderTyped : BaseFileReader
   {
+#pragma warning disable CA1051 // Do not declare visible instance fields
     protected object[] m_CurrentValues;
+#pragma warning restore CA1051 // Do not declare visible instance fields
 
     protected BaseFileReaderTyped(IFileSetting fileSetting) : base(fileSetting)
     {
@@ -69,7 +71,9 @@ namespace CsvTools
 
       if (m_CurrentValues[columnNumber] is decimal || m_CurrentValues[columnNumber] is double || m_CurrentValues[columnNumber] is float ||
         m_CurrentValues[columnNumber] is short || m_CurrentValues[columnNumber] is int || m_CurrentValues[columnNumber] is long)
-        return Convert.ToDecimal(m_CurrentValues[columnNumber]);
+      {
+        return Convert.ToDecimal(m_CurrentValues[columnNumber], System.Globalization.CultureInfo.CurrentCulture);
+      }
 
       return base.GetDecimal(columnNumber);
     }
@@ -86,7 +90,9 @@ namespace CsvTools
 
       if (m_CurrentValues[columnNumber] is decimal || m_CurrentValues[columnNumber] is double || m_CurrentValues[columnNumber] is float ||
         m_CurrentValues[columnNumber] is short || m_CurrentValues[columnNumber] is int || m_CurrentValues[columnNumber] is long)
-        return Convert.ToDouble(m_CurrentValues[columnNumber]);
+      {
+        return Convert.ToDouble(m_CurrentValues[columnNumber], System.Globalization.CultureInfo.CurrentCulture);
+      }
 
       return base.GetDouble(columnNumber);
     }
@@ -105,7 +111,9 @@ namespace CsvTools
 
       if (m_CurrentValues[columnNumber] is decimal || m_CurrentValues[columnNumber] is double || m_CurrentValues[columnNumber] is float ||
         m_CurrentValues[columnNumber] is short || m_CurrentValues[columnNumber] is int || m_CurrentValues[columnNumber] is long)
-        return Convert.ToSingle(m_CurrentValues[columnNumber]);
+      {
+        return Convert.ToSingle(m_CurrentValues[columnNumber], System.Globalization.CultureInfo.CurrentCulture);
+      }
 
       return base.GetFloat(columnNumber);
     }
@@ -140,7 +148,9 @@ namespace CsvTools
 
       if (m_CurrentValues[columnNumber] is decimal || m_CurrentValues[columnNumber] is double || m_CurrentValues[columnNumber] is float ||
         m_CurrentValues[columnNumber] is short || m_CurrentValues[columnNumber] is int || m_CurrentValues[columnNumber] is long)
-        return Convert.ToInt16(m_CurrentValues[columnNumber]);
+      {
+        return Convert.ToInt16(m_CurrentValues[columnNumber], System.Globalization.CultureInfo.CurrentCulture);
+      }
 
       return base.GetInt16(columnNumber);
     }
@@ -157,7 +167,9 @@ namespace CsvTools
 
       if (m_CurrentValues[columnNumber] is decimal || m_CurrentValues[columnNumber] is double || m_CurrentValues[columnNumber] is float ||
         m_CurrentValues[columnNumber] is short || m_CurrentValues[columnNumber] is int || m_CurrentValues[columnNumber] is long)
-        return Convert.ToInt32(m_CurrentValues[columnNumber]);
+      {
+        return Convert.ToInt32(m_CurrentValues[columnNumber], System.Globalization.CultureInfo.CurrentCulture);
+      }
 
       return base.GetInt32(columnNumber);
     }
@@ -174,7 +186,9 @@ namespace CsvTools
 
       if (m_CurrentValues[columnNumber] is decimal || m_CurrentValues[columnNumber] is double || m_CurrentValues[columnNumber] is float ||
         m_CurrentValues[columnNumber] is short || m_CurrentValues[columnNumber] is int || m_CurrentValues[columnNumber] is long)
-        return Convert.ToInt64(m_CurrentValues[columnNumber]);
+      {
+        return Convert.ToInt64(m_CurrentValues[columnNumber], System.Globalization.CultureInfo.CurrentCulture);
+      }
 
       return base.GetInt64(columnNumber);
     }

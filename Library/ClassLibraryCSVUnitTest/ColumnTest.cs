@@ -7,7 +7,7 @@ namespace CsvTools.Tests
   public class ColumnTest
   {
     [TestMethod]
-    public void CopyTo_Clone_Equals()
+    public void CopyToCloneEquals()
     {
       var col = new Column();
       col.CopyTo(null);

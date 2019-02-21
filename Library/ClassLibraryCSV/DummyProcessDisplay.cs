@@ -88,7 +88,9 @@ namespace CsvTools
       SetProcess(e.Text ?? string.Empty, e.Value);
     }
 
+#pragma warning disable CA1822 // Mark members as static
     public void Show()
+#pragma warning restore CA1822 // Mark members as static
     {
     }
 
@@ -107,7 +109,11 @@ namespace CsvTools
     {
       Cancel();
       if (m_DisposedValue) return;
-      if (disposing) m_CancellationTokenSource.Dispose();
+      if (disposing)
+      {
+        m_CancellationTokenSource.Cancel();
+        m_CancellationTokenSource.Dispose();
+      }
 
       m_DisposedValue = true;
     }

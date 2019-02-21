@@ -131,7 +131,7 @@ namespace CsvTools
       set
       {
         var newVal = value ?? string.Empty;
-        if (newVal.Equals(m_Title)) return;
+        if (newVal.Equals(m_Title, StringComparison.Ordinal)) return;
         m_Title = newVal;
         this.SafeInvoke(() => { Text = m_Title; });
       }

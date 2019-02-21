@@ -10,7 +10,7 @@ namespace CsvTools.Tests
     [TestMethod()]
     public void ToolStripDataGridViewColumnFilterTest()
     {
-      var data = Static.GetDataTable(200);
+      var data = UnitTestStatic.GetDataTable(200);
       var dataview = new DataView(data, null, null, DataViewRowState.CurrentRows);
       var col = new DataGridViewTextBoxColumn()
       {

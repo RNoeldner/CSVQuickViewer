@@ -61,13 +61,13 @@ namespace CsvTools.Tests
           try
           {
             var isEqual = (bool)methodEquals.Invoke(obj1, new[] { obj3 });
-            Assert.IsTrue(isEqual, string.Format("Type: {0}", type.FullName));
+            Assert.IsTrue(isEqual, $"Type: {type.FullName}");
 
             isEqual = (bool)methodEquals.Invoke(obj1, new[] { obj1 });
-            Assert.IsTrue(isEqual, string.Format("Type: {0}", type.FullName));
+            Assert.IsTrue(isEqual, $"Type: {type.FullName}");
 
             isEqual = (bool)methodEquals.Invoke(obj1, new object[] { null });
-            Assert.IsFalse(isEqual, string.Format("Type: {0}", type.FullName));
+            Assert.IsFalse(isEqual, $"Type: {type.FullName}");
 
             // Chane only one Attribute at a time
             for (var c = 0; c < properties.Count(); c++)
@@ -98,7 +98,7 @@ namespace CsvTools.Tests
               }
 
               isEqual = (bool)methodEquals.Invoke(obj1, new[] { obj2 });
-              Assert.IsFalse(isEqual, string.Format("Type: {0}  Property:{1}", type.FullName, currentTest.Name));
+              Assert.IsFalse(isEqual, string.Format(System.Globalization.CultureInfo.InvariantCulture, "Type: {0}  Property:{1}", type.FullName, currentTest.Name));
             }
           }
           catch (Exception ex)

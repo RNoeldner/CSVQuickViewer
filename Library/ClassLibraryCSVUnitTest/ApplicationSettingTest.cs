@@ -8,7 +8,7 @@ namespace CsvTools.Tests
   public class ApplicationSettingTest
   {
     [TestMethod]
-    public void ApplicationSetting_CacheList()
+    public void ApplicationSettingCacheList()
     {
       var value = new[] { "A", "B" };
       ApplicationSetting.CacheList.Set("Hallo", value);
@@ -18,7 +18,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void ApplicationSetting_Statics()
+    public void ApplicationSettingStatics()
     {
       Assert.IsTrue(ApplicationSetting.FillGuessSettings is FillGuessSettings);
       Assert.IsNotNull(ApplicationSetting.FillGuessSettings);
@@ -27,7 +27,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void ApplicationSetting_ToolSetting()
+    public void ApplicationSettingToolSetting()
     {
       Assert.IsTrue(ApplicationSetting.ToolSetting is IToolSetting);
       Assert.IsNotNull(ApplicationSetting.ToolSetting);
@@ -38,7 +38,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void ApplicationSetting_MenuDown()
+    public void ApplicationSettingMenuDown()
     {
       ApplicationSetting.MenuDown = true;
       Assert.IsTrue(ApplicationSetting.MenuDown);

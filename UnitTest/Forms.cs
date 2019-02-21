@@ -5,7 +5,7 @@ using System.IO;
 namespace CsvTools.Tests
 {
   [TestClass]
-  public class Forms
+  public class FormsTest
   {
     private readonly string m_ApplicationDirectory = FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles";
 

@@ -9,6 +9,7 @@ namespace CsvTools
   public class WindowState
   {
     [XmlAttribute]
+#pragma warning disable CA1051 // Do not declare visible instance fields
     public int Left = 0;
 
     [XmlAttribute]
@@ -22,7 +23,7 @@ namespace CsvTools
 
     [XmlAttribute]
     public int State = 0;
-
+#pragma warning restore CA1051 // Do not declare visible instance fields
     public WindowState()
     {
     }

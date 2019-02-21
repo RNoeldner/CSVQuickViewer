@@ -3,6 +3,7 @@ using System.ComponentModel;
 
 namespace CsvTools.Tests
 {
+#pragma warning disable CA1304 // Specify CultureInfo
   [TestClass]
   public class FileFormatTest
   {
@@ -38,11 +39,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void FileFormatCopyToNUll()
-    {
-      m_FileFormat.CopyTo(null);
-      // NO ERror !
-    }
+    public void FileFormatCopyToNUll() => m_FileFormat.CopyTo(null);// NO ERror !
 
     [TestMethod]
     public void FileFormatCopyToEquals()
@@ -63,9 +60,12 @@ namespace CsvTools.Tests
     [TestMethod]
     public void FileFormatEscapeCharacter()
     {
-      var target = new FileFormat();
-      target.EscapeCharacter = "Tab";
+      var target = new FileFormat
+      {
+        EscapeCharacter = "Tab"
+      };
       Assert.AreEqual("tab", target.EscapeCharacter, true);
+
       Assert.AreEqual('\t', target.EscapeCharacterChar);
 
       target.EscapeCharacter = "+";
@@ -80,8 +80,10 @@ namespace CsvTools.Tests
     [TestMethod]
     public void FileFormatFieldDelimiter()
     {
-      var target = new FileFormat();
-      target.FieldDelimiter = "Tab";
+      var target = new FileFormat
+      {
+        FieldDelimiter = "Tab"
+      };
       Assert.AreEqual(target.FieldDelimiter, "tab", true);
       Assert.AreEqual(target.FieldDelimiterChar, '\t');
 
@@ -97,8 +99,10 @@ namespace CsvTools.Tests
     [TestMethod]
     public void FileFormatFieldQualifier()
     {
-      var target = new FileFormat();
-      target.FieldQualifier = "Tab";
+      var target = new FileFormat
+      {
+        FieldQualifier = "Tab"
+      };
       Assert.AreEqual(target.FieldQualifier, "tab", true);
       Assert.AreEqual(target.FieldQualifierChar, '\t');
 
@@ -157,16 +161,10 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void FileFormatNotEqualsNull()
-    {
-      Assert.IsFalse(m_FileFormat.Equals(null));
-    }
+    public void FileFormatNotEqualsNull() => Assert.IsFalse(m_FileFormat.Equals(null));
 
     [TestMethod]
-    public void FileFormatNotEqualsSelf()
-    {
-      Assert.IsTrue(m_FileFormat.Equals(m_FileFormat));
-    }
+    public void FileFormatNotEqualsSelf() => Assert.IsTrue(m_FileFormat.Equals(m_FileFormat));
 
     [TestMethod]
     public void FileFormatPropertyChanged()
@@ -183,16 +181,15 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void FileFormatToString1()
-    {
-      Assert.AreEqual("| #", m_FileFormat.ToString());
-    }
+    public void FileFormatToString1() => Assert.AreEqual("| #", m_FileFormat.ToString());
 
     [TestMethod]
     public void FileFormatToString2()
     {
-      var target = new FileFormat();
-      target.FieldDelimiter = "";
+      var target = new FileFormat
+      {
+        FieldDelimiter = ""
+      };
       Assert.AreEqual("FixedLength", target.ToString(), true);
     }
 
@@ -265,4 +262,5 @@ namespace CsvTools.Tests
       Assert.AreEqual('\"', test.FieldDelimiterChar);
     }
   }
+#pragma warning restore CA1304 // Specify CultureInfo
 }

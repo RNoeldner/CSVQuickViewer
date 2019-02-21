@@ -198,7 +198,7 @@ namespace CsvTools.Tests
       var result = TimeZoneMapping.WithSameRule(tzCET, 2017);
       bool found = false;
       foreach (var item in result)
-        if (item.Equals("Europe/Berlin"))
+        if (item.Equals("Europe/Berlin", StringComparison.OrdinalIgnoreCase))
           found = true;
 
       Assert.IsTrue(found);

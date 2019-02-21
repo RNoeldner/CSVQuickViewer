@@ -40,15 +40,18 @@ namespace CsvTools.Tests
         }
 
         var methodCopyTo = type.GetMethod("CopyTo", BindingFlags.Public | BindingFlags.Instance);
-        Assert.IsNotNull(methodCopyTo, string.Format("Type: {0}", type.FullName));
+        Assert.IsNotNull(methodCopyTo, $"Type: {type.FullName}");
 
         try
         {
           methodCopyTo.Invoke(obj1, new object[] { null });
           methodCopyTo.Invoke(obj1, new[] { obj2 });
           foreach (var prop in properties)
+          {
             Assert.AreEqual(prop.GetValue(obj1), prop.GetValue(obj2),
-              string.Format("Type: {0} Property:{1}", type.FullName, prop.Name));
+              $"Type: {type.FullName} Property:{prop.Name}");
+          }
+
           methodCopyTo.Invoke(obj1, new[] { obj1 });
         }
         catch (Exception ex)
@@ -58,14 +61,16 @@ namespace CsvTools.Tests
         }
 
         var methodClone = type.GetMethod("Clone", BindingFlags.Public | BindingFlags.Instance);
-        Assert.IsNotNull(methodClone, string.Format("Type: {0}", type.FullName));
+        Assert.IsNotNull(methodClone, $"Type: {type.FullName}");
         try
         {
           var obj3 = methodCopyTo.Invoke(obj1, null);
           Assert.IsInstanceOfType(obj3, type);
           foreach (var prop in properties)
+          {
             Assert.AreEqual(prop.GetValue(obj1), prop.GetValue(obj3),
-              string.Format("Type: {0} Property:{1}", type.FullName, prop.Name));
+              $"Type: {type.FullName} Property:{prop.Name}");
+          }
         }
         catch (Exception ex)
         {
@@ -78,12 +83,22 @@ namespace CsvTools.Tests
     public static IEnumerable<Type> GetAllIColoneable(string startsWith)
     {
       foreach (var a in AppDomain.CurrentDomain.GetAssemblies())
+      {
         if (a.FullName.StartsWith(startsWith, StringComparison.Ordinal))
+        {
           foreach (var t in a.GetExportedTypes())
+          {
             if (t.IsClass && !t.IsAbstract)
+            {
               foreach (var i in t.GetInterfaces())
+              {
                 if (i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICloneable<>))
                   yield return t;
+              }
+            }
+          }
+        }
+      }
     }
   }
 
@@ -91,9 +106,6 @@ namespace CsvTools.Tests
   public class TestCopyTo
   {
     [TestMethod]
-    public void RunCopyTo()
-    {
-      CopyToTest.RunCopyTo(CopyToTest.GetAllIColoneable("ClassLibraryCSV"));
-    }
+    public void RunCopyTo() => CopyToTest.RunCopyTo(CopyToTest.GetAllIColoneable("ClassLibraryCSV"));
   }
 }

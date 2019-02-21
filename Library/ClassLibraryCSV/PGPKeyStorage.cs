@@ -49,6 +49,7 @@ namespace CsvTools
     [XmlIgnore]
     public virtual bool Specified => m_PrivateKeyRingBundle.Count > 0 || m_PublicKeyRingBundle.Count > 0 || !string.IsNullOrEmpty(EncryptedPassphase);
 
+#pragma warning disable CA1819 // Properties should not return arrays
     [XmlElement]
     public virtual string[] PrivateKeys
     {
@@ -84,7 +85,7 @@ namespace CsvTools
         m_Recipients = null;
       }
     }
-
+#pragma warning restore CA1819 // Properties should not return arrays
     [XmlElement]
     [DefaultValue("")]
     public virtual string EncryptedPassphase
@@ -146,7 +147,7 @@ namespace CsvTools
       if (ReferenceEquals(other, this))
         return true;
       return
-        EncryptedPassphase.Equals(other.EncryptedPassphase)
+        EncryptedPassphase.Equals(other.EncryptedPassphase, StringComparison.Ordinal)
         && PrivateKeys.CollectionEqual(other.PrivateKeys)
         && PublicKeys.CollectionEqual(other.PublicKeys);
     }
@@ -190,7 +191,7 @@ namespace CsvTools
     {
       if (!IsValidKeyRingBundle(key, true, out _)) return;
       var encKey = key.Encrypt(m_PgpDecryption);
-      if (m_PrivateKeyRingBundle.Any(x => key.Equals(x.Decrypt(m_PgpDecryption)))) return;
+      if (m_PrivateKeyRingBundle.Any(x => key.Equals(x.Decrypt(m_PgpDecryption), StringComparison.Ordinal))) return;
       m_PrivateKeyRingBundle.Add(encKey);
       NotifyPropertyChanged(nameof(PrivateKeys));
       m_Recipients = null;
@@ -200,7 +201,7 @@ namespace CsvTools
     {
       if (!IsValidKeyRingBundle(key, false, out _)) return;
       var encKey = key.Encrypt(m_PgpDecryption);
-      if (m_PublicKeyRingBundle.Any(x => key.Equals(x.Decrypt(m_PgpDecryption)))) return;
+      if (m_PublicKeyRingBundle.Any(x => key.Equals(x.Decrypt(m_PgpDecryption), StringComparison.Ordinal))) return;
       m_PublicKeyRingBundle.Add(encKey);
       NotifyPropertyChanged(nameof(PublicKeys));
       m_Recipients = null;
@@ -512,7 +513,7 @@ namespace CsvTools
           return kvp.Value;
 
       foreach (var kvp in recipients)
-        if (kvp.Key.ToLowerInvariant().Contains(recipient.ToLowerInvariant()))
+        if (kvp.Key.ToUpperInvariant().Contains(recipient.ToUpperInvariant()))
           return kvp.Value;
 
       throw new PgpException($"No encryption key found for {recipient} in known public keys.");

@@ -182,7 +182,7 @@ namespace CsvTools
         Contract.Assume(m_FalseValue != null);
 
         var newVal = value ?? string.Empty;
-        if (m_FalseValue.Equals(newVal)) return;
+        if (m_FalseValue.Equals(newVal, StringComparison.Ordinal)) return;
         m_FalseValue = newVal;
         NotifyPropertyChanged(nameof(FalseValue));
       }
@@ -276,7 +276,7 @@ namespace CsvTools
         Contract.Assume(m_TrueValue != null);
 
         var newVal = value ?? string.Empty;
-        if (m_TrueValue.Equals(newVal)) return;
+        if (m_TrueValue.Equals(newVal, StringComparison.Ordinal)) return;
         m_TrueValue = newVal;
         NotifyPropertyChanged(nameof(TrueValue));
       }

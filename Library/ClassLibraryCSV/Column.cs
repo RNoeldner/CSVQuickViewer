@@ -132,7 +132,7 @@ namespace CsvTools
       set
       {
         var newVal = value ?? string.Empty;
-        if (m_DateFormat.Equals(newVal)) return;
+        if (m_DateFormat.Equals(newVal, StringComparison.Ordinal)) return;
         m_DateFormat = newVal;
         NotifyPropertyChanged(nameof(DateFormat));
       }
@@ -164,7 +164,7 @@ namespace CsvTools
       {
         // Translate written punctuation into a character
         var chr = FileFormat.GetChar(value);
-        var newVal = chr != '\0' ? chr.ToString() : string.Empty;
+        var newVal = chr != '\0' ? chr.ToString(CultureInfo.CurrentCulture) : string.Empty;
         if (m_DateSeparator.Equals(newVal, StringComparison.Ordinal)) return;
         m_DateSeparator = newVal;
         NotifyPropertyChanged(nameof(DateSeparator));
@@ -199,7 +199,7 @@ namespace CsvTools
       {
         // Translate written punctuation into a character
         var chr = FileFormat.GetChar(value);
-        var newVal = chr != '\0' ? chr.ToString() : string.Empty;
+        var newVal = chr != '\0' ? chr.ToString(CultureInfo.CurrentCulture) : string.Empty;
         if (m_DecimalSeparator.Equals(newVal, StringComparison.Ordinal)) return;
         // If we set the DecimalSeparator to be the Group separator, store the old
         // DecimalSeparator in the group separator;
@@ -240,13 +240,13 @@ namespace CsvTools
       set
       {
         var newVal = value ?? string.Empty;
-        if (m_DestinationName.Equals(newVal)) return;
+        if (m_DestinationName.Equals(newVal, StringComparison.Ordinal)) return;
         m_DestinationName = newVal;
         NotifyPropertyChanged(nameof(DestinationName));
       }
     }
 
-    [XmlIgnore] public virtual bool DestinationNameSpecified => !m_DestinationName.Equals(m_Name);
+    [XmlIgnore] public virtual bool DestinationNameSpecified => !m_DestinationName.Equals(m_Name, StringComparison.OrdinalIgnoreCase);
 
     /// <summary>
     ///   Gets or sets the representation for false.
@@ -254,13 +254,15 @@ namespace CsvTools
     /// <value>The false.</value>
     [XmlAttribute]
     [DefaultValue(ValueFormat.cFalseDefault)]
+#pragma warning disable CA1716 // Identifiers should not match keywords
     public virtual string False
+#pragma warning restore CA1716 // Identifiers should not match keywords
     {
       get => m_False;
 
       set
       {
-        if (m_False != null && m_False.Equals(value)) return;
+        if (m_False != null && m_False.Equals(value, StringComparison.Ordinal)) return;
         m_False = value;
         NotifyPropertyChanged(nameof(False));
       }
@@ -293,7 +295,7 @@ namespace CsvTools
       set
       {
         var chr = FileFormat.GetChar(value);
-        var newVal = chr != '\0' ? chr.ToString() : string.Empty;
+        var newVal = chr != '\0' ? chr.ToString(CultureInfo.CurrentCulture) : string.Empty;
 
         if (m_GroupSeparator.Equals(newVal, StringComparison.Ordinal)) return;
         // If we set the DecimalSeparator to be the group separator, store the old
@@ -352,7 +354,7 @@ namespace CsvTools
       set
       {
         var newVal = value ?? string.Empty;
-        if (m_Name.Equals(newVal)) return;
+        if (m_Name.Equals(newVal, StringComparison.Ordinal)) return;
         m_Name = newVal;
 
         NotifyPropertyChanged(nameof(Name));
@@ -373,7 +375,7 @@ namespace CsvTools
       set
       {
         var newVal = value ?? string.Empty;
-        if (m_NumberFormat.Equals(newVal)) return;
+        if (m_NumberFormat.Equals(newVal, StringComparison.Ordinal)) return;
         m_NumberFormat = newVal;
         NotifyPropertyChanged(nameof(NumberFormat));
       }
@@ -505,7 +507,7 @@ namespace CsvTools
       set
       {
         var newVal = value ?? string.Empty;
-        if (m_TimePart.Equals(newVal)) return;
+        if (m_TimePart.Equals(newVal, StringComparison.Ordinal)) return;
         m_TimePart = newVal;
         NotifyPropertyChanged(nameof(TimePart));
       }
@@ -524,7 +526,7 @@ namespace CsvTools
       set
       {
         var newVal = value ?? string.Empty;
-        if (m_TimeZonePart.Equals(newVal)) return;
+        if (m_TimeZonePart.Equals(newVal, StringComparison.Ordinal)) return;
         m_TimeZonePart = newVal;
         NotifyPropertyChanged(nameof(TimeZonePart));
       }
@@ -542,7 +544,7 @@ namespace CsvTools
       set
       {
         var newVal = value ?? cDefaultTimePartFormat;
-        if (m_TimePartFormat.Equals(newVal)) return;
+        if (m_TimePartFormat.Equals(newVal, StringComparison.Ordinal)) return;
         m_TimePartFormat = newVal;
         NotifyPropertyChanged(nameof(TimePartFormat));
       }
@@ -584,8 +586,8 @@ namespace CsvTools
       set
       {
         var chr = FileFormat.GetChar(value);
-        var newval = chr != '\0' ? chr.ToString() : string.Empty;
-        if (m_TimeSeparator.Equals(newval)) return;
+        var newval = chr != '\0' ? chr.ToString(CultureInfo.CurrentCulture) : string.Empty;
+        if (m_TimeSeparator.Equals(newval, StringComparison.Ordinal)) return;
         m_TimeSeparator = newval;
         NotifyPropertyChanged(nameof(TimeSeparator));
       }
@@ -609,13 +611,15 @@ namespace CsvTools
     /// <value>The true.</value>
     [XmlAttribute]
     [DefaultValue(ValueFormat.cTrueDefault)]
+#pragma warning disable CA1716 // Identifiers should not match keywords
     public virtual string True
+#pragma warning restore CA1716 // Identifiers should not match keywords
     {
       get => m_True;
 
       set
       {
-        if (m_True != null && m_True.Equals(value)) return;
+        if (m_True != null && m_True.Equals(value, StringComparison.Ordinal)) return;
         m_True = value;
         NotifyPropertyChanged(nameof(True));
       }
@@ -721,21 +725,21 @@ namespace CsvTools
       if (other is null) return false;
       if (ReferenceEquals(this, other)) return true;
       return m_ColumnOrdinal == other.m_ColumnOrdinal && m_Convert == other.m_Convert &&
-             m_DataType == other.m_DataType && string.Equals(m_DateFormat, other.m_DateFormat) &&
-             string.Equals(m_DateSeparator, other.m_DateSeparator) &&
-             string.Equals(m_DecimalSeparator, other.m_DecimalSeparator) &&
+             m_DataType == other.m_DataType && string.Equals(m_DateFormat, other.m_DateFormat, StringComparison.Ordinal) &&
+             string.Equals(m_DateSeparator, other.m_DateSeparator, StringComparison.Ordinal) &&
+             string.Equals(m_DecimalSeparator, other.m_DecimalSeparator, StringComparison.Ordinal) &&
              m_DecimalSeparatorChar == other.m_DecimalSeparatorChar &&
              string.Equals(m_DestinationName, other.m_DestinationName, StringComparison.OrdinalIgnoreCase) &&
-             string.Equals(m_False, other.m_False) &&
-             string.Equals(m_GroupSeparator, other.m_GroupSeparator) && m_Ignore == other.m_Ignore &&
+             string.Equals(m_False, other.m_False, StringComparison.Ordinal) &&
+             string.Equals(m_GroupSeparator, other.m_GroupSeparator, StringComparison.Ordinal) && m_Ignore == other.m_Ignore &&
              string.Equals(m_Name, other.m_Name, StringComparison.OrdinalIgnoreCase) &&
-             string.Equals(m_NumberFormat, other.m_NumberFormat) &&
+             string.Equals(m_NumberFormat, other.m_NumberFormat, StringComparison.Ordinal) &&
              m_Part == other.m_Part && m_PartSplitter == other.m_PartSplitter && m_PartToEnd == other.m_PartToEnd &&
-             m_Size == other.m_Size && string.Equals(m_TimePart, other.m_TimePart) &&
-             string.Equals(m_TimePartFormat, other.m_TimePartFormat) &&
-             string.Equals(m_TimeSeparator, other.m_TimeSeparator) &&
+             m_Size == other.m_Size && string.Equals(m_TimePart, other.m_TimePart, StringComparison.OrdinalIgnoreCase) &&
+             string.Equals(m_TimePartFormat, other.m_TimePartFormat, StringComparison.Ordinal) &&
+             string.Equals(m_TimeSeparator, other.m_TimeSeparator, StringComparison.Ordinal) &&
              string.Equals(m_TimeZonePart, other.m_TimeZonePart, StringComparison.OrdinalIgnoreCase) &&
-             string.Equals(m_True, other.m_True) &&
+             string.Equals(m_True, other.m_True, StringComparison.Ordinal) &&
              GroupSeparatorChar == other.GroupSeparatorChar;
     }
 

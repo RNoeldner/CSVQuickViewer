@@ -222,10 +222,9 @@ namespace CsvTools
     /// </summary>
     /// <param name="dataTable">The data table.</param>
     /// <param name="destinationTableName">Name of the destination table.</param>
-    /// <param name="cancellationToken">A cancellation Token</param>
     /// <param name="eventHandler">Event called after some records have been processed</param>
-    void StoreDataTable(DataTable dataTable, string destinationTableName, CancellationToken cancellationToken,
-     EventHandler<long> eventHandler);
+    /// <param name="cancellationToken">A cancellation Token</param>
+    void StoreDataTable(DataTable dataTable, string destinationTableName, EventHandler<long> eventHandler, CancellationToken cancellationToken);
 
     /// <summary>
     ///  Stores the partion information.

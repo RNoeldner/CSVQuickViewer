@@ -146,7 +146,7 @@ namespace CsvTools
       }
     }
 
-    private void cboCodePage_SelectedIndexChanged(object sender, EventArgs e)
+    private void CboCodePage_SelectedIndexChanged(object sender, EventArgs e)
     {
       if (cboCodePage.SelectedItem != null)
         m_ViewSettings.CodePageId = ((DisplayItem<int>)cboCodePage.SelectedItem).ID;
@@ -243,7 +243,7 @@ namespace CsvTools
 
       Debug.Assert(tb != null, nameof(tb) + " != null");
       var ok = int.TryParse(tb.Text, out var parse);
-      var reformat = parse.ToString();
+      var reformat = parse.ToString(System.Globalization.CultureInfo.CurrentCulture);
       ok = ok && parse >= 0 && reformat == tb.Text;
 
       if (!ok)

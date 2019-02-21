@@ -80,17 +80,14 @@ namespace CsvTools
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
-    public void buttonCancel_Click(object sender, EventArgs e)
-    {
-      Close();
-    }
+    public void ButtonCancelClick(object sender, EventArgs e) => Close();
 
     /// <summary>
     ///   Handles the Click event of the buttonGuess control.
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
-    public void buttonGuess_Click(object sender, EventArgs e)
+    public void ButtonGuessClick(object sender, EventArgs e)
     {
       if (string.IsNullOrEmpty(comboBoxColumnName.Text))
       {
@@ -134,19 +131,19 @@ namespace CsvTools
           var enumerable = samples.ToList();
           if (enumerable.IsEmpty())
           {
-            _MessageBox.Show(this, string.Format(c_NoSampleDate, ApplicationSetting.FillGuessSettings.CheckedRecords),
+            _MessageBox.Show(this, string.Format(CultureInfo.CurrentCulture, c_NoSampleDate, ApplicationSetting.FillGuessSettings.CheckedRecords),
               "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
           }
           else
           {
-            var checkResult = DetermineColumnFormat.GuessValueFormat(m_CancellationTokenSource.Token, enumerable,
-              ApplicationSetting.FillGuessSettings.MinSamplesForIntDate, ApplicationSetting.FillGuessSettings.TrueValue,
-              ApplicationSetting.FillGuessSettings.FalseValue, ApplicationSetting.FillGuessSettings.DetectBoolean,
-              ApplicationSetting.FillGuessSettings.DetectGUID, ApplicationSetting.FillGuessSettings.DectectNumbers,
-              ApplicationSetting.FillGuessSettings.DetectDateTime,
+            var checkResult = DetermineColumnFormat.GuessValueFormat(enumerable, ApplicationSetting.FillGuessSettings.MinSamplesForIntDate,
+              ApplicationSetting.FillGuessSettings.TrueValue, ApplicationSetting.FillGuessSettings.FalseValue,
+              ApplicationSetting.FillGuessSettings.DetectBoolean, ApplicationSetting.FillGuessSettings.DetectGUID,
+              ApplicationSetting.FillGuessSettings.DectectNumbers, ApplicationSetting.FillGuessSettings.DetectDateTime,
               ApplicationSetting.FillGuessSettings.DectectPercentage,
-              ApplicationSetting.FillGuessSettings.SerialDateTime, 
-              ApplicationSetting.FillGuessSettings.CheckNamedDates, DetermineColumnFormat.CommonDateFormat(m_FileSetting.Column.Select(x => x.ValueFormat)));
+              ApplicationSetting.FillGuessSettings.SerialDateTime,
+              ApplicationSetting.FillGuessSettings.CheckNamedDates,
+              DetermineColumnFormat.CommonDateFormat(m_FileSetting.Column.Select(x => x.ValueFormat)), m_CancellationTokenSource.Token);
             if (checkResult == null)
             {
               _MessageBox.Show(this,
@@ -199,7 +196,9 @@ namespace CsvTools
                     if (_MessageBox.Show(this,
                           $"No Format found in:\n{examples.Join("\t")}\nShould this be set to text?",
                           comboBoxColumnName.Text, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                    {
                       m_ColumnEdit.ValueFormat.DataType = DataType.String;
+                    }
                   }
                 }
               }
@@ -223,7 +222,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
-    public void buttonOK_Click(object sender, EventArgs e)
+    public void ButtonOKClick(object sender, EventArgs e)
     {
       ValidateChildren();
       try
@@ -275,12 +274,9 @@ namespace CsvTools
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
-    private void buttonAddFormat_Click(object sender, EventArgs e)
-    {
-      AddFormatToComboBoxDateFormat(comboBoxDateFormat.Text);
-    }
+    private void ButtonAddFormat_Click(object sender, EventArgs e) => AddFormatToComboBoxDateFormat(comboBoxDateFormat.Text);
 
-    private void buttonDisplayValues_Click(object sender, EventArgs e)
+    private void ButtonDisplayValues_Click(object sender, EventArgs e)
     {
       buttonDisplayValues.Enabled = false;
       var oldCursor = Cursor.Current == Cursors.WaitCursor ? Cursors.WaitCursor : Cursors.Default;
@@ -292,11 +288,15 @@ namespace CsvTools
         Cursor.Current = Cursors.Default;
         var enumerable = values.ToList();
         if (enumerable.IsEmpty())
-          _MessageBox.Show(this, string.Format(c_NoSampleDate, ApplicationSetting.FillGuessSettings.CheckedRecords),
+        {
+          _MessageBox.Show(this, string.Format(CultureInfo.CurrentCulture, c_NoSampleDate, ApplicationSetting.FillGuessSettings.CheckedRecords),
             comboBoxColumnName.Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
         else
+        {
           _MessageBox.Show(this, "Found values:\n" + enumerable.Take(42).Join("\t"), comboBoxColumnName.Text,
             MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
       }
       catch (Exception ex)
       {
@@ -316,7 +316,7 @@ namespace CsvTools
     /// <param name="e">
     ///   The <see cref="System.Windows.Forms.ItemCheckEventArgs" /> instance containing the event data.
     /// </param>
-    private void checkedListBoxDateFormats_ItemCheck(object sender, ItemCheckEventArgs e)
+    private void CheckedListBoxDateFormats_ItemCheck(object sender, ItemCheckEventArgs e)
     {
       var format = checkedListBoxDateFormats.Items[e.Index].ToString();
       if (m_WriteSetting)
@@ -324,8 +324,11 @@ namespace CsvTools
         var uncheck = new List<int>();
         // disable all other check items
         foreach (int ind in checkedListBoxDateFormats.CheckedIndices)
+        {
           if (ind != e.Index)
             uncheck.Add(ind);
+        }
+
         foreach (var ind in uncheck)
           checkedListBoxDateFormats.SetItemCheckState(ind, CheckState.Unchecked);
 
@@ -405,7 +408,7 @@ namespace CsvTools
                 // get the columns from the SQL
                 using (var dataReader = ApplicationSetting.SQLDataReader(m_FileSetting.SqlStatement))
                 {
-                  for (int i = 0; i < dataReader.FieldCount; i++)
+                  for (var i = 0; i < dataReader.FieldCount; i++)
                     allColumns.Add(dataReader.GetName(i));
                 }
               }
@@ -452,13 +455,13 @@ namespace CsvTools
       }
     }
 
-    private void comboBoxColumnName_SelectedIndexChanged(object sender, EventArgs e)
+    private void ComboBoxColumnName_SelectedIndexChanged(object sender, EventArgs e)
     {
       try
       {
         buttonGuess.Enabled = m_FileSetting != null && comboBoxColumnName.SelectedItem != null;
         buttonDisplayValues.Enabled = m_FileSetting != null && comboBoxColumnName.SelectedItem != null;
-        comboBoxColumnName_TextUpdate(sender, e);
+        ComboBoxColumnName_TextUpdate(sender, e);
       }
       catch (Exception ex)
       {
@@ -466,17 +469,14 @@ namespace CsvTools
       }
     }
 
-    private void comboBoxColumnName_TextUpdate(object sender, EventArgs e)
-    {
-      buttonOK.Enabled = m_FileSetting == null || !string.IsNullOrEmpty(comboBoxColumnName.Text);
-    }
+    private void ComboBoxColumnName_TextUpdate(object sender, EventArgs e) => buttonOK.Enabled = m_FileSetting == null || !string.IsNullOrEmpty(comboBoxColumnName.Text);
 
     /// <summary>
     ///   Handles the SelectedIndexChanged event of the comboBoxDataType control.
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
-    private void comboBoxDataType_SelectedIndexChanged(object sender, EventArgs e)
+    private void ComboBoxDataType_SelectedIndexChanged(object sender, EventArgs e)
     {
       try
       {
@@ -578,17 +578,17 @@ namespace CsvTools
           var fileWriter = m_FileSetting.GetFileWriter(m_CancellationTokenSource.Token);
           var data = fileWriter.GetSourceDataTable((uint)ApplicationSetting.FillGuessSettings.CheckedRecords);
           {
-            return DetermineColumnFormat.GetSampleValues(data, m_CancellationTokenSource.Token, colIndex,
-              ApplicationSetting.FillGuessSettings.SampleValues, m_FileSetting.TreatTextAsNull);
+            return DetermineColumnFormat.GetSampleValues(data, colIndex, ApplicationSetting.FillGuessSettings.SampleValues,
+              m_FileSetting.TreatTextAsNull, m_CancellationTokenSource.Token);
           }
         }
 
         using (var fileReader = m_FileSetting.GetFileReader())
         {
-          fileReader.Open(m_CancellationTokenSource.Token, false);
+          fileReader.Open(false, m_CancellationTokenSource.Token);
           return DetermineColumnFormat.GetSampleValues(fileReader, ApplicationSetting.FillGuessSettings.CheckedRecords,
-            m_CancellationTokenSource.Token, colIndex, ApplicationSetting.FillGuessSettings.SampleValues,
-            m_FileSetting.TreatTextAsNull);
+            colIndex, ApplicationSetting.FillGuessSettings.SampleValues, m_FileSetting.TreatTextAsNull,
+            m_CancellationTokenSource.Token);
         }
       }
       catch (Exception ex)
@@ -633,7 +633,7 @@ namespace CsvTools
     private void PartValidating(object sender, CancelEventArgs e)
     {
       var ok = int.TryParse(textBoxPart.Text, out var parse);
-      var reformat = parse.ToString();
+      var reformat = parse.ToString(CultureInfo.CurrentCulture);
       ok = ok && parse > 0 && reformat == textBoxPart.Text;
 
       if (!ok)
@@ -660,7 +660,7 @@ namespace CsvTools
     {
       SetDateFormat();
       SetComboBoxDataType();
-      comboBoxColumnName_TextUpdate(null, null);
+      ComboBoxColumnName_TextUpdate(null, null);
     }
 
     private void RegionAndLanguageLinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
@@ -680,7 +680,7 @@ namespace CsvTools
     {
       var di = new List<DisplayItem<int>>();
       foreach (DataType item in Enum.GetValues(typeof(DataType)))
-        di.Add(new DisplayItem<int>((int)item, item.DataTypeDisplay()));
+        di.Add(new DisplayItem<int>((int) item, item.DataTypeDisplay()));
       var selValue = (int)m_ColumnEdit.DataType;
       comboBoxDataType.DataSource = di;
       comboBoxDataType.SelectedValue = selValue;
@@ -789,18 +789,15 @@ namespace CsvTools
       // Refresh The date formats presented
       SetDateFormat();
       // Update the UI
-      comboBoxDataType_SelectedIndexChanged(null, null);
+      ComboBoxDataType_SelectedIndexChanged(null, null);
     }
 
-    private void textBoxDecimalSeparator_Validating(object sender, CancelEventArgs e)
+    private void TextBoxDecimalSeparator_Validating(object sender, CancelEventArgs e)
     {
       errorProvider.SetError(textBoxDecimalSeparator,
         string.IsNullOrEmpty(textBoxDecimalSeparator.Text) ? "Must be provided" : "");
     }
 
-    private void textBoxSplit_Validating(object sender, CancelEventArgs e)
-    {
-      errorProvider.SetError(textBoxSplit, string.IsNullOrEmpty(textBoxSplit.Text) ? "Must be provided" : "");
-    }
+    private void TextBoxSplit_Validating(object sender, CancelEventArgs e) => errorProvider.SetError(textBoxSplit, string.IsNullOrEmpty(textBoxSplit.Text) ? "Must be provided" : "");
   }
 }

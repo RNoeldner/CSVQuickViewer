@@ -9,14 +9,18 @@ namespace CsvTools.Tests
   public class StructuredFileWriterTests
   {
     private readonly string m_ApplicationDirectory = FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles";
+#pragma warning disable CA1051 // Do not declare visible instance fields
     public MimicSQLReader mimicReader = new MimicSQLReader();
+#pragma warning restore CA1051 // Do not declare visible instance fields
 
     [TestInitialize]
     public void Init()
     {
-      CsvFile m_ReadFile = new CsvFile();
-      m_ReadFile.ID = "Read";
-      m_ReadFile.FileName = Path.Combine(m_ApplicationDirectory, "BasicCSV.txt");
+      var m_ReadFile = new CsvFile
+      {
+        ID = "Read",
+        FileName = Path.Combine(m_ApplicationDirectory, "BasicCSV.txt")
+      };
       var cf = m_ReadFile.ColumnAdd(new Column { Name = "ExamDate", DataType = DataType.DateTime });
 
       cf.DateFormat = @"dd/MM/yyyy";
@@ -39,38 +43,45 @@ namespace CsvTools.Tests
     [TestMethod]
     public void StructuredFileWriterJSONEncodeTest()
     {
-      var writeFile = new StructuredFile();
-      writeFile.ID = "Write";
-      writeFile.FileName = Path.Combine(m_ApplicationDirectory, "StructuredFileOutputJSON.txt");
-      writeFile.SqlStatement = "Read";
-      writeFile.InOverview = true;
-      writeFile.JSONEncode = true;
-      var cols = DetermineColumnFormat.GetWriterSourceColumns(CancellationToken.None, writeFile);
+      var writeFile = new StructuredFile
+      {
+        ID = "Write",
+        FileName = Path.Combine(m_ApplicationDirectory, "StructuredFileOutputJSON.txt"),
+        SqlStatement = "Read",
+        InOverview = true,
+        JSONEncode = true
+      };
+      var cols = DetermineColumnFormat.GetWriterSourceColumns(writeFile, CancellationToken.None);
       writeFile.Header = "{\"rowset\":[\n";
       var sb = new StringBuilder("{");
       // { "firstName":"John", "lastName":"Doe"},
       foreach (var col in cols)
+      {
         sb.AppendFormat("\"{0}\":\"{1}\", ", HTMLStyle.JsonElementName(col.Header),
-          string.Format(StructuredFileWriter.cFieldPlaceholderByName, col.Header));
+          string.Format(System.Globalization.CultureInfo.InvariantCulture, StructuredFileWriter.cFieldPlaceholderByName, col.Header));
+      }
+
       if (sb.Length > 1)
         sb.Length -= 2;
       sb.AppendLine("},");
       writeFile.Row = sb.ToString();
       var writer = new StructuredFileWriter(writeFile, CancellationToken.None);
-      var res = writer.Write();
+      _ = writer.Write();
     }
 
     [TestMethod]
     public void StructuredFileWriterXMLEncodeTest()
     {
-      var writeFile = new StructuredFile();
-      writeFile.ID = "Write";
-      writeFile.FileName = Path.Combine(m_ApplicationDirectory, "StructuredFileOutputXML.txt");
+      var writeFile = new StructuredFile
+      {
+        ID = "Write",
+        FileName = Path.Combine(m_ApplicationDirectory, "StructuredFileOutputXML.txt"),
 
-      writeFile.SqlStatement = "Read";
-      writeFile.InOverview = true;
-      writeFile.JSONEncode = false;
-      var cols = DetermineColumnFormat.GetWriterSourceColumns(CancellationToken.None, writeFile);
+        SqlStatement = "Read",
+        InOverview = true,
+        JSONEncode = false
+      };
+      var cols = DetermineColumnFormat.GetWriterSourceColumns(writeFile, CancellationToken.None);
 
       var sb = new StringBuilder();
       sb.AppendLine("<?xml version=\"1.0\"?>\n");
@@ -79,14 +90,17 @@ namespace CsvTools.Tests
       sb.Clear();
       sb.AppendLine("  <row>");
       foreach (var col in cols)
+      {
         sb.AppendFormat("    <{0}>{1}</{0}>\n", HTMLStyle.XmlElementName(col.Header),
-          string.Format(StructuredFileWriter.cFieldPlaceholderByName, col.Header));
+          string.Format(System.Globalization.CultureInfo.InvariantCulture, StructuredFileWriter.cFieldPlaceholderByName, col.Header));
+      }
+
       sb.AppendLine("  </row>");
       writeFile.Row = sb.ToString();
       writeFile.Footer = "</rowset>";
 
       var writer = new StructuredFileWriter(writeFile, CancellationToken.None);
-      var res = writer.Write();
+      _ = writer.Write();
     }
   }
 }

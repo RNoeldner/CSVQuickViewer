@@ -612,7 +612,7 @@
       this.cboCodePage.Size = new System.Drawing.Size(179, 21);
       this.cboCodePage.TabIndex = 4;
       this.cboCodePage.ValueMember = "ID";
-      this.cboCodePage.SelectedIndexChanged += new System.EventHandler(this.cboCodePage_SelectedIndexChanged);
+      this.cboCodePage.SelectedIndexChanged += new System.EventHandler(this.CboCodePage_SelectedIndexChanged);
       // 
       // textBoxFile
       // 

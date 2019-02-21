@@ -93,7 +93,7 @@ namespace CsvTools
     {
       if (string.IsNullOrEmpty(dataColumnName))
         return;
-      if (dataColumnName.Equals(m_LastDataColumnName) && m_LastIgnoreNull == ignoreNull)
+      if (dataColumnName.Equals(m_LastDataColumnName, StringComparison.Ordinal) && m_LastIgnoreNull == ignoreNull)
         return;
 
       m_LastDataColumnName = dataColumnName;

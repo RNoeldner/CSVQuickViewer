@@ -158,7 +158,15 @@ namespace CsvTools
       // references to the "parent" are released. It may be a significant memory consumption win if
       // the referenced objects are large, such as big arrays, collections, etc.
       if (disposing)
+      {
         IndividualClose();
+        if (m_TextReader!=null)
+        {
+          m_TextReader.Dispose();
+          m_TextReader = null;
+        }
+      }
+        
     }
 
     /// <summary>
@@ -172,19 +180,19 @@ namespace CsvTools
     /// <param name="length">The number of bytes to read.</param>
     /// <exception cref="NotImplementedException"></exception>
     /// <returns>The actual number of bytes read.</returns>
-    /// <exception cref="T:System.IndexOutOfRangeException">
-    ///  The index passed was outside the range of 0 through <see cref="P:System.Data.IDataRecord.FieldCount" />.
+    /// <exception cref="IndexOutOfRangeException">
+    ///  The index passed was outside the range of 0 through <see cref="IDataRecord.FieldCount" />.
     /// </exception>
     public long GetBytes(int i, long fieldOffset, byte[] buffer, int bufferoffset, int length) => throw new NotImplementedException();
 
     /// <summary>
-    ///  Returns an <see cref="T:System.Data.IDataReader" /> for the specified column ordinal.
+    ///  Returns an <see cref="Data.IDataReader" /> for the specified column ordinal.
     /// </summary>
     /// <param name="i">The index of the field to find.</param>
     /// <exception cref="NotImplementedException"></exception>
-    /// <returns>An <see cref="T:System.Data.IDataReader" />.</returns>
-    /// <exception cref="T:System.IndexOutOfRangeException">
-    ///  The index passed was outside the range of 0 through <see cref="P:System.Data.IDataRecord.FieldCount" />.
+    /// <returns>An <see cref="Data.IDataReader" />.</returns>
+    /// <exception cref="IndexOutOfRangeException">
+    ///  The index passed was outside the range of 0 through <see cref="IDataRecord.FieldCount" />.
     /// </exception>
     public virtual IDataReader GetData(int i) => throw new NotImplementedException();
 
@@ -202,9 +210,9 @@ namespace CsvTools
     ///  Return the value of the specified field.
     /// </summary>
     /// <param name="columnNumber">The index of the field to find.</param>
-    /// <returns>The <see cref="T:object" /> which will contain the field value upon return.</returns>
-    /// <exception cref="T:System.IndexOutOfRangeException">
-    ///  The index passed was outside the range of 0 through <see cref="P:System.Data.IDataRecord.FieldCount" />.
+    /// <returns>The object will contain the field value upon return.</returns>
+    /// <exception cref="IndexOutOfRangeException">
+    ///  The index passed was outside the range of 0 through <see cref="IDataRecord.FieldCount" />.
     /// </exception>
     public override object GetValue(int columnNumber)
     {
@@ -216,7 +224,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///  Advances the <see cref="T:System.Data.IDataReader" /> to the next record.
+    ///  Advances the <see cref="Data.IDataReader" /> to the next record.
     /// </summary>
     /// <returns>true if there are more rows; otherwise, false.</returns>
     public override bool Read()
@@ -274,7 +282,7 @@ namespace CsvTools
         {
           endLineNumberIncudingComments = (m_CsvFile.HasFieldHeader) ? EndLineNumber : 0;
           // Get the column count
-          FieldCount = ParseFieldCount(m_HeaderRow, m_CsvFile.HasFieldHeader, out var hasReadFurther);
+          FieldCount = ParseFieldCount(m_HeaderRow,  out var hasReadFurther);
 
           if (hasReadFurther)
             needReset = true;
@@ -610,7 +618,7 @@ namespace CsvTools
     /// <summary>
     ///  Gets the number of fields.
     /// </summary>
-    private int ParseFieldCount(IList<string> headerRow, bool hasFieldHeader, out bool readFurther)
+    private int ParseFieldCount(IList<string> headerRow, out bool readFurther)
     {
       Contract.Ensures(Contract.Result<int>() >= 0);
       readFurther = false;
@@ -978,14 +986,14 @@ namespace CsvTools
               {
                 case DataType.TextToHtml:
                   var newitemE = HTMLStyle.TextToHtmlEncode(item);
-                  if (!item.Equals(newitemE))
+                  if (!item.Equals(newitemE, StringComparison.Ordinal))
                     HandleWarning(col, $"HTML encoding removed from {item}");
                   item = newitemE;
                   break;
 
                 case DataType.TextToHtmlFull:
                   var newitemS = HTMLStyle.HtmlEncodeShort(item);
-                  if (!item.Equals(newitemS))
+                  if (!item.Equals(newitemS, StringComparison.Ordinal))
                     HandleWarning(col, $"HTML encoding removed from {item}");
                   item = newitemS;
                   break;

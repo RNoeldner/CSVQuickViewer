@@ -40,13 +40,13 @@ namespace CsvTools
     ///   Copies the selected Cells into clipboard.
     /// </summary>
     /// <param name="dataGridView">The data grid view.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
     /// <param name="addErrorInfo">if set to <c>true</c> add error information.</param>
     /// <param name="cutLength">if set to <c>true</c> cut off long text.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     public static void SelectedDataIntoClipboard(this DataGridView dataGridView,
-      CancellationToken cancellationToken,
       bool addErrorInfo,
-      bool cutLength)
+      bool cutLength,
+      CancellationToken cancellationToken)
     {
       var oldCursor = Cursor.Current == Cursors.WaitCursor ? Cursors.WaitCursor : Cursors.Default;
       Cursor.Current = Cursors.WaitCursor;
@@ -64,7 +64,7 @@ namespace CsvTools
           CopySelectedCellsIntoClipboard(addErrorInfo, cutLength,
             !Equals(dataGridView.AlternatingRowsDefaultCellStyle, dataGridView.RowsDefaultCellStyle),
             dataGridView.Columns,
-            dataGridView.Rows, cancellationToken, dataGridView.SelectedCells);
+            dataGridView.Rows, dataGridView.SelectedCells, cancellationToken);
       }
       catch (Exception exc)
       {
@@ -236,11 +236,11 @@ namespace CsvTools
     /// <param name="alternatingRows">if set to <c>true</c> [alternating rows].</param>
     /// <param name="columns">The columns.</param>
     /// <param name="rows">The rows.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
     /// <param name="selectedCells">The selected cells.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     private static void CopySelectedCellsIntoClipboard(bool addErrorInfo, bool cutLength, bool alternatingRows,
-      DataGridViewColumnCollection columns, DataGridViewRowCollection rows, CancellationToken cancellationToken,
-      DataGridViewSelectedCellCollection selectedCells)
+      DataGridViewColumnCollection columns, DataGridViewRowCollection rows, DataGridViewSelectedCellCollection selectedCells,
+      CancellationToken cancellationToken)
     {
       Contract.Requires(columns != null);
       Contract.Requires(rows != null);

@@ -38,7 +38,7 @@ namespace CsvTools.Tests
 
       using (var filteredDataGridView = new FilteredDataGridView())
       {
-        filteredDataGridView.DataSource = Static.GetDataTable(100);
+        filteredDataGridView.DataSource = UnitTestStatic.GetDataTable(100);
         using (var frm = new Form())
         {
           frm.Controls.Add(filteredDataGridView);
@@ -53,7 +53,7 @@ namespace CsvTools.Tests
     {
       using (var filteredDataGridView = new FilteredDataGridView())
       {
-        var dt = Static.GetDataTable(100);
+        var dt = UnitTestStatic.GetDataTable(100);
         filteredDataGridView.DataSource = dt;
         using (var frm = new Form())
         {
@@ -81,7 +81,7 @@ namespace CsvTools.Tests
     {
       using (var filteredDataGridView = new FilteredDataGridView())
       {
-        filteredDataGridView.DataSource = Static.GetDataTable(100);
+        filteredDataGridView.DataSource = UnitTestStatic.GetDataTable(100);
         using (var frm = new Form())
         {
           frm.Controls.Add(filteredDataGridView);
