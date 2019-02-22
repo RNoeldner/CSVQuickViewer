@@ -8,7 +8,7 @@ using System.Globalization;
 using System.IO;
 using System.Threading;
 
-namespace CvsTool.Tests
+namespace CvsTools.Tests
 {
   [TestClass]
   public class CsvDataReaderUnitTest

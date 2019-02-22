@@ -1189,12 +1189,12 @@ namespace CsvTools
       {
         // In case of a date & time format add the date only format separately
         var indexHour = dateTimeFormat.IndexOf("h", StringComparison.OrdinalIgnoreCase);
-        if (indexHour != -1)
-        {
-          // find the first H or h
-          var dateOnly = dateTimeFormat.Substring(0, indexHour - 1).Trim();
 
-          if (!string.IsNullOrEmpty(dateOnly) && !complete.Contains(dateOnly))
+        // assuming there is a  text before the hour that has a reasonable size take it as date...
+        if (indexHour > 4)
+        {
+          var dateOnly = dateTimeFormat.Substring(0, indexHour - 1).Trim();
+          if (!complete.Contains(dateOnly))
             complete.Add(dateOnly);
         }
       }

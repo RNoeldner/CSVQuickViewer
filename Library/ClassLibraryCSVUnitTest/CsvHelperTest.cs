@@ -351,7 +351,7 @@ namespace CsvTools.Tests
         CodePageId = 65001
       };
       Test.FileFormat.FieldQualifier = "\"";
-      Assert.AreEqual("CRLF", CsvHelper.GuessNewline(Test));
+      Assert.AreEqual("LF", CsvHelper.GuessNewline(Test));
     }
   }
 }

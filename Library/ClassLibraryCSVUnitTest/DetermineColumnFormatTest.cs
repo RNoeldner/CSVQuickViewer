@@ -226,9 +226,9 @@ namespace CsvTools.Tests
       {
         setting.FillGuessColumnFormatReader(false, processDisplay);
       }
-      Assert.AreEqual(DataType.DateTime, setting.Column[2].DataType);
-      Assert.AreEqual(DataType.DateTime, setting.Column[3].DataType);
-      Assert.AreEqual(DataType.DateTime, setting.Column[4].DataType);
+      Assert.AreEqual(DataType.DateTime, setting.Column[2].DataType, "column2");
+      Assert.AreEqual(DataType.DateTime, setting.Column[3].DataType, "column3");
+      Assert.AreEqual(DataType.DateTime, setting.Column[4].DataType, "column4");
     }
 
     [TestMethod]
@@ -273,6 +273,7 @@ namespace CsvTools.Tests
       {
         setting.FillGuessColumnFormatReader(true, processDisplay);
       }
+      Assert.AreEqual(11, setting.Column.Count);
       Assert.AreEqual(DataType.DateTime, setting.Column[7].DataType);
       Assert.AreEqual(DataType.DateTime, setting.Column[8].DataType);
       Assert.AreEqual(DataType.DateTime, setting.Column[9].DataType);
