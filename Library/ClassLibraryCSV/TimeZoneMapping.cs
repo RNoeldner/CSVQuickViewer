@@ -271,31 +271,22 @@ namespace CsvTools
         m_Mapping.AddIfNew(wintz.Key.DisplayName, wintz.Value);
       }
 
-      var fileName = (FileSystemUtils.ExecutableDirectoryName() + "\\TZMapping.txt").LongPathPrefix();
-      if (!File.Exists(fileName)) return;
-      try
+      using (var reader = FileSystemUtils.GetStreamReaderForFileOrResource("TZMapping.txt"))
       {
-        using (var reader = new StreamReader(fileName, true))
+        if (reader == null) return;
+        while (!reader.EndOfStream)
         {
-          while (!reader.EndOfStream)
-          {
-            var entry = reader.ReadLine();
-            if (string.IsNullOrEmpty(entry) || entry[0] == '#')
-              continue;
-            var tab = entry.IndexOf('\t');
-            if (tab <= 0) continue;
-            var timeZoneID = entry.Substring(tab + 1);
-            if (DateTimeZoneProviders.Tzdb.Ids.Contains(timeZoneID))
-              m_Mapping.AddIfNew(entry.Substring(0, tab), timeZoneID);
-            else
-              Debug.WriteLine("Mapping target not found: " + entry);
-          }
+          var entry = reader.ReadLine();
+          if (string.IsNullOrEmpty(entry) || entry[0] == '#')
+            continue;
+          var tab = entry.IndexOf('\t');
+          if (tab <= 0) continue;
+          var timeZoneID = entry.Substring(tab + 1);
+          if (DateTimeZoneProviders.Tzdb.Ids.Contains(timeZoneID))
+            m_Mapping.AddIfNew(entry.Substring(0, tab), timeZoneID);
+          else
+            Debug.WriteLine("Mapping target not found: " + entry);
         }
-      }
-      catch (Exception ex)
-      {
-        Debug.WriteLine("Error reading  " + fileName);
-        Debug.WriteLine(ex.Message);
       }
     }
 

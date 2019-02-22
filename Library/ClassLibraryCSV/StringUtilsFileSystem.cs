@@ -14,6 +14,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.IO;
 using System.Reflection;
@@ -41,6 +42,28 @@ namespace CsvTools
       if (string.IsNullOrEmpty(directoryName)) return;
 
       Directory.CreateDirectory(directoryName);
+    }
+
+    public static StreamReader GetStreamReaderForFileOrResource(string file)
+    {
+      var fileName = (ExecutableDirectoryName() + "\\" + file).LongPathPrefix();
+      try
+      {
+        if (File.Exists(fileName))
+          return new StreamReader(fileName, true);
+
+        var executingAssembly = Assembly.GetExecutingAssembly();
+        // try the embedded resource          
+        var stream = executingAssembly.GetManifestResourceStream("CsvTools." + file);
+        if (stream != null)
+          return new StreamReader(stream, true);
+      }
+      catch (Exception ex)
+      {
+        Debug.WriteLine("Error reading  " + fileName);
+        Debug.WriteLine(ex.Message);
+      }
+      return null;
     }
 
     /// <summary>
@@ -88,7 +111,12 @@ namespace CsvTools
     /// <returns></returns>
     public static string ExecutableDirectoryName()
     {
-      return Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+      var diretory = Assembly.GetExecutingAssembly().Location;
+      if (string.IsNullOrEmpty(diretory))
+        diretory = Assembly.GetEntryAssembly().Location;
+      if (string.IsNullOrEmpty(diretory))
+        diretory = ".";
+      return Path.GetDirectoryName(diretory);
     }
 
     public static void FileDelete(string fileName)

@@ -15,25 +15,17 @@ namespace CsvTools
 
     public DateTimeFormatCollection(string file)
     {
-      var fileName = (FileSystemUtils.ExecutableDirectoryName() + "\\" + file).LongPathPrefix();
-      if (!System.IO.File.Exists(fileName)) return;
-      try
+      using (var reader = FileSystemUtils.GetStreamReaderForFileOrResource(file))
       {
-        using (var reader = new System.IO.StreamReader(fileName, true))
+        if (reader == null) return;
+
+        while (!reader.EndOfStream)
         {
-          while (!reader.EndOfStream)
-          {
-            var entry = reader.ReadLine();
-            if (string.IsNullOrEmpty(entry) || entry[0] == '#')
-              continue;
-            Add(entry);
-          }
+          var entry = reader.ReadLine();
+          if (string.IsNullOrEmpty(entry) || entry[0] == '#')
+            continue;
+          Add(entry);
         }
-      }
-      catch (Exception ex)
-      {
-        Debug.WriteLine("Error reading  " + fileName);
-        Debug.WriteLine(ex.Message);
       }
     }
 
