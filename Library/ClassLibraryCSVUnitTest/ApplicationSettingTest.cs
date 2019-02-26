@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace CsvTools.Tests
 {
@@ -58,7 +59,7 @@ namespace CsvTools.Tests
       {
         // all good
       }
-      ApplicationSetting.SQLDataReader = delegate (string s) { return null; };
+      ApplicationSetting.SQLDataReader = delegate (string s, CancellationToken ct) { return null; };
       var reader = ApplicationSetting.SQLDataReader;
       Assert.IsNotNull(reader);
     }

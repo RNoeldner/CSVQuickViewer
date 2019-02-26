@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Threading;
 
 namespace CsvTools.Tests
 {
@@ -27,7 +28,7 @@ namespace CsvTools.Tests
 
     public List<IFileSetting> ReadSettings { get => m_ReadSetting; }
 
-    public IDataReader ReadData(string settingName)
+    public IDataReader ReadData(string settingName, CancellationToken token)
     {
       var setting = m_ReadSetting.FirstOrDefault(x => x.ID == settingName);
       if (setting == null)
