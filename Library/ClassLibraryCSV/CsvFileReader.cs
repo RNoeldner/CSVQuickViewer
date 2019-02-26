@@ -160,13 +160,13 @@ namespace CsvTools
       if (disposing)
       {
         IndividualClose();
-        if (m_TextReader!=null)
+        if (m_TextReader != null)
         {
           m_TextReader.Dispose();
           m_TextReader = null;
         }
       }
-        
+
     }
 
     /// <summary>
@@ -282,7 +282,7 @@ namespace CsvTools
         {
           endLineNumberIncudingComments = (m_CsvFile.HasFieldHeader) ? EndLineNumber : 0;
           // Get the column count
-          FieldCount = ParseFieldCount(m_HeaderRow,  out var hasReadFurther);
+          FieldCount = ParseFieldCount(m_HeaderRow, out var hasReadFurther);
 
           if (hasReadFurther)
             needReset = true;

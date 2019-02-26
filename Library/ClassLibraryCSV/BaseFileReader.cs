@@ -49,6 +49,7 @@ namespace CsvTools
     public const string cStartLineNumberFieldName = "#Line";
 
 #pragma warning disable CA2211 // Non-constant fields should not be visible
+
     /// <summary>
     ///  Collection of the artificial field names
     /// </summary>
@@ -67,43 +68,47 @@ namespace CsvTools
     protected const int cMaxValue = 10000;
 
 #pragma warning disable CA1051 // Do not declare visible instance fields
+
     /// <summary>
     ///  An array of associated col
     /// </summary>
     protected int[] AssociatedTimeCol;
+
 #pragma warning restore CA1051 // Do not declare visible instance fields
 
 #pragma warning disable CA1051 // Do not declare visible instance fields
+
     /// <summary>
     ///  An array of associated col
     /// </summary>
     protected int[] AssociatedTimeZoneCol;
+
 #pragma warning restore CA1051 // Do not declare visible instance fields
 
 #pragma warning disable CA1051 // Do not declare visible instance fields
+
     /// <summary>
     ///  An array of column
     /// </summary>
     protected Column[] Column;
+
 #pragma warning restore CA1051 // Do not declare visible instance fields
 
 #pragma warning disable CA1051 // Do not declare visible instance fields
+
     /// <summary>
     ///  An array of current row column text
     /// </summary>
     protected string[] CurrentRowColumnText;
+
 #pragma warning restore CA1051 // Do not declare visible instance fields
 
     private readonly IFileSetting m_FileSetting;
     private readonly IntervalAction m_IntervalAction = new IntervalAction();
     private CancellationToken m_CancellationToken;
     private int m_FieldCount;
+    private bool m_HasSendFinished = true;
     private IProcessDisplay m_ProcessDisplay;
-
-    public double NotifyAfterSeconds
-    {
-      set => m_IntervalAction.NotifyAfterSeconds = value;
-    }
 
     protected BaseFileReader(IFileSetting fileSetting)
     {
@@ -169,6 +174,11 @@ namespace CsvTools
     {
       get => m_FieldCount;
       protected set => m_FieldCount = value;
+    }
+
+    public double NotifyAfterSeconds
+    {
+      set => m_IntervalAction.NotifyAfterSeconds = value;
     }
 
     /// <summary>
@@ -846,6 +856,8 @@ namespace CsvTools
           return 0;
         }
 
+        m_HasSendFinished = false;
+
         long ret = IndividualOpen(determineColumnSize);
 
         var valuesInclude = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -1246,8 +1258,12 @@ namespace CsvTools
     /// </summary>
     protected virtual void HandleReadFinished()
     {
-      HandleShowProgress("Finished Reading", RecordNumber, cMaxValue);
-      ReadFinished?.Invoke(this, null);
+      if (!m_HasSendFinished)
+      {
+        m_HasSendFinished = true;
+        HandleShowProgress("Finished Reading from source", RecordNumber, cMaxValue);
+        ReadFinished?.Invoke(this, null);
+      }
     }
 
     /// <summary>

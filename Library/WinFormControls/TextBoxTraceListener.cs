@@ -1,5 +1,5 @@
-﻿using System.Windows.Forms;
-using log4net.Appender;
+﻿using log4net.Appender;
+using System.Windows.Forms;
 
 namespace CsvTools
 {
@@ -20,16 +20,19 @@ namespace CsvTools
       set;
     }
 
-    protected override void Append(log4net.Core.LoggingEvent loggingEvent)
-    {
-      if (AppenderTextBox != null)
-        AppenderTextBox.SafeBeginInvoke(() => AppenderTextBox.AppendText(RenderLoggingEvent(loggingEvent)));
-    }
-
     public override bool Flush(int timeout)
     {
       Extensions.ProcessUIElements();
       return base.Flush(timeout);
+    }
+
+    protected override void Append(log4net.Core.LoggingEvent loggingEvent)
+    {
+      if (AppenderTextBox != null && loggingEvent.MessageObject.ToString().Length > 0)
+      {
+        AppenderTextBox.SafeBeginInvoke(() => AppenderTextBox.AppendText(StringUtils.HandleCRLFCombinations(RenderLoggingEvent(loggingEvent), " ") + "\r\n"  ));
+        Extensions.ProcessUIElements();
+      }
     }
   }
 }
