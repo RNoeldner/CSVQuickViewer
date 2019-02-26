@@ -76,7 +76,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="sqlStatement">The sql statement.</param>
     /// <returns>Number of affected records</returns>
-    int ExecuteNonQueries(string sqlStatement);
+    int ExecuteNonQueries(string sqlStatement, CancellationToken cancellationToken);
 
     /// <summary>
     ///  Executes a commands that can be separated by GO without returning a result.
@@ -93,7 +93,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="commandText">The command text.</param>
     /// <returns>Number of affected records</returns>
-    int ExecuteNonQuery(string commandText);
+    int ExecuteNonQuery(string commandText, CancellationToken cancellationToken);
 
     /// <summary>
     ///  Executes a sql command, and returns a data reader.
@@ -103,7 +103,7 @@ namespace CsvTools
     /// <remarks>
     ///  Please use this with caution, the command and connection can not be disposed
     /// </remarks>
-    DbDataReader ExecuteReader(string sqlStatement);
+    DbDataReader ExecuteReader(string sqlStatement, CancellationToken cancellationToken);
 
     /// <summary>
     ///  Executes the a scalar query
@@ -113,7 +113,7 @@ namespace CsvTools
     /// <returns>
     ///  The first column of the first row returned by the command
     /// </returns>
-    object ExecuteScalar(string sqlStatement, int commandTimeout = 360);
+    object ExecuteScalar(string sqlStatement, int commandTimeout, CancellationToken cancellationToken);
 
     /// <summary>
     ///  Flushes all caches of this instance.
@@ -123,8 +123,8 @@ namespace CsvTools
     /// <summary>
     ///  Gets the connection.
     /// </summary>
-    /// <returns>The database connection object</returns>
-    DbConnection GetConnection();
+    /// <returns>The database connection object</returns>    
+    DbConnection GetConnection(EventHandler<string> infoMessages);
 
     /// <summary>
     ///  Gets the <see cref="DataType" /> of the table.
@@ -154,7 +154,7 @@ namespace CsvTools
     /// <returns>
     ///  A <see cref="DbCommand" /> with the SQL statement provided
     /// </returns>
-    DbCommand GetSqlCommand(string sqlStatement, DbConnection connection, int commandTimeout = 360);
+    DbCommand GetSqlCommand(string sqlStatement, DbConnection connection, int commandTimeout);
 
     /// <summary>
     ///  Gets the tables in the database
@@ -205,9 +205,9 @@ namespace CsvTools
     /// <param name="sqlStatement">The sql statement.</param>
     /// <param name="beforeLoop">The before loop.</param>
     /// <param name="eachRecord">delegate (DbDataReader dataReader)/</param>
+    /// <param name="infoMessages">Information types messages from the server can be processed here e.g. PRINT</param>
     /// <param name="cancellationToken">A cancellation Token</param>
-    void ProcessReader(string sqlStatement, Action<DbDataReader> beforeLoop, Action<DbDataReader> eachRecord,
-   CancellationToken cancellationToken);
+    void ProcessReader(string sqlStatement, Action<DbDataReader> beforeLoop, Action<DbDataReader> eachRecord, EventHandler<string> infoMessages, CancellationToken cancellationToken);
 
     /// <summary>
     ///  Checks if the database has table.

@@ -92,21 +92,20 @@ namespace CsvTools
           // fileReader.ProcessDisplay = processDisplay;
 
           fileReader.Open(false, processDisplay.CancellationToken);
-          if (fileReader.FieldCount == 0)
+          if (fileReader.FieldCount == 0 || fileReader.EndOfFile)
             return result;
-
           processDisplay.SetProcess("Getting column headers");
           processDisplay.Maximum = fileReader.FieldCount;
 
           var columnNamesInFile = new List<string>();
           for (var colindex = 0; colindex < fileReader.FieldCount; colindex++)
-          {
+          {           
             var newColumn = fileReader.GetColumn(colindex);
             Contract.Assume(newColumn != null);
             columnNamesInFile.Add(newColumn.Name);
             var oldColumn = fileSetting.GetColumn(newColumn.Name);
 
-            processDisplay.SetProcess(newColumn.Name + " – Getting values", colindex);
+            processDisplay.SetProcess(newColumn.Name + " – Getting values", colindex);            
 
             var samples = GetSampleValues(fileReader, ApplicationSetting.FillGuessSettings.CheckedRecords,
               colindex, ApplicationSetting.FillGuessSettings.SampleValues, fileSetting.TreatTextAsNull,
@@ -393,7 +392,7 @@ namespace CsvTools
       var fileWriter = fileSettings.GetFileWriter(cancellationToken);
       if (string.IsNullOrEmpty(fileSettings.SqlStatement))
         throw new ApplicationException("No SQL Statement given");
-      using (var dataReader = ApplicationSetting.SQLDataReader(fileSettings.SqlStatement))
+      using (var dataReader = ApplicationSetting.SQLDataReader(fileSettings.SqlStatement, cancellationToken))
       {
         // Put the information into the list
         foreach (DataRow schemaRow in dataReader.GetSchemaTable().Rows)

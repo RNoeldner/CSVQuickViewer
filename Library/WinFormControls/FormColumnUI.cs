@@ -406,7 +406,7 @@ namespace CsvTools
               {
                 frm.SetProcess("Executing SQL");
                 // get the columns from the SQL
-                using (var dataReader = ApplicationSetting.SQLDataReader(m_FileSetting.SqlStatement))
+                using (var dataReader = ApplicationSetting.SQLDataReader(m_FileSetting.SqlStatement, frm.CancellationToken))
                 {
                   for (var i = 0; i < dataReader.FieldCount; i++)
                     allColumns.Add(dataReader.GetName(i));

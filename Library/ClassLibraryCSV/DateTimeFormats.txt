@@ -11,7 +11,9 @@
 # MMMM is the long month name
 # MMM is the abbreviated month name
 #
+dddd, MMMM dd, yyyy, hh:mm:ss tt‎
 dddd, MMMM dd, yyyy hh:mm:ss tt
+dddd, dd MMMM, yyyy, hh:mm:ss tt
 dddd, dd MMMM, yyyy hh:mm:ss tt
 dddd, dd. MMMM yyyy hh:mm:ss tt
 dddd, d MMMM, yyyy hh:mm:ss tt
@@ -25,7 +27,7 @@ ddd, dd MMM, yyyy hh:mm:ss tt
 ddd, dd. MMM yyyy hh:mm:ss tt
 dddd dd MMMM yyyy hh:mm:ss tt
 dddd, d MMMM yyyy hh:mm:ss tt
-dddd,MMMM dd,yyyy hh:mm:ss tt
+dddd, MMMM dd,yyyy hh:mm:ss tt
 ddd, MMM dd,yyyy hh:mm:ss tt
 ddd, d MMM, yyyy hh:mm:ss tt
 ddd, d. MMM yyyy hh:mm:ss tt
@@ -33,7 +35,9 @@ ddd, dd MMM yyyy hh:mm:ss tt
 dddd d MMMM yyyy hh:mm:ss tt
 dddd, MMMM dd, yyyy hh:mm tt
 dddd, MMMM dd, yyyy HH:mm:ss
+dddd, dd MMMM, yyyy, hh:mm tt
 dddd, dd MMMM, yyyy hh:mm tt
+dddd, dd MMMM, yyyy, HH:mm:ss
 dddd, dd MMMM, yyyy HH:mm:ss
 dddd, dd. MMMM yyyy hh:mm tt
 dddd, dd. MMMM yyyy HH:mm:ss

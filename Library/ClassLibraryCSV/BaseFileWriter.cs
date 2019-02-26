@@ -178,7 +178,7 @@ namespace CsvTools
           sql = sql.Substring(0, idxof) + "WHERE 1=0";
       }
 
-      return ApplicationSetting.SQLDataReader(sql);
+      return ApplicationSetting.SQLDataReader(sql, m_CancellationToken);
     }
 
     /// <summary>
@@ -191,7 +191,7 @@ namespace CsvTools
       // Using the connection string
       if (string.IsNullOrEmpty(m_FileSetting.SqlStatement)) return null;
       HandleProgress("Executing SQL Statement");
-      using (var dataReader = ApplicationSetting.SQLDataReader(m_FileSetting.SqlStatement))
+      using (var dataReader = ApplicationSetting.SQLDataReader(m_FileSetting.SqlStatement, m_CancellationToken))
       {
         HandleProgress("Reading returned data");
         var dt = new DataTable();
@@ -213,7 +213,7 @@ namespace CsvTools
     /// <returns>Number of records written</returns>
     public virtual long Write()
     {
-      using (IDataReader reader = ApplicationSetting.SQLDataReader(m_FileSetting.SqlStatement))
+      using (IDataReader reader = ApplicationSetting.SQLDataReader(m_FileSetting.SqlStatement, m_CancellationToken))
       {
         return Write(reader);
       }

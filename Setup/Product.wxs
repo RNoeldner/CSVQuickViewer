@@ -34,15 +34,15 @@
         <Directory Id="PRODUCTDIR" Name="$(var.Application)">
           <Component Id="EXECUTABLE" DiskId="1" Guid="DE676698-99E3-45F5-A9C1-E44B240F54C9">
             <File Id="ExecutableID" Name="CsvQuickViewer.exe" Source="$(var.CSVQuickViewer.TargetPath)" />
-            <!--   <File Id="CsvQuickViewer.pdb" Name="CsvQuickViewer.pdb" Source="$(var.CSVQuickViewer.TargetDir)\CsvQuickViewer.pdb" />-->
+            <!--   
             <File Id="ClassLibraryCSV.DLL" Name="ClassLibraryCSV.dll" Source="$(var.CSVQuickViewer.TargetDir)\ClassLibraryCSV.dll" />
-            <File Id="DateTimeFormats.txt" Name="DateTimeFormats.txt" Source="$(var.CSVQuickViewer.TargetDir)\DateTimeFormats.txt" />
-            <!--   <File Id="ClassLibraryCSV.pdb" Name="ClassLibraryCSV.pdb" Source="$(var.CSVQuickViewer.TargetDir)\ClassLibraryCSV.pdb" /> -->
+            <File Id="DateTimeFormats.txt" Name="DateTimeFormats.txt" Source="$(var.CSVQuickViewer.TargetDir)\DateTimeFormats.txt" />            
             <File Id="WinFormControls.DLL" Name="WinFormControls.dll" Source="$(var.CSVQuickViewer.TargetDir)\WinFormControls.dll" />
             <File Id="Ude.DLL" Name="Ude.dll" Source="$(var.CSVQuickViewer.TargetDir)\Ude.dll" />
             <File Id="NodaTime.dll" Name="NodaTime.dll" Source="$(var.CSVQuickViewer.TargetDir)\NodaTime.dll" />
             <File Id="BouncyCastle.OpenPgp.dll" Name="BouncyCastle.OpenPgp.dll" Source="$(var.CSVQuickViewer.TargetDir)\BouncyCastle.OpenPgp.dll" />
             <File Id="Pri.LongPath.dll" Name="Pri.LongPath.dll" Source="$(var.CSVQuickViewer.TargetDir)\Pri.LongPath.dll" />
+            -->
             <File Id="LICENSE" Name="LICENSE" Source="$(var.CSVQuickViewer.ProjectDir)\LICENSE" />
             <File Id="README.TXT" Name="README.txt" Source="$(var.CSVQuickViewer.ProjectDir)\README.txt" />
             <RemoveFolder Id="PRODUCTDIR" On="uninstall" />
