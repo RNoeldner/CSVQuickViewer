@@ -26,3 +26,6 @@ This application does use various NuGet libraies:
 * BouncyCastle.OpenPgp https://www.nuget.org/packages/BouncyCastle.OpenPGP/
 * Pri.LongPath  https://www.nuget.org/packages/Pri.LongPath/
 * UDE.CSharp https://www.nuget.org/packages/UDE.CSharp/
+* Costura.Fody 
+* log4net
+* NodaTime
