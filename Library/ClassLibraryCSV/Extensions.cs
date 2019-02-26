@@ -769,7 +769,7 @@ namespace CsvTools
     /// <param name="warningCount">The warning count.</param>
     public static void SetValidationResult(this IFileSetting fileSetting, long numberRecords, long errorCount,
       long warningCount)
-    {
+    {      
       var ret = new ValidationResult
       {
         TableName = fileSetting.ID,
