@@ -26,7 +26,7 @@ namespace CsvTools
     public ProcessDisplayTime(CancellationToken cancellationToken) : base(cancellationToken)
     {
       TimeToCompletion = new TimeToCompletion();
-    }
+    }        
 
     public virtual event EventHandler<int> SetMaximum;
 

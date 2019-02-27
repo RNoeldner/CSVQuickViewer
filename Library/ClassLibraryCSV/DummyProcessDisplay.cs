@@ -24,6 +24,8 @@ namespace CsvTools
     public DummyProcessDisplay() : this(CancellationToken.None)
     {
     }
+    
+    public virtual string Title { get; set; }
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="DummyProcessDisplay" /> class.

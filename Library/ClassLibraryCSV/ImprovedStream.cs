@@ -111,7 +111,7 @@ namespace CsvTools
       };
       if (path.AssumePgp() || path.AssumeGZip())
       {
-        Log.Info("Creating temporary file");
+        Log.Debug("Creating temporary file");
         retVal.TempFile = Path.GetTempFileName();
 
         // download the file to a temp file
@@ -165,7 +165,7 @@ namespace CsvTools
 
           if (AssumeGZip)
           {
-            Log.Info("Decompressing GZip Stream");
+            Log.Debug("Decompressing GZip Stream");
             Stream = new System.IO.Compression.GZipStream(BaseStream, System.IO.Compression.CompressionMode.Decompress);
           }
 
@@ -186,7 +186,7 @@ namespace CsvTools
 
             try
             {
-              Log.Info("Decrypt PGP Stream");
+              Log.Debug("Decrypt PGP Stream");
               Stream = ApplicationSetting.ToolSetting.PGPInformation.PgpDecrypt(BaseStream, DecryptedPassphrase);
             }
             catch (Org.BouncyCastle.Bcpg.OpenPgp.PgpException ex)
@@ -265,7 +265,7 @@ namespace CsvTools
           // Compress the file
           if (WritePath.AssumeGZip())
           {
-            Log.Info("Compressing temporary file to GZip file");
+            Log.Debug("Compressing temporary file to GZip file");
             using (var inFile = File.OpenRead(TempFile))
             {
               // Create the compressed file.
@@ -302,14 +302,14 @@ namespace CsvTools
             using (FileStream inputStream = new FileInfo(TempFile).OpenRead(),
                         output = new FileStream(WritePath.LongPathPrefix(), FileMode.Create))
             {
-              Log.Info("Encrypting temporary file to PGP file");
+              Log.Debug("Encrypting temporary file to PGP file");
               ApplicationSetting.ToolSetting.PGPInformation.PgpEncrypt(inputStream, output, Recipient, ProcessDisplay);
             }
           }
         }
         finally
         {
-          Log.Info("Removing temporary file");
+          Log.Debug("Removing temporary file");
           File.Delete(TempFile);
         }
     }

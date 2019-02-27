@@ -51,11 +51,11 @@ namespace CsvTools
       Width = 400;
       Height = 300;
 
-      var logger = new LoggerTextBox
+      var logger = new LoggerDisplay
       {
         Dock = DockStyle.Fill,
         Multiline = true,
-        ScrollBars = ScrollBars.Both,
+        // ScrollBars = ScrollBars.Both,
         TabIndex = 8
       };
       tableLayoutPanel.SetColumnSpan(logger, 2);

@@ -9,7 +9,7 @@ namespace CsvTools.Tests
     public bool m_Shown = false;
     public string Text;
     public bool Visible;
-
+    public virtual string Title { get; set; }
     public TimeToCompletion TimeToCompletion => new TimeToCompletion();
 
     public CancellationToken CancellationToken => CancellationToken.None;

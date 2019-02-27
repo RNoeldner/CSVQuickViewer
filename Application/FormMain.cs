@@ -42,7 +42,7 @@ namespace CsvTools
     private static readonly XmlSerializer m_SerializerViewSettings = new XmlSerializer(typeof(ViewSettings));
     private static string cSettingFolder = Environment.ExpandEnvironmentVariables("%APPDATA%\\CSVQuickViewer");
     private static string cSettingPath = cSettingFolder + "\\Setting.xml";
-    private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();    
+    private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
     private readonly Timer m_SettingsChangedTimerChange = new Timer(200);
     private readonly Collection<Column> m_StoreColumns = new Collection<Column>();
     private readonly ViewSettings m_ViewSettings;
@@ -154,7 +154,7 @@ namespace CsvTools
 
     private void DetailControl_ButtonAsText(object sender, EventArgs e)
     {
-      
+
       // Assume data type is not recognize
       if (m_FileSetting.Column.Any(x => x.DataType != DataType.String))
       {
