@@ -29,6 +29,7 @@ namespace CsvTools
   /// </summary>
   public static class CsvHelper
   {
+    private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
     /// <summary>
     /// Caches the column header.
     /// </summary>
@@ -233,6 +234,7 @@ namespace CsvTools
       if (detected == 20127)
         detected = 65001;
 
+      Log.Info("Detected Code Page: " + EncodingHelper.GetEncodingName(detected, true, setting.ByteOrderMark));
       setting.CodePageId = detected;
     }
 
@@ -274,7 +276,10 @@ namespace CsvTools
       Contract.Requires(setting != null);
       // Only do so if HasFieldHeader is still true
       if (!setting.HasFieldHeader)
+      {
+        Log.Info("Without Header Row");
         return false;
+      }
 
       using (var csvDataReader = new CsvFileReader(setting))
       {
@@ -291,19 +296,31 @@ namespace CsvTools
           // if replaced by a default assume no header
           if (columnName.Equals(BaseFileReader.GetDefaultName(counter), StringComparison.OrdinalIgnoreCase))
             if (defaultNames++ == (int)Math.Ceiling(csvDataReader.FieldCount / 2.0))
+            {
+              Log.Info("Without Header Row");
               return false;
+            }
 
           // if its a number assume no headers
           if (StringConversion.StringToDecimal(columnName, '.', ',', false).HasValue)
+          {
+            Log.Info("Without Header Row");
             return false;
+          }
+
           // if its rather long assume no header
           if (columnName.Length > 80)
+          {
+            Log.Info("Without Header Row");
             return false;
-        }
+          }
 
+        }
+        Log.Info("With Header Row");
         // if there is only one line assume its does not have a header
         return true;
       }
+
     }
 
     /// <summary>
@@ -343,10 +360,12 @@ namespace CsvTools
         // Have a proper delimiter
         for (var sep = 0; sep < dc.Separators.Length; sep++)
           if (dc.SeparatorRows[sep] >= dc.LastRow * 9 / 10)
+          {
+            Log.Info("Not a delimited file");
             return false;
+          }
       }
-
-      // no proper delimiter so no good
+      Log.Info("Delimited file");
       return true;
     }
 
@@ -489,7 +508,10 @@ namespace CsvTools
       Contract.Ensures(Contract.Result<string>() != null);
       var match = '\t';
       if (streamReader == null)
-        return match.ToString(CultureInfo.CurrentCulture);
+      {
+        Log.Info("File not read, assumed Delimiter: TAB");
+        return "TAB";
+      }
 
       var dc = GetDelimiterCounter(streamReader, escapeCharacter, 300);
 
@@ -553,8 +575,9 @@ namespace CsvTools
         match = dc.Separators[index];
         bestScore = score;
       }
-
-      return match == '\t' ? "TAB" : match.ToString(CultureInfo.CurrentCulture);
+      var ret = match == '\t' ? "TAB" : match.ToString(CultureInfo.CurrentCulture);
+      Log.Info("Delimiter: " + ret);
+      return ret;
     }
 
     internal static string GuessNewline(StreamReader streamReader, char fieldQualifier)
@@ -727,18 +750,27 @@ namespace CsvTools
           if (columnCount[row] > 0)
           {
             if (columnCount[row] < avg - 1)
+            {
+              Log.Info($"Start Row: {row}");
               return row;
+            }
+
           }
           // In case we have an empty line but the next line are roughly good match take that empty line
           else if (columnCount[row + 1] == columnCount[row + 2]
                && columnCount[row + 1] >= avg - 1)
           {
+            Log.Info($"Start Row: {row + 1}");
             return row + 1;
           }
 
         for (var row = 0; row < lastRow; row++)
           if (columnCount[row] > 0)
+          {
+            Log.Info($"Start Row: {row}");
             return row;
+          }
+
       }
       return 0;
     }

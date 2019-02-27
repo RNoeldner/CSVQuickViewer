@@ -13,6 +13,7 @@
  */
 
 using CsvTools.Properties;
+using log4net;
 using Microsoft.Win32;
 using System;
 using System.Collections.ObjectModel;
@@ -37,11 +38,11 @@ namespace CsvTools
   /// </summary>
   public sealed partial class FormMain : Form
   {
+    private static readonly ILog Log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
     private static readonly XmlSerializer m_SerializerViewSettings = new XmlSerializer(typeof(ViewSettings));
     private static string cSettingFolder = Environment.ExpandEnvironmentVariables("%APPDATA%\\CSVQuickViewer");
     private static string cSettingPath = cSettingFolder + "\\Setting.xml";
-    private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
-    private readonly StringBuilder m_Messages = new StringBuilder();
+    private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();    
     private readonly Timer m_SettingsChangedTimerChange = new Timer(200);
     private readonly Collection<Column> m_StoreColumns = new Collection<Column>();
     private readonly ViewSettings m_ViewSettings;
@@ -50,7 +51,6 @@ namespace CsvTools
     private CancellationTokenSource m_CurrentCancellationTokenSource;
     private bool m_FileChanged;
     private CsvFile m_FileSetting;
-    private string m_LastMessage = string.Empty;
     private int m_WarningCount;
 
     /// <summary>
@@ -103,29 +103,23 @@ namespace CsvTools
       }
     }
 
-
     private void AddWarning(object sender, WarningEventArgs args)
     {
       if (string.IsNullOrEmpty(args.Message)) return;
       if (++m_WarningCount == m_FileSetting.NumWarnings)
-        SetProcess("No further warnings displayed…");
+        Log.Warn("No further warnings displayed…");
       else if (m_WarningCount < m_FileSetting.NumWarnings)
-        SetProcess(args.Display(true, true));
+        Log.Warn(args.Display(true, true));
     }
 
     private void ClearProcess()
     {
       m_WarningCount = 0;
-      textBoxProgress.SafeInvoke(() =>
-      {
-        if (IsDisposed) return;
-        if (!textPanel.Visible)
-          ShowTextPanel(true);
+      if (IsDisposed) return;
+      if (!textPanel.Visible)
+        ShowTextPanel(true);
 
-        textBoxProgress.Text = string.Empty;
-        m_Messages.Length = 0;
-        textBoxProgress.Refresh();
-      });
+      textBoxProgress.Clear();
     }
 
     /// <summary>
@@ -160,15 +154,18 @@ namespace CsvTools
 
     private void DetailControl_ButtonAsText(object sender, EventArgs e)
     {
+      
       // Assume data type is not recognize
       if (m_FileSetting.Column.Any(x => x.DataType != DataType.String))
       {
+        Log.Debug($"Showing columns as text");
         m_FileSetting.Column.CollectionCopy(m_StoreColumns);
         m_FileSetting.Column.Clear();
         detailControl.ButtonAsTextCaption = "Values";
       }
       else
       {
+        Log.Debug($"Showing columns as values");
         detailControl.ButtonAsTextCaption = "Text";
         m_StoreColumns.CollectionCopy(m_FileSetting.Column);
       }
@@ -206,6 +203,7 @@ namespace CsvTools
 
     private void Display_FormClosing(object sender, FormClosingEventArgs e)
     {
+      Log.Debug($"Closing Form");
       m_CancellationTokenSource.Cancel();
       var res = this.StoreWindowState();
       if (res != null)
@@ -224,7 +222,7 @@ namespace CsvTools
     private void Display_Shown(object sender, EventArgs e)
     {
       this.LoadWindowState(m_ViewSettings.WindowPosition);
-
+      Log.Debug($"Show {m_FileName}");
       if (string.IsNullOrEmpty(m_FileName) || !FileSystemUtils.FileExists(m_FileName))
         using (var openFileDialog = new OpenFileDialog())
         {
@@ -313,9 +311,8 @@ namespace CsvTools
       if (string.IsNullOrEmpty(m_FileName) || !FileSystemUtils.FileExists(m_FileName))
         return false;
 
-      ShowTextPanel(true);
       ClearProcess();
-      SetProcess($"Examining file {m_FileName}");
+      Log.Info($"Examining file {m_FileName}");
       Text = $"{AssemblyTitle} : {FileSystemUtils.GetShortDisplayFileName(m_FileName, 80)}";
 
       var oldCursor = Cursor.Current == Cursors.WaitCursor ? Cursors.WaitCursor : Cursors.Default;
@@ -351,7 +348,7 @@ namespace CsvTools
         var analyse = true;
         var fileInfo = FileSystemUtils.FileInfo(m_FileName);
         m_FileSetting.ID = m_FileName.GetIdFromFileName();
-        SetProcess($"Size of file: {StringConversion.DynamicStorageSize(fileInfo.Length)}");
+        Log.Info($"Size of file: {StringConversion.DynamicStorageSize(fileInfo.Length)}");
 
         using (var cancellationTokenSource =
           CancellationTokenSource.CreateLinkedTokenSource(m_CancellationTokenSource.Token))
@@ -381,7 +378,7 @@ namespace CsvTools
               {
                 m_FileSetting = SerializedFilesLib.LoadCsvFile(m_FileName + CsvFile.cCsvSettingExtension);
                 m_FileSetting.FileName = m_FileName;
-                SetProcess("Configuration read from setting file");
+                Log.Info("Configuration read from setting file");
                 DisableIgnoreRead();
                 analyse = false;
                 // Add all columns as string
@@ -397,23 +394,11 @@ namespace CsvTools
             if (analyse && m_ViewSettings.GuessCodePage)
             {
               CsvHelper.GuessCodePage(m_FileSetting);
-              SetProcess("Detected Code Page: " + EncodingHelper.GetEncodingName(m_FileSetting.CurrentEncoding.CodePage,
-                           true, m_FileSetting.ByteOrderMark));
             }
 
             if (analyse) m_FileSetting.NoDelimitedFile = CsvHelper.GuessNotADelimitedFile(m_FileSetting);
-            if (analyse && m_ViewSettings.GuessDelimiter)
-            {
-              m_FileSetting.FileFormat.FieldDelimiter = CsvHelper.GuessDelimiter(m_FileSetting);
-              SetProcess("Delimiter: " + m_FileSetting.FileFormat.FieldDelimiter);
-            }
-
-            if (analyse && m_ViewSettings.GuessStartRow)
-            {
-              m_FileSetting.SkipRows = CsvHelper.GuessStartRow(m_FileSetting);
-              if (m_FileSetting.SkipRows > 0)
-                SetProcess("Start Row: " + m_FileSetting.SkipRows.ToString(CultureInfo.InvariantCulture));
-            }
+            if (analyse && m_ViewSettings.GuessDelimiter) m_FileSetting.FileFormat.FieldDelimiter = CsvHelper.GuessDelimiter(m_FileSetting);
+            if (analyse && m_ViewSettings.GuessStartRow) m_FileSetting.SkipRows = CsvHelper.GuessStartRow(m_FileSetting);
 
             if (analyse)
             {
@@ -422,18 +407,13 @@ namespace CsvTools
                 m_FileSetting.HasFieldHeader = CsvHelper.GuessHasHeader(m_FileSetting, cancellationTokenSource.Token);
               }
 
-              if (m_FileSetting.HasFieldHeader)
-                SetProcess("With Header Row");
-              else
-                SetProcess("Without Header Row");
-
-              using (var processDisplay = m_FileSetting.GetProcessDisplay(this, cancellationTokenSource.Token))
+              using (var processDisplay = m_FileSetting.GetProcessDisplay(this, false, cancellationTokenSource.Token))
               {
                 if (processDisplay is Form frm && limitSizeForm != null)
                 {
                   frm.Left = limitSizeForm.Left + limitSizeForm.Width;
                 }
-                processDisplay.Progress += SetProcess;
+                processDisplay.Progress += delegate (object sender, ProgressEventArgs e) { Log.Info(e.Text); };
                 m_FileSetting.FillGuessColumnFormatReader(false, processDisplay);
               }
 
@@ -477,7 +457,7 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        _MessageBox.Show(this, ex.ExceptionMessages(), "Opening File", MessageBoxButtons.OK, MessageBoxIcon.Stop, timeout: 20);
+        this.ShowError(ex, "Opening File");
         return false;
       }
       finally
@@ -494,6 +474,7 @@ namespace CsvTools
     {
       try
       {
+        Log.Debug($"Loading defaults {cSettingPath}");
         if (FileSystemUtils.FileExists(cSettingPath))
         {
           var serial = File.ReadAllText(cSettingPath);
@@ -505,8 +486,9 @@ namespace CsvTools
           }
         }
       }
-      catch (Exception)
+      catch (Exception ex)
       {
+        Log.Error(ex);
       }
       return new ViewSettings();
     }
@@ -533,14 +515,14 @@ namespace CsvTools
       {
         if (clear)
           ClearProcess();
-        SetProcess("Opening File…");
+        Log.Info("Opening File…");
 
         Text =
           $"{AssemblyTitle} : {FileSystemUtils.GetShortDisplayFileName(m_FileSetting.FileName, 80)}  - {EncodingHelper.GetEncodingName(m_FileSetting.CurrentEncoding.CodePage, true, m_FileSetting.ByteOrderMark)}";
 
         var warnings = new RowErrorCollection();
         DataTable data;
-        using (var processDisplay = m_FileSetting.GetProcessDisplay(this, m_CancellationTokenSource.Token))
+        using (var processDisplay = m_FileSetting.GetProcessDisplay(this, false, m_CancellationTokenSource.Token))
         {
           using (var csvDataReader = m_FileSetting.GetFileReader())
           {
@@ -553,7 +535,6 @@ namespace CsvTools
             if (!textPanel.Visible)
               ShowTextPanel(true);
 
-            SetProcess("Reading data…");
             data = csvDataReader.WriteToDataTable(m_FileSetting, m_FileSetting.RecordLimit, warnings,
                 processDisplay.CancellationToken);
 
@@ -562,7 +543,7 @@ namespace CsvTools
                 m_FileSetting.ColumnAdd(new Column { Name = columnName });
             if (processDisplay.CancellationToken.IsCancellationRequested)
             {
-              SetProcess("Cancellation was requested.");
+              Log.Info("Cancellation was requested.");
               if (_MessageBox.Show(this,
                     "The load was not completed, cancellation was requested.\rDo you want to display the already loaded data?",
                     "Cancellation Requested", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
@@ -574,7 +555,7 @@ namespace CsvTools
 
         if (data != null)
         {
-          SetProcess("Showing loaded data…");
+          Log.Info("Showing loaded data…");
           // Show the data
           detailControl.DataTable = data;
         }
@@ -589,13 +570,12 @@ namespace CsvTools
       }
       catch (Exception exc)
       {
-        SetProcess($"{exc.ToString()}");
-        _MessageBox.Show(this, exc.ExceptionMessages(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error, timeout: 20);
+        this.ShowError(exc, "Storing Settings");
       }
       finally
       {
         if (detailControl.DataTable == null)
-          SetProcess("No data…");
+          Log.Info("No data…");
         else
           // if (!m_FileSetting.NoDelimitedFile)
           ShowTextPanel(false);
@@ -636,6 +616,7 @@ namespace CsvTools
       try
       {
         var pathSetting = m_FileSetting.FileName + CsvFile.cCsvSettingExtension;
+
         m_FileSetting.FileName = FileSystemUtils.SplitPath(m_FileSetting.FileName).FileName;
         var answer = DialogResult.No;
 
@@ -662,52 +643,14 @@ namespace CsvTools
         }
 
         if (answer != DialogResult.Yes) return;
+        Log.Debug($"Saving setting {pathSetting}");
         SerializedFilesLib.SaveCsvFile(pathSetting, m_FileSetting);
         m_ConfigChanged = false;
       }
       catch (Exception ex)
       {
-        MessageBox.Show(this, ex.ExceptionMessages(), "Storing Settings", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        this.ShowError(ex, "Storing Settings");
       }
-    }
-
-    /// <summary>
-    ///   Sets the process.
-    /// </summary>
-    /// <param name="text">The text.</param>
-    private void SetProcess(string text)
-    {
-      if (string.IsNullOrEmpty(text))
-        return;
-      var appended = false;
-      var posSlash = text.IndexOf('–', 0);
-      if (posSlash != -1 && m_LastMessage.StartsWith(text.Substring(0, posSlash + 1), StringComparison.Ordinal))
-      {
-        textBoxProgress.AppendText(text.Substring(posSlash - 1));
-        appended = true;
-      }
-
-      m_LastMessage = text;
-      if (!appended)
-      {
-        if (textBoxProgress.Text.Length > 0)
-          textBoxProgress.AppendText(Environment.NewLine);
-        textBoxProgress.AppendText(text);
-      }
-
-      textBoxProgress.SelectionStart = textBoxProgress.Text.Length;
-      textBoxProgress.ScrollToCaret();
-      // Application.DoEvents();
-    }
-
-    /// <summary>
-    ///   Set the progress used by Events
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    private void SetProcess(object sender, ProgressEventArgs e)
-    {
-      SetProcess(e.Text);
     }
 
     private void ShowGrid(object sender, EventArgs e)
@@ -724,7 +667,7 @@ namespace CsvTools
         FillFromProperites(false);
         if (m_ConfigChanged)
         {
-          if (MessageBox.Show(this, "The configuration has changed do you want to reload the data?", "Configuration changed", MessageBoxButtons.YesNo) == DialogResult.Yes) OpenDataReader(true);
+          if (_MessageBox.Show(this, "The configuration has changed do you want to reload the data?", "Configuration changed", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes) OpenDataReader(true);
         }
       }
       detailControl.MoveMenu();
@@ -747,12 +690,14 @@ namespace CsvTools
       switch (e.Mode)
       {
         case PowerModes.Suspend:
+          Log.Debug($"Power Event Suspend");
           var res = this.StoreWindowState();
           if (res == null) return;
           m_ViewSettings.WindowPosition = res;
           break;
 
         case PowerModes.Resume:
+          Log.Debug($"Power Event Resume");
           this.LoadWindowState(m_ViewSettings.WindowPosition);
           break;
       }

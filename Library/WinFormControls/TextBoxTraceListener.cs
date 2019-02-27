@@ -1,10 +1,13 @@
 ﻿using log4net.Appender;
+using System;
 using System.Windows.Forms;
 
 namespace CsvTools
 {
   public class TextBoxTraceListener : AppenderSkeleton
   {
+    private string m_LastMessage = string.Empty;
+
     public TextBoxTraceListener()
     {
     }
@@ -20,6 +23,15 @@ namespace CsvTools
       set;
     }
 
+    public void Clear()
+    {
+      AppenderTextBox.SafeBeginInvoke(() =>
+      {
+        AppenderTextBox.Text = string.Empty;
+      });
+      Extensions.ProcessUIElements();
+    }
+
     public override bool Flush(int timeout)
     {
       Extensions.ProcessUIElements();
@@ -28,9 +40,27 @@ namespace CsvTools
 
     protected override void Append(log4net.Core.LoggingEvent loggingEvent)
     {
-      if (AppenderTextBox != null && loggingEvent.MessageObject.ToString().Length > 0)
+      string text = loggingEvent.MessageObject.ToString();
+      if (AppenderTextBox != null && text.Length > 0)
       {
-        AppenderTextBox.SafeBeginInvoke(() => AppenderTextBox.AppendText(StringUtils.HandleCRLFCombinations(RenderLoggingEvent(loggingEvent), " ") + "\r\n"  ));
+        AppenderTextBox.SafeBeginInvoke(() =>
+        {
+          var appended = false;
+          var posSlash = text.IndexOf('–', 0);
+          if (posSlash != -1 && m_LastMessage.StartsWith(text.Substring(0, posSlash + 1), StringComparison.Ordinal))
+          {
+
+            AppenderTextBox.AppendText(text.Substring(posSlash - 1));
+            appended = true;
+          }
+          m_LastMessage = text;
+          if (!appended)
+          {
+            if (AppenderTextBox.Text.Length > 0)
+              AppenderTextBox.AppendText(Environment.NewLine);
+            AppenderTextBox.AppendText(StringUtils.HandleCRLFCombinations(RenderLoggingEvent(loggingEvent), " "));
+          }
+        });
         Extensions.ProcessUIElements();
       }
     }

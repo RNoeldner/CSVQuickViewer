@@ -982,7 +982,7 @@ namespace CsvTools
         if (saveFileDialog.ShowDialog() != DialogResult.OK) return;
         var writeFile = m_FileSetting.Clone();
         writeFile.FileName = saveFileDialog.FileName.LongFileName();
-        using (var processDisplay = writeFile.GetProcessDisplay(ParentForm, CancellationToken.None))
+        using (var processDisplay = writeFile.GetProcessDisplay(ParentForm, true, m_CancellationTokenSource.Token))
         {
           var writer = writeFile.GetFileWriter(processDisplay.CancellationToken);
           writer.Progress += processDisplay.SetProcess;

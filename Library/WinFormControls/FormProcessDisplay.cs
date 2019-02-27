@@ -35,9 +35,9 @@ namespace CsvTools
     private string m_Title;
 
     public FormProcessDisplay(string windowTitle) : this(windowTitle, CancellationToken.None)
-    {
+    {      
     }
-
+    
     /// <summary>
     ///   Initializes a new instance of the <see cref="FormProcessDisplay" /> class.
     /// </summary>

@@ -36,7 +36,7 @@
       System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
       System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormMain));
       this.fileSystemWatcher = new System.IO.FileSystemWatcher();
-      this.textBoxProgress = new System.Windows.Forms.TextBox();
+      this.textBoxProgress = new LoggerTextBox();
       this.textPanel = new System.Windows.Forms.Panel();
       this.buttonCloseText = new System.Windows.Forms.Button();
       this.csvTextDisplay = new CsvTools.CsvTextDisplay();
@@ -146,7 +146,7 @@
 
     private System.IO.FileSystemWatcher fileSystemWatcher;
     private DetailControl detailControl;
-    private System.Windows.Forms.TextBox textBoxProgress;
+    private LoggerTextBox textBoxProgress;
     
     private System.Windows.Forms.Panel textPanel;
     private System.Windows.Forms.Button buttonCloseText;

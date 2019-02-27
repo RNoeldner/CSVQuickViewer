@@ -13,14 +13,17 @@
  */
 
 using System;
+using log4net.Config;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Windows.Forms;
+using log4net;
 
 namespace CsvTools
 {
   internal static class Program
   {
+    private static readonly ILog Log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
     internal const string cPhrase = "R@pHa€l";
 
     /// <summary>
@@ -53,9 +56,10 @@ namespace CsvTools
     [STAThread]
     private static void Main(string[] args)
     {
+      XmlConfigurator.Configure();
       Application.ThreadException += Application_ThreadException;
       AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
-
+      Log.Debug("Application start…");
       var fileName = string.Empty;
 
       Application.EnableVisualStyles();
@@ -81,6 +85,7 @@ namespace CsvTools
     [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
     private static void UnhandledException(Exception ex)
     {
+      Log.Error("Unhandled Exception", ex);
       var message = $"{ex.GetType()}\n\n{ex.ExceptionMessages()}\nStack Trace:\n{ex.StackTrace}";
 #if DEBUG
       System.Diagnostics.Debug.Assert(false, @"Unhandled Exception", message);
