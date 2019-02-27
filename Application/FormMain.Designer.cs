@@ -36,7 +36,7 @@
       System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
       System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormMain));
       this.fileSystemWatcher = new System.IO.FileSystemWatcher();
-      this.textBoxProgress = new LoggerTextBox();
+      this.textBoxProgress = new LoggerDisplay();
       this.textPanel = new System.Windows.Forms.Panel();
       this.buttonCloseText = new System.Windows.Forms.Button();
       this.csvTextDisplay = new CsvTools.CsvTextDisplay();
@@ -60,7 +60,7 @@
       this.textBoxProgress.Multiline = true;
       this.textBoxProgress.Name = "textBoxProgress";
       this.textBoxProgress.ReadOnly = true;
-      this.textBoxProgress.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+      
       this.textBoxProgress.Size = new System.Drawing.Size(133, 160);
       this.textBoxProgress.TabIndex = 2;
       // 
@@ -146,7 +146,7 @@
 
     private System.IO.FileSystemWatcher fileSystemWatcher;
     private DetailControl detailControl;
-    private LoggerTextBox textBoxProgress;
+    private LoggerDisplay textBoxProgress;
     
     private System.Windows.Forms.Panel textPanel;
     private System.Windows.Forms.Button buttonCloseText;

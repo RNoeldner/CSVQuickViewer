@@ -55,6 +55,8 @@ namespace CsvTools
     /// <param name="e"></param>
     void SetProcess(object sender, ProgressEventArgs e);
 
+    string Title { get; set; }
+
     /// <summary>
     ///  Sets the process display
     /// </summary>
