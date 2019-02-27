@@ -179,13 +179,22 @@ namespace CsvTools
     ///   The owner form, in case the owner is minimized or closed this progress will do the same
     /// </param>
     /// <returns>A process display, if the stetting want a process</returns>
-    public static IProcessDisplay GetProcessDisplay(this IFileSetting fileSetting, Form owner,
-      CancellationToken cancellationToken = default(CancellationToken))
+    public static IProcessDisplay GetProcessDisplay(this IFileSetting fileSetting, Form owner, bool withLogger, CancellationToken cancellationToken)
     {
       if (!fileSetting.ShowProgress) return new DummyProcessDisplay(cancellationToken);
-      var processDisplay = new FormProcessDisplayLogger(fileSetting.GetProcessDisplayTitle(), cancellationToken);
-      processDisplay.Show(owner);
-      return processDisplay;
+
+      if (withLogger)
+      {
+        var processDisplay = new FormProcessDisplayLogger(fileSetting.GetProcessDisplayTitle(), cancellationToken);
+        processDisplay.Show(owner);
+        return processDisplay;
+      }
+      else
+      {
+        var processDisplay = new FormProcessDisplay(fileSetting.GetProcessDisplayTitle(), cancellationToken);
+        processDisplay.Show(owner);
+        return processDisplay;
+      }
     }
 
     public static Binding GetTextBindng(this Control ctrl)
@@ -353,7 +362,7 @@ namespace CsvTools
       }
 
       var stringBuilder = new System.Text.StringBuilder();
-      using (var processDisplay = fileSetting.GetProcessDisplay(null, cancellationToken))
+      using (var processDisplay = fileSetting.GetProcessDisplay(null, true, cancellationToken))
       {
         fileSettingSourcesCurrent?.Invoke(fileSetting, processDisplay);
 

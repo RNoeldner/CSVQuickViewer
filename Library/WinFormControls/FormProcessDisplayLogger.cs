@@ -13,8 +13,6 @@
  */
 
 using log4net;
-using System;
-using System.Drawing;
 using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
@@ -25,7 +23,6 @@ namespace CsvTools
   ///   A Po pup Form to display progress information
   /// </summary>
   public class FormProcessDisplayLogger : FormProcessDisplay
-
   {
     private static readonly ILog Log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
@@ -41,21 +38,11 @@ namespace CsvTools
     public FormProcessDisplayLogger(string windowTitle, CancellationToken cancellationToken) : base(windowTitle, cancellationToken)
     {
       InitializeComponent();
+      Progress += delegate (object sender, ProgressEventArgs e) { Log.Info(e.Text); };
     }
 
     public FormProcessDisplayLogger() : this(string.Empty, default(CancellationToken))
     {
-    }
-
-    /// <summary>
-    ///   Sets the process.
-    /// </summary>
-    /// <param name="text">The text.</param>
-    /// <param name="value">The value.</param>
-    public override void SetProcess(string text, int value)
-    {
-      base.SetProcess(text, value);
-      Log.Info(text);      
     }
 
     private void InitializeComponent()

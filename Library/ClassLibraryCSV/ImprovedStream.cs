@@ -25,6 +25,8 @@ namespace CsvTools
   /// <seealso cref="System.IDisposable" />
   public class ImprovedStream : IDisposable
   {
+    private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
     private bool AssumeGZip;
     private bool AssumePGP;
     private string BasePath;
@@ -109,6 +111,7 @@ namespace CsvTools
       };
       if (path.AssumePgp() || path.AssumeGZip())
       {
+        Log.Info("Creating temporary file");
         retVal.TempFile = Path.GetTempFileName();
 
         // download the file to a temp file
@@ -161,11 +164,15 @@ namespace CsvTools
           }
 
           if (AssumeGZip)
+          {
+            Log.Info("Decompressing GZip Stream");
             Stream = new System.IO.Compression.GZipStream(BaseStream, System.IO.Compression.CompressionMode.Decompress);
+          }
+
           else if (AssumePGP)
           {
             System.Security.SecureString DecryptedPassphrase = null;
-            // need to use the setting function, opening a form to enter the passphase is not in this library
+            // need to use the setting function, opening a form to enter the passphrase is not in this library
             if (string.IsNullOrEmpty(EncryptedPassphrase))
               throw new ApplicationException("Please provide a passphrase.");
             try
@@ -179,6 +186,7 @@ namespace CsvTools
 
             try
             {
+              Log.Info("Decrypt PGP Stream");
               Stream = ApplicationSetting.ToolSetting.PGPInformation.PgpDecrypt(BaseStream, DecryptedPassphrase);
             }
             catch (Org.BouncyCastle.Bcpg.OpenPgp.PgpException ex)
@@ -257,6 +265,7 @@ namespace CsvTools
           // Compress the file
           if (WritePath.AssumeGZip())
           {
+            Log.Info("Compressing temporary file to GZip file");
             using (var inFile = File.OpenRead(TempFile))
             {
               // Create the compressed file.
@@ -293,12 +302,14 @@ namespace CsvTools
             using (FileStream inputStream = new FileInfo(TempFile).OpenRead(),
                         output = new FileStream(WritePath.LongPathPrefix(), FileMode.Create))
             {
+              Log.Info("Encrypting temporary file to PGP file");
               ApplicationSetting.ToolSetting.PGPInformation.PgpEncrypt(inputStream, output, Recipient, ProcessDisplay);
             }
           }
         }
         finally
         {
+          Log.Info("Removing temporary file");
           File.Delete(TempFile);
         }
     }

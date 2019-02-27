@@ -35,10 +35,10 @@ namespace CsvTools
       InitializeComponent();
       GetPrivateKeys();
     }
-    
+
     public FormEditSettings(ViewSettings viewSettings)
     {
-      m_ViewSettings =viewSettings;
+      m_ViewSettings = viewSettings;
       InitializeComponent();
       GetPrivateKeys();
     }
@@ -182,7 +182,7 @@ namespace CsvTools
             m_ViewSettings.Column.Clear();
           try
           {
-            using (var processDisplay = m_ViewSettings.GetProcessDisplay(this))
+            using (var processDisplay = m_ViewSettings.GetProcessDisplay(this, true, System.Threading.CancellationToken.None))
             {
               m_ViewSettings.FillGuessColumnFormatReader(false, processDisplay);
             }

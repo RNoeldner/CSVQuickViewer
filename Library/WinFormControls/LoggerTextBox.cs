@@ -22,6 +22,12 @@ namespace CsvTools
       base.Dispose(disposing);
     }
 
+    public void Clear()
+    {
+      m_TextBoxTraceListener.Clear();
+    }
+   
+
     public void BeginSection(string text)
     {
       AppendText($"\n{text}\n");
