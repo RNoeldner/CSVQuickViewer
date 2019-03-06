@@ -1,0 +1,33 @@
+CSVFile,CsvSource,CodePageID,Quote,Delimiter,HasHeader,CSVAddID,CSVSerialized
+C:\Users\rnoldner\Dropbox\OwnTools\CsvWriter\CvsToolLibUnitTest\TestFiles\MSysCsvExport.txt,Select * from MSysCsvExport,1252,"""",",",True,True,"<?xml version=""1.0"" encoding=""utf-16""?>
+<CsvFile FileName=""C:\Users\rnoldner\Dropbox\OwnTools\CsvWriter\CvsToolLibUnitTest\TestFiles\MSysCsvExport.txt"" ShowProgress=""true"" CodePageId=""1252"" TreatNBSPAsSpace=""true"" UnknowCharaterReplacement=""32"">
+  <FileFormat>
+    <ColumnFormat Name=""CSVFile"">
+      <ValueFormat />
+    </ColumnFormat>
+    <ColumnFormat Name=""CsvSource"">
+      <ValueFormat />
+    </ColumnFormat>
+    <ColumnFormat Convert=""true"" DataType=""Integer"" Name=""CodePageID"">
+      <ValueFormat />
+    </ColumnFormat>
+    <ColumnFormat Name=""Quote"">
+      <ValueFormat />
+    </ColumnFormat>
+    <ColumnFormat Name=""Delimiter"">
+      <ValueFormat />
+    </ColumnFormat>
+    <ColumnFormat Convert=""true"" DataType=""Boolean"" Name=""HasHeader"">
+      <ValueFormat />
+    </ColumnFormat>
+    <ColumnFormat Convert=""true"" DataType=""Boolean"" Name=""CSVAddID"">
+      <ValueFormat />
+    </ColumnFormat>
+    <ColumnFormat Name=""CSVSerialized"">
+      <ValueFormat />
+    </ColumnFormat>
+    <FixedLengthSettings />
+  </FileFormat>
+  <ConnectionString>PROVIDER=Microsoft.ACE.OLEDB.12.0;Data Source=C:\Users\rnoldner\Dropbox\OwnTools\CsvWriter\CsvToolsUI\bin\x86\Debug\ExcelImporter.accdb;Persist Security Info=False;</ConnectionString>
+  <SQLStatement><![CDATA[Select * from MSysCsvExport]]></SQLStatement>
+</CsvFile>"

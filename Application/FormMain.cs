@@ -66,7 +66,7 @@ namespace CsvTools
       ApplicationSetting.ToolSetting = m_ViewSettings;
 
       InitializeComponent();
-
+      textBoxProgress.Threshold = log4net.Core.Level.Info;
       FillFromProperites(true);
 
       m_SettingsChangedTimerChange.AutoReset = false;
@@ -80,7 +80,7 @@ namespace CsvTools
       csvTextDisplay.Dock = DockStyle.Fill;
       textPanel.ResumeLayout();
       ShowTextPanel(true);
-
+      
       Text = AssemblyTitle;
 
       SystemEvents.DisplaySettingsChanged += SystemEvents_DisplaySettingsChanged;
