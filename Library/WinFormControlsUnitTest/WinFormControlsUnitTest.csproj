@@ -92,7 +92,7 @@
       <Name>ClassLibraryCSV</Name>
     </ProjectReference>
     <ProjectReference Include="..\WinFormControls\WinFormControls.csproj">
-      <Project>{55AD0A98-C175-4B38-A3D0-321740820D41}</Project>
+      <Project>{55ad0a98-c175-4b38-a3d0-321740820d41}</Project>
       <Name>WinFormControls</Name>
     </ProjectReference>
   </ItemGroup>

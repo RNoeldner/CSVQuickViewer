@@ -12,7 +12,7 @@
  *
  */
 
-using CsvToolLib;
+
 using System;
 using System.Drawing;
 using System.Threading;
@@ -57,7 +57,7 @@ namespace CsvTools
       TimeToCompletion = new TimeToCompletion();
       //m_TimeToCompletion.PropertyChanged += TimeToCompletionUpdate;
 
-      Icon = Resources.SubFormIcon;
+      Icon = CsvToolLib.Resources.SubFormIcon;
     }
 
     public FormProcessDisplay() : this(string.Empty, default(CancellationToken))

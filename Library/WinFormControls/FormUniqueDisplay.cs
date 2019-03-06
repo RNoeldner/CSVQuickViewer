@@ -12,7 +12,7 @@
  *
  */
 
-using CsvToolLib;
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -48,7 +48,7 @@ namespace CsvTools
       m_DataTable = dataTable;
       m_DataRow = dataRows;
       InitializeComponent();
-      Icon = Resources.SubFormIcon;
+      Icon = CsvToolLib.Resources.SubFormIcon;
       detailControl.DataTable = dataTable;
       m_InitialColumn = initialColumn;
     }
