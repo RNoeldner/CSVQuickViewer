@@ -1,0 +1,15 @@
+ 
+========================================================
+                        Summary                         
+========================================================
+    Records Parsed        : 686
+    Records Added/Updated : 657
+    Records Failed        : 29
+--------------------------------------------------------
+Failed Records with Error Message
+--------------------------------------------------------
+RecordNumber|TestData|ErrorMessage
+1|0F8C40DB-EE2C-4C7C-A226-3C43E72584B0|Missing / Invalid UserID
+5|4DCD85E1-64FB-4D33-B33F-4EEB36675666|Missing User Transcript
+10|0F8C40DB-EE2C-4C7C-A226-3C43E72584B0|Missing / Invalid UserID
+19|4DCD85E1-64FB-4D33-B33F-4EEB36675666|Missing User Transcript

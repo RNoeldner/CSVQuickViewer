@@ -1,0 +1,395 @@
+﻿# Date format with numbers for dates
+# ---------------------------------
+# / will be substituted with / . and - during detection
+#
+# Keeping preferred / more specific format at top
+# since M/d/yyyy is a superset of MM/dd/yyyy 
+#
+# Supports "written" names in English and local language
+# dddd is the long date name
+# ddd is the abbreviated date name
+# MMMM is the long month name
+# MMM is the abbreviated month name
+#
+dddd, MMMM dd, yyyy, hh:mm:ss tt‎
+dddd, MMMM dd, yyyy hh:mm:ss tt
+dddd, dd MMMM, yyyy, hh:mm:ss tt
+dddd, dd MMMM, yyyy hh:mm:ss tt
+dddd, dd. MMMM yyyy hh:mm:ss tt
+dddd, d MMMM, yyyy hh:mm:ss tt
+dddd, d. MMMM yyyy hh:mm:ss tt
+dddd, dd MMMM yyyy hh:mm:ss tt
+yyyy,MMMM dd, dddd hh:mm:ss tt
+dd MMMM yyyy dddd hh:mm:ss tt
+ddd, MMM dd, yyyy hh:mm:ss tt
+ddd, MMMM dd,yyyy hh:mm:ss tt
+ddd, dd MMM, yyyy hh:mm:ss tt
+ddd, dd. MMM yyyy hh:mm:ss tt
+dddd dd MMMM yyyy hh:mm:ss tt
+dddd, d MMMM yyyy hh:mm:ss tt
+dddd, MMMM dd,yyyy hh:mm:ss tt
+ddd, MMM dd,yyyy hh:mm:ss tt
+ddd, d MMM, yyyy hh:mm:ss tt
+ddd, d. MMM yyyy hh:mm:ss tt
+ddd, dd MMM yyyy hh:mm:ss tt
+dddd d MMMM yyyy hh:mm:ss tt
+dddd, MMMM dd, yyyy hh:mm tt
+dddd, MMMM dd, yyyy HH:mm:ss
+dddd, dd MMMM, yyyy, hh:mm tt
+dddd, dd MMMM, yyyy hh:mm tt
+dddd, dd MMMM, yyyy, HH:mm:ss
+dddd, dd MMMM, yyyy HH:mm:ss
+dddd, dd. MMMM yyyy hh:mm tt
+dddd, dd. MMMM yyyy HH:mm:ss
+dd MMM yyyy ddd hh:mm:ss tt
+ddd dd MMM yyyy hh:mm:ss tt
+ddd, d MMM yyyy hh:mm:ss tt
+ddd,MMM dd,yyyy hh:mm:ss tt
+dddd, MMMM dd, yyyy h:mm tt
+dddd, d MMMM, yyyy hh:mm tt
+dddd, d MMMM, yyyy HH:mm:ss
+dddd, d. MMMM yyyy hh:mm tt
+dddd, d. MMMM yyyy HH:mm:ss
+dddd, dd MMMM yyyy hh:mm tt
+dddd, dd MMMM yyyy HH:mm:ss
+dddd, dd MMMM, yyyy h:mm tt
+dddd, dd. MMMM yyyy h:mm tt
+yyyy,MMMM dd, dddd hh:mm tt
+yyyy,MMMM dd, dddd HH:mm:ss
+dd MMMM yyyy dddd hh:mm tt
+dd MMMM yyyy dddd HH:mm:ss
+ddd d MMM yyyy hh:mm:ss tt
+ddd, MMM dd, yyyy hh:mm tt
+ddd, MMM dd, yyyy HH:mm:ss
+ddd, MMMM dd,yyyy hh:mm tt
+ddd, MMMM dd,yyyy HH:mm:ss
+ddd, dd MMM, yyyy hh:mm tt
+ddd, dd MMM, yyyy HH:mm:ss
+ddd, dd. MMM yyyy hh:mm tt
+ddd, dd. MMM yyyy HH:mm:ss
+dddd dd MMMM yyyy hh:mm tt
+dddd dd MMMM yyyy HH:mm:ss
+dddd, d MMMM yyyy hh:mm tt
+dddd, d MMMM yyyy HH:mm:ss
+dddd, d MMMM, yyyy h:mm tt
+dddd, d. MMMM yyyy h:mm tt
+dddd, dd MMMM yyyy h:mm tt
+dddd,MMMM dd,yyyy hh:mm tt
+dddd,MMMM dd,yyyy HH:mm:ss
+yyyy,MMMM dd, dddd h:mm tt
+dd MMMM yyyy dddd h:mm tt
+dd MMMM, yyyy hh:mm:ss tt
+ddd, MMM dd, yyyy h:mm tt
+ddd, MMM dd,yyyy hh:mm tt
+ddd, MMM dd,yyyy HH:mm:ss
+ddd, MMMM dd,yyyy h:mm tt
+ddd, d MMM, yyyy HH:mm:ss
+ddd, d MMM, yyyy hh:mm tt
+ddd, d. MMM yyyy hh:mm tt
+ddd, d. MMM yyyy HH:mm:ss
+ddd, dd MMM yyyy hh:mm tt
+ddd, dd MMM yyyy HH:mm:ss
+ddd, dd MMM, yyyy h:mm tt
+ddd, dd. MMM yyyy h:mm tt
+dddd d MMMM yyyy hh:mm tt
+dddd d MMMM yyyy HH:mm:ss
+dddd dd MMMM yyyy h:mm tt
+dddd, MMMM dd, yyyy HH:mm
+dddd, d MMMM yyyy h:mm tt
+dddd, dd MMMM, yyyy HH:mm
+dddd, dd. MMMM yyyy HH:mm
+dddd,MMMM dd,yyyy h:mm tt
+yyyy/MM/ddTHH:mm:ss,FFFK
+yyyy/MM/ddTHH:mm:ss.FFFK
+d MMMM, yyyy hh:mm:ss tt
+d. MMMM yyyy hh:mm:ss tt
+dd MMM yyyy ddd hh:mm tt
+dd MMM yyyy ddd HH:mm:ss
+dd MMM, yyyy hh:mm:ss tt
+dd MMMM yyyy hh:mm:ss tt
+dd/MMMM/yyyy hh:mm:ss tt
+ddd dd MMM yyyy hh:mm tt
+ddd dd MMM yyyy HH:mm:ss
+ddd, MMM dd,yyyy h:mm tt
+ddd, d MMM yyyy hh:mm tt
+ddd, d MMM yyyy HH:mm:ss
+ddd, d MMM, yyyy h:mm tt
+ddd, d. MMM yyyy h:mm tt
+ddd, dd MMM yyyy h:mm tt
+ddd,MMM dd,yyyy hh:mm tt
+ddd,MMM dd,yyyy HH:mm:ss
+dddd d MMMM yyyy h:mm tt
+dddd, MMMM dd, yyyy H:mm
+dddd, d MMMM, yyyy HH:mm
+dddd, d. MMMM yyyy HH:mm
+dddd, dd MMMM yyyy HH:mm
+dddd, dd MMMM, yyyy H:mm
+dddd, dd. MMMM yyyy H:mm
+yyyy,MMMM dd, dddd HH:mm
+yyyy/MM/dd HH:mm:ss,FFF
+yyyy/MM/dd HH:mm:ss.FFF
+yyyy/MM/ddTHH:mm:sszz00
+d MMM, yyyy hh:mm:ss tt
+d MMMM yyyy hh:mm:ss tt
+d. MMM yyyy hh:mm:ss tt
+dd MMM yyyy ddd h:mm tt
+dd MMM yyyy hh:mm:ss tt
+dd MMMM yyyy dddd HH:mm
+dd/MMM/yyyy hh:mm:ss tt
+ddd d MMM yyyy hh:mm tt
+ddd d MMM yyyy HH:mm:ss
+ddd dd MMM yyyy h:mm tt
+ddd, MMM dd, yyyy HH:mm
+ddd, MMMM dd,yyyy HH:mm
+ddd, d MMM yyyy h:mm tt
+ddd, dd MMM, yyyy HH:mm
+ddd, dd. MMM yyyy HH:mm
+ddd,MMM dd,yyyy h:mm tt
+dddd dd MMMM yyyy HH:mm
+dddd, d MMMM yyyy HH:mm
+dddd, d MMMM, yyyy H:mm
+dddd, d. MMMM yyyy H:mm
+dddd, dd MMMM yyyy H:mm
+dddd,MMMM dd,yyyy HH:mm
+yyyy,MMMM dd, dddd H:mm
+MM/dd/yyyy hh:mm:ss tt
+dd/MM/yyyy hh:mm:ss tt
+yyyy/MM/dd hh:mm:ss tt
+yyyy/MM/ddTHH:mm:sszzz
+MMMM/dd/yy hh:mm:ss tt
+d MMM yyyy hh:mm:ss tt
+dd MMMM yyyy dddd H:mm
+dd MMMM, yyyy hh:mm tt
+dd MMMM, yyyy HH:mm:ss
+ddd d MMM yyyy h:mm tt
+ddd, MMM dd, yyyy H:mm
+ddd, MMM dd,yyyy HH:mm
+ddd, MMMM dd,yyyy H:mm
+ddd, d MMM, yyyy HH:mm
+ddd, d. MMM yyyy HH:mm
+ddd, dd MMM yyyy HH:mm
+ddd, dd MMM, yyyy H:mm
+ddd, dd. MMM yyyy H:mm
+dddd d MMMM yyyy HH:mm
+dddd dd MMMM yyyy H:mm
+dddd, d MMMM yyyy H:mm
+dddd,MMMM dd,yyyy H:mm
+MM/dd/yyyy h:mm:ss tt
+dd/MM/yyyy h:mm:ss tt
+yyyy/MM/dd h:mm:ss tt
+yyyy/MM/ddTHH:mm:sszz
+yyyyMMddTHH:mm:ss.FFF
+MMM/dd/yy hh:mm:ss tt
+d MMMM, yyyy hh:mm tt
+d MMMM, yyyy HH:mm:ss
+d. MMMM yyyy hh:mm tt
+d. MMMM yyyy HH:mm:ss
+dd MMM yyyy ddd HH:mm
+dd MMM, yyyy hh:mm tt
+dd MMM, yyyy HH:mm:ss
+dd MMMM yyyy hh:mm tt
+dd MMMM yyyy HH:mm:ss
+dd MMMM, yyyy h:mm tt
+dd/MMM/yy HH:mm:ss tt
+dd/MMMM/yyyy hh:mm tt
+dd/MMMM/yyyy HH:mm:ss
+ddd dd MMM yyyy HH:mm
+ddd, MMM dd,yyyy H:mm
+ddd, d MMM yyyy HH:mm
+ddd, d MMM, yyyy H:mm
+ddd, d. MMM yyyy H:mm
+ddd, dd MMM yyyy H:mm
+ddd,MMM dd,yyyy HH:mm
+dddd d MMMM yyyy H:mm
+M/d/yyyy hh:mm:ss tt
+MM/dd/yy hh:mm:ss tt
+d/M/yyyy hh:mm:ss tt
+dd/MM/yy hh:mm:ss tt
+d MMM, yyyy hh:mm tt
+d MMM, yyyy HH:mm:ss
+d MMMM yyyy hh:mm tt
+d MMMM yyyy HH:mm:ss
+d MMMM, yyyy h:mm tt
+d. MMM yyyy hh:mm tt
+d. MMM yyyy HH:mm:ss
+d. MMMM yyyy h:mm tt
+d/MMM/yy HH:mm:ss tt
+dd MMM yyyy hh:mm tt
+dd MMM yyyy HH:mm:ss
+dd MMM yyyy ddd H:mm
+dd MMM, yyyy h:mm tt
+dd MMMM yyyy h:mm tt
+dd/MMM/yy h:mm:ss tt
+dd/MMM/yyyy hh:mm tt
+dd/MMM/yyyy HH:mm:ss
+dd/MMMM/yyyy h:mm tt
+ddd d MMM yyyy HH:mm
+ddd dd MMM yyyy H:mm
+ddd, d MMM yyyy H:mm
+ddd,MMM dd,yyyy H:mm
+M/d/yyyy h:mm:ss tt
+MM/dd/yy h:mm:ss tt
+MM/dd/yyyy HH:mm:ss
+MM/dd/yyyy hh:mm tt
+d/M/yyyy h:mm:ss tt
+dd/MM/yy h:mm:ss tt
+dd/MM/yyyy HH:mm:ss
+dd/MM/yyyy hh:mm tt
+yyyy/MM/dd HH:mm:ss
+yyyy/MM/dd hh:mm tt
+yyyy/MM/ddTHH:mm:ss
+MMMM/dd/yy hh:mm tt
+MMMM/dd/yy HH:mm:ss
+d MMM yyyy hh:mm tt
+d MMM yyyy HH:mm:ss
+d MMM, yyyy h:mm tt
+d MMMM yyyy h:mm tt
+d. MMM yyyy h:mm tt
+d/MMM/yy h:mm:ss tt
+dd MMM yyyy h:mm tt
+dd MMMM, yyyy HH:mm
+dd/MMM/yyyy h:mm tt
+ddd d MMM yyyy H:mm
+dddd, MMMM dd, yyyy
+dddd, dd MMMM, yyyy
+dddd, dd. MMMM yyyy
+M/d/yy hh:mm:ss tt
+MM/dd/yyyy H:mm:ss
+MM/dd/yyyy h:mm tt
+d/M/yy hh:mm:ss tt
+dd/MM/yyyy H:mm:ss
+dd/MM/yyyy h:mm tt
+yyyy/MM/dd H:mm:ss
+yyyy/MM/dd h:mm tt
+MMM/dd/yy hh:mm tt
+MMM/dd/yy HH:mm:ss
+MMMM/dd/yy h:mm tt
+d MMM yyyy h:mm tt
+d MMMM, yyyy HH:mm
+d. MMMM yyyy HH:mm
+dd MMM, yyyy HH:mm
+dd MMMM yyyy HH:mm
+dd MMMM, yyyy H:mm
+dd/MMMM/yyyy HH:mm
+dddd, d MMMM, yyyy
+dddd, d. MMMM yyyy
+dddd, dd MMMM yyyy
+yyyy,MMMM dd, dddd
+M/d/yy h:mm:ss tt
+M/d/yyyy HH:mm:ss
+M/d/yyyy hh:mm tt
+MM/dd/yy HH:mm:ss
+MM/dd/yy hh:mm tt
+d/M/yy h:mm:ss tt
+d/M/yyyy HH:mm:ss
+d/M/yyyy hh:mm tt
+dd/MM/yy HH:mm:ss
+dd/MM/yy hh:mm tt
+yyyyMMddTHH:mm:ss
+MMM/dd/yy h:mm tt
+d MMM, yyyy HH:mm
+d MMMM yyyy HH:mm
+d MMMM, yyyy H:mm
+d. MMM yyyy HH:mm
+d. MMMM yyyy H:mm
+dd MMM yyyy HH:mm
+dd MMM, yyyy H:mm
+dd MMMM yyyy H:mm
+dd MMMM yyyy dddd
+dd/MMM/yyyy HH:mm
+dd/MMMM/yyyy H:mm
+ddd, MMM dd, yyyy
+ddd, MMMM dd,yyyy
+ddd, dd MMM, yyyy
+ddd, dd. MMM yyyy
+dddd dd MMMM yyyy
+dddd, d MMMM yyyy
+dddd,MMMM dd,yyyy
+M/d/yyyy H:mm:ss
+M/d/yyyy h:mm tt
+MM/dd/yy H:mm:ss
+MM/dd/yy h:mm tt
+MM/dd/yyyy HH:mm
+d/M/yyyy H:mm:ss
+d/M/yyyy h:mm tt
+dd/MM/yy H:mm:ss
+dd/MM/yy h:mm tt
+dd/MM/yyyy HH:mm
+yyyy/MM/dd HH:mm
+MMMM/dd/yy HH:mm
+d MMM yyyy HH:mm
+d MMM, yyyy H:mm
+d MMMM yyyy H:mm
+d. MMM yyyy H:mm
+dd MMM yyyy H:mm
+dd/MMM/yyyy H:mm
+ddd, MMM dd,yyyy
+ddd, d MMM, yyyy
+ddd, d. MMM yyyy
+ddd, dd MMM yyyy
+dddd d MMMM yyyy
+M/d/yy HH:mm:ss
+M/d/yy hh:mm tt
+MM/dd/yyyy H:mm
+d/M/yy HH:mm:ss
+d/M/yy hh:mm tt
+dd/MM/yyyy H:mm
+yyyy/MM/dd H:mm
+MMM/dd/yy HH:mm
+MMMM/dd/yy H:mm
+d MMM yyyy H:mm
+dd MMM yyyy ddd
+ddd dd MMM yyyy
+ddd, d MMM yyyy
+ddd,MMM dd,yyyy
+M/d/yy H:mm:ss
+M/d/yy h:mm tt
+M/d/yyyy HH:mm
+MM/dd/yy HH:mm
+d/M/yy H:mm:ss
+d/M/yy h:mm tt
+d/M/yyyy HH:mm
+dd/MM/yy HH:mm
+yyyyMMddTHH:mm
+MMM/dd/yy H:mm
+ddd d MMM yyyy
+M/d/yyyy H:mm
+MM/dd/yy H:mm
+d/M/yyyy H:mm
+dd/MM/yy H:mm
+dd MMMM, yyyy
+M/d/yy HH:mm
+d/M/yy HH:mm
+d MMMM, yyyy
+d. MMMM yyyy
+dd MMM, yyyy
+dd MMMM yyyy
+dd/MMMM/yyyy
+M/d/yy H:mm
+d/M/yy H:mm
+hh:mm:ss tt
+d MMM, yyyy
+d MMMM yyyy
+d. MMM yyyy
+dd MMM yyyy
+dd/MMM/yyyy
+MM/dd/yyyy
+dd/MM/yyyy
+h:mm:ss tt
+yyyy/MM/dd
+MMMM/dd/yy
+d MMM yyyy
+MMM/dd/yy
+HH:mm:ss
+M/d/yyyy
+MM/dd/yy
+d/M/yyyy
+dd/MM/yy
+hh:mm tt
+yyyyMMdd
+H:mm:ss
+h:mm tt
+M/d/yy
+d/M/yy
+HH:mm
+H:mm
