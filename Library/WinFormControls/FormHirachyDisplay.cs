@@ -12,7 +12,7 @@
  *
  */
 
-using CsvToolLib;
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -65,7 +65,7 @@ namespace CsvTools
       m_DataTable = dataTable;
       m_DataRow = dataRows;
       InitializeComponent();
-      Icon = Resources.SubFormIcon;
+      Icon = CsvToolLib.Resources.SubFormIcon;
       m_TimerChange.Elapsed += FilterValueChangedElapsed;
       m_TimerChange.Interval = 1000;
       m_TimerChange.AutoReset = false;

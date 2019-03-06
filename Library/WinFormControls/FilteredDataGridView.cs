@@ -12,7 +12,7 @@
 *
 */
 
-using CsvToolLib;
+
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
@@ -740,7 +740,7 @@ namespace CsvTools
         var offset = e.CellBounds.Width - 22;
         pt.X += offset;
         pt.Y = e.CellBounds.Height / 2 - 4;
-        e.Graphics.DrawImageUnscaled(Resources.FilterIndicator, pt);
+        e.Graphics.DrawImageUnscaled(CsvToolLib.Resources.FilterIndicator, pt);
 
         e.PaintContent(e.CellBounds);
       }
@@ -786,7 +786,7 @@ namespace CsvTools
           // if we are outside the bound stop
           if (hlRect.X > e.CellBounds.X + e.CellBounds.Width)
             break;
-          e.Graphics.DrawImageUnscaled(Resources.NbSpIndicator, new Point(hlRect.X, hlRect.Y));
+          e.Graphics.DrawImageUnscaled(CsvToolLib.Resources.NbSpIndicator, new Point(hlRect.X, hlRect.Y));
           // e.Graphics.FillRectangle(hl_brush, hl_rect);
           nbspIndex = val.IndexOf((char)0xA0, nbspIndex + 1);
         }
