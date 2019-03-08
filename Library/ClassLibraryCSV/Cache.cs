@@ -116,7 +116,7 @@ namespace CsvTools
     {
       if (key == null || !m_Dictionary.TryGetValue(key, out var cacheItem)) return null;
 
-      // If an item was found, check that its age does not exceed the expiration time...
+      // If an item was found, check that its age does not exceed the expiration time
       var expireTime = cacheItem.TimeEntered.AddSeconds(cacheItem.Lifetime);
       var isExpired = expireTime < DateTime.UtcNow;
 

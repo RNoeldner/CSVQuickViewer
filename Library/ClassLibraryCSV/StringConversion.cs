@@ -475,7 +475,7 @@ namespace CsvTools
       var time = StringToTimeSpan(timePart, timeSeparator, serialDateTime);
 
       if (time.HasValue && date.HasValue)
-        // this can be problematic if both are in fact times...
+        // this can be problematic if both are in fact times
         return date.Value.Add(time.Value);
       if (time.HasValue)
         return m_FirstDateTime.Add(time.Value);
@@ -1190,7 +1190,7 @@ namespace CsvTools
         // In case of a date & time format add the date only format separately
         var indexHour = dateTimeFormat.IndexOf("h", StringComparison.OrdinalIgnoreCase);
 
-        // assuming there is a  text before the hour that has a reasonable size take it as date...
+        // assuming there is a  text before the hour that has a reasonable size take it as date
         if (indexHour > 4)
         {
           var dateOnly = dateTimeFormat.Substring(0, indexHour - 1).Trim();
@@ -1256,7 +1256,7 @@ namespace CsvTools
         }
       }
 
-      // In case a date with time is passed in it would not be parsed... take the part of before
+      // In case a date with time is passed in it would not be parsed, take the part of before
       // the space and try again
       var foundSpace = stringDateValue.LastIndexOf(' ');
 

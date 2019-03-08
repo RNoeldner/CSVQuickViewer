@@ -75,9 +75,16 @@ namespace CsvTools
     {
       if (disposing)
       {
-        var hierarchy = (Hierarchy)LogManager.GetRepository();
-        hierarchy.Root.RemoveAppender(m_LogAppenderTextBox);
-        m_LogAppenderTextBox.Close();
+        try
+        {
+          m_LogAppenderTextBox.Close();
+          var hierarchy = (Hierarchy)LogManager.GetRepository();
+          hierarchy.Root.RemoveAppender(m_LogAppenderTextBox);
+        }
+        catch
+        {
+          // ignore all          
+        }
       }
 
       base.Dispose(disposing);

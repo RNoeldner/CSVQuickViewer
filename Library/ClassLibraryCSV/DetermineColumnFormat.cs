@@ -101,13 +101,13 @@ namespace CsvTools
 
           var columnNamesInFile = new List<string>();
           for (var colindex = 0; colindex < fileReader.FieldCount; colindex++)
-          {           
+          {
             var newColumn = fileReader.GetColumn(colindex);
             Contract.Assume(newColumn != null);
             columnNamesInFile.Add(newColumn.Name);
             var oldColumn = fileSetting.GetColumn(newColumn.Name);
 
-            processDisplay.SetProcess(newColumn.Name + " – Getting values", colindex);            
+            processDisplay.SetProcess(newColumn.Name + " – Getting values", colindex);
 
             var samples = GetSampleValues(fileReader, ApplicationSetting.FillGuessSettings.CheckedRecords,
               colindex, ApplicationSetting.FillGuessSettings.SampleValues, fileSetting.TreatTextAsNull,
@@ -151,7 +151,7 @@ namespace CsvTools
                   continue;
               }
 
-              // if we have a mapping to a template that expects a integer and we only have integers but not enough...
+              // if we have a mapping to a template that expects a integer and we only have integers but not enough
               if (oldColumn != null)
               {
                 var oldValueFormat = oldColumn.GetTypeAndFormatDescription();
@@ -517,7 +517,7 @@ namespace CsvTools
       Contract.Requires(dataReader != null);
       Contract.Requires(columnIndex >= 0);
       Contract.Ensures(Contract.Result<IEnumerable<string>>() != null);
-      
+
       Log.Debug("Reading sample values");
 
       if (string.IsNullOrEmpty(treatAsNull))
@@ -538,7 +538,15 @@ namespace CsvTools
         }
 
         var recordNumber = 0;
-        dataReader.Warning += delegate { hasWarning = true; };
+        int remainingShows = 10;
+        dataReader.Warning += delegate (object sender, WarningEventArgs args)
+        {
+          if (remainingShows-- > 0)
+            Log.Debug(args.Message);
+          if (remainingShows==0)
+              Log.Debug("No further warning shown");
+          hasWarning = true;
+        };
         // Get distinct sample values
         while (recordNumber++ < maxRecords && samples.Count < enoughSamples &&
             !cancellationToken.IsCancellationRequested)

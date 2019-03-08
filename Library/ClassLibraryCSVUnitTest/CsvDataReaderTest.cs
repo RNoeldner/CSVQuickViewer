@@ -559,7 +559,7 @@ namespace CvsTools.Tests
 7 ,,,,,
 8 ,,,,,
 9 ,,,,,
-10 ...
+10 
 */
       // Stop on the 7th record since we would be on the 3rd empty line
       using (var test = new CsvFileReader(setting))

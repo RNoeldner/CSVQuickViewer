@@ -26,7 +26,7 @@ namespace CsvTools
   ///  A data reader for CSV files
   /// </summary>
   public class CsvFileReader : BaseFileReader, IFileReader
-  {    
+  {
     /// <summary>
     ///  Constant: Line has fewer columns than expected
     /// </summary>
@@ -483,7 +483,7 @@ namespace CsvTools
             m_RealignColumns.AddRow(CurrentRowColumnText);
         }
       }
-      // If less columns are present...
+      // If less columns are present
       else if (rowLength < FieldCount)
       {
         // if we still have only one column and we should have a number of columns assume this was nonsense like a report footer
@@ -545,7 +545,7 @@ namespace CsvTools
         }
       }
 
-      // If more columns are present...
+      // If more columns are present
       if (rowLength > FieldCount && (m_CsvFile.WarnEmptyTailingColumns || m_RealignColumns != null))
       {
         // check if the additional columns have contents
@@ -625,26 +625,40 @@ namespace CsvTools
       if (headerRow.IsEmpty() || string.IsNullOrEmpty(headerRow[0]))
         return 0;
 
+      var fields = headerRow.Count;
+
       // The last column is empty but we expect a header column, assume if a trailing separator
-      if (headerRow.Count <= 1 || !string.IsNullOrEmpty(headerRow[headerRow.Count - 1]))
-        return headerRow.Count;
+      if (fields <= 1)
+        return fields;
 
       readFurther = true;
+
       // check if the next lines do have data in the last column
       for (int additional = 0; !EndOfFile && additional < 10; additional++)
       {
         var nextLine = ReadNextRow(false, false);
         // if we have less columns than in the header exit the loop
-        if (nextLine.GetLength(0) < headerRow.Count)
+        if (nextLine.GetLength(0) < fields)
           break;
+
+        while (nextLine.GetLength(0) > fields)
+        {
+          HandleWarning(fields, "No matching header for column".AddWarningId());
+          fields++;
+        }
+
         // if we have data in the column assume the header was missing
-        if (!string.IsNullOrEmpty(nextLine[headerRow.Count - 1]))
-          return headerRow.Count;
+        if (!string.IsNullOrEmpty(nextLine[fields - 1]))
+          return fields;
       }
 
-      HandleWarning(headerRow.Count,
-       "The last column does not have a column name, this column will be ignored.".AddWarningId());
-      return headerRow.Count - 1;
+      if (string.IsNullOrEmpty(headerRow[headerRow.Count - 1]))
+      {
+        HandleWarning(fields,
+         "The last column does not have a column name and seems to be empty, this column will be ignored.".AddWarningId());
+        return fields - 1;
+      }
+      return fields;
     }
 
     /// <summary>
@@ -1044,7 +1058,7 @@ namespace CsvTools
     private void ResetPositionToStart()
     {
       if (m_ImprovedStream == null)
-        m_ImprovedStream = ImprovedStream.OpenRead(m_CsvFile);      
+        m_ImprovedStream = ImprovedStream.OpenRead(m_CsvFile);
 
       m_ImprovedStream.ResetToStart(delegate (Stream str)
       {
