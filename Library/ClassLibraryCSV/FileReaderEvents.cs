@@ -200,8 +200,8 @@ namespace CsvTools
         sb.Append("Column [");
         if (ColumnName.Length > 40)
         {
-          sb.Append(ColumnName.Substring(0, 37));
-          sb.Append("...");
+          sb.Append(ColumnName.Substring(0, 39));
+          sb.Append("…");
         }
         else
         {

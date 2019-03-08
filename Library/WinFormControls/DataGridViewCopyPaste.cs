@@ -95,7 +95,7 @@ namespace CsvTools
       if (cell == null) return;
       var cellValue = cell.FormattedValue?.ToString() ?? string.Empty;
       if (cellValue.Length > 500 && cutLength)
-        cellValue = cellValue.Substring(0, 80) + " [...] " + cellValue.Substring(cellValue.Length - 20, 20);
+        cellValue = cellValue.Substring(0, 80) + " […] " + cellValue.Substring(cellValue.Length - 20, 20);
 
       if (appendTab)
         buffer.Append('\t');

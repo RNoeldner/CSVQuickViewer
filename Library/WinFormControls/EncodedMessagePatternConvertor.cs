@@ -11,8 +11,8 @@ namespace CsvTools
       var loggingEvent = state as log4net.Core.LoggingEvent;
       if (string.IsNullOrEmpty(loggingEvent?.RenderedMessage)) return;
 
-      // Replace newline characters with spaces
-      var encodedMessage = StringUtils.HandleCRLFCombinations(loggingEvent.RenderedMessage);
+      // Replace newline characters with spaces and … with ...
+      var encodedMessage = StringUtils.HandleCRLFCombinations(loggingEvent.RenderedMessage).Replace("…","...");
 
       // Get only the innermost exception
       var ex = loggingEvent.ExceptionObject;

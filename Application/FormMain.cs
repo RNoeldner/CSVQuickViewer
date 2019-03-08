@@ -624,7 +624,7 @@ namespace CsvTools
         {
           // No need to save if nothing has changed
           var compare = SerializedFilesLib.LoadCsvFile(pathSetting);
-          // These entries can be ignored...
+          // These entries can be ignored
           compare.ID = m_FileSetting.ID;
           compare.FileName = m_FileSetting.FileName;
 

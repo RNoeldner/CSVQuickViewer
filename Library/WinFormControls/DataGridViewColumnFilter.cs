@@ -31,7 +31,7 @@ namespace CsvTools
     /// <summary>
     ///   begins
     /// </summary>
-    public const string cOPbegins = "xxx...";
+    public const string cOPbegins = "xxx…";
 
     /// <summary>
     ///   &gt;
@@ -46,12 +46,12 @@ namespace CsvTools
     /// <summary>
     ///   ...xxx...
     /// </summary>
-    public const string cOPcontains = "...xxx...";
+    public const string cOPcontains = "…xxx…";
 
     /// <summary>
     ///   ...xxx
     /// </summary>
-    public const string cOPends = "...xxx";
+    public const string cOPends = "…xxx";
 
     /// <summary>
     ///   =

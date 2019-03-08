@@ -740,8 +740,8 @@ namespace CsvTools
     /// <param name="progress">The progress (a value between 0 and MaxValue)</param>
     public void HandleShowProgress(string text, long recordNumber, int progress)
     {
-      m_ProcessDisplay?.SetProcess(
-       $"{text}\r\nRecord {recordNumber:N0}", progress);
+      var rec = recordNumber > 1 ? $"\nRecord {recordNumber:N0}" : string.Empty;
+      m_ProcessDisplay?.SetProcess($"{text}{rec}", progress);
     }
 
     /// <summary>
@@ -829,7 +829,7 @@ namespace CsvTools
           {
             try
             {
-              HandleShowProgress("Handling Remote file ...");
+              HandleShowProgress("Handling Remote file…");
               ApplicationSetting.RemoteFileHandler(remote.RemoteFileName, m_FileSetting.FileName, m_FileSetting.FullPath, ProcessDisplay, remote.ThrowErrorIfNotExists);
             }
             catch (Exception)
@@ -847,7 +847,7 @@ namespace CsvTools
           m_ProcessDisplay.Maximum = cMaxValue;
         }
 
-        HandleShowProgress("Opening...");
+        HandleShowProgress("Opening…");
 
         if (m_CancellationToken.IsCancellationRequested)
         {
@@ -915,7 +915,7 @@ namespace CsvTools
         if (setting != null)
         {
           setting.CopyTo(Column[colindex]);
-          // Copy to has replaced he column Ordinal but this should be kept...
+          // Copy to has replaced he column Ordinal but this should be kept
           Column[colindex].ColumnOrdinal = colindex;
         }
 
@@ -1386,7 +1386,7 @@ namespace CsvTools
       var previousColumns = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
       for (int counter = 0; counter < FieldCount; counter++)
       {
-        string columnname = headerRow[counter];
+        var columnname = counter < headerRow.Count ? headerRow[counter] : string.Empty;
         string resultingName;
         if (string.IsNullOrEmpty(columnname))
         {
@@ -1404,7 +1404,7 @@ namespace CsvTools
           {
             resultingName = resultingName.Substring(0, 128);
             HandleWarning(counter,
-             $"Column title '{resultingName.Substring(0, 20)}...' has been cut off after 128 characters.".AddWarningId());
+             $"Column title '{resultingName.Substring(0, 20)}…' has been cut off after 128 characters.".AddWarningId());
           }
 
           resultingName = GetUniqueName(previousColumns, counter, resultingName);

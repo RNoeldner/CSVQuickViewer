@@ -215,7 +215,7 @@ namespace CsvTools
       if (files.Length == 1)
         return files[0];
 
-      // If a pattern is present in the folder this is not going to work...
+      // If a pattern is present in the folder this is not going to work
       var newset = new DateTime(0);
       string lastFile = null;
       foreach (var fileName in files)
@@ -438,7 +438,7 @@ namespace CsvTools
         }
       }
 
-      // if we have at least the directory shorten this...
+      // if we have at least the directory shorten this
       if (fi.Directory.Exists)
       {
         var length = GetShortPathName(fi.Directory.FullName, shortNameBuffer, bufferSize);

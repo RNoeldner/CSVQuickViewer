@@ -15,7 +15,7 @@ namespace CsvTools
     /// </summary>
     private System.ComponentModel.IContainer components = null;
 
-    private int counter = 0;
+    private int m_Counter = 0;
     private Label label;
     private MessageBoxDefaultButton m_DefaultButton = MessageBoxDefaultButton.Button1;
     private double m_Duration = 4.0;
@@ -50,7 +50,7 @@ namespace CsvTools
       this.button1.TabIndex = 0;
       this.button1.Text = "button1";
       this.button1.UseVisualStyleBackColor = true;
-      this.button1.Click += new System.EventHandler(this.button1_Click);
+      this.button1.Click += new System.EventHandler(this.Button1_Click);
       this.button1.MouseEnter += new System.EventHandler(this.MouseEnterElement);
       this.button1.MouseLeave += new System.EventHandler(this.MouseLeaveElement);
       // 
@@ -81,7 +81,7 @@ namespace CsvTools
       // timer
       // 
       this.timer.Interval = 500;
-      this.timer.Tick += new System.EventHandler(this.timer_Tick);
+      this.timer.Tick += new System.EventHandler(this.Timer_Tick);
       // 
       // button2
       // 
@@ -93,7 +93,7 @@ namespace CsvTools
       this.button2.TabIndex = 1;
       this.button2.Text = "button2";
       this.button2.UseVisualStyleBackColor = true;
-      this.button2.Click += new System.EventHandler(this.button2_Click);
+      this.button2.Click += new System.EventHandler(this.Button2_Click);
       this.button2.MouseEnter += new System.EventHandler(this.MouseEnterElement);
       this.button2.MouseLeave += new System.EventHandler(this.MouseLeaveElement);
       // 
@@ -106,7 +106,7 @@ namespace CsvTools
       this.button3.TabIndex = 2;
       this.button3.Text = "button3";
       this.button3.UseVisualStyleBackColor = true;
-      this.button3.Click += new System.EventHandler(this.button3_Click);
+      this.button3.Click += new System.EventHandler(this.Button3_Click);
       this.button3.MouseEnter += new System.EventHandler(this.MouseEnterElement);
       this.button3.MouseLeave += new System.EventHandler(this.MouseLeaveElement);
       // 
@@ -190,7 +190,7 @@ namespace CsvTools
       base.Dispose(disposing);
     }
 
-    private void button1_Click(object sender, EventArgs e)
+    private void Button1_Click(object sender, EventArgs e)
     {
       if ((m_MessageBoxButtons == MessageBoxButtons.OK
         || m_MessageBoxButtons == MessageBoxButtons.OKCancel))
@@ -205,7 +205,7 @@ namespace CsvTools
       Close();
     }
 
-    private void button2_Click(object sender, EventArgs e)
+    private void Button2_Click(object sender, EventArgs e)
     {
       if (m_MessageBoxButtons == MessageBoxButtons.OKCancel || m_MessageBoxButtons == MessageBoxButtons.RetryCancel)
         DialogResult = DialogResult.Cancel;
@@ -217,14 +217,14 @@ namespace CsvTools
       Close();
     }
 
-    private void button3_Click(object sender, EventArgs e)
+    private void Button3_Click(object sender, EventArgs e)
     {
       if (m_MessageBoxButtons == MessageBoxButtons.AbortRetryIgnore)
         DialogResult = DialogResult.Ignore;
       if (m_MessageBoxButtons == MessageBoxButtons.YesNoCancel)
         DialogResult = DialogResult.Cancel;
       Close();
-    }   
+    }
 
     private bool m_IconSet = false;
 
@@ -256,11 +256,11 @@ namespace CsvTools
           break;
       }
     }
-
-    private void timer_Tick(object sender, EventArgs e)
+    private void UpdateLabel()
     {
-      counter++;
-      int displ = Convert.ToInt32((m_Duration - (counter * timer.Interval) / 1000 + .75));
+      int displ = Convert.ToInt32((m_Duration - (m_Counter * timer.Interval) / 1000 + .75));
+      if (!timer.Enabled)
+        displ = 0;
       if (displ > 0)
       {
         if (m_DefaultButton == MessageBoxDefaultButton.Button1)
@@ -272,15 +272,21 @@ namespace CsvTools
       }
       else
         label.Text = string.Empty;
+    }
 
-      if ((counter * timer.Interval) / 1000 > m_Duration)
+    private void Timer_Tick(object sender, EventArgs e)
+    {
+      m_Counter++;
+      UpdateLabel();
+
+      if ((m_Counter * timer.Interval) / 1000 > m_Duration)
       {
         if (m_DefaultButton == MessageBoxDefaultButton.Button1)
-          button1_Click(sender, e);
+          Button1_Click(sender, e);
         if (m_DefaultButton == MessageBoxDefaultButton.Button2)
-          button2_Click(sender, e);
+          Button2_Click(sender, e);
         if (m_DefaultButton == MessageBoxDefaultButton.Button3)
-          button3_Click(sender, e);
+          Button3_Click(sender, e);
       }
     }
 
@@ -364,7 +370,7 @@ namespace CsvTools
         AcceptButton = button3;
       }
 
-      timer_Tick(this, null);
+      Timer_Tick(this, null);
     }
 
     private void TimedMessage_Resize(object sender, EventArgs e)
@@ -375,12 +381,14 @@ namespace CsvTools
 
     private void MouseEnterElement(object sender, EventArgs e)
     {
-      timer.Stop();
+      timer.Enabled = false;
+      UpdateLabel();
     }
 
     private void MouseLeaveElement(object sender, EventArgs e)
     {
-      timer.Start();
+      timer.Enabled = true;
+      UpdateLabel();
     }
   }
 

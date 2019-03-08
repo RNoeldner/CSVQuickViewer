@@ -668,9 +668,9 @@ namespace CsvTools
           oldWith.Add(column.DataPropertyName, column.Width);
       }
 
-      // remove all columns...
+      // remove all columns
       Columns.Clear();
-      // ... along with the entries in the context menu
+      // along with the entries in the context menu
       toolStripMenuItemColumnVisibility.CheckedListBoxControl?.Items.Clear();
 
       // if we do not have a BoundDataView exit now
@@ -770,7 +770,7 @@ namespace CsvTools
         while (nbspIndex >= 0 && (linefeedIndex == -1 || nbspIndex < linefeedIndex))
         {
           if (linefeedIndex == -1)
-            // Middle Alignment... this goes wrong if the have a linefeed.
+            // Middle Alignment (this goes wrong if the have a linefeed)
             hlRect.Y = e.CellBounds.Top + e.CellBounds.Height / 2 - 2;
           else
             hlRect.Y = e.CellBounds.Top + Font.Height - 4;
