@@ -649,13 +649,7 @@ namespace CsvTools
     public virtual string Passphrase
     {
       get => m_Passphrase;
-      set
-      {
-        var newVal = (value ?? string.Empty).Trim();
-        if (m_Passphrase.Equals(newVal, StringComparison.Ordinal)) return;
-        m_Passphrase = newVal;
-        NotifyPropertyChanged(nameof(Passphrase));
-      }
+      set => m_Passphrase = (value ?? string.Empty).Trim();
     }
 
     /// <summary>

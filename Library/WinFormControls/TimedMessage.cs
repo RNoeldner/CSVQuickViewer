@@ -44,7 +44,7 @@ namespace CsvTools
       // button1
       // 
       this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-      this.button1.Location = new System.Drawing.Point(205, 127);
+      this.button1.Location = new System.Drawing.Point(194, 127);
       this.button1.Name = "button1";
       this.button1.Size = new System.Drawing.Size(75, 23);
       this.button1.TabIndex = 0;
@@ -87,7 +87,7 @@ namespace CsvTools
       // 
       this.button2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
       this.button2.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-      this.button2.Location = new System.Drawing.Point(285, 127);
+      this.button2.Location = new System.Drawing.Point(274, 127);
       this.button2.Name = "button2";
       this.button2.Size = new System.Drawing.Size(75, 23);
       this.button2.TabIndex = 1;
@@ -100,7 +100,7 @@ namespace CsvTools
       // button3
       // 
       this.button3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-      this.button3.Location = new System.Drawing.Point(366, 127);
+      this.button3.Location = new System.Drawing.Point(355, 127);
       this.button3.Name = "button3";
       this.button3.Size = new System.Drawing.Size(75, 23);
       this.button3.TabIndex = 2;
@@ -116,9 +116,9 @@ namespace CsvTools
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.ClientSize = new System.Drawing.Size(445, 152);
       this.Controls.Add(this.button2);
-      this.Controls.Add(this.label);
       this.Controls.Add(this.button3);
       this.Controls.Add(this.button1);
+      this.Controls.Add(this.label);
       this.Controls.Add(this.richTextBox);
       this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
       this.MaximizeBox = false;
@@ -313,7 +313,7 @@ namespace CsvTools
       if ((m_MessageBoxButtons == MessageBoxButtons.OK
         || m_MessageBoxButtons == MessageBoxButtons.OKCancel) && button1.Text != "&OK")
       {
-        button1.Text = "&OK";
+        button1.Text = "&OK";        
       }
       if ((m_MessageBoxButtons == MessageBoxButtons.YesNo
         || m_MessageBoxButtons == MessageBoxButtons.YesNoCancel) && button1.Text != "&Yes")
@@ -349,7 +349,7 @@ namespace CsvTools
       // Button 3
       if (m_MessageBoxButtons == MessageBoxButtons.AbortRetryIgnore && button3.Text != "&Ignore")
       {
-        button3.Text = "&Ignore";
+        button3.Text = "&Ignore";        
       }
       if (m_MessageBoxButtons == MessageBoxButtons.YesNoCancel && button3.Text != "&Cancel")
       {
