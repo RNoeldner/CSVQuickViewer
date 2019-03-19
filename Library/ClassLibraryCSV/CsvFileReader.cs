@@ -1078,6 +1078,7 @@ namespace CsvTools
       m_BufferPos = 0;
       m_BufferFilled = 0;
       // End Line should be at 1, later on as the line is read the start line s set to this value
+      StartLineNumber = 1;
       EndLineNumber = 1;
       RecordNumber = 0;
       m_EndOfLine = false;

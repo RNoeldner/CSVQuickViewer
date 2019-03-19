@@ -236,10 +236,8 @@
     <Reference Include="NodaTime, Version=2.4.4.0, Culture=neutral, PublicKeyToken=4226afe0d9b296d1, processorArchitecture=MSIL">
       <HintPath>..\..\..\CSVFileValidator\packages\NodaTime.2.4.4\lib\net45\NodaTime.dll</HintPath>
     </Reference>
-    <Reference Include="Pri.LongPath, Version=2.0.45.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\..\CSVQuickViewer\packages\Pri.LongPath.2.0.45\lib\net45\Pri.LongPath.dll</HintPath>
-      <SpecificVersion>False</SpecificVersion>
-      <Private>True</Private>
+    <Reference Include="Pri.LongPath, Version=2.0.47.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\..\CSVFileValidator\packages\Pri.LongPath.2.0.47\lib\net45\Pri.LongPath.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />

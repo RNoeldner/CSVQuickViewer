@@ -346,11 +346,26 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GuessNewlineTest()
     {
-      var Test = new CsvFile(Path.Combine(m_ApplicationDirectory, "TestFile.txt"))
+      var path = Path.Combine(m_ApplicationDirectory, "TestFile.txt");
+      FileSystemUtils.FileDelete(path);
+      using (var file = File.CreateText(path))
+      {
+        file.Write("ID\tTitle\tObject ID\n");
+        file.Write("12367890\t\"5 Overview\"\tc41f21c8-d2cc-472b-8cd9-707ddd8d24fe\n");
+        file.Write("3ICC\t10/14/2010\t0e413ed0-3086-47b6-90f3-836a24f7cb2e\n");
+        file.Write("3SOF\t\"3 Overview\"\taff9ed00-016e-4202-a3df-27a3ce443e80\n");
+        file.Write("3T1SA\t3 Phase 1\t8d527a23-2777-4754-a73d-029f67abe715\n");
+        file.Write("3T22A\t3 Phase 2\tf9a99add-4cc2-4e41-a29f-a01f5b3b61b2\n");
+        file.Write("3T25C\t3 Phase 2\tab416221-9f79-484e-a7c9-bc9a375a6147\n");
+        file.Write("7S721A\t\"7 راز\"\t2b9d291f-ce76-4947-ae7b-fec3531d1766\n");
+        file.Write("#Hello\t7th Heaven\t1d5b894b-95e6-4026-9ffe-64197e79c3d1\n");
+      }
+      var Test = new CsvFile(path)
       {
         CodePageId = 65001
       };
       Test.FileFormat.FieldQualifier = "\"";
+
       Assert.AreEqual("LF", CsvHelper.GuessNewline(Test));
     }
   }
