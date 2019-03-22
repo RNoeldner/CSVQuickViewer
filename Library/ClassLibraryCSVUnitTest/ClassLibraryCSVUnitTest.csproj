@@ -190,6 +190,7 @@
     <Compile Include="PGPKeyStorageTests.cs" />
     <Compile Include="PropertyChangedEventArgsTests.cs" />
     <Compile Include="ErrorInformationTests.cs" />
+    <Compile Include="RemoteAccessTests.cs" />
     <Compile Include="RowErrorCollectionTests.cs" />
     <Compile Include="SampleRecordEntryTests.cs" />
     <Compile Include="SecureStringTest.cs" />

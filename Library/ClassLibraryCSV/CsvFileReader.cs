@@ -296,8 +296,13 @@ namespace CsvTools
 
           if (!determineColumnSize)
             return 0;
-
+          
+          // Need to start at the beginning or we loose read data  that has not been measured
+          ResetPositionToStart();
+          while (EndLineNumber < endLineNumberIncudingComments)
+            ReadToEOL();
           m_MaxRecordNumber = ParseColumnSize();
+
           needReset = true;
           return m_MaxRecordNumber;
         }

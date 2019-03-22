@@ -50,7 +50,7 @@ namespace CsvTools.Tests
     [TestMethod()]
     public void DeleteFileQuestionTest()
     {
-      Assert.AreEqual(true, ".\\Test.hshsh".DeleteFileQuestion(false));
+      Assert.AreEqual(DialogResult.Yes, ".\\Test.hshsh".DeleteFileQuestion(false));
     }
 
     [TestMethod()]
