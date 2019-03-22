@@ -58,7 +58,7 @@ namespace CsvTools
     /// <value>
     ///   The maximum value.
     /// </value>
-    public virtual int Maximum { get; set; }
+    public virtual long Maximum { get; set; }
 
     /// <summary>
     ///   To be called if the process should be closed, this will cancel any processing
@@ -74,7 +74,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="text">The text.</param>
     /// <param name="value">The value.</param>
-    public virtual void SetProcess(string text, int value = -1)
+    public virtual void SetProcess(string text, long value = -1)
     {
       Progress?.Invoke(this, new ProgressEventArgs(text, value));
     }

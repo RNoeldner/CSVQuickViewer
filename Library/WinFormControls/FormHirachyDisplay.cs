@@ -160,7 +160,7 @@ namespace CsvTools
     {
       Contract.Requires(m_DataTable != null);
       var intervalAction = new IntervalAction();
-      using (var process = new FormProcessDisplay("Building Tree", m_CancellationTokenSource.Token))
+      using (var process = new FormProcessDisplay("Building Tree", false, m_CancellationTokenSource.Token))
       {
         process.Show(this);
         process.Maximum = m_DataRow.GetLength(0);
@@ -355,7 +355,7 @@ namespace CsvTools
       {
         try
         {
-          using (var proc = new FormProcessDisplay("Searching", m_CancellationTokenSource.Token))
+          using (var proc = new FormProcessDisplay("Searching", false, m_CancellationTokenSource.Token))
           {
             proc.Show(this);
             Search(m_TextBoxValue.Text, m_TreeView.Nodes, proc.CancellationToken);

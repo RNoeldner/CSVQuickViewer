@@ -38,33 +38,49 @@ namespace CsvTools
     private string m_Title;
     private bool m_LogAsDebug = false;
 
-    public FormProcessDisplay(string windowTitle) : this(windowTitle, CancellationToken.None)
+    public FormProcessDisplay(string windowTitle) : this(windowTitle, true, CancellationToken.None)
     {
-    }
+    }  
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="FormProcessDisplay" /> class.
     /// </summary>
     /// <param name="windowTitle">The description / form title</param>
+    /// <param name="withLoggerDisplay">True if a debug logging windows should be shown</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    public FormProcessDisplay(string windowTitle, CancellationToken cancellationToken)
+    public FormProcessDisplay(string windowTitle, bool withLoggerDisplay, CancellationToken cancellationToken)
     {
       InitializeComponent();
+
       m_Title = windowTitle;
       Text = windowTitle;
+
       CancellationTokenSource = cancellationToken == CancellationToken.None
         ? new CancellationTokenSource()
         : CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
 
-      //m_TimeToCompletion = new TimeToCompletion(displayFunction: TimeToCompletion.DefaultDisplayPercentAndSpanSolo);
-
       TimeToCompletion = new TimeToCompletion();
-      //m_TimeToCompletion.PropertyChanged += TimeToCompletionUpdate;
-
       Icon = CsvToolLib.Resources.SubFormIcon;
+
+      if (withLoggerDisplay)
+      {
+        SuspendLayout();
+        Width = 400;
+        Height = 300;
+
+        var logger = new LoggerDisplay
+        {
+          Dock = DockStyle.Fill,
+          Multiline = true,
+          TabIndex = 8
+        };
+        tableLayoutPanel.SetColumnSpan(logger, 2);
+        tableLayoutPanel.Controls.Add(logger, 0, 3);
+        ResumeLayout(false);
+      }        
     }
 
-    public FormProcessDisplay() : this(string.Empty, default(CancellationToken))
+    public FormProcessDisplay() : this(string.Empty, true, default(CancellationToken))
     {
     }
 
@@ -95,7 +111,7 @@ namespace CsvTools
     /// <value>
     ///   The maximum value.
     /// </value>
-    public int Maximum
+    public long Maximum
     {
       get => TimeToCompletion.TargetValue;
       set
@@ -103,7 +119,7 @@ namespace CsvTools
         if (value > 0)
         {
           TimeToCompletion.TargetValue = value;
-          m_ProgressBar.Maximum = value;
+          m_ProgressBar.Maximum = value.ToInt();
           m_ProgressBar.Style = ProgressBarStyle.Continuous;
         }
         else
@@ -168,7 +184,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="text">The text.</param>
     /// <param name="value">The value.</param>
-    public virtual void SetProcess(string text, int value)
+    public virtual void SetProcess(string text, long value)
     {
       // if cancellation is requested do nothing
       if (CancellationToken.IsCancellationRequested) return;
@@ -191,7 +207,7 @@ namespace CsvTools
         }
         else
         {
-          m_ProgressBar.Value = TimeToCompletion.Value;
+          m_ProgressBar.Value = TimeToCompletion.Value.ToInt();
           m_LabelPercent.Text = TimeToCompletion.PercentDisplay;
           m_LabelEtr.Text = TimeToCompletion.EstimatedTimeRemainingDisplay;
           m_LabelEtl.Visible = m_LabelEtr.Text.Length > 0;

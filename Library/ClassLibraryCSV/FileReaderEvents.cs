@@ -36,7 +36,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="text">The text.</param>
     /// <param name="value">The value.</param>
-    public ProgressEventArgs(string text, int value)
+    public ProgressEventArgs(string text, long value)
     {
       Text = text;
       Value = value;
@@ -54,7 +54,7 @@ namespace CsvTools
     /// <value>
     ///  The value.
     /// </value>
-    public int Value { get; set; }
+    public long Value { get; set; }
   }
 
   /// <summary>

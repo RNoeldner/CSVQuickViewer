@@ -25,7 +25,7 @@ namespace CsvTools.Tests
         Maximum = 100
       };
       writer.ProcessDisplay = prc;
-      int num = 0;
+      long num = 0;
       prc.Progress += delegate (object sender, ProgressEventArgs e)
       {
         num = e.Value;

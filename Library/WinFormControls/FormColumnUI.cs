@@ -392,7 +392,7 @@ namespace CsvTools
         {
           comboBoxColumnName.Visible = true;
           ICollection<string> allColumns = new List<string>();
-          using (var frm = new FormProcessDisplayLogger("Get Columns"))
+          using (var frm = new FormProcessDisplay("Get Columns", true, m_CancellationTokenSource.Token))
           {
             frm.Show(this);
             try

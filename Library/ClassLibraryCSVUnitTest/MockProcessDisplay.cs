@@ -14,7 +14,7 @@ namespace CsvTools.Tests
 
     public CancellationToken CancellationToken => CancellationToken.None;
 
-    public int Maximum { get; set; }
+    public long Maximum { get; set; }
 
     public event EventHandler<ProgressEventArgs> Progress;
 
@@ -28,7 +28,7 @@ namespace CsvTools.Tests
     {
     }
 
-    public void SetProcess(string text, int value = -1)
+    public void SetProcess(string text, long value = -1)
     {
       Text = text;
       Progress?.Invoke(this, new ProgressEventArgs(text));

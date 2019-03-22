@@ -41,7 +41,7 @@ namespace CsvTools
     /// <value>
     ///  The maximum value.
     /// </value>
-    int Maximum { get; set; }
+    long Maximum { get; set; }
 
     /// <summary>
     ///  To be called if the display should be closed, this will cancel any processing
@@ -62,6 +62,6 @@ namespace CsvTools
     /// </summary>
     /// <param name="text">The text.</param>
     /// <param name="value">The current progress</param>
-    void SetProcess(string text, int value = -1);
+    void SetProcess(string text, long value = -1);
   }
 }

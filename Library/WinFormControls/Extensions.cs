@@ -16,6 +16,7 @@ using log4net;
 using Pri.LongPath;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Reflection;
 using System.Threading;
@@ -37,13 +38,22 @@ namespace CsvTools
       MessageBox.Show(from, ex.ExceptionMessages(), string.IsNullOrEmpty(additionalTitle) ? "Error" : $"Error {additionalTitle}", MessageBoxButtons.OK, MessageBoxIcon.Warning);
     }
 
-    public static void TimeOutWait(Func<bool> whileTrue, int millisecondsSleep = 0, double timeoutMinutes = 5.0, CancellationToken cancellationToken = default(CancellationToken))
+    public static void TimeOutWait(Func<bool> whileTrue, int millisecondsSleep, double timeoutMinutes, bool raiseError, CancellationToken cancellationToken)
     {
-      var start = DateTime.Now;
+      Stopwatch stopwatch = new Stopwatch();
+      stopwatch.Start();
+
       while (!cancellationToken.IsCancellationRequested && whileTrue())
       {
-        if ((DateTime.Now - start).TotalMinutes > timeoutMinutes)
-          throw new ApplicationException($"Waited longer than {timeoutMinutes} minutes, assuming something is wrong");
+        if (stopwatch.ElapsedMilliseconds > timeoutMinutes * 60000)
+        {
+          var msg = $"Waited longer than {timeoutMinutes * 60:N0} seconds, assuming something is wrong";
+          if (raiseError)
+            throw new ApplicationException(msg);
+          else
+            Log.Warn(msg);
+          break;
+        }
         ProcessUIElements(millisecondsSleep);
       }
     }
@@ -93,43 +103,54 @@ namespace CsvTools
       bind?.WriteValue();
     }
 
-    public static bool DeleteFileQuestion(this string fileName, bool ask)
+    /// <summary>
+    /// Deleting a file, in case it exists it will ask if it should be deleted
+    /// </summary>
+    /// <param name="fileName"></param>
+    /// <param name="ask"></param>
+    /// <returns>Yes: the file does not exist, or it was deleted
+    /// No: the file was not deleted it does still exist
+    /// Cancel: user pressed cancel</returns>
+    public static DialogResult DeleteFileQuestion(this string fileName, bool ask)
     {
-      if (!FileSystemUtils.FileExists(fileName)) return true;
+      if (!FileSystemUtils.FileExists(fileName)) return DialogResult.Yes;
       if (!ask)
       {
         try
         {
           File.Delete(fileName);
-          return true;
+          return DialogResult.Yes;
         }
         catch
         {
           // ignored
         }
-        return false;
+        return DialogResult.No;
       }
       var res = FileSystemUtils.SplitPath(fileName);
       var disp = res.FileName;
 
-      if (_MessageBox.Show(null,
-            $"The file {disp} does exist already, do you want to delete the existing file?", "File", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+      var diagRes = _MessageBox.Show(null,
+            $"The file {disp} does exist already, do you want to delete the existing file?", "File", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+
+      if (diagRes == DialogResult.Yes)
       {
         retry:
         try
         {
           File.Delete(fileName);
-          return true;
+          return DialogResult.Yes;
         }
         catch (Exception ex)
         {
+          diagRes = DialogResult.No;
           if (_MessageBox.Show(null,
                 $"The file {disp} could not be deleted.\n{ex.ExceptionMessages()}", "File",
                 MessageBoxButtons.RetryCancel, MessageBoxIcon.Warning) == DialogResult.Retry)
             goto retry;
         }
       }
-      return false;
+      return diagRes;
     }
 
     /// <summary>
@@ -183,18 +204,9 @@ namespace CsvTools
     {
       if (!fileSetting.ShowProgress) return new DummyProcessDisplay(cancellationToken);
 
-      if (withLogger)
-      {
-        var processDisplay = new FormProcessDisplayLogger(fileSetting.GetProcessDisplayTitle(), cancellationToken);
-        processDisplay.Show(owner);
-        return processDisplay;
-      }
-      else
-      {
-        var processDisplay = new FormProcessDisplay(fileSetting.GetProcessDisplayTitle(), cancellationToken);
-        processDisplay.Show(owner);
-        return processDisplay;
-      }
+      var processDisplay = new FormProcessDisplay(fileSetting.GetProcessDisplayTitle(), withLogger, cancellationToken);
+      processDisplay.Show(owner);
+      return processDisplay;
     }
 
     public static Binding GetTextBindng(this Control ctrl)
@@ -334,6 +346,8 @@ namespace CsvTools
     /// <param name="ask">if set to <c>true</c> [ask].</param>
     /// <returns>
     ///   Number of record written to file
+    ///   -1 if the files exists and is not overwritten
+    ///   -2 if the files exists and is not overwritten and the user canceled
     /// </returns>
     public static long WriteFileWithInfo(this IFileSetting fileSetting, bool showSummary,
       FileSettingChecker fileSettingSourcesCurrent,
@@ -368,9 +382,12 @@ namespace CsvTools
 
         if (onlyOlder && fileSetting.SettingLaterThanSources(processDisplay.CancellationToken))
           return 0;
+        var res = fileSetting.FullPath.DeleteFileQuestion(ask);
+        if (res == DialogResult.No)
+          return -1;
+        else if (res == DialogResult.Cancel)
+          return -2;
 
-        if (!fileSetting.FullPath.DeleteFileQuestion(ask))
-          return 0;
 
         var errors = new RowErrorCollection(50);
         var writer = fileSetting.GetFileWriter(processDisplay.CancellationToken);
