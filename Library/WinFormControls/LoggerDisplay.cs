@@ -55,12 +55,6 @@ namespace CsvTools
       }
     }
 
-    public void BeginSection(string text)
-    {
-      AppendText($"\n{text}\n");
-      Extensions.ProcessUIElements();
-    }
-
     public void Clear()
     {
       m_LogAppenderTextBox.Clear();

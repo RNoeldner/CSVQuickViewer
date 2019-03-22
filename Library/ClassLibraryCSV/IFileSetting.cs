@@ -244,14 +244,7 @@ namespace CsvTools
     ///  Gets or sets a value indicating whether this instance should treat any text listed here as Null
     /// </summary>
     string TreatTextAsNull { get; set; }
-
-    /// <summary>
-    ///  Gets or sets a value indicating whether this instance should treat the text "NULL" as Null
-    /// </summary>
-    /// <value>
-    ///  <c>true</c> if any occurrence of "Null" should be treated as a Null; otherwise, <c>false</c>.
-    /// </value>
-    bool TreatTextNullAsNull { get; set; }
+    
 
     /// <summary>
     ///  Gets or sets a value indicating of and if training and leading spaces should be trimmed.

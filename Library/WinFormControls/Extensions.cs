@@ -113,7 +113,7 @@ namespace CsvTools
       var disp = res.FileName;
 
       if (_MessageBox.Show(null,
-            $"The file {disp} does exist, do you want to remove it?", "File", MessageBoxButtons.YesNo) == DialogResult.Yes)
+            $"The file {disp} does exist already, do you want to delete the existing file?", "File", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
       {
         retry:
         try
@@ -125,7 +125,7 @@ namespace CsvTools
         {
           if (_MessageBox.Show(null,
                 $"The file {disp} could not be deleted.\n{ex.ExceptionMessages()}", "File",
-                MessageBoxButtons.RetryCancel, MessageBoxIcon.Question) == DialogResult.Retry)
+                MessageBoxButtons.RetryCancel, MessageBoxIcon.Warning) == DialogResult.Retry)
             goto retry;
         }
       }
@@ -369,7 +369,8 @@ namespace CsvTools
         if (onlyOlder && fileSetting.SettingLaterThanSources(processDisplay.CancellationToken))
           return 0;
 
-        fileSetting.FullPath.DeleteFileQuestion(ask);
+        if (!fileSetting.FullPath.DeleteFileQuestion(ask))
+          return 0;
 
         var errors = new RowErrorCollection(50);
         var writer = fileSetting.GetFileWriter(processDisplay.CancellationToken);
