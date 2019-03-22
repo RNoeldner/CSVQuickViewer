@@ -118,7 +118,7 @@ namespace CsvTools
           Text = $"Duplicate Display - {dataColumnName}");
 
         var intervalAction = new IntervalAction();
-        using (var display = new FormProcessDisplay($"Processing {dataColumnName}", m_CancellationTokenSource.Token))
+        using (var display = new FormProcessDisplay($"Processing {dataColumnName}", false, m_CancellationTokenSource.Token))
         {
           display.Maximum = m_DataRow.Length;
           for (var rowIdex = 0; rowIdex < m_DataRow.Length; rowIdex++)

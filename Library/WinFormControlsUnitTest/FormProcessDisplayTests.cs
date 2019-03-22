@@ -18,7 +18,7 @@ namespace CsvTools.Tests
     {
       var tokenSrc = new CancellationTokenSource();
 
-      using (var frm = new FormProcessDisplay("Title", tokenSrc.Token))
+      using (var frm = new FormProcessDisplay("Title", false, tokenSrc.Token))
       {
         Assert.AreEqual("Title", frm.Title);
         Assert.AreEqual(false, frm.CancellationTokenSource.IsCancellationRequested);
@@ -32,7 +32,7 @@ namespace CsvTools.Tests
     {
       var tokenSrc = new CancellationTokenSource();
 
-      using (var frm = new FormProcessDisplay("Title", tokenSrc.Token))
+      using (var frm = new FormProcessDisplay("Title", true, tokenSrc.Token))
       {
         Assert.AreEqual(false, frm.CancellationTokenSource.IsCancellationRequested);
         frm.Cancel();
@@ -80,7 +80,7 @@ namespace CsvTools.Tests
         frm.Maximum = 80;
 
         frm.Show();
-        int called = 10;
+        long called = 10;
         frm.Progress += delegate (object sender, ProgressEventArgs e)
         {
           called = e.Value;

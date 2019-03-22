@@ -80,7 +80,7 @@ namespace CsvTools
       csvTextDisplay.Dock = DockStyle.Fill;
       textPanel.ResumeLayout();
       ShowTextPanel(true);
-      
+
       Text = AssemblyTitle;
 
       SystemEvents.DisplaySettingsChanged += SystemEvents_DisplaySettingsChanged;
@@ -413,7 +413,6 @@ namespace CsvTools
                 {
                   frm.Left = limitSizeForm.Left + limitSizeForm.Width;
                 }
-                processDisplay.Progress += delegate (object sender, ProgressEventArgs e) { Log.Info(e.Text); };
                 m_FileSetting.FillGuessColumnFormatReader(false, processDisplay);
               }
 
@@ -424,21 +423,14 @@ namespace CsvTools
               }
             }
 
-            Stopwatch stopwatch = new Stopwatch();
-            stopwatch.Start();
-            // Wait for the RecordLimit to be set or a cancellation caused by the outside
-            while (limitSizeForm != null && !cancellationTokenSource.IsCancellationRequested && stopwatch.Elapsed.Seconds < 5)
-            {
-              Thread.Sleep(50);
-              Application.DoEvents();
-            }
-            stopwatch.Stop();
+            Extensions.TimeOutWait(() => { return limitSizeForm != null; }, 100, 5 / 60, false, cancellationTokenSource.Token);
+
             if (limitSizeForm != null)
               limitSizeForm.Close();
 
             if (cancellationTokenSource.IsCancellationRequested)
               return false;
-          }
+          }          
           finally
           {
             Cursor.Current = oldCursor;

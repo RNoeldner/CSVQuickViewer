@@ -26,14 +26,14 @@ namespace CsvTools
   public class TimeToCompletion
   {
     private readonly long m_MaximumTicks;
-    private readonly int m_MinimumData;
+    private readonly byte m_MinimumData;
     private readonly Queue<ProgressOverTime> m_Queue;
     private readonly Stopwatch m_Stopwatch = new Stopwatch();
     private ProgressOverTime m_FirstItem;
     private ProgressOverTime m_LastItem;
-    private int m_TargetValue;
+    private long m_TargetValue;
 
-    public TimeToCompletion(int targetValue = -1, int minimumData = 4, double storedSeconds = 60.0)
+    public TimeToCompletion(long targetValue = -1, byte minimumData = 4, double storedSeconds = 60.0)
     {
       m_MinimumData = minimumData;
       m_MaximumTicks = (long)(storedSeconds * Stopwatch.Frequency);
@@ -79,7 +79,7 @@ namespace CsvTools
       }
     }
 
-    public int TargetValue
+    public long TargetValue
     {
       get => m_TargetValue;
       set
@@ -96,7 +96,7 @@ namespace CsvTools
       }
     }
 
-    public int Value
+    public long Value
     {
       set
       {
@@ -143,7 +143,7 @@ namespace CsvTools
     private struct ProgressOverTime
     {
       public long Tick;
-      public int Value;
+      public long Value;
     }
   }
 }

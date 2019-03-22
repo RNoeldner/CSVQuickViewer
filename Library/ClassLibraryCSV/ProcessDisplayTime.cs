@@ -28,7 +28,7 @@ namespace CsvTools
       TimeToCompletion = new TimeToCompletion();
     }        
 
-    public virtual event EventHandler<int> SetMaximum;
+    public virtual event EventHandler<long> SetMaximum;
 
     /// <summary>
     ///   Gets or sets the maximum value for the Progress
@@ -36,7 +36,7 @@ namespace CsvTools
     /// <value>
     ///   The maximum value.
     /// </value>
-    public override int Maximum
+    public override long Maximum
     {
       get => TimeToCompletion.TargetValue;
       set
@@ -53,7 +53,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="text">The text.</param>
     /// <param name="value">The value.</param>
-    public override void SetProcess(string text, int value = -1)
+    public override void SetProcess(string text, long value = -1)
     {
       TimeToCompletion.Value = value;
       base.SetProcess(text, value);

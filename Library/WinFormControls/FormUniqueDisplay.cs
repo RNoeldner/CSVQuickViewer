@@ -114,7 +114,7 @@ namespace CsvTools
         var dictIDToRow = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
         var intervalAction = new IntervalAction();
 
-        using (var display = new FormProcessDisplay($"Processing {dataColumnName}", m_CancellationTokenSource.Token))
+        using (var display = new FormProcessDisplay($"Processing {dataColumnName}", false, m_CancellationTokenSource.Token))
         {
           display.Maximum = m_DataRow.Length;
           display.Show(this);

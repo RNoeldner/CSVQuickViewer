@@ -56,14 +56,14 @@ namespace CsvTools
       action?.Invoke();
     }
 
-    public void Invoke(Action<int> action, int value)
+    public void Invoke(Action<long> action, long value)
     {
       if (!((DateTime.Now - m_LastNotification).TotalSeconds > m_NotifyAfterSeconds)) return;
       m_LastNotification = DateTime.Now;
       action?.Invoke(value);
     }
 
-    public void Invoke(Action<string, int> action, string text, int value)
+    public void Invoke(Action<string, long> action, string text, long value)
     {
       if (!((DateTime.Now - m_LastNotification).TotalSeconds > m_NotifyAfterSeconds)) return;
       m_LastNotification = DateTime.Now;

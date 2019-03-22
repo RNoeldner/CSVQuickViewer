@@ -32,10 +32,10 @@ namespace CsvTools
     event EventHandler<PropertyChangedEventArgs<string>> PropertyChangedString;
 
 #pragma warning disable CA1721 // Property names should not match get methods
-                              /// <summary>
-                              ///  Gets or sets the column formats
-                              /// </summary>
-                              /// <value>The column format.</value>
+    /// <summary>
+    ///  Gets or sets the column formats
+    /// </summary>
+    /// <value>The column format.</value>
     ObservableCollection<Column> Column { get; }
 #pragma warning restore CA1721 // Property names should not match get methods
 
@@ -244,7 +244,6 @@ namespace CsvTools
     ///  Gets or sets a value indicating whether this instance should treat any text listed here as Null
     /// </summary>
     string TreatTextAsNull { get; set; }
-    
 
     /// <summary>
     ///  Gets or sets a value indicating of and if training and leading spaces should be trimmed.

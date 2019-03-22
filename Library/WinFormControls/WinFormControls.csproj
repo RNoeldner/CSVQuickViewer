@@ -213,9 +213,6 @@
     <Compile Include="FormKeyFile.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="FormProcessDisplayLogger.cs">
-      <SubType>Form</SubType>
-    </Compile>
     <Compile Include="FormSelectTimeZone.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -281,9 +278,6 @@
     <EmbeddedResource Include="DataGridViewColumnFilterControl.resx">
       <DependentUpon>DataGridViewColumnFilterControl.cs</DependentUpon>
     </EmbeddedResource>
-    <None Include="FormProcessDisplayLogger.resx">
-      <DependentUpon>FormProcessDisplayLogger.cs</DependentUpon>
-    </None>
     <EmbeddedResource Include="TimeZoneSelector.resx">
       <DependentUpon>TimeZoneSelector.cs</DependentUpon>
     </EmbeddedResource>

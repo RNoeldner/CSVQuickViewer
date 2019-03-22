@@ -36,8 +36,6 @@ namespace CsvTools
   public abstract class BaseSettings : IEquatable<BaseSettings>, IFileSetting
 #pragma warning restore CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
   {
-    private readonly ObservableCollection<Column> m_Column = new ObservableCollection<Column>();
-    private readonly Collection<Mapping> m_ColumnMapping = new Collection<Mapping>();
     private readonly FileFormat m_FileFormat = new FileFormat();
     private int m_ConsecutiveEmptyRows = 5;
     private bool m_DisplayEndLineNo;
@@ -53,7 +51,6 @@ namespace CsvTools
     private string m_Header = string.Empty;
     private string m_Id = string.Empty;
     private bool m_InOverview;
-    private string m_InternalId;
     private bool m_IsEnabled = true;
     private int m_NumErrors = -1;
     private string m_Passphrase = string.Empty;
@@ -80,10 +77,6 @@ namespace CsvTools
     protected BaseSettings(string fileName) : this()
     {
       FileName = fileName;
-      PropertyChangedString += delegate (object sender, PropertyChangedEventArgs<string> e)
-       {
-         if (e.PropertyName == nameof(ID) && !string.IsNullOrEmpty(e.OldValue)) ApplicationSetting.FlushSQLResultByTable(e.OldValue);
-       };
     }
 
     /// <summary>
@@ -91,7 +84,7 @@ namespace CsvTools
     /// </summary>
     protected BaseSettings()
     {
-      m_Column.CollectionChanged += ColumnCollectionChanged;
+      Column.CollectionChanged += ColumnCollectionChanged;
       Samples.CollectionChanged += delegate { NotifyPropertyChanged(nameof(Samples)); };
       Errors.CollectionChanged += delegate
       {
@@ -111,7 +104,7 @@ namespace CsvTools
     ///  Used for XML Serialization
     /// </remarks>
     [XmlIgnore]
-    public virtual bool ColumnMappingSpecified => m_ColumnMapping.Count > 0;
+    public virtual bool MappingSpecified => Mapping.Count > 0;
 
     /// <summary>
     ///  Gets a value indicating whether column format specified.
@@ -120,7 +113,7 @@ namespace CsvTools
     ///  <c>true</c> if column format specified; otherwise, <c>false</c>.
     /// </value>
     [XmlIgnore]
-    public virtual bool ColumnSpecified => m_Column.Count > 0;
+    public virtual bool ColumnSpecified => Column.Count > 0;
 
     [XmlIgnore]
     public virtual bool ErrorsSpecified => Errors.Count > 0;
@@ -138,7 +131,7 @@ namespace CsvTools
     ///  Used for XML Serialization
     /// </remarks>
     [XmlIgnore]
-    public virtual bool FileFormatSpecified => !m_FileFormat.Equals(new FileFormat());
+    public virtual bool FileFormatSpecified => !FileFormat.Equals(new FileFormat());
 
     /// <summary>
     ///  Gets a value indicating whether FileLastWriteTimeUtc is specified.
@@ -150,7 +143,7 @@ namespace CsvTools
     ///  Used for XML Serialization
     /// </remarks>
     [XmlIgnore]
-    public virtual bool FileLastWriteTimeUtcSpecified => m_FileLastWriteTimeUtc != DateTime.MinValue;
+    public virtual bool FileLastWriteTimeUtcSpecified => FileLastWriteTimeUtc != DateTime.MinValue;
 
     [XmlIgnore]
     public virtual bool PassphraseSpecified
@@ -246,30 +239,30 @@ namespace CsvTools
 
       if (other is IFileSettingRemoteDownload otherRemote)
       {
-        if (otherRemote.RemoteFileName != m_RemoteFileName || otherRemote.ThrowErrorIfNotExists != m_ThrowErrorIfNotExists)
+        if (otherRemote.RemoteFileName != RemoteFileName || otherRemote.ThrowErrorIfNotExists != ThrowErrorIfNotExists)
           return false;
       }
-      return string.Equals(other.TemplateName, m_TemplateName, StringComparison.OrdinalIgnoreCase) &&
-          other.SkipRows == m_SkipRows &&
-          other.IsEnabled == m_IsEnabled &&
-          other.TreatNBSPAsSpace == m_TreatNbspAsSpace &&
-          string.Equals(other.FileName, m_FileName, StringComparison.OrdinalIgnoreCase) &&
-          other.DisplayStartLineNo == m_DisplayStartLineNo &&
-          other.DisplayEndLineNo == m_DisplayEndLineNo &&
-          other.HasFieldHeader == m_HasFieldHeader &&
-          other.InOverview == m_InOverview &&
-          other.Validate == m_Validate &&
+      return string.Equals(other.TemplateName, TemplateName, StringComparison.OrdinalIgnoreCase) &&
+          other.SkipRows == SkipRows &&
+          other.IsEnabled == IsEnabled &&
+          other.TreatNBSPAsSpace == TreatNBSPAsSpace &&
+          string.Equals(other.FileName, FileName, StringComparison.OrdinalIgnoreCase) &&
+          other.DisplayStartLineNo == DisplayStartLineNo &&
+          other.DisplayEndLineNo == DisplayEndLineNo &&
+          other.HasFieldHeader == HasFieldHeader &&
+          other.InOverview == InOverview &&
+          other.Validate == Validate &&
           other.TrimmingOption == TrimmingOption &&
           other.ConsecutiveEmptyRows == m_ConsecutiveEmptyRows &&
-          string.Equals(other.TreatTextAsNull, m_TreatTextAsNull, StringComparison.OrdinalIgnoreCase) &&
-          other.DisplayRecordNo == m_DisplayRecordNo &&
-          other.RecordLimit == m_RecordLimit &&
-          other.ShowProgress == m_ShowProgress &&
-          string.Equals(other.ID, m_Id, StringComparison.OrdinalIgnoreCase) &&
-          other.FileFormat.Equals(m_FileFormat) &&
-          other.Passphrase.Equals(m_Passphrase, StringComparison.Ordinal) &&
-          other.Recipient.Equals(m_Recipient, StringComparison.Ordinal) &&
-          other.NumErrors == m_NumErrors &&
+          string.Equals(other.TreatTextAsNull, TreatTextAsNull, StringComparison.OrdinalIgnoreCase) &&
+          other.DisplayRecordNo == DisplayRecordNo &&
+          other.RecordLimit == RecordLimit &&
+          other.ShowProgress == ShowProgress &&
+          string.Equals(other.ID, ID, StringComparison.OrdinalIgnoreCase) &&
+          other.FileFormat.Equals(FileFormat) &&
+          other.Passphrase.Equals(Passphrase, StringComparison.Ordinal) &&
+          other.Recipient.Equals(Recipient, StringComparison.Ordinal) &&
+          other.NumErrors == NumErrors &&
           other.SkipEmptyLines == SkipEmptyLines &&
           other.SkipDuplicateHeader == SkipDuplicateHeader &&
           other.FileSize == FileSize &&
@@ -279,8 +272,8 @@ namespace CsvTools
           string.Equals(other.SqlStatement, SqlStatement, StringComparison.OrdinalIgnoreCase) &&
           string.Equals(other.Footer, Footer, StringComparison.OrdinalIgnoreCase) &&
           string.Equals(other.Header, Header, StringComparison.OrdinalIgnoreCase) &&
-          m_ColumnMapping.CollectionEqual(other.Mapping) && Samples.CollectionEqual(other.Samples) &&
-          Errors.CollectionEqual(other.Errors) && m_Column.CollectionEqual(other.Column);
+          Mapping.CollectionEqual(other.Mapping) && Samples.CollectionEqual(other.Samples) &&
+          Errors.CollectionEqual(other.Errors) && Column.CollectionEqual(other.Column);
     }
 
     /// <summary>
@@ -320,7 +313,7 @@ namespace CsvTools
     ///  The column options
     /// </value>
     [XmlElement("Format")]
-    public virtual ObservableCollection<Column> Column => m_Column;
+    public virtual ObservableCollection<Column> Column { get; } = new ObservableCollection<Column>();
 
     /// <summary>
     ///  Gets or sets a value indicating whether to display end line numbers.
@@ -427,7 +420,6 @@ namespace CsvTools
 
         m_FileName = newVal;
         m_FullPath = null;
-        m_InternalId = null;
         NotifyPropertyChanged(nameof(FileName));
       }
     }
@@ -545,13 +537,14 @@ namespace CsvTools
       {
         var newVal = value ?? string.Empty;
         if (m_Id.Equals(newVal, StringComparison.Ordinal)) return;
-        CsvHelper.InvalidateColumnHeader(this);
 
-        m_InternalId = null;
+        CsvHelper.InvalidateColumnHeader(this);
         var oldValue = m_Id;
         m_Id = newVal;
         NotifyPropertyChanged(nameof(ID));
         PropertyChangedString?.Invoke(this, new PropertyChangedEventArgs<string>(nameof(ID), oldValue, newVal));
+        if (!string.IsNullOrEmpty(oldValue))
+          ApplicationSetting.FlushSQLResultByTable(oldValue);
       }
     }
 
@@ -581,11 +574,7 @@ namespace CsvTools
     {
       get
       {
-        if (m_InternalId != null) return m_InternalId;
-        if (string.IsNullOrEmpty(m_FileName) && string.IsNullOrEmpty(m_Id)) return string.Empty;
-        m_InternalId = string.IsNullOrEmpty(m_Id) ? m_FileName : m_Id;
-
-        return m_InternalId;
+        return string.IsNullOrEmpty(ID) ? FileName : ID;
       }
     }
 
@@ -612,7 +601,7 @@ namespace CsvTools
     /// </summary>
     /// <value>The field mapping.</value>
     [XmlElement]
-    public virtual Collection<Mapping> Mapping => m_ColumnMapping;
+    public virtual Collection<Mapping> Mapping { get; } = new Collection<Mapping>();
 
     /// <summary>
     ///  Gets or sets the ID.
@@ -873,34 +862,6 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///  Gets or sets a value indicating whether this instance should treat the text "NULL" as Null
-    /// </summary>
-    /// <value>
-    ///  <c>true</c> if any occurrence of "Null" should be treated as a Null; otherwise, <c>false</c>.
-    /// </value>
-    [XmlAttribute]
-    [DefaultValue(true)]
-    [Obsolete("This property is obsolete, please use TreatTextAsNull instead")]
-    public virtual bool TreatTextNullAsNull
-    {
-      get => m_TreatTextAsNull.IndexOf("NULL", StringComparison.OrdinalIgnoreCase) != -1;
-      set
-      {
-        if (value)
-        {
-          if (string.IsNullOrEmpty(m_TreatTextAsNull))
-            m_TreatTextAsNull = "NULL";
-          else if (m_TreatTextAsNull.IndexOf("NULL", StringComparison.OrdinalIgnoreCase) == -1)
-            m_TreatTextAsNull += ";NULL";
-        }
-        else
-        {
-          m_TreatTextAsNull = string.Empty;
-        }
-      }
-    }
-
-    /// <summary>
     ///  Gets or sets a value indicating of and if training and leading spaces should be trimmed.
     /// </summary>
     /// <value><c>true</c> ; otherwise, <c>false</c>.</value>
@@ -954,7 +915,7 @@ namespace CsvTools
         return false;
 
       var found = false;
-      foreach (var map in m_ColumnMapping)
+      foreach (var map in Mapping)
       {
         if (!map.FileColumn.Equals(fieldMapping.FileColumn, StringComparison.OrdinalIgnoreCase) ||
             !map.TemplateField.Equals(fieldMapping.TemplateField, StringComparison.OrdinalIgnoreCase))
@@ -967,7 +928,7 @@ namespace CsvTools
       }
 
       if (!found)
-        m_ColumnMapping.Add(fieldMapping);
+        Mapping.Add(fieldMapping);
 
       return !found;
     }
@@ -980,7 +941,7 @@ namespace CsvTools
     /// <returns>Null if the template table field is not mapped</returns>
     public Mapping GetMappingByField(string templateField)
     {
-      foreach (var map in m_ColumnMapping)
+      foreach (var map in Mapping)
       {
         if (map.TemplateField.Equals(templateField, StringComparison.OrdinalIgnoreCase))
           return map;
@@ -1004,7 +965,7 @@ namespace CsvTools
       var found = GetColumn(columnFormat.Name);
       if (found != null)
         return found;
-      m_Column.Add(columnFormat);
+      Column.Add(columnFormat);
       return columnFormat;
     }
 
@@ -1017,11 +978,11 @@ namespace CsvTools
       if (other == null)
         return;
       m_FileFormat.CopyTo(other.FileFormat);
-      m_ColumnMapping.CollectionCopy(other.Mapping);
+      Mapping.CollectionCopy(other.Mapping);
       other.ConsecutiveEmptyRows = m_ConsecutiveEmptyRows;
       other.TrimmingOption = TrimmingOption;
       other.TemplateName = m_TemplateName;
-      other.GetEncryptedPassphraseFunction = m_GetEncryptedPassphrase;
+      other.GetEncryptedPassphraseFunction = GetEncryptedPassphraseFunction;
       other.IsEnabled = m_IsEnabled;
       other.DisplayStartLineNo = m_DisplayStartLineNo;
       other.DisplayEndLineNo = m_DisplayEndLineNo;
@@ -1039,7 +1000,7 @@ namespace CsvTools
       other.Passphrase = m_Passphrase;
       other.Recipient = m_Recipient;
       other.TreatNBSPAsSpace = m_TreatNbspAsSpace;
-      m_Column.CollectionCopy(other.Column);
+      Column.CollectionCopy(other.Column);
       other.SqlStatement = m_SqlStatement;
       other.InOverview = m_InOverview;
       other.SQLTimeout = m_SqlTimeout;
@@ -1071,7 +1032,7 @@ namespace CsvTools
     /// <value>The column format found by the given name, <c>NULL</c> otherwise</value>
     public virtual Column GetColumn(string fieldName)
     {
-      foreach (var column in m_Column)
+      foreach (var column in Column)
       {
         if (column.Name.Equals(fieldName, StringComparison.OrdinalIgnoreCase))
           return column;
@@ -1087,7 +1048,7 @@ namespace CsvTools
     /// <returns>Return all FieldMapping for a column. There can be multiple</returns>
     public virtual IEnumerable<Mapping> GetColumnMapping(string columnName)
     {
-      foreach (var mapping in m_ColumnMapping)
+      foreach (var mapping in Mapping)
       {
         if (mapping.FileColumn.Equals(columnName, StringComparison.OrdinalIgnoreCase))
           yield return mapping;
@@ -1105,14 +1066,14 @@ namespace CsvTools
     public virtual void RemoveMapping(string source)
     {
       var toBeRemoved = new List<Mapping>();
-      foreach (var fieldMapping in m_ColumnMapping)
+      foreach (var fieldMapping in Mapping)
       {
         if (fieldMapping.FileColumn.Equals(source, StringComparison.OrdinalIgnoreCase))
           toBeRemoved.Add(fieldMapping);
       }
 
       foreach (var fieldMapping in toBeRemoved)
-        m_ColumnMapping.Remove(fieldMapping);
+        Mapping.Remove(fieldMapping);
     }
 
     public virtual void SortColumnByName(IEnumerable<string> columnNames)
@@ -1137,15 +1098,15 @@ namespace CsvTools
           existing.Add(col);
       }
 
-      m_Column.CollectionChanged -= ColumnCollectionChanged;
-      m_Column.Clear();
+      Column.CollectionChanged -= ColumnCollectionChanged;
+      Column.Clear();
       if (existing != null)
       {
         foreach (var column in existing)
-          m_Column.Add(column);
+          Column.Add(column);
       }
 
-      m_Column.CollectionChanged += ColumnCollectionChanged;
+      Column.CollectionChanged += ColumnCollectionChanged;
       CsvHelper.InvalidateColumnHeader(this);
     }
 
@@ -1244,17 +1205,14 @@ namespace CsvTools
       get
       {
         if (m_GetEncryptedPassphrase == null)
-        {
-          return () =>
-          {
-            if (!string.IsNullOrEmpty(m_Passphrase))
-              return m_Passphrase;
-            if (!string.IsNullOrEmpty(ApplicationSetting.ToolSetting?.PGPInformation?.EncryptedPassphase))
-              return ApplicationSetting.ToolSetting.PGPInformation.EncryptedPassphase;
-            return string.Empty;
-          };
-        }
-
+          m_GetEncryptedPassphrase = () =>
+           {
+             if (!string.IsNullOrEmpty(m_Passphrase))
+               return m_Passphrase;
+             if (!string.IsNullOrEmpty(ApplicationSetting.ToolSetting?.PGPInformation?.EncryptedPassphase))
+               return ApplicationSetting.ToolSetting.PGPInformation.EncryptedPassphase;
+             return string.Empty;
+           };
         return m_GetEncryptedPassphrase;
       }
       set => m_GetEncryptedPassphrase = value;
