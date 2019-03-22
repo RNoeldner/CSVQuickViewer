@@ -12,8 +12,6 @@
  *
  */
 
-using log4net;
-using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -24,8 +22,6 @@ namespace CsvTools
   /// </summary>
   public class FormProcessDisplayLogger : FormProcessDisplay
   {
-    private static readonly ILog Log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
-
     public FormProcessDisplayLogger(string windowTitle) : this(windowTitle, CancellationToken.None)
     {
     }
@@ -38,7 +34,6 @@ namespace CsvTools
     public FormProcessDisplayLogger(string windowTitle, CancellationToken cancellationToken) : base(windowTitle, cancellationToken)
     {
       InitializeComponent();
-      Progress += delegate (object sender, ProgressEventArgs e) { Log.Info(e.Text); };
     }
 
     public FormProcessDisplayLogger() : this(string.Empty, default(CancellationToken))
@@ -55,7 +50,6 @@ namespace CsvTools
       {
         Dock = DockStyle.Fill,
         Multiline = true,
-        // ScrollBars = ScrollBars.Both,
         TabIndex = 8
       };
       tableLayoutPanel.SetColumnSpan(logger, 2);

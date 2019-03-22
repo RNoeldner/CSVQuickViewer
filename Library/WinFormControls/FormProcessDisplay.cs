@@ -15,6 +15,7 @@
 
 using System;
 using System.Drawing;
+using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -25,6 +26,8 @@ namespace CsvTools
   /// </summary>
   public class FormProcessDisplay : Form, IProcessDisplayTime
   {
+    private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+
     private bool m_ClosedByUI = true;
     private Label m_LabelEtl;
     private Label m_LabelEtr;
@@ -33,11 +36,12 @@ namespace CsvTools
     private ProgressBar m_ProgressBar;
     protected TableLayoutPanel tableLayoutPanel;
     private string m_Title;
+    private bool m_LogAsDebug = false;
 
     public FormProcessDisplay(string windowTitle) : this(windowTitle, CancellationToken.None)
-    {      
+    {
     }
-    
+
     /// <summary>
     ///   Initializes a new instance of the <see cref="FormProcessDisplay" /> class.
     /// </summary>
@@ -137,6 +141,8 @@ namespace CsvTools
       }
     }
 
+    public bool LogAsDebug { get => m_LogAsDebug; set => m_LogAsDebug = value; }
+
     /// <summary>
     ///   Closes the form used by Events
     /// </summary>
@@ -167,6 +173,10 @@ namespace CsvTools
       // if cancellation is requested do nothing
       if (CancellationToken.IsCancellationRequested) return;
       TimeToCompletion.Value = value;
+      if (m_LogAsDebug)
+        Log.Debug(text);
+      else
+        Log.Info(text);
 
       m_LabelText.SafeInvoke(() =>
       {
