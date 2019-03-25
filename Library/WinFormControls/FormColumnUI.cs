@@ -102,21 +102,25 @@ namespace CsvTools
       {
         if (m_WriteSetting)
         {
-          var fileWriter = m_FileSetting.GetFileWriter(m_CancellationTokenSource.Token);
-          var data = fileWriter.GetSourceDataTable(ApplicationSetting.FillGuessSettings.CheckedRecords.ToUint());
+          using (var processDisplay = new DummyProcessDisplay())
           {
-            var found = new Column();
-            var colum = data.Columns[comboBoxColumnName.Text];
-            if (colum == null)
-              throw new ApplicationException($"The file does not contain the column {comboBoxColumnName.Text}.");
+            var fileWriter = m_FileSetting.GetFileWriter(processDisplay);
 
-            found.DataType = colum.DataType.GetDataType();
-            if (found.DataType == DataType.String) return;
-            m_ColumnEdit.DataType = found.DataType;
-            RefreshData();
-            _MessageBox.Show(this,
-              $"Based on DataType of the source column this is {m_ColumnEdit.GetTypeAndFormatDescription()}.\nPlease choose the desired output format",
-              comboBoxColumnName.Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
+            var data = fileWriter.GetSourceDataTable(ApplicationSetting.FillGuessSettings.CheckedRecords.ToUint());
+            {
+              var found = new Column();
+              var colum = data.Columns[comboBoxColumnName.Text];
+              if (colum == null)
+                throw new ApplicationException($"The file does not contain the column {comboBoxColumnName.Text}.");
+
+              found.DataType = colum.DataType.GetDataType();
+              if (found.DataType == DataType.String) return;
+              m_ColumnEdit.DataType = found.DataType;
+              RefreshData();
+              _MessageBox.Show(this,
+                $"Based on DataType of the source column this is {m_ColumnEdit.GetTypeAndFormatDescription()}.\nPlease choose the desired output format",
+                comboBoxColumnName.Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
           }
         }
         else
@@ -406,7 +410,7 @@ namespace CsvTools
               {
                 frm.SetProcess("Executing SQL");
                 // get the columns from the SQL
-                using (var dataReader = ApplicationSetting.SQLDataReader(m_FileSetting.SqlStatement, frm.CancellationToken))
+                using (var dataReader = ApplicationSetting.SQLDataReader(m_FileSetting.SqlStatement, frm))
                 {
                   for (var i = 0; i < dataReader.FieldCount; i++)
                     allColumns.Add(dataReader.GetName(i));
@@ -575,17 +579,20 @@ namespace CsvTools
       {
         if (m_WriteSetting)
         {
-          var fileWriter = m_FileSetting.GetFileWriter(m_CancellationTokenSource.Token);
-          var data = fileWriter.GetSourceDataTable((uint)ApplicationSetting.FillGuessSettings.CheckedRecords);
+          using (var processDisplay = new DummyProcessDisplay(m_CancellationTokenSource.Token))
           {
-            return DetermineColumnFormat.GetSampleValues(data, colIndex, ApplicationSetting.FillGuessSettings.SampleValues,
-              m_FileSetting.TreatTextAsNull, m_CancellationTokenSource.Token);
+            var fileWriter = m_FileSetting.GetFileWriter(processDisplay);
+            var data = fileWriter.GetSourceDataTable((uint)ApplicationSetting.FillGuessSettings.CheckedRecords);
+            {
+              return DetermineColumnFormat.GetSampleValues(data, colIndex, ApplicationSetting.FillGuessSettings.SampleValues,
+                m_FileSetting.TreatTextAsNull, m_CancellationTokenSource.Token);
+            }
           }
         }
-
-        using (var fileReader = m_FileSetting.GetFileReader())
+        using (var processDisplay = new DummyProcessDisplay(m_CancellationTokenSource.Token))
+        using (var fileReader = m_FileSetting.GetFileReader(processDisplay))
         {
-          fileReader.Open(false, m_CancellationTokenSource.Token);
+          fileReader.Open();
           return DetermineColumnFormat.GetSampleValues(fileReader, ApplicationSetting.FillGuessSettings.CheckedRecords,
             colIndex, ApplicationSetting.FillGuessSettings.SampleValues, m_FileSetting.TreatTextAsNull,
             m_CancellationTokenSource.Token);
@@ -680,7 +687,7 @@ namespace CsvTools
     {
       var di = new List<DisplayItem<int>>();
       foreach (DataType item in Enum.GetValues(typeof(DataType)))
-        di.Add(new DisplayItem<int>((int) item, item.DataTypeDisplay()));
+        di.Add(new DisplayItem<int>((int)item, item.DataTypeDisplay()));
       var selValue = (int)m_ColumnEdit.DataType;
       comboBoxDataType.DataSource = di;
       comboBoxDataType.SelectedValue = selValue;

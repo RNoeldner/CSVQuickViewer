@@ -84,7 +84,6 @@ namespace CsvTools
     private bool m_HasQualifier;
     private string[] m_HeaderRow = null;
     private ImprovedStream m_ImprovedStream;
-    private long m_MaxRecordNumber;
 
     /// <summary>
     ///  Number of Records in the text file, only set if all records have been read
@@ -103,8 +102,8 @@ namespace CsvTools
     /// </summary>
     private StreamReader m_TextReader;
 
-    public CsvFileReader(ICsvFile fileSetting)
-     : base(fileSetting)
+    public CsvFileReader(ICsvFile fileSetting, IProcessDisplay processDisplay)
+     : base(fileSetting, processDisplay)
     {
       m_CsvFile = fileSetting;
       if (string.IsNullOrEmpty(m_CsvFile.FileName))
@@ -144,6 +143,8 @@ namespace CsvTools
     /// <value><c>true</c> if this instance is closed; otherwise, <c>false</c>.</value>
     public bool IsClosed => m_TextReader == null;
 
+
+    private bool disposedValue = false; // To detect redundant calls
     /// <summary>
     ///  Releases unmanaged and - optionally - managed resources
     /// </summary>
@@ -153,20 +154,23 @@ namespace CsvTools
     /// </param>
     public override void Dispose(bool disposing)
     {
-      // Dispose-time code should also set references of all owned objects to null, after disposing
-      // them. This will allow the referenced objects to be garbage collected even if not all
-      // references to the "parent" are released. It may be a significant memory consumption win if
-      // the referenced objects are large, such as big arrays, collections, etc.
-      if (disposing)
+      if (!disposedValue)
       {
-        IndividualClose();
-        if (m_TextReader != null)
+        // Dispose-time code should also set references of all owned objects to null, after disposing
+        // them. This will allow the referenced objects to be garbage collected even if not all
+        // references to the "parent" are released. It may be a significant memory consumption win if
+        // the referenced objects are large, such as big arrays, collections, etc.
+        if (disposing)
         {
-          m_TextReader.Dispose();
-          m_TextReader = null;
+          Close();
+          if (m_TextReader != null)
+          {
+            m_TextReader.Dispose();
+            m_TextReader = null;
+          }
+          base.Dispose(disposing);
         }
       }
-
     }
 
     /// <summary>
@@ -229,15 +233,19 @@ namespace CsvTools
     /// <returns>true if there are more rows; otherwise, false.</returns>
     public override bool Read()
     {
-      var couldRead = GetNextRecord();
-      InfoDisplay(couldRead);
+      if (!CancellationToken.IsCancellationRequested)
+      {
+        var couldRead = GetNextRecord();
+        InfoDisplay(couldRead);
 
-      if (couldRead && !CancellationToken.IsCancellationRequested && !IsClosed) return true;
+        if (couldRead && !IsClosed) return true;
+      }
       HandleReadFinished();
       return false;
+
     }
 
-    protected override void IndividualClose()
+    public override void Close()
     {
       m_NumWarningsQuote = 0;
       m_NumWarningsDelimiter = 0;
@@ -257,7 +265,7 @@ namespace CsvTools
     ///  If set to <c>true</c> go through the file and get the maximum column length for each column
     /// </param>
     /// <returns>Number of records</returns>
-    protected override long IndividualOpen(bool determineColumnSize)
+    public override void Open()
     {
       m_HasQualifier |= m_CsvFile.FileFormat.FieldQualifierChar != '\0';
 
@@ -270,100 +278,46 @@ namespace CsvTools
         HandleWarning(-1,
          $"Only the first character of '{m_CsvFile.FileFormat.FieldDelimiter}' is used as delimiter.");
 
-      long endLineNumberIncudingComments = 0;
-      bool needReset = false;
       try
       {
+        base.HandleRemoteFile();
+
+        HandleShowProgress("Opening…");
+
         ResetPositionToStart();
         m_HeaderRow = ReadNextRow(false, false);
         if (m_HeaderRow.IsEmpty())
+        {
           InitColumn(0);
+        }
         else
         {
-          endLineNumberIncudingComments = (m_CsvFile.HasFieldHeader) ? EndLineNumber : 0;
           // Get the column count
-          FieldCount = ParseFieldCount(m_HeaderRow, out var hasReadFurther);
-
-          if (hasReadFurther)
-            needReset = true;
+          FieldCount = ParseFieldCount(m_HeaderRow);
 
           // Get the column names
           ParseColumnName(m_HeaderRow);
-
-          // in case there was no header we need to go back
-          if (!m_CsvFile.HasFieldHeader)
-            needReset = true;
-
-          if (!determineColumnSize)
-            return 0;
-          
-          // Need to start at the beginning or we loose read data  that has not been measured
-          ResetPositionToStart();
-          while (EndLineNumber < endLineNumberIncudingComments)
-            ReadToEOL();
-          m_MaxRecordNumber = ParseColumnSize();
-
-          needReset = true;
-          return m_MaxRecordNumber;
         }
 
-        return 0;
+        if (m_CsvFile.TryToSolveMoreColumns && m_CsvFile.FileFormat.FieldQualifierChar == '\0')
+          m_RealignColumns = new ReAlignColumns(m_CsvFile, FieldCount);
+
+        base.FinishOpen();
+
+        ResetPositionToFirstDataRow();
       }
       catch (Exception ex)
       {
-        needReset = false;
         Close();
-        throw new ApplicationException("The CSV Reader could not open the file", ex);
+        var appEx = new ApplicationException("Error opening text file for reading.\nPlease make sure the file does exist, is of the right type and is not locked by another process.", ex);
+        HandleError(-1, appEx.ExceptionMessages());
+        HandleReadFinished();
+        throw appEx;
       }
       finally
       {
-        if (m_CsvFile.TryToSolveMoreColumns && m_CsvFile.FileFormat.FieldQualifierChar == '\0')
-          m_RealignColumns = new ReAlignColumns(m_CsvFile, FieldCount);
-        // Need to re-position on the first data row
-        if (needReset)
-        {
-          ResetPositionToStart();
-          while (EndLineNumber < endLineNumberIncudingComments)
-            ReadToEOL();
-        }
+        HandleShowProgress("");
       }
-    }
-
-    /// <summary>
-    ///  Determines the max length of all rows, by reading the data and resetting the position to the front.
-    /// </summary>
-    /// <returns>
-    ///  The number of records in the file
-    /// </returns>
-    /// <remarks>
-    ///  this is a lengthy process, only use this if you need to know the size in advance, as the
-    ///  information is maintained reading the file anyway.
-    /// </remarks>
-    private long ParseColumnSize()
-    {
-      var numRows = m_CsvFile.RecordLimit;
-      if (numRows <= 0)
-        numRows = uint.MaxValue;
-
-      while (numRows > 0 && !EndOfFile && !CancellationToken.IsCancellationRequested)
-      {
-        HandleShowProgressPeriodic("Determine column length", RecordNumber);
-
-        if (!AllEmptyAndCountConsecutiveEmptyRows(ReadNextRow(true, false)))
-        {
-          // Regular row with data
-          RecordNumber++;
-          numRows--;
-        }
-        else
-        {
-          // an empty line
-          if (!EndOfFile && !m_CsvFile.SkipEmptyLines)
-            RecordNumber++;
-        }
-      }
-
-      return RecordNumber;
     }
 
     #region Parsing
@@ -386,8 +340,8 @@ namespace CsvTools
     protected override int GetRelativePosition()
     {
       // if we know how many records to read, use that
-      if (m_MaxRecordNumber > 0)
-        return (int)((double)RecordNumber / m_MaxRecordNumber * cMaxValue);
+      if (m_CsvFile.RecordLimit > 0)
+        return (int)((double)RecordNumber / m_CsvFile.RecordLimit * cMaxValue);
 
       return (int)(m_ImprovedStream.Percentage * cMaxValue);
     }
@@ -623,10 +577,9 @@ namespace CsvTools
     /// <summary>
     ///  Gets the number of fields.
     /// </summary>
-    private int ParseFieldCount(IList<string> headerRow, out bool readFurther)
+    private int ParseFieldCount(IList<string> headerRow)
     {
       Contract.Ensures(Contract.Result<int>() >= 0);
-      readFurther = false;
       if (headerRow.IsEmpty() || string.IsNullOrEmpty(headerRow[0]))
         return 0;
 
@@ -635,8 +588,6 @@ namespace CsvTools
       // The last column is empty but we expect a header column, assume if a trailing separator
       if (fields <= 1)
         return fields;
-
-      readFurther = true;
 
       // check if the next lines do have data in the last column
       for (int additional = 0; !EndOfFile && additional < 10; additional++)
@@ -937,7 +888,7 @@ namespace CsvTools
       StartLineNumber = EndLineNumber;
 
       // If already at end of file, return null
-      if (EndOfFile || CancellationToken.IsCancellationRequested || m_TextReader == null)
+      if (EndOfFile || m_TextReader == null)
         return null;
 
       var item = ReadNextColumn(0, storeWarnings);
@@ -994,41 +945,11 @@ namespace CsvTools
           else
           {
             item = item.ReplaceCaseInsensitive(m_CsvFile.FileFormat.NewLinePlaceholder, Environment.NewLine)
-             .ReplaceCaseInsensitive(m_CsvFile.FileFormat.DelimiterPlaceholder,
-              m_CsvFile.FileFormat.FieldDelimiterChar)
+             .ReplaceCaseInsensitive(m_CsvFile.FileFormat.DelimiterPlaceholder, m_CsvFile.FileFormat.FieldDelimiterChar)
              .ReplaceCaseInsensitive(m_CsvFile.FileFormat.QuotePlaceholder, m_CsvFile.FileFormat.FieldQualifierChar);
 
             if (regularDataRow && col < FieldCount)
-            {
-              var column = GetColumn(col);
-              switch (column.DataType)
-              {
-                case DataType.TextToHtml:
-                  var newitemE = HTMLStyle.TextToHtmlEncode(item);
-                  if (!item.Equals(newitemE, StringComparison.Ordinal))
-                    HandleWarning(col, $"HTML encoding removed from {item}");
-                  item = newitemE;
-                  break;
-
-                case DataType.TextToHtmlFull:
-                  var newitemS = HTMLStyle.HtmlEncodeShort(item);
-                  if (!item.Equals(newitemS, StringComparison.Ordinal))
-                    HandleWarning(col, $"HTML encoding removed from {item}");
-                  item = newitemS;
-                  break;
-
-                case DataType.TextPart:
-                  var part = GetPart(item, column);
-                  if (part == null && item.Length > 0)
-                    HandleWarning(col,
-                     $"Part {column.Part} of text {item} is empty.");
-                  item = part;
-                  break;
-              }
-
-              if (!string.IsNullOrEmpty(item) && column.Size < item.Length)
-                column.Size = item.Length;
-            }
+              item = (string)HandleHtmlSetSize(item, col, false);
           }
         }
 
@@ -1062,6 +983,9 @@ namespace CsvTools
     /// </summary>
     private void ResetPositionToStart()
     {
+      if (m_BufferPos == 0 && EndLineNumber == 1 && RecordNumber == 0)
+        return;
+
       if (m_ImprovedStream == null)
         m_ImprovedStream = ImprovedStream.OpenRead(m_CsvFile);
 
@@ -1091,7 +1015,7 @@ namespace CsvTools
 
       // Skip the given number of lines
       // <= so we do skip the right number
-      while (EndLineNumber <= m_CsvFile.SkipRows && !EndOfFile && !CancellationToken.IsCancellationRequested)
+      while (EndLineNumber <= m_CsvFile.SkipRows && !EndOfFile)
         ReadToEOL();
     }
 

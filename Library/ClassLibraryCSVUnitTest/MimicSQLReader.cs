@@ -28,13 +28,13 @@ namespace CsvTools.Tests
 
     public List<IFileSetting> ReadSettings { get => m_ReadSetting; }
 
-    public IDataReader ReadData(string settingName, CancellationToken token)
+    public IDataReader ReadData(string settingName, IProcessDisplay processDisplay)
     {
       var setting = m_ReadSetting.FirstOrDefault(x => x.ID == settingName);
       if (setting == null)
-        throw new ApplicationException($"{settingName} not found");
-      var reader = setting.GetFileReader();
-      reader.Open(false, System.Threading.CancellationToken.None);
+        throw new ApplicationException($"{settingName} not found");      
+      var reader = setting.GetFileReader(processDisplay);
+      reader.Open();
       return reader;
     }
   }

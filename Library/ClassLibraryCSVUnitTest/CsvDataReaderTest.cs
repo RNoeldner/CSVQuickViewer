@@ -82,10 +82,11 @@ namespace CsvTools.Tests
         Name = "webLink"
       });
       var warningList = new RowErrorCollection();
-      using (var test = new CsvFileReader(basIssues))
+      using (var processDisplay = new DummyProcessDisplay())
+      using (var test = new CsvFileReader(basIssues, processDisplay))
       {
         test.Warning += warningList.Add;
-        test.Open(false, CancellationToken.None);
+        test.Open();
         // need 22 columns
         Assert.AreEqual(22, test.GetSchemaTable().Rows.Count());
 
@@ -162,9 +163,10 @@ namespace CsvTools.Tests
     [TestMethod]
     public void TestGetDataTypeName()
     {
-      using (var test = new CsvFileReader(m_ValidSetting))
+      using (var processDisplay = new DummyProcessDisplay())
+      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         Assert.AreEqual("String", test.GetDataTypeName(0));
       }
     }
@@ -172,9 +174,10 @@ namespace CsvTools.Tests
     [TestMethod]
     public void TestWarningsRecordWithMapping()
     {
-      using (var test = new CsvFileReader(m_ValidSetting))
+      using (var processDisplay = new DummyProcessDisplay())
+      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         var dataTable = new DataTable
         {
           TableName = "DataTable",
@@ -207,9 +210,10 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CopyRowToTableNullWarningList()
     {
-      using (var test = new CsvFileReader(m_ValidSetting))
+      using (var processDisplay = new DummyProcessDisplay())
+      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         try
         {
           test.CopyRowToTable(new DataTable(), null, null, null, null, null);
@@ -230,9 +234,10 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CopyRowToTableNullDataTable()
     {
-      using (var test = m_ValidSetting.GetFileReader())
+      using (var processDisplay = new DummyProcessDisplay())
+      using (var test = m_ValidSetting.GetFileReader(processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         try
         {
           test.CopyRowToTable(null, new RowErrorCollection(), null, null, null, null);
@@ -253,9 +258,10 @@ namespace CsvTools.Tests
     [TestMethod]
     public void TestWarningsRecordNoMapping()
     {
-      using (var test = new CsvFileReader(m_ValidSetting))
+      using (var processDisplay = new DummyProcessDisplay())
+      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         var dataTable = new DataTable
         {
           TableName = "DataTable",
@@ -285,34 +291,34 @@ namespace CsvTools.Tests
       }
     }
 
-    [TestMethod]
-    public void GetPart()
-    {
-      var partToEnd = new Column
-      {
-        DataType = DataType.TextPart,
-        PartSplitter = '-',
-        Part = 2,
-        PartToEnd = true
-      };
-      var justPart = new Column
-      {
-        DataType = DataType.TextPart,
-        PartSplitter = '-',
-        Part = 2,
-        PartToEnd = false
-      };
+    //[TestMethod]
+    //public void GetPart()
+    //{
+    //  var partToEnd = new Column
+    //  {
+    //    DataType = DataType.TextPart,
+    //    PartSplitter = '-',
+    //    Part = 2,
+    //    PartToEnd = true
+    //  };
+    //  var justPart = new Column
+    //  {
+    //    DataType = DataType.TextPart,
+    //    PartSplitter = '-',
+    //    Part = 2,
+    //    PartToEnd = false
+    //  };
 
-      using (var test = new CsvFileReader(m_ValidSetting))
-      {
-        var inputValue = "17-Hello-World";
-        var value = test.GetPart(inputValue, partToEnd);
-        Assert.AreEqual("Hello-World", value);
+    //  using (var test = new CsvFileReader(m_ValidSetting, null))
+    //  {
+    //    var inputValue = "17-Hello-World";
+    //    var value = test.GetPart(inputValue, partToEnd);
+    //    Assert.AreEqual("Hello-World", value);
 
-        var value2 = test.GetPart(inputValue, justPart);
-        Assert.AreEqual("Hello", value2);
-      }
-    }
+    //    var value2 = test.GetPart(inputValue, justPart);
+    //    Assert.AreEqual("Hello", value2);
+    //  }
+    //}
 
     [TestMethod]
     public void GetInteger32And64()
@@ -323,7 +329,8 @@ namespace CsvTools.Tests
         GroupSeparator = ",",
         DecimalSeparator = "."
       };
-      using (var test = new CsvFileReader(m_ValidSetting))
+      using (var processDisplay = new DummyProcessDisplay())
+      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
         var inputValue = "17";
 
@@ -345,10 +352,11 @@ namespace CsvTools.Tests
     public void TestBatchFinishedNotifcation()
     {
       var finished = false;
-      using (var test = new CsvFileReader(m_ValidSetting))
+      using (var processDisplay = new DummyProcessDisplay())
+      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
         test.ReadFinished += delegate { finished = true; };
-        test.Open(false, CancellationToken.None);
+        test.Open();
 
         while (test.Read())
         {
@@ -362,10 +370,11 @@ namespace CsvTools.Tests
     public void TestReadFinishedNotifcation()
     {
       var finished = false;
-      using (var test = new CsvFileReader(m_ValidSetting))
+      using (var processDisplay = new DummyProcessDisplay())
+      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
         test.ReadFinished += delegate { finished = true; };
-        test.Open(false, CancellationToken.None);
+        test.Open();
         while (test.Read())
         {
         }
@@ -402,9 +411,10 @@ namespace CsvTools.Tests
 
       csvFile.ColumnAdd(new Column { Name = "Title", DataType = DataType.DateTime });
 
-      using (var test = new CsvFileReader(csvFile))
+      using (var processDisplay = new DummyProcessDisplay())
+      using (var test = new CsvFileReader(csvFile, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         test.Read();
         test.GetDateTime(1);
       }
@@ -413,9 +423,10 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CsvDataReaderWriteToDataTable()
     {
-      using (var test = new CsvFileReader(m_ValidSetting))
+      using (var processDisplay = new DummyProcessDisplay())
+      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
 
         var res = test.WriteToDataTable(m_ValidSetting, 0, null, CancellationToken.None);
         Assert.AreEqual(7, res.Rows.Count);
@@ -430,9 +441,10 @@ namespace CsvTools.Tests
     {
       var newCsvFile = (CsvFile)m_ValidSetting.Clone();
       newCsvFile.DisplayRecordNo = true;
-      using (var test = new CsvFileReader(newCsvFile))
+      using (var processDisplay = new DummyProcessDisplay())
+      using (var test = new CsvFileReader(newCsvFile, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         var res = test.WriteToDataTable(newCsvFile, 0, null, CancellationToken.None);
         Assert.AreEqual(7, res.Rows.Count);
         Assert.AreEqual(
@@ -445,9 +457,10 @@ namespace CsvTools.Tests
     public void CsvDataReaderWriteToDataTable2()
     {
       var wl = new RowErrorCollection();
-      using (var test = new CsvFileReader(m_ValidSetting))
+      using (var processDisplay = new DummyProcessDisplay())
+      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         var res = test.WriteToDataTable(m_ValidSetting, 2, wl, CancellationToken.None);
         Assert.AreEqual(2, res.Rows.Count);
         Assert.AreEqual(
@@ -463,7 +476,7 @@ namespace CsvTools.Tests
       try
       {
         setting.FileName = string.Empty;
-        var test = new CsvFileReader(setting);
+        var test = new CsvFileReader(setting, null);
 
         Assert.Fail("Exception expected");
       }
@@ -480,7 +493,7 @@ namespace CsvTools.Tests
 
       try
       {
-        var test = new CsvFileReader(setting);
+        var test = new CsvFileReader(setting, null);
         Assert.Fail("Exception expected");
       }
       catch (ArgumentException)
@@ -497,7 +510,7 @@ namespace CsvTools.Tests
       try
       {
         setting.FileName = @"b;dslkfg;sldfkgjs;ldfkgj;sldfkg.sdfgsfd";
-        var test = new CsvFileReader(setting);
+        var test = new CsvFileReader(setting, null);
 
         Assert.Fail("Exception expected");
       }
@@ -522,14 +535,10 @@ namespace CsvTools.Tests
         HasFieldHeader = true
       };
 
-      using (var test = new CsvFileReader(setting))
+      using (var processDisplay = new DummyProcessDisplay())
+      using (var test = new CsvFileReader(setting, processDisplay))
       {
-        Assert.AreEqual(2, test.Open(true, CancellationToken.None));
-      }
-
-      using (var test = new CsvFileReader(setting))
-      {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         var row = 0;
         while (test.Read())
           row++;
@@ -561,15 +570,11 @@ namespace CsvTools.Tests
 9 ,,,,,
 10 
 */
-      // Stop on the 7th record since we would be on the 3rd empty line
-      using (var test = new CsvFileReader(setting))
-      {
-        Assert.AreEqual(7, test.Open(true, CancellationToken.None), "Counter");
-      }
 
-      using (var test = new CsvFileReader(setting))
+      using (var processDisplay = new DummyProcessDisplay())
+      using (var test = new CsvFileReader(setting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         var row = 0;
         while (test.Read())
           row++;
@@ -581,9 +586,10 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CsvDataReaderProperties()
     {
-      using (var test = new CsvFileReader(m_ValidSetting))
+      using (var processDisplay = new DummyProcessDisplay())
+      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
 
         Assert.AreEqual(0, test.Depth, "Depth");
         Assert.AreEqual(6, test.FieldCount, "FieldCount");
@@ -598,9 +604,10 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CsvDataReaderGetName()
     {
-      using (var test = new CsvFileReader(m_ValidSetting))
+      using (var processDisplay = new DummyProcessDisplay())
+      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         Assert.AreEqual("ID", test.GetName(0));
         Assert.AreEqual("LangCodeID", test.GetName(1));
         Assert.AreEqual("ExamDate", test.GetName(2));
@@ -613,9 +620,10 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CsvDataReaderGetOrdinal()
     {
-      using (var test = new CsvFileReader(m_ValidSetting))
+      using (var processDisplay = new DummyProcessDisplay())
+      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         Assert.AreEqual(0, test.GetOrdinal("ID"));
         Assert.AreEqual(1, test.GetOrdinal("LangCodeID"));
         Assert.AreEqual(2, test.GetOrdinal("ExamDate"));
@@ -629,9 +637,10 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CsvDataReaderUseIndexer()
     {
-      using (var test = new CsvFileReader(m_ValidSetting))
+      using (var processDisplay = new DummyProcessDisplay())
+      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         Assert.IsTrue(test.Read());
         Assert.AreEqual("1", test["ID"]);
         Assert.AreEqual("German", test[1]);
@@ -644,9 +653,10 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CsvDataReaderGetValueNull()
     {
-      using (var test = new CsvFileReader(m_ValidSetting))
+      using (var processDisplay = new DummyProcessDisplay())
+      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         Assert.IsTrue(test.Read());
         Assert.IsTrue(test.Read());
         Assert.AreEqual(DBNull.Value, test.GetValue(4));
@@ -695,9 +705,10 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CsvDataReaderGetBoolean()
     {
-      using (var test = new CsvFileReader(m_ValidSetting))
+      using (var processDisplay = new DummyProcessDisplay())
+      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         Assert.IsTrue(test.Read());
         Assert.IsTrue(test.GetBoolean(5));
         Assert.IsTrue(test.Read());
@@ -709,9 +720,10 @@ namespace CsvTools.Tests
     [ExpectedException(typeof(FormatException))]
     public void CsvDataReaderGetBooleanError()
     {
-      using (var test = new CsvFileReader(m_ValidSetting))
+      using (var processDisplay = new DummyProcessDisplay())
+      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         Assert.IsTrue(test.Read());
         test.GetBoolean(1);
       }
@@ -720,9 +732,10 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CsvDataReaderGetDateTime()
     {
-      using (var test = new CsvFileReader(m_ValidSetting))
+      using (var processDisplay = new DummyProcessDisplay())
+      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         Assert.IsTrue(test.Read());
         // 20/01/2010
         Assert.AreEqual(new DateTime(2010, 01, 20), test.GetDateTime(2));
@@ -733,9 +746,10 @@ namespace CsvTools.Tests
     [ExpectedException(typeof(FormatException))]
     public void CsvDataReaderGetDateTimeError()
     {
-      using (var test = new CsvFileReader(m_ValidSetting))
+      using (var processDisplay = new DummyProcessDisplay())
+      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         Assert.IsTrue(test.Read());
         test.GetDateTime(1);
       }
@@ -744,9 +758,10 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CsvDataReaderGetInt32()
     {
-      using (var test = new CsvFileReader(m_ValidSetting))
+      using (var processDisplay = new DummyProcessDisplay())
+      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         Assert.IsTrue(test.Read());
         Assert.AreEqual(276, test.GetInt32(3));
       }
@@ -756,9 +771,10 @@ namespace CsvTools.Tests
     [ExpectedException(typeof(FormatException))]
     public void CsvDataReaderGetInt32Error()
     {
-      using (var test = new CsvFileReader(m_ValidSetting))
+      using (var processDisplay = new DummyProcessDisplay())
+      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         Assert.IsTrue(test.Read());
         test.GetInt32(1);
       }
@@ -767,9 +783,10 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CsvDataReaderGetDecimal()
     {
-      using (var test = new CsvFileReader(m_ValidSetting))
+      using (var processDisplay = new DummyProcessDisplay())
+      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         Assert.IsTrue(test.Read());
         Assert.AreEqual(0.94m, test.GetDecimal(4));
       }
@@ -779,9 +796,10 @@ namespace CsvTools.Tests
     [ExpectedException(typeof(FormatException))]
     public void CsvDataReaderGetDecimalError()
     {
-      using (var test = new CsvFileReader(m_ValidSetting))
+      using (var processDisplay = new DummyProcessDisplay())
+      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         Assert.IsTrue(test.Read());
         test.GetDecimal(1);
       }
@@ -791,9 +809,10 @@ namespace CsvTools.Tests
     [ExpectedException(typeof(FormatException))]
     public void CsvDataReaderGetInt32Null()
     {
-      using (var test = new CsvFileReader(m_ValidSetting))
+      using (var processDisplay = new DummyProcessDisplay())
+      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         Assert.IsTrue(test.Read());
         Assert.IsTrue(test.Read());
         test.GetInt32(4);
@@ -804,9 +823,10 @@ namespace CsvTools.Tests
     [ExpectedException(typeof(NotImplementedException))]
     public void CsvDataReaderGetBytes()
     {
-      using (var test = new CsvFileReader(m_ValidSetting))
+      using (var processDisplay = new DummyProcessDisplay())
+      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         test.GetBytes(0, 0, null, 0, 0);
       }
     }
@@ -815,9 +835,10 @@ namespace CsvTools.Tests
     [ExpectedException(typeof(NotImplementedException))]
     public void CsvDataReaderGetData()
     {
-      using (var test = new CsvFileReader(m_ValidSetting))
+      using (var processDisplay = new DummyProcessDisplay())
+      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         test.GetData(0);
       }
     }
@@ -825,9 +846,10 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CsvDataReaderGetFloat()
     {
-      using (var test = new CsvFileReader(m_ValidSetting))
+      using (var processDisplay = new DummyProcessDisplay())
+      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         Assert.IsTrue(test.Read());
         Assert.AreEqual(Convert.ToSingle(0.94), test.GetFloat(4));
       }
@@ -837,9 +859,10 @@ namespace CsvTools.Tests
     [ExpectedException(typeof(FormatException))]
     public void CsvDataReaderGetFloatError()
     {
-      using (var test = new CsvFileReader(m_ValidSetting))
+      using (var processDisplay = new DummyProcessDisplay())
+      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         Assert.IsTrue(test.Read());
         test.GetFloat(1);
       }
@@ -849,9 +872,10 @@ namespace CsvTools.Tests
     [ExpectedException(typeof(FormatException))]
     public void CsvDataReaderGetGuid()
     {
-      using (var test = new CsvFileReader(m_ValidSetting))
+      using (var processDisplay = new DummyProcessDisplay())
+      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         Assert.IsTrue(test.Read());
         test.GetGuid(1);
       }
@@ -861,9 +885,10 @@ namespace CsvTools.Tests
     [ExpectedException(typeof(FormatException))]
     public void CsvDataReaderGetDateTimeNull()
     {
-      using (var test = new CsvFileReader(m_ValidSetting))
+      using (var processDisplay = new DummyProcessDisplay())
+      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         Assert.IsTrue(test.Read());
         Assert.IsTrue(test.Read());
         Assert.IsTrue(test.Read());
@@ -875,9 +900,10 @@ namespace CsvTools.Tests
     [ExpectedException(typeof(FormatException))]
     public void CsvDataReaderGetDateTimeWrongType()
     {
-      using (var test = new CsvFileReader(m_ValidSetting))
+      using (var processDisplay = new DummyProcessDisplay())
+      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         Assert.IsTrue(test.Read());
         test.GetDateTime(1);
       }
@@ -887,9 +913,10 @@ namespace CsvTools.Tests
     [ExpectedException(typeof(FormatException))]
     public void CsvDataReaderGetDecimalFormatException()
     {
-      using (var test = new CsvFileReader(m_ValidSetting))
+      using (var processDisplay = new DummyProcessDisplay())
+      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         Assert.IsTrue(test.Read());
         Assert.IsTrue(test.Read());
         test.GetDecimal(4);
@@ -899,9 +926,10 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CsvDataReaderGetByte()
     {
-      using (var test = new CsvFileReader(m_ValidSetting))
+      using (var processDisplay = new DummyProcessDisplay())
+      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         Assert.IsTrue(test.Read());
         Assert.AreEqual(1, test.GetByte(0));
       }
@@ -911,9 +939,10 @@ namespace CsvTools.Tests
     [ExpectedException(typeof(FormatException))]
     public void CsvDataReaderGetByteFrormat()
     {
-      using (var test = new CsvFileReader(m_ValidSetting))
+      using (var processDisplay = new DummyProcessDisplay())
+      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         Assert.IsTrue(test.Read());
         Assert.AreEqual(1, test.GetByte(1));
       }
@@ -922,9 +951,10 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CsvDataReaderGetDouble()
     {
-      using (var test = new CsvFileReader(m_ValidSetting))
+      using (var processDisplay = new DummyProcessDisplay())
+      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         Assert.IsTrue(test.Read());
         Assert.AreEqual(1, test.GetDouble(0));
       }
@@ -934,9 +964,10 @@ namespace CsvTools.Tests
     [ExpectedException(typeof(FormatException))]
     public void CsvDataReaderGetDoubleFrormat()
     {
-      using (var test = new CsvFileReader(m_ValidSetting))
+      using (var processDisplay = new DummyProcessDisplay())
+      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         Assert.IsTrue(test.Read());
         Assert.AreEqual(1, test.GetDouble(1));
       }
@@ -945,9 +976,10 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CsvDataReaderGetInt16()
     {
-      using (var test = new CsvFileReader(m_ValidSetting))
+      using (var processDisplay = new DummyProcessDisplay())
+      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         Assert.IsTrue(test.Read());
         Assert.AreEqual(1, test.GetInt16(0));
       }
@@ -965,10 +997,10 @@ namespace CsvTools.Tests
       setting.FileFormat.FieldQualifier = "XX";
       setting.FileFormat.FieldDelimiter = ",,";
       var warningList = new RowErrorCollection();
-      using (var test = new CsvFileReader(setting))
+      using (var processDisplay = new DummyProcessDisplay()) using (var test = new CsvFileReader(setting, processDisplay))
       {
         test.Warning += warningList.Add;
-        test.Open(false, CancellationToken.None);
+        test.Open();
         Assert.IsTrue(warningList.Display.Contains("Only the first character of 'XX' is be used for quoting."));
         Assert.IsTrue(warningList.Display.Contains("Only the first character of ',,' is used as delimiter."));
       }
@@ -987,9 +1019,9 @@ namespace CsvTools.Tests
       var Exception = false;
       try
       {
-        using (var test = new CsvFileReader(setting))
+        using (var processDisplay = new DummyProcessDisplay()) using (var test = new CsvFileReader(setting, processDisplay))
         {
-          test.Open(false, CancellationToken.None);
+          test.Open();
         }
       }
       catch (ArgumentException)
@@ -1021,9 +1053,9 @@ namespace CsvTools.Tests
       var Exception = false;
       try
       {
-        using (var test = new CsvFileReader(setting))
+        using (var processDisplay = new DummyProcessDisplay()) using (var test = new CsvFileReader(setting, processDisplay))
         {
-          test.Open(false, CancellationToken.None);
+          test.Open();
         }
       }
       catch (ArgumentException)
@@ -1055,9 +1087,9 @@ namespace CsvTools.Tests
       var Exception = false;
       try
       {
-        using (var test = new CsvFileReader(setting))
+        using (var processDisplay = new DummyProcessDisplay()) using (var test = new CsvFileReader(setting, processDisplay))
         {
-          test.Open(false, CancellationToken.None);
+          test.Open();
         }
       }
       catch (ArgumentException)
@@ -1087,9 +1119,9 @@ namespace CsvTools.Tests
         CodePageId = 0
       };
       setting.FileFormat.FieldDelimiter = ",";
-      using (var test = new CsvFileReader(setting))
+      using (var processDisplay = new DummyProcessDisplay()) using (var test = new CsvFileReader(setting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
       }
 
       Assert.AreEqual(setting.CurrentEncoding.WindowsCodePage, 1252);
@@ -1108,9 +1140,9 @@ namespace CsvTools.Tests
       var Exception = false;
       try
       {
-        using (var test = new CsvFileReader(setting))
+        using (var processDisplay = new DummyProcessDisplay()) using (var test = new CsvFileReader(setting, processDisplay))
         {
-          test.Open(false, CancellationToken.None);
+          test.Open();
         }
       }
       catch (ArgumentException)
@@ -1142,9 +1174,9 @@ namespace CsvTools.Tests
       var Exception = false;
       try
       {
-        using (var test = new CsvFileReader(setting))
+        using (var processDisplay = new DummyProcessDisplay()) using (var test = new CsvFileReader(setting, processDisplay))
         {
-          test.Open(false, CancellationToken.None);
+          test.Open();
         }
       }
       catch (ArgumentException)
@@ -1177,9 +1209,10 @@ namespace CsvTools.Tests
       var Exception = false;
       try
       {
-        using (var test = new CsvFileReader(setting))
+        using (var processDisplay = new DummyProcessDisplay())
+        using (var test = new CsvFileReader(setting, processDisplay))
         {
-          test.Open(false, CancellationToken.None);
+          test.Open();
         }
       }
       catch (ArgumentException)
@@ -1204,9 +1237,10 @@ namespace CsvTools.Tests
       var Exception = false;
       try
       {
-        using (var test = new CsvFileReader(m_ValidSetting))
+        using (var processDisplay = new DummyProcessDisplay())
+        using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
         {
-          test.Open(false, CancellationToken.None);
+          test.Open();
           Assert.IsTrue(test.Read());
           Assert.AreEqual(1, test.GetInt16(1));
         }
@@ -1226,9 +1260,10 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CsvDataReaderGetInt64()
     {
-      using (var test = new CsvFileReader(m_ValidSetting))
+      using (var processDisplay = new DummyProcessDisplay())
+      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         Assert.IsTrue(test.Read());
         Assert.AreEqual(1, test.GetInt64(0));
       }
@@ -1240,9 +1275,10 @@ namespace CsvTools.Tests
       var Exception = false;
       try
       {
-        using (var test = new CsvFileReader(m_ValidSetting))
+        using (var processDisplay = new DummyProcessDisplay())
+        using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
         {
-          test.Open(false, CancellationToken.None);
+          test.Open();
           Assert.IsTrue(test.Read());
           Assert.AreEqual(1, test.GetInt64(1));
         }
@@ -1262,9 +1298,10 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CsvDataReaderGetChar()
     {
-      using (var test = new CsvFileReader(m_ValidSetting))
+      using (var processDisplay = new DummyProcessDisplay())
+      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         Assert.IsTrue(test.Read());
         Assert.AreEqual('G', test.GetChar(1));
       }
@@ -1273,10 +1310,11 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CsvDataReaderGetStringColumnNotExisting()
     {
-      using (var test = new CsvFileReader(m_ValidSetting))
+      using (var processDisplay = new DummyProcessDisplay())
+      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
         var Exception = false;
-        test.Open(false, CancellationToken.None);
+        test.Open();
         test.Read();
         try
         {
@@ -1302,9 +1340,10 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CsvDataReaderGetString()
     {
-      using (var test = new CsvFileReader(m_ValidSetting))
+      using (var processDisplay = new DummyProcessDisplay())
+      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         Assert.IsTrue(test.Read());
         Assert.AreEqual("German", test.GetString(1));
         Assert.AreEqual("German", test.GetValue(1));
@@ -1313,7 +1352,8 @@ namespace CsvTools.Tests
 
     public void DataReaderResetPositionToFirstDataRow()
     {
-      using (var test = new CsvFileReader(m_ValidSetting))
+      using (var processDisplay = new DummyProcessDisplay())
+      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
         test.ResetPositionToFirstDataRow();
       }
@@ -1323,9 +1363,10 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CsvDataReaderIsDBNull()
     {
-      using (var test = new CsvFileReader(m_ValidSetting))
+      using (var processDisplay = new DummyProcessDisplay())
+      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         Assert.IsTrue(test.Read());
         Assert.IsFalse(test.IsDBNull(4));
         Assert.IsTrue(test.Read());
@@ -1338,9 +1379,10 @@ namespace CsvTools.Tests
     public void CsvDataReaderTreatNullTextTrue()
     {
       //m_ValidSetting.TreatTextNullAsNull = true;
-      using (var test = new CsvFileReader(m_ValidSetting))
+      using (var processDisplay = new DummyProcessDisplay())
+      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         Assert.IsTrue(test.Read());
         Assert.IsTrue(test.Read());
         Assert.IsTrue(test.Read());
@@ -1354,10 +1396,12 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CsvDataReaderTreatNullTextFalse()
     {
+
       m_ValidSetting.TreatTextAsNull = null;
-      using (var test = new CsvFileReader(m_ValidSetting))
+      using (var processDisplay = new DummyProcessDisplay())
+      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         Assert.IsTrue(test.Read());
         Assert.IsTrue(test.Read());
         Assert.IsTrue(test.Read());
@@ -1371,9 +1415,10 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CsvDataReaderGetValues()
     {
-      using (var test = new CsvFileReader(m_ValidSetting))
+      using (var processDisplay = new DummyProcessDisplay())
+      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         Assert.IsTrue(test.Read());
         var values = new object[test.FieldCount];
         Assert.AreEqual(6, test.GetValues(values));
@@ -1383,9 +1428,10 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CsvDataReaderGetChars()
     {
-      using (var test = new CsvFileReader(m_ValidSetting))
+      using (var processDisplay = new DummyProcessDisplay())
+      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         Assert.IsTrue(test.Read());
         char[] buffer = { '0', '0', '0', '0' };
         test.GetChars(1, 0, buffer, 0, 4);
@@ -1399,9 +1445,10 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CsvDataReaderGetSchemaTable()
     {
-      using (var test = new CsvFileReader(m_ValidSetting))
+      using (var processDisplay = new DummyProcessDisplay())
+      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         var dt = test.GetSchemaTable();
         Assert.IsInstanceOfType(dt, typeof(DataTable));
         Assert.AreEqual(6, dt.Rows.Count);
@@ -1411,9 +1458,10 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CsvDataReaderReadAfterEnd()
     {
-      using (var test = new CsvFileReader(m_ValidSetting))
+      using (var processDisplay = new DummyProcessDisplay())
+      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         Assert.IsTrue(test.Read());
         Assert.IsTrue(test.Read());
         Assert.IsTrue(test.Read());
@@ -1430,9 +1478,10 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CsvDataReaderReadAfterClose()
     {
-      using (var test = new CsvFileReader(m_ValidSetting))
+      using (var processDisplay = new DummyProcessDisplay())
+      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         Assert.IsTrue(test.Read());
         test.Close();
         Assert.IsFalse(test.Read());
@@ -1464,15 +1513,17 @@ namespace CsvTools.Tests
         SkipRows = 1
       };
       setting.FileFormat.FieldDelimiter = ",";
-      using (var test = new CsvFileReader(setting))
+      using (var processDisplay = new DummyProcessDisplay())
+      using (var test = new CsvFileReader(setting, processDisplay))
       {
-        test.Open(true, CancellationToken.None);
-        Assert.AreEqual(1, test.GetColumn(0).Size);
-        Assert.AreEqual(7, test.GetColumn(1).Size, "LangCodeID");
+        test.Open();
+        test.Read();
+        Assert.AreEqual(1, test.GetColumn(0).Size, "ID: 1");
+        Assert.AreEqual(6, test.GetColumn(1).Size, "LangCodeID: German");
         Assert.AreEqual(10, test.GetColumn(2).Size, "ExamDate");
         Assert.AreEqual(3, test.GetColumn(3).Size, "Score");
-        Assert.AreEqual(5, test.GetColumn(4).Size, "Proficiency");
-        Assert.AreEqual(1, test.GetColumn(5).Size, "IsNativeLang");
+        Assert.AreEqual(4, test.GetColumn(4).Size, "Proficiency: 0.94");
+        Assert.AreEqual(1, test.GetColumn(5).Size, "IsNativeLang ");
       }
     }
 
@@ -1486,9 +1537,10 @@ namespace CsvTools.Tests
         SkipRows = 1
       };
       setting.FileFormat.FieldDelimiter = ",";
-      using (var test = new CsvFileReader(setting))
+      using (var processDisplay = new DummyProcessDisplay())
+      using (var test = new CsvFileReader(setting, processDisplay))
       {
-        test.Open(true, CancellationToken.None);
+        test.Open();
         Assert.AreEqual("Column1", test.GetName(0));
         Assert.AreEqual("Column2", test.GetName(1));
         Assert.AreEqual("Column3", test.GetName(2));

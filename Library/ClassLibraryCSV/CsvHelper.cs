@@ -66,11 +66,10 @@ namespace CsvTools
       if (!openIfNeeded)
         return null;
 
-      using (var fileReader = fileSetting.GetFileReader())
+      using (var fileReader = fileSetting.GetFileReader(processDisplay))
       {
-        fileReader.ProcessDisplay = processDisplay;
-        fileReader.Open(false, processDisplay?.CancellationToken ?? CancellationToken.None);
-        // if teh key was long enough it has been stored
+        fileReader.Open();
+        // if the key was long enough it has been stored
         if (key.Length > 3)
           return ApplicationSetting.CacheList.Get(key);
         else
@@ -115,14 +114,17 @@ namespace CsvTools
     {
       if (string.IsNullOrEmpty(columnName) || fileSetting == null) return -1;
       var columnIndex = 0;
-      var headers = GetColumnHeader(fileSetting, true, openIfNeeded, null);
-      if (headers != null)
+      using (var processDisplay = new DummyProcessDisplay())
       {
-        foreach (var col in headers)
+        var headers = GetColumnHeader(fileSetting, true, openIfNeeded, processDisplay);
+        if (headers != null)
         {
-          if (col.Equals(columnName, StringComparison.OrdinalIgnoreCase))
-            return columnIndex;
-          columnIndex++;
+          foreach (var col in headers)
+          {
+            if (col.Equals(columnName, StringComparison.OrdinalIgnoreCase))
+              return columnIndex;
+            columnIndex++;
+          }
         }
       }
       return -1;
@@ -143,43 +145,31 @@ namespace CsvTools
       Contract.Ensures(Contract.Result<string[]>() != null);
       var emptyColumns = new List<string>();
       if (!fileSetting.HasFieldHeader) return emptyColumns.ToArray();
-      using (var fileReader = fileSetting.GetFileReader())
+      using (var fileReader = fileSetting.GetFileReader(processDisplay))
       {
         Contract.Assume(fileReader != null);
-        fileReader.ProcessDisplay = processDisplay;
-        fileReader.Open(true, processDisplay.CancellationToken);
+        fileReader.Open();
 
-        if (fileSetting is CsvFile)
+        var needtoCheck = new List<int>(fileReader.FieldCount);
+        for (var column = 0; column < fileReader.FieldCount; column++)
+          needtoCheck.Add(column);
+
+        while (fileReader.Read() && !processDisplay.CancellationToken.IsCancellationRequested && needtoCheck.Count > 0)
         {
-          for (var column = 0; column < fileReader.FieldCount; column++)
-          {
-            var col = fileReader.GetColumn(column);
-            if (col.Size == 0)
-              emptyColumns.Add(col.Name);
-          }
+          var hasData = new List<int>();
+          foreach (var col in needtoCheck)
+            if (!string.IsNullOrEmpty(fileReader.GetString(col)))
+              hasData.Add(col);
+          foreach (var col in hasData)
+            needtoCheck.Remove(col);
         }
-        else
+
+        for (var column = 0; column < fileReader.FieldCount; column++)
         {
-          var columnHasData = new HashSet<int>();
-          for (var row = 0; row < 2000 && fileReader.Read(); row++)
-          {
-            for (var column = 0; column < fileReader.FieldCount; column++)
-            {
-              if (columnHasData.Contains(column)) continue;
-              if (fileReader[column].ToString().Length > 0)
-                columnHasData.Add(column);
-            }
-
-            if (columnHasData.Count == fileReader.FieldCount)
-              break;
-          }
-
-          for (var column = 0; column < fileReader.FieldCount; column++)
-            if (!columnHasData.Contains(column))
-              emptyColumns.Add(fileReader.GetName(column));
+          if (needtoCheck.Contains(column))
+            emptyColumns.Add(fileReader.GetColumn(column).Name);
         }
       }
-
       return emptyColumns.ToArray();
     }
 
@@ -271,7 +261,7 @@ namespace CsvTools
     /// <returns>
     ///   <c>True</c> we could use the first row as header, <c>false</c> should not use first row as header
     /// </returns>
-    public static bool GuessHasHeader(ICsvFile setting, CancellationToken cancellationToken)
+    public static bool GuessHasHeader(ICsvFile setting, IProcessDisplay processDisplay)
     {
       Contract.Requires(setting != null);
       // Only do so if HasFieldHeader is still true
@@ -281,9 +271,9 @@ namespace CsvTools
         return false;
       }
 
-      using (var csvDataReader = new CsvFileReader(setting))
+      using (var csvDataReader = new CsvFileReader(setting, processDisplay))
       {
-        csvDataReader.Open(false, cancellationToken);
+        csvDataReader.Open();
 
         var defaultNames = 0;
 
@@ -485,7 +475,7 @@ namespace CsvTools
       if (file.SkipRows > 0)
         display.SetProcess("Start Row: " + file.SkipRows.ToString(CultureInfo.InvariantCulture));
 
-      file.HasFieldHeader = GuessHasHeader(file, display.CancellationToken);
+      file.HasFieldHeader = GuessHasHeader(file, display);
       display.SetProcess("Column Header: " + file.HasFieldHeader);
     }
 

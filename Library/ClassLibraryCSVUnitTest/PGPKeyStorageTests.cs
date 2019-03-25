@@ -343,13 +343,13 @@ dl9x0ovgSzpUErwY97OlA7iO2WJkevutvLq2ZZAwLfIxI01Zm309Zq63t8TKgPHJ
         }
       }
 
-      using (var pdt = new DummyProcessDisplay(CancellationToken.None))
+      using (var processDisplay = new DummyProcessDisplay(CancellationToken.None))
       {
         using (var input = new MemoryStream(Encoding.UTF8.GetBytes("This is a test")))
         {
           using (var output = new MemoryStream())
           {
-            m_PGPKeyStorage.PgpEncrypt(input, output, m_PGPKeyStorage.GetRecipientList().First(), pdt);
+            m_PGPKeyStorage.PgpEncrypt(input, output, m_PGPKeyStorage.GetRecipientList().First(), processDisplay);
           }
         }
       }

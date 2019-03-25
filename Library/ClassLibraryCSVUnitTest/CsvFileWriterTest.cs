@@ -16,24 +16,6 @@ namespace CsvTools.Tests
     private CsvFile m_WriteFile = new CsvFile();
     public MimicSQLReader mimicReader = new MimicSQLReader();
 
-    [TestMethod]
-    public void ProcessDisplay()
-    {
-      var writer = new CsvFileWriter(m_WriteFile, CancellationToken.None);
-      IProcessDisplay prc = new MockProcessDisplay
-      {
-        Maximum = 100
-      };
-      writer.ProcessDisplay = prc;
-      long num = 0;
-      prc.Progress += delegate (object sender, ProgressEventArgs e)
-      {
-        num = e.Value;
-      };
-      writer.HandleProgress("hello", 56);
-      Assert.AreEqual(56, num);
-    }
-
     private void Prc_Progress(object sender, ProgressEventArgs e)
     {
       throw new NotImplementedException();
@@ -67,11 +49,13 @@ namespace CsvTools.Tests
             new System.IO.StreamWriter(writeFile.FileName))
       {
         file.WriteLine("Hello");
+        using (var processDisplay = new DummyProcessDisplay())
+        {
+          var writer = new CsvFileWriter(writeFile, processDisplay);
 
-        var writer = new CsvFileWriter(writeFile, CancellationToken.None);
-        writer.WriteDataTable(dataTable);
-
-        Assert.IsTrue(!string.IsNullOrEmpty(writer.ErrorMessage));
+          writer.WriteDataTable(dataTable);
+          Assert.IsTrue(!string.IsNullOrEmpty(writer.ErrorMessage));
+        }
         file.WriteLine("World");
       }
       FileSystemUtils.FileDelete(writeFile.FileName);
@@ -99,18 +83,22 @@ namespace CsvTools.Tests
         ID = "Test.txt",
         FileName = Path.Combine(m_ApplicationDirectory, "Test.txt")
       };
-      var writer = new CsvFileWriter(writeFile, CancellationToken.None);
-      writer.WriteDataTable(dataTable);
-
+      using (var processDisplay = new DummyProcessDisplay())
+      {
+        var writer = new CsvFileWriter(writeFile, processDisplay);
+        writer.WriteDataTable(dataTable);
+      }
       Assert.IsTrue(File.Exists(writeFile.FileName));
     }
 
     [TestInitialize]
     public void Init()
     {
-      CsvFile m_ReadFile = new CsvFile();
-      m_ReadFile.ID = "Read";
-      m_ReadFile.FileName = Path.Combine(m_ApplicationDirectory, "BasicCSV.txt");
+      CsvFile m_ReadFile = new CsvFile
+      {
+        ID = "Read",
+        FileName = Path.Combine(m_ApplicationDirectory, "BasicCSV.txt")
+      };
       m_ReadFile.FileFormat.FieldDelimiter = ",";
       var cf = m_ReadFile.ColumnAdd(new Column { Name = "ExamDate", DataType = DataType.DateTime });
 
@@ -129,15 +117,19 @@ namespace CsvTools.Tests
       ApplicationSetting.ToolSetting.Input.Add(m_ReadFile);
       mimicReader.AddSetting(m_ReadFile);
 
-      m_WriteFile = new CsvFile();
-      m_WriteFile.ID = "Write";
-      m_WriteFile.SqlStatement = m_ReadFile.ID;
+      m_WriteFile = new CsvFile
+      {
+        ID = "Write",
+        SqlStatement = m_ReadFile.ID
+      };
 
-      var add = new Column();
-      add.Name = "ExamDate";
-      add.DataType = DataType.DateTime;
-      add.DateFormat = @"MM/dd/yyyy";
-      add.TimePart = "ExamTime";
+      var add = new Column
+      {
+        Name = "ExamDate",
+        DataType = DataType.DateTime,
+        DateFormat = @"MM/dd/yyyy",
+        TimePart = "ExamTime"
+      };
       m_WriteFile.ColumnAdd(add);
 
       m_WriteFile.ColumnAdd(new Column
@@ -163,9 +155,9 @@ namespace CsvTools.Tests
       writeFile.SqlStatement = "Read";
       writeFile.FileFormat.FieldDelimiter = "|";
 
-      var writer = new CsvFileWriter(writeFile, CancellationToken.None);
+      var writer = new CsvFileWriter(writeFile, pd);
       Assert.IsTrue(string.IsNullOrEmpty(writer.ErrorMessage));
-      writer.Progress += pd.SetProcess;
+
       var res = writer.Write();
       Assert.IsTrue(FileSystemUtils.FileExists(writeFile.FileName));
       Assert.AreEqual(7, res);
@@ -192,8 +184,8 @@ namespace CsvTools.Tests
       cf.DateFormat = "yyyyMMdd";
       cf.TimePartFormat = @"hh:mm";
       cf.TimePart = "Time";
-      var writer = new CsvFileWriter(writeFile, CancellationToken.None);
-      writer.Progress += pd.SetProcess;
+      var writer = new CsvFileWriter(writeFile, pd);
+
       var res = writer.Write();
       Assert.IsTrue(FileSystemUtils.FileExists(writeFile.FileName));
       Assert.AreEqual(1065, res, "Records");
@@ -202,32 +194,40 @@ namespace CsvTools.Tests
     [TestMethod]
     public void WriteSameAsReader()
     {
-      var writeFile = new CsvFile();
-      writeFile.ID = "Write";
-      writeFile.FileName = mimicReader.ReadSettings.FirstOrDefault(x => x.ID == "Read").FileName;
-      writeFile.SqlStatement = "Read";
+      var writeFile = new CsvFile
+      {
+        ID = "Write",
+        FileName = mimicReader.ReadSettings.FirstOrDefault(x => x.ID == "Read").FileName,
+        SqlStatement = "Read"
+      };
       writeFile.FileFormat.FieldDelimiter = "|";
-
-      var writer = new CsvFileWriter(writeFile, CancellationToken.None);
-      Assert.IsTrue(string.IsNullOrEmpty(writer.ErrorMessage));
-      var res = writer.Write();
-      Assert.IsFalse(string.IsNullOrEmpty(writer.ErrorMessage));
+      using (var processDisplay = new DummyProcessDisplay())
+      {
+        var writer = new CsvFileWriter(writeFile, processDisplay);
+        Assert.IsTrue(string.IsNullOrEmpty(writer.ErrorMessage));
+        var res = writer.Write();
+        Assert.IsFalse(string.IsNullOrEmpty(writer.ErrorMessage));
+      }
     }
 
     [TestMethod]
     public void WriteSameAsReaderCritical()
     {
-      var writeFile = new CsvFile();
-      writeFile.ID = "Write";
-      writeFile.FileName = mimicReader.ReadSettings.FirstOrDefault(x => x.ID == "Read").FileName;
-      writeFile.SqlStatement = "Read";
-      writeFile.InOverview = true;
+      var writeFile = new CsvFile
+      {
+        ID = "Write",
+        FileName = mimicReader.ReadSettings.FirstOrDefault(x => x.ID == "Read").FileName,
+        SqlStatement = "Read",
+        InOverview = true
+      };
       writeFile.FileFormat.FieldDelimiter = "|";
       try
       {
-        var writer = new CsvFileWriter(writeFile, CancellationToken.None);
-
-        var res = writer.Write();
+        using (var processDisplay = new DummyProcessDisplay())
+        {
+          var writer = new CsvFileWriter(writeFile, processDisplay);
+          var res = writer.Write();
+        }
         Assert.Fail("No Exception");
       }
       catch (ApplicationException)

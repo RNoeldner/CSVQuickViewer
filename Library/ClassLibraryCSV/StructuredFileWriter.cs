@@ -50,8 +50,8 @@ namespace CsvTools
     /// </summary>
     /// <param name="file">The file.</param>
     /// <param name="cancellationToken">A cancellation token to stop writing the file</param>
-    public StructuredFileWriter(StructuredFile file, CancellationToken cancellationToken)
-      : base(file, cancellationToken)
+    public StructuredFileWriter(StructuredFile file, IProcessDisplay processDisplay)
+      : base(file, processDisplay)
     {
       Contract.Requires(file != null);
       m_StructuredWriterFile = file;
@@ -125,7 +125,7 @@ namespace CsvTools
         foreach (var columnInfo in enumerable)
         {
           Contract.Assume(columnInfo != null);
-          var placeHolder1 = string.Format(System.Globalization.CultureInfo.CurrentCulture,  cFieldPlaceholderByNumber, colNum);
+          var placeHolder1 = string.Format(System.Globalization.CultureInfo.CurrentCulture, cFieldPlaceholderByNumber, colNum);
           var value = string.Empty;
           var placeHolder2 = string.Format(System.Globalization.CultureInfo.CurrentCulture, cFieldPlaceholderByName, columnInfo.Header);
 

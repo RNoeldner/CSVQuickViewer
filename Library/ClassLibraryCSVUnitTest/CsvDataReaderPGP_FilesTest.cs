@@ -31,9 +31,9 @@ namespace CsvTools.Tests
         Name = "IsNativeLang",
         DataType = DataType.Boolean
       });
-      using (var test = new CsvFileReader(setting))
+      using (var processDisplay = new DummyProcessDisplay()) using (var test = new CsvFileReader(setting, processDisplay))
       {
-        test.Open(true, CancellationToken.None);
+        test.Open();                
         int row = 0;
         while (test.Read())
           row++;
@@ -52,7 +52,7 @@ namespace CsvTools.Tests
         AlternateQuoting = true
       };
       PGPKeyStorageTestHelper.SetApplicationSetting();
-
+      setting.GetEncryptedPassphraseFunction = setting.DummyEncryptedPassphaseFunction;
       setting.FileName = "TestFiles\\BasicCSV.pgp";
       setting.ColumnAdd(new Column
       {
@@ -70,9 +70,9 @@ namespace CsvTools.Tests
         Name = "IsNativeLang",
         DataType = DataType.Boolean
       });
-      using (var test = new CsvFileReader(setting))
+      using (var processDisplay = new DummyProcessDisplay()) using (var test = new CsvFileReader(setting, processDisplay))
       {
-        test.Open(true, CancellationToken.None);
+        test.Open();        
         int row = 0;
         while (test.Read())
           row++;
@@ -90,7 +90,7 @@ namespace CsvTools.Tests
         AlternateQuoting = true
       };
       PGPKeyStorageTestHelper.SetApplicationSetting();
-
+      setting.GetEncryptedPassphraseFunction = setting.DummyEncryptedPassphaseFunction;
       setting.FileName = "TestFiles\\BasicCSV.pgp";
       setting.ColumnAdd(new Column
       {
@@ -108,9 +108,10 @@ namespace CsvTools.Tests
         Name = "IsNativeLang",
         DataType = DataType.Boolean
       });
-      using (var test = new CsvFileReader(setting))
+      using (var processDisplay = new DummyProcessDisplay())
+        using (var test = new CsvFileReader(setting, processDisplay))
       {
-        test.Open(true, CancellationToken.None);
+        test.Open();        
         int row = 0;
         while (test.Read())
           row++;

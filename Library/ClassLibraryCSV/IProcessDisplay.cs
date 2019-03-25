@@ -28,6 +28,11 @@ namespace CsvTools
     event EventHandler<ProgressEventArgs> Progress;
 
     /// <summary>
+    /// Indicating if messages should be logged as debug or information 
+    /// </summary>
+    bool LogAsDebug { get; set; }
+
+    /// <summary>
     ///  Gets or sets the cancellation token.
     /// </summary>
     /// <value>

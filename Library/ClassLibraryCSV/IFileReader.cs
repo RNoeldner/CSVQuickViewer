@@ -31,12 +31,7 @@ namespace CsvTools
     /// <summary>
     ///  Event handler called if a warning or error occurred
     /// </summary>
-    event EventHandler<WarningEventArgs> Warning;
-
-    /// <summary>
-    ///  The Cancellation Token used by the progress form
-    /// </summary>
-    CancellationToken CancellationToken { set; }
+    event EventHandler<WarningEventArgs> Warning;    
 
     /// <summary>
     ///  Gets the end line number
@@ -62,10 +57,6 @@ namespace CsvTools
     /// <value>The error field.</value>
     string ErrorField { get; }
 
-    /// <summary>
-    ///  Process display for this File Reader
-    /// </summary>
-    IProcessDisplay ProcessDisplay { set; }
 
     /// <summary>
     ///  Gets the record number.
@@ -107,13 +98,11 @@ namespace CsvTools
 
     /// <summary>
     /// Opens the text file and begins to read the meta data, like columns
-    /// </summary>
-    /// <param name="determineColumnSize">Determine the maximum column size.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
+    /// </summary>    
     /// <returns>
     /// Number of records in the file if known (use determineColumnSize), -1 otherwise
     /// </returns>
-    long Open(bool determineColumnSize, CancellationToken cancellationToken);
+    void Open();
 
     /// <summary>
     ///  Overrides the column format with values from settings

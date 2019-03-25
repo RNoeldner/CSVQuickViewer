@@ -99,11 +99,12 @@ namespace CsvTools
     ///  Executes a sql command, and returns a data reader.
     /// </summary>
     /// <param name="sqlStatement">The sql statement.</param>
+    /// <param name="processDisplay">A process display</param>
     /// <returns>An open data reader.</returns>
     /// <remarks>
     ///  Please use this with caution, the command and connection can not be disposed
     /// </remarks>
-    DbDataReader ExecuteReader(string sqlStatement, CancellationToken cancellationToken);
+    DbDataReader ExecuteReader(string sqlStatement, IProcessDisplay processDisplay);
 
     /// <summary>
     ///  Executes the a scalar query

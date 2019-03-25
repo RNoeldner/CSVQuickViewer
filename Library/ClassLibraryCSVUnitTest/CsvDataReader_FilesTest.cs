@@ -13,26 +13,6 @@ namespace CsvTools.Tests
     private readonly string m_ApplicationDirectory = FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles";
 
     [TestMethod]
-    public void ProcessDisplayTest()
-    {
-      var frm = new DummyProcessDisplay();
-      var setting = new CsvFile
-      {
-        HasFieldHeader = false,
-        AlternateQuoting = true
-      };
-      setting.FileName = "TestFiles\\BasicCSV.txt";
-
-      using (var test = new CsvFileReader(setting))
-      {
-        test.ProcessDisplay = frm;
-        Assert.AreEqual(frm, test.ProcessDisplay);
-        test.ProcessDisplay = null;
-        Assert.AreEqual(null, test.ProcessDisplay);
-      }
-    }
-
-    [TestMethod]
     public void ReadDateWithTime()
     {
       var setting = new CsvFile
@@ -51,9 +31,9 @@ namespace CsvTools.Tests
         TimePartFormat = "HH:mm:ss"
       });
 
-      using (var test = new CsvFileReader(setting))
+      using (var processDisplay = new DummyProcessDisplay()) using (var test = new CsvFileReader(setting, processDisplay))
       {
-        test.Open(true, CancellationToken.None);
+        test.Open();
         test.Read();
         CultureInfo cultureInfo = new CultureInfo("en-US");
         Assert.AreEqual("01/08/2013 07:00:00", test.GetDateTime(0).ToString("MM/dd/yyyy HH:mm:ss", cultureInfo));
@@ -85,9 +65,10 @@ namespace CsvTools.Tests
       });
 
       // all will be converted to TimeZoneInfo.Local, but we concert then to UTC
-      using (var test = new CsvFileReader(setting))
+      using (var processDisplay = new DummyProcessDisplay())
+      using (var test = new CsvFileReader(setting, processDisplay))
       {
-        test.Open(true, CancellationToken.None);
+        test.Open();
         test.Read();
         CultureInfo cultureInfo = new CultureInfo("en-US");
         // 01/08/2013 07:00:00 IST --> 01/08/2013 01:30:00	UTC
@@ -102,22 +83,25 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CsvDataReaderCancellationOnOpen()
     {
-      using (var cts = new CancellationTokenSource())
-      {
-        var setting = new CsvFile
-        {
-          HasFieldHeader = false,
-          AlternateQuoting = true
-        };
-        setting.TrimmingOption = TrimmingOption.All;
-        setting.FileName = Path.Combine(m_ApplicationDirectory, "AlternateTextQualifiers.txt");
 
-        using (var test = new CsvFileReader(setting))
+      var setting = new CsvFile
+      {
+        HasFieldHeader = false,
+        AlternateQuoting = true
+      };
+      setting.TrimmingOption = TrimmingOption.All;
+      setting.FileName = Path.Combine(m_ApplicationDirectory, "AlternateTextQualifiers.txt");
+
+      using (var processDisplay = new DummyProcessDisplay())
+      {
+        using (var test = new CsvFileReader(setting, processDisplay))
         {
-          cts.Cancel();
-          Assert.AreEqual(0, test.Open(true, cts.Token));
+          test.Open();
+          processDisplay.Cancel();
+          Assert.IsFalse(test.Read());
         }
       }
+
     }
 
     [TestMethod]
@@ -131,9 +115,9 @@ namespace CsvTools.Tests
       setting.FileFormat.FieldDelimiter = ",";
       setting.TrimmingOption = TrimmingOption.All;
       setting.FileName = Path.Combine(m_ApplicationDirectory, "AlternateTextQualifiers.txt");
-      using (var test = new CsvFileReader(setting))
+      using (var processDisplay = new DummyProcessDisplay()) using (var test = new CsvFileReader(setting, processDisplay))
       {
-        test.Open(true, CancellationToken.None);
+        test.Open();
         Assert.IsTrue(test.Read());
         Assert.AreEqual("a", test.GetString(0), "Start of file with quote");
         Assert.AreEqual("a", test.GetValue(0), "Start of file with quote");
@@ -168,10 +152,10 @@ namespace CsvTools.Tests
       setting.FileName = Path.Combine(m_ApplicationDirectory, "AlternateTextQualifiers.txt");
       var warningList = new RowErrorCollection();
 
-      using (var test = new CsvFileReader(setting))
+      using (var processDisplay = new DummyProcessDisplay()) using (var test = new CsvFileReader(setting, processDisplay))
       {
         test.Warning += warningList.Add;
-        test.Open(false, CancellationToken.None);
+        test.Open();
         Assert.IsTrue(test.Read());
         Assert.AreEqual("a", test.GetString(0), "Start of file with quote");
         Assert.AreEqual("b \"  ", test.GetString(1), "Containing Quote");
@@ -204,9 +188,9 @@ namespace CsvTools.Tests
       setting.FileFormat.EscapeCharacter = "\\";
       setting.FileName = Path.Combine(m_ApplicationDirectory, "BasicEscapedCharacters.txt");
 
-      using (var test = new CsvFileReader(setting))
+      using (var processDisplay = new DummyProcessDisplay()) using (var test = new CsvFileReader(setting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         Assert.IsTrue(test.Read());
         Assert.AreEqual("a\"", test.GetString(0), @"a\""");
         Assert.AreEqual("b", test.GetString(1), "b");
@@ -243,9 +227,9 @@ namespace CsvTools.Tests
       setting.TrimmingOption = TrimmingOption.Unquoted;
       setting.FileName = Path.Combine(m_ApplicationDirectory, "ComplexDataDelimiter.txt");
 
-      using (var test = new CsvFileReader(setting))
+      using (var processDisplay = new DummyProcessDisplay()) using (var test = new CsvFileReader(setting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         var message = string.Empty;
         test.Warning += delegate (object sender, WarningEventArgs args) { message = args.Message; };
         test.Read();
@@ -269,9 +253,9 @@ namespace CsvTools.Tests
       setting.TrimmingOption = TrimmingOption.Unquoted;
       setting.FileName = Path.Combine(m_ApplicationDirectory, "ComplexDataDelimiter.txt");
 
-      using (var test = new CsvFileReader(setting))
+      using (var processDisplay = new DummyProcessDisplay()) using (var test = new CsvFileReader(setting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         test.Read();
         test.Read();
         var message = string.Empty;
@@ -296,9 +280,9 @@ namespace CsvTools.Tests
       setting.TrimmingOption = TrimmingOption.Unquoted;
       setting.FileName = Path.Combine(m_ApplicationDirectory, "ComplexDataDelimiter.txt");
 
-      using (var test = new CsvFileReader(setting))
+      using (var processDisplay = new DummyProcessDisplay()) using (var test = new CsvFileReader(setting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         Assert.AreEqual(6, test.FieldCount);
         Assert.AreEqual(1U, test.StartLineNumber, "LineNumber");
 
@@ -356,9 +340,9 @@ namespace CsvTools.Tests
       setting.TrimmingOption = TrimmingOption.Unquoted;
       setting.FileName = Path.Combine(m_ApplicationDirectory, "QuoteInText.txt");
 
-      using (var test = new CsvFileReader(setting))
+      using (var processDisplay = new DummyProcessDisplay()) using (var test = new CsvFileReader(setting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         Assert.AreEqual(6, test.FieldCount);
 
         Assert.IsTrue(test.Read()); // 1
@@ -389,9 +373,9 @@ namespace CsvTools.Tests
       setting.TrimmingOption = TrimmingOption.All;
       setting.FileName = Path.Combine(m_ApplicationDirectory, "ComplexDataDelimiter.txt");
 
-      using (var test = new CsvFileReader(setting))
+      using (var processDisplay = new DummyProcessDisplay()) using (var test = new CsvFileReader(setting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         Assert.AreEqual(6, test.FieldCount);
 
         Assert.IsTrue(test.Read()); // 1
@@ -438,9 +422,9 @@ namespace CsvTools.Tests
 
       setting.FileName = Path.Combine(m_ApplicationDirectory, "CSVTestEmpty.txt");
 
-      using (var test = new CsvFileReader(setting))
+      using (var processDisplay = new DummyProcessDisplay()) using (var test = new CsvFileReader(setting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         Assert.AreEqual(0, test.FieldCount);
         Assert.IsFalse(test.Read());
       }
@@ -456,9 +440,9 @@ namespace CsvTools.Tests
       setting.FileFormat.FieldDelimiter = "PIPE";
       setting.FileName = Path.Combine(m_ApplicationDirectory, "DifferentColumnDelimiter.txt");
 
-      using (var test = new CsvFileReader(setting))
+      using (var processDisplay = new DummyProcessDisplay()) using (var test = new CsvFileReader(setting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         Assert.AreEqual(6, test.FieldCount);
         Assert.IsTrue(test.Read());
         Assert.AreEqual(1U, test.StartLineNumber, "LineNumber");
@@ -489,9 +473,9 @@ namespace CsvTools.Tests
       setting.FileFormat.EscapeCharacter = "\\";
       setting.FileName = Path.Combine(m_ApplicationDirectory, "EscapedCharacterAtEndOfFile.txt");
 
-      using (var test = new CsvFileReader(setting))
+      using (var processDisplay = new DummyProcessDisplay()) using (var test = new CsvFileReader(setting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         Assert.AreEqual(6, test.FieldCount);
         Assert.IsTrue(test.Read());
         Assert.AreEqual("a\"", test.GetString(0), @"a\""");
@@ -520,9 +504,9 @@ namespace CsvTools.Tests
       setting.FileFormat.EscapeCharacter = "\\";
       setting.FileName = Path.Combine(m_ApplicationDirectory, "EscapedCharacterAtEndOfRowDelimiter.txt");
 
-      using (var test = new CsvFileReader(setting))
+      using (var processDisplay = new DummyProcessDisplay()) using (var test = new CsvFileReader(setting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         Assert.AreEqual(6, test.FieldCount);
         Assert.IsTrue(test.Read());
         Assert.IsTrue(test.Read());
@@ -545,9 +529,9 @@ namespace CsvTools.Tests
       setting.FileFormat.EscapeCharacter = "";
       setting.FileName = Path.Combine(m_ApplicationDirectory, "EscapedCharacterAtEndOfRowDelimiter.txt");
 
-      using (var test = new CsvFileReader(setting))
+      using (var processDisplay = new DummyProcessDisplay()) using (var test = new CsvFileReader(setting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         Assert.AreEqual(6, test.FieldCount);
         Assert.IsTrue(test.Read());
         Assert.IsTrue(test.Read());
@@ -572,9 +556,9 @@ namespace CsvTools.Tests
       setting.FileFormat.FieldQualifier = string.Empty;
       setting.FileName = Path.Combine(m_ApplicationDirectory, "EscapeWithoutTextQualifier.txt");
 
-      using (var test = new CsvFileReader(setting))
+      using (var processDisplay = new DummyProcessDisplay()) using (var test = new CsvFileReader(setting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         Assert.AreEqual(6, test.FieldCount);
         Assert.IsTrue(test.Read());
         Assert.AreEqual(@"a\", test.GetString(0), @"a\\");
@@ -601,11 +585,11 @@ namespace CsvTools.Tests
       setting.FileFormat.FieldDelimiter = ",";
       setting.FileName = Path.Combine(m_ApplicationDirectory, "HandlingDuplicateColumnNames.txt");
 
-      using (var test = new CsvFileReader(setting))
+      using (var processDisplay = new DummyProcessDisplay()) using (var test = new CsvFileReader(setting, processDisplay))
       {
         var message = string.Empty;
         test.Warning += delegate (object sender, WarningEventArgs args) { message = args.Message; };
-        test.Open(false, CancellationToken.None);
+        test.Open();
         Assert.IsTrue(message.Contains("exists more than once"));
       }
     }
@@ -620,9 +604,9 @@ namespace CsvTools.Tests
       setting.FileFormat.FieldDelimiter = ",";
       setting.FileName = Path.Combine(m_ApplicationDirectory, "LastRowWithRowDelimiter.txt");
 
-      using (var test = new CsvFileReader(setting))
+      using (var processDisplay = new DummyProcessDisplay()) using (var test = new CsvFileReader(setting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         Assert.AreEqual(6, test.FieldCount);
 
         Assert.AreEqual("a", test.GetName(0));
@@ -645,9 +629,9 @@ namespace CsvTools.Tests
       setting.FileFormat.FieldDelimiter = ",";
       setting.FileName = Path.Combine(m_ApplicationDirectory, "LastRowWithRowDelimiter.txt");
 
-      using (var test = new CsvFileReader(setting))
+      using (var processDisplay = new DummyProcessDisplay()) using (var test = new CsvFileReader(setting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         Assert.AreEqual(6, test.FieldCount);
 
         Assert.IsTrue(test.Read());
@@ -668,10 +652,10 @@ namespace CsvTools.Tests
       setting.FileFormat.CommentLine = "#";
       setting.FileName = Path.Combine(m_ApplicationDirectory, "LongHeaders.txt");
       var warningsList = new RowErrorCollection();
-      using (var test = new CsvFileReader(setting))
+      using (var processDisplay = new DummyProcessDisplay()) using (var test = new CsvFileReader(setting, processDisplay))
       {
         test.Warning += warningsList.Add;
-        test.Open(false, CancellationToken.None);
+        test.Open();
         Assert.AreEqual(6, test.FieldCount);
         Assert.AreEqual("a", test.GetName(0));
         Assert.AreEqual("b", test.GetName(1));
@@ -697,10 +681,10 @@ namespace CsvTools.Tests
       setting.FileFormat.FieldDelimiter = ",";
       setting.FileName = Path.Combine(m_ApplicationDirectory, "MoreColumnsThanHeaders.txt");
       var warningList = new RowErrorCollection();
-      using (var test = new CsvFileReader(setting))
+      using (var processDisplay = new DummyProcessDisplay()) using (var test = new CsvFileReader(setting, processDisplay))
       {
         test.Warning += warningList.Add;
-        test.Open(false, CancellationToken.None);
+        test.Open();
 
         Assert.AreEqual(6, test.FieldCount);
         Assert.IsTrue(test.Read());
@@ -736,9 +720,9 @@ namespace CsvTools.Tests
       setting.FileFormat.FieldQualifier = string.Empty;
       setting.FileName = Path.Combine(m_ApplicationDirectory, "TextQualifierDataPastClosingQuote.txt");
 
-      using (var test = new CsvFileReader(setting))
+      using (var processDisplay = new DummyProcessDisplay()) using (var test = new CsvFileReader(setting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         Assert.AreEqual(6, test.FieldCount);
         Assert.IsTrue(test.Read());
         //"a"a,b,c,d,e,f
@@ -773,9 +757,9 @@ namespace CsvTools.Tests
       setting.FileFormat.QuotePlaceholder = @"<\q>";
       setting.FileFormat.NewLinePlaceholder = @"<\r>";
       setting.FileName = Path.Combine(m_ApplicationDirectory, "Placeholder.txt");
-      using (var test = new CsvFileReader(setting))
+      using (var processDisplay = new DummyProcessDisplay()) using (var test = new CsvFileReader(setting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         Assert.IsTrue(test.Read());
         Assert.AreEqual("A \r\nLine\r\nBreak", test.GetString(1));
 
@@ -795,10 +779,9 @@ namespace CsvTools.Tests
       var stopped = false;
       pd.ProgressStopEvent += delegate { stopped = true; };
       Assert.AreEqual(null, pd.Text);
-      using (var test = new CsvFileReader(setting))
+      using (var test = new CsvFileReader(setting, pd))
       {
-        test.ProcessDisplay = pd;
-        test.Open(false, CancellationToken.None);
+        test.Open();
 
         for (var i = 0; i < 500; i++) Assert.IsTrue(test.Read());
       }
@@ -817,9 +800,9 @@ namespace CsvTools.Tests
       setting.FileFormat.CommentLine = "#";
       setting.FileName = Path.Combine(m_ApplicationDirectory, "ReadingInHeaderAfterComments.txt");
 
-      using (var test = new CsvFileReader(setting))
+      using (var processDisplay = new DummyProcessDisplay()) using (var test = new CsvFileReader(setting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
 
         Assert.AreEqual(6, test.FieldCount);
         Assert.IsTrue(test.Read());
@@ -839,9 +822,9 @@ namespace CsvTools.Tests
       setting.FileFormat.FieldDelimiter = ",";
       setting.FileName = Path.Combine(m_ApplicationDirectory, "RowWithoutColumnDelimiter.txt");
 
-      using (var test = new CsvFileReader(setting))
+      using (var processDisplay = new DummyProcessDisplay()) using (var test = new CsvFileReader(setting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         Assert.AreEqual(1, test.FieldCount);
         Assert.AreEqual("abcdef", test.GetName(0));
         Assert.AreEqual(1U, test.StartLineNumber, "LineNumber");
@@ -865,10 +848,10 @@ namespace CsvTools.Tests
       setting.WarnNBSP = true;
       setting.WarnUnknowCharater = true;
       var warningList = new RowErrorCollection();
-      using (var test = new CsvFileReader(setting))
+      using (var processDisplay = new DummyProcessDisplay()) using (var test = new CsvFileReader(setting, processDisplay))
       {
         test.Warning += warningList.Add;
-        test.Open(false, CancellationToken.None);
+        test.Open();
         Assert.AreEqual(6, test.FieldCount);
         Assert.AreEqual(1U, test.StartLineNumber, "LineNumber");
 
@@ -919,10 +902,10 @@ namespace CsvTools.Tests
       setting.FileName = Path.Combine(m_ApplicationDirectory, "SimpleDelimiterWithControlCharacters.txt");
       setting.FileFormat.CommentLine = "#";
       var warningList = new RowErrorCollection();
-      using (var test = new CsvFileReader(setting))
+      using (var processDisplay = new DummyProcessDisplay()) using (var test = new CsvFileReader(setting, processDisplay))
       {
         test.Warning += warningList.Add;
-        test.Open(false, CancellationToken.None);
+        test.Open();
         Assert.AreEqual(6, test.FieldCount);
         Assert.AreEqual("1", test.GetName(0));
         Assert.AreEqual("2", test.GetName(1));
@@ -965,9 +948,9 @@ namespace CsvTools.Tests
       setting.SkipRows = 100;
       setting.FileName = Path.Combine(m_ApplicationDirectory, "BasicCSV.txt");
 
-      using (var test = new CsvFileReader(setting))
+      using (var processDisplay = new DummyProcessDisplay()) using (var test = new CsvFileReader(setting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         Assert.AreEqual(0, test.FieldCount);
       }
     }
@@ -982,9 +965,9 @@ namespace CsvTools.Tests
       setting.FileFormat.FieldDelimiter = ",";
       setting.FileName = Path.Combine(m_ApplicationDirectory, "SkippingComments.txt");
       setting.FileFormat.CommentLine = "#";
-      using (var test = new CsvFileReader(setting))
+      using (var processDisplay = new DummyProcessDisplay()) using (var test = new CsvFileReader(setting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         Assert.AreEqual(6, test.FieldCount);
         Assert.IsTrue(test.Read());
         Assert.AreEqual(2U, test.StartLineNumber, "LineNumber");
@@ -1034,9 +1017,9 @@ namespace CsvTools.Tests
       setting.FileFormat.FieldDelimiter = ",";
       setting.FileName = Path.Combine(m_ApplicationDirectory, "SkippingEmptyRowsWithDelimiter.txt");
 
-      using (var test = new CsvFileReader(setting))
+      using (var processDisplay = new DummyProcessDisplay()) using (var test = new CsvFileReader(setting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         Assert.AreEqual(6, test.FieldCount);
         Assert.IsTrue(test.Read());
         Assert.AreEqual(3U, test.StartLineNumber, "LineNumber");
@@ -1084,16 +1067,16 @@ namespace CsvTools.Tests
         DataType = DataType.Boolean
       });
 
-      using (var test = new CsvFileReader(setting))
+      using (var processDisplay = new DummyProcessDisplay()) using (var test = new CsvFileReader(setting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         Assert.AreEqual(6, test.FieldCount);
         Assert.IsTrue(test.Read());
         Assert.AreEqual(new DateTime(2010, 1, 20), test.GetValue(2));
         Assert.AreEqual(true, test.GetValue(5));
         Assert.IsTrue(test.Read());
 
-        Assert.AreEqual(Convert.ToInt32(2), Convert.ToInt32(test.GetValue(0),CultureInfo.InvariantCulture));
+        Assert.AreEqual(Convert.ToInt32(2), Convert.ToInt32(test.GetValue(0), CultureInfo.InvariantCulture));
         Assert.AreEqual("English", test.GetString(1));
         Assert.AreEqual("22/01/2012", test.GetString(2));
         Assert.AreEqual(new DateTime(2012, 1, 22), test.GetValue(2));
@@ -1112,9 +1095,9 @@ namespace CsvTools.Tests
       setting.SkipRows = 2;
       setting.FileName = Path.Combine(m_ApplicationDirectory, "BasicCSV.txt");
 
-      using (var test = new CsvFileReader(setting))
+      using (var processDisplay = new DummyProcessDisplay()) using (var test = new CsvFileReader(setting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         Assert.AreEqual(6, test.FieldCount);
         // Start at line 2
         Assert.IsTrue(test.Read());
@@ -1148,9 +1131,9 @@ namespace CsvTools.Tests
       };
       setting.FileFormat.FieldDelimiter = ",";
       setting.FileName = Path.Combine(m_ApplicationDirectory, "BasicCSVEmptyLine.txt");
-      using (var test = new CsvFileReader(setting))
+      using (var processDisplay = new DummyProcessDisplay()) using (var test = new CsvFileReader(setting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         Assert.AreEqual(6, test.FieldCount);
         Assert.IsTrue(test.Read(), "Read() 1");
 
@@ -1174,9 +1157,9 @@ namespace CsvTools.Tests
       };
       setting.FileFormat.FieldDelimiter = ",";
       setting.FileName = Path.Combine(m_ApplicationDirectory, "BasicCSVEmptyLine.txt");
-      using (var test = new CsvFileReader(setting))
+      using (var processDisplay = new DummyProcessDisplay()) using (var test = new CsvFileReader(setting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         Assert.AreEqual(6, test.FieldCount);
         Assert.IsTrue(test.Read());
         Assert.IsTrue(test.Read());
@@ -1203,9 +1186,9 @@ namespace CsvTools.Tests
       setting.FileFormat.EscapeCharacter = "\\";
       setting.FileName = Path.Combine(m_ApplicationDirectory, "TextQualifierBeginningAndEnd.txt");
 
-      using (var test = new CsvFileReader(setting))
+      using (var processDisplay = new DummyProcessDisplay()) using (var test = new CsvFileReader(setting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         Assert.AreEqual(5, test.FieldCount);
         Assert.IsTrue(test.Read());
         Assert.AreEqual(1U, test.StartLineNumber, "LineNumber");
@@ -1240,9 +1223,9 @@ namespace CsvTools.Tests
       setting.FileFormat.FieldDelimiter = ",";
       setting.FileName = Path.Combine(m_ApplicationDirectory, "TextQualifierDataPastClosingQuote.txt");
 
-      using (var test = new CsvFileReader(setting))
+      using (var processDisplay = new DummyProcessDisplay()) using (var test = new CsvFileReader(setting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         Assert.AreEqual(6, test.FieldCount);
         Assert.IsTrue(test.Read());
         //"a"a,b,c,d,e,f
@@ -1275,9 +1258,9 @@ namespace CsvTools.Tests
       setting.FileFormat.EscapeCharacter = "\\";
       setting.FileName = Path.Combine(m_ApplicationDirectory, "TextQualifierNotClosedAtEnd.txt");
 
-      using (var test = new CsvFileReader(setting))
+      using (var processDisplay = new DummyProcessDisplay()) using (var test = new CsvFileReader(setting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         Assert.AreEqual(6, test.FieldCount);
         Assert.IsTrue(test.Read());
         Assert.AreEqual(1U, test.StartLineNumber, "LineNumber");
@@ -1327,9 +1310,9 @@ namespace CsvTools.Tests
       setting.FileFormat.FieldDelimiter = ",";
       setting.FileName = Path.Combine(m_ApplicationDirectory, "TextQualifiers.txt");
 
-      using (var test = new CsvFileReader(setting))
+      using (var processDisplay = new DummyProcessDisplay()) using (var test = new CsvFileReader(setting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         Assert.AreEqual(6, test.FieldCount);
         Assert.IsTrue(test.Read());
         Assert.AreEqual("a", test.GetString(0));
@@ -1361,10 +1344,10 @@ namespace CsvTools.Tests
       setting.FileFormat.EscapeCharacter = "\\";
       setting.FileName = Path.Combine(m_ApplicationDirectory, "TextQualifiersWithDelimiters.txt");
       var warningList = new RowErrorCollection();
-      using (var test = new CsvFileReader(setting))
+      using (var processDisplay = new DummyProcessDisplay()) using (var test = new CsvFileReader(setting, processDisplay))
       {
         test.Warning += warningList.Add;
-        test.Open(false, CancellationToken.None);
+        test.Open();
         Assert.AreEqual(6, test.FieldCount);
         Assert.IsTrue(test.Read());
         Assert.AreEqual(1U, test.StartLineNumber, "LineNumber");
@@ -1416,10 +1399,10 @@ namespace CsvTools.Tests
       setting.FileFormat.CommentLine = "#";
       setting.FileName = Path.Combine(m_ApplicationDirectory, "TrimmingHeaders.txt");
       var warningList = new RowErrorCollection();
-      using (var test = new CsvFileReader(setting))
+      using (var processDisplay = new DummyProcessDisplay()) using (var test = new CsvFileReader(setting, processDisplay))
       {
         test.Warning += warningList.Add;
-        test.Open(false, CancellationToken.None);
+        test.Open();
         Assert.AreEqual(6, test.FieldCount);
         Assert.AreEqual("a", test.GetName(0));
         Assert.AreEqual("b", test.GetName(1));
@@ -1443,9 +1426,9 @@ namespace CsvTools.Tests
       setting.FileFormat.FieldDelimiter = ",";
       setting.FileName = Path.Combine(m_ApplicationDirectory, "UnicodeUTF16BE.txt");
 
-      using (var test = new CsvFileReader(setting))
+      using (var processDisplay = new DummyProcessDisplay()) using (var test = new CsvFileReader(setting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         Assert.AreEqual(Encoding.BigEndianUnicode, setting.CurrentEncoding);
         Assert.AreEqual(4, test.FieldCount);
         Assert.IsTrue(test.Read());
@@ -1493,9 +1476,9 @@ namespace CsvTools.Tests
       setting.FileFormat.FieldDelimiter = ",";
       setting.FileName = Path.Combine(m_ApplicationDirectory, "UnicodeUTF8.txt");
 
-      using (var test = new CsvFileReader(setting))
+      using (var processDisplay = new DummyProcessDisplay()) using (var test = new CsvFileReader(setting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         Assert.AreEqual(Encoding.UTF8, setting.CurrentEncoding);
         Assert.AreEqual(4, test.FieldCount);
         Assert.IsTrue(test.Read());

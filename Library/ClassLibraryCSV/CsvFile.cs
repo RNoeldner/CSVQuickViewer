@@ -17,7 +17,6 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.Text;
-using System.Threading;
 using System.Xml.Serialization;
 
 namespace CsvTools
@@ -448,9 +447,9 @@ namespace CsvTools
     ///   Gets the file reader.
     /// </summary>
     /// <returns></returns>
-    public override IFileReader GetFileReader()
+    public override IFileReader GetFileReader(IProcessDisplay processDisplay)
     {
-      return new CsvFileReader(this);
+      return new CsvFileReader(this, processDisplay);
     }
 
     /// <summary>
@@ -458,9 +457,9 @@ namespace CsvTools
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns></returns>
-    public override IFileWriter GetFileWriter(CancellationToken cancellationToken)
+    public override IFileWriter GetFileWriter(IProcessDisplay processDisplay)
     {
-      return new CsvFileWriter(this, cancellationToken);
+      return new CsvFileWriter(this, processDisplay);
     }
 
     /*

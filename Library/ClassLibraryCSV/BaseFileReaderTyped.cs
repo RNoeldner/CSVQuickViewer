@@ -14,7 +14,7 @@ namespace CsvTools
     protected object[] m_CurrentValues;
 #pragma warning restore CA1051 // Do not declare visible instance fields
 
-    protected BaseFileReaderTyped(IFileSetting fileSetting) : base(fileSetting)
+    protected BaseFileReaderTyped(IFileSetting fileSetting, IProcessDisplay processDisplay) : base(fileSetting, processDisplay)
     {
     }
 

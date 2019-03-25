@@ -88,12 +88,10 @@ namespace CsvTools
         }
         var othersValueFormatDate = CommonDateFormat(fileSetting.Column.Select(x => x.ValueFormat));
 
-        using (var fileReader = fileSetting.GetFileReader())
+        using (var fileReader = fileSetting.GetFileReader(processDisplay))
         {
           Contract.Assume(fileReader != null);
-          // fileReader.ProcessDisplay = processDisplay;
-
-          fileReader.Open(false, processDisplay.CancellationToken);
+          fileReader.Open();
           if (fileReader.FieldCount == 0 || fileReader.EndOfFile)
             return result;
           processDisplay.SetProcess("Getting column headers");
@@ -389,12 +387,11 @@ namespace CsvTools
     /// <param name="fileSettings">The file settings.</param>
     /// <param name="all">if set to <c>true</c> event string columns are added.</param>
     public static void FillGuessColumnFormatWriter(this IFileSetting fileSettings, bool all,
-      CancellationToken cancellationToken)
+      IProcessDisplay processDisplay)
     {
-      var fileWriter = fileSettings.GetFileWriter(cancellationToken);
       if (string.IsNullOrEmpty(fileSettings.SqlStatement))
         throw new ApplicationException("No SQL Statement given");
-      using (var dataReader = ApplicationSetting.SQLDataReader(fileSettings.SqlStatement, cancellationToken))
+      using (var dataReader = ApplicationSetting.SQLDataReader(fileSettings.SqlStatement, processDisplay))
       {
         // Put the information into the list
         foreach (DataRow schemaRow in dataReader.GetSchemaTable().Rows)
@@ -543,8 +540,8 @@ namespace CsvTools
         {
           if (remainingShows-- > 0)
             Log.Debug(args.Message);
-          if (remainingShows==0)
-              Log.Debug("No further warning shown");
+          if (remainingShows == 0)
+            Log.Debug("No further warning shown");
           hasWarning = true;
         };
         // Get distinct sample values
@@ -611,10 +608,10 @@ namespace CsvTools
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns></returns>
     public static IEnumerable<ColumnInfo> GetWriterSourceColumns(IFileSetting fileSettings,
-      CancellationToken cancellationToken)
+      IProcessDisplay processDisplay)
     {
       Contract.Requires(fileSettings != null);
-      var writer = fileSettings.GetFileWriter(cancellationToken);
+      var writer = fileSettings.GetFileWriter(processDisplay);
       return writer.GetColumnInformation(writer.GetSchemaReader());
     }
 

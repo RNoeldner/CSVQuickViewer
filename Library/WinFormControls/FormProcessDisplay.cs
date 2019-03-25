@@ -11,11 +11,8 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-
-
 using System;
 using System.Drawing;
-using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -25,9 +22,7 @@ namespace CsvTools
   ///   A Po pup Form to display progress information
   /// </summary>
   public class FormProcessDisplay : Form, IProcessDisplayTime
-  {
-    private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
-
+  {    
     private bool m_ClosedByUI = true;
     private Label m_LabelEtl;
     private Label m_LabelEtr;
@@ -36,7 +31,7 @@ namespace CsvTools
     private ProgressBar m_ProgressBar;
     protected TableLayoutPanel tableLayoutPanel;
     private string m_Title;
-    private bool m_LogAsDebug = false;
+    private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
     public FormProcessDisplay(string windowTitle) : this(windowTitle, true, CancellationToken.None)
     {
@@ -157,7 +152,7 @@ namespace CsvTools
       }
     }
 
-    public bool LogAsDebug { get => m_LogAsDebug; set => m_LogAsDebug = value; }
+    public bool LogAsDebug { get; set; } = false;
 
     /// <summary>
     ///   Closes the form used by Events
@@ -189,7 +184,7 @@ namespace CsvTools
       // if cancellation is requested do nothing
       if (CancellationToken.IsCancellationRequested) return;
       TimeToCompletion.Value = value;
-      if (m_LogAsDebug)
+      if (LogAsDebug)
         Log.Debug(text);
       else
         Log.Info(text);

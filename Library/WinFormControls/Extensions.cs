@@ -171,7 +171,7 @@ namespace CsvTools
       if (!string.IsNullOrEmpty(setting?.Passphrase))
         return setting.Passphrase;
 
-      if (!string.IsNullOrEmpty(ApplicationSetting.ToolSetting.PGPInformation.EncryptedPassphase))
+      if (!string.IsNullOrEmpty(ApplicationSetting.ToolSetting?.PGPInformation?.EncryptedPassphase))
         return ApplicationSetting.ToolSetting.PGPInformation.EncryptedPassphase;
 
       // Need to enter Passphrase
@@ -388,10 +388,9 @@ namespace CsvTools
         else if (res == DialogResult.Cancel)
           return -2;
 
-
         var errors = new RowErrorCollection(50);
-        var writer = fileSetting.GetFileWriter(processDisplay.CancellationToken);
-        writer.ProcessDisplay = processDisplay;
+        var writer = fileSetting.GetFileWriter(processDisplay);
+
         writer.Warning += errors.Add;
         written = writer.Write();
 

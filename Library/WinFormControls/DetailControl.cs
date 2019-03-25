@@ -982,10 +982,11 @@ namespace CsvTools
         if (saveFileDialog.ShowDialog() != DialogResult.OK) return;
         var writeFile = m_FileSetting.Clone();
         writeFile.FileName = saveFileDialog.FileName.LongFileName();
+
         using (var processDisplay = writeFile.GetProcessDisplay(ParentForm, true, m_CancellationTokenSource.Token))
         {
-          var writer = writeFile.GetFileWriter(processDisplay.CancellationToken);
-          writer.Progress += processDisplay.SetProcess;
+          var writer = writeFile.GetFileWriter(processDisplay);
+
           // Restrict to shown data
           var colNames = new Dictionary<int, string>();
           foreach (DataGridViewColumn col in m_FilteredDataGridView.Columns)

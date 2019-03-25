@@ -39,15 +39,18 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GuessHasHeader()
     {
-      Assert.IsTrue(CsvHelper.GuessHasHeader(new CsvFile
+      using (var processDisplay = new DummyProcessDisplay())
       {
-        FileName = Path.Combine(m_ApplicationDirectory, "BasicCSV.txt")
-      }, CancellationToken.None), "BasicCSV.txt");
+        Assert.IsTrue(CsvHelper.GuessHasHeader(new CsvFile
+        {
+          FileName = Path.Combine(m_ApplicationDirectory, "BasicCSV.txt")
+        }, processDisplay), "BasicCSV.txt");
 
-      Assert.IsFalse(CsvHelper.GuessHasHeader(new CsvFile
-      {
-        FileName = Path.Combine(m_ApplicationDirectory, "txTranscripts.txt")
-      }, CancellationToken.None), "txTranscripts.txt");
+        Assert.IsFalse(CsvHelper.GuessHasHeader(new CsvFile
+        {
+          FileName = Path.Combine(m_ApplicationDirectory, "txTranscripts.txt")
+        }, processDisplay), "txTranscripts.txt");
+      }
     }
 
     [TestMethod]
@@ -84,8 +87,10 @@ namespace CsvTools.Tests
       {
         FileName = Path.Combine(m_ApplicationDirectory, "BasicCSV.txt")
       };
-
-      CsvHelper.RefreshCsvFile(setting, new DummyProcessDisplay());
+      using (var processDisplay = new DummyProcessDisplay())
+      {
+        CsvHelper.RefreshCsvFile(setting, processDisplay);
+      }
       Assert.AreEqual(1200, setting.CodePageId);
       Assert.AreEqual(",", setting.FileFormat.FieldDelimiter);
     }
@@ -99,10 +104,10 @@ namespace CsvTools.Tests
         HasFieldHeader = true
       };
       // setting.TreatTextNullAsNull = true;
-
-      using (var test = setting.GetFileReader())
+      using (var processDisplay = new DummyProcessDisplay())
+      using (var test = setting.GetFileReader(processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         var list = new List<string>();
         CsvHelper.InvalidateColumnHeader(setting);
       }
@@ -111,12 +116,15 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GetColumnHeaderFileEmpty()
     {
-      var headers = CsvHelper.GetColumnHeader(new CsvFile
+      using (var processDisplay = new DummyProcessDisplay())
       {
-        FileName = Path.Combine(m_ApplicationDirectory, "CSVTestEmpty.txt"),
-        HasFieldHeader = true
-      }, false, true, null).ToArray();
-      Assert.AreEqual(0, headers.Length);
+        var headers = CsvHelper.GetColumnHeader(new CsvFile
+        {
+          FileName = Path.Combine(m_ApplicationDirectory, "CSVTestEmpty.txt"),
+          HasFieldHeader = true
+        }, false, true, processDisplay).ToArray();
+        Assert.AreEqual(0, headers.Length);
+      }
     }
 
     [TestMethod]
@@ -128,10 +136,13 @@ namespace CsvTools.Tests
       };
       setting.FileFormat.FieldDelimiter = ",";
       setting.HasFieldHeader = true;
-      var headers = CsvHelper.GetColumnHeader(setting, false, true, null).ToArray();
-      Assert.AreEqual(6, headers.Length);
-      Assert.AreEqual("ID", headers[0]);
-      Assert.AreEqual("IsNativeLang", headers[5]);
+      using (var processDisplay = new DummyProcessDisplay())
+      {
+        var headers = CsvHelper.GetColumnHeader(setting, false, true, processDisplay).ToArray();
+        Assert.AreEqual(6, headers.Length);
+        Assert.AreEqual("ID", headers[0]);
+        Assert.AreEqual("IsNativeLang", headers[5]);
+      }
     }
 
     [TestMethod]
@@ -142,8 +153,8 @@ namespace CsvTools.Tests
         FileName = Path.Combine(m_ApplicationDirectory, "UnicodeUTF8.txt"),
         HasFieldHeader = false
       };
-
-      Assert.AreEqual("Column1", CsvHelper.GetColumnHeader(setting, false, true, null).First());
+      using (var processDisplay = new DummyProcessDisplay())
+      Assert.AreEqual("Column1", CsvHelper.GetColumnHeader(setting, false, true, processDisplay).First());
     }
 
     [TestMethod]

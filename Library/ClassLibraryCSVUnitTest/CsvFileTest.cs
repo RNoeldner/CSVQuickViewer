@@ -44,6 +44,15 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    public void GetEncryptedPassphraseFunction()
+    {
+      var test = new CsvFile();
+      Assert.IsNull(test.GetEncryptedPassphraseFunction);
+      test.GetEncryptedPassphraseFunction = delegate () { return "Hello World"; };
+      Assert.IsNotNull(test.GetEncryptedPassphraseFunction);
+    }
+
+    [TestMethod]
     public void Ctor()
     {
       var test = new CsvFile();
@@ -155,18 +164,20 @@ namespace CsvTools.Tests
     public void GetFileReader()
     {
       m_CsvFile.FileName = "TestFiles\\BasicCSV.txt";
-      var res = m_CsvFile.GetFileReader();
-      Assert.IsInstanceOfType(res, typeof(IFileReader));
+      using (var processDisplay = new DummyProcessDisplay())
+      using (var res = m_CsvFile.GetFileReader(processDisplay))
+        Assert.IsInstanceOfType(res, typeof(IFileReader));
     }
 
     [TestMethod]
     public void GetFileWriter()
     {
-      using (var cts = new CancellationTokenSource())
+      using (var processDisplay = new DummyProcessDisplay())
       {
-        var res = m_CsvFile.GetFileWriter(cts.Token);
+        var res = m_CsvFile.GetFileWriter(processDisplay);
         Assert.IsInstanceOfType(res, typeof(IFileWriter));
       }
+
     }
 
     [TestMethod]

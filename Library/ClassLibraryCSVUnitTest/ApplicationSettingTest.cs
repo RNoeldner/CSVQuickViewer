@@ -59,7 +59,7 @@ namespace CsvTools.Tests
       {
         // all good
       }
-      ApplicationSetting.SQLDataReader = delegate (string s, CancellationToken ct) { return null; };
+      ApplicationSetting.SQLDataReader = delegate (string s, IProcessDisplay processDisplay) { return null; };
       var reader = ApplicationSetting.SQLDataReader;
       Assert.IsNotNull(reader);
     }

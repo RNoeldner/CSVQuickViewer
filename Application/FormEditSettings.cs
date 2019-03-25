@@ -160,10 +160,10 @@ namespace CsvTools
       try
       {
         var csvFile = new CsvFile(newFileName);
-        csvFile.GetEncryptedPassphraseFunction = () => csvFile.GetEncryptedPassphraseFunction();
-        using (var dummy = new DummyProcessDisplay())
+        csvFile.GetEncryptedPassphraseFunction = csvFile.GetEncryptedPassphraseOpenForm;
+        using (var processDisplay = new DummyProcessDisplay())
         {
-          csvFile.RefreshCsvFile(dummy);
+          csvFile.RefreshCsvFile(processDisplay);
         }
 
         m_ViewSettings.FileFormat.FieldDelimiter = csvFile.FileFormat.FieldDelimiter;
