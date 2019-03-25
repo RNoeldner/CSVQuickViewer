@@ -255,11 +255,15 @@ namespace CsvTools
       // If we are writing we have possibly two steps,
       // a) compress / encrypt the data from temp
       // b) upload the data to sFTP
-
-      if (ProcessDisplay == null)
-        ProcessDisplay = new DummyProcessDisplay();
-
       if (WritePath.AssumeGZip() || WritePath.AssumePgp())
+      {
+        bool selfOpened = false;
+        if (ProcessDisplay == null)
+        {
+          selfOpened = true;
+          ProcessDisplay = new DummyProcessDisplay();
+        }
+
         try
         {
           // Compress the file
@@ -311,7 +315,10 @@ namespace CsvTools
         {
           Log.Debug("Removing temporary file");
           File.Delete(TempFile);
+          if (selfOpened)
+            ProcessDisplay.Dispose();
         }
+      }
     }
 
     #region IDisposable Support

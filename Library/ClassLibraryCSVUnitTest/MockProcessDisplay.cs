@@ -13,6 +13,7 @@ namespace CsvTools.Tests
     public TimeToCompletion TimeToCompletion => new TimeToCompletion();
 
     public CancellationToken CancellationToken => CancellationToken.None;
+    public bool LogAsDebug { get; set; } = false;
 
     public long Maximum { get; set; }
 

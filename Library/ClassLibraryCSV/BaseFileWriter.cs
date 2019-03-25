@@ -28,14 +28,8 @@ namespace CsvTools
   public abstract class BaseFileWriter
   {
     private readonly IFileSetting m_FileSetting;
-
-    /// <summary>
-    ///  A cancellation token, to stop long running processes
-    /// </summary>
-    private CancellationToken m_CancellationToken;
-
+    private readonly IProcessDisplay m_ProcessDisplay;
     private DateTime m_LastNotification = DateTime.Now;
-    private IProcessDisplay m_ProcessDisplay;
     private long m_Records;
 
     /// <summary>
@@ -43,17 +37,11 @@ namespace CsvTools
     /// </summary>
     /// <param name="fileSetting">the file setting with the definition for the file</param>
     /// <param name="cancellationToken">A cancellation token to stop writing the file</param>
-    protected BaseFileWriter(IFileSetting fileSetting, CancellationToken cancellationToken)
+    protected BaseFileWriter(IFileSetting fileSetting, IProcessDisplay processDisplay)
     {
-      Contract.Requires(fileSetting != null);
-      m_CancellationToken = cancellationToken;
-      m_FileSetting = fileSetting;
+      m_ProcessDisplay = processDisplay;
+      m_FileSetting = fileSetting ?? throw new ArgumentNullException(nameof(fileSetting));
     }
-
-    /// <summary>
-    ///  Event handler called as progress should be displayed
-    /// </summary>
-    public event EventHandler<ProgressEventArgs> Progress;
 
     /// <summary>
     ///  Event handler called if a warning or error occurred
@@ -70,22 +58,6 @@ namespace CsvTools
     /// </summary>
     /// <value>The error message.</value>
     public virtual string ErrorMessage { get; protected internal set; }
-
-    /// <summary>
-    ///  A Process Display
-    /// </summary>
-    public virtual IProcessDisplay ProcessDisplay
-    {
-      get => m_ProcessDisplay;
-      set
-      {
-        if (m_ProcessDisplay != null) Progress -= m_ProcessDisplay.SetProcess;
-        m_ProcessDisplay = value;
-        if (m_ProcessDisplay == null) return;
-        m_CancellationToken = m_ProcessDisplay.CancellationToken;
-        Progress += m_ProcessDisplay.SetProcess;
-      }
-    }
 
     /// <summary>
     ///  Gets the column information based on the SQL Source, but overwritten with the definitions
@@ -178,7 +150,7 @@ namespace CsvTools
           sql = sql.Substring(0, idxof) + "WHERE 1=0";
       }
 
-      return ApplicationSetting.SQLDataReader(sql, m_CancellationToken);
+      return ApplicationSetting.SQLDataReader(sql, m_ProcessDisplay);
     }
 
     /// <summary>
@@ -191,7 +163,7 @@ namespace CsvTools
       // Using the connection string
       if (string.IsNullOrEmpty(m_FileSetting.SqlStatement)) return null;
       HandleProgress("Executing SQL Statement");
-      using (var dataReader = ApplicationSetting.SQLDataReader(m_FileSetting.SqlStatement, m_CancellationToken))
+      using (var dataReader = ApplicationSetting.SQLDataReader(m_FileSetting.SqlStatement, m_ProcessDisplay))
       {
         HandleProgress("Reading returned data");
         var dt = new DataTable();
@@ -202,9 +174,9 @@ namespace CsvTools
       }
     }
 
-    public void HandleProgress(string text, int progress)
+    protected void HandleProgress(string text, int progress)
     {
-      Progress?.Invoke(this, new ProgressEventArgs(text, progress));
+      m_ProcessDisplay?.SetProcess(text, progress);
     }
 
     /// <summary>
@@ -213,7 +185,7 @@ namespace CsvTools
     /// <returns>Number of records written</returns>
     public virtual long Write()
     {
-      using (IDataReader reader = ApplicationSetting.SQLDataReader(m_FileSetting.SqlStatement, m_CancellationToken))
+      using (IDataReader reader = ApplicationSetting.SQLDataReader(m_FileSetting.SqlStatement, m_ProcessDisplay))
       {
         return Write(reader);
       }
@@ -254,11 +226,11 @@ namespace CsvTools
 
     protected void HandleProgress(string text)
     {
-      Progress?.Invoke(this, new ProgressEventArgs(text));
+      m_ProcessDisplay?.SetProcess(text);
     }
 
     /// <summary>
-    /// Handles the time zone for da date time column
+    /// Handles the time zone for a date time column
     /// </summary>
     /// <param name="dataObject">The data object.</param>
     /// <param name="columnInfo">The column information.</param>
@@ -312,7 +284,6 @@ namespace CsvTools
     protected void NextRecord()
     {
       m_Records++;
-      if (Progress == null) return;
       if (!((DateTime.Now - m_LastNotification).TotalSeconds > .15)) return;
       m_LastNotification = DateTime.Now;
       HandleProgress($"Record {m_Records:N0}");
@@ -557,9 +528,9 @@ namespace CsvTools
       if (m_ProcessDisplay != null) m_ProcessDisplay.Maximum = -1;
       try
       {
-        using (var improvedStream = ImprovedStream.OpenWrite(m_FileSetting.FullPath, ProcessDisplay, m_FileSetting.Recipient))
+        using (var improvedStream = ImprovedStream.OpenWrite(m_FileSetting.FullPath, m_ProcessDisplay, m_FileSetting.Recipient))
         {
-          Write(reader, improvedStream.Stream, m_CancellationToken);
+          Write(reader, improvedStream.Stream, m_ProcessDisplay?.CancellationToken ?? CancellationToken.None);
         }
 
         m_FileSetting.FileLastWriteTimeUtc = DateTime.UtcNow;

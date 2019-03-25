@@ -155,16 +155,16 @@ namespace CsvTools
     /// </summary>
     /// <returns></returns>
     /// <exception cref="NotImplementedException"> Structured files can not be read they are for writing only</exception>
-    public override IFileReader GetFileReader() => throw new NotImplementedException(" Structured files can not be read they are for writing only");
+    public override IFileReader GetFileReader(IProcessDisplay processDisplay) => throw new NotImplementedException(" Structured files can not be read they are for writing only");
 
     /// <summary>
     ///   Gets the file writer.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns></returns>
-    public override IFileWriter GetFileWriter(CancellationToken cancellationToken)
+    public override IFileWriter GetFileWriter(IProcessDisplay processDisplay)
     {
-      return new StructuredFileWriter(this, cancellationToken);
+      return new StructuredFileWriter(this, processDisplay);
     }
 
     /*

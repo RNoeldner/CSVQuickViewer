@@ -158,7 +158,7 @@ namespace CsvTools.Tests
       ApplicationSetting.FillGuessSettings.IgnoreIdColums = false;
       using (var processDisplay = new DummyProcessDisplay())
       {
-        writer.FillGuessColumnFormatWriter(true, processDisplay.CancellationToken);
+        writer.FillGuessColumnFormatWriter(true, processDisplay);
         Assert.AreEqual(6, writer.Column.Count);
       }
     }
@@ -243,9 +243,9 @@ namespace CsvTools.Tests
       setting.FileFormat.FieldDelimiter = "\t";
 
       ApplicationSetting.FillGuessSettings.DateParts = true;
-      using (var prc = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay())
       {
-        setting.FillGuessColumnFormatReader(false, prc);
+        setting.FillGuessColumnFormatReader(false, processDisplay);
       }
 
       ApplicationSetting.FillGuessSettings.DateParts = false;
@@ -288,9 +288,9 @@ namespace CsvTools.Tests
         FileName = Path.Combine(m_ApplicationDirectory, "BasicCSV.txt"),
         HasFieldHeader = true
       };
-      using (var test = new CsvFileReader(setting))
+      using (var processDisplay = new DummyProcessDisplay()) using (var test = new CsvFileReader(setting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         var samples = DetermineColumnFormat.GetSampleValues(test, 1000, 0, 20, "NULL", CancellationToken.None);
         Assert.AreEqual(7, samples.Count());
 
@@ -307,9 +307,9 @@ namespace CsvTools.Tests
         FileName = Path.Combine(m_ApplicationDirectory, "CSVTestEmpty.txt"),
         HasFieldHeader = true
       };
-      using (var test = new CsvFileReader(setting))
+      using (var processDisplay = new DummyProcessDisplay()) using (var test = new CsvFileReader(setting, processDisplay))
       {
-        test.Open(false, CancellationToken.None);
+        test.Open();
         var samples = DetermineColumnFormat.GetSampleValues(test, 100, 0, 20, "NULL", CancellationToken.None);
         Assert.AreEqual(0, samples.Count());
       }

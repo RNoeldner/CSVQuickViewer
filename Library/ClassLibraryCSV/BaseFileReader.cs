@@ -17,16 +17,14 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
-using System.Threading;
 
 namespace CsvTools
 {
   /// <summary>
   ///  Abstract class as base for all DataReaders
   /// </summary>
-  public abstract class BaseFileReader
+  public abstract class BaseFileReader : IDisposable
   {
     /// <summary>
     ///  Field name of the LineNumber Field
@@ -53,7 +51,7 @@ namespace CsvTools
     ///  Collection of the artificial field names
     /// </summary>
     public static ICollection<string> ArtificalFields = new HashSet<string>
-  {
+      {
    cRecordNumberFieldName,
    cStartLineNumberFieldName,
    cEndLineNumberFieldName,
@@ -100,18 +98,75 @@ namespace CsvTools
     protected string[] CurrentRowColumnText;
 
 #pragma warning restore CA1051 // Do not declare visible instance fields
-
     private readonly IFileSetting m_FileSetting;
     private readonly IntervalAction m_IntervalAction = new IntervalAction();
-    private CancellationToken m_CancellationToken;
+    private readonly IProcessDisplay m_ProcessDisplay;
+    private readonly System.Threading.CancellationToken m_CancellationToken;
     private int m_FieldCount;
-    private bool m_HasSendFinished = true;
-    private IProcessDisplay m_ProcessDisplay;
 
-    protected BaseFileReader(IFileSetting fileSetting)
+    protected BaseFileReader(IFileSetting fileSetting, IProcessDisplay processDisplay)
     {
-      Debug.Assert(fileSetting != null);
-      m_FileSetting = fileSetting;
+      if (processDisplay != null)
+      {
+        processDisplay.Maximum = cMaxValue;
+        m_CancellationToken = processDisplay.CancellationToken;
+      }        
+      else
+      {
+        m_CancellationToken = System.Threading.CancellationToken.None;
+      }
+      m_ProcessDisplay = processDisplay;
+
+      m_FileSetting = fileSetting ?? throw new ArgumentNullException(nameof(fileSetting));
+    }
+
+    /// <summary>
+    /// Does handle TextToHML, TextToHtmlFull, TextPart and TreatNBSPAsSpace and does update the maximum column size
+    /// Attention: Trimming needs to be handled before hand
+    /// </summary>
+    /// <param name="typedValue">The original text</param>
+    /// <param name="columnNumber">The column number</param>
+    /// <returns>The proper encoded or cut text as returned for the column</returns>
+    protected object HandleHtmlSetSize(object typedValue, int columnNumber, bool handleNullText)
+    {
+      // in case its not a string
+      if (typedValue == null || !(typedValue is string inputString) || string.IsNullOrEmpty(inputString))
+        return typedValue;
+
+      if (handleNullText && StringUtils.ShouldBeTreatedAsNull(inputString, m_FileSetting.TreatTextAsNull))
+        return null;
+
+      var column = GetColumn(columnNumber);
+      var output = inputString;
+
+      switch (column.DataType)
+      {
+        case DataType.TextToHtml:
+          output = HTMLStyle.TextToHtmlEncode(inputString);
+          if (!inputString.Equals(output, StringComparison.Ordinal))
+            HandleWarning(columnNumber, $"HTML encoding removed from {typedValue}");
+          break;
+
+        case DataType.TextToHtmlFull:
+          output = HTMLStyle.HtmlEncodeShort(inputString);
+          if (!inputString.Equals(output, StringComparison.Ordinal))
+            HandleWarning(columnNumber, $"HTML encoding removed from {typedValue}");
+          break;
+
+        case DataType.TextPart:
+          output = StringConversion.StringToTextPart(inputString, column.PartSplitter, column.Part, column.PartToEnd);
+          if (output == null)
+            HandleWarning(columnNumber, $"Part {column.Part} of text {typedValue} is empty.");
+          break;
+      }
+
+      if (m_FileSetting.TreatNBSPAsSpace && output.IndexOf((char)0xA0) != -1)
+        output = output.Replace((char)0xA0, ' ');
+
+      if (output.Length > 0 && column.Size < output.Length)
+        column.Size = output.Length;
+
+      return output;
     }
 
     /// <summary>
@@ -127,11 +182,12 @@ namespace CsvTools
     /// <summary>
     ///  A cancellation token, to stop long running processes
     /// </summary>
-    public virtual CancellationToken CancellationToken
-    {
-      get => m_CancellationToken;
-      set => m_CancellationToken = value;
-    }
+    protected System.Threading.CancellationToken CancellationToken => m_CancellationToken;
+    
+    /// <summary>
+    ///  A process display to stop long running processes
+    /// </summary>    
+    protected IProcessDisplay ProcessDisplay => m_ProcessDisplay;
 
     /// <summary>
     ///  Gets a value indicating the depth of nesting for the current row.
@@ -177,19 +233,6 @@ namespace CsvTools
     public double NotifyAfterSeconds
     {
       set => m_IntervalAction.NotifyAfterSeconds = value;
-    }
-
-    /// <summary>
-    ///  A Process Display
-    /// </summary>
-    public virtual IProcessDisplay ProcessDisplay
-    {
-      get => m_ProcessDisplay;
-      set
-      {
-        m_ProcessDisplay = value;
-        if (m_ProcessDisplay != null) m_CancellationToken = m_ProcessDisplay.CancellationToken;
-      }
     }
 
     /// <summary>
@@ -240,10 +283,7 @@ namespace CsvTools
     /// <summary>
     ///  Closes the <see cref="Data.IDataReader" /> Object.
     /// </summary>
-    public void Close()
-    {
-      IndividualClose();
-    }
+    public abstract void Close();
 
     /// <summary>
     ///  Performs application-defined tasks associated with freeing, releasing, or resetting
@@ -251,10 +291,7 @@ namespace CsvTools
     /// </summary>
     public void Dispose()
     {
-      Close();
-      HandleReadFinished();
       Dispose(true);
-      GC.SuppressFinalize(this);
     }
 
     /// <summary>
@@ -263,8 +300,17 @@ namespace CsvTools
     /// <param name="disposing">
     ///  <c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only
     ///  unmanaged resources.
-    /// </param>
-    public abstract void Dispose(bool disposing);
+    /// </param>    
+    private bool disposedValue = false; // To detect redundant calls
+
+    public virtual void Dispose(bool disposing)
+    {
+      if (!disposedValue)
+      {
+        Close();
+        disposedValue = true;
+      }
+    }
 
     /// <summary>
     ///  Gets the boolean.
@@ -593,21 +639,6 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///  Gets the part of a text
-    /// </summary>
-    /// <param name="inputValue">The input.</param>
-    /// <param name="column">The column.</param>
-    /// <returns>
-    ///  The parsed value if conversion is not successful: <c>NULL</c> is returned and the event
-    ///  handler for warnings is called
-    /// </returns>
-    public virtual string GetPart(string inputValue, Column column)
-    {
-      Debug.Assert(column != null);
-      return StringConversion.StringToTextPart(inputValue, column.PartSplitter, column.Part, column.PartToEnd);
-    }
-
-    /// <summary>
     ///  Returns a <see cref="Data.DataTable" /> that describes the column meta data of the
     ///  <see cref="Data.IDataReader" />.
     /// </summary>
@@ -702,7 +733,7 @@ namespace CsvTools
             break;
 
           default:
-            /* TextToHTML and TextToHTMLFull have been handled in the CSV Reader as the length of the fields would change */
+            /* TextToHTML and TextToHTMLFull have been handled in the Reader for the column as the length of the fields would change */
             ret = GetString(columnNumber);
             break;
         }
@@ -809,95 +840,52 @@ namespace CsvTools
       return false;
     }
 
-    /// <summary>
-    ///  Opens the text file and begins to read the meta data, like columns
-    /// </summary>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <param name="determineColumnSize">Not supported with Excel files</param>
-    /// <param name="handleRemoteFile"></param>
-    /// <returns></returns>
-    /// <exception cref="System.IO.FileNotFoundException"></exception>
-    [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope")]
-    public long Open(bool determineColumnSize, CancellationToken cancellationToken)
+    protected void HandleRemoteFile()
     {
-      m_CancellationToken = cancellationToken;
-      try
+      if (ApplicationSetting.RemoteFileHandler != null && m_FileSetting is IFileSettingRemoteDownload remote)
       {
-        if (ApplicationSetting.RemoteFileHandler != null && m_FileSetting is IFileSettingRemoteDownload remote)
+        if (!string.IsNullOrEmpty(remote?.RemoteFileName))
         {
-          if (!string.IsNullOrEmpty(remote?.RemoteFileName))
+          try
           {
-            try
+            HandleShowProgress("Handling Remote file…");
+            ApplicationSetting.RemoteFileHandler(remote.RemoteFileName, m_FileSetting.FileName, m_FileSetting.FullPath, m_ProcessDisplay, remote.ThrowErrorIfNotExists);
+          }
+          catch (Exception)
+          {
+            if (remote.ThrowErrorIfNotExists)
             {
-              HandleShowProgress("Handling Remote file…");
-              ApplicationSetting.RemoteFileHandler(remote.RemoteFileName, m_FileSetting.FileName, m_FileSetting.FullPath, ProcessDisplay, remote.ThrowErrorIfNotExists);
-            }
-            catch (Exception)
-            {
-              if (remote.ThrowErrorIfNotExists)
-              {
-                throw;
-              }
+              throw;
             }
           }
         }
+      }
+    }
 
-        if (m_ProcessDisplay != null)
+    protected void FinishOpen()
+    {
+      var valuesInclude = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+      var valuesAll = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+      for (int colindex = 0; colindex < FieldCount; colindex++)
+      {
+        if (!string.IsNullOrEmpty(Column[colindex].Name))
         {
-          m_ProcessDisplay.Maximum = cMaxValue;
-        }
-
-        HandleShowProgress("Opening…");
-
-        if (m_CancellationToken.IsCancellationRequested)
-        {
-          return 0;
-        }
-
-        m_HasSendFinished = false;
-
-        long ret = IndividualOpen(determineColumnSize);
-
-        var valuesInclude = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        var valuesAll = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
-        for (int colindex = 0; colindex < FieldCount; colindex++)
-        {
-          if (!string.IsNullOrEmpty(Column[colindex].Name))
+          valuesAll.Add(Column[colindex].Name);
+          if (!Column[colindex].Ignore)
           {
-            valuesAll.Add(Column[colindex].Name);
-            if (!Column[colindex].Ignore)
-            {
-              valuesInclude.Add(Column[colindex].Name);
-            }
+            valuesInclude.Add(Column[colindex].Name);
           }
         }
-
-        CsvHelper.CacheColumnHeader(m_FileSetting, true, valuesAll);
-        CsvHelper.CacheColumnHeader(m_FileSetting, false, valuesInclude);
-
-        if (FieldCount > 0)
-        {
-          // Override the column settings and store the columns for later reference
-          OverrideColumnFormatFromSetting(FieldCount);
-        }
-
-        return ret;
       }
-      catch (Exception ex)
+
+      CsvHelper.CacheColumnHeader(m_FileSetting, true, valuesAll);
+      CsvHelper.CacheColumnHeader(m_FileSetting, false, valuesInclude);
+
+      if (FieldCount > 0)
       {
-        var appEx = new ApplicationException(
-         m_FileSetting is IFileSettingRemoteDownload // ICsvFile or IExcelFile more meaning full interface is not defined here
-          ? "Can not access service for reading.\nPlease make sure the service is reachable and does react to calls."
-          : "Can not open file for reading.\nPlease make sure the file does exist, is of the right type and is not locked by another process.",
-         ex);
-        HandleError(-1, appEx.ExceptionMessages());
-        HandleReadFinished();
-        throw appEx;
-      }
-      finally
-      {
-        HandleShowProgress("");
+        // Override the column settings and store the columns for later reference
+        OverrideColumnFormatFromSetting(FieldCount);
       }
     }
 
@@ -1185,10 +1173,6 @@ namespace CsvTools
           ret = GetDoubleNull(value, column);
           break;
 
-        case DataType.TextPart:
-          ret = m_FileSetting is CsvFile ? value : GetPart(value, column);
-          break;
-
         case DataType.Numeric:
           ret = GetDecimalNull(value, column);
           break;
@@ -1202,7 +1186,7 @@ namespace CsvTools
           break;
 
         default:
-          /* TextToHTML and TextToHTMLFull have been handled in the CSV Reader as the length of the fields would change */
+          /* TextToHTML and TextToHTMLFull and TextPart have been handled in the CSV Reader as the length of the fields would change */
           ret = value;
           break;
       }
@@ -1256,12 +1240,8 @@ namespace CsvTools
     /// </summary>
     protected virtual void HandleReadFinished()
     {
-      if (!m_HasSendFinished)
-      {
-        m_HasSendFinished = true;
-        HandleShowProgress("Finished Reading from source", RecordNumber, cMaxValue);
-        ReadFinished?.Invoke(this, null);
-      }
+      HandleShowProgress("Finished Reading from source", RecordNumber, cMaxValue);
+      ReadFinished?.Invoke(this, null);
     }
 
     /// <summary>
@@ -1282,18 +1262,6 @@ namespace CsvTools
     {
       if (m_ProcessDisplay != null)
         m_IntervalAction.Invoke(delegate { HandleShowProgress(text, recordNumber, GetRelativePosition()); });
-    }
-
-    /// <summary>
-    ///  Handled the TreatTextAsNull Setting of the FileSetting
-    /// </summary>
-    /// <param name="inputValue"></param>
-    /// <returns>
-    ///  <c>NULL</c> if the text should be treated as NULL or if the value is null, or the input otherwise
-    /// </returns>
-    protected virtual string HandleTreatNull(string inputValue)
-    {
-      return StringUtils.ShouldBeTreatedAsNull(inputValue, m_FileSetting.TreatTextAsNull) ? null : inputValue;
     }
 
     /// <summary>
@@ -1330,16 +1298,10 @@ namespace CsvTools
         : null));
     }
 
-    protected abstract void IndividualClose();
-
     /// <summary>
-    ///  Open that is specific to an implementation of the reader
-    /// </summary>
-    /// <param name="determineColumnSize">if set to <c>true</c> [determine column size].</param>
-    /// <returns>
-    ///  Number of records in the file if known (use determineColumnSize), -1 otherwise
-    /// </returns>
-    protected abstract long IndividualOpen(bool determineColumnSize);
+    ///  Opens the text file and begins to read the meta data, like columns
+    /// </summary>    
+    public abstract void Open();
 
     /// <summary>
     ///  Initializes the column array to a give count.

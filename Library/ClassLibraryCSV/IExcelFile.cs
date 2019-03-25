@@ -46,6 +46,6 @@ namespace CsvTools
     /// <summary>
     ///   Gets an instance of an <see cref="IExcelFileReader" />
     /// </summary>
-    IExcelFileReader GetExcelFileReader();
+    IExcelFileReader GetExcelFileReader(IProcessDisplay processDisplay);
   }
 }

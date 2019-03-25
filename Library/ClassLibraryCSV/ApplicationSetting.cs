@@ -31,7 +31,7 @@ namespace CsvTools
     private static Action<string, string, string, IProcessDisplay, bool> m_RemoteFileHandler =
      delegate (string path, string fileName, string localName, IProcessDisplay processDisplay, bool throwNotFileExists) { return; };
 
-    private static Func<string, CancellationToken, IDataReader> m_SQLDataReader;
+    private static Func<string, IProcessDisplay, IDataReader> m_SQLDataReader;
     private static IToolSetting m_ToolSetting = new DummyToolSetting();
 
     /// <summary>
@@ -122,7 +122,7 @@ namespace CsvTools
     /// The SQL data reader.
     /// </value>
     /// <exception cref="ArgumentNullException">SQL Data Reader is not set</exception>
-    public static Func<string, CancellationToken, IDataReader> SQLDataReader
+    public static Func<string, IProcessDisplay, IDataReader> SQLDataReader
     {
       get
       {

@@ -40,8 +40,8 @@ namespace CsvTools
     /// </summary>
     /// <param name="file">The file.</param>
     /// <param name="cancellationToken">A cancellation token to stop writing the file</param>
-    public CsvFileWriter(ICsvFile file, CancellationToken cancellationToken)
-     : base(file, cancellationToken)
+    public CsvFileWriter(ICsvFile file, IProcessDisplay processDisplay)
+     : base(file, processDisplay)
     {
       Contract.Requires(file != null);
       m_CsvFile = file;

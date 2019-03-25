@@ -40,6 +40,7 @@ namespace CsvTools
     private string m_EncryptedPassword = string.Empty;
     private string m_HostName = string.Empty;
     private AccessProtocol m_Protocol = AccessProtocol.Sftp;
+    private int m_Port = 22;
     private string m_User = string.Empty;
 
     [XmlIgnore]
@@ -59,6 +60,22 @@ namespace CsvTools
         if (m_Protocol.Equals(value)) return;
         m_Protocol = value;
         NotifyPropertyChanged(nameof(Protocol));
+      }
+    }
+
+    [XmlAttribute]
+    [DefaultValue(22)]
+    [Browsable(true)]
+    [ReadOnly(false)]
+    public int Port
+    {
+      get { return m_Port; }
+      set
+      {
+
+        if (value.Equals(m_Port)) return;
+        m_Port = value;
+        NotifyPropertyChanged(nameof(Port));
       }
     }
 

@@ -298,12 +298,12 @@ namespace CsvTools
     /// <summary>
     ///  Gets the right data reader for this File Setting
     /// </summary>
-    IFileReader GetFileReader();
+    IFileReader GetFileReader(IProcessDisplay processDisplay);
 
     /// <summary>
     ///  Gets the right data writer for this File Setting
     /// </summary>
-    IFileWriter GetFileWriter(CancellationToken cancellationToken);
+    IFileWriter GetFileWriter(IProcessDisplay processDisplay);
 
     /// <summary>
     ///  Removes a Field Mapping

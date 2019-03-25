@@ -404,7 +404,10 @@ namespace CsvTools
             {
               if (m_ViewSettings.GuessHasHeader)
               {
-                m_FileSetting.HasFieldHeader = CsvHelper.GuessHasHeader(m_FileSetting, cancellationTokenSource.Token);
+                using (var processDisplay = new DummyProcessDisplay(cancellationTokenSource.Token))
+                {
+                  m_FileSetting.HasFieldHeader = CsvHelper.GuessHasHeader(m_FileSetting, processDisplay);
+                }
               }
 
               using (var processDisplay = m_FileSetting.GetProcessDisplay(this, false, cancellationTokenSource.Token))
@@ -516,12 +519,11 @@ namespace CsvTools
         DataTable data;
         using (var processDisplay = m_FileSetting.GetProcessDisplay(this, false, m_CancellationTokenSource.Token))
         {
-          using (var csvDataReader = m_FileSetting.GetFileReader())
-          {
-            csvDataReader.ProcessDisplay = processDisplay;
+          using (var csvDataReader = m_FileSetting.GetFileReader(processDisplay))
+          {            
             csvDataReader.Warning += warnings.Add;
             csvDataReader.Warning += AddWarning;
-            csvDataReader.Open(false, processDisplay.CancellationToken);
+            csvDataReader.Open();
             if (warnings.CountRows > 0)
               _MessageBox.Show(this, warnings.Display, "Opening CSV File", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             if (!textPanel.Visible)

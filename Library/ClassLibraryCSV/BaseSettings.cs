@@ -46,7 +46,6 @@ namespace CsvTools
     private long m_FileSize;
     private string m_Footer = string.Empty;
     private string m_FullPath;
-    private Func<string> m_GetEncryptedPassphrase;
     private bool m_HasFieldHeader = true;
     private string m_Header = string.Empty;
     private string m_Id = string.Empty;
@@ -150,12 +149,12 @@ namespace CsvTools
     {
       get
       {
-        if (ApplicationSetting.ToolSetting.PGPInformation == null)
+        if (ApplicationSetting.ToolSetting?.PGPInformation == null)
           return Passphrase.Length > 0;
 
         // In case the individual passphrase matches the general Passphrase do not store it
         return ApplicationSetting.ToolSetting.PGPInformation.AllowSavingPassphrase &&
-            !m_Passphrase.Equals(ApplicationSetting.ToolSetting.PGPInformation.EncryptedPassphase, StringComparison.Ordinal);
+            !Passphrase.Equals(ApplicationSetting.ToolSetting.PGPInformation.EncryptedPassphase, StringComparison.Ordinal);
       }
     }
 
@@ -1054,10 +1053,9 @@ namespace CsvTools
           yield return mapping;
       }
     }
+    public abstract IFileWriter GetFileWriter(IProcessDisplay processDisplay);
 
-    public abstract IFileReader GetFileReader();
-
-    public abstract IFileWriter GetFileWriter(CancellationToken cancellationToken);
+    public abstract IFileReader GetFileReader(IProcessDisplay processDisplay);
 
     /// <summary>
     ///  Remove a Fields mapping.
@@ -1200,22 +1198,21 @@ namespace CsvTools
     }
 
     [XmlIgnore]
-    public Func<string> GetEncryptedPassphraseFunction
+    public virtual Func<string> GetEncryptedPassphraseFunction { get; set; }
+
+    public virtual Func<string> DummyEncryptedPassphaseFunction
     {
       get
       {
-        if (m_GetEncryptedPassphrase == null)
-          m_GetEncryptedPassphrase = () =>
-           {
-             if (!string.IsNullOrEmpty(m_Passphrase))
-               return m_Passphrase;
-             if (!string.IsNullOrEmpty(ApplicationSetting.ToolSetting?.PGPInformation?.EncryptedPassphase))
-               return ApplicationSetting.ToolSetting.PGPInformation.EncryptedPassphase;
-             return string.Empty;
-           };
-        return m_GetEncryptedPassphrase;
+        return () =>
+        {
+          if (!string.IsNullOrEmpty(Passphrase))
+            return Passphrase;
+          if (!string.IsNullOrEmpty(ApplicationSetting.ToolSetting?.PGPInformation?.EncryptedPassphase))
+            return ApplicationSetting.ToolSetting.PGPInformation.EncryptedPassphase;
+          return string.Empty;
+        };
       }
-      set => m_GetEncryptedPassphrase = value;
     }
   }
 }

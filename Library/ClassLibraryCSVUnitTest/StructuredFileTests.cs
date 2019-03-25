@@ -48,7 +48,7 @@ namespace CsvTools.Tests
     {
       try
       {
-        var res = m_StructuredFile.GetFileReader();
+        var res = m_StructuredFile.GetFileReader(null);
         Assert.Fail("Should throw error");
       }
       catch (NotImplementedException)
@@ -59,9 +59,9 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GetFileWriter()
     {
-      using (var cts = new CancellationTokenSource())
+      using (var processDisplay = new DummyProcessDisplay())
       {
-        var res = m_StructuredFile.GetFileWriter(cts.Token);
+        var res = m_StructuredFile.GetFileWriter(processDisplay);
         Assert.IsInstanceOfType(res, typeof(IFileWriter));
       }
     }

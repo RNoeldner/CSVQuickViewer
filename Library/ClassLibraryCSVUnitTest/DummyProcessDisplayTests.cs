@@ -8,61 +8,61 @@ namespace CsvTools.Tests
     [TestMethod]
     public void DummyProcessDisplayTest()
     {
-      using (var dpd = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay())
       {
-        dpd.SetProcess("Test");
+        processDisplay.SetProcess("Test");
       }
     }
 
     [TestMethod]
     public void CancelTest()
     {
-      using (var dpd = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay())
       {
-        dpd.Cancel();
-        Assert.IsTrue(dpd.CancellationToken.IsCancellationRequested);
+        processDisplay.Cancel();
+        Assert.IsTrue(processDisplay.CancellationToken.IsCancellationRequested);
       }
     }
 
     [TestMethod]
     public void SetMaximum()
     {
-      using (var dpd = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay())
       {
-        dpd.Maximum = 666;
-        Assert.AreEqual(666, dpd.Maximum);
+        processDisplay.Maximum = 666;
+        Assert.AreEqual(666, processDisplay.Maximum);
 
-        dpd.Maximum = -1;
-        Assert.AreEqual(-1, dpd.Maximum);
+        processDisplay.Maximum = -1;
+        Assert.AreEqual(-1, processDisplay.Maximum);
       }
     }
 
     [TestMethod]
     public void SetProcessTest()
     {
-      using (var dpd = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay())
       {
-        dpd.SetProcess("Test");
+        processDisplay.SetProcess("Test");
       }
     }
 
     [TestMethod]
     public void SetProcessTest1()
     {
-      using (var dpd = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay())
       {
-        dpd.Maximum = 5;
-        dpd.SetProcess("Test", 100);
+        processDisplay.Maximum = 5;
+        processDisplay.SetProcess("Test", 100);
       }
     }
 
     [TestMethod]
     public void SetProcessTest2()
     {
-      using (var dpd = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay())
       {
-        dpd.Maximum = 5;
-        dpd.SetProcess(null, new ProgressEventArgs("Hallo", 2));
+        processDisplay.Maximum = 5;
+        processDisplay.SetProcess(null, new ProgressEventArgs("Hallo", 2));
       }
     }
   }

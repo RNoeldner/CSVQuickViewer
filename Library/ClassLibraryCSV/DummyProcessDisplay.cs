@@ -20,12 +20,16 @@ namespace CsvTools
   public class DummyProcessDisplay : IProcessDisplay
   {
     private readonly CancellationTokenSource m_CancellationTokenSource;
-
+    private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+    
     public DummyProcessDisplay() : this(CancellationToken.None)
     {
     }
     
     public virtual string Title { get; set; }
+    
+    public bool LogAsDebug { get; set; } = true;
+
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="DummyProcessDisplay" /> class.
@@ -76,6 +80,11 @@ namespace CsvTools
     /// <param name="value">The value.</param>
     public virtual void SetProcess(string text, long value = -1)
     {
+      if (LogAsDebug)
+        Log.Debug(text);
+      else
+        Log.Info(text);
+
       Progress?.Invoke(this, new ProgressEventArgs(text, value));
     }
 
@@ -90,9 +99,7 @@ namespace CsvTools
       SetProcess(e.Text ?? string.Empty, e.Value);
     }
 
-#pragma warning disable CA1822 // Mark members as static
-    public void Show()
-#pragma warning restore CA1822 // Mark members as static
+    public static void Show()
     {
     }
 
