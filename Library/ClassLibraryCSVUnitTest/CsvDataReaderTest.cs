@@ -1108,8 +1108,7 @@ namespace CsvTools.Tests
       Assert.IsTrue(Exception, "No Exception thrown");
     }
 
-    [TestMethod]
-    [Ignore]
+    [TestMethod]    
     public void CsvDataReaderGuessCodePage()
     {
       var setting = new CsvFile
@@ -1124,7 +1123,7 @@ namespace CsvTools.Tests
         test.Open();
       }
 
-      Assert.AreEqual(setting.CurrentEncoding.WindowsCodePage, 1252);
+      Assert.AreEqual(1200, setting.CurrentEncoding.WindowsCodePage); // UTF-16 little endian
     }
 
     [TestMethod]

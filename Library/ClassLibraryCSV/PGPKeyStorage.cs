@@ -439,7 +439,7 @@ namespace CsvTools
               processDisplay.CancellationToken.ThrowIfCancellationRequested();
               literalStream.Write(copyBuffer, 0, length);
               count++;
-              processDisplay.SetProcess($"PGP Encrypting {StringConversion.DynamicStorageSize(toEncrypt.Length)} - Step {count:N0}/{max:N0}", count);
+              processDisplay.SetProcess($"PGP Encrypting {StringConversion.DynamicStorageSize(toEncrypt.Length) } - Step {count:N0}/{max:N0}", count);
             }
           }
         }

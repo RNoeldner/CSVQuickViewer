@@ -27,13 +27,7 @@ namespace CsvTools.Tests
     {
       FileSystemUtils.FileDelete(fileName);
       FileSystemUtils.FileDelete(fileName + ".bak");
-    }
-
-    [TestMethod]
-    public void LoadCsvFileOldTest()
-    {
-      Assert.Inconclusive();
-    }
+    }   
 
     [TestMethod]
     public void SaveCsvFileTest()

@@ -38,6 +38,14 @@ namespace CsvTools
       MessageBox.Show(from, ex.ExceptionMessages(), string.IsNullOrEmpty(additionalTitle) ? "Error" : $"Error {additionalTitle}", MessageBoxButtons.OK, MessageBoxIcon.Warning);
     }
 
+    /// <summary>
+    /// WAits for a 
+    /// </summary>  longer running process to , and update the UI in during waiting
+    /// <param name="whileTrue">Function to determine if a process should still execute, once the function return <c>FASLE</c> this routine will return</param>
+    /// <param name="millisecondsSleep">Waiting the amount of Milliseconds during tests</param>
+    /// <param name="timeoutMinutes">Timeout in Minutes</param>
+    /// <param name="raiseError"><c>TRUE</c> if an Exception should be raised on timeout, otherwise a log entry will be written</param>
+    /// <param name="cancellationToken">Cancellation Token</param>
     public static void TimeOutWait(Func<bool> whileTrue, int millisecondsSleep, double timeoutMinutes, bool raiseError, CancellationToken cancellationToken)
     {
       Stopwatch stopwatch = new Stopwatch();

@@ -20,7 +20,7 @@ namespace CsvTools
 {
   [Serializable]
   public enum AccessProtocol
-  {
+  {   
     /// <summary>
     /// File System Copy
     /// </summary>

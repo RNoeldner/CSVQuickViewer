@@ -110,7 +110,7 @@ namespace CsvTools
       {
         processDisplay.Maximum = cMaxValue;
         m_CancellationToken = processDisplay.CancellationToken;
-      }        
+      }
       else
       {
         m_CancellationToken = System.Threading.CancellationToken.None;
@@ -183,7 +183,7 @@ namespace CsvTools
     ///  A cancellation token, to stop long running processes
     /// </summary>
     protected System.Threading.CancellationToken CancellationToken => m_CancellationToken;
-    
+
     /// <summary>
     ///  A process display to stop long running processes
     /// </summary>    
@@ -862,7 +862,7 @@ namespace CsvTools
       }
     }
 
-    protected void FinishOpen()
+    protected virtual void FinishOpen()
     {
       var valuesInclude = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
       var valuesAll = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
