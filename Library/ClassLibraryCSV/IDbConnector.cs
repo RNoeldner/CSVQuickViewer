@@ -69,7 +69,7 @@ namespace CsvTools
     ///  Makes sure the database does exist and is accessible
     /// </summary>
     /// <returns>True if the database was created</returns>
-    bool EnsureDBExists();
+    bool EnsureDBExists(CancellationToken cancellationToken);
 
     /// <summary>
     ///  Executes a commands that can be separated by GO without returning a result.

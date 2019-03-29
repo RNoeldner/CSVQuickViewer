@@ -1,9 +1,12 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Diagnostics.Contracts;
+using System.Globalization;
+using System.Threading;
 
 namespace CsvTools.Tests
 {
-  internal class ContractFailedHandlerIgnore
+  internal static class UnitTestStatic
   {
     [TestClass]
     public static class AssemblyContextTest
@@ -20,6 +23,20 @@ namespace CsvTools.Tests
         e.SetHandled();
         // Assert.Fail("{0}: {1} {2}", e.FailureKind, e.Message, e.Condition);
       }
+    }
+
+    public static T ExecuteWithCulture<T>(Func<T> methodFunc, string cultureName)
+    {
+      T result = default(T);
+
+      var thread = new Thread(() => { result = methodFunc(); })
+      {
+        CurrentCulture = new CultureInfo(cultureName)
+      };
+      thread.Start();
+      thread.Join();
+
+      return result;
     }
   }
 }

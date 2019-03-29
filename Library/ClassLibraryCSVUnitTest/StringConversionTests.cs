@@ -117,12 +117,12 @@ namespace CsvTools.Tests
     [TestMethod]
     public void DynamicStorageSize()
     {
-      StringConversion.DynamicStorageSize(500);
-      StringConversion.DynamicStorageSize(2000);
-      StringConversion.DynamicStorageSize(10000);
-      StringConversion.DynamicStorageSize(200000);
-      StringConversion.DynamicStorageSize(2000000);
-      Assert.Inconclusive();
+      Assert.AreEqual("500 Bytes", UnitTestStatic.ExecuteWithCulture<string>(() => StringConversion.DynamicStorageSize(500), "de-DE"));
+      Assert.AreEqual("1.95 kB", UnitTestStatic.ExecuteWithCulture<string>(() => StringConversion.DynamicStorageSize(2000), "en-US"));           
+      Assert.AreEqual("9,77 kB", UnitTestStatic.ExecuteWithCulture<string>(() => StringConversion.DynamicStorageSize(10000), "de-DE"));
+      Assert.AreEqual("195,31 kB", UnitTestStatic.ExecuteWithCulture<string>(() => StringConversion.DynamicStorageSize(200000), "de-DE"));
+      Assert.AreEqual("1,91 MB", UnitTestStatic.ExecuteWithCulture<string>(() => StringConversion.DynamicStorageSize(2000000), "de-DE"));
+      
     }
 
     [TestMethod]

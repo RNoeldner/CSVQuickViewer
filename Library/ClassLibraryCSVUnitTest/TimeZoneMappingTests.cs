@@ -66,7 +66,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod()]
-    public void CopareConversion()
+    public void CopareConversion_DotNet_NodaTime()
     {
       var timezone = new string[] { "Romance Standard Time",
                                     "Russian Standard Time",
@@ -75,8 +75,10 @@ namespace CsvTools.Tests
                                     "India Standard Time"};
       var tzs = new string[] { tzCET, tzMSK, tzBRT, tzPST, tzIST };
       var rnd = new Random(200);
-      int correct = 0;
+
       int incorrect = 0;
+
+      int correct = 0;
       for (int i = 0; i < 10000; i++)
       {
         var src = rnd.Next(0, 4);
@@ -102,12 +104,13 @@ namespace CsvTools.Tests
         else
         {
           correct++;
-        }
+        };
       }
+
       if (incorrect > correct)
         Assert.Fail();
       if (incorrect > 0)
-        Assert.Inconclusive($"{incorrect} time zone conversions detected, {correct} have been correct");
+        Assert.Inconclusive($"{incorrect} incorrect time zone conversions detected, {correct} conversions have been correct");
     }
 
     [TestMethod()]

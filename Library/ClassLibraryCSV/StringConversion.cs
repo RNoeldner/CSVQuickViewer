@@ -641,7 +641,7 @@ namespace CsvTools
       Contract.Ensures(Contract.Result<string>() != null);
 
       if (length < 1024L)
-        return $"{length:N0} Bytes";
+        return string.Format("{0:N0} Bytes", length);
 
       double dblScaledValue;
       string strUnits;
@@ -666,8 +666,7 @@ namespace CsvTools
         dblScaledValue = length / (1024D * 1024D * 1024D * 1024D);
         strUnits = "TB"; // strict speaking its TiB
       }
-
-      return $"{dblScaledValue:N3} {strUnits}";
+      return string.Format("{0:N2} {1}", dblScaledValue, strUnits);
     }
 
     /// <summary>
