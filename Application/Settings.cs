@@ -10,17 +10,13 @@ namespace CsvTools.Properties
   ///   Class containing the all configuration, used in serialization to store the settings
   /// </summary>
   [Serializable]
-  public class ViewSettings : CsvFile, INotifyPropertyChanged, IToolSetting
+  public class ViewSettings : CsvFile, INotifyPropertyChanged
   {
     [XmlElement]
 #pragma warning disable CA1051 // Do not declare visible instance fields
     public WindowState WindowPosition;
 #pragma warning restore CA1051 // Do not declare visible instance fields
-
-    [NonSerialized]
-    private readonly List<IFileSetting> m_Input = new List<IFileSetting>();
-    [NonSerialized]
-    private readonly List<IFileSetting> m_Output = new List<IFileSetting>();
+   
 
     private bool m_DetectFileChanges = true;
     private FillGuessSettings m_FillGuessSettings = ApplicationSetting.FillGuessSettings;
@@ -31,10 +27,7 @@ namespace CsvTools.Properties
     private bool m_MenuDown = false;
     private PGPKeyStorage m_PGPKeyStorage = new PGPKeyStorage();
     private bool m_StoreSettingsByFile = false;
-
-    [XmlIgnore]
-    public string DestinationTimeZone => TimeZoneMapping.cIdLocal;
-
+    
     [XmlAttribute]
     [DefaultValue(true)]
     public bool DetectFileChanges
@@ -136,8 +129,7 @@ namespace CsvTools.Properties
         NotifyPropertyChanged(nameof(GuessStartRow));
       }
     }
-    [XmlIgnore]
-    public ICollection<IFileSetting> Input => m_Input;
+
 
     [XmlAttribute]
     [DefaultValue(false)]
@@ -152,9 +144,6 @@ namespace CsvTools.Properties
       }
     }
 
-    [XmlIgnore]
-    public ICollection<IFileSetting> Output => m_Output;
-
     [XmlElement]
     public virtual PGPKeyStorage PGPInformation
     {
@@ -168,8 +157,7 @@ namespace CsvTools.Properties
     [XmlIgnore]
     public virtual bool PGPInformationSpecified => PGPInformation.Specified;
 
-    [XmlIgnore]
-    public string RootFolder => string.Empty;
+    
     [XmlAttribute]
     [DefaultValue(false)]
     public bool StoreSettingsByFile
@@ -181,8 +169,6 @@ namespace CsvTools.Properties
         m_StoreSettingsByFile = value;
         NotifyPropertyChanged(nameof(StoreSettingsByFile));
       }
-    }
-
-    public ICache<string, ValidationResult> ValidationResultCache => null;
+    }    
   }
 }

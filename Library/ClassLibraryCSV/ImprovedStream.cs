@@ -86,8 +86,8 @@ namespace CsvTools
           // Store the passphrase for next use, this does not mean it is correct
           setting.Passphrase = retVal.EncryptedPassphrase;
 
-          if (ApplicationSetting.ToolSetting?.PGPInformation != null && ApplicationSetting.ToolSetting.PGPInformation.EncryptedPassphase.Length == 0)
-            ApplicationSetting.ToolSetting.PGPInformation.EncryptedPassphase = retVal.EncryptedPassphrase;
+          if (ApplicationSetting.PGPKeyStorage != null && ApplicationSetting.PGPKeyStorage.EncryptedPassphase.Length == 0)
+            ApplicationSetting.PGPKeyStorage.EncryptedPassphase = retVal.EncryptedPassphrase;
         }
       });
 
@@ -187,7 +187,7 @@ namespace CsvTools
             try
             {
               Log.Debug("Decrypt PGP Stream");
-              Stream = ApplicationSetting.ToolSetting.PGPInformation.PgpDecrypt(BaseStream, DecryptedPassphrase);
+              Stream = ApplicationSetting.PGPKeyStorage.PgpDecrypt(BaseStream, DecryptedPassphrase);
             }
             catch (Org.BouncyCastle.Bcpg.OpenPgp.PgpException ex)
             {
@@ -195,7 +195,7 @@ namespace CsvTools
               var recipinet = string.Empty;
               try
               {
-                recipinet = ApplicationSetting.ToolSetting?.PGPInformation?.GetEncryptedKeyID(BaseStream);
+                recipinet = ApplicationSetting.PGPKeyStorage?.GetEncryptedKeyID(BaseStream);
               }
               catch
               {
@@ -307,7 +307,7 @@ namespace CsvTools
                         output = new FileStream(WritePath.LongPathPrefix(), FileMode.Create))
             {
               Log.Debug("Encrypting temporary file to PGP file");
-              ApplicationSetting.ToolSetting.PGPInformation.PgpEncrypt(inputStream, output, Recipient, ProcessDisplay);
+              ApplicationSetting.PGPKeyStorage.PgpEncrypt(inputStream, output, Recipient, ProcessDisplay);
             }
           }
         }

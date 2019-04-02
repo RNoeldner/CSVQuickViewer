@@ -173,14 +173,14 @@ namespace CsvTools
     /// </exception>
     public static string GetEncryptedPassphraseOpenForm(this IFileSetting setting)
     {
-      if (ApplicationSetting.ToolSetting?.PGPInformation?.PrivateKeys?.IsEmpty() ?? true)
+      if (ApplicationSetting.PGPKeyStorage?.PrivateKeys?.IsEmpty() ?? true)
         throw new ApplicationException("The private key for decryption has not been setup");
 
       if (!string.IsNullOrEmpty(setting?.Passphrase))
         return setting.Passphrase;
 
-      if (!string.IsNullOrEmpty(ApplicationSetting.ToolSetting?.PGPInformation?.EncryptedPassphase))
-        return ApplicationSetting.ToolSetting.PGPInformation.EncryptedPassphase;
+      if (!string.IsNullOrEmpty(ApplicationSetting.PGPKeyStorage?.EncryptedPassphase))
+        return ApplicationSetting.PGPKeyStorage.EncryptedPassphase;
 
       // Need to enter Passphrase
       using (var frm = new FormPassphrase())
@@ -340,113 +340,5 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   Writes the file ans displays performance information
-    /// </summary>
-    /// <param name="fileSetting">The file setting.</param>
-    /// <param name="showSummary">
-    ///   Flag indicating that a message Box should be displayed. If <c>true</c> a message box will be
-    ///   shown
-    /// </param>
-    /// <param name="cancellationToken">A CancellationToken</param>
-    /// <param name="fileSettingSourcesCurrent">The file setting sources current.</param>
-    /// <param name="settingLaterThanSources">The setting later than sources.</param>
-    /// <param name="ask">if set to <c>true</c> [ask].</param>
-    /// <returns>
-    ///   Number of record written to file
-    ///   -1 if the files exists and is not overwritten
-    ///   -2 if the files exists and is not overwritten and the user canceled
-    /// </returns>
-    public static long WriteFileWithInfo(this IFileSetting fileSetting, bool showSummary,
-      FileSettingChecker fileSettingSourcesCurrent,
-      bool ask, bool onlyOlder, CancellationToken cancellationToken)
-    {
-      if (fileSetting == null)
-        return 0;
-
-      long written = 0;
-
-      var fi = FileSystemUtils.FileInfo(fileSetting.FullPath);
-      var dir = FileSystemUtils.GetDirectoryName(fi.FullName);
-      if (!FileSystemUtils.DirectoryExists(dir))
-        if (_MessageBox.Show(null,
-              $"The directory {dir.RemovePrefix()} does not exist, should it be created?",
-              "Directory", MessageBoxButtons.OKCancel,
-              MessageBoxIcon.Question) == DialogResult.OK)
-          FileSystemUtils.CreateDirectory(dir);
-        else
-          return 0;
-
-      var fileInfo = new FileInfo(fileSetting.FullPath);
-      if (fileInfo.Exists)
-      {
-        fileSetting.FileLastWriteTimeUtc = fi.LastWriteTimeUtc;
-      }
-
-      var stringBuilder = new System.Text.StringBuilder();
-      using (var processDisplay = fileSetting.GetProcessDisplay(null, true, cancellationToken))
-      {
-        fileSettingSourcesCurrent?.Invoke(fileSetting, processDisplay);
-
-        if (onlyOlder && fileSetting.SettingLaterThanSources(processDisplay.CancellationToken))
-          return 0;
-        var res = fileSetting.FullPath.DeleteFileQuestion(ask);
-        if (res == DialogResult.No)
-          return -1;
-        else if (res == DialogResult.Cancel)
-          return -2;
-
-        var errors = new RowErrorCollection(50);
-        var writer = fileSetting.GetFileWriter(processDisplay);
-
-        writer.Warning += errors.Add;
-        written = writer.Write();
-
-        var hasIssues = !string.IsNullOrEmpty(writer.ErrorMessage) || (errors.CountRows > 0);
-
-        if (showSummary || hasIssues)
-        {
-          fi = FileSystemUtils.FileInfo(fileSetting.FullPath);
-
-          // if all source settings are file settings, get the latest file time and set this fileTime
-          var latest = DateTime.MinValue;
-          fileSetting.GetSourceFileSettings(delegate (IFileSetting setting)
-          {
-            if (!(setting is IFileSettingRemoteDownload))
-            {
-              if (latest < setting.FileLastWriteTimeUtc)
-                latest = setting.FileLastWriteTimeUtc;
-            }
-            else
-            {
-              var fiSrc = FileSystemUtils.FileInfo(setting.FullPath);
-              if (fiSrc.Exists && latest < fiSrc.LastWriteTimeUtc)
-                latest = fiSrc.LastWriteTimeUtc;
-            }
-            return false;
-          }, cancellationToken);
-          stringBuilder.Append($"Finished writing file\r\rRecords: {written:N0}\rFile size: {fi.Length / 1048576.0:N} MB");
-          if (latest < DateTime.MaxValue && latest > DateTime.MinValue)
-          {
-            stringBuilder.Append($"\rTime adjusted to latest source file: {latest.ToLocalTime():D}");
-            fi.LastWriteTimeUtc = latest;
-            fileSetting.FileLastWriteTimeUtc = latest;
-          }
-
-          if (hasIssues)
-            stringBuilder.Append("\rIssues:\r");
-
-          if (!string.IsNullOrEmpty(writer.ErrorMessage))
-            stringBuilder.Append(writer.ErrorMessage);
-
-          if (errors.CountRows > 0)
-            stringBuilder.Append(errors.DisplayByRecordNumber);
-        }
-      }
-      if (stringBuilder.Length > 0)
-        _MessageBox.Show(null, stringBuilder.ToString(), FileSystemUtils.GetShortDisplayFileName(fileSetting.FileName, 80), MessageBoxButtons.OK);
-
-      return written;
-    }
   }
 }

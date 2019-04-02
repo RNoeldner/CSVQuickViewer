@@ -25,7 +25,7 @@ namespace CsvTools
   ///   Setting file for CSV files, its an implementation of <see cref="BaseSettings" />
   /// </summary>
   [Serializable]
-  [DebuggerDisplay("CsvFile: {ID} {m_FullPath} ({m_Column.Count()} Columns)")]
+  [DebuggerDisplay("CsvFile: {ID} {m_FullPath} ({ColumnCollection.Count()} Columns)")]
 #pragma warning disable CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
   public class CsvFile : BaseSettings, ICsvFile
 #pragma warning restore CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
@@ -38,6 +38,7 @@ namespace CsvTools
     private bool m_AlternateQuoting;
     private bool m_ByteOrderMark = true;
     private int m_CodePageId = 65001;
+    [NonSerialized]
     private Encoding m_CurrentEncoding = Encoding.UTF8;
     private bool m_DoubleDecode;
     private bool m_NoDelimitedFile;
@@ -404,7 +405,7 @@ namespace CsvTools
       var other = new CsvFile();
       CopyTo(other);
       return other;
-    }
+    }    
 
     /// <summary>
     ///   Copies all values to other instance

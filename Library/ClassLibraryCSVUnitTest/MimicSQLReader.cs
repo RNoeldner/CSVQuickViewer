@@ -10,10 +10,6 @@ namespace CsvTools.Tests
   {
     private List<IFileSetting> m_ReadSetting = new List<IFileSetting>();
 
-    public MimicSQLReader()
-    {
-      ApplicationSetting.SQLDataReader = ReadData;
-    }
 
     public void AddSetting(IFileSetting setting)
     {
@@ -32,7 +28,7 @@ namespace CsvTools.Tests
     {
       var setting = m_ReadSetting.FirstOrDefault(x => x.ID == settingName);
       if (setting == null)
-        throw new ApplicationException($"{settingName} not found");      
+        throw new ApplicationException($"{settingName} not found");
       var reader = setting.GetFileReader(processDisplay);
       reader.Open();
       return reader;

@@ -71,6 +71,26 @@ namespace CsvTools
     }
 
     /// <summary>
+    ///   Gets or sets the name.
+    /// </summary>
+    /// <value>The name.</value>
+    [XmlAttribute("Column")]
+    public virtual string Name
+    {
+      get => m_Name;
+      set
+      {
+        var newVal = value ?? string.Empty;
+        if (m_Name.Equals(newVal, StringComparison.Ordinal)) return;
+        m_Name = newVal;
+
+        NotifyPropertyChanged(nameof(Name));
+        if (m_DestinationName.Length == 0)
+          DestinationName = newVal;
+      }
+    }
+
+    /// <summary>
     ///   Gets or sets a value indicating whether this <see cref="Column" /> is convert. Only
     ///   used to untype a typed value (reading typed value from Excel to make it a string)
     /// </summary>
@@ -340,26 +360,6 @@ namespace CsvTools
         if (m_Ignore.Equals(value)) return;
         m_Ignore = value;
         NotifyPropertyChanged(nameof(Ignore));
-      }
-    }
-
-    /// <summary>
-    ///   Gets or sets the name.
-    /// </summary>
-    /// <value>The name.</value>
-    [XmlAttribute("Column")]
-    public virtual string Name
-    {
-      get => m_Name;
-      set
-      {
-        var newVal = value ?? string.Empty;
-        if (m_Name.Equals(newVal, StringComparison.Ordinal)) return;
-        m_Name = newVal;
-
-        NotifyPropertyChanged(nameof(Name));
-        if (m_DestinationName.Length == 0)
-          DestinationName = newVal;
       }
     }
 

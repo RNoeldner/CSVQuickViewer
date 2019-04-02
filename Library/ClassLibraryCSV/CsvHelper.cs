@@ -30,63 +30,8 @@ namespace CsvTools
   public static class CsvHelper
   {
     private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-    /// <summary>
-    /// Caches the column header.
-    /// </summary>
-    /// <param name="fileSetting">The file setting.</param>
-    /// <param name="includeIgnored">if set to <c>true</c> [include ignored].</param>
-    /// <param name="columns">The columns.</param>
-    public static void CacheColumnHeader(IFileSetting fileSetting, bool includeIgnored, ICollection<string> columns)
-    {
-      Contract.Requires(fileSetting != null);
-      var key = CacheListKeyColumnHeader(fileSetting.ID, includeIgnored);
-      if (key.Length > 2)
-        ApplicationSetting.CacheList.Set(key, columns);
-    }
 
-    /// <summary>
-    /// Gets the column header of a file
-    /// </summary>
-    /// <param name="fileSetting">The file setting.</param>
-    /// <param name="includeIgnored">Set to <c>true</c> if ignored columns should be listed as well, otherwise they will not be
-    /// listed</param>
-    /// <param name="processDisplay">The process display.</param>
-    /// <returns>
-    /// An array of string with the column headers
-    /// </returns>
-    public static ICollection<string> GetColumnHeader(IFileSetting fileSetting, bool includeIgnored, bool openIfNeeded, IProcessDisplay processDisplay)
-    {
-      Contract.Requires(fileSetting != null);
-
-      var key = CacheListKeyColumnHeader(fileSetting.ID, includeIgnored);
-
-      if (key.Length > 3 && ApplicationSetting.CacheList.TryGet(key, out var retValue))
-        return retValue;
-
-      if (!openIfNeeded)
-        return null;
-
-      using (var fileReader = fileSetting.GetFileReader(processDisplay))
-      {
-        fileReader.Open();
-        // if the key was long enough it has been stored
-        if (key.Length > 3)
-          return ApplicationSetting.CacheList.Get(key);
-        else
-        {
-          var header = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-          for (var colindex = 0; colindex < fileReader.FieldCount; colindex++)
-          {
-            var col = fileReader.GetColumn(colindex);
-            if (includeIgnored || !col.Ignore)
-              header.Add(col.Name);
-          }
-          return header;
-        }
-      }
-    }
-
-    public static ICollection<string> GetColumnHeadersFromReader(IFileReader fileReader, bool includeIgnored)
+    public static ICollection<string> GetColumnHeadersFromReader(IFileReader fileReader)
     {
       Contract.Ensures(Contract.Result<IEnumerable<string>>() != null);
       var values = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -94,40 +39,11 @@ namespace CsvTools
       for (var colindex = 0; colindex < fileReader.FieldCount; colindex++)
       {
         var cf = fileReader.GetColumn(colindex);
-        if (!string.IsNullOrEmpty(cf.Name) && (includeIgnored || !cf.Ignore))
+        if (!string.IsNullOrEmpty(cf.Name) && !cf.Ignore)
           values.Add(cf.Name);
       }
 
       return values;
-    }
-
-
-    /// <summary>
-    ///   Get sample values for a column
-    /// </summary>
-    /// <param name="fileSetting">The file setting.</param>
-    /// <param name="columnName">the Name of the column</param>
-    /// <returns>
-    ///   The index of the given name, -1 if not found.
-    /// </returns>
-    public static int GetColumnIndex(IFileSetting fileSetting, string columnName, bool openIfNeeded = false)
-    {
-      if (string.IsNullOrEmpty(columnName) || fileSetting == null) return -1;
-      var columnIndex = 0;
-      using (var processDisplay = new DummyProcessDisplay())
-      {
-        var headers = GetColumnHeader(fileSetting, true, openIfNeeded, processDisplay);
-        if (headers != null)
-        {
-          foreach (var col in headers)
-          {
-            if (col.Equals(columnName, StringComparison.OrdinalIgnoreCase))
-              return columnIndex;
-            columnIndex++;
-          }
-        }
-      }
-      return -1;
     }
 
     /// <summary>
@@ -434,20 +350,6 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Invalidate the column header cache of a file
-    /// </summary>
-    /// <param name="fileSetting">The file setting.</param>
-    public static void InvalidateColumnHeader(IFileSetting fileSetting)
-    {
-      Contract.Requires(fileSetting != null);
-      if (fileSetting.InternalID.Length > 0)
-      {
-        ApplicationSetting.CacheList.Remove(CacheListKeyColumnHeader(fileSetting.ID, true));
-        ApplicationSetting.CacheList.Remove(CacheListKeyColumnHeader(fileSetting.ID, false));
-      }
-    }
-
-    /// <summary>
     /// Refreshes the settings assuming the file has changed, checks CodePage, Delimiter, Start Row and Header
     /// </summary>
     /// <param name="file">The file.</param>
@@ -457,7 +359,7 @@ namespace CsvTools
       Contract.Requires(file != null);
       Contract.Requires(display != null);
 
-      var root = ApplicationSetting.ToolSetting.RootFolder;
+      var root = ApplicationSetting.RootFolder;
       file.FileName.GetAbsolutePath(root);
 
       display.SetProcess("Checking delimited file");
@@ -765,10 +667,6 @@ namespace CsvTools
       return 0;
     }
 
-    public static string CacheListKeyColumnHeader(string tableName, bool evenIgnored)
-    {
-      return (evenIgnored ? "A:" : "I:") + tableName;
-    }
 
     private static DelimiterCounter GetDelimiterCounter(StreamReader streamReader, char escapeCharacter, int numRows)
     {

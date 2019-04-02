@@ -166,7 +166,6 @@
   <ItemGroup>
     <Compile Include="ApplicationSettingTest.cs" />
     <Compile Include="AAAPerfromanceTest.cs" />
-    <Compile Include="CacheTest.cs" />
     <Compile Include="CheckResultTests.cs" />
     <Compile Include="ColumnFormatTest.cs" />
     <Compile Include="ColumnSizeTests.cs" />
@@ -201,7 +200,6 @@
     <Compile Include="CsvDataReaderTest.cs" />
     <Compile Include="CsvDataReader_FilesTest.cs" />
     <Compile Include="MockProcessDisplay.cs" />
-    <Compile Include="MockToolSetting.cs" />
     <Compile Include="StringUtilsTests.cs" />
     <Compile Include="StringToDateTime.cs" />
     <Compile Include="CsvHelperTest.cs" />
@@ -213,11 +211,12 @@
     <Compile Include="StructuredFileWriterTests.cs" />
     <Compile Include="TestApplicationSettings.cs" />
     <Compile Include="TestCopyTo.cs" />
-    <Compile Include="ContractFailedHandlerIgnore.cs" />
+    <Compile Include="UnitTestStatic.cs" />
     <Compile Include="ColumnInfoTest.cs" />
     <Compile Include="MimicSQLReader.cs" />
     <Compile Include="TimeToCompletionTests.cs" />
     <Compile Include="TimeZoneMappingTests.cs" />
+    <Compile Include="UnitTestInitialize.cs" />
     <Compile Include="ValidationResultTests.cs" />
     <Compile Include="ValueFormatTest.cs" />
     <Compile Include="CsvFileTest.cs" />

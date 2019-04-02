@@ -154,7 +154,7 @@ namespace CsvTools
 
     private void ChangeFileName(string newFileName)
     {
-      m_ViewSettings.FileName = newFileName.GetRelativePath(ApplicationSetting.ToolSetting.RootFolder);
+      m_ViewSettings.FileName = newFileName.GetRelativePath(ApplicationSetting.RootFolder);
       var oldCursor = Cursor.Current == Cursors.WaitCursor ? Cursors.WaitCursor : Cursors.Default;
       Cursor.Current = Cursors.WaitCursor;
       try
@@ -175,11 +175,11 @@ namespace CsvTools
         if (MessageBox.Show(this, "Should the value format of the columns be analyzed?", "Value Format",
               MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
         {
-          if (m_ViewSettings.Column.Count > 0 &&
+          if (m_ViewSettings.ColumnCollection.Count > 0 &&
               MessageBox.Show(this,
                 "Any already typed value will not be analyzed.\r\n Should the existing formats be removed before doing so?",
                 "Value Format", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
-            m_ViewSettings.Column.Clear();
+            m_ViewSettings.ColumnCollection.Clear();
           try
           {
             using (var processDisplay = m_ViewSettings.GetProcessDisplay(this, true, System.Threading.CancellationToken.None))
@@ -193,7 +193,7 @@ namespace CsvTools
           }
         }
 
-        m_ViewSettings.Column.Clear();
+        m_ViewSettings.ColumnCollection.Clear();
       }
       finally
       {

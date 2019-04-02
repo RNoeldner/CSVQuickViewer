@@ -20,7 +20,7 @@ namespace CsvTools.Tests
     public void Init()
     {
       m_ValidSetting.FileName = Path.Combine(m_ApplicationDirectory, "BasicCSV.txt");
-      var cf = m_ValidSetting.ColumnAdd(new Column
+      var cf = m_ValidSetting.ColumnCollection.AddIfNew(new Column
       {
         DataType = DataType.DateTime,
         Name = "ExamDate"
@@ -30,9 +30,9 @@ namespace CsvTools.Tests
       cf.DateFormat = @"dd/MM/yyyy";
       m_ValidSetting.FileFormat.FieldDelimiter = ",";
       m_ValidSetting.FileFormat.CommentLine = "#";
-      m_ValidSetting.ColumnAdd(new Column { Name = "Score", DataType = DataType.Integer });
-      m_ValidSetting.ColumnAdd(new Column { Name = "Proficiency", DataType = DataType.Numeric });
-      m_ValidSetting.ColumnAdd(new Column { Name = "IsNativeLang", DataType = DataType.Boolean });
+      m_ValidSetting.ColumnCollection.AddIfNew(new Column { Name = "Score", DataType = DataType.Integer });
+      m_ValidSetting.ColumnCollection.AddIfNew(new Column { Name = "Proficiency", DataType = DataType.Numeric });
+      m_ValidSetting.ColumnCollection.AddIfNew(new Column { Name = "IsNativeLang", DataType = DataType.Boolean });
     }
 
     [TestMethod]
@@ -47,36 +47,36 @@ namespace CsvTools.Tests
       };
       basIssues.FileFormat.FieldDelimiter = "TAB";
       basIssues.FileFormat.FieldQualifier = string.Empty;
-      basIssues.ColumnAdd(new Column
+      basIssues.ColumnCollection.AddIfNew(new Column
       {
         DataType = DataType.DateTime,
         DateFormat = "yyyy/MM/dd",
         DateSeparator = "-",
         Name = "effectiveDate"
       });
-      basIssues.ColumnAdd(new Column
+      basIssues.ColumnCollection.AddIfNew(new Column
       {
         DataType = DataType.DateTime,
         DateFormat = "yyyy/MM/ddTHH:mm:ss",
         DateSeparator = "-",
         Name = "timestamp"
       });
-      basIssues.ColumnAdd(new Column
+      basIssues.ColumnCollection.AddIfNew(new Column
       {
         DataType = DataType.Integer,
         Name = "version"
       });
-      basIssues.ColumnAdd(new Column
+      basIssues.ColumnCollection.AddIfNew(new Column
       {
         DataType = DataType.Boolean,
         Name = "retrainingRequired"
       });
-      basIssues.ColumnAdd(new Column
+      basIssues.ColumnCollection.AddIfNew(new Column
       {
         DataType = DataType.Boolean,
         Name = "classroomTraining"
       });
-      basIssues.ColumnAdd(new Column
+      basIssues.ColumnCollection.AddIfNew(new Column
       {
         DataType = DataType.TextToHtml,
         Name = "webLink"
@@ -389,13 +389,13 @@ namespace CsvTools.Tests
       var target = new CsvFile();
       m_ValidSetting.CopyTo(target);
 
-      Assert.IsNotNull(target.GetColumn("Score"));
-      var cf = target.GetColumn("Score");
+      Assert.IsNotNull(target.ColumnCollection.Get("Score"));
+      var cf = target.ColumnCollection.Get("Score");
       Assert.AreEqual(cf.Name, "Score");
 
       // Remove the one filed
-      target.Column.Remove(target.GetColumn("Score"));
-      Assert.IsNull(target.GetColumn("Score"));
+      target.ColumnCollection.Remove(target.ColumnCollection.Get("Score"));
+      Assert.IsNull(target.ColumnCollection.Get("Score"));
     }
 
     [TestMethod]
@@ -409,7 +409,7 @@ namespace CsvTools.Tests
         FileFormat = { FieldDelimiter = "tab" }
       };
 
-      csvFile.ColumnAdd(new Column { Name = "Title", DataType = DataType.DateTime });
+      csvFile.ColumnCollection.AddIfNew(new Column { Name = "Title", DataType = DataType.DateTime });
 
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(csvFile, processDisplay))
@@ -473,6 +473,7 @@ namespace CsvTools.Tests
     public void CsvDataReaderImportFileEmptyNullNotExisting()
     {
       var setting = new CsvFile();
+
       try
       {
         setting.FileName = string.Empty;
@@ -488,24 +489,9 @@ namespace CsvTools.Tests
       }
       catch (Exception)
       {
-        Assert.Fail("Wrong Exception Type");
+        Assert.Fail("Wrong Exception Type, Empty Filename");
       }
-
-      try
-      {
-        var test = new CsvFileReader(setting, null);
-        Assert.Fail("Exception expected");
-      }
-      catch (ArgumentException)
-      {
-      }
-      catch (ApplicationException)
-      {
-      }
-      catch (Exception)
-      {
-        Assert.Fail("Wrong Exception Type");
-      }
+      
 
       try
       {
@@ -522,7 +508,7 @@ namespace CsvTools.Tests
       }
       catch (Exception)
       {
-        Assert.Fail("Wrong Exception Type");
+        Assert.Fail("Wrong Exception Type, Invalid Filename");
       }
     }
 

@@ -95,67 +95,7 @@ namespace CsvTools.Tests
       Assert.AreEqual(",", setting.FileFormat.FieldDelimiter);
     }
 
-    [TestMethod]
-    public void FillGuessColumnFormatInvalidateColumnHeader()
-    {
-      var setting = new CsvFile
-      {
-        FileName = Path.Combine(m_ApplicationDirectory, "BasicCSV.txt"),
-        HasFieldHeader = true
-      };
-      // setting.TreatTextNullAsNull = true;
-      using (var processDisplay = new DummyProcessDisplay())
-      using (var test = setting.GetFileReader(processDisplay))
-      {
-        test.Open();
-        var list = new List<string>();
-        CsvHelper.InvalidateColumnHeader(setting);
-      }
-    }
 
-    [TestMethod]
-    public void GetColumnHeaderFileEmpty()
-    {
-      using (var processDisplay = new DummyProcessDisplay())
-      {
-        var headers = CsvHelper.GetColumnHeader(new CsvFile
-        {
-          FileName = Path.Combine(m_ApplicationDirectory, "CSVTestEmpty.txt"),
-          HasFieldHeader = true
-        }, false, true, processDisplay).ToArray();
-        Assert.AreEqual(0, headers.Length);
-      }
-    }
-
-    [TestMethod]
-    public void GetColumnHeaderHeadings()
-    {
-      var setting = new CsvFile
-      {
-        FileName = Path.Combine(m_ApplicationDirectory, "BasicCSV.txt")
-      };
-      setting.FileFormat.FieldDelimiter = ",";
-      setting.HasFieldHeader = true;
-      using (var processDisplay = new DummyProcessDisplay())
-      {
-        var headers = CsvHelper.GetColumnHeader(setting, false, true, processDisplay).ToArray();
-        Assert.AreEqual(6, headers.Length);
-        Assert.AreEqual("ID", headers[0]);
-        Assert.AreEqual("IsNativeLang", headers[5]);
-      }
-    }
-
-    [TestMethod]
-    public void GetColumnHeaderNoHeaders()
-    {
-      var setting = new CsvFile
-      {
-        FileName = Path.Combine(m_ApplicationDirectory, "UnicodeUTF8.txt"),
-        HasFieldHeader = false
-      };
-      using (var processDisplay = new DummyProcessDisplay())
-      Assert.AreEqual("Column1", CsvHelper.GetColumnHeader(setting, false, true, processDisplay).First());
-    }
 
     [TestMethod]
     public void GuessDelimiterComma()
@@ -311,32 +251,6 @@ namespace CsvTools.Tests
       }
     }
 
-    [TestMethod]
-    public void GetColumnIndexTest()
-    {
-      var setting = new CsvFile
-      {
-        FileName = Path.Combine(m_ApplicationDirectory, "EmptyColumns.txt")
-      };
-      setting.FileFormat.FieldDelimiter = ",";
-      setting.HasFieldHeader = true;
-      Assert.AreEqual(0, CsvHelper.GetColumnIndex(setting, "ID", true));
-      Assert.AreEqual(2, CsvHelper.GetColumnIndex(setting, "ExamDate", true));
-    }
-
-    [TestMethod]
-    public void GetColumnIndexTestID()
-    {
-      var setting = new CsvFile
-      {
-        FileName = Path.Combine(m_ApplicationDirectory, "EmptyColumns.txt"),
-        ID = "MyLittleTest"
-      };
-      setting.FileFormat.FieldDelimiter = ",";
-      setting.HasFieldHeader = true;
-      Assert.AreEqual(0, CsvHelper.GetColumnIndex(setting, "ID", true));
-      Assert.AreEqual(2, CsvHelper.GetColumnIndex(setting, "ExamDate", false));
-    }
 
     [TestMethod]
     public void GuessNotADelimitedFileTest()

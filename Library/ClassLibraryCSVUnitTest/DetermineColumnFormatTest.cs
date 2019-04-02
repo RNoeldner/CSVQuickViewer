@@ -86,9 +86,9 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay())
       {
         setting.FillGuessColumnFormatReader(false, processDisplay);
-        Assert.AreEqual(DataType.Integer, setting.GetColumn("ID").DataType);
-        Assert.AreEqual(DataType.DateTime, setting.GetColumn("ExamDate").DataType);
-        Assert.AreEqual(DataType.Boolean, setting.GetColumn("IsNativeLang").DataType);
+        Assert.AreEqual(DataType.Integer, setting.ColumnCollection.Get("ID").DataType);
+        Assert.AreEqual(DataType.DateTime, setting.ColumnCollection.Get("ExamDate").DataType);
+        Assert.AreEqual(DataType.Boolean, setting.ColumnCollection.Get("IsNativeLang").DataType);
       }
     }
 
@@ -137,29 +137,25 @@ namespace CsvTools.Tests
     {
       var reader = new CsvFile
       {
-        ID = "Reader",
-        FileName = Path.Combine(m_ApplicationDirectory, "BasicCSV.txt"),
+        ID = "DetermineColumnFormatFillGuessColumnFormatWriter",
+        FileName = "BasicCSV.txt",
         HasFieldHeader = true
       };
-      ApplicationSetting.ToolSetting.Input.Clear();
-      ApplicationSetting.ToolSetting.Input.Add(reader);
-      var mimic = new MimicSQLReader();
-      mimic.AddSetting(reader);
+
+      UnitTestInitialize.MimicSQLReader.AddSetting(reader);
 
       reader.FileFormat.FieldDelimiter = ",";
       var writer = new CsvFile
       {
         SqlStatement = reader.ID
       };
-      ApplicationSetting.ToolSetting.Output.Clear();
-      ApplicationSetting.ToolSetting.Output.Add(writer);
 
       // setting.TreatTextNullAsNull = true;
       ApplicationSetting.FillGuessSettings.IgnoreIdColums = false;
       using (var processDisplay = new DummyProcessDisplay())
       {
         writer.FillGuessColumnFormatWriter(true, processDisplay);
-        Assert.AreEqual(6, writer.Column.Count);
+        Assert.AreEqual(6, writer.ColumnCollection.Count);
       }
     }
 
@@ -180,14 +176,14 @@ namespace CsvTools.Tests
         setting.FillGuessColumnFormatReader(false, processDisplay);
       }
 
-      Assert.IsNotNull(setting.GetColumn(@"Betrag Brutto (2 Nachkommastellen)"), "Data Type recognized");
+      Assert.IsNotNull(setting.ColumnCollection.Get(@"Betrag Brutto (2 Nachkommastellen)"), "Data Type recognized");
 
-      Assert.AreEqual(DataType.Numeric, setting.GetColumn(@"Betrag Brutto (2 Nachkommastellen)").DataType,
+      Assert.AreEqual(DataType.Numeric, setting.ColumnCollection.Get(@"Betrag Brutto (2 Nachkommastellen)").DataType,
         "Is Numeric");
-      Assert.AreEqual(",", setting.GetColumn(@"Betrag Brutto (2 Nachkommastellen)").DecimalSeparator,
+      Assert.AreEqual(",", setting.ColumnCollection.Get(@"Betrag Brutto (2 Nachkommastellen)").DecimalSeparator,
         "Decimal Separator found");
 
-      Assert.AreEqual(DataType.DateTime, setting.GetColumn(@"Erstelldatum Rechnung").DataType);
+      Assert.AreEqual(DataType.DateTime, setting.ColumnCollection.Get(@"Erstelldatum Rechnung").DataType);
     }
 
     [TestMethod]
@@ -206,9 +202,9 @@ namespace CsvTools.Tests
         setting.FillGuessColumnFormatReader(false, processDisplay);
       }
 
-      Assert.IsTrue(setting.GetColumn("ID") == null || setting.GetColumn("ID").Convert == false);
-      Assert.AreEqual(DataType.DateTime, setting.GetColumn("ExamDate").DataType);
-      Assert.AreEqual(DataType.Boolean, setting.GetColumn("IsNativeLang").DataType);
+      Assert.IsTrue(setting.ColumnCollection.Get("ID") == null || setting.ColumnCollection.Get("ID").Convert == false);
+      Assert.AreEqual(DataType.DateTime, setting.ColumnCollection.Get("ExamDate").DataType);
+      Assert.AreEqual(DataType.Boolean, setting.ColumnCollection.Get("IsNativeLang").DataType);
     }
 
     [TestMethod]
@@ -226,9 +222,9 @@ namespace CsvTools.Tests
       {
         setting.FillGuessColumnFormatReader(false, processDisplay);
       }
-      Assert.AreEqual(DataType.DateTime, setting.Column[2].DataType, "column2");
-      Assert.AreEqual(DataType.DateTime, setting.Column[3].DataType, "column3");
-      Assert.AreEqual(DataType.DateTime, setting.Column[4].DataType, "column4");
+      Assert.AreEqual(DataType.DateTime, setting.ColumnCollection[2].DataType, "column2");
+      Assert.AreEqual(DataType.DateTime, setting.ColumnCollection[3].DataType, "column3");
+      Assert.AreEqual(DataType.DateTime, setting.ColumnCollection[4].DataType, "column4");
     }
 
     [TestMethod]
@@ -250,12 +246,12 @@ namespace CsvTools.Tests
 
       ApplicationSetting.FillGuessSettings.DateParts = false;
 
-      Assert.AreEqual("Start Date", setting.Column[0].Name, "Column 1 Start date");
-      Assert.AreEqual("Start Time", setting.Column[1].Name, "Column 2 Start Time");
-      Assert.AreEqual("Start Time", setting.Column[0].TimePart, "TimePart is Start Time");
-      Assert.AreEqual(DataType.DateTime, setting.Column[0].DataType);
-      Assert.AreEqual("MM/dd/yyyy", setting.Column[0].DateFormat);
-      Assert.AreEqual("HH:mm:ss", setting.Column[1].DateFormat);
+      Assert.AreEqual("Start Date", setting.ColumnCollection[0].Name, "Column 1 Start date");
+      Assert.AreEqual("Start Time", setting.ColumnCollection[1].Name, "Column 2 Start Time");
+      Assert.AreEqual("Start Time", setting.ColumnCollection[0].TimePart, "TimePart is Start Time");
+      Assert.AreEqual(DataType.DateTime, setting.ColumnCollection[0].DataType);
+      Assert.AreEqual("MM/dd/yyyy", setting.ColumnCollection[0].DateFormat);
+      Assert.AreEqual("HH:mm:ss", setting.ColumnCollection[1].DateFormat);
     }
 
     [TestMethod]
@@ -273,11 +269,11 @@ namespace CsvTools.Tests
       {
         setting.FillGuessColumnFormatReader(true, processDisplay);
       }
-      Assert.AreEqual(11, setting.Column.Count);
-      Assert.AreEqual(DataType.DateTime, setting.Column[7].DataType);
-      Assert.AreEqual(DataType.DateTime, setting.Column[8].DataType);
-      Assert.AreEqual(DataType.DateTime, setting.Column[9].DataType);
-      Assert.AreEqual(DataType.String, setting.Column[10].DataType);
+      Assert.AreEqual(11, setting.ColumnCollection.Count);
+      Assert.AreEqual(DataType.DateTime, setting.ColumnCollection[7].DataType);
+      Assert.AreEqual(DataType.DateTime, setting.ColumnCollection[8].DataType);
+      Assert.AreEqual(DataType.DateTime, setting.ColumnCollection[9].DataType);
+      Assert.AreEqual(DataType.String, setting.ColumnCollection[10].DataType);
     }
 
     [TestMethod]
