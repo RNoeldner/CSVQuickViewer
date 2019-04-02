@@ -44,9 +44,9 @@ namespace CsvTools.Tests
       file.AllPropertiesEqual(test);
       // Test Properties that are not tested
 
-      Assert.AreEqual(file.Mapping.Count, test.Mapping.Count, "FieldMapping");
+      Assert.AreEqual(file.MappingCollection.Count, test.MappingCollection.Count, "FieldMapping");
       Assert.AreEqual(TrimmingOption.Unquoted, test.TrimmingOption, "TrimmingOption");
-      Assert.IsTrue(file.Mapping.CollectionEqual(test.Mapping), "Mapping");
+      Assert.IsTrue(file.MappingCollection.CollectionEqual(test.MappingCollection), "Mapping");
       Assert.IsTrue(file.FileFormat.Equals(test.FileFormat), "FileFormat");
     }
 
@@ -56,10 +56,10 @@ namespace CsvTools.Tests
       file.ID = "TestFile";
       file.FileName = "Test.csv";
 
-      file.Mapping.Add(new Mapping { FileColumn = "Fld1", TemplateField = "FldA" });
-      file.Mapping.Add(new Mapping { FileColumn = "Fld2", TemplateField = "FldB" });
-      file.Column.Add(new Column { ColumnOrdinal = 1, DataType = DataType.Integer, Ignore = false, Name = "ID" });
-      file.Column.Add(new Column { ColumnOrdinal = 2, Name = "Name", Part = 2 });
+      file.MappingCollection.Add(new Mapping { FileColumn = "Fld1", TemplateField = "FldA" });
+      file.MappingCollection.Add(new Mapping { FileColumn = "Fld2", TemplateField = "FldB" });
+      file.ColumnCollection.AddIfNew(new Column { ColumnOrdinal = 1, DataType = DataType.Integer, Ignore = false, Name = "ID" });
+      file.ColumnCollection.AddIfNew(new Column { ColumnOrdinal = 2, Name = "Name", Part = 2 });
       return file;
     }
   }

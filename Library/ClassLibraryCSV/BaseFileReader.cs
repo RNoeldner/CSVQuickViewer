@@ -864,23 +864,7 @@ namespace CsvTools
 
     protected virtual void FinishOpen()
     {
-      var valuesInclude = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-      var valuesAll = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
-      for (int colindex = 0; colindex < FieldCount; colindex++)
-      {
-        if (!string.IsNullOrEmpty(Column[colindex].Name))
-        {
-          valuesAll.Add(Column[colindex].Name);
-          if (!Column[colindex].Ignore)
-          {
-            valuesInclude.Add(Column[colindex].Name);
-          }
-        }
-      }
-
-      CsvHelper.CacheColumnHeader(m_FileSetting, true, valuesAll);
-      CsvHelper.CacheColumnHeader(m_FileSetting, false, valuesInclude);
+      ApplicationSetting.StoreHeader?.Invoke(m_FileSetting, this.Column);
 
       if (FieldCount > 0)
       {
@@ -899,7 +883,7 @@ namespace CsvTools
 
       for (int colindex = 0; colindex < FieldCount; colindex++)
       {
-        var setting = m_FileSetting.GetColumn(Column[colindex].Name);
+        var setting = m_FileSetting.ColumnCollection.Get(Column[colindex].Name);
         if (setting != null)
         {
           setting.CopyTo(Column[colindex]);
@@ -1408,7 +1392,7 @@ namespace CsvTools
 
       try
       {
-        return TimeZoneMapping.ConvertTime(input.Value, timeZone, ApplicationSetting.ToolSetting.DestinationTimeZone);
+        return TimeZoneMapping.ConvertTime(input.Value, timeZone, ApplicationSetting.DestinationTimeZone);
       }
       catch (ApplicationException ex)
       {

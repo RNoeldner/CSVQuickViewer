@@ -19,16 +19,7 @@ namespace CsvTools.Tests
       Assert.IsNotNull(m_ValidationResult.FileSizeDisplay);
     }
 
-    [TestMethod]
-    public void ValidationResultTableNameTest()
-    {
-      var setting = new CsvFile { ID = "Hello" };
-
-      setting.SetValidationResult(500, 1, 5);
-
-      Assert.AreEqual(5, setting.ValidationResult.WarningCount);
-    }
-
+ 
     [TestMethod]
     public void ValidationResultSetValidationResultTest()
     {

@@ -109,7 +109,8 @@ namespace CsvTools
       if (string.IsNullOrEmpty(m_CsvFile.FileName))
         throw new ApplicationException("FileName must be set");
 
-      if (ApplicationSetting.RemoteFileHandler != null && string.IsNullOrEmpty(m_CsvFile?.RemoteFileName))
+      // if it can not be downloaded it has to exist
+      if (ApplicationSetting.RemoteFileHandler == null || string.IsNullOrEmpty(m_CsvFile?.RemoteFileName))      
       {
         if (!FileSystemUtils.FileExists(m_CsvFile.FullPath))
           throw new FileNotFoundException(
@@ -300,7 +301,7 @@ namespace CsvTools
         }
 
         if (m_CsvFile.TryToSolveMoreColumns && m_CsvFile.FileFormat.FieldQualifierChar == '\0')
-          m_RealignColumns = new ReAlignColumns(m_CsvFile, FieldCount);
+          m_RealignColumns = new ReAlignColumns(FieldCount);
 
         base.FinishOpen();
 

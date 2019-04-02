@@ -28,12 +28,12 @@ namespace CsvTools.Tests
       var checkColumns = new List<string>();
       foreach (var col in existingColumns)
       {
-        fileSetting.Mapping.Add(new Mapping { FileColumn = col, TemplateField = col });
+        fileSetting.MappingCollection.Add(new Mapping { FileColumn = col, TemplateField = col });
         checkColumns.Add(col);
       }
 
       foreach (var col in additionalColumns)
-        fileSetting.Mapping.Add(new Mapping { FileColumn = col, TemplateField = col });
+        fileSetting.MappingCollection.Add(new Mapping { FileColumn = col, TemplateField = col });
 
       checkColumns.Add("Col6");
       var result = fileSetting.RemoveMappingWithoutSource(checkColumns).ToList();

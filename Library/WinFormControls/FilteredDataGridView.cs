@@ -715,10 +715,10 @@ namespace CsvTools
     /// <returns></returns>
     private Column GetColumnFormat(int colindex)
     {
-      if (m_FileSetting == null || colindex < 0 || colindex > m_FileSetting.Column.Count)
+      if (m_FileSetting == null || colindex < 0 || colindex > m_FileSetting.ColumnCollection.Count)
         return null;
 
-      return m_FileSetting.GetColumn(Columns[colindex].DataPropertyName);
+      return m_FileSetting.ColumnCollection.Get(Columns[colindex].DataPropertyName);
     }
 
     /// <summary>

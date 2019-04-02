@@ -21,7 +21,7 @@ namespace CsvTools.Tests
           $"Type: {a.GetType().FullName}  Property:{prop.Name}");
     }
 
-    internal static CsvFile ReaderGetAllFormats(IToolSetting parent = null, string id = "AllFormats")
+    internal static CsvFile ReaderGetAllFormats(string id = "AllFormats")
     {
       var readFile = new CsvFile
       {
@@ -31,52 +31,50 @@ namespace CsvTools.Tests
       };
 
       readFile.FileFormat.FieldDelimiter = "TAB";
-      var timeFld = readFile.ColumnAdd(new Column { Name = "DateTime", DataType = DataType.DateTime });
+      var timeFld = readFile.ColumnCollection.AddIfNew(new Column { Name = "DateTime", DataType = DataType.DateTime });
       Debug.Assert(timeFld != null);
       timeFld.DateFormat = @"dd/MM/yyyy";
       timeFld.TimePart = "Time";
       timeFld.TimePartFormat = "HH:mm:ss";
-      readFile.ColumnAdd(new Column { Name = "Integer", DataType = DataType.Integer });
+      readFile.ColumnCollection.AddIfNew(new Column { Name = "Integer", DataType = DataType.Integer });
 
-      readFile.ColumnAdd(new Column { Name = "Numeric", DataType = DataType.Numeric });
+      readFile.ColumnCollection.AddIfNew(new Column { Name = "Numeric", DataType = DataType.Numeric });
 
-      var numericFld = readFile.GetColumn("Numeric");
+      var numericFld = readFile.ColumnCollection.Get("Numeric");
       Debug.Assert(numericFld != null);
       numericFld.DecimalSeparator = ".";
 
-      var doubleFld = readFile.ColumnAdd(new Column { Name = "Double", DataType = DataType.Double });
+      var doubleFld = readFile.ColumnCollection.AddIfNew(new Column { Name = "Double", DataType = DataType.Double });
       Debug.Assert(doubleFld != null);
       doubleFld.DecimalSeparator = ".";
-      readFile.ColumnAdd(new Column { Name = "Boolean", DataType = DataType.Boolean });
-      readFile.ColumnAdd(new Column { Name = "GUID", DataType = DataType.Guid });
-      readFile.ColumnAdd(new Column
+      readFile.ColumnCollection.AddIfNew(new Column { Name = "Boolean", DataType = DataType.Boolean });
+      readFile.ColumnCollection.AddIfNew(new Column { Name = "GUID", DataType = DataType.Guid });
+      readFile.ColumnCollection.AddIfNew(new Column
       {
         Name = "Time",
         Ignore = true
       });
-      if (parent != null)
-        parent.Input.Add(readFile);
+      
 
       return readFile;
     }
 
-    internal static CsvFile ReaderGetBasicCSV(IToolSetting parent = null, string id = "BasicCSV")
+    internal static CsvFile ReaderGetBasicCSV(string id = "BasicCSV")
     {
-      var readFile = new CsvFile();
-      readFile.ID = id;
+      var readFile = new CsvFile
+      {
+        ID = id
+      };
       readFile.FileFormat.CommentLine = "#";
       readFile.FileName = Path.Combine(FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles", "BasicCSV.txt");
-      var examDateFld = readFile.ColumnAdd(new Column { Name = "ExamDate", DataType = DataType.DateTime });
+      var examDateFld = readFile.ColumnCollection.AddIfNew(new Column { Name = "ExamDate", DataType = DataType.DateTime });
 
       Debug.Assert(examDateFld != null);
       examDateFld.ValueFormat.DateFormat = @"dd/MM/yyyy";
 
-      readFile.ColumnAdd(new Column { Name = "Score", DataType = DataType.Integer });
-      readFile.ColumnAdd(new Column { Name = "Proficiency", DataType = DataType.Numeric });
-      readFile.ColumnAdd(new Column { Name = "IsNativeLang", DataType = DataType.Boolean });
-
-      if (parent != null)
-        parent.Input.Add(readFile);
+      readFile.ColumnCollection.AddIfNew(new Column { Name = "Score", DataType = DataType.Integer });
+      readFile.ColumnCollection.AddIfNew(new Column { Name = "Proficiency", DataType = DataType.Numeric });
+      readFile.ColumnCollection.AddIfNew(new Column { Name = "IsNativeLang", DataType = DataType.Boolean });
 
       return readFile;
     }

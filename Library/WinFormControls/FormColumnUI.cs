@@ -39,6 +39,8 @@ namespace CsvTools
     private readonly IFileSetting m_FileSetting;
     private readonly bool m_WriteSetting;
 
+    public Func<IFileSetting, bool, IProcessDisplay, ICollection<string>> GetColumnHeader;
+
     /// <summary>
     ///   Initializes a new instance of the <see cref="FormColumnUI" /> class.
     /// </summary>
@@ -147,7 +149,7 @@ namespace CsvTools
               ApplicationSetting.FillGuessSettings.DectectPercentage,
               ApplicationSetting.FillGuessSettings.SerialDateTime,
               ApplicationSetting.FillGuessSettings.CheckNamedDates,
-              DetermineColumnFormat.CommonDateFormat(m_FileSetting.Column.Select(x => x.ValueFormat)), m_CancellationTokenSource.Token);
+              DetermineColumnFormat.CommonDateFormat(m_FileSetting.ColumnCollection.Select(x => x.ValueFormat)), m_CancellationTokenSource.Token);
             if (checkResult == null)
             {
               _MessageBox.Show(this,
@@ -404,7 +406,7 @@ namespace CsvTools
               if (!m_WriteSetting)
               {
                 // get the columns from the file
-                allColumns = CsvHelper.GetColumnHeader(m_FileSetting, true, true, frm);
+                allColumns = GetColumnHeader?.Invoke(m_FileSetting, true, frm) ?? new List<string>();
               }
               else
               {
@@ -557,6 +559,34 @@ namespace CsvTools
     }
 
     /// <summary>
+    ///   Get sample values for a column
+    /// </summary>
+    /// <param name="fileSetting">The file setting.</param>
+    /// <param name="columnName">the Name of the column</param>
+    /// <returns>
+    ///   The index of the given name, -1 if not found.
+    /// </returns>
+    private int GetColumnIndex(IFileSetting fileSetting, string columnName)
+    {
+      if (string.IsNullOrEmpty(columnName) || fileSetting == null) return -1;
+      var columnIndex = 0;
+      using (var processDisplay = new DummyProcessDisplay())
+      {
+        var headers = GetColumnHeader?.Invoke(fileSetting, false, processDisplay);
+        if (headers != null)
+        {
+          foreach (var col in headers)
+          {
+            if (col.Equals(columnName, StringComparison.OrdinalIgnoreCase))
+              return columnIndex;
+            columnIndex++;
+          }
+        }
+      }
+      return -1;
+    }
+
+    /// <summary>
     ///   Gets the sample values for a column.
     /// </summary>
     /// <param name="columnName">Name of the column.</param>
@@ -571,7 +601,8 @@ namespace CsvTools
       if (m_FileSetting == null)
         throw new ApplicationException("Parent FileSetting not set");
 
-      var colIndex = CsvHelper.GetColumnIndex(m_FileSetting, columnName);
+
+      var colIndex = GetColumnIndex(m_FileSetting, columnName);
       if (colIndex < 0)
         throw new ApplicationException($"The file does not contain the column {comboBoxColumnName.Text}.");
 

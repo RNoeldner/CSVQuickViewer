@@ -80,11 +80,10 @@ iXhkjSU70YAKCIqMlrQALUBB9n6zVsfpRw5ShrKqm7URQTHCkuTLXYf6juGI
     }
 
     public static void SetApplicationSetting()
-    {
-      PGPKeyStorage pGPKeyStorage = ApplicationSetting.ToolSetting.PGPInformation;
-      pGPKeyStorage.EncryptedPassphase = "UGotMe".Encrypt();
-      pGPKeyStorage.AddPrivateKey(PRIVATE);
-      pGPKeyStorage.AddPublicKey(PUBLIC);
+    {      
+      ApplicationSetting.PGPKeyStorage.EncryptedPassphase = "UGotMe".Encrypt();
+      ApplicationSetting.PGPKeyStorage.AddPrivateKey(PRIVATE);
+      ApplicationSetting.PGPKeyStorage.AddPublicKey(PUBLIC);
     }
   }
 

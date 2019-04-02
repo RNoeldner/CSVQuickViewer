@@ -19,13 +19,11 @@ using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Data;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 using System.Xml.Serialization;
@@ -63,8 +61,11 @@ namespace CsvTools
       m_ViewSettings = LoadDefault();
       m_ViewSettings.FileName = string.Empty;
       m_ViewSettings.PGPInformation.AllowSavingPassphrase = true;
-      ApplicationSetting.ToolSetting = m_ViewSettings;
 
+      ApplicationSetting.FillGuessSettings = m_ViewSettings.FillGuessSettings;
+      ApplicationSetting.PGPKeyStorage = m_ViewSettings.PGPInformation;
+         
+      
       InitializeComponent();
       textBoxProgress.Threshold = log4net.Core.Level.Info;
       FillFromProperites(true);
@@ -156,18 +157,18 @@ namespace CsvTools
     {
 
       // Assume data type is not recognize
-      if (m_FileSetting.Column.Any(x => x.DataType != DataType.String))
+      if (m_FileSetting.ColumnCollection.Any(x => x.DataType != DataType.String))
       {
         Log.Debug($"Showing columns as text");
-        m_FileSetting.Column.CollectionCopy(m_StoreColumns);
-        m_FileSetting.Column.Clear();
+        m_FileSetting.ColumnCollection.CollectionCopy(m_StoreColumns);
+        m_FileSetting.ColumnCollection.Clear();
         detailControl.ButtonAsTextCaption = "Values";
       }
       else
       {
         Log.Debug($"Showing columns as values");
         detailControl.ButtonAsTextCaption = "Text";
-        m_StoreColumns.CollectionCopy(m_FileSetting.Column);
+        m_StoreColumns.CollectionCopy(m_FileSetting.ColumnCollection);
       }
       OpenDataReader(true);
     }
@@ -183,7 +184,7 @@ namespace CsvTools
 
     private void DisableIgnoreRead()
     {
-      foreach (var col in m_FileSetting.Column)
+      foreach (var col in m_FileSetting.ColumnCollection)
         if (col.Ignore)
           col.Ignore = false;
     }
@@ -324,7 +325,7 @@ namespace CsvTools
       m_ViewSettings.CopyTo(m_FileSetting);
       m_FileSetting.FileName = m_FileName;
 
-      if (m_FileName.AssumePgp() && (ApplicationSetting.ToolSetting?.PGPInformation?.PrivateKeys?.IsEmpty() ?? false))
+      if (m_FileName.AssumePgp() && (ApplicationSetting.PGPKeyStorage?.PrivateKeys?.IsEmpty() ?? false))
       {
         var res = _MessageBox.Show(this, "The private key for decryption has not been setup.\n\nDo you want to add them now ?", "Decryption", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, timeout: 5);
         if (res == DialogResult.Cancel)
@@ -419,7 +420,7 @@ namespace CsvTools
                 m_FileSetting.FillGuessColumnFormatReader(false, processDisplay);
               }
 
-              if (m_FileSetting.Column.Any(x => x.DataType != DataType.String))
+              if (m_FileSetting.ColumnCollection.Any(x => x.DataType != DataType.String))
               {
                 detailControl.ButtonShowSource += DetailControl_ButtonShowSource;
                 detailControl.ButtonAsText += DetailControl_ButtonAsText;
@@ -433,12 +434,12 @@ namespace CsvTools
 
             if (cancellationTokenSource.IsCancellationRequested)
               return false;
-          }          
+          }
           finally
           {
             Cursor.Current = oldCursor;
             m_FileSetting.FileFormat.PropertyChanged += FileSetting_PropertyChanged;
-            foreach (var col in m_FileSetting.Column)
+            foreach (var col in m_FileSetting.ColumnCollection)
               col.PropertyChanged += FileSetting_PropertyChanged;
             m_CurrentCancellationTokenSource = null;
           }
@@ -520,7 +521,7 @@ namespace CsvTools
         using (var processDisplay = m_FileSetting.GetProcessDisplay(this, false, m_CancellationTokenSource.Token))
         {
           using (var csvDataReader = m_FileSetting.GetFileReader(processDisplay))
-          {            
+          {
             csvDataReader.Warning += warnings.Add;
             csvDataReader.Warning += AddWarning;
             csvDataReader.Open();
@@ -533,8 +534,8 @@ namespace CsvTools
                 processDisplay.CancellationToken);
 
             foreach (var columnName in data.GetRealColumns())
-              if (m_FileSetting.GetColumn(columnName) == null)
-                m_FileSetting.ColumnAdd(new Column { Name = columnName });
+              if (m_FileSetting.ColumnCollection.Get(columnName) == null)
+                m_FileSetting.ColumnCollection.AddIfNew(new Column { Name = columnName });
             if (processDisplay.CancellationToken.IsCancellationRequested)
             {
               Log.Info("Cancellation was requested.");
@@ -574,7 +575,7 @@ namespace CsvTools
           // if (!m_FileSetting.NoDelimitedFile)
           ShowTextPanel(false);
         Cursor.Current = oldCursor;
-        foreach (var col in m_FileSetting.Column)
+        foreach (var col in m_FileSetting.ColumnCollection)
         {
           col.PropertyChanged += FileSetting_PropertyChanged;
         }

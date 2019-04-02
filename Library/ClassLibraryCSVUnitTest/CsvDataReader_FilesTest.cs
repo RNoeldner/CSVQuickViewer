@@ -22,7 +22,7 @@ namespace CsvTools.Tests
         ByteOrderMark = true
       };
       setting.FileFormat.FieldDelimiter = "\t";
-      setting.ColumnAdd(new Column()
+      setting.ColumnCollection.AddIfNew(new Column()
       {
         Name = "Start Date",
         DataType = DataType.DateTime,
@@ -54,7 +54,7 @@ namespace CsvTools.Tests
         ByteOrderMark = true
       };
       setting.FileFormat.FieldDelimiter = "\t";
-      setting.ColumnAdd(new Column()
+      setting.ColumnCollection.AddIfNew(new Column()
       {
         Name = "Start Date",
         DataType = DataType.DateTime,
@@ -1050,18 +1050,18 @@ namespace CsvTools.Tests
       };
       setting.FileFormat.FieldDelimiter = ",";
       setting.FileName = Path.Combine(m_ApplicationDirectory, "BasicCSV.txt");
-      setting.ColumnAdd(new Column
+      setting.ColumnCollection.AddIfNew(new Column
       {
         Name = "ExamDate",
         DataType = DataType.DateTime,
         DateFormat = @"dd/MM/yyyy"
       });
-      setting.ColumnAdd(new Column
+      setting.ColumnCollection.AddIfNew(new Column
       {
         Name = "ID",
         DataType = DataType.Integer
       });
-      setting.ColumnAdd(new Column
+      setting.ColumnCollection.AddIfNew(new Column
       {
         Name = "IsNativeLang",
         DataType = DataType.Boolean

@@ -73,10 +73,10 @@ namespace CsvTools.Tests
       m_CsvFile.CopyTo(test);
       m_CsvFile.AllPropertiesEqual(test);
       // Test Properties that are not tested
-      Assert.AreEqual(m_CsvFile.Mapping.Count, test.Mapping.Count, "FieldMapping");
+      Assert.AreEqual(m_CsvFile.MappingCollection.Count, test.MappingCollection.Count, "FieldMapping");
       Assert.AreEqual(TrimmingOption.Unquoted, test.TrimmingOption, "TrimmingOption");
-      Assert.IsTrue(m_CsvFile.Mapping.CollectionEqualWithOrder(test.Mapping), "Mapping");
-      Assert.IsTrue(m_CsvFile.Column.CollectionEqualWithOrder(test.Column), "Column");
+      Assert.IsTrue(m_CsvFile.MappingCollection.CollectionEqualWithOrder(test.MappingCollection), "Mapping");
+      Assert.IsTrue(m_CsvFile.ColumnCollection.CollectionEqualWithOrder(test.ColumnCollection), "Column");
       Assert.IsTrue(m_CsvFile.FileFormat.Equals(test.FileFormat), "FileFormat");
       Assert.IsTrue(test.Equals(m_CsvFile), "Equals");
     }
@@ -91,11 +91,11 @@ namespace CsvTools.Tests
       m_CsvFile.AllPropertiesEqual(test);
       // Test Properties that are not tested
 
-      Assert.AreEqual(m_CsvFile.Mapping.Count, test.Mapping.Count, "FieldMapping");
+      Assert.AreEqual(m_CsvFile.MappingCollection.Count, test.MappingCollection.Count, "FieldMapping");
       Assert.AreEqual(TrimmingOption.Unquoted, test.TrimmingOption, "TrimmingOption");
-      Assert.IsTrue(m_CsvFile.Mapping.CollectionEqualWithOrder(test.Mapping), "Mapping");
+      Assert.IsTrue(m_CsvFile.MappingCollection.CollectionEqualWithOrder(test.MappingCollection), "Mapping");
       Assert.IsTrue(m_CsvFile.Errors.CollectionEqualWithOrder(test.Errors), "Errors");
-      Assert.IsTrue(m_CsvFile.Column.CollectionEqualWithOrder(test.Column), "Column");
+      Assert.IsTrue(m_CsvFile.ColumnCollection.CollectionEqualWithOrder(test.ColumnCollection), "Column");
       Assert.IsTrue(m_CsvFile.FileFormat.Equals(test.FileFormat), "FileFormat");
 
       Assert.IsTrue(test.Equals(m_CsvFile), "Equals");
@@ -110,29 +110,7 @@ namespace CsvTools.Tests
       Assert.AreEqual("Hello World", m_CsvFile.SqlStatement);
       m_CsvFile.SqlStatement = null;
       Assert.AreEqual(string.Empty, m_CsvFile.SqlStatementCData.Value);
-    }
-
-    [TestMethod]
-    public void SortColumnByName()
-    {
-      var setting = new CsvFile();
-      Assert.AreEqual(0, setting.Column.Count);
-      setting.SortColumnByName(null);
-      setting.SortColumnByName(new string[] { "Hello" });
-      setting.ColumnAdd(new Column()
-      {
-        Name = "BBB"
-      });
-      setting.ColumnAdd(new Column()
-      {
-        Name = "AAA"
-      });
-      Assert.AreEqual(2, setting.Column.Count);
-      setting.SortColumnByName(new string[] { "BBB" });
-      Assert.AreEqual("BBB", setting.Column[0].Name);
-      setting.SortColumnByName(new string[] { "AAA" });
-      Assert.AreEqual("AAA", setting.Column[0].Name);
-    }
+    }  
 
     [TestMethod]
     public void CsvFileFieldFieldMappingRemove()
@@ -148,22 +126,22 @@ namespace CsvTools.Tests
       Assert.IsTrue(test.AddMapping(fm1));
       Assert.IsFalse(test.AddMapping(fm1));
 
-      Assert.AreEqual(1, test.Mapping.Count);
+      Assert.AreEqual(1, test.MappingCollection.Count);
 
-      var res = test.GetColumnMapping("Source1");
+      var res = test.MappingCollection.GetByColumn("Source1");
       Assert.AreEqual(fm1, res.First());
 
-      test.RemoveMapping("Source");
-      Assert.AreEqual(1, test.Mapping.Count);
+      test.MappingCollection.RemoveColumn("Source");
+      Assert.AreEqual(1, test.MappingCollection.Count);
 
-      test.RemoveMapping("Source1");
-      Assert.AreEqual(0, test.Mapping.Count);
+      test.MappingCollection.RemoveColumn("Source1");
+      Assert.AreEqual(0, test.MappingCollection.Count);
     }
 
     [TestMethod]
     public void GetFileReader()
     {
-      m_CsvFile.FileName = "TestFiles\\BasicCSV.txt";
+      m_CsvFile.FileName = "BasicCSV.txt";
       using (var processDisplay = new DummyProcessDisplay())
       using (var res = m_CsvFile.GetFileReader(processDisplay))
         Assert.IsInstanceOfType(res, typeof(IFileReader));
@@ -177,7 +155,6 @@ namespace CsvTools.Tests
         var res = m_CsvFile.GetFileWriter(processDisplay);
         Assert.IsInstanceOfType(res, typeof(IFileWriter));
       }
-
     }
 
     [TestMethod]
@@ -197,8 +174,8 @@ namespace CsvTools.Tests
       test.AddMapping(fm1);
       test.AddMapping(fm2);
 
-      Assert.AreEqual("Destination1", test.Mapping.First().TemplateField);
-      Assert.AreEqual("Destination2", test.Mapping.Last().TemplateField);
+      Assert.AreEqual("Destination1", test.MappingCollection.First().TemplateField);
+      Assert.AreEqual("Destination2", test.MappingCollection.Last().TemplateField);
     }
 
     [TestMethod]
@@ -211,7 +188,7 @@ namespace CsvTools.Tests
         TemplateField = "Destination1"
       };
       test.AddMapping(fm1);
-      Assert.AreEqual(fm1, test.Mapping.First());
+      Assert.AreEqual(fm1, test.MappingCollection.First());
     }
 
     [TestMethod]
@@ -229,9 +206,9 @@ namespace CsvTools.Tests
         TemplateField = "Destination2"
       };
       test.AddMapping(fm1);
-      Assert.AreEqual(fm1, test.Mapping.First());
+      Assert.AreEqual(fm1, test.MappingCollection.First());
       test.AddMapping(fm2);
-      Assert.AreEqual(fm2, test.Mapping.Last());
+      Assert.AreEqual(fm2, test.MappingCollection.Last());
     }
 
     [TestMethod]
@@ -269,8 +246,8 @@ namespace CsvTools.Tests
       {
         Name = "Name"
       };
-      m_CsvFile.ColumnAdd(m_Column);
-      Assert.AreEqual(2, m_CsvFile.Column.Count);
+      m_CsvFile.ColumnCollection.AddIfNew(m_Column);
+      Assert.AreEqual(2, m_CsvFile.ColumnCollection.Count);
     }
 
     [TestMethod]
@@ -296,8 +273,8 @@ namespace CsvTools.Tests
       {
         Name = "Name2"
       };
-      m_CsvFile.ColumnAdd(m_Column);
-      Assert.AreEqual(3, m_CsvFile.Column.Count);
+      m_CsvFile.ColumnCollection.AddIfNew(m_Column);
+      Assert.AreEqual(3, m_CsvFile.ColumnCollection.Count);
     }
 
     [TestMethod]
@@ -368,13 +345,13 @@ namespace CsvTools.Tests
       m_CsvFile.WarnDelimiterInValue = true;
       Assert.IsTrue(m_CsvFile.WarnDelimiterInValue, "WarnDelimiterInValue");
 
-      m_CsvFile.Mapping.Clear();
-      m_CsvFile.Mapping.Add(new Mapping { FileColumn = "Fld1", TemplateField = "FldA", Attention = true, Update = true });
-      m_CsvFile.Mapping.Add(new Mapping { FileColumn = "Fld2", TemplateField = "FldB", Attention = true });
-      Assert.AreEqual(2, m_CsvFile.Mapping.Count, "FieldMapping");
+      m_CsvFile.MappingCollection.Clear();
+      m_CsvFile.MappingCollection.Add(new Mapping { FileColumn = "Fld1", TemplateField = "FldA", Attention = true, Update = true });
+      m_CsvFile.MappingCollection.Add(new Mapping { FileColumn = "Fld2", TemplateField = "FldB", Attention = true });
+      Assert.AreEqual(2, m_CsvFile.MappingCollection.Count, "FieldMapping");
 
-      m_CsvFile.Column.Clear();
-      m_CsvFile.Column.Add(new Column
+      m_CsvFile.ColumnCollection.Clear();
+      m_CsvFile.ColumnCollection.AddIfNew(new Column
       {
         ColumnOrdinal = 1,
         DataType = DataType.Integer,
@@ -382,7 +359,7 @@ namespace CsvTools.Tests
         Convert = true,
         Name = "ID"
       });
-      m_CsvFile.Column.Add(new Column { ColumnOrdinal = 2, Name = "Name" });
+      m_CsvFile.ColumnCollection.AddIfNew(new Column { ColumnOrdinal = 2, Name = "Name" });
 
       m_CsvFile.WarnEmptyTailingColumns = false;
       Assert.IsFalse(m_CsvFile.WarnEmptyTailingColumns, "WarnEmptyTailingColumns");

@@ -12,47 +12,46 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CsvRichTextBox()
     {
-      var ctrl = new CSVRichTextBox
+      using (var ctrl = new CSVRichTextBox())
       {
-        Text = "This is a Test"
-      };
-      Assert.AreEqual("This is a Test", ctrl.Text);
+        ctrl.Text = "This is a Test";
+        Assert.AreEqual("This is a Test", ctrl.Text);
 
-      ctrl.Delimiter = ';';
-      Assert.AreEqual(';', ctrl.Delimiter);
+        ctrl.Delimiter = ';';
+        Assert.AreEqual(';', ctrl.Delimiter);
 
-      ctrl.DisplaySpace = true;
-      Assert.IsTrue(ctrl.DisplaySpace);
-      ctrl.DisplaySpace = false;
-      Assert.IsFalse(ctrl.DisplaySpace);
+        ctrl.DisplaySpace = true;
+        Assert.IsTrue(ctrl.DisplaySpace);
+        ctrl.DisplaySpace = false;
+        Assert.IsFalse(ctrl.DisplaySpace);
 
-      ctrl.Escape = '#';
-      Assert.AreEqual('#', ctrl.Escape);
+        ctrl.Escape = '#';
+        Assert.AreEqual('#', ctrl.Escape);
 
-      ctrl.Quote = '?';
-      Assert.AreEqual('?', ctrl.Quote);
+        ctrl.Quote = '?';
+        Assert.AreEqual('?', ctrl.Quote);
+      }
     }
 
     [TestMethod]
     public void CsvTextDisplay()
     {
-      var ctrl = new CsvTextDisplay();
-      var fileName = FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles\BasicCSV.txt";
-      var file = new CsvFile(fileName);
-
-      ctrl.CsvFile = file;
+      var file = new CsvFile("BasicCSV.txt");
+      using (var ctrl = new CsvTextDisplay())
+      {
+        ctrl.CsvFile = file;
+        ctrl.Show();
+      }
     }
 
     [TestMethod]
     public void FormColumnUI()
     {
-      var csvFile = new CsvFile();
-      csvFile.FileName = FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles\BasicCSV.txt";
-      var col = new Column();
-      col.Name = "ExamDate";
-      col.DataType = DataType.DateTime;
+      var csvFile = new CsvFile("BasicCSV.txt");
+      var col = new Column { Name = "ExamDate", DataType = DataType.DateTime };
+      csvFile.ColumnCollection.AddIfNew(col);
 
-      csvFile.ColumnAdd(col);
+
       using (var ctrl = new FormColumnUI(col, false, csvFile))
       {
         ctrl.Show();

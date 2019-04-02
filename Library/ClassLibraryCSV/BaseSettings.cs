@@ -20,7 +20,6 @@ using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics.Contracts;
 using System.Reflection;
-using System.Threading;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -28,8 +27,8 @@ namespace CsvTools
 {
   // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
   /// <summary>
-  ///  Abstract calls containing the basic setting for an IFileSetting if contains <see cref="Column" />,
-  ///  <see cref="Mapping" /> and <see cref="FileFormat" />
+  ///  Abstract calls containing the basic setting for an IFileSetting if contains <see cref="ColumnCollection" />,
+  ///  <see cref="MappingCollection" /> and <see cref="FileFormat" />
   /// </summary>
 #pragma warning disable CS0659
 
@@ -83,14 +82,26 @@ namespace CsvTools
     /// </summary>
     protected BaseSettings()
     {
-      Column.CollectionChanged += ColumnCollectionChanged;
+      ColumnCollection.CollectionChanged += ColumnCollectionChanged;
       Samples.CollectionChanged += delegate { NotifyPropertyChanged(nameof(Samples)); };
-      Errors.CollectionChanged += delegate
+      Errors.CollectionChanged += delegate { if (m_NumErrors > 0 && Errors.Count > m_NumErrors) NumErrors = Errors.Count; NotifyPropertyChanged(nameof(Errors)); };
+    }
+
+    private void ColumnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+      if (e.NewItems != null)
       {
-        if (m_NumErrors > 0 && Errors.Count > m_NumErrors)
-          NumErrors = Errors.Count;
-        NotifyPropertyChanged(nameof(Errors));
-      };
+        foreach (Column item in e.NewItems)
+        {
+          item.PropertyChanged += delegate (object s_, PropertyChangedEventArgs colEvent)
+          {
+            if (colEvent.PropertyName == nameof(CsvTools.Column.Ignore))
+              NotifyPropertyChanged(nameof(ColumnCollection));
+          };
+        }
+      }
+      if (e.NewItems != null || e.OldItems != null)
+        NotifyPropertyChanged(nameof(ColumnCollection));
     }
 
     /// <summary>
@@ -103,7 +114,7 @@ namespace CsvTools
     ///  Used for XML Serialization
     /// </remarks>
     [XmlIgnore]
-    public virtual bool MappingSpecified => Mapping.Count > 0;
+    public virtual bool MappingSpecified => MappingCollection.Count > 0;
 
     /// <summary>
     ///  Gets a value indicating whether column format specified.
@@ -112,7 +123,7 @@ namespace CsvTools
     ///  <c>true</c> if column format specified; otherwise, <c>false</c>.
     /// </value>
     [XmlIgnore]
-    public virtual bool ColumnSpecified => Column.Count > 0;
+    public virtual bool ColumnSpecified => ColumnCollection.Count > 0;
 
     [XmlIgnore]
     public virtual bool ErrorsSpecified => Errors.Count > 0;
@@ -149,12 +160,12 @@ namespace CsvTools
     {
       get
       {
-        if (ApplicationSetting.ToolSetting?.PGPInformation == null)
+        if (ApplicationSetting.PGPKeyStorage == null)
           return Passphrase.Length > 0;
 
         // In case the individual passphrase matches the general Passphrase do not store it
-        return ApplicationSetting.ToolSetting.PGPInformation.AllowSavingPassphrase &&
-            !Passphrase.Equals(ApplicationSetting.ToolSetting.PGPInformation.EncryptedPassphase, StringComparison.Ordinal);
+        return ApplicationSetting.PGPKeyStorage.AllowSavingPassphrase &&
+            !Passphrase.Equals(ApplicationSetting.PGPKeyStorage.EncryptedPassphase, StringComparison.Ordinal);
       }
     }
 
@@ -271,8 +282,8 @@ namespace CsvTools
           string.Equals(other.SqlStatement, SqlStatement, StringComparison.OrdinalIgnoreCase) &&
           string.Equals(other.Footer, Footer, StringComparison.OrdinalIgnoreCase) &&
           string.Equals(other.Header, Header, StringComparison.OrdinalIgnoreCase) &&
-          Mapping.CollectionEqual(other.Mapping) && Samples.CollectionEqual(other.Samples) &&
-          Errors.CollectionEqual(other.Errors) && Column.CollectionEqual(other.Column);
+          MappingCollection.Equals(other.MappingCollection) && Samples.CollectionEqual(other.Samples) &&
+          Errors.CollectionEqual(other.Errors) && ColumnCollection.Equals(other.ColumnCollection);
     }
 
     /// <summary>
@@ -312,7 +323,7 @@ namespace CsvTools
     ///  The column options
     /// </value>
     [XmlElement("Format")]
-    public virtual ObservableCollection<Column> Column { get; } = new ObservableCollection<Column>();
+    public virtual ColumnCollection ColumnCollection { get; } = new ColumnCollection();
 
     /// <summary>
     ///  Gets or sets a value indicating whether to display end line numbers.
@@ -415,7 +426,6 @@ namespace CsvTools
           newVal = newVal.Substring(2);
 
         if (m_FileName.Equals(newVal, StringComparison.Ordinal)) return;
-        CsvHelper.InvalidateColumnHeader(this);
 
         m_FileName = newVal;
         m_FullPath = null;
@@ -465,7 +475,7 @@ namespace CsvTools
       {
         if (m_FullPath == null || !FileSystemUtils.FileExists(m_FullPath))
         {
-          m_FullPath = FileSystemUtils.ResolvePattern(m_FileName.GetAbsolutePath(ApplicationSetting.ToolSetting.RootFolder));
+          m_FullPath = FileSystemUtils.ResolvePattern(m_FileName.GetAbsolutePath(ApplicationSetting.RootFolder));
         }
 
         return m_FullPath;
@@ -496,7 +506,6 @@ namespace CsvTools
       set
       {
         if (m_HasFieldHeader.Equals(value)) return;
-        CsvHelper.InvalidateColumnHeader(this);
         m_HasFieldHeader = value;
         NotifyPropertyChanged(nameof(HasFieldHeader));
       }
@@ -537,13 +546,10 @@ namespace CsvTools
         var newVal = value ?? string.Empty;
         if (m_Id.Equals(newVal, StringComparison.Ordinal)) return;
 
-        CsvHelper.InvalidateColumnHeader(this);
         var oldValue = m_Id;
         m_Id = newVal;
         NotifyPropertyChanged(nameof(ID));
         PropertyChangedString?.Invoke(this, new PropertyChangedEventArgs<string>(nameof(ID), oldValue, newVal));
-        if (!string.IsNullOrEmpty(oldValue))
-          ApplicationSetting.FlushSQLResultByTable(oldValue);
       }
     }
 
@@ -598,9 +604,9 @@ namespace CsvTools
     /// <summary>
     ///  Gets or sets the field mapping.
     /// </summary>
-    /// <value>The field mapping.</value>
-    [XmlElement]
-    public virtual Collection<Mapping> Mapping { get; } = new Collection<Mapping>();
+    /// <value>The field mapping.</value>    
+    [XmlElement("Mapping")]
+    public virtual MappingCollection MappingCollection { get; } = new MappingCollection();
 
     /// <summary>
     ///  Gets or sets the ID.
@@ -747,7 +753,6 @@ namespace CsvTools
       set
       {
         if (m_SkipRows.Equals(value)) return;
-        CsvHelper.InvalidateColumnHeader(this);
         m_SkipRows = value;
         NotifyPropertyChanged(nameof(SkipRows));
       }
@@ -771,7 +776,6 @@ namespace CsvTools
       {
         var newVal = (value ?? string.Empty).NoControlCharaters();
         if (m_SqlStatement.Equals(newVal, StringComparison.Ordinal)) return;
-        CsvHelper.InvalidateColumnHeader(this);
         if (!string.IsNullOrEmpty(m_SqlStatement))
           FileLastWriteTimeUtc = DateTime.MinValue;
         m_SqlStatement = newVal;
@@ -910,26 +914,7 @@ namespace CsvTools
     /// <returns>true if the destination was changed</returns>
     public virtual bool AddMapping(Mapping fieldMapping)
     {
-      if (fieldMapping == null)
-        return false;
-
-      var found = false;
-      foreach (var map in Mapping)
-      {
-        if (!map.FileColumn.Equals(fieldMapping.FileColumn, StringComparison.OrdinalIgnoreCase) ||
-            !map.TemplateField.Equals(fieldMapping.TemplateField, StringComparison.OrdinalIgnoreCase))
-        {
-          continue;
-        }
-
-        found = true;
-        break;
-      }
-
-      if (!found)
-        Mapping.Add(fieldMapping);
-
-      return !found;
+      return MappingCollection.AddIfNew(fieldMapping);
     }
 
     /// <summary>
@@ -940,12 +925,7 @@ namespace CsvTools
     /// <returns>Null if the template table field is not mapped</returns>
     public Mapping GetMappingByField(string templateField)
     {
-      foreach (var map in Mapping)
-      {
-        if (map.TemplateField.Equals(templateField, StringComparison.OrdinalIgnoreCase))
-          return map;
-      }
-      return null;
+      return MappingCollection.GetByField(templateField);
     }
 
     /// <summary>
@@ -954,19 +934,7 @@ namespace CsvTools
     /// <returns></returns>
     public abstract IFileSetting Clone();
 
-    /// <summary>
-    ///  Adds the <see cref="Column" /> format to the column list if it does not exist yet
-    /// </summary>
-    /// <remarks>If the column name already exist it does nothing but return the already defined column</remarks>
-    /// <param name="columnFormat">The column format.</param>
-    public virtual Column ColumnAdd(Column columnFormat)
-    {
-      var found = GetColumn(columnFormat.Name);
-      if (found != null)
-        return found;
-      Column.Add(columnFormat);
-      return columnFormat;
-    }
+
 
     /// <summary>
     ///  Copies all values to other instance
@@ -977,7 +945,7 @@ namespace CsvTools
       if (other == null)
         return;
       m_FileFormat.CopyTo(other.FileFormat);
-      Mapping.CollectionCopy(other.Mapping);
+      MappingCollection.CopyTo(other.MappingCollection);
       other.ConsecutiveEmptyRows = m_ConsecutiveEmptyRows;
       other.TrimmingOption = TrimmingOption;
       other.TemplateName = m_TemplateName;
@@ -999,7 +967,7 @@ namespace CsvTools
       other.Passphrase = m_Passphrase;
       other.Recipient = m_Recipient;
       other.TreatNBSPAsSpace = m_TreatNbspAsSpace;
-      Column.CollectionCopy(other.Column);
+      ColumnCollection.CopyTo(other.ColumnCollection);      
       other.SqlStatement = m_SqlStatement;
       other.InOverview = m_InOverview;
       other.SQLTimeout = m_SqlTimeout;
@@ -1023,22 +991,7 @@ namespace CsvTools
 
     public abstract bool Equals(IFileSetting other);
 
-    /// <summary>
-    ///  Gets the <see cref="CsvTools.Column" /> with the specified field name.
-    /// </summary>
-    /// <param name="fieldName"></param>
-    /// <returns></returns>
-    /// <value>The column format found by the given name, <c>NULL</c> otherwise</value>
-    public virtual Column GetColumn(string fieldName)
-    {
-      foreach (var column in Column)
-      {
-        if (column.Name.Equals(fieldName, StringComparison.OrdinalIgnoreCase))
-          return column;
-      }
 
-      return null;
-    }
 
     /// <summary>
     ///  Gets the <see cref="CsvTools.Mapping" /> with the specified source.
@@ -1047,7 +1000,7 @@ namespace CsvTools
     /// <returns>Return all FieldMapping for a column. There can be multiple</returns>
     public virtual IEnumerable<Mapping> GetColumnMapping(string columnName)
     {
-      foreach (var mapping in Mapping)
+      foreach (var mapping in MappingCollection)
       {
         if (mapping.FileColumn.Equals(columnName, StringComparison.OrdinalIgnoreCase))
           yield return mapping;
@@ -1064,48 +1017,14 @@ namespace CsvTools
     public virtual void RemoveMapping(string source)
     {
       var toBeRemoved = new List<Mapping>();
-      foreach (var fieldMapping in Mapping)
+      foreach (var fieldMapping in MappingCollection)
       {
         if (fieldMapping.FileColumn.Equals(source, StringComparison.OrdinalIgnoreCase))
           toBeRemoved.Add(fieldMapping);
       }
 
       foreach (var fieldMapping in toBeRemoved)
-        Mapping.Remove(fieldMapping);
-    }
-
-    public virtual void SortColumnByName(IEnumerable<string> columnNames)
-    {
-      if (columnNames == null) return;
-      // 1st columns as they are in the list
-      var existing = new Collection<Column>();
-      foreach (var colName in columnNames)
-      {
-        foreach (var col in Column)
-        {
-          if (!col.Name.Equals(colName, StringComparison.OrdinalIgnoreCase)) continue;
-          existing.Add(col);
-          break;
-        }
-      }
-
-      // 2nd columns defined but not in list
-      foreach (var col in Column)
-      {
-        if (!existing.Contains(col))
-          existing.Add(col);
-      }
-
-      Column.CollectionChanged -= ColumnCollectionChanged;
-      Column.Clear();
-      if (existing != null)
-      {
-        foreach (var column in existing)
-          Column.Add(column);
-      }
-
-      Column.CollectionChanged += ColumnCollectionChanged;
-      CsvHelper.InvalidateColumnHeader(this);
+        MappingCollection.Remove(fieldMapping);
     }
 
     public abstract override bool Equals(object obj);
@@ -1177,26 +1096,6 @@ namespace CsvTools
       }
     }
 
-    private void ColumnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-    {
-      if (e.NewItems != null)
-      {
-        foreach (Column item in e.NewItems)
-        {
-          item.PropertyChanged += delegate (object s_, PropertyChangedEventArgs colEvent)
-          {
-            if (colEvent.PropertyName == nameof(CsvTools.Column.Ignore))
-              CsvHelper.InvalidateColumnHeader(this);
-          };
-        }
-      }
-
-      if (e.NewItems != null || e.OldItems != null)
-      {
-        CsvHelper.InvalidateColumnHeader(this);
-      }
-    }
-
     [XmlIgnore]
     public virtual Func<string> GetEncryptedPassphraseFunction { get; set; }
 
@@ -1208,8 +1107,8 @@ namespace CsvTools
         {
           if (!string.IsNullOrEmpty(Passphrase))
             return Passphrase;
-          if (!string.IsNullOrEmpty(ApplicationSetting.ToolSetting?.PGPInformation?.EncryptedPassphase))
-            return ApplicationSetting.ToolSetting.PGPInformation.EncryptedPassphase;
+          if (!string.IsNullOrEmpty(ApplicationSetting.PGPKeyStorage.EncryptedPassphase))
+            return ApplicationSetting.PGPKeyStorage.EncryptedPassphase;
           return string.Empty;
         };
       }

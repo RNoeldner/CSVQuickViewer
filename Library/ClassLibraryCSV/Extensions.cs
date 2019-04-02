@@ -472,52 +472,6 @@ namespace CsvTools
           yield return col;
     }
 
-    /// <summary>
-    ///   A function to check and address that used tables might not be current and need to be read again
-    /// </summary>
-    /// <param name="parentFileSetting">The file setting.</param>
-    /// <param name="check">The check.</param>
-    /// <param name="cancellationToken">The cancellation token source.</param>
-    /// <param name="level">The level.</param>
-    /// <returns>
-    ///   A set of IFileSetting that should be checked, this is a depth first recursion
-    /// </returns>
-    public static ICollection<IFileSetting> GetSourceFileSettings(this IFileSetting parentFileSetting,
-      Func<IFileSetting, bool> check, CancellationToken cancellationToken, int level = 0)
-    {
-      Contract.Requires(parentFileSetting != null);
-      Contract.Ensures(Contract.Result<ICollection<IFileSetting>>() != null);
-      if ((parentFileSetting.SourceFileSettings != null) && (level == 0))
-        return parentFileSetting.SourceFileSettings;
-
-      if ((parentFileSetting.SourceFileSettings == null))
-      {
-        parentFileSetting.SourceFileSettings = new List<IFileSetting>();
-      }
-
-      // Prevent infinite recursion in case we have a cycle
-      if (level >= 5) return parentFileSetting.SourceFileSettings;
-      if (string.IsNullOrWhiteSpace(parentFileSetting.SqlStatement)) return parentFileSetting.SourceFileSettings;
-      var tables = parentFileSetting.SqlStatement.GetSQLTableNames();
-      foreach (var tbl in tables)
-      {
-        if (cancellationToken.IsCancellationRequested)
-          break;
-        // get the Setting to match the table
-        foreach (var setting in ApplicationSetting.ToolSetting.Input.Where(x =>
-          tbl.Equals(x.ID, StringComparison.OrdinalIgnoreCase) && !Equals(x, parentFileSetting)))
-        {
-          foreach (var src in GetSourceFileSettings(setting, check, cancellationToken, level + 1))
-            if (parentFileSetting.SourceFileSettings.Contains(src))
-              parentFileSetting.SourceFileSettings.Add(src);
-
-          if (check(setting))
-            parentFileSetting.SourceFileSettings.Add(setting);
-        }
-      }
-
-      return parentFileSetting.SourceFileSettings;
-    }
 
     /// <summary>
     ///   Combines all inner exceptions to one formatted string for logging.
@@ -609,7 +563,7 @@ namespace CsvTools
       var notFoundColumnNames = new List<string>();
 
       if (fileSetting == null || columns.IsEmpty()) return notFoundColumnNames;
-      foreach (var map in fileSetting.Mapping)
+      foreach (var map in fileSetting.MappingCollection)
       {
         var foundColumn = false;
         foreach (var col in columns)
@@ -624,7 +578,8 @@ namespace CsvTools
       }
 
       if (notFoundColumnNames.Count <= 0) return notFoundColumnNames;
-      foreach (var notFound in notFoundColumnNames) fileSetting.RemoveMapping(notFound);
+      
+      foreach (var notFound in notFoundColumnNames) fileSetting.MappingCollection.RemoveColumn(notFound);
       return notFoundColumnNames;
     }
 
@@ -748,67 +703,8 @@ namespace CsvTools
       return inputValue;
     }
 
-    /// <summary>
-    ///   Check if the Source settings are all read before the write was done
-    /// </summary>
-    /// <param name="fileSettingWrite"></param>
-    /// <param name="token"></param>
-    /// <returns><c>true</c> if the file written is older than all sources</returns>
-    public static bool SettingLaterThanSources(this IFileSetting fileSettingWrite, CancellationToken token)
-    {
-      if (fileSettingWrite.FileLastWriteTimeUtc.Ticks < 10)
-        return false;
-      return fileSettingWrite.GetSourceFileSettings(setting => setting.FileLastWriteTimeUtc < fileSettingWrite.FileLastWriteTimeUtc,
-        token).Count > 0;
-    }
-
-    /// <summary>
-    ///   Sets the validation result.
-    /// </summary>
-    /// <param name="fileSetting">The file setting.</param>
-    /// <param name="numberRecords">The number records.</param>
-    /// <param name="errorCount">The error count.</param>
-    /// <param name="warningCount">The warning count.</param>
-    public static void SetValidationResult(this IFileSetting fileSetting, long numberRecords, long errorCount,
-      long warningCount)
-    {      
-      var ret = new ValidationResult
-      {
-        TableName = fileSetting.ID,
-        NumberRecords = numberRecords,
-        ErrorCount = errorCount,
-        WarningCount = warningCount
-      };
-
-      // Do not remove validation result information if one is present and the new one is empty
-      if (fileSetting.ValidationResult != null)
-      {
-        if (numberRecords < 1 && fileSetting.ValidationResult.NumberRecords > 0)
-        {
-          ret.NumberRecords = fileSetting.ValidationResult.NumberRecords;
-        }
-
-        if (errorCount < 0 && fileSetting.ValidationResult.ErrorCount >= 0)
-        {
-          ret.ErrorCount = fileSetting.ValidationResult.ErrorCount;
-        }
-
-        if (warningCount < 0 && fileSetting.ValidationResult.WarningCount >= 0)
-        {
-          ret.WarningCount = fileSetting.ValidationResult.WarningCount;
-        }
-      }
-
-      // TODO: Improve this, to check if we have a physical file, IFileSettingNoFile is defined in other assembly.
-      if (fileSetting is IFileSettingRemoteDownload && FileSystemUtils.FileExists(fileSetting.FullPath))
-        ret.FileSize = FileSystemUtils.FileInfo(fileSetting.FullPath).Length;
-
-      fileSetting.ValidationResult = ret;
-
-      // ToolSetting is guaranteed to be set but we might not have a Cache
-      if (ApplicationSetting.ToolSetting.ValidationResultCache != null)
-        ApplicationSetting.ToolSetting.ValidationResultCache.Set(fileSetting.ID, ret);
-    }
+  
+  
 
     /// <summary>
     ///   Combines all inner exceptions to one formatted string for logging.

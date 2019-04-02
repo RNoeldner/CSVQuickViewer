@@ -6,13 +6,11 @@ namespace CsvTools
   public class ReAlignColumns
   {
     private const int MaxGoodRows = 30;
-    private readonly ICsvFile m_CsvFile;
     private readonly int m_ExcpectedColumns;
     private readonly List<string[]> m_GoodRows = new List<string[]>();
 
-    public ReAlignColumns(ICsvFile csvFile, int excpectedColumns)
+    public ReAlignColumns(int excpectedColumns)
     {
-      m_CsvFile = csvFile;
       m_ExcpectedColumns = excpectedColumns;
     }
 

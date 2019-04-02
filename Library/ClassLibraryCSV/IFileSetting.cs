@@ -17,7 +17,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
-using System.Threading;
 
 namespace CsvTools
 {
@@ -31,13 +30,11 @@ namespace CsvTools
     /// </summary>
     event EventHandler<PropertyChangedEventArgs<string>> PropertyChangedString;
 
-#pragma warning disable CA1721 // Property names should not match get methods
     /// <summary>
     ///  Gets or sets the column formats
     /// </summary>
     /// <value>The column format.</value>
-    ObservableCollection<Column> Column { get; }
-#pragma warning restore CA1721 // Property names should not match get methods
+    ColumnCollection ColumnCollection { get; }
 
     /// <summary>
     ///  Gets or sets the consecutive empty rows.
@@ -146,10 +143,8 @@ namespace CsvTools
     ///  Gets or sets the field mapping.
     /// </summary>
     /// <value>The field mapping.</value>
-    Collection<Mapping> Mapping { get; }
-
-    Mapping GetMappingByField(string field);
-
+    MappingCollection MappingCollection { get; }
+    
     /// <summary>
     ///  Number of records with errors, -1 to indicate not known
     /// </summary>
@@ -269,33 +264,6 @@ namespace CsvTools
     ValidationResult ValidationResult { get; set; }
 
     /// <summary>
-    ///  Add or Updates a Field Mapping
-    /// </summary>
-    /// <param name="mapping">The field mapping.</param>
-    /// <returns><c>true</c> if the mapping was added, if updated <c>false</c></returns>
-    bool AddMapping(Mapping mapping);
-
-    /// <summary>
-    ///  Adds the <see cref="Column" /> format to the column list if it does not exist yet
-    /// </summary>
-    /// <remarks>If the column name already exist it does nothing but return the already defined column</remarks>
-    /// <param name="column">The column format.</param>
-    Column ColumnAdd(Column column);
-
-    /// <summary>
-    ///  Gets the <see cref="CsvTools.Column" /> with the specified field name.
-    /// </summary>
-    /// <value></value>
-    Column GetColumn(string fieldName);
-
-    /// <summary>
-    ///  Gets the <see cref="CsvTools.Mapping" /> with the specified source.
-    /// </summary>
-    /// <param name="source">Name of the file column</param>
-    /// <returns>Return all FieldMapping for a column. There can be multiple</returns>
-    IEnumerable<Mapping> GetColumnMapping(string source);
-
-    /// <summary>
     ///  Gets the right data reader for this File Setting
     /// </summary>
     IFileReader GetFileReader(IProcessDisplay processDisplay);
@@ -304,17 +272,5 @@ namespace CsvTools
     ///  Gets the right data writer for this File Setting
     /// </summary>
     IFileWriter GetFileWriter(IProcessDisplay processDisplay);
-
-    /// <summary>
-    ///  Removes a Field Mapping
-    /// </summary>
-    /// <param name="source">The source column name.</param>
-    void RemoveMapping(string source);
-
-    /// <summary>
-    ///  Sorts the columns by a set of column names
-    /// </summary>
-    /// <param name="columnNames">The desired order of column names.</param>
-    void SortColumnByName(IEnumerable<string> columnNames);
   }
 }

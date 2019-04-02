@@ -41,6 +41,8 @@ namespace CsvTools
     {
       m_ProcessDisplay = processDisplay;
       m_FileSetting = fileSetting ?? throw new ArgumentNullException(nameof(fileSetting));
+      if (ApplicationSetting.SQLDataReader == null)
+        throw new ArgumentException("No SQL Reader set");      
     }
 
     /// <summary>
@@ -97,7 +99,7 @@ namespace CsvTools
         foreach (DataRow schemaRow in dataTable.Rows)
         {
           var timeZonePartOrdinal = -1;
-          var col = m_FileSetting.GetColumn(schemaRow[SchemaTableColumn.ColumnName].ToString());
+          var col = m_FileSetting.ColumnCollection.Get(schemaRow[SchemaTableColumn.ColumnName].ToString());
           if (!string.IsNullOrEmpty(col?.TimeZonePart))
             foreach (DataRow schemaRowTz in dataTable.Rows)
             {
@@ -132,9 +134,7 @@ namespace CsvTools
     public virtual IDataReader GetSchemaReader()
     {
       if (string.IsNullOrEmpty(m_FileSetting.SqlStatement))
-      {
-        return null;
-      }
+        return null;      
 
       var parts = m_FileSetting.SqlStatement.SplitCommandTextByGo();
       // only use the last command
@@ -160,9 +160,12 @@ namespace CsvTools
     /// <returns>A data table with all source data</returns>
     public virtual DataTable GetSourceDataTable(uint recordLimit)
     {
-      // Using the connection string
-      if (string.IsNullOrEmpty(m_FileSetting.SqlStatement)) return null;
+      if (string.IsNullOrEmpty(m_FileSetting.SqlStatement))
+        return null;
+
+      // Using the connection string      
       HandleProgress("Executing SQL Statement");
+
       using (var dataReader = ApplicationSetting.SQLDataReader(m_FileSetting.SqlStatement, m_ProcessDisplay))
       {
         HandleProgress("Reading returned data");
@@ -185,6 +188,9 @@ namespace CsvTools
     /// <returns>Number of records written</returns>
     public virtual long Write()
     {
+      if (string.IsNullOrEmpty(m_FileSetting.SqlStatement))
+        return 0;
+
       using (IDataReader reader = ApplicationSetting.SQLDataReader(m_FileSetting.SqlStatement, m_ProcessDisplay))
       {
         return Write(reader);
@@ -249,7 +255,7 @@ namespace CsvTools
         {
           try
           {
-            return TimeZoneMapping.ConvertTime(dataObject, sourcetimeZoneID, ApplicationSetting.ToolSetting.DestinationTimeZone);
+            return TimeZoneMapping.ConvertTime(dataObject, sourcetimeZoneID, ApplicationSetting.DestinationTimeZone);
           }
           catch (ApplicationException ex)
           {
@@ -427,7 +433,7 @@ namespace CsvTools
     {
       Contract.Requires(headers != null);
 
-      var columnFormat = writerFileSetting.GetColumn(columnName);
+      var columnFormat = writerFileSetting.ColumnCollection.Get(columnName);
       if (columnFormat != null && columnFormat.Ignore)
         yield break;
 

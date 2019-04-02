@@ -17,7 +17,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void ApplyFiltersTest()
+    public void ApplyFiltersFilteredDataGridViewTest()
     {
       using (var fdgv = new FilteredDataGridView())
       {

@@ -14,6 +14,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
@@ -76,6 +77,8 @@ namespace CsvTools
         return result;
       }
 
+      Collection<Column> present = new Collection<Column>(fileSetting.ColumnCollection);
+
       var resetSkipRows = false;
       try
       {
@@ -86,7 +89,7 @@ namespace CsvTools
           fileSetting.SkipRows = 1;
           resetSkipRows = true;
         }
-        var othersValueFormatDate = CommonDateFormat(fileSetting.Column.Select(x => x.ValueFormat));
+        var othersValueFormatDate = CommonDateFormat(present.Select(x => x.ValueFormat));
 
         using (var fileReader = fileSetting.GetFileReader(processDisplay))
         {
@@ -103,7 +106,7 @@ namespace CsvTools
             var newColumn = fileReader.GetColumn(colindex);
             Contract.Assume(newColumn != null);
             columnNamesInFile.Add(newColumn.Name);
-            var oldColumn = fileSetting.GetColumn(newColumn.Name);
+            var oldColumn = fileSetting.ColumnCollection.Get(newColumn.Name);
 
             processDisplay.SetProcess(newColumn.Name + " – Getting values", colindex);
 
@@ -116,7 +119,7 @@ namespace CsvTools
               processDisplay.SetProcess(newColumn.Name + " – No values found", colindex);
               if (!addTextColumns) continue;
               result.Add($"{newColumn.Name} – No values found – Format : {newColumn.GetTypeAndFormatDescription()}");
-              fileSetting.ColumnAdd(newColumn);
+              fileSetting.ColumnCollection.AddIfNew(newColumn);
             }
             else
             {
@@ -179,7 +182,7 @@ namespace CsvTools
                 var msg = $"{newColumn.Name} – Format : {newColumn.GetTypeAndFormatDescription()}";
                 processDisplay.SetProcess(msg, colindex);
                 result.Add(msg);
-                fileSetting.ColumnAdd(newColumn);
+                fileSetting.ColumnCollection.AddIfNew(newColumn);
               }
             }
           }
@@ -210,9 +213,9 @@ namespace CsvTools
                     var checkResult = GuessNumeric(samples, false, true, processDisplay.CancellationToken);
                     if (checkResult != null && checkResult.FoundValueFormat.DataType != DataType.Double)
                     {
-                      newColumn = fileSetting.GetColumn(oldColumn.Name);
+                      newColumn = fileSetting.ColumnCollection.Get(oldColumn.Name);
                       if (newColumn == null)
-                        newColumn = fileSetting.ColumnAdd(oldColumn);
+                        newColumn = fileSetting.ColumnCollection.AddIfNew(oldColumn);
 
                       newColumn.DataType = checkResult.FoundValueFormat.DataType;
                     }
@@ -220,9 +223,9 @@ namespace CsvTools
                 }
                 else
                 {
-                  newColumn = fileSetting.GetColumn(oldColumn.Name);
+                  newColumn = fileSetting.ColumnCollection.Get(oldColumn.Name);
                   if (newColumn == null)
-                    newColumn = fileSetting.ColumnAdd(oldColumn);
+                    newColumn = fileSetting.ColumnCollection.AddIfNew(oldColumn);
                   newColumn.DataType = DataType.String;
 
                 }
@@ -323,7 +326,7 @@ namespace CsvTools
                           DateFormat = first.Length == 8 ? "HH:mm:ss" : "HH:mm"
                         };
                         columnTime.ValueFormat = val;
-                        fileSetting.ColumnAdd(columnTime);
+                        fileSetting.ColumnCollection.AddIfNew(columnTime);
                         result.Add($"{columnTime.Name} – Format : {columnTime.GetTypeAndFormatDescription()}");
                       }
                     }
@@ -356,7 +359,7 @@ namespace CsvTools
                       {
                         DateFormat = first.Length == 8 ? "HH:mm:ss" : "HH:mm"
                       };
-                      fileSetting.ColumnAdd(columnTime);
+                      fileSetting.ColumnCollection.AddIfNew(columnTime);
                       columnTime.ValueFormat = val;
                       result.Add($"{columnTime.Name} – Format : {columnTime.GetTypeAndFormatDescription()}");
                     }
@@ -367,8 +370,30 @@ namespace CsvTools
             }
           }
 
-          // Sort the columns in fileSetting by order in file
-          fileSetting.SortColumnByName(columnNamesInFile);
+          var existing = new Collection<Column>();
+          foreach (var colName in columnNamesInFile)
+          {
+            foreach (var col in fileSetting.ColumnCollection)
+            {
+              if (!col.Name.Equals(colName, StringComparison.OrdinalIgnoreCase)) continue;
+              existing.Add(col);
+              break;
+            }
+          }
+
+          // 2nd columns defined but not in list
+          foreach (var col in fileSetting.ColumnCollection)
+          {
+            if (!existing.Contains(col))
+              existing.Add(col);
+          }
+
+          fileSetting.ColumnCollection.Clear();
+          if (existing != null)
+          {
+            foreach (var column in existing)
+              fileSetting.ColumnCollection.AddIfNew(column);
+          }
         }
       }
       finally
@@ -391,6 +416,8 @@ namespace CsvTools
     {
       if (string.IsNullOrEmpty(fileSettings.SqlStatement))
         throw new ApplicationException("No SQL Statement given");
+      if (ApplicationSetting.SQLDataReader == null)
+        throw new ApplicationException("No SQL Reader set");
       using (var dataReader = ApplicationSetting.SQLDataReader(fileSettings.SqlStatement, processDisplay))
       {
         // Put the information into the list
@@ -405,7 +432,7 @@ namespace CsvTools
             Name = header,
             DataType = colType
           };
-          fileSettings.ColumnAdd(fsColumn);
+          fileSettings.ColumnCollection.AddIfNew(fsColumn);
         }
       }
     }

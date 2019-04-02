@@ -154,7 +154,7 @@ namespace CsvTools.Tests
       m_Column.Ignore = true;
       m_Column.ValueFormat = m_ValueFormatGerman;
 
-      ff.ColumnAdd(m_Column);
+      ff.ColumnCollection.AddIfNew(m_Column);
       Assert.AreEqual("StartDate", m_Column.Name, "Name");
       Assert.AreEqual(DataType.DateTime, m_Column.DataType, "DataType");
       Assert.IsTrue(m_Column.Convert, "Convert");

@@ -1,43 +1,26 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.IO;
 using System.Text;
-using System.Threading;
 
 namespace CsvTools.Tests
 {
   [TestClass]
   public class StructuredFileWriterTests
   {
-    private readonly string m_ApplicationDirectory = FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles";
-#pragma warning disable CA1051 // Do not declare visible instance fields
-    public MimicSQLReader mimicReader = new MimicSQLReader();
-#pragma warning restore CA1051 // Do not declare visible instance fields
-
+    private const string ReadID = "StructuredFileWriterTests";
     [TestInitialize]
     public void Init()
     {
       var m_ReadFile = new CsvFile
       {
-        ID = "Read",
-        FileName = Path.Combine(m_ApplicationDirectory, "BasicCSV.txt")
+        ID = ReadID,
+        FileName = "BasicCSV.txt"
       };
-      var cf = m_ReadFile.ColumnAdd(new Column { Name = "ExamDate", DataType = DataType.DateTime });
-
-      cf.DateFormat = @"dd/MM/yyyy";
       m_ReadFile.FileFormat.CommentLine = "#";
-      m_ReadFile.ColumnAdd(new Column { Name = "Score", DataType = DataType.Integer });
-      m_ReadFile.ColumnAdd(new Column { Name = "Proficiency", DataType = DataType.Numeric });
-
-      m_ReadFile.ColumnAdd(new Column
-      {
-        Name = "IsNativeLang",
-        DataType = DataType.Boolean,
-        Ignore = true
-      });
-
-      mimicReader.AddSetting(m_ReadFile);
-      ApplicationSetting.ToolSetting.Input.Clear();
-      ApplicationSetting.ToolSetting.Input.Add(m_ReadFile);
+      var cf = m_ReadFile.ColumnCollection.AddIfNew(new Column { Name = "ExamDate", DataType = DataType.DateTime , DateFormat = @"dd/MM/yyyy" });            
+      m_ReadFile.ColumnCollection.AddIfNew(new Column { Name = "Score", DataType = DataType.Integer });
+      m_ReadFile.ColumnCollection.AddIfNew(new Column { Name = "Proficiency", DataType = DataType.Numeric });
+      m_ReadFile.ColumnCollection.AddIfNew(new Column { Name = "IsNativeLang", DataType = DataType.Boolean, Ignore = true });
+      UnitTestInitialize.MimicSQLReader.AddSetting(m_ReadFile);
     }
 
     [TestMethod]
@@ -46,8 +29,8 @@ namespace CsvTools.Tests
       var writeFile = new StructuredFile
       {
         ID = "Write",
-        FileName = Path.Combine(m_ApplicationDirectory, "StructuredFileOutputJSON.txt"),
-        SqlStatement = "Read",
+        FileName = "StructuredFileOutputJSON.txt",
+        SqlStatement = ReadID,
         InOverview = true,
         JSONEncode = true
       };
@@ -80,9 +63,8 @@ namespace CsvTools.Tests
       var writeFile = new StructuredFile
       {
         ID = "Write",
-        FileName = Path.Combine(m_ApplicationDirectory, "StructuredFileOutputXML.txt"),
-
-        SqlStatement = "Read",
+        FileName = "StructuredFileOutputXML.txt",
+        SqlStatement = ReadID,
         InOverview = true,
         JSONEncode = false
       };

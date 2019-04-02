@@ -14,19 +14,19 @@ namespace CsvTools.Tests
         HasFieldHeader = true,
         AlternateQuoting = true
       };
-      setting.FileName = "TestFiles\\BasicCSV.txt.gz";
-      setting.ColumnAdd(new Column
+      setting.FileName = "BasicCSV.txt.gz";
+      setting.ColumnCollection.AddIfNew(new Column
       {
         Name = "ExamDate",
         DataType = DataType.DateTime,
         DateFormat = @"dd/MM/yyyy"
       });
-      setting.ColumnAdd(new Column
+      setting.ColumnCollection.AddIfNew(new Column
       {
         Name = "ID",
         DataType = DataType.Integer
       });
-      setting.ColumnAdd(new Column
+      setting.ColumnCollection.AddIfNew(new Column
       {
         Name = "IsNativeLang",
         DataType = DataType.Boolean
@@ -53,19 +53,19 @@ namespace CsvTools.Tests
       };
       PGPKeyStorageTestHelper.SetApplicationSetting();
       setting.GetEncryptedPassphraseFunction = setting.DummyEncryptedPassphaseFunction;
-      setting.FileName = "TestFiles\\BasicCSV.pgp";
-      setting.ColumnAdd(new Column
+      setting.FileName = "BasicCSV.pgp";
+      setting.ColumnCollection.AddIfNew(new Column
       {
         Name = "ExamDate",
         DataType = DataType.DateTime,
         DateFormat = @"dd/MM/yyyy"
       });
-      setting.ColumnAdd(new Column
+      setting.ColumnCollection.AddIfNew(new Column
       {
         Name = "ID",
         DataType = DataType.Integer
       });
-      setting.ColumnAdd(new Column
+      setting.ColumnCollection.AddIfNew(new Column
       {
         Name = "IsNativeLang",
         DataType = DataType.Boolean
@@ -91,19 +91,19 @@ namespace CsvTools.Tests
       };
       PGPKeyStorageTestHelper.SetApplicationSetting();
       setting.GetEncryptedPassphraseFunction = setting.DummyEncryptedPassphaseFunction;
-      setting.FileName = "TestFiles\\BasicCSV.pgp";
-      setting.ColumnAdd(new Column
+      setting.FileName = "BasicCSV.pgp";
+      setting.ColumnCollection.AddIfNew(new Column
       {
         Name = "ExamDate",
         DataType = DataType.DateTime,
         DateFormat = @"dd/MM/yyyy"
       });
-      setting.ColumnAdd(new Column
+      setting.ColumnCollection.AddIfNew(new Column
       {
         Name = "ID",
         DataType = DataType.Integer
       });
-      setting.ColumnAdd(new Column
+      setting.ColumnCollection.AddIfNew(new Column
       {
         Name = "IsNativeLang",
         DataType = DataType.Boolean
