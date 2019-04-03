@@ -20,7 +20,6 @@ using Ude;
 
 namespace CsvTools
 {
-
   /// <summary>
   ///   Class to help with encodings
   /// </summary>

@@ -10,6 +10,30 @@ namespace CsvTools
     {
     }
 
+    public bool AddIfNew(Mapping fieldMapping)
+    {
+      if (fieldMapping == null)
+        return false;
+
+      var found = false;
+      foreach (var map in Items)
+      {
+        if (!map.FileColumn.Equals(fieldMapping.FileColumn, StringComparison.OrdinalIgnoreCase) ||
+            !map.TemplateField.Equals(fieldMapping.TemplateField, StringComparison.OrdinalIgnoreCase))
+        {
+          continue;
+        }
+
+        found = true;
+        break;
+      }
+
+      if (!found)
+        Add(fieldMapping);
+
+      return !found;
+    }
+
     /// <summary>
     ///   Clones this instance into a new instance of the same type
     /// </summary>
@@ -44,31 +68,6 @@ namespace CsvTools
           yield return mapping;
       }
     }
-
-    public bool AddIfNew(Mapping fieldMapping)
-    {
-      if (fieldMapping == null)
-        return false;
-
-      var found = false;
-      foreach (var map in Items)
-      {
-        if (!map.FileColumn.Equals(fieldMapping.FileColumn, StringComparison.OrdinalIgnoreCase) ||
-            !map.TemplateField.Equals(fieldMapping.TemplateField, StringComparison.OrdinalIgnoreCase))
-        {
-          continue;
-        }
-
-        found = true;
-        break;
-      }
-
-      if (!found)
-        Add(fieldMapping);
-
-      return !found;
-    }
-
     /// <summary>
     ///  Get the IFileSetting Mapping by template column
     /// </summary>

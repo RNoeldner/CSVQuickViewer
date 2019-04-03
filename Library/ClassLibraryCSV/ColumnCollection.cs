@@ -5,6 +5,19 @@ namespace CsvTools
 {
   public sealed class ColumnCollection : ObservableCollection<Column>, ICloneable<ColumnCollection>, IEquatable<ColumnCollection>
   {
+    /// <summary>
+    ///  Adds the <see cref="Column" /> format to the column list if it does not exist yet
+    /// </summary>
+    /// <remarks>If the column name already exist it does nothing but return the already defined column</remarks>
+    /// <param name="columnFormat">The column format.</param>
+    public Column AddIfNew(Column columnFormat)
+    {
+      var found = Get(columnFormat.Name);
+      if (found != null)
+        return found;
+      base.Add(columnFormat);
+      return columnFormat;
+    }
 
     /// <summary>
     ///   Clones this instance into a new instance of the same type
@@ -33,20 +46,6 @@ namespace CsvTools
     public bool Equals(ColumnCollection other) => Items.CollectionEqual(other);
 
     /// <summary>
-    ///  Adds the <see cref="Column" /> format to the column list if it does not exist yet
-    /// </summary>
-    /// <remarks>If the column name already exist it does nothing but return the already defined column</remarks>
-    /// <param name="columnFormat">The column format.</param>
-    public Column AddIfNew(Column columnFormat)
-    {
-      var found = Get(columnFormat.Name);
-      if (found != null)
-        return found;
-      base.Add(columnFormat);
-      return columnFormat;
-    }
-
-    /// <summary>
     ///  Gets the <see cref="CsvTools.Column" /> with the specified field name.
     /// </summary>
     /// <param name="fieldName"></param>
@@ -61,6 +60,5 @@ namespace CsvTools
       }
       return null;
     }
-
   }
 }

@@ -34,6 +34,7 @@ namespace CsvTools
       new DateTimeFormatCollection("DateTimeFormats.txt");
 
 #pragma warning disable CA2211 // Non-constant fields should not be visible
+
     public static HashSet<string> DateSeparators =
           new HashSet<string>(new[] { CultureInfo.CurrentCulture.DateTimeFormat.DateSeparator, "/", ".", "-" });
 
@@ -42,7 +43,9 @@ namespace CsvTools
 
     public static HashSet<char> DecimalSeparators = new HashSet<char>(new[]
           {CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator[0], '.', ','});
+
 #pragma warning restore CA2211 // Non-constant fields should not be visible
+
     private static readonly string[] m_FalseValues =
         {
       "False", "No", "n", "F", "Non", "Nein", "Falsch", "無", "无",
@@ -52,6 +55,11 @@ namespace CsvTools
       "Nej", "nei", "nē", "Ne", "Não", "na", "le", "Klaidingas", "Không", "inactive", "Hayır", "Hamis",
       "Foloz", "Ffug", "Faux", "Fałszywe", "Falso", "Falske", "Falska", "Falsk", "Fals", "Falošné", "Ei"
     };
+
+    /// <summary>
+    ///   A static value any time only value will have this date
+    /// </summary>
+    private static readonly DateTime m_FirstDateTime = new DateTime(1899, 12, 30, 0, 0, 0, 0);
 
     private static readonly DateTime m_FirstDateTimeNextDay = new DateTime(1899, 12, 30, 0, 0, 0, 0).AddDays(1);
 
@@ -66,12 +74,6 @@ namespace CsvTools
       "jā", "Iva", "Igaz", "Ie", "Gerçek", "Evet", "Đúng", "da", "Có", "Benar",
       "áno", "Ano", "Adevărat"
     };
-
-    /// <summary>
-    ///   A static value any time only value will have this date
-    /// </summary>
-    private static readonly DateTime m_FirstDateTime = new DateTime(1899, 12, 30, 0, 0, 0, 0);
-
     /// <summary>Checks if the values are dates.</summary>
     /// <param name="samples">The sample values to be checked.</param>
     /// <param name="shortDateFormat">The short date format.</param>
@@ -827,7 +829,6 @@ namespace CsvTools
       return null;
     }
 
-
     /// <summary>
     ///   Converts Strings to date time using the culture information
     /// </summary>
@@ -1200,8 +1201,6 @@ namespace CsvTools
 
       return complete.ToArray();
     }
-
-
 
     /// <summary>
     ///   Converts Strings to date time using the culture information

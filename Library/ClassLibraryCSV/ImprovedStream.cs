@@ -168,7 +168,6 @@ namespace CsvTools
             Log.Debug("Decompressing GZip Stream");
             Stream = new System.IO.Compression.GZipStream(BaseStream, System.IO.Compression.CompressionMode.Decompress);
           }
-
           else if (AssumePGP)
           {
             System.Security.SecureString DecryptedPassphrase = null;
@@ -277,7 +276,6 @@ namespace CsvTools
               {
                 using (var compress = new System.IO.Compression.GZipStream(outFile, System.IO.Compression.CompressionMode.Compress))
                 {
-                  var processDispayTime = ProcessDisplay as IProcessDisplayTime;
                   var inputBuffer = new byte[16384];
                   var max = (int)(inFile.Length / inputBuffer.Length);
                   ProcessDisplay.Maximum = max;
@@ -288,7 +286,7 @@ namespace CsvTools
                     compress.Write(inputBuffer, 0, length);
                     ProcessDisplay.CancellationToken.ThrowIfCancellationRequested();
 
-                    if (processDispayTime != null)
+                    if (ProcessDisplay is IProcessDisplayTime processDispayTime)
                       ProcessDisplay.SetProcess(
                        $"GZip {processDispayTime.TimeToCompletion.PercentDisplay}{processDispayTime.TimeToCompletion.EstimatedTimeRemainingDisplaySeperator}", count);
                     else
@@ -347,7 +345,6 @@ namespace CsvTools
             BaseStream.Dispose();
           if (ProcessDisplay != null)
             ProcessDisplay.Dispose();
-
         }
 
         disposedValue = true;

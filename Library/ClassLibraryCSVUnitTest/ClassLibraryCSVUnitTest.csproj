@@ -209,7 +209,6 @@
     <Compile Include="GenericEqualsTest.cs" />
     <Compile Include="StructuredFileTests.cs" />
     <Compile Include="StructuredFileWriterTests.cs" />
-    <Compile Include="TestApplicationSettings.cs" />
     <Compile Include="TestCopyTo.cs" />
     <Compile Include="UnitTestStatic.cs" />
     <Compile Include="ColumnInfoTest.cs" />

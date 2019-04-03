@@ -44,10 +44,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="fileName">Name of the file.</param>
     /// <returns></returns>
-    public static bool AssumeGZip(this string fileName)
-    {
-      return fileName.EndsWith(".gz", StringComparison.OrdinalIgnoreCase);
-    }
+    public static bool AssumeGZip(this string fileName) => fileName.EndsWith(".gz", StringComparison.OrdinalIgnoreCase);
 
     /// <summary>
     ///   Check if the application should assume its PGP.
@@ -116,12 +113,14 @@ namespace CsvTools
         if (ot == null)
           found = self.Any(x => x == null);
         else
+        {
           foreach (var th in self)
           {
             if (!ot.Equals(th)) continue;
             found = true;
             break;
           }
+        }
 
         if (found) continue;
         equal = false;
@@ -149,8 +148,10 @@ namespace CsvTools
 
       // Check the item, all should be the same, order does not matter though
       for (var pos = 0; pos < self.Count; pos++)
+      {
         if (!self[pos].Equals(other[pos]))
           return false;
+      }
 
       return true;
     }
@@ -164,7 +165,7 @@ namespace CsvTools
     {
       unchecked
       {
-        int hashCode = 387;
+        var hashCode = 387;
         foreach (var item in collection)
           hashCode += item.GetHashCode();
         return hashCode;
@@ -193,6 +194,7 @@ namespace CsvTools
       var columns = columnMapping.Length;
       var dataRow = dataTable.NewRow();
       for (var col = 0; col < columns; col++)
+      {
         try
         {
           dataRow[col] = reader.GetValue(columnMapping[col]);
@@ -203,6 +205,7 @@ namespace CsvTools
           warningsList?.Add(reader,
             new WarningEventArgs(reader.RecordNumber, col, exc.ExceptionMessages(), 0, 0, null));
         }
+      }
 
       if (recordNumberColumn != null)
         dataRow[recordNumberColumn] = reader.RecordNumber;
@@ -214,7 +217,9 @@ namespace CsvTools
         dataRow[startLineNumberColumn] = reader.StartLineNumber;
 
       if (warningsList != null && warningsList.CountRows > 0)
+      {
         if (warningsList.TryGetValue(reader.RecordNumber, out var warningsforRow))
+        {
           for (var col = -1; col < columns; col++)
           {
             var error = warningsforRow[col];
@@ -224,17 +229,10 @@ namespace CsvTools
             else
               dataRow.SetColumnError(col, error);
           }
+        }
+      }
 
       dataTable.Rows.Add(dataRow);
-    }
-
-    public static int ToInt(this long value)
-    {
-      if (value > int.MaxValue)
-        return int.MaxValue;
-      if (value < int.MinValue)
-        return int.MinValue;
-      return Convert.ToInt32(value);
     }
 
     /// <summary>
@@ -468,10 +466,11 @@ namespace CsvTools
 
       if (dataTable == null) yield break;
       foreach (DataColumn col in dataTable.Columns)
+      {
         if (!BaseFileReader.ArtificalFields.Contains(col.ColumnName))
           yield return col;
+      }
     }
-
 
     /// <summary>
     ///   Combines all inner exceptions to one formatted string for logging.
@@ -578,7 +577,7 @@ namespace CsvTools
       }
 
       if (notFoundColumnNames.Count <= 0) return notFoundColumnNames;
-      
+
       foreach (var notFound in notFoundColumnNames) fileSetting.MappingCollection.RemoveColumn(notFound);
       return notFoundColumnNames;
     }
@@ -703,9 +702,6 @@ namespace CsvTools
       return inputValue;
     }
 
-  
-  
-
     /// <summary>
     ///   Combines all inner exceptions to one formatted string for logging.
     /// </summary>
@@ -720,6 +716,14 @@ namespace CsvTools
       return exception.InnerException.SourceExceptionMessage();
     }
 
+    public static int ToInt(this long value)
+    {
+      if (value > int.MaxValue)
+        return int.MaxValue;
+      if (value < int.MinValue)
+        return int.MinValue;
+      return Convert.ToInt32(value);
+    }
     /// <summary>
     ///   Get a valid unsigned integer from the integer
     /// </summary>
@@ -843,122 +847,198 @@ namespace CsvTools
           inputString.Equals("Horizontal Tab", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("HorizontalTab", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("\t", StringComparison.Ordinal))
+      {
         return '\t';
+      }
+
       if (inputString.Equals("Space", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals(" ", StringComparison.Ordinal))
+      {
         return ' ';
+      }
+
       if (inputString.Equals("hash", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("sharp", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("#", StringComparison.Ordinal))
+      {
         return '#';
+      }
+
       if (inputString.Equals("whirl", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("at", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("monkey", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("@", StringComparison.Ordinal))
+      {
         return '@';
+      }
+
       if (inputString.Equals("underbar", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("underscore", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("understrike", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("_", StringComparison.Ordinal))
+      {
         return '_';
+      }
+
       if (inputString.Equals("Comma", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals(",", StringComparison.Ordinal))
+      {
         return ',';
+      }
+
       if (inputString.Equals("Dot", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("Point", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("Full Stop", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals(".", StringComparison.Ordinal))
+      {
         return '.';
+      }
+
       if (inputString.Equals("amper", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("ampersand", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("&", StringComparison.Ordinal))
+      {
         return '&';
+      }
+
       if (inputString.Equals("Pipe", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("Vertical bar", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("VerticalBar", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("|", StringComparison.Ordinal))
+      {
         return '|';
+      }
+
       if (inputString.Equals("broken bar", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("BrokenBar", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("¦", StringComparison.Ordinal))
+      {
         return '¦';
+      }
+
       if (inputString.Equals("fullwidth broken bar", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("FullwidthBrokenBar", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("￤", StringComparison.Ordinal))
+      {
         return '￤';
+      }
+
       if (inputString.Equals("Semicolon", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals(";", StringComparison.Ordinal))
+      {
         return ';';
+      }
+
       if (inputString.Equals("Colon", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals(":", StringComparison.Ordinal))
+      {
         return ':';
+      }
+
       if (inputString.Equals("Doublequote", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("Doublequotes", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("Quote", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("Quotation marks", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("\"", StringComparison.Ordinal))
+      {
         return '"';
+      }
+
       if (inputString.Equals("Apostrophe", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("Singlequote", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("tick", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("'", StringComparison.Ordinal))
+      {
         return '\'';
+      }
+
       if (inputString.Equals("Slash", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("Stroke", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("forward slash", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("/", StringComparison.Ordinal))
+      {
         return '/';
+      }
+
       if (inputString.Equals("backslash", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("backslant", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("\\", StringComparison.Ordinal))
+      {
         return '\\';
+      }
+
       if (inputString.Equals("Tick", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("Tick Mark", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("`", StringComparison.Ordinal))
+      {
         return '`';
+      }
+
       if (inputString.Equals("Star", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("Asterisk", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("*", StringComparison.Ordinal))
+      {
         return '*';
+      }
+
       if (inputString.Equals("NBSP", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("Non-breaking space", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("Non breaking space", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("NonBreakingSpace", StringComparison.OrdinalIgnoreCase))
+      {
         return '\u00A0';
+      }
+
       if (inputString.Equals("Return", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("CarriageReturn", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("CR", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("Carriage return", StringComparison.OrdinalIgnoreCase))
+      {
         return '\r';
+      }
+
       if (inputString.Equals("Check mark", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("Check", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("✓", StringComparison.OrdinalIgnoreCase))
+      {
         return '✓';
+      }
+
       if (inputString.Equals("Feed", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("LineFeed", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("LF", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("Line feed", StringComparison.OrdinalIgnoreCase))
+      {
         return '\n';
+      }
 
       if (inputString.StartsWith("Unit separator", StringComparison.OrdinalIgnoreCase) ||
           inputString.Contains("31") ||
           inputString.Equals("US", StringComparison.OrdinalIgnoreCase))
+      {
         return '\u001F';
+      }
 
       if (inputString.StartsWith("Record separator", StringComparison.OrdinalIgnoreCase) ||
           inputString.Contains("30") ||
           inputString.Equals("RS", StringComparison.OrdinalIgnoreCase))
+      {
         return '\u001E';
+      }
 
       if (inputString.StartsWith("Group separator", StringComparison.OrdinalIgnoreCase) ||
           inputString.Contains("29") ||
           inputString.Equals("GS", StringComparison.OrdinalIgnoreCase))
+      {
         return '\u001D';
+      }
 
       if (inputString.StartsWith("File separator", StringComparison.OrdinalIgnoreCase) ||
           inputString.Contains("28") ||
           inputString.Equals("FS", StringComparison.OrdinalIgnoreCase))
+      {
         return '\u001C';
+      }
 
       return '\0';
     }

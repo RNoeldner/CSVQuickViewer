@@ -14,7 +14,6 @@
 
 using System;
 using System.Data;
-using System.Threading;
 
 namespace CsvTools
 {
@@ -31,7 +30,7 @@ namespace CsvTools
     /// <summary>
     ///  Event handler called if a warning or error occurred
     /// </summary>
-    event EventHandler<WarningEventArgs> Warning;    
+    event EventHandler<WarningEventArgs> Warning;
 
     /// <summary>
     ///  Gets the end line number
@@ -56,7 +55,6 @@ namespace CsvTools
     /// </summary>
     /// <value>The error field.</value>
     string ErrorField { get; }
-
 
     /// <summary>
     ///  Gets the record number.
@@ -98,7 +96,7 @@ namespace CsvTools
 
     /// <summary>
     /// Opens the text file and begins to read the meta data, like columns
-    /// </summary>    
+    /// </summary>
     /// <returns>
     /// Number of records in the file if known (use determineColumnSize), -1 otherwise
     /// </returns>

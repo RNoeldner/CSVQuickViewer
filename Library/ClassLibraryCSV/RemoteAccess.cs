@@ -20,7 +20,7 @@ namespace CsvTools
 {
   [Serializable]
   public enum AccessProtocol
-  {   
+  {
     /// <summary>
     /// File System Copy
     /// </summary>
@@ -72,7 +72,6 @@ namespace CsvTools
       get { return m_Port; }
       set
       {
-
         if (value.Equals(m_Port)) return;
         m_Port = value;
         NotifyPropertyChanged(nameof(Port));

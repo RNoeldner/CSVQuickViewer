@@ -110,7 +110,7 @@ namespace CsvTools
         throw new ApplicationException("FileName must be set");
 
       // if it can not be downloaded it has to exist
-      if (ApplicationSetting.RemoteFileHandler == null || string.IsNullOrEmpty(m_CsvFile?.RemoteFileName))      
+      if (ApplicationSetting.RemoteFileHandler == null || string.IsNullOrEmpty(m_CsvFile?.RemoteFileName))
       {
         if (!FileSystemUtils.FileExists(m_CsvFile.FullPath))
           throw new FileNotFoundException(
@@ -144,8 +144,8 @@ namespace CsvTools
     /// <value><c>true</c> if this instance is closed; otherwise, <c>false</c>.</value>
     public bool IsClosed => m_TextReader == null;
 
-
     private bool disposedValue = false; // To detect redundant calls
+
     /// <summary>
     ///  Releases unmanaged and - optionally - managed resources
     /// </summary>
@@ -243,7 +243,6 @@ namespace CsvTools
       }
       HandleReadFinished();
       return false;
-
     }
 
     public override void Close()
@@ -394,7 +393,7 @@ namespace CsvTools
     /// </returns>
     private bool GetNextRecord()
     {
-      Restart:
+    Restart:
       CurrentRowColumnText = ReadNextRow(true, true);
 
       if (!AllEmptyAndCountConsecutiveEmptyRows(CurrentRowColumnText))
@@ -418,7 +417,7 @@ namespace CsvTools
         }
       }
       bool hasWarningCombinedWrning = false;
-      Restart2:
+    Restart2:
       var rowLength = CurrentRowColumnText.Length;
       if (rowLength == FieldCount)
       {
@@ -884,7 +883,7 @@ namespace CsvTools
     /// </returns>
     private string[] ReadNextRow(bool regularDataRow, bool storeWarnings)
     {
-      Restart:
+    Restart:
       // Store the starting Line Number
       StartLineNumber = EndLineNumber;
 

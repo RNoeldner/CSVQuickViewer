@@ -23,6 +23,8 @@ namespace CsvTools
   /// </summary>
   public static class ApplicationSetting
   {
+    public static string DestinationTimeZone { get; set; } = TimeZoneMapping.cIdLocal;
+
     /// <summary>
     ///  FillGuessSettings
     /// </summary>
@@ -38,8 +40,10 @@ namespace CsvTools
     /// </summary>
     public static bool MenuDown { get; set; } = false;
 
+    public static PGPKeyStorage PGPKeyStorage { get; set; } = new PGPKeyStorage();
     public static Action<string, string, string, IProcessDisplay, bool> RemoteFileHandler { get; set; }
-    public static Action<IFileSetting, IEnumerable<Column>> StoreHeader { get; set; }
+
+    public static string RootFolder { get; set; } = ".";
 
     /// <summary>
     /// Gets or sets the SQL data reader.
@@ -50,8 +54,9 @@ namespace CsvTools
     /// <exception cref="ArgumentNullException">SQL Data Reader is not set</exception>
     public static Func<string, IProcessDisplay, IDataReader> SQLDataReader { get; set; }
 
-    public static string RootFolder { get; set; } = ".";
-    public static string DestinationTimeZone { get; set; } = TimeZoneMapping.cIdLocal;
-    public static PGPKeyStorage PGPKeyStorage { get; set; } = new PGPKeyStorage();
+    /// <summary>
+    /// Action to store teh headers of a file in a chache
+    /// </summary>
+    public static Action<IFileSetting, IEnumerable<Column>> StoreHeader { get; set; }
   }
 }

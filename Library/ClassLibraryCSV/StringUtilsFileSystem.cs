@@ -28,6 +28,7 @@ using Path = Pri.LongPath.Path;
 namespace CsvTools
 {
 #pragma warning disable CA1060 // Move pinvokes to native methods class
+
   /// <summary>
   ///   Extensions for string in the file system
   /// </summary>
@@ -42,28 +43,6 @@ namespace CsvTools
       if (string.IsNullOrEmpty(directoryName)) return;
 
       Directory.CreateDirectory(directoryName);
-    }
-
-    public static StreamReader GetStreamReaderForFileOrResource(string file)
-    {
-      var fileName = (ExecutableDirectoryName() + "\\" + file).LongPathPrefix();
-      try
-      {
-        if (File.Exists(fileName))
-          return new StreamReader(fileName, true);
-
-        var executingAssembly = Assembly.GetExecutingAssembly();
-        // try the embedded resource          
-        var stream = executingAssembly.GetManifestResourceStream("CsvTools." + file);
-        if (stream != null)
-          return new StreamReader(stream, true);
-      }
-      catch (Exception ex)
-      {
-        Debug.WriteLine("Error reading  " + fileName);
-        Debug.WriteLine(ex.Message);
-      }
-      return null;
     }
 
     /// <summary>
@@ -324,6 +303,27 @@ namespace CsvTools
       return relative.Length < absolute.Length ? relative : absolute;
     }
 
+    public static StreamReader GetStreamReaderForFileOrResource(string file)
+    {
+      var fileName = (ExecutableDirectoryName() + "\\" + file).LongPathPrefix();
+      try
+      {
+        if (File.Exists(fileName))
+          return new StreamReader(fileName, true);
+
+        var executingAssembly = Assembly.GetExecutingAssembly();
+        // try the embedded resource
+        var stream = executingAssembly.GetManifestResourceStream("CsvTools." + file);
+        if (stream != null)
+          return new StreamReader(stream, true);
+      }
+      catch (Exception ex)
+      {
+        Debug.WriteLine("Error reading  " + fileName);
+        Debug.WriteLine(ex.Message);
+      }
+      return null;
+    }
     public static string LongFileName(this string shortPath)
     {
       if (string.IsNullOrEmpty(shortPath)) return shortPath;
@@ -479,6 +479,7 @@ namespace CsvTools
     }
 
 #pragma warning disable CA1034 // Nested types should not be visible
+
     public class SplitResult
 #pragma warning restore CA1034 // Nested types should not be visible
     {

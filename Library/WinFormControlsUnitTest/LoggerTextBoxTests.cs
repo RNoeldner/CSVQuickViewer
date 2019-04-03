@@ -21,7 +21,7 @@ namespace CsvTools.Tests
   [TestClass()]
   public class LoggerTextBoxTests
   {
-    private static readonly ILog Log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);   
+    private static readonly ILog Log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
     [TestMethod()]
     public void ClearTest()
