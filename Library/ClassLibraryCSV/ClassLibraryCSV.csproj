@@ -166,11 +166,11 @@
     <Compile Include="ProcessDisplayTime.cs" />
     <Compile Include="IFileSetting.cs" />
     <Compile Include="PGPKeyStorage.cs" />
-    <Compile Include="RealignColumns.cs" />
+    <Compile Include="ReAlignColumns.cs" />
     <Compile Include="RemoteAccess.cs" />
     <Compile Include="SampleRecordEntry.cs" />
     <Compile Include="SecureString.cs" />
-    <Compile Include="StringUtilsFileSystem.cs" />
+    <Compile Include="FileSystemUtils.cs" />
     <Compile Include="RowErrorCollection.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -191,7 +191,7 @@
     <Compile Include="DummyProcessDisplay.cs" />
     <Compile Include="EncodingHelper.cs" />
     <Compile Include="EnumDescriptionConverter.cs" />
-    <Compile Include="Extensions.cs" />
+    <Compile Include="ClassLibraryCsvExtensionMethods.cs" />
     <Compile Include="FileFormat.cs" />
     <Compile Include="FileReaderEvents.cs" />
     <Compile Include="FillGuessSettings.cs" />
@@ -206,7 +206,7 @@
     <Compile Include="Mapping.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ErrorInformation.cs" />
-    <Compile Include="SerializedFiles.cs" />
+    <Compile Include="SerializedFilesLib.cs" />
     <Compile Include="StringConversion.cs" />
     <Compile Include="StringUtils.cs" />
     <Compile Include="StringUtilsSQL.cs" />
