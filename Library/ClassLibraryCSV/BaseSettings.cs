@@ -72,10 +72,7 @@ namespace CsvTools
     ///  Initializes a new instance of the <see cref="BaseSettings" /> class.
     /// </summary>
     /// <param name="fileName">The filename.</param>
-    protected BaseSettings(string fileName) : this()
-    {
-      FileName = fileName;
-    }
+    protected BaseSettings(string fileName) : this() => FileName = fileName;
 
     /// <summary>
     ///  Initializes a new instance of the <see cref="BaseSettings" /> class.
@@ -575,13 +572,7 @@ namespace CsvTools
     ///  The identified to find this specific instance
     /// </summary>
     [XmlIgnore]
-    public virtual string InternalID
-    {
-      get
-      {
-        return string.IsNullOrEmpty(ID) ? FileName : ID;
-      }
-    }
+    public virtual string InternalID => string.IsNullOrEmpty(ID) ? FileName : ID;
 
     /// <summary>
     ///  Gets or sets a value indicating whether this instance is enabled.
@@ -604,7 +595,7 @@ namespace CsvTools
     /// <summary>
     ///  Gets or sets the field mapping.
     /// </summary>
-    /// <value>The field mapping.</value>    
+    /// <value>The field mapping.</value>
     [XmlElement("Mapping")]
     public virtual MappingCollection MappingCollection { get; } = new MappingCollection();
 
@@ -908,33 +899,10 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///  Add a Fields mapping
-    /// </summary>
-    /// <param name="fieldMapping">The field mapping.</param>
-    /// <returns>true if the destination was changed</returns>
-    public virtual bool AddMapping(Mapping fieldMapping)
-    {
-      return MappingCollection.AddIfNew(fieldMapping);
-    }
-
-    /// <summary>
-    ///  Get the IFileSetting Mapping by template column
-    /// </summary>
-    /// <param name="fileSetting">The file setting.</param>
-    /// <param name="templateField">The template column.</param>
-    /// <returns>Null if the template table field is not mapped</returns>
-    public Mapping GetMappingByField(string templateField)
-    {
-      return MappingCollection.GetByField(templateField);
-    }
-
-    /// <summary>
     ///  Clones this instance.
     /// </summary>
     /// <returns></returns>
     public abstract IFileSetting Clone();
-
-
 
     /// <summary>
     ///  Copies all values to other instance
@@ -967,7 +935,7 @@ namespace CsvTools
       other.Passphrase = m_Passphrase;
       other.Recipient = m_Recipient;
       other.TreatNBSPAsSpace = m_TreatNbspAsSpace;
-      ColumnCollection.CopyTo(other.ColumnCollection);      
+      ColumnCollection.CopyTo(other.ColumnCollection);
       other.SqlStatement = m_SqlStatement;
       other.InOverview = m_InOverview;
       other.SQLTimeout = m_SqlTimeout;
@@ -991,8 +959,6 @@ namespace CsvTools
 
     public abstract bool Equals(IFileSetting other);
 
-
-
     /// <summary>
     ///  Gets the <see cref="CsvTools.Mapping" /> with the specified source.
     /// </summary>
@@ -1006,6 +972,7 @@ namespace CsvTools
           yield return mapping;
       }
     }
+
     public abstract IFileWriter GetFileWriter(IProcessDisplay processDisplay);
 
     public abstract IFileReader GetFileReader(IProcessDisplay processDisplay);

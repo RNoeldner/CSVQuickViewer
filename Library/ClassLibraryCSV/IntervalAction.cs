@@ -44,7 +44,6 @@ namespace CsvTools
 
     public double NotifyAfterSeconds { get => m_NotifyAfterSeconds; set => m_NotifyAfterSeconds = value; }
 
-
     /// <summary>
     ///  Invoke the given action if the set interval has passed
     /// </summary>

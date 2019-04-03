@@ -21,15 +21,14 @@ namespace CsvTools
   {
     private readonly CancellationTokenSource m_CancellationTokenSource;
     private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-    
+
     public DummyProcessDisplay() : this(CancellationToken.None)
     {
     }
-    
-    public virtual string Title { get; set; }
-    
-    public bool LogAsDebug { get; set; } = true;
 
+    public virtual string Title { get; set; }
+
+    public bool LogAsDebug { get; set; } = true;
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="DummyProcessDisplay" /> class.

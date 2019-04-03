@@ -29,7 +29,6 @@ namespace CsvTools
   {
     private int m_CheckedRecords = 30000;
     private bool m_CheckNamedDates = true;
-    private bool m_DateParts;    
     private bool m_DectectNumbers = true;
     private bool m_DectectPercentage = true;
     private bool m_DetectBoolean = true;
@@ -75,7 +74,6 @@ namespace CsvTools
         NotifyPropertyChanged(nameof(CheckNamedDates));
       }
     }
-   
 
     /// <summary>
     ///   If set to <c>True</c> values are checked if they could be Numeric
@@ -284,12 +282,7 @@ namespace CsvTools
 
     [DefaultValue(false)]
     [XmlElement]
-    public bool DateParts
-    {
-      get => m_DateParts;
-
-      set => m_DateParts = value;
-    }
+    public bool DateParts { get; set; } = false;
 
     /// <summary>
     ///   Clones this instance into a new instance of the same type
@@ -312,20 +305,20 @@ namespace CsvTools
       if (other == null)
         return;
 
-      other.CheckedRecords = m_CheckedRecords;
-      other.CheckNamedDates = m_CheckNamedDates;      
-      other.DectectNumbers = m_DectectNumbers;
-      other.DectectPercentage = m_DectectPercentage;
-      other.DetectBoolean = m_DetectBoolean;
-      other.DateParts = m_DateParts;
-      other.DetectDateTime = m_DetectDateTime;
-      other.DetectGUID = m_DetectGuid;
-      other.FalseValue = m_FalseValue;
-      other.IgnoreIdColums = m_IgnoreIdColums;
-      other.MinSamplesForIntDate = m_MinSamplesForIntDate;
-      other.SampleValues = m_SampleValues;
-      other.SerialDateTime = m_SerialDateTime;
-      other.TrueValue = m_TrueValue;
+      other.CheckedRecords = CheckedRecords;
+      other.CheckNamedDates = CheckNamedDates;
+      other.DectectNumbers = DectectNumbers;
+      other.DectectPercentage = DectectPercentage;
+      other.DetectBoolean = DetectBoolean;
+      other.DateParts = DateParts;
+      other.DetectDateTime = DetectDateTime;
+      other.DetectGUID = DetectGUID;
+      other.FalseValue = FalseValue;
+      other.IgnoreIdColums = IgnoreIdColums;
+      other.MinSamplesForIntDate = MinSamplesForIntDate;
+      other.SampleValues = SampleValues;
+      other.SerialDateTime = SerialDateTime;
+      other.TrueValue = TrueValue;
     }
 
     /// <summary>Indicates whether the current object is equal to another object of the same type.</summary>
@@ -338,15 +331,15 @@ namespace CsvTools
     {
       if (other is null) return false;
       if (ReferenceEquals(this, other)) return true;
-      return m_CheckedRecords == other.m_CheckedRecords && m_CheckNamedDates == other.m_CheckNamedDates &&
-             m_DateParts == other.m_DateParts &&             
-             m_DectectNumbers == other.m_DectectNumbers && m_DectectPercentage == other.m_DectectPercentage &&
-             m_DetectBoolean == other.m_DetectBoolean && m_DetectDateTime == other.m_DetectDateTime &&
-             m_DetectGuid == other.m_DetectGuid &&
-             string.Equals(m_FalseValue, other.m_FalseValue, StringComparison.OrdinalIgnoreCase) &&
-             m_IgnoreIdColums == other.m_IgnoreIdColums && m_MinSamplesForIntDate == other.m_MinSamplesForIntDate &&
-             m_SampleValues == other.m_SampleValues && m_SerialDateTime == other.m_SerialDateTime &&
-             string.Equals(m_TrueValue, other.m_TrueValue, StringComparison.OrdinalIgnoreCase);
+      return CheckedRecords == other.CheckedRecords && CheckNamedDates == other.CheckNamedDates &&
+             DateParts == other.DateParts &&
+             m_DectectNumbers == other.m_DectectNumbers && DectectPercentage == other.DectectPercentage &&
+             m_DetectBoolean == other.m_DetectBoolean && m_DetectDateTime == other.DetectDateTime &&
+             DetectGUID == other.DetectGUID &&
+             string.Equals(FalseValue, other.FalseValue, StringComparison.OrdinalIgnoreCase) &&
+             IgnoreIdColums == other.IgnoreIdColums && MinSamplesForIntDate == other.MinSamplesForIntDate &&
+             SampleValues == other.SampleValues && SerialDateTime == other.SerialDateTime &&
+             string.Equals(TrueValue, other.TrueValue, StringComparison.OrdinalIgnoreCase);
     }
 
     /// <summary>
@@ -358,10 +351,7 @@ namespace CsvTools
     ///   Notifies the property changed.
     /// </summary>
     /// <param name="info">The info.</param>
-    public virtual void NotifyPropertyChanged(string info)
-    {
-      PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(info));
-    }
+    public virtual void NotifyPropertyChanged(string info) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(info));
 
     /// <summary>Determines whether the specified object is equal to the current object.</summary>
     /// <param name="obj">The object to compare with the current object. </param>

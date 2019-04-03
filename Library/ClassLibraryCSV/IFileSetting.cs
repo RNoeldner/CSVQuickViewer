@@ -144,7 +144,7 @@ namespace CsvTools
     /// </summary>
     /// <value>The field mapping.</value>
     MappingCollection MappingCollection { get; }
-    
+
     /// <summary>
     ///  Number of records with errors, -1 to indicate not known
     /// </summary>

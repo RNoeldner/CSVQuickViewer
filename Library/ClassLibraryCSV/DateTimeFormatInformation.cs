@@ -15,10 +15,9 @@ namespace CsvTools
     private static int minDayLong = int.MaxValue;
     private static int minDayMid = int.MaxValue;
     private static int minMonthLong = int.MaxValue;
-    private static int minMonthMid = int.MaxValue;    
+    private static int minMonthMid = int.MaxValue;
     private int m_MaxLength;
     private int m_MinLength;
-
 
     public DateTimeFormatInformation()
     {
@@ -68,12 +67,13 @@ namespace CsvTools
 
     //  public string Format { get => m_Format; }
     public int MaxLength { get => m_MaxLength; set => m_MaxLength = value; }
+
     public int MinLength { get => m_MinLength; set => m_MinLength = value; }
     public bool NamedDate { get; set; } = false;
 
     private static void DetermineLenth()
     {
-      for (int weekday = 0; weekday < 7; weekday++)
+      for (var weekday = 0; weekday < 7; weekday++)
       {
         var cul = string.Format(CultureInfo.CurrentCulture, "{0:dddd}", DateTime.Now.AddDays(weekday));
         var incul = string.Format(CultureInfo.InvariantCulture, "{0:dddd}", DateTime.Now.AddDays(weekday));
@@ -98,7 +98,7 @@ namespace CsvTools
           maxDayMid = incul.Length;
       }
 
-      for (int month = 0; month < 12; month++)
+      for (var month = 0; month < 12; month++)
       {
         var cul = string.Format(CultureInfo.CurrentCulture, "{0:MMMM}", DateTime.Now.AddMonths(month));
         var incul = string.Format(CultureInfo.InvariantCulture, "{0:MMMM}", DateTime.Now.AddMonths(month));
@@ -133,7 +133,7 @@ namespace CsvTools
 
     private static string SetMinMax(string format, string search, ref int min, ref int max, int minLength, int maxLength)
     {
-      int pos = format.IndexOf(search, StringComparison.Ordinal);
+      var pos = format.IndexOf(search, StringComparison.Ordinal);
       while (pos != -1)
       {
         min += minLength - search.Length;

@@ -1,4 +1,17 @@
-﻿using System;
+﻿/*
+ * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
+ *
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
+ * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License along with this program.
+ * If not, see http://www.gnu.org/licenses/ .
+ *
+ */
+using System;
 using System.Data;
 using System.Globalization;
 
@@ -7,6 +20,7 @@ namespace CsvTools.Tests
   public static class UnitTestStatic
   {
 #pragma warning disable CA2211 // Non-constant fields should not be visible
+
     public static Column[] ColumnsDT2 =
     {
       new Column {Name = "string", DataType = DataType.String} //0
@@ -24,6 +38,7 @@ namespace CsvTools.Tests
       new Column {Name = "PartEmpty", DataType = DataType.String}, //7
       new Column {Name = "ID", DataType = DataType.Integer} //8
     };
+
 #pragma warning restore CA2211 // Non-constant fields should not be visible
 
     private static string GetRandomText(int length)

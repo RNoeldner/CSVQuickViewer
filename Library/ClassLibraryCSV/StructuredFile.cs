@@ -15,7 +15,6 @@
 using System;
 using System.ComponentModel;
 using System.Diagnostics.Contracts;
-using System.Threading;
 using System.Xml.Serialization;
 
 namespace CsvTools
@@ -100,21 +99,6 @@ namespace CsvTools
       }
     }
 
-    /// <summary>Indicates whether the current object is equal to another object of the same type.</summary>
-    /// <param name="other">An object to compare with this object.</param>
-    /// <returns>
-    ///   <see langword="true" /> if the current object is equal to the <paramref name="other" /> parameter; otherwise,
-    ///   <see langword="false" />.
-    /// </returns>
-    public bool Equals(StructuredFile other)
-    {
-      if (other is null) return false;
-      if (ReferenceEquals(this, other)) return true;
-      return base.Equals(other) && string.Equals(m_Footer, other.Footer, StringComparison.OrdinalIgnoreCase) && string.Equals(m_Header, other.Header, StringComparison.OrdinalIgnoreCase) &&
-             m_JSONEncode == other.JSONEncode && string.Equals(m_Row, other.Row, StringComparison.Ordinal) &&
-             m_XMLEncode == other.XMLEncode;
-    }
-
     /// <summary>
     ///   Clones this instance.
     /// </summary>
@@ -145,9 +129,35 @@ namespace CsvTools
       otherSwf.JSONEncode = m_JSONEncode;
     }
 
+    /// <summary>Indicates whether the current object is equal to another object of the same type.</summary>
+    /// <param name="other">An object to compare with this object.</param>
+    /// <returns>
+    ///   <see langword="true" /> if the current object is equal to the <paramref name="other" /> parameter; otherwise,
+    ///   <see langword="false" />.
+    /// </returns>
+    public bool Equals(StructuredFile other)
+    {
+      if (other is null) return false;
+      if (ReferenceEquals(this, other)) return true;
+      return base.Equals(other) && string.Equals(m_Footer, other.Footer, StringComparison.OrdinalIgnoreCase) && string.Equals(m_Header, other.Header, StringComparison.OrdinalIgnoreCase) &&
+             m_JSONEncode == other.JSONEncode && string.Equals(m_Row, other.Row, StringComparison.Ordinal) &&
+             m_XMLEncode == other.XMLEncode;
+    }
     public override bool Equals(IFileSetting other)
     {
       return Equals(other as StructuredFile);
+    }
+
+    /// <summary>Determines whether the specified object is equal to the current object.</summary>
+    /// <param name="obj">The object to compare with the current object. </param>
+    /// <returns>
+    ///   <see langword="true" /> if the specified object  is equal to the current object; otherwise, <see langword="false" />.
+    /// </returns>
+    public override bool Equals(object obj)
+    {
+      if (obj is null) return false;
+      if (ReferenceEquals(this, obj)) return true;
+      return (obj is StructuredFile typed) && Equals(typed);
     }
 
     /// <summary>
@@ -184,17 +194,5 @@ namespace CsvTools
       }
     }
     */
-
-    /// <summary>Determines whether the specified object is equal to the current object.</summary>
-    /// <param name="obj">The object to compare with the current object. </param>
-    /// <returns>
-    ///   <see langword="true" /> if the specified object  is equal to the current object; otherwise, <see langword="false" />.
-    /// </returns>
-    public override bool Equals(object obj)
-    {
-      if (obj is null) return false;
-      if (ReferenceEquals(this, obj)) return true;
-      return (obj is StructuredFile typed) && Equals(typed);
-    }
   }
 }

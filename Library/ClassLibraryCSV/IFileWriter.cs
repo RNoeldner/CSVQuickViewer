@@ -21,7 +21,7 @@ namespace CsvTools
   /// <summary>
   ///  Interface for a File Writer.
   /// </summary>
-  public interface IFileWriter 
+  public interface IFileWriter
   {
     /// <summary>
     ///  Event handler called if a warning or error occurred
@@ -36,7 +36,7 @@ namespace CsvTools
     /// <summary>
     ///  Gets the error message.
     /// </summary>
-    string ErrorMessage { get; }    
+    string ErrorMessage { get; }
 
     /// <summary>Gets the column information from the reader and overwrite setting with definition from the setting.</summary>
     /// <param name="reader">Any data reader</param>

@@ -1,4 +1,17 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿/*
+ * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
+ *
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
+ * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License along with this program.
+ * If not, see http://www.gnu.org/licenses/ .
+ *
+ */
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -118,11 +131,10 @@ namespace CsvTools.Tests
     public void DynamicStorageSize()
     {
       Assert.AreEqual("500 Bytes", UnitTestStatic.ExecuteWithCulture<string>(() => StringConversion.DynamicStorageSize(500), "de-DE"));
-      Assert.AreEqual("1.95 kB", UnitTestStatic.ExecuteWithCulture<string>(() => StringConversion.DynamicStorageSize(2000), "en-US"));           
+      Assert.AreEqual("1.95 kB", UnitTestStatic.ExecuteWithCulture<string>(() => StringConversion.DynamicStorageSize(2000), "en-US"));
       Assert.AreEqual("9,77 kB", UnitTestStatic.ExecuteWithCulture<string>(() => StringConversion.DynamicStorageSize(10000), "de-DE"));
       Assert.AreEqual("195,31 kB", UnitTestStatic.ExecuteWithCulture<string>(() => StringConversion.DynamicStorageSize(200000), "de-DE"));
       Assert.AreEqual("1,91 MB", UnitTestStatic.ExecuteWithCulture<string>(() => StringConversion.DynamicStorageSize(2000000), "de-DE"));
-      
     }
 
     [TestMethod]

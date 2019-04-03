@@ -25,7 +25,6 @@ using System.Threading;
 
 namespace CsvTools
 {
-
   /// <summary>
   ///   Helper class
   /// </summary>
@@ -77,7 +76,7 @@ namespace CsvTools
         return result;
       }
 
-      Collection<Column> present = new Collection<Column>(fileSetting.ColumnCollection);
+      var present = new Collection<Column>(fileSetting.ColumnCollection);
 
       var resetSkipRows = false;
       try
@@ -167,7 +166,9 @@ namespace CsvTools
                    colindex);
                 }
                 else
+                {
                   oldColumn.ValueFormat = checkResult.FoundValueFormat;
+                }
 
                 var newValueFormat = checkResult.FoundValueFormat.GetTypeAndFormatDescription();
                 if (oldValueFormat.Equals(newValueFormat, StringComparison.Ordinal)) continue;
@@ -227,7 +228,6 @@ namespace CsvTools
                   if (newColumn == null)
                     newColumn = fileSetting.ColumnCollection.AddIfNew(oldColumn);
                   newColumn.DataType = DataType.String;
-
                 }
                 if (newColumn != null)
                 {
@@ -562,7 +562,7 @@ namespace CsvTools
         }
 
         var recordNumber = 0;
-        int remainingShows = 10;
+        var remainingShows = 10;
         dataReader.Warning += delegate (object sender, WarningEventArgs args)
         {
           if (remainingShows-- > 0)

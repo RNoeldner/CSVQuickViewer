@@ -767,23 +767,32 @@ namespace CsvTools
       if ((expected.DataType == DataType.Numeric || expected.DataType == DataType.Double ||
            expected.DataType == DataType.Integer)
           && DataType == DataType.Integer)
+      {
         return true;
+      }
+
       if (expected.DataType == DataType.Integer
           && (DataType == DataType.Numeric || DataType == DataType.Double || DataType == DataType.Integer))
+      {
         return true;
+      }
       // if we have dates, check the formats
       if (expected.DataType == DataType.DateTime && DataType == DataType.DateTime)
+      {
         return expected.DateFormat.Equals(m_DateFormat, StringComparison.Ordinal) &&
                (m_DateFormat.IndexOf('/') == -1 ||
                 expected.DateSeparator.Equals(DateSeparator, StringComparison.Ordinal)) &&
                (m_DateFormat.IndexOf(':') == -1 ||
                 expected.TimeSeparator.Equals(TimeSeparator, StringComparison.Ordinal));
+      }
       // if we have decimals, check the formats
       if ((expected.DataType == DataType.Numeric || expected.DataType == DataType.Double) &&
           (DataType == DataType.Numeric || DataType == DataType.Double))
+      {
         return expected.NumberFormat.Equals(NumberFormat, StringComparison.Ordinal) &&
                expected.DecimalSeparator.Equals(DecimalSeparator, StringComparison.Ordinal) &&
                expected.GroupSeparator.Equals(GroupSeparator, StringComparison.Ordinal);
+      }
       // For everything else assume its wrong
       return false;
     }
@@ -792,10 +801,7 @@ namespace CsvTools
     ///   Notifies the property changed.
     /// </summary>
     /// <param name="info">The info.</param>
-    public virtual void NotifyPropertyChanged(string info)
-    {
-      PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(info));
-    }
+    public virtual void NotifyPropertyChanged(string info) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(info));
 
     /// <summary>Determines whether the specified object is equal to the current object.</summary>
     /// <param name="obj">The object to compare with the current object. </param>
@@ -926,10 +932,7 @@ namespace CsvTools
     ///   Returns a <see cref="string" /> that represents this instance.
     /// </summary>
     /// <returns>A <see cref="string" /> that represents this instance.</returns>
-    public override string ToString()
-    {
-      return $"{Name} ({GetTypeAndFormatDescription()})";
-    }
+    public override string ToString() => $"{Name} ({GetTypeAndFormatDescription()})";
 
     #endregion Display Methods
   }

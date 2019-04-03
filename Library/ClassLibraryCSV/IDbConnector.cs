@@ -124,7 +124,7 @@ namespace CsvTools
     /// <summary>
     ///  Gets the connection.
     /// </summary>
-    /// <returns>The database connection object</returns>    
+    /// <returns>The database connection object</returns>
     DbConnection GetConnection(EventHandler<string> infoMessages);
 
     /// <summary>

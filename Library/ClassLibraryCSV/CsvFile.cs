@@ -38,8 +38,10 @@ namespace CsvTools
     private bool m_AlternateQuoting;
     private bool m_ByteOrderMark = true;
     private int m_CodePageId = 65001;
+
     [NonSerialized]
     private Encoding m_CurrentEncoding = Encoding.UTF8;
+
     private bool m_DoubleDecode;
     private bool m_NoDelimitedFile;
     private int m_NumWarnings;
@@ -405,7 +407,7 @@ namespace CsvTools
       var other = new CsvFile();
       CopyTo(other);
       return other;
-    }    
+    }
 
     /// <summary>
     ///   Copies all values to other instance

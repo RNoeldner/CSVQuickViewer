@@ -42,7 +42,7 @@ namespace CsvTools
       m_ProcessDisplay = processDisplay;
       m_FileSetting = fileSetting ?? throw new ArgumentNullException(nameof(fileSetting));
       if (ApplicationSetting.SQLDataReader == null)
-        throw new ArgumentException("No SQL Reader set");      
+        throw new ArgumentException("No SQL Reader set");
     }
 
     /// <summary>
@@ -134,11 +134,11 @@ namespace CsvTools
     public virtual IDataReader GetSchemaReader()
     {
       if (string.IsNullOrEmpty(m_FileSetting.SqlStatement))
-        return null;      
+        return null;
 
       var parts = m_FileSetting.SqlStatement.SplitCommandTextByGo();
       // only use the last command
-      string sql = parts[parts.Count - 1];
+      var sql = parts[parts.Count - 1];
       // in case there is no filter add a filer that filters all we only need the Schema
       if (sql.Contains("SELECT", StringComparison.OrdinalIgnoreCase) &&
         !sql.Contains("WHERE", StringComparison.OrdinalIgnoreCase))
@@ -163,7 +163,7 @@ namespace CsvTools
       if (string.IsNullOrEmpty(m_FileSetting.SqlStatement))
         return null;
 
-      // Using the connection string      
+      // Using the connection string
       HandleProgress("Executing SQL Statement");
 
       using (var dataReader = ApplicationSetting.SQLDataReader(m_FileSetting.SqlStatement, m_ProcessDisplay))
@@ -177,11 +177,6 @@ namespace CsvTools
       }
     }
 
-    protected void HandleProgress(string text, int progress)
-    {
-      m_ProcessDisplay?.SetProcess(text, progress);
-    }
-
     /// <summary>
     ///  Writes the specified file.
     /// </summary>
@@ -191,7 +186,7 @@ namespace CsvTools
       if (string.IsNullOrEmpty(m_FileSetting.SqlStatement))
         return 0;
 
-      using (IDataReader reader = ApplicationSetting.SQLDataReader(m_FileSetting.SqlStatement, m_ProcessDisplay))
+      using (var reader = ApplicationSetting.SQLDataReader(m_FileSetting.SqlStatement, m_ProcessDisplay))
       {
         return Write(reader);
       }
@@ -230,6 +225,10 @@ namespace CsvTools
       Warning?.Invoke(this, new WarningEventArgs(m_Records, 0, message, 0, 0, columnName));
     }
 
+    protected void HandleProgress(string text, int progress)
+    {
+      m_ProcessDisplay?.SetProcess(text, progress);
+    }
     protected void HandleProgress(string text)
     {
       m_ProcessDisplay?.SetProcess(text);

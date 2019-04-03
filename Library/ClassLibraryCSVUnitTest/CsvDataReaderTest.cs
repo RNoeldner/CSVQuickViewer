@@ -1,4 +1,16 @@
-﻿using CsvTools;
+﻿/*
+ * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
+ *
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
+ * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License along with this program.
+ * If not, see http://www.gnu.org/licenses/ .
+ *
+ */
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
@@ -491,7 +503,6 @@ namespace CsvTools.Tests
       {
         Assert.Fail("Wrong Exception Type, Empty Filename");
       }
-      
 
       try
       {
@@ -554,7 +565,7 @@ namespace CsvTools.Tests
 7 ,,,,,
 8 ,,,,,
 9 ,,,,,
-10 
+10
 */
 
       using (var processDisplay = new DummyProcessDisplay())
@@ -1094,7 +1105,7 @@ namespace CsvTools.Tests
       Assert.IsTrue(Exception, "No Exception thrown");
     }
 
-    [TestMethod]    
+    [TestMethod]
     public void CsvDataReaderGuessCodePage()
     {
       var setting = new CsvFile
@@ -1381,7 +1392,6 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CsvDataReaderTreatNullTextFalse()
     {
-
       m_ValidSetting.TreatTextAsNull = null;
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(m_ValidSetting, processDisplay))

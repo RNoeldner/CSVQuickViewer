@@ -74,8 +74,11 @@ namespace CsvTools
         {
           var hasData = new List<int>();
           foreach (var col in needtoCheck)
+          {
             if (!string.IsNullOrEmpty(fileReader.GetString(col)))
               hasData.Add(col);
+          }
+
           foreach (var col in hasData)
             needtoCheck.Remove(col);
         }
@@ -163,7 +166,7 @@ namespace CsvTools
       using (var improvedStream = ImprovedStream.OpenRead(setting))
       using (var streamReader = new StreamReader(improvedStream.Stream, setting.GetEncoding(), setting.ByteOrderMark))
       {
-        for (int i = 0; i < setting.SkipRows; i++)
+        for (var i = 0; i < setting.SkipRows; i++)
           streamReader.ReadLine();
         return GuessDelimiter(streamReader, setting.FileFormat.EscapeCharacterChar);
       }
@@ -201,11 +204,13 @@ namespace CsvTools
 
           // if replaced by a default assume no header
           if (columnName.Equals(BaseFileReader.GetDefaultName(counter), StringComparison.OrdinalIgnoreCase))
+          {
             if (defaultNames++ == (int)Math.Ceiling(csvDataReader.FieldCount / 2.0))
             {
               Log.Info("Without Header Row");
               return false;
             }
+          }
 
           // if its a number assume no headers
           if (StringConversion.StringToDecimal(columnName, '.', ',', false).HasValue)
@@ -220,13 +225,11 @@ namespace CsvTools
             Log.Info("Without Header Row");
             return false;
           }
-
         }
         Log.Info("With Header Row");
         // if there is only one line assume its does not have a header
         return true;
       }
-
     }
 
     /// <summary>
@@ -240,7 +243,7 @@ namespace CsvTools
       using (var improvedStream = ImprovedStream.OpenRead(setting))
       using (var streamReader = new StreamReader(improvedStream.Stream, setting.GetEncoding(), setting.ByteOrderMark))
       {
-        for (int i = 0; i < setting.SkipRows; i++)
+        for (var i = 0; i < setting.SkipRows; i++)
           streamReader.ReadLine();
         return GuessNewline(streamReader, setting.FileFormat.FieldQualifierChar);
       }
@@ -257,7 +260,7 @@ namespace CsvTools
       using (var improvedStream = ImprovedStream.OpenRead(setting))
       using (var streamReader = new StreamReader(improvedStream.Stream, setting.GetEncoding(), setting.ByteOrderMark))
       {
-        for (int i = 0; i < setting.SkipRows; i++)
+        for (var i = 0; i < setting.SkipRows; i++)
           streamReader.ReadLine();
         // If the file doe not have a good delimiter
         // has empty lines
@@ -265,11 +268,13 @@ namespace CsvTools
 
         // Have a proper delimiter
         for (var sep = 0; sep < dc.Separators.Length; sep++)
+        {
           if (dc.SeparatorRows[sep] >= dc.LastRow * 9 / 10)
           {
             Log.Info("Not a delimited file");
             return false;
           }
+        }
       }
       Log.Info("Delimited file");
       return true;
@@ -311,7 +316,7 @@ namespace CsvTools
       using (var improvedStream = ImprovedStream.OpenRead(setting))
       using (var streamReader = new StreamReader(improvedStream.Stream, setting.GetEncoding(), setting.ByteOrderMark))
       {
-        for (int i = 0; i < setting.SkipRows; i++)
+        for (var i = 0; i < setting.SkipRows; i++)
           streamReader.ReadLine();
         var buff = new char[262144];
         var isStartOfColumn = true;
@@ -415,8 +420,10 @@ namespace CsvTools
         if (dc.SeparatorRows[index] < 1)
           continue;
         for (var row = startRow; row < dc.LastRow; row++)
+        {
           if (dc.SeparatorsCount[index, row] > 100)
             dc.SeparatorsCount[index, row] = 100;
+        }
       }
 
       double? bestScore = null;
@@ -494,13 +501,17 @@ namespace CsvTools
       {
         readChar = streamReader.Read();
         if (readChar == fieldQualifier)
+        {
           if (quoted)
+          {
             if (streamReader.Peek() != fieldQualifier)
               quoted = false;
             else
               streamReader.Read();
+          }
           else
             quoted = true;
+        }
 
         if (quoted) continue;
         if (readChar == '\n')
@@ -567,10 +578,12 @@ namespace CsvTools
         if (readChar == quoteChar)
         {
           if (quoted)
+          {
             if (streamReader.Peek() != '"')
               quoted = false;
             else
               streamReader.Read();
+          }
           else
             quoted |= firstChar;
           continue;
@@ -639,6 +652,7 @@ namespace CsvTools
           return 0;
 
         for (var row = lastRow - 3; row > 0; row--)
+        {
           if (columnCount[row] > 0)
           {
             if (columnCount[row] < avg - 1)
@@ -646,7 +660,6 @@ namespace CsvTools
               Log.Info($"Start Row: {row}");
               return row;
             }
-
           }
           // In case we have an empty line but the next line are roughly good match take that empty line
           else if (columnCount[row + 1] == columnCount[row + 2]
@@ -655,18 +668,19 @@ namespace CsvTools
             Log.Info($"Start Row: {row + 1}");
             return row + 1;
           }
+        }
 
         for (var row = 0; row < lastRow; row++)
+        {
           if (columnCount[row] > 0)
           {
             Log.Info($"Start Row: {row}");
             return row;
           }
-
+        }
       }
       return 0;
     }
-
 
     private static DelimiterCounter GetDelimiterCounter(StreamReader streamReader, char escapeCharacter, int numRows)
     {
@@ -694,10 +708,12 @@ namespace CsvTools
 
           case '"':
             if (quoted)
+            {
               if (streamReader.Peek() != '"')
                 quoted = false;
               else
                 streamReader.Read();
+            }
             else
               quoted |= firstChar;
             break;
@@ -773,6 +789,7 @@ namespace CsvTools
         }
       }
     }
+
 #pragma warning restore CA1814 // Prefer jagged arrays over multidimensional
   }
 }

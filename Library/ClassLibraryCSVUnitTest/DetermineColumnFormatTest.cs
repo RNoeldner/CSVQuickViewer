@@ -1,4 +1,17 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿/*
+ * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
+ *
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
+ * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License along with this program.
+ * If not, see http://www.gnu.org/licenses/ .
+ *
+ */
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Data;
 using System.Globalization;
 using System.IO;
@@ -47,7 +60,7 @@ namespace CsvTools.Tests
       }
       Assert.IsTrue(found);
 
-      // we should have MM/dd/yyyy HH:mm, M/d/yyyy HH:mm, MM/dd/yyyy H:mm, M/d/yyyy H:mm, 
+      // we should have MM/dd/yyyy HH:mm, M/d/yyyy HH:mm, MM/dd/yyyy H:mm, M/d/yyyy H:mm,
       Assert.AreEqual(4, res.Count);
     }
 
@@ -68,7 +81,7 @@ namespace CsvTools.Tests
       }
 
       Assert.IsTrue(found);
-      // we should have M/d/yyyy H:mm:ss  and d/M/yyyy H:mm:ss 
+      // we should have M/d/yyyy H:mm:ss  and d/M/yyyy H:mm:ss
       Assert.AreEqual(2, res.Count);
     }
 
@@ -478,7 +491,6 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GuessColumnFormatVersionNumbers()
     {
-
       string[] values = { "1.0.1.2", "1.0.2.1", "1.0.2.2", "1.0.2.3", "1.0.2.3" };
 
       var res = DetermineColumnFormat.GuessValueFormat(values, 4, null, "False", false, false, true,

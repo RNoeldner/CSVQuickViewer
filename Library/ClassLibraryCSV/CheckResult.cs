@@ -47,16 +47,16 @@ namespace CsvTools
     {
       if (subResult == null || !subResult.PossibleMatch) return;
 
-      if (this.PossibleMatch == false || subResult.ExampleNonMatch.Count < this.ExampleNonMatch.Count)
+      if (PossibleMatch == false || subResult.ExampleNonMatch.Count < ExampleNonMatch.Count)
       {
         ExampleNonMatch.Clear();
-        this.PossibleMatch = true;
-        this.ValueFormatPossibleMatch = subResult.ValueFormatPossibleMatch;
+        PossibleMatch = true;
+        ValueFormatPossibleMatch = subResult.ValueFormatPossibleMatch;
 
         foreach (var ex in subResult.ExampleNonMatch)
         {
           if (string.IsNullOrEmpty(ex)) continue;
-          this.ExampleNonMatch.Add(ex);
+          ExampleNonMatch.Add(ex);
         }
       }
     }

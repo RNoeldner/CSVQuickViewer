@@ -50,6 +50,7 @@ namespace CsvTools
     public virtual bool Specified => m_PrivateKeyRingBundle.Count > 0 || m_PublicKeyRingBundle.Count > 0 || !string.IsNullOrEmpty(EncryptedPassphase);
 
 #pragma warning disable CA1819 // Properties should not return arrays
+
     [XmlElement]
     public virtual string[] PrivateKeys
     {
@@ -85,7 +86,9 @@ namespace CsvTools
         m_Recipients = null;
       }
     }
+
 #pragma warning restore CA1819 // Properties should not return arrays
+
     [XmlElement]
     [DefaultValue("")]
     public virtual string EncryptedPassphase

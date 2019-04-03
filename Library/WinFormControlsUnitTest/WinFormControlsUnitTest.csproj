@@ -83,10 +83,6 @@
     <Compile Include="ValueClusterCollectionTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ClassLibraryCSVUnitTest\ClassLibraryCSVUnitTest.csproj">
-      <Project>{ddfec05c-94f0-4329-9cb2-96d2b4b57050}</Project>
-      <Name>ClassLibraryCSVUnitTest</Name>
-    </ProjectReference>
     <ProjectReference Include="..\ClassLibraryCSV\ClassLibraryCSV.csproj">
       <Project>{0b6aee5a-8005-4b1d-987f-5790c34a2d52}</Project>
       <Name>ClassLibraryCSV</Name>
