@@ -79,6 +79,7 @@ namespace CsvTools
     /// </summary>
     protected BaseSettings()
     {
+      GetEncryptedPassphraseFunction = delegate () { if (!string.IsNullOrEmpty(Passphrase)) return Passphrase; if (!string.IsNullOrEmpty(ApplicationSetting.PGPKeyStorage.EncryptedPassphase)) return ApplicationSetting.PGPKeyStorage.EncryptedPassphase; return string.Empty; };
       ColumnCollection.CollectionChanged += ColumnCollectionChanged;
       Samples.CollectionChanged += delegate { NotifyPropertyChanged(nameof(Samples)); };
       Errors.CollectionChanged += delegate { if (m_NumErrors > 0 && Errors.Count > m_NumErrors) NumErrors = Errors.Count; NotifyPropertyChanged(nameof(Errors)); };
@@ -1065,20 +1066,5 @@ namespace CsvTools
 
     [XmlIgnore]
     public virtual Func<string> GetEncryptedPassphraseFunction { get; set; }
-
-    public virtual Func<string> DummyEncryptedPassphaseFunction
-    {
-      get
-      {
-        return () =>
-        {
-          if (!string.IsNullOrEmpty(Passphrase))
-            return Passphrase;
-          if (!string.IsNullOrEmpty(ApplicationSetting.PGPKeyStorage.EncryptedPassphase))
-            return ApplicationSetting.PGPKeyStorage.EncryptedPassphase;
-          return string.Empty;
-        };
-      }
-    }
   }
 }
