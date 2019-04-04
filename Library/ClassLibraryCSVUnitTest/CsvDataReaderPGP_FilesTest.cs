@@ -63,8 +63,7 @@ namespace CsvTools.Tests
         HasFieldHeader = true,
         AlternateQuoting = true
       };
-      PGPKeyStorageTestHelper.SetApplicationSetting();
-      setting.GetEncryptedPassphraseFunction = setting.DummyEncryptedPassphaseFunction;
+      PGPKeyStorageTestHelper.SetApplicationSetting();      
       setting.FileName = "BasicCSV.pgp";
       setting.ColumnCollection.AddIfNew(new Column
       {
@@ -101,8 +100,7 @@ namespace CsvTools.Tests
         HasFieldHeader = true,
         AlternateQuoting = true
       };
-      PGPKeyStorageTestHelper.SetApplicationSetting();
-      setting.GetEncryptedPassphraseFunction = setting.DummyEncryptedPassphaseFunction;
+      PGPKeyStorageTestHelper.SetApplicationSetting();      
       setting.FileName = "BasicCSV.pgp";
       setting.ColumnCollection.AddIfNew(new Column
       {

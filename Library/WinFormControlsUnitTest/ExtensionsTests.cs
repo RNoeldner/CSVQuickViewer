@@ -68,20 +68,6 @@ namespace CsvTools.Tests
     }
 
     [TestMethod()]
-    public void GetEncryptedPassphraseTest()
-    {
-      var setting = new CsvFile()
-      {
-        FileName = "Test.pgp"
-      };
-      ApplicationSetting.PGPKeyStorage.AddPrivateKey(PGPKeyStorageTestHelper.PRIVATE);
-      ApplicationSetting.PGPKeyStorage.EncryptedPassphase = "Hello";
-      Assert.AreEqual("Hello", setting.GetEncryptedPassphraseOpenForm());
-      setting.Passphrase = "World";
-      Assert.AreEqual("World", setting.GetEncryptedPassphraseOpenForm());
-    }
-
-    [TestMethod()]
     public void GetProcessDisplayTitleTest()
     {
       var setting = new CsvFile()

@@ -31,6 +31,20 @@ namespace CsvTools.Tests
       Assert.AreEqual("Hello #TaskIDWorld", "Hello #TaskIDWorld".PlaceholderReplace("TaskID", "Nice"));
     }
 
+    [TestMethod()]
+    public void GetEncryptedPassphraseTest()
+    {
+      var setting = new CsvFile()
+      {
+        FileName = "Test.pgp"
+      };      
+      ApplicationSetting.PGPKeyStorage.AddPrivateKey(PGPKeyStorageTestHelper.PRIVATE);
+      ApplicationSetting.PGPKeyStorage.EncryptedPassphase = "Hello";
+      Assert.AreEqual("Hello", setting.GetEncryptedPassphraseFunction.Invoke());
+      setting.Passphrase = "World";
+      Assert.AreEqual("World", setting.GetEncryptedPassphraseFunction.Invoke());
+    }
+
     [TestMethod]
     public void RemoveMappingWithoutSourceTest()
     {

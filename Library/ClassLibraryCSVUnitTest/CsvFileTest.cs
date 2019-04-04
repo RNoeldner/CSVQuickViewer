@@ -58,10 +58,10 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GetEncryptedPassphraseFunction()
     {
-      var test = new CsvFile();
-      Assert.IsNull(test.GetEncryptedPassphraseFunction);
+      var test = new CsvFile();      
       test.GetEncryptedPassphraseFunction = delegate () { return "Hello World"; };
       Assert.IsNotNull(test.GetEncryptedPassphraseFunction);
+      Assert.AreEqual("Hello World", test.GetEncryptedPassphraseFunction.Invoke());
     }
 
     [TestMethod]
@@ -133,10 +133,10 @@ namespace CsvTools.Tests
         FileColumn = "Source1",
         TemplateField = "Destination1"
       };
-      Assert.IsFalse(test.AddMapping(null));
+      Assert.IsFalse(test.MappingCollection.AddIfNew(null));
 
-      Assert.IsTrue(test.AddMapping(fm1));
-      Assert.IsFalse(test.AddMapping(fm1));
+      Assert.IsTrue(test.MappingCollection.AddIfNew(fm1));
+      Assert.IsFalse(test.MappingCollection.AddIfNew(fm1));
 
       Assert.AreEqual(1, test.MappingCollection.Count);
 
@@ -183,8 +183,8 @@ namespace CsvTools.Tests
         FileColumn = "Source",
         TemplateField = "Destination2"
       };
-      test.AddMapping(fm1);
-      test.AddMapping(fm2);
+      test.MappingCollection.AddIfNew(fm1);
+      test.MappingCollection.AddIfNew(fm2);
 
       Assert.AreEqual("Destination1", test.MappingCollection.First().TemplateField);
       Assert.AreEqual("Destination2", test.MappingCollection.Last().TemplateField);
@@ -199,7 +199,7 @@ namespace CsvTools.Tests
         FileColumn = "Source",
         TemplateField = "Destination1"
       };
-      test.AddMapping(fm1);
+      test.MappingCollection.AddIfNew(fm1);
       Assert.AreEqual(fm1, test.MappingCollection.First());
     }
 
@@ -217,9 +217,9 @@ namespace CsvTools.Tests
         FileColumn = "Source2",
         TemplateField = "Destination2"
       };
-      test.AddMapping(fm1);
+      test.MappingCollection.AddIfNew(fm1);
       Assert.AreEqual(fm1, test.MappingCollection.First());
-      test.AddMapping(fm2);
+      test.MappingCollection.AddIfNew(fm2);
       Assert.AreEqual(fm2, test.MappingCollection.Last());
     }
 
