@@ -265,7 +265,7 @@ namespace CsvTools
     ///  If set to <c>true</c> go through the file and get the maximum column length for each column
     /// </param>
     /// <returns>Number of records</returns>
-    public override void Open()
+    public void Open()
     {
       m_HasQualifier |= m_CsvFile.FileFormat.FieldQualifierChar != '\0';
 
@@ -284,7 +284,8 @@ namespace CsvTools
 
         HandleShowProgress("Opening…");
 
-        ResetPositionToStart();
+        ResetPositionToStartOrOpen();
+
         m_HeaderRow = ReadNextRow(false, false);
         if (m_HeaderRow.IsEmpty())
         {
@@ -299,7 +300,7 @@ namespace CsvTools
           ParseColumnName(m_HeaderRow);
         }
 
-        if (m_CsvFile.TryToSolveMoreColumns && m_CsvFile.FileFormat.FieldQualifierChar == '\0')
+        if (m_CsvFile.TryToSolveMoreColumns && m_CsvFile.FileFormat.FieldQualifierChar != '\0')
           m_RealignColumns = new ReAlignColumns(FieldCount);
 
         base.FinishOpen();
@@ -327,7 +328,7 @@ namespace CsvTools
     /// </summary>
     public virtual void ResetPositionToFirstDataRow()
     {
-      ResetPositionToStart();
+      ResetPositionToStartOrOpen();
       if (m_CsvFile.HasFieldHeader)
         // Read the header row, this could be more than one line
         ReadNextRow(false, false);
@@ -393,7 +394,7 @@ namespace CsvTools
     /// </returns>
     private bool GetNextRecord()
     {
-    Restart:
+      Restart:
       CurrentRowColumnText = ReadNextRow(true, true);
 
       if (!AllEmptyAndCountConsecutiveEmptyRows(CurrentRowColumnText))
@@ -417,7 +418,7 @@ namespace CsvTools
         }
       }
       bool hasWarningCombinedWrning = false;
-    Restart2:
+      Restart2:
       var rowLength = CurrentRowColumnText.Length;
       if (rowLength == FieldCount)
       {
@@ -596,6 +597,10 @@ namespace CsvTools
         // if we have less columns than in the header exit the loop
         if (nextLine.GetLength(0) < fields)
           break;
+
+        // special case of missing linefeed, the line is twice as long minus 1 because of the combined column in the middle
+        if (nextLine.Length == fields * 2 - 1)
+          continue;
 
         while (nextLine.GetLength(0) > fields)
         {
@@ -883,7 +888,7 @@ namespace CsvTools
     /// </returns>
     private string[] ReadNextRow(bool regularDataRow, bool storeWarnings)
     {
-    Restart:
+      Restart:
       // Store the starting Line Number
       StartLineNumber = EndLineNumber;
 
@@ -981,9 +986,9 @@ namespace CsvTools
     ///  Resets the position and buffer to the first line, excluding headers, use ResetPositionToStart if you want to go to
     ///  first data line
     /// </summary>
-    private void ResetPositionToStart()
+    private void ResetPositionToStartOrOpen()
     {
-      if (m_BufferPos == 0 && EndLineNumber == 1 && RecordNumber == 0)
+      if (m_ImprovedStream != null && m_BufferPos == 0 && RecordNumber == 0)
         return;
 
       if (m_ImprovedStream == null)

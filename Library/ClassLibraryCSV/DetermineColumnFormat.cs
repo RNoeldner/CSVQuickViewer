@@ -79,14 +79,22 @@ namespace CsvTools
       var present = new Collection<Column>(fileSetting.ColumnCollection);
 
       var resetSkipRows = false;
+      var resetTryToSolveMoreColumns = true;
       try
       {
         // Make sure that if we do have a CSV file without header that we will skip the first row that
         // might contain headers, but its simply set as without headers.
-        if (fileSetting is CsvFile && !fileSetting.HasFieldHeader && fileSetting.SkipRows == 0)
+        if (fileSetting is CsvFile csv)
         {
-          fileSetting.SkipRows = 1;
-          resetSkipRows = true;
+          if (!csv.HasFieldHeader && csv.SkipRows == 0)
+          {
+            fileSetting.SkipRows = 1;
+            resetSkipRows = true;
+          }
+          if (csv.TryToSolveMoreColumns)
+          {
+            csv.TryToSolveMoreColumns = false;
+          }
         }
         var othersValueFormatDate = CommonDateFormat(present.Select(x => x.ValueFormat));
 
@@ -400,6 +408,8 @@ namespace CsvTools
       {
         if (resetSkipRows)
           fileSetting.SkipRows = 0;
+        if (fileSetting is CsvFile csv && resetTryToSolveMoreColumns)
+          csv.TryToSolveMoreColumns = true;
       }
 
       return result;

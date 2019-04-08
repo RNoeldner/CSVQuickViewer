@@ -633,14 +633,22 @@ namespace CsvTools
       if (lastRow < 4)
         return 0;
 
-      // Get the average of the last 15 rows
+      // In case we have a row that is exactly twice as long as the row 
+      // before and row after, assume its missing a linefeed
+      for (var row = 1; row < lastRow -1; row++)
+      {
+        if (columnCount[row] == columnCount[row + 1] *2 && columnCount[row] == columnCount[row -1] * 2)        
+          columnCount[row]  = columnCount[row + 1];
+      }
+
+        // Get the average of the last 15 rows
       var num = 0;
       var sum = 0;
       for (var row = lastRow - 3; num < 10 && row > 0; row--)
       {
         if (columnCount[row] <= 0) continue;
-        sum += columnCount[row];
-        num++;
+        sum += columnCount[row];     
+        num++;        
       }
 
       var avg = (int)(sum / (double)(num == 0 ? 1 : num));
