@@ -39,8 +39,6 @@ namespace CsvTools
     private readonly IFileSetting m_FileSetting;
     private readonly bool m_WriteSetting;
 
-    public Func<IFileSetting, bool, IProcessDisplay, ICollection<string>> GetColumnHeader;
-
     /// <summary>
     ///   Initializes a new instance of the <see cref="FormColumnUI" /> class.
     /// </summary>
@@ -406,7 +404,7 @@ namespace CsvTools
               if (!m_WriteSetting)
               {
                 // get the columns from the file
-                allColumns = GetColumnHeader?.Invoke(m_FileSetting, true, frm) ?? new List<string>();
+                allColumns = ApplicationSetting.GetColumnHeader?.Invoke(m_FileSetting, true, frm) ?? new List<string>();
               }
               else
               {
@@ -570,9 +568,10 @@ namespace CsvTools
     {
       if (string.IsNullOrEmpty(columnName) || fileSetting == null) return -1;
       var columnIndex = 0;
+
       using (var processDisplay = new DummyProcessDisplay())
       {
-        var headers = GetColumnHeader?.Invoke(fileSetting, false, processDisplay);
+        var headers = ApplicationSetting.GetColumnHeader?.Invoke(fileSetting, false, processDisplay);
         if (headers != null)
         {
           foreach (var col in headers)
@@ -583,6 +582,7 @@ namespace CsvTools
           }
         }
       }
+
       return -1;
     }
 
