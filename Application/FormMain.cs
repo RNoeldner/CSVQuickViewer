@@ -60,10 +60,10 @@ namespace CsvTools
     public FormMain(string fileName)
     {
       m_FileName = fileName;
-      m_ViewSettings = LoadDefault();
+      m_ViewSettings = LoadDefault();      
       m_ViewSettings.FileName = string.Empty;
       m_ViewSettings.PGPInformation.AllowSavingPassphrase = true;
-
+       
       ApplicationSetting.FillGuessSettings = m_ViewSettings.FillGuessSettings;
       ApplicationSetting.PGPKeyStorage = m_ViewSettings.PGPInformation;
 
@@ -460,7 +460,7 @@ namespace CsvTools
       }
       finally
       {
-        m_FileSetting.PropertyChanged += FileSetting_PropertyChanged;
+        m_FileSetting.PropertyChanged += FileSetting_PropertyChanged;        
         Cursor.Current = Cursors.Default;
         ShowTextPanel(false);
       }
@@ -667,21 +667,33 @@ namespace CsvTools
       ShowTextPanel(false);
     }
 
+
     private void ShowSettings(object sender, EventArgs e)
     {
-      using (var frm = new FormEditSettings(m_ViewSettings))
+      try
       {
-        frm.ShowDialog(MdiParent);
-        FillFromProperites(false);
-        if (m_ConfigChanged)
+        using (var frm = new FormEditSettings(m_ViewSettings))
         {
-          if (_MessageBox.Show(this, "The configuration has changed do you want to reload the data?", "Configuration changed", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes) OpenDataReader(true);
-        }
+          frm.ShowDialog(MdiParent);
+          m_ViewSettings.CopyTo(m_FileSetting);
+          FillFromProperites(false);
+          if (m_ConfigChanged)
+          {          
+            detailControl.MoveMenu();
+            SaveDefault();
+            if (_MessageBox.Show(this, "The configuration has changed do you want to reload the data?", "Configuration changed", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
+            {
+              OpenDataReader(true);
+            }              
+          }
+        }        
       }
-      detailControl.MoveMenu();
-      SaveDefault();
+      catch(Exception ex)
+      {
+        this.ShowError(ex);
+      }
     }
-
+    
     private void ShowTextPanel(bool visible)
     {
       textPanel.Visible = visible;

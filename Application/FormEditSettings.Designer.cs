@@ -38,7 +38,6 @@
       this.labelCodePage = new System.Windows.Forms.Label();
       this.checkBoxBOM = new System.Windows.Forms.CheckBox();
       this.checkBoxHeader = new System.Windows.Forms.CheckBox();
-      this.labelDelimitedFile = new System.Windows.Forms.Label();
       this.checkBoxWarnNBSP = new System.Windows.Forms.CheckBox();
       this.checkBoxWarnUnknowCharater = new System.Windows.Forms.CheckBox();
       this.labelWarningLimit = new System.Windows.Forms.Label();
@@ -75,8 +74,6 @@
       this.label2 = new System.Windows.Forms.Label();
       this.textBoxComment = new System.Windows.Forms.TextBox();
       this.cboCodePage = new System.Windows.Forms.ComboBox();
-      this.textBoxFile = new System.Windows.Forms.TextBox();
-      this.btnOpenFile = new System.Windows.Forms.Button();
       this.tabPageQuoting = new System.Windows.Forms.TabPage();
       this.quotingControl = new CsvTools.QuotingControl();
       this.tabPagePGP = new System.Windows.Forms.TabPage();
@@ -157,7 +154,7 @@
       // labelCodePage
       // 
       this.labelCodePage.AutoSize = true;
-      this.labelCodePage.Location = new System.Drawing.Point(21, 62);
+      this.labelCodePage.Location = new System.Drawing.Point(18, 35);
       this.labelCodePage.Name = "labelCodePage";
       this.labelCodePage.Size = new System.Drawing.Size(63, 13);
       this.labelCodePage.TabIndex = 44;
@@ -167,7 +164,7 @@
       // 
       this.checkBoxBOM.AutoSize = true;
       this.checkBoxBOM.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fileSettingBindingSource, "ByteOrderMark", true));
-      this.checkBoxBOM.Location = new System.Drawing.Point(275, 61);
+      this.checkBoxBOM.Location = new System.Drawing.Point(272, 34);
       this.checkBoxBOM.Name = "checkBoxBOM";
       this.checkBoxBOM.Size = new System.Drawing.Size(50, 17);
       this.checkBoxBOM.TabIndex = 42;
@@ -179,21 +176,12 @@
       // 
       this.checkBoxHeader.AutoSize = true;
       this.checkBoxHeader.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fileSettingBindingSource, "HasFieldHeader", true));
-      this.checkBoxHeader.Location = new System.Drawing.Point(90, 33);
+      this.checkBoxHeader.Location = new System.Drawing.Point(87, 6);
       this.checkBoxHeader.Name = "checkBoxHeader";
       this.checkBoxHeader.Size = new System.Drawing.Size(126, 17);
       this.checkBoxHeader.TabIndex = 2;
       this.checkBoxHeader.Text = "Has Column Headers";
       this.checkBoxHeader.UseVisualStyleBackColor = true;
-      // 
-      // labelDelimitedFile
-      // 
-      this.labelDelimitedFile.AutoSize = true;
-      this.labelDelimitedFile.Location = new System.Drawing.Point(12, 9);
-      this.labelDelimitedFile.Name = "labelDelimitedFile";
-      this.labelDelimitedFile.Size = new System.Drawing.Size(72, 13);
-      this.labelDelimitedFile.TabIndex = 39;
-      this.labelDelimitedFile.Text = "Delimited File:";
       // 
       // checkBoxWarnNBSP
       // 
@@ -474,9 +462,6 @@
       this.tabPageFile.Controls.Add(this.labelCodePage);
       this.tabPageFile.Controls.Add(this.checkBoxBOM);
       this.tabPageFile.Controls.Add(this.checkBoxHeader);
-      this.tabPageFile.Controls.Add(this.textBoxFile);
-      this.tabPageFile.Controls.Add(this.labelDelimitedFile);
-      this.tabPageFile.Controls.Add(this.btnOpenFile);
       this.tabPageFile.Location = new System.Drawing.Point(4, 22);
       this.tabPageFile.Name = "tabPageFile";
       this.tabPageFile.Padding = new System.Windows.Forms.Padding(3);
@@ -488,7 +473,7 @@
       // 
       this.checkBoxGuessHasHeader.AutoSize = true;
       this.checkBoxGuessHasHeader.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fileSettingBindingSource, "GuessHasHeader", true));
-      this.checkBoxGuessHasHeader.Location = new System.Drawing.Point(471, 33);
+      this.checkBoxGuessHasHeader.Location = new System.Drawing.Point(468, 6);
       this.checkBoxGuessHasHeader.Name = "checkBoxGuessHasHeader";
       this.checkBoxGuessHasHeader.Size = new System.Drawing.Size(232, 17);
       this.checkBoxGuessHasHeader.TabIndex = 3;
@@ -499,7 +484,7 @@
       // 
       this.checkBoxGuessDelimiter.AutoSize = true;
       this.checkBoxGuessDelimiter.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fileSettingBindingSource, "GuessDelimiter", true));
-      this.checkBoxGuessDelimiter.Location = new System.Drawing.Point(471, 91);
+      this.checkBoxGuessDelimiter.Location = new System.Drawing.Point(468, 64);
       this.checkBoxGuessDelimiter.Name = "checkBoxGuessDelimiter";
       this.checkBoxGuessDelimiter.Size = new System.Drawing.Size(181, 17);
       this.checkBoxGuessDelimiter.TabIndex = 9;
@@ -510,7 +495,7 @@
       // 
       this.checkBoxGuessCodePage.AutoSize = true;
       this.checkBoxGuessCodePage.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fileSettingBindingSource, "GuessCodePage", true));
-      this.checkBoxGuessCodePage.Location = new System.Drawing.Point(471, 61);
+      this.checkBoxGuessCodePage.Location = new System.Drawing.Point(468, 34);
       this.checkBoxGuessCodePage.Name = "checkBoxGuessCodePage";
       this.checkBoxGuessCodePage.Size = new System.Drawing.Size(194, 17);
       this.checkBoxGuessCodePage.TabIndex = 6;
@@ -521,7 +506,7 @@
       // 
       this.buttonGuessDelimiter.AutoSize = true;
       this.buttonGuessDelimiter.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-      this.buttonGuessDelimiter.Location = new System.Drawing.Point(331, 87);
+      this.buttonGuessDelimiter.Location = new System.Drawing.Point(328, 60);
       this.buttonGuessDelimiter.Name = "buttonGuessDelimiter";
       this.buttonGuessDelimiter.Size = new System.Drawing.Size(134, 23);
       this.buttonGuessDelimiter.TabIndex = 8;
@@ -533,7 +518,7 @@
       // 
       this.buttonGuessCP.AutoSize = true;
       this.buttonGuessCP.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-      this.buttonGuessCP.Location = new System.Drawing.Point(331, 57);
+      this.buttonGuessCP.Location = new System.Drawing.Point(328, 30);
       this.buttonGuessCP.Name = "buttonGuessCP";
       this.buttonGuessCP.Size = new System.Drawing.Size(134, 23);
       this.buttonGuessCP.TabIndex = 5;
@@ -544,7 +529,7 @@
       // label3
       // 
       this.label3.AutoSize = true;
-      this.label3.Location = new System.Drawing.Point(170, 92);
+      this.label3.Location = new System.Drawing.Point(167, 65);
       this.label3.Name = "label3";
       this.label3.Size = new System.Drawing.Size(46, 13);
       this.label3.TabIndex = 46;
@@ -553,7 +538,7 @@
       // labelDelimiter
       // 
       this.labelDelimiter.AutoSize = true;
-      this.labelDelimiter.Location = new System.Drawing.Point(34, 92);
+      this.labelDelimiter.Location = new System.Drawing.Point(31, 65);
       this.labelDelimiter.Name = "labelDelimiter";
       this.labelDelimiter.Size = new System.Drawing.Size(50, 13);
       this.labelDelimiter.TabIndex = 46;
@@ -566,7 +551,7 @@
       this.textBox1.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Suggest;
       this.textBox1.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.CustomSource;
       this.textBox1.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.fileFormatBindingSource, "EscapeCharacter", true));
-      this.textBox1.Location = new System.Drawing.Point(222, 89);
+      this.textBox1.Location = new System.Drawing.Point(219, 62);
       this.textBox1.Name = "textBox1";
       this.textBox1.Size = new System.Drawing.Size(45, 20);
       this.textBox1.TabIndex = 45;
@@ -580,7 +565,7 @@
       this.textBoxDelimiter.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Suggest;
       this.textBoxDelimiter.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.CustomSource;
       this.textBoxDelimiter.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.fileFormatBindingSource, "FieldDelimiter", true));
-      this.textBoxDelimiter.Location = new System.Drawing.Point(90, 89);
+      this.textBoxDelimiter.Location = new System.Drawing.Point(87, 62);
       this.textBoxDelimiter.Name = "textBoxDelimiter";
       this.textBoxDelimiter.Size = new System.Drawing.Size(45, 20);
       this.textBoxDelimiter.TabIndex = 7;
@@ -589,7 +574,7 @@
       // label2
       // 
       this.label2.AutoSize = true;
-      this.label2.Location = new System.Drawing.Point(7, 123);
+      this.label2.Location = new System.Drawing.Point(4, 96);
       this.label2.Name = "label2";
       this.label2.Size = new System.Drawing.Size(77, 13);
       this.label2.TabIndex = 47;
@@ -598,7 +583,7 @@
       // textBoxComment
       // 
       this.textBoxComment.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.fileFormatBindingSource, "CommentLine", true));
-      this.textBoxComment.Location = new System.Drawing.Point(90, 120);
+      this.textBoxComment.Location = new System.Drawing.Point(87, 93);
       this.textBoxComment.Name = "textBoxComment";
       this.textBoxComment.Size = new System.Drawing.Size(45, 20);
       this.textBoxComment.TabIndex = 10;
@@ -607,33 +592,12 @@
       // 
       this.cboCodePage.DisplayMember = "Display";
       this.cboCodePage.FormattingEnabled = true;
-      this.cboCodePage.Location = new System.Drawing.Point(90, 59);
+      this.cboCodePage.Location = new System.Drawing.Point(87, 32);
       this.cboCodePage.Name = "cboCodePage";
       this.cboCodePage.Size = new System.Drawing.Size(179, 21);
       this.cboCodePage.TabIndex = 4;
       this.cboCodePage.ValueMember = "ID";
       this.cboCodePage.SelectedIndexChanged += new System.EventHandler(this.CboCodePage_SelectedIndexChanged);
-      // 
-      // textBoxFile
-      // 
-      this.textBoxFile.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Suggest;
-      this.textBoxFile.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.FileSystem;
-      this.textBoxFile.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.fileSettingBindingSource, "FileName", true));
-      this.textBoxFile.Location = new System.Drawing.Point(90, 6);
-      this.textBoxFile.Name = "textBoxFile";
-      this.textBoxFile.Size = new System.Drawing.Size(521, 20);
-      this.textBoxFile.TabIndex = 0;
-      this.textBoxFile.Validating += new System.ComponentModel.CancelEventHandler(this.TextBoxFile_Validating);
-      // 
-      // btnOpenFile
-      // 
-      this.btnOpenFile.Location = new System.Drawing.Point(617, 6);
-      this.btnOpenFile.Name = "btnOpenFile";
-      this.btnOpenFile.Size = new System.Drawing.Size(96, 22);
-      this.btnOpenFile.TabIndex = 1;
-      this.btnOpenFile.Text = "Select";
-      this.btnOpenFile.UseVisualStyleBackColor = true;
-      this.btnOpenFile.Click += new System.EventHandler(this.BtnOpenFile_Click);
       // 
       // tabPageQuoting
       // 
@@ -929,8 +893,6 @@
     private System.Windows.Forms.Label label2;
     private System.Windows.Forms.TextBox textBoxComment;
     private System.Windows.Forms.ComboBox cboCodePage;
-    private System.Windows.Forms.TextBox textBoxFile;
-    private System.Windows.Forms.Button btnOpenFile;    
     private System.Windows.Forms.ToolTip toolTip;
     private System.Windows.Forms.BindingSource fileFormatBindingSource;
     private System.Windows.Forms.ErrorProvider errorProvider;
@@ -941,7 +903,6 @@
     private System.Windows.Forms.Label labelCodePage;
     private System.Windows.Forms.CheckBox checkBoxBOM;
     private System.Windows.Forms.CheckBox checkBoxHeader;
-    private System.Windows.Forms.Label labelDelimitedFile;
     private System.Windows.Forms.Label labelPassphrase;
     private System.Windows.Forms.ListBox listBoxPrivKeys;
     private System.Windows.Forms.Button btnRemPrivKey;
