@@ -644,7 +644,7 @@ namespace CsvTools
         // Get the average of the last 15 rows
       var num = 0;
       var sum = 0;
-      for (var row = lastRow - 3; num < 10 && row > 0; row--)
+      for (var row = lastRow - 1; num < 10 && row > 0; row--)
       {
         if (columnCount[row] <= 0) continue;
         sum += columnCount[row];     
@@ -659,7 +659,7 @@ namespace CsvTools
         if (columnCount[0] >= avg)
           return 0;
 
-        for (var row = lastRow - 3; row > 0; row--)
+        for (var row = lastRow - 1; row > 0; row--)
         {
           if (columnCount[row] > 0)
           {

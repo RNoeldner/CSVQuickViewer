@@ -23,7 +23,15 @@ namespace CsvTools
   /// </summary>
   public static class ApplicationSetting
   {
+    /// <summary>
+    /// Timezone, in case of reading the timezone to which conversion are done to, or when writing the source timezone from where to convert from 
+    /// </summary>
     public static string DestinationTimeZone { get; set; } = TimeZoneMapping.cIdLocal;
+
+    /// <summary>
+    /// Function to retrieve the column in a setting file
+    /// </summary>
+    public static Func<IFileSetting, bool, IProcessDisplay, ICollection<string>> GetColumnHeader;
 
     /// <summary>
     ///  FillGuessSettings
@@ -55,7 +63,7 @@ namespace CsvTools
     public static Func<string, IProcessDisplay, IDataReader> SQLDataReader { get; set; }
 
     /// <summary>
-    /// Action to store teh headers of a file in a chache
+    /// Action to store the headers of a file in a cache
     /// </summary>
     public static Action<IFileSetting, IEnumerable<Column>> StoreHeader { get; set; }
   }

@@ -16,6 +16,7 @@ using CsvTools.Properties;
 using log4net;
 using Microsoft.Win32;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Data;
@@ -50,6 +51,7 @@ namespace CsvTools
     private bool m_FileChanged;
     private CsvFile m_FileSetting;
     private int m_WarningCount;
+    private HashSet<string> m_Headers;
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="FormMain" /> class.
@@ -64,8 +66,8 @@ namespace CsvTools
 
       ApplicationSetting.FillGuessSettings = m_ViewSettings.FillGuessSettings;
       ApplicationSetting.PGPKeyStorage = m_ViewSettings.PGPInformation;
-         
-      
+
+
       InitializeComponent();
       textBoxProgress.Threshold = log4net.Core.Level.Info;
       FillFromProperites(true);
@@ -525,6 +527,17 @@ namespace CsvTools
             csvDataReader.Warning += warnings.Add;
             csvDataReader.Warning += AddWarning;
             csvDataReader.Open();
+            m_Headers = new HashSet<string>();
+            for (var colindex = 0; colindex < csvDataReader.FieldCount; colindex++)
+            {
+              var cf = csvDataReader.GetColumn(colindex);
+              if (!string.IsNullOrEmpty(cf.Name) && !cf.Ignore)
+                m_Headers.Add(cf.Name);
+            }
+            ApplicationSetting.GetColumnHeader = delegate (IFileSetting dummy1, bool dummy, IProcessDisplay dummy3)
+            {
+              return m_Headers;
+            };
             if (warnings.CountRows > 0)
               _MessageBox.Show(this, warnings.Display, "Opening CSV File", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             if (!textPanel.Visible)

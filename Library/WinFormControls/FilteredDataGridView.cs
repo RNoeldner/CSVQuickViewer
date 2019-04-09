@@ -1023,7 +1023,7 @@ namespace CsvTools
       var columnFormat = GetColumnFormat(m_MenuStripDropDownCellValue.ColumnIndex);
       if (columnFormat == null) return;
       using (var form = new FormColumnUI(columnFormat, false, m_FileSetting))
-      {
+      {        
         form.ShowIgnore = false;
         if (form.ShowDialog() == DialogResult.Yes) Refresh();
       }
