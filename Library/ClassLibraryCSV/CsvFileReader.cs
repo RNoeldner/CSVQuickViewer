@@ -255,7 +255,7 @@ namespace CsvTools
       m_TextReader?.Dispose();
       m_ImprovedStream?.Dispose();
 
-      EndOfFile = true;
+      base.Close();
     }
 
     /// <summary>

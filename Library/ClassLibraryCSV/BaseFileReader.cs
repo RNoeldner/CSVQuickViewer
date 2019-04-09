@@ -242,7 +242,10 @@ namespace CsvTools
     /// <summary>
     ///  Closes the <see cref="Data.IDataReader" /> Object.
     /// </summary>
-    public abstract void Close();
+    public virtual void Close()
+    {
+      EndOfFile = true;      
+    }
 
     /// <summary>
     ///  Performs application-defined tasks associated with freeing, releasing, or resetting
@@ -775,12 +778,7 @@ namespace CsvTools
     /// </summary>
     /// <returns>true if there are more rows; otherwise, false.</returns>
     public virtual bool NextResult() => false;
-
-    /// <summary>
-    ///  Opens the text file and begins to read the meta data, like columns
-    /// </summary>
-    public abstract void Open();
-
+    
     /// <summary>
     ///  Overrides the column format from setting.
     /// </summary>
