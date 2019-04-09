@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Xml;
 using System.Xml.Serialization;
@@ -17,7 +16,7 @@ namespace CsvTools.Properties
     public WindowState WindowPosition;
 #pragma warning restore CA1051 // Do not declare visible instance fields
    
-
+   
     private bool m_DetectFileChanges = true;
     private FillGuessSettings m_FillGuessSettings = ApplicationSetting.FillGuessSettings;
     private bool m_GuessCodePage = true;
@@ -169,6 +168,48 @@ namespace CsvTools.Properties
         m_StoreSettingsByFile = value;
         NotifyPropertyChanged(nameof(StoreSettingsByFile));
       }
-    }    
+    }
+
+    public override void CopyTo(IFileSetting other)
+    {
+      if (other == null)
+        return;
+      
+      if (!(other is ICsvFile csv)) return;
+                    
+      FileFormat.CopyTo(other.FileFormat);
+      
+      other.ConsecutiveEmptyRows = ConsecutiveEmptyRows;
+      other.TrimmingOption = TrimmingOption;
+      other.DisplayStartLineNo = DisplayStartLineNo;
+      other.DisplayEndLineNo = DisplayEndLineNo;
+      other.DisplayRecordNo = DisplayRecordNo;
+      other.HasFieldHeader = HasFieldHeader;
+      other.TreatTextAsNull = TreatTextAsNull;
+      other.RecordLimit = RecordLimit;
+      other.SkipRows = SkipRows;
+      other.SkipEmptyLines = SkipEmptyLines;
+      other.SkipDuplicateHeader = SkipDuplicateHeader;
+      other.TreatNBSPAsSpace = other.TreatNBSPAsSpace;
+
+      csv.ByteOrderMark = ByteOrderMark;
+      csv.AlternateQuoting = AlternateQuoting;
+      csv.DoubleDecode = DoubleDecode;
+      csv.WarnQuotes = WarnQuotes;
+      csv.WarnDelimiterInValue = WarnDelimiterInValue;
+      csv.WarnEmptyTailingColumns = WarnEmptyTailingColumns;
+      csv.WarnQuotesInQuotes = WarnQuotesInQuotes;
+      csv.WarnUnknowCharater = WarnUnknowCharater;
+      csv.WarnLineFeed = WarnLineFeed;
+      csv.WarnNBSP = WarnNBSP;
+      csv.TreatLFAsSpace = TreatLFAsSpace;
+      csv.TryToSolveMoreColumns = TryToSolveMoreColumns;
+      csv.AllowRowCombining = AllowRowCombining;      
+      csv.TreatUnknowCharaterAsSpace = TreatUnknowCharaterAsSpace;
+      csv.CodePageId = CodePageId;            
+      csv.NumWarnings = NumWarnings;
+      csv.CurrentEncoding = CurrentEncoding;
+      csv.NoDelimitedFile = NoDelimitedFile;
+    }
   }
 }

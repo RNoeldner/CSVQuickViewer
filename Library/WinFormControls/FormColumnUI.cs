@@ -89,7 +89,8 @@ namespace CsvTools
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
     public void ButtonGuessClick(object sender, EventArgs e)
     {
-      if (string.IsNullOrEmpty(comboBoxColumnName.Text))
+      string columName = comboBoxColumnName.Text;
+      if (string.IsNullOrEmpty(columName))
       {
         _MessageBox.Show(this, "Please select a column first", "Guess");
         return;
@@ -100,108 +101,112 @@ namespace CsvTools
       Cursor.Current = Cursors.WaitCursor;
       try
       {
-        if (m_WriteSetting)
+        using (var processDisplay = new FormProcessDisplay("Guess Value", true, m_CancellationTokenSource.Token))
         {
-          using (var processDisplay = new DummyProcessDisplay())
+          processDisplay.Show();
+          if (m_WriteSetting)
           {
             var fileWriter = m_FileSetting.GetFileWriter(processDisplay);
 
             var data = fileWriter.GetSourceDataTable(ApplicationSetting.FillGuessSettings.CheckedRecords.ToUint());
             {
               var found = new Column();
-              var colum = data.Columns[comboBoxColumnName.Text];
+              var colum = data.Columns[columName];
               if (colum == null)
-                throw new ApplicationException($"The file does not contain the column {comboBoxColumnName.Text}.");
+                throw new ApplicationException($"The file does not contain the column {columName}.");
 
               found.DataType = colum.DataType.GetDataType();
               if (found.DataType == DataType.String) return;
               m_ColumnEdit.DataType = found.DataType;
+              processDisplay.Hide();
+
               RefreshData();
               _MessageBox.Show(this,
                 $"Based on DataType of the source column this is {m_ColumnEdit.GetTypeAndFormatDescription()}.\nPlease choose the desired output format",
-                comboBoxColumnName.Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                columName, MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
-          }
-        }
-        else
-        {
-          var samples = GetSampleValues(comboBoxColumnName.Text);
-          // shuffle samples, take some from the end and put it in the first 10
-          // 1 - 1
-          // 2 - Last
-          // 3 - 2
-          // 4 - Last - 1
-
-          var enumerable = samples.ToList();
-          if (enumerable.IsEmpty())
-          {
-            _MessageBox.Show(this, string.Format(CultureInfo.CurrentCulture, c_NoSampleDate, ApplicationSetting.FillGuessSettings.CheckedRecords),
-              "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
           }
           else
           {
-            var checkResult = DetermineColumnFormat.GuessValueFormat(enumerable, ApplicationSetting.FillGuessSettings.MinSamplesForIntDate,
-              ApplicationSetting.FillGuessSettings.TrueValue, ApplicationSetting.FillGuessSettings.FalseValue,
-              ApplicationSetting.FillGuessSettings.DetectBoolean, ApplicationSetting.FillGuessSettings.DetectGUID,
-              ApplicationSetting.FillGuessSettings.DectectNumbers, ApplicationSetting.FillGuessSettings.DetectDateTime,
-              ApplicationSetting.FillGuessSettings.DectectPercentage,
-              ApplicationSetting.FillGuessSettings.SerialDateTime,
-              ApplicationSetting.FillGuessSettings.CheckNamedDates,
-              DetermineColumnFormat.CommonDateFormat(m_FileSetting.ColumnCollection.Select(x => x.ValueFormat)), m_CancellationTokenSource.Token);
-            if (checkResult == null)
+            var samples = GetSampleValues(columName, processDisplay);
+            // shuffle samples, take some from the end and put it in the first 10
+            // 1 - 1
+            // 2 - Last
+            // 3 - 2
+            // 4 - Last - 1
+
+            var enumerable = samples.ToList();
+            if (enumerable.IsEmpty())
             {
-              _MessageBox.Show(this,
-                "No Format could be determined, there are not enough sample values:\n" +
-                 enumerable.Take(42).Join("\t"), comboBoxColumnName.Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
+              _MessageBox.Show(this, string.Format(CultureInfo.CurrentCulture, c_NoSampleDate, ApplicationSetting.FillGuessSettings.CheckedRecords),
+                "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             else
             {
-              if (checkResult.FoundValueFormat != null && checkResult.PossibleMatch)
+              var checkResult = DetermineColumnFormat.GuessValueFormat(enumerable, ApplicationSetting.FillGuessSettings.MinSamplesForIntDate,
+                ApplicationSetting.FillGuessSettings.TrueValue, ApplicationSetting.FillGuessSettings.FalseValue,
+                ApplicationSetting.FillGuessSettings.DetectBoolean, ApplicationSetting.FillGuessSettings.DetectGUID,
+                ApplicationSetting.FillGuessSettings.DectectNumbers, ApplicationSetting.FillGuessSettings.DetectDateTime,
+                ApplicationSetting.FillGuessSettings.DectectPercentage,
+                ApplicationSetting.FillGuessSettings.SerialDateTime,
+                ApplicationSetting.FillGuessSettings.CheckNamedDates,
+                DetermineColumnFormat.CommonDateFormat(m_FileSetting.ColumnCollection.Select(x => x.ValueFormat)), processDisplay.CancellationToken);
+              processDisplay.Hide();
+              if (checkResult == null)
               {
-                m_ColumnEdit.ValueFormat = checkResult.FoundValueFormat;
-                if (checkResult.ValueFormatPossibleMatch.DataType == DataType.DateTime)
-                  AddFormatToComboBoxDateFormat(checkResult.ValueFormatPossibleMatch.DateFormat);
-
-                if (checkResult.FoundValueFormat.DataType == DataType.DateTime)
-                  AddFormatToComboBoxDateFormat(m_ColumnEdit.DateFormat);
-
-                RefreshData();
-
-                var sb = new StringBuilder();
-                if (checkResult.ExampleNonMatch.Count > 0)
-                  sb.AppendFormat("Not matching\t: {0}\n", checkResult.ExampleNonMatch.Take(3).Join("\t"));
-                sb.AppendFormat("Samples     \t: {0}", enumerable.Take(42).Join("\t"));
-
                 _MessageBox.Show(this,
-                  $"Determined Format\t: {checkResult.FoundValueFormat.GetTypeAndFormatDescription()}\n\nClose match\t: {checkResult.ValueFormatPossibleMatch.GetTypeAndFormatDescription()}\n\n{sb}",
-                  comboBoxColumnName.Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                  "No Format could be determined, there are not enough sample values:\n" +
+                   enumerable.Take(42).Join("\t"), columName, MessageBoxButtons.OK, MessageBoxIcon.Information);
               }
               else
               {
-                // add the regular samples to the invalids that are first
-                var examples = checkResult.ExampleNonMatch.Concat(enumerable).Take(42);
-
-                if (enumerable.Count() < ApplicationSetting.FillGuessSettings.MinSamplesForIntDate)
+                if (checkResult.FoundValueFormat != null && checkResult.PossibleMatch)
                 {
+                  m_ColumnEdit.ValueFormat = checkResult.FoundValueFormat;
+                  if (checkResult.ValueFormatPossibleMatch.DataType == DataType.DateTime)
+                    AddFormatToComboBoxDateFormat(checkResult.ValueFormatPossibleMatch.DateFormat);
+
+                  if (checkResult.FoundValueFormat.DataType == DataType.DateTime)
+                    AddFormatToComboBoxDateFormat(m_ColumnEdit.DateFormat);
+
+                  RefreshData();
+
+                  var sb = new StringBuilder();
+                  if (checkResult.ExampleNonMatch.Count > 0)
+                    sb.AppendFormat("Not matching\t: {0}\n", checkResult.ExampleNonMatch.Take(3).Join("\t"));
+                  sb.AppendFormat("Samples     \t: {0}", enumerable.Take(42).Join("\t"));
+
                   _MessageBox.Show(this,
-                    $"No Format found in:\n{examples.Join("\t")}.\n\nMaybe not enough distinct values have been found.",
-                    comboBoxColumnName.Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    $"Determined Format\t: {checkResult.FoundValueFormat.GetTypeAndFormatDescription()}\n\nClose match\t: {checkResult.ValueFormatPossibleMatch.GetTypeAndFormatDescription()}\n\n{sb}",
+                    columName, MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 else
                 {
-                  if (m_ColumnEdit.ValueFormat.DataType == DataType.String)
+                  // add the regular samples to the invalids that are first
+                  var examples = checkResult.ExampleNonMatch.Concat(enumerable).Take(42);
+
+                  if (enumerable.Count() < ApplicationSetting.FillGuessSettings.MinSamplesForIntDate)
                   {
                     _MessageBox.Show(this,
-                      $"No Format found in:\n{examples.Join("\t")}",
-                      comboBoxColumnName.Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                      $"No Format found in:\n{examples.Join("\t")}.\n\nMaybe not enough distinct values have been found.",
+                      columName, MessageBoxButtons.OK, MessageBoxIcon.Information);
                   }
                   else
                   {
-                    if (_MessageBox.Show(this,
-                          $"No Format found in:\n{examples.Join("\t")}\nShould this be set to text?",
-                          comboBoxColumnName.Text, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                    if (m_ColumnEdit.ValueFormat.DataType == DataType.String)
                     {
-                      m_ColumnEdit.ValueFormat.DataType = DataType.String;
+                      _MessageBox.Show(this,
+                        $"No Format found in:\n{examples.Join("\t")}",
+                        columName, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                    else
+                    {
+                      if (_MessageBox.Show(this,
+                            $"No Format found in:\n{examples.Join("\t")}\nShould this be set to text?",
+                            columName, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                      {
+                        m_ColumnEdit.ValueFormat.DataType = DataType.String;
+                      }
                     }
                   }
                 }
@@ -287,19 +292,23 @@ namespace CsvTools
       Cursor.Current = Cursors.WaitCursor;
       try
       {
-        var values = GetSampleValues(comboBoxColumnName.Text);
-
-        Cursor.Current = Cursors.Default;
-        var enumerable = values.ToList();
-        if (enumerable.IsEmpty())
+        using (var processDisplay = new FormProcessDisplay("Display Values", false, m_CancellationTokenSource.Token))
         {
-          _MessageBox.Show(this, string.Format(CultureInfo.CurrentCulture, c_NoSampleDate, ApplicationSetting.FillGuessSettings.CheckedRecords),
-            comboBoxColumnName.Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
-        }
-        else
-        {
-          _MessageBox.Show(this, "Found values:\n" + enumerable.Take(42).Join("\t"), comboBoxColumnName.Text,
-            MessageBoxButtons.OK, MessageBoxIcon.Information);
+          processDisplay.Show(this);
+          var values = GetSampleValues(comboBoxColumnName.Text, processDisplay);
+          processDisplay.Hide();
+          Cursor.Current = Cursors.Default;
+          var enumerable = values.ToList();
+          if (enumerable.IsEmpty())
+          {
+            _MessageBox.Show(this, string.Format(CultureInfo.CurrentCulture, c_NoSampleDate, ApplicationSetting.FillGuessSettings.CheckedRecords),
+              comboBoxColumnName.Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
+          }
+          else
+          {
+            _MessageBox.Show(this, "Found values:\n" + enumerable.Take(42).Join("\t"), comboBoxColumnName.Text,
+              MessageBoxButtons.OK, MessageBoxIcon.Information);
+          }
         }
       }
       catch (Exception ex)
@@ -395,59 +404,59 @@ namespace CsvTools
         else
         {
           comboBoxColumnName.Visible = true;
-          ICollection<string> allColumns = new List<string>();
-          using (var frm = new FormProcessDisplay("Get Columns", true, m_CancellationTokenSource.Token))
+          using (var processDisplay = new FormProcessDisplay("Retrieving Information", true, m_CancellationTokenSource.Token))
           {
-            frm.Show(this);
+            ICollection<string> allColumns;
+            processDisplay.Show(this);
             try
             {
               if (!m_WriteSetting)
               {
                 // get the columns from the file
-                allColumns = ApplicationSetting.GetColumnHeader?.Invoke(m_FileSetting, true, frm) ?? new List<string>();
+                allColumns = ApplicationSetting.GetColumnHeader?.Invoke(m_FileSetting, true, processDisplay) ?? new List<string>();
               }
               else
               {
-                frm.SetProcess("Executing SQL");
-                // get the columns from the SQL
-                using (var dataReader = ApplicationSetting.SQLDataReader(m_FileSetting.SqlStatement, frm))
+                allColumns = new List<string>();
+                foreach (var info in DetermineColumnFormat.GetWriterSourceColumns(m_FileSetting, processDisplay))
                 {
-                  for (var i = 0; i < dataReader.FieldCount; i++)
-                    allColumns.Add(dataReader.GetName(i));
+                  allColumns.Add(info.Column.Name);
                 }
               }
             }
             catch (Exception ex)
             {
               this.ShowError(ex, "Could not determine columns");
+              return;
             }
+
+            var columnsConf = allColumns.ToArray();
+            var columnsTp = allColumns.ToArray();
+
+            comboBoxColumnName.BeginUpdate();
+            // if we have a list of columns add them to fields that show a column name
+            if (columnsConf.Length > 0)
+            {
+              comboBoxColumnName.Items.AddRange(columnsConf);
+              comboBoxTimePart.Items.AddRange(columnsTp);
+              comboBoxTimeZone.Items.AddRange(columnsTp);
+              if (string.IsNullOrEmpty(m_ColumnEdit.Name))
+                m_ColumnEdit.Name = columnsConf[0];
+            }
+            else
+            {
+              // If list would be empty add at least the current value
+              if (!string.IsNullOrEmpty(m_ColumnEdit.Name))
+                comboBoxColumnName.Items.Add(m_ColumnEdit.Name);
+            }
+
+            if (!m_WriteSetting && comboBoxColumnName.Items.Count > 0)
+              comboBoxColumnName.DropDownStyle = ComboBoxStyle.DropDownList;
+            comboBoxColumnName.EndUpdate();
           }
 
-          var columnsConf = allColumns.ToArray();
-          var columnsTp = allColumns.ToArray();
-          comboBoxColumnName.BeginUpdate();
-          // if we have a list of columns add them to fields that show a column name
-          if (columnsConf.Length > 0)
-          {
-            comboBoxColumnName.Items.AddRange(columnsConf);
-            comboBoxTimePart.Items.AddRange(columnsTp);
-            comboBoxTimeZone.Items.AddRange(columnsTp);
-            if (string.IsNullOrEmpty(m_ColumnEdit.Name))
-              m_ColumnEdit.Name = columnsConf[0];
-          }
-          else
-          {
-            // If list would be empty add at least the current value
-            if (!string.IsNullOrEmpty(m_ColumnEdit.Name))
-              comboBoxColumnName.Items.Add(m_ColumnEdit.Name);
-          }
-
-          if (!m_WriteSetting && comboBoxColumnName.Items.Count > 0)
-            comboBoxColumnName.DropDownStyle = ComboBoxStyle.DropDownList;
-          comboBoxColumnName.EndUpdate();
+          RefreshData();
         }
-
-        RefreshData();
       }
       catch (Exception ex)
       {
@@ -557,36 +566,6 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Get sample values for a column
-    /// </summary>
-    /// <param name="fileSetting">The file setting.</param>
-    /// <param name="columnName">the Name of the column</param>
-    /// <returns>
-    ///   The index of the given name, -1 if not found.
-    /// </returns>
-    private int GetColumnIndex(IFileSetting fileSetting, string columnName)
-    {
-      if (string.IsNullOrEmpty(columnName) || fileSetting == null) return -1;
-      var columnIndex = 0;
-
-      using (var processDisplay = new DummyProcessDisplay())
-      {
-        var headers = ApplicationSetting.GetColumnHeader?.Invoke(fileSetting, false, processDisplay);
-        if (headers != null)
-        {
-          foreach (var col in headers)
-          {
-            if (col.Equals(columnName, StringComparison.OrdinalIgnoreCase))
-              return columnIndex;
-            columnIndex++;
-          }
-        }
-      }
-
-      return -1;
-    }
-
-    /// <summary>
     ///   Gets the sample values for a column.
     /// </summary>
     /// <param name="columnName">Name of the column.</param>
@@ -594,44 +573,40 @@ namespace CsvTools
     /// <exception cref="System.ApplicationException">
     ///   Parent FileSetting not set or The file does not contain the column
     /// </exception>
-    private IEnumerable<string> GetSampleValues(string columnName)
+    private IEnumerable<string> GetSampleValues(string columnName, IProcessDisplay processDisplay)
     {
       Contract.Requires(!string.IsNullOrEmpty(columnName));
       Contract.Ensures(Contract.Result<IEnumerable<string>>() != null);
       if (m_FileSetting == null)
-        throw new ApplicationException("Parent FileSetting not set");
-
-
-      var colIndex = GetColumnIndex(m_FileSetting, columnName);
-      if (colIndex < 0)
-        throw new ApplicationException($"The file does not contain the column {comboBoxColumnName.Text}.");
+        throw new ApplicationException("FileSetting not set");
 
       try
       {
         if (m_WriteSetting)
         {
-          using (var processDisplay = new DummyProcessDisplay(m_CancellationTokenSource.Token))
+          var fileWriter = m_FileSetting.GetFileWriter(processDisplay);
+          var data = fileWriter.GetSourceDataTable((uint)ApplicationSetting.FillGuessSettings.CheckedRecords);
           {
-            var fileWriter = m_FileSetting.GetFileWriter(processDisplay);
-            var data = fileWriter.GetSourceDataTable((uint)ApplicationSetting.FillGuessSettings.CheckedRecords);
-            {
-              return DetermineColumnFormat.GetSampleValues(data, colIndex, ApplicationSetting.FillGuessSettings.SampleValues,
-                m_FileSetting.TreatTextAsNull, m_CancellationTokenSource.Token);
-            }
+            var colIndex = data.Columns.IndexOf(columnName);
+            return DetermineColumnFormat.GetSampleValues(data, colIndex, ApplicationSetting.FillGuessSettings.SampleValues,
+              m_FileSetting.TreatTextAsNull, processDisplay.CancellationToken);
           }
         }
-        using (var processDisplay = new DummyProcessDisplay(m_CancellationTokenSource.Token))
         using (var fileReader = m_FileSetting.GetFileReader(processDisplay))
         {
           fileReader.Open();
+          var colIndex = fileReader.GetOrdinal(columnName);
+          if (colIndex < 0)
+            throw new ApplicationException($"Column {columnName} not found.");
+
           return DetermineColumnFormat.GetSampleValues(fileReader, ApplicationSetting.FillGuessSettings.CheckedRecords,
             colIndex, ApplicationSetting.FillGuessSettings.SampleValues, m_FileSetting.TreatTextAsNull,
-            m_CancellationTokenSource.Token);
+            processDisplay.CancellationToken);
         }
       }
       catch (Exception ex)
       {
-        this.ShowError(ex);
+        this.ShowError(ex, "Getting Sample Values");
       }
       return new List<string>();
     }

@@ -63,7 +63,6 @@ namespace CsvTools.Tests
       var csvFile = new CsvFile("BasicCSV.txt");
       var col = new Column { Name = "ExamDate", DataType = DataType.DateTime };
       csvFile.ColumnCollection.AddIfNew(col);
-
       using (var ctrl = new FormColumnUI(col, false, csvFile))
       {
         ctrl.Show();
@@ -71,6 +70,51 @@ namespace CsvTools.Tests
       }
     }
 
+    [TestMethod]
+    public void FormColumnUI_Opt1()
+    {
+      var csvFile = new CsvFile("BasicCSV.txt");
+      var col = new Column { Name = "ExamDate", DataType = DataType.DateTime };
+      csvFile.ColumnCollection.AddIfNew(col);
+      using (var ctrl = new FormColumnUI(col, false, csvFile))
+      {
+        ctrl.ShowGuess= false;
+        ctrl.Show();
+        ctrl.Close();
+      }
+    }
+
+    [TestMethod]
+    public void FormColumnUI_Opt2()
+    {
+      var csvFile = new CsvFile("BasicCSV.txt");
+      var col = new Column { Name = "ExamDate", DataType = DataType.DateTime };
+      csvFile.ColumnCollection.AddIfNew(col);
+      using (var ctrl = new FormColumnUI(col, false, csvFile))
+      {
+        ctrl.ShowIgnore = false;
+        ctrl.Show();
+        ctrl.Close();
+      }
+    }
+
+    [TestMethod]
+    public void FormColumnUI_ButtonGuessClick()
+    {
+      var csvFile = new CsvFile("BasicCSV.txt");
+      var col = new Column { Name = "ExamDate", DataType = DataType.DateTime };
+      csvFile.ColumnCollection.AddIfNew(col);
+      
+      using (var ctrl = new FormColumnUI(col, false, csvFile))
+      {        
+        ctrl.Show();
+        // open the reader file
+        ctrl.ButtonGuessClick(null, null);
+
+        ctrl.Close();
+      }
+    }
+    
     [TestMethod]
     public void FormHierachyDisplay()
     {
