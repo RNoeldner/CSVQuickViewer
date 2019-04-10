@@ -417,10 +417,13 @@ namespace CsvTools
               }
               else
               {
-                allColumns = new List<string>();
-                foreach (var info in DetermineColumnFormat.GetWriterSourceColumns(m_FileSetting, processDisplay))
+                allColumns = new HashSet<string>(StringComparer.OrdinalIgnoreCase);                
+                var writer = m_FileSetting.GetFileWriter(processDisplay);
+                using (var schemaReader = writer.GetSchemaReader())
+                using (var dataTable = schemaReader.GetSchemaTable())
                 {
-                  allColumns.Add(info.Column.Name);
+                  foreach (System.Data.DataRow schemaRow in dataTable.Rows)
+                    allColumns.Add(schemaRow[System.Data.Common.SchemaTableColumn.ColumnName].ToString());
                 }
               }
             }

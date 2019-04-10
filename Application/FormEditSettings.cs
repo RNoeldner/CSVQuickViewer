@@ -60,7 +60,25 @@ namespace CsvTools
       }
     }
 
-   
+    private void BtnOpenFile_Click(object sender, EventArgs e)
+    {
+      try
+      {
+        using (var openFileDialog = new OpenFileDialog())
+        {
+          openFileDialog.Filter =
+            "Delimited files (*.csv;*.txt;*.tab;*.tsv)|*.csv;*.txt;*.tab;*.tsv|All files (*.*)|*.*";
+          openFileDialog.Title = "Delimited File";
+
+          openFileDialog.InitialDirectory = textBoxFile.Text.GetDirectoryName();
+          if (openFileDialog.ShowDialog(this) == DialogResult.OK) ChangeFileName(openFileDialog.FileName);
+        }
+      }
+      catch (Exception exc)
+      {
+        MessageBox.Show(this, exc.ExceptionMessages(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+      }
+    }
 
     private void BtnPassp_Click(object sender, EventArgs e)
     {
@@ -253,6 +271,19 @@ namespace CsvTools
           errorProvider.SetError(textBoxDelimiter, "Unusual delimiter character");
         else
           errorProvider.SetError(textBoxDelimiter, string.Empty);
+      }
+    }
+
+    private void TextBoxFile_Validating(object sender, CancelEventArgs e)
+    {
+      if (!FileSystemUtils.FileExists(textBoxFile.Text))
+      {
+        errorProvider.SetError(textBoxFile, "File does not exist.");
+        e.Cancel = true;
+      }
+      else
+      {
+        errorProvider.SetError(textBoxFile, string.Empty);
       }
     }
     private void UpdatePassphraseInfoText()

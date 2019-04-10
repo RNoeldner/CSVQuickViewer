@@ -32,11 +32,11 @@
     /// </summary>
     private void InitializeComponent()
     {
+      System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormMain));
       System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
       System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
-      System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormMain));
       this.fileSystemWatcher = new System.IO.FileSystemWatcher();
-      this.textBoxProgress = new LoggerDisplay();
+      this.textBoxProgress = new CsvTools.LoggerDisplay();
       this.textPanel = new System.Windows.Forms.Panel();
       this.buttonCloseText = new System.Windows.Forms.Button();
       this.csvTextDisplay = new CsvTools.CsvTextDisplay();
@@ -46,7 +46,8 @@
       this.SuspendLayout();
       // 
       // fileSystemWatcher
-      //       
+      // 
+      this.fileSystemWatcher.EnableRaisingEvents = true;
       this.fileSystemWatcher.NotifyFilter = ((System.IO.NotifyFilters)((System.IO.NotifyFilters.Size | System.IO.NotifyFilters.LastWrite)));
       this.fileSystemWatcher.SynchronizingObject = this;
       this.fileSystemWatcher.Changed += new System.IO.FileSystemEventHandler(this.FileSystemWatcher_Changed);
@@ -57,12 +58,12 @@
       this.textBoxProgress.CausesValidation = false;
       this.textBoxProgress.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
       this.textBoxProgress.Location = new System.Drawing.Point(3, 3);
-      this.textBoxProgress.Multiline = true;
       this.textBoxProgress.Name = "textBoxProgress";
       this.textBoxProgress.ReadOnly = true;
-      
       this.textBoxProgress.Size = new System.Drawing.Size(133, 160);
       this.textBoxProgress.TabIndex = 2;
+      this.textBoxProgress.Text = "";
+      this.textBoxProgress.Threshold = ((log4net.Core.Level)(resources.GetObject("textBoxProgress.Threshold")));
       // 
       // textPanel
       // 
@@ -112,8 +113,8 @@
       this.detailControl.DefaultCellStyle = dataGridViewCellStyle2;
       this.detailControl.Dock = System.Windows.Forms.DockStyle.Fill;
       this.detailControl.Location = new System.Drawing.Point(0, 0);
-      this.detailControl.Name = "detailControl";      
-      this.detailControl.Size = new System.Drawing.Size(684, 362);
+      this.detailControl.Name = "detailControl";
+      this.detailControl.Size = new System.Drawing.Size(592, 368);
       this.detailControl.TabIndex = 1;
       this.detailControl.ButtonShowSource += new System.EventHandler(this.DetailControl_ButtonShowSource);
       this.detailControl.OnSettingsClick += new System.EventHandler(this.ShowSettings);
@@ -123,21 +124,20 @@
       this.AllowDrop = true;
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-      this.ClientSize = new System.Drawing.Size(684, 362);
+      this.ClientSize = new System.Drawing.Size(592, 368);
       this.Controls.Add(this.detailControl);
       this.Controls.Add(this.textPanel);
       this.HelpButton = true;
       this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-      this.MinimumSize = new System.Drawing.Size(700, 400);
+      this.MinimumSize = new System.Drawing.Size(600, 140);
       this.Name = "FormMain";
       this.Activated += new System.EventHandler(this.Display_Activated);
-      this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Display_FormClosing);      
+      this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Display_FormClosing);
       this.Shown += new System.EventHandler(this.Display_Shown);
       this.DragDrop += new System.Windows.Forms.DragEventHandler(this.DataGridView_DragDrop);
       this.DragEnter += new System.Windows.Forms.DragEventHandler(this.DataGridView_DragEnter);
       ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher)).EndInit();
       this.textPanel.ResumeLayout(false);
-      this.textPanel.PerformLayout();
       this.ResumeLayout(false);
 
     }
