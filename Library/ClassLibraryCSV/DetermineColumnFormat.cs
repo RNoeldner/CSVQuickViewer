@@ -649,7 +649,8 @@ namespace CsvTools
     {
       Contract.Requires(fileSettings != null);
       var writer = fileSettings.GetFileWriter(processDisplay);
-      return writer.GetColumnInformation(writer.GetSchemaReader());
+      using (var data = writer.GetSchemaReader())
+        return writer.GetColumnInformation(data);
     }
 
     public static CheckResult GuessDateTime(IList<string> samples, bool checkNamedDates,

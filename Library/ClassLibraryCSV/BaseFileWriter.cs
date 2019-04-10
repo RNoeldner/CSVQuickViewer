@@ -71,59 +71,59 @@ namespace CsvTools
     {
       if (reader == null)
         throw new ArgumentNullException(nameof(reader));
-
-      Contract.Ensures(Contract.Result<IEnumerable<ColumnInfo>>() != null);
-      var dataTable = reader.GetSchemaTable();
-
-      if (dataTable == null)
-        throw new ArgumentNullException(nameof(reader));
-
-      var headers = new HashSet<string>();
       var fieldInfoList = new List<ColumnInfo>();
-
-      // Used for Uniqueness in GetColumnInformationForOneColumn
-      var allColums = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
-      if (dataTable.Columns.Contains(SchemaTableColumn.ColumnName)
-        && dataTable.Columns.Contains(SchemaTableColumn.DataType)
-        && dataTable.Columns.Contains(SchemaTableColumn.ColumnOrdinal)
-        && dataTable.Columns.Contains(SchemaTableColumn.ColumnSize))
+      Contract.Ensures(Contract.Result<IEnumerable<ColumnInfo>>() != null);
+      using (var dataTable = reader.GetSchemaTable())
       {
-        foreach (DataRow schemaRow in dataTable.Rows)
+        if (dataTable == null)
+          throw new ArgumentNullException(nameof(reader));
+
+        var headers = new HashSet<string>();
+       
+
+        // Used for Uniqueness in GetColumnInformationForOneColumn
+        var allColumns = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        if (dataTable.Columns.Contains(SchemaTableColumn.ColumnName)
+          && dataTable.Columns.Contains(SchemaTableColumn.DataType)
+          && dataTable.Columns.Contains(SchemaTableColumn.ColumnOrdinal)
+          && dataTable.Columns.Contains(SchemaTableColumn.ColumnSize))
         {
-          var columnName = schemaRow[SchemaTableColumn.ColumnName].ToString();
-          allColums.Add(columnName);
+          foreach (DataRow schemaRow in dataTable.Rows)
+          {
+            var columnName = schemaRow[SchemaTableColumn.ColumnName].ToString();
+            allColumns.Add(columnName);
+          }
+
+          // Its a schema table, loop though rows
+          foreach (DataRow schemaRow in dataTable.Rows)
+          {
+            var timeZonePartOrdinal = -1;
+            var col = m_FileSetting.ColumnCollection.Get(schemaRow[SchemaTableColumn.ColumnName].ToString());
+            if (!string.IsNullOrEmpty(col?.TimeZonePart))
+              foreach (DataRow schemaRowTz in dataTable.Rows)
+              {
+                var otherColumnName = schemaRowTz[SchemaTableColumn.ColumnName].ToString();
+                if (!otherColumnName.Equals(col.TimeZonePart, StringComparison.OrdinalIgnoreCase)) continue;
+                timeZonePartOrdinal = (int)schemaRowTz[SchemaTableColumn.ColumnOrdinal];
+                break;
+              }
+
+            fieldInfoList.AddRange(GetColumnInformationForOneColumn(m_FileSetting, headers,
+             schemaRow[SchemaTableColumn.ColumnName].ToString(), (Type)schemaRow[SchemaTableColumn.DataType],
+             (int)schemaRow[SchemaTableColumn.ColumnOrdinal], (int)schemaRow[SchemaTableColumn.ColumnSize], allColumns,
+             timeZonePartOrdinal));
+          }
         }
-
-        // Its a schema table, loop though rows
-        foreach (DataRow schemaRow in dataTable.Rows)
+        else
         {
-          var timeZonePartOrdinal = -1;
-          var col = m_FileSetting.ColumnCollection.Get(schemaRow[SchemaTableColumn.ColumnName].ToString());
-          if (!string.IsNullOrEmpty(col?.TimeZonePart))
-            foreach (DataRow schemaRowTz in dataTable.Rows)
-            {
-              var otherColumnName = schemaRowTz[SchemaTableColumn.ColumnName].ToString();
-              if (!otherColumnName.Equals(col.TimeZonePart, StringComparison.OrdinalIgnoreCase)) continue;
-              timeZonePartOrdinal = (int)schemaRowTz[SchemaTableColumn.ColumnOrdinal];
-              break;
-            }
-
-          fieldInfoList.AddRange(GetColumnInformationForOneColumn(m_FileSetting, headers,
-           schemaRow[SchemaTableColumn.ColumnName].ToString(), (Type)schemaRow[SchemaTableColumn.DataType],
-           (int)schemaRow[SchemaTableColumn.ColumnOrdinal], (int)schemaRow[SchemaTableColumn.ColumnSize], allColums,
-           timeZonePartOrdinal));
+          foreach (DataColumn col in dataTable.Columns) allColumns.Add(col.ColumnName);
+          // Its a data table retrieve information from columns
+          foreach (DataColumn col in dataTable.Columns)
+            fieldInfoList.AddRange(GetColumnInformationForOneColumn(m_FileSetting, headers,
+             col.ColumnName, col.DataType, col.Ordinal, col.MaxLength, allColumns, -1));
         }
       }
-      else
-      {
-        foreach (DataColumn col in dataTable.Columns) allColums.Add(col.ColumnName);
-        // Its a data table retrieve information from columns
-        foreach (DataColumn col in dataTable.Columns)
-          fieldInfoList.AddRange(GetColumnInformationForOneColumn(m_FileSetting, headers,
-           col.ColumnName, col.DataType, col.Ordinal, col.MaxLength, allColums, -1));
-      }
-
       return fieldInfoList;
     }
 

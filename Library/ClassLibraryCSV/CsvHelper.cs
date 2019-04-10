@@ -635,20 +635,20 @@ namespace CsvTools
 
       // In case we have a row that is exactly twice as long as the row 
       // before and row after, assume its missing a linefeed
-      for (var row = 1; row < lastRow -1; row++)
+      for (var row = 1; row < lastRow - 1; row++)
       {
-        if (columnCount[row] == columnCount[row + 1] *2 && columnCount[row] == columnCount[row -1] * 2)        
-          columnCount[row]  = columnCount[row + 1];
+        if (columnCount[row] == columnCount[row + 1] * 2 && columnCount[row] == columnCount[row - 1] * 2)
+          columnCount[row] = columnCount[row + 1];
       }
 
-        // Get the average of the last 15 rows
+      // Get the average of the last 15 rows
       var num = 0;
       var sum = 0;
       for (var row = lastRow - 1; num < 10 && row > 0; row--)
       {
         if (columnCount[row] <= 0) continue;
-        sum += columnCount[row];     
-        num++;        
+        sum += columnCount[row];
+        num++;
       }
 
       var avg = (int)(sum / (double)(num == 0 ? 1 : num));
@@ -670,8 +670,7 @@ namespace CsvTools
             }
           }
           // In case we have an empty line but the next line are roughly good match take that empty line
-          else if (columnCount[row + 1] == columnCount[row + 2]
-               && columnCount[row + 1] >= avg - 1)
+          else if (row + 2 < lastRow && columnCount[row + 1] == columnCount[row + 2] && columnCount[row + 1] >= avg - 1)
           {
             Log.Info($"Start Row: {row + 1}");
             return row + 1;

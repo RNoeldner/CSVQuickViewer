@@ -169,47 +169,45 @@ namespace CsvTools.Properties
         NotifyPropertyChanged(nameof(StoreSettingsByFile));
       }
     }
-
-    public override void CopyTo(IFileSetting other)
+   
+    public static void CopyConfiuration(ICsvFile csvSrc, ICsvFile csvDest)
     {
-      if (other == null)
+      if (csvSrc == null || csvDest == null)
+      {
         return;
-      
-      if (!(other is ICsvFile csv)) return;
-                    
-      FileFormat.CopyTo(other.FileFormat);
-      
-      other.ConsecutiveEmptyRows = ConsecutiveEmptyRows;
-      other.TrimmingOption = TrimmingOption;
-      other.DisplayStartLineNo = DisplayStartLineNo;
-      other.DisplayEndLineNo = DisplayEndLineNo;
-      other.DisplayRecordNo = DisplayRecordNo;
-      other.HasFieldHeader = HasFieldHeader;
-      other.TreatTextAsNull = TreatTextAsNull;
-      other.RecordLimit = RecordLimit;
-      other.SkipRows = SkipRows;
-      other.SkipEmptyLines = SkipEmptyLines;
-      other.SkipDuplicateHeader = SkipDuplicateHeader;
-      other.TreatNBSPAsSpace = other.TreatNBSPAsSpace;
-
-      csv.ByteOrderMark = ByteOrderMark;
-      csv.AlternateQuoting = AlternateQuoting;
-      csv.DoubleDecode = DoubleDecode;
-      csv.WarnQuotes = WarnQuotes;
-      csv.WarnDelimiterInValue = WarnDelimiterInValue;
-      csv.WarnEmptyTailingColumns = WarnEmptyTailingColumns;
-      csv.WarnQuotesInQuotes = WarnQuotesInQuotes;
-      csv.WarnUnknowCharater = WarnUnknowCharater;
-      csv.WarnLineFeed = WarnLineFeed;
-      csv.WarnNBSP = WarnNBSP;
-      csv.TreatLFAsSpace = TreatLFAsSpace;
-      csv.TryToSolveMoreColumns = TryToSolveMoreColumns;
-      csv.AllowRowCombining = AllowRowCombining;      
-      csv.TreatUnknowCharaterAsSpace = TreatUnknowCharaterAsSpace;
-      csv.CodePageId = CodePageId;            
-      csv.NumWarnings = NumWarnings;
-      csv.CurrentEncoding = CurrentEncoding;
-      csv.NoDelimitedFile = NoDelimitedFile;
+      }
+      csvDest.AllowRowCombining = csvSrc.AllowRowCombining;
+      csvDest.AlternateQuoting = csvSrc.AlternateQuoting;
+      csvDest.ByteOrderMark = csvSrc.ByteOrderMark;
+      csvDest.CodePageId = csvSrc.CodePageId;
+      csvDest.ConsecutiveEmptyRows = csvSrc.ConsecutiveEmptyRows;
+      csvDest.CurrentEncoding = csvSrc.CurrentEncoding;
+      csvDest.DisplayEndLineNo = csvSrc.DisplayEndLineNo;
+      csvDest.DisplayRecordNo = csvSrc.DisplayRecordNo;
+      csvDest.DisplayStartLineNo = csvSrc.DisplayStartLineNo;
+      csvDest.DoubleDecode = csvSrc.DoubleDecode;
+      csvDest.FileName = csvSrc.FileName;
+      csvDest.HasFieldHeader = csvSrc.HasFieldHeader;
+      csvDest.NoDelimitedFile = csvSrc.NoDelimitedFile;
+      csvDest.NumWarnings = csvSrc.NumWarnings;
+      csvDest.RecordLimit = csvSrc.RecordLimit;
+      csvDest.SkipDuplicateHeader = csvSrc.SkipDuplicateHeader;
+      csvDest.SkipEmptyLines = csvSrc.SkipEmptyLines;
+      csvDest.SkipRows = csvSrc.SkipRows;
+      csvDest.TreatLFAsSpace = csvSrc.TreatLFAsSpace;
+      csvDest.TreatNBSPAsSpace = csvSrc.TreatNBSPAsSpace;
+      csvDest.TreatTextAsNull = csvSrc.TreatTextAsNull;
+      csvDest.TreatUnknowCharaterAsSpace = csvSrc.TreatUnknowCharaterAsSpace;
+      csvDest.TrimmingOption = csvSrc.TrimmingOption;
+      csvDest.TryToSolveMoreColumns = csvSrc.TryToSolveMoreColumns;
+      csvDest.WarnDelimiterInValue = csvSrc.WarnDelimiterInValue;
+      csvDest.WarnEmptyTailingColumns = csvSrc.WarnEmptyTailingColumns;
+      csvDest.WarnLineFeed = csvSrc.WarnLineFeed;
+      csvDest.WarnNBSP = csvSrc.WarnNBSP;
+      csvDest.WarnQuotes = csvSrc.WarnQuotes;
+      csvDest.WarnQuotesInQuotes = csvSrc.WarnQuotesInQuotes;
+      csvDest.WarnUnknowCharater = csvSrc.WarnUnknowCharater;
+      csvSrc.FileFormat.CopyTo(csvDest.FileFormat);
     }
   }
 }

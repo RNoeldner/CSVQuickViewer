@@ -60,17 +60,15 @@ namespace CsvTools
     public FormMain(string fileName)
     {
       m_FileName = fileName;
-      m_ViewSettings = LoadDefault();      
-      m_ViewSettings.FileName = string.Empty;
+      m_ViewSettings = LoadDefault();
       m_ViewSettings.PGPInformation.AllowSavingPassphrase = true;
-       
+
       ApplicationSetting.FillGuessSettings = m_ViewSettings.FillGuessSettings;
       ApplicationSetting.PGPKeyStorage = m_ViewSettings.PGPInformation;
 
-
       InitializeComponent();
       textBoxProgress.Threshold = log4net.Core.Level.Info;
-      FillFromProperites(true);
+      FillFromProperites();
 
       m_SettingsChangedTimerChange.AutoReset = false;
       m_SettingsChangedTimerChange.Elapsed += delegate { this.SafeInvoke(() => OpenDataReader(true)); };
@@ -137,7 +135,7 @@ namespace CsvTools
 
       // store old Setting
       if (m_FileSetting != null && !m_FileName.Equals(files[0], StringComparison.OrdinalIgnoreCase) && m_ConfigChanged)
-        SaveSetting();
+        SaveIndividualFileSetting();
 
       m_FileName = files[0];
 
@@ -214,7 +212,7 @@ namespace CsvTools
 
       SaveDefault();
       if (m_ConfigChanged && m_ViewSettings.StoreSettingsByFile)
-        SaveSetting();
+        SaveIndividualFileSetting();
     }
 
     /// <summary>
@@ -292,13 +290,13 @@ namespace CsvTools
       m_FileChanged |= e.FullPath == m_FileSetting.FileName && e.ChangeType == WatcherChangeTypes.Changed;
     }
 
-    private void FillFromProperites(bool changeSetting)
+    private void FillFromProperites()
     {
       ApplicationSetting.MenuDown = m_ViewSettings.MenuDown;
       detailControl.MoveMenu();
-      if (m_FileSetting == null || !changeSetting)
+      if (m_FileSetting == null)
         return;
-      m_ViewSettings.CopyTo(m_FileSetting);
+      ViewSettings.CopyConfiuration(m_ViewSettings, m_FileSetting);
       m_FileSetting.FileName = m_FileName;
     }
 
@@ -324,7 +322,7 @@ namespace CsvTools
         m_FileSetting.PropertyChanged -= FileSetting_PropertyChanged;
 
       m_FileSetting = new CsvFile();
-      m_ViewSettings.CopyTo(m_FileSetting);
+      ViewSettings.CopyConfiuration(m_ViewSettings, m_FileSetting);
       m_FileSetting.FileName = m_FileName;
 
       if (m_FileName.AssumePgp() && (ApplicationSetting.PGPKeyStorage?.PrivateKeys?.IsEmpty() ?? false))
@@ -460,7 +458,7 @@ namespace CsvTools
       }
       finally
       {
-        m_FileSetting.PropertyChanged += FileSetting_PropertyChanged;        
+        m_FileSetting.PropertyChanged += FileSetting_PropertyChanged;
         Cursor.Current = Cursors.Default;
         ShowTextPanel(false);
       }
@@ -527,7 +525,9 @@ namespace CsvTools
             csvDataReader.Warning += warnings.Add;
             csvDataReader.Warning += AddWarning;
             csvDataReader.Open();
-            m_Headers = new HashSet<string>();
+
+            // Store the header in this might be used later on by FormColumnUI
+            m_Headers = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             for (var colindex = 0; colindex < csvDataReader.FieldCount; colindex++)
             {
               var cf = csvDataReader.GetColumn(colindex);
@@ -610,6 +610,7 @@ namespace CsvTools
         FileSystemUtils.DeleteWithBackup(cSettingPath, false);
         using (var stringWriter = new StringWriter(CultureInfo.InvariantCulture))
         {
+          m_ViewSettings.FileName = string.Empty;
           m_SerializerViewSettings.Serialize(stringWriter, m_ViewSettings, SerializedFilesLib.EmptyXmlSerializerNamespaces.Value);
           File.WriteAllText(cSettingPath, stringWriter.ToString());
         }
@@ -619,7 +620,7 @@ namespace CsvTools
       }
     }
 
-    private void SaveSetting()
+    private void SaveIndividualFileSetting()
     {
       try
       {
@@ -672,28 +673,28 @@ namespace CsvTools
     {
       try
       {
+        ViewSettings.CopyConfiuration(m_FileSetting, m_ViewSettings);
         using (var frm = new FormEditSettings(m_ViewSettings))
         {
           frm.ShowDialog(MdiParent);
-          m_ViewSettings.CopyTo(m_FileSetting);
-          FillFromProperites(false);
+          FillFromProperites();
           if (m_ConfigChanged)
-          {          
+          {
             detailControl.MoveMenu();
             SaveDefault();
             if (_MessageBox.Show(this, "The configuration has changed do you want to reload the data?", "Configuration changed", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
             {
               OpenDataReader(true);
-            }              
+            }
           }
-        }        
+        }
       }
-      catch(Exception ex)
+      catch (Exception ex)
       {
         this.ShowError(ex);
       }
     }
-    
+
     private void ShowTextPanel(bool visible)
     {
       textPanel.Visible = visible;
