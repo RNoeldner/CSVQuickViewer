@@ -337,6 +337,7 @@ namespace CsvTools
           {
             frm.tabControl.SelectedTab = frm.tabPagePGP;
             frm.ShowDialog(this);
+            FillFromProperites();
           }
           SaveDefault();
         }
@@ -391,11 +392,9 @@ namespace CsvTools
             {
               MessageBox.Show(this, exc.ExceptionMessages(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
+            if (analyse) m_FileSetting.SkipRows = 0;
 
-            if (analyse && m_ViewSettings.GuessCodePage)
-            {
-              CsvHelper.GuessCodePage(m_FileSetting);
-            }
+            if (analyse && m_ViewSettings.GuessCodePage) CsvHelper.GuessCodePage(m_FileSetting);
 
             if (analyse) m_FileSetting.NoDelimitedFile = CsvHelper.GuessNotADelimitedFile(m_FileSetting);
             if (analyse && m_ViewSettings.GuessDelimiter) m_FileSetting.FileFormat.FieldDelimiter = CsvHelper.GuessDelimiter(m_FileSetting);

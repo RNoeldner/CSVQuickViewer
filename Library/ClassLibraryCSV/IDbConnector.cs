@@ -125,7 +125,13 @@ namespace CsvTools
     ///  Gets the connection.
     /// </summary>
     /// <returns>The database connection object</returns>
-    DbConnection GetConnection(EventHandler<string> infoMessages);
+    DbConnection GetConnection( CancellationToken cancellationToken);
+
+    /// <summary>
+    ///  Gets the connection.
+    /// </summary>
+    /// <returns>The database connection object</returns>
+    DbConnection GetConnection(EventHandler<string> infoMessages, CancellationToken cancellationToken);
 
     /// <summary>
     ///  Gets the <see cref="DataType" /> of the table.
@@ -182,7 +188,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="sql">The SQL.</param>
     /// <returns></returns>
-    DataTable LoadDataTable(string sql);
+    DataTable LoadDataTable(string sql, CancellationToken cancellationToken);
 
     void ProcessColumnLength(string tableName, IProcessDisplay processDisplay, ICollection<string> fields);
 

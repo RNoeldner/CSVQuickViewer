@@ -428,9 +428,10 @@ namespace CsvTools
       {
         using (var compressedStream = compressor.Open(encryptedStream))
         {
-          var copyBuffer = new byte[16384];
+          var copyBuffer = new byte[32768];
+          var action = new IntervalAction(0.33);
           using (var literalStream = literalizer.Open(compressedStream, PgpLiteralDataGenerator.Utf8, "PGPStream",
-            DateTime.Now, new byte[4096]))
+            DateTime.Now, new byte[8192]))
           {
             var processDispayTime = processDisplay as IProcessDisplayTime;
             var max = (int)(toEncrypt.Length / copyBuffer.Length);
@@ -442,7 +443,7 @@ namespace CsvTools
               processDisplay.CancellationToken.ThrowIfCancellationRequested();
               literalStream.Write(copyBuffer, 0, length);
               count++;
-              processDisplay.SetProcess($"PGP Encrypting {StringConversion.DynamicStorageSize(toEncrypt.Length) } - Step {count:N0}/{max:N0}", count);
+              action.Invoke(() => processDisplay.SetProcess($"PGP Encrypting {StringConversion.DynamicStorageSize(toEncrypt.Length) } - Step {count:N0}/{max:N0}", count));
             }
           }
         }

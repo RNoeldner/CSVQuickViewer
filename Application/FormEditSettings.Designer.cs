@@ -31,7 +31,6 @@
       this.components = new System.ComponentModel.Container();
       System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormEditSettings));
       this.textBoxSkipRows = new System.Windows.Forms.TextBox();
-      this.fileSettingBindingSource = new System.Windows.Forms.BindingSource(this.components);
       this.labelSkipFirstLines = new System.Windows.Forms.Label();
       this.labelRecordLimit = new System.Windows.Forms.Label();
       this.textBoxLimitRows = new System.Windows.Forms.TextBox();
@@ -50,14 +49,12 @@
       this.checkBoxWarnEmptyTailingColumns = new System.Windows.Forms.CheckBox();
       this.textBoxNumWarnings = new System.Windows.Forms.TextBox();
       this.tabPageFormat = new System.Windows.Forms.TabPage();
-      this.fillGuessSettingEdit = new CsvTools.FillGuessSettingEdit();
       this.tabPageWarnings = new System.Windows.Forms.TabPage();
       this.tabPageAdvanced = new System.Windows.Forms.TabPage();
       this.checkBoxGuessStartRow = new System.Windows.Forms.CheckBox();
       this.buttonSkipLine = new System.Windows.Forms.Button();
       this.textBoxTextAsNull = new System.Windows.Forms.TextBox();
       this.textBoxDelimiterPlaceholder = new System.Windows.Forms.TextBox();
-      this.fileFormatBindingSource = new System.Windows.Forms.BindingSource(this.components);
       this.textBoxNLPlaceholder = new System.Windows.Forms.TextBox();
       this.labelLineFeedPlaceHolder = new System.Windows.Forms.Label();
       this.checkBoxDisplayStartLineNo = new System.Windows.Forms.CheckBox();
@@ -78,7 +75,6 @@
       this.textBoxFile = new System.Windows.Forms.TextBox();
       this.btnOpenFile = new System.Windows.Forms.Button();
       this.tabPageQuoting = new System.Windows.Forms.TabPage();
-      this.quotingControl = new CsvTools.QuotingControl();
       this.tabPagePGP = new System.Windows.Forms.TabPage();
       this.labelPassphrase = new System.Windows.Forms.Label();
       this.listBoxPrivKeys = new System.Windows.Forms.ListBox();
@@ -98,17 +94,21 @@
       this.checkBoxMenuDown = new System.Windows.Forms.CheckBox();
       this.toolTip = new System.Windows.Forms.ToolTip(this.components);
       this.errorProvider = new System.Windows.Forms.ErrorProvider(this.components);
-      ((System.ComponentModel.ISupportInitialize)(this.fileSettingBindingSource)).BeginInit();
+      this.fileFormatBindingSource = new System.Windows.Forms.BindingSource(this.components);
+      this.fileSettingBindingSource = new System.Windows.Forms.BindingSource(this.components);
+      this.quotingControl = new CsvTools.QuotingControl();
+      this.fillGuessSettingEdit = new CsvTools.FillGuessSettingEdit();
       this.tabPageFormat.SuspendLayout();
       this.tabPageWarnings.SuspendLayout();
       this.tabPageAdvanced.SuspendLayout();
-      ((System.ComponentModel.ISupportInitialize)(this.fileFormatBindingSource)).BeginInit();
       this.tabControl.SuspendLayout();
       this.tabPageFile.SuspendLayout();
       this.tabPageQuoting.SuspendLayout();
       this.tabPagePGP.SuspendLayout();
       this.tabPageBehaviour.SuspendLayout();
       ((System.ComponentModel.ISupportInitialize)(this.errorProvider)).BeginInit();
+      ((System.ComponentModel.ISupportInitialize)(this.fileFormatBindingSource)).BeginInit();
+      ((System.ComponentModel.ISupportInitialize)(this.fileSettingBindingSource)).BeginInit();
       this.SuspendLayout();
       // 
       // textBoxSkipRows
@@ -120,11 +120,6 @@
       this.textBoxSkipRows.TabIndex = 0;
       this.textBoxSkipRows.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
       this.textBoxSkipRows.Validating += new System.ComponentModel.CancelEventHandler(this.PositiveNumberValidating);
-      // 
-      // fileSettingBindingSource
-      // 
-      this.fileSettingBindingSource.AllowNew = false;
-      this.fileSettingBindingSource.DataSource = typeof(CsvTools.Properties.ViewSettings);
       // 
       // labelSkipFirstLines
       // 
@@ -309,14 +304,6 @@
       this.tabPageFormat.TabIndex = 0;
       this.tabPageFormat.Text = "Detect Types";
       // 
-      // fillGuessSettingEdit
-      // 
-      this.fillGuessSettingEdit.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.fillGuessSettingEdit.Location = new System.Drawing.Point(3, 3);
-      this.fillGuessSettingEdit.Name = "fillGuessSettingEdit";
-      this.fillGuessSettingEdit.Size = new System.Drawing.Size(718, 320);
-      this.fillGuessSettingEdit.TabIndex = 101;
-      // 
       // tabPageWarnings
       // 
       this.tabPageWarnings.BackColor = System.Drawing.SystemColors.Control;
@@ -401,11 +388,6 @@
       this.textBoxDelimiterPlaceholder.Name = "textBoxDelimiterPlaceholder";
       this.textBoxDelimiterPlaceholder.Size = new System.Drawing.Size(45, 20);
       this.textBoxDelimiterPlaceholder.TabIndex = 3;
-      // 
-      // fileFormatBindingSource
-      // 
-      this.fileFormatBindingSource.AllowNew = false;
-      this.fileFormatBindingSource.DataSource = typeof(CsvTools.FileFormat);
       // 
       // textBoxNLPlaceholder
       // 
@@ -646,17 +628,6 @@
       this.tabPageQuoting.Text = "Quoting";
       this.tabPageQuoting.UseVisualStyleBackColor = true;
       // 
-      // quotingControl
-      // 
-      this.quotingControl.BackColor = System.Drawing.SystemColors.Control;
-      this.quotingControl.CsvFile = null;
-      this.quotingControl.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.quotingControl.IsWriteSetting = false;
-      this.quotingControl.Location = new System.Drawing.Point(3, 3);
-      this.quotingControl.Name = "quotingControl";
-      this.quotingControl.Size = new System.Drawing.Size(718, 320);
-      this.quotingControl.TabIndex = 2;
-      // 
       // tabPagePGP
       // 
       this.tabPagePGP.BackColor = System.Drawing.SystemColors.Control;
@@ -863,6 +834,35 @@
       // 
       this.errorProvider.ContainerControl = this;
       // 
+      // fileFormatBindingSource
+      // 
+      this.fileFormatBindingSource.AllowNew = false;
+      this.fileFormatBindingSource.DataSource = typeof(CsvTools.FileFormat);
+      // 
+      // fileSettingBindingSource
+      // 
+      this.fileSettingBindingSource.AllowNew = false;
+      this.fileSettingBindingSource.DataSource = typeof(CsvTools.Properties.ViewSettings);
+      // 
+      // quotingControl
+      // 
+      this.quotingControl.BackColor = System.Drawing.SystemColors.Control;
+      this.quotingControl.CsvFile = null;
+      this.quotingControl.Dock = System.Windows.Forms.DockStyle.Fill;
+      this.quotingControl.IsWriteSetting = false;
+      this.quotingControl.Location = new System.Drawing.Point(3, 3);
+      this.quotingControl.Name = "quotingControl";
+      this.quotingControl.Size = new System.Drawing.Size(718, 320);
+      this.quotingControl.TabIndex = 2;
+      // 
+      // fillGuessSettingEdit
+      // 
+      this.fillGuessSettingEdit.Dock = System.Windows.Forms.DockStyle.Fill;
+      this.fillGuessSettingEdit.Location = new System.Drawing.Point(3, 3);
+      this.fillGuessSettingEdit.Name = "fillGuessSettingEdit";
+      this.fillGuessSettingEdit.Size = new System.Drawing.Size(718, 320);
+      this.fillGuessSettingEdit.TabIndex = 101;
+      // 
       // FormEditSettings
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -878,14 +878,13 @@
       this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
       this.Text = "Settings";
       this.TopMost = true;
+      this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormEditSettings_FormClosing);
       this.Load += new System.EventHandler(this.EditSettings_Load);
-      ((System.ComponentModel.ISupportInitialize)(this.fileSettingBindingSource)).EndInit();
       this.tabPageFormat.ResumeLayout(false);
       this.tabPageWarnings.ResumeLayout(false);
       this.tabPageWarnings.PerformLayout();
       this.tabPageAdvanced.ResumeLayout(false);
       this.tabPageAdvanced.PerformLayout();
-      ((System.ComponentModel.ISupportInitialize)(this.fileFormatBindingSource)).EndInit();
       this.tabControl.ResumeLayout(false);
       this.tabPageFile.ResumeLayout(false);
       this.tabPageFile.PerformLayout();
@@ -895,6 +894,8 @@
       this.tabPageBehaviour.ResumeLayout(false);
       this.tabPageBehaviour.PerformLayout();
       ((System.ComponentModel.ISupportInitialize)(this.errorProvider)).EndInit();
+      ((System.ComponentModel.ISupportInitialize)(this.fileFormatBindingSource)).EndInit();
+      ((System.ComponentModel.ISupportInitialize)(this.fileSettingBindingSource)).EndInit();
       this.ResumeLayout(false);
 
     }
