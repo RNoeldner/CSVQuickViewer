@@ -78,6 +78,15 @@ namespace CsvTools
 #endif
     }
 
+    public static void CompleteTask(this System.Threading.Tasks.Task executeTask, CancellationToken cancellationToken)
+    {
+      while (executeTask.Status != System.Threading.Tasks.TaskStatus.RanToCompletion)
+      {
+        ProcessUIElements();
+        executeTask.Wait(100, cancellationToken);
+      }      
+    }
+   
     /// <summary>
     ///   Handles a CTRL-A select all in the form.
     /// </summary>

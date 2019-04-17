@@ -1035,9 +1035,9 @@ namespace CsvTools
     private void WarnDelimiter(int column)
     {
       m_NumWarningsDelimiter++;
-      if (m_CsvFile.NumWarnings < 1 || m_NumWarningsDelimiter <= m_CsvFile.NumWarnings)
-        HandleWarning(column,
-         $"Field delimiter '{FileFormat.GetDescription(m_CsvFile.FileFormat.FieldDelimiter)}' found in field".AddWarningId());
+      if (m_CsvFile.NumWarnings >= 1 && m_NumWarningsDelimiter > m_CsvFile.NumWarnings) return;
+      HandleWarning(column,
+       $"Field delimiter '{FileFormat.GetDescription(m_CsvFile.FileFormat.FieldDelimiter)}' found in field".AddWarningId());
     }
 
     /// <summary>
@@ -1047,8 +1047,8 @@ namespace CsvTools
     private void WarnLinefeed(int column)
     {
       m_NumWarningsLinefeed++;
-      if (m_CsvFile.NumWarnings < 1 || m_NumWarningsLinefeed <= m_CsvFile.NumWarnings)
-        HandleWarning(column, "Linefeed found in field".AddWarningId());
+      if (m_CsvFile.NumWarnings >= 1 && m_NumWarningsLinefeed > m_CsvFile.NumWarnings) return;
+      HandleWarning(column, "Linefeed found in field".AddWarningId());
     }
 
     /// <summary>
@@ -1072,9 +1072,9 @@ namespace CsvTools
     private void WarnQuotes(int column)
     {
       m_NumWarningsQuote++;
-      if (m_CsvFile.NumWarnings < 1 || m_NumWarningsQuote <= m_CsvFile.NumWarnings)
-        HandleWarning(column,
-         $"Field qualifier '{FileFormat.GetDescription(m_CsvFile.FileFormat.FieldQualifier)}' found in field".AddWarningId());
+      if (m_CsvFile.NumWarnings >= 1 && m_NumWarningsQuote > m_CsvFile.NumWarnings) return;
+      HandleWarning(column,
+       $"Field qualifier '{FileFormat.GetDescription(m_CsvFile.FileFormat.FieldQualifier)}' found in field".AddWarningId());
     }
 
     /// <summary>

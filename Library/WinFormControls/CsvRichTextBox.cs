@@ -39,7 +39,15 @@ namespace CsvTools
       {
         if (m_Delimiter.Equals(value)) return;
         m_Delimiter = value;
-        Rtf = GetRtfFromText(m_Text);
+        try
+        {
+          this.SafeInvoke(()=> Rtf = GetRtfFromText(m_Text));          
+        }
+        catch (System.Exception)
+        {
+          // ignore   this could happen if the control is not fully initialized
+        }
+
       }
 
       get => m_Delimiter;

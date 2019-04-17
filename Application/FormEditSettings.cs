@@ -301,5 +301,11 @@ namespace CsvTools
           labelPassphrase.Text = "Passphrase is set but invalid";
         }
     }
+
+    private void FormEditSettings_FormClosing(object sender, FormClosingEventArgs e)
+    {
+      // update the values in not changed setting
+      ValidateChildren();
+    }
   }
 }
