@@ -37,12 +37,12 @@ namespace CsvTools
     private string m_FalseValue = "False";
     private bool m_IgnoreIdColums = true;
     private int m_MinSamplesForIntDate = 5;
-    private int m_SampleValues = 200;
+    private int m_SampleValues = 150;
     private bool m_SerialDateTime = true;
     private string m_TrueValue = "True";
 
     /// <summary>
-    ///   Number of records to parse to et the sample values
+    ///   Number of records to parse to get the sample values
     /// </summary>
     [XmlAttribute]
     [DefaultValue(30000)]
@@ -223,7 +223,7 @@ namespace CsvTools
     /// <summary>
     ///   Number of sample values
     /// </summary>
-    [DefaultValue(200)]
+    [DefaultValue(150)]
     [XmlAttribute]
     public virtual int SampleValues
     {

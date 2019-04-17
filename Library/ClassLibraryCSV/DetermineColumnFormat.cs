@@ -117,10 +117,19 @@ namespace CsvTools
 
             processDisplay.SetProcess(newColumn.Name + " – Getting values", colindex);
 
-            var samples = GetSampleValues(fileReader, ApplicationSetting.FillGuessSettings.CheckedRecords,
-              colindex, ApplicationSetting.FillGuessSettings.SampleValues, fileSetting.TreatTextAsNull,
-              processDisplay.CancellationToken);
+            var detect = !(ApplicationSetting.FillGuessSettings.IgnoreIdColums && StringUtils.AssumeIDColumn(newColumn.Name) > 0);
 
+            if (!detect)
+            {
+              processDisplay.SetProcess(newColumn.Name + " – ID columns ignored", colindex);
+              if (addTextColumns)
+                fileSetting.ColumnCollection.AddIfNew(newColumn);
+              continue;
+            }
+
+            var samples = GetSampleValues(fileReader, ApplicationSetting.FillGuessSettings.CheckedRecords,
+                                          colindex, ApplicationSetting.FillGuessSettings.SampleValues, fileSetting.TreatTextAsNull,
+                                          processDisplay.CancellationToken);
             if (samples.IsEmpty())
             {
               processDisplay.SetProcess(newColumn.Name + " – No values found", colindex);
@@ -130,9 +139,6 @@ namespace CsvTools
             }
             else
             {
-              var detect = !(ApplicationSetting.FillGuessSettings.IgnoreIdColums &&
-                      StringUtils.AssumeIDColumn(newColumn.Name) > 0);
-
               if (samples.Count < 10)
                 processDisplay.SetProcess($"{newColumn.Name} – Only {samples.Count} values found in {ApplicationSetting.FillGuessSettings.CheckedRecords} rows", colindex);
               else
@@ -766,6 +772,7 @@ namespace CsvTools
     /// <param name="guessPercentage">Accept percentage values</param>
     /// <param name="serialDateTime">Allow serial Date time</param>
     /// <param name="checkNamedDates">if set to <c>true</c> [check named dates].</param>
+    /// <param name="othersValueFormatDate">The date format found in prior columns, assuming the data format is the same in other columns, we do not need that many samples</param>
     /// <returns><c>Null</c> if no format could be determined otherwise a <see cref="ValueFormat" /></returns>
     public static CheckResult GuessValueFormat(IList<string> samples, int minRequiredSamples,
       string trueValue, string falseValue, bool guessBoolean, bool guessGuid, bool guessNumeric, bool guessDateTime,
@@ -773,31 +780,31 @@ namespace CsvTools
     {
       Contract.Requires(samples != null);
 
-      if (samples.IsEmpty())
+      var count = samples.Count();
+      if (count == 0)
         return null;
 
-      var count = samples.Count();
       var checkResult = new CheckResult { FoundValueFormat = new ValueFormat() };
 
       // if it only one sample value and its false, assume its a boolean
-      if (guessBoolean && count == 1 && !string.IsNullOrEmpty(falseValue))
-      {
-        foreach (var value in samples)
-        {
-          if (value.Equals(falseValue, StringComparison.OrdinalIgnoreCase))
-          {
-            checkResult.FoundValueFormat.DataType = DataType.Boolean;
-            return checkResult;
-          }
+      //if (guessBoolean && count == 1 && !string.IsNullOrEmpty(falseValue))
+      //{
+      //  foreach (var value in samples)
+      //  {
+      //    if (value.Equals(falseValue, StringComparison.OrdinalIgnoreCase))
+      //    {
+      //      checkResult.FoundValueFormat.DataType = DataType.Boolean;
+      //      return checkResult;
+      //    }
 
-          break;
-        }
-      }
+      //    break;
+      //  }
+      //}
 
-      if (cancellationToken.IsCancellationRequested)
-        return null;
+      //if (cancellationToken.IsCancellationRequested)
+      //  return null;
 
-      // this could be a boolean
+      // ---------------- Boolean  --------------------------
       if (guessBoolean && count <= 2)
       {
         var allParsed = true;
@@ -832,6 +839,7 @@ namespace CsvTools
       if (cancellationToken.IsCancellationRequested)
         return null;
 
+      // ---------------- GUID  --------------------------
       if (guessGuid && StringConversion.CheckGuid(samples))
       {
         checkResult.FoundValueFormat.DataType = DataType.Guid;
@@ -841,6 +849,8 @@ namespace CsvTools
       if (cancellationToken.IsCancellationRequested)
         return null;
 
+
+      // ---------------- Text --------------------------
       // in case we have named dates, this is not feasible
       if (!checkNamedDates)
       {
@@ -860,6 +870,7 @@ namespace CsvTools
         }
       }
 
+      // ---------------- Confirm old provided format would be ok --------------------------      
       if (count < minRequiredSamples && guessDateTime && othersValueFormatDate != null)
       {
         var res = StringConversion.CheckDate(samples, othersValueFormatDate.DateFormat, othersValueFormatDate.DateSeparator, othersValueFormatDate.TimeSeparator, CultureInfo.CurrentCulture);
@@ -912,6 +923,7 @@ namespace CsvTools
       if (cancellationToken.IsCancellationRequested)
         return null;
 
+      // ---------------- Decimal / Integer --------------------------
       if (guessNumeric)
       {
         var res = GuessNumeric(samples, guessPercentage, false, cancellationToken);
@@ -923,6 +935,7 @@ namespace CsvTools
       if (cancellationToken.IsCancellationRequested)
         return null;
 
+      // ---------------- Date --------------------------  
       // Minimum length of a date is 4 characters
       if (guessDateTime && firstValue.Length > 3)
       {
