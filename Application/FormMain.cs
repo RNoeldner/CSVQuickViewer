@@ -566,7 +566,7 @@ namespace CsvTools
           // Show the data
           detailControl.DataTable = data;
         }
-
+        ApplicationSetting.SQLDataReader = delegate(string settingName, IProcessDisplay processDisplay) { return detailControl.DataTable.CreateDataReader(); };
         detailControl.FileSetting = m_FileSetting;
 
         // if (m_FileSetting.NoDelimitedFile)

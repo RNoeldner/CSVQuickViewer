@@ -170,10 +170,20 @@ namespace CsvTools
               {
                 var oldValueFormat = oldColumn.GetTypeAndFormatDescription();
 
-                // if we have a date value format already store this
-                if (othersValueFormatDate == null && checkResult.FoundValueFormat.DataType == DataType.DateTime && checkResult.PossibleMatch)
-                  othersValueFormatDate = checkResult.FoundValueFormat;
-
+                if (checkResult.FoundValueFormat.DataType == DataType.DateTime && checkResult.PossibleMatch)
+                {
+                  // if we have a date value format already store this
+                  if (othersValueFormatDate == null)
+                  {
+                    othersValueFormatDate = checkResult.FoundValueFormat;
+                  }
+                  else
+                  {
+                    // if he date format does not match the last found date format reset the assumed correct format
+                    if (!othersValueFormatDate.Equals(checkResult.FoundValueFormat))
+                      othersValueFormatDate = null;
+                  }
+                }
                 if (checkResult.FoundValueFormat.Equals(oldColumn.ValueFormat))
                 {
                   processDisplay.SetProcess($"{newColumn.Name} – Format : {oldValueFormat} – not changed",
@@ -871,7 +881,7 @@ namespace CsvTools
       }
 
       // ---------------- Confirm old provided format would be ok --------------------------      
-      if (count < minRequiredSamples && guessDateTime && othersValueFormatDate != null)
+      if (guessDateTime && othersValueFormatDate != null)
       {
         var res = StringConversion.CheckDate(samples, othersValueFormatDate.DateFormat, othersValueFormatDate.DateSeparator, othersValueFormatDate.TimeSeparator, CultureInfo.CurrentCulture);
         if (res.FoundValueFormat != null)
