@@ -103,7 +103,7 @@
       this.comboBoxID.Name = "comboBoxID";
       this.comboBoxID.Size = new System.Drawing.Size(325, 21);
       this.comboBoxID.TabIndex = 0;
-      this.comboBoxID.SelectedIndexChanged += new System.EventHandler(this.comboBoxID_SelectedIndexChanged);
+      this.comboBoxID.SelectedIndexChanged += new System.EventHandler(this.ComboBoxID_SelectedIndexChanged);
       // 
       // checkBoxIgnoreNull
       // 
@@ -115,7 +115,7 @@
       this.checkBoxIgnoreNull.TabIndex = 1;
       this.checkBoxIgnoreNull.Text = "Ignore NULL";
       this.checkBoxIgnoreNull.UseVisualStyleBackColor = true;
-      this.checkBoxIgnoreNull.CheckedChanged += new System.EventHandler(this.comboBoxID_SelectedIndexChanged);
+      this.checkBoxIgnoreNull.CheckedChanged += new System.EventHandler(this.ComboBoxID_SelectedIndexChanged);
       // 
       // FormDuplicatesDisplay
       // 

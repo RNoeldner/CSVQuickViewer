@@ -287,7 +287,7 @@ namespace CsvTools
       }
     }
 
-    private void closeAllToolStripMenuItem_Click(object sender, EventArgs e)
+    private void CloseAllToolStripMenuItem_Click(object sender, EventArgs e)
     {
       try
       {
@@ -308,7 +308,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
-    private void comboBox_SelectionChangeCommitted(object sender, EventArgs e)
+    private void ComboBox_SelectionChangeCommitted(object sender, EventArgs e)
     {
       if (!(sender is ComboBox cb))
         return;
@@ -332,7 +332,7 @@ namespace CsvTools
       }
     }
 
-    private void expandAllToolStripMenuItem_Click(object sender, EventArgs e)
+    private void ExpandAllToolStripMenuItem_Click(object sender, EventArgs e)
     {
       try
       {
@@ -466,14 +466,14 @@ namespace CsvTools
       expandAllToolStripMenuItem.Name = "expandAllToolStripMenuItem";
       expandAllToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
       expandAllToolStripMenuItem.Text = "Expand All";
-      expandAllToolStripMenuItem.Click += new System.EventHandler(expandAllToolStripMenuItem_Click);
+      expandAllToolStripMenuItem.Click += new System.EventHandler(ExpandAllToolStripMenuItem_Click);
       // 
       // closeAllToolStripMenuItem
       // 
       closeAllToolStripMenuItem.Name = "closeAllToolStripMenuItem";
       closeAllToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
       closeAllToolStripMenuItem.Text = "Close All";
-      closeAllToolStripMenuItem.Click += new System.EventHandler(closeAllToolStripMenuItem_Click);
+      closeAllToolStripMenuItem.Click += new System.EventHandler(CloseAllToolStripMenuItem_Click);
       // 
       // label4
       // 
@@ -523,7 +523,7 @@ namespace CsvTools
       m_ComboBoxID.Name = "m_ComboBoxID";
       m_ComboBoxID.Size = new System.Drawing.Size(382, 21);
       m_ComboBoxID.TabIndex = 0;
-      m_ComboBoxID.SelectedIndexChanged += new System.EventHandler(comboBox_SelectionChangeCommitted);
+      m_ComboBoxID.SelectedIndexChanged += new System.EventHandler(ComboBox_SelectionChangeCommitted);
       // 
       // m_ComboBoxParentID
       // 
@@ -535,7 +535,7 @@ namespace CsvTools
       m_ComboBoxParentID.Name = "m_ComboBoxParentID";
       m_ComboBoxParentID.Size = new System.Drawing.Size(382, 21);
       m_ComboBoxParentID.TabIndex = 1;
-      m_ComboBoxParentID.SelectedIndexChanged += new System.EventHandler(comboBox_SelectionChangeCommitted);
+      m_ComboBoxParentID.SelectedIndexChanged += new System.EventHandler(ComboBox_SelectionChangeCommitted);
       // 
       // m_TreeView
       // 
@@ -554,7 +554,7 @@ namespace CsvTools
       m_TextBoxValue.Name = "m_TextBoxValue";
       m_TextBoxValue.Size = new System.Drawing.Size(188, 20);
       m_TextBoxValue.TabIndex = 2;
-      m_TextBoxValue.TextChanged += new System.EventHandler(textBox1_TextChanged);
+      m_TextBoxValue.TextChanged += new System.EventHandler(TextBox1_TextChanged);
       // 
       // m_ComboBoxDisplay2
       // 
@@ -691,7 +691,7 @@ namespace CsvTools
       }
     }
 
-    private void textBox1_TextChanged(object sender, EventArgs e)
+    private void TextBox1_TextChanged(object sender, EventArgs e)
     {
       m_TimerChange.Stop();
       m_TimerChange.Start();

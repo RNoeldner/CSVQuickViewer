@@ -1090,7 +1090,7 @@ namespace CsvTools
             "No Error or Warning"});
       this.toolStripComboBoxFilterType.Name = "toolStripComboBoxFilterType";
       this.toolStripComboBoxFilterType.Size = new System.Drawing.Size(125, 27);
-      this.toolStripComboBoxFilterType.SelectedIndexChanged += new System.EventHandler(this.toolStripComboBoxFilterType_SelectedIndexChanged);
+      this.toolStripComboBoxFilterType.SelectedIndexChanged += new System.EventHandler(this.ToolStripComboBoxFilterType_SelectedIndexChanged);
       // 
       // m_ToolStripButtonUniqueValues
       // 
@@ -1343,7 +1343,7 @@ namespace CsvTools
 
     #endregion Windows Form Designer generated code
 
-    private void toolStripComboBoxFilterType_SelectedIndexChanged(object sender, EventArgs e)
+    private void ToolStripComboBoxFilterType_SelectedIndexChanged(object sender, EventArgs e)
     {
       /*
        * All Records
