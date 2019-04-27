@@ -55,7 +55,7 @@ namespace CsvTools
       }
     }
 
-    public void Clear()
+    public new void Clear()
     {
       m_LogAppenderTextBox.Clear();
     }

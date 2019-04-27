@@ -249,7 +249,7 @@ namespace CsvTools
         return col.Count;
 
       var counter = 0;
-      foreach (var unused in items)
+      foreach (var _ in items)
         counter++;
       return counter;
     }
@@ -516,7 +516,7 @@ namespace CsvTools
     public static bool IsEmpty(this IEnumerable items)
     {
       if (items == null) return true;
-      foreach (var unused in items)
+      foreach (var _ in items)
         return false;
       return true;
     }

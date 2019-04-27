@@ -49,13 +49,7 @@ namespace CsvTools
     /// <summary>
     ///  Collection of the artificial field names
     /// </summary>
-    public static ICollection<string> ArtificalFields = new HashSet<string>
-      {
-   cRecordNumberFieldName,
-   cStartLineNumberFieldName,
-   cEndLineNumberFieldName,
-   cErrorField
-  };
+    public static ICollection<string> ArtificalFields = new HashSet<string> { cRecordNumberFieldName, cStartLineNumberFieldName, cEndLineNumberFieldName, cErrorField };
 
     /// <summary>
     ///  The maximum value
@@ -244,14 +238,14 @@ namespace CsvTools
     /// </summary>
     public virtual void Close()
     {
-      EndOfFile = true;      
+      EndOfFile = true;
     }
 
     /// <summary>
     ///  Performs application-defined tasks associated with freeing, releasing, or resetting
     ///  unmanaged resources.
     /// </summary>
-    public void Dispose() => Dispose(true);
+    public virtual void Dispose() => Dispose(true);
 
     public virtual void Dispose(bool disposing)
     {
@@ -778,7 +772,7 @@ namespace CsvTools
     /// </summary>
     /// <returns>true if there are more rows; otherwise, false.</returns>
     public virtual bool NextResult() => false;
-    
+
     /// <summary>
     ///  Overrides the column format from setting.
     /// </summary>

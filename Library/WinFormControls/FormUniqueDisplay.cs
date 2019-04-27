@@ -58,7 +58,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
-    private void comboBoxID_SelectedIndexChanged(object sender, EventArgs e)
+    private void ComboBoxID_SelectedIndexChanged(object sender, EventArgs e)
     {
       Work(comboBoxID.Text, checkBoxIgnoreNull.Checked);
     }

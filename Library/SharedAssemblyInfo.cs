@@ -3,17 +3,11 @@ using System.Reflection;
 
 // General Information about an assembly is controlled through the following set of attributes.
 // Change these attribute values to modify the information associated with an assembly.
-[assembly: AssemblyCompany("Raphael Nöldner")]
 [assembly: AssemblyCopyright("Copyright (c) Raphael Nöldner 2014")]
-[assembly: AssemblyProduct("CsvTools")]
+
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: CLSCompliant(false)]
-#if DEBUG
-[assembly: AssemblyConfiguration("Debug")]
-#else
-[assembly: AssemblyConfiguration("Retail")]
-#endif
 
 // Version information for an assembly consists of the following four values:
 //
