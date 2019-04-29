@@ -1,11 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <Authors>Raphael Nöldner</Authors>
+    <RootNamespace>CsvTools</RootNamespace>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>    
+    <Copyright>Copyright © 2017</Copyright> 
+    <ProductName>CsvTools</ProductName> 
     <OutputType>Library</OutputType>    
 	<TargetFramework>net45</TargetFramework>
     <ApplicationIcon />
     <StartupObject />    
-  </PropertyGroup>
-  <Import Project="..\..\..\CSVFileValidator\SolutionInfo.csproj" />
+  </PropertyGroup>  
   <ItemGroup>
     <None Remove="DateTimeFormats.txt" />
     <None Remove="TZMapping.txt" />
