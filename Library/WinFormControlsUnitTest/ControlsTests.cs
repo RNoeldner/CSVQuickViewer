@@ -11,7 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
- using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Data;
 using System.Windows.Forms;
 
@@ -78,7 +78,7 @@ namespace CsvTools.Tests
       csvFile.ColumnCollection.AddIfNew(col);
       using (var ctrl = new FormColumnUI(col, false, csvFile))
       {
-        ctrl.ShowGuess= false;
+        ctrl.ShowGuess = false;
         ctrl.Show();
         ctrl.Close();
       }
@@ -104,9 +104,9 @@ namespace CsvTools.Tests
       var csvFile = new CsvFile("BasicCSV.txt");
       var col = new Column { Name = "ExamDate", DataType = DataType.DateTime };
       csvFile.ColumnCollection.AddIfNew(col);
-      
+
       using (var ctrl = new FormColumnUI(col, false, csvFile))
-      {        
+      {
         ctrl.Show();
         // open the reader file
         ctrl.ButtonGuessClick(null, null);
@@ -114,7 +114,7 @@ namespace CsvTools.Tests
         ctrl.Close();
       }
     }
-    
+
     [TestMethod]
     public void FormHierachyDisplay()
     {
@@ -168,7 +168,8 @@ namespace CsvTools.Tests
     [TestMethod]
     public void FormDetail()
     {
-      using (var ctrl = new FormDetail(dataTable, null, null, true, false, 0))
+      using (var processDisplay = new DummyProcessDisplay())
+      using (var ctrl = new FormDetail(dataTable, null, null, true, false, 0, processDisplay.CancellationToken))
       {
         ctrl.Show();
         ctrl.Close();

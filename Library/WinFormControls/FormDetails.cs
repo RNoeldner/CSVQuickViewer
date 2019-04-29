@@ -39,7 +39,7 @@ namespace CsvTools
     /// <param name="cancellationToken">The cancellation token</param>
     ///
     public FormDetail(DataTable dataTable, IEnumerable<string> uniqueFieldName, IFileSetting setting, bool readOnly,
-      bool onlyErrors, int frozenColumns, CancellationToken cancellationToken = default)
+      bool onlyErrors, int frozenColumns, CancellationToken cancellationToken)
     {
       Contract.Requires(dataTable != null);
 
