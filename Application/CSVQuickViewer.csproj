@@ -7,7 +7,7 @@
   </PropertyGroup>
   <Import Project="..\..\CSVFileValidator\SolutionInfo.csproj" />
   <ItemGroup>
-    <PackageReference Include="Costura.Fody" Version="4.0.0" />
+    <PackageReference Include="Costura.Fody" Version="3.3.3" />
     <PackageReference Include="log4net" Version="2.0.8" />
     <PackageReference Include="NodaTime" Version="2.4.5" />
     <PackageReference Include="Pri.LongPath" Version="2.0.47" />    

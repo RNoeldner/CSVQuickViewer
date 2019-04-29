@@ -75,7 +75,7 @@ namespace CsvTools
       }        
     }
 
-    public FormProcessDisplay() : this(string.Empty, true, default)
+    public FormProcessDisplay() : this(string.Empty, true, CancellationToken.None)
     {
     }
 
