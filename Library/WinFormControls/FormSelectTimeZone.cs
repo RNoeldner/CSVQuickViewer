@@ -22,6 +22,8 @@ namespace CsvTools
     private Button m_BtnCancel;
     private Label label1;
     private TimeZoneSelector timeZoneSelector1;
+    private Timer timer;
+    private System.ComponentModel.IContainer components;
     private Button m_BtnOk;
 
     public string TimeZoneID
@@ -53,9 +55,11 @@ namespace CsvTools
     /// </summary>
     private void InitializeComponent()
     {
+      this.components = new System.ComponentModel.Container();
       this.m_BtnOk = new System.Windows.Forms.Button();
       this.m_BtnCancel = new System.Windows.Forms.Button();
       this.label1 = new System.Windows.Forms.Label();
+      this.timer = new System.Windows.Forms.Timer(this.components);
       this.timeZoneSelector1 = new CsvTools.TimeZoneSelector();
       this.SuspendLayout();
       // 
@@ -63,22 +67,22 @@ namespace CsvTools
       // 
       this.m_BtnOk.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
       this.m_BtnOk.DialogResult = System.Windows.Forms.DialogResult.OK;
-      this.m_BtnOk.Location = new System.Drawing.Point(424, 97);
+      this.m_BtnOk.Location = new System.Drawing.Point(357, 102);
       this.m_BtnOk.Name = "m_BtnOk";
       this.m_BtnOk.Size = new System.Drawing.Size(61, 23);
       this.m_BtnOk.TabIndex = 2;
-      this.m_BtnOk.Text = "OK";
+      this.m_BtnOk.Text = "&OK";
       this.m_BtnOk.Click += new System.EventHandler(this.BtnOK_Click);
       // 
       // m_BtnCancel
       // 
       this.m_BtnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
       this.m_BtnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-      this.m_BtnCancel.Location = new System.Drawing.Point(361, 97);
+      this.m_BtnCancel.Location = new System.Drawing.Point(424, 102);
       this.m_BtnCancel.Name = "m_BtnCancel";
       this.m_BtnCancel.Size = new System.Drawing.Size(61, 23);
       this.m_BtnCancel.TabIndex = 1;
-      this.m_BtnCancel.Text = "Cancel";
+      this.m_BtnCancel.Text = "&Cancel";
       this.m_BtnCancel.Click += new System.EventHandler(this.BtnCancel_Click);
       // 
       // label1
@@ -91,6 +95,12 @@ namespace CsvTools
       this.label1.Text = "At least one column with a time has been found without time zone information.\r\n\r\n" +
     "Please determine the timezone of all date/time columns without explicit time zon" +
     "e.";
+      // 
+      // timer
+      // 
+      this.timer.Enabled = true;
+      this.timer.Interval = 10000;
+      this.timer.Tick += new System.EventHandler(this.timer_Tick);
       // 
       // timeZoneSelector1
       // 
@@ -106,7 +116,7 @@ namespace CsvTools
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.CancelButton = this.m_BtnCancel;
-      this.ClientSize = new System.Drawing.Size(488, 125);
+      this.ClientSize = new System.Drawing.Size(486, 127);
       this.ControlBox = false;
       this.Controls.Add(this.timeZoneSelector1);
       this.Controls.Add(this.label1);
@@ -119,6 +129,7 @@ namespace CsvTools
       this.ShowIcon = false;
       this.Text = "Select Time Zone";
       this.TopMost = true;
+      this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.FormSelectTimeZone_MouseMove);
       this.ResumeLayout(false);
       this.PerformLayout();
 
@@ -134,6 +145,16 @@ namespace CsvTools
     {
       DialogResult = DialogResult.Cancel;
       Close();
+    }
+
+    private void timer_Tick(object sender, EventArgs e)
+    {
+      BtnOK_Click(sender, e);
+    }
+
+    private void FormSelectTimeZone_MouseMove(object sender, MouseEventArgs e)
+    {
+      timer.Enabled= false;
     }
   }
 }

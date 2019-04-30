@@ -970,34 +970,27 @@ namespace CsvTools
     {
       var fi = FileSystemUtils.FileInfo(m_FileSetting.FileName);
 
-      using (var saveFileDialog = new SaveFileDialog())
+      var FileName = WindowsAPICodePackWrapper.Save(FileSystemUtils.GetDirectoryName(fi.FullName), "Delimited File", "Text file (*.txt)|*.txt|Comma delimited (*.csv)|*.csv|Tab delimited (*.tab;*.tsv)|*.tab;*.tsv|All files (*.*)|*.*", fi.Extension);
+      if (string.IsNullOrEmpty(FileName))
+        return;
+
+      var writeFile = m_FileSetting.Clone();
+      writeFile.FileName = FileName;
+
+      using (var processDisplay = writeFile.GetProcessDisplay(ParentForm, true, m_CancellationTokenSource.Token))
       {
-        saveFileDialog.DefaultExt = "*" + fi.Extension;
-        saveFileDialog.Filter =
-          "Text file (*.txt)|*.txt|Comma delimited (*.csv)|*.csv|Tab delimited (*.tab;*.tsv)|*.tab;*.tsv|All files (*.*)|*.*";
-        saveFileDialog.OverwritePrompt = true;
-        saveFileDialog.Title = "Delimited File";
-        saveFileDialog.InitialDirectory = FileSystemUtils.GetDirectoryName(fi.FullName).RemovePrefix();
+        var writer = writeFile.GetFileWriter(processDisplay);
 
-        if (saveFileDialog.ShowDialog() != DialogResult.OK) return;
-        var writeFile = m_FileSetting.Clone();
-        writeFile.FileName = saveFileDialog.FileName.LongFileName();
-
-        using (var processDisplay = writeFile.GetProcessDisplay(ParentForm, true, m_CancellationTokenSource.Token))
+        // Restrict to shown data
+        var colNames = new Dictionary<int, string>();
+        foreach (DataGridViewColumn col in m_FilteredDataGridView.Columns)
         {
-          var writer = writeFile.GetFileWriter(processDisplay);
-
-          // Restrict to shown data
-          var colNames = new Dictionary<int, string>();
-          foreach (DataGridViewColumn col in m_FilteredDataGridView.Columns)
-          {
-            if (col.Visible && !BaseFileReader.ArtificalFields.Contains(col.DataPropertyName))
-              colNames.Add(col.DisplayIndex, col.DataPropertyName);
-          }
-          // can not use filteredDataGridView.Columns directly
-          writer.WriteDataTable(m_FilteredDataGridView.DataView.ToTable(false,
-            colNames.OrderBy(x => x.Key).Select(x => x.Value).ToArray()));
+          if (col.Visible && !BaseFileReader.ArtificalFields.Contains(col.DataPropertyName))
+            colNames.Add(col.DisplayIndex, col.DataPropertyName);
         }
+        // can not use filteredDataGridView.Columns directly
+        writer.WriteDataTable(m_FilteredDataGridView.DataView.ToTable(false,
+          colNames.OrderBy(x => x.Key).Select(x => x.Value).ToArray()));
       }
     }
 

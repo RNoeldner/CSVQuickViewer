@@ -84,6 +84,8 @@ namespace CsvTools
     /// </summary>
     public event EventHandler<ProgressEventArgs> Progress;
 
+    public virtual event EventHandler<long> SetMaximum;
+
     /// <summary>
     ///   Gets or sets the cancellation token.
     /// </summary>
@@ -122,6 +124,7 @@ namespace CsvTools
           TimeToCompletion.TargetValue = -1;
           m_ProgressBar.Style = ProgressBarStyle.Marquee;
         }
+        SetMaximum?.Invoke(this, TimeToCompletion.TargetValue);
       }
     }
 

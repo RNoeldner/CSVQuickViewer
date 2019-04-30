@@ -64,15 +64,10 @@ namespace CsvTools
     {
       try
       {
-        using (var openFileDialog = new OpenFileDialog())
-        {
-          openFileDialog.Filter =
-            "Delimited files (*.csv;*.txt;*.tab;*.tsv)|*.csv;*.txt;*.tab;*.tsv|All files (*.*)|*.*";
-          openFileDialog.Title = "Delimited File";
+        var newFileName = WindowsAPICodePackWrapper.Open(textBoxFile.Text.GetDirectoryName(), "Delimited File", "Delimited files (*.csv;*.txt;*.tab;*.tsv)|*.csv;*.txt;*.tab;*.tsv|All files (*.*)|*.*");
+        if (!string.IsNullOrEmpty(newFileName))
+          ChangeFileName(newFileName);
 
-          openFileDialog.InitialDirectory = textBoxFile.Text.GetDirectoryName();
-          if (openFileDialog.ShowDialog(this) == DialogResult.OK) ChangeFileName(openFileDialog.FileName);
-        }
       }
       catch (Exception exc)
       {

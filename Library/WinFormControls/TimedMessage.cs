@@ -44,7 +44,7 @@ namespace CsvTools
       // button1
       // 
       this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-      this.button1.Location = new System.Drawing.Point(194, 127);
+      this.button1.Location = new System.Drawing.Point(175, 102);
       this.button1.Name = "button1";
       this.button1.Size = new System.Drawing.Size(75, 23);
       this.button1.TabIndex = 0;
@@ -58,10 +58,10 @@ namespace CsvTools
       // 
       this.richTextBox.BackColor = System.Drawing.SystemColors.Control;
       this.richTextBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
-      this.richTextBox.Location = new System.Drawing.Point(45, 8);
+      this.richTextBox.Location = new System.Drawing.Point(42, 8);
       this.richTextBox.Name = "richTextBox";
       this.richTextBox.ReadOnly = true;
-      this.richTextBox.Size = new System.Drawing.Size(335, 88);
+      this.richTextBox.Size = new System.Drawing.Size(382, 88);
       this.richTextBox.TabIndex = 3;
       this.richTextBox.Text = "";
       this.richTextBox.MouseEnter += new System.EventHandler(this.MouseEnterElement);
@@ -72,7 +72,7 @@ namespace CsvTools
       this.label.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
       this.label.AutoSize = true;
       this.label.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
-      this.label.Location = new System.Drawing.Point(2, 132);
+      this.label.Location = new System.Drawing.Point(2, 107);
       this.label.Name = "label";
       this.label.Size = new System.Drawing.Size(104, 13);
       this.label.TabIndex = 2;
@@ -87,7 +87,7 @@ namespace CsvTools
       // 
       this.button2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
       this.button2.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-      this.button2.Location = new System.Drawing.Point(274, 127);
+      this.button2.Location = new System.Drawing.Point(255, 102);
       this.button2.Name = "button2";
       this.button2.Size = new System.Drawing.Size(75, 23);
       this.button2.TabIndex = 1;
@@ -100,7 +100,7 @@ namespace CsvTools
       // button3
       // 
       this.button3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-      this.button3.Location = new System.Drawing.Point(355, 127);
+      this.button3.Location = new System.Drawing.Point(336, 102);
       this.button3.Name = "button3";
       this.button3.Size = new System.Drawing.Size(75, 23);
       this.button3.TabIndex = 2;
@@ -114,7 +114,7 @@ namespace CsvTools
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-      this.ClientSize = new System.Drawing.Size(445, 152);
+      this.ClientSize = new System.Drawing.Size(426, 127);
       this.Controls.Add(this.button2);
       this.Controls.Add(this.button3);
       this.Controls.Add(this.button1);
@@ -226,14 +226,11 @@ namespace CsvTools
       Close();
     }
 
-    private bool m_IconSet = false;
-
     private void TimedMessage_Paint(object sender, PaintEventArgs e)
     {
-      if (m_IconSet || m_MessageBoxIcon == MessageBoxIcon.None)
+      if (m_MessageBoxIcon == MessageBoxIcon.None)
         return;
-
-      m_IconSet = true;
+      
       switch (m_MessageBoxIcon)
       {
         case MessageBoxIcon.Question:

@@ -208,9 +208,9 @@ namespace CsvTools
       this.m_BtnPrevious = new System.Windows.Forms.Button();
       label1 = new System.Windows.Forms.Label();
       this.SuspendLayout();
-      //
+      // 
       // label1
-      //
+      // 
       label1.AutoSize = true;
       label1.ForeColor = System.Drawing.SystemColors.InfoText;
       label1.Location = new System.Drawing.Point(12, 8);
@@ -218,15 +218,15 @@ namespace CsvTools
       label1.Size = new System.Drawing.Size(56, 13);
       label1.TabIndex = 0;
       label1.Text = "Find what:";
-      //
+      // 
       // m_BtnCancel
-      //
+      // 
       this.m_BtnCancel.BackColor = System.Drawing.SystemColors.Info;
       this.m_BtnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
       this.m_BtnCancel.FlatAppearance.BorderColor = System.Drawing.SystemColors.ButtonFace;
       this.m_BtnCancel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
       this.m_BtnCancel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-      this.m_BtnCancel.Image = global::CsvToolLib.Resources.Close;
+      this.m_BtnCancel.Image = CsvToolLib.Resources.Close;
       this.m_BtnCancel.ImageAlign = System.Drawing.ContentAlignment.BottomCenter;
       this.m_BtnCancel.Location = new System.Drawing.Point(296, 2);
       this.m_BtnCancel.Name = "m_BtnCancel";
@@ -234,21 +234,21 @@ namespace CsvTools
       this.m_BtnCancel.TabIndex = 4;
       this.m_BtnCancel.UseVisualStyleBackColor = false;
       this.m_BtnCancel.Click += new System.EventHandler(this.Cancel_Click);
-      //
-      // m_TextBoxText
-      //
+      // 
+      // m_SearchTextBoxText
+      // 
       this.m_SearchTextBoxText.BackColor = System.Drawing.SystemColors.Info;
       this.m_SearchTextBoxText.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
       this.m_SearchTextBoxText.ForeColor = System.Drawing.SystemColors.InfoText;
       this.m_SearchTextBoxText.Location = new System.Drawing.Point(70, 5);
       this.m_SearchTextBoxText.MaxLength = 50;
-      this.m_SearchTextBoxText.Name = "m_TextBoxText";
+      this.m_SearchTextBoxText.Name = "m_SearchTextBoxText";
       this.m_SearchTextBoxText.Size = new System.Drawing.Size(134, 20);
       this.m_SearchTextBoxText.TabIndex = 1;
       this.m_SearchTextBoxText.TextChanged += new System.EventHandler(this.SearchText_TextChanged);
-      //
+      // 
       // m_LblResults
-      //
+      // 
       this.m_LblResults.AutoSize = true;
       this.m_LblResults.ForeColor = System.Drawing.SystemColors.InfoText;
       this.m_LblResults.Location = new System.Drawing.Point(210, 8);
@@ -257,9 +257,9 @@ namespace CsvTools
       this.m_LblResults.TabIndex = 0;
       this.m_LblResults.Text = "0 of 0";
       this.m_LblResults.TextChanged += new System.EventHandler(this.LblResultsTextChanged);
-      //
+      // 
       // m_BtnNext
-      //
+      // 
       this.m_BtnNext.BackColor = System.Drawing.SystemColors.Info;
       this.m_BtnNext.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
       this.m_BtnNext.FlatAppearance.BorderColor = System.Drawing.SystemColors.ButtonFace;
@@ -273,9 +273,9 @@ namespace CsvTools
       this.m_BtnNext.TabIndex = 6;
       this.m_BtnNext.UseVisualStyleBackColor = false;
       this.m_BtnNext.Click += new System.EventHandler(this.Next_Click);
-      //
+      // 
       // m_BtnPrevious
-      //
+      // 
       this.m_BtnPrevious.BackColor = System.Drawing.SystemColors.Info;
       this.m_BtnPrevious.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
       this.m_BtnPrevious.FlatAppearance.BorderColor = System.Drawing.SystemColors.ButtonFace;
@@ -289,9 +289,9 @@ namespace CsvTools
       this.m_BtnPrevious.TabIndex = 5;
       this.m_BtnPrevious.UseVisualStyleBackColor = false;
       this.m_BtnPrevious.Click += new System.EventHandler(this.Previous_Click);
-      //
+      // 
       // Search
-      //
+      // 
       this.BackColor = System.Drawing.SystemColors.Info;
       this.Controls.Add(this.m_BtnNext);
       this.Controls.Add(this.m_BtnPrevious);
@@ -303,6 +303,7 @@ namespace CsvTools
       this.Size = new System.Drawing.Size(325, 30);
       this.ResumeLayout(false);
       this.PerformLayout();
+
     }
 
     #endregion Windows Form Designer generated code

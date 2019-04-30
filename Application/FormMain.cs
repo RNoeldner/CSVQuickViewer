@@ -225,21 +225,13 @@ namespace CsvTools
       this.LoadWindowState(m_ViewSettings.WindowPosition);
       Log.Debug($"Show {m_FileName}");
       if (string.IsNullOrEmpty(m_FileName) || !FileSystemUtils.FileExists(m_FileName))
-        using (var openFileDialog = new OpenFileDialog())
-        {
-          if (m_ViewSettings.StoreSettingsByFile)
-            openFileDialog.Filter =
-              "Delimited files (*.csv;*.txt;*.tab;*.tsv;*.dat)|*.csv;*.txt;*.tab;*.tsv;*.dat|Setting files (*" +
-              CsvFile.cCsvSettingExtension + ")|*" + CsvFile.cCsvSettingExtension + "|All files (*.*)|*.*";
-          else
-            openFileDialog.Filter =
-              "Delimited files (*.csv;*.txt;*.tab;*.tsv;*.dat)|*.csv;*.txt;*.tab;*.tsv;*.dat|All files (*.*)|*.*";
-          openFileDialog.ValidateNames = false;
-          if (openFileDialog.ShowDialog(MdiParent) == DialogResult.OK) m_FileName = openFileDialog.FileName.LongFileName();
-        }
+      {
+        var strFilter = (m_ViewSettings.StoreSettingsByFile) ? "Delimited files (*.csv;*.txt;*.tab;*.tsv;*.dat)|*.csv;*.txt;*.tab;*.tsv;*.dat|Setting files (*" +
+            CsvFile.cCsvSettingExtension + ")|*" + CsvFile.cCsvSettingExtension + "|All files (*.*)|*.*" : "Delimited files (*.csv;*.txt;*.tab;*.tsv;*.dat)|*.csv;*.txt;*.tab;*.tsv;*.dat|All files (*.*)|*.*";
+        m_FileName = WindowsAPICodePackWrapper.Open(".", "File", strFilter);
+      }
 
       var doClose = false;
-
       if (string.IsNullOrEmpty(m_FileName) || !FileSystemUtils.FileExists(m_FileName))
       {
         doClose = true;
@@ -519,6 +511,9 @@ namespace CsvTools
         DataTable data;
         using (var processDisplay = m_FileSetting.GetProcessDisplay(this, false, m_CancellationTokenSource.Token))
         {
+          if (processDisplay is IProcessDisplayTime pdt)
+            pdt.AttachTaskbarProgress();
+
           using (var csvDataReader = m_FileSetting.GetFileReader(processDisplay))
           {
             csvDataReader.Warning += warnings.Add;
@@ -566,7 +561,7 @@ namespace CsvTools
           // Show the data
           detailControl.DataTable = data;
         }
-        ApplicationSetting.SQLDataReader = delegate(string settingName, IProcessDisplay processDisplay) { return detailControl.DataTable.CreateDataReader(); };
+        ApplicationSetting.SQLDataReader = delegate (string settingName, IProcessDisplay processDisplay) { return detailControl.DataTable.CreateDataReader(); };
         detailControl.FileSetting = m_FileSetting;
 
         // if (m_FileSetting.NoDelimitedFile)
