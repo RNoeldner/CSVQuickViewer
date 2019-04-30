@@ -44,6 +44,7 @@ namespace CsvTools
       Contract.Requires(dataTable != null);
 
       SuspendLayout();
+      Icon = CsvToolLib.Resources.SubFormIcon;
       DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle
       {
         BackColor = System.Drawing.Color.Gainsboro
@@ -76,8 +77,7 @@ namespace CsvTools
       AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       ClientSize = new System.Drawing.Size(767, 394);
       MinimumSize = new System.Drawing.Size(100, 100);
-      Controls.Add(this.detailControl);
-      Icon = global::CsvToolLib.Resources.SubFormIcon;
+      Controls.Add(this.detailControl);      
       KeyPreview = true;
       Name = "FormDetail";
       ResumeLayout(false);

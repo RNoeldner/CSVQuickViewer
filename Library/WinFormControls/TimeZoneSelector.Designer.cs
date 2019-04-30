@@ -48,7 +48,7 @@
       tableLayoutPanel.Name = "tableLayoutPanel";
       tableLayoutPanel.RowCount = 1;
       tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-      tableLayoutPanel.Size = new System.Drawing.Size(305, 29);
+      tableLayoutPanel.Size = new System.Drawing.Size(305, 26);
       tableLayoutPanel.TabIndex = 30;
       // 
       // comboBoxTimeZoneID
@@ -79,7 +79,7 @@
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.Controls.Add(tableLayoutPanel);
       this.Name = "TimeZoneSelector";
-      this.Size = new System.Drawing.Size(305, 29);
+      this.Size = new System.Drawing.Size(305, 26);
       this.Load += new System.EventHandler(this.TimeZoneSelector_Load);
       tableLayoutPanel.ResumeLayout(false);
       this.ResumeLayout(false);

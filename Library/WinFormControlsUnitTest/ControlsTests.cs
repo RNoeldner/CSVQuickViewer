@@ -12,6 +12,7 @@
  *
  */
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Pri.LongPath;
 using System.Data;
 using System.Windows.Forms;
 
@@ -21,6 +22,7 @@ namespace CsvTools.Tests
   public class ControlsTests
   {
     private static readonly DataTable dataTable = UnitTestStatic.GetDataTable(50);
+    private readonly string m_ApplicationDirectory = FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles";
 
     [TestMethod]
     public void CsvRichTextBox()
@@ -73,7 +75,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void FormColumnUI_Opt1()
     {
-      var csvFile = new CsvFile("BasicCSV.txt");
+      var csvFile = new CsvFile(Path.Combine(m_ApplicationDirectory, "BasicCSV.txt"));
       var col = new Column { Name = "ExamDate", DataType = DataType.DateTime };
       csvFile.ColumnCollection.AddIfNew(col);
       using (var ctrl = new FormColumnUI(col, false, csvFile))
@@ -87,7 +89,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void FormColumnUI_Opt2()
     {
-      var csvFile = new CsvFile("BasicCSV.txt");
+      var csvFile = new CsvFile(Path.Combine(m_ApplicationDirectory, "BasicCSV.txt"));
       var col = new Column { Name = "ExamDate", DataType = DataType.DateTime };
       csvFile.ColumnCollection.AddIfNew(col);
       using (var ctrl = new FormColumnUI(col, false, csvFile))
@@ -101,7 +103,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void FormColumnUI_ButtonGuessClick()
     {
-      var csvFile = new CsvFile("BasicCSV.txt");
+      var csvFile = new CsvFile(Path.Combine(m_ApplicationDirectory, "BasicCSV.txt"));
       var col = new Column { Name = "ExamDate", DataType = DataType.DateTime };
       csvFile.ColumnCollection.AddIfNew(col);
 

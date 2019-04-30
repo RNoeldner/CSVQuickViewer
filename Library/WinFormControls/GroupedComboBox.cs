@@ -479,7 +479,7 @@ namespace CsvTools
         if (comparer == null)
           throw new ApplicationException("DisplayMember property not found");
         // rebuild the collection and sort using custom logic
-        ArrayList arrayList = new ArrayList();
+        var arrayList = new ArrayList();
         foreach (object item in m_BindingSource)
           arrayList.Add(item);
         arrayList.Sort(comparer);

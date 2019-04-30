@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.28721.148
+# Visual Studio 15
+VisualStudioVersion = 15.0.27428.2037
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSVQuickViewer", "Application\CSVQuickViewer.csproj", "{611F276A-12C1-43F1-B4F2-3237529A0265}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -19,7 +19,7 @@ Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "CSVQuickViewer_MSI", "Setup
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Library", "Library", "{7D3C5014-EC8B-4247-9C3C-D5EEF7BB68A0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClassLibraryCSV", "Library\ClassLibraryCSV\ClassLibraryCSV.csproj", "{0B6AEE5A-8005-4B1D-987F-5790C34A2D52}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClassLibraryCSV", "Library\ClassLibraryCSV\ClassLibraryCSV.csproj", "{0B6AEE5A-8005-4B1D-987F-5790C34A2D52}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinFormControls", "Library\WinFormControls\WinFormControls.csproj", "{55AD0A98-C175-4B38-A3D0-321740820D41}"
 EndProject
@@ -70,14 +70,13 @@ Global
 		{55AD0A98-C175-4B38-A3D0-321740820D41}.Debug|x86.Build.0 = Debug|Any CPU
 		{55AD0A98-C175-4B38-A3D0-321740820D41}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{55AD0A98-C175-4B38-A3D0-321740820D41}.Release|Any CPU.Build.0 = Release|Any CPU
-		{55AD0A98-C175-4B38-A3D0-321740820D41}.Release|x86.ActiveCfg = Release|Any CPU
-		{55AD0A98-C175-4B38-A3D0-321740820D41}.Release|x86.Build.0 = Release|Any CPU
+		{55AD0A98-C175-4B38-A3D0-321740820D41}.Release|x86.ActiveCfg = Debug|Any CPU
+		{55AD0A98-C175-4B38-A3D0-321740820D41}.Release|x86.Build.0 = Debug|Any CPU
 		{CE5F0052-F13F-4F51-AA08-4D691EC59D93}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{CE5F0052-F13F-4F51-AA08-4D691EC59D93}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CE5F0052-F13F-4F51-AA08-4D691EC59D93}.Debug|x86.ActiveCfg = Debug|Any CPU
 		{CE5F0052-F13F-4F51-AA08-4D691EC59D93}.Debug|x86.Build.0 = Debug|Any CPU
 		{CE5F0052-F13F-4F51-AA08-4D691EC59D93}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CE5F0052-F13F-4F51-AA08-4D691EC59D93}.Release|Any CPU.Build.0 = Release|Any CPU
 		{CE5F0052-F13F-4F51-AA08-4D691EC59D93}.Release|x86.ActiveCfg = Release|Any CPU
 		{CE5F0052-F13F-4F51-AA08-4D691EC59D93}.Release|x86.Build.0 = Release|Any CPU
 		{DDFEC05C-94F0-4329-9CB2-96D2B4B57050}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -85,7 +84,6 @@ Global
 		{DDFEC05C-94F0-4329-9CB2-96D2B4B57050}.Debug|x86.ActiveCfg = Debug|Any CPU
 		{DDFEC05C-94F0-4329-9CB2-96D2B4B57050}.Debug|x86.Build.0 = Debug|Any CPU
 		{DDFEC05C-94F0-4329-9CB2-96D2B4B57050}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DDFEC05C-94F0-4329-9CB2-96D2B4B57050}.Release|Any CPU.Build.0 = Release|Any CPU
 		{DDFEC05C-94F0-4329-9CB2-96D2B4B57050}.Release|x86.ActiveCfg = Release|Any CPU
 		{DDFEC05C-94F0-4329-9CB2-96D2B4B57050}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
