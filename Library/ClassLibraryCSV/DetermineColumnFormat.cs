@@ -441,9 +441,9 @@ namespace CsvTools
       IProcessDisplay processDisplay)
     {
       if (string.IsNullOrEmpty(fileSettings.SqlStatement))
-        throw new ApplicationException("No SQL Statement given");
+        throw new FileWriterException("No SQL Statement given");
       if (ApplicationSetting.SQLDataReader == null)
-        throw new ApplicationException("No SQL Reader set");
+        throw new FileWriterException("No SQL Reader set");
       using (var dataReader = ApplicationSetting.SQLDataReader(fileSettings.SqlStatement, processDisplay))
       {
         // Put the information into the list

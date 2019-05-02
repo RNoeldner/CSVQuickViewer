@@ -200,7 +200,7 @@ namespace CsvTools.Tests
         }
         Assert.Fail("No Exception");
       }
-      catch (ApplicationException)
+      catch (FileWriterException)
       {
       }
       catch (System.IO.IOException)

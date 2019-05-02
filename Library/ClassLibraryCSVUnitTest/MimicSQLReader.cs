@@ -39,7 +39,7 @@ namespace CsvTools.Tests
     {
       var setting = m_ReadSetting.FirstOrDefault(x => x.ID == settingName);
       if (setting == null)
-        throw new ApplicationException($"{settingName} not found");
+        throw new FileReaderException($"{settingName} not found");
       var reader = setting.GetFileReader(processDisplay);
       reader.Open();
       return reader;

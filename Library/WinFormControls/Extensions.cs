@@ -57,7 +57,7 @@ namespace CsvTools
         {
           var msg = $"Waited longer than {timeoutMinutes * 60:N0} seconds, assuming something is wrong";
           if (raiseError)
-            throw new ApplicationException(msg);
+            throw new TimeoutException(msg);
           else
             Log.Warn(msg);
           break;
@@ -174,8 +174,7 @@ namespace CsvTools
     /// Gets the encrypted passphrase of a setting, if needed it will open a windows form
     /// </summary>
     /// <param name="setting">The setting.</param>
-    /// <returns></returns>
-    /// <exception cref="ApplicationException">
+    /// <returns></returns>    
     /// The private key for decryption has not been setup
     /// or
     /// A passphrase is needed for decryption.
@@ -183,7 +182,7 @@ namespace CsvTools
     public static string GetEncryptedPassphraseOpenForm(this IFileSetting setting)
     {
       if (ApplicationSetting.PGPKeyStorage?.PrivateKeys?.IsEmpty() ?? true)
-        throw new ApplicationException("The private key for decryption has not been setup");
+        throw new EncryptionException("The private key for decryption has not been setup");
 
       if (!string.IsNullOrEmpty(setting?.Passphrase))
         return setting.Passphrase;
@@ -197,7 +196,7 @@ namespace CsvTools
         if (frm.ShowDialog() == DialogResult.OK)
           return frm.EncryptedPassphrase;
         else
-          throw new ApplicationException("A passphrase is needed for decryption.");
+          throw new EncryptionException("A passphrase is needed for decryption.");
       }
     }
 

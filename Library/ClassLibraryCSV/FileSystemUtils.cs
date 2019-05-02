@@ -446,7 +446,7 @@ namespace CsvTools
           return (shortNameBuffer.ToString() + "\\" + fi.Name).RemovePrefix();
       }
 
-      throw new ApplicationException($"Could not get a short path for the file ${longPath}");
+      throw new FileException($"Could not get a short path for the file ${longPath}");
     }
 
     public static SplitResult SplitPath(string path)
