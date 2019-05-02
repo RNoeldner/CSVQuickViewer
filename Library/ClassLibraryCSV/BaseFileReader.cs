@@ -1201,12 +1201,11 @@ namespace CsvTools
             HandleShowProgress("Handling Remote file…");
             ApplicationSetting.RemoteFileHandler(remote.RemoteFileName, m_FileSetting.FileName, m_FileSetting.FullPath, m_ProcessDisplay, remote.ThrowErrorIfNotExists);
           }
-          catch (Exception)
+          catch (Exception ex)
           {
             if (remote.ThrowErrorIfNotExists)
-            {
-              throw;
-            }
+              throw new FileReaderException($"The file is flagged as required for further processing\nAn error has occurred handling file {remote.RemoteFileName}", ex);
+            // ignore otherwise
           }
         }
       }
@@ -1373,7 +1372,7 @@ namespace CsvTools
       {
         return TimeZoneMapping.ConvertTime(input.Value, timeZone, ApplicationSetting.DestinationTimeZone);
       }
-      catch (ApplicationException ex)
+      catch (ConversionException ex)
       {
         HandleWarning(column.ColumnOrdinal, ex.Message);
         return null;

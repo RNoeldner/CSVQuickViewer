@@ -76,7 +76,7 @@ namespace CsvTools
       var columnInfos = GetColumnInformation(reader);
       var enumerable = columnInfos.ToList();
       if (enumerable.IsEmpty())
-        throw new ApplicationException("No columns defined to be written.");
+        throw new FileWriterException("No columns defined to be written.");
       var recordEnd = m_StructuredWriterFile.FileFormat.NewLine.Replace("CR", "\r").Replace("LF", "\n").Replace(" ", "")
         .Replace("\t", "");
       HandleWriteStart();

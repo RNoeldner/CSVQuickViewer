@@ -496,7 +496,7 @@ namespace CsvTools.Tests
       catch (ArgumentException)
       {
       }
-      catch (ApplicationException)
+      catch (FileReaderException)
       {
       }
       catch (Exception)
@@ -1025,7 +1025,7 @@ namespace CsvTools.Tests
       {
         Exception = true;
       }
-      catch (ApplicationException)
+      catch (FileReaderException)
       {
         Exception = true;
       }
@@ -1059,7 +1059,7 @@ namespace CsvTools.Tests
       {
         Exception = true;
       }
-      catch (ApplicationException)
+      catch (FileReaderException)
       {
         Exception = true;
       }
@@ -1093,7 +1093,7 @@ namespace CsvTools.Tests
       {
         Exception = true;
       }
-      catch (ApplicationException)
+      catch (FileReaderException)
       {
         Exception = true;
       }
@@ -1145,7 +1145,7 @@ namespace CsvTools.Tests
       {
         Exception = true;
       }
-      catch (ApplicationException)
+      catch (FileReaderException)
       {
         Exception = true;
       }
@@ -1179,7 +1179,7 @@ namespace CsvTools.Tests
       {
         Exception = true;
       }
-      catch (ApplicationException)
+      catch (FileReaderException)
       {
         Exception = true;
       }
@@ -1215,7 +1215,7 @@ namespace CsvTools.Tests
       {
         Exception = true;
       }
-      catch (ApplicationException)
+      catch (FileReaderException)
       {
         Exception = true;
       }

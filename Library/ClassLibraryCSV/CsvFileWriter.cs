@@ -72,7 +72,7 @@ namespace CsvTools
     /// <returns>
     ///  Number of rows written
     /// </returns>
-    /// <exception cref="ApplicationException">No columns defined to be written.</exception>
+    /// <exception cref="FileWriterException">No columns defined to be written.</exception>
     protected void DataReader2Stream(IDataReader reader, TextWriter writer,
      CancellationToken cancellationToken)
     {
@@ -82,7 +82,7 @@ namespace CsvTools
       var columnInfos = GetColumnInformation(reader);
       var enumerable = columnInfos as ColumnInfo[] ?? columnInfos.ToArray();
       if (enumerable.IsEmpty())
-        throw new ApplicationException("No columns defined to be written.");
+        throw new FileWriterException("No columns defined to be written.");
       var recordEnd = m_CsvFile.FileFormat.NewLine.Replace("CR", "\r").Replace("LF", "\n").Replace(" ", "")
        .Replace("\t", "");
 

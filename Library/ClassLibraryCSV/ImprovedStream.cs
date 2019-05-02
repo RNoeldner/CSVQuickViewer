@@ -70,7 +70,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="setting">The setting.</param>
     /// <returns></returns>
-    /// <exception cref="ApplicationException">
+    /// <exception cref="EncryptionException">
     /// Please provide a passphrase.
     /// or
     /// Please reenter the passphrase, the passphrase could not be decrypted.
@@ -173,14 +173,14 @@ namespace CsvTools
             System.Security.SecureString DecryptedPassphrase = null;
             // need to use the setting function, opening a form to enter the passphrase is not in this library
             if (string.IsNullOrEmpty(EncryptedPassphrase))
-              throw new ApplicationException("Please provide a passphrase.");
+              throw new EncryptionException("Please provide a passphrase.");
             try
             {
               DecryptedPassphrase = EncryptedPassphrase.Decrypt().ToSecureString();
             }
             catch (Exception)
             {
-              throw new ApplicationException("Please reenter the passphrase, the passphrase could not be decrypted.");
+              throw new EncryptionException("Please reenter the passphrase, the passphrase could not be decrypted.");
             }
 
             try
@@ -202,7 +202,7 @@ namespace CsvTools
               }
 
               if (recipinet.Length > 0)
-                throw new ApplicationException($"The message is encrypted for '{recipinet}'.", ex);
+                throw new EncryptionException($"The message is encrypted for '{recipinet}'.", ex);
               else
                 throw;
             }

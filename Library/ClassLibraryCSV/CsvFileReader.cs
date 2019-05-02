@@ -107,7 +107,7 @@ namespace CsvTools
     {
       m_CsvFile = fileSetting;
       if (string.IsNullOrEmpty(m_CsvFile.FileName))
-        throw new ApplicationException("FileName must be set");
+        throw new FileReaderException("FileName must be set");
 
       // if it can not be downloaded it has to exist
       if (ApplicationSetting.RemoteFileHandler == null || string.IsNullOrEmpty(m_CsvFile?.RemoteFileName))
@@ -120,12 +120,10 @@ namespace CsvTools
         m_CsvFile.FileFormat.FieldDelimiterChar == c_Lf ||
         m_CsvFile.FileFormat.FieldDelimiterChar == ' ' ||
         m_CsvFile.FileFormat.FieldDelimiterChar == '\0')
-        throw new ApplicationException(
-         "The field delimiter character is invalid, please use something else than CR, LF or Space");
+        throw new FileReaderException("The field delimiter character is invalid, please use something else than CR, LF or Space");
 
       if (m_CsvFile.FileFormat.FieldDelimiterChar == m_CsvFile.FileFormat.EscapeCharacterChar)
-        throw new ApplicationException(
-         $"The escape character is invalid, please use something else than the field delimiter character {FileFormat.GetDescription(m_CsvFile.FileFormat.EscapeCharacter)}.");
+        throw new FileReaderException($"The escape character is invalid, please use something else than the field delimiter character {FileFormat.GetDescription(m_CsvFile.FileFormat.EscapeCharacter)}.");
 
       m_HasQualifier |= m_CsvFile.FileFormat.FieldQualifierChar != '\0';
 
@@ -134,8 +132,7 @@ namespace CsvTools
         throw new ArgumentOutOfRangeException(
          $"The text quoting and the field delimiter characters of a delimited file cannot be the same. {m_CsvFile.FileFormat.FieldDelimiterChar}");
       if (m_CsvFile.FileFormat.FieldQualifierChar == c_Cr || m_CsvFile.FileFormat.FieldQualifierChar == c_Lf)
-        throw new ApplicationException(
-         "The text quoting characters is invalid, please use something else than CR or LF");
+        throw new FileReaderException("The text quoting characters is invalid, please use something else than CR or LF");
     }
 
     /// <summary>
@@ -277,11 +274,11 @@ namespace CsvTools
         m_CsvFile.FileFormat.FieldDelimiter.WrittenPunctuationToChar() == '\0')
         HandleWarning(-1,
          $"Only the first character of '{m_CsvFile.FileFormat.FieldDelimiter}' is used as delimiter.");
+      
+      base.HandleRemoteFile();
 
       try
-      {
-        base.HandleRemoteFile();
-
+      {       
         HandleShowProgress("Opening…");
 
         ResetPositionToStartOrOpen();
@@ -310,7 +307,7 @@ namespace CsvTools
       catch (Exception ex)
       {
         Close();
-        var appEx = new ApplicationException("Error opening text file for reading.\nPlease make sure the file does exist, is of the right type and is not locked by another process.", ex);
+        var appEx = new FileReaderException("Error opening text file for reading.\nPlease make sure the file does exist, is of the right type and is not locked by another process.", ex);
         HandleError(-1, appEx.ExceptionMessages());
         HandleReadFinished();
         throw appEx;

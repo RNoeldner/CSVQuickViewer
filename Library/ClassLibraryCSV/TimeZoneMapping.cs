@@ -79,7 +79,7 @@ namespace CsvTools
     /// <param name="dateTimeUTC">The date time UTC.</param>
     /// <param name="destTZName">The destination time zone name</param>
     /// <returns></returns>
-    /// <exception cref="ApplicationException"></exception>
+    /// <exception cref="ConversionException"></exception>
     public static DateTime ConvertTimeUTC(this DateTime dateTimeUTC, string destTZName)
     {
       if (dateTimeUTC.Kind != DateTimeKind.Utc)
@@ -252,7 +252,7 @@ namespace CsvTools
       {
         if (m_NeedsInit) InitMapping();
         if (!m_Mapping.TryGetValue(timeZoneName, out tzdbID))
-          throw new ApplicationException($"Time zone adjustment not calculated since time zone {timeZoneName} is unknown.");
+          throw new ConversionException($"Time zone adjustment not calculated since time zone {timeZoneName} is unknown.");
       }
 
       if (!m_UsedTz.Contains(tzdbID))

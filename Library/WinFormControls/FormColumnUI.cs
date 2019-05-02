@@ -113,7 +113,7 @@ namespace CsvTools
               var found = new Column();
               var colum = data.Columns[columName];
               if (colum == null)
-                throw new ApplicationException($"The file does not contain the column {columName}.");
+                throw new ConfigurationException($"The file does not contain the column {columName}.");
 
               found.DataType = colum.DataType.GetDataType();
               if (found.DataType == DataType.String) return;
@@ -572,8 +572,7 @@ namespace CsvTools
     ///   Gets the sample values for a column.
     /// </summary>
     /// <param name="columnName">Name of the column.</param>
-    /// <returns></returns>
-    /// <exception cref="System.ApplicationException">
+    /// <returns></returns>    
     ///   Parent FileSetting not set or The file does not contain the column
     /// </exception>
     private IEnumerable<string> GetSampleValues(string columnName, IProcessDisplay processDisplay)
@@ -581,7 +580,7 @@ namespace CsvTools
       Contract.Requires(!string.IsNullOrEmpty(columnName));
       Contract.Ensures(Contract.Result<IEnumerable<string>>() != null);
       if (m_FileSetting == null)
-        throw new ApplicationException("FileSetting not set");
+        throw new ConfigurationException("FileSetting not set");
 
       try
       {
@@ -600,7 +599,7 @@ namespace CsvTools
           fileReader.Open();
           var colIndex = fileReader.GetOrdinal(columnName);
           if (colIndex < 0)
-            throw new ApplicationException($"Column {columnName} not found.");
+            throw new FileException($"Column {columnName} not found.");
 
           return DetermineColumnFormat.GetSampleValues(fileReader, ApplicationSetting.FillGuessSettings.CheckedRecords,
             colIndex, ApplicationSetting.FillGuessSettings.SampleValues, m_FileSetting.TreatTextAsNull,

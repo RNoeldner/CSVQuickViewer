@@ -256,7 +256,7 @@ namespace CsvTools
           {
             return TimeZoneMapping.ConvertTime(dataObject, sourcetimeZoneID, ApplicationSetting.DestinationTimeZone);
           }
-          catch (ApplicationException ex)
+          catch (ConversionException ex)
           {
             HandleWarning(columnInfo.Header, ex.Message);
           }
@@ -309,7 +309,7 @@ namespace CsvTools
     {
       Contract.Requires(fileFormat != null);
       if (fileFormat.IsFixedLength && columnInfo.FieldLength == 0)
-        throw new ApplicationException("For fix length output the length of the columns needs to be specified.");
+        throw new FileWriterException("For fix length output the length of the columns needs to be specified.");
 
       string displayAs;
       if (isHeader)
