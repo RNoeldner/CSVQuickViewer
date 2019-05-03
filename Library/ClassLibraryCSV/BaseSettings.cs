@@ -83,6 +83,7 @@ namespace CsvTools
       ColumnCollection.CollectionChanged += ColumnCollectionChanged;
       Samples.CollectionChanged += delegate { NotifyPropertyChanged(nameof(Samples)); };
       Errors.CollectionChanged += delegate { if (m_NumErrors > 0 && Errors.Count > m_NumErrors) NumErrors = Errors.Count; NotifyPropertyChanged(nameof(Errors)); };
+      MappingCollection.PropertyChanged += delegate { NotifyPropertyChanged(nameof(MappingCollection)); };
     }
 
     private void ColumnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
