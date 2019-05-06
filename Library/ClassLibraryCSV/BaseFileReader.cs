@@ -1204,7 +1204,7 @@ namespace CsvTools
           catch (Exception ex)
           {
             if (remote.ThrowErrorIfNotExists)
-              throw new FileReaderException($"The file is flagged as required for further processing\nAn error has occurred handling file {remote.RemoteFileName}", ex);
+              throw new FileReaderException($"The file is flagged as required for further processing\nAn error has occurred handling {remote.ID}", ex);
             // ignore otherwise
           }
         }

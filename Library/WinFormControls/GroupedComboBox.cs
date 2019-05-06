@@ -380,7 +380,7 @@ namespace CsvTools
             arrayList.Add(item);
         }
         arrayList.Sort(comparer);
-        if (base.DataSource == null || ((BindingSource)base.DataSource).Count != arrayList.Count || ((BindingSource)base.DataSource).List[0] != arrayList[0])
+        if (base.DataSource == null || ((BindingSource)base.DataSource).Count != arrayList.Count || (arrayList.Count > 0 && ((BindingSource)base.DataSource).List[0] != arrayList[0]))
         {
           m_IsFiltering = true;
           base.DataSource = new BindingSource(arrayList, string.Empty);
