@@ -91,6 +91,10 @@ namespace CsvTools
       var allParsed = true;
       var counter = 0;
       var positiveMatches = 0;
+      var threshHoldPossible = 5;
+      if (samples.Count < threshHoldPossible)
+        threshHoldPossible = samples.Count - 1;
+
       foreach (var value in samples)
       {
         counter++;
@@ -100,25 +104,14 @@ namespace CsvTools
           allParsed = false;
           checkResult.ExampleNonMatch.Add(value);
           // try to get some positive matches, in case the first record is invalid
-          if (counter >= 3)
-          {
-            if (checkResult.ValueFormatPossibleMatch == null)
-            {
-              checkResult.ValueFormatPossibleMatch = new ValueFormat
-              {
-                DataType = DataType.DateTime,
-                DateFormat = shortDateFormat,
-                DateSeparator = dateSeparator,
-                TimeSeparator = timeSeparator
-              };
-            }
+          if (counter >= threshHoldPossible)           
             break;
-          }
         }
         else
         {
           positiveMatches++;
-          if (positiveMatches > 5 && !checkResult.PossibleMatch)
+          // if we have 5 hits or only one fail (for very low number of sample values, assume its a possible match
+          if (positiveMatches >= threshHoldPossible && !checkResult.PossibleMatch)
           {
             checkResult.PossibleMatch = true;
             checkResult.ValueFormatPossibleMatch = new ValueFormat

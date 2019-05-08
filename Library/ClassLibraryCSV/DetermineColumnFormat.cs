@@ -858,7 +858,7 @@ namespace CsvTools
 
       if (cancellationToken.IsCancellationRequested)
         return null;
-
+                 
 
       // ---------------- Text --------------------------
       // in case we have named dates, this is not feasible
@@ -881,75 +881,78 @@ namespace CsvTools
       }
 
       // ---------------- Confirm old provided format would be ok --------------------------      
-      if (guessDateTime && othersValueFormatDate != null)
-      {
-        var res = StringConversion.CheckDate(samples, othersValueFormatDate.DateFormat, othersValueFormatDate.DateSeparator, othersValueFormatDate.TimeSeparator, CultureInfo.CurrentCulture);
-        if (res.FoundValueFormat != null)
-          return res;
-      }
-
-      // if we have less than the required samples values do not try and try to get a type
-      if (count < minRequiredSamples || cancellationToken.IsCancellationRequested)
-        return null;
-
       var firstValue = samples.First();
 
-      if (cancellationToken.IsCancellationRequested)
-        return null;
-
-      // Guess a date format that could be interpreted as number before testing numbers
-      if (guessDateTime && firstValue.Length == 8)
-      {
-        var res = StringConversion.CheckDate(samples, "yyyyMMdd", string.Empty, ":", CultureInfo.InvariantCulture);
-        if (res.FoundValueFormat != null)
-          return res;
-        checkResult.KeepBestPossibleMatch(res);
-      }
-
-      if (cancellationToken.IsCancellationRequested)
-        return null;
-
-      // We need to have at least 10 sample values here its too dangerous to assume it is a date
-      if (guessDateTime && serialDateTime && count > 10 && count > minRequiredSamples)
-      {
-        var res = StringConversion.CheckSerialDate(samples, true);
-        if (res.FoundValueFormat != null)
-          return res;
-        checkResult.KeepBestPossibleMatch(res);
-      }
-
-      if (cancellationToken.IsCancellationRequested)
-        return null;
-
-      // assume dates are of the same format across the files we check if the dates
-      // we have would possibly match no matter how many samples we have
-      if (guessDateTime && othersValueFormatDate != null)
+      if (guessDateTime && othersValueFormatDate != null && StringConversion.DateLengthMatches(firstValue.Length, othersValueFormatDate.DateFormat))
       {
         var res = StringConversion.CheckDate(samples, othersValueFormatDate.DateFormat, othersValueFormatDate.DateSeparator, othersValueFormatDate.TimeSeparator, CultureInfo.CurrentCulture);
         if (res.FoundValueFormat != null)
           return res;
-      }
-
-      if (cancellationToken.IsCancellationRequested)
-        return null;
-
-      // ---------------- Decimal / Integer --------------------------
-      if (guessNumeric)
-      {
-        var res = GuessNumeric(samples, guessPercentage, false, cancellationToken);
-        if (res.FoundValueFormat != null)
-          return res;
         checkResult.KeepBestPossibleMatch(res);
       }
-
+      
       if (cancellationToken.IsCancellationRequested)
         return null;
 
-      // ---------------- Date --------------------------  
-      // Minimum length of a date is 4 characters
-      if (guessDateTime && firstValue.Length > 3)
+      // if we have less than the required samples values do not try and try to get a type
+      if (count >= minRequiredSamples)
       {
-        var res = GuessDateTime(samples, checkNamedDates, cancellationToken);
+        // Guess a date format that could be interpreted as number before testing numbers
+        if (guessDateTime && firstValue.Length == 8)
+        {
+          var res = StringConversion.CheckDate(samples, "yyyyMMdd", string.Empty, ":", CultureInfo.InvariantCulture);
+          if (res.FoundValueFormat != null)
+            return res;
+          checkResult.KeepBestPossibleMatch(res);
+        }
+
+        if (cancellationToken.IsCancellationRequested)
+          return null;
+
+        // We need to have at least 10 sample values here its too dangerous to assume it is a date
+        if (guessDateTime && serialDateTime && count > 10 && count > minRequiredSamples)
+        {
+          var res = StringConversion.CheckSerialDate(samples, true);
+          if (res.FoundValueFormat != null)
+            return res;
+          checkResult.KeepBestPossibleMatch(res);
+        }
+
+        if (cancellationToken.IsCancellationRequested)
+          return null;
+
+        // ---------------- Decimal / Integer --------------------------
+        if (guessNumeric)
+        {
+          var res = GuessNumeric(samples, guessPercentage, false, cancellationToken);
+          if (res.FoundValueFormat != null)
+            return res;
+          checkResult.KeepBestPossibleMatch(res);
+        }
+
+        if (cancellationToken.IsCancellationRequested)
+          return null;
+
+        // ---------------- Date --------------------------  
+        // Minimum length of a date is 4 characters
+        if (guessDateTime && firstValue.Length > 3)
+        {
+          var res = GuessDateTime(samples, checkNamedDates, cancellationToken);
+          if (res.FoundValueFormat != null)
+            return res;
+          checkResult.KeepBestPossibleMatch(res);
+        }
+
+        if (cancellationToken.IsCancellationRequested)
+          return null;
+      }
+
+      // Assume dates are of the same format across the files we check if the dates
+      // we have would possibly match no matter how many samples we have
+      // this time we do not care about matching length Check Date will cut off time information , this is independent from minRequiredSamples
+      if (guessDateTime && othersValueFormatDate != null)
+      {
+        var res = StringConversion.CheckDate(samples, othersValueFormatDate.DateFormat, othersValueFormatDate.DateSeparator, othersValueFormatDate.TimeSeparator, CultureInfo.CurrentCulture);
         if (res.FoundValueFormat != null)
           return res;
         checkResult.KeepBestPossibleMatch(res);
@@ -963,6 +966,7 @@ namespace CsvTools
       if (!guessDateTime || !serialDateTime || guessNumeric)
         return checkResult;
 
+      if (count >= minRequiredSamples)
       {
         var res = StringConversion.CheckSerialDate(samples, false);
         if (res.FoundValueFormat != null)

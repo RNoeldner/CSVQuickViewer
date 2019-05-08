@@ -32,9 +32,9 @@
     /// </summary>
     private void InitializeComponent()
     {
+      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
+      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
       System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormMain));
-      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
-      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
       this.fileSystemWatcher = new System.IO.FileSystemWatcher();
       this.textBoxProgress = new CsvTools.LoggerDisplay();
       this.textPanel = new System.Windows.Forms.Panel();
@@ -100,17 +100,17 @@
       // 
       // detailControl
       // 
-      dataGridViewCellStyle1.BackColor = System.Drawing.Color.Gainsboro;
-      this.detailControl.AlternatingRowDefaultCellSyle = dataGridViewCellStyle1;
+      dataGridViewCellStyle3.BackColor = System.Drawing.Color.Gainsboro;
+      this.detailControl.AlternatingRowDefaultCellSyle = dataGridViewCellStyle3;
       this.detailControl.DataTable = null;
-      dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-      dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
-      dataGridViewCellStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-      dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.ControlText;
-      dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-      dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-      dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-      this.detailControl.DefaultCellStyle = dataGridViewCellStyle2;
+      dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+      dataGridViewCellStyle4.BackColor = System.Drawing.SystemColors.Window;
+      dataGridViewCellStyle4.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+      dataGridViewCellStyle4.ForeColor = System.Drawing.SystemColors.ControlText;
+      dataGridViewCellStyle4.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+      dataGridViewCellStyle4.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+      dataGridViewCellStyle4.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+      this.detailControl.DefaultCellStyle = dataGridViewCellStyle4;
       this.detailControl.Dock = System.Windows.Forms.DockStyle.Fill;
       this.detailControl.Location = new System.Drawing.Point(0, 0);
       this.detailControl.Name = "detailControl";
@@ -129,6 +129,7 @@
       this.Controls.Add(this.textPanel);
       this.HelpButton = true;
       this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+      this.KeyPreview = true;
       this.MinimumSize = new System.Drawing.Size(600, 140);
       this.Name = "FormMain";
       this.Activated += new System.EventHandler(this.Display_Activated);
@@ -136,6 +137,7 @@
       this.Shown += new System.EventHandler(this.Display_Shown);
       this.DragDrop += new System.Windows.Forms.DragEventHandler(this.DataGridView_DragDrop);
       this.DragEnter += new System.Windows.Forms.DragEventHandler(this.DataGridView_DragEnter);
+      this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.FormMain_KeyUp);
       ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher)).EndInit();
       this.textPanel.ResumeLayout(false);
       this.ResumeLayout(false);

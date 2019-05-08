@@ -145,7 +145,7 @@
       // labelDateSep
       // 
       labelDateSep.AutoSize = true;
-      labelDateSep.Location = new System.Drawing.Point(26, 16);
+      labelDateSep.Location = new System.Drawing.Point(29, 16);
       labelDateSep.Name = "labelDateSep";
       labelDateSep.Size = new System.Drawing.Size(82, 13);
       labelDateSep.TabIndex = 0;
@@ -166,7 +166,7 @@
       labelTimeSep.Location = new System.Drawing.Point(28, 41);
       labelTimeSep.Name = "labelTimeSep";
       labelTimeSep.Size = new System.Drawing.Size(82, 13);
-      labelTimeSep.TabIndex = 6;
+      labelTimeSep.TabIndex = 5;
       labelTimeSep.Text = "Time Separator:";
       // 
       // labelLessCommon
@@ -181,24 +181,24 @@
       // labelTCFormat
       // 
       labelTCFormat.AutoSize = true;
-      labelTCFormat.Location = new System.Drawing.Point(176, 41);
+      labelTCFormat.Location = new System.Drawing.Point(389, 16);
       labelTCFormat.Name = "labelTCFormat";
       labelTCFormat.Size = new System.Drawing.Size(106, 13);
-      labelTCFormat.TabIndex = 8;
+      labelTCFormat.TabIndex = 3;
       labelTCFormat.Text = "Time Column Format:";
       // 
       // labelTimeCol
       // 
       labelTimeCol.AutoSize = true;
-      labelTimeCol.Location = new System.Drawing.Point(211, 16);
+      labelTimeCol.Location = new System.Drawing.Point(178, 16);
       labelTimeCol.Name = "labelTimeCol";
       labelTimeCol.Size = new System.Drawing.Size(71, 13);
-      labelTimeCol.TabIndex = 2;
+      labelTimeCol.TabIndex = 1;
       labelTimeCol.Text = "Time Column:";
       // 
       // labelSepBy
       // 
-      labelSepBy.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+      labelSepBy.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
       labelSepBy.AutoSize = true;
       labelSepBy.Location = new System.Drawing.Point(55, 15);
@@ -210,7 +210,7 @@
       // 
       // labelPart
       // 
-      labelPart.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+      labelPart.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
       labelPart.AutoSize = true;
       labelPart.Location = new System.Drawing.Point(94, 41);
@@ -223,10 +223,10 @@
       // label3
       // 
       label3.AutoSize = true;
-      label3.Location = new System.Drawing.Point(413, 16);
+      label3.Location = new System.Drawing.Point(185, 42);
       label3.Name = "label3";
       label3.Size = new System.Drawing.Size(61, 13);
-      label3.TabIndex = 4;
+      label3.TabIndex = 7;
       label3.Text = "TimeZone :";
       // 
       // labelAllowedDateFormats
@@ -236,7 +236,7 @@
       this.labelAllowedDateFormats.Location = new System.Drawing.Point(29, 65);
       this.labelAllowedDateFormats.Name = "labelAllowedDateFormats";
       this.labelAllowedDateFormats.Size = new System.Drawing.Size(79, 13);
-      this.labelAllowedDateFormats.TabIndex = 10;
+      this.labelAllowedDateFormats.TabIndex = 9;
       this.labelAllowedDateFormats.Text = "Date Format(s):";
       // 
       // labelDateOutput
@@ -247,7 +247,7 @@
       this.labelDateOutput.Location = new System.Drawing.Point(339, 102);
       this.labelDateOutput.Name = "labelDateOutput";
       this.labelDateOutput.Size = new System.Drawing.Size(77, 14);
-      this.labelDateOutput.TabIndex = 14;
+      this.labelDateOutput.TabIndex = 13;
       this.labelDateOutput.Text = "Output: \"\"";
       // 
       // comboBoxTPFormat
@@ -255,10 +255,10 @@
       this.comboBoxTPFormat.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.columnBindingSource, "TimePartFormat", true));
       this.comboBoxTPFormat.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
       this.comboBoxTPFormat.FormattingEnabled = true;
-      this.comboBoxTPFormat.Location = new System.Drawing.Point(288, 38);
+      this.comboBoxTPFormat.Location = new System.Drawing.Point(492, 13);
       this.comboBoxTPFormat.Name = "comboBoxTPFormat";
       this.comboBoxTPFormat.Size = new System.Drawing.Size(119, 21);
-      this.comboBoxTPFormat.TabIndex = 9;
+      this.comboBoxTPFormat.TabIndex = 2;
       this.comboBoxTPFormat.TextUpdate += new System.EventHandler(this.DateFormatChanged);
       // 
       // columnBindingSource
@@ -272,7 +272,7 @@
       this.textBoxTrue.Location = new System.Drawing.Point(127, 18);
       this.textBoxTrue.Name = "textBoxTrue";
       this.textBoxTrue.Size = new System.Drawing.Size(50, 20);
-      this.textBoxTrue.TabIndex = 1;
+      this.textBoxTrue.TabIndex = 0;
       // 
       // textBoxFalse
       // 
@@ -280,7 +280,7 @@
       this.textBoxFalse.Location = new System.Drawing.Point(127, 43);
       this.textBoxFalse.Name = "textBoxFalse";
       this.textBoxFalse.Size = new System.Drawing.Size(50, 20);
-      this.textBoxFalse.TabIndex = 3;
+      this.textBoxFalse.TabIndex = 1;
       // 
       // textBoxGroupSeparator
       // 
@@ -288,7 +288,7 @@
       this.textBoxGroupSeparator.Location = new System.Drawing.Point(127, 37);
       this.textBoxGroupSeparator.Name = "textBoxGroupSeparator";
       this.textBoxGroupSeparator.Size = new System.Drawing.Size(28, 20);
-      this.textBoxGroupSeparator.TabIndex = 5;
+      this.textBoxGroupSeparator.TabIndex = 1;
       this.textBoxGroupSeparator.Text = ",";
       this.textBoxGroupSeparator.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
       this.textBoxGroupSeparator.TextChanged += new System.EventHandler(this.NumberFormatChanged);
@@ -299,7 +299,7 @@
       this.textBoxDecimalSeparator.Location = new System.Drawing.Point(127, 63);
       this.textBoxDecimalSeparator.Name = "textBoxDecimalSeparator";
       this.textBoxDecimalSeparator.Size = new System.Drawing.Size(28, 20);
-      this.textBoxDecimalSeparator.TabIndex = 9;
+      this.textBoxDecimalSeparator.TabIndex = 2;
       this.textBoxDecimalSeparator.Text = ".";
       this.textBoxDecimalSeparator.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
       this.textBoxDecimalSeparator.TextChanged += new System.EventHandler(this.NumberFormatChanged);
@@ -311,7 +311,7 @@
       this.textBoxDateSeparator.Location = new System.Drawing.Point(114, 13);
       this.textBoxDateSeparator.Name = "textBoxDateSeparator";
       this.textBoxDateSeparator.Size = new System.Drawing.Size(41, 20);
-      this.textBoxDateSeparator.TabIndex = 1;
+      this.textBoxDateSeparator.TabIndex = 0;
       this.textBoxDateSeparator.TextChanged += new System.EventHandler(this.DateFormatChanged);
       // 
       // label16
@@ -331,7 +331,7 @@
       this.comboBoxDataType.Location = new System.Drawing.Point(3, 30);
       this.comboBoxDataType.Name = "comboBoxDataType";
       this.comboBoxDataType.Size = new System.Drawing.Size(175, 21);
-      this.comboBoxDataType.TabIndex = 3;
+      this.comboBoxDataType.TabIndex = 2;
       this.comboBoxDataType.ValueMember = "ID";
       this.comboBoxDataType.SelectedIndexChanged += new System.EventHandler(this.ComboBoxDataType_SelectedIndexChanged);
       // 
@@ -391,7 +391,7 @@
       this.labelSample.Location = new System.Drawing.Point(346, 85);
       this.labelSample.Name = "labelSample";
       this.labelSample.Size = new System.Drawing.Size(70, 14);
-      this.labelSample.TabIndex = 13;
+      this.labelSample.TabIndex = 12;
       this.labelSample.Text = "Input: \"\"";
       // 
       // label1
@@ -436,10 +436,10 @@
       // 
       this.comboBoxTimeZone.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.columnBindingSource, "TimeZonePart", true));
       this.comboBoxTimeZone.FormattingEnabled = true;
-      this.comboBoxTimeZone.Location = new System.Drawing.Point(480, 11);
+      this.comboBoxTimeZone.Location = new System.Drawing.Point(252, 38);
       this.comboBoxTimeZone.Name = "comboBoxTimeZone";
-      this.comboBoxTimeZone.Size = new System.Drawing.Size(121, 21);
-      this.comboBoxTimeZone.TabIndex = 5;
+      this.comboBoxTimeZone.Size = new System.Drawing.Size(131, 21);
+      this.comboBoxTimeZone.TabIndex = 4;
       // 
       // textBoxTimeSeparator
       // 
@@ -447,17 +447,18 @@
       this.textBoxTimeSeparator.Location = new System.Drawing.Point(114, 39);
       this.textBoxTimeSeparator.Name = "textBoxTimeSeparator";
       this.textBoxTimeSeparator.Size = new System.Drawing.Size(41, 20);
-      this.textBoxTimeSeparator.TabIndex = 7;
+      this.textBoxTimeSeparator.TabIndex = 3;
       // 
       // comboBoxTimePart
       // 
       this.comboBoxTimePart.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Suggest;
       this.comboBoxTimePart.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.columnBindingSource, "TimePart", true));
       this.comboBoxTimePart.FormattingEnabled = true;
-      this.comboBoxTimePart.Location = new System.Drawing.Point(288, 11);
+      this.comboBoxTimePart.Location = new System.Drawing.Point(252, 12);
       this.comboBoxTimePart.Name = "comboBoxTimePart";
-      this.comboBoxTimePart.Size = new System.Drawing.Size(119, 21);
-      this.comboBoxTimePart.TabIndex = 3;
+      this.comboBoxTimePart.Size = new System.Drawing.Size(131, 21);
+      this.comboBoxTimePart.TabIndex = 1;
+      this.comboBoxTimePart.SelectedIndexChanged += new System.EventHandler(this.comboBoxTimePart_SelectedIndexChanged);
       this.comboBoxTimePart.TextUpdate += new System.EventHandler(this.DateFormatChanged);
       // 
       // buttonAddFormat
@@ -465,7 +466,7 @@
       this.buttonAddFormat.Location = new System.Drawing.Point(341, 147);
       this.buttonAddFormat.Name = "buttonAddFormat";
       this.buttonAddFormat.Size = new System.Drawing.Size(96, 24);
-      this.buttonAddFormat.TabIndex = 18;
+      this.buttonAddFormat.TabIndex = 7;
       this.buttonAddFormat.Text = "Add to List";
       this.buttonAddFormat.UseVisualStyleBackColor = true;
       this.buttonAddFormat.Click += new System.EventHandler(this.ButtonAddFormat_Click);
@@ -476,7 +477,7 @@
       this.linkLabel1.Location = new System.Drawing.Point(341, 122);
       this.linkLabel1.Name = "linkLabel1";
       this.linkLabel1.Size = new System.Drawing.Size(101, 13);
-      this.linkLabel1.TabIndex = 15;
+      this.linkLabel1.TabIndex = 14;
       this.linkLabel1.TabStop = true;
       this.linkLabel1.Text = "Region && Language";
       this.linkLabel1.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.RegionAndLanguageLinkClicked);
@@ -487,17 +488,19 @@
       this.checkedListBoxDateFormats.Location = new System.Drawing.Point(114, 65);
       this.checkedListBoxDateFormats.Name = "checkedListBoxDateFormats";
       this.checkedListBoxDateFormats.Size = new System.Drawing.Size(208, 79);
-      this.checkedListBoxDateFormats.TabIndex = 11;
+      this.checkedListBoxDateFormats.TabIndex = 5;
       this.checkedListBoxDateFormats.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.CheckedListBoxDateFormats_ItemCheck);
       this.checkedListBoxDateFormats.SelectedIndexChanged += new System.EventHandler(this.DateFormatChanged);
       // 
       // comboBoxDateFormat
       // 
+      this.comboBoxDateFormat.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Suggest;
+      this.comboBoxDateFormat.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.ListItems;
       this.comboBoxDateFormat.FormattingEnabled = true;
       this.comboBoxDateFormat.Location = new System.Drawing.Point(114, 150);
       this.comboBoxDateFormat.Name = "comboBoxDateFormat";
       this.comboBoxDateFormat.Size = new System.Drawing.Size(208, 21);
-      this.comboBoxDateFormat.TabIndex = 17;
+      this.comboBoxDateFormat.TabIndex = 6;
       this.toolTip.SetToolTip(this.comboBoxDateFormat, global::CsvToolLib.Resources.TimeFomat);
       this.comboBoxDateFormat.TextChanged += new System.EventHandler(this.DateFormatChanged);
       // 
@@ -509,7 +512,7 @@
       this.label4.Location = new System.Drawing.Point(346, 68);
       this.label4.Name = "label4";
       this.label4.Size = new System.Drawing.Size(266, 14);
-      this.label4.TabIndex = 12;
+      this.label4.TabIndex = 11;
       this.label4.Text = "Value: \"7th April 2013  15:45:50 345\"";
       // 
       // groupBoxNumber
@@ -553,7 +556,7 @@
       this.comboBoxNumberFormat.Location = new System.Drawing.Point(127, 12);
       this.comboBoxNumberFormat.Name = "comboBoxNumberFormat";
       this.comboBoxNumberFormat.Size = new System.Drawing.Size(119, 21);
-      this.comboBoxNumberFormat.TabIndex = 1;
+      this.comboBoxNumberFormat.TabIndex = 0;
       this.comboBoxNumberFormat.TextChanged += new System.EventHandler(this.NumberFormatChanged);
       // 
       // label2
@@ -587,7 +590,7 @@
       this.comboBoxColumnName.Location = new System.Drawing.Point(311, 3);
       this.comboBoxColumnName.Name = "comboBoxColumnName";
       this.comboBoxColumnName.Size = new System.Drawing.Size(220, 21);
-      this.comboBoxColumnName.TabIndex = 2;
+      this.comboBoxColumnName.TabIndex = 1;
       this.comboBoxColumnName.Visible = false;
       this.comboBoxColumnName.SelectedIndexChanged += new System.EventHandler(this.ComboBoxColumnName_SelectedIndexChanged);
       this.comboBoxColumnName.TextUpdate += new System.EventHandler(this.ComboBoxColumnName_TextUpdate);
@@ -614,7 +617,7 @@
       this.checkBoxIgnore.Location = new System.Drawing.Point(184, 30);
       this.checkBoxIgnore.Name = "checkBoxIgnore";
       this.checkBoxIgnore.Size = new System.Drawing.Size(110, 26);
-      this.checkBoxIgnore.TabIndex = 4;
+      this.checkBoxIgnore.TabIndex = 3;
       this.checkBoxIgnore.Text = "&Ignore Column";
       this.checkBoxIgnore.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
       this.checkBoxIgnore.UseVisualStyleBackColor = true;
@@ -652,8 +655,8 @@
       this.checkBoxPartToEnd.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.columnBindingSource, "PartToEnd", true));
       this.checkBoxPartToEnd.Location = new System.Drawing.Point(179, 35);
       this.checkBoxPartToEnd.Name = "checkBoxPartToEnd";
-      this.checkBoxPartToEnd.Size = new System.Drawing.Size(67, 27);
-      this.checkBoxPartToEnd.TabIndex = 5;
+      this.checkBoxPartToEnd.Size = new System.Drawing.Size(81, 27);
+      this.checkBoxPartToEnd.TabIndex = 2;
       this.checkBoxPartToEnd.Text = "To End";
       this.checkBoxPartToEnd.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
       this.checkBoxPartToEnd.UseVisualStyleBackColor = false;
@@ -671,7 +674,7 @@
       this.textBoxSplit.MaxLength = 1;
       this.textBoxSplit.Name = "textBoxSplit";
       this.textBoxSplit.Size = new System.Drawing.Size(28, 20);
-      this.textBoxSplit.TabIndex = 1;
+      this.textBoxSplit.TabIndex = 0;
       this.textBoxSplit.Text = ":";
       this.textBoxSplit.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
       this.textBoxSplit.TextChanged += new System.EventHandler(this.SetSamplePart);
@@ -680,11 +683,11 @@
       // textBoxPart
       // 
       this.textBoxPart.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.columnBindingSource, "Part", true));
-      this.textBoxPart.Location = new System.Drawing.Point(129, 38);
+      this.textBoxPart.Location = new System.Drawing.Point(127, 38);
       this.textBoxPart.MaxLength = 2;
       this.textBoxPart.Name = "textBoxPart";
-      this.textBoxPart.Size = new System.Drawing.Size(26, 20);
-      this.textBoxPart.TabIndex = 4;
+      this.textBoxPart.Size = new System.Drawing.Size(28, 20);
+      this.textBoxPart.TabIndex = 1;
       this.textBoxPart.Text = "1";
       this.textBoxPart.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
       this.textBoxPart.TextChanged += new System.EventHandler(this.SetSamplePart);
@@ -726,7 +729,7 @@
       this.textBoxColumnName.Name = "textBoxColumnName";
       this.textBoxColumnName.ReadOnly = true;
       this.textBoxColumnName.Size = new System.Drawing.Size(220, 20);
-      this.textBoxColumnName.TabIndex = 1;
+      this.textBoxColumnName.TabIndex = 0;
       this.textBoxColumnName.Visible = false;
       this.textBoxColumnName.WordWrap = false;
       // 
@@ -743,7 +746,7 @@
       this.buttonDisplayValues.Name = "buttonDisplayValues";
       this.buttonDisplayValues.Size = new System.Drawing.Size(101, 23);
       this.buttonDisplayValues.TabIndex = 1;
-      this.buttonDisplayValues.Text = "     Display Values";
+      this.buttonDisplayValues.Text = "Display &Values";
       this.buttonDisplayValues.UseVisualStyleBackColor = true;
       this.buttonDisplayValues.Click += new System.EventHandler(this.ButtonDisplayValues_Click);
       // 

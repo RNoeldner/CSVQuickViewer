@@ -717,5 +717,14 @@ namespace CsvTools
           break;
       }
     }
+
+    private void FormMain_KeyUp(object sender, KeyEventArgs e)
+    {
+      if (e.KeyCode == Keys.F5 || (e.Control && e.KeyCode == Keys.R))
+      {
+        e.Handled = true;
+        OpenDataReader(true);
+      }
+    }
   }
 }
