@@ -300,7 +300,7 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay()) using (var test = new CsvFileReader(setting, processDisplay))
       {
         test.Open();
-        var samples = DetermineColumnFormat.GetSampleValues(test, 1000, 0, 20, "NULL", CancellationToken.None);
+        var samples = DetermineColumnFormat.GetSampleValues(test, 1000, 0, 20, "NULL", true, CancellationToken.None);
         Assert.AreEqual(7, samples.Count());
 
         Assert.IsTrue(samples.Contains("1"));
@@ -319,7 +319,7 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay()) using (var test = new CsvFileReader(setting, processDisplay))
       {
         test.Open();
-        var samples = DetermineColumnFormat.GetSampleValues(test, 100, 0, 20, "NULL", CancellationToken.None);
+        var samples = DetermineColumnFormat.GetSampleValues(test, 100, 0, 20, "NULL", true, CancellationToken.None);
         Assert.AreEqual(0, samples.Count());
       }
     }

@@ -32,7 +32,7 @@ namespace CsvTools
   /// </summary>
   public partial class FormColumnUI : Form
   {
-    private const string c_NoSampleDate = "The source does not contain any sample data in the first {0} rows.";
+    private const string c_NoSampleDate = "Either the source does not contain any sample data without warnings in the first {0} rows";
     private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
     private readonly Column m_ColumnEdit = new Column();
     private readonly Column m_ColumnRef;
@@ -205,8 +205,8 @@ namespace CsvTools
                 }
               }
 
-              // detect all (except Serial dates) and be content with 2 records if need be
-              var checkResult = DetermineColumnFormat.GuessValueFormat(enumerable, 2,
+              // detect all (except Serial dates) and be content with 1 records if need be
+              var checkResult = DetermineColumnFormat.GuessValueFormat(enumerable, 1,
                 ApplicationSetting.FillGuessSettings.TrueValue, ApplicationSetting.FillGuessSettings.FalseValue,
                 detectBool, detectGuid, detectNumeric, detectDateTime, detectNumeric, ApplicationSetting.FillGuessSettings.SerialDateTime, detectDateTime,
                 DetermineColumnFormat.CommonDateFormat(m_FileSetting.ColumnCollection.Select(x => x.ValueFormat)), processDisplay.CancellationToken);
@@ -242,7 +242,7 @@ namespace CsvTools
                   {
                     if (_MessageBox.Show(this,
                                         $"Determined Format\t: {checkResult.FoundValueFormat.GetTypeAndFormatDescription()}\nClose match\t: {checkResult.ValueFormatPossibleMatch.GetTypeAndFormatDescription()}\n\n{sb}\n\nShould the closest match be used?",
-                                        columName, MessageBoxButtons.YesNo, MessageBoxIcon.Question)== DialogResult.Yes)
+                                        columName, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                     {
                       // use the closest match  instead of Text
                       // can not use ValueFormat.CopyTo,. Column is quite specific and need it to be set,
@@ -251,9 +251,9 @@ namespace CsvTools
                     }
                   }
                   else
-                  _MessageBox.Show(this,
-                    $"Determined Format\t: {checkResult.FoundValueFormat.GetTypeAndFormatDescription()}\nClose match\t: {checkResult.ValueFormatPossibleMatch.GetTypeAndFormatDescription()}\n\n{sb}",
-                    columName, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    _MessageBox.Show(this,
+                      $"Determined Format\t: {checkResult.FoundValueFormat.GetTypeAndFormatDescription()}\nClose match\t: {checkResult.ValueFormatPossibleMatch.GetTypeAndFormatDescription()}\n\n{sb}",
+                      columName, MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 else
                 {
@@ -367,7 +367,7 @@ namespace CsvTools
       Cursor.Current = Cursors.WaitCursor;
       try
       {
-        using (var processDisplay = new FormProcessDisplay("Display Values", false, m_CancellationTokenSource.Token))
+        using (var processDisplay = new FormProcessDisplay("Display Values", true, m_CancellationTokenSource.Token))
         {
           processDisplay.Show(this);
           var values = GetSampleValues(comboBoxColumnName.Text, processDisplay);
@@ -680,8 +680,25 @@ namespace CsvTools
         }
         // must be file reader if this is reached
         bool hasRetried = false;
+
+        var fileSettingCopy = m_FileSetting.Clone();
+        // Make sure that if we do have a CSV file without header that we will skip the first row that
+        // might contain headers, but its simply set as without headers.
+        if (fileSettingCopy is CsvFile csv)
+        {
+          if (!csv.HasFieldHeader && csv.SkipRows == 0) csv.SkipRows = 1;
+          // turn off all warnings as they will cause GetSampleValues to ignore the row
+          csv.TryToSolveMoreColumns = false;
+          csv.WarnDelimiterInValue = false;
+          csv.WarnLineFeed = false;
+          csv.WarnQuotes = false;
+          csv.WarnUnknowCharater = false;
+          csv.WarnNBSP = false;
+          csv.WarnQuotesInQuotes = false;
+        }
+
         retry:
-        using (var fileReader = m_FileSetting.GetFileReader(processDisplay))
+        using (var fileReader = fileSettingCopy.GetFileReader(processDisplay))
         {
           fileReader.Open();
           var colIndex = fileReader.GetOrdinal(columnName);
@@ -700,7 +717,7 @@ namespace CsvTools
           }
 
           return DetermineColumnFormat.GetSampleValues(fileReader, ApplicationSetting.FillGuessSettings.CheckedRecords,
-            colIndex, ApplicationSetting.FillGuessSettings.SampleValues, m_FileSetting.TreatTextAsNull, processDisplay.CancellationToken);
+            colIndex, ApplicationSetting.FillGuessSettings.SampleValues, m_FileSetting.TreatTextAsNull, true, processDisplay.CancellationToken);
         }
       }
       catch (Exception ex)
@@ -915,7 +932,7 @@ namespace CsvTools
 
     private void comboBoxTimePart_SelectedIndexChanged(object sender, EventArgs e)
     {
-      comboBoxTPFormat.Enabled = comboBoxTimePart.SelectedIndex>=0;
+      comboBoxTPFormat.Enabled = comboBoxTimePart.SelectedIndex >= 0;
     }
   }
 }
