@@ -123,14 +123,6 @@
   <metadata name="$this.TrayHeight" type="System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
     <value>97</value>
   </metadata>
-  <data name="textBoxProgress.Threshold" mimetype="application/x-microsoft.net.object.binary.base64">
-    <value>
-        AAEAAAD/////AQAAAAAAAAAMAgAAAEpsb2c0bmV0LCBWZXJzaW9uPTIuMC44LjAsIEN1bHR1cmU9bmV1
-        dHJhbCwgUHVibGljS2V5VG9rZW49NjY5ZTBkZGYwYmIxYWEyYQUBAAAAEmxvZzRuZXQuQ29yZS5MZXZl
-        bAMAAAAMbV9sZXZlbFZhbHVlC21fbGV2ZWxOYW1lEm1fbGV2ZWxEaXNwbGF5TmFtZQABAQgCAAAAMHUA
-        AAYDAAAABURFQlVHCQMAAAAL
-</value>
-  </data>
   <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
   <data name="$this.Icon" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
@@ -296,6 +288,14 @@
         AAAAAAAAAAMAAAAAAAAAAwAAAAAAAAADAAAAAAAAAAMAAP/gAAAAAwAA/+AAAAADAAD/4AAAAAcAAP/g
         AAAABwAA/+AAAAAHAAD/4AAAAAcAAP/gAAAABwAA/+AAAAD/AAD/8AAAB/8AAP///////wAA////////
         AAA=
+</value>
+  </data>
+  <data name="textBoxProgress.Threshold" mimetype="application/x-microsoft.net.object.binary.base64">
+    <value>
+        AAEAAAD/////AQAAAAAAAAAMAgAAAEpsb2c0bmV0LCBWZXJzaW9uPTIuMC44LjAsIEN1bHR1cmU9bmV1
+        dHJhbCwgUHVibGljS2V5VG9rZW49NjY5ZTBkZGYwYmIxYWEyYQUBAAAAEmxvZzRuZXQuQ29yZS5MZXZl
+        bAMAAAAMbV9sZXZlbFZhbHVlC21fbGV2ZWxOYW1lEm1fbGV2ZWxEaXNwbGF5TmFtZQABAQgCAAAAMHUA
+        AAYDAAAABURFQlVHCQMAAAAL
 </value>
   </data>
 </root>
