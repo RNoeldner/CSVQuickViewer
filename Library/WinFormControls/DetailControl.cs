@@ -886,8 +886,11 @@ namespace CsvTools
 
     private void SetButtonVisibility()
     {
-      this.SafeInvoke(() =>
+      try
       {
+        ParentForm.SafeBeginInvoke(() =>
+        {
+
         // Need to set the control containing the buttons to visible
         //
         // Regular
@@ -907,7 +910,14 @@ namespace CsvTools
         m_ToolStripButtonSettings.Visible = m_ShowButtons && m_ShowSettingsButtons;
 
         m_ToolStripTop.Visible = m_ShowButtons;
+
       });
+      }
+      catch (InvalidOperationException)
+      {
+        // ignore error in regards to cross thread issues,  SafeBeginInvoke should have handled this though
+
+      }
     }
 
     /// <summary>

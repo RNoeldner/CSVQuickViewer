@@ -196,6 +196,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Resources\DatabaseTable.ico" />
     <Content Include="Resources\Down.png" />
     <Content Include="Resources\Duplicates.png" />
     <Content Include="Resources\Errors.png" />

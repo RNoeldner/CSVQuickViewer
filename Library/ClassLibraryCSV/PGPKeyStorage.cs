@@ -40,48 +40,48 @@ namespace CsvTools
       "dLz4/oPycBMLecvRato2sYqKHpUuvrOwsCa4N3b2DUnLfk8In4Vbyscj8HTex5r1u0OSfxMvEojPM+JMw7xNPbu3Yvpr+A3OD3tb0pq27DFZPkTmOcB/NrTnzo9F91jtnonqNlXRwJOCzu+rCsVqZ5YXg==0cQKc"
         .Decrypt();
 
-    private readonly List<string> m_PrivateKeyRingBundle = new List<string>();
-    private readonly List<string> m_PublicKeyRingBundle = new List<string>();
+    private readonly List<string> m_EncryptedPrivateKeyRingBundle = new List<string>();
+    private readonly List<string> m_EncryptedPublicKeyRingBundle = new List<string>();
     private bool m_AllowSavingPassphrase = false;
     private string m_EncryptedPassphase = string.Empty;
     private IDictionary<string, PgpPublicKey> m_Recipients;
 
     [XmlIgnore]
-    public virtual bool Specified => m_PrivateKeyRingBundle.Count > 0 || m_PublicKeyRingBundle.Count > 0 || !string.IsNullOrEmpty(EncryptedPassphase);
+    public virtual bool Specified => m_EncryptedPrivateKeyRingBundle.Count > 0 || m_EncryptedPublicKeyRingBundle.Count > 0 || !string.IsNullOrEmpty(EncryptedPassphase);
 
-#pragma warning disable CA1819 // Properties should not return arrays
+#pragma warning disable CA1819 // Properties should not return arrays: Needed for Serialization
 
-    [XmlElement]
+    [XmlElement("PrivateKeys")]
     public virtual string[] PrivateKeys
     {
       get
       {
         Contract.Ensures(Contract.Result<string[]>() != null);
-        return m_PrivateKeyRingBundle.ToArray();
+        return m_EncryptedPrivateKeyRingBundle.ToArray();
       }
       set
       {
-        m_PrivateKeyRingBundle.Clear();
+        m_EncryptedPrivateKeyRingBundle.Clear();
         if (value != null)
-          m_PrivateKeyRingBundle.AddRange(value);
+          m_EncryptedPrivateKeyRingBundle.AddRange(value);
         NotifyPropertyChanged(nameof(PrivateKeys));
         m_Recipients = null;
       }
     }
 
-    [XmlElement]
+    [XmlElement("PublicKeys")]
     public virtual string[] PublicKeys
     {
       get
       {
         Contract.Ensures(Contract.Result<string[]>() != null);
-        return m_PublicKeyRingBundle.ToArray();
+        return m_EncryptedPublicKeyRingBundle.ToArray();
       }
       set
       {
-        m_PublicKeyRingBundle.Clear();
+        m_EncryptedPublicKeyRingBundle.Clear();
         if (value != null)
-          m_PublicKeyRingBundle.AddRange(value);
+          m_EncryptedPublicKeyRingBundle.AddRange(value);
         NotifyPropertyChanged(nameof(PublicKeys));
         m_Recipients = null;
       }
@@ -194,8 +194,8 @@ namespace CsvTools
     {
       if (!IsValidKeyRingBundle(key, true, out _)) return;
       var encKey = key.Encrypt(m_PgpDecryption);
-      if (m_PrivateKeyRingBundle.Any(x => key.Equals(x.Decrypt(m_PgpDecryption), StringComparison.Ordinal))) return;
-      m_PrivateKeyRingBundle.Add(encKey);
+      if (m_EncryptedPrivateKeyRingBundle.Any(x => key.Equals(x.Decrypt(m_PgpDecryption), StringComparison.Ordinal))) return;
+      m_EncryptedPrivateKeyRingBundle.Add(encKey);
       NotifyPropertyChanged(nameof(PrivateKeys));
       m_Recipients = null;
     }
@@ -204,8 +204,8 @@ namespace CsvTools
     {
       if (!IsValidKeyRingBundle(key, false, out _)) return;
       var encKey = key.Encrypt(m_PgpDecryption);
-      if (m_PublicKeyRingBundle.Any(x => key.Equals(x.Decrypt(m_PgpDecryption), StringComparison.Ordinal))) return;
-      m_PublicKeyRingBundle.Add(encKey);
+      if (m_EncryptedPublicKeyRingBundle.Any(x => key.Equals(x.Decrypt(m_PgpDecryption), StringComparison.Ordinal))) return;
+      m_EncryptedPublicKeyRingBundle.Add(encKey);
       NotifyPropertyChanged(nameof(PublicKeys));
       m_Recipients = null;
     }
@@ -272,7 +272,7 @@ namespace CsvTools
           invalid.Add(encryptedKey);
         }
 
-      foreach (var encryptedKey in invalid) m_PublicKeyRingBundle.Remove(encryptedKey);
+      foreach (var encryptedKey in invalid) m_EncryptedPublicKeyRingBundle.Remove(encryptedKey);
       return valid;
     }
 
@@ -285,28 +285,6 @@ namespace CsvTools
     {
       if (m_Recipients != null) return m_Recipients;
       m_Recipients = new Dictionary<string, PgpPublicKey>(StringComparer.OrdinalIgnoreCase);
-
-      if (PrivateKeys != null)
-      {
-        foreach (var encryptedKey in PrivateKeys)
-          using (var keyIn = new MemoryStream(Encoding.UTF8.GetBytes(encryptedKey.Decrypt(m_PgpDecryption))))
-          {
-            var pgpSec = new PgpSecretKeyRingBundle(PgpUtilities.GetDecoderStream(keyIn));
-
-            foreach (PgpSecretKeyRing ring in pgpSec.GetKeyRings())
-            {
-              var key = ring.GetPublicKey();
-              if (!key.IsEncryptionKey) continue;
-              foreach (var userID in key.GetUserIds())
-                if (!m_Recipients.ContainsKey(userID.ToString()))
-                  m_Recipients.Add(userID.ToString(), key);
-              // get the strongest key
-              foreach (var userID in key.GetUserIds())
-                if (m_Recipients[userID.ToString()].BitStrength < key.BitStrength)
-                  m_Recipients[userID.ToString()] = key;
-            }
-          }
-      }
 
       if (PublicKeys != null)
       {
@@ -331,6 +309,29 @@ namespace CsvTools
             }
           }
       }
+
+      if (PrivateKeys != null)
+      {
+        foreach (var encryptedKey in PrivateKeys)
+          using (var keyIn = new MemoryStream(Encoding.UTF8.GetBytes(encryptedKey.Decrypt(m_PgpDecryption))))
+          {
+            var pgpSec = new PgpSecretKeyRingBundle(PgpUtilities.GetDecoderStream(keyIn));
+
+            foreach (PgpSecretKeyRing ring in pgpSec.GetKeyRings())
+            {
+              var key = ring.GetPublicKey();
+              if (!key.IsEncryptionKey) continue;
+              foreach (var userID in key.GetUserIds())
+                if (!m_Recipients.ContainsKey(userID.ToString()))
+                  m_Recipients.Add(userID.ToString(), key);
+              // get the strongest key
+              foreach (var userID in key.GetUserIds())
+                if (m_Recipients[userID.ToString()].BitStrength < key.BitStrength)
+                  m_Recipients[userID.ToString()] = key;
+            }
+          }
+      }
+
       return m_Recipients;
     }
 
@@ -353,7 +354,8 @@ namespace CsvTools
           invalid.Add(encryptedKey);
         }
 
-      foreach (var encryptedKey in invalid) m_PrivateKeyRingBundle.Remove(encryptedKey);
+      foreach (var encryptedKey in invalid)
+        m_EncryptedPrivateKeyRingBundle.Remove(encryptedKey);
       return valid;
     }
 
@@ -434,7 +436,7 @@ namespace CsvTools
             DateTime.Now, new byte[8192]))
           {
             var processDispayTime = processDisplay as IProcessDisplayTime;
-            var max = (int)(toEncrypt.Length / copyBuffer.Length);
+            var max = (int)(toEncrypt.Length / copyBuffer.Length) + 1;
             processDisplay.Maximum = max;
             var count = 0;
             int length;
@@ -452,14 +454,14 @@ namespace CsvTools
 
     public virtual void RemovePrivateKey(int index)
     {
-      m_PrivateKeyRingBundle.RemoveAt(index);
+      m_EncryptedPrivateKeyRingBundle.RemoveAt(index);
       NotifyPropertyChanged(nameof(PrivateKeys));
       m_Recipients = null;
     }
 
     public virtual void RemovePublicKey(int index)
     {
-      m_PublicKeyRingBundle.RemoveAt(index);
+      m_EncryptedPublicKeyRingBundle.RemoveAt(index);
       NotifyPropertyChanged(nameof(PublicKeys));
       m_Recipients = null;
     }
@@ -485,7 +487,7 @@ namespace CsvTools
 
     private Stream GetDecyptedDataStream(PgpEncryptedDataList enc, System.Security.SecureString passphrase)
     {
-      if (PrivateKeys == null) throw new PgpException("Secret key for message not found.");
+      if (PrivateKeys == null) throw new PgpException("Secret keys not setup.");
       foreach (var encryptedKey in PrivateKeys)
         using (var keyIn = new MemoryStream(Encoding.UTF8.GetBytes(encryptedKey.Decrypt(m_PgpDecryption))))
         {
@@ -520,7 +522,7 @@ namespace CsvTools
         if (kvp.Key.ToUpperInvariant().Contains(recipient.ToUpperInvariant()))
           return kvp.Value;
 
-      throw new PgpException($"No encryption key found for {recipient} in known public keys.");
+      throw new PgpException($"No encryption key found for {recipient} in known key(s).");
     }
 
     public override bool Equals(object obj)
@@ -530,21 +532,19 @@ namespace CsvTools
       return (obj is PGPKeyStorage typed) && Equals(typed);
     }
 
-    /*
     /// <summary>Serves as the default hash function. </summary>
     /// <returns>A hash code for the current object.</returns>
     public override int GetHashCode()
     {
       unchecked
       {
-        var hashCode = m_PrivateKeyRingBundle != null ? m_PrivateKeyRingBundle.GetHashCode() : 0;
-        hashCode = (hashCode * 397) ^ (m_PublicKeyRingBundle != null ? m_PublicKeyRingBundle.GetHashCode() : 0);
+        var hashCode = m_EncryptedPrivateKeyRingBundle != null ? m_EncryptedPrivateKeyRingBundle.GetHashCode() : 0;
+        hashCode = (hashCode * 397) ^ (m_EncryptedPublicKeyRingBundle != null ? m_EncryptedPublicKeyRingBundle.GetHashCode() : 0);
         hashCode = (hashCode * 397) ^ m_AllowSavingPassphrase.GetHashCode();
         hashCode = (hashCode * 397) ^ (m_EncryptedPassphase != null ? m_EncryptedPassphase.GetHashCode() : 0);
         hashCode = (hashCode * 397) ^ (m_Recipients != null ? m_Recipients.GetHashCode() : 0);
         return hashCode;
       }
     }
-    */
   }
 }

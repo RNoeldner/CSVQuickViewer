@@ -800,6 +800,28 @@ namespace CsvTools
         AssociatedTimeCol[colindex] = GetOrdinal(Column[colindex].TimePart);
         AssociatedTimeZoneCol[colindex] = GetOrdinal(Column[colindex].TimeZonePart);
       }
+
+      // Any defined column not present in file is removed
+      List<Column> remove = new List<Column>();
+      foreach (var setting in m_FileSetting.ColumnCollection)
+      {
+        var found = false;
+        for (var colindex = 0; colindex < FieldCount; colindex++)
+        {
+          if (Column[colindex].Name.Equals(setting.Name, StringComparison.OrdinalIgnoreCase))
+          {
+            found = true;
+            break;
+          }
+        }
+        if (!found)
+          remove.Add(setting);
+      }
+      foreach (var col in remove)
+      {
+        HandleWarning(-1, $"Defined columns not present in file {col.Name}");
+        m_FileSetting.ColumnCollection.Remove(col);
+      }
     }
 
     /// <summary>
