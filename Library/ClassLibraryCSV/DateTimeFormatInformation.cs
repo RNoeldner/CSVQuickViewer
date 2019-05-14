@@ -9,6 +9,7 @@ namespace CsvTools
   {
     private static int maxDayLong = int.MinValue;
     private static int maxDayMid = int.MinValue;
+    private static int minDesignator = 1;
     private static int maxDesignator = 2;
     private static int maxMonthLong = int.MinValue;
     private static int maxMonthMid = int.MinValue;
@@ -17,11 +18,7 @@ namespace CsvTools
     private static int minMonthLong = int.MaxValue;
     private static int minMonthMid = int.MaxValue;
     private int m_MaxLength;
-    private int m_MinLength;
-
-    public DateTimeFormatInformation()
-    {
-    }
+    private int m_MinLength;   
 
     public DateTimeFormatInformation(string format)
     {
@@ -57,12 +54,16 @@ namespace CsvTools
       format = SetMinMax(format, "ss", ref m_MinLength, ref m_MaxLength, 2, 2);
       format = SetMinMax(format, "s", ref m_MinLength, ref m_MaxLength, 1, 2);
 
+      // interpreted as a standard date and time format specifier
       format = SetMinMax(format, "K", ref m_MinLength, ref m_MaxLength, 0, 6);
-      format = SetMinMax(format, "zzz", ref m_MinLength, ref m_MaxLength, 0, 6);
+
+      // signed offset of the local operating system's time zone from UTC,
+      format = SetMinMax(format, "zzz", ref m_MinLength, ref m_MaxLength, 6, 6);
       format = SetMinMax(format, "zz", ref m_MinLength, ref m_MaxLength, 3, 3);
       format = SetMinMax(format, "z", ref m_MinLength, ref m_MaxLength, 2, 3);
 
-      SetMinMax(format, "tt", ref m_MinLength, ref m_MaxLength, 2, maxDesignator);
+      // AM / PM
+      SetMinMax(format, "tt", ref m_MinLength, ref m_MaxLength, minDesignator, maxDesignator);
     }
 
     //  public string Format { get => m_Format; }
@@ -124,10 +125,15 @@ namespace CsvTools
       }
 
       {
-        if (CultureInfo.CurrentCulture.DateTimeFormat.AMDesignator.Length > 2)
+        if (CultureInfo.CurrentCulture.DateTimeFormat.AMDesignator.Length > maxDesignator)
           maxDesignator = CultureInfo.CurrentCulture.DateTimeFormat.AMDesignator.Length;
-        if (CultureInfo.CurrentCulture.DateTimeFormat.PMDesignator.Length > 2)
+        if (CultureInfo.CurrentCulture.DateTimeFormat.PMDesignator.Length > maxDesignator)
           maxDesignator = CultureInfo.CurrentCulture.DateTimeFormat.AMDesignator.Length;
+
+        if (CultureInfo.CurrentCulture.DateTimeFormat.AMDesignator.Length > minDesignator)
+          minDesignator = CultureInfo.CurrentCulture.DateTimeFormat.AMDesignator.Length;
+        if (CultureInfo.CurrentCulture.DateTimeFormat.PMDesignator.Length > minDesignator)
+          minDesignator = CultureInfo.CurrentCulture.DateTimeFormat.PMDesignator.Length;
       }
     }
 

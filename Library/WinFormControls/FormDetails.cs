@@ -42,9 +42,9 @@ namespace CsvTools
       bool onlyErrors, int frozenColumns, CancellationToken cancellationToken)
     {
       Contract.Requires(dataTable != null);
-
+      
       SuspendLayout();
-      Icon = CsvToolLib.Resources.SubFormIcon;
+      Icon = CsvToolLib.Resources.DatabaseTable;
       DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle
       {
         BackColor = System.Drawing.Color.Gainsboro
@@ -77,7 +77,7 @@ namespace CsvTools
       AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       ClientSize = new System.Drawing.Size(767, 394);
       MinimumSize = new System.Drawing.Size(100, 100);
-      Controls.Add(this.detailControl);      
+      Controls.Add(this.detailControl);
       KeyPreview = true;
       Name = "FormDetail";
       ResumeLayout(false);
@@ -90,6 +90,6 @@ namespace CsvTools
         detailControl.FrozenColumns = frozenColumns;
       if (onlyErrors)
         detailControl.OnlyShowErrors();
-    }
+    }   
   }
 }

@@ -44,7 +44,7 @@ namespace CsvTools
       // button1
       // 
       this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-      this.button1.Location = new System.Drawing.Point(175, 102);
+      this.button1.Location = new System.Drawing.Point(156, 122);
       this.button1.Name = "button1";
       this.button1.Size = new System.Drawing.Size(75, 23);
       this.button1.TabIndex = 0;
@@ -61,7 +61,7 @@ namespace CsvTools
       this.richTextBox.Location = new System.Drawing.Point(42, 8);
       this.richTextBox.Name = "richTextBox";
       this.richTextBox.ReadOnly = true;
-      this.richTextBox.Size = new System.Drawing.Size(382, 88);
+      this.richTextBox.Size = new System.Drawing.Size(365, 108);
       this.richTextBox.TabIndex = 3;
       this.richTextBox.Text = "";
       this.richTextBox.MouseEnter += new System.EventHandler(this.MouseEnterElement);
@@ -72,7 +72,7 @@ namespace CsvTools
       this.label.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
       this.label.AutoSize = true;
       this.label.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
-      this.label.Location = new System.Drawing.Point(2, 107);
+      this.label.Location = new System.Drawing.Point(2, 127);
       this.label.Name = "label";
       this.label.Size = new System.Drawing.Size(104, 13);
       this.label.TabIndex = 2;
@@ -87,7 +87,7 @@ namespace CsvTools
       // 
       this.button2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
       this.button2.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-      this.button2.Location = new System.Drawing.Point(255, 102);
+      this.button2.Location = new System.Drawing.Point(236, 122);
       this.button2.Name = "button2";
       this.button2.Size = new System.Drawing.Size(75, 23);
       this.button2.TabIndex = 1;
@@ -100,7 +100,7 @@ namespace CsvTools
       // button3
       // 
       this.button3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-      this.button3.Location = new System.Drawing.Point(336, 102);
+      this.button3.Location = new System.Drawing.Point(317, 122);
       this.button3.Name = "button3";
       this.button3.Size = new System.Drawing.Size(75, 23);
       this.button3.TabIndex = 2;
@@ -114,7 +114,7 @@ namespace CsvTools
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-      this.ClientSize = new System.Drawing.Size(426, 127);
+      this.ClientSize = new System.Drawing.Size(407, 147);
       this.Controls.Add(this.button2);
       this.Controls.Add(this.button3);
       this.Controls.Add(this.button1);
@@ -230,7 +230,7 @@ namespace CsvTools
     {
       if (m_MessageBoxIcon == MessageBoxIcon.None)
         return;
-      
+
       switch (m_MessageBoxIcon)
       {
         case MessageBoxIcon.Question:
@@ -310,7 +310,7 @@ namespace CsvTools
       if ((m_MessageBoxButtons == MessageBoxButtons.OK
         || m_MessageBoxButtons == MessageBoxButtons.OKCancel) && button1.Text != "&OK")
       {
-        button1.Text = "&OK";        
+        button1.Text = "&OK";
       }
       if ((m_MessageBoxButtons == MessageBoxButtons.YesNo
         || m_MessageBoxButtons == MessageBoxButtons.YesNoCancel) && button1.Text != "&Yes")
@@ -346,7 +346,7 @@ namespace CsvTools
       // Button 3
       if (m_MessageBoxButtons == MessageBoxButtons.AbortRetryIgnore && button3.Text != "&Ignore")
       {
-        button3.Text = "&Ignore";        
+        button3.Text = "&Ignore";
       }
       if (m_MessageBoxButtons == MessageBoxButtons.YesNoCancel && button3.Text != "&Cancel")
       {
@@ -401,6 +401,19 @@ namespace CsvTools
     {
       using (var tm = new TimedMessage())
       {
+        return tm.Show(owner, message, title, buttons, icon, defaultButton, timeout);
+      }
+    }
+
+    public static DialogResult ShowBig(Form owner, string message, string title,
+         MessageBoxButtons buttons = MessageBoxButtons.OKCancel,
+         MessageBoxIcon icon = MessageBoxIcon.None,
+         MessageBoxDefaultButton defaultButton = MessageBoxDefaultButton.Button1,
+         double timeout = 4.0)
+    {
+      using (var tm = new TimedMessage())
+      {
+        tm.Size = new Size(550, 250);
         return tm.Show(owner, message, title, buttons, icon, defaultButton, timeout);
       }
     }

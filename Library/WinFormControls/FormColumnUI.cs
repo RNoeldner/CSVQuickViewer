@@ -32,7 +32,7 @@ namespace CsvTools
   /// </summary>
   public partial class FormColumnUI : Form
   {
-    private const string c_NoSampleDate = "Either the source does not contain any sample data without warnings in the first {0} rows";
+    private const string c_NoSampleDate = "The source does not contain any sample data without warnings in the {0:N0} records read";
     private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
     private readonly Column m_ColumnEdit = new Column();
     private readonly Column m_ColumnRef;
@@ -149,10 +149,9 @@ namespace CsvTools
             // 3 - 2
             // 4 - Last - 1
 
-            var enumerable = samples.ToList();
-            if (enumerable.IsEmpty())
+            if (samples.Values.IsEmpty())
             {
-              _MessageBox.Show(this, string.Format(CultureInfo.CurrentCulture, c_NoSampleDate, ApplicationSetting.FillGuessSettings.CheckedRecords),
+              _MessageBox.Show(this, string.Format(CultureInfo.CurrentCulture, c_NoSampleDate, samples.RecordsRead),
                 "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             else
@@ -206,79 +205,84 @@ namespace CsvTools
               }
 
               // detect all (except Serial dates) and be content with 1 records if need be
-              var checkResult = DetermineColumnFormat.GuessValueFormat(enumerable, 1,
+              var checkResult = DetermineColumnFormat.GuessValueFormat(samples.Values, 1,
                 ApplicationSetting.FillGuessSettings.TrueValue, ApplicationSetting.FillGuessSettings.FalseValue,
-                detectBool, detectGuid, detectNumeric, detectDateTime, detectNumeric, ApplicationSetting.FillGuessSettings.SerialDateTime, detectDateTime,
+                detectBool, detectGuid, detectNumeric, detectDateTime, detectNumeric, detectDateTime, detectDateTime,
                 DetermineColumnFormat.CommonDateFormat(m_FileSetting.ColumnCollection.Select(x => x.ValueFormat)), processDisplay.CancellationToken);
               processDisplay.Hide();
               if (checkResult == null)
               {
-                _MessageBox.Show(this,
-                  "No Format could be determined, there are not enough sample values:\n" +
-                   enumerable.Take(42).Join("\t"), columName, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                _MessageBox.ShowBig(this, $"No format could be determined in {samples.Values.Count():N0} sample values of {samples.RecordsRead:N0} records.\nSamples:\n" +
+                   samples.Values.Take(42).Join("\t"), $"Column: {columName}", MessageBoxButtons.OK, MessageBoxIcon.Information);
               }
               else
               {
-                if (checkResult.FoundValueFormat != null && checkResult.PossibleMatch)
+                if (checkResult.FoundValueFormat != null || checkResult.PossibleMatch)
                 {
-                  // can not use ValueFormat.CopyTo,. Column is quite specific and need it to be set,
-                  m_ColumnEdit.ValueFormat = checkResult.FoundValueFormat;
 
-                  if (checkResult.ValueFormatPossibleMatch.DataType == DataType.DateTime)
-                    AddFormatToComboBoxDateFormat(checkResult.ValueFormatPossibleMatch.DateFormat);
+                  if (checkResult.FoundValueFormat != null)
+                  {
+                    m_ColumnEdit.ValueFormat = checkResult.FoundValueFormat;
+                    if (checkResult.FoundValueFormat.DataType == DataType.DateTime)
+                      AddFormatToComboBoxDateFormat(checkResult.FoundValueFormat.DateFormat);
 
-                  if (checkResult.FoundValueFormat.DataType == DataType.DateTime)
-                    AddFormatToComboBoxDateFormat(m_ColumnEdit.DateFormat);
-
-                  RefreshData();
+                    // In case possible match has the same information as FoundValueFormat, 
+                    // disregard the possible match
+                    if (checkResult.FoundValueFormat.Equals(checkResult.ValueFormatPossibleMatch))
+                      checkResult.PossibleMatch = false;
+                  }
+                  else if (checkResult.PossibleMatch)
+                  {
+                    if (checkResult.ValueFormatPossibleMatch.DataType == DataType.DateTime)
+                      AddFormatToComboBoxDateFormat(checkResult.ValueFormatPossibleMatch.DateFormat);
+                  }
 
                   var sb = new StringBuilder();
                   if (checkResult.ExampleNonMatch.Count > 0)
-                    sb.AppendFormat("Not matching\t: {0}\n", checkResult.ExampleNonMatch.Take(3).Join("\t"));
-                  sb.AppendFormat("Samples     \t: {0}", enumerable.Take(42).Join("\t"));
-                  bool suggestClosestMatch = (checkResult.FoundValueFormat.DataType == DataType.String && checkResult.PossibleMatch);
+                    sb.AppendFormat("Not matching:\n{0}\n", checkResult.ExampleNonMatch.Take(4).Join("\t"));
+                  sb.AppendFormat("Samples:\n{0}", samples.Values.Take(42).Join("\t"));
 
+                  bool suggestClosestMatch = (checkResult.PossibleMatch && (checkResult.FoundValueFormat == null || checkResult.FoundValueFormat.DataType == DataType.String));
+
+                  var msg = $"Determined Format\t: {checkResult.FoundValueFormat.GetTypeAndFormatDescription()}\n";
+                  if (checkResult.PossibleMatch)
+                    msg += $"          Close match\t: {checkResult.ValueFormatPossibleMatch.GetTypeAndFormatDescription()}\n";
+                  msg += "\n" + sb.ToString();
                   if (suggestClosestMatch)
                   {
-                    if (_MessageBox.Show(this,
-                                        $"Determined Format\t: {checkResult.FoundValueFormat.GetTypeAndFormatDescription()}\nClose match\t: {checkResult.ValueFormatPossibleMatch.GetTypeAndFormatDescription()}\n\n{sb}\n\nShould the closest match be used?",
-                                        columName, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                    if (_MessageBox.ShowBig(this, $"{msg}\n\nShould the closest match be used?",
+                                        $"Column: {columName}", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                     {
                       // use the closest match  instead of Text
                       // can not use ValueFormat.CopyTo,. Column is quite specific and need it to be set,
                       m_ColumnEdit.ValueFormat = checkResult.ValueFormatPossibleMatch;
-                      RefreshData();
                     }
                   }
                   else
-                    _MessageBox.Show(this,
-                      $"Determined Format\t: {checkResult.FoundValueFormat.GetTypeAndFormatDescription()}\nClose match\t: {checkResult.ValueFormatPossibleMatch.GetTypeAndFormatDescription()}\n\n{sb}",
-                      columName, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                  {
+                    _MessageBox.ShowBig(this, msg, $"Column: {columName}", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                  }
+
+                  RefreshData();
                 }
                 else
                 {
-                  // add the regular samples to the invalids that are first
-                  var examples = checkResult.ExampleNonMatch.Concat(enumerable).Take(42);
+                  // add the regular samples to the invalids that are first                  
+                  var displayMsg = $"No specific format found in {samples.RecordsRead:N0} records. Need {ApplicationSetting.FillGuessSettings.MinSamples:N0} distinct values.\n\n{checkResult.ExampleNonMatch.Concat(samples.Values).Take(42).Join("\t")}";
 
-                  if (enumerable.Count() < ApplicationSetting.FillGuessSettings.MinSamplesForIntDate)
+                  if (samples.Values.Count() < ApplicationSetting.FillGuessSettings.MinSamples)
                   {
-                    _MessageBox.Show(this,
-                      $"No specific format found in:\n{examples.Join("\t")}.\n\nMaybe not enough distinct values have been found.",
-                      columName, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    _MessageBox.ShowBig(this, displayMsg, $"Column: {columName}", MessageBoxButtons.OK, MessageBoxIcon.Information);
                   }
                   else
                   {
                     if (m_ColumnEdit.ValueFormat.DataType == DataType.String)
                     {
-                      _MessageBox.Show(this,
-                        $"No specific format found in:\n{examples.Join("\t")}",
-                        columName, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                      _MessageBox.ShowBig(this, displayMsg, $"Column: {columName}", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                     else
                     {
-                      if (_MessageBox.Show(this,
-                            $"No specific format found in:\n{examples.Join("\t")}\nShould this be set to text?",
-                            columName, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                      if (_MessageBox.ShowBig(this, displayMsg + "\n\nShould this be set to text?", $"Column: {columName}", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                       {
                         m_ColumnEdit.ValueFormat.DataType = DataType.String;
                       }
@@ -373,15 +377,14 @@ namespace CsvTools
           var values = GetSampleValues(comboBoxColumnName.Text, processDisplay);
           processDisplay.Hide();
           Cursor.Current = Cursors.Default;
-          var enumerable = values.ToList();
-          if (enumerable.IsEmpty())
+          if (values.Values.IsEmpty())
           {
-            _MessageBox.Show(this, string.Format(CultureInfo.CurrentCulture, c_NoSampleDate, ApplicationSetting.FillGuessSettings.CheckedRecords),
+            _MessageBox.Show(this, string.Format(CultureInfo.CurrentCulture, c_NoSampleDate, values.RecordsRead),
               comboBoxColumnName.Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
           }
           else
           {
-            _MessageBox.Show(this, "Found values:\n" + enumerable.Take(42).Join("\t"), comboBoxColumnName.Text,
+            _MessageBox.Show(this, "Found values:\n" + values.Values.Take(42).Join("\t"), comboBoxColumnName.Text,
               MessageBoxButtons.OK, MessageBoxIcon.Information);
           }
         }
@@ -656,7 +659,7 @@ namespace CsvTools
     /// <returns></returns>    
     ///   Parent FileSetting not set or The file does not contain the column
     /// </exception>
-    private IEnumerable<string> GetSampleValues(string columnName, IProcessDisplay processDisplay)
+    private DetermineColumnFormat.SampleResult GetSampleValues(string columnName, IProcessDisplay processDisplay)
     {
       Contract.Requires(!string.IsNullOrEmpty(columnName));
       Contract.Ensures(Contract.Result<IEnumerable<string>>() != null);
@@ -717,14 +720,14 @@ namespace CsvTools
           }
 
           return DetermineColumnFormat.GetSampleValues(fileReader, ApplicationSetting.FillGuessSettings.CheckedRecords,
-            colIndex, ApplicationSetting.FillGuessSettings.SampleValues, m_FileSetting.TreatTextAsNull, true, processDisplay.CancellationToken);
+            colIndex, ApplicationSetting.FillGuessSettings.SampleValues, m_FileSetting.TreatTextAsNull, processDisplay.CancellationToken);
         }
       }
       catch (Exception ex)
       {
         this.ShowError(ex, "Getting Sample Values");
       }
-      return new List<string>();
+      return new DetermineColumnFormat.SampleResult(new List<string>(), 0);
     }
 
     /// <summary>

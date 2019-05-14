@@ -33,7 +33,7 @@ namespace CsvTools.Tests
         FalseValue = "Never",
         TrueValue = "Always",
         IgnoreIdColums = false,
-        MinSamplesForIntDate = 5,
+        MinSamples = 5,
         SampleValues = 5,
         SerialDateTime = true
       };
@@ -57,7 +57,7 @@ namespace CsvTools.Tests
         FalseValue = "Never",
         TrueValue = "Always",
         IgnoreIdColums = false,
-        MinSamplesForIntDate = 5,
+        MinSamples = 5,
         SampleValues = 5,
         SerialDateTime = true
       };
@@ -74,7 +74,7 @@ namespace CsvTools.Tests
         FalseValue = "false",
         TrueValue = "true",
         IgnoreIdColums = !a.IgnoreIdColums,
-        MinSamplesForIntDate = a.MinSamplesForIntDate + 1,
+        MinSamples = a.MinSamples + 1,
         SampleValues = a.SampleValues + 2,
         SerialDateTime = false
       };
@@ -99,7 +99,7 @@ namespace CsvTools.Tests
         FalseValue = "Never",
         TrueValue = "Always",
         IgnoreIdColums = false,
-        MinSamplesForIntDate = 5,
+        MinSamples = 5,
         SampleValues = 5,
         SerialDateTime = true
       };

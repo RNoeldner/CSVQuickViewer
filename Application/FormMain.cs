@@ -73,7 +73,7 @@ namespace CsvTools
       m_SettingsChangedTimerChange.AutoReset = false;
       m_SettingsChangedTimerChange.Elapsed += delegate { this.SafeInvoke(() => OpenDataReader(true)); };
       m_SettingsChangedTimerChange.Stop();
-
+      
       // Done in code to be able to select controls in the designer
       textPanel.SuspendLayout();
       textPanel.Dock = DockStyle.Fill;
@@ -85,7 +85,7 @@ namespace CsvTools
       Text = AssemblyTitle;
 
       SystemEvents.DisplaySettingsChanged += SystemEvents_DisplaySettingsChanged;
-      SystemEvents.PowerModeChanged += SystemEvents_PowerModeChanged;
+      SystemEvents.PowerModeChanged += SystemEvents_PowerModeChanged;      
     }
 
     private static string AssemblyTitle

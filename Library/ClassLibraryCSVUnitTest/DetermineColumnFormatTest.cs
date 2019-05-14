@@ -99,10 +99,10 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay())
       {
         setting.FillGuessColumnFormatReader(false, processDisplay);
-        Assert.AreEqual(DataType.Integer, setting.ColumnCollection.Get("ID").DataType);
-        Assert.AreEqual(DataType.DateTime, setting.ColumnCollection.Get("ExamDate").DataType);
-        Assert.AreEqual(DataType.Boolean, setting.ColumnCollection.Get("IsNativeLang").DataType);
       }
+      Assert.AreEqual(DataType.Integer, setting.ColumnCollection.Get("ID").DataType);
+      Assert.AreEqual(DataType.DateTime, setting.ColumnCollection.Get("ExamDate").DataType);
+      Assert.AreEqual(DataType.Boolean, setting.ColumnCollection.Get("IsNativeLang").DataType);      
     }
 
     [TestMethod]
@@ -113,7 +113,7 @@ namespace CsvTools.Tests
         using (var processDisplay = new DummyProcessDisplay())
         {
           var res = DetermineColumnFormat.GetSampleValues(dt, 0, 20, string.Empty, processDisplay.CancellationToken);
-          Assert.AreEqual(0, res.Count());
+          Assert.AreEqual(0, res.Values.Count());
         }
       }
     }
@@ -140,7 +140,8 @@ namespace CsvTools.Tests
         using (var processDisplay = new DummyProcessDisplay())
         {
           var res = DetermineColumnFormat.GetSampleValues(dt, 0, 20, string.Empty, processDisplay.CancellationToken);
-          Assert.AreEqual(20, res.Count());
+          Assert.IsTrue(res.RecordsRead >= 20);
+          Assert.AreEqual(20, res.Values.Count());
         }
       }
     }
@@ -235,6 +236,7 @@ namespace CsvTools.Tests
       {
         setting.FillGuessColumnFormatReader(false, processDisplay);
       }
+      Assert.AreEqual(5, setting.ColumnCollection.Count, "Number of recognized Columns");
       Assert.AreEqual(DataType.DateTime, setting.ColumnCollection[2].DataType, "column2");
       Assert.AreEqual(DataType.DateTime, setting.ColumnCollection[3].DataType, "column3");
       Assert.AreEqual(DataType.DateTime, setting.ColumnCollection[4].DataType, "column4");
@@ -300,11 +302,11 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay()) using (var test = new CsvFileReader(setting, processDisplay))
       {
         test.Open();
-        var samples = DetermineColumnFormat.GetSampleValues(test, 1000, 0, 20, "NULL", true, CancellationToken.None);
-        Assert.AreEqual(7, samples.Count());
-
-        Assert.IsTrue(samples.Contains("1"));
-        Assert.IsTrue(samples.Contains("4"));
+        var samples = DetermineColumnFormat.GetSampleValues(test, 1000, 0, 20, "NULL", CancellationToken.None);
+        Assert.AreEqual(7, samples.Values.Count());
+        Assert.IsTrue(samples.RecordsRead >= 7);
+        Assert.IsTrue(samples.Values.Contains("1"));
+        Assert.IsTrue(samples.Values.Contains("4"));
       }
     }
 
@@ -319,8 +321,9 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay()) using (var test = new CsvFileReader(setting, processDisplay))
       {
         test.Open();
-        var samples = DetermineColumnFormat.GetSampleValues(test, 100, 0, 20, "NULL", true, CancellationToken.None);
-        Assert.AreEqual(0, samples.Count());
+        var samples = DetermineColumnFormat.GetSampleValues(test, 100, 0, 20, "NULL", CancellationToken.None);
+        Assert.AreEqual(0, samples.RecordsRead);
+        Assert.AreEqual(0, samples.Values.Count());
       }
     }
 
@@ -351,7 +354,7 @@ namespace CsvTools.Tests
 
       var res = DetermineColumnFormat.GuessValueFormat(values, 4, null, "false", true, false, true,
         true, true, false, false, null, CancellationToken.None);
-      Assert.IsNull(res);
+      Assert.AreEqual(DataType.String, res.FoundValueFormat.DataType);
     }
 
     [TestMethod]

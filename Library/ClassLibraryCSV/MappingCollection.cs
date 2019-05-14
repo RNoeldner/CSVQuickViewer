@@ -12,7 +12,7 @@ namespace CsvTools
     }
 
     public event PropertyChangedEventHandler PropertyChanged;
-    
+
     public bool AddIfNew(Mapping fieldMapping)
     {
       if (fieldMapping == null)
@@ -36,7 +36,7 @@ namespace CsvTools
         Add(fieldMapping);
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Collection"));
       }
-        
+
 
       return !found;
     }
@@ -83,10 +83,13 @@ namespace CsvTools
     /// <returns>Null if the template table field is not mapped</returns>
     public Mapping GetByField(string templateField)
     {
-      foreach (var map in Items)
+      if (!string.IsNullOrEmpty(templateField))
       {
-        if (map.TemplateField.Equals(templateField, StringComparison.OrdinalIgnoreCase))
-          return map;
+        foreach (var map in Items)
+        {
+          if (map.TemplateField.Equals(templateField, StringComparison.OrdinalIgnoreCase))
+            return map;
+        }
       }
       return null;
     }

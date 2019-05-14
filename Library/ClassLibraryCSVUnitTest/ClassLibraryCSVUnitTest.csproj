@@ -165,6 +165,7 @@
     <Compile Include="ColumnSizeTests.cs" />
     <Compile Include="ColumnTest.cs" />
     <Compile Include="CsvFileWriterTest.cs" />
+    <Compile Include="DateTimeFormatInformationTest.cs" />
     <Compile Include="DetermineColumnFormatTest.cs" />
     <Compile Include="DisplayItemTests.cs" />
     <Compile Include="DummyProcessDisplayTests.cs" />

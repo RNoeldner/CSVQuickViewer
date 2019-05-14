@@ -36,7 +36,7 @@ namespace CsvTools
     private bool m_DetectGuid;
     private string m_FalseValue = "False";
     private bool m_IgnoreIdColums = true;
-    private int m_MinSamplesForIntDate = 5;
+    private int m_MinSamples = 5;
     private int m_SampleValues = 150;
     private bool m_SerialDateTime = true;
     private string m_TrueValue = "True";
@@ -208,15 +208,15 @@ namespace CsvTools
     /// </summary>
     [DefaultValue(5)]
     [XmlAttribute]
-    public virtual int MinSamplesForIntDate
+    public virtual int MinSamples
     {
-      get => m_MinSamplesForIntDate;
+      get => m_MinSamples;
 
       set
       {
-        if (m_MinSamplesForIntDate == value || value <= 0 || value >= m_SampleValues) return;
-        m_MinSamplesForIntDate = value;
-        NotifyPropertyChanged(nameof(MinSamplesForIntDate));
+        if (m_MinSamples == value || value <= 0 || value >= m_SampleValues) return;
+        m_MinSamples = value;
+        NotifyPropertyChanged(nameof(MinSamples));
       }
     }
 
@@ -231,7 +231,7 @@ namespace CsvTools
 
       set
       {
-        if (m_SampleValues == value || value <= 0 || value <= m_MinSamplesForIntDate) return;
+        if (m_SampleValues == value || value <= 0 || value <= m_MinSamples) return;
         m_SampleValues = value;
         NotifyPropertyChanged(nameof(SampleValues));
       }
@@ -315,7 +315,7 @@ namespace CsvTools
       other.DetectGUID = DetectGUID;
       other.FalseValue = FalseValue;
       other.IgnoreIdColums = IgnoreIdColums;
-      other.MinSamplesForIntDate = MinSamplesForIntDate;
+      other.MinSamples = MinSamples;
       other.SampleValues = SampleValues;
       other.SerialDateTime = SerialDateTime;
       other.TrueValue = TrueValue;
@@ -337,7 +337,7 @@ namespace CsvTools
              m_DetectBoolean == other.m_DetectBoolean && m_DetectDateTime == other.DetectDateTime &&
              DetectGUID == other.DetectGUID &&
              string.Equals(FalseValue, other.FalseValue, StringComparison.OrdinalIgnoreCase) &&
-             IgnoreIdColums == other.IgnoreIdColums && MinSamplesForIntDate == other.MinSamplesForIntDate &&
+             IgnoreIdColums == other.IgnoreIdColums && MinSamples == other.MinSamples &&
              SampleValues == other.SampleValues && SerialDateTime == other.SerialDateTime &&
              string.Equals(TrueValue, other.TrueValue, StringComparison.OrdinalIgnoreCase);
     }

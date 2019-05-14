@@ -82,7 +82,7 @@ namespace CsvTools
     /// <param name="culture">the culture to check (important for named Days or month)</param>
     /// <returns>
     ///   <c>true</c> if all values can be interpreted as date, <c>false</c> otherwise.</returns>
-    public static CheckResult CheckDate(ICollection<string> samples, string shortDateFormat, string dateSeparator,
+    public static CheckResult CheckDate(IEnumerable<string> samples, string shortDateFormat, string dateSeparator,
       string timeSeparator, CultureInfo culture)
     {
       var checkResult = new CheckResult();
@@ -92,8 +92,8 @@ namespace CsvTools
       var counter = 0;
       var positiveMatches = 0;
       var threshHoldPossible = 5;
-      if (samples.Count < threshHoldPossible)
-        threshHoldPossible = samples.Count - 1;
+      if (samples.Count() < threshHoldPossible)
+        threshHoldPossible = samples.Count() - 1;
 
       foreach (var value in samples)
       {
@@ -104,7 +104,7 @@ namespace CsvTools
           allParsed = false;
           checkResult.ExampleNonMatch.Add(value);
           // try to get some positive matches, in case the first record is invalid
-          if (counter >= threshHoldPossible)           
+          if (counter >= 5)           
             break;
         }
         else
@@ -144,7 +144,7 @@ namespace CsvTools
     /// <returns>
     ///   <c>true</c> if all values can be interpreted as Guid, <c>false</c> otherwise.
     /// </returns>
-    public static bool CheckGuid(ICollection<string> samples)
+    public static bool CheckGuid(IEnumerable<string> samples)
     {
       if (samples.IsEmpty())
         return false;
@@ -169,7 +169,7 @@ namespace CsvTools
     /// <returns>
     ///   <c>true</c> if all values can be interpreted as numbers, <c>false</c> otherwise.
     /// </returns>
-    public static CheckResult CheckNumber(ICollection<string> samples, char decimalSeparator, char thousandSeparator,
+    public static CheckResult CheckNumber(IEnumerable<string> samples, char decimalSeparator, char thousandSeparator,
       bool allowPercentage, bool allowStartingZero)
     {
       var checkResult = new CheckResult();
@@ -244,7 +244,7 @@ namespace CsvTools
     /// <returns>
     ///   <c>true</c> if all values can be interpreted as date, <c>false</c> otherwise.
     /// </returns>
-    public static CheckResult CheckSerialDate(ICollection<string> samples, bool isCloseToNow)
+    public static CheckResult CheckSerialDate(IEnumerable<string> samples, bool isCloseToNow)
     {
       var checkResult = new CheckResult();
       if (samples.IsEmpty())
