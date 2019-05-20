@@ -22,6 +22,7 @@ namespace CsvTools
     private MessageBoxButtons m_MessageBoxButtons = MessageBoxButtons.OKCancel;
     private MessageBoxIcon m_MessageBoxIcon = MessageBoxIcon.None;
     private RichTextBox richTextBox;
+    private PictureBox pictureBox;
     private Timer timer;
 
     #region Windows Form Designer generated code
@@ -39,14 +40,17 @@ namespace CsvTools
       this.timer = new System.Windows.Forms.Timer(this.components);
       this.button2 = new System.Windows.Forms.Button();
       this.button3 = new System.Windows.Forms.Button();
+      this.pictureBox = new System.Windows.Forms.PictureBox();
+      ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
       this.SuspendLayout();
       // 
       // button1
       // 
       this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-      this.button1.Location = new System.Drawing.Point(156, 122);
+      this.button1.Location = new System.Drawing.Point(208, 150);
+      this.button1.Margin = new System.Windows.Forms.Padding(4);
       this.button1.Name = "button1";
-      this.button1.Size = new System.Drawing.Size(75, 23);
+      this.button1.Size = new System.Drawing.Size(100, 28);
       this.button1.TabIndex = 0;
       this.button1.Text = "button1";
       this.button1.UseVisualStyleBackColor = true;
@@ -58,10 +62,11 @@ namespace CsvTools
       // 
       this.richTextBox.BackColor = System.Drawing.SystemColors.Control;
       this.richTextBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
-      this.richTextBox.Location = new System.Drawing.Point(42, 8);
+      this.richTextBox.Location = new System.Drawing.Point(71, 10);
+      this.richTextBox.Margin = new System.Windows.Forms.Padding(4);
       this.richTextBox.Name = "richTextBox";
       this.richTextBox.ReadOnly = true;
-      this.richTextBox.Size = new System.Drawing.Size(365, 108);
+      this.richTextBox.Size = new System.Drawing.Size(472, 133);
       this.richTextBox.TabIndex = 3;
       this.richTextBox.Text = "";
       this.richTextBox.MouseEnter += new System.EventHandler(this.MouseEnterElement);
@@ -72,9 +77,10 @@ namespace CsvTools
       this.label.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
       this.label.AutoSize = true;
       this.label.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
-      this.label.Location = new System.Drawing.Point(2, 127);
+      this.label.Location = new System.Drawing.Point(3, 156);
+      this.label.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
       this.label.Name = "label";
-      this.label.Size = new System.Drawing.Size(104, 13);
+      this.label.Size = new System.Drawing.Size(137, 17);
       this.label.TabIndex = 2;
       this.label.Text = "Default in 5 seconds";
       // 
@@ -87,9 +93,10 @@ namespace CsvTools
       // 
       this.button2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
       this.button2.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-      this.button2.Location = new System.Drawing.Point(236, 122);
+      this.button2.Location = new System.Drawing.Point(315, 150);
+      this.button2.Margin = new System.Windows.Forms.Padding(4);
       this.button2.Name = "button2";
-      this.button2.Size = new System.Drawing.Size(75, 23);
+      this.button2.Size = new System.Drawing.Size(100, 28);
       this.button2.TabIndex = 1;
       this.button2.Text = "button2";
       this.button2.UseVisualStyleBackColor = true;
@@ -100,9 +107,10 @@ namespace CsvTools
       // button3
       // 
       this.button3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-      this.button3.Location = new System.Drawing.Point(317, 122);
+      this.button3.Location = new System.Drawing.Point(423, 150);
+      this.button3.Margin = new System.Windows.Forms.Padding(4);
       this.button3.Name = "button3";
-      this.button3.Size = new System.Drawing.Size(75, 23);
+      this.button3.Size = new System.Drawing.Size(100, 28);
       this.button3.TabIndex = 2;
       this.button3.Text = "button3";
       this.button3.UseVisualStyleBackColor = true;
@@ -110,20 +118,33 @@ namespace CsvTools
       this.button3.MouseEnter += new System.EventHandler(this.MouseEnterElement);
       this.button3.MouseLeave += new System.EventHandler(this.MouseLeaveElement);
       // 
+      // pictureBox
+      // 
+      this.pictureBox.ErrorImage = null;
+      this.pictureBox.InitialImage = null;
+      this.pictureBox.Location = new System.Drawing.Point(10, 10);
+      this.pictureBox.Margin = new System.Windows.Forms.Padding(0);
+      this.pictureBox.Name = "pictureBox";
+      this.pictureBox.Size = new System.Drawing.Size(56, 56);
+      this.pictureBox.TabIndex = 4;
+      this.pictureBox.TabStop = false;
+      // 
       // TimedMessage
       // 
-      this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+      this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-      this.ClientSize = new System.Drawing.Size(407, 147);
+      this.ClientSize = new System.Drawing.Size(543, 181);
+      this.Controls.Add(this.pictureBox);
       this.Controls.Add(this.button2);
       this.Controls.Add(this.button3);
       this.Controls.Add(this.button1);
       this.Controls.Add(this.label);
       this.Controls.Add(this.richTextBox);
       this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
+      this.Margin = new System.Windows.Forms.Padding(4);
       this.MaximizeBox = false;
       this.MinimizeBox = false;
-      this.MinimumSize = new System.Drawing.Size(300, 100);
+      this.MinimumSize = new System.Drawing.Size(394, 112);
       this.Name = "TimedMessage";
       this.ShowIcon = false;
       this.ShowInTaskbar = false;
@@ -132,6 +153,7 @@ namespace CsvTools
       this.TopMost = true;
       this.Paint += new System.Windows.Forms.PaintEventHandler(this.TimedMessage_Paint);
       this.Resize += new System.EventHandler(this.TimedMessage_Resize);
+      ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).EndInit();
       this.ResumeLayout(false);
       this.PerformLayout();
 
@@ -142,6 +164,7 @@ namespace CsvTools
     public TimedMessage()
     {
       InitializeComponent();
+
     }
 
     public double Duration
@@ -231,28 +254,34 @@ namespace CsvTools
       if (m_MessageBoxIcon == MessageBoxIcon.None)
         return;
 
+      Icon displayIcon = null;
       switch (m_MessageBoxIcon)
       {
         case MessageBoxIcon.Question:
-          e.Graphics.DrawIconUnstretched(SystemIcons.Question, new Rectangle(10, 10, 32, 32));
+          displayIcon = new Icon(SystemIcons.Question, 40, 40);
           break;
 
         case MessageBoxIcon.Error:
+          displayIcon = new Icon(SystemIcons.Error, 40, 40);
           e.Graphics.DrawIconUnstretched(SystemIcons.Error, new Rectangle(10, 10, 32, 32));
           break;
 
         case MessageBoxIcon.Warning:
+          displayIcon = new Icon(SystemIcons.Warning, 40, 40);
           e.Graphics.DrawIconUnstretched(SystemIcons.Warning, new Rectangle(10, 10, 32, 32));
           break;
 
         case MessageBoxIcon.Information:
+          displayIcon = new Icon(SystemIcons.Information, 40, 40);
           e.Graphics.DrawIconUnstretched(SystemIcons.Information, new Rectangle(10, 10, 32, 32));
           break;
 
         default:
           break;
       }
+      pictureBox.Image = displayIcon.ToBitmap();
     }
+
     private void UpdateLabel()
     {
       int displ = Convert.ToInt32((m_Duration - (m_Counter * timer.Interval) / 1000 + .75));
@@ -372,7 +401,7 @@ namespace CsvTools
 
     private void TimedMessage_Resize(object sender, EventArgs e)
     {
-      richTextBox.Width = this.Width - richTextBox.Left - 12;
+      richTextBox.Width = this.Width - pictureBox.Right - 2;
       richTextBox.Height = button1.Top - richTextBox.Top - 5;
     }
 

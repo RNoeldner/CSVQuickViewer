@@ -85,14 +85,26 @@ namespace CsvTools.Tests
         FileName = "Folder\\This is a long file name that should be cut and fit into 80 chars.txt",
         ShowProgress = true
       };
-      Assert.IsTrue(setting.GetProcessDisplay(null, true, System.Threading.CancellationToken.None) is IProcessDisplay, "GetProcessDisplay With Logger");
-      Assert.IsTrue(setting.GetProcessDisplay(null, false, System.Threading.CancellationToken.None) is IProcessDisplay, "GetProcessDisplay Without Logger");
+      using (var prc= setting.GetProcessDisplay(null, true, System.Threading.CancellationToken.None))
+      {
+        Assert.IsTrue(prc is IProcessDisplay, "GetProcessDisplay With Logger");
+      }
+      using (var prc = setting.GetProcessDisplay(null, false, System.Threading.CancellationToken.None))
+      {
+        Assert.IsTrue(prc is IProcessDisplay, "GetProcessDisplay Without Logger");
+      }
+
       var setting2 = new CsvFile()
       {
         FileName = "Folder\\This is a long file name that should be cut and fit into 80 chars.txt",
         ShowProgress = false
       };
-      Assert.IsTrue(setting2.GetProcessDisplay(null, false, System.Threading.CancellationToken.None) is IProcessDisplay, "GetProcessDisplay without UI");
+
+      using (var prc = setting2.GetProcessDisplay(null, false, System.Threading.CancellationToken.None))
+      {
+        Assert.IsTrue(prc is IProcessDisplay, "GetProcessDisplay without UI");
+      }
+       
     }
 
     [TestMethod()]
