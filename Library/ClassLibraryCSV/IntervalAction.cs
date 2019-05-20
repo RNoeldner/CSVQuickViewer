@@ -55,6 +55,9 @@ namespace CsvTools
       action?.Invoke();
     }
 
+    /// <summary>
+    ///  Invoke the given action if the set interval has passed
+    /// </summary>    
     public void Invoke(Action<long> action, long value)
     {
       if (!((DateTime.Now - m_LastNotification).TotalSeconds > m_NotifyAfterSeconds)) return;
@@ -62,11 +65,14 @@ namespace CsvTools
       action?.Invoke(value);
     }
 
-    public void Invoke(Action<string, long> action, string text, long value)
+    /// <summary>
+    ///  Invoke the given action if the set interval has passed
+    /// </summary>
+    public void Invoke(Action<string, long, bool> action, string text, long value, bool log)
     {
       if (!((DateTime.Now - m_LastNotification).TotalSeconds > m_NotifyAfterSeconds)) return;
       m_LastNotification = DateTime.Now;
-      action?.Invoke(text, value);
+      action?.Invoke(text, value, log);
     }
   }
 }

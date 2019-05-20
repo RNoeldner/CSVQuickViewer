@@ -41,6 +41,18 @@ namespace CsvTools
       Text = text;
       Value = value;
     }
+    /// <summary>
+    ///  Initializes a new instance of the <see cref="ProgressEventArgs" /> class.
+    /// </summary>
+    /// <param name="text">The text.</param>
+    /// <param name="value">The progress value.</param>
+    /// <param name="log"><c>True</c> if Progress should be logged, <c>false</c> otherwise.</param>    
+    public ProgressEventArgs(string text, long value, bool log)
+    {
+      Text = text;
+      Value = value;
+      Log = log;
+    }
 
     /// <summary>
     ///  Gets or sets the text.
@@ -55,6 +67,11 @@ namespace CsvTools
     ///  The value.
     /// </value>
     public long Value { get; set; }
+
+    /// <summary>
+    /// Indicating if a progress should be logged or not
+    /// </summary>
+    public bool Log { get; set; } = true;
   }
 
   /// <summary>

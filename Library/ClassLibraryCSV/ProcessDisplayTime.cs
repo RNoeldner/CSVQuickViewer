@@ -47,16 +47,35 @@ namespace CsvTools
     }
 
     public TimeToCompletion TimeToCompletion { get; }
+    /// <summary>
+    ///   Sets the process.
+    /// </summary>
+    /// <param name="text">The text.</param>
+    /// <param name="value">The value.</param>
+    public void SetProcess(string text, long value)
+    {
+      SetProcess(text, value, true);
+    }
 
     /// <summary>
     ///   Sets the process.
     /// </summary>
     /// <param name="text">The text.</param>
     /// <param name="value">The value.</param>
-    public override void SetProcess(string text, long value = -1)
+    public void SetProcess(string text)
+    {
+      SetProcess(text, -1, true);
+    }
+
+    /// <summary>
+    ///   Sets the process.
+    /// </summary>
+    /// <param name="text">The text.</param>
+    /// <param name="value">The value.</param>
+    public override void SetProcess(string text, long value, bool log)
     {
       TimeToCompletion.Value = value;
-      base.SetProcess(text, value);
+      base.SetProcess(text, value, log);
     }
   }
 }

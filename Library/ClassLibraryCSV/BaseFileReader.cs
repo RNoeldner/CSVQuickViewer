@@ -711,7 +711,7 @@ namespace CsvTools
     public void HandleShowProgress(string text, long recordNumber, int progress)
     {
       var rec = recordNumber > 1 ? $"\nRecord {recordNumber:N0}" : string.Empty;
-      m_ProcessDisplay?.SetProcess($"{text}{rec}", progress);
+      m_ProcessDisplay?.SetProcess($"{text}{rec}", progress, false);
     }
 
     /// <summary>

@@ -42,7 +42,7 @@ namespace CsvTools.Tests
     {
     }
 
-    public void SetProcess(string text, long value = -1)
+    public void SetProcess(string text, long value = -1, bool log = true)
     {
       Text = text;
       Progress?.Invoke(this, new ProgressEventArgs(text));
