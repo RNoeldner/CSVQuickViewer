@@ -6,7 +6,7 @@ namespace CsvTools
 {
   public static class WindowsAPICodePackWrapper
   {
-    private static bool s_CommonFileDialogSupported = CommonFileDialog.IsPlatformSupported;
+    private static readonly bool s_CommonFileDialogSupported = CommonFileDialog.IsPlatformSupported;
     private static bool s_TaskbarManagerSupported = TaskbarManager.IsPlatformSupported;
 
     public static string Open(string InitialDirectory, string title, string filter)

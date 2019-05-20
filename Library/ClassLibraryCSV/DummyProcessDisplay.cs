@@ -19,16 +19,12 @@ namespace CsvTools
 {
   public class DummyProcessDisplay : IProcessDisplay
   {
-    private readonly CancellationTokenSource m_CancellationTokenSource;
     private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+    private readonly CancellationTokenSource m_CancellationTokenSource;
 
     public DummyProcessDisplay() : this(CancellationToken.None)
     {
     }
-
-    public virtual string Title { get; set; }
-
-    public bool LogAsDebug { get; set; } = true;
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="DummyProcessDisplay" /> class.
@@ -55,6 +51,7 @@ namespace CsvTools
     /// </value>
     public CancellationToken CancellationToken => m_CancellationTokenSource.Token;
 
+    public bool LogAsDebug { get; set; } = true;
     /// <summary>
     ///   Gets or sets the maximum value for the Progress
     /// </summary>
@@ -62,6 +59,11 @@ namespace CsvTools
     ///   The maximum value.
     /// </value>
     public virtual long Maximum { get; set; }
+
+    public virtual string Title { get; set; }
+    public static void Show()
+    {
+    }
 
     /// <summary>
     ///   To be called if the process should be closed, this will cancel any processing
@@ -77,7 +79,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="text">The text.</param>
     /// <param name="value">The value.</param>
-    public virtual void SetProcess(string text, long value, bool log=true)
+    public virtual void SetProcess(string text, long value, bool log = true)
     {
       if (log)
       {
@@ -92,26 +94,20 @@ namespace CsvTools
     /// <summary>
     ///   Sets the process.
     /// </summary>    
-    public virtual void SetProcess(string text)
-    {
-      SetProcess(text ?? string.Empty, -1, true);
-    }
+    public void SetProcess(string text) => SetProcess(text ?? string.Empty, -1, true);
+
+    public void SetProcess(string text, long value) => SetProcess(text ?? string.Empty, value, true);
 
     /// <summary>
     ///   Set the progress used by Events
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
-    public virtual void SetProcess(object sender, ProgressEventArgs e)
+    public void SetProcess(object sender, ProgressEventArgs e)
     {
       if (e == null) return;
       SetProcess(e.Text ?? string.Empty, e.Value, e.Log);
     }
-
-    public static void Show()
-    {
-    }
-
     #region IDisposable Support
 
     private bool m_DisposedValue; // To detect redundant calls

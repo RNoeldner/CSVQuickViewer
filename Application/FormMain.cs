@@ -39,8 +39,8 @@ namespace CsvTools
   {
     private static readonly ILog Log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
     private static readonly XmlSerializer m_SerializerViewSettings = new XmlSerializer(typeof(ViewSettings));
-    private static string cSettingFolder = Environment.ExpandEnvironmentVariables("%APPDATA%\\CSVQuickViewer");
-    private static string cSettingPath = cSettingFolder + "\\Setting.xml";
+    private static readonly string cSettingFolder = Environment.ExpandEnvironmentVariables("%APPDATA%\\CSVQuickViewer");
+    private static readonly string cSettingPath = cSettingFolder + "\\Setting.xml";
     private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
     private readonly Timer m_SettingsChangedTimerChange = new Timer(200);
     private readonly Collection<Column> m_StoreColumns = new Collection<Column>();
@@ -382,7 +382,7 @@ namespace CsvTools
             }
             catch (Exception exc)
             {
-              MessageBox.Show(this, exc.ExceptionMessages(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+              _MessageBox.Show(this, exc.ExceptionMessages(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning, timeout:0);
             }
             if (analyse) m_FileSetting.SkipRows = 0;
 
@@ -632,7 +632,7 @@ namespace CsvTools
           compare.FileName = m_FileSetting.FileName;
 
           if (!compare.Equals(m_FileSetting))
-            answer = MessageBox.Show(this,
+            answer = _MessageBox.Show(this,
               $"Replace changed settings in {pathSetting} ?", "Settings",
               MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
