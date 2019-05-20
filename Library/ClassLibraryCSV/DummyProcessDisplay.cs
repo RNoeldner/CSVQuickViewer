@@ -77,14 +77,24 @@ namespace CsvTools
     /// </summary>
     /// <param name="text">The text.</param>
     /// <param name="value">The value.</param>
-    public virtual void SetProcess(string text, long value = -1)
+    public virtual void SetProcess(string text, long value, bool log=true)
     {
-      if (LogAsDebug)
-        Log.Debug(text);
-      else
-        Log.Info(text);
+      if (log)
+      {
+        if (LogAsDebug)
+          Log.Debug(text);
+        else
+          Log.Info(text);
+      }
+      Progress?.Invoke(this, new ProgressEventArgs(text, value, log));
+    }
 
-      Progress?.Invoke(this, new ProgressEventArgs(text, value));
+    /// <summary>
+    ///   Sets the process.
+    /// </summary>    
+    public virtual void SetProcess(string text)
+    {
+      SetProcess(text ?? string.Empty, -1, true);
     }
 
     /// <summary>
@@ -95,7 +105,7 @@ namespace CsvTools
     public virtual void SetProcess(object sender, ProgressEventArgs e)
     {
       if (e == null) return;
-      SetProcess(e.Text ?? string.Empty, e.Value);
+      SetProcess(e.Text ?? string.Empty, e.Value, e.Log);
     }
 
     public static void Show()

@@ -22,7 +22,7 @@ namespace CsvTools
   ///   A Po pup Form to display progress information
   /// </summary>
   public class FormProcessDisplay : Form, IProcessDisplayTime
-  {    
+  {
     private bool m_ClosedByUI = true;
     private Label m_LabelEtl;
     private Label m_LabelEtr;
@@ -35,7 +35,7 @@ namespace CsvTools
 
     public FormProcessDisplay(string windowTitle) : this(windowTitle, true, CancellationToken.None)
     {
-    }  
+    }
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="FormProcessDisplay" /> class.
@@ -72,7 +72,7 @@ namespace CsvTools
         tableLayoutPanel.SetColumnSpan(logger, 2);
         tableLayoutPanel.Controls.Add(logger, 0, 3);
         ResumeLayout(false);
-      }        
+      }
     }
 
     public FormProcessDisplay() : this(string.Empty, true, CancellationToken.None)
@@ -182,16 +182,18 @@ namespace CsvTools
     /// </summary>
     /// <param name="text">The text.</param>
     /// <param name="value">The value.</param>
-    public virtual void SetProcess(string text, long value)
+    public virtual void SetProcess(string text, long value, bool log = true)
     {
       // if cancellation is requested do nothing
       if (CancellationToken.IsCancellationRequested) return;
       TimeToCompletion.Value = value;
-      if (LogAsDebug)
-        Log.Debug(text);
-      else
-        Log.Info(text);
-
+      if (log)
+      {
+        if (LogAsDebug)
+          Log.Debug(text);
+        else
+          Log.Info(text);
+      }
       m_LabelText.SafeInvoke(() =>
       {
         if (!Visible)
@@ -225,7 +227,7 @@ namespace CsvTools
     public void SetProcess(object sender, ProgressEventArgs e)
     {
       if (e == null) return;
-      SetProcess(e.Text, e.Value);
+      SetProcess(e.Text, e.Value, e.Log);
     }
 
     /// <summary>
@@ -234,7 +236,7 @@ namespace CsvTools
     /// <param name="text">The text.</param>
     public void SetProcess(string text)
     {
-      SetProcess(text, -1);
+      SetProcess(text, -1, true);
     }
 
     private void ProcessDisplay_FormClosing(object sender, FormClosingEventArgs e)
