@@ -146,7 +146,7 @@ namespace CsvTools
       }
       catch (Exception e1)
       {
-        MessageBox.Show("Error: " + e1.Message);
+        System.Windows.Forms.MessageBox.Show("Error: " + e1.Message);
       }
       finally
       {

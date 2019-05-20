@@ -305,7 +305,7 @@ namespace CsvTools
       m_Counter++;
       UpdateLabel();
 
-      if ((m_Counter * timer.Interval) / 1000 > m_Duration)
+      if (m_Duration > 0 && (m_Counter * timer.Interval) / 1000 > m_Duration)
       {
         if (m_DefaultButton == MessageBoxDefaultButton.Button1)
           Button1_Click(sender, e);

@@ -35,7 +35,7 @@ namespace CsvTools
     {
       Log.Warn($"Issue in UI {nameof(from)} : {ex.Message}", ex);
       Cursor.Current = Cursors.Default;
-      MessageBox.Show(from, ex.ExceptionMessages(), string.IsNullOrEmpty(additionalTitle) ? "Error" : $"Error {additionalTitle}", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+      System.Windows.Forms.MessageBox.Show(from, ex.ExceptionMessages(), string.IsNullOrEmpty(additionalTitle) ? "Error" : $"Error {additionalTitle}", MessageBoxButtons.OK, MessageBoxIcon.Warning);
     }
 
     /// <summary>
