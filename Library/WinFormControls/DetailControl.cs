@@ -886,11 +886,8 @@ namespace CsvTools
 
     private void SetButtonVisibility()
     {
-      try
+      this.SafeBeginInvoke(() =>
       {
-        ParentForm.SafeBeginInvoke(() =>
-        {
-
         // Need to set the control containing the buttons to visible
         //
         // Regular
@@ -898,26 +895,27 @@ namespace CsvTools
         m_ToolStripButtonDuplicates.Visible = m_ShowButtons;
         m_ToolStripButtonUniqueValues.Visible = m_ShowButtons;
         m_ToolStripButtonAsText.Visible = m_ShowButtons && m_HasButtonAsText;
-        // Filter
-        toolStripComboBoxFilterType.Visible = m_ShowButtons && m_ShowFilter;
+
         // Extended
         m_ToolStripButtonHierachy.Visible = m_ShowButtons;
-        m_ToolStripButtonStore.Visible =
-          m_ShowButtons && m_FileSetting is CsvFile;
+        m_ToolStripButtonStore.Visible = m_ShowButtons && m_FileSetting is CsvFile;
         m_ToolStripButtonSource.Visible = m_ShowButtons && m_HasButtonShowSource;
 
         // Settings
         m_ToolStripButtonSettings.Visible = m_ShowButtons && m_ShowSettingsButtons;
-
         m_ToolStripTop.Visible = m_ShowButtons;
+        try
+        {
+          // Filter
+          toolStripComboBoxFilterType.Visible = m_ShowButtons && m_ShowFilter;
+        }
+        catch (InvalidOperationException)
+        {
+          // ignore error in regards to cross thread issues,  SafeBeginInvoke should have handled this though
 
+        }
       });
-      }
-      catch (InvalidOperationException)
-      {
-        // ignore error in regards to cross thread issues,  SafeBeginInvoke should have handled this though
 
-      }
     }
 
     /// <summary>
@@ -978,29 +976,32 @@ namespace CsvTools
 
     private void ToolStripButtonStore_Click(object sender, EventArgs e)
     {
-      var fi = FileSystemUtils.FileInfo(m_FileSetting.FileName);
-
-      var FileName = WindowsAPICodePackWrapper.Save(FileSystemUtils.GetDirectoryName(fi.FullName), "Delimited File", "Text file (*.txt)|*.txt|Comma delimited (*.csv)|*.csv|Tab delimited (*.tab;*.tsv)|*.tab;*.tsv|All files (*.*)|*.*", fi.Extension);
-      if (string.IsNullOrEmpty(FileName))
-        return;
-
-      var writeFile = m_FileSetting.Clone();
-      writeFile.FileName = FileName;
-
-      using (var processDisplay = writeFile.GetProcessDisplay(ParentForm, true, m_CancellationTokenSource.Token))
+      if (m_FileSetting is IFileSettingPhysicalFile settingPhysicalFile)
       {
-        var writer = writeFile.GetFileWriter(processDisplay);
+        var fi = FileSystemUtils.FileInfo(settingPhysicalFile.FileName);
 
-        // Restrict to shown data
-        var colNames = new Dictionary<int, string>();
-        foreach (DataGridViewColumn col in m_FilteredDataGridView.Columns)
+        var FileName = WindowsAPICodePackWrapper.Save(FileSystemUtils.GetDirectoryName(fi.FullName), "Delimited File", "Text file (*.txt)|*.txt|Comma delimited (*.csv)|*.csv|Tab delimited (*.tab;*.tsv)|*.tab;*.tsv|All files (*.*)|*.*", fi.Extension);
+        if (string.IsNullOrEmpty(FileName))
+          return;
+
+        var writeFile = m_FileSetting.Clone() as IFileSettingPhysicalFile;
+        writeFile.FileName = FileName;
+
+        using (var processDisplay = writeFile.GetProcessDisplay(ParentForm, true, m_CancellationTokenSource.Token))
         {
-          if (col.Visible && !BaseFileReader.ArtificalFields.Contains(col.DataPropertyName))
-            colNames.Add(col.DisplayIndex, col.DataPropertyName);
+          var writer = writeFile.GetFileWriter(processDisplay);
+
+          // Restrict to shown data
+          var colNames = new Dictionary<int, string>();
+          foreach (DataGridViewColumn col in m_FilteredDataGridView.Columns)
+          {
+            if (col.Visible && !BaseFileReader.ArtificalFields.Contains(col.DataPropertyName))
+              colNames.Add(col.DisplayIndex, col.DataPropertyName);
+          }
+          // can not use filteredDataGridView.Columns directly
+          writer.WriteDataTable(m_FilteredDataGridView.DataView.ToTable(false,
+            colNames.OrderBy(x => x.Key).Select(x => x.Value).ToArray()));
         }
-        // can not use filteredDataGridView.Columns directly
-        writer.WriteDataTable(m_FilteredDataGridView.DataView.ToTable(false,
-          colNames.OrderBy(x => x.Key).Select(x => x.Value).ToArray()));
       }
     }
 

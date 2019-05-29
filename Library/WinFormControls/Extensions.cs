@@ -84,9 +84,9 @@ namespace CsvTools
       {
         ProcessUIElements();
         executeTask.Wait(100, cancellationToken);
-      }      
+      }
     }
-   
+
     /// <summary>
     ///   Handles a CTRL-A select all in the form.
     /// </summary>
@@ -202,9 +202,8 @@ namespace CsvTools
 
     public static string GetProcessDisplayTitle(this IFileSetting fileSetting)
     {
-      return string.IsNullOrEmpty(fileSetting.ID)
-        ? FileSystemUtils.GetShortDisplayFileName(fileSetting.FileName, 80)
-        : fileSetting.ID;
+
+      return (fileSetting is IFileSettingPhysicalFile settingPhysicalFile) ? FileSystemUtils.GetShortDisplayFileName(settingPhysicalFile.FileName, 80) : fileSetting.ID;
     }
 
     /// <summary>

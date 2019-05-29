@@ -425,10 +425,11 @@ namespace CsvTools
           newVal = newVal.Substring(2);
 
         if (m_FileName.Equals(newVal, StringComparison.Ordinal)) return;
-
+        var oldValue = m_FileName;
         m_FileName = newVal;
         m_FullPath = null;
         NotifyPropertyChanged(nameof(FileName));
+        PropertyChangedString?.Invoke(this, new PropertyChangedEventArgs<string>(nameof(FileName), oldValue, newVal));
       }
     }
 
@@ -943,7 +944,7 @@ namespace CsvTools
       other.SQLTimeout = m_SqlTimeout;
       other.ReadToEndOfFile = ReadToEndOfFile;
       other.FileLastWriteTimeUtc = FileLastWriteTimeUtc;
-      other.FileSize = FileSize;
+
       other.Footer = Footer;
       other.Header = Header;
       Samples.CollectionCopy(other.Samples);
@@ -951,12 +952,18 @@ namespace CsvTools
       other.NumErrors = m_NumErrors;
 
       // FileName and ID are set at the end otherwise column collection changes will invalidate the column header cache of the source
-      other.FileName = m_FileName;
+      if (other is IFileSettingPhysicalFile fileSettingPhysicalFile)
+      {
+        fileSettingPhysicalFile.FileSize = FileSize;
+        fileSettingPhysicalFile.FileName = m_FileName;
+      }
       other.ID = m_Id;
 
-      if (!(other is IFileSettingRemoteDownload otherRemote)) return;
-      otherRemote.RemoteFileName = m_RemoteFileName;
-      otherRemote.ThrowErrorIfNotExists = m_ThrowErrorIfNotExists;
+      if (other is IFileSettingRemoteDownload otherRemote)
+      {
+        otherRemote.RemoteFileName = m_RemoteFileName;
+        otherRemote.ThrowErrorIfNotExists = m_ThrowErrorIfNotExists;
+      }
     }
 
     public abstract bool Equals(IFileSetting other);

@@ -173,7 +173,7 @@ namespace CsvTools.Tests
     public void WriteSameAsReader()
     {
       var writeFile = (CsvFile)m_WriteFile.Clone();
-      writeFile.FileName = UnitTestInitialize.MimicSQLReader.ReadSettings.FirstOrDefault(x => x.ID == "Read").FileName;
+      writeFile.FileName = UnitTestInitialize.MimicSQLReader.ReadSettings.OfType<IFileSettingPhysicalFile>().FirstOrDefault(x => x.ID == "Read").FileName;
       writeFile.FileFormat.FieldDelimiter = "|";
       using (var processDisplay = new DummyProcessDisplay())
       {
@@ -188,7 +188,7 @@ namespace CsvTools.Tests
     public void WriteSameAsReaderCritical()
     {
       var writeFile = (CsvFile)m_WriteFile.Clone();
-      writeFile.FileName = UnitTestInitialize.MimicSQLReader.ReadSettings.FirstOrDefault(x => x.ID == "Read").FileName;
+      writeFile.FileName = UnitTestInitialize.MimicSQLReader.ReadSettings.OfType<IFileSettingPhysicalFile>().FirstOrDefault(x => x.ID == "Read").FileName;
       writeFile.InOverview = true;
       writeFile.FileFormat.FieldDelimiter = "|";
       try

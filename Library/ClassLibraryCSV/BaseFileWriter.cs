@@ -27,7 +27,7 @@ namespace CsvTools
   /// </summary>
   public abstract class BaseFileWriter
   {
-    private readonly IFileSetting m_FileSetting;
+    private readonly IFileSettingPhysicalFile m_FileSetting;
     private readonly IProcessDisplay m_ProcessDisplay;
     private DateTime m_LastNotification = DateTime.Now;
     private long m_Records;
@@ -37,7 +37,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="fileSetting">the file setting with the definition for the file</param>
     /// <param name="cancellationToken">A cancellation token to stop writing the file</param>
-    protected BaseFileWriter(IFileSetting fileSetting, IProcessDisplay processDisplay)
+    protected BaseFileWriter(IFileSettingPhysicalFile fileSetting, IProcessDisplay processDisplay)
     {
       m_ProcessDisplay = processDisplay;
       m_FileSetting = fileSetting ?? throw new ArgumentNullException(nameof(fileSetting));

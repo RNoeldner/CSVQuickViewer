@@ -910,7 +910,7 @@ namespace CsvTools
     }
 
     protected virtual void FinishOpen()
-    {
+    {      
       ApplicationSetting.StoreHeader?.Invoke(m_FileSetting, Column);
 
       if (FieldCount > 0)
@@ -1221,7 +1221,7 @@ namespace CsvTools
           try
           {
             HandleShowProgress("Handling Remote file…");
-            ApplicationSetting.RemoteFileHandler(remote.RemoteFileName, m_FileSetting.FileName, m_FileSetting.FullPath, m_ProcessDisplay, remote.ThrowErrorIfNotExists);
+            ApplicationSetting.RemoteFileHandler(remote.RemoteFileName, remote.FileName, remote.FullPath, m_ProcessDisplay, remote.ThrowErrorIfNotExists);
           }
           catch (Exception ex)
           {
