@@ -75,7 +75,7 @@ namespace CsvTools
     /// or
     /// Please reenter the passphrase, the passphrase could not be decrypted.
     /// </exception>
-    public static ImprovedStream OpenRead(IFileSetting setting)
+    public static ImprovedStream OpenRead(IFileSettingPhysicalFile setting)
     {
       var retVal = OpenBaseStream(setting.FullPath, setting.GetEncryptedPassphraseFunction);
 

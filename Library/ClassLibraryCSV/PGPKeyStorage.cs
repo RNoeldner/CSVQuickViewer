@@ -436,16 +436,23 @@ namespace CsvTools
             DateTime.Now, new byte[8192]))
           {
             var processDispayTime = processDisplay as IProcessDisplayTime;
-            var max = (int)(toEncrypt.Length / copyBuffer.Length) + 1;
+            // for the percentage calculate the steps needed
+            var max = (toEncrypt.Length / copyBuffer.Length) + 1;
+            long count = 0;
+
             processDisplay.Maximum = max;
-            var count = 0;
-            int length;
-            while ((length = toEncrypt.Read(copyBuffer, 0, copyBuffer.Length)) > 0)
+
+            long readBytes = 0;
+            int lengthRead;
+            var displayMax = StringConversion.DynamicStorageSize(toEncrypt.Length);
+
+            while ((lengthRead = toEncrypt.Read(copyBuffer, 0, copyBuffer.Length)) > 0)
             {
               processDisplay.CancellationToken.ThrowIfCancellationRequested();
-              literalStream.Write(copyBuffer, 0, length);
+              literalStream.Write(copyBuffer, 0, lengthRead);
+              readBytes += lengthRead;
               count++;
-              action.Invoke(() => processDisplay.SetProcess($"PGP Encrypting {StringConversion.DynamicStorageSize(toEncrypt.Length) } - Step {count:N0}/{max:N0}", count));
+              action.Invoke(() => processDisplay.SetProcess($"PGP Encrypting - {StringConversion.DynamicStorageSize(readBytes)}/{displayMax}", count));
             }
           }
         }

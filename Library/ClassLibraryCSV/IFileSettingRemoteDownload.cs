@@ -17,8 +17,8 @@ namespace CsvTools
   /// <summary>
   /// Interface for a file that could be downloaded from a remote location to the file system
   /// </summary>
-  /// <seealso cref="CsvTools.IFileSetting" />
-  public interface IFileSettingRemoteDownload : IFileSetting
+  /// <seealso cref="CsvTools.IFileSettingPhysicalFile" />
+  public interface IFileSettingRemoteDownload : IFileSettingPhysicalFile
   {
     /// <summary>
     ///  Path to the file on sFTP Server
