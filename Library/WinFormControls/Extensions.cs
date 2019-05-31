@@ -125,24 +125,24 @@ namespace CsvTools
     /// </summary>
     /// <param name="fileName"></param>
     /// <param name="ask"></param>
-    /// <returns>Yes: the file does not exist, or it was deleted
-    /// No: the file was not deleted it does still exist
-    /// Cancel: user pressed cancel</returns>
-    public static DialogResult DeleteFileQuestion(this string fileName, bool ask)
+    /// <returns>true: the file does not exist, or it was deleted
+    /// false: the file was not deleted it does still exist
+    /// null: user pressed cancel</returns>
+    public static bool? DeleteFileQuestion(this string fileName, bool ask)
     {
-      if (!FileSystemUtils.FileExists(fileName)) return DialogResult.Yes;
+      if (!FileSystemUtils.FileExists(fileName)) return true;
       if (!ask)
       {
         try
         {
           File.Delete(fileName);
-          return DialogResult.Yes;
+          return true;
         }
         catch
         {
           // ignored
         }
-        return DialogResult.No;
+        return false;
       }
       var res = FileSystemUtils.SplitPath(fileName);
       var disp = res.FileName;
@@ -156,7 +156,7 @@ namespace CsvTools
         try
         {
           File.Delete(fileName);
-          return DialogResult.Yes;
+          return true;
         }
         catch (Exception ex)
         {
@@ -167,7 +167,10 @@ namespace CsvTools
             goto retry;
         }
       }
-      return diagRes;
+      if (diagRes == DialogResult.Cancel)
+        return null;
+      else
+        return (diagRes == DialogResult.Yes);
     }
 
     /// <summary>

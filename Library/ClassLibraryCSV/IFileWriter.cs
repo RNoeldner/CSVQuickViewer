@@ -59,6 +59,12 @@ namespace CsvTools
     long Write();
 
     /// <summary>
+    ///  Writes the specified file getting data from the fileReader
+    /// </summary>
+    /// <returns>Number of records written</returns>
+    long Write(IDataReader reader);
+
+    /// <summary>
     ///  Writes the specified file reading from the a data table
     /// </summary>
     /// <param name="source">The data that should be written in a <see cref="DataTable" /></param>

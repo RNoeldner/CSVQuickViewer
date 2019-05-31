@@ -978,9 +978,9 @@ namespace CsvTools
     {
       if (m_FileSetting is IFileSettingPhysicalFile settingPhysicalFile)
       {
-        var fi = FileSystemUtils.FileInfo(settingPhysicalFile.FileName);
-
-        var FileName = WindowsAPICodePackWrapper.Save(FileSystemUtils.GetDirectoryName(fi.FullName), "Delimited File", "Text file (*.txt)|*.txt|Comma delimited (*.csv)|*.csv|Tab delimited (*.tab;*.tsv)|*.tab;*.tsv|All files (*.*)|*.*", fi.Extension);
+        var split = FileSystemUtils.SplitPath(settingPhysicalFile.FullPath);
+                        
+        var FileName = WindowsAPICodePackWrapper.Save(split.DirectoryName, "Delimited File", "Text file (*.txt)|*.txt|Comma delimited (*.csv)|*.csv|Tab delimited (*.tab;*.tsv)|*.tab;*.tsv|All files (*.*)|*.*", split.Extension, split.FileName);
         if (string.IsNullOrEmpty(FileName))
           return;
 

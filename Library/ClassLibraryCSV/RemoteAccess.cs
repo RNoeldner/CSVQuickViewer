@@ -175,14 +175,9 @@ namespace CsvTools
     /// <returns>
     ///   <see langword="true" /> if the specified object  is equal to the current object; otherwise, <see langword="false" />.
     /// </returns>
-    public override bool Equals(object obj)
-    {
-      if (obj is null) return false;
-      if (ReferenceEquals(this, obj)) return true;
-      return (obj is RemoteAccess typed) && Equals(typed);
-    }
+    public override bool Equals(object obj) => Equals(obj as RemoteAccess);
 
-    /*
+
     /// <summary>Serves as the default hash function. </summary>
     /// <returns>A hash code for the current object.</returns>
     public override int GetHashCode()
@@ -190,13 +185,12 @@ namespace CsvTools
       unchecked
       {
         var hashCode = m_EncryptedPassword != null ? m_EncryptedPassword.GetHashCode() : 0;
-        hashCode = (hashCode * 397) ^ (int) m_Protocol;
+        hashCode = (hashCode * 397) ^ (int)m_Protocol;
         hashCode = (hashCode * 397) ^
                    (m_HostName != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(m_HostName) : 0);
         hashCode = (hashCode * 397) ^ (m_User != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(m_User) : 0);
         return hashCode;
       }
     }
-    */
   }
 }

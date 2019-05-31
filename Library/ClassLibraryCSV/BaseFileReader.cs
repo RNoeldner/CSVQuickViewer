@@ -1214,7 +1214,7 @@ namespace CsvTools
 
     protected void HandleRemoteFile()
     {
-      if (ApplicationSetting.RemoteFileHandler != null && m_FileSetting is IFileSettingRemoteDownload remote)
+      if (ApplicationSetting.RemoteFileHandler != null && m_FileSetting is IFileSettingPhysicalFile remote)
       {
         if (!string.IsNullOrEmpty(remote?.RemoteFileName))
         {

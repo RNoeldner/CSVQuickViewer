@@ -532,12 +532,7 @@ namespace CsvTools
       throw new PgpException($"No encryption key found for {recipient} in known key(s).");
     }
 
-    public override bool Equals(object obj)
-    {
-      if (obj is null) return false;
-      if (ReferenceEquals(this, obj)) return true;
-      return (obj is PGPKeyStorage typed) && Equals(typed);
-    }
+    public override bool Equals(object obj) => Equals(obj as PGPKeyStorage);
 
     /// <summary>Serves as the default hash function. </summary>
     /// <returns>A hash code for the current object.</returns>

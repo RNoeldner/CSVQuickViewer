@@ -413,11 +413,11 @@ namespace CsvTools
     ///   Copies all values to other instance
     /// </summary>
     /// <param name="other">The other.</param>
-    public override void CopyTo(IFileSetting other)
+    public void CopyTo(IFileSetting other)
     {
       if (other == null)
         return;
-      base.CopyTo((BaseSettings)other);
+      BaseSettingsCopyTo((BaseSettings)other);
 
       if (!(other is ICsvFile csv)) return;
       csv.ByteOrderMark = m_ByteOrderMark;
@@ -441,7 +441,7 @@ namespace CsvTools
       csv.NoDelimitedFile = m_NoDelimitedFile;
     }
 
-    public override bool Equals(IFileSetting other)
+    public bool Equals(IFileSetting other)
     {
       return Equals(other as ICsvFile);
     }
@@ -510,7 +510,7 @@ namespace CsvTools
              m_WarnNbsp == other.WarnNBSP && m_WarnQuotes == other.WarnQuotes &&
              m_WarnQuotesInQuotes == other.WarnQuotesInQuotes &&
              m_WarnUnknowCharacter == other.WarnUnknowCharater &&
-             Equals(other as BaseSettings);
+             BaseSettingsEquals(other as BaseSettings);
     }
 
     /// <summary>Determines whether the specified object is equal to the current object.</summary>
@@ -518,11 +518,6 @@ namespace CsvTools
     /// <returns>
     ///   <see langword="true" /> if the specified object  is equal to the current object; otherwise, <see langword="false" />.
     /// </returns>
-    public override bool Equals(object obj)
-    {
-      if (obj is null) return false;
-      if (ReferenceEquals(this, obj)) return true;
-      return (obj is ICsvFile typed) && Equals(typed);
-    }
+    public override bool Equals(object obj)  => Equals(obj as ICsvFile);    
   }
 }

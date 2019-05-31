@@ -32,7 +32,7 @@ namespace CsvTools
   /// </summary>
 #pragma warning disable CS0659
 
-  public abstract class BaseSettings : IEquatable<BaseSettings>, IFileSetting
+  public abstract class BaseSettings
 #pragma warning restore CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
   {
     private readonly FileFormat m_FileFormat = new FileFormat();
@@ -241,21 +241,24 @@ namespace CsvTools
     ///  <see langword="true" /> if the current object is equal to the <paramref name="other" /> parameter; otherwise,
     ///  <see langword="false" />.
     /// </returns>
-    public bool Equals(BaseSettings other)
+    protected bool BaseSettingsEquals(BaseSettings other)
     {
       if (other is null) return false;
       if (ReferenceEquals(this, other)) return true;
 
-      if (other is IFileSettingRemoteDownload otherRemote)
+      if (other is IFileSettingPhysicalFile otherRemote)
       {
-        if (otherRemote.RemoteFileName != RemoteFileName || otherRemote.ThrowErrorIfNotExists != ThrowErrorIfNotExists)
+        if (otherRemote.RemoteFileName != RemoteFileName ||
+            otherRemote.ThrowErrorIfNotExists != ThrowErrorIfNotExists ||
+            otherRemote.FileSize != FileSize ||
+            string.Equals(otherRemote.FileName, FileName, StringComparison.OrdinalIgnoreCase)
+          )
           return false;
       }
       return string.Equals(other.TemplateName, TemplateName, StringComparison.OrdinalIgnoreCase) &&
           other.SkipRows == SkipRows &&
           other.IsEnabled == IsEnabled &&
           other.TreatNBSPAsSpace == TreatNBSPAsSpace &&
-          string.Equals(other.FileName, FileName, StringComparison.OrdinalIgnoreCase) &&
           other.DisplayStartLineNo == DisplayStartLineNo &&
           other.DisplayEndLineNo == DisplayEndLineNo &&
           other.HasFieldHeader == HasFieldHeader &&
@@ -274,7 +277,6 @@ namespace CsvTools
           other.NumErrors == NumErrors &&
           other.SkipEmptyLines == SkipEmptyLines &&
           other.SkipDuplicateHeader == SkipDuplicateHeader &&
-          other.FileSize == FileSize &&
           other.ReadToEndOfFile == ReadToEndOfFile &&
           other.SQLTimeout == SQLTimeout &&
           other.FileLastWriteTimeUtc == FileLastWriteTimeUtc &&
@@ -911,7 +913,7 @@ namespace CsvTools
     ///  Copies all values to other instance
     /// </summary>
     /// <param name="other">The other.</param>
-    public virtual void CopyTo(IFileSetting other)
+    protected void BaseSettingsCopyTo(BaseSettings other)
     {
       if (other == null)
         return;
@@ -956,17 +958,11 @@ namespace CsvTools
       {
         fileSettingPhysicalFile.FileSize = FileSize;
         fileSettingPhysicalFile.FileName = m_FileName;
+        fileSettingPhysicalFile.RemoteFileName = m_RemoteFileName;
+        fileSettingPhysicalFile.ThrowErrorIfNotExists = m_ThrowErrorIfNotExists;
       }
       other.ID = m_Id;
-
-      if (other is IFileSettingRemoteDownload otherRemote)
-      {
-        otherRemote.RemoteFileName = m_RemoteFileName;
-        otherRemote.ThrowErrorIfNotExists = m_ThrowErrorIfNotExists;
-      }
     }
-
-    public abstract bool Equals(IFileSetting other);
 
     /// <summary>
     ///  Gets the <see cref="CsvTools.Mapping" /> with the specified source.
@@ -1003,7 +999,6 @@ namespace CsvTools
         MappingCollection.Remove(fieldMapping);
     }
 
-    public abstract override bool Equals(object obj);
 
     /*
      public abstract override int GetHashCode();

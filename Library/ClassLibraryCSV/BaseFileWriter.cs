@@ -525,7 +525,7 @@ namespace CsvTools
       return fieldName;
     }
 
-    private long Write(IDataReader reader)
+    public long Write(IDataReader reader)
     {
       if (reader == null)
         return -1;
