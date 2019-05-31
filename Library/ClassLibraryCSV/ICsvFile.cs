@@ -20,7 +20,7 @@ namespace CsvTools
   /// <summary>
   ///  Interface for the setting of a CSV file
   /// </summary>
-  public interface ICsvFile : IFileSettingRemoteDownload, IEquatable<ICsvFile>
+  public interface ICsvFile : IFileSettingPhysicalFile, IEquatable<ICsvFile>
   {
     /// <summary>
     /// Gets or sets a value indicating whether rows should combined if there are less columns.

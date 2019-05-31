@@ -22,7 +22,7 @@ namespace CsvTools
   /// </summary>
   [ComVisible(true)]
   [Guid("492F68EA-7999-494C-A319-491988801812")]
-  public interface IExcelFile : IFileSettingRemoteDownload, IEquatable<IExcelFile>
+  public interface IExcelFile : IFileSettingPhysicalFile, IEquatable<IExcelFile>
   {
     /// <summary>
     ///   Gets or sets a value indicating the types of typed values should be read or if text should

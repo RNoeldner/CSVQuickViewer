@@ -274,11 +274,11 @@ namespace CsvTools
         m_CsvFile.FileFormat.FieldDelimiter.WrittenPunctuationToChar() == '\0')
         HandleWarning(-1,
          $"Only the first character of '{m_CsvFile.FileFormat.FieldDelimiter}' is used as delimiter.");
-      
+
       base.HandleRemoteFile();
 
       try
-      {       
+      {
         HandleShowProgress("Opening…");
 
         ResetPositionToStartOrOpen();
@@ -1001,8 +1001,14 @@ namespace CsvTools
           m_TextReader = new StreamReader(str, m_CsvFile.GetEncoding(), m_CsvFile.ByteOrderMark);
         }
         else
+        {
           // only need to discard the buffer
           m_TextReader.DiscardBufferedData();
+
+          // we reset the position a BOM is shwing again 
+          if (m_CsvFile.ByteOrderMark)
+            m_TextReader.Read();
+        }
       });
 
       m_CsvFile.CurrentEncoding = m_TextReader.CurrentEncoding;

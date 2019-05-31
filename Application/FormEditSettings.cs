@@ -64,7 +64,8 @@ namespace CsvTools
     {
       try
       {
-        var newFileName = WindowsAPICodePackWrapper.Open(textBoxFile.Text.GetDirectoryName(), "Delimited File", "Delimited files (*.csv;*.txt;*.tab;*.tsv)|*.csv;*.txt;*.tab;*.tsv|All files (*.*)|*.*");
+        var split = FileSystemUtils.SplitPath(textBoxFile.Text);
+        var newFileName = WindowsAPICodePackWrapper.Open(split.DirectoryName, "Delimited File", "Delimited files (*.csv;*.txt;*.tab;*.tsv)|*.csv;*.txt;*.tab;*.tsv|All files (*.*)|*.*", split.FileName);
         if (!string.IsNullOrEmpty(newFileName))
           ChangeFileName(newFileName);
 

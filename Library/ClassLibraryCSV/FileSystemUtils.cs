@@ -488,6 +488,39 @@ namespace CsvTools
       public readonly string FileName;
 #pragma warning restore CA1051 // Do not declare visible instance fields
 
+
+      /// <summary>
+      /// Get the filename without the extension or the dot
+      /// </summary>
+      /// <example>Test.docx -> Test</example>
+      public string FileNameWithoutExtension
+      {
+        get
+        {
+          var index = FileName.LastIndexOf('.');
+          if (index == -1)
+            return FileName;
+          else
+            return FileName.Substring(0, index - 1);
+        }
+      }
+
+      /// <summary>
+      /// Get the extension with the dot 
+      /// </summary>
+      /// <example>Test.docx  -> .docx</example>      
+      public string Extension
+      {
+        get
+        {
+          var index = FileName.LastIndexOf('.');
+          if (index == -1)
+            return string.Empty;
+          else
+            return FileName.Substring(index);
+        }
+      }
+
       public SplitResult(string dir, string file)
       {
         DirectoryName = dir;

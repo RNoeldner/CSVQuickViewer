@@ -401,7 +401,7 @@ namespace CsvTools
 
     private void TimedMessage_Resize(object sender, EventArgs e)
     {
-      richTextBox.Width = this.Width - pictureBox.Right - 2;
+      richTextBox.Width = this.Width - pictureBox.Right - 5;
       richTextBox.Height = button1.Top - richTextBox.Top - 5;
     }
 

@@ -148,14 +148,9 @@ namespace CsvTools
     /// <returns>
     ///   <see langword="true" /> if the specified object  is equal to the current object; otherwise, <see langword="false" />.
     /// </returns>
-    public override bool Equals(object obj)
-    {
-      if (obj is null) return false;
-      if (ReferenceEquals(this, obj)) return true;
-      return (obj is SampleRecordEntry typed) && Equals(typed);
-    }
+    public override bool Equals(object obj) => Equals(obj as SampleRecordEntry);
 
-    /*
+
     /// <summary>Serves as the default hash function. </summary>
     /// <returns>A hash code for the current object.</returns>
     public override int GetHashCode()
@@ -168,6 +163,5 @@ namespace CsvTools
         return hashCode;
       }
     }
-    */
   }
 }

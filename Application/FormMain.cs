@@ -228,7 +228,7 @@ namespace CsvTools
       {
         var strFilter = (m_ViewSettings.StoreSettingsByFile) ? "Delimited files (*.csv;*.txt;*.tab;*.tsv;*.dat)|*.csv;*.txt;*.tab;*.tsv;*.dat|Setting files (*" +
             CsvFile.cCsvSettingExtension + ")|*" + CsvFile.cCsvSettingExtension + "|All files (*.*)|*.*" : "Delimited files (*.csv;*.txt;*.tab;*.tsv;*.dat)|*.csv;*.txt;*.tab;*.tsv;*.dat|All files (*.*)|*.*";
-        m_FileName = WindowsAPICodePackWrapper.Open(".", "File", strFilter);
+        m_FileName = WindowsAPICodePackWrapper.Open(".", "Setting File", strFilter, null);
       }
 
       var doClose = false;

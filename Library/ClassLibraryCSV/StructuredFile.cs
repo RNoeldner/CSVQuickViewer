@@ -115,11 +115,11 @@ namespace CsvTools
     ///   Copies all values to other instance
     /// </summary>
     /// <param name="other">The other.</param>
-    public override void CopyTo(IFileSetting other)
+    public void CopyTo(IFileSetting other)
     {
       if (other == null)
         return;
-      base.CopyTo((BaseSettings)other);
+      BaseSettingsCopyTo((BaseSettings)other);
 
       if (!(other is StructuredFile otherSwf)) return;
       otherSwf.Header = m_Header;
@@ -139,11 +139,12 @@ namespace CsvTools
     {
       if (other is null) return false;
       if (ReferenceEquals(this, other)) return true;
-      return base.Equals(other) && string.Equals(m_Footer, other.Footer, StringComparison.OrdinalIgnoreCase) && string.Equals(m_Header, other.Header, StringComparison.OrdinalIgnoreCase) &&
+      return BaseSettingsEquals(other as BaseSettings) && string.Equals(m_Footer, other.Footer, StringComparison.OrdinalIgnoreCase) && string.Equals(m_Header, other.Header, StringComparison.OrdinalIgnoreCase) &&
              m_JSONEncode == other.JSONEncode && string.Equals(m_Row, other.Row, StringComparison.Ordinal) &&
              m_XMLEncode == other.XMLEncode;
     }
-    public override bool Equals(IFileSetting other)
+
+    public bool Equals(IFileSetting other)
     {
       return Equals(other as StructuredFile);
     }
