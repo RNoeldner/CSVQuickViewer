@@ -501,7 +501,7 @@ namespace CsvTools
           if (index == -1)
             return FileName;
           else
-            return FileName.Substring(0, index - 1);
+            return FileName.Substring(0, index);
         }
       }
 

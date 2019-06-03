@@ -60,6 +60,8 @@ namespace CsvTools
     /// <returns></returns>
     void DropTable(string tableName);
 
+    void DropDatabase(CancellationToken cancellationToken);
+
     /// <summary>
     ///  Removes all existing tables
     /// </summary>
@@ -125,7 +127,7 @@ namespace CsvTools
     ///  Gets the connection.
     /// </summary>
     /// <returns>The database connection object</returns>
-    DbConnection GetConnection( CancellationToken cancellationToken);
+    DbConnection GetConnection(CancellationToken cancellationToken);
 
     /// <summary>
     ///  Gets the connection.
@@ -176,7 +178,7 @@ namespace CsvTools
     /// <param name="tableName">Name of the table.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns></returns>
-    ICollection<string> GetValues(string columnName, string tableName, CancellationToken cancellationToken);
+    void GetValues(string columnName, string tableName, ICollection<string> values, CancellationToken cancellationToken);
 
     /// <summary>
     ///  Removes all existing tables
