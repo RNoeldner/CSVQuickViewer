@@ -77,5 +77,15 @@ namespace CsvTools.Tests
       Assert.AreEqual("C:\\TestFile.docx", "C:\\TestFile.docx".GetAbsolutePath("."));
       Assert.AreEqual("C:\\TestFile.docx", "C:\\TestFile.docx".GetAbsolutePath(""));
     }
-  }
+
+    [TestMethod]
+    public void SplitPath()
+    {
+      var split = FileSystemUtils.SplitPath("C:\\MyTest\\Test.dat");
+      Assert.AreEqual("C:\\MyTest", split.DirectoryName);
+      Assert.AreEqual("Test.dat", split.FileName);
+      Assert.AreEqual("Test", split.FileNameWithoutExtension);
+      Assert.AreEqual(".dat", split.Extension);
+    }
+    }
 }
