@@ -401,7 +401,7 @@ namespace CsvTools
 
     private void TimedMessage_Resize(object sender, EventArgs e)
     {
-      richTextBox.Width = this.Width - pictureBox.Right - 5;
+      richTextBox.Width = this.Width - pictureBox.Right - 8;
       richTextBox.Height = button1.Top - richTextBox.Top - 5;
     }
 
@@ -442,7 +442,7 @@ namespace CsvTools
     {
       using (var tm = new TimedMessage())
       {
-        tm.Size = new Size(550, 250);
+        tm.Size = new Size(600, 450);
         return tm.Show(owner, message, title, buttons, icon, defaultButton, timeout);
       }
     }

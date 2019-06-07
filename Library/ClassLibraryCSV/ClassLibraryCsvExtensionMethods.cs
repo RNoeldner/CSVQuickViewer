@@ -63,7 +63,7 @@ namespace CsvTools
     /// <typeparam name="T">the type</typeparam>
     /// <param name="self">The collection.</param>
     /// <param name="other">The other collection.</param>
-    public static void CollectionCopy<T>(this ICollection<T> self, ICollection<T> other) where T : ICloneable<T>
+    public static void CollectionCopy<T>(this IEnumerable<T> self, ICollection<T> other) where T : ICloneable<T>
     {
       Contract.Requires(self != null);
       Contract.Requires(other != null);
@@ -79,7 +79,7 @@ namespace CsvTools
     /// <typeparam name="T">the type</typeparam>
     /// <param name="self">The collection.</param>
     /// <param name="other">The other collection.</param>
-    public static void CollectionCopyStruct<T>(this ICollection<T> self, ICollection<T> other) where T : struct
+    public static void CollectionCopyStruct<T>(this IEnumerable<T> self, ICollection<T> other) where T : struct
     {
       Contract.Requires(self != null);
       Contract.Requires(other != null);
@@ -100,10 +100,13 @@ namespace CsvTools
     /// <returns></returns>
     public static bool CollectionEqual<T>(this ICollection<T> self, ICollection<T> other) where T : IEquatable<T>
     {
-      Contract.Requires(self != null);
+      if (self == null)
+        throw new ArgumentNullException(nameof(self));
+      if (other == null)
+        return false;
       if (ReferenceEquals(other, self))
         return true;
-      if (other?.Count != self.Count)
+      if (other.Count != self.Count)
         return false;
       var equal = true;
       // Check the item, all should be the same, order does not matter though
@@ -132,27 +135,34 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Check if two lists are equal, the items need to be in the right order
+    ///   Check if two enumerations are equal, the items need to be in the right order
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="self">The collection.</param>
     /// <param name="other">The other collection.</param>
     /// <returns></returns>
-    public static bool CollectionEqualWithOrder<T>(this IList<T> self, IList<T> other)
+    public static bool CollectionEqualWithOrder<T>(this IEnumerable<T> self, IEnumerable<T> other) where T : IEquatable<T>
     {
-      Contract.Requires(self != null);
-      if (ReferenceEquals(other, self))
-        return true;
-      if (other == null || other.Count != self.Count)
+      if (self == null)
+        throw new ArgumentNullException(nameof(self));
+      if (other == null)
         return false;
 
-      // Check the item, all should be the same, order does not matter though
-      for (var pos = 0; pos < self.Count; pos++)
+      if (ReferenceEquals(other, self))
+        return true;
+      // use Enumerators to compare the two collections   
+      var comparer = EqualityComparer<T>.Default;
+      using (var selfEnum = self.GetEnumerator())
+      using (var otherEnum = other.GetEnumerator())
       {
-        if (!self[pos].Equals(other[pos]))
-          return false;
+        while (selfEnum.MoveNext())
+        {
+          // there are less elements or the elements are not equal          
+          if (!(otherEnum.MoveNext() && comparer.Equals(selfEnum.Current, otherEnum.Current))) return false;
+        }
+        // there are more elements
+        if (otherEnum.MoveNext()) return false;
       }
-
       return true;
     }
 
@@ -165,9 +175,10 @@ namespace CsvTools
     {
       unchecked
       {
-        var hashCode = 387;
+        var hashCode = 731;
+        int order = 0;
         foreach (var item in collection)
-          hashCode += item.GetHashCode();
+          hashCode = (hashCode * 397) ^ item.GetHashCode() + order++;
         return hashCode;
       }
     }

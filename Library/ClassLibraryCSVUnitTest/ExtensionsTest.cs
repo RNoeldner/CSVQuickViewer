@@ -37,7 +37,7 @@ namespace CsvTools.Tests
       var setting = new CsvFile()
       {
         FileName = "Test.pgp"
-      };      
+      };
       ApplicationSetting.PGPKeyStorage.AddPrivateKey(PGPKeyStorageTestHelper.PRIVATE);
       ApplicationSetting.PGPKeyStorage.EncryptedPassphase = "Hello";
       Assert.AreEqual("Hello", setting.GetEncryptedPassphraseFunction.Invoke());
@@ -224,7 +224,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void CollectionEqualTest()
+    public void CollectionEqualTest1()
     {
       var l1 = new[] { 1, 2, 13, 5, 17 }.ToList();
       var l2 = new[] { 2, 1, 5, 13, 17 }.ToList();
@@ -237,6 +237,52 @@ namespace CsvTools.Tests
       l2.Remove(19);
       Assert.IsFalse(l1.CollectionEqual(l2));
     }
+
+    [TestMethod]
+    public void CollectionEqualTest2()
+    {
+      var l1 = new[] { 1, 1, 13, 5, 17 }.ToList();      
+      Assert.IsTrue(l1.CollectionEqual(l1));
+
+      var l2 = new[] { 2, 1, 1, 13, 17 }.ToList();
+      Assert.IsFalse(l1.CollectionEqual(l2));
+      
+      l1.Add(2);
+      Assert.IsFalse(l1.CollectionEqual(l2));
+      l2.Add(5);
+      Assert.IsTrue(l1.CollectionEqual(l2));
+    }
+
+
+    [TestMethod]
+    public void CollectionEqualWithOrder()
+    {
+      var l1 = new[] { 1, 2, 3, 5, 17 }.ToList();
+      Assert.IsTrue(l1.CollectionEqualWithOrder(l1));
+
+      var l2 = new[] { 1, 2, 3, 5 }.ToList();
+      Assert.IsFalse(l1.CollectionEqualWithOrder(l2));
+
+      l2.Add(17);
+      Assert.IsTrue(l1.CollectionEqualWithOrder(l2));
+      l2.Remove(3);
+      Assert.IsFalse(l1.CollectionEqualWithOrder(l2));
+    }
+
+
+    [TestMethod]
+    public void CollectionHashCode()
+    {
+      var li1 = new[] { "Hello", "World" };
+      Assert.AreEqual(li1.CollectionHashCode(), li1.CollectionHashCode());
+
+      var li2 = new[] { "Hello", "World" };
+      Assert.AreEqual(li1.CollectionHashCode(), li2.CollectionHashCode());
+
+      var li3 = new[] { "World", "Hello" };
+      Assert.AreNotEqual(li3.CollectionHashCode(), li2.CollectionHashCode());
+    }
+
 
     [TestMethod]
     public void AssumePGPTest()

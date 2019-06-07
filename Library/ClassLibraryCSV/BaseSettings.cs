@@ -67,6 +67,8 @@ namespace CsvTools
     private ValidationResult m_ValidationResult;
     private bool m_SkipDuplicateHeader = false;
     private bool m_SkipEmptyLines = true;
+    private ObservableCollection<SampleRecordEntry> m_Samples = new ObservableCollection<SampleRecordEntry>();
+    private ObservableCollection<SampleRecordEntry> m_Errors = new ObservableCollection<SampleRecordEntry>();
 
     /// <summary>
     ///  Initializes a new instance of the <see cref="BaseSettings" /> class.
@@ -81,8 +83,6 @@ namespace CsvTools
     {
       GetEncryptedPassphraseFunction = delegate () { if (!string.IsNullOrEmpty(Passphrase)) return Passphrase; if (!string.IsNullOrEmpty(ApplicationSetting.PGPKeyStorage.EncryptedPassphase)) return ApplicationSetting.PGPKeyStorage.EncryptedPassphase; return string.Empty; };
       ColumnCollection.CollectionChanged += ColumnCollectionChanged;
-      Samples.CollectionChanged += delegate { NotifyPropertyChanged(nameof(Samples)); };
-      Errors.CollectionChanged += delegate { if (m_NumErrors > 0 && Errors.Count > m_NumErrors) NumErrors = Errors.Count; NotifyPropertyChanged(nameof(Errors)); };
       MappingCollection.PropertyChanged += delegate { NotifyPropertyChanged(nameof(MappingCollection)); };
     }
 
@@ -251,7 +251,7 @@ namespace CsvTools
         if (otherRemote.RemoteFileName != RemoteFileName ||
             otherRemote.ThrowErrorIfNotExists != ThrowErrorIfNotExists ||
             otherRemote.FileSize != FileSize ||
-            string.Equals(otherRemote.FileName, FileName, StringComparison.OrdinalIgnoreCase)
+            !string.Equals(otherRemote.FileName, FileName, StringComparison.OrdinalIgnoreCase)
           )
           return false;
       }
@@ -284,7 +284,8 @@ namespace CsvTools
           string.Equals(other.Footer, Footer, StringComparison.OrdinalIgnoreCase) &&
           string.Equals(other.Header, Header, StringComparison.OrdinalIgnoreCase) &&
           MappingCollection.Equals(other.MappingCollection) && Samples.CollectionEqual(other.Samples) &&
-          Errors.CollectionEqual(other.Errors) && ColumnCollection.Equals(other.ColumnCollection);
+          Errors.CollectionEqual(other.Errors) && 
+          ColumnCollection.Equals(other.ColumnCollection);
     }
 
     /// <summary>
@@ -380,7 +381,19 @@ namespace CsvTools
       }
     }
 
-    public ObservableCollection<SampleRecordEntry> Errors { get; } = new ObservableCollection<SampleRecordEntry>();
+    public ObservableCollection<SampleRecordEntry> Errors
+    {
+      get => m_Errors;
+      set
+      {
+        var newVal = value ?? new ObservableCollection<SampleRecordEntry>();
+        if (m_Errors.CollectionEqualWithOrder(newVal)) return;
+
+        NotifyPropertyChanged(nameof(Errors));
+        if (m_NumErrors > 0 && Errors.Count > m_NumErrors)
+          NumErrors = Errors.Count;
+      }
+    }
 
     /// <summary>
     ///  Gets or sets the file format.
@@ -684,8 +697,17 @@ namespace CsvTools
       }
     }
 
-    public ObservableCollection<SampleRecordEntry> Samples { get; } = new ObservableCollection<SampleRecordEntry>();
-
+    public ObservableCollection<SampleRecordEntry> Samples
+    {
+      get => m_Samples;
+      set
+      {
+        var newVal = value ?? new ObservableCollection<SampleRecordEntry>();
+        if (m_Samples.CollectionEqualWithOrder(newVal)) return;
+        m_Samples = value ?? new ObservableCollection<SampleRecordEntry>();
+        NotifyPropertyChanged(nameof(Samples));
+      }
+    }
     /// <summary>
     ///  Gets or sets a value indicating whether to show progress.
     /// </summary>
