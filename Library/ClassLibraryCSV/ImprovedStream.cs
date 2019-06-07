@@ -269,6 +269,7 @@ namespace CsvTools
           if (WritePath.AssumeGZip())
           {
             Log.Debug("Compressing temporary file to GZip file");
+            var action = new IntervalAction(0.5);
             using (var inFile = File.OpenRead(TempFile))
             {
               // Create the compressed file.
@@ -277,22 +278,28 @@ namespace CsvTools
                 using (var compress = new System.IO.Compression.GZipStream(outFile, System.IO.Compression.CompressionMode.Compress))
                 {
                   var inputBuffer = new byte[16384];
-                  var max = (int)(inFile.Length / inputBuffer.Length);
-                  ProcessDisplay.Maximum = max;
-                  var count = 0;
+
+                  var displayMax = StringConversion.DynamicStorageSize(inFile.Length);
+                  ProcessDisplay.Maximum = inFile.Length;
                   int length;
+                  long processed = 0;
                   while ((length = inFile.Read(inputBuffer, 0, inputBuffer.Length)) > 0)
                   {
                     compress.Write(inputBuffer, 0, length);
+                    processed += length;
                     ProcessDisplay.CancellationToken.ThrowIfCancellationRequested();
 
-                    if (ProcessDisplay is IProcessDisplayTime processDispayTime)
-                      ProcessDisplay.SetProcess(
-                       $"GZip {processDispayTime.TimeToCompletion.PercentDisplay}{processDispayTime.TimeToCompletion.EstimatedTimeRemainingDisplaySeperator}", count);
-                    else
-                      ProcessDisplay.SetProcess($"GZip {count:N0}/{max:N0}",
-                       count);
-                    count++;
+                    action.Invoke(() =>
+                    {
+
+                      if (ProcessDisplay is IProcessDisplayTime processDispayTime)
+                      {
+                        processDispayTime.TimeToCompletion.Value = processed;
+                        ProcessDisplay.SetProcess($"GZip  {processDispayTime.TimeToCompletion.PercentDisplay}{processDispayTime.TimeToCompletion.EstimatedTimeRemainingDisplaySeperator} - {StringConversion.DynamicStorageSize(processed)}/{displayMax}", processed);
+                      }
+                      else
+                        ProcessDisplay.SetProcess($"GZip - {StringConversion.DynamicStorageSize(processed)}/{displayMax}", processed);
+                    });
                   }
                 }
               }

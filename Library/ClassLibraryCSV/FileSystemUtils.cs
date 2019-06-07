@@ -461,7 +461,7 @@ namespace CsvTools
       if (lastIndex != -1)
         return new SplitResult(path.Substring(0, lastIndex), path.Substring(lastIndex + 1));
       else
-        return new SplitResult(string.Empty, path);
+        return new SplitResult(Path.GetFullPath(path), path);
     }
 
     [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]

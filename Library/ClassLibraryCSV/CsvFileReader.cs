@@ -1001,13 +1001,28 @@ namespace CsvTools
           m_TextReader = new StreamReader(str, m_CsvFile.GetEncoding(), m_CsvFile.ByteOrderMark);
         }
         else
-        {
-          // only need to discard the buffer
+        {          
+          m_TextReader.BaseStream.Seek(0, SeekOrigin.Begin);
+          // only discard the buffer
           m_TextReader.DiscardBufferedData();
 
-          // we reset the position a BOM is shwing again 
-          if (m_CsvFile.ByteOrderMark)
+          // we reset the position a BOM is showing again - 
+          // TODO why this is happing, this should actually not be needed
+          if (m_CsvFile.ByteOrderMark && (m_CsvFile.CodePageId == 12001 && m_TextReader.Peek() > 65000 ||     //  UTF32Be
+                                          m_CsvFile.CodePageId == 12000 && m_TextReader.Peek() > 65000 ||     //  UTF32Le
+                                          m_CsvFile.CodePageId == 65000 && m_TextReader.Peek() > 65000  ||     // UTF7
+                                         (m_CsvFile.CodePageId == 65001 && m_TextReader.Peek() == 65279))     // UTF8                                          
+                                          )
             m_TextReader.Read();
+
+          if (m_CsvFile.ByteOrderMark && (m_CsvFile.CodePageId == 1201 ||      // UTF16Be
+                                          m_CsvFile.CodePageId == 1200)       // UTF16Le                                           
+                                      && m_TextReader.Peek() == 65279)
+          {
+            m_TextReader.Read();
+            m_TextReader.Read();
+          }
+
         }
       });
 

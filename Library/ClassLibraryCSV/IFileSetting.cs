@@ -60,7 +60,7 @@ namespace CsvTools
     /// <value><c>true</c> if line no should be displayed; otherwise, <c>false</c>.</value>
     bool DisplayStartLineNo { get; set; }
 
-    ObservableCollection<SampleRecordEntry> Errors { get; }
+    ObservableCollection<SampleRecordEntry> Errors { get; set; }
 
     /// <summary>
     ///  Gets or sets the file format.
@@ -73,7 +73,7 @@ namespace CsvTools
     /// </summary>
     /// <value>UTC time of last file write</value>
     DateTime FileLastWriteTimeUtc { get; set; }
-   
+
     /// <summary>
     ///  Gets or sets the Footer.
     /// </summary>
@@ -168,7 +168,7 @@ namespace CsvTools
     /// <value>The record limit. if set to 0 there is no limit</value>
     uint RecordLimit { get; set; }
 
-    ObservableCollection<SampleRecordEntry> Samples { get; }
+    ObservableCollection<SampleRecordEntry> Samples { get; set; }
 
     /// <summary>
     ///  Gets or sets a value indicating whether to show progress.

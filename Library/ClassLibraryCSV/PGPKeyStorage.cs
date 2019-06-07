@@ -431,18 +431,13 @@ namespace CsvTools
         using (var compressedStream = compressor.Open(encryptedStream))
         {
           var copyBuffer = new byte[32768];
-          var action = new IntervalAction(0.33);
-          using (var literalStream = literalizer.Open(compressedStream, PgpLiteralDataGenerator.Utf8, "PGPStream",
-            DateTime.Now, new byte[8192]))
+          var action = new IntervalAction(0.5);
+          using (var literalStream = literalizer.Open(compressedStream, PgpLiteralDataGenerator.Utf8, "PGPStream", DateTime.Now, new byte[8192]))
           {
-            var processDispayTime = processDisplay as IProcessDisplayTime;
             // for the percentage calculate the steps needed
-            var max = (toEncrypt.Length / copyBuffer.Length) + 1;
-            long count = 0;
+            processDisplay.Maximum = toEncrypt.Length;
 
-            processDisplay.Maximum = max;
-
-            long readBytes = 0;
+            long processed = 0;
             int lengthRead;
             var displayMax = StringConversion.DynamicStorageSize(toEncrypt.Length);
 
@@ -450,9 +445,19 @@ namespace CsvTools
             {
               processDisplay.CancellationToken.ThrowIfCancellationRequested();
               literalStream.Write(copyBuffer, 0, lengthRead);
-              readBytes += lengthRead;
-              count++;
-              action.Invoke(() => processDisplay.SetProcess($"PGP Encrypting - {StringConversion.DynamicStorageSize(readBytes)}/{displayMax}", count));
+              processed += lengthRead;
+
+              action.Invoke(() =>
+              {
+                if (processDisplay is IProcessDisplayTime processDispayTime)
+                {
+                  processDispayTime.TimeToCompletion.Value = processed;
+                  processDisplay.SetProcess($"PGP Encrypting  {processDispayTime.TimeToCompletion.PercentDisplay}{processDispayTime.TimeToCompletion.EstimatedTimeRemainingDisplaySeperator} - {StringConversion.DynamicStorageSize(processed)}/{displayMax}", processed);
+                }
+                else
+                  processDisplay.SetProcess($"PGP Encrypting - {StringConversion.DynamicStorageSize(processed)}/{displayMax}", processed);
+              }
+              );
             }
           }
         }

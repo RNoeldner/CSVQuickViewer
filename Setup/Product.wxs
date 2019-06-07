@@ -31,7 +31,7 @@
         </Directory>
       </Directory>
       <Directory Id="LocalAppDataFolder" Name="[AppData]">
-        <Directory Id="PRODUCTDIR" Name="$(var.Application)">
+        <Directory Id="PRODUCTDIR" Name="$(var.ApplicationShort)">
           <Component Id="EXECUTABLE" DiskId="1" Guid="DE676698-99E3-45F5-A9C1-E44B240F54C9">
             <File Id="ExecutableID" Name="CsvQuickViewer.exe" Source="$(var.CSVQuickViewer.TargetPath)" />
             <!--   

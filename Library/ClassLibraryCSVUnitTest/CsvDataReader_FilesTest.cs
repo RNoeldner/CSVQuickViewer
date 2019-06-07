@@ -1350,7 +1350,7 @@ namespace CsvTools.Tests
       {
         HasFieldHeader = false,
         WarnDelimiterInValue = true
-      };
+      };      
       setting.FileFormat.FieldDelimiter = ",";
       setting.FileFormat.EscapeCharacter = "\\";
       setting.FileName = Path.Combine(m_ApplicationDirectory, "TextQualifiersWithDelimiters.txt");
@@ -1432,7 +1432,8 @@ namespace CsvTools.Tests
       var setting = new CsvFile
       {
         HasFieldHeader = false,
-        CodePageId = 1201
+        CodePageId = 1201,
+        ByteOrderMark = true
       };
       setting.FileFormat.FieldDelimiter = ",";
       setting.FileName = Path.Combine(m_ApplicationDirectory, "UnicodeUTF16BE.txt");
@@ -1441,6 +1442,56 @@ namespace CsvTools.Tests
       {
         test.Open();
         Assert.AreEqual(Encoding.BigEndianUnicode, setting.CurrentEncoding);
+        Assert.AreEqual(4, test.FieldCount);
+        Assert.IsTrue(test.Read());
+        Assert.AreEqual(1U, test.StartLineNumber, "LineNumber");
+        Assert.AreEqual("tölvuiðnaðarins", test.GetString(1));
+        Assert.AreEqual("ũΩ₤", test.GetString(2));
+        Assert.AreEqual("používat", test.GetString(3));
+
+        Assert.IsTrue(test.Read());
+        Assert.AreEqual(2U, test.StartLineNumber, "LineNumber");
+
+        Assert.AreEqual("různá", test.GetString(0));
+        Assert.AreEqual("čísla", test.GetString(1));
+        Assert.AreEqual("pro", test.GetString(2));
+        Assert.AreEqual("członkowskich", test.GetString(3));
+
+        Assert.IsTrue(test.Read());
+        Assert.AreEqual(3U, test.StartLineNumber, "LineNumber");
+
+        Assert.AreEqual("rozumieją", test.GetString(0));
+        Assert.AreEqual("přiřazuje", test.GetString(1));
+        Assert.AreEqual("gemeinnützige", test.GetString(2));
+        Assert.AreEqual("är också", test.GetString(3));
+
+        Assert.IsTrue(test.Read());
+        Assert.AreEqual(4U, test.StartLineNumber, "LineNumber");
+
+        Assert.AreEqual("sprachunabhängig", test.GetString(0));
+        Assert.AreEqual("that's all", test.GetString(1));
+        Assert.AreEqual("for", test.GetString(2));
+        Assert.AreEqual("now", test.GetString(3));
+
+        Assert.IsFalse(test.Read());
+      }
+    }
+
+    [TestMethod]
+    public void UnicodeUTF16LE()
+    {
+      var setting = new CsvFile
+      {
+        HasFieldHeader = false,
+        CodePageId = 1200,
+        ByteOrderMark = true
+      };
+      setting.FileFormat.FieldDelimiter = ",";
+      setting.FileName = Path.Combine(m_ApplicationDirectory, "UnicodeUTF16LE.txt");
+
+      using (var processDisplay = new DummyProcessDisplay()) using (var test = new CsvFileReader(setting, processDisplay))
+      {
+        test.Open();        
         Assert.AreEqual(4, test.FieldCount);
         Assert.IsTrue(test.Read());
         Assert.AreEqual(1U, test.StartLineNumber, "LineNumber");
