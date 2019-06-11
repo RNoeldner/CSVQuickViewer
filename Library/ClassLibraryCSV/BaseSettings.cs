@@ -284,7 +284,7 @@ namespace CsvTools
           string.Equals(other.Footer, Footer, StringComparison.OrdinalIgnoreCase) &&
           string.Equals(other.Header, Header, StringComparison.OrdinalIgnoreCase) &&
           MappingCollection.Equals(other.MappingCollection) && Samples.CollectionEqual(other.Samples) &&
-          Errors.CollectionEqual(other.Errors) && 
+          Errors.CollectionEqual(other.Errors) &&
           ColumnCollection.Equals(other.ColumnCollection);
     }
 
@@ -388,7 +388,7 @@ namespace CsvTools
       {
         var newVal = value ?? new ObservableCollection<SampleRecordEntry>();
         if (m_Errors.CollectionEqualWithOrder(newVal)) return;
-
+        m_Errors = newVal;
         NotifyPropertyChanged(nameof(Errors));
         if (m_NumErrors > 0 && Errors.Count > m_NumErrors)
           NumErrors = Errors.Count;
@@ -704,7 +704,7 @@ namespace CsvTools
       {
         var newVal = value ?? new ObservableCollection<SampleRecordEntry>();
         if (m_Samples.CollectionEqualWithOrder(newVal)) return;
-        m_Samples = value ?? new ObservableCollection<SampleRecordEntry>();
+        m_Samples = newVal;
         NotifyPropertyChanged(nameof(Samples));
       }
     }
