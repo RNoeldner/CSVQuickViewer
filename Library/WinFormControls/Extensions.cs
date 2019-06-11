@@ -205,8 +205,18 @@ namespace CsvTools
 
     public static string GetProcessDisplayTitle(this IFileSetting fileSetting)
     {
-
-      return (fileSetting is IFileSettingPhysicalFile settingPhysicalFile) ? FileSystemUtils.GetShortDisplayFileName(settingPhysicalFile.FileName, 80) : fileSetting.ID;
+      string result = fileSetting.InternalID;
+      if (fileSetting is IFileSettingPhysicalFile settingPhysicalFile)
+      {
+        result = FileSystemUtils.GetShortDisplayFileName(settingPhysicalFile.FileName, 80);
+        if (settingPhysicalFile is IExcelFile excel)
+        {
+          result += " " + excel.SheetName;
+          if (!string.IsNullOrEmpty(excel.SheetRange) && !excel.SheetRange.Equals("A1", StringComparison.OrdinalIgnoreCase))
+            result += "(" + excel.SheetRange + ")";
+        }
+      }
+      return result;
     }
 
     /// <summary>
