@@ -40,13 +40,13 @@ namespace CsvTools
     private readonly List<ToolStripDataGridViewColumnFilter> m_Filter = new List<ToolStripDataGridViewColumnFilter>();
     private BindingSource m_BindingSource;
     private IFileSetting m_FileSetting;
+    private int m_MenuItemColumnIndex;
 
     /// <summary>
     ///   Any Text entered here will be highlighted Filer
     /// </summary>
     private string m_HighlightText = string.Empty;
 
-    private DataGridViewCell m_MenuStripDropDownCellValue;
     internal Func<string, IDataReader> ToolDataReader;
 
     /// <summary>
@@ -533,6 +533,7 @@ namespace CsvTools
     {
       try
       {
+        m_MenuItemColumnIndex = e.ColumnIndex;
         if (e.Button == MouseButtons.Right && e.ColumnIndex > -1)
         {
           SetFilterMenu(e.ColumnIndex);
@@ -560,17 +561,11 @@ namespace CsvTools
             toolStripMenuItemCF.Text = $"Change column format: {columnFormat.DataType.DataTypeDisplay()}";
 
           toolStripMenuItemRemoveOne.Enabled &= e.ColumnIndex != -1;
-
-          if (e.ColumnIndex > -1 && Rows.Count > 0)
-            m_MenuStripDropDownCellValue = Rows[0]?.Cells[e.ColumnIndex];
-          else
-            m_MenuStripDropDownCellValue = null;
           contextMenuStripHeader.Show(Cursor.Position);
         }
 
         if (e.Button != MouseButtons.Right || e.RowIndex <= -1 || e.ColumnIndex <= -1) return;
-        m_MenuStripDropDownCellValue = Rows[e.RowIndex].Cells[e.ColumnIndex];
-        CurrentCell = m_MenuStripDropDownCellValue;
+        CurrentCell = Rows[e.RowIndex].Cells[e.ColumnIndex];
         contextMenuStripCell.Show(Cursor.Position);
       }
       catch (Exception ex)
@@ -1001,11 +996,8 @@ namespace CsvTools
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
     private void ToolStripMenuItemApply_Click(object sender, EventArgs e)
     {
-      if (m_MenuStripDropDownCellValue != null)
-      {
-        if (m_Filter[m_MenuStripDropDownCellValue.ColumnIndex] != null)
-          m_Filter[m_MenuStripDropDownCellValue.ColumnIndex].ColumnFilterLogic.Active = true;
-      }
+      if (m_Filter[m_MenuItemColumnIndex] != null)
+        m_Filter[m_MenuItemColumnIndex].ColumnFilterLogic.Active = true;
 
       ApplyFilters();
       contextMenuStripCell.Close();
@@ -1020,10 +1012,10 @@ namespace CsvTools
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
     private void ToolStripMenuItemCF_Click(object sender, EventArgs e)
     {
-      var columnFormat = GetColumnFormat(m_MenuStripDropDownCellValue.ColumnIndex);
+      var columnFormat = GetColumnFormat(m_MenuItemColumnIndex);
       if (columnFormat == null) return;
       using (var form = new FormColumnUI(columnFormat, false, m_FileSetting))
-      {        
+      {
         form.ShowIgnore = false;
         if (form.ShowDialog() == DialogResult.Yes) Refresh();
       }
@@ -1093,13 +1085,13 @@ namespace CsvTools
     {
       try
       {
-        if (m_Filter[m_MenuStripDropDownCellValue.ColumnIndex] == null ||
-          !m_Filter[m_MenuStripDropDownCellValue.ColumnIndex].ColumnFilterLogic.Active)
+        if (m_Filter[m_MenuItemColumnIndex] == null ||
+          !m_Filter[m_MenuItemColumnIndex].ColumnFilterLogic.Active)
         {
           return;
         }
 
-        m_Filter[m_MenuStripDropDownCellValue.ColumnIndex].ColumnFilterLogic.Active = false;
+        m_Filter[m_MenuItemColumnIndex].ColumnFilterLogic.Active = false;
         ApplyFilters();
       }
       catch
@@ -1116,9 +1108,9 @@ namespace CsvTools
     {
       try
       {
-        if (m_MenuStripDropDownCellValue == null) return;
-        m_Filter[m_MenuStripDropDownCellValue.ColumnIndex].ColumnFilterLogic
-          .SetFilter(m_MenuStripDropDownCellValue.Value);
+        if (CurrentCell == null) return;
+        m_Filter[m_MenuItemColumnIndex].ColumnFilterLogic
+          .SetFilter(CurrentCell.Value);
         ApplyFilters();
       }
       catch
@@ -1136,7 +1128,7 @@ namespace CsvTools
       // keep one column visible, otherwise we have an issue with the grid being empty
       foreach (DataGridViewColumn col in Columns)
       {
-        if (col.Visible && col.Index != m_MenuStripDropDownCellValue.ColumnIndex)
+        if (col.Visible && col.Index != m_MenuItemColumnIndex)
           col.Visible = false;
       }
 
@@ -1170,9 +1162,8 @@ namespace CsvTools
     /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
     private void ToolStripMenuItemSortAscending_Click(object sender, EventArgs e)
     {
-      // Column was set on showing context menu
-      if (m_MenuStripDropDownCellValue != null)
-        Sort(Columns[m_MenuStripDropDownCellValue.ColumnIndex], ListSortDirection.Ascending);
+      // Column was set on showing context menu      
+      Sort(Columns[m_MenuItemColumnIndex], ListSortDirection.Ascending);
     }
 
     /// <summary>
@@ -1182,9 +1173,8 @@ namespace CsvTools
     /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
     private void ToolStripMenuItemSortDescending_Click(object sender, EventArgs e)
     {
-      // Column was set on showing context menu
-      if (m_MenuStripDropDownCellValue != null)
-        Sort(Columns[m_MenuStripDropDownCellValue.ColumnIndex], ListSortDirection.Descending);
+      // Column was set on showing context menu      
+      Sort(Columns[m_MenuItemColumnIndex], ListSortDirection.Descending);
     }
 
     private void ToolStripMenuItemSortRemove_Click(object sender, EventArgs e) => DataView.Sort = string.Empty;
@@ -1231,8 +1221,8 @@ namespace CsvTools
 
     private void ToolStripMenuItemFreeze_Click(object sender, EventArgs e)
     {
-      // move to front
-      if (!m_MenuStripDropDownCellValue.OwningColumn.Frozen)
+      // move to front      
+      if (!Columns[m_MenuItemColumnIndex].Frozen)
       {
         var colFirstNoFrozen = 0;
         foreach (var col in Columns.OfType<DataGridViewColumn>().OrderBy(x => x.DisplayIndex))
@@ -1243,11 +1233,10 @@ namespace CsvTools
             break;
           }
         }
-
-        m_MenuStripDropDownCellValue.OwningColumn.DisplayIndex = colFirstNoFrozen;
+        Columns[m_MenuItemColumnIndex].DisplayIndex = colFirstNoFrozen;
       }
 
-      m_MenuStripDropDownCellValue.OwningColumn.Frozen = !m_MenuStripDropDownCellValue.OwningColumn.Frozen;
+      Columns[m_MenuItemColumnIndex].Frozen = !Columns[m_MenuItemColumnIndex].Frozen;
     }
   }
 }
