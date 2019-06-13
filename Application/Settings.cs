@@ -15,18 +15,19 @@ namespace CsvTools.Properties
 #pragma warning disable CA1051 // Do not declare visible instance fields
     public WindowState WindowPosition;
 #pragma warning restore CA1051 // Do not declare visible instance fields
-   
-   
+
+
     private bool m_DetectFileChanges = true;
     private FillGuessSettings m_FillGuessSettings = ApplicationSetting.FillGuessSettings;
     private bool m_GuessCodePage = true;
     private bool m_GuessDelimiter = true;
     private bool m_GuessHasHeader = true;
     private bool m_GuessStartRow = true;
+    private bool m_GuessQualifier = true;
     private bool m_MenuDown = false;
     private PGPKeyStorage m_PGPKeyStorage = new PGPKeyStorage();
     private bool m_StoreSettingsByFile = false;
-    
+
     [XmlAttribute]
     [DefaultValue(true)]
     public bool DetectFileChanges
@@ -129,12 +130,27 @@ namespace CsvTools.Properties
       }
     }
 
+    [XmlAttribute]
+    [DefaultValue(true)]
+    public bool GuessQualifier
+    {
+      get => m_GuessQualifier;
+      set
+      {
+        if (m_GuessQualifier == value)
+          return;
+        m_GuessQualifier = value;
+        NotifyPropertyChanged(nameof(GuessQualifier));
+      }
+    }
+
 
     [XmlAttribute]
     [DefaultValue(false)]
     public bool MenuDown
     {
-      get => m_MenuDown; set
+      get => m_MenuDown; 
+      set
       {
         if (m_MenuDown == value)
           return;
@@ -156,7 +172,7 @@ namespace CsvTools.Properties
     [XmlIgnore]
     public virtual bool PGPInformationSpecified => PGPInformation.Specified;
 
-    
+
     [XmlAttribute]
     [DefaultValue(false)]
     public bool StoreSettingsByFile
@@ -169,7 +185,7 @@ namespace CsvTools.Properties
         NotifyPropertyChanged(nameof(StoreSettingsByFile));
       }
     }
-   
+
     public static void CopyConfiuration(ICsvFile csvSrc, ICsvFile csvDest)
     {
       if (csvSrc == null || csvDest == null)
