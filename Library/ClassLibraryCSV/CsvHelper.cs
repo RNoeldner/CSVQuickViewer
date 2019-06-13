@@ -299,6 +299,23 @@ namespace CsvTools
     }
 
     /// <summary>
+    ///   Determines the start row in the file
+    /// </summary>
+    /// <param name="setting"><see cref="ICsvFile" /> with the information</param>
+    /// <returns>
+    ///   The number of rows to skip
+    /// </returns>
+    public static char GuessQualifier(ICsvFile setting)
+    {
+      Contract.Requires(setting != null);
+      using (var improvedStream = ImprovedStream.OpenRead(setting))
+      using (var streamReader = new StreamReader(improvedStream.Stream, setting.GetEncoding(), setting.ByteOrderMark))
+      {
+        return GuessQualifier(streamReader, setting.FileFormat.FieldDelimiterChar);
+      }
+    }
+
+    /// <summary>
     ///   Does check if quoting was actually used in the file
     /// </summary>
     /// <param name="setting">The setting.</param>
@@ -687,6 +704,58 @@ namespace CsvTools
         }
       }
       return 0;
+    }
+
+    internal static char GuessQualifier(StreamReader streamReader, char delimiter)
+    {
+      if (streamReader == null)
+        return '\0';
+
+      const int maxLine = 15;
+      char[] possibleQuotes = new char[] { '"', '\'' };
+
+      int[] counter = new int[possibleQuotes.Length];
+
+      // skip the first line it usually a header      
+      for (int lineNo = 0; lineNo < maxLine; lineNo++)
+      {
+        var line = streamReader.ReadLine();
+        // EOF
+        if (line==null) break;
+
+        // Note: Delimiters in quoted text will split the actual column in multiple this will be ignore here, we hope to find columns that do not contain delimiters
+        var cols = line.Split(delimiter);
+        foreach (var col in cols)
+        {
+          if (string.IsNullOrEmpty(col)) continue;
+          var test = col.Trim();
+          // the column need to start and end with the same characters, its at least 2 char long
+          if (test.Length < 2 || (test[0] != test[test.Length - 1])) continue;
+
+          // check all setup test chars
+          for (int testChar = 0; testChar < possibleQuotes.Length; testChar++)
+            if (test[0] == possibleQuotes[testChar]) counter[testChar]++;
+        }
+      }
+
+      // get the highest number of quoted columns
+      int max = 1;
+      for (int testChar = 0; testChar < possibleQuotes.Length; testChar++)
+      {
+        if (counter[testChar] > max)
+          max = counter[testChar];
+      }
+
+      // We need a certain level of confidence only one quoted column is not enough,
+      if (max > 1)
+      {
+        for (int testChar = 0; testChar < possibleQuotes.Length; testChar++)
+        {
+          if (counter[testChar] == max)
+            return possibleQuotes[testChar];
+        }
+      }
+      return '\0';
     }
 
     private static DelimiterCounter GetDelimiterCounter(StreamReader streamReader, char escapeCharacter, int numRows)

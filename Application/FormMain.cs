@@ -73,7 +73,7 @@ namespace CsvTools
       m_SettingsChangedTimerChange.AutoReset = false;
       m_SettingsChangedTimerChange.Elapsed += delegate { this.SafeInvoke(() => OpenDataReader(true)); };
       m_SettingsChangedTimerChange.Stop();
-      
+
       // Done in code to be able to select controls in the designer
       textPanel.SuspendLayout();
       textPanel.Dock = DockStyle.Fill;
@@ -85,7 +85,7 @@ namespace CsvTools
       Text = AssemblyTitle;
 
       SystemEvents.DisplaySettingsChanged += SystemEvents_DisplaySettingsChanged;
-      SystemEvents.PowerModeChanged += SystemEvents_PowerModeChanged;      
+      SystemEvents.PowerModeChanged += SystemEvents_PowerModeChanged;
     }
 
     private static string AssemblyTitle
@@ -382,42 +382,52 @@ namespace CsvTools
             }
             catch (Exception exc)
             {
-              _MessageBox.Show(this, exc.ExceptionMessages(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning, timeout:0);
+              _MessageBox.Show(this, exc.ExceptionMessages(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning, timeout: 0);
             }
-            if (analyse) m_FileSetting.SkipRows = 0;
-
-            if (analyse && m_ViewSettings.GuessCodePage) CsvHelper.GuessCodePage(m_FileSetting);
-
-            if (analyse) m_FileSetting.NoDelimitedFile = CsvHelper.GuessNotADelimitedFile(m_FileSetting);
-            if (analyse && m_ViewSettings.GuessDelimiter) m_FileSetting.FileFormat.FieldDelimiter = CsvHelper.GuessDelimiter(m_FileSetting);
-            if (analyse && m_ViewSettings.GuessStartRow) m_FileSetting.SkipRows = CsvHelper.GuessStartRow(m_FileSetting);
-
             if (analyse)
-            {
-              if (m_ViewSettings.GuessHasHeader)
+              try
               {
-                using (var processDisplay = new DummyProcessDisplay(cancellationTokenSource.Token))
+                m_FileSetting.SkipRows = 0;
+                if (m_ViewSettings.GuessCodePage) CsvHelper.GuessCodePage(m_FileSetting);
+
+                m_FileSetting.NoDelimitedFile = CsvHelper.GuessNotADelimitedFile(m_FileSetting);
+                if (m_ViewSettings.GuessDelimiter) m_FileSetting.FileFormat.FieldDelimiter = CsvHelper.GuessDelimiter(m_FileSetting);
+
+                if (m_ViewSettings.GuessQualifier)
                 {
-                  m_FileSetting.HasFieldHeader = CsvHelper.GuessHasHeader(m_FileSetting, processDisplay);
+                  char determined = CsvHelper.GuessQualifier(m_FileSetting);
+                  m_FileSetting.FileFormat.FieldQualifier = determined == 0 ? string.Empty : Char.ToString(determined);
+                }
+                if (m_ViewSettings.GuessStartRow) m_FileSetting.SkipRows = CsvHelper.GuessStartRow(m_FileSetting);
+
+                if (m_ViewSettings.GuessHasHeader)
+                {
+                  m_FileSetting.HasFieldHeader = true;
+                  using (var processDisplay = new DummyProcessDisplay(cancellationTokenSource.Token))
+                  {
+                    m_FileSetting.HasFieldHeader = CsvHelper.GuessHasHeader(m_FileSetting, processDisplay);
+                  }
+                }
+
+                using (var processDisplay = m_FileSetting.GetProcessDisplay(this, false, cancellationTokenSource.Token))
+                {
+                  if (processDisplay is Form frm && limitSizeForm != null)
+                  {
+                    frm.Left = limitSizeForm.Left + limitSizeForm.Width;
+                  }
+                  m_FileSetting.FillGuessColumnFormatReader(false, processDisplay);
+                }
+
+                if (m_FileSetting.ColumnCollection.Any(x => x.DataType != DataType.String))
+                {
+                  detailControl.ButtonShowSource += DetailControl_ButtonShowSource;
+                  detailControl.ButtonAsText += DetailControl_ButtonAsText;
                 }
               }
-
-              using (var processDisplay = m_FileSetting.GetProcessDisplay(this, false, cancellationTokenSource.Token))
+              catch (Exception ex)
               {
-                if (processDisplay is Form frm && limitSizeForm != null)
-                {
-                  frm.Left = limitSizeForm.Left + limitSizeForm.Width;
-                }
-                m_FileSetting.FillGuessColumnFormatReader(false, processDisplay);
+                this.ShowError(ex, "Inspecting file");
               }
-
-              if (m_FileSetting.ColumnCollection.Any(x => x.DataType != DataType.String))
-              {
-                detailControl.ButtonShowSource += DetailControl_ButtonShowSource;
-                detailControl.ButtonAsText += DetailControl_ButtonAsText;
-              }
-            }
-
             Extensions.TimeOutWait(() => { return limitSizeForm != null; }, 100, 5 / 60, false, cancellationTokenSource.Token);
 
             if (limitSizeForm != null)
