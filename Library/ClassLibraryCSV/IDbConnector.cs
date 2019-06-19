@@ -233,17 +233,6 @@ namespace CsvTools
     /// <param name="destinationTableName">Name of the destination table.</param>
     /// <param name="eventHandler">Event called after some records have been processed</param>
     /// <param name="cancellationToken">A cancellation Token</param>
-    void StoreDataTable(DataTable dataTable, string destinationTableName, EventHandler<long> eventHandler, CancellationToken cancellationToken);
-
-    /// <summary>
-    ///  Stores the partion information.
-    /// </summary>
-    /// <param name="tableName">Name of the table.</param>
-    /// <param name="keyField">The key field.</param>
-    /// <param name="collectionArray">The collection array.</param>
-    /// <param name="maxPartion">The maximum partion.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    void StorePartionInformation(string tableName, string keyField, ICollection<string>[] collectionArray,
-     int maxPartion, CancellationToken cancellationToken);
+    void StoreDataTable(DataTable dataTable, string destinationTableName, EventHandler<long> eventHandler, CancellationToken cancellationToken);    
   }
 }

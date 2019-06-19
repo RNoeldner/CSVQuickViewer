@@ -224,12 +224,6 @@
     <Compile Include="FormEditSettings.Designer.cs">
       <DependentUpon>FormEditSettings.cs</DependentUpon>
     </Compile>
-    <Compile Include="FormLimitSize.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="FormLimitSize.Designer.cs">
-      <DependentUpon>FormLimitSize.cs</DependentUpon>
-    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings.cs" />
@@ -240,9 +234,6 @@
     <EmbeddedResource Include="FormMain.resx">
       <DependentUpon>FormMain.cs</DependentUpon>
       <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="FormLimitSize.resx">
-      <DependentUpon>FormLimitSize.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

@@ -198,10 +198,10 @@ namespace CsvTools.Tests
 
         dataTable.Columns.Add(test.GetName(0), test.GetFieldType(0));
 
-        var recordNumberColumn = dataTable.Columns.Add(test.RecordNumberFieldName, typeof(int));
+        var recordNumberColumn = dataTable.Columns.Add(BaseFileReader.cRecordNumberFieldName, typeof(int));
         recordNumberColumn.AllowDBNull = true;
 
-        var lineNumberColumn = dataTable.Columns.Add(test.EndLineNumberFieldName, typeof(int));
+        var lineNumberColumn = dataTable.Columns.Add(BaseFileReader.cEndLineNumberFieldName, typeof(int));
         lineNumberColumn.AllowDBNull = true;
 
         int[] columnMapping = { 0 };
@@ -282,10 +282,10 @@ namespace CsvTools.Tests
 
         dataTable.Columns.Add(test.GetName(0), test.GetFieldType(0));
 
-        var recordNumberColumn = dataTable.Columns.Add(test.RecordNumberFieldName, typeof(int));
+        var recordNumberColumn = dataTable.Columns.Add(BaseFileReader.cRecordNumberFieldName, typeof(int));
         recordNumberColumn.AllowDBNull = true;
 
-        var lineNumberColumn = dataTable.Columns.Add(test.EndLineNumberFieldName, typeof(int));
+        var lineNumberColumn = dataTable.Columns.Add(BaseFileReader.cEndLineNumberFieldName, typeof(int));
         lineNumberColumn.AllowDBNull = true;
 
         var dataRow = dataTable.NewRow();

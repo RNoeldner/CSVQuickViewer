@@ -279,7 +279,7 @@ namespace CsvTools
 
       try
       {
-        HandleShowProgress("Opening…");
+        HandleShowProgress("Opening text file…");
 
         ResetPositionToStartOrOpen();
 

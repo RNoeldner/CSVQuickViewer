@@ -39,22 +39,10 @@ namespace CsvTools
     long EndLineNumber { get; }
 
     /// <summary>
-    ///  Gets the end name of the line number field.
-    /// </summary>
-    /// <value>The end name of the line number field.</value>
-    string EndLineNumberFieldName { get; }
-
-    /// <summary>
     ///  Determine if the data Reader is at the end of the file
     /// </summary>
     /// <returns>True if you can read; otherwise, false.</returns>
     bool EndOfFile { get; }
-
-    /// <summary>
-    ///  Gets the field name for persisted error information
-    /// </summary>
-    /// <value>The error field.</value>
-    string ErrorField { get; }
 
     /// <summary>
     ///  Gets the record number.
@@ -63,22 +51,10 @@ namespace CsvTools
     long RecordNumber { get; }
 
     /// <summary>
-    ///  Gets the name of the record number field.
-    /// </summary>
-    /// <value>The name of the record number field.</value>
-    string RecordNumberFieldName { get; }
-
-    /// <summary>
     ///  Gets the start line number.
     /// </summary>
     /// <value>The line number in which the record started.</value>
-    long StartLineNumber { get; }
-
-    /// <summary>
-    ///  Gets the start name of the line number field.
-    /// </summary>
-    /// <value>The start name of the line number field.</value>
-    string StartLineNumberFieldName { get; }
+    long StartLineNumber { get; }    
 
     /// <summary>
     ///  Gets the column information for a given column number

@@ -47,9 +47,14 @@ namespace CsvTools
     public const string cStartLineNumberFieldName = "#Line";
 
     /// <summary>
+    ///  Field name of the LineNumber Start Field
+    /// </summary>
+    public const string cPartionField = "#Partition";
+
+    /// <summary>
     ///  Collection of the artificial field names
     /// </summary>
-    public static ICollection<string> ArtificalFields = new HashSet<string> { cRecordNumberFieldName, cStartLineNumberFieldName, cEndLineNumberFieldName, cErrorField };
+    public static ICollection<string> ArtificalFields = new HashSet<string> { cRecordNumberFieldName, cStartLineNumberFieldName, cEndLineNumberFieldName, cErrorField, cPartionField };
 
     /// <summary>
     ///  The maximum value
@@ -150,24 +155,13 @@ namespace CsvTools
     /// </summary>
     public virtual long EndLineNumber { get; protected set; }
 
-    /// <summary>
-    ///  Gets the end name of the line number field.
-    /// </summary>
-    /// <value>The end name of the line number field.</value>
-    public virtual string EndLineNumberFieldName => cEndLineNumberFieldName;
 
     /// <summary>
     ///  Gets or sets a value indicating whether the reader is at the end of the file.
     /// </summary>
     /// <value><c>true</c> if at the end of file; otherwise, <c>false</c>.</value>
     public virtual bool EndOfFile { get; protected set; } = true;
-
-    /// <summary>
-    ///  Gets the field name for persisted error information
-    /// </summary>
-    /// <value>The error field.</value>
-    public virtual string ErrorField => cErrorField;
-
+    
     /// <summary>
     ///  Gets the number of fields in the file.
     /// </summary>
@@ -188,13 +182,7 @@ namespace CsvTools
     /// </summary>
     /// <value>The record number.</value>
     public virtual long RecordNumber { get; protected set; }
-
-    /// <summary>
-    ///  Gets the name of the record number field.
-    /// </summary>
-    /// <value>The name of the record number field.</value>
-    public virtual string RecordNumberFieldName => cRecordNumberFieldName;
-
+    
     /// <summary>
     ///  Gets the number of rows changed, inserted, or deleted by execution of the SQL statement.
     /// </summary>
@@ -910,7 +898,7 @@ namespace CsvTools
     }
 
     protected virtual void FinishOpen()
-    {      
+    {
       ApplicationSetting.StoreHeader?.Invoke(m_FileSetting, Column);
 
       if (FieldCount > 0)

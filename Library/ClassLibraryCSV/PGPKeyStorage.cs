@@ -37,8 +37,7 @@ namespace CsvTools
 #pragma warning restore CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
   {
     private static readonly string m_PgpDecryption =
-      "dLz4/oPycBMLecvRato2sYqKHpUuvrOwsCa4N3b2DUnLfk8In4Vbyscj8HTex5r1u0OSfxMvEojPM+JMw7xNPbu3Yvpr+A3OD3tb0pq27DFZPkTmOcB/NrTnzo9F91jtnonqNlXRwJOCzu+rCsVqZ5YXg==0cQKc"
-        .Decrypt();
+      "dLz4/oPycBMLecvRato2sYqKHpUuvrOwsCa4N3b2DUnLfk8In4Vbyscj8HTex5r1u0OSfxMvEojPM+JMw7xNPbu3Yvpr+A3OD3tb0pq27DFZPkTmOcB/NrTnzo9F91jtnonqNlXRwJOCzu+rCsVqZ5YXg0cQKc".Decrypt();
 
     private readonly List<string> m_EncryptedPrivateKeyRingBundle = new List<string>();
     private readonly List<string> m_EncryptedPublicKeyRingBundle = new List<string>();

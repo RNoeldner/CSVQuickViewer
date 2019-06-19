@@ -53,7 +53,7 @@ namespace CsvTools
 
       while (!cancellationToken.IsCancellationRequested && whileTrue())
       {
-        if (stopwatch.ElapsedMilliseconds > timeoutMinutes * 60000)
+        if (timeoutMinutes > 0 && stopwatch.ElapsedMilliseconds > timeoutMinutes * 60000)
         {
           var msg = $"Waited longer than {timeoutMinutes * 60:N0} seconds, assuming something is wrong";
           if (raiseError)

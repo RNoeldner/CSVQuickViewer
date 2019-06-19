@@ -70,6 +70,12 @@
     </Compile>
     <Compile Include="EncodedMessagePatternConvertor.cs" />
     <Compile Include="Extensions.cs" />
+    <Compile Include="FormLimitSize.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormLimitSize.Designer.cs">
+      <DependentUpon>FormLimitSize.cs</DependentUpon>
+    </Compile>
     <Compile Include="WindowsAPICodePackWrapper.cs" />
     <Compile Include="FillGuessSettingEdit.cs">
       <SubType>UserControl</SubType>
@@ -178,6 +184,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="FolderTree.resx">
       <DependentUpon>FolderTree.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormLimitSize.resx">
+      <DependentUpon>FormLimitSize.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="TimeZoneSelector.resx">
       <DependentUpon>TimeZoneSelector.cs</DependentUpon>
