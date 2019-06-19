@@ -30,11 +30,30 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    public void EncyrptWithPwd()
+    {
+      var encyrpted1 = "Michelé Joel Milena".Encrypt("g4yTwMwpRfzhBFkQQ");
+      var encyrpted2 = "Michelé Joel Milena".Encrypt("g4yTwBFkQQ");
+      Assert.AreNotEqual(encyrpted1, encyrpted2);
+    }
+
+    [TestMethod]
     public void Decrypt()
     {
       const string testValue = "This is a a test";
       var encyrpted1 = testValue.Encrypt();
       Assert.AreEqual(testValue, encyrpted1.Decrypt());
+    }
+
+    [TestMethod]
+    public void EncryptDecrypt()
+    {
+      Assert.AreEqual("", "".Encrypt().Decrypt());
+      Assert.AreEqual("1", "1".Encrypt().Decrypt());
+      Assert.AreEqual("12", "12".Encrypt("Hello").Decrypt("Hello"));
+      Assert.AreEqual("123", "123".Encrypt().Decrypt());
+      Assert.AreEqual("1234", "1234".Encrypt().Decrypt());
+      Assert.AreEqual("Raphael Nöldner", "Raphael Nöldner".Encrypt().Decrypt());
     }
 
     [TestMethod]

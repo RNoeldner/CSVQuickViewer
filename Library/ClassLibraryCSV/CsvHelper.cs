@@ -293,8 +293,7 @@ namespace CsvTools
       using (var improvedStream = ImprovedStream.OpenRead(setting))
       using (var streamReader = new StreamReader(improvedStream.Stream, setting.GetEncoding(), setting.ByteOrderMark))
       {
-        return GuessStartRow(streamReader, setting.FileFormat.FieldDelimiterChar,
-         setting.FileFormat.FieldQualifierChar);
+        return GuessStartRow(streamReader, setting.FileFormat.FieldDelimiterChar, setting.FileFormat.FieldQualifierChar);
       }
     }
 
@@ -311,7 +310,7 @@ namespace CsvTools
       using (var improvedStream = ImprovedStream.OpenRead(setting))
       using (var streamReader = new StreamReader(improvedStream.Stream, setting.GetEncoding(), setting.ByteOrderMark))
       {
-        return GuessQualifier(streamReader, setting.FileFormat.FieldDelimiterChar);
+        return GuessQualifier(streamReader, setting.FileFormat.FieldDelimiterChar, setting.SkipRows);
       }
     }
 
@@ -394,7 +393,11 @@ namespace CsvTools
       if (display.CancellationToken.IsCancellationRequested) return;
       display.SetProcess("Delimiter: " + file.FileFormat.FieldDelimiter);
 
+      var qual = GuessQualifier(file);
+      file.FileFormat.FieldQualifier = qual == '\0' ? string.Empty : Char.ToString(qual);
+
       file.SkipRows = GuessStartRow(file);
+
       if (display.CancellationToken.IsCancellationRequested) return;
       if (file.SkipRows > 0)
         display.SetProcess("Start Row: " + file.SkipRows.ToString(CultureInfo.InvariantCulture));
@@ -706,22 +709,24 @@ namespace CsvTools
       return 0;
     }
 
-    internal static char GuessQualifier(StreamReader streamReader, char delimiter)
+    internal static char GuessQualifier(StreamReader streamReader, char delimiter, int skipRows)
     {
       if (streamReader == null)
         return '\0';
 
-      const int maxLine = 15;
+      const int maxLine = 30;
       char[] possibleQuotes = new char[] { '"', '\'' };
 
       int[] counter = new int[possibleQuotes.Length];
 
+
       // skip the first line it usually a header      
-      for (int lineNo = 0; lineNo < maxLine; lineNo++)
+      for (int lineNo = 0; lineNo < maxLine + skipRows; lineNo++)
       {
         var line = streamReader.ReadLine();
         // EOF
-        if (line==null) break;
+        if (line == null) break;
+        if (lineNo < skipRows) continue;
 
         // Note: Delimiters in quoted text will split the actual column in multiple this will be ignore here, we hope to find columns that do not contain delimiters
         var cols = line.Split(delimiter);

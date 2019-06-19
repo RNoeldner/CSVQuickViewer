@@ -1,4 +1,4 @@
-﻿/*
+﻿/*      
  * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com/
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
@@ -22,12 +22,30 @@ namespace CsvTools
   /// </summary>
   public partial class FrmLimitSize : Form
   {
+    private int m_Counter = 0;
+    private double m_Duration = 4.0;
+
     /// <summary>
     ///   Initializes a new instance of the <see cref="FrmLimitSize" /> class.
     /// </summary>
     public FrmLimitSize()
     {
       InitializeComponent();
+      labelCount1.Text = $"{10000:N0}";
+      labelCount2.Text = $"{20000:N0}";
+      labelCount3.Text = $"{50000:N0}";
+      labelCount4.Text = $"{100000:N0}";
+      UpdateLabel();
+    }
+
+    private void Timer_Tick(object sender, EventArgs e)
+    {
+      m_Counter++;
+      UpdateLabel();
+      if (m_Duration > 0 && (m_Counter * timer.Interval) / 1000 > m_Duration)
+      {
+        buttonOK_Click(sender, e);
+      }
     }
 
     /// <summary>
@@ -41,16 +59,29 @@ namespace CsvTools
       Close();
     }
 
+    private void UpdateLabel()
+    {
+      int displ = Convert.ToInt32((m_Duration - (m_Counter * timer.Interval) / 1000 + .75));
+      if (displ > 0)
+      {
+        label.Text = $"Default in {displ:N0} seconds";
+      }
+      else
+        label.Text = string.Empty;
+    }
+
     private void buttonOK_Click(object sender, EventArgs e)
     {
-      if (trackBarLimit.Value == 4)
+      if (trackBarLimit.Value == 5)
         RecordLimit = 0;
+      if (trackBarLimit.Value == 4)
+        RecordLimit = 100000;
       if (trackBarLimit.Value == 3)
         RecordLimit = 50000;
       if (trackBarLimit.Value == 2)
-        RecordLimit = 10000;
+        RecordLimit = 20000;
       if (trackBarLimit.Value == 1)
-        RecordLimit = 5000;
+        RecordLimit = 10000;
       DialogResult = DialogResult.OK;
       Close();
     }

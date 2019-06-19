@@ -46,7 +46,7 @@ namespace CsvTools
       get
       {
         if (m_Phrase == null)
-          m_Phrase = "reCffmj/JWCQmL60+zVmPxBwHEkiZCwC+B1wZsXn4BpjBU=g8IJ5".Decrypt("g4yTwMwpRfz4a1hBFkQQ");
+          m_Phrase = "reCffmj/JWCQmL60+zVmPxBwHEkiZCwC+B1wZsXn4BpjBUg8IJ5".Decrypt("g4yTwMwpRfz4a1hBFkQQ");
         return m_Phrase;
       }
     }
@@ -64,10 +64,12 @@ namespace CsvTools
       if (pwd == null)
         pwd = DefaultPhrase;
 
-      var cipherTextBytes = Convert.FromBase64String(cipherText.Substring(c_SlatSplit, cipherText.Length - c_SlatSize));
-      var salt = cipherText.Substring(0, c_SlatSplit) +
-                 cipherText.Substring(cipherText.Length - (c_SlatSize - c_SlatSplit));
-
+      var salt = cipherText.Substring(0, c_SlatSplit) + cipherText.Substring(cipherText.Length - (c_SlatSize - c_SlatSplit));
+      var base64 = cipherText.Substring(c_SlatSplit, cipherText.Length - c_SlatSize);
+      // add the possibly removed padding
+      if (base64.Length % 4 != 0) base64 += "=";
+      if (base64.Length % 4 != 0) base64 += "=";
+      var cipherTextBytes = Convert.FromBase64String(base64);
       var symmetricKey = new RijndaelManaged { Mode = CipherMode.CBC };
       var decryptor =
         symmetricKey.CreateDecryptor(new PasswordDeriveBytes(pwd, Encoding.ASCII.GetBytes(salt)).GetBytes(32),
@@ -97,6 +99,7 @@ namespace CsvTools
 
       const string base64 = "012345abcdefghijklmnopqrstuvwxyz6789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
       var builder = new char[c_SlatSize];
+      // pick random salt characters
       for (var i = 0; i < c_SlatSize; i++)
         builder[i] = base64[Convert.ToInt32(Math.Floor(base64.Length * Random.NextDouble()))];
       var salt = new string(builder);
@@ -112,6 +115,12 @@ namespace CsvTools
           cryptoStream.Write(plainTextBytes, 0, plainTextBytes.Length);
           cryptoStream.FlushFinalBlock();
           var text = Convert.ToBase64String(memoryStream.ToArray());
+          // remove Base64 padding to hind the nature of the encoding a bit
+          if (text.EndsWith("=="))
+            text = text.Substring(0, text.Length - 2);
+          else if (text.EndsWith("="))
+            text = text.Substring(0, text.Length - 1);
+
           return salt.Substring(0, c_SlatSplit) + text + salt.Substring(c_SlatSplit);
         }
       }
