@@ -37,17 +37,17 @@ namespace CsvTools
     {
       set
       {
-        if (m_Delimiter.Equals(value)) return;
+        if (m_Delimiter.Equals(value))
+          return;
         m_Delimiter = value;
         try
         {
-          this.SafeInvoke(()=> Rtf = GetRtfFromText(m_Text));          
+          this.SafeInvoke(() => Rtf = GetRtfFromText(m_Text));
         }
         catch (System.Exception)
         {
           // ignore   this could happen if the control is not fully initialized
         }
-
       }
 
       get => m_Delimiter;
@@ -74,7 +74,8 @@ namespace CsvTools
     {
       set
       {
-        if (m_Escape.Equals(value)) return;
+        if (m_Escape.Equals(value))
+          return;
         m_Escape = value;
         Rtf = GetRtfFromText(m_Text);
       }
@@ -89,7 +90,8 @@ namespace CsvTools
     {
       set
       {
-        if (m_Quote.Equals(value)) return;
+        if (m_Quote.Equals(value))
+          return;
         m_Quote = value;
         Rtf = GetRtfFromText(m_Text);
       }
@@ -132,7 +134,8 @@ namespace CsvTools
 
     private void AddColor(StringBuilder rtf, int color, char nextChar)
     {
-      if (color == m_CurrentColor) return;
+      if (color == m_CurrentColor)
+        return;
       rtf.AppendFormat(nextChar == '\\' ? "\\cf{0}" : "\\cf{0} ", color);
       m_CurrentColor = color;
     }

@@ -33,8 +33,6 @@ namespace CsvTools
     public static readonly DateTimeFormatCollection StandardDateTimeFormats =
       new DateTimeFormatCollection("DateTimeFormats.txt");
 
-#pragma warning disable CA2211 // Non-constant fields should not be visible
-
     public static HashSet<string> DateSeparators =
           new HashSet<string>(new[] { CultureInfo.CurrentCulture.DateTimeFormat.DateSeparator, "/", ".", "-" });
 
@@ -43,8 +41,6 @@ namespace CsvTools
 
     public static HashSet<char> DecimalSeparators = new HashSet<char>(new[]
           {CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator[0], '.', ','});
-
-#pragma warning restore CA2211 // Non-constant fields should not be visible
 
     private static readonly string[] m_FalseValues =
         {
@@ -74,6 +70,7 @@ namespace CsvTools
       "jā", "Iva", "Igaz", "Ie", "Gerçek", "Evet", "Đúng", "da", "Có", "Benar",
       "áno", "Ano", "Adevărat"
     };
+
     /// <summary>Checks if the values are dates.</summary>
     /// <param name="samples">The sample values to be checked.</param>
     /// <param name="shortDateFormat">The short date format.</param>
@@ -104,7 +101,7 @@ namespace CsvTools
           allParsed = false;
           checkResult.ExampleNonMatch.Add(value);
           // try to get some positive matches, in case the first record is invalid
-          if (counter >= 5)           
+          if (counter >= 5)
             break;
         }
         else
@@ -125,7 +122,8 @@ namespace CsvTools
         }
       }
 
-      if (!allParsed) return checkResult;
+      if (!allParsed)
+        return checkResult;
       checkResult.FoundValueFormat = new ValueFormat
       {
         DataType = DataType.DateTime,
@@ -222,7 +220,8 @@ namespace CsvTools
         }
       }
 
-      if (!allParsed) return checkResult;
+      if (!allParsed)
+        return checkResult;
       checkResult.FoundValueFormat = new ValueFormat
       {
         DataType = assumeInteger ? DataType.Integer : DataType.Numeric,
@@ -291,7 +290,8 @@ namespace CsvTools
         }
       }
 
-      if (!allParsed) return checkResult;
+      if (!allParsed)
+        return checkResult;
       checkResult.FoundValueFormat = new ValueFormat
       {
         DataType = DataType.DateTime,
@@ -318,7 +318,8 @@ namespace CsvTools
       foreach (var value in samples)
       {
         var ret = StringToTimeSpan(value, timeSeparator, false);
-        if (ret.HasValue) continue;
+        if (ret.HasValue)
+          continue;
         allParsed = false;
         break;
       }
@@ -353,7 +354,8 @@ namespace CsvTools
         hasValue |= ret.Value.TotalSeconds > 0;
       }
 
-      if (hasValue) return allParsed;
+      if (hasValue)
+        return allParsed;
       return false;
     }
 
@@ -530,7 +532,8 @@ namespace CsvTools
       for (var length = 5; length > 2; length--)
       {
         var search = new string('H', length);
-        if (!result.Contains(search)) continue;
+        if (!result.Contains(search))
+          continue;
         result = result.Replace(search, "HH");
         pad = length;
         break;
@@ -708,7 +711,8 @@ namespace CsvTools
         foreach (var decimalSeparator in DecimalSeparators)
         {
           numberFormatProvider.NumberDecimalSeparator = decimalSeparator.ToString(CultureInfo.CurrentCulture);
-          if (!double.TryParse(stringDateValue, NumberStyles.Float, numberFormatProvider, out var timeSerial)) continue;
+          if (!double.TryParse(stringDateValue, NumberStyles.Float, numberFormatProvider, out var timeSerial))
+            continue;
           if (timeSerial >= -657435 && timeSerial < 2958466)
             return DateTime.FromOADate(timeSerial);
         }
@@ -889,7 +893,8 @@ namespace CsvTools
             return null;
         }
 
-        if (groupSeparator == '\0' || value[pos] != groupSeparator) continue;
+        if (groupSeparator == '\0' || value[pos] != groupSeparator)
+          continue;
         if (pos - lastPos < 4)
           return null;
         lastPos = pos;
@@ -970,7 +975,8 @@ namespace CsvTools
     public static Guid? StringToGuid(string originalValue)
     {
       // only try to do this if we have the right length
-      if (string.IsNullOrEmpty(originalValue) || originalValue.Length < 32 || originalValue.Length > 38) return null;
+      if (string.IsNullOrEmpty(originalValue) || originalValue.Length < 32 || originalValue.Length > 38)
+        return null;
       try
       {
         return new Guid(originalValue);
@@ -1081,7 +1087,8 @@ namespace CsvTools
       if (!toEnd)
       {
         var valueParts = value.Split(new[] { splitter }, part + 1, StringSplitOptions.None);
-        if (valueParts.Length >= part) return valueParts[part - 1];
+        if (valueParts.Length >= part)
+          return valueParts[part - 1];
       }
       else
       {
@@ -1123,7 +1130,8 @@ namespace CsvTools
       var hrsIndex = stringTimeValue.IndexOf(separator, 0);
       if (hrsIndex < 0)
       {
-        if (!serialDateTime) return null;
+        if (!serialDateTime)
+          return null;
         var dt = SerialStringToDateTime(originalValue);
         if (dt.HasValue)
           return new TimeSpan(dt.Value.Ticks - m_FirstDateTime.Ticks);

@@ -35,10 +35,7 @@ namespace CsvTools
     {
     }
 
-    public RowErrorCollection(int maxRows)
-    {
-      m_MaxRows = maxRows;
-    }
+    public RowErrorCollection(int maxRows) => m_MaxRows = maxRows;
 
     /// <summary>
     ///   Number of Rows in the warning lits
@@ -126,10 +123,7 @@ namespace CsvTools
     /// <summary>
     ///   Empties out the warning list
     /// </summary>
-    public void Clear()
-    {
-      m_RowErrorCollection.Clear();
-    }
+    public void Clear() => m_RowErrorCollection.Clear();
 
     /// <summary>
     ///   Tries the retrieve the value for a given record

@@ -92,7 +92,8 @@ namespace CsvTools
       Contract.Requires(buffer != null);
       Contract.Requires(sbHtml != null);
 
-      if (cell == null) return;
+      if (cell == null)
+        return;
       var cellValue = cell.FormattedValue?.ToString() ?? string.Empty;
       if (cellValue.Length > 500 && cutLength)
         cellValue = cellValue.Substring(0, 80) + " […] " + cellValue.Substring(cellValue.Length - 20, 20);
@@ -116,7 +117,8 @@ namespace CsvTools
     {
       Contract.Requires(buffer != null);
       Contract.Requires(sbHtml != null);
-      if (!addErrorInfo) return;
+      if (!addErrorInfo)
+        return;
       if (string.IsNullOrEmpty(errorText))
         sbHtml.Append(m_HtmlStyle.TDEmpty);
       else
@@ -199,7 +201,8 @@ namespace CsvTools
         AppendRowError(buffer, sbHtml, rows[row].ErrorText, addErrorInfo && hasRowError);
         sbHtml.AppendLine(m_HtmlStyle.TRClose);
         buffer.AppendLine();
-        if (!((DateTime.Now - lastRefresh).TotalSeconds > 0.2)) continue;
+        if (!((DateTime.Now - lastRefresh).TotalSeconds > 0.2))
+          continue;
         lastRefresh = DateTime.Now;
         Extensions.ProcessUIElements();
       }
@@ -304,7 +307,8 @@ namespace CsvTools
       {
         if (rows[row].IsNewRow)
           continue;
-        if (cancellationToken.IsCancellationRequested) return;
+        if (cancellationToken.IsCancellationRequested)
+          return;
         sbHtml.Append(trAlternate ? m_HtmlStyle.TROpenAlt : m_HtmlStyle.TROpen);
         if (alternatingRows)
           trAlternate = !trAlternate;
@@ -319,13 +323,15 @@ namespace CsvTools
           {
             if (cell.RowIndex != row)
               continue;
-            if (cell.OwningColumn.DisplayIndex != col) continue;
+            if (cell.OwningColumn.DisplayIndex != col)
+              continue;
             AddCell(cell, buffer, sbHtml, col > leftCol, addErrorInfo, cutLength);
             written = true;
             break;
           }
 
-          if (written) continue;
+          if (written)
+            continue;
           buffer.Append('\t');
           sbHtml.Append(m_HtmlStyle.TDEmpty);
         }
@@ -334,7 +340,8 @@ namespace CsvTools
 
         sbHtml.AppendLine(m_HtmlStyle.TRClose);
         buffer.AppendLine();
-        if (!((DateTime.Now - lastRefresh).TotalSeconds > 0.2)) continue;
+        if (!((DateTime.Now - lastRefresh).TotalSeconds > 0.2))
+          continue;
         lastRefresh = DateTime.Now;
         Extensions.ProcessUIElements();
       }

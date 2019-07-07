@@ -22,6 +22,7 @@ namespace CsvTools
   public interface IProcessDisplayTime : IProcessDisplay
   {
     TimeToCompletion TimeToCompletion { get; }
+
     event EventHandler<long> SetMaximum;
   }
 }

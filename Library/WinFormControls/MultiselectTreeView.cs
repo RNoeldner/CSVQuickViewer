@@ -132,8 +132,10 @@ namespace CsvTools
             }
             else
             {
-              if (!SelectedTreeNode.Contains(uppernode)) myQueue.Add(uppernode);
-              if (!SelectedTreeNode.Contains(bottomnode)) myQueue.Add(bottomnode);
+              if (!SelectedTreeNode.Contains(uppernode))
+                myQueue.Add(uppernode);
+              if (!SelectedTreeNode.Contains(bottomnode))
+                myQueue.Add(bottomnode);
             }
           }
 
@@ -183,7 +185,8 @@ namespace CsvTools
         return;
       }
 
-      if (!bShift) m_FirstNode = e.Node; // store begin of shift sequence
+      if (!bShift)
+        m_FirstNode = e.Node; // store begin of shift sequence
     }
 
     /// <summary>
@@ -207,7 +210,8 @@ namespace CsvTools
       }
 
       // Handle CRTL -C
-      if (!e.Control || e.KeyCode != Keys.C) return;
+      if (!e.Control || e.KeyCode != Keys.C)
+        return;
       {
         if (SelectedTreeNode.Count == 0)
           return;
@@ -252,7 +256,8 @@ namespace CsvTools
             buffer.Append("\t");
             if (level < item.Level)
               sbHtml.Append(style.TDEmpty);
-            if (level != item.Level) continue;
+            if (level != item.Level)
+              continue;
             sbHtml.Append(HTMLStyle.AddTd("<td colspan='{0}'>{1}</td>", (maxLevel - level + 1).ToString(System.Globalization.CultureInfo.InvariantCulture), text));
             buffer.Append(item.Text);
           }
@@ -303,7 +308,8 @@ namespace CsvTools
       if (item == null)
         return;
       SelectedTreeNode.Add(item);
-      if (!item.IsExpanded) return;
+      if (!item.IsExpanded)
+        return;
       foreach (TreeNode subItem in item.Nodes)
         AddNodeWithSubnodes(subItem);
     }

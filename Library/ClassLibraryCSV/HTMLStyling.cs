@@ -225,7 +225,8 @@ namespace CsvTools
                                                              x == UnicodeCategory.NonSpacingMark ||
                                                              x == UnicodeCategory.DecimalDigitNumber ||
                                                              x == UnicodeCategory.ConnectorPunctuation);
-      if (allowed.Length <= 0) return allowed;
+      if (allowed.Length <= 0)
+        return allowed;
       var oc = CharUnicodeInfo.GetUnicodeCategory(allowed[0]);
       if (oc != UnicodeCategory.TitlecaseLetter
           && oc != UnicodeCategory.LowercaseLetter
@@ -311,7 +312,8 @@ namespace CsvTools
                                                              x == UnicodeCategory.DecimalDigitNumber);
       if (allowed.StartsWith("xml", StringComparison.OrdinalIgnoreCase))
         return "_" + allowed;
-      if (allowed.Length <= 0) return string.Empty;
+      if (allowed.Length <= 0)
+        return string.Empty;
       var oc = CharUnicodeInfo.GetUnicodeCategory(allowed[0]);
       if (oc == UnicodeCategory.LowercaseLetter || oc == UnicodeCategory.UppercaseLetter || allowed[0] == '_')
         return allowed;

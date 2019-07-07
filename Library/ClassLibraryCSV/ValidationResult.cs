@@ -22,15 +22,18 @@ namespace CsvTools
   ///   Class to store validation result and cache them
   /// </summary>
   [Serializable]
-#pragma warning disable CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
   public class ValidationResult : INotifyPropertyChanged, IEquatable<ValidationResult>
-#pragma warning restore CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
   {
     private long m_ErrorCount = -1;
     private long m_FileSize = -1;
     private long m_NumberRecords;
     private string m_TableName = string.Empty;
     private long m_WarningCount = -1;
+
+    /// <summary>
+    ///   Occurs after a property value changes.
+    /// </summary>
+    public virtual event PropertyChangedEventHandler PropertyChanged;
 
     /// <summary>
     ///   Gets or sets the error count.
@@ -44,7 +47,8 @@ namespace CsvTools
       get => m_ErrorCount;
       set
       {
-        if (m_ErrorCount == value) return;
+        if (m_ErrorCount == value)
+          return;
         m_ErrorCount = value;
         NotifyPropertyChanged(nameof(ErrorCount));
         NotifyPropertyChanged(nameof(ErrorRatio));
@@ -71,7 +75,8 @@ namespace CsvTools
       get => m_FileSize;
       set
       {
-        if (m_FileSize == value) return;
+        if (m_FileSize == value)
+          return;
         m_FileSize = value;
         NotifyPropertyChanged(nameof(FileSize));
         NotifyPropertyChanged(nameof(FileSizeDisplay));
@@ -98,7 +103,8 @@ namespace CsvTools
       get => m_NumberRecords;
       set
       {
-        if (m_NumberRecords == value) return;
+        if (m_NumberRecords == value)
+          return;
         m_NumberRecords = value;
         NotifyPropertyChanged(nameof(NumberRecords));
         NotifyPropertyChanged(nameof(ErrorRatio));
@@ -131,7 +137,8 @@ namespace CsvTools
       get => m_WarningCount;
       set
       {
-        if (m_WarningCount == value) return;
+        if (m_WarningCount == value)
+          return;
         m_WarningCount = value;
         NotifyPropertyChanged(nameof(WarningCount));
         NotifyPropertyChanged(nameof(WarningRatio));
@@ -163,26 +170,14 @@ namespace CsvTools
     /// </returns>
     public bool Equals(ValidationResult other)
     {
-      if (other is null) return false;
-      if (ReferenceEquals(this, other)) return true;
+      if (other is null)
+        return false;
+      if (ReferenceEquals(this, other))
+        return true;
       return m_ErrorCount == other.m_ErrorCount && m_FileSize == other.m_FileSize &&
              m_NumberRecords == other.m_NumberRecords &&
              string.Equals(m_TableName, other.m_TableName, StringComparison.InvariantCultureIgnoreCase) &&
              m_WarningCount == other.m_WarningCount;
-    }
-
-    /// <summary>
-    ///   Occurs after a property value changes.
-    /// </summary>
-    public virtual event PropertyChangedEventHandler PropertyChanged;
-
-    /// <summary>
-    ///   Notifies the completed property changed.
-    /// </summary>
-    /// <param name="info">The info.</param>
-    public virtual void NotifyPropertyChanged(string info)
-    {
-      PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(info));
     }
 
     /// <summary>Determines whether the specified object is equal to the current object.</summary>
@@ -190,7 +185,13 @@ namespace CsvTools
     /// <returns>
     ///   <see langword="true" /> if the specified object  is equal to the current object; otherwise, <see langword="false" />.
     /// </returns>
-    public override bool Equals(object obj)     => Equals(obj as ValidationResult);    
+    public override bool Equals(object obj) => Equals(obj as ValidationResult);
+
+    /// <summary>
+    ///   Notifies the completed property changed.
+    /// </summary>
+    /// <param name="info">The info.</param>
+    public virtual void NotifyPropertyChanged(string info) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(info));
 
     /*
     /// <summary>Serves as the default hash function. </summary>

@@ -23,7 +23,9 @@ namespace CsvTools
 
     [XmlAttribute]
     public int State = 0;
+
 #pragma warning restore CA1051 // Do not declare visible instance fields
+
     public WindowState()
     {
     }

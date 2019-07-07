@@ -84,7 +84,8 @@ namespace CsvTools
       // might contain headers, but its simply set as without headers.
       if (fileSettingCopy is CsvFile csv)
       {
-        if (!csv.HasFieldHeader && csv.SkipRows == 0) csv.SkipRows = 1;
+        if (!csv.HasFieldHeader && csv.SkipRows == 0)
+          csv.SkipRows = 1;
         // turn off all warnings as they will cause GetSampleValues to ignore the row
         csv.TryToSolveMoreColumns = false;
         csv.WarnDelimiterInValue = false;
@@ -136,7 +137,8 @@ namespace CsvTools
           if (samples.Values.IsEmpty())
           {
             processDisplay.SetProcess(newColumn.Name + " – No values found", colindex);
-            if (!addTextColumns) continue;
+            if (!addTextColumns)
+              continue;
             result.Add($"{newColumn.Name} – No values found – Format : {newColumn.GetTypeAndFormatDescription()}");
             fileSetting.ColumnCollection.AddIfNew(newColumn);
           }
@@ -204,14 +206,16 @@ namespace CsvTools
               }
 
               var newValueFormat = checkResult.FoundValueFormat.GetTypeAndFormatDescription();
-              if (oldValueFormat.Equals(newValueFormat, StringComparison.Ordinal)) continue;
+              if (oldValueFormat.Equals(newValueFormat, StringComparison.Ordinal))
+                continue;
               var msg = $"{newColumn.Name} – Format : {newValueFormat} – updated from {oldValueFormat}";
               result.Add(msg);
               processDisplay.SetProcess(msg, colindex);
             }
             else
             {
-              if (!addTextColumns && checkResult.FoundValueFormat.DataType == DataType.String) continue;
+              if (!addTextColumns && checkResult.FoundValueFormat.DataType == DataType.String)
+                continue;
               newColumn.ValueFormat = checkResult.FoundValueFormat;
               var msg = $"{newColumn.Name} – Format : {newColumn.GetTypeAndFormatDescription()}";
               processDisplay.SetProcess(msg, colindex);
@@ -379,7 +383,8 @@ namespace CsvTools
               }
             }
 
-            if (colindex <= 0) continue;
+            if (colindex <= 0)
+              continue;
             {
               var columnTime = fileReader.GetColumn(colindex - 1);
               if (columnTime.DataType != DataType.String ||
@@ -417,7 +422,8 @@ namespace CsvTools
         {
           foreach (var col in fileSetting.ColumnCollection)
           {
-            if (!col.Name.Equals(colName, StringComparison.OrdinalIgnoreCase)) continue;
+            if (!col.Name.Equals(colName, StringComparison.OrdinalIgnoreCase))
+              continue;
             existing.Add(col);
             break;
           }
@@ -437,7 +443,6 @@ namespace CsvTools
             fileSetting.ColumnCollection.AddIfNew(column);
         }
       }
-
 
       return result;
     }
@@ -463,7 +468,8 @@ namespace CsvTools
           var header = schemaRow[SchemaTableColumn.ColumnName].ToString();
           var colType = ((Type)schemaRow[SchemaTableColumn.DataType]).GetDataType();
 
-          if (!all && (colType == DataType.String)) continue;
+          if (!all && (colType == DataType.String))
+            continue;
           var fsColumn = new Column
           {
             Name = header,
@@ -561,21 +567,6 @@ namespace CsvTools
       return new SampleResult(samples, recordNumber);
     }
 
-    public class SampleResult
-    {
-      private readonly IEnumerable<string> m_Values;
-      private readonly int m_RecordsRead;
-
-      public IEnumerable<string> Values => m_Values;
-      public int RecordsRead => m_RecordsRead;
-
-      public SampleResult(IEnumerable<string> samples, int records)
-      {
-        m_Values = samples.OrderBy(x => SecureString.Random.Next()).ToList();
-        m_RecordsRead = records;
-      }
-    }
-
     /// <summary>
     ///   Get sample values for a column, ignoring all rows with issues for the column, looping though all records in the reader
     /// </summary>
@@ -613,7 +604,6 @@ namespace CsvTools
           dataReader.ResetPositionToFirstDataRow();
         }
 
-
         var colName = dataReader.GetName(columnIndex);
 
         // React on issues in this column or in general like Mismatch, these rows will be ignores
@@ -630,12 +620,12 @@ namespace CsvTools
           }
         };
 
-        // Ready to start store the record number we are currently at, 
-        // we could be in the middle of the file already  
+        // Ready to start store the record number we are currently at,
+        // we could be in the middle of the file already
         var startRecordNumber = dataReader.RecordNumber;
-        // Get distinct sample values until we have 
+        // Get distinct sample values until we have
         //   * parsed the maximum number
-        //   * have enough samples to be satisfied 
+        //   * have enough samples to be satisfied
         //   * we are at the beginning record again
         while (++recordRead < maxRecords
             && samples.Count < enoughSamples
@@ -650,7 +640,7 @@ namespace CsvTools
               break;
           }
 
-          // Once we arrive the starting row we have read all records          
+          // Once we arrive the starting row we have read all records
           if (dataReader.RecordNumber == startRecordNumber)
             break;
 
@@ -682,7 +672,6 @@ namespace CsvTools
             hasWarning = false;
           }
         }
-
       }
       catch (Exception ex)
       {
@@ -691,7 +680,8 @@ namespace CsvTools
       finally
       {
         if (dataReader != null)
-          dataReader.Warning -= delegate { hasWarning = true; };
+          dataReader.Warning -= delegate
+          { hasWarning = true; };
       }
 
       return new SampleResult(samples, recordRead);
@@ -738,7 +728,6 @@ namespace CsvTools
         length += entry.Length;
       var commonLength = (int)(length / samples.Count());
 
-
       foreach (var fmt in StringConversion.StandardDateTimeFormats.MatchingforLength(commonLength, checkNamedDates))
       {
         if (cancellationToken.IsCancellationRequested)
@@ -781,7 +770,8 @@ namespace CsvTools
           continue;
         foreach (var smp in samples)
         {
-          if (smp.IndexOf(caracter) <= -1) continue;
+          if (smp.IndexOf(caracter) <= -1)
+            continue;
           possibleGrouping.Add(caracter);
           break;
         }
@@ -795,7 +785,8 @@ namespace CsvTools
           continue;
         foreach (var smp in samples)
         {
-          if (smp.IndexOf(caracter) <= -1) continue;
+          if (smp.IndexOf(caracter) <= -1)
+            continue;
           possibleDecimal.Add(caracter);
           break;
         }
@@ -900,7 +891,6 @@ namespace CsvTools
       if (cancellationToken.IsCancellationRequested)
         return null;
 
-
       // ---------------- Text --------------------------
       // in case we have named dates, this is not feasible
       if (!checkNamedDates)
@@ -912,16 +902,18 @@ namespace CsvTools
           // Not having AM PM or T as it might be part of a date Not having E in there as might be
           // part of a number u 1.487% o 6.264% n 2.365% i 6.286% h 7.232% s 6.327% This adds to a
           // 30% chance for each position in the text to determine if a text a regular text,
-          if (value.IndexOfAny(new[] { 'u', 'U', 'o', 'O', 'i', 'I', 'n', 'N', 's', 'S', 'h', 'H' }) <= -1) continue;
+          if (value.IndexOfAny(new[] { 'u', 'U', 'o', 'O', 'i', 'I', 'n', 'N', 's', 'S', 'h', 'H' }) <= -1)
+            continue;
           valuesWithChars++;
           // Only do so if more then half of the samples are string
-          if (valuesWithChars < count / 2 && valuesWithChars < 10) continue;
+          if (valuesWithChars < count / 2 && valuesWithChars < 10)
+            continue;
           checkResult.FoundValueFormat.DataType = DataType.String;
           return checkResult;
         }
       }
 
-      // ---------------- Confirm old provided format would be ok --------------------------      
+      // ---------------- Confirm old provided format would be ok --------------------------
       var firstValue = samples.First();
 
       if (guessDateTime && othersValueFormatDate != null && StringConversion.DateLengthMatches(firstValue.Length, othersValueFormatDate.DateFormat))
@@ -974,7 +966,7 @@ namespace CsvTools
         if (cancellationToken.IsCancellationRequested)
           return null;
 
-        // ---------------- Date --------------------------  
+        // ---------------- Date --------------------------
         // Minimum length of a date is 4 characters
         if (guessDateTime && firstValue.Length > 3)
         {
@@ -1015,6 +1007,21 @@ namespace CsvTools
         checkResult.KeepBestPossibleMatch(res);
       }
       return checkResult;
+    }
+
+    public class SampleResult
+    {
+      private readonly int m_RecordsRead;
+      private readonly IEnumerable<string> m_Values;
+
+      public SampleResult(IEnumerable<string> samples, int records)
+      {
+        m_Values = samples.OrderBy(x => SecureString.Random.Next()).ToList();
+        m_RecordsRead = records;
+      }
+
+      public int RecordsRead => m_RecordsRead;
+      public IEnumerable<string> Values => m_Values;
     }
   }
 }

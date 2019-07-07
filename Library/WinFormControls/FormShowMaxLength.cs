@@ -12,7 +12,6 @@
  *
  */
 
-
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -54,7 +53,8 @@ namespace CsvTools
     /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
     protected override void Dispose(bool disposing)
     {
-      if (disposing) components?.Dispose();
+      if (disposing)
+        components?.Dispose();
       base.Dispose(disposing);
     }
 
@@ -66,73 +66,73 @@ namespace CsvTools
     /// </summary>
     private void InitializeComponent()
     {
-      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 =
+      var dataGridViewCellStyle5 =
         new System.Windows.Forms.DataGridViewCellStyle();
-      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 =
+      var dataGridViewCellStyle6 =
         new System.Windows.Forms.DataGridViewCellStyle();
-      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle7 =
+      var dataGridViewCellStyle7 =
         new System.Windows.Forms.DataGridViewCellStyle();
-      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle8 =
+      var dataGridViewCellStyle8 =
         new System.Windows.Forms.DataGridViewCellStyle();
-      this.m_DataGridView = new CsvTools.FilteredDataGridView();
-      ((System.ComponentModel.ISupportInitialize)(this.m_DataGridView)).BeginInit();
-      this.SuspendLayout();
+      m_DataGridView = new CsvTools.FilteredDataGridView();
+      ((System.ComponentModel.ISupportInitialize)(m_DataGridView)).BeginInit();
+      SuspendLayout();
       //
       // dataGridView
       //
-      this.m_DataGridView.AllowUserToAddRows = false;
-      this.m_DataGridView.AllowUserToDeleteRows = false;
-      this.m_DataGridView.AllowUserToOrderColumns = true;
-      dataGridViewCellStyle5.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))),
-        ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-      this.m_DataGridView.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle5;
+      m_DataGridView.AllowUserToAddRows = false;
+      m_DataGridView.AllowUserToDeleteRows = false;
+      m_DataGridView.AllowUserToOrderColumns = true;
+      dataGridViewCellStyle5.BackColor = System.Drawing.Color.FromArgb(224,
+        224, 224);
+      m_DataGridView.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle5;
       dataGridViewCellStyle6.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
       dataGridViewCellStyle6.BackColor = System.Drawing.SystemColors.Control;
       dataGridViewCellStyle6.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F,
-        System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+        System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, 0);
       dataGridViewCellStyle6.ForeColor = System.Drawing.SystemColors.WindowText;
       dataGridViewCellStyle6.SelectionBackColor = System.Drawing.SystemColors.Highlight;
       dataGridViewCellStyle6.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
       dataGridViewCellStyle6.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-      this.m_DataGridView.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle6;
-      this.m_DataGridView.ColumnHeadersHeightSizeMode =
+      m_DataGridView.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle6;
+      m_DataGridView.ColumnHeadersHeightSizeMode =
         System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
       dataGridViewCellStyle7.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
       dataGridViewCellStyle7.BackColor = System.Drawing.SystemColors.Window;
       dataGridViewCellStyle7.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F,
-        System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+        System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, 0);
       dataGridViewCellStyle7.ForeColor = System.Drawing.Color.Black;
       dataGridViewCellStyle7.SelectionBackColor = System.Drawing.SystemColors.Highlight;
       dataGridViewCellStyle7.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
       dataGridViewCellStyle7.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-      this.m_DataGridView.DefaultCellStyle = dataGridViewCellStyle7;
-      this.m_DataGridView.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.m_DataGridView.Location = new System.Drawing.Point(0, 0);
-      this.m_DataGridView.Name = "m_DataGridView";
+      m_DataGridView.DefaultCellStyle = dataGridViewCellStyle7;
+      m_DataGridView.Dock = System.Windows.Forms.DockStyle.Fill;
+      m_DataGridView.Location = new System.Drawing.Point(0, 0);
+      m_DataGridView.Name = "m_DataGridView";
       dataGridViewCellStyle8.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
       dataGridViewCellStyle8.BackColor = System.Drawing.SystemColors.Control;
       dataGridViewCellStyle8.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F,
-        System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+        System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, 0);
       dataGridViewCellStyle8.ForeColor = System.Drawing.SystemColors.WindowText;
       dataGridViewCellStyle8.SelectionBackColor = System.Drawing.SystemColors.Highlight;
       dataGridViewCellStyle8.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
       dataGridViewCellStyle8.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-      this.m_DataGridView.RowHeadersDefaultCellStyle = dataGridViewCellStyle8;
-      this.m_DataGridView.Size = new System.Drawing.Size(362, 310);
-      this.m_DataGridView.TabIndex = 0;
+      m_DataGridView.RowHeadersDefaultCellStyle = dataGridViewCellStyle8;
+      m_DataGridView.Size = new System.Drawing.Size(362, 310);
+      m_DataGridView.TabIndex = 0;
       //
       // FormShowMaxLength
       //
-      this.ClientSize = new System.Drawing.Size(362, 310);
-      this.Controls.Add(this.m_DataGridView);
-      this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
-      this.MaximizeBox = false;
-      this.MinimizeBox = false;
-      this.Name = "FormShowMaxLength";
-      this.Text = "Column Length";
-      this.Load += new System.EventHandler(this.ShowMaxLength_Load);
-      ((System.ComponentModel.ISupportInitialize)(this.m_DataGridView)).EndInit();
-      this.ResumeLayout(false);
+      ClientSize = new System.Drawing.Size(362, 310);
+      Controls.Add(m_DataGridView);
+      FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
+      MaximizeBox = false;
+      MinimizeBox = false;
+      Name = "FormShowMaxLength";
+      Text = "Column Length";
+      Load += new System.EventHandler(ShowMaxLength_Load);
+      ((System.ComponentModel.ISupportInitialize)(m_DataGridView)).EndInit();
+      ResumeLayout(false);
     }
 
     #endregion Windows Form Designer generated code

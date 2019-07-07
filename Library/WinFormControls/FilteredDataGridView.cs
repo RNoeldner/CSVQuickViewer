@@ -12,8 +12,6 @@
 *
 */
 
-
-using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -25,6 +23,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
+using Microsoft.Win32;
 
 namespace CsvTools
 {
@@ -252,7 +251,8 @@ namespace CsvTools
           if (toolStripFilter == null)
             continue;
           var filterLogic = toolStripFilter.ColumnFilterLogic;
-          if (!filterLogic.Active || string.IsNullOrEmpty(filterLogic.FilterExpression)) continue;
+          if (!filterLogic.Active || string.IsNullOrEmpty(filterLogic.FilterExpression))
+            continue;
           if (filter.Length > 0)
             filter.Append("\nAND\n");
           filter.Append("(" + filterLogic.FilterExpression + ")");
@@ -266,13 +266,15 @@ namespace CsvTools
         {
           if (m_BindingSource != null)
           {
-            if (bindingSourceFilter.Equals(m_BindingSource.Filter, StringComparison.Ordinal)) return;
+            if (bindingSourceFilter.Equals(m_BindingSource.Filter, StringComparison.Ordinal))
+              return;
             m_BindingSource.Filter = bindingSourceFilter;
             DataViewChanged?.Invoke(this, null);
           }
           else
           {
-            if (DataView == null || bindingSourceFilter.Equals(DataView.RowFilter, StringComparison.Ordinal)) return;
+            if (DataView == null || bindingSourceFilter.Equals(DataView.RowFilter, StringComparison.Ordinal))
+              return;
             DataView.RowFilter = bindingSourceFilter;
             DataViewChanged?.Invoke(this, null);
           }
@@ -310,7 +312,8 @@ namespace CsvTools
           }
         }
 
-        if (!(col.Visible = hasData)) continue;
+        if (!(col.Visible = hasData))
+          continue;
         col.Visible = true;
         hasChanges = true;
       }
@@ -351,7 +354,7 @@ namespace CsvTools
     /// <summary>
     ///   Updated the Columns CheckedListBoxControl according to the visibility of the columns
     /// </summary>
-    /// 
+    ///
     /// <returns><c>true</c> if something was updated</returns>
     internal bool ColumnVisibilityChanged()
     {
@@ -374,7 +377,8 @@ namespace CsvTools
       foreach (DataGridViewColumn col in Columns)
       {
         var itemIndex = ColumnDisplayMenuItemAdd(col.DataPropertyName);
-        if (itemIndex <= -1) continue;
+        if (itemIndex <= -1)
+          continue;
         if (col.Visible ==
             toolStripMenuItemColumnVisibility.CheckedListBoxControl.CheckedIndices.Contains(itemIndex))
         {
@@ -509,7 +513,8 @@ namespace CsvTools
     /// </param>
     private void ContextMenuStripFilter_KeyPress(object sender, KeyPressEventArgs e)
     {
-      if (e.KeyChar != 13) return;
+      if (e.KeyChar != 13)
+        return;
       ToolStripMenuItemFilterRemoveOne_Click(sender, null);
       e.Handled = true;
     }
@@ -564,7 +569,8 @@ namespace CsvTools
           contextMenuStripHeader.Show(Cursor.Position);
         }
 
-        if (e.Button != MouseButtons.Right || e.RowIndex <= -1 || e.ColumnIndex <= -1) return;
+        if (e.Button != MouseButtons.Right || e.RowIndex <= -1 || e.ColumnIndex <= -1)
+          return;
         CurrentCell = Rows[e.RowIndex].Cells[e.ColumnIndex];
         contextMenuStripCell.Show(Cursor.Position);
       }
@@ -585,7 +591,8 @@ namespace CsvTools
     private void FilteredDataGridView_ColumnAdded(object sender, DataGridViewColumnEventArgs e)
     {
       // Make sure we have enough in the Po pup List
-      while (m_Filter.Count < Columns.Count) m_Filter.Add(null);
+      while (m_Filter.Count < Columns.Count)
+        m_Filter.Add(null);
       if (e.Column.ValueType != typeof(string))
       {
         e.Column.DefaultCellStyle.ForeColor = Color.MidnightBlue;
@@ -625,7 +632,8 @@ namespace CsvTools
     /// </param>
     private void FilteredDataGridView_ColumnWidthChanged(object sender, DataGridViewColumnEventArgs e)
     {
-      if (e.Column.Width > Width) e.Column.Width = Width;
+      if (e.Column.Width > Width)
+        e.Column.Width = Width;
     }
 
     private void FilteredDataGridView_DataError(object sender, DataGridViewDataErrorEventArgs e)
@@ -642,7 +650,8 @@ namespace CsvTools
     /// </param>
     private void FilteredDataGridView_KeyDown(object sender, KeyEventArgs e)
     {
-      if (!e.Control || e.KeyCode != Keys.C) return;
+      if (!e.Control || e.KeyCode != Keys.C)
+        return;
       this.SelectedDataIntoClipboard(!e.Alt, e.Shift, m_CancellationTokenSource.Token);
       e.Handled = true;
     }
@@ -692,7 +701,8 @@ namespace CsvTools
         foreach (DataRow row in DataView.Table.Rows)
         {
           var cellValue = row[col];
-          if (cellValue == null || cellValue.ToString().IndexOf('\n') == -1) continue;
+          if (cellValue == null || cellValue.ToString().IndexOf('\n') == -1)
+            continue;
           newColumn.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
           break;
         }
@@ -740,7 +750,8 @@ namespace CsvTools
         e.PaintContent(e.CellBounds);
       }
 
-      if (e.RowIndex < 0 || e.ColumnIndex < 0) return;
+      if (e.RowIndex < 0 || e.ColumnIndex < 0)
+        return;
       var val = e.FormattedValue.ToString();
       if (string.IsNullOrEmpty(val))
         return;
@@ -857,7 +868,8 @@ namespace CsvTools
     /// <param name="force">if set to <c>true</c> [force].</param>
     private void SetBoundDataView(bool force)
     {
-      if (DataView != null && !force) return;
+      if (DataView != null && !force)
+        return;
       m_BindingSource = null;
       var dataSource = DataSource;
       var dataMember = DataMember;
@@ -965,7 +977,8 @@ namespace CsvTools
         };
         newMenuItem.CheckStateChanged += delegate (object menuItem, EventArgs args)
         {
-          if (!(menuItem is ToolStripMenuItem sendItem)) return;
+          if (!(menuItem is ToolStripMenuItem sendItem))
+            return;
           if (sendItem.Tag is ValueCluster itemVc)
             itemVc.Active = sendItem.Checked;
         };
@@ -1013,11 +1026,13 @@ namespace CsvTools
     private void ToolStripMenuItemCF_Click(object sender, EventArgs e)
     {
       var columnFormat = GetColumnFormat(m_MenuItemColumnIndex);
-      if (columnFormat == null) return;
+      if (columnFormat == null)
+        return;
       using (var form = new FormColumnUI(columnFormat, false, m_FileSetting))
       {
         form.ShowIgnore = false;
-        if (form.ShowDialog() == DialogResult.Yes) Refresh();
+        if (form.ShowDialog() == DialogResult.Yes)
+          Refresh();
       }
     }
 
@@ -1044,8 +1059,10 @@ namespace CsvTools
     {
       try
       {
-        if (!HideEmptyColumns()) return;
-        if (!ColumnVisibilityChanged()) return;
+        if (!HideEmptyColumns())
+          return;
+        if (!ColumnVisibilityChanged())
+          return;
         SetRowHeight();
         DataViewChanged?.Invoke(sender, null);
       }
@@ -1108,7 +1125,8 @@ namespace CsvTools
     {
       try
       {
-        if (CurrentCell == null) return;
+        if (CurrentCell == null)
+          return;
         m_Filter[m_MenuItemColumnIndex].ColumnFilterLogic
           .SetFilter(CurrentCell.Value);
         ApplyFilters();
@@ -1132,7 +1150,8 @@ namespace CsvTools
           col.Visible = false;
       }
 
-      if (!ColumnVisibilityChanged()) return;
+      if (!ColumnVisibilityChanged())
+        return;
       SetRowHeight();
       DataViewChanged?.Invoke(sender, null);
     }
@@ -1150,7 +1169,8 @@ namespace CsvTools
           col.Visible = true;
       }
 
-      if (!ColumnVisibilityChanged()) return;
+      if (!ColumnVisibilityChanged())
+        return;
       SetRowHeight();
       DataViewChanged?.Invoke(sender, null);
     }
@@ -1160,22 +1180,18 @@ namespace CsvTools
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
-    private void ToolStripMenuItemSortAscending_Click(object sender, EventArgs e)
-    {
-      // Column was set on showing context menu      
+    private void ToolStripMenuItemSortAscending_Click(object sender, EventArgs e) =>
+      // Column was set on showing context menu
       Sort(Columns[m_MenuItemColumnIndex], ListSortDirection.Ascending);
-    }
 
     /// <summary>
     ///   Handles the Click event of the toolStripMenuItemSortDescending control.
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
-    private void ToolStripMenuItemSortDescending_Click(object sender, EventArgs e)
-    {
-      // Column was set on showing context menu      
+    private void ToolStripMenuItemSortDescending_Click(object sender, EventArgs e) =>
+      // Column was set on showing context menu
       Sort(Columns[m_MenuItemColumnIndex], ListSortDirection.Descending);
-    }
 
     private void ToolStripMenuItemSortRemove_Click(object sender, EventArgs e) => DataView.Sort = string.Empty;
 
@@ -1208,12 +1224,14 @@ namespace CsvTools
         {
           var itemName = toolStripMenuItemColumnVisibility.CheckedListBoxControl.Items[index].ToString();
           var dataGridViewColumn = Columns[itemName];
-          if (dataGridViewColumn.Visible) continue;
+          if (dataGridViewColumn.Visible)
+            continue;
           dataGridViewColumn.Visible = true;
           changes = true;
         }
 
-        if (!changes) return;
+        if (!changes)
+          return;
         SetRowHeight();
         DataViewChanged?.Invoke(null, null);
       });
@@ -1221,7 +1239,7 @@ namespace CsvTools
 
     private void ToolStripMenuItemFreeze_Click(object sender, EventArgs e)
     {
-      // move to front      
+      // move to front
       if (!Columns[m_MenuItemColumnIndex].Frozen)
       {
         var colFirstNoFrozen = 0;

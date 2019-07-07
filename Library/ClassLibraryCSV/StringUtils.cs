@@ -69,10 +69,7 @@ namespace CsvTools
       return 0;
     }
 
-    public static bool Contains(this string text, string toCheck, StringComparison comp)
-    {
-      return text?.IndexOf(toCheck, comp) >= 0;
-    }
+    public static bool Contains(this string text, string toCheck, StringComparison comp) => text?.IndexOf(toCheck, comp) >= 0;
 
     public static int CountOccurance(this string text, string pattern)
     {
@@ -102,7 +99,8 @@ namespace CsvTools
       if (string.IsNullOrWhiteSpace(withoutLineFeed))
         return string.Empty;
 
-      if (withoutLineFeed.Length <= length) return withoutLineFeed;
+      if (withoutLineFeed.Length <= length)
+        return withoutLineFeed;
       withoutLineFeed = withoutLineFeed.Substring(0, length - 1);
       var spaceIndex = withoutLineFeed.LastIndexOf(" ", length - 1 - length / 8, StringComparison.Ordinal);
       if (spaceIndex > 1)
@@ -193,7 +191,8 @@ namespace CsvTools
       var sb = new StringBuilder();
       foreach (var part in parts)
       {
-        if (string.IsNullOrEmpty(part)) continue;
+        if (string.IsNullOrEmpty(part))
+          continue;
         if (sb.Length > 0)
           sb.Append(joinWith);
         sb.Append(part);

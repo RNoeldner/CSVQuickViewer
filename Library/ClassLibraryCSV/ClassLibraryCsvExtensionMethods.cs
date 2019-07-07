@@ -51,11 +51,8 @@ namespace CsvTools
     /// </summary>
     /// <param name="fileName">Name of the file.</param>
     /// <returns></returns>
-    public static bool AssumePgp(this string fileName)
-    {
-      return fileName.EndsWith(".pgp", StringComparison.OrdinalIgnoreCase) ||
+    public static bool AssumePgp(this string fileName) => fileName.EndsWith(".pgp", StringComparison.OrdinalIgnoreCase) ||
              fileName.EndsWith(".gpg", StringComparison.OrdinalIgnoreCase);
-    }
 
     /// <summary>
     ///   Copies all elements from one collection to the other
@@ -119,13 +116,15 @@ namespace CsvTools
         {
           foreach (var th in self)
           {
-            if (!ot.Equals(th)) continue;
+            if (!ot.Equals(th))
+              continue;
             found = true;
             break;
           }
         }
 
-        if (found) continue;
+        if (found)
+          continue;
         equal = false;
         break;
       }
@@ -150,18 +149,20 @@ namespace CsvTools
 
       if (ReferenceEquals(other, self))
         return true;
-      // use Enumerators to compare the two collections   
+      // use Enumerators to compare the two collections
       var comparer = EqualityComparer<T>.Default;
       using (var selfEnum = self.GetEnumerator())
       using (var otherEnum = other.GetEnumerator())
       {
         while (selfEnum.MoveNext())
         {
-          // there are less elements or the elements are not equal          
-          if (!(otherEnum.MoveNext() && comparer.Equals(selfEnum.Current, otherEnum.Current))) return false;
+          // there are less elements or the elements are not equal
+          if (!(otherEnum.MoveNext() && comparer.Equals(selfEnum.Current, otherEnum.Current)))
+            return false;
         }
         // there are more elements
-        if (otherEnum.MoveNext()) return false;
+        if (otherEnum.MoveNext())
+          return false;
       }
       return true;
     }
@@ -176,7 +177,7 @@ namespace CsvTools
       unchecked
       {
         var hashCode = 731;
-        int order = 0;
+        var order = 0;
         foreach (var item in collection)
           hashCode = (hashCode * 397) ^ item.GetHashCode() + order++;
         return hashCode;
@@ -234,7 +235,8 @@ namespace CsvTools
           for (var col = -1; col < columns; col++)
           {
             var error = warningsforRow[col];
-            if (string.IsNullOrEmpty(error)) continue;
+            if (string.IsNullOrEmpty(error))
+              continue;
             if (col == -1)
               dataRow.RowError = error;
             else
@@ -475,7 +477,8 @@ namespace CsvTools
     {
       Contract.Ensures(Contract.Result<IEnumerable<DataColumn>>() != null);
 
-      if (dataTable == null) yield break;
+      if (dataTable == null)
+        yield break;
       foreach (DataColumn col in dataTable.Columns)
       {
         if (!BaseFileReader.ArtificalFields.Contains(col.ColumnName))
@@ -526,7 +529,8 @@ namespace CsvTools
     /// <returns></returns>
     public static bool IsEmpty(this IEnumerable items)
     {
-      if (items == null) return true;
+      if (items == null)
+        return true;
       foreach (var _ in items)
         return false;
       return true;
@@ -572,13 +576,15 @@ namespace CsvTools
       Contract.Ensures(Contract.Result<IEnumerable<string>>() != null);
       var notFoundColumnNames = new List<string>();
 
-      if (fileSetting == null || columns.IsEmpty()) return notFoundColumnNames;
+      if (fileSetting == null || columns.IsEmpty())
+        return notFoundColumnNames;
       foreach (var map in fileSetting.MappingCollection)
       {
         var foundColumn = false;
         foreach (var col in columns)
         {
-          if (!col.Equals(map.FileColumn, StringComparison.OrdinalIgnoreCase)) continue;
+          if (!col.Equals(map.FileColumn, StringComparison.OrdinalIgnoreCase))
+            continue;
           foundColumn = true;
           break;
         }
@@ -587,9 +593,11 @@ namespace CsvTools
           notFoundColumnNames.Add(map.FileColumn);
       }
 
-      if (notFoundColumnNames.Count <= 0) return notFoundColumnNames;
+      if (notFoundColumnNames.Count <= 0)
+        return notFoundColumnNames;
 
-      foreach (var notFound in notFoundColumnNames) fileSetting.MappingCollection.RemoveColumn(notFound);
+      foreach (var notFound in notFoundColumnNames)
+        fileSetting.MappingCollection.RemoveColumn(notFound);
       return notFoundColumnNames;
     }
 
@@ -620,13 +628,16 @@ namespace CsvTools
 
       while ((position1 = upperString.IndexOf(upperPattern, position0, StringComparison.Ordinal)) != -1)
       {
-        for (var i = position0; i < position1; ++i) chars[count++] = original[i];
+        for (var i = position0; i < position1; ++i)
+          chars[count++] = original[i];
         chars[count++] = replacement;
         position0 = position1 + pattern.Length;
       }
 
-      if (position0 == 0) return original;
-      for (var i = position0; i < original.Length; ++i) chars[count++] = original[i];
+      if (position0 == 0)
+        return original;
+      for (var i = position0; i < original.Length; ++i)
+        chars[count++] = original[i];
       return new string(chars, 0, count);
     }
 
@@ -735,6 +746,7 @@ namespace CsvTools
         return int.MinValue;
       return Convert.ToInt32(value);
     }
+
     /// <summary>
     ///   Get a valid unsigned integer from the integer
     /// </summary>
@@ -781,7 +793,8 @@ namespace CsvTools
         // Create the columns from the FieldHeaders
         for (var column = 0; column < reader.FieldCount; column++)
         {
-          if (reader.IgnoreRead(column)) continue;
+          if (reader.IgnoreRead(column))
+            continue;
           var readerCol = reader.GetColumn(column);
           Contract.Assume(readerCol != null);
           Contract.Assume(!string.IsNullOrEmpty(readerCol.Name));

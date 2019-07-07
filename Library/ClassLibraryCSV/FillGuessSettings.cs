@@ -42,6 +42,11 @@ namespace CsvTools
     private string m_TrueValue = "True";
 
     /// <summary>
+    ///   Occurs when a property value changes.
+    /// </summary>
+    public event PropertyChangedEventHandler PropertyChanged;
+
+    /// <summary>
     ///   Number of records to parse to get the sample values
     /// </summary>
     [XmlAttribute]
@@ -52,7 +57,8 @@ namespace CsvTools
 
       set
       {
-        if (m_CheckedRecords == value) return;
+        if (m_CheckedRecords == value)
+          return;
         m_CheckedRecords = value;
         NotifyPropertyChanged(nameof(CheckedRecords));
       }
@@ -69,11 +75,16 @@ namespace CsvTools
 
       set
       {
-        if (m_CheckNamedDates == value) return;
+        if (m_CheckNamedDates == value)
+          return;
         m_CheckNamedDates = value;
         NotifyPropertyChanged(nameof(CheckNamedDates));
       }
     }
+
+    [DefaultValue(false)]
+    [XmlElement]
+    public bool DateParts { get; set; } = false;
 
     /// <summary>
     ///   If set to <c>True</c> values are checked if they could be Numeric
@@ -86,7 +97,8 @@ namespace CsvTools
 
       set
       {
-        if (m_DectectNumbers == value) return;
+        if (m_DectectNumbers == value)
+          return;
         m_DectectNumbers = value;
         NotifyPropertyChanged(nameof(DectectNumbers));
       }
@@ -103,7 +115,8 @@ namespace CsvTools
 
       set
       {
-        if (m_DectectPercentage == value) return;
+        if (m_DectectPercentage == value)
+          return;
         m_DectectPercentage = value;
         NotifyPropertyChanged(nameof(DectectPercentage));
       }
@@ -120,7 +133,8 @@ namespace CsvTools
 
       set
       {
-        if (m_DetectBoolean == value) return;
+        if (m_DetectBoolean == value)
+          return;
         m_DetectBoolean = value;
         NotifyPropertyChanged(nameof(DetectBoolean));
       }
@@ -137,7 +151,8 @@ namespace CsvTools
 
       set
       {
-        if (m_DetectDateTime == value) return;
+        if (m_DetectDateTime == value)
+          return;
         m_DetectDateTime = value;
         NotifyPropertyChanged(nameof(DetectDateTime));
       }
@@ -154,7 +169,8 @@ namespace CsvTools
 
       set
       {
-        if (m_DetectGuid == value) return;
+        if (m_DetectGuid == value)
+          return;
         m_DetectGuid = value;
         NotifyPropertyChanged(nameof(DetectGUID));
       }
@@ -180,7 +196,8 @@ namespace CsvTools
         Contract.Assume(m_FalseValue != null);
 
         var newVal = value ?? string.Empty;
-        if (m_FalseValue.Equals(newVal, StringComparison.Ordinal)) return;
+        if (m_FalseValue.Equals(newVal, StringComparison.Ordinal))
+          return;
         m_FalseValue = newVal;
         NotifyPropertyChanged(nameof(FalseValue));
       }
@@ -197,7 +214,8 @@ namespace CsvTools
 
       set
       {
-        if (m_IgnoreIdColums == value) return;
+        if (m_IgnoreIdColums == value)
+          return;
         m_IgnoreIdColums = value;
         NotifyPropertyChanged(nameof(IgnoreIdColums));
       }
@@ -214,7 +232,8 @@ namespace CsvTools
 
       set
       {
-        if (m_MinSamples == value || value <= 0 || value >= m_SampleValues) return;
+        if (m_MinSamples == value || value <= 0 || value >= m_SampleValues)
+          return;
         m_MinSamples = value;
         NotifyPropertyChanged(nameof(MinSamples));
       }
@@ -231,7 +250,8 @@ namespace CsvTools
 
       set
       {
-        if (m_SampleValues == value || value <= 0 || value <= m_MinSamples) return;
+        if (m_SampleValues == value || value <= 0 || value <= m_MinSamples)
+          return;
         m_SampleValues = value;
         NotifyPropertyChanged(nameof(SampleValues));
       }
@@ -248,7 +268,8 @@ namespace CsvTools
 
       set
       {
-        if (m_SerialDateTime == value) return;
+        if (m_SerialDateTime == value)
+          return;
         m_SerialDateTime = value;
         NotifyPropertyChanged(nameof(SerialDateTime));
       }
@@ -274,15 +295,12 @@ namespace CsvTools
         Contract.Assume(m_TrueValue != null);
 
         var newVal = value ?? string.Empty;
-        if (m_TrueValue.Equals(newVal, StringComparison.Ordinal)) return;
+        if (m_TrueValue.Equals(newVal, StringComparison.Ordinal))
+          return;
         m_TrueValue = newVal;
         NotifyPropertyChanged(nameof(TrueValue));
       }
     }
-
-    [DefaultValue(false)]
-    [XmlElement]
-    public bool DateParts { get; set; } = false;
 
     /// <summary>
     ///   Clones this instance into a new instance of the same type
@@ -329,8 +347,10 @@ namespace CsvTools
     /// </returns>
     public bool Equals(FillGuessSettings other)
     {
-      if (other is null) return false;
-      if (ReferenceEquals(this, other)) return true;
+      if (other is null)
+        return false;
+      if (ReferenceEquals(this, other))
+        return true;
       return CheckedRecords == other.CheckedRecords && CheckNamedDates == other.CheckNamedDates &&
              DateParts == other.DateParts &&
              m_DectectNumbers == other.m_DectectNumbers && DectectPercentage == other.DectectPercentage &&
@@ -342,24 +362,18 @@ namespace CsvTools
              string.Equals(TrueValue, other.TrueValue, StringComparison.OrdinalIgnoreCase);
     }
 
-    /// <summary>
-    ///   Occurs when a property value changes.
-    /// </summary>
-    public event PropertyChangedEventHandler PropertyChanged;
+    /// <summary>Determines whether the specified object is equal to the current object.</summary>
+    /// <param name="obj">The object to compare with the current object. </param>
+    /// <returns>
+    ///   <see langword="true" /> if the specified object  is equal to the current object; otherwise, <see langword="false" />.
+    /// </returns>
+    public override bool Equals(object obj) => Equals(obj as FillGuessSettings);
 
     /// <summary>
     ///   Notifies the property changed.
     /// </summary>
     /// <param name="info">The info.</param>
     public virtual void NotifyPropertyChanged(string info) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(info));
-
-    /// <summary>Determines whether the specified object is equal to the current object.</summary>
-    /// <param name="obj">The object to compare with the current object. </param>
-    /// <returns>
-    ///   <see langword="true" /> if the specified object  is equal to the current object; otherwise, <see langword="false" />.
-    /// </returns>
-    public override bool Equals(object obj)  => Equals(obj as FillGuessSettings);
-    
 
     /*
     /// <summary>Serves as the default hash function. </summary>

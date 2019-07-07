@@ -144,9 +144,11 @@ namespace CsvTools
                 break;
               }
 
-              if (string.IsNullOrEmpty(row.RowError)) continue;
+              if (string.IsNullOrEmpty(row.RowError))
+                continue;
               if (!row.RowError.Contains(inRowErrorDesc0, StringComparison.OrdinalIgnoreCase) && !row.RowError.Contains(inRowErrorDesc1, StringComparison.OrdinalIgnoreCase) &&
-                  !row.RowError.Contains(inRowErrorDesc2, StringComparison.OrdinalIgnoreCase) && !row.RowError.Contains(inRowErrorDesc3, StringComparison.OrdinalIgnoreCase)) continue;
+                  !row.RowError.Contains(inRowErrorDesc2, StringComparison.OrdinalIgnoreCase) && !row.RowError.Contains(inRowErrorDesc3, StringComparison.OrdinalIgnoreCase))
+                continue;
 
               hasErrors = true;
               break;
@@ -168,11 +170,11 @@ namespace CsvTools
     /// <value>
     ///   The error table.
     /// </value>
-    public DataTable FilterTable { get => m_FilteredTable; }
+    public DataTable FilterTable => m_FilteredTable;
 
-    public bool Filtering { get => m_Filtering; }
+    public bool Filtering => m_Filtering;
 
-    public FilterType FilterType { get => m_FilterType; }
+    public FilterType FilterType => m_FilterType;
 
     /// <summary>
     ///   Sets the name of the unique field.
@@ -193,10 +195,7 @@ namespace CsvTools
     /// <summary>
     ///   Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
     /// </summary>
-    public void Dispose()
-    {
-      Dispose(true);
-    }
+    public void Dispose() => Dispose(true);
 
     public void Filter(int limit, FilterType type)
     {
@@ -211,10 +210,10 @@ namespace CsvTools
         m_FilteredTable = m_SourceTable.Clone();
         m_FilterType = type;
 
-        int rows = 0;
+        var rows = 0;
         var max = m_SourceTable.Rows.Count;
 
-        for (int counter = 0; counter < max && rows < limit; counter++)
+        for (var counter = 0; counter < max && rows < limit; counter++)
         {
           if (m_CurrentFilter.IsCancellationRequested)
             return;
@@ -223,7 +222,7 @@ namespace CsvTools
           if (type.HasFlag(FilterType.OnlyTrueErrors) && ErrorOrWarning == "-")
             continue;
 
-          bool import = false;
+          var import = false;
           if (string.IsNullOrEmpty(ErrorOrWarning))
           {
             if (type.HasFlag(FilterType.ShowIssueFree))
@@ -260,14 +259,11 @@ namespace CsvTools
       }
     }
 
-    public void StartFilter(int limit, FilterType type, Action finishedAction)
-    {
-      ThreadPool.QueueUserWorkItem(delegate
-        {
-          Filter(limit, type);
-          finishedAction?.Invoke();
-        });
-    }
+    public void StartFilter(int limit, FilterType type, Action finishedAction) => ThreadPool.QueueUserWorkItem(delegate
+                                                                                  {
+                                                                                    Filter(limit, type);
+                                                                                    finishedAction?.Invoke();
+                                                                                  });
 
     /// <summary>
     ///   Clean up any resources being used.
@@ -275,7 +271,8 @@ namespace CsvTools
     /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
     protected virtual void Dispose(bool disposing)
     {
-      if (!disposing) return;
+      if (!disposing)
+        return;
 
       try
       {

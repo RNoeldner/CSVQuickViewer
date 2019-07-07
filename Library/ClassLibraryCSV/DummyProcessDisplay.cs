@@ -52,6 +52,7 @@ namespace CsvTools
     public CancellationToken CancellationToken => m_CancellationTokenSource.Token;
 
     public bool LogAsDebug { get; set; } = true;
+
     /// <summary>
     ///   Gets or sets the maximum value for the Progress
     /// </summary>
@@ -61,6 +62,7 @@ namespace CsvTools
     public virtual long Maximum { get; set; }
 
     public virtual string Title { get; set; }
+
     public static void Show()
     {
     }
@@ -93,7 +95,7 @@ namespace CsvTools
 
     /// <summary>
     ///   Sets the process.
-    /// </summary>    
+    /// </summary>
     public void SetProcess(string text) => SetProcess(text ?? string.Empty, -1, true);
 
     public void SetProcess(string text, long value) => SetProcess(text ?? string.Empty, value, true);
@@ -105,24 +107,25 @@ namespace CsvTools
     /// <param name="e"></param>
     public void SetProcess(object sender, ProgressEventArgs e)
     {
-      if (e == null) return;
+      if (e == null)
+        return;
       SetProcess(e.Text ?? string.Empty, e.Value, e.Log);
     }
+
     #region IDisposable Support
 
     private bool m_DisposedValue; // To detect redundant calls
 
     // This code added to correctly implement the disposable pattern.
-    public void Dispose()
-    {
+    public void Dispose() =>
       // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
       Dispose(true);
-    }
 
     protected virtual void Dispose(bool disposing)
     {
       Cancel();
-      if (m_DisposedValue) return;
+      if (m_DisposedValue)
+        return;
       if (disposing)
       {
         m_CancellationTokenSource.Cancel();

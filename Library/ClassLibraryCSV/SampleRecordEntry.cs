@@ -19,9 +19,7 @@ using System.Xml.Serialization;
 namespace CsvTools
 {
   [Serializable]
-#pragma warning disable CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
   public class SampleRecordEntry : IEquatable<SampleRecordEntry>, IComparable<SampleRecordEntry>, IComparable,
-#pragma warning restore CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
     ICloneable<SampleRecordEntry>
   {
     private string m_Error = string.Empty;
@@ -49,25 +47,6 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Gets or sets the record number.
-    /// </summary>
-    /// <value>
-    /// The record number.
-    /// </value>
-    [XmlAttribute]
-    public long RecordNumber { get; set; }
-
-    /// <summary>
-    /// Gets or sets a value indicating whether [provide evidence].
-    /// </summary>
-    /// <value>
-    ///   <c>true</c> if [provide evidence]; otherwise, <c>false</c>.
-    /// </value>
-    [XmlAttribute]
-    [DefaultValue(true)]
-    public bool ProvideEvidence { get; set; } = true;
-
-    /// <summary>
     /// Gets or sets the error.
     /// </summary>
     /// <value>
@@ -82,15 +61,23 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Copies all properties to the other instance
+    /// Gets or sets a value indicating whether [provide evidence].
     /// </summary>
-    /// <param name="other">The other instance</param>
-    public void CopyTo(SampleRecordEntry other)
-    {
-      other.RecordNumber = RecordNumber;
-      other.ProvideEvidence = ProvideEvidence;
-      other.Error = Error;
-    }
+    /// <value>
+    ///   <c>true</c> if [provide evidence]; otherwise, <c>false</c>.
+    /// </value>
+    [XmlAttribute]
+    [DefaultValue(true)]
+    public bool ProvideEvidence { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets the record number.
+    /// </summary>
+    /// <value>
+    /// The record number.
+    /// </value>
+    [XmlAttribute]
+    public long RecordNumber { get; set; }
 
     /// <summary>
     /// Clones this instance into a new instance of the same type
@@ -124,9 +111,17 @@ namespace CsvTools
     /// <returns>
     /// A value that indicates the relative order of the objects being compared. The return value has these meanings: Value Meaning Less than zero This instance precedes <paramref name="other" /> in the sort order.  Zero This instance occurs in the same position in the sort order as <paramref name="other" />. Greater than zero This instance follows <paramref name="other" /> in the sort order.
     /// </returns>
-    public int CompareTo(SampleRecordEntry other)
+    public int CompareTo(SampleRecordEntry other) => RecordNumber.CompareTo(other.RecordNumber);
+
+    /// <summary>
+    /// Copies all properties to the other instance
+    /// </summary>
+    /// <param name="other">The other instance</param>
+    public void CopyTo(SampleRecordEntry other)
     {
-      return RecordNumber.CompareTo(other.RecordNumber);
+      other.RecordNumber = RecordNumber;
+      other.ProvideEvidence = ProvideEvidence;
+      other.Error = Error;
     }
 
     /// <summary>Indicates whether the current object is equal to another object of the same type.</summary>
@@ -137,8 +132,10 @@ namespace CsvTools
     /// </returns>
     public bool Equals(SampleRecordEntry other)
     {
-      if (other is null) return false;
-      if (ReferenceEquals(this, other)) return true;
+      if (other is null)
+        return false;
+      if (ReferenceEquals(this, other))
+        return true;
       return RecordNumber == other.RecordNumber && ProvideEvidence == other.ProvideEvidence &&
              string.Equals(Error, other.Error, StringComparison.OrdinalIgnoreCase);
     }
@@ -149,7 +146,6 @@ namespace CsvTools
     ///   <see langword="true" /> if the specified object  is equal to the current object; otherwise, <see langword="false" />.
     /// </returns>
     public override bool Equals(object obj) => Equals(obj as SampleRecordEntry);
-
 
     /// <summary>Serves as the default hash function. </summary>
     /// <returns>A hash code for the current object.</returns>

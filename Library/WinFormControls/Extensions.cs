@@ -12,8 +12,6 @@
  *
  */
 
-using log4net;
-using Pri.LongPath;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -21,6 +19,8 @@ using System.Drawing;
 using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
+using log4net;
+using Pri.LongPath;
 
 namespace CsvTools
 {
@@ -39,7 +39,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// WAits for a 
+    /// WAits for a
     /// </summary>  longer running process to , and update the UI in during waiting
     /// <param name="whileTrue">Function to determine if a process should still execute, once the function return <c>FASLE</c> this routine will return</param>
     /// <param name="millisecondsSleep">Waiting the amount of Milliseconds during tests</param>
@@ -48,7 +48,7 @@ namespace CsvTools
     /// <param name="cancellationToken">Cancellation Token</param>
     public static void TimeOutWait(Func<bool> whileTrue, int millisecondsSleep, double timeoutMinutes, bool raiseError, CancellationToken cancellationToken)
     {
-      Stopwatch stopwatch = new Stopwatch();
+      var stopwatch = new Stopwatch();
       stopwatch.Start();
 
       while (!cancellationToken.IsCancellationRequested && whileTrue())
@@ -87,6 +87,21 @@ namespace CsvTools
       }
     }
 
+    public static void CompleteTask(this System.Threading.Tasks.Task executeTask, double timeoutMinutes, CancellationToken cancellationToken)
+    {
+      var stopwatch = new Stopwatch();
+      stopwatch.Start();
+      while (executeTask.Status != System.Threading.Tasks.TaskStatus.RanToCompletion)
+      {
+        if (timeoutMinutes > 0 && stopwatch.ElapsedMilliseconds > timeoutMinutes * 60000)
+        {
+          throw new TimeoutException($"Waited longer than {timeoutMinutes * 60:N0} seconds, assuming something is wrong");
+        }
+        ProcessUIElements();
+        executeTask.Wait(100, cancellationToken);
+      }
+    }
+
     /// <summary>
     ///   Handles a CTRL-A select all in the form.
     /// </summary>
@@ -96,9 +111,11 @@ namespace CsvTools
     /// </param>
     public static void CtrlA(this Form frm, object sender, KeyEventArgs e)
     {
-      if (e == null || !e.Control || e.KeyCode.ToString() != "A") return;
+      if (e == null || !e.Control || e.KeyCode.ToString() != "A")
+        return;
       var tb = sender as TextBox;
-      if (sender == frm) tb = frm.ActiveControl as TextBox;
+      if (sender == frm)
+        tb = frm.ActiveControl as TextBox;
 
       if (tb != null)
       {
@@ -107,9 +124,11 @@ namespace CsvTools
       }
 
       var lv = sender as ListView;
-      if (sender == frm) lv = frm.ActiveControl as ListView;
+      if (sender == frm)
+        lv = frm.ActiveControl as ListView;
 
-      if (lv == null || !lv.MultiSelect) return;
+      if (lv == null || !lv.MultiSelect)
+        return;
       foreach (ListViewItem item in lv.Items)
         item.Selected = true;
     }
@@ -130,7 +149,8 @@ namespace CsvTools
     /// null: user pressed cancel</returns>
     public static bool? DeleteFileQuestion(this string fileName, bool ask)
     {
-      if (!FileSystemUtils.FileExists(fileName)) return true;
+      if (!FileSystemUtils.FileExists(fileName))
+        return true;
       if (!ask)
       {
         try
@@ -177,7 +197,7 @@ namespace CsvTools
     /// Gets the encrypted passphrase of a setting, if needed it will open a windows form
     /// </summary>
     /// <param name="setting">The setting.</param>
-    /// <returns></returns>    
+    /// <returns></returns>
     /// The private key for decryption has not been setup
     /// or
     /// A passphrase is needed for decryption.
@@ -205,7 +225,7 @@ namespace CsvTools
 
     public static string GetProcessDisplayTitle(this IFileSetting fileSetting)
     {
-      string result = fileSetting.InternalID;
+      var result = fileSetting.InternalID;
       if (fileSetting is IFileSettingPhysicalFile settingPhysicalFile)
       {
         result = FileSystemUtils.GetShortDisplayFileName(settingPhysicalFile.FileName, 80);
@@ -230,7 +250,8 @@ namespace CsvTools
     /// <returns>A process display, if the stetting want a process</returns>
     public static IProcessDisplay GetProcessDisplay(this IFileSetting fileSetting, Form owner, bool withLogger, CancellationToken cancellationToken)
     {
-      if (!fileSetting.ShowProgress) return new DummyProcessDisplay(cancellationToken);
+      if (!fileSetting.ShowProgress)
+        return new DummyProcessDisplay(cancellationToken);
 
       var processDisplay = new FormProcessDisplay(fileSetting.GetProcessDisplayTitle(), withLogger, cancellationToken);
       processDisplay.Show(owner);
@@ -330,6 +351,7 @@ namespace CsvTools
         return null;
       }
     }
+
     /// <summary>
     ///   Updates the list view column format.
     /// </summary>
@@ -341,7 +363,8 @@ namespace CsvTools
         return;
       if (listView.InvokeRequired)
       {
-        listView.Invoke((MethodInvoker)delegate { listView.UpdateListViewColumnFormat(columnFormat); });
+        listView.Invoke((MethodInvoker)delegate
+        { listView.UpdateListViewColumnFormat(columnFormat); });
       }
       else
       {
@@ -352,13 +375,13 @@ namespace CsvTools
         foreach (var format in columnFormat)
         {
           var ni = listView.Items.Add(format.Name);
-          if (oldSelItem.Count > 0) ni.Selected |= format.Name == oldSelItem[0].Text;
+          if (oldSelItem.Count > 0)
+            ni.Selected |= format.Name == oldSelItem[0].Text;
           ni.SubItems.Add(format.GetTypeAndFormatDescription());
         }
 
         listView.EndUpdate();
       }
     }
-
   }
 }

@@ -143,8 +143,10 @@ namespace CsvTools
     /// </returns>
     public bool Equals(ValueCluster other)
     {
-      if (other is null) return false;
-      if (ReferenceEquals(this, other)) return true;
+      if (other is null)
+        return false;
+      if (ReferenceEquals(this, other))
+        return true;
       return string.Equals(Display, other.Display, StringComparison.OrdinalIgnoreCase) &&
              string.Equals(Sort, other.Sort, StringComparison.Ordinal) && string.Equals(SQLCondition, other.SQLCondition, StringComparison.OrdinalIgnoreCase) &&
              Active == other.Active && Count == other.Count && Equals(Parent, other.Parent);
@@ -154,10 +156,7 @@ namespace CsvTools
     ///   Return a string representation of this cluster
     /// </summary>
     /// <returns></returns>
-    public override string ToString()
-    {
-      return $"{Display ?? "[empty]"} {Count} {(Count == 1 ? "item" : "items")}";
-    }
+    public override string ToString() => $"{Display ?? "[empty]"} {Count} {(Count == 1 ? "item" : "items")}";
 
     /// <summary>Determines whether the specified object is equal to the current object.</summary>
     /// <param name="obj">The object to compare with the current object. </param>
@@ -166,8 +165,10 @@ namespace CsvTools
     /// </returns>
     public override bool Equals(object obj)
     {
-      if (obj is null) return false;
-      if (ReferenceEquals(this, obj)) return true;
+      if (obj is null)
+        return false;
+      if (ReferenceEquals(this, obj))
+        return true;
       return (obj is ValueCluster typed) && Equals(typed);
     }
 

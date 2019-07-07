@@ -37,7 +37,6 @@ namespace CsvTools
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Collection"));
       }
 
-
       return !found;
     }
 
@@ -75,6 +74,7 @@ namespace CsvTools
           yield return mapping;
       }
     }
+
     /// <summary>
     ///  Get the IFileSetting Mapping by template column
     /// </summary>
@@ -102,7 +102,8 @@ namespace CsvTools
     {
       var toBeRemoved = new List<Mapping>(GetByColumn(columnName));
 
-      if (toBeRemoved.IsEmpty()) return;
+      if (toBeRemoved.IsEmpty())
+        return;
 
       foreach (var fieldMapping in toBeRemoved)
         Remove(fieldMapping);

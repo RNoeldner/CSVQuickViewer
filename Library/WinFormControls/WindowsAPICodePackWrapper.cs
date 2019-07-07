@@ -16,7 +16,7 @@ namespace CsvTools
         using (var commonOpenFileDialog = new CommonOpenFileDialog(title))
         {
           var parts = filter.Split('|');
-          int part = 0;
+          var part = 0;
           while (parts.Length >= part + 2)
             commonOpenFileDialog.Filters.Add(new CommonFileDialogFilter(parts[part++], parts[part++]));
           commonOpenFileDialog.Multiselect = false;
@@ -53,7 +53,7 @@ namespace CsvTools
         using (var commonOpenFileDialog = new CommonSaveFileDialog(title))
         {
           var parts = filter.Split('|');
-          int part = 0;
+          var part = 0;
           while (parts.Length > part + 2)
             commonOpenFileDialog.Filters.Add(new CommonFileDialogFilter(parts[part++], parts[part++]));
           commonOpenFileDialog.DefaultExtension = defaultExt;
@@ -92,7 +92,6 @@ namespace CsvTools
 
     public static string Folder(string initialDiretory, string title)
     {
-
       if (s_CommonFileDialogSupported)
       {
         using (var commonOpenFileDialog = new CommonOpenFileDialog(title))
@@ -118,7 +117,8 @@ namespace CsvTools
 
     public static void SetProgressState(bool noProgress)
     {
-      if (!s_TaskbarManagerSupported) return;
+      if (!s_TaskbarManagerSupported)
+        return;
       try
       {
         if (!noProgress)
@@ -135,7 +135,8 @@ namespace CsvTools
 
     public static void SetProgressValue(int currentValue, int maximumValue)
     {
-      if (!s_TaskbarManagerSupported) return;
+      if (!s_TaskbarManagerSupported)
+        return;
       try
       {
         TaskbarManager.Instance.SetProgressValue(currentValue, maximumValue);
@@ -145,7 +146,6 @@ namespace CsvTools
         //ignore
         s_TaskbarManagerSupported = false;
       }
-
     }
 
     public static void AttachTaskbarProgress(this IProcessDisplayTime MainProcess)
@@ -165,7 +165,8 @@ namespace CsvTools
 
       MainProcess.SetMaximum += delegate (object sender, long max)
       {
-        if (max < 1) SetProgressState(true);
+        if (max < 1)
+          SetProgressState(true);
       };
     }
   }

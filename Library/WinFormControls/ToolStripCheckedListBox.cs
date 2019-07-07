@@ -95,9 +95,6 @@ namespace CsvTools
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
-    private void OnItemCheck(object sender, ItemCheckEventArgs e)
-    {
-      ItemCheck?.Invoke(this, e);
-    }
+    private void OnItemCheck(object sender, ItemCheckEventArgs e) => ItemCheck?.Invoke(this, e);
   }
 }

@@ -14,8 +14,8 @@ namespace CsvTools.Properties
     [XmlElement]
 #pragma warning disable CA1051 // Do not declare visible instance fields
     public WindowState WindowPosition;
-#pragma warning restore CA1051 // Do not declare visible instance fields
 
+#pragma warning restore CA1051 // Do not declare visible instance fields
 
     private bool m_DetectFileChanges = true;
     private FillGuessSettings m_FillGuessSettings = ApplicationSetting.FillGuessSettings;
@@ -51,14 +51,12 @@ namespace CsvTools.Properties
     [XmlElement]
     public virtual FillGuessSettings FillGuessSettings
     {
-      get
-      {
-        return m_FillGuessSettings;
-      }
+      get => m_FillGuessSettings;
       set
       {
         var newVal = value ?? ApplicationSetting.FillGuessSettings;
-        if (m_FillGuessSettings.Equals(newVal)) return;
+        if (m_FillGuessSettings.Equals(newVal))
+          return;
         m_FillGuessSettings = newVal;
         NotifyPropertyChanged(nameof(FillGuessSettings));
       }
@@ -144,12 +142,11 @@ namespace CsvTools.Properties
       }
     }
 
-
     [XmlAttribute]
     [DefaultValue(false)]
     public bool MenuDown
     {
-      get => m_MenuDown; 
+      get => m_MenuDown;
       set
       {
         if (m_MenuDown == value)
@@ -162,16 +159,12 @@ namespace CsvTools.Properties
     [XmlElement]
     public virtual PGPKeyStorage PGPInformation
     {
-      get
-      {
-        return m_PGPKeyStorage;
-      }
+      get => m_PGPKeyStorage;
       set => m_PGPKeyStorage = value ?? new PGPKeyStorage();
     }
 
     [XmlIgnore]
     public virtual bool PGPInformationSpecified => PGPInformation.Specified;
-
 
     [XmlAttribute]
     [DefaultValue(false)]

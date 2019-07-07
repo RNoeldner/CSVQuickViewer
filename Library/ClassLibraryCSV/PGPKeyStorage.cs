@@ -12,9 +12,6 @@
  *
  */
 
-using Org.BouncyCastle.Bcpg;
-using Org.BouncyCastle.Bcpg.OpenPgp;
-using Org.BouncyCastle.Security;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -24,6 +21,9 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Xml.Serialization;
+using Org.BouncyCastle.Bcpg;
+using Org.BouncyCastle.Bcpg.OpenPgp;
+using Org.BouncyCastle.Security;
 
 namespace CsvTools
 {
@@ -101,7 +101,8 @@ namespace CsvTools
       {
         Contract.Ensures(m_EncryptedPassphase != null);
         var newVal = value ?? string.Empty;
-        if (m_EncryptedPassphase.Equals(newVal, StringComparison.Ordinal)) return;
+        if (m_EncryptedPassphase.Equals(newVal, StringComparison.Ordinal))
+          return;
         m_EncryptedPassphase = newVal;
         NotifyPropertyChanged(nameof(EncryptedPassphase));
       }
@@ -118,7 +119,8 @@ namespace CsvTools
 
       set
       {
-        if (m_AllowSavingPassphrase == value) return;
+        if (m_AllowSavingPassphrase == value)
+          return;
         m_AllowSavingPassphrase = value;
         NotifyPropertyChanged(nameof(AllowSavingPassphrase));
       }
@@ -191,9 +193,11 @@ namespace CsvTools
 
     public virtual void AddPrivateKey(string key)
     {
-      if (!IsValidKeyRingBundle(key, true, out _)) return;
+      if (!IsValidKeyRingBundle(key, true, out _))
+        return;
       var encKey = key.Encrypt(m_PgpDecryption);
-      if (m_EncryptedPrivateKeyRingBundle.Any(x => key.Equals(x.Decrypt(m_PgpDecryption), StringComparison.Ordinal))) return;
+      if (m_EncryptedPrivateKeyRingBundle.Any(x => key.Equals(x.Decrypt(m_PgpDecryption), StringComparison.Ordinal)))
+        return;
       m_EncryptedPrivateKeyRingBundle.Add(encKey);
       NotifyPropertyChanged(nameof(PrivateKeys));
       m_Recipients = null;
@@ -201,9 +205,11 @@ namespace CsvTools
 
     public virtual void AddPublicKey(string key)
     {
-      if (!IsValidKeyRingBundle(key, false, out _)) return;
+      if (!IsValidKeyRingBundle(key, false, out _))
+        return;
       var encKey = key.Encrypt(m_PgpDecryption);
-      if (m_EncryptedPublicKeyRingBundle.Any(x => key.Equals(x.Decrypt(m_PgpDecryption), StringComparison.Ordinal))) return;
+      if (m_EncryptedPublicKeyRingBundle.Any(x => key.Equals(x.Decrypt(m_PgpDecryption), StringComparison.Ordinal)))
+        return;
       m_EncryptedPublicKeyRingBundle.Add(encKey);
       NotifyPropertyChanged(nameof(PublicKeys));
       m_Recipients = null;
@@ -240,7 +246,8 @@ namespace CsvTools
         foreach (PgpPublicKeyRing kRing in pgpSec.GetKeyRings())
         {
           var key = kRing.GetPublicKeys().Cast<PgpPublicKey>().FirstOrDefault(k => k.IsEncryptionKey);
-          if (!(key?.GetUserIds().Count() > 0)) continue;
+          if (!(key?.GetUserIds().Count() > 0))
+            continue;
           foreach (var usr in key.GetUserIds())
             sb.AppendFormat("{0},", usr);
           sb.Length--;
@@ -256,7 +263,8 @@ namespace CsvTools
     {
       var valid = new List<PgpPublicKeyRingBundle>();
 
-      if (PublicKeys == null) return valid;
+      if (PublicKeys == null)
+        return valid;
       var invalid = new List<string>();
       foreach (var encryptedKey in PublicKeys)
         try
@@ -271,18 +279,17 @@ namespace CsvTools
           invalid.Add(encryptedKey);
         }
 
-      foreach (var encryptedKey in invalid) m_EncryptedPublicKeyRingBundle.Remove(encryptedKey);
+      foreach (var encryptedKey in invalid)
+        m_EncryptedPublicKeyRingBundle.Remove(encryptedKey);
       return valid;
     }
 
-    public virtual ICollection<string> GetRecipientList()
-    {
-      return GetRecipients().Keys;
-    }
+    public virtual ICollection<string> GetRecipientList() => GetRecipients().Keys;
 
     public virtual IDictionary<string, PgpPublicKey> GetRecipients()
     {
-      if (m_Recipients != null) return m_Recipients;
+      if (m_Recipients != null)
+        return m_Recipients;
       m_Recipients = new Dictionary<string, PgpPublicKey>(StringComparer.OrdinalIgnoreCase);
 
       if (PublicKeys != null)
@@ -296,7 +303,8 @@ namespace CsvTools
               foreach (PgpPublicKeyRing kRing in pgpSec.GetKeyRings())
               {
                 var key = kRing.GetPublicKeys().Cast<PgpPublicKey>().FirstOrDefault(k => k.IsEncryptionKey);
-                if (key == null) continue;
+                if (key == null)
+                  continue;
                 foreach (var userID in key.GetUserIds())
                   if (!m_Recipients.ContainsKey(userID.ToString()))
                     m_Recipients.Add(userID.ToString(), key);
@@ -319,7 +327,8 @@ namespace CsvTools
             foreach (PgpSecretKeyRing ring in pgpSec.GetKeyRings())
             {
               var key = ring.GetPublicKey();
-              if (!key.IsEncryptionKey) continue;
+              if (!key.IsEncryptionKey)
+                continue;
               foreach (var userID in key.GetUserIds())
                 if (!m_Recipients.ContainsKey(userID.ToString()))
                   m_Recipients.Add(userID.ToString(), key);
@@ -338,7 +347,8 @@ namespace CsvTools
     {
       var valid = new List<PgpSecretKeyRingBundle>();
 
-      if (PrivateKeys == null) return valid;
+      if (PrivateKeys == null)
+        return valid;
       var invalid = new List<string>();
       foreach (var encryptedKey in PrivateKeys)
         try
@@ -358,10 +368,7 @@ namespace CsvTools
       return valid;
     }
 
-    public virtual void NotifyPropertyChanged(string info)
-    {
-      PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(info));
-    }
+    public virtual void NotifyPropertyChanged(string info) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(info));
 
     /// <summary>
     /// Decrypts the encrypted stream
@@ -498,7 +505,8 @@ namespace CsvTools
 
     private Stream GetDecyptedDataStream(PgpEncryptedDataList enc, System.Security.SecureString passphrase)
     {
-      if (PrivateKeys == null) throw new PgpException("Secret keys not setup.");
+      if (PrivateKeys == null)
+        throw new PgpException("Secret keys not setup.");
       foreach (var encryptedKey in PrivateKeys)
         using (var keyIn = new MemoryStream(Encoding.UTF8.GetBytes(encryptedKey.Decrypt(m_PgpDecryption))))
         {
@@ -506,7 +514,8 @@ namespace CsvTools
           foreach (PgpPublicKeyEncryptedData pked in enc.GetEncryptedDataObjects())
           {
             var pgpSecKey = pgpSec.GetSecretKey(pked.KeyId);
-            if (pgpSecKey == null) continue;
+            if (pgpSecKey == null)
+              continue;
             try
             {
               var key = pgpSecKey.ExtractPrivateKey(ToCharArray(passphrase));

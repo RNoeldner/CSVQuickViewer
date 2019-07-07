@@ -18,7 +18,7 @@ namespace CsvTools
     private static int minMonthLong = int.MaxValue;
     private static int minMonthMid = int.MaxValue;
     private int m_MaxLength;
-    private int m_MinLength;   
+    private int m_MinLength;
 
     public DateTimeFormatInformation(string format)
     {

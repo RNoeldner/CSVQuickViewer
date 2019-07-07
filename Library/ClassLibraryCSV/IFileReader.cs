@@ -54,7 +54,7 @@ namespace CsvTools
     ///  Gets the start line number.
     /// </summary>
     /// <value>The line number in which the record started.</value>
-    long StartLineNumber { get; }    
+    long StartLineNumber { get; }
 
     /// <summary>
     ///  Gets the column information for a given column number

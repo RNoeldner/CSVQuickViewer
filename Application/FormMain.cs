@@ -12,9 +12,6 @@
  *
  */
 
-using CsvTools.Properties;
-using log4net;
-using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -28,6 +25,9 @@ using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
 using System.Xml.Serialization;
+using CsvTools.Properties;
+using log4net;
+using Microsoft.Win32;
 using Timer = System.Timers.Timer;
 
 namespace CsvTools
@@ -71,7 +71,8 @@ namespace CsvTools
       FillFromProperites();
 
       m_SettingsChangedTimerChange.AutoReset = false;
-      m_SettingsChangedTimerChange.Elapsed += delegate { this.SafeInvoke(() => OpenDataReader(true)); };
+      m_SettingsChangedTimerChange.Elapsed += delegate
+      { this.SafeInvoke(() => OpenDataReader(true)); };
       m_SettingsChangedTimerChange.Stop();
 
       // Done in code to be able to select controls in the designer
@@ -95,7 +96,8 @@ namespace CsvTools
         var assembly = Assembly.GetExecutingAssembly();
         var version = assembly.GetName().Version;
         var attributes = assembly.GetCustomAttributes(typeof(AssemblyTitleAttribute), false);
-        if (attributes.Length <= 0) return Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().CodeBase);
+        if (attributes.Length <= 0)
+          return Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().CodeBase);
         var titleAttribute = (AssemblyTitleAttribute)attributes[0];
         if (titleAttribute.Title.Length != 0)
           return titleAttribute.Title + " " + version;
@@ -106,7 +108,8 @@ namespace CsvTools
 
     private void AddWarning(object sender, WarningEventArgs args)
     {
-      if (string.IsNullOrEmpty(args.Message)) return;
+      if (string.IsNullOrEmpty(args.Message))
+        return;
       if (++m_WarningCount == m_FileSetting.NumWarnings)
         Log.Warn("No further warnings displayed…");
       else if (m_WarningCount < m_FileSetting.NumWarnings)
@@ -116,7 +119,8 @@ namespace CsvTools
     private void ClearProcess()
     {
       m_WarningCount = 0;
-      if (IsDisposed) return;
+      if (IsDisposed)
+        return;
       if (!textPanel.Visible)
         ShowTextPanel(true);
 
@@ -150,12 +154,12 @@ namespace CsvTools
     /// <param name="e">The <see cref="DragEventArgs" /> instance containing the event data.</param>
     private void DataGridView_DragEnter(object sender, DragEventArgs e)
     {
-      if (e.Data.GetDataPresent(DataFormats.FileDrop, false)) e.Effect = DragDropEffects.All;
+      if (e.Data.GetDataPresent(DataFormats.FileDrop, false))
+        e.Effect = DragDropEffects.All;
     }
 
     private void DetailControl_ButtonAsText(object sender, EventArgs e)
     {
-
       // Assume data type is not recognize
       if (m_FileSetting.ColumnCollection.Any(x => x.DataType != DataType.String))
       {
@@ -196,7 +200,8 @@ namespace CsvTools
     /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
     private void Display_Activated(object sender, EventArgs e)
     {
-      if (!m_FileChanged) return;
+      if (!m_FileChanged)
+        return;
       m_FileChanged = false;
       if (_MessageBox.Show(this, "The displayed file has changed do you want to reload the data?", "File changed", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
         OpenDataReader(true);
@@ -254,7 +259,8 @@ namespace CsvTools
         }
       }
 
-      if (doClose) return;
+      if (doClose)
+        return;
       OpenDataReader(false);
     }
 
@@ -277,10 +283,7 @@ namespace CsvTools
     /// <param name="e">
     ///   The <see cref="FileSystemEventArgs" /> instance containing the event data.
     /// </param>
-    private void FileSystemWatcher_Changed(object sender, FileSystemEventArgs e)
-    {
-      m_FileChanged |= e.FullPath == m_FileSetting.FileName && e.ChangeType == WatcherChangeTypes.Changed;
-    }
+    private void FileSystemWatcher_Changed(object sender, FileSystemEventArgs e) => m_FileChanged |= e.FullPath == m_FileSetting.FileName && e.ChangeType == WatcherChangeTypes.Changed;
 
     private void FillFromProperites()
     {
@@ -388,17 +391,20 @@ namespace CsvTools
               try
               {
                 m_FileSetting.SkipRows = 0;
-                if (m_ViewSettings.GuessCodePage) CsvHelper.GuessCodePage(m_FileSetting);
+                if (m_ViewSettings.GuessCodePage)
+                  CsvHelper.GuessCodePage(m_FileSetting);
 
                 m_FileSetting.NoDelimitedFile = CsvHelper.GuessNotADelimitedFile(m_FileSetting);
-                if (m_ViewSettings.GuessDelimiter) m_FileSetting.FileFormat.FieldDelimiter = CsvHelper.GuessDelimiter(m_FileSetting);
+                if (m_ViewSettings.GuessDelimiter)
+                  m_FileSetting.FileFormat.FieldDelimiter = CsvHelper.GuessDelimiter(m_FileSetting);
 
                 if (m_ViewSettings.GuessQualifier)
                 {
-                  char determined = CsvHelper.GuessQualifier(m_FileSetting);
-                  m_FileSetting.FileFormat.FieldQualifier = determined == 0 ? string.Empty : Char.ToString(determined);
+                  var determined = CsvHelper.GuessQualifier(m_FileSetting);
+                  m_FileSetting.FileFormat.FieldQualifier = determined == 0 ? string.Empty : char.ToString(determined);
                 }
-                if (m_ViewSettings.GuessStartRow) m_FileSetting.SkipRows = CsvHelper.GuessStartRow(m_FileSetting);
+                if (m_ViewSettings.GuessStartRow)
+                  m_FileSetting.SkipRows = CsvHelper.GuessStartRow(m_FileSetting);
 
                 if (m_ViewSettings.GuessHasHeader)
                 {
@@ -495,7 +501,8 @@ namespace CsvTools
     /// </summary>
     private void OpenDataReader(bool clear)
     {
-      if (m_FileSetting == null) return;
+      if (m_FileSetting == null)
+        return;
 
       m_SettingsChangedTimerChange.Stop();
       fileSystemWatcher.EnableRaisingEvents = false;
@@ -571,7 +578,8 @@ namespace CsvTools
           // Show the data
           detailControl.DataTable = data;
         }
-        ApplicationSetting.SQLDataReader = delegate (string settingName, IProcessDisplay processDisplay) { return detailControl.DataTable.CreateDataReader(); };
+        ApplicationSetting.SQLDataReader = delegate (string settingName, IProcessDisplay processDisplay)
+        { return detailControl.DataTable.CreateDataReader(); };
         detailControl.FileSetting = m_FileSetting;
 
         // if (m_FileSetting.NoDelimitedFile)
@@ -655,7 +663,8 @@ namespace CsvTools
             $"Store settings in {pathSetting} for faster processing next time?", "Settings", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
         }
 
-        if (answer != DialogResult.Yes) return;
+        if (answer != DialogResult.Yes)
+          return;
         Log.Debug($"Saving setting {pathSetting}");
         SerializedFilesLib.SaveCsvFile(pathSetting, m_FileSetting);
         m_ConfigChanged = false;
@@ -671,7 +680,6 @@ namespace CsvTools
       m_CurrentCancellationTokenSource?.Cancel();
       ShowTextPanel(false);
     }
-
 
     private void ShowSettings(object sender, EventArgs e)
     {
@@ -705,10 +713,7 @@ namespace CsvTools
       detailControl.Visible = !visible;
     }
 
-    private void SystemEvents_DisplaySettingsChanged(object sender, EventArgs e)
-    {
-      this.LoadWindowState(m_ViewSettings.WindowPosition);
-    }
+    private void SystemEvents_DisplaySettingsChanged(object sender, EventArgs e) => this.LoadWindowState(m_ViewSettings.WindowPosition);
 
     private void SystemEvents_PowerModeChanged(object sender, PowerModeChangedEventArgs e)
     {
@@ -717,7 +722,8 @@ namespace CsvTools
         case PowerModes.Suspend:
           Log.Debug($"Power Event Suspend");
           var res = this.StoreWindowState();
-          if (res == null) return;
+          if (res == null)
+            return;
           m_ViewSettings.WindowPosition = res;
           break;
 

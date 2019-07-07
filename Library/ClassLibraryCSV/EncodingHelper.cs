@@ -224,7 +224,8 @@ namespace CsvTools
           return (int)CodePage.UTF8;
       }
 
-      if (buff.Length < 2) return (int)CodePage.None;
+      if (buff.Length < 2)
+        return (int)CodePage.None;
       if (buff[0] == 0xFE && buff[1] == 0xFF)
         return (int)CodePage.UTF16Be;
       if (buff[0] == 0xFF && buff[1] == 0xFE)
@@ -335,7 +336,8 @@ namespace CsvTools
       cdet.Feed(buff, 0, len);
       cdet.DataEnd();
 
-      if (cdet.Charset == null) return (int)detectedCodePage;
+      if (cdet.Charset == null)
+        return (int)detectedCodePage;
 #pragma warning disable CA1308 // Normalize strings to uppercase
       if (cdet.Charset.ToLowerInvariant() == "ascii")
         detectedCodePage = CodePage.ASCII;

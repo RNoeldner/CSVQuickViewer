@@ -13,11 +13,11 @@
  */
 
 using System;
-using log4net.Config;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Windows.Forms;
 using log4net;
+using log4net.Config;
 
 namespace CsvTools
 {
@@ -33,10 +33,7 @@ namespace CsvTools
     /// <param name="e">
     ///   The <see cref="ThreadExceptionEventArgs" /> instance containing the event data.
     /// </param>
-    private static void Application_ThreadException(object sender, ThreadExceptionEventArgs e)
-    {
-      UnhandledException(e.Exception);
-    }
+    private static void Application_ThreadException(object sender, ThreadExceptionEventArgs e) => UnhandledException(e.Exception);
 
     /// <summary>
     ///   Handles the UnhandledException event of the CurrentDomain control.
@@ -45,10 +42,7 @@ namespace CsvTools
     /// <param name="e">
     ///   The <see cref="UnhandledExceptionEventArgs" /> instance containing the event data.
     /// </param>
-    private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
-    {
-      UnhandledException((Exception)e.ExceptionObject);
-    }
+    private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e) => UnhandledException((Exception)e.ExceptionObject);
 
     /// <summary>
     ///   The main entry point for the application.

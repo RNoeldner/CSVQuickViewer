@@ -12,11 +12,11 @@
  *
  */
 
-using CsvTools.Properties;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows.Forms;
+using CsvTools.Properties;
 
 namespace CsvTools
 {
@@ -49,7 +49,8 @@ namespace CsvTools
       {
         using (var kf = new FormKeyFile("Private PGP Key", true))
         {
-          if (kf.ShowDialog(this) != DialogResult.OK) return;
+          if (kf.ShowDialog(this) != DialogResult.OK)
+            return;
           m_ViewSettings.PGPInformation.AddPrivateKey(kf.KeyBlock);
           GetPrivateKeys();
         }
@@ -68,7 +69,6 @@ namespace CsvTools
         var newFileName = WindowsAPICodePackWrapper.Open(split.DirectoryName, "Delimited File", "Delimited files (*.csv;*.txt;*.tab;*.tsv)|*.csv;*.txt;*.tab;*.tsv|All files (*.*)|*.*", split.FileName);
         if (!string.IsNullOrEmpty(newFileName))
           ChangeFileName(newFileName);
-
       }
       catch (Exception exc)
       {
@@ -89,7 +89,8 @@ namespace CsvTools
 
     private void BtnRemPrivKey_Click(object sender, EventArgs e)
     {
-      if (listBoxPrivKeys.SelectedIndex < 0) return;
+      if (listBoxPrivKeys.SelectedIndex < 0)
+        return;
       m_ViewSettings.PGPInformation.RemovePrivateKey(listBoxPrivKeys.SelectedIndex);
       GetPrivateKeys();
     }
@@ -199,7 +200,8 @@ namespace CsvTools
 
     private void CsvFile_PropertyChanged(object sender, PropertyChangedEventArgs e)
     {
-      if (e.PropertyName != "CodePageId") return;
+      if (e.PropertyName != "CodePageId")
+        return;
       foreach (var ite in cboCodePage.Items)
         if (((DisplayItem<int>)ite).ID == m_ViewSettings.CodePageId)
         {
@@ -226,6 +228,7 @@ namespace CsvTools
 
       UpdatePassphraseInfoText();
     }
+
     private void GetPrivateKeys()
     {
       listBoxPrivKeys.Items.Clear();
@@ -282,6 +285,7 @@ namespace CsvTools
         errorProvider.SetError(textBoxFile, string.Empty);
       }
     }
+
     private void UpdatePassphraseInfoText()
     {
       if (string.IsNullOrEmpty(m_ViewSettings.PGPInformation.EncryptedPassphase))
@@ -298,10 +302,8 @@ namespace CsvTools
         }
     }
 
-    private void FormEditSettings_FormClosing(object sender, FormClosingEventArgs e)
-    {
+    private void FormEditSettings_FormClosing(object sender, FormClosingEventArgs e) =>
       // update the values in not changed setting
       ValidateChildren();
-    }
   }
 }

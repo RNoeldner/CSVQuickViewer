@@ -8,20 +8,11 @@ namespace CsvTools
   {
     public string TimeZoneID
     {
-      set
-      {
-        comboBoxTimeZoneID.SelectedValue = value;
-      }
-      get
-      {
-        return (string)comboBoxTimeZoneID.SelectedValue;
-      }
+      set => comboBoxTimeZoneID.SelectedValue = value;
+      get => (string)comboBoxTimeZoneID.SelectedValue;
     }
 
-    public TimeZoneSelector()
-    {
-      InitializeComponent();
-    }
+    public TimeZoneSelector() => InitializeComponent();
 
     private void TimeZoneSelector_Load(object sender, EventArgs e)
     {
@@ -39,17 +30,14 @@ namespace CsvTools
       comboBoxTimeZoneID.DataSource = display;
     }
 
-    private void buttonLocalTZ_Click(object sender, EventArgs e)
-    {
-      TimeZoneID = TimeZoneMapping.cIdLocal;
-    }
+    private void buttonLocalTZ_Click(object sender, EventArgs e) => TimeZoneID = TimeZoneMapping.cIdLocal;
 
     private void comboBoxTimeZoneID_SelectedIndexChanged(object sender, EventArgs e)
     {
       if (sender == null)
         return;
 
-      Control ctrl = sender as Control;
+      var ctrl = sender as Control;
       if (ctrl == null)
         return;
       var bind = ctrl.GetTextBindng();

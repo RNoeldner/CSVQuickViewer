@@ -34,7 +34,8 @@ namespace CsvTools
       {
         var newVal = value ?? string.Empty;
 
-        if (m_Filter.Equals(newVal)) return;
+        if (m_Filter.Equals(newVal))
+          return;
         m_Filter = newVal;
         UpdateCheckedListBox();
       }
@@ -47,7 +48,8 @@ namespace CsvTools
       {
         var newVal = value ?? string.Empty;
 
-        if (m_Exclude.Equals(newVal)) return;
+        if (m_Exclude.Equals(newVal))
+          return;
         m_Exclude = newVal;
         UpdateCheckedListBox();
       }
@@ -81,27 +83,24 @@ namespace CsvTools
       return keyColumns;
     }
 
-    private void UpdateCheckedListBox()
-    {
-      m_CheckedListBox.SafeInvokeNoHandleNeeded(() =>
-      {
-        m_CheckedListBox.BeginUpdate();
-        m_CheckedListBox.Items.Clear();
-        m_ShownItems.Clear();
-        foreach (var fld in m_AllItems)
-        {
-          if (!fld.Equals(m_Exclude, StringComparison.OrdinalIgnoreCase) &&
-              fld.IndexOf(m_Filter, StringComparison.OrdinalIgnoreCase) != -1)
-          {
-            m_ShownItems.Add(fld);
-            m_CheckedListBox.Items.Add(fld);
-          }
-        }
+    private void UpdateCheckedListBox() => m_CheckedListBox.SafeInvokeNoHandleNeeded(() =>
+                                         {
+                                           m_CheckedListBox.BeginUpdate();
+                                           m_CheckedListBox.Items.Clear();
+                                           m_ShownItems.Clear();
+                                           foreach (var fld in m_AllItems)
+                                           {
+                                             if (!fld.Equals(m_Exclude, StringComparison.OrdinalIgnoreCase) &&
+                                                 fld.IndexOf(m_Filter, StringComparison.OrdinalIgnoreCase) != -1)
+                                             {
+                                               m_ShownItems.Add(fld);
+                                               m_CheckedListBox.Items.Add(fld);
+                                             }
+                                           }
 
-        m_CheckedListBox.EndUpdate();
-        TextChanged(m_TextBox, null);
-      });
-    }
+                                           m_CheckedListBox.EndUpdate();
+                                           TextChanged(m_TextBox, null);
+                                         });
 
     private void ItemCheck(object sender, ItemCheckEventArgs e)
     {

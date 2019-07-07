@@ -29,7 +29,8 @@ namespace CsvTools
     {
       using (var reader = FileSystemUtils.GetStreamReaderForFileOrResource(file))
       {
-        if (reader == null) return;
+        if (reader == null)
+          return;
 
         while (!reader.EndOfStream)
         {
@@ -52,10 +53,7 @@ namespace CsvTools
         Add(entry);
     }
 
-    public bool TryGetValue(string key, out DateTimeFormatInformation value)
-    {
-      return m_DateLengthMinMax.TryGetValue(key, out value);
-    }
+    public bool TryGetValue(string key, out DateTimeFormatInformation value) => m_DateLengthMinMax.TryGetValue(key, out value);
 
     private void Add(string entry)
     {

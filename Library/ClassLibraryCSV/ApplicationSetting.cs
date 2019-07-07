@@ -29,7 +29,7 @@ namespace CsvTools
     public static Func<IFileSetting, bool, IProcessDisplay, ICollection<string>> GetColumnHeader;
 
     /// <summary>
-    /// Timezone, in case of reading the timezone to which conversion are done to, or when writing the source timezone from where to convert from 
+    /// Timezone, in case of reading the timezone to which conversion are done to, or when writing the source timezone from where to convert from
     /// </summary>
     public static string DestinationTimeZone { get; set; } = TimeZoneMapping.cIdLocal;
 

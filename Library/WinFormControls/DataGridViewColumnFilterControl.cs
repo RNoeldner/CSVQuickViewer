@@ -152,7 +152,8 @@ namespace CsvTools
 
     private void HandleEnterKeyPress(object sender, KeyPressEventArgs e)
     {
-      if (e.KeyChar != 13) return;
+      if (e.KeyChar != 13)
+        return;
       e.Handled = true;
       m_DataGridViewColumnFilter.ApplyFilter();
     }

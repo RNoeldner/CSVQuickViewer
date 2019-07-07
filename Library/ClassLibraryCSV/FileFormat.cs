@@ -76,7 +76,8 @@ namespace CsvTools
       set
       {
         var newVal = (value ?? string.Empty).Trim();
-        if (m_CommentLine.Equals(value, StringComparison.Ordinal)) return;
+        if (m_CommentLine.Equals(value, StringComparison.Ordinal))
+          return;
         m_CommentLine = newVal;
         NotifyPropertyChanged(nameof(CommentLine));
       }
@@ -98,7 +99,8 @@ namespace CsvTools
       set
       {
         var newVal = (value ?? string.Empty).Trim();
-        if (m_DelimiterPlaceholder.Equals(newVal, StringComparison.Ordinal)) return;
+        if (m_DelimiterPlaceholder.Equals(newVal, StringComparison.Ordinal))
+          return;
         m_DelimiterPlaceholder = newVal;
         NotifyPropertyChanged(nameof(DelimiterPlaceholder));
       }
@@ -121,7 +123,8 @@ namespace CsvTools
       set
       {
         var newVal = (value ?? string.Empty).Trim();
-        if (m_EscapeCharacter.Equals(newVal, StringComparison.Ordinal)) return;
+        if (m_EscapeCharacter.Equals(newVal, StringComparison.Ordinal))
+          return;
         m_EscapeCharacterChar = GetChar(newVal);
         m_EscapeCharacter = newVal;
         NotifyPropertyChanged(nameof(EscapeCharacter));
@@ -151,7 +154,8 @@ namespace CsvTools
       set
       {
         var newVal = (value ?? string.Empty).Trim(StringUtils.Spaces);
-        if (m_FieldDelimiter.Equals(newVal, StringComparison.Ordinal)) return;
+        if (m_FieldDelimiter.Equals(newVal, StringComparison.Ordinal))
+          return;
         m_FieldDelimiterChar = GetChar(newVal);
         m_FieldDelimiter = newVal;
         NotifyPropertyChanged(nameof(FieldDelimiter));
@@ -181,7 +185,8 @@ namespace CsvTools
       set
       {
         var newVal = (value ?? string.Empty).Trim();
-        if (m_FieldQualifier.Equals(newVal, StringComparison.Ordinal)) return;
+        if (m_FieldQualifier.Equals(newVal, StringComparison.Ordinal))
+          return;
         m_FieldQualifierChar = GetChar(newVal);
         m_FieldQualifier = newVal;
         NotifyPropertyChanged(nameof(FieldQualifier));
@@ -219,7 +224,8 @@ namespace CsvTools
       set
       {
         var newVal = value ?? c_NewLineDefault;
-        if (m_NewLine.Equals(newVal, StringComparison.Ordinal)) return;
+        if (m_NewLine.Equals(newVal, StringComparison.Ordinal))
+          return;
         m_NewLine = newVal;
         NotifyPropertyChanged(nameof(NewLine));
       }
@@ -241,7 +247,8 @@ namespace CsvTools
       set
       {
         var newVal = value ?? c_NewLinePlaceholderDefault;
-        if (m_NewLinePlaceholder.Equals(newVal, StringComparison.OrdinalIgnoreCase)) return;
+        if (m_NewLinePlaceholder.Equals(newVal, StringComparison.OrdinalIgnoreCase))
+          return;
         m_NewLinePlaceholder = newVal;
         NotifyPropertyChanged(nameof(NewLinePlaceholder));
       }
@@ -259,7 +266,8 @@ namespace CsvTools
 
       set
       {
-        if (m_QualifyOnlyIfNeeded.Equals(value)) return;
+        if (m_QualifyOnlyIfNeeded.Equals(value))
+          return;
         m_QualifyOnlyIfNeeded = value;
         NotifyPropertyChanged(nameof(QualifyOnlyIfNeeded));
       }
@@ -276,7 +284,8 @@ namespace CsvTools
       get => m_QualifyAlways;
       set
       {
-        if (m_QualifyAlways.Equals(value)) return;
+        if (m_QualifyAlways.Equals(value))
+          return;
         m_QualifyAlways = value;
         NotifyPropertyChanged(nameof(QualifyAlways));
       }
@@ -298,7 +307,8 @@ namespace CsvTools
       set
       {
         var newVal = (value ?? string.Empty).Trim();
-        if (m_QuotePlaceholder.Equals(newVal, StringComparison.Ordinal)) return;
+        if (m_QuotePlaceholder.Equals(newVal, StringComparison.Ordinal))
+          return;
         m_QuotePlaceholder = newVal;
         NotifyPropertyChanged(nameof(QuotePlaceholder));
       }
@@ -320,7 +330,8 @@ namespace CsvTools
       set
       {
         var newVal = value ?? new ValueFormat();
-        if (m_ValueFormat.Equals(newVal)) return;
+        if (m_ValueFormat.Equals(newVal))
+          return;
         m_ValueFormat = newVal;
         NotifyPropertyChanged(nameof(ValueFormat));
       }
@@ -387,8 +398,10 @@ namespace CsvTools
     /// </returns>
     public bool Equals(FileFormat other)
     {
-      if (other is null) return false;
-      if (ReferenceEquals(this, other)) return true;
+      if (other is null)
+        return false;
+      if (ReferenceEquals(this, other))
+        return true;
       return string.Equals(m_CommentLine, other.m_CommentLine, StringComparison.Ordinal) &&
              string.Equals(m_DelimiterPlaceholder, other.m_DelimiterPlaceholder, StringComparison.Ordinal) &&
              string.Equals(m_EscapeCharacter, other.m_EscapeCharacter, StringComparison.Ordinal) &&
@@ -435,25 +448,61 @@ namespace CsvTools
 
       switch (inputString.WrittenPunctuationToChar())
       {
-        case '\t': return "Horizontal Tab";
-        case ' ': return "Space";
-        case (char)0xA0: return "Non-breaking space";
-        case '\\': return "Backslash: \\";
-        case '/': return "Slash: /";
-        case ',': return "Comma: ,";
-        case ';': return "Semicolon: ;";
-        case ':': return "Colon: :";
-        case '|': return "Pipe: |";
-        case '\"': return "Quotation marks: \"";
-        case '\'': return "Apostrophe: \'";
-        case '&': return "Ampersand: &";
-        case '*': return "Asterisk: *";
-        case '`': return "Tick Mark: `";
-        case '✓': return "Check mark: ✓";
-        case '\u001F': return "Unit Separator: Char 31";
-        case '\u001E': return "Record Separator: Char 30";
-        case '\u001D': return "Group Separator: Char 29";
-        case '\u001C': return "File Separator: Char 28";
+        case '\t':
+          return "Horizontal Tab";
+
+        case ' ':
+          return "Space";
+
+        case (char)0xA0:
+          return "Non-breaking space";
+
+        case '\\':
+          return "Backslash: \\";
+
+        case '/':
+          return "Slash: /";
+
+        case ',':
+          return "Comma: ,";
+
+        case ';':
+          return "Semicolon: ;";
+        case ':':
+          return "Colon: :";
+
+        case '|':
+          return "Pipe: |";
+
+        case '\"':
+          return "Quotation marks: \"";
+
+        case '\'':
+          return "Apostrophe: \'";
+
+        case '&':
+          return "Ampersand: &";
+
+        case '*':
+          return "Asterisk: *";
+
+        case '`':
+          return "Tick Mark: `";
+
+        case '✓':
+          return "Check mark: ✓";
+
+        case '\u001F':
+          return "Unit Separator: Char 31";
+
+        case '\u001E':
+          return "Record Separator: Char 30";
+
+        case '\u001D':
+          return "Group Separator: Char 29";
+
+        case '\u001C':
+          return "File Separator: Char 28";
 
         default:
           return inputString;
@@ -464,10 +513,7 @@ namespace CsvTools
     ///   Notifies the property changed.
     /// </summary>
     /// <param name="info">The info.</param>
-    public virtual void NotifyPropertyChanged(string info)
-    {
-      PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(info));
-    }
+    public virtual void NotifyPropertyChanged(string info) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(info));
 
     /// <summary>
     ///   Returns a <see cref="string" /> that represents this instance.
@@ -475,7 +521,8 @@ namespace CsvTools
     /// <returns>A <see cref="string" /> that represents this instance.</returns>
     public override string ToString()
     {
-      if (IsFixedLength) return "FixedLength";
+      if (IsFixedLength)
+        return "FixedLength";
       return m_FieldDelimiter + " " + m_FieldQualifier;
     }
 
