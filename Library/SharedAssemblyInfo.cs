@@ -4,7 +4,6 @@ using System.Reflection;
 // General Information about an assembly is controlled through the following set of attributes.
 // Change these attribute values to modify the information associated with an assembly.
 [assembly: AssemblyCopyright("Copyright (c) Raphael Nöldner 2014")]
-
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: CLSCompliant(false)]
@@ -15,6 +14,6 @@ using System.Reflection;
 //
 // You can specify all the values or you can default the Build and Revision Numbers by using the '*'
 // as shown below: [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.6.3.360")]
-[assembly: AssemblyFileVersion("1.6.3.360")]
-[assembly: AssemblyInformationalVersion("1.6.3.360")] // a.k.a. "Product version"
+[assembly: AssemblyVersion("1.6.3.365")]
+[assembly: AssemblyFileVersion("1.6.3.365")]
+[assembly: AssemblyInformationalVersion("1.6.3.365")] // a.k.a. "Product version"

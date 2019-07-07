@@ -1,4 +1,4 @@
-﻿/*      
+﻿/*
  * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com/
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
@@ -61,7 +61,7 @@ namespace CsvTools
 
     private void UpdateLabel()
     {
-      int displ = Convert.ToInt32((m_Duration - (m_Counter * timer.Interval) / 1000 + .75));
+      var displ = Convert.ToInt32((m_Duration - (m_Counter * timer.Interval) / 1000 + .75));
       if (displ > 0)
       {
         label.Text = $"Default in {displ:N0} seconds";

@@ -12,7 +12,6 @@
  *
  */
 
-
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -58,15 +57,9 @@ namespace CsvTools
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
-    private void ComboBoxID_SelectedIndexChanged(object sender, EventArgs e)
-    {
-      Work(comboBoxID.Text, checkBoxIgnoreNull.Checked);
-    }
+    private void ComboBoxID_SelectedIndexChanged(object sender, EventArgs e) => Work(comboBoxID.Text, checkBoxIgnoreNull.Checked);
 
-    private void UniqueDisplay_FormClosing(object sender, FormClosingEventArgs e)
-    {
-      m_CancellationTokenSource.Cancel();
-    }
+    private void UniqueDisplay_FormClosing(object sender, FormClosingEventArgs e) => m_CancellationTokenSource.Cancel();
 
     /// <summary>
     ///   Handles the Load event of the HirachyDisplay control.
@@ -128,7 +121,8 @@ namespace CsvTools
               display.SetProcess("Getting Unique values", rowIdex);
             });
             var id = m_DataRow[rowIdex][dataColumnID.Ordinal].ToString().Trim();
-            if (ignoreNull && string.IsNullOrEmpty(id)) continue;
+            if (ignoreNull && string.IsNullOrEmpty(id))
+              continue;
             if (!dictIDToRow.ContainsKey(id))
               dictIDToRow.Add(id, rowIdex);
           }

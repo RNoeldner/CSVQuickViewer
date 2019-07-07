@@ -126,8 +126,10 @@ namespace CsvTools
     /// </returns>
     public bool Equals(Mapping other)
     {
-      if (other is null) return false;
-      if (ReferenceEquals(this, other)) return true;
+      if (other is null)
+        return false;
+      if (ReferenceEquals(this, other))
+        return true;
       return m_Attention == other.m_Attention && m_Update == other.m_Update &&
              string.Equals(m_FileColumn, other.m_FileColumn, StringComparison.OrdinalIgnoreCase) &&
              string.Equals(m_TemplateField, other.m_TemplateField, StringComparison.OrdinalIgnoreCase);

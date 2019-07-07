@@ -23,9 +23,7 @@ namespace CsvTools
   ///   Setting for StructuredFile
   /// </summary>
   [Serializable]
-#pragma warning disable CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
   public class StructuredFile : BaseSettings, IFileSettingPhysicalFile, IEquatable<StructuredFile>
-#pragma warning restore CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
   {
     private readonly string m_Footer = string.Empty;
     private readonly string m_Header = string.Empty;
@@ -59,7 +57,8 @@ namespace CsvTools
       get => m_JSONEncode;
       set
       {
-        if (m_JSONEncode == value) return;
+        if (m_JSONEncode == value)
+          return;
         m_JSONEncode = value;
         NotifyPropertyChanged(nameof(JSONEncode));
       }
@@ -77,7 +76,8 @@ namespace CsvTools
       set
       {
         var newVal = value ?? string.Empty;
-        if (m_Row.Equals(newVal, StringComparison.Ordinal)) return;
+        if (m_Row.Equals(newVal, StringComparison.Ordinal))
+          return;
         m_Row = newVal;
         NotifyPropertyChanged(nameof(Row));
       }
@@ -93,7 +93,8 @@ namespace CsvTools
       get => m_XMLEncode;
       set
       {
-        if (m_XMLEncode == value) return;
+        if (m_XMLEncode == value)
+          return;
         m_XMLEncode = value;
         NotifyPropertyChanged(nameof(XMLEncode));
       }
@@ -121,7 +122,8 @@ namespace CsvTools
         return;
       BaseSettingsCopyTo((BaseSettings)other);
 
-      if (!(other is StructuredFile otherSwf)) return;
+      if (!(other is StructuredFile otherSwf))
+        return;
       otherSwf.Header = m_Header;
       otherSwf.Footer = m_Footer;
       otherSwf.Row = m_Row;
@@ -137,17 +139,16 @@ namespace CsvTools
     /// </returns>
     public bool Equals(StructuredFile other)
     {
-      if (other is null) return false;
-      if (ReferenceEquals(this, other)) return true;
+      if (other is null)
+        return false;
+      if (ReferenceEquals(this, other))
+        return true;
       return BaseSettingsEquals(other as BaseSettings) && string.Equals(m_Footer, other.Footer, StringComparison.OrdinalIgnoreCase) && string.Equals(m_Header, other.Header, StringComparison.OrdinalIgnoreCase) &&
              m_JSONEncode == other.JSONEncode && string.Equals(m_Row, other.Row, StringComparison.Ordinal) &&
              m_XMLEncode == other.XMLEncode;
     }
 
-    public bool Equals(IFileSetting other)
-    {
-      return Equals(other as StructuredFile);
-    }
+    public bool Equals(IFileSetting other) => Equals(other as StructuredFile);
 
     /// <summary>Determines whether the specified object is equal to the current object.</summary>
     /// <param name="obj">The object to compare with the current object. </param>
@@ -156,8 +157,10 @@ namespace CsvTools
     /// </returns>
     public override bool Equals(object obj)
     {
-      if (obj is null) return false;
-      if (ReferenceEquals(this, obj)) return true;
+      if (obj is null)
+        return false;
+      if (ReferenceEquals(this, obj))
+        return true;
       return (obj is StructuredFile typed) && Equals(typed);
     }
 
@@ -173,10 +176,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns></returns>
-    public override IFileWriter GetFileWriter(IProcessDisplay processDisplay)
-    {
-      return new StructuredFileWriter(this, processDisplay);
-    }
+    public override IFileWriter GetFileWriter(IProcessDisplay processDisplay) => new StructuredFileWriter(this, processDisplay);
 
     /*
     /// <summary>Serves as the default hash function. </summary>

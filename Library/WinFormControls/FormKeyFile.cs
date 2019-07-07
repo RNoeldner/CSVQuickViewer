@@ -12,10 +12,10 @@
  *
  */
 
-using Pri.LongPath;
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using Pri.LongPath;
 
 namespace CsvTools
 {
@@ -93,9 +93,9 @@ namespace CsvTools
       m_SplitContainer1.Panel2.SuspendLayout();
       m_SplitContainer1.SuspendLayout();
       SuspendLayout();
-      // 
+      //
       // m_BtnOk
-      // 
+      //
       m_BtnOk.Anchor = (System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right);
       m_BtnOk.DialogResult = System.Windows.Forms.DialogResult.OK;
       m_BtnOk.Location = new System.Drawing.Point(474, 2);
@@ -104,9 +104,9 @@ namespace CsvTools
       m_BtnOk.TabIndex = 0;
       m_BtnOk.Text = "OK";
       m_BtnOk.Click += new System.EventHandler(BtnOK_Click);
-      // 
+      //
       // textBox
-      // 
+      //
       textBox.AcceptsReturn = true;
       textBox.AllowDrop = true;
       textBox.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -120,9 +120,9 @@ namespace CsvTools
       textBox.DragEnter += new System.Windows.Forms.DragEventHandler(TextBox_DragEnter);
       textBox.Enter += new System.EventHandler(TextBox_Enter);
       textBox.Leave += new System.EventHandler(TextBox_Leave);
-      // 
+      //
       // m_BtnCancel
-      // 
+      //
       m_BtnCancel.Anchor = (System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right);
       m_BtnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
       m_BtnCancel.Location = new System.Drawing.Point(407, 2);
@@ -131,39 +131,39 @@ namespace CsvTools
       m_BtnCancel.TabIndex = 4;
       m_BtnCancel.Text = "Cancel";
       m_BtnCancel.Click += new System.EventHandler(BtnCancel_Click);
-      // 
+      //
       // m_Label1
-      // 
+      //
       m_Label1.AutoSize = true;
       m_Label1.Location = new System.Drawing.Point(6, 7);
       m_Label1.Name = "m_Label1";
       m_Label1.Size = new System.Drawing.Size(144, 13);
       m_Label1.TabIndex = 5;
       m_Label1.Text = "(The text is stored encrypted)";
-      // 
+      //
       // m_SplitContainer1
-      // 
+      //
       m_SplitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
       m_SplitContainer1.FixedPanel = System.Windows.Forms.FixedPanel.Panel2;
       m_SplitContainer1.Location = new System.Drawing.Point(0, 0);
       m_SplitContainer1.Name = "m_SplitContainer1";
       m_SplitContainer1.Orientation = System.Windows.Forms.Orientation.Horizontal;
-      // 
+      //
       // m_SplitContainer1.Panel1
-      // 
+      //
       m_SplitContainer1.Panel1.Controls.Add(textBox);
-      // 
+      //
       // m_SplitContainer1.Panel2
-      // 
+      //
       m_SplitContainer1.Panel2.Controls.Add(m_Label1);
       m_SplitContainer1.Panel2.Controls.Add(m_BtnCancel);
       m_SplitContainer1.Panel2.Controls.Add(m_BtnOk);
       m_SplitContainer1.Size = new System.Drawing.Size(538, 408);
       m_SplitContainer1.SplitterDistance = 377;
       m_SplitContainer1.TabIndex = 6;
-      // 
+      //
       // FormKeyFile
-      // 
+      //
       AcceptButton = m_BtnOk;
       AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -185,7 +185,6 @@ namespace CsvTools
       ((System.ComponentModel.ISupportInitialize)(m_SplitContainer1)).EndInit();
       m_SplitContainer1.ResumeLayout(false);
       ResumeLayout(false);
-
     }
 
     private void TextBox_DragDrop(object sender, DragEventArgs e)
@@ -235,7 +234,8 @@ namespace CsvTools
 
     private void TextBox_Leave(object sender, EventArgs e)
     {
-      if (!string.IsNullOrEmpty(textBox.Text)) return;
+      if (!string.IsNullOrEmpty(textBox.Text))
+        return;
       textBox.Text = c_Default;
       textBox.ForeColor = SystemColors.GrayText;
     }

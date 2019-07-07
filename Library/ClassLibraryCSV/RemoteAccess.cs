@@ -57,7 +57,8 @@ namespace CsvTools
       get => m_Protocol;
       set
       {
-        if (m_Protocol.Equals(value)) return;
+        if (m_Protocol.Equals(value))
+          return;
         m_Protocol = value;
         NotifyPropertyChanged(nameof(Protocol));
       }
@@ -69,10 +70,11 @@ namespace CsvTools
     [ReadOnly(false)]
     public int Port
     {
-      get { return m_Port; }
+      get => m_Port;
       set
       {
-        if (value.Equals(m_Port)) return;
+        if (value.Equals(m_Port))
+          return;
         m_Port = value;
         NotifyPropertyChanged(nameof(Port));
       }
@@ -88,7 +90,8 @@ namespace CsvTools
       set
       {
         var newVal = value ?? string.Empty;
-        if (m_HostName.Equals(newVal)) return;
+        if (m_HostName.Equals(newVal))
+          return;
         m_HostName = newVal;
         NotifyPropertyChanged(nameof(HostName));
         NotifyPropertyChanged(nameof(CanConnect));
@@ -105,7 +108,8 @@ namespace CsvTools
       set
       {
         var newVal = value ?? string.Empty;
-        if (m_User.Equals(newVal)) return;
+        if (m_User.Equals(newVal))
+          return;
         m_User = newVal;
         NotifyPropertyChanged(nameof(User));
       }
@@ -121,7 +125,8 @@ namespace CsvTools
       set
       {
         var newVal = value ?? string.Empty;
-        if (m_EncryptedPassword.Equals(newVal)) return;
+        if (m_EncryptedPassword.Equals(newVal))
+          return;
         m_EncryptedPassword = newVal;
         NotifyPropertyChanged(nameof(Password));
       }
@@ -152,8 +157,10 @@ namespace CsvTools
     /// </returns>
     public bool Equals(RemoteAccess other)
     {
-      if (other is null) return false;
-      if (ReferenceEquals(this, other)) return true;
+      if (other is null)
+        return false;
+      if (ReferenceEquals(this, other))
+        return true;
       return string.Equals(Password, other.Password) && m_Protocol == other.Protocol &&
              string.Equals(HostName, other.HostName, StringComparison.OrdinalIgnoreCase) &&
              string.Equals(User, other.User, StringComparison.OrdinalIgnoreCase);
@@ -176,7 +183,6 @@ namespace CsvTools
     ///   <see langword="true" /> if the specified object  is equal to the current object; otherwise, <see langword="false" />.
     /// </returns>
     public override bool Equals(object obj) => Equals(obj as RemoteAccess);
-
 
     /// <summary>Serves as the default hash function. </summary>
     /// <returns>A hash code for the current object.</returns>

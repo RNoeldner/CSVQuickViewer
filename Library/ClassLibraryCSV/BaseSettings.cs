@@ -81,9 +81,11 @@ namespace CsvTools
     /// </summary>
     protected BaseSettings()
     {
-      GetEncryptedPassphraseFunction = delegate () { if (!string.IsNullOrEmpty(Passphrase)) return Passphrase; if (!string.IsNullOrEmpty(ApplicationSetting.PGPKeyStorage.EncryptedPassphase)) return ApplicationSetting.PGPKeyStorage.EncryptedPassphase; return string.Empty; };
+      GetEncryptedPassphraseFunction = delegate ()
+      { if (!string.IsNullOrEmpty(Passphrase)) return Passphrase; if (!string.IsNullOrEmpty(ApplicationSetting.PGPKeyStorage.EncryptedPassphase)) return ApplicationSetting.PGPKeyStorage.EncryptedPassphase; return string.Empty; };
       ColumnCollection.CollectionChanged += ColumnCollectionChanged;
-      MappingCollection.PropertyChanged += delegate { NotifyPropertyChanged(nameof(MappingCollection)); };
+      MappingCollection.PropertyChanged += delegate
+      { NotifyPropertyChanged(nameof(MappingCollection)); };
     }
 
     private void ColumnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -180,7 +182,8 @@ namespace CsvTools
       set
       {
         var newVal = value ?? string.Empty;
-        if (m_RemoteFileName.Equals(newVal, StringComparison.Ordinal)) return;
+        if (m_RemoteFileName.Equals(newVal, StringComparison.Ordinal))
+          return;
 
         m_RemoteFileName = newVal;
         NotifyPropertyChanged(nameof(RemoteFileName));
@@ -198,7 +201,8 @@ namespace CsvTools
       get => m_ThrowErrorIfNotExists;
       set
       {
-        if (m_ThrowErrorIfNotExists.Equals(value)) return;
+        if (m_ThrowErrorIfNotExists.Equals(value))
+          return;
         m_ThrowErrorIfNotExists = value;
         NotifyPropertyChanged(nameof(ThrowErrorIfNotExists));
       }
@@ -241,10 +245,12 @@ namespace CsvTools
     ///  <see langword="true" /> if the current object is equal to the <paramref name="other" /> parameter; otherwise,
     ///  <see langword="false" />.
     /// </returns>
-    protected bool BaseSettingsEquals(BaseSettings other)
+    protected virtual bool BaseSettingsEquals(BaseSettings other)
     {
-      if (other is null) return false;
-      if (ReferenceEquals(this, other)) return true;
+      if (other is null)
+        return false;
+      if (ReferenceEquals(this, other))
+        return true;
 
       if (other is IFileSettingPhysicalFile otherRemote)
       {
@@ -310,7 +316,8 @@ namespace CsvTools
 
       set
       {
-        if (m_ConsecutiveEmptyRows.Equals(value)) return;
+        if (m_ConsecutiveEmptyRows.Equals(value))
+          return;
         if (value < 0)
           value = 0;
         m_ConsecutiveEmptyRows = value;
@@ -339,7 +346,8 @@ namespace CsvTools
 
       set
       {
-        if (m_DisplayEndLineNo.Equals(value)) return;
+        if (m_DisplayEndLineNo.Equals(value))
+          return;
         m_DisplayEndLineNo = value;
         NotifyPropertyChanged(nameof(DisplayEndLineNo));
       }
@@ -357,7 +365,8 @@ namespace CsvTools
 
       set
       {
-        if (m_DisplayRecordNo.Equals(value)) return;
+        if (m_DisplayRecordNo.Equals(value))
+          return;
         m_DisplayRecordNo = value;
         NotifyPropertyChanged(nameof(DisplayRecordNo));
       }
@@ -375,7 +384,8 @@ namespace CsvTools
 
       set
       {
-        if (m_DisplayStartLineNo.Equals(value)) return;
+        if (m_DisplayStartLineNo.Equals(value))
+          return;
         m_DisplayStartLineNo = value;
         NotifyPropertyChanged(nameof(DisplayStartLineNo));
       }
@@ -387,7 +397,8 @@ namespace CsvTools
       set
       {
         var newVal = value ?? new ObservableCollection<SampleRecordEntry>();
-        if (m_Errors.CollectionEqualWithOrder(newVal)) return;
+        if (m_Errors.CollectionEqualWithOrder(newVal))
+          return;
         m_Errors = newVal;
         NotifyPropertyChanged(nameof(Errors));
         if (m_NumErrors > 0 && Errors.Count > m_NumErrors)
@@ -418,7 +429,8 @@ namespace CsvTools
 
       set
       {
-        if (m_FileLastWriteTimeUtc.Equals(value)) return;
+        if (m_FileLastWriteTimeUtc.Equals(value))
+          return;
         m_FileLastWriteTimeUtc = value;
         NotifyPropertyChanged(nameof(FileLastWriteTimeUtc));
       }
@@ -439,7 +451,8 @@ namespace CsvTools
         if (newVal.StartsWith(".\\", StringComparison.Ordinal))
           newVal = newVal.Substring(2);
 
-        if (m_FileName.Equals(newVal, StringComparison.Ordinal)) return;
+        if (m_FileName.Equals(newVal, StringComparison.Ordinal))
+          return;
         var oldValue = m_FileName;
         m_FileName = newVal;
         m_FullPath = null;
@@ -459,7 +472,8 @@ namespace CsvTools
       get => m_FileSize;
       set
       {
-        if (value == m_FileSize) return;
+        if (value == m_FileSize)
+          return;
         m_FileSize = value;
         NotifyPropertyChanged(nameof(FileSize));
       }
@@ -477,7 +491,8 @@ namespace CsvTools
       set
       {
         var newVal = StringUtils.HandleCRLFCombinations(value ?? string.Empty, Environment.NewLine);
-        if (m_Footer.Equals(newVal, StringComparison.Ordinal)) return;
+        if (m_Footer.Equals(newVal, StringComparison.Ordinal))
+          return;
         m_Footer = newVal;
         NotifyPropertyChanged(nameof(Footer));
       }
@@ -520,7 +535,8 @@ namespace CsvTools
       get => m_HasFieldHeader;
       set
       {
-        if (m_HasFieldHeader.Equals(value)) return;
+        if (m_HasFieldHeader.Equals(value))
+          return;
         m_HasFieldHeader = value;
         NotifyPropertyChanged(nameof(HasFieldHeader));
       }
@@ -538,7 +554,8 @@ namespace CsvTools
       set
       {
         var newVal = StringUtils.HandleCRLFCombinations(value ?? string.Empty, Environment.NewLine);
-        if (m_Header.Equals(newVal, StringComparison.Ordinal)) return;
+        if (m_Header.Equals(newVal, StringComparison.Ordinal))
+          return;
         m_Header = newVal;
         NotifyPropertyChanged(nameof(Header));
       }
@@ -559,7 +576,8 @@ namespace CsvTools
       set
       {
         var newVal = value ?? string.Empty;
-        if (m_Id.Equals(newVal, StringComparison.Ordinal)) return;
+        if (m_Id.Equals(newVal, StringComparison.Ordinal))
+          return;
 
         var oldValue = m_Id;
         m_Id = newVal;
@@ -580,7 +598,8 @@ namespace CsvTools
 
       set
       {
-        if (m_InOverview.Equals(value)) return;
+        if (m_InOverview.Equals(value))
+          return;
         m_InOverview = value;
         NotifyPropertyChanged(nameof(InOverview));
       }
@@ -604,7 +623,8 @@ namespace CsvTools
 
       set
       {
-        if (m_IsEnabled.Equals(value)) return;
+        if (m_IsEnabled.Equals(value))
+          return;
         m_IsEnabled = value;
         NotifyPropertyChanged(nameof(IsEnabled));
       }
@@ -638,7 +658,8 @@ namespace CsvTools
         // can not be smaller than the number of named errors
         if (Errors.Count > 0 && value < Errors.Count)
           value = Errors.Count;
-        if (m_NumErrors == value) return;
+        if (m_NumErrors == value)
+          return;
         m_NumErrors = value;
         NotifyPropertyChanged(nameof(NumErrors));
       }
@@ -673,7 +694,8 @@ namespace CsvTools
       set
       {
         var newVal = (value ?? string.Empty).Trim();
-        if (m_Recipient.Equals(newVal, StringComparison.Ordinal)) return;
+        if (m_Recipient.Equals(newVal, StringComparison.Ordinal))
+          return;
         m_Recipient = newVal;
         NotifyPropertyChanged(nameof(Recipient));
       }
@@ -691,7 +713,8 @@ namespace CsvTools
 
       set
       {
-        if (m_RecordLimit.Equals(value)) return;
+        if (m_RecordLimit.Equals(value))
+          return;
         m_RecordLimit = value;
         NotifyPropertyChanged(nameof(RecordLimit));
       }
@@ -703,11 +726,13 @@ namespace CsvTools
       set
       {
         var newVal = value ?? new ObservableCollection<SampleRecordEntry>();
-        if (m_Samples.CollectionEqualWithOrder(newVal)) return;
+        if (m_Samples.CollectionEqualWithOrder(newVal))
+          return;
         m_Samples = newVal;
         NotifyPropertyChanged(nameof(Samples));
       }
     }
+
     /// <summary>
     ///  Gets or sets a value indicating whether to show progress.
     /// </summary>
@@ -722,7 +747,8 @@ namespace CsvTools
 
       set
       {
-        if (m_ShowProgress.Equals(value)) return;
+        if (m_ShowProgress.Equals(value))
+          return;
         m_ShowProgress = value;
         NotifyPropertyChanged(nameof(ShowProgress));
       }
@@ -739,7 +765,8 @@ namespace CsvTools
       get => m_SkipEmptyLines;
       set
       {
-        if (m_SkipEmptyLines.Equals(value)) return;
+        if (m_SkipEmptyLines.Equals(value))
+          return;
         m_SkipEmptyLines = value;
         NotifyPropertyChanged(nameof(SkipEmptyLines));
       }
@@ -752,7 +779,8 @@ namespace CsvTools
       get => m_SkipDuplicateHeader;
       set
       {
-        if (m_SkipDuplicateHeader.Equals(value)) return;
+        if (m_SkipDuplicateHeader.Equals(value))
+          return;
         m_SkipDuplicateHeader = value;
         NotifyPropertyChanged(nameof(SkipDuplicateHeader));
       }
@@ -770,7 +798,8 @@ namespace CsvTools
 
       set
       {
-        if (m_SkipRows.Equals(value)) return;
+        if (m_SkipRows.Equals(value))
+          return;
         m_SkipRows = value;
         NotifyPropertyChanged(nameof(SkipRows));
       }
@@ -793,7 +822,8 @@ namespace CsvTools
       set
       {
         var newVal = (value ?? string.Empty).NoControlCharaters();
-        if (m_SqlStatement.Equals(newVal, StringComparison.Ordinal)) return;
+        if (m_SqlStatement.Equals(newVal, StringComparison.Ordinal))
+          return;
         if (!string.IsNullOrEmpty(m_SqlStatement))
           FileLastWriteTimeUtc = DateTime.MinValue;
         m_SqlStatement = newVal;
@@ -814,7 +844,8 @@ namespace CsvTools
 
       set
       {
-        if (m_SqlTimeout.Equals(value)) return;
+        if (m_SqlTimeout.Equals(value))
+          return;
         m_SqlTimeout = value;
         NotifyPropertyChanged(nameof(SQLTimeout));
       }
@@ -837,7 +868,8 @@ namespace CsvTools
       set
       {
         var newVal = value ?? string.Empty;
-        if (m_TemplateName.Equals(newVal, StringComparison.Ordinal)) return;
+        if (m_TemplateName.Equals(newVal, StringComparison.Ordinal))
+          return;
         m_TemplateName = newVal;
         NotifyPropertyChanged(nameof(TemplateName));
       }
@@ -855,7 +887,8 @@ namespace CsvTools
 
       set
       {
-        if (m_TreatNbspAsSpace.Equals(value)) return;
+        if (m_TreatNbspAsSpace.Equals(value))
+          return;
         m_TreatNbspAsSpace = value;
         NotifyPropertyChanged(nameof(TreatNBSPAsSpace));
       }
@@ -876,7 +909,8 @@ namespace CsvTools
       set
       {
         var newVal = value ?? string.Empty;
-        if (m_TreatTextAsNull.Equals(newVal, StringComparison.Ordinal)) return;
+        if (m_TreatTextAsNull.Equals(newVal, StringComparison.Ordinal))
+          return;
         m_TreatTextAsNull = newVal;
         NotifyPropertyChanged(nameof(TreatTextAsNull));
       }
@@ -905,7 +939,8 @@ namespace CsvTools
 
       set
       {
-        if (m_Validate.Equals(value)) return;
+        if (m_Validate.Equals(value))
+          return;
         m_Validate = value;
         NotifyPropertyChanged(nameof(Validate));
       }
@@ -919,7 +954,8 @@ namespace CsvTools
       get => m_ValidationResult;
       set
       {
-        if (m_ValidationResult != null && m_ValidationResult.Equals(value)) return;
+        if (m_ValidationResult != null && m_ValidationResult.Equals(value))
+          return;
         m_ValidationResult = value;
         NotifyPropertyChanged(nameof(ValidationResult));
       }
@@ -935,7 +971,7 @@ namespace CsvTools
     ///  Copies all values to other instance
     /// </summary>
     /// <param name="other">The other.</param>
-    protected void BaseSettingsCopyTo(BaseSettings other)
+    protected virtual void BaseSettingsCopyTo(BaseSettings other)
     {
       if (other == null)
         return;
@@ -1021,13 +1057,12 @@ namespace CsvTools
         MappingCollection.Remove(fieldMapping);
     }
 
-
     /*
      public abstract override int GetHashCode();
 
     /// <summary>Serves as the default hash function. </summary>
     /// <returns>A hash code for the current object.</returns>
-    protected int GetBaseHashCode()
+    protected virtual int GetBaseHashCode()
     {
      unchecked
      {
@@ -1078,7 +1113,8 @@ namespace CsvTools
     /// <param name="info">The info.</param>
     public virtual void NotifyPropertyChanged(string info)
     {
-      if (PropertyChanged == null) return;
+      if (PropertyChanged == null)
+        return;
       try
       {
         // ReSharper disable once PolymorphicFieldLikeEventInvocation

@@ -36,13 +36,7 @@ namespace CsvTools
     private string TempFile;
     private string WritePath;
 
-    public double Percentage
-    {
-      get
-      {
-        return ((double)BaseStream.Position) / BaseStream.Length;
-      }
-    }
+    public double Percentage => ((double)BaseStream.Position) / BaseStream.Length;
 
     public Stream Stream { get; set; }
     private FileStream BaseStream { get; set; }
@@ -256,7 +250,7 @@ namespace CsvTools
       // b) upload the data to sFTP
       if (WritePath.AssumeGZip() || WritePath.AssumePgp())
       {
-        bool selfOpened = false;
+        var selfOpened = false;
         if (ProcessDisplay == null)
         {
           selfOpened = true;
@@ -291,7 +285,6 @@ namespace CsvTools
 
                     action.Invoke(() =>
                     {
-
                       if (ProcessDisplay is IProcessDisplayTime processDispayTime)
                       {
                         processDispayTime.TimeToCompletion.Value = processed;
@@ -331,13 +324,9 @@ namespace CsvTools
     private bool disposedValue = false; // To detect redundant calls
 
     // This code added to correctly implement the disposable pattern.
-    public void Dispose()
-    {
+    public void Dispose() =>
       // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
-      Dispose(true);
-      // TODO: uncomment the following line if the finalizer is overridden above.
-      // GC.SuppressFinalize(this);
-    }
+      Dispose(true);// TODO: uncomment the following line if the finalizer is overridden above.// GC.SuppressFinalize(this);
 
     protected virtual void Dispose(bool disposing)
     {

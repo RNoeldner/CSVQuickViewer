@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 using System;
 using System.Collections.Generic;
 
@@ -25,10 +26,7 @@ namespace CsvTools
     private readonly int m_ExcpectedColumns;
     private readonly List<string[]> m_GoodRows = new List<string[]>();
 
-    public ReAlignColumns(int excpectedColumns)
-    {
-      m_ExcpectedColumns = excpectedColumns;
-    }
+    public ReAlignColumns(int excpectedColumns) => m_ExcpectedColumns = excpectedColumns;
 
     [Flags]
     private enum ColumnOption
@@ -73,8 +71,8 @@ namespace CsvTools
       var columns = new List<string>(row);
 
       //Get the Options for all good rows
-      List<ColumnOption> otherColumns = new List<ColumnOption>(m_ExcpectedColumns);
-      for (int col2 = 0; col2 < m_ExcpectedColumns; col2++)
+      var otherColumns = new List<ColumnOption>(m_ExcpectedColumns);
+      for (var col2 = 0; col2 < m_ExcpectedColumns; col2++)
         otherColumns.Add(GetColumnOptionAllRows(col2, m_GoodRows));
 
       if (row.Length == m_ExcpectedColumns * 2 - 1 && m_GoodRows.Count == 0)
@@ -88,7 +86,7 @@ namespace CsvTools
       }
       else
       {
-        int col = 1;
+        var col = 1;
         while (col < columns.Count && col < m_ExcpectedColumns && columns.Count != m_ExcpectedColumns)
         {
           if (otherColumns[col] != ColumnOption.None)
@@ -116,7 +114,7 @@ namespace CsvTools
     {
       if (string.IsNullOrEmpty(text))
         return ColumnOption.Empty;
-      ColumnOption all = ColumnOption.NumbersOnly | ColumnOption.DecimalChars | ColumnOption.DateTimeChars | ColumnOption.Word;
+      var all = ColumnOption.NumbersOnly | ColumnOption.DecimalChars | ColumnOption.DateTimeChars | ColumnOption.Word;
       if (text.Length <= 40)
         all |= ColumnOption.ShortText;
       if (text.Length <= 10)

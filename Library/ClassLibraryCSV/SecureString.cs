@@ -24,14 +24,10 @@ namespace CsvTools
   /// </summary>
   public static class SecureString
   {
-#pragma warning disable CA2211 // Non-constant fields should not be visible
-
     /// <summary>
     /// A central Random instance that should be decently random, please use for any random number generation
     /// </summary>
     public static Random Random = new Random(Guid.NewGuid().GetHashCode());
-
-#pragma warning restore CA2211 // Non-constant fields should not be visible
 
     private const int c_SlatSize = 8;
     private const int c_SlatSplit = 3;
@@ -67,8 +63,10 @@ namespace CsvTools
       var salt = cipherText.Substring(0, c_SlatSplit) + cipherText.Substring(cipherText.Length - (c_SlatSize - c_SlatSplit));
       var base64 = cipherText.Substring(c_SlatSplit, cipherText.Length - c_SlatSize);
       // add the possibly removed padding
-      if (base64.Length % 4 != 0) base64 += "=";
-      if (base64.Length % 4 != 0) base64 += "=";
+      if (base64.Length % 4 != 0)
+        base64 += "=";
+      if (base64.Length % 4 != 0)
+        base64 += "=";
       var cipherTextBytes = Convert.FromBase64String(base64);
       var symmetricKey = new RijndaelManaged { Mode = CipherMode.CBC };
       var decryptor =

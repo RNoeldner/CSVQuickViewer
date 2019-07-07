@@ -45,7 +45,8 @@ namespace CsvTools
     /// <param name="subResult">The sub result.</param>
     public void KeepBestPossibleMatch(CheckResult subResult)
     {
-      if (subResult == null || !subResult.PossibleMatch) return;
+      if (subResult == null || !subResult.PossibleMatch)
+        return;
 
       if (PossibleMatch == false || subResult.ExampleNonMatch.Count < ExampleNonMatch.Count)
       {
@@ -55,7 +56,8 @@ namespace CsvTools
 
         foreach (var ex in subResult.ExampleNonMatch)
         {
-          if (string.IsNullOrEmpty(ex)) continue;
+          if (string.IsNullOrEmpty(ex))
+            continue;
           ExampleNonMatch.Add(ex);
         }
       }

@@ -111,8 +111,10 @@ namespace CsvTools
     /// </returns>
     public bool Equals(ColumnSize other)
     {
-      if (other is null) return false;
-      if (ReferenceEquals(this, other)) return true;
+      if (other is null)
+        return false;
+      if (ReferenceEquals(this, other))
+        return true;
       return string.Equals(m_ColumnName, other.m_ColumnName, StringComparison.OrdinalIgnoreCase) &&
              m_ColumnOrdinal == other.m_ColumnOrdinal && m_Size == other.m_Size;
     }

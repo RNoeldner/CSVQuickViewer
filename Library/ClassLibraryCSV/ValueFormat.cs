@@ -12,8 +12,6 @@
  *
  */
 
-#region
-
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -22,8 +20,6 @@ using System.Globalization;
 using System.Text;
 using System.Xml.Serialization;
 
-#endregion
-
 namespace CsvTools
 {
   /// <summary>
@@ -31,9 +27,7 @@ namespace CsvTools
   /// </summary>
   [Serializable]
   [DebuggerDisplay("{DebuggerDisplay,nq}")]
-#pragma warning disable CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
   public class ValueFormat : ICloneable<ValueFormat>, IEquatable<ValueFormat>, INotifyPropertyChanged
-#pragma warning restore CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
   {
     /// <summary>
     ///   The default date format
@@ -97,7 +91,8 @@ namespace CsvTools
 
       set
       {
-        if (m_DataType.Equals(value)) return;
+        if (m_DataType.Equals(value))
+          return;
         m_DataType = value;
         NotifyPropertyChanged(nameof(DataType));
       }
@@ -115,7 +110,8 @@ namespace CsvTools
       set
       {
         var newVal = value ?? string.Empty;
-        if (m_DateFormat.Equals(newVal, StringComparison.Ordinal)) return;
+        if (m_DateFormat.Equals(newVal, StringComparison.Ordinal))
+          return;
         m_DateFormat = newVal;
         NotifyPropertyChanged(nameof(DateFormat));
       }
@@ -136,7 +132,8 @@ namespace CsvTools
         // Translate written punctuation into a character
         var chr = FileFormat.GetChar(value);
         var newVal = chr != '\0' ? chr.ToString(CultureInfo.CurrentCulture) : string.Empty;
-        if (m_DateSeparator.Equals(newVal, StringComparison.Ordinal)) return;
+        if (m_DateSeparator.Equals(newVal, StringComparison.Ordinal))
+          return;
         m_DateSeparator = newVal;
         NotifyPropertyChanged(nameof(DateSeparator));
       }
@@ -157,7 +154,8 @@ namespace CsvTools
         // Translate written punctuation into a character
         var chr = FileFormat.GetChar(value);
         var newVal = chr != '\0' ? chr.ToString(CultureInfo.CurrentCulture) : string.Empty;
-        if (m_DecimalSeparator.Equals(newVal, StringComparison.Ordinal)) return;
+        if (m_DecimalSeparator.Equals(newVal, StringComparison.Ordinal))
+          return;
         // If we set the DecimalSeparator to be the Group separator, store the old
         // DecimalSeparator in the group separator;
         if (m_GroupSeparator.Equals(newVal, StringComparison.Ordinal))
@@ -185,7 +183,8 @@ namespace CsvTools
       set
       {
         var newVal = value ?? string.Empty;
-        if (m_False.Equals(newVal, StringComparison.Ordinal)) return;
+        if (m_False.Equals(newVal, StringComparison.Ordinal))
+          return;
         m_False = newVal;
         NotifyPropertyChanged(nameof(False));
       }
@@ -205,7 +204,8 @@ namespace CsvTools
         var chr = FileFormat.GetChar(value);
         var newVal = chr != '\0' ? chr.ToString(CultureInfo.CurrentCulture) : string.Empty;
 
-        if (m_GroupSeparator.Equals(newVal, StringComparison.Ordinal)) return;
+        if (m_GroupSeparator.Equals(newVal, StringComparison.Ordinal))
+          return;
         // If we set the DecimalSeparator to be the group separator, store the old
         // DecimalSeparator in the group separator;
         if (m_DecimalSeparator.Equals(newVal, StringComparison.Ordinal))
@@ -231,7 +231,8 @@ namespace CsvTools
       set
       {
         var newVal = value ?? string.Empty;
-        if (m_NumberFormat.Equals(newVal, StringComparison.Ordinal)) return;
+        if (m_NumberFormat.Equals(newVal, StringComparison.Ordinal))
+          return;
         m_NumberFormat = newVal;
         NotifyPropertyChanged(nameof(NumberFormat));
       }
@@ -250,7 +251,8 @@ namespace CsvTools
       {
         var chr = FileFormat.GetChar(value);
         var newval = chr != '\0' ? chr.ToString(CultureInfo.CurrentCulture) : string.Empty;
-        if (m_TimeSeparator.Equals(newval, StringComparison.Ordinal)) return;
+        if (m_TimeSeparator.Equals(newval, StringComparison.Ordinal))
+          return;
         m_TimeSeparator = newval;
         NotifyPropertyChanged(nameof(TimeSeparator));
       }
@@ -269,7 +271,8 @@ namespace CsvTools
       set
       {
         var newVal = value ?? string.Empty;
-        if (m_True.Equals(newVal, StringComparison.Ordinal)) return;
+        if (m_True.Equals(newVal, StringComparison.Ordinal))
+          return;
         m_True = newVal;
         NotifyPropertyChanged(nameof(True));
       }
@@ -342,10 +345,13 @@ namespace CsvTools
     /// </returns>
     public bool Equals(ValueFormat other)
     {
-      if (other is null) return false;
-      if (ReferenceEquals(this, other)) return true;
+      if (other is null)
+        return false;
+      if (ReferenceEquals(this, other))
+        return true;
 
-      if (other.DataType != m_DataType) return false;
+      if (other.DataType != m_DataType)
+        return false;
 
       switch (m_DataType)
       {
@@ -418,7 +424,8 @@ namespace CsvTools
       var sbtext = new StringBuilder(m_DataType.DataTypeDisplay());
 
       var shortDesc = GetFormatDescription();
-      if (shortDesc.Length <= 0) return sbtext.ToString();
+      if (shortDesc.Length <= 0)
+        return sbtext.ToString();
       sbtext.Append(" (");
       sbtext.Append(shortDesc);
       sbtext.Append(")");
@@ -438,7 +445,6 @@ namespace CsvTools
     ///   <see langword="true" /> if the specified object  is equal to the current object; otherwise, <see langword="false" />.
     /// </returns>
     public override bool Equals(object obj) => Equals(obj as ValueFormat);
-
 
     /// <summary>Serves as the default hash function. </summary>
     /// <returns>A hash code for the current object.</returns>

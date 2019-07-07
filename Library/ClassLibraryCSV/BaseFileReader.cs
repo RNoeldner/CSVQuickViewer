@@ -37,6 +37,11 @@ namespace CsvTools
     public const string cErrorField = "#Error";
 
     /// <summary>
+    ///  Field name of the LineNumber Start Field
+    /// </summary>
+    public const string cPartionField = "#Partition";
+
+    /// <summary>
     ///  Field Name of the record number
     /// </summary>
     public const string cRecordNumberFieldName = "#Record";
@@ -45,11 +50,6 @@ namespace CsvTools
     ///  Field name of the LineNumber Start Field
     /// </summary>
     public const string cStartLineNumberFieldName = "#Line";
-
-    /// <summary>
-    ///  Field name of the LineNumber Start Field
-    /// </summary>
-    public const string cPartionField = "#Partition";
 
     /// <summary>
     ///  Collection of the artificial field names
@@ -61,45 +61,29 @@ namespace CsvTools
     /// </summary>
     protected const int cMaxValue = 10000;
 
-#pragma warning disable CA1051 // Do not declare visible instance fields
-
     /// <summary>
     ///  An array of associated col
     /// </summary>
     protected int[] AssociatedTimeCol;
-
-#pragma warning restore CA1051 // Do not declare visible instance fields
-
-#pragma warning disable CA1051 // Do not declare visible instance fields
 
     /// <summary>
     ///  An array of associated col
     /// </summary>
     protected int[] AssociatedTimeZoneCol;
 
-#pragma warning restore CA1051 // Do not declare visible instance fields
-
-#pragma warning disable CA1051 // Do not declare visible instance fields
-
     /// <summary>
     ///  An array of column
     /// </summary>
     protected Column[] Column;
-
-#pragma warning restore CA1051 // Do not declare visible instance fields
-
-#pragma warning disable CA1051 // Do not declare visible instance fields
 
     /// <summary>
     ///  An array of current row column text
     /// </summary>
     protected string[] CurrentRowColumnText;
 
-#pragma warning restore CA1051 // Do not declare visible instance fields
-    private readonly System.Threading.CancellationToken m_CancellationToken;
     private readonly IFileSetting m_FileSetting;
     private readonly IntervalAction m_IntervalAction = new IntervalAction();
-    private readonly IProcessDisplay m_ProcessDisplay;
+
     /// <summary>
     ///  Releases unmanaged and - optionally - managed resources
     /// </summary>
@@ -116,13 +100,13 @@ namespace CsvTools
       if (processDisplay != null)
       {
         processDisplay.Maximum = cMaxValue;
-        m_CancellationToken = processDisplay.CancellationToken;
+        CancellationToken = processDisplay.CancellationToken;
       }
       else
       {
-        m_CancellationToken = System.Threading.CancellationToken.None;
+        CancellationToken = System.Threading.CancellationToken.None;
       }
-      m_ProcessDisplay = processDisplay;
+      ProcessDisplay = processDisplay;
 
       m_FileSetting = fileSetting ?? throw new ArgumentNullException(nameof(fileSetting));
     }
@@ -140,7 +124,7 @@ namespace CsvTools
     /// <summary>
     ///  A cancellation token, to stop long running processes
     /// </summary>
-    protected System.Threading.CancellationToken CancellationToken => m_CancellationToken;
+    protected System.Threading.CancellationToken CancellationToken { get; }
 
     /// <summary>
     ///  Gets a value indicating the depth of nesting for the current row.
@@ -155,13 +139,12 @@ namespace CsvTools
     /// </summary>
     public virtual long EndLineNumber { get; protected set; }
 
-
     /// <summary>
     ///  Gets or sets a value indicating whether the reader is at the end of the file.
     /// </summary>
     /// <value><c>true</c> if at the end of file; otherwise, <c>false</c>.</value>
     public virtual bool EndOfFile { get; protected set; } = true;
-    
+
     /// <summary>
     ///  Gets the number of fields in the file.
     /// </summary>
@@ -182,7 +165,7 @@ namespace CsvTools
     /// </summary>
     /// <value>The record number.</value>
     public virtual long RecordNumber { get; protected set; }
-    
+
     /// <summary>
     ///  Gets the number of rows changed, inserted, or deleted by execution of the SQL statement.
     /// </summary>
@@ -207,7 +190,7 @@ namespace CsvTools
     /// <summary>
     ///  A process display to stop long running processes
     /// </summary>
-    protected IProcessDisplay ProcessDisplay => m_ProcessDisplay;
+    protected IProcessDisplay ProcessDisplay { get; }
 
     /// <summary>
     ///  Gets the <see cref="object" /> with the specified name.
@@ -224,10 +207,7 @@ namespace CsvTools
     /// <summary>
     ///  Closes the <see cref="Data.IDataReader" /> Object.
     /// </summary>
-    public virtual void Close()
-    {
-      EndOfFile = true;
-    }
+    public virtual void Close() => EndOfFile = true;
 
     /// <summary>
     ///  Performs application-defined tasks associated with freeing, releasing, or resetting
@@ -553,7 +533,8 @@ namespace CsvTools
     {
       Debug.Assert(columnName != null);
 
-      if (string.IsNullOrEmpty(columnName) || Column == null) return -1;
+      if (string.IsNullOrEmpty(columnName) || Column == null)
+        return -1;
       var count = 0;
       foreach (var column in Column)
       {
@@ -699,7 +680,7 @@ namespace CsvTools
     public void HandleShowProgress(string text, long recordNumber, int progress)
     {
       var rec = recordNumber > 1 ? $"\nRecord {recordNumber:N0}" : string.Empty;
-      m_ProcessDisplay?.SetProcess($"{text}{rec}", progress, false);
+      ProcessDisplay?.SetProcess($"{text}{rec}", progress, false);
     }
 
     /// <summary>
@@ -718,7 +699,7 @@ namespace CsvTools
       if (!hasReadRow)
         HandleReadFinished();
       else
-        HandleShowProgressPeriodic("Reading from source", RecordNumber - 1);
+        HandleShowProgressPeriodic("Reading from source", RecordNumber);
     }
 
     /// <summary>
@@ -790,7 +771,7 @@ namespace CsvTools
       }
 
       // Any defined column not present in file is removed
-      List<Column> remove = new List<Column>();
+      var remove = new List<Column>();
       foreach (var setting in m_FileSetting.ColumnCollection)
       {
         var found = false;
@@ -826,9 +807,7 @@ namespace CsvTools
     /// <returns>
     ///  an Array of objects for a new row in a Schema Table
     /// </returns>
-    protected internal static object[] GetDefaultSchemaRowArray()
-    {
-      return new object[]
+    protected internal static object[] GetDefaultSchemaRowArray() => new object[]
       {
     true, // 00- AllowDBNull
     null, // 01- BaseColumnName
@@ -853,7 +832,6 @@ namespace CsvTools
     true, // 20- IsReadOnly
     false // 21- IsRowVersion
       };
-    }
 
     /// <summary>
     ///  Gets the empty schema table.
@@ -1043,7 +1021,8 @@ namespace CsvTools
       Debug.Assert(AssociatedTimeCol != null);
 
       var colTime = AssociatedTimeCol[i];
-      if (colTime == -1) return null;
+      if (colTime == -1)
+        return null;
       return CurrentRowColumnText[colTime];
     }
 
@@ -1135,13 +1114,10 @@ namespace CsvTools
     /// </summary>
     /// <param name="columnNumber">The column number.</param>
     /// <param name="message">The message.</param>
-    protected virtual void HandleError(int columnNumber, string message)
-    {
-      Warning?.Invoke(this, new WarningEventArgs(RecordNumber, columnNumber, message, StartLineNumber, EndLineNumber,
+    protected virtual void HandleError(int columnNumber, string message) => Warning?.Invoke(this, new WarningEventArgs(RecordNumber, columnNumber, message, StartLineNumber, EndLineNumber,
        Column != null && columnNumber >= 0 && columnNumber < m_FieldCount && Column[columnNumber] != null
         ? Column[columnNumber].Name
         : null));
-    }
 
     /// <summary>
     /// Does handle TextToHML, TextToHtmlFull, TextPart and TreatNBSPAsSpace and does update the maximum column size
@@ -1191,6 +1167,7 @@ namespace CsvTools
 
       return output;
     }
+
     /// <summary>
     ///  Handles the Event if reading the file is completed
     /// </summary>
@@ -1209,7 +1186,7 @@ namespace CsvTools
           try
           {
             HandleShowProgress("Handling Remote file…");
-            ApplicationSetting.RemoteFileHandler(remote.RemoteFileName, remote.FileName, remote.FullPath, m_ProcessDisplay, remote.ThrowErrorIfNotExists);
+            ApplicationSetting.RemoteFileHandler(remote.RemoteFileName, remote.FileName, remote.FullPath, ProcessDisplay, remote.ThrowErrorIfNotExists);
           }
           catch (Exception ex)
           {
@@ -1220,11 +1197,12 @@ namespace CsvTools
         }
       }
     }
+
     /// <summary>
     ///  Shows the process.
     /// </summary>
     /// <param name="text">The text.</param>
-    protected virtual void HandleShowProgress(string text) => m_ProcessDisplay?.SetProcess(text);
+    protected virtual void HandleShowProgress(string text) => ProcessDisplay?.SetProcess(text);
 
     /// <summary>
     ///  Shows the process twice a second
@@ -1233,8 +1211,9 @@ namespace CsvTools
     /// <param name="recordNumber">The record number.</param>
     protected virtual void HandleShowProgressPeriodic(string text, long recordNumber)
     {
-      if (m_ProcessDisplay != null)
-        m_IntervalAction.Invoke(delegate { HandleShowProgress(text, recordNumber, GetRelativePosition()); });
+      if (ProcessDisplay != null)
+        m_IntervalAction.Invoke(delegate
+        { HandleShowProgress(text, recordNumber, GetRelativePosition()); });
     }
 
     /// <summary>
@@ -1264,14 +1243,12 @@ namespace CsvTools
     /// </summary>
     /// <param name="columnNumber">The column.</param>
     /// <param name="message">The message.</param>
-    protected virtual void HandleWarning(int columnNumber, string message)
-    {
-      Warning?.Invoke(this, new WarningEventArgs(RecordNumber, columnNumber, message.AddWarningId(), StartLineNumber,
+    protected virtual void HandleWarning(int columnNumber, string message) => Warning?.Invoke(this, new WarningEventArgs(RecordNumber, columnNumber, message.AddWarningId(), StartLineNumber,
        EndLineNumber,
        Column != null && columnNumber >= 0 && columnNumber < m_FieldCount && Column[columnNumber] != null
         ? Column[columnNumber].Name
         : null));
-    }
+
     /// <summary>
     ///  Initializes the column array to a give count.
     /// </summary>
@@ -1362,7 +1339,8 @@ namespace CsvTools
 
     private DateTime? AdjustTz(DateTime? input, Column column)
     {
-      if (!input.HasValue) return null;
+      if (!input.HasValue)
+        return null;
       string timeZone = null;
       // Constant value
       if (column.TimeZonePart.StartsWith("\"", StringComparison.Ordinal) &&

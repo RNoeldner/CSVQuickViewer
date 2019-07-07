@@ -23,10 +23,7 @@ namespace CsvTools
     ///   Initializes a new instance of the <see cref="DummyProcessDisplay" /> class.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
-    public ProcessDisplayTime(CancellationToken cancellationToken) : base(cancellationToken)
-    {
-      TimeToCompletion = new TimeToCompletion();
-    }
+    public ProcessDisplayTime(CancellationToken cancellationToken) : base(cancellationToken) => TimeToCompletion = new TimeToCompletion();
 
     public virtual event EventHandler<long> SetMaximum;
 
@@ -47,7 +44,6 @@ namespace CsvTools
     }
 
     public TimeToCompletion TimeToCompletion { get; }
-    
 
     /// <summary>
     ///   Sets the process.

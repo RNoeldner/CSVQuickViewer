@@ -92,10 +92,7 @@ namespace CsvTools
         UpdateView();
     }
 
-    private void SizeChangedEvent(object sender, EventArgs e)
-    {
-      CSVTextBox.Width = ScrollBarVertical.Left;
-    }
+    private void SizeChangedEvent(object sender, EventArgs e) => CSVTextBox.Width = ScrollBarVertical.Left;
 
     private void UpdateView()
     {

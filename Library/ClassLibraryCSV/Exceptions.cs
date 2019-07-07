@@ -11,38 +11,74 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 using System;
 
 namespace CsvTools
 {
-  public class FileReaderException : ApplicationException
-  {
-    public FileReaderException(string message) : base(message) { }
-    public FileReaderException(string message, Exception inner) : base(message, inner) { }
-  }
-  public class FileException : ApplicationException
-  {
-    public FileException(string message) : base(message) { }
-    public FileException(string message, Exception inner) : base(message, inner) { }
-  }
-  public class FileWriterException : ApplicationException
-  {
-    public FileWriterException(string message) : base(message) { }
-    public FileWriterException(string message, Exception inner) : base(message, inner) { }
-  }
-  public class ConversionException : ApplicationException
-  {
-    public ConversionException(string message) : base(message) { }
-    public ConversionException(string message, Exception inner) : base(message, inner) { }
-  }
-  public class EncryptionException : ApplicationException
-  {
-    public EncryptionException(string message) : base(message) { }
-    public EncryptionException(string message, Exception inner) : base(message, inner) { }
-  }
   public class ConfigurationException : ApplicationException
   {
-    public ConfigurationException(string message) : base(message) { }
-    public ConfigurationException(string message, Exception inner) : base(message, inner) { }
+    public ConfigurationException(string message) : base(message)
+    {
+    }
+
+    public ConfigurationException(string message, Exception inner) : base(message, inner)
+    {
+    }
+  }
+
+  public class ConversionException : ApplicationException
+  {
+    public ConversionException(string message) : base(message)
+    {
+    }
+
+    public ConversionException(string message, Exception inner) : base(message, inner)
+    {
+    }
+  }
+
+  public class EncryptionException : ApplicationException
+  {
+    public EncryptionException(string message) : base(message)
+    {
+    }
+
+    public EncryptionException(string message, Exception inner) : base(message, inner)
+    {
+    }
+  }
+
+  public class FileException : ApplicationException
+  {
+    public FileException(string message) : base(message)
+    {
+    }
+
+    public FileException(string message, Exception inner) : base(message, inner)
+    {
+    }
+  }
+
+  public class FileReaderException : ApplicationException
+  {
+    public FileReaderException(string message) : base(message)
+    {
+    }
+
+    public FileReaderException(string message, Exception inner) : base(message, inner)
+    {
+    }
+  }
+
+  public class FileWriterException : ApplicationException
+  {
+    public FileWriterException(string message) : base(message)
+    {
+    }
+
+    public FileWriterException(string message, Exception inner) : base(message, inner)
+    {
+    }
   }
 }

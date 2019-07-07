@@ -233,6 +233,6 @@ namespace CsvTools
     /// <param name="destinationTableName">Name of the destination table.</param>
     /// <param name="eventHandler">Event called after some records have been processed</param>
     /// <param name="cancellationToken">A cancellation Token</param>
-    void StoreDataTable(DataTable dataTable, string destinationTableName, EventHandler<long> eventHandler, CancellationToken cancellationToken);    
+    void StoreDataTable(DataTable dataTable, string destinationTableName, EventHandler<long> eventHandler, CancellationToken cancellationToken);
   }
 }

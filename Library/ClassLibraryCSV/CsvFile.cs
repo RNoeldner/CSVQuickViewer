@@ -122,7 +122,8 @@ namespace CsvTools
 
       set
       {
-        if (m_CodePageId.Equals(value)) return;
+        if (m_CodePageId.Equals(value))
+          return;
         m_CodePageId = value;
         NotifyPropertyChanged(nameof(CodePageId));
       }
@@ -169,7 +170,8 @@ namespace CsvTools
 
       set
       {
-        if (m_NoDelimitedFile.Equals(value)) return;
+        if (m_NoDelimitedFile.Equals(value))
+          return;
         m_NoDelimitedFile = value;
         NotifyPropertyChanged(nameof(NoDelimitedFile));
       }
@@ -187,7 +189,8 @@ namespace CsvTools
 
       set
       {
-        if (m_NumWarnings.Equals(value)) return;
+        if (m_NumWarnings.Equals(value))
+          return;
         m_NumWarnings = value;
         NotifyPropertyChanged(nameof(NumWarnings));
       }
@@ -205,7 +208,8 @@ namespace CsvTools
 
       set
       {
-        if (m_TreatUnknowCharaterAsSpace.Equals(value)) return;
+        if (m_TreatUnknowCharaterAsSpace.Equals(value))
+          return;
         m_TreatUnknowCharaterAsSpace = value;
         NotifyPropertyChanged(nameof(TreatUnknowCharaterAsSpace));
       }
@@ -225,7 +229,8 @@ namespace CsvTools
 
       set
       {
-        if (m_WarnDelimiterInValue.Equals(value)) return;
+        if (m_WarnDelimiterInValue.Equals(value))
+          return;
         m_WarnDelimiterInValue = value;
         NotifyPropertyChanged(nameof(WarnDelimiterInValue));
       }
@@ -243,7 +248,8 @@ namespace CsvTools
 
       set
       {
-        if (m_WarnEmptyTailingColumns.Equals(value)) return;
+        if (m_WarnEmptyTailingColumns.Equals(value))
+          return;
         m_WarnEmptyTailingColumns = value;
         NotifyPropertyChanged(nameof(WarnEmptyTailingColumns));
       }
@@ -263,7 +269,8 @@ namespace CsvTools
 
       set
       {
-        if (m_WarnLineFeed.Equals(value)) return;
+        if (m_WarnLineFeed.Equals(value))
+          return;
         m_WarnLineFeed = value;
         NotifyPropertyChanged(nameof(WarnLineFeed));
       }
@@ -283,7 +290,8 @@ namespace CsvTools
 
       set
       {
-        if (m_TreatLFAsSpace.Equals(value)) return;
+        if (m_TreatLFAsSpace.Equals(value))
+          return;
         m_TreatLFAsSpace = value;
         NotifyPropertyChanged(nameof(TreatLFAsSpace));
       }
@@ -303,7 +311,8 @@ namespace CsvTools
 
       set
       {
-        if (m_TryToSolveMoreColumns.Equals(value)) return;
+        if (m_TryToSolveMoreColumns.Equals(value))
+          return;
         m_TryToSolveMoreColumns = value;
         NotifyPropertyChanged(nameof(TryToSolveMoreColumns));
       }
@@ -317,7 +326,8 @@ namespace CsvTools
 
       set
       {
-        if (m_AllowRowCombining.Equals(value)) return;
+        if (m_AllowRowCombining.Equals(value))
+          return;
         m_AllowRowCombining = value;
         NotifyPropertyChanged(nameof(AllowRowCombining));
       }
@@ -335,7 +345,8 @@ namespace CsvTools
 
       set
       {
-        if (m_WarnNbsp.Equals(value)) return;
+        if (m_WarnNbsp.Equals(value))
+          return;
         m_WarnNbsp = value;
         NotifyPropertyChanged(nameof(WarnNBSP));
       }
@@ -353,7 +364,8 @@ namespace CsvTools
 
       set
       {
-        if (m_WarnQuotes.Equals(value)) return;
+        if (m_WarnQuotes.Equals(value))
+          return;
         m_WarnQuotes = value;
         NotifyPropertyChanged(nameof(WarnQuotes));
       }
@@ -371,7 +383,8 @@ namespace CsvTools
 
       set
       {
-        if (m_WarnQuotesInQuotes.Equals(value)) return;
+        if (m_WarnQuotesInQuotes.Equals(value))
+          return;
         m_WarnQuotesInQuotes = value;
         NotifyPropertyChanged(nameof(WarnQuotesInQuotes));
       }
@@ -391,7 +404,8 @@ namespace CsvTools
 
       set
       {
-        if (m_WarnUnknowCharacter.Equals(value)) return;
+        if (m_WarnUnknowCharacter.Equals(value))
+          return;
         m_WarnUnknowCharacter = value;
         NotifyPropertyChanged(nameof(WarnUnknowCharater));
       }
@@ -419,7 +433,8 @@ namespace CsvTools
         return;
       BaseSettingsCopyTo((BaseSettings)other);
 
-      if (!(other is ICsvFile csv)) return;
+      if (!(other is ICsvFile csv))
+        return;
       csv.ByteOrderMark = m_ByteOrderMark;
       csv.AlternateQuoting = m_AlternateQuoting;
       csv.DoubleDecode = m_DoubleDecode;
@@ -441,29 +456,20 @@ namespace CsvTools
       csv.NoDelimitedFile = m_NoDelimitedFile;
     }
 
-    public bool Equals(IFileSetting other)
-    {
-      return Equals(other as ICsvFile);
-    }
+    public bool Equals(IFileSetting other) => Equals(other as ICsvFile);
 
     /// <summary>
     ///   Gets the file reader.
     /// </summary>
     /// <returns></returns>
-    public override IFileReader GetFileReader(IProcessDisplay processDisplay)
-    {
-      return new CsvFileReader(this, processDisplay);
-    }
+    public override IFileReader GetFileReader(IProcessDisplay processDisplay) => new CsvFileReader(this, processDisplay);
 
     /// <summary>
     ///   Gets the file writer.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns></returns>
-    public override IFileWriter GetFileWriter(IProcessDisplay processDisplay)
-    {
-      return new CsvFileWriter(this, processDisplay);
-    }
+    public override IFileWriter GetFileWriter(IProcessDisplay processDisplay) => new CsvFileWriter(this, processDisplay);
 
     /*
     /// <summary>Serves as the default hash function. </summary>
@@ -495,8 +501,10 @@ namespace CsvTools
 
     public virtual bool Equals(ICsvFile other)
     {
-      if (other is null) return false;
-      if (ReferenceEquals(this, other)) return true;
+      if (other is null)
+        return false;
+      if (ReferenceEquals(this, other))
+        return true;
       return m_AlternateQuoting == other.AlternateQuoting &&
              m_ByteOrderMark == other.ByteOrderMark && m_CodePageId == other.CodePageId &&
              Equals(m_CurrentEncoding, other.CurrentEncoding) && m_DoubleDecode == other.DoubleDecode &&
@@ -518,6 +526,6 @@ namespace CsvTools
     /// <returns>
     ///   <see langword="true" /> if the specified object  is equal to the current object; otherwise, <see langword="false" />.
     /// </returns>
-    public override bool Equals(object obj)  => Equals(obj as ICsvFile);    
+    public override bool Equals(object obj) => Equals(obj as ICsvFile);
   }
 }

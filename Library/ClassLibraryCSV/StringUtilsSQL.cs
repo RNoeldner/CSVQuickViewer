@@ -192,7 +192,8 @@ namespace CsvTools
 
       const string plcaeholder = "\u2028";
       var ret = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-      if (string.IsNullOrEmpty(sqlText)) return ret;
+      if (string.IsNullOrEmpty(sqlText))
+        return ret;
       sqlText = sqlText.GetCommandTextWithoutComment();
 
       foreach (Match match in m_PatternTable1.Value.Matches(sqlText, 0))
@@ -227,7 +228,8 @@ namespace CsvTools
 
     public static string RenameSQLTable(this string sql, string oldTableName, string newTableName)
     {
-      if (string.IsNullOrEmpty(sql) || sql.IndexOf(oldTableName, StringComparison.OrdinalIgnoreCase) <= 0) return sql;
+      if (string.IsNullOrEmpty(sql) || sql.IndexOf(oldTableName, StringComparison.OrdinalIgnoreCase) <= 0)
+        return sql;
       // this should cover 80%
       //SQL = SQL.ReplaceCaseInsensitive(string.Format("[{0}]", SqlName(oldTableName)),
       //                                 string.Format("[{0}]", SqlName(newTableName)));
@@ -288,7 +290,8 @@ namespace CsvTools
     /// <returns><c>true</c> if the value is a reserved SQL keyword, <c>false</c> otherwise</returns>
     public static bool SqlIsKeyword(string contents)
     {
-      if (string.IsNullOrEmpty(contents)) return false;
+      if (string.IsNullOrEmpty(contents))
+        return false;
       foreach (var keyword in c_SQLKeywords.Split(' '))
         if (contents.Equals(keyword, StringComparison.OrdinalIgnoreCase))
           return true;

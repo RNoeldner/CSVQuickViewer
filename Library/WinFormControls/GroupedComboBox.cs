@@ -86,7 +86,8 @@ namespace CsvTools
       set
       {
         var newVal = value == "(none)" ? string.Empty : value ?? string.Empty;
-        if (newVal.Equals(m_GroupPropertyName)) return;
+        if (newVal.Equals(m_GroupPropertyName))
+          return;
         m_GroupPropertyName = newVal;
         // Can not do regular sorting if we have groups
         if (m_GroupPropertyName.Length > 0)
@@ -96,7 +97,7 @@ namespace CsvTools
       }
     }
 
-    public bool IsFiltering { get => m_IsFiltering; }
+    public bool IsFiltering => m_IsFiltering;
 
     /// <summary>
     ///   Releases the unmanaged resources used by the <see cref="T:System.Windows.Forms.ComboBox" /> and optionally releases
@@ -123,7 +124,8 @@ namespace CsvTools
     {
       base.OnDrawItem(e);
 
-      if (e.Index < 0 || e.Index >= Items.Count) return;
+      if (e.Index < 0 || e.Index >= Items.Count)
+        return;
       // get noteworthy states
       var comboBoxEdit = (e.State & DrawItemState.ComboBoxEdit) == DrawItemState.ComboBoxEdit;
       var selected = (e.State & DrawItemState.Selected) == DrawItemState.Selected;
@@ -200,7 +202,8 @@ namespace CsvTools
       );
 
       // paint the focus rectangle if required
-      if (!focus || noAccelerator) return;
+      if (!focus || noAccelerator)
+        return;
       if (isGroupStart && selected)
       {
         ControlPaint.DrawFocusRectangle(e.Graphics,
@@ -251,7 +254,8 @@ namespace CsvTools
       e.ItemHeight = Font.Height;
 
       var groupText = GetGroupText(Items[e.Index]);
-      if (!DetermineGroupStart(e.Index, groupText)) return;
+      if (!DetermineGroupStart(e.Index, groupText))
+        return;
       // the first item in each group will be twice as tall in order to accommodate the group header
       e.ItemHeight *= 2;
       e.ItemWidth = Math.Max(
@@ -302,7 +306,8 @@ namespace CsvTools
     /// <returns></returns>
     private bool DetermineGroupStart(int index, string currentGroupText)
     {
-      if (index < 0 || index >= Items.Count) return false;
+      if (index < 0 || index >= Items.Count)
+        return false;
       if (index == 0 && !string.IsNullOrEmpty(currentGroupText))
         return true;
       if (currentGroupText != null && (index > 0 &&
@@ -330,22 +335,19 @@ namespace CsvTools
       return string.Empty;
     }
 
-    private void GroupingComboBox_DisplayMemberChanged(object sender, EventArgs e)
-    {
-      SetPropertyDescriptor();
-    }
+    private void GroupingComboBox_DisplayMemberChanged(object sender, EventArgs e) => SetPropertyDescriptor();
 
     private void InitializeComponent()
     {
-      this.components = new Container();
-      this.timerFilter = new Timer(components);
-      this.SuspendLayout();
-      // 
+      components = new Container();
+      timerFilter = new Timer(components);
+      SuspendLayout();
+      //
       // timerFilter
-      // 
-      this.timerFilter.Interval = 600;
-      this.timerFilter.Tick += new EventHandler(TimerFilter_Tick);
-      this.ResumeLayout(false);
+      //
+      timerFilter.Interval = 600;
+      timerFilter.Tick += new EventHandler(TimerFilter_Tick);
+      ResumeLayout(false);
     }
 
     /// <summary>
@@ -368,7 +370,7 @@ namespace CsvTools
       // Only do the sorting if the base class does not do this
       if (!Sorted && m_GroupPropertyDescriptor != null && m_DisplayPropertyDescriptor != null && m_BindingSource != null)
       {
-        TwoLevelComparer comparer = new TwoLevelComparer(m_GroupPropertyDescriptor, m_DisplayPropertyDescriptor);
+        var comparer = new TwoLevelComparer(m_GroupPropertyDescriptor, m_DisplayPropertyDescriptor);
 
         if (comparer == null)
           throw new ConfigurationException("DisplayMember property not found");
@@ -376,7 +378,7 @@ namespace CsvTools
         var arrayList = new ArrayList();
         foreach (var item in m_BindingSource)
         {
-          if (this.Text.Length < 2 || comparer.SecondLevel.GetValue(item).ToString().Contains(this.Text))
+          if (Text.Length < 2 || comparer.SecondLevel.GetValue(item).ToString().Contains(Text))
             arrayList.Add(item);
         }
         arrayList.Sort(comparer);
@@ -423,12 +425,12 @@ namespace CsvTools
     private void TimerFilter_Tick(object sender, EventArgs e)
     {
       timerFilter.Stop();
-      if (this.SelectedIndex >= 0)
+      if (SelectedIndex >= 0)
         return;
 
       SetDataSourceAndSort();
 
-      this.DroppedDown = (this.Text.Length > 2);
+      DroppedDown = (Text.Length > 2);
     }
   }
 
@@ -468,8 +470,10 @@ namespace CsvTools
     /// </returns>
     public int Compare(object x, object y)
     {
-      if (y == null) throw new ArgumentNullException(nameof(y));
-      if (x == null) throw new ArgumentNullException(nameof(x));
+      if (y == null)
+        throw new ArgumentNullException(nameof(y));
+      if (x == null)
+        throw new ArgumentNullException(nameof(x));
       var res = StringComparer.CurrentCultureIgnoreCase.Compare(Convert.ToString(m_FirstLevel.GetValue(x)),
         Convert.ToString(m_FirstLevel.GetValue(y)));
       if (res != 0)

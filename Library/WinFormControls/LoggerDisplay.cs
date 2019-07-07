@@ -12,11 +12,11 @@
  *
  */
 
-using log4net;
-using log4net.Repository.Hierarchy;
 using System;
 using System.Reflection;
 using System.Windows.Forms;
+using log4net;
+using log4net.Repository.Hierarchy;
 
 namespace CsvTools
 {
@@ -28,7 +28,7 @@ namespace CsvTools
     public LoggerDisplay()
     {
       m_LogAppenderTextBox = new LogAppenderTextBox(this);
-      Multiline = true;
+      Multiline = false;
       KeyUp += base.FindForm().CtrlA;
 
       try
@@ -47,7 +47,7 @@ namespace CsvTools
 
     public log4net.Core.Level Threshold
     {
-      get { return m_LogAppenderTextBox.Threshold; }
+      get => m_LogAppenderTextBox.Threshold;
       set
       {
         m_LogAppenderTextBox.Threshold = value;
@@ -55,15 +55,9 @@ namespace CsvTools
       }
     }
 
-    public new void Clear()
-    {
-      m_LogAppenderTextBox.Clear();
-    }
+    public new void Clear() => m_LogAppenderTextBox.Clear();
 
-    public void Pause()
-    {
-      m_LogAppenderTextBox.Threshold = log4net.Core.Level.Off;
-    }
+    public void Pause() => m_LogAppenderTextBox.Threshold = log4net.Core.Level.Off;
 
     protected override void Dispose(bool disposing)
     {
@@ -77,7 +71,7 @@ namespace CsvTools
         }
         catch
         {
-          // ignore all          
+          // ignore all
         }
       }
 

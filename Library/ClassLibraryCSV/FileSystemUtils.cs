@@ -27,20 +27,18 @@ using Path = Pri.LongPath.Path;
 
 namespace CsvTools
 {
-#pragma warning disable CA1060 // Move pinvokes to native methods class
-
   /// <summary>
   ///   Extensions for string in the file system
   /// </summary>
   public static class FileSystemUtils
-#pragma warning restore CA1060 // Move pinvokes to native methods class
   {
     private const string c_LongPathPrefix = @"\\?\";
     private const string c_UncLongPathPrefix = @"\\?\UNC\";
 
     public static void CreateDirectory(string directoryName)
     {
-      if (string.IsNullOrEmpty(directoryName)) return;
+      if (string.IsNullOrEmpty(directoryName))
+        return;
 
       Directory.CreateDirectory(directoryName);
     }
@@ -55,7 +53,8 @@ namespace CsvTools
       Contract.Requires(fileName != null);
       try
       {
-        if (!FileExists(fileName)) return;
+        if (!FileExists(fileName))
+          return;
         var backupName = fileName + ".bak";
         var backupName2 = fileName + "2.bak";
         if (twoBackups)
@@ -113,10 +112,7 @@ namespace CsvTools
       return File.Exists(fileName);
     }
 
-    public static Pri.LongPath.FileInfo FileInfo(string fileOrDirectory)
-    {
-      return new FileInfo(fileOrDirectory);
-    }
+    public static Pri.LongPath.FileInfo FileInfo(string fileOrDirectory) => new FileInfo(fileOrDirectory);
 
     /// <summary>
     ///   Gets the absolute path.
@@ -200,7 +196,8 @@ namespace CsvTools
       foreach (var fileName in files)
       {
         var fileTime = FileInfo(fileName).LastWriteTime;
-        if (fileTime <= newset) continue;
+        if (fileTime <= newset)
+          continue;
         newset = fileTime;
         lastFile = fileName;
       }
@@ -270,7 +267,8 @@ namespace CsvTools
     public static string GetShortDisplayFileName(string fileName, int length)
     {
       var ret = fileName.RemovePrefix();
-      if (length <= 0 || string.IsNullOrEmpty(fileName) || fileName.Length <= length) return ret;
+      if (length <= 0 || string.IsNullOrEmpty(fileName) || fileName.Length <= length)
+        return ret;
       var parts = fileName.Split(new[] { '\\' }, StringSplitOptions.RemoveEmptyEntries);
       var fileNameOnly = parts[parts.Length - 1];
 
@@ -289,7 +287,8 @@ namespace CsvTools
         ret = fileNameOnly;
 
       // still too long?
-      if (ret.Length <= length) return ret;
+      if (ret.Length <= length)
+        return ret;
       var cut = length * 2 / 3;
       ret = ret.Substring(0, length - cut) + "…" + ret.Substring(ret.Length - cut + 1);
 
@@ -324,9 +323,11 @@ namespace CsvTools
       }
       return null;
     }
+
     public static string LongFileName(this string shortPath)
     {
-      if (string.IsNullOrEmpty(shortPath)) return shortPath;
+      if (string.IsNullOrEmpty(shortPath))
+        return shortPath;
       if (shortPath.Contains("~"))
         return shortPath.LongFileNameKernel();
       if (shortPath.Contains(".\\"))
@@ -421,7 +422,8 @@ namespace CsvTools
 
     public static string ShortFileName(this string longPath)
     {
-      if (string.IsNullOrEmpty(longPath)) return longPath;
+      if (string.IsNullOrEmpty(longPath))
+        return longPath;
 
       var fi = new FileInfo(longPath);
 
@@ -446,7 +448,7 @@ namespace CsvTools
           return (shortNameBuffer.ToString() + "\\" + fi.Name).RemovePrefix();
       }
 
-      throw new FileException($"Could not get a short path for the file ${longPath}");
+      throw new Exception($"Could not get a short path for the file ${longPath}");
     }
 
     public static SplitResult SplitPath(string path)
@@ -472,7 +474,8 @@ namespace CsvTools
 
     private static string LongFileNameKernel(this string shortPath)
     {
-      if (string.IsNullOrEmpty(shortPath)) return shortPath;
+      if (string.IsNullOrEmpty(shortPath))
+        return shortPath;
       var longNameBuffer = new StringBuilder(4000);
       var length = GetLongPathName(shortPath.LongPathPrefix(), longNameBuffer, longNameBuffer.Capacity);
       return length > 0 ? longNameBuffer.ToString(0, length) : shortPath;
@@ -488,6 +491,27 @@ namespace CsvTools
       public readonly string FileName;
 #pragma warning restore CA1051 // Do not declare visible instance fields
 
+      public SplitResult(string dir, string file)
+      {
+        DirectoryName = dir;
+        FileName = file;
+      }
+
+      /// <summary>
+      /// Get the extension with the dot
+      /// </summary>
+      /// <example>Test.docx  -> .docx</example>
+      public string Extension
+      {
+        get
+        {
+          var index = FileName.LastIndexOf('.');
+          if (index == -1)
+            return string.Empty;
+          else
+            return FileName.Substring(index);
+        }
+      }
 
       /// <summary>
       /// Get the filename without the extension or the dot
@@ -503,28 +527,6 @@ namespace CsvTools
           else
             return FileName.Substring(0, index);
         }
-      }
-
-      /// <summary>
-      /// Get the extension with the dot 
-      /// </summary>
-      /// <example>Test.docx  -> .docx</example>      
-      public string Extension
-      {
-        get
-        {
-          var index = FileName.LastIndexOf('.');
-          if (index == -1)
-            return string.Empty;
-          else
-            return FileName.Substring(index);
-        }
-      }
-
-      public SplitResult(string dir, string file)
-      {
-        DirectoryName = dir;
-        FileName = file;
       }
     }
   }

@@ -35,7 +35,8 @@ namespace CsvTools
     {
       Contract.Ensures(Contract.Result<IEnumerable<string>>() != null);
       var values = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-      if (fileReader == null) return values;
+      if (fileReader == null)
+        return values;
       for (var colindex = 0; colindex < fileReader.FieldCount; colindex++)
       {
         var cf = fileReader.GetColumn(colindex);
@@ -60,7 +61,8 @@ namespace CsvTools
       Contract.Requires(processDisplay != null);
       Contract.Ensures(Contract.Result<string[]>() != null);
       var emptyColumns = new List<string>();
-      if (!fileSetting.HasFieldHeader) return emptyColumns.ToArray();
+      if (!fileSetting.HasFieldHeader)
+        return emptyColumns.ToArray();
       using (var fileReader = fileSetting.GetFileReader(processDisplay))
       {
         Contract.Assume(fileReader != null);
@@ -287,13 +289,13 @@ namespace CsvTools
     /// <returns>
     ///   The number of rows to skip
     /// </returns>
-    public static int GuessStartRow(ICsvFile setting)
+    public static char GuessQualifier(ICsvFile setting)
     {
       Contract.Requires(setting != null);
       using (var improvedStream = ImprovedStream.OpenRead(setting))
       using (var streamReader = new StreamReader(improvedStream.Stream, setting.GetEncoding(), setting.ByteOrderMark))
       {
-        return GuessStartRow(streamReader, setting.FileFormat.FieldDelimiterChar, setting.FileFormat.FieldQualifierChar);
+        return GuessQualifier(streamReader, setting.FileFormat.FieldDelimiterChar, setting.SkipRows);
       }
     }
 
@@ -304,13 +306,13 @@ namespace CsvTools
     /// <returns>
     ///   The number of rows to skip
     /// </returns>
-    public static char GuessQualifier(ICsvFile setting)
+    public static int GuessStartRow(ICsvFile setting)
     {
       Contract.Requires(setting != null);
       using (var improvedStream = ImprovedStream.OpenRead(setting))
       using (var streamReader = new StreamReader(improvedStream.Stream, setting.GetEncoding(), setting.ByteOrderMark))
       {
-        return GuessQualifier(streamReader, setting.FileFormat.FieldDelimiterChar, setting.SkipRows);
+        return GuessStartRow(streamReader, setting.FileFormat.FieldDelimiterChar, setting.FileFormat.FieldQualifierChar);
       }
     }
 
@@ -385,20 +387,23 @@ namespace CsvTools
 
       display.SetProcess("Checking delimited file");
       GuessCodePage(file);
-      if (display.CancellationToken.IsCancellationRequested) return;
+      if (display.CancellationToken.IsCancellationRequested)
+        return;
       display.SetProcess("Code Page: " +
                 EncodingHelper.GetEncodingName(file.CurrentEncoding.CodePage, true, file.ByteOrderMark));
 
       file.FileFormat.FieldDelimiter = GuessDelimiter(file);
-      if (display.CancellationToken.IsCancellationRequested) return;
+      if (display.CancellationToken.IsCancellationRequested)
+        return;
       display.SetProcess("Delimiter: " + file.FileFormat.FieldDelimiter);
 
       var qual = GuessQualifier(file);
-      file.FileFormat.FieldQualifier = qual == '\0' ? string.Empty : Char.ToString(qual);
+      file.FileFormat.FieldQualifier = qual == '\0' ? string.Empty : char.ToString(qual);
 
       file.SkipRows = GuessStartRow(file);
 
-      if (display.CancellationToken.IsCancellationRequested) return;
+      if (display.CancellationToken.IsCancellationRequested)
+        return;
       if (file.SkipRows > 0)
         display.SetProcess("Start Row: " + file.SkipRows.ToString(CultureInfo.InvariantCulture));
 
@@ -490,7 +495,8 @@ namespace CsvTools
 
         // The score is dependent on the average columns found and the regularity
         var score = avg - Math.Round(cutVariance / (dc.LastRow - startRow), 2);
-        if (bestScore.HasValue && !(score > bestScore.Value)) continue;
+        if (bestScore.HasValue && !(score > bestScore.Value))
+          continue;
         match = dc.Separators[index];
         bestScore = score;
       }
@@ -533,7 +539,8 @@ namespace CsvTools
             quoted = true;
         }
 
-        if (quoted) continue;
+        if (quoted)
+          continue;
         if (readChar == '\n')
         {
           if (streamReader.Peek() == '\r')
@@ -549,7 +556,8 @@ namespace CsvTools
           lastRow++;
         }
 
-        if (readChar != '\r') continue;
+        if (readChar != '\r')
+          continue;
         if (streamReader.Peek() == '\n')
         {
           streamReader.Read();
@@ -571,6 +579,64 @@ namespace CsvTools
         return "LFCR";
 
       return "CRLF";
+    }
+
+    internal static char GuessQualifier(StreamReader streamReader, char delimiter, int skipRows)
+    {
+      if (streamReader == null)
+        return '\0';
+
+      const int maxLine = 30;
+      var possibleQuotes = new char[] { '"', '\'' };
+
+      var counter = new int[possibleQuotes.Length];
+
+      // skip the first line it usually a header
+      for (var lineNo = 0; lineNo < maxLine + skipRows; lineNo++)
+      {
+        var line = streamReader.ReadLine();
+        // EOF
+        if (line == null)
+          break;
+        if (lineNo < skipRows)
+          continue;
+
+        // Note: Delimiters in quoted text will split the actual column in multiple this will be ignore here, we hope to find columns that do not contain delimiters
+        var cols = line.Split(delimiter);
+        foreach (var col in cols)
+        {
+          if (string.IsNullOrEmpty(col))
+            continue;
+          var test = col.Trim();
+          // the column need to start and end with the same characters, its at least 2 char long
+          if (test.Length < 2 || (test[0] != test[test.Length - 1]))
+            continue;
+
+          // check all setup test chars
+          for (var testChar = 0; testChar < possibleQuotes.Length; testChar++)
+            if (test[0] == possibleQuotes[testChar])
+              counter[testChar]++;
+        }
+      }
+
+      // get the highest number of quoted columns
+      var max = 1;
+      for (var testChar = 0; testChar < possibleQuotes.Length; testChar++)
+      {
+        if (counter[testChar] > max)
+          max = counter[testChar];
+      }
+
+      // We need a certain level of confidence only one quoted column is not enough,
+      if (max > 1)
+      {
+        for (var testChar = 0; testChar < possibleQuotes.Length; testChar++)
+        {
+          if (counter[testChar] == max)
+            return possibleQuotes[testChar];
+        }
+      }
+      return '\0';
     }
 
     /// <summary>
@@ -653,7 +719,7 @@ namespace CsvTools
       if (lastRow < 4)
         return 0;
 
-      // In case we have a row that is exactly twice as long as the row 
+      // In case we have a row that is exactly twice as long as the row
       // before and row after, assume its missing a linefeed
       for (var row = 1; row < lastRow - 1; row++)
       {
@@ -666,14 +732,16 @@ namespace CsvTools
       var sum = 0;
       for (var row = lastRow - 1; num < 10 && row > 0; row--)
       {
-        if (columnCount[row] <= 0) continue;
+        if (columnCount[row] <= 0)
+          continue;
         sum += columnCount[row];
         num++;
       }
 
       var avg = (int)(sum / (double)(num == 0 ? 1 : num));
       // If there are not many columns do not try to guess
-      if (avg <= 1) return 0;
+      if (avg <= 1)
+        return 0;
       {
         // If the first rows would be a good fit return this
         if (columnCount[0] >= avg)
@@ -707,60 +775,6 @@ namespace CsvTools
         }
       }
       return 0;
-    }
-
-    internal static char GuessQualifier(StreamReader streamReader, char delimiter, int skipRows)
-    {
-      if (streamReader == null)
-        return '\0';
-
-      const int maxLine = 30;
-      char[] possibleQuotes = new char[] { '"', '\'' };
-
-      int[] counter = new int[possibleQuotes.Length];
-
-
-      // skip the first line it usually a header      
-      for (int lineNo = 0; lineNo < maxLine + skipRows; lineNo++)
-      {
-        var line = streamReader.ReadLine();
-        // EOF
-        if (line == null) break;
-        if (lineNo < skipRows) continue;
-
-        // Note: Delimiters in quoted text will split the actual column in multiple this will be ignore here, we hope to find columns that do not contain delimiters
-        var cols = line.Split(delimiter);
-        foreach (var col in cols)
-        {
-          if (string.IsNullOrEmpty(col)) continue;
-          var test = col.Trim();
-          // the column need to start and end with the same characters, its at least 2 char long
-          if (test.Length < 2 || (test[0] != test[test.Length - 1])) continue;
-
-          // check all setup test chars
-          for (int testChar = 0; testChar < possibleQuotes.Length; testChar++)
-            if (test[0] == possibleQuotes[testChar]) counter[testChar]++;
-        }
-      }
-
-      // get the highest number of quoted columns
-      int max = 1;
-      for (int testChar = 0; testChar < possibleQuotes.Length; testChar++)
-      {
-        if (counter[testChar] > max)
-          max = counter[testChar];
-      }
-
-      // We need a certain level of confidence only one quoted column is not enough,
-      if (max > 1)
-      {
-        for (int testChar = 0; testChar < possibleQuotes.Length; testChar++)
-        {
-          if (counter[testChar] == max)
-            return possibleQuotes[testChar];
-        }
-      }
-      return '\0';
     }
 
     private static DelimiterCounter GetDelimiterCounter(StreamReader streamReader, char escapeCharacter, int numRows)

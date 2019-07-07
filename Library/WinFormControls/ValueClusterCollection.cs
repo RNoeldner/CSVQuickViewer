@@ -115,7 +115,8 @@ namespace CsvTools
         }
       }
 
-      if (m_Result != BuildValueClustersResult.ListFilled) return m_Result;
+      if (m_Result != BuildValueClustersResult.ListFilled)
+        return m_Result;
       foreach (var item in m_ValueClusters)
         item.Count = 0;
 
@@ -211,7 +212,8 @@ namespace CsvTools
         clusterYear.Add(keyYear);
 
         // if we have more than the maximum entries stop, no value filter will be used
-        if (clusterYear.Count <= maxNumber) continue;
+        if (clusterYear.Count <= maxNumber)
+          continue;
         m_ValueClusters.Clear();
         return BuildValueClustersResult.TooManyValues;
       }
@@ -384,7 +386,8 @@ namespace CsvTools
         }
 
         // if we have more than the maximum entries stop, no value filter will be used
-        if (clusterThousand.Count <= maxNumber) continue;
+        if (clusterThousand.Count <= maxNumber)
+          continue;
         m_ValueClusters.Clear();
         return BuildValueClustersResult.TooManyValues;
       }
@@ -549,7 +552,8 @@ namespace CsvTools
         var key = dataRow[columnIndex] == DBNull.Value ? ColumnFilterLogic.cOPisNull : dataRow[columnIndex].ToString();
         cluster.Add(key);
         // if we have more than the maximum entries stop, no value filter will be used
-        if (cluster.Count <= maxNumber) continue;
+        if (cluster.Count <= maxNumber)
+          continue;
         m_ValueClusters.Clear();
         return BuildValueClustersResult.TooManyValues;
       }
@@ -605,7 +609,8 @@ namespace CsvTools
           }
         }
 
-        if (sort == null) continue;
+        if (sort == null)
+          continue;
         foreach (var item in m_ValueClusters)
         {
           if (sort.Equals(item.Sort, StringComparison.Ordinal))
@@ -653,7 +658,8 @@ namespace CsvTools
           }
         }
 
-        if (sort == null) continue;
+        if (sort == null)
+          continue;
         foreach (var item in m_ValueClusters)
         {
           if (sort.Equals(item.Sort, StringComparison.Ordinal))

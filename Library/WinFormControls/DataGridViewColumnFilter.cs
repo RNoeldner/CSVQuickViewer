@@ -222,7 +222,8 @@ namespace CsvTools
       get => m_ValueDateTime;
       set
       {
-        if (m_ValueDateTime.Equals(value)) return;
+        if (m_ValueDateTime.Equals(value))
+          return;
         m_ValueDateTime = value;
         NotifyPropertyChanged(nameof(ValueDateTime));
       }
@@ -243,7 +244,8 @@ namespace CsvTools
         Contract.Assume(m_ValueText != null);
 
         var newVal = (value ?? string.Empty).Trim();
-        if (m_ValueText.Equals(newVal, StringComparison.Ordinal)) return;
+        if (m_ValueText.Equals(newVal, StringComparison.Ordinal))
+          return;
         m_ValueText = newVal;
         NotifyPropertyChanged(nameof(ValueText));
       }
@@ -323,7 +325,8 @@ namespace CsvTools
     /// <returns>A string with the formatted value</returns>
     private static string FormatValue(string value, Type targetType)
     {
-      if (string.IsNullOrEmpty(value)) return string.Empty;
+      if (string.IsNullOrEmpty(value))
+        return string.Empty;
       switch (Type.GetTypeCode(targetType))
       {
         case TypeCode.DateTime:

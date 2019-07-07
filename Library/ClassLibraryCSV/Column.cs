@@ -81,7 +81,8 @@ namespace CsvTools
       set
       {
         var newVal = value ?? string.Empty;
-        if (m_Name.Equals(newVal, StringComparison.Ordinal)) return;
+        if (m_Name.Equals(newVal, StringComparison.Ordinal))
+          return;
         m_Name = newVal;
 
         NotifyPropertyChanged(nameof(Name));
@@ -102,7 +103,8 @@ namespace CsvTools
       get => m_Convert;
       set
       {
-        if (m_Convert.Equals(value)) return;
+        if (m_Convert.Equals(value))
+          return;
         m_Convert = value;
         NotifyPropertyChanged(nameof(Convert));
       }
@@ -132,7 +134,8 @@ namespace CsvTools
 
       set
       {
-        if (m_DataType.Equals(value)) return;
+        if (m_DataType.Equals(value))
+          return;
         m_DataType = value;
         Convert |= m_DataType != DataType.String;
         NotifyPropertyChanged(nameof(DataType));
@@ -152,7 +155,8 @@ namespace CsvTools
       set
       {
         var newVal = value ?? string.Empty;
-        if (m_DateFormat.Equals(newVal, StringComparison.Ordinal)) return;
+        if (m_DateFormat.Equals(newVal, StringComparison.Ordinal))
+          return;
         m_DateFormat = newVal;
         NotifyPropertyChanged(nameof(DateFormat));
       }
@@ -185,7 +189,8 @@ namespace CsvTools
         // Translate written punctuation into a character
         var chr = FileFormat.GetChar(value);
         var newVal = chr != '\0' ? chr.ToString(CultureInfo.CurrentCulture) : string.Empty;
-        if (m_DateSeparator.Equals(newVal, StringComparison.Ordinal)) return;
+        if (m_DateSeparator.Equals(newVal, StringComparison.Ordinal))
+          return;
         m_DateSeparator = newVal;
         NotifyPropertyChanged(nameof(DateSeparator));
       }
@@ -220,7 +225,8 @@ namespace CsvTools
         // Translate written punctuation into a character
         var chr = FileFormat.GetChar(value);
         var newVal = chr != '\0' ? chr.ToString(CultureInfo.CurrentCulture) : string.Empty;
-        if (m_DecimalSeparator.Equals(newVal, StringComparison.Ordinal)) return;
+        if (m_DecimalSeparator.Equals(newVal, StringComparison.Ordinal))
+          return;
         // If we set the DecimalSeparator to be the Group separator, store the old
         // DecimalSeparator in the group separator;
         if (m_GroupSeparator.Equals(newVal, StringComparison.Ordinal))
@@ -260,7 +266,8 @@ namespace CsvTools
       set
       {
         var newVal = value ?? string.Empty;
-        if (m_DestinationName.Equals(newVal, StringComparison.Ordinal)) return;
+        if (m_DestinationName.Equals(newVal, StringComparison.Ordinal))
+          return;
         m_DestinationName = newVal;
         NotifyPropertyChanged(nameof(DestinationName));
       }
@@ -282,7 +289,8 @@ namespace CsvTools
 
       set
       {
-        if (m_False != null && m_False.Equals(value, StringComparison.Ordinal)) return;
+        if (m_False != null && m_False.Equals(value, StringComparison.Ordinal))
+          return;
         m_False = value;
         NotifyPropertyChanged(nameof(False));
       }
@@ -317,7 +325,8 @@ namespace CsvTools
         var chr = FileFormat.GetChar(value);
         var newVal = chr != '\0' ? chr.ToString(CultureInfo.CurrentCulture) : string.Empty;
 
-        if (m_GroupSeparator.Equals(newVal, StringComparison.Ordinal)) return;
+        if (m_GroupSeparator.Equals(newVal, StringComparison.Ordinal))
+          return;
         // If we set the DecimalSeparator to be the group separator, store the old
         // DecimalSeparator in the group separator;
         if (m_DecimalSeparator.Equals(newVal, StringComparison.Ordinal))
@@ -357,7 +366,8 @@ namespace CsvTools
 
       set
       {
-        if (m_Ignore.Equals(value)) return;
+        if (m_Ignore.Equals(value))
+          return;
         m_Ignore = value;
         NotifyPropertyChanged(nameof(Ignore));
       }
@@ -375,7 +385,8 @@ namespace CsvTools
       set
       {
         var newVal = value ?? string.Empty;
-        if (m_NumberFormat.Equals(newVal, StringComparison.Ordinal)) return;
+        if (m_NumberFormat.Equals(newVal, StringComparison.Ordinal))
+          return;
         m_NumberFormat = newVal;
         NotifyPropertyChanged(nameof(NumberFormat));
       }
@@ -405,7 +416,8 @@ namespace CsvTools
 
       set
       {
-        if (m_Part.Equals(value)) return;
+        if (m_Part.Equals(value))
+          return;
         m_Part = value;
         NotifyPropertyChanged(nameof(Part));
       }
@@ -434,7 +446,8 @@ namespace CsvTools
 
       set
       {
-        if (m_PartSplitter.Equals(value)) return;
+        if (m_PartSplitter.Equals(value))
+          return;
         m_PartSplitter = value;
         NotifyPropertyChanged(nameof(PartSplitter));
       }
@@ -465,7 +478,8 @@ namespace CsvTools
 
       set
       {
-        if (m_PartToEnd.Equals(value)) return;
+        if (m_PartToEnd.Equals(value))
+          return;
         m_PartToEnd = value;
         NotifyPropertyChanged(nameof(PartToEnd));
       }
@@ -507,7 +521,8 @@ namespace CsvTools
       set
       {
         var newVal = value ?? string.Empty;
-        if (m_TimePart.Equals(newVal, StringComparison.Ordinal)) return;
+        if (m_TimePart.Equals(newVal, StringComparison.Ordinal))
+          return;
         m_TimePart = newVal;
         NotifyPropertyChanged(nameof(TimePart));
       }
@@ -526,7 +541,8 @@ namespace CsvTools
       set
       {
         var newVal = value ?? string.Empty;
-        if (m_TimeZonePart.Equals(newVal, StringComparison.Ordinal)) return;
+        if (m_TimeZonePart.Equals(newVal, StringComparison.Ordinal))
+          return;
         m_TimeZonePart = newVal;
         NotifyPropertyChanged(nameof(TimeZonePart));
       }
@@ -544,7 +560,8 @@ namespace CsvTools
       set
       {
         var newVal = value ?? cDefaultTimePartFormat;
-        if (m_TimePartFormat.Equals(newVal, StringComparison.Ordinal)) return;
+        if (m_TimePartFormat.Equals(newVal, StringComparison.Ordinal))
+          return;
         m_TimePartFormat = newVal;
         NotifyPropertyChanged(nameof(TimePartFormat));
       }
@@ -587,7 +604,8 @@ namespace CsvTools
       {
         var chr = FileFormat.GetChar(value);
         var newval = chr != '\0' ? chr.ToString(CultureInfo.CurrentCulture) : string.Empty;
-        if (m_TimeSeparator.Equals(newval, StringComparison.Ordinal)) return;
+        if (m_TimeSeparator.Equals(newval, StringComparison.Ordinal))
+          return;
         m_TimeSeparator = newval;
         NotifyPropertyChanged(nameof(TimeSeparator));
       }
@@ -619,7 +637,8 @@ namespace CsvTools
 
       set
       {
-        if (m_True != null && m_True.Equals(value, StringComparison.Ordinal)) return;
+        if (m_True != null && m_True.Equals(value, StringComparison.Ordinal))
+          return;
         m_True = value;
         NotifyPropertyChanged(nameof(True));
       }
@@ -722,8 +741,10 @@ namespace CsvTools
     /// </returns>
     public bool Equals(Column other)
     {
-      if (other is null) return false;
-      if (ReferenceEquals(this, other)) return true;
+      if (other is null)
+        return false;
+      if (ReferenceEquals(this, other))
+        return true;
       return m_ColumnOrdinal == other.m_ColumnOrdinal && m_Convert == other.m_Convert &&
              m_DataType == other.m_DataType && string.Equals(m_DateFormat, other.m_DateFormat, StringComparison.Ordinal) &&
              string.Equals(m_DateSeparator, other.m_DateSeparator, StringComparison.Ordinal) &&

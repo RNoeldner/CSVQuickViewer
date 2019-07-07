@@ -1,6 +1,6 @@
-﻿using log4net.Util;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.IO;
+using log4net.Util;
 
 namespace CsvTools
 {
@@ -9,10 +9,11 @@ namespace CsvTools
     protected override void Convert(TextWriter writer, object state)
     {
       var loggingEvent = state as log4net.Core.LoggingEvent;
-      if (string.IsNullOrEmpty(loggingEvent?.RenderedMessage)) return;
+      if (string.IsNullOrEmpty(loggingEvent?.RenderedMessage))
+        return;
 
       // Replace newline characters with spaces and … with ...
-      var encodedMessage = StringUtils.HandleCRLFCombinations(loggingEvent.RenderedMessage).Replace("…","...");
+      var encodedMessage = StringUtils.HandleCRLFCombinations(loggingEvent.RenderedMessage).Replace("…", "...");
 
       // Get only the innermost exception
       var ex = loggingEvent.ExceptionObject;
@@ -32,7 +33,8 @@ namespace CsvTools
 
     private static string GetEntryForException(System.Exception ex)
     {
-      if (ex == null) return string.Empty;
+      if (ex == null)
+        return string.Empty;
       var message = $"\r {ex.GetType()}: {StringUtils.HandleCRLFCombinations(ex.Message)}";
       if (!string.IsNullOrEmpty(ex.StackTrace))
       {
@@ -42,7 +44,8 @@ namespace CsvTools
           try
           {
             var method = frame.GetMethod();
-            if (method == null) continue;
+            if (method == null)
+              continue;
             if (method.DeclaringType.Namespace.Equals("CsvTools", System.StringComparison.OrdinalIgnoreCase))
             {
               message += $"\r  at {method.DeclaringType.Name}.{method.Name}";

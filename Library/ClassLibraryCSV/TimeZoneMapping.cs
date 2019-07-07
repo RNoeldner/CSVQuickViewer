@@ -12,11 +12,11 @@
  *
  */
 
-using NodaTime;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using NodaTime;
 
 namespace CsvTools
 {
@@ -24,11 +24,9 @@ namespace CsvTools
   {
     public const string cIdLocal = "(local)";
     public const string cUTC = "Etc/UTC";
-    private const int cMinSavingSeconds = 90; // 15 Min
+    private const int m_MinSavingSeconds = 90; // 15 Min
 
     private static readonly IDictionary<string, string> m_Mapping = new SortedDictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-    private static readonly IList<string> m_UsedTz = new List<string>();
-
     private static bool m_NeedsInit = true;
 
     /// <summary>
@@ -37,7 +35,7 @@ namespace CsvTools
     /// <value>
     /// The used time zone ids.
     /// </value>
-    public static IList<string> UsedTz => m_UsedTz;
+    public static IList<string> UsedTz { get; } = new List<string>();
 
     /// <summary>
     /// Gets the alternate names for the time zone
@@ -46,8 +44,9 @@ namespace CsvTools
     /// <returns></returns>
     public static IEnumerable<string> AlternateTZNames(this string timeZoneName)
     {
-      DateTimeZone dateTimeZone = GetTimeZone(timeZoneName);
-      if (m_NeedsInit) InitMapping();
+      var dateTimeZone = GetTimeZone(timeZoneName);
+      if (m_NeedsInit)
+        InitMapping();
       return m_Mapping.Where(x => x.Value == dateTimeZone.Id).Select(x => x.Key);
     }
 
@@ -87,10 +86,7 @@ namespace CsvTools
       return Instant.FromDateTimeUtc(dateTimeUTC).InZone(GetTimeZone(destTZName)).ToDateTimeUnspecified();
     }
 
-    public static string GetTimeZoneID(string timeZoneName)
-    {
-      return GetTimeZone(timeZoneName).Id;
-    }
+    public static string GetTimeZoneID(string timeZoneName) => GetTimeZone(timeZoneName).Id;
 
     /// <summary>
     /// Gets the time zone savings times in a year.
@@ -100,7 +96,7 @@ namespace CsvTools
     /// <returns></returns>
     public static Tuple<DateTime, DateTime> GetTranstionTimes(this string timeZoneName, int year)
     {
-      foreach (var saving in IntervalsInYear(timeZoneName, year).Where(x => x.Savings.Seconds >= cMinSavingSeconds))
+      foreach (var saving in IntervalsInYear(timeZoneName, year).Where(x => x.Savings.Seconds >= m_MinSavingSeconds))
         return new Tuple<DateTime, DateTime>(saving.Start.ToDateTimeUtc(), saving.End.ToDateTimeUtc());
       return null;
     }
@@ -112,22 +108,26 @@ namespace CsvTools
     /// <returns></returns>
     public static string GetTZAbbreviation(this string timeZoneName)
     {
-      DateTimeZone dateTimeZone = GetTimeZone(timeZoneName);
-      if (m_NeedsInit) InitMapping();
+      var dateTimeZone = GetTimeZone(timeZoneName);
+      if (m_NeedsInit)
+        InitMapping();
       var matches = m_Mapping.Where(x => x.Value == dateTimeZone.Id && x.Key.Length == 3 && !int.TryParse(x.Key, out _)).Take(1).ToList();
-      if (matches.Count != 0) return matches[0].Key;
+      if (matches.Count != 0)
+        return matches[0].Key;
 
       matches = m_Mapping.Where(x => x.Value == dateTimeZone.Id && x.Key.Length == 4 && !int.TryParse(x.Key, out _)).Take(1).ToList();
-      if (matches.Count != 0) return matches[0].Key;
+      if (matches.Count != 0)
+        return matches[0].Key;
 
       foreach (var other in WithSameRule(timeZoneName, DateTime.Now.Year))
       {
         matches = m_Mapping.Where(x => x.Value == other && x.Key.Length == 3 && !int.TryParse(x.Key, out _)).Take(1).ToList();
-        if (matches.Count != 0) return matches[0].Key;
+        if (matches.Count != 0)
+          return matches[0].Key;
       }
 
       // the intervals have names, pick an interval without offset
-      var inter = IntervalsInYear(timeZoneName, DateTime.UtcNow.Year).FirstOrDefault(x => x.Savings.Seconds < cMinSavingSeconds && !string.IsNullOrEmpty(x.Name));
+      var inter = IntervalsInYear(timeZoneName, DateTime.UtcNow.Year).FirstOrDefault(x => x.Savings.Seconds < m_MinSavingSeconds && !string.IsNullOrEmpty(x.Name));
       if (inter != null)
         return inter.Name;
 
@@ -145,7 +145,7 @@ namespace CsvTools
       if (dateTimeUTC.Kind != DateTimeKind.Utc)
         dateTimeUTC = DateTime.SpecifyKind(dateTimeUTC, DateTimeKind.Utc);
 
-      return GetTimeZone(timeZoneName).GetZoneIntervals(Instant.FromDateTimeUtc(dateTimeUTC), Instant.FromDateTimeUtc(dateTimeUTC.AddDays(1))).Any(x => x.Savings.Seconds >= cMinSavingSeconds);
+      return GetTimeZone(timeZoneName).GetZoneIntervals(Instant.FromDateTimeUtc(dateTimeUTC), Instant.FromDateTimeUtc(dateTimeUTC.AddDays(1))).Any(x => x.Savings.Seconds >= m_MinSavingSeconds);
     }
 
     /// <summary>
@@ -172,7 +172,7 @@ namespace CsvTools
     /// <returns></returns>
     public static string Offset(this string timeZoneName, int year)
     {
-      var std = IntervalsInYear(timeZoneName, year).Where(x => x.Savings.Seconds < cMinSavingSeconds).FirstOrDefault();
+      var std = IntervalsInYear(timeZoneName, year).Where(x => x.Savings.Seconds < m_MinSavingSeconds).FirstOrDefault();
       if (std != null)
         return std.StandardOffset.ToString();
       else
@@ -185,10 +185,7 @@ namespace CsvTools
     /// <param name="dateTimeZone">The date time zone.</param>
     /// <param name="year"></param>
     /// <returns></returns>
-    public static bool SupportsDaylightSavingTime(this string timeZoneName, int year)
-    {
-      return IntervalsInYear(timeZoneName, year).Any(x => x.Savings.Seconds >= cMinSavingSeconds);
-    }
+    public static bool SupportsDaylightSavingTime(this string timeZoneName, int year) => IntervalsInYear(timeZoneName, year).Any(x => x.Savings.Seconds >= m_MinSavingSeconds);
 
     /// <summary>
     /// Returns a list of time zones that have the same rules for that year
@@ -198,7 +195,7 @@ namespace CsvTools
     /// <returns></returns>
     public static IEnumerable<string> WithSameRule(this string timeZoneName, int year)
     {
-      DateTimeZone dateTimeZone = GetTimeZone(timeZoneName);
+      var dateTimeZone = GetTimeZone(timeZoneName);
       var saving = IntervalsInYear(timeZoneName, year).OrderBy(x => x.HasStart ? x.Start.ToDateTimeUtc() : new DateTime(0, DateTimeKind.Utc)).ToList();
 
       foreach (var otherZoneID in DateTimeZoneProviders.Tzdb.Ids)
@@ -211,8 +208,8 @@ namespace CsvTools
         if (otherSaving.Count() != saving.Count())
           continue;
 
-        bool same = true;
-        for (int i = 0; i < otherSaving.Count() && same; i++)
+        var same = true;
+        for (var i = 0; i < otherSaving.Count() && same; i++)
         {
           same = (saving[i].Name.Equals(otherSaving[i].Name, StringComparison.OrdinalIgnoreCase) && saving[i].StandardOffset.Equals(otherSaving[i].StandardOffset));
           if (same && saving[i].HasStart && otherSaving[i].HasStart)
@@ -250,13 +247,14 @@ namespace CsvTools
       }
       else
       {
-        if (m_NeedsInit) InitMapping();
+        if (m_NeedsInit)
+          InitMapping();
         if (!m_Mapping.TryGetValue(timeZoneName, out tzdbID))
           throw new ConversionException($"Time zone adjustment not calculated since time zone {timeZoneName} is unknown.");
       }
 
-      if (!m_UsedTz.Contains(tzdbID))
-        m_UsedTz.Add(tzdbID);
+      if (!UsedTz.Contains(tzdbID))
+        UsedTz.Add(tzdbID);
 
       return DateTimeZoneProviders.Tzdb[tzdbID];
     }
@@ -272,14 +270,16 @@ namespace CsvTools
 
       using (var reader = FileSystemUtils.GetStreamReaderForFileOrResource("TZMapping.txt"))
       {
-        if (reader == null) return;
+        if (reader == null)
+          return;
         while (!reader.EndOfStream)
         {
           var entry = reader.ReadLine();
           if (string.IsNullOrEmpty(entry) || entry[0] == '#')
             continue;
           var tab = entry.IndexOf('\t');
-          if (tab <= 0) continue;
+          if (tab <= 0)
+            continue;
           var timeZoneID = entry.Substring(tab + 1);
           if (DateTimeZoneProviders.Tzdb.Ids.Contains(timeZoneID))
             m_Mapping.AddIfNew(entry.Substring(0, tab), timeZoneID);
@@ -291,7 +291,7 @@ namespace CsvTools
 
     private static IEnumerable<NodaTime.TimeZones.ZoneInterval> IntervalsInYear(this string timeZoneName, int year)
     {
-      DateTimeZone dateTimeZone = GetTimeZone(timeZoneName);
+      var dateTimeZone = GetTimeZone(timeZoneName);
       return dateTimeZone.GetZoneIntervals(
                   new LocalDateTime(year, 1, 1, 0, 0).InZoneLeniently(dateTimeZone).ToInstant(),
                   new LocalDateTime(year + 1, 1, 1, 0, 0).InZoneLeniently(dateTimeZone).ToInstant());

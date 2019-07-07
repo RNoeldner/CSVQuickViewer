@@ -79,7 +79,6 @@ namespace CsvTools
           throw new ArgumentNullException(nameof(reader));
 
         var headers = new HashSet<string>();
-       
 
         // Used for Uniqueness in GetColumnInformationForOneColumn
         var allColumns = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -104,7 +103,8 @@ namespace CsvTools
               foreach (DataRow schemaRowTz in dataTable.Rows)
               {
                 var otherColumnName = schemaRowTz[SchemaTableColumn.ColumnName].ToString();
-                if (!otherColumnName.Equals(col.TimeZonePart, StringComparison.OrdinalIgnoreCase)) continue;
+                if (!otherColumnName.Equals(col.TimeZonePart, StringComparison.OrdinalIgnoreCase))
+                  continue;
                 timeZonePartOrdinal = (int)schemaRowTz[SchemaTableColumn.ColumnOrdinal];
                 break;
               }
@@ -117,7 +117,8 @@ namespace CsvTools
         }
         else
         {
-          foreach (DataColumn col in dataTable.Columns) allColumns.Add(col.ColumnName);
+          foreach (DataColumn col in dataTable.Columns)
+            allColumns.Add(col.ColumnName);
           // Its a data table retrieve information from columns
           foreach (DataColumn col in dataTable.Columns)
             fieldInfoList.AddRange(GetColumnInformationForOneColumn(m_FileSetting, headers,
@@ -192,6 +193,35 @@ namespace CsvTools
       }
     }
 
+    public long Write(IDataReader reader)
+    {
+      if (reader == null)
+        return -1;
+      m_Records = 0;
+      if (m_ProcessDisplay != null)
+        m_ProcessDisplay.Maximum = -1;
+      try
+      {
+        using (var improvedStream = ImprovedStream.OpenWrite(m_FileSetting.FullPath, m_ProcessDisplay, m_FileSetting.Recipient))
+        {
+          Write(reader, improvedStream.Stream, m_ProcessDisplay?.CancellationToken ?? CancellationToken.None);
+        }
+
+        m_FileSetting.FileLastWriteTimeUtc = DateTime.UtcNow;
+      }
+      catch (Exception exc)
+      {
+        ErrorMessage = $"Could not write file '{m_FileSetting.FileName}'.\r\n{exc.ExceptionMessages()}";
+        if (m_FileSetting.InOverview)
+          throw;
+      }
+      finally
+      {
+        HandleWriteFinished();
+      }
+      return m_Records;
+    }
+
     /// <summary>
     ///  Writes the specified file reading from the a data table
     /// </summary>
@@ -205,34 +235,23 @@ namespace CsvTools
       }
     }
 
-    protected internal virtual string ReplacePlaceHolder(string input)
-    {
-      return input.PlaceholderReplace("ID", m_FileSetting.ID)
+    protected internal virtual string ReplacePlaceHolder(string input) => input.PlaceholderReplace("ID", m_FileSetting.ID)
        .PlaceholderReplace("FileName", m_FileSetting.FileName)
        .PlaceholderReplace("Records", string.Format(new CultureInfo("en-US"), "{0:n0}", m_Records))
        .PlaceholderReplace("Delim", m_FileSetting.FileFormat.FieldDelimiterChar.ToString(CultureInfo.CurrentCulture))
        .PlaceholderReplace("CDate", string.Format(new CultureInfo("en-US"), "{0:dd-MMM-yyyy}", DateTime.Now))
        .PlaceholderReplace("CDateLong", string.Format(new CultureInfo("en-US"), "{0:MMMM dd\\, yyyy}", DateTime.Now));
-    }
 
     /// <summary>
     ///  Handles the error.
     /// </summary>
     /// <param name="columnName">The column name.</param>
     /// <param name="message">The message.</param>
-    protected virtual void HandleError(string columnName, string message)
-    {
-      Warning?.Invoke(this, new WarningEventArgs(m_Records, 0, message, 0, 0, columnName));
-    }
+    protected virtual void HandleError(string columnName, string message) => Warning?.Invoke(this, new WarningEventArgs(m_Records, 0, message, 0, 0, columnName));
 
-    protected void HandleProgress(string text, int progress)
-    {
-      m_ProcessDisplay?.SetProcess(text, progress);
-    }
-    protected void HandleProgress(string text)
-    {
-      m_ProcessDisplay?.SetProcess(text);
-    }
+    protected void HandleProgress(string text, int progress) => m_ProcessDisplay?.SetProcess(text, progress);
+
+    protected void HandleProgress(string text) => m_ProcessDisplay?.SetProcess(text);
 
     /// <summary>
     /// Handles the time zone for a date time column
@@ -270,10 +289,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="columnName">The column.</param>
     /// <param name="message">The message.</param>
-    protected virtual void HandleWarning(string columnName, string message)
-    {
-      Warning?.Invoke(this, new WarningEventArgs(m_Records, 0, message.AddWarningId(), 0, 0, columnName));
-    }
+    protected virtual void HandleWarning(string columnName, string message) => Warning?.Invoke(this, new WarningEventArgs(m_Records, 0, message.AddWarningId(), 0, 0, columnName));
 
     protected void HandleWriteFinished()
     {
@@ -281,15 +297,13 @@ namespace CsvTools
       WriteFinished?.Invoke(this, null);
     }
 
-    protected void HandleWriteStart()
-    {
-      m_Records = 0;
-    }
+    protected void HandleWriteStart() => m_Records = 0;
 
     protected void NextRecord()
     {
       m_Records++;
-      if (!((DateTime.Now - m_LastNotification).TotalSeconds > .15)) return;
+      if (!((DateTime.Now - m_LastNotification).TotalSeconds > .15))
+        return;
       m_LastNotification = DateTime.Now;
       HandleProgress($"Record {m_Records:N0}");
     }
@@ -455,7 +469,8 @@ namespace CsvTools
       if (!string.IsNullOrEmpty(columnFormat?.TimePart))
         addTimeFormat |= !columns.Contains(columnFormat.TimePart);
 
-      if (!addTimeFormat) yield break;
+      if (!addTimeFormat)
+        yield break;
       var columnNameTime = GetUniqueFieldName(headers, columnFormat.TimePart);
       var cfTimePart = new Column
       {
@@ -523,34 +538,6 @@ namespace CsvTools
         fieldName = defaultName + (++counter).ToString(CultureInfo.InvariantCulture);
       headers.Add(fieldName);
       return fieldName;
-    }
-
-    public long Write(IDataReader reader)
-    {
-      if (reader == null)
-        return -1;
-      m_Records = 0;
-      if (m_ProcessDisplay != null) m_ProcessDisplay.Maximum = -1;
-      try
-      {
-        using (var improvedStream = ImprovedStream.OpenWrite(m_FileSetting.FullPath, m_ProcessDisplay, m_FileSetting.Recipient))
-        {
-          Write(reader, improvedStream.Stream, m_ProcessDisplay?.CancellationToken ?? CancellationToken.None);
-        }
-
-        m_FileSetting.FileLastWriteTimeUtc = DateTime.UtcNow;
-      }
-      catch (Exception exc)
-      {
-        ErrorMessage = $"Could not write file '{m_FileSetting.FileName}'.\r\n{exc.ExceptionMessages()}";
-        if (m_FileSetting.InOverview)
-          throw;
-      }
-      finally
-      {
-        HandleWriteFinished();
-      }
-      return m_Records;
     }
   }
 }
