@@ -14,7 +14,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Diagnostics.Contracts;
 using System.Globalization;
@@ -27,7 +26,6 @@ namespace CsvTools
   /// </summary>
   public class FormShowMaxLength : Form
   {
-    private readonly IContainer components = null;
     private readonly DataRow[] m_DataRow;
     private readonly DataTable m_DataTable;
     private FilteredDataGridView m_DataGridView;
@@ -51,12 +49,7 @@ namespace CsvTools
     ///   Clean up any resources being used.
     /// </summary>
     /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
-    protected override void Dispose(bool disposing)
-    {
-      if (disposing)
-        components?.Dispose();
-      base.Dispose(disposing);
-    }
+    protected override void Dispose(bool disposing) => base.Dispose(disposing);
 
     #region Windows Form Designer generated code
 
@@ -144,6 +137,9 @@ namespace CsvTools
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
     private void ShowMaxLength_Load(object sender, EventArgs e)
     {
+      if (m_DataTable == null || m_DataRow == null || m_DataRow.IsEmpty())
+        return;
+
       try
       {
         var dataTable = new DataTable
@@ -172,6 +168,7 @@ namespace CsvTools
         }
 
         if (colIndex.Count > 0)
+        {
           foreach (var row in m_DataRow)
             foreach (var col in checkCols)
             {
@@ -181,7 +178,7 @@ namespace CsvTools
                 maxLength[col.Key] = cl;
               }
             }
-
+        }
         var colNo = 1;
         foreach (var len in maxLength)
         {

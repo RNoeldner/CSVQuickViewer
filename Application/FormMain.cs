@@ -37,21 +37,21 @@ namespace CsvTools
   /// </summary>
   public sealed partial class FormMain : Form
   {
-    private static readonly ILog Log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
-    private static readonly XmlSerializer m_SerializerViewSettings = new XmlSerializer(typeof(ViewSettings));
     private static readonly string cSettingFolder = Environment.ExpandEnvironmentVariables("%APPDATA%\\CSVQuickViewer");
     private static readonly string cSettingPath = cSettingFolder + "\\Setting.xml";
+    private static readonly ILog Log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+    private static readonly XmlSerializer m_SerializerViewSettings = new XmlSerializer(typeof(ViewSettings));
     private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
     private readonly Timer m_SettingsChangedTimerChange = new Timer(200);
     private readonly Collection<Column> m_StoreColumns = new Collection<Column>();
     private readonly ViewSettings m_ViewSettings;
-    private string m_FileName;
     private bool m_ConfigChanged;
     private CancellationTokenSource m_CurrentCancellationTokenSource;
     private bool m_FileChanged;
+    private string m_FileName;
     private CsvFile m_FileSetting;
-    private int m_WarningCount;
     private HashSet<string> m_Headers;
+    private int m_WarningCount;
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="FormMain" /> class.
@@ -104,6 +104,27 @@ namespace CsvTools
 
         return Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().CodeBase);
       }
+    }
+
+    private static ViewSettings LoadDefault()
+    {
+      try
+      {
+        Log.Debug($"Loading defaults {cSettingPath}");
+        if (FileSystemUtils.FileExists(cSettingPath))
+        {
+          var serial = File.ReadAllText(cSettingPath);
+          using (TextReader reader = new StringReader(serial))
+          {
+            return (ViewSettings)m_SerializerViewSettings.Deserialize(reader);
+          }
+        }
+      }
+      catch (Exception ex)
+      {
+        Log.Error(ex);
+      }
+      return new ViewSettings();
     }
 
     private void AddWarning(object sender, WarningEventArgs args)
@@ -295,6 +316,15 @@ namespace CsvTools
       m_FileSetting.FileName = m_FileName;
     }
 
+    private void FormMain_KeyUp(object sender, KeyEventArgs e)
+    {
+      if (e.KeyCode == Keys.F5 || (e.Control && e.KeyCode == Keys.R))
+      {
+        e.Handled = true;
+        OpenDataReader(true);
+      }
+    }
+
     /// <summary>
     ///   Initializes the file settings.
     /// </summary>
@@ -308,8 +338,9 @@ namespace CsvTools
         return false;
 
       ClearProcess();
-      Log.Info($"Examining file {m_FileName}");
-      Text = $"{AssemblyTitle} : {FileSystemUtils.GetShortDisplayFileName(m_FileName, 80)}";
+      var sDisplay = FileSystemUtils.GetShortDisplayFileName(m_FileName, 80);
+      Log.Info($"Examining file {sDisplay}");
+      Text = $"{AssemblyTitle} : {sDisplay}";
 
       var oldCursor = Cursor.Current == Cursors.WaitCursor ? Cursors.WaitCursor : Cursors.Default;
       Cursor.Current = Cursors.WaitCursor;
@@ -471,29 +502,6 @@ namespace CsvTools
       }
 
       return true;
-    }
-
-    private static ViewSettings LoadDefault()
-    {
-      try
-      {
-        Log.Debug($"Loading defaults {cSettingPath}");
-        if (FileSystemUtils.FileExists(cSettingPath))
-        {
-          var serial = File.ReadAllText(cSettingPath);
-          using (TextReader reader = new StringReader(serial))
-          {
-#pragma warning disable CA3075 // Insecure DTD processing in XML
-            return (ViewSettings)m_SerializerViewSettings.Deserialize(reader);
-#pragma warning restore CA3075 // Insecure DTD processing in XML
-          }
-        }
-      }
-      catch (Exception ex)
-      {
-        Log.Error(ex);
-      }
-      return new ViewSettings();
     }
 
     /// <summary>
@@ -731,15 +739,6 @@ namespace CsvTools
           Log.Debug($"Power Event Resume");
           this.LoadWindowState(m_ViewSettings.WindowPosition);
           break;
-      }
-    }
-
-    private void FormMain_KeyUp(object sender, KeyEventArgs e)
-    {
-      if (e.KeyCode == Keys.F5 || (e.Control && e.KeyCode == Keys.R))
-      {
-        e.Handled = true;
-        OpenDataReader(true);
       }
     }
   }

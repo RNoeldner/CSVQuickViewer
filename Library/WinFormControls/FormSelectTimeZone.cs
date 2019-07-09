@@ -56,22 +56,20 @@ namespace CsvTools
       //
       // m_BtnOk
       //
-      m_BtnOk.Anchor = (System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right);
       m_BtnOk.DialogResult = System.Windows.Forms.DialogResult.OK;
-      m_BtnOk.Location = new System.Drawing.Point(357, 102);
+      m_BtnOk.Location = new System.Drawing.Point(356, 84);
       m_BtnOk.Name = "m_BtnOk";
-      m_BtnOk.Size = new System.Drawing.Size(61, 23);
+      m_BtnOk.Size = new System.Drawing.Size(72, 23);
       m_BtnOk.TabIndex = 2;
       m_BtnOk.Text = "&OK";
       m_BtnOk.Click += new System.EventHandler(BtnOK_Click);
       //
       // m_BtnCancel
       //
-      m_BtnCancel.Anchor = (System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right);
       m_BtnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-      m_BtnCancel.Location = new System.Drawing.Point(424, 102);
+      m_BtnCancel.Location = new System.Drawing.Point(433, 84);
       m_BtnCancel.Name = "m_BtnCancel";
-      m_BtnCancel.Size = new System.Drawing.Size(61, 23);
+      m_BtnCancel.Size = new System.Drawing.Size(72, 23);
       m_BtnCancel.TabIndex = 1;
       m_BtnCancel.Text = "&Cancel";
       m_BtnCancel.Click += new System.EventHandler(BtnCancel_Click);
@@ -79,7 +77,7 @@ namespace CsvTools
       // label1
       //
       label1.AutoSize = true;
-      label1.Location = new System.Drawing.Point(13, 13);
+      label1.Location = new System.Drawing.Point(7, 9);
       label1.Name = "label1";
       label1.Size = new System.Drawing.Size(389, 39);
       label1.TabIndex = 5;
@@ -95,9 +93,9 @@ namespace CsvTools
       //
       // timeZoneSelector1
       //
-      timeZoneSelector1.Location = new System.Drawing.Point(16, 67);
+      timeZoneSelector1.Location = new System.Drawing.Point(6, 55);
       timeZoneSelector1.Name = "timeZoneSelector1";
-      timeZoneSelector1.Size = new System.Drawing.Size(469, 29);
+      timeZoneSelector1.Size = new System.Drawing.Size(500, 29);
       timeZoneSelector1.TabIndex = 0;
       timeZoneSelector1.TimeZoneID = "(local)";
       //
@@ -107,17 +105,16 @@ namespace CsvTools
       AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       CancelButton = m_BtnCancel;
-      ClientSize = new System.Drawing.Size(486, 127);
+      ClientSize = new System.Drawing.Size(511, 111);
       ControlBox = false;
       Controls.Add(timeZoneSelector1);
       Controls.Add(label1);
       Controls.Add(m_BtnCancel);
       Controls.Add(m_BtnOk);
-      FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
+      FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
       MaximumSize = new System.Drawing.Size(700, 300);
       MinimumSize = new System.Drawing.Size(380, 85);
       Name = "FormSelectTimeZone";
-      ShowIcon = false;
       Text = "Select Time Zone";
       TopMost = true;
       MouseMove += new System.Windows.Forms.MouseEventHandler(FormSelectTimeZone_MouseMove);
