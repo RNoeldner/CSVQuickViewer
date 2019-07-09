@@ -78,24 +78,15 @@ namespace CsvTools
 #endif
     }
 
-    public static void CompleteTask(this System.Threading.Tasks.Task executeTask, CancellationToken cancellationToken)
-    {
-      while (executeTask.Status != System.Threading.Tasks.TaskStatus.RanToCompletion)
-      {
-        ProcessUIElements();
-        executeTask.Wait(100, cancellationToken);
-      }
-    }
-
-    public static void CompleteTask(this System.Threading.Tasks.Task executeTask, double timeoutMinutes, CancellationToken cancellationToken)
+    public static void WaitToCompleteTask(this System.Threading.Tasks.Task executeTask, int timeoutSeconds, CancellationToken cancellationToken)
     {
       var stopwatch = new Stopwatch();
       stopwatch.Start();
       while (executeTask.Status != System.Threading.Tasks.TaskStatus.RanToCompletion)
       {
-        if (timeoutMinutes > 0 && stopwatch.ElapsedMilliseconds > timeoutMinutes * 60000)
+        if (timeoutSeconds > 0 && stopwatch.ElapsedMilliseconds > timeoutSeconds * 1000)
         {
-          throw new TimeoutException($"Waited longer than {timeoutMinutes * 60:N0} seconds, assuming something is wrong");
+          throw new TimeoutException($"Waited longer than {timeoutSeconds:N0} seconds, assuming something is wrong");
         }
         ProcessUIElements();
         executeTask.Wait(100, cancellationToken);

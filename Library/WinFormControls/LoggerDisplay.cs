@@ -22,13 +22,13 @@ namespace CsvTools
 {
   public class LoggerDisplay : RichTextBox
   {
-    private static readonly ILog Log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+    private static readonly ILog m_Log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
     private readonly LogAppenderTextBox m_LogAppenderTextBox;
 
     public LoggerDisplay()
     {
       m_LogAppenderTextBox = new LogAppenderTextBox(this);
-      Multiline = false;
+      Multiline = true;
       KeyUp += base.FindForm().CtrlA;
 
       try
@@ -41,7 +41,7 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        Log.Error("Error setting the log file", ex);
+        m_Log.Error("Error setting the log file", ex);
       }
     }
 
