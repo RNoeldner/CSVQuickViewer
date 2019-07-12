@@ -89,6 +89,9 @@
       this.labelResultPart = new System.Windows.Forms.Label();
       this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
       this.textBoxColumnName = new System.Windows.Forms.TextBox();
+      this.labelDisplayNullAs = new System.Windows.Forms.Label();
+      this.textBoxDisplayNullAs = new System.Windows.Forms.TextBox();
+      this.bindingSourceValueFormat = new System.Windows.Forms.BindingSource(this.components);
       this.errorProvider = new System.Windows.Forms.ErrorProvider(this.components);
       this.toolTip = new System.Windows.Forms.ToolTip(this.components);
       this.buttonDisplayValues = new System.Windows.Forms.Button();
@@ -110,6 +113,7 @@
       this.groupBoxBoolean.SuspendLayout();
       this.groupBoxSplit.SuspendLayout();
       this.flowLayoutPanel1.SuspendLayout();
+      ((System.ComponentModel.ISupportInitialize)(this.bindingSourceValueFormat)).BeginInit();
       ((System.ComponentModel.ISupportInitialize)(this.errorProvider)).BeginInit();
       this.SuspendLayout();
       // 
@@ -328,9 +332,9 @@
       this.comboBoxDataType.DisplayMember = "Display";
       this.comboBoxDataType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
       this.comboBoxDataType.FormattingEnabled = true;
-      this.comboBoxDataType.Location = new System.Drawing.Point(3, 30);
+      this.comboBoxDataType.Location = new System.Drawing.Point(512, 3);
       this.comboBoxDataType.Name = "comboBoxDataType";
-      this.comboBoxDataType.Size = new System.Drawing.Size(175, 21);
+      this.comboBoxDataType.Size = new System.Drawing.Size(155, 21);
       this.comboBoxDataType.TabIndex = 2;
       this.comboBoxDataType.ValueMember = "ID";
       this.comboBoxDataType.SelectedIndexChanged += new System.EventHandler(this.ComboBoxDataType_SelectedIndexChanged);
@@ -425,7 +429,7 @@
       this.groupBoxDate.Controls.Add(this.labelSample);
       this.groupBoxDate.Controls.Add(labelDateSep);
       this.groupBoxDate.Controls.Add(this.textBoxDateSeparator);
-      this.groupBoxDate.Location = new System.Drawing.Point(3, 62);
+      this.groupBoxDate.Location = new System.Drawing.Point(3, 56);
       this.groupBoxDate.Name = "groupBoxDate";
       this.groupBoxDate.Size = new System.Drawing.Size(617, 178);
       this.groupBoxDate.TabIndex = 5;
@@ -527,7 +531,7 @@
       this.groupBoxNumber.Controls.Add(labelPoint);
       this.groupBoxNumber.Controls.Add(this.textBoxGroupSeparator);
       this.groupBoxNumber.Controls.Add(this.labelNumber);
-      this.groupBoxNumber.Location = new System.Drawing.Point(3, 246);
+      this.groupBoxNumber.Location = new System.Drawing.Point(3, 240);
       this.groupBoxNumber.Name = "groupBoxNumber";
       this.groupBoxNumber.Size = new System.Drawing.Size(617, 92);
       this.groupBoxNumber.TabIndex = 6;
@@ -576,7 +580,7 @@
       this.groupBoxBoolean.Controls.Add(labelFalse);
       this.groupBoxBoolean.Controls.Add(this.textBoxTrue);
       this.groupBoxBoolean.Controls.Add(this.textBoxFalse);
-      this.groupBoxBoolean.Location = new System.Drawing.Point(3, 344);
+      this.groupBoxBoolean.Location = new System.Drawing.Point(3, 338);
       this.groupBoxBoolean.Name = "groupBoxBoolean";
       this.groupBoxBoolean.Size = new System.Drawing.Size(617, 70);
       this.groupBoxBoolean.TabIndex = 7;
@@ -589,7 +593,7 @@
       this.comboBoxColumnName.FormattingEnabled = true;
       this.comboBoxColumnName.Location = new System.Drawing.Point(311, 3);
       this.comboBoxColumnName.Name = "comboBoxColumnName";
-      this.comboBoxColumnName.Size = new System.Drawing.Size(220, 21);
+      this.comboBoxColumnName.Size = new System.Drawing.Size(195, 21);
       this.comboBoxColumnName.TabIndex = 1;
       this.comboBoxColumnName.Visible = false;
       this.comboBoxColumnName.SelectedIndexChanged += new System.EventHandler(this.ComboBoxColumnName_SelectedIndexChanged);
@@ -611,14 +615,14 @@
       // 
       // checkBoxIgnore
       // 
+      this.checkBoxIgnore.AutoSize = true;
       this.checkBoxIgnore.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.columnBindingSource, "Ignore", true));
-      this.flowLayoutPanel1.SetFlowBreak(this.checkBoxIgnore, true);
       this.checkBoxIgnore.Image = global::CsvToolLib.Resources.No;
-      this.checkBoxIgnore.Location = new System.Drawing.Point(184, 30);
+      this.checkBoxIgnore.Location = new System.Drawing.Point(3, 30);
       this.checkBoxIgnore.Name = "checkBoxIgnore";
-      this.checkBoxIgnore.Size = new System.Drawing.Size(110, 26);
+      this.checkBoxIgnore.Size = new System.Drawing.Size(72, 17);
       this.checkBoxIgnore.TabIndex = 3;
-      this.checkBoxIgnore.Text = "&Ignore Column";
+      this.checkBoxIgnore.Text = "&Ignore";
       this.checkBoxIgnore.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
       this.checkBoxIgnore.UseVisualStyleBackColor = true;
       this.checkBoxIgnore.Visible = false;
@@ -632,7 +636,7 @@
       this.groupBoxSplit.Controls.Add(this.textBoxSplit);
       this.groupBoxSplit.Controls.Add(this.textBoxPart);
       this.groupBoxSplit.Controls.Add(this.labelResultPart);
-      this.groupBoxSplit.Location = new System.Drawing.Point(3, 420);
+      this.groupBoxSplit.Location = new System.Drawing.Point(3, 414);
       this.groupBoxSplit.Name = "groupBoxSplit";
       this.groupBoxSplit.Size = new System.Drawing.Size(617, 69);
       this.groupBoxSplit.TabIndex = 8;
@@ -711,6 +715,8 @@
       this.flowLayoutPanel1.Controls.Add(this.comboBoxColumnName);
       this.flowLayoutPanel1.Controls.Add(this.comboBoxDataType);
       this.flowLayoutPanel1.Controls.Add(this.checkBoxIgnore);
+      this.flowLayoutPanel1.Controls.Add(this.labelDisplayNullAs);
+      this.flowLayoutPanel1.Controls.Add(this.textBoxDisplayNullAs);
       this.flowLayoutPanel1.Controls.Add(this.groupBoxDate);
       this.flowLayoutPanel1.Controls.Add(this.groupBoxNumber);
       this.flowLayoutPanel1.Controls.Add(this.groupBoxBoolean);
@@ -732,6 +738,29 @@
       this.textBoxColumnName.TabIndex = 0;
       this.textBoxColumnName.Visible = false;
       this.textBoxColumnName.WordWrap = false;
+      // 
+      // labelDisplayNullAs
+      // 
+      this.labelDisplayNullAs.AutoSize = true;
+      this.labelDisplayNullAs.Location = new System.Drawing.Point(81, 33);
+      this.labelDisplayNullAs.Margin = new System.Windows.Forms.Padding(3, 6, 3, 0);
+      this.labelDisplayNullAs.Name = "labelDisplayNullAs";
+      this.labelDisplayNullAs.Size = new System.Drawing.Size(52, 13);
+      this.labelDisplayNullAs.TabIndex = 10;
+      this.labelDisplayNullAs.Text = "NULL as:";
+      // 
+      // textBoxDisplayNullAs
+      // 
+      this.textBoxDisplayNullAs.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.bindingSourceValueFormat, "DisplayNullAs", true));
+      this.textBoxDisplayNullAs.Location = new System.Drawing.Point(139, 30);
+      this.textBoxDisplayNullAs.Name = "textBoxDisplayNullAs";
+      this.textBoxDisplayNullAs.Size = new System.Drawing.Size(43, 20);
+      this.textBoxDisplayNullAs.TabIndex = 9;
+      // 
+      // bindingSourceValueFormat
+      // 
+      this.bindingSourceValueFormat.AllowNew = false;
+      this.bindingSourceValueFormat.DataSource = typeof(CsvTools.ValueFormat);
       // 
       // errorProvider
       // 
@@ -782,6 +811,7 @@
       this.groupBoxSplit.PerformLayout();
       this.flowLayoutPanel1.ResumeLayout(false);
       this.flowLayoutPanel1.PerformLayout();
+      ((System.ComponentModel.ISupportInitialize)(this.bindingSourceValueFormat)).EndInit();
       ((System.ComponentModel.ISupportInitialize)(this.errorProvider)).EndInit();
       this.ResumeLayout(false);
       this.PerformLayout();
@@ -835,5 +865,8 @@
     private System.Windows.Forms.Label labelAllowedDateFormats;
     private System.Windows.Forms.Button buttonDisplayValues;
     private System.Windows.Forms.ComboBox comboBoxTimeZone;
+    private System.Windows.Forms.Label labelDisplayNullAs;
+    private System.Windows.Forms.TextBox textBoxDisplayNullAs;
+    private System.Windows.Forms.BindingSource bindingSourceValueFormat;
   }
 }

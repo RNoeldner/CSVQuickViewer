@@ -66,6 +66,8 @@ namespace CsvTools
 
     private string m_True = cTrueDefault;
 
+    private string m_DisplayNullAs = string.Empty;
+
     /// <summary>
     ///   Initializes a new instance of the <see cref="ValueFormat" /> class.
     /// </summary>
@@ -95,6 +97,26 @@ namespace CsvTools
           return;
         m_DataType = value;
         NotifyPropertyChanged(nameof(DataType));
+      }
+    }
+
+    /// <summary>
+    ///   Writing data you can specify how a NULL value should be written, commonly its empty, in some circumstances you might want to have n/a etc.
+    /// </summary>
+    /// <value>Text used if the value is NULL</value>
+    [XmlAttribute]
+    [DefaultValue("")]
+    public virtual string DisplayNullAs
+    {
+      get => m_DisplayNullAs;
+
+      set
+      {
+        var newVal = value ?? string.Empty;
+        if (m_DisplayNullAs.Equals(newVal))
+          return;
+        m_DisplayNullAs = newVal;
+        NotifyPropertyChanged(nameof(DisplayNullAs));
       }
     }
 
@@ -350,7 +372,7 @@ namespace CsvTools
       if (ReferenceEquals(this, other))
         return true;
 
-      if (other.DataType != m_DataType)
+      if (other.DataType != m_DataType || !other.DisplayNullAs.Equals(m_DisplayNullAs))
         return false;
 
       switch (m_DataType)
@@ -453,7 +475,7 @@ namespace CsvTools
       unchecked
       {
         var hashCode = (int)m_DataType;
-
+        hashCode = (hashCode * 397) ^ StringComparer.Ordinal.GetHashCode(m_DisplayNullAs);
         switch (m_DataType)
         {
           case DataType.Integer:

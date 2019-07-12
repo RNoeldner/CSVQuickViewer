@@ -198,7 +198,7 @@ namespace CsvTools
       {
         if (fileFormat.QualifyOnlyIfNeeded)
         {
-          // Qualify the text if the delimiter is present, or if the text starts with the Qualifier
+          // Qualify the text if the delimiter or Linefeed is present, or if the text starts with the Qualifier
           qualifyThis = displayAs.Length > 0 && (displayAs.IndexOfAny(m_QualifyCharArray) > -1 ||
                               displayAs[0].Equals(fileFormat.FieldQualifierChar) ||
                               displayAs[0].Equals(' '));

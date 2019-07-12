@@ -53,7 +53,10 @@ namespace CsvTools
       column.CopyTo(m_ColumnEdit);
 
       m_WriteSetting = writeSetting;
+
       InitializeComponent();
+      labelDisplayNullAs.Visible = writeSetting;
+      textBoxDisplayNullAs.Visible = writeSetting;
     }
 
     public bool ShowGuess
@@ -461,35 +464,6 @@ namespace CsvTools
       }
     }
 
-    private void UpdateColumnList(ICollection<string> allColumns)
-    {
-      var columnsConf = allColumns.ToArray();
-      var columnsTp = allColumns.ToArray();
-
-      comboBoxColumnName.BeginUpdate();
-      // if we have a list of columns add them to fields that show a column name
-      if (columnsConf.Length > 0)
-      {
-        comboBoxColumnName.Items.AddRange(columnsConf);
-        comboBoxTimePart.Items.AddRange(columnsTp);
-        comboBoxTimeZone.Items.AddRange(columnsTp);
-        if (string.IsNullOrEmpty(m_ColumnEdit.Name))
-          m_ColumnEdit.Name = columnsConf[0];
-      }
-      else
-      {
-        // If list would be empty add at least the current value
-        if (!string.IsNullOrEmpty(m_ColumnEdit.Name))
-          comboBoxColumnName.Items.Add(m_ColumnEdit.Name);
-      }
-
-      if (!m_WriteSetting && comboBoxColumnName.Items.Count > 0)
-        comboBoxColumnName.DropDownStyle = ComboBoxStyle.DropDownList;
-      comboBoxColumnName.EndUpdate();
-
-      RefreshData();
-    }
-
     /// <summary>
     ///   Handles the Load event of the ColumnFormatUI control.
     /// </summary>
@@ -609,6 +583,8 @@ namespace CsvTools
         this.ShowError(ex);
       }
     }
+
+    private void comboBoxTimePart_SelectedIndexChanged(object sender, EventArgs e) => comboBoxTPFormat.Enabled = comboBoxTimePart.SelectedIndex >= 0;
 
     /// <summary>
     ///   Reapply formatting to the sample date
@@ -939,6 +915,33 @@ namespace CsvTools
 
     private void TextBoxSplit_Validating(object sender, CancelEventArgs e) => errorProvider.SetError(textBoxSplit, string.IsNullOrEmpty(textBoxSplit.Text) ? "Must be provided" : "");
 
-    private void comboBoxTimePart_SelectedIndexChanged(object sender, EventArgs e) => comboBoxTPFormat.Enabled = comboBoxTimePart.SelectedIndex >= 0;
+    private void UpdateColumnList(ICollection<string> allColumns)
+    {
+      var columnsConf = allColumns.ToArray();
+      var columnsTp = allColumns.ToArray();
+
+      comboBoxColumnName.BeginUpdate();
+      // if we have a list of columns add them to fields that show a column name
+      if (columnsConf.Length > 0)
+      {
+        comboBoxColumnName.Items.AddRange(columnsConf);
+        comboBoxTimePart.Items.AddRange(columnsTp);
+        comboBoxTimeZone.Items.AddRange(columnsTp);
+        if (string.IsNullOrEmpty(m_ColumnEdit.Name))
+          m_ColumnEdit.Name = columnsConf[0];
+      }
+      else
+      {
+        // If list would be empty add at least the current value
+        if (!string.IsNullOrEmpty(m_ColumnEdit.Name))
+          comboBoxColumnName.Items.Add(m_ColumnEdit.Name);
+      }
+
+      if (!m_WriteSetting && comboBoxColumnName.Items.Count > 0)
+        comboBoxColumnName.DropDownStyle = ComboBoxStyle.DropDownList;
+      comboBoxColumnName.EndUpdate();
+
+      RefreshData();
+    }
   }
 }
