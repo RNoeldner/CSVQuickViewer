@@ -269,6 +269,8 @@ namespace CsvTools
         if (m_QualifyOnlyIfNeeded.Equals(value))
           return;
         m_QualifyOnlyIfNeeded = value;
+        if (m_QualifyOnlyIfNeeded)
+          QualifyAlways = false;
         NotifyPropertyChanged(nameof(QualifyOnlyIfNeeded));
       }
     }
@@ -287,6 +289,8 @@ namespace CsvTools
         if (m_QualifyAlways.Equals(value))
           return;
         m_QualifyAlways = value;
+        if (m_QualifyAlways)
+          QualifyOnlyIfNeeded = false;
         NotifyPropertyChanged(nameof(QualifyAlways));
       }
     }

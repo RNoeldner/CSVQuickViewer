@@ -20,28 +20,41 @@ namespace CsvTools
       TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix | TextFormatFlags.SingleLine |
       TextFormatFlags.VerticalCenter;
 
-    private IContainer components;
     private BindingSource m_BindingSource;
     private PropertyDescriptor m_DisplayPropertyDescriptor;
     private PropertyDescriptor m_GroupPropertyDescriptor;
     private string m_GroupPropertyName = "(none)";
-    private bool m_IsFiltering = false;
-    private Timer timerFilter;
+    private System.Timers.Timer m_TimerFilter = new System.Timers.Timer();
 
     /// <summary>
     ///   Initializes a new instance of the GroupedComboBox class.
     /// </summary>
     public GroupingComboBox()
     {
-      InitializeComponent();
       base.DrawMode = DrawMode.OwnerDrawVariable;
+
       SetStyle(ControlStyles.SupportsTransparentBackColor, false);
       GroupFont = new Font(Font, FontStyle.Bold);
-      TextChanged += StartFilter;
+      TextChanged += delegate
+      { m_TimerFilter.Stop(); m_TimerFilter.Start(); };
       AutoCompleteMode = AutoCompleteMode.None;
       AutoCompleteSource = AutoCompleteSource.None;
       DisplayMemberChanged += GroupingComboBox_DisplayMemberChanged;
       SetComboBoxStyle();
+
+      m_TimerFilter.Interval = 600;
+      m_TimerFilter.AutoReset = true;
+
+      m_TimerFilter.Elapsed += delegate
+      {
+        m_TimerFilter.Stop();
+        if (SelectedIndex >= 0)
+          return;
+
+        SetDataSourceAndSort();
+
+        DroppedDown = (Text.Length > 2);
+      };
     }
 
     // used for change detection and grouping
@@ -97,7 +110,7 @@ namespace CsvTools
       }
     }
 
-    public bool IsFiltering => m_IsFiltering;
+    public bool IsFiltering { get; private set; } = false;
 
     /// <summary>
     ///   Releases the unmanaged resources used by the <see cref="T:System.Windows.Forms.ComboBox" /> and optionally releases
@@ -113,6 +126,8 @@ namespace CsvTools
         m_BindingSource.Dispose();
       if (GroupFont != null)
         GroupFont.Dispose();
+      if (m_TimerFilter != null)
+        m_TimerFilter.Dispose();
       base.Dispose(disposing);
     }
 
@@ -319,14 +334,6 @@ namespace CsvTools
       return false;
     }
 
-    private string GetText(object item)
-    {
-      if (m_DisplayPropertyDescriptor != null && item != null)
-        // get the group value using the property descriptor
-        return Convert.ToString(m_DisplayPropertyDescriptor.GetValue(item));
-      return string.Empty;
-    }
-
     private string GetGroupText(object item)
     {
       if (m_GroupPropertyDescriptor != null && item != null)
@@ -335,20 +342,15 @@ namespace CsvTools
       return string.Empty;
     }
 
-    private void GroupingComboBox_DisplayMemberChanged(object sender, EventArgs e) => SetPropertyDescriptor();
-
-    private void InitializeComponent()
+    private string GetText(object item)
     {
-      components = new Container();
-      timerFilter = new Timer(components);
-      SuspendLayout();
-      //
-      // timerFilter
-      //
-      timerFilter.Interval = 600;
-      timerFilter.Tick += new EventHandler(TimerFilter_Tick);
-      ResumeLayout(false);
+      if (m_DisplayPropertyDescriptor != null && item != null)
+        // get the group value using the property descriptor
+        return Convert.ToString(m_DisplayPropertyDescriptor.GetValue(item));
+      return string.Empty;
     }
+
+    private void GroupingComboBox_DisplayMemberChanged(object sender, EventArgs e) => SetPropertyDescriptor();
 
     /// <summary>
     ///   Set the right control style
@@ -378,15 +380,15 @@ namespace CsvTools
         var arrayList = new ArrayList();
         foreach (var item in m_BindingSource)
         {
-          if (Text.Length < 2 || comparer.SecondLevel.GetValue(item).ToString().Contains(Text))
+          if (Text.Length < 2 || comparer.SecondLevel.GetValue(item).ToString().Contains(Text, StringComparison.InvariantCultureIgnoreCase))
             arrayList.Add(item);
         }
         arrayList.Sort(comparer);
         if (base.DataSource == null || ((BindingSource)base.DataSource).Count != arrayList.Count || (arrayList.Count > 0 && ((BindingSource)base.DataSource).List[0] != arrayList[0]))
         {
-          m_IsFiltering = true;
+          IsFiltering = true;
           base.DataSource = new BindingSource(arrayList, string.Empty);
-          m_IsFiltering = false;
+          IsFiltering = false;
         }
       }
       else
@@ -415,23 +417,6 @@ namespace CsvTools
         }
       }
     }
-
-    private void StartFilter(object sender, EventArgs e)
-    {
-      timerFilter.Stop();
-      timerFilter.Start();
-    }
-
-    private void TimerFilter_Tick(object sender, EventArgs e)
-    {
-      timerFilter.Stop();
-      if (SelectedIndex >= 0)
-        return;
-
-      SetDataSourceAndSort();
-
-      DroppedDown = (Text.Length > 2);
-    }
   }
 
   /// <summary>
@@ -439,9 +424,6 @@ namespace CsvTools
   /// </summary>
   internal class TwoLevelComparer : IComparer
   {
-    private readonly PropertyDescriptor m_FirstLevel;
-    private readonly PropertyDescriptor m_SecondLevel;
-
     /// <summary>
     ///   Initializes a new instance of the <see cref="TwoLevelComparer" /> class.
     /// </summary>
@@ -449,13 +431,13 @@ namespace CsvTools
     /// <param name="secondLevel">The second level.</param>
     public TwoLevelComparer(PropertyDescriptor firstLevel, PropertyDescriptor secondLevel)
     {
-      m_FirstLevel = firstLevel ?? throw new ArgumentNullException("firstLevel");
-      m_SecondLevel = secondLevel ?? throw new ArgumentNullException("secondLevel");
+      FirstLevel = firstLevel ?? throw new ArgumentNullException("firstLevel");
+      SecondLevel = secondLevel ?? throw new ArgumentNullException("secondLevel");
     }
 
-    public PropertyDescriptor FirstLevel => m_FirstLevel;
+    public PropertyDescriptor FirstLevel { get; }
 
-    public PropertyDescriptor SecondLevel => m_SecondLevel;
+    public PropertyDescriptor SecondLevel { get; }
 
     /// <summary>
     ///   Compares two objects and returns a value indicating whether one is less than, equal to, or greater than the other.
@@ -474,12 +456,12 @@ namespace CsvTools
         throw new ArgumentNullException(nameof(y));
       if (x == null)
         throw new ArgumentNullException(nameof(x));
-      var res = StringComparer.CurrentCultureIgnoreCase.Compare(Convert.ToString(m_FirstLevel.GetValue(x)),
-        Convert.ToString(m_FirstLevel.GetValue(y)));
+      var res = StringComparer.CurrentCultureIgnoreCase.Compare(Convert.ToString(FirstLevel.GetValue(x)),
+        Convert.ToString(FirstLevel.GetValue(y)));
       if (res != 0)
         return res;
-      return StringComparer.CurrentCultureIgnoreCase.Compare(Convert.ToString(m_SecondLevel.GetValue(x)),
-        Convert.ToString(m_SecondLevel.GetValue(y)));
+      return StringComparer.CurrentCultureIgnoreCase.Compare(Convert.ToString(SecondLevel.GetValue(x)),
+        Convert.ToString(SecondLevel.GetValue(y)));
     }
   }
 }

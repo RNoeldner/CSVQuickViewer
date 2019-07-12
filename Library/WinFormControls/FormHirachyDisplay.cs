@@ -33,9 +33,11 @@ namespace CsvTools
     private readonly CancellationTokenSource m_CancellationTokenSource =
       new CancellationTokenSource();
 
+    private FormProcessDisplay m_BuildProcess;
     private readonly DataRow[] m_DataRow;
     private readonly DataTable m_DataTable;
-    private readonly Timer m_TimerChange = new Timer();
+    private readonly Timer m_TimerSearch = new Timer();
+    private readonly Timer m_TimerDisplay = new Timer();
 
     /// <summary>
     ///   Required designer variable.
@@ -65,10 +67,23 @@ namespace CsvTools
       m_DataRow = dataRows;
       InitializeComponent();
       Icon = CsvToolLib.Resources.SubFormIcon;
-      m_TimerChange.Elapsed += FilterValueChangedElapsed;
-      m_TimerChange.Interval = 1000;
-      m_TimerChange.AutoReset = false;
+      m_TimerSearch.Elapsed += FilterValueChangedElapsed;
+      m_TimerSearch.Interval = 500;
+      m_TimerSearch.AutoReset = false;
+
+      m_TimerDisplay.Elapsed += TimerDisplayElapsed;
+      m_TimerDisplay.Interval = 1000;
+      m_TimerDisplay.AutoReset = false;
     }
+
+    private void TimerDisplayElapsed(object sender, ElapsedEventArgs e) => this.SafeBeginInvoke(() =>
+    {
+      if (m_ComboBoxID.SelectedItem != null &&
+         m_ComboBoxParentID.SelectedItem != null)
+      {
+        BuildTree();
+      };
+    });
 
     /// <summary>
     ///   Clean up any resources being used.
@@ -79,6 +94,9 @@ namespace CsvTools
       if (disposing)
       {
         components?.Dispose();
+        m_TimerDisplay.Dispose();
+        m_TimerSearch.Dispose();
+        m_BuildProcess?.Dispose();
         m_CancellationTokenSource.Dispose();
       }
       base.Dispose(disposing);
@@ -89,7 +107,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="root">The root.</param>
     /// <param name="rootNode">The root node.</param>
-    private void AddTreeDataNodeWithChilds(TreeData root, TreeNode rootNode)
+    private void AddTreeDataNodeWithChilds(TreeData root, TreeNode rootNode, IProcessDisplay process)
     {
       Contract.Requires(root != null);
       root.Visited = true;
@@ -99,7 +117,7 @@ namespace CsvTools
       else
         rootNode.Nodes.Add(treeNode);
       if (root.Children.Count > 0)
-        treeNode.Nodes.AddRange(BuildSubNodes(root));
+        treeNode.Nodes.AddRange(BuildSubNodes(root, process));
     }
 
     /// <summary>
@@ -107,12 +125,14 @@ namespace CsvTools
     /// </summary>
     /// <param name="parent">The parent ID.</param>
     /// <returns></returns>
-    private TreeNode[] BuildSubNodes(TreeData parent)
+    private TreeNode[] BuildSubNodes(TreeData parent, IProcessDisplay process)
     {
       Contract.Requires(parent != null);
       var treeNodes = new List<TreeNode>();
       foreach (var child in parent.Children)
       {
+        process.CancellationToken.ThrowIfCancellationRequested();
+        Extensions.ProcessUIElements();
         if (child.Visited)
         {
           var treeNode = new TreeNode("Cycle -> " + child.Title) { Tag = child };
@@ -121,7 +141,7 @@ namespace CsvTools
         else
         {
           child.Visited = true;
-          var treeNode = new TreeNode(child.NodeTitle, BuildSubNodes(child)) { Tag = child };
+          var treeNode = new TreeNode(child.NodeTitle, BuildSubNodes(child, process)) { Tag = child };
           treeNodes.Add(treeNode);
         }
       }
@@ -138,16 +158,21 @@ namespace CsvTools
       Cursor.Current = Cursors.WaitCursor;
       try
       {
-        BuildTreeData();
-        ShowTree();
+        m_BuildProcess = new FormProcessDisplay("Building Tree", false, m_CancellationTokenSource.Token);
+        m_BuildProcess.Show(this);
+        m_BuildProcess.Maximum = m_DataRow.GetLength(0) * 2;
+        BuildTreeData(m_BuildProcess);
+
+        m_BuildProcess.Maximum = 0;
+        ShowTree(m_BuildProcess);
       }
-      catch (Exception exc)
+      catch (Exception)
       {
-        this.ShowError(exc);
-        Close();
       }
       finally
       {
+        m_BuildProcess.Dispose();
+        m_BuildProcess = null;
         Cursor.Current = oldCursor;
       }
     }
@@ -155,136 +180,131 @@ namespace CsvTools
     /// <summary>
     ///   Builds the tree data.
     /// </summary>
-    private void BuildTreeData()
+    private void BuildTreeData(IProcessDisplay process)
     {
       Contract.Requires(m_DataTable != null);
       var intervalAction = new IntervalAction();
-      using (var process = new FormProcessDisplay("Building Tree", false, m_CancellationTokenSource.Token))
+
+      var dataColumnParent = m_DataTable.Columns[m_ComboBoxParentID.SelectedItem.ToString()];
+      var dataColumnID = m_DataTable.Columns[m_ComboBoxID.SelectedItem.ToString()];
+      var dataColumnDisplay1 = m_ComboBoxDisplay1.SelectedItem != null
+        ? m_DataTable.Columns[m_ComboBoxDisplay1.SelectedItem.ToString()]
+        : null;
+      var dataColumnDisplay2 = m_ComboBoxDisplay2.SelectedItem != null
+        ? m_DataTable.Columns[m_ComboBoxDisplay2.SelectedItem.ToString()]
+        : null;
+
+      // Using a dictionary here to speed up lookups
+      var treeDataDictionary = new Dictionary<string, TreeData>();
+      var rootDataParentFound = new TreeData
       {
-        process.Show(this);
-        process.Maximum = m_DataRow.GetLength(0);
+        ID = "{R}",
+        Title = "Parent found / No Parent"
+      };
 
-        var dataColumnParent = m_DataTable.Columns[m_ComboBoxParentID.SelectedItem.ToString()];
-        var dataColumnID = m_DataTable.Columns[m_ComboBoxID.SelectedItem.ToString()];
-        var dataColumnDisplay1 = m_ComboBoxDisplay1.SelectedItem != null
-          ? m_DataTable.Columns[m_ComboBoxDisplay1.SelectedItem.ToString()]
-          : null;
-        var dataColumnDisplay2 = m_ComboBoxDisplay2.SelectedItem != null
-          ? m_DataTable.Columns[m_ComboBoxDisplay2.SelectedItem.ToString()]
-          : null;
+      treeDataDictionary.Add(rootDataParentFound.ID, rootDataParentFound);
 
-        // Using a dictionary here to speed up lookups
-        var treeDataDictionary = new Dictionary<string, TreeData>();
-        var rootDataParentFound = new TreeData
+      var counter = 0;
+      foreach (var dataRow in m_DataRow)
+      {
+        process.CancellationToken.ThrowIfCancellationRequested();
+        counter++;
+        intervalAction.Invoke(delegate
         {
-          ID = "{R}",
-          Title = "Parent found / No Parent"
+          process.SetProcess($"Parent found {counter}/{process.Maximum} ", counter);
+        });
+        var id = dataRow[dataColumnID.Ordinal].ToString();
+        if (string.IsNullOrEmpty(id))
+          continue;
+        var treeData = new TreeData
+        {
+          ID = id,
+          Title = dataColumnDisplay1 != null
+            ? dataColumnDisplay2 != null
+              ? dataRow[dataColumnDisplay1.Ordinal] + " - " + dataRow[dataColumnDisplay2.Ordinal]
+              : dataRow[
+                dataColumnDisplay1.Ordinal].ToString()
+            : id,
+          ParentID = dataRow[dataColumnParent.Ordinal].ToString()
         };
-
-        treeDataDictionary.Add(rootDataParentFound.ID, rootDataParentFound);
-
-        var counter = 0;
-        foreach (var dataRow in m_DataRow)
-        {
-          process.CancellationToken.ThrowIfCancellationRequested();
-          counter++;
-          intervalAction.Invoke(delegate
-          {
-            process.SetProcess($"Parent found {counter}/{process.Maximum} ", counter);
-          });
-          var id = dataRow[dataColumnID.Ordinal].ToString();
-          if (string.IsNullOrEmpty(id))
-            continue;
-          var treeData = new TreeData
-          {
-            ID = id,
-            Title = dataColumnDisplay1 != null
-              ? dataColumnDisplay2 != null
-                ? dataRow[dataColumnDisplay1.Ordinal] + " - " + dataRow[dataColumnDisplay2.Ordinal]
-                : dataRow[
-                  dataColumnDisplay1.Ordinal].ToString()
-              : id,
-            ParentID = dataRow[dataColumnParent.Ordinal].ToString()
-          };
-          if (dataColumnDisplay1 != null)
-            treeData.Tag = dataRow[dataColumnDisplay1.Ordinal].ToString();
-          // Store the display
-          if (!treeDataDictionary.ContainsKey(id))
-            treeDataDictionary.Add(id, treeData);
-        }
-
-        // Generate a list of missing parents
-        var additionalRootNodes = new HashSet<string>();
-        foreach (var child in treeDataDictionary.Values)
-        {
-          if (!string.IsNullOrEmpty(child.ParentID) && !treeDataDictionary.ContainsKey(child.ParentID))
-            additionalRootNodes.Add(child.ParentID);
-        }
-
-        var rootDataParentNotFound = new TreeData
-        {
-          ID = "{M}",
-          Title = "Parent not found"
-        };
-
-        if (additionalRootNodes.Count > 0)
-        {
-          treeDataDictionary.Add(rootDataParentNotFound.ID, rootDataParentNotFound);
-          counter = 0;
-          process.Maximum = additionalRootNodes.Count;
-          // Create new entries
-          foreach (var parentID in additionalRootNodes)
-          {
-            process.CancellationToken.ThrowIfCancellationRequested();
-            counter++;
-            intervalAction.Invoke(delegate
-            {
-              process.SetProcess($"Parent not found (Step 1) {counter}/{process.Maximum} ", counter);
-            });
-            var childData = new TreeData
-            {
-              ParentID = rootDataParentNotFound.ID,
-              ID = parentID,
-              Title = $"{m_ComboBoxID.SelectedItem} - {parentID}"
-            };
-            treeDataDictionary.Add(parentID, childData);
-          }
-        }
-
-        process.Maximum = treeDataDictionary.Values.Count;
-        counter = 0;
-        foreach (var child in treeDataDictionary.Values)
-        {
-          process.CancellationToken.ThrowIfCancellationRequested();
-          counter++;
-          intervalAction.Invoke(delegate
-          {
-            process.SetProcess($"Parent not found (Step 2) {counter}/{process.Maximum} ", counter);
-          });
-          if (string.IsNullOrEmpty(child.ParentID) && child.ID != rootDataParentFound.ID &&
-              child.ID != rootDataParentNotFound.ID)
-          {
-            child.ParentID = rootDataParentFound.ID;
-          }
-        }
-
-        process.Maximum = treeDataDictionary.Values.Count;
-        counter = 0;
-        // Fill m_Children for the new nodes
-        foreach (var child in treeDataDictionary.Values)
-        {
-          process.CancellationToken.ThrowIfCancellationRequested();
-          counter++;
-          intervalAction.Invoke(delegate
-          {
-            process.SetProcess($"Set children {counter}/{process.Maximum} ", counter);
-          });
-          if (!string.IsNullOrEmpty(child.ParentID))
-            treeDataDictionary[child.ParentID].Children.Add(child);
-        }
-
-        m_TreeData = treeDataDictionary.Values;
+        if (dataColumnDisplay1 != null)
+          treeData.Tag = dataRow[dataColumnDisplay1.Ordinal].ToString();
+        // Store the display
+        if (!treeDataDictionary.ContainsKey(id))
+          treeDataDictionary.Add(id, treeData);
       }
+
+      // Generate a list of missing parents
+      var additionalRootNodes = new HashSet<string>();
+      foreach (var child in treeDataDictionary.Values)
+      {
+        if (!string.IsNullOrEmpty(child.ParentID) && !treeDataDictionary.ContainsKey(child.ParentID))
+          additionalRootNodes.Add(child.ParentID);
+      }
+
+      var rootDataParentNotFound = new TreeData
+      {
+        ID = "{M}",
+        Title = "Parent not found"
+      };
+
+      if (additionalRootNodes.Count > 0)
+      {
+        treeDataDictionary.Add(rootDataParentNotFound.ID, rootDataParentNotFound);
+        counter = 0;
+        process.Maximum = additionalRootNodes.Count;
+        // Create new entries
+        foreach (var parentID in additionalRootNodes)
+        {
+          process.CancellationToken.ThrowIfCancellationRequested();
+          counter++;
+          intervalAction.Invoke(delegate
+          {
+            process.SetProcess($"Parent not found (Step 1) {counter}/{process.Maximum} ", counter);
+          });
+          var childData = new TreeData
+          {
+            ParentID = rootDataParentNotFound.ID,
+            ID = parentID,
+            Title = $"{m_ComboBoxID.SelectedItem} - {parentID}"
+          };
+          treeDataDictionary.Add(parentID, childData);
+        }
+      }
+
+      process.Maximum = treeDataDictionary.Values.Count;
+      counter = 0;
+      foreach (var child in treeDataDictionary.Values)
+      {
+        process.CancellationToken.ThrowIfCancellationRequested();
+        counter++;
+        intervalAction.Invoke(delegate
+        {
+          process.SetProcess($"Parent not found (Step 2) {counter}/{process.Maximum} ", counter);
+        });
+        if (string.IsNullOrEmpty(child.ParentID) && child.ID != rootDataParentFound.ID &&
+            child.ID != rootDataParentNotFound.ID)
+        {
+          child.ParentID = rootDataParentFound.ID;
+        }
+      }
+
+      process.Maximum = treeDataDictionary.Values.Count;
+      counter = 0;
+      // Fill m_Children for the new nodes
+      foreach (var child in treeDataDictionary.Values)
+      {
+        process.CancellationToken.ThrowIfCancellationRequested();
+        counter++;
+        intervalAction.Invoke(delegate
+        {
+          process.SetProcess($"Set children {counter}/{process.Maximum} ", counter);
+        });
+        if (!string.IsNullOrEmpty(child.ParentID))
+          treeDataDictionary[child.ParentID].Children.Add(child);
+      }
+
+      m_TreeData = treeDataDictionary.Values;
     }
 
     private void CloseAllToolStripMenuItem_Click(object sender, EventArgs e)
@@ -324,12 +344,8 @@ namespace CsvTools
       {
         m_ComboBoxParentID.SelectedIndex = -1;
       }
-
-      if (m_ComboBoxID.SelectedItem != null &&
-          m_ComboBoxParentID.SelectedItem != null)
-      {
-        BuildTree();
-      }
+      m_TimerDisplay.Stop();
+      m_TimerDisplay.Start();
     }
 
     private void ExpandAllToolStripMenuItem_Click(object sender, EventArgs e)
@@ -552,7 +568,7 @@ namespace CsvTools
       m_TextBoxValue.Name = "m_TextBoxValue";
       m_TextBoxValue.Size = new System.Drawing.Size(188, 20);
       m_TextBoxValue.TabIndex = 2;
-      m_TextBoxValue.TextChanged += new System.EventHandler(TextBox1_TextChanged);
+      m_TextBoxValue.TextChanged += new System.EventHandler(TimerSearchRestart);
       //
       // m_ComboBoxDisplay2
       //
@@ -562,6 +578,7 @@ namespace CsvTools
       m_ComboBoxDisplay2.Name = "m_ComboBoxDisplay2";
       m_ComboBoxDisplay2.Size = new System.Drawing.Size(188, 21);
       m_ComboBoxDisplay2.TabIndex = 15;
+      m_ComboBoxDisplay2.SelectedIndexChanged += new System.EventHandler(TimeDisplayRestart);
       //
       // m_ComboBoxDisplay1
       //
@@ -571,6 +588,7 @@ namespace CsvTools
       m_ComboBoxDisplay1.Name = "m_ComboBoxDisplay1";
       m_ComboBoxDisplay1.Size = new System.Drawing.Size(188, 21);
       m_ComboBoxDisplay1.TabIndex = 16;
+      m_ComboBoxDisplay1.SelectedIndexChanged += new System.EventHandler(TimeDisplayRestart);
       //
       // FormHierachyDisplay
       //
@@ -635,7 +653,7 @@ namespace CsvTools
     /// <summary>
     ///   Shows the tree.
     /// </summary>
-    private void ShowTree()
+    private void ShowTree(IProcessDisplay process)
     {
       m_TreeView.BeginUpdate();
       try
@@ -646,16 +664,21 @@ namespace CsvTools
 
         foreach (var treeData in m_TreeData)
           treeData.Visited = false;
-
+        process.SetProcess("Adding Tree with children");
         foreach (var treeData in m_TreeData)
         {
+          process.CancellationToken.ThrowIfCancellationRequested();
+          Extensions.ProcessUIElements();
           if (string.IsNullOrEmpty(treeData.ParentID))
-            AddTreeDataNodeWithChilds(treeData, null);
+            AddTreeDataNodeWithChilds(treeData, null, process);
         }
 
+        process.SetProcess("Finding Cycles");
         var hasCycles = false;
         foreach (var treeData in m_TreeData)
         {
+          process.CancellationToken.ThrowIfCancellationRequested();
+          Extensions.ProcessUIElements();
           if (!treeData.Visited)
           {
             hasCycles = true;
@@ -665,23 +688,30 @@ namespace CsvTools
 
         if (!hasCycles)
           return;
+
+        process.SetProcess("Adding Cycles");
+        var rootNode = new TreeNode("Cycles in Hierarchy");
+        m_TreeView.Nodes.Add(rootNode);
+
+        foreach (var treeData in m_TreeData)
         {
-          var rootNode = new TreeNode("Cycles in Hierarchy");
-          m_TreeView.Nodes.Add(rootNode);
-
-          foreach (var treeData in m_TreeData)
-          {
-            if (!treeData.Visited)
-              MarkInCycle(treeData, new HashSet<TreeData>());
-          }
-
-          foreach (var root in m_TreeData)
-          {
-            if (!root.Visited && root.InCycle)
-              AddTreeDataNodeWithChilds(root, rootNode);
-          }
-          // rootNode.ExpandAll();
+          process.CancellationToken.ThrowIfCancellationRequested();
+          Extensions.ProcessUIElements();
+          if (!treeData.Visited)
+            MarkInCycle(treeData, new HashSet<TreeData>());
         }
+
+        foreach (var root in m_TreeData)
+        {
+          process.CancellationToken.ThrowIfCancellationRequested();
+          Extensions.ProcessUIElements();
+          if (!root.Visited && root.InCycle)
+            AddTreeDataNodeWithChilds(root, rootNode, process);
+        }
+      }
+      catch
+      {
+        m_TreeView.Nodes.Clear();
       }
       finally
       {
@@ -689,10 +719,10 @@ namespace CsvTools
       }
     }
 
-    private void TextBox1_TextChanged(object sender, EventArgs e)
+    private void TimerSearchRestart(object sender, EventArgs e)
     {
-      m_TimerChange.Stop();
-      m_TimerChange.Start();
+      m_TimerSearch.Stop();
+      m_TimerSearch.Start();
     }
 
     [DebuggerDisplay("TreeData {ID} {ParentID} {Visited} Children:{Children.Count}")]
@@ -753,5 +783,15 @@ namespace CsvTools
     }
 
     private void FormHierachyDisplay_FormClosed(object sender, FormClosedEventArgs e) => Dispose(true);
+
+    private void Refresh_Click(object sender, EventArgs e) => m_TimerDisplay.Start();
+
+    private void TimeDisplayRestart(object sender, EventArgs e)
+    {
+      m_TimerDisplay.Stop();
+      if (m_BuildProcess != null && !m_BuildProcess.CancellationToken.IsCancellationRequested)
+        m_BuildProcess.Cancel();
+      m_TimerDisplay.Start();
+    }
   }
 }

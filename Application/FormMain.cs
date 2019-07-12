@@ -698,10 +698,10 @@ namespace CsvTools
         {
           frm.ShowDialog(MdiParent);
           FillFromProperites();
+          SaveDefault();
           if (m_ConfigChanged)
           {
-            detailControl.MoveMenu();
-            SaveDefault();
+            detailControl.MoveMenu();            
             if (_MessageBox.Show(this, "The configuration has changed do you want to reload the data?", "Configuration changed", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
             {
               OpenDataReader(true);

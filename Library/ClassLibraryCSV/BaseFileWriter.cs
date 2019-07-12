@@ -338,7 +338,7 @@ namespace CsvTools
         try
         {
           if (dataObject == null || dataObject is DBNull)
-            displayAs = string.Empty;
+            displayAs = columnInfo.ValueFormat.DisplayNullAs;
           else
             switch (columnInfo.DataType)
             {
