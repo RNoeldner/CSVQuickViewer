@@ -161,12 +161,14 @@ namespace CsvTools
         if (MainProcess.TimeToCompletion.Value == MainProcess.TimeToCompletion.TargetValue)
           // done
           SetProgressState(true);
+        Extensions.ProcessUIElements();
       };
 
       MainProcess.SetMaximum += delegate (object sender, long max)
       {
         if (max < 1)
           SetProgressState(true);
+        Extensions.ProcessUIElements();
       };
     }
   }

@@ -169,7 +169,7 @@ namespace CsvTools
     ///  Gets the tables in the database
     /// </summary>
     /// <returns>An array of table names</returns>
-    ICollection<string> GetTables();
+    ICollection<string> GetTables(CancellationToken cancellationToken);
 
     /// <summary>
     ///  Gets the values of a column in a table
@@ -184,13 +184,6 @@ namespace CsvTools
     ///  Removes all existing tables
     /// </summary>
     void LeaveDatabase();
-
-    /// <summary>
-    /// Loads the data table with the result from the SQL statement
-    /// </summary>
-    /// <param name="sql">The SQL.</param>
-    /// <returns></returns>
-    DataTable LoadDataTable(string sql, CancellationToken cancellationToken);
 
     void ProcessColumnLength(string tableName, IProcessDisplay processDisplay, ICollection<string> fields);
 
