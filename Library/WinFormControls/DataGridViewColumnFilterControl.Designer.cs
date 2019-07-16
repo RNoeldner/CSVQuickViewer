@@ -18,7 +18,7 @@
       {
         components.Dispose();
       }
-      m_DataGridViewColumnFilter.Dispose();
+      
       base.Dispose(disposing);
     }
 

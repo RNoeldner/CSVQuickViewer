@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 using System;
 using System.Data;
 using System.Globalization;
@@ -52,9 +53,11 @@ namespace CsvTools.Tests
 
     public static DataTable GetDataTable2(long numRecords = 100)
     {
-      var dataTable = new DataTable();
-      dataTable.TableName = "ArtificialTable2";
-      dataTable.Locale = new CultureInfo("en-gb");
+      var dataTable = new DataTable
+      {
+        TableName = "ArtificialTable2",
+        Locale = new CultureInfo("en-gb")
+      };
       dataTable.Columns.Add("string", typeof(string));
       for (long i = 1; i <= numRecords; i++)
       {
@@ -68,9 +71,11 @@ namespace CsvTools.Tests
 
     public static DataTable GetDataTable(int numRecords = 100)
     {
-      var dataTable = new DataTable();
-      dataTable.TableName = "ArtificialTable";
-      dataTable.Locale = new CultureInfo("en-gb");
+      var dataTable = new DataTable
+      {
+        TableName = "ArtificialTable",
+        Locale = new CultureInfo("en-gb")
+      };
       dataTable.Columns.Add("string", typeof(string));
       dataTable.Columns.Add("int", typeof(int));
       dataTable.Columns.Add("DateTime", typeof(DateTime));
@@ -102,7 +107,8 @@ namespace CsvTools.Tests
 
         dr[3] = i % 2 == 0;
         dr[4] = SecureString.Random.NextDouble() * 123.78;
-        if (i % 3 == 0) dr[5] = SecureString.Random.NextDouble();
+        if (i % 3 == 0)
+          dr[5] = SecureString.Random.NextDouble();
         dr[7] = SecureString.Random.NextDouble() < .3 ? null : GetRandomText(100);
         dr[8] = SecureString.Random.Next(1, 5000000);
         if (i % 33 < 3)

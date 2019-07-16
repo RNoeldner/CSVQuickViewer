@@ -11,9 +11,10 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using System.Drawing;
 using System.Windows.Forms;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
@@ -49,9 +50,10 @@ namespace CsvTools.Tests
         fdgv.ApplyFilters();
       }
 
+      using (var dt = UnitTestStatic.GetDataTable(100))
       using (var filteredDataGridView = new FilteredDataGridView())
       {
-        filteredDataGridView.DataSource = UnitTestStatic.GetDataTable(100);
+        filteredDataGridView.DataSource = dt;
         using (var frm = new Form())
         {
           frm.Controls.Add(filteredDataGridView);
@@ -92,9 +94,10 @@ namespace CsvTools.Tests
     [TestMethod]
     public void SetRowHeightTest()
     {
+      using (var dt = UnitTestStatic.GetDataTable(100))
       using (var filteredDataGridView = new FilteredDataGridView())
       {
-        filteredDataGridView.DataSource = UnitTestStatic.GetDataTable(100);
+        filteredDataGridView.DataSource = dt;
         using (var frm = new Form())
         {
           frm.Controls.Add(filteredDataGridView);

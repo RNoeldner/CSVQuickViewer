@@ -11,18 +11,34 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Pri.LongPath;
+
 using System.Data;
 using System.Windows.Forms;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Pri.LongPath;
 
 namespace CsvTools.Tests
 {
   [TestClass]
   public class ControlsTests
   {
-    private static readonly DataTable dataTable = UnitTestStatic.GetDataTable(50);
+    private static readonly DataTable m_DataTable = UnitTestStatic.GetDataTable(50);
     private readonly string m_ApplicationDirectory = FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles";
+
+    [TestMethod]
+    public void FormLimitSize()
+    {
+      using (var frm = new FrmLimitSize())
+      {
+        frm.RecordLimit = 1000;
+        frm.Show();
+        frm.RecordLimit = 20;
+        System.Threading.Thread.Sleep(200);
+      }
+    }
+
+    [ClassCleanup]
+    public static void TearDown() => m_DataTable.Dispose();
 
     [TestMethod]
     public void CsvRichTextBox()
@@ -120,7 +136,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void FormHierachyDisplay()
     {
-      using (var ctrl = new FormHierachyDisplay(dataTable, dataTable.Select()))
+      using (var ctrl = new FormHierachyDisplay(m_DataTable, m_DataTable.Select()))
       {
         ctrl.Show();
         ctrl.Close();
@@ -130,7 +146,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void FormDuplicatesDisplay()
     {
-      using (var ctrl = new FormDuplicatesDisplay(dataTable, dataTable.Select(), dataTable.Columns[0].ColumnName))
+      using (var ctrl = new FormDuplicatesDisplay(m_DataTable, m_DataTable.Select(), m_DataTable.Columns[0].ColumnName))
       {
         ctrl.Show();
         ctrl.Close();
@@ -140,7 +156,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void FormUniqueDisplay()
     {
-      using (var ctrl = new FormUniqueDisplay(dataTable, dataTable.Select(), dataTable.Columns[0].ColumnName))
+      using (var ctrl = new FormUniqueDisplay(m_DataTable, m_DataTable.Select(), m_DataTable.Columns[0].ColumnName))
       {
         ctrl.Show();
         ctrl.Close();
@@ -160,7 +176,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void FormShowMaxLength()
     {
-      using (var ctrl = new FormShowMaxLength(dataTable, dataTable.Select()))
+      using (var ctrl = new FormShowMaxLength(m_DataTable, m_DataTable.Select()))
       {
         ctrl.Show();
         ctrl.Close();
@@ -171,7 +187,7 @@ namespace CsvTools.Tests
     public void FormDetail()
     {
       using (var processDisplay = new DummyProcessDisplay())
-      using (var ctrl = new FormDetail(dataTable, null, null, true, false, 0, processDisplay.CancellationToken))
+      using (var ctrl = new FormDetail(m_DataTable, null, null, true, false, 0, processDisplay.CancellationToken))
       {
         ctrl.Show();
         ctrl.Close();
@@ -183,13 +199,13 @@ namespace CsvTools.Tests
     {
       var col = new DataGridViewTextBoxColumn
       {
-        ValueType = dataTable.Columns[0].DataType,
-        Name = dataTable.Columns[0].ColumnName,
-        DataPropertyName = dataTable.Columns[0].ColumnName,
-        Tag = dataTable.Columns[0].DataType
+        ValueType = m_DataTable.Columns[0].DataType,
+        Name = m_DataTable.Columns[0].ColumnName,
+        DataPropertyName = m_DataTable.Columns[0].ColumnName,
+        Tag = m_DataTable.Columns[0].DataType
       };
 
-      using (var ctrl = new DataGridViewColumnFilterControl(dataTable.Columns[0].DataType, col))
+      using (var ctrl = new DataGridViewColumnFilterControl(m_DataTable.Columns[0].DataType, col))
       {
         ctrl.Show();
         ctrl.FocusInput();

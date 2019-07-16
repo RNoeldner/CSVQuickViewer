@@ -26,7 +26,7 @@ namespace CsvTools
   /// </summary>
   [DebuggerDisplay(
     "DataGridViewColumnFilterOperator({m_FilterExpressionOperator}, {m_FilterExpressionValue}, {Active})")]
-  public class ColumnFilterLogic : INotifyPropertyChanged, IDisposable
+  public class ColumnFilterLogic : INotifyPropertyChanged
   {
     /// <summary>
     ///   begins
@@ -254,11 +254,6 @@ namespace CsvTools
     internal ValueClusterCollection ValueClusterCollection { get; } = new ValueClusterCollection();
 
     /// <summary>
-    ///   Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-    /// </summary>
-    public virtual void Dispose() => ColumnFilterChanged?.Invoke(this, null);
-
-    /// <summary>
     ///   Occurs when a property value changes.
     /// </summary>
     public event PropertyChangedEventHandler PropertyChanged;
@@ -267,11 +262,6 @@ namespace CsvTools
     ///   Occurs when filter should be executed
     /// </summary>
     public event EventHandler ColumnFilterApply;
-
-    /// <summary>
-    ///   Occurs when the current visible <i>column filter</i> is changed.
-    /// </summary>
-    public event EventHandler ColumnFilterChanged;
 
     /// <summary>
     ///   Applies the filter.
@@ -530,11 +520,6 @@ namespace CsvTools
     /// <summary>
     ///   Called when the filter is changed.
     /// </summary>
-    private void FilterChanged()
-    {
-      m_Active = BuildFilterExpression();
-      // Notify any listeners
-      ColumnFilterChanged?.Invoke(this, null);
-    }
+    private void FilterChanged() => m_Active = BuildFilterExpression();
   }
 }
