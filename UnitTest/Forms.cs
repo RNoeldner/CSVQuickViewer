@@ -11,9 +11,10 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
- using CsvTools.Properties;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using System.IO;
+using CsvTools.Properties;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
@@ -21,18 +22,6 @@ namespace CsvTools.Tests
   public class FormsTest
   {
     private readonly string m_ApplicationDirectory = FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles";
-
-    [TestMethod]
-    public void FormLimitSize()
-    {
-      using (var frm = new FrmLimitSize())
-      {
-        frm.RecordLimit = 1000;
-        frm.Show();
-        frm.RecordLimit = 20;
-        System.Threading.Thread.Sleep(200);
-      }
-    }
 
     [TestMethod]
     public void FormEditSettings()

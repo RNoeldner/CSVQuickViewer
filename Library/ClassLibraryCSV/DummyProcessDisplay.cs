@@ -128,7 +128,6 @@ namespace CsvTools
         return;
       if (disposing)
       {
-        m_CancellationTokenSource.Cancel();
         m_CancellationTokenSource.Dispose();
       }
 

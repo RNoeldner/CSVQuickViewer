@@ -40,12 +40,9 @@ namespace CsvTools
     private readonly DataTable m_SourceTable;
     private readonly List<string> m_UniqueFieldName = new List<string>();
     private HashSet<string> m_ColumnWithoutErrors;
-    private bool m_CutAtLimit;
-    private DataTable m_FilteredTable;
     private volatile bool m_Filtering = false;
-    private FilterType m_FilterType;
     private readonly CancellationToken m_CancellationToken;
-    private CancellationTokenSource m_CurrentFilter;
+    private CancellationTokenSource m_CurrentFilterCancellationTokenSource;
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="FilterDataTable" /> class.
@@ -70,7 +67,7 @@ namespace CsvTools
       {
         var m_ColumnWithErrors = new List<string>();
         var withoutErrors = ColumnsWithoutErrors;
-        foreach (DataColumn col in m_FilteredTable.Columns)
+        foreach (DataColumn col in FilterTable.Columns)
         {
           // Always ignore line number and ErrorField
           if (col.ColumnName.Equals(BaseFileReader.cErrorField, StringComparison.OrdinalIgnoreCase))
@@ -87,7 +84,8 @@ namespace CsvTools
     public void Cancel()
     {
       // stop old filtering
-      m_CurrentFilter?.Cancel();
+      if (m_CurrentFilterCancellationTokenSource != null && !m_CurrentFilterCancellationTokenSource.IsCancellationRequested)
+        m_CurrentFilterCancellationTokenSource?.Cancel();
       // wait in order to start new one
       WaitForFilter();
     }
@@ -120,7 +118,7 @@ namespace CsvTools
           WaitForFilter();
 
           // m_ColumnWithoutErrors will not contain UniqueFields nor line number / error
-          foreach (DataColumn col in m_FilteredTable.Columns)
+          foreach (DataColumn col in FilterTable.Columns)
           {
             m_CancellationToken.ThrowIfCancellationRequested();
             // Always keep the line number, error field and any uniques
@@ -162,7 +160,7 @@ namespace CsvTools
       }
     }
 
-    public bool CutAtLimit => m_CutAtLimit;
+    public bool CutAtLimit { get; private set; }
 
     /// <summary>
     ///   Gets the error table.
@@ -170,11 +168,11 @@ namespace CsvTools
     /// <value>
     ///   The error table.
     /// </value>
-    public DataTable FilterTable => m_FilteredTable;
+    public DataTable FilterTable { get; private set; }
 
     public bool Filtering => m_Filtering;
 
-    public FilterType FilterType => m_FilterType;
+    public FilterType FilterType { get; private set; }
 
     /// <summary>
     ///   Sets the name of the unique field.
@@ -204,18 +202,18 @@ namespace CsvTools
 
       try
       {
-        m_CurrentFilter = CancellationTokenSource.CreateLinkedTokenSource(m_CancellationToken);
+        m_CurrentFilterCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(m_CancellationToken);
         m_Filtering = true;
         m_CancellationToken.ThrowIfCancellationRequested();
-        m_FilteredTable = m_SourceTable.Clone();
-        m_FilterType = type;
+        FilterTable = m_SourceTable.Clone();
+        FilterType = type;
 
         var rows = 0;
         var max = m_SourceTable.Rows.Count;
 
         for (var counter = 0; counter < max && rows < limit; counter++)
         {
-          if (m_CurrentFilter.IsCancellationRequested)
+          if (m_CurrentFilterCancellationTokenSource.IsCancellationRequested)
             return;
           var ErrorOrWarning = m_SourceTable.Rows[counter].GetErrorInformation();
 
@@ -243,11 +241,11 @@ namespace CsvTools
             }
           }
           if (import)
-            m_FilteredTable.ImportRow(m_SourceTable.Rows[counter]);
+            FilterTable.ImportRow(m_SourceTable.Rows[counter]);
 
           rows++;
         }
-        m_CutAtLimit = (rows >= limit);
+        CutAtLimit = (rows >= limit);
       }
       catch (Exception ex)
       {
@@ -265,26 +263,22 @@ namespace CsvTools
                                                                                     finishedAction?.Invoke();
                                                                                   });
 
-    /// <summary>
-    ///   Clean up any resources being used.
-    /// </summary>
-    /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+    private bool m_DisposedValue; // To detect redundant calls
+
     protected virtual void Dispose(bool disposing)
     {
-      if (!disposing)
+      Cancel();
+      if (m_DisposedValue)
         return;
-
-      try
+      if (disposing)
       {
-        m_CurrentFilter?.Cancel();
-        m_CurrentFilter?.Dispose();
-      }
-      catch
-      {
-        // ignore
+        if (m_CurrentFilterCancellationTokenSource != null)
+          m_CurrentFilterCancellationTokenSource.Dispose();
+        if (FilterTable != null)
+          FilterTable.Dispose();
       }
 
-      FilterTable?.Dispose();
+      m_DisposedValue = true;
     }
   }
 }

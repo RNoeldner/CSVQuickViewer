@@ -8,7 +8,6 @@ namespace CsvTools
   public class LogAppenderTextBox : AppenderSkeleton
   {
     private string m_LastMessage = string.Empty;
-    private bool m_IsEmpty = true;
 
     public LogAppenderTextBox()
     {
@@ -28,7 +27,6 @@ namespace CsvTools
       {
         AppenderTextBox.Text = string.Empty;
       });
-      m_IsEmpty = true;
       Extensions.ProcessUIElements();
     }
 
@@ -40,7 +38,6 @@ namespace CsvTools
 
     public void AppendText(string text, log4net.Core.Level level)
     {
-      m_IsEmpty = false;
       AppenderTextBox.SafeBeginInvoke(() =>
       {
         var col = AppenderTextBox.ForeColor;

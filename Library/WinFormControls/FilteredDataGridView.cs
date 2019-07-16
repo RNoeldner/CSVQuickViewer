@@ -393,30 +393,27 @@ namespace CsvTools
       return hasChanges;
     }
 
+    private bool m_DisposedValue; // To detect redundant calls
+
     /// <summary>
     ///   Clean up any resources being used.
     /// </summary>
     /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
     protected override void Dispose(bool disposing)
     {
+      if (m_DisposedValue)
+        return;
       if (disposing)
       {
-        try
-        {
-          m_CancellationTokenSource.Cancel();
+        CloseFilter();
+        if (components != null)
+          components.Dispose();
 
-          CloseFilter();
-
-          components?.Dispose();
-
-          m_CancellationTokenSource.Dispose();
-        }
-        catch (ObjectDisposedException)
-        {
-        }
+        m_CancellationTokenSource.Dispose();
       }
 
       base.Dispose(disposing);
+      m_DisposedValue = true;
     }
 
     /// <summary>

@@ -11,9 +11,10 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
- using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using System.Threading;
 using System.Windows.Forms;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
@@ -26,13 +27,16 @@ namespace CsvTools.Tests
       using (var dgv = new DataGridView())
       {
         dgv.AutoGenerateColumns = true;
-        dgv.DataSource = UnitTestStatic.GetDataTable(100);
-        using (var frm = new Form())
+        using (var dt = UnitTestStatic.GetDataTable(100))
         {
-          frm.Controls.Add(dgv);
-          frm.Show();
-          dgv.SelectAll();
-          dgv.SelectedDataIntoClipboard(true, false, CancellationToken.None);
+          dgv.DataSource = dt;
+          using (var frm = new Form())
+          {
+            frm.Controls.Add(dgv);
+            frm.Show();
+            dgv.SelectAll();
+            dgv.SelectedDataIntoClipboard(true, false, CancellationToken.None);
+          }
         }
       }
     }
@@ -43,13 +47,16 @@ namespace CsvTools.Tests
       using (var dgv = new DataGridView())
       {
         dgv.AutoGenerateColumns = true;
-        dgv.DataSource = UnitTestStatic.GetDataTable(100);
-        using (var frm = new Form())
+        using (var dt = UnitTestStatic.GetDataTable(100))
         {
-          frm.Controls.Add(dgv);
-          frm.Show();
+          dgv.DataSource = dt;
+          using (var frm = new Form())
+          {
+            frm.Controls.Add(dgv);
+            frm.Show();
 
-          dgv.SelectedDataIntoClipboard(true, false, CancellationToken.None);
+            dgv.SelectedDataIntoClipboard(true, false, CancellationToken.None);
+          }
         }
       }
     }

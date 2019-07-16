@@ -47,12 +47,6 @@ namespace CsvTools
     private DataTable m_DataTable;
     private IFileSetting m_FileSetting;
     private FilterDataTable m_FilterDataTable;
-
-    /// <summary>
-    ///   Icon to display
-    /// </summary>
-    private FilteredDataGridView m_FilteredDataGridView;
-
     private bool m_HasButtonAsText;
     private bool m_HasButtonShowSource;
 
@@ -111,7 +105,7 @@ namespace CsvTools
     public DetailControl()
     {
       InitializeComponent();
-      m_FilteredDataGridView.DataViewChanged += DataViewChanged;
+      DataGridView.DataViewChanged += DataViewChanged;
       SetButtonVisibility();
       MoveMenu();
     }
@@ -182,9 +176,9 @@ namespace CsvTools
     [Category("Appearance")]
     public DataGridViewCellStyle AlternatingRowDefaultCellSyle
     {
-      get => m_FilteredDataGridView.AlternatingRowsDefaultCellStyle;
+      get => DataGridView.AlternatingRowsDefaultCellStyle;
 
-      set => m_FilteredDataGridView.AlternatingRowsDefaultCellStyle = value;
+      set => DataGridView.AlternatingRowsDefaultCellStyle = value;
     }
 
     public string ButtonAsTextCaption
@@ -196,7 +190,7 @@ namespace CsvTools
     ///   Gets the data grid view.
     /// </summary>
     /// <value>The data grid view.</value>
-    public FilteredDataGridView DataGridView => m_FilteredDataGridView;
+    public FilteredDataGridView DataGridView { get; private set; }
 
     /// <summary>
     ///   Allows setting the data table
@@ -223,7 +217,7 @@ namespace CsvTools
             ShowFilter = false;
           }
         });
-        m_FilteredDataGridView.FileSetting = m_FileSetting;
+        DataGridView.FileSetting = m_FileSetting;
         toolStripComboBoxFilterType.SelectedIndex = 0;
 
         SetDataSource(FilterType.All);
@@ -238,9 +232,9 @@ namespace CsvTools
     [Category("Appearance")]
     public DataGridViewCellStyle DefaultCellStyle
     {
-      get => m_FilteredDataGridView.DefaultCellStyle;
+      get => DataGridView.DefaultCellStyle;
 
-      set => m_FilteredDataGridView.DefaultCellStyle = value;
+      set => DataGridView.DefaultCellStyle = value;
     }
 
     /// <summary>
@@ -251,14 +245,14 @@ namespace CsvTools
       set
       {
         m_FileSetting = value;
-        m_FilteredDataGridView.FileSetting = m_FileSetting;
+        DataGridView.FileSetting = m_FileSetting;
         SetButtonVisibility();
       }
     }
 
     public int FrozenColumns
     {
-      set => m_FilteredDataGridView.FrozenColumns = value;
+      set => DataGridView.FrozenColumns = value;
     }
 
     /// <summary>
@@ -269,15 +263,15 @@ namespace CsvTools
     [DefaultValue(false)]
     public bool ReadOnly
     {
-      get => m_FilteredDataGridView.ReadOnly;
+      get => DataGridView.ReadOnly;
 
       set
       {
-        if (m_FilteredDataGridView.ReadOnly == value)
+        if (DataGridView.ReadOnly == value)
           return;
-        m_FilteredDataGridView.ReadOnly = value;
-        m_FilteredDataGridView.AllowUserToAddRows = !value;
-        m_FilteredDataGridView.AllowUserToDeleteRows = !value;
+        DataGridView.ReadOnly = value;
+        DataGridView.AllowUserToAddRows = !value;
+        DataGridView.AllowUserToDeleteRows = !value;
         SetButtonVisibility();
       }
     }
@@ -352,8 +346,8 @@ namespace CsvTools
 
     internal Func<string, IDataReader> ToolDataReader
     {
-      get => m_FilteredDataGridView.ToolDataReader;
-      set => m_FilteredDataGridView.ToolDataReader = value;
+      get => DataGridView.ToolDataReader;
+      set => DataGridView.ToolDataReader = value;
     }
 
     public CancellationToken CancellationToken
@@ -446,16 +440,18 @@ namespace CsvTools
     /// <param name="direction">The direction.</param>
     public void Sort(string columnName, ListSortDirection direction)
     {
-      foreach (DataGridViewColumn col in m_FilteredDataGridView.Columns)
+      foreach (DataGridViewColumn col in DataGridView.Columns)
       {
         if (col.DataPropertyName.Equals(columnName, StringComparison.OrdinalIgnoreCase) && col.Visible)
         {
-          m_FilteredDataGridView.Sort(col, direction);
+          DataGridView.Sort(col, direction);
           break;
           // col.HeaderCell.SortGlyphDirection = direction == ListSortDirection.Ascending ? SortOrder.Ascending : SortOrder.Descending;
         }
       }
     }
+
+    private bool m_DisposedValue; // To detect redundant calls
 
     /// <summary>
     ///   Clean up any resources being used.
@@ -463,18 +459,25 @@ namespace CsvTools
     /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
     protected override void Dispose(bool disposing)
     {
-      if (!disposing)
+      if (m_DisposedValue)
         return;
-      m_CancellationTokenSource.Cancel();
-      m_CurrentSearch?.Dispose();
-      m_DataTable?.Dispose();
+      if (disposing)
+      {
+        if (components != null)
+          components.Dispose();
+        if (m_CurrentSearch != null)
+          m_CurrentSearch.Dispose();
+        if (m_DataTable != null)
+          m_DataTable.Dispose();
+        if (m_FilterDataTable != null)
+          m_FilterDataTable.Dispose();
+        if (m_HierachyDisplay != null)
+          m_HierachyDisplay.Dispose();
 
-      m_FilterDataTable?.Dispose();
-
-      m_HierachyDisplay?.Dispose();
-      m_CancellationTokenSource.Dispose();
-      m_DataTable?.Dispose();
+        m_CancellationTokenSource.Dispose();
+      }
       base.Dispose(disposing);
+      m_DisposedValue = true;
     }
 
     /// <summary>
@@ -496,7 +499,7 @@ namespace CsvTools
     {
       if (source.Rows.Count < 10000 && source.Columns.Count < 50)
       {
-        m_FilteredDataGridView.AutoResizeColumns(source.Rows.Count < 1000 && source.Columns.Count < 20
+        DataGridView.AutoResizeColumns(source.Rows.Count < 1000 && source.Columns.Count < 20
           ? DataGridViewAutoSizeColumnsMode.AllCells
           : DataGridViewAutoSizeColumnsMode.DisplayedCells);
       }
@@ -553,7 +556,7 @@ namespace CsvTools
       try
       {
         using (var details =
-          new FormShowMaxLength(m_DataTable, m_DataTable.Select(m_FilteredDataGridView.CurrentFilter)))
+          new FormShowMaxLength(m_DataTable, m_DataTable.Select(DataGridView.CurrentFilter)))
         {
           details.Icon = ParentForm?.Icon;
           details.ShowDialog();
@@ -580,14 +583,14 @@ namespace CsvTools
       m_ToolStripButtonDuplicates.Enabled = false;
       try
       {
-        if (m_FilteredDataGridView.Columns.Count <= 0)
+        if (DataGridView.Columns.Count <= 0)
           return;
-        var columnName = m_FilteredDataGridView.CurrentCell != null
-          ? m_FilteredDataGridView.Columns[m_FilteredDataGridView.CurrentCell.ColumnIndex].Name
-          : m_FilteredDataGridView.Columns[0].Name;
+        var columnName = DataGridView.CurrentCell != null
+          ? DataGridView.Columns[DataGridView.CurrentCell.ColumnIndex].Name
+          : DataGridView.Columns[0].Name;
 
         using (var details = new FormDuplicatesDisplay(m_DataTable.Clone(),
-          m_DataTable.Select(m_FilteredDataGridView.CurrentFilter), columnName))
+          m_DataTable.Select(DataGridView.CurrentFilter), columnName))
         {
           details.Icon = ParentForm?.Icon;
           details.ShowDialog();
@@ -616,7 +619,7 @@ namespace CsvTools
       {
         m_HierachyDisplay?.Close();
         m_HierachyDisplay =
-          new FormHierachyDisplay(m_DataTable.Clone(), m_DataTable.Select(m_FilteredDataGridView.CurrentFilter))
+          new FormHierachyDisplay(m_DataTable.Clone(), m_DataTable.Select(DataGridView.CurrentFilter))
           {
             Icon = ParentForm?.Icon
           };
@@ -642,13 +645,13 @@ namespace CsvTools
       m_ToolStripButtonUniqueValues.Enabled = false;
       try
       {
-        if (m_FilteredDataGridView.Columns.Count <= 0)
+        if (DataGridView.Columns.Count <= 0)
           return;
-        var columnName = m_FilteredDataGridView.CurrentCell != null
-          ? m_FilteredDataGridView.Columns[m_FilteredDataGridView.CurrentCell.ColumnIndex].Name
-          : m_FilteredDataGridView.Columns[0].Name;
+        var columnName = DataGridView.CurrentCell != null
+          ? DataGridView.Columns[DataGridView.CurrentCell.ColumnIndex].Name
+          : DataGridView.Columns[0].Name;
         using (var details = new FormUniqueDisplay(m_DataTable.Clone(),
-          m_DataTable.Select(m_FilteredDataGridView.CurrentFilter), columnName))
+          m_DataTable.Select(DataGridView.CurrentFilter), columnName))
         {
           details.Icon = ParentForm?.Icon;
           details.ShowDialog();
@@ -668,9 +671,9 @@ namespace CsvTools
     {
       this.SafeInvoke(() =>
       {
-        m_FilteredDataGridView.HighlightText = null;
+        DataGridView.HighlightText = null;
         m_FoundCells.Clear();
-        m_FilteredDataGridView.Refresh();
+        DataGridView.Refresh();
         m_Search.Results = 0;
       });
       m_CurrentSearch?.Dispose();
@@ -705,7 +708,7 @@ namespace CsvTools
     {
       if (!onlyErrors)
       {
-        foreach (DataGridViewColumn col in m_FilteredDataGridView.Columns)
+        foreach (DataGridViewColumn col in DataGridView.Columns)
         {
           if (!col.Visible)
           {
@@ -723,7 +726,7 @@ namespace CsvTools
         return;
       if (m_FilterDataTable.ColumnsWithoutErrors.Count == m_Columns.Count)
         return;
-      foreach (DataGridViewColumn dgcol in m_FilteredDataGridView.Columns)
+      foreach (DataGridViewColumn dgcol in DataGridView.Columns)
       {
         if (dgcol.Visible && m_FilterDataTable.ColumnsWithoutErrors.Contains(dgcol.DataPropertyName))
         {
@@ -764,11 +767,11 @@ namespace CsvTools
         var newDt = (type == FilterType.All) ? m_DataTable : m_FilterDataTable.FilterTable;
         if (newDt == m_BindingSource.DataSource)
           return;
-        m_FilteredDataGridView.DataSource = null;
+        DataGridView.DataSource = null;
         m_BindingSource.DataSource = newDt;
         try
         {
-          m_FilteredDataGridView.DataSource = m_BindingSource; // bindingSource;
+          DataGridView.DataSource = m_BindingSource; // bindingSource;
           FilterColumns(!type.HasFlag(FilterType.ShowIssueFree));
           AutoResizeColumns(newDt);
         }
@@ -816,11 +819,11 @@ namespace CsvTools
     {
       if (e.Result <= 0 || e.Result >= m_FoundCells.Count)
         return;
-      m_FilteredDataGridView.SafeInvoke(() =>
+      DataGridView.SafeInvoke(() =>
       {
         try
         {
-          m_FilteredDataGridView.CurrentCell = m_FoundCells[e.Result - 1];
+          DataGridView.CurrentCell = m_FoundCells[e.Result - 1];
         }
         catch (Exception ex)
         {
@@ -860,13 +863,13 @@ namespace CsvTools
 
         m_SearchCells.Clear();
         var visible = new List<DataGridViewColumn>();
-        foreach (DataGridViewColumn col in m_FilteredDataGridView.Columns)
+        foreach (DataGridViewColumn col in DataGridView.Columns)
         {
           if (col.Visible && !string.IsNullOrEmpty(col.DataPropertyName))
             visible.Add(col);
         }
 
-        foreach (DataGridViewRow row in m_FilteredDataGridView.Rows)
+        foreach (DataGridViewRow row in DataGridView.Rows)
         {
           if (!row.Visible)
             continue;
@@ -892,7 +895,7 @@ namespace CsvTools
       this.SafeBeginInvoke(() =>
       {
         m_Search.Results = args.Index;
-        m_FilteredDataGridView.InvalidateCell(args.Cell);
+        DataGridView.InvalidateCell(args.Cell);
       });
     }
 
@@ -950,13 +953,13 @@ namespace CsvTools
           toolStripComboBoxFilterType.SelectedIndex = 4;
       });
 
-      var oldSortedColumn = m_FilteredDataGridView.SortedColumn?.DataPropertyName;
-      var oldOrder = m_FilteredDataGridView.SortOrder;
+      var oldSortedColumn = DataGridView.SortedColumn?.DataPropertyName;
+      var oldOrder = DataGridView.SortOrder;
       // bindingSource.SuspendBinding();
       FilterRowsAndColumns(type);
       // bindingSource.ResumeBinding();
-      m_FilteredDataGridView.ColumnVisibilityChanged();
-      m_FilteredDataGridView.SetRowHeight();
+      DataGridView.ColumnVisibilityChanged();
+      DataGridView.SetRowHeight();
 
       if (oldOrder != SortOrder.None && !string.IsNullOrEmpty(oldSortedColumn))
       {
@@ -968,7 +971,7 @@ namespace CsvTools
     private void StartSearch(object sender, SearchEventArgs e)
     {
       ClearSearch(this, null);
-      m_FilteredDataGridView.HighlightText = e.SearchText;
+      DataGridView.HighlightText = e.SearchText;
 
       var processInformaton = new ProcessInformaton
       {
@@ -1002,13 +1005,13 @@ namespace CsvTools
 
           // Restrict to shown data
           var colNames = new Dictionary<int, string>();
-          foreach (DataGridViewColumn col in m_FilteredDataGridView.Columns)
+          foreach (DataGridViewColumn col in DataGridView.Columns)
           {
             if (col.Visible && !BaseFileReader.ArtificalFields.Contains(col.DataPropertyName))
               colNames.Add(col.DisplayIndex, col.DataPropertyName);
           }
           // can not use filteredDataGridView.Columns directly
-          writer.WriteDataTable(m_FilteredDataGridView.DataView.ToTable(false,
+          writer.WriteDataTable(DataGridView.DataView.ToTable(false,
             colNames.OrderBy(x => x.Key).Select(x => x.Value).ToArray()));
         }
       }
@@ -1047,7 +1050,7 @@ namespace CsvTools
       m_ToolStripButtonMoveNextItem = new System.Windows.Forms.ToolStripButton();
       m_ToolStripButtonMoveLastItem = new System.Windows.Forms.ToolStripButton();
       m_Search = new CsvTools.Search();
-      m_FilteredDataGridView = new CsvTools.FilteredDataGridView();
+      DataGridView = new CsvTools.FilteredDataGridView();
       m_ToolStripTop.SuspendLayout();
       m_ToolStripContainer.BottomToolStripPanel.SuspendLayout();
       m_ToolStripContainer.ContentPanel.SuspendLayout();
@@ -1056,7 +1059,7 @@ namespace CsvTools
       ((System.ComponentModel.ISupportInitialize)(m_BindingNavigator)).BeginInit();
       m_BindingNavigator.SuspendLayout();
       ((System.ComponentModel.ISupportInitialize)(m_BindingSource)).BeginInit();
-      ((System.ComponentModel.ISupportInitialize)(m_FilteredDataGridView)).BeginInit();
+      ((System.ComponentModel.ISupportInitialize)(DataGridView)).BeginInit();
       SuspendLayout();
       //
       // m_ToolStripTop
@@ -1179,7 +1182,7 @@ namespace CsvTools
       // m_ToolStripContainer.ContentPanel
       //
       m_ToolStripContainer.ContentPanel.Controls.Add(m_Search);
-      m_ToolStripContainer.ContentPanel.Controls.Add(m_FilteredDataGridView);
+      m_ToolStripContainer.ContentPanel.Controls.Add(DataGridView);
       m_ToolStripContainer.ContentPanel.Size = new System.Drawing.Size(872, 297);
       m_ToolStripContainer.Dock = System.Windows.Forms.DockStyle.Fill;
       m_ToolStripContainer.LeftToolStripPanelVisible = false;
@@ -1290,10 +1293,10 @@ namespace CsvTools
       //
       // m_FilteredDataGridView
       //
-      m_FilteredDataGridView.AllowUserToOrderColumns = true;
+      DataGridView.AllowUserToOrderColumns = true;
       dataGridViewCellStyle5.BackColor = System.Drawing.Color.Gainsboro;
-      m_FilteredDataGridView.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle5;
-      m_FilteredDataGridView.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+      DataGridView.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle5;
+      DataGridView.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
       dataGridViewCellStyle6.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
       dataGridViewCellStyle6.BackColor = System.Drawing.SystemColors.Control;
       dataGridViewCellStyle6.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, 0);
@@ -1301,8 +1304,8 @@ namespace CsvTools
       dataGridViewCellStyle6.SelectionBackColor = System.Drawing.SystemColors.Highlight;
       dataGridViewCellStyle6.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
       dataGridViewCellStyle6.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-      m_FilteredDataGridView.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle6;
-      m_FilteredDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+      DataGridView.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle6;
+      DataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
       dataGridViewCellStyle7.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
       dataGridViewCellStyle7.BackColor = System.Drawing.SystemColors.Window;
       dataGridViewCellStyle7.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, 0);
@@ -1310,10 +1313,10 @@ namespace CsvTools
       dataGridViewCellStyle7.SelectionBackColor = System.Drawing.SystemColors.Highlight;
       dataGridViewCellStyle7.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
       dataGridViewCellStyle7.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-      m_FilteredDataGridView.DefaultCellStyle = dataGridViewCellStyle7;
-      m_FilteredDataGridView.Dock = System.Windows.Forms.DockStyle.Fill;
-      m_FilteredDataGridView.Location = new System.Drawing.Point(0, 0);
-      m_FilteredDataGridView.Name = "m_FilteredDataGridView";
+      DataGridView.DefaultCellStyle = dataGridViewCellStyle7;
+      DataGridView.Dock = System.Windows.Forms.DockStyle.Fill;
+      DataGridView.Location = new System.Drawing.Point(0, 0);
+      DataGridView.Name = "m_FilteredDataGridView";
       dataGridViewCellStyle8.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
       dataGridViewCellStyle8.BackColor = System.Drawing.SystemColors.Control;
       dataGridViewCellStyle8.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, 0);
@@ -1321,11 +1324,11 @@ namespace CsvTools
       dataGridViewCellStyle8.SelectionBackColor = System.Drawing.SystemColors.Highlight;
       dataGridViewCellStyle8.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
       dataGridViewCellStyle8.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-      m_FilteredDataGridView.RowHeadersDefaultCellStyle = dataGridViewCellStyle8;
-      m_FilteredDataGridView.Size = new System.Drawing.Size(872, 297);
-      m_FilteredDataGridView.TabIndex = 1;
-      m_FilteredDataGridView.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(FilteredDataGridView_CellFormatting);
-      m_FilteredDataGridView.KeyDown += new System.Windows.Forms.KeyEventHandler(DetailControl_KeyDown);
+      DataGridView.RowHeadersDefaultCellStyle = dataGridViewCellStyle8;
+      DataGridView.Size = new System.Drawing.Size(872, 297);
+      DataGridView.TabIndex = 1;
+      DataGridView.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(FilteredDataGridView_CellFormatting);
+      DataGridView.KeyDown += new System.Windows.Forms.KeyEventHandler(DetailControl_KeyDown);
       //
       // DetailControl
       //
@@ -1349,7 +1352,7 @@ namespace CsvTools
       m_BindingNavigator.ResumeLayout(false);
       m_BindingNavigator.PerformLayout();
       ((System.ComponentModel.ISupportInitialize)(m_BindingSource)).EndInit();
-      ((System.ComponentModel.ISupportInitialize)(m_FilteredDataGridView)).EndInit();
+      ((System.ComponentModel.ISupportInitialize)(DataGridView)).EndInit();
       ResumeLayout(false);
     }
 

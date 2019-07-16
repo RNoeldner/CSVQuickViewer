@@ -113,6 +113,7 @@ namespace CsvTools
     }
 
     #region
+    private bool m_DisposedValue; // To detect redundant calls
 
     /// <summary>
     ///   Dispose
@@ -123,9 +124,13 @@ namespace CsvTools
     /// </param>
     protected override void Dispose(bool disposing)
     {
+      if (m_DisposedValue)
+        return;
       if (disposing)
-        components?.Dispose();
+        if (components != null)
+          components.Dispose();
       base.Dispose(disposing);
+      m_DisposedValue = true;
     }
 
     private void ComboBoxTrim_SelectedIndexChanged(object sender, EventArgs e)
