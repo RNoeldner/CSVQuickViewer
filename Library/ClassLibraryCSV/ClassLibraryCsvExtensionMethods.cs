@@ -47,6 +47,13 @@ namespace CsvTools
     public static bool AssumeGZip(this string fileName) => fileName.EndsWith(".gz", StringComparison.OrdinalIgnoreCase);
 
     /// <summary>
+    ///   Check if the application should assume its gZIP
+    /// </summary>
+    /// <param name="fileName">Name of the file.</param>
+    /// <returns></returns>
+    public static bool AssumeZip(this string fileName) => fileName.EndsWith(".zip", StringComparison.OrdinalIgnoreCase);
+
+    /// <summary>
     ///   Check if the application should assume its PGP.
     /// </summary>
     /// <param name="fileName">Name of the file.</param>
