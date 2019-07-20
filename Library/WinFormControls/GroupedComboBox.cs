@@ -48,12 +48,15 @@ namespace CsvTools
       m_TimerFilter.Elapsed += delegate
       {
         m_TimerFilter.Stop();
-        if (SelectedIndex >= 0)
-          return;
+        this.SafeInvoke(() =>
+        {
+          if (SelectedIndex >= 0)
+            return;
 
-        SetDataSourceAndSort();
+          SetDataSourceAndSort();
 
-        DroppedDown = (Text.Length > 2);
+          DroppedDown = (Text.Length > 2);
+        });
       };
     }
 

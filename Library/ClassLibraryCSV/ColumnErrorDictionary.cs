@@ -23,17 +23,12 @@ namespace CsvTools
   public class ColumnErrorDictionary
   {
     /// <summary>
-    ///   A List containing warnings by row/column, the messages are sorted by severity
-    /// </summary>
-    private readonly IDictionary<int, string> m_ColumnErrorDictionary = new Dictionary<int, string>();
-
-    /// <summary>
     ///   Gets the internal dictionary
     /// </summary>
     /// <value>
     ///   The dictionary with messages by column number
     /// </value>
-    public IDictionary<int, string> Dictionary => m_ColumnErrorDictionary;
+    public IDictionary<int, string> Dictionary { get; } = new Dictionary<int, string>();
 
     /// <summary>
     ///   Combines all messages in order to display them
@@ -44,7 +39,7 @@ namespace CsvTools
       get
       {
         var sb = new StringBuilder();
-        foreach (var message in m_ColumnErrorDictionary.Values)
+        foreach (var message in Dictionary.Values)
         {
           if (sb.Length > 0)
             sb.Append(ErrorInformation.cSeparator);
@@ -67,7 +62,7 @@ namespace CsvTools
     {
       get
       {
-        m_ColumnErrorDictionary.TryGetValue(columnNumber, out var ret);
+        Dictionary.TryGetValue(columnNumber, out var ret);
         return ret;
       }
     }
@@ -79,10 +74,10 @@ namespace CsvTools
     /// <param name="message">The message.</param>
     public void Add(int columnNumber, string message)
     {
-      if (m_ColumnErrorDictionary.TryGetValue(columnNumber, out var old))
-        m_ColumnErrorDictionary[columnNumber] = old.AddMessage(message);
+      if (Dictionary.TryGetValue(columnNumber, out var old))
+        Dictionary[columnNumber] = old.AddMessage(message);
       else
-        m_ColumnErrorDictionary.Add(columnNumber, message);
+        Dictionary.Add(columnNumber, message);
     }
   }
 }

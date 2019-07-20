@@ -59,7 +59,7 @@ namespace CsvTools.Tests
     [TestMethod()]
     public void GetActiveValueClusterTest()
     {
-      using (var data = UnitTestStatic.GetDataTable(200))
+      using (var data = UnitTestStatic.GetdDataTable(200))
       {
         var dataview = new DataView(data, null, null, DataViewRowState.CurrentRows);
 
