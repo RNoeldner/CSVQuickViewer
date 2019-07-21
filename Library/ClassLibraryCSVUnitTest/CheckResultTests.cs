@@ -30,8 +30,10 @@ namespace CsvTools.Tests
       test2.ExampleNonMatch.Add("Test3");
       test2.PossibleMatch = true;
 
-      var test3 = new CheckResult();
-      test3.PossibleMatch = true;
+      var test3 = new CheckResult
+      {
+        PossibleMatch = true
+      };
 
       test1.KeepBestPossibleMatch(test1);
       Assert.AreEqual(2, test1.ExampleNonMatch.Count());

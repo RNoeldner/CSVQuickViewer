@@ -149,7 +149,7 @@ namespace CsvTools
         if (overall == ColumnOption.Empty)
           overall = oneColOption;
         else
-          overall = overall & oneColOption;
+          overall &= oneColOption;
       }
       return overall;
     }

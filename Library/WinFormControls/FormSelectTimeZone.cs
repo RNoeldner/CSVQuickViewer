@@ -28,7 +28,7 @@ namespace CsvTools
     private Button m_BtnOk;
 
     private int m_Counter = 0;
-    private double m_Duration = 5.0;
+    private readonly double m_Duration = 5.0;
 
     private void UpdateLabel()
     {

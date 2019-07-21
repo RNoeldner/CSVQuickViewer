@@ -12,7 +12,7 @@
  *
  */
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;                                                                            
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.Windows.Forms;
 
@@ -24,41 +24,47 @@ namespace CsvTools.Tests
     [TestMethod]
     public void UpdateListViewColumnFormatTest()
     {
-      var lv = new ListView();
-      var colFmt = new List<Column>();
-
+      using (var lv = new ListView())
       {
-        var item = lv.Items.Add("Test");
-        item.Selected = true;
-      }
-      lv.UpdateListViewColumnFormat(colFmt);
-      Assert.AreEqual(0, lv.Items.Count);
+        var colFmt = new List<Column>();
 
-      {
-        lv.Items.Add("Test1");
-        var item = lv.Items.Add("Test");
-        item.Selected = true;
-      }
+        {
+          var item = lv.Items.Add("Test");
+          item.Selected = true;
+        }
+        lv.UpdateListViewColumnFormat(colFmt);
+        Assert.AreEqual(0, lv.Items.Count);
 
-      colFmt.Add(new Column { Name = "Test" });
-      lv.UpdateListViewColumnFormat(colFmt);
+        {
+          lv.Items.Add("Test1");
+          var item = lv.Items.Add("Test");
+          item.Selected = true;
+        }
+
+        colFmt.Add(new Column { Name = "Test" });
+        lv.UpdateListViewColumnFormat(colFmt);
+      }
     }
 
     [TestMethod()]
     public void WriteBindingTest()
     {
       var obj = new DisplayItem<string>("15", "Text");
-      var bindrc = new BindingSource
+      using (var bindrc = new BindingSource
       {
         DataSource = obj
-      };
-      var bind = new Binding("Text", bindrc, "ID", true);
-      var crtl = new TextBox();
-      crtl.DataBindings.Add(bind);
-      crtl.Text = "12";
+      })
+      {
+        var bind = new Binding("Text", bindrc, "ID", true);
+        using (var crtl = new TextBox())
+        {
+          crtl.DataBindings.Add(bind);
+          crtl.Text = "12";
 
-      Assert.AreEqual(bind, crtl.GetTextBindng());
-      crtl.WriteBinding();
+          Assert.AreEqual(bind, crtl.GetTextBindng());
+          crtl.WriteBinding();
+        }
+      }
     }
 
     [TestMethod()]
@@ -85,7 +91,7 @@ namespace CsvTools.Tests
         FileName = "Folder\\This is a long file name that should be cut and fit into 80 chars.txt",
         ShowProgress = true
       };
-      using (var prc= setting.GetProcessDisplay(null, true, System.Threading.CancellationToken.None))
+      using (var prc = setting.GetProcessDisplay(null, true, System.Threading.CancellationToken.None))
       {
         Assert.IsTrue(prc is IProcessDisplay, "GetProcessDisplay With Logger");
       }
@@ -104,7 +110,7 @@ namespace CsvTools.Tests
       {
         Assert.IsTrue(prc is IProcessDisplay, "GetProcessDisplay without UI");
       }
-       
+
     }
 
     [TestMethod()]

@@ -102,9 +102,11 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CollectionIsNotEqualNull()
     {
-      var a = new List<int>();
-      a.Add(1);
-      a.Add(10);
+      var a = new List<int>
+      {
+        1,
+        10
+      };
 
       Assert.IsFalse(a.CollectionEqual(null));
     }

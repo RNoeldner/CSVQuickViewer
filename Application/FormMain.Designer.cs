@@ -19,6 +19,14 @@
       }
       if (m_CancellationTokenSource != null)
         m_CancellationTokenSource.Dispose();
+
+      if (m_CurrentCancellationTokenSource != null)
+        m_CurrentCancellationTokenSource.Dispose();
+
+      if (m_SettingsChangedTimerChange != null)
+        m_SettingsChangedTimerChange.Dispose();
+
+
       Microsoft.Win32.SystemEvents.DisplaySettingsChanged -= SystemEvents_DisplaySettingsChanged;
       Microsoft.Win32.SystemEvents.PowerModeChanged -= SystemEvents_PowerModeChanged;
       base.Dispose(disposing);

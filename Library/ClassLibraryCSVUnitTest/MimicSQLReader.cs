@@ -20,7 +20,7 @@ namespace CsvTools.Tests
 {
   public class MimicSQLReader
   {
-    private List<IFileSetting> m_ReadSetting = new List<IFileSetting>();
+    private readonly List<IFileSetting> m_ReadSetting = new List<IFileSetting>();
 
     public void AddSetting(IFileSetting setting)
     {

@@ -23,34 +23,38 @@ namespace CsvTools.Tests
     [TestMethod()]
     public void FormProcessDisplayTest()
     {
-      Assert.IsNotNull(new FormProcessDisplay());
+      using (var value = new FormProcessDisplay())
+      { Assert.IsNotNull(value); }
+
     }
 
     [TestMethod()]
     public void FormProcessDisplayTest1()
     {
-      var tokenSrc = new CancellationTokenSource();
-
-      using (var frm = new FormProcessDisplay("Title", false, tokenSrc.Token))
+      using (var tokenSrc = new CancellationTokenSource())
       {
-        Assert.AreEqual("Title", frm.Title);
-        Assert.AreEqual(false, frm.CancellationTokenSource.IsCancellationRequested);
-        tokenSrc.Cancel();
-        Assert.AreEqual(true, frm.CancellationTokenSource.IsCancellationRequested);
+        using (var frm = new FormProcessDisplay("Title", false, tokenSrc.Token))
+        {
+          Assert.AreEqual("Title", frm.Title);
+          Assert.AreEqual(false, frm.CancellationTokenSource.IsCancellationRequested);
+          tokenSrc.Cancel();
+          Assert.AreEqual(true, frm.CancellationTokenSource.IsCancellationRequested);
+        }
       }
     }
 
     [TestMethod()]
     public void CancelTest()
     {
-      var tokenSrc = new CancellationTokenSource();
-
-      using (var frm = new FormProcessDisplay("Title", true, tokenSrc.Token))
+      using (var tokenSrc = new CancellationTokenSource())
       {
-        Assert.AreEqual(false, frm.CancellationTokenSource.IsCancellationRequested);
-        frm.Cancel();
-        Assert.AreEqual(true, frm.CancellationTokenSource.IsCancellationRequested);
-        Assert.AreEqual(false, tokenSrc.IsCancellationRequested);
+        using (var frm = new FormProcessDisplay("Title", true, tokenSrc.Token))
+        {
+          Assert.AreEqual(false, frm.CancellationTokenSource.IsCancellationRequested);
+          frm.Cancel();
+          Assert.AreEqual(true, frm.CancellationTokenSource.IsCancellationRequested);
+          Assert.AreEqual(false, tokenSrc.IsCancellationRequested);
+        }
       }
     }
 

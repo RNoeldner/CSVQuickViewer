@@ -68,17 +68,20 @@ namespace CsvTools
       if (base64.Length % 4 != 0)
         base64 += "=";
       var cipherTextBytes = Convert.FromBase64String(base64);
-      var symmetricKey = new RijndaelManaged { Mode = CipherMode.CBC };
-      var decryptor =
-        symmetricKey.CreateDecryptor(new PasswordDeriveBytes(pwd, Encoding.ASCII.GetBytes(salt)).GetBytes(32),
-          m_InitVectorBytes);
-      using (var memoryStream = new MemoryStream(cipherTextBytes))
+      using (var symmetricKey = new RijndaelManaged { Mode = CipherMode.CBC })
       {
-        using (var cryptoStream = new CryptoStream(memoryStream, decryptor, CryptoStreamMode.Read))
+        using (var passwordDeriveBytes = new PasswordDeriveBytes(pwd, Encoding.ASCII.GetBytes(salt)))
         {
-          var plainTextBytes = new byte[cipherTextBytes.Length];
-          var decryptedByteCount = cryptoStream.Read(plainTextBytes, 0, plainTextBytes.Length);
-          return Encoding.UTF8.GetString(plainTextBytes, 0, decryptedByteCount);
+          var decryptor = symmetricKey.CreateDecryptor(passwordDeriveBytes.GetBytes(32), m_InitVectorBytes);
+          using (var memoryStream = new MemoryStream(cipherTextBytes))
+          {
+            using (var cryptoStream = new CryptoStream(memoryStream, decryptor, CryptoStreamMode.Read))
+            {
+              var plainTextBytes = new byte[cipherTextBytes.Length];
+              var decryptedByteCount = cryptoStream.Read(plainTextBytes, 0, plainTextBytes.Length);
+              return Encoding.UTF8.GetString(plainTextBytes, 0, decryptedByteCount);
+            }
+          }
         }
       }
     }
@@ -102,24 +105,27 @@ namespace CsvTools
         builder[i] = base64[Convert.ToInt32(Math.Floor(base64.Length * Random.NextDouble()))];
       var salt = new string(builder);
 
-      var symmetricKey = new RijndaelManaged { Mode = CipherMode.CBC };
-      var encryptor =
-        symmetricKey.CreateEncryptor(new PasswordDeriveBytes(pwd, Encoding.ASCII.GetBytes(salt)).GetBytes(32),
-          m_InitVectorBytes);
-      using (var memoryStream = new MemoryStream())
+      using (var symmetricKey = new RijndaelManaged { Mode = CipherMode.CBC })
       {
-        using (var cryptoStream = new CryptoStream(memoryStream, encryptor, CryptoStreamMode.Write))
+        using (var passwordDeriveBytes = new PasswordDeriveBytes(pwd, Encoding.ASCII.GetBytes(salt)))
         {
-          cryptoStream.Write(plainTextBytes, 0, plainTextBytes.Length);
-          cryptoStream.FlushFinalBlock();
-          var text = Convert.ToBase64String(memoryStream.ToArray());
-          // remove Base64 padding to hind the nature of the encoding a bit
-          if (text.EndsWith("=="))
-            text = text.Substring(0, text.Length - 2);
-          else if (text.EndsWith("="))
-            text = text.Substring(0, text.Length - 1);
+          var encryptor = symmetricKey.CreateEncryptor(passwordDeriveBytes.GetBytes(32), m_InitVectorBytes);
+          using (var memoryStream = new MemoryStream())
+          {
+            using (var cryptoStream = new CryptoStream(memoryStream, encryptor, CryptoStreamMode.Write))
+            {
+              cryptoStream.Write(plainTextBytes, 0, plainTextBytes.Length);
+              cryptoStream.FlushFinalBlock();
+              var text = Convert.ToBase64String(memoryStream.ToArray());
+              // remove Base64 padding to hind the nature of the encoding a bit
+              if (text.EndsWith("=="))
+                text = text.Substring(0, text.Length - 2);
+              else if (text.EndsWith("="))
+                text = text.Substring(0, text.Length - 1);
 
-          return salt.Substring(0, c_SlatSplit) + text + salt.Substring(c_SlatSplit);
+              return salt.Substring(0, c_SlatSplit) + text + salt.Substring(c_SlatSplit);
+            }
+          }
         }
       }
     }

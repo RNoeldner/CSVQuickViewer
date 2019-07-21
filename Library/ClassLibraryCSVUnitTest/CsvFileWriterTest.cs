@@ -34,72 +34,76 @@ namespace CsvTools.Tests
     [TestMethod]
     public void WriteFileLocked()
     {
-      var dataTable = new DataTable
+      using (var dataTable = new DataTable
       {
         TableName = "DataTable",
         Locale = CultureInfo.InvariantCulture
-      };
-      dataTable.Columns.Add("ID", typeof(int));
-      dataTable.Columns.Add("Text", typeof(string));
-      for (int i = 0; i < 5; i++)
+      })
       {
-        var row = dataTable.NewRow();
-        row["ID"] = i;
-        row["Text"] = i.ToString(CultureInfo.InvariantCulture);
-        dataTable.Rows.Add(row);
-      }
-      var writeFile = new CsvFile
-      {
-        ID = "Test.txt",
-        FileName = "WriteFileLocked.txt",
-        InOverview = false,
-        SqlStatement = "dummy"
-      };
-      FileSystemUtils.FileDelete(writeFile.FileName);
-      using (System.IO.StreamWriter file = new System.IO.StreamWriter(writeFile.FullPath))
-      {
-        file.WriteLine("Hello");
-        using (var processDisplay = new DummyProcessDisplay())
+        dataTable.Columns.Add("ID", typeof(int));
+        dataTable.Columns.Add("Text", typeof(string));
+        for (int i = 0; i < 5; i++)
         {
-          var writer = new CsvFileWriter(writeFile, processDisplay);
-
-          writer.WriteDataTable(dataTable);
-          Assert.IsTrue(!string.IsNullOrEmpty(writer.ErrorMessage));
+          var row = dataTable.NewRow();
+          row["ID"] = i;
+          row["Text"] = i.ToString(CultureInfo.InvariantCulture);
+          dataTable.Rows.Add(row);
         }
-        file.WriteLine("World");
-      }
-      FileSystemUtils.FileDelete(writeFile.FileName);
+        var writeFile = new CsvFile
+        {
+          ID = "Test.txt",
+          FileName = "WriteFileLocked.txt",
+          InOverview = false,
+          SqlStatement = "dummy"
+        };
+        FileSystemUtils.FileDelete(writeFile.FileName);
+        using (System.IO.StreamWriter file = new System.IO.StreamWriter(writeFile.FullPath))
+        {
+          file.WriteLine("Hello");
+          using (var processDisplay = new DummyProcessDisplay())
+          {
+            var writer = new CsvFileWriter(writeFile, processDisplay);
+
+            writer.WriteDataTable(dataTable);
+            Assert.IsTrue(!string.IsNullOrEmpty(writer.ErrorMessage));
+          }
+          file.WriteLine("World");
+        }
+        FileSystemUtils.FileDelete(writeFile.FileName);
+      }      
     }
 
     [TestMethod]
     public void WriteDataTable()
     {
-      var dataTable = new DataTable
+      using (var dataTable = new DataTable
       {
         TableName = "DataTable",
         Locale = CultureInfo.InvariantCulture
-      };
-      dataTable.Columns.Add("ID", typeof(int));
-      dataTable.Columns.Add("Text", typeof(string));
-      for (int i = 0; i < 100; i++)
+      })
       {
-        var row = dataTable.NewRow();
-        row["ID"] = i;
-        row["Text"] = i.ToString(CultureInfo.CurrentCulture);
-        dataTable.Rows.Add(row);
-      }
-      var writeFile = new CsvFile
-      {
-        ID = "Test.txt",
-        FileName = "Test.txt",
-        SqlStatement = "Hello"
-      };
-      using (var processDisplay = new DummyProcessDisplay())
-      {
-        var writer = new CsvFileWriter(writeFile, processDisplay);
-        Assert.AreEqual(100, writer.WriteDataTable(dataTable));
-      }
-      Assert.IsTrue(File.Exists(writeFile.FullPath));
+        dataTable.Columns.Add("ID", typeof(int));
+        dataTable.Columns.Add("Text", typeof(string));
+        for (int i = 0; i < 100; i++)
+        {
+          var row = dataTable.NewRow();
+          row["ID"] = i;
+          row["Text"] = i.ToString(CultureInfo.CurrentCulture);
+          dataTable.Rows.Add(row);
+        }
+        var writeFile = new CsvFile
+        {
+          ID = "Test.txt",
+          FileName = "Test.txt",
+          SqlStatement = "Hello"
+        };
+        using (var processDisplay = new DummyProcessDisplay())
+        {
+          var writer = new CsvFileWriter(writeFile, processDisplay);
+          Assert.AreEqual(100, writer.WriteDataTable(dataTable));
+        }
+        Assert.IsTrue(File.Exists(writeFile.FullPath));
+      }      
     }
 
     [TestInitialize]

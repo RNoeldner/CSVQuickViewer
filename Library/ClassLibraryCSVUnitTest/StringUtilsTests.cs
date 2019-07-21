@@ -189,10 +189,12 @@ namespace CsvTools.Tests
     [TestMethod]
     public void MakeUniqueInCollectionTest()
     {
-      var lst = new List<string>();
-      lst.Add("Value");
-      lst.Add(null);
-      lst.Add("");
+      var lst = new List<string>
+      {
+        "Value",
+        null,
+        ""
+      };
       Assert.AreEqual("Value1", StringUtils.MakeUniqueInCollection(lst, "Value"));
       Assert.AreEqual("New", StringUtils.MakeUniqueInCollection(lst, "New"));
     }

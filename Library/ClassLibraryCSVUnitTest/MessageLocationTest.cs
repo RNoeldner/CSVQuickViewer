@@ -64,8 +64,8 @@ namespace CsvTools.Tests
       Assert.IsTrue(
         "Text1" + ErrorInformation.cSeparator + "Text2" == messageList.Display ||
         "Text2" + ErrorInformation.cSeparator + "Text1" == messageList.Display);
-
-      var ce = new ColumnErrorDictionary();
+      _ = new ColumnErrorDictionary();
+      ColumnErrorDictionary ce;
       messageList.TryGetValue(1, out ce);
       Assert.AreEqual(1, ce.Dictionary.Count);
       Assert.AreEqual(messageList.Display, ce.Display);
@@ -85,7 +85,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void WarningListInit()
     {
-      var messageList = new RowErrorCollection();
+      _ = new RowErrorCollection();
     }
   }
 }
