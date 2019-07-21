@@ -26,20 +26,25 @@ namespace CsvTools.Tests
     [TestMethod()]
     public void ClearTest()
     {
-      var test = new LoggerDisplay();
-      test.Clear();
+      using (var test = new LoggerDisplay())
+      {
+        test.Clear();
+      }
+
     }
 
     [TestMethod()]
     public void LoggerTextBoxTest()
     {
-      var test = new LoggerDisplay();
-      Log.Debug("Debug");
-      Log.Debug("Debug – NewInformation");
-      Log.Info("Info");
-      Log.Warn("Warning");
-      Log.Error("Error");
-      Log.Fatal("Fatal");
+      using (var loggerDisplay = new LoggerDisplay())
+      {
+        Log.Debug("Debug");
+        Log.Debug("Debug – NewInformation");
+        Log.Info("Info");
+        Log.Warn("Warning");
+        Log.Error("Error");
+        Log.Fatal("Fatal");
+      }
     }
   }
 }

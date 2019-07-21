@@ -11,10 +11,9 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Data;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
@@ -24,10 +23,9 @@ namespace CsvTools.Tests
     [TestMethod()]
     public void BuildValueClustersTest()
     {
-      using (var data = UnitTestStatic.GetDataTable(200))
+      var data = UnitTestStatic.GetDataTable(200);
+      using (var dataview = new DataView(data, null, null, DataViewRowState.CurrentRows))
       {
-        var dataview = new DataView(data, null, null, DataViewRowState.CurrentRows);
-
         var test0a = new ValueClusterCollection();
         Assert.AreEqual(BuildValueClustersResult.ListFilled, test0a.BuildValueClusters(dataview, typeof(string), 0, 200));
         Assert.IsNotNull(test0a.ValueClusters);
@@ -59,10 +57,9 @@ namespace CsvTools.Tests
     [TestMethod()]
     public void GetActiveValueClusterTest()
     {
-      using (var data = UnitTestStatic.GetdDataTable(200))
+      var data = UnitTestStatic.GetDataTable(200);
+      using (var dataview = new DataView(data, null, null, DataViewRowState.CurrentRows))
       {
-        var dataview = new DataView(data, null, null, DataViewRowState.CurrentRows);
-
         var test0a = new ValueClusterCollection();
         Assert.AreEqual(BuildValueClustersResult.ListFilled, test0a.BuildValueClusters(dataview, typeof(string), 0, 200));
         Assert.AreEqual(0, test0a.GetActiveValueCluster().Count());
@@ -70,6 +67,7 @@ namespace CsvTools.Tests
           iten.Active = true;
         Assert.AreEqual(test0a.ValueClusters.Count(), test0a.GetActiveValueCluster().Count());
       }
+     
     }
   }
 }

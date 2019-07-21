@@ -60,7 +60,7 @@ namespace CsvTools.Tests
     {
       var coll = new RowErrorCollection(5);
       coll.Add(this, new WarningEventArgs(1, 1, "Message1", 100, 100, "ColName"));
-      Assert.IsTrue(coll.TryGetValue(1, out var val));
+      Assert.IsTrue(coll.TryGetValue(1, out _));
     }
 
     [TestMethod()]

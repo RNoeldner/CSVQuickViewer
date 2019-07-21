@@ -24,7 +24,7 @@ namespace CsvTools
     private PropertyDescriptor m_DisplayPropertyDescriptor;
     private PropertyDescriptor m_GroupPropertyDescriptor;
     private string m_GroupPropertyName = "(none)";
-    private System.Timers.Timer m_TimerFilter = new System.Timers.Timer();
+    private readonly System.Timers.Timer m_TimerFilter = new System.Timers.Timer();
 
     /// <summary>
     ///   Initializes a new instance of the GroupedComboBox class.

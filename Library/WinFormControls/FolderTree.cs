@@ -114,7 +114,7 @@ namespace CsvTools
         var current = m_RootTreeNode;
         var found = true;
         if (!path.EndsWith(@"\", StringComparison.Ordinal))
-          path = path + @"\";
+          path += @"\";
 
         while (found && current != null)
         {
@@ -123,7 +123,7 @@ namespace CsvTools
           {
             var mypath = child.Tag.ToString();
             if (!mypath.EndsWith(@"\", StringComparison.Ordinal))
-              mypath = mypath + @"\";
+              mypath += @"\";
 
             if (!path.StartsWith(mypath, StringComparison.OrdinalIgnoreCase))
               continue;

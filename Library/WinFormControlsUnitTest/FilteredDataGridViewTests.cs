@@ -40,9 +40,11 @@ namespace CsvTools.Tests
 
       using (var fdgv = new FilteredDataGridView())
       {
-        var comboBoxColumn = new DataGridViewComboBoxColumn();
-        comboBoxColumn.Items.AddRange(Color.Red, Color.Yellow, Color.Green);
-        comboBoxColumn.ValueType = typeof(Color);
+        using (var comboBoxColumn = new DataGridViewComboBoxColumn())
+        {
+          comboBoxColumn.Items.AddRange(Color.Red, Color.Yellow, Color.Green);
+          comboBoxColumn.ValueType = typeof(Color);
+        }
 
         var boolColumn = new DataGridViewCheckBoxColumn();
         fdgv.Columns.Add(boolColumn);

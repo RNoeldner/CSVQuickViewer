@@ -918,9 +918,9 @@ namespace CsvTools
 
                                           // Settings
                                           m_ToolStripButtonSettings.Visible = m_ShowButtons && m_ShowSettingsButtons;
-                                          m_ToolStripTop.Visible = m_ShowButtons;
                                           try
                                           {
+                                            m_ToolStripTop.Visible = m_ShowButtons;                                          
                                             // Filter
                                             toolStripComboBoxFilterType.Visible = m_ShowButtons && m_ShowFilter;
                                           }

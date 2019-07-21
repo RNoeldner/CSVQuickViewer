@@ -18,7 +18,6 @@ namespace CsvTools
     private int m_Counter = 0;
     private Label label;
     private MessageBoxDefaultButton m_DefaultButton = MessageBoxDefaultButton.Button1;
-    private double m_Duration = 4.0;
     private MessageBoxButtons m_MessageBoxButtons = MessageBoxButtons.OKCancel;
     private MessageBoxIcon m_MessageBoxIcon = MessageBoxIcon.None;
     private RichTextBox richTextBox;
@@ -162,11 +161,7 @@ namespace CsvTools
 
     public TimedMessage() => InitializeComponent();
 
-    public double Duration
-    {
-      get => m_Duration;
-      set => m_Duration = value;
-    }
+    public double Duration { get; set; } = 4.0;
 
     public string Message
     {
@@ -184,7 +179,7 @@ namespace CsvTools
     {
       Text = title;
       Message = message;
-      m_Duration = timeout;
+      Duration = timeout;
       timer.Enabled = true;
       m_DefaultButton = defaultButton;
       m_MessageBoxIcon = icon;
@@ -279,7 +274,7 @@ namespace CsvTools
 
     private void UpdateLabel()
     {
-      var displ = Convert.ToInt32((m_Duration - (m_Counter * timer.Interval) / 1000 + .75));
+      var displ = Convert.ToInt32((Duration - (m_Counter * timer.Interval) / 1000 + .75));
       if (!timer.Enabled)
         displ = 0;
       if (displ > 0)
@@ -300,7 +295,7 @@ namespace CsvTools
       m_Counter++;
       UpdateLabel();
 
-      if (m_Duration > 0 && (m_Counter * timer.Interval) / 1000 > m_Duration)
+      if (Duration > 0 && (m_Counter * timer.Interval) / 1000 > Duration)
       {
         if (m_DefaultButton == MessageBoxDefaultButton.Button1)
           Button1_Click(sender, e);

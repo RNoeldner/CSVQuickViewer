@@ -190,24 +190,25 @@ namespace CsvTools.Tests
       using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
         test.Open();
-        var dataTable = new DataTable
+        using (var dataTable = new DataTable
         {
           TableName = "DataTable",
           Locale = CultureInfo.InvariantCulture
-        };
+        })
+        {
+          dataTable.Columns.Add(test.GetName(0), test.GetFieldType(0));
 
-        dataTable.Columns.Add(test.GetName(0), test.GetFieldType(0));
+          var recordNumberColumn = dataTable.Columns.Add(BaseFileReader.cRecordNumberFieldName, typeof(int));
+          recordNumberColumn.AllowDBNull = true;
 
-        var recordNumberColumn = dataTable.Columns.Add(BaseFileReader.cRecordNumberFieldName, typeof(int));
-        recordNumberColumn.AllowDBNull = true;
+          var lineNumberColumn = dataTable.Columns.Add(BaseFileReader.cEndLineNumberFieldName, typeof(int));
+          lineNumberColumn.AllowDBNull = true;
 
-        var lineNumberColumn = dataTable.Columns.Add(BaseFileReader.cEndLineNumberFieldName, typeof(int));
-        lineNumberColumn.AllowDBNull = true;
-
-        int[] columnMapping = { 0 };
-        var warningsList = new RowErrorCollection();
-        test.CopyRowToTable(dataTable, warningsList, columnMapping, recordNumberColumn, lineNumberColumn, null);
-        var dataRow = dataTable.NewRow();
+          int[] columnMapping = { 0 };
+          var warningsList = new RowErrorCollection();
+          test.CopyRowToTable(dataTable, warningsList, columnMapping, recordNumberColumn, lineNumberColumn, null);
+          var dataRow = dataTable.NewRow();
+        }
         test.Read();
 
         //warningsList.Add(-1, "Test1");
@@ -228,7 +229,8 @@ namespace CsvTools.Tests
         test.Open();
         try
         {
-          test.CopyRowToTable(new DataTable(), null, null, null, null, null);
+          using (var dataTable = new DataTable())
+            test.CopyRowToTable(dataTable, null, null, null, null, null);
         }
         catch (ArgumentNullException)
         {
@@ -489,7 +491,9 @@ namespace CsvTools.Tests
       try
       {
         setting.FileName = string.Empty;
-        var test = new CsvFileReader(setting, null);
+        using (var test = new CsvFileReader(setting, null))
+        {
+        }
 
         Assert.Fail("Exception expected");
       }
@@ -507,7 +511,9 @@ namespace CsvTools.Tests
       try
       {
         setting.FileName = @"b;dslkfg;sldfkgjs;ldfkgj;sldfkg.sdfgsfd";
-        var test = new CsvFileReader(setting, null);
+        using (var test = new CsvFileReader(setting, null))
+        {
+        }
 
         Assert.Fail("Exception expected");
       }

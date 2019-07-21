@@ -119,19 +119,23 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GetDataTypeDescriptionBool()
     {
-      var target = new Column();
-      target.DataType = DataType.Boolean;
-      target.Name = "Test";
+      var target = new Column
+      {
+        DataType = DataType.Boolean,
+        Name = "Test"
+      };
       Assert.AreEqual("Boolean", target.GetTypeAndFormatDescription());
     }
 
     [TestMethod]
     public void GetDataTypeDescriptionDouble()
     {
-      var target = new Column();
-      target.DataType = DataType.Numeric;
-      target.Name = "Test";
-      target.NumberFormat = "00.000";
+      var target = new Column
+      {
+        DataType = DataType.Numeric,
+        Name = "Test",
+        NumberFormat = "00.000"
+      };
 
       Assert.AreEqual("Money (High Precision) (00.000)", target.GetTypeAndFormatDescription());
     }
@@ -139,10 +143,12 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GetDataTypeDescriptionIgnore()
     {
-      var target = new Column();
-      target.DataType = DataType.String;
-      target.Name = "Test";
-      target.Ignore = true;
+      var target = new Column
+      {
+        DataType = DataType.String,
+        Name = "Test",
+        Ignore = true
+      };
 
       Assert.AreEqual("Text (Ignore)", target.GetTypeAndFormatDescription());
     }
@@ -150,16 +156,18 @@ namespace CsvTools.Tests
     [TestInitialize]
     public void Init()
     {
-      var m_ValueFormatGerman = new ValueFormat();
-      m_ValueFormatGerman.DataType = DataType.DateTime;
-      m_ValueFormatGerman.DateFormat = @"dd/MM/yyyy";
-      m_ValueFormatGerman.DateSeparator = ".";
-      m_ValueFormatGerman.DecimalSeparator = ",";
-      m_ValueFormatGerman.False = @"Falsch";
-      m_ValueFormatGerman.GroupSeparator = ".";
-      m_ValueFormatGerman.NumberFormat = "0.##";
-      m_ValueFormatGerman.TimeSeparator = ":";
-      m_ValueFormatGerman.True = @"Wahr";
+      var m_ValueFormatGerman = new ValueFormat
+      {
+        DataType = DataType.DateTime,
+        DateFormat = @"dd/MM/yyyy",
+        DateSeparator = ".",
+        DecimalSeparator = ",",
+        False = @"Falsch",
+        GroupSeparator = ".",
+        NumberFormat = "0.##",
+        TimeSeparator = ":",
+        True = @"Wahr"
+      };
 
       var ff = new CsvFile();
 

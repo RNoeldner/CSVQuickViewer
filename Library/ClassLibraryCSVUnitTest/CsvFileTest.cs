@@ -58,8 +58,10 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GetEncryptedPassphraseFunction()
     {
-      var test = new CsvFile();      
-      test.GetEncryptedPassphraseFunction = delegate () { return "Hello World"; };
+      var test = new CsvFile
+      {
+        GetEncryptedPassphraseFunction = delegate () { return "Hello World"; }
+      };
       Assert.IsNotNull(test.GetEncryptedPassphraseFunction);
       Assert.AreEqual("Hello World", test.GetEncryptedPassphraseFunction.Invoke());
     }

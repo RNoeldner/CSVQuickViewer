@@ -42,8 +42,10 @@ namespace CsvTools.Tests
     {
       var entry1 = new SampleRecordEntry(100, "Error1");
 
-      var entry2 = new SampleRecordEntry(200, "Error2");
-      entry2.ProvideEvidence = false;
+      var entry2 = new SampleRecordEntry(200, "Error2")
+      {
+        ProvideEvidence = false
+      };
 
       entry1.CopyTo(entry2);
       Assert.AreEqual((long)100, entry2.RecordNumber);

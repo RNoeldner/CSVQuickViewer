@@ -60,7 +60,7 @@
       this.comboBoxTimeZoneID.Name = "comboBoxTimeZoneID";
       this.comboBoxTimeZoneID.Size = new System.Drawing.Size(227, 21);
       this.comboBoxTimeZoneID.TabIndex = 28;
-      this.comboBoxTimeZoneID.SelectedIndexChanged += new System.EventHandler(this.comboBoxTimeZoneID_SelectedIndexChanged);
+      this.comboBoxTimeZoneID.SelectedIndexChanged += new System.EventHandler(this.ComboBoxTimeZoneID_SelectedIndexChanged);
       // 
       // buttonLocalTZ
       // 
@@ -71,7 +71,7 @@
       this.buttonLocalTZ.TabIndex = 29;
       this.buttonLocalTZ.Text = "Local";
       this.buttonLocalTZ.UseVisualStyleBackColor = true;
-      this.buttonLocalTZ.Click += new System.EventHandler(this.buttonLocalTZ_Click);
+      this.buttonLocalTZ.Click += new System.EventHandler(this.ButtonLocalTZ_Click);
       // 
       // TimeZoneSelector
       // 

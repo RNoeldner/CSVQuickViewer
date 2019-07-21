@@ -24,8 +24,10 @@ namespace CsvTools.Tests
     [TestMethod()]
     public void OpenReadTestSetting()
     {
-      CsvFile setting = new CsvFile();
-      setting.FileName = Path.Combine(m_ApplicationDirectory, "BasicCsV.txt");
+      CsvFile setting = new CsvFile
+      {
+        FileName = Path.Combine(m_ApplicationDirectory, "BasicCsV.txt")
+      };
       using (var res = ImprovedStream.OpenRead(setting))
       {
         Assert.IsNotNull(res);

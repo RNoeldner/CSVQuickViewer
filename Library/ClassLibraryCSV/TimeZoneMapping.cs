@@ -235,12 +235,12 @@ namespace CsvTools
     /// <returns></returns>
     private static DateTimeZone GetTimeZone(string timeZoneName)
     {
-      string tzdbID = null;
 
       // special handling of local timezone, it will be determined each time as this might change
       if (timeZoneName == cIdLocal)
         timeZoneName = TimeZoneInfo.Local.Id;
 
+      string tzdbID;
       if (DateTimeZoneProviders.Tzdb.Ids.Contains(timeZoneName))
       {
         tzdbID = timeZoneName;

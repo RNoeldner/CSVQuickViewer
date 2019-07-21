@@ -30,15 +30,14 @@ namespace CsvTools
       comboBoxTimeZoneID.DataSource = display;
     }
 
-    private void buttonLocalTZ_Click(object sender, EventArgs e) => TimeZoneID = TimeZoneMapping.cIdLocal;
+    private void ButtonLocalTZ_Click(object sender, EventArgs e) => TimeZoneID = TimeZoneMapping.cIdLocal;
 
-    private void comboBoxTimeZoneID_SelectedIndexChanged(object sender, EventArgs e)
+    private void ComboBoxTimeZoneID_SelectedIndexChanged(object sender, EventArgs e)
     {
       if (sender == null)
         return;
 
-      var ctrl = sender as Control;
-      if (ctrl == null)
+      if (!(sender is Control ctrl))
         return;
       var bind = ctrl.GetTextBindng();
       if (bind == null)
