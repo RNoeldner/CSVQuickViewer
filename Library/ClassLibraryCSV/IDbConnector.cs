@@ -106,7 +106,7 @@ namespace CsvTools
     /// <remarks>
     ///  Please use this with caution, the command and connection can not be disposed
     /// </remarks>
-    DbDataReader ExecuteReader(string sqlStatement, IProcessDisplay processDisplay);
+    DbDataReader ExecuteReader(string sqlStatement, IProcessDisplay processDisplay, int commandTimeout);
 
     /// <summary>
     ///  Executes the a scalar query
@@ -218,6 +218,12 @@ namespace CsvTools
     /// <param name="newTableName">New Name of the table.</param>
     /// <returns></returns>
     bool RenameTable(string oldTableName, string newTableName);
+
+    /// <summary>
+    /// Does this Database connector support StoreDataTable?
+    /// </summary>
+    /// <<remarks>If StoreDataTable is using single INSERT statements to process the DataTable its best to do this directly</remarks>
+    bool SupportStoreDataTable { get; }
 
     /// <summary>
     ///  Stores the data table.

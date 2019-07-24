@@ -151,7 +151,7 @@ namespace CsvTools
           sql = sql.Substring(0, idxof) + "WHERE 1=0";
       }
 
-      return ApplicationSetting.SQLDataReader(sql, m_ProcessDisplay);
+      return ApplicationSetting.SQLDataReader(sql, m_ProcessDisplay, 20);
     }
 
     /// <summary>
@@ -167,7 +167,7 @@ namespace CsvTools
       // Using the connection string
       HandleProgress("Executing SQL Statement");
 
-      using (var dataReader = ApplicationSetting.SQLDataReader(m_FileSetting.SqlStatement, m_ProcessDisplay))
+      using (var dataReader = ApplicationSetting.SQLDataReader(m_FileSetting.SqlStatement, m_ProcessDisplay, m_FileSetting.SQLTimeout))
       {
         HandleProgress("Reading returned data");
         var dt = new DataTable();
@@ -187,7 +187,7 @@ namespace CsvTools
       if (string.IsNullOrEmpty(m_FileSetting.SqlStatement))
         return 0;
 
-      using (var reader = ApplicationSetting.SQLDataReader(m_FileSetting.SqlStatement, m_ProcessDisplay))
+      using (var reader = ApplicationSetting.SQLDataReader(m_FileSetting.SqlStatement, m_ProcessDisplay, m_FileSetting.SQLTimeout))
       {
         return Write(reader);
       }

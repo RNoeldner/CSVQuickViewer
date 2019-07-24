@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -33,9 +34,9 @@ namespace CsvTools.Tests
         m_ReadSetting.Add(setting);
     }
 
-    public List<IFileSetting> ReadSettings { get => m_ReadSetting; }
+    public List<IFileSetting> ReadSettings => m_ReadSetting;
 
-    public IDataReader ReadData(string settingName, IProcessDisplay processDisplay)
+    public IDataReader ReadData(string settingName, IProcessDisplay processDisplay, int timeout)
     {
       var setting = m_ReadSetting.FirstOrDefault(x => x.ID == settingName);
       if (setting == null)

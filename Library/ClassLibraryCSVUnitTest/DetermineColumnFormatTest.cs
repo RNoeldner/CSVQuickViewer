@@ -11,12 +11,13 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using System.Data;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
@@ -102,7 +103,7 @@ namespace CsvTools.Tests
       }
       Assert.AreEqual(DataType.Integer, setting.ColumnCollection.Get("ID").DataType);
       Assert.AreEqual(DataType.DateTime, setting.ColumnCollection.Get("ExamDate").DataType);
-      Assert.AreEqual(DataType.Boolean, setting.ColumnCollection.Get("IsNativeLang").DataType);      
+      Assert.AreEqual(DataType.Boolean, setting.ColumnCollection.Get("IsNativeLang").DataType);
     }
 
     [TestMethod]
@@ -299,7 +300,8 @@ namespace CsvTools.Tests
         FileName = Path.Combine(m_ApplicationDirectory, "BasicCSV.txt"),
         HasFieldHeader = true
       };
-      using (var processDisplay = new DummyProcessDisplay()) using (var test = new CsvFileReader(setting, processDisplay))
+      using (var processDisplay = new DummyProcessDisplay())
+      using (var test = new CsvFileReader(setting, processDisplay))
       {
         test.Open();
         var samples = DetermineColumnFormat.GetSampleValues(test, 1000, 0, 20, "NULL", CancellationToken.None);
@@ -318,7 +320,8 @@ namespace CsvTools.Tests
         FileName = Path.Combine(m_ApplicationDirectory, "CSVTestEmpty.txt"),
         HasFieldHeader = true
       };
-      using (var processDisplay = new DummyProcessDisplay()) using (var test = new CsvFileReader(setting, processDisplay))
+      using (var processDisplay = new DummyProcessDisplay())
+      using (var test = new CsvFileReader(setting, processDisplay))
       {
         test.Open();
         var samples = DetermineColumnFormat.GetSampleValues(test, 100, 0, 20, "NULL", CancellationToken.None);

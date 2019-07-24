@@ -586,7 +586,7 @@ namespace CsvTools
           // Show the data
           detailControl.DataTable = data;
         }
-        ApplicationSetting.SQLDataReader = delegate (string settingName, IProcessDisplay processDisplay)
+        ApplicationSetting.SQLDataReader = delegate (string settingName, IProcessDisplay processDisplay, int timeout)
         { return detailControl.DataTable.CreateDataReader(); };
         detailControl.FileSetting = m_FileSetting;
 
@@ -701,7 +701,7 @@ namespace CsvTools
           SaveDefault();
           if (m_ConfigChanged)
           {
-            detailControl.MoveMenu();            
+            detailControl.MoveMenu();
             if (_MessageBox.Show(this, "The configuration has changed do you want to reload the data?", "Configuration changed", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
             {
               OpenDataReader(true);

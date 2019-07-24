@@ -844,9 +844,10 @@ namespace CsvTools
 
       set
       {
-        if (m_SqlTimeout.Equals(value))
+        var newVal = value > 0 ? value : 0;
+        if (m_SqlTimeout.Equals(newVal))
           return;
-        m_SqlTimeout = value;
+        m_SqlTimeout = newVal;
         NotifyPropertyChanged(nameof(SQLTimeout));
       }
     }

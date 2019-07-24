@@ -175,7 +175,7 @@ namespace CsvTools
       set => richTextBox.Rtf = value;
     }
 
-    public DialogResult Show(Form owner, string message, string title, MessageBoxButtons buttons, MessageBoxIcon icon, MessageBoxDefaultButton defaultButton, double timeout)
+    public DialogResult Show(Form owner, string message, string title, MessageBoxButtons buttons, MessageBoxIcon icon, MessageBoxDefaultButton defaultButton, double timeout, string button3Text)
     {
       Text = title;
       Message = message;
@@ -186,6 +186,8 @@ namespace CsvTools
       m_MessageBoxButtons = buttons;
 
       UpdateButtons();
+      if (!string.IsNullOrEmpty(button3Text))
+        button3.Text = button3Text;
       TimedMessage_Resize(this, null);
       return ShowDialog(owner);
     }
@@ -421,7 +423,20 @@ namespace CsvTools
     {
       using (var tm = new TimedMessage())
       {
-        return tm.Show(owner, message, title, buttons, icon, defaultButton, timeout);
+        return tm.Show(owner, message, title, buttons, icon, defaultButton, timeout, null);
+      }
+    }
+
+    public static DialogResult Show(Form owner, string message, string title,
+         MessageBoxButtons buttons,
+         MessageBoxIcon icon,
+         MessageBoxDefaultButton defaultButton,
+         double timeout,
+         string button3Text)
+    {
+      using (var tm = new TimedMessage())
+      {
+        return tm.Show(owner, message, title, buttons, icon, defaultButton, timeout, button3Text);
       }
     }
 
@@ -434,7 +449,7 @@ namespace CsvTools
       using (var tm = new TimedMessage())
       {
         tm.Size = new Size(600, 450);
-        return tm.Show(owner, message, title, buttons, icon, defaultButton, timeout);
+        return tm.Show(owner, message, title, buttons, icon, defaultButton, timeout, null);
       }
     }
   }
