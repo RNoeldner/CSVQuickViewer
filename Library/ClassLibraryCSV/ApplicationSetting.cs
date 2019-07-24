@@ -60,7 +60,7 @@ namespace CsvTools
     /// The SQL data reader.
     /// </value>
     /// <exception cref="ArgumentNullException">SQL Data Reader is not set</exception>
-    public static Func<string, IProcessDisplay, IDataReader> SQLDataReader { get; set; }
+    public static Func<string, IProcessDisplay, int, IDataReader> SQLDataReader { get; set; }
 
     /// <summary>
     /// Action to store the headers of a file in a cache

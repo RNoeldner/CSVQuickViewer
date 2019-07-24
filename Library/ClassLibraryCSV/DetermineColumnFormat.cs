@@ -460,7 +460,8 @@ namespace CsvTools
         throw new FileWriterException("No SQL Statement given");
       if (ApplicationSetting.SQLDataReader == null)
         throw new FileWriterException("No SQL Reader set");
-      using (var dataReader = ApplicationSetting.SQLDataReader(fileSettings.SqlStatement, processDisplay))
+
+      using (var dataReader = ApplicationSetting.SQLDataReader(fileSettings.SqlStatement, processDisplay, fileSettings.SQLTimeout))
       {
         // Put the information into the list
         foreach (DataRow schemaRow in dataReader.GetSchemaTable().Rows)

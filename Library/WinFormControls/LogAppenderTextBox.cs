@@ -8,6 +8,7 @@ namespace CsvTools
   public class LogAppenderTextBox : AppenderSkeleton
   {
     private string m_LastMessage = string.Empty;
+    private bool m_Initial = true;
 
     public LogAppenderTextBox()
     {
@@ -38,6 +39,9 @@ namespace CsvTools
 
     public void AppendText(string text, log4net.Core.Level level)
     {
+      if (string.IsNullOrEmpty(text))
+        return;
+
       AppenderTextBox.SafeBeginInvoke(() =>
       {
         var col = AppenderTextBox.ForeColor;
@@ -81,8 +85,9 @@ namespace CsvTools
         {
           if (loggingEvent.Level.Value < log4net.Core.Level.Error.Value)
             text = StringUtils.GetShortDisplay(StringUtils.HandleCRLFCombinations(text, " "), 120);
-          AppendText($"\n{loggingEvent.TimeStamp:HH:mm:ss}  {text}", loggingEvent.Level);
+          AppendText($"{(m_Initial ? string.Empty : "\n")}{loggingEvent.TimeStamp:HH:mm:ss}  {text}", loggingEvent.Level);
         }
+        m_Initial = false;
       }
     }
   }
