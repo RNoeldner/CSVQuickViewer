@@ -1332,7 +1332,7 @@ namespace CsvTools
       //
       // DetailControl
       //
-      AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+      
       AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       Controls.Add(m_ToolStripContainer);
       Name = "DetailControl";

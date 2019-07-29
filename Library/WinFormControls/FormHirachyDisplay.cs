@@ -612,7 +612,7 @@ namespace CsvTools
       //
       // FormHierachyDisplay
       //
-      AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+      
       AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       ClientSize = new System.Drawing.Size(611, 545);
       Controls.Add(m_TableLayoutPanel1);

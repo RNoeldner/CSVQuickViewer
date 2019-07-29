@@ -130,7 +130,7 @@ namespace CsvTools
       // FormSelectTimeZone
       // 
       this.AcceptButton = this.m_BtnOk;
-      this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+      
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.CancelButton = this.m_BtnCancel;
       this.ClientSize = new System.Drawing.Size(517, 120);
