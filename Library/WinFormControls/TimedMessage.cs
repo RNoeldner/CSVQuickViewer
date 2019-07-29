@@ -130,7 +130,7 @@ namespace CsvTools
       //
       // TimedMessage
       //
-      AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+      
       AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       ClientSize = new System.Drawing.Size(543, 181);
       Controls.Add(pictureBox);

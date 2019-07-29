@@ -74,7 +74,6 @@ namespace CsvTools
         FileSetting = setting
       };
 
-      AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       ClientSize = new System.Drawing.Size(767, 394);
       MinimumSize = new System.Drawing.Size(100, 100);
       Controls.Add(detailControl);

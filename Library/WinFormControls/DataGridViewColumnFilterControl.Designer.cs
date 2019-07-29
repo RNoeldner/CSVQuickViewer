@@ -73,7 +73,7 @@
             // lblCondition
             // 
             this.lblCondition.AutoSize = true;
-            this.lblCondition.Location = new System.Drawing.Point(5, 1);
+            this.lblCondition.Location = new System.Drawing.Point(6, -1);
             this.lblCondition.Name = "lblCondition";
             this.lblCondition.Size = new System.Drawing.Size(114, 20);
             this.lblCondition.TabIndex = 12;
@@ -91,7 +91,7 @@
             this.Controls.Add(this.dateTimePickerValue);
             this.Controls.Add(this.comboBoxOperator);
             this.Name = "DataGridViewColumnFilterControl";
-            this.Size = new System.Drawing.Size(224, 49);
+            this.Size = new System.Drawing.Size(224, 50);
             this.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.HandleEnterKeyPress);
             ((System.ComponentModel.ISupportInitialize)(this.errorProvider1)).EndInit();
             this.ResumeLayout(false);

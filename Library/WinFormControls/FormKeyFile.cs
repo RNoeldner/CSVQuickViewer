@@ -171,7 +171,7 @@ namespace CsvTools
             // FormKeyFile
             // 
             this.AcceptButton = this.m_BtnOk;
-            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
+            
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.m_BtnCancel;
             this.ClientSize = new System.Drawing.Size(807, 628);
