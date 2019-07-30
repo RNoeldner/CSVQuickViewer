@@ -48,7 +48,7 @@
             tableLayoutPanel.Name = "tableLayoutPanel";
             tableLayoutPanel.RowCount = 1;
             tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            tableLayoutPanel.Size = new System.Drawing.Size(305, 29);
+            tableLayoutPanel.Size = new System.Drawing.Size(305, 32);
             tableLayoutPanel.TabIndex = 30;
             // 
             // comboBoxTimeZoneID
@@ -67,7 +67,7 @@
             this.buttonLocalTZ.Location = new System.Drawing.Point(230, 0);
             this.buttonLocalTZ.Margin = new System.Windows.Forms.Padding(3, 0, 0, 0);
             this.buttonLocalTZ.Name = "buttonLocalTZ";
-            this.buttonLocalTZ.Size = new System.Drawing.Size(75, 29);
+            this.buttonLocalTZ.Size = new System.Drawing.Size(75, 32);
             this.buttonLocalTZ.TabIndex = 29;
             this.buttonLocalTZ.Text = "Local";
             this.buttonLocalTZ.UseVisualStyleBackColor = true;
@@ -79,7 +79,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(tableLayoutPanel);
             this.Name = "TimeZoneSelector";
-            this.Size = new System.Drawing.Size(305, 29);
+            this.Size = new System.Drawing.Size(305, 32);
             this.Load += new System.EventHandler(this.TimeZoneSelector_Load);
             tableLayoutPanel.ResumeLayout(false);
             this.ResumeLayout(false);
