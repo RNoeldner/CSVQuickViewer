@@ -54,7 +54,6 @@ namespace CsvTools
       {
         Alignment = DataGridViewContentAlignment.MiddleLeft,
         BackColor = System.Drawing.SystemColors.Window,
-        Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, 0),
         ForeColor = System.Drawing.Color.Black,
         SelectionBackColor = System.Drawing.SystemColors.Highlight,
         SelectionForeColor = System.Drawing.SystemColors.HighlightText,

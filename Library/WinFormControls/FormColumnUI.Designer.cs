@@ -259,7 +259,6 @@
       // labelDateOutput
       // 
       this.labelDateOutput.AutoSize = true;
-      this.labelDateOutput.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
       this.labelDateOutput.ForeColor = System.Drawing.SystemColors.Highlight;
       this.labelDateOutput.Location = new System.Drawing.Point(452, 126);
       this.labelDateOutput.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
@@ -392,7 +391,6 @@
       // labelNumber
       // 
       this.labelNumber.AutoSize = true;
-      this.labelNumber.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
       this.labelNumber.ForeColor = System.Drawing.SystemColors.Highlight;
       this.labelNumber.Location = new System.Drawing.Point(453, 34);
       this.labelNumber.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
@@ -404,7 +402,6 @@
       // labelNumberOutput
       // 
       this.labelNumberOutput.AutoSize = true;
-      this.labelNumberOutput.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
       this.labelNumberOutput.ForeColor = System.Drawing.SystemColors.Highlight;
       this.labelNumberOutput.Location = new System.Drawing.Point(445, 55);
       this.labelNumberOutput.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
@@ -416,7 +413,6 @@
       // labelSample
       // 
       this.labelSample.AutoSize = true;
-      this.labelSample.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
       this.labelSample.ForeColor = System.Drawing.SystemColors.Highlight;
       this.labelSample.Location = new System.Drawing.Point(461, 105);
       this.labelSample.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
@@ -547,7 +543,6 @@
       // label4
       // 
       this.label4.AutoSize = true;
-      this.label4.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
       this.label4.ForeColor = System.Drawing.SystemColors.Highlight;
       this.label4.Location = new System.Drawing.Point(461, 84);
       this.label4.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
@@ -607,7 +602,6 @@
       // label2
       // 
       this.label2.AutoSize = true;
-      this.label2.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
       this.label2.ForeColor = System.Drawing.SystemColors.Highlight;
       this.label2.Location = new System.Drawing.Point(453, 14);
       this.label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
@@ -694,7 +688,6 @@
       // labelSamplePart
       // 
       this.labelSamplePart.AutoSize = true;
-      this.labelSamplePart.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
       this.labelSamplePart.ForeColor = System.Drawing.SystemColors.Highlight;
       this.labelSamplePart.Location = new System.Drawing.Point(455, 18);
       this.labelSamplePart.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
@@ -752,7 +745,6 @@
       // labelResultPart
       // 
       this.labelResultPart.AutoSize = true;
-      this.labelResultPart.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
       this.labelResultPart.ForeColor = System.Drawing.SystemColors.Highlight;
       this.labelResultPart.Location = new System.Drawing.Point(445, 41);
       this.labelResultPart.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);

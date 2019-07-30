@@ -518,7 +518,9 @@ namespace CsvTools
           exception = exception.InnerException;
           maxDepth--;
         }
-
+        // if there is no inner Exception fall back to the exception
+        if (sb.Length == 0)
+          sb.Append(exception.Message);
         return sb.ToString();
       }
       catch (Exception)

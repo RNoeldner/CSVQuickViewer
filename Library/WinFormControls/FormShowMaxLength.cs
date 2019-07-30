@@ -81,8 +81,6 @@ namespace CsvTools
       m_DataGridView.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle5;
       dataGridViewCellStyle6.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
       dataGridViewCellStyle6.BackColor = System.Drawing.SystemColors.Control;
-      dataGridViewCellStyle6.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F,
-        System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, 0);
       dataGridViewCellStyle6.ForeColor = System.Drawing.SystemColors.WindowText;
       dataGridViewCellStyle6.SelectionBackColor = System.Drawing.SystemColors.Highlight;
       dataGridViewCellStyle6.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
@@ -92,8 +90,6 @@ namespace CsvTools
         System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
       dataGridViewCellStyle7.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
       dataGridViewCellStyle7.BackColor = System.Drawing.SystemColors.Window;
-      dataGridViewCellStyle7.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F,
-        System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, 0);
       dataGridViewCellStyle7.ForeColor = System.Drawing.Color.Black;
       dataGridViewCellStyle7.SelectionBackColor = System.Drawing.SystemColors.Highlight;
       dataGridViewCellStyle7.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
@@ -104,8 +100,6 @@ namespace CsvTools
       m_DataGridView.Name = "m_DataGridView";
       dataGridViewCellStyle8.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
       dataGridViewCellStyle8.BackColor = System.Drawing.SystemColors.Control;
-      dataGridViewCellStyle8.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F,
-        System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, 0);
       dataGridViewCellStyle8.ForeColor = System.Drawing.SystemColors.WindowText;
       dataGridViewCellStyle8.SelectionBackColor = System.Drawing.SystemColors.Highlight;
       dataGridViewCellStyle8.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
