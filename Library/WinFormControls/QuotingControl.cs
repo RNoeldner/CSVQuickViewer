@@ -534,7 +534,7 @@ namespace CsvTools
       this.m_RichTextBox02.DisplaySpace = true;
       this.m_RichTextBox02.Escape = '\\';
       this.m_RichTextBox02.Location = new System.Drawing.Point(25, 56);
-      this.m_RichTextBox02.Margin = new System.Windows.Forms.Padding(0);
+      
       this.m_RichTextBox02.Name = "m_RichTextBox02";
       this.m_RichTextBox02.Quote = '\"';
       this.m_RichTextBox02.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
@@ -550,7 +550,7 @@ namespace CsvTools
       this.m_RichTextBox01.DisplaySpace = true;
       this.m_RichTextBox01.Escape = '\\';
       this.m_RichTextBox01.Location = new System.Drawing.Point(25, 29);
-      this.m_RichTextBox01.Margin = new System.Windows.Forms.Padding(0);
+      
       this.m_RichTextBox01.Name = "m_RichTextBox01";
       this.m_RichTextBox01.Quote = '\"';
       this.m_RichTextBox01.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
@@ -566,7 +566,7 @@ namespace CsvTools
       this.m_RichTextBox00.DisplaySpace = true;
       this.m_RichTextBox00.Escape = '\\';
       this.m_RichTextBox00.Location = new System.Drawing.Point(25, 2);
-      this.m_RichTextBox00.Margin = new System.Windows.Forms.Padding(0);
+      
       this.m_RichTextBox00.Name = "m_RichTextBox00";
       this.m_RichTextBox00.Quote = '\"';
       this.m_RichTextBox00.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
@@ -582,7 +582,7 @@ namespace CsvTools
       this.m_RichTextBox10.DisplaySpace = true;
       this.m_RichTextBox10.Escape = '\\';
       this.m_RichTextBox10.Location = new System.Drawing.Point(143, 2);
-      this.m_RichTextBox10.Margin = new System.Windows.Forms.Padding(0);
+      
       this.m_RichTextBox10.Name = "m_RichTextBox10";
       this.m_RichTextBox10.Quote = '\"';
       this.m_RichTextBox10.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
@@ -598,7 +598,7 @@ namespace CsvTools
       this.m_RichTextBox11.DisplaySpace = true;
       this.m_RichTextBox11.Escape = '\\';
       this.m_RichTextBox11.Location = new System.Drawing.Point(143, 29);
-      this.m_RichTextBox11.Margin = new System.Windows.Forms.Padding(0);
+      
       this.m_RichTextBox11.Name = "m_RichTextBox11";
       this.m_RichTextBox11.Quote = '\"';
       this.m_RichTextBox11.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
@@ -614,7 +614,7 @@ namespace CsvTools
       this.m_RichTextBox12.DisplaySpace = true;
       this.m_RichTextBox12.Escape = '\\';
       this.m_RichTextBox12.Location = new System.Drawing.Point(143, 56);
-      this.m_RichTextBox12.Margin = new System.Windows.Forms.Padding(0);
+      
       this.m_RichTextBox12.Name = "m_RichTextBox12";
       this.m_RichTextBox12.Quote = '\"';
       this.m_RichTextBox12.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
