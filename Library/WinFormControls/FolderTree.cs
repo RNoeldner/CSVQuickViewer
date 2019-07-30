@@ -327,7 +327,7 @@ namespace CsvTools
             // m_ButtonOk
             // 
             this.m_ButtonOk.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.m_ButtonOk.Location = new System.Drawing.Point(183, 3);
+            this.m_ButtonOk.Location = new System.Drawing.Point(177, 3);
             this.m_ButtonOk.Name = "m_ButtonOk";
             this.m_ButtonOk.Size = new System.Drawing.Size(68, 28);
             this.m_ButtonOk.TabIndex = 62;
@@ -338,7 +338,7 @@ namespace CsvTools
             // m_ButtonCancel
             // 
             this.m_ButtonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.m_ButtonCancel.Location = new System.Drawing.Point(257, 3);
+            this.m_ButtonCancel.Location = new System.Drawing.Point(251, 3);
             this.m_ButtonCancel.Name = "m_ButtonCancel";
             this.m_ButtonCancel.Size = new System.Drawing.Size(68, 28);
             this.m_ButtonCancel.TabIndex = 63;
@@ -369,10 +369,9 @@ namespace CsvTools
             this.m_FlowLayoutPanel.Controls.Add(this.m_ButtonOk);
             this.m_FlowLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.m_FlowLayoutPanel.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
-            this.m_FlowLayoutPanel.Location = new System.Drawing.Point(0, 434);
-            
+            this.m_FlowLayoutPanel.Location = new System.Drawing.Point(3, 437);
             this.m_FlowLayoutPanel.Name = "m_FlowLayoutPanel";
-            this.m_FlowLayoutPanel.Size = new System.Drawing.Size(328, 37);
+            this.m_FlowLayoutPanel.Size = new System.Drawing.Size(322, 31);
             this.m_FlowLayoutPanel.TabIndex = 0;
             // 
             // FolderTree
