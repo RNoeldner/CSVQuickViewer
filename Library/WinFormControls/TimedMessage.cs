@@ -32,129 +32,125 @@ namespace CsvTools
     /// </summary>
     private void InitializeComponent()
     {
-      components = new System.ComponentModel.Container();
-      button1 = new System.Windows.Forms.Button();
-      richTextBox = new System.Windows.Forms.RichTextBox();
-      label = new System.Windows.Forms.Label();
-      timer = new System.Windows.Forms.Timer(components);
-      button2 = new System.Windows.Forms.Button();
-      button3 = new System.Windows.Forms.Button();
-      pictureBox = new System.Windows.Forms.PictureBox();
-      ((System.ComponentModel.ISupportInitialize)(pictureBox)).BeginInit();
-      SuspendLayout();
-      //
-      // button1
-      //
-      button1.Anchor = (System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right);
-      button1.Location = new System.Drawing.Point(208, 150);
-      button1.Margin = new System.Windows.Forms.Padding(4);
-      button1.Name = "button1";
-      button1.Size = new System.Drawing.Size(100, 28);
-      button1.TabIndex = 0;
-      button1.Text = "button1";
-      button1.UseVisualStyleBackColor = true;
-      button1.Click += new System.EventHandler(Button1_Click);
-      button1.MouseEnter += new System.EventHandler(MouseEnterElement);
-      button1.MouseLeave += new System.EventHandler(MouseLeaveElement);
-      //
-      // richTextBox
-      //
-      richTextBox.BackColor = System.Drawing.SystemColors.Control;
-      richTextBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
-      richTextBox.Location = new System.Drawing.Point(71, 10);
-      richTextBox.Margin = new System.Windows.Forms.Padding(4);
-      richTextBox.Name = "richTextBox";
-      richTextBox.ReadOnly = true;
-      richTextBox.Size = new System.Drawing.Size(472, 133);
-      richTextBox.TabIndex = 3;
-      richTextBox.Text = "";
-      richTextBox.MouseEnter += new System.EventHandler(MouseEnterElement);
-      richTextBox.MouseLeave += new System.EventHandler(MouseLeaveElement);
-      //
-      // label
-      //
-      label.Anchor = (System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left);
-      label.AutoSize = true;
-      label.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
-      label.Location = new System.Drawing.Point(3, 156);
-      label.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-      label.Name = "label";
-      label.Size = new System.Drawing.Size(137, 17);
-      label.TabIndex = 2;
-      label.Text = "Default in 5 seconds";
-      //
-      // timer
-      //
-      timer.Interval = 500;
-      timer.Tick += new System.EventHandler(Timer_Tick);
-      //
-      // button2
-      //
-      button2.Anchor = (System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right);
-      button2.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-      button2.Location = new System.Drawing.Point(315, 150);
-      button2.Margin = new System.Windows.Forms.Padding(4);
-      button2.Name = "button2";
-      button2.Size = new System.Drawing.Size(100, 28);
-      button2.TabIndex = 1;
-      button2.Text = "button2";
-      button2.UseVisualStyleBackColor = true;
-      button2.Click += new System.EventHandler(Button2_Click);
-      button2.MouseEnter += new System.EventHandler(MouseEnterElement);
-      button2.MouseLeave += new System.EventHandler(MouseLeaveElement);
-      //
-      // button3
-      //
-      button3.Anchor = (System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right);
-      button3.Location = new System.Drawing.Point(423, 150);
-      button3.Margin = new System.Windows.Forms.Padding(4);
-      button3.Name = "button3";
-      button3.Size = new System.Drawing.Size(100, 28);
-      button3.TabIndex = 2;
-      button3.Text = "button3";
-      button3.UseVisualStyleBackColor = true;
-      button3.Click += new System.EventHandler(Button3_Click);
-      button3.MouseEnter += new System.EventHandler(MouseEnterElement);
-      button3.MouseLeave += new System.EventHandler(MouseLeaveElement);
-      //
-      // pictureBox
-      //
-      pictureBox.ErrorImage = null;
-      pictureBox.InitialImage = null;
-      pictureBox.Location = new System.Drawing.Point(10, 10);
-      pictureBox.Margin = new System.Windows.Forms.Padding(0);
-      pictureBox.Name = "pictureBox";
-      pictureBox.Size = new System.Drawing.Size(56, 56);
-      pictureBox.TabIndex = 4;
-      pictureBox.TabStop = false;
-      //
-      // TimedMessage
-      //
-      
-      AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-      ClientSize = new System.Drawing.Size(543, 181);
-      Controls.Add(pictureBox);
-      Controls.Add(button2);
-      Controls.Add(button3);
-      Controls.Add(button1);
-      Controls.Add(label);
-      Controls.Add(richTextBox);
-      FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
-      Margin = new System.Windows.Forms.Padding(4);
-      MaximizeBox = false;
-      MinimizeBox = false;
-      MinimumSize = new System.Drawing.Size(394, 112);
-      Name = "TimedMessage";
-      ShowIcon = false;
-      ShowInTaskbar = false;
-      StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-      Text = "Timed Message";
-      TopMost = true;
-      Paint += new System.Windows.Forms.PaintEventHandler(TimedMessage_Paint);
-      Resize += new System.EventHandler(TimedMessage_Resize);
-      ((System.ComponentModel.ISupportInitialize)(pictureBox)).EndInit();
-      ResumeLayout(false);
-      PerformLayout();
+            this.components = new System.ComponentModel.Container();
+            this.button1 = new System.Windows.Forms.Button();
+            this.richTextBox = new System.Windows.Forms.RichTextBox();
+            this.label = new System.Windows.Forms.Label();
+            this.timer = new System.Windows.Forms.Timer(this.components);
+            this.button2 = new System.Windows.Forms.Button();
+            this.button3 = new System.Windows.Forms.Button();
+            this.pictureBox = new System.Windows.Forms.PictureBox();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
+            this.SuspendLayout();
+            // 
+            // button1
+            // 
+            this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.button1.Location = new System.Drawing.Point(213, 147);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(100, 32);
+            this.button1.TabIndex = 0;
+            this.button1.Text = "button1";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.Button1_Click);
+            this.button1.MouseEnter += new System.EventHandler(this.MouseEnterElement);
+            this.button1.MouseLeave += new System.EventHandler(this.MouseLeaveElement);
+            // 
+            // richTextBox
+            // 
+            this.richTextBox.BackColor = System.Drawing.SystemColors.Control;
+            this.richTextBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.richTextBox.Location = new System.Drawing.Point(71, 10);
+            this.richTextBox.Name = "richTextBox";
+            this.richTextBox.ReadOnly = true;
+            this.richTextBox.Size = new System.Drawing.Size(465, 133);
+            this.richTextBox.TabIndex = 3;
+            this.richTextBox.Text = "";
+            this.richTextBox.MouseEnter += new System.EventHandler(this.MouseEnterElement);
+            this.richTextBox.MouseLeave += new System.EventHandler(this.MouseLeaveElement);
+            // 
+            // label
+            // 
+            this.label.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.label.AutoSize = true;
+            this.label.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.label.Location = new System.Drawing.Point(3, 156);
+            this.label.Name = "label";
+            this.label.Size = new System.Drawing.Size(154, 20);
+            this.label.TabIndex = 2;
+            this.label.Text = "Default in 5 seconds";
+            // 
+            // timer
+            // 
+            this.timer.Interval = 500;
+            this.timer.Tick += new System.EventHandler(this.Timer_Tick);
+            // 
+            // button2
+            // 
+            this.button2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.button2.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            this.button2.Location = new System.Drawing.Point(320, 147);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(100, 32);
+            this.button2.TabIndex = 1;
+            this.button2.Text = "button2";
+            this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.Button2_Click);
+            this.button2.MouseEnter += new System.EventHandler(this.MouseEnterElement);
+            this.button2.MouseLeave += new System.EventHandler(this.MouseLeaveElement);
+            // 
+            // button3
+            // 
+            this.button3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.button3.Location = new System.Drawing.Point(428, 147);
+            this.button3.Name = "button3";
+            this.button3.Size = new System.Drawing.Size(100, 32);
+            this.button3.TabIndex = 2;
+            this.button3.Text = "button3";
+            this.button3.UseVisualStyleBackColor = true;
+            this.button3.Click += new System.EventHandler(this.Button3_Click);
+            this.button3.MouseEnter += new System.EventHandler(this.MouseEnterElement);
+            this.button3.MouseLeave += new System.EventHandler(this.MouseLeaveElement);
+            // 
+            // pictureBox
+            // 
+            this.pictureBox.ErrorImage = null;
+            this.pictureBox.InitialImage = null;
+            this.pictureBox.Location = new System.Drawing.Point(10, 10);
+            this.pictureBox.Margin = new System.Windows.Forms.Padding(0);
+            this.pictureBox.Name = "pictureBox";
+            this.pictureBox.Size = new System.Drawing.Size(56, 56);
+            this.pictureBox.TabIndex = 4;
+            this.pictureBox.TabStop = false;
+            this.pictureBox.WaitOnLoad = true;
+            // 
+            // TimedMessage
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.ClientSize = new System.Drawing.Size(543, 181);
+            this.Controls.Add(this.pictureBox);
+            this.Controls.Add(this.button2);
+            this.Controls.Add(this.button3);
+            this.Controls.Add(this.button1);
+            this.Controls.Add(this.label);
+            this.Controls.Add(this.richTextBox);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
+            this.MinimumSize = new System.Drawing.Size(394, 112);
+            this.Name = "TimedMessage";
+            this.ShowIcon = false;
+            this.ShowInTaskbar = false;
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
+            this.Text = "Timed Message";
+            this.TopMost = true;
+            this.Paint += new System.Windows.Forms.PaintEventHandler(this.TimedMessage_Paint);
+            this.Resize += new System.EventHandler(this.TimedMessage_Resize);
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).EndInit();
+            this.ResumeLayout(false);
+            this.PerformLayout();
+
     }
 
     #endregion Windows Form Designer generated code
@@ -255,17 +251,17 @@ namespace CsvTools
 
         case MessageBoxIcon.Error:
           displayIcon = new Icon(SystemIcons.Error, 40, 40);
-          e.Graphics.DrawIconUnstretched(SystemIcons.Error, new Rectangle(10, 10, 32, 32));
+          e.Graphics.DrawIcon(SystemIcons.Error, new Rectangle(10, 10, 32, 32));
           break;
 
         case MessageBoxIcon.Warning:
           displayIcon = new Icon(SystemIcons.Warning, 40, 40);
-          e.Graphics.DrawIconUnstretched(SystemIcons.Warning, new Rectangle(10, 10, 32, 32));
+          e.Graphics.DrawIcon(SystemIcons.Warning, new Rectangle(10, 10, 32, 32));
           break;
 
         case MessageBoxIcon.Information:
           displayIcon = new Icon(SystemIcons.Information, 40, 40);
-          e.Graphics.DrawIconUnstretched(SystemIcons.Information, new Rectangle(10, 10, 32, 32));
+          e.Graphics.DrawIcon(SystemIcons.Information, new Rectangle(10, 10, 32, 32));
           break;
 
         default:

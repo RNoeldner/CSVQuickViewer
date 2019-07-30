@@ -60,12 +60,11 @@ namespace CsvTools
             // 
             // m_BtnOk
             // 
+            this.m_BtnOk.AutoSize = true;
             this.m_BtnOk.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.m_BtnOk.Dock = System.Windows.Forms.DockStyle.Top;
-            this.m_BtnOk.Location = new System.Drawing.Point(360, 41);
-            this.m_BtnOk.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.m_BtnOk.Location = new System.Drawing.Point(359, 39);
             this.m_BtnOk.Name = "m_BtnOk";
-            this.m_BtnOk.Size = new System.Drawing.Size(97, 43);
+            this.m_BtnOk.Size = new System.Drawing.Size(97, 32);
             this.m_BtnOk.TabIndex = 3;
             this.m_BtnOk.Text = "OK";
             this.m_BtnOk.Click += new System.EventHandler(this.BtnOK_Click);
@@ -84,10 +83,10 @@ namespace CsvTools
             // m_CheckBoxShowHide
             // 
             this.m_CheckBoxShowHide.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.m_CheckBoxShowHide.Location = new System.Drawing.Point(219, 41);
-            this.m_CheckBoxShowHide.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.m_CheckBoxShowHide.AutoSize = true;
+            this.m_CheckBoxShowHide.Location = new System.Drawing.Point(237, 39);
             this.m_CheckBoxShowHide.Name = "m_CheckBoxShowHide";
-            this.m_CheckBoxShowHide.Size = new System.Drawing.Size(133, 41);
+            this.m_CheckBoxShowHide.Size = new System.Drawing.Size(116, 24);
             this.m_CheckBoxShowHide.TabIndex = 1;
             this.m_CheckBoxShowHide.Text = "Show Entry";
             this.m_CheckBoxShowHide.UseVisualStyleBackColor = true;
@@ -110,17 +109,16 @@ namespace CsvTools
             this.tableLayoutPanel1.RowCount = 2;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(566, 96);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(566, 82);
             this.tableLayoutPanel1.TabIndex = 0;
             // 
             // m_BtnCancel
             // 
+            this.m_BtnCancel.AutoSize = true;
             this.m_BtnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.m_BtnCancel.Dock = System.Windows.Forms.DockStyle.Top;
-            this.m_BtnCancel.Location = new System.Drawing.Point(465, 41);
-            this.m_BtnCancel.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.m_BtnCancel.Location = new System.Drawing.Point(464, 39);
             this.m_BtnCancel.Name = "m_BtnCancel";
-            this.m_BtnCancel.Size = new System.Drawing.Size(97, 43);
+            this.m_BtnCancel.Size = new System.Drawing.Size(97, 32);
             this.m_BtnCancel.TabIndex = 4;
             this.m_BtnCancel.Text = "Cancel";
             this.m_BtnCancel.Click += new System.EventHandler(this.BtnCancel_Click);
@@ -128,9 +126,9 @@ namespace CsvTools
             // FormPassphrase
             // 
             this.AcceptButton = this.m_BtnOk;
-            
+            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(566, 96);
+            this.ClientSize = new System.Drawing.Size(566, 82);
             this.Controls.Add(this.tableLayoutPanel1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
             this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
