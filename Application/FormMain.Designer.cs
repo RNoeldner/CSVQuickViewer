@@ -78,7 +78,7 @@
       this.textPanel.Controls.Add(this.textBoxProgress);
       this.textPanel.Controls.Add(this.csvTextDisplay);
       this.textPanel.Location = new System.Drawing.Point(9, 40);
-      this.textPanel.Margin = new System.Windows.Forms.Padding(0);
+      
       this.textPanel.Name = "textPanel";
       this.textPanel.Size = new System.Drawing.Size(415, 180);
       this.textPanel.TabIndex = 4;

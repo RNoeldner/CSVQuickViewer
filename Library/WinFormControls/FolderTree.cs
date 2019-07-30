@@ -370,7 +370,7 @@ namespace CsvTools
             this.m_FlowLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.m_FlowLayoutPanel.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
             this.m_FlowLayoutPanel.Location = new System.Drawing.Point(0, 434);
-            this.m_FlowLayoutPanel.Margin = new System.Windows.Forms.Padding(0);
+            
             this.m_FlowLayoutPanel.Name = "m_FlowLayoutPanel";
             this.m_FlowLayoutPanel.Size = new System.Drawing.Size(328, 37);
             this.m_FlowLayoutPanel.TabIndex = 0;
