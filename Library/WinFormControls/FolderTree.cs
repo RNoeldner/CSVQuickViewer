@@ -297,7 +297,6 @@ namespace CsvTools
             this.m_TreeView.AllowDrop = true;
             this.m_TreeView.BackColor = System.Drawing.Color.White;
             this.m_TreeView.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.m_TreeView.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.m_TreeView.ImageIndex = 0;
             this.m_TreeView.ImageList = this.m_ImageList;
             this.m_TreeView.Location = new System.Drawing.Point(3, 29);
