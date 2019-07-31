@@ -28,7 +28,7 @@ namespace CsvTools
     private Button m_BtnCancel;
     private Button m_BtnOk;
     private Label m_Label1;
-    private SplitContainer m_SplitContainer1;
+    private TableLayoutPanel tableLayoutPanel1;
     private TextBox textBox;
 
     /// <summary>
@@ -83,109 +83,100 @@ namespace CsvTools
     /// </summary>
     private void InitializeComponent()
     {
-            this.m_BtnOk = new System.Windows.Forms.Button();
-            this.textBox = new System.Windows.Forms.TextBox();
-            this.m_BtnCancel = new System.Windows.Forms.Button();
-            this.m_Label1 = new System.Windows.Forms.Label();
-            this.m_SplitContainer1 = new System.Windows.Forms.SplitContainer();
-            ((System.ComponentModel.ISupportInitialize)(this.m_SplitContainer1)).BeginInit();
-            this.m_SplitContainer1.Panel1.SuspendLayout();
-            this.m_SplitContainer1.Panel2.SuspendLayout();
-            this.m_SplitContainer1.SuspendLayout();
-            this.SuspendLayout();
-            // 
-            // m_BtnOk
-            // 
-            this.m_BtnOk.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.m_BtnOk.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.m_BtnOk.Location = new System.Drawing.Point(603, 8);
-            this.m_BtnOk.Name = "m_BtnOk";
-            this.m_BtnOk.Size = new System.Drawing.Size(92, 32);
-            this.m_BtnOk.TabIndex = 0;
-            this.m_BtnOk.Text = "&OK";
-            this.m_BtnOk.Click += new System.EventHandler(this.BtnOK_Click);
-            // 
-            // textBox
-            // 
-            this.textBox.AcceptsReturn = true;
-            this.textBox.AllowDrop = true;
-            this.textBox.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.textBox.Location = new System.Drawing.Point(0, 0);
-            this.textBox.Multiline = true;
-            this.textBox.Name = "textBox";
-            this.textBox.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.textBox.Size = new System.Drawing.Size(807, 575);
-            this.textBox.TabIndex = 1;
-            this.textBox.DragDrop += new System.Windows.Forms.DragEventHandler(this.TextBox_DragDrop);
-            this.textBox.DragEnter += new System.Windows.Forms.DragEventHandler(this.TextBox_DragEnter);
-            this.textBox.Enter += new System.EventHandler(this.TextBox_Enter);
-            this.textBox.Leave += new System.EventHandler(this.TextBox_Leave);
-            // 
-            // m_BtnCancel
-            // 
-            this.m_BtnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.m_BtnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.m_BtnCancel.Location = new System.Drawing.Point(705, 8);
-            this.m_BtnCancel.Name = "m_BtnCancel";
-            this.m_BtnCancel.Size = new System.Drawing.Size(92, 32);
-            this.m_BtnCancel.TabIndex = 4;
-            this.m_BtnCancel.Text = "&Cancel";
-            this.m_BtnCancel.Click += new System.EventHandler(this.BtnCancel_Click);
-            // 
-            // m_Label1
-            // 
-            this.m_Label1.AutoSize = true;
-            this.m_Label1.Location = new System.Drawing.Point(9, 11);
-            this.m_Label1.Name = "m_Label1";
-            this.m_Label1.Size = new System.Drawing.Size(214, 20);
-            this.m_Label1.TabIndex = 5;
-            this.m_Label1.Text = "(The text is stored encrypted)";
-            // 
-            // m_SplitContainer1
-            // 
-            this.m_SplitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.m_SplitContainer1.FixedPanel = System.Windows.Forms.FixedPanel.Panel2;
-            this.m_SplitContainer1.Location = new System.Drawing.Point(0, 0);
-            this.m_SplitContainer1.Name = "m_SplitContainer1";
-            this.m_SplitContainer1.Orientation = System.Windows.Forms.Orientation.Horizontal;
-            // 
-            // m_SplitContainer1.Panel1
-            // 
-            this.m_SplitContainer1.Panel1.Controls.Add(this.textBox);
-            // 
-            // m_SplitContainer1.Panel2
-            // 
-            this.m_SplitContainer1.Panel2.Controls.Add(this.m_Label1);
-            this.m_SplitContainer1.Panel2.Controls.Add(this.m_BtnCancel);
-            this.m_SplitContainer1.Panel2.Controls.Add(this.m_BtnOk);
-            this.m_SplitContainer1.Size = new System.Drawing.Size(807, 628);
-            this.m_SplitContainer1.SplitterDistance = 575;
-            this.m_SplitContainer1.SplitterWidth = 6;
-            this.m_SplitContainer1.TabIndex = 6;
-            // 
-            // FormKeyFile
-            // 
-            this.AcceptButton = this.m_BtnOk;
-            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.CancelButton = this.m_BtnCancel;
-            this.ClientSize = new System.Drawing.Size(807, 628);
-            this.ControlBox = false;
-            this.Controls.Add(this.m_SplitContainer1);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
-            this.MaximumSize = new System.Drawing.Size(1034, 754);
-            this.MinimumSize = new System.Drawing.Size(556, 293);
-            this.Name = "FormKeyFile";
-            this.ShowIcon = false;
-            this.TopMost = true;
-            this.Load += new System.EventHandler(this.FormPassphrase_Load);
-            this.m_SplitContainer1.Panel1.ResumeLayout(false);
-            this.m_SplitContainer1.Panel1.PerformLayout();
-            this.m_SplitContainer1.Panel2.ResumeLayout(false);
-            this.m_SplitContainer1.Panel2.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.m_SplitContainer1)).EndInit();
-            this.m_SplitContainer1.ResumeLayout(false);
-            this.ResumeLayout(false);
+      this.m_BtnOk = new System.Windows.Forms.Button();
+      this.textBox = new System.Windows.Forms.TextBox();
+      this.m_BtnCancel = new System.Windows.Forms.Button();
+      this.m_Label1 = new System.Windows.Forms.Label();
+      this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+      this.tableLayoutPanel1.SuspendLayout();
+      this.SuspendLayout();
+      // 
+      // m_BtnOk
+      // 
+      this.m_BtnOk.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+      this.m_BtnOk.DialogResult = System.Windows.Forms.DialogResult.OK;
+      this.m_BtnOk.Location = new System.Drawing.Point(477, 469);
+      this.m_BtnOk.Name = "m_BtnOk";
+      this.m_BtnOk.Size = new System.Drawing.Size(92, 32);
+      this.m_BtnOk.TabIndex = 0;
+      this.m_BtnOk.Text = "&OK";
+      this.m_BtnOk.Click += new System.EventHandler(this.BtnOK_Click);
+      // 
+      // textBox
+      // 
+      this.textBox.AcceptsReturn = true;
+      this.textBox.AllowDrop = true;
+      this.tableLayoutPanel1.SetColumnSpan(this.textBox, 3);
+      this.textBox.Dock = System.Windows.Forms.DockStyle.Fill;
+      this.textBox.Location = new System.Drawing.Point(3, 3);
+      this.textBox.Multiline = true;
+      this.textBox.Name = "textBox";
+      this.textBox.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+      this.textBox.Size = new System.Drawing.Size(664, 460);
+      this.textBox.TabIndex = 1;
+      this.textBox.DragDrop += new System.Windows.Forms.DragEventHandler(this.TextBox_DragDrop);
+      this.textBox.DragEnter += new System.Windows.Forms.DragEventHandler(this.TextBox_DragEnter);
+      this.textBox.Enter += new System.EventHandler(this.TextBox_Enter);
+      this.textBox.Leave += new System.EventHandler(this.TextBox_Leave);
+      // 
+      // m_BtnCancel
+      // 
+      this.m_BtnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+      this.m_BtnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+      this.m_BtnCancel.Location = new System.Drawing.Point(575, 469);
+      this.m_BtnCancel.Name = "m_BtnCancel";
+      this.m_BtnCancel.Size = new System.Drawing.Size(92, 32);
+      this.m_BtnCancel.TabIndex = 4;
+      this.m_BtnCancel.Text = "&Cancel";
+      this.m_BtnCancel.Click += new System.EventHandler(this.BtnCancel_Click);
+      // 
+      // m_Label1
+      // 
+      this.m_Label1.AutoSize = true;
+      this.m_Label1.Location = new System.Drawing.Point(3, 466);
+      this.m_Label1.Name = "m_Label1";
+      this.m_Label1.Size = new System.Drawing.Size(214, 20);
+      this.m_Label1.TabIndex = 5;
+      this.m_Label1.Text = "(The text is stored encrypted)";
+      // 
+      // tableLayoutPanel1
+      // 
+      this.tableLayoutPanel1.ColumnCount = 3;
+      this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+      this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+      this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+      this.tableLayoutPanel1.Controls.Add(this.textBox, 0, 0);
+      this.tableLayoutPanel1.Controls.Add(this.m_Label1, 0, 1);
+      this.tableLayoutPanel1.Controls.Add(this.m_BtnOk, 1, 1);
+      this.tableLayoutPanel1.Controls.Add(this.m_BtnCancel, 2, 1);
+      this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
+      this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
+      this.tableLayoutPanel1.Name = "tableLayoutPanel1";
+      this.tableLayoutPanel1.RowCount = 2;
+      this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+      this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      this.tableLayoutPanel1.Size = new System.Drawing.Size(670, 504);
+      this.tableLayoutPanel1.TabIndex = 7;
+      // 
+      // FormKeyFile
+      // 
+      this.AcceptButton = this.m_BtnOk;
+      this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
+      this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+      this.CancelButton = this.m_BtnCancel;
+      this.ClientSize = new System.Drawing.Size(670, 504);
+      this.ControlBox = false;
+      this.Controls.Add(this.tableLayoutPanel1);
+      this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
+      this.MaximumSize = new System.Drawing.Size(1034, 754);
+      this.MinimumSize = new System.Drawing.Size(556, 293);
+      this.Name = "FormKeyFile";
+      this.ShowIcon = false;
+      this.TopMost = true;
+      this.Load += new System.EventHandler(this.FormPassphrase_Load);
+      this.tableLayoutPanel1.ResumeLayout(false);
+      this.tableLayoutPanel1.PerformLayout();
+      this.ResumeLayout(false);
 
     }
 
