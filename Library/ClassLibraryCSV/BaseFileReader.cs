@@ -677,7 +677,7 @@ namespace CsvTools
     /// <param name="text">Leading Text</param>
     /// <param name="recordNumber">The record number.</param>
     /// <param name="progress">The progress (a value between 0 and MaxValue)</param>
-    public void HandleShowProgress(string text, long recordNumber, int progress)
+    public virtual void HandleShowProgress(string text, long recordNumber, int progress)
     {
       var rec = recordNumber > 1 ? $"\nRecord {recordNumber:N0}" : string.Empty;
       ProcessDisplay?.SetProcess($"{text}{rec}", progress, false);

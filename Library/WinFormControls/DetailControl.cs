@@ -920,7 +920,7 @@ namespace CsvTools
                                           m_ToolStripButtonSettings.Visible = m_ShowButtons && m_ShowSettingsButtons;
                                           try
                                           {
-                                            m_ToolStripTop.Visible = m_ShowButtons;                                          
+                                            m_ToolStripTop.Visible = m_ShowButtons;
                                             // Filter
                                             toolStripComboBoxFilterType.Visible = m_ShowButtons && m_ShowFilter;
                                           }
@@ -1080,7 +1080,7 @@ namespace CsvTools
       m_ToolStripTop.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.HorizontalStackWithOverflow;
       m_ToolStripTop.Location = new System.Drawing.Point(3, 0);
       m_ToolStripTop.Name = "m_ToolStripTop";
-      m_ToolStripTop.Size = new System.Drawing.Size(487, 27);
+      m_ToolStripTop.AutoSize = true;
       m_ToolStripTop.TabIndex = 1;
       m_ToolStripTop.Text = "toolStripTop";
       //
@@ -1329,7 +1329,7 @@ namespace CsvTools
       //
       // DetailControl
       //
-      
+
       AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       Controls.Add(m_ToolStripContainer);
       Name = "DetailControl";
