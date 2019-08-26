@@ -39,9 +39,9 @@
       this.labelCount4 = new System.Windows.Forms.Label();
       this.timer = new System.Windows.Forms.Timer(this.components);
       this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
-      this.buttonOK = new System.Windows.Forms.Button();
-      this.buttonCancel = new System.Windows.Forms.Button();
       this.label = new System.Windows.Forms.Label();
+      this.buttonCancel = new System.Windows.Forms.Button();
+      this.buttonOK = new System.Windows.Forms.Button();
       label2 = new System.Windows.Forms.Label();
       label4 = new System.Windows.Forms.Label();
       ((System.ComponentModel.ISupportInitialize)(this.trackBarLimit)).BeginInit();
@@ -175,41 +175,41 @@
       this.tableLayoutPanel1.Size = new System.Drawing.Size(601, 178);
       this.tableLayoutPanel1.TabIndex = 12;
       // 
-      // buttonOK
-      // 
-      this.buttonOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-      this.buttonOK.AutoSize = true;
-      this.tableLayoutPanel1.SetColumnSpan(this.buttonOK, 2);
-      this.buttonOK.Location = new System.Drawing.Point(454, 145);
-      this.buttonOK.Name = "buttonOK";
-      this.buttonOK.Size = new System.Drawing.Size(68, 30);
-      this.buttonOK.TabIndex = 9;
-      this.buttonOK.Text = "&OK";
-      this.buttonOK.UseVisualStyleBackColor = true;
-      this.buttonOK.Click += new System.EventHandler(this.buttonOK_Click);
-      // 
-      // buttonCancel
-      // 
-      this.buttonCancel.AutoSize = true;
-      this.buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-      this.buttonCancel.Location = new System.Drawing.Point(528, 145);
-      this.buttonCancel.Name = "buttonCancel";
-      this.buttonCancel.Size = new System.Drawing.Size(68, 30);
-      this.buttonCancel.TabIndex = 8;
-      this.buttonCancel.Text = "&Cancel";
-      this.buttonCancel.UseVisualStyleBackColor = true;
-      this.buttonCancel.Click += new System.EventHandler(this.buttonCancel_Click);
-      // 
       // label
       // 
       this.label.AutoSize = true;
       this.tableLayoutPanel1.SetColumnSpan(this.label, 3);
       this.label.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
-      this.label.Location = new System.Drawing.Point(3, 142);
+      this.label.Location = new System.Drawing.Point(3, 138);
       this.label.Name = "label";
       this.label.Size = new System.Drawing.Size(154, 20);
       this.label.TabIndex = 11;
       this.label.Text = "Default in 5 seconds";
+      // 
+      // buttonCancel
+      // 
+      this.buttonCancel.AutoSize = true;
+      this.buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+      this.buttonCancel.Location = new System.Drawing.Point(528, 141);
+      this.buttonCancel.Name = "buttonCancel";
+      this.buttonCancel.Size = new System.Drawing.Size(68, 34);
+      this.buttonCancel.TabIndex = 8;
+      this.buttonCancel.Text = "&Cancel";
+      this.buttonCancel.UseVisualStyleBackColor = true;
+      this.buttonCancel.Click += new System.EventHandler(this.buttonCancel_Click);
+      // 
+      // buttonOK
+      // 
+      this.buttonOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+      this.buttonOK.AutoSize = true;
+      this.tableLayoutPanel1.SetColumnSpan(this.buttonOK, 2);
+      this.buttonOK.Location = new System.Drawing.Point(454, 141);
+      this.buttonOK.Name = "buttonOK";
+      this.buttonOK.Size = new System.Drawing.Size(68, 34);
+      this.buttonOK.TabIndex = 9;
+      this.buttonOK.Text = "&OK";
+      this.buttonOK.UseVisualStyleBackColor = true;
+      this.buttonOK.Click += new System.EventHandler(this.buttonOK_Click);
       // 
       // FrmLimitSize
       // 

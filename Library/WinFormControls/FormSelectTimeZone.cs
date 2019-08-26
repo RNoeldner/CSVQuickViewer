@@ -72,22 +72,22 @@ namespace CsvTools
       // 
       // m_BtnOk
       // 
+      this.m_BtnOk.AutoSize = true;
       this.m_BtnOk.DialogResult = System.Windows.Forms.DialogResult.OK;
-      this.m_BtnOk.Location = new System.Drawing.Point(290, 79);
-      this.m_BtnOk.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+      this.m_BtnOk.Location = new System.Drawing.Point(435, 122);
       this.m_BtnOk.Name = "m_BtnOk";
-      this.m_BtnOk.Size = new System.Drawing.Size(48, 22);
+      this.m_BtnOk.Size = new System.Drawing.Size(72, 34);
       this.m_BtnOk.TabIndex = 2;
       this.m_BtnOk.Text = "&OK";
       this.m_BtnOk.Click += new System.EventHandler(this.BtnOK_Click);
       // 
       // m_BtnCancel
       // 
+      this.m_BtnCancel.AutoSize = true;
       this.m_BtnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-      this.m_BtnCancel.Location = new System.Drawing.Point(344, 79);
-      this.m_BtnCancel.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+      this.m_BtnCancel.Location = new System.Drawing.Point(516, 122);
       this.m_BtnCancel.Name = "m_BtnCancel";
-      this.m_BtnCancel.Size = new System.Drawing.Size(48, 22);
+      this.m_BtnCancel.Size = new System.Drawing.Size(72, 34);
       this.m_BtnCancel.TabIndex = 1;
       this.m_BtnCancel.Text = "&Cancel";
       this.m_BtnCancel.Click += new System.EventHandler(this.BtnCancel_Click);
@@ -95,10 +95,9 @@ namespace CsvTools
       // label1
       // 
       this.label1.AutoSize = true;
-      this.label1.Location = new System.Drawing.Point(5, 4);
-      this.label1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+      this.label1.Location = new System.Drawing.Point(8, 6);
       this.label1.Name = "label1";
-      this.label1.Size = new System.Drawing.Size(389, 39);
+      this.label1.Size = new System.Drawing.Size(581, 60);
       this.label1.TabIndex = 5;
       this.label1.Text = "At least one column with a time has been found without time zone information.\r\n\r\n" +
     "Please determine the timezone of all date/time columns without explicit time zon" +
@@ -112,9 +111,10 @@ namespace CsvTools
       // 
       // timeZoneSelector1
       // 
-      this.timeZoneSelector1.Location = new System.Drawing.Point(8, 53);
+      this.timeZoneSelector1.Location = new System.Drawing.Point(12, 82);
+      this.timeZoneSelector1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
       this.timeZoneSelector1.Name = "timeZoneSelector1";
-      this.timeZoneSelector1.Size = new System.Drawing.Size(385, 22);
+      this.timeZoneSelector1.Size = new System.Drawing.Size(578, 34);
       this.timeZoneSelector1.TabIndex = 0;
       this.timeZoneSelector1.TimeZoneID = "(local)";
       // 
@@ -123,20 +123,19 @@ namespace CsvTools
       this.label.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
       this.label.AutoSize = true;
       this.label.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
-      this.label.Location = new System.Drawing.Point(7, 86);
-      this.label.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+      this.label.Location = new System.Drawing.Point(10, 132);
       this.label.Name = "label";
-      this.label.Size = new System.Drawing.Size(104, 13);
+      this.label.Size = new System.Drawing.Size(154, 20);
       this.label.TabIndex = 12;
       this.label.Text = "Default in 5 seconds";
       // 
       // FormSelectTimeZone
       // 
       this.AcceptButton = this.m_BtnOk;
-      this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+      this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.CancelButton = this.m_BtnCancel;
-      this.ClientSize = new System.Drawing.Size(402, 102);
+      this.ClientSize = new System.Drawing.Size(603, 157);
       this.ControlBox = false;
       this.Controls.Add(this.label);
       this.Controls.Add(this.timeZoneSelector1);
@@ -144,9 +143,8 @@ namespace CsvTools
       this.Controls.Add(this.m_BtnCancel);
       this.Controls.Add(this.m_BtnOk);
       this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
-      this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
-      this.MaximumSize = new System.Drawing.Size(467, 203);
-      this.MinimumSize = new System.Drawing.Size(253, 63);
+      this.MaximumSize = new System.Drawing.Size(690, 282);
+      this.MinimumSize = new System.Drawing.Size(368, 67);
       this.Name = "FormSelectTimeZone";
       this.Text = "Select Time Zone";
       this.TopMost = true;

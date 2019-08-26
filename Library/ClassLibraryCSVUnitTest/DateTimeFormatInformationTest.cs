@@ -62,7 +62,7 @@ namespace CsvTools.Tests
       var dtm = CheckDate("yyyy/MM/ddTHH:mm:sszzz");
 
       Assert.AreEqual(25, dtm.MinLength);
-      Assert.AreEqual(25, dtm.MaxLength);      
+      Assert.AreEqual(25, dtm.MaxLength);
     }
 
     [TestMethod]
@@ -99,6 +99,6 @@ namespace CsvTools.Tests
 
       Assert.AreEqual(14, dtm.MinLength);
       Assert.AreEqual(19, dtm.MaxLength);
-    }    
+    }
   }
 }

@@ -12,11 +12,11 @@
  *
  */
 
+using CsvTools.Properties;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows.Forms;
-using CsvTools.Properties;
 
 namespace CsvTools
 {

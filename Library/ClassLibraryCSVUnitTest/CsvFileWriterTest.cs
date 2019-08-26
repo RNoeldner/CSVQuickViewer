@@ -70,7 +70,7 @@ namespace CsvTools.Tests
           file.WriteLine("World");
         }
         FileSystemUtils.FileDelete(writeFile.FileName);
-      }      
+      }
     }
 
     [TestMethod]
@@ -103,7 +103,7 @@ namespace CsvTools.Tests
           Assert.AreEqual(100, writer.WriteDataTable(dataTable));
         }
         Assert.IsTrue(File.Exists(writeFile.FullPath));
-      }      
+      }
     }
 
     [TestInitialize]

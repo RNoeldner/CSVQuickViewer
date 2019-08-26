@@ -392,7 +392,7 @@ namespace CsvTools
     /// </returns>
     private bool GetNextRecord()
     {
-      Restart:
+    Restart:
       CurrentRowColumnText = ReadNextRow(true, true);
 
       if (!AllEmptyAndCountConsecutiveEmptyRows(CurrentRowColumnText))
@@ -416,7 +416,7 @@ namespace CsvTools
         }
       }
       var hasWarningCombinedWrning = false;
-      Restart2:
+    Restart2:
       var rowLength = CurrentRowColumnText.Length;
       if (rowLength == FieldCount)
       {
@@ -890,7 +890,7 @@ namespace CsvTools
     /// </returns>
     private string[] ReadNextRow(bool regularDataRow, bool storeWarnings)
     {
-      Restart:
+    Restart:
       // Store the starting Line Number
       StartLineNumber = EndLineNumber;
 
