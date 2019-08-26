@@ -139,7 +139,7 @@ namespace CsvTools
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.CancelButton = this.m_BtnCancel;
-      this.ClientSize = new System.Drawing.Size(442, 113);
+      this.ClientSize = new System.Drawing.Size(442, 110);
       this.ControlBox = false;
       this.Controls.Add(this.label);
       this.Controls.Add(this.timeZoneSelector1);
