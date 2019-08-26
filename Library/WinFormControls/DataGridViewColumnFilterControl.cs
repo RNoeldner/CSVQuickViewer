@@ -46,25 +46,42 @@ namespace CsvTools
       Contract.Assume(textBoxValue != null);
 
       var isDate = m_DataGridViewColumnFilter.ColumnDataType == typeof(DateTime);
+      var isNumeric = m_DataGridViewColumnFilter.ColumnDataType == typeof(int) || m_DataGridViewColumnFilter.ColumnDataType == typeof(double) || m_DataGridViewColumnFilter.ColumnDataType == typeof(float)
+                  || m_DataGridViewColumnFilter.ColumnDataType == typeof(byte) || m_DataGridViewColumnFilter.ColumnDataType == typeof(long);
 
       dateTimePickerValue.Visible = isDate;
       textBoxValue.Visible = !isDate;
 
       comboBoxOperator.BeginUpdate();
       comboBoxOperator.Items.Clear();
-      comboBoxOperator.Items.AddRange(m_DataGridViewColumnFilter.ColumnDataType == typeof(string)
-        ? new object[]
-        {
-          ColumnFilterLogic.cOPcontains, ColumnFilterLogic.cOPbegins, ColumnFilterLogic.cOPends,
-          ColumnFilterLogic.cOPequal, ColumnFilterLogic.cOPnotEqual, ColumnFilterLogic.cOPisNull,
-          ColumnFilterLogic.cOPisNotNull, ColumnFilterLogic.cOpLonger, ColumnFilterLogic.cOPshorter
-        }
-        : new object[]
-        {
-          ColumnFilterLogic.cOPisNotNull, ColumnFilterLogic.cOPsmaller, ColumnFilterLogic.cOPsmallerequal,
-          ColumnFilterLogic.cOPequal, ColumnFilterLogic.cOPnotEqual, ColumnFilterLogic.cOPbiggerEqual,
-          ColumnFilterLogic.cOPbigger, ColumnFilterLogic.cOPisNull, ColumnFilterLogic.cOPisNotNull
-        });
+
+      if (m_DataGridViewColumnFilter.ColumnDataType == typeof(string))
+        comboBoxOperator.Items.AddRange(new object[] { ColumnFilterLogic.cOPcontains, ColumnFilterLogic.cOPbegins, ColumnFilterLogic.cOPends });
+
+      comboBoxOperator.Items.AddRange(new object[] { ColumnFilterLogic.cOPequal, ColumnFilterLogic.cOPnotEqual });
+
+      if (m_DataGridViewColumnFilter.ColumnDataType == typeof(string))
+        comboBoxOperator.Items.AddRange(new object[] { ColumnFilterLogic.cOpLonger, ColumnFilterLogic.cOPshorter });
+
+      if (isNumeric || isDate)
+        comboBoxOperator.Items.AddRange(new object[] { ColumnFilterLogic.cOPsmaller, ColumnFilterLogic.cOPsmallerequal, ColumnFilterLogic.cOPbiggerEqual, ColumnFilterLogic.cOPbigger });
+
+      // comboBoxOperator.Items.AddRange(m_DataGridViewColumnFilter.ColumnDataType == typeof(string)
+      //   ? new object[]
+      //   {
+      //     ColumnFilterLogic.cOPcontains, ColumnFilterLogic.cOPbegins, ColumnFilterLogic.cOPends,
+      //     ColumnFilterLogic.cOPequal, ColumnFilterLogic.cOPnotEqual, ColumnFilterLogic.cOPisNull,
+      //     ColumnFilterLogic.cOPisNotNull, ColumnFilterLogic.cOpLonger, ColumnFilterLogic.cOPshorter
+      //   }
+      //   : new object[]
+      //   {
+      //     ColumnFilterLogic.cOPisNotNull, ColumnFilterLogic.cOPsmaller, ColumnFilterLogic.cOPsmallerequal,
+      //     ColumnFilterLogic.cOPequal, ColumnFilterLogic.cOPnotEqual, ColumnFilterLogic.cOPbiggerEqual,
+      //     ColumnFilterLogic.cOPbigger, ColumnFilterLogic.cOPisNull, ColumnFilterLogic.cOPisNotNull
+      //   });
+
+      comboBoxOperator.Items.AddRange(new object[] { ColumnFilterLogic.cOPisNull, ColumnFilterLogic.cOPisNotNull });
+
       comboBoxOperator.SelectedIndex = 0;
       comboBoxOperator.EndUpdate();
     }

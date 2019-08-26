@@ -80,6 +80,7 @@ namespace CsvTools
 
     public static void WaitToCompleteTask(this System.Threading.Tasks.Task executeTask, int timeoutSeconds, CancellationToken cancellationToken)
     {
+      cancellationToken.ThrowIfCancellationRequested();
       var stopwatch = new Stopwatch();
       stopwatch.Start();
       while (executeTask.Status != System.Threading.Tasks.TaskStatus.RanToCompletion)
