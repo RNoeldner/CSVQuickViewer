@@ -48,7 +48,7 @@
       // 
       label1.Anchor = System.Windows.Forms.AnchorStyles.Right;
       label1.AutoSize = true;
-      label1.Location = new System.Drawing.Point(38, 7);
+      label1.Location = new System.Drawing.Point(3, 7);
       label1.Name = "label1";
       label1.Size = new System.Drawing.Size(29, 13);
       label1.TabIndex = 3;
@@ -57,9 +57,9 @@
       // tableLayoutPanel1
       // 
       tableLayoutPanel1.ColumnCount = 3;
-      tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 70F));
+      tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
       tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-      tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 95F));
+      tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
       tableLayoutPanel1.Controls.Add(this.detailControl, 0, 1);
       tableLayoutPanel1.Controls.Add(label1, 0, 0);
       tableLayoutPanel1.Controls.Add(this.comboBoxID, 1, 0);
@@ -81,6 +81,7 @@
       this.detailControl.DataTable = null;
       dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
       dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
+      dataGridViewCellStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
       dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.ControlText;
       dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
       dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
@@ -100,9 +101,9 @@
       this.comboBoxID.Dock = System.Windows.Forms.DockStyle.Top;
       this.comboBoxID.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
       this.comboBoxID.FormattingEnabled = true;
-      this.comboBoxID.Location = new System.Drawing.Point(73, 3);
+      this.comboBoxID.Location = new System.Drawing.Point(38, 3);
       this.comboBoxID.Name = "comboBoxID";
-      this.comboBoxID.Size = new System.Drawing.Size(313, 21);
+      this.comboBoxID.Size = new System.Drawing.Size(350, 21);
       this.comboBoxID.TabIndex = 0;
       this.comboBoxID.SelectedIndexChanged += new System.EventHandler(this.ComboBoxID_SelectedIndexChanged);
       // 
@@ -110,7 +111,7 @@
       // 
       this.checkBoxIgnoreNull.Anchor = System.Windows.Forms.AnchorStyles.Left;
       this.checkBoxIgnoreNull.AutoSize = true;
-      this.checkBoxIgnoreNull.Location = new System.Drawing.Point(392, 5);
+      this.checkBoxIgnoreNull.Location = new System.Drawing.Point(394, 5);
       this.checkBoxIgnoreNull.Name = "checkBoxIgnoreNull";
       this.checkBoxIgnoreNull.Size = new System.Drawing.Size(87, 17);
       this.checkBoxIgnoreNull.TabIndex = 1;
@@ -120,7 +121,7 @@
       // 
       // FormUniqueDisplay
       // 
-      
+      this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.ClientSize = new System.Drawing.Size(484, 500);
       this.Controls.Add(tableLayoutPanel1);
