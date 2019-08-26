@@ -47,7 +47,7 @@ namespace CsvTools
       // 
       this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
       this.button1.Location = new System.Drawing.Point(142, 93);
-      this.button1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+      this.button1.Margin = new System.Windows.Forms.Padding(2);
       this.button1.Name = "button1";
       this.button1.Size = new System.Drawing.Size(67, 24);
       this.button1.TabIndex = 0;
@@ -62,7 +62,7 @@ namespace CsvTools
       this.richTextBox.BackColor = System.Drawing.SystemColors.Control;
       this.richTextBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
       this.richTextBox.Location = new System.Drawing.Point(47, 6);
-      this.richTextBox.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+      this.richTextBox.Margin = new System.Windows.Forms.Padding(2);
       this.richTextBox.Name = "richTextBox";
       this.richTextBox.ReadOnly = true;
       this.richTextBox.Size = new System.Drawing.Size(310, 86);
@@ -76,7 +76,7 @@ namespace CsvTools
       this.label.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
       this.label.AutoSize = true;
       this.label.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
-      this.label.Location = new System.Drawing.Point(2, 101);
+      this.label.Location = new System.Drawing.Point(4, 99);
       this.label.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
       this.label.Name = "label";
       this.label.Size = new System.Drawing.Size(104, 13);
@@ -93,7 +93,7 @@ namespace CsvTools
       this.button2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
       this.button2.DialogResult = System.Windows.Forms.DialogResult.Cancel;
       this.button2.Location = new System.Drawing.Point(213, 93);
-      this.button2.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+      this.button2.Margin = new System.Windows.Forms.Padding(2);
       this.button2.Name = "button2";
       this.button2.Size = new System.Drawing.Size(67, 24);
       this.button2.TabIndex = 1;
@@ -107,7 +107,7 @@ namespace CsvTools
       // 
       this.button3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
       this.button3.Location = new System.Drawing.Point(285, 93);
-      this.button3.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+      this.button3.Margin = new System.Windows.Forms.Padding(2);
       this.button3.Name = "button3";
       this.button3.Size = new System.Drawing.Size(67, 24);
       this.button3.TabIndex = 2;
@@ -141,7 +141,7 @@ namespace CsvTools
       this.Controls.Add(this.label);
       this.Controls.Add(this.richTextBox);
       this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
-      this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+      this.Margin = new System.Windows.Forms.Padding(2);
       this.MaximizeBox = false;
       this.MinimizeBox = false;
       this.MinimumSize = new System.Drawing.Size(265, 84);
