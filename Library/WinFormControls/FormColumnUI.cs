@@ -12,6 +12,7 @@
  *
  */
 
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -23,7 +24,6 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
-using Microsoft.Win32;
 
 namespace CsvTools
 {
@@ -111,7 +111,7 @@ namespace CsvTools
           {
             var fileWriter = m_FileSetting.GetFileWriter(processDisplay);
             var hasRetried = false;
-            retry:
+          retry:
             var data = fileWriter.GetSourceDataTable(ApplicationSetting.FillGuessSettings.CheckedRecords.ToUint());
             {
               var found = new Column();
@@ -684,7 +684,7 @@ namespace CsvTools
           csv.WarnQuotesInQuotes = false;
         }
 
-        retry:
+      retry:
         using (var fileReader = fileSettingCopy.GetFileReader(processDisplay))
         {
           fileReader.Open();

@@ -63,7 +63,7 @@ namespace CsvTools.Tests
         HasFieldHeader = true,
         AlternateQuoting = true
       };
-      PGPKeyStorageTestHelper.SetApplicationSetting();      
+      PGPKeyStorageTestHelper.SetApplicationSetting();
       setting.FileName = "BasicCSV.pgp";
       setting.ColumnCollection.AddIfNew(new Column
       {
@@ -100,7 +100,7 @@ namespace CsvTools.Tests
         HasFieldHeader = true,
         AlternateQuoting = true
       };
-      PGPKeyStorageTestHelper.SetApplicationSetting();      
+      PGPKeyStorageTestHelper.SetApplicationSetting();
       setting.FileName = "BasicCSV.pgp";
       setting.ColumnCollection.AddIfNew(new Column
       {

@@ -1,7 +1,7 @@
-﻿using System;
+﻿using log4net.Appender;
+using System;
 using System.Drawing;
 using System.Windows.Forms;
-using log4net.Appender;
 
 namespace CsvTools
 {

@@ -64,7 +64,7 @@ namespace CsvTools
       this.m_BtnOk.DialogResult = System.Windows.Forms.DialogResult.OK;
       this.m_BtnOk.Location = new System.Drawing.Point(359, 39);
       this.m_BtnOk.Name = "m_BtnOk";
-      this.m_BtnOk.Size = new System.Drawing.Size(97, 32);
+      this.m_BtnOk.Size = new System.Drawing.Size(97, 34);
       this.m_BtnOk.TabIndex = 3;
       this.m_BtnOk.Text = "OK";
       this.m_BtnOk.Click += new System.EventHandler(this.BtnOK_Click);
@@ -118,7 +118,7 @@ namespace CsvTools
       this.m_BtnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
       this.m_BtnCancel.Location = new System.Drawing.Point(464, 39);
       this.m_BtnCancel.Name = "m_BtnCancel";
-      this.m_BtnCancel.Size = new System.Drawing.Size(97, 32);
+      this.m_BtnCancel.Size = new System.Drawing.Size(97, 34);
       this.m_BtnCancel.TabIndex = 4;
       this.m_BtnCancel.Text = "Cancel";
       this.m_BtnCancel.Click += new System.EventHandler(this.BtnCancel_Click);

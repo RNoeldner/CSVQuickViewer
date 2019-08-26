@@ -12,10 +12,10 @@
  *
  */
 
+using Pri.LongPath;
 using System;
 using System.Drawing;
 using System.Windows.Forms;
-using Pri.LongPath;
 
 namespace CsvTools
 {
@@ -94,10 +94,11 @@ namespace CsvTools
       // m_BtnOk
       // 
       this.m_BtnOk.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+      this.m_BtnOk.AutoSize = true;
       this.m_BtnOk.DialogResult = System.Windows.Forms.DialogResult.OK;
-      this.m_BtnOk.Location = new System.Drawing.Point(477, 469);
+      this.m_BtnOk.Location = new System.Drawing.Point(477, 467);
       this.m_BtnOk.Name = "m_BtnOk";
-      this.m_BtnOk.Size = new System.Drawing.Size(92, 32);
+      this.m_BtnOk.Size = new System.Drawing.Size(92, 34);
       this.m_BtnOk.TabIndex = 0;
       this.m_BtnOk.Text = "&OK";
       this.m_BtnOk.Click += new System.EventHandler(this.BtnOK_Click);
@@ -112,7 +113,7 @@ namespace CsvTools
       this.textBox.Multiline = true;
       this.textBox.Name = "textBox";
       this.textBox.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-      this.textBox.Size = new System.Drawing.Size(664, 460);
+      this.textBox.Size = new System.Drawing.Size(664, 458);
       this.textBox.TabIndex = 1;
       this.textBox.DragDrop += new System.Windows.Forms.DragEventHandler(this.TextBox_DragDrop);
       this.textBox.DragEnter += new System.Windows.Forms.DragEventHandler(this.TextBox_DragEnter);
@@ -122,10 +123,11 @@ namespace CsvTools
       // m_BtnCancel
       // 
       this.m_BtnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+      this.m_BtnCancel.AutoSize = true;
       this.m_BtnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-      this.m_BtnCancel.Location = new System.Drawing.Point(575, 469);
+      this.m_BtnCancel.Location = new System.Drawing.Point(575, 467);
       this.m_BtnCancel.Name = "m_BtnCancel";
-      this.m_BtnCancel.Size = new System.Drawing.Size(92, 32);
+      this.m_BtnCancel.Size = new System.Drawing.Size(92, 34);
       this.m_BtnCancel.TabIndex = 4;
       this.m_BtnCancel.Text = "&Cancel";
       this.m_BtnCancel.Click += new System.EventHandler(this.BtnCancel_Click);
@@ -133,7 +135,7 @@ namespace CsvTools
       // m_Label1
       // 
       this.m_Label1.AutoSize = true;
-      this.m_Label1.Location = new System.Drawing.Point(3, 466);
+      this.m_Label1.Location = new System.Drawing.Point(3, 464);
       this.m_Label1.Name = "m_Label1";
       this.m_Label1.Size = new System.Drawing.Size(214, 20);
       this.m_Label1.TabIndex = 5;

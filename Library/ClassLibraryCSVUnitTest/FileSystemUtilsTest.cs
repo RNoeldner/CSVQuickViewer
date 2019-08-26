@@ -87,5 +87,5 @@ namespace CsvTools.Tests
       Assert.AreEqual("Test", split.FileNameWithoutExtension);
       Assert.AreEqual(".dat", split.Extension);
     }
-    }
+  }
 }

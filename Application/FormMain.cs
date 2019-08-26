@@ -12,6 +12,9 @@
  *
  */
 
+using CsvTools.Properties;
+using log4net;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -25,9 +28,6 @@ using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
 using System.Xml.Serialization;
-using CsvTools.Properties;
-using log4net;
-using Microsoft.Win32;
 using Timer = System.Timers.Timer;
 
 namespace CsvTools
