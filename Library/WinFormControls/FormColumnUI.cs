@@ -597,9 +597,11 @@ namespace CsvTools
 
         groupBoxBoolean.Visible = selType == DataType.Boolean;
         groupBoxSplit.Visible = selType == DataType.TextPart;
+
         if (groupBoxSplit.Visible)
           SetSamplePart(null, null);
-        Height = tableLayoutPanel1.Height + 30;
+
+        Height = tableLayoutPanel1.Height + 38;
       }
       catch (Exception ex)
       {
