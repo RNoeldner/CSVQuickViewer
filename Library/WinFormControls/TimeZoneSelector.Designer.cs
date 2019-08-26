@@ -52,9 +52,9 @@
       // 
       // comboBoxTimeZoneID
       // 
-      this.comboBoxTimeZoneID.Anchor = System.Windows.Forms.AnchorStyles.Left;
+      this.comboBoxTimeZoneID.Dock = System.Windows.Forms.DockStyle.Top;
       this.comboBoxTimeZoneID.FormattingEnabled = true;
-      this.comboBoxTimeZoneID.Location = new System.Drawing.Point(0, 3);
+      this.comboBoxTimeZoneID.Location = new System.Drawing.Point(0, 1);
       this.comboBoxTimeZoneID.Margin = new System.Windows.Forms.Padding(0, 1, 0, 0);
       this.comboBoxTimeZoneID.Name = "comboBoxTimeZoneID";
       this.comboBoxTimeZoneID.Size = new System.Drawing.Size(405, 21);
