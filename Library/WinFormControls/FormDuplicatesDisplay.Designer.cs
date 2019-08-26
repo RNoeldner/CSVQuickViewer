@@ -44,21 +44,20 @@
       // tableLayoutPanel1
       // 
       tableLayoutPanel1.ColumnCount = 3;
-      tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 93F));
+      tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
       tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-      tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 127F));
+      tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
       tableLayoutPanel1.Controls.Add(this.detailControl, 0, 1);
       tableLayoutPanel1.Controls.Add(label1, 0, 0);
       tableLayoutPanel1.Controls.Add(this.comboBoxID, 1, 0);
       tableLayoutPanel1.Controls.Add(this.checkBoxIgnoreNull, 2, 0);
       tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
       tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
-      tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(4);
       tableLayoutPanel1.Name = "tableLayoutPanel1";
       tableLayoutPanel1.RowCount = 2;
-      tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 31F));
+      tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
       tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-      tableLayoutPanel1.Size = new System.Drawing.Size(661, 625);
+      tableLayoutPanel1.Size = new System.Drawing.Size(441, 406);
       tableLayoutPanel1.TabIndex = 10;
       // 
       // detailControl
@@ -76,23 +75,21 @@
       dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
       this.detailControl.DefaultCellStyle = dataGridViewCellStyle2;
       this.detailControl.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.detailControl.Location = new System.Drawing.Point(5, 36);
-      this.detailControl.Margin = new System.Windows.Forms.Padding(5);
+      this.detailControl.Location = new System.Drawing.Point(3, 30);
       this.detailControl.Name = "detailControl";
       this.detailControl.ReadOnly = true;
       this.detailControl.ShowFilter = false;
       this.detailControl.ShowInfoButtons = false;
-      this.detailControl.Size = new System.Drawing.Size(651, 584);
+      this.detailControl.Size = new System.Drawing.Size(435, 373);
       this.detailControl.TabIndex = 2;
       // 
       // label1
       // 
       label1.Anchor = System.Windows.Forms.AnchorStyles.Right;
       label1.AutoSize = true;
-      label1.Location = new System.Drawing.Point(46, 5);
-      label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+      label1.Location = new System.Drawing.Point(3, 7);
       label1.Name = "label1";
-      label1.Size = new System.Drawing.Size(43, 20);
+      label1.Size = new System.Drawing.Size(29, 13);
       label1.TabIndex = 3;
       label1.Text = "Field";
       // 
@@ -101,10 +98,9 @@
       this.comboBoxID.Dock = System.Windows.Forms.DockStyle.Top;
       this.comboBoxID.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
       this.comboBoxID.FormattingEnabled = true;
-      this.comboBoxID.Location = new System.Drawing.Point(97, 4);
-      this.comboBoxID.Margin = new System.Windows.Forms.Padding(4);
+      this.comboBoxID.Location = new System.Drawing.Point(38, 3);
       this.comboBoxID.Name = "comboBoxID";
-      this.comboBoxID.Size = new System.Drawing.Size(433, 28);
+      this.comboBoxID.Size = new System.Drawing.Size(307, 21);
       this.comboBoxID.TabIndex = 0;
       this.comboBoxID.SelectedIndexChanged += new System.EventHandler(this.ComboBoxID_SelectedIndexChanged);
       // 
@@ -112,10 +108,9 @@
       // 
       this.checkBoxIgnoreNull.Anchor = System.Windows.Forms.AnchorStyles.Left;
       this.checkBoxIgnoreNull.AutoSize = true;
-      this.checkBoxIgnoreNull.Location = new System.Drawing.Point(538, 4);
-      this.checkBoxIgnoreNull.Margin = new System.Windows.Forms.Padding(4);
+      this.checkBoxIgnoreNull.Location = new System.Drawing.Point(351, 5);
       this.checkBoxIgnoreNull.Name = "checkBoxIgnoreNull";
-      this.checkBoxIgnoreNull.Size = new System.Drawing.Size(119, 23);
+      this.checkBoxIgnoreNull.Size = new System.Drawing.Size(87, 17);
       this.checkBoxIgnoreNull.TabIndex = 1;
       this.checkBoxIgnoreNull.Text = "Ignore NULL";
       this.checkBoxIgnoreNull.UseVisualStyleBackColor = true;
@@ -123,12 +118,11 @@
       // 
       // FormDuplicatesDisplay
       // 
-      this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
+      this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-      this.ClientSize = new System.Drawing.Size(661, 625);
+      this.ClientSize = new System.Drawing.Size(441, 406);
       this.Controls.Add(tableLayoutPanel1);
       this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
-      this.Margin = new System.Windows.Forms.Padding(4);
       this.Name = "FormDuplicatesDisplay";
       this.Text = "Duplicates Display";
       this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.DuplicatesDisplay_FormClosing);

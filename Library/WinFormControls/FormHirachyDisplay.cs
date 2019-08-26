@@ -533,7 +533,7 @@ namespace CsvTools
       this.m_TableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.m_TableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.m_TableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-      this.m_TableLayoutPanel1.Size = new System.Drawing.Size(449, 392);
+      this.m_TableLayoutPanel1.Size = new System.Drawing.Size(449, 361);
       this.m_TableLayoutPanel1.TabIndex = 10;
       // 
       // m_ComboBoxID
@@ -567,7 +567,7 @@ namespace CsvTools
       this.m_TreeView.Dock = System.Windows.Forms.DockStyle.Fill;
       this.m_TreeView.Location = new System.Drawing.Point(3, 110);
       this.m_TreeView.Name = "m_TreeView";
-      this.m_TreeView.Size = new System.Drawing.Size(443, 279);
+      this.m_TreeView.Size = new System.Drawing.Size(443, 248);
       this.m_TreeView.TabIndex = 9;
       // 
       // m_TextBoxValue
@@ -603,7 +603,7 @@ namespace CsvTools
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-      this.ClientSize = new System.Drawing.Size(449, 392);
+      this.ClientSize = new System.Drawing.Size(449, 361);
       this.Controls.Add(this.m_TableLayoutPanel1);
       this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
       this.MinimumSize = new System.Drawing.Size(340, 200);

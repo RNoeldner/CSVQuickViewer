@@ -16,7 +16,6 @@ namespace CsvTools
   {
     private Button m_ButtonCancel;
     private Button m_ButtonOk;
-    private FlowLayoutPanel m_FlowLayoutPanel;
     private ImageList m_ImageList;
     private TreeNode m_RootTreeNode;
     private TableLayoutPanel m_TableLayoutPanel;
@@ -269,9 +268,7 @@ namespace CsvTools
       this.m_ButtonOk = new System.Windows.Forms.Button();
       this.m_ButtonCancel = new System.Windows.Forms.Button();
       this.m_TableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
-      this.m_FlowLayoutPanel = new System.Windows.Forms.FlowLayoutPanel();
       this.m_TableLayoutPanel.SuspendLayout();
-      this.m_FlowLayoutPanel.SuspendLayout();
       this.SuspendLayout();
       // 
       // m_TxtPath
@@ -279,10 +276,11 @@ namespace CsvTools
       this.m_TxtPath.AllowDrop = true;
       this.m_TxtPath.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
       this.m_TxtPath.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.FileSystem;
-      this.m_TxtPath.Dock = System.Windows.Forms.DockStyle.Fill;
+      this.m_TableLayoutPanel.SetColumnSpan(this.m_TxtPath, 2);
+      this.m_TxtPath.Dock = System.Windows.Forms.DockStyle.Top;
       this.m_TxtPath.Location = new System.Drawing.Point(3, 3);
       this.m_TxtPath.Name = "m_TxtPath";
-      this.m_TxtPath.Size = new System.Drawing.Size(322, 26);
+      this.m_TxtPath.Size = new System.Drawing.Size(322, 20);
       this.m_TxtPath.TabIndex = 61;
       this.m_TxtPath.DragDrop += new System.Windows.Forms.DragEventHandler(this.txtPath_DragDrop);
       this.m_TxtPath.DragEnter += new System.Windows.Forms.DragEventHandler(this.txtPath_DragEnter);
@@ -292,6 +290,7 @@ namespace CsvTools
       // 
       this.m_TreeView.AllowDrop = true;
       this.m_TreeView.BackColor = System.Drawing.Color.White;
+      this.m_TableLayoutPanel.SetColumnSpan(this.m_TreeView, 2);
       this.m_TreeView.Dock = System.Windows.Forms.DockStyle.Fill;
       this.m_TreeView.ImageIndex = 0;
       this.m_TreeView.ImageList = this.m_ImageList;
@@ -300,7 +299,7 @@ namespace CsvTools
       this.m_TreeView.SelectedImageIndex = 0;
       this.m_TreeView.ShowLines = false;
       this.m_TreeView.ShowRootLines = false;
-      this.m_TreeView.Size = new System.Drawing.Size(322, 418);
+      this.m_TreeView.Size = new System.Drawing.Size(322, 433);
       this.m_TreeView.TabIndex = 59;
       this.m_TreeView.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.TreeNode_AfterSelect);
       this.m_TreeView.DragDrop += new System.Windows.Forms.DragEventHandler(this.txtPath_DragDrop);
@@ -322,10 +321,11 @@ namespace CsvTools
       // 
       // m_ButtonOk
       // 
+      this.m_ButtonOk.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
       this.m_ButtonOk.DialogResult = System.Windows.Forms.DialogResult.OK;
-      this.m_ButtonOk.Location = new System.Drawing.Point(177, 3);
+      this.m_ButtonOk.Location = new System.Drawing.Point(183, 468);
       this.m_ButtonOk.Name = "m_ButtonOk";
-      this.m_ButtonOk.Size = new System.Drawing.Size(68, 34);
+      this.m_ButtonOk.Size = new System.Drawing.Size(68, 24);
       this.m_ButtonOk.TabIndex = 62;
       this.m_ButtonOk.Text = "&OK";
       this.m_ButtonOk.UseVisualStyleBackColor = true;
@@ -334,9 +334,9 @@ namespace CsvTools
       // m_ButtonCancel
       // 
       this.m_ButtonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-      this.m_ButtonCancel.Location = new System.Drawing.Point(251, 3);
+      this.m_ButtonCancel.Location = new System.Drawing.Point(257, 468);
       this.m_ButtonCancel.Name = "m_ButtonCancel";
-      this.m_ButtonCancel.Size = new System.Drawing.Size(68, 34);
+      this.m_ButtonCancel.Size = new System.Drawing.Size(68, 24);
       this.m_ButtonCancel.TabIndex = 63;
       this.m_ButtonCancel.Text = "&Cancel";
       this.m_ButtonCancel.UseVisualStyleBackColor = true;
@@ -344,31 +344,22 @@ namespace CsvTools
       // 
       // m_TableLayoutPanel
       // 
-      this.m_TableLayoutPanel.ColumnCount = 1;
+      this.m_TableLayoutPanel.ColumnCount = 2;
       this.m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-      this.m_TableLayoutPanel.Controls.Add(this.m_FlowLayoutPanel, 0, 2);
+      this.m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+      this.m_TableLayoutPanel.Controls.Add(this.m_ButtonCancel, 1, 2);
       this.m_TableLayoutPanel.Controls.Add(this.m_TxtPath, 0, 0);
       this.m_TableLayoutPanel.Controls.Add(this.m_TreeView, 0, 1);
+      this.m_TableLayoutPanel.Controls.Add(this.m_ButtonOk, 0, 2);
       this.m_TableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
       this.m_TableLayoutPanel.Location = new System.Drawing.Point(0, 0);
       this.m_TableLayoutPanel.Name = "m_TableLayoutPanel";
       this.m_TableLayoutPanel.RowCount = 3;
-      this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 26F));
+      this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-      this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 45F));
+      this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.m_TableLayoutPanel.Size = new System.Drawing.Size(328, 495);
       this.m_TableLayoutPanel.TabIndex = 64;
-      // 
-      // m_FlowLayoutPanel
-      // 
-      this.m_FlowLayoutPanel.Controls.Add(this.m_ButtonCancel);
-      this.m_FlowLayoutPanel.Controls.Add(this.m_ButtonOk);
-      this.m_FlowLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.m_FlowLayoutPanel.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
-      this.m_FlowLayoutPanel.Location = new System.Drawing.Point(3, 453);
-      this.m_FlowLayoutPanel.Name = "m_FlowLayoutPanel";
-      this.m_FlowLayoutPanel.Size = new System.Drawing.Size(322, 39);
-      this.m_FlowLayoutPanel.TabIndex = 0;
       // 
       // FolderTree
       // 
@@ -380,7 +371,6 @@ namespace CsvTools
       this.Text = "Select Folder";
       this.m_TableLayoutPanel.ResumeLayout(false);
       this.m_TableLayoutPanel.PerformLayout();
-      this.m_FlowLayoutPanel.ResumeLayout(false);
       this.ResumeLayout(false);
 
     }
