@@ -12,7 +12,6 @@
  *
  */
 
-using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -24,6 +23,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
+using Microsoft.Win32;
 
 namespace CsvTools
 {
@@ -111,7 +111,7 @@ namespace CsvTools
           {
             var fileWriter = m_FileSetting.GetFileWriter(processDisplay);
             var hasRetried = false;
-          retry:
+            retry:
             var data = fileWriter.GetSourceDataTable(ApplicationSetting.FillGuessSettings.CheckedRecords.ToUint());
             {
               var found = new Column();
@@ -487,25 +487,47 @@ namespace CsvTools
         // Read the column headers if possible
         if (m_FileSetting == null)
         {
-          textBoxColumnName.Visible = true;
+          tableLayoutPanel1.Controls.Add(textBoxColumnName, 1, 0);
+          tableLayoutPanel1.SetColumnSpan(textBoxColumnName, 2);
         }
         else
         {
-          comboBoxColumnName.Visible = true;
+          tableLayoutPanel1.Controls.Add(comboBoxColumnName, 1, 0);
+          tableLayoutPanel1.SetColumnSpan(comboBoxColumnName, 2);
           using (var processDisplay = new FormProcessDisplay("Retrieving Information", true, m_CancellationTokenSource.Token))
           {
             ICollection<string> allColumns;
             processDisplay.Show(this);
+            allColumns = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
             try
             {
               if (!m_WriteSetting)
               {
-                // get the columns from the file
-                allColumns = ApplicationSetting.GetColumnHeader?.Invoke(m_FileSetting, true, processDisplay) ?? new List<string>();
+                // if there are ignored columns need to open file and get all columns
+                if (m_FileSetting.ColumnCollection.Any(x => x.Ignore) || ApplicationSetting.GetColumnHeader == null)
+                {
+                  using (var fileReader = m_FileSetting.GetFileReader(processDisplay))
+                  {
+                    fileReader.Open();
+                    for (var colindex = 0; colindex < fileReader.FieldCount; colindex++)
+                      allColumns.Add(fileReader.GetColumn(colindex).Name);
+                  }
+                }
+                else
+                {
+                  var cols = ApplicationSetting.GetColumnHeader.Invoke(m_FileSetting, true, processDisplay);
+                  if (cols != null)
+                  {
+                    foreach (var col in cols)
+                    {
+                      allColumns.Add(col);
+                    }
+                  }
+                }
               }
               else
               {
-                allColumns = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
                 var writer = m_FileSetting.GetFileWriter(processDisplay);
                 using (var schemaReader = writer.GetSchemaReader())
                 using (var dataTable = schemaReader.GetSchemaTable())
@@ -577,6 +599,7 @@ namespace CsvTools
         groupBoxSplit.Visible = selType == DataType.TextPart;
         if (groupBoxSplit.Visible)
           SetSamplePart(null, null);
+        Height = tableLayoutPanel1.Height + 30;
       }
       catch (Exception ex)
       {
@@ -684,7 +707,7 @@ namespace CsvTools
           csv.WarnQuotesInQuotes = false;
         }
 
-      retry:
+        retry:
         using (var fileReader = fileSettingCopy.GetFileReader(processDisplay))
         {
           fileReader.Open();
