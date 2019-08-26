@@ -1,6 +1,6 @@
-﻿using System.Diagnostics;
+﻿using log4net.Util;
+using System.Diagnostics;
 using System.IO;
-using log4net.Util;
 
 namespace CsvTools
 {

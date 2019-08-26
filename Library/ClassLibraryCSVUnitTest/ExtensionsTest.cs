@@ -243,12 +243,12 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CollectionEqualTest2()
     {
-      var l1 = new[] { 1, 1, 13, 5, 17 }.ToList();      
+      var l1 = new[] { 1, 1, 13, 5, 17 }.ToList();
       Assert.IsTrue(l1.CollectionEqual(l1));
 
       var l2 = new[] { 2, 1, 1, 13, 17 }.ToList();
       Assert.IsFalse(l1.CollectionEqual(l2));
-      
+
       l1.Add(2);
       Assert.IsFalse(l1.CollectionEqual(l2));
       l2.Add(5);

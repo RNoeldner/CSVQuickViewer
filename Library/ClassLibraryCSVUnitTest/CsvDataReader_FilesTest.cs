@@ -1350,7 +1350,7 @@ namespace CsvTools.Tests
       {
         HasFieldHeader = false,
         WarnDelimiterInValue = true
-      };      
+      };
       setting.FileFormat.FieldDelimiter = ",";
       setting.FileFormat.EscapeCharacter = "\\";
       setting.FileName = Path.Combine(m_ApplicationDirectory, "TextQualifiersWithDelimiters.txt");
@@ -1491,7 +1491,7 @@ namespace CsvTools.Tests
 
       using (var processDisplay = new DummyProcessDisplay()) using (var test = new CsvFileReader(setting, processDisplay))
       {
-        test.Open();        
+        test.Open();
         Assert.AreEqual(4, test.FieldCount);
         Assert.IsTrue(test.Read());
         Assert.AreEqual(1U, test.StartLineNumber, "LineNumber");

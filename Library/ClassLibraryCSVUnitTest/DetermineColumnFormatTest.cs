@@ -12,12 +12,12 @@
  *
  */
 
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Data;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {

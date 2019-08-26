@@ -12,10 +12,10 @@
  *
  */
 
-using System.Data;
-using System.Windows.Forms;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Pri.LongPath;
+using System.Data;
+using System.Windows.Forms;
 
 namespace CsvTools.Tests
 {

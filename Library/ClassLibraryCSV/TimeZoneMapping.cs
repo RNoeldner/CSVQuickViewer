@@ -12,11 +12,11 @@
  *
  */
 
+using NodaTime;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using NodaTime;
 
 namespace CsvTools
 {
