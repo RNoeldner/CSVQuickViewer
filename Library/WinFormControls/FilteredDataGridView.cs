@@ -1124,8 +1124,11 @@ namespace CsvTools
       {
         if (CurrentCell == null)
           return;
+
         m_Filter[m_MenuItemColumnIndex].ColumnFilterLogic
           .SetFilter(CurrentCell.Value);
+        if (!m_Filter[m_MenuItemColumnIndex].ColumnFilterLogic.Active)
+          m_Filter[m_MenuItemColumnIndex].ColumnFilterLogic.Active = true;
         ApplyFilters();
       }
       catch

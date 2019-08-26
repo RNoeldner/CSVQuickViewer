@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics.Contracts;
 using System.Globalization;
+using System.Linq;
 
 namespace CsvTools
 {
@@ -227,7 +228,7 @@ namespace CsvTools
       if (clusterDay.Count == 1)
       {
         m_Type = ValueClustersGroupType.DateHours;
-        foreach (var dic in clusterHour)
+        foreach (var dic in clusterHour.OrderBy(x => x))
         {
           if (dic != 0)
           {
@@ -257,7 +258,7 @@ namespace CsvTools
       else if (clusterDay.Count < maxNumber)
       {
         m_Type = ValueClustersGroupType.DateDay;
-        foreach (var dic in clusterDay)
+        foreach (var dic in clusterDay.OrderBy(x => x))
         {
           if (dic != DateTime.MinValue)
           {
@@ -285,7 +286,7 @@ namespace CsvTools
       else if (clusterMonth.Count < maxNumber)
       {
         m_Type = ValueClustersGroupType.DateMonth;
-        foreach (var dic in clusterMonth)
+        foreach (var dic in clusterMonth.OrderBy(x => x))
         {
           if (dic != DateTime.MinValue)
           {
@@ -313,7 +314,7 @@ namespace CsvTools
       else
       {
         m_Type = ValueClustersGroupType.DateYear;
-        foreach (var dic in clusterYear)
+        foreach (var dic in clusterYear.OrderBy(x => x))
         {
           if (dic != 0)
           {
@@ -402,7 +403,7 @@ namespace CsvTools
       if (clusterFractions.Count < maxNumber && clusterFractions.Count > 0)
       {
         m_Type = ValueClustersGroupType.NumericFraction;
-        foreach (var dic in clusterFractions)
+        foreach (var dic in clusterFractions.OrderBy(x => x))
         {
           if (Math.Abs(dic - int.MinValue) > .1)
           {
@@ -428,7 +429,7 @@ namespace CsvTools
       else if (clusterOne.Count < maxNumber)
       {
         m_Type = ValueClustersGroupType.NumericOnes;
-        foreach (var dic in clusterOne)
+        foreach (var dic in clusterOne.OrderBy(x => x))
         {
           if (dic != int.MinValue)
           {
@@ -454,7 +455,7 @@ namespace CsvTools
       else if (clusterTen.Count < maxNumber)
       {
         m_Type = ValueClustersGroupType.NumericTens;
-        foreach (var dic in clusterTen)
+        foreach (var dic in clusterTen.OrderBy(x => x))
         {
           if (dic != int.MinValue)
           {
@@ -480,7 +481,7 @@ namespace CsvTools
       else if (clusterHundered.Count < maxNumber)
       {
         m_Type = ValueClustersGroupType.NumericHundreds;
-        foreach (var dic in clusterHundered)
+        foreach (var dic in clusterHundered.OrderBy(x => x))
         {
           if (dic != int.MinValue)
           {
@@ -506,7 +507,7 @@ namespace CsvTools
       else
       {
         m_Type = ValueClustersGroupType.NumericThousands;
-        foreach (var dic in clusterThousand)
+        foreach (var dic in clusterThousand.OrderBy(x => x))
         {
           if (dic != int.MinValue)
           {
