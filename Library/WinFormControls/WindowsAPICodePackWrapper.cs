@@ -1,6 +1,6 @@
-﻿using System.Windows.Forms;
-using Microsoft.WindowsAPICodePack.Dialogs;
+﻿using Microsoft.WindowsAPICodePack.Dialogs;
 using Microsoft.WindowsAPICodePack.Taskbar;
+using System.Windows.Forms;
 
 namespace CsvTools
 {

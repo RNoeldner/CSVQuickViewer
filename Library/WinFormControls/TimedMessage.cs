@@ -32,124 +32,124 @@ namespace CsvTools
     /// </summary>
     private void InitializeComponent()
     {
-            this.components = new System.ComponentModel.Container();
-            this.button1 = new System.Windows.Forms.Button();
-            this.richTextBox = new System.Windows.Forms.RichTextBox();
-            this.label = new System.Windows.Forms.Label();
-            this.timer = new System.Windows.Forms.Timer(this.components);
-            this.button2 = new System.Windows.Forms.Button();
-            this.button3 = new System.Windows.Forms.Button();
-            this.pictureBox = new System.Windows.Forms.PictureBox();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
-            this.SuspendLayout();
-            // 
-            // button1
-            // 
-            this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.button1.Location = new System.Drawing.Point(213, 147);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(100, 32);
-            this.button1.TabIndex = 0;
-            this.button1.Text = "button1";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.Button1_Click);
-            this.button1.MouseEnter += new System.EventHandler(this.MouseEnterElement);
-            this.button1.MouseLeave += new System.EventHandler(this.MouseLeaveElement);
-            // 
-            // richTextBox
-            // 
-            this.richTextBox.BackColor = System.Drawing.SystemColors.Control;
-            this.richTextBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.richTextBox.Location = new System.Drawing.Point(71, 10);
-            this.richTextBox.Name = "richTextBox";
-            this.richTextBox.ReadOnly = true;
-            this.richTextBox.Size = new System.Drawing.Size(465, 133);
-            this.richTextBox.TabIndex = 3;
-            this.richTextBox.Text = "";
-            this.richTextBox.MouseEnter += new System.EventHandler(this.MouseEnterElement);
-            this.richTextBox.MouseLeave += new System.EventHandler(this.MouseLeaveElement);
-            // 
-            // label
-            // 
-            this.label.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.label.AutoSize = true;
-            this.label.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
-            this.label.Location = new System.Drawing.Point(3, 156);
-            this.label.Name = "label";
-            this.label.Size = new System.Drawing.Size(154, 20);
-            this.label.TabIndex = 2;
-            this.label.Text = "Default in 5 seconds";
-            // 
-            // timer
-            // 
-            this.timer.Interval = 500;
-            this.timer.Tick += new System.EventHandler(this.Timer_Tick);
-            // 
-            // button2
-            // 
-            this.button2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.button2.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.button2.Location = new System.Drawing.Point(320, 147);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(100, 32);
-            this.button2.TabIndex = 1;
-            this.button2.Text = "button2";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.Button2_Click);
-            this.button2.MouseEnter += new System.EventHandler(this.MouseEnterElement);
-            this.button2.MouseLeave += new System.EventHandler(this.MouseLeaveElement);
-            // 
-            // button3
-            // 
-            this.button3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.button3.Location = new System.Drawing.Point(428, 147);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(100, 32);
-            this.button3.TabIndex = 2;
-            this.button3.Text = "button3";
-            this.button3.UseVisualStyleBackColor = true;
-            this.button3.Click += new System.EventHandler(this.Button3_Click);
-            this.button3.MouseEnter += new System.EventHandler(this.MouseEnterElement);
-            this.button3.MouseLeave += new System.EventHandler(this.MouseLeaveElement);
-            // 
-            // pictureBox
-            // 
-            this.pictureBox.ErrorImage = null;
-            this.pictureBox.InitialImage = null;
-            this.pictureBox.Location = new System.Drawing.Point(10, 10);
-            this.pictureBox.Margin = new System.Windows.Forms.Padding(0);
-            this.pictureBox.Name = "pictureBox";
-            this.pictureBox.Size = new System.Drawing.Size(56, 56);
-            this.pictureBox.TabIndex = 4;
-            this.pictureBox.TabStop = false;
-            this.pictureBox.WaitOnLoad = true;
-            // 
-            // TimedMessage
-            // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(543, 181);
-            this.Controls.Add(this.pictureBox);
-            this.Controls.Add(this.button2);
-            this.Controls.Add(this.button3);
-            this.Controls.Add(this.button1);
-            this.Controls.Add(this.label);
-            this.Controls.Add(this.richTextBox);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
-            this.MaximizeBox = false;
-            this.MinimizeBox = false;
-            this.MinimumSize = new System.Drawing.Size(394, 112);
-            this.Name = "TimedMessage";
-            this.ShowIcon = false;
-            this.ShowInTaskbar = false;
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "Timed Message";
-            this.TopMost = true;
-            this.Paint += new System.Windows.Forms.PaintEventHandler(this.TimedMessage_Paint);
-            this.Resize += new System.EventHandler(this.TimedMessage_Resize);
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).EndInit();
-            this.ResumeLayout(false);
-            this.PerformLayout();
+      this.components = new System.ComponentModel.Container();
+      this.button1 = new System.Windows.Forms.Button();
+      this.richTextBox = new System.Windows.Forms.RichTextBox();
+      this.label = new System.Windows.Forms.Label();
+      this.timer = new System.Windows.Forms.Timer(this.components);
+      this.button2 = new System.Windows.Forms.Button();
+      this.button3 = new System.Windows.Forms.Button();
+      this.pictureBox = new System.Windows.Forms.PictureBox();
+      ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
+      this.SuspendLayout();
+      // 
+      // button1
+      // 
+      this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+      this.button1.Location = new System.Drawing.Point(213, 146);
+      this.button1.Name = "button1";
+      this.button1.Size = new System.Drawing.Size(100, 34);
+      this.button1.TabIndex = 0;
+      this.button1.Text = "button1";
+      this.button1.UseVisualStyleBackColor = true;
+      this.button1.Click += new System.EventHandler(this.Button1_Click);
+      this.button1.MouseEnter += new System.EventHandler(this.MouseEnterElement);
+      this.button1.MouseLeave += new System.EventHandler(this.MouseLeaveElement);
+      // 
+      // richTextBox
+      // 
+      this.richTextBox.BackColor = System.Drawing.SystemColors.Control;
+      this.richTextBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
+      this.richTextBox.Location = new System.Drawing.Point(71, 10);
+      this.richTextBox.Name = "richTextBox";
+      this.richTextBox.ReadOnly = true;
+      this.richTextBox.Size = new System.Drawing.Size(465, 133);
+      this.richTextBox.TabIndex = 3;
+      this.richTextBox.Text = "";
+      this.richTextBox.MouseEnter += new System.EventHandler(this.MouseEnterElement);
+      this.richTextBox.MouseLeave += new System.EventHandler(this.MouseLeaveElement);
+      // 
+      // label
+      // 
+      this.label.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+      this.label.AutoSize = true;
+      this.label.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
+      this.label.Location = new System.Drawing.Point(3, 156);
+      this.label.Name = "label";
+      this.label.Size = new System.Drawing.Size(154, 20);
+      this.label.TabIndex = 2;
+      this.label.Text = "Default in 5 seconds";
+      // 
+      // timer
+      // 
+      this.timer.Interval = 500;
+      this.timer.Tick += new System.EventHandler(this.Timer_Tick);
+      // 
+      // button2
+      // 
+      this.button2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+      this.button2.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+      this.button2.Location = new System.Drawing.Point(320, 146);
+      this.button2.Name = "button2";
+      this.button2.Size = new System.Drawing.Size(100, 34);
+      this.button2.TabIndex = 1;
+      this.button2.Text = "button2";
+      this.button2.UseVisualStyleBackColor = true;
+      this.button2.Click += new System.EventHandler(this.Button2_Click);
+      this.button2.MouseEnter += new System.EventHandler(this.MouseEnterElement);
+      this.button2.MouseLeave += new System.EventHandler(this.MouseLeaveElement);
+      // 
+      // button3
+      // 
+      this.button3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+      this.button3.Location = new System.Drawing.Point(428, 146);
+      this.button3.Name = "button3";
+      this.button3.Size = new System.Drawing.Size(100, 34);
+      this.button3.TabIndex = 2;
+      this.button3.Text = "button3";
+      this.button3.UseVisualStyleBackColor = true;
+      this.button3.Click += new System.EventHandler(this.Button3_Click);
+      this.button3.MouseEnter += new System.EventHandler(this.MouseEnterElement);
+      this.button3.MouseLeave += new System.EventHandler(this.MouseLeaveElement);
+      // 
+      // pictureBox
+      // 
+      this.pictureBox.ErrorImage = null;
+      this.pictureBox.InitialImage = null;
+      this.pictureBox.Location = new System.Drawing.Point(10, 10);
+      this.pictureBox.Margin = new System.Windows.Forms.Padding(0);
+      this.pictureBox.Name = "pictureBox";
+      this.pictureBox.Size = new System.Drawing.Size(56, 56);
+      this.pictureBox.TabIndex = 4;
+      this.pictureBox.TabStop = false;
+      this.pictureBox.WaitOnLoad = true;
+      // 
+      // TimedMessage
+      // 
+      this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
+      this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+      this.ClientSize = new System.Drawing.Size(543, 181);
+      this.Controls.Add(this.pictureBox);
+      this.Controls.Add(this.button2);
+      this.Controls.Add(this.button3);
+      this.Controls.Add(this.button1);
+      this.Controls.Add(this.label);
+      this.Controls.Add(this.richTextBox);
+      this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
+      this.MaximizeBox = false;
+      this.MinimizeBox = false;
+      this.MinimumSize = new System.Drawing.Size(394, 112);
+      this.Name = "TimedMessage";
+      this.ShowIcon = false;
+      this.ShowInTaskbar = false;
+      this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
+      this.Text = "Timed Message";
+      this.TopMost = true;
+      this.Paint += new System.Windows.Forms.PaintEventHandler(this.TimedMessage_Paint);
+      this.Resize += new System.EventHandler(this.TimedMessage_Resize);
+      ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).EndInit();
+      this.ResumeLayout(false);
+      this.PerformLayout();
 
     }
 

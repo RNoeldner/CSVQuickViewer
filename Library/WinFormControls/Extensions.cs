@@ -12,6 +12,8 @@
  *
  */
 
+using log4net;
+using Pri.LongPath;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -19,8 +21,6 @@ using System.Drawing;
 using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
-using log4net;
-using Pri.LongPath;
 
 namespace CsvTools
 {
@@ -163,7 +163,7 @@ namespace CsvTools
 
       if (diagRes == DialogResult.Yes)
       {
-        retry:
+      retry:
         try
         {
           File.Delete(fileName);

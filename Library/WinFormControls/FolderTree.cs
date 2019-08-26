@@ -15,17 +15,13 @@ namespace CsvTools
   public class FolderTree : Form
   {
     private Button m_ButtonCancel;
-
     private Button m_ButtonOk;
-
-    //ListViewItem comunalItem;
-    private IContainer components;
-
     private FlowLayoutPanel m_FlowLayoutPanel;
     private ImageList m_ImageList;
     private TreeNode m_RootTreeNode;
     private TableLayoutPanel m_TableLayoutPanel;
     private TreeView m_TreeView;
+    private IContainer components;
     private TextBox m_TxtPath;
 
     /// <summary>
@@ -304,7 +300,7 @@ namespace CsvTools
       this.m_TreeView.SelectedImageIndex = 0;
       this.m_TreeView.ShowLines = false;
       this.m_TreeView.ShowRootLines = false;
-      this.m_TreeView.Size = new System.Drawing.Size(322, 402);
+      this.m_TreeView.Size = new System.Drawing.Size(322, 418);
       this.m_TreeView.TabIndex = 59;
       this.m_TreeView.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.TreeNode_AfterSelect);
       this.m_TreeView.DragDrop += new System.Windows.Forms.DragEventHandler(this.txtPath_DragDrop);
@@ -329,7 +325,7 @@ namespace CsvTools
       this.m_ButtonOk.DialogResult = System.Windows.Forms.DialogResult.OK;
       this.m_ButtonOk.Location = new System.Drawing.Point(177, 3);
       this.m_ButtonOk.Name = "m_ButtonOk";
-      this.m_ButtonOk.Size = new System.Drawing.Size(68, 28);
+      this.m_ButtonOk.Size = new System.Drawing.Size(68, 34);
       this.m_ButtonOk.TabIndex = 62;
       this.m_ButtonOk.Text = "&OK";
       this.m_ButtonOk.UseVisualStyleBackColor = true;
@@ -340,7 +336,7 @@ namespace CsvTools
       this.m_ButtonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
       this.m_ButtonCancel.Location = new System.Drawing.Point(251, 3);
       this.m_ButtonCancel.Name = "m_ButtonCancel";
-      this.m_ButtonCancel.Size = new System.Drawing.Size(68, 28);
+      this.m_ButtonCancel.Size = new System.Drawing.Size(68, 34);
       this.m_ButtonCancel.TabIndex = 63;
       this.m_ButtonCancel.Text = "&Cancel";
       this.m_ButtonCancel.UseVisualStyleBackColor = true;
@@ -359,8 +355,8 @@ namespace CsvTools
       this.m_TableLayoutPanel.RowCount = 3;
       this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 26F));
       this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-      this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 37F));
-      this.m_TableLayoutPanel.Size = new System.Drawing.Size(328, 471);
+      this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 45F));
+      this.m_TableLayoutPanel.Size = new System.Drawing.Size(328, 495);
       this.m_TableLayoutPanel.TabIndex = 64;
       // 
       // m_FlowLayoutPanel
@@ -369,15 +365,15 @@ namespace CsvTools
       this.m_FlowLayoutPanel.Controls.Add(this.m_ButtonOk);
       this.m_FlowLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
       this.m_FlowLayoutPanel.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
-      this.m_FlowLayoutPanel.Location = new System.Drawing.Point(3, 437);
+      this.m_FlowLayoutPanel.Location = new System.Drawing.Point(3, 453);
       this.m_FlowLayoutPanel.Name = "m_FlowLayoutPanel";
-      this.m_FlowLayoutPanel.Size = new System.Drawing.Size(322, 31);
+      this.m_FlowLayoutPanel.Size = new System.Drawing.Size(322, 39);
       this.m_FlowLayoutPanel.TabIndex = 0;
       // 
       // FolderTree
       // 
       this.BackColor = System.Drawing.SystemColors.Control;
-      this.ClientSize = new System.Drawing.Size(328, 471);
+      this.ClientSize = new System.Drawing.Size(328, 495);
       this.Controls.Add(this.m_TableLayoutPanel);
       this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
       this.Name = "FolderTree";
