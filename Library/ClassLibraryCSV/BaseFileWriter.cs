@@ -98,21 +98,30 @@ namespace CsvTools
           foreach (DataRow schemaRow in dataTable.Rows)
           {
             var timeZonePartOrdinal = -1;
+            var constTimeZone = string.Empty;
             var col = m_FileSetting.ColumnCollection.Get(schemaRow[SchemaTableColumn.ColumnName].ToString());
             if (!string.IsNullOrEmpty(col?.TimeZonePart))
-              foreach (DataRow schemaRowTz in dataTable.Rows)
+            {
+              if (col.TimeZonePart.Length > 2 && col.TimeZonePart.StartsWith("\"", StringComparison.Ordinal) && col.TimeZonePart.EndsWith("\"", StringComparison.Ordinal))
               {
-                var otherColumnName = schemaRowTz[SchemaTableColumn.ColumnName].ToString();
-                if (!otherColumnName.Equals(col.TimeZonePart, StringComparison.OrdinalIgnoreCase))
-                  continue;
-                timeZonePartOrdinal = (int)schemaRowTz[SchemaTableColumn.ColumnOrdinal];
-                break;
+                constTimeZone = col.TimeZonePart.Substring(1, col.TimeZonePart.Length - 2);
               }
-
+              else
+              {
+                foreach (DataRow schemaRowTz in dataTable.Rows)
+                {
+                  var otherColumnName = schemaRowTz[SchemaTableColumn.ColumnName].ToString();
+                  if (!otherColumnName.Equals(col.TimeZonePart, StringComparison.OrdinalIgnoreCase))
+                    continue;
+                  timeZonePartOrdinal = (int)schemaRowTz[SchemaTableColumn.ColumnOrdinal];
+                  break;
+                }
+              }
+            }
             fieldInfoList.AddRange(GetColumnInformationForOneColumn(m_FileSetting, headers,
              schemaRow[SchemaTableColumn.ColumnName].ToString(), (Type)schemaRow[SchemaTableColumn.DataType],
              (int)schemaRow[SchemaTableColumn.ColumnOrdinal], (int)schemaRow[SchemaTableColumn.ColumnSize], allColumns,
-             timeZonePartOrdinal));
+             timeZonePartOrdinal, constTimeZone));
           }
         }
         else
@@ -122,7 +131,7 @@ namespace CsvTools
           // Its a data table retrieve information from columns
           foreach (DataColumn col in dataTable.Columns)
             fieldInfoList.AddRange(GetColumnInformationForOneColumn(m_FileSetting, headers,
-             col.ColumnName, col.DataType, col.Ordinal, col.MaxLength, allColumns, -1));
+             col.ColumnName, col.DataType, col.Ordinal, col.MaxLength, allColumns, -1, string.Empty));
         }
       }
       return fieldInfoList;
@@ -279,6 +288,17 @@ namespace CsvTools
           {
             HandleWarning(columnInfo.Header, ex.Message);
           }
+        }
+      }
+      else if (columnInfo.ConstantTimeZone.Length > 0)
+      {
+        try
+        {
+          return TimeZoneMapping.ConvertTime(dataObject, columnInfo.ConstantTimeZone, ApplicationSetting.DestinationTimeZone);
+        }
+        catch (ConversionException ex)
+        {
+          HandleWarning(columnInfo.Header, ex.Message);
         }
       }
       return dataObject;
@@ -442,7 +462,7 @@ namespace CsvTools
     /// </returns>
     private static IEnumerable<ColumnInfo> GetColumnInformationForOneColumn(IFileSetting writerFileSetting,
     ICollection<string> headers, string columnName, Type columnDataType,
-   int columnOrdinal, int columnSize, ICollection<string> columns, int columnOridinalTimeZoneReader)
+   int columnOrdinal, int columnSize, ICollection<string> columns, int columnOridinalTimeZoneReader, string constantTimeZone)
     {
       Contract.Requires(headers != null);
 
@@ -458,6 +478,7 @@ namespace CsvTools
         Header = GetUniqueFieldName(headers, columnName),
         ColumnOridinalReader = columnOrdinal,
         ColumnOridinalTimeZoneReader = columnOridinalTimeZoneReader,
+        ConstantTimeZone = constantTimeZone,
         Column = columnFormat,
         FieldLength = GetFieldLength(dataType, columnSize, valueFormat),
         ValueFormat = valueFormat,

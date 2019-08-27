@@ -1343,7 +1343,7 @@ namespace CsvTools
         return null;
       string timeZone = null;
       // Constant value
-      if (column.TimeZonePart.StartsWith("\"", StringComparison.Ordinal) &&
+      if (column.TimeZonePart.Length > 2 && column.TimeZonePart.StartsWith("\"", StringComparison.Ordinal) &&
         column.TimeZonePart.EndsWith("\"", StringComparison.Ordinal))
       {
         timeZone = column.TimeZonePart.Substring(1, column.TimeZonePart.Length - 2);
