@@ -55,6 +55,16 @@ namespace CsvTools
       m_WriteSetting = writeSetting;
 
       InitializeComponent();
+
+      var source = ApplicationSetting.DestinationTimeZone;
+      if (source == TimeZoneMapping.cIdLocal)
+        source = "the local time zone of you system";
+
+      if (!m_WriteSetting)
+        toolTip.SetToolTip(comboBoxTimeZone, $"Assuming the time read is based in the time zone stored in this column or a constant value and being converted to {source}");
+      else
+        toolTip.SetToolTip(comboBoxTimeZone, $"Converting the time in {source} to the time zone in this column or a constant value");
+
       labelDisplayNullAs.Visible = writeSetting;
       textBoxDisplayNullAs.Visible = writeSetting;
     }
@@ -478,7 +488,6 @@ namespace CsvTools
       {
         if (m_WriteSetting)
           labelAllowedDateFormats.Text = "Date Format:";
-        Height = 307 - checkBoxIgnore.Height;
         Extensions.ProcessUIElements();
 
         columnBindingSource.DataSource = m_ColumnEdit;
@@ -487,13 +496,12 @@ namespace CsvTools
         // Read the column headers if possible
         if (m_FileSetting == null)
         {
-          tableLayoutPanel1.Controls.Add(textBoxColumnName, 1, 0);
-          tableLayoutPanel1.SetColumnSpan(textBoxColumnName, 2);
+          tableLayoutPanelForm.Controls.Remove(comboBoxColumnName);
+          tableLayoutPanelForm.Controls.Add(textBoxColumnName, 1, 0);
+          tableLayoutPanelForm.SetColumnSpan(textBoxColumnName, 2);
         }
         else
         {
-          tableLayoutPanel1.Controls.Add(comboBoxColumnName, 1, 0);
-          tableLayoutPanel1.SetColumnSpan(comboBoxColumnName, 2);
           using (var processDisplay = new FormProcessDisplay("Retrieving Information", true, m_CancellationTokenSource.Token))
           {
             ICollection<string> allColumns;
@@ -601,7 +609,8 @@ namespace CsvTools
         if (groupBoxSplit.Visible)
           SetSamplePart(null, null);
 
-        Height = tableLayoutPanel1.Height + 38;
+        //TODO: depening on OS and scaling a different value might be needed
+        Height = tableLayoutPanelForm.Height + SystemInformation.CaptionHeight + 8;
       }
       catch (Exception ex)
       {
@@ -633,26 +642,32 @@ namespace CsvTools
         toolTip.SetToolTip(textBoxDateSeparator, FileFormat.GetDescription(vf.DateSeparator));
         toolTip.SetToolTip(textBoxTimeSeparator, FileFormat.GetDescription(vf.TimeSeparator));
 
-        var sample =
-          StringConversion.DateTimeToString(new DateTime(2013, 4, 7, 15, 45, 50, 345, DateTimeKind.Local), vf);
-        string sampleTime = null;
-        labelSample.Text = $"Input: \"{sample}\"";
-        if (hasTimePart)
+        var sourceDate = new DateTime(2013, 4, 7, 15, 45, 50, 345, DateTimeKind.Local);
+
+        if (hasTimePart && vf.DateFormat.IndexOfAny(new char[] { 'h', 'H', 'm', 'S', 's' }) == -1)
+          vf.DateFormat += " " + comboBoxTPFormat.Text;
+
+        labelSampleDisplay.Text = StringConversion.DateTimeToString(sourceDate, vf);
+
+        if (comboBoxTimeZone.Text.Length > 2 && comboBoxTimeZone.Text.StartsWith("\"", StringComparison.Ordinal) && comboBoxTimeZone.Text.EndsWith("\"", StringComparison.Ordinal))
         {
-          var vfTime = new ValueFormat
-          {
-            DateFormat = comboBoxTPFormat.Text,
-            DateSeparator = textBoxDateSeparator.Text,
-            TimeSeparator = textBoxTimeSeparator.Text
-          };
+          var destTz = TimeZoneMapping.cIdLocal;
+          var srcTz = TimeZoneMapping.cIdLocal;
+          if (m_WriteSetting)
+            srcTz = comboBoxTimeZone.Text.Substring(1, comboBoxTimeZone.Text.Length - 2);
+          else
+            destTz = comboBoxTimeZone.Text.Substring(1, comboBoxTimeZone.Text.Length - 2);
 
-          sampleTime =
-            StringConversion.DateTimeToString(new DateTime(2013, 4, 7, 15, 45, 50, 345, DateTimeKind.Local), vfTime);
-          labelSample.Text += $" + \"{sampleTime}\"";
+          labelInputTZ.Text = srcTz;
+          labelOutPutTZ.Text = destTz;
+          sourceDate = sourceDate.ConvertTime(srcTz, destTz);
         }
-
-        labelDateOutput.Text =
-          $"Output: \"{StringConversion.DisplayDateTime(StringConversion.CombineStringsToDateTime(sample, vf.DateFormat, sampleTime, vf.DateSeparator, vf.TimeSeparator, false).Value, CultureInfo.CurrentCulture)}\"";
+        else
+        {
+          labelInputTZ.Text = string.Empty;
+          labelOutPutTZ.Text = string.Empty;
+        }
+        labelDateOutputDisplay.Text = StringConversion.DisplayDateTime(sourceDate, CultureInfo.CurrentCulture);
       }
       catch (Exception ex)
       {
@@ -967,6 +982,14 @@ namespace CsvTools
       comboBoxColumnName.EndUpdate();
 
       RefreshData();
+    }
+
+    private void labelDateSep_Click(object sender, EventArgs e)
+    {
+    }
+
+    private void label4_Click(object sender, EventArgs e)
+    {
     }
   }
 }

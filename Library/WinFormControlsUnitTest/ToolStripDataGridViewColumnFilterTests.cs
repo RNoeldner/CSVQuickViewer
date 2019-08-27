@@ -12,9 +12,9 @@
  *
  */
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Data;
 using System.Windows.Forms;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
@@ -34,6 +34,12 @@ namespace CsvTools.Tests
           DataPropertyName = "int"
         };
         var test = new ToolStripDataGridViewColumnFilter(typeof(int), col);
+        Assert.AreEqual(false, test.ColumnFilterLogic.Active);
+        test.ColumnFilterLogic.Active = true;
+        Assert.AreEqual(false, test.ColumnFilterLogic.Active);
+        test.ColumnFilterLogic.Operator = "=";
+        test.ColumnFilterLogic.ValueText = "2";
+        test.ColumnFilterLogic.Active = true;
         Assert.AreEqual(true, test.ColumnFilterLogic.Active);
       }
     }

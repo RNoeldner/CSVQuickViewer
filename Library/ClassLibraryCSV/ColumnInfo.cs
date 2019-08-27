@@ -36,6 +36,8 @@ namespace CsvTools
 
     public int ColumnOridinalTimeZoneReader { get; set; } = -1;
 
+    public string ConstantTimeZone { get; set; } = string.Empty;
+
     /// <summary>
     ///   Gets or sets the type of the data.
     /// </summary>

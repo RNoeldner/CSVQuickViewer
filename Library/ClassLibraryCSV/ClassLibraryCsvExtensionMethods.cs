@@ -330,6 +330,9 @@ namespace CsvTools
       Contract.Requires(exception != null);
       Contract.Ensures(Contract.Result<string>() != null);
       var mainMessage = exception.Message;
+      if (exception.InnerException == null)
+        return mainMessage;
+
       var innerMessage = exception.InnerExceptionMessages(maxDepth - 1);
       if (string.IsNullOrEmpty(innerMessage))
         return mainMessage;
