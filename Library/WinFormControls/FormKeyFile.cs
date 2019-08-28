@@ -96,10 +96,9 @@ namespace CsvTools
       this.m_BtnOk.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
       this.m_BtnOk.AutoSize = true;
       this.m_BtnOk.DialogResult = System.Windows.Forms.DialogResult.OK;
-      this.m_BtnOk.Location = new System.Drawing.Point(319, 302);
-      this.m_BtnOk.Margin = new System.Windows.Forms.Padding(2);
+      this.m_BtnOk.Location = new System.Drawing.Point(467, 468);
       this.m_BtnOk.Name = "m_BtnOk";
-      this.m_BtnOk.Size = new System.Drawing.Size(61, 24);
+      this.m_BtnOk.Size = new System.Drawing.Size(92, 34);
       this.m_BtnOk.TabIndex = 0;
       this.m_BtnOk.Text = "&OK";
       this.m_BtnOk.Click += new System.EventHandler(this.BtnOK_Click);
@@ -110,12 +109,11 @@ namespace CsvTools
       this.textBox.AllowDrop = true;
       this.tableLayoutPanel1.SetColumnSpan(this.textBox, 3);
       this.textBox.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.textBox.Location = new System.Drawing.Point(2, 2);
-      this.textBox.Margin = new System.Windows.Forms.Padding(2);
+      this.textBox.Location = new System.Drawing.Point(3, 3);
       this.textBox.Multiline = true;
       this.textBox.Name = "textBox";
       this.textBox.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-      this.textBox.Size = new System.Drawing.Size(443, 296);
+      this.textBox.Size = new System.Drawing.Size(664, 459);
       this.textBox.TabIndex = 1;
       this.textBox.DragDrop += new System.Windows.Forms.DragEventHandler(this.TextBox_DragDrop);
       this.textBox.DragEnter += new System.Windows.Forms.DragEventHandler(this.TextBox_DragEnter);
@@ -127,10 +125,9 @@ namespace CsvTools
       this.m_BtnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
       this.m_BtnCancel.AutoSize = true;
       this.m_BtnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-      this.m_BtnCancel.Location = new System.Drawing.Point(384, 302);
-      this.m_BtnCancel.Margin = new System.Windows.Forms.Padding(2);
+      this.m_BtnCancel.Location = new System.Drawing.Point(565, 468);
       this.m_BtnCancel.Name = "m_BtnCancel";
-      this.m_BtnCancel.Size = new System.Drawing.Size(61, 24);
+      this.m_BtnCancel.Size = new System.Drawing.Size(102, 34);
       this.m_BtnCancel.TabIndex = 4;
       this.m_BtnCancel.Text = "&Cancel";
       this.m_BtnCancel.Click += new System.EventHandler(this.BtnCancel_Click);
@@ -139,10 +136,9 @@ namespace CsvTools
       // 
       this.m_Label1.Anchor = System.Windows.Forms.AnchorStyles.Left;
       this.m_Label1.AutoSize = true;
-      this.m_Label1.Location = new System.Drawing.Point(2, 307);
-      this.m_Label1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+      this.m_Label1.Location = new System.Drawing.Point(3, 475);
       this.m_Label1.Name = "m_Label1";
-      this.m_Label1.Size = new System.Drawing.Size(144, 13);
+      this.m_Label1.Size = new System.Drawing.Size(214, 20);
       this.m_Label1.TabIndex = 5;
       this.m_Label1.Text = "(The text is stored encrypted)";
       // 
@@ -158,27 +154,25 @@ namespace CsvTools
       this.tableLayoutPanel1.Controls.Add(this.m_BtnCancel, 2, 1);
       this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
       this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
-      this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(2);
       this.tableLayoutPanel1.Name = "tableLayoutPanel1";
       this.tableLayoutPanel1.RowCount = 2;
       this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
       this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.tableLayoutPanel1.Size = new System.Drawing.Size(447, 328);
+      this.tableLayoutPanel1.Size = new System.Drawing.Size(670, 505);
       this.tableLayoutPanel1.TabIndex = 7;
       // 
       // FormKeyFile
       // 
       this.AcceptButton = this.m_BtnOk;
-      this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+      this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.CancelButton = this.m_BtnCancel;
-      this.ClientSize = new System.Drawing.Size(447, 328);
+      this.ClientSize = new System.Drawing.Size(670, 505);
       this.ControlBox = false;
       this.Controls.Add(this.tableLayoutPanel1);
       this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
-      this.Margin = new System.Windows.Forms.Padding(2);
-      this.MaximumSize = new System.Drawing.Size(692, 493);
-      this.MinimumSize = new System.Drawing.Size(373, 193);
+      this.MaximumSize = new System.Drawing.Size(1027, 747);
+      this.MinimumSize = new System.Drawing.Size(548, 285);
       this.Name = "FormKeyFile";
       this.ShowIcon = false;
       this.TopMost = true;

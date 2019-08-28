@@ -46,10 +46,9 @@ namespace CsvTools
       // button1
       // 
       this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-      this.button1.Location = new System.Drawing.Point(142, 93);
-      this.button1.Margin = new System.Windows.Forms.Padding(2);
+      this.button1.Location = new System.Drawing.Point(213, 143);
       this.button1.Name = "button1";
-      this.button1.Size = new System.Drawing.Size(67, 24);
+      this.button1.Size = new System.Drawing.Size(100, 34);
       this.button1.TabIndex = 0;
       this.button1.Text = "button1";
       this.button1.UseVisualStyleBackColor = true;
@@ -61,11 +60,10 @@ namespace CsvTools
       // 
       this.richTextBox.BackColor = System.Drawing.SystemColors.Control;
       this.richTextBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
-      this.richTextBox.Location = new System.Drawing.Point(47, 6);
-      this.richTextBox.Margin = new System.Windows.Forms.Padding(2);
+      this.richTextBox.Location = new System.Drawing.Point(70, 9);
       this.richTextBox.Name = "richTextBox";
       this.richTextBox.ReadOnly = true;
-      this.richTextBox.Size = new System.Drawing.Size(310, 86);
+      this.richTextBox.Size = new System.Drawing.Size(465, 132);
       this.richTextBox.TabIndex = 3;
       this.richTextBox.Text = "";
       this.richTextBox.MouseEnter += new System.EventHandler(this.MouseEnterElement);
@@ -76,10 +74,9 @@ namespace CsvTools
       this.label.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
       this.label.AutoSize = true;
       this.label.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
-      this.label.Location = new System.Drawing.Point(4, 99);
-      this.label.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+      this.label.Location = new System.Drawing.Point(6, 152);
       this.label.Name = "label";
-      this.label.Size = new System.Drawing.Size(104, 13);
+      this.label.Size = new System.Drawing.Size(154, 20);
       this.label.TabIndex = 2;
       this.label.Text = "Default in 5 seconds";
       // 
@@ -92,10 +89,9 @@ namespace CsvTools
       // 
       this.button2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
       this.button2.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-      this.button2.Location = new System.Drawing.Point(213, 93);
-      this.button2.Margin = new System.Windows.Forms.Padding(2);
+      this.button2.Location = new System.Drawing.Point(320, 143);
       this.button2.Name = "button2";
-      this.button2.Size = new System.Drawing.Size(67, 24);
+      this.button2.Size = new System.Drawing.Size(100, 34);
       this.button2.TabIndex = 1;
       this.button2.Text = "button2";
       this.button2.UseVisualStyleBackColor = true;
@@ -106,10 +102,9 @@ namespace CsvTools
       // button3
       // 
       this.button3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-      this.button3.Location = new System.Drawing.Point(285, 93);
-      this.button3.Margin = new System.Windows.Forms.Padding(2);
+      this.button3.Location = new System.Drawing.Point(428, 143);
       this.button3.Name = "button3";
-      this.button3.Size = new System.Drawing.Size(67, 24);
+      this.button3.Size = new System.Drawing.Size(100, 34);
       this.button3.TabIndex = 2;
       this.button3.Text = "button3";
       this.button3.UseVisualStyleBackColor = true;
@@ -121,19 +116,19 @@ namespace CsvTools
       // 
       this.pictureBox.ErrorImage = null;
       this.pictureBox.InitialImage = null;
-      this.pictureBox.Location = new System.Drawing.Point(7, 6);
+      this.pictureBox.Location = new System.Drawing.Point(10, 9);
       this.pictureBox.Margin = new System.Windows.Forms.Padding(0);
       this.pictureBox.Name = "pictureBox";
-      this.pictureBox.Size = new System.Drawing.Size(37, 36);
+      this.pictureBox.Size = new System.Drawing.Size(56, 55);
       this.pictureBox.TabIndex = 4;
       this.pictureBox.TabStop = false;
       this.pictureBox.WaitOnLoad = true;
       // 
       // TimedMessage
       // 
-      this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+      this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-      this.ClientSize = new System.Drawing.Size(362, 118);
+      this.ClientSize = new System.Drawing.Size(543, 182);
       this.Controls.Add(this.pictureBox);
       this.Controls.Add(this.button2);
       this.Controls.Add(this.button3);
@@ -141,10 +136,9 @@ namespace CsvTools
       this.Controls.Add(this.label);
       this.Controls.Add(this.richTextBox);
       this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
-      this.Margin = new System.Windows.Forms.Padding(2);
       this.MaximizeBox = false;
       this.MinimizeBox = false;
-      this.MinimumSize = new System.Drawing.Size(265, 84);
+      this.MinimumSize = new System.Drawing.Size(386, 99);
       this.Name = "TimedMessage";
       this.ShowIcon = false;
       this.ShowInTaskbar = false;
