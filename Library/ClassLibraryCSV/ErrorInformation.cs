@@ -239,7 +239,7 @@ namespace CsvTools
       // In case we have a column name in front we have to look into the middle of the string
       // We only look at the first entry, assuming error would be sorted into the front
       var splitter = errorList.IndexOf(c_ClosingField);
-      if (splitter != -1)
+      if (splitter != -1 && errorList.Length - 2 > splitter)
         return errorList.Substring(splitter + 2).StartsWith(c_WarningId, StringComparison.Ordinal);
 
       return false;
