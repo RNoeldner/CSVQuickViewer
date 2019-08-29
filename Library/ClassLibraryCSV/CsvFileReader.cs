@@ -280,7 +280,7 @@ namespace CsvTools
           ParseColumnName(m_HeaderRow);
         }
 
-        if (m_CsvFile.TryToSolveMoreColumns && m_CsvFile.FileFormat.FieldQualifierChar != '\0')
+        if (m_CsvFile.TryToSolveMoreColumns && m_CsvFile.FileFormat.FieldDelimiterChar != '\0')
           m_RealignColumns = new ReAlignColumns(FieldCount);
 
         base.FinishOpen();
@@ -392,7 +392,7 @@ namespace CsvTools
     /// </returns>
     private bool GetNextRecord()
     {
-    Restart:
+      Restart:
       CurrentRowColumnText = ReadNextRow(true, true);
 
       if (!AllEmptyAndCountConsecutiveEmptyRows(CurrentRowColumnText))
@@ -415,8 +415,9 @@ namespace CsvTools
           RecordNumber++;
         }
       }
+
       var hasWarningCombinedWrning = false;
-    Restart2:
+      Restart2:
       var rowLength = CurrentRowColumnText.Length;
       if (rowLength == FieldCount)
       {
@@ -451,6 +452,7 @@ namespace CsvTools
           HandleWarning(-1, $"Last line {StartLineNumber}{cLessColumns}. Assumed to be a EOF marker and ignored.");
           return false;
         }
+
         if (!m_CsvFile.AllowRowCombining)
         {
           HandleWarning(-1, $"Line {StartLineNumber}{cLessColumns} ({rowLength}/{FieldCount}).");
@@ -508,7 +510,7 @@ namespace CsvTools
       {
         // check if the additional columns have contents
         var hasContens = false;
-        for (var extraCol = FieldCount + 1; extraCol < rowLength; extraCol++)
+        for (var extraCol = FieldCount; extraCol < rowLength; extraCol++)
         {
           if (string.IsNullOrEmpty(CurrentRowColumnText[extraCol]))
             continue;
@@ -890,7 +892,7 @@ namespace CsvTools
     /// </returns>
     private string[] ReadNextRow(bool regularDataRow, bool storeWarnings)
     {
-    Restart:
+      Restart:
       // Store the starting Line Number
       StartLineNumber = EndLineNumber;
 
