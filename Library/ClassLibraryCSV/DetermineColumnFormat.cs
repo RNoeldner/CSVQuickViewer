@@ -114,12 +114,20 @@ namespace CsvTools
 
           var newColumn = fileReader.GetColumn(colindex);
           Contract.Assume(newColumn != null);
+
           columnNamesInFile.Add(newColumn.Name);
+
           var oldColumn = fileSetting.ColumnCollection.Get(newColumn.Name);
 
           processDisplay.SetProcess(newColumn.Name + " – Getting values", colindex);
 
           var detect = !(ApplicationSetting.FillGuessSettings.IgnoreIdColums && StringUtils.AssumeIDColumn(newColumn.Name) > 0);
+          if (BaseFileReader.cStartLineNumberFieldName.Equals(newColumn.Name, StringComparison.OrdinalIgnoreCase) || BaseFileReader.cErrorField.Equals(newColumn.Name, StringComparison.OrdinalIgnoreCase))
+          {
+            processDisplay.SetProcess(newColumn.Name + " – Reserved columns ignored", colindex);
+            newColumn.Ignore = true;
+            fileSetting.ColumnCollection.AddIfNew(newColumn);
+          }
 
           if (!detect)
           {

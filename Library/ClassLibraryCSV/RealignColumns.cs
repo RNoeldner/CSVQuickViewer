@@ -95,8 +95,15 @@ namespace CsvTools
             // assume we have to remove this columns
             if (!thisCol.HasFlag(otherColumns[col]) || (thisCol == ColumnOption.None && thisCol == otherColumns[col - 1]))
             {
-              columns[col - 1] = columns[col - 1] + " " + columns[col];
-              handleWarning(col - 1, "Extra information from in next column has been appended, assuming the data was misaligned.");
+              if (!string.IsNullOrEmpty(columns[col]))
+              {
+                columns[col - 1] = columns[col - 1] + " " + columns[col];
+                handleWarning(col - 1, "Extra information from in next column has been appended, assuming the data was misaligned.");
+              }
+              else
+              {
+                handleWarning(col, "Empty column has been removed, assuming the data was misaligned.");
+              }
 
               // we remove this data to allow realign
               columns.RemoveAt(col);
@@ -123,9 +130,9 @@ namespace CsvTools
       {
         if (all.HasFlag(ColumnOption.NumbersOnly) && "0123456789".IndexOf(c) == -1)
           all &= ~ColumnOption.NumbersOnly;
-        if (all.HasFlag(ColumnOption.DecimalChars) && ".,-+ ".IndexOf(c) == -1)
+        if (all.HasFlag(ColumnOption.DecimalChars) && ".,-+ 0123456789".IndexOf(c) == -1)
           all &= ~ColumnOption.DecimalChars;
-        if (all.HasFlag(ColumnOption.DateTimeChars) && ":/\\.-T ".IndexOf(c) == -1)
+        if (all.HasFlag(ColumnOption.DateTimeChars) && ":/\\.-T 0123456789".IndexOf(c) == -1)
           all &= ~ColumnOption.DateTimeChars;
         if (all.HasFlag(ColumnOption.Word) && (c < 32 || c > 125))
           all &= ~ColumnOption.Word;
