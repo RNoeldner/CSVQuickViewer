@@ -52,15 +52,16 @@
       System.Windows.Forms.LinkLabel linkLabelRegion;
       System.Windows.Forms.Label label4;
       System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
-      this.comboBoxTimeZone = new System.Windows.Forms.ComboBox();
-      this.columnBindingSource = new System.Windows.Forms.BindingSource(this.components);
-      this.comboBoxTimePart = new System.Windows.Forms.ComboBox();
-      this.buttonAddFormat = new System.Windows.Forms.Button();
-      this.checkedListBoxDateFormats = new System.Windows.Forms.CheckedListBox();
-      this.comboBoxDateFormat = new System.Windows.Forms.ComboBox();
+      System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormColumnUI));
       this.textBoxDateSeparator = new System.Windows.Forms.TextBox();
+      this.columnBindingSource = new System.Windows.Forms.BindingSource(this.components);
+      this.comboBoxDateFormat = new System.Windows.Forms.ComboBox();
+      this.buttonAddFormat = new System.Windows.Forms.Button();
       this.labelAllowedDateFormats = new System.Windows.Forms.Label();
+      this.checkedListBoxDateFormats = new System.Windows.Forms.CheckedListBox();
+      this.comboBoxTimePart = new System.Windows.Forms.ComboBox();
       this.textBoxTimeSeparator = new System.Windows.Forms.TextBox();
+      this.comboBoxTimeZone = new System.Windows.Forms.ComboBox();
       this.label5 = new System.Windows.Forms.Label();
       this.labelSampleDisplay = new System.Windows.Forms.Label();
       this.labelDateOutputDisplay = new System.Windows.Forms.Label();
@@ -185,7 +186,7 @@
       labelTimeSep.Anchor = System.Windows.Forms.AnchorStyles.Right;
       labelTimeSep.AutoSize = true;
       labelTimeSep.Location = new System.Drawing.Point(243, 8);
-      labelTimeSep.Margin = new System.Windows.Forms.Padding(3, 3, 3, 3);
+      labelTimeSep.Margin = new System.Windows.Forms.Padding(3);
       labelTimeSep.Name = "labelTimeSep";
       labelTimeSep.Size = new System.Drawing.Size(122, 20);
       labelTimeSep.TabIndex = 5;
@@ -195,7 +196,7 @@
       // 
       labelLessCommon.Anchor = System.Windows.Forms.AnchorStyles.Right;
       labelLessCommon.AutoSize = true;
-      labelLessCommon.Location = new System.Drawing.Point(4, 368);
+      labelLessCommon.Location = new System.Drawing.Point(4, 348);
       labelLessCommon.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
       labelLessCommon.Name = "labelLessCommon";
       labelLessCommon.Size = new System.Drawing.Size(158, 20);
@@ -288,7 +289,7 @@
       linkLabelRegion.Anchor = System.Windows.Forms.AnchorStyles.Left;
       linkLabelRegion.AutoSize = true;
       tableLayoutPanel2.SetColumnSpan(linkLabelRegion, 2);
-      linkLabelRegion.Location = new System.Drawing.Point(424, 264);
+      linkLabelRegion.Location = new System.Drawing.Point(424, 254);
       linkLabelRegion.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
       linkLabelRegion.Name = "linkLabelRegion";
       linkLabelRegion.Size = new System.Drawing.Size(194, 20);
@@ -359,29 +360,78 @@
       tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
       tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
       tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-      tableLayoutPanel2.Size = new System.Drawing.Size(816, 400);
+      tableLayoutPanel2.Size = new System.Drawing.Size(828, 380);
       tableLayoutPanel2.TabIndex = 17;
       // 
-      // comboBoxTimeZone
+      // textBoxDateSeparator
       // 
-      tableLayoutPanel2.SetColumnSpan(this.comboBoxTimeZone, 3);
-      this.comboBoxTimeZone.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.columnBindingSource, "TimeZonePart", true));
-      this.comboBoxTimeZone.Dock = System.Windows.Forms.DockStyle.Top;
-      this.comboBoxTimeZone.FormattingEnabled = true;
-      this.comboBoxTimeZone.Location = new System.Drawing.Point(170, 41);
-      this.comboBoxTimeZone.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-      this.comboBoxTimeZone.Name = "comboBoxTimeZone";
-      this.comboBoxTimeZone.Size = new System.Drawing.Size(246, 28);
-      this.comboBoxTimeZone.TabIndex = 4;
-      this.toolTip.SetToolTip(this.comboBoxTimeZone, "Assuming the time read is based in the time zone stored in this column or a const" +
-        "ant value and being converted to the local time zone of you system");
-      this.comboBoxTimeZone.SelectedIndexChanged += new System.EventHandler(this.DateFormatChanged);
-      this.comboBoxTimeZone.TextUpdate += new System.EventHandler(this.DateFormatChanged);
+      this.textBoxDateSeparator.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.columnBindingSource, "DateSeparator", true));
+      this.textBoxDateSeparator.Location = new System.Drawing.Point(170, 5);
+      this.textBoxDateSeparator.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+      this.textBoxDateSeparator.Name = "textBoxDateSeparator";
+      this.textBoxDateSeparator.Size = new System.Drawing.Size(42, 26);
+      this.textBoxDateSeparator.TabIndex = 0;
+      this.toolTip.SetToolTip(this.textBoxDateSeparator, "Separates the components of a date, that is, the year, month, and day");
+      this.textBoxDateSeparator.TextChanged += new System.EventHandler(this.DateFormatChanged);
       // 
       // columnBindingSource
       // 
       this.columnBindingSource.AllowNew = false;
       this.columnBindingSource.DataSource = typeof(CsvTools.Column);
+      // 
+      // comboBoxDateFormat
+      // 
+      this.comboBoxDateFormat.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Suggest;
+      this.comboBoxDateFormat.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.ListItems;
+      tableLayoutPanel2.SetColumnSpan(this.comboBoxDateFormat, 3);
+      this.comboBoxDateFormat.Dock = System.Windows.Forms.DockStyle.Top;
+      this.comboBoxDateFormat.FormattingEnabled = true;
+      this.comboBoxDateFormat.Location = new System.Drawing.Point(170, 341);
+      this.comboBoxDateFormat.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+      this.comboBoxDateFormat.Name = "comboBoxDateFormat";
+      this.comboBoxDateFormat.Size = new System.Drawing.Size(246, 28);
+      this.comboBoxDateFormat.TabIndex = 6;
+      this.toolTip.SetToolTip(this.comboBoxDateFormat, global::CsvToolLib.Resources.TimeFomat);
+      this.comboBoxDateFormat.TextChanged += new System.EventHandler(this.DateFormatChanged);
+      // 
+      // buttonAddFormat
+      // 
+      tableLayoutPanel2.SetColumnSpan(this.buttonAddFormat, 2);
+      this.buttonAddFormat.Location = new System.Drawing.Point(424, 341);
+      this.buttonAddFormat.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+      this.buttonAddFormat.Name = "buttonAddFormat";
+      this.buttonAddFormat.Size = new System.Drawing.Size(125, 34);
+      this.buttonAddFormat.TabIndex = 7;
+      this.buttonAddFormat.Text = "Add to List";
+      this.toolTip.SetToolTip(this.buttonAddFormat, "Add the selected uncommon date/time format to the checked list box");
+      this.buttonAddFormat.UseVisualStyleBackColor = true;
+      this.buttonAddFormat.Click += new System.EventHandler(this.ButtonAddFormat_Click);
+      // 
+      // labelAllowedDateFormats
+      // 
+      this.labelAllowedDateFormats.Anchor = System.Windows.Forms.AnchorStyles.Right;
+      this.labelAllowedDateFormats.AutoSize = true;
+      this.labelAllowedDateFormats.Location = new System.Drawing.Point(41, 117);
+      this.labelAllowedDateFormats.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+      this.labelAllowedDateFormats.Name = "labelAllowedDateFormats";
+      this.labelAllowedDateFormats.Size = new System.Drawing.Size(121, 20);
+      this.labelAllowedDateFormats.TabIndex = 9;
+      this.labelAllowedDateFormats.Text = "Date Format(s):";
+      // 
+      // checkedListBoxDateFormats
+      // 
+      tableLayoutPanel2.SetColumnSpan(this.checkedListBoxDateFormats, 3);
+      this.checkedListBoxDateFormats.Dock = System.Windows.Forms.DockStyle.Top;
+      this.checkedListBoxDateFormats.FormattingEnabled = true;
+      this.checkedListBoxDateFormats.Location = new System.Drawing.Point(170, 117);
+      this.checkedListBoxDateFormats.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+      this.checkedListBoxDateFormats.Name = "checkedListBoxDateFormats";
+      tableLayoutPanel2.SetRowSpan(this.checkedListBoxDateFormats, 4);
+      this.checkedListBoxDateFormats.Size = new System.Drawing.Size(246, 214);
+      this.checkedListBoxDateFormats.TabIndex = 5;
+      this.toolTip.SetToolTip(this.checkedListBoxDateFormats, "Common Date/Time formats, you can choose multiple");
+      this.checkedListBoxDateFormats.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.CheckedListBoxDateFormats_ItemCheck);
+      this.checkedListBoxDateFormats.SelectedIndexChanged += new System.EventHandler(this.DateFormatChanged);
       // 
       // comboBoxTimePart
       // 
@@ -400,69 +450,6 @@
       this.comboBoxTimePart.SelectedIndexChanged += new System.EventHandler(this.comboBoxTimePart_SelectedIndexChanged);
       this.comboBoxTimePart.TextUpdate += new System.EventHandler(this.DateFormatChanged);
       // 
-      // buttonAddFormat
-      // 
-      tableLayoutPanel2.SetColumnSpan(this.buttonAddFormat, 2);
-      this.buttonAddFormat.Location = new System.Drawing.Point(424, 361);
-      this.buttonAddFormat.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-      this.buttonAddFormat.Name = "buttonAddFormat";
-      this.buttonAddFormat.Size = new System.Drawing.Size(102, 34);
-      this.buttonAddFormat.TabIndex = 7;
-      this.buttonAddFormat.Text = "Add to List";
-      this.buttonAddFormat.UseVisualStyleBackColor = true;
-      this.buttonAddFormat.Click += new System.EventHandler(this.ButtonAddFormat_Click);
-      // 
-      // checkedListBoxDateFormats
-      // 
-      tableLayoutPanel2.SetColumnSpan(this.checkedListBoxDateFormats, 3);
-      this.checkedListBoxDateFormats.Dock = System.Windows.Forms.DockStyle.Top;
-      this.checkedListBoxDateFormats.FormattingEnabled = true;
-      this.checkedListBoxDateFormats.Location = new System.Drawing.Point(170, 117);
-      this.checkedListBoxDateFormats.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-      this.checkedListBoxDateFormats.Name = "checkedListBoxDateFormats";
-      tableLayoutPanel2.SetRowSpan(this.checkedListBoxDateFormats, 4);
-      this.checkedListBoxDateFormats.Size = new System.Drawing.Size(246, 234);
-      this.checkedListBoxDateFormats.TabIndex = 5;
-      this.checkedListBoxDateFormats.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.CheckedListBoxDateFormats_ItemCheck);
-      this.checkedListBoxDateFormats.SelectedIndexChanged += new System.EventHandler(this.DateFormatChanged);
-      // 
-      // comboBoxDateFormat
-      // 
-      this.comboBoxDateFormat.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Suggest;
-      this.comboBoxDateFormat.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.ListItems;
-      tableLayoutPanel2.SetColumnSpan(this.comboBoxDateFormat, 3);
-      this.comboBoxDateFormat.Dock = System.Windows.Forms.DockStyle.Top;
-      this.comboBoxDateFormat.FormattingEnabled = true;
-      this.comboBoxDateFormat.Location = new System.Drawing.Point(170, 361);
-      this.comboBoxDateFormat.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-      this.comboBoxDateFormat.Name = "comboBoxDateFormat";
-      this.comboBoxDateFormat.Size = new System.Drawing.Size(246, 28);
-      this.comboBoxDateFormat.TabIndex = 6;
-      this.toolTip.SetToolTip(this.comboBoxDateFormat, global::CsvToolLib.Resources.TimeFomat);
-      this.comboBoxDateFormat.TextChanged += new System.EventHandler(this.DateFormatChanged);
-      // 
-      // textBoxDateSeparator
-      // 
-      this.textBoxDateSeparator.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.columnBindingSource, "DateSeparator", true));
-      this.textBoxDateSeparator.Location = new System.Drawing.Point(170, 5);
-      this.textBoxDateSeparator.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-      this.textBoxDateSeparator.Name = "textBoxDateSeparator";
-      this.textBoxDateSeparator.Size = new System.Drawing.Size(42, 26);
-      this.textBoxDateSeparator.TabIndex = 0;
-      this.toolTip.SetToolTip(this.textBoxDateSeparator, "Separates the components of a date, that is, the year, month, and day");
-      this.textBoxDateSeparator.TextChanged += new System.EventHandler(this.DateFormatChanged);
-      // 
-      // labelAllowedDateFormats
-      // 
-      this.labelAllowedDateFormats.Anchor = System.Windows.Forms.AnchorStyles.Right;
-      this.labelAllowedDateFormats.AutoSize = true;
-      this.labelAllowedDateFormats.Location = new System.Drawing.Point(41, 117);
-      this.labelAllowedDateFormats.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-      this.labelAllowedDateFormats.Name = "labelAllowedDateFormats";
-      this.labelAllowedDateFormats.Size = new System.Drawing.Size(121, 20);
-      this.labelAllowedDateFormats.TabIndex = 9;
-      this.labelAllowedDateFormats.Text = "Date Format(s):";
-      // 
       // textBoxTimeSeparator
       // 
       this.textBoxTimeSeparator.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.columnBindingSource, "TimeSeparator", true));
@@ -472,6 +459,21 @@
       this.textBoxTimeSeparator.Size = new System.Drawing.Size(42, 26);
       this.textBoxTimeSeparator.TabIndex = 3;
       this.toolTip.SetToolTip(this.textBoxTimeSeparator, "Separates the components of time, that is, the hour, minutes, and seconds.");
+      // 
+      // comboBoxTimeZone
+      // 
+      tableLayoutPanel2.SetColumnSpan(this.comboBoxTimeZone, 3);
+      this.comboBoxTimeZone.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.columnBindingSource, "TimeZonePart", true));
+      this.comboBoxTimeZone.Dock = System.Windows.Forms.DockStyle.Top;
+      this.comboBoxTimeZone.FormattingEnabled = true;
+      this.comboBoxTimeZone.Location = new System.Drawing.Point(170, 41);
+      this.comboBoxTimeZone.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+      this.comboBoxTimeZone.Name = "comboBoxTimeZone";
+      this.comboBoxTimeZone.Size = new System.Drawing.Size(246, 28);
+      this.comboBoxTimeZone.TabIndex = 4;
+      this.toolTip.SetToolTip(this.comboBoxTimeZone, resources.GetString("comboBoxTimeZone.ToolTip"));
+      this.comboBoxTimeZone.SelectedIndexChanged += new System.EventHandler(this.DateFormatChanged);
+      this.comboBoxTimeZone.TextUpdate += new System.EventHandler(this.DateFormatChanged);
       // 
       // label5
       // 
@@ -509,10 +511,11 @@
       // 
       // label6
       // 
+      this.label6.Anchor = System.Windows.Forms.AnchorStyles.Left;
       this.label6.AutoSize = true;
       tableLayoutPanel2.SetColumnSpan(this.label6, 3);
       this.label6.ForeColor = System.Drawing.SystemColors.Highlight;
-      this.label6.Location = new System.Drawing.Point(424, 41);
+      this.label6.Location = new System.Drawing.Point(424, 45);
       this.label6.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
       this.label6.Name = "label6";
       this.label6.Size = new System.Drawing.Size(248, 20);
@@ -524,7 +527,7 @@
       // 
       this.labelInputTZ.AutoSize = true;
       this.labelInputTZ.ForeColor = System.Drawing.SystemColors.Highlight;
-      this.labelInputTZ.Location = new System.Drawing.Point(791, 142);
+      this.labelInputTZ.Location = new System.Drawing.Point(803, 142);
       this.labelInputTZ.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
       this.labelInputTZ.Name = "labelInputTZ";
       this.labelInputTZ.Size = new System.Drawing.Size(21, 20);
@@ -535,7 +538,7 @@
       // 
       this.labelOutPutTZ.AutoSize = true;
       this.labelOutPutTZ.ForeColor = System.Drawing.SystemColors.Highlight;
-      this.labelOutPutTZ.Location = new System.Drawing.Point(791, 167);
+      this.labelOutPutTZ.Location = new System.Drawing.Point(803, 167);
       this.labelOutPutTZ.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
       this.labelOutPutTZ.Name = "labelOutPutTZ";
       this.labelOutPutTZ.Size = new System.Drawing.Size(21, 20);
@@ -616,10 +619,10 @@
       this.comboBoxDataType.Dock = System.Windows.Forms.DockStyle.Top;
       this.comboBoxDataType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
       this.comboBoxDataType.FormattingEnabled = true;
-      this.comboBoxDataType.Location = new System.Drawing.Point(521, 5);
+      this.comboBoxDataType.Location = new System.Drawing.Point(527, 5);
       this.comboBoxDataType.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
       this.comboBoxDataType.Name = "comboBoxDataType";
-      this.comboBoxDataType.Size = new System.Drawing.Size(307, 28);
+      this.comboBoxDataType.Size = new System.Drawing.Size(313, 28);
       this.comboBoxDataType.TabIndex = 2;
       this.comboBoxDataType.ValueMember = "ID";
       this.comboBoxDataType.SelectedIndexChanged += new System.EventHandler(this.ComboBoxDataType_SelectedIndexChanged);
@@ -628,7 +631,7 @@
       // 
       this.buttonCancel.AutoSize = true;
       this.buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-      this.buttonCancel.Location = new System.Drawing.Point(726, 900);
+      this.buttonCancel.Location = new System.Drawing.Point(738, 880);
       this.buttonCancel.Name = "buttonCancel";
       this.buttonCancel.Size = new System.Drawing.Size(102, 34);
       this.buttonCancel.TabIndex = 4;
@@ -679,7 +682,7 @@
       this.groupBoxDate.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
       this.groupBoxDate.Name = "groupBoxDate";
       this.groupBoxDate.Padding = new System.Windows.Forms.Padding(4, 5, 4, 5);
-      this.groupBoxDate.Size = new System.Drawing.Size(824, 429);
+      this.groupBoxDate.Size = new System.Drawing.Size(836, 409);
       this.groupBoxDate.TabIndex = 5;
       this.groupBoxDate.TabStop = false;
       this.groupBoxDate.Text = "Date";
@@ -699,11 +702,11 @@
       this.groupBoxNumber.Controls.Add(this.textBoxGroupSeparator);
       this.groupBoxNumber.Controls.Add(this.labelNumber);
       this.groupBoxNumber.Dock = System.Windows.Forms.DockStyle.Top;
-      this.groupBoxNumber.Location = new System.Drawing.Point(4, 523);
+      this.groupBoxNumber.Location = new System.Drawing.Point(4, 503);
       this.groupBoxNumber.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
       this.groupBoxNumber.Name = "groupBoxNumber";
       this.groupBoxNumber.Padding = new System.Windows.Forms.Padding(4, 5, 4, 5);
-      this.groupBoxNumber.Size = new System.Drawing.Size(824, 133);
+      this.groupBoxNumber.Size = new System.Drawing.Size(836, 133);
       this.groupBoxNumber.TabIndex = 6;
       this.groupBoxNumber.TabStop = false;
       this.groupBoxNumber.Text = "Number";
@@ -755,11 +758,11 @@
       this.groupBoxBoolean.Controls.Add(this.textBoxTrue);
       this.groupBoxBoolean.Controls.Add(this.textBoxFalse);
       this.groupBoxBoolean.Dock = System.Windows.Forms.DockStyle.Top;
-      this.groupBoxBoolean.Location = new System.Drawing.Point(4, 666);
+      this.groupBoxBoolean.Location = new System.Drawing.Point(4, 646);
       this.groupBoxBoolean.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
       this.groupBoxBoolean.Name = "groupBoxBoolean";
       this.groupBoxBoolean.Padding = new System.Windows.Forms.Padding(4, 5, 4, 5);
-      this.groupBoxBoolean.Size = new System.Drawing.Size(824, 107);
+      this.groupBoxBoolean.Size = new System.Drawing.Size(836, 107);
       this.groupBoxBoolean.TabIndex = 7;
       this.groupBoxBoolean.TabStop = false;
       this.groupBoxBoolean.Text = "Boolean";
@@ -773,21 +776,24 @@
       this.comboBoxColumnName.Location = new System.Drawing.Point(125, 5);
       this.comboBoxColumnName.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
       this.comboBoxColumnName.Name = "comboBoxColumnName";
-      this.comboBoxColumnName.Size = new System.Drawing.Size(388, 28);
+      this.comboBoxColumnName.Size = new System.Drawing.Size(394, 28);
       this.comboBoxColumnName.TabIndex = 1;
       this.comboBoxColumnName.SelectedIndexChanged += new System.EventHandler(this.ComboBoxColumnName_SelectedIndexChanged);
       this.comboBoxColumnName.TextUpdate += new System.EventHandler(this.ComboBoxColumnName_TextUpdate);
       // 
       // buttonGuess
       // 
+      this.buttonGuess.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
       this.buttonGuess.AutoSize = true;
       this.buttonGuess.Image = global::CsvToolLib.Resources.View;
       this.buttonGuess.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-      this.buttonGuess.Location = new System.Drawing.Point(314, 900);
+      this.buttonGuess.Location = new System.Drawing.Point(337, 880);
       this.buttonGuess.Name = "buttonGuess";
-      this.buttonGuess.Size = new System.Drawing.Size(126, 34);
+      this.buttonGuess.Size = new System.Drawing.Size(183, 34);
       this.buttonGuess.TabIndex = 2;
-      this.buttonGuess.Text = "&Guess";
+      this.buttonGuess.Text = "&Examine && Guess";
+      this.toolTip.SetToolTip(this.buttonGuess, "Read the content of the source and try and find a matching format\r\nNote: Any colu" +
+        "mn that has possible alignment issues will be ignored\r\n");
       this.buttonGuess.UseVisualStyleBackColor = true;
       this.buttonGuess.Click += new System.EventHandler(this.ButtonGuessClick);
       // 
@@ -802,6 +808,7 @@
       this.checkBoxIgnore.TabIndex = 3;
       this.checkBoxIgnore.Text = "&Ignore";
       this.checkBoxIgnore.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
+      this.toolTip.SetToolTip(this.checkBoxIgnore, "Ignore the content do not display/import this column");
       this.checkBoxIgnore.UseVisualStyleBackColor = true;
       this.checkBoxIgnore.Visible = false;
       // 
@@ -817,11 +824,11 @@
       this.groupBoxSplit.Controls.Add(this.textBoxPart);
       this.groupBoxSplit.Controls.Add(this.labelResultPart);
       this.groupBoxSplit.Dock = System.Windows.Forms.DockStyle.Top;
-      this.groupBoxSplit.Location = new System.Drawing.Point(4, 783);
+      this.groupBoxSplit.Location = new System.Drawing.Point(4, 763);
       this.groupBoxSplit.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
       this.groupBoxSplit.Name = "groupBoxSplit";
       this.groupBoxSplit.Padding = new System.Windows.Forms.Padding(4, 5, 4, 5);
-      this.groupBoxSplit.Size = new System.Drawing.Size(824, 109);
+      this.groupBoxSplit.Size = new System.Drawing.Size(836, 109);
       this.groupBoxSplit.TabIndex = 8;
       this.groupBoxSplit.TabStop = false;
       this.groupBoxSplit.Text = "Text Part";
@@ -924,6 +931,8 @@
       this.textBoxDisplayNullAs.Name = "textBoxDisplayNullAs";
       this.textBoxDisplayNullAs.Size = new System.Drawing.Size(98, 26);
       this.textBoxDisplayNullAs.TabIndex = 9;
+      this.toolTip.SetToolTip(this.textBoxDisplayNullAs, "Wrting data empty field (NULL) can be an empty column or represented by this text" +
+        " \r\ne.G. <NULL>");
       // 
       // bindingSourceValueFormat
       // 
@@ -939,11 +948,13 @@
       this.buttonDisplayValues.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
       this.buttonDisplayValues.AutoSize = true;
       this.buttonDisplayValues.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-      this.buttonDisplayValues.Location = new System.Drawing.Point(124, 900);
+      this.buttonDisplayValues.Location = new System.Drawing.Point(124, 880);
       this.buttonDisplayValues.Name = "buttonDisplayValues";
       this.buttonDisplayValues.Size = new System.Drawing.Size(184, 34);
       this.buttonDisplayValues.TabIndex = 1;
       this.buttonDisplayValues.Text = "Display &Values";
+      this.toolTip.SetToolTip(this.buttonDisplayValues, "Read the content of the source and display the read values.\r\nNote: Any column tha" +
+        "t has possible alignment issues will be ignored\r\n");
       this.buttonDisplayValues.UseVisualStyleBackColor = true;
       this.buttonDisplayValues.Click += new System.EventHandler(this.ButtonDisplayValues_Click);
       // 
@@ -983,7 +994,7 @@
       this.tableLayoutPanelForm.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.tableLayoutPanelForm.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.tableLayoutPanelForm.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 45F));
-      this.tableLayoutPanelForm.Size = new System.Drawing.Size(832, 942);
+      this.tableLayoutPanelForm.Size = new System.Drawing.Size(844, 922);
       this.tableLayoutPanelForm.TabIndex = 5;
       // 
       // buttonOK
@@ -991,7 +1002,7 @@
       this.buttonOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
       this.buttonOK.AutoSize = true;
       this.buttonOK.DialogResult = System.Windows.Forms.DialogResult.OK;
-      this.buttonOK.Location = new System.Drawing.Point(618, 900);
+      this.buttonOK.Location = new System.Drawing.Point(630, 880);
       this.buttonOK.Name = "buttonOK";
       this.buttonOK.Size = new System.Drawing.Size(102, 34);
       this.buttonOK.TabIndex = 3;
@@ -1005,9 +1016,10 @@
       this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.CancelButton = this.buttonCancel;
-      this.ClientSize = new System.Drawing.Size(832, 1011);
+      this.ClientSize = new System.Drawing.Size(844, 1011);
       this.Controls.Add(this.tableLayoutPanelForm);
       this.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.columnBindingSource, "Name", true));
+      this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
       this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
       this.MaximizeBox = false;
       this.MaximumSize = new System.Drawing.Size(854, 1201);

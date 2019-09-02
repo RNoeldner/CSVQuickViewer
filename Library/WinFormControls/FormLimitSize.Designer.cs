@@ -158,8 +158,8 @@
       this.tableLayoutPanel1.Controls.Add(this.trackBarLimit, 0, 2);
       this.tableLayoutPanel1.Controls.Add(this.labelCount2, 1, 3);
       this.tableLayoutPanel1.Controls.Add(this.label, 0, 4);
-      this.tableLayoutPanel1.Controls.Add(this.buttonCancel, 5, 4);
       this.tableLayoutPanel1.Controls.Add(this.buttonOK, 3, 4);
+      this.tableLayoutPanel1.Controls.Add(this.buttonCancel, 5, 4);
       this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
       this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
       this.tableLayoutPanel1.Name = "tableLayoutPanel1";
@@ -203,9 +203,9 @@
       this.buttonOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
       this.buttonOK.AutoSize = true;
       this.tableLayoutPanel1.SetColumnSpan(this.buttonOK, 2);
-      this.buttonOK.Location = new System.Drawing.Point(401, 141);
+      this.buttonOK.Location = new System.Drawing.Point(386, 141);
       this.buttonOK.Name = "buttonOK";
-      this.buttonOK.Size = new System.Drawing.Size(87, 34);
+      this.buttonOK.Size = new System.Drawing.Size(102, 34);
       this.buttonOK.TabIndex = 9;
       this.buttonOK.Text = "&OK";
       this.buttonOK.UseVisualStyleBackColor = true;
@@ -219,7 +219,7 @@
       this.CancelButton = this.buttonCancel;
       this.ClientSize = new System.Drawing.Size(602, 178);
       this.Controls.Add(this.tableLayoutPanel1);
-      this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
+      this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
       this.Name = "FrmLimitSize";
       this.ShowInTaskbar = false;
       this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
