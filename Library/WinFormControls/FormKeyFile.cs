@@ -96,9 +96,9 @@ namespace CsvTools
       this.m_BtnOk.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
       this.m_BtnOk.AutoSize = true;
       this.m_BtnOk.DialogResult = System.Windows.Forms.DialogResult.OK;
-      this.m_BtnOk.Location = new System.Drawing.Point(467, 468);
+      this.m_BtnOk.Location = new System.Drawing.Point(457, 468);
       this.m_BtnOk.Name = "m_BtnOk";
-      this.m_BtnOk.Size = new System.Drawing.Size(92, 34);
+      this.m_BtnOk.Size = new System.Drawing.Size(102, 34);
       this.m_BtnOk.TabIndex = 0;
       this.m_BtnOk.Text = "&OK";
       this.m_BtnOk.Click += new System.EventHandler(this.BtnOK_Click);

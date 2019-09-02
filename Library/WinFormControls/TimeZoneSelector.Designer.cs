@@ -54,8 +54,8 @@
       // 
       this.comboBoxTimeZoneID.Dock = System.Windows.Forms.DockStyle.Top;
       this.comboBoxTimeZoneID.FormattingEnabled = true;
-      this.comboBoxTimeZoneID.Location = new System.Drawing.Point(0, 2);
-      this.comboBoxTimeZoneID.Margin = new System.Windows.Forms.Padding(0, 2, 0, 0);
+      this.comboBoxTimeZoneID.Location = new System.Drawing.Point(0, 4);
+      this.comboBoxTimeZoneID.Margin = new System.Windows.Forms.Padding(0, 4, 0, 0);
       this.comboBoxTimeZoneID.Name = "comboBoxTimeZoneID";
       this.comboBoxTimeZoneID.Size = new System.Drawing.Size(596, 28);
       this.comboBoxTimeZoneID.TabIndex = 28;
@@ -65,7 +65,7 @@
       // 
       this.buttonLocalTZ.AutoSize = true;
       this.buttonLocalTZ.Location = new System.Drawing.Point(598, 2);
-      this.buttonLocalTZ.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+      this.buttonLocalTZ.Margin = new System.Windows.Forms.Padding(2);
       this.buttonLocalTZ.Name = "buttonLocalTZ";
       this.buttonLocalTZ.Size = new System.Drawing.Size(86, 34);
       this.buttonLocalTZ.TabIndex = 29;

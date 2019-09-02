@@ -42,7 +42,7 @@
       // 
       this.textBoxValue.Location = new System.Drawing.Point(105, 21);
       this.textBoxValue.Name = "textBoxValue";
-      this.textBoxValue.Size = new System.Drawing.Size(116, 20);
+      this.textBoxValue.Size = new System.Drawing.Size(116, 26);
       this.textBoxValue.TabIndex = 1;
       this.textBoxValue.Visible = false;
       this.textBoxValue.TextChanged += new System.EventHandler(this.FilterValueChanged);
@@ -54,7 +54,7 @@
       this.dateTimePickerValue.Format = System.Windows.Forms.DateTimePickerFormat.Short;
       this.dateTimePickerValue.Location = new System.Drawing.Point(105, 21);
       this.dateTimePickerValue.Name = "dateTimePickerValue";
-      this.dateTimePickerValue.Size = new System.Drawing.Size(116, 20);
+      this.dateTimePickerValue.Size = new System.Drawing.Size(116, 26);
       this.dateTimePickerValue.TabIndex = 9;
       this.dateTimePickerValue.Visible = false;
       this.dateTimePickerValue.ValueChanged += new System.EventHandler(this.FilterValueChanged);
@@ -64,7 +64,7 @@
       // 
       this.comboBoxOperator.Location = new System.Drawing.Point(5, 21);
       this.comboBoxOperator.Name = "comboBoxOperator";
-      this.comboBoxOperator.Size = new System.Drawing.Size(97, 21);
+      this.comboBoxOperator.Size = new System.Drawing.Size(97, 28);
       this.comboBoxOperator.TabIndex = 0;
       this.comboBoxOperator.SelectedIndexChanged += new System.EventHandler(this.ComboBoxOperator_SelectedIndexChanged);
       this.comboBoxOperator.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.HandleEnterKeyPress);
@@ -74,7 +74,7 @@
       this.lblCondition.AutoSize = true;
       this.lblCondition.Location = new System.Drawing.Point(5, 3);
       this.lblCondition.Name = "lblCondition";
-      this.lblCondition.Size = new System.Drawing.Size(76, 13);
+      this.lblCondition.Size = new System.Drawing.Size(114, 20);
       this.lblCondition.TabIndex = 12;
       this.lblCondition.Text = "Field Condition";
       // 
@@ -85,10 +85,10 @@
       // DataGridViewColumnFilterControl
       // 
       this.BackColor = System.Drawing.SystemColors.ControlLightLight;
-      this.Controls.Add(this.lblCondition);
       this.Controls.Add(this.textBoxValue);
       this.Controls.Add(this.dateTimePickerValue);
       this.Controls.Add(this.comboBoxOperator);
+      this.Controls.Add(this.lblCondition);
       this.Name = "DataGridViewColumnFilterControl";
       this.Size = new System.Drawing.Size(224, 50);
       this.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.HandleEnterKeyPress);
