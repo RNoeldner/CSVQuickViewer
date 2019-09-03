@@ -69,6 +69,7 @@ namespace CsvTools
     private bool m_SkipEmptyLines = true;
     private ObservableCollection<SampleRecordEntry> m_Samples = new ObservableCollection<SampleRecordEntry>();
     private ObservableCollection<SampleRecordEntry> m_Errors = new ObservableCollection<SampleRecordEntry>();
+    private TrimmingOption m_TrimmingOption = TrimmingOption.Unquoted;
 
     /// <summary>
     ///  Initializes a new instance of the <see cref="BaseSettings" /> class.
@@ -923,7 +924,17 @@ namespace CsvTools
     /// <value><c>true</c> ; otherwise, <c>false</c>.</value>
     [XmlAttribute]
     [DefaultValue(TrimmingOption.Unquoted)]
-    public virtual TrimmingOption TrimmingOption { get; set; } = TrimmingOption.Unquoted;
+    public virtual TrimmingOption TrimmingOption
+    {
+      get => m_TrimmingOption;
+      set
+      {
+        if (m_TrimmingOption.Equals(value))
+          return;
+        m_TrimmingOption = value;
+        NotifyPropertyChanged(nameof(TrimmingOption));
+      }
+    }
 
     /// <summary>
     ///  Gets or sets a value indicating whether this instance is imported
