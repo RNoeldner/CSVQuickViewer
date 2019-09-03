@@ -470,8 +470,7 @@
       this.comboBoxTimeZone.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
       this.comboBoxTimeZone.Name = "comboBoxTimeZone";
       this.comboBoxTimeZone.Size = new System.Drawing.Size(246, 28);
-      this.comboBoxTimeZone.TabIndex = 4;
-      this.toolTip.SetToolTip(this.comboBoxTimeZone, resources.GetString("comboBoxTimeZone.ToolTip"));
+      this.comboBoxTimeZone.TabIndex = 4;      
       this.comboBoxTimeZone.SelectedIndexChanged += new System.EventHandler(this.DateFormatChanged);
       this.comboBoxTimeZone.TextUpdate += new System.EventHandler(this.DateFormatChanged);
       // 

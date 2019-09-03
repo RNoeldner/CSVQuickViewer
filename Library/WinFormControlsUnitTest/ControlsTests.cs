@@ -12,10 +12,10 @@
  *
  */
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Pri.LongPath;
 using System.Data;
 using System.Windows.Forms;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Pri.LongPath;
 
 namespace CsvTools.Tests
 {
@@ -23,7 +23,7 @@ namespace CsvTools.Tests
   public class ControlsTests
   {
     private static readonly DataTable m_DataTable = UnitTestStatic.GetDataTable(50);
-    private readonly string m_ApplicationDirectory = FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles";
+    private readonly CsvFile csvFile = new CsvFile(Path.Combine(FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles", "BasicCSV.txt"));
 
     [TestMethod]
     public void FormLimitSize()
@@ -31,6 +31,7 @@ namespace CsvTools.Tests
       using (var frm = new FrmLimitSize())
       {
         frm.RecordLimit = 1000;
+        frm.ShowInTaskbar = false;
         frm.Show();
         frm.RecordLimit = 20;
         System.Threading.Thread.Sleep(200);
@@ -61,125 +62,164 @@ namespace CsvTools.Tests
 
         ctrl.Quote = '?';
         Assert.AreEqual('?', ctrl.Quote);
+
+        ShowControl(ctrl);
       }
     }
 
-    [TestMethod]
-    public void CsvTextDisplay()
+    private void ShowControl(Control ctrl)
     {
-      var file = new CsvFile("BasicCSV.txt");
-      using (var ctrl = new CsvTextDisplay())
+      using (var frm = new Form())
       {
-        ctrl.CsvFile = file;
-        ctrl.Show();
-      }
+        frm.SuspendLayout();
+        frm.Text = ctrl.GetType().FullName;
+        frm.BackColor = System.Drawing.SystemColors.Control;
+        frm.ClientSize = new System.Drawing.Size(800, 800);
+        frm.ShowInTaskbar = false;
+        frm.FormBorderStyle = FormBorderStyle.SizableToolWindow;
+        frm.StartPosition = FormStartPosition.CenterScreen;
+
+        ctrl.Dock = DockStyle.Fill;
+        ctrl.Location = new System.Drawing.Point(0, 0);
+        ctrl.Size = new System.Drawing.Size(600, 600);
+        frm.Controls.Add(ctrl);
+        frm.TopMost = true;
+        frm.ResumeLayout(false);
+
+        frm.Show();
+        frm.Focus();
+        ctrl.Focus();
+        System.Threading.Thread.Sleep(100);
+
+        frm.Close();
+      };
     }
+
+    [TestMethod]
+    public void CsvTextDisplayShow() => ShowControl(new CsvTextDisplay()
+    {
+      CsvFile = csvFile
+    });
+
+    [TestMethod]
+    public void SearchShow() => ShowControl(new Search());
+
+    [TestMethod]
+    public void FillGuessSettingEditShow() => ShowControl(new FillGuessSettingEdit());
+
+    [TestMethod]
+    public void FilteredDataGridViewShow() => ShowControl(new FilteredDataGridView());
 
     [TestMethod]
     public void FormColumnUI()
     {
-      var csvFile = new CsvFile("BasicCSV.txt");
       var col = new Column { Name = "ExamDate", DataType = DataType.DateTime };
       csvFile.ColumnCollection.AddIfNew(col);
-      using (var ctrl = new FormColumnUI(col, false, csvFile))
+      using (var frm = new FormColumnUI(col, false, csvFile))
       {
-        ctrl.Show();
-        ctrl.Close();
+        frm.ShowInTaskbar = false;
+        frm.Show();
+        frm.Close();
       }
     }
 
     [TestMethod]
     public void FormColumnUI_Opt1()
     {
-      var csvFile = new CsvFile(Path.Combine(m_ApplicationDirectory, "BasicCSV.txt"));
       var col = new Column { Name = "ExamDate", DataType = DataType.DateTime };
       csvFile.ColumnCollection.AddIfNew(col);
-      using (var ctrl = new FormColumnUI(col, false, csvFile))
+      using (var form = new FormColumnUI(col, false, csvFile))
       {
-        ctrl.ShowGuess = false;
-        ctrl.Show();
-        ctrl.Close();
+        form.ShowInTaskbar = false;
+        form.ShowGuess = false;
+        form.Show();
+        form.Close();
       }
     }
 
     [TestMethod]
     public void FormColumnUI_Opt2()
     {
-      var csvFile = new CsvFile(Path.Combine(m_ApplicationDirectory, "BasicCSV.txt"));
       var col = new Column { Name = "ExamDate", DataType = DataType.DateTime };
       csvFile.ColumnCollection.AddIfNew(col);
-      using (var ctrl = new FormColumnUI(col, false, csvFile))
+      using (var form = new FormColumnUI(col, false, csvFile))
       {
-        ctrl.ShowIgnore = false;
-        ctrl.Show();
-        ctrl.Close();
+        form.ShowInTaskbar = false;
+        form.ShowIgnore = false;
+        form.Show();
+        form.Close();
       }
     }
 
     [TestMethod]
     public void FormColumnUI_ButtonGuessClick()
     {
-      var csvFile = new CsvFile(Path.Combine(m_ApplicationDirectory, "BasicCSV.txt"));
       var col = new Column { Name = "ExamDate", DataType = DataType.DateTime };
       csvFile.ColumnCollection.AddIfNew(col);
 
-      using (var ctrl = new FormColumnUI(col, false, csvFile))
+      using (var form = new FormColumnUI(col, false, csvFile))
       {
-        ctrl.Show();
+        form.ShowInTaskbar = false;
+        form.Show();
         // open the reader file
-        ctrl.ButtonGuessClick(null, null);
+        form.ButtonGuessClick(null, null);
 
-        ctrl.Close();
+        form.Close();
       }
     }
 
     [TestMethod]
     public void FormHierachyDisplay()
     {
-      using (var ctrl = new FormHierachyDisplay(m_DataTable, m_DataTable.Select()))
+      using (var form = new FormHierachyDisplay(m_DataTable, m_DataTable.Select()))
       {
-        ctrl.Show();
-        ctrl.Close();
+        form.ShowInTaskbar = false;
+        form.Show();
+        form.Close();
       }
     }
 
     [TestMethod]
     public void FormDuplicatesDisplay()
     {
-      using (var ctrl = new FormDuplicatesDisplay(m_DataTable, m_DataTable.Select(), m_DataTable.Columns[0].ColumnName))
+      using (var form = new FormDuplicatesDisplay(m_DataTable, m_DataTable.Select(), m_DataTable.Columns[0].ColumnName))
       {
-        ctrl.Show();
-        ctrl.Close();
+        form.ShowInTaskbar = false;
+        form.Show();
+        form.Close();
       }
     }
 
     [TestMethod]
     public void FormUniqueDisplay()
     {
-      using (var ctrl = new FormUniqueDisplay(m_DataTable, m_DataTable.Select(), m_DataTable.Columns[0].ColumnName))
+      using (var form = new FormUniqueDisplay(m_DataTable, m_DataTable.Select(), m_DataTable.Columns[0].ColumnName))
       {
-        ctrl.Show();
-        ctrl.Close();
+        form.ShowInTaskbar = false;
+        form.Show();
+        form.Close();
       }
     }
 
     [TestMethod]
     public void FormKeyFile()
     {
-      using (var ctrl = new FormKeyFile("Test", true))
+      using (var form = new FormKeyFile("Test", true))
       {
-        ctrl.Show();
-        ctrl.Close();
+        form.ShowInTaskbar = false;
+        form.Show();
+        form.Close();
       }
     }
 
     [TestMethod]
     public void FormShowMaxLength()
     {
-      using (var ctrl = new FormShowMaxLength(m_DataTable, m_DataTable.Select()))
+      using (var form = new FormShowMaxLength(m_DataTable, m_DataTable.Select()))
       {
-        ctrl.Show();
-        ctrl.Close();
+        form.ShowInTaskbar = false;
+        form.Show();
+        form.Close();
       }
     }
 
@@ -187,10 +227,11 @@ namespace CsvTools.Tests
     public void FormDetail()
     {
       using (var processDisplay = new DummyProcessDisplay())
-      using (var ctrl = new FormDetail(m_DataTable, null, null, true, false, 0, processDisplay.CancellationToken))
+      using (var form = new FormDetail(m_DataTable, null, null, true, false, 0, processDisplay.CancellationToken))
       {
-        ctrl.Show();
-        ctrl.Close();
+        form.ShowInTaskbar = false;
+        form.Show();
+        form.Close();
       }
     }
 
@@ -205,20 +246,17 @@ namespace CsvTools.Tests
         Tag = m_DataTable.Columns[0].DataType
       };
 
-      using (var ctrl = new DataGridViewColumnFilterControl(m_DataTable.Columns[0].DataType, col))
-      {
-        ctrl.Show();
-        ctrl.FocusInput();
-      }
+      ShowControl(new DataGridViewColumnFilterControl(m_DataTable.Columns[0].DataType, col));
     }
 
     [TestMethod]
     public void FormPassphrase()
     {
-      using (var ctrl = new FormPassphrase("Test"))
+      using (var form = new FormPassphrase("Test"))
       {
-        ctrl.Show();
-        ctrl.Close();
+        form.ShowInTaskbar = false;
+        form.Show();
+        form.Close();
       }
     }
   }
