@@ -23,9 +23,10 @@ The application can:
 * HTML Copy and Paste for storing cut values in Excel / Word,  retaining value types
 
 This application does use various NuGet libraies:
-* BouncyCastle.OpenPgp https://www.nuget.org/packages/BouncyCastle.OpenPGP/
-* Pri.LongPath  https://www.nuget.org/packages/Pri.LongPath/
-* UDE.CSharp https://www.nuget.org/packages/UDE.CSharp/
+* BouncyCastle.OpenPgp
+* Pri.LongPath
+* UDE.NetStandard
 * Costura.Fody 
 * log4net
 * NodaTime
+* WindowsAPICodePack
