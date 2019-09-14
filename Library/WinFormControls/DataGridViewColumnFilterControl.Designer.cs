@@ -72,7 +72,7 @@
       // lblCondition
       // 
       this.lblCondition.AutoSize = true;
-      this.lblCondition.Location = new System.Drawing.Point(5, 3);
+      this.lblCondition.Location = new System.Drawing.Point(3, 0);
       this.lblCondition.Name = "lblCondition";
       this.lblCondition.Size = new System.Drawing.Size(114, 20);
       this.lblCondition.TabIndex = 12;

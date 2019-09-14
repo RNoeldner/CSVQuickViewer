@@ -8,7 +8,8 @@
     <OutputType>Library</OutputType>    
 	<TargetFramework>net45</TargetFramework>
     <ApplicationIcon />
-    <StartupObject />    
+    <StartupObject />
+    <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>    
   </PropertyGroup>  
   <ItemGroup>
     <None Remove="DateTimeFormats.txt" />

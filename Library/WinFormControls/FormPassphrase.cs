@@ -62,7 +62,7 @@ namespace CsvTools
       // 
       this.m_BtnOk.AutoSize = true;
       this.m_BtnOk.DialogResult = System.Windows.Forms.DialogResult.OK;
-      this.m_BtnOk.Location = new System.Drawing.Point(355, 39);
+      this.m_BtnOk.Location = new System.Drawing.Point(392, 39);
       this.m_BtnOk.Name = "m_BtnOk";
       this.m_BtnOk.Size = new System.Drawing.Size(99, 34);
       this.m_BtnOk.TabIndex = 3;
@@ -77,16 +77,16 @@ namespace CsvTools
       this.m_TextBox.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
       this.m_TextBox.Name = "m_TextBox";
       this.m_TextBox.PasswordChar = '*';
-      this.m_TextBox.Size = new System.Drawing.Size(554, 26);
+      this.m_TextBox.Size = new System.Drawing.Size(591, 26);
       this.m_TextBox.TabIndex = 0;
       // 
       // m_CheckBoxShowHide
       // 
-      this.m_CheckBoxShowHide.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+      this.m_CheckBoxShowHide.Anchor = System.Windows.Forms.AnchorStyles.Right;
       this.m_CheckBoxShowHide.AutoSize = true;
-      this.m_CheckBoxShowHide.Location = new System.Drawing.Point(234, 39);
+      this.m_CheckBoxShowHide.Location = new System.Drawing.Point(270, 45);
       this.m_CheckBoxShowHide.Name = "m_CheckBoxShowHide";
-      this.m_CheckBoxShowHide.Size = new System.Drawing.Size(115, 24);
+      this.m_CheckBoxShowHide.Size = new System.Drawing.Size(116, 24);
       this.m_CheckBoxShowHide.TabIndex = 1;
       this.m_CheckBoxShowHide.Text = "Show Entry";
       this.m_CheckBoxShowHide.UseVisualStyleBackColor = true;
@@ -109,14 +109,14 @@ namespace CsvTools
       this.tableLayoutPanel1.RowCount = 2;
       this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.tableLayoutPanel1.Size = new System.Drawing.Size(562, 86);
+      this.tableLayoutPanel1.Size = new System.Drawing.Size(599, 78);
       this.tableLayoutPanel1.TabIndex = 0;
       // 
       // m_BtnCancel
       // 
       this.m_BtnCancel.AutoSize = true;
       this.m_BtnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-      this.m_BtnCancel.Location = new System.Drawing.Point(460, 39);
+      this.m_BtnCancel.Location = new System.Drawing.Point(497, 39);
       this.m_BtnCancel.Name = "m_BtnCancel";
       this.m_BtnCancel.Size = new System.Drawing.Size(99, 34);
       this.m_BtnCancel.TabIndex = 4;
@@ -129,7 +129,7 @@ namespace CsvTools
       this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.CancelButton = this.m_BtnCancel;
-      this.ClientSize = new System.Drawing.Size(562, 86);
+      this.ClientSize = new System.Drawing.Size(599, 78);
       this.Controls.Add(this.tableLayoutPanel1);
       this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
       this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);

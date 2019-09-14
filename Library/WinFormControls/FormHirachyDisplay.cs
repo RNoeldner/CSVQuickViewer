@@ -449,9 +449,10 @@ namespace CsvTools
       // 
       label1.Anchor = System.Windows.Forms.AnchorStyles.Right;
       label1.AutoSize = true;
-      label1.Location = new System.Drawing.Point(41, 7);
+      label1.Location = new System.Drawing.Point(63, 9);
+      label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
       label1.Name = "label1";
-      label1.Size = new System.Drawing.Size(18, 13);
+      label1.Size = new System.Drawing.Size(26, 20);
       label1.TabIndex = 3;
       label1.Text = "ID";
       // 
@@ -459,9 +460,10 @@ namespace CsvTools
       // 
       label2.Anchor = System.Windows.Forms.AnchorStyles.Right;
       label2.AutoSize = true;
-      label2.Location = new System.Drawing.Point(18, 34);
+      label2.Location = new System.Drawing.Point(29, 47);
+      label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
       label2.Name = "label2";
-      label2.Size = new System.Drawing.Size(41, 13);
+      label2.Size = new System.Drawing.Size(60, 20);
       label2.TabIndex = 5;
       label2.Text = "Display";
       // 
@@ -469,9 +471,10 @@ namespace CsvTools
       // 
       label3.Anchor = System.Windows.Forms.AnchorStyles.Right;
       label3.AutoSize = true;
-      label3.Location = new System.Drawing.Point(7, 61);
+      label3.Location = new System.Drawing.Point(12, 85);
+      label3.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
       label3.Name = "label3";
-      label3.Size = new System.Drawing.Size(52, 13);
+      label3.Size = new System.Drawing.Size(77, 20);
       label3.TabIndex = 7;
       label3.Text = "Parent ID";
       // 
@@ -482,19 +485,19 @@ namespace CsvTools
             expandAllToolStripMenuItem,
             closeAllToolStripMenuItem});
       contextMenuStrip.Name = "contextMenuStrip";
-      contextMenuStrip.Size = new System.Drawing.Size(125, 48);
+      contextMenuStrip.Size = new System.Drawing.Size(168, 68);
       // 
       // expandAllToolStripMenuItem
       // 
       expandAllToolStripMenuItem.Name = "expandAllToolStripMenuItem";
-      expandAllToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
+      expandAllToolStripMenuItem.Size = new System.Drawing.Size(167, 32);
       expandAllToolStripMenuItem.Text = "Expand All";
       expandAllToolStripMenuItem.Click += new System.EventHandler(this.ExpandAllToolStripMenuItem_Click);
       // 
       // closeAllToolStripMenuItem
       // 
       closeAllToolStripMenuItem.Name = "closeAllToolStripMenuItem";
-      closeAllToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
+      closeAllToolStripMenuItem.Size = new System.Drawing.Size(167, 32);
       closeAllToolStripMenuItem.Text = "Close All";
       closeAllToolStripMenuItem.Click += new System.EventHandler(this.CloseAllToolStripMenuItem_Click);
       // 
@@ -502,16 +505,17 @@ namespace CsvTools
       // 
       label4.Anchor = System.Windows.Forms.AnchorStyles.Right;
       label4.AutoSize = true;
-      label4.Location = new System.Drawing.Point(32, 87);
+      label4.Location = new System.Drawing.Point(49, 122);
+      label4.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
       label4.Name = "label4";
-      label4.Size = new System.Drawing.Size(27, 13);
+      label4.Size = new System.Drawing.Size(40, 20);
       label4.TabIndex = 5;
       label4.Text = "Find";
       // 
       // m_TableLayoutPanel1
       // 
       this.m_TableLayoutPanel1.ColumnCount = 3;
-      this.m_TableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 62F));
+      this.m_TableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 93F));
       this.m_TableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
       this.m_TableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
       this.m_TableLayoutPanel1.Controls.Add(label1, 0, 0);
@@ -526,6 +530,7 @@ namespace CsvTools
       this.m_TableLayoutPanel1.Controls.Add(this.m_ComboBoxDisplay1, 1, 1);
       this.m_TableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
       this.m_TableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
+      this.m_TableLayoutPanel1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
       this.m_TableLayoutPanel1.Name = "m_TableLayoutPanel1";
       this.m_TableLayoutPanel1.RowCount = 5;
       this.m_TableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
@@ -533,7 +538,7 @@ namespace CsvTools
       this.m_TableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.m_TableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.m_TableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-      this.m_TableLayoutPanel1.Size = new System.Drawing.Size(449, 361);
+      this.m_TableLayoutPanel1.Size = new System.Drawing.Size(698, 568);
       this.m_TableLayoutPanel1.TabIndex = 10;
       // 
       // m_ComboBoxID
@@ -542,9 +547,10 @@ namespace CsvTools
       this.m_ComboBoxID.Dock = System.Windows.Forms.DockStyle.Top;
       this.m_ComboBoxID.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
       this.m_ComboBoxID.FormattingEnabled = true;
-      this.m_ComboBoxID.Location = new System.Drawing.Point(65, 3);
+      this.m_ComboBoxID.Location = new System.Drawing.Point(97, 5);
+      this.m_ComboBoxID.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
       this.m_ComboBoxID.Name = "m_ComboBoxID";
-      this.m_ComboBoxID.Size = new System.Drawing.Size(381, 21);
+      this.m_ComboBoxID.Size = new System.Drawing.Size(597, 28);
       this.m_ComboBoxID.TabIndex = 0;
       this.m_ComboBoxID.SelectedIndexChanged += new System.EventHandler(this.ComboBox_SelectionChangeCommitted);
       // 
@@ -554,9 +560,10 @@ namespace CsvTools
       this.m_ComboBoxParentID.Dock = System.Windows.Forms.DockStyle.Top;
       this.m_ComboBoxParentID.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
       this.m_ComboBoxParentID.FormattingEnabled = true;
-      this.m_ComboBoxParentID.Location = new System.Drawing.Point(65, 57);
+      this.m_ComboBoxParentID.Location = new System.Drawing.Point(97, 81);
+      this.m_ComboBoxParentID.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
       this.m_ComboBoxParentID.Name = "m_ComboBoxParentID";
-      this.m_ComboBoxParentID.Size = new System.Drawing.Size(381, 21);
+      this.m_ComboBoxParentID.Size = new System.Drawing.Size(597, 28);
       this.m_ComboBoxParentID.TabIndex = 1;
       this.m_ComboBoxParentID.SelectedIndexChanged += new System.EventHandler(this.ComboBox_SelectionChangeCommitted);
       // 
@@ -565,17 +572,19 @@ namespace CsvTools
       this.m_TableLayoutPanel1.SetColumnSpan(this.m_TreeView, 3);
       this.m_TreeView.ContextMenuStrip = contextMenuStrip;
       this.m_TreeView.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.m_TreeView.Location = new System.Drawing.Point(3, 110);
+      this.m_TreeView.Location = new System.Drawing.Point(4, 155);
+      this.m_TreeView.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
       this.m_TreeView.Name = "m_TreeView";
-      this.m_TreeView.Size = new System.Drawing.Size(443, 248);
+      this.m_TreeView.Size = new System.Drawing.Size(690, 408);
       this.m_TreeView.TabIndex = 9;
       // 
       // m_TextBoxValue
       // 
       this.m_TextBoxValue.Dock = System.Windows.Forms.DockStyle.Top;
-      this.m_TextBoxValue.Location = new System.Drawing.Point(65, 84);
+      this.m_TextBoxValue.Location = new System.Drawing.Point(97, 119);
+      this.m_TextBoxValue.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
       this.m_TextBoxValue.Name = "m_TextBoxValue";
-      this.m_TextBoxValue.Size = new System.Drawing.Size(187, 20);
+      this.m_TextBoxValue.Size = new System.Drawing.Size(294, 26);
       this.m_TextBoxValue.TabIndex = 2;
       this.m_TextBoxValue.TextChanged += new System.EventHandler(this.TimerSearchRestart);
       // 
@@ -583,9 +592,10 @@ namespace CsvTools
       // 
       this.m_ComboBoxDisplay2.Dock = System.Windows.Forms.DockStyle.Top;
       this.m_ComboBoxDisplay2.FormattingEnabled = true;
-      this.m_ComboBoxDisplay2.Location = new System.Drawing.Point(258, 30);
+      this.m_ComboBoxDisplay2.Location = new System.Drawing.Point(399, 43);
+      this.m_ComboBoxDisplay2.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
       this.m_ComboBoxDisplay2.Name = "m_ComboBoxDisplay2";
-      this.m_ComboBoxDisplay2.Size = new System.Drawing.Size(188, 21);
+      this.m_ComboBoxDisplay2.Size = new System.Drawing.Size(295, 28);
       this.m_ComboBoxDisplay2.TabIndex = 15;
       this.m_ComboBoxDisplay2.SelectedIndexChanged += new System.EventHandler(this.TimeDisplayRestart);
       // 
@@ -593,20 +603,22 @@ namespace CsvTools
       // 
       this.m_ComboBoxDisplay1.Dock = System.Windows.Forms.DockStyle.Top;
       this.m_ComboBoxDisplay1.FormattingEnabled = true;
-      this.m_ComboBoxDisplay1.Location = new System.Drawing.Point(65, 30);
+      this.m_ComboBoxDisplay1.Location = new System.Drawing.Point(97, 43);
+      this.m_ComboBoxDisplay1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
       this.m_ComboBoxDisplay1.Name = "m_ComboBoxDisplay1";
-      this.m_ComboBoxDisplay1.Size = new System.Drawing.Size(187, 21);
+      this.m_ComboBoxDisplay1.Size = new System.Drawing.Size(294, 28);
       this.m_ComboBoxDisplay1.TabIndex = 16;
       this.m_ComboBoxDisplay1.SelectedIndexChanged += new System.EventHandler(this.TimeDisplayRestart);
       // 
       // FormHierachyDisplay
       // 
-      this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+      this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-      this.ClientSize = new System.Drawing.Size(449, 361);
+      this.ClientSize = new System.Drawing.Size(698, 568);
       this.Controls.Add(this.m_TableLayoutPanel1);
       this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
-      this.MinimumSize = new System.Drawing.Size(340, 200);
+      this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+      this.MinimumSize = new System.Drawing.Size(499, 278);
       this.Name = "FormHierachyDisplay";
       this.Text = "Hierarchy";
       this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.FormHierachyDisplay_FormClosed);
