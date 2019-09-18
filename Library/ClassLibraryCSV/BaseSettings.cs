@@ -1069,55 +1069,50 @@ namespace CsvTools
         MappingCollection.Remove(fieldMapping);
     }
 
-    /*
-     public abstract override int GetHashCode();
-
     /// <summary>Serves as the default hash function. </summary>
     /// <returns>A hash code for the current object.</returns>
     protected virtual int GetBaseHashCode()
     {
-     unchecked
-     {
-      var hashCode = m_ConsecutiveEmptyRows;
-      hashCode = (hashCode * 397) ^ m_Column.CollectionHashCode();
-      hashCode = (hashCode * 397) ^ m_ColumnMapping.CollectionHashCode();
-      hashCode = (hashCode * 397) ^ m_FileFormat.GetHashCode();
-      hashCode = (hashCode * 397) ^ m_DisplayEndLineNo.GetHashCode();
-      hashCode = (hashCode * 397) ^ m_DisplayRecordNo.GetHashCode();
-      hashCode = (hashCode * 397) ^ m_DisplayStartLineNo.GetHashCode();
-      hashCode = (hashCode * 397) ^ m_FileLastWriteTimeUtc.GetHashCode();
-      hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(m_FileName);
-      hashCode = (hashCode * 397) ^ m_FileSize.GetHashCode();
-      hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(m_Footer);
-      hashCode = (hashCode * 397) ^ m_HasFieldHeader.GetHashCode();
-      hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(m_Header);
-      hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(m_Id);
-      hashCode = (hashCode * 397) ^ m_InOverview.GetHashCode();
-      hashCode = (hashCode * 397) ^ m_IsEnabled.GetHashCode();
-      hashCode = (hashCode * 397) ^ m_NumErrors;
-      hashCode = (hashCode * 397) ^ m_Passphrase.GetHashCode();
-      hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(m_Recipient);
-      hashCode = (hashCode * 397) ^ (int)m_RecordLimit;
-      hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(m_RemoteFileName);
-      hashCode = (hashCode * 397) ^ m_ShowProgress.GetHashCode();
-      hashCode = (hashCode * 397) ^ m_SkipRows;
-      hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(m_SourceSetting);
-      hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(m_SqlStatement);
-      hashCode = (hashCode * 397) ^ m_SqlTimeout;
-      hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(m_TemplateName);
-      hashCode = (hashCode * 397) ^ m_TreatNbspAsSpace.GetHashCode();
-      hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(m_TreatTextAsNull);
-      hashCode = (hashCode * 397) ^ m_Validate.GetHashCode();
-      hashCode = (hashCode * 397) ^ (m_ValidationResult?.GetHashCode() ?? 0);
-      hashCode = (hashCode * 397) ^ Errors.CollectionHashCode();
-      hashCode = (hashCode * 397) ^ ReadToEndOfFile.GetHashCode();
-      hashCode = (hashCode * 397) ^ Samples.CollectionHashCode();
-      hashCode = (hashCode * 397) ^ SkipEmptyLines.GetHashCode();
-      hashCode = (hashCode * 397) ^ (int)TrimmingOption;
-      return hashCode;
-     }
+      unchecked
+      {
+        var hashCode = m_ConsecutiveEmptyRows;
+        hashCode = (hashCode * 397) ^ ColumnCollection.CollectionHashCode();
+        hashCode = (hashCode * 397) ^ MappingCollection.CollectionHashCode();
+        hashCode = (hashCode * 397) ^ m_FileFormat.GetHashCode();
+        hashCode = (hashCode * 397) ^ m_DisplayEndLineNo.GetHashCode();
+        hashCode = (hashCode * 397) ^ m_DisplayRecordNo.GetHashCode();
+        hashCode = (hashCode * 397) ^ m_DisplayStartLineNo.GetHashCode();
+        hashCode = (hashCode * 397) ^ m_FileLastWriteTimeUtc.GetHashCode();
+        hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(m_FileName);
+        hashCode = (hashCode * 397) ^ m_FileSize.GetHashCode();
+        hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(m_Footer);
+        hashCode = (hashCode * 397) ^ m_HasFieldHeader.GetHashCode();
+        hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(m_Header);
+        hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(m_Id);
+        hashCode = (hashCode * 397) ^ m_InOverview.GetHashCode();
+        hashCode = (hashCode * 397) ^ m_IsEnabled.GetHashCode();
+        hashCode = (hashCode * 397) ^ m_NumErrors;
+        hashCode = (hashCode * 397) ^ m_Passphrase.GetHashCode();
+        hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(m_Recipient);
+        hashCode = (hashCode * 397) ^ (int)m_RecordLimit;
+        hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(m_RemoteFileName);
+        hashCode = (hashCode * 397) ^ m_ShowProgress.GetHashCode();
+        hashCode = (hashCode * 397) ^ m_SkipRows;
+        hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(m_SqlStatement);
+        hashCode = (hashCode * 397) ^ m_SqlTimeout;
+        hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(m_TemplateName);
+        hashCode = (hashCode * 397) ^ m_TreatNbspAsSpace.GetHashCode();
+        hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(m_TreatTextAsNull);
+        hashCode = (hashCode * 397) ^ m_Validate.GetHashCode();
+        hashCode = (hashCode * 397) ^ (m_ValidationResult?.GetHashCode() ?? 0);
+        hashCode = (hashCode * 397) ^ m_Errors.CollectionHashCode();
+        hashCode = (hashCode * 397) ^ ReadToEndOfFile.GetHashCode();
+        hashCode = (hashCode * 397) ^ m_Samples.CollectionHashCode();
+        hashCode = (hashCode * 397) ^ m_SkipEmptyLines.GetHashCode();
+        hashCode = (hashCode * 397) ^ (int)m_TrimmingOption;
+        return hashCode;
+      }
     }
-    */
 
     /// <summary>
     ///  Notifies the completed property changed.

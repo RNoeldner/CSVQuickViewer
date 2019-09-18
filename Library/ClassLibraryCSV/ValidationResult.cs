@@ -193,7 +193,6 @@ namespace CsvTools
     /// <param name="info">The info.</param>
     public virtual void NotifyPropertyChanged(string info) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(info));
 
-    /*
     /// <summary>Serves as the default hash function. </summary>
     /// <returns>A hash code for the current object.</returns>
     public override int GetHashCode()
@@ -208,6 +207,5 @@ namespace CsvTools
         return hashCode;
       }
     }
-    */
   }
 }

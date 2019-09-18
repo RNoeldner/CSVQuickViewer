@@ -473,9 +473,9 @@ namespace CsvTools
             // Filtering for Dates we need to ignore time
             filterValue = string.Format(@"#{0:MM\/dd\/yyyy}#", m_ValueDateTime);
             if (m_Operator == cOPequal)
-              return string.Format(CultureInfo.InvariantCulture, "({0} >= {2} AND {0} < #{3:MM\\/dd\\/yyyy}#)", m_DataPropertyNameEscape, m_Operator, filterValue, m_ValueDateTime.AddDays(1));
+              return string.Format(CultureInfo.InvariantCulture, "({0} >= {1} AND {0} < #{2:MM\\/dd\\/yyyy}#)", m_DataPropertyNameEscape, filterValue, m_ValueDateTime.AddDays(1));
             if (m_Operator == cOPnotEqual)
-              return string.Format(CultureInfo.InvariantCulture, "({0} < {2} OR {0} > #{3:MM\\/dd\\/yyyy}#)", m_DataPropertyNameEscape, m_Operator, filterValue, m_ValueDateTime.AddDays(1));
+              return string.Format(CultureInfo.InvariantCulture, "({0} < {1} OR {0} > #{2:MM\\/dd\\/yyyy}#)", m_DataPropertyNameEscape, filterValue, m_ValueDateTime.AddDays(1));
 
             return string.Format(CultureInfo.InvariantCulture, "{0} {1} {2}", m_DataPropertyNameEscape, m_Operator, filterValue);
           }

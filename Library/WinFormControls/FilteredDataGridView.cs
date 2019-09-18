@@ -1027,7 +1027,6 @@ namespace CsvTools
         return;
       using (var form = new FormColumnUI(columnFormat, false, m_FileSetting))
       {
-        form.ShowIgnore = false;
         if (form.ShowDialog() == DialogResult.Yes)
           Refresh();
       }
