@@ -48,9 +48,10 @@
       // 
       label1.Anchor = System.Windows.Forms.AnchorStyles.Right;
       label1.AutoSize = true;
-      label1.Location = new System.Drawing.Point(3, 7);
+      label1.Location = new System.Drawing.Point(4, 9);
+      label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
       label1.Name = "label1";
-      label1.Size = new System.Drawing.Size(29, 13);
+      label1.Size = new System.Drawing.Size(43, 20);
       label1.TabIndex = 3;
       label1.Text = "Field";
       // 
@@ -66,11 +67,12 @@
       tableLayoutPanel1.Controls.Add(this.checkBoxIgnoreNull, 2, 0);
       tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
       tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
+      tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
       tableLayoutPanel1.Name = "tableLayoutPanel1";
       tableLayoutPanel1.RowCount = 2;
       tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
       tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-      tableLayoutPanel1.Size = new System.Drawing.Size(484, 500);
+      tableLayoutPanel1.Size = new System.Drawing.Size(719, 743);
       tableLayoutPanel1.TabIndex = 10;
       // 
       // detailControl
@@ -88,12 +90,13 @@
       dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
       this.detailControl.DefaultCellStyle = dataGridViewCellStyle2;
       this.detailControl.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.detailControl.Location = new System.Drawing.Point(3, 30);
+      this.detailControl.Location = new System.Drawing.Point(4, 43);
+      this.detailControl.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
       this.detailControl.Name = "detailControl";
       this.detailControl.ReadOnly = true;
       this.detailControl.ShowFilter = false;
       this.detailControl.ShowInfoButtons = false;
-      this.detailControl.Size = new System.Drawing.Size(478, 467);
+      this.detailControl.Size = new System.Drawing.Size(711, 695);
       this.detailControl.TabIndex = 2;
       // 
       // comboBoxID
@@ -101,9 +104,10 @@
       this.comboBoxID.Dock = System.Windows.Forms.DockStyle.Top;
       this.comboBoxID.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
       this.comboBoxID.FormattingEnabled = true;
-      this.comboBoxID.Location = new System.Drawing.Point(38, 3);
+      this.comboBoxID.Location = new System.Drawing.Point(55, 5);
+      this.comboBoxID.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
       this.comboBoxID.Name = "comboBoxID";
-      this.comboBoxID.Size = new System.Drawing.Size(350, 21);
+      this.comboBoxID.Size = new System.Drawing.Size(526, 28);
       this.comboBoxID.TabIndex = 0;
       this.comboBoxID.SelectedIndexChanged += new System.EventHandler(this.ComboBoxID_SelectedIndexChanged);
       // 
@@ -111,9 +115,10 @@
       // 
       this.checkBoxIgnoreNull.Anchor = System.Windows.Forms.AnchorStyles.Left;
       this.checkBoxIgnoreNull.AutoSize = true;
-      this.checkBoxIgnoreNull.Location = new System.Drawing.Point(394, 5);
+      this.checkBoxIgnoreNull.Location = new System.Drawing.Point(589, 7);
+      this.checkBoxIgnoreNull.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
       this.checkBoxIgnoreNull.Name = "checkBoxIgnoreNull";
-      this.checkBoxIgnoreNull.Size = new System.Drawing.Size(87, 17);
+      this.checkBoxIgnoreNull.Size = new System.Drawing.Size(126, 24);
       this.checkBoxIgnoreNull.TabIndex = 1;
       this.checkBoxIgnoreNull.Text = "Ignore NULL";
       this.checkBoxIgnoreNull.UseVisualStyleBackColor = true;
@@ -121,11 +126,12 @@
       // 
       // FormUniqueDisplay
       // 
-      this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+      this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-      this.ClientSize = new System.Drawing.Size(484, 500);
+      this.ClientSize = new System.Drawing.Size(719, 743);
       this.Controls.Add(tableLayoutPanel1);
       this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
+      this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
       this.Name = "FormUniqueDisplay";
       this.Text = "Unique Values Display";
       this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.UniqueDisplay_FormClosing);
