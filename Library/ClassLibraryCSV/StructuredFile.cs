@@ -13,6 +13,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.Contracts;
 using System.Xml.Serialization;
@@ -178,7 +179,10 @@ namespace CsvTools
     /// <returns></returns>
     public override IFileWriter GetFileWriter(IProcessDisplay processDisplay) => new StructuredFileWriter(this, processDisplay);
 
-    /*
+    public static bool operator ==(StructuredFile file1, StructuredFile file2) => EqualityComparer<StructuredFile>.Default.Equals(file1, file2);
+
+    public static bool operator !=(StructuredFile file1, StructuredFile file2) => !(file1 == file2);
+
     /// <summary>Serves as the default hash function. </summary>
     /// <returns>A hash code for the current object.</returns>
     public override int GetHashCode()
@@ -194,6 +198,5 @@ namespace CsvTools
         return hashCode;
       }
     }
-    */
   }
 }

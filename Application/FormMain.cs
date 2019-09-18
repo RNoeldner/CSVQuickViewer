@@ -12,9 +12,6 @@
  *
  */
 
-using CsvTools.Properties;
-using log4net;
-using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -28,6 +25,9 @@ using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
 using System.Xml.Serialization;
+using CsvTools.Properties;
+using log4net;
+using Microsoft.Win32;
 using Timer = System.Timers.Timer;
 
 namespace CsvTools
@@ -237,7 +237,7 @@ namespace CsvTools
         m_ViewSettings.WindowPosition = res;
 
       SaveDefault();
-      if (m_ConfigChanged && m_ViewSettings.StoreSettingsByFile)
+      if (m_ViewSettings.StoreSettingsByFile)
         SaveIndividualFileSetting();
     }
 
@@ -645,9 +645,7 @@ namespace CsvTools
       try
       {
         var pathSetting = m_FileSetting.FileName + CsvFile.cCsvSettingExtension;
-
         m_FileSetting.FileName = FileSystemUtils.SplitPath(m_FileSetting.FileName).FileName;
-        var answer = DialogResult.No;
 
         if (FileSystemUtils.FileExists(pathSetting))
         {
@@ -657,22 +655,16 @@ namespace CsvTools
           compare.ID = m_FileSetting.ID;
           compare.FileName = m_FileSetting.FileName;
 
+          var answer = DialogResult.Yes;
           if (!compare.Equals(m_FileSetting))
-            answer = _MessageBox.Show(this,
-              $"Replace changed settings in {pathSetting} ?", "Settings",
-              MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            answer = _MessageBox.Show(this, $"Replace settings in {pathSetting} ?", "Settings", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
           if (answer == DialogResult.Yes)
             FileSystemUtils.FileDelete(pathSetting);
-        }
-        else
-        {
-          answer = _MessageBox.Show(this,
-            $"Store settings in {pathSetting} for faster processing next time?", "Settings", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+          else
+            return;
         }
 
-        if (answer != DialogResult.Yes)
-          return;
         Log.Debug($"Saving setting {pathSetting}");
         SerializedFilesLib.SaveCsvFile(pathSetting, m_FileSetting);
         m_ConfigChanged = false;

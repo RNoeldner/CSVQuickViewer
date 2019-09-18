@@ -67,6 +67,7 @@ namespace CsvTools
 
       labelDisplayNullAs.Visible = writeSetting;
       textBoxDisplayNullAs.Visible = writeSetting;
+      checkBoxIgnore.Visible = !writeSetting;
     }
 
     public bool ShowGuess
@@ -77,15 +78,6 @@ namespace CsvTools
         buttonGuess.Visible = value;
         buttonDisplayValues.Visible = value;
       }
-    }
-
-    /// <summary>
-    ///   Show or hide the Ignore Buttons
-    /// </summary>
-    public bool ShowIgnore
-    {
-      get => checkBoxIgnore.Visible;
-      set => checkBoxIgnore.Visible = value;
     }
 
     /// <summary>
@@ -609,8 +601,8 @@ namespace CsvTools
         if (groupBoxSplit.Visible)
           SetSamplePart(null, null);
 
-        //TODO: depening on OS and scaling a different value might be needed
-        Height = tableLayoutPanelForm.Height + SystemInformation.CaptionHeight + 8;
+        //TODO: odepening on OS and scaling a different value might be needed
+        Height = tableLayoutPanelForm.Height + SystemInformation.CaptionHeight + 12;
       }
       catch (Exception ex)
       {

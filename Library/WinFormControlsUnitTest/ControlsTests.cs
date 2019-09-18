@@ -145,7 +145,6 @@ namespace CsvTools.Tests
       using (var form = new FormColumnUI(col, false, csvFile))
       {
         form.ShowInTaskbar = false;
-        form.ShowIgnore = false;
         form.Show();
         form.Close();
       }
