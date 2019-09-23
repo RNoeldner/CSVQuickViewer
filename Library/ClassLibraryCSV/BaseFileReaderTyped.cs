@@ -19,6 +19,56 @@ namespace CsvTools
     }
 
     /// <summary>
+    ///   Gets the type of the column by looking at the first 50 rows
+    /// </summary>
+    /// <returns>An array with the found data types</returns>
+    /// <remarks>In case of mixed types, string is preferred over everything</remarks>
+    protected DataType[] GetColumnType(Func<int, bool> getNextRow)
+    {
+      Contract.Ensures(Contract.Result<DataType[]>() != null);
+      Contract.Ensures(Contract.Result<DataType[]>().Length == FieldCount);
+
+      HandleShowProgress("Reading data to determine type");
+      var colType = new DataType[FieldCount];
+
+      // Initialize with DataType.TextPart
+      for (var col = 0; col < FieldCount; col++)
+        colType[col] = DataType.TextPart;
+      for (var row = 1; row < 50; row++)
+      {
+        if (!getNextRow(row))
+          break;
+
+        for (var col = 0; col < FieldCount; col++)
+        {
+          // if a column was detected as string, keep it that way
+          if (colType[col] == DataType.String)
+            continue;
+
+          if (m_CurrentValues[col] == null)
+            continue;
+
+          var detected = m_CurrentValues[col].GetType().GetDataType();
+
+          // if already set continue
+          if (colType[col] == detected)
+            continue;
+
+          // String will overwrite all
+          if (detected == DataType.String || colType[col] == DataType.TextPart)
+            colType[col] = detected;
+        }
+      }
+
+      for (var col = 0; col < FieldCount; col++)
+        // all rows where empty no data type found
+        if (colType[col] == DataType.TextPart)
+          // make it a string
+          colType[col] = DataType.String;
+      return colType;
+    }
+
+    /// <summary>
     ///  Gets the boolean.
     /// </summary>
     /// <param name="columnNumber">The i.</param>
@@ -30,6 +80,12 @@ namespace CsvTools
       if (m_CurrentValues[columnNumber] is bool b)
         return b;
       return base.GetBoolean(columnNumber);
+    }
+
+    protected override void InitColumn(int fieldCount)
+    {
+      m_CurrentValues = new object[fieldCount];
+      base.InitColumn(fieldCount);
     }
 
     /// <summary>
