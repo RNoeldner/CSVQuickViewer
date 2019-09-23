@@ -1,0 +1,263 @@
+﻿{ 
+  "log":{ 
+    "date":"2019-09-19T11:15:27.4786781+02:00",
+    "level":"DEBUG",
+    "appname":"CSVFileValidator.exe",
+    "logger":"CsvTools.Status",
+    "thread":"1",
+    "ndc":"(null)",
+    "message":"Application start\u2026"
+  },
+  "log":{ 
+    "date":"2019-09-19T11:15:27.6156918+02:00",
+    "level":"DEBUG",
+    "appname":"CSVFileValidator.exe",
+    "logger":"CsvTools.Settings",
+    "thread":"1",
+    "ndc":"(null)",
+    "message":"Loading defaults C:\\Users\\rnoldner\\AppData\\Roaming\\CSVFileValidator\\Setting.xml"
+  },
+  "log":{ 
+    "date":"2019-09-19T11:15:27.8587161+02:00",
+    "level":"DEBUG",
+    "appname":"CSVFileValidator.exe",
+    "logger":"CsvTools.DummyProcessDisplay",
+    "thread":"1",
+    "ndc":"(null)",
+    "message":"Loading Most Recently Used List\u2026"
+  },
+  "log":{ 
+    "date":"2019-09-19T11:15:28.1357438+02:00",
+    "level":"DEBUG",
+    "appname":"CSVFileValidator.exe",
+    "logger":"CsvTools.DummyProcessDisplay",
+    "thread":"1",
+    "ndc":"(null)",
+    "message":""
+  },
+  "log":{ 
+    "date":"2019-09-19T11:15:28.2197522+02:00",
+    "level":"DEBUG",
+    "appname":"CSVFileValidator.exe",
+    "logger":"CsvTools.Status",
+    "thread":"1",
+    "ndc":"(null)",
+    "message":"Application start\u2026"
+  },
+  "log":{ 
+    "date":"2019-09-19T11:15:28.3447647+02:00",
+    "level":"DEBUG",
+    "appname":"CSVFileValidator.exe",
+    "logger":"CsvTools.Settings",
+    "thread":"1",
+    "ndc":"(null)",
+    "message":"Loading defaults C:\\Users\\rnoldner\\AppData\\Roaming\\CSVFileValidator\\Setting.xml"
+  },
+  "log":{ 
+    "date":"2019-09-19T11:15:28.6507953+02:00",
+    "level":"DEBUG",
+    "appname":"CSVFileValidator.exe",
+    "logger":"CsvTools.DummyProcessDisplay",
+    "thread":"1",
+    "ndc":"(null)",
+    "message":"Loading Most Recently Used List\u2026"
+  },
+  "log":{ 
+    "date":"2019-09-19T11:15:28.9208223+02:00",
+    "level":"DEBUG",
+    "appname":"CSVFileValidator.exe",
+    "logger":"CsvTools.DummyProcessDisplay",
+    "thread":"1",
+    "ndc":"(null)",
+    "message":""
+  },
+  "log":{ 
+    "date":"2019-09-19T11:15:32.4231725+02:00",
+    "level":"INFO",
+    "appname":"CSVFileValidator.exe",
+    "logger":"CsvTools.Status",
+    "thread":"1",
+    "ndc":"(null)",
+    "message":"Loading ToolSetting from file C:\\Users\\rnoldner\\NonSync\\Client_Unipolsai\\GTS-11165 Extraction of certificates\\GTS_11165.ValidationTask"
+  },
+  "log":{ 
+    "date":"2019-09-19T11:15:32.9732275+02:00",
+    "level":"DEBUG",
+    "appname":"CSVFileValidator.exe",
+    "logger":"CsvTools.Status",
+    "thread":"1",
+    "ndc":"(null)",
+    "message":"Loading TemplateSet from file C:\\Users\\rnoldner\\AppData\\Roaming\\CSVFileValidator\\TemplateSet.xml"
+  },
+  "log":{ 
+    "date":"2019-09-19T11:15:34.8324134+02:00",
+    "level":"DEBUG",
+    "appname":"CSVFileValidator.exe",
+    "logger":"CsvTools.DummyProcessDisplay",
+    "thread":"1",
+    "ndc":"(null)",
+    "message":""
+  },
+  "log":{ 
+    "date":"2019-09-19T11:15:34.9944296+02:00",
+    "level":"DEBUG",
+    "appname":"CSVFileValidator.exe",
+    "logger":"CsvTools.DummyProcessDisplay",
+    "thread":"5",
+    "ndc":"(null)",
+    "message":"Checking physical files"
+  },
+  "log":{ 
+    "date":"2019-09-19T11:15:35.0814383+02:00",
+    "level":"DEBUG",
+    "appname":"CSVFileValidator.exe",
+    "logger":"CsvTools.DummyProcessDisplay",
+    "thread":"5",
+    "ndc":"(null)",
+    "message":"Getting tables from database"
+  },
+  "log":{ 
+    "date":"2019-09-19T11:15:35.1824484+02:00",
+    "level":"DEBUG",
+    "appname":"CSVFileValidator.exe",
+    "logger":"CsvTools.DummyProcessDisplay",
+    "thread":"5",
+    "ndc":"(null)",
+    "message":"Updating validation results - attestati_20190720_SKH1.txt"
+  },
+  "log":{ 
+    "date":"2019-09-19T11:15:35.1944496+02:00",
+    "level":"DEBUG",
+    "appname":"CSVFileValidator.exe",
+    "logger":"CsvTools.DummyProcessDisplay",
+    "thread":"5",
+    "ndc":"(null)",
+    "message":"Updating validation results - attestati_20190720_SKH2.txt"
+  },
+  "log":{ 
+    "date":"2019-09-19T11:15:35.2504552+02:00",
+    "level":"DEBUG",
+    "appname":"CSVFileValidator.exe",
+    "logger":"CsvTools.DummyProcessDisplay",
+    "thread":"5",
+    "ndc":"(null)",
+    "message":"Update UI"
+  },
+  "log":{ 
+    "date":"2019-09-19T11:15:35.3344636+02:00",
+    "level":"DEBUG",
+    "appname":"CSVFileValidator.exe",
+    "logger":"CsvTools.Status",
+    "thread":"1",
+    "ndc":"(null)",
+    "message":"Checking if table attestati_SKH1.txt needs to be refreshed"
+  },
+  "log":{ 
+    "date":"2019-09-19T11:15:35.3424644+02:00",
+    "level":"DEBUG",
+    "appname":"CSVFileValidator.exe",
+    "logger":"CsvTools.Status",
+    "thread":"1",
+    "ndc":"(null)",
+    "message":"Checking if table attestati_SKH2.txt needs to be refreshed"
+  },
+  "log":{ 
+    "date":"2019-09-19T11:15:35.3624664+02:00",
+    "level":"DEBUG",
+    "appname":"CSVFileValidator.exe",
+    "logger":"CsvTools.DummyProcessDisplay",
+    "thread":"5",
+    "ndc":"(null)",
+    "message":""
+  },
+  "log":{ 
+    "date":"2019-09-19T11:15:38.0457347+02:00",
+    "level":"DEBUG",
+    "appname":"CSVFileValidator.exe",
+    "logger":"CsvTools.Status",
+    "thread":"1",
+    "ndc":"(null)",
+    "message":"Checking if table attestati_SKH2.txt needs to be refreshed"
+  },
+  "log":{ 
+    "date":"2019-09-19T11:15:38.1707472+02:00",
+    "level":"DEBUG",
+    "appname":"CSVFileValidator.exe",
+    "logger":"CsvTools.Status",
+    "thread":"1",
+    "ndc":"(null)",
+    "message":"Checking if table attestati_SKH1.txt needs to be refreshed"
+  },
+  "log":{ 
+    "date":"2019-09-19T11:15:38.2167518+02:00",
+    "level":"DEBUG",
+    "appname":"CSVFileValidator.exe",
+    "logger":"CsvTools.Status",
+    "thread":"1",
+    "ndc":"(null)",
+    "message":"Checking if table attestati_SKH1.txt needs to be refreshed"
+  },
+  "log":{ 
+    "date":"2019-09-19T11:15:38.9858287+02:00",
+    "level":"DEBUG",
+    "appname":"CSVFileValidator.exe",
+    "logger":"CsvTools.DummyProcessDisplay",
+    "thread":"1",
+    "ndc":"(null)",
+    "message":"Closing Application\u2026"
+  },
+  "log":{ 
+    "date":"2019-09-19T11:15:38.9998301+02:00",
+    "level":"DEBUG",
+    "appname":"CSVFileValidator.exe",
+    "logger":"CsvTools.Status",
+    "thread":"1",
+    "ndc":"(null)",
+    "message":"Closing Application\u2026"
+  },
+  "log":{ 
+    "date":"2019-09-19T11:15:39.0518353+02:00",
+    "level":"DEBUG",
+    "appname":"CSVFileValidator.exe",
+    "logger":"CsvTools.Status",
+    "thread":"1",
+    "ndc":"(null)",
+    "message":"Releasing lock\u2026"
+  },
+  "log":{ 
+    "date":"2019-09-19T11:15:39.2798581+02:00",
+    "level":"INFO",
+    "appname":"CSVFileValidator.exe",
+    "logger":"CsvTools.Status",
+    "thread":"1",
+    "ndc":"(null)",
+    "message":"Application exit"
+  },
+  "log":{ 
+    "date":"2019-09-19T11:18:02.6581945+02:00",
+    "level":"DEBUG",
+    "appname":"CSVFileValidator.exe",
+    "logger":"CsvTools.DummyProcessDisplay",
+    "thread":"1",
+    "ndc":"(null)",
+    "message":"Closing Application\u2026"
+  },
+  "log":{ 
+    "date":"2019-09-19T11:18:02.6681955+02:00",
+    "level":"DEBUG",
+    "appname":"CSVFileValidator.exe",
+    "logger":"CsvTools.Status",
+    "thread":"1",
+    "ndc":"(null)",
+    "message":"Closing Application\u2026"
+  },
+  "log":{ 
+    "date":"2019-09-19T11:18:02.7992086+02:00",
+    "level":"INFO",
+    "appname":"CSVFileValidator.exe",
+    "logger":"CsvTools.Status",
+    "thread":"1",
+    "ndc":"(null)",
+    "message":"Application exit"
+  }
+}

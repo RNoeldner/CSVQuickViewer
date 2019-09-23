@@ -149,11 +149,7 @@ namespace CsvTools
     ///  Gets the number of fields in the file.
     /// </summary>
     /// <value>Number of field in the file.</value>
-    public virtual int FieldCount
-    {
-      get => m_FieldCount;
-      protected set => m_FieldCount = value;
-    }
+    public virtual int FieldCount => m_FieldCount;
 
     public double NotifyAfterSeconds
     {
@@ -416,14 +412,33 @@ namespace CsvTools
       Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount);
       Debug.Assert(CurrentRowColumnText != null && columnNumber < CurrentRowColumnText.Length);
 
+      var parsed = GetGuidNull(CurrentRowColumnText[columnNumber], columnNumber);
+
+      if (parsed.HasValue)
+        return parsed.Value;
+
+      throw WarnAddFormatException(columnNumber,
+       $"'{CurrentRowColumnText[columnNumber]}' is not an GUID");
+    }
+
+    /// <summary>
+    ///  Gets the int32 value or null.
+    /// </summary>
+    /// <param name="inputValue">The input.</param>
+    /// <param name="column">The column.</param>
+    /// <returns></returns>
+    public virtual Guid? GetGuidNull(string inputValue, int columnNumber)
+    {
+      if (string.IsNullOrEmpty(inputValue))
+        return null;
       try
       {
-        return new Guid(CurrentRowColumnText[columnNumber]);
+        return new Guid(inputValue);
       }
-      catch (Exception)
+      catch
       {
         throw WarnAddFormatException(columnNumber,
-         $"'{CurrentRowColumnText[columnNumber]}' is not a Guid");
+           $"'{inputValue}' is not a Guid");
       }
     }
 
@@ -1066,7 +1081,7 @@ namespace CsvTools
           break;
 
         case DataType.Guid:
-          ret = StringConversion.StringToGuid(value);
+          ret = GetGuidNull(value, column.ColumnOrdinal);
           break;
 
         default:
@@ -1253,11 +1268,12 @@ namespace CsvTools
     ///  Initializes the column array to a give count.
     /// </summary>
     /// <param name="fieldCount">The field count.</param>
-    protected void InitColumn(int fieldCount)
+    protected virtual void InitColumn(int fieldCount)
     {
       Debug.Assert(fieldCount >= 0);
       m_FieldCount = fieldCount;
       Column = new Column[fieldCount];
+      CurrentRowColumnText = new string[fieldCount];
       AssociatedTimeCol = new int[fieldCount];
       AssociatedTimeZoneCol = new int[fieldCount];
       for (var counter = 0; counter < fieldCount; counter++)

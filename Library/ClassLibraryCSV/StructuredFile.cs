@@ -28,9 +28,9 @@ namespace CsvTools
   {
     private readonly string m_Footer = string.Empty;
     private readonly string m_Header = string.Empty;
-    private bool m_JSONEncode;
+    private bool m_JSONEncode = true;
     private string m_Row = string.Empty;
-    private bool m_XMLEncode;
+    private bool m_XMLEncode = false;
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="StructuredFile" /> class.
@@ -88,7 +88,7 @@ namespace CsvTools
     ///   Set to <c>true</c> if the contend needs to be HTML Encoded, needed for XML Files
     /// </summary>
     [XmlAttribute]
-    [DefaultValue(true)]
+    [DefaultValue(false)]
     public bool XMLEncode
     {
       get => m_XMLEncode;
@@ -170,7 +170,13 @@ namespace CsvTools
     /// </summary>
     /// <returns></returns>
     /// <exception cref="NotImplementedException"> Structured files can not be read they are for writing only</exception>
-    public override IFileReader GetFileReader(IProcessDisplay processDisplay) => throw new NotImplementedException(" Structured files can not be read they are for writing only");
+    public override IFileReader GetFileReader(IProcessDisplay processDisplay)
+    {
+      if (JSONEncode)
+        return new JsonFileReader(this, processDisplay);
+      else
+        throw new NotImplementedException("XML Structured files can not be read they are for writing only");
+    }
 
     /// <summary>
     ///   Gets the file writer.

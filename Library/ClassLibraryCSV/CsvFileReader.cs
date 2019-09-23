@@ -57,7 +57,7 @@ namespace CsvTools
 
     private const char c_UnknownChar = (char)0xFFFD;
 
-    private readonly bool disposedValue = false;
+    private bool disposedValue = false;
 
     /// <summary>
     ///  16k Buffer of the file data
@@ -184,6 +184,7 @@ namespace CsvTools
           }
           base.Dispose(disposing);
         }
+        disposedValue = true;
       }
     }
 
@@ -274,7 +275,7 @@ namespace CsvTools
         else
         {
           // Get the column count
-          FieldCount = ParseFieldCount(m_HeaderRow);
+          InitColumn(ParseFieldCount(m_HeaderRow));
 
           // Get the column names
           ParseColumnName(m_HeaderRow);
