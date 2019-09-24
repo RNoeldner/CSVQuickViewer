@@ -57,17 +57,17 @@
       this.comboBoxTimeZoneID.Location = new System.Drawing.Point(0, 4);
       this.comboBoxTimeZoneID.Margin = new System.Windows.Forms.Padding(0, 4, 0, 0);
       this.comboBoxTimeZoneID.Name = "comboBoxTimeZoneID";
-      this.comboBoxTimeZoneID.Size = new System.Drawing.Size(596, 28);
+      this.comboBoxTimeZoneID.Size = new System.Drawing.Size(580, 28);
       this.comboBoxTimeZoneID.TabIndex = 28;
       this.comboBoxTimeZoneID.SelectedIndexChanged += new System.EventHandler(this.ComboBoxTimeZoneID_SelectedIndexChanged);
       // 
       // buttonLocalTZ
       // 
       this.buttonLocalTZ.AutoSize = true;
-      this.buttonLocalTZ.Location = new System.Drawing.Point(598, 2);
+      this.buttonLocalTZ.Location = new System.Drawing.Point(582, 2);
       this.buttonLocalTZ.Margin = new System.Windows.Forms.Padding(2);
       this.buttonLocalTZ.Name = "buttonLocalTZ";
-      this.buttonLocalTZ.Size = new System.Drawing.Size(86, 34);
+      this.buttonLocalTZ.Size = new System.Drawing.Size(102, 34);
       this.buttonLocalTZ.TabIndex = 29;
       this.buttonLocalTZ.Text = "Local";
       this.buttonLocalTZ.UseVisualStyleBackColor = true;

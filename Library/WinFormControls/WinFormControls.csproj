@@ -155,7 +155,9 @@
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="LogAppenderTextBox.cs" />
-    <Compile Include="TimedMessage.cs" />
+    <Compile Include="TimedMessage.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="TimeZoneSelector.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -171,6 +173,7 @@
     <Compile Include="ValueCluster.cs" />
     <Compile Include="ValueClusterCollection.cs" />
     <Compile Include="WindowState.cs" />
+    <Compile Include="_MessageBox.cs" />
     <Service Include="{94E38DFF-614B-4cbd-B67C-F211BB35CE8B}" />
   </ItemGroup>
   <ItemGroup>
