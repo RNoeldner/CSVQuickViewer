@@ -323,9 +323,9 @@ namespace CsvTools
       // 
       this.m_ButtonOk.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
       this.m_ButtonOk.DialogResult = System.Windows.Forms.DialogResult.OK;
-      this.m_ButtonOk.Location = new System.Drawing.Point(183, 458);
+      this.m_ButtonOk.Location = new System.Drawing.Point(115, 458);
       this.m_ButtonOk.Name = "m_ButtonOk";
-      this.m_ButtonOk.Size = new System.Drawing.Size(68, 34);
+      this.m_ButtonOk.Size = new System.Drawing.Size(102, 34);
       this.m_ButtonOk.TabIndex = 62;
       this.m_ButtonOk.Text = "&OK";
       this.m_ButtonOk.UseVisualStyleBackColor = true;
@@ -334,9 +334,9 @@ namespace CsvTools
       // m_ButtonCancel
       // 
       this.m_ButtonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-      this.m_ButtonCancel.Location = new System.Drawing.Point(257, 458);
+      this.m_ButtonCancel.Location = new System.Drawing.Point(223, 458);
       this.m_ButtonCancel.Name = "m_ButtonCancel";
-      this.m_ButtonCancel.Size = new System.Drawing.Size(68, 34);
+      this.m_ButtonCancel.Size = new System.Drawing.Size(102, 34);
       this.m_ButtonCancel.TabIndex = 63;
       this.m_ButtonCancel.Text = "&Cancel";
       this.m_ButtonCancel.UseVisualStyleBackColor = true;
@@ -363,7 +363,9 @@ namespace CsvTools
       // 
       // FolderTree
       // 
+      this.AcceptButton = this.m_ButtonOk;
       this.BackColor = System.Drawing.SystemColors.Control;
+      this.CancelButton = this.m_ButtonCancel;
       this.ClientSize = new System.Drawing.Size(328, 495);
       this.Controls.Add(this.m_TableLayoutPanel);
       this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
