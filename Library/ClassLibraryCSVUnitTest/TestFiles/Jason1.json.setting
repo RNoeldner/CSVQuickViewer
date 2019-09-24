@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-16"?>
+<CsvFile FileName="Jason1.json" ID="Jason1.json" AlternateQuoting="true" JsonFormat="true" WarnDelimiterInValue="true" WarnLineFeed="true" WarnQuotes="true">
+  <Format Column="id" />
+  <Format Column="websiteId" />
+  <Format Column="enabled" />
+  <Format Column="starred" />
+  <Format Column="type" />
+  <Format Column="ordering" />
+  <Format Column="title" />
+  <Format Column="navigationTitle" />
+  <Format Column="urlId" />
+  <Format Column="itemCount" />
+  <Format Column="updatedOn" />
+  <Format Column="pageSize" />
+  <Format Column="folder" />
+  <Format Column="dropdown" />
+  <Format Column="tags" />
+  <Format Column="categories" />
+  <Format Column="homepage" />
+  <Format Column="synchronizing" />
+  <Format Column="fullUrl" />
+  <Format Column="passwordProtected" />
+  <FileFormat FieldDelimiter="|" FieldQualifier="" />
+</CsvFile>

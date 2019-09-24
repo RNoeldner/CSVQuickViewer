@@ -22,6 +22,8 @@ namespace CsvTools
   /// </summary>
   public interface ICsvFile : IFileSettingPhysicalFile, IEquatable<ICsvFile>
   {
+    bool JsonFormat { get; set; }
+
     /// <summary>
     /// Gets or sets a value indicating whether rows should combined if there are less columns.
     /// </summary>

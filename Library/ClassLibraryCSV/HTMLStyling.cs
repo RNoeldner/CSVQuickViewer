@@ -242,42 +242,6 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Evaluates all characters in a string and returns a new string,
-    ///   properly formatted for JSON compliance and bounded by double-quotes.
-    /// </summary>
-    /// <param name="text">string to be evaluated</param>
-    /// <returns>new string, in JSON-compliant form</returns>
-    public static string JsonEncode(string text)
-    {
-      if (text == null)
-        return null;
-      var output = new StringBuilder();
-      foreach (var c in text)
-      {
-        if (c == 8) //Backspace
-          output.Append("\\b");
-        else if (c == 9) //Horizontal tab
-          output.Append("\\t");
-        else if (c == 10) //Newline
-          output.Append("\\n");
-        else if (c == 12) //Form feed
-          output.Append("\\f");
-        else if (c == 13) //Carriage return
-          output.Append("\\n");
-        else if (c == 34) //Double-quotes (")
-          output.Append("\\\"");
-        else if (c == 47) //Solidus   (/)
-          output.Append("\\/");
-        else if (c == 92) //Reverse solidus   (\)
-          output.Append("\\\\");
-        else if (c > 31)
-          output.Append(c);
-      }
-
-      return "\"" + output + "\"";
-    }
-
-    /// <summary>
     ///   Replace special characters from an HTML text
     /// </summary>
     /// <param name="text">The text possibly containing HTML codes.</param>

@@ -23,9 +23,32 @@ namespace CsvTools.Tests
     private readonly string m_ApplicationDirectory = FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles";
 
     [TestMethod]
+    public void ReadJSonEmp()
+    {
+      var setting = new CsvFile(Path.Combine(m_ApplicationDirectory, "Emp.json"))
+      {
+        JsonFormat = true
+      };
+
+      using (var dpd = new DummyProcessDisplay())
+      using (var jfr = new JsonFileReader(setting, dpd))
+      {
+        jfr.Open();
+        Assert.AreEqual(110, jfr.FieldCount);
+        while (jfr.Read())
+        {
+        }
+        Assert.AreEqual(2782, jfr.RecordNumber);
+      }
+    }
+
+    [TestMethod]
     public void ReadJSon1()
     {
-      var setting = new StructuredFile(Path.Combine(m_ApplicationDirectory, "Jason1.json"));
+      var setting = new CsvFile(Path.Combine(m_ApplicationDirectory, "Jason1.json"))
+      {
+        JsonFormat = true
+      };
 
       using (var dpd = new DummyProcessDisplay())
       using (var jfr = new JsonFileReader(setting, dpd))
@@ -42,7 +65,10 @@ namespace CsvTools.Tests
     [TestMethod]
     public void ReadJSon2()
     {
-      var setting = new StructuredFile(Path.Combine(m_ApplicationDirectory, "Jason2.json"));
+      var setting = new CsvFile(Path.Combine(m_ApplicationDirectory, "Jason2.json"))
+      {
+        JsonFormat = true
+      };
       using (var dpd = new DummyProcessDisplay())
       using (var jfr = new JsonFileReader(setting, dpd))
       {
@@ -58,7 +84,11 @@ namespace CsvTools.Tests
     [TestMethod]
     public void ReadJSon3()
     {
-      var setting = new StructuredFile(Path.Combine(m_ApplicationDirectory, "Jason3.json"));
+      var setting = new CsvFile(Path.Combine(m_ApplicationDirectory, "Jason3.json"))
+      {
+        JsonFormat = true
+      };
+
       using (var dpd = new DummyProcessDisplay())
       using (var jfr = new JsonFileReader(setting, dpd))
       {

@@ -24,6 +24,7 @@ namespace CsvTools.Properties
     private bool m_GuessHasHeader = true;
     private bool m_GuessStartRow = true;
     private bool m_GuessQualifier = true;
+    private bool m_AllowJson = true;
     private bool m_MenuDown = false;
     private PGPKeyStorage m_PGPKeyStorage = new PGPKeyStorage();
     private bool m_StoreSettingsByFile = false;
@@ -139,6 +140,20 @@ namespace CsvTools.Properties
           return;
         m_GuessQualifier = value;
         NotifyPropertyChanged(nameof(GuessQualifier));
+      }
+    }
+
+    [XmlAttribute]
+    [DefaultValue(true)]
+    public bool AllowJson
+    {
+      get => m_AllowJson;
+      set
+      {
+        if (m_AllowJson == value)
+          return;
+        m_AllowJson = value;
+        NotifyPropertyChanged(nameof(AllowJson));
       }
     }
 
