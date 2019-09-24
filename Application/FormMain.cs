@@ -421,44 +421,49 @@ namespace CsvTools
             if (analyse)
               try
               {
-                m_FileSetting.SkipRows = 0;
-                if (m_ViewSettings.GuessCodePage)
-                  CsvHelper.GuessCodePage(m_FileSetting);
-
-                m_FileSetting.NoDelimitedFile = CsvHelper.GuessNotADelimitedFile(m_FileSetting);
-                if (m_ViewSettings.GuessDelimiter)
-                  m_FileSetting.FileFormat.FieldDelimiter = CsvHelper.GuessDelimiter(m_FileSetting);
-
-                if (m_ViewSettings.GuessQualifier)
+                if (m_ViewSettings.AllowJson && CsvHelper.GuessJsonFile(new StructuredFile(m_FileName)))
+                  m_FileSetting.JsonFormat = true;
+                else
                 {
-                  var determined = CsvHelper.GuessQualifier(m_FileSetting);
-                  m_FileSetting.FileFormat.FieldQualifier = determined == 0 ? string.Empty : char.ToString(determined);
-                }
-                if (m_ViewSettings.GuessStartRow)
-                  m_FileSetting.SkipRows = CsvHelper.GuessStartRow(m_FileSetting);
+                  m_FileSetting.SkipRows = 0;
+                  if (m_ViewSettings.GuessCodePage)
+                    CsvHelper.GuessCodePage(m_FileSetting);
 
-                if (m_ViewSettings.GuessHasHeader)
-                {
-                  m_FileSetting.HasFieldHeader = true;
-                  using (var processDisplay = new DummyProcessDisplay(cancellationTokenSource.Token))
+                  m_FileSetting.NoDelimitedFile = CsvHelper.GuessNotADelimitedFile(m_FileSetting);
+                  if (m_ViewSettings.GuessDelimiter)
+                    m_FileSetting.FileFormat.FieldDelimiter = CsvHelper.GuessDelimiter(m_FileSetting);
+
+                  if (m_ViewSettings.GuessQualifier)
                   {
-                    m_FileSetting.HasFieldHeader = CsvHelper.GuessHasHeader(m_FileSetting, processDisplay);
+                    var determined = CsvHelper.GuessQualifier(m_FileSetting);
+                    m_FileSetting.FileFormat.FieldQualifier = determined == 0 ? string.Empty : char.ToString(determined);
                   }
-                }
+                  if (m_ViewSettings.GuessStartRow)
+                    m_FileSetting.SkipRows = CsvHelper.GuessStartRow(m_FileSetting);
 
-                using (var processDisplay = m_FileSetting.GetProcessDisplay(this, false, cancellationTokenSource.Token))
-                {
-                  if (processDisplay is Form frm && limitSizeForm != null)
+                  if (m_ViewSettings.GuessHasHeader)
                   {
-                    frm.Left = limitSizeForm.Left + limitSizeForm.Width;
+                    m_FileSetting.HasFieldHeader = true;
+                    using (var processDisplay = new DummyProcessDisplay(cancellationTokenSource.Token))
+                    {
+                      m_FileSetting.HasFieldHeader = CsvHelper.GuessHasHeader(m_FileSetting, processDisplay);
+                    }
                   }
-                  m_FileSetting.FillGuessColumnFormatReader(false, processDisplay);
-                }
 
-                if (m_FileSetting.ColumnCollection.Any(x => x.DataType != DataType.String))
-                {
-                  detailControl.ButtonShowSource += DetailControl_ButtonShowSource;
-                  detailControl.ButtonAsText += DetailControl_ButtonAsText;
+                  using (var processDisplay = m_FileSetting.GetProcessDisplay(this, false, cancellationTokenSource.Token))
+                  {
+                    if (processDisplay is Form frm && limitSizeForm != null)
+                    {
+                      frm.Left = limitSizeForm.Left + limitSizeForm.Width;
+                    }
+                    m_FileSetting.FillGuessColumnFormatReader(false, processDisplay);
+                  }
+
+                  if (m_FileSetting.ColumnCollection.Any(x => x.DataType != DataType.String))
+                  {
+                    detailControl.ButtonShowSource += DetailControl_ButtonShowSource;
+                    detailControl.ButtonAsText += DetailControl_ButtonAsText;
+                  }
                 }
               }
               catch (Exception ex)

@@ -13,6 +13,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics.Contracts;
 using System.IO;
@@ -80,20 +81,24 @@ namespace CsvTools
       var recordEnd = m_StructuredWriterFile.FileFormat.NewLine.Replace("CR", "\r").Replace("LF", "\n").Replace(" ", "")
         .Replace("\t", "");
       HandleWriteStart();
-
-      var numEmptyRows = 0;
       var numColumns = enumerable.Count();
-      var
-        sb = new StringBuilder(1024); // Assume a capacity of 1024 characters to start , data is flushed every 512 chars
+
+      // Header
       if (!string.IsNullOrEmpty(m_StructuredWriterFile.Header))
       {
-        sb.Append(ReplacePlaceHolder(m_StructuredWriterFile.Header));
+        var sbH = new StringBuilder(1024);
+        sbH.Append(ReplacePlaceHolder(m_StructuredWriterFile.Header));
         if (!m_StructuredWriterFile.Header.EndsWith(recordEnd, StringComparison.Ordinal))
-          sb.Append(recordEnd);
+          sbH.Append(recordEnd);
+        writer.Write(sbH.ToString());
       }
 
+      // Static template for the row, built once
       var withHeader = m_StructuredWriterFile.Row;
       var colNum = 0;
+      var placeHolderLookup1 = new Dictionary<int, string>();
+      var placeHolderLookup2 = new Dictionary<int, string>();
+
       foreach (var columnInfo in enumerable)
       {
         var placeHolder = string.Format(System.Globalization.CultureInfo.CurrentCulture, cHeaderPlaceholder, colNum);
@@ -103,63 +108,51 @@ namespace CsvTools
           withHeader = withHeader.Replace(placeHolder, HTMLStyle.JsonElementName(columnInfo.Header));
         else
           withHeader = withHeader.Replace(placeHolder, columnInfo.Header);
+
+        placeHolderLookup1.Add(colNum, string.Format(System.Globalization.CultureInfo.CurrentCulture, cFieldPlaceholderByNumber, colNum));
+        placeHolderLookup2.Add(colNum, string.Format(System.Globalization.CultureInfo.CurrentCulture, cFieldPlaceholderByName, columnInfo.Header));
         colNum++;
       }
 
       withHeader = withHeader.Trim();
+      foreach (var columnInfo in enumerable)
+      {
+      }
+
+      var sb = new StringBuilder(1024); // Assume a capacity of 1024 characters to start, data is flushed every 512 chars
       while (reader.Read() && !cancellationToken.IsCancellationRequested)
       {
         NextRecord();
+
+        // Start a new line
+        sb.Append(recordEnd);
+        var row = withHeader;
+        colNum = 0;
+        foreach (var columnInfo in enumerable)
+        {
+          var col = reader.GetValue(columnInfo.ColumnOridinalReader);
+          var value = (m_StructuredWriterFile.XMLEncode) ?
+                    SecurityElement.Escape(TextEncodeField(m_StructuredWriterFile.FileFormat, col, columnInfo, false, reader, null)) :
+                    Newtonsoft.Json.JsonConvert.ToString(col);
+
+          row = row.Replace(placeHolderLookup1[colNum], value).Replace(placeHolderLookup2[colNum], value);
+          colNum++;
+        }
+        sb.Append(row);
 
         if (sb.Length > 512)
         {
           writer.Write(sb.ToString());
           sb.Length = 0;
         }
-
-        // Start a new line
-        sb.Append(recordEnd);
-        var emptyColumns = 0;
-        var row = withHeader;
-        colNum = 0;
-        foreach (var columnInfo in enumerable)
-        {
-          Contract.Assume(columnInfo != null);
-          var placeHolder1 = string.Format(System.Globalization.CultureInfo.CurrentCulture, cFieldPlaceholderByNumber, colNum);
-          var value = string.Empty;
-          var placeHolder2 = string.Format(System.Globalization.CultureInfo.CurrentCulture, cFieldPlaceholderByName, columnInfo.Header);
-
-          var col = reader.GetValue(columnInfo.ColumnOridinalReader);
-          if (col == DBNull.Value)
-          {
-            emptyColumns++;
-          }
-          else
-          {
-            value = TextEncodeField(m_StructuredWriterFile.FileFormat, col, columnInfo, false, reader, null);
-            if (m_StructuredWriterFile.XMLEncode)
-              value = SecurityElement.Escape(value);
-            else if (m_StructuredWriterFile.JSONEncode)
-              value = HTMLStyle.JsonEncode(value);
-          }
-
-          row = row.Replace(placeHolder1, value).Replace(placeHolder2, value);
-          colNum++;
-        }
-
-        if (emptyColumns == numColumns)
-        {
-          numEmptyRows++;
-        }
-        else
-        {
-          sb.Append(row);
-          numEmptyRows = 0;
-        }
       }
 
-      sb.Append(ReplacePlaceHolder(m_StructuredWriterFile.Footer));
-      writer.Write(sb.ToString());
+      if (sb.Length > 0)
+        writer.Write(sb.ToString());
+
+      // Footer
+      if (!string.IsNullOrEmpty(m_StructuredWriterFile.Footer))
+        writer.Write(ReplacePlaceHolder(m_StructuredWriterFile.Footer));
     }
 
     /// <summary>

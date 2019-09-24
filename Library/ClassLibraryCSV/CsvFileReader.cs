@@ -74,7 +74,7 @@ namespace CsvTools
     /// <summary>
     ///  Position in the buffer
     /// </summary>
-    private int m_BufferPos;
+    private int m_BufferPos = -1;
 
     private int m_ConsecutiveEmptyRows;
 
@@ -678,30 +678,33 @@ namespace CsvTools
         var character = NextChar();
         m_BufferPos++;
 
+        var escaped = (character == m_CsvFile.FileFormat.EscapeCharacterChar && !postdata);
         // Handle escaped characters
-        if (character == m_CsvFile.FileFormat.EscapeCharacterChar && !postdata)
+        if (escaped)
         {
           var nextChar = NextChar();
           if (!EndOfFile)
           {
             m_BufferPos++;
-            stringBuilder.Append(nextChar);
-            if (nextChar == c_Cr || nextChar == c_Lf)
-            {
-              var nextNext = EatNextCRLF(nextChar);
-              if (nextNext == c_Cr || nextNext == c_Lf)
-              {
-                m_EndOfLine = true;
-                break;
-              }
-            }
+            // Handle \ Notation of common not visible characters
+            if (m_CsvFile.FileFormat.EscapeCharacterChar == '\\' && nextChar == 'n')
+              character = '\n';
+            else if (m_CsvFile.FileFormat.EscapeCharacterChar == '\\' && nextChar == 'r')
+              character = '\r';
+            else if (m_CsvFile.FileFormat.EscapeCharacterChar == '\\' && nextChar == 't')
+              character = '\t';
+            else if (m_CsvFile.FileFormat.EscapeCharacterChar == '\\' && nextChar == 'b')
+              character = '\b';
+            else if (m_CsvFile.FileFormat.EscapeCharacterChar == '\\' && nextChar == 'a')
+              character = '\a';
+            // in case a linefeed actually follows ignore the EscapeCharacterChar but handle the regular processing
             else
-              predata = false;
-            continue;
+              character = nextChar;
           }
         }
+
         // in case we have a single LF
-        if (!postdata && m_CsvFile.TreatLFAsSpace && character == c_Lf)
+        if (!postdata && m_CsvFile.TreatLFAsSpace && character == c_Lf && quoted)
         {
           var singleLF = true;
           if (!EndOfFile)
@@ -758,8 +761,9 @@ namespace CsvTools
         }
 
         // Finished with reading the column by Delimiter or EOF
-        if (character == m_CsvFile.FileFormat.FieldDelimiterChar && (postdata || !quoted) || EndOfFile)
+        if (character == m_CsvFile.FileFormat.FieldDelimiterChar && !escaped && (postdata || !quoted) || EndOfFile)
           break;
+
         // Finished with reading the column by Linefeed
         if ((character == c_Cr || character == c_Lf) && (predata || postdata || !quoted))
         {
@@ -786,7 +790,7 @@ namespace CsvTools
           // data is starting
           predata = false;
           // Can not be escaped here
-          if (m_HasQualifier && character == m_CsvFile.FileFormat.FieldQualifierChar)
+          if (m_HasQualifier && character == m_CsvFile.FileFormat.FieldQualifierChar && !escaped)
           {
             if (m_CsvFile.TrimmingOption != TrimmingOption.None)
               stringBuilder.Length = 0;
@@ -801,7 +805,7 @@ namespace CsvTools
           continue;
         }
 
-        if (m_HasQualifier && character == m_CsvFile.FileFormat.FieldQualifierChar && quoted)
+        if (m_HasQualifier && character == m_CsvFile.FileFormat.FieldQualifierChar && quoted && !escaped)
         {
           var peekNextChar = NextChar();
           if (m_CsvFile.AlternateQuoting)
@@ -994,49 +998,51 @@ namespace CsvTools
     /// </summary>
     private void ResetPositionToStartOrOpen()
     {
-      if (m_ImprovedStream != null && m_BufferPos == 0 && RecordNumber == 0)
-        return;
-
       if (m_ImprovedStream == null)
         m_ImprovedStream = ImprovedStream.OpenRead(m_CsvFile);
 
-      m_ImprovedStream.ResetToStart(delegate (Stream str)
+      if (m_BufferPos != 0 || RecordNumber != 0 || m_BufferFilled == 0)
       {
-        // in case we can not seek need to reopen the stream reader
-        if (!str.CanSeek || m_TextReader == null)
+        m_ImprovedStream.ResetToStart(delegate (Stream str)
         {
-          if (m_TextReader != null)
-            m_TextReader.Dispose();
-          m_TextReader = new StreamReader(str, m_CsvFile.GetEncoding(), m_CsvFile.ByteOrderMark);
-        }
-        else
-        {
-          m_TextReader.BaseStream.Seek(0, SeekOrigin.Begin);
-          // only discard the buffer
-          m_TextReader.DiscardBufferedData();
-
-          // we reset the position a BOM is showing again -
-          // TODO why this is happing, this should actually not be needed
-          if (m_CsvFile.ByteOrderMark && (m_CsvFile.CodePageId == 12001 && m_TextReader.Peek() > 65000 ||     //  UTF32Be
-                                          m_CsvFile.CodePageId == 12000 && m_TextReader.Peek() > 65000 ||     //  UTF32Le
-                                          m_CsvFile.CodePageId == 65000 && m_TextReader.Peek() > 65000 ||     // UTF7
-                                         (m_CsvFile.CodePageId == 65001 && m_TextReader.Peek() == 65279))     // UTF8
-                                          )
-            m_TextReader.Read();
-
-          if (m_CsvFile.ByteOrderMark && (m_CsvFile.CodePageId == 1201 ||      // UTF16Be
-                                          m_CsvFile.CodePageId == 1200)       // UTF16Le
-                                      && m_TextReader.Peek() == 65279)
+          // in case we can not seek need to reopen the stream reader
+          if (!str.CanSeek || m_TextReader == null)
           {
-            m_TextReader.Read();
-            m_TextReader.Read();
+            if (m_TextReader != null)
+              m_TextReader.Dispose();
+            m_TextReader = new StreamReader(str, m_CsvFile.GetEncoding(), m_CsvFile.ByteOrderMark);
           }
-        }
-      });
+          else
+          {
+            m_TextReader.BaseStream.Seek(0, SeekOrigin.Begin);
+            // only discard the buffer
+            m_TextReader.DiscardBufferedData();
 
-      m_CsvFile.CurrentEncoding = m_TextReader.CurrentEncoding;
+            // we reset the position a BOM is showing again -
+            // TODO why this is happing, this should actually not be needed
+            if (m_CsvFile.ByteOrderMark && (m_CsvFile.CodePageId == 12001 && m_TextReader.Peek() > 65000 ||     //  UTF32Be
+                                              m_CsvFile.CodePageId == 12000 && m_TextReader.Peek() > 65000 ||     //  UTF32Le
+                                              m_CsvFile.CodePageId == 65000 && m_TextReader.Peek() > 65000 ||     // UTF7
+                                             (m_CsvFile.CodePageId == 65001 && m_TextReader.Peek() == 65279))     // UTF8
+                                              )
+              m_TextReader.Read();
+
+            if (m_CsvFile.ByteOrderMark && (m_CsvFile.CodePageId == 1201 ||      // UTF16Be
+                                            m_CsvFile.CodePageId == 1200)       // UTF16Le
+                                        && m_TextReader.Peek() == 65279)
+            {
+              m_TextReader.Read();
+              m_TextReader.Read();
+            }
+          }
+        });
+
+        m_CsvFile.CurrentEncoding = m_TextReader.CurrentEncoding;
+        m_BufferFilled = 0;
+      }
+
       m_BufferPos = 0;
-      m_BufferFilled = 0;
+
       // End Line should be at 1, later on as the line is read the start line s set to this value
       StartLineNumber = 1;
       EndLineNumber = 1;

@@ -174,6 +174,16 @@ namespace CsvTools
       }
     }
 
+    public static bool GuessJsonFile(StructuredFile setting)
+    {
+      Contract.Requires(setting != null);
+      using (var improvedStream = ImprovedStream.OpenRead(setting))
+      using (var streamReader = new StreamReader(improvedStream.Stream))
+      {
+        return IsJsonReadable(streamReader);
+      }
+    }
+
     /// <summary>
     /// Opens the csv file, and tries to read the headers
     /// </summary>
@@ -409,6 +419,26 @@ namespace CsvTools
 
       file.HasFieldHeader = GuessHasHeader(file, display);
       display.SetProcess("Column Header: " + file.HasFieldHeader);
+    }
+
+    internal static bool IsJsonReadable(StreamReader streamReader)
+    {
+      if (streamReader == null)
+      {
+        Log.Info("File not read");
+        return false;
+      }
+      using (var m_JsonTextReader = new Newtonsoft.Json.JsonTextReader(streamReader))
+      {
+        m_JsonTextReader.CloseInput = false;
+        if (m_JsonTextReader.Read())
+        {
+          return (m_JsonTextReader.TokenType == Newtonsoft.Json.JsonToken.StartObject ||
+                  m_JsonTextReader.TokenType == Newtonsoft.Json.JsonToken.StartArray ||
+                  m_JsonTextReader.TokenType == Newtonsoft.Json.JsonToken.StartConstructor);
+        }
+        return false;
+      }
     }
 
     /// <summary>

@@ -7,13 +7,13 @@ namespace CsvTools
 {
   public class JsonFileReader : BaseFileReaderTyped, IFileReader
   {
-    private readonly StructuredFile m_StructuredFile;
+    private readonly ICsvFile m_StructuredFile;
     private ImprovedStream m_ImprovedStream;
     private StreamReader m_TextReader;
     private JsonTextReader m_JsonTextReader;
     private bool disposedValue = false;
 
-    public JsonFileReader(StructuredFile fileSetting, IProcessDisplay processDisplay)
+    public JsonFileReader(ICsvFile fileSetting, IProcessDisplay processDisplay)
     : base(fileSetting, processDisplay) => m_StructuredFile = fileSetting;
 
     /// <summary>
@@ -137,6 +137,10 @@ namespace CsvTools
             break;
 
           case JsonToken.Raw:
+          case JsonToken.Null:
+            headers[key] = true;
+            break;
+
           case JsonToken.Date:
           case JsonToken.Bytes:
           case JsonToken.Integer:
@@ -186,7 +190,8 @@ namespace CsvTools
         {
           if (keyValuePairs.TryGetValue(col.Name, out m_CurrentValues[colNum]))
           {
-            CurrentRowColumnText[colNum] = m_CurrentValues[colNum].ToString();
+            if (m_CurrentValues[colNum] != null)
+              CurrentRowColumnText[colNum] = m_CurrentValues[colNum].ToString();
           }
           colNum++;
         }
@@ -215,15 +220,14 @@ namespace CsvTools
         var line = GetNextRecord();
 
         base.InitColumn(line.Count);
+        ParseColumnName(line);
 
         var colType = base.GetColumnType(delegate (int row)
-        { return (GetNextRecord() == null); });
+        { return (GetNextRecord() != null); });
 
         // Read the types of the first row
         for (var counter = 0; counter < FieldCount; counter++)
           GetColumn(counter).DataType = colType[counter];
-
-        ParseColumnName(line);
 
         base.FinishOpen();
 

@@ -4,430 +4,6 @@ using System.Windows.Forms;
 
 namespace CsvTools
 {
-  public class TimedMessage : Form
-  {
-    private System.Windows.Forms.Button button1;
-    private System.Windows.Forms.Button button2;
-    private System.Windows.Forms.Button button3;
-
-    /// <summary>
-    /// Required designer variable.
-    /// </summary>
-    private System.ComponentModel.IContainer components = null;
-
-    private int m_Counter = 0;
-    private Label label;
-    private MessageBoxDefaultButton m_DefaultButton = MessageBoxDefaultButton.Button1;
-    private MessageBoxButtons m_MessageBoxButtons = MessageBoxButtons.OKCancel;
-    private MessageBoxIcon m_MessageBoxIcon = MessageBoxIcon.None;
-    private RichTextBox richTextBox;
-    private PictureBox pictureBox;
-    private TableLayoutPanel tableLayoutPanel1;
-    private Timer timer;
-
-    #region Windows Form Designer generated code
-
-    /// <summary>
-    /// Required method for Designer support - do not modify
-    /// the contents of this method with the code editor.
-    /// </summary>
-    private void InitializeComponent()
-    {
-      this.components = new System.ComponentModel.Container();
-      this.button1 = new System.Windows.Forms.Button();
-      this.richTextBox = new System.Windows.Forms.RichTextBox();
-      this.label = new System.Windows.Forms.Label();
-      this.timer = new System.Windows.Forms.Timer(this.components);
-      this.button2 = new System.Windows.Forms.Button();
-      this.button3 = new System.Windows.Forms.Button();
-      this.pictureBox = new System.Windows.Forms.PictureBox();
-      this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
-      ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
-      this.tableLayoutPanel1.SuspendLayout();
-      this.SuspendLayout();
-      // 
-      // button1
-      // 
-      this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-      this.button1.Location = new System.Drawing.Point(413, 150);
-      this.button1.Name = "button1";
-      this.button1.Size = new System.Drawing.Size(100, 34);
-      this.button1.TabIndex = 0;
-      this.button1.Text = "button1";
-      this.button1.UseVisualStyleBackColor = true;
-      this.button1.Click += new System.EventHandler(this.Button1_Click);
-      this.button1.MouseEnter += new System.EventHandler(this.MouseEnterElement);
-      this.button1.MouseLeave += new System.EventHandler(this.MouseLeaveElement);
-      // 
-      // richTextBox
-      // 
-      this.richTextBox.BackColor = System.Drawing.SystemColors.Control;
-      this.richTextBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
-      this.tableLayoutPanel1.SetColumnSpan(this.richTextBox, 4);
-      this.richTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.richTextBox.Location = new System.Drawing.Point(59, 3);
-      this.richTextBox.Name = "richTextBox";
-      this.richTextBox.ReadOnly = true;
-      this.richTextBox.Size = new System.Drawing.Size(666, 141);
-      this.richTextBox.TabIndex = 3;
-      this.richTextBox.Text = "";
-      this.richTextBox.MouseEnter += new System.EventHandler(this.MouseEnterElement);
-      this.richTextBox.MouseLeave += new System.EventHandler(this.MouseLeaveElement);
-      // 
-      // label
-      // 
-      this.label.Anchor = System.Windows.Forms.AnchorStyles.Left;
-      this.label.AutoSize = true;
-      this.tableLayoutPanel1.SetColumnSpan(this.label, 2);
-      this.label.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
-      this.label.Location = new System.Drawing.Point(3, 157);
-      this.label.Name = "label";
-      this.label.Size = new System.Drawing.Size(154, 20);
-      this.label.TabIndex = 2;
-      this.label.Text = "Default in 5 seconds";
-      // 
-      // timer
-      // 
-      this.timer.Interval = 500;
-      this.timer.Tick += new System.EventHandler(this.Timer_Tick);
-      // 
-      // button2
-      // 
-      this.button2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-      this.button2.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-      this.button2.Location = new System.Drawing.Point(519, 150);
-      this.button2.Name = "button2";
-      this.button2.Size = new System.Drawing.Size(100, 34);
-      this.button2.TabIndex = 1;
-      this.button2.Text = "button2";
-      this.button2.UseVisualStyleBackColor = true;
-      this.button2.Click += new System.EventHandler(this.Button2_Click);
-      this.button2.MouseEnter += new System.EventHandler(this.MouseEnterElement);
-      this.button2.MouseLeave += new System.EventHandler(this.MouseLeaveElement);
-      // 
-      // button3
-      // 
-      this.button3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-      this.button3.Location = new System.Drawing.Point(625, 150);
-      this.button3.Name = "button3";
-      this.button3.Size = new System.Drawing.Size(100, 34);
-      this.button3.TabIndex = 2;
-      this.button3.Text = "button3";
-      this.button3.UseVisualStyleBackColor = true;
-      this.button3.Click += new System.EventHandler(this.Button3_Click);
-      this.button3.MouseEnter += new System.EventHandler(this.MouseEnterElement);
-      this.button3.MouseLeave += new System.EventHandler(this.MouseLeaveElement);
-      // 
-      // pictureBox
-      // 
-      this.pictureBox.ErrorImage = null;
-      this.pictureBox.InitialImage = null;
-      this.pictureBox.Location = new System.Drawing.Point(0, 0);
-      this.pictureBox.Margin = new System.Windows.Forms.Padding(0);
-      this.pictureBox.Name = "pictureBox";
-      this.pictureBox.Size = new System.Drawing.Size(56, 55);
-      this.pictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
-      this.pictureBox.TabIndex = 4;
-      this.pictureBox.TabStop = false;
-      this.pictureBox.WaitOnLoad = true;
-      // 
-      // tableLayoutPanel1
-      // 
-      this.tableLayoutPanel1.AutoSize = true;
-      this.tableLayoutPanel1.ColumnCount = 5;
-      this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-      this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-      this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-      this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-      this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-      this.tableLayoutPanel1.Controls.Add(this.pictureBox, 0, 0);
-      this.tableLayoutPanel1.Controls.Add(this.label, 0, 1);
-      this.tableLayoutPanel1.Controls.Add(this.button3, 4, 1);
-      this.tableLayoutPanel1.Controls.Add(this.button2, 3, 1);
-      this.tableLayoutPanel1.Controls.Add(this.richTextBox, 1, 0);
-      this.tableLayoutPanel1.Controls.Add(this.button1, 2, 1);
-      this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
-      this.tableLayoutPanel1.Name = "tableLayoutPanel1";
-      this.tableLayoutPanel1.RowCount = 2;
-      this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-      this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.tableLayoutPanel1.Size = new System.Drawing.Size(728, 187);
-      this.tableLayoutPanel1.TabIndex = 5;
-      // 
-      // TimedMessage
-      // 
-      this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
-      this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-      this.ClientSize = new System.Drawing.Size(728, 187);
-      this.Controls.Add(this.tableLayoutPanel1);
-      this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
-      this.MaximizeBox = false;
-      this.MinimizeBox = false;
-      this.MinimumSize = new System.Drawing.Size(386, 99);
-      this.Name = "TimedMessage";
-      this.ShowIcon = false;
-      this.ShowInTaskbar = false;
-      this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-      this.Text = "Timed Message";
-      this.TopMost = true;
-      this.Paint += new System.Windows.Forms.PaintEventHandler(this.TimedMessage_Paint);
-      ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).EndInit();
-      this.tableLayoutPanel1.ResumeLayout(false);
-      this.tableLayoutPanel1.PerformLayout();
-      this.ResumeLayout(false);
-      this.PerformLayout();
-
-    }
-
-    #endregion Windows Form Designer generated code
-
-    public TimedMessage() => InitializeComponent();
-
-    public double Duration { get; set; } = 4.0;
-
-    public string Message
-    {
-      get => richTextBox.Text;
-      set => richTextBox.Text = value;
-    }
-
-    public string MessageRtf
-    {
-      get => richTextBox.Rtf;
-      set => richTextBox.Rtf = value;
-    }
-
-    public DialogResult Show(Form owner, string message, string title, MessageBoxButtons buttons, MessageBoxIcon icon, MessageBoxDefaultButton defaultButton, double timeout, string button3Text)
-    {
-      Text = title;
-      Message = message;
-      Duration = timeout;
-      timer.Enabled = true;
-      m_DefaultButton = defaultButton;
-      m_MessageBoxIcon = icon;
-      m_MessageBoxButtons = buttons;      
-      UpdateButtons();
-      if (!string.IsNullOrEmpty(button3Text))
-        button3.Text = button3Text;
-      return ShowDialog(owner);
-    }
-
-    /// <summary>
-    /// Clean up any resources being used.
-    /// </summary>
-    /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
-    protected override void Dispose(bool disposing)
-    {
-      if (disposing && (components != null))
-      {
-        components.Dispose();
-      }
-      base.Dispose(disposing);
-    }
-
-    private void Button1_Click(object sender, EventArgs e)
-    {
-      if ((m_MessageBoxButtons == MessageBoxButtons.OK
-        || m_MessageBoxButtons == MessageBoxButtons.OKCancel))
-        DialogResult = DialogResult.OK;
-      if ((m_MessageBoxButtons == MessageBoxButtons.YesNo
-        || m_MessageBoxButtons == MessageBoxButtons.YesNoCancel))
-        DialogResult = DialogResult.Yes;
-      if (m_MessageBoxButtons == MessageBoxButtons.AbortRetryIgnore)
-        DialogResult = DialogResult.Abort;
-      if (m_MessageBoxButtons == MessageBoxButtons.RetryCancel)
-        DialogResult = DialogResult.Retry;
-      Close();
-    }
-
-    private void Button2_Click(object sender, EventArgs e)
-    {
-      if (m_MessageBoxButtons == MessageBoxButtons.OKCancel || m_MessageBoxButtons == MessageBoxButtons.RetryCancel)
-        DialogResult = DialogResult.Cancel;
-      if ((m_MessageBoxButtons == MessageBoxButtons.YesNo
-        || m_MessageBoxButtons == MessageBoxButtons.YesNoCancel))
-        DialogResult = DialogResult.No;
-      if (m_MessageBoxButtons == MessageBoxButtons.AbortRetryIgnore)
-        DialogResult = DialogResult.Retry;
-      Close();
-    }
-
-    private void Button3_Click(object sender, EventArgs e)
-    {
-      if (m_MessageBoxButtons == MessageBoxButtons.AbortRetryIgnore)
-        DialogResult = DialogResult.Ignore;
-      if (m_MessageBoxButtons == MessageBoxButtons.YesNoCancel)
-        DialogResult = DialogResult.Cancel;
-      Close();
-    }
-
-    private void TimedMessage_Paint(object sender, PaintEventArgs e)
-    {
-      if (m_MessageBoxIcon == MessageBoxIcon.None)
-        return;
-
-      Icon displayIcon = null;
-      switch (m_MessageBoxIcon)
-      {
-        case MessageBoxIcon.Question:
-          displayIcon = new Icon(SystemIcons.Question, 40, 40);
-          break;
-
-        case MessageBoxIcon.Error:
-          displayIcon = new Icon(SystemIcons.Error, 40, 40);
-         // e.Graphics.DrawIcon(SystemIcons.Error, new Rectangle(10, 10, 32, 32));
-          break;
-
-        case MessageBoxIcon.Warning:
-          displayIcon = new Icon(SystemIcons.Warning, 40, 40);
-          // e.Graphics.DrawIcon(SystemIcons.Warning, new Rectangle(10, 10, 32, 32));
-          break;
-
-        case MessageBoxIcon.Information:
-          displayIcon = new Icon(SystemIcons.Information, 40, 40);
-          //e.Graphics.DrawIcon(SystemIcons.Information, new Rectangle(10, 10, 32, 32));
-          break;
-
-        default:
-          break;
-      }
-      pictureBox.Image = displayIcon.ToBitmap();
-    }
-
-    private void UpdateLabel()
-    {
-      var displ = Convert.ToInt32((Duration - (m_Counter * timer.Interval) / 1000 + .75));
-      if (!timer.Enabled)
-        displ = 0;
-      if (displ > 0)
-      {
-        if (m_DefaultButton == MessageBoxDefaultButton.Button1)
-          label.Text = $"{button1.Text.Substring(1)} in {displ:N0} seconds";
-        if (m_DefaultButton == MessageBoxDefaultButton.Button2)
-          label.Text = $"{button2.Text.Substring(1)} in {displ:N0} seconds";
-        if (m_DefaultButton == MessageBoxDefaultButton.Button3)
-          label.Text = $"{button3.Text.Substring(1)} in {displ:N0} seconds";
-      }
-      else
-        label.Text = string.Empty;
-    }
-
-    private void Timer_Tick(object sender, EventArgs e)
-    {
-      m_Counter++;
-      UpdateLabel();
-
-      if (Duration > 0 && (m_Counter * timer.Interval) / 1000 > Duration)
-      {
-        if (m_DefaultButton == MessageBoxDefaultButton.Button1)
-          Button1_Click(sender, e);
-        if (m_DefaultButton == MessageBoxDefaultButton.Button2)
-          Button2_Click(sender, e);
-        if (m_DefaultButton == MessageBoxDefaultButton.Button3)
-          Button3_Click(sender, e);
-      }
-    }
-
-    private void UpdateButtons()
-    {
-      // One Button
-      if (m_MessageBoxButtons == MessageBoxButtons.OK)
-      {
-        button2.Visible = false;
-        button3.Visible = false;
-        button1.Location = button3.Location;
-      }
-
-      // Two Button
-      if (m_MessageBoxButtons == MessageBoxButtons.YesNo ||
-          m_MessageBoxButtons == MessageBoxButtons.OKCancel ||
-          m_MessageBoxButtons == MessageBoxButtons.RetryCancel)
-      {
-        button3.Visible = false;
-        button1.Location = button2.Location;
-        button2.Location = button3.Location;
-      }
-
-      if ((m_MessageBoxButtons == MessageBoxButtons.OK
-        || m_MessageBoxButtons == MessageBoxButtons.OKCancel) && button1.Text != "&OK")
-      {
-        button1.Text = "&OK";
-      }
-      if ((m_MessageBoxButtons == MessageBoxButtons.YesNo
-        || m_MessageBoxButtons == MessageBoxButtons.YesNoCancel) && button1.Text != "&Yes")
-      {
-        button1.Text = "&Yes";
-      }
-      if ((m_MessageBoxButtons == MessageBoxButtons.AbortRetryIgnore) && button1.Text != "&Abort")
-      {
-        button1.Text = "&Abort";
-      }
-      if ((m_MessageBoxButtons == MessageBoxButtons.RetryCancel) && button1.Text != "&Retry")
-      {
-        button1.Text = "&Retry";
-      }
-
-      // Button 2
-      if ((m_MessageBoxButtons == MessageBoxButtons.YesNo
-        || m_MessageBoxButtons == MessageBoxButtons.YesNoCancel) && button2.Text != "&No")
-      {
-        button2.Text = "&No";
-      }
-      if ((m_MessageBoxButtons == MessageBoxButtons.AbortRetryIgnore) && button2.Text != "&Retry")
-      {
-        button2.Text = "&Retry";
-      }
-      if ((m_MessageBoxButtons == MessageBoxButtons.RetryCancel
-        || m_MessageBoxButtons == MessageBoxButtons.OKCancel) && button2.Text != "&Cancel")
-      {
-        button2.Text = "&Cancel";
-        CancelButton = button2;
-      }
-
-      // Button 3
-      if (m_MessageBoxButtons == MessageBoxButtons.AbortRetryIgnore && button3.Text != "&Ignore")
-      {
-        button3.Text = "&Ignore";
-      }
-      if (m_MessageBoxButtons == MessageBoxButtons.YesNoCancel && button3.Text != "&Cancel")
-      {
-        button3.Text = "&Cancel";
-        CancelButton = button3;
-      }
-
-      if (m_DefaultButton == MessageBoxDefaultButton.Button1)
-      {
-        AcceptButton = button1;
-      }
-      else if (m_DefaultButton == MessageBoxDefaultButton.Button2)
-      {
-        AcceptButton = button2;
-      }
-      else if (m_DefaultButton == MessageBoxDefaultButton.Button3)
-      {
-        AcceptButton = button3;
-      }
-
-      Timer_Tick(this, null);
-    }
-
-
-    private void MouseEnterElement(object sender, EventArgs e)
-    {
-      timer.Enabled = false;
-      UpdateLabel();
-    }
-
-    private void MouseLeaveElement(object sender, EventArgs e)
-    {
-      timer.Enabled = true;
-      UpdateLabel();
-    }
-  }
-
-#pragma warning disable CA1707 // Identifiers should not contain underscores
-
   public static class _MessageBox
 #pragma warning restore CA1707 // Identifiers should not contain underscores
   {
@@ -469,4 +45,403 @@ namespace CsvTools
       }
     }
   }
+
+  public class TimedMessage : Form
+  {
+    private System.Windows.Forms.Button button1;
+    private System.Windows.Forms.Button button2;
+    private System.Windows.Forms.Button button3;
+
+    /// <summary>
+    /// Required designer variable.
+    /// </summary>
+    private System.ComponentModel.IContainer components = null;
+
+    private Label label;
+    private int m_Counter = 0;
+    private MessageBoxButtons m_MessageBoxButtons = MessageBoxButtons.OKCancel;
+    private PictureBox pictureBox;
+    private RichTextBox richTextBox;
+    private TableLayoutPanel tableLayoutPanel;
+    private Timer timer;
+
+    #region Windows Form Designer generated code
+
+    /// <summary>
+    /// Required method for Designer support - do not modify
+    /// the contents of this method with the code editor.
+    /// </summary>
+    private void InitializeComponent()
+    {
+      components = new System.ComponentModel.Container();
+      button1 = new System.Windows.Forms.Button();
+      richTextBox = new System.Windows.Forms.RichTextBox();
+      label = new System.Windows.Forms.Label();
+      timer = new System.Windows.Forms.Timer(components);
+      button2 = new System.Windows.Forms.Button();
+      button3 = new System.Windows.Forms.Button();
+      pictureBox = new System.Windows.Forms.PictureBox();
+      tableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
+      ((System.ComponentModel.ISupportInitialize)(pictureBox)).BeginInit();
+      tableLayoutPanel.SuspendLayout();
+      SuspendLayout();
+      //
+      // button1
+      //
+      button1.Anchor = (System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right);
+      button1.BackColor = System.Drawing.SystemColors.ButtonFace;
+      button1.Location = new System.Drawing.Point(268, 98);
+      button1.Margin = new System.Windows.Forms.Padding(2);
+      button1.Name = "button1";
+      button1.Size = new System.Drawing.Size(67, 22);
+      button1.TabIndex = 0;
+      button1.Text = "button1";
+      button1.UseVisualStyleBackColor = false;
+      button1.MouseEnter += new System.EventHandler(MouseEnterElement);
+      button1.MouseLeave += new System.EventHandler(MouseLeaveElement);
+      //
+      // richTextBox
+      //
+      richTextBox.BackColor = System.Drawing.SystemColors.Control;
+      richTextBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
+      tableLayoutPanel.SetColumnSpan(richTextBox, 4);
+      richTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
+      richTextBox.Location = new System.Drawing.Point(69, 3);
+      richTextBox.Name = "richTextBox";
+      richTextBox.ReadOnly = true;
+      richTextBox.Size = new System.Drawing.Size(407, 90);
+      richTextBox.TabIndex = 3;
+      richTextBox.Text = "";
+      richTextBox.MouseEnter += new System.EventHandler(MouseEnterElement);
+      richTextBox.MouseLeave += new System.EventHandler(MouseLeaveElement);
+      //
+      // label
+      //
+      label.BackColor = System.Drawing.Color.Transparent;
+      tableLayoutPanel.SetColumnSpan(label, 2);
+      label.Dock = System.Windows.Forms.DockStyle.Fill;
+      label.ForeColor = System.Drawing.SystemColors.InfoText;
+      label.Location = new System.Drawing.Point(6, 96);
+      label.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+      label.Name = "label";
+      label.Size = new System.Drawing.Size(258, 26);
+      label.TabIndex = 2;
+      label.Text = "Default in 5 seconds";
+      label.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+      //
+      // timer
+      //
+      timer.Enabled = true;
+      timer.Interval = 500;
+      timer.Tick += new System.EventHandler(Timer_Tick);
+      //
+      // button2
+      //
+      button2.Anchor = (System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right);
+      button2.BackColor = System.Drawing.SystemColors.ButtonFace;
+      button2.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+      button2.Location = new System.Drawing.Point(339, 98);
+      button2.Margin = new System.Windows.Forms.Padding(2);
+      button2.Name = "button2";
+      button2.Size = new System.Drawing.Size(67, 22);
+      button2.TabIndex = 1;
+      button2.Text = "button2";
+      button2.UseVisualStyleBackColor = false;
+      button2.MouseEnter += new System.EventHandler(MouseEnterElement);
+      button2.MouseLeave += new System.EventHandler(MouseLeaveElement);
+      //
+      // button3
+      //
+      button3.Anchor = (System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right);
+      button3.BackColor = System.Drawing.SystemColors.ButtonFace;
+      button3.Location = new System.Drawing.Point(410, 98);
+      button3.Margin = new System.Windows.Forms.Padding(2);
+      button3.Name = "button3";
+      button3.Size = new System.Drawing.Size(67, 22);
+      button3.TabIndex = 2;
+      button3.Text = "button3";
+      button3.UseVisualStyleBackColor = false;
+      button3.MouseEnter += new System.EventHandler(MouseEnterElement);
+      button3.MouseLeave += new System.EventHandler(MouseLeaveElement);
+      //
+      // pictureBox
+      //
+      pictureBox.ErrorImage = null;
+      pictureBox.InitialImage = null;
+      pictureBox.Location = new System.Drawing.Point(7, 3);
+      pictureBox.Name = "pictureBox";
+      pictureBox.Size = new System.Drawing.Size(56, 55);
+      pictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
+      pictureBox.TabIndex = 4;
+      pictureBox.TabStop = false;
+      pictureBox.WaitOnLoad = true;
+      //
+      // tableLayoutPanel
+      //
+      tableLayoutPanel.AutoSize = true;
+      tableLayoutPanel.BackColor = System.Drawing.Color.Transparent;
+      tableLayoutPanel.ColumnCount = 5;
+      tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+      tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+      tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+      tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+      tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+      tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+      tableLayoutPanel.Controls.Add(pictureBox, 0, 0);
+      tableLayoutPanel.Controls.Add(label, 0, 1);
+      tableLayoutPanel.Controls.Add(button3, 4, 1);
+      tableLayoutPanel.Controls.Add(button2, 3, 1);
+      tableLayoutPanel.Controls.Add(richTextBox, 1, 0);
+      tableLayoutPanel.Controls.Add(button1, 2, 1);
+      tableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+      tableLayoutPanel.Location = new System.Drawing.Point(0, 0);
+      tableLayoutPanel.Margin = new System.Windows.Forms.Padding(2);
+      tableLayoutPanel.Name = "tableLayoutPanel";
+      tableLayoutPanel.Padding = new System.Windows.Forms.Padding(4, 0, 10, 3);
+      tableLayoutPanel.RowCount = 2;
+      tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+      tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      tableLayoutPanel.Size = new System.Drawing.Size(489, 125);
+      tableLayoutPanel.TabIndex = 5;
+      //
+      // TimedMessage
+      //
+      AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+      AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+      BackColor = System.Drawing.SystemColors.Control;
+      ClientSize = new System.Drawing.Size(489, 125);
+      Controls.Add(tableLayoutPanel);
+      FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
+      Margin = new System.Windows.Forms.Padding(2);
+      MaximizeBox = false;
+      MinimizeBox = false;
+      MinimumSize = new System.Drawing.Size(261, 76);
+      Name = "TimedMessage";
+      ShowIcon = false;
+      ShowInTaskbar = false;
+      SizeGripStyle = System.Windows.Forms.SizeGripStyle.Show;
+      StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
+      Text = "Timed Message";
+      TopMost = true;
+      ((System.ComponentModel.ISupportInitialize)(pictureBox)).EndInit();
+      tableLayoutPanel.ResumeLayout(false);
+      tableLayoutPanel.PerformLayout();
+      ResumeLayout(false);
+      PerformLayout();
+    }
+
+    #endregion Windows Form Designer generated code
+
+    public TimedMessage() => InitializeComponent();
+
+    public double Duration { get; set; } = 4.0;
+
+    public string Message
+    {
+      get => richTextBox.Text;
+      set => richTextBox.Text = value;
+    }
+
+    public string MessageRtf
+    {
+      get => richTextBox.Rtf;
+      set => richTextBox.Rtf = value;
+    }
+
+    public DialogResult Show(Form owner, string message, string title, MessageBoxButtons buttons, MessageBoxIcon icon, MessageBoxDefaultButton defaultButton, double timeout, string button3Text)
+    {
+      Text = title;
+      Message = message;
+      Duration = timeout;
+
+      m_MessageBoxButtons = buttons;
+
+      if (!string.IsNullOrEmpty(button3Text))
+        button3.Text = button3Text;
+
+      // One Button
+      if (buttons == MessageBoxButtons.OK)
+      {
+        HideColumn(3, false);
+        HideColumn(4, false);
+        button2.Visible = false;
+        button3.Visible = false;
+      }
+
+      // Two Button
+      if (buttons == MessageBoxButtons.YesNo ||
+          buttons == MessageBoxButtons.OKCancel ||
+          buttons == MessageBoxButtons.RetryCancel)
+      {
+        HideColumn(4, false);
+        button3.Visible = false;
+      }
+
+      if ((buttons == MessageBoxButtons.OK || buttons == MessageBoxButtons.OKCancel))
+      {
+        button1.Text = "&OK";
+        button1.DialogResult = DialogResult.OK;
+      }
+      if ((buttons == MessageBoxButtons.YesNo || buttons == MessageBoxButtons.YesNoCancel))
+      {
+        button1.Text = "&Yes";
+        button1.DialogResult = DialogResult.Yes;
+      }
+      if ((buttons == MessageBoxButtons.AbortRetryIgnore))
+      {
+        button1.Text = "&Abort";
+        button1.DialogResult = DialogResult.Abort;
+      }
+      if ((buttons == MessageBoxButtons.RetryCancel))
+      {
+        button1.Text = "&Retry";
+        button1.DialogResult = DialogResult.Retry;
+      }
+
+      // Button 2
+      if ((buttons == MessageBoxButtons.YesNo || buttons == MessageBoxButtons.YesNoCancel))
+      {
+        button2.Text = "&No";
+        button2.DialogResult = DialogResult.No;
+      }
+      if ((buttons == MessageBoxButtons.AbortRetryIgnore))
+      {
+        button2.Text = "&Retry";
+        button2.DialogResult = DialogResult.Retry;
+      }
+      if ((buttons == MessageBoxButtons.RetryCancel || buttons == MessageBoxButtons.OKCancel))
+      {
+        button2.Text = "&Cancel";
+        button2.DialogResult = DialogResult.Cancel;
+        CancelButton = button2;
+      }
+
+      // Button 3
+      if (buttons == MessageBoxButtons.AbortRetryIgnore)
+      {
+        button3.Text = "&Ignore";
+        button3.DialogResult = DialogResult.Ignore;
+      }
+      if (buttons == MessageBoxButtons.YesNoCancel)
+      {
+        button3.Text = "&Cancel";
+        button3.DialogResult = DialogResult.Cancel;
+        CancelButton = button3;
+      }
+
+      if (defaultButton == MessageBoxDefaultButton.Button1)
+      {
+        AcceptButton = button1;
+      }
+      else if (defaultButton == MessageBoxDefaultButton.Button2)
+      {
+        AcceptButton = button2;
+      }
+      else if (defaultButton == MessageBoxDefaultButton.Button3)
+      {
+        AcceptButton = button3;
+      }
+
+      if (icon != MessageBoxIcon.None)
+      {
+        Icon displayIcon = null;
+        switch (icon)
+        {
+          case MessageBoxIcon.Question:
+            displayIcon = new Icon(SystemIcons.Question, 40, 40);
+            break;
+
+          case MessageBoxIcon.Error:
+            displayIcon = new Icon(SystemIcons.Error, 40, 40);
+            // e.Graphics.DrawIcon(SystemIcons.Error, new Rectangle(10, 10, 32, 32));
+            break;
+
+          case MessageBoxIcon.Warning:
+            displayIcon = new Icon(SystemIcons.Warning, 40, 40);
+            // e.Graphics.DrawIcon(SystemIcons.Warning, new Rectangle(10, 10, 32, 32));
+            break;
+
+          case MessageBoxIcon.Information:
+            displayIcon = new Icon(SystemIcons.Information, 40, 40);
+            break;
+
+          default:
+            break;
+        }
+        pictureBox.Image = displayIcon.ToBitmap();
+      }
+
+      return ShowDialog(owner);
+    }
+
+    /// <summary>
+    /// Clean up any resources being used.
+    /// </summary>
+    /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+    protected override void Dispose(bool disposing)
+    {
+      if (disposing && (components != null))
+      {
+        components.Dispose();
+      }
+      base.Dispose(disposing);
+    }
+
+    private void HideColumn(int colNumber, bool visible)
+    {
+      var styles = tableLayoutPanel.ColumnStyles;
+      if (visible)
+      {
+        styles[colNumber].SizeType = SizeType.AutoSize;
+      }
+      else
+      {
+        styles[colNumber].SizeType = SizeType.Absolute;
+        styles[colNumber].Width = 0;
+      }
+    }
+
+    private void MouseEnterElement(object sender, EventArgs e)
+    {
+      timer.Enabled = false;
+      UpdateLabel();
+    }
+
+    private void MouseLeaveElement(object sender, EventArgs e)
+    {
+      timer.Enabled = true;
+      UpdateLabel();
+    }
+
+    private void Timer_Tick(object sender, EventArgs e)
+    {
+      m_Counter++;
+      UpdateLabel();
+
+      if (Duration > 0 && (m_Counter * timer.Interval) / 1000 > Duration)
+      {
+        AcceptButton.PerformClick();
+      }
+    }
+
+    private void UpdateLabel()
+    {
+      var displ = Convert.ToInt32((Duration - (m_Counter * timer.Interval) / 1000 + .75));
+      if (!timer.Enabled)
+        displ = 0;
+      if (displ > 0)
+      {
+        if (AcceptButton == button1)
+          label.Text = $"{button1.Text.Substring(1)} in {displ:N0} seconds";
+        if (AcceptButton == button2)
+          label.Text = $"{button2.Text.Substring(1)} in {displ:N0} seconds";
+        if (AcceptButton == button3)
+          label.Text = $"{button3.Text.Substring(1)} in {displ:N0} seconds";
+      }
+      else
+        label.Text = string.Empty;
+    }
+  }
+
+#pragma warning disable CA1707 // Identifiers should not contain underscores
 }

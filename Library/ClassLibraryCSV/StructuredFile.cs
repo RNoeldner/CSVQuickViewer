@@ -170,13 +170,7 @@ namespace CsvTools
     /// </summary>
     /// <returns></returns>
     /// <exception cref="NotImplementedException"> Structured files can not be read they are for writing only</exception>
-    public override IFileReader GetFileReader(IProcessDisplay processDisplay)
-    {
-      if (JSONEncode)
-        return new JsonFileReader(this, processDisplay);
-      else
-        throw new NotImplementedException("XML Structured files can not be read they are for writing only");
-    }
+    public override IFileReader GetFileReader(IProcessDisplay processDisplay) => throw new NotImplementedException("XML Structured files can not be read they are for writing only");
 
     /// <summary>
     ///   Gets the file writer.

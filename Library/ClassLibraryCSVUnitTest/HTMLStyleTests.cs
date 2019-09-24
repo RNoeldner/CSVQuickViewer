@@ -11,23 +11,16 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using System;
 using System.Text;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
   [TestClass]
   public class HTMLStyleTests
   {
-    [TestMethod]
-    public void JSONEncodeTest()
-    {
-      Assert.IsNull(HTMLStyle.JsonEncode(null));
-      Assert.AreEqual("\"\"", HTMLStyle.JsonEncode(""));
-      Assert.AreEqual("\"JSON\"", HTMLStyle.JsonEncode("JSON"));
-    }
-
     [TestMethod]
     public void HtmlEncodeShortTest()
     {

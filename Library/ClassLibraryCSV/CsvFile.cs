@@ -42,6 +42,7 @@ namespace CsvTools
     [NonSerialized]
     private Encoding m_CurrentEncoding = Encoding.UTF8;
 
+    private bool m_JsonFormat = false;
     private bool m_DoubleDecode;
     private bool m_NoDelimitedFile;
     private int m_NumWarnings;
@@ -143,6 +144,14 @@ namespace CsvTools
       }
 
       set => m_CurrentEncoding = value ?? Encoding.UTF8;
+    }
+
+    [XmlAttribute]
+    [DefaultValue(false)]
+    public virtual bool JsonFormat
+    {
+      get => m_JsonFormat;
+      set => m_JsonFormat = value;
     }
 
     /// <summary>
@@ -462,14 +471,26 @@ namespace CsvTools
     ///   Gets the file reader.
     /// </summary>
     /// <returns></returns>
-    public override IFileReader GetFileReader(IProcessDisplay processDisplay) => new CsvFileReader(this, processDisplay);
+    public override IFileReader GetFileReader(IProcessDisplay processDisplay)
+    {
+      if (JsonFormat)
+        return new JsonFileReader(this, processDisplay);
+      else
+        return new CsvFileReader(this, processDisplay);
+    }
 
     /// <summary>
     ///   Gets the file writer.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns></returns>
-    public override IFileWriter GetFileWriter(IProcessDisplay processDisplay) => new CsvFileWriter(this, processDisplay);
+    public override IFileWriter GetFileWriter(IProcessDisplay processDisplay)
+    {
+      if (JsonFormat)
+        throw new NotImplementedException("For writing Json files please use a structured File to define the layout.");
+      else
+        return new CsvFileWriter(this, processDisplay);
+    }
 
     /*
     /// <summary>Serves as the default hash function. </summary>

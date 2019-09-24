@@ -109,7 +109,7 @@ namespace CsvTools
         {
           var encryptor = symmetricKey.CreateEncryptor(passwordDeriveBytes.GetBytes(32), m_InitVectorBytes);
           var memoryStream = new MemoryStream();
-          using (var cryptoStream = new CryptoStream(new MemoryStream(), encryptor, CryptoStreamMode.Write))
+          using (var cryptoStream = new CryptoStream(memoryStream, encryptor, CryptoStreamMode.Write))
           {
             cryptoStream.Write(plainTextBytes, 0, plainTextBytes.Length);
             cryptoStream.FlushFinalBlock();

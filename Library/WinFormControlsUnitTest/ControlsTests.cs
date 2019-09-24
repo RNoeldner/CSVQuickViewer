@@ -38,6 +38,19 @@ namespace CsvTools.Tests
       }
     }
 
+    [TestMethod]
+    public void TimedMessage()
+    {
+      using (var tm = new TimedMessage())
+      {
+        tm.Show(null, "This is my message", "Title1", MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button1, 10, null);
+      }
+      using (var tm = new TimedMessage())
+      {
+        tm.Show(null, "This is another message\n with a linefeed", "Title12", MessageBoxButtons.YesNo, MessageBoxIcon.Error, MessageBoxDefaultButton.Button2, 10, null);
+      }
+    }
+
     [ClassCleanup]
     public static void TearDown() => m_DataTable.Dispose();
 
