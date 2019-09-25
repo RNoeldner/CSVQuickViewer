@@ -27,6 +27,7 @@ namespace CsvTools
   public class FillGuessSettings : INotifyPropertyChanged, ICloneable<FillGuessSettings>, IEquatable<FillGuessSettings>
 #pragma warning restore CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
   {
+    private bool m_Enabled = true;
     private int m_CheckedRecords = 30000;
     private bool m_CheckNamedDates = true;
     private bool m_DectectNumbers = true;
@@ -45,6 +46,35 @@ namespace CsvTools
     ///   Occurs when a property value changes.
     /// </summary>
     public event PropertyChangedEventHandler PropertyChanged;
+
+    /// <summary>
+    ///   If set to <c>True</c> values are checked if they could be Date or Times
+    /// </summary>
+    [DefaultValue(true)]
+    [XmlElement]
+    public virtual bool Enabled
+    {
+      get => m_Enabled;
+
+      set
+      {
+        if (m_Enabled == value)
+          return;
+        m_Enabled = value;
+        NotifyPropertyChanged(nameof(Enabled));
+        NotifyPropertyChanged(nameof(Disabled));
+      }
+    }
+
+    /// <summary>
+    ///   If set to <c>True</c> values are checked if they could be Date or Times
+    /// </summary>
+    [DefaultValue(false)]
+    [XmlIgnore]
+    public virtual bool Disabled
+    {
+      get => !m_Enabled;
+    }
 
     /// <summary>
     ///   Number of records to parse to get the sample values
