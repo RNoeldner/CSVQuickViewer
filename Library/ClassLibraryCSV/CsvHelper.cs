@@ -431,11 +431,18 @@ namespace CsvTools
       using (var m_JsonTextReader = new Newtonsoft.Json.JsonTextReader(streamReader))
       {
         m_JsonTextReader.CloseInput = false;
-        if (m_JsonTextReader.Read())
+        try
         {
-          return (m_JsonTextReader.TokenType == Newtonsoft.Json.JsonToken.StartObject ||
-                  m_JsonTextReader.TokenType == Newtonsoft.Json.JsonToken.StartArray ||
-                  m_JsonTextReader.TokenType == Newtonsoft.Json.JsonToken.StartConstructor);
+          if (m_JsonTextReader.Read())
+          {
+            return (m_JsonTextReader.TokenType == Newtonsoft.Json.JsonToken.StartObject ||
+                    m_JsonTextReader.TokenType == Newtonsoft.Json.JsonToken.StartArray ||
+                    m_JsonTextReader.TokenType == Newtonsoft.Json.JsonToken.StartConstructor);
+          }
+        }
+        catch (Newtonsoft.Json.JsonReaderException)
+        {
+          //ignore
         }
         return false;
       }
