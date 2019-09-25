@@ -29,7 +29,6 @@
     {
       this.components = new System.ComponentModel.Container();
       this.trackBarCheckedRecords = new System.Windows.Forms.TrackBar();
-      this.fillGuessSettingsBindingSource = new System.Windows.Forms.BindingSource(this.components);
       this.textBoxCheckedRecords = new System.Windows.Forms.TextBox();
       this.textBoxSampleValues = new System.Windows.Forms.TextBox();
       this.checkBoxDectectNumbers = new System.Windows.Forms.CheckBox();
@@ -58,10 +57,13 @@
       this.label5 = new System.Windows.Forms.Label();
       this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
       this.errorProvider = new System.Windows.Forms.ErrorProvider(this.components);
+      this.radioButtonEnabled = new System.Windows.Forms.RadioButton();
+      this.radioButtonDisabled = new System.Windows.Forms.RadioButton();
+      this.fillGuessSettingsBindingSource = new System.Windows.Forms.BindingSource(this.components);
       ((System.ComponentModel.ISupportInitialize)(this.trackBarCheckedRecords)).BeginInit();
-      ((System.ComponentModel.ISupportInitialize)(this.fillGuessSettingsBindingSource)).BeginInit();
       this.tableLayoutPanel1.SuspendLayout();
       ((System.ComponentModel.ISupportInitialize)(this.errorProvider)).BeginInit();
+      ((System.ComponentModel.ISupportInitialize)(this.fillGuessSettingsBindingSource)).BeginInit();
       this.SuspendLayout();
       // 
       // trackBarCheckedRecords
@@ -69,23 +71,20 @@
       this.tableLayoutPanel1.SetColumnSpan(this.trackBarCheckedRecords, 2);
       this.trackBarCheckedRecords.DataBindings.Add(new System.Windows.Forms.Binding("Value", this.fillGuessSettingsBindingSource, "CheckedRecords", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
       this.trackBarCheckedRecords.LargeChange = 2000;
-      this.trackBarCheckedRecords.Location = new System.Drawing.Point(3, 49);
+      this.trackBarCheckedRecords.Location = new System.Drawing.Point(3, 79);
       this.trackBarCheckedRecords.Maximum = 50000;
       this.trackBarCheckedRecords.Name = "trackBarCheckedRecords";
-      this.trackBarCheckedRecords.Size = new System.Drawing.Size(229, 43);
+      this.trackBarCheckedRecords.Size = new System.Drawing.Size(229, 34);
       this.trackBarCheckedRecords.SmallChange = 100;
       this.trackBarCheckedRecords.TabIndex = 3;
       this.trackBarCheckedRecords.TickFrequency = 2000;
       this.trackBarCheckedRecords.Value = 250;
       // 
-      // fillGuessSettingsBindingSource
-      // 
-      this.fillGuessSettingsBindingSource.DataSource = typeof(CsvTools.FillGuessSettings);
-      // 
       // textBoxCheckedRecords
       // 
+      this.textBoxCheckedRecords.Anchor = System.Windows.Forms.AnchorStyles.Left;
       this.textBoxCheckedRecords.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.fillGuessSettingsBindingSource, "CheckedRecords", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-      this.textBoxCheckedRecords.Location = new System.Drawing.Point(238, 49);
+      this.textBoxCheckedRecords.Location = new System.Drawing.Point(238, 83);
       this.textBoxCheckedRecords.Name = "textBoxCheckedRecords";
       this.textBoxCheckedRecords.Size = new System.Drawing.Size(70, 26);
       this.textBoxCheckedRecords.TabIndex = 4;
@@ -95,18 +94,19 @@
       // textBoxSampleValues
       // 
       this.textBoxSampleValues.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.fillGuessSettingsBindingSource, "SampleValues", true));
-      this.textBoxSampleValues.Location = new System.Drawing.Point(238, 3);
+      this.textBoxSampleValues.Location = new System.Drawing.Point(238, 33);
       this.textBoxSampleValues.Name = "textBoxSampleValues";
       this.textBoxSampleValues.Size = new System.Drawing.Size(70, 26);
       this.textBoxSampleValues.TabIndex = 1;
-      this.toolTip.SetToolTip(this.textBoxSampleValues, "Once this amount of sample values is read the detection process will start withou" +
-        "t further reading records");
+      this.toolTip.SetToolTip(this.textBoxSampleValues, "As the amount of sample is found the detection process will start");
+      this.textBoxSampleValues.Validating += new System.ComponentModel.CancelEventHandler(this.textBoxSampleValues_Validating);
       // 
       // checkBoxDectectNumbers
       // 
       this.checkBoxDectectNumbers.AutoSize = true;
+      this.tableLayoutPanel1.SetColumnSpan(this.checkBoxDectectNumbers, 3);
       this.checkBoxDectectNumbers.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fillGuessSettingsBindingSource, "DectectNumbers", true));
-      this.checkBoxDectectNumbers.Location = new System.Drawing.Point(3, 98);
+      this.checkBoxDectectNumbers.Location = new System.Drawing.Point(3, 119);
       this.checkBoxDectectNumbers.Name = "checkBoxDectectNumbers";
       this.checkBoxDectectNumbers.Size = new System.Drawing.Size(93, 24);
       this.checkBoxDectectNumbers.TabIndex = 6;
@@ -118,8 +118,8 @@
       // label21
       // 
       this.label21.AutoSize = true;
-      this.label21.Location = new System.Drawing.Point(314, 278);
-      this.label21.Margin = new System.Windows.Forms.Padding(3, 3, 3, 3);
+      this.label21.Location = new System.Drawing.Point(314, 299);
+      this.label21.Margin = new System.Windows.Forms.Padding(3);
       this.label21.Name = "label21";
       this.label21.Size = new System.Drawing.Size(711, 20);
       this.label21.TabIndex = 22;
@@ -130,7 +130,7 @@
       // 
       this.label22.Anchor = System.Windows.Forms.AnchorStyles.Left;
       this.label22.AutoSize = true;
-      this.label22.Location = new System.Drawing.Point(314, 100);
+      this.label22.Location = new System.Drawing.Point(314, 121);
       this.label22.Name = "label22";
       this.label22.Size = new System.Drawing.Size(312, 20);
       this.label22.TabIndex = 7;
@@ -139,9 +139,9 @@
       // checkBoxDectectPercentage
       // 
       this.checkBoxDectectPercentage.AutoSize = true;
-      this.tableLayoutPanel1.SetColumnSpan(this.checkBoxDectectPercentage, 2);
+      this.tableLayoutPanel1.SetColumnSpan(this.checkBoxDectectPercentage, 3);
       this.checkBoxDectectPercentage.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fillGuessSettingsBindingSource, "DectectPercentage", true));
-      this.checkBoxDectectPercentage.Location = new System.Drawing.Point(3, 248);
+      this.checkBoxDectectPercentage.Location = new System.Drawing.Point(3, 269);
       this.checkBoxDectectPercentage.Name = "checkBoxDectectPercentage";
       this.checkBoxDectectPercentage.Size = new System.Drawing.Size(117, 24);
       this.checkBoxDectectPercentage.TabIndex = 17;
@@ -152,8 +152,9 @@
       // checkBoxDetectDateTime
       // 
       this.checkBoxDetectDateTime.AutoSize = true;
+      this.tableLayoutPanel1.SetColumnSpan(this.checkBoxDetectDateTime, 3);
       this.checkBoxDetectDateTime.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fillGuessSettingsBindingSource, "DetectDateTime", true));
-      this.checkBoxDetectDateTime.Location = new System.Drawing.Point(3, 128);
+      this.checkBoxDetectDateTime.Location = new System.Drawing.Point(3, 149);
       this.checkBoxDetectDateTime.Name = "checkBoxDetectDateTime";
       this.checkBoxDetectDateTime.Size = new System.Drawing.Size(116, 24);
       this.checkBoxDetectDateTime.TabIndex = 8;
@@ -165,8 +166,8 @@
       // label23
       // 
       this.label23.AutoSize = true;
-      this.label23.Location = new System.Drawing.Point(314, 128);
-      this.label23.Margin = new System.Windows.Forms.Padding(3, 3, 3, 3);
+      this.label23.Location = new System.Drawing.Point(314, 149);
+      this.label23.Margin = new System.Windows.Forms.Padding(3);
       this.label23.Name = "label23";
       this.label23.Size = new System.Drawing.Size(315, 20);
       this.label23.TabIndex = 10;
@@ -175,8 +176,8 @@
       // label30
       // 
       this.label30.AutoSize = true;
-      this.label30.Location = new System.Drawing.Point(314, 248);
-      this.label30.Margin = new System.Windows.Forms.Padding(3, 3, 3, 3);
+      this.label30.Location = new System.Drawing.Point(314, 269);
+      this.label30.Margin = new System.Windows.Forms.Padding(3);
       this.label30.Name = "label30";
       this.label30.Size = new System.Drawing.Size(438, 20);
       this.label30.TabIndex = 18;
@@ -186,7 +187,7 @@
       // 
       this.checkBoxDetectBoolean.AutoSize = true;
       this.checkBoxDetectBoolean.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fillGuessSettingsBindingSource, "DetectBoolean", true));
-      this.checkBoxDetectBoolean.Location = new System.Drawing.Point(3, 278);
+      this.checkBoxDetectBoolean.Location = new System.Drawing.Point(3, 299);
       this.checkBoxDetectBoolean.Name = "checkBoxDetectBoolean";
       this.checkBoxDetectBoolean.Size = new System.Drawing.Size(94, 24);
       this.checkBoxDetectBoolean.TabIndex = 19;
@@ -198,7 +199,7 @@
       // textBoxTrue
       // 
       this.textBoxTrue.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.fillGuessSettingsBindingSource, "TrueValue", true));
-      this.textBoxTrue.Location = new System.Drawing.Point(125, 278);
+      this.textBoxTrue.Location = new System.Drawing.Point(103, 299);
       this.textBoxTrue.Name = "textBoxTrue";
       this.textBoxTrue.Size = new System.Drawing.Size(70, 26);
       this.textBoxTrue.TabIndex = 20;
@@ -207,7 +208,7 @@
       // textBoxFalse
       // 
       this.textBoxFalse.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.fillGuessSettingsBindingSource, "FalseValue", true));
-      this.textBoxFalse.Location = new System.Drawing.Point(238, 278);
+      this.textBoxFalse.Location = new System.Drawing.Point(238, 299);
       this.textBoxFalse.Name = "textBoxFalse";
       this.textBoxFalse.Size = new System.Drawing.Size(70, 26);
       this.textBoxFalse.TabIndex = 21;
@@ -216,9 +217,9 @@
       // checkBoxSerialDateTime
       // 
       this.checkBoxSerialDateTime.AutoSize = true;
-      this.tableLayoutPanel1.SetColumnSpan(this.checkBoxSerialDateTime, 2);
+      this.tableLayoutPanel1.SetColumnSpan(this.checkBoxSerialDateTime, 3);
       this.checkBoxSerialDateTime.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fillGuessSettingsBindingSource, "SerialDateTime", true));
-      this.checkBoxSerialDateTime.Location = new System.Drawing.Point(3, 188);
+      this.checkBoxSerialDateTime.Location = new System.Drawing.Point(3, 209);
       this.checkBoxSerialDateTime.Name = "checkBoxSerialDateTime";
       this.checkBoxSerialDateTime.Size = new System.Drawing.Size(189, 24);
       this.checkBoxSerialDateTime.TabIndex = 13;
@@ -230,8 +231,8 @@
       // label32
       // 
       this.label32.AutoSize = true;
-      this.label32.Location = new System.Drawing.Point(314, 188);
-      this.label32.Margin = new System.Windows.Forms.Padding(3, 3, 3, 3);
+      this.label32.Location = new System.Drawing.Point(314, 209);
+      this.label32.Margin = new System.Windows.Forms.Padding(3);
       this.label32.Name = "label32";
       this.label32.Size = new System.Drawing.Size(476, 20);
       this.label32.TabIndex = 14;
@@ -242,7 +243,7 @@
       this.checkBoxDetectGUID.AutoSize = true;
       this.tableLayoutPanel1.SetColumnSpan(this.checkBoxDetectGUID, 2);
       this.checkBoxDetectGUID.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fillGuessSettingsBindingSource, "DetectGUID", true));
-      this.checkBoxDetectGUID.Location = new System.Drawing.Point(3, 310);
+      this.checkBoxDetectGUID.Location = new System.Drawing.Point(3, 331);
       this.checkBoxDetectGUID.Name = "checkBoxDetectGUID";
       this.checkBoxDetectGUID.Size = new System.Drawing.Size(77, 24);
       this.checkBoxDetectGUID.TabIndex = 23;
@@ -254,9 +255,9 @@
       // checkBox1
       // 
       this.checkBox1.AutoSize = true;
-      this.tableLayoutPanel1.SetColumnSpan(this.checkBox1, 2);
+      this.tableLayoutPanel1.SetColumnSpan(this.checkBox1, 3);
       this.checkBox1.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fillGuessSettingsBindingSource, "IgnoreIdColums", true));
-      this.checkBox1.Location = new System.Drawing.Point(3, 340);
+      this.checkBox1.Location = new System.Drawing.Point(3, 361);
       this.checkBox1.Name = "checkBox1";
       this.checkBox1.Size = new System.Drawing.Size(165, 24);
       this.checkBox1.TabIndex = 25;
@@ -267,8 +268,8 @@
       // label1
       // 
       this.label1.AutoSize = true;
-      this.label1.Location = new System.Drawing.Point(314, 340);
-      this.label1.Margin = new System.Windows.Forms.Padding(3, 3, 3, 3);
+      this.label1.Location = new System.Drawing.Point(314, 361);
+      this.label1.Margin = new System.Windows.Forms.Padding(3);
       this.label1.Name = "label1";
       this.label1.Size = new System.Drawing.Size(693, 20);
       this.label1.TabIndex = 26;
@@ -278,8 +279,8 @@
       // label2
       // 
       this.label2.AutoSize = true;
-      this.label2.Location = new System.Drawing.Point(314, 310);
-      this.label2.Margin = new System.Windows.Forms.Padding(3, 3, 3, 3);
+      this.label2.Location = new System.Drawing.Point(314, 331);
+      this.label2.Margin = new System.Windows.Forms.Padding(3);
       this.label2.Name = "label2";
       this.label2.Size = new System.Drawing.Size(394, 20);
       this.label2.TabIndex = 24;
@@ -287,22 +288,22 @@
       // 
       // label19
       // 
+      this.label19.Anchor = System.Windows.Forms.AnchorStyles.Left;
       this.label19.AutoSize = true;
-      this.label19.Location = new System.Drawing.Point(314, 49);
-      this.label19.Margin = new System.Windows.Forms.Padding(3, 3, 3, 3);
+      this.label19.Location = new System.Drawing.Point(314, 86);
+      this.label19.Margin = new System.Windows.Forms.Padding(3);
       this.label19.Name = "label19";
-      this.label19.Size = new System.Drawing.Size(380, 20);
+      this.label19.Size = new System.Drawing.Size(464, 20);
       this.label19.TabIndex = 5;
-      this.label19.Text = "Number of records to check to get the sample values";
+      this.label19.Text = "Number of records to check in order to get differnt sample values";
       // 
       // label20
       // 
       this.label20.AutoSize = true;
-      this.label20.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.label20.Location = new System.Drawing.Point(314, 3);
-      this.label20.Margin = new System.Windows.Forms.Padding(3, 3, 3, 3);
+      this.label20.Location = new System.Drawing.Point(314, 33);
+      this.label20.Margin = new System.Windows.Forms.Padding(3);
       this.label20.Name = "label20";
-      this.label20.Size = new System.Drawing.Size(748, 40);
+      this.label20.Size = new System.Drawing.Size(637, 40);
       this.label20.TabIndex = 2;
       this.label20.Text = "Minimum and maximum number of samples to read before trying to determine the form" +
     "at. \r\nThe more values are read the better the detection but the slower the proce" +
@@ -311,19 +312,20 @@
       // textBoxMinSamples
       // 
       this.textBoxMinSamples.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.fillGuessSettingsBindingSource, "MinSamples", true));
-      this.textBoxMinSamples.Location = new System.Drawing.Point(125, 3);
+      this.textBoxMinSamples.Location = new System.Drawing.Point(103, 33);
       this.textBoxMinSamples.Name = "textBoxMinSamples";
       this.textBoxMinSamples.Size = new System.Drawing.Size(70, 26);
       this.textBoxMinSamples.TabIndex = 9;
-      this.toolTip.SetToolTip(this.textBoxMinSamples, "A higher the number makes sure the guessed format is correct, but columns with th" +
-        "at do not contain a variety of values might not recognized.");
+      this.toolTip.SetToolTip(this.textBoxMinSamples, "A higher the number of samples ensures the guessed format is correct, columns tha" +
+        "t not contain a variety of values might not provide may samples\r\n");
+      this.textBoxMinSamples.Validating += new System.ComponentModel.CancelEventHandler(this.textBoxMinSamples_Validating);
       // 
       // checkBoxNamedDates
       // 
       this.checkBoxNamedDates.AutoSize = true;
-      this.tableLayoutPanel1.SetColumnSpan(this.checkBoxNamedDates, 2);
+      this.tableLayoutPanel1.SetColumnSpan(this.checkBoxNamedDates, 3);
       this.checkBoxNamedDates.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fillGuessSettingsBindingSource, "CheckNamedDates", true));
-      this.checkBoxNamedDates.Location = new System.Drawing.Point(3, 158);
+      this.checkBoxNamedDates.Location = new System.Drawing.Point(3, 179);
       this.checkBoxNamedDates.Name = "checkBoxNamedDates";
       this.checkBoxNamedDates.Size = new System.Drawing.Size(206, 24);
       this.checkBoxNamedDates.TabIndex = 11;
@@ -334,9 +336,9 @@
       // checkBoxDateParts
       // 
       this.checkBoxDateParts.AutoSize = true;
-      this.tableLayoutPanel1.SetColumnSpan(this.checkBoxDateParts, 2);
+      this.tableLayoutPanel1.SetColumnSpan(this.checkBoxDateParts, 3);
       this.checkBoxDateParts.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fillGuessSettingsBindingSource, "DateParts", true));
-      this.checkBoxDateParts.Location = new System.Drawing.Point(3, 218);
+      this.checkBoxDateParts.Location = new System.Drawing.Point(3, 239);
       this.checkBoxDateParts.Name = "checkBoxDateParts";
       this.checkBoxDateParts.Size = new System.Drawing.Size(229, 24);
       this.checkBoxDateParts.TabIndex = 15;
@@ -347,8 +349,8 @@
       // label4
       // 
       this.label4.AutoSize = true;
-      this.label4.Location = new System.Drawing.Point(314, 158);
-      this.label4.Margin = new System.Windows.Forms.Padding(3, 3, 3, 3);
+      this.label4.Location = new System.Drawing.Point(314, 179);
+      this.label4.Margin = new System.Windows.Forms.Padding(3);
       this.label4.Name = "label4";
       this.label4.Size = new System.Drawing.Size(400, 20);
       this.label4.TabIndex = 12;
@@ -357,8 +359,8 @@
       // label5
       // 
       this.label5.AutoSize = true;
-      this.label5.Location = new System.Drawing.Point(314, 218);
-      this.label5.Margin = new System.Windows.Forms.Padding(3, 3, 3, 3);
+      this.label5.Location = new System.Drawing.Point(314, 239);
+      this.label5.Margin = new System.Windows.Forms.Padding(3);
       this.label5.Name = "label5";
       this.label5.Size = new System.Drawing.Size(729, 20);
       this.label5.TabIndex = 16;
@@ -372,39 +374,42 @@
       this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
       this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
       this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-      this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-      this.tableLayoutPanel1.Controls.Add(this.textBoxSampleValues, 2, 0);
-      this.tableLayoutPanel1.Controls.Add(this.label2, 3, 10);
+      this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
       this.tableLayoutPanel1.Controls.Add(this.label1, 3, 11);
-      this.tableLayoutPanel1.Controls.Add(this.label32, 3, 6);
-      this.tableLayoutPanel1.Controls.Add(this.label5, 3, 7);
-      this.tableLayoutPanel1.Controls.Add(this.checkBox1, 0, 11);
-      this.tableLayoutPanel1.Controls.Add(this.label20, 3, 0);
-      this.tableLayoutPanel1.Controls.Add(this.checkBoxDetectGUID, 0, 10);
-      this.tableLayoutPanel1.Controls.Add(this.checkBoxDateParts, 0, 7);
-      this.tableLayoutPanel1.Controls.Add(this.label19, 3, 1);
+      this.tableLayoutPanel1.Controls.Add(this.textBoxSampleValues, 2, 1);
+      this.tableLayoutPanel1.Controls.Add(this.label2, 3, 10);
+      this.tableLayoutPanel1.Controls.Add(this.textBoxMinSamples, 1, 1);
       this.tableLayoutPanel1.Controls.Add(this.label21, 3, 9);
-      this.tableLayoutPanel1.Controls.Add(this.label30, 3, 8);
-      this.tableLayoutPanel1.Controls.Add(this.checkBoxDectectNumbers, 0, 3);
       this.tableLayoutPanel1.Controls.Add(this.textBoxFalse, 2, 9);
+      this.tableLayoutPanel1.Controls.Add(this.label30, 3, 8);
+      this.tableLayoutPanel1.Controls.Add(this.label5, 3, 7);
+      this.tableLayoutPanel1.Controls.Add(this.label32, 3, 6);
+      this.tableLayoutPanel1.Controls.Add(this.label4, 3, 5);
+      this.tableLayoutPanel1.Controls.Add(this.label23, 3, 4);
       this.tableLayoutPanel1.Controls.Add(this.label22, 3, 3);
+      this.tableLayoutPanel1.Controls.Add(this.label19, 3, 2);
+      this.tableLayoutPanel1.Controls.Add(this.label20, 3, 1);
+      this.tableLayoutPanel1.Controls.Add(this.checkBox1, 0, 11);
+      this.tableLayoutPanel1.Controls.Add(this.checkBoxDetectGUID, 0, 10);
       this.tableLayoutPanel1.Controls.Add(this.textBoxTrue, 1, 9);
-      this.tableLayoutPanel1.Controls.Add(this.textBoxCheckedRecords, 2, 1);
+      this.tableLayoutPanel1.Controls.Add(this.checkBoxDetectBoolean, 0, 9);
+      this.tableLayoutPanel1.Controls.Add(this.checkBoxDectectPercentage, 0, 8);
+      this.tableLayoutPanel1.Controls.Add(this.checkBoxDateParts, 0, 7);
+      this.tableLayoutPanel1.Controls.Add(this.checkBoxSerialDateTime, 0, 6);
       this.tableLayoutPanel1.Controls.Add(this.checkBoxNamedDates, 0, 5);
       this.tableLayoutPanel1.Controls.Add(this.checkBoxDetectDateTime, 0, 4);
-      this.tableLayoutPanel1.Controls.Add(this.label23, 3, 4);
-      this.tableLayoutPanel1.Controls.Add(this.checkBoxDetectBoolean, 0, 9);
-      this.tableLayoutPanel1.Controls.Add(this.checkBoxSerialDateTime, 0, 6);
-      this.tableLayoutPanel1.Controls.Add(this.label4, 3, 5);
-      this.tableLayoutPanel1.Controls.Add(this.checkBoxDectectPercentage, 0, 8);
-      this.tableLayoutPanel1.Controls.Add(this.textBoxMinSamples, 1, 0);
-      this.tableLayoutPanel1.Controls.Add(this.trackBarCheckedRecords, 0, 1);
+      this.tableLayoutPanel1.Controls.Add(this.checkBoxDectectNumbers, 0, 3);
+      this.tableLayoutPanel1.Controls.Add(this.trackBarCheckedRecords, 0, 2);
+      this.tableLayoutPanel1.Controls.Add(this.textBoxCheckedRecords, 2, 2);
+      this.tableLayoutPanel1.Controls.Add(this.radioButtonEnabled, 0, 0);
+      this.tableLayoutPanel1.Controls.Add(this.radioButtonDisabled, 2, 0);
       this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Top;
       this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
       this.tableLayoutPanel1.Name = "tableLayoutPanel1";
       this.tableLayoutPanel1.RowCount = 12;
       this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 49F));
+      this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
       this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
@@ -414,13 +419,42 @@
       this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.tableLayoutPanel1.Size = new System.Drawing.Size(1065, 367);
+      this.tableLayoutPanel1.Size = new System.Drawing.Size(1065, 388);
       this.tableLayoutPanel1.TabIndex = 0;
       // 
       // errorProvider
       // 
       this.errorProvider.ContainerControl = this;
+      // 
+      // radioButtonEnabled
+      // 
+      this.radioButtonEnabled.AutoSize = true;
+      this.tableLayoutPanel1.SetColumnSpan(this.radioButtonEnabled, 2);
+      this.radioButtonEnabled.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fillGuessSettingsBindingSource, "Enabled", true));
+      this.radioButtonEnabled.Location = new System.Drawing.Point(3, 3);
+      this.radioButtonEnabled.Name = "radioButtonEnabled";
+      this.radioButtonEnabled.Size = new System.Drawing.Size(157, 24);
+      this.radioButtonEnabled.TabIndex = 27;
+      this.radioButtonEnabled.TabStop = true;
+      this.radioButtonEnabled.Text = "Enable Detection";
+      this.radioButtonEnabled.UseVisualStyleBackColor = true;
+      // 
+      // radioButtonDisabled
+      // 
+      this.radioButtonDisabled.AutoSize = true;
+      this.tableLayoutPanel1.SetColumnSpan(this.radioButtonDisabled, 2);
+      this.radioButtonDisabled.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fillGuessSettingsBindingSource, "Disabled", true));
+      this.radioButtonDisabled.Location = new System.Drawing.Point(238, 3);
+      this.radioButtonDisabled.Name = "radioButtonDisabled";
+      this.radioButtonDisabled.Size = new System.Drawing.Size(160, 24);
+      this.radioButtonDisabled.TabIndex = 27;
+      this.radioButtonDisabled.TabStop = true;
+      this.radioButtonDisabled.Text = "Disbale Detection";
+      this.radioButtonDisabled.UseVisualStyleBackColor = true;
+      // 
+      // fillGuessSettingsBindingSource
+      // 
+      this.fillGuessSettingsBindingSource.DataSource = typeof(CsvTools.FillGuessSettings);
       // 
       // FillGuessSettingEdit
       // 
@@ -431,10 +465,10 @@
       this.Name = "FillGuessSettingEdit";
       this.Size = new System.Drawing.Size(1065, 462);
       ((System.ComponentModel.ISupportInitialize)(this.trackBarCheckedRecords)).EndInit();
-      ((System.ComponentModel.ISupportInitialize)(this.fillGuessSettingsBindingSource)).EndInit();
       this.tableLayoutPanel1.ResumeLayout(false);
       this.tableLayoutPanel1.PerformLayout();
       ((System.ComponentModel.ISupportInitialize)(this.errorProvider)).EndInit();
+      ((System.ComponentModel.ISupportInitialize)(this.fillGuessSettingsBindingSource)).EndInit();
       this.ResumeLayout(false);
       this.PerformLayout();
 
@@ -471,5 +505,7 @@
     private System.Windows.Forms.Label label5;
     private System.Windows.Forms.CheckBox checkBoxDateParts;
     private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
+    private System.Windows.Forms.RadioButton radioButtonEnabled;
+    private System.Windows.Forms.RadioButton radioButtonDisabled;
   }
 }

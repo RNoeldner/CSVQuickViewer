@@ -41,5 +41,17 @@ namespace CsvTools
       else
         textBoxCheckedRecords.Focus();
     }
+
+    private void textBoxSampleValues_Validating(object sender, System.ComponentModel.CancelEventArgs e)
+    {
+      if (int.TryParse(textBoxSampleValues.Text, out int max) && int.TryParse(textBoxMinSamples.Text, out int min))
+          errorProvider.SetError(textBoxSampleValues, (max < min)? "Maximum samples must be greater then minumu samples" : string.Empty);
+    }
+
+    private void textBoxMinSamples_Validating(object sender, System.ComponentModel.CancelEventArgs e)
+    {
+      if (int.TryParse(textBoxSampleValues.Text, out int max) && int.TryParse(textBoxMinSamples.Text, out int min))
+        errorProvider.SetError(textBoxMinSamples, (min < max) ? "Minmum samples must be less then maximum samples" : string.Empty);
+    }
   }
 }

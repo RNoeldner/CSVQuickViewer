@@ -456,7 +456,8 @@ namespace CsvTools
                     {
                       frm.Left = limitSizeForm.Left + limitSizeForm.Width;
                     }
-                    m_FileSetting.FillGuessColumnFormatReader(false, processDisplay);
+                    if (m_ViewSettings.FillGuessSettings.Enabled)
+                      m_FileSetting.FillGuessColumnFormatReader(false, processDisplay);
                   }
 
                   if (m_FileSetting.ColumnCollection.Any(x => x.DataType != DataType.String))
