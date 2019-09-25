@@ -653,26 +653,9 @@ namespace CsvTools
         var pathSetting = m_FileSetting.FileName + CsvFile.cCsvSettingExtension;
         m_FileSetting.FileName = FileSystemUtils.SplitPath(m_FileSetting.FileName).FileName;
 
-        if (FileSystemUtils.FileExists(pathSetting))
-        {
-          // No need to save if nothing has changed
-          var compare = SerializedFilesLib.LoadCsvFile(pathSetting);
-          // These entries can be ignored
-          compare.ID = m_FileSetting.ID;
-          compare.FileName = m_FileSetting.FileName;
-
-          var answer = DialogResult.Yes;
-          if (!compare.Equals(m_FileSetting))
-            answer = _MessageBox.Show(this, $"Replace settings in {pathSetting} ?", "Settings", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-
-          if (answer == DialogResult.Yes)
-            FileSystemUtils.FileDelete(pathSetting);
-          else
-            return;
-        }
-
         Log.Debug($"Saving setting {pathSetting}");
-        SerializedFilesLib.SaveCsvFile(pathSetting, m_FileSetting);
+        SerializedFilesLib.SaveCsvFile(pathSetting, m_FileSetting, () => { return (_MessageBox.Show(this, $"Replace changed settings in {pathSetting} ?", "Settings", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes); }
+        );
         m_ConfigChanged = false;
       }
       catch (Exception ex)

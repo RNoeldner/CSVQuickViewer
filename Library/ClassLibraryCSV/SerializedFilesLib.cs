@@ -62,13 +62,26 @@ namespace CsvTools
     /// </summary>
     /// <param name="fileName">Name of the file.</param>
     /// <param name="csvFile">The CSV file.</param>
-    public static void SaveCsvFile(string fileName, CsvFile csvFile)
+    public static void SaveCsvFile(string fileName, CsvFile csvFile, Func<bool> askOverwrite)
     {
       Contract.Requires(fileName != null);
-      FileSystemUtils.DeleteWithBackup(fileName, false);
       using (var stringWriter = new StringWriter(CultureInfo.InvariantCulture))
       {
         m_SerializerCurrentCsvFile.Value.Serialize(stringWriter, csvFile, EmptyXmlSerializerNamespaces.Value);
+        var delete = false;
+        if (File.Exists(fileName))
+        {
+          var fileContens = File.ReadAllText(fileName);
+          if (fileContens.Equals(stringWriter.ToString()))
+            return;
+
+          if (askOverwrite.Invoke())
+            delete = true;
+          else
+            return;
+        }
+        if (delete)
+          FileSystemUtils.DeleteWithBackup(fileName, false);
         File.WriteAllText(fileName, stringWriter.ToString());
       }
     }
