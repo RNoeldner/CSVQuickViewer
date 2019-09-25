@@ -421,7 +421,7 @@ namespace CsvTools
             if (analyse)
               try
               {
-                if (m_ViewSettings.AllowJson && CsvHelper.GuessJsonFile(new StructuredFile(m_FileName)))
+                if (m_ViewSettings.AllowJson && CsvHelper.GuessJsonFile(m_FileSetting))
                   m_FileSetting.JsonFormat = true;
                 else
                 {

@@ -174,7 +174,7 @@ namespace CsvTools
       }
     }
 
-    public static bool GuessJsonFile(StructuredFile setting)
+    public static bool GuessJsonFile(IFileSettingPhysicalFile setting)
     {
       Contract.Requires(setting != null);
       using (var improvedStream = ImprovedStream.OpenRead(setting))
