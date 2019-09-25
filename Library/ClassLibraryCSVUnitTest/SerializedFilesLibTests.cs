@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
@@ -28,7 +29,7 @@ namespace CsvTools.Tests
       Assert.IsFalse(FileSystemUtils.FileExists(fileName));
       Assert.IsFalse(FileSystemUtils.FileExists(fileName + ".bak"));
 
-      SerializedFilesLib.SaveCsvFile(fileName, file);
+      SerializedFilesLib.SaveCsvFile(fileName, file, () => { return false; });
       Assert.IsTrue(FileSystemUtils.FileExists(fileName));
       FileSystemUtils.DeleteWithBackup(fileName, false);
       Assert.IsFalse(FileSystemUtils.FileExists(fileName));
@@ -47,7 +48,7 @@ namespace CsvTools.Tests
     {
       var file = GetCsvFile();
       Assert.IsFalse(FileSystemUtils.FileExists(fileName));
-      SerializedFilesLib.SaveCsvFile(fileName, file);
+      SerializedFilesLib.SaveCsvFile(fileName, file, () => { return true; });
       Assert.IsTrue(FileSystemUtils.FileExists(fileName));
       var test = SerializedFilesLib.LoadCsvFile(fileName);
 
@@ -65,9 +66,11 @@ namespace CsvTools.Tests
 
     private CsvFile GetCsvFile()
     {
-      var file = new CsvFile();
-      file.ID = "TestFile";
-      file.FileName = "Test.csv";
+      var file = new CsvFile
+      {
+        ID = "TestFile",
+        FileName = "Test.csv"
+      };
 
       file.MappingCollection.Add(new Mapping { FileColumn = "Fld1", TemplateField = "FldA" });
       file.MappingCollection.Add(new Mapping { FileColumn = "Fld2", TemplateField = "FldB" });
