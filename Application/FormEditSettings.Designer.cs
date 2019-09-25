@@ -165,7 +165,7 @@
       tableLayoutPanelFile.RowStyles.Add(new System.Windows.Forms.RowStyle());
       tableLayoutPanelFile.RowStyles.Add(new System.Windows.Forms.RowStyle());
       tableLayoutPanelFile.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      tableLayoutPanelFile.Size = new System.Drawing.Size(1060, 182);
+      tableLayoutPanelFile.Size = new System.Drawing.Size(1065, 182);
       tableLayoutPanelFile.TabIndex = 48;
       // 
       // labelDelimitedFile
@@ -184,7 +184,7 @@
       this.textBoxComment.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.fileFormatBindingSource, "CommentLine", true));
       this.textBoxComment.Location = new System.Drawing.Point(125, 153);
       this.textBoxComment.Name = "textBoxComment";
-      this.textBoxComment.Size = new System.Drawing.Size(82, 26);
+      this.textBoxComment.Size = new System.Drawing.Size(57, 26);
       this.textBoxComment.TabIndex = 10;
       // 
       // fileFormatBindingSource
@@ -204,14 +204,14 @@
       // 
       // textBoxFile
       // 
-      this.textBoxFile.Anchor = System.Windows.Forms.AnchorStyles.Left;
       this.textBoxFile.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Suggest;
       this.textBoxFile.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.FileSystem;
       tableLayoutPanelFile.SetColumnSpan(this.textBoxFile, 4);
       this.textBoxFile.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.fileSettingBindingSource, "FileName", true));
-      this.textBoxFile.Location = new System.Drawing.Point(125, 7);
+      this.textBoxFile.Dock = System.Windows.Forms.DockStyle.Top;
+      this.textBoxFile.Location = new System.Drawing.Point(125, 3);
       this.textBoxFile.Name = "textBoxFile";
-      this.textBoxFile.Size = new System.Drawing.Size(550, 26);
+      this.textBoxFile.Size = new System.Drawing.Size(731, 26);
       this.textBoxFile.TabIndex = 0;
       this.textBoxFile.Validating += new System.ComponentModel.CancelEventHandler(this.TextBoxFile_Validating);
       // 
@@ -223,11 +223,10 @@
       // buttonGuessDelimiter
       // 
       this.buttonGuessDelimiter.AutoSize = true;
-      this.buttonGuessDelimiter.Dock = System.Windows.Forms.DockStyle.Top;
       this.buttonGuessDelimiter.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-      this.buttonGuessDelimiter.Location = new System.Drawing.Point(815, 113);
+      this.buttonGuessDelimiter.Location = new System.Drawing.Point(862, 113);
       this.buttonGuessDelimiter.Name = "buttonGuessDelimiter";
-      this.buttonGuessDelimiter.Size = new System.Drawing.Size(242, 34);
+      this.buttonGuessDelimiter.Size = new System.Drawing.Size(200, 34);
       this.buttonGuessDelimiter.TabIndex = 8;
       this.buttonGuessDelimiter.Text = "   Guess Delimiter";
       this.buttonGuessDelimiter.UseVisualStyleBackColor = true;
@@ -241,9 +240,9 @@
       this.textBox1.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Suggest;
       this.textBox1.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.CustomSource;
       this.textBox1.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.fileFormatBindingSource, "EscapeCharacter", true));
-      this.textBox1.Location = new System.Drawing.Point(515, 117);
+      this.textBox1.Location = new System.Drawing.Point(578, 117);
       this.textBox1.Name = "textBox1";
-      this.textBox1.Size = new System.Drawing.Size(94, 26);
+      this.textBox1.Size = new System.Drawing.Size(78, 26);
       this.textBox1.TabIndex = 45;
       this.toolTip.SetToolTip(this.textBox1, resources.GetString("textBox1.ToolTip"));
       this.textBox1.TextChanged += new System.EventHandler(this.TextBoxDelimiter_TextChanged);
@@ -252,7 +251,7 @@
       // 
       this.label3.Anchor = System.Windows.Forms.AnchorStyles.Right;
       this.label3.AutoSize = true;
-      this.label3.Location = new System.Drawing.Point(442, 120);
+      this.label3.Location = new System.Drawing.Point(505, 120);
       this.label3.Name = "label3";
       this.label3.Size = new System.Drawing.Size(67, 20);
       this.label3.TabIndex = 46;
@@ -261,10 +260,9 @@
       // btnOpenFile
       // 
       this.btnOpenFile.AutoSize = true;
-      this.btnOpenFile.Dock = System.Windows.Forms.DockStyle.Top;
-      this.btnOpenFile.Location = new System.Drawing.Point(815, 3);
+      this.btnOpenFile.Location = new System.Drawing.Point(862, 3);
       this.btnOpenFile.Name = "btnOpenFile";
-      this.btnOpenFile.Size = new System.Drawing.Size(242, 34);
+      this.btnOpenFile.Size = new System.Drawing.Size(200, 34);
       this.btnOpenFile.TabIndex = 1;
       this.btnOpenFile.Text = "Select";
       this.btnOpenFile.UseVisualStyleBackColor = true;
@@ -290,7 +288,7 @@
       this.textBoxDelimiter.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.fileFormatBindingSource, "FieldDelimiter", true));
       this.textBoxDelimiter.Location = new System.Drawing.Point(125, 117);
       this.textBoxDelimiter.Name = "textBoxDelimiter";
-      this.textBoxDelimiter.Size = new System.Drawing.Size(82, 26);
+      this.textBoxDelimiter.Size = new System.Drawing.Size(57, 26);
       this.textBoxDelimiter.TabIndex = 7;
       this.textBoxDelimiter.TextChanged += new System.EventHandler(this.TextBoxDelimiter_TextChanged);
       // 
@@ -319,12 +317,12 @@
       // 
       // cboCodePage
       // 
-      this.cboCodePage.Anchor = System.Windows.Forms.AnchorStyles.Left;
       this.cboCodePage.DisplayMember = "Display";
+      this.cboCodePage.Dock = System.Windows.Forms.DockStyle.Top;
       this.cboCodePage.FormattingEnabled = true;
-      this.cboCodePage.Location = new System.Drawing.Point(125, 76);
+      this.cboCodePage.Location = new System.Drawing.Point(125, 73);
       this.cboCodePage.Name = "cboCodePage";
-      this.cboCodePage.Size = new System.Drawing.Size(180, 28);
+      this.cboCodePage.Size = new System.Drawing.Size(374, 28);
       this.cboCodePage.TabIndex = 4;
       this.cboCodePage.ValueMember = "ID";
       this.cboCodePage.SelectedIndexChanged += new System.EventHandler(this.CboCodePage_SelectedIndexChanged);
@@ -335,7 +333,7 @@
       this.checkBoxBOM.AutoSize = true;
       tableLayoutPanelFile.SetColumnSpan(this.checkBoxBOM, 2);
       this.checkBoxBOM.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fileSettingBindingSource, "ByteOrderMark", true));
-      this.checkBoxBOM.Location = new System.Drawing.Point(442, 78);
+      this.checkBoxBOM.Location = new System.Drawing.Point(505, 78);
       this.checkBoxBOM.Name = "checkBoxBOM";
       this.checkBoxBOM.Size = new System.Drawing.Size(104, 24);
       this.checkBoxBOM.TabIndex = 42;
@@ -346,11 +344,10 @@
       // buttonGuessCP
       // 
       this.buttonGuessCP.AutoSize = true;
-      this.buttonGuessCP.Dock = System.Windows.Forms.DockStyle.Top;
       this.buttonGuessCP.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-      this.buttonGuessCP.Location = new System.Drawing.Point(815, 73);
+      this.buttonGuessCP.Location = new System.Drawing.Point(862, 73);
       this.buttonGuessCP.Name = "buttonGuessCP";
-      this.buttonGuessCP.Size = new System.Drawing.Size(242, 34);
+      this.buttonGuessCP.Size = new System.Drawing.Size(200, 34);
       this.buttonGuessCP.TabIndex = 5;
       this.buttonGuessCP.Text = "   Guess Code Page";
       this.buttonGuessCP.UseVisualStyleBackColor = true;
@@ -362,7 +359,7 @@
       this.checkBoxGuessHasHeader.AutoSize = true;
       tableLayoutPanelFile.SetColumnSpan(this.checkBoxGuessHasHeader, 2);
       this.checkBoxGuessHasHeader.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fileSettingBindingSource, "GuessHasHeader", true));
-      this.checkBoxGuessHasHeader.Location = new System.Drawing.Point(615, 43);
+      this.checkBoxGuessHasHeader.Location = new System.Drawing.Point(662, 43);
       this.checkBoxGuessHasHeader.Name = "checkBoxGuessHasHeader";
       this.checkBoxGuessHasHeader.Size = new System.Drawing.Size(251, 24);
       this.checkBoxGuessHasHeader.TabIndex = 3;
@@ -374,7 +371,7 @@
       this.checkBoxGuessCodePage.Anchor = System.Windows.Forms.AnchorStyles.Left;
       this.checkBoxGuessCodePage.AutoSize = true;
       this.checkBoxGuessCodePage.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fileSettingBindingSource, "GuessCodePage", true));
-      this.checkBoxGuessCodePage.Location = new System.Drawing.Point(615, 78);
+      this.checkBoxGuessCodePage.Location = new System.Drawing.Point(662, 78);
       this.checkBoxGuessCodePage.Name = "checkBoxGuessCodePage";
       this.checkBoxGuessCodePage.Size = new System.Drawing.Size(192, 24);
       this.checkBoxGuessCodePage.TabIndex = 6;
@@ -386,7 +383,7 @@
       this.checkBoxGuessDelimiter.Anchor = System.Windows.Forms.AnchorStyles.Left;
       this.checkBoxGuessDelimiter.AutoSize = true;
       this.checkBoxGuessDelimiter.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fileSettingBindingSource, "GuessDelimiter", true));
-      this.checkBoxGuessDelimiter.Location = new System.Drawing.Point(615, 118);
+      this.checkBoxGuessDelimiter.Location = new System.Drawing.Point(662, 118);
       this.checkBoxGuessDelimiter.Name = "checkBoxGuessDelimiter";
       this.checkBoxGuessDelimiter.Size = new System.Drawing.Size(175, 24);
       this.checkBoxGuessDelimiter.TabIndex = 9;
@@ -399,7 +396,7 @@
       this.checkBoxCheckQuote.AutoSize = true;
       tableLayoutPanelFile.SetColumnSpan(this.checkBoxCheckQuote, 2);
       this.checkBoxCheckQuote.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fileSettingBindingSource, "GuessQualifier", true));
-      this.checkBoxCheckQuote.Location = new System.Drawing.Point(615, 154);
+      this.checkBoxCheckQuote.Location = new System.Drawing.Point(662, 154);
       this.checkBoxCheckQuote.Name = "checkBoxCheckQuote";
       this.checkBoxCheckQuote.Size = new System.Drawing.Size(205, 24);
       this.checkBoxCheckQuote.TabIndex = 9;
@@ -437,7 +434,7 @@
       tableLayoutPanelAdvanced.RowStyles.Add(new System.Windows.Forms.RowStyle());
       tableLayoutPanelAdvanced.RowStyles.Add(new System.Windows.Forms.RowStyle());
       tableLayoutPanelAdvanced.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      tableLayoutPanelAdvanced.Size = new System.Drawing.Size(1066, 198);
+      tableLayoutPanelAdvanced.Size = new System.Drawing.Size(1071, 198);
       tableLayoutPanelAdvanced.TabIndex = 120;
       // 
       // labelSkipFirstLines
@@ -555,7 +552,7 @@
       // 
       this.buttonSkipLine.AutoSize = true;
       this.buttonSkipLine.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-      this.buttonSkipLine.Location = new System.Drawing.Point(833, 3);
+      this.buttonSkipLine.Location = new System.Drawing.Point(838, 3);
       this.buttonSkipLine.Name = "buttonSkipLine";
       this.buttonSkipLine.Size = new System.Drawing.Size(230, 34);
       this.buttonSkipLine.TabIndex = 1;
@@ -568,7 +565,7 @@
       this.checkBoxGuessStartRow.Anchor = System.Windows.Forms.AnchorStyles.Left;
       this.checkBoxGuessStartRow.AutoSize = true;
       this.checkBoxGuessStartRow.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fileSettingBindingSource, "GuessStartRow", true));
-      this.checkBoxGuessStartRow.Location = new System.Drawing.Point(643, 8);
+      this.checkBoxGuessStartRow.Location = new System.Drawing.Point(648, 8);
       this.checkBoxGuessStartRow.Name = "checkBoxGuessStartRow";
       this.checkBoxGuessStartRow.Size = new System.Drawing.Size(184, 24);
       this.checkBoxGuessStartRow.TabIndex = 2;
@@ -604,7 +601,7 @@
       tableLayoutPanelPGP.RowStyles.Add(new System.Windows.Forms.RowStyle());
       tableLayoutPanelPGP.RowStyles.Add(new System.Windows.Forms.RowStyle());
       tableLayoutPanelPGP.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-      tableLayoutPanelPGP.Size = new System.Drawing.Size(1060, 310);
+      tableLayoutPanelPGP.Size = new System.Drawing.Size(1065, 310);
       tableLayoutPanelPGP.TabIndex = 124;
       // 
       // btnAddPrivKey
@@ -690,7 +687,7 @@
       tableLayoutPanelBehavior.RowStyles.Add(new System.Windows.Forms.RowStyle());
       tableLayoutPanelBehavior.RowStyles.Add(new System.Windows.Forms.RowStyle());
       tableLayoutPanelBehavior.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      tableLayoutPanelBehavior.Size = new System.Drawing.Size(1060, 270);
+      tableLayoutPanelBehavior.Size = new System.Drawing.Size(1065, 270);
       tableLayoutPanelBehavior.TabIndex = 9;
       // 
       // checkBoxDetectFileChanges
@@ -828,7 +825,7 @@
       tableLayoutPanelWarnings.RowStyles.Add(new System.Windows.Forms.RowStyle());
       tableLayoutPanelWarnings.RowStyles.Add(new System.Windows.Forms.RowStyle());
       tableLayoutPanelWarnings.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      tableLayoutPanelWarnings.Size = new System.Drawing.Size(1066, 212);
+      tableLayoutPanelWarnings.Size = new System.Drawing.Size(1071, 212);
       tableLayoutPanelWarnings.TabIndex = 58;
       // 
       // checkBoxWarnEmptyTailingColumns
@@ -950,7 +947,7 @@
       this.tabPageWarnings.Controls.Add(tableLayoutPanelWarnings);
       this.tabPageWarnings.Location = new System.Drawing.Point(4, 29);
       this.tabPageWarnings.Name = "tabPageWarnings";
-      this.tabPageWarnings.Size = new System.Drawing.Size(1066, 416);
+      this.tabPageWarnings.Size = new System.Drawing.Size(1071, 432);
       this.tabPageWarnings.TabIndex = 3;
       this.tabPageWarnings.Text = "Warnings";
       // 
@@ -960,7 +957,7 @@
       this.tabPageAdvanced.Controls.Add(tableLayoutPanelAdvanced);
       this.tabPageAdvanced.Location = new System.Drawing.Point(4, 29);
       this.tabPageAdvanced.Name = "tabPageAdvanced";
-      this.tabPageAdvanced.Size = new System.Drawing.Size(1066, 416);
+      this.tabPageAdvanced.Size = new System.Drawing.Size(1071, 432);
       this.tabPageAdvanced.TabIndex = 2;
       this.tabPageAdvanced.Text = "Advanced";
       // 
@@ -987,7 +984,7 @@
       this.tabPageFile.Location = new System.Drawing.Point(4, 29);
       this.tabPageFile.Name = "tabPageFile";
       this.tabPageFile.Padding = new System.Windows.Forms.Padding(3);
-      this.tabPageFile.Size = new System.Drawing.Size(1066, 416);
+      this.tabPageFile.Size = new System.Drawing.Size(1071, 432);
       this.tabPageFile.TabIndex = 6;
       this.tabPageFile.Text = "File";
       // 
@@ -997,7 +994,7 @@
       this.tabPageQuoting.Location = new System.Drawing.Point(4, 29);
       this.tabPageQuoting.Name = "tabPageQuoting";
       this.tabPageQuoting.Padding = new System.Windows.Forms.Padding(3);
-      this.tabPageQuoting.Size = new System.Drawing.Size(1066, 416);
+      this.tabPageQuoting.Size = new System.Drawing.Size(1071, 432);
       this.tabPageQuoting.TabIndex = 7;
       this.tabPageQuoting.Text = "Text Qualifier";
       this.tabPageQuoting.UseVisualStyleBackColor = true;
@@ -1011,7 +1008,7 @@
       this.quotingControl.Margin = new System.Windows.Forms.Padding(6, 8, 6, 8);
       this.quotingControl.MinimumSize = new System.Drawing.Size(622, 0);
       this.quotingControl.Name = "quotingControl";
-      this.quotingControl.Size = new System.Drawing.Size(1060, 410);
+      this.quotingControl.Size = new System.Drawing.Size(1065, 426);
       this.quotingControl.TabIndex = 2;
       // 
       // tabPagePGP
@@ -1022,7 +1019,7 @@
       this.tabPagePGP.Location = new System.Drawing.Point(4, 29);
       this.tabPagePGP.Name = "tabPagePGP";
       this.tabPagePGP.Padding = new System.Windows.Forms.Padding(3);
-      this.tabPagePGP.Size = new System.Drawing.Size(1066, 416);
+      this.tabPagePGP.Size = new System.Drawing.Size(1071, 432);
       this.tabPagePGP.TabIndex = 8;
       this.tabPagePGP.Text = "PGP";
       // 
@@ -1042,7 +1039,7 @@
       this.tabPageBehaviour.Location = new System.Drawing.Point(4, 29);
       this.tabPageBehaviour.Name = "tabPageBehaviour";
       this.tabPageBehaviour.Padding = new System.Windows.Forms.Padding(3);
-      this.tabPageBehaviour.Size = new System.Drawing.Size(1066, 416);
+      this.tabPageBehaviour.Size = new System.Drawing.Size(1071, 432);
       this.tabPageBehaviour.TabIndex = 9;
       this.tabPageBehaviour.Text = "Behavior";
       // 

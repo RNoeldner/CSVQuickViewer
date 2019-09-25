@@ -445,7 +445,7 @@
       // 
       this.radioButtonEnabled.AutoSize = true;
       this.tableLayoutPanel1.SetColumnSpan(this.radioButtonEnabled, 2);
-      this.radioButtonEnabled.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fillGuessSettingsBindingSource, "Enabled", true));
+      this.radioButtonEnabled.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fillGuessSettingsBindingSource, "Enabled", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
       this.radioButtonEnabled.Location = new System.Drawing.Point(3, 3);
       this.radioButtonEnabled.Name = "radioButtonEnabled";
       this.radioButtonEnabled.Size = new System.Drawing.Size(157, 24);
@@ -458,14 +458,14 @@
       // 
       this.radioButtonDisabled.AutoSize = true;
       this.tableLayoutPanel1.SetColumnSpan(this.radioButtonDisabled, 2);
-      this.radioButtonDisabled.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fillGuessSettingsBindingSource, "Disabled", true));
+      this.radioButtonDisabled.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fillGuessSettingsBindingSource, "Disabled", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
       this.radioButtonDisabled.Location = new System.Drawing.Point(238, 3);
       this.radioButtonDisabled.Name = "radioButtonDisabled";
       this.radioButtonDisabled.Size = new System.Drawing.Size(160, 24);
       this.radioButtonDisabled.TabIndex = 27;
       this.radioButtonDisabled.TabStop = true;
       this.radioButtonDisabled.Text = "Disbale Detection";
-      this.radioButtonDisabled.UseVisualStyleBackColor = true;      
+      this.radioButtonDisabled.UseVisualStyleBackColor = true;
       // 
       // errorProvider
       // 
