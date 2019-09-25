@@ -37,6 +37,7 @@
       System.Windows.Forms.TableLayoutPanel tableLayoutPanelWarnings;
       this.labelDelimitedFile = new System.Windows.Forms.Label();
       this.textBoxComment = new System.Windows.Forms.TextBox();
+      this.fileFormatBindingSource = new System.Windows.Forms.BindingSource(this.components);
       this.label2 = new System.Windows.Forms.Label();
       this.textBoxFile = new System.Windows.Forms.TextBox();
       this.fileSettingBindingSource = new System.Windows.Forms.BindingSource(this.components);
@@ -91,25 +92,25 @@
       this.checkBoxWarnLineFeed = new System.Windows.Forms.CheckBox();
       this.checkBoxWarnQuotes = new System.Windows.Forms.CheckBox();
       this.tabPageFormat = new System.Windows.Forms.TabPage();
+      this.fillGuessSettingEdit = new CsvTools.FillGuessSettingEdit();
       this.tabPageWarnings = new System.Windows.Forms.TabPage();
       this.tabPageAdvanced = new System.Windows.Forms.TabPage();
       this.tabControl = new System.Windows.Forms.TabControl();
       this.tabPageFile = new System.Windows.Forms.TabPage();
       this.tabPageQuoting = new System.Windows.Forms.TabPage();
+      this.quotingControl = new CsvTools.QuotingControl();
       this.tabPagePGP = new System.Windows.Forms.TabPage();
       this.label30 = new System.Windows.Forms.Label();
       this.tabPageBehaviour = new System.Windows.Forms.TabPage();
       this.toolTip = new System.Windows.Forms.ToolTip(this.components);
       this.errorProvider = new System.Windows.Forms.ErrorProvider(this.components);
-      this.fileFormatBindingSource = new System.Windows.Forms.BindingSource(this.components);
-      this.quotingControl = new CsvTools.QuotingControl();
-      this.fillGuessSettingEdit = new CsvTools.FillGuessSettingEdit();
       tableLayoutPanelFile = new System.Windows.Forms.TableLayoutPanel();
       tableLayoutPanelAdvanced = new System.Windows.Forms.TableLayoutPanel();
       tableLayoutPanelPGP = new System.Windows.Forms.TableLayoutPanel();
       tableLayoutPanelBehavior = new System.Windows.Forms.TableLayoutPanel();
       tableLayoutPanelWarnings = new System.Windows.Forms.TableLayoutPanel();
       tableLayoutPanelFile.SuspendLayout();
+      ((System.ComponentModel.ISupportInitialize)(this.fileFormatBindingSource)).BeginInit();
       ((System.ComponentModel.ISupportInitialize)(this.fileSettingBindingSource)).BeginInit();
       tableLayoutPanelAdvanced.SuspendLayout();
       tableLayoutPanelPGP.SuspendLayout();
@@ -124,7 +125,6 @@
       this.tabPagePGP.SuspendLayout();
       this.tabPageBehaviour.SuspendLayout();
       ((System.ComponentModel.ISupportInitialize)(this.errorProvider)).BeginInit();
-      ((System.ComponentModel.ISupportInitialize)(this.fileFormatBindingSource)).BeginInit();
       this.SuspendLayout();
       // 
       // tableLayoutPanelFile
@@ -186,6 +186,11 @@
       this.textBoxComment.Name = "textBoxComment";
       this.textBoxComment.Size = new System.Drawing.Size(82, 26);
       this.textBoxComment.TabIndex = 10;
+      // 
+      // fileFormatBindingSource
+      // 
+      this.fileFormatBindingSource.AllowNew = false;
+      this.fileFormatBindingSource.DataSource = typeof(CsvTools.FileFormat);
       // 
       // label2
       // 
@@ -484,7 +489,7 @@
       this.textBoxLimitRows.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.fileSettingBindingSource, "RecordLimit", true));
       this.textBoxLimitRows.Location = new System.Drawing.Point(171, 139);
       this.textBoxLimitRows.Name = "textBoxLimitRows";
-      this.textBoxLimitRows.Size = new System.Drawing.Size(0, 26);
+      this.textBoxLimitRows.Size = new System.Drawing.Size(110, 26);
       this.textBoxLimitRows.TabIndex = 6;
       this.textBoxLimitRows.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
       this.textBoxLimitRows.Validating += new System.ComponentModel.CancelEventHandler(this.PositiveNumberValidating);
@@ -509,7 +514,7 @@
       this.textBoxNLPlaceholder.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.fileFormatBindingSource, "NewLinePlaceholder", true));
       this.textBoxNLPlaceholder.Location = new System.Drawing.Point(171, 75);
       this.textBoxNLPlaceholder.Name = "textBoxNLPlaceholder";
-      this.textBoxNLPlaceholder.Size = new System.Drawing.Size(0, 26);
+      this.textBoxNLPlaceholder.Size = new System.Drawing.Size(110, 26);
       this.textBoxNLPlaceholder.TabIndex = 4;
       // 
       // textBoxDelimiterPlaceholder
@@ -521,7 +526,7 @@
       this.textBoxDelimiterPlaceholder.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.fileFormatBindingSource, "DelimiterPlaceholder", true));
       this.textBoxDelimiterPlaceholder.Location = new System.Drawing.Point(171, 43);
       this.textBoxDelimiterPlaceholder.Name = "textBoxDelimiterPlaceholder";
-      this.textBoxDelimiterPlaceholder.Size = new System.Drawing.Size(0, 26);
+      this.textBoxDelimiterPlaceholder.Size = new System.Drawing.Size(110, 26);
       this.textBoxDelimiterPlaceholder.TabIndex = 3;
       // 
       // labelRecordLimit
@@ -536,7 +541,6 @@
       // 
       // textBoxTextAsNull
       // 
-      this.textBoxTextAsNull.Anchor = System.Windows.Forms.AnchorStyles.Left;
       this.textBoxTextAsNull.AutoCompleteCustomSource.AddRange(new string[] {
             "NULL",
             "n.a.",
@@ -544,7 +548,7 @@
       this.textBoxTextAsNull.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.fileSettingBindingSource, "TreatTextAsNull", true));
       this.textBoxTextAsNull.Location = new System.Drawing.Point(171, 107);
       this.textBoxTextAsNull.Name = "textBoxTextAsNull";
-      this.textBoxTextAsNull.Size = new System.Drawing.Size(0, 26);
+      this.textBoxTextAsNull.Size = new System.Drawing.Size(110, 26);
       this.textBoxTextAsNull.TabIndex = 5;
       // 
       // buttonSkipLine
@@ -574,10 +578,9 @@
       // textBoxSkipRows
       // 
       this.textBoxSkipRows.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.fileSettingBindingSource, "SkipRows", true));
-      this.textBoxSkipRows.Dock = System.Windows.Forms.DockStyle.Left;
       this.textBoxSkipRows.Location = new System.Drawing.Point(171, 3);
       this.textBoxSkipRows.Name = "textBoxSkipRows";
-      this.textBoxSkipRows.Size = new System.Drawing.Size(0, 26);
+      this.textBoxSkipRows.Size = new System.Drawing.Size(110, 26);
       this.textBoxSkipRows.TabIndex = 0;
       this.textBoxSkipRows.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
       this.textBoxSkipRows.Validating += new System.ComponentModel.CancelEventHandler(this.PositiveNumberValidating);
@@ -927,9 +930,19 @@
       this.tabPageFormat.Location = new System.Drawing.Point(4, 29);
       this.tabPageFormat.Name = "tabPageFormat";
       this.tabPageFormat.Padding = new System.Windows.Forms.Padding(3);
-      this.tabPageFormat.Size = new System.Drawing.Size(1066, 416);
+      this.tabPageFormat.Size = new System.Drawing.Size(1071, 432);
       this.tabPageFormat.TabIndex = 0;
       this.tabPageFormat.Text = "Detect Types";
+      // 
+      // fillGuessSettingEdit
+      // 
+      this.fillGuessSettingEdit.Dock = System.Windows.Forms.DockStyle.Fill;
+      this.fillGuessSettingEdit.Location = new System.Drawing.Point(3, 3);
+      this.fillGuessSettingEdit.Margin = new System.Windows.Forms.Padding(2);
+      this.fillGuessSettingEdit.MinimumSize = new System.Drawing.Size(710, 300);
+      this.fillGuessSettingEdit.Name = "fillGuessSettingEdit";
+      this.fillGuessSettingEdit.Size = new System.Drawing.Size(1065, 426);
+      this.fillGuessSettingEdit.TabIndex = 101;
       // 
       // tabPageWarnings
       // 
@@ -964,7 +977,7 @@
       this.tabControl.Location = new System.Drawing.Point(0, 0);
       this.tabControl.Name = "tabControl";
       this.tabControl.SelectedIndex = 0;
-      this.tabControl.Size = new System.Drawing.Size(1074, 449);
+      this.tabControl.Size = new System.Drawing.Size(1079, 465);
       this.tabControl.TabIndex = 0;
       // 
       // tabPageFile
@@ -988,6 +1001,18 @@
       this.tabPageQuoting.TabIndex = 7;
       this.tabPageQuoting.Text = "Text Qualifier";
       this.tabPageQuoting.UseVisualStyleBackColor = true;
+      // 
+      // quotingControl
+      // 
+      this.quotingControl.BackColor = System.Drawing.SystemColors.Control;
+      this.quotingControl.Dock = System.Windows.Forms.DockStyle.Fill;
+      this.quotingControl.IsWriteSetting = false;
+      this.quotingControl.Location = new System.Drawing.Point(3, 3);
+      this.quotingControl.Margin = new System.Windows.Forms.Padding(6, 8, 6, 8);
+      this.quotingControl.MinimumSize = new System.Drawing.Size(622, 0);
+      this.quotingControl.Name = "quotingControl";
+      this.quotingControl.Size = new System.Drawing.Size(1060, 410);
+      this.quotingControl.TabIndex = 2;
       // 
       // tabPagePGP
       // 
@@ -1025,38 +1050,11 @@
       // 
       this.errorProvider.ContainerControl = this;
       // 
-      // fileFormatBindingSource
-      // 
-      this.fileFormatBindingSource.AllowNew = false;
-      this.fileFormatBindingSource.DataSource = typeof(CsvTools.FileFormat);
-      // 
-      // quotingControl
-      // 
-      this.quotingControl.BackColor = System.Drawing.SystemColors.Control;
-      this.quotingControl.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.quotingControl.IsWriteSetting = false;
-      this.quotingControl.Location = new System.Drawing.Point(3, 3);
-      this.quotingControl.Margin = new System.Windows.Forms.Padding(6, 8, 6, 8);
-      this.quotingControl.MinimumSize = new System.Drawing.Size(622, 0);
-      this.quotingControl.Name = "quotingControl";
-      this.quotingControl.Size = new System.Drawing.Size(1060, 410);
-      this.quotingControl.TabIndex = 2;
-      // 
-      // fillGuessSettingEdit
-      // 
-      this.fillGuessSettingEdit.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.fillGuessSettingEdit.Location = new System.Drawing.Point(3, 3);
-      this.fillGuessSettingEdit.Margin = new System.Windows.Forms.Padding(2);
-      this.fillGuessSettingEdit.MinimumSize = new System.Drawing.Size(710, 300);
-      this.fillGuessSettingEdit.Name = "fillGuessSettingEdit";
-      this.fillGuessSettingEdit.Size = new System.Drawing.Size(1060, 410);
-      this.fillGuessSettingEdit.TabIndex = 101;
-      // 
       // FormEditSettings
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-      this.ClientSize = new System.Drawing.Size(1074, 449);
+      this.ClientSize = new System.Drawing.Size(1079, 465);
       this.Controls.Add(this.tabControl);
       this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
       this.MaximizeBox = false;
@@ -1072,6 +1070,7 @@
       this.Load += new System.EventHandler(this.EditSettings_Load);
       tableLayoutPanelFile.ResumeLayout(false);
       tableLayoutPanelFile.PerformLayout();
+      ((System.ComponentModel.ISupportInitialize)(this.fileFormatBindingSource)).EndInit();
       ((System.ComponentModel.ISupportInitialize)(this.fileSettingBindingSource)).EndInit();
       tableLayoutPanelAdvanced.ResumeLayout(false);
       tableLayoutPanelAdvanced.PerformLayout();
@@ -1095,7 +1094,6 @@
       this.tabPageBehaviour.ResumeLayout(false);
       this.tabPageBehaviour.PerformLayout();
       ((System.ComponentModel.ISupportInitialize)(this.errorProvider)).EndInit();
-      ((System.ComponentModel.ISupportInitialize)(this.fileFormatBindingSource)).EndInit();
       this.ResumeLayout(false);
 
     }
