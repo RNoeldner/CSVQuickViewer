@@ -32,8 +32,8 @@ namespace CsvTools
       KeyUp += base.FindForm().CtrlA;
 
       try
-      {
-        var hierarchy = (Hierarchy)LogManager.GetRepository();
+      {        
+        var hierarchy = (Hierarchy)LogManager.GetRepository(MethodBase.GetCurrentMethod().DeclaringType.GetTypeInfo().Assembly);
         m_LogAppenderTextBox.Threshold = log4net.Core.Level.Debug;
         m_LogAppenderTextBox.ActivateOptions();
         hierarchy.Root.AddAppender(m_LogAppenderTextBox);
@@ -66,7 +66,7 @@ namespace CsvTools
         try
         {
           m_LogAppenderTextBox.Close();
-          var hierarchy = (Hierarchy)LogManager.GetRepository();
+          var hierarchy = (Hierarchy)LogManager.GetRepository(MethodBase.GetCurrentMethod().DeclaringType.GetTypeInfo().Assembly);
           hierarchy.Root.RemoveAppender(m_LogAppenderTextBox);
         }
         catch

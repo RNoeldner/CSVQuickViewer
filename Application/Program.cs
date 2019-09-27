@@ -14,6 +14,7 @@
 
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
 using log4net;
@@ -49,8 +50,8 @@ namespace CsvTools
     /// </summary>
     [STAThread]
     private static void Main(string[] args)
-    {
-      XmlConfigurator.Configure();
+    {      
+      XmlConfigurator.Configure(Log.Logger.Repository);
       Application.ThreadException += Application_ThreadException;
       AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
       Log.Debug("Application start…");
@@ -58,11 +59,6 @@ namespace CsvTools
 
       Application.EnableVisualStyles();
       Application.SetCompatibleTextRenderingDefault(false);
-
-      // read the activation data parameter
-      if (AppDomain.CurrentDomain.SetupInformation.ActivationArguments != null &&
-          AppDomain.CurrentDomain.SetupInformation.ActivationArguments.ActivationData.Length >= 1)
-        fileName = AppDomain.CurrentDomain.SetupInformation.ActivationArguments.ActivationData[0];
 
       // read the command line parameter
       if (args.Length >= 1)

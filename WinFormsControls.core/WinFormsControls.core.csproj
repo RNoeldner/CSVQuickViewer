@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\Library\WinFormControls\**\*.cs" />
+    <EmbeddedResource Include="..\Library\WinFormControls\**\*.resx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="..\Library\WinFormControls\Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="log4net">
+      <Version>2.0.8</Version>
+    </PackageReference>
+    <PackageReference Include="Pri.LongPath">
+      <Version>2.0.47</Version>
+    </PackageReference>
+    <PackageReference Include="WindowsAPICodePack">
+      <Version>1.1.0</Version>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Library\ClassLibraryCSV\ClassLibraryCSV.csproj" />
+  </ItemGroup>
+</Project>
