@@ -282,40 +282,47 @@ namespace CsvTools
       string name;
       var suffixBom = hasBom ? suffixWithBom :
        showBom ? cSuffixWithoutBom : string.Empty;
-      switch (codePage)
+      try
       {
-        case -1:
-          return "<Determine code page>";
+        switch (codePage)
+        {
+          case -1:
+            return "<Determine code page>";
 
-        case (int)CodePage.UTF16Le:
-          name = "Unicode (UTF-16) / ISO 10646 / UCS-2 Little-Endian" + suffixBom;
-          break;
+          case (int)CodePage.UTF16Le:
+            name = "Unicode (UTF-16) / ISO 10646 / UCS-2 Little-Endian" + suffixBom;
+            break;
 
-        case (int)CodePage.UTF16Be:
-          name = "Unicode (UTF-16 Big-Endian) / UCS-2 Big-Endian" + suffixBom;
-          break;
+          case (int)CodePage.UTF16Be:
+            name = "Unicode (UTF-16 Big-Endian) / UCS-2 Big-Endian" + suffixBom;
+            break;
 
-        case (int)CodePage.WIN1252:
-          name = Encoding.GetEncoding(codePage).EncodingName + " / Latin I";
-          break;
+          case (int)CodePage.WIN1252:
+            name = Encoding.GetEncoding(codePage).EncodingName + " / Latin I";
+            break;
 
-        case (int)CodePage.MSLatin:
-          name = "Western European (DOS) / MS-DOS Latin 1";
-          break;
+          case (int)CodePage.MSLatin:
+            name = "Western European (DOS) / MS-DOS Latin 1";
+            break;
 
-        case (int)CodePage.OEMLatin:
-          name = "Central European (DOS) / OEM Latin 2";
-          break;
+          case (int)CodePage.OEMLatin:
+            name = "Central European (DOS) / OEM Latin 2";
+            break;
 
-        case (int)CodePage.MSDos:
-          name = "OEM United States / IBM PC:default / MS-DOS";
-          break;
+          case (int)CodePage.MSDos:
+            name = "OEM United States / IBM PC:default / MS-DOS";
+            break;
 
-        default:
-          name = Encoding.GetEncoding(codePage).EncodingName + suffixBom;
-          break;
+          default:
+            name = Encoding.GetEncoding(codePage).EncodingName + suffixBom;
+            break;
+        }
+      }      
+      catch (NotSupportedException)
+      {
+        return $"CP {codePage}";
       }
-
+      
       return $"CP {codePage} - {name}";
     }
 

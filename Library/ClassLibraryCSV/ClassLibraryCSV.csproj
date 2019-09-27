@@ -1,30 +1,33 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Authors>Raphael Nöldner</Authors>
+    <TargetFramework>net45</TargetFramework>
     <RootNamespace>CsvTools</RootNamespace>
-    <PackageLicenseFile>LICENSE</PackageLicenseFile>    
-    <Copyright>Copyright © 2017</Copyright> 
-    <ProductName>CsvTools</ProductName> 
-    <OutputType>Library</OutputType>    
-	<TargetFramework>net45</TargetFramework>
-    <ApplicationIcon />
-    <StartupObject />
-    <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>    
-  </PropertyGroup>  
+    <PackageId>ClassLibraryCSV</PackageId>
+    <Authors>Raphael Nöldner</Authors>
+    <Company></Company>
+    <Product>CSVTools</Product>
+    <AssemblyVersion>1.6.4.391</AssemblyVersion>
+    <FileVersion>1.6.4.391</FileVersion>
+  </PropertyGroup>
+
   <ItemGroup>
     <None Remove="DateTimeFormats.txt" />
     <None Remove="TZMapping.txt" />
   </ItemGroup>
+
   <ItemGroup>
     <EmbeddedResource Include="DateTimeFormats.txt" />
     <EmbeddedResource Include="TZMapping.txt" />
   </ItemGroup>
+
   <ItemGroup>
-    <PackageReference Include="BouncyCastle.OpenPgp" Version="1.8.1.1" />
+    <PackageReference Include="BouncyCastle.OpenPGP" Version="1.8.1.1" />
     <PackageReference Include="log4net" Version="2.0.8" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
     <PackageReference Include="NodaTime" Version="2.4.7" />
     <PackageReference Include="Pri.LongPath" Version="2.0.47" />
     <PackageReference Include="Ude.NetStandard" Version="1.2.0" />
   </ItemGroup>
+
 </Project>
