@@ -12,8 +12,6 @@
  *
  */
 
-using log4net;
-using Pri.LongPath;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -21,6 +19,8 @@ using System.Drawing;
 using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
+using log4net;
+using Pri.LongPath;
 
 namespace CsvTools
 {
@@ -164,7 +164,7 @@ namespace CsvTools
 
       if (diagRes == DialogResult.Yes)
       {
-      retry:
+        retry:
         try
         {
           File.Delete(fileName);
@@ -258,7 +258,7 @@ namespace CsvTools
       return null;
     }
 
-    public static void LoadWindowState(this Form form, WindowState windowPosition)
+    public static void LoadWindowState(this Form form, WindowState windowPosition, Action<int> setCustomValue1 = null, Action<string> setCustomValue2 = null)
     {
       if (windowPosition == null || windowPosition.Width == 0 || windowPosition.Height == 0)
         return;
@@ -272,6 +272,10 @@ namespace CsvTools
 
       form.DesktopBounds = new Rectangle(left, top, width, height);
       form.WindowState = (FormWindowState)windowPosition.State;
+      if (windowPosition.CustomInt != int.MinValue && setCustomValue1 != null)
+        setCustomValue1.Invoke(windowPosition.CustomInt);
+      if (!string.IsNullOrEmpty(windowPosition.CustomText) && setCustomValue2 != null)
+        setCustomValue2.Invoke(windowPosition.CustomText);
     }
 
     /// <summary>
@@ -320,7 +324,7 @@ namespace CsvTools
         action();
     }
 
-    public static WindowState StoreWindowState(this Form form)
+    public static WindowState StoreWindowState(this Form form, int customInt = int.MinValue, string customText = "")
     {
       try
       {
@@ -336,7 +340,7 @@ namespace CsvTools
           form.WindowState = windowState;
           form.Visible = oldVis;
         }
-        return new WindowState { Left = windowPosition.Left, Top = windowPosition.Top, Height = windowPosition.Height, Width = windowPosition.Width, State = (int)windowState };
+        return new WindowState { Left = windowPosition.Left, Top = windowPosition.Top, Height = windowPosition.Height, Width = windowPosition.Width, State = (int)windowState, CustomInt = customInt, CustomText = customText };
       }
       catch
       {
