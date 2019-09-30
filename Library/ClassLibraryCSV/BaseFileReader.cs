@@ -735,11 +735,11 @@ namespace CsvTools
         return true;
       if (Column[columnNumber].DataType == DataType.DateTime)
       {
-        if (AssociatedTimeCol[columnNumber] == -1)
+        if (AssociatedTimeCol[columnNumber] == -1 || AssociatedTimeCol[columnNumber] >= CurrentRowColumnText.Length)
           return string.IsNullOrEmpty(CurrentRowColumnText[columnNumber]);
 
         return string.IsNullOrEmpty(CurrentRowColumnText[columnNumber]) &&
-            string.IsNullOrEmpty(CurrentRowColumnText[AssociatedTimeCol[columnNumber]]);
+          string.IsNullOrEmpty(CurrentRowColumnText[AssociatedTimeCol[columnNumber]]);
       }
 
       if (string.IsNullOrEmpty(CurrentRowColumnText[columnNumber]))
@@ -1036,7 +1036,7 @@ namespace CsvTools
       Debug.Assert(AssociatedTimeCol != null);
 
       var colTime = AssociatedTimeCol[i];
-      if (colTime == -1)
+      if (colTime == -1 || AssociatedTimeCol[i] >= CurrentRowColumnText.Length)
         return null;
       return CurrentRowColumnText[colTime];
     }

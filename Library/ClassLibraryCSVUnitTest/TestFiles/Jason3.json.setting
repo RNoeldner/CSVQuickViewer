@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-16"?>
-<CsvFile FileName="Jason3.json" ID="Jason3.json" AlternateQuoting="true" JsonFormat="true" WarnDelimiterInValue="true" WarnLineFeed="true" WarnQuotes="true">
-  <Format Column="id" />
-  <Format Column="Title" />
-  <FileFormat FieldDelimiter="|" FieldQualifier="" />
-</CsvFile>
