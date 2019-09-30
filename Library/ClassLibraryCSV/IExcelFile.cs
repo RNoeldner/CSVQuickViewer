@@ -31,6 +31,8 @@ namespace CsvTools
     /// <value><c>true</c> write byte order mark; otherwise, <c>false</c>.</value>
     bool MixedTypes { get; set; }
 
+    bool WriteDateAsText { get; set; }
+
     /// <summary>
     ///   Gets or sets a value indicating whether the byte order mark should be written in Unicode files.
     /// </summary>
