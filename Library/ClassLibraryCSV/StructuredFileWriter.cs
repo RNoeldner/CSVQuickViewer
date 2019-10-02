@@ -74,7 +74,7 @@ namespace CsvTools
       Contract.Requires(reader != null);
       Contract.Requires(writer != null);
 
-      var columnInfos = GetColumnInformation(reader);
+      var columnInfos = GetSourceColumnInformation(reader);
       var enumerable = columnInfos.ToList();
       if (enumerable.IsEmpty())
         throw new FileWriterException("No columns defined to be written.");

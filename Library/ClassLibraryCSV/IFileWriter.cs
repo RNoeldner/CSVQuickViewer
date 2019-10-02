@@ -40,7 +40,7 @@ namespace CsvTools
 
     /// <summary>Gets the column information from the reader and overwrite setting with definition from the setting.</summary>
     /// <param name="reader">Any data reader</param>
-    IEnumerable<ColumnInfo> GetColumnInformation(IDataReader reader);
+    ICollection<ColumnInfo> GetSourceColumnInformation(IDataReader reader);
 
     /// <summary>Gets the a data reader for the allowing to look at the schema.</summary>
     IDataReader GetSchemaReader();
