@@ -702,13 +702,13 @@ namespace CsvTools
     /// <param name="fileSettings">The file settings.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns></returns>
-    public static IEnumerable<ColumnInfo> GetWriterSourceColumns(IFileSetting fileSettings,
+    public static ICollection<ColumnInfo> GetSourceColumnInformation(IFileSetting fileSettings,
       IProcessDisplay processDisplay)
     {
       Contract.Requires(fileSettings != null);
       var writer = fileSettings.GetFileWriter(processDisplay);
       using (var data = writer.GetSchemaReader())
-        return writer.GetColumnInformation(data);
+        return writer.GetSourceColumnInformation(data);
     }
 
     public static CheckResult GuessDateTime(IEnumerable<string> samples, bool checkNamedDates,

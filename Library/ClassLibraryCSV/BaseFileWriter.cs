@@ -67,12 +67,12 @@ namespace CsvTools
     /// <param name="dataTable">The schema.</param>
     /// <param name="readerFileSetting">The file format of the reader, can be null.</param>
     /// <returns></returns>
-    public IEnumerable<ColumnInfo> GetColumnInformation(IDataReader reader)
+    public ICollection<ColumnInfo> GetSourceColumnInformation(IDataReader reader)
     {
       if (reader == null)
         throw new ArgumentNullException(nameof(reader));
       var fieldInfoList = new List<ColumnInfo>();
-      Contract.Ensures(Contract.Result<IEnumerable<ColumnInfo>>() != null);
+      Contract.Ensures(Contract.Result<ICollection<ColumnInfo>>() != null);
       using (var dataTable = reader.GetSchemaTable())
       {
         if (dataTable == null)
@@ -134,7 +134,14 @@ namespace CsvTools
              col.ColumnName, col.DataType, col.Ordinal, col.MaxLength, allColumns, -1, string.Empty));
         }
       }
-      return fieldInfoList;
+      // remove all ignored columns
+      var returnList = new List<ColumnInfo>();
+      foreach (var x in fieldInfoList)
+      {
+        if (x != null && (x.Column == null || !x.Column.Ignore))
+          returnList.Add(x);
+      }
+      return returnList;
     }
 
     /// <summary>

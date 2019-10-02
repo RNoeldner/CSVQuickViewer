@@ -11,11 +11,12 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
@@ -62,11 +63,10 @@ namespace CsvTools.Tests
       doubleFld.DecimalSeparator = ".";
       readFile.ColumnCollection.AddIfNew(new Column { Name = "Boolean", DataType = DataType.Boolean });
       readFile.ColumnCollection.AddIfNew(new Column { Name = "GUID", DataType = DataType.Guid });
-      readFile.ColumnCollection.AddIfNew(new Column
-      {
-        Name = "Time",
-        Ignore = true
-      });
+
+      var timeFld2 = readFile.ColumnCollection.AddIfNew(new Column { Name = "Time", DataType = DataType.DateTime });
+      timeFld2.DateFormat = "HH:mm:ss";
+      timeFld2.Ignore = true;
 
       return readFile;
     }

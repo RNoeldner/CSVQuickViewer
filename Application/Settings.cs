@@ -23,7 +23,7 @@ namespace CsvTools.Properties
     private bool m_GuessDelimiter = true;
     private bool m_GuessHasHeader = true;
     private bool m_GuessStartRow = true;
-    private bool m_GuessQualifier = true;
+    private bool m_GuessQualifier = false;
     private bool m_AllowJson = true;
     private bool m_MenuDown = false;
     private PGPKeyStorage m_PGPKeyStorage = new PGPKeyStorage();
@@ -130,7 +130,7 @@ namespace CsvTools.Properties
     }
 
     [XmlAttribute]
-    [DefaultValue(true)]
+    [DefaultValue(false)]
     public bool GuessQualifier
     {
       get => m_GuessQualifier;

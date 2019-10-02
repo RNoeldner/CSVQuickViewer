@@ -52,7 +52,7 @@ namespace CsvTools.Tests
       var sb = new StringBuilder("{");
       using (var processDisplay = new DummyProcessDisplay())
       {
-        var cols = DetermineColumnFormat.GetWriterSourceColumns(writeFile, processDisplay);
+        var cols = DetermineColumnFormat.GetSourceColumnInformation(writeFile, processDisplay);
         writeFile.Header = "{\"rowset\":[\n";
 
         // { "firstName":"John", "lastName":"Doe"},
@@ -85,7 +85,7 @@ namespace CsvTools.Tests
       var sb = new StringBuilder();
       using (var processDisplay = new DummyProcessDisplay())
       {
-        var cols = DetermineColumnFormat.GetWriterSourceColumns(writeFile, processDisplay);
+        var cols = DetermineColumnFormat.GetSourceColumnInformation(writeFile, processDisplay);
         sb.AppendLine("<?xml version=\"1.0\"?>\n");
         sb.AppendLine("<rowset>");
         writeFile.Header = sb.ToString();

@@ -17,7 +17,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics.Contracts;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Threading;
 
@@ -79,9 +78,8 @@ namespace CsvTools
       Contract.Requires(reader != null);
       Contract.Requires(writer != null);
 
-      var columnInfos = GetColumnInformation(reader);
-      var enumerable = columnInfos as ColumnInfo[] ?? columnInfos.ToArray();
-      if (enumerable.IsEmpty())
+      var columnInfos = GetSourceColumnInformation(reader);
+      if (columnInfos.IsEmpty())
         throw new FileWriterException("No columns defined to be written.");
       var recordEnd = m_CsvFile.FileFormat.NewLine.Replace("CR", "\r").Replace("LF", "\n").Replace(" ", "")
        .Replace("\t", "");
@@ -89,7 +87,7 @@ namespace CsvTools
       HandleWriteStart();
 
       var numEmptyRows = 0;
-      var numColumns = enumerable.Count();
+      var numColumns = columnInfos.Count();
       var
        sb = new StringBuilder(1024); // Assume a capacity of 1024 characters to start , data is flushed every 512 chars
       var hasFieldDelimiter = !m_CsvFile.FileFormat.IsFixedLength;
@@ -102,7 +100,7 @@ namespace CsvTools
 
       if (m_CsvFile.HasFieldHeader)
       {
-        sb.Append(GetHeaderRow(enumerable));
+        sb.Append(GetHeaderRow(columnInfos));
         sb.Append(recordEnd);
       }
 
@@ -117,7 +115,7 @@ namespace CsvTools
 
         var emptyColumns = 0;
 
-        foreach (var columnInfo in enumerable)
+        foreach (var columnInfo in columnInfos)
         {
           var col = reader.GetValue(columnInfo.ColumnOridinalReader);
           if (col == DBNull.Value)
