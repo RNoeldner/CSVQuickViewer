@@ -680,6 +680,8 @@ namespace CsvTools
     /// <returns>The number of instances of object in the array.</returns>
     public virtual int GetValues(object[] values)
     {
+      if (values is null)
+        throw new ArgumentNullException(nameof(values));
       Debug.Assert(CurrentRowColumnText != null);
       for (var col = 0; col < FieldCount; col++)
         values[col] = CurrentRowColumnText[col];
