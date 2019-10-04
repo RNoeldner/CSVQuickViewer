@@ -44,7 +44,7 @@ namespace CsvTools
       Contract.Requires(dataTable != null);
 
       SuspendLayout();
-      Icon = CsvToolLib.Resources.DatabaseTable;
+
       var dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle
       {
         BackColor = System.Drawing.Color.Gainsboro

@@ -40,6 +40,8 @@ namespace CsvTools
     private BindingSource m_BindingSource;
     private IFileSetting m_FileSetting;
     private int m_MenuItemColumnIndex;
+    private static Image m_ImgFilterIndicator;
+    private static Image m_ImgNbSp;
 
     /// <summary>
     ///   Any Text entered here will be highlighted Filer
@@ -53,6 +55,10 @@ namespace CsvTools
     /// </summary>
     public FilteredDataGridView()
     {
+      var resources = new System.ComponentModel.ComponentResourceManager(typeof(FilteredDataGridView));
+      m_ImgFilterIndicator = ((System.Drawing.Image)(resources.GetObject("toolStripMenuItem2.Image")));
+      m_ImgNbSp = ((System.Drawing.Image)(resources.GetObject("NBSP")));
+
       InitializeComponent();
       DataError += FilteredDataGridView_DataError;
       toolStripMenuItemColumnVisibility.ItemCheck += CheckedListBox_ItemCheck;
@@ -742,7 +748,7 @@ namespace CsvTools
         var offset = e.CellBounds.Width - 22;
         pt.X += offset;
         pt.Y = e.CellBounds.Height / 2 - 4;
-        e.Graphics.DrawImageUnscaled(CsvToolLib.Resources.FilterIndicator, pt);
+        e.Graphics.DrawImageUnscaled(m_ImgFilterIndicator, pt);
 
         e.PaintContent(e.CellBounds);
       }
@@ -789,7 +795,7 @@ namespace CsvTools
           // if we are outside the bound stop
           if (hlRect.X > e.CellBounds.X + e.CellBounds.Width)
             break;
-          e.Graphics.DrawImageUnscaled(CsvToolLib.Resources.NbSpIndicator, new Point(hlRect.X, hlRect.Y));
+          e.Graphics.DrawImageUnscaled(m_ImgNbSp, new Point(hlRect.X, hlRect.Y));
           // e.Graphics.FillRectangle(hl_brush, hl_rect);
           nbspIndex = val.IndexOf((char)0xA0, nbspIndex + 1);
         }

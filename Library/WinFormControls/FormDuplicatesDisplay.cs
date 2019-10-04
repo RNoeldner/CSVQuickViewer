@@ -52,7 +52,6 @@ namespace CsvTools
       m_DataRow = dataRows;
       m_InitialColumn = initialColumn;
       InitializeComponent();
-      Icon = CsvToolLib.Resources.SubFormIcon;
       detailControl.CancellationToken = m_CancellationTokenSource.Token;
       detailControl.DataTable = m_DataTable;
     }

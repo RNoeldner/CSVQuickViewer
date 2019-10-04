@@ -42,7 +42,6 @@ namespace CsvTools
       m_DataTable = dataTable;
       m_DataRow = dataRows;
       InitializeComponent();
-      Icon = CsvToolLib.Resources.SubFormIcon;
     }
 
     /// <summary>
