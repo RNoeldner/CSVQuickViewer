@@ -12,6 +12,8 @@ namespace CsvTools
     /// <param name="columnFormat">The column format.</param>
     public Column AddIfNew(Column columnFormat)
     {
+      if (columnFormat is null)
+        throw new ArgumentNullException(nameof(columnFormat));
       var found = Get(columnFormat.Name);
       if (found != null)
         return found;

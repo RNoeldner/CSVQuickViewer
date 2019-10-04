@@ -372,7 +372,7 @@ namespace CsvTools
       if (ReferenceEquals(this, other))
         return true;
 
-      if (other.DataType != m_DataType || !other.DisplayNullAs.Equals(m_DisplayNullAs))
+      if (other.DataType != m_DataType || !other.DisplayNullAs.Equals(m_DisplayNullAs, StringComparison.Ordinal))
         return false;
 
       switch (m_DataType)

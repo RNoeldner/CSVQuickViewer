@@ -111,7 +111,7 @@ namespace CsvTools
     ///   The actual number of bytes read.
     /// </returns>
     /// <exception cref="NotImplementedException"></exception>
-    public long GetBytes(int i, long fieldOffset, byte[] buffer, int bufferoffset, int length) => throw new NotImplementedException();
+    public static long GetBytes(int i, long fieldOffset, byte[] buffer, int bufferoffset, int length) => throw new NotImplementedException();
 
     /// <summary>
     ///   Gets the character value of the specified column.
@@ -146,7 +146,7 @@ namespace CsvTools
     ///   The <see cref="IDataReader" /> for the specified column ordinal.
     /// </returns>
     /// <exception cref="NotImplementedException"></exception>
-    public IDataReader GetData(int i) => throw new NotImplementedException();
+    public static IDataReader GetData(int i) => throw new NotImplementedException();
 
     /// <summary>
     ///   Gets the data type information for the specified field.

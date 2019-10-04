@@ -73,6 +73,8 @@ namespace CsvTools
 
     public static int CountOccurance(this string text, string pattern)
     {
+      if (string.IsNullOrEmpty(pattern))
+        return 0;
       var count = 0;
       var i = 0;
       while ((i = text.IndexOf(pattern, i, StringComparison.OrdinalIgnoreCase)) != -1)
@@ -185,7 +187,7 @@ namespace CsvTools
     /// <returns>A string</returns>
     public static string Join(this IEnumerable<string> parts, string joinWith = ", ")
     {
-      if (parts.IsEmpty())
+      if (parts == null || parts.IsEmpty())
         return string.Empty;
 
       var sb = new StringBuilder();
@@ -210,7 +212,7 @@ namespace CsvTools
     /// <returns>A string</returns>
     public static string Join(this IEnumerable<int> parts, string joinWith = ", ")
     {
-      if (parts.IsEmpty())
+      if (parts == null || parts.IsEmpty())
         return string.Empty;
 
       var sb = new StringBuilder();
@@ -233,6 +235,8 @@ namespace CsvTools
     /// <returns>The unique name</returns>
     public static string MakeUniqueInCollection(ICollection<string> previousColumns, string nametoadd)
     {
+      if (nametoadd is null)
+        throw new ArgumentNullException(nameof(nametoadd));
       Contract.Requires(previousColumns != null);
       if (!previousColumns.Contains(nametoadd))
         return nametoadd;
@@ -260,6 +264,8 @@ namespace CsvTools
     /// <returns>The original text without control characters</returns>
     public static string NoControlCharaters(this string original)
     {
+      if (original is null)
+        throw new ArgumentNullException(nameof(original));
       Contract.Ensures(Contract.Result<string>() != null);
 
       var chars = new char[original.Length];
@@ -341,9 +347,8 @@ namespace CsvTools
     /// </remarks>
     public static string RReplace(this string original, string search, string replace)
     {
-      if (string.IsNullOrEmpty(search) || search.Equals(replace, StringComparison.Ordinal))
+      if (string.IsNullOrEmpty(search) || search.Equals(replace, StringComparison.Ordinal) || string.IsNullOrEmpty(original))
         return original;
-
       var ret = original;
       while (ret.Contains(search))
         ret = ret.Replace(search, replace);
@@ -400,6 +405,8 @@ namespace CsvTools
 
     public static System.Security.SecureString ToSecureString(this string text)
     {
+      if (text is null)
+        throw new ArgumentNullException(nameof(text));
       var securePassword = new System.Security.SecureString();
 
       foreach (var c in text)

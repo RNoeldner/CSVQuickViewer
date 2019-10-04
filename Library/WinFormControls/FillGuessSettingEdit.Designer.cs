@@ -106,7 +106,7 @@
       this.textBoxSampleValues.Size = new System.Drawing.Size(70, 26);
       this.textBoxSampleValues.TabIndex = 1;
       this.toolTip.SetToolTip(this.textBoxSampleValues, "As the amount of sample is found the detection process will start");
-      this.textBoxSampleValues.Validating += new System.ComponentModel.CancelEventHandler(this.textBoxSampleValues_Validating);
+      this.textBoxSampleValues.Validating += new System.ComponentModel.CancelEventHandler(this.TextBoxSampleValues_Validating);
       // 
       // checkBoxDectectNumbers
       // 
@@ -335,7 +335,7 @@
       this.textBoxMinSamples.TabIndex = 9;
       this.toolTip.SetToolTip(this.textBoxMinSamples, "A higher the number of samples ensures the guessed format is correct, columns tha" +
         "t not contain a variety of values might not provide may samples\r\n");
-      this.textBoxMinSamples.Validating += new System.ComponentModel.CancelEventHandler(this.textBoxMinSamples_Validating);
+      this.textBoxMinSamples.Validating += new System.ComponentModel.CancelEventHandler(this.TextBoxMinSamples_Validating);
       // 
       // checkBoxNamedDates
       // 

@@ -245,6 +245,8 @@ namespace CsvTools
     /// <returns>Number of records written</returns>
     public virtual long WriteDataTable(DataTable source)
     {
+      if (source is null)
+        throw new ArgumentNullException(nameof(source));
       using (var reader = source.CreateDataReader())
       {
         return Write(reader);
@@ -278,6 +280,10 @@ namespace CsvTools
     /// <returns></returns>
     protected DateTime HandleTimeZone(DateTime dataObject, ColumnInfo columnInfo, IDataRecord reader)
     {
+      if (columnInfo is null)
+        throw new ArgumentNullException(nameof(columnInfo));
+      if (reader is null)
+        throw new ArgumentNullException(nameof(reader));
       if (columnInfo.ColumnOridinalTimeZoneReader > -1)
       {
         var sourcetimeZoneID = reader.GetString(columnInfo.ColumnOridinalTimeZoneReader);
@@ -348,6 +354,8 @@ namespace CsvTools
     protected string TextEncodeField(FileFormat fileFormat, object dataObject, ColumnInfo columnInfo, bool isHeader,
    IDataReader reader, Func<string, ColumnInfo, FileFormat, string> handleQualify)
     {
+      if (columnInfo is null)
+        throw new ArgumentNullException(nameof(columnInfo));
       Contract.Requires(fileFormat != null);
       if (fileFormat.IsFixedLength && columnInfo.FieldLength == 0)
         throw new FileWriterException("For fix length output the length of the columns needs to be specified.");
@@ -355,6 +363,8 @@ namespace CsvTools
       string displayAs;
       if (isHeader)
       {
+        if (dataObject is null)
+          throw new ArgumentNullException(nameof(dataObject));
         displayAs = dataObject.ToString();
       }
       else
