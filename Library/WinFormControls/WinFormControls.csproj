@@ -143,11 +143,6 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
     <Compile Include="QuotingControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -195,50 +190,14 @@
     <None Include="FormSelectTimeZone.resx">
       <DependentUpon>FormSelectTimeZone.cs</DependentUpon>
     </None>
-    <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>PublicResXFileCodeGenerator</Generator>
-      <CustomToolNamespace>CsvToolLib</CustomToolNamespace>
-      <SubType>Designer</SubType>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
     <EmbeddedResource Include="TimedMessage.resx">
       <DependentUpon>TimedMessage.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\DatabaseTable.ico" />
-    <Content Include="Resources\Down.png" />
-    <Content Include="Resources\Duplicates.png" />
-    <Content Include="Resources\Errors.png" />
-    <Content Include="Resources\Errors2.png" />
-    <Content Include="Resources\Filter.gif" />
-    <Content Include="Resources\FilterEqual.gif" />
-    <Content Include="Resources\FilterIndicator.gif" />
-    <Content Include="Resources\Hierarchy.png" />
-    <Content Include="Resources\Info.gif" />
-    <Content Include="Resources\MoveFirstItem.png" />
-    <Content Include="Resources\MoveLastItem.png" />
-    <Content Include="Resources\MoveNextItem.png" />
-    <Content Include="Resources\MovePreviousItem.png" />
-    <Content Include="Resources\NbSpIndicator.gif" />
-    <Content Include="Resources\NextRecords.png" />
-    <Content Include="Resources\No.png" />
-    <Content Include="Resources\Settings.png" />
-    <Content Include="Resources\Shema.png" />
-    <None Include="Resources\SubFormIcon.ico" />
-    <None Include="Resources\Tumblr-icon.png" />
-    <Content Include="Resources\Up.png" />
-    <Content Include="Resources\Values.png" />
-    <Content Include="Resources\View.png" />
-    <None Include="Resources\sortdescending.png" />
-    <None Include="Resources\sortascending.png" />
-    <None Include="Resources\Settings2.png" />
-    <None Include="Resources\save.png" />
-    <None Include="Resources\FilterRemove.gif" />
-    <None Include="Resources\Close.png" />
-    <None Include="DetailControl.resx">
+    <EmbeddedResource Include="DetailControl.resx">
       <DependentUpon>DetailControl.cs</DependentUpon>
-    </None>
+    </EmbeddedResource>
     <None Include="CsvRichTextBox.resx">
       <DependentUpon>CsvRichTextBox.cs</DependentUpon>
       <SubType>Designer</SubType>
@@ -281,9 +240,9 @@
       <DependentUpon>QuotingControl.cs</DependentUpon>
       <SubType>Designer</SubType>
     </None>
-    <None Include="Search.resx">
+    <EmbeddedResource Include="Search.resx">
       <DependentUpon>Search.cs</DependentUpon>
-    </None>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ClassLibraryCSV\ClassLibraryCSV.csproj">
@@ -294,9 +253,6 @@
   <ItemGroup>
     <PackageReference Include="log4net">
       <Version>2.0.8</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers">
-      <Version>2.9.3</Version>
     </PackageReference>
     <PackageReference Include="Pri.LongPath">
       <Version>2.0.47</Version>
@@ -311,5 +267,6 @@
       <Name>ClassLibraryCSV</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

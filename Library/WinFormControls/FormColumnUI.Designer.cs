@@ -389,8 +389,7 @@
       this.comboBoxDateFormat.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
       this.comboBoxDateFormat.Name = "comboBoxDateFormat";
       this.comboBoxDateFormat.Size = new System.Drawing.Size(246, 28);
-      this.comboBoxDateFormat.TabIndex = 6;
-      this.toolTip.SetToolTip(this.comboBoxDateFormat, global::CsvToolLib.Resources.TimeFomat);
+      this.comboBoxDateFormat.TabIndex = 6;      
       this.comboBoxDateFormat.TextChanged += new System.EventHandler(this.DateFormatChanged);
       // 
       // buttonAddFormat
