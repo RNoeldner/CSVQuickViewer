@@ -6,7 +6,12 @@
     <UseWindowsForms>true</UseWindowsForms>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <ApplicationIcon>..\Application\csv_text.ico</ApplicationIcon>
-    <ApplicationManifest>app1.manifest</ApplicationManifest>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <Authors>Raphael Nöldner</Authors>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DefineConstants>TRACE;NETCOREAPP30</DefineConstants>
   </PropertyGroup>
  
   <ItemGroup>
@@ -19,13 +24,10 @@
     <Compile Remove="..\Application\Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="log4net" Version="2.0.8" />
     <PackageReference Include="Pri.LongPath">
       <Version>2.0.47</Version>
     </PackageReference>
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.6.0" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Library\ClassLibraryCSV\ClassLibraryCSV.csproj" />
-    <ProjectReference Include="..\Library\WinFormControls\WinFormControls.csproj" />
-  </ItemGroup>
+  
 </Project>

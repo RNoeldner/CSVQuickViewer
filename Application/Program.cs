@@ -14,17 +14,14 @@
 
 using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Reflection;
+
 using System.Threading;
 using System.Windows.Forms;
-using log4net;
-using log4net.Config;
 
 namespace CsvTools
 {
   internal static class Program
   {
-    private static readonly ILog Log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
     internal const string cPhrase = "R@pHa€l";
 
     /// <summary>
@@ -50,11 +47,11 @@ namespace CsvTools
     /// </summary>
     [STAThread]
     private static void Main(string[] args)
-    {      
-      XmlConfigurator.Configure(Log.Logger.Repository);
+    {
+      Logger.Configure("CSVQuickViewer.log", Logger.Level.Info);
       Application.ThreadException += Application_ThreadException;
       AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
-      Log.Debug("Application start…");
+      Logger.Debug("Application start…");
       var fileName = string.Empty;
 
       Application.EnableVisualStyles();
@@ -63,6 +60,9 @@ namespace CsvTools
       // read the command line parameter
       if (args.Length >= 1)
         fileName = args[0];
+#if NETCOREAPP30
+      Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+#endif
 
       Application.Run(new FormMain(fileName));
       Application.Exit();
@@ -75,7 +75,7 @@ namespace CsvTools
     [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
     private static void UnhandledException(Exception ex)
     {
-      Log.Error("Unhandled Exception", ex);
+      Logger.Error("Unhandled Exception", ex);
       var message = $"{ex.GetType()}\n\n{ex.ExceptionMessages()}\nStack Trace:\n{ex.StackTrace}";
 #if DEBUG
       System.Diagnostics.Debug.Assert(false, @"Unhandled Exception", message);

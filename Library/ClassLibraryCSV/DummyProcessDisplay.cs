@@ -19,7 +19,6 @@ namespace CsvTools
 {
   public class DummyProcessDisplay : IProcessDisplay
   {
-    private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
     private readonly CancellationTokenSource m_CancellationTokenSource;
 
     public DummyProcessDisplay() : this(CancellationToken.None)
@@ -63,6 +62,8 @@ namespace CsvTools
 
     public virtual string Title { get; set; }
 
+    public CancellationTokenSource CancellationTokenSource => m_CancellationTokenSource;
+
     public static void Show()
     {
     }
@@ -86,9 +87,9 @@ namespace CsvTools
       if (log)
       {
         if (LogAsDebug)
-          Log.Debug(text);
+          Logger.Debug(text);
         else
-          Log.Info(text);
+          Logger.Information(text);
       }
       Progress?.Invoke(this, new ProgressEventArgs(text, value, log));
     }

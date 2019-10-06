@@ -69,8 +69,7 @@
       this.textBoxProgress.ReadOnly = true;
       this.textBoxProgress.Size = new System.Drawing.Size(133, 160);
       this.textBoxProgress.TabIndex = 2;
-      this.textBoxProgress.Text = "";
-      this.textBoxProgress.Threshold = ((log4net.Core.Level)(resources.GetObject("textBoxProgress.Threshold")));
+      this.textBoxProgress.Text = "";      
       // 
       // textPanel
       // 

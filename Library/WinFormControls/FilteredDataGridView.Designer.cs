@@ -329,8 +329,7 @@ namespace CsvTools
       dataGridViewCellStyle4.SelectionBackColor = System.Drawing.SystemColors.Highlight;
       dataGridViewCellStyle4.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
       dataGridViewCellStyle4.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-      this.RowHeadersDefaultCellStyle = dataGridViewCellStyle4;
-      this.RowTemplate.Height = 28;
+      this.RowHeadersDefaultCellStyle = dataGridViewCellStyle4;      
       this.contextMenuStripCell.ResumeLayout(false);
       this.contextMenuStripFilter.ResumeLayout(false);
       this.contextMenuStripColumns.ResumeLayout(false);

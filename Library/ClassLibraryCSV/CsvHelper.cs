@@ -29,7 +29,6 @@ namespace CsvTools
   /// </summary>
   public static class CsvHelper
   {
-    private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
     public static ICollection<string> GetColumnHeadersFromReader(IFileReader fileReader)
     {
@@ -104,8 +103,16 @@ namespace CsvTools
       Contract.Requires(setting != null);
       if (setting.CodePageId < 0)
         GuessCodePage(setting);
-
-      return Encoding.GetEncoding(setting.CodePageId);
+      try
+      {
+        return Encoding.GetEncoding(setting.CodePageId);
+      }
+      catch (NotSupportedException)
+      {
+        Logger.Warning($"Codepage {setting.CodePageId} is not supported, using UTF8");
+        setting.CodePageId = 65001;
+        return new UTF8Encoding(true);
+      }
     }
 
     /// <summary>
@@ -144,8 +151,7 @@ namespace CsvTools
       // ASCII will be reported as UTF-8, UTF8 includes ASCII as subset
       if (detected == 20127)
         detected = 65001;
-
-      Log.Info("Detected Code Page: " + EncodingHelper.GetEncodingName(detected, true, setting.ByteOrderMark));
+      Logger.Information("Detected Code Page: " + EncodingHelper.GetEncodingName(detected, true, setting.ByteOrderMark));
       setting.CodePageId = detected;
     }
 
@@ -198,7 +204,7 @@ namespace CsvTools
       // Only do so if HasFieldHeader is still true
       if (!setting.HasFieldHeader)
       {
-        Log.Info("Without Header Row");
+        Logger.Information("Without Header Row");
         return false;
       }
 
@@ -219,7 +225,7 @@ namespace CsvTools
           {
             if (defaultNames++ == (int)Math.Ceiling(csvDataReader.FieldCount / 2.0))
             {
-              Log.Info("Without Header Row");
+              Logger.Information("Without Header Row");
               return false;
             }
           }
@@ -227,18 +233,18 @@ namespace CsvTools
           // if its a number assume no headers
           if (StringConversion.StringToDecimal(columnName, '.', ',', false).HasValue)
           {
-            Log.Info("Without Header Row");
+            Logger.Information("Without Header Row");
             return false;
           }
 
           // if its rather long assume no header
           if (columnName.Length > 80)
           {
-            Log.Info("Without Header Row");
+            Logger.Information("Without Header Row");
             return false;
           }
         }
-        Log.Info("With Header Row");
+        Logger.Information("With Header Row");
         // if there is only one line assume its does not have a header
         return true;
       }
@@ -283,12 +289,12 @@ namespace CsvTools
         {
           if (dc.SeparatorRows[sep] >= dc.LastRow * 9 / 10)
           {
-            Log.Info("Not a delimited file");
+            Logger.Information("Not a delimited file");
             return false;
           }
         }
       }
-      Log.Info("Delimited file");
+      Logger.Information("Delimited file");
       return true;
     }
 
@@ -425,7 +431,7 @@ namespace CsvTools
     {
       if (streamReader == null)
       {
-        Log.Info("File not read");
+        Logger.Information("File not read");
         return false;
       }
       using (var m_JsonTextReader = new Newtonsoft.Json.JsonTextReader(streamReader))
@@ -468,7 +474,7 @@ namespace CsvTools
       var match = '\t';
       if (streamReader == null)
       {
-        Log.Info("File not read, assumed Delimiter: TAB");
+        Logger.Information("File not read, assumed Delimiter: TAB");
         return "TAB";
       }
 
@@ -538,7 +544,7 @@ namespace CsvTools
         bestScore = score;
       }
       var ret = match == '\t' ? "TAB" : match.ToString(CultureInfo.CurrentCulture);
-      Log.Info("Delimiter: " + ret);
+      Logger.Information("Delimiter: " + ret);
       return ret;
     }
 
@@ -790,14 +796,14 @@ namespace CsvTools
           {
             if (columnCount[row] < avg - 1)
             {
-              Log.Info($"Start Row: {row}");
+              Logger.Information($"Start Row: {row}");
               return row;
             }
           }
           // In case we have an empty line but the next line are roughly good match take that empty line
           else if (row + 2 < lastRow && columnCount[row + 1] == columnCount[row + 2] && columnCount[row + 1] >= avg - 1)
           {
-            Log.Info($"Start Row: {row + 1}");
+            Logger.Information($"Start Row: {row + 1}");
             return row + 1;
           }
         }
@@ -806,7 +812,7 @@ namespace CsvTools
         {
           if (columnCount[row] > 0)
           {
-            Log.Info($"Start Row: {row}");
+            Logger.Information($"Start Row: {row}");
             return row;
           }
         }

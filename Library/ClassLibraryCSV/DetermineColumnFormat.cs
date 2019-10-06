@@ -30,7 +30,6 @@ namespace CsvTools
   /// </summary>
   public static class DetermineColumnFormat
   {
-    private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
     public static ValueFormat CommonDateFormat(IEnumerable<ValueFormat> valueFormats)
     {
@@ -595,7 +594,7 @@ namespace CsvTools
       Contract.Requires(columnIndex >= 0);
       Contract.Ensures(Contract.Result<IEnumerable<string>>() != null);
 
-      Log.Debug("Reading sample values");
+      Logger.Debug("Reading sample values");
 
       if (string.IsNullOrEmpty(treatAsNull))
         treatAsNull = "NULL;n/a";
@@ -609,7 +608,7 @@ namespace CsvTools
         // could already be at EOF need to reset
         if (dataReader.EndOfFile)
         {
-          Log.Debug("Resetting read position to the beginning");
+          Logger.Debug("Resetting read position to the beginning");
           dataReader.ResetPositionToFirstDataRow();
         }
 
@@ -622,9 +621,9 @@ namespace CsvTools
           if (colName.Equals(args.ColumnName, StringComparison.OrdinalIgnoreCase) || string.IsNullOrEmpty(args.ColumnName))
           {
             if (remainingShows-- > 0)
-              Log.Debug("Row ignored in detection: " + args.Message);
+              Logger.Debug("Row ignored in detection: " + args.Message);
             if (remainingShows == 0)
-              Log.Debug("No further warning shown");
+              Logger.Debug("No further warning shown");
             hasWarning = true;
           }
         };

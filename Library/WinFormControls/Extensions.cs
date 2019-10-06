@@ -19,7 +19,7 @@ using System.Drawing;
 using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
-using log4net;
+
 using Pri.LongPath;
 
 namespace CsvTools
@@ -29,11 +29,10 @@ namespace CsvTools
   /// </summary>
   public static class Extensions
   {
-    public static readonly ILog Log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
     public static void ShowError(this Form from, Exception ex, string additionalTitle = "")
     {
-      Log.Warn($"Issue in UI {nameof(from)} : {ex.Message}", ex);
+      Logger.Warning($"Issue in UI {nameof(from)} : {ex.Message}",ex );
       Cursor.Current = Cursors.Default;
       System.Windows.Forms.MessageBox.Show(from, ex.ExceptionMessages(), string.IsNullOrEmpty(additionalTitle) ? "Error" : $"Error {additionalTitle}", MessageBoxButtons.OK, MessageBoxIcon.Warning);
     }
@@ -59,7 +58,7 @@ namespace CsvTools
           if (raiseError)
             throw new TimeoutException(msg);
           else
-            Log.Warn(msg);
+            Logger.Warning(msg);
           break;
         }
         ProcessUIElements(millisecondsSleep);
