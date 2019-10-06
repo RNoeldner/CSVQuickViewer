@@ -25,8 +25,6 @@ namespace CsvTools
   /// <seealso cref="System.IDisposable" />
   public class ImprovedStream : IDisposable
   {
-    private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-
     private bool AssumeGZip;
     private bool AssumePGP;
     private string BasePath;
@@ -105,7 +103,7 @@ namespace CsvTools
       };
       if (path.AssumePgp() || path.AssumeGZip())
       {
-        Log.Debug("Creating temporary file");
+        Logger.Debug("Creating temporary file");
         retVal.TempFile = Path.GetTempFileName();
 
         // download the file to a temp file
@@ -159,7 +157,7 @@ namespace CsvTools
 
           if (AssumeGZip)
           {
-            Log.Debug("Decompressing GZip Stream");
+            Logger.Debug("Decompressing GZip Stream");
             Stream = new System.IO.Compression.GZipStream(BaseStream, System.IO.Compression.CompressionMode.Decompress);
           }
           else if (AssumePGP)
@@ -179,7 +177,7 @@ namespace CsvTools
 
             try
             {
-              Log.Debug("Decrypt PGP Stream");
+              Logger.Debug("Decrypt PGP Stream");
               Stream = ApplicationSetting.PGPKeyStorage.PgpDecrypt(BaseStream, DecryptedPassphrase);
             }
             catch (Org.BouncyCastle.Bcpg.OpenPgp.PgpException ex)
@@ -262,7 +260,7 @@ namespace CsvTools
           // Compress the file
           if (WritePath.AssumeGZip())
           {
-            Log.Debug("Compressing temporary file to GZip file");
+            Logger.Debug("Compressing temporary file to GZip file");
             var action = new IntervalAction(0.5);
             using (var inFile = File.OpenRead(TempFile))
             {
@@ -304,14 +302,14 @@ namespace CsvTools
             using (FileStream inputStream = new FileInfo(TempFile).OpenRead(),
                         output = new FileStream(WritePath.LongPathPrefix(), FileMode.Create))
             {
-              Log.Debug("Encrypting temporary file to PGP file");
+              Logger.Debug("Encrypting temporary file to PGP file");
               ApplicationSetting.PGPKeyStorage.PgpEncrypt(inputStream, output, Recipient, ProcessDisplay);
             }
           }
         }
         finally
         {
-          Log.Debug("Removing temporary file");
+          Logger.Debug("Removing temporary file");
           File.Delete(TempFile);
           if (selfOpened)
             ProcessDisplay.Dispose();

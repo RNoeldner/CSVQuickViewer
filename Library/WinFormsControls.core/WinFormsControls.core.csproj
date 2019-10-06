@@ -5,16 +5,16 @@
     <UseWindowsForms>true</UseWindowsForms>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="..\Library\WinFormControls\**\*.cs" />
-    <EmbeddedResource Include="..\Library\WinFormControls\**\*.resx" />
+    <Compile Include="..\WinFormControls\**\*.cs" />
+    <EmbeddedResource Include="..\WinFormControls\**\*.resx" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Remove="..\Library\WinFormControls\Properties\AssemblyInfo.cs" />
+    <Compile Remove="..\WinFormControls\CustomPatternLayout.cs" />
+    <Compile Remove="..\WinFormControls\EncodedMessagePatternConvertor.cs" />
+    <Compile Remove="..\WinFormControls\LogAppenderTextBox.cs" />
+    <Compile Remove="..\WinFormControls\Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="log4net">
-      <Version>2.0.8</Version>
-    </PackageReference>
     <PackageReference Include="Pri.LongPath">
       <Version>2.0.47</Version>
     </PackageReference>
@@ -23,6 +23,6 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Library\ClassLibraryCSV\ClassLibraryCSV.csproj" />
+    <ProjectReference Include="..\ClassLibraryCSV.Standard\ClassLibraryCSV.Standard.csproj" />
   </ItemGroup>
 </Project>

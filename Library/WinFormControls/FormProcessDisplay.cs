@@ -31,8 +31,9 @@ namespace CsvTools
     private Label m_LabelText;
     private ProgressBar m_ProgressBar;
     protected TableLayoutPanel tableLayoutPanel;
+    private DummyProcessDisplay m_DummyProcessDisplay;
     private string m_Title;
-    private static readonly log4net.ILog m_Log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+    private LoggerDisplay m_LoggerDisplay = null;
 
     public FormProcessDisplay(string windowTitle) : this(windowTitle, true, CancellationToken.None)
     {
@@ -46,31 +47,30 @@ namespace CsvTools
     /// <param name="cancellationToken">The cancellation token.</param>
     public FormProcessDisplay(string windowTitle, bool withLoggerDisplay, CancellationToken cancellationToken)
     {
+      m_DummyProcessDisplay = new DummyProcessDisplay(cancellationToken);
       InitializeComponent();
 
       m_Title = windowTitle;
       Text = windowTitle;
 
-      CancellationTokenSource = cancellationToken == CancellationToken.None
-        ? new CancellationTokenSource()
-        : CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-
-      TimeToCompletion = new TimeToCompletion();
-
+      TimeToCompletion = new TimeToCompletion();      
       if (withLoggerDisplay)
       {
         SuspendLayout();
         Width = 400;
         Height = 300;
 
-        var logger = new LoggerDisplay
+        m_LoggerDisplay = new LoggerDisplay
         {
           Dock = DockStyle.Fill,
           Multiline = true,
           TabIndex = 8
         };
-        tableLayoutPanel.SetColumnSpan(logger, 2);
-        tableLayoutPanel.Controls.Add(logger, 0, 3);
+
+        Logger.AddLog = m_LoggerDisplay.AddLog;
+
+        tableLayoutPanel.SetColumnSpan(m_LoggerDisplay, 2);
+        tableLayoutPanel.Controls.Add(m_LoggerDisplay, 0, 3);
         ResumeLayout(false);
       }
     }
@@ -92,7 +92,7 @@ namespace CsvTools
     /// <value>
     ///   The cancellation token.
     /// </value>
-    public CancellationToken CancellationToken => CancellationTokenSource.Token;
+    public CancellationToken CancellationToken => m_DummyProcessDisplay.CancellationToken;
 
     /// <summary>
     ///   Gets or sets the cancellation token.
@@ -100,7 +100,7 @@ namespace CsvTools
     /// <value>
     ///   The cancellation token.
     /// </value>
-    public CancellationTokenSource CancellationTokenSource { get; }
+    public CancellationTokenSource CancellationTokenSource => m_DummyProcessDisplay.CancellationTokenSource;
 
     /// <summary>
     ///   Gets or sets the maximum value for the Progress
@@ -157,7 +157,15 @@ namespace CsvTools
       }
     }
 
-    public bool LogAsDebug { get; set; } = false;
+    public bool LogAsDebug { 
+      get
+      {
+        return m_DummyProcessDisplay.LogAsDebug;
+      } set
+      {
+        m_DummyProcessDisplay.LogAsDebug = value;
+      }
+    } 
 
     /// <summary>
     ///   Closes the form used by Events
@@ -187,13 +195,9 @@ namespace CsvTools
       if (CancellationToken.IsCancellationRequested)
         return;
       TimeToCompletion.Value = value;
-      if (log)
-      {
-        if (LogAsDebug)
-          m_Log.Debug(text);
-        else
-          m_Log.Info(text);
-      }
+      
+      m_DummyProcessDisplay.SetProcess(text, value, log);        
+      
       m_LabelText.SafeInvoke(() =>
       {
         if (!Visible)
@@ -249,7 +253,7 @@ namespace CsvTools
       }
     }
 
-    #region Windows Form Designer generated code
+#region Windows Form Designer generated code
 
     /// <summary>
     ///   Required method for Designer support - do not modify the contents of this method with the

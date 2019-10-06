@@ -11,71 +11,84 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-
-using log4net;
-using log4net.Repository.Hierarchy;
 using System;
-using System.Reflection;
+using System.Drawing;
 using System.Windows.Forms;
 
 namespace CsvTools
 {
   public class LoggerDisplay : RichTextBox
   {
-    private static readonly ILog m_Log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
-    private readonly LogAppenderTextBox m_LogAppenderTextBox;
+    private string m_LastMessage = string.Empty;
+    private bool m_Initial = true;
+
 
     public LoggerDisplay()
     {
-      m_LogAppenderTextBox = new LogAppenderTextBox(this);
       Multiline = true;
       KeyUp += base.FindForm().CtrlA;
-
-      try
-      {        
-        var hierarchy = (Hierarchy)LogManager.GetRepository(MethodBase.GetCurrentMethod().DeclaringType.GetTypeInfo().Assembly);
-        m_LogAppenderTextBox.Threshold = log4net.Core.Level.Debug;
-        m_LogAppenderTextBox.ActivateOptions();
-        hierarchy.Root.AddAppender(m_LogAppenderTextBox);
-        hierarchy.Configured = true;
-      }
-      catch (Exception ex)
-      {
-        m_Log.Error("Error setting the log file", ex);
-      }
     }
 
-    public log4net.Core.Level Threshold
+    public new void Clear()
     {
-      get => m_LogAppenderTextBox.Threshold;
-      set
+      this.SafeBeginInvoke(() =>
       {
-        m_LogAppenderTextBox.Threshold = value;
-        m_LogAppenderTextBox.ActivateOptions();
-      }
+        this.Text = string.Empty;
+      });
+      Extensions.ProcessUIElements();
     }
 
-    public new void Clear() => m_LogAppenderTextBox.Clear();
-
-    public void Pause() => m_LogAppenderTextBox.Threshold = log4net.Core.Level.Off;
-
-    protected override void Dispose(bool disposing)
+    private void AppendText(string text, Logger.Level level)
     {
-      if (disposing)
-      {
-        try
-        {
-          m_LogAppenderTextBox.Close();
-          var hierarchy = (Hierarchy)LogManager.GetRepository(MethodBase.GetCurrentMethod().DeclaringType.GetTypeInfo().Assembly);
-          hierarchy.Root.RemoveAppender(m_LogAppenderTextBox);
-        }
-        catch
-        {
-          // ignore all
-        }
-      }
+      if (string.IsNullOrEmpty(text))
+        return;
 
-      base.Dispose(disposing);
+      this.SafeBeginInvoke(() =>
+      {
+        var col = ForeColor;
+        if (level < Logger.Level.Info)
+          col = Color.Gray;
+        if (level >= Logger.Level.Warn)
+          col = Color.Blue;
+        if (level >= Logger.Level.Error)
+          col = Color.Red;
+
+        SelectionStart = TextLength;
+        if (col != ForeColor)
+        {
+          SelectionLength = 0;
+          SelectionColor = col;
+        }
+        ScrollToCaret();
+        AppendText(text);
+
+        if (col != ForeColor)
+          SelectionColor = ForeColor;
+      });
+      Extensions.ProcessUIElements();
+    }
+
+    public void AddLog(string text, Logger.Level level)
+    {
+      if (!string.IsNullOrWhiteSpace(text) && !m_LastMessage.Equals(text, StringComparison.Ordinal))
+      {
+        var appended = false;
+        var posSlash = text.IndexOf('–', 0);
+        if (posSlash != -1 && m_LastMessage.StartsWith(text.Substring(0, posSlash + 1), StringComparison.Ordinal))
+        {
+          // add to previous item,
+          AppendText(text.Substring(posSlash - 1), level);
+          appended = true;
+        }
+        m_LastMessage = text;
+        if (!appended)
+        {
+          if (level < Logger.Level.Error)
+            text = StringUtils.GetShortDisplay(StringUtils.HandleCRLFCombinations(text, " "), 120);
+          AppendText($"{(m_Initial ? string.Empty : "\n")}{DateTime.Now:HH:mm:ss}  {text}", level);
+        }
+        m_Initial = false;
+      }
     }
   }
 }

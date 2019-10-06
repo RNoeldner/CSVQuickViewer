@@ -32,8 +32,8 @@ namespace CsvTools
   /// </summary>
   public partial class FilteredDataGridView : DataGridView
   {
-    private const byte c_HeightLinefeed = 34;
-    private const byte c_HeightNoLinefeed = 22;
+    //private const byte c_HeightLinefeed = 34;
+    //private const byte c_HeightNoLinefeed = 22;
 
     private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
     private readonly List<ToolStripDataGridViewColumnFilter> m_Filter = new List<ToolStripDataGridViewColumnFilter>();
@@ -55,6 +55,7 @@ namespace CsvTools
     /// </summary>
     public FilteredDataGridView()
     {
+
       var resources = new System.ComponentModel.ComponentResourceManager(typeof(FilteredDataGridView));
       m_ImgFilterIndicator = ((System.Drawing.Image)(resources.GetObject("toolStripMenuItem2.Image")));
       m_ImgNbSp = ((System.Drawing.Image)(resources.GetObject("NBSP")));
@@ -430,13 +431,15 @@ namespace CsvTools
     /// <returns></returns>
     private static int GetDesiredRowHeight(DataGridViewRow row, IEnumerable<DataGridViewColumn> checkedColumns)
     {
+
+      // TODO: Depent on scaling...
       foreach (var column in checkedColumns)
       {
         if (row.Cells[column.Index].Value != null && row.Cells[column.Index].Value.ToString().IndexOf('\n') != -1)
-          return c_HeightLinefeed;
+          return row.Height * 2;
       }
-
-      return c_HeightNoLinefeed;
+      return row.Height;
+      // return c_HeightNoLinefeed;
     }
 
     /// <summary>

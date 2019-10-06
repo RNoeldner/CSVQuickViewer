@@ -1,27 +1,32 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <RootNamespace>CsvTools</RootNamespace>
+    <PackageId>ClassLibraryCSV</PackageId>
+    <Authors>Raphael Nöldner</Authors>
+    <Company></Company>
+    <Product>CSVTools</Product>
+    <AssemblyVersion>1.6.4.391</AssemblyVersion>
+    <FileVersion>1.6.4.391</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
     <Compile Include="..\ClassLibraryCSV\**\*.cs" />
     <EmbeddedResource Include="..\ClassLibraryCSV\**\*.txt" />
-    
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Remove="..\ClassLibraryCSV\obj\**" />
-    <EmbeddedResource Remove="..\ClassLibraryCSV\obj\**" />
+    <Compile Remove="..\**\ClassLibraryCSV.AssemblyInfo.cs" />    
   </ItemGroup>
-  
 
   <ItemGroup>
     <PackageReference Include="BouncyCastle.OpenPGP" Version="1.8.1.1" />
-    <PackageReference Include="log4net" Version="2.0.8" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
+    <PackageReference Include="NLog" Version="4.6.7" />
     <PackageReference Include="NodaTime" Version="2.4.7" />
     <PackageReference Include="Pri.LongPath" Version="2.0.47" />
     <PackageReference Include="Ude.NetStandard" Version="1.2.0" />
   </ItemGroup>
+
 </Project>

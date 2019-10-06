@@ -26,7 +26,6 @@ using System.Threading;
 using System.Windows.Forms;
 using System.Xml.Serialization;
 using CsvTools.Properties;
-using log4net;
 using Microsoft.Win32;
 using Timer = System.Timers.Timer;
 
@@ -38,8 +37,7 @@ namespace CsvTools
   public sealed partial class FormMain : Form
   {
     private static readonly string cSettingFolder = Environment.ExpandEnvironmentVariables("%APPDATA%\\CSVQuickViewer");
-    private static readonly string cSettingPath = cSettingFolder + "\\Setting.xml";
-    private static readonly ILog Log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+    private static readonly string cSettingPath = cSettingFolder + "\\Setting.xml";    
     private static readonly XmlSerializer m_SerializerViewSettings = new XmlSerializer(typeof(ViewSettings));
     private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
     private readonly Timer m_SettingsChangedTimerChange = new Timer(200);
@@ -66,8 +64,7 @@ namespace CsvTools
       ApplicationSetting.FillGuessSettings = m_ViewSettings.FillGuessSettings;
       ApplicationSetting.PGPKeyStorage = m_ViewSettings.PGPInformation;
 
-      InitializeComponent();
-      textBoxProgress.Threshold = log4net.Core.Level.Info;
+      InitializeComponent();      
       FillFromProperites();
 
       m_SettingsChangedTimerChange.AutoReset = false;
@@ -78,7 +75,9 @@ namespace CsvTools
       // Done in code to be able to select controls in the designer
       textPanel.SuspendLayout();
       textPanel.Dock = DockStyle.Fill;
-      textBoxProgress.Dock = DockStyle.Fill;
+      ClearProcess();
+      
+      
       csvTextDisplay.Dock = DockStyle.Fill;
       textPanel.ResumeLayout();
       ShowTextPanel(true);
@@ -110,7 +109,7 @@ namespace CsvTools
     {
       try
       {
-        Log.Debug($"Loading defaults {cSettingPath}");
+        Logger.Debug($"Loading defaults {cSettingPath}");
         if (FileSystemUtils.FileExists(cSettingPath))
         {
           var serial = File.ReadAllText(cSettingPath);
@@ -122,7 +121,7 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        Log.Error(ex);
+        Logger.Error(ex);
       }
       return new ViewSettings();
     }
@@ -132,9 +131,9 @@ namespace CsvTools
       if (string.IsNullOrEmpty(args.Message))
         return;
       if (++m_WarningCount == m_FileSetting.NumWarnings)
-        Log.Warn("No further warnings displayed…");
+        Logger.Warning("No further warnings displayed…");
       else if (m_WarningCount < m_FileSetting.NumWarnings)
-        Log.Warn(args.Display(true, true));
+        Logger.Warning(args.Display(true, true));
     }
 
     private void ClearProcess()
@@ -144,8 +143,11 @@ namespace CsvTools
         return;
       if (!textPanel.Visible)
         ShowTextPanel(true);
-
+      
       textBoxProgress.Clear();
+      textBoxProgress.Visible = true;
+      textBoxProgress.Dock = DockStyle.Fill;
+      Logger.AddLog = textBoxProgress.AddLog;
     }
 
     /// <summary>
@@ -184,14 +186,14 @@ namespace CsvTools
       // Assume data type is not recognize
       if (m_FileSetting.ColumnCollection.Any(x => x.DataType != DataType.String))
       {
-        Log.Debug($"Showing columns as text");
+        Logger.Debug($"Showing columns as text");
         m_FileSetting.ColumnCollection.CollectionCopy(m_StoreColumns);
         m_FileSetting.ColumnCollection.Clear();
         detailControl.ButtonAsTextCaption = "Values";
       }
       else
       {
-        Log.Debug($"Showing columns as values");
+        Logger.Debug($"Showing columns as values");
         detailControl.ButtonAsTextCaption = "Text";
         m_StoreColumns.CollectionCopy(m_FileSetting.ColumnCollection);
       }
@@ -201,6 +203,7 @@ namespace CsvTools
     private void DetailControl_ButtonShowSource(object sender, EventArgs e)
     {
       textBoxProgress.Visible = false;
+      Logger.AddLog = null;
       csvTextDisplay.Visible = true;
       csvTextDisplay.CsvFile = m_FileSetting;
       ShowTextPanel(true);
@@ -230,7 +233,7 @@ namespace CsvTools
 
     private void Display_FormClosing(object sender, FormClosingEventArgs e)
     {
-      Log.Debug($"Closing Form");
+      Logger.Debug($"Closing Form");
       m_CancellationTokenSource.Cancel();
       var res = this.StoreWindowState();
       if (res != null)
@@ -249,7 +252,7 @@ namespace CsvTools
     private void Display_Shown(object sender, EventArgs e)
     {
       this.LoadWindowState(m_ViewSettings.WindowPosition);
-      Log.Debug($"Show {m_FileName}");
+      Logger.Debug($"Show {m_FileName}");
       if (string.IsNullOrEmpty(m_FileName) || !FileSystemUtils.FileExists(m_FileName))
       {
         var strFilter = (m_ViewSettings.StoreSettingsByFile) ? "Delimited files (*.csv;*.txt;*.tab;*.tsv;*.dat)|*.csv;*.txt;*.tab;*.tsv;*.dat|Setting files (*" +
@@ -339,7 +342,7 @@ namespace CsvTools
 
       ClearProcess();
       var sDisplay = FileSystemUtils.GetShortDisplayFileName(m_FileName, 80);
-      Log.Info($"Examining file {sDisplay}");
+      Logger.Information($"Examining file {sDisplay}");
       Text = $"{AssemblyTitle} : {sDisplay}";
 
       var oldCursor = Cursor.Current == Cursors.WaitCursor ? Cursors.WaitCursor : Cursors.Default;
@@ -376,7 +379,7 @@ namespace CsvTools
         var analyse = true;
         var fileInfo = FileSystemUtils.FileInfo(m_FileName);
         m_FileSetting.ID = m_FileName.GetIdFromFileName();
-        Log.Info($"Size of file: {StringConversion.DynamicStorageSize(fileInfo.Length)}");
+        Logger.Information($"Size of file: {StringConversion.DynamicStorageSize(fileInfo.Length)}");
 
         using (var cancellationTokenSource =
           CancellationTokenSource.CreateLinkedTokenSource(m_CancellationTokenSource.Token))
@@ -406,7 +409,7 @@ namespace CsvTools
               {
                 m_FileSetting = SerializedFilesLib.LoadCsvFile(m_FileName + CsvFile.cCsvSettingExtension);
                 m_FileSetting.FileName = m_FileName;
-                Log.Info("Configuration read from setting file");
+                Logger.Information("Configuration read from setting file");
                 DisableIgnoreRead();
                 analyse = false;
                 // Add all columns as string
@@ -533,7 +536,7 @@ namespace CsvTools
       {
         if (clear)
           ClearProcess();
-        Log.Info("Opening File…");
+        Logger.Information("Opening File…");
 
         Text =
           $"{AssemblyTitle} : {FileSystemUtils.GetShortDisplayFileName(m_FileSetting.FileName, 80)}  - {EncodingHelper.GetEncodingName(m_FileSetting.CurrentEncoding.CodePage, true, m_FileSetting.ByteOrderMark)}";
@@ -576,7 +579,7 @@ namespace CsvTools
                 m_FileSetting.ColumnCollection.AddIfNew(new Column { Name = columnName });
             if (processDisplay.CancellationToken.IsCancellationRequested)
             {
-              Log.Info("Cancellation was requested.");
+              Logger.Information("Cancellation was requested.");
               if (_MessageBox.Show(this,
                     "The load was not completed, cancellation was requested.\rDo you want to display the already loaded data?",
                     "Cancellation Requested", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
@@ -588,7 +591,7 @@ namespace CsvTools
 
         if (data != null)
         {
-          Log.Info("Showing loaded data…");
+          Logger.Information("Showing loaded data…");
           // Show the data
           detailControl.DataTable = data;
         }
@@ -609,7 +612,7 @@ namespace CsvTools
       finally
       {
         if (detailControl.DataTable == null)
-          Log.Info("No data…");
+          Logger.Information("No data…");
         else
           // if (!m_FileSetting.NoDelimitedFile)
           ShowTextPanel(false);
@@ -653,7 +656,7 @@ namespace CsvTools
         var pathSetting = m_FileSetting.FileName + CsvFile.cCsvSettingExtension;
         m_FileSetting.FileName = FileSystemUtils.SplitPath(m_FileSetting.FileName).FileName;
 
-        Log.Debug($"Saving setting {pathSetting}");
+        Logger.Debug($"Saving setting {pathSetting}");
         SerializedFilesLib.SaveCsvFile(pathSetting, m_FileSetting, () => { return (_MessageBox.Show(this, $"Replace changed settings in {pathSetting} ?", "Settings", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes); }
         );
         m_ConfigChanged = false;
@@ -709,7 +712,7 @@ namespace CsvTools
       switch (e.Mode)
       {
         case PowerModes.Suspend:
-          Log.Debug($"Power Event Suspend");
+          Logger.Debug($"Power Event Suspend");
           var res = this.StoreWindowState();
           if (res == null)
             return;
@@ -717,7 +720,7 @@ namespace CsvTools
           break;
 
         case PowerModes.Resume:
-          Log.Debug($"Power Event Resume");
+          Logger.Debug($"Power Event Resume");
           this.LoadWindowState(m_ViewSettings.WindowPosition);
           break;
       }

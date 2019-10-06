@@ -40,7 +40,7 @@ namespace CsvTools
     private int m_CurrentResult = -1;
 
     private int m_Results;
-
+    private TableLayoutPanel tableLayoutPanel1;
     private TextBox m_SearchTextBoxText;
 
     /// <summary>
@@ -196,16 +196,19 @@ namespace CsvTools
       this.m_LblResults = new System.Windows.Forms.Label();
       this.m_BtnNext = new System.Windows.Forms.Button();
       this.m_BtnPrevious = new System.Windows.Forms.Button();
+      this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
       label1 = new System.Windows.Forms.Label();
+      this.tableLayoutPanel1.SuspendLayout();
       this.SuspendLayout();
       // 
       // label1
       // 
+      label1.Anchor = System.Windows.Forms.AnchorStyles.Left;
       label1.AutoSize = true;
       label1.ForeColor = System.Drawing.SystemColors.InfoText;
-      label1.Location = new System.Drawing.Point(3, 6);
+      label1.Location = new System.Drawing.Point(3, 7);
       label1.Name = "label1";
-      label1.Size = new System.Drawing.Size(56, 13);
+      label1.Size = new System.Drawing.Size(82, 20);
       label1.TabIndex = 0;
       label1.Text = "Find what:";
       // 
@@ -217,7 +220,7 @@ namespace CsvTools
       this.m_BtnCancel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
       this.m_BtnCancel.Image = ((System.Drawing.Image)(resources.GetObject("m_BtnCancel.Image")));
       this.m_BtnCancel.ImageAlign = System.Drawing.ContentAlignment.BottomCenter;
-      this.m_BtnCancel.Location = new System.Drawing.Point(296, 2);
+      this.m_BtnCancel.Location = new System.Drawing.Point(337, 3);
       this.m_BtnCancel.Name = "m_BtnCancel";
       this.m_BtnCancel.Size = new System.Drawing.Size(24, 24);
       this.m_BtnCancel.TabIndex = 4;
@@ -226,23 +229,25 @@ namespace CsvTools
       // 
       // m_SearchTextBoxText
       // 
+      this.m_SearchTextBoxText.Anchor = System.Windows.Forms.AnchorStyles.Left;
       this.m_SearchTextBoxText.BackColor = System.Drawing.SystemColors.Info;
       this.m_SearchTextBoxText.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
       this.m_SearchTextBoxText.ForeColor = System.Drawing.SystemColors.InfoText;
-      this.m_SearchTextBoxText.Location = new System.Drawing.Point(84, 3);
+      this.m_SearchTextBoxText.Location = new System.Drawing.Point(91, 4);
       this.m_SearchTextBoxText.MaxLength = 50;
       this.m_SearchTextBoxText.Name = "m_SearchTextBoxText";
-      this.m_SearchTextBoxText.Size = new System.Drawing.Size(102, 20);
+      this.m_SearchTextBoxText.Size = new System.Drawing.Size(102, 26);
       this.m_SearchTextBoxText.TabIndex = 1;
       this.m_SearchTextBoxText.TextChanged += new System.EventHandler(this.SearchText_TextChanged);
       // 
       // m_LblResults
       // 
+      this.m_LblResults.Anchor = System.Windows.Forms.AnchorStyles.Left;
       this.m_LblResults.AutoSize = true;
       this.m_LblResults.ForeColor = System.Drawing.SystemColors.InfoText;
-      this.m_LblResults.Location = new System.Drawing.Point(195, 7);
+      this.m_LblResults.Location = new System.Drawing.Point(222, 7);
       this.m_LblResults.Name = "m_LblResults";
-      this.m_LblResults.Size = new System.Drawing.Size(34, 13);
+      this.m_LblResults.Size = new System.Drawing.Size(49, 20);
       this.m_LblResults.TabIndex = 0;
       this.m_LblResults.Text = "0 of 0";
       this.m_LblResults.TextChanged += new System.EventHandler(this.LblResultsTextChanged);
@@ -255,7 +260,7 @@ namespace CsvTools
       this.m_BtnNext.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
       this.m_BtnNext.Image = ((System.Drawing.Image)(resources.GetObject("m_BtnNext.Image")));
       this.m_BtnNext.ImageAlign = System.Drawing.ContentAlignment.BottomCenter;
-      this.m_BtnNext.Location = new System.Drawing.Point(273, 2);
+      this.m_BtnNext.Location = new System.Drawing.Point(307, 3);
       this.m_BtnNext.Name = "m_BtnNext";
       this.m_BtnNext.Size = new System.Drawing.Size(24, 24);
       this.m_BtnNext.TabIndex = 6;
@@ -270,26 +275,45 @@ namespace CsvTools
       this.m_BtnPrevious.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
       this.m_BtnPrevious.Image = ((System.Drawing.Image)(resources.GetObject("m_BtnPrevious.Image")));
       this.m_BtnPrevious.ImageAlign = System.Drawing.ContentAlignment.BottomCenter;
-      this.m_BtnPrevious.Location = new System.Drawing.Point(250, 2);
+      this.m_BtnPrevious.Location = new System.Drawing.Point(277, 3);
       this.m_BtnPrevious.Name = "m_BtnPrevious";
       this.m_BtnPrevious.Size = new System.Drawing.Size(24, 24);
       this.m_BtnPrevious.TabIndex = 5;
       this.m_BtnPrevious.UseVisualStyleBackColor = false;
       this.m_BtnPrevious.Click += new System.EventHandler(this.Previous_Click);
       // 
+      // tableLayoutPanel1
+      // 
+      this.tableLayoutPanel1.ColumnCount = 6;
+      this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+      this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+      this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+      this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+      this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+      this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+      this.tableLayoutPanel1.Controls.Add(label1, 0, 0);
+      this.tableLayoutPanel1.Controls.Add(this.m_BtnCancel, 5, 0);
+      this.tableLayoutPanel1.Controls.Add(this.m_BtnNext, 4, 0);
+      this.tableLayoutPanel1.Controls.Add(this.m_SearchTextBoxText, 1, 0);
+      this.tableLayoutPanel1.Controls.Add(this.m_BtnPrevious, 3, 0);
+      this.tableLayoutPanel1.Controls.Add(this.m_LblResults, 2, 0);
+      this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
+      this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
+      this.tableLayoutPanel1.Name = "tableLayoutPanel1";
+      this.tableLayoutPanel1.RowCount = 1;
+      this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+      this.tableLayoutPanel1.Size = new System.Drawing.Size(364, 35);
+      this.tableLayoutPanel1.TabIndex = 7;
+      // 
       // Search
       // 
       this.BackColor = System.Drawing.SystemColors.Info;
-      this.Controls.Add(this.m_BtnNext);
-      this.Controls.Add(this.m_BtnPrevious);
-      this.Controls.Add(this.m_BtnCancel);
-      this.Controls.Add(this.m_SearchTextBoxText);
-      this.Controls.Add(this.m_LblResults);
-      this.Controls.Add(label1);
+      this.Controls.Add(this.tableLayoutPanel1);
       this.Name = "Search";
-      this.Size = new System.Drawing.Size(325, 30);
+      this.Size = new System.Drawing.Size(364, 35);
+      this.tableLayoutPanel1.ResumeLayout(false);
+      this.tableLayoutPanel1.PerformLayout();
       this.ResumeLayout(false);
-      this.PerformLayout();
 
     }
 

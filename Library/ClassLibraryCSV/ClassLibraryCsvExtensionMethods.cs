@@ -31,8 +31,6 @@ namespace CsvTools
   /// </summary>
   public static class ClassLibraryCsvExtensionMethods
   {
-    private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-
     public static void AddComma(this StringBuilder sb)
     {
       if (sb.Length > 0)
@@ -787,7 +785,8 @@ namespace CsvTools
       RowErrorCollection warningsList, CancellationToken cancellationToken)
     {
       var requestedRecords = records < 1 ? uint.MaxValue : records;
-      Log.Info("Reading data…");
+      
+      Logger.Information("Reading data…");
       var dataTable = new DataTable
       {
         TableName = "DataTable",
