@@ -11,29 +11,35 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 using System;
 using System.Drawing;
 using System.Windows.Forms;
 
 namespace CsvTools
 {
+  /// <summary>
+  /// Only the most recently created  Logger Display will get the log messages
+  /// </summary>
   public class LoggerDisplay : RichTextBox
   {
     private string m_LastMessage = string.Empty;
     private bool m_Initial = true;
-
+    private readonly Action<string, Logger.Level> m_PreviousLog;
 
     public LoggerDisplay()
     {
       Multiline = true;
       KeyUp += base.FindForm().CtrlA;
+      m_PreviousLog = Logger.AddLog;
+      Logger.AddLog = AddLog;
     }
 
     public new void Clear()
     {
       this.SafeBeginInvoke(() =>
       {
-        this.Text = string.Empty;
+        Text = string.Empty;
       });
       Extensions.ProcessUIElements();
     }
@@ -89,6 +95,12 @@ namespace CsvTools
         }
         m_Initial = false;
       }
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+      Logger.AddLog = m_PreviousLog;
+      base.Dispose(disposing);
     }
   }
 }

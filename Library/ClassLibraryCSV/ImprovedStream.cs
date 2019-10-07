@@ -103,8 +103,9 @@ namespace CsvTools
       };
       if (path.AssumePgp() || path.AssumeGZip())
       {
-        Logger.Debug("Creating temporary file");
-        retVal.TempFile = Path.GetTempFileName();
+        var filename = Path.GetTempFileName();
+        Logger.Debug("Creating temporary file {filename}", filename);
+        retVal.TempFile = filename;
 
         // download the file to a temp file
         retVal.BaseStream = File.Create(retVal.TempFile);
@@ -135,7 +136,11 @@ namespace CsvTools
       }
       finally
       {
-        FileSystemUtils.FileDelete(TempFile);
+        if (FileSystemUtils.FileExists(TempFile))
+        {
+          Logger.Debug("Removing temporary file {filename}", TempFile);
+          File.Delete(TempFile);
+        }
       }
     }
 
@@ -157,7 +162,7 @@ namespace CsvTools
 
           if (AssumeGZip)
           {
-            Logger.Debug("Decompressing GZip Stream");
+            Logger.Debug("Decompressing GZip Stream {filename}", BasePath);
             Stream = new System.IO.Compression.GZipStream(BaseStream, System.IO.Compression.CompressionMode.Decompress);
           }
           else if (AssumePGP)
@@ -177,7 +182,7 @@ namespace CsvTools
 
             try
             {
-              Logger.Debug("Decrypt PGP Stream");
+              Logger.Debug("Decrypt PGP Stream {filename}", BasePath);
               Stream = ApplicationSetting.PGPKeyStorage.PgpDecrypt(BaseStream, DecryptedPassphrase);
             }
             catch (Org.BouncyCastle.Bcpg.OpenPgp.PgpException ex)
@@ -302,14 +307,14 @@ namespace CsvTools
             using (FileStream inputStream = new FileInfo(TempFile).OpenRead(),
                         output = new FileStream(WritePath.LongPathPrefix(), FileMode.Create))
             {
-              Logger.Debug("Encrypting temporary file to PGP file");
+              Logger.Debug("Encrypting temporary file {inputfilename} to PGP file {outputfilename}", TempFile, WritePath);
               ApplicationSetting.PGPKeyStorage.PgpEncrypt(inputStream, output, Recipient, ProcessDisplay);
             }
           }
         }
         finally
         {
-          Logger.Debug("Removing temporary file");
+          Logger.Debug("Removing temporary file {filename}", TempFile);
           File.Delete(TempFile);
           if (selfOpened)
             ProcessDisplay.Dispose();

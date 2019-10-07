@@ -1132,6 +1132,31 @@ namespace CsvTools
       }
     }
 
+    public override string ToString()
+    {
+      var stringBuilder = new System.Text.StringBuilder();
+      stringBuilder.Append(ID);
+      if (this is IFileSettingPhysicalFile settingPhysicalFile)
+      {
+        if (stringBuilder.Length > 0)
+          stringBuilder.Append(" - ");
+        stringBuilder.Append(FileSystemUtils.GetShortDisplayFileName(settingPhysicalFile.FileName, 80));
+        if (settingPhysicalFile is IExcelFile excel)
+        {
+          stringBuilder.Append(" - ");
+          stringBuilder.Append(excel.SheetName);
+
+          if (!string.IsNullOrEmpty(excel.SheetRange) && !excel.SheetRange.Equals("A1", StringComparison.OrdinalIgnoreCase))
+          {
+            stringBuilder.Append("(");
+            stringBuilder.Append(excel.SheetRange);
+            stringBuilder.Append(")");
+          }
+        }
+      }
+      return stringBuilder.ToString();
+    }
+
     [XmlIgnore]
     public virtual Func<string> GetEncryptedPassphraseFunction { get; set; }
   }

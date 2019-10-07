@@ -12,17 +12,13 @@
  *
  */
 
-using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Reflection;
 
 namespace CsvTools.Tests
 {
   [TestClass()]
   public class LoggerTextBoxTests
   {
-    private static readonly ILog Log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
-
     [TestMethod()]
     public void ClearTest()
     {
@@ -30,7 +26,6 @@ namespace CsvTools.Tests
       {
         test.Clear();
       }
-
     }
 
     [TestMethod()]
@@ -38,12 +33,11 @@ namespace CsvTools.Tests
     {
       using (var loggerDisplay = new LoggerDisplay())
       {
-        Log.Debug("Debug");
-        Log.Debug("Debug – NewInformation");
-        Log.Info("Info");
-        Log.Warn("Warning");
-        Log.Error("Error");
-        Log.Fatal("Fatal");
+        Logger.Debug("Debug");
+        Logger.Debug("Debug – NewInformation");
+        Logger.Information("Info");
+        Logger.Warning("Warning");
+        Logger.Error("Error");
       }
     }
   }

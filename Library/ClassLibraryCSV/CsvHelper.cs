@@ -29,7 +29,6 @@ namespace CsvTools
   /// </summary>
   public static class CsvHelper
   {
-
     public static ICollection<string> GetColumnHeadersFromReader(IFileReader fileReader)
     {
       Contract.Ensures(Contract.Result<IEnumerable<string>>() != null);
@@ -109,7 +108,7 @@ namespace CsvTools
       }
       catch (NotSupportedException)
       {
-        Logger.Warning($"Codepage {setting.CodePageId} is not supported, using UTF8");
+        Logger.Warning("Codepage {codepage} is not supported, using UTF8", setting.CodePageId);
         setting.CodePageId = 65001;
         return new UTF8Encoding(true);
       }
@@ -151,7 +150,7 @@ namespace CsvTools
       // ASCII will be reported as UTF-8, UTF8 includes ASCII as subset
       if (detected == 20127)
         detected = 65001;
-      Logger.Information("Detected Code Page: " + EncodingHelper.GetEncodingName(detected, true, setting.ByteOrderMark));
+      Logger.Information("Detected Code Page: {codepage}", EncodingHelper.GetEncodingName(detected, true, setting.ByteOrderMark));
       setting.CodePageId = detected;
     }
 
@@ -544,7 +543,7 @@ namespace CsvTools
         bestScore = score;
       }
       var ret = match == '\t' ? "TAB" : match.ToString(CultureInfo.CurrentCulture);
-      Logger.Information("Delimiter: " + ret);
+      Logger.Information("Delimiter: {delimiter}", ret);
       return ret;
     }
 
@@ -796,14 +795,14 @@ namespace CsvTools
           {
             if (columnCount[row] < avg - 1)
             {
-              Logger.Information($"Start Row: {row}");
+              Logger.Information("Start Row: {row}", row);
               return row;
             }
           }
           // In case we have an empty line but the next line are roughly good match take that empty line
           else if (row + 2 < lastRow && columnCount[row + 1] == columnCount[row + 2] && columnCount[row + 1] >= avg - 1)
           {
-            Logger.Information($"Start Row: {row + 1}");
+            Logger.Information("Start Row: {row}", row + 1);
             return row + 1;
           }
         }
@@ -812,7 +811,7 @@ namespace CsvTools
         {
           if (columnCount[row] > 0)
           {
-            Logger.Information($"Start Row: {row}");
+            Logger.Information("Start Row: {row}", row);
             return row;
           }
         }

@@ -16,7 +16,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
-using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -29,10 +28,9 @@ namespace CsvTools
   /// </summary>
   public static class Extensions
   {
-
     public static void ShowError(this Form from, Exception ex, string additionalTitle = "")
     {
-      Logger.Warning($"Issue in UI {nameof(from)} : {ex.Message}",ex );
+      Logger.Warning(ex, "Issue in UI {form} : {message}", nameof(from), ex.Message);
       Cursor.Current = Cursors.Default;
       System.Windows.Forms.MessageBox.Show(from, ex.ExceptionMessages(), string.IsNullOrEmpty(additionalTitle) ? "Error" : $"Error {additionalTitle}", MessageBoxButtons.OK, MessageBoxIcon.Warning);
     }
@@ -58,7 +56,7 @@ namespace CsvTools
           if (raiseError)
             throw new TimeoutException(msg);
           else
-            Logger.Warning(msg);
+            Logger.Warning(message: msg);
           break;
         }
         ProcessUIElements(millisecondsSleep);
@@ -214,22 +212,6 @@ namespace CsvTools
       }
     }
 
-    public static string GetProcessDisplayTitle(this IFileSetting fileSetting)
-    {
-      var result = fileSetting.InternalID;
-      if (fileSetting is IFileSettingPhysicalFile settingPhysicalFile)
-      {
-        result = FileSystemUtils.GetShortDisplayFileName(settingPhysicalFile.FileName, 80);
-        if (settingPhysicalFile is IExcelFile excel)
-        {
-          result += " " + excel.SheetName;
-          if (!string.IsNullOrEmpty(excel.SheetRange) && !excel.SheetRange.Equals("A1", StringComparison.OrdinalIgnoreCase))
-            result += "(" + excel.SheetRange + ")";
-        }
-      }
-      return result;
-    }
-
     /// <summary>
     ///   Gets the process display.
     /// </summary>
@@ -244,7 +226,7 @@ namespace CsvTools
       if (!fileSetting.ShowProgress)
         return new DummyProcessDisplay(cancellationToken);
 
-      var processDisplay = new FormProcessDisplay(fileSetting.GetProcessDisplayTitle(), withLogger, cancellationToken);
+      var processDisplay = new FormProcessDisplay(fileSetting.ToString(), withLogger, cancellationToken);
       processDisplay.Show(owner);
       return processDisplay;
     }
