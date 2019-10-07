@@ -12,9 +12,9 @@
  *
  */
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.Windows.Forms;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
@@ -68,10 +68,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod()]
-    public void DeleteFileQuestionTest()
-    {
-      Assert.AreEqual(true, ".\\Test.hshsh".DeleteFileQuestion(false));
-    }
+    public void DeleteFileQuestionTest() => Assert.AreEqual(true, ".\\Test.hshsh".DeleteFileQuestion(false));
 
     [TestMethod()]
     public void GetProcessDisplayTitleTest()
@@ -80,7 +77,7 @@ namespace CsvTools.Tests
       {
         FileName = "Folder\\Folder\\This is a very long file name that should be cut and then fit into 80 chars.txt"
       };
-      Assert.AreEqual("This is a very long file name that should be cut and then fit into 80 chars.txt", setting.GetProcessDisplayTitle());
+      Assert.AreEqual("This is a very long file name that should be cut and then fit into 80 chars.txt", setting.ToString());
     }
 
     [TestMethod()]
@@ -110,7 +107,6 @@ namespace CsvTools.Tests
       {
         Assert.IsTrue(prc is IProcessDisplay, "GetProcessDisplay without UI");
       }
-
     }
 
     [TestMethod()]

@@ -33,7 +33,7 @@ namespace CsvTools
     protected TableLayoutPanel tableLayoutPanel;
     private DummyProcessDisplay m_DummyProcessDisplay;
     private string m_Title;
-    private LoggerDisplay m_LoggerDisplay = null;
+    private readonly LoggerDisplay m_LoggerDisplay = null;
 
     public FormProcessDisplay(string windowTitle) : this(windowTitle, true, CancellationToken.None)
     {
@@ -53,7 +53,7 @@ namespace CsvTools
       m_Title = windowTitle;
       Text = windowTitle;
 
-      TimeToCompletion = new TimeToCompletion();      
+      TimeToCompletion = new TimeToCompletion();
       if (withLoggerDisplay)
       {
         SuspendLayout();
@@ -66,8 +66,6 @@ namespace CsvTools
           Multiline = true,
           TabIndex = 8
         };
-
-        Logger.AddLog = m_LoggerDisplay.AddLog;
 
         tableLayoutPanel.SetColumnSpan(m_LoggerDisplay, 2);
         tableLayoutPanel.Controls.Add(m_LoggerDisplay, 0, 3);
@@ -157,15 +155,10 @@ namespace CsvTools
       }
     }
 
-    public bool LogAsDebug { 
-      get
-      {
-        return m_DummyProcessDisplay.LogAsDebug;
-      } set
-      {
-        m_DummyProcessDisplay.LogAsDebug = value;
-      }
-    } 
+    public bool LogAsDebug
+    {
+      get => m_DummyProcessDisplay.LogAsDebug; set => m_DummyProcessDisplay.LogAsDebug = value;
+    }
 
     /// <summary>
     ///   Closes the form used by Events
@@ -195,9 +188,9 @@ namespace CsvTools
       if (CancellationToken.IsCancellationRequested)
         return;
       TimeToCompletion.Value = value;
-      
-      m_DummyProcessDisplay.SetProcess(text, value, log);        
-      
+
+      m_DummyProcessDisplay.SetProcess(text, value, log);
+
       m_LabelText.SafeInvoke(() =>
       {
         if (!Visible)
@@ -253,7 +246,7 @@ namespace CsvTools
       }
     }
 
-#region Windows Form Designer generated code
+    #region Windows Form Designer generated code
 
     /// <summary>
     ///   Required method for Designer support - do not modify the contents of this method with the

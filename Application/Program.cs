@@ -75,7 +75,7 @@ namespace CsvTools
     [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
     private static void UnhandledException(Exception ex)
     {
-      Logger.Error("Unhandled Exception", ex);
+      Logger.Error(ex, "Unhandled Exception");
       var message = $"{ex.GetType()}\n\n{ex.ExceptionMessages()}\nStack Trace:\n{ex.StackTrace}";
 #if DEBUG
       System.Diagnostics.Debug.Assert(false, @"Unhandled Exception", message);
