@@ -9,9 +9,6 @@
     <EmbeddedResource Include="..\WinFormControls\**\*.resx" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Remove="..\WinFormControls\CustomPatternLayout.cs" />
-    <Compile Remove="..\WinFormControls\EncodedMessagePatternConvertor.cs" />
-    <Compile Remove="..\WinFormControls\LogAppenderTextBox.cs" />
     <Compile Remove="..\WinFormControls\Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -327,7 +327,7 @@ namespace CsvTools
 
       return hasChanges;
     }
-
+    
     /// <summary>
     ///   Sets the height of the row.
     /// </summary>
@@ -423,6 +423,7 @@ namespace CsvTools
       m_DisposedValue = true;
     }
 
+    static int m_RowHeight = -1;
     /// <summary>
     ///   Get the height of the row based on the content
     /// </summary>
@@ -431,15 +432,21 @@ namespace CsvTools
     /// <returns></returns>
     private static int GetDesiredRowHeight(DataGridViewRow row, IEnumerable<DataGridViewColumn> checkedColumns)
     {
+      // Actually depent on scaling, best approch is to get teh inital row.Height of teh very first call
+      if (m_RowHeight == -1)
+        m_RowHeight = row.Height;
 
-      // TODO: Depent on scaling...
-      foreach (var column in checkedColumns)
+      // in case the row is not bigger than normal check if it would need to be higher
+      if (row.Height == m_RowHeight)
       {
-        if (row.Cells[column.Index].Value != null && row.Cells[column.Index].Value.ToString().IndexOf('\n') != -1)
-          return row.Height * 2;
+        foreach (var column in checkedColumns)
+        {
+          if (row.Cells[column.Index].Value != null && row.Cells[column.Index].Value.ToString().IndexOf('\n') != -1)
+            return m_RowHeight * 2;
+        }
       }
-      return row.Height;
-      // return c_HeightNoLinefeed;
+
+      return m_RowHeight;      
     }
 
     /// <summary>
