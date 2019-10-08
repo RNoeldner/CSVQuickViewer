@@ -24,7 +24,7 @@ namespace CsvTools
     /// <summary>
     ///   Array of sheet names
     /// </summary>
-    string[] Sheets { get; }
+    Sheet[] Sheets { get; }
 
     /// <summary>
     ///   Method to get the schema information
