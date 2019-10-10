@@ -35,12 +35,16 @@ namespace CsvTools
   public abstract class BaseSettings
 #pragma warning restore CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
   {
+    public static readonly DateTime zeroTime = new DateTime(0, DateTimeKind.Utc);
+
     private readonly FileFormat m_FileFormat = new FileFormat();
     private int m_ConsecutiveEmptyRows = 5;
     private bool m_DisplayEndLineNo;
     private bool m_DisplayRecordNo;
     private bool m_DisplayStartLineNo = true;
-    private DateTime m_FileLastWriteTimeUtc = DateTime.MinValue;
+    private bool m_SetLatestSourceTimeForWrite = false;
+    private DateTime m_ProcessTimeUtc = zeroTime;
+    private DateTime m_LatestSourceTimeUtc = zeroTime;
     private string m_FileName = string.Empty;
     private long m_FileSize;
     private string m_Footer = string.Empty;
@@ -155,7 +159,7 @@ namespace CsvTools
     ///  Used for XML Serialization
     /// </remarks>
     [XmlIgnore]
-    public virtual bool FileLastWriteTimeUtcSpecified => FileLastWriteTimeUtc != DateTime.MinValue;
+    public virtual bool FileLastWriteTimeUtcSpecified => ProcessTimeUtc != zeroTime;
 
     [XmlIgnore]
     public virtual bool PassphraseSpecified
@@ -225,7 +229,7 @@ namespace CsvTools
         var doc = new XmlDocument();
         return doc.CreateCDataSection(SqlStatement);
       }
-      set => SqlStatement = value.Value;
+      set => SetSqlStatementRename(value.Value);
     }
 
     /// <summary>
@@ -286,7 +290,8 @@ namespace CsvTools
           other.SkipDuplicateHeader == SkipDuplicateHeader &&
           other.ReadToEndOfFile == ReadToEndOfFile &&
           other.SQLTimeout == SQLTimeout &&
-          other.FileLastWriteTimeUtc == FileLastWriteTimeUtc &&
+          other.ProcessTimeUtc == ProcessTimeUtc &&
+          other.SetLatestSourceTimeForWrite == SetLatestSourceTimeForWrite &&
           string.Equals(other.SqlStatement, SqlStatement, StringComparison.OrdinalIgnoreCase) &&
           string.Equals(other.Footer, Footer, StringComparison.OrdinalIgnoreCase) &&
           string.Equals(other.Header, Header, StringComparison.OrdinalIgnoreCase) &&
@@ -392,6 +397,21 @@ namespace CsvTools
       }
     }
 
+    [XmlElement]
+    [DefaultValue(false)]
+    public virtual bool SetLatestSourceTimeForWrite
+    {
+      get => m_SetLatestSourceTimeForWrite;
+
+      set
+      {
+        if (m_SetLatestSourceTimeForWrite.Equals(value))
+          return;
+        m_SetLatestSourceTimeForWrite = value;
+        NotifyPropertyChanged(nameof(SetLatestSourceTimeForWrite));
+      }
+    }
+
     public ObservableCollection<SampleRecordEntry> Errors
     {
       get => m_Errors;
@@ -421,20 +441,62 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///  The UTC time the file was last written to
+    ///  The UTC time the file was last written to, or when it was last read, this is different to <see cref="LatestSourceTimeUtc"/>.
+    ///  Changes to this date should not be considered as changes to the configuration
     /// </summary>
-    [XmlAttribute]
-    public virtual DateTime FileLastWriteTimeUtc
+    [XmlAttribute("FileLastWriteTimeUtc")]
+    public virtual DateTime ProcessTimeUtc
     {
-      get => m_FileLastWriteTimeUtc;
+      get => m_ProcessTimeUtc;
 
       set
       {
-        if (m_FileLastWriteTimeUtc.Equals(value))
+        if (m_ProcessTimeUtc.Equals(value))
           return;
-        m_FileLastWriteTimeUtc = value;
-        NotifyPropertyChanged(nameof(FileLastWriteTimeUtc));
+        m_ProcessTimeUtc = value;
+        NotifyPropertyChanged(nameof(ProcessTimeUtc));
       }
+    }
+
+    /// <summary>
+    /// The time of the source, either a file time, or in case the setting is dependent on multiple sources the time of the last source
+    ///  Changes to this date should not be considered as changes to the configuration
+    /// </summary>
+    [XmlIgnore]
+    public DateTime LatestSourceTimeUtc
+    {
+      get
+      {
+        if (m_LatestSourceTimeUtc == zeroTime)
+          CalculateLatestSourceTime();
+        return m_LatestSourceTimeUtc;
+      }
+      set
+      {
+        if (m_LatestSourceTimeUtc == value)
+          return;
+        m_LatestSourceTimeUtc = value;
+        NotifyPropertyChanged(nameof(LatestSourceTimeUtc));
+      }
+    }
+
+    public virtual void CalculateLatestSourceTime()
+    {
+      if (this is IFileSettingPhysicalFile settingPhysicalFile)
+      {
+        var fi = FileSystemUtils.FileInfo(settingPhysicalFile.FullPath);
+        if (fi.Exists)
+        {
+          LatestSourceTimeUtc = fi.LastWriteTimeUtc;
+        }
+        else
+        {
+          LatestSourceTimeUtc = zeroTime;
+        }
+      }
+      else
+        // in case the source is not a physical file, assume its the processing time
+        LatestSourceTimeUtc = ProcessTimeUtc;
     }
 
     /// <summary>
@@ -806,8 +868,15 @@ namespace CsvTools
       }
     }
 
+    public virtual void SetSqlStatementRename(string value)
+    {
+      var newVal = (value ?? string.Empty).NoControlCharaters();
+      m_SqlStatement = newVal;
+    }
+
     /// <summary>
     ///  Gets or sets the SQL statement.
+    ///  TODO: Ignore Rename of Settings if possible
     /// </summary>
     /// <value>The SQL statement.</value>
     [XmlIgnore]
@@ -825,9 +894,9 @@ namespace CsvTools
         var newVal = (value ?? string.Empty).NoControlCharaters();
         if (m_SqlStatement.Equals(newVal, StringComparison.Ordinal))
           return;
-        if (!string.IsNullOrEmpty(m_SqlStatement))
-          FileLastWriteTimeUtc = DateTime.MinValue;
         m_SqlStatement = newVal;
+
+        LatestSourceTimeUtc = zeroTime;
         SourceFileSettings = null;
         NotifyPropertyChanged(nameof(SqlStatement));
       }
@@ -995,6 +1064,7 @@ namespace CsvTools
       other.GetEncryptedPassphraseFunction = GetEncryptedPassphraseFunction;
       other.IsEnabled = m_IsEnabled;
       other.DisplayStartLineNo = m_DisplayStartLineNo;
+      other.SetLatestSourceTimeForWrite = m_SetLatestSourceTimeForWrite;
       other.DisplayEndLineNo = m_DisplayEndLineNo;
       other.DisplayRecordNo = m_DisplayRecordNo;
       other.HasFieldHeader = m_HasFieldHeader;
@@ -1015,7 +1085,8 @@ namespace CsvTools
       other.InOverview = m_InOverview;
       other.SQLTimeout = m_SqlTimeout;
       other.ReadToEndOfFile = ReadToEndOfFile;
-      other.FileLastWriteTimeUtc = FileLastWriteTimeUtc;
+      other.ProcessTimeUtc = ProcessTimeUtc;
+      other.LatestSourceTimeUtc = LatestSourceTimeUtc;
 
       other.Footer = Footer;
       other.Header = Header;
@@ -1081,8 +1152,10 @@ namespace CsvTools
         hashCode = (hashCode * 397) ^ m_FileFormat.GetHashCode();
         hashCode = (hashCode * 397) ^ m_DisplayEndLineNo.GetHashCode();
         hashCode = (hashCode * 397) ^ m_DisplayRecordNo.GetHashCode();
+        hashCode = (hashCode * 397) ^ m_SetLatestSourceTimeForWrite.GetHashCode();
         hashCode = (hashCode * 397) ^ m_DisplayStartLineNo.GetHashCode();
-        hashCode = (hashCode * 397) ^ m_FileLastWriteTimeUtc.GetHashCode();
+        hashCode = (hashCode * 397) ^ m_ProcessTimeUtc.GetHashCode();
+        hashCode = (hashCode * 397) ^ m_LatestSourceTimeUtc.GetHashCode();
         hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(m_FileName);
         hashCode = (hashCode * 397) ^ m_FileSize.GetHashCode();
         hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(m_Footer);
@@ -1135,11 +1208,14 @@ namespace CsvTools
     public override string ToString()
     {
       var stringBuilder = new System.Text.StringBuilder();
+      stringBuilder.Append(GetType().Name);
+      if (!string.IsNullOrEmpty(ID))
+        stringBuilder.Append(" ");
       stringBuilder.Append(ID);
+
       if (this is IFileSettingPhysicalFile settingPhysicalFile)
       {
-        if (stringBuilder.Length > 0)
-          stringBuilder.Append(" - ");
+        stringBuilder.Append(" - ");
         stringBuilder.Append(FileSystemUtils.GetShortDisplayFileName(settingPhysicalFile.FileName, 80));
         if (settingPhysicalFile is IExcelFile excel)
         {

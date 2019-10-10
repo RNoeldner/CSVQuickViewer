@@ -222,8 +222,6 @@ namespace CsvTools
         {
           Write(reader, improvedStream.Stream, m_ProcessDisplay?.CancellationToken ?? CancellationToken.None);
         }
-
-        m_FileSetting.FileLastWriteTimeUtc = DateTime.UtcNow;
       }
       catch (Exception exc)
       {
@@ -326,7 +324,15 @@ namespace CsvTools
 
     protected void HandleWriteFinished()
     {
-      m_FileSetting.FileLastWriteTimeUtc = DateTime.UtcNow;
+      m_FileSetting.ProcessTimeUtc = DateTime.UtcNow;
+      if (m_FileSetting is IFileSettingPhysicalFile physicalFile && physicalFile.SetLatestSourceTimeForWrite)
+      {
+        var fi = new Pri.LongPath.FileInfo(physicalFile.FullPath)
+        {
+          LastWriteTimeUtc = m_FileSetting.LatestSourceTimeUtc
+        };
+      };
+
       WriteFinished?.Invoke(this, null);
     }
 

@@ -72,7 +72,7 @@ namespace CsvTools
     ///  Gets or sets the Last Write Time of the files that has been read for this Setting
     /// </summary>
     /// <value>UTC time of last file write</value>
-    DateTime FileLastWriteTimeUtc { get; set; }
+    DateTime ProcessTimeUtc { get; set; }
 
     /// <summary>
     ///  Gets or sets the Footer.
@@ -253,5 +253,16 @@ namespace CsvTools
     ///  Gets the right data writer for this File Setting
     /// </summary>
     IFileWriter GetFileWriter(IProcessDisplay processDisplay);
+
+    /// <summary>
+    /// The latest value of possible sources, e.G. the file time from the sources in a SQL,
+    /// As calculating might be time consuming, use   CalculateLatestSource to rebuild the value
+    /// </summary>
+    DateTime LatestSourceTimeUtc { get; set; }
+
+    /// <summary>
+    /// Examine the source and determine LatestSource
+    /// </summary>
+    void CalculateLatestSourceTime();
   }
 }

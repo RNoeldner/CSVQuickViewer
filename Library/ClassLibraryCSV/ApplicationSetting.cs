@@ -49,7 +49,7 @@ namespace CsvTools
     public static bool MenuDown { get; set; } = false;
 
     public static PGPKeyStorage PGPKeyStorage { get; set; } = new PGPKeyStorage();
-    public static Action<string, string, string, IProcessDisplay, bool> RemoteFileHandler { get; set; }
+    public static Func<string, string, string, IProcessDisplay, bool, DateTime> RemoteFileHandler { get; set; }
 
     public static string RootFolder { get; set; } = ".";
 
