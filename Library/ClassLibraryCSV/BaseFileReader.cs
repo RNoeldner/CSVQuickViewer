@@ -1190,6 +1190,7 @@ namespace CsvTools
     /// </summary>
     protected virtual void HandleReadFinished()
     {
+      m_FileSetting.ProcessTimeUtc = DateTime.UtcNow;
       HandleShowProgress("Finished Reading from source", RecordNumber, cMaxValue);
       ReadFinished?.Invoke(this, null);
     }
@@ -1203,7 +1204,7 @@ namespace CsvTools
           try
           {
             HandleShowProgress("Handling Remote file…");
-            ApplicationSetting.RemoteFileHandler(remote.RemoteFileName, remote.FileName, remote.FullPath, ProcessDisplay, remote.ThrowErrorIfNotExists);
+            m_FileSetting.LatestSourceTimeUtc = ApplicationSetting.RemoteFileHandler(remote.RemoteFileName, remote.FileName, remote.FullPath, ProcessDisplay, remote.ThrowErrorIfNotExists);
           }
           catch (Exception ex)
           {
