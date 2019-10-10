@@ -34,16 +34,31 @@
         DisplayName="CSVQuickViewer"
         Description="CSV Quick Viewer"
         BackgroundColor="transparent"
-        Square150x150Logo="Images\Square150x150Logo.png"
-        Square44x44Logo="Images\Square44x44Logo.png">
-        <uap:DefaultTile Wide310x150Logo="Images\Wide310x150Logo.png" />
-        <uap:SplashScreen Image="Images\SplashScreen.png" />
+        Square44x44Logo="Images\Square44x44Logo.png"
+        Square150x150Logo="Images\Square150x150Logo.png">
+        <uap:DefaultTile  Square71x71Logo="Images\SmallTile.png" ShortName="CSV Quick Viewer"/>
+        <uap:SplashScreen Image="Images\SplashScreen.png"/>
+        <uap:LockScreen BadgeLogo="Images\BadgeLogo.png" Notification="badge"/>
       </uap:VisualElements>
+      <Extensions>
+        <uap:Extension Category="windows.fileTypeAssociation">
+          <uap:FileTypeAssociation Name="delimitedtext">
+            <uap:SupportedFileTypes>
+              <uap:FileType>.csv</uap:FileType>
+              <uap:FileType>.txt</uap:FileType>
+              <uap:FileType>.json</uap:FileType>
+            </uap:SupportedFileTypes>
+            <uap:Logo>CsvQuickViewerApp.png</uap:Logo>
+            <uap:InfoTip>Delimited Text File</uap:InfoTip>
+            <uap:DisplayName>Delimited Text File</uap:DisplayName>
+            <uap:EditFlags OpenIsSafe="true"/>
+          </uap:FileTypeAssociation>
+        </uap:Extension>
+      </Extensions>
     </Application>
   </Applications>
 
   <Capabilities>
-    <Capability Name="internetClient" />
     <rescap:Capability Name="runFullTrust" />
   </Capabilities>
 </Package>
