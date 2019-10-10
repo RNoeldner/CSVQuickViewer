@@ -236,7 +236,7 @@ namespace CsvTools
       this.m_SearchTextBoxText.Location = new System.Drawing.Point(91, 4);
       this.m_SearchTextBoxText.MaxLength = 50;
       this.m_SearchTextBoxText.Name = "m_SearchTextBoxText";
-      this.m_SearchTextBoxText.Size = new System.Drawing.Size(102, 26);
+      this.m_SearchTextBoxText.Size = new System.Drawing.Size(106, 26);
       this.m_SearchTextBoxText.TabIndex = 1;
       this.m_SearchTextBoxText.TextChanged += new System.EventHandler(this.SearchText_TextChanged);
       // 
