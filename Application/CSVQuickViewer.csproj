@@ -11,7 +11,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>CsvTools</RootNamespace>
     <AssemblyName>CsvQuickViewer</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
@@ -452,9 +452,9 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>del "$(TargetDir)*.xml"
-del "$(TargetDir)*.pdb"
-
+    <PostBuildEvent>del "$(TargetDir)*.pdb"
+del "$(TargetDir)*.log"
+del "$(TargetDir)*.xml"
 </PostBuildEvent>
   </PropertyGroup>
 </Project>
