@@ -109,6 +109,7 @@ namespace CsvTools
       ProcessDisplay = processDisplay;
 
       m_FileSetting = fileSetting ?? throw new ArgumentNullException(nameof(fileSetting));
+      Logger.Debug("Created Reader for {filesetting}", fileSetting);
     }
 
     /// <summary>
@@ -1191,6 +1192,14 @@ namespace CsvTools
     protected virtual void HandleReadFinished()
     {
       m_FileSetting.ProcessTimeUtc = DateTime.UtcNow;
+      if (m_FileSetting is IFileSettingPhysicalFile physicalFile)
+      {
+        physicalFile.FileSize = new Pri.LongPath.FileInfo(physicalFile.FullPath).Length;
+        Logger.Debug("Finished reading {filesetting} Records: {records} in {filesize} Byte", m_FileSetting, RecordNumber, physicalFile.FileSize);
+      }
+      else
+        Logger.Debug("Finished reading {filesetting} Records: {records}", m_FileSetting, RecordNumber);
+
       HandleShowProgress("Finished Reading from source", RecordNumber, cMaxValue);
       ReadFinished?.Invoke(this, null);
     }

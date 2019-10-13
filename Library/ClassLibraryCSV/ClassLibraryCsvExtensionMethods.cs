@@ -45,19 +45,19 @@ namespace CsvTools
     public static bool AssumeGZip(this string fileName) => fileName.EndsWith(".gz", StringComparison.OrdinalIgnoreCase);
 
     /// <summary>
-    ///   Check if the application should assume its ZIP
-    /// </summary>
-    /// <param name="fileName">Name of the file.</param>
-    /// <returns></returns>
-    public static bool AssumeZip(this string fileName) => fileName.EndsWith(".zip", StringComparison.OrdinalIgnoreCase);
-
-    /// <summary>
     ///   Check if the application should assume its PGP.
     /// </summary>
     /// <param name="fileName">Name of the file.</param>
     /// <returns></returns>
     public static bool AssumePgp(this string fileName) => fileName.EndsWith(".pgp", StringComparison.OrdinalIgnoreCase) ||
              fileName.EndsWith(".gpg", StringComparison.OrdinalIgnoreCase);
+
+    /// <summary>
+    ///   Check if the application should assume its ZIP
+    /// </summary>
+    /// <param name="fileName">Name of the file.</param>
+    /// <returns></returns>
+    public static bool AssumeZip(this string fileName) => fileName.EndsWith(".zip", StringComparison.OrdinalIgnoreCase);
 
     /// <summary>
     ///   Copies all elements from one collection to the other
@@ -405,27 +405,33 @@ namespace CsvTools
            x == UnicodeCategory.ConnectorPunctuation || x == UnicodeCategory.DashPunctuation || x == UnicodeCategory.OtherPunctuation ||
            x == UnicodeCategory.DecimalDigitNumber);
 
-      const string T = @"(:|-|_)";
-      const string HH = @"(2[0-3]|((0|1)?\d))";    // 0-9 10-19 20-23
-      const string MS = @"([0-5][0-9])";           // 00-59
-      const string TT = @"((_| )?(AM|PM))?";
-      const string S = @"(\/|.|-|_)?";
+      const string TimeSep = @"(:|-|_)?";
+      const string DateSep = @"(\/|\.|-|_)?";
+
+      const string HH = @"(2[0-3]|((0|1)\d))";    // 00-09 10-19 20-23
+      const string MinSec = @"([0-5][0-9])";      // 00-59
+      const string AmPm = @"((_| )?(AM|PM))?";
+
       const string YYYY = @"((19\d{2})|(2\d{3}))"; // 1900 - 2999
-      const string MM = @"([0,1]?\d{1})";
-      const string DD = @"(([0-2]?\d{1})|([3][0,1]{1}))";
-      // Replace Times 3_53_34_AM
-      fileName = Regex.Replace(fileName, T + "?" + HH + T + MS + T + "?" + MS + "?" + TT, string.Empty, RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.CultureInvariant);
+      const string MM = @"(0[1-9]|1[012])";  // 01-12
+      const string DD = @"(0[1-9]|[12]\d|3[01])"; // 01 - 31
 
       // Replace Dates YYYYMMDDHHMMSS
-      fileName = Regex.Replace(fileName, S + YYYY + S + MM + S + DD + T + "?" + HH + T + MS + T + "?" + MS + "?" + TT, string.Empty, RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.CultureInvariant);
+      // fileName = Regex.Replace(fileName, S + YYYY + S + MM + S + DD + T + "?" + HH + T + MS + T + "?" + MS + "?" + TT, string.Empty, RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.CultureInvariant);
 
-      // Replace Dates DDMMYYYY
-      fileName = Regex.Replace(fileName, S + YYYY + S + MM + S + DD, string.Empty, RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.CultureInvariant);
-      // Replace Dates MMDDYYYY
-      fileName = Regex.Replace(fileName, S + MM + S + DD + S + YYYY, string.Empty, RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.CultureInvariant);
-      // Replace Dates DDMMYYYY
-      fileName = Regex.Replace(fileName, S + DD + S + MM + S + YYYY, string.Empty, RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.CultureInvariant);
+      // Replace Dates YYYYMMDD / MMDDYYYY / DDMMYYYY
+      fileName = Regex.Replace(fileName, "(" + DateSep + YYYY + DateSep + MM + DateSep + DD + ")|(" + DateSep + MM + DateSep + DD + DateSep + YYYY + ")|(" + DateSep + DD + DateSep + MM + DateSep + YYYY + ")", string.Empty, RegexOptions.Singleline);
 
+      // Replace Times 3_53_34_AM
+      fileName = Regex.Replace(fileName, DateSep + HH + TimeSep + MinSec + TimeSep + MinSec + "?" + AmPm, string.Empty, RegexOptions.IgnoreCase | RegexOptions.Singleline);
+      /*
+      // Replace Dates YYMMDD
+      fileName = Regex.Replace(fileName, "(" + DateSep + YY + DateSep + MM + DateSep + DD + DateSep + ")", string.Empty, RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.CultureInvariant);
+      // Replace Dates MMDDYY
+      fileName = Regex.Replace(fileName, "(" + DateSep + MM + DateSep + DD + DateSep + YY + DateSep + ")", string.Empty, RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.CultureInvariant);
+      // Replace Dates DDMMYY
+      fileName = Regex.Replace(fileName, "(" + DateSep + DD + DateSep + MM + DateSep + YY + DateSep + ")", string.Empty, RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.CultureInvariant);
+      */
       return fileName.Trim('_', '-', ' ', '\t').Replace("__", "_").Replace("__", "_").Replace("--", "-").Replace("--", "-");
     }
 
@@ -735,6 +741,40 @@ namespace CsvTools
     }
 
     /// <summary>
+    /// Replace placeholder in a template with value of property
+    /// </summary>
+    /// <param name="template">The template, e.G. ID:{ID}</param>
+    /// <param name="obj">The object that is used to look at the properties</param>
+    /// <returns>Any found property placeholder is replaced by the property value</returns>
+    public static string ReplacePlaceholder(this string template, object obj)
+    {
+      if (template.IndexOf('{') == -1)
+        return template;
+
+      // get all placeholders in {}
+      var rgx = new Regex(@"\{[^\}]+\}");
+
+      var placeholder = new Dictionary<string, string>();
+      var props = obj.GetType().GetProperties().Where(prop => prop.GetMethod != null);
+
+      foreach (Match match in rgx.Matches(template))
+      {
+        if (!placeholder.ContainsKey(match.Value))
+        {
+          var prop = props.FirstOrDefault(x => x.Name.Equals(match.Value.Substring(1, match.Value.Length - 2), StringComparison.OrdinalIgnoreCase));
+          if (prop != null)
+            placeholder.Add(match.Value, prop.GetValue(obj).ToString());
+        }
+      }
+
+      // replace them  with the property value from setting
+      foreach (var pro in placeholder)
+        template = template.ReplaceCaseInsensitive(pro.Key, pro.Value);
+
+      return template;
+    }
+
+    /// <summary>
     ///   Combines all inner exceptions to one formatted string for logging.
     /// </summary>
     /// <param name="exception">The exception of type <see cref="Exception" /></param>
@@ -785,7 +825,7 @@ namespace CsvTools
       RowErrorCollection warningsList, CancellationToken cancellationToken)
     {
       var requestedRecords = records < 1 ? uint.MaxValue : records;
-      
+
       Logger.Information("Reading data…");
       var dataTable = new DataTable
       {

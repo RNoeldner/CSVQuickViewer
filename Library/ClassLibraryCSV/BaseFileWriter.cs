@@ -43,6 +43,7 @@ namespace CsvTools
       m_FileSetting = fileSetting ?? throw new ArgumentNullException(nameof(fileSetting));
       if (ApplicationSetting.SQLDataReader == null)
         throw new ArgumentException("No SQL Reader set");
+      Logger.Debug("Created Writer for {filesetting}", fileSetting);
     }
 
     /// <summary>
@@ -333,6 +334,7 @@ namespace CsvTools
         };
       };
 
+      Logger.Debug("Finished writing {filesetting} Records: {records}", m_FileSetting, m_Records);
       WriteFinished?.Invoke(this, null);
     }
 

@@ -164,6 +164,7 @@
     <Compile Include="ColumnFormatTest.cs" />
     <Compile Include="ColumnSizeTests.cs" />
     <Compile Include="ColumnTest.cs" />
+    <Compile Include="ExtensionTests.cs" />
     <Compile Include="JsonFileReaderTest.cs" />
     <Compile Include="CsvFileWriterTest.cs" />
     <Compile Include="DateTimeFormatInformationTest.cs" />

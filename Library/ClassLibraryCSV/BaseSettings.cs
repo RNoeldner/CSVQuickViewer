@@ -480,9 +480,11 @@ namespace CsvTools
       }
     }
 
+    public bool HasLatestSourceTimeUtc => (m_LatestSourceTimeUtc != zeroTime);
+
     public virtual void CalculateLatestSourceTime()
     {
-      if (this is IFileSettingPhysicalFile settingPhysicalFile)
+      if (this is IFileSettingPhysicalFile settingPhysicalFile && !string.IsNullOrEmpty(settingPhysicalFile.FullPath))
       {
         var fi = FileSystemUtils.FileInfo(settingPhysicalFile.FullPath);
         if (fi.Exists)
