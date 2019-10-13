@@ -13,7 +13,6 @@
  */
 
 using System.IO;
-using CsvTools.Properties;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
