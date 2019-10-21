@@ -36,6 +36,11 @@ namespace CsvTools
     string FullPath { get; }
 
     /// <summary>
+    /// Force the refresh of full path information, a filename with placeholders might need to check again if there is a new file
+    /// </summary>
+    void ResetFullPath();
+
+    /// <summary>
     ///  Path to the file on sFTP Server
     /// </summary>
     string RemoteFileName { get; set; }

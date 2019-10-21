@@ -30,7 +30,6 @@ namespace CsvTools
   /// </summary>
   public static class DetermineColumnFormat
   {
-
     public static ValueFormat CommonDateFormat(IEnumerable<ValueFormat> valueFormats)
     {
       var counterByFormat = new Dictionary<ValueFormat, int>();
@@ -137,8 +136,8 @@ namespace CsvTools
           }
 
           var samples = GetSampleValues(fileReader, ApplicationSetting.FillGuessSettings.CheckedRecords,
-                                        colindex, ApplicationSetting.FillGuessSettings.SampleValues, fileSetting.TreatTextAsNull,
-                                        processDisplay.CancellationToken);
+            colindex, ApplicationSetting.FillGuessSettings.SampleValues, fileSetting.TreatTextAsNull,
+            processDisplay.CancellationToken);
 
           processDisplay.CancellationToken.ThrowIfCancellationRequested();
           if (samples.Values.IsEmpty())
@@ -257,8 +256,8 @@ namespace CsvTools
               if (detect)
               {
                 var samples = GetSampleValues(fileReader, ApplicationSetting.FillGuessSettings.CheckedRecords,
-                  colindex, ApplicationSetting.FillGuessSettings.SampleValues, fileSetting.TreatTextAsNull,
-                  processDisplay.CancellationToken);
+                 colindex, ApplicationSetting.FillGuessSettings.SampleValues, fileSetting.TreatTextAsNull,
+                 processDisplay.CancellationToken);
 
                 if (!samples.Values.IsEmpty())
                 {
@@ -594,8 +593,6 @@ namespace CsvTools
       Contract.Requires(columnIndex >= 0);
       Contract.Ensures(Contract.Result<IEnumerable<string>>() != null);
 
-      Logger.Debug("Reading sample values");
-
       if (string.IsNullOrEmpty(treatAsNull))
         treatAsNull = "NULL;n/a";
 
@@ -603,6 +600,22 @@ namespace CsvTools
 
       var samples = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
       var recordRead = 0;
+      var colName = dataReader.GetName(columnIndex);
+      var remainingShows = 10;
+      EventHandler<WarningEventArgs> myEventHandler = delegate (object sender, WarningEventArgs args)
+      {
+        if (colName.Equals(args.ColumnName, StringComparison.OrdinalIgnoreCase) || string.IsNullOrEmpty(args.ColumnName))
+        {
+          if (remainingShows-- > 0)
+            Logger.Debug("Row ignored in detection: " + args.Message);
+          if (remainingShows == 0)
+            Logger.Debug("No further warning shown");
+
+          hasWarning = true;
+        }
+      };
+      dataReader.Warning += myEventHandler;
+
       try
       {
         // could already be at EOF need to reset
@@ -611,22 +624,6 @@ namespace CsvTools
           Logger.Debug("Resetting read position to the beginning");
           dataReader.ResetPositionToFirstDataRow();
         }
-
-        var colName = dataReader.GetName(columnIndex);
-
-        // React on issues in this column or in general like Mismatch, these rows will be ignores
-        var remainingShows = 10;
-        dataReader.Warning += delegate (object sender, WarningEventArgs args)
-        {
-          if (colName.Equals(args.ColumnName, StringComparison.OrdinalIgnoreCase) || string.IsNullOrEmpty(args.ColumnName))
-          {
-            if (remainingShows-- > 0)
-              Logger.Debug("Row ignored in detection: " + args.Message);
-            if (remainingShows == 0)
-              Logger.Debug("No further warning shown");
-            hasWarning = true;
-          }
-        };
 
         // Ready to start store the record number we are currently at,
         // we could be in the middle of the file already
@@ -688,8 +685,7 @@ namespace CsvTools
       finally
       {
         if (dataReader != null)
-          dataReader.Warning -= delegate
-          { hasWarning = true; };
+          dataReader.Warning -= myEventHandler;
       }
 
       return new SampleResult(samples, recordRead);

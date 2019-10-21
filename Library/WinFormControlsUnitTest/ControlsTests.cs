@@ -43,11 +43,11 @@ namespace CsvTools.Tests
     {
       using (var tm = new TimedMessage())
       {
-        tm.Show(null, "This is my message", "Title1", MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button1, 10, null);
+        tm.Show(null, "This is my message", "Title1", MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button1, 10, null, null, null);
       }
       using (var tm = new TimedMessage())
       {
-        tm.Show(null, "This is another message\n with a linefeed", "Title12", MessageBoxButtons.YesNo, MessageBoxIcon.Error, MessageBoxDefaultButton.Button2, 10, null);
+        tm.Show(null, "This is another message\n with a linefeed", "Title12", MessageBoxButtons.YesNo, MessageBoxIcon.Error, MessageBoxDefaultButton.Button2, 10, null, null, null);
       }
     }
 
@@ -255,7 +255,6 @@ namespace CsvTools.Tests
         ValueType = m_DataTable.Columns[0].DataType,
         Name = m_DataTable.Columns[0].ColumnName,
         DataPropertyName = m_DataTable.Columns[0].ColumnName,
-        Tag = m_DataTable.Columns[0].DataType
       };
 
       ShowControl(new DataGridViewColumnFilterControl(m_DataTable.Columns[0].DataType, col));

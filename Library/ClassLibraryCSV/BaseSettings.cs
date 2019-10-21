@@ -563,6 +563,8 @@ namespace CsvTools
       }
     }
 
+    public void ResetFullPath() => m_FullPath = null;
+
     [XmlIgnore]
     public virtual string FullPath
     {

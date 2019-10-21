@@ -32,30 +32,28 @@ namespace CsvTools
   /// </summary>
   public partial class FilteredDataGridView : DataGridView
   {
-    //private const byte c_HeightLinefeed = 34;
-    //private const byte c_HeightNoLinefeed = 22;
-
+    internal Func<string, IDataReader> ToolDataReader;
+    private static Image m_ImgFilterIndicator;
+    private static Image m_ImgNbSp;
+    private static int m_RowHeight = -1;
     private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
     private readonly List<ToolStripDataGridViewColumnFilter> m_Filter = new List<ToolStripDataGridViewColumnFilter>();
     private BindingSource m_BindingSource;
+    private bool m_DisposedValue;
     private IFileSetting m_FileSetting;
-    private int m_MenuItemColumnIndex;
-    private static Image m_ImgFilterIndicator;
-    private static Image m_ImgNbSp;
 
     /// <summary>
     ///   Any Text entered here will be highlighted Filer
     /// </summary>
     private string m_HighlightText = string.Empty;
 
-    internal Func<string, IDataReader> ToolDataReader;
+    private int m_MenuItemColumnIndex;
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="FilteredDataGridView" /> class.
     /// </summary>
     public FilteredDataGridView()
     {
-
       var resources = new System.ComponentModel.ComponentResourceManager(typeof(FilteredDataGridView));
       m_ImgFilterIndicator = ((System.Drawing.Image)(resources.GetObject("toolStripMenuItem2.Image")));
       m_ImgNbSp = ((System.Drawing.Image)(resources.GetObject("NBSP")));
@@ -95,28 +93,9 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Sets the frozen columns.
+    ///   Occurs when the next result should be shown
     /// </summary>
-    /// <value>
-    /// The frozen columns.
-    /// </value>
-    public int FrozenColumns
-    {
-      set
-      {
-        foreach (DataGridViewColumn col in Columns)
-          col.Frozen = false;
-
-        var max = value;
-        foreach (var col in Columns.OfType<DataGridViewColumn>().OrderBy(x => x.DisplayIndex))
-        {
-          if (max-- > 0)
-            col.Frozen = true;
-          else
-            break;
-        }
-      }
-    }
+    public event EventHandler DataViewChanged;
 
     /// <summary>
     ///   Gets the current filter.
@@ -224,6 +203,30 @@ namespace CsvTools
     }
 
     /// <summary>
+    /// Sets the frozen columns.
+    /// </summary>
+    /// <value>
+    /// The frozen columns.
+    /// </value>
+    public int FrozenColumns
+    {
+      set
+      {
+        foreach (DataGridViewColumn col in Columns)
+          col.Frozen = false;
+
+        var max = value;
+        foreach (var col in Columns.OfType<DataGridViewColumn>().OrderBy(x => x.DisplayIndex))
+        {
+          if (max-- > 0)
+            col.Frozen = true;
+          else
+            break;
+        }
+      }
+    }
+
+    /// <summary>
     ///   Sets the text that should be highlighted
     /// </summary>
     /// <value>The highlight text.</value>
@@ -236,11 +239,6 @@ namespace CsvTools
     ///   The current DataView
     /// </summary>
     internal DataView DataView { get; private set; }
-
-    /// <summary>
-    ///   Occurs when the next result should be shown
-    /// </summary>
-    public event EventHandler DataViewChanged;
 
     /// <summary>
     ///   Applies the filters.
@@ -327,7 +325,7 @@ namespace CsvTools
 
       return hasChanges;
     }
-    
+
     /// <summary>
     ///   Sets the height of the row.
     /// </summary>
@@ -400,8 +398,6 @@ namespace CsvTools
       return hasChanges;
     }
 
-    private bool m_DisposedValue; // To detect redundant calls
-
     /// <summary>
     ///   Clean up any resources being used.
     /// </summary>
@@ -423,7 +419,46 @@ namespace CsvTools
       m_DisposedValue = true;
     }
 
-    static int m_RowHeight = -1;
+    /// <summary>
+    /// Determine a default column with based on the data type and the values in provided
+    /// </summary>
+    /// <param name="col"></param>
+    /// <param name="rowCollection"></param>
+    /// <returns>A number for DataGridViewColumn.With</returns>
+    private static int GetColumnWith(DataColumn col, DataRowCollection rowCollection)
+    {
+      const int widthInt = 25;
+      const int widthDec = 50;
+      const int widthDate = 110;
+      const int widthTextMed = 225;
+      const int widthTextLong = 350;
+
+      if (col.DataType == typeof(int) || col.DataType == typeof(bool) || col.DataType == typeof(long))
+        return widthInt;
+      if (col.DataType == typeof(decimal))
+        return widthDec;
+      else if (col.DataType == typeof(DateTime))
+        return widthDate;
+      else if (col.DataType == typeof(string))
+      {
+        var remain = 30;
+        foreach (DataRow dataRow in rowCollection)
+        {
+          if (dataRow[col] != DBNull.Value)
+          {
+            if (dataRow[col].ToString().Length > 80)
+              return widthTextLong;
+            if (dataRow[col].ToString().Length > 15)
+              return widthTextMed;
+          }
+          if (remain-- < 0)
+            break;
+        }
+      }
+      return 100;
+    }
+
+    // To detect redundant calls
     /// <summary>
     ///   Get the height of the row based on the content
     /// </summary>
@@ -432,7 +467,7 @@ namespace CsvTools
     /// <returns></returns>
     private static int GetDesiredRowHeight(DataGridViewRow row, IEnumerable<DataGridViewColumn> checkedColumns)
     {
-      // Actually depent on scaling, best approch is to get teh inital row.Height of teh very first call
+      // Actually depend on scaling, best approach is to get the initial row.Height of the very first call
       if (m_RowHeight == -1)
         m_RowHeight = row.Height;
 
@@ -446,7 +481,7 @@ namespace CsvTools
         }
       }
 
-      return m_RowHeight;      
+      return m_RowHeight;
     }
 
     /// <summary>
@@ -706,7 +741,6 @@ namespace CsvTools
         newColumn.ValueType = col.DataType;
         newColumn.Name = col.ColumnName;
         newColumn.DataPropertyName = col.ColumnName;
-        newColumn.Tag = col.DataType;
 
         if (oldWith.ContainsKey(col.ColumnName))
           newColumn.Width = oldWith[col.ColumnName];
@@ -719,7 +753,7 @@ namespace CsvTools
           newColumn.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
           break;
         }
-
+        newColumn.Width = GetColumnWith(col, DataView.Table.Rows);
         Columns.Add(newColumn);
       }
 
@@ -937,7 +971,7 @@ namespace CsvTools
       if (m_Filter[columnIndex] == null)
       {
         m_Filter[columnIndex] =
-          new ToolStripDataGridViewColumnFilter((Type)Columns[columnIndex].Tag, Columns[columnIndex]);
+          new ToolStripDataGridViewColumnFilter(Columns[columnIndex].ValueType, Columns[columnIndex]);
         // as the Operator is set the filter becomes active, revoke this
         m_Filter[columnIndex].ColumnFilterLogic.Active = false;
         m_Filter[columnIndex].ColumnFilterLogic.ColumnFilterApply += ToolStripMenuItemApply_Click;
@@ -950,7 +984,7 @@ namespace CsvTools
 
       var col = m_Filter[columnIndex].ValueClusterCollection;
 
-      var result = col.BuildValueClusters(DataView, (Type)Columns[columnIndex].Tag, columnIndex, 40);
+      var result = col.BuildValueClusters(DataView, Columns[columnIndex].ValueType, columnIndex, 40);
       {
         var newMenuItem = new ToolStripMenuItem();
         switch (result)
@@ -1013,6 +1047,48 @@ namespace CsvTools
     {
       if (e.Category == UserPreferenceCategory.Locale)
         CultureInfo.CurrentCulture.ClearCachedData();
+    }
+
+    private void TimerColumsFilter_Tick(object sender, EventArgs e)
+    {
+      var changes = false;
+      timerColumsFilter.Stop();
+      toolStripMenuItemColumnVisibility.CheckedListBoxControl.SafeInvoke(() =>
+      {
+        foreach (DataGridViewColumn col in Columns)
+        {
+          if (!col.Visible)
+            continue;
+          for (var i = 0; i < toolStripMenuItemColumnVisibility.CheckedListBoxControl.Items.Count; i++)
+          {
+            if (toolStripMenuItemColumnVisibility.CheckedListBoxControl.Items[i].ToString().Equals(col.Name, StringComparison.OrdinalIgnoreCase))
+            {
+              if (!toolStripMenuItemColumnVisibility.CheckedListBoxControl.GetItemChecked(i))
+              {
+                col.Visible = false;
+                changes = true;
+              }
+
+              break;
+            }
+          }
+        }
+
+        foreach (int index in toolStripMenuItemColumnVisibility.CheckedListBoxControl.CheckedIndices)
+        {
+          var itemName = toolStripMenuItemColumnVisibility.CheckedListBoxControl.Items[index].ToString();
+          var dataGridViewColumn = Columns[itemName];
+          if (dataGridViewColumn.Visible)
+            continue;
+          dataGridViewColumn.Visible = true;
+          changes = true;
+        }
+
+        if (!changes)
+          return;
+        SetRowHeight();
+        DataViewChanged?.Invoke(null, null);
+      });
     }
 
     /// <summary>
@@ -1151,6 +1227,26 @@ namespace CsvTools
       }
     }
 
+    private void ToolStripMenuItemFreeze_Click(object sender, EventArgs e)
+    {
+      // move to front
+      if (!Columns[m_MenuItemColumnIndex].Frozen)
+      {
+        var colFirstNoFrozen = 0;
+        foreach (var col in Columns.OfType<DataGridViewColumn>().OrderBy(x => x.DisplayIndex))
+        {
+          if (!col.Frozen)
+          {
+            colFirstNoFrozen = col.DisplayIndex;
+            break;
+          }
+        }
+        Columns[m_MenuItemColumnIndex].DisplayIndex = colFirstNoFrozen;
+      }
+
+      Columns[m_MenuItemColumnIndex].Frozen = !Columns[m_MenuItemColumnIndex].Frozen;
+    }
+
     /// <summary>
     ///   Handles the Click event of the toolStripMenuItemAllCol control.
     /// </summary>
@@ -1209,67 +1305,5 @@ namespace CsvTools
       Sort(Columns[m_MenuItemColumnIndex], ListSortDirection.Descending);
 
     private void ToolStripMenuItemSortRemove_Click(object sender, EventArgs e) => DataView.Sort = string.Empty;
-
-    private void TimerColumsFilter_Tick(object sender, EventArgs e)
-    {
-      var changes = false;
-      timerColumsFilter.Stop();
-      toolStripMenuItemColumnVisibility.CheckedListBoxControl.SafeInvoke(() =>
-      {
-        foreach (DataGridViewColumn col in Columns)
-        {
-          if (!col.Visible)
-            continue;
-          for (var i = 0; i < toolStripMenuItemColumnVisibility.CheckedListBoxControl.Items.Count; i++)
-          {
-            if (toolStripMenuItemColumnVisibility.CheckedListBoxControl.Items[i].ToString().Equals(col.Name, StringComparison.OrdinalIgnoreCase))
-            {
-              if (!toolStripMenuItemColumnVisibility.CheckedListBoxControl.GetItemChecked(i))
-              {
-                col.Visible = false;
-                changes = true;
-              }
-
-              break;
-            }
-          }
-        }
-
-        foreach (int index in toolStripMenuItemColumnVisibility.CheckedListBoxControl.CheckedIndices)
-        {
-          var itemName = toolStripMenuItemColumnVisibility.CheckedListBoxControl.Items[index].ToString();
-          var dataGridViewColumn = Columns[itemName];
-          if (dataGridViewColumn.Visible)
-            continue;
-          dataGridViewColumn.Visible = true;
-          changes = true;
-        }
-
-        if (!changes)
-          return;
-        SetRowHeight();
-        DataViewChanged?.Invoke(null, null);
-      });
-    }
-
-    private void ToolStripMenuItemFreeze_Click(object sender, EventArgs e)
-    {
-      // move to front
-      if (!Columns[m_MenuItemColumnIndex].Frozen)
-      {
-        var colFirstNoFrozen = 0;
-        foreach (var col in Columns.OfType<DataGridViewColumn>().OrderBy(x => x.DisplayIndex))
-        {
-          if (!col.Frozen)
-          {
-            colFirstNoFrozen = col.DisplayIndex;
-            break;
-          }
-        }
-        Columns[m_MenuItemColumnIndex].DisplayIndex = colFirstNoFrozen;
-      }
-
-      Columns[m_MenuItemColumnIndex].Frozen = !Columns[m_MenuItemColumnIndex].Frozen;
-    }
   }
 }
