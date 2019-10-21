@@ -39,7 +39,7 @@ namespace CsvTools
     /// <summary>
     ///  Field name of the LineNumber Start Field
     /// </summary>
-    public const string cPartionField = "#Partition";
+    public const string cPartitionField = "#Partition";
 
     /// <summary>
     ///  Field Name of the record number
@@ -54,7 +54,7 @@ namespace CsvTools
     /// <summary>
     ///  Collection of the artificial field names
     /// </summary>
-    public static ICollection<string> ArtificalFields = new HashSet<string> { cRecordNumberFieldName, cStartLineNumberFieldName, cEndLineNumberFieldName, cErrorField, cPartionField };
+    public static ICollection<string> ArtificalFields = new HashSet<string> { cRecordNumberFieldName, cStartLineNumberFieldName, cEndLineNumberFieldName, cErrorField, cPartitionField };
 
     /// <summary>
     ///  The maximum value

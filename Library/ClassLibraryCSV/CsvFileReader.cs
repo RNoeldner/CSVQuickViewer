@@ -263,7 +263,8 @@ namespace CsvTools
 
       try
       {
-        HandleShowProgress("Opening text file…");
+        var fn = FileSystemUtils.SplitPath(m_CsvFile.FullPath);
+        HandleShowProgress($"Opening text file {fn.FileName}");
 
         ResetPositionToStartOrOpen();
 

@@ -155,6 +155,13 @@ namespace CsvTools
     long GetRowCount(string tableName, string where);
 
     /// <summary>
+    /// Get the UTC date/time when an table was created in the database
+    /// </summary>
+    /// <param name="tableName">Name of the table.</param>
+    /// <returns>The timestamp of the table in UTC</returns>
+    DateTime GetTimeCreated(string tableName);
+
+    /// <summary>
     ///  Gets a dynamic SQL command.
     /// </summary>
     /// <param name="sqlStatement">The SQL.</param>

@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Drawing;
 using System.Windows.Forms;
 
 namespace CsvTools
 {
-
   public static class _MessageBox
 #pragma warning restore CA1707 // Identifiers should not contain underscores
   {
@@ -20,7 +14,7 @@ namespace CsvTools
     {
       using (var tm = new TimedMessage())
       {
-        return tm.Show(owner, message, title, buttons, icon, defaultButton, timeout, null);
+        return tm.Show(owner, message, title, buttons, icon, defaultButton, timeout, null, null, null);
       }
     }
 
@@ -29,11 +23,13 @@ namespace CsvTools
          MessageBoxIcon icon,
          MessageBoxDefaultButton defaultButton,
          double timeout,
+         string button1Text,
+         string button2Text,
          string button3Text)
     {
       using (var tm = new TimedMessage())
       {
-        return tm.Show(owner, message, title, buttons, icon, defaultButton, timeout, button3Text);
+        return tm.Show(owner, message, title, buttons, icon, defaultButton, timeout, button1Text, button2Text, button3Text);
       }
     }
 
@@ -46,9 +42,8 @@ namespace CsvTools
       using (var tm = new TimedMessage())
       {
         tm.Size = new Size(600, 450);
-        return tm.Show(owner, message, title, buttons, icon, defaultButton, timeout, null);
+        return tm.Show(owner, message, title, buttons, icon, defaultButton, timeout, null, null, null);
       }
     }
   }
-
 }
