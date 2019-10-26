@@ -79,20 +79,22 @@ namespace CsvTools
     ///  Get the IFileSetting Mapping by template column
     /// </summary>
     /// <param name="fileSetting">The file setting.</param>
-    /// <param name="templateField">The template column.</param>
+    /// <param name="templateFieldName">The template column.</param>
     /// <returns>Null if the template table field is not mapped</returns>
-    public Mapping GetByField(string templateField)
+    public Mapping GetByField(string templateFieldName)
     {
-      if (!string.IsNullOrEmpty(templateField))
+      if (!string.IsNullOrEmpty(templateFieldName))
       {
         foreach (var map in Items)
         {
-          if (map.TemplateField.Equals(templateField, StringComparison.OrdinalIgnoreCase))
+          if (map.TemplateField.Equals(templateFieldName, StringComparison.OrdinalIgnoreCase))
             return map;
         }
       }
       return null;
     }
+
+    public string GetColumName(string templateFieldName) => GetByField(templateFieldName)?.FileColumn ?? null;
 
     /// <summary>
     ///  Remove a Fields mapping.
