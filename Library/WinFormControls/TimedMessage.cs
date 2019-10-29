@@ -210,15 +210,6 @@ namespace CsvTools
 
       m_MessageBoxButtons = buttons;
 
-      if (!string.IsNullOrEmpty(button1Text))
-        button1.Text = button1Text;
-
-      if (!string.IsNullOrEmpty(button2Text))
-        button2.Text = button2Text;
-
-      if (!string.IsNullOrEmpty(button3Text))
-        button3.Text = button3Text;
-
       // One Button
       if (buttons == MessageBoxButtons.OK)
       {
@@ -288,6 +279,15 @@ namespace CsvTools
         button3.DialogResult = DialogResult.Cancel;
         CancelButton = button3;
       }
+
+      if (!string.IsNullOrEmpty(button1Text))
+        button1.Text = button1Text;
+
+      if (!string.IsNullOrEmpty(button2Text))
+        button2.Text = button2Text;
+
+      if (!string.IsNullOrEmpty(button3Text))
+        button3.Text = button3Text;
 
       if (defaultButton == MessageBoxDefaultButton.Button1)
       {
