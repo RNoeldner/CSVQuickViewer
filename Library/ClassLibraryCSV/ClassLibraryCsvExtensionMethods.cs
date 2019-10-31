@@ -743,10 +743,10 @@ namespace CsvTools
     /// <summary>
     /// Replace placeholder in a template with value of property
     /// </summary>
-    /// <param name="template">The template, e.G. ID:{ID}</param>
+    /// <param name="template">The template with placeholder in {}, e.G. ID:{ID} </param>
     /// <param name="obj">The object that is used to look at the properties</param>
     /// <returns>Any found property placeholder is replaced by the property value</returns>
-    public static string ReplacePlaceholder(this string template, object obj)
+    public static string ReplacePlaceholderWithPropertyValues(this string template, object obj)
     {
       if (template.IndexOf('{') == -1)
         return template;
@@ -771,7 +771,40 @@ namespace CsvTools
       foreach (var pro in placeholder)
         template = template.ReplaceCaseInsensitive(pro.Key, pro.Value);
 
-      return template;
+      return template.Replace("  ", " ");
+    }
+
+    /// <summary>
+    /// Replace placeholder in a template with the text provide in the parameters the order of the placeholders is important not their contend
+    /// </summary>
+    /// <param name="template">The template with placeholder in {}, e.G. ID:{ID} </param>
+    /// <param name="values">a variable number of text that will replace the placeholder in order of appearance</param>
+    /// <returns>Any found property placeholder is replaced by the provide text</returns>
+    public static string ReplacePlaceholderWithText(this string template, params string[] values)
+    {
+      if (template.IndexOf('{') == -1)
+        return template;
+
+      // get all placeholders in {}
+      var rgx = new Regex(@"\{[^\}]+\}");
+
+      var placeholder = new Dictionary<string, string>();
+      var index = 0;
+      foreach (Match match in rgx.Matches(template))
+      {
+        if (index >= values.Length)
+          break;
+        if (!placeholder.ContainsKey(match.Value))
+        {
+          placeholder.Add(match.Value, values[index++]);
+        }
+      }
+
+      // replace them  with the property value from setting
+      foreach (var pro in placeholder)
+        template = template.ReplaceCaseInsensitive(pro.Key, pro.Value);
+
+      return template.Replace("  ", " ");
     }
 
     /// <summary>
