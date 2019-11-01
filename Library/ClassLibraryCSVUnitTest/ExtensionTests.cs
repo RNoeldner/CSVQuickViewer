@@ -23,9 +23,9 @@ namespace CsvTools.Tests
         ID = "12234"
       };
 
-      Assert.AreEqual("This is a test 12234", "This is a test {Id}".ReplacePlaceholder(csv));
-      Assert.AreEqual("This is fileName a test 12234", "This is {FileName} a test {Id}".ReplacePlaceholder(csv));
-      Assert.AreEqual("This is {nonsense} a test", "This is {nonsense} a test".ReplacePlaceholder(csv));
+      Assert.AreEqual("This is a test 12234", "This is a test {Id}".ReplacePlaceholderWithPropertyValues(csv));
+      Assert.AreEqual("This is fileName a test 12234", "This is {FileName} a test {Id}".ReplacePlaceholderWithPropertyValues(csv));
+      Assert.AreEqual("This is {nonsense} a test", "This is {nonsense} a test".ReplacePlaceholderWithPropertyValues(csv));
     }
   }
 }

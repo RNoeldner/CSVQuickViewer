@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
@@ -32,7 +33,7 @@ namespace CsvTools.Tests
     public void RemoteAccessTest()
     {
       var testCase = new RemoteAccess();
-      bool hasFired = false;
+      var hasFired = false;
       testCase.PropertyChanged += delegate (object sender, System.ComponentModel.PropertyChangedEventArgs e)
       {
         hasFired = true;
@@ -51,11 +52,11 @@ namespace CsvTools.Tests
       testCase.User = "Hello";
       Assert.IsFalse(hasFired);
 
-      testCase.Password = "World";
+      testCase.EncryptedPassword = "World";
       Assert.IsTrue(hasFired);
-      Assert.AreEqual("World", testCase.Password);
+      Assert.AreEqual("World", testCase.EncryptedPassword);
       hasFired = false;
-      testCase.Password = "World";
+      testCase.EncryptedPassword = "World";
       Assert.IsFalse(hasFired);
     }
   }
