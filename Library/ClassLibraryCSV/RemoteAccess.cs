@@ -115,11 +115,11 @@ namespace CsvTools
       }
     }
 
-    [XmlAttribute]
+    [XmlAttribute("Password")]
     [DefaultValue("")]
     [Browsable(true)]
     [ReadOnly(false)]
-    public virtual string Password
+    public virtual string EncryptedPassword
     {
       get => m_EncryptedPassword;
       set
@@ -128,7 +128,7 @@ namespace CsvTools
         if (m_EncryptedPassword.Equals(newVal))
           return;
         m_EncryptedPassword = newVal;
-        NotifyPropertyChanged(nameof(Password));
+        NotifyPropertyChanged(nameof(EncryptedPassword));
       }
     }
 
@@ -143,7 +143,7 @@ namespace CsvTools
     {
       if (other == null)
         return;
-      other.Password = Password;
+      other.EncryptedPassword = EncryptedPassword;
       other.User = User;
       other.HostName = HostName;
       other.Protocol = Protocol;
@@ -161,7 +161,7 @@ namespace CsvTools
         return false;
       if (ReferenceEquals(this, other))
         return true;
-      return string.Equals(Password, other.Password) && m_Protocol == other.Protocol &&
+      return string.Equals(EncryptedPassword, other.EncryptedPassword) && m_Protocol == other.Protocol &&
              string.Equals(HostName, other.HostName, StringComparison.OrdinalIgnoreCase) &&
              string.Equals(User, other.User, StringComparison.OrdinalIgnoreCase);
     }
