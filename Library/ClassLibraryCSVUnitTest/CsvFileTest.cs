@@ -11,11 +11,12 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Xml;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
@@ -53,6 +54,30 @@ namespace CsvTools.Tests
       Assert.IsTrue(test.ShowProgress, "ShowProgress");
       Assert.IsTrue(test.DisplayStartLineNo);
       Assert.IsFalse(test.WarnLineFeed);
+    }
+
+    [TestMethod()]
+    public void GetProcessDisplayTitleTest()
+    {
+      var setting = new CsvFile()
+      {
+        FileName = "Folder\\Folder\\This is a very long file name that should be cut and then fit into 80 chars.txt"
+      };
+      Assert.AreEqual("This is a very long file name that should be cut and then fit into 80 chars.txt", setting.GetProcessDisplayTitle());
+    }
+
+    [TestMethod()]
+    public void ToStringTest()
+    {
+      var setting = new CsvFile()
+      {
+        ID = "TestID",
+        FileName = "MyTest.txt"
+      };
+      var result = setting.ToString();
+      Assert.IsTrue(result.Contains(setting.GetType().Name));
+      Assert.IsTrue(result.Contains(setting.ID));
+      Assert.IsTrue(result.Contains(setting.FileName));
     }
 
     [TestMethod]

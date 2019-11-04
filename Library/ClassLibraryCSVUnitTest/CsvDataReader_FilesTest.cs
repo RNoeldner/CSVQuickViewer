@@ -702,6 +702,11 @@ namespace CsvTools.Tests
         Assert.AreEqual("f", test.GetName(5));
         Assert.AreEqual(1, warningsList.CountRows);
         Assert.IsTrue(warningsList.Display.Contains("has been cut off"));
+
+        // check if we read the right line , and we do not end up in a commented line of read the header ahgin
+        test.Read();
+        Assert.AreEqual("1", test.GetString(0));
+        Assert.AreEqual("6", test.GetString(5));
       }
     }
 

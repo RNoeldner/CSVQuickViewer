@@ -71,16 +71,6 @@ namespace CsvTools.Tests
     public void DeleteFileQuestionTest() => Assert.AreEqual(true, ".\\Test.hshsh".DeleteFileQuestion(false));
 
     [TestMethod()]
-    public void GetProcessDisplayTitleTest()
-    {
-      var setting = new CsvFile()
-      {
-        FileName = "Folder\\Folder\\This is a very long file name that should be cut and then fit into 80 chars.txt"
-      };
-      Assert.AreEqual("This is a very long file name that should be cut and then fit into 80 chars.txt", setting.ToString());
-    }
-
-    [TestMethod()]
     public void GetProcessDisplayTest()
     {
       var setting = new CsvFile()

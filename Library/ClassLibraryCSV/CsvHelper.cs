@@ -327,7 +327,7 @@ namespace CsvTools
       using (var improvedStream = ImprovedStream.OpenRead(setting))
       using (var streamReader = new StreamReader(improvedStream.Stream, setting.GetEncoding(), setting.ByteOrderMark))
       {
-        return GuessStartRow(streamReader, setting.FileFormat.FieldDelimiterChar, setting.FileFormat.FieldQualifierChar);
+        return GuessStartRow(streamReader, setting.FileFormat.FieldDelimiterChar, setting.FileFormat.FieldQualifierChar, setting.FileFormat.CommentLine);
       }
     }
 
@@ -688,82 +688,112 @@ namespace CsvTools
     /// <param name="delimiter">The delimiter.</param>
     /// <param name="quoteChar">The quoting char</param>
     /// <returns>The number of rows to skip</returns>
-    internal static int GuessStartRow(StreamReader streamReader, char delimiter, char quoteChar)
+    internal static int GuessStartRow(StreamReader streamReader, char delimiter, char quoteChar, string commentLine)
     {
+      if (commentLine == null)
+        throw new ArgumentNullException(nameof(commentLine));
       Contract.Ensures(Contract.Result<int>() >= 0);
       const int maxRows = 50;
       if (streamReader == null)
         return 0;
 
-      var columnCount = new int[maxRows];
-      var quoted = false;
-      var firstChar = true;
-      var lastRow = 0;
-
-      while (lastRow < maxRows && streamReader.Peek() >= 0)
+      var columnCount = new List<int>(maxRows);
       {
-        var readChar = (char)streamReader.Read();
-        if (readChar == quoteChar)
+        var colCount = new int[maxRows];
+        var isComment = new bool[maxRows];
+        var quoted = false;
+        var firstChar = true;
+        var lastRow = 0;
+        while (lastRow < maxRows && streamReader.Peek() >= 0)
         {
-          if (quoted)
+          var readChar = (char)streamReader.Read();
+
+          // Handle Commented lines
+          if (firstChar && commentLine.Length > 0 && !isComment[lastRow] && readChar == commentLine[0])
           {
-            if (streamReader.Peek() != '"')
-              quoted = false;
-            else
-              streamReader.Read();
+            isComment[lastRow] = true;
+
+            for (var pos = 1; pos < commentLine.Length; pos++)
+            {
+              var nextChar = (char)streamReader.Peek();
+              if (nextChar != commentLine[pos])
+              {
+                isComment[lastRow] = false;
+                break;
+              }
+            }
           }
-          else
-            quoted |= firstChar;
-          continue;
+          // Handle Quoting
+          if (readChar == quoteChar && !isComment[lastRow])
+          {
+            if (quoted)
+            {
+              if (streamReader.Peek() != '"')
+                quoted = false;
+              else
+                streamReader.Read();
+            }
+            else
+              quoted |= firstChar;
+            continue;
+          }
+
+          switch (readChar)
+          {
+            // Feed and NewLines
+            case '\n':
+              if (!quoted)
+              {
+                lastRow++;
+                firstChar = true;
+                if (streamReader.Peek() == '\r')
+                  streamReader.Read();
+              }
+              break;
+
+            case '\r':
+              if (!quoted)
+              {
+                lastRow++;
+                firstChar = true;
+                if (streamReader.Peek() == '\n')
+                  streamReader.Read();
+              }
+              break;
+
+            default:
+              if (!isComment[lastRow] && !quoted && readChar == delimiter)
+              {
+                colCount[lastRow]++;
+                firstChar = true;
+                continue;
+              }
+
+              break;
+          }
+
+          // Its still the first char if its a leading space
+          if (firstChar && readChar != ' ')
+            firstChar = false;
         }
 
-        switch (readChar)
+        // remove all rows that are comment lines...
+        for (var row = 1; row < lastRow - 1; row++)
         {
-          case '\n':
-            if (!quoted)
-            {
-              lastRow++;
-              firstChar = true;
-              if (streamReader.Peek() == '\r')
-                streamReader.Read();
-            }
-
-            break;
-
-          case '\r':
-            if (!quoted)
-            {
-              lastRow++;
-              firstChar = true;
-              if (streamReader.Peek() == '\n')
-                streamReader.Read();
-            }
-
-            break;
-
-          default:
-            if (!quoted && readChar == delimiter)
-            {
-              columnCount[lastRow]++;
-              firstChar = true;
-              continue;
-            }
-
-            break;
+          if (!isComment[row])
+          {
+            columnCount.Add(colCount[row]);
+          }
         }
-
-        // Its still the first char if its a leading space
-        if (firstChar && readChar != ' ')
-          firstChar = false;
       }
 
-      // if we do not more than 4 rows we can stop
-      if (lastRow < 4)
+      // if we do not more than 4 proper rows do nothing
+      if (columnCount.Count < 4)
         return 0;
 
       // In case we have a row that is exactly twice as long as the row
       // before and row after, assume its missing a linefeed
-      for (var row = 1; row < lastRow - 1; row++)
+      for (var row = 1; row < columnCount.Count - 1; row++)
       {
         if (columnCount[row] == columnCount[row + 1] * 2 && columnCount[row] == columnCount[row - 1] * 2)
           columnCount[row] = columnCount[row + 1];
@@ -772,7 +802,7 @@ namespace CsvTools
       // Get the average of the last 15 rows
       var num = 0;
       var sum = 0;
-      for (var row = lastRow - 1; num < 10 && row > 0; row--)
+      for (var row = columnCount.Count - 1; num < 10 && row > 0; row--)
       {
         if (columnCount[row] <= 0)
           continue;
@@ -789,7 +819,7 @@ namespace CsvTools
         if (columnCount[0] >= avg)
           return 0;
 
-        for (var row = lastRow - 1; row > 0; row--)
+        for (var row = columnCount.Count - 1; row > 0; row--)
         {
           if (columnCount[row] > 0)
           {
@@ -800,14 +830,14 @@ namespace CsvTools
             }
           }
           // In case we have an empty line but the next line are roughly good match take that empty line
-          else if (row + 2 < lastRow && columnCount[row + 1] == columnCount[row + 2] && columnCount[row + 1] >= avg - 1)
+          else if (row + 2 < columnCount.Count && columnCount[row + 1] == columnCount[row + 2] && columnCount[row + 1] >= avg - 1)
           {
             Logger.Information("Start Row: {row}", row + 1);
             return row + 1;
           }
         }
 
-        for (var row = 0; row < lastRow; row++)
+        for (var row = 0; row < columnCount.Count; row++)
         {
           if (columnCount[row] > 0)
           {

@@ -1209,6 +1209,27 @@ namespace CsvTools
       }
     }
 
+    public virtual string GetProcessDisplayTitle()
+    {
+      var stringBuilder = new System.Text.StringBuilder();
+      if (this is IFileSettingPhysicalFile settingPhysicalFile)
+      {
+        stringBuilder.Append(FileSystemUtils.GetShortDisplayFileName(settingPhysicalFile.FileName, 80));
+        if (settingPhysicalFile is IExcelFile excel)
+        {
+          stringBuilder.Append(" - ");
+          stringBuilder.Append(excel.SheetName);
+          if (!string.IsNullOrEmpty(excel.SheetRange) && !excel.SheetRange.Equals("A1", StringComparison.OrdinalIgnoreCase))
+          {
+            stringBuilder.Append("(");
+            stringBuilder.Append(excel.SheetRange);
+            stringBuilder.Append(")");
+          }
+        }
+      }
+      return stringBuilder.ToString();
+    }
+
     public override string ToString()
     {
       var stringBuilder = new System.Text.StringBuilder();
@@ -1220,19 +1241,7 @@ namespace CsvTools
       if (this is IFileSettingPhysicalFile settingPhysicalFile)
       {
         stringBuilder.Append(" - ");
-        stringBuilder.Append(FileSystemUtils.GetShortDisplayFileName(settingPhysicalFile.FileName, 80));
-        if (settingPhysicalFile is IExcelFile excel)
-        {
-          stringBuilder.Append(" - ");
-          stringBuilder.Append(excel.SheetName);
-
-          if (!string.IsNullOrEmpty(excel.SheetRange) && !excel.SheetRange.Equals("A1", StringComparison.OrdinalIgnoreCase))
-          {
-            stringBuilder.Append("(");
-            stringBuilder.Append(excel.SheetRange);
-            stringBuilder.Append(")");
-          }
-        }
+        stringBuilder.Append(GetProcessDisplayTitle());
       }
       return stringBuilder.ToString();
     }
