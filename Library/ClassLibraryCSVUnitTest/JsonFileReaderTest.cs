@@ -35,6 +35,11 @@ namespace CsvTools.Tests
       {
         jfr.Open();
         Assert.AreEqual(110, jfr.FieldCount);
+        jfr.Read();
+        Assert.AreEqual("43357099", jfr.GetValue(0));
+        Assert.AreEqual("T454898", jfr.GetValue(1));
+        Assert.IsTrue(jfr.GetBoolean(2));
+        Assert.AreEqual(1.000, jfr.GetValue(jfr.GetOrdinal("FTE")));
         while (jfr.Read())
         {
         }

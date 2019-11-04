@@ -151,7 +151,19 @@ namespace CsvTools
     public virtual bool JsonFormat
     {
       get => m_JsonFormat;
-      set => m_JsonFormat = value;
+      set
+      {
+        m_JsonFormat = value;
+        if (value)
+        {
+          // JSON always has header information
+          HasFieldHeader = true;
+
+          // The format prevents column and row misalignment
+          TryToSolveMoreColumns = false;
+          AllowRowCombining = false;
+        }
+      }
     }
 
     /// <summary>
@@ -448,6 +460,7 @@ namespace CsvTools
       csv.AlternateQuoting = m_AlternateQuoting;
       csv.DoubleDecode = m_DoubleDecode;
       csv.WarnQuotes = m_WarnQuotes;
+      csv.JsonFormat = m_JsonFormat;
       csv.WarnDelimiterInValue = m_WarnDelimiterInValue;
       csv.WarnEmptyTailingColumns = m_WarnEmptyTailingColumns;
       csv.WarnQuotesInQuotes = m_WarnQuotesInQuotes;
@@ -487,7 +500,7 @@ namespace CsvTools
     public override IFileWriter GetFileWriter(IProcessDisplay processDisplay)
     {
       if (JsonFormat)
-        throw new NotImplementedException("For writing Json files please use a structured File to define the layout.");
+        throw new NotImplementedException("For writing Json files please use a structured file to define the layout.");
       else
         return new CsvFileWriter(this, processDisplay);
     }
@@ -529,6 +542,7 @@ namespace CsvTools
       return m_AlternateQuoting == other.AlternateQuoting &&
              m_ByteOrderMark == other.ByteOrderMark && m_CodePageId == other.CodePageId &&
              Equals(m_CurrentEncoding, other.CurrentEncoding) && m_DoubleDecode == other.DoubleDecode &&
+             m_JsonFormat == other.JsonFormat &&
              m_NoDelimitedFile == other.NoDelimitedFile && m_NumWarnings == other.NumWarnings &&
              m_TreatUnknowCharaterAsSpace == other.TreatUnknowCharaterAsSpace &&
              m_WarnDelimiterInValue == other.WarnDelimiterInValue &&
