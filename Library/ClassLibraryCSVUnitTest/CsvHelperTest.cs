@@ -247,8 +247,17 @@ namespace CsvTools.Tests
       };
       test.FileFormat.FieldDelimiter = "|";
       test.FileFormat.FieldQualifier = "\"";
-      var rows = CsvHelper.GuessStartRow(test);
-      Assert.AreEqual(10, rows);
+      test.SkipRows = CsvHelper.GuessStartRow(test);
+
+      using (var display = new DummyProcessDisplay())
+      using (var reader = test.GetFileReader(display))
+      {
+        reader.Open();
+        Assert.AreEqual("RecordNumber", reader.GetName(0));
+        reader.Read();
+        Assert.AreEqual("0F8C40DB-EE2C-4C7C-A226-3C43E72584B0", reader.GetString(1));
+      }
+      Assert.AreEqual(10, test.SkipRows);
     }
 
     [TestMethod]

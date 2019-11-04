@@ -24,7 +24,7 @@ namespace CsvTools
       None = 100,
     }
 
-    public static void Configure(string fileName, Level level, string folder = null)
+    public static void Configure(string fileNameJson, Level level, string folder = null)
     {
       var config = new NLog.Config.LoggingConfiguration();
       if (level != Level.None)
@@ -37,10 +37,12 @@ namespace CsvTools
         else if (level == Level.Error)
           minLevel = LogLevel.Error;
 
-        var logfileRoot = new NLog.Targets.FileTarget("jsonFile") { FileName = fileName };
-        logfileRoot.Layout = new JsonLayout
+        if (!string.IsNullOrEmpty(fileNameJson))
         {
-          Attributes =
+          var logfileRoot = new NLog.Targets.FileTarget("jsonFile") { FileName = fileNameJson };
+          logfileRoot.Layout = new JsonLayout
+          {
+            Attributes =
           {
             new JsonAttribute("time", "${longdate}"),
             new JsonAttribute("type", "${exception:format=Type}"),
@@ -57,19 +59,27 @@ namespace CsvTools
               },
              true),
           }
-        };
-        ;
-        // second log file
+          };
+          config.AddRule(minLevel, LogLevel.Fatal, logfileRoot);
+        }
+
+        // second log file in folder
         if (folder != null)
         {
-          var logfileFolder = new NLog.Targets.FileTarget("logfile2") { FileName = Path.Combine(folder, fileName), Layout = "${longdate} ${level} ${message}  ${exception}" };
+          var logfileFolder = new NLog.Targets.FileTarget("logfile2") { FileName = Path.Combine(folder, fileNameJson), Layout = "${longdate} ${level} ${message}  ${exception}" };
           config.AddRule(minLevel, LogLevel.Fatal, logfileFolder);
         }
-        config.AddRule(minLevel, LogLevel.Fatal, logfileRoot);
+        // otherwise add a console logger
+        else
+        {
+          var logfileFolder = new NLog.Targets.ConsoleTarget("console");
+          config.AddRule(LogLevel.Debug, LogLevel.Fatal, logfileFolder);
+        }
       }
 
       // Apply configuration
       NLog.LogManager.Configuration = config;
+      Debug("Logging started");
     }
 
     public static void Debug(string message, params object[] args)
