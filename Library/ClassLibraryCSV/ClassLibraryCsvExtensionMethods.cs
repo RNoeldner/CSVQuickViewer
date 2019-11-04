@@ -613,7 +613,11 @@ namespace CsvTools
         return notFoundColumnNames;
 
       foreach (var notFound in notFoundColumnNames)
+      {
+        Logger.Warning("Column {columnname} was expected but was not found in {filesetting}. The invalid column mapping will be removed.", fileSetting, notFound);
         fileSetting.MappingCollection.RemoveColumn(notFound);
+      }
+        
       return notFoundColumnNames;
     }
 

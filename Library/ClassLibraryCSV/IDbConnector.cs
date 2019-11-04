@@ -233,9 +233,9 @@ namespace CsvTools
     bool SupportStoreDataTable { get; }
 
     /// <summary>
-    ///  Stores the data table.
+    ///  Stores the data table appending all rows to the table and empties out the data table after its persistet
     /// </summary>
-    /// <param name="dataTable">The data table.</param>
+    /// <param name="dataTable">The data table, in case there is no record nothing will happen</param>
     /// <param name="destinationTableName">Name of the destination table.</param>
     /// <param name="eventHandler">Event called after some records have been processed</param>
     /// <param name="cancellationToken">A cancellation Token</param>
