@@ -11,9 +11,10 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using System.IO;
 using System.Threading;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
@@ -65,12 +66,20 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void GuessStartRow()
+    public void GuessStartRow() => Assert.AreEqual(0, CsvHelper.GuessStartRow(new CsvFile
     {
-      Assert.AreEqual(0, CsvHelper.GuessStartRow(new CsvFile
+      FileName = Path.Combine(m_ApplicationDirectory, "BasicCSV.txt")
+    }), "BasicCSV.txt");
+
+    [TestMethod]
+    public void GuessStartRowWithComments()
+    {
+      var setting = new CsvFile
       {
-        FileName = Path.Combine(m_ApplicationDirectory, "BasicCSV.txt")
-      }), "BasicCSV.txt");
+        FileName = Path.Combine(m_ApplicationDirectory, "LongHeaders.txt")
+      };
+      setting.FileFormat.CommentLine = "#";
+      Assert.AreEqual(0, CsvHelper.GuessStartRow(setting), "LongHeaders.txt");
     }
 
     [TestMethod]
