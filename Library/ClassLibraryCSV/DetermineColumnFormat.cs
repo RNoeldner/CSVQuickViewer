@@ -589,15 +589,19 @@ namespace CsvTools
     public static SampleResult GetSampleValues(IFileReader dataReader, int maxRecords,
       int columnIndex, int enoughSamples, string treatAsNull, CancellationToken cancellationToken)
     {
-      Contract.Requires(dataReader != null);
-      Contract.Requires(columnIndex >= 0);
+      if (dataReader == null)
+        throw new ArgumentNullException(nameof(dataReader));
+      if (columnIndex < 0)
+        throw new ArgumentNullException(nameof(columnIndex));
+      if (dataReader.FieldCount <= columnIndex)
+        throw new ArgumentOutOfRangeException(nameof(columnIndex), columnIndex, $"Must be smaller then {dataReader.FieldCount}");
+
       Contract.Ensures(Contract.Result<IEnumerable<string>>() != null);
 
       if (string.IsNullOrEmpty(treatAsNull))
         treatAsNull = "NULL;n/a";
 
       var hasWarning = false;
-
       var samples = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
       var recordRead = 0;
       var colName = dataReader.GetName(columnIndex);

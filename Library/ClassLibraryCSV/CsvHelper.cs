@@ -698,6 +698,7 @@ namespace CsvTools
         return 0;
 
       var columnCount = new List<int>(maxRows);
+      var rowMapping = new Dictionary<int, int>(maxRows);
       {
         var colCount = new int[maxRows];
         var isComment = new bool[maxRows];
@@ -778,8 +779,9 @@ namespace CsvTools
         }
 
         // remove all rows that are comment lines...
-        for (var row = 1; row < lastRow - 1; row++)
+        for (var row = 0; row < lastRow; row++)
         {
+          rowMapping[columnCount.Count] = row;
           if (!isComment[row])
           {
             columnCount.Add(colCount[row]);
@@ -795,7 +797,7 @@ namespace CsvTools
       // before and row after, assume its missing a linefeed
       for (var row = 1; row < columnCount.Count - 1; row++)
       {
-        if (columnCount[row] == columnCount[row + 1] * 2 && columnCount[row] == columnCount[row - 1] * 2)
+        if (columnCount[row + 1] > 0 && columnCount[row] == columnCount[row + 1] * 2 && columnCount[row] == columnCount[row - 1] * 2)
           columnCount[row] = columnCount[row + 1];
       }
 
@@ -826,14 +828,14 @@ namespace CsvTools
             if (columnCount[row] < avg - 1)
             {
               Logger.Information("Start Row: {row}", row);
-              return row;
+              return rowMapping[row];
             }
           }
           // In case we have an empty line but the next line are roughly good match take that empty line
           else if (row + 2 < columnCount.Count && columnCount[row + 1] == columnCount[row + 2] && columnCount[row + 1] >= avg - 1)
           {
             Logger.Information("Start Row: {row}", row + 1);
-            return row + 1;
+            return rowMapping[row + 1];
           }
         }
 
@@ -842,7 +844,7 @@ namespace CsvTools
           if (columnCount[row] > 0)
           {
             Logger.Information("Start Row: {row}", row);
-            return row;
+            return rowMapping[row];
           }
         }
       }
