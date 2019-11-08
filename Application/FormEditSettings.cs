@@ -12,11 +12,11 @@
  *
  */
 
-using CsvTools.Properties;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows.Forms;
+using CsvTools.Properties;
 
 namespace CsvTools
 {
@@ -181,7 +181,7 @@ namespace CsvTools
           {
             using (var processDisplay = m_ViewSettings.GetProcessDisplay(this, true, System.Threading.CancellationToken.None))
             {
-              m_ViewSettings.FillGuessColumnFormatReader(false, processDisplay);
+              m_ViewSettings.FillGuessColumnFormatReader(false, false, processDisplay);
             }
           }
           catch (Exception exc)
