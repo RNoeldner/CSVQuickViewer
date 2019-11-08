@@ -12,22 +12,15 @@
  *
  */
 
-using System.Threading;
-
 namespace CsvTools
 {
   /// <summary>
-  ///   A function to check and address that used tables might not be current and need to be reread
+  /// Interface to store information after data has been loaded like number of records and number of issues
   /// </summary>
-  /// <param name="fileSetting">The file setting.</param>
-  /// <param name="processDisplay">The process display.</param>
-  public delegate void FileSettingChecker(IFileSetting fileSetting, IProcessDisplay processDisplay);
-
-  /// <summary>
-  ///   Gets the validation result but do not use the cache
-  /// </summary>
-  /// <param name="tableName">The name of the local table</param>
-  /// <param name="cancellationToken">A CancellationToken to stop processing</param>
-  /// <returns></returns>
-  public delegate IValidationResult GetValidationResultNoCache(string tableName, CancellationToken cancellationToken);
+  public interface IValidationResult
+  {
+    long NumberRecords { get; set; }
+    long ErrorCount { get; set; }
+    long WarningCount { get; set; }
+  }
 }
