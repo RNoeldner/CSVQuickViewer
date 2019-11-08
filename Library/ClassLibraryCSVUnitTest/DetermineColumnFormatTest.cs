@@ -100,7 +100,7 @@ namespace CsvTools.Tests
       ApplicationSetting.FillGuessSettings.IgnoreIdColums = false;
       using (var processDisplay = new DummyProcessDisplay())
       {
-        setting.FillGuessColumnFormatReader(false, processDisplay);
+        setting.FillGuessColumnFormatReader(false, false, processDisplay);
       }
       Assert.AreEqual(DataType.Integer, setting.ColumnCollection.Get("ID").DataType);
       Assert.AreEqual(DataType.DateTime, setting.ColumnCollection.Get("ExamDate").DataType);
@@ -189,7 +189,7 @@ namespace CsvTools.Tests
       // setting.TreatTextNullAsNull = true;
       using (var processDisplay = new DummyProcessDisplay())
       {
-        setting.FillGuessColumnFormatReader(false, processDisplay);
+        setting.FillGuessColumnFormatReader(false, false, processDisplay);
       }
 
       Assert.IsNotNull(setting.ColumnCollection.Get(@"Betrag Brutto (2 Nachkommastellen)"), "Data Type recognized");
@@ -215,7 +215,7 @@ namespace CsvTools.Tests
       ApplicationSetting.FillGuessSettings.IgnoreIdColums = true;
       using (var processDisplay = new DummyProcessDisplay())
       {
-        setting.FillGuessColumnFormatReader(false, processDisplay);
+        setting.FillGuessColumnFormatReader(false, false, processDisplay);
       }
 
       Assert.IsTrue(setting.ColumnCollection.Get("ID") == null || setting.ColumnCollection.Get("ID").Convert == false);
@@ -236,7 +236,7 @@ namespace CsvTools.Tests
       setting.SkipRows = 1;
       using (var processDisplay = new DummyProcessDisplay())
       {
-        setting.FillGuessColumnFormatReader(false, processDisplay);
+        setting.FillGuessColumnFormatReader(false, true, processDisplay);
       }
       Assert.AreEqual(5, setting.ColumnCollection.Count, "Number of recognized Columns");
       Assert.AreEqual(DataType.DateTime, setting.ColumnCollection[2].DataType, "column2");
@@ -258,7 +258,7 @@ namespace CsvTools.Tests
       ApplicationSetting.FillGuessSettings.DateParts = true;
       using (var processDisplay = new DummyProcessDisplay())
       {
-        setting.FillGuessColumnFormatReader(false, processDisplay);
+        setting.FillGuessColumnFormatReader(false, true, processDisplay);
       }
 
       ApplicationSetting.FillGuessSettings.DateParts = false;
@@ -284,7 +284,7 @@ namespace CsvTools.Tests
       setting.SkipRows = 1;
       using (var processDisplay = new DummyProcessDisplay())
       {
-        setting.FillGuessColumnFormatReader(true, processDisplay);
+        setting.FillGuessColumnFormatReader(true, true, processDisplay);
       }
       Assert.AreEqual(11, setting.ColumnCollection.Count);
       Assert.AreEqual(DataType.DateTime, setting.ColumnCollection[7].DataType);

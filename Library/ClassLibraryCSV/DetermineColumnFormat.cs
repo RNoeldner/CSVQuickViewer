@@ -54,7 +54,7 @@ namespace CsvTools
     /// <param name="addTextColumns">if set to <c>true</c> event string columns are added.</param>
     /// <param name="processDisplay">The process display.</param>
     public static IList<string> FillGuessColumnFormatReader(this IFileSetting fileSetting, bool addTextColumns,
-     IProcessDisplay processDisplay)
+      bool checkDoubleToBeInteger, IProcessDisplay processDisplay)
     {
       if (processDisplay == null)
       {
@@ -238,8 +238,10 @@ namespace CsvTools
 
         // The fileReader does not have the column information yet, let the reader know
         fileReader.OverrideColumnFormatFromSetting(fileReader.FieldCount);
-        // in case its Excel, check all doubles if they could be integer
-        if (fileSetting is IExcelFile)
+
+        // check all doubles if they could be integer
+        // needed for excel files as the typed values do not distinguish between double and integer.
+        if (checkDoubleToBeInteger)
         {
           for (var colindex = 0; colindex < fileReader.FieldCount; colindex++)
           {

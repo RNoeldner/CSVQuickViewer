@@ -57,16 +57,6 @@ namespace CsvTools.Tests
     }
 
     [TestMethod()]
-    public void GetProcessDisplayTitleTest()
-    {
-      var setting = new CsvFile()
-      {
-        FileName = "Folder\\Folder\\This is a very long file name that should be cut and then fit into 80 chars.txt"
-      };
-      Assert.AreEqual("This is a very long file name that should be cut and then fit into 80 chars.txt", setting.GetProcessDisplayTitle());
-    }
-
-    [TestMethod()]
     public void ToStringTest()
     {
       var setting = new CsvFile()
