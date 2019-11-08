@@ -11,9 +11,10 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using System;
 using System.Collections.Generic;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
@@ -67,24 +68,8 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void GetShortDisplaySQL()
-    {
-      Assert.AreEqual(string.Empty, StringUtils.GetShortDisplaySQL(null, 0));
-      Assert.AreEqual("12345", StringUtils.GetShortDisplaySQL("12345", 5));
-      Assert.AreEqual("12345…", StringUtils.GetShortDisplaySQL("123456789", 5));
-      Assert.AreEqual("", StringUtils.GetShortDisplaySQL(null, 10));
-      Assert.AreEqual("", StringUtils.GetShortDisplaySQL(string.Empty, 10));
-      Assert.AreEqual("", StringUtils.GetShortDisplaySQL(" ", 10));
-      Assert.AreEqual("1234567", StringUtils.GetShortDisplaySQL("1234567", 10));
-      Assert.AreEqual("1234567890…", StringUtils.GetShortDisplaySQL("12345678901234567890", 10));
-    }
-
-    [TestMethod]
-    public void GetShortDisplayFileNameLongFileName()
-    {
-      Assert.AreEqual(20,
+    public void GetShortDisplayFileNameLongFileName() => Assert.AreEqual(20,
         FileSystemUtils.GetShortDisplayFileName("ThisIsALongFileNameThatNeedsToBeShorter.txt", 20).Length);
-    }
 
     [TestMethod]
     public void GetShortDisplayFileNameNull()
@@ -210,10 +195,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void OnlyText()
-    {
-      Assert.AreEqual("Noldner", "Nöldner".OnlyText());
-    }
+    public void OnlyText() => Assert.AreEqual("Noldner", "Nöldner".OnlyText());
 
     [TestMethod]
     public void OnlyTextNull()
@@ -264,76 +246,34 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void SqlIsKeyword()
+    public void SQLQuoteNull()
     {
-      Assert.AreEqual(false, StringUtilsSQL.SqlIsKeyword(null));
-      Assert.AreEqual(false, StringUtilsSQL.SqlIsKeyword(string.Empty));
-      Assert.AreEqual(false, StringUtilsSQL.SqlIsKeyword("Raphael"));
-      Assert.AreEqual(true, StringUtilsSQL.SqlIsKeyword("TABLE"));
-      Assert.AreEqual(true, StringUtilsSQL.SqlIsKeyword("Table"));
-    }
-
-    [TestMethod]
-    public void SqlNameNeedsQuoting()
-    {
-      Assert.AreEqual(false, StringUtilsSQL.SqlNameNeedsQuoting(null));
-      Assert.AreEqual(false, StringUtilsSQL.SqlNameNeedsQuoting(string.Empty));
-      Assert.AreEqual(false, StringUtilsSQL.SqlNameNeedsQuoting("Raphael"));
-      Assert.AreEqual(true, StringUtilsSQL.SqlNameNeedsQuoting("Raphael.Noeldner"));
-      Assert.AreEqual(true, StringUtilsSQL.SqlNameNeedsQuoting("Raphael Nöldner"));
-      Assert.AreEqual(false, StringUtilsSQL.SqlNameNeedsQuoting("RaphaelNoeldner"));
-      Assert.AreEqual(false, StringUtilsSQL.SqlNameNeedsQuoting("RaphaelNöldner"));
-      Assert.AreEqual(true, StringUtilsSQL.SqlNameNeedsQuoting("TABLE"));
-    }
-
-    [TestMethod]
-    public void SqlNameNeedsQuotingTest()
-    {
-      Assert.IsFalse(StringUtilsSQL.SqlNameNeedsQuoting(null));
-      Assert.IsFalse(StringUtilsSQL.SqlNameNeedsQuoting(""));
-      Assert.IsTrue(StringUtilsSQL.SqlNameNeedsQuoting("Test Value"));
-      Assert.IsTrue(StringUtilsSQL.SqlNameNeedsQuoting("Test.Value"));
-      Assert.IsTrue(StringUtilsSQL.SqlNameNeedsQuoting("1Test"));
+      Assert.AreEqual(string.Empty, StringUtils.SqlQuote(null));
+      Assert.AreEqual(string.Empty, StringUtils.SqlQuote(string.Empty));
     }
 
     [TestMethod]
     public void SQLNameNull()
     {
-      Assert.AreEqual(string.Empty, StringUtilsSQL.SqlName(null));
-      Assert.AreEqual(string.Empty, StringUtilsSQL.SqlName(string.Empty));
+      Assert.AreEqual(string.Empty, StringUtils.SqlName(null));
+      Assert.AreEqual(string.Empty, StringUtils.SqlName(string.Empty));
     }
 
     [TestMethod]
     public void SQLNameOK()
     {
-      Assert.AreEqual("A", StringUtilsSQL.SqlName("A"));
-      var ret = StringUtilsSQL.SqlName("TryInjection]");
+      Assert.AreEqual("A", StringUtils.SqlName("A"));
+      var ret = StringUtils.SqlName("TryInjection]");
 
       Assert.IsTrue(ret == "TryInjection\\]" || ret == "TryInjection]]");
     }
 
     [TestMethod]
-    public void SqlNameSafe()
-    {
-      Assert.IsTrue(string.IsNullOrEmpty(StringUtilsSQL.SqlNameSafe(null)));
-      Assert.IsTrue(string.IsNullOrEmpty(StringUtilsSQL.SqlNameSafe(string.Empty)));
-      Assert.AreEqual("[Raphael.Noeldner]", StringUtilsSQL.SqlNameSafe("Raphael.Noeldner"));
-      Assert.AreEqual("[Table]", StringUtilsSQL.SqlNameSafe("Table"));
-    }
-
-    [TestMethod]
-    public void SQLQuoteNull()
-    {
-      Assert.AreEqual(string.Empty, StringUtilsSQL.SqlQuote(null));
-      Assert.AreEqual(string.Empty, StringUtilsSQL.SqlQuote(string.Empty));
-    }
-
-    [TestMethod]
     public void SQLQuoteOK()
     {
-      Assert.AreEqual("A", StringUtilsSQL.SqlQuote("A"));
-      Assert.AreEqual("TryInjection]", StringUtilsSQL.SqlQuote("TryInjection]"));
-      Assert.AreEqual("Try''Injection", StringUtilsSQL.SqlQuote("Try'Injection"));
+      Assert.AreEqual("A", StringUtils.SqlQuote("A"));
+      Assert.AreEqual("TryInjection]", StringUtils.SqlQuote("TryInjection]"));
+      Assert.AreEqual("Try''Injection", StringUtils.SqlQuote("Try'Injection"));
     }
 
     [TestMethod]

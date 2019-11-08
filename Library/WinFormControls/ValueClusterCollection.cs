@@ -57,7 +57,7 @@ namespace CsvTools
   /// </summary>
   public class ValueClusterCollection
   {
-    private const string c_IsNull = "{0} IS NULL";
+    private const string c_IsNull = "[{0}] IS NULL";
     private const long c_TicksPerGroup = TimeSpan.TicksPerMinute * 30;
 
     private readonly List<ValueCluster> m_ValueClusters = new List<ValueCluster>();
@@ -238,8 +238,8 @@ namespace CsvTools
             {
               Display = $"{from:t} - {to:t}",
               SQLCondition = string.Format(CultureInfo.InvariantCulture,
-                @"({0} >= #{1:MM\/dd\/yyyy HH:mm}# AND {0} < #{2:MM\/dd\/yyyy HH:mm}#)",
-                StringUtilsSQL.SqlNameSafe(columnName), from, to),
+                @"([{0}}] >= #{1:MM\/dd\/yyyy HH:mm}# AND {0} < #{2:MM\/dd\/yyyy HH:mm}#)",
+                columnName.SqlName(), from, to),
               Sort = GetHourSort(dic)
             });
           }
@@ -248,8 +248,8 @@ namespace CsvTools
             m_ValueClusters.Add(new ValueCluster
             {
               Display = ColumnFilterLogic.cOPisNull,
-              SQLCondition = string.Format(CultureInfo.InvariantCulture, "({0} IS NULL)",
-                StringUtilsSQL.SqlNameSafe(columnName)),
+              SQLCondition = string.Format(CultureInfo.InvariantCulture, "([{0}] IS NULL)",
+                columnName.SqlName()),
               Sort = string.Empty
             });
           }
@@ -266,7 +266,7 @@ namespace CsvTools
             {
               Display = dic.ToString("d", CultureInfo.CurrentCulture),
               SQLCondition = string.Format(CultureInfo.InvariantCulture,
-                @"({0} >= #{1:MM\/dd\/yyyy}# AND {0} < #{2:MM\/dd\/yyyy}#)", StringUtilsSQL.SqlNameSafe(columnName),
+                @"([{0}] >= #{1:MM\/dd\/yyyy}# AND {0} < #{2:MM\/dd\/yyyy}#)", columnName.SqlName(),
                 dic, dic.AddDays(1)),
               Sort = GetDaySort(dic)
             });
@@ -277,7 +277,7 @@ namespace CsvTools
             {
               Display = ColumnFilterLogic.cOPisNull,
               SQLCondition =
-                string.Format(CultureInfo.InvariantCulture, c_IsNull, StringUtilsSQL.SqlNameSafe(columnName)),
+                string.Format(CultureInfo.InvariantCulture, c_IsNull, columnName.SqlName()),
               Sort = string.Empty
             });
           }
@@ -294,7 +294,7 @@ namespace CsvTools
             {
               Display = dic.ToString("Y", CultureInfo.CurrentCulture), // Year month pattern
               SQLCondition = string.Format(CultureInfo.InvariantCulture,
-                @"({0} >= #{1:MM\/dd\/yyyy}# AND {0} < #{2:MM\/dd\/yyyy}#)", StringUtilsSQL.SqlNameSafe(columnName),
+                @"([{0}] >= #{1:MM\/dd\/yyyy}# AND {0} < #{2:MM\/dd\/yyyy}#)", columnName.SqlName(),
                 dic, dic.AddMonths(1)),
               Sort = GetMonthSort(dic)
             });
@@ -305,7 +305,7 @@ namespace CsvTools
             {
               Display = ColumnFilterLogic.cOPisNull,
               SQLCondition =
-                string.Format(CultureInfo.InvariantCulture, c_IsNull, StringUtilsSQL.SqlNameSafe(columnName)),
+                string.Format(CultureInfo.InvariantCulture, c_IsNull, columnName.SqlName()),
               Sort = string.Empty
             });
           }
@@ -322,7 +322,7 @@ namespace CsvTools
             {
               Display = dic.ToString("D", CultureInfo.CurrentCulture), // Decimal
               SQLCondition = string.Format(CultureInfo.InvariantCulture,
-                "({0} >= #01/01/{1:d4}# AND {0} < #01/01/{2:d4}#)", StringUtilsSQL.SqlNameSafe(columnName), dic,
+                "([{0}] >= #01/01/{1:d4}# AND {0} < #01/01/{2:d4}#)", columnName.SqlName(), dic,
                 dic + 1),
               Sort = GetYearSort(dic)
             });
@@ -333,7 +333,7 @@ namespace CsvTools
             {
               Display = ColumnFilterLogic.cOPisNull,
               SQLCondition =
-                string.Format(CultureInfo.InvariantCulture, c_IsNull, StringUtilsSQL.SqlNameSafe(columnName)),
+                string.Format(CultureInfo.InvariantCulture, c_IsNull, columnName.SqlName()),
               Sort = string.Empty
             });
           }
@@ -399,7 +399,7 @@ namespace CsvTools
         return BuildValueClustersResult.NoValues;
       }
 
-      var colNameEsc = $"[{StringUtilsSQL.SqlName(columnName)}]";
+      var colNameEsc = $"[{columnName.SqlName()}]";
       if (clusterFractions.Count < maxNumber && clusterFractions.Count > 0)
       {
         m_Type = ValueClustersGroupType.NumericFraction;
