@@ -133,7 +133,7 @@ namespace CsvTools
           .Replace(@"\\", @"\");
       }
 
-      m_DataPropertyNameEscape = $"[{StringUtilsSQL.SqlName(dataPropertyName1)}]";
+      m_DataPropertyNameEscape = $"[{dataPropertyName1.SqlName()}]";
 
       m_ColumnDataType = columnDataType;
       //  m_ValueClusterCollection.CollectionChanged += delegate(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e) { FilterChanged(); };
@@ -324,7 +324,7 @@ namespace CsvTools
             CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern,
             CultureInfo.CurrentCulture.DateTimeFormat.DateSeparator,
             CultureInfo.CurrentCulture.DateTimeFormat.TimeSeparator, false, CultureInfo.CurrentCulture);
-          return dvalue.HasValue ? string.Format(CultureInfo.InvariantCulture, @"#{0:MM\/dd\/yyyy}#", dvalue.Value) : $"'{StringUtilsSQL.SqlQuote(value)}'";
+          return dvalue.HasValue ? string.Format(CultureInfo.InvariantCulture, @"#{0:MM\/dd\/yyyy}#", dvalue.Value) : $"'{value.SqlQuote()}'";
 
         case TypeCode.Byte:
         case TypeCode.Decimal:
@@ -350,7 +350,7 @@ namespace CsvTools
           break;
 
         default:
-          return $"'{StringUtilsSQL.SqlQuote(value)}'";
+          return $"'{value.SqlQuote()}'";
       }
 
       return string.Empty;

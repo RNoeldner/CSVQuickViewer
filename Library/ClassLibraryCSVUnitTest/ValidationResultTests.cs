@@ -11,8 +11,9 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using System.ComponentModel;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
@@ -25,11 +26,9 @@ namespace CsvTools.Tests
     public void ValidationResultFileSizeTest()
     {
       m_ValidationResult.FileSize = 0;
-      Assert.IsTrue(string.IsNullOrEmpty(m_ValidationResult.FileSizeDisplay));
-
+      Assert.AreEqual(0, m_ValidationResult.FileSize);
       m_ValidationResult.FileSize = 12345;
       Assert.AreEqual(12345, m_ValidationResult.FileSize);
-      Assert.IsNotNull(m_ValidationResult.FileSizeDisplay);
     }
 
     [TestMethod]
@@ -45,8 +44,6 @@ namespace CsvTools.Tests
       Assert.AreEqual(-1, new ValidationResult().ErrorCount);
       Assert.AreEqual(0, new ValidationResult().NumberRecords);
       m_ValidationResult.NumberRecords = 0;
-      Assert.AreEqual(0, m_ValidationResult.ErrorRatio);
-      Assert.AreEqual(0, m_ValidationResult.WarningRatio);
 
       m_ValidationResult.ErrorCount = 10;
       Assert.AreEqual(10, m_ValidationResult.ErrorCount);
@@ -55,8 +52,6 @@ namespace CsvTools.Tests
 
       m_ValidationResult.NumberRecords = 1000;
       Assert.AreEqual(1000, m_ValidationResult.NumberRecords);
-      Assert.AreEqual(.01, m_ValidationResult.ErrorRatio);
-      Assert.AreEqual(.04, m_ValidationResult.WarningRatio);
     }
 
     [TestMethod]

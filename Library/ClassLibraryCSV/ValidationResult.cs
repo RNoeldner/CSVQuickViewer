@@ -18,11 +18,18 @@ using System.Xml.Serialization;
 
 namespace CsvTools
 {
+  public interface IValidationResult
+  {
+    long NumberRecords { get; set; }
+    long ErrorCount { get; set; }
+    long WarningCount { get; set; }
+  }
+
   /// <summary>
   ///   Class to store validation result and cache them
   /// </summary>
   [Serializable]
-  public class ValidationResult : INotifyPropertyChanged, IEquatable<ValidationResult>
+  public class ValidationResult : INotifyPropertyChanged, IEquatable<ValidationResult>, IValidationResult
   {
     private long m_ErrorCount = -1;
     private long m_FileSize = -1;
@@ -51,17 +58,8 @@ namespace CsvTools
           return;
         m_ErrorCount = value;
         NotifyPropertyChanged(nameof(ErrorCount));
-        NotifyPropertyChanged(nameof(ErrorRatio));
       }
     }
-
-    /// <summary>
-    ///   Gets the error ratio.
-    /// </summary>
-    /// <value>
-    ///   The error ratio.
-    /// </value>
-    public double ErrorRatio => NumberRecords > 0 ? (double)ErrorCount / NumberRecords : 0d;
 
     /// <summary>
     ///   Gets or sets the size of the file.
@@ -79,17 +77,8 @@ namespace CsvTools
           return;
         m_FileSize = value;
         NotifyPropertyChanged(nameof(FileSize));
-        NotifyPropertyChanged(nameof(FileSizeDisplay));
       }
     }
-
-    /// <summary>
-    ///   Gets the file size display.
-    /// </summary>
-    /// <value>
-    ///   The file size display.
-    /// </value>
-    public string FileSizeDisplay => FileSize > 0 ? StringConversion.DynamicStorageSize(FileSize) : string.Empty;
 
     /// <summary>
     ///   Gets or sets the number records.
@@ -107,8 +96,6 @@ namespace CsvTools
           return;
         m_NumberRecords = value;
         NotifyPropertyChanged(nameof(NumberRecords));
-        NotifyPropertyChanged(nameof(ErrorRatio));
-        NotifyPropertyChanged(nameof(WarningRatio));
       }
     }
 
@@ -141,24 +128,6 @@ namespace CsvTools
           return;
         m_WarningCount = value;
         NotifyPropertyChanged(nameof(WarningCount));
-        NotifyPropertyChanged(nameof(WarningRatio));
-      }
-    }
-
-    /// <summary>
-    ///   Gets the warning ratio.
-    /// </summary>
-    /// <value>
-    ///   The warning ratio.
-    /// </value>
-    public double WarningRatio
-    {
-      get
-      {
-        if (NumberRecords > 0)
-          return (double)WarningCount / NumberRecords;
-
-        return 0;
       }
     }
 
