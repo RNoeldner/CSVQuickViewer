@@ -68,7 +68,6 @@
     <Compile Include="ControlsTests.cs" />
     <Compile Include="DataGridViewCopyPasteTests.cs" />
     <Compile Include="DetailControlTests.cs" />
-    <Compile Include="DisplayItemTests.cs" />
     <Compile Include="ExtensionsTests.cs" />
     <Compile Include="FilteredDataGridViewTests.cs" />
     <Compile Include="FormProcessDisplayTests.cs" />

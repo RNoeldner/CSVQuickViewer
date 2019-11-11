@@ -29,5 +29,5 @@ namespace CsvTools
   /// <param name="tableName">The name of the local table</param>
   /// <param name="cancellationToken">A CancellationToken to stop processing</param>
   /// <returns></returns>
-  public delegate IValidationResult GetValidationResultNoCache(string tableName, CancellationToken cancellationToken);
+  public delegate ValidationResult GetValidationResultNoCache(string tableName, CancellationToken cancellationToken);
 }

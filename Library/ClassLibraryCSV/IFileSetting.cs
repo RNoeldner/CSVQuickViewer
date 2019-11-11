@@ -242,7 +242,7 @@ namespace CsvTools
     /// <value>
     ///  The validation result <see cref="ValidationResult" />
     /// </value>
-    IValidationResult ValidationResult { get; set; }
+    ValidationResult ValidationResult { get; set; }
 
     /// <summary>
     ///  Gets the right data reader for this File Setting

@@ -154,12 +154,9 @@ namespace CsvTools
       if (string.IsNullOrEmpty(m_FileSetting.SqlStatement))
         return null;
 
-      /*
-       * var parts = m_FileSetting.SqlStatement.SplitCommandTextByGo();
-      var sql = parts[parts.Count - 1];
-      */
+      var parts = m_FileSetting.SqlStatement.SplitCommandTextByGo();
       // only use the last command
-      var sql = m_FileSetting.SqlStatement;
+      var sql = parts[parts.Count - 1];
       // in case there is no filter add a filer that filters all we only need the Schema
       if (sql.Contains("SELECT", StringComparison.OrdinalIgnoreCase) &&
         !sql.Contains("WHERE", StringComparison.OrdinalIgnoreCase))

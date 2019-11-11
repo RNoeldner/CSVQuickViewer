@@ -112,6 +112,31 @@ namespace CsvTools
     }
 
     /// <summary>
+    ///   Gets a shortened name to the display file.
+    /// </summary>
+    /// <param name="text">A text</param>
+    /// <param name="length">The length.</param>
+    /// <returns></returns>
+    public static string GetShortDisplaySQL(string text, int length)
+    {
+      Contract.Ensures(Contract.Result<string>() != null);
+      if (text == null)
+        return string.Empty;
+
+      var parts = text.SplitCommandTextByGo();
+      if (parts.Count == 0)
+        return string.Empty;
+
+      var withoutLineFeed = parts[parts.Count - 1].Replace('\r', ' ').Replace('\n', ' ').Replace('\t', ' ')
+        .Replace("  ", " ");
+      if (string.IsNullOrWhiteSpace(withoutLineFeed))
+        return string.Empty;
+      if (withoutLineFeed.Length > length)
+        return withoutLineFeed.Substring(0, length) + "…";
+      return withoutLineFeed;
+    }
+
+    /// <summary>
     ///   Gets the trimmed value.
     /// </summary>
     /// <param name="val">The value.</param>
@@ -376,34 +401,6 @@ namespace CsvTools
         return new string[] { };
 
       return inputValue.Split(m_SplitChar, StringSplitOptions.RemoveEmptyEntries);
-    }
-
-    /// <summary>
-    ///   Escapes SQL names; does not include the brackets or quotes
-    /// </summary>
-    /// <param name="contents">The column or table name.</param>
-    /// <returns>The names as it can be placed into brackets</returns>
-    public static string SqlName(this string contents)
-    {
-      Contract.Ensures(Contract.Result<string>() != null);
-      if (string.IsNullOrEmpty(contents))
-        return string.Empty;
-
-      return contents.Replace("]", "]]");
-    }
-
-    /// <summary>
-    ///   SQLs the quote, does not include the outer quotes
-    /// </summary>
-    /// <param name="contents">The contents.</param>
-    /// <returns></returns>
-    public static string SqlQuote(this string contents)
-    {
-      Contract.Ensures(Contract.Result<string>() != null);
-      if (string.IsNullOrEmpty(contents))
-        return string.Empty;
-
-      return contents.Replace("'", "''");
     }
 
     public static System.Security.SecureString ToSecureString(this string text)
