@@ -25,7 +25,6 @@ using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
 using System.Xml.Serialization;
-using CsvTools.Properties;
 using Microsoft.Win32;
 using Timer = System.Timers.Timer;
 

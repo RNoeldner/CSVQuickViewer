@@ -218,7 +218,7 @@
       // fileSettingBindingSource
       // 
       this.fileSettingBindingSource.AllowNew = false;
-      this.fileSettingBindingSource.DataSource = typeof(CsvTools.Properties.ViewSettings);
+      this.fileSettingBindingSource.DataSource = typeof(CsvTools.ViewSettings);
       // 
       // buttonGuessDelimiter
       // 
