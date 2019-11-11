@@ -162,15 +162,18 @@
     <Compile Include="AAAPerfromanceTest.cs" />
     <Compile Include="CheckResultTests.cs" />
     <Compile Include="ColumnFormatTest.cs" />
+    <Compile Include="ColumnSizeTests.cs" />
     <Compile Include="ColumnTest.cs" />
     <Compile Include="ExtensionTests.cs" />
     <Compile Include="JsonFileReaderTest.cs" />
     <Compile Include="CsvFileWriterTest.cs" />
     <Compile Include="DateTimeFormatInformationTest.cs" />
     <Compile Include="DetermineColumnFormatTest.cs" />
+    <Compile Include="DisplayItemTests.cs" />
     <Compile Include="DummyProcessDisplayTests.cs" />
     <Compile Include="EncodingHelperTest.cs" />
     <Compile Include="EncodingHelperTests.cs" />
+    <Compile Include="EnumDescriptionConverterTests.cs" />
     <Compile Include="ExtensionsTest.cs" />
     <Compile Include="FileFormatTest.cs" />
     <Compile Include="FileSystemUtilsTest.cs" />
@@ -188,6 +191,7 @@
     <Compile Include="SampleRecordEntryTests.cs" />
     <Compile Include="SecureStringTest.cs" />
     <Compile Include="SerializedFilesLibTests.cs" />
+    <Compile Include="SQLUtilsTest.cs" />
     <Compile Include="StringConversionTests.cs" />
     <Compile Include="MessageLocationTest.cs" />
     <Compile Include="CsvDataReaderTest.cs" />
@@ -209,6 +213,7 @@
     <Compile Include="TimeToCompletionTests.cs" />
     <Compile Include="TimeZoneMappingTests.cs" />
     <Compile Include="UnitTestInitialize.cs" />
+    <Compile Include="ValidationResultTests.cs" />
     <Compile Include="ValueFormatTest.cs" />
     <Compile Include="CsvFileTest.cs" />
     <Compile Include="FieldMappingTest.cs" />

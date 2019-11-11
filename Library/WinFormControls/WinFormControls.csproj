@@ -71,7 +71,6 @@
     <Compile Include="DetailControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="DisplayItem.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="FormLimitSize.cs">
       <SubType>Form</SubType>

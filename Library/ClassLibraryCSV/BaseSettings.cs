@@ -68,7 +68,7 @@ namespace CsvTools
     private bool m_TreatNbspAsSpace;
     private string m_TreatTextAsNull = "NULL";
     private bool m_Validate = true;
-    private IValidationResult m_ValidationResult;
+    private ValidationResult m_ValidationResult;
     private bool m_SkipDuplicateHeader = false;
     private bool m_SkipEmptyLines = true;
     private ObservableCollection<SampleRecordEntry> m_Samples = new ObservableCollection<SampleRecordEntry>();
@@ -1034,7 +1034,7 @@ namespace CsvTools
     /// <summary>
     ///  Gets or sets the <see cref="ValidationResult" />
     /// </summary>
-    public IValidationResult ValidationResult
+    public ValidationResult ValidationResult
     {
       get => m_ValidationResult;
       set
