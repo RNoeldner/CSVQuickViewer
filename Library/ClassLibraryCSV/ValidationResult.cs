@@ -32,7 +32,6 @@ namespace CsvTools
   public class ValidationResult : INotifyPropertyChanged, IEquatable<ValidationResult>, IValidationResult
   {
     private long m_ErrorCount = -1;
-    private long m_FileSize = -1;
     private long m_NumberRecords;
     private string m_TableName = string.Empty;
     private long m_WarningCount = -1;
@@ -58,25 +57,6 @@ namespace CsvTools
           return;
         m_ErrorCount = value;
         NotifyPropertyChanged(nameof(ErrorCount));
-      }
-    }
-
-    /// <summary>
-    ///   Gets or sets the size of the file.
-    /// </summary>
-    /// <value>
-    ///   The size of the file.
-    /// </value>
-    [XmlIgnore]
-    public long FileSize
-    {
-      get => m_FileSize;
-      set
-      {
-        if (m_FileSize == value)
-          return;
-        m_FileSize = value;
-        NotifyPropertyChanged(nameof(FileSize));
       }
     }
 
@@ -143,7 +123,7 @@ namespace CsvTools
         return false;
       if (ReferenceEquals(this, other))
         return true;
-      return m_ErrorCount == other.m_ErrorCount && m_FileSize == other.m_FileSize &&
+      return m_ErrorCount == other.m_ErrorCount &&
              m_NumberRecords == other.m_NumberRecords &&
              string.Equals(m_TableName, other.m_TableName, StringComparison.InvariantCultureIgnoreCase) &&
              m_WarningCount == other.m_WarningCount;
@@ -169,7 +149,6 @@ namespace CsvTools
       unchecked
       {
         var hashCode = m_ErrorCount.GetHashCode();
-        hashCode = (hashCode * 397) ^ m_FileSize.GetHashCode();
         hashCode = (hashCode * 397) ^ m_NumberRecords.GetHashCode();
         hashCode = (hashCode * 397) ^ StringComparer.InvariantCultureIgnoreCase.GetHashCode(m_TableName);
         hashCode = (hashCode * 397) ^ m_WarningCount.GetHashCode();
