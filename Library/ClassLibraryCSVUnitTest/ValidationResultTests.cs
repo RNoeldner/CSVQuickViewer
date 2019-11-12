@@ -23,15 +23,6 @@ namespace CsvTools.Tests
     private readonly ValidationResult m_ValidationResult = new ValidationResult();
 
     [TestMethod]
-    public void ValidationResultFileSizeTest()
-    {
-      m_ValidationResult.FileSize = 0;
-      Assert.AreEqual(0, m_ValidationResult.FileSize);
-      m_ValidationResult.FileSize = 12345;
-      Assert.AreEqual(12345, m_ValidationResult.FileSize);
-    }
-
-    [TestMethod]
     public void ValidationResultSetValidationResultTest()
     {
       m_ValidationResult.TableName = "Hallo";
