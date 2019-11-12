@@ -3,7 +3,7 @@ using System.ComponentModel;
 using System.Xml;
 using System.Xml.Serialization;
 
-namespace CsvTools.Properties
+namespace CsvTools
 {
   /// <summary>
   ///   Class containing the all configuration, used in serialization to store the settings
