@@ -1220,7 +1220,7 @@ namespace CsvTools
       if (this is IFileSettingPhysicalFile settingPhysicalFile)
       {
         stringBuilder.Append(" - ");
-        stringBuilder.Append(stringBuilder.Append(FileSystemUtils.GetShortDisplayFileName(settingPhysicalFile.FileName, 80)));
+        stringBuilder.Append(FileSystemUtils.GetShortDisplayFileName(settingPhysicalFile.FileName, 80));
       }
       return stringBuilder.ToString();
     }

@@ -322,7 +322,7 @@ namespace CsvTools
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
     public void ButtonOKClick(object sender, EventArgs e)
     {
-      ValidateChildren();
+      Extensions.RunWithTimeout(ValidateChildren, 1, m_CancellationTokenSource.Token);
       try
       {
         if (!m_ColumnEdit.Equals(m_ColumnRef))

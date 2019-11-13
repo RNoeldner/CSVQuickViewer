@@ -87,8 +87,23 @@ namespace CsvTools
           throw new TimeoutException($"Waited longer than {timeoutSeconds:N0} seconds, assuming something is wrong");
         }
         ProcessUIElements();
-        executeTask.Wait(100, cancellationToken);
+        executeTask.Wait(250, cancellationToken);
       }
+    }
+
+    public static TResult RunWithTimeout<TResult>(this Func<TResult> action, int timeoutSeconds, CancellationToken cancellationToken)
+    {
+      try
+      {
+        var task = System.Threading.Tasks.Task.Factory.StartNew(action);
+        task.WaitToCompleteTask(timeoutSeconds, cancellationToken);
+        return task.Result;
+      }
+      catch (Exception ex)
+      {
+        Logger.Warning(ex, "RunWithTimeout {timeoutSeconds} {Method}", timeoutSeconds, action.Method.ToString());
+      }
+      return default(TResult);
     }
 
     /// <summary>

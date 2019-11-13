@@ -301,8 +301,6 @@ namespace CsvTools
         }
     }
 
-    private void FormEditSettings_FormClosing(object sender, FormClosingEventArgs e) =>
-      // update the values in not changed setting
-      ValidateChildren();
+    private void FormEditSettings_FormClosing(object sender, FormClosingEventArgs e) => Extensions.RunWithTimeout(ValidateChildren, 1, System.Threading.CancellationToken.None);
   }
 }
