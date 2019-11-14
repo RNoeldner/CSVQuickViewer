@@ -12,7 +12,9 @@
  *
  */
 
+using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Windows.Forms;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -21,6 +23,85 @@ namespace CsvTools.Tests
   [TestClass]
   public class ExtensionsTests
   {
+    [TestMethod]
+    public void WaitToCompleteTaskTestCompletedAlready()
+    {
+      var executed = false;
+
+      var task = System.Threading.Tasks.Task.Factory.StartNew(() => { executed = true; });
+      task.Wait();
+      Extensions.WaitToCompleteTask(task, 1, CancellationToken.None);
+      Assert.IsTrue(executed);
+    }
+
+    [TestMethod]
+    public void WaitToCompleteTaskTestCompleteInTime()
+    {
+      var executed = false;
+      Assert.IsFalse(executed);
+      var task = System.Threading.Tasks.Task.Factory.StartNew(() =>
+      {
+        Thread.Sleep(100);
+        executed = true;
+      });
+      Assert.IsFalse(executed);
+      Extensions.WaitToCompleteTask(task, 1, CancellationToken.None);
+      Assert.IsTrue(executed);
+    }
+
+    [TestMethod]
+    public void WaitToCompleteTaskTestTimeout()
+    {
+      var task = System.Threading.Tasks.Task.Factory.StartNew(() =>
+      {
+        Thread.Sleep(2000);
+      });
+
+      try
+      {
+        Extensions.WaitToCompleteTask(task, 1, CancellationToken.None);
+        Assert.Fail("Timeout did not occur");
+      }
+      catch (TimeoutException)
+      {
+      }
+      catch (Exception ex)
+      {
+        Assert.Fail($"Wrong exception got {ex.GetType().Name} expected TimeoutException");
+      }
+    }
+
+    [TestMethod]
+    public void WaitToCompleteTaskCancel()
+    {
+      using (var cts = new CancellationTokenSource())
+      {
+        var task = System.Threading.Tasks.Task.Factory.StartNew(() =>
+        {
+          Thread.Sleep(2000);
+        });
+
+        try
+        {
+          // Cancel Token after 200 ms in other thread
+          var task2 = System.Threading.Tasks.Task.Factory.StartNew(() =>
+          {
+            Thread.Sleep(200);
+            cts.Cancel();
+          });
+          Extensions.WaitToCompleteTask(task, 1, cts.Token);
+          Assert.Fail("Timeout did not occur");
+        }
+        catch (OperationCanceledException)
+        {
+        }
+        catch (Exception ex)
+        {
+          Assert.Fail($"Wrong exception got {ex.GetType().Name} expected OperationCanceledException");
+        }
+      }
+    }
+
     [TestMethod]
     public void UpdateListViewColumnFormatTest()
     {
@@ -44,6 +125,26 @@ namespace CsvTools.Tests
         colFmt.Add(new Column { Name = "Test" });
         lv.UpdateListViewColumnFormat(colFmt);
       }
+    }
+
+    [TestMethod]
+    public void RunWithTimeout()
+    {
+      var executed = false;
+      Assert.IsFalse(executed);
+      Extensions.RunWithTimeout((() => executed = true), 1, CancellationToken.None);
+      Assert.IsTrue(executed);
+    }
+
+    [TestMethod]
+    public void RunWithTimeoutErrorIsDefault()
+    {
+      var result = Extensions.RunWithTimeout(() =>
+        {
+          throw new ArgumentException("My Exception");
+          return 1;
+        }, 1, CancellationToken.None);
+      Assert.AreEqual(default(int), result);
     }
 
     [TestMethod()]
@@ -102,6 +203,20 @@ namespace CsvTools.Tests
     [TestMethod()]
     public void LoadWindowStateTest()
     {
+      using (var value = new FormProcessDisplay())
+      {
+        value.Show();
+        var state = new WindowState(new System.Drawing.Rectangle(10, 10, 200, 200), FormWindowState.Normal)
+        {
+          CustomInt = 27,
+          CustomText = "Test"
+        };
+        var resul1 = -1;
+        var result2 = "Hello";
+        Extensions.LoadWindowState(value, state, (val) => { resul1 = val; }, (val) => { result2 = val; });
+        Assert.AreEqual(state.CustomInt, resul1);
+        Assert.AreEqual(state.CustomText, result2);
+      }
     }
 
     [TestMethod()]
@@ -122,6 +237,24 @@ namespace CsvTools.Tests
     [TestMethod()]
     public void StoreWindowStateTest()
     {
+      using (var value = new FormProcessDisplay())
+      {
+        value.Show();
+        var state1 = new WindowState(new System.Drawing.Rectangle(10, 10, 400, 400), FormWindowState.Normal)
+        {
+          CustomInt = 27,
+          CustomText = "Test"
+        };
+        var resul1 = -1;
+        var result2 = "Hello";
+        Extensions.LoadWindowState(value, state1, (val) => { resul1 = val; }, (val) => { result2 = val; });
+
+        var state2 = Extensions.StoreWindowState(value, resul1, "World");
+        Assert.AreEqual(state1.CustomInt, state2.CustomInt);
+        Assert.AreEqual("World", state2.CustomText);
+        Assert.AreEqual(state1.Left, state2.Left);
+        Assert.AreEqual(state1.Width, state2.Width);
+      }
     }
 
     [TestMethod()]

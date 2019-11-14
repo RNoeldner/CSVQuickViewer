@@ -91,6 +91,18 @@ namespace CsvTools
       }
     }
 
+    public static void RunWithTimeout(this Action action, int timeoutSeconds, CancellationToken cancellationToken)
+    {
+      try
+      {
+        System.Threading.Tasks.Task.Factory.StartNew(action).WaitToCompleteTask(timeoutSeconds, cancellationToken);
+      }
+      catch (Exception ex)
+      {
+        Logger.Warning(ex, "RunWithTimeout Error: {exception} Timeout: {timeout} Method: {method} ", ex.SourceExceptionMessage(), timeoutSeconds, action.Method);
+      }
+    }
+
     public static TResult RunWithTimeout<TResult>(this Func<TResult> action, int timeoutSeconds, CancellationToken cancellationToken)
     {
       try
@@ -101,7 +113,7 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        Logger.Warning(ex, "RunWithTimeout {timeoutSeconds} {Method}", timeoutSeconds, action.Method.ToString());
+        Logger.Warning(ex, "RunWithTimeout Error: {exception} Timeout: {timeout} Method: {method} ", ex.SourceExceptionMessage(), timeoutSeconds, action.Method);
       }
       return default(TResult);
     }
@@ -258,6 +270,16 @@ namespace CsvTools
     {
       if (windowPosition == null || windowPosition.Width == 0 || windowPosition.Height == 0)
         return;
+      if (form.IsDisposed)
+        return;
+
+      /*
+      if (!form.Visible)
+        form.Show();
+
+      if (!form.Focused)
+        form.Focus();
+      */
       form.StartPosition = FormStartPosition.Manual;
 
       var screen = Screen.FromRectangle(new Rectangle(windowPosition.Left, windowPosition.Top, windowPosition.Width, windowPosition.Height));
