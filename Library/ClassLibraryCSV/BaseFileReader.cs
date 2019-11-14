@@ -85,15 +85,19 @@ namespace CsvTools
     private readonly IntervalAction m_IntervalAction = new IntervalAction();
 
     /// <summary>
-    ///  Releases unmanaged and - optionally - managed resources
+    /// Used to avoid duplicate disposal
     /// </summary>
-    /// <param name="disposing">
-    ///  <c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only
-    ///  unmanaged resources.
-    /// </param>
-    private bool disposedValue = false;
+    private bool m_DisposedValue = false;
 
+    /// <summary>
+    /// Number of Columns in the reader
+    /// </summary>
     private int m_FieldCount;
+
+    /// <summary>
+    /// used to avoid reporting a fished execution twice it might be called on error before being called once execution is done
+    /// </summary>
+    private bool m_IsFinsihed = false;
 
     protected BaseFileReader(IFileSetting fileSetting, IProcessDisplay processDisplay)
     {
@@ -214,10 +218,10 @@ namespace CsvTools
 
     public virtual void Dispose(bool disposing)
     {
-      if (!disposedValue)
+      if (!m_DisposedValue)
       {
         Close();
-        disposedValue = true;
+        m_DisposedValue = true;
       }
     }
 
@@ -896,7 +900,7 @@ namespace CsvTools
     protected virtual void FinishOpen()
     {
       ApplicationSetting.StoreHeader?.Invoke(m_FileSetting, Column);
-
+      m_IsFinsihed = false;
       if (FieldCount > 0)
       {
         // Override the column settings and store the columns for later reference
@@ -1191,6 +1195,9 @@ namespace CsvTools
     /// </summary>
     protected virtual void HandleReadFinished()
     {
+      if (m_IsFinsihed)
+        return;
+      m_IsFinsihed = true;
       m_FileSetting.ProcessTimeUtc = DateTime.UtcNow;
       if (m_FileSetting is IFileSettingPhysicalFile physicalFile)
       {
