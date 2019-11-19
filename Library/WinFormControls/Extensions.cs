@@ -91,18 +91,6 @@ namespace CsvTools
       }
     }
 
-    public static void RunWithTimeout(this Action action, int timeoutSeconds, CancellationToken cancellationToken)
-    {
-      try
-      {
-        System.Threading.Tasks.Task.Factory.StartNew(action).WaitToCompleteTask(timeoutSeconds, cancellationToken);
-      }
-      catch (Exception ex)
-      {
-        Logger.Warning(ex, "RunWithTimeout Error: {exception} Timeout: {timeout} Method: {method} ", ex.SourceExceptionMessage(), timeoutSeconds, action.Method);
-      }
-    }
-
     public static TResult RunWithTimeout<TResult>(this Func<TResult> action, int timeoutSeconds, CancellationToken cancellationToken)
     {
       try
