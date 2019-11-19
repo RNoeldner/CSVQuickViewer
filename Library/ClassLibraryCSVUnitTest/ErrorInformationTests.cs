@@ -11,10 +11,11 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
@@ -53,7 +54,7 @@ namespace CsvTools.Tests
       foreach (DataColumn col in m_DataTable.Columns)
         colNames.Add(col.ColumnName);
 
-      Assert.IsTrue(string.IsNullOrEmpty(ErrorInformation.ReadErrorInformation(columnErrors, colNames)));
+      Assert.IsTrue(string.IsNullOrEmpty(ErrorInformation.ReadErrorInformation(columnErrors.Dictionary, colNames)));
 
       columnErrors.Add(-1, "Error on Row");
       columnErrors.Add(0, "Error on Column".AddWarningId());
@@ -65,7 +66,7 @@ namespace CsvTools.Tests
       columnErrors.Add(3, "Warning on Fld4".AddWarningId());
       columnErrors.Add(3, "Error on Fld4");
 
-      var errorInfo = ErrorInformation.ReadErrorInformation(columnErrors, colNames);
+      var errorInfo = ErrorInformation.ReadErrorInformation(columnErrors.Dictionary, colNames);
       Assert.IsNotNull(errorInfo);
 
       var row = m_DataTable.NewRow();
@@ -81,11 +82,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void CombineColumnAndErrorTest()
-    {
-      Assert.AreEqual("[Col1] Error", ErrorInformation.CombineColumnAndError(new[] { "Col1" }, "Error"));
-      Assert.AreEqual("[Col1,col2] Error", ErrorInformation.CombineColumnAndError(new[] { "Col1", "col2" }, "Error"));
-    }
+    public void CombineColumnAndErrorTest() => Assert.AreEqual("[Col1] Error", ErrorInformation.CombineColumnAndError("Col1", "Error"));
 
     [TestMethod]
     public void ReadErrorInformationFromDataRow()

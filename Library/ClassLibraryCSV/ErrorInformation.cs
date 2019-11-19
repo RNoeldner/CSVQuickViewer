@@ -16,8 +16,8 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics.Contracts;
-using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace CsvTools
 {
@@ -27,12 +27,16 @@ namespace CsvTools
   public static class ErrorInformation
   {
     /// <summary>
-    ///   String to separate two or more errors and warnings
+    ///   Char to separate two or more errors and warnings
     /// </summary>
     public const char cSeparator = '\n';
 
+    /// <summary>
+    ///   Char to separate two column names
+    /// </summary>
+    public const char cFieldSeparator = ',';
+
     private const char c_ClosingField = ']';
-    private const char c_FieldSeparator = ',';
 
     /// <summary>
     ///   Identifier for a warning message
@@ -113,28 +117,11 @@ namespace CsvTools
     /// <returns>An error message to be stored</returns>
     public static string CombineColumnAndError(string column, string errorMessage)
     {
+      if (errorMessage == null)
+        throw new ArgumentNullException(nameof(errorMessage));
       if (string.IsNullOrEmpty(column) && errorMessage.StartsWith("[", StringComparison.Ordinal))
         return errorMessage;
       return $"[{column}] {errorMessage}";
-    }
-
-    /// <summary>
-    ///   Combines the column and error.
-    /// </summary>
-    /// <param name="columns">A enumeration of columns.</param>
-    /// <param name="errorMessage">The error message for each of the columns</param>
-    /// <returns>An error message to be stored</returns>
-    public static string CombineColumnAndError(IEnumerable<string> columns, string errorMessage)
-    {
-      var sb = new StringBuilder();
-      foreach (var column in columns)
-      {
-        if (sb.Length > 0)
-          sb.Append(c_FieldSeparator);
-        sb.Append(column);
-      }
-
-      return CombineColumnAndError(sb.ToString(), errorMessage);
     }
 
     /// <summary>
@@ -251,14 +238,14 @@ namespace CsvTools
     /// <param name="columnErrors">The column errors.</param>
     /// <param name="columns">The columns.</param>
     /// <returns></returns>
-    public static string ReadErrorInformation(ColumnErrorDictionary columnErrors, IList<string> columns)
+    public static string ReadErrorInformation(IDictionary<int, string> columnErrors, IList<string> columns)
     {
-      if (columnErrors.Dictionary.Count == 0)
+      if (columnErrors.Count == 0)
         return null;
       var list = new List<Tuple<string, string>>();
 
       // Now every column error
-      foreach (var entry in columnErrors.Dictionary)
+      Parallel.ForEach(columnErrors, (entry) =>
       {
         var colName = entry.Key >= 0 && columns.Count > entry.Key ? columns[entry.Key] : string.Empty;
 
@@ -272,7 +259,7 @@ namespace CsvTools
           list.Add(new Tuple<string, string>(colName, entry.Value.Substring(start, end - start)));
           start = end + 1;
         }
-      }
+      });
 
       return BuildList(list);
     }
@@ -323,8 +310,8 @@ namespace CsvTools
       Contract.Requires(errorList != null);
       var sberrors = new StringBuilder();
 
-      var enumerable = errorList.ToList();
-      foreach (var part in enumerable)
+      // Errors first
+      foreach (var part in errorList)
         if (!part.Item2.IsWarningMessage())
         {
           if (sberrors.Length > 0)
@@ -332,7 +319,8 @@ namespace CsvTools
           sberrors.Append(CombineColumnAndError(part.Item1, part.Item2));
         }
 
-      foreach (var part in enumerable)
+      // The warnings
+      foreach (var part in errorList)
         if (part.Item2.IsWarningMessage())
         {
           if (sberrors.Length > 0)
@@ -373,7 +361,7 @@ namespace CsvTools
       // If we have combinations of columns, e,G. Combined Keys or Less Than errors store the error in each column
       while (start < columErrorInformation.Item1.Length)
       {
-        var end = columErrorInformation.Item1.IndexOf(c_FieldSeparator, start + 1);
+        var end = columErrorInformation.Item1.IndexOf(cFieldSeparator, start + 1);
         if (end == -1)
           end = columErrorInformation.Item1.Length;
         var colName = columErrorInformation.Item1.Substring(start, end - start);

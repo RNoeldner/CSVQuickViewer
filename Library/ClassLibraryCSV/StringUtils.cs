@@ -185,6 +185,31 @@ namespace CsvTools
     ///<example>JoinParts(new [] {"My","","Test")=> My, Test</example>
     /// <remarks>Any empty string will be ignored.</remarks>
     /// <returns>A string</returns>
+    public static string JoinChar(this IEnumerable<string> parts, char joinWith = ',')
+    {
+      if (parts == null || parts.IsEmpty())
+        return string.Empty;
+
+      var sb = new StringBuilder();
+      foreach (var part in parts)
+      {
+        if (string.IsNullOrEmpty(part))
+          continue;
+        if (sb.Length > 0)
+          sb.Append(joinWith);
+        sb.Append(part);
+      }
+      return sb.ToString();
+    }
+
+    /// <summary>
+    /// Joins the strings
+    /// </summary>
+    /// <param name="parts">The parts to be joined.</param>
+    /// <param name="joinWith">The join with.</param>
+    ///<example>JoinParts(new [] {"My","","Test")=> My, Test</example>
+    /// <remarks>Any empty string will be ignored.</remarks>
+    /// <returns>A string</returns>
     public static string Join(this IEnumerable<int> parts, string joinWith = ", ")
     {
       if (parts == null || parts.IsEmpty())

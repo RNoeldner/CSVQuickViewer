@@ -56,9 +56,8 @@ namespace CsvTools
 
         foreach (var ex in subResult.ExampleNonMatch)
         {
-          if (string.IsNullOrEmpty(ex))
-            continue;
-          ExampleNonMatch.Add(ex);
+          if (!string.IsNullOrEmpty(ex))
+            ExampleNonMatch.Add(ex);
         }
       }
     }

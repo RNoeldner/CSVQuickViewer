@@ -114,7 +114,7 @@ namespace CsvTools
             cryptoStream.Write(plainTextBytes, 0, plainTextBytes.Length);
             cryptoStream.FlushFinalBlock();
             var text = Convert.ToBase64String(memoryStream.ToArray());
-            // remove Base64 padding to hind the nature of the encoding a bit
+            // remove Base64 padding
             if (text.EndsWith("=="))
               text = text.Substring(0, text.Length - 2);
             else if (text.EndsWith("="))

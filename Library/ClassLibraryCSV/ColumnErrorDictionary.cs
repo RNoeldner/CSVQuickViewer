@@ -13,7 +13,6 @@
  */
 
 using System.Collections.Generic;
-using System.Text;
 
 namespace CsvTools
 {
@@ -34,21 +33,7 @@ namespace CsvTools
     ///   Combines all messages in order to display them
     /// </summary>
     /// <value>One string with all messages</value>
-    public virtual string Display
-    {
-      get
-      {
-        var sb = new StringBuilder();
-        foreach (var message in Dictionary.Values)
-        {
-          if (sb.Length > 0)
-            sb.Append(ErrorInformation.cSeparator);
-          sb.Append(message);
-        }
-
-        return sb.ToString();
-      }
-    }
+    public virtual string Display => Dictionary.Values.JoinChar(ErrorInformation.cSeparator);
 
     /// <summary>
     ///   Gets the <see cref="string" /> with the specified column number.
