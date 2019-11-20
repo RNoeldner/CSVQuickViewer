@@ -19,50 +19,48 @@ namespace CsvTools
   /// <summary>
   ///   Column errors for one row
   /// </summary>
-  public class ColumnErrorDictionary
+  public class ColumnErrorDictionary : Dictionary<int, string>
   {
-    /// <summary>
-    ///   Gets the internal dictionary
-    /// </summary>
-    /// <value>
-    ///   The dictionary with messages by column number
-    /// </value>
-    public IDictionary<int, string> Dictionary { get; } = new Dictionary<int, string>();
+    private readonly ICollection<int> m_IgnoredColumns = null;
+
+    public ColumnErrorDictionary()
+    {
+    }
+
+    public ColumnErrorDictionary(IFileReader reader)
+    {
+      for (var col = 0; col < reader.FieldCount; col++)
+      {
+        if (reader.IgnoreRead(col))
+        {
+          if (m_IgnoredColumns == null)
+            m_IgnoredColumns = new HashSet<int>();
+          m_IgnoredColumns.Add(col);
+        }
+      }
+      reader.Warning += (s, args) => { Add(args.ColumnNumber, args.Message); };
+    }
 
     /// <summary>
     ///   Combines all messages in order to display them
     /// </summary>
     /// <value>One string with all messages</value>
-    public virtual string Display => Dictionary.Values.JoinChar(ErrorInformation.cSeparator);
-
-    /// <summary>
-    ///   Gets the <see cref="string" /> with the specified column number.
-    /// </summary>
-    /// <value>
-    ///   The <see cref="string" />.
-    /// </value>
-    /// <param name="columnNumber">The column number.</param>
-    /// <returns><c>null</c> if there is no error for that column</returns>
-    public string this[int columnNumber]
-    {
-      get
-      {
-        Dictionary.TryGetValue(columnNumber, out var ret);
-        return ret;
-      }
-    }
+    public virtual string Display => Values.JoinChar(ErrorInformation.cSeparator);
 
     /// <summary>
     ///   Adds the column error.
     /// </summary>
     /// <param name="columnNumber">The column number.</param>
     /// <param name="message">The message.</param>
-    public void Add(int columnNumber, string message)
+    public new void Add(int columnNumber, string message)
     {
-      if (Dictionary.TryGetValue(columnNumber, out var old))
-        Dictionary[columnNumber] = old.AddMessage(message);
+      if ((m_IgnoredColumns != null && m_IgnoredColumns.Contains(columnNumber)) || string.IsNullOrEmpty(message))
+        return;
+
+      if (TryGetValue(columnNumber, out var old))
+        base[columnNumber] = old.AddMessage(message);
       else
-        Dictionary.Add(columnNumber, message);
+        base.Add(columnNumber, message);
     }
   }
 }

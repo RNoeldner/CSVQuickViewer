@@ -21,22 +21,19 @@ namespace CsvTools
   /// </summary>
   public class IntervalAction
   {
-    private double m_NotifyAfterSeconds;
-    private DateTime m_LastNotification = DateTime.MinValue;
-
     /// <summary>
     ///  Initializes a new instance of the <see cref="IntervalAction" /> class.
     /// </summary>
     /// <remarks>If no notification period is set 1/5 a second is assumed</remarks>
-    public IntervalAction() => m_NotifyAfterSeconds = 0.2;
+    public IntervalAction() => NotifyAfterSeconds = (1 / 3d);
 
     /// <summary>
     ///  Initializes a new instance of the <see cref="IntervalAction" /> class.
     /// </summary>
     /// <param name="notifyAfterSeconds">Notify only after this time in seconds</param>
-    public IntervalAction(double notifyAfterSeconds) => m_NotifyAfterSeconds = notifyAfterSeconds;
+    public IntervalAction(double notifyAfterSeconds) => NotifyAfterSeconds = notifyAfterSeconds;
 
-    public double NotifyAfterSeconds { get => m_NotifyAfterSeconds; set => m_NotifyAfterSeconds = value; }
+    public double NotifyAfterSeconds { get; set; }
 
     /// <summary>
     ///  Invoke the given action if the set interval has passed
@@ -44,7 +41,7 @@ namespace CsvTools
     /// <param name="action">the action to invoke</param>
     public void Invoke(Action action)
     {
-      if (!((DateTime.Now - m_LastNotification).TotalSeconds > m_NotifyAfterSeconds))
+      if (!((DateTime.Now - m_LastNotification).TotalSeconds > NotifyAfterSeconds))
         return;
       m_LastNotification = DateTime.Now;
       action?.Invoke();
@@ -55,7 +52,7 @@ namespace CsvTools
     /// </summary>
     public void Invoke(Action<long> action, long value)
     {
-      if (!((DateTime.Now - m_LastNotification).TotalSeconds > m_NotifyAfterSeconds))
+      if (!((DateTime.Now - m_LastNotification).TotalSeconds > NotifyAfterSeconds))
         return;
       m_LastNotification = DateTime.Now;
       action?.Invoke(value);
@@ -66,7 +63,7 @@ namespace CsvTools
     /// </summary>
     public void Invoke(Action<string, long, bool> action, string text, long value, bool log)
     {
-      if (!((DateTime.Now - m_LastNotification).TotalSeconds > m_NotifyAfterSeconds))
+      if (!((DateTime.Now - m_LastNotification).TotalSeconds > NotifyAfterSeconds))
         return;
       m_LastNotification = DateTime.Now;
       action?.Invoke(text, value, log);

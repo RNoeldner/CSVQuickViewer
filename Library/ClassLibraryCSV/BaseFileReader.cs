@@ -494,8 +494,7 @@ namespace CsvTools
       if (ret.HasValue)
         return ret.Value;
 
-      HandleError(column.ColumnOrdinal,
-       $"'{inputValue}' is not an integer");
+      HandleError(column.ColumnOrdinal, $"'{inputValue}' is not an integer");
       return null;
     }
 
@@ -529,8 +528,7 @@ namespace CsvTools
       if (ret.HasValue)
         return ret.Value;
 
-      HandleError(column.ColumnOrdinal,
-       $"'{inputValue}' is not an long integer");
+      HandleError(column.ColumnOrdinal, $"'{inputValue}' is not an long integer");
       return null;
     }
 
@@ -713,7 +711,7 @@ namespace CsvTools
     public virtual bool IgnoreRead(int columnNumber) => GetColumn(columnNumber).Ignore;
 
     /// <summary>
-    ///  Displays progress
+    ///  Displays progress, is called after <see langword="abstract"/>row has been read
     /// </summary>
     /// <param name="hasReadRow"><c>true</c> if a row has been read</param>
     public virtual void InfoDisplay(bool hasReadRow)
@@ -960,8 +958,7 @@ namespace CsvTools
       if (decimalValue.HasValue)
         return decimalValue.Value;
 
-      HandleError(column.ColumnOrdinal,
-       $"'{inputValue}' is not a decimal value");
+      HandleError(column.ColumnOrdinal, $"'{inputValue}' is not a decimal value");
       return null;
     }
 
@@ -996,8 +993,7 @@ namespace CsvTools
       if (decimalValue.HasValue)
         return decimal.ToDouble(decimalValue.Value);
 
-      HandleError(column.ColumnOrdinal,
-       $"'{inputValue}' is not a double value");
+      HandleError(column.ColumnOrdinal, $"'{inputValue}' is not a double value");
       return null;
     }
 
@@ -1105,8 +1101,7 @@ namespace CsvTools
       var newName = StringUtils.MakeUniqueInCollection(previousColumns, nametoadd);
       if (newName != nametoadd)
       {
-        HandleWarning(ordinal,
-         $"Column '{nametoadd}' exists more than once replaced with {newName}");
+        HandleWarning(ordinal, $"Column '{nametoadd}' exists more than once replaced with {newName}");
       }
 
       return newName;
@@ -1122,7 +1117,8 @@ namespace CsvTools
     {
       Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount);
       var column = GetColumn(columnNumber);
-
+      if (column.Ignore)
+        return;
       var disp = column.DateFormat.ReplaceDefaults("/", column.DateSeparator, ":", column.TimeSeparator);
 
       HandleError(columnNumber,
@@ -1297,10 +1293,7 @@ namespace CsvTools
       AssociatedTimeZoneCol = new int[fieldCount];
       for (var counter = 0; counter < fieldCount; counter++)
       {
-        Column[counter] = new Column
-        {
-          ColumnOrdinal = counter
-        };
+        Column[counter] = new Column { ColumnOrdinal = counter };
         AssociatedTimeCol[counter] = -1;
         AssociatedTimeZoneCol[counter] = -1;
       }

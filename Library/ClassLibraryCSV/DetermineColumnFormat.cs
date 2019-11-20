@@ -107,23 +107,26 @@ namespace CsvTools
 
         // build a list of columns to check
         var getSamples = new List<int>();
+        var columnNamesInFile = new List<string>();
         for (var colindex = 0; colindex < fileReader.FieldCount; colindex++)
         {
           var newColumn = fileReader.GetColumn(colindex);
-          var detect = !(ApplicationSetting.FillGuessSettings.IgnoreIdColums && StringUtils.AssumeIDColumn(newColumn.Name) > 0);
+          columnNamesInFile.Add(newColumn.Name);
+
           if (BaseFileReader.cStartLineNumberFieldName.Equals(newColumn.Name, StringComparison.OrdinalIgnoreCase) || BaseFileReader.cErrorField.Equals(newColumn.Name, StringComparison.OrdinalIgnoreCase))
           {
             processDisplay.SetProcess(newColumn.Name + " – Reserved columns ignored", colindex);
             newColumn.Ignore = true;
             fileSetting.ColumnCollection.AddIfNew(newColumn);
           }
-          if (!detect)
+          else if ((ApplicationSetting.FillGuessSettings.IgnoreIdColums && StringUtils.AssumeIDColumn(newColumn.Name) > 0))
           {
             processDisplay.SetProcess(newColumn.Name + " – ID columns ignored", colindex);
             if (addTextColumns)
               fileSetting.ColumnCollection.AddIfNew(newColumn);
           }
-          getSamples.Add(colindex);
+          else
+            getSamples.Add(colindex);
         }
 
         processDisplay.SetProcess($"Getting sample values for all {getSamples.Count} columns");
@@ -131,16 +134,11 @@ namespace CsvTools
             getSamples, ApplicationSetting.FillGuessSettings.SampleValues, fileSetting.TreatTextAsNull,
             processDisplay.CancellationToken);
 
-        var columnNamesInFile = new List<string>();
         foreach (var colindex in sampleList.Keys)
         {
           processDisplay.CancellationToken.ThrowIfCancellationRequested();
 
           var newColumn = fileReader.GetColumn(colindex);
-          Contract.Assume(newColumn != null);
-
-          columnNamesInFile.Add(newColumn.Name);
-
           var samples = sampleList[colindex];
 
           processDisplay.CancellationToken.ThrowIfCancellationRequested();
@@ -673,7 +671,7 @@ namespace CsvTools
         //   * parsed the maximum number
         //   * have enough samples to be satisfied
         //   * we are at the beginning record again
-        while (++recordRead < maxRecords && !cancellationToken.IsCancellationRequested && collectFor.Count == enough.Count)
+        while (++recordRead < maxRecords && !cancellationToken.IsCancellationRequested && collectFor.Count > enough.Count)
         {
           // if at the end start from the beginning
           if (!dataReader.Read() && dataReader.EndOfFile)
@@ -1184,6 +1182,7 @@ namespace CsvTools
       return checkResult;
     }
 
+    [DebuggerDisplay("SampleResult: {Values.Count} of {RecordsRead}")]
     public class SampleResult
     {
       public SampleResult(IEnumerable<string> samples, int records)

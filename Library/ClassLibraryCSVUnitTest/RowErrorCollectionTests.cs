@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
@@ -19,11 +20,7 @@ namespace CsvTools.Tests
   public class RowErrorCollectionTests
   {
     [TestMethod()]
-    public void RowErrorCollection()
-    {
-      Assert.IsNotNull(new RowErrorCollection());
-      Assert.IsNotNull(new RowErrorCollection(100));
-    }
+    public void RowErrorCollection() => Assert.IsNotNull(new RowErrorCollection(100));
 
     [TestMethod()]
     public void Add()

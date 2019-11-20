@@ -197,33 +197,19 @@ namespace CsvTools
     /// <param name="reader">The reader.</param>
     /// <param name="dataTable">The data table.</param>
     /// <param name="warningsList">The warnings list.</param>
-    /// <param name="columnMapping">The column mapping.</param>
+    /// <param name="columnMappingDatabaseToReader">The column mapping from database to reader.</param>
     /// <param name="recordNumberColumn">The record number column.</param>
     /// <param name="endLineNumberColumn">The end line number column.</param>
     /// <param name="startLineNumberColumn">The start line number column.</param>
     [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
     public static void CopyRowToTable(this IFileReader reader, DataTable dataTable, RowErrorCollection warningsList,
-      int[] columnMapping,
+      BiDirectionalDictionary<int, int> columnMappingDatabaseToReader,
       DataColumn recordNumberColumn, DataColumn endLineNumberColumn, DataColumn startLineNumberColumn)
     {
       Contract.Requires(dataTable != null);
-      Contract.Requires(columnMapping != null);
-      var columns = columnMapping.Length;
-      var dataRow = dataTable.NewRow();
-      for (var col = 0; col < columns; col++)
-      {
-        try
-        {
-          dataRow[col] = reader.GetValue(columnMapping[col]);
-        }
-        catch (Exception exc)
-        {
-          // Any error here is caused by storing a value that does not fit into the field
-          warningsList?.Add(reader,
-            new WarningEventArgs(reader.RecordNumber, col, exc.ExceptionMessages(), 0, 0, null));
-        }
-      }
+      Contract.Requires(columnMappingDatabaseToReader != null);
 
+      var dataRow = dataTable.NewRow();
       if (recordNumberColumn != null)
         dataRow[recordNumberColumn] = reader.RecordNumber;
 
@@ -232,25 +218,33 @@ namespace CsvTools
 
       if (startLineNumberColumn != null)
         dataRow[startLineNumberColumn] = reader.StartLineNumber;
+      dataTable.Rows.Add(dataRow);
 
-      if (warningsList != null && warningsList.CountRows > 0)
+      var columns = columnMappingDatabaseToReader.Count;
+      for (var col = 0; col < columns; col++)
       {
-        if (warningsList.TryGetValue(reader.RecordNumber, out var warningsforRow))
+        try
         {
-          for (var col = -1; col < columns; col++)
-          {
-            var error = warningsforRow[col];
-            if (string.IsNullOrEmpty(error))
-              continue;
-            if (col == -1)
-              dataRow.RowError = error;
-            else
-              dataRow.SetColumnError(col, error);
-          }
+          dataRow[col] = reader.GetValue(columnMappingDatabaseToReader[col]);
+        }
+        catch (Exception exc)
+        {
+          // Any error here is caused by storing a value that does not fit into the field
+          // the warningsList is working on reader columns
+          warningsList?.Add(reader, new WarningEventArgs(reader.RecordNumber, columnMappingDatabaseToReader[col], exc.ExceptionMessages(), 0, 0, null));
         }
       }
 
-      dataTable.Rows.Add(dataRow);
+      if (warningsList != null && warningsList.TryGetValue(reader.RecordNumber - 1, out var warningsforRow))
+      {
+        foreach (var keyValuePair in warningsforRow)
+        {
+          if (keyValuePair.Key == -1)
+            dataRow.RowError = keyValuePair.Value;
+          else if (columnMappingDatabaseToReader.TryGetByValue(keyValuePair.Key, out var dbCol))
+            dataRow.SetColumnError(dbCol, keyValuePair.Value);
+        }
+      }
     }
 
     /// <summary>
@@ -617,7 +611,7 @@ namespace CsvTools
         Logger.Warning("Column {columnname} was expected but was not found in {filesetting}. The invalid column mapping will be removed.", fileSetting, notFound);
         fileSetting.MappingCollection.RemoveColumn(notFound);
       }
-        
+
       return notFoundColumnNames;
     }
 
@@ -877,7 +871,8 @@ namespace CsvTools
         var hasLineNoEnd = false;
         var hasLineNoStart = false;
 
-        var columnList = new List<int>();
+        var columnMappingDatabaseToReader = new BiDirectionalDictionary<int, int>();
+
         // Create the columns from the FieldHeaders
         for (var column = 0; column < reader.FieldCount; column++)
         {
@@ -886,8 +881,8 @@ namespace CsvTools
           var readerCol = reader.GetColumn(column);
           Contract.Assume(readerCol != null);
           Contract.Assume(!string.IsNullOrEmpty(readerCol.Name));
-          var dataCol = dataTable.Columns.Add(readerCol.Name, readerCol.DataType.GetNetType());
-          columnList.Add(column);
+          columnMappingDatabaseToReader.Add(dataTable.Columns.Count, column);
+          var dataCol = dataTable.Columns.Add(readerCol.Name, readerCol.DataType.GetNetType());          
           dataCol.AllowDBNull = true;
           hasRecordNo |=
             readerCol.Name.Equals(BaseFileReader.cRecordNumberFieldName, StringComparison.OrdinalIgnoreCase);
@@ -896,8 +891,6 @@ namespace CsvTools
           hasLineNoStart |= readerCol.Name.Equals(BaseFileReader.cStartLineNumberFieldName,
             StringComparison.OrdinalIgnoreCase);
         }
-
-        var columnMapping = columnList.ToArray();
 
         if (fileSetting.DisplayRecordNo && !hasRecordNo)
         {
@@ -931,7 +924,7 @@ namespace CsvTools
 
         while (!cancellationToken.IsCancellationRequested && requestedRecords > 0 && reader.Read())
         {
-          reader.CopyRowToTable(dataTable, warningsList, columnMapping, recordNumberColumn, lineNumberColumnEnd,
+          reader.CopyRowToTable(dataTable, warningsList, columnMappingDatabaseToReader, recordNumberColumn, lineNumberColumnEnd,
             lineNumberColumnStart);
           requestedRecords--;
         }

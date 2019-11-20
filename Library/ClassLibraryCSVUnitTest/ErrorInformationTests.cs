@@ -54,7 +54,7 @@ namespace CsvTools.Tests
       foreach (DataColumn col in m_DataTable.Columns)
         colNames.Add(col.ColumnName);
 
-      Assert.IsTrue(string.IsNullOrEmpty(ErrorInformation.ReadErrorInformation(columnErrors.Dictionary, colNames)));
+      Assert.IsTrue(string.IsNullOrEmpty(ErrorInformation.ReadErrorInformation(columnErrors, colNames)));
 
       columnErrors.Add(-1, "Error on Row");
       columnErrors.Add(0, "Error on Column".AddWarningId());
@@ -66,7 +66,7 @@ namespace CsvTools.Tests
       columnErrors.Add(3, "Warning on Fld4".AddWarningId());
       columnErrors.Add(3, "Error on Fld4");
 
-      var errorInfo = ErrorInformation.ReadErrorInformation(columnErrors.Dictionary, colNames);
+      var errorInfo = ErrorInformation.ReadErrorInformation(columnErrors, colNames);
       Assert.IsNotNull(errorInfo);
 
       var row = m_DataTable.NewRow();

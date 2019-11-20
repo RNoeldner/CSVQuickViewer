@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
@@ -21,7 +22,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void WarningListAddAndClear()
     {
-      var messageList = new RowErrorCollection();
+      var messageList = new RowErrorCollection(10);
       Assert.AreEqual(0, messageList.CountRows);
 
       messageList.Add(null, new WarningEventArgs(1, 2, "Line1", 0, 0, null));
@@ -33,7 +34,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void WarningListAddEmpty()
     {
-      var messageList = new RowErrorCollection();
+      var messageList = new RowErrorCollection(10);
       Assert.AreEqual(0, messageList.CountRows);
 
       try
@@ -57,7 +58,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void WarningListCombineWarning()
     {
-      var messageList = new RowErrorCollection();
+      var messageList = new RowErrorCollection(10);
       messageList.Add(null, new WarningEventArgs(1, 1, "Text1", 0, 0, null));
       messageList.Add(null, new WarningEventArgs(1, 1, "Text2", 0, 1, null));
       Assert.AreEqual(1, messageList.CountRows);
@@ -65,27 +66,20 @@ namespace CsvTools.Tests
         "Text1" + ErrorInformation.cSeparator + "Text2" == messageList.Display ||
         "Text2" + ErrorInformation.cSeparator + "Text1" == messageList.Display);
       _ = new ColumnErrorDictionary();
-      ColumnErrorDictionary ce;
-      messageList.TryGetValue(1, out ce);
-      Assert.AreEqual(1, ce.Dictionary.Count);
+      messageList.TryGetValue(1, out var ce);
+      Assert.AreEqual(1, ce.Count);
       Assert.AreEqual(messageList.Display, ce.Display);
     }
 
     [TestMethod]
     public void WarningListDisplay2()
     {
-      var messageList = new RowErrorCollection();
+      var messageList = new RowErrorCollection(10);
       messageList.Add(null, new WarningEventArgs(1, 1, "Text1", 0, 1, null));
       messageList.Add(null, new WarningEventArgs(1, 2, "Text2", 0, 2, null));
       Assert.IsTrue(
         "Text1" + ErrorInformation.cSeparator + "Text2" == messageList.Display ||
         "Text2" + ErrorInformation.cSeparator + "Text1" == messageList.Display);
-    }
-
-    [TestMethod]
-    public void WarningListInit()
-    {
-      _ = new RowErrorCollection();
     }
   }
 }

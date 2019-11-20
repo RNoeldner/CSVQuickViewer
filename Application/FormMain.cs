@@ -539,7 +539,6 @@ namespace CsvTools
         Text =
           $"{AssemblyTitle} : {FileSystemUtils.GetShortDisplayFileName(m_FileSetting.FileName, 80)}  - {EncodingHelper.GetEncodingName(m_FileSetting.CurrentEncoding.CodePage, true, m_FileSetting.ByteOrderMark)}";
 
-        var warnings = new RowErrorCollection();
         DataTable data;
         using (var processDisplay = m_FileSetting.GetProcessDisplay(this, false, m_CancellationTokenSource.Token))
         {
@@ -548,9 +547,10 @@ namespace CsvTools
 
           using (var csvDataReader = m_FileSetting.GetFileReader(processDisplay))
           {
-            csvDataReader.Warning += warnings.Add;
-            csvDataReader.Warning += AddWarning;
+            var warningList = new RowErrorCollection(csvDataReader);
             csvDataReader.Open();
+            warningList.HandleIgnoredColumns(csvDataReader);
+            warningList.PassWarning += AddWarning;
 
             // Store the header in this might be used later on by FormColumnUI
             m_Headers = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -564,12 +564,12 @@ namespace CsvTools
             {
               return m_Headers;
             };
-            if (warnings.CountRows > 0)
-              _MessageBox.Show(this, warnings.Display, "Opening CSV File", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            if (warningList.CountRows > 0)
+              _MessageBox.Show(this, warningList.Display, "Opening CSV File", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             if (!textPanel.Visible)
               ShowTextPanel(true);
 
-            data = csvDataReader.WriteToDataTable(m_FileSetting, m_FileSetting.RecordLimit, warnings,
+            data = csvDataReader.WriteToDataTable(m_FileSetting, m_FileSetting.RecordLimit, warningList,
                 processDisplay.CancellationToken);
 
             foreach (var columnName in data.GetRealColumns())

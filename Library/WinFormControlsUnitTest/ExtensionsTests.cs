@@ -30,7 +30,7 @@ namespace CsvTools.Tests
 
       var task = System.Threading.Tasks.Task.Factory.StartNew(() => { executed = true; });
       task.Wait();
-      Extensions.WaitToCompleteTask(task, 1, CancellationToken.None);
+      Extensions.WaitToCompleteTask(task, 1, true, CancellationToken.None);
       Assert.IsTrue(executed);
     }
 
@@ -45,7 +45,7 @@ namespace CsvTools.Tests
         executed = true;
       });
       Assert.IsFalse(executed);
-      Extensions.WaitToCompleteTask(task, 1, CancellationToken.None);
+      Extensions.WaitToCompleteTask(task, 1, true, CancellationToken.None);
       Assert.IsTrue(executed);
     }
 
@@ -59,7 +59,7 @@ namespace CsvTools.Tests
 
       try
       {
-        Extensions.WaitToCompleteTask(task, 1, CancellationToken.None);
+        Extensions.WaitToCompleteTask(task, 1, true, CancellationToken.None);
         Assert.Fail("Timeout did not occur");
       }
       catch (TimeoutException)
@@ -78,7 +78,7 @@ namespace CsvTools.Tests
       {
         var task = System.Threading.Tasks.Task.Factory.StartNew(() =>
         {
-          Thread.Sleep(2000);
+          Thread.Sleep(3000);
         });
 
         try
@@ -86,15 +86,18 @@ namespace CsvTools.Tests
           // Cancel Token after 200 ms in other thread
           var task2 = System.Threading.Tasks.Task.Factory.StartNew(() =>
           {
-            Thread.Sleep(200);
+            Thread.Sleep(500);
             cts.Cancel();
           });
-          Extensions.WaitToCompleteTask(task, 1, cts.Token);
+          Extensions.WaitToCompleteTask(task, 1.5d, true, cts.Token);
           Assert.Fail("Timeout did not occur");
         }
-        catch (OperationCanceledException)
+        catch (AssertFailedException)
         {
+          throw;
         }
+        catch (OperationCanceledException)
+        { }
         catch (Exception ex)
         {
           Assert.Fail($"Wrong exception got {ex.GetType().Name} expected OperationCanceledException");

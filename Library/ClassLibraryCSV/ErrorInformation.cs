@@ -17,7 +17,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics.Contracts;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace CsvTools
 {
@@ -244,11 +243,10 @@ namespace CsvTools
         return null;
       var list = new List<Tuple<string, string>>();
 
-      // Now every column error
-      Parallel.ForEach(columnErrors, (entry) =>
+      // Tried Parallel.Foreach but it was not reliable, with a few million executions some values where wrong
+      foreach (var entry in columnErrors)
       {
         var colName = entry.Key >= 0 && columns.Count > entry.Key ? columns[entry.Key] : string.Empty;
-
         var start = 0;
         while (start < entry.Value.Length)
         {
@@ -259,7 +257,7 @@ namespace CsvTools
           list.Add(new Tuple<string, string>(colName, entry.Value.Substring(start, end - start)));
           start = end + 1;
         }
-      });
+      }
 
       return BuildList(list);
     }
