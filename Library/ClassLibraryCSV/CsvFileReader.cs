@@ -537,6 +537,7 @@ namespace CsvTools
           }
         }
       }
+
       return true;
     }
 
@@ -1121,6 +1122,10 @@ namespace CsvTools
     /// <param name="questionMark"></param>
     private void WarnUnknownChar(int column, bool questionMark)
     {
+      // in case the column  is ignored do not warn
+      if (Column[column].Ignore)
+        return;
+
       m_NumWarningsUnknownChar++;
       if (m_CsvFile.NumWarnings >= 1 && m_NumWarningsUnknownChar > m_CsvFile.NumWarnings)
         return;

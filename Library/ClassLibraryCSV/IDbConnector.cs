@@ -46,12 +46,10 @@ namespace CsvTools
     /// <param name="columns">An enumeration of <see cref="Column" />, each of these will be created</param>
     /// <param name="tableName">Name of the table.</param>
     /// <param name="includeErrorField">if set to <c>true</c> add an error field.</param>
-    /// <param name="includeLineNo">if set to <c>true</c> add a line no field</param>
     /// <param name="includeRecordNo">if set to <c>true</c> add a record no field</param>
     /// <param name="includeEndLineNo">if set to <c>true</c> add an end-line no field.</param>
-    /// <param name="useIdentity">if set to <c>true</c> [use identity].</param>
-    void CreateTable(IEnumerable<Column> columns, string tableName, bool includeErrorField, bool includeLineNo,
-     bool includeRecordNo, bool includeEndLineNo, bool useIdentity);
+    void CreateTable(IEnumerable<Column> columns, string tableName, bool includeErrorField, bool includeRecordNo,
+      bool includeEndLineNo);
 
     /// <summary>
     ///  Drops the given table.

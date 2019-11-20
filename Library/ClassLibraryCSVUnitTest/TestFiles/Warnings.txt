@@ -1,0 +1,7 @@
+﻿ID	Name	InternalCode	Desc	Test
+US-001-Language	Literature Code	17	Code describing language of literature	EN-US
+US-002-TERRITORYSTATE	Territory State	81	The local code for Territory	EN-US
+DE-005-Geschäftsbereich	Gesch???ftsbr.	1899	Business Unit / Area of operations	DE-DE
+DE-006-Gerät	Gerät	838	Equipment / Machine	DE-DE
+UK-003-Appliance	Electrical Appliance	2883		EN-UK
+DE-004-Geschöpf	Gesch�pf	188	Durch einen Sch�pfungsakt in sein Dasein gesetzt wurde	DE-DE

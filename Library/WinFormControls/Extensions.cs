@@ -43,24 +43,31 @@ namespace CsvTools
     /// <param name="timeoutMinutes">Timeout in Minutes</param>
     /// <param name="raiseError"><c>TRUE</c> if an Exception should be raised on timeout, otherwise a log entry will be written</param>
     /// <param name="cancellationToken">Cancellation Token</param>
-    public static void TimeOutWait(Func<bool> whileTrue, int millisecondsSleep, double timeoutMinutes, bool raiseError, CancellationToken cancellationToken)
+    public static bool TimeOutWait(Func<bool> whileTrue, int millisecondsSleep, double timeoutMinutes, bool raiseError, CancellationToken cancellationToken)
     {
       var stopwatch = new Stopwatch();
       stopwatch.Start();
 
-      while (!cancellationToken.IsCancellationRequested && whileTrue())
+      while (whileTrue())
       {
-        if (timeoutMinutes > 0 && stopwatch.ElapsedMilliseconds > timeoutMinutes * 60000)
+        if (cancellationToken.IsCancellationRequested)
         {
-          var msg = $"Waited longer than {timeoutMinutes * 60:N0} seconds, assuming something is wrong";
+          if (raiseError)
+            cancellationToken.ThrowIfCancellationRequested();
+          return false;
+        }
+        if (timeoutMinutes > 0 && stopwatch.Elapsed.TotalMinutes > timeoutMinutes)
+        {
+          var msg = $"Waited longer than {stopwatch.Elapsed.Seconds:N0} seconds, assuming something is wrong";
           if (raiseError)
             throw new TimeoutException(msg);
           else
-            Logger.Warning(message: msg);
-          break;
+            Logger.Warning(msg);
+          return false;
         }
         ProcessUIElements(millisecondsSleep);
       }
+      return true;
     }
 
     public static void ProcessUIElements(int milliseconds = 0)
@@ -75,28 +82,14 @@ namespace CsvTools
 #endif
     }
 
-    public static void WaitToCompleteTask(this System.Threading.Tasks.Task executeTask, int timeoutSeconds, CancellationToken cancellationToken)
-    {
-      cancellationToken.ThrowIfCancellationRequested();
-      var stopwatch = new Stopwatch();
-      stopwatch.Start();
-      while (executeTask.Status != System.Threading.Tasks.TaskStatus.RanToCompletion)
-      {
-        if (timeoutSeconds > 0 && stopwatch.ElapsedMilliseconds > timeoutSeconds * 1000)
-        {
-          throw new TimeoutException($"Waited longer than {timeoutSeconds:N0} seconds, assuming something is wrong");
-        }
-        ProcessUIElements();
-        executeTask.Wait(250, cancellationToken);
-      }
-    }
+    public static bool WaitToCompleteTask(this System.Threading.Tasks.Task executeTask, double timeoutSeconds, bool raiseError, CancellationToken cancellationToken) => TimeOutWait(() => { return executeTask.Status != System.Threading.Tasks.TaskStatus.RanToCompletion; }, 220, timeoutSeconds / 60d, raiseError, cancellationToken);
 
-    public static TResult RunWithTimeout<TResult>(this Func<TResult> action, int timeoutSeconds, CancellationToken cancellationToken)
+    public static TResult RunWithTimeout<TResult>(this Func<TResult> action, double timeoutSeconds, CancellationToken cancellationToken)
     {
       try
       {
         var task = System.Threading.Tasks.Task.Factory.StartNew(action);
-        task.WaitToCompleteTask(timeoutSeconds, cancellationToken);
+        task.WaitToCompleteTask(timeoutSeconds, true, cancellationToken);
         return task.Result;
       }
       catch (Exception ex)

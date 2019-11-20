@@ -12,6 +12,7 @@
  *
  */
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Text;
@@ -23,7 +24,8 @@ namespace CsvTools
   /// </summary>
   public class RowErrorCollection
   {
-    private readonly int m_MaxRows;
+    private readonly int m_MaxRows = int.MaxValue;
+    private ICollection<int> m_IgnoredColumns = null;
 
     /// <summary>
     ///   A List containing warnings by row/column
@@ -31,11 +33,31 @@ namespace CsvTools
     private readonly IDictionary<long, ColumnErrorDictionary> m_RowErrorCollection =
       new Dictionary<long, ColumnErrorDictionary>();
 
-    public RowErrorCollection() : this(int.MaxValue)
+    /// <summary>
+    /// Attach the error collection to the reader
+    /// </summary>
+    /// <param name="reader"></param>
+    public RowErrorCollection(IFileReader reader) => reader.Warning += Add;
+
+    public void HandleIgnoredColumns(IFileReader reader)
     {
+      if (reader.FieldCount == 0)
+        throw new InvalidOperationException("Reader has not been opened.");
+
+      for (var col = 0; col < reader.FieldCount; col++)
+      {
+        if (reader.IgnoreRead(col))
+        {
+          if (m_IgnoredColumns == null)
+            m_IgnoredColumns = new HashSet<int>();
+          m_IgnoredColumns.Add(col);
+        }
+      }
     }
 
     public RowErrorCollection(int maxRows) => m_MaxRows = maxRows;
+
+    public event EventHandler<WarningEventArgs> PassWarning;
 
     /// <summary>
     ///   Number of Rows in the warning lits
@@ -55,7 +77,7 @@ namespace CsvTools
         // Go though all rows
         foreach (var errorsInColumn in m_RowErrorCollection.Values)
           // And all columns
-          foreach (var message in errorsInColumn.Dictionary.Values)
+          foreach (var message in errorsInColumn.Values)
           {
             if (sb.Length > 0)
               sb.Append(ErrorInformation.cSeparator);
@@ -82,7 +104,7 @@ namespace CsvTools
           var errorsInColumn = pair.Value;
           var first = true;
           // And all columns
-          foreach (var message in errorsInColumn.Dictionary.Values)
+          foreach (var message in errorsInColumn.Values)
           {
             // indent next message
             if (!first)
@@ -108,7 +130,7 @@ namespace CsvTools
     /// <param name="args"></param>
     public virtual void Add(object sender, WarningEventArgs args)
     {
-      if (CountRows >= m_MaxRows)
+      if ((m_IgnoredColumns != null && m_IgnoredColumns.Contains(args.ColumnNumber)) || CountRows >= m_MaxRows)
         return;
 
       if (!m_RowErrorCollection.TryGetValue(args.RecordNumber, out var columnErrorCollection))
@@ -118,6 +140,7 @@ namespace CsvTools
       }
 
       columnErrorCollection.Add(args.ColumnNumber, args.Message);
+      PassWarning?.Invoke(sender, args);
     }
 
     /// <summary>

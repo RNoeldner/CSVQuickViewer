@@ -78,22 +78,29 @@ namespace CsvTools
     {
       if (!string.IsNullOrWhiteSpace(text) && !m_LastMessage.Equals(text, StringComparison.Ordinal))
       {
-        var appended = false;
-        var posSlash = text.IndexOf('–', 0);
-        if (posSlash != -1 && m_LastMessage.StartsWith(text.Substring(0, posSlash + 1), StringComparison.Ordinal))
+        try
         {
-          // add to previous item,
-          AppendText(text.Substring(posSlash - 1), level);
-          appended = true;
+          var appended = false;
+          var posSlash = text.IndexOf('–', 0);
+          if (posSlash != -1 && m_LastMessage.StartsWith(text.Substring(0, posSlash + 1), StringComparison.Ordinal))
+          {
+            // add to previous item,
+            AppendText(text.Substring(posSlash - 1), level);
+            appended = true;
+          }
+          m_LastMessage = text;
+          if (!appended)
+          {
+            if (level < Logger.Level.Error)
+              text = StringUtils.GetShortDisplay(StringUtils.HandleCRLFCombinations(text, " "), 120);
+            AppendText($"{(m_Initial ? string.Empty : "\n")}{DateTime.Now:HH:mm:ss}  {text}", level);
+          }
+          m_Initial = false;
         }
-        m_LastMessage = text;
-        if (!appended)
+        catch (Exception)
         {
-          if (level < Logger.Level.Error)
-            text = StringUtils.GetShortDisplay(StringUtils.HandleCRLFCombinations(text, " "), 120);
-          AppendText($"{(m_Initial ? string.Empty : "\n")}{DateTime.Now:HH:mm:ss}  {text}", level);
+          //ignore
         }
-        m_Initial = false;
       }
     }
 

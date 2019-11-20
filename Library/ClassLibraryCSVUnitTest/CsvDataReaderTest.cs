@@ -11,7 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -19,6 +19,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 using System.Threading;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
@@ -93,12 +94,13 @@ namespace CsvTools.Tests
         DataType = DataType.TextToHtml,
         Name = "webLink"
       });
-      var warningList = new RowErrorCollection();
+
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(basIssues, processDisplay))
       {
-        test.Warning += warningList.Add;
+        var warningList = new RowErrorCollection(test);
         test.Open();
+        warningList.HandleIgnoredColumns(test);
         // need 22 columns
         Assert.AreEqual(22, test.GetSchemaTable().Rows.Count());
 
@@ -204,8 +206,8 @@ namespace CsvTools.Tests
           var lineNumberColumn = dataTable.Columns.Add(BaseFileReader.cEndLineNumberFieldName, typeof(int));
           lineNumberColumn.AllowDBNull = true;
 
-          int[] columnMapping = { 0 };
-          var warningsList = new RowErrorCollection();
+          var columnMapping = new BiDirectionalDictionary<int, int>();
+          var warningsList = new RowErrorCollection(test);
           test.CopyRowToTable(dataTable, warningsList, columnMapping, recordNumberColumn, lineNumberColumn, null);
           var dataRow = dataTable.NewRow();
         }
@@ -254,7 +256,7 @@ namespace CsvTools.Tests
         test.Open();
         try
         {
-          test.CopyRowToTable(null, new RowErrorCollection(), null, null, null, null);
+          test.CopyRowToTable(null, new RowErrorCollection(test), null, null, null, null);
         }
         catch (ArgumentNullException)
         {
@@ -369,7 +371,8 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
-        test.ReadFinished += delegate { finished = true; };
+        test.ReadFinished += delegate
+        { finished = true; };
         test.Open();
 
         while (test.Read())
@@ -387,7 +390,8 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
-        test.ReadFinished += delegate { finished = true; };
+        test.ReadFinished += delegate
+        { finished = true; };
         test.Open();
         while (test.Read())
         {
@@ -451,6 +455,62 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    public void WriteToDataTable_IgnoredColumnsRealignWarning()
+    {
+      var setting = new CsvFile
+      {
+        HasFieldHeader = true,
+        TrimmingOption = TrimmingOption.All,
+        FileName = Path.Combine(m_ApplicationDirectory, "Warnings.txt"),
+        ID = "DataTable",
+        WarnUnknowCharater = true,
+        DisplayEndLineNo = false,
+        DisplayStartLineNo = false,
+        DisplayRecordNo = false,
+      };
+      setting.FileFormat.FieldDelimiter = "tab";
+
+      // ignore one column this should move the warning of the Desc
+      setting.ColumnCollection.Add(new Column() { Ignore = true, Name = "InternalCode" });
+
+      using (var processDisplay = new DummyProcessDisplay())
+      {
+        using (var test = new CsvFileReader(setting, processDisplay))
+        {
+          var warningList = new RowErrorCollection(test);
+          test.Open();
+          warningList.HandleIgnoredColumns(test);
+
+          var res = test.WriteToDataTable(setting, 0, warningList, CancellationToken.None);
+
+          // The error must have moved from column 4 to column 3 as Column 2 is ignored
+          // no error in column 4 of Row 6
+          Assert.IsTrue(string.IsNullOrEmpty(res.Rows[5].GetColumnError(3)));
+          // error in column 3 of Row 6
+          Assert.IsTrue(!string.IsNullOrEmpty(res.Rows[5].GetColumnError(2)));
+        }
+      }
+    }
+
+    [TestMethod]
+    public void CsvDataReaderWriteToDataTable_RowErrorCollection()
+    {
+      using (var processDisplay = new DummyProcessDisplay())
+      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
+      {
+        var warningList = new RowErrorCollection(test);
+        test.Open();
+        warningList.HandleIgnoredColumns(test);
+
+        var res = test.WriteToDataTable(m_ValidSetting, 0, warningList, CancellationToken.None);
+        Assert.AreEqual(7, res.Rows.Count);
+        Assert.AreEqual(
+          6 + (m_ValidSetting.DisplayStartLineNo ? 1 : 0) + (m_ValidSetting.DisplayEndLineNo ? 1 : 0) +
+          (m_ValidSetting.DisplayRecordNo ? 1 : 0), res.Columns.Count);
+      }
+    }
+
+    [TestMethod]
     public void CsvDataReaderWriteToDataTableDisplayRecordNo()
     {
       var newCsvFile = (CsvFile)m_ValidSetting.Clone();
@@ -470,11 +530,11 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CsvDataReaderWriteToDataTable2()
     {
-      var wl = new RowErrorCollection();
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
         test.Open();
+        var wl = new RowErrorCollection(test);
         var res = test.WriteToDataTable(m_ValidSetting, 2, wl, CancellationToken.None);
         Assert.AreEqual(2, res.Rows.Count);
         Assert.AreEqual(
@@ -999,11 +1059,14 @@ namespace CsvTools.Tests
       };
       setting.FileFormat.FieldQualifier = "XX";
       setting.FileFormat.FieldDelimiter = ",,";
-      var warningList = new RowErrorCollection();
-      using (var processDisplay = new DummyProcessDisplay()) using (var test = new CsvFileReader(setting, processDisplay))
+
+      using (var processDisplay = new DummyProcessDisplay())
+      using (var test = new CsvFileReader(setting, processDisplay))
       {
-        test.Warning += warningList.Add;
+        var warningList = new RowErrorCollection(test);
         test.Open();
+        warningList.HandleIgnoredColumns(test);
+
         Assert.IsTrue(warningList.Display.Contains("Only the first character of 'XX' is be used for quoting."));
         Assert.IsTrue(warningList.Display.Contains("Only the first character of ',,' is used as delimiter."));
       }
@@ -1022,7 +1085,8 @@ namespace CsvTools.Tests
       var Exception = false;
       try
       {
-        using (var processDisplay = new DummyProcessDisplay()) using (var test = new CsvFileReader(setting, processDisplay))
+        using (var processDisplay = new DummyProcessDisplay())
+        using (var test = new CsvFileReader(setting, processDisplay))
         {
           test.Open();
         }
@@ -1056,7 +1120,8 @@ namespace CsvTools.Tests
       var Exception = false;
       try
       {
-        using (var processDisplay = new DummyProcessDisplay()) using (var test = new CsvFileReader(setting, processDisplay))
+        using (var processDisplay = new DummyProcessDisplay())
+        using (var test = new CsvFileReader(setting, processDisplay))
         {
           test.Open();
         }
@@ -1090,7 +1155,8 @@ namespace CsvTools.Tests
       var Exception = false;
       try
       {
-        using (var processDisplay = new DummyProcessDisplay()) using (var test = new CsvFileReader(setting, processDisplay))
+        using (var processDisplay = new DummyProcessDisplay())
+        using (var test = new CsvFileReader(setting, processDisplay))
         {
           test.Open();
         }
@@ -1121,7 +1187,8 @@ namespace CsvTools.Tests
         CodePageId = 0
       };
       setting.FileFormat.FieldDelimiter = ",";
-      using (var processDisplay = new DummyProcessDisplay()) using (var test = new CsvFileReader(setting, processDisplay))
+      using (var processDisplay = new DummyProcessDisplay())
+      using (var test = new CsvFileReader(setting, processDisplay))
       {
         test.Open();
       }
@@ -1142,7 +1209,8 @@ namespace CsvTools.Tests
       var Exception = false;
       try
       {
-        using (var processDisplay = new DummyProcessDisplay()) using (var test = new CsvFileReader(setting, processDisplay))
+        using (var processDisplay = new DummyProcessDisplay())
+        using (var test = new CsvFileReader(setting, processDisplay))
         {
           test.Open();
         }
@@ -1176,7 +1244,8 @@ namespace CsvTools.Tests
       var Exception = false;
       try
       {
-        using (var processDisplay = new DummyProcessDisplay()) using (var test = new CsvFileReader(setting, processDisplay))
+        using (var processDisplay = new DummyProcessDisplay())
+        using (var test = new CsvFileReader(setting, processDisplay))
         {
           test.Open();
         }
