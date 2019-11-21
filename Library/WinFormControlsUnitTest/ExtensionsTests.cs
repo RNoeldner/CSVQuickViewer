@@ -142,12 +142,11 @@ namespace CsvTools.Tests
     [TestMethod]
     public void RunWithTimeoutErrorIsDefault()
     {
-      var result = Extensions.RunWithTimeout(() =>
+      var result = Extensions.RunWithTimeout<bool>(() =>
         {
-          throw new ArgumentException("My Exception");
-          return 1;
+          throw new ArgumentException("My Exception");          
         }, 1, CancellationToken.None);
-      Assert.AreEqual(default(int), result);
+      Assert.AreEqual(default(bool), result);
     }
 
     [TestMethod()]

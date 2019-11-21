@@ -45,7 +45,7 @@ namespace CsvTools
     /// <param name="column">The column format.</param>
     /// <param name="writeSetting">if set to <c>true</c> [write setting].</param>
     /// <param name="fileSetting">The file setting.</param>
-    public FormColumnUI(Column column, bool writeSetting, IFileSetting fileSetting)
+    public FormColumnUI(Column column, bool writeSetting, IFileSetting fileSetting, bool showIgnore)
     {
       Contract.Requires(column != null);
       m_FileSetting = fileSetting;
@@ -67,7 +67,7 @@ namespace CsvTools
 
       labelDisplayNullAs.Visible = writeSetting;
       textBoxDisplayNullAs.Visible = writeSetting;
-      checkBoxIgnore.Visible = !writeSetting;
+      checkBoxIgnore.Visible = (!writeSetting && showIgnore);
     }
 
     public bool ShowGuess

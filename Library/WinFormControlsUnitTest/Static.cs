@@ -85,6 +85,7 @@ namespace CsvTools.Tests
       dataTable.Columns.Add("AllEmpty", typeof(string));
       dataTable.Columns.Add("PartEmpty", typeof(string));
       dataTable.Columns.Add("ID", typeof(int));
+      dataTable.Columns.Add("#Line", typeof(long));
       var minDate = DateTime.Now.AddYears(-20).Ticks;
       var maxDate = DateTime.Now.AddYears(5).Ticks;
 
@@ -115,6 +116,8 @@ namespace CsvTools.Tests
           dr.SetColumnError(i % 33, "ColumnError");
         if (i % 35 == 0)
           dr.RowError = "RowError";
+        dr[8] = i;   // ID
+        dr[9] = i*2; // #Line
         dataTable.Rows.Add(dr);
       }
 

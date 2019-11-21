@@ -1117,7 +1117,7 @@ namespace CsvTools
       var columnFormat = GetColumnFormat(m_MenuItemColumnIndex);
       if (columnFormat == null)
         return;
-      using (var form = new FormColumnUI(columnFormat, false, m_FileSetting))
+      using (var form = new FormColumnUI(columnFormat, false, m_FileSetting, false))
       {
         if (form.ShowDialog() == DialogResult.Yes)
           Refresh();

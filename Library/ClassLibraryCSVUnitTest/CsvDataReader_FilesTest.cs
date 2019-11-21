@@ -690,8 +690,8 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(setting, processDisplay))
       {
-        test.Open();
         var warningsList = new RowErrorCollection(test);
+        test.Open();        
 
         Assert.AreEqual(6, test.FieldCount);
         Assert.AreEqual("a", test.GetName(0));
@@ -702,7 +702,7 @@ namespace CsvTools.Tests
         Assert.AreEqual("d", test.GetName(3));
         Assert.AreEqual("e", test.GetName(4));
         Assert.AreEqual("f", test.GetName(5));
-        Assert.AreEqual(1, warningsList.CountRows);
+        Assert.AreEqual(1, warningsList.CountRows, "Warnings");
         Assert.IsTrue(warningsList.Display.Contains("has been cut off"));
 
         // check if we read the right line , and we do not end up in a commented line of read the header ahgin
