@@ -128,7 +128,7 @@ namespace CsvTools.Tests
     {
       var col = new Column { Name = "ExamDate", DataType = DataType.DateTime };
       csvFile.ColumnCollection.AddIfNew(col);
-      using (var frm = new FormColumnUI(col, false, csvFile))
+      using (var frm = new FormColumnUI(col, false, csvFile, false))
       {
         frm.ShowInTaskbar = false;
         frm.Show();
@@ -141,7 +141,7 @@ namespace CsvTools.Tests
     {
       var col = new Column { Name = "ExamDate", DataType = DataType.DateTime };
       csvFile.ColumnCollection.AddIfNew(col);
-      using (var form = new FormColumnUI(col, false, csvFile))
+      using (var form = new FormColumnUI(col, false, csvFile, true))
       {
         form.ShowInTaskbar = false;
         form.ShowGuess = false;
@@ -155,7 +155,7 @@ namespace CsvTools.Tests
     {
       var col = new Column { Name = "ExamDate", DataType = DataType.DateTime };
       csvFile.ColumnCollection.AddIfNew(col);
-      using (var form = new FormColumnUI(col, false, csvFile))
+      using (var form = new FormColumnUI(col, false, csvFile, false))
       {
         form.ShowInTaskbar = false;
         form.Show();
@@ -169,7 +169,7 @@ namespace CsvTools.Tests
       var col = new Column { Name = "ExamDate", DataType = DataType.DateTime };
       csvFile.ColumnCollection.AddIfNew(col);
 
-      using (var form = new FormColumnUI(col, false, csvFile))
+      using (var form = new FormColumnUI(col, false, csvFile, true))
       {
         form.ShowInTaskbar = false;
         form.Show();

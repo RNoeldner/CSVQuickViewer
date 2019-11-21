@@ -21,6 +21,8 @@ namespace CsvTools
   /// </summary>
   public class IntervalAction
   {
+    private DateTime m_LastNotification = DateTime.MinValue;
+
     /// <summary>
     ///  Initializes a new instance of the <see cref="IntervalAction" /> class.
     /// </summary>
@@ -34,7 +36,6 @@ namespace CsvTools
     public IntervalAction(double notifyAfterSeconds) => NotifyAfterSeconds = notifyAfterSeconds;
 
     public double NotifyAfterSeconds { get; set; }
-
     /// <summary>
     ///  Invoke the given action if the set interval has passed
     /// </summary>
