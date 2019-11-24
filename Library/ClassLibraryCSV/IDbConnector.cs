@@ -190,7 +190,14 @@ namespace CsvTools
     /// </summary>
     void LeaveDatabase();
 
-    void ProcessColumnLength(string tableName, IProcessDisplay processDisplay, ICollection<string> fields);
+    /// <summary>
+    /// Change length of the columns that are defined in nvarchar(max) to a limited list so they can be indexed
+    /// </summary>
+    /// <param name="tableName">The name of the database table</param>
+    /// <param name="processDisplay">a process display</param>
+    /// <param name="fields">collection of fields to check</param>
+    /// <returns>A list of fields that can now be indexed</returns>
+    ICollection<string> ProcessColumnLength(string tableName, IProcessDisplay processDisplay, ICollection<string> fields);
 
     /// <summary>
     ///  Stores a list of number in a table and executes a SQL statement that can reference the lines the integer are in table

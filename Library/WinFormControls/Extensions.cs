@@ -56,9 +56,9 @@ namespace CsvTools
             cancellationToken.ThrowIfCancellationRequested();
           return false;
         }
-        if (timeoutMinutes > 0 && stopwatch.Elapsed.TotalMinutes > timeoutMinutes)
+        if (timeoutMinutes > 0.005 && stopwatch.Elapsed.TotalMinutes > timeoutMinutes)
         {
-          var msg = $"Waited longer than {stopwatch.Elapsed.Seconds:N0} seconds, assuming something is wrong";
+          var msg = $"Waited longer than {stopwatch.Elapsed.Seconds:N1} seconds, assuming something is wrong";
           if (raiseError)
             throw new TimeoutException(msg);
           else
