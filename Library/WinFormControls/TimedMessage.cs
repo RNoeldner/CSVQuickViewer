@@ -68,7 +68,7 @@ namespace CsvTools
       this.tableLayoutPanel.SetColumnSpan(this.richTextBox, 4);
       this.richTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
       this.richTextBox.Location = new System.Drawing.Point(65, 4);
-      this.richTextBox.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+      this.richTextBox.Margin = new System.Windows.Forms.Padding(4);
       this.richTextBox.Name = "richTextBox";
       this.richTextBox.ReadOnly = true;
       this.richTextBox.Size = new System.Drawing.Size(584, 115);
@@ -128,7 +128,6 @@ namespace CsvTools
       // pictureBox
       // 
       this.pictureBox.ErrorImage = null;
-      this.pictureBox.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox.Image")));
       this.pictureBox.InitialImage = null;
       this.pictureBox.Location = new System.Drawing.Point(9, 3);
       this.pictureBox.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
