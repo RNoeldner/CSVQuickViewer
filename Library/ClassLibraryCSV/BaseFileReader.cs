@@ -1311,7 +1311,6 @@ namespace CsvTools
         return;
       InitColumn(FieldCount);
 
-      // The last column is empty but we expect a header column, assume if a trailing separator
       if (!m_FileSetting.HasFieldHeader)
       {
         for (var i = 0; i < FieldCount; i++)
