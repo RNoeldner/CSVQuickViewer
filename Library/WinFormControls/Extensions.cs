@@ -82,7 +82,12 @@ namespace CsvTools
 #endif
     }
 
-    public static bool WaitToCompleteTask(this System.Threading.Tasks.Task executeTask, double timeoutSeconds, bool raiseError, CancellationToken cancellationToken) => TimeOutWait(() => { return executeTask.Status != System.Threading.Tasks.TaskStatus.RanToCompletion; }, 220, timeoutSeconds / 60d, raiseError, cancellationToken);
+    public static bool WaitToCompleteTask(this System.Threading.Tasks.Task executeTask, double timeoutSeconds, bool raiseError, CancellationToken cancellationToken) => TimeOutWait(() =>
+    {
+      if (executeTask.Status == System.Threading.Tasks.TaskStatus.Faulted)
+        return false;
+      return executeTask.Status != System.Threading.Tasks.TaskStatus.RanToCompletion;
+    }, 220, timeoutSeconds / 60d, raiseError, cancellationToken);
 
     public static TResult RunWithTimeout<TResult>(this Func<TResult> action, double timeoutSeconds, CancellationToken cancellationToken)
     {
