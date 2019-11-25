@@ -21,6 +21,7 @@ namespace CsvTools
     private PictureBox pictureBox;
     private RichTextBox richTextBox;
     private TableLayoutPanel tableLayoutPanel;
+    private ImageList imageList;
     private Timer timer;
 
     #region Windows Form Designer generated code
@@ -32,6 +33,7 @@ namespace CsvTools
     private void InitializeComponent()
     {
       this.components = new System.ComponentModel.Container();
+      System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(TimedMessage));
       this.button1 = new System.Windows.Forms.Button();
       this.richTextBox = new System.Windows.Forms.RichTextBox();
       this.label = new System.Windows.Forms.Label();
@@ -40,6 +42,7 @@ namespace CsvTools
       this.button3 = new System.Windows.Forms.Button();
       this.pictureBox = new System.Windows.Forms.PictureBox();
       this.tableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
+      this.imageList = new System.Windows.Forms.ImageList(this.components);
       ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
       this.tableLayoutPanel.SuspendLayout();
       this.SuspendLayout();
@@ -48,9 +51,10 @@ namespace CsvTools
       // 
       this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
       this.button1.BackColor = System.Drawing.SystemColors.ButtonFace;
-      this.button1.Location = new System.Drawing.Point(419, 157);
+      this.button1.Location = new System.Drawing.Point(371, 126);
+      this.button1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
       this.button1.Name = "button1";
-      this.button1.Size = new System.Drawing.Size(100, 34);
+      this.button1.Size = new System.Drawing.Size(89, 27);
       this.button1.TabIndex = 0;
       this.button1.Text = "button1";
       this.button1.UseVisualStyleBackColor = false;
@@ -63,11 +67,11 @@ namespace CsvTools
       this.richTextBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
       this.tableLayoutPanel.SetColumnSpan(this.richTextBox, 4);
       this.richTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.richTextBox.Location = new System.Drawing.Point(67, 5);
-      this.richTextBox.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+      this.richTextBox.Location = new System.Drawing.Point(65, 4);
+      this.richTextBox.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
       this.richTextBox.Name = "richTextBox";
       this.richTextBox.ReadOnly = true;
-      this.richTextBox.Size = new System.Drawing.Size(663, 144);
+      this.richTextBox.Size = new System.Drawing.Size(584, 115);
       this.richTextBox.TabIndex = 3;
       this.richTextBox.Text = "";
       this.richTextBox.MouseEnter += new System.EventHandler(this.MouseEnterElement);
@@ -79,9 +83,9 @@ namespace CsvTools
       this.tableLayoutPanel.SetColumnSpan(this.label, 2);
       this.label.Dock = System.Windows.Forms.DockStyle.Fill;
       this.label.ForeColor = System.Drawing.SystemColors.InfoText;
-      this.label.Location = new System.Drawing.Point(9, 154);
+      this.label.Location = new System.Drawing.Point(8, 123);
       this.label.Name = "label";
-      this.label.Size = new System.Drawing.Size(404, 40);
+      this.label.Size = new System.Drawing.Size(357, 32);
       this.label.TabIndex = 2;
       this.label.Text = "Default in 5 seconds";
       this.label.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -97,9 +101,10 @@ namespace CsvTools
       this.button2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
       this.button2.BackColor = System.Drawing.SystemColors.ButtonFace;
       this.button2.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-      this.button2.Location = new System.Drawing.Point(525, 157);
+      this.button2.Location = new System.Drawing.Point(466, 126);
+      this.button2.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
       this.button2.Name = "button2";
-      this.button2.Size = new System.Drawing.Size(100, 34);
+      this.button2.Size = new System.Drawing.Size(89, 27);
       this.button2.TabIndex = 1;
       this.button2.Text = "button2";
       this.button2.UseVisualStyleBackColor = false;
@@ -110,9 +115,10 @@ namespace CsvTools
       // 
       this.button3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
       this.button3.BackColor = System.Drawing.SystemColors.ButtonFace;
-      this.button3.Location = new System.Drawing.Point(631, 157);
+      this.button3.Location = new System.Drawing.Point(561, 126);
+      this.button3.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
       this.button3.Name = "button3";
-      this.button3.Size = new System.Drawing.Size(100, 34);
+      this.button3.Size = new System.Drawing.Size(89, 27);
       this.button3.TabIndex = 2;
       this.button3.Text = "button3";
       this.button3.UseVisualStyleBackColor = false;
@@ -122,12 +128,13 @@ namespace CsvTools
       // pictureBox
       // 
       this.pictureBox.ErrorImage = null;
+      this.pictureBox.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox.Image")));
       this.pictureBox.InitialImage = null;
-      this.pictureBox.Location = new System.Drawing.Point(10, 4);
-      this.pictureBox.Margin = new System.Windows.Forms.Padding(4);
+      this.pictureBox.Location = new System.Drawing.Point(9, 3);
+      this.pictureBox.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
       this.pictureBox.Name = "pictureBox";
-      this.pictureBox.Size = new System.Drawing.Size(49, 50);
-      this.pictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+      this.pictureBox.Size = new System.Drawing.Size(48, 48);
+      this.pictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
       this.pictureBox.TabIndex = 4;
       this.pictureBox.TabStop = false;
       // 
@@ -141,34 +148,46 @@ namespace CsvTools
       this.tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
       this.tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
       this.tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-      this.tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 30F));
-      this.tableLayoutPanel.Controls.Add(this.pictureBox, 0, 0);
+      this.tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 27F));
       this.tableLayoutPanel.Controls.Add(this.label, 0, 1);
       this.tableLayoutPanel.Controls.Add(this.button3, 4, 1);
       this.tableLayoutPanel.Controls.Add(this.button2, 3, 1);
       this.tableLayoutPanel.Controls.Add(this.richTextBox, 1, 0);
       this.tableLayoutPanel.Controls.Add(this.button1, 2, 1);
+      this.tableLayoutPanel.Controls.Add(this.pictureBox, 0, 0);
       this.tableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
       this.tableLayoutPanel.Location = new System.Drawing.Point(0, 0);
+      this.tableLayoutPanel.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
       this.tableLayoutPanel.Name = "tableLayoutPanel";
-      this.tableLayoutPanel.Padding = new System.Windows.Forms.Padding(6, 0, 15, 5);
+      this.tableLayoutPanel.Padding = new System.Windows.Forms.Padding(5, 0, 13, 4);
       this.tableLayoutPanel.RowCount = 2;
       this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
       this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.tableLayoutPanel.Size = new System.Drawing.Size(749, 199);
+      this.tableLayoutPanel.Size = new System.Drawing.Size(666, 159);
       this.tableLayoutPanel.TabIndex = 5;
+      // 
+      // imageList
+      // 
+      this.imageList.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageList.ImageStream")));
+      this.imageList.TransparentColor = System.Drawing.Color.Transparent;
+      this.imageList.Images.SetKeyName(0, "Info-icon.bmp");
+      this.imageList.Images.SetKeyName(1, "icon-warning.bmp");
+      this.imageList.Images.SetKeyName(2, "icon-question.bmp");
+      this.imageList.Images.SetKeyName(3, "error-icon.bmp");
       // 
       // TimedMessage
       // 
-      this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
+      this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+      this.AutoSize = true;
       this.BackColor = System.Drawing.SystemColors.Control;
-      this.ClientSize = new System.Drawing.Size(749, 199);
+      this.ClientSize = new System.Drawing.Size(666, 159);
       this.Controls.Add(this.tableLayoutPanel);
       this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
+      this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
       this.MaximizeBox = false;
       this.MinimizeBox = false;
-      this.MinimumSize = new System.Drawing.Size(380, 87);
+      this.MinimumSize = new System.Drawing.Size(340, 79);
       this.Name = "TimedMessage";
       this.ShowIcon = false;
       this.ShowInTaskbar = false;
@@ -178,6 +197,7 @@ namespace CsvTools
       this.TopMost = true;
       ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).EndInit();
       this.tableLayoutPanel.ResumeLayout(false);
+      this.tableLayoutPanel.PerformLayout();
       this.ResumeLayout(false);
       this.PerformLayout();
 
@@ -303,31 +323,23 @@ namespace CsvTools
 
       if (icon != MessageBoxIcon.None)
       {
-        Icon displayIcon = null;
         switch (icon)
         {
-          case MessageBoxIcon.Question:
-            displayIcon = SystemIcons.Question;
-            break;
-
           case MessageBoxIcon.Error:
-            displayIcon = SystemIcons.Error;
-
+            pictureBox.Image = imageList.Images[3];
             break;
-
-          case MessageBoxIcon.Warning:
-            displayIcon = SystemIcons.Warning;
-            break;
-
           case MessageBoxIcon.Information:
-            displayIcon = SystemIcons.Information;
+            pictureBox.Image = imageList.Images[0];
             break;
-
+          case MessageBoxIcon.Warning:
+            pictureBox.Image = imageList.Images[1];
+            break;
+          case MessageBoxIcon.Question:
+            pictureBox.Image = imageList.Images[2];
+            break;
           default:
             break;
         }
-        if (displayIcon != null)
-          pictureBox.Image = new Icon(displayIcon, 32, 32).ToBitmap();
       }
 
       return ShowDialog(owner);
