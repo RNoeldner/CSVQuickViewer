@@ -78,6 +78,11 @@
     <Compile Include="FormLimitSize.Designer.cs">
       <DependentUpon>FormLimitSize.cs</DependentUpon>
     </Compile>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="WindowsAPICodePackWrapper.cs" />
     <Compile Include="FillGuessSettingEdit.cs">
       <SubType>UserControl</SubType>
@@ -184,6 +189,10 @@
     <EmbeddedResource Include="FormLimitSize.resx">
       <DependentUpon>FormLimitSize.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
     <EmbeddedResource Include="TimeZoneSelector.resx">
       <DependentUpon>TimeZoneSelector.cs</DependentUpon>
     </EmbeddedResource>
@@ -192,6 +201,7 @@
     </None>
     <EmbeddedResource Include="TimedMessage.resx">
       <DependentUpon>TimedMessage.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

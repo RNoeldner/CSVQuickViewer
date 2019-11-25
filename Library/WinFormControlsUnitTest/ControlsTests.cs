@@ -54,6 +54,7 @@ namespace CsvTools.Tests
     [ClassCleanup]
     public static void TearDown() => m_DataTable.Dispose();
 
+   
     [TestMethod]
     public void CsvRichTextBox()
     {
