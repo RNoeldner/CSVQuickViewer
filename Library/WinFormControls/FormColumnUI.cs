@@ -322,13 +322,15 @@ namespace CsvTools
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
     public void ButtonOKClick(object sender, EventArgs e)
     {
-      Extensions.RunWithTimeout(ValidateChildren, 1, m_CancellationTokenSource.Token);
       try
       {
-        if (!m_ColumnEdit.Equals(m_ColumnRef))
+        if (new Func<bool>(ValidateChildren).RunWithTimeout(1, System.Threading.CancellationToken.None))
         {
-          m_ColumnEdit.CopyTo(m_ColumnRef);
-          DialogResult = DialogResult.Yes;
+          if (!m_ColumnEdit.Equals(m_ColumnRef))
+          {
+            m_ColumnEdit.CopyTo(m_ColumnRef);
+            DialogResult = DialogResult.Yes;
+          }
         }
       }
       catch (Exception ex)
