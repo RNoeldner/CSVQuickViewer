@@ -175,7 +175,9 @@ namespace CsvTools
       {
         for (var i = 0; i < setting.SkipRows; i++)
           streamReader.ReadLine();
-        return GuessDelimiter(streamReader, setting.FileFormat.EscapeCharacterChar);
+        var result = GuessDelimiter(streamReader, setting.FileFormat.EscapeCharacterChar, out var noDelim);
+        setting.NoDelimitedFile = noDelim;
+        return result;
       }
     }
 
@@ -264,37 +266,6 @@ namespace CsvTools
           streamReader.ReadLine();
         return GuessNewline(streamReader, setting.FileFormat.FieldQualifierChar);
       }
-    }
-
-    /// <summary>
-    ///   Guesses the not a delimited file.
-    /// </summary>
-    /// <param name="setting"><see cref="ICsvFile" /> with the information</param>
-    /// <returns><c>true</c> if this is most likely not a delimited file</returns>
-    public static bool GuessNotADelimitedFile(ICsvFile setting)
-    {
-      Contract.Requires(setting != null);
-      using (var improvedStream = ImprovedStream.OpenRead(setting))
-      using (var streamReader = new StreamReader(improvedStream.Stream, setting.GetEncoding(), setting.ByteOrderMark))
-      {
-        for (var i = 0; i < setting.SkipRows; i++)
-          streamReader.ReadLine();
-        // If the file doe not have a good delimiter
-        // has empty lines
-        var dc = GetDelimiterCounter(streamReader, '\0', 300);
-
-        // Have a proper delimiter
-        for (var sep = 0; sep < dc.Separators.Length; sep++)
-        {
-          if (dc.SeparatorRows[sep] >= dc.LastRow * 9 / 10)
-          {
-            Logger.Information("Not a delimited file");
-            return false;
-          }
-        }
-      }
-      Logger.Information("Delimited file");
-      return true;
     }
 
     /// <summary>
@@ -467,15 +438,14 @@ namespace CsvTools
     ///   No Error will not be thrown.
     /// </remarks>
     [SuppressMessage("Microsoft.Performance", "CA1814:PreferJaggedArraysOverMultidimensional", MessageId = "Body")]
-    internal static string GuessDelimiter(StreamReader streamReader, char escapeCharacter)
+    internal static string GuessDelimiter(StreamReader streamReader, char escapeCharacter, out bool hasDelimiter)
     {
-      Contract.Ensures(Contract.Result<string>() != null);
-      var match = '\t';
       if (streamReader == null)
-      {
-        Logger.Information("File not read, assumed Delimiter: TAB");
-        return "TAB";
-      }
+        throw new ArgumentNullException(nameof(streamReader));
+
+      hasDelimiter = false;
+      Contract.Ensures(Contract.Result<string>() != null);
+      var match = '\0';
 
       var dc = GetDelimiterCounter(streamReader, escapeCharacter, 300);
 
@@ -498,7 +468,9 @@ namespace CsvTools
 
       for (var index = 0; index < dc.Separators.Length; index++)
       {
-        if (dc.SeparatorRows[index] < 1)
+        // only regard a delimiter if we have 75% of the rows with this delimiter
+        // we can still have a lot of commented lines
+        if (dc.SeparatorRows[index] < dc.LastRow * .75d)
           continue;
 
         var sumCount = 0;
@@ -542,9 +514,17 @@ namespace CsvTools
         match = dc.Separators[index];
         bestScore = score;
       }
-      var ret = match == '\t' ? "TAB" : match.ToString(CultureInfo.CurrentCulture);
-      Logger.Information("Delimiter: {delimiter}", ret);
-      return ret;
+
+      hasDelimiter = (match != '\0');
+      if (!hasDelimiter)
+      {
+        Logger.Information("Not a delimited file");
+        return string.Empty;
+      }
+
+      var result = match == '\t' ? "TAB" : match.ToString(CultureInfo.CurrentCulture);
+      Logger.Information("Delimiter: {delimiter}", result);
+      return result;
     }
 
     internal static string GuessNewline(StreamReader streamReader, char fieldQualifier)
