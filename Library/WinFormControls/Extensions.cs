@@ -28,6 +28,8 @@ namespace CsvTools
   /// </summary>
   public static class Extensions
   {
+    public static bool ValidateChildren(this ContainerControl container, CancellationToken cancellationToken) => new Func<bool>(container.ValidateChildren).RunWithTimeout(1, cancellationToken);
+
     public static void ShowError(this Form from, Exception ex, string additionalTitle = "")
     {
       Logger.Warning(ex, "Issue in UI {form} : {message}", nameof(from), ex.Message);
@@ -36,19 +38,20 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// WAits for a
-    /// </summary>  longer running process to , and update the UI in during waiting
-    /// <param name="whileTrue">Function to determine if a process should still execute, once the function return <c>FASLE</c> this routine will return</param>
+    /// Checks if a condition is set but processes UI events while waiting
+    /// </summary>
+    /// <param name="waitWhileTrue">Function to determine if a process should still execute, once the function return <c>FASLE</c> this routine will return</param>
     /// <param name="millisecondsSleep">Waiting the amount of Milliseconds during tests</param>
     /// <param name="timeoutMinutes">Timeout in Minutes</param>
     /// <param name="raiseError"><c>TRUE</c> if an Exception should be raised on timeout, otherwise a log entry will be written</param>
     /// <param name="cancellationToken">Cancellation Token</param>
-    public static bool TimeOutWait(Func<bool> whileTrue, int millisecondsSleep, double timeoutMinutes, bool raiseError, CancellationToken cancellationToken)
+    /// <returns><c>true</c> if finished successfully, <c>false</c> if canceled or timeout has been reached</returns>
+    public static bool TimeOutWait(Func<bool> waitWhileTrue, int millisecondsSleep, double timeoutMinutes, bool raiseError, CancellationToken cancellationToken)
     {
       var stopwatch = new Stopwatch();
       stopwatch.Start();
 
-      while (whileTrue())
+      while (waitWhileTrue())
       {
         if (cancellationToken.IsCancellationRequested)
         {
@@ -70,6 +73,10 @@ namespace CsvTools
       return true;
     }
 
+    /// <summary>
+    /// Handles UI elements while waiting on something
+    /// </summary>
+    /// <param name="milliseconds">number of milliseconds to not process the calling thread</param>
     public static void ProcessUIElements(int milliseconds = 0)
     {
 #if wpf
@@ -82,26 +89,96 @@ namespace CsvTools
 #endif
     }
 
-    public static bool WaitToCompleteTask(this System.Threading.Tasks.Task executeTask, double timeoutSeconds, bool raiseError, CancellationToken cancellationToken) => TimeOutWait(() =>
+    /// <summary>
+    /// Execute an action synchronously with timeout
+    /// </summary>
+    /// <param name="action">The delegate that does not return a value</param>
+    /// <param name="timeoutSeconds">Timeout for the completion of the task, if more time is spent running / waiting the wait is finished</param>
+    /// <param name="raiseError">if <c>true</c> an error is thrown in cause of an issue, otherwise its only logged </param>
+    /// <param name="cancellationToken">Cancellation Token to be able to cancel the task</param>
+    /// <returns><c>true</c> if finished successfully, <c>false</c> if canceled or timeout has been reached</returns>
+    public static bool RunWithTimeout(this Action action, double timeoutSeconds = 2.0, bool raiseError = true, CancellationToken cancellationToken = default(CancellationToken))
     {
-      if (executeTask.Status == System.Threading.Tasks.TaskStatus.Faulted)
-        return false;
-      return executeTask.Status != System.Threading.Tasks.TaskStatus.RanToCompletion;
-    }, 220, timeoutSeconds / 60d, raiseError, cancellationToken);
-
-    public static TResult RunWithTimeout<TResult>(this Func<TResult> action, double timeoutSeconds, CancellationToken cancellationToken)
-    {
+      if (action == null)
+        throw new ArgumentNullException(nameof(action));
       try
       {
-        var task = System.Threading.Tasks.Task.Factory.StartNew(action);
-        task.WaitToCompleteTask(timeoutSeconds, true, cancellationToken);
-        return task.Result;
+        var task = System.Threading.Tasks.Task.Factory.StartNew(action, cancellationToken);
+        var result = task.WaitToCompleteTask(timeoutSeconds, false, cancellationToken);
+        if (task.IsFaulted)
+          throw task.Exception.InnerException;
+        return result;
       }
       catch (Exception ex)
       {
-        Logger.Warning(ex, "RunWithTimeout Error: {exception} Timeout: {timeout} Method: {method} ", ex.SourceExceptionMessage(), timeoutSeconds, action.Method);
+        if (raiseError)
+          throw ex;
+
+        Logger.Warning(ex, "RunWithTimeout Error: {exception} Timeout: {timeout} Method: {method} {src}", ex.Message, timeoutSeconds, action.Method, ClassLibraryCsvExtensionMethods.UpmostStackTrace());
+        return false;
       }
-      return default(TResult);
+    }
+
+    /// <summary>
+    /// Execute an function synchronously with timeout
+    /// </summary>
+    /// <param name="action">The delegate that does return one value</param>
+    /// <param name="timeoutSeconds">Timeout for the completion of the task, if more time is spent running / waiting the wait is finished</param>
+    /// <param name="cancellationToken">Cancellation Token to be able to cancel the task</param>
+    ///
+    /// <returns>The return value of the delegate</returns>
+    public static TResult RunWithTimeout<TResult>(this Func<TResult> action, double timeoutSeconds = 1d, CancellationToken cancellationToken = default(CancellationToken))
+    {
+      if (action == null)
+        throw new ArgumentNullException(nameof(action));
+      try
+      {
+        var task = System.Threading.Tasks.Task.Factory.StartNew(action, cancellationToken);
+        task.WaitToCompleteTask(timeoutSeconds, false, cancellationToken);
+        if (task.IsFaulted)
+          throw task.Exception.InnerException;
+        else
+          return task.Result;
+      }
+      catch (Exception ex)
+      {
+        Logger.Warning(ex, "RunWithTimeout Error: {exception} Timeout: {timeout} Method: {method} {src}", ex.Message, timeoutSeconds, action.Method, ClassLibraryCsvExtensionMethods.UpmostStackTrace());
+        throw;
+      }
+    }
+
+    /// <summary>
+    /// Run a task synchronously with timeout
+    /// </summary>
+    /// <param name="executeTask">The started <see cref="System.Threading.Tasks.Task"/></param>
+    /// <param name="timeoutSeconds">Timeout for the completion of the task, if more time is spent running / waiting the wait is finished</param>
+    /// <param name="raiseError">if <c>true</c> an error is thrown in cause of an issue, otherwise its only logged </param>
+    /// <param name="cancellationToken">Cancellation Token to be able to cancel the task</param>
+    /// <returns><c>true</c> if finished successfully, <c>false</c> if canceled or timeout has been reached</returns>
+    public static bool WaitToCompleteTask(this System.Threading.Tasks.Task executeTask, double timeoutSeconds, bool raiseError, CancellationToken cancellationToken)
+    {
+      if (executeTask == null)
+        throw new ArgumentNullException(nameof(executeTask));
+      return TimeOutWait(() =>
+        {
+          switch (executeTask.Status)
+          {
+            // Wait / keep running
+            case System.Threading.Tasks.TaskStatus.Created:
+            case System.Threading.Tasks.TaskStatus.WaitingForActivation:
+            case System.Threading.Tasks.TaskStatus.WaitingToRun:
+            case System.Threading.Tasks.TaskStatus.Running:
+            case System.Threading.Tasks.TaskStatus.WaitingForChildrenToComplete:
+              return true;
+
+            // Finished / no need running
+            case System.Threading.Tasks.TaskStatus.Faulted:
+            case System.Threading.Tasks.TaskStatus.Canceled:
+            case System.Threading.Tasks.TaskStatus.RanToCompletion:
+            default:
+              return false;
+          }
+        }, 200, timeoutSeconds / 60d, raiseError, cancellationToken);
     }
 
     /// <summary>
@@ -135,11 +212,11 @@ namespace CsvTools
         item.Selected = true;
     }
 
-    public static void WriteBinding(this Control ctrl)
-    {
-      var bind = ctrl.GetTextBindng();
-      bind?.WriteValue();
-    }
+    /// <summary>
+    /// Store a bound value
+    /// </summary>
+    /// <param name="ctrl">The control</param>
+    public static void WriteBinding(this Control ctrl) => ctrl.GetTextBindng()?.WriteValue();
 
     /// <summary>
     /// Deleting a file, in case it exists it will ask if it should be deleted

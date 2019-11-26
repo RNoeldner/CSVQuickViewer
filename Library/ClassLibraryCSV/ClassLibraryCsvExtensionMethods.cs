@@ -309,6 +309,37 @@ namespace CsvTools
       }
     }
 
+    public static string UpmostStackTrace()
+    {
+      try
+      {
+        var st = new System.Diagnostics.StackTrace();
+        // bottom up find the start of CSV
+        for (var i = st.FrameCount - 1; i > 1; i--)
+        {
+          var frm = st.GetFrame(i);
+          if (frm.GetMethod().DeclaringType.AssemblyQualifiedName.StartsWith("CsvTools."))
+          {
+            // now stay with CsvTool and stop once we leave it
+            for (var j = i - 1; j > 0; j--)
+            {
+              var frm2 = st.GetFrame(j);
+              if (!frm2.GetMethod().DeclaringType.AssemblyQualifiedName.StartsWith("CsvTools."))
+                return st.GetFrame(j + 1).ToString();
+            }
+            return frm.ToString();
+          }
+        }
+
+      }
+      catch (Exception)
+      {
+        // ignore
+      }
+      return null;
+
+    }
+
     /// <summary>
     ///   Gets the message of the current exception
     /// </summary>
@@ -882,7 +913,7 @@ namespace CsvTools
           Contract.Assume(readerCol != null);
           Contract.Assume(!string.IsNullOrEmpty(readerCol.Name));
           columnMappingDatabaseToReader.Add(dataTable.Columns.Count, column);
-          var dataCol = dataTable.Columns.Add(readerCol.Name, readerCol.DataType.GetNetType());          
+          var dataCol = dataTable.Columns.Add(readerCol.Name, readerCol.DataType.GetNetType());
           dataCol.AllowDBNull = true;
           hasRecordNo |=
             readerCol.Name.Equals(BaseFileReader.cRecordNumberFieldName, StringComparison.OrdinalIgnoreCase);
