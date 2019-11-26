@@ -279,22 +279,6 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void GuessNotADelimitedFileTest()
-    {
-      ICsvFile test = new CsvFile(Path.Combine(m_ApplicationDirectory, "EmptyColumns.txt"))
-      {
-        CodePageId = 65001
-      };
-      Assert.IsFalse(CsvHelper.GuessNotADelimitedFile(test));
-
-      ICsvFile test2 = new CsvFile(Path.Combine(m_ApplicationDirectory, "RowWithoutColumnDelimiter.txt"))
-      {
-        CodePageId = 65001
-      };
-      Assert.IsTrue(CsvHelper.GuessNotADelimitedFile(test2));
-    }
-
-    [TestMethod]
     public void GuessNewlineTest()
     {
       var path = Path.Combine(m_ApplicationDirectory, "TestFile.txt");

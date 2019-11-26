@@ -519,7 +519,7 @@ namespace CsvTools
       if (!hasDelimiter)
       {
         Logger.Information("Not a delimited file");
-        return string.Empty;
+        return "TAB";
       }
 
       var result = match == '\t' ? "TAB" : match.ToString(CultureInfo.CurrentCulture);
