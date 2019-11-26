@@ -430,7 +430,6 @@ namespace CsvTools
                   if (m_ViewSettings.GuessCodePage)
                     CsvHelper.GuessCodePage(m_FileSetting);
 
-                  m_FileSetting.NoDelimitedFile = CsvHelper.GuessNotADelimitedFile(m_FileSetting);
                   if (m_ViewSettings.GuessDelimiter)
                     m_FileSetting.FileFormat.FieldDelimiter = CsvHelper.GuessDelimiter(m_FileSetting);
 
