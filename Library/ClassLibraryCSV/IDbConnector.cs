@@ -30,7 +30,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="tableName">Name of the table.</param>
     /// <returns></returns>
-    bool CheckDbHasTable(string tableName);
+    bool CheckDbHasTable(string tableName, CancellationToken cancellationToken);
 
     /// <summary>
     ///  Checks if the embedded database does have the field in the table.
@@ -38,7 +38,7 @@ namespace CsvTools
     /// <param name="tableName">Name of the table.</param>
     /// <param name="fieldName">Name of the field.</param>
     /// <returns><c>true</c> if field is present, otherwise <c>false</c></returns>
-    bool CheckTableHasField(string tableName, string fieldName);
+    bool CheckTableHasField(string tableName, string fieldName, CancellationToken cancellationToken);
 
     /// <summary>
     ///  Gets a create table statement based on the passed in columns, adds generic fields based on flags
@@ -49,21 +49,21 @@ namespace CsvTools
     /// <param name="includeRecordNo">if set to <c>true</c> add a record no field</param>
     /// <param name="includeEndLineNo">if set to <c>true</c> add an end-line no field.</param>
     void CreateTable(IEnumerable<Column> columns, string tableName, bool includeErrorField, bool includeRecordNo,
-      bool includeEndLineNo);
+      bool includeEndLineNo, CancellationToken cancellationToken);
 
     /// <summary>
     ///  Drops the given table.
     /// </summary>
     /// <param name="tableName">Name of the table.</param>
     /// <returns></returns>
-    void DropTable(string tableName);
+    void DropTable(string tableName, CancellationToken cancellationToken);
 
     void DropDatabase(CancellationToken cancellationToken);
 
     /// <summary>
     ///  Removes all existing tables
     /// </summary>
-    void EmptyDatabase();
+    void EmptyDatabase(CancellationToken cancellationToken);
 
     /// <summary>
     ///  Makes sure the database does exist and is accessible
@@ -140,7 +140,7 @@ namespace CsvTools
     /// <returns>
     ///  A Dictionary with name of the column and <see cref="DataType" />
     /// </returns>
-    IDictionary<string, DataType> GetDataTypes(string tableName);
+    IDictionary<string, DataType> GetDataTypes(string tableName, CancellationToken cancellationToken);
 
     /// <summary>
     ///  Gets the number of rows in a table
@@ -150,14 +150,14 @@ namespace CsvTools
     /// <returns>
     ///  The number of rows in the table
     /// </returns>
-    long GetRowCount(string tableName, string where);
+    long GetRowCount(string tableName, string where, CancellationToken cancellationToken);
 
     /// <summary>
     /// Get the UTC date/time when an table was created in the database
     /// </summary>
     /// <param name="tableName">Name of the table.</param>
-    /// <returns>The timestamp of the table in UTC</returns>
-    DateTime GetTimeCreated(string tableName);
+    /// <returns>The time stamp of the table in UTC</returns>
+    DateTime GetTimeCreated(string tableName, CancellationToken cancellationToken);
 
     /// <summary>
     ///  Gets a dynamic SQL command.
@@ -210,8 +210,7 @@ namespace CsvTools
     /// </param>
     /// <param name="processDisplay">a process Display to show progress</param>
     /// <param name="description">The lead description in the progress</param>
-    void ProcessForNumber(ICollection<long> numbers, string commandText, IProcessDisplay processDisplay,
-     string description);
+    void ProcessForNumber(ICollection<long> numbers, string commandText, IProcessDisplay processDisplay, string description);
 
     /// <summary>
     ///  Loop though a returned SQL statement and invoke passed in method for each record
@@ -229,7 +228,7 @@ namespace CsvTools
     /// <param name="oldTableName">Name of the table.</param>
     /// <param name="newTableName">New Name of the table.</param>
     /// <returns></returns>
-    bool RenameTable(string oldTableName, string newTableName);
+    bool RenameTable(string oldTableName, string newTableName, CancellationToken cancellationToken);
 
     /// <summary>
     /// Does this Database connector support StoreDataTable?
@@ -238,7 +237,7 @@ namespace CsvTools
     bool SupportStoreDataTable { get; }
 
     /// <summary>
-    ///  Stores the data table appending all rows to the table and empties out the data table after its persistet
+    ///  Stores the data table appending all rows to the table and empties out the data table after its persistent
     /// </summary>
     /// <param name="dataTable">The data table, in case there is no record nothing will happen</param>
     /// <param name="destinationTableName">Name of the destination table.</param>
