@@ -183,6 +183,7 @@ namespace CsvTools
 
     public static bool operator !=(StructuredFile file1, StructuredFile file2) => !(file1 == file2);
 
+    /*
     /// <summary>Serves as the default hash function. </summary>
     /// <returns>A hash code for the current object.</returns>
     public override int GetHashCode()
@@ -198,5 +199,6 @@ namespace CsvTools
         return hashCode;
       }
     }
+    */
   }
 }

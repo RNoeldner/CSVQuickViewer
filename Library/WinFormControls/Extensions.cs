@@ -104,10 +104,7 @@ namespace CsvTools
       try
       {
         var task = System.Threading.Tasks.Task.Factory.StartNew(action, cancellationToken);
-        var result = task.WaitToCompleteTask(timeoutSeconds, false, cancellationToken);
-        if (task.IsFaulted)
-          throw task.Exception.InnerException;
-        return result;
+        return task.WaitToCompleteTask(timeoutSeconds, false, cancellationToken);
       }
       catch (Exception ex)
       {
@@ -135,10 +132,7 @@ namespace CsvTools
       {
         var task = System.Threading.Tasks.Task.Factory.StartNew(action, cancellationToken);
         task.WaitToCompleteTask(timeoutSeconds, false, cancellationToken);
-        if (task.IsFaulted)
-          throw task.Exception.InnerException;
-        else
-          return task.Result;
+        return task.Result;
       }
       catch (Exception ex)
       {
@@ -159,7 +153,7 @@ namespace CsvTools
     {
       if (executeTask == null)
         throw new ArgumentNullException(nameof(executeTask));
-      return TimeOutWait(() =>
+      var result = TimeOutWait(() =>
         {
           switch (executeTask.Status)
           {
@@ -179,6 +173,21 @@ namespace CsvTools
               return false;
           }
         }, 200, timeoutSeconds / 60d, raiseError, cancellationToken);
+
+      if (executeTask.IsFaulted)
+      {
+        if (raiseError)
+        {
+          if (executeTask.Exception.InnerException != null)
+            throw executeTask.Exception.InnerException;
+          else
+            //TODO can this happen? We should always have an aggregate exception
+            throw executeTask.Exception;
+        }
+        else
+          return false;
+      }
+      return result;
     }
 
     /// <summary>
