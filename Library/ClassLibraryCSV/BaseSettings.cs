@@ -1144,6 +1144,7 @@ namespace CsvTools
         MappingCollection.Remove(fieldMapping);
     }
 
+    /*
     /// <summary>Serves as the default hash function. </summary>
     /// <returns>A hash code for the current object.</returns>
     protected virtual int GetBaseHashCode()
@@ -1190,6 +1191,7 @@ namespace CsvTools
         return hashCode;
       }
     }
+      */
 
     /// <summary>
     ///  Notifies the completed property changed.
