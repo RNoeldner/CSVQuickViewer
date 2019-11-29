@@ -54,25 +54,18 @@ namespace CsvTools
     /// <param name="addTextColumns">if set to <c>true</c> event string columns are added.</param>
     /// <param name="processDisplay">The process display.</param>
     public static IList<string> FillGuessColumnFormatReader(this IFileSetting fileSetting, bool addTextColumns,
-      bool checkDoubleToBeInteger, IProcessDisplay processDisplay)
+      bool checkDoubleToBeInteger, FillGuessSettings fillGuessSettings, IProcessDisplay processDisplay)
     {
       if (processDisplay == null)
-      {
         throw new ArgumentNullException(nameof(processDisplay));
-      }
 
       Contract.Requires(fileSetting != null);
       var result = new List<string>();
 
       // if we should not detect, we can finish
-      if (!ApplicationSetting.FillGuessSettings.DetectBoolean && !ApplicationSetting.FillGuessSettings.DetectGUID &&
-        !ApplicationSetting.FillGuessSettings.DectectNumbers &&
-        !ApplicationSetting.FillGuessSettings.DetectDateTime &&
-        !ApplicationSetting.FillGuessSettings.DectectPercentage &&
-        !ApplicationSetting.FillGuessSettings.SerialDateTime)
-      {
+      if (!(fillGuessSettings.DectectNumbers || fillGuessSettings.DetectBoolean || fillGuessSettings.DetectDateTime ||
+            fillGuessSettings.DetectGUID || fillGuessSettings.DectectPercentage || fillGuessSettings.SerialDateTime))
         return result;
-      }
 
       var present = new Collection<Column>(fileSetting.ColumnCollection);
 
@@ -119,7 +112,7 @@ namespace CsvTools
             newColumn.Ignore = true;
             fileSetting.ColumnCollection.AddIfNew(newColumn);
           }
-          else if ((ApplicationSetting.FillGuessSettings.IgnoreIdColums && StringUtils.AssumeIDColumn(newColumn.Name) > 0))
+          else if (fillGuessSettings.IgnoreIdColums && StringUtils.AssumeIDColumn(newColumn.Name) > 0)
           {
             processDisplay.SetProcess(newColumn.Name + " – ID columns ignored", colindex);
             if (addTextColumns)
@@ -130,8 +123,8 @@ namespace CsvTools
         }
 
         processDisplay.SetProcess($"Getting sample values for all {getSamples.Count} columns");
-        var sampleList = GetSampleValues(fileReader, ApplicationSetting.FillGuessSettings.CheckedRecords,
-            getSamples, ApplicationSetting.FillGuessSettings.SampleValues, fileSetting.TreatTextAsNull,
+        var sampleList = GetSampleValues(fileReader, fillGuessSettings.CheckedRecords,
+            getSamples, fillGuessSettings.SampleValues, fileSetting.TreatTextAsNull,
             processDisplay.CancellationToken);
 
         foreach (var colindex in sampleList.Keys)
@@ -153,7 +146,7 @@ namespace CsvTools
           else
           {
             var detect = true;
-            if (samples.Values.Count() < ApplicationSetting.FillGuessSettings.MinSamples)
+            if (samples.Values.Count() < fillGuessSettings.MinSamples)
             {
               processDisplay.SetProcess($"{newColumn.Name} – Only {samples.Values.Count()} values found in {samples.RecordsRead:N0} rows", colindex);
               detect = false;
@@ -163,16 +156,16 @@ namespace CsvTools
               processDisplay.SetProcess($"{newColumn.Name} – {samples.Values.Count()} values found in {samples.RecordsRead:N0} rows – Examining format", colindex);
             }
 
-            var checkResult = GuessValueFormat(samples.Values, ApplicationSetting.FillGuessSettings.MinSamples,
-              ApplicationSetting.FillGuessSettings.TrueValue,
-              ApplicationSetting.FillGuessSettings.FalseValue,
-              ApplicationSetting.FillGuessSettings.DetectBoolean,
-              ApplicationSetting.FillGuessSettings.DetectGUID && detect,
-              ApplicationSetting.FillGuessSettings.DectectNumbers && detect,
-              ApplicationSetting.FillGuessSettings.DetectDateTime && detect,
-              ApplicationSetting.FillGuessSettings.DectectPercentage && detect,
-              ApplicationSetting.FillGuessSettings.SerialDateTime && detect,
-              ApplicationSetting.FillGuessSettings.CheckNamedDates && detect,
+            var checkResult = GuessValueFormat(samples.Values, fillGuessSettings.MinSamples,
+              fillGuessSettings.TrueValue,
+              fillGuessSettings.FalseValue,
+              fillGuessSettings.DetectBoolean,
+              fillGuessSettings.DetectGUID && detect,
+              fillGuessSettings.DectectNumbers && detect,
+              fillGuessSettings.DetectDateTime && detect,
+              fillGuessSettings.DectectPercentage && detect,
+              fillGuessSettings.SerialDateTime && detect,
+              fillGuessSettings.CheckNamedDates && detect,
               othersValueFormatDate,
               processDisplay.CancellationToken);
 
@@ -251,7 +244,7 @@ namespace CsvTools
             processDisplay.CancellationToken.ThrowIfCancellationRequested();
 
             var oldColumn = fileReader.GetColumn(colindex);
-            var detect = !(ApplicationSetting.FillGuessSettings.IgnoreIdColums &&
+            var detect = !(fillGuessSettings.IgnoreIdColums &&
                             StringUtils.AssumeIDColumn(oldColumn.Name) > 0);
 
             if (oldColumn != null && oldColumn.DataType == DataType.Double)
@@ -267,8 +260,8 @@ namespace CsvTools
                 }
                 else
                 {
-                  samples = GetSampleValues(fileReader, ApplicationSetting.FillGuessSettings.CheckedRecords,
-                                            colindex, ApplicationSetting.FillGuessSettings.SampleValues, fileSetting.TreatTextAsNull,
+                  samples = GetSampleValues(fileReader, fillGuessSettings.CheckedRecords,
+                                            colindex, fillGuessSettings.SampleValues, fileSetting.TreatTextAsNull,
                                             processDisplay.CancellationToken);
                 }
 
@@ -302,7 +295,7 @@ namespace CsvTools
           }
         }
 
-        if (ApplicationSetting.FillGuessSettings.DateParts)
+        if (fillGuessSettings.DateParts)
         {
           // Try to find a time for a date if the date does not already have a time
           // Case a) TimeFormat has already been recognized

@@ -178,7 +178,7 @@ namespace CsvTools
         timePartText = CurrentRowColumnText[AssociatedTimeCol[columnNumber]];
       }
 
-      var dt = GetDateTimeNull(m_CurrentValues[columnNumber], CurrentRowColumnText[columnNumber], timePart, timePartText, GetColumn(columnNumber));
+      var dt = GetDateTimeNull(m_CurrentValues[columnNumber], CurrentRowColumnText[columnNumber], timePart, timePartText, GetColumn(columnNumber), false);
       if (dt.HasValue)
         return dt.Value;
       // Warning was added by GetDecimalNull

@@ -691,7 +691,7 @@ namespace CsvTools.Tests
       using (var test = new CsvFileReader(setting, processDisplay))
       {
         var warningsList = new RowErrorCollection(test);
-        test.Open();        
+        test.Open();
 
         Assert.AreEqual(6, test.FieldCount);
         Assert.AreEqual("a", test.GetName(0));

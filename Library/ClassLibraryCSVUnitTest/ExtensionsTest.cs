@@ -11,11 +11,14 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
@@ -127,6 +130,57 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    public void SourceExceptionMessage()
+    {
+      var ex = new Exception("Exception L1", new Exception("Exception L2", new Exception("Exception L3", new Exception("Exception L4"))));
+      Assert.AreEqual("Exception L4", ex.SourceExceptionMessage());
+    }
+
+    [TestMethod]
+    public void ExceptionMessagesAggregate()
+    {
+      try
+      {
+        var task1 = new Task(() =>
+        {
+          Thread.Sleep(50);
+          var task2 = new Task(() => { Thread.Sleep(50); throw new Exception("<Exception2>"); });
+          var task3 = new Task(() => { Thread.Sleep(50); throw new Exception("<Exception3>"); });
+          task2.Start();
+          task3.Start();
+          Task.WaitAll(task2, task3);
+          throw new Exception("<Exception1>");
+        });
+
+        var task4 = new Task(() =>
+        {
+          Thread.Sleep(100);
+          throw new Exception("<Exception4>");
+        });
+        var task5 = new Task(() =>
+        {
+          Thread.Sleep(100);
+          throw new Exception("<Exception5>");
+        });
+        task1.Start();
+        task4.Start();
+        task5.Start();
+        Task.WaitAll(task1, task4, task5);
+      }
+      catch (Exception ex)
+      {
+        var message = ex.ExceptionMessages();
+        //  "<Exception1>" is not reached
+        Assert.IsFalse(message.Contains("<Exception1>"));
+
+        Assert.IsTrue(message.Contains("<Exception4>"));
+        Assert.IsTrue(message.Contains("<Exception5>"));
+        Assert.IsTrue(message.Contains("<Exception2>"));
+        Assert.IsTrue(message.Contains("<Exception3>"));
+      }
+    }
+
+    [TestMethod]
     public void InnerExceptionMessages1()
     {
       var inner1 = new Exception("InnerException");
@@ -154,46 +208,25 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void ReplaceCaseInsensitiveChar()
-    {
-      Assert.AreEqual("Text1|Text2", "Text1{0}Text2".ReplaceCaseInsensitive("{0}", '|'));
-    }
+    public void ReplaceCaseInsensitiveChar() => Assert.AreEqual("Text1|Text2", "Text1{0}Text2".ReplaceCaseInsensitive("{0}", '|'));
 
     [TestMethod]
-    public void ReplaceCaseInsensitiveCharEqualLen()
-    {
-      Assert.AreEqual("Text1,Text2", "Text1|Text2".ReplaceCaseInsensitive("|", ','));
-    }
+    public void ReplaceCaseInsensitiveCharEqualLen() => Assert.AreEqual("Text1,Text2", "Text1|Text2".ReplaceCaseInsensitive("|", ','));
 
     [TestMethod]
-    public void ReplaceCaseInsensitiveCharNotFound()
-    {
-      Assert.AreEqual("Text1{0}Text2", "Text1{0}Text2".ReplaceCaseInsensitive("{1}", '|'));
-    }
+    public void ReplaceCaseInsensitiveCharNotFound() => Assert.AreEqual("Text1{0}Text2", "Text1{0}Text2".ReplaceCaseInsensitive("{1}", '|'));
 
     [TestMethod]
-    public void ReplaceCaseInsensitiveEqualLen()
-    {
-      Assert.AreEqual("Text1{0}Text2", "Text1{0}Text2".ReplaceCaseInsensitive("{0}", "{0}"));
-    }
+    public void ReplaceCaseInsensitiveEqualLen() => Assert.AreEqual("Text1{0}Text2", "Text1{0}Text2".ReplaceCaseInsensitive("{0}", "{0}"));
 
     [TestMethod]
-    public void ReplaceCaseInsensitiveLonger()
-    {
-      Assert.AreEqual("Text1Test3Text2", "Text1{0}Text2".ReplaceCaseInsensitive("{0}", "Test3"));
-    }
+    public void ReplaceCaseInsensitiveLonger() => Assert.AreEqual("Text1Test3Text2", "Text1{0}Text2".ReplaceCaseInsensitive("{0}", "Test3"));
 
     [TestMethod]
-    public void ReplaceCaseInsensitiveNotFound()
-    {
-      Assert.AreEqual("Text1{0}Text2", "Text1{0}Text2".ReplaceCaseInsensitive("{1}", "|"));
-    }
+    public void ReplaceCaseInsensitiveNotFound() => Assert.AreEqual("Text1{0}Text2", "Text1{0}Text2".ReplaceCaseInsensitive("{1}", "|"));
 
     [TestMethod]
-    public void ReplaceCaseInsensitiveShorter()
-    {
-      Assert.AreEqual("Text1|Text2", "Text1{0}Text2".ReplaceCaseInsensitive("{0}", "|"));
-    }
+    public void ReplaceCaseInsensitiveShorter() => Assert.AreEqual("Text1|Text2", "Text1{0}Text2".ReplaceCaseInsensitive("{0}", "|"));
 
     [TestMethod]
     public void GetRealDataColumnsTest()
@@ -255,7 +288,6 @@ namespace CsvTools.Tests
       Assert.IsTrue(l1.CollectionEqual(l2));
     }
 
-
     [TestMethod]
     public void CollectionEqualWithOrder()
     {
@@ -271,7 +303,6 @@ namespace CsvTools.Tests
       Assert.IsFalse(l1.CollectionEqualWithOrder(l2));
     }
 
-
     [TestMethod]
     public void CollectionHashCode()
     {
@@ -284,7 +315,6 @@ namespace CsvTools.Tests
       var li3 = new[] { "World", "Hello" };
       Assert.AreNotEqual(li3.CollectionHashCode(), li2.CollectionHashCode());
     }
-
 
     [TestMethod]
     public void AssumePGPTest()

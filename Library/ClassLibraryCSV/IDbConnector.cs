@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace CsvTools
 {
@@ -29,16 +30,22 @@ namespace CsvTools
     ///  Checks if the database has table.
     /// </summary>
     /// <param name="tableName">Name of the table.</param>
+    /// <param name="cancellationToken">a Cancellation token</param>
     /// <returns></returns>
     bool CheckDbHasTable(string tableName, CancellationToken cancellationToken);
+
+    Task<bool> CheckDbHasTableAsync(string tableName, CancellationToken cancellationToken);
 
     /// <summary>
     ///  Checks if the embedded database does have the field in the table.
     /// </summary>
     /// <param name="tableName">Name of the table.</param>
     /// <param name="fieldName">Name of the field.</param>
+    /// <param name="cancellationToken">a Cancellation token</param>
     /// <returns><c>true</c> if field is present, otherwise <c>false</c></returns>
     bool CheckTableHasField(string tableName, string fieldName, CancellationToken cancellationToken);
+
+    Task<bool> CheckTableHasFieldAsync(string tableName, string fieldName, CancellationToken cancellationToken);
 
     /// <summary>
     ///  Gets a create table statement based on the passed in columns, adds generic fields based on flags
@@ -51,32 +58,53 @@ namespace CsvTools
     void CreateTable(IEnumerable<Column> columns, string tableName, bool includeErrorField, bool includeRecordNo,
       bool includeEndLineNo, CancellationToken cancellationToken);
 
+    Task CreateTableAsync(IEnumerable<Column> columns, string tableName, bool includeErrorField, bool includeRecordNo,
+      bool includeEndLineNo, CancellationToken cancellationToken);
+
     /// <summary>
     ///  Drops the given table.
     /// </summary>
     /// <param name="tableName">Name of the table.</param>
+    /// <param name="cancellationToken">a Cancellation token</param>
     /// <returns></returns>
     void DropTable(string tableName, CancellationToken cancellationToken);
 
+    Task DropTableAsync(string tableName, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Remove the database itself
+    /// </summary>
+    /// <param name="cancellationToken"></param>
     void DropDatabase(CancellationToken cancellationToken);
+
+    Task DropDatabaseAsync(CancellationToken cancellationToken);
 
     /// <summary>
     ///  Removes all existing tables
     /// </summary>
+    /// <param name="cancellationToken">a Cancellation token</param>
     void EmptyDatabase(CancellationToken cancellationToken);
+
+    Task EmptyDatabaseAsync(CancellationToken cancellationToken);
 
     /// <summary>
     ///  Makes sure the database does exist and is accessible
     /// </summary>
+    /// <param name="cancellationToken">a Cancellation token</param>
     /// <returns>True if the database was created</returns>
     bool EnsureDBExists(CancellationToken cancellationToken);
+
+    Task<bool> EnsureDBExistsAsync(CancellationToken cancellationToken);
 
     /// <summary>
     ///  Executes a commands that can be separated by GO without returning a result.
     /// </summary>
     /// <param name="sqlStatement">The sql statement.</param>
+    /// <param name="cancellationToken">a Cancellation token</param>
     /// <returns>Number of affected records</returns>
     int ExecuteNonQueries(string sqlStatement, CancellationToken cancellationToken);
+
+    Task<int> ExecuteNonQueriesAsync(string sqlStatement, CancellationToken cancellationToken);
 
     /// <summary>
     ///  Executes a commands that can be separated by GO without returning a result.
@@ -88,12 +116,17 @@ namespace CsvTools
     /// </returns>
     int ExecuteNonQueries(IEnumerable<string> parts, CancellationToken cancellationToken);
 
+    Task<int> ExecuteNonQueriesAsync(IEnumerable<string> parts, CancellationToken cancellationToken);
+
     /// <summary>
     ///  Executes a command without returning a result.
     /// </summary>
     /// <param name="commandText">The command text.</param>
+    /// <param name="cancellationToken">a Cancellation token</param>
     /// <returns>Number of affected records</returns>
     int ExecuteNonQuery(string commandText, CancellationToken cancellationToken);
+
+    Task<int> ExecuteNonQueryAsync(string commandText, CancellationToken cancellationToken);
 
     /// <summary>
     ///  Executes a sql command, and returns a data reader.
@@ -106,15 +139,20 @@ namespace CsvTools
     /// </remarks>
     DbDataReader ExecuteReader(string sqlStatement, IProcessDisplay processDisplay, int commandTimeout);
 
+    Task<DbDataReader> ExecuteReaderAsync(string sqlStatement, IProcessDisplay processDisplay, int commandTimeout);
+
     /// <summary>
     ///  Executes the a scalar query
     /// </summary>
     /// <param name="sqlStatement">The command text.</param>
     /// <param name="commandTimeout">The command timeout.</param>
+    /// <param name="cancellationToken">a Cancellation token</param>
     /// <returns>
     ///  The first column of the first row returned by the command
     /// </returns>
     object ExecuteScalar(string sqlStatement, int commandTimeout, CancellationToken cancellationToken);
+
+    Task<object> ExecuteScalarAsync(string sqlStatement, int commandTimeout, CancellationToken cancellationToken);
 
     /// <summary>
     ///  Flushes all caches of this instance.
@@ -127,35 +165,48 @@ namespace CsvTools
     /// <returns>The database connection object</returns>
     DbConnection GetConnection(CancellationToken cancellationToken);
 
+    Task<DbConnection> GetConnectionAsync(CancellationToken cancellationToken);
+
     /// <summary>
     ///  Gets the connection.
     /// </summary>
+    /// <param name="infoMessages">Handing messages from the connection</param>
+    /// <param name="cancellationToken">A cancellation Token</param>
     /// <returns>The database connection object</returns>
     DbConnection GetConnection(EventHandler<string> infoMessages, CancellationToken cancellationToken);
+
+    Task<DbConnection> GetConnectionAsync(EventHandler<string> infoMessages, CancellationToken cancellationToken);
 
     /// <summary>
     ///  Gets the <see cref="DataType" /> of the table.
     /// </summary>
     /// <param name="tableName">Name of the table.</param>
+    /// <param name="cancellationToken">A cancellation Token</param>
     /// <returns>
     ///  A Dictionary with name of the column and <see cref="DataType" />
     /// </returns>
     IDictionary<string, DataType> GetDataTypes(string tableName, CancellationToken cancellationToken);
+
+    Task<IDictionary<string, DataType>> GetDataTypesAsync(string tableName, CancellationToken cancellationToken);
 
     /// <summary>
     ///  Gets the number of rows in a table
     /// </summary>
     /// <param name="tableName">Name of the table.</param>
     /// <param name="where">A where condition</param>
+    /// <param name="cancellationToken">A cancellation Token</param>
     /// <returns>
     ///  The number of rows in the table
     /// </returns>
     long GetRowCount(string tableName, string where, CancellationToken cancellationToken);
 
+    Task<long> GetRowCountAsync(string tableName, string where, CancellationToken cancellationToken);
+
     /// <summary>
     /// Get the UTC date/time when an table was created in the database
     /// </summary>
     /// <param name="tableName">Name of the table.</param>
+    /// <param name="cancellationToken">A cancellation Token</param>
     /// <returns>The time stamp of the table in UTC</returns>
     DateTime GetTimeCreated(string tableName, CancellationToken cancellationToken);
 
@@ -173,8 +224,11 @@ namespace CsvTools
     /// <summary>
     ///  Gets the tables in the database
     /// </summary>
+    /// <param name="cancellationToken">A cancellation Token</param>
     /// <returns>An array of table names</returns>
     ICollection<string> GetTables(CancellationToken cancellationToken);
+
+    Task<ICollection<string>> GetTablesAsync(CancellationToken cancellationToken);
 
     /// <summary>
     ///  Gets the values of a column in a table
@@ -184,6 +238,8 @@ namespace CsvTools
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns></returns>
     void GetValues(string columnName, string tableName, ICollection<string> values, CancellationToken cancellationToken);
+
+    Task GetValuesAsync(string columnName, string tableName, ICollection<string> values, CancellationToken cancellationToken);
 
     /// <summary>
     ///  Removes all existing tables
@@ -199,6 +255,8 @@ namespace CsvTools
     /// <returns>A list of fields that can now be indexed</returns>
     ICollection<string> ProcessColumnLength(string tableName, IProcessDisplay processDisplay, ICollection<string> fields);
 
+    Task<ICollection<string>> ProcessColumnLengthAsync(string tableName, IProcessDisplay processDisplay, ICollection<string> fields);
+
     /// <summary>
     ///  Stores a list of number in a table and executes a SQL statement that can reference the lines the integer are in table
     ///  (#)
@@ -212,6 +270,8 @@ namespace CsvTools
     /// <param name="description">The lead description in the progress</param>
     void ProcessForNumber(ICollection<long> numbers, string commandText, IProcessDisplay processDisplay, string description);
 
+    Task ProcessForNumberAsync(ICollection<long> numbers, string commandText, IProcessDisplay processDisplay, string description);
+
     /// <summary>
     ///  Loop though a returned SQL statement and invoke passed in method for each record
     /// </summary>
@@ -222,13 +282,18 @@ namespace CsvTools
     /// <param name="cancellationToken">A cancellation Token</param>
     void ProcessReader(string sqlStatement, Action<DbDataReader> beforeLoop, Action<DbDataReader> eachRecord, EventHandler<string> infoMessages, CancellationToken cancellationToken);
 
+    Task ProcessReaderAsync(string sqlStatement, Action<DbDataReader> beforeLoop, Action<DbDataReader> eachRecord, EventHandler<string> infoMessages, CancellationToken cancellationToken);
+
     /// <summary>
     ///  Checks if the database has table.
     /// </summary>
     /// <param name="oldTableName">Name of the table.</param>
     /// <param name="newTableName">New Name of the table.</param>
+    /// <param name="cancellationToken">A cancellation Token</param>
     /// <returns></returns>
     bool RenameTable(string oldTableName, string newTableName, CancellationToken cancellationToken);
+
+    Task<bool> RenameTableAsync(string oldTableName, string newTableName, CancellationToken cancellationToken);
 
     /// <summary>
     /// Does this Database connector support StoreDataTable?
@@ -244,5 +309,7 @@ namespace CsvTools
     /// <param name="eventHandler">Event called after some records have been processed</param>
     /// <param name="cancellationToken">A cancellation Token</param>
     void StoreDataTable(DataTable dataTable, string destinationTableName, EventHandler<long> eventHandler, CancellationToken cancellationToken);
+
+    Task StoreDataTableAsync(DataTable dataTable, string destinationTableName, EventHandler<long> eventHandler, int bulkCopyTimeout, CancellationToken cancellationToken);
   }
 }

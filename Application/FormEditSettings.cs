@@ -32,6 +32,7 @@ namespace CsvTools
     public FormEditSettings()
     {
       InitializeComponent();
+      fillGuessSettingEdit.FillGuessSettings = m_ViewSettings.FillGuessSettings;
       GetPrivateKeys();
     }
 
@@ -180,7 +181,7 @@ namespace CsvTools
           {
             using (var processDisplay = m_ViewSettings.GetProcessDisplay(this, true, System.Threading.CancellationToken.None))
             {
-              m_ViewSettings.FillGuessColumnFormatReader(false, false, processDisplay);
+              m_ViewSettings.FillGuessColumnFormatReader(false, false, m_ViewSettings.FillGuessSettings, processDisplay);
             }
           }
           catch (Exception exc)

@@ -18,7 +18,7 @@ namespace CsvTools
 #pragma warning restore CA1051 // Do not declare visible instance fields
 
     private bool m_DetectFileChanges = true;
-    private FillGuessSettings m_FillGuessSettings = ApplicationSetting.FillGuessSettings;
+    private FillGuessSettings m_FillGuessSettings = new FillGuessSettings();
     private bool m_GuessCodePage = true;
     private bool m_GuessDelimiter = true;
     private bool m_GuessHasHeader = true;
@@ -55,7 +55,7 @@ namespace CsvTools
       get => m_FillGuessSettings;
       set
       {
-        var newVal = value ?? ApplicationSetting.FillGuessSettings;
+        var newVal = value ?? new FillGuessSettings();
         if (m_FillGuessSettings.Equals(newVal))
           return;
         m_FillGuessSettings = newVal;

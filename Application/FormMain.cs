@@ -60,7 +60,6 @@ namespace CsvTools
       m_ViewSettings = LoadDefault();
       m_ViewSettings.PGPInformation.AllowSavingPassphrase = true;
 
-      ApplicationSetting.FillGuessSettings = m_ViewSettings.FillGuessSettings;
       ApplicationSetting.PGPKeyStorage = m_ViewSettings.PGPInformation;
 
       InitializeComponent();
@@ -375,7 +374,7 @@ namespace CsvTools
       try
       {
         var analyse = true;
-        var fileInfo = FileSystemUtils.FileInfo(m_FileName);
+        var fileInfo = new FileInfo(m_FileName);
         m_FileSetting.ID = m_FileName.GetIdFromFileName();
         Logger.Information($"Size of file: {StringConversion.DynamicStorageSize(fileInfo.Length)}");
 
@@ -456,8 +455,7 @@ namespace CsvTools
                     {
                       frm.Left = limitSizeForm.Left + limitSizeForm.Width;
                     }
-                    if (m_ViewSettings.FillGuessSettings.Enabled)
-                      m_FileSetting.FillGuessColumnFormatReader(false, false, processDisplay);
+                    m_FileSetting.FillGuessColumnFormatReader(false, false, m_ViewSettings.FillGuessSettings, processDisplay);
                   }
 
                   if (m_FileSetting.ColumnCollection.Any(x => x.DataType != DataType.String))
@@ -471,7 +469,9 @@ namespace CsvTools
               {
                 this.ShowError(ex, "Inspecting file");
               }
-            Extensions.TimeOutWait(() => { return limitSizeForm != null; }, 100, 5 / 60, false, cancellationTokenSource.Token);
+
+            System.Threading.Tasks.Task.Run(new Action(() => { while (limitSizeForm != null) { }; }), cancellationTokenSource.Token).WaitToCompleteTask(8, false, cancellationTokenSource.Token);
+            // Extensions.TimeOutWait(() => { return limitSizeForm != null; }, 10, cancellationTokenSource.Token);
 
             if (limitSizeForm != null)
               limitSizeForm.Close();
@@ -595,6 +595,7 @@ namespace CsvTools
         ApplicationSetting.SQLDataReader = delegate (string settingName, IProcessDisplay processDisplay, int timeout)
         { return detailControl.DataTable.CreateDataReader(); };
         detailControl.FileSetting = m_FileSetting;
+        detailControl.FillGuessSettings = m_ViewSettings.FillGuessSettings;
 
         // if (m_FileSetting.NoDelimitedFile)
         //  detailControl_ButtonShowSource(this, null);

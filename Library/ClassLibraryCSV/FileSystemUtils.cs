@@ -112,8 +112,6 @@ namespace CsvTools
       return File.Exists(fileName);
     }
 
-    public static Pri.LongPath.FileInfo FileInfo(string fileOrDirectory) => new FileInfo(fileOrDirectory);
-
     /// <summary>
     ///   Gets the absolute path.
     /// </summary>
@@ -195,7 +193,7 @@ namespace CsvTools
       string lastFile = null;
       foreach (var fileName in files)
       {
-        var fileTime = FileInfo(fileName).LastWriteTime;
+        var fileTime = new FileInfo(fileName).LastWriteTime;
         if (fileTime <= newset)
           continue;
         newset = fileTime;
