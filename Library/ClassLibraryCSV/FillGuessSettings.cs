@@ -27,7 +27,6 @@ namespace CsvTools
   public class FillGuessSettings : INotifyPropertyChanged, ICloneable<FillGuessSettings>, IEquatable<FillGuessSettings>
 #pragma warning restore CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
   {
-    private bool m_Enabled = true;
     private int m_CheckedRecords = 30000;
     private bool m_CheckNamedDates = true;
     private bool m_DectectNumbers = true;
@@ -48,36 +47,7 @@ namespace CsvTools
     public event PropertyChangedEventHandler PropertyChanged;
 
     /// <summary>
-    ///   If set to <c>True</c> values are checked if they could be Date or Times
-    /// </summary>
-    [DefaultValue(true)]
-    [XmlElement]
-    public virtual bool Enabled
-    {
-      get => m_Enabled;
-
-      set
-      {
-        if (m_Enabled == value)
-          return;
-        m_Enabled = value;
-        NotifyPropertyChanged(nameof(Enabled));
-        NotifyPropertyChanged(nameof(Disabled));
-      }
-    }
-
-    /// <summary>
-    ///   If set to <c>True</c> values are checked if they could be Date or Times
-    /// </summary>
-    [DefaultValue(false)]
-    [XmlIgnore]
-    public virtual bool Disabled
-    {
-      get => !m_Enabled;
-    }
-
-    /// <summary>
-    ///   Number of records to parse to get the sample values
+    ///   Number of records to parse to get the sample values, default is <c>30000</c>
     /// </summary>
     [XmlAttribute]
     [DefaultValue(30000)]
@@ -112,12 +82,15 @@ namespace CsvTools
       }
     }
 
+    /// <summary>
+    ///   If set to <c>True</c> values are checked if they have a date part, default is <c>false</c>
+    /// </summary>
     [DefaultValue(false)]
     [XmlElement]
     public bool DateParts { get; set; } = false;
 
     /// <summary>
-    ///   If set to <c>True</c> values are checked if they could be Numeric
+    ///   If set to <c>True</c> values are checked if they could be Numeric, default is <c>True</c>
     /// </summary>
     [DefaultValue(true)]
     [XmlElement]
@@ -135,7 +108,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   If set to <c>True</c> values are checked if they could be Percentages
+    ///   If set to <c>True</c> values are checked if they could be Percentages, default is <c>True</c>
     /// </summary>
     [DefaultValue(true)]
     [XmlElement]
@@ -153,7 +126,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   If set to <c>True</c> values are checked if they could be Boolean
+    ///   If set to <c>True</c> values are checked if they could be Boolean, default is <c>True</c>
     /// </summary>
     [DefaultValue(true)]
     [XmlElement]
@@ -171,7 +144,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   If set to <c>True</c> values are checked if they could be Date or Times
+    ///   If set to <c>True</c> values are checked if they could be Date or Times, default is <c>True</c>
     /// </summary>
     [DefaultValue(true)]
     [XmlElement]
@@ -189,7 +162,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   If set to <c>True</c> values are checked if they could be GUIDs
+    ///   If set to <c>True</c> values are checked if they could be GUIDs, default is <c>Fasle</c>
     /// </summary>
     [DefaultValue(false)]
     [XmlElement]
@@ -207,7 +180,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   List of text to be regarded as <c>false</c>
+    ///   List of text to be regarded as <c>false</c>, default text is <c>"False"</c>
     /// </summary>
     [DefaultValue("False")]
     [XmlElement]
@@ -234,7 +207,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Flag to ignore columns that seem to be Identifiers
+    ///   Flag to ignore columns that seem to be Identifiers, default is <c>True</c>
     /// </summary>
     [DefaultValue(true)]
     [XmlElement]
@@ -252,7 +225,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Number of sample values
+    ///   Number of sample values, default is <c>5</c>
     /// </summary>
     [DefaultValue(5)]
     [XmlAttribute]
@@ -270,7 +243,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Number of sample values
+    ///   Number of sample values, default is <c>150</c>
     /// </summary>
     [DefaultValue(150)]
     [XmlAttribute]

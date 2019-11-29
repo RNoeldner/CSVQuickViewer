@@ -39,7 +39,7 @@ namespace CsvTools
     /// <param name="cancellationToken">The cancellation token</param>
     ///
     public FormDetail(DataTable dataTable, IEnumerable<string> uniqueFieldName, IFileSetting setting, bool readOnly,
-      bool onlyErrors, int frozenColumns, CancellationToken cancellationToken)
+      bool onlyErrors, int frozenColumns, FillGuessSettings fillGuessSettings, CancellationToken cancellationToken)
     {
       Contract.Requires(dataTable != null);
 
@@ -70,7 +70,8 @@ namespace CsvTools
         ReadOnly = readOnly,
         Size = new System.Drawing.Size(767, 394),
         TabIndex = 0,
-        FileSetting = setting
+        FileSetting = setting,
+        FillGuessSettings = fillGuessSettings
       };
 
       ClientSize = new System.Drawing.Size(767, 394);

@@ -36,7 +36,7 @@ namespace CsvTools
     /// <summary>
     ///  FillGuessSettings
     /// </summary>
-    public static FillGuessSettings FillGuessSettings { get; set; } = new FillGuessSettings();
+    //public static FillGuessSettings FillGuessSettings { get; set; } = new FillGuessSettings();
 
     /// <summary>
     ///  The Application wide HTMLStyle

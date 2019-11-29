@@ -11,8 +11,9 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
@@ -22,8 +23,6 @@ namespace CsvTools.Tests
     [TestMethod]
     public void ApplicationSettingStatics()
     {
-      Assert.IsTrue(ApplicationSetting.FillGuessSettings is FillGuessSettings);
-      Assert.IsNotNull(ApplicationSetting.FillGuessSettings);
       Assert.IsTrue(ApplicationSetting.HTMLStyle is HTMLStyle);
       Assert.IsNotNull(ApplicationSetting.HTMLStyle);
     }

@@ -68,7 +68,8 @@ namespace CsvTools
     public static void CollectionCopy<T>(this IEnumerable<T> self, ICollection<T> other) where T : ICloneable<T>
     {
       Contract.Requires(self != null);
-      Contract.Requires(other != null);
+      if (other == null)
+        return;
 
       other.Clear();
       foreach (var item in self)
@@ -84,7 +85,8 @@ namespace CsvTools
     public static void CollectionCopyStruct<T>(this IEnumerable<T> self, ICollection<T> other) where T : struct
     {
       Contract.Requires(self != null);
-      Contract.Requires(other != null);
+      if (other == null)
+        return;
 
       other.Clear();
       foreach (var item in self)
@@ -330,14 +332,12 @@ namespace CsvTools
             return frm.ToString();
           }
         }
-
       }
       catch (Exception)
       {
         // ignore
       }
       return null;
-
     }
 
     /// <summary>
@@ -352,14 +352,32 @@ namespace CsvTools
     {
       Contract.Requires(exception != null);
       Contract.Ensures(Contract.Result<string>() != null);
-      var mainMessage = exception.Message;
-      if (exception.InnerException == null)
-        return mainMessage;
 
-      var innerMessage = exception.InnerExceptionMessages(maxDepth - 1);
-      if (string.IsNullOrEmpty(innerMessage))
-        return mainMessage;
-      return $"{mainMessage}\n{innerMessage}";
+      var sb = new StringBuilder();
+
+      // Special handling of AggregateException
+      // There can be many InnerExceptions
+      if (exception is AggregateException ae)
+      {
+        foreach (var ie in ae.Flatten().InnerExceptions)
+        {
+          if (sb.Length > 0)
+            sb.Append("\n");
+          sb.Append(ie.Message);
+        }
+        return sb.ToString();
+      }
+      else
+      {
+        sb.Append(exception.Message);
+        if (exception.InnerException != null)
+        {
+          sb.Append("\n");
+          sb.Append(exception.InnerExceptionMessages(maxDepth - 1));
+        }
+      }
+
+      return sb.ToString();
     }
 
     /// <summary>
@@ -837,17 +855,16 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Combines all inner exceptions to one formatted string for logging.
+    ///   Get the inner most exception message
     /// </summary>
-    /// <param name="exception">The exception of type <see cref="Exception" /></param>
-    [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
+    /// <param name="exception">Any exception <see cref="Exception" /></param>
     public static string SourceExceptionMessage(this Exception exception)
     {
-      Contract.Ensures(Contract.Result<string>() != null);
-      if (exception.InnerException == null)
-        return exception.Message;
+      var loop = exception;
+      while (loop.InnerException != null)
+        loop = loop.InnerException;
 
-      return exception.InnerException.SourceExceptionMessage();
+      return loop.Message;
     }
 
     public static int ToInt(this long value)

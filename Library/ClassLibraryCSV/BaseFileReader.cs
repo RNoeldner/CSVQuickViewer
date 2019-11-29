@@ -335,7 +335,7 @@ namespace CsvTools
       Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount);
       Debug.Assert(CurrentRowColumnText != null && columnNumber < CurrentRowColumnText.Length);
 
-      var dt = GetDateTimeNull(null, CurrentRowColumnText[columnNumber], null, GetTimeValue(columnNumber), GetColumn(columnNumber));
+      var dt = GetDateTimeNull(null, CurrentRowColumnText[columnNumber], null, GetTimeValue(columnNumber), GetColumn(columnNumber), true);
       if (dt.HasValue)
         return dt.Value;
 
@@ -907,10 +907,9 @@ namespace CsvTools
     }
 
     protected DateTime? GetDateTimeNull(object inputDate, string strInputDate, object inputTime,
-             string strInputTime, Column column)
+             string strInputTime, Column column, bool serialDateTime)
     {
-      var dateTime = StringConversion.CombineObjectsToDateTime(inputDate, strInputDate, inputTime, strInputTime,
-       ApplicationSetting.FillGuessSettings.SerialDateTime, column, out var timeSpanLongerThanDay);
+      var dateTime = StringConversion.CombineObjectsToDateTime(inputDate, strInputDate, inputTime, strInputTime, serialDateTime, column, out var timeSpanLongerThanDay);
       if (timeSpanLongerThanDay)
       {
         var passedIn = strInputTime;
@@ -923,7 +922,7 @@ namespace CsvTools
       {
         var inputDateNew = strInputDate.Substring(0, column.DateFormat.Length);
         dateTime = StringConversion.CombineStringsToDateTime(inputDateNew, column.DateFormat, strInputTime,
-         column.DateSeparator, column.TimeSeparator, ApplicationSetting.FillGuessSettings.SerialDateTime);
+         column.DateSeparator, column.TimeSeparator, serialDateTime);
         if (dateTime.HasValue)
         {
           var disp = column.DateFormat.ReplaceDefaults("/", column.DateSeparator, ":", column.TimeSeparator);
@@ -1064,7 +1063,7 @@ namespace CsvTools
       switch (column.DataType)
       {
         case DataType.DateTime:
-          ret = GetDateTimeNull(null, value, null, timeValue, column);
+          ret = GetDateTimeNull(null, value, null, timeValue, column, true);
           break;
 
         case DataType.Integer:

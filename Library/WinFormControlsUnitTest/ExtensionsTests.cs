@@ -15,6 +15,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -28,9 +29,12 @@ namespace CsvTools.Tests
     {
       var executed = false;
 
-      var task = System.Threading.Tasks.Task.Factory.StartNew(() => { executed = true; });
-      task.Wait();
-      Extensions.WaitToCompleteTask(task, 1, true, CancellationToken.None);
+      var task = Task.Run<bool>(() => { executed = true; return true; });
+      // give it time to finish task
+      Thread.Sleep(50);
+      Assert.IsTrue(executed);
+
+      Extensions.WaitToCompleteTask(task, 1, CancellationToken.None);
       Assert.IsTrue(executed);
     }
 
@@ -39,27 +43,29 @@ namespace CsvTools.Tests
     {
       var executed = false;
       Assert.IsFalse(executed);
-      var task = System.Threading.Tasks.Task.Factory.StartNew(() =>
+      var task = Task.Run<bool>(() =>
       {
         Thread.Sleep(100);
         executed = true;
+        return true;
       });
       Assert.IsFalse(executed);
-      Extensions.WaitToCompleteTask(task, 1, true, CancellationToken.None);
+      Extensions.WaitToCompleteTask(task, 1, CancellationToken.None);
       Assert.IsTrue(executed);
     }
 
     [TestMethod]
     public void WaitToCompleteTaskTestTimeout()
     {
-      var task = System.Threading.Tasks.Task.Factory.StartNew(() =>
+      var task = Task.Run<bool>(() =>
       {
         Thread.Sleep(2000);
+        return true;
       });
 
       try
       {
-        Extensions.WaitToCompleteTask(task, 1, true, CancellationToken.None);
+        Extensions.WaitToCompleteTask(task, 1, CancellationToken.None);
         Assert.Fail("Timeout did not occur");
       }
       catch (TimeoutException)
@@ -76,20 +82,21 @@ namespace CsvTools.Tests
     {
       using (var cts = new CancellationTokenSource())
       {
-        var task = System.Threading.Tasks.Task.Factory.StartNew(() =>
+        var task = Task.Run<bool>(() =>
         {
           Thread.Sleep(3000);
+          return true;
         });
 
         try
         {
           // Cancel Token after 200 ms in other thread
-          var task2 = System.Threading.Tasks.Task.Factory.StartNew(() =>
+          var task2 = Task.Run(() =>
           {
             Thread.Sleep(500);
             cts.Cancel();
           });
-          Extensions.WaitToCompleteTask(task, 1.5d, true, cts.Token);
+          Extensions.WaitToCompleteTask(task, 1.5d, cts.Token);
           Assert.Fail("Timeout did not occur");
         }
         catch (AssertFailedException)
@@ -101,6 +108,37 @@ namespace CsvTools.Tests
         catch (Exception ex)
         {
           Assert.Fail($"Wrong exception got {ex.GetType().Name} expected OperationCanceledException");
+        }
+      }
+    }
+
+    [TestMethod]
+    public void WaitToCompleteWithException()
+    {
+      using (var cts = new CancellationTokenSource())
+      {
+        try
+        {
+          Task.Run<bool>(() =>
+          {
+            Thread.Sleep(100);
+            var i = 0;
+            if (i == 0)
+              throw new ApplicationException("This is an error");
+            else
+              // Testing WaitToCompleteTask<T> I need a task that returns something
+              return true;
+          }).WaitToCompleteTask(1.5d, cts.Token);
+
+          Assert.Fail("no Exception did not occur");
+        }
+        catch (ApplicationException)
+        {
+          // all good
+        }
+        catch (Exception ex)
+        {
+          Assert.Fail($"Wrong exception got {ex.GetType().Name} expected ApplicationException");
         }
       }
     }
@@ -127,34 +165,6 @@ namespace CsvTools.Tests
 
         colFmt.Add(new Column { Name = "Test" });
         lv.UpdateListViewColumnFormat(colFmt);
-      }
-    }
-
-    [TestMethod]
-    public void RunWithTimeout()
-    {
-      var executed = false;
-      Assert.IsFalse(executed);
-      Extensions.RunWithTimeout((() => executed = true), 1, CancellationToken.None);
-      Assert.IsTrue(executed);
-    }
-
-    [TestMethod]
-    public void RunWithTimeoutErrorIsDefault()
-    {
-      try
-      {
-        var result = Extensions.RunWithTimeout<bool>(() =>
-        {
-          throw new ArgumentException("My Exception");
-        }, 1, CancellationToken.None);
-      }
-      catch (ArgumentException)
-      {
-      }
-      catch (Exception)
-      {
-        Assert.Fail("Wrong Exception");
       }
     }
 

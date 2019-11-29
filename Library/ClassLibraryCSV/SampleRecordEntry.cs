@@ -119,6 +119,8 @@ namespace CsvTools
     /// <param name="other">The other instance</param>
     public void CopyTo(SampleRecordEntry other)
     {
+      if (other == null)
+        return;
       other.RecordNumber = RecordNumber;
       other.ProvideEvidence = ProvideEvidence;
       other.Error = Error;

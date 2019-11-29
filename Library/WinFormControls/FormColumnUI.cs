@@ -38,6 +38,7 @@ namespace CsvTools
     private readonly Column m_ColumnRef;
     private readonly IFileSetting m_FileSetting;
     private readonly bool m_WriteSetting;
+    private readonly FillGuessSettings m_FillGuessSettings;
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="FormColumnUI" /> class.
@@ -45,10 +46,11 @@ namespace CsvTools
     /// <param name="column">The column format.</param>
     /// <param name="writeSetting">if set to <c>true</c> [write setting].</param>
     /// <param name="fileSetting">The file setting.</param>
-    public FormColumnUI(Column column, bool writeSetting, IFileSetting fileSetting, bool showIgnore)
+    public FormColumnUI(Column column, bool writeSetting, IFileSetting fileSetting, FillGuessSettings fillGuessSettings, bool showIgnore)
     {
       Contract.Requires(column != null);
       m_FileSetting = fileSetting;
+      m_FillGuessSettings = fillGuessSettings;
       m_ColumnRef = column;
       column.CopyTo(m_ColumnEdit);
 
@@ -114,7 +116,7 @@ namespace CsvTools
             var fileWriter = m_FileSetting.GetFileWriter(processDisplay);
             var hasRetried = false;
             retry:
-            var data = fileWriter.GetSourceDataTable(ApplicationSetting.FillGuessSettings.CheckedRecords.ToUint());
+            var data = fileWriter.GetSourceDataTable(m_FillGuessSettings.CheckedRecords.ToUint());
             {
               var found = new Column();
               var colum = data.Columns[columName];
@@ -217,7 +219,7 @@ namespace CsvTools
 
               // detect all (except Serial dates) and be content with 1 records if need be
               var checkResult = DetermineColumnFormat.GuessValueFormat(samples.Values, 1,
-                ApplicationSetting.FillGuessSettings.TrueValue, ApplicationSetting.FillGuessSettings.FalseValue,
+                m_FillGuessSettings.TrueValue, m_FillGuessSettings.FalseValue,
                 detectBool, detectGuid, detectNumeric, detectDateTime, detectNumeric, detectDateTime, detectDateTime,
                 DetermineColumnFormat.CommonDateFormat(m_FileSetting.ColumnCollection.Select(x => x.ValueFormat)), processDisplay.CancellationToken);
               processDisplay.Hide();
@@ -278,9 +280,9 @@ namespace CsvTools
                 else
                 {
                   // add the regular samples to the invalids that are first
-                  var displayMsg = $"No specific format found in {samples.RecordsRead:N0} records. Need {ApplicationSetting.FillGuessSettings.MinSamples:N0} distinct values.\n\n{checkResult.ExampleNonMatch.Concat(samples.Values).Take(42).Join("\t")}";
+                  var displayMsg = $"No specific format found in {samples.RecordsRead:N0} records. Need {m_FillGuessSettings.MinSamples:N0} distinct values.\n\n{checkResult.ExampleNonMatch.Concat(samples.Values).Take(42).Join("\t")}";
 
-                  if (samples.Values.Count() < ApplicationSetting.FillGuessSettings.MinSamples)
+                  if (samples.Values.Count() < m_FillGuessSettings.MinSamples)
                   {
                     _MessageBox.ShowBig(this, displayMsg, $"Column: {columName}", MessageBoxButtons.OK, MessageBoxIcon.Information);
                   }
@@ -324,7 +326,7 @@ namespace CsvTools
     {
       try
       {
-        if (new Func<bool>(ValidateChildren).RunWithTimeout(1, System.Threading.CancellationToken.None))
+        if (this.ValidateChildren(m_CancellationTokenSource.Token))
         {
           if (!m_ColumnEdit.Equals(m_ColumnRef))
           {
@@ -603,7 +605,7 @@ namespace CsvTools
         if (groupBoxSplit.Visible)
           SetSamplePart(null, null);
 
-        //TODO: odepening on OS and scaling a different value might be needed
+        //TODO: opening on OS and scaling a different value might be needed
         Height = tableLayoutPanelForm.Height + SystemInformation.CaptionHeight + 11;
       }
       catch (Exception ex)
@@ -688,13 +690,13 @@ namespace CsvTools
         if (m_WriteSetting)
         {
           var fileWriter = m_FileSetting.GetFileWriter(processDisplay);
-          var data = fileWriter.GetSourceDataTable((uint)ApplicationSetting.FillGuessSettings.CheckedRecords);
+          var data = fileWriter.GetSourceDataTable((uint)m_FillGuessSettings.CheckedRecords);
           {
             var colIndex = data.Columns.IndexOf(columnName);
             if (colIndex < 0)
               throw new FileException($"Column {columnName} not found.");
 
-            return DetermineColumnFormat.GetSampleValues(data, colIndex, ApplicationSetting.FillGuessSettings.SampleValues,
+            return DetermineColumnFormat.GetSampleValues(data, colIndex, m_FillGuessSettings.SampleValues,
               m_FileSetting.TreatTextAsNull, processDisplay.CancellationToken);
           }
         }
@@ -737,8 +739,8 @@ namespace CsvTools
             throw new FileException($"Column {columnName} not found.");
           }
 
-          return DetermineColumnFormat.GetSampleValues(fileReader, ApplicationSetting.FillGuessSettings.CheckedRecords,
-            colIndex, ApplicationSetting.FillGuessSettings.SampleValues, m_FileSetting.TreatTextAsNull, processDisplay.CancellationToken);
+          return DetermineColumnFormat.GetSampleValues(fileReader, m_FillGuessSettings.CheckedRecords,
+            colIndex, m_FillGuessSettings.SampleValues, m_FileSetting.TreatTextAsNull, processDisplay.CancellationToken);
         }
       }
       catch (Exception ex)

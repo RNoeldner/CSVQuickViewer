@@ -40,7 +40,6 @@ namespace CsvTools
     private readonly List<ToolStripDataGridViewColumnFilter> m_Filter = new List<ToolStripDataGridViewColumnFilter>();
     private BindingSource m_BindingSource;
     private bool m_DisposedValue;
-    private IFileSetting m_FileSetting;
 
     /// <summary>
     ///   Any Text entered here will be highlighted Filer
@@ -199,7 +198,14 @@ namespace CsvTools
     /// </value>
     public IFileSetting FileSetting
     {
-      set => m_FileSetting = value;
+      private get;
+      set;
+    }
+
+    public FillGuessSettings FillGuessSettings
+    {
+      private get;
+      set;
     }
 
     /// <summary>
@@ -767,10 +773,10 @@ namespace CsvTools
     /// <returns></returns>
     private Column GetColumnFormat(int colindex)
     {
-      if (m_FileSetting == null || colindex < 0 || colindex > m_FileSetting.ColumnCollection.Count)
+      if (FileSetting == null || colindex < 0 || colindex > FileSetting.ColumnCollection.Count)
         return null;
 
-      return m_FileSetting.ColumnCollection.Get(Columns[colindex].DataPropertyName);
+      return FileSetting.ColumnCollection.Get(Columns[colindex].DataPropertyName);
     }
 
     /// <summary>
@@ -1117,7 +1123,7 @@ namespace CsvTools
       var columnFormat = GetColumnFormat(m_MenuItemColumnIndex);
       if (columnFormat == null)
         return;
-      using (var form = new FormColumnUI(columnFormat, false, m_FileSetting, false))
+      using (var form = new FormColumnUI(columnFormat, false, FileSetting, FillGuessSettings, false))
       {
         if (form.ShowDialog() == DialogResult.Yes)
           Refresh();

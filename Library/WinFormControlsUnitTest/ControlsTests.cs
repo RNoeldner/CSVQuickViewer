@@ -54,7 +54,6 @@ namespace CsvTools.Tests
     [ClassCleanup]
     public static void TearDown() => m_DataTable.Dispose();
 
-   
     [TestMethod]
     public void CsvRichTextBox()
     {
@@ -129,7 +128,7 @@ namespace CsvTools.Tests
     {
       var col = new Column { Name = "ExamDate", DataType = DataType.DateTime };
       csvFile.ColumnCollection.AddIfNew(col);
-      using (var frm = new FormColumnUI(col, false, csvFile, false))
+      using (var frm = new FormColumnUI(col, false, csvFile, new FillGuessSettings(), false))
       {
         frm.ShowInTaskbar = false;
         frm.Show();
@@ -142,7 +141,7 @@ namespace CsvTools.Tests
     {
       var col = new Column { Name = "ExamDate", DataType = DataType.DateTime };
       csvFile.ColumnCollection.AddIfNew(col);
-      using (var form = new FormColumnUI(col, false, csvFile, true))
+      using (var form = new FormColumnUI(col, false, csvFile, new FillGuessSettings(), true))
       {
         form.ShowInTaskbar = false;
         form.ShowGuess = false;
@@ -156,7 +155,7 @@ namespace CsvTools.Tests
     {
       var col = new Column { Name = "ExamDate", DataType = DataType.DateTime };
       csvFile.ColumnCollection.AddIfNew(col);
-      using (var form = new FormColumnUI(col, false, csvFile, false))
+      using (var form = new FormColumnUI(col, false, csvFile, new FillGuessSettings(), false))
       {
         form.ShowInTaskbar = false;
         form.Show();
@@ -170,7 +169,7 @@ namespace CsvTools.Tests
       var col = new Column { Name = "ExamDate", DataType = DataType.DateTime };
       csvFile.ColumnCollection.AddIfNew(col);
 
-      using (var form = new FormColumnUI(col, false, csvFile, true))
+      using (var form = new FormColumnUI(col, false, csvFile, new FillGuessSettings(), true))
       {
         form.ShowInTaskbar = false;
         form.Show();
@@ -240,7 +239,7 @@ namespace CsvTools.Tests
     public void FormDetail()
     {
       using (var processDisplay = new DummyProcessDisplay())
-      using (var form = new FormDetail(m_DataTable, null, null, true, false, 0, processDisplay.CancellationToken))
+      using (var form = new FormDetail(m_DataTable, null, null, true, false, 0, new FillGuessSettings(), processDisplay.CancellationToken))
       {
         form.ShowInTaskbar = false;
         form.Show();
