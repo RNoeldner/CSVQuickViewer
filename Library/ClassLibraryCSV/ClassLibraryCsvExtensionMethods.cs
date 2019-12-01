@@ -23,6 +23,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace CsvTools
 {
@@ -94,7 +95,6 @@ namespace CsvTools
     }
 
 #if !GetHashByGUID
-
     /// <summary>
     ///   Check if a collection is equal, the items can be in any order as long as all exist in the th other
     /// </summary>
@@ -190,9 +190,7 @@ namespace CsvTools
         return hashCode;
       }
     }
-
 #endif
-
     /// <summary>
     ///   Writes the current record into a data table.
     /// </summary>
@@ -309,35 +307,6 @@ namespace CsvTools
         default:
           return "Text";
       }
-    }
-
-    public static string UpmostStackTrace()
-    {
-      try
-      {
-        var st = new System.Diagnostics.StackTrace();
-        // bottom up find the start of CSV
-        for (var i = st.FrameCount - 1; i > 1; i--)
-        {
-          var frm = st.GetFrame(i);
-          if (frm.GetMethod().DeclaringType.AssemblyQualifiedName.StartsWith("CsvTools."))
-          {
-            // now stay with CsvTool and stop once we leave it
-            for (var j = i - 1; j > 0; j--)
-            {
-              var frm2 = st.GetFrame(j);
-              if (!frm2.GetMethod().DeclaringType.AssemblyQualifiedName.StartsWith("CsvTools."))
-                return st.GetFrame(j + 1).ToString();
-            }
-            return frm.ToString();
-          }
-        }
-      }
-      catch (Exception)
-      {
-        // ignore
-      }
-      return null;
     }
 
     /// <summary>
@@ -890,6 +859,210 @@ namespace CsvTools
     }
 
     /// <summary>
+    /// Gets the uplmost tace of the stack trace that belongs to the assembly
+    /// Ignoring all Libraries assuming the call did pass something bad in taht caused them to fail.
+    /// Hopefulle this is usefull for Async taks as well to know where they where called from 
+    /// </summary>
+    /// <returns>A text taht might help determining where whcih call caused an error</returns>
+    public static string UpmostStackTrace()
+    {
+      try
+      {
+        var st = new System.Diagnostics.StackTrace();
+        // bottom up find the start of CSV
+        for (var i = st.FrameCount - 1; i > 1; i--)
+        {
+          var frm = st.GetFrame(i);
+          if (frm.GetMethod().DeclaringType.AssemblyQualifiedName.StartsWith("CsvTools."))
+          {
+            // now stay with CsvTool and stop once we leave it
+            for (var j = i - 1; j > 0; j--)
+            {
+              var frm2 = st.GetFrame(j);
+              if (!frm2.GetMethod().DeclaringType.AssemblyQualifiedName.StartsWith("CsvTools."))
+                return st.GetFrame(j + 1).ToString();
+            }
+            return frm.ToString();
+          }
+        }
+      }
+      catch (Exception)
+      {
+        // ignore
+      }
+      return null;
+    }
+
+    /// <summary>
+    /// Run a task to completion with timeout
+    /// </summary>
+    /// <param name="executeTask">The started <see cref="System.Threading.Tasks.Task"/></param>
+    /// <param name="timeoutSeconds">Timeout for the completion of the task, if more time is spent running / waiting the wait is finished</param>
+    /// <param name="every125MS">Action to be invoked every 1/4 second whiel waiting to finish, usually used for UI updates</param>
+    /// <param name="cancellationToken">Best is to start tasks with the cancellation token but some async medthos do not do, so it can be provided</param>
+    /// <remarks>Will only return the first exception in case of aggegarte execptions.</remarks>
+    public static void WaitToCompleteTask(this Task executeTask, double timeoutSeconds, Action every125MS, CancellationToken cancellationToken)
+    {
+      if (executeTask == null)
+        throw new ArgumentNullException(nameof(executeTask));
+      if (every125MS is null)
+        throw new ArgumentNullException(nameof(every125MS));
+
+      cancellationToken.ThrowIfCancellationRequested();
+
+      if (timeoutSeconds > 0.01)
+      {
+        var stopwatch = new System.Diagnostics.Stopwatch();
+        stopwatch.Start();
+        RunTaskAction(executeTask, () =>
+        {
+          cancellationToken.ThrowIfCancellationRequested();
+
+          // Raise an exception when waiting too long
+          if (stopwatch.Elapsed.TotalSeconds > timeoutSeconds)
+            throw new TimeoutException($"Waited longer than {stopwatch.Elapsed.Seconds:N1} seconds, assuming something is wrong");
+
+          // wait will raise an AggregateException if the task throws an exception
+          executeTask.Wait(125);
+
+          // Invoke action every 1/4 second
+          every125MS?.Invoke();
+        });
+      }
+      else
+      {
+        RunTaskAction(executeTask, () =>
+        {
+          cancellationToken.ThrowIfCancellationRequested();
+          // wait will raise an AggregateException if the task throws an exception
+          executeTask.Wait(125);
+          // Invoke action every 1/4 second
+          every125MS?.Invoke();
+        });
+      }
+    }
+
+    public static void WaitToCompleteTask(this Task executeTask, double timeoutSeconds = 0, Action every125MS = null)
+    {
+      if (executeTask == null)
+        throw new ArgumentNullException(nameof(executeTask));
+
+      if (timeoutSeconds > 0.01)
+      {
+        var stopwatch = new System.Diagnostics.Stopwatch();
+        stopwatch.Start();
+        RunTaskAction(executeTask, () =>
+        {
+          // Raise an exception when waiting too long
+          if (stopwatch.Elapsed.TotalSeconds > timeoutSeconds)
+            throw new TimeoutException($"Waited longer than {stopwatch.Elapsed.Seconds:N1} seconds, assuming something is wrong");
+
+          // wait will raise an AggregateException if the task throws an exception
+          executeTask.Wait(125);
+
+          // Invoke action every 1/4 second
+          every125MS?.Invoke();
+        });
+      }
+      else
+      {
+        RunTaskAction(executeTask, () =>
+        {
+          // wait will raise an AggregateException if the task throws an exception
+          executeTask.Wait(125);
+          // Invoke action every 1/4 second
+          every125MS?.Invoke();
+        });
+      }
+    }
+
+    /// <summary>
+    /// Run a task that retuns a value to completion with timeout
+    /// </summary>
+    /// <param name="executeTask">The started <see cref="System.Threading.Tasks.Task"/></param>
+    /// <param name="timeoutSeconds">Timeout for the completion of the task, if more time is spent running / waiting the wait is finished</param>
+    /// <param name="every125MS">Action to be invoked every 1/4 second whiel waiting to finish, usually used for UI updates</param>
+    /// <param name="cancellationToken">Best is to start tasks with the cancellation token but some async medthos do not do, so it can be provided</param>
+    /// <returns>Task Result if finished successfully, otheriwse raises an error</returns>
+    public static T WaitToCompleteTask<T>(this Task<T> executeTask, double timeoutSeconds, Action every125MS, CancellationToken cancellationToken)
+    {
+      if (executeTask == null)
+        throw new ArgumentNullException(nameof(executeTask));
+      if (every125MS is null)
+        throw new ArgumentNullException(nameof(every125MS));
+
+      cancellationToken.ThrowIfCancellationRequested();
+
+      if (timeoutSeconds > 0.01)
+      {
+        var stopwatch = new System.Diagnostics.Stopwatch();
+        stopwatch.Start();
+        RunTaskAction(executeTask, () =>
+        {
+          cancellationToken.ThrowIfCancellationRequested();
+
+          // Raise an exception when waiting too long
+          if (stopwatch.Elapsed.TotalSeconds > timeoutSeconds)
+            throw new TimeoutException($"Waited longer than {stopwatch.Elapsed.Seconds:N1} seconds, assuming something is wrong");
+
+          // wait will raise an AggregateException if the task throws an exception
+          executeTask.Wait(125);
+
+          // Invoke action every 1/4 second
+          every125MS?.Invoke();
+        });
+      }
+      else
+      {
+        RunTaskAction(executeTask, () =>
+        {
+          cancellationToken.ThrowIfCancellationRequested();
+
+          // wait will raise an AggregateException if the task throws an exception
+          executeTask.Wait(125);
+          // Invoke action every 1/4 second
+          every125MS?.Invoke();
+        });
+      }
+
+      return executeTask.Result;
+    }
+
+    public static T WaitToCompleteTask<T>(this Task<T> executeTask, double timeoutSeconds = 0, Action every125MS = null)
+    {
+      if (executeTask == null)
+        throw new ArgumentNullException(nameof(executeTask));
+      if (timeoutSeconds > 0.01)
+      {
+        var stopwatch = new System.Diagnostics.Stopwatch();
+        stopwatch.Start();
+        RunTaskAction(executeTask, () =>
+        {
+          // Raise an exception when waiting too long
+          if (stopwatch.Elapsed.TotalSeconds > timeoutSeconds)
+            throw new TimeoutException($"Waited longer than {stopwatch.Elapsed.Seconds:N1} seconds, assuming something is wrong");
+
+          // wait will raise an AggregateException if the task throws an exception
+          executeTask.Wait(125);
+
+          // Invoke action every 1/4 second
+          every125MS?.Invoke();
+        });
+      }
+      else
+      {
+        RunTaskAction(executeTask, () =>
+        {
+          // wait will raise an AggregateException if the task throws an exception
+          executeTask.Wait(125);
+          // Invoke action every 1/4 second
+          every125MS?.Invoke();
+        });
+      }
+      return executeTask.Result;
+    }
+
+    /// <summary>
     ///   Writes the data to a data table.
     /// </summary>
     /// <param name="reader">The reader.</param>
@@ -1194,6 +1367,33 @@ namespace CsvTools
       }
 
       return '\0';
+    }
+
+    /// <summary>
+    /// Executue Asyncronous Tasks wand wait for completion
+    /// </summary>
+    /// <param name="executeTask">Teh task that is beeing checked</param>
+    /// <param name="inloop">The action to be invoked whiel waiting, it shoudl contain an executeTask.Wait of some kind</param>
+    private static void RunTaskAction(this Task executeTask, Action inloop)
+    {
+      try
+      {
+        // some tasks are already faulted
+        if (executeTask.IsFaulted)
+          throw executeTask.Exception;
+
+        while (!executeTask.IsCanceled && !executeTask.IsCompleted && !executeTask.IsFaulted)
+          inloop.Invoke();
+      }
+      catch (Exception ex)
+      {
+        Logger.Warning(ex, "Runing async task {src}\n{exception}", UpmostStackTrace(), ex.ExceptionMessages());
+        // return only teh fidrt exception if there are many
+        if (ex is AggregateException ae)
+          throw ae.Flatten().InnerExceptions[0];
+        else
+          throw;
+      }
     }
   }
 }

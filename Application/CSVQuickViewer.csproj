@@ -446,9 +446,6 @@
     <PackageReference Include="Costura.Fody">
       <Version>3.3.3</Version>
     </PackageReference>
-    <PackageReference Include="Pri.LongPath">
-      <Version>2.0.47</Version>
-    </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

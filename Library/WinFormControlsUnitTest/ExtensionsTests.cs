@@ -34,7 +34,7 @@ namespace CsvTools.Tests
       Thread.Sleep(50);
       Assert.IsTrue(executed);
 
-      Extensions.WaitToCompleteTask(task, 1, CancellationToken.None);
+      Extensions.WaitToCompleteTaskUI(task, 1);
       Assert.IsTrue(executed);
     }
 
@@ -50,7 +50,7 @@ namespace CsvTools.Tests
         return true;
       });
       Assert.IsFalse(executed);
-      Extensions.WaitToCompleteTask(task, 1, CancellationToken.None);
+      Extensions.WaitToCompleteTaskUI(task, 1);
       Assert.IsTrue(executed);
     }
 
@@ -65,7 +65,7 @@ namespace CsvTools.Tests
 
       try
       {
-        Extensions.WaitToCompleteTask(task, 1, CancellationToken.None);
+        Extensions.WaitToCompleteTaskUI(task, 1);
         Assert.Fail("Timeout did not occur");
       }
       catch (TimeoutException)
@@ -96,7 +96,7 @@ namespace CsvTools.Tests
             Thread.Sleep(500);
             cts.Cancel();
           });
-          Extensions.WaitToCompleteTask(task, 1.5d, cts.Token);
+          Extensions.WaitToCompleteTaskUI(task, 1.5d);
           Assert.Fail("Timeout did not occur");
         }
         catch (AssertFailedException)
@@ -128,7 +128,7 @@ namespace CsvTools.Tests
             else
               // Testing WaitToCompleteTask<T> I need a task that returns something
               return true;
-          }).WaitToCompleteTask(1.5d, cts.Token);
+          }).WaitToCompleteTaskUI(1.5d);
 
           Assert.Fail("no Exception did not occur");
         }

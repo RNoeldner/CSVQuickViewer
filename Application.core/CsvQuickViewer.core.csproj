@@ -24,9 +24,6 @@
     <Compile Remove="..\Application\Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Pri.LongPath">
-      <Version>2.0.47</Version>
-    </PackageReference>
     <PackageReference Include="System.Text.Encoding.CodePages" Version="4.6.0" />
   </ItemGroup>
   

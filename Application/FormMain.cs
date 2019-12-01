@@ -23,6 +23,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml.Serialization;
 using Microsoft.Win32;
@@ -470,9 +471,15 @@ namespace CsvTools
                 this.ShowError(ex, "Inspecting file");
               }
 
-            System.Threading.Tasks.Task.Run(new Action(() => { while (limitSizeForm != null) { }; }), cancellationTokenSource.Token).WaitToCompleteTask(8, false, cancellationTokenSource.Token);
-            // Extensions.TimeOutWait(() => { return limitSizeForm != null; }, 10, cancellationTokenSource.Token);
-
+            try
+            {
+              Task.Run(() => { while (limitSizeForm != null) { }; }, cancellationTokenSource.Token).WaitToCompleteTaskUI(8);
+            }
+            catch (Exception)
+            {
+              // Igore
+            }
+            
             if (limitSizeForm != null)
               limitSizeForm.Close();
 

@@ -14,7 +14,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
@@ -35,7 +34,7 @@ namespace CsvTools
     /// <param name="container">Control with validate able children</param>
     /// <param name="cancellationToken">Cancellation Token</param>
     /// <returns><c>True</c> if children where validated, <c>false</c> otherwise</returns>
-    public static bool ValidateChildren(this ContainerControl container, CancellationToken cancellationToken) => Task.Run<bool>(new Func<bool>(() => container.ValidateChildren())).WaitToCompleteTask(1, cancellationToken);
+    public static bool ValidateChildren(this ContainerControl container, CancellationToken cancellationToken) => Task.Run(() => container.ValidateChildren(), cancellationToken).WaitToCompleteTask(1, Application.DoEvents);
 
     /// <summary>
     /// Show error information to a user, and logs the message
@@ -45,21 +44,10 @@ namespace CsvTools
     /// <param name="additionalTitle">Title Bar information</param>
     public static void ShowError(this Form from, Exception ex, string additionalTitle = "")
     {
-      Logger.Warning(ex, "Issue in UI {form} : {message}", nameof(from), ex.Message);
+      Logger.Warning(ex, "Issue in UI {form} : {message}", nameof(from), ex.ExceptionMessages(1));
       Cursor.Current = Cursors.Default;
       MessageBox.Show(from, ex.ExceptionMessages(), string.IsNullOrEmpty(additionalTitle) ? "Error" : $"Error {additionalTitle}", MessageBoxButtons.OK, MessageBoxIcon.Warning);
     }
-
-    /// <summary>
-    /// Checks if a condition is set but processes UI events while waiting
-    /// </summary>
-    /// <param name="waitWhileTrue">Function to determine if a process should still execute, once the function return <c>FASLE</c> this routine will return</param>
-    /// <param name="timeoutMinutes">Timeout in Minutes</param>
-    /// <param name="cancellationToken">Cancellation Token</param>
-    /// <returns><c>true</c> if finished successfully, <c>false</c> if canceled or timeout has been reached</returns>
-    [Obsolete("TimeOutWait is deprecated, please use Task.Run<bool>(new Func<bool>(() => { while (waitWhileTrue()) { }; return true; }), cancellationToken).WaitToCompleteTask(timeoutMinutes / 60d, raiseError, cancellationToken).")]
-    public static void TimeOutWait(Func<bool> waitWhileTrue, double timeoutSeconds, CancellationToken cancellationToken) =>
-      Task.Run(new Action(() => { while (waitWhileTrue()) { }; }), cancellationToken).WaitToCompleteTask(timeoutSeconds, true, cancellationToken);
 
     /// <summary>
     /// Handles UI elements while waiting on something
@@ -78,75 +66,21 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Execute an action synchronously with timeout
+    /// Run a task synchronously with timeout
     /// </summary>
-    /// <param name="action">The delegate that does not return a value</param>
+    /// <param name="executeTask">The started <see cref="System.Threading.Tasks.Task"/></param>
     /// <param name="timeoutSeconds">Timeout for the completion of the task, if more time is spent running / waiting the wait is finished</param>
-    /// <param name="raiseError">if <c>true</c> an error is thrown in cause of an issue, otherwise its only logged </param>
-    /// <param name="cancellationToken">Cancellation Token to be able to cancel the task</param>
-    /// <returns><c>true</c> if finished successfully, <c>false</c> if canceled or timeout has been reached</returns>
-    [Obsolete("RunWithTimeout is deprecated, please use Task.Run(action, cancellationToken).WaitToCompleteTask(timeoutSeconds, raiseError, cancellationToken)")]
-    public static void RunWithTimeout(this Action action, double timeoutSeconds = 2.0, bool raiseError = true, CancellationToken cancellationToken = default(CancellationToken)) => Task.Run(action, cancellationToken).WaitToCompleteTask(timeoutSeconds, raiseError, cancellationToken);
-
-    /// <summary>
-    /// Execute an function synchronously with timeout
-    /// </summary>
-    /// <param name="action">The delegate that does return one value</param>
-    /// <param name="timeoutSeconds">Timeout for the completion of the task, if more time is spent running / waiting the wait is finished</param>
-    /// <param name="cancellationToken">Cancellation Token to be able to cancel the task</param>
-    ///
-    /// <returns>The return value of the delegate</returns>
-    [Obsolete("RunWithTimeout is deprecated, please use Task.Run<TResult>(action, cancellationToken).WaitToCompleteTask(timeoutSeconds, false, cancellationToken)")]
-    public static TResult RunWithTimeout<TResult>(this Func<TResult> action, double timeoutSeconds = 1d, CancellationToken cancellationToken = default(CancellationToken)) => Task.Run<TResult>(action, cancellationToken).WaitToCompleteTask(timeoutSeconds, cancellationToken);
+    /// <param name="cancellationToken">Cancellation Token to be able to cancel the task</param>    
+    public static void WaitToCompleteTaskUI(this Task executeTask, double timeoutSeconds, CancellationToken cancellationToken) =>
+      executeTask.WaitToCompleteTask(timeoutSeconds, Application.DoEvents, cancellationToken);
 
     /// <summary>
     /// Run a task synchronously with timeout
     /// </summary>
     /// <param name="executeTask">The started <see cref="System.Threading.Tasks.Task"/></param>
-    /// <param name="timeoutSeconds">Timeout for the completion of the task, if more time is spent running / waiting the wait is finished</param>
-    /// <param name="raiseError">if <c>true</c> an error is thrown in cause of an issue, otherwise its only logged </param>
-    /// <param name="cancellationToken">Cancellation Token to be able to cancel the task</param>
-    /// <returns><c>true</c> if finished successfully, <c>false</c> if canceled or timeout has been reached</returns>
-    public static void WaitToCompleteTask(this Task executeTask, double timeoutSeconds = 0, bool raiseError = true, CancellationToken cancellationToken = default(CancellationToken))
-    {
-      if (executeTask == null)
-        throw new ArgumentNullException(nameof(executeTask));
-
-      var stopwatch = new Stopwatch();
-      stopwatch.Start();
-
-      try
-      {
-        // some tasks are already faulted
-        if (executeTask.IsFaulted)
-          throw executeTask.Exception;
-
-        while (!executeTask.IsCanceled && !executeTask.IsCompleted && !executeTask.IsFaulted)
-        {
-          // Raise an exception when waiting too long
-          if (timeoutSeconds > 0.01 && stopwatch.Elapsed.TotalSeconds > timeoutSeconds)
-            throw new TimeoutException($"Waited longer than {stopwatch.Elapsed.Seconds:N1} seconds, assuming something is wrong");
-
-          // wait will raise an AggregateException if the task throws an exception
-          executeTask.Wait(125, cancellationToken);
-
-          // keep UI alive
-          ProcessUIElements(50);
-        }
-      }
-      catch (Exception ex)
-      {
-        Logger.Warning(ex, "WaitToCompleteTask {src}\n{exception}", ClassLibraryCsvExtensionMethods.UpmostStackTrace(), ex.ExceptionMessages());
-
-        if (raiseError)
-        {
-          if (ex is AggregateException ae)
-            throw ae.Flatten().InnerExceptions[0];
-          else
-            throw;
-        }
-      }
-    }
+    /// <param name="timeoutSeconds">Timeout for the completion of the task, if more time is spent running / waiting the wait is finished</param>    
+    public static void WaitToCompleteTaskUI(this Task executeTask, double timeoutSeconds = 0) =>
+      executeTask.WaitToCompleteTask(timeoutSeconds, Application.DoEvents);
 
     /// <summary>
     /// Run a task synchronously with timeout
@@ -154,46 +88,17 @@ namespace CsvTools
     /// <param name="executeTask">The started <see cref="System.Threading.Tasks.Task"/></param>
     /// <param name="timeoutSeconds">Timeout for the completion of the task, if more time is spent running / waiting the wait is finished</param>
     /// <param name="cancellationToken">Cancellation Token to be able to cancel the task</param>
-    ///
-    /// <returns><c>true</c> if finished successfully, <c>false</c> if canceled or timeout has been reached</returns>
-    public static T WaitToCompleteTask<T>(this Task<T> executeTask, double timeoutSeconds = 0, CancellationToken cancellationToken = default(CancellationToken))
-    {
-      if (executeTask == null)
-        throw new ArgumentNullException(nameof(executeTask));
+    public static T WaitToCompleteTaskUI<T>(this Task<T> executeTask, double timeoutSeconds, CancellationToken cancellationToken) =>
+      executeTask.WaitToCompleteTask(timeoutSeconds, Application.DoEvents, cancellationToken);
 
-      var stopwatch = new Stopwatch();
-      stopwatch.Start();
+    /// <summary>
+    /// Run a task synchronously with timeout
+    /// </summary>
+    /// <param name="executeTask">The started <see cref="System.Threading.Tasks.Task"/></param>
+    /// <param name="timeoutSeconds">Timeout for the completion of the task, if more time is spent running / waiting the wait is finished</param>
+    public static T WaitToCompleteTaskUI<T>(this Task<T> executeTask, double timeoutSeconds = 0) =>
+      executeTask.WaitToCompleteTask(timeoutSeconds, Application.DoEvents);
 
-      try
-      {
-        // some tasks are already faulted
-        if (executeTask.IsFaulted)
-          throw executeTask.Exception;
-
-        while (!executeTask.IsCanceled && !executeTask.IsCompleted && !executeTask.IsFaulted)
-        {
-          // Raise an exception when waiting too long
-          if (timeoutSeconds > 0.01 && stopwatch.Elapsed.TotalSeconds > timeoutSeconds)
-            throw new TimeoutException($"Waited longer than {stopwatch.Elapsed.Seconds:N1} seconds, assuming something is wrong");
-
-          // wait will raise an AggregateException if the task throws an exception
-          executeTask.Wait(125, cancellationToken);
-
-          // keep UI alive
-          ProcessUIElements(50);
-        }
-      }
-      catch (Exception ex)
-      {
-        Logger.Warning(ex, "WaitToCompleteTask {src}\n{exception}", ClassLibraryCsvExtensionMethods.UpmostStackTrace(), ex.ExceptionMessages());
-
-        if (ex is AggregateException ae)
-          throw ae.Flatten().InnerExceptions[0];
-        else
-          throw;
-      }
-      return executeTask.Result;
-    }
 
     /// <summary>
     ///   Handles a CTRL-A select all in the form.
@@ -265,7 +170,7 @@ namespace CsvTools
 
       if (diagRes == DialogResult.Yes)
       {
-        retry:
+      retry:
         try
         {
           File.Delete(fileName);
