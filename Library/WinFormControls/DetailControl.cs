@@ -213,17 +213,14 @@ namespace CsvTools
         m_Columns = m_DataTable.Columns;
 
         m_FilterDataTable = new FilterDataTable(m_DataTable, m_CancellationTokenSource.Token);
-        m_FilterDataTable.StartFilter(int.MaxValue, FilterType.ErrorsAndWarning, () =>
-        {
-          if (m_FilterDataTable.FilterTable.Rows.Count == 0)
-          {
-            ShowFilter = false;
-          }
-        });
+        m_FilterDataTable.StartFilter(int.MaxValue, FilterType.ErrorsAndWarning,
+          () => { ShowFilter = false; });
         m_FilteredDataGridView.FileSetting = m_FileSetting;
         m_FilteredDataGridView.FillGuessSettings = m_FillGuessSettings;
-        toolStripComboBoxFilterType.SelectedIndex = 0;
-
+        this.SafeInvoke(() =>
+        {
+          toolStripComboBoxFilterType.SelectedIndex = 0;
+        });
         SetDataSource(FilterType.All);
       }
     }
@@ -762,39 +759,30 @@ namespace CsvTools
     /// <param name="onlyErrors">if set to <c>true</c> only rows with errors and columns with errors are shown.</param>
     private void FilterRowsAndColumns(FilterType type)
     {
+      // Cancel the current search
+      if (m_CurrentSearch != null && m_CurrentSearch.IsRunning)
+        m_CurrentSearch.Cancel();
+      // Hide any showing search
+      m_Search.Visible = false;
+      if (type != FilterType.All && type != m_FilterDataTable.FilterType)
+      {
+        m_FilterDataTable.Filter(int.MaxValue, type);
+      }
+
+      var newDt = (type == FilterType.All) ? m_DataTable : m_FilterDataTable.FilterTable;
+      if (newDt == m_BindingSource.DataSource)
+        return;
+      m_FilteredDataGridView.DataSource = null;
+      m_BindingSource.DataSource = newDt;
       try
       {
-        Extensions.ProcessUIElements();
-
-        // Cancel the current search
-        if (m_CurrentSearch != null && m_CurrentSearch.IsRunning)
-          m_CurrentSearch.Cancel();
-        // Hide any showing search
-        m_Search.Visible = false;
-        if (type != FilterType.All && type != m_FilterDataTable.FilterType)
-        {
-          m_FilterDataTable.Filter(int.MaxValue, type);
-        }
-
-        var newDt = (type == FilterType.All) ? m_DataTable : m_FilterDataTable.FilterTable;
-        if (newDt == m_BindingSource.DataSource)
-          return;
-        m_FilteredDataGridView.DataSource = null;
-        m_BindingSource.DataSource = newDt;
-        try
-        {
-          m_FilteredDataGridView.DataSource = m_BindingSource; // bindingSource;
-          FilterColumns(!type.HasFlag(FilterType.ShowIssueFree));
-          AutoResizeColumns(newDt);
-        }
-        catch (Exception ex)
-        {
-          ParentForm.ShowError(ex, "Error setting the DataSource of the grid");
-        }
+        m_FilteredDataGridView.DataSource = m_BindingSource; // bindingSource;
+        FilterColumns(!type.HasFlag(FilterType.ShowIssueFree));
+        AutoResizeColumns(newDt);
       }
-      finally
+      catch (Exception ex)
       {
-        Extensions.ProcessUIElements();
+        ParentForm.ShowError(ex, "Error setting the DataSource of the grid");
       }
     }
 
@@ -949,10 +937,9 @@ namespace CsvTools
     {
       if (m_DataTable == null)
         return;
-
-      // update the dropdown
       this.SafeInvoke(() =>
       {
+        // update the dropdown
         if (type == FilterType.All & toolStripComboBoxFilterType.SelectedIndex != 0)
           toolStripComboBoxFilterType.SelectedIndex = 0;
         if (type == FilterType.ErrorsAndWarning & toolStripComboBoxFilterType.SelectedIndex != 1)
@@ -964,7 +951,6 @@ namespace CsvTools
         if (type == FilterType.ShowIssueFree & toolStripComboBoxFilterType.SelectedIndex != 4)
           toolStripComboBoxFilterType.SelectedIndex = 4;
       });
-
       var oldSortedColumn = m_FilteredDataGridView.SortedColumn?.DataPropertyName;
       var oldOrder = m_FilteredDataGridView.SortOrder;
       // bindingSource.SuspendBinding();
@@ -978,6 +964,7 @@ namespace CsvTools
         Sort(oldSortedColumn,
           oldOrder == SortOrder.Ascending ? ListSortDirection.Ascending : ListSortDirection.Descending);
       }
+      Extensions.ProcessUIElements();
     }
 
     private void StartSearch(object sender, SearchEventArgs e)
