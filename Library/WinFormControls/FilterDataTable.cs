@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace CsvTools
 {
@@ -257,11 +258,11 @@ namespace CsvTools
       }
     }
 
-    public void StartFilter(int limit, FilterType type, Action finishedAction) => ThreadPool.QueueUserWorkItem(delegate
-                                                                                  {
-                                                                                    Filter(limit, type);
-                                                                                    finishedAction?.Invoke();
-                                                                                  });
+    public void StartFilter(int limit, FilterType type, Action finishedActionIfResults) => Task.Run(() => Filter(limit, type)).ContinueWith((task =>
+                                                                                           {
+                                                                                             if (FilterTable.Rows.Count == 0)
+                                                                                               finishedActionIfResults.Invoke();
+                                                                                           }));
 
     private bool m_DisposedValue; // To detect redundant calls
 

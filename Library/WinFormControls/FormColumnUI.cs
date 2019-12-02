@@ -326,7 +326,7 @@ namespace CsvTools
     {
       try
       {
-        if (this.ValidateChildren(m_CancellationTokenSource.Token))
+        if (ValidateChildren())
         {
           if (!m_ColumnEdit.Equals(m_ColumnRef))
           {

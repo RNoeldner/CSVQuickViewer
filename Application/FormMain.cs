@@ -479,7 +479,7 @@ namespace CsvTools
             {
               // Igore
             }
-            
+
             if (limitSizeForm != null)
               limitSizeForm.Close();
 
@@ -595,9 +595,9 @@ namespace CsvTools
 
         if (data != null)
         {
-          Logger.Information("Showing loaded data…");
           // Show the data
-          detailControl.DataTable = data;
+          Logger.Information("Showing loaded data…");
+          Task.Run(() => detailControl.DataTable = data);
         }
         ApplicationSetting.SQLDataReader = delegate (string settingName, IProcessDisplay processDisplay, int timeout)
         { return detailControl.DataTable.CreateDataReader(); };
