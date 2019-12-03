@@ -95,6 +95,7 @@ namespace CsvTools
     }
 
 #if !GetHashByGUID
+
     /// <summary>
     ///   Check if a collection is equal, the items can be in any order as long as all exist in the th other
     /// </summary>
@@ -190,7 +191,9 @@ namespace CsvTools
         return hashCode;
       }
     }
+
 #endif
+
     /// <summary>
     ///   Writes the current record into a data table.
     /// </summary>
@@ -859,17 +862,26 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Gets the uplmost tace of the stack trace that belongs to the assembly
-    /// Ignoring all Libraries assuming the call did pass something bad in taht caused them to fail.
-    /// Hopefulle this is usefull for Async taks as well to know where they where called from 
+    /// Gets the uppermost trace of the stack trace that belongs to the assembly
+    /// Ignoring all Libraries assuming the call did pass something bad in that caused them to fail.
+    /// Hopefully this is useful for Async tasks as well to know where they where called from
     /// </summary>
-    /// <returns>A text taht might help determining where whcih call caused an error</returns>
+    /// <returns>A text that might help determining where which call caused an error</returns>
     public static string UpmostStackTrace()
     {
       try
       {
         var st = new System.Diagnostics.StackTrace();
-        // bottom up find the start of CSV
+        var firstafterWait = 0;
+        // if we have WaitToCompleteTask
+        for (var i = 0; i < st.FrameCount; i++)
+        {
+          if (st.GetFrame(i).GetMethod().Name.Contains("WaitToCompleteTask"))
+            firstafterWait = i;
+          else if (firstafterWait > 0)
+            return $"{st.GetFrame(i).GetMethod().Name} Line {st.GetFrame(i).GetILOffset()}";
+        }
+
         for (var i = st.FrameCount - 1; i > 1; i--)
         {
           var frm = st.GetFrame(i);
@@ -895,12 +907,13 @@ namespace CsvTools
 
     /// <summary>
     /// Run a task to completion with timeout
+    /// Should you expose synchronous wrappers for asynchronous methods, the answer is: No you should not...
     /// </summary>
     /// <param name="executeTask">The started <see cref="System.Threading.Tasks.Task"/></param>
     /// <param name="timeoutSeconds">Timeout for the completion of the task, if more time is spent running / waiting the wait is finished</param>
-    /// <param name="every125MS">Action to be invoked every 1/4 second whiel waiting to finish, usually used for UI updates</param>
-    /// <param name="cancellationToken">Best is to start tasks with the cancellation token but some async medthos do not do, so it can be provided</param>
-    /// <remarks>Will only return the first exception in case of aggegarte execptions.</remarks>
+    /// <param name="every125MS">Action to be invoked every 1/4 second while waiting to finish, usually used for UI updates</param>
+    /// <param name="cancellationToken">Best is to start tasks with the cancellation token but some async methods do not do, so it can be provided</param>
+    /// <remarks>Will only return the first exception in case of aggregate exceptions.</remarks>
     public static void WaitToCompleteTask(this Task executeTask, double timeoutSeconds, Action every125MS, CancellationToken cancellationToken)
     {
       if (executeTask == null)
@@ -920,10 +933,10 @@ namespace CsvTools
 
           // Raise an exception when waiting too long
           if (stopwatch.Elapsed.TotalSeconds > timeoutSeconds)
-            throw new TimeoutException($"Waited longer than {stopwatch.Elapsed.Seconds:N1} seconds, assuming something is wrong");
+            throw new TimeoutException($"Waited longer than {stopwatch.Elapsed.TotalSeconds:N1} seconds, assuming something is wrong");
 
           // wait will raise an AggregateException if the task throws an exception
-          executeTask.Wait(125);
+          executeTask.Wait(200, cancellationToken);
 
           // Invoke action every 1/4 second
           every125MS?.Invoke();
@@ -933,9 +946,8 @@ namespace CsvTools
       {
         RunTaskAction(executeTask, () =>
         {
-          cancellationToken.ThrowIfCancellationRequested();
           // wait will raise an AggregateException if the task throws an exception
-          executeTask.Wait(125);
+          executeTask.Wait(200, cancellationToken);
           // Invoke action every 1/4 second
           every125MS?.Invoke();
         });
@@ -955,10 +967,10 @@ namespace CsvTools
         {
           // Raise an exception when waiting too long
           if (stopwatch.Elapsed.TotalSeconds > timeoutSeconds)
-            throw new TimeoutException($"Waited longer than {stopwatch.Elapsed.Seconds:N1} seconds, assuming something is wrong");
+            throw new TimeoutException($"Waited longer than {stopwatch.Elapsed.TotalSeconds:N1} seconds, assuming something is wrong");
 
           // wait will raise an AggregateException if the task throws an exception
-          executeTask.Wait(125);
+          executeTask.Wait(200);
 
           // Invoke action every 1/4 second
           every125MS?.Invoke();
@@ -969,7 +981,7 @@ namespace CsvTools
         RunTaskAction(executeTask, () =>
         {
           // wait will raise an AggregateException if the task throws an exception
-          executeTask.Wait(125);
+          executeTask.Wait(200);
           // Invoke action every 1/4 second
           every125MS?.Invoke();
         });
@@ -977,13 +989,14 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Run a task that retuns a value to completion with timeout
+    /// Run a task that returns a value to completion with timeout
+    /// Should you expose synchronous wrappers for asynchronous methods, the answer is: No you should not...
     /// </summary>
     /// <param name="executeTask">The started <see cref="System.Threading.Tasks.Task"/></param>
     /// <param name="timeoutSeconds">Timeout for the completion of the task, if more time is spent running / waiting the wait is finished</param>
-    /// <param name="every125MS">Action to be invoked every 1/4 second whiel waiting to finish, usually used for UI updates</param>
-    /// <param name="cancellationToken">Best is to start tasks with the cancellation token but some async medthos do not do, so it can be provided</param>
-    /// <returns>Task Result if finished successfully, otheriwse raises an error</returns>
+    /// <param name="every125MS">Action to be invoked every 1/4 second while waiting to finish, usually used for UI updates</param>
+    /// <param name="cancellationToken">Best is to start tasks with the cancellation token but some async methods do not do, so it can be provided</param>
+    /// <returns>Task Result if finished successfully, otherwise raises an error</returns>
     public static T WaitToCompleteTask<T>(this Task<T> executeTask, double timeoutSeconds, Action every125MS, CancellationToken cancellationToken)
     {
       if (executeTask == null)
@@ -999,14 +1012,12 @@ namespace CsvTools
         stopwatch.Start();
         RunTaskAction(executeTask, () =>
         {
-          cancellationToken.ThrowIfCancellationRequested();
-
           // Raise an exception when waiting too long
           if (stopwatch.Elapsed.TotalSeconds > timeoutSeconds)
-            throw new TimeoutException($"Waited longer than {stopwatch.Elapsed.Seconds:N1} seconds, assuming something is wrong");
+            throw new TimeoutException($"Waited longer than {stopwatch.Elapsed.TotalSeconds:N1} seconds, assuming something is wrong");
 
           // wait will raise an AggregateException if the task throws an exception
-          executeTask.Wait(125);
+          executeTask.Wait(200, cancellationToken);
 
           // Invoke action every 1/4 second
           every125MS?.Invoke();
@@ -1016,10 +1027,8 @@ namespace CsvTools
       {
         RunTaskAction(executeTask, () =>
         {
-          cancellationToken.ThrowIfCancellationRequested();
-
           // wait will raise an AggregateException if the task throws an exception
-          executeTask.Wait(125);
+          executeTask.Wait(200, cancellationToken);
           // Invoke action every 1/4 second
           every125MS?.Invoke();
         });
@@ -1040,7 +1049,7 @@ namespace CsvTools
         {
           // Raise an exception when waiting too long
           if (stopwatch.Elapsed.TotalSeconds > timeoutSeconds)
-            throw new TimeoutException($"Waited longer than {stopwatch.Elapsed.Seconds:N1} seconds, assuming something is wrong");
+            throw new TimeoutException($"Waited longer than {stopwatch.Elapsed.TotalSeconds:N1} seconds, assuming something is wrong");
 
           // wait will raise an AggregateException if the task throws an exception
           executeTask.Wait(125);
@@ -1370,10 +1379,10 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Executue Asyncronous Tasks wand wait for completion
+    /// Execute Asynchronous Tasks wand wait for completion
     /// </summary>
-    /// <param name="executeTask">Teh task that is beeing checked</param>
-    /// <param name="inloop">The action to be invoked whiel waiting, it shoudl contain an executeTask.Wait of some kind</param>
+    /// <param name="executeTask">The task that is being checked</param>
+    /// <param name="inloop">The action to be invoked while waiting, it should contain an executeTask.Wait of some kind</param>
     private static void RunTaskAction(this Task executeTask, Action inloop)
     {
       try
@@ -1388,7 +1397,9 @@ namespace CsvTools
       catch (Exception ex)
       {
         Logger.Warning(ex, "Runing async task {src}\n{exception}", UpmostStackTrace(), ex.ExceptionMessages());
-        // return only teh fidrt exception if there are many
+        if (executeTask.Status == TaskStatus.WaitingForActivation)
+          Logger.Warning("The task is still waiting for activation,  either it's a deadlock of we ran out of available threads");
+        // return only the first exception if there are many
         if (ex is AggregateException ae)
           throw ae.Flatten().InnerExceptions[0];
         else

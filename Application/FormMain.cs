@@ -420,6 +420,7 @@ namespace CsvTools
               _MessageBox.Show(this, exc.ExceptionMessages(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning, timeout: 0);
             }
             if (analyse)
+            {
               try
               {
                 if (m_ViewSettings.AllowJson && CsvHelper.GuessJsonFile(m_FileSetting))
@@ -450,11 +451,13 @@ namespace CsvTools
                     }
                   }
 
-                  using (var processDisplay = m_FileSetting.GetProcessDisplay(this, false, cancellationTokenSource.Token))
+                  using (var processDisplay = new FormProcessDisplay(m_FileSetting.ToString(), false, cancellationTokenSource.Token))
                   {
-                    if (processDisplay is Form frm && limitSizeForm != null)
+                    processDisplay.Show();
+                    if (limitSizeForm != null)
                     {
-                      frm.Left = limitSizeForm.Left + limitSizeForm.Width;
+                      processDisplay.Left = limitSizeForm.Left + limitSizeForm.Width;
+                      limitSizeForm.Focus();
                     }
                     m_FileSetting.FillGuessColumnFormatReader(false, false, m_ViewSettings.FillGuessSettings, processDisplay);
                   }
@@ -470,18 +473,11 @@ namespace CsvTools
               {
                 this.ShowError(ex, "Inspecting file");
               }
-
-            try
-            {
-              Task.Run(() => { while (limitSizeForm != null) { }; }, cancellationTokenSource.Token).WaitToCompleteTaskUI(8);
-            }
-            catch (Exception)
-            {
-              // Igore
             }
 
-            if (limitSizeForm != null)
-              limitSizeForm.Close();
+            // wait for the size from to close (it closes automatically)
+            while (limitSizeForm != null)
+              Extensions.ProcessUIElements(125);
 
             if (cancellationTokenSource.IsCancellationRequested)
               return false;
