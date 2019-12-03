@@ -22,8 +22,9 @@ namespace CsvTools
   /// </summary>
   public partial class FrmLimitSize : Form
   {
+    private static int[] intRecords = new int[] { 10000, 20000, 50000, 100000 };
     private int m_Counter = 0;
-    private double m_Duration = 4.0;
+    private double m_Duration = 5.0;
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="FrmLimitSize" /> class.
@@ -31,10 +32,10 @@ namespace CsvTools
     public FrmLimitSize()
     {
       InitializeComponent();
-      labelCount1.Text = $"{10000:N0}";
-      labelCount2.Text = $"{20000:N0}";
-      labelCount3.Text = $"{50000:N0}";
-      labelCount4.Text = $"{100000:N0}";
+      labelCount1.Text = $"{intRecords[0]:N0}";
+      labelCount2.Text = $"{intRecords[1]:N0}";
+      labelCount3.Text = $"{intRecords[2]:N0}";
+      labelCount4.Text = $"{intRecords[3]:N0}";
       UpdateLabel();
     }
 
@@ -51,7 +52,7 @@ namespace CsvTools
     /// <summary>
     ///   The selected record limit
     /// </summary>
-    public int RecordLimit { get; set; }
+    public int RecordLimit { get; set; } = 0;
 
     private void buttonCancel_Click(object sender, EventArgs e)
     {
@@ -68,21 +69,13 @@ namespace CsvTools
       }
       else
         label.Text = string.Empty;
+      Application.DoEvents();
     }
 
     private void buttonOK_Click(object sender, EventArgs e)
     {
-      if (trackBarLimit.Value == 5)
-        RecordLimit = 0;
-      if (trackBarLimit.Value == 4)
-        RecordLimit = 100000;
-      if (trackBarLimit.Value == 3)
-        RecordLimit = 50000;
-      if (trackBarLimit.Value == 2)
-        RecordLimit = 20000;
-      if (trackBarLimit.Value == 1)
-        RecordLimit = 10000;
-      DialogResult = DialogResult.OK;
+      if (trackBarLimit.Value != 5)
+        RecordLimit = intRecords[4 - trackBarLimit.Value];
       Close();
     }
   }
