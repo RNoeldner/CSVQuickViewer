@@ -570,8 +570,10 @@ namespace CsvTools
               _MessageBox.Show(this, warningList.Display, "Opening CSV File", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             if (!textPanel.Visible)
               ShowTextPanel(true);
+            csvDataReader.Warning -= warningList.Add;
+            csvDataReader.Warning += AddWarning;
 
-            data = csvDataReader.WriteToDataTable(m_FileSetting, m_FileSetting.RecordLimit, warningList,
+            data = csvDataReader.WriteToDataTable(m_FileSetting, m_FileSetting.RecordLimit,
                 processDisplay.CancellationToken);
 
             foreach (var columnName in data.GetRealColumns())
