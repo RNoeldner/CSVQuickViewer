@@ -250,7 +250,6 @@ namespace CsvTools
     private void Display_Shown(object sender, EventArgs e)
     {
       this.LoadWindowState(m_ViewSettings.WindowPosition);
-      Logger.Debug("Show {filename}", m_FileName);
       if (string.IsNullOrEmpty(m_FileName) || !FileSystemUtils.FileExists(m_FileName))
       {
         var strFilter = (m_ViewSettings.StoreSettingsByFile) ? "Delimited files (*.csv;*.txt;*.tab;*.tsv;*.dat)|*.csv;*.txt;*.tab;*.tsv;*.dat|Setting files (*" +

@@ -608,7 +608,7 @@ namespace CsvTools
 
         while (nextLine.GetLength(0) > fields)
         {
-          HandleWarning(fields, "No matching header for column".AddWarningId());
+          HandleWarning(fields, $"No header for last {nextLine.GetLength(0) - fields} column(s)".AddWarningId());
           fields++;
         }
 
