@@ -199,54 +199,40 @@ namespace CsvTools
     /// </summary>
     /// <param name="reader">The reader.</param>
     /// <param name="dataTable">The data table.</param>
-    /// <param name="warningsList">The warnings list.</param>
-    /// <param name="columnMappingDatabaseToReader">The column mapping from database to reader.</param>
-    /// <param name="recordNumberColumn">The record number column.</param>
-    /// <param name="endLineNumberColumn">The end line number column.</param>
-    /// <param name="startLineNumberColumn">The start line number column.</param>
-    [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
-    public static void CopyRowToTable(this IFileReader reader, DataTable dataTable, RowErrorCollection warningsList,
-      BiDirectionalDictionary<int, int> columnMappingDatabaseToReader,
-      DataColumn recordNumberColumn, DataColumn endLineNumberColumn, DataColumn startLineNumberColumn)
+    /// <param name="columnWarningsReader">A column warnings <list type="that is attached to the reader"</param>
+    /// <param name="dataTableInfo">Information on special and the mappings</param>
+    /// <param name="handleColumnIssues">Action to be called in case there are issues reported though the reader or by copying values</param>
+    public static void CopyRowToTable(this IFileReader reader, DataTable dataTable, ColumnErrorDictionary columnWarningsReader,
+      CopyToDataTableInfo dataTableInfo, Action<ColumnErrorDictionary, DataRow> handleColumnIssues)
     {
       Contract.Requires(dataTable != null);
-      Contract.Requires(columnMappingDatabaseToReader != null);
 
       var dataRow = dataTable.NewRow();
-      if (recordNumberColumn != null)
-        dataRow[recordNumberColumn] = reader.RecordNumber;
+      if (dataTableInfo.RecordNumber != null)
+        dataRow[dataTableInfo.RecordNumber] = reader.RecordNumber;
 
-      if (endLineNumberColumn != null)
-        dataRow[endLineNumberColumn] = reader.EndLineNumber;
+      if (dataTableInfo.EndLine != null)
+        dataRow[dataTableInfo.EndLine] = reader.EndLineNumber;
 
-      if (startLineNumberColumn != null)
-        dataRow[startLineNumberColumn] = reader.StartLineNumber;
+      if (dataTableInfo.StartLine != null)
+        dataRow[dataTableInfo.StartLine] = reader.StartLineNumber;
       dataTable.Rows.Add(dataRow);
 
-      var columns = columnMappingDatabaseToReader.Count;
-      for (var col = 0; col < columns; col++)
+      // TODO: check if this is really necessary, usually GetValue  should not error out
+      try
       {
-        try
-        {
-          dataRow[col] = reader.GetValue(columnMappingDatabaseToReader[col]);
-        }
-        catch (Exception exc)
-        {
-          // Any error here is caused by storing a value that does not fit into the field
-          // the warningsList is working on reader columns
-          warningsList?.Add(reader, new WarningEventArgs(reader.RecordNumber, columnMappingDatabaseToReader[col], exc.ExceptionMessages(), 0, 0, null));
-        }
+        foreach (var keyValuePair in dataTableInfo.Mapping)
+          dataRow[keyValuePair.Value] = reader.GetValue(keyValuePair.Key);
+      }
+      catch (Exception exc)
+      {
+        columnWarningsReader.Add(-1, exc.ExceptionMessages());
       }
 
-      if (warningsList != null && warningsList.TryGetValue(reader.RecordNumber - 1, out var warningsforRow))
+      if (columnWarningsReader.Count > 0)
       {
-        foreach (var keyValuePair in warningsforRow)
-        {
-          if (keyValuePair.Key == -1)
-            dataRow.RowError = keyValuePair.Value;
-          else if (columnMappingDatabaseToReader.TryGetByValue(keyValuePair.Key, out var dbCol))
-            dataRow.SetColumnError(dbCol, keyValuePair.Value);
-        }
+        handleColumnIssues?.Invoke(columnWarningsReader, dataRow);
+        columnWarningsReader.Clear();
       }
     }
 
@@ -1071,91 +1057,119 @@ namespace CsvTools
       return executeTask.Result;
     }
 
+    private static bool HasColumnName(this IFileReader reader, string columnName)
+    {
+      Contract.Requires(reader != null, "reader");
+      Contract.Requires(!string.IsNullOrEmpty(columnName));
+
+      for (var col = 0; col < reader.FieldCount; col++)
+      {
+        var column = reader.GetColumn(col);
+        if (column.Ignore)
+          continue;
+        if (columnName.Equals(column.Name, StringComparison.OrdinalIgnoreCase))
+          return true;
+      }
+
+      return false;
+    }
+
+    public static CopyToDataTableInfo GetCopyToDataTableInfo(this IFileReader fileReader, IFileSetting fileSetting, DataTable dataTable, bool includeErrorField)
+    {
+      if (fileReader == null)
+        throw new ArgumentNullException(nameof(fileReader));
+      if (fileSetting == null)
+        throw new ArgumentNullException(nameof(fileSetting));
+      if (dataTable == null)
+        throw new ArgumentNullException(nameof(dataTable));
+
+      dataTable.TableName = fileSetting.ID;
+      dataTable.Locale = CultureInfo.InvariantCulture;
+
+      var result = new CopyToDataTableInfo
+      {
+        Mapping = new BiDirectionalDictionary<int, int>(),
+        ReaderColumns = new List<string>()
+      };
+
+      // Initialize a based on file reader
+      for (var col = 0; col < fileReader.FieldCount; col++)
+      {
+        result.ReaderColumns.Add(fileReader.GetName(col));
+        if (fileReader.IgnoreRead(col))
+          continue;
+        var cf = fileReader.GetColumn(col);
+        // a reader column BaseFileReader.cStartLineNumberFieldName will be ignored
+        if (cf.Name.Equals(BaseFileReader.cStartLineNumberFieldName, StringComparison.OrdinalIgnoreCase))
+          continue;
+        result.Mapping.Add(col, dataTable.Columns.Count);
+        // Special handling for #Line, this has to be a int64, not based on system
+        dataTable.Columns.Add(new DataColumn(cf.Name, cf.DataType.GetNetType()));
+      }
+
+      // Append Artificial columns
+      // This needs to happen in the same order as we have in CreateTableFromReader otherwise BulkCopy does not work
+      // see  SqlServerConnector.CreateTable
+      result.StartLine = new DataColumn(BaseFileReader.cStartLineNumberFieldName, typeof(long));
+      dataTable.Columns.Add(result.StartLine);
+
+      if (fileSetting.DisplayRecordNo && !fileReader.HasColumnName(BaseFileReader.cRecordNumberFieldName))
+      {
+        result.RecordNumber = new DataColumn(BaseFileReader.cRecordNumberFieldName, typeof(long));
+        dataTable.Columns.Add(result.RecordNumber);
+      }
+      if (fileSetting.DisplayEndLineNo && !fileReader.HasColumnName(BaseFileReader.cEndLineNumberFieldName))
+      {
+        result.EndLine = new DataColumn(BaseFileReader.cEndLineNumberFieldName, typeof(long));
+        dataTable.Columns.Add(result.EndLine);
+      }
+      if (includeErrorField && !fileReader.HasColumnName(BaseFileReader.cErrorField))
+      {
+        result.Error = new DataColumn(BaseFileReader.cErrorField, typeof(string));
+        dataTable.Columns.Add(result.Error);
+      }
+
+      return result;
+    }
+
     /// <summary>
     ///   Writes the data to a data table.
     /// </summary>
     /// <param name="reader">The reader.</param>
     /// <param name="fileSetting">The file setting.</param>
     /// <param name="records">The number of records.</param>
-    /// <param name="warningsList">A Warning list to be used here</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>
     ///   A <see cref="DataTable" /> with the records
     /// </returns>
-    public static DataTable WriteToDataTable(this IFileReader reader, IFileSetting fileSetting, uint records,
-      RowErrorCollection warningsList, CancellationToken cancellationToken)
+    public static DataTable WriteToDataTable(this IFileReader reader, IFileSetting fileSetting, uint records, CancellationToken cancellationToken)
     {
       var requestedRecords = records < 1 ? uint.MaxValue : records;
 
       Logger.Information("Reading data…");
-      var dataTable = new DataTable
+      var dataTable = new DataTable(fileSetting.ID)
       {
-        TableName = "DataTable",
-        Locale = CultureInfo.InvariantCulture,
         MinimumCapacity = (int)Math.Min(requestedRecords, 5000)
       };
 
       try
       {
-        var hasRecordNo = false;
-        var hasLineNoEnd = false;
-        var hasLineNoStart = false;
-
-        var columnMappingDatabaseToReader = new BiDirectionalDictionary<int, int>();
-
-        // Create the columns from the FieldHeaders
-        for (var column = 0; column < reader.FieldCount; column++)
-        {
-          if (reader.IgnoreRead(column))
-            continue;
-          var readerCol = reader.GetColumn(column);
-          Contract.Assume(readerCol != null);
-          Contract.Assume(!string.IsNullOrEmpty(readerCol.Name));
-          columnMappingDatabaseToReader.Add(dataTable.Columns.Count, column);
-          var dataCol = dataTable.Columns.Add(readerCol.Name, readerCol.DataType.GetNetType());
-          dataCol.AllowDBNull = true;
-          hasRecordNo |=
-            readerCol.Name.Equals(BaseFileReader.cRecordNumberFieldName, StringComparison.OrdinalIgnoreCase);
-          hasLineNoEnd |=
-            readerCol.Name.Equals(BaseFileReader.cEndLineNumberFieldName, StringComparison.OrdinalIgnoreCase);
-          hasLineNoStart |= readerCol.Name.Equals(BaseFileReader.cStartLineNumberFieldName,
-            StringComparison.OrdinalIgnoreCase);
-        }
-
-        if (fileSetting.DisplayRecordNo && !hasRecordNo)
-        {
-          var col = dataTable.Columns.Add(BaseFileReader.cRecordNumberFieldName, typeof(int));
-          col.AllowDBNull = true;
-        }
-
-        if (fileSetting.DisplayStartLineNo && !hasLineNoStart)
-        {
-          var col = dataTable.Columns.Add(BaseFileReader.cStartLineNumberFieldName, typeof(int));
-          col.AllowDBNull = true;
-        }
-
-        if (fileSetting.DisplayEndLineNo && !hasLineNoEnd)
-        {
-          var col = dataTable.Columns.Add(BaseFileReader.cEndLineNumberFieldName, typeof(int));
-          col.AllowDBNull = true;
-        }
-
-        DataColumn recordNumberColumn = null;
-        if (fileSetting.DisplayRecordNo)
-          recordNumberColumn = dataTable.Columns[BaseFileReader.cRecordNumberFieldName];
-
-        DataColumn lineNumberColumnEnd = null;
-        if (fileSetting.DisplayEndLineNo)
-          lineNumberColumnEnd = dataTable.Columns[BaseFileReader.cEndLineNumberFieldName];
-
-        DataColumn lineNumberColumnStart = null;
-        if (fileSetting.DisplayStartLineNo)
-          lineNumberColumnStart = dataTable.Columns[BaseFileReader.cStartLineNumberFieldName];
+        var columnErrorDictionary = new ColumnErrorDictionary(reader);
+        var copyToDataTableInfo = reader.GetCopyToDataTableInfo(fileSetting, dataTable, false);
 
         while (!cancellationToken.IsCancellationRequested && requestedRecords > 0 && reader.Read())
         {
-          reader.CopyRowToTable(dataTable, warningsList, columnMappingDatabaseToReader, recordNumberColumn, lineNumberColumnEnd,
-            lineNumberColumnStart);
+          reader.CopyRowToTable(dataTable, columnErrorDictionary, copyToDataTableInfo,
+            (ColumnErrorDictionary columnError, DataRow row) =>
+            {
+              foreach (var keyValuePair in columnError)
+              {
+                if (keyValuePair.Key == -1)
+                  row.RowError = keyValuePair.Value;
+                else if (copyToDataTableInfo.Mapping.TryGetByValue(keyValuePair.Key, out var dbCol))
+                  row.SetColumnError(dbCol, keyValuePair.Value);
+              }
+            });
           requestedRecords--;
         }
       }
@@ -1396,7 +1410,7 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        Logger.Warning(ex, "Runing async task {src}\n{exception}", UpmostStackTrace(), ex.ExceptionMessages());
+        Logger.Warning(ex, "Asynchronous task called {src}: {exception}", UpmostStackTrace(), ex.ExceptionMessages());
         if (executeTask.Status == TaskStatus.WaitingForActivation)
           Logger.Warning("The task is still waiting for activation,  either it's a deadlock of we ran out of available threads");
         // return only the first exception if there are many

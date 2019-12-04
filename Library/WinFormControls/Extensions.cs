@@ -70,7 +70,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="executeTask">The started <see cref="System.Threading.Tasks.Task"/></param>
     /// <param name="timeoutSeconds">Timeout for the completion of the task, if more time is spent running / waiting the wait is finished</param>
-    /// <param name="cancellationToken">Cancellation Token to be able to cancel the task</param>    
+    /// <param name="cancellationToken">Cancellation Token to be able to cancel the task</param>
     public static void WaitToCompleteTaskUI(this Task executeTask, double timeoutSeconds, CancellationToken cancellationToken) =>
       executeTask.WaitToCompleteTask(timeoutSeconds, Application.DoEvents, cancellationToken);
 
@@ -78,7 +78,7 @@ namespace CsvTools
     /// Run a task synchronously with timeout
     /// </summary>
     /// <param name="executeTask">The started <see cref="System.Threading.Tasks.Task"/></param>
-    /// <param name="timeoutSeconds">Timeout for the completion of the task, if more time is spent running / waiting the wait is finished</param>    
+    /// <param name="timeoutSeconds">Timeout for the completion of the task, if more time is spent running / waiting the wait is finished</param>
     public static void WaitToCompleteTaskUI(this Task executeTask, double timeoutSeconds = 0) =>
       executeTask.WaitToCompleteTask(timeoutSeconds, Application.DoEvents);
 
@@ -98,7 +98,6 @@ namespace CsvTools
     /// <param name="timeoutSeconds">Timeout for the completion of the task, if more time is spent running / waiting the wait is finished</param>
     public static T WaitToCompleteTaskUI<T>(this Task<T> executeTask, double timeoutSeconds = 0) =>
       executeTask.WaitToCompleteTask(timeoutSeconds, Application.DoEvents);
-
 
     /// <summary>
     ///   Handles a CTRL-A select all in the form.
@@ -170,7 +169,7 @@ namespace CsvTools
 
       if (diagRes == DialogResult.Yes)
       {
-      retry:
+        retry:
         try
         {
           File.Delete(fileName);

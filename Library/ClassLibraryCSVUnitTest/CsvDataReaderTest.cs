@@ -206,9 +206,14 @@ namespace CsvTools.Tests
           var lineNumberColumn = dataTable.Columns.Add(BaseFileReader.cEndLineNumberFieldName, typeof(int));
           lineNumberColumn.AllowDBNull = true;
 
-          var columnMapping = new BiDirectionalDictionary<int, int>();
-          var warningsList = new RowErrorCollection(test);
-          test.CopyRowToTable(dataTable, warningsList, columnMapping, recordNumberColumn, lineNumberColumn, null);
+          var columnWarningsReader = new ColumnErrorDictionary(test);
+          var info = new CopyToDataTableInfo()
+          {
+            Mapping = new BiDirectionalDictionary<int, int>(),
+            RecordNumber = recordNumberColumn,
+            EndLine = lineNumberColumn
+          };
+          test.CopyRowToTable(dataTable, columnWarningsReader, info, null);
           var dataRow = dataTable.NewRow();
         }
         test.Read();
@@ -232,7 +237,7 @@ namespace CsvTools.Tests
         try
         {
           using (var dataTable = new DataTable())
-            test.CopyRowToTable(dataTable, null, null, null, null, null);
+            test.CopyRowToTable(dataTable, null, new CopyToDataTableInfo(), null);
         }
         catch (ArgumentNullException)
         {
@@ -256,7 +261,7 @@ namespace CsvTools.Tests
         test.Open();
         try
         {
-          test.CopyRowToTable(null, new RowErrorCollection(test), null, null, null, null);
+          test.CopyRowToTable(null, new ColumnErrorDictionary(test), new CopyToDataTableInfo(), null);
         }
         catch (ArgumentNullException)
         {
@@ -446,7 +451,7 @@ namespace CsvTools.Tests
       {
         test.Open();
 
-        var res = test.WriteToDataTable(m_ValidSetting, 0, null, CancellationToken.None);
+        var res = test.WriteToDataTable(m_ValidSetting, 0, CancellationToken.None);
         Assert.AreEqual(7, res.Rows.Count);
         Assert.AreEqual(
           6 + (m_ValidSetting.DisplayStartLineNo ? 1 : 0) + (m_ValidSetting.DisplayEndLineNo ? 1 : 0) +
@@ -477,11 +482,9 @@ namespace CsvTools.Tests
       {
         using (var test = new CsvFileReader(setting, processDisplay))
         {
-          var warningList = new RowErrorCollection(test);
           test.Open();
-          warningList.HandleIgnoredColumns(test);
 
-          var res = test.WriteToDataTable(setting, 0, warningList, CancellationToken.None);
+          var res = test.WriteToDataTable(setting, 0, CancellationToken.None);
 
           // The error must have moved from column 4 to column 3 as Column 2 is ignored
           // no error in column 4 of Row 6
@@ -498,11 +501,9 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
-        var warningList = new RowErrorCollection(test);
         test.Open();
-        warningList.HandleIgnoredColumns(test);
 
-        var res = test.WriteToDataTable(m_ValidSetting, 0, warningList, CancellationToken.None);
+        var res = test.WriteToDataTable(m_ValidSetting, 0, CancellationToken.None);
         Assert.AreEqual(7, res.Rows.Count);
         Assert.AreEqual(
           6 + (m_ValidSetting.DisplayStartLineNo ? 1 : 0) + (m_ValidSetting.DisplayEndLineNo ? 1 : 0) +
@@ -519,7 +520,7 @@ namespace CsvTools.Tests
       using (var test = new CsvFileReader(newCsvFile, processDisplay))
       {
         test.Open();
-        var res = test.WriteToDataTable(newCsvFile, 0, null, CancellationToken.None);
+        var res = test.WriteToDataTable(newCsvFile, 0, CancellationToken.None);
         Assert.AreEqual(7, res.Rows.Count);
         Assert.AreEqual(
           6 + (newCsvFile.DisplayStartLineNo ? 1 : 0) + (newCsvFile.DisplayEndLineNo ? 1 : 0) +
@@ -534,8 +535,7 @@ namespace CsvTools.Tests
       using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
         test.Open();
-        var wl = new RowErrorCollection(test);
-        var res = test.WriteToDataTable(m_ValidSetting, 2, wl, CancellationToken.None);
+        var res = test.WriteToDataTable(m_ValidSetting, 2, CancellationToken.None);
         Assert.AreEqual(2, res.Rows.Count);
         Assert.AreEqual(
           6 + (m_ValidSetting.DisplayStartLineNo ? 1 : 0) + (m_ValidSetting.DisplayEndLineNo ? 1 : 0) +
