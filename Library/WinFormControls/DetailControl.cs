@@ -220,8 +220,8 @@ namespace CsvTools
         this.SafeInvoke(() =>
         {
           toolStripComboBoxFilterType.SelectedIndex = 0;
+          SetDataSource(FilterType.All);
         });
-        SetDataSource(FilterType.All);
       }
     }
 
@@ -937,23 +937,21 @@ namespace CsvTools
     {
       if (m_DataTable == null)
         return;
-      this.SafeInvoke(() =>
-      {
-        // update the dropdown
-        if (type == FilterType.All & toolStripComboBoxFilterType.SelectedIndex != 0)
-          toolStripComboBoxFilterType.SelectedIndex = 0;
-        if (type == FilterType.ErrorsAndWarning & toolStripComboBoxFilterType.SelectedIndex != 1)
-          toolStripComboBoxFilterType.SelectedIndex = 1;
-        if (type == FilterType.ShowErrors & toolStripComboBoxFilterType.SelectedIndex != 2)
-          toolStripComboBoxFilterType.SelectedIndex = 2;
-        if (type == FilterType.ShowWarning & toolStripComboBoxFilterType.SelectedIndex != 3)
-          toolStripComboBoxFilterType.SelectedIndex = 3;
-        if (type == FilterType.ShowIssueFree & toolStripComboBoxFilterType.SelectedIndex != 4)
-          toolStripComboBoxFilterType.SelectedIndex = 4;
-      });
+
+      // update the dropdown
+      if (type == FilterType.All & toolStripComboBoxFilterType.SelectedIndex != 0)
+        toolStripComboBoxFilterType.SelectedIndex = 0;
+      if (type == FilterType.ErrorsAndWarning & toolStripComboBoxFilterType.SelectedIndex != 1)
+        toolStripComboBoxFilterType.SelectedIndex = 1;
+      if (type == FilterType.ShowErrors & toolStripComboBoxFilterType.SelectedIndex != 2)
+        toolStripComboBoxFilterType.SelectedIndex = 2;
+      if (type == FilterType.ShowWarning & toolStripComboBoxFilterType.SelectedIndex != 3)
+        toolStripComboBoxFilterType.SelectedIndex = 3;
+      if (type == FilterType.ShowIssueFree & toolStripComboBoxFilterType.SelectedIndex != 4)
+        toolStripComboBoxFilterType.SelectedIndex = 4;
+
       var oldSortedColumn = m_FilteredDataGridView.SortedColumn?.DataPropertyName;
       var oldOrder = m_FilteredDataGridView.SortOrder;
-      // bindingSource.SuspendBinding();
       FilterRowsAndColumns(type);
       // bindingSource.ResumeBinding();
       m_FilteredDataGridView.ColumnVisibilityChanged();
@@ -963,8 +961,7 @@ namespace CsvTools
       {
         Sort(oldSortedColumn,
           oldOrder == SortOrder.Ascending ? ListSortDirection.Ascending : ListSortDirection.Descending);
-      }
-      Extensions.ProcessUIElements();
+      }      
     }
 
     private void StartSearch(object sender, SearchEventArgs e)
