@@ -791,6 +791,7 @@ namespace CsvTools
       }
 
       // Any defined column not present in file is removed
+      // this can happen if the file is changed or changeing the encoding the name might show diffrentyl W�hrung <> Währung
       var remove = new List<Column>();
       foreach (var setting in m_FileSetting.ColumnCollection)
       {
@@ -808,7 +809,7 @@ namespace CsvTools
       }
       foreach (var col in remove)
       {
-        HandleWarning(-1, $"Defined columns not present in file {col.Name}");
+        // HandleWarning(-1, $"Column \"{col.Name}\" not found in file, this can happen if column name is changed");
         m_FileSetting.ColumnCollection.Remove(col);
       }
     }

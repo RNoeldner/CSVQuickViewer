@@ -26,5 +26,9 @@
   <ItemGroup>
     <PackageReference Include="System.Text.Encoding.CodePages" Version="4.6.0" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Library\ClassLibraryCSV.Standard\ClassLibraryCSV.Standard.csproj" />
+    <ProjectReference Include="..\Library\WinFormsControls.core\WinFormsControls.core.csproj" />
+  </ItemGroup>
   
 </Project>

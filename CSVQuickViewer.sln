@@ -14,6 +14,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UnitTest", "UnitTest", "{88999FFC-3B3E-4F71-ACA9-3150143FBC06}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSVQuickViewerUnitTest", "UnitTest\CSVQuickViewerUnitTest.csproj", "{EA4920CD-39FF-471F-9CEC-2917C9B5C772}"
+	ProjectSection(ProjectDependencies) = postProject
+		{55AD0A98-C175-4B38-A3D0-321740820D41} = {55AD0A98-C175-4B38-A3D0-321740820D41}
+	EndProjectSection
 EndProject
 Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "CSVQuickViewer_MSI", "Setup\CSVQuickViewer_MSI.wixproj", "{DEAEAA07-1960-407A-9D7B-A95FAF0408DD}"
 EndProject
