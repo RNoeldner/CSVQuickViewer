@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <ApplicationIcon>..\Application\csv_text.ico</ApplicationIcon>
@@ -24,7 +24,7 @@
     <Compile Remove="..\Application\Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.6.0" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.7.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Library\ClassLibraryCSV.Standard\ClassLibraryCSV.Standard.csproj" />

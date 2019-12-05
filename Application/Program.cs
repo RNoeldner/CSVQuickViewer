@@ -60,7 +60,8 @@ namespace CsvTools
       // read the command line parameter
       if (args.Length >= 1)
         fileName = args[0];
-#if NETCOREAPP30
+
+#if NETCOREAPP31 
       Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 #endif
 
@@ -68,19 +69,17 @@ namespace CsvTools
       Application.Exit();
     }
 
-    /// <summary>
-    ///   Handle's any not yet handled exception
-    /// </summary>
+    /// <summary>Handle's any not yet handled exception</summary>
     /// <param name="ex">The exception.</param>
     [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
     private static void UnhandledException(Exception ex)
     {
-      Logger.Error(ex, "Unhandled Exception");
-      var message = $"{ex.GetType()}\n\n{ex.ExceptionMessages()}\nStack Trace:\n{ex.StackTrace}";
+      Logger.Error(ex, "Not handled Exception");
+      var message = $"{ex.GetType()}\n\n{ex.ExceptionMessages()}\nStack Trace:\n{ClassLibraryCsvExtensionMethods.UpmostStackTrace()}";
 #if DEBUG
-      System.Diagnostics.Debug.Assert(false, @"Unhandled Exception", message);
+      System.Diagnostics.Debug.Assert(false, @"Not handled Exception", message);
 #else
-      if (MessageBox.Show(message, @"Unhandled Exception", MessageBoxButtons.AbortRetryIgnore, MessageBoxIcon.Stop) ==
+      if (MessageBox.Show(message, @"Not handled Exception", MessageBoxButtons.AbortRetryIgnore, MessageBoxIcon.Stop) ==
           DialogResult.Abort)
         Application.Exit();
 #endif
