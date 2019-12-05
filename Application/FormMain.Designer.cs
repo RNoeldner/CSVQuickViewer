@@ -40,9 +40,9 @@
     /// </summary>
     private void InitializeComponent()
     {
-      System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormMain));
       System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
       System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+      System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormMain));
       this.fileSystemWatcher = new System.IO.FileSystemWatcher();
       this.textBoxProgress = new CsvTools.LoggerDisplay();
       this.textPanel = new System.Windows.Forms.Panel();
@@ -69,7 +69,7 @@
       this.textBoxProgress.ReadOnly = true;
       this.textBoxProgress.Size = new System.Drawing.Size(133, 160);
       this.textBoxProgress.TabIndex = 2;
-      this.textBoxProgress.Text = "";      
+      this.textBoxProgress.Text = "";
       // 
       // textPanel
       // 
@@ -77,7 +77,6 @@
       this.textPanel.Controls.Add(this.textBoxProgress);
       this.textPanel.Controls.Add(this.csvTextDisplay);
       this.textPanel.Location = new System.Drawing.Point(9, 40);
-      
       this.textPanel.Name = "textPanel";
       this.textPanel.Size = new System.Drawing.Size(415, 180);
       this.textPanel.TabIndex = 4;
@@ -90,7 +89,7 @@
       this.buttonCloseText.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
       this.buttonCloseText.Location = new System.Drawing.Point(335, 138);
       this.buttonCloseText.Name = "buttonCloseText";
-      this.buttonCloseText.Size = new System.Drawing.Size(58, 23);
+      this.buttonCloseText.Size = new System.Drawing.Size(58, 37);
       this.buttonCloseText.TabIndex = 4;
       this.buttonCloseText.Text = "&Close";
       this.buttonCloseText.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -100,6 +99,7 @@
       // csvTextDisplay
       // 
       this.csvTextDisplay.Location = new System.Drawing.Point(142, 3);
+      this.csvTextDisplay.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
       this.csvTextDisplay.Name = "csvTextDisplay";
       this.csvTextDisplay.Size = new System.Drawing.Size(197, 177);
       this.csvTextDisplay.TabIndex = 5;
@@ -111,6 +111,7 @@
       this.detailControl.DataTable = null;
       dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
       dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
+      dataGridViewCellStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
       dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.ControlText;
       dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
       dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
@@ -118,8 +119,9 @@
       this.detailControl.DefaultCellStyle = dataGridViewCellStyle2;
       this.detailControl.Dock = System.Windows.Forms.DockStyle.Fill;
       this.detailControl.Location = new System.Drawing.Point(0, 0);
+      this.detailControl.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
       this.detailControl.Name = "detailControl";
-      this.detailControl.Size = new System.Drawing.Size(592, 368);
+      this.detailControl.Size = new System.Drawing.Size(985, 524);
       this.detailControl.TabIndex = 1;
       this.detailControl.ButtonShowSource += new System.EventHandler(this.DetailControl_ButtonShowSource);
       this.detailControl.OnSettingsClick += new System.EventHandler(this.ShowSettings);
@@ -127,8 +129,9 @@
       // FormMain
       // 
       this.AllowDrop = true;
+      this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-      this.ClientSize = new System.Drawing.Size(592, 368);
+      this.ClientSize = new System.Drawing.Size(985, 524);
       this.Controls.Add(this.detailControl);
       this.Controls.Add(this.textPanel);
       this.HelpButton = true;
