@@ -916,10 +916,12 @@ namespace CsvTools
         RunTaskAction(executeTask, () =>
         {
           cancellationToken.ThrowIfCancellationRequested();
+          if (executeTask.Status == TaskStatus.WaitingForActivation && stopwatch.Elapsed.TotalSeconds > 2)
+            throw new TimeoutException($"Waited longer than {stopwatch.Elapsed.TotalSeconds:N1} seconds for task to start");
 
           // Raise an exception when waiting too long
           if (stopwatch.Elapsed.TotalSeconds > timeoutSeconds)
-            throw new TimeoutException($"Waited longer than {stopwatch.Elapsed.TotalSeconds:N1} seconds, assuming something is wrong");
+            throw new TimeoutException($"Waited longer than {stopwatch.Elapsed.TotalSeconds:N1} seconds for task to finish");
 
           // wait will raise an AggregateException if the task throws an exception
           executeTask.Wait(200, cancellationToken);
@@ -951,6 +953,9 @@ namespace CsvTools
         stopwatch.Start();
         RunTaskAction(executeTask, () =>
         {
+          if (executeTask.Status == TaskStatus.WaitingForActivation && stopwatch.Elapsed.TotalSeconds > 2)
+            throw new TimeoutException($"Waited longer than {stopwatch.Elapsed.TotalSeconds:N1} seconds for task to start");
+
           // Raise an exception when waiting too long
           if (stopwatch.Elapsed.TotalSeconds > timeoutSeconds)
             throw new TimeoutException($"Waited longer than {stopwatch.Elapsed.TotalSeconds:N1} seconds, assuming something is wrong");
@@ -998,9 +1003,12 @@ namespace CsvTools
         stopwatch.Start();
         RunTaskAction(executeTask, () =>
         {
+          if (executeTask.Status == TaskStatus.WaitingForActivation && stopwatch.Elapsed.TotalSeconds > 2)
+            throw new TimeoutException($"Waited longer than {stopwatch.Elapsed.TotalSeconds:N1} seconds for task to start");
+
           // Raise an exception when waiting too long
           if (stopwatch.Elapsed.TotalSeconds > timeoutSeconds)
-            throw new TimeoutException($"Waited longer than {stopwatch.Elapsed.TotalSeconds:N1} seconds, assuming something is wrong");
+            throw new TimeoutException($"Waited longer than {stopwatch.Elapsed.TotalSeconds:N1} seconds for task to finish");
 
           // wait will raise an AggregateException if the task throws an exception
           executeTask.Wait(200, cancellationToken);
@@ -1033,6 +1041,9 @@ namespace CsvTools
         stopwatch.Start();
         RunTaskAction(executeTask, () =>
         {
+          if (executeTask.Status == TaskStatus.WaitingForActivation && stopwatch.Elapsed.TotalSeconds > 2)
+            throw new TimeoutException($"Waited longer than {stopwatch.Elapsed.TotalSeconds:N1} seconds for task to start");
+
           // Raise an exception when waiting too long
           if (stopwatch.Elapsed.TotalSeconds > timeoutSeconds)
             throw new TimeoutException($"Waited longer than {stopwatch.Elapsed.TotalSeconds:N1} seconds, assuming something is wrong");
@@ -1401,12 +1412,12 @@ namespace CsvTools
     {
       try
       {
-        // some tasks are already faulted
+        // IsCompleted := RanToCompletion || Canceled || Faulted
+        while (!executeTask.IsCompleted)
+          inloop.Invoke();
+
         if (executeTask.IsFaulted)
           throw executeTask.Exception;
-
-        while (!executeTask.IsCanceled && !executeTask.IsCompleted && !executeTask.IsFaulted)
-          inloop.Invoke();
       }
       catch (Exception ex)
       {
