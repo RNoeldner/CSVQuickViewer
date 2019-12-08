@@ -114,13 +114,19 @@ namespace CsvTools
         if (value > 0)
         {
           TimeToCompletion.TargetValue = value;
-          m_ProgressBar.Maximum = value.ToInt();
-          m_ProgressBar.Style = ProgressBarStyle.Continuous;
+          m_ProgressBar.SafeInvoke(() =>
+          {
+            m_ProgressBar.Maximum = value.ToInt();
+            m_ProgressBar.Style = ProgressBarStyle.Continuous;
+          });
         }
         else
         {
           TimeToCompletion.TargetValue = -1;
-          m_ProgressBar.Style = ProgressBarStyle.Marquee;
+          m_ProgressBar.SafeInvoke(() =>
+          {
+            m_ProgressBar.Style = ProgressBarStyle.Marquee;
+          });
         }
         SetMaximum?.Invoke(this, TimeToCompletion.TargetValue);
       }

@@ -32,6 +32,12 @@ namespace CsvTools
   /// </summary>
   public static class ClassLibraryCsvExtensionMethods
   {
+    // Time to wait on activation of a task
+    private const double cTimeToWaitOnActivation = 5d;
+
+    // 250 MS is 1/4 Second to wait for task completion
+    private const int cTaskWaitMS = 250;
+
     public static void AddComma(this StringBuilder sb)
     {
       if (sb.Length > 0)
@@ -865,7 +871,12 @@ namespace CsvTools
           if (st.GetFrame(i).GetMethod().Name.Contains("WaitToCompleteTask"))
             firstafterWait = i;
           else if (firstafterWait > 0)
-            return $"{st.GetFrame(i).GetMethod().Name} Line {st.GetFrame(i).GetILOffset()}";
+          {
+            if (st.GetFrame(i).GetILOffset() <= 0)
+              return st.GetFrame(i).GetMethod().Name;
+            else
+              return $"{st.GetFrame(i).GetMethod().Name} Line {st.GetFrame(i).GetILOffset()}";
+          }
         }
 
         for (var i = st.FrameCount - 1; i > 1; i--)
@@ -907,6 +918,9 @@ namespace CsvTools
       if (every125MS is null)
         throw new ArgumentNullException(nameof(every125MS));
 
+      if (executeTask.IsCompleted)
+        return;
+
       cancellationToken.ThrowIfCancellationRequested();
 
       if (timeoutSeconds > 0.01)
@@ -916,36 +930,46 @@ namespace CsvTools
         RunTaskAction(executeTask, () =>
         {
           cancellationToken.ThrowIfCancellationRequested();
-          if (executeTask.Status == TaskStatus.WaitingForActivation && stopwatch.Elapsed.TotalSeconds > 2)
+          if (executeTask.Status == TaskStatus.WaitingForActivation && stopwatch.Elapsed.TotalSeconds > cTimeToWaitOnActivation)
             throw new TimeoutException($"Waited longer than {stopwatch.Elapsed.TotalSeconds:N1} seconds for task to start");
 
           // Raise an exception when waiting too long
           if (stopwatch.Elapsed.TotalSeconds > timeoutSeconds)
             throw new TimeoutException($"Waited longer than {stopwatch.Elapsed.TotalSeconds:N1} seconds for task to finish");
-
-          // wait will raise an AggregateException if the task throws an exception
-          executeTask.Wait(200, cancellationToken);
-
           // Invoke action every 1/4 second
           every125MS?.Invoke();
+
+          // wait will raise an AggregateException if the task throws an exception
+          executeTask.Wait(250, cancellationToken);
         });
       }
       else
       {
         RunTaskAction(executeTask, () =>
         {
-          // wait will raise an AggregateException if the task throws an exception
-          executeTask.Wait(200, cancellationToken);
           // Invoke action every 1/4 second
           every125MS?.Invoke();
+          // wait will raise an AggregateException if the task throws an exception
+          executeTask.Wait(cTaskWaitMS, cancellationToken);
         });
       }
     }
 
+    /// <summary>
+    /// Run a task to completion with timeout
+    /// Should you expose synchronous wrappers for asynchronous methods, the answer is: No you should not...
+    /// </summary>
+    /// <param name="executeTask">The started <see cref="System.Threading.Tasks.Task"/></param>
+    /// <param name="timeoutSeconds">Timeout for the completion of the task, if more time is spent running / waiting the wait is finished</param>
+    /// <param name="every125MS">Action to be invoked every 1/4 second while waiting to finish, usually used for UI updates</param>
+    /// <remarks>Will only return the first exception in case of aggregate exceptions.</remarks>
     public static void WaitToCompleteTask(this Task executeTask, double timeoutSeconds = 0, Action every125MS = null)
     {
       if (executeTask == null)
         throw new ArgumentNullException(nameof(executeTask));
+
+      if (executeTask.IsCompleted)
+        return;
 
       if (timeoutSeconds > 0.01)
       {
@@ -953,28 +977,29 @@ namespace CsvTools
         stopwatch.Start();
         RunTaskAction(executeTask, () =>
         {
-          if (executeTask.Status == TaskStatus.WaitingForActivation && stopwatch.Elapsed.TotalSeconds > 2)
+          if (executeTask.Status == TaskStatus.WaitingForActivation && stopwatch.Elapsed.TotalSeconds > cTimeToWaitOnActivation)
             throw new TimeoutException($"Waited longer than {stopwatch.Elapsed.TotalSeconds:N1} seconds for task to start");
 
           // Raise an exception when waiting too long
           if (stopwatch.Elapsed.TotalSeconds > timeoutSeconds)
             throw new TimeoutException($"Waited longer than {stopwatch.Elapsed.TotalSeconds:N1} seconds, assuming something is wrong");
 
-          // wait will raise an AggregateException if the task throws an exception
-          executeTask.Wait(200);
-
           // Invoke action every 1/4 second
           every125MS?.Invoke();
+
+          // wait will raise an AggregateException if the task throws an exception
+          executeTask.Wait(cTaskWaitMS);
         });
       }
       else
       {
         RunTaskAction(executeTask, () =>
         {
-          // wait will raise an AggregateException if the task throws an exception
-          executeTask.Wait(200);
           // Invoke action every 1/4 second
           every125MS?.Invoke();
+
+          // wait will raise an AggregateException if the task throws an exception
+          executeTask.Wait(cTaskWaitMS);
         });
       }
     }
@@ -995,75 +1020,86 @@ namespace CsvTools
       if (every125MS is null)
         throw new ArgumentNullException(nameof(every125MS));
 
-      cancellationToken.ThrowIfCancellationRequested();
-
-      if (timeoutSeconds > 0.01)
+      if (!executeTask.IsCompleted)
       {
-        var stopwatch = new System.Diagnostics.Stopwatch();
-        stopwatch.Start();
-        RunTaskAction(executeTask, () =>
+        cancellationToken.ThrowIfCancellationRequested();
+
+        if (timeoutSeconds > 0.01)
         {
-          if (executeTask.Status == TaskStatus.WaitingForActivation && stopwatch.Elapsed.TotalSeconds > 2)
-            throw new TimeoutException($"Waited longer than {stopwatch.Elapsed.TotalSeconds:N1} seconds for task to start");
+          var stopwatch = new System.Diagnostics.Stopwatch();
+          stopwatch.Start();
+          RunTaskAction(executeTask, () =>
+          {
+            if (executeTask.Status == TaskStatus.WaitingForActivation && stopwatch.Elapsed.TotalSeconds > cTimeToWaitOnActivation)
+              throw new TimeoutException($"Waited longer than {stopwatch.Elapsed.TotalSeconds:N1} seconds for task to start");
 
-          // Raise an exception when waiting too long
-          if (stopwatch.Elapsed.TotalSeconds > timeoutSeconds)
-            throw new TimeoutException($"Waited longer than {stopwatch.Elapsed.TotalSeconds:N1} seconds for task to finish");
+            // Raise an exception when waiting too long
+            if (stopwatch.Elapsed.TotalSeconds > timeoutSeconds)
+              throw new TimeoutException($"Waited longer than {stopwatch.Elapsed.TotalSeconds:N1} seconds for task to finish");
+            // Invoke action every 1/4 second
+            every125MS?.Invoke();
 
-          // wait will raise an AggregateException if the task throws an exception
-          executeTask.Wait(200, cancellationToken);
-
-          // Invoke action every 1/4 second
-          every125MS?.Invoke();
-        });
-      }
-      else
-      {
-        RunTaskAction(executeTask, () =>
+            // wait will raise an AggregateException if the task throws an exception
+            executeTask.Wait(cTaskWaitMS, cancellationToken);
+          });
+        }
+        else
         {
-          // wait will raise an AggregateException if the task throws an exception
-          executeTask.Wait(200, cancellationToken);
-          // Invoke action every 1/4 second
-          every125MS?.Invoke();
-        });
+          RunTaskAction(executeTask, () =>
+          {
+            // Invoke action every 1/4 second
+            every125MS?.Invoke();
+            // wait will raise an AggregateException if the task throws an exception
+            executeTask.Wait(200, cancellationToken);
+          });
+        }
       }
-
       return executeTask.Result;
     }
 
+    /// <summary>
+    /// Run a task that returns a value to completion with timeout
+    /// Should you expose synchronous wrappers for asynchronous methods, the answer is: No you should not...
+    /// </summary>
+    /// <param name="executeTask">The started <see cref="System.Threading.Tasks.Task"/></param>
+    /// <param name="timeoutSeconds">Timeout for the completion of the task, if more time is spent running / waiting the wait is finished</param>
+    /// <param name="every125MS">Action to be invoked every 1/4 second while waiting to finish, usually used for UI updates</param>
+    /// <returns>Task Result if finished successfully, otherwise raises an error</returns>
     public static T WaitToCompleteTask<T>(this Task<T> executeTask, double timeoutSeconds = 0, Action every125MS = null)
     {
       if (executeTask == null)
         throw new ArgumentNullException(nameof(executeTask));
-      if (timeoutSeconds > 0.01)
+      if (!executeTask.IsCompleted)
       {
-        var stopwatch = new System.Diagnostics.Stopwatch();
-        stopwatch.Start();
-        RunTaskAction(executeTask, () =>
+        if (timeoutSeconds > 0.01)
         {
-          if (executeTask.Status == TaskStatus.WaitingForActivation && stopwatch.Elapsed.TotalSeconds > 2)
-            throw new TimeoutException($"Waited longer than {stopwatch.Elapsed.TotalSeconds:N1} seconds for task to start");
+          var stopwatch = new System.Diagnostics.Stopwatch();
+          stopwatch.Start();
+          RunTaskAction(executeTask, () =>
+          {
+            if (executeTask.Status == TaskStatus.WaitingForActivation && stopwatch.Elapsed.TotalSeconds > cTimeToWaitOnActivation)
+              throw new TimeoutException($"Waited longer than {stopwatch.Elapsed.TotalSeconds:N1} seconds for task to start");
 
-          // Raise an exception when waiting too long
-          if (stopwatch.Elapsed.TotalSeconds > timeoutSeconds)
-            throw new TimeoutException($"Waited longer than {stopwatch.Elapsed.TotalSeconds:N1} seconds, assuming something is wrong");
+            // Raise an exception when waiting too long
+            if (stopwatch.Elapsed.TotalSeconds > timeoutSeconds)
+              throw new TimeoutException($"Waited longer than {stopwatch.Elapsed.TotalSeconds:N1} seconds, assuming something is wrong");
+            // Invoke action every 1/4 second
+            every125MS?.Invoke();
 
-          // wait will raise an AggregateException if the task throws an exception
-          executeTask.Wait(125);
-
-          // Invoke action every 1/4 second
-          every125MS?.Invoke();
-        });
-      }
-      else
-      {
-        RunTaskAction(executeTask, () =>
+            // wait will raise an AggregateException if the task throws an exception
+            executeTask.Wait(cTaskWaitMS);
+          });
+        }
+        else
         {
-          // wait will raise an AggregateException if the task throws an exception
-          executeTask.Wait(125);
-          // Invoke action every 1/4 second
-          every125MS?.Invoke();
-        });
+          RunTaskAction(executeTask, () =>
+          {
+            // Invoke action every 1/4 second
+            every125MS?.Invoke();
+            // wait will raise an AggregateException if the task throws an exception
+            executeTask.Wait(cTaskWaitMS);
+          });
+        }
       }
       return executeTask.Result;
     }
@@ -1084,6 +1120,26 @@ namespace CsvTools
 
       return false;
     }
+
+    //public static CopyToDataTableInfo RemapToTable(this CopyToDataTableInfo source, DataTable newDataTable)
+    //{
+    //  var copy = new CopyToDataTableInfo
+    //  {
+    //    Mapping = new BiDirectionalDictionary<int, int>(source.Mapping),
+    //    ReaderColumns = new List<string>(source.ReaderColumns)
+    //  };
+
+    //  if (source.StartLine != null)
+    //    copy.StartLine = newDataTable.Columns[source.StartLine.ColumnName];
+    //  if (source.RecordNumber != null)
+    //    copy.RecordNumber = newDataTable.Columns[source.RecordNumber.ColumnName];
+    //  if (source.EndLine != null)
+    //    copy.EndLine = newDataTable.Columns[source.EndLine.ColumnName];
+    //  if (source.Error != null)
+    //    copy.Error = newDataTable.Columns[source.Error.ColumnName];
+
+    //  return copy;
+    //}
 
     public static CopyToDataTableInfo GetCopyToDataTableInfo(this IFileReader fileReader, IFileSetting fileSetting, DataTable dataTable, bool includeErrorField)
     {
@@ -1123,6 +1179,8 @@ namespace CsvTools
       // see  SqlServerConnector.CreateTable
       result.StartLine = new DataColumn(BaseFileReader.cStartLineNumberFieldName, typeof(long));
       dataTable.Columns.Add(result.StartLine);
+
+      dataTable.PrimaryKey = new DataColumn[] { result.StartLine };
 
       if (fileSetting.DisplayRecordNo && !fileReader.HasColumnName(BaseFileReader.cRecordNumberFieldName))
       {
@@ -1422,8 +1480,6 @@ namespace CsvTools
       catch (Exception ex)
       {
         Logger.Warning(ex, "Asynchronous task called {src}: {exception}", UpmostStackTrace(), ex.ExceptionMessages());
-        if (executeTask.Status == TaskStatus.WaitingForActivation)
-          Logger.Warning("The task is still waiting for activation,  either it's a deadlock of we ran out of available threads");
         // return only the first exception if there are many
         if (ex is AggregateException ae)
           throw ae.Flatten().InnerExceptions[0];
