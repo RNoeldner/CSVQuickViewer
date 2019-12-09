@@ -470,7 +470,7 @@ namespace CsvTools
       {
         // only regard a delimiter if we have 75% of the rows with this delimiter
         // we can still have a lot of commented lines
-        if (dc.SeparatorRows[index] < dc.LastRow * .75d)
+        if (dc.SeparatorRows[index] == 0 || (dc.SeparatorRows[index] < dc.LastRow * .75d && dc.LastRow > 5))
           continue;
 
         var sumCount = 0;

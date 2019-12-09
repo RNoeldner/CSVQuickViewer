@@ -23,7 +23,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml.Serialization;
 using Microsoft.Win32;
@@ -594,7 +593,7 @@ namespace CsvTools
         {
           // Show the data
           Logger.Information("Showing loaded data…");
-          Task.Run(() => detailControl.DataTable = data);
+          detailControl.DataTable = data;
         }
         ApplicationSetting.SQLDataReader = delegate (string settingName, IProcessDisplay processDisplay, int timeout)
         { return detailControl.DataTable.CreateDataReader(); };
