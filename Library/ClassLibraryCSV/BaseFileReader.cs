@@ -1144,14 +1144,17 @@ namespace CsvTools
     /// <param name="typedValue">The original text</param>
     /// <param name="columnNumber">The column number</param>
     /// <returns>The proper encoded or cut text as returned for the column</returns>
-    protected object HandleHtmlSetSize(object typedValue, int columnNumber, bool handleNullText)
+    protected string HandleTextAndSetSize(string inputString, int columnNumber, bool handleNullText)
     {
       // in case its not a string
-      if (typedValue == null || !(typedValue is string inputString) || string.IsNullOrEmpty(inputString))
-        return typedValue;
+      if (string.IsNullOrEmpty(inputString))
+        return inputString;
 
       if (handleNullText && StringUtils.ShouldBeTreatedAsNull(inputString, m_FileSetting.TreatTextAsNull))
         return null;
+
+      if (m_FileSetting.TrimmingOption == TrimmingOption.All)
+        inputString = inputString.Trim();
 
       var column = GetColumn(columnNumber);
       var output = inputString;
@@ -1161,19 +1164,19 @@ namespace CsvTools
         case DataType.TextToHtml:
           output = HTMLStyle.TextToHtmlEncode(inputString);
           if (!inputString.Equals(output, StringComparison.Ordinal))
-            HandleWarning(columnNumber, $"HTML encoding removed from {typedValue}");
+            HandleWarning(columnNumber, $"HTML encoding removed from {inputString}");
           break;
 
         case DataType.TextToHtmlFull:
           output = HTMLStyle.HtmlEncodeShort(inputString);
           if (!inputString.Equals(output, StringComparison.Ordinal))
-            HandleWarning(columnNumber, $"HTML encoding removed from {typedValue}");
+            HandleWarning(columnNumber, $"HTML encoding removed from {inputString}");
           break;
 
         case DataType.TextPart:
           output = StringConversion.StringToTextPart(inputString, column.PartSplitter, column.Part, column.PartToEnd);
           if (output == null)
-            HandleWarning(columnNumber, $"Part {column.Part} of text {typedValue} is empty.");
+            HandleWarning(columnNumber, $"Part {column.Part} of text {inputString} is empty.");
           break;
       }
 
