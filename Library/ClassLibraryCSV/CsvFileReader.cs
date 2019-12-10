@@ -965,7 +965,7 @@ namespace CsvTools
              .ReplaceCaseInsensitive(m_CsvFile.FileFormat.QuotePlaceholder, m_CsvFile.FileFormat.FieldQualifierChar);
 
             if (regularDataRow && col < FieldCount)
-              item = (string)HandleHtmlSetSize(item, col, false);
+              item = HandleTextAndSetSize(item, col, false);
           }
         }
 

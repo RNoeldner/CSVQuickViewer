@@ -418,11 +418,13 @@ namespace CsvTools
       return sb.ToString();
     }
 
-    public static string GetShortPath(string path, string fileName)
+    public static string ShortDiretoryName(this string longPath)
     {
-      if (string.IsNullOrEmpty(path))
-        return string.Empty;
-      return Path.Combine(Path.GetFullPath(path), fileName).ShortFileName();
+      longPath = longPath.TrimEnd();
+      if (!longPath.EndsWith(Path.DirectorySeparatorChar.ToString()) || !longPath.EndsWith(Path.AltDirectorySeparatorChar.ToString()))
+        longPath += Path.DirectorySeparatorChar;
+
+      return longPath.ShortFileName();
     }
 
     public static string ShortFileName(this string longPath)
