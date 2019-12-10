@@ -95,7 +95,13 @@ namespace CsvTools
     public virtual bool AlternateQuoting
     {
       get => m_AlternateQuoting;
-      set => m_AlternateQuoting = value;
+      set
+      {
+        if (m_AlternateQuoting.Equals(value))
+          return;
+        m_AlternateQuoting = value;
+        NotifyPropertyChanged(nameof(AlternateQuoting));
+      }
     }
 
     /// <summary>
@@ -107,8 +113,13 @@ namespace CsvTools
     public virtual bool ByteOrderMark
     {
       get => m_ByteOrderMark;
-
-      set => m_ByteOrderMark = value;
+      set
+      {
+        if (m_ByteOrderMark.Equals(value))
+          return;
+        m_ByteOrderMark = value;
+        NotifyPropertyChanged(nameof(ByteOrderMark));
+      }
     }
 
     /// <summary>
@@ -120,7 +131,6 @@ namespace CsvTools
     public virtual int CodePageId
     {
       get => m_CodePageId;
-
       set
       {
         if (m_CodePageId.Equals(value))
@@ -153,6 +163,8 @@ namespace CsvTools
       get => m_JsonFormat;
       set
       {
+        if (m_JsonFormat.Equals(value))
+          return;
         m_JsonFormat = value;
         if (value)
         {
@@ -163,6 +175,7 @@ namespace CsvTools
           TryToSolveMoreColumns = false;
           AllowRowCombining = false;
         }
+        NotifyPropertyChanged(nameof(JsonFormat));
       }
     }
 
@@ -175,7 +188,13 @@ namespace CsvTools
     public virtual bool DoubleDecode
     {
       get => m_DoubleDecode;
-      set => m_DoubleDecode = value;
+      set
+      {
+        if (m_DoubleDecode.Equals(value))
+          return;
+        m_DoubleDecode = value;
+        NotifyPropertyChanged(nameof(DoubleDecode));
+      }
     }
 
     /// <summary>

@@ -59,6 +59,7 @@ namespace CsvTools
       m_FileName = fileName;
       m_ViewSettings = LoadDefault();
       m_ViewSettings.PGPInformation.AllowSavingPassphrase = true;
+      m_ViewSettings.FillGuessSettings.PropertyChanged += AnyPropertyChangedReload;
 
       ApplicationSetting.PGPKeyStorage = m_ViewSettings.PGPInformation;
 
@@ -133,6 +134,27 @@ namespace CsvTools
         Logger.Warning(args.Display(true, true));
     }
 
+    /// <summary>
+    /// As any property is changed this will cause a reload from file
+    /// </summary>
+    /// <param name="sender">The sender.</param>
+    /// <param name="e">The <see cref="PropertyChangedEventArgs" /> instance containing the event data.</param>
+    /// <remarks>Called by ViewSettings.FillGuessSetting or Columns</remarks>
+    private void AnyPropertyChangedReload(object sender, PropertyChangedEventArgs e) => m_ConfigChanged = true;
+
+    /// <summary>
+    /// Attaches the property changed handlers for the file Settings
+    /// </summary>
+    /// <param name="fileSetting">The file setting.</param>
+    private void AttachPropertyChanged(ICsvFile fileSetting)
+    {
+      fileSystemWatcher.EnableRaisingEvents = m_ViewSettings.DetectFileChanges;
+      fileSetting.PropertyChanged += FileSetting_PropertyChanged;
+      fileSetting.FileFormat.PropertyChanged += FileFormat_PropertyChanged;
+      foreach (var col in fileSetting.ColumnCollection)
+        col.PropertyChanged += AnyPropertyChangedReload;
+    }
+
     private void ClearProcess()
     {
       m_WarningCount = 0;
@@ -178,6 +200,23 @@ namespace CsvTools
         e.Effect = DragDropEffects.All;
     }
 
+    /// <summary>
+    /// Detaches the property changed handlers for the file Setting
+    /// </summary>
+    /// <param name="fileSetting">The file setting.</param>
+    private void DetachPropertyChanged(ICsvFile fileSetting)
+    {
+      m_SettingsChangedTimerChange.Stop();
+      fileSystemWatcher.EnableRaisingEvents = false;
+      if (fileSetting != null)
+      {
+        fileSetting.PropertyChanged -= FileSetting_PropertyChanged;
+        fileSetting.FileFormat.PropertyChanged -= FileFormat_PropertyChanged;
+        foreach (var col in fileSetting.ColumnCollection)
+          col.PropertyChanged -= AnyPropertyChangedReload;
+      }
+    }
+
     private void DetailControl_ButtonAsText(object sender, EventArgs e)
     {
       // Assume data type is not recognize
@@ -221,11 +260,19 @@ namespace CsvTools
     /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
     private void Display_Activated(object sender, EventArgs e)
     {
-      if (!m_FileChanged)
-        return;
+      if (m_ConfigChanged)
+      {
+        detailControl.MoveMenu();
+        if (_MessageBox.Show(this, "The configuration has changed do you want to reload the data?", "Configuration changed", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
+          OpenDataReader(true);
+      }
+      if (m_FileChanged)
+      {       
+        if (_MessageBox.Show(this, "The displayed file has changed do you want to reload the data?", "File changed", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
+          OpenDataReader(true);
+      }
+      m_ConfigChanged = false;
       m_FileChanged = false;
-      if (_MessageBox.Show(this, "The displayed file has changed do you want to reload the data?", "File changed", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
-        OpenDataReader(true);
     }
 
     private void Display_FormClosing(object sender, FormClosingEventArgs e)
@@ -269,31 +316,63 @@ namespace CsvTools
           // Ignore all information in m_FileSetting.FileName
           m_FileSetting.FileName = m_FileName.Substring(0, m_FileName.Length - CsvFile.cCsvSettingExtension.Length);
           m_FileName = m_FileSetting.FileName;
-          DisableIgnoreRead();
-          m_ConfigChanged = false;
+          DisableIgnoreRead();         
         }
         else
-        {
-          m_ConfigChanged = true;
+        {          
           doClose = !InitFileSettings();
         }
       }
-
       if (doClose)
         return;
       OpenDataReader(false);
     }
 
+    private void FileFormat_PropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+      if (e.PropertyName == nameof(FileFormat.FieldDelimiterChar)
+       || e.PropertyName == nameof(FileFormat.EscapeCharacterChar)
+       || e.PropertyName == nameof(FileFormat.CommentLine)
+       || e.PropertyName == nameof(FileFormat.FieldQualifierChar)
+       || e.PropertyName == nameof(FileFormat.QuotePlaceholder)
+       || e.PropertyName == nameof(FileFormat.DelimiterPlaceholder)
+       || e.PropertyName == nameof(FileFormat.NewLinePlaceholder)
+        )
+        m_ConfigChanged = true;
+    }
+
+    /// <summary>
+    /// Handles the PropertyChanged event of the FileSetting control.
+    /// </summary>
+    /// <param name="sender">The source of the event.</param>
+    /// <param name="e">The <see cref="PropertyChangedEventArgs"/> instance containing the event data.</param>
     private void FileSetting_PropertyChanged(object sender, PropertyChangedEventArgs e)
     {
-      m_ConfigChanged = true;
-      // if (e.PropertyName != "ColumnFormat") return;
-      // reload the data
-      if (e.PropertyName == nameof(Column.DataType))
-      {
-        m_SettingsChangedTimerChange.Stop();
-        m_SettingsChangedTimerChange.Start();
-      }
+      if (e.PropertyName == nameof(ICsvFile.AllowRowCombining)
+       || e.PropertyName == nameof(ICsvFile.AlternateQuoting)
+       || e.PropertyName == nameof(ICsvFile.ByteOrderMark)
+       || e.PropertyName == nameof(ICsvFile.CodePageId)
+       || e.PropertyName == nameof(ICsvFile.ConsecutiveEmptyRows)
+       || e.PropertyName == nameof(ICsvFile.DoubleDecode)
+       || e.PropertyName == nameof(ICsvFile.HasFieldHeader)
+       || e.PropertyName == nameof(ICsvFile.NumWarnings)
+       || e.PropertyName == nameof(ICsvFile.SkipEmptyLines)
+       || e.PropertyName == nameof(ICsvFile.SkipRows)
+       || e.PropertyName == nameof(ICsvFile.TreatLFAsSpace)
+       || e.PropertyName == nameof(ICsvFile.TreatNBSPAsSpace)
+       || e.PropertyName == nameof(ICsvFile.TreatTextAsNull)
+       || e.PropertyName == nameof(ICsvFile.TreatUnknowCharaterAsSpace)
+       || e.PropertyName == nameof(ICsvFile.TryToSolveMoreColumns)
+       || e.PropertyName == nameof(ICsvFile.WarnDelimiterInValue)
+       || e.PropertyName == nameof(ICsvFile.WarnEmptyTailingColumns)
+       || e.PropertyName == nameof(ICsvFile.WarnLineFeed)
+       || e.PropertyName == nameof(ICsvFile.WarnNBSP)
+       || e.PropertyName == nameof(ICsvFile.WarnQuotes)
+       || e.PropertyName == nameof(ICsvFile.WarnQuotesInQuotes)
+       || e.PropertyName == nameof(ICsvFile.WarnUnknowCharater)
+       || e.PropertyName == nameof(ICsvFile.FileName)
+       )
+        m_ConfigChanged = true;
     }
 
     /// <summary>
@@ -343,8 +422,7 @@ namespace CsvTools
 
       var oldCursor = Cursor.Current == Cursors.WaitCursor ? Cursors.WaitCursor : Cursors.Default;
       Cursor.Current = Cursors.WaitCursor;
-      if (m_FileSetting != null)
-        m_FileSetting.PropertyChanged -= FileSetting_PropertyChanged;
+      DetachPropertyChanged(m_FileSetting);
 
       m_FileSetting = new CsvFile();
       ViewSettings.CopyConfiuration(m_ViewSettings, m_FileSetting);
@@ -457,7 +535,7 @@ namespace CsvTools
                       processDisplay.Left = limitSizeForm.Left + limitSizeForm.Width;
                       limitSizeForm.Focus();
                     }
-                    m_FileSetting.FillGuessColumnFormatReader(false, false, m_ViewSettings.FillGuessSettings, processDisplay);
+                    m_FileSetting.FillGuessColumnFormatReader(true, false, m_ViewSettings.FillGuessSettings, processDisplay);
                   }
 
                   if (m_FileSetting.ColumnCollection.Any(x => x.DataType != DataType.String))
@@ -483,9 +561,6 @@ namespace CsvTools
           finally
           {
             Cursor.Current = oldCursor;
-            m_FileSetting.FileFormat.PropertyChanged += FileSetting_PropertyChanged;
-            foreach (var col in m_FileSetting.ColumnCollection)
-              col.PropertyChanged += FileSetting_PropertyChanged;
             m_CurrentCancellationTokenSource = null;
           }
         }
@@ -503,7 +578,6 @@ namespace CsvTools
       }
       finally
       {
-        m_FileSetting.PropertyChanged += FileSetting_PropertyChanged;
         Cursor.Current = Cursors.Default;
         ShowTextPanel(false);
       }
@@ -519,16 +593,12 @@ namespace CsvTools
       if (m_FileSetting == null)
         return;
 
-      m_SettingsChangedTimerChange.Stop();
-      fileSystemWatcher.EnableRaisingEvents = false;
-
       var oldCursor = Cursor.Current == Cursors.WaitCursor ? Cursors.WaitCursor : Cursors.Default;
       Cursor.Current = Cursors.WaitCursor;
 
       // Stop Property changed events for the time this is processed
       // We might store data in the FileSetting
-
-      m_FileSetting.PropertyChanged -= FileSetting_PropertyChanged;
+      DetachPropertyChanged(m_FileSetting);
 
       try
       {
@@ -620,13 +690,12 @@ namespace CsvTools
         Cursor.Current = oldCursor;
         foreach (var col in m_FileSetting.ColumnCollection)
         {
-          col.PropertyChanged += FileSetting_PropertyChanged;
+          col.PropertyChanged += AnyPropertyChangedReload;
         }
         m_ConfigChanged = false;
-        fileSystemWatcher.EnableRaisingEvents = m_ViewSettings.DetectFileChanges;
         m_FileChanged = false;
         // Re enable event watching
-        m_FileSetting.PropertyChanged += FileSetting_PropertyChanged;
+        AttachPropertyChanged(m_FileSetting);
       }
     }
 
@@ -683,15 +752,7 @@ namespace CsvTools
         {
           frm.ShowDialog(MdiParent);
           FillFromProperites();
-          SaveDefault();
-          if (m_ConfigChanged)
-          {
-            detailControl.MoveMenu();
-            if (_MessageBox.Show(this, "The configuration has changed do you want to reload the data?", "Configuration changed", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
-            {
-              OpenDataReader(true);
-            }
-          }
+          SaveDefault();         
         }
       }
       catch (Exception ex)
