@@ -935,7 +935,7 @@ namespace CsvTools
 
           // Raise an exception when waiting too long
           if (stopwatch.Elapsed.TotalSeconds > timeoutSeconds)
-            throw new TimeoutException($"Waited longer than {stopwatch.Elapsed.TotalSeconds:N1} seconds for task to finish");
+            throw new TimeoutException($"Timeout after {stopwatch.Elapsed.TotalSeconds:N1} seconds");
           // Invoke action every 1/4 second
           every125MS?.Invoke();
 
@@ -982,7 +982,7 @@ namespace CsvTools
 
           // Raise an exception when waiting too long
           if (stopwatch.Elapsed.TotalSeconds > timeoutSeconds)
-            throw new TimeoutException($"Waited longer than {stopwatch.Elapsed.TotalSeconds:N1} seconds, assuming something is wrong");
+            throw new TimeoutException($"Timeout after {stopwatch.Elapsed.TotalSeconds:N1} seconds");
 
           // Invoke action every 1/4 second
           every125MS?.Invoke();
@@ -1035,7 +1035,7 @@ namespace CsvTools
 
             // Raise an exception when waiting too long
             if (stopwatch.Elapsed.TotalSeconds > timeoutSeconds)
-              throw new TimeoutException($"Waited longer than {stopwatch.Elapsed.TotalSeconds:N1} seconds for task to finish");
+              throw new TimeoutException($"Timeout after {stopwatch.Elapsed.TotalSeconds:N1} seconds");
             // Invoke action every 1/4 second
             every125MS?.Invoke();
 
@@ -1082,7 +1082,7 @@ namespace CsvTools
 
             // Raise an exception when waiting too long
             if (stopwatch.Elapsed.TotalSeconds > timeoutSeconds)
-              throw new TimeoutException($"Waited longer than {stopwatch.Elapsed.TotalSeconds:N1} seconds, assuming something is wrong");
+              throw new TimeoutException($"Timeout after {stopwatch.Elapsed.TotalSeconds:N1} seconds");
             // Invoke action every 1/4 second
             every125MS?.Invoke();
 
@@ -1235,7 +1235,7 @@ namespace CsvTools
               {
                 if (keyValuePair.Key == -1)
                   row.RowError = keyValuePair.Value;
-                else if (copyToDataTableInfo.Mapping.TryGetByValue(keyValuePair.Key, out var dbCol))
+                else if (copyToDataTableInfo.Mapping.TryGetValue(keyValuePair.Key, out var dbCol))
                   row.SetColumnError(dbCol, keyValuePair.Value);
               }
             });

@@ -452,69 +452,80 @@ namespace CsvTools
       // Limit everything to 100 columns max, the sum might get too big otherwise 100 * 100
       var startRow = dc.LastRow > 60 ? 15 :
        dc.LastRow > 20 ? 5 : 0;
-      for (var index = 0; index < dc.Separators.Length; index++)
-      {
-        if (dc.SeparatorRows[index] < 1)
-          continue;
-        for (var row = startRow; row < dc.LastRow; row++)
-        {
-          if (dc.SeparatorsCount[index, row] > 100)
-            dc.SeparatorsCount[index, row] = 100;
-        }
-      }
 
-      double? bestScore = null;
-      var maxCount = 0;
 
+      var validSeparatorIndex = new List<int>();
       for (var index = 0; index < dc.Separators.Length; index++)
       {
         // only regard a delimiter if we have 75% of the rows with this delimiter
         // we can still have a lot of commented lines
         if (dc.SeparatorRows[index] == 0 || (dc.SeparatorRows[index] < dc.LastRow * .75d && dc.LastRow > 5))
-          continue;
-
-        var sumCount = 0;
-        // If there are enough rows skip the first rows, there might be a descriptive introduction
-        // this can not be done in case there are not many rows
-        for (var row = startRow; row < dc.LastRow; row++)
-          // Cut of at 50 Columns in case one row is messed up, this should not mess up everything
-          sumCount += dc.SeparatorsCount[index, row];
-
-        // If we did not find a match with variance use the absolute number of occurrences
-        if (sumCount > maxCount && !bestScore.HasValue)
-        {
-          maxCount = sumCount;
-          match = dc.Separators[index];
-        }
-
-        // Get the average of the rows
-        var avg = (int)Math.Round((double)sumCount / (dc.LastRow - startRow), 0, MidpointRounding.AwayFromZero);
-
-        // Only proceed if there is usually more then one occurrence and we have more then one row
-        if (avg < 1 || dc.SeparatorRows[index] == 1)
-          continue;
-
-        // First determine the variance, low value means and even distribution
-        double cutVariance = 0;
-        for (var row = startRow; row < dc.LastRow; row++)
-        {
-          var dist = dc.SeparatorsCount[index, row] - avg;
-          if (dist > 2 || dist < -2)
-            cutVariance += 8;
-          else if (dist == 2 || dist == -2)
-            cutVariance += 4;
-          else if (dist == 1 || dist == -1)
-            cutVariance++;
-        }
-
-        // The score is dependent on the average columns found and the regularity
-        var score = avg - Math.Round(cutVariance / (dc.LastRow - startRow), 2);
-        if (bestScore.HasValue && !(score > bestScore.Value))
-          continue;
-        match = dc.Separators[index];
-        bestScore = score;
+          continue;        
+        validSeparatorIndex.Add(index);
       }
 
+      // if only one was found done here
+      if (validSeparatorIndex.Count == 1)
+        match = dc.Separators[validSeparatorIndex[0]];
+      else
+      {
+        // otherwise find the best
+        foreach(var index in validSeparatorIndex)
+        {
+          for (var row = startRow; row < dc.LastRow; row++)
+          {
+            if (dc.SeparatorsCount[index, row] > 100)
+              dc.SeparatorsCount[index, row] = 100;
+          }
+        }
+
+        double? bestScore = null;
+        var maxCount = 0;
+
+        foreach (var index in validSeparatorIndex)
+        {
+          var sumCount = 0;
+          // If there are enough rows skip the first rows, there might be a descriptive introduction
+          // this can not be done in case there are not many rows
+          for (var row = startRow; row < dc.LastRow; row++)
+            // Cut of at 50 Columns in case one row is messed up, this should not mess up everything
+            sumCount += dc.SeparatorsCount[index, row];
+
+          // If we did not find a match with variance use the absolute number of occurrences
+          if (sumCount > maxCount && !bestScore.HasValue)
+          {
+            maxCount = sumCount;
+            match = dc.Separators[index];
+          }
+
+          // Get the average of the rows
+          var avg = (int)Math.Round((double)sumCount / (dc.LastRow - startRow), 0, MidpointRounding.AwayFromZero);
+
+          // Only proceed if there is usually more then one occurrence and we have more then one row
+          if (avg < 1 || dc.SeparatorRows[index] == 1)
+            continue;
+
+          // First determine the variance, low value means and even distribution
+          double cutVariance = 0;
+          for (var row = startRow; row < dc.LastRow; row++)
+          {
+            var dist = dc.SeparatorsCount[index, row] - avg;
+            if (dist > 2 || dist < -2)
+              cutVariance += 8;
+            else if (dist == 2 || dist == -2)
+              cutVariance += 4;
+            else if (dist == 1 || dist == -1)
+              cutVariance++;
+          }
+
+          // The score is dependent on the average columns found and the regularity
+          var score = avg - Math.Round(cutVariance / (dc.LastRow - startRow), 2);
+          if (bestScore.HasValue && !(score > bestScore.Value))
+            continue;
+          match = dc.Separators[index];
+          bestScore = score;
+        }
+      }
       hasDelimiter = (match != '\0');
       if (!hasDelimiter)
       {

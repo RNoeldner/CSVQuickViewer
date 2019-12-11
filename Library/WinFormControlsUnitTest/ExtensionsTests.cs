@@ -84,7 +84,7 @@ namespace CsvTools.Tests
       {
         var task = Task.Run<bool>(() =>
         {
-          Thread.Sleep(3000);
+          Thread.Sleep(5000);
           return true;
         });
 
@@ -93,10 +93,10 @@ namespace CsvTools.Tests
           // Cancel Token after 200 ms in other thread
           var task2 = Task.Run(() =>
           {
-            Thread.Sleep(500);
+            Thread.Sleep(200);
             cts.Cancel();
           });
-          Extensions.WaitToCompleteTaskUI(task, 1.5d);
+          Extensions.WaitToCompleteTaskUI(task, 2d, cts.Token);
           Assert.Fail("Timeout did not occur");
         }
         catch (AssertFailedException)
@@ -107,7 +107,7 @@ namespace CsvTools.Tests
         { }
         catch (Exception ex)
         {
-          Assert.Fail($"Wrong exception got {ex.GetType().Name} expected OperationCanceledException");
+          Assert.Fail($"Wrong exception got {ex.GetType().Name} expected OperationCanceledException : {ex.ExceptionMessages()}");
         }
       }
     }
