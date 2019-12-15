@@ -8,6 +8,8 @@
     <ApplicationIcon>..\Application\csv_text.ico</ApplicationIcon>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <Authors>Raphael Nöldner</Authors>
+    <PackageIcon>csv_text.ico</PackageIcon>
+    <PackageIconUrl />
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -29,6 +31,12 @@
   <ItemGroup>
     <ProjectReference Include="..\Library\ClassLibraryCSV.Standard\ClassLibraryCSV.Standard.csproj" />
     <ProjectReference Include="..\Library\WinFormsControls.core\WinFormsControls.core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Application\csv_text.ico">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
   
 </Project>
