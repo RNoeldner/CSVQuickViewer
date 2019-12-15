@@ -11,114 +11,11 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-
 using System;
 using System.Text;
 
 namespace CsvTools
 {
-  /// <summary>
-  ///  Argument for a ProgressEvent
-  /// </summary>
-  public class ProgressEventArgs : EventArgs
-  {
-    /// <summary>
-    ///  Initializes a new instance of the <see cref="ProgressEventArgs" /> class.
-    /// </summary>
-    /// <param name="text">The text.</param>
-    public ProgressEventArgs(string text)
-     : this(text, -1)
-    {
-    }
-
-    /// <summary>
-    ///  Initializes a new instance of the <see cref="ProgressEventArgs" /> class.
-    /// </summary>
-    /// <param name="text">The text.</param>
-    /// <param name="value">The value.</param>
-    public ProgressEventArgs(string text, long value)
-    {
-      Text = text;
-      Value = value;
-    }
-
-    /// <summary>
-    ///  Initializes a new instance of the <see cref="ProgressEventArgs" /> class.
-    /// </summary>
-    /// <param name="text">The text.</param>
-    /// <param name="value">The progress value.</param>
-    /// <param name="log"><c>True</c> if Progress should be logged, <c>false</c> otherwise.</param>
-    public ProgressEventArgs(string text, long value, bool log)
-    {
-      Text = text;
-      Value = value;
-      Log = log;
-    }
-
-    /// <summary>
-    /// Indicating if a progress should be logged or not
-    /// </summary>
-    public bool Log { get; set; } = true;
-
-    /// <summary>
-    ///  Gets or sets the text.
-    /// </summary>
-    /// <value>The text.</value>
-    public string Text { get; set; }
-
-    /// <summary>
-    ///  Gets or sets the value.
-    /// </summary>
-    /// <value>
-    ///  The value.
-    /// </value>
-    public long Value { get; set; }
-  }
-
-  /// <summary>
-  ///  Property Changed Event Argument providing information of old and new value
-  /// </summary>
-  /// <typeparam name="T"></typeparam>
-  public class PropertyChangedEventArgs<T> : EventArgs
-  {
-    /// <summary>
-    ///  Initializes a new instance of the <see cref="PropertyChangedEventArgs{T}" /> class.
-    /// </summary>
-    /// <param name="propertyName">Name of the property.</param>
-    /// <param name="oldValue">The old value.</param>
-    /// <param name="newValue">The new value.</param>
-    public PropertyChangedEventArgs(string propertyName, T oldValue, T newValue)
-    {
-      PropertyName = propertyName;
-      OldValue = oldValue;
-      NewValue = newValue;
-    }
-
-    /// <summary>
-    ///  Gets or sets the new value.
-    /// </summary>
-    /// <value>
-    ///  The new value.
-    /// </value>
-    public T NewValue { get; set; }
-
-    /// <summary>
-    ///  Gets or sets the old value.
-    /// </summary>
-    /// <value>
-    ///  The old value.
-    /// </value>
-    public T OldValue { get; set; }
-
-    /// <summary>
-    ///  Gets or sets the name of the property.
-    /// </summary>
-    /// <value>
-    ///  The name of the property.
-    /// </value>
-    public string PropertyName { get; }
-  }
-
   /// <summary>
   ///  Argument for a WarningEvent
   /// </summary>
@@ -134,7 +31,7 @@ namespace CsvTools
     /// <param name="lineNumberStart">Line Number where the record started</param>
     /// <param name="columnName">Name of the column</param>
     public WarningEventArgs(long recordNumber, int columnNumber, string warningMessage, long lineNumberStart,
-     long lineNumberEnd, string columnName)
+      long lineNumberEnd, string columnName)
     {
       if (string.IsNullOrEmpty(warningMessage))
       {

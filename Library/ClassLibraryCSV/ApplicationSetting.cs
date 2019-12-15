@@ -33,10 +33,6 @@ namespace CsvTools
     /// </summary>
     public static string DestinationTimeZone { get; set; } = TimeZoneMapping.cIdLocal;
 
-    /// <summary>
-    ///  FillGuessSettings
-    /// </summary>
-    //public static FillGuessSettings FillGuessSettings { get; set; } = new FillGuessSettings();
 
     /// <summary>
     ///  The Application wide HTMLStyle
@@ -49,6 +45,7 @@ namespace CsvTools
     public static bool MenuDown { get; set; } = false;
 
     public static PGPKeyStorage PGPKeyStorage { get; set; } = new PGPKeyStorage();
+
     public static Func<string, string, string, IProcessDisplay, bool, DateTime> RemoteFileHandler { get; set; }
 
     public static string RootFolder { get; set; } = ".";

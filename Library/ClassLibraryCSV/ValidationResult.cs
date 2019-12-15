@@ -18,13 +18,6 @@ using System.Xml.Serialization;
 
 namespace CsvTools
 {
-  public interface IValidationResult
-  {
-    long NumberRecords { get; set; }
-    long ErrorCount { get; set; }
-    long WarningCount { get; set; }
-  }
-
   /// <summary>
   ///   Class to store validation result and cache them
   /// </summary>

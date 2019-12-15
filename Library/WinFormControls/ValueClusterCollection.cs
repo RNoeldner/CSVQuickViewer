@@ -22,37 +22,6 @@ using System.Linq;
 namespace CsvTools
 {
   /// <summary>
-  ///   Enumeration for reasons why not to display values
-  /// </summary>
-  public enum BuildValueClustersResult
-  {
-    /// <summary>
-    ///   The Value cluster has not been built yet
-    /// </summary>
-    NotRun,
-
-    /// <summary>
-    ///   Is the wrong type to generate Value Cluster
-    /// </summary>
-    WrongType,
-
-    /// <summary>
-    ///   The too many values
-    /// </summary>
-    TooManyValues,
-
-    /// <summary>
-    ///   The not one values
-    /// </summary>
-    NoValues,
-
-    /// <summary>
-    ///   The list is filled
-    /// </summary>
-    ListFilled
-  }
-
-  /// <summary>
   ///   ValueClusterCollection
   /// </summary>
   public class ValueClusterCollection
