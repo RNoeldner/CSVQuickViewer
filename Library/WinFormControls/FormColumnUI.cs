@@ -15,6 +15,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Data;
 using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.Globalization;
@@ -41,31 +42,41 @@ namespace CsvTools
     private readonly FillGuessSettings m_FillGuessSettings;
 
     /// <summary>
-    ///   Initializes a new instance of the <see cref="FormColumnUI" /> class.
+    /// Initializes a new instance of the <see cref="FormColumnUI" /> class.
     /// </summary>
-    /// <param name="column">The column format.</param>
-    /// <param name="writeSetting">if set to <c>true</c> [write setting].</param>
+    /// <param name="column">The column.</param>
+    /// <param name="writeSetting">if set to <c>true</c> this is for writing.</param>
     /// <param name="fileSetting">The file setting.</param>
+    /// <param name="fillGuessSettings">The fill guess settings.</param>
+    /// <param name="showIgnore">if set to <c>true</c> [show ignore].</param>
+    /// <exception cref="ArgumentNullException">
+    /// fileSetting
+    /// or
+    /// fileSefillGuessSettingstting
+    /// </exception>
     public FormColumnUI(Column column, bool writeSetting, IFileSetting fileSetting, FillGuessSettings fillGuessSettings, bool showIgnore)
     {
       Contract.Requires(column != null);
-      m_FileSetting = fileSetting;
-      m_FillGuessSettings = fillGuessSettings;
-      m_ColumnRef = column;
+      m_FileSetting = fileSetting?? throw  new ArgumentNullException(nameof(fileSetting));
+      m_FillGuessSettings = fillGuessSettings ?? throw new ArgumentNullException(nameof(fillGuessSettings));
+      m_ColumnRef = column ?? throw new ArgumentNullException(nameof(column));
       column.CopyTo(m_ColumnEdit);
 
       m_WriteSetting = writeSetting;
 
+
       InitializeComponent();
+      
+      comboBoxColumnName.Enabled = showIgnore;
 
       var source = ApplicationSetting.DestinationTimeZone;
       if (source == TimeZoneMapping.cIdLocal)
         source = "the local time zone of you system";
 
-      if (!m_WriteSetting)
-        toolTip.SetToolTip(comboBoxTimeZone, $"Assuming the time read is based in the time zone stored in this column or a constant value and being converted to {source}");
-      else
-        toolTip.SetToolTip(comboBoxTimeZone, $"Converting the time in {source} to the time zone in this column or a constant value");
+      toolTip.SetToolTip(comboBoxTimeZone,
+        !m_WriteSetting
+          ? $"Assuming the time read is based in the time zone stored in this column or a constant value and being converted to {source}"
+          : $"Converting the time in {source} to the time zone in this column or a constant value");
 
       labelDisplayNullAs.Visible = writeSetting;
       textBoxDisplayNullAs.Visible = writeSetting;
@@ -96,8 +107,8 @@ namespace CsvTools
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
     public void ButtonGuessClick(object sender, EventArgs e)
     {
-      var columName = comboBoxColumnName.Text;
-      if (string.IsNullOrEmpty(columName))
+      var columnName = comboBoxColumnName.Text;
+      if (string.IsNullOrEmpty(columnName))
       {
         _MessageBox.Show(this, "Please select a column first", "Guess");
         return;
@@ -119,24 +130,19 @@ namespace CsvTools
             var data = fileWriter.GetSourceDataTable(m_FillGuessSettings.CheckedRecords.ToUint());
             {
               var found = new Column();
-              var colum = data.Columns[columName];
-              if (colum == null)
+              var column = data.Columns[columnName];
+              if (column == null)
               {
-                if (!hasRetried)
-                {
-                  var columns = new List<string>();
-                  foreach (System.Data.DataColumn col in data.Columns)
-                  {
-                    columns.Add(col.ColumnName);
-                  }
-                  UpdateColumnList(columns);
-                  hasRetried = true;
-                  goto retry;
-                }
-                throw new ConfigurationException($"The file does not seem to contain the column {columName}.");
+                if (hasRetried)
+                  throw new ConfigurationException($"The file does not seem to contain the column {columnName}.");
+                var columns = (from DataColumn col in data.Columns select col.ColumnName).ToList();
+                UpdateColumnList(columns);
+                hasRetried = true;
+                goto retry;
+                throw new ConfigurationException($"The file does not seem to contain the column {columnName}.");
               }
 
-              found.DataType = colum.DataType.GetDataType();
+              found.DataType = column.DataType.GetDataType();
               if (found.DataType == DataType.String)
                 return;
               m_ColumnEdit.DataType = found.DataType;
@@ -145,12 +151,12 @@ namespace CsvTools
               RefreshData();
               _MessageBox.Show(this,
                 $"Based on DataType of the source column this is {m_ColumnEdit.GetTypeAndFormatDescription()}.\nPlease choose the desired output format",
-                columName, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                columnName, MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
           }
           else
           {
-            var samples = GetSampleValues(columName, processDisplay);
+            var samples = GetSampleValues(columnName, processDisplay);
             // shuffle samples, take some from the end and put it in the first 10
             // 1 - 1
             // 2 - Last
@@ -168,21 +174,20 @@ namespace CsvTools
               var detectGuid = true;
               var detectNumeric = true;
               var detectDateTime = true;
-              DataType seletcedType;
               if (comboBoxDataType.SelectedValue != null)
               {
-                seletcedType = (DataType)comboBoxDataType.SelectedValue;
-                if (seletcedType != DataType.String
-                 && seletcedType != DataType.TextToHtml
-                 && seletcedType != DataType.TextToHtmlFull
-                 && seletcedType != DataType.TextPart)
+                var selectedType = (DataType)comboBoxDataType.SelectedValue;
+                if (selectedType != DataType.String
+                    && selectedType != DataType.TextToHtml
+                    && selectedType != DataType.TextToHtmlFull
+                    && selectedType != DataType.TextPart)
                 {
-                  var resp = _MessageBox.Show(this, $"Should the system restrict detection to {seletcedType}?", "Selected DataType", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+                  var resp = _MessageBox.Show(this, $"Should the system restrict detection to {selectedType}?", "Selected DataType", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
                   if (resp == DialogResult.Cancel)
                     return;
                   if (resp == DialogResult.Yes)
                   {
-                    switch (seletcedType)
+                    switch (selectedType)
                     {
                       case DataType.Integer:
                       case DataType.Numeric:
@@ -226,7 +231,7 @@ namespace CsvTools
               if (checkResult == null)
               {
                 _MessageBox.ShowBig(this, $"No format could be determined in {samples.Values.Count():N0} sample values of {samples.RecordsRead:N0} records.\nSamples:\n" +
-                   samples.Values.Take(42).Join("\t"), $"Column: {columName}", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                   samples.Values.Take(42).Join("\t"), $"Column: {columnName}", MessageBoxButtons.OK, MessageBoxIcon.Information);
               }
               else
               {
@@ -263,7 +268,7 @@ namespace CsvTools
                   if (suggestClosestMatch)
                   {
                     if (_MessageBox.ShowBig(this, $"{msg}\n\nShould the closest match be used?",
-                                        $"Column: {columName}", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                                        $"Column: {columnName}", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                     {
                       // use the closest match  instead of Text
                       // can not use ValueFormat.CopyTo,. Column is quite specific and need it to be set,
@@ -272,7 +277,7 @@ namespace CsvTools
                   }
                   else
                   {
-                    _MessageBox.ShowBig(this, msg, $"Column: {columName}", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    _MessageBox.ShowBig(this, msg, $"Column: {columnName}", MessageBoxButtons.OK, MessageBoxIcon.Information);
                   }
 
                   RefreshData();
@@ -284,17 +289,17 @@ namespace CsvTools
 
                   if (samples.Values.Count() < m_FillGuessSettings.MinSamples)
                   {
-                    _MessageBox.ShowBig(this, displayMsg, $"Column: {columName}", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    _MessageBox.ShowBig(this, displayMsg, $"Column: {columnName}", MessageBoxButtons.OK, MessageBoxIcon.Information);
                   }
                   else
                   {
                     if (m_ColumnEdit.ValueFormat.DataType == DataType.String)
                     {
-                      _MessageBox.ShowBig(this, displayMsg, $"Column: {columName}", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                      _MessageBox.ShowBig(this, displayMsg, $"Column: {columnName}", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                     else
                     {
-                      if (_MessageBox.ShowBig(this, displayMsg + "\n\nShould this be set to text?", $"Column: {columName}", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                      if (_MessageBox.ShowBig(this, displayMsg + "\n\nShould this be set to text?", $"Column: {columnName}", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                       {
                         m_ColumnEdit.ValueFormat.DataType = DataType.String;
                       }
@@ -322,18 +327,14 @@ namespace CsvTools
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
-    public void ButtonOKClick(object sender, EventArgs e)
+    private void ButtonOkClick(object sender, EventArgs e)
     {
       try
       {
-        if (ValidateChildren())
-        {
-          if (!m_ColumnEdit.Equals(m_ColumnRef))
-          {
-            m_ColumnEdit.CopyTo(m_ColumnRef);
-            DialogResult = DialogResult.Yes;
-          }
-        }
+        if (!ValidateChildren()) return;
+        if (m_ColumnEdit.Equals(m_ColumnRef)) return;
+        m_ColumnEdit.CopyTo(m_ColumnRef);
+        DialogResult = DialogResult.Yes;
       }
       catch (Exception ex)
       {
@@ -427,13 +428,8 @@ namespace CsvTools
       var format = checkedListBoxDateFormats.Items[e.Index].ToString();
       if (m_WriteSetting)
       {
-        var uncheck = new List<int>();
+        var uncheck = checkedListBoxDateFormats.CheckedIndices.Cast<int>().Where(ind => ind != e.Index);
         // disable all other check items
-        foreach (int ind in checkedListBoxDateFormats.CheckedIndices)
-        {
-          if (ind != e.Index)
-            uncheck.Add(ind);
-        }
 
         foreach (var ind in uncheck)
           checkedListBoxDateFormats.SetItemCheckState(ind, CheckState.Unchecked);
@@ -500,9 +496,8 @@ namespace CsvTools
         {
           using (var processDisplay = new FormProcessDisplay("Retrieving Information", true, m_CancellationTokenSource.Token))
           {
-            ICollection<string> allColumns;
             processDisplay.Show(this);
-            allColumns = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            ICollection<string> allColumns = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
             try
             {
@@ -514,8 +509,8 @@ namespace CsvTools
                   using (var fileReader = m_FileSetting.GetFileReader(processDisplay))
                   {
                     fileReader.Open();
-                    for (var colindex = 0; colindex < fileReader.FieldCount; colindex++)
-                      allColumns.Add(fileReader.GetColumn(colindex).Name);
+                    for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
+                      allColumns.Add(fileReader.GetColumn(colIndex).Name);
                   }
                 }
                 else
@@ -606,7 +601,7 @@ namespace CsvTools
           SetSamplePart(null, null);
 
         //TODO: opening on OS and scaling a different value might be needed
-        Height = tableLayoutPanelForm.Height + SystemInformation.CaptionHeight + 11;
+        Height = tableLayoutPanelForm.Height + SystemInformation.CaptionHeight + 13;
       }
       catch (Exception ex)
       {
@@ -672,11 +667,16 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets the sample values for a column.
+    /// Gets the sample values.
     /// </summary>
     /// <param name="columnName">Name of the column.</param>
+    /// <param name="processDisplay">The process display.</param>
     /// <returns></returns>
-    ///   Parent FileSetting not set or The file does not contain the column
+    /// <exception cref="ConfigurationException">FileSetting not set</exception>
+    /// <exception cref="FileException">
+    /// Column {columnName} not found.
+    /// or
+    /// Column {columnName} not found.
     /// </exception>
     private DetermineColumnFormat.SampleResult GetSampleValues(string columnName, IProcessDisplay processDisplay)
     {
@@ -978,14 +978,6 @@ namespace CsvTools
       comboBoxColumnName.EndUpdate();
 
       RefreshData();
-    }
-
-    private void labelDateSep_Click(object sender, EventArgs e)
-    {
-    }
-
-    private void label4_Click(object sender, EventArgs e)
-    {
     }
   }
 }
