@@ -12,8 +12,6 @@
  *
  */
 
-using System.Threading;
-
 namespace CsvTools
 {
   /// <summary>
@@ -22,12 +20,4 @@ namespace CsvTools
   /// <param name="fileSetting">The file setting.</param>
   /// <param name="processDisplay">The process display.</param>
   public delegate void FileSettingChecker(IFileSetting fileSetting, IProcessDisplay processDisplay);
-
-  /// <summary>
-  ///   Gets the validation result but do not use the cache
-  /// </summary>
-  /// <param name="tableName">The name of the local table</param>
-  /// <param name="cancellationToken">A CancellationToken to stop processing</param>
-  /// <returns></returns>
-  public delegate ValidationResult GetValidationResultNoCache(string tableName, CancellationToken cancellationToken);
 }

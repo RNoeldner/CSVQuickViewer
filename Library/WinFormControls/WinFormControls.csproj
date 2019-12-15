@@ -50,6 +50,7 @@
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="BuildValueClustersResult.cs" />
     <Compile Include="CheckedListBoxHelper.cs" />
     <Compile Include="CsvRichTextBox.cs">
       <SubType>Component</SubType>
@@ -60,7 +61,7 @@
     <Compile Include="CsvTextDisplay.Designer.cs">
       <DependentUpon>CsvTextDisplay.cs</DependentUpon>
     </Compile>
-    <Compile Include="DataGridViewColumnFilter.cs" />
+    <Compile Include="ColumnFilterLogic.cs" />
     <Compile Include="DataGridViewColumnFilterControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -72,12 +73,16 @@
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Extensions.cs" />
-    <Compile Include="FormLimitSize.cs">
+    <Compile Include="FilterType.cs" />
+    <Compile Include="FrmLimitSize.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="FormLimitSize.Designer.cs">
-      <DependentUpon>FormLimitSize.cs</DependentUpon>
+    <Compile Include="FrmLimitSize.Designer.cs">
+      <DependentUpon>FrmLimitSize.cs</DependentUpon>
     </Compile>
+    <Compile Include="FoundEventArgs.cs" />
+    <Compile Include="SearchEventArgs.cs" />
+    <Compile Include="TwoLevelComparer.cs" />
     <Compile Include="WindowsAPICodePackWrapper.cs" />
     <Compile Include="FillGuessSettingEdit.cs">
       <SubType>UserControl</SubType>
@@ -101,7 +106,7 @@
     <Compile Include="FormColumnUI.Designer.cs">
       <DependentUpon>FormColumnUI.cs</DependentUpon>
     </Compile>
-    <Compile Include="FormDetails.cs">
+    <Compile Include="FormDetail.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="FormDuplicatesDisplay.cs">
@@ -110,7 +115,7 @@
     <Compile Include="FormDuplicatesDisplay.Designer.cs">
       <DependentUpon>FormDuplicatesDisplay.cs</DependentUpon>
     </Compile>
-    <Compile Include="FormHirachyDisplay.cs">
+    <Compile Include="FormHierachyDisplay.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="FormKeyFile.cs">
@@ -134,7 +139,7 @@
     <Compile Include="FormPassphrase.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="GroupedComboBox.cs">
+    <Compile Include="GroupingComboBox.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="LoggerDisplay.cs">
@@ -162,7 +167,7 @@
     <Compile Include="ToolStripCheckedListBox.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="ToolStripDataGridViewColumnFilterOperator.cs">
+    <Compile Include="ToolStripDataGridViewColumnFilter.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="ValueCluster.cs" />
@@ -181,8 +186,8 @@
     <EmbeddedResource Include="FolderTree.resx">
       <DependentUpon>FolderTree.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="FormLimitSize.resx">
-      <DependentUpon>FormLimitSize.cs</DependentUpon>
+    <EmbeddedResource Include="FrmLimitSize.resx">
+      <DependentUpon>FrmLimitSize.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="TimeZoneSelector.resx">
       <DependentUpon>TimeZoneSelector.cs</DependentUpon>
@@ -217,8 +222,8 @@
       <DependentUpon>FormDuplicatesDisplay.cs</DependentUpon>
       <SubType>Designer</SubType>
     </None>
-    <None Include="FormHirachyDisplay.resx">
-      <DependentUpon>FormHirachyDisplay.cs</DependentUpon>
+    <None Include="FormHierachyDisplay.resx">
+      <DependentUpon>FormHierachyDisplay.cs</DependentUpon>
       <SubType>Designer</SubType>
     </None>
     <None Include="FormKeyFile.resx">

@@ -164,7 +164,7 @@ namespace CsvTools
             }
             catch (Exception ex)
             {
-              Debug.WriteLine(ex.InnerExceptionMessages());
+              Logger.Warning(ex, "Processing Unique Sorting {exception}", ex.InnerExceptionMessages());
             }
           });
         }

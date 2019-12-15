@@ -57,7 +57,8 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        _MessageBox.Show(this, ex.ExceptionMessages(), "Error", timeout: 30);
+        this.ShowError(ex);
+        
       }
     }
 
@@ -70,15 +71,15 @@ namespace CsvTools
         if (!string.IsNullOrEmpty(newFileName))
           ChangeFileName(newFileName);
       }
-      catch (Exception exc)
+      catch (Exception ex)
       {
-        MessageBox.Show(this, exc.ExceptionMessages(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        this.ShowError(ex);
       }
     }
 
     private void BtnPassp_Click(object sender, EventArgs e)
     {
-      using (var inp = new FormPassphrase("Default Encryption Passphrase"))
+      using (var inp = new FormPassphrase("Default Encryption Pass-phrase"))
       {
         if (inp.ShowDialog(this) == DialogResult.OK)
           m_ViewSettings.PGPInformation.EncryptedPassphase = inp.EncryptedPassphrase;
@@ -186,7 +187,7 @@ namespace CsvTools
           }
           catch (Exception exc)
           {
-            _MessageBox.Show(this, exc.ExceptionMessages(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            this.ShowError(exc);
           }
         }
 

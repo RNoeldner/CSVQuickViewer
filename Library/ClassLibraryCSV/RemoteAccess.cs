@@ -19,20 +19,6 @@ using System.Xml.Serialization;
 namespace CsvTools
 {
   [Serializable]
-  public enum AccessProtocol
-  {
-    /// <summary>
-    /// File System Copy
-    /// </summary>
-    Local = -1,
-
-    /// <summary>
-    /// sFTP Access
-    /// </summary>
-    Sftp = 0
-  }
-
-  [Serializable]
 #pragma warning disable CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
   public class RemoteAccess : INotifyPropertyChanged, ICloneable<RemoteAccess>, IEquatable<RemoteAccess>
 #pragma warning restore CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()

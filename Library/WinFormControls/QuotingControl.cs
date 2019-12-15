@@ -32,7 +32,7 @@ namespace CsvTools
 
     private CheckBox checkBoxAlternateQuoting;
     private ComboBox comboBoxTrim;
-    private CsvFile m_CsvFile;
+    private ICsvFile m_CsvFile;
     private ErrorProvider m_ErrorProvider;
     private BindingSource m_FileFormatBindingSource;
     private BindingSource m_FileSettingBindingSource;
@@ -87,7 +87,7 @@ namespace CsvTools
     [EditorBrowsable(EditorBrowsableState.Never)]
     [Bindable(false)]
     [Browsable(false)]
-    public CsvFile CsvFile
+    public ICsvFile CsvFile
     {
       get => m_CsvFile;
 

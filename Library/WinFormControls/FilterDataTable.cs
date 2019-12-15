@@ -21,17 +21,6 @@ using System.Threading.Tasks;
 
 namespace CsvTools
 {
-  [Flags]
-  public enum FilterType
-  {
-    ShowIssueFree = 1,
-    ShowWarning = 2,
-    ShowErrors = 4,
-    ErrorsAndWarning = 2 + 4,
-    All = 1 + 2 + 4,
-    OnlyTrueErrors = 8
-  }
-
   /// <summary>
   ///   Utility Class to filter a DataTable for Errors
   /// </summary>
