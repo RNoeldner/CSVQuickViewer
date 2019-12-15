@@ -169,7 +169,6 @@
       labelDateSep.Size = new System.Drawing.Size(123, 20);
       labelDateSep.TabIndex = 0;
       labelDateSep.Text = "Date Separator:";
-      labelDateSep.Click += new System.EventHandler(this.labelDateSep_Click);
       // 
       // labelGroup
       // 
@@ -308,7 +307,6 @@
       label4.Size = new System.Drawing.Size(54, 20);
       label4.TabIndex = 11;
       label4.Text = "Value:";
-      label4.Click += new System.EventHandler(this.label4_Click);
       // 
       // tableLayoutPanel2
       // 
@@ -482,7 +480,6 @@
       this.label5.Size = new System.Drawing.Size(208, 20);
       this.label5.TabIndex = 11;
       this.label5.Text = "7th April 2013  15:45:50 345";
-      this.label5.Click += new System.EventHandler(this.label4_Click);
       // 
       // labelSampleDisplay
       // 
@@ -518,7 +515,6 @@
       this.label6.Size = new System.Drawing.Size(248, 20);
       this.label6.TabIndex = 11;
       this.label6.Text = "Note: Constants in Quotes: \"UTC\"";
-      this.label6.Click += new System.EventHandler(this.label4_Click);
       // 
       // labelInputTZ
       // 
@@ -1003,7 +999,7 @@
       this.buttonOK.TabIndex = 3;
       this.buttonOK.Text = "&Ok";
       this.buttonOK.UseVisualStyleBackColor = true;
-      this.buttonOK.Click += new System.EventHandler(this.ButtonOKClick);
+      this.buttonOK.Click += new System.EventHandler(this.ButtonOkClick);
       // 
       // FormColumnUI
       // 

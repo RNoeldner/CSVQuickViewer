@@ -256,7 +256,11 @@ namespace CsvTools
     /// </summary>
     public FillGuessSettings FillGuessSettings
     {
-      set => m_FillGuessSettings = value;
+      set
+      {
+        m_FillGuessSettings = value;
+        m_FilteredDataGridView.FillGuessSettings = m_FillGuessSettings;
+      } 
     }
 
     public int FrozenColumns
@@ -737,11 +741,9 @@ namespace CsvTools
         return;
       foreach (DataGridViewColumn dgcol in m_FilteredDataGridView.Columns)
       {
-        if (dgcol.Visible && m_FilterDataTable.ColumnsWithoutErrors.Contains(dgcol.DataPropertyName))
-        {
-          dgcol.Visible = false;
-          m_SearchCellsDirty = true;
-        }
+        if (!dgcol.Visible || !m_FilterDataTable.ColumnsWithoutErrors.Contains(dgcol.DataPropertyName)) continue;
+        dgcol.Visible = false;
+        m_SearchCellsDirty = true;
       }
     }
 
@@ -754,9 +756,9 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Filters the rows and hides columns that do not have errors
+    /// Filters the rows and hides columns that do not have errors
     /// </summary>
-    /// <param name="onlyErrors">if set to <c>true</c> only rows with errors and columns with errors are shown.</param>
+    /// <param name="type">The type.</param>
     private void FilterRowsAndColumns(FilterType type)
     {
       // Cancel the current search
@@ -862,22 +864,15 @@ namespace CsvTools
         //                select new KeyValuePair<string, DataGridViewCell>(c.FormattedValue.ToString(), c);
 
         m_SearchCells.Clear();
-        var visible = new List<DataGridViewColumn>();
-        foreach (DataGridViewColumn col in m_FilteredDataGridView.Columns)
-        {
-          if (col.Visible && !string.IsNullOrEmpty(col.DataPropertyName))
-            visible.Add(col);
-        }
+        var visible = m_FilteredDataGridView.Columns.Cast<DataGridViewColumn>().Where(col => col.Visible && !string.IsNullOrEmpty(col.DataPropertyName)).ToList();
 
         foreach (DataGridViewRow row in m_FilteredDataGridView.Rows)
         {
           if (!row.Visible)
             continue;
-          foreach (var col in visible)
+          foreach (var cell in visible.Select(col => row.Cells[col.Index]).Where(cell => !string.IsNullOrEmpty(cell.FormattedValue?.ToString())))
           {
-            var cell = row.Cells[col.Index];
-            if (!string.IsNullOrEmpty(cell.FormattedValue?.ToString()))
-              m_SearchCells.Add(new KeyValuePair<string, DataGridViewCell>(cell.FormattedValue.ToString(), cell));
+            m_SearchCells.Add(new KeyValuePair<string, DataGridViewCell>(cell.FormattedValue.ToString(), cell));
           }
         }
 
@@ -990,12 +985,12 @@ namespace CsvTools
       {
         var split = FileSystemUtils.SplitPath(settingPhysicalFile.FullPath);
 
-        var FileName = WindowsAPICodePackWrapper.Save(split.DirectoryName, "Delimited File", "Text file (*.txt)|*.txt|Comma delimited (*.csv)|*.csv|Tab delimited (*.tab;*.tsv)|*.tab;*.tsv|All files (*.*)|*.*", split.Extension, split.FileName);
-        if (string.IsNullOrEmpty(FileName))
+        var fileName = WindowsAPICodePackWrapper.Save(split.DirectoryName, "Delimited File", "Text file (*.txt)|*.txt|Comma delimited (*.csv)|*.csv|Tab delimited (*.tab;*.tsv)|*.tab;*.tsv|All files (*.*)|*.*", split.Extension, split.FileName);
+        if (string.IsNullOrEmpty(fileName))
           return;
 
         var writeFile = m_FileSetting.Clone() as IFileSettingPhysicalFile;
-        writeFile.FileName = FileName;
+        writeFile.FileName = fileName;
 
         using (var processDisplay = writeFile.GetProcessDisplay(ParentForm, true, m_CancellationTokenSource.Token))
         {

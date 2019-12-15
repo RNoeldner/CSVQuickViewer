@@ -131,7 +131,7 @@ namespace CsvTools
     ///     cref="DataError" />
     ///   event or the handler has set the
     ///   <see
-    ///     cref="ThrowException" />
+    ///     cref="Exception" />
     ///   property to
     ///   true. The exception object can typically be cast to type <see cref="FormatException" />.
     /// </exception>
@@ -167,7 +167,7 @@ namespace CsvTools
     ///     cref="DataError" />
     ///   event or the handler has set the
     ///   <see
-    ///     cref="ThrowException" />
+    ///     cref="Exception" />
     ///   property to
     ///   true. The exception object can typically be cast to type <see cref="FormatException" />.
     /// </exception>
@@ -313,15 +313,7 @@ namespace CsvTools
       var hasChanges = false;
       foreach (DataGridViewColumn col in Columns)
       {
-        var hasData = false;
-        foreach (DataRowView dataRow in DataView)
-        {
-          if (dataRow[col.DataPropertyName] != DBNull.Value)
-          {
-            hasData = true;
-            break;
-          }
-        }
+        var hasData = DataView.Cast<DataRowView>().Any(dataRow => dataRow[col.DataPropertyName] != DBNull.Value);
 
         if (!(col.Visible = hasData))
           continue;
@@ -415,8 +407,7 @@ namespace CsvTools
       if (disposing)
       {
         CloseFilter();
-        if (components != null)
-          components.Dispose();
+        components?.Dispose();
 
         m_CancellationTokenSource.Dispose();
       }
@@ -443,9 +434,9 @@ namespace CsvTools
         return widthInt;
       if (col.DataType == typeof(decimal))
         return widthDec;
-      else if (col.DataType == typeof(DateTime))
+      if (col.DataType == typeof(DateTime))
         return widthDate;
-      else if (col.DataType == typeof(string))
+      if (col.DataType == typeof(string))
       {
         var remain = 30;
         foreach (DataRow dataRow in rowCollection)
@@ -478,13 +469,10 @@ namespace CsvTools
         m_RowHeight = row.Height;
 
       // in case the row is not bigger than normal check if it would need to be higher
-      if (row.Height == m_RowHeight)
+      if (row.Height != m_RowHeight) return m_RowHeight;
+      if (checkedColumns.Any(column => row.Cells[column.Index].Value != null && row.Cells[column.Index].Value.ToString().IndexOf('\n') != -1))
       {
-        foreach (var column in checkedColumns)
-        {
-          if (row.Cells[column.Index].Value != null && row.Cells[column.Index].Value.ToString().IndexOf('\n') != -1)
-            return m_RowHeight * 2;
-        }
+        return m_RowHeight * 2;
       }
 
       return m_RowHeight;
@@ -508,11 +496,9 @@ namespace CsvTools
     {
       for (var i = 0; i < m_Filter.Count; i++)
       {
-        if (m_Filter[i] != null)
-        {
-          m_Filter[i].Dispose();
-          m_Filter[i] = null;
-        }
+        if (m_Filter[i] == null) continue;
+        m_Filter[i].Dispose();
+        m_Filter[i] = null;
       }
     }
 
@@ -1055,7 +1041,7 @@ namespace CsvTools
         CultureInfo.CurrentCulture.ClearCachedData();
     }
 
-    private void TimerColumsFilter_Tick(object sender, EventArgs e)
+    private void TimerColumnsFilter_Tick(object sender, EventArgs e)
     {
       var changes = false;
       timerColumsFilter.Stop();
@@ -1084,6 +1070,7 @@ namespace CsvTools
         {
           var itemName = toolStripMenuItemColumnVisibility.CheckedListBoxControl.Items[index].ToString();
           var dataGridViewColumn = Columns[itemName];
+          Debug.Assert(dataGridViewColumn != null, nameof(dataGridViewColumn) + " != null");
           if (dataGridViewColumn.Visible)
             continue;
           dataGridViewColumn.Visible = true;
@@ -1174,10 +1161,9 @@ namespace CsvTools
     {
       try
       {
-        foreach (var toolStripFilter in m_Filter)
+        foreach (var toolStripFilter in m_Filter.Where(toolStripFilter => toolStripFilter != null && toolStripFilter.ColumnFilterLogic.Active))
         {
-          if (toolStripFilter != null && toolStripFilter.ColumnFilterLogic.Active)
-            toolStripFilter.ColumnFilterLogic.Active = false;
+          toolStripFilter.ColumnFilterLogic.Active = false;
         }
 
         ApplyFilters();
@@ -1238,15 +1224,7 @@ namespace CsvTools
       // move to front
       if (!Columns[m_MenuItemColumnIndex].Frozen)
       {
-        var colFirstNoFrozen = 0;
-        foreach (var col in Columns.OfType<DataGridViewColumn>().OrderBy(x => x.DisplayIndex))
-        {
-          if (!col.Frozen)
-          {
-            colFirstNoFrozen = col.DisplayIndex;
-            break;
-          }
-        }
+        var colFirstNoFrozen = (from col in Columns.OfType<DataGridViewColumn>().OrderBy(x => x.DisplayIndex) where !col.Frozen select col.DisplayIndex).FirstOrDefault();
         Columns[m_MenuItemColumnIndex].DisplayIndex = colFirstNoFrozen;
       }
 

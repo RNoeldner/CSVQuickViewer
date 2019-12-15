@@ -311,7 +311,7 @@ namespace CsvTools
       // timerColumsFilter
       // 
       this.timerColumsFilter.Interval = 500;
-      this.timerColumsFilter.Tick += new System.EventHandler(this.TimerColumsFilter_Tick);
+      this.timerColumsFilter.Tick += new System.EventHandler(this.TimerColumnsFilter_Tick);
       // 
       // FilteredDataGridView
       // 
