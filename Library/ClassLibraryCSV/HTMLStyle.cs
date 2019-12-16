@@ -48,39 +48,39 @@ namespace CsvTools
         return;
       }
 
-      var errorsAndWarings = errorText.GetErrorsAndWarings();
+      var errorsAndWarnings = errorText.GetErrorsAndWarings();
       if (string.IsNullOrEmpty(regularText))
       {
-        if (errorsAndWarings.Item2.Length == 0 && errorsAndWarings.Item1.Length > 0)
+        if (errorsAndWarnings.Item2.Length == 0 && errorsAndWarnings.Item1.Length > 0)
         {
-          sbHtml.Append(string.Format(CultureInfo.CurrentCulture, tdTemplate, AddTd(c_Error, errorsAndWarings.Item1)));
+          sbHtml.Append(string.Format(CultureInfo.CurrentCulture, tdTemplate, AddTd(c_Error, errorsAndWarnings.Item1)));
           return;
         }
 
-        if (errorsAndWarings.Item2.Length > 0 && errorsAndWarings.Item1.Length == 0)
+        if (errorsAndWarnings.Item2.Length > 0 && errorsAndWarnings.Item1.Length == 0)
         {
-          sbHtml.Append(string.Format(CultureInfo.CurrentCulture, tdTemplate, AddTd(c_Warning, errorsAndWarings.Item2)));
+          sbHtml.Append(string.Format(CultureInfo.CurrentCulture, tdTemplate, AddTd(c_Warning, errorsAndWarnings.Item2)));
           return;
         }
 
-        sbHtml.Append(string.Format(CultureInfo.CurrentCulture, tdTemplate, AddTd(c_ErrorWarning, errorsAndWarings.Item1, errorsAndWarings.Item2)));
+        sbHtml.Append(string.Format(CultureInfo.CurrentCulture, tdTemplate, AddTd(c_ErrorWarning, errorsAndWarnings.Item1, errorsAndWarnings.Item2)));
       }
       else
       {
-        if (errorsAndWarings.Item2.Length == 0 && errorsAndWarings.Item1.Length > 0)
+        if (errorsAndWarnings.Item2.Length == 0 && errorsAndWarnings.Item1.Length > 0)
         {
-          sbHtml.Append(string.Format(CultureInfo.CurrentCulture, tdTemplate, AddTd(c_ValueError, regularText, errorsAndWarings.Item1)));
+          sbHtml.Append(string.Format(CultureInfo.CurrentCulture, tdTemplate, AddTd(c_ValueError, regularText, errorsAndWarnings.Item1)));
           return;
         }
 
-        if (errorsAndWarings.Item2.Length > 0 && errorsAndWarings.Item1.Length == 0)
+        if (errorsAndWarnings.Item2.Length > 0 && errorsAndWarnings.Item1.Length == 0)
         {
-          sbHtml.Append(string.Format(CultureInfo.CurrentCulture, tdTemplate, AddTd(c_ValueWarning, regularText, errorsAndWarings.Item2)));
+          sbHtml.Append(string.Format(CultureInfo.CurrentCulture, tdTemplate, AddTd(c_ValueWarning, regularText, errorsAndWarnings.Item2)));
           return;
         }
 
         sbHtml.Append(string.Format(CultureInfo.CurrentCulture, tdTemplate,
-          AddTd(c_ValueErrorWarning, regularText, errorsAndWarings.Item1, errorsAndWarings.Item2)));
+          AddTd(c_ValueErrorWarning, regularText, errorsAndWarnings.Item1, errorsAndWarnings.Item2)));
       }
     }
 
@@ -300,9 +300,9 @@ namespace CsvTools
       Contract.Ensures(Contract.Result<string>() != null);
 
       // Minimal implementation of HTML clipboard format
-      const string source = "http://www.csvquickviewer.com/";
+      const string c_Source = "http://www.csvquickviewer.com/";
 
-      const string markerBlock =
+      const string c_MarkerBlock =
         "Version:1.0\r\n" +
         "StartHTML:{0,8}\r\n" +
         "EndHTML:{1,8}\r\n" +
@@ -313,7 +313,7 @@ namespace CsvTools
         "SourceURL:{4}\r\n" +
         "{5}";
 
-      var prefixLength = string.Format(CultureInfo.InvariantCulture, markerBlock, 0, 0, 0, 0, source, "").Length;
+      var prefixLength = string.Format(CultureInfo.InvariantCulture, c_MarkerBlock, 0, 0, 0, 0, c_Source, "").Length;
 
       var html = string.Format(CultureInfo.InvariantCulture,
         "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\"><HTML><HEAD>{1}</HEAD><BODY><!--StartFragment-->{0}<!--EndFragment--></BODY></HTML>",
@@ -321,8 +321,8 @@ namespace CsvTools
       var startFragment = prefixLength + html.IndexOf(fragment, StringComparison.Ordinal);
       var endFragment = startFragment + fragment.Length;
 
-      return string.Format(CultureInfo.InvariantCulture, markerBlock, prefixLength, prefixLength + html.Length,
-        startFragment, endFragment, source, html);
+      return string.Format(CultureInfo.InvariantCulture, c_MarkerBlock, prefixLength, prefixLength + html.Length,
+        startFragment, endFragment, c_Source, html);
     }
 
     public string TabTableToHTML(string text, bool firstLineHeader, bool addTable)

@@ -142,14 +142,14 @@ namespace CsvTools
       Contract.Requires(text != null);
       Contract.Ensures(Contract.Result<string>() != null);
       // Replace everything Unicode LINE SEPARATOR
-      const string placeholerStr = "\u2028";
-      const char placeholerChar = '\u2028';
-      text = text.Replace("\r\n", placeholerStr);
-      text = text.Replace("\n\r", placeholerStr);
-      text = text.Replace('\r', placeholerChar);
-      text = text.Replace('\n', placeholerChar);
+      const string c_PlaceholerStr = "\u2028";
+      const char c_PlaceholerChar = '\u2028';
+      text = text.Replace("\r\n", c_PlaceholerStr);
+      text = text.Replace("\n\r", c_PlaceholerStr);
+      text = text.Replace('\r', c_PlaceholerChar);
+      text = text.Replace('\n', c_PlaceholerChar);
       // now replace this with the desired replace (no matter if string or char)
-      return text.Replace(placeholerStr, replace);
+      return text.Replace(c_PlaceholerStr, replace);
     }
 
     /// <summary>
@@ -160,9 +160,9 @@ namespace CsvTools
     ///<example>JoinParts(new [] {"My","","Test")=> My, Test</example>
     /// <remarks>Any empty string will be ignored.</remarks>
     /// <returns>A string</returns>
-    public static string Join(this IEnumerable<string> parts, string joinWith = ", ")
+    public static string Join(this ICollection<string> parts, string joinWith = ", ")
     {
-      if (parts == null || parts.IsEmpty())
+      if (parts == null || parts.Count == 0)
         return string.Empty;
 
       var sb = new StringBuilder();
@@ -185,9 +185,9 @@ namespace CsvTools
     ///<example>JoinParts(new [] {"My","","Test")=> My, Test</example>
     /// <remarks>Any empty string will be ignored.</remarks>
     /// <returns>A string</returns>
-    public static string JoinChar(this IEnumerable<string> parts, char joinWith = ',')
+    public static string JoinChar(this ICollection<string> parts, char joinWith = ',')
     {
-      if (parts == null || parts.IsEmpty())
+      if (parts == null || parts.Count == 0)
         return string.Empty;
 
       var sb = new StringBuilder();
@@ -210,9 +210,9 @@ namespace CsvTools
     ///<example>JoinParts(new [] {"My","","Test")=> My, Test</example>
     /// <remarks>Any empty string will be ignored.</remarks>
     /// <returns>A string</returns>
-    public static string Join(this IEnumerable<int> parts, string joinWith = ", ")
+    public static string Join(this ICollection<int> parts, string joinWith = ", ")
     {
-      if (parts == null || parts.IsEmpty())
+      if (parts == null || parts.Count==0)
         return string.Empty;
 
       var sb = new StringBuilder();

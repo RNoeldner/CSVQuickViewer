@@ -13,6 +13,7 @@
  */
 
 using System.IO;
+using System.Linq;
 using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -263,18 +264,20 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GetEmptyColumnHeaderTest()
     {
-      var setting = new CsvFile();
-      setting.FileFormat.FieldDelimiter = ",";
-      setting.FileName = Path.Combine(m_ApplicationDirectory, "EmptyColumns.txt");
-      setting.HasFieldHeader = false;
+      var setting = new CsvFile
+      {
+        FileFormat = {FieldDelimiter = ","},
+        FileName = Path.Combine(m_ApplicationDirectory, "EmptyColumns.txt"),
+        HasFieldHeader = false
+      };
       using (var disp = new DummyProcessDisplay())
       {
-        Assert.IsTrue(CsvHelper.GetEmptyColumnHeader(setting, disp).IsEmpty());
+        Assert.IsTrue(CsvHelper.GetEmptyColumnHeader(setting, disp).Count ==0);
         setting.HasFieldHeader = true;
         var res = CsvHelper.GetEmptyColumnHeader(setting, disp);
 
-        Assert.IsFalse(res.IsEmpty());
-        Assert.AreEqual("ID", res[0]);
+        Assert.IsFalse(res.Count==0);
+        Assert.AreEqual("ID", res.First());
       }
     }
 

@@ -63,11 +63,15 @@ namespace CsvTools
     public virtual string ErrorMessage { get; protected internal set; }
 
     /// <summary>
-    ///  Gets the column information based on the SQL Source, but overwritten with the definitions
+    /// Gets the column information based on the SQL Source, but overwritten with the definitions
     /// </summary>
-    /// <param name="dataTable">The schema.</param>
-    /// <param name="readerFileSetting">The file format of the reader, can be null.</param>
+    /// <param name="reader">The reader.</param>
     /// <returns></returns>
+    /// <exception cref="ArgumentNullException">
+    /// reader
+    /// or
+    /// reader
+    /// </exception>
     public ICollection<ColumnInfo> GetSourceColumnInformation(IDataReader reader)
     {
       if (reader == null)

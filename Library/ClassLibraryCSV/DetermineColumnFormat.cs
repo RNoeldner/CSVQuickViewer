@@ -48,11 +48,15 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Fills the Column Format for reader fileSettings
+    /// Fills the Column Format for reader fileSettings
     /// </summary>
     /// <param name="fileSetting">The file setting to check, and fill</param>
     /// <param name="addTextColumns">if set to <c>true</c> event string columns are added.</param>
+    /// <param name="checkDoubleToBeInteger">if set to <c>true</c> [check double to be integer].</param>
+    /// <param name="fillGuessSettings">The fill guess settings.</param>
     /// <param name="processDisplay">The process display.</param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentNullException">processDisplay</exception>
     public static IList<string> FillGuessColumnFormatReader(this IFileSetting fileSetting, bool addTextColumns,
       bool checkDoubleToBeInteger, FillGuessSettings fillGuessSettings, IProcessDisplay processDisplay)
     {
@@ -135,7 +139,7 @@ namespace CsvTools
           var samples = sampleList[colindex];
 
           processDisplay.CancellationToken.ThrowIfCancellationRequested();
-          if (samples.Values.IsEmpty())
+          if (samples.Values.Count == 0)
           {
             processDisplay.SetProcess(newColumn.Name + " – No values found", colindex);
             if (!addTextColumns)
@@ -253,7 +257,7 @@ namespace CsvTools
 
               if (detect)
               {
-                SampleResult samples = null;
+                SampleResult samples;
                 if (sampleList.Keys.Contains(colindex + 1))
                 {
                   samples = sampleList[colindex + 1];
@@ -265,14 +269,12 @@ namespace CsvTools
                                             processDisplay.CancellationToken);
                 }
 
-                if (!samples.Values.IsEmpty())
+                if (samples.Values.Count > 0)
                 {
                   var checkResult = GuessNumeric(samples.Values, false, true, processDisplay.CancellationToken);
                   if (checkResult != null && checkResult.FoundValueFormat.DataType != DataType.Double)
                   {
-                    newColumn = fileSetting.ColumnCollection.Get(oldColumn.Name);
-                    if (newColumn == null)
-                      newColumn = fileSetting.ColumnCollection.AddIfNew(oldColumn);
+                    newColumn = fileSetting.ColumnCollection.Get(oldColumn.Name) ?? fileSetting.ColumnCollection.AddIfNew(oldColumn);
 
                     newColumn.DataType = checkResult.FoundValueFormat.DataType;
                   }
@@ -371,15 +373,8 @@ namespace CsvTools
               {
                 columnDate.TimePart = columnTime.Name;
                 {
-                  SampleResult samples = null;
-                  if (sampleList.Keys.Contains(colindex + 1))
-                  {
-                    samples = sampleList[colindex + 1];
-                  }
-                  else
-                  {
-                    samples = GetSampleValues(fileReader, 1, colindex + 1, 1, fileSetting.TreatTextAsNull, processDisplay.CancellationToken);
-                  }
+                  SampleResult samples;
+                  samples = sampleList.Keys.Contains(colindex + 1) ? sampleList[colindex + 1] : GetSampleValues(fileReader, 1, colindex + 1, 1, fileSetting.TreatTextAsNull, processDisplay.CancellationToken);
 
                   var first = samples.Values.FirstOrDefault();
                   if (first != null)
@@ -415,15 +410,7 @@ namespace CsvTools
 
               columnDate.TimePart = columnTime.Name;
               {
-                SampleResult samples = null;
-                if (sampleList.Keys.Contains(colindex - 1))
-                {
-                  samples = sampleList[colindex - 1];
-                }
-                else
-                {
-                  samples = GetSampleValues(fileReader, 1, colindex - 1, 1, fileSetting.TreatTextAsNull, processDisplay.CancellationToken);
-                }
+                var samples = sampleList.Keys.Contains(colindex - 1) ? sampleList[colindex - 1] : GetSampleValues(fileReader, 1, colindex - 1, 1, fileSetting.TreatTextAsNull, processDisplay.CancellationToken);
 
                 var first = samples.Values.FirstOrDefault();
                 if (first != null)
@@ -476,11 +463,16 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///  Fills the Column Format for writer fileSettings
+    /// Fills the Column Format for writer fileSettings
     /// </summary>
-    /// <param name="cancellationToken">The cancellation token.</param>
     /// <param name="fileSettings">The file settings.</param>
     /// <param name="all">if set to <c>true</c> event string columns are added.</param>
+    /// <param name="processDisplay">The process display.</param>
+    /// <exception cref="FileWriterException">
+    /// No SQL Statement given
+    /// or
+    /// No SQL Reader set
+    /// </exception>
     public static void FillGuessColumnFormatWriter(this IFileSetting fileSettings, bool all,
       IProcessDisplay processDisplay)
     {
@@ -513,6 +505,7 @@ namespace CsvTools
     /// Gets all possible formats based on the provided value
     /// </summary>
     /// <param name="value">The value.</param>
+    /// <param name="culture">The culture.</param>
     /// <returns></returns>
     public static IEnumerable<ValueFormat> GetAllPossibleFormats(string value, CultureInfo culture = null)
     {
@@ -522,16 +515,13 @@ namespace CsvTools
       // Standard Date Time formats
       foreach (var fmt in StringConversion.StandardDateTimeFormats.MatchingforLength(value.Length, true))
       {
-        foreach (var sep in StringConversion.DateSeparators)
+        foreach (var sep in StringConversion.DateSeparators.Where(sep => StringConversion.StringToDateTimeExact(value, fmt, sep, culture.DateTimeFormat.TimeSeparator, culture).HasValue))
         {
-          if (StringConversion.StringToDateTimeExact(value, fmt, sep, culture.DateTimeFormat.TimeSeparator, culture).HasValue)
+          yield return new ValueFormat(DataType.DateTime)
           {
-            yield return new ValueFormat(DataType.DateTime)
-            {
-              DateFormat = fmt,
-              DateSeparator = sep,
-            };
-          }
+            DateFormat = fmt,
+            DateSeparator = sep,
+          };
         }
       }
     }
@@ -597,14 +587,16 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Get sample values for several columns at once, ignoring rows with issues or warning in the columns, looping though all records in the reader
+    /// Get sample values for several columns at once, ignoring rows with issues or warning in the columns, looping though all records in the reader
     /// </summary>
     /// <param name="dataReader">A <see cref="IFileReader" /> data reader</param>
     /// <param name="maxRecords">The maximum records.</param>
     /// <param name="columns">A Dictionary listing the columns and the number of samples needed for each</param>
+    /// <param name="enoughSamples">The enough samples.</param>
     /// <param name="treatAsNull">Text that should be regarded as an empty column</param>
     /// <param name="cancellationToken">A cancellation token</param>
     /// <returns></returns>
+    /// <exception cref="ArgumentNullException">dataReader</exception>
     public static IDictionary<int, SampleResult> GetSampleValues(IFileReader dataReader, int maxRecords,
       IEnumerable<int> columns, int enoughSamples, string treatAsNull, CancellationToken cancellationToken)
     {
@@ -628,19 +620,17 @@ namespace CsvTools
           samples.Add(col, new HashSet<string>(StringComparer.OrdinalIgnoreCase));
         }
       }
-      EventHandler<WarningEventArgs> myEventHandler = delegate (object sender, WarningEventArgs args)
-      {
-        if (args.ColumnNumber == -1 || collectFor.Contains(args.ColumnNumber))
-        {
-          if (remainingShows-- > 0)
-            Logger.Debug("Row ignored in detection: " + args.Message);
-          if (remainingShows == 0)
-            Logger.Debug("No further warning shown");
 
-          hasWarning = true;
-        }
-      };
-      dataReader.Warning += myEventHandler;
+      void WarningEvent(object sender, WarningEventArgs args)
+      {
+        if (args.ColumnNumber != -1 && !collectFor.Contains(args.ColumnNumber)) return;
+        if (remainingShows-- > 0) Logger.Debug("Row ignored in detection: " + args.Message);
+        if (remainingShows == 0) Logger.Debug("No further warning shown");
+
+        hasWarning = true;
+      }
+
+      dataReader.Warning += WarningEvent;
 
       try
       {
@@ -723,7 +713,7 @@ namespace CsvTools
       finally
       {
         if (dataReader != null)
-          dataReader.Warning -= myEventHandler;
+          dataReader.Warning -= WarningEvent;
       }
 
       var result = new Dictionary<int, SampleResult>();
@@ -846,18 +836,17 @@ namespace CsvTools
       }
       finally
       {
-        if (dataReader != null)
-          dataReader.Warning -= myEventHandler;
+        dataReader.Warning -= myEventHandler;
       }
 
       return new SampleResult(samples, recordRead);
     }
 
     /// <summary>
-    ///   Gets the writer source columns.
+    /// Gets the writer source columns.
     /// </summary>
     /// <param name="fileSettings">The file settings.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <param name="processDisplay">The process display.</param>
     /// <returns></returns>
     public static ICollection<ColumnInfo> GetSourceColumnInformation(IFileSetting fileSettings,
       IProcessDisplay processDisplay)
@@ -868,30 +857,17 @@ namespace CsvTools
         return writer.GetSourceColumnInformation(data);
     }
 
-    public static CheckResult GuessDateTime(IEnumerable<string> samples, bool checkNamedDates,
+    public static CheckResult GuessDateTime(ICollection<string> samples, bool checkNamedDates,
       CancellationToken cancellationToken)
     {
-      if (samples == null || samples.IsEmpty())
+      if (samples == null || samples.Count == 0)
       {
         throw new ArgumentNullException(nameof(samples));
       }
 
       var checkResult = new CheckResult();
-      var possibleDateSeparators = new List<string>();
-      foreach (var sep in StringConversion.DateSeparators)
-      {
-        foreach (var entry in samples)
-        {
-          if (entry.IndexOf(sep) != -1)
-          {
-            possibleDateSeparators.Add(sep);
-            break;
-          }
-        }
-      }
-      long length = 0;
-      foreach (var entry in samples)
-        length += entry.Length;
+      var possibleDateSeparators = StringConversion.DateSeparators.Where(sep => samples.Any(entry => entry.IndexOf(sep, StringComparison.Ordinal) != -1)).ToList();
+      long length = samples.Aggregate<string, long>(0, (current, entry) => current + entry.Length);
       var commonLength = (int)(length / samples.Count());
 
       foreach (var fmt in StringConversion.StandardDateTimeFormats.MatchingforLength(commonLength, checkNamedDates))
@@ -1000,7 +976,7 @@ namespace CsvTools
     /// <param name="checkNamedDates">if set to <c>true</c> [check named dates].</param>
     /// <param name="othersValueFormatDate">The date format found in prior columns, assuming the data format is the same in other columns, we do not need that many samples</param>
     /// <returns><c>Null</c> if no format could be determined otherwise a <see cref="ValueFormat" /></returns>
-    public static CheckResult GuessValueFormat(IEnumerable<string> samples, int minRequiredSamples,
+    public static CheckResult GuessValueFormat(ICollection<string> samples, int minRequiredSamples,
       string trueValue, string falseValue, bool guessBoolean, bool guessGuid, bool guessNumeric, bool guessDateTime,
       bool guessPercentage, bool serialDateTime, bool checkNamedDates, ValueFormat othersValueFormatDate, CancellationToken cancellationToken)
     {

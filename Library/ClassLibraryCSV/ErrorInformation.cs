@@ -303,30 +303,30 @@ namespace CsvTools
     /// </summary>
     /// <param name="errorList">The error list.</param>
     /// <returns></returns>
-    private static string BuildList(IEnumerable<Tuple<string, string>> errorList)
+    private static string BuildList(ICollection<Tuple<string, string>> errorList)
     {
       Contract.Requires(errorList != null);
-      var sberrors = new StringBuilder();
+      var errors = new StringBuilder();
 
       // Errors first
       foreach (var part in errorList)
         if (!part.Item2.IsWarningMessage())
         {
-          if (sberrors.Length > 0)
-            sberrors.Append(cSeparator);
-          sberrors.Append(CombineColumnAndError(part.Item1, part.Item2));
+          if (errors.Length > 0)
+            errors.Append(cSeparator);
+          errors.Append(CombineColumnAndError(part.Item1, part.Item2));
         }
 
       // The warnings
       foreach (var part in errorList)
         if (part.Item2.IsWarningMessage())
         {
-          if (sberrors.Length > 0)
-            sberrors.Append(cSeparator);
-          sberrors.Append(CombineColumnAndError(part.Item1, part.Item2));
+          if (errors.Length > 0)
+            errors.Append(cSeparator);
+          errors.Append(CombineColumnAndError(part.Item1, part.Item2));
         }
 
-      return sberrors.ToString();
+      return errors.ToString();
     }
 
     /// <summary>
