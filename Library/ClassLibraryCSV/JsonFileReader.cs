@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using Newtonsoft.Json;
 
 namespace CsvTools
@@ -171,10 +170,15 @@ namespace CsvTools
       EndLineNumber = m_JsonTextReader.LineNumber;
       RecordNumber++;
 
-      var realHeaders = (from kv in headers where kv.Value select kv.Key).ToList();
+      var realHeaders = new List<string>();
+      foreach (var kv in headers)
+      {
+        if (kv.Value)
+          realHeaders.Add(kv.Key);
+      }
 
       // store the information into our fixed structure, even if the tokens in Json change order they will aligned
-      if (Column.Length == 0) return realHeaders;
+      if (Column!=null && Column.Length != 0)
       {
         var colNum = 0;
         foreach (var col in Column)
@@ -292,8 +296,7 @@ namespace CsvTools
         if (!str.CanSeek || m_TextReader == null)
         {
           m_JsonTextReader?.Close();
-          if (m_TextReader != null)
-            m_TextReader.Dispose();
+          m_TextReader?.Dispose();
           m_TextReader = new StreamReader(str);
         }
         else

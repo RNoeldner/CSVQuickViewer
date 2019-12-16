@@ -36,8 +36,8 @@ namespace CsvTools.Tests
                                                              prop.PropertyType == typeof(long) ||
                                                              prop.PropertyType == typeof(string) ||
                                                              prop.PropertyType == typeof(bool) ||
-                                                             prop.PropertyType == typeof(DateTime)));
-        if (properties.IsEmpty())
+                                                             prop.PropertyType == typeof(DateTime))).ToArray();
+        if (properties.Length == 0)
           continue;
         // Set some properties that should not match the default
         foreach (var prop in properties)

@@ -191,17 +191,18 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Gets the encrypted passphrase of a setting, if needed it will open a windows form
+    /// Gets the encrypted passphrase open form.
     /// </summary>
     /// <param name="setting">The setting.</param>
     /// <returns></returns>
+    /// <exception cref="EncryptionException">
     /// The private key for decryption has not been setup
     /// or
     /// A passphrase is needed for decryption.
     /// </exception>
     public static string GetEncryptedPassphraseOpenForm(this IFileSetting setting)
     {
-      if (ApplicationSetting.PGPKeyStorage?.PrivateKeys?.IsEmpty() ?? true)
+      if (ApplicationSetting.PGPKeyStorage?.PrivateKeys?.Length == 0)
         throw new EncryptionException("The private key for decryption has not been setup");
 
       if (!string.IsNullOrEmpty(setting?.Passphrase))
@@ -221,14 +222,15 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets the process display.
+    /// Gets the process display.
     /// </summary>
     /// <param name="fileSetting">The setting.</param>
+    /// <param name="owner">The owner form, in case the owner is minimized or closed this progress will do the same</param>
+    /// <param name="withLogger">if set to <c>true</c> [with logger].</param>
     /// <param name="cancellationToken">A Cancellation token</param>
-    /// <param name="owner">
-    ///   The owner form, in case the owner is minimized or closed this progress will do the same
-    /// </param>
-    /// <returns>A process display, if the stetting want a process</returns>
+    /// <returns>
+    /// A process display, if the stetting want a process
+    /// </returns>
     public static IProcessDisplay GetProcessDisplay(this IFileSetting fileSetting, Form owner, bool withLogger, CancellationToken cancellationToken)
     {
       if (!fileSetting.ShowProgress)
