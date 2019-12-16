@@ -41,8 +41,8 @@ namespace CsvTools
 
     private readonly List<string> m_EncryptedPrivateKeyRingBundle = new List<string>();
     private readonly List<string> m_EncryptedPublicKeyRingBundle = new List<string>();
-    private bool m_AllowSavingPassphrase = false;
-    private string m_EncryptedPassphase = string.Empty;
+    private bool m_AllowSavingPassphrase;
+    private string m_EncryptedPassphrase = string.Empty;
     private IDictionary<string, PgpPublicKey> m_Recipients;
 
     [XmlIgnore]
@@ -95,21 +95,21 @@ namespace CsvTools
       get
       {
         Contract.Ensures(Contract.Result<string>() != null);
-        return m_EncryptedPassphase;
+        return m_EncryptedPassphrase;
       }
       set
       {
-        Contract.Ensures(m_EncryptedPassphase != null);
+        Contract.Ensures(m_EncryptedPassphrase != null);
         var newVal = value ?? string.Empty;
-        if (m_EncryptedPassphase.Equals(newVal, StringComparison.Ordinal))
+        if (m_EncryptedPassphrase.Equals(newVal, StringComparison.Ordinal))
           return;
-        m_EncryptedPassphase = newVal;
+        m_EncryptedPassphrase = newVal;
         NotifyPropertyChanged(nameof(EncryptedPassphase));
       }
     }
 
     [XmlIgnore]
-    public virtual bool EncryptedPassphaseSpecified => m_AllowSavingPassphrase && m_EncryptedPassphase.Length > 0;
+    public virtual bool EncryptedPassphaseSpecified => m_AllowSavingPassphrase && m_EncryptedPassphrase.Length > 0;
 
     [XmlElement]
     [DefaultValue(false)]
@@ -387,7 +387,7 @@ namespace CsvTools
       // able to read later on from the input stream
       var decoderStream = PgpUtilities.GetDecoderStream(inputFile);
 
-      var encryptedDataList = (PgpEncryptedDataList)new PgpObjectFactory(decoderStream)?.NextPgpObject();
+      var encryptedDataList = (PgpEncryptedDataList)new PgpObjectFactory(decoderStream).NextPgpObject();
 
       var pgpObject = new PgpObjectFactory(GetDecyptedDataStream(encryptedDataList, passphrase)).NextPgpObject();
       if (pgpObject is PgpCompressedData data)
@@ -411,10 +411,10 @@ namespace CsvTools
     {
       using (var decoderStream = PgpUtilities.GetDecoderStream(inputFile))
       {
-        var encryptedDataList = (PgpEncryptedDataList)new PgpObjectFactory(decoderStream)?.NextPgpObject();
+        var encryptedDataList = (PgpEncryptedDataList)new PgpObjectFactory(decoderStream).NextPgpObject();
         var encryptedData = encryptedDataList.GetEncryptedDataObjects().Cast<PgpPublicKeyEncryptedData>().FirstOrDefault();
 
-        var knownRecipient = GetRecipients()?.Values.Where(x => x.KeyId == encryptedData.KeyId).First();
+        var knownRecipient = (GetRecipients()?.Values).First(x => x.KeyId == encryptedData.KeyId);
         if (knownRecipient != null)
           foreach (var userID in knownRecipient.GetUserIds())
             return userID.ToString();
@@ -556,7 +556,7 @@ namespace CsvTools
         var hashCode = m_EncryptedPrivateKeyRingBundle != null ? m_EncryptedPrivateKeyRingBundle.GetHashCode() : 0;
         hashCode = (hashCode * 397) ^ (m_EncryptedPublicKeyRingBundle != null ? m_EncryptedPublicKeyRingBundle.GetHashCode() : 0);
         hashCode = (hashCode * 397) ^ m_AllowSavingPassphrase.GetHashCode();
-        hashCode = (hashCode * 397) ^ (m_EncryptedPassphase != null ? m_EncryptedPassphase.GetHashCode() : 0);
+        hashCode = (hashCode * 397) ^ (m_EncryptedPassphrase != null ? m_EncryptedPassphrase.GetHashCode() : 0);
         hashCode = (hashCode * 397) ^ (m_Recipients != null ? m_Recipients.GetHashCode() : 0);
         return hashCode;
       }

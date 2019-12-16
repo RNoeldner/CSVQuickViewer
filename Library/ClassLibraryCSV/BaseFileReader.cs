@@ -182,11 +182,6 @@ namespace CsvTools
     /// </summary>
     public virtual long StartLineNumber { get; protected set; }
 
-    /// <summary>
-    ///  Gets the start name of the line number field.
-    /// </summary>
-    /// <value>The start name of the line number field.</value>
-    public virtual string StartLineNumberFieldName => cStartLineNumberFieldName;
 
     /// <summary>
     ///  A process display to stop long running processes
@@ -636,10 +631,7 @@ namespace CsvTools
             break;
 
           case DataType.Integer:
-            if (IntPtr.Size == 4)
-              ret = GetInt32(columnNumber);
-            else
-              ret = GetInt64(columnNumber);
+            ret = IntPtr.Size == 4 ? GetInt32(columnNumber) : GetInt64(columnNumber);
             break;
 
           case DataType.Double:
@@ -1390,7 +1382,7 @@ namespace CsvTools
 
       try
       {
-        return TimeZoneMapping.ConvertTime(input.Value, timeZone, ApplicationSetting.DestinationTimeZone);
+        return input.Value.ConvertTime(timeZone, ApplicationSetting.DestinationTimeZone);
       }
       catch (ConversionException ex)
       {

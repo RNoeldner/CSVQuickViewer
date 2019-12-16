@@ -13,7 +13,7 @@ namespace CsvTools
   {
     public static Action<string, Level> AddLog;
 
-    private static readonly NLog.Logger m_Logger = NLog.LogManager.GetCurrentClassLogger();
+    private static readonly NLog.Logger m_Logger = LogManager.GetCurrentClassLogger();
 
     public enum Level
     {
@@ -39,26 +39,31 @@ namespace CsvTools
 
         if (!string.IsNullOrEmpty(fileNameJson))
         {
-          var logfileRoot = new NLog.Targets.FileTarget("jsonFile") { FileName = fileNameJson };
-          logfileRoot.Layout = new JsonLayout
+          var logfileRoot = new NLog.Targets.FileTarget("jsonFile")
           {
-            Attributes =
-          {
-            new JsonAttribute("time", "${longdate}"),
-            new JsonAttribute("type", "${exception:format=Type}"),
-            new JsonAttribute("message", "${message}"),
-             new JsonAttribute("properties", "${all-event-properties}"),
-            new JsonAttribute("innerException", new JsonLayout
+            FileName = fileNameJson,
+            Layout = new JsonLayout
+            {
+              Attributes =
               {
-                  Attributes =
+                new JsonAttribute("time", "${longdate}"),
+                new JsonAttribute("type", "${exception:format=Type}"),
+                new JsonAttribute("message", "${message}"),
+                new JsonAttribute("properties", "${all-event-properties}"),
+                new JsonAttribute("innerException", new JsonLayout
                   {
-                      new JsonAttribute("type", "${exception:format=:innerFormat=Type:MaxInnerExceptionLevel=2:InnerExceptionSeparator=}"),
-                      new JsonAttribute("message", "${exception:format=:innerFormat=Message:MaxInnerExceptionLevel=2:InnerExceptionSeparator=}"),
+                    Attributes =
+                    {
+                      new JsonAttribute("type",
+                        "${exception:format=:innerFormat=Type:MaxInnerExceptionLevel=2:InnerExceptionSeparator=}"),
+                      new JsonAttribute("message",
+                        "${exception:format=:innerFormat=Message:MaxInnerExceptionLevel=2:InnerExceptionSeparator=}"),
+                    },
+                    RenderEmptyObject = false
                   },
-                 RenderEmptyObject = false
-              },
-             true),
-          }
+                  true),
+              }
+            }
           };
           config.AddRule(minLevel, LogLevel.Fatal, logfileRoot);
         }
@@ -78,7 +83,7 @@ namespace CsvTools
       }
 
       // Apply configuration
-      NLog.LogManager.Configuration = config;
+      LogManager.Configuration = config;
       Debug("Logging started");
     }
 

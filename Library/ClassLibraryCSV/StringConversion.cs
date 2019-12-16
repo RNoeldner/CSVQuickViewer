@@ -18,7 +18,6 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics.Contracts;
 using System.Globalization;
-using System.Linq;
 
 namespace CsvTools
 {
@@ -386,9 +385,8 @@ namespace CsvTools
         {
           dateValue = time;
         }
-        else if (serialDateTime && dateColumn is double)
+        else if (serialDateTime && dateColumn is double oaDate)
         {
-          var oaDate = (double)dateColumn;
           if (oaDate > -657435.0 && oaDate < 2958466.0)
             dateValue = m_FirstDateTime.AddDays(oaDate);
         }
@@ -418,9 +416,9 @@ namespace CsvTools
         {
           timeSpanValue = new TimeSpan(0, timeValue.Hour, timeValue.Minute, timeValue.Second, timeValue.Millisecond);
         }
-        else if (timeColumn is TimeSpan)
+        else if (timeColumn is TimeSpan span)
         {
-          timeSpanValue = (TimeSpan)timeColumn;
+          timeSpanValue = span;
         }
       }
 
@@ -644,7 +642,7 @@ namespace CsvTools
       Contract.Ensures(Contract.Result<string>() != null);
 
       if (length < 1024L)
-        return string.Format("{0:N0} Bytes", length);
+        return $"{length:N0} Bytes";
 
       double dblScaledValue;
       string strUnits;
@@ -669,7 +667,7 @@ namespace CsvTools
         dblScaledValue = length / (1024D * 1024D * 1024D * 1024D);
         strUnits = "TB"; // strict speaking its TiB
       }
-      return string.Format("{0:N2} {1}", dblScaledValue, strUnits);
+      return $"{dblScaledValue:N2} {strUnits}";
     }
 
     /// <summary>
@@ -767,22 +765,39 @@ namespace CsvTools
       if (string.IsNullOrEmpty(value))
         return null;
 
-      if (StringUtils.SplitByDelimiter(trueValue).Any(test => value.Equals(test, StringComparison.OrdinalIgnoreCase)))
+      foreach (var test in StringUtils.SplitByDelimiter(trueValue))
       {
-        return new Tuple<bool, string>(true, value);
+        if (value.Equals(test, StringComparison.OrdinalIgnoreCase))
+        {
+          return new Tuple<bool, string>(true, value);
+        }
       }
 
-      if (StringUtils.SplitByDelimiter(falseValue).Any(test => value.Equals(test, StringComparison.OrdinalIgnoreCase)))
+      foreach (var test in StringUtils.SplitByDelimiter(falseValue))
       {
-        return new Tuple<bool, string>(false, value);
+        if (value.Equals(test, StringComparison.OrdinalIgnoreCase))
+        {
+          return new Tuple<bool, string>(false, value);
+        }
       }
 
-      if (m_TrueValues.Any(t => value.Equals(t, StringComparison.OrdinalIgnoreCase)))
+      foreach (var test in m_TrueValues)
       {
-        return new Tuple<bool, string>(true, value);
+        if (value.Equals(test, StringComparison.OrdinalIgnoreCase))
+        {
+          return new Tuple<bool, string>(true, value);
+        }
       }
 
-      return m_FalseValues.Any(t => value.Equals(t, StringComparison.OrdinalIgnoreCase)) ? new Tuple<bool, string>(false, value) : null;
+      foreach (var test in m_FalseValues)
+      {
+        if (value.Equals(test, StringComparison.OrdinalIgnoreCase))
+        {
+          return new Tuple<bool, string>(false, value);
+        }
+      }
+
+      return null;
     }
 
     /// <summary>

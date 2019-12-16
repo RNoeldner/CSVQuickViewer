@@ -19,7 +19,7 @@ using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics.Contracts;
 using System.Globalization;
-using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -125,7 +125,17 @@ namespace CsvTools
       {
         var found = false;
         if (ot == null)
-          found = self.Any(x => x == null);
+        {
+          found = false;
+          foreach (var x in self)
+          {
+            if (x == null)
+            {
+              found = true;
+              break;
+            }
+          }
+        }
         else
         {
           foreach (var th in self)
@@ -201,13 +211,13 @@ namespace CsvTools
 #endif
 
     /// <summary>
-    ///   Writes the current record into a data table.
+    /// Copies the row to table.
     /// </summary>
     /// <param name="reader">The reader.</param>
     /// <param name="dataTable">The data table.</param>
-    /// <param name="columnWarningsReader">A column warnings <list type="that is attached to the reader"</param>
-    /// <param name="dataTableInfo">Information on special and the mappings</param>
-    /// <param name="handleColumnIssues">Action to be called in case there are issues reported though the reader or by copying values</param>
+    /// <param name="columnWarningsReader">The column warnings reader.</param>
+    /// <param name="dataTableInfo">The data table information.</param>
+    /// <param name="handleColumnIssues">The handle column issues.</param>
     public static void CopyRowToTable(this IFileReader reader, DataTable dataTable, ColumnErrorDictionary columnWarningsReader,
       CopyToDataTableInfo dataTableInfo, Action<ColumnErrorDictionary, DataRow> handleColumnIssues)
     {
@@ -412,25 +422,25 @@ namespace CsvTools
            x == UnicodeCategory.ConnectorPunctuation || x == UnicodeCategory.DashPunctuation || x == UnicodeCategory.OtherPunctuation ||
            x == UnicodeCategory.DecimalDigitNumber);
 
-      const string TimeSep = @"(:|-|_)?";
-      const string DateSep = @"(\/|\.|-|_)?";
+      const string c_TimeSep = @"(:|-|_)?";
+      const string c_DateSep = @"(\/|\.|-|_)?";
 
-      const string HH = @"(2[0-3]|((0|1)\d))";    // 00-09 10-19 20-23
-      const string MinSec = @"([0-5][0-9])";      // 00-59
-      const string AmPm = @"((_| )?(AM|PM))?";
+      const string c_Hour = @"(2[0-3]|((0|1)\d))";    // 00-09 10-19 20-23
+      const string c_MinSec = @"([0-5][0-9])";      // 00-59
+      const string c_AmPm = @"((_| )?(AM|PM))?";
 
-      const string YYYY = @"((19\d{2})|(2\d{3}))"; // 1900 - 2999
-      const string MM = @"(0[1-9]|1[012])";  // 01-12
-      const string DD = @"(0[1-9]|[12]\d|3[01])"; // 01 - 31
+      const string c_Year = @"((19\d{2})|(2\d{3}))"; // 1900 - 2999
+      const string c_Month = @"(0[1-9]|1[012])";  // 01-12
+      const string c_Day = @"(0[1-9]|[12]\d|3[01])"; // 01 - 31
 
       // Replace Dates YYYYMMDDHHMMSS
       // fileName = Regex.Replace(fileName, S + YYYY + S + MM + S + DD + T + "?" + HH + T + MS + T + "?" + MS + "?" + TT, string.Empty, RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.CultureInvariant);
 
       // Replace Dates YYYYMMDD / MMDDYYYY / DDMMYYYY
-      fileName = Regex.Replace(fileName, "(" + DateSep + YYYY + DateSep + MM + DateSep + DD + ")|(" + DateSep + MM + DateSep + DD + DateSep + YYYY + ")|(" + DateSep + DD + DateSep + MM + DateSep + YYYY + ")", string.Empty, RegexOptions.Singleline);
+      fileName = Regex.Replace(fileName, "(" + c_DateSep + c_Year + c_DateSep + c_Month + c_DateSep + c_Day + ")|(" + c_DateSep + c_Month + c_DateSep + c_Day + c_DateSep + c_Year + ")|(" + c_DateSep + c_Day + c_DateSep + c_Month + c_DateSep + c_Year + ")", string.Empty, RegexOptions.Singleline);
 
       // Replace Times 3_53_34_AM
-      fileName = Regex.Replace(fileName, DateSep + HH + TimeSep + MinSec + TimeSep + MinSec + "?" + AmPm, string.Empty, RegexOptions.IgnoreCase | RegexOptions.Singleline);
+      fileName = Regex.Replace(fileName, c_DateSep + c_Hour + c_TimeSep + c_MinSec + c_TimeSep + c_MinSec + "?" + c_AmPm, string.Empty, RegexOptions.IgnoreCase | RegexOptions.Singleline);
       /*
       // Replace Dates YYMMDD
       fileName = Regex.Replace(fileName, "(" + DateSep + YY + DateSep + MM + DateSep + DD + DateSep + ")", string.Empty, RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.CultureInvariant);
@@ -486,7 +496,7 @@ namespace CsvTools
     public static IEnumerable<string> GetRealColumns(this DataTable dataTable)
     {
       Contract.Ensures(Contract.Result<IEnumerable<string>>() != null);
-      return GetRealDataColumns(dataTable).Select(x => x.ColumnName);
+      foreach (var x in GetRealDataColumns(dataTable)) yield return x.ColumnName;
     }
 
     /// <summary>
@@ -585,7 +595,7 @@ namespace CsvTools
       Contract.Ensures(Contract.Result<IEnumerable<string>>() != null);
       var notFoundColumnNames = new List<string>();
 
-      if (fileSetting == null || columns ==null || columns.Count ==0)
+      if (fileSetting == null || columns == null || columns.Count == 0)
         return notFoundColumnNames;
       foreach (var map in fileSetting.MappingCollection)
       {
@@ -687,8 +697,9 @@ namespace CsvTools
       {
         for (var i = positionLast; i < positionNew; ++i)
           chars[count++] = original[i];
-        for (var i = 0; i < replacement.Length; ++i)
-          chars[count++] = replacement[i];
+        foreach (var t in replacement)
+          chars[count++] = t;
+
         positionLast = positionNew + pattern.Length;
       }
 
@@ -752,13 +763,26 @@ namespace CsvTools
       var rgx = new Regex(@"\{[^\}]+\}");
 
       var placeholder = new Dictionary<string, string>();
-      var props = obj.GetType().GetProperties().Where(prop => prop.GetMethod != null);
+      var props = new List<PropertyInfo>();
+      foreach (var prop in obj.GetType().GetProperties())
+      {
+        if (prop.GetMethod != null) props.Add(prop);
+      }
 
       foreach (Match match in rgx.Matches(template))
       {
         if (!placeholder.ContainsKey(match.Value))
         {
-          var prop = props.FirstOrDefault(x => x.Name.Equals(match.Value.Substring(1, match.Value.Length - 2), StringComparison.OrdinalIgnoreCase));
+          PropertyInfo prop = null;
+          foreach (var x in props)
+          {
+            if (x.Name.Equals(match.Value.Substring(1, match.Value.Length - 2), StringComparison.OrdinalIgnoreCase))
+            {
+              prop = x;
+              break;
+            }
+          }
+
           if (prop != null)
             placeholder.Add(match.Value, prop.GetValue(obj).ToString());
         }
@@ -868,13 +892,15 @@ namespace CsvTools
         for (var i = st.FrameCount - 1; i > 1; i--)
         {
           var frm = st.GetFrame(i);
-          if (frm.GetMethod().DeclaringType.AssemblyQualifiedName.StartsWith("CsvTools."))
+          var declaringType = frm.GetMethod().DeclaringType;
+          if (declaringType != null && declaringType.AssemblyQualifiedName.StartsWith("CsvTools."))
           {
             // now stay with CsvTool and stop once we leave it
             for (var j = i - 1; j > 0; j--)
             {
               var frm2 = st.GetFrame(j);
-              if (!frm2.GetMethod().DeclaringType.AssemblyQualifiedName.StartsWith("CsvTools."))
+              var memberInfo = frm2.GetMethod().DeclaringType;
+              if (memberInfo != null && !memberInfo.AssemblyQualifiedName.StartsWith("CsvTools."))
                 return st.GetFrame(j + 1).ToString();
             }
             return frm.ToString();
@@ -894,15 +920,15 @@ namespace CsvTools
     /// </summary>
     /// <param name="executeTask">The started <see cref="System.Threading.Tasks.Task"/></param>
     /// <param name="timeoutSeconds">Timeout for the completion of the task, if more time is spent running / waiting the wait is finished</param>
-    /// <param name="every125MS">Action to be invoked every 1/4 second while waiting to finish, usually used for UI updates</param>
+    /// <param name="every125Ms">Action to be invoked every 1/4 second while waiting to finish, usually used for UI updates</param>
     /// <param name="cancellationToken">Best is to start tasks with the cancellation token but some async methods do not do, so it can be provided</param>
     /// <remarks>Will only return the first exception in case of aggregate exceptions.</remarks>
-    public static void WaitToCompleteTask(this Task executeTask, double timeoutSeconds, Action every125MS, CancellationToken cancellationToken)
+    public static void WaitToCompleteTask(this Task executeTask, double timeoutSeconds, Action every125Ms, CancellationToken cancellationToken)
     {
       if (executeTask == null)
         throw new ArgumentNullException(nameof(executeTask));
-      if (every125MS is null)
-        throw new ArgumentNullException(nameof(every125MS));
+      if (every125Ms is null)
+        throw new ArgumentNullException(nameof(every125Ms));
 
       if (executeTask.IsCompleted)
         return;
@@ -923,7 +949,7 @@ namespace CsvTools
           if (stopwatch.Elapsed.TotalSeconds > timeoutSeconds)
             throw new TimeoutException($"Timeout after {stopwatch.Elapsed.TotalSeconds:N1} seconds");
           // Invoke action every 1/4 second
-          every125MS?.Invoke();
+          every125Ms();
 
           // wait will raise an AggregateException if the task throws an exception
           executeTask.Wait(250, cancellationToken);
@@ -934,7 +960,7 @@ namespace CsvTools
         RunTaskAction(executeTask, () =>
         {
           // Invoke action every 1/4 second
-          every125MS?.Invoke();
+          every125Ms();
           // wait will raise an AggregateException if the task throws an exception
           executeTask.Wait(c_TaskWaitMs, cancellationToken);
         });
@@ -947,9 +973,9 @@ namespace CsvTools
     /// </summary>
     /// <param name="executeTask">The started <see cref="System.Threading.Tasks.Task"/></param>
     /// <param name="timeoutSeconds">Timeout for the completion of the task, if more time is spent running / waiting the wait is finished</param>
-    /// <param name="every125MS">Action to be invoked every 1/4 second while waiting to finish, usually used for UI updates</param>
+    /// <param name="every125Ms">Action to be invoked every 1/4 second while waiting to finish, usually used for UI updates</param>
     /// <remarks>Will only return the first exception in case of aggregate exceptions.</remarks>
-    public static void WaitToCompleteTask(this Task executeTask, double timeoutSeconds = 0, Action every125MS = null)
+    public static void WaitToCompleteTask(this Task executeTask, double timeoutSeconds = 0, Action every125Ms = null)
     {
       if (executeTask == null)
         throw new ArgumentNullException(nameof(executeTask));
@@ -971,7 +997,7 @@ namespace CsvTools
             throw new TimeoutException($"Timeout after {stopwatch.Elapsed.TotalSeconds:N1} seconds");
 
           // Invoke action every 1/4 second
-          every125MS?.Invoke();
+          every125Ms?.Invoke();
 
           // wait will raise an AggregateException if the task throws an exception
           executeTask.Wait(c_TaskWaitMs);
@@ -982,7 +1008,7 @@ namespace CsvTools
         RunTaskAction(executeTask, () =>
         {
           // Invoke action every 1/4 second
-          every125MS?.Invoke();
+          every125Ms?.Invoke();
 
           // wait will raise an AggregateException if the task throws an exception
           executeTask.Wait(c_TaskWaitMs);
@@ -996,15 +1022,15 @@ namespace CsvTools
     /// </summary>
     /// <param name="executeTask">The started <see cref="System.Threading.Tasks.Task"/></param>
     /// <param name="timeoutSeconds">Timeout for the completion of the task, if more time is spent running / waiting the wait is finished</param>
-    /// <param name="every125MS">Action to be invoked every 1/4 second while waiting to finish, usually used for UI updates</param>
+    /// <param name="every125Ms">Action to be invoked every 1/4 second while waiting to finish, usually used for UI updates</param>
     /// <param name="cancellationToken">Best is to start tasks with the cancellation token but some async methods do not do, so it can be provided</param>
     /// <returns>Task Result if finished successfully, otherwise raises an error</returns>
-    public static T WaitToCompleteTask<T>(this Task<T> executeTask, double timeoutSeconds, Action every125MS, CancellationToken cancellationToken)
+    public static T WaitToCompleteTask<T>(this Task<T> executeTask, double timeoutSeconds, Action every125Ms, CancellationToken cancellationToken)
     {
       if (executeTask == null)
         throw new ArgumentNullException(nameof(executeTask));
-      if (every125MS is null)
-        throw new ArgumentNullException(nameof(every125MS));
+      if (every125Ms is null)
+        throw new ArgumentNullException(nameof(every125Ms));
 
       if (!executeTask.IsCompleted)
       {
@@ -1023,7 +1049,7 @@ namespace CsvTools
             if (stopwatch.Elapsed.TotalSeconds > timeoutSeconds)
               throw new TimeoutException($"Timeout after {stopwatch.Elapsed.TotalSeconds:N1} seconds");
             // Invoke action every 1/4 second
-            every125MS?.Invoke();
+            every125Ms();
 
             // wait will raise an AggregateException if the task throws an exception
             executeTask.Wait(c_TaskWaitMs, cancellationToken);
@@ -1034,7 +1060,7 @@ namespace CsvTools
           RunTaskAction(executeTask, () =>
           {
             // Invoke action every 1/4 second
-            every125MS?.Invoke();
+            every125Ms();
             // wait will raise an AggregateException if the task throws an exception
             executeTask.Wait(200, cancellationToken);
           });
@@ -1049,9 +1075,9 @@ namespace CsvTools
     /// </summary>
     /// <param name="executeTask">The started <see cref="System.Threading.Tasks.Task"/></param>
     /// <param name="timeoutSeconds">Timeout for the completion of the task, if more time is spent running / waiting the wait is finished</param>
-    /// <param name="every125MS">Action to be invoked every 1/4 second while waiting to finish, usually used for UI updates</param>
+    /// <param name="every125Ms">Action to be invoked every 1/4 second while waiting to finish, usually used for UI updates</param>
     /// <returns>Task Result if finished successfully, otherwise raises an error</returns>
-    public static T WaitToCompleteTask<T>(this Task<T> executeTask, double timeoutSeconds = 0, Action every125MS = null)
+    public static T WaitToCompleteTask<T>(this Task<T> executeTask, double timeoutSeconds = 0, Action every125Ms = null)
     {
       if (executeTask == null)
         throw new ArgumentNullException(nameof(executeTask));
@@ -1070,7 +1096,7 @@ namespace CsvTools
             if (stopwatch.Elapsed.TotalSeconds > timeoutSeconds)
               throw new TimeoutException($"Timeout after {stopwatch.Elapsed.TotalSeconds:N1} seconds");
             // Invoke action every 1/4 second
-            every125MS?.Invoke();
+            every125Ms?.Invoke();
 
             // wait will raise an AggregateException if the task throws an exception
             executeTask.Wait(c_TaskWaitMs);
@@ -1081,7 +1107,7 @@ namespace CsvTools
           RunTaskAction(executeTask, () =>
           {
             // Invoke action every 1/4 second
-            every125MS?.Invoke();
+            every125Ms?.Invoke();
             // wait will raise an AggregateException if the task throws an exception
             executeTask.Wait(c_TaskWaitMs);
           });
@@ -1166,7 +1192,7 @@ namespace CsvTools
       result.StartLine = new DataColumn(BaseFileReader.cStartLineNumberFieldName, typeof(long));
       dataTable.Columns.Add(result.StartLine);
 
-      dataTable.PrimaryKey = new DataColumn[] { result.StartLine };
+      dataTable.PrimaryKey = new[] { result.StartLine };
 
       if (fileSetting.DisplayRecordNo && !fileReader.HasColumnName(BaseFileReader.cRecordNumberFieldName))
       {
@@ -1215,7 +1241,7 @@ namespace CsvTools
         while (!cancellationToken.IsCancellationRequested && requestedRecords > 0 && reader.Read())
         {
           reader.CopyRowToTable(dataTable, columnErrorDictionary, copyToDataTableInfo,
-            (ColumnErrorDictionary columnError, DataRow row) =>
+            (columnError, row) =>
             {
               foreach (var keyValuePair in columnError)
               {
@@ -1451,17 +1477,17 @@ namespace CsvTools
     /// Execute Asynchronous Tasks wand wait for completion
     /// </summary>
     /// <param name="executeTask">The task that is being checked</param>
-    /// <param name="inloop">The action to be invoked while waiting, it should contain an executeTask.Wait of some kind</param>
-    private static void RunTaskAction(this Task executeTask, Action inloop)
+    /// <param name="inLoop">The action to be invoked while waiting, it should contain an executeTask.Wait of some kind</param>
+    private static void RunTaskAction(this Task executeTask, Action inLoop)
     {
       try
       {
         // IsCompleted := RanToCompletion || Canceled || Faulted
         while (!executeTask.IsCompleted)
-          inloop.Invoke();
+          inLoop.Invoke();
 
-        if (executeTask.IsFaulted)
-          throw executeTask.Exception;
+        if (executeTask.IsFaulted && executeTask.Exception != null)
+            throw executeTask.Exception;
       }
       catch (Exception ex)
       {

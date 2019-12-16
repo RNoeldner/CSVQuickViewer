@@ -20,7 +20,6 @@ using System.Data.Common;
 using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.Globalization;
-using System.Linq;
 using System.Threading;
 
 namespace CsvTools
@@ -30,21 +29,30 @@ namespace CsvTools
   /// </summary>
   public static class DetermineColumnFormat
   {
-    public static ValueFormat CommonDateFormat(IEnumerable<ValueFormat> valueFormats)
+    public static ValueFormat CommonDateFormat(IEnumerable<Column> columns)
     {
-      var counterByFormat = new Dictionary<ValueFormat, int>();
-      foreach (var newColumn in valueFormats.Where(x => x != null && x.DataType == DataType.DateTime))
+      ValueFormat best = null;
+      if (columns != null)
       {
-        if (!counterByFormat.ContainsKey(newColumn))
-          counterByFormat.Add(newColumn, 0);
-        counterByFormat[newColumn]++;
+        var counterByFormat = new Dictionary<ValueFormat, int>();
+        var maxValue = int.MinValue;
+        foreach (var newColumn in columns)
+        {
+          if (newColumn == null || newColumn.ValueFormat == null ||
+              newColumn.ValueFormat.DataType != DataType.DateTime) continue;
+          var vf = newColumn.ValueFormat;
+          if (!counterByFormat.ContainsKey(vf))
+            counterByFormat.Add(vf, 0);
+
+          if (++counterByFormat[vf] > maxValue)
+          {
+            maxValue = counterByFormat[vf];
+            best = vf;
+          }
+        }
       }
 
-      if (counterByFormat.Count == 0)
-        return null;
-
-      var maxOccur = counterByFormat.Values.Max();
-      return counterByFormat.FirstOrDefault(x => x.Value == maxOccur).Key;
+      return best;
     }
 
     /// <summary>
@@ -90,7 +98,7 @@ namespace CsvTools
         csv.WarnNBSP = false;
         csv.WarnQuotesInQuotes = false;
       }
-      var othersValueFormatDate = CommonDateFormat(present.Select(x => x.ValueFormat));
+      var othersValueFormatDate = CommonDateFormat(present);
       // need a dummy process display to have pass in Cancellation token to reader
       using (var prc2 = new DummyProcessDisplay(processDisplay.CancellationToken))
       using (var fileReader = fileSettingCopy.GetFileReader(prc2))
@@ -230,7 +238,7 @@ namespace CsvTools
 
               // Adjust or Set the common date format
               if (newColumn.ValueFormat.DataType == DataType.DateTime)
-                othersValueFormatDate = CommonDateFormat(fileSetting.ColumnCollection.Select(x => x.ValueFormat));
+                othersValueFormatDate = CommonDateFormat(fileSetting.ColumnCollection);
             }
           }
         }
@@ -282,9 +290,7 @@ namespace CsvTools
               }
               else
               {
-                newColumn = fileSetting.ColumnCollection.Get(oldColumn.Name);
-                if (newColumn == null)
-                  newColumn = fileSetting.ColumnCollection.AddIfNew(oldColumn);
+                newColumn = fileSetting.ColumnCollection.Get(oldColumn.Name) ?? fileSetting.ColumnCollection.AddIfNew(oldColumn);
                 newColumn.DataType = DataType.String;
               }
               if (newColumn != null)
@@ -373,11 +379,11 @@ namespace CsvTools
               {
                 columnDate.TimePart = columnTime.Name;
                 {
-                  SampleResult samples;
-                  samples = sampleList.Keys.Contains(colindex + 1) ? sampleList[colindex + 1] : GetSampleValues(fileReader, 1, colindex + 1, 1, fileSetting.TreatTextAsNull, processDisplay.CancellationToken);
+                  var samples = sampleList.Keys.Contains(colindex + 1) ?
+                    sampleList[colindex + 1] :
+                    GetSampleValues(fileReader, 1, colindex + 1, 1, fileSetting.TreatTextAsNull, processDisplay.CancellationToken);
 
-                  var first = samples.Values.FirstOrDefault();
-                  if (first != null)
+                  foreach (var first in samples.Values)
                   {
                     if (first.Length == 8 || first.Length == 5)
                     {
@@ -390,6 +396,7 @@ namespace CsvTools
                       fileSetting.ColumnCollection.AddIfNew(columnTime);
                       result.Add($"{columnTime.Name} – Format : {columnTime.GetTypeAndFormatDescription()}");
                     }
+                    break;
                   }
                 }
 
@@ -411,9 +418,7 @@ namespace CsvTools
               columnDate.TimePart = columnTime.Name;
               {
                 var samples = sampleList.Keys.Contains(colindex - 1) ? sampleList[colindex - 1] : GetSampleValues(fileReader, 1, colindex - 1, 1, fileSetting.TreatTextAsNull, processDisplay.CancellationToken);
-
-                var first = samples.Values.FirstOrDefault();
-                if (first != null)
+                foreach (var first in samples.Values)
                 {
                   if (first.Length == 8 || first.Length == 5)
                   {
@@ -425,6 +430,8 @@ namespace CsvTools
                     columnTime.ValueFormat = val;
                     result.Add($"{columnTime.Name} – Format : {columnTime.GetTypeAndFormatDescription()}");
                   }
+
+                  break;
                 }
               }
               result.Add($"{columnDate.Name} – Added Time Part : {columnTime.Name}");
@@ -515,13 +522,12 @@ namespace CsvTools
       // Standard Date Time formats
       foreach (var fmt in StringConversion.StandardDateTimeFormats.MatchingforLength(value.Length, true))
       {
-        foreach (var sep in StringConversion.DateSeparators.Where(sep => StringConversion.StringToDateTimeExact(value, fmt, sep, culture.DateTimeFormat.TimeSeparator, culture).HasValue))
+        foreach (var sep in StringConversion.DateSeparators)
         {
-          yield return new ValueFormat(DataType.DateTime)
+          if (StringConversion.StringToDateTimeExact(value, fmt, sep, culture.DateTimeFormat.TimeSeparator, culture).HasValue)
           {
-            DateFormat = fmt,
-            DateSeparator = sep,
-          };
+            yield return new ValueFormat(DataType.DateTime) { DateFormat = fmt, DateSeparator = sep, };
+          }
         }
       }
     }
@@ -717,8 +723,8 @@ namespace CsvTools
       }
 
       var result = new Dictionary<int, SampleResult>();
-      foreach (var keyValue in samples)
-        result.Add(keyValue.Key, new SampleResult(keyValue.Value, recordRead));
+      foreach (var (key, value) in samples)
+        result.Add(key, new SampleResult(value, recordRead));
       return result;
     }
 
@@ -754,19 +760,18 @@ namespace CsvTools
       var recordRead = 0;
       var colName = dataReader.GetName(columnIndex);
       var remainingShows = 10;
-      EventHandler<WarningEventArgs> myEventHandler = delegate (object sender, WarningEventArgs args)
-      {
-        if (colName.Equals(args.ColumnName, StringComparison.OrdinalIgnoreCase) || string.IsNullOrEmpty(args.ColumnName))
-        {
-          if (remainingShows-- > 0)
-            Logger.Debug("Row ignored in detection: " + args.Message);
-          if (remainingShows == 0)
-            Logger.Debug("No further warning shown");
 
-          hasWarning = true;
-        }
-      };
-      dataReader.Warning += myEventHandler;
+      void WarningEventHandler(object sender, WarningEventArgs args)
+      {
+        if (!colName.Equals(args.ColumnName, StringComparison.OrdinalIgnoreCase) &&
+            !string.IsNullOrEmpty(args.ColumnName)) return;
+        if (remainingShows-- > 0) Logger.Debug("Row ignored in detection: " + args.Message);
+        if (remainingShows == 0) Logger.Debug("No further warning shown");
+
+        hasWarning = true;
+      }
+
+      dataReader.Warning += WarningEventHandler;
 
       try
       {
@@ -836,7 +841,7 @@ namespace CsvTools
       }
       finally
       {
-        dataReader.Warning -= myEventHandler;
+        dataReader.Warning -= WarningEventHandler;
       }
 
       return new SampleResult(samples, recordRead);
@@ -866,10 +871,15 @@ namespace CsvTools
       }
 
       var checkResult = new CheckResult();
-      var possibleDateSeparators = StringConversion.DateSeparators.Where(sep => samples.Any(entry => entry.IndexOf(sep, StringComparison.Ordinal) != -1)).ToList();
-      long length = samples.Aggregate<string, long>(0, (current, entry) => current + entry.Length);
-      var commonLength = (int)(length / samples.Count());
 
+      
+
+      long length = 0;
+      foreach (var sample in samples)
+        length += sample.Length;
+      var commonLength = (int)(length / samples.Count);
+
+      ICollection<string> possibleDateSeparators = null;
       foreach (var fmt in StringConversion.StandardDateTimeFormats.MatchingforLength(commonLength, checkNamedDates))
       {
         if (cancellationToken.IsCancellationRequested)
@@ -877,6 +887,21 @@ namespace CsvTools
 
         if (fmt.IndexOf('/') > 0)
         {
+          // if we do not have determined the list of possibleDateSeparators so far do so now, but only once
+          if (possibleDateSeparators == null)
+          {
+            possibleDateSeparators = new List<string>();
+            foreach (var sep in StringConversion.DateSeparators)
+              foreach (var entry in samples)
+              {
+                cancellationToken.ThrowIfCancellationRequested();
+                if (entry.IndexOf(sep, StringComparison.Ordinal) != -1)
+                {
+                  possibleDateSeparators.Add(sep);
+                  break;
+                }
+              }
+          }
           foreach (var sep in possibleDateSeparators)
           {
             var res = StringConversion.CheckDate(samples, fmt, sep, ":", CultureInfo.CurrentCulture);
@@ -899,37 +924,39 @@ namespace CsvTools
       return checkResult;
     }
 
-    public static CheckResult GuessNumeric(IEnumerable<string> samples, bool guessPercentage,
+    public static CheckResult GuessNumeric(ICollection<string> samples, bool guessPercentage,
       bool allowStartingZero, CancellationToken cancellationToken)
     {
       var checkResult = new CheckResult();
+      if (samples == null)
+        return checkResult;
 
       var possibleGrouping = new List<char>();
       // Determine which decimalGrouping could be used
-      foreach (var caracter in StringConversion.DecimalGroupings)
+      foreach (var character in StringConversion.DecimalGroupings)
       {
-        if (caracter == '\0')
+        if (character == '\0')
           continue;
         foreach (var smp in samples)
         {
-          if (smp.IndexOf(caracter) <= -1)
+          if (smp.IndexOf(character) <= -1)
             continue;
-          possibleGrouping.Add(caracter);
+          possibleGrouping.Add(character);
           break;
         }
       }
 
       possibleGrouping.Add('\0');
       var possibleDecimal = new List<char>();
-      foreach (var caracter in StringConversion.DecimalSeparators)
+      foreach (var character in StringConversion.DecimalSeparators)
       {
-        if (caracter == '\0')
+        if (character == '\0')
           continue;
         foreach (var smp in samples)
         {
-          if (smp.IndexOf(caracter) <= -1)
+          if (smp.IndexOf(character) <= -1)
             continue;
-          possibleDecimal.Add(caracter);
+          possibleDecimal.Add(character);
           break;
         }
       }
@@ -1056,7 +1083,12 @@ namespace CsvTools
       }
 
       // ---------------- Confirm old provided format would be ok --------------------------
-      var firstValue = samples.First();
+      string firstValue = string.Empty;
+      foreach (var value in samples)
+      {
+        firstValue = value;
+        break;
+      }
 
       if (guessDateTime && othersValueFormatDate != null && StringConversion.DateLengthMatches(firstValue.Length, othersValueFormatDate.DateFormat))
       {
@@ -1156,7 +1188,14 @@ namespace CsvTools
     {
       public SampleResult(IEnumerable<string> samples, int records)
       {
-        Values = samples.OrderBy(x => SecureString.Random.Next()).ToList();
+        var source = new List<string>(samples);
+        Values.Clear();
+        while (source.Count > 0)
+        {
+          var index = SecureString.Random.Next(0, source.Count); //pick a random item from the master list
+          Values.Add(source[index]); //place it at the end of the randomized list
+          source.RemoveAt(index);
+        }
         RecordsRead = records;
       }
 

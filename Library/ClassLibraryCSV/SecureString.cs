@@ -41,9 +41,8 @@ namespace CsvTools
     {
       get
       {
-        if (m_Phrase == null)
-          m_Phrase = "reCffmj/JWCQmL60+zVmPxBwHEkiZCwC+B1wZsXn4BpjBUg8IJ5".Decrypt("g4yTwMwpRfz4a1hBFkQQ");
-        return m_Phrase;
+        return m_Phrase ?? (m_Phrase =
+                 "reCffmj/JWCQmL60+zVmPxBwHEkiZCwC+B1wZsXn4BpjBUg8IJ5".Decrypt("g4yTwMwpRfz4a1hBFkQQ"));
       }
     }
 
@@ -71,10 +70,10 @@ namespace CsvTools
 
       using (var symmetricKey = new RijndaelManaged { Mode = CipherMode.CBC })
       {
-        using (var passwordDeriveBytes = new PasswordDeriveBytes(pwd, Encoding.ASCII.GetBytes(salt)))
+        using (var passwordDeriveBytes = new Rfc2898DeriveBytes(pwd, Encoding.ASCII.GetBytes(salt)))
         {
-          var decryptor = symmetricKey.CreateDecryptor(passwordDeriveBytes.GetBytes(32), m_InitVectorBytes);
-          using (var cryptoStream = new CryptoStream(new MemoryStream(cipherTextBytes), decryptor, CryptoStreamMode.Read))
+          var decrypt = symmetricKey.CreateDecryptor(passwordDeriveBytes.GetBytes(32), m_InitVectorBytes);
+          using (var cryptoStream = new CryptoStream(new MemoryStream(cipherTextBytes), decrypt, CryptoStreamMode.Read))
           {
             var plainTextBytes = new byte[cipherTextBytes.Length];
             var decryptedByteCount = cryptoStream.Read(plainTextBytes, 0, plainTextBytes.Length);
@@ -96,20 +95,20 @@ namespace CsvTools
       if (pwd == null)
         pwd = DefaultPhrase;
 
-      const string base64 = "012345abcdefghijklmnopqrstuvwxyz6789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+      const string c_Base64 = "012345abcdefghijklmnopqrstuvwxyz6789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
       var builder = new char[c_SlatSize];
       // pick random salt characters
       for (var i = 0; i < c_SlatSize; i++)
-        builder[i] = base64[Convert.ToInt32(Math.Floor(base64.Length * Random.NextDouble()))];
+        builder[i] = c_Base64[Convert.ToInt32(Math.Floor(c_Base64.Length * Random.NextDouble()))];
       var salt = new string(builder);
 
       using (var symmetricKey = new RijndaelManaged { Mode = CipherMode.CBC })
       {
-        using (var passwordDeriveBytes = new PasswordDeriveBytes(pwd, Encoding.ASCII.GetBytes(salt)))
+        using (var passwordDeriveBytes = new Rfc2898DeriveBytes(pwd, Encoding.ASCII.GetBytes(salt)))
         {
-          var encryptor = symmetricKey.CreateEncryptor(passwordDeriveBytes.GetBytes(32), m_InitVectorBytes);
+          var encrypt = symmetricKey.CreateEncryptor(passwordDeriveBytes.GetBytes(32), m_InitVectorBytes);
           var memoryStream = new MemoryStream();
-          using (var cryptoStream = new CryptoStream(memoryStream, encryptor, CryptoStreamMode.Write))
+          using (var cryptoStream = new CryptoStream(memoryStream, encrypt, CryptoStreamMode.Write))
           {
             cryptoStream.Write(plainTextBytes, 0, plainTextBytes.Length);
             cryptoStream.FlushFinalBlock();

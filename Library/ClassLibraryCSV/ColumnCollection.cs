@@ -17,7 +17,7 @@ namespace CsvTools
       var found = Get(columnFormat.Name);
       if (found != null)
         return found;
-      base.Add(columnFormat);
+      Add(columnFormat);
       return columnFormat;
     }
 

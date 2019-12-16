@@ -30,7 +30,7 @@ namespace CsvTools
     private readonly string m_Header = string.Empty;
     private bool m_JSONEncode = true;
     private string m_Row = string.Empty;
-    private bool m_XMLEncode = false;
+    private bool m_XMLEncode;
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="StructuredFile" /> class.
@@ -144,7 +144,7 @@ namespace CsvTools
         return false;
       if (ReferenceEquals(this, other))
         return true;
-      return BaseSettingsEquals(other as BaseSettings) && string.Equals(m_Footer, other.Footer, StringComparison.OrdinalIgnoreCase) && string.Equals(m_Header, other.Header, StringComparison.OrdinalIgnoreCase) &&
+      return BaseSettingsEquals(other) && string.Equals(m_Footer, other.Footer, StringComparison.OrdinalIgnoreCase) && string.Equals(m_Header, other.Header, StringComparison.OrdinalIgnoreCase) &&
              m_JSONEncode == other.JSONEncode && string.Equals(m_Row, other.Row, StringComparison.Ordinal) &&
              m_XMLEncode == other.XMLEncode;
     }
@@ -173,9 +173,9 @@ namespace CsvTools
     public override IFileReader GetFileReader(IProcessDisplay processDisplay) => throw new NotImplementedException("XML Structured files can not be read they are for writing only");
 
     /// <summary>
-    ///   Gets the file writer.
+    /// Gets the file writer.
     /// </summary>
-    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <param name="processDisplay">The process display.</param>
     /// <returns></returns>
     public override IFileWriter GetFileWriter(IProcessDisplay processDisplay) => new StructuredFileWriter(this, processDisplay);
 

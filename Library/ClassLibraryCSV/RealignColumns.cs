@@ -22,11 +22,11 @@ namespace CsvTools
   /// </summary>
   public class ReAlignColumns
   {
-    private const int MaxGoodRows = 40;
-    private readonly int m_ExcpectedColumns;
+    private const int c_MaxGoodRows = 40;
+    private readonly int m_ExpectedColumns;
     private readonly List<string[]> m_GoodRows = new List<string[]>();
 
-    public ReAlignColumns(int excpectedColumns) => m_ExcpectedColumns = excpectedColumns;
+    public ReAlignColumns(int expectedColumns) => m_ExpectedColumns = expectedColumns;
 
     [Flags]
     private enum ColumnOption
@@ -47,11 +47,11 @@ namespace CsvTools
     /// <param name="newRow">Array with the columns of that row</param>
     public void AddRow(string[] newRow)
     {
-      if (m_GoodRows.Count < MaxGoodRows)
+      if (m_GoodRows.Count < c_MaxGoodRows)
         m_GoodRows.Add(newRow);
       else
         // Store the row in our list
-        m_GoodRows[SecureString.Random.Next(0, MaxGoodRows)] = newRow;
+        m_GoodRows[SecureString.Random.Next(0, c_MaxGoodRows)] = newRow;
     }
 
     /// <summary>
@@ -71,23 +71,23 @@ namespace CsvTools
       var columns = new List<string>(row);
 
       //Get the Options for all good rows
-      var otherColumns = new List<ColumnOption>(m_ExcpectedColumns);
-      for (var col2 = 0; col2 < m_ExcpectedColumns; col2++)
+      var otherColumns = new List<ColumnOption>(m_ExpectedColumns);
+      for (var col2 = 0; col2 < m_ExpectedColumns; col2++)
         otherColumns.Add(GetColumnOptionAllRows(col2, m_GoodRows));
 
-      if (row.Length == m_ExcpectedColumns * 2 - 1 && m_GoodRows.Count == 0)
+      if (row.Length == m_ExpectedColumns * 2 - 1 && m_GoodRows.Count == 0)
       {
         // take the columns as is...
-        while (columns.Count > m_ExcpectedColumns)
+        while (columns.Count > m_ExpectedColumns)
         {
-          columns.RemoveAt(m_ExcpectedColumns);
+          columns.RemoveAt(m_ExpectedColumns);
         }
-        handleWarning(m_ExcpectedColumns - 1, "Information in following columns has been ignored.");
+        handleWarning(m_ExpectedColumns - 1, "Information in following columns has been ignored.");
       }
       else
       {
         var col = 1;
-        while (col < columns.Count && col < m_ExcpectedColumns && columns.Count != m_ExcpectedColumns)
+        while (col < columns.Count && col < m_ExpectedColumns && columns.Count != m_ExpectedColumns)
         {
           if (otherColumns[col] != ColumnOption.None)
           {
