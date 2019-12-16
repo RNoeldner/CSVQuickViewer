@@ -48,9 +48,9 @@ namespace CsvTools
       if (m_NeedsInit)
         InitMapping();
       var retList = new List<string>();
-      foreach (var (key, value) in m_Mapping)
-        if (value == dateTimeZone.Id)
-          retList.Add(key);
+      foreach (var keyValue in m_Mapping)
+        if (keyValue.Value == dateTimeZone.Id)
+          retList.Add(keyValue.Key);
       return retList;
     }
 

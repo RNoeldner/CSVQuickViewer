@@ -723,8 +723,8 @@ namespace CsvTools
       }
 
       var result = new Dictionary<int, SampleResult>();
-      foreach (var (key, value) in samples)
-        result.Add(key, new SampleResult(value, recordRead));
+      foreach (var keyValue in samples)
+        result.Add(keyValue.Key, new SampleResult(keyValue.Value, recordRead));
       return result;
     }
 
@@ -872,7 +872,7 @@ namespace CsvTools
 
       var checkResult = new CheckResult();
 
-      
+
 
       long length = 0;
       foreach (var sample in samples)
@@ -1189,7 +1189,7 @@ namespace CsvTools
       public SampleResult(IEnumerable<string> samples, int records)
       {
         var source = new List<string>(samples);
-        Values.Clear();
+        Values = new HashSet<string>();
         while (source.Count > 0)
         {
           var index = SecureString.Random.Next(0, source.Count); //pick a random item from the master list
