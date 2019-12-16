@@ -21,7 +21,7 @@ namespace CsvTools
   /// </summary>
   public class ColumnErrorDictionary : Dictionary<int, string>
   {
-    private readonly ICollection<int> m_IgnoredColumns = null;
+    private readonly ICollection<int> m_IgnoredColumns;
 
     public ColumnErrorDictionary()
     {

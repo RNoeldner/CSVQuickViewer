@@ -24,7 +24,7 @@ namespace CsvTools
   {
     public const string cIdLocal = "(local)";
     public const string cUTC = "Etc/UTC";
-    private const int m_MinSavingSeconds = 90; // 15 Min
+    private const int c_MinSavingSeconds = 90; // 15 Min
 
     private static readonly IDictionary<string, string> m_Mapping = new SortedDictionary<string, string>(StringComparer.OrdinalIgnoreCase);
     private static bool m_NeedsInit = true;
@@ -40,23 +40,29 @@ namespace CsvTools
     /// <summary>
     /// Gets the alternate names for the time zone
     /// </summary>
-    /// <param name="dateTimeZone">The time zone.</param>
+    /// <param name="timeZoneName">Name of the time zone.</param>
     /// <returns></returns>
     public static IEnumerable<string> AlternateTZNames(this string timeZoneName)
     {
       var dateTimeZone = GetTimeZone(timeZoneName);
       if (m_NeedsInit)
         InitMapping();
-      return m_Mapping.Where(x => x.Value == dateTimeZone.Id).Select(x => x.Key);
+      var retList = new List<string>();
+      foreach (var (key, value) in m_Mapping)
+        if (value == dateTimeZone.Id)
+          retList.Add(key);
+      return retList;
     }
 
     /// <summary>
     /// Converts the time from one time zone to another
     /// </summary>
     /// <param name="dateTimeSource">The date time in the source time zone.</param>
-    /// <param name="sourceTimeZone">The source time zone name</param>
-    /// <param name="destTimeZone">The destination time zone name</param>
-    /// <returns>ADtetime value unspecified</returns>
+    /// <param name="sourceTZName">Name of the source tz.</param>
+    /// <param name="destTZName">Name of the dest tz.</param>
+    /// <returns>
+    /// A Datetime value unspecified
+    /// </returns>
     public static DateTime ConvertTime(this DateTime dateTimeSource, string sourceTZName, string destTZName)
     {
       if (string.IsNullOrEmpty(sourceTZName))
@@ -96,7 +102,7 @@ namespace CsvTools
     /// <returns></returns>
     public static Tuple<DateTime, DateTime> GetTranstionTimes(this string timeZoneName, int year)
     {
-      foreach (var saving in IntervalsInYear(timeZoneName, year).Where(x => x.Savings.Seconds >= m_MinSavingSeconds))
+      foreach (var saving in IntervalsInYear(timeZoneName, year).Where(x => x.Savings.Seconds >= c_MinSavingSeconds))
         return new Tuple<DateTime, DateTime>(saving.Start.ToDateTimeUtc(), saving.End.ToDateTimeUtc());
       return null;
     }
@@ -104,7 +110,7 @@ namespace CsvTools
     /// <summary>
     /// Gets the abbreviation of a timezone
     /// </summary>
-    /// <param name="dateTimeZone">The date time zone.</param>
+    /// <param name="timeZoneName">Name of the time zone.</param>
     /// <returns></returns>
     public static string GetTZAbbreviation(this string timeZoneName)
     {
@@ -127,7 +133,7 @@ namespace CsvTools
       }
 
       // the intervals have names, pick an interval without offset
-      var inter = IntervalsInYear(timeZoneName, DateTime.UtcNow.Year).FirstOrDefault(x => x.Savings.Seconds < m_MinSavingSeconds && !string.IsNullOrEmpty(x.Name));
+      var inter = IntervalsInYear(timeZoneName, DateTime.UtcNow.Year).FirstOrDefault(x => x.Savings.Seconds < c_MinSavingSeconds && !string.IsNullOrEmpty(x.Name));
       if (inter != null)
         return inter.Name;
 
@@ -137,15 +143,17 @@ namespace CsvTools
     /// <summary>
     /// Returns true if we have at least 10 minutes daylight savings
     /// </summary>
-    /// <param name="dateTimeZone">The date time zone.</param>
-    /// <param name="timeUTC"></param>
-    /// <returns></returns>
+    /// <param name="timeZoneName">Name of the time zone.</param>
+    /// <param name="dateTimeUTC">The date time UTC.</param>
+    /// <returns>
+    ///   <c>true</c> if [is daylight saving time] [the specified date time UTC]; otherwise, <c>false</c>.
+    /// </returns>
     public static bool IsDaylightSavingTime(this string timeZoneName, DateTime dateTimeUTC)
     {
       if (dateTimeUTC.Kind != DateTimeKind.Utc)
         dateTimeUTC = DateTime.SpecifyKind(dateTimeUTC, DateTimeKind.Utc);
 
-      return GetTimeZone(timeZoneName).GetZoneIntervals(Instant.FromDateTimeUtc(dateTimeUTC), Instant.FromDateTimeUtc(dateTimeUTC.AddDays(1))).Any(x => x.Savings.Seconds >= m_MinSavingSeconds);
+      return GetTimeZone(timeZoneName).GetZoneIntervals(Instant.FromDateTimeUtc(dateTimeUTC), Instant.FromDateTimeUtc(dateTimeUTC.AddDays(1))).Any(x => x.Savings.Seconds >= c_MinSavingSeconds);
     }
 
     /// <summary>
@@ -167,12 +175,12 @@ namespace CsvTools
     /// <summary>
     /// Returns the default UTC offset for a year.
     /// </summary>
-    /// <param name="dateTimeZone">The date time zone.</param>
-    /// <param name="year"></param>
+    /// <param name="timeZoneName">Name of the time zone.</param>
+    /// <param name="year">The year.</param>
     /// <returns></returns>
     public static string Offset(this string timeZoneName, int year)
     {
-      var std = IntervalsInYear(timeZoneName, year).Where(x => x.Savings.Seconds < m_MinSavingSeconds).FirstOrDefault();
+      var std = IntervalsInYear(timeZoneName, year).FirstOrDefault(x => x.Savings.Seconds < c_MinSavingSeconds);
       if (std != null)
         return std.StandardOffset.ToString();
       else
@@ -182,15 +190,15 @@ namespace CsvTools
     /// <summary>
     /// Checks if the time zone does have daylight saving in this year
     /// </summary>
-    /// <param name="dateTimeZone">The date time zone.</param>
-    /// <param name="year"></param>
+    /// <param name="timeZoneName">Name of the time zone.</param>
+    /// <param name="year">The year.</param>
     /// <returns></returns>
-    public static bool SupportsDaylightSavingTime(this string timeZoneName, int year) => IntervalsInYear(timeZoneName, year).Any(x => x.Savings.Seconds >= m_MinSavingSeconds);
+    public static bool SupportsDaylightSavingTime(this string timeZoneName, int year) => IntervalsInYear(timeZoneName, year).Any(x => x.Savings.Seconds >= c_MinSavingSeconds);
 
     /// <summary>
     /// Returns a list of time zones that have the same rules for that year
     /// </summary>
-    /// <param name="timeZoneInfo">The time zone information.</param>
+    /// <param name="timeZoneName">Name of the time zone.</param>
     /// <param name="year">The year to check the rules.</param>
     /// <returns></returns>
     public static IEnumerable<string> WithSameRule(this string timeZoneName, int year)

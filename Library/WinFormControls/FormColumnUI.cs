@@ -222,7 +222,7 @@ namespace CsvTools
               var checkResult = DetermineColumnFormat.GuessValueFormat(samples.Values, 1,
                 m_FillGuessSettings.TrueValue, m_FillGuessSettings.FalseValue,
                 detectBool, detectGuid, detectNumeric, detectDateTime, detectNumeric, detectDateTime, detectDateTime,
-                DetermineColumnFormat.CommonDateFormat(m_FileSetting.ColumnCollection.Select(x => x.ValueFormat)), processDisplay.CancellationToken);
+                DetermineColumnFormat.CommonDateFormat(m_FileSetting.ColumnCollection), processDisplay.CancellationToken);
               processDisplay.Hide();
               if (checkResult == null)
               {

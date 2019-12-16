@@ -16,7 +16,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace CsvTools.Tests
 {
   [TestClass]
-  public class ColumnSizeTests
+  public class ColumnSizeTest
   {
     [TestMethod]
     public void CloneTest()

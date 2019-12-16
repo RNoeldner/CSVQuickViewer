@@ -404,16 +404,16 @@ namespace CsvTools
         Logger.Information("File not read");
         return false;
       }
-      using (var m_JsonTextReader = new Newtonsoft.Json.JsonTextReader(streamReader))
+      using (var jsonTextReader = new Newtonsoft.Json.JsonTextReader(streamReader))
       {
-        m_JsonTextReader.CloseInput = false;
+        jsonTextReader.CloseInput = false;
         try
         {
-          if (m_JsonTextReader.Read())
+          if (jsonTextReader.Read())
           {
-            return (m_JsonTextReader.TokenType == Newtonsoft.Json.JsonToken.StartObject ||
-                    m_JsonTextReader.TokenType == Newtonsoft.Json.JsonToken.StartArray ||
-                    m_JsonTextReader.TokenType == Newtonsoft.Json.JsonToken.StartConstructor);
+            return (jsonTextReader.TokenType == Newtonsoft.Json.JsonToken.StartObject ||
+                    jsonTextReader.TokenType == Newtonsoft.Json.JsonToken.StartArray ||
+                    jsonTextReader.TokenType == Newtonsoft.Json.JsonToken.StartConstructor);
           }
         }
         catch (Newtonsoft.Json.JsonReaderException)
@@ -425,17 +425,19 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Guesses the delimiter for a files.
-    ///   Done with a rather simple csv parsing, and trying to find the delimiter that has the least variance in the read rows,
-    ///   if that is not possible the delimiter with the highest number of occurrences.
+    /// Guesses the delimiter for a files.
+    /// Done with a rather simple csv parsing, and trying to find the delimiter that has the least variance in the read rows,
+    /// if that is not possible the delimiter with the highest number of occurrences.
     /// </summary>
     /// <param name="streamReader">The StreamReader with the data</param>
     /// <param name="escapeCharacter">The escape character.</param>
+    /// <param name="hasDelimiter">if set to <c>true</c> [has delimiter].</param>
     /// <returns>
-    ///   A character with the assumed delimiter for the file
+    /// A character with the assumed delimiter for the file
     /// </returns>
+    /// <exception cref="ArgumentNullException">streamReader</exception>
     /// <remarks>
-    ///   No Error will not be thrown.
+    /// No Error will not be thrown.
     /// </remarks>
     [SuppressMessage("Microsoft.Performance", "CA1814:PreferJaggedArraysOverMultidimensional", MessageId = "Body")]
     internal static string GuessDelimiter(StreamReader streamReader, char escapeCharacter, out bool hasDelimiter)
@@ -542,21 +544,21 @@ namespace CsvTools
     {
       Contract.Requires(streamReader != null);
       Contract.Ensures(Contract.Result<string>() != null);
-      const int numRows = 50;
+      const int c_NumRows = 50;
 
       var lastRow = 0;
       var readChar = 0;
       var quoted = false;
 
-      const int cr = 0;
-      const int lf = 1;
-      const int crlf = 2;
-      const int lfcr = 3;
+      const int c_Cr = 0;
+      const int c_LF = 1;
+      const int c_CRLF = 2;
+      const int c_Lfcr = 3;
       int[] count = { 0, 0, 0, 0 };
 
       // \r = CR (Carriage Return) \n = LF (Line Feed)
 
-      while (lastRow < numRows && readChar >= 0)
+      while (lastRow < c_NumRows && readChar >= 0)
       {
         readChar = streamReader.Read();
         if (readChar == fieldQualifier)
@@ -579,11 +581,11 @@ namespace CsvTools
           if (streamReader.Peek() == '\r')
           {
             streamReader.Read();
-            count[lfcr]++;
+            count[c_Lfcr]++;
           }
           else
           {
-            count[lf]++;
+            count[c_LF]++;
           }
 
           lastRow++;
@@ -594,21 +596,21 @@ namespace CsvTools
         if (streamReader.Peek() == '\n')
         {
           streamReader.Read();
-          count[crlf]++;
+          count[c_CRLF]++;
         }
         else
         {
-          count[cr]++;
+          count[c_Cr]++;
         }
 
         lastRow++;
       }
 
-      if (count[cr] > count[crlf] && count[cr] > count[lfcr] && count[cr] > count[lf])
+      if (count[c_Cr] > count[c_CRLF] && count[c_Cr] > count[c_Lfcr] && count[c_Cr] > count[c_LF])
         return "CR";
-      if (count[lf] > count[crlf] && count[lf] > count[lfcr] && count[lf] > count[cr])
+      if (count[c_LF] > count[c_CRLF] && count[c_LF] > count[c_Lfcr] && count[c_LF] > count[c_Cr])
         return "LF";
-      if (count[lfcr] > count[crlf] && count[lfcr] > count[lf] && count[lfcr] > count[cr])
+      if (count[c_Lfcr] > count[c_CRLF] && count[c_Lfcr] > count[c_LF] && count[c_Lfcr] > count[c_Cr])
         return "LFCR";
 
       return "CRLF";
@@ -619,13 +621,13 @@ namespace CsvTools
       if (streamReader == null)
         return '\0';
 
-      const int maxLine = 30;
-      var possibleQuotes = new char[] { '"', '\'' };
+      const int c_MaxLine = 30;
+      var possibleQuotes = new[] { '"', '\'' };
 
       var counter = new int[possibleQuotes.Length];
 
       // skip the first line it usually a header
-      for (var lineNo = 0; lineNo < maxLine + skipRows; lineNo++)
+      for (var lineNo = 0; lineNo < c_MaxLine + skipRows; lineNo++)
       {
         var line = streamReader.ReadLine();
         // EOF
@@ -684,19 +686,19 @@ namespace CsvTools
       if (commentLine == null)
         throw new ArgumentNullException(nameof(commentLine));
       Contract.Ensures(Contract.Result<int>() >= 0);
-      const int maxRows = 50;
+      const int c_MaxRows = 50;
       if (streamReader == null)
         return 0;
 
-      var columnCount = new List<int>(maxRows);
-      var rowMapping = new Dictionary<int, int>(maxRows);
+      var columnCount = new List<int>(c_MaxRows);
+      var rowMapping = new Dictionary<int, int>(c_MaxRows);
       {
-        var colCount = new int[maxRows];
-        var isComment = new bool[maxRows];
+        var colCount = new int[c_MaxRows];
+        var isComment = new bool[c_MaxRows];
         var quoted = false;
         var firstChar = true;
         var lastRow = 0;
-        while (lastRow < maxRows && streamReader.Peek() >= 0)
+        while (lastRow < c_MaxRows && streamReader.Peek() >= 0)
         {
           var readChar = (char)streamReader.Read();
 

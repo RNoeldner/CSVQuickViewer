@@ -46,10 +46,11 @@ namespace CsvTools
     public TimeToCompletion TimeToCompletion { get; }
 
     /// <summary>
-    ///   Sets the process.
+    /// Sets the process.
     /// </summary>
     /// <param name="text">The text.</param>
     /// <param name="value">The value.</param>
+    /// <param name="log"><c>True</c> if progress should be logged, <c>false</c> otherwise.</param>
     public override void SetProcess(string text, long value, bool log)
     {
       TimeToCompletion.Value = value;

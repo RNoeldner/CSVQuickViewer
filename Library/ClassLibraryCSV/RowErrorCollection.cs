@@ -25,7 +25,7 @@ namespace CsvTools
   public class RowErrorCollection
   {
     private readonly int m_MaxRows = int.MaxValue;
-    private ICollection<int> m_IgnoredColumns = null;
+    private ICollection<int> m_IgnoredColumns;
 
     /// <summary>
     ///   A List containing warnings by row/column

@@ -42,7 +42,7 @@ namespace CsvTools
     [NonSerialized]
     private Encoding m_CurrentEncoding = Encoding.UTF8;
 
-    private bool m_JsonFormat = false;
+    private bool m_JsonFormat;
     private bool m_DoubleDecode;
     private bool m_NoDelimitedFile;
     private int m_NumWarnings;
@@ -51,9 +51,9 @@ namespace CsvTools
     private bool m_WarnEmptyTailingColumns = true;
     private bool m_WarnLineFeed;
     private bool m_WarnNbsp = true;
-    private bool m_TreatLFAsSpace = false;
-    private bool m_TryToSolveMoreColumns = false;
-    private bool m_AllowRowCombining = false;
+    private bool m_TreatLFAsSpace;
+    private bool m_TryToSolveMoreColumns;
+    private bool m_AllowRowCombining;
     private bool m_WarnQuotes;
     private bool m_WarnQuotesInQuotes = true;
     private bool m_WarnUnknowCharacter = true;
@@ -512,10 +512,11 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets the file writer.
+    /// Gets the file writer.
     /// </summary>
-    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <param name="processDisplay">The process display.</param>
     /// <returns></returns>
+    /// <exception cref="NotImplementedException">For writing Json files please use a structured file to define the layout.</exception>
     public override IFileWriter GetFileWriter(IProcessDisplay processDisplay)
     {
       if (JsonFormat)

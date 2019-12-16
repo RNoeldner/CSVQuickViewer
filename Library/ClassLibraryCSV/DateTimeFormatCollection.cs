@@ -13,17 +13,13 @@
  */
 
 using System.Collections.Generic;
-using System.Linq;
+
 
 namespace CsvTools
 {
   public class DateTimeFormatCollection
   {
     private readonly Dictionary<string, DateTimeFormatInformation> m_DateLengthMinMax = new Dictionary<string, DateTimeFormatInformation>();
-
-    public DateTimeFormatCollection()
-    {
-    }
 
     public DateTimeFormatCollection(string file)
     {
@@ -44,12 +40,21 @@ namespace CsvTools
 
     public IEnumerable<string> Keys => m_DateLengthMinMax.Keys;
 
-    public IEnumerable<string> MatchingforLength(int length, bool checkNamedDates) => m_DateLengthMinMax.Where(x => (checkNamedDates || !x.Value.NamedDate) && length >= x.Value.MinLength && length <= x.Value.MaxLength).Select(x => x.Key);
+    public IEnumerable<string> MatchingforLength(int length, bool checkNamedDates)
+    {
+      var result = new List<string>();
+      foreach (var kvFormatInformation in m_DateLengthMinMax)
+      {
+        if ((checkNamedDates || !kvFormatInformation.Value.NamedDate) && length >= kvFormatInformation.Value.MinLength && length <= kvFormatInformation.Value.MaxLength)
+          result.Add(kvFormatInformation.Key);
+      }
+      return result;
+    }
 
-    public void Replace(string[] cusomList)
+    public void Replace(string[] customList)
     {
       m_DateLengthMinMax.Clear();
-      foreach (var entry in cusomList)
+      foreach (var entry in customList)
         Add(entry);
     }
 

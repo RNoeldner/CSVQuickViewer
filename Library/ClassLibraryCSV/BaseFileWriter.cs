@@ -33,10 +33,12 @@ namespace CsvTools
     private long m_Records;
 
     /// <summary>
-    ///  Initializes a new instance of the <see cref="BaseFileWriter" /> class.
+    /// Initializes a new instance of the <see cref="BaseFileWriter" /> class.
     /// </summary>
     /// <param name="fileSetting">the file setting with the definition for the file</param>
-    /// <param name="cancellationToken">A cancellation token to stop writing the file</param>
+    /// <param name="processDisplay">The process display.</param>
+    /// <exception cref="ArgumentNullException">fileSetting</exception>
+    /// <exception cref="ArgumentException">No SQL Reader set</exception>
     protected BaseFileWriter(IFileSettingPhysicalFile fileSetting, IProcessDisplay processDisplay)
     {
       m_ProcessDisplay = processDisplay;
@@ -273,7 +275,7 @@ namespace CsvTools
     /// <param name="message">The message.</param>
     protected virtual void HandleError(string columnName, string message) => Warning?.Invoke(this, new WarningEventArgs(m_Records, 0, message, 0, 0, columnName));
 
-    protected void HandleProgress(string text, int progress) => m_ProcessDisplay?.SetProcess(text, progress);
+   // protected void HandleProgress(string text, int progress) => m_ProcessDisplay?.SetProcess(text, progress);
 
     protected void HandleProgress(string text) => m_ProcessDisplay?.SetProcess(text);
 
@@ -301,7 +303,7 @@ namespace CsvTools
         {
           try
           {
-            return TimeZoneMapping.ConvertTime(dataObject, sourcetimeZoneID, ApplicationSetting.DestinationTimeZone);
+            return dataObject.ConvertTime(sourcetimeZoneID, ApplicationSetting.DestinationTimeZone);
           }
           catch (ConversionException ex)
           {
@@ -313,7 +315,7 @@ namespace CsvTools
       {
         try
         {
-          return TimeZoneMapping.ConvertTime(dataObject, columnInfo.ConstantTimeZone, ApplicationSetting.DestinationTimeZone);
+          return dataObject.ConvertTime(columnInfo.ConstantTimeZone, ApplicationSetting.DestinationTimeZone);
         }
         catch (ConversionException ex)
         {
@@ -335,7 +337,7 @@ namespace CsvTools
       m_FileSetting.ProcessTimeUtc = DateTime.UtcNow;
       if (m_FileSetting is IFileSettingPhysicalFile physicalFile && physicalFile.SetLatestSourceTimeForWrite)
       {
-        var fi = new Pri.LongPath.FileInfo(physicalFile.FullPath)
+        new Pri.LongPath.FileInfo(physicalFile.FullPath)
         {
           LastWriteTimeUtc = m_FileSetting.LatestSourceTimeUtc
         };
@@ -357,15 +359,23 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///  Encodes the field.
+    /// Encodes the field.
     /// </summary>
     /// <param name="fileFormat">The settings.</param>
     /// <param name="dataObject">The data object.</param>
     /// <param name="columnInfo">Column Information</param>
     /// <param name="isHeader">if set to <c>true</c> the current line is the header.</param>
-    /// <param name="getTimeZone"></param>
-    /// <param name="handleQualify"></param>
-    /// <returns>proper formated CSV / Fix Length field</returns>
+    /// <param name="reader">The reader.</param>
+    /// <param name="handleQualify">The handle qualify.</param>
+    /// <returns>
+    /// proper formated CSV / Fix Length field
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    /// columnInfo
+    /// or
+    /// dataObject
+    /// </exception>
+    /// <exception cref="FileWriterException">For fix length output the length of the columns needs to be specified.</exception>
     protected string TextEncodeField(FileFormat fileFormat, object dataObject, ColumnInfo columnInfo, bool isHeader,
    IDataReader reader, Func<string, ColumnInfo, FileFormat, string> handleQualify)
     {

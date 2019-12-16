@@ -151,7 +151,7 @@ namespace CsvTools
             // in case we are in an array combine all values but separate them with linefeed
             if (inArray && keyValuePairs[key] != null)
             {
-              keyValuePairs[key] = keyValuePairs[key].ToString() + '\n' + m_JsonTextReader.Value.ToString();
+              keyValuePairs[key] = keyValuePairs[key].ToString() + '\n' + m_JsonTextReader.Value;
             }
             else
             {

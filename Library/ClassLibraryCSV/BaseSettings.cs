@@ -35,16 +35,16 @@ namespace CsvTools
   public abstract class BaseSettings
 #pragma warning restore CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
   {
-    public static readonly DateTime zeroTime = new DateTime(0, DateTimeKind.Utc);
+    public static readonly DateTime ZeroTime = new DateTime(0, DateTimeKind.Utc);
 
     private readonly FileFormat m_FileFormat = new FileFormat();
     private int m_ConsecutiveEmptyRows = 5;
     private bool m_DisplayEndLineNo;
     private bool m_DisplayRecordNo;
     private bool m_DisplayStartLineNo = true;
-    private bool m_SetLatestSourceTimeForWrite = false;
-    private DateTime m_ProcessTimeUtc = zeroTime;
-    private DateTime m_LatestSourceTimeUtc = zeroTime;
+    private bool m_SetLatestSourceTimeForWrite;
+    private DateTime m_ProcessTimeUtc = ZeroTime;
+    private DateTime m_LatestSourceTimeUtc = ZeroTime;
     private string m_FileName = string.Empty;
     private long m_FileSize;
     private string m_Footer = string.Empty;
@@ -69,7 +69,7 @@ namespace CsvTools
     private string m_TreatTextAsNull = "NULL";
     private bool m_Validate = true;
     private ValidationResult m_ValidationResult;
-    private bool m_SkipDuplicateHeader = false;
+    private bool m_SkipDuplicateHeader;
     private bool m_SkipEmptyLines = true;
     private ObservableCollection<SampleRecordEntry> m_Samples = new ObservableCollection<SampleRecordEntry>();
     private ObservableCollection<SampleRecordEntry> m_Errors = new ObservableCollection<SampleRecordEntry>();
@@ -86,8 +86,8 @@ namespace CsvTools
     /// </summary>
     protected BaseSettings()
     {
-      GetEncryptedPassphraseFunction = delegate ()
-      { if (!string.IsNullOrEmpty(Passphrase)) return Passphrase; if (!string.IsNullOrEmpty(ApplicationSetting.PGPKeyStorage.EncryptedPassphase)) return ApplicationSetting.PGPKeyStorage.EncryptedPassphase; return string.Empty; };
+      GetEncryptedPassphraseFunction = delegate
+        { if (!string.IsNullOrEmpty(Passphrase)) return Passphrase; if (!string.IsNullOrEmpty(ApplicationSetting.PGPKeyStorage.EncryptedPassphase)) return ApplicationSetting.PGPKeyStorage.EncryptedPassphase; return string.Empty; };
       ColumnCollection.CollectionChanged += ColumnCollectionChanged;
       MappingCollection.PropertyChanged += delegate
       { NotifyPropertyChanged(nameof(MappingCollection)); };
@@ -99,9 +99,9 @@ namespace CsvTools
       {
         foreach (Column item in e.NewItems)
         {
-          item.PropertyChanged += delegate (object s_, PropertyChangedEventArgs colEvent)
+          item.PropertyChanged += delegate (object s, PropertyChangedEventArgs colEvent)
           {
-            if (colEvent.PropertyName == nameof(CsvTools.Column.Ignore))
+            if (colEvent.PropertyName == nameof(Column.Ignore))
               NotifyPropertyChanged(nameof(ColumnCollection));
           };
         }
@@ -159,7 +159,7 @@ namespace CsvTools
     ///  Used for XML Serialization
     /// </remarks>
     [XmlIgnore]
-    public virtual bool FileLastWriteTimeUtcSpecified => ProcessTimeUtc != zeroTime;
+    public virtual bool FileLastWriteTimeUtcSpecified => ProcessTimeUtc != ZeroTime;
 
     [XmlIgnore]
     public virtual bool PassphraseSpecified
@@ -467,7 +467,7 @@ namespace CsvTools
     {
       get
       {
-        if (m_LatestSourceTimeUtc == zeroTime)
+        if (m_LatestSourceTimeUtc == ZeroTime)
           CalculateLatestSourceTime();
         return m_LatestSourceTimeUtc;
       }
@@ -480,21 +480,14 @@ namespace CsvTools
       }
     }
 
-    public bool HasLatestSourceTimeUtc => (m_LatestSourceTimeUtc != zeroTime);
+    public bool HasLatestSourceTimeUtc => (m_LatestSourceTimeUtc != ZeroTime);
 
     public virtual void CalculateLatestSourceTime()
     {
       if (this is IFileSettingPhysicalFile settingPhysicalFile && !string.IsNullOrEmpty(settingPhysicalFile.FullPath))
       {
         var fi = new Pri.LongPath.FileInfo(settingPhysicalFile.FullPath);
-        if (fi.Exists)
-        {
-          LatestSourceTimeUtc = fi.LastWriteTimeUtc;
-        }
-        else
-        {
-          LatestSourceTimeUtc = zeroTime;
-        }
+        LatestSourceTimeUtc = fi.Exists ? fi.LastWriteTimeUtc : ZeroTime;
       }
       else
         // in case the source is not a physical file, assume its the processing time
@@ -900,7 +893,7 @@ namespace CsvTools
           return;
         m_SqlStatement = newVal;
 
-        LatestSourceTimeUtc = zeroTime;
+        LatestSourceTimeUtc = ZeroTime;
         SourceFileSettings = null;
         NotifyPropertyChanged(nameof(SqlStatement));
       }
@@ -1109,40 +1102,21 @@ namespace CsvTools
       other.ID = m_Id;
     }
 
-    /// <summary>
-    ///  Gets the <see cref="CsvTools.Mapping" /> with the specified source.
-    /// </summary>
-    /// <param name="columnName">Name of the file column</param>
-    /// <returns>Return all FieldMapping for a column. There can be multiple</returns>
-    public virtual IEnumerable<Mapping> GetColumnMapping(string columnName)
-    {
-      foreach (var mapping in MappingCollection)
-      {
-        if (mapping.FileColumn.Equals(columnName, StringComparison.OrdinalIgnoreCase))
-          yield return mapping;
-      }
-    }
 
+    /// <summary>
+    /// Gets the file writer.
+    /// </summary>
+    /// <param name="processDisplay">The process display.</param>
+    /// <returns></returns>
     public abstract IFileWriter GetFileWriter(IProcessDisplay processDisplay);
 
+    /// <summary>
+    /// Gets the file reader.
+    /// </summary>
+    /// <param name="processDisplay">The process display.</param>
+    /// <returns></returns>
     public abstract IFileReader GetFileReader(IProcessDisplay processDisplay);
 
-    /// <summary>
-    ///  Remove a Fields mapping.
-    /// </summary>
-    /// <param name="source">The source name.</param>
-    public virtual void RemoveMapping(string source)
-    {
-      var toBeRemoved = new List<Mapping>();
-      foreach (var fieldMapping in MappingCollection)
-      {
-        if (fieldMapping.FileColumn.Equals(source, StringComparison.OrdinalIgnoreCase))
-          toBeRemoved.Add(fieldMapping);
-      }
-
-      foreach (var fieldMapping in toBeRemoved)
-        MappingCollection.Remove(fieldMapping);
-    }
 
     /*
     /// <summary>Serves as the default hash function. </summary>

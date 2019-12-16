@@ -86,7 +86,6 @@ namespace CsvTools
 
       HandleWriteStart();
 
-      var numEmptyRows = 0;
       var numColumns = columnInfos.Count();
       var
        sb = new StringBuilder(1024); // Assume a capacity of 1024 characters to start , data is flushed every 512 chars
@@ -134,12 +133,9 @@ namespace CsvTools
           // Remove the delimiters again
           if (hasFieldDelimiter)
             sb.Length -= numColumns;
-          numEmptyRows++;
-
           break;
         }
 
-        numEmptyRows = 0;
         sb.Append(recordEnd);
       }
 

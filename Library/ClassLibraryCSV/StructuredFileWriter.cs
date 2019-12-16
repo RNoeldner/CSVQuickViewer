@@ -17,7 +17,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics.Contracts;
 using System.IO;
-using System.Linq;
 using System.Security;
 using System.Text;
 using System.Threading;
@@ -47,10 +46,10 @@ namespace CsvTools
     private readonly StructuredFile m_StructuredWriterFile;
 
     /// <summary>
-    ///   Initializes a new instance of the <see cref="StructuredFileWriter" /> class.
+    /// Initializes a new instance of the <see cref="StructuredFileWriter" /> class.
     /// </summary>
     /// <param name="file">The file.</param>
-    /// <param name="cancellationToken">A cancellation token to stop writing the file</param>
+    /// <param name="processDisplay">The process display.</param>
     public StructuredFileWriter(StructuredFile file, IProcessDisplay processDisplay)
       : base(file, processDisplay)
     {
@@ -59,15 +58,12 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Stores that data in the given stream.
+    /// Stores that data in the given stream.
     /// </summary>
     /// <param name="reader">The data reader.</param>
     /// <param name="writer">The writer.</param>
-    /// <param name="readerFileSetting">The file.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>
-    ///   Number of rows written
-    /// </returns>
+    /// <exception cref="FileWriterException">No columns defined to be written.</exception>
     protected void DataReader2Stream(IDataReader reader, TextWriter writer,
       CancellationToken cancellationToken)
     {
@@ -115,10 +111,7 @@ namespace CsvTools
       }
 
       withHeader = withHeader.Trim();
-      foreach (var columnInfo in columnInfos)
-      {
-      }
-
+      
       var sb = new StringBuilder(1024); // Assume a capacity of 1024 characters to start, data is flushed every 512 chars
       while (reader.Read() && !cancellationToken.IsCancellationRequested)
       {
