@@ -75,13 +75,13 @@ namespace CsvTools
       Contract.Requires(writer != null);
 
       var columnInfos = GetSourceColumnInformation(reader);
-      var enumerable = columnInfos.ToList();
-      if (enumerable.IsEmpty())
+      var numColumns = columnInfos.Count();
+      if (numColumns == 0)
         throw new FileWriterException("No columns defined to be written.");
       var recordEnd = m_StructuredWriterFile.FileFormat.NewLine.Replace("CR", "\r").Replace("LF", "\n").Replace(" ", "")
         .Replace("\t", "");
       HandleWriteStart();
-      var numColumns = enumerable.Count();
+      
 
       // Header
       if (!string.IsNullOrEmpty(m_StructuredWriterFile.Header))
@@ -99,7 +99,7 @@ namespace CsvTools
       var placeHolderLookup1 = new Dictionary<int, string>();
       var placeHolderLookup2 = new Dictionary<int, string>();
 
-      foreach (var columnInfo in enumerable)
+      foreach (var columnInfo in columnInfos)
       {
         var placeHolder = string.Format(System.Globalization.CultureInfo.CurrentCulture, cHeaderPlaceholder, colNum);
         if (m_StructuredWriterFile.XMLEncode)
@@ -115,7 +115,7 @@ namespace CsvTools
       }
 
       withHeader = withHeader.Trim();
-      foreach (var columnInfo in enumerable)
+      foreach (var columnInfo in columnInfos)
       {
       }
 
@@ -128,7 +128,7 @@ namespace CsvTools
         sb.Append(recordEnd);
         var row = withHeader;
         colNum = 0;
-        foreach (var columnInfo in enumerable)
+        foreach (var columnInfo in columnInfos)
         {
           var col = reader.GetValue(columnInfo.ColumnOridinalReader);
           var value = (m_StructuredWriterFile.XMLEncode) ?
@@ -156,14 +156,11 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Writes the specified file reading from the given reader
+    /// Writes the specified file reading from the given reader
     /// </summary>
     /// <param name="reader">A Data Reader with the data</param>
-    /// <param name="fileSetting">The source setting or the data that could be different than the setting for is writer</param>
+    /// <param name="output">The output.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>
-    ///   Number of records written
-    /// </returns>
     protected override void Write(IDataReader reader, Stream output, CancellationToken cancellationToken)
     {
       Contract.Assume(!string.IsNullOrEmpty(m_StructuredWriterFile.FullPath));

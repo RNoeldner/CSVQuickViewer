@@ -53,7 +53,7 @@ namespace CsvTools
     /// <returns>
     ///   An array of string with the column headers where the column is empty
     /// </returns>
-    public static string[] GetEmptyColumnHeader(IFileSetting fileSetting, IProcessDisplay processDisplay)
+    public static ICollection<string> GetEmptyColumnHeader(IFileSetting fileSetting, IProcessDisplay processDisplay)
     {
       Contract.Requires(fileSetting != null);
       Contract.Requires(processDisplay != null);
@@ -66,30 +66,30 @@ namespace CsvTools
         Contract.Assume(fileReader != null);
         fileReader.Open();
 
-        var needtoCheck = new List<int>(fileReader.FieldCount);
+        var needToCheck = new List<int>(fileReader.FieldCount);
         for (var column = 0; column < fileReader.FieldCount; column++)
-          needtoCheck.Add(column);
+          needToCheck.Add(column);
 
-        while (fileReader.Read() && !processDisplay.CancellationToken.IsCancellationRequested && needtoCheck.Count > 0)
+        while (fileReader.Read() && !processDisplay.CancellationToken.IsCancellationRequested && needToCheck.Count > 0)
         {
           var hasData = new List<int>();
-          foreach (var col in needtoCheck)
+          foreach (var col in needToCheck)
           {
             if (!string.IsNullOrEmpty(fileReader.GetString(col)))
               hasData.Add(col);
           }
 
           foreach (var col in hasData)
-            needtoCheck.Remove(col);
+            needToCheck.Remove(col);
         }
 
         for (var column = 0; column < fileReader.FieldCount; column++)
         {
-          if (needtoCheck.Contains(column))
+          if (needToCheck.Contains(column))
             emptyColumns.Add(fileReader.GetColumn(column).Name);
         }
       }
-      return emptyColumns.ToArray();
+      return emptyColumns;
     }
 
     /// <summary>

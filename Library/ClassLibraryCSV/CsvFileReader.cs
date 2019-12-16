@@ -38,7 +38,7 @@ namespace CsvTools
     public const string cMoreColumns = " has more columns than expected";
 
     // Buffer size set to 64kB, if set to large the display in percentage will jump
-    private const int c_Buffersize = 65536;
+    private const int c_BufferSize = 65536;
 
     /// <summary>
     ///  The carriage return character. Escape code is <c>\r</c>.
@@ -57,12 +57,12 @@ namespace CsvTools
 
     private const char c_UnknownChar = (char)0xFFFD;
 
-    private bool disposedValue = false;
+    private bool m_DisposedValue;
 
     /// <summary>
     ///  16k Buffer of the file data
     /// </summary>
-    private readonly char[] m_Buffer = new char[c_Buffersize];
+    private readonly char[] m_Buffer = new char[c_BufferSize];
 
     private readonly ICsvFile m_CsvFile;
 
@@ -84,7 +84,7 @@ namespace CsvTools
     private bool m_EndOfLine;
 
     private bool m_HasQualifier;
-    private string[] m_HeaderRow = null;
+    private string[] m_HeaderRow;
     private ImprovedStream m_ImprovedStream;
 
     /// <summary>
@@ -97,7 +97,7 @@ namespace CsvTools
     private ushort m_NumWarningsQuote;
     private ushort m_NumWarningsUnknownChar;
 
-    private ReAlignColumns m_RealignColumns = null;
+    private ReAlignColumns m_RealignColumns;
 
     /// <summary>
     ///  The TextReader to read the file
@@ -168,7 +168,7 @@ namespace CsvTools
     /// </param>
     public override void Dispose(bool disposing)
     {
-      if (!disposedValue)
+      if (!m_DisposedValue)
       {
         // Dispose-time code should also set references of all owned objects to null, after disposing
         // them. This will allow the referenced objects to be garbage collected even if not all
@@ -182,9 +182,9 @@ namespace CsvTools
             m_TextReader.Dispose();
             m_TextReader = null;
           }
-          base.Dispose(disposing);
+          base.Dispose(true);
         }
-        disposedValue = true;
+        m_DisposedValue = true;
       }
     }
 
@@ -195,21 +195,21 @@ namespace CsvTools
     /// <param name="i">The zero-based column ordinal.</param>
     /// <param name="fieldOffset">The index within the field from which to start the read operation.</param>
     /// <param name="buffer">The buffer into which to read the stream of bytes.</param>
-    /// <param name="bufferoffset">The index for <paramref name="buffer" /> to start the read operation.</param>
+    /// <param name="bufferOffset">The index for <paramref name="buffer" /> to start the read operation.</param>
     /// <param name="length">The number of bytes to read.</param>
     /// <exception cref="NotImplementedException"></exception>
     /// <returns>The actual number of bytes read.</returns>
     /// <exception cref="IndexOutOfRangeException">
     ///  The index passed was outside the range of 0 through <see cref="IDataRecord.FieldCount" />.
     /// </exception>
-    public long GetBytes(int i, long fieldOffset, byte[] buffer, int bufferoffset, int length) => throw new NotImplementedException();
+    public long GetBytes(int i, long fieldOffset, byte[] buffer, int bufferOffset, int length) => throw new NotImplementedException();
 
     /// <summary>
-    ///  Returns an <see cref="Data.IDataReader" /> for the specified column ordinal.
+    ///  Returns an <see cref="IDataReader" /> for the specified column ordinal.
     /// </summary>
     /// <param name="i">The index of the field to find.</param>
     /// <exception cref="NotImplementedException"></exception>
-    /// <returns>An <see cref="Data.IDataReader" />.</returns>
+    /// <returns>An <see cref="IDataReader" />.</returns>
     /// <exception cref="IndexOutOfRangeException">
     ///  The index passed was outside the range of 0 through <see cref="IDataRecord.FieldCount" />.
     /// </exception>
@@ -240,12 +240,8 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///  Open the file Reader; Start processing the Headers and determine the maximum column size
+    /// Open the file Reader; Start processing the Headers and determine the maximum column size
     /// </summary>
-    /// <param name="determineColumnSize">
-    ///  If set to <c>true</c> go through the file and get the maximum column length for each column
-    /// </param>
-    /// <returns>Number of records</returns>
     public void Open()
     {
       m_HasQualifier |= m_CsvFile.FileFormat.FieldQualifierChar != '\0';
@@ -259,7 +255,7 @@ namespace CsvTools
         HandleWarning(-1,
          $"Only the first character of '{m_CsvFile.FileFormat.FieldDelimiter}' is used as delimiter.");
 
-      base.HandleRemoteFile();
+      HandleRemoteFile();
 
       try
       {
@@ -269,7 +265,7 @@ namespace CsvTools
         ResetPositionToStartOrOpen();
 
         m_HeaderRow = ReadNextRow(false, false);
-        if (m_HeaderRow.IsEmpty())
+        if (m_HeaderRow ==null || m_HeaderRow.GetLength(0)==0)
         {
           InitColumn(0);
         }
@@ -304,7 +300,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///  Advances the <see cref="Data.IDataReader" /> to the next record.
+    ///  Advances the <see cref="IDataReader" /> to the next record.
     /// </summary>
     /// <returns>true if there are more rows; otherwise, false.</returns>
     public override bool Read()
@@ -585,7 +581,7 @@ namespace CsvTools
     private int ParseFieldCount(IList<string> headerRow)
     {
       Contract.Ensures(Contract.Result<int>() >= 0);
-      if (headerRow.IsEmpty() || string.IsNullOrEmpty(headerRow[0]))
+      if (headerRow == null || headerRow.Count==0 || string.IsNullOrEmpty(headerRow[0]))
         return 0;
 
       var fields = headerRow.Count;
@@ -637,7 +633,7 @@ namespace CsvTools
 
       if (EndOfFile)
         return;
-      m_BufferFilled = m_TextReader.Read(m_Buffer, 0, c_Buffersize);
+      m_BufferFilled = m_TextReader.Read(m_Buffer, 0, c_BufferSize);
       EndOfFile |= m_BufferFilled == 0;
       // Handle double decoding
       if (!m_CsvFile.DoubleDecode || m_BufferFilled <= 0)

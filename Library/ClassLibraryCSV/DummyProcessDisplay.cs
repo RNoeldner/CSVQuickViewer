@@ -78,11 +78,12 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Sets the process.
+    /// Sets the process.
     /// </summary>
     /// <param name="text">The text.</param>
     /// <param name="value">The value.</param>
-    public virtual void SetProcess(string text, long value, bool log = true)
+    /// <param name="log"><c>True</c> if progress should be logged, <c>false</c> otherwise.</param>
+    public virtual void SetProcess(string text, long value, bool log)
     {
       if (log)
       {

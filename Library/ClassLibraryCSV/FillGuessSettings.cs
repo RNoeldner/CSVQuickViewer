@@ -29,13 +29,13 @@ namespace CsvTools
   {
     private int m_CheckedRecords = 30000;
     private bool m_CheckNamedDates = true;
-    private bool m_DectectNumbers = true;
-    private bool m_DectectPercentage = true;
+    private bool m_DetectNumbers = true;
+    private bool m_DetectPercentage = true;
     private bool m_DetectBoolean = true;
     private bool m_DetectDateTime = true;
     private bool m_DetectGuid;
     private string m_FalseValue = "False";
-    private bool m_IgnoreIdColums = true;
+    private bool m_IgnoreIdColumns = true;
     private int m_MinSamples = 5;
     private int m_SampleValues = 150;
     private bool m_SerialDateTime = true;
@@ -87,7 +87,7 @@ namespace CsvTools
     /// </summary>
     [DefaultValue(false)]
     [XmlElement]
-    public bool DateParts { get; set; } = false;
+    public bool DateParts { get; set; } 
 
     /// <summary>
     ///   If set to <c>True</c> values are checked if they could be Numeric, default is <c>True</c>
@@ -96,13 +96,13 @@ namespace CsvTools
     [XmlElement]
     public virtual bool DectectNumbers
     {
-      get => m_DectectNumbers;
+      get => m_DetectNumbers;
 
       set
       {
-        if (m_DectectNumbers == value)
+        if (m_DetectNumbers == value)
           return;
-        m_DectectNumbers = value;
+        m_DetectNumbers = value;
         NotifyPropertyChanged(nameof(DectectNumbers));
       }
     }
@@ -114,13 +114,13 @@ namespace CsvTools
     [XmlElement]
     public virtual bool DectectPercentage
     {
-      get => m_DectectPercentage;
+      get => m_DetectPercentage;
 
       set
       {
-        if (m_DectectPercentage == value)
+        if (m_DetectPercentage == value)
           return;
-        m_DectectPercentage = value;
+        m_DetectPercentage = value;
         NotifyPropertyChanged(nameof(DectectPercentage));
       }
     }
@@ -213,13 +213,13 @@ namespace CsvTools
     [XmlElement]
     public virtual bool IgnoreIdColums
     {
-      get => m_IgnoreIdColums;
+      get => m_IgnoreIdColumns;
 
       set
       {
-        if (m_IgnoreIdColums == value)
+        if (m_IgnoreIdColumns == value)
           return;
-        m_IgnoreIdColums = value;
+        m_IgnoreIdColumns = value;
         NotifyPropertyChanged(nameof(IgnoreIdColums));
       }
     }
@@ -356,7 +356,7 @@ namespace CsvTools
         return true;
       return CheckedRecords == other.CheckedRecords && CheckNamedDates == other.CheckNamedDates &&
              DateParts == other.DateParts &&
-             m_DectectNumbers == other.m_DectectNumbers && DectectPercentage == other.DectectPercentage &&
+             m_DetectNumbers == other.m_DetectNumbers && DectectPercentage == other.DectectPercentage &&
              m_DetectBoolean == other.m_DetectBoolean && m_DetectDateTime == other.DetectDateTime &&
              DetectGUID == other.DetectGUID &&
              string.Equals(FalseValue, other.FalseValue, StringComparison.OrdinalIgnoreCase) &&
@@ -389,7 +389,7 @@ namespace CsvTools
         hashCode = (hashCode * 397) ^ m_CheckNamedDates.GetHashCode();
         hashCode = (hashCode * 397) ^ m_DateParts.GetHashCode();
         hashCode = (hashCode * 397) ^ (m_DateTimeValue != null ? m_DateTimeValue.GetHashCode() : 0);
-        hashCode = (hashCode * 397) ^ m_DectectNumbers.GetHashCode();
+        hashCode = (hashCode * 397) ^ m_DetectNumbers.GetHashCode();
         hashCode = (hashCode * 397) ^ m_DectectPercentage.GetHashCode();
         hashCode = (hashCode * 397) ^ m_DetectBoolean.GetHashCode();
         hashCode = (hashCode * 397) ^ m_DetectDateTime.GetHashCode();

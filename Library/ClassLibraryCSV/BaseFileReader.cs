@@ -87,7 +87,7 @@ namespace CsvTools
     /// <summary>
     /// Used to avoid duplicate disposal
     /// </summary>
-    private bool m_DisposedValue = false;
+    private bool m_DisposedValue ;
 
     /// <summary>
     /// Number of Columns in the reader
@@ -97,7 +97,7 @@ namespace CsvTools
     /// <summary>
     /// used to avoid reporting a fished execution twice it might be called on error before being called once execution is done
     /// </summary>
-    private bool m_IsFinsihed = false;
+    private bool m_IsFinished;
 
     protected BaseFileReader(IFileSetting fileSetting, IProcessDisplay processDisplay)
     {
@@ -206,7 +206,7 @@ namespace CsvTools
     public object this[int columnNumber] => GetValue(columnNumber);
 
     /// <summary>
-    ///  Closes the <see cref="Data.IDataReader" /> Object.
+    ///  Closes the <see cref="IDataReader" /> Object.
     /// </summary>
     public virtual void Close() => EndOfFile = true;
 
@@ -408,9 +408,9 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///  Gets the unique identifier.
+    /// Gets the unique identifier.
     /// </summary>
-    /// <param name="i">The i.</param>
+    /// <param name="columnNumber">The column number.</param>
     /// <returns></returns>
     public virtual Guid GetGuid(int columnNumber)
     {
@@ -427,10 +427,10 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///  Gets the int32 value or null.
+    /// Gets the int32 value or null.
     /// </summary>
     /// <param name="inputValue">The input.</param>
-    /// <param name="column">The column.</param>
+    /// <param name="columnNumber">The column number.</param>
     /// <returns></returns>
     public virtual Guid? GetGuidNull(string inputValue, int columnNumber)
     {
@@ -565,13 +565,13 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///  Returns a <see cref="Data.DataTable" /> that describes the column meta data of the
-    ///  <see cref="Data.IDataReader" />.
+    /// Returns a <see cref="DataTable" /> that describes the column meta data of the
+    /// <see cref="IDataReader" />.
     /// </summary>
-    /// <returns>A <see cref="Data.DataTable" /> that describes the column meta data.</returns>
-    /// <exception cref="InvalidOperationException">
-    ///  The <see cref="Data.IDataReader" /> is closed.
-    /// </exception>
+    /// <returns>
+    /// A <see cref="DataTable" /> that describes the column meta data.
+    /// </returns>
+    /// <exception cref="InvalidOperationException">The <see cref="IDataReader" /> is closed.</exception>
     public virtual DataTable GetSchemaTable()
     {
       var dataTable = GetEmptySchemaTable();
@@ -899,7 +899,7 @@ namespace CsvTools
     protected virtual void FinishOpen()
     {
       ApplicationSetting.StoreHeader?.Invoke(m_FileSetting, Column);
-      m_IsFinsihed = false;
+      m_IsFinished = false;
       if (FieldCount > 0)
       {
         // Override the column settings and store the columns for later reference
@@ -1141,9 +1141,12 @@ namespace CsvTools
     /// Does handle TextToHML, TextToHtmlFull, TextPart and TreatNBSPAsSpace and does update the maximum column size
     /// Attention: Trimming needs to be handled before hand
     /// </summary>
-    /// <param name="typedValue">The original text</param>
+    /// <param name="inputString">The input string.</param>
     /// <param name="columnNumber">The column number</param>
-    /// <returns>The proper encoded or cut text as returned for the column</returns>
+    /// <param name="handleNullText">if set to <c>true</c> [handle null text].</param>
+    /// <returns>
+    /// The proper encoded or cut text as returned for the column
+    /// </returns>
     protected string HandleTextAndSetSize(string inputString, int columnNumber, bool handleNullText)
     {
       // in case its not a string
@@ -1180,6 +1183,9 @@ namespace CsvTools
           break;
       }
 
+      if (string.IsNullOrEmpty(output))
+        return null;
+
       if (m_FileSetting.TreatNBSPAsSpace && output.IndexOf((char)0xA0) != -1)
         output = output.Replace((char)0xA0, ' ');
 
@@ -1194,9 +1200,9 @@ namespace CsvTools
     /// </summary>
     protected virtual void HandleReadFinished()
     {
-      if (m_IsFinsihed)
+      if (m_IsFinished)
         return;
-      m_IsFinsihed = true;
+      m_IsFinished = true;
       m_FileSetting.ProcessTimeUtc = DateTime.UtcNow;
       if (m_FileSetting is IFileSettingPhysicalFile physicalFile)
       {
@@ -1212,22 +1218,18 @@ namespace CsvTools
 
     protected void HandleRemoteFile()
     {
-      if (ApplicationSetting.RemoteFileHandler != null && m_FileSetting is IFileSettingPhysicalFile remote)
+      if (ApplicationSetting.RemoteFileHandler == null || !(m_FileSetting is IFileSettingPhysicalFile remote)) return;
+      if (string.IsNullOrEmpty(remote.RemoteFileName)) return;
+      try
       {
-        if (!string.IsNullOrEmpty(remote?.RemoteFileName))
-        {
-          try
-          {
-            HandleShowProgress("Handling Remote file…");
-            m_FileSetting.LatestSourceTimeUtc = ApplicationSetting.RemoteFileHandler(remote.RemoteFileName, remote.FileName, remote.FullPath, ProcessDisplay, remote.ThrowErrorIfNotExists);
-          }
-          catch (Exception ex)
-          {
-            if (remote.ThrowErrorIfNotExists)
-              throw new FileReaderException($"The file is flagged as required for further processing\nAn error has occurred handling {remote.ID}", ex);
-            // ignore otherwise
-          }
-        }
+        HandleShowProgress("Handling Remote file…");
+        m_FileSetting.LatestSourceTimeUtc = ApplicationSetting.RemoteFileHandler(remote.RemoteFileName, remote.FileName, remote.FullPath, ProcessDisplay, remote.ThrowErrorIfNotExists);
+      }
+      catch (Exception ex)
+      {
+        if (remote.ThrowErrorIfNotExists)
+          throw new FileReaderException($"The file is flagged as required for further processing\nAn error has occurred handling {remote.ID}", ex);
+        // ignore otherwise
       }
     }
 
@@ -1310,7 +1312,7 @@ namespace CsvTools
       Debug.Assert(FieldCount >= 0);
       Debug.Assert(headerRow != null);
 
-      if (headerRow.IsEmpty())
+      if (headerRow.Count==0)
         return;
       InitColumn(FieldCount);
 
@@ -1324,20 +1326,20 @@ namespace CsvTools
       var previousColumns = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
       for (var counter = 0; counter < FieldCount; counter++)
       {
-        var columnname = counter < headerRow.Count ? headerRow[counter] : string.Empty;
+        var columnName = counter < headerRow.Count ? headerRow[counter] : string.Empty;
         string resultingName;
-        if (string.IsNullOrEmpty(columnname))
+        if (string.IsNullOrEmpty(columnName))
         {
           resultingName = GetDefaultName(counter);
           // HandleWarning(counter, string.Format(CultureInfo.CurrentCulture, "{0}Column title is empty.", CWarningId));
         }
         else
         {
-          resultingName = columnname.Trim();
-          if (columnname.Length != resultingName.Length)
+          resultingName = columnName.Trim();
+          if (columnName.Length != resultingName.Length)
           {
             HandleWarning(counter,
-             $"Column title '{columnname}' had leading or tailing spaces, these have been removed."
+             $"Column title '{columnName}' had leading or tailing spaces, these have been removed."
               .AddWarningId());
           }
 

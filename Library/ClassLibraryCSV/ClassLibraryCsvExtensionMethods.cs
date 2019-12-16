@@ -33,10 +33,10 @@ namespace CsvTools
   public static class ClassLibraryCsvExtensionMethods
   {
     // Time to wait on activation of a task
-    private const double cTimeToWaitOnActivation = 5d;
+    private const double c_TimeToWaitOnActivation = 5d;
 
     // 250 MS is 1/4 Second to wait for task completion
-    private const int cTaskWaitMS = 250;
+    private const int c_TaskWaitMs = 250;
 
     public static void AddComma(this StringBuilder sb)
     {
@@ -546,20 +546,6 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Determines whether this enumeration is empty.
-    /// </summary>
-    /// <param name="items">The items.</param>
-    /// <returns></returns>
-    public static bool IsEmpty(this IEnumerable items)
-    {
-      if (items == null)
-        return true;
-      foreach (var _ in items)
-        return false;
-      return true;
-    }
-
-    /// <summary>
     /// Replaces a placeholders with a text. The placeholder are identified surrounding { or a leading #
     /// </summary>
     /// <param name="input">The input.</param>
@@ -599,7 +585,7 @@ namespace CsvTools
       Contract.Ensures(Contract.Result<IEnumerable<string>>() != null);
       var notFoundColumnNames = new List<string>();
 
-      if (fileSetting == null || columns.IsEmpty())
+      if (fileSetting == null || columns ==null || columns.Count ==0)
         return notFoundColumnNames;
       foreach (var map in fileSetting.MappingCollection)
       {
@@ -930,7 +916,7 @@ namespace CsvTools
         RunTaskAction(executeTask, () =>
         {
           cancellationToken.ThrowIfCancellationRequested();
-          if (executeTask.Status == TaskStatus.WaitingForActivation && stopwatch.Elapsed.TotalSeconds > cTimeToWaitOnActivation)
+          if (executeTask.Status == TaskStatus.WaitingForActivation && stopwatch.Elapsed.TotalSeconds > c_TimeToWaitOnActivation)
             throw new TimeoutException($"Waited longer than {stopwatch.Elapsed.TotalSeconds:N1} seconds for task to start");
 
           // Raise an exception when waiting too long
@@ -950,7 +936,7 @@ namespace CsvTools
           // Invoke action every 1/4 second
           every125MS?.Invoke();
           // wait will raise an AggregateException if the task throws an exception
-          executeTask.Wait(cTaskWaitMS, cancellationToken);
+          executeTask.Wait(c_TaskWaitMs, cancellationToken);
         });
       }
     }
@@ -977,7 +963,7 @@ namespace CsvTools
         stopwatch.Start();
         RunTaskAction(executeTask, () =>
         {
-          if (executeTask.Status == TaskStatus.WaitingForActivation && stopwatch.Elapsed.TotalSeconds > cTimeToWaitOnActivation)
+          if (executeTask.Status == TaskStatus.WaitingForActivation && stopwatch.Elapsed.TotalSeconds > c_TimeToWaitOnActivation)
             throw new TimeoutException($"Waited longer than {stopwatch.Elapsed.TotalSeconds:N1} seconds for task to start");
 
           // Raise an exception when waiting too long
@@ -988,7 +974,7 @@ namespace CsvTools
           every125MS?.Invoke();
 
           // wait will raise an AggregateException if the task throws an exception
-          executeTask.Wait(cTaskWaitMS);
+          executeTask.Wait(c_TaskWaitMs);
         });
       }
       else
@@ -999,7 +985,7 @@ namespace CsvTools
           every125MS?.Invoke();
 
           // wait will raise an AggregateException if the task throws an exception
-          executeTask.Wait(cTaskWaitMS);
+          executeTask.Wait(c_TaskWaitMs);
         });
       }
     }
@@ -1030,7 +1016,7 @@ namespace CsvTools
           stopwatch.Start();
           RunTaskAction(executeTask, () =>
           {
-            if (executeTask.Status == TaskStatus.WaitingForActivation && stopwatch.Elapsed.TotalSeconds > cTimeToWaitOnActivation)
+            if (executeTask.Status == TaskStatus.WaitingForActivation && stopwatch.Elapsed.TotalSeconds > c_TimeToWaitOnActivation)
               throw new TimeoutException($"Waited longer than {stopwatch.Elapsed.TotalSeconds:N1} seconds for task to start");
 
             // Raise an exception when waiting too long
@@ -1040,7 +1026,7 @@ namespace CsvTools
             every125MS?.Invoke();
 
             // wait will raise an AggregateException if the task throws an exception
-            executeTask.Wait(cTaskWaitMS, cancellationToken);
+            executeTask.Wait(c_TaskWaitMs, cancellationToken);
           });
         }
         else
@@ -1077,7 +1063,7 @@ namespace CsvTools
           stopwatch.Start();
           RunTaskAction(executeTask, () =>
           {
-            if (executeTask.Status == TaskStatus.WaitingForActivation && stopwatch.Elapsed.TotalSeconds > cTimeToWaitOnActivation)
+            if (executeTask.Status == TaskStatus.WaitingForActivation && stopwatch.Elapsed.TotalSeconds > c_TimeToWaitOnActivation)
               throw new TimeoutException($"Waited longer than {stopwatch.Elapsed.TotalSeconds:N1} seconds for task to start");
 
             // Raise an exception when waiting too long
@@ -1087,7 +1073,7 @@ namespace CsvTools
             every125MS?.Invoke();
 
             // wait will raise an AggregateException if the task throws an exception
-            executeTask.Wait(cTaskWaitMS);
+            executeTask.Wait(c_TaskWaitMs);
           });
         }
         else
@@ -1097,7 +1083,7 @@ namespace CsvTools
             // Invoke action every 1/4 second
             every125MS?.Invoke();
             // wait will raise an AggregateException if the task throws an exception
-            executeTask.Wait(cTaskWaitMS);
+            executeTask.Wait(c_TaskWaitMs);
           });
         }
       }

@@ -79,11 +79,11 @@ namespace CsvTools
     /// <param name="culture">the culture to check (important for named Days or month)</param>
     /// <returns>
     ///   <c>true</c> if all values can be interpreted as date, <c>false</c> otherwise.</returns>
-    public static CheckResult CheckDate(IEnumerable<string> samples, string shortDateFormat, string dateSeparator,
+    public static CheckResult CheckDate(ICollection<string> samples, string shortDateFormat, string dateSeparator,
       string timeSeparator, CultureInfo culture)
     {
       var checkResult = new CheckResult();
-      if (samples.IsEmpty())
+      if (samples == null || samples.Count == 0)
         return checkResult;
       var allParsed = true;
       var counter = 0;
@@ -144,16 +144,16 @@ namespace CsvTools
     /// </returns>
     public static bool CheckGuid(IEnumerable<string> samples)
     {
-      if (samples.IsEmpty())
-        return false;
+      var isEmpty = true;
       foreach (var value in samples)
       {
+        isEmpty = false;
         var ret = StringToGuid(value);
         if (!ret.HasValue)
           return false;
       }
 
-      return true;
+      return !isEmpty;
     }
 
     /// <summary>
@@ -171,8 +171,7 @@ namespace CsvTools
       bool allowPercentage, bool allowStartingZero)
     {
       var checkResult = new CheckResult();
-      if (samples.IsEmpty())
-        return checkResult;
+
       var allParsed = true;
       var assumeInteger = true;
       var counter = 0;
@@ -220,14 +219,15 @@ namespace CsvTools
         }
       }
 
-      if (!allParsed)
-        return checkResult;
-      checkResult.FoundValueFormat = new ValueFormat
+      if (allParsed)
       {
-        DataType = assumeInteger ? DataType.Integer : DataType.Numeric,
-        DecimalSeparator = decimalSeparator.ToString(System.Globalization.CultureInfo.CurrentCulture),
-        GroupSeparator = thousandSeparator.ToString(System.Globalization.CultureInfo.CurrentCulture)
-      };
+        checkResult.FoundValueFormat = new ValueFormat
+        {
+          DataType = assumeInteger ? DataType.Integer : DataType.Numeric,
+          DecimalSeparator = decimalSeparator.ToString(System.Globalization.CultureInfo.CurrentCulture),
+          GroupSeparator = thousandSeparator.ToString(System.Globalization.CultureInfo.CurrentCulture)
+        };
+      }
 
       return checkResult;
     }
@@ -246,8 +246,7 @@ namespace CsvTools
     public static CheckResult CheckSerialDate(IEnumerable<string> samples, bool isCloseToNow)
     {
       var checkResult = new CheckResult();
-      if (samples.IsEmpty())
-        return checkResult;
+
       var allParsed = true;
       var positiveMatches = 0;
       var counter = 0;
@@ -290,13 +289,14 @@ namespace CsvTools
         }
       }
 
-      if (!allParsed)
-        return checkResult;
-      checkResult.FoundValueFormat = new ValueFormat
+      if (allParsed)
       {
-        DataType = DataType.DateTime,
-        DateFormat = "SerialDate"
-      };
+        checkResult.FoundValueFormat = new ValueFormat
+        {
+          DataType = DataType.DateTime,
+          DateFormat = "SerialDate"
+        };
+      }
 
       return checkResult;
     }
@@ -307,16 +307,15 @@ namespace CsvTools
     /// <param name="samples">The sample values to be checked.</param>
     /// <param name="timeSeparator">The time separator.</param>
     /// <returns>
-    ///   <c>true</c> if all values can be interpreted as time, <c>false</c> otherwise.
+    ///   <c>true</c> if all values can be interpreted as time and teh list is not empty, <c>false</c> otherwise.
     /// </returns>
-    public static bool CheckTime(ICollection<string> samples, string timeSeparator)
+    public static bool CheckTime(IEnumerable<string> samples, string timeSeparator)
     {
-      if (samples.IsEmpty())
-        return false;
-
       var allParsed = true;
+      var isEmpty = true;
       foreach (var value in samples)
       {
+        isEmpty = false;
         var ret = StringToTimeSpan(value, timeSeparator, false);
         if (ret.HasValue)
           continue;
@@ -324,7 +323,7 @@ namespace CsvTools
         break;
       }
 
-      return allParsed;
+      return allParsed && !isEmpty;
     }
 
     /// <summary>
@@ -336,10 +335,8 @@ namespace CsvTools
     /// <returns>
     ///   <c>true</c> if all values can be interpreted as date, <c>false</c> otherwise.
     /// </returns>
-    public static bool CheckTimeSpan(ICollection<string> samples, string timeSeparator, bool serialDateTime)
+    public static bool CheckTimeSpan(IEnumerable<string> samples, string timeSeparator, bool serialDateTime)
     {
-      if (samples.IsEmpty())
-        return false;
       var allParsed = true;
       var hasValue = false;
       foreach (var value in samples)
@@ -354,9 +351,7 @@ namespace CsvTools
         hasValue |= ret.Value.TotalSeconds > 0;
       }
 
-      if (hasValue)
-        return allParsed;
-      return false;
+      return hasValue && allParsed;
     }
 
     /// <summary>
@@ -368,10 +363,10 @@ namespace CsvTools
     /// <param name="timeColumnText">The time column text.</param>
     /// <param name="serialDateTime">if set to <c>true</c> [serial date time].</param>
     /// <param name="df">The value format for the date column.</param>
-    /// <param name="timeColunIssues">if set to <c>true</c> if the time value is outside range 00:00 - 23:59.</param>
+    /// <param name="timeColumnIssues">if set to <c>true</c> if the time value is outside range 00:00 - 23:59.</param>
     /// <returns></returns>
     public static DateTime? CombineObjectsToDateTime(object dateColumn, string dateColumnText, object timeColumn,
-      string timeColumnText, bool serialDateTime, Column df, out bool timeColunIssues)
+      string timeColumnText, bool serialDateTime, Column df, out bool timeColumnIssues)
     {
       var dateValue = m_FirstDateTime;
       // We do have an associated column, with a proper date format
@@ -426,12 +421,12 @@ namespace CsvTools
 
       if (timeSpanValue.HasValue)
       {
-        timeColunIssues = timeSpanValue.Value.TotalDays >= 1d || timeSpanValue.Value.TotalSeconds < 0d;
+        timeColumnIssues = timeSpanValue.Value.TotalDays >= 1d || timeSpanValue.Value.TotalSeconds < 0d;
         return dateValue.Add(timeSpanValue.Value);
       }
       else
       {
-        timeColunIssues = false;
+        timeColumnIssues = false;
       }
 
       // It could be that the dateValue is indeed m_FirstDateTime, but only if the text matches the proper formated value
@@ -520,11 +515,11 @@ namespace CsvTools
       var pad = 2;
 
       // only allow format that has time values
-      const string allowed = " Hhmsf:";
+      const string c_Allowed = " Hhmsf:";
       var result = string.Empty;
       foreach (var chr in format.DateFormat)
       {
-        if (allowed.IndexOf(chr) != -1)
+        if (c_Allowed.IndexOf(chr) != -1)
           result += chr;
       }
       // make them all upper case H lower case does not make sense
@@ -781,18 +776,19 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Parses a string to a date time value
+    /// Parses a string to a date time value
     /// </summary>
     /// <param name="originalValue">The original value.</param>
     /// <param name="dateFormat">The date format, possibly separated by delimiter</param>
     /// <param name="dateSeparator">The date separator used in the conversion</param>
     /// <param name="timeSeparator">The time separator.</param>
     /// <param name="serialDateTime">Allow Date Time values ion serial format</param>
+    /// <param name="culture">The culture.</param>
     /// <returns>
-    ///   An <see cref="DateTime" /> if the value could be interpreted, <c>null</c> otherwise
+    /// An <see cref="DateTime" /> if the value could be interpreted, <c>null</c> otherwise
     /// </returns>
     /// <remarks>
-    ///   If the date part is not filled its the 1/1/1
+    /// If the date part is not filled its the 1/1/1
     /// </remarks>
     public static DateTime? StringToDateTime(string originalValue, string dateFormat, string dateSeparator,
       string timeSeparator, bool serialDateTime, CultureInfo culture = null)
@@ -815,7 +811,8 @@ namespace CsvTools
       }
 
       // in case its time only and we do not have any date separator try a timespan
-      if (stringDateValue.IndexOf(dateSeparator, StringComparison.Ordinal) == -1 &&
+      if (!string.IsNullOrEmpty(dateSeparator) &&
+          stringDateValue.IndexOf(dateSeparator, StringComparison.Ordinal) == -1 &&
           dateFormat.IndexOf('/') == -1)
       {
         var ts = StringToTimeSpan(originalValue, timeSeparator, false);
@@ -827,17 +824,17 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Converts Strings to date time using the culture information
+    /// Converts Strings to date time using the culture information
     /// </summary>
     /// <param name="originalValue">The original value.</param>
     /// <param name="dateFormats">The date formats.</param>
     /// <param name="dateSeparator">The date separator.</param>
     /// <param name="timeSeparator">The time separator.</param>
     /// <param name="culture">The culture.</param>
-    /// <param name="fallback">if set to <c>true</c> try to fall back to some defaults using / and only parsing the date.</param>
-    /// <remarks>Similar to <see cref="StringToDateTimeByCulture"/> but checks if we have a format that would fit the length of the value.
-    /// </remarks>
     /// <returns></returns>
+    /// <remarks>
+    /// Similar to <see cref="StringToDateTimeByCulture" /> but checks if we have a format that would fit the length of the value.
+    /// </remarks>
     public static DateTime? StringToDateTimeExact(string originalValue, string dateFormats, string dateSeparator,
       string timeSeparator, CultureInfo culture)
     {
@@ -1241,7 +1238,7 @@ namespace CsvTools
       }
 
       // try InvariantCulture
-      if (culture.Name != "en-US" && culture != CultureInfo.InvariantCulture)
+      if (culture.Name != "en-US" && !Equals(culture, CultureInfo.InvariantCulture))
       {
         dateTimeFormatInfo.AbbreviatedDayNames = CultureInfo.InvariantCulture.DateTimeFormat.AbbreviatedDayNames;
         dateTimeFormatInfo.DayNames = CultureInfo.InvariantCulture.DateTimeFormat.DayNames;

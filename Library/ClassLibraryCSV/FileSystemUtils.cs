@@ -89,12 +89,12 @@ namespace CsvTools
     /// <returns></returns>
     public static string ExecutableDirectoryName()
     {
-      var diretory = Assembly.GetExecutingAssembly().Location;
-      if (string.IsNullOrEmpty(diretory))
-        diretory = Assembly.GetEntryAssembly().Location;
-      if (string.IsNullOrEmpty(diretory))
-        diretory = ".";
-      return Path.GetDirectoryName(diretory);
+      var directory = Assembly.GetExecutingAssembly().Location;
+      if (string.IsNullOrEmpty(directory))
+        directory = Assembly.GetEntryAssembly()?.Location;
+      if (string.IsNullOrEmpty(directory))
+        directory = ".";
+      return Path.GetDirectoryName(directory);
     }
 
     public static void FileDelete(string fileName)
@@ -425,13 +425,13 @@ namespace CsvTools
 
       var fi = new FileInfo(longPath);
 
-      uint bufferSize = 512;
-      var shortNameBuffer = new StringBuilder((int)bufferSize);
+      const uint c_BufferSize = 512;
+      var shortNameBuffer = new StringBuilder((int)c_BufferSize);
 
       // we might be asked to build a short path when the file does not exist yet, this would fail
       if (fi.Exists)
       {
-        var length = GetShortPathName(longPath, shortNameBuffer, bufferSize);
+        var length = GetShortPathName(longPath, shortNameBuffer, c_BufferSize);
         if (length > 0)
         {
           return shortNameBuffer.ToString().RemovePrefix();
@@ -439,11 +439,11 @@ namespace CsvTools
       }
 
       // if we have at least the directory shorten this
-      if (fi.Directory.Exists)
+      if (!fi.Directory.Exists) throw new Exception($"Could not get a short path for the file ${longPath}");
       {
-        var length = GetShortPathName(fi.Directory.FullName, shortNameBuffer, bufferSize);
+        var length = GetShortPathName(fi.Directory.FullName, shortNameBuffer, c_BufferSize);
         if (length > 0)
-          return (shortNameBuffer.ToString() + "\\" + fi.Name).RemovePrefix();
+          return (shortNameBuffer + "\\" + fi.Name).RemovePrefix();
       }
 
       throw new Exception($"Could not get a short path for the file ${longPath}");

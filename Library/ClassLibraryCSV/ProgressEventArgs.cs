@@ -46,7 +46,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="text">The text.</param>
     /// <param name="value">The progress value.</param>
-    /// <param name="log"><c>True</c> if Progress should be logged, <c>false</c> otherwise.</param>
+    /// <param name="log"><c>True</c> if progress should be logged, <c>false</c> otherwise.</param>
     public ProgressEventArgs(string text, long value, bool log)
     {
       Text = text;

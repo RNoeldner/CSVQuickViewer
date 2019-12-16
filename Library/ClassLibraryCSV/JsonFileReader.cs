@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Newtonsoft.Json;
 
 namespace CsvTools
@@ -11,7 +12,7 @@ namespace CsvTools
     private ImprovedStream m_ImprovedStream;
     private StreamReader m_TextReader;
     private JsonTextReader m_JsonTextReader;
-    private bool disposedValue = false;
+    private bool m_DisposedValue;
 
     public JsonFileReader(ICsvFile fileSetting, IProcessDisplay processDisplay)
     : base(fileSetting, processDisplay) => m_StructuredFile = fileSetting;
@@ -40,28 +41,26 @@ namespace CsvTools
     /// </param>
     public override void Dispose(bool disposing)
     {
-      if (!disposedValue)
+      if (!m_DisposedValue)
       {
         // Dispose-time code should also set references of all owned objects to null, after disposing
         // them. This will allow the referenced objects to be garbage collected even if not all
         // references to the "parent" are released. It may be a significant memory consumption win if
         // the referenced objects are large, such as big arrays, collections, etc.
-        if (disposing)
+        if (!disposing) return;
+        Close();
+        if (m_TextReader != null)
         {
-          Close();
-          if (m_TextReader != null)
-          {
-            m_TextReader.Dispose();
-            m_TextReader = null;
-          }
-          if (m_JsonTextReader != null)
-          {
-            m_JsonTextReader.Close();
-            m_JsonTextReader = null;
-          }
-          base.Dispose(disposing);
-          disposedValue = true;
+          m_TextReader.Dispose();
+          m_TextReader = null;
         }
+        if (m_JsonTextReader != null)
+        {
+          m_JsonTextReader.Close();
+          m_JsonTextReader = null;
+        }
+        base.Dispose(true);
+        m_DisposedValue = true;
       }
     }
 
@@ -73,7 +72,7 @@ namespace CsvTools
     {
       for (var colNum = 0; colNum < FieldCount; colNum++)
       {
-        m_CurrentValues[colNum] = null;
+        CurrentValues[colNum] = null;
         CurrentRowColumnText[colNum] = string.Empty;
       }
 
@@ -164,9 +163,6 @@ namespace CsvTools
           case JsonToken.EndArray:
             inArray = false;
             break;
-
-          default:
-            break;
         }
         CancellationToken.ThrowIfCancellationRequested();
       } while (!(m_JsonTextReader.TokenType == JsonToken.EndObject && parentKey.Length == 0)
@@ -175,23 +171,18 @@ namespace CsvTools
       EndLineNumber = m_JsonTextReader.LineNumber;
       RecordNumber++;
 
-      var realHeaders = new List<string>();
-      foreach (var kv in headers)
-      {
-        if (kv.Value)
-          realHeaders.Add(kv.Key);
-      }
+      var realHeaders = (from kv in headers where kv.Value select kv.Key).ToList();
 
       // store the information into our fixed structure, even if the tokens in Json change order they will aligned
-      if (!Column.IsEmpty())
+      if (Column.Length == 0) return realHeaders;
       {
         var colNum = 0;
         foreach (var col in Column)
         {
-          if (keyValuePairs.TryGetValue(col.Name, out m_CurrentValues[colNum]))
+          if (keyValuePairs.TryGetValue(col.Name, out CurrentValues[colNum]))
           {
-            if (m_CurrentValues[colNum] != null)
-              CurrentRowColumnText[colNum] = m_CurrentValues[colNum].ToString();
+            if (CurrentValues[colNum] != null)
+              CurrentRowColumnText[colNum] = CurrentValues[colNum].ToString();
           }
           colNum++;
         }
@@ -222,8 +213,7 @@ namespace CsvTools
         base.InitColumn(line.Count);
         ParseColumnName(line);
 
-        var colType = base.GetColumnType(delegate (int row)
-        { return (GetNextRecord() != null); });
+        var colType = GetColumnType(row => (GetNextRecord() != null));
 
         // Read the types of the first row
         for (var counter = 0; counter < FieldCount; counter++)
@@ -248,7 +238,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///  Advances the <see cref="Data.IDataReader" /> to the next record.
+    ///  Advances to the next record.
     /// </summary>
     /// <returns>true if there are more rows; otherwise, false.</returns>
     public override bool Read()
