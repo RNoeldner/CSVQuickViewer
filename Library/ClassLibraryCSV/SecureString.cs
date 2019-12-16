@@ -70,7 +70,7 @@ namespace CsvTools
 
       using (var symmetricKey = new RijndaelManaged { Mode = CipherMode.CBC })
       {
-        using (var passwordDeriveBytes = new Rfc2898DeriveBytes(pwd, Encoding.ASCII.GetBytes(salt)))
+        using (var passwordDeriveBytes = new PasswordDeriveBytes(pwd, Encoding.ASCII.GetBytes(salt)))
         {
           var decrypt = symmetricKey.CreateDecryptor(passwordDeriveBytes.GetBytes(32), m_InitVectorBytes);
           using (var cryptoStream = new CryptoStream(new MemoryStream(cipherTextBytes), decrypt, CryptoStreamMode.Read))
@@ -104,7 +104,7 @@ namespace CsvTools
 
       using (var symmetricKey = new RijndaelManaged { Mode = CipherMode.CBC })
       {
-        using (var passwordDeriveBytes = new Rfc2898DeriveBytes(pwd, Encoding.ASCII.GetBytes(salt)))
+        using (var passwordDeriveBytes = new PasswordDeriveBytes(pwd, Encoding.ASCII.GetBytes(salt)))
         {
           var encrypt = symmetricKey.CreateEncryptor(passwordDeriveBytes.GetBytes(32), m_InitVectorBytes);
           var memoryStream = new MemoryStream();
