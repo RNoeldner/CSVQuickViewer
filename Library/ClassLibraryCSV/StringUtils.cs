@@ -160,9 +160,9 @@ namespace CsvTools
     ///<example>JoinParts(new [] {"My","","Test")=> My, Test</example>
     /// <remarks>Any empty string will be ignored.</remarks>
     /// <returns>A string</returns>
-    public static string Join(this ICollection<string> parts, string joinWith = ", ")
+    public static string Join(this IEnumerable<string> parts, string joinWith = ", ")
     {
-      if (parts == null || parts.Count == 0)
+      if (parts == null)
         return string.Empty;
 
       var sb = new StringBuilder();
@@ -185,9 +185,9 @@ namespace CsvTools
     ///<example>JoinParts(new [] {"My","","Test")=> My, Test</example>
     /// <remarks>Any empty string will be ignored.</remarks>
     /// <returns>A string</returns>
-    public static string JoinChar(this ICollection<string> parts, char joinWith = ',')
+    public static string JoinChar(this IEnumerable<string> parts, char joinWith = ',')
     {
-      if (parts == null || parts.Count == 0)
+      if (parts == null)
         return string.Empty;
 
       var sb = new StringBuilder();
@@ -210,9 +210,9 @@ namespace CsvTools
     ///<example>JoinParts(new [] {"My","","Test")=> My, Test</example>
     /// <remarks>Any empty string will be ignored.</remarks>
     /// <returns>A string</returns>
-    public static string Join(this ICollection<int> parts, string joinWith = ", ")
+    public static string Join(this IEnumerable<int> parts, string joinWith = ", ")
     {
-      if (parts == null || parts.Count==0)
+      if (parts == null)
         return string.Empty;
 
       var sb = new StringBuilder();
@@ -384,9 +384,7 @@ namespace CsvTools
     public static string[] SplitByDelimiter(string inputValue)
     {
       Contract.Ensures(Contract.Result<string[]>() != null);
-      if (string.IsNullOrEmpty(inputValue))
-        return new string[] { };
-      return inputValue.Split(m_DelimiterChar, StringSplitOptions.RemoveEmptyEntries);
+      return string.IsNullOrEmpty(inputValue) ? new string[] { } : inputValue.Split(m_DelimiterChar, StringSplitOptions.RemoveEmptyEntries);
     }
 
     /// <summary>

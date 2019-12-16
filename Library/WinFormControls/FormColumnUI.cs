@@ -57,7 +57,7 @@ namespace CsvTools
     public FormColumnUI(Column column, bool writeSetting, IFileSetting fileSetting, FillGuessSettings fillGuessSettings, bool showIgnore)
     {
       Contract.Requires(column != null);
-      m_FileSetting = fileSetting?? throw  new ArgumentNullException(nameof(fileSetting));
+      m_FileSetting = fileSetting ?? throw new ArgumentNullException(nameof(fileSetting));
       m_FillGuessSettings = fillGuessSettings ?? throw new ArgumentNullException(nameof(fillGuessSettings));
       m_ColumnRef = column ?? throw new ArgumentNullException(nameof(column));
       column.CopyTo(m_ColumnEdit);
@@ -66,7 +66,7 @@ namespace CsvTools
 
 
       InitializeComponent();
-      
+
       comboBoxColumnName.Enabled = showIgnore;
 
       var source = ApplicationSetting.DestinationTimeZone;
@@ -139,7 +139,6 @@ namespace CsvTools
                 UpdateColumnList(columns);
                 hasRetried = true;
                 goto retry;
-                throw new ConfigurationException($"The file does not seem to contain the column {columnName}.");
               }
 
               found.DataType = column.DataType.GetDataType();
@@ -163,7 +162,7 @@ namespace CsvTools
             // 3 - 2
             // 4 - Last - 1
 
-            if (samples.Values.IsEmpty())
+            if (samples.Values.Count == 0)
             {
               _MessageBox.Show(this, string.Format(CultureInfo.CurrentCulture, c_NoSampleDate, samples.RecordsRead),
                 "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -213,9 +212,6 @@ namespace CsvTools
                         detectBool = false;
                         detectNumeric = false;
                         detectDateTime = false;
-                        break;
-
-                      default:
                         break;
                     }
                   }
@@ -393,7 +389,7 @@ namespace CsvTools
           var values = GetSampleValues(comboBoxColumnName.Text, processDisplay);
           processDisplay.Hide();
           Cursor.Current = Cursors.Default;
-          if (values.Values.IsEmpty())
+          if (values.Values.Count == 0)
           {
             _MessageBox.Show(this, string.Format(CultureInfo.CurrentCulture, c_NoSampleDate, values.RecordsRead),
               comboBoxColumnName.Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -531,7 +527,7 @@ namespace CsvTools
                 using (var schemaReader = writer.GetSchemaReader())
                 using (var dataTable = schemaReader.GetSchemaTable())
                 {
-                  foreach (System.Data.DataRow schemaRow in dataTable.Rows)
+                  foreach (DataRow schemaRow in dataTable.Rows)
                     allColumns.Add(schemaRow[System.Data.Common.SchemaTableColumn.ColumnName].ToString());
                 }
               }
@@ -923,7 +919,7 @@ namespace CsvTools
         return;
       if (part.Value < 1)
       {
-        textBoxPart.Text = "1";
+        textBoxPart.Text = @"1";
         part = 1;
       }
 

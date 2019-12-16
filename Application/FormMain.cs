@@ -267,7 +267,7 @@ namespace CsvTools
           OpenDataReader(true);
       }
       if (m_FileChanged)
-      {       
+      {
         if (_MessageBox.Show(this, "The displayed file has changed do you want to reload the data?", "File changed", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
           OpenDataReader(true);
       }
@@ -316,10 +316,10 @@ namespace CsvTools
           // Ignore all information in m_FileSetting.FileName
           m_FileSetting.FileName = m_FileName.Substring(0, m_FileName.Length - CsvFile.cCsvSettingExtension.Length);
           m_FileName = m_FileSetting.FileName;
-          DisableIgnoreRead();         
+          DisableIgnoreRead();
         }
         else
-        {          
+        {
           doClose = !InitFileSettings();
         }
       }
@@ -428,7 +428,7 @@ namespace CsvTools
       ViewSettings.CopyConfiuration(m_ViewSettings, m_FileSetting);
       m_FileSetting.FileName = m_FileName;
 
-      if (m_FileName.AssumePgp() && (ApplicationSetting.PGPKeyStorage?.PrivateKeys?.IsEmpty() ?? false))
+      if (m_FileName.AssumePgp() && (ApplicationSetting.PGPKeyStorage?.PrivateKeys?.Length == 0))
       {
         var res = _MessageBox.Show(this, "The private key for decryption has not been setup.\n\nDo you want to add them now ?", "Decryption", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, timeout: 5);
         if (res == DialogResult.Cancel)
@@ -752,7 +752,7 @@ namespace CsvTools
         {
           frm.ShowDialog(MdiParent);
           FillFromProperites();
-          SaveDefault();         
+          SaveDefault();
         }
       }
       catch (Exception ex)

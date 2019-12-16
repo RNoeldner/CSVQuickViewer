@@ -144,6 +144,8 @@ namespace CsvTools
     /// </returns>
     public static bool CheckGuid(IEnumerable<string> samples)
     {
+      if (samples == null)
+        return false;
       var isEmpty = true;
       foreach (var value in samples)
       {
@@ -171,6 +173,8 @@ namespace CsvTools
       bool allowPercentage, bool allowStartingZero)
     {
       var checkResult = new CheckResult();
+      if (samples == null)
+        return checkResult;
 
       var allParsed = true;
       var assumeInteger = true;
@@ -201,8 +205,8 @@ namespace CsvTools
             checkResult.ValueFormatPossibleMatch = new ValueFormat
             {
               DataType = assumeInteger ? DataType.Integer : DataType.Numeric,
-              DecimalSeparator = decimalSeparator.ToString(System.Globalization.CultureInfo.CurrentCulture),
-              GroupSeparator = thousandSeparator.ToString(System.Globalization.CultureInfo.CurrentCulture)
+              DecimalSeparator = decimalSeparator.ToString(CultureInfo.CurrentCulture),
+              GroupSeparator = thousandSeparator.ToString(CultureInfo.CurrentCulture)
             };
           }
           // if the value contains the decimal separator or is too large to be an integer, its not
@@ -219,13 +223,13 @@ namespace CsvTools
         }
       }
 
-      if (allParsed)
+      if (allParsed && counter > 0)
       {
         checkResult.FoundValueFormat = new ValueFormat
         {
           DataType = assumeInteger ? DataType.Integer : DataType.Numeric,
-          DecimalSeparator = decimalSeparator.ToString(System.Globalization.CultureInfo.CurrentCulture),
-          GroupSeparator = thousandSeparator.ToString(System.Globalization.CultureInfo.CurrentCulture)
+          DecimalSeparator = decimalSeparator.ToString(CultureInfo.CurrentCulture),
+          GroupSeparator = thousandSeparator.ToString(CultureInfo.CurrentCulture)
         };
       }
 
@@ -289,7 +293,7 @@ namespace CsvTools
         }
       }
 
-      if (allParsed)
+      if (allParsed && counter > 0)
       {
         checkResult.FoundValueFormat = new ValueFormat
         {
@@ -311,8 +315,12 @@ namespace CsvTools
     /// </returns>
     public static bool CheckTime(IEnumerable<string> samples, string timeSeparator)
     {
+      if (samples == null)
+        return false;
+
       var allParsed = true;
       var isEmpty = true;
+
       foreach (var value in samples)
       {
         isEmpty = false;
@@ -337,6 +345,8 @@ namespace CsvTools
     /// </returns>
     public static bool CheckTimeSpan(IEnumerable<string> samples, string timeSeparator, bool serialDateTime)
     {
+      if (samples == null)
+        return false;
       var allParsed = true;
       var hasValue = false;
       foreach (var value in samples)

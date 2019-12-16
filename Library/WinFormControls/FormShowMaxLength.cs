@@ -130,7 +130,7 @@ namespace CsvTools
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
     private void ShowMaxLength_Load(object sender, EventArgs e)
     {
-      if (m_DataTable == null || m_DataRow == null || m_DataRow.IsEmpty())
+      if (m_DataTable == null || m_DataRow == null || m_DataRow.Length == 0)
         return;
 
       try

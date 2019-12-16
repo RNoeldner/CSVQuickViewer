@@ -7,10 +7,6 @@ namespace CsvTools
 {
   public sealed class MappingCollection : Collection<Mapping>, ICloneable<MappingCollection>, IEquatable<MappingCollection>, INotifyPropertyChanged
   {
-    public MappingCollection()
-    {
-    }
-
     public event PropertyChangedEventHandler PropertyChanged;
 
     public bool AddIfNew(Mapping fieldMapping)
@@ -76,11 +72,12 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///  Get the IFileSetting Mapping by template column
+    /// Get the IFileSetting Mapping by template column
     /// </summary>
-    /// <param name="fileSetting">The file setting.</param>
     /// <param name="templateFieldName">The template column.</param>
-    /// <returns>Null if the template table field is not mapped</returns>
+    /// <returns>
+    /// Null if the template table field is not mapped
+    /// </returns>
     public Mapping GetByField(string templateFieldName)
     {
       if (!string.IsNullOrEmpty(templateFieldName))
@@ -94,7 +91,7 @@ namespace CsvTools
       return null;
     }
 
-    public string GetColumnName(string templateFieldName) => GetByField(templateFieldName)?.FileColumn ?? null;
+    public string GetColumnName(string templateFieldName) => GetByField(templateFieldName)?.FileColumn;
 
     /// <summary>
     ///  Remove a Fields mapping.

@@ -16,6 +16,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -30,15 +31,15 @@ namespace CsvTools
     private readonly DataTable m_SourceTable;
     private readonly List<string> m_UniqueFieldName = new List<string>();
     private HashSet<string> m_ColumnWithoutErrors;
-    private volatile bool m_Filtering = false;
+    private volatile bool m_Filtering;
     private readonly CancellationToken m_CancellationToken;
     private CancellationTokenSource m_CurrentFilterCancellationTokenSource;
 
     /// <summary>
-    ///   Initializes a new instance of the <see cref="FilterDataTable" /> class.
+    /// Initializes a new instance of the <see cref="FilterDataTable" /> class.
     /// </summary>
     /// <param name="init">The initial DataTable</param>
-    /// <param name="limit">The limit.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     public FilterDataTable(DataTable init, CancellationToken cancellationToken)
     {
       m_SourceTable = init;
@@ -55,7 +56,7 @@ namespace CsvTools
     {
       get
       {
-        var m_ColumnWithErrors = new List<string>();
+        var columnWithErrors = new List<string>();
         var withoutErrors = ColumnsWithoutErrors;
         foreach (DataColumn col in FilterTable.Columns)
         {
@@ -64,10 +65,10 @@ namespace CsvTools
             continue;
 
           if (!withoutErrors.Contains(col.ColumnName))
-            m_ColumnWithErrors.Add(col.ColumnName);
+            columnWithErrors.Add(col.ColumnName);
         }
 
-        return m_ColumnWithErrors;
+        return columnWithErrors;
       }
     }
 
@@ -174,7 +175,7 @@ namespace CsvTools
       set
       {
         m_UniqueFieldName.Clear();
-        if (!value.IsEmpty())
+        if (value != null && value.Any())
           m_UniqueFieldName.AddRange(value);
         m_ColumnWithoutErrors = null;
       }
@@ -205,20 +206,20 @@ namespace CsvTools
         {
           if (m_CurrentFilterCancellationTokenSource.IsCancellationRequested)
             return;
-          var ErrorOrWarning = m_SourceTable.Rows[counter].GetErrorInformation();
+          var errorOrWarning = m_SourceTable.Rows[counter].GetErrorInformation();
 
-          if (type.HasFlag(FilterType.OnlyTrueErrors) && ErrorOrWarning == "-")
+          if (type.HasFlag(FilterType.OnlyTrueErrors) && errorOrWarning == "-")
             continue;
 
           var import = false;
-          if (string.IsNullOrEmpty(ErrorOrWarning))
+          if (string.IsNullOrEmpty(errorOrWarning))
           {
             if (type.HasFlag(FilterType.ShowIssueFree))
               import = true;
           }
           else
           {
-            if (!import && ErrorOrWarning.IsWarningMessage())
+            if (!import && errorOrWarning.IsWarningMessage())
             {
               if (type.HasFlag(FilterType.ShowWarning))
                 import = true;
