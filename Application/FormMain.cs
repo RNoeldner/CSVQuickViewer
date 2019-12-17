@@ -262,17 +262,17 @@ namespace CsvTools
     {
       if (m_ConfigChanged)
       {
+        m_ConfigChanged = false;
         detailControl.MoveMenu();
         if (_MessageBox.Show(this, "The configuration has changed do you want to reload the data?", "Configuration changed", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
           OpenDataReader(true);
       }
       if (m_FileChanged)
       {
+        m_FileChanged = false;
         if (_MessageBox.Show(this, "The displayed file has changed do you want to reload the data?", "File changed", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
           OpenDataReader(true);
       }
-      m_ConfigChanged = false;
-      m_FileChanged = false;
     }
 
     private void Display_FormClosing(object sender, FormClosingEventArgs e)

@@ -50,13 +50,13 @@ namespace CsvTools
       m_FieldDelimiter = m_CsvFile.FileFormat.FieldDelimiterChar.ToString(CultureInfo.CurrentCulture);
       if (!string.IsNullOrEmpty(file.FileFormat.EscapeCharacter))
       {
-        m_QualifyCharArray = new[] {(char) 0x0a, (char) 0x0d};
+        m_QualifyCharArray = new[] { (char)0x0a, (char)0x0d };
         m_FieldQualifierEscaped = file.FileFormat.EscapeCharacterChar + m_FieldQualifier;
         m_FieldDelimiterEscaped = file.FileFormat.EscapeCharacterChar + m_FieldDelimiter;
       }
       else
       {
-        m_QualifyCharArray = new[] {(char) 0x0a, (char) 0x0d, m_CsvFile.FileFormat.FieldDelimiterChar};
+        m_QualifyCharArray = new[] { (char)0x0a, (char)0x0d, m_CsvFile.FileFormat.FieldDelimiterChar };
         m_FieldQualifierEscaped = new string(m_CsvFile.FileFormat.FieldQualifierChar, 2);
         m_FieldDelimiterEscaped = new string(m_CsvFile.FileFormat.FieldDelimiterChar, 1);
       }
@@ -154,9 +154,9 @@ namespace CsvTools
     {
       Contract.Assume(!string.IsNullOrEmpty(m_CsvFile.FullPath));
 
-      using var writer = new StreamWriter(output,
-        EncodingHelper.GetEncoding(m_CsvFile.CodePageId, m_CsvFile.ByteOrderMark), 8192);
-      DataReader2Stream(reader, writer, cancellationToken);
+      using (var writer = new StreamWriter(output,
+        EncodingHelper.GetEncoding(m_CsvFile.CodePageId, m_CsvFile.ByteOrderMark), 8192))
+        DataReader2Stream(reader, writer, cancellationToken);
     }
 
     private string GetHeaderRow(IEnumerable<ColumnInfo> columnInfos)
