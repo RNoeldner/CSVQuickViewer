@@ -273,7 +273,9 @@ namespace CsvTools
       }
     }
 
-    [XmlIgnore] public virtual bool DestinationNameSpecified => !m_DestinationName.Equals(m_Name, StringComparison.OrdinalIgnoreCase);
+    [XmlIgnore]
+    public virtual bool DestinationNameSpecified =>
+      !m_DestinationName.Equals(m_Name, StringComparison.OrdinalIgnoreCase);
 
     /// <summary>
     ///   Gets or sets the representation for false.
@@ -746,17 +748,20 @@ namespace CsvTools
       if (ReferenceEquals(this, other))
         return true;
       return m_ColumnOrdinal == other.m_ColumnOrdinal && m_Convert == other.m_Convert &&
-             m_DataType == other.m_DataType && string.Equals(m_DateFormat, other.m_DateFormat, StringComparison.Ordinal) &&
+             m_DataType == other.m_DataType &&
+             string.Equals(m_DateFormat, other.m_DateFormat, StringComparison.Ordinal) &&
              string.Equals(m_DateSeparator, other.m_DateSeparator, StringComparison.Ordinal) &&
              string.Equals(m_DecimalSeparator, other.m_DecimalSeparator, StringComparison.Ordinal) &&
              m_DecimalSeparatorChar == other.m_DecimalSeparatorChar &&
              string.Equals(m_DestinationName, other.m_DestinationName, StringComparison.OrdinalIgnoreCase) &&
              string.Equals(m_False, other.m_False, StringComparison.Ordinal) &&
-             string.Equals(m_GroupSeparator, other.m_GroupSeparator, StringComparison.Ordinal) && m_Ignore == other.m_Ignore &&
+             string.Equals(m_GroupSeparator, other.m_GroupSeparator, StringComparison.Ordinal) &&
+             m_Ignore == other.m_Ignore &&
              string.Equals(m_Name, other.m_Name, StringComparison.OrdinalIgnoreCase) &&
              string.Equals(m_NumberFormat, other.m_NumberFormat, StringComparison.Ordinal) &&
              m_Part == other.m_Part && m_PartSplitter == other.m_PartSplitter && m_PartToEnd == other.m_PartToEnd &&
-             m_Size == other.m_Size && string.Equals(m_TimePart, other.m_TimePart, StringComparison.OrdinalIgnoreCase) &&
+             m_Size == other.m_Size &&
+             string.Equals(m_TimePart, other.m_TimePart, StringComparison.OrdinalIgnoreCase) &&
              string.Equals(m_TimePartFormat, other.m_TimePartFormat, StringComparison.Ordinal) &&
              string.Equals(m_TimeSeparator, other.m_TimeSeparator, StringComparison.Ordinal) &&
              string.Equals(m_TimeZonePart, other.m_TimeZonePart, StringComparison.OrdinalIgnoreCase) &&
@@ -788,32 +793,24 @@ namespace CsvTools
       if ((expected.DataType == DataType.Numeric || expected.DataType == DataType.Double ||
            expected.DataType == DataType.Integer)
           && DataType == DataType.Integer)
-      {
         return true;
-      }
 
       if (expected.DataType == DataType.Integer
           && (DataType == DataType.Numeric || DataType == DataType.Double || DataType == DataType.Integer))
-      {
         return true;
-      }
       // if we have dates, check the formats
       if (expected.DataType == DataType.DateTime && DataType == DataType.DateTime)
-      {
         return expected.DateFormat.Equals(m_DateFormat, StringComparison.Ordinal) &&
                (m_DateFormat.IndexOf('/') == -1 ||
                 expected.DateSeparator.Equals(DateSeparator, StringComparison.Ordinal)) &&
                (m_DateFormat.IndexOf(':') == -1 ||
                 expected.TimeSeparator.Equals(TimeSeparator, StringComparison.Ordinal));
-      }
       // if we have decimals, check the formats
       if ((expected.DataType == DataType.Numeric || expected.DataType == DataType.Double) &&
           (DataType == DataType.Numeric || DataType == DataType.Double))
-      {
         return expected.NumberFormat.Equals(NumberFormat, StringComparison.Ordinal) &&
                expected.DecimalSeparator.Equals(DecimalSeparator, StringComparison.Ordinal) &&
                expected.GroupSeparator.Equals(GroupSeparator, StringComparison.Ordinal);
-      }
       // For everything else assume its wrong
       return false;
     }
@@ -822,14 +819,20 @@ namespace CsvTools
     ///   Notifies the property changed.
     /// </summary>
     /// <param name="info">The info.</param>
-    public virtual void NotifyPropertyChanged(string info) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(info));
+    public virtual void NotifyPropertyChanged(string info)
+    {
+      PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(info));
+    }
 
     /// <summary>Determines whether the specified object is equal to the current object.</summary>
     /// <param name="obj">The object to compare with the current object. </param>
     /// <returns>
     ///   <see langword="true" /> if the specified object  is equal to the current object; otherwise, <see langword="false" />.
     /// </returns>
-    public override bool Equals(object obj) => Equals(obj as Column);
+    public override bool Equals(object obj)
+    {
+      return Equals(obj as Column);
+    }
 
     /*
     /// <summary>
@@ -907,48 +910,51 @@ namespace CsvTools
     /// <returns></returns>
     public string GetTypeAndFormatDescription(bool addTime = true)
     {
-      var sbtext = new StringBuilder(DataType.DataTypeDisplay());
+      var stringBuilder = new StringBuilder(DataType.DataTypeDisplay());
 
       var shortDesc = GetFormatDescription();
       if (shortDesc.Length > 0)
       {
-        sbtext.Append(" (");
-        sbtext.Append(shortDesc);
-        sbtext.Append(")");
+        stringBuilder.Append(" (");
+        stringBuilder.Append(shortDesc);
+        stringBuilder.Append(")");
       }
 
       if (addTime && DataType == DataType.DateTime)
       {
         if (TimePart.Length > 0)
         {
-          sbtext.Append(" + ");
-          sbtext.Append(TimePart);
+          stringBuilder.Append(" + ");
+          stringBuilder.Append(TimePart);
           if (TimePartFormat.Length > 0)
           {
-            sbtext.Append(" (");
-            sbtext.Append(TimePartFormat);
-            sbtext.Append(")");
+            stringBuilder.Append(" (");
+            stringBuilder.Append(TimePartFormat);
+            stringBuilder.Append(")");
           }
         }
 
         if (TimeZonePart.Length > 0)
         {
-          sbtext.Append(" - ");
-          sbtext.Append(TimeZonePart);
+          stringBuilder.Append(" - ");
+          stringBuilder.Append(TimeZonePart);
         }
       }
 
       if (Ignore)
-        sbtext.Append(" (Ignore)");
+        stringBuilder.Append(" (Ignore)");
 
-      return sbtext.ToString();
+      return stringBuilder.ToString();
     }
 
     /// <summary>
     ///   Returns a <see cref="string" /> that represents this instance.
     /// </summary>
     /// <returns>A <see cref="string" /> that represents this instance.</returns>
-    public override string ToString() => $"{Name} ({GetTypeAndFormatDescription()})";
+    public override string ToString()
+    {
+      return $"{Name} ({GetTypeAndFormatDescription()})";
+    }
 
     #endregion Display Methods
   }

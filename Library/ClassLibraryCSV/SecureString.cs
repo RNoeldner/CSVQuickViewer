@@ -20,34 +20,29 @@ using System.Text;
 namespace CsvTools
 {
   /// <summary>
-  /// Class to encrypt and decrypt text, any information that needs to be stored in a secure way should be encrypted
+  ///   Class to encrypt and decrypt text, any information that needs to be stored in a secure way should be encrypted
   /// </summary>
   public static class SecureString
   {
-    /// <summary>
-    /// A central Random instance that should be decently random, please use for any random number generation
-    /// </summary>
-    public static Random Random = new Random(Guid.NewGuid().GetHashCode());
-
     private const int c_SlatSize = 8;
     private const int c_SlatSplit = 3;
+
+    /// <summary>
+    ///   A central Random instance that should be decently random, please use for any random number generation
+    /// </summary>
+    public static Random Random = new Random(Guid.NewGuid().GetHashCode());
 
     private static readonly byte[] m_InitVectorBytes =
       {112, 101, 109, 50, 97, 105, 108, 57, 117, 122, 108, 103, 122, 106, 55, 97};
 
     private static string m_Phrase;
 
-    private static string DefaultPhrase
-    {
-      get
-      {
-        return m_Phrase ?? (m_Phrase =
-                 "reCffmj/JWCQmL60+zVmPxBwHEkiZCwC+B1wZsXn4BpjBUg8IJ5".Decrypt("g4yTwMwpRfz4a1hBFkQQ"));
-      }
-    }
+    private static string DefaultPhrase =>
+      m_Phrase ?? (m_Phrase =
+        "reCffmj/JWCQmL60+zVmPxBwHEkiZCwC+B1wZsXn4BpjBUg8IJ5".Decrypt("g4yTwMwpRfz4a1hBFkQQ"));
 
     /// <summary>
-    /// Decrypts the Base64 encoded salted encrypted text using the specified password
+    ///   Decrypts the Base64 encoded salted encrypted text using the specified password
     /// </summary>
     /// <param name="cipherText">The Base64 encoded encrypted cipher text.</param>
     /// <param name="pwd">The password</param>
@@ -59,7 +54,8 @@ namespace CsvTools
       if (pwd == null)
         pwd = DefaultPhrase;
 
-      var salt = cipherText.Substring(0, c_SlatSplit) + cipherText.Substring(cipherText.Length - (c_SlatSize - c_SlatSplit));
+      var salt = cipherText.Substring(0, c_SlatSplit) +
+                 cipherText.Substring(cipherText.Length - (c_SlatSize - c_SlatSplit));
       var base64 = cipherText.Substring(c_SlatSplit, cipherText.Length - c_SlatSize);
       // add the possibly removed padding
       if (base64.Length % 4 != 0)
@@ -68,7 +64,7 @@ namespace CsvTools
         base64 += "=";
       var cipherTextBytes = Convert.FromBase64String(base64);
 
-      using (var symmetricKey = new RijndaelManaged { Mode = CipherMode.CBC })
+      using (var symmetricKey = new RijndaelManaged {Mode = CipherMode.CBC})
       {
         using (var passwordDeriveBytes = new PasswordDeriveBytes(pwd, Encoding.ASCII.GetBytes(salt)))
         {
@@ -84,7 +80,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Encrypts the text using the specified password resulting in a Base64 encoded encrypted cipher
+    ///   Encrypts the text using the specified password resulting in a Base64 encoded encrypted cipher
     /// </summary>
     /// <param name="plainText">The plain text.</param>
     /// <param name="pwd">The password.</param>
@@ -102,7 +98,7 @@ namespace CsvTools
         builder[i] = c_Base64[Convert.ToInt32(Math.Floor(c_Base64.Length * Random.NextDouble()))];
       var salt = new string(builder);
 
-      using (var symmetricKey = new RijndaelManaged { Mode = CipherMode.CBC })
+      using (var symmetricKey = new RijndaelManaged {Mode = CipherMode.CBC})
       {
         using (var passwordDeriveBytes = new PasswordDeriveBytes(pwd, Encoding.ASCII.GetBytes(salt)))
         {

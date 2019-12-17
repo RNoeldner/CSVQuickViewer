@@ -16,6 +16,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics.Contracts;
+using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Threading;
@@ -23,7 +24,7 @@ using System.Threading;
 namespace CsvTools
 {
   /// <summary>
-  ///  A Class to write CSV Files
+  ///   A Class to write CSV Files
   /// </summary>
   public class CsvFileWriter : BaseFileWriter, IFileWriter
   {
@@ -35,60 +36,56 @@ namespace CsvTools
     private readonly char[] m_QualifyCharArray;
 
     /// <summary>
-    ///  Initializes a new instance of the <see cref="CsvFileWriter" /> class.
+    ///   Initializes a new instance of the <see cref="CsvFileWriter" /> class.
     /// </summary>
     /// <param name="file">The file.</param>
-    /// <param name="cancellationToken">A cancellation token to stop writing the file</param>
+    /// <param name="processDisplay">The process display.</param>
     public CsvFileWriter(ICsvFile file, IProcessDisplay processDisplay)
-     : base(file, processDisplay)
+      : base(file, processDisplay)
     {
       Contract.Requires(file != null);
       m_CsvFile = file;
 
-      m_FieldQualifier = m_CsvFile.FileFormat.FieldQualifierChar.ToString(System.Globalization.CultureInfo.CurrentCulture);
-      m_FieldDelimiter = m_CsvFile.FileFormat.FieldDelimiterChar.ToString(System.Globalization.CultureInfo.CurrentCulture);
+      m_FieldQualifier = m_CsvFile.FileFormat.FieldQualifierChar.ToString(CultureInfo.CurrentCulture);
+      m_FieldDelimiter = m_CsvFile.FileFormat.FieldDelimiterChar.ToString(CultureInfo.CurrentCulture);
       if (!string.IsNullOrEmpty(file.FileFormat.EscapeCharacter))
       {
-        m_QualifyCharArray = new[] { (char)0x0a, (char)0x0d };
+        m_QualifyCharArray = new[] {(char) 0x0a, (char) 0x0d};
         m_FieldQualifierEscaped = file.FileFormat.EscapeCharacterChar + m_FieldQualifier;
         m_FieldDelimiterEscaped = file.FileFormat.EscapeCharacterChar + m_FieldDelimiter;
       }
       else
       {
-        m_QualifyCharArray = new[] { (char)0x0a, (char)0x0d, m_CsvFile.FileFormat.FieldDelimiterChar };
+        m_QualifyCharArray = new[] {(char) 0x0a, (char) 0x0d, m_CsvFile.FileFormat.FieldDelimiterChar};
         m_FieldQualifierEscaped = new string(m_CsvFile.FileFormat.FieldQualifierChar, 2);
         m_FieldDelimiterEscaped = new string(m_CsvFile.FileFormat.FieldDelimiterChar, 1);
       }
     }
 
     /// <summary>
-    ///  Stores that data in the given stream.
+    ///   Stores that data in the given stream.
     /// </summary>
     /// <param name="reader">The data reader.</param>
     /// <param name="writer">The writer.</param>
-    /// <param name="readerFileSetting">The file.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>
-    ///  Number of rows written
-    /// </returns>
     /// <exception cref="FileWriterException">No columns defined to be written.</exception>
     protected void DataReader2Stream(IDataReader reader, TextWriter writer,
-     CancellationToken cancellationToken)
+      CancellationToken cancellationToken)
     {
       Contract.Requires(reader != null);
       Contract.Requires(writer != null);
 
       var columnInfos = GetSourceColumnInformation(reader);
-      if (columnInfos.Count==0)
+      if (columnInfos.Count == 0)
         throw new FileWriterException("No columns defined to be written.");
       var recordEnd = m_CsvFile.FileFormat.NewLine.Replace("CR", "\r").Replace("LF", "\n").Replace(" ", "")
-       .Replace("\t", "");
+        .Replace("\t", "");
 
       HandleWriteStart();
 
       var numColumns = columnInfos.Count();
       var
-       sb = new StringBuilder(1024); // Assume a capacity of 1024 characters to start , data is flushed every 512 chars
+        sb = new StringBuilder(1024); // Assume a capacity of 1024 characters to start , data is flushed every 512 chars
       var hasFieldDelimiter = !m_CsvFile.FileFormat.IsFixedLength;
       if (!string.IsNullOrEmpty(m_CsvFile.Header))
       {
@@ -148,23 +145,18 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///  Writes the specified file reading from the given reader
+    ///   Writes the specified file reading from the given reader
     /// </summary>
     /// <param name="reader">A Data Reader with the data</param>
-    /// <param name="fileSetting">The source setting or the data that could be different than the setting for is writer</param>
+    /// <param name="output">The output.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>
-    ///  Number of records written
-    /// </returns>
     protected override void Write(IDataReader reader, Stream output, CancellationToken cancellationToken)
     {
       Contract.Assume(!string.IsNullOrEmpty(m_CsvFile.FullPath));
 
-      using (var writer = new StreamWriter(output,
-       EncodingHelper.GetEncoding(m_CsvFile.CodePageId, m_CsvFile.ByteOrderMark), 8192))
-      {
-        DataReader2Stream(reader, writer, cancellationToken);
-      }
+      using var writer = new StreamWriter(output,
+        EncodingHelper.GetEncoding(m_CsvFile.CodePageId, m_CsvFile.ByteOrderMark), 8192);
+      DataReader2Stream(reader, writer, cancellationToken);
     }
 
     private string GetHeaderRow(IEnumerable<ColumnInfo> columnInfos)
@@ -191,17 +183,16 @@ namespace CsvTools
       if (!qualifyThis)
       {
         if (fileFormat.QualifyOnlyIfNeeded)
-        {
           // Qualify the text if the delimiter or Linefeed is present, or if the text starts with the Qualifier
           qualifyThis = displayAs.Length > 0 && (displayAs.IndexOfAny(m_QualifyCharArray) > -1 ||
-                              displayAs[0].Equals(fileFormat.FieldQualifierChar) ||
-                              displayAs[0].Equals(' '));
-        }
+                                                 displayAs[0].Equals(fileFormat.FieldQualifierChar) ||
+                                                 displayAs[0].Equals(' '));
         else
           // quality any text or something containing a Qualify Char
           qualifyThis = columnInfo.DataType == DataType.String || columnInfo.DataType == DataType.TextToHtml ||
-                 displayAs.IndexOfAny(m_QualifyCharArray) > -1;
+                        displayAs.IndexOfAny(m_QualifyCharArray) > -1;
       }
+
       if (m_FieldDelimiter != m_FieldDelimiterEscaped)
         displayAs = displayAs.Replace(m_FieldDelimiter, m_FieldDelimiterEscaped);
 
