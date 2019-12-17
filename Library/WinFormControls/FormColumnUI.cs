@@ -64,7 +64,6 @@ namespace CsvTools
 
       m_WriteSetting = writeSetting;
 
-
       InitializeComponent();
 
       comboBoxColumnName.Enabled = showIgnore;
@@ -327,8 +326,11 @@ namespace CsvTools
     {
       try
       {
-        if (!ValidateChildren()) return;
-        if (m_ColumnEdit.Equals(m_ColumnRef)) return;
+        if (!ValidateChildren())
+          return;
+        if (m_ColumnEdit.Equals(m_ColumnRef))
+          return;
+        Hide();
         m_ColumnEdit.CopyTo(m_ColumnRef);
         DialogResult = DialogResult.Yes;
       }

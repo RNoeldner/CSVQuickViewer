@@ -121,10 +121,12 @@ namespace CsvTools
     {
       if (other == null)
         return;
+
       BaseSettingsCopyTo((BaseSettings)other);
 
       if (!(other is StructuredFile otherSwf))
         return;
+
       otherSwf.Header = m_Header;
       otherSwf.Footer = m_Footer;
       otherSwf.Row = m_Row;
@@ -144,9 +146,12 @@ namespace CsvTools
         return false;
       if (ReferenceEquals(this, other))
         return true;
-      return BaseSettingsEquals(other) && string.Equals(m_Footer, other.Footer, StringComparison.OrdinalIgnoreCase) && string.Equals(m_Header, other.Header, StringComparison.OrdinalIgnoreCase) &&
-             m_JSONEncode == other.JSONEncode && string.Equals(m_Row, other.Row, StringComparison.Ordinal) &&
-             m_XMLEncode == other.XMLEncode;
+      return string.Equals(m_Footer, other.Footer, StringComparison.OrdinalIgnoreCase) &&
+             string.Equals(m_Header, other.Header, StringComparison.OrdinalIgnoreCase) &&
+             m_JSONEncode == other.JSONEncode &&
+             string.Equals(m_Row, other.Row, StringComparison.Ordinal) &&
+             m_XMLEncode == other.XMLEncode &&
+             BaseSettingsEquals(other);
     }
 
     public bool Equals(IFileSetting other) => Equals(other as StructuredFile);
@@ -156,14 +161,7 @@ namespace CsvTools
     /// <returns>
     ///   <see langword="true" /> if the specified object  is equal to the current object; otherwise, <see langword="false" />.
     /// </returns>
-    public override bool Equals(object obj)
-    {
-      if (obj is null)
-        return false;
-      if (ReferenceEquals(this, obj))
-        return true;
-      return (obj is StructuredFile typed) && Equals(typed);
-    }
+    public override bool Equals(object obj) => Equals(obj as StructuredFile);
 
     /// <summary>
     ///   Gets the file reader.

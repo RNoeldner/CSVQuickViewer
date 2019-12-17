@@ -473,7 +473,7 @@ namespace CsvTools
     {
       if (other == null)
         return;
-      BaseSettingsCopyTo((BaseSettings) other);
+      BaseSettingsCopyTo((BaseSettings)other);
 
       if (!(other is ICsvFile csv))
         return;
@@ -499,10 +499,7 @@ namespace CsvTools
       csv.NoDelimitedFile = m_NoDelimitedFile;
     }
 
-    public bool Equals(IFileSetting other)
-    {
-      return Equals(other as ICsvFile);
-    }
+    public bool Equals(IFileSetting other) => Equals(other as ICsvFile);
 
     /// <summary>
     ///   Gets the file reader.
@@ -527,34 +524,6 @@ namespace CsvTools
         throw new NotImplementedException("For writing Json files please use a structured file to define the layout.");
       return new CsvFileWriter(this, processDisplay);
     }
-
-    /*
-    /// <summary>Serves as the default hash function. </summary>
-    /// <returns>A hash code for the current object.</returns>
-    public override int GetHashCode()
-    {
-      unchecked
-      {
-        var hashCode = GetBaseHashCode();
-        hashCode = (hashCode * 397) ^ m_AlternateQuoting.GetHashCode();
-        hashCode = (hashCode * 397) ^ m_ByteOrderMark.GetHashCode();
-        hashCode = (hashCode * 397) ^ m_CodePageId.GetHashCode();
-        hashCode = (hashCode * 397) ^ m_CurrentEncoding.GetHashCode();
-        hashCode = (hashCode * 397) ^ m_DoubleDecode.GetHashCode();
-        hashCode = (hashCode * 397) ^ m_NoDelimitedFile.GetHashCode();
-        hashCode = (hashCode * 397) ^ m_NumWarnings.GetHashCode();
-        hashCode = (hashCode * 397) ^ m_TreatUnknowCharaterAsSpace.GetHashCode();
-        hashCode = (hashCode * 397) ^ m_WarnDelimiterInValue.GetHashCode();
-        hashCode = (hashCode * 397) ^ m_WarnEmptyTailingColumns.GetHashCode();
-        hashCode = (hashCode * 397) ^ m_WarnLineFeed.GetHashCode();
-        hashCode = (hashCode * 397) ^ m_WarnNbsp.GetHashCode();
-        hashCode = (hashCode * 397) ^ m_WarnQuotes.GetHashCode();
-        hashCode = (hashCode * 397) ^ m_WarnQuotesInQuotes.GetHashCode();
-        hashCode = (hashCode * 397) ^ m_WarnUnknowCharacter.GetHashCode();
-        return hashCode;
-      }
-    }
-    */
 
     public virtual bool Equals(ICsvFile other)
     {
@@ -584,9 +553,6 @@ namespace CsvTools
     /// <returns>
     ///   <see langword="true" /> if the specified object  is equal to the current object; otherwise, <see langword="false" />.
     /// </returns>
-    public override bool Equals(object obj)
-    {
-      return Equals(obj as ICsvFile);
-    }
+    public override bool Equals(object obj) => Equals(obj as ICsvFile);
   }
 }
