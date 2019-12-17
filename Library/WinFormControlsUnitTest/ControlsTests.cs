@@ -23,7 +23,7 @@ namespace CsvTools.Tests
   public class ControlsTests
   {
     private static readonly DataTable m_DataTable = UnitTestStatic.GetDataTable(50);
-    private readonly CsvFile csvFile = new CsvFile(Path.Combine(FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles", "BasicCSV.txt"));
+    private readonly CsvFile m_CSVFile = new CsvFile(Path.Combine(FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles", "BasicCSV.txt"));
 
     [TestMethod]
     public void FormLimitSize()
@@ -43,11 +43,11 @@ namespace CsvTools.Tests
     {
       using (var tm = new TimedMessage())
       {
-        tm.Show(null, "This is my message", "Title1", MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button1, 10, null, null, null);
+        tm.Show(null, "This is my message", "Title1", MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button1, 2, null, null, null);
       }
       using (var tm = new TimedMessage())
       {
-        tm.Show(null, "This is another message\n with a linefeed", "Title12", MessageBoxButtons.YesNo, MessageBoxIcon.Error, MessageBoxDefaultButton.Button2, 10, null, null, null);
+        tm.Show(null, "This is another message\n with a linefeed", "Title12", MessageBoxButtons.YesNo, MessageBoxIcon.Error, MessageBoxDefaultButton.Button2, 2, null, null, null);
       }
     }
 
@@ -59,7 +59,7 @@ namespace CsvTools.Tests
     {
       using (var ctrl = new CSVRichTextBox())
       {
-        ctrl.Text = "This is a Test";
+        ctrl.Text = @"This is a Test";
         Assert.AreEqual("This is a Test", ctrl.Text);
 
         ctrl.Delimiter = ';';
@@ -105,13 +105,13 @@ namespace CsvTools.Tests
         System.Threading.Thread.Sleep(100);
 
         frm.Close();
-      };
+      }
     }
 
     [TestMethod]
     public void CsvTextDisplayShow() => ShowControl(new CsvTextDisplay()
     {
-      CsvFile = csvFile
+      CsvFile = m_CSVFile
     });
 
     [TestMethod]
@@ -127,8 +127,8 @@ namespace CsvTools.Tests
     public void FormColumnUI()
     {
       var col = new Column { Name = "ExamDate", DataType = DataType.DateTime };
-      csvFile.ColumnCollection.AddIfNew(col);
-      using (var frm = new FormColumnUI(col, false, csvFile, new FillGuessSettings(), false))
+      m_CSVFile.ColumnCollection.AddIfNew(col);
+      using (var frm = new FormColumnUI(col, false, m_CSVFile, new FillGuessSettings(), false))
       {
         frm.ShowInTaskbar = false;
         frm.Show();
@@ -140,8 +140,8 @@ namespace CsvTools.Tests
     public void FormColumnUI_Opt1()
     {
       var col = new Column { Name = "ExamDate", DataType = DataType.DateTime };
-      csvFile.ColumnCollection.AddIfNew(col);
-      using (var form = new FormColumnUI(col, false, csvFile, new FillGuessSettings(), true))
+      m_CSVFile.ColumnCollection.AddIfNew(col);
+      using (var form = new FormColumnUI(col, false, m_CSVFile, new FillGuessSettings(), true))
       {
         form.ShowInTaskbar = false;
         form.ShowGuess = false;
@@ -154,8 +154,8 @@ namespace CsvTools.Tests
     public void FormColumnUI_Opt2()
     {
       var col = new Column { Name = "ExamDate", DataType = DataType.DateTime };
-      csvFile.ColumnCollection.AddIfNew(col);
-      using (var form = new FormColumnUI(col, false, csvFile, new FillGuessSettings(), false))
+      m_CSVFile.ColumnCollection.AddIfNew(col);
+      using (var form = new FormColumnUI(col, false, m_CSVFile, new FillGuessSettings(), false))
       {
         form.ShowInTaskbar = false;
         form.Show();
@@ -167,9 +167,9 @@ namespace CsvTools.Tests
     public void FormColumnUI_ButtonGuessClick()
     {
       var col = new Column { Name = "ExamDate", DataType = DataType.DateTime };
-      csvFile.ColumnCollection.AddIfNew(col);
+      m_CSVFile.ColumnCollection.AddIfNew(col);
 
-      using (var form = new FormColumnUI(col, false, csvFile, new FillGuessSettings(), true))
+      using (var form = new FormColumnUI(col, false, m_CSVFile, new FillGuessSettings(), true))
       {
         form.ShowInTaskbar = false;
         form.Show();

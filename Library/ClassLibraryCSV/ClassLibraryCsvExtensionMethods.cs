@@ -16,6 +16,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics.Contracts;
 using System.Globalization;
@@ -49,22 +50,31 @@ namespace CsvTools
     /// </summary>
     /// <param name="fileName">Name of the file.</param>
     /// <returns></returns>
-    public static bool AssumeGZip(this string fileName) => fileName.EndsWith(".gz", StringComparison.OrdinalIgnoreCase);
+    public static bool AssumeGZip(this string fileName)
+    {
+      return fileName.EndsWith(".gz", StringComparison.OrdinalIgnoreCase);
+    }
 
     /// <summary>
     ///   Check if the application should assume its PGP.
     /// </summary>
     /// <param name="fileName">Name of the file.</param>
     /// <returns></returns>
-    public static bool AssumePgp(this string fileName) => fileName.EndsWith(".pgp", StringComparison.OrdinalIgnoreCase) ||
+    public static bool AssumePgp(this string fileName)
+    {
+      return fileName.EndsWith(".pgp", StringComparison.OrdinalIgnoreCase) ||
              fileName.EndsWith(".gpg", StringComparison.OrdinalIgnoreCase);
+    }
 
     /// <summary>
     ///   Check if the application should assume its ZIP
     /// </summary>
     /// <param name="fileName">Name of the file.</param>
     /// <returns></returns>
-    public static bool AssumeZip(this string fileName) => fileName.EndsWith(".zip", StringComparison.OrdinalIgnoreCase);
+    public static bool AssumeZip(this string fileName)
+    {
+      return fileName.EndsWith(".zip", StringComparison.OrdinalIgnoreCase);
+    }
 
     /// <summary>
     ///   Copies all elements from one collection to the other
@@ -100,125 +110,16 @@ namespace CsvTools
         other.Add(item);
     }
 
-#if !GetHashByGUID
-
     /// <summary>
-    ///   Check if a collection is equal, the items can be in any order as long as all exist in the th other
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="self">The collection.</param>
-    /// <param name="other">The other collection.</param>
-    /// <returns></returns>
-    public static bool CollectionEqual<T>(this ICollection<T> self, ICollection<T> other) where T : IEquatable<T>
-    {
-      if (self == null)
-        throw new ArgumentNullException(nameof(self));
-      if (other == null)
-        return false;
-      if (ReferenceEquals(other, self))
-        return true;
-      if (other.Count != self.Count)
-        return false;
-      var equal = true;
-      // Check the item, all should be the same, order does not matter though
-      foreach (var ot in other)
-      {
-        var found = false;
-        if (ot == null)
-        {
-          found = false;
-          foreach (var x in self)
-          {
-            if (x == null)
-            {
-              found = true;
-              break;
-            }
-          }
-        }
-        else
-        {
-          foreach (var th in self)
-          {
-            if (!ot.Equals(th))
-              continue;
-            found = true;
-            break;
-          }
-        }
-
-        if (found)
-          continue;
-        equal = false;
-        break;
-      }
-
-      // No need to check the other way around, as all items are the same and the number matches
-      return equal;
-    }
-
-    /// <summary>
-    ///   Check if two enumerations are equal, the items need to be in the right order
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="self">The collection.</param>
-    /// <param name="other">The other collection.</param>
-    /// <returns></returns>
-    public static bool CollectionEqualWithOrder<T>(this IEnumerable<T> self, IEnumerable<T> other) where T : IEquatable<T>
-    {
-      if (self == null)
-        throw new ArgumentNullException(nameof(self));
-      if (other == null)
-        return false;
-
-      if (ReferenceEquals(other, self))
-        return true;
-      // use Enumerators to compare the two collections
-      var comparer = EqualityComparer<T>.Default;
-      using (var selfEnum = self.GetEnumerator())
-      using (var otherEnum = other.GetEnumerator())
-      {
-        while (selfEnum.MoveNext())
-        {
-          // there are less elements or the elements are not equal
-          if (!(otherEnum.MoveNext() && comparer.Equals(selfEnum.Current, otherEnum.Current)))
-            return false;
-        }
-        // there are more elements
-        if (otherEnum.MoveNext())
-          return false;
-      }
-      return true;
-    }
-
-    /// <summary>
-    /// Get the hash code of a collection, the order of items should not matter.
-    /// </summary>
-    /// <param name="collection">The collection itself.</param>
-    /// <returns></returns>
-    public static int CollectionHashCode(this ICollection collection)
-    {
-      unchecked
-      {
-        var hashCode = 731;
-        var order = 0;
-        foreach (var item in collection)
-          hashCode = (hashCode * 397) ^ item.GetHashCode() + order++;
-        return hashCode;
-      }
-    }
-
-#endif
-
-    /// <summary>
-    /// Copies the row to table.
+    ///   Copies the row to table.
     /// </summary>
     /// <param name="reader">The reader.</param>
     /// <param name="dataTable">The data table.</param>
     /// <param name="columnWarningsReader">The column warnings reader.</param>
     /// <param name="dataTableInfo">The data table information.</param>
     /// <param name="handleColumnIssues">The handle column issues.</param>
-    public static void CopyRowToTable(this IFileReader reader, DataTable dataTable, ColumnErrorDictionary columnWarningsReader,
+    public static void CopyRowToTable(this IFileReader reader, DataTable dataTable,
+      ColumnErrorDictionary columnWarningsReader,
       CopyToDataTableInfo dataTableInfo, Action<ColumnErrorDictionary, DataRow> handleColumnIssues)
     {
       Contract.Requires(dataTable != null);
@@ -339,16 +240,15 @@ namespace CsvTools
             sb.Append("\n");
           sb.Append(ie.Message);
         }
+
         return sb.ToString();
       }
-      else
+
+      sb.Append(exception.Message);
+      if (exception.InnerException != null)
       {
-        sb.Append(exception.Message);
-        if (exception.InnerException != null)
-        {
-          sb.Append("\n");
-          sb.Append(exception.InnerExceptionMessages(maxDepth - 1));
-        }
+        sb.Append("\n");
+        sb.Append(exception.InnerExceptionMessages(maxDepth - 1));
       }
 
       return sb.ToString();
@@ -418,29 +318,36 @@ namespace CsvTools
       Contract.Ensures(Contract.Result<string>() != null);
 
       var fileName = StringUtils.ProcessByCategory(FileSystemUtils.SplitPath(path).FileName, x =>
-           x == UnicodeCategory.UppercaseLetter || x == UnicodeCategory.LowercaseLetter || x == UnicodeCategory.OtherLetter ||
-           x == UnicodeCategory.ConnectorPunctuation || x == UnicodeCategory.DashPunctuation || x == UnicodeCategory.OtherPunctuation ||
-           x == UnicodeCategory.DecimalDigitNumber);
+        x == UnicodeCategory.UppercaseLetter || x == UnicodeCategory.LowercaseLetter ||
+        x == UnicodeCategory.OtherLetter ||
+        x == UnicodeCategory.ConnectorPunctuation || x == UnicodeCategory.DashPunctuation ||
+        x == UnicodeCategory.OtherPunctuation ||
+        x == UnicodeCategory.DecimalDigitNumber);
 
       const string c_TimeSep = @"(:|-|_)?";
       const string c_DateSep = @"(\/|\.|-|_)?";
 
-      const string c_Hour = @"(2[0-3]|((0|1)\d))";    // 00-09 10-19 20-23
-      const string c_MinSec = @"([0-5][0-9])";      // 00-59
+      const string c_Hour = @"(2[0-3]|((0|1)\d))"; // 00-09 10-19 20-23
+      const string c_MinSec = @"([0-5][0-9])"; // 00-59
       const string c_AmPm = @"((_| )?(AM|PM))?";
 
       const string c_Year = @"((19\d{2})|(2\d{3}))"; // 1900 - 2999
-      const string c_Month = @"(0[1-9]|1[012])";  // 01-12
+      const string c_Month = @"(0[1-9]|1[012])"; // 01-12
       const string c_Day = @"(0[1-9]|[12]\d|3[01])"; // 01 - 31
 
       // Replace Dates YYYYMMDDHHMMSS
       // fileName = Regex.Replace(fileName, S + YYYY + S + MM + S + DD + T + "?" + HH + T + MS + T + "?" + MS + "?" + TT, string.Empty, RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.CultureInvariant);
 
       // Replace Dates YYYYMMDD / MMDDYYYY / DDMMYYYY
-      fileName = Regex.Replace(fileName, "(" + c_DateSep + c_Year + c_DateSep + c_Month + c_DateSep + c_Day + ")|(" + c_DateSep + c_Month + c_DateSep + c_Day + c_DateSep + c_Year + ")|(" + c_DateSep + c_Day + c_DateSep + c_Month + c_DateSep + c_Year + ")", string.Empty, RegexOptions.Singleline);
+      fileName = Regex.Replace(fileName,
+        "(" + c_DateSep + c_Year + c_DateSep + c_Month + c_DateSep + c_Day + ")|(" + c_DateSep + c_Month + c_DateSep +
+        c_Day + c_DateSep + c_Year + ")|(" + c_DateSep + c_Day + c_DateSep + c_Month + c_DateSep + c_Year + ")",
+        string.Empty, RegexOptions.Singleline);
 
       // Replace Times 3_53_34_AM
-      fileName = Regex.Replace(fileName, c_DateSep + c_Hour + c_TimeSep + c_MinSec + c_TimeSep + c_MinSec + "?" + c_AmPm, string.Empty, RegexOptions.IgnoreCase | RegexOptions.Singleline);
+      fileName = Regex.Replace(fileName,
+        c_DateSep + c_Hour + c_TimeSep + c_MinSec + c_TimeSep + c_MinSec + "?" + c_AmPm, string.Empty,
+        RegexOptions.IgnoreCase | RegexOptions.Singleline);
       /*
       // Replace Dates YYMMDD
       fileName = Regex.Replace(fileName, "(" + DateSep + YY + DateSep + MM + DateSep + DD + DateSep + ")", string.Empty, RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.CultureInvariant);
@@ -449,7 +356,8 @@ namespace CsvTools
       // Replace Dates DDMMYY
       fileName = Regex.Replace(fileName, "(" + DateSep + DD + DateSep + MM + DateSep + YY + DateSep + ")", string.Empty, RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.CultureInvariant);
       */
-      return fileName.Trim('_', '-', ' ', '\t').Replace("__", "_").Replace("__", "_").Replace("--", "-").Replace("--", "-");
+      return fileName.Trim('_', '-', ' ', '\t').Replace("__", "_").Replace("__", "_").Replace("--", "-")
+        .Replace("--", "-");
     }
 
     /// <summary>
@@ -511,10 +419,8 @@ namespace CsvTools
       if (dataTable == null)
         yield break;
       foreach (DataColumn col in dataTable.Columns)
-      {
         if (!BaseFileReader.ArtificalFields.Contains(col.ColumnName))
           yield return col;
-      }
     }
 
     /// <summary>
@@ -542,6 +448,7 @@ namespace CsvTools
           exception = exception.InnerException;
           maxDepth--;
         }
+
         // if there is no inner Exception fall back to the exception
         if (sb.Length == 0)
           sb.Append(exception.Message);
@@ -556,7 +463,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Replaces a placeholders with a text. The placeholder are identified surrounding { or a leading #
+    ///   Replaces a placeholders with a text. The placeholder are identified surrounding { or a leading #
     /// </summary>
     /// <param name="input">The input.</param>
     /// <param name="placeholder">The placeholder.</param>
@@ -575,6 +482,7 @@ namespace CsvTools
           else if (input.IndexOf(" " + type, StringComparison.OrdinalIgnoreCase) != -1)
             type = " " + type;
         }
+
         input = input.ReplaceCaseInsensitive(type, replacement);
       }
 
@@ -617,7 +525,9 @@ namespace CsvTools
 
       foreach (var notFound in notFoundColumnNames)
       {
-        Logger.Warning("Column {columnname} was expected but was not found in {filesetting}. The invalid column mapping will be removed.", fileSetting, notFound);
+        Logger.Warning(
+          "Column {columnname} was expected but was not found in {filesetting}. The invalid column mapping will be removed.",
+          fileSetting, notFound);
         fileSetting.MappingCollection.RemoveColumn(notFound);
       }
 
@@ -749,7 +659,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Replace placeholder in a template with value of property
+    ///   Replace placeholder in a template with value of property
     /// </summary>
     /// <param name="template">The template with placeholder in {}, e.G. ID:{ID} </param>
     /// <param name="obj">The object that is used to look at the properties</param>
@@ -765,28 +675,23 @@ namespace CsvTools
       var placeholder = new Dictionary<string, string>();
       var props = new List<PropertyInfo>();
       foreach (var prop in obj.GetType().GetProperties())
-      {
-        if (prop.GetMethod != null) props.Add(prop);
-      }
+        if (prop.GetMethod != null)
+          props.Add(prop);
 
       foreach (Match match in rgx.Matches(template))
-      {
         if (!placeholder.ContainsKey(match.Value))
         {
           PropertyInfo prop = null;
           foreach (var x in props)
-          {
             if (x.Name.Equals(match.Value.Substring(1, match.Value.Length - 2), StringComparison.OrdinalIgnoreCase))
             {
               prop = x;
               break;
             }
-          }
 
           if (prop != null)
             placeholder.Add(match.Value, prop.GetValue(obj).ToString());
         }
-      }
 
       // replace them  with the property value from setting
       foreach (var pro in placeholder)
@@ -796,7 +701,8 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Replace placeholder in a template with the text provide in the parameters the order of the placeholders is important not their contend
+    ///   Replace placeholder in a template with the text provide in the parameters the order of the placeholders is important
+    ///   not their contend
     /// </summary>
     /// <param name="template">The template with placeholder in {}, e.G. ID:{ID} </param>
     /// <param name="values">a variable number of text that will replace the placeholder in order of appearance</param>
@@ -815,10 +721,7 @@ namespace CsvTools
       {
         if (index >= values.Length)
           break;
-        if (!placeholder.ContainsKey(match.Value))
-        {
-          placeholder.Add(match.Value, values[index++]);
-        }
+        if (!placeholder.ContainsKey(match.Value)) placeholder.Add(match.Value, values[index++]);
       }
 
       // replace them  with the property value from setting
@@ -860,70 +763,77 @@ namespace CsvTools
       if (value < 0)
         return 0;
 
-      return (uint)value;
+      return (uint) value;
     }
 
     /// <summary>
-    /// Gets the uppermost trace of the stack trace that belongs to the assembly
-    /// Ignoring all Libraries assuming the call did pass something bad in that caused them to fail.
-    /// Hopefully this is useful for Async tasks as well to know where they where called from
+    ///   Gets the uppermost trace of the stack trace that belongs to the assembly
+    ///   Ignoring all Libraries assuming the call did pass something bad in that caused them to fail.
+    ///   Hopefully this is useful for Async tasks as well to know where they where called from
     /// </summary>
     /// <returns>A text that might help determining where which call caused an error</returns>
     public static string UpmostStackTrace()
     {
       try
       {
-        var st = new System.Diagnostics.StackTrace();
-        var firstafterWait = 0;
+        var st = new StackTrace();
+        var firstAfterWait = 0;
         // if we have WaitToCompleteTask
         for (var i = 0; i < st.FrameCount; i++)
-        {
           if (st.GetFrame(i).GetMethod().Name.Contains("WaitToCompleteTask"))
-            firstafterWait = i;
-          else if (firstafterWait > 0)
+          {
+            firstAfterWait = i;
+          }
+          else if (firstAfterWait > 0)
           {
             if (st.GetFrame(i).GetILOffset() <= 0)
               return st.GetFrame(i).GetMethod().Name;
-            else
-              return $"{st.GetFrame(i).GetMethod().Name} Line {st.GetFrame(i).GetILOffset()}";
+            return $"{st.GetFrame(i).GetMethod().Name} Line {st.GetFrame(i).GetILOffset()}";
           }
-        }
 
         for (var i = st.FrameCount - 1; i > 1; i--)
         {
           var frm = st.GetFrame(i);
           var declaringType = frm.GetMethod().DeclaringType;
-          if (declaringType != null && declaringType.AssemblyQualifiedName.StartsWith("CsvTools."))
+          if (declaringType?.AssemblyQualifiedName == null ||
+              !declaringType.AssemblyQualifiedName.StartsWith("CsvTools.")) continue;
+          // now stay with CsvTool and stop once we leave it
+          for (var j = i - 1; j > 0; j--)
           {
-            // now stay with CsvTool and stop once we leave it
-            for (var j = i - 1; j > 0; j--)
-            {
-              var frm2 = st.GetFrame(j);
-              var memberInfo = frm2.GetMethod().DeclaringType;
-              if (memberInfo != null && !memberInfo.AssemblyQualifiedName.StartsWith("CsvTools."))
-                return st.GetFrame(j + 1).ToString();
-            }
-            return frm.ToString();
+            var frm2 = st.GetFrame(j);
+            var memberInfo = frm2.GetMethod().DeclaringType;
+            if (memberInfo?.AssemblyQualifiedName != null && !memberInfo.AssemblyQualifiedName.StartsWith("CsvTools."))
+              return st.GetFrame(j + 1).ToString();
           }
+
+          return frm.ToString();
         }
       }
       catch (Exception)
       {
         // ignore
       }
+
       return null;
     }
 
     /// <summary>
-    /// Run a task to completion with timeout
-    /// Should you expose synchronous wrappers for asynchronous methods, the answer is: No you should not...
+    ///   Run a task to completion with timeout
+    ///   Should you expose synchronous wrappers for asynchronous methods, the answer is: No you should not...
     /// </summary>
-    /// <param name="executeTask">The started <see cref="System.Threading.Tasks.Task"/></param>
-    /// <param name="timeoutSeconds">Timeout for the completion of the task, if more time is spent running / waiting the wait is finished</param>
+    /// <param name="executeTask">The started <see cref="System.Threading.Tasks.Task" /></param>
+    /// <param name="timeoutSeconds">
+    ///   Timeout for the completion of the task, if more time is spent running / waiting the wait
+    ///   is finished
+    /// </param>
     /// <param name="every125Ms">Action to be invoked every 1/4 second while waiting to finish, usually used for UI updates</param>
-    /// <param name="cancellationToken">Best is to start tasks with the cancellation token but some async methods do not do, so it can be provided</param>
+    /// <param name="cancellationToken">
+    ///   Best is to start tasks with the cancellation token but some async methods do not do, so
+    ///   it can be provided
+    /// </param>
     /// <remarks>Will only return the first exception in case of aggregate exceptions.</remarks>
-    public static void WaitToCompleteTask(this Task executeTask, double timeoutSeconds, Action every125Ms, CancellationToken cancellationToken)
+    public static void WaitToCompleteTask(this Task executeTask, double timeoutSeconds, Action every125Ms,
+      CancellationToken cancellationToken)
     {
       if (executeTask == null)
         throw new ArgumentNullException(nameof(executeTask));
@@ -937,13 +847,15 @@ namespace CsvTools
 
       if (timeoutSeconds > 0.01)
       {
-        var stopwatch = new System.Diagnostics.Stopwatch();
+        var stopwatch = new Stopwatch();
         stopwatch.Start();
         RunTaskAction(executeTask, () =>
         {
           cancellationToken.ThrowIfCancellationRequested();
-          if (executeTask.Status == TaskStatus.WaitingForActivation && stopwatch.Elapsed.TotalSeconds > c_TimeToWaitOnActivation)
-            throw new TimeoutException($"Waited longer than {stopwatch.Elapsed.TotalSeconds:N1} seconds for task to start");
+          if (executeTask.Status == TaskStatus.WaitingForActivation &&
+              stopwatch.Elapsed.TotalSeconds > c_TimeToWaitOnActivation)
+            throw new TimeoutException(
+              $"Waited longer than {stopwatch.Elapsed.TotalSeconds:N1} seconds for task to start");
 
           // Raise an exception when waiting too long
           if (stopwatch.Elapsed.TotalSeconds > timeoutSeconds)
@@ -968,11 +880,14 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Run a task to completion with timeout
-    /// Should you expose synchronous wrappers for asynchronous methods, the answer is: No you should not...
+    ///   Run a task to completion with timeout
+    ///   Should you expose synchronous wrappers for asynchronous methods, the answer is: No you should not...
     /// </summary>
-    /// <param name="executeTask">The started <see cref="System.Threading.Tasks.Task"/></param>
-    /// <param name="timeoutSeconds">Timeout for the completion of the task, if more time is spent running / waiting the wait is finished</param>
+    /// <param name="executeTask">The started <see cref="System.Threading.Tasks.Task" /></param>
+    /// <param name="timeoutSeconds">
+    ///   Timeout for the completion of the task, if more time is spent running / waiting the wait
+    ///   is finished
+    /// </param>
     /// <param name="every125Ms">Action to be invoked every 1/4 second while waiting to finish, usually used for UI updates</param>
     /// <remarks>Will only return the first exception in case of aggregate exceptions.</remarks>
     public static void WaitToCompleteTask(this Task executeTask, double timeoutSeconds = 0, Action every125Ms = null)
@@ -985,12 +900,14 @@ namespace CsvTools
 
       if (timeoutSeconds > 0.01)
       {
-        var stopwatch = new System.Diagnostics.Stopwatch();
+        var stopwatch = new Stopwatch();
         stopwatch.Start();
         RunTaskAction(executeTask, () =>
         {
-          if (executeTask.Status == TaskStatus.WaitingForActivation && stopwatch.Elapsed.TotalSeconds > c_TimeToWaitOnActivation)
-            throw new TimeoutException($"Waited longer than {stopwatch.Elapsed.TotalSeconds:N1} seconds for task to start");
+          if (executeTask.Status == TaskStatus.WaitingForActivation &&
+              stopwatch.Elapsed.TotalSeconds > c_TimeToWaitOnActivation)
+            throw new TimeoutException(
+              $"Waited longer than {stopwatch.Elapsed.TotalSeconds:N1} seconds for task to start");
 
           // Raise an exception when waiting too long
           if (stopwatch.Elapsed.TotalSeconds > timeoutSeconds)
@@ -1017,15 +934,22 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Run a task that returns a value to completion with timeout
-    /// Should you expose synchronous wrappers for asynchronous methods, the answer is: No you should not...
+    ///   Run a task that returns a value to completion with timeout
+    ///   Should you expose synchronous wrappers for asynchronous methods, the answer is: No you should not...
     /// </summary>
-    /// <param name="executeTask">The started <see cref="System.Threading.Tasks.Task"/></param>
-    /// <param name="timeoutSeconds">Timeout for the completion of the task, if more time is spent running / waiting the wait is finished</param>
+    /// <param name="executeTask">The started <see cref="System.Threading.Tasks.Task" /></param>
+    /// <param name="timeoutSeconds">
+    ///   Timeout for the completion of the task, if more time is spent running / waiting the wait
+    ///   is finished
+    /// </param>
     /// <param name="every125Ms">Action to be invoked every 1/4 second while waiting to finish, usually used for UI updates</param>
-    /// <param name="cancellationToken">Best is to start tasks with the cancellation token but some async methods do not do, so it can be provided</param>
+    /// <param name="cancellationToken">
+    ///   Best is to start tasks with the cancellation token but some async methods do not do, so
+    ///   it can be provided
+    /// </param>
     /// <returns>Task Result if finished successfully, otherwise raises an error</returns>
-    public static T WaitToCompleteTask<T>(this Task<T> executeTask, double timeoutSeconds, Action every125Ms, CancellationToken cancellationToken)
+    public static T WaitToCompleteTask<T>(this Task<T> executeTask, double timeoutSeconds, Action every125Ms,
+      CancellationToken cancellationToken)
     {
       if (executeTask == null)
         throw new ArgumentNullException(nameof(executeTask));
@@ -1038,12 +962,14 @@ namespace CsvTools
 
         if (timeoutSeconds > 0.01)
         {
-          var stopwatch = new System.Diagnostics.Stopwatch();
+          var stopwatch = new Stopwatch();
           stopwatch.Start();
           RunTaskAction(executeTask, () =>
           {
-            if (executeTask.Status == TaskStatus.WaitingForActivation && stopwatch.Elapsed.TotalSeconds > c_TimeToWaitOnActivation)
-              throw new TimeoutException($"Waited longer than {stopwatch.Elapsed.TotalSeconds:N1} seconds for task to start");
+            if (executeTask.Status == TaskStatus.WaitingForActivation &&
+                stopwatch.Elapsed.TotalSeconds > c_TimeToWaitOnActivation)
+              throw new TimeoutException(
+                $"Waited longer than {stopwatch.Elapsed.TotalSeconds:N1} seconds for task to start");
 
             // Raise an exception when waiting too long
             if (stopwatch.Elapsed.TotalSeconds > timeoutSeconds)
@@ -1066,15 +992,19 @@ namespace CsvTools
           });
         }
       }
+
       return executeTask.Result;
     }
 
     /// <summary>
-    /// Run a task that returns a value to completion with timeout
-    /// Should you expose synchronous wrappers for asynchronous methods, the answer is: No you should not...
+    ///   Run a task that returns a value to completion with timeout
+    ///   Should you expose synchronous wrappers for asynchronous methods, the answer is: No you should not...
     /// </summary>
-    /// <param name="executeTask">The started <see cref="System.Threading.Tasks.Task"/></param>
-    /// <param name="timeoutSeconds">Timeout for the completion of the task, if more time is spent running / waiting the wait is finished</param>
+    /// <param name="executeTask">The started <see cref="System.Threading.Tasks.Task" /></param>
+    /// <param name="timeoutSeconds">
+    ///   Timeout for the completion of the task, if more time is spent running / waiting the wait
+    ///   is finished
+    /// </param>
     /// <param name="every125Ms">Action to be invoked every 1/4 second while waiting to finish, usually used for UI updates</param>
     /// <returns>Task Result if finished successfully, otherwise raises an error</returns>
     public static T WaitToCompleteTask<T>(this Task<T> executeTask, double timeoutSeconds = 0, Action every125Ms = null)
@@ -1085,12 +1015,14 @@ namespace CsvTools
       {
         if (timeoutSeconds > 0.01)
         {
-          var stopwatch = new System.Diagnostics.Stopwatch();
+          var stopwatch = new Stopwatch();
           stopwatch.Start();
           RunTaskAction(executeTask, () =>
           {
-            if (executeTask.Status == TaskStatus.WaitingForActivation && stopwatch.Elapsed.TotalSeconds > c_TimeToWaitOnActivation)
-              throw new TimeoutException($"Waited longer than {stopwatch.Elapsed.TotalSeconds:N1} seconds for task to start");
+            if (executeTask.Status == TaskStatus.WaitingForActivation &&
+                stopwatch.Elapsed.TotalSeconds > c_TimeToWaitOnActivation)
+              throw new TimeoutException(
+                $"Waited longer than {stopwatch.Elapsed.TotalSeconds:N1} seconds for task to start");
 
             // Raise an exception when waiting too long
             if (stopwatch.Elapsed.TotalSeconds > timeoutSeconds)
@@ -1113,6 +1045,7 @@ namespace CsvTools
           });
         }
       }
+
       return executeTask.Result;
     }
 
@@ -1153,7 +1086,8 @@ namespace CsvTools
     //  return copy;
     //}
 
-    public static CopyToDataTableInfo GetCopyToDataTableInfo(this IFileReader fileReader, IFileSetting fileSetting, DataTable dataTable, bool includeErrorField)
+    public static CopyToDataTableInfo GetCopyToDataTableInfo(this IFileReader fileReader, IFileSetting fileSetting,
+      DataTable dataTable, bool includeErrorField)
     {
       if (fileReader == null)
         throw new ArgumentNullException(nameof(fileReader));
@@ -1192,18 +1126,20 @@ namespace CsvTools
       result.StartLine = new DataColumn(BaseFileReader.cStartLineNumberFieldName, typeof(long));
       dataTable.Columns.Add(result.StartLine);
 
-      dataTable.PrimaryKey = new[] { result.StartLine };
+      dataTable.PrimaryKey = new[] {result.StartLine};
 
       if (fileSetting.DisplayRecordNo && !fileReader.HasColumnName(BaseFileReader.cRecordNumberFieldName))
       {
         result.RecordNumber = new DataColumn(BaseFileReader.cRecordNumberFieldName, typeof(long));
         dataTable.Columns.Add(result.RecordNumber);
       }
+
       if (fileSetting.DisplayEndLineNo && !fileReader.HasColumnName(BaseFileReader.cEndLineNumberFieldName))
       {
         result.EndLine = new DataColumn(BaseFileReader.cEndLineNumberFieldName, typeof(long));
         dataTable.Columns.Add(result.EndLine);
       }
+
       if (includeErrorField && !fileReader.HasColumnName(BaseFileReader.cErrorField))
       {
         result.Error = new DataColumn(BaseFileReader.cErrorField, typeof(string));
@@ -1223,14 +1159,15 @@ namespace CsvTools
     /// <returns>
     ///   A <see cref="DataTable" /> with the records
     /// </returns>
-    public static DataTable WriteToDataTable(this IFileReader reader, IFileSetting fileSetting, uint records, CancellationToken cancellationToken)
+    public static DataTable WriteToDataTable(this IFileReader reader, IFileSetting fileSetting, uint records,
+      CancellationToken cancellationToken)
     {
       var requestedRecords = records < 1 ? uint.MaxValue : records;
 
       Logger.Information("Reading data…");
       var dataTable = new DataTable(fileSetting.ID)
       {
-        MinimumCapacity = (int)Math.Min(requestedRecords, 5000)
+        MinimumCapacity = (int) Math.Min(requestedRecords, 5000)
       };
 
       try
@@ -1244,12 +1181,10 @@ namespace CsvTools
             (columnError, row) =>
             {
               foreach (var keyValuePair in columnError)
-              {
                 if (keyValuePair.Key == -1)
                   row.RowError = keyValuePair.Value;
                 else if (copyToDataTableInfo.Mapping.TryGetValue(keyValuePair.Key, out var dbCol))
                   row.SetColumnError(dbCol, keyValuePair.Value);
-              }
             });
           requestedRecords--;
         }
@@ -1277,204 +1212,150 @@ namespace CsvTools
           inputString.Equals("Horizontal Tab", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("HorizontalTab", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("\t", StringComparison.Ordinal))
-      {
         return '\t';
-      }
 
       if (inputString.Equals("Space", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals(" ", StringComparison.Ordinal))
-      {
         return ' ';
-      }
 
       if (inputString.Equals("hash", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("sharp", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("#", StringComparison.Ordinal))
-      {
         return '#';
-      }
 
       if (inputString.Equals("whirl", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("at", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("monkey", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("@", StringComparison.Ordinal))
-      {
         return '@';
-      }
 
       if (inputString.Equals("underbar", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("underscore", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("understrike", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("_", StringComparison.Ordinal))
-      {
         return '_';
-      }
 
       if (inputString.Equals("Comma", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals(",", StringComparison.Ordinal))
-      {
         return ',';
-      }
 
       if (inputString.Equals("Dot", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("Point", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("Full Stop", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals(".", StringComparison.Ordinal))
-      {
         return '.';
-      }
 
       if (inputString.Equals("amper", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("ampersand", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("&", StringComparison.Ordinal))
-      {
         return '&';
-      }
 
       if (inputString.Equals("Pipe", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("Vertical bar", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("VerticalBar", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("|", StringComparison.Ordinal))
-      {
         return '|';
-      }
 
       if (inputString.Equals("broken bar", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("BrokenBar", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("¦", StringComparison.Ordinal))
-      {
         return '¦';
-      }
 
       if (inputString.Equals("fullwidth broken bar", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("FullwidthBrokenBar", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("￤", StringComparison.Ordinal))
-      {
         return '￤';
-      }
 
       if (inputString.Equals("Semicolon", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals(";", StringComparison.Ordinal))
-      {
         return ';';
-      }
 
       if (inputString.Equals("Colon", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals(":", StringComparison.Ordinal))
-      {
         return ':';
-      }
 
       if (inputString.Equals("Doublequote", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("Doublequotes", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("Quote", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("Quotation marks", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("\"", StringComparison.Ordinal))
-      {
         return '"';
-      }
 
       if (inputString.Equals("Apostrophe", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("Singlequote", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("tick", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("'", StringComparison.Ordinal))
-      {
         return '\'';
-      }
 
       if (inputString.Equals("Slash", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("Stroke", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("forward slash", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("/", StringComparison.Ordinal))
-      {
         return '/';
-      }
 
       if (inputString.Equals("backslash", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("backslant", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("\\", StringComparison.Ordinal))
-      {
         return '\\';
-      }
 
       if (inputString.Equals("Tick", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("Tick Mark", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("`", StringComparison.Ordinal))
-      {
         return '`';
-      }
 
       if (inputString.Equals("Star", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("Asterisk", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("*", StringComparison.Ordinal))
-      {
         return '*';
-      }
 
       if (inputString.Equals("NBSP", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("Non-breaking space", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("Non breaking space", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("NonBreakingSpace", StringComparison.OrdinalIgnoreCase))
-      {
         return '\u00A0';
-      }
 
       if (inputString.Equals("Return", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("CarriageReturn", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("CR", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("Carriage return", StringComparison.OrdinalIgnoreCase))
-      {
         return '\r';
-      }
 
       if (inputString.Equals("Check mark", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("Check", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("✓", StringComparison.OrdinalIgnoreCase))
-      {
         return '✓';
-      }
 
       if (inputString.Equals("Feed", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("LineFeed", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("LF", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("Line feed", StringComparison.OrdinalIgnoreCase))
-      {
         return '\n';
-      }
 
       if (inputString.StartsWith("Unit separator", StringComparison.OrdinalIgnoreCase) ||
           inputString.Contains("31") ||
           inputString.Equals("US", StringComparison.OrdinalIgnoreCase))
-      {
         return '\u001F';
-      }
 
       if (inputString.StartsWith("Record separator", StringComparison.OrdinalIgnoreCase) ||
           inputString.Contains("30") ||
           inputString.Equals("RS", StringComparison.OrdinalIgnoreCase))
-      {
         return '\u001E';
-      }
 
       if (inputString.StartsWith("Group separator", StringComparison.OrdinalIgnoreCase) ||
           inputString.Contains("29") ||
           inputString.Equals("GS", StringComparison.OrdinalIgnoreCase))
-      {
         return '\u001D';
-      }
 
       if (inputString.StartsWith("File separator", StringComparison.OrdinalIgnoreCase) ||
           inputString.Contains("28") ||
           inputString.Equals("FS", StringComparison.OrdinalIgnoreCase))
-      {
         return '\u001C';
-      }
 
       return '\0';
     }
 
     /// <summary>
-    /// Execute Asynchronous Tasks wand wait for completion
+    ///   Execute Asynchronous Tasks wand wait for completion
     /// </summary>
     /// <param name="executeTask">The task that is being checked</param>
     /// <param name="inLoop">The action to be invoked while waiting, it should contain an executeTask.Wait of some kind</param>
@@ -1487,7 +1368,7 @@ namespace CsvTools
           inLoop.Invoke();
 
         if (executeTask.IsFaulted && executeTask.Exception != null)
-            throw executeTask.Exception;
+          throw executeTask.Exception;
       }
       catch (Exception ex)
       {
@@ -1495,9 +1376,111 @@ namespace CsvTools
         // return only the first exception if there are many
         if (ex is AggregateException ae)
           throw ae.Flatten().InnerExceptions[0];
-        else
-          throw;
+        throw;
       }
     }
+
+#if !GetHashByGUID
+
+    /// <summary>
+    ///   Check if a collection is equal, the items can be in any order as long as all exist in the th other
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="self">The collection.</param>
+    /// <param name="other">The other collection.</param>
+    /// <returns></returns>
+    public static bool CollectionEqual<T>(this ICollection<T> self, ICollection<T> other) where T : IEquatable<T>
+    {
+      if (self == null)
+        throw new ArgumentNullException(nameof(self));
+      if (other == null)
+        return false;
+      if (ReferenceEquals(other, self))
+        return true;
+      if (other.Count != self.Count)
+        return false;
+      var equal = true;
+      // Check the item, all should be the same, order does not matter though
+      foreach (var ot in other)
+      {
+        var found = false;
+        if (ot == null)
+          foreach (var x in self)
+          {
+            if (x != null) continue;
+            found = true;
+            break;
+          }
+        else
+          foreach (var th in self)
+          {
+            if (!ot.Equals(th))
+              continue;
+            found = true;
+            break;
+          }
+
+        if (found)
+          continue;
+        equal = false;
+        break;
+      }
+
+      // No need to check the other way around, as all items are the same and the number matches
+      return equal;
+    }
+
+    /// <summary>
+    ///   Check if two enumerations are equal, the items need to be in the right order
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="self">The collection.</param>
+    /// <param name="other">The other collection.</param>
+    /// <returns></returns>
+    public static bool CollectionEqualWithOrder<T>(this IEnumerable<T> self, IEnumerable<T> other)
+      where T : IEquatable<T>
+    {
+      if (self == null)
+        throw new ArgumentNullException(nameof(self));
+      if (other == null)
+        return false;
+
+      if (ReferenceEquals(other, self))
+        return true;
+      // use Enumerators to compare the two collections
+      var comparer = EqualityComparer<T>.Default;
+      using (var selfEnum = self.GetEnumerator())
+      using (var otherEnum = other.GetEnumerator())
+      {
+        while (selfEnum.MoveNext())
+          // there are less elements or the elements are not equal
+          if (!(otherEnum.MoveNext() && comparer.Equals(selfEnum.Current, otherEnum.Current)))
+            return false;
+        // there are more elements
+        if (otherEnum.MoveNext())
+          return false;
+      }
+
+      return true;
+    }
+
+    /// <summary>
+    ///   Get the hash code of a collection, the order of items should not matter.
+    /// </summary>
+    /// <param name="collection">The collection itself.</param>
+    /// <returns></returns>
+    public static int CollectionHashCode(this ICollection collection)
+    {
+      unchecked
+      {
+        var hashCode = 731;
+        var order = 0;
+        foreach (var item in collection)
+          hashCode = (hashCode * 397) ^ (item.GetHashCode() + order++);
+        return hashCode;
+      }
+    }
+
+#endif
   }
 }

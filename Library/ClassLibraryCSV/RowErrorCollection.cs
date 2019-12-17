@@ -25,7 +25,6 @@ namespace CsvTools
   public class RowErrorCollection
   {
     private readonly int m_MaxRows = int.MaxValue;
-    private ICollection<int> m_IgnoredColumns;
 
     /// <summary>
     ///   A List containing warnings by row/column
@@ -33,34 +32,24 @@ namespace CsvTools
     private readonly IDictionary<long, ColumnErrorDictionary> m_RowErrorCollection =
       new Dictionary<long, ColumnErrorDictionary>();
 
+    private ICollection<int> m_IgnoredColumns;
+
     /// <summary>
-    /// Attach the error collection to the reader
+    ///   Attach the error collection to the reader
     /// </summary>
     /// <param name="reader"></param>
-    public RowErrorCollection(IFileReader reader) => reader.Warning += Add;
-
-    public void HandleIgnoredColumns(IFileReader reader)
+    public RowErrorCollection(IFileReader reader)
     {
-      if (reader.FieldCount == 0)
-        throw new InvalidOperationException("Reader has not been opened.");
-
-      for (var col = 0; col < reader.FieldCount; col++)
-      {
-        if (reader.IgnoreRead(col))
-        {
-          if (m_IgnoredColumns == null)
-            m_IgnoredColumns = new HashSet<int>();
-          m_IgnoredColumns.Add(col);
-        }
-      }
+      reader.Warning += Add;
     }
 
-    public RowErrorCollection(int maxRows) => m_MaxRows = maxRows;
-
-    public event EventHandler<WarningEventArgs> PassWarning;
+    public RowErrorCollection(int maxRows)
+    {
+      m_MaxRows = maxRows;
+    }
 
     /// <summary>
-    ///   Number of Rows in the warning lits
+    ///   Number of Rows in the warning list
     /// </summary>
     /// <value>The number of warnings</value>
     public virtual int CountRows => m_RowErrorCollection.Count;
@@ -77,12 +66,12 @@ namespace CsvTools
         // Go though all rows
         foreach (var errorsInColumn in m_RowErrorCollection.Values)
           // And all columns
-          foreach (var message in errorsInColumn.Values)
-          {
-            if (sb.Length > 0)
-              sb.Append(ErrorInformation.cSeparator);
-            sb.Append(message);
-          }
+        foreach (var message in errorsInColumn.Values)
+        {
+          if (sb.Length > 0)
+            sb.Append(ErrorInformation.cSeparator);
+          sb.Append(message);
+        }
 
         return sb.ToString();
       }
@@ -123,6 +112,22 @@ namespace CsvTools
       }
     }
 
+    public void HandleIgnoredColumns(IFileReader reader)
+    {
+      if (reader.FieldCount == 0)
+        throw new InvalidOperationException("Reader has not been opened.");
+
+      for (var col = 0; col < reader.FieldCount; col++)
+        if (reader.IgnoreRead(col))
+        {
+          if (m_IgnoredColumns == null)
+            m_IgnoredColumns = new HashSet<int>();
+          m_IgnoredColumns.Add(col);
+        }
+    }
+
+    public event EventHandler<WarningEventArgs> PassWarning;
+
     /// <summary>
     ///   Add a warning to the list of warnings
     /// </summary>
@@ -130,7 +135,7 @@ namespace CsvTools
     /// <param name="args"></param>
     public virtual void Add(object sender, WarningEventArgs args)
     {
-      if ((m_IgnoredColumns != null && m_IgnoredColumns.Contains(args.ColumnNumber)) || CountRows >= m_MaxRows)
+      if (m_IgnoredColumns != null && m_IgnoredColumns.Contains(args.ColumnNumber) || CountRows >= m_MaxRows)
         return;
 
       if (!m_RowErrorCollection.TryGetValue(args.RecordNumber, out var columnErrorCollection))
@@ -146,7 +151,10 @@ namespace CsvTools
     /// <summary>
     ///   Empties out the warning list
     /// </summary>
-    public void Clear() => m_RowErrorCollection.Clear();
+    public void Clear()
+    {
+      m_RowErrorCollection.Clear();
+    }
 
     /// <summary>
     ///   Tries the retrieve the value for a given record

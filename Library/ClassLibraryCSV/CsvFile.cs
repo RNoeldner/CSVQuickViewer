@@ -35,28 +35,29 @@ namespace CsvTools
     /// </summary>
     public const string cCsvSettingExtension = ".setting";
 
+    private bool m_AllowRowCombining;
+
     private bool m_AlternateQuoting;
     private bool m_ByteOrderMark = true;
     private int m_CodePageId = 65001;
 
-    [NonSerialized]
-    private Encoding m_CurrentEncoding = Encoding.UTF8;
+    [NonSerialized] private Encoding m_CurrentEncoding = Encoding.UTF8;
+
+    private bool m_DoubleDecode;
 
     private bool m_JsonFormat;
-    private bool m_DoubleDecode;
     private bool m_NoDelimitedFile;
     private int m_NumWarnings;
-    private bool m_TreatUnknowCharaterAsSpace;
+    private bool m_TreatLFAsSpace;
+    private bool m_TreatUnknownCharacterAsSpace;
+    private bool m_TryToSolveMoreColumns;
     private bool m_WarnDelimiterInValue;
     private bool m_WarnEmptyTailingColumns = true;
     private bool m_WarnLineFeed;
     private bool m_WarnNbsp = true;
-    private bool m_TreatLFAsSpace;
-    private bool m_TryToSolveMoreColumns;
-    private bool m_AllowRowCombining;
     private bool m_WarnQuotes;
     private bool m_WarnQuotesInQuotes = true;
-    private bool m_WarnUnknowCharacter = true;
+    private bool m_WarnUnknownCharacter = true;
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="CsvFile" /> class.
@@ -175,6 +176,7 @@ namespace CsvTools
           TryToSolveMoreColumns = false;
           AllowRowCombining = false;
         }
+
         NotifyPropertyChanged(nameof(JsonFormat));
       }
     }
@@ -244,13 +246,13 @@ namespace CsvTools
     [DefaultValue(false)]
     public virtual bool TreatUnknowCharaterAsSpace
     {
-      get => m_TreatUnknowCharaterAsSpace;
+      get => m_TreatUnknownCharacterAsSpace;
 
       set
       {
-        if (m_TreatUnknowCharaterAsSpace.Equals(value))
+        if (m_TreatUnknownCharacterAsSpace.Equals(value))
           return;
-        m_TreatUnknowCharaterAsSpace = value;
+        m_TreatUnknownCharacterAsSpace = value;
         NotifyPropertyChanged(nameof(TreatUnknowCharaterAsSpace));
       }
     }
@@ -317,7 +319,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Gets or sets a value indicating whether to treat a single LF as space
+    ///   Gets or sets a value indicating whether to treat a single LF as space
     /// </summary>
     /// <value>
     ///   <c>true</c> if LF should be treated as space; otherwise, <c>false</c>.
@@ -338,7 +340,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Gets or sets a value indicating whether the reader should try to solve more columns.
+    ///   Gets or sets a value indicating whether the reader should try to solve more columns.
     /// </summary>
     /// <value>
     ///   <c>true</c> if it should be try to solve misalignment more columns; otherwise, <c>false</c>.
@@ -440,13 +442,13 @@ namespace CsvTools
     [DefaultValue(true)]
     public virtual bool WarnUnknowCharater
     {
-      get => m_WarnUnknowCharacter;
+      get => m_WarnUnknownCharacter;
 
       set
       {
-        if (m_WarnUnknowCharacter.Equals(value))
+        if (m_WarnUnknownCharacter.Equals(value))
           return;
-        m_WarnUnknowCharacter = value;
+        m_WarnUnknownCharacter = value;
         NotifyPropertyChanged(nameof(WarnUnknowCharater));
       }
     }
@@ -471,7 +473,7 @@ namespace CsvTools
     {
       if (other == null)
         return;
-      BaseSettingsCopyTo((BaseSettings)other);
+      BaseSettingsCopyTo((BaseSettings) other);
 
       if (!(other is ICsvFile csv))
         return;
@@ -483,21 +485,24 @@ namespace CsvTools
       csv.WarnDelimiterInValue = m_WarnDelimiterInValue;
       csv.WarnEmptyTailingColumns = m_WarnEmptyTailingColumns;
       csv.WarnQuotesInQuotes = m_WarnQuotesInQuotes;
-      csv.WarnUnknowCharater = m_WarnUnknowCharacter;
+      csv.WarnUnknowCharater = m_WarnUnknownCharacter;
       csv.WarnLineFeed = m_WarnLineFeed;
       csv.WarnNBSP = m_WarnNbsp;
       csv.TreatLFAsSpace = m_TreatLFAsSpace;
       csv.TryToSolveMoreColumns = m_TryToSolveMoreColumns;
       csv.AllowRowCombining = m_AllowRowCombining;
 
-      csv.TreatUnknowCharaterAsSpace = m_TreatUnknowCharaterAsSpace;
+      csv.TreatUnknowCharaterAsSpace = m_TreatUnknownCharacterAsSpace;
       csv.CodePageId = m_CodePageId;
       csv.NumWarnings = m_NumWarnings;
       csv.CurrentEncoding = m_CurrentEncoding;
       csv.NoDelimitedFile = m_NoDelimitedFile;
     }
 
-    public bool Equals(IFileSetting other) => Equals(other as ICsvFile);
+    public bool Equals(IFileSetting other)
+    {
+      return Equals(other as ICsvFile);
+    }
 
     /// <summary>
     ///   Gets the file reader.
@@ -507,12 +512,11 @@ namespace CsvTools
     {
       if (JsonFormat)
         return new JsonFileReader(this, processDisplay);
-      else
-        return new CsvFileReader(this, processDisplay);
+      return new CsvFileReader(this, processDisplay);
     }
 
     /// <summary>
-    /// Gets the file writer.
+    ///   Gets the file writer.
     /// </summary>
     /// <param name="processDisplay">The process display.</param>
     /// <returns></returns>
@@ -521,8 +525,7 @@ namespace CsvTools
     {
       if (JsonFormat)
         throw new NotImplementedException("For writing Json files please use a structured file to define the layout.");
-      else
-        return new CsvFileWriter(this, processDisplay);
+      return new CsvFileWriter(this, processDisplay);
     }
 
     /*
@@ -564,7 +567,7 @@ namespace CsvTools
              Equals(m_CurrentEncoding, other.CurrentEncoding) && m_DoubleDecode == other.DoubleDecode &&
              m_JsonFormat == other.JsonFormat &&
              m_NoDelimitedFile == other.NoDelimitedFile && m_NumWarnings == other.NumWarnings &&
-             m_TreatUnknowCharaterAsSpace == other.TreatUnknowCharaterAsSpace &&
+             m_TreatUnknownCharacterAsSpace == other.TreatUnknowCharaterAsSpace &&
              m_WarnDelimiterInValue == other.WarnDelimiterInValue &&
              m_WarnEmptyTailingColumns == other.WarnEmptyTailingColumns && m_WarnLineFeed == other.WarnLineFeed &&
              m_TryToSolveMoreColumns == other.TryToSolveMoreColumns &&
@@ -572,7 +575,7 @@ namespace CsvTools
              m_TreatLFAsSpace == other.TreatLFAsSpace &&
              m_WarnNbsp == other.WarnNBSP && m_WarnQuotes == other.WarnQuotes &&
              m_WarnQuotesInQuotes == other.WarnQuotesInQuotes &&
-             m_WarnUnknowCharacter == other.WarnUnknowCharater &&
+             m_WarnUnknownCharacter == other.WarnUnknowCharater &&
              BaseSettingsEquals(other as BaseSettings);
     }
 
@@ -581,6 +584,9 @@ namespace CsvTools
     /// <returns>
     ///   <see langword="true" /> if the specified object  is equal to the current object; otherwise, <see langword="false" />.
     /// </returns>
-    public override bool Equals(object obj) => Equals(obj as ICsvFile);
+    public override bool Equals(object obj)
+    {
+      return Equals(obj as ICsvFile);
+    }
   }
 }

@@ -338,7 +338,7 @@ namespace CsvTools
     ///  The column options
     /// </value>
     [XmlElement("Format")]
-    public virtual ColumnCollection ColumnCollection { get; } = new ColumnCollection();
+    public ColumnCollection ColumnCollection { get; } = new ColumnCollection();
 
     /// <summary>
     ///  Gets or sets a value indicating whether to display end line numbers.
@@ -695,7 +695,7 @@ namespace CsvTools
     /// </summary>
     /// <value>The field mapping.</value>
     [XmlElement("Mapping")]
-    public virtual MappingCollection MappingCollection { get; } = new MappingCollection();
+    public MappingCollection MappingCollection { get; } = new MappingCollection();
 
     /// <summary>
     ///  Gets or sets the ID.
@@ -1202,6 +1202,6 @@ namespace CsvTools
     }
 
     [XmlIgnore]
-    public virtual Func<string> GetEncryptedPassphraseFunction { get; set; }
+    public Func<string> GetEncryptedPassphraseFunction { get; set; }
   }
 }

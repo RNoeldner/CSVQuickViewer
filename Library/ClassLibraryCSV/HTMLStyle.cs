@@ -59,23 +59,27 @@ namespace CsvTools
 
         if (errorsAndWarnings.Item2.Length > 0 && errorsAndWarnings.Item1.Length == 0)
         {
-          sbHtml.Append(string.Format(CultureInfo.CurrentCulture, tdTemplate, AddTd(c_Warning, errorsAndWarnings.Item2)));
+          sbHtml.Append(
+            string.Format(CultureInfo.CurrentCulture, tdTemplate, AddTd(c_Warning, errorsAndWarnings.Item2)));
           return;
         }
 
-        sbHtml.Append(string.Format(CultureInfo.CurrentCulture, tdTemplate, AddTd(c_ErrorWarning, errorsAndWarnings.Item1, errorsAndWarnings.Item2)));
+        sbHtml.Append(string.Format(CultureInfo.CurrentCulture, tdTemplate,
+          AddTd(c_ErrorWarning, errorsAndWarnings.Item1, errorsAndWarnings.Item2)));
       }
       else
       {
         if (errorsAndWarnings.Item2.Length == 0 && errorsAndWarnings.Item1.Length > 0)
         {
-          sbHtml.Append(string.Format(CultureInfo.CurrentCulture, tdTemplate, AddTd(c_ValueError, regularText, errorsAndWarnings.Item1)));
+          sbHtml.Append(string.Format(CultureInfo.CurrentCulture, tdTemplate,
+            AddTd(c_ValueError, regularText, errorsAndWarnings.Item1)));
           return;
         }
 
         if (errorsAndWarnings.Item2.Length > 0 && errorsAndWarnings.Item1.Length == 0)
         {
-          sbHtml.Append(string.Format(CultureInfo.CurrentCulture, tdTemplate, AddTd(c_ValueWarning, regularText, errorsAndWarnings.Item2)));
+          sbHtml.Append(string.Format(CultureInfo.CurrentCulture, tdTemplate,
+            AddTd(c_ValueWarning, regularText, errorsAndWarnings.Item2)));
           return;
         }
 
@@ -97,7 +101,8 @@ namespace CsvTools
       if (string.IsNullOrEmpty(template))
         return string.Empty;
       for (var i = 0; i < contents.Length; i++)
-        contents[i] = HtmlEncode(contents[i].ToString()).Replace("�", "<span style=\"color:Red; font-size:larger\">&diams;</span>");
+        contents[i] = HtmlEncode(contents[i].ToString())
+          .Replace("�", "<span style=\"color:Red; font-size:larger\">&diams;</span>");
 
       return string.Format(CultureInfo.CurrentCulture, template, contents);
     }
@@ -120,7 +125,6 @@ namespace CsvTools
       var sb = new StringBuilder(text.Length);
       var len = text.Length;
       for (var i = 0; i < len; i++)
-      {
         switch (text[i])
         {
           case '\n':
@@ -148,7 +152,7 @@ namespace CsvTools
             {
               // decimal numeric entity
               sb.Append("&#");
-              sb.Append(((int)text[i]).ToString(CultureInfo.InvariantCulture));
+              sb.Append(((int) text[i]).ToString(CultureInfo.InvariantCulture));
               sb.Append(";");
             }
             else
@@ -158,7 +162,6 @@ namespace CsvTools
 
             break;
         }
-      }
 
       return sb.ToString();
     }
@@ -176,7 +179,6 @@ namespace CsvTools
       var sb = new StringBuilder(text.Length);
 
       foreach (var oneChar in text)
-      {
         switch (oneChar)
         {
           case '\n':
@@ -203,7 +205,6 @@ namespace CsvTools
             sb.Append(oneChar);
             break;
         }
-      }
 
       return sb.ToString();
     }
@@ -234,9 +235,7 @@ namespace CsvTools
           && oc != UnicodeCategory.ModifierLetter
           && oc != UnicodeCategory.OtherLetter
           && oc != UnicodeCategory.LetterNumber)
-      {
         return "_" + allowed;
-      }
 
       return allowed;
     }
@@ -250,10 +249,11 @@ namespace CsvTools
     {
       if (text == null)
         return null;
-      if (text.StartsWith("<![CDATA[", StringComparison.OrdinalIgnoreCase) && text.EndsWith("]]>", StringComparison.OrdinalIgnoreCase))
+      if (text.StartsWith("<![CDATA[", StringComparison.OrdinalIgnoreCase) &&
+          text.EndsWith("]]>", StringComparison.OrdinalIgnoreCase))
         return text.Substring(9, text.Length - 12);
 
-      return StringUtils.HandleCRLFCombinations(text, "<br>").Replace((char)0xA0, ' ').Replace('\t', ' ')
+      return StringUtils.HandleCRLFCombinations(text, "<br>").Replace((char) 0xA0, ' ').Replace('\t', ' ')
         .Replace("  ", " ").Replace("  ", " ");
     }
 
@@ -323,40 +323,6 @@ namespace CsvTools
 
       return string.Format(CultureInfo.InvariantCulture, c_MarkerBlock, prefixLength, prefixLength + html.Length,
         startFragment, endFragment, c_Source, html);
-    }
-
-    public string TabTableToHTML(string text, bool firstLineHeader, bool addTable)
-    {
-      var sbHtml = new StringBuilder();
-      if (addTable)
-        sbHtml.Append(TableOpen);
-
-      var lineNo = 0;
-      foreach (var line in text.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries))
-      {
-        lineNo++;
-        if (lineNo == 1 && firstLineHeader)
-        {
-          sbHtml.Append(TROpenAlt);
-          foreach (var column in line.Split(new[] { '\t' }, StringSplitOptions.None))
-          {
-            sbHtml.Append(HTMLStyle.AddTd(TH, column));
-          }
-          sbHtml.AppendLine(TRClose);
-        }
-        else
-        {
-          sbHtml.Append(TROpen);
-          foreach (var column in line.Split(new[] { '\t' }, StringSplitOptions.None))
-          {
-            sbHtml.Append(HTMLStyle.AddTd(TD, column));
-          }
-          sbHtml.AppendLine(TRClose);
-        }
-      }
-      if (addTable)
-        sbHtml.Append(TableClose);
-      return sbHtml.ToString();
     }
 
     #region Defaults
