@@ -10,6 +10,7 @@
     <AssemblyVersion>1.6.4.394</AssemblyVersion>
     <FileVersion>1.6.4.394</FileVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <UserSecretsId>8407e8a4-78f2-485c-b32c-5694cf6ab0d0</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>

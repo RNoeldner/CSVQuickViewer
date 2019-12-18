@@ -25,7 +25,10 @@ namespace CsvTools
     /// </summary>
     /// <returns></returns>
     T Clone();
+  }
 
+  public interface ICopyTo<T>
+  {
     /// <summary>
     ///   Copies all properties to the other instance
     /// </summary>

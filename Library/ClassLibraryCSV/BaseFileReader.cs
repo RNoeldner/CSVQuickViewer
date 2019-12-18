@@ -393,10 +393,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="columnNumber">The column number.</param>
     /// <returns>The .NET type of the column</returns>
-    public virtual Type GetFieldType(int columnNumber)
-    {
-      return GetColumn(columnNumber).DataType.GetNetType();
-    }
+    public virtual Type GetFieldType(int columnNumber) => GetColumn(columnNumber).DataType.GetNetType();
 
     /// <summary>
     ///   Gets the single-precision floating point number of the specified field.
@@ -552,10 +549,7 @@ namespace CsvTools
     /// <exception cref="IndexOutOfRangeException">
     ///   The index passed was outside the range of 0 through <see cref="IDataRecord.FieldCount" />.
     /// </exception>
-    public virtual string GetName(int columnNumber)
-    {
-      return GetColumn(columnNumber).Name;
-    }
+    public virtual string GetName(int columnNumber) => GetColumn(columnNumber).Name;
 
     /// <summary>
     ///   Return the index of the named field.
@@ -720,10 +714,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="columnNumber">The column number.</param>
     /// <returns><c>true</c> if this column should not be read</returns>
-    public virtual bool IgnoreRead(int columnNumber)
-    {
-      return GetColumn(columnNumber).Ignore;
-    }
+    public virtual bool IgnoreRead(int columnNumber) => GetColumn(columnNumber).Ignore;
 
     /// <summary>
     ///   Displays progress, is called after <see langword="abstract" />row has been read
@@ -775,10 +766,7 @@ namespace CsvTools
     ///   Advances the data reader to the next result, when reading the results of batch SQL statements.
     /// </summary>
     /// <returns>true if there are more rows; otherwise, false.</returns>
-    public virtual bool NextResult()
-    {
-      return false;
-    }
+    public virtual bool NextResult() => false;
 
     /// <summary>
     ///   Overrides the column format from setting.
@@ -834,10 +822,7 @@ namespace CsvTools
     /// <returns>true if there are more rows; otherwise, false.</returns>
     public abstract bool Read();
 
-    protected internal static string GetDefaultName(int i)
-    {
-      return $"Column{i + 1}";
-    }
+    protected internal static string GetDefaultName(int i) => $"Column{i + 1}";
 
     /// <summary>
     ///   Gets the default schema row array.
@@ -947,11 +932,11 @@ namespace CsvTools
           column.DateSeparator, column.TimeSeparator, serialDateTime);
         if (dateTime.HasValue)
         {
-          var disp = column.DateFormat.ReplaceDefaults("/", column.DateSeparator, ":", column.TimeSeparator);
+          var display = column.DateFormat.ReplaceDefaults("/", column.DateSeparator, ":", column.TimeSeparator);
           HandleWarning(column.ColumnOrdinal,
             !string.IsNullOrEmpty(strInputTime)
-              ? $"'{strInputDate} {strInputTime}' is not a date of the format {disp} {column.TimePartFormat}, used '{inputDateNew} {strInputTime}'"
-              : $"'{strInputDate}' is not a date of the format {disp}, used '{inputDateNew}' ");
+              ? $"'{strInputDate} {strInputTime}' is not a date of the format {display} {column.TimePartFormat}, used '{inputDateNew} {strInputTime}'"
+              : $"'{strInputDate}' is not a date of the format {display}, used '{inputDateNew}' ");
         }
       }
 
@@ -1138,12 +1123,12 @@ namespace CsvTools
       var column = GetColumn(columnNumber);
       if (column.Ignore)
         return;
-      var disp = column.DateFormat.ReplaceDefaults("/", column.DateSeparator, ":", column.TimeSeparator);
+      var display = column.DateFormat.ReplaceDefaults("/", column.DateSeparator, ":", column.TimeSeparator);
 
       HandleError(columnNumber,
         !string.IsNullOrEmpty(inputTime)
-          ? $"'{inputDate} {inputTime}' is not a date of the format {disp} {column.TimePartFormat}"
-          : $"'{inputDate}' is not a date of the format {disp}");
+          ? $"'{inputDate} {inputTime}' is not a date of the format {display} {column.TimePartFormat}"
+          : $"'{inputDate}' is not a date of the format {display}");
     }
 
     /// <summary>

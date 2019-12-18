@@ -2,8 +2,8 @@
 {
   public interface IValidationResult
   {
-    long NumberRecords { get; set; }
-    long ErrorCount { get; set; }
-    long WarningCount { get; set; }
+    long NumberRecords { get;  }
+    long ErrorCount { get; }
+    long WarningCount { get;  }
   }
 }

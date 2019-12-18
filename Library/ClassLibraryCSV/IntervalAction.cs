@@ -13,6 +13,7 @@
  */
 
 using System;
+using System.Runtime.CompilerServices;
 
 namespace CsvTools
 {
@@ -26,8 +27,9 @@ namespace CsvTools
     /// <summary>
     ///  Initializes a new instance of the <see cref="IntervalAction" /> class.
     /// </summary>
-    /// <remarks>If no notification period is set 1/5 a second is assumed</remarks>
-    public IntervalAction() => NotifyAfterSeconds = (1 / 3d);
+    /// <remarks>If no notification period is set 1/3 a second is assumed</remarks>
+    public IntervalAction() : this(1 / 3d)
+    { }
 
     /// <summary>
     ///  Initializes a new instance of the <see cref="IntervalAction" /> class.
@@ -36,13 +38,14 @@ namespace CsvTools
     public IntervalAction(double notifyAfterSeconds) => NotifyAfterSeconds = notifyAfterSeconds;
 
     public double NotifyAfterSeconds { get; set; }
+
     /// <summary>
     ///  Invoke the given action if the set interval has passed
     /// </summary>
     /// <param name="action">the action to invoke</param>
     public void Invoke(Action action)
     {
-      if (!((DateTime.Now - m_LastNotification).TotalSeconds > NotifyAfterSeconds))
+      if ((DateTime.Now - m_LastNotification).TotalSeconds < NotifyAfterSeconds)
         return;
       m_LastNotification = DateTime.Now;
       action?.Invoke();

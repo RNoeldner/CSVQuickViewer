@@ -55,6 +55,7 @@ namespace CsvTools
     private bool m_InOverview;
     private bool m_IsEnabled = true;
     private int m_NumErrors = -1;
+    private long m_NumRecords;
     private string m_Passphrase = string.Empty;
     private string m_Recipient = string.Empty;
     private uint m_RecordLimit;
@@ -79,18 +80,26 @@ namespace CsvTools
     ///  Initializes a new instance of the <see cref="BaseSettings" /> class.
     /// </summary>
     /// <param name="fileName">The filename.</param>
-    protected BaseSettings(string fileName) : this() => FileName = fileName;
+    protected BaseSettings(string fileName)
+    {
+      FileName = fileName;
+      GetEncryptedPassphraseFunction = delegate
+        { if (!string.IsNullOrEmpty(Passphrase)) 
+            return Passphrase; 
+          return !string.IsNullOrEmpty(ApplicationSetting.PGPKeyStorage.EncryptedPassphase) ? ApplicationSetting.PGPKeyStorage.EncryptedPassphase : string.Empty;
+        };
+      ColumnCollection.CollectionChanged += ColumnCollectionChanged;
+      MappingCollection.PropertyChanged += delegate
+      {
+        NotifyPropertyChanged(nameof(MappingCollection));
+      };
+    }
 
     /// <summary>
     ///  Initializes a new instance of the <see cref="BaseSettings" /> class.
     /// </summary>
-    protected BaseSettings()
+    protected BaseSettings() : this(string.Empty)
     {
-      GetEncryptedPassphraseFunction = delegate
-        { if (!string.IsNullOrEmpty(Passphrase)) return Passphrase; if (!string.IsNullOrEmpty(ApplicationSetting.PGPKeyStorage.EncryptedPassphase)) return ApplicationSetting.PGPKeyStorage.EncryptedPassphase; return string.Empty; };
-      ColumnCollection.CollectionChanged += ColumnCollectionChanged;
-      MappingCollection.PropertyChanged += delegate
-      { NotifyPropertyChanged(nameof(MappingCollection)); };
     }
 
     private void ColumnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -724,6 +733,25 @@ namespace CsvTools
         NotifyPropertyChanged(nameof(NumErrors));
       }
     }
+    /// <summary>
+    ///  Gets or sets the ID.
+    /// </summary>
+    /// <value>
+    ///  The ID.
+    /// </value>
+    [XmlIgnore]
+    [DefaultValue(0)]
+    public virtual long NumRecords
+    {
+      get => m_NumRecords;
+      set
+      {
+        if (m_NumRecords == value)
+          return;
+        m_NumRecords = value;
+        NotifyPropertyChanged(nameof(NumRecords));
+      }
+    }
 
     /// <summary>
     ///  Pass phrase for Decryption
@@ -1100,6 +1128,7 @@ namespace CsvTools
         fileSettingPhysicalFile.ThrowErrorIfNotExists = m_ThrowErrorIfNotExists;
       }
       other.ID = m_Id;
+      other.NumRecords = m_NumRecords;
     }
 
 
