@@ -44,9 +44,13 @@ namespace CsvTools
     /// <param name="additionalTitle">Title Bar information</param>
     public static void ShowError(this Form from, Exception ex, string additionalTitle = "")
     {
-      Logger.Warning(ex, "Issue in UI {form} : {message} {stack}", from.GetType().Name, ex.SourceExceptionMessage(), ClassLibraryCsvExtensionMethods.UpmostStackTrace());
+      Logger.Warning(ex, "Issue in UI {form} : {message} {stack}", from.GetType().Name, ex.SourceExceptionMessage());
       Cursor.Current = Cursors.Default;
+#if DEBUG
+      _MessageBox.ShowBig(from, ex.ExceptionMessages() + "\n\nMethod:\n" + ex.CsvToolsStackTrace(), string.IsNullOrEmpty(additionalTitle) ? "Error" : $"Error {additionalTitle}", MessageBoxButtons.OK, MessageBoxIcon.Warning, timeout: 20);
+#else
       MessageBox.Show(from, ex.ExceptionMessages(), string.IsNullOrEmpty(additionalTitle) ? "Error" : $"Error {additionalTitle}", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+#endif
     }
 
     /// <summary>

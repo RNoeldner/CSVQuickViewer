@@ -50,31 +50,22 @@ namespace CsvTools
     /// </summary>
     /// <param name="fileName">Name of the file.</param>
     /// <returns></returns>
-    public static bool AssumeGZip(this string fileName)
-    {
-      return fileName.EndsWith(".gz", StringComparison.OrdinalIgnoreCase);
-    }
+    public static bool AssumeGZip(this string fileName) => fileName.EndsWith(".gz", StringComparison.OrdinalIgnoreCase);
 
     /// <summary>
     ///   Check if the application should assume its PGP.
     /// </summary>
     /// <param name="fileName">Name of the file.</param>
     /// <returns></returns>
-    public static bool AssumePgp(this string fileName)
-    {
-      return fileName.EndsWith(".pgp", StringComparison.OrdinalIgnoreCase) ||
+    public static bool AssumePgp(this string fileName) => fileName.EndsWith(".pgp", StringComparison.OrdinalIgnoreCase) ||
              fileName.EndsWith(".gpg", StringComparison.OrdinalIgnoreCase);
-    }
 
     /// <summary>
     ///   Check if the application should assume its ZIP
     /// </summary>
     /// <param name="fileName">Name of the file.</param>
     /// <returns></returns>
-    public static bool AssumeZip(this string fileName)
-    {
-      return fileName.EndsWith(".zip", StringComparison.OrdinalIgnoreCase);
-    }
+    public static bool AssumeZip(this string fileName) => fileName.EndsWith(".zip", StringComparison.OrdinalIgnoreCase);
 
     /// <summary>
     ///   Copies all elements from one collection to the other
@@ -404,7 +395,8 @@ namespace CsvTools
     public static IEnumerable<string> GetRealColumns(this DataTable dataTable)
     {
       Contract.Ensures(Contract.Result<IEnumerable<string>>() != null);
-      foreach (var x in GetRealDataColumns(dataTable)) yield return x.ColumnName;
+      foreach (var x in GetRealDataColumns(dataTable))
+        yield return x.ColumnName;
     }
 
     /// <summary>
@@ -721,7 +713,8 @@ namespace CsvTools
       {
         if (index >= values.Length)
           break;
-        if (!placeholder.ContainsKey(match.Value)) placeholder.Add(match.Value, values[index++]);
+        if (!placeholder.ContainsKey(match.Value))
+          placeholder.Add(match.Value, values[index++]);
       }
 
       // replace them  with the property value from setting
@@ -729,6 +722,30 @@ namespace CsvTools
         template = template.ReplaceCaseInsensitive(pro.Key, pro.Value);
 
       return template.Replace("  ", " ");
+    }
+
+    public static string CsvToolsStackTrace(this Exception exception)
+    {
+      var start = 0;
+      var indexof = exception.StackTrace.IndexOf("at ");
+      while (indexof != -1)
+      {
+        var part = exception.StackTrace.Substring(start, indexof - start).Trim();
+        if (!string.IsNullOrEmpty(part) && part.StartsWith("CsvTools."))
+        {
+          var msg = part.Substring("CsvTools.".Length);
+          var posIn = msg.IndexOf(" in ");
+          var posLine = msg.LastIndexOf(":");
+          if (posIn != -1 && posLine != -1)
+            return msg.Substring(0, posIn) + " " + msg.Substring(posLine + 1);
+          else
+            return msg;
+        }
+
+        start = indexof + 3;
+        indexof = exception.StackTrace.IndexOf("at ", start);
+      }
+      return null;
     }
 
     /// <summary>
@@ -763,58 +780,7 @@ namespace CsvTools
       if (value < 0)
         return 0;
 
-      return (uint) value;
-    }
-
-    /// <summary>
-    ///   Gets the uppermost trace of the stack trace that belongs to the assembly
-    ///   Ignoring all Libraries assuming the call did pass something bad in that caused them to fail.
-    ///   Hopefully this is useful for Async tasks as well to know where they where called from
-    /// </summary>
-    /// <returns>A text that might help determining where which call caused an error</returns>
-    public static string UpmostStackTrace()
-    {
-      try
-      {
-        var st = new StackTrace();
-        var firstAfterWait = 0;
-        // if we have WaitToCompleteTask
-        for (var i = 0; i < st.FrameCount; i++)
-          if (st.GetFrame(i).GetMethod().Name.Contains("WaitToCompleteTask"))
-          {
-            firstAfterWait = i;
-          }
-          else if (firstAfterWait > 0)
-          {
-            if (st.GetFrame(i).GetILOffset() <= 0)
-              return st.GetFrame(i).GetMethod().Name;
-            return $"{st.GetFrame(i).GetMethod().Name} Line {st.GetFrame(i).GetILOffset()}";
-          }
-
-        for (var i = st.FrameCount - 1; i > 1; i--)
-        {
-          var frm = st.GetFrame(i);
-          var declaringType = frm.GetMethod().DeclaringType;
-          if (declaringType?.AssemblyQualifiedName == null ||
-              !declaringType.AssemblyQualifiedName.StartsWith("CsvTools.")) continue;
-          // now stay with CsvTool and stop once we leave it
-          for (var j = i - 1; j > 0; j--)
-          {
-            var frm2 = st.GetFrame(j);
-            var memberInfo = frm2.GetMethod().DeclaringType;
-            if (memberInfo?.AssemblyQualifiedName != null && !memberInfo.AssemblyQualifiedName.StartsWith("CsvTools."))
-              return st.GetFrame(j + 1).ToString();
-          }
-
-          return frm.ToString();
-        }
-      }
-      catch (Exception)
-      {
-        // ignore
-      }
-
-      return null;
+      return (uint)value;
     }
 
     /// <summary>
@@ -1126,7 +1092,7 @@ namespace CsvTools
       result.StartLine = new DataColumn(BaseFileReader.cStartLineNumberFieldName, typeof(long));
       dataTable.Columns.Add(result.StartLine);
 
-      dataTable.PrimaryKey = new[] {result.StartLine};
+      dataTable.PrimaryKey = new[] { result.StartLine };
 
       if (fileSetting.DisplayRecordNo && !fileReader.HasColumnName(BaseFileReader.cRecordNumberFieldName))
       {
@@ -1167,7 +1133,7 @@ namespace CsvTools
       Logger.Information("Reading data…");
       var dataTable = new DataTable(fileSetting.ID)
       {
-        MinimumCapacity = (int) Math.Min(requestedRecords, 5000)
+        MinimumCapacity = (int)Math.Min(requestedRecords, 5000)
       };
 
       try
@@ -1372,7 +1338,7 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        Logger.Warning(ex, "Asynchronous task called {src}: {exception}", UpmostStackTrace(), ex.ExceptionMessages());
+        Logger.Warning(ex, "Asynchronous task called {src}: {exception}", ex.CsvToolsStackTrace(), ex.ExceptionMessages());
         // return only the first exception if there are many
         if (ex is AggregateException ae)
           throw ae.Flatten().InnerExceptions[0];
@@ -1407,7 +1373,8 @@ namespace CsvTools
         if (ot == null)
           foreach (var x in self)
           {
-            if (x != null) continue;
+            if (x != null)
+              continue;
             found = true;
             break;
           }

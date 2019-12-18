@@ -84,8 +84,9 @@ namespace CsvTools
     {
       FileName = fileName;
       GetEncryptedPassphraseFunction = delegate
-        { if (!string.IsNullOrEmpty(Passphrase)) 
-            return Passphrase; 
+        {
+          if (!string.IsNullOrEmpty(Passphrase))
+            return Passphrase;
           return !string.IsNullOrEmpty(ApplicationSetting.PGPKeyStorage.EncryptedPassphase) ? ApplicationSetting.PGPKeyStorage.EncryptedPassphase : string.Empty;
         };
       ColumnCollection.CollectionChanged += ColumnCollectionChanged;
@@ -733,6 +734,7 @@ namespace CsvTools
         NotifyPropertyChanged(nameof(NumErrors));
       }
     }
+
     /// <summary>
     ///  Gets or sets the ID.
     /// </summary>
@@ -1063,6 +1065,8 @@ namespace CsvTools
         if (m_ValidationResult != null && m_ValidationResult.Equals(value))
           return;
         m_ValidationResult = value;
+        if (m_ValidationResult?.NumberRecords > NumRecords)
+          NumRecords = m_ValidationResult.NumberRecords;
         NotifyPropertyChanged(nameof(ValidationResult));
       }
     }
@@ -1131,7 +1135,6 @@ namespace CsvTools
       other.NumRecords = m_NumRecords;
     }
 
-
     /// <summary>
     /// Gets the file writer.
     /// </summary>
@@ -1145,7 +1148,6 @@ namespace CsvTools
     /// <param name="processDisplay">The process display.</param>
     /// <returns></returns>
     public abstract IFileReader GetFileReader(IProcessDisplay processDisplay);
-
 
     /*
     /// <summary>Serves as the default hash function. </summary>
