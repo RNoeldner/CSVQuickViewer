@@ -61,7 +61,7 @@ namespace CsvTools
       if (args.Length >= 1)
         fileName = args[0];
 
-#if NETCOREAPP31 
+#if NETCOREAPP31
       Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 #endif
 
@@ -75,7 +75,7 @@ namespace CsvTools
     private static void UnhandledException(Exception ex)
     {
       Logger.Error(ex, "Not handled Exception");
-      var message = $"{ex.GetType()}\n\n{ex.ExceptionMessages()}\nStack Trace:\n{ClassLibraryCsvExtensionMethods.UpmostStackTrace()}";
+      var message = $"{ex.GetType()}\n\n{ex.ExceptionMessages()}\nStack Trace:\n{ex.CsvToolsStackTrace()}";
 #if DEBUG
       System.Diagnostics.Debug.Assert(false, @"Not handled Exception", message);
 #else

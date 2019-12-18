@@ -1,5 +1,5 @@
 ﻿using System;
-
+using System.Linq;
 using NLog;
 using NLog.Layouts;
 using Pri.LongPath;
@@ -26,7 +26,9 @@ namespace CsvTools
 
     public static void Configure(string fileNameJson, Level level, string folder = null)
     {
-      var config = new NLog.Config.LoggingConfiguration();
+      var config = LogManager.Configuration;
+      if (config == null)
+        config = new NLog.Config.LoggingConfiguration();
       if (level != Level.None)
       {
         var minLevel = LogLevel.Debug;
@@ -37,7 +39,7 @@ namespace CsvTools
         else if (level == Level.Error)
           minLevel = LogLevel.Error;
 
-        if (!string.IsNullOrEmpty(fileNameJson))
+        if (!string.IsNullOrEmpty(fileNameJson) && !config.AllTargets.Any(x => x is NLog.Targets.FileTarget target && target.Layout is JsonLayout))
         {
           var logfileRoot = new NLog.Targets.FileTarget("jsonFile")
           {
@@ -72,16 +74,11 @@ namespace CsvTools
         if (folder != null)
         {
           var logfileFolder = new NLog.Targets.FileTarget("logfile2") { FileName = Path.Combine(folder, fileNameJson), Layout = "${longdate} ${level} ${message}  ${exception}" };
+          if (config.AllTargets.Any(x => x is NLog.Targets.FileTarget target && !(target.Layout is JsonLayout)))
+            config.RemoveTarget("logfile2");
           config.AddRule(minLevel, LogLevel.Fatal, logfileFolder);
         }
-        // otherwise add a console logger
-        else
-        {
-          var logfileFolder = new NLog.Targets.ConsoleTarget("console");
-          config.AddRule(LogLevel.Debug, LogLevel.Fatal, logfileFolder);
-        }
       }
-
       // Apply configuration
       LogManager.Configuration = config;
       Debug("Logging started");

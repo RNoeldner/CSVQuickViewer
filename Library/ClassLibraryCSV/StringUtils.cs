@@ -23,6 +23,7 @@ namespace CsvTools
   /// <summary>
   ///   Collection of static functions for string
   /// </summary>
+  [System.Diagnostics.DebuggerStepThrough]
   public static class StringUtils
   {
     public static readonly char[] Spaces =

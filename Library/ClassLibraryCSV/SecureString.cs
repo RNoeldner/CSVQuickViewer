@@ -22,6 +22,7 @@ namespace CsvTools
   /// <summary>
   ///   Class to encrypt and decrypt text, any information that needs to be stored in a secure way should be encrypted
   /// </summary>
+  [System.Diagnostics.DebuggerStepThrough]
   public static class SecureString
   {
     private const int c_SlatSize = 8;
@@ -64,7 +65,7 @@ namespace CsvTools
         base64 += "=";
       var cipherTextBytes = Convert.FromBase64String(base64);
 
-      using (var symmetricKey = new RijndaelManaged {Mode = CipherMode.CBC})
+      using (var symmetricKey = new RijndaelManaged { Mode = CipherMode.CBC })
       {
         using (var passwordDeriveBytes = new PasswordDeriveBytes(pwd, Encoding.ASCII.GetBytes(salt)))
         {
@@ -98,7 +99,7 @@ namespace CsvTools
         builder[i] = c_Base64[Convert.ToInt32(Math.Floor(c_Base64.Length * Random.NextDouble()))];
       var salt = new string(builder);
 
-      using (var symmetricKey = new RijndaelManaged {Mode = CipherMode.CBC})
+      using (var symmetricKey = new RijndaelManaged { Mode = CipherMode.CBC })
       {
         using (var passwordDeriveBytes = new PasswordDeriveBytes(pwd, Encoding.ASCII.GetBytes(salt)))
         {
