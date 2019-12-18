@@ -2,11 +2,12 @@
 using System.Data;
 using System.Diagnostics;
 using System.Diagnostics.Contracts;
+using System.Globalization;
 
 namespace CsvTools
 {
   /// <summary>
-  ///  Abstract class as base for all DataReaders that are reading a typed value, e.G. Excel
+  ///   Abstract class as base for all DataReaders that are reading a typed value, e.G. Excel
   /// </summary>
   public abstract class BaseFileReaderTyped : BaseFileReader
   {
@@ -14,7 +15,8 @@ namespace CsvTools
     protected object[] CurrentValues;
 #pragma warning restore CA1051 // Do not declare visible instance fields
 
-    protected BaseFileReaderTyped(IFileSetting fileSetting, IProcessDisplay processDisplay) : base(fileSetting, processDisplay)
+    protected BaseFileReaderTyped(IFileSetting fileSetting, IProcessDisplay processDisplay) : base(fileSetting,
+      processDisplay)
     {
     }
 
@@ -69,7 +71,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///  Gets the boolean.
+    ///   Gets the boolean.
     /// </summary>
     /// <param name="columnNumber">The i.</param>
     /// <returns></returns>
@@ -111,7 +113,8 @@ namespace CsvTools
     ///   The actual number of bytes read.
     /// </returns>
     /// <exception cref="NotImplementedException"></exception>
-    public long GetBytes(int i, long fieldOffset, byte[] buffer, int bufferoffset, int length) => throw new NotImplementedException();
+    public long GetBytes(int i, long fieldOffset, byte[] buffer, int bufferoffset, int length) =>
+      throw new NotImplementedException();
 
     /// <summary>
     ///   Gets the character value of the specified column.
@@ -136,7 +139,8 @@ namespace CsvTools
     ///   The actual number of characters read.
     /// </returns>
     /// <exception cref="NotImplementedException"></exception>
-    public override long GetChars(int i, long fieldoffset, char[] buffer, int bufferoffset, int length) => throw new NotImplementedException();
+    public override long GetChars(int i, long fieldoffset, char[] buffer, int bufferoffset, int length) =>
+      throw new NotImplementedException();
 
     /// <summary>
     ///   Returns an <see cref="IDataReader" /> for the specified column ordinal.
@@ -159,11 +163,11 @@ namespace CsvTools
     public string GetDataTypeName(int i) => GetFieldType(i).Name;
 
     /// <summary>
-    ///  Gets the date and time data value of the specified field.
+    ///   Gets the date and time data value of the specified field.
     /// </summary>
     /// <param name="columnNumber">The index of the field to find.</param>
     /// <returns>
-    ///  The date and time data value of the specified field.
+    ///   The date and time data value of the specified field.
     /// </returns>
     public override DateTime GetDateTime(int columnNumber)
     {
@@ -178,16 +182,17 @@ namespace CsvTools
         timePartText = CurrentRowColumnText[AssociatedTimeCol[columnNumber]];
       }
 
-      var dt = GetDateTimeNull(CurrentValues[columnNumber], CurrentRowColumnText[columnNumber], timePart, timePartText, GetColumn(columnNumber), false);
+      var dt = GetDateTimeNull(CurrentValues[columnNumber], CurrentRowColumnText[columnNumber], timePart, timePartText,
+        GetColumn(columnNumber), false);
       if (dt.HasValue)
         return dt.Value;
       // Warning was added by GetDecimalNull
       throw WarnAddFormatException(columnNumber,
-       $"'{CurrentRowColumnText[columnNumber]}' is not a datetime");
+        $"'{CurrentRowColumnText[columnNumber]}' is not a datetime");
     }
 
     /// <summary>
-    ///  Gets the decimal.
+    ///   Gets the decimal.
     /// </summary>
     /// <param name="columnNumber">The i.</param>
     /// <returns></returns>
@@ -196,17 +201,17 @@ namespace CsvTools
       Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount);
       Debug.Assert(CurrentValues != null && columnNumber < CurrentValues.Length);
 
-      if (CurrentValues[columnNumber] is decimal || CurrentValues[columnNumber] is double || CurrentValues[columnNumber] is float ||
-        CurrentValues[columnNumber] is short || CurrentValues[columnNumber] is int || CurrentValues[columnNumber] is long)
-      {
-        return Convert.ToDecimal(CurrentValues[columnNumber], System.Globalization.CultureInfo.CurrentCulture);
-      }
+      if (CurrentValues[columnNumber] is decimal || CurrentValues[columnNumber] is double ||
+          CurrentValues[columnNumber] is float ||
+          CurrentValues[columnNumber] is short || CurrentValues[columnNumber] is int ||
+          CurrentValues[columnNumber] is long)
+        return Convert.ToDecimal(CurrentValues[columnNumber], CultureInfo.CurrentCulture);
 
       return base.GetDecimal(columnNumber);
     }
 
     /// <summary>
-    ///  Gets the double.
+    ///   Gets the double.
     /// </summary>
     /// <param name="columnNumber">The i.</param>
     /// <returns></returns>
@@ -215,38 +220,38 @@ namespace CsvTools
       Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount);
       Debug.Assert(CurrentValues != null && columnNumber < CurrentValues.Length);
 
-      if (CurrentValues[columnNumber] is decimal || CurrentValues[columnNumber] is double || CurrentValues[columnNumber] is float ||
-        CurrentValues[columnNumber] is short || CurrentValues[columnNumber] is int || CurrentValues[columnNumber] is long)
-      {
-        return Convert.ToDouble(CurrentValues[columnNumber], System.Globalization.CultureInfo.CurrentCulture);
-      }
+      if (CurrentValues[columnNumber] is decimal || CurrentValues[columnNumber] is double ||
+          CurrentValues[columnNumber] is float ||
+          CurrentValues[columnNumber] is short || CurrentValues[columnNumber] is int ||
+          CurrentValues[columnNumber] is long)
+        return Convert.ToDouble(CurrentValues[columnNumber], CultureInfo.CurrentCulture);
 
       return base.GetDouble(columnNumber);
     }
 
     /// <summary>
-    ///  Gets the single-precision floating point number of the specified field.
+    ///   Gets the single-precision floating point number of the specified field.
     /// </summary>
     /// <param name="columnNumber">The index of the field to find.</param>
     /// <returns>
-    ///  The single-precision floating point number of the specified field.
+    ///   The single-precision floating point number of the specified field.
     /// </returns>
     public override float GetFloat(int columnNumber)
     {
       Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount);
       Debug.Assert(CurrentValues != null && columnNumber < CurrentValues.Length);
 
-      if (CurrentValues[columnNumber] is decimal || CurrentValues[columnNumber] is double || CurrentValues[columnNumber] is float ||
-        CurrentValues[columnNumber] is short || CurrentValues[columnNumber] is int || CurrentValues[columnNumber] is long)
-      {
-        return Convert.ToSingle(CurrentValues[columnNumber], System.Globalization.CultureInfo.CurrentCulture);
-      }
+      if (CurrentValues[columnNumber] is decimal || CurrentValues[columnNumber] is double ||
+          CurrentValues[columnNumber] is float ||
+          CurrentValues[columnNumber] is short || CurrentValues[columnNumber] is int ||
+          CurrentValues[columnNumber] is long)
+        return Convert.ToSingle(CurrentValues[columnNumber], CultureInfo.CurrentCulture);
 
       return base.GetFloat(columnNumber);
     }
 
     /// <summary>
-    ///  Gets the unique identifier.
+    ///   Gets the unique identifier.
     /// </summary>
     /// <param name="columnNumber">The i.</param>
     /// <returns></returns>
@@ -262,28 +267,28 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///  Gets the 16-bit signed integer value of the specified field.
+    ///   Gets the 16-bit signed integer value of the specified field.
     /// </summary>
     /// <param name="columnNumber">The index of the field to find.</param>
     /// <returns>
-    ///  The 16-bit signed integer value of the specified field.
+    ///   The 16-bit signed integer value of the specified field.
     /// </returns>
     public override short GetInt16(int columnNumber)
     {
       Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount);
       Debug.Assert(CurrentValues != null && columnNumber < CurrentValues.Length);
 
-      if (CurrentValues[columnNumber] is decimal || CurrentValues[columnNumber] is double || CurrentValues[columnNumber] is float ||
-        CurrentValues[columnNumber] is short || CurrentValues[columnNumber] is int || CurrentValues[columnNumber] is long)
-      {
-        return Convert.ToInt16(CurrentValues[columnNumber], System.Globalization.CultureInfo.CurrentCulture);
-      }
+      if (CurrentValues[columnNumber] is decimal || CurrentValues[columnNumber] is double ||
+          CurrentValues[columnNumber] is float ||
+          CurrentValues[columnNumber] is short || CurrentValues[columnNumber] is int ||
+          CurrentValues[columnNumber] is long)
+        return Convert.ToInt16(CurrentValues[columnNumber], CultureInfo.CurrentCulture);
 
       return base.GetInt16(columnNumber);
     }
 
     /// <summary>
-    ///  Gets the int32.
+    ///   Gets the int32.
     /// </summary>
     /// <param name="columnNumber">The i.</param>
     /// <returns></returns>
@@ -292,17 +297,17 @@ namespace CsvTools
       Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount);
       Debug.Assert(CurrentValues != null && columnNumber < CurrentValues.Length);
 
-      if (CurrentValues[columnNumber] is decimal || CurrentValues[columnNumber] is double || CurrentValues[columnNumber] is float ||
-        CurrentValues[columnNumber] is short || CurrentValues[columnNumber] is int || CurrentValues[columnNumber] is long)
-      {
-        return Convert.ToInt32(CurrentValues[columnNumber], System.Globalization.CultureInfo.CurrentCulture);
-      }
+      if (CurrentValues[columnNumber] is decimal || CurrentValues[columnNumber] is double ||
+          CurrentValues[columnNumber] is float ||
+          CurrentValues[columnNumber] is short || CurrentValues[columnNumber] is int ||
+          CurrentValues[columnNumber] is long)
+        return Convert.ToInt32(CurrentValues[columnNumber], CultureInfo.CurrentCulture);
 
       return base.GetInt32(columnNumber);
     }
 
     /// <summary>
-    ///  Gets the int64.
+    ///   Gets the int64.
     /// </summary>
     /// <param name="columnNumber">The i.</param>
     /// <returns></returns>
@@ -311,11 +316,11 @@ namespace CsvTools
       Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount);
       Debug.Assert(CurrentValues != null && columnNumber < CurrentValues.Length);
 
-      if (CurrentValues[columnNumber] is decimal || CurrentValues[columnNumber] is double || CurrentValues[columnNumber] is float ||
-        CurrentValues[columnNumber] is short || CurrentValues[columnNumber] is int || CurrentValues[columnNumber] is long)
-      {
-        return Convert.ToInt64(CurrentValues[columnNumber], System.Globalization.CultureInfo.CurrentCulture);
-      }
+      if (CurrentValues[columnNumber] is decimal || CurrentValues[columnNumber] is double ||
+          CurrentValues[columnNumber] is float ||
+          CurrentValues[columnNumber] is short || CurrentValues[columnNumber] is int ||
+          CurrentValues[columnNumber] is long)
+        return Convert.ToInt64(CurrentValues[columnNumber], CultureInfo.CurrentCulture);
 
       return base.GetInt64(columnNumber);
     }
@@ -345,10 +350,11 @@ namespace CsvTools
       if (Column[columnNumber].DataType == DataType.DateTime)
       {
         if (AssociatedTimeCol[columnNumber] == -1)
-          return (CurrentValues[columnNumber] == null || CurrentValues[columnNumber] == DBNull.Value);
+          return CurrentValues[columnNumber] == null || CurrentValues[columnNumber] == DBNull.Value;
 
         return (CurrentValues[columnNumber] == null || CurrentValues[columnNumber] == DBNull.Value) &&
-            (CurrentValues[AssociatedTimeCol[columnNumber]] == null || CurrentValues[AssociatedTimeCol[columnNumber]] == DBNull.Value);
+               (CurrentValues[AssociatedTimeCol[columnNumber]] == null ||
+                CurrentValues[AssociatedTimeCol[columnNumber]] == DBNull.Value);
       }
 
       if (CurrentValues[columnNumber] == null || CurrentValues[columnNumber] == DBNull.Value)

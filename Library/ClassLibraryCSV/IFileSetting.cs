@@ -23,7 +23,7 @@ namespace CsvTools
   /// <summary>
   ///  Interface for a FileSetting
   /// </summary>
-  public interface IFileSetting : INotifyPropertyChanged, ICloneable<IFileSetting>, IEquatable<IFileSetting>
+  public interface IFileSetting : INotifyPropertyChanged, ICloneable<IFileSetting>, IEquatable<IFileSetting>, ICopyTo<IFileSetting>
   {
     /// <summary>
     ///  Occurs when a string value property changed providing information on old and new value
@@ -130,6 +130,14 @@ namespace CsvTools
     ///  Number of records with errors, -1 to indicate not known
     /// </summary>
     int NumErrors { get; set; }
+
+    /// <summary>
+    /// Gets or sets the number records that have been processed
+    /// </summary>
+    /// <value>
+    /// The number of processed records.
+    /// </value>
+    long NumRecords { get; set; }
 
     /// <summary>
     ///  Self Encrypted Passphrase for PGP decryption

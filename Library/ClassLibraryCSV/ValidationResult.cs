@@ -13,7 +13,6 @@
  */
 
 using System;
-using System.ComponentModel;
 using System.Xml.Serialization;
 
 namespace CsvTools
@@ -22,54 +21,22 @@ namespace CsvTools
   ///   Class to store validation result and cache them
   /// </summary>
   [Serializable]
-  public class ValidationResult : INotifyPropertyChanged, IEquatable<ValidationResult>, IValidationResult
+  public class ValidationResult : IValidationResult
   {
-    private long m_ErrorCount = -1;
-    private long m_NumberRecords;
-    private string m_TableName = string.Empty;
-    private long m_WarningCount = -1;
-
-    /// <summary>
-    ///   Occurs after a property value changes.
-    /// </summary>
-    public virtual event PropertyChangedEventHandler PropertyChanged;
-
-    /// <summary>
-    ///   Gets or sets the error count.
-    /// </summary>
-    /// <value>
-    ///   The error count.
-    /// </value>
-    [XmlAttribute]
-    public long ErrorCount
+    public ValidationResult() : this(string.Empty, 0)
     {
-      get => m_ErrorCount;
-      set
-      {
-        if (m_ErrorCount == value)
-          return;
-        m_ErrorCount = value;
-        NotifyPropertyChanged(nameof(ErrorCount));
-      }
     }
 
-    /// <summary>
-    ///   Gets or sets the number records.
-    /// </summary>
-    /// <value>
-    ///   The number records.
-    /// </value>
-    [XmlAttribute]
-    public long NumberRecords
+    public ValidationResult(string tableName, long numRecords, long numErrors = -1, long numWarning = -1)
     {
-      get => m_NumberRecords;
-      set
-      {
-        if (m_NumberRecords == value)
-          return;
-        m_NumberRecords = value;
-        NotifyPropertyChanged(nameof(NumberRecords));
-      }
+      TableName = tableName;
+      NumberRecords = numRecords;
+      WarningCount = numWarning;
+      ErrorCount = numErrors;
+    }
+
+    public ValidationResult(IFileSetting setting) : this(setting.ID, setting.NumRecords)
+    {
     }
 
     /// <summary>
@@ -81,8 +48,34 @@ namespace CsvTools
     [XmlIgnore]
     public string TableName
     {
-      get => m_TableName;
-      set => m_TableName = value ?? string.Empty;
+      get;
+    }
+
+
+    /// <summary>
+    ///   Gets or sets the error count.
+    /// </summary>
+    /// <value>
+    ///   The error count.
+    /// </value>
+    [XmlAttribute]
+    public long ErrorCount
+    {
+      get;
+      set;
+    }
+
+    /// <summary>
+    ///   Gets or sets the number records.
+    /// </summary>
+    /// <value>
+    ///   The number records.
+    /// </value>
+    [XmlAttribute]
+    public long NumberRecords
+    {
+      get;
+      set;
     }
 
     /// <summary>
@@ -94,59 +87,8 @@ namespace CsvTools
     [XmlAttribute]
     public long WarningCount
     {
-      get => m_WarningCount;
-      set
-      {
-        if (m_WarningCount == value)
-          return;
-        m_WarningCount = value;
-        NotifyPropertyChanged(nameof(WarningCount));
-      }
-    }
-
-    /// <summary>Indicates whether the current object is equal to another object of the same type.</summary>
-    /// <param name="other">An object to compare with this object.</param>
-    /// <returns>
-    ///   <see langword="true" /> if the current object is equal to the <paramref name="other" /> parameter; otherwise,
-    ///   <see langword="false" />.
-    /// </returns>
-    public bool Equals(ValidationResult other)
-    {
-      if (other is null)
-        return false;
-      if (ReferenceEquals(this, other))
-        return true;
-      return m_ErrorCount == other.m_ErrorCount &&
-             m_NumberRecords == other.m_NumberRecords &&
-             string.Equals(m_TableName, other.m_TableName, StringComparison.InvariantCultureIgnoreCase) &&
-             m_WarningCount == other.m_WarningCount;
-    }
-
-    /// <summary>Determines whether the specified object is equal to the current object.</summary>
-    /// <param name="obj">The object to compare with the current object. </param>
-    /// <returns>
-    ///   <see langword="true" /> if the specified object  is equal to the current object; otherwise, <see langword="false" />.
-    /// </returns>
-    public override bool Equals(object obj) => Equals(obj as ValidationResult);
-
-    /// <summary>
-    ///   Notifies the completed property changed.
-    /// </summary>
-    /// <param name="info">The info.</param>
-    public virtual void NotifyPropertyChanged(string info) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(info));
-
-    /// <summary>Serves as the default hash function. </summary>
-    /// <returns>A hash code for the current object.</returns>
-    public override int GetHashCode()
-    {
-      unchecked
-      {
-        var hashCode = m_ErrorCount.GetHashCode();
-        hashCode = (hashCode * 397) ^ m_NumberRecords.GetHashCode();
-        hashCode = (hashCode * 397) ^ StringComparer.InvariantCultureIgnoreCase.GetHashCode(m_TableName);
-        hashCode = (hashCode * 397) ^ m_WarningCount.GetHashCode();
-        return hashCode;
-      }
+      get;
+      set;
     }
   }
 }

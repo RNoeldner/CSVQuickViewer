@@ -19,112 +19,61 @@ using System.Xml.Serialization;
 namespace CsvTools
 {
   [Serializable]
-  public class SampleRecordEntry : IEquatable<SampleRecordEntry>, IComparable<SampleRecordEntry>, IComparable,
-    ICloneable<SampleRecordEntry>
+  public class SampleRecordEntry : IEquatable<SampleRecordEntry>, ICloneable<SampleRecordEntry>
   {
-    private string m_Error = string.Empty;
-
-    public SampleRecordEntry()
+    public SampleRecordEntry() : this(0, true, string.Empty)
     {
     }
 
-    public SampleRecordEntry(long recordNumber, string error)
+    public SampleRecordEntry(long recordNumber, string error) : this(recordNumber, true, error)
     {
-      RecordNumber = recordNumber;
-      Error = error;
     }
 
-    public SampleRecordEntry(long recordNumber, bool provideEvidence)
+    public SampleRecordEntry(long recordNumber, bool provideEvidence) : this(recordNumber, provideEvidence,
+      string.Empty)
+    {
+    }
+
+    public SampleRecordEntry(long recordNumber, bool provideEvidence, string error)
     {
       RecordNumber = recordNumber;
       ProvideEvidence = provideEvidence;
+      Error = error;
     }
 
-    public SampleRecordEntry(long recordNumber)
+    public SampleRecordEntry(long recordNumber) : this(recordNumber, true, string.Empty)
     {
-      RecordNumber = recordNumber;
-      ProvideEvidence = true;
     }
 
     /// <summary>
-    /// Gets or sets the error.
+    ///   Gets or sets the error.
     /// </summary>
     /// <value>
-    /// The error.
+    ///   The error.
     /// </value>
     [XmlAttribute]
     [DefaultValue("")]
-    public string Error
-    {
-      get => m_Error;
-      set => m_Error = value ?? string.Empty;
-    }
+    public string Error { get; }
 
     /// <summary>
-    /// Gets or sets a value indicating whether [provide evidence].
+    ///   Gets or sets a value indicating whether [provide evidence].
     /// </summary>
     /// <value>
     ///   <c>true</c> if [provide evidence]; otherwise, <c>false</c>.
     /// </value>
     [XmlAttribute]
     [DefaultValue(true)]
-    public bool ProvideEvidence { get; set; } = true;
+    public bool ProvideEvidence { get; }
 
     /// <summary>
-    /// Gets or sets the record number.
+    ///   Gets or sets the record number.
     /// </summary>
     /// <value>
-    /// The record number.
+    ///   The record number.
     /// </value>
     [XmlAttribute]
-    public long RecordNumber { get; set; }
+    public long RecordNumber { get; }
 
-    /// <summary>
-    /// Clones this instance into a new instance of the same type
-    /// </summary>
-    /// <returns></returns>
-    public SampleRecordEntry Clone()
-    {
-      var newEntry = new SampleRecordEntry();
-      CopyTo(newEntry);
-      return newEntry;
-    }
-
-    /// <summary>
-    /// Compares the current instance with another object of the same type and returns an integer that indicates whether the current instance precedes, follows, or occurs in the same position in the sort order as the other object.
-    /// </summary>
-    /// <param name="obj">An object to compare with this instance.</param>
-    /// <returns>
-    /// A value that indicates the relative order of the objects being compared. The return value has these meanings: Value Meaning Less than zero This instance precedes <paramref name="obj" /> in the sort order. Zero This instance occurs in the same position in the sort order as <paramref name="obj" />. Greater than zero This instance follows <paramref name="obj" /> in the sort order.
-    /// </returns>
-    public int CompareTo(object obj)
-    {
-      if (obj is SampleRecordEntry entry)
-        return CompareTo(entry);
-      return -1;
-    }
-
-    /// <summary>
-    /// Compares the current instance with another object of the same type and returns an integer that indicates whether the current instance precedes, follows, or occurs in the same position in the sort order as the other object.
-    /// </summary>
-    /// <param name="other">An object to compare with this instance.</param>
-    /// <returns>
-    /// A value that indicates the relative order of the objects being compared. The return value has these meanings: Value Meaning Less than zero This instance precedes <paramref name="other" /> in the sort order.  Zero This instance occurs in the same position in the sort order as <paramref name="other" />. Greater than zero This instance follows <paramref name="other" /> in the sort order.
-    /// </returns>
-    public int CompareTo(SampleRecordEntry other) => RecordNumber.CompareTo(other.RecordNumber);
-
-    /// <summary>
-    /// Copies all properties to the other instance
-    /// </summary>
-    /// <param name="other">The other instance</param>
-    public void CopyTo(SampleRecordEntry other)
-    {
-      if (other == null)
-        return;
-      other.RecordNumber = RecordNumber;
-      other.ProvideEvidence = ProvideEvidence;
-      other.Error = Error;
-    }
 
     /// <summary>Indicates whether the current object is equal to another object of the same type.</summary>
     /// <param name="other">An object to compare with this object.</param>
@@ -141,6 +90,44 @@ namespace CsvTools
       return RecordNumber == other.RecordNumber && ProvideEvidence == other.ProvideEvidence &&
              string.Equals(Error, other.Error, StringComparison.OrdinalIgnoreCase);
     }
+
+    /// <summary>
+    ///   Clones this instance into a new instance of the same type
+    /// </summary>
+    /// <returns></returns>
+    public SampleRecordEntry Clone() => new SampleRecordEntry(RecordNumber, ProvideEvidence, Error);
+    public SampleRecordEntry CopyTo() => new SampleRecordEntry(RecordNumber, ProvideEvidence, Error);
+
+    /// <summary>
+    ///   Compares the current instance with another object of the same type and returns an integer that indicates whether the
+    ///   current instance precedes, follows, or occurs in the same position in the sort order as the other object.
+    /// </summary>
+    /// <param name="obj">An object to compare with this instance.</param>
+    /// <returns>
+    ///   A value that indicates the relative order of the objects being compared. The return value has these meanings: Value
+    ///   Meaning Less than zero This instance precedes <paramref name="obj" /> in the sort order. Zero This instance occurs in
+    ///   the same position in the sort order as <paramref name="obj" />. Greater than zero This instance follows
+    ///   <paramref name="obj" /> in the sort order.
+    /// </returns>
+    public int CompareTo(object obj)
+    {
+      if (obj is SampleRecordEntry entry)
+        return CompareTo(entry);
+      return -1;
+    }
+
+    /// <summary>
+    ///   Compares the current instance with another object of the same type and returns an integer that indicates whether the
+    ///   current instance precedes, follows, or occurs in the same position in the sort order as the other object.
+    /// </summary>
+    /// <param name="other">An object to compare with this instance.</param>
+    /// <returns>
+    ///   A value that indicates the relative order of the objects being compared. The return value has these meanings: Value
+    ///   Meaning Less than zero This instance precedes <paramref name="other" /> in the sort order.  Zero This instance occurs
+    ///   in the same position in the sort order as <paramref name="other" />. Greater than zero This instance follows
+    ///   <paramref name="other" /> in the sort order.
+    /// </returns>
+    public int CompareTo(SampleRecordEntry other) => RecordNumber.CompareTo(other.RecordNumber);
 
     /// <summary>Determines whether the specified object is equal to the current object.</summary>
     /// <param name="obj">The object to compare with the current object. </param>
