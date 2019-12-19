@@ -11,9 +11,10 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using System;
 using System.Threading;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
@@ -25,7 +26,6 @@ namespace CsvTools.Tests
     {
       using (var value = new FormProcessDisplay())
       { Assert.IsNotNull(value); }
-
     }
 
     [TestMethod()]
@@ -102,7 +102,7 @@ namespace CsvTools.Tests
         {
           called = e.Value;
         };
-        frm.SetProcess("Help", 20);
+        frm.SetProcess("Help", 20, true);
 
         Assert.AreEqual(20, called);
       }

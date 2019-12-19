@@ -19,8 +19,6 @@ namespace CsvTools
 {
   public class DummyProcessDisplay : IProcessDisplay
   {
-    private readonly CancellationTokenSource m_CancellationTokenSource;
-
     public DummyProcessDisplay() : this(CancellationToken.None)
     {
     }
@@ -32,9 +30,9 @@ namespace CsvTools
     public DummyProcessDisplay(CancellationToken cancellationToken)
     {
       if (cancellationToken == CancellationToken.None || cancellationToken.IsCancellationRequested)
-        m_CancellationTokenSource = new CancellationTokenSource();
+        CancellationTokenSource = new CancellationTokenSource();
       else
-        m_CancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        CancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
     }
 
     /// <summary>
@@ -48,7 +46,7 @@ namespace CsvTools
     /// <value>
     ///   The cancellation token.
     /// </value>
-    public CancellationToken CancellationToken => m_CancellationTokenSource.Token;
+    public CancellationToken CancellationToken => CancellationTokenSource.Token;
 
     public bool LogAsDebug { get; set; } = true;
 
@@ -62,7 +60,7 @@ namespace CsvTools
 
     public virtual string Title { get; set; }
 
-    public CancellationTokenSource CancellationTokenSource => m_CancellationTokenSource;
+    public CancellationTokenSource CancellationTokenSource { get; }
 
     public static void Show()
     {
@@ -73,8 +71,8 @@ namespace CsvTools
     /// </summary>
     public virtual void Cancel()
     {
-      if (!m_CancellationTokenSource.IsCancellationRequested)
-        m_CancellationTokenSource.Cancel();
+      if (!CancellationTokenSource.IsCancellationRequested)
+        CancellationTokenSource.Cancel();
     }
 
     /// <summary>
@@ -94,13 +92,6 @@ namespace CsvTools
       }
       Progress?.Invoke(this, new ProgressEventArgs(text, value, log));
     }
-
-    /// <summary>
-    ///   Sets the process.
-    /// </summary>
-    public void SetProcess(string text) => SetProcess(text ?? string.Empty, -1, true);
-
-    public void SetProcess(string text, long value) => SetProcess(text ?? string.Empty, value, true);
 
     /// <summary>
     ///   Set the progress used by Events
@@ -130,7 +121,7 @@ namespace CsvTools
         return;
       if (disposing)
       {
-        m_CancellationTokenSource.Dispose();
+        CancellationTokenSource.Dispose();
       }
 
       m_DisposedValue = true;

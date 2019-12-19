@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
@@ -23,7 +24,7 @@ namespace CsvTools.Tests
     {
       using (var processDisplay = new DummyProcessDisplay())
       {
-        processDisplay.SetProcess("Test");
+        processDisplay.SetProcess("Test", -1, true);
       }
     }
 
@@ -55,7 +56,7 @@ namespace CsvTools.Tests
     {
       using (var processDisplay = new DummyProcessDisplay())
       {
-        processDisplay.SetProcess("Test");
+        processDisplay.SetProcess("Test", -1, true);
       }
     }
 
@@ -65,7 +66,7 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay())
       {
         processDisplay.Maximum = 5;
-        processDisplay.SetProcess("Test", 100);
+        processDisplay.SetProcess("Test", 100, true);
       }
     }
 
@@ -75,7 +76,7 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay())
       {
         processDisplay.Maximum = 5;
-        processDisplay.SetProcess(null, new ProgressEventArgs("Hallo", 2));
+        processDisplay.SetProcess(null, new ProgressEventArgs("Hallo", 2, false));
       }
     }
   }

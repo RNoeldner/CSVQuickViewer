@@ -222,7 +222,7 @@ namespace CsvTools
 
           // if replaced by a default assume no header
           if (columnName.Equals(BaseFileReader.GetDefaultName(counter), StringComparison.OrdinalIgnoreCase))
-            if (defaultNames++ == (int) Math.Ceiling(csvDataReader.FieldCount / 2.0))
+            if (defaultNames++ == (int)Math.Ceiling(csvDataReader.FieldCount / 2.0))
             {
               Logger.Information("Without Header Row");
               return false;
@@ -370,17 +370,17 @@ namespace CsvTools
       var root = ApplicationSetting.RootFolder;
       file.FileName.GetAbsolutePath(root);
 
-      display.SetProcess("Checking delimited file");
+      display.SetProcess("Checking delimited file", -1, true);
       GuessCodePage(file);
       if (display.CancellationToken.IsCancellationRequested)
         return;
       display.SetProcess("Code Page: " +
-                         EncodingHelper.GetEncodingName(file.CurrentEncoding.CodePage, true, file.ByteOrderMark));
+                         EncodingHelper.GetEncodingName(file.CurrentEncoding.CodePage, true, file.ByteOrderMark), -1, true);
 
       file.FileFormat.FieldDelimiter = GuessDelimiter(file);
       if (display.CancellationToken.IsCancellationRequested)
         return;
-      display.SetProcess("Delimiter: " + file.FileFormat.FieldDelimiter);
+      display.SetProcess("Delimiter: " + file.FileFormat.FieldDelimiter, -1, true);
 
       var qual = GuessQualifier(file);
       file.FileFormat.FieldQualifier = qual == '\0' ? string.Empty : char.ToString(qual);
@@ -390,10 +390,10 @@ namespace CsvTools
       if (display.CancellationToken.IsCancellationRequested)
         return;
       if (file.SkipRows > 0)
-        display.SetProcess("Start Row: " + file.SkipRows.ToString(CultureInfo.InvariantCulture));
+        display.SetProcess("Start Row: " + file.SkipRows.ToString(CultureInfo.InvariantCulture), -1, true);
 
       file.HasFieldHeader = GuessHasHeader(file, display);
-      display.SetProcess("Column Header: " + file.HasFieldHeader);
+      display.SetProcess("Column Header: " + file.HasFieldHeader, -1, true);
     }
 
     internal static bool IsJsonReadable(StreamReader streamReader)
@@ -454,7 +454,6 @@ namespace CsvTools
       var startRow = dc.LastRow > 60 ? 15 :
         dc.LastRow > 20 ? 5 : 0;
 
-
       var validSeparatorIndex = new List<int>();
       for (var index = 0; index < dc.Separators.Length; index++)
       {
@@ -498,7 +497,7 @@ namespace CsvTools
           }
 
           // Get the average of the rows
-          var avg = (int) Math.Round((double) sumCount / (dc.LastRow - startRow), 0, MidpointRounding.AwayFromZero);
+          var avg = (int)Math.Round((double)sumCount / (dc.LastRow - startRow), 0, MidpointRounding.AwayFromZero);
 
           // Only proceed if there is usually more then one occurrence and we have more then one row
           if (avg < 1 || dc.SeparatorRows[index] == 1)
@@ -552,7 +551,7 @@ namespace CsvTools
       const int c_LF = 1;
       const int c_CRLF = 2;
       const int c_Lfcr = 3;
-      int[] count = {0, 0, 0, 0};
+      int[] count = { 0, 0, 0, 0 };
 
       // \r = CR (Carriage Return) \n = LF (Line Feed)
 
@@ -622,7 +621,7 @@ namespace CsvTools
         return '\0';
 
       const int c_MaxLine = 30;
-      var possibleQuotes = new[] {'"', '\''};
+      var possibleQuotes = new[] { '"', '\'' };
 
       var counter = new int[possibleQuotes.Length];
 
@@ -698,7 +697,7 @@ namespace CsvTools
         var lastRow = 0;
         while (lastRow < c_MaxRows && streamReader.Peek() >= 0)
         {
-          var readChar = (char) streamReader.Read();
+          var readChar = (char)streamReader.Read();
 
           // Handle Commented lines
           if (firstChar && commentLine.Length > 0 && !isComment[lastRow] && readChar == commentLine[0])
@@ -707,7 +706,7 @@ namespace CsvTools
 
             for (var pos = 1; pos < commentLine.Length; pos++)
             {
-              var nextChar = (char) streamReader.Peek();
+              var nextChar = (char)streamReader.Peek();
               if (nextChar != commentLine[pos])
               {
                 isComment[lastRow] = false;
@@ -779,7 +778,8 @@ namespace CsvTools
         for (var row = 0; row < lastRow; row++)
         {
           rowMapping[columnCount.Count] = row;
-          if (!isComment[row]) columnCount.Add(colCount[row]);
+          if (!isComment[row])
+            columnCount.Add(colCount[row]);
         }
       }
 
@@ -805,7 +805,7 @@ namespace CsvTools
         num++;
       }
 
-      var avg = (int) (sum / (double) (num == 0 ? 1 : num));
+      var avg = (int)(sum / (double)(num == 0 ? 1 : num));
       // If there are not many columns do not try to guess
       if (avg <= 1)
         return 0;
@@ -854,7 +854,7 @@ namespace CsvTools
 
       while (dc.LastRow < dc.NumRows && readChar >= 0)
       {
-        var lastChar = (char) readChar;
+        var lastChar = (char)readChar;
         readChar = streamReader.Read();
         contends.Append(readChar);
         if (lastChar == escapeCharacter)
@@ -894,7 +894,7 @@ namespace CsvTools
           default:
             if (!quoted)
             {
-              var index = dc.Separators.IndexOf((char) readChar);
+              var index = dc.Separators.IndexOf((char)readChar);
               if (index != -1)
               {
                 if (dc.SeparatorsCount[index, dc.LastRow] == 0)

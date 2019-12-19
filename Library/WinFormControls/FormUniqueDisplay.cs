@@ -16,7 +16,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
-using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.Threading;
 using System.Windows.Forms;
@@ -117,7 +116,7 @@ namespace CsvTools
               return;
             intervalAction.Invoke(delegate
             {
-              display.SetProcess("Getting Unique values", rowIdex);
+              display.SetProcess("Getting Unique values", rowIdex, true);
             });
             var id = m_DataRow[rowIdex][dataColumnID.Ordinal].ToString().Trim();
             if (ignoreNull && string.IsNullOrEmpty(id))
@@ -142,7 +141,7 @@ namespace CsvTools
             if (counter % 100 == 0)
               intervalAction.Invoke(delegate
               {
-                display.SetProcess("Importing Rows to Grid", counter);
+                display.SetProcess("Importing Rows to Grid", counter, true);
               });
             m_DataTable.ImportRow(m_DataRow[rowIdex]);
           }

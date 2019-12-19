@@ -36,7 +36,7 @@ namespace CsvTools
     private string m_TempFile;
     private string m_WritePath;
 
-    public double Percentage => (double) BaseStream.Position / BaseStream.Length;
+    public double Percentage => (double)BaseStream.Position / BaseStream.Length;
 
     public Stream Stream { get; set; }
     private FileStream BaseStream { get; set; }
@@ -50,7 +50,8 @@ namespace CsvTools
     /// <exception cref="ArgumentException">Path must be set - path</exception>
     public static ImprovedStream OpenRead(string path, Func<string> encryptedPassphrase = null)
     {
-      if (string.IsNullOrEmpty(path)) throw new ArgumentException("Path must be set", nameof(path));
+      if (string.IsNullOrEmpty(path))
+        throw new ArgumentException("Path must be set", nameof(path));
       var retVal = OpenBaseStream(path, encryptedPassphrase);
       retVal.ResetToStart(null);
       return retVal;
@@ -72,7 +73,8 @@ namespace CsvTools
 
       retVal.ResetToStart(delegate
       {
-        if (!retVal.m_AssumePGP) return;
+        if (!retVal.m_AssumePGP)
+          return;
         // Store the passphrase for next use, this does not mean it is correct
         setting.Passphrase = retVal.m_EncryptedPassphrase;
 
@@ -281,12 +283,12 @@ namespace CsvTools
                         processDisplayTime.TimeToCompletion.Value = processed;
                         m_ProcessDisplay.SetProcess(
                           $"GZip  {processDisplayTime.TimeToCompletion.PercentDisplay}{processDisplayTime.TimeToCompletion.EstimatedTimeRemainingDisplaySeperator} - {StringConversion.DynamicStorageSize(processed)}/{displayMax}",
-                          processed);
+                          processed, true);
                       }
                       else
                       {
                         m_ProcessDisplay.SetProcess(
-                          $"GZip - {StringConversion.DynamicStorageSize(processed)}/{displayMax}", processed);
+                          $"GZip - {StringConversion.DynamicStorageSize(processed)}/{displayMax}", processed, true);
                       }
                     });
                   }
@@ -321,11 +323,9 @@ namespace CsvTools
     private bool m_DisposedValue; // To detect redundant calls
 
     // This code added to correctly implement the disposable pattern.
-    public void Dispose()
-    {
+    public void Dispose() =>
       // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
       Dispose(true); // TODO: uncomment the following line if the finalizer is overridden above.// GC.SuppressFinalize(this);
-    }
 
     protected virtual void Dispose(bool disposing)
     {
