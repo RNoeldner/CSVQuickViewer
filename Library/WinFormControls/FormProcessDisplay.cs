@@ -188,7 +188,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="text">The text.</param>
     /// <param name="value">The value.</param>
-    public virtual void SetProcess(string text, long value, bool log = true)
+    public virtual void SetProcess(string text, long value, bool log)
     {
       // if cancellation is requested do nothing
       if (CancellationToken.IsCancellationRequested)

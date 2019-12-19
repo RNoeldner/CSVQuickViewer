@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 using System;
 using System.Threading;
 
@@ -42,7 +43,7 @@ namespace CsvTools.Tests
     {
     }
 
-    public void SetProcess(string text, long value = -1, bool log = true)
+    public void SetProcess(string text, long value = -1, bool log = false)
     {
       Text = text;
       Progress?.Invoke(this, new ProgressEventArgs(text));

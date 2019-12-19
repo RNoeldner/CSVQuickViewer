@@ -119,7 +119,7 @@ namespace CsvTools
               return;
             intervalAction.Invoke(delegate
             {
-              display.SetProcess("Getting duplicate values", rowIdex);
+              display.SetProcess("Getting duplicate values", rowIdex, true);
             });
 
             var id = m_DataRow[rowIdex][dataColumnID.Ordinal].ToString().Trim();
@@ -162,7 +162,7 @@ namespace CsvTools
             counter++;
             intervalAction.Invoke(delegate
             {
-              display.SetProcess("Importing Rows to Grid", counter);
+              display.SetProcess("Importing Rows to Grid", counter, false);
             });
             m_DataTable.ImportRow(m_DataRow[rowIdex]);
           }

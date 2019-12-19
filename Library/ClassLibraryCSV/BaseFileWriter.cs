@@ -120,14 +120,14 @@ namespace CsvTools
                   var otherColumnName = schemaRowTz[SchemaTableColumn.ColumnName].ToString();
                   if (!otherColumnName.Equals(col.TimeZonePart, StringComparison.OrdinalIgnoreCase))
                     continue;
-                  timeZonePartOrdinal = (int) schemaRowTz[SchemaTableColumn.ColumnOrdinal];
+                  timeZonePartOrdinal = (int)schemaRowTz[SchemaTableColumn.ColumnOrdinal];
                   break;
                 }
             }
 
             fieldInfoList.AddRange(GetColumnInformationForOneColumn(m_FileSetting, headers,
-              schemaRow[SchemaTableColumn.ColumnName].ToString(), (Type) schemaRow[SchemaTableColumn.DataType],
-              (int) schemaRow[SchemaTableColumn.ColumnOrdinal], (int) schemaRow[SchemaTableColumn.ColumnSize],
+              schemaRow[SchemaTableColumn.ColumnName].ToString(), (Type)schemaRow[SchemaTableColumn.DataType],
+              (int)schemaRow[SchemaTableColumn.ColumnOrdinal], (int)schemaRow[SchemaTableColumn.ColumnSize],
               allColumns,
               timeZonePartOrdinal, constTimeZone));
           }
@@ -265,32 +265,23 @@ namespace CsvTools
       }
     }
 
-    protected internal virtual string ReplacePlaceHolder(string input)
-    {
-      return input.PlaceholderReplace("ID", m_FileSetting.ID)
+    protected internal virtual string ReplacePlaceHolder(string input) => input.PlaceholderReplace("ID", m_FileSetting.ID)
         .PlaceholderReplace("FileName", m_FileSetting.FileName)
         .PlaceholderReplace("Records", string.Format(new CultureInfo("en-US"), "{0:n0}", m_Records))
         .PlaceholderReplace("Delim", m_FileSetting.FileFormat.FieldDelimiterChar.ToString(CultureInfo.CurrentCulture))
         .PlaceholderReplace("CDate", string.Format(new CultureInfo("en-US"), "{0:dd-MMM-yyyy}", DateTime.Now))
         .PlaceholderReplace("CDateLong", string.Format(new CultureInfo("en-US"), "{0:MMMM dd\\, yyyy}", DateTime.Now));
-    }
 
     /// <summary>
     ///   Handles the error.
     /// </summary>
     /// <param name="columnName">The column name.</param>
     /// <param name="message">The message.</param>
-    protected virtual void HandleError(string columnName, string message)
-    {
-      Warning?.Invoke(this, new WarningEventArgs(m_Records, 0, message, 0, 0, columnName));
-    }
+    protected virtual void HandleError(string columnName, string message) => Warning?.Invoke(this, new WarningEventArgs(m_Records, 0, message, 0, 0, columnName));
 
     // protected void HandleProgress(string text, int progress) => m_ProcessDisplay?.SetProcess(text, progress);
 
-    protected void HandleProgress(string text)
-    {
-      m_ProcessDisplay?.SetProcess(text);
-    }
+    protected void HandleProgress(string text) => m_ProcessDisplay?.SetProcess(text, -1, true);
 
     /// <summary>
     ///   Handles the time zone for a date time column
@@ -340,10 +331,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="columnName">The column.</param>
     /// <param name="message">The message.</param>
-    protected virtual void HandleWarning(string columnName, string message)
-    {
-      Warning?.Invoke(this, new WarningEventArgs(m_Records, 0, message.AddWarningId(), 0, 0, columnName));
-    }
+    protected virtual void HandleWarning(string columnName, string message) => Warning?.Invoke(this, new WarningEventArgs(m_Records, 0, message.AddWarningId(), 0, 0, columnName));
 
     protected void HandleWriteFinished()
     {
@@ -358,10 +346,7 @@ namespace CsvTools
       WriteFinished?.Invoke(this, null);
     }
 
-    protected void HandleWriteStart()
-    {
-      m_Records = 0;
-    }
+    protected void HandleWriteStart() => m_Records = 0;
 
     protected void NextRecord()
     {
@@ -421,11 +406,11 @@ namespace CsvTools
               case DataType.Integer:
                 displayAs = dataObject is long l
                   ? l.ToString("0", CultureInfo.InvariantCulture)
-                  : ((int) dataObject).ToString("0", CultureInfo.InvariantCulture);
+                  : ((int)dataObject).ToString("0", CultureInfo.InvariantCulture);
                 break;
 
               case DataType.Boolean:
-                displayAs = (bool) dataObject ? columnInfo.ValueFormat.True : columnInfo.ValueFormat.False;
+                displayAs = (bool)dataObject ? columnInfo.ValueFormat.True : columnInfo.ValueFormat.False;
                 break;
 
               case DataType.Double:
@@ -443,12 +428,12 @@ namespace CsvTools
 
               case DataType.DateTime:
                 displayAs = StringConversion.DateTimeToString(
-                  HandleTimeZone((DateTime) dataObject, columnInfo, reader), columnInfo.ValueFormat);
+                  HandleTimeZone((DateTime)dataObject, columnInfo, reader), columnInfo.ValueFormat);
                 break;
 
               case DataType.Guid:
                 // 382c74c3-721d-4f34-80e5-57657b6cbc27
-                displayAs = ((Guid) dataObject).ToString();
+                displayAs = ((Guid)dataObject).ToString();
                 break;
 
               default:

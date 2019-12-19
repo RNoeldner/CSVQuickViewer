@@ -177,7 +177,6 @@ namespace CsvTools
     /// </summary>
     public virtual long StartLineNumber { get; protected set; }
 
-
     /// <summary>
     ///   A process display to stop long running processes
     /// </summary>
@@ -199,10 +198,7 @@ namespace CsvTools
     ///   Performs application-defined tasks associated with freeing, releasing, or resetting
     ///   unmanaged resources.
     /// </summary>
-    public virtual void Dispose()
-    {
-      Dispose(true);
-    }
+    public virtual void Dispose() => Dispose(true);
 
     /// <summary>
     ///   Event to be raised if reading the files is completed
@@ -217,10 +213,7 @@ namespace CsvTools
     /// <summary>
     ///   Closes the <see cref="IDataReader" /> Object.
     /// </summary>
-    public virtual void Close()
-    {
-      EndOfFile = true;
-    }
+    public virtual void Close() => EndOfFile = true;
 
     public virtual void Dispose(bool disposing)
     {
@@ -305,7 +298,7 @@ namespace CsvTools
     public virtual long GetChars(int i, long fieldoffset, char[] buffer, int bufferoffset, int length)
     {
       Debug.Assert(CurrentRowColumnText != null);
-      var offset = (int) fieldoffset;
+      var offset = (int)fieldoffset;
       var maxLen = CurrentRowColumnText[i].Length - offset;
       if (maxLen > length)
         maxLen = length;
@@ -830,9 +823,7 @@ namespace CsvTools
     /// <returns>
     ///   an Array of objects for a new row in a Schema Table
     /// </returns>
-    protected internal static object[] GetDefaultSchemaRowArray()
-    {
-      return new object[]
+    protected internal static object[] GetDefaultSchemaRowArray() => new object[]
       {
         true, // 00- AllowDBNull
         null, // 01- BaseColumnName
@@ -857,7 +848,6 @@ namespace CsvTools
         true, // 20- IsReadOnly
         false // 21- IsRowVersion
       };
-    }
 
     /// <summary>
     ///   Gets the empty schema table.
@@ -1136,13 +1126,10 @@ namespace CsvTools
     /// </summary>
     /// <param name="columnNumber">The column number.</param>
     /// <param name="message">The message.</param>
-    protected virtual void HandleError(int columnNumber, string message)
-    {
-      Warning?.Invoke(this, new WarningEventArgs(RecordNumber, columnNumber, message, StartLineNumber, EndLineNumber,
+    protected virtual void HandleError(int columnNumber, string message) => Warning?.Invoke(this, new WarningEventArgs(RecordNumber, columnNumber, message, StartLineNumber, EndLineNumber,
         Column != null && columnNumber >= 0 && columnNumber < m_FieldCount && Column[columnNumber] != null
           ? Column[columnNumber].Name
           : null));
-    }
 
     /// <summary>
     ///   Does handle TextToHML, TextToHtmlFull, TextPart and TreatNBSPAsSpace and does update the maximum column size
@@ -1193,8 +1180,8 @@ namespace CsvTools
       if (string.IsNullOrEmpty(output))
         return null;
 
-      if (m_FileSetting.TreatNBSPAsSpace && output.IndexOf((char) 0xA0) != -1)
-        output = output.Replace((char) 0xA0, ' ');
+      if (m_FileSetting.TreatNBSPAsSpace && output.IndexOf((char)0xA0) != -1)
+        output = output.Replace((char)0xA0, ' ');
 
       if (output.Length > 0 && column.Size < output.Length)
         column.Size = output.Length;
@@ -1228,8 +1215,10 @@ namespace CsvTools
 
     protected void HandleRemoteFile()
     {
-      if (ApplicationSetting.RemoteFileHandler == null || !(m_FileSetting is IFileSettingPhysicalFile remote)) return;
-      if (string.IsNullOrEmpty(remote.RemoteFileName)) return;
+      if (ApplicationSetting.RemoteFileHandler == null || !(m_FileSetting is IFileSettingPhysicalFile remote))
+        return;
+      if (string.IsNullOrEmpty(remote.RemoteFileName))
+        return;
       try
       {
         HandleShowProgress("Handling Remote file…");
@@ -1249,10 +1238,7 @@ namespace CsvTools
     ///   Shows the process.
     /// </summary>
     /// <param name="text">The text.</param>
-    protected virtual void HandleShowProgress(string text)
-    {
-      ProcessDisplay?.SetProcess(text);
-    }
+    protected virtual void HandleShowProgress(string text) => ProcessDisplay?.SetProcess(text, -1, true);
 
     /// <summary>
     ///   Shows the process twice a second
@@ -1262,7 +1248,8 @@ namespace CsvTools
     protected virtual void HandleShowProgressPeriodic(string text, long recordNumber)
     {
       if (ProcessDisplay != null)
-        m_IntervalAction.Invoke(delegate { HandleShowProgress(text, recordNumber, GetRelativePosition()); });
+        m_IntervalAction.Invoke(delegate
+        { HandleShowProgress(text, recordNumber, GetRelativePosition()); });
     }
 
     /// <summary>
@@ -1277,7 +1264,7 @@ namespace CsvTools
         return inputValue;
 
       if (m_FileSetting.TreatNBSPAsSpace)
-        inputValue = inputValue.Replace((char) 0xA0, ' ');
+        inputValue = inputValue.Replace((char)0xA0, ' ');
       if (m_FileSetting.TrimmingOption == TrimmingOption.All ||
           !quoted && m_FileSetting.TrimmingOption == TrimmingOption.Unquoted)
         return inputValue.Trim();
@@ -1290,14 +1277,11 @@ namespace CsvTools
     /// </summary>
     /// <param name="columnNumber">The column.</param>
     /// <param name="message">The message.</param>
-    protected virtual void HandleWarning(int columnNumber, string message)
-    {
-      Warning?.Invoke(this, new WarningEventArgs(RecordNumber, columnNumber, message.AddWarningId(), StartLineNumber,
+    protected virtual void HandleWarning(int columnNumber, string message) => Warning?.Invoke(this, new WarningEventArgs(RecordNumber, columnNumber, message.AddWarningId(), StartLineNumber,
         EndLineNumber,
         Column != null && columnNumber >= 0 && columnNumber < m_FieldCount && Column[columnNumber] != null
           ? Column[columnNumber].Name
           : null));
-    }
 
     /// <summary>
     ///   Initializes the column array to a give count.
@@ -1313,7 +1297,7 @@ namespace CsvTools
       AssociatedTimeZoneCol = new int[fieldCount];
       for (var counter = 0; counter < fieldCount; counter++)
       {
-        Column[counter] = new Column {ColumnOrdinal = counter};
+        Column[counter] = new Column { ColumnOrdinal = counter };
         AssociatedTimeCol[counter] = -1;
         AssociatedTimeZoneCol[counter] = -1;
       }

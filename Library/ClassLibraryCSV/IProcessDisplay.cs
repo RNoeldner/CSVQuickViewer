@@ -68,6 +68,6 @@ namespace CsvTools
     /// <param name="text">The text.</param>
     /// <param name="value">The current progress</param>
     /// <param name="log"><c>True</c> if progress should be logged, <c>false</c> otherwise.</param>
-    void SetProcess(string text, long value = -1, bool log = true);
+    void SetProcess(string text, long value, bool log);
   }
 }
