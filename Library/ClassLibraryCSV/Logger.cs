@@ -26,9 +26,7 @@ namespace CsvTools
 
     public static void Configure(string fileNameJson, Level level, string folder = null)
     {
-      var config = LogManager.Configuration;
-      if (config == null)
-        config = new NLog.Config.LoggingConfiguration();
+      var config = LogManager.Configuration ?? new NLog.Config.LoggingConfiguration();
       if (level != Level.None)
       {
         var minLevel = LogLevel.Debug;

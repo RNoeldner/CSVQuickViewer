@@ -149,6 +149,42 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    public void WriteGZip()
+    {
+      var pd = new MockProcessDisplay();
+
+      var writeFile = (CsvFile)m_WriteFile.Clone();
+      writeFile.FileName = "BasicCSVOut.txt.gz";
+      FileSystemUtils.FileDelete(writeFile.FullPath);
+      writeFile.FileFormat.FieldDelimiter = "|";
+
+      var writer = new CsvFileWriter(writeFile, pd);
+      Assert.IsTrue(string.IsNullOrEmpty(writer.ErrorMessage));
+
+      var res = writer.Write();
+      Assert.IsTrue(FileSystemUtils.FileExists(writeFile.FullPath));
+      Assert.AreEqual(7, res);
+    }
+    [TestMethod]
+    public void WritePGP()
+    {
+      var pd = new MockProcessDisplay();
+
+      var writeFile = (CsvFile)m_WriteFile.Clone();
+      writeFile.FileName = "BasicCSVOut.txt.pgp";
+      
+      FileSystemUtils.FileDelete(writeFile.FullPath);
+      writeFile.FileFormat.FieldDelimiter = "|";
+
+      var writer = new CsvFileWriter(writeFile, pd);
+      Assert.IsTrue(string.IsNullOrEmpty(writer.ErrorMessage));
+
+      var res = writer.Write();
+      Assert.IsTrue(FileSystemUtils.FileExists(writeFile.FullPath));
+      Assert.AreEqual(7, res);
+    }
+
+    [TestMethod]
     public void WriteAllFormats()
     {
       var pd = new MockProcessDisplay();

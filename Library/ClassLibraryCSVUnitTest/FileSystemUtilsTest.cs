@@ -11,6 +11,8 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
+using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
 using System.Linq;
@@ -20,6 +22,45 @@ namespace CsvTools.Tests
   [TestClass]
   public class FileSystemUtilsTest
   {
+
+    [TestMethod]
+    public void CreateDirectory()
+    {
+      if (FileSystemUtils.DirectoryExists(".\\Test\\"))
+        Directory.Delete(".\\Test\\");
+      Assert.IsFalse(FileSystemUtils.DirectoryExists(".\\Test\\"));
+      FileSystemUtils.CreateDirectory(".\\Test\\");
+      Assert.IsTrue(FileSystemUtils.DirectoryExists(".\\Test\\"));
+    }
+
+    [TestMethod]
+    public void DirectoryName()
+    {
+      if (!FileSystemUtils.DirectoryExists(".\\Test\\"))
+        FileSystemUtils.CreateDirectory(".\\Test\\");
+      Assert.AreEqual(Path.GetFullPath(".\\Test"), ".\\Test".GetDirectoryName());
+    }
+    [TestMethod]
+    public void ShortFileName_LongFileName()
+    {
+      Assert.AreEqual("", FileSystemUtils.ShortFileName(""));
+      Assert.AreEqual("", FileSystemUtils.LongFileName(""));
+      Assert.AreEqual("C:\\CsvHelperTest.cs", FileSystemUtils.ShortFileName("C:\\CsvHelperTest.cs"));
+      var root = FileSystemUtils.ExecutableDirectoryName();
+      var fn = root + "\\VeryLongNameForAFile.txt";
+      using (StreamWriter sw = File.CreateText(fn))
+      {
+        sw.WriteLine("Hello");
+        sw.WriteLine("And");
+        sw.WriteLine("Welcome");
+      }
+
+      var sfn = FileSystemUtils.ShortFileName(fn);
+      Assert.IsTrue(sfn.EndsWith("VeryLo~1.txt", StringComparison.OrdinalIgnoreCase), sfn);
+      Assert.AreEqual(fn, FileSystemUtils.LongFileName(sfn));
+      FileSystemUtils.FileDelete(fn);
+    }
+
     [TestMethod]
     public void GetShortestPath()
     {
