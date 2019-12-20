@@ -91,7 +91,7 @@ namespace CsvTools
           m_LastMessage = text;
           if (!appended)
           {
-            if (level < Logger.Level.Error)
+            if (level < Logger.Level.Warn)
               text = StringUtils.GetShortDisplay(StringUtils.HandleCRLFCombinations(text, " "), 120);
             AppendText($"{(m_Initial ? string.Empty : "\n")}{DateTime.Now:HH:mm:ss}  {text}", level);
           }
