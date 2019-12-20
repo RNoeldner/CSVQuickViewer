@@ -34,7 +34,7 @@ namespace CsvTools
     /// <param name="container">Control with validate able children</param>
     /// <param name="cancellationToken">Cancellation Token</param>
     /// <returns><c>True</c> if children where validated, <c>false</c> otherwise</returns>
-    public static bool ValidateChildren(this ContainerControl container, CancellationToken cancellationToken) => Task.Run(() => container.ValidateChildren(), cancellationToken).WaitToCompleteTask(1, Application.DoEvents);
+    public static bool ValidateChildren(this ContainerControl container, CancellationToken cancellationToken) => Task.Run(() => container.ValidateChildren(), cancellationToken).WaitToCompleteTaskResult(1, Application.DoEvents);
 
     /// <summary>
     /// Show error information to a user, and logs the message
@@ -83,7 +83,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="executeTask">The started <see cref="System.Threading.Tasks.Task"/></param>
     /// <param name="timeoutSeconds">Timeout for the completion of the task, if more time is spent running / waiting the wait is finished</param>
-    public static void WaitToCompleteTaskUI(this Task executeTask, double timeoutSeconds = 0) =>
+    public static void WaitToCompleteTaskUI(this Task executeTask, double timeoutSeconds) =>
       executeTask.WaitToCompleteTask(timeoutSeconds, Application.DoEvents);
 
     /// <summary>
@@ -93,15 +93,15 @@ namespace CsvTools
     /// <param name="timeoutSeconds">Timeout for the completion of the task, if more time is spent running / waiting the wait is finished</param>
     /// <param name="cancellationToken">Cancellation Token to be able to cancel the task</param>
     public static T WaitToCompleteTaskUI<T>(this Task<T> executeTask, double timeoutSeconds, CancellationToken cancellationToken) =>
-      executeTask.WaitToCompleteTask(timeoutSeconds, Application.DoEvents, cancellationToken);
+      executeTask.WaitToCompleteTaskResult(timeoutSeconds, Application.DoEvents, cancellationToken);
 
     /// <summary>
     /// Run a task synchronously with timeout
     /// </summary>
     /// <param name="executeTask">The started <see cref="System.Threading.Tasks.Task"/></param>
     /// <param name="timeoutSeconds">Timeout for the completion of the task, if more time is spent running / waiting the wait is finished</param>
-    public static T WaitToCompleteTaskUI<T>(this Task<T> executeTask, double timeoutSeconds = 0) =>
-      executeTask.WaitToCompleteTask(timeoutSeconds, Application.DoEvents);
+    public static T WaitToCompleteTaskUI<T>(this Task<T> executeTask, double timeoutSeconds) =>
+      executeTask.WaitToCompleteTaskResult(timeoutSeconds, Application.DoEvents);
 
     /// <summary>
     ///   Handles a CTRL-A select all in the form.
