@@ -443,7 +443,7 @@ namespace CsvTools
       {
         var length = GetShortPathName(fi.Directory.FullName, shortNameBuffer, c_BufferSize);
         if (length > 0)
-          return (shortNameBuffer + "\\" + fi.Name).RemovePrefix();
+          return (shortNameBuffer + (shortNameBuffer[shortNameBuffer.Length-1] == '\\'?"":"\\") + fi.Name).RemovePrefix();
       }
 
       throw new Exception($"Could not get a short path for the file ${longPath}");

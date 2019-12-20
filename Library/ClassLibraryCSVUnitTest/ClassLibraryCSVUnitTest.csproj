@@ -158,6 +158,8 @@
     <Otherwise />
   </Choose>
   <ItemGroup>
+    <Compile Include="SampleAndErrorsInformationTest.cs" />
+    <Compile Include="LoggerTest.cs" />
     <Compile Include="ApplicationSettingTest.cs" />
     <Compile Include="AAAPerfromanceTest.cs" />
     <Compile Include="CheckResultTests.cs" />

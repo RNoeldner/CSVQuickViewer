@@ -241,80 +241,78 @@ namespace CsvTools
       // If we are writing we have possibly two steps,
       // a) compress / encrypt the data from temp
       // b) upload the data to sFTP
-      if (m_WritePath.AssumeGZip() || m_WritePath.AssumePgp())
+      if (!m_WritePath.AssumeGZip() && !m_WritePath.AssumePgp()) return;
+      var selfOpenedProcessDisplay = false;
+      if (m_ProcessDisplay == null)
       {
-        var selfOpened = false;
-        if (m_ProcessDisplay == null)
-        {
-          selfOpened = true;
-          m_ProcessDisplay = new DummyProcessDisplay();
-        }
+        selfOpenedProcessDisplay = true;
+        m_ProcessDisplay = new DummyProcessDisplay();
+      }
 
-        try
+      try
+      {
+        // Compress the file
+        if (m_WritePath.AssumeGZip())
         {
-          // Compress the file
-          if (m_WritePath.AssumeGZip())
+          Logger.Debug("Compressing temporary file to GZip file");
+          var action = new IntervalAction(0.5);
+          using (var inFile = File.OpenRead(m_TempFile))
           {
-            Logger.Debug("Compressing temporary file to GZip file");
-            var action = new IntervalAction(0.5);
-            using (var inFile = File.OpenRead(m_TempFile))
+            // Create the compressed file.
+            using (var outFile = File.Create(m_WritePath))
             {
-              // Create the compressed file.
-              using (var outFile = File.Create(m_WritePath))
+              using (var compress = new GZipStream(outFile, CompressionMode.Compress))
               {
-                using (var compress = new GZipStream(outFile, CompressionMode.Compress))
+                var inputBuffer = new byte[16384];
+
+                var displayMax = StringConversion.DynamicStorageSize(inFile.Length);
+                m_ProcessDisplay.Maximum = inFile.Length;
+                int length;
+                long processed = 0;
+                while ((length = inFile.Read(inputBuffer, 0, inputBuffer.Length)) > 0)
                 {
-                  var inputBuffer = new byte[16384];
+                  compress.Write(inputBuffer, 0, length);
+                  processed += length;
+                  m_ProcessDisplay.CancellationToken.ThrowIfCancellationRequested();
 
-                  var displayMax = StringConversion.DynamicStorageSize(inFile.Length);
-                  m_ProcessDisplay.Maximum = inFile.Length;
-                  int length;
-                  long processed = 0;
-                  while ((length = inFile.Read(inputBuffer, 0, inputBuffer.Length)) > 0)
+                  action.Invoke(p =>
                   {
-                    compress.Write(inputBuffer, 0, length);
-                    processed += length;
-                    m_ProcessDisplay.CancellationToken.ThrowIfCancellationRequested();
-
-                    action.Invoke(() =>
+                    if (m_ProcessDisplay is IProcessDisplayTime processDisplayTime)
                     {
-                      if (m_ProcessDisplay is IProcessDisplayTime processDisplayTime)
-                      {
-                        processDisplayTime.TimeToCompletion.Value = processed;
-                        m_ProcessDisplay.SetProcess(
-                          $"GZip  {processDisplayTime.TimeToCompletion.PercentDisplay}{processDisplayTime.TimeToCompletion.EstimatedTimeRemainingDisplaySeperator} - {StringConversion.DynamicStorageSize(processed)}/{displayMax}",
-                          processed, true);
-                      }
-                      else
-                      {
-                        m_ProcessDisplay.SetProcess(
-                          $"GZip - {StringConversion.DynamicStorageSize(processed)}/{displayMax}", processed, true);
-                      }
-                    });
-                  }
+                      processDisplayTime.TimeToCompletion.Value = p;
+                      m_ProcessDisplay.SetProcess(
+                        $"GZip  {processDisplayTime.TimeToCompletion.PercentDisplay}{processDisplayTime.TimeToCompletion.EstimatedTimeRemainingDisplaySeperator} - {StringConversion.DynamicStorageSize(p)}/{displayMax}",
+                        p, true);
+                    }
+                    else
+                    {
+                      m_ProcessDisplay.SetProcess(
+                        $"GZip - {StringConversion.DynamicStorageSize(p)}/{displayMax}", p, true);
+                    }
+                  }, processed);
                 }
               }
             }
           }
-          // need to encrypt the file
-          else if (m_WritePath.AssumePgp())
+        }
+        // need to encrypt the file
+        else if (m_WritePath.AssumePgp())
+        {
+          using (FileStream inputStream = new FileInfo(m_TempFile).OpenRead(),
+            output = new FileStream(m_WritePath.LongPathPrefix(), FileMode.Create))
           {
-            using (FileStream inputStream = new FileInfo(m_TempFile).OpenRead(),
-              output = new FileStream(m_WritePath.LongPathPrefix(), FileMode.Create))
-            {
-              Logger.Debug("Encrypting temporary file {inputfilename} to PGP file {outputfilename}", m_TempFile,
-                m_WritePath);
-              ApplicationSetting.PGPKeyStorage.PgpEncrypt(inputStream, output, m_Recipient, m_ProcessDisplay);
-            }
+            Logger.Debug("Encrypting temporary file {inputfilename} to PGP file {outputfilename}", m_TempFile,
+              m_WritePath);
+            ApplicationSetting.PGPKeyStorage.PgpEncrypt(inputStream, output, m_Recipient, m_ProcessDisplay);
           }
         }
-        finally
-        {
-          Logger.Debug("Removing temporary file {filename}", m_TempFile);
-          File.Delete(m_TempFile);
-          if (selfOpened)
-            m_ProcessDisplay.Dispose();
-        }
+      }
+      finally
+      {
+        Logger.Debug("Removing temporary file {filename}", m_TempFile);
+        File.Delete(m_TempFile);
+        if (selfOpenedProcessDisplay)
+          m_ProcessDisplay.Dispose();
       }
     }
 

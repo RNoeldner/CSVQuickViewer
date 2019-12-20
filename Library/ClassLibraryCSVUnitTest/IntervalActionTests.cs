@@ -45,5 +45,63 @@ namespace CsvTools.Tests
       intervalAction.Invoke(() => called++);
       Assert.AreEqual(2, called);
     }
+
+
+
+    [TestMethod]
+    public void Defaults()
+    {
+      var test = new IntervalAction();
+      Assert.IsTrue(test.NotifyAfterSeconds > 0);
+      Assert.IsTrue(test.NotifyAfterSeconds < 1);
+    }
+
+    [TestMethod]
+    public void Invoke()
+    {
+      var test = new IntervalAction();
+      var called = false;
+      test.Invoke(() => called = true);
+      Assert.IsTrue(called);
+      called = false;
+      test.Invoke(() => called = true);
+      Assert.IsFalse(called);
+    }
+
+    [TestMethod]
+    public void InvokeLong()
+    {
+      var test = new IntervalAction();
+      long called = -1;
+      test.Invoke(delegate (long l) { called = l; }, 666);
+      Assert.AreEqual(666l, called);
+      test.Invoke(delegate (long l) { called = l; }, 669);
+      Assert.AreNotEqual(669l, called);
+    }
+
+    [TestMethod]
+    public void InvokeStringLong()
+    {
+      var test = new IntervalAction();
+      long called = -1;
+      string calledS = string.Empty;
+      bool calledB = false;
+      test.Invoke((s, l, arg3) =>
+      {
+        called = l;
+        calledS = s;
+        calledB = arg3;
+      }, "Hello", -10, true);
+      Assert.AreEqual(-10l, called);
+      Assert.AreEqual("Hello", calledS);
+      Assert.AreEqual(true, calledB);
+      test.Invoke((s, l, arg3) =>
+      {
+        called = l;
+        calledS = s;
+        calledB = arg3;
+      }, "World", -20, true);
+      Assert.AreNotEqual("World", calledS);
+    }
   }
 }
