@@ -20,17 +20,44 @@ namespace CsvTools
   {
     private readonly IDictionary<TValue, TKey> m_SecondToFirst;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="BiDirectionalDictionary{TKey, TValue}"/> class.
+    /// </summary>
     public BiDirectionalDictionary() => m_SecondToFirst = new Dictionary<TValue, TKey>();
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="BiDirectionalDictionary{TKey, TValue}"/> class.
+    /// </summary>
+    /// <param name="capacity">Initial capacity.</param>
     public BiDirectionalDictionary(int capacity) : base(capacity) => m_SecondToFirst = new Dictionary<TValue, TKey>(capacity);
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="BiDirectionalDictionary{TKey, TValue}"/> class.
+    /// </summary>
+    /// <param name="dictionary">A <see cref="T:System.Collections.Generic.IDictionary`2" />, that will copied to the new class</param>
+    /// <exception cref="ArgumentException">
+    /// Duplicate key - key
+    /// or
+    /// Duplicate value - value
+    /// </exception>
     public BiDirectionalDictionary(IDictionary<TKey, TValue> dictionary)
     {
-      m_SecondToFirst = new Dictionary<TValue, TKey>(dictionary.Count);
+      m_SecondToFirst = new Dictionary<TValue, TKey>(dictionary?.Count ?? 0);
+      if (dictionary == null) return;
       foreach (var keyValuePair in dictionary)
         Add(keyValuePair.Key, keyValuePair.Value);
     }
 
+    /// <summary>
+    /// Adds a key / value to teh dictionary
+    /// </summary>
+    /// <param name="key">The key of the dictionary.</param>
+    /// <param name="value">the value for teh key, there can not be two keys with teh same value</param>
+    /// <exception cref="ArgumentException">
+    /// Duplicate key - key
+    /// or
+    /// Duplicate value - value
+    /// </exception>
     public new void Add(TKey key, TValue value)
     {
       if (ContainsKey(key))
@@ -87,8 +114,8 @@ namespace CsvTools
     /// </summary>
     public new void Clear()
     {
-      base.Clear();
       m_SecondToFirst.Clear();
+      base.Clear();
     }
   }
 }
