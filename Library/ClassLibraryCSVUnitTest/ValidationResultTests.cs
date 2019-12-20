@@ -20,20 +20,19 @@ namespace CsvTools.Tests
   [TestClass]
   public class ValidationResultTests
   {
-    private readonly ValidationResult m_ValidationResult = new ValidationResult("Hello",0);
 
     [TestMethod]
     public void ValidationResultSetValidationResultTest()
-    {
-      Assert.AreEqual("Hallo", m_ValidationResult.TableName);
-    }
 
-    [TestMethod]
-    public void ValidationResultRatiosTest()
     {
-      Assert.AreEqual(-1, m_ValidationResult.WarningCount);
-      Assert.AreEqual(-1, m_ValidationResult.ErrorCount);
-      Assert.AreEqual(0, m_ValidationResult.NumberRecords);
+      var validationResult = new ValidationResult("Hello", 0, -1, -1);
+      Assert.IsTrue(validationResult is IValidationResult);
+      Assert.AreEqual("Hello", validationResult.TableName);
+      Assert.AreEqual(-1, validationResult.WarningCount);
+      Assert.AreEqual(-1, validationResult.ErrorCount);
+      Assert.AreEqual(0, validationResult.NumberRecords);
+
+      
     }
   }
 }

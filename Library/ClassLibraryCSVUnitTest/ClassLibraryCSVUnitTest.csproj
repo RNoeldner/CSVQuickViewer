@@ -162,6 +162,7 @@
     <Compile Include="AAAPerfromanceTest.cs" />
     <Compile Include="CheckResultTests.cs" />
     <Compile Include="ColumnFormatTest.cs" />
+    <Compile Include="BiDirectionalDictionaryTests.cs" />
     <Compile Include="WarningEventArgsTest.cs" />
     <Compile Include="ColumnSizeTests.cs" />
     <Compile Include="ColumnTest.cs" />
