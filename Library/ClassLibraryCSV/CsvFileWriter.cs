@@ -18,6 +18,7 @@ using System.Data;
 using System.Diagnostics.Contracts;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading;
 
@@ -76,6 +77,7 @@ namespace CsvTools
       Contract.Requires(writer != null);
 
       var columnInfos = GetSourceColumnInformation(reader);
+
       if (columnInfos.Count == 0)
         throw new FileWriterException("No columns defined to be written.");
       var recordEnd = m_CsvFile.FileFormat.NewLine.Replace("CR", "\r").Replace("LF", "\n").Replace(" ", "")
