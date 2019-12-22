@@ -177,7 +177,7 @@ namespace CsvTools.Tests
         {
           var writer = new CsvFileWriter(writeFile, processDisplay);
           var dt = writer.GetSourceDataTable(10);
-          Assert.AreEqual(2, dt.Columns);
+          Assert.AreEqual(2, dt.Columns.Count);
         }
       }
     }

@@ -22,10 +22,67 @@ namespace CsvTools.Tests
   public class HTMLStyleTests
   {
     [TestMethod]
+    public void Properties()
+    {
+      var style = new HTMLStyle
+      {
+        Warning = "TestWar"
+      };
+      Assert.AreEqual("TestWar", style.Warning);
+
+      style.BR = "TestBR";
+      Assert.AreEqual("TestBR", style.BR);
+
+      style.H1 = "TestH1";
+      Assert.AreEqual("TestH1", style.H1);
+
+      style.TDEmpty = "TestTD";
+      Assert.AreEqual("TestTD", style.TDEmpty);
+
+      style.TD = "TestTD";
+      Assert.AreEqual("TestTD", style.TD);
+      
+      style.TDNonText = "TestTDNT";
+      Assert.AreEqual("TestTDNT", style.TDNonText);
+
+      style.TH = "TestTH";
+      Assert.AreEqual("TestTH", style.TH);
+
+      style.H2 = "TestH2";
+      Assert.AreEqual("TestH2", style.H2);
+
+      style.Style = "TestStyle";
+      Assert.AreEqual("TestStyle", style.Style);
+
+      style.TableClose = "TestCl";
+      Assert.AreEqual("TestCl", style.TableClose);
+
+      style.TableOpen = "TestOp";
+      Assert.AreEqual("TestOp", style.TableOpen);
+
+      style.TRClose = "TestTRCl";
+      Assert.AreEqual("TestTRCl", style.TRClose);
+
+      style.TROpen = "TestTROp";
+      Assert.AreEqual("TestTROp", style.TROpen);
+
+      style.TROpenAlt = "TestTROpA";
+      Assert.AreEqual("TestTROpA", style.TROpenAlt);
+    }
+
+    [TestMethod]
+    public void ConvertToHtmlFragment()
+    {
+      var style = new HTMLStyle();
+      Assert.IsNotNull(style.ConvertToHtmlFragment("Hello"));
+    }
+
+    [TestMethod]
     public void HtmlEncodeShortTest()
     {
       Assert.IsNull(HTMLStyle.HtmlEncodeShort(null));
       Assert.AreEqual("", HTMLStyle.HtmlEncodeShort(""));
+      Assert.AreEqual("&lt;&gt;", HTMLStyle.HtmlEncodeShort("<>"));
       Assert.AreEqual("HTML", HTMLStyle.HtmlEncodeShort("HTML"));
       Assert.AreEqual("K&amp;N", HTMLStyle.HtmlEncodeShort("K&N"));
       Assert.AreEqual("Line1<br>Line2", HTMLStyle.HtmlEncodeShort("Line1\r\nLine2"));
@@ -103,6 +160,38 @@ namespace CsvTools.Tests
       sb = new StringBuilder();
       HTMLStyle.AddHtmlCell(sb, "<{0}>", "1", "Error", false);
       Assert.AreEqual("<1>", sb.ToString());
+    }
+
+    [TestMethod]
+    public void AddHTMLCellTestWarnings()
+    {
+      var sb = new StringBuilder();
+      HTMLStyle.AddHtmlCell(sb, "<{0}>", "Test", "Issue".AddWarningId(), true);
+      Assert.IsTrue((sb.ToString().StartsWith("<Test")));
+      Assert.IsTrue((sb.ToString().Contains("Issue")));
+      Assert.IsTrue((sb.ToString().EndsWith(">")));
+    }
+
+    [TestMethod]
+    public void AddHTMLCellTestErrorWarnings()
+    {
+      var errWar = "Some Error".AddMessage("Issue".AddWarningId());
+      var sb = new StringBuilder();
+      HTMLStyle.AddHtmlCell(sb, "<{0}>", "Test", errWar, true);
+      Assert.IsTrue((sb.ToString().StartsWith("<Test")));
+      Assert.IsTrue((sb.ToString().EndsWith(">")));
+      Assert.IsTrue((sb.ToString().Contains("Issue")));
+      Assert.IsTrue((sb.ToString().Contains("Some Error")));
+    }
+
+    [TestMethod]
+    public void AddHTMLCellTestError()
+    {
+      var sb = new StringBuilder();
+      HTMLStyle.AddHtmlCell(sb, "<{0}>", "Test", "Some Error", true);
+      Assert.IsTrue((sb.ToString().StartsWith("<Test")));
+      Assert.IsTrue((sb.ToString().Contains("Some Error")));
+      Assert.IsTrue((sb.ToString().EndsWith(">")));
     }
 
     [TestMethod]

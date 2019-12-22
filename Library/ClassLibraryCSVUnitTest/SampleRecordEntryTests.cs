@@ -56,8 +56,22 @@ namespace CsvTools.Tests
       Assert.IsTrue(entry1.Equals(entry2));
       Assert.IsTrue(entry2.Equals(entry1));
       Assert.IsFalse(entry1.Equals(null));
+
       entry2 = new SampleRecordEntry(10, "Error1");
       Assert.IsFalse(entry1.Equals(entry2));
     }
+
+    [TestMethod()]
+    public void GetHashCodeTest()
+    {
+      var entry1 = new SampleRecordEntry(100, "Error1");
+      var entry2 = entry1.Clone();
+      Assert.AreEqual(entry1.GetHashCode(), entry2.GetHashCode());
+
+      entry2 = new SampleRecordEntry(10, "Error1");
+      Assert.AreNotEqual(entry1.GetHashCode(), entry2.GetHashCode());
+
+    }
+
   }
 }
