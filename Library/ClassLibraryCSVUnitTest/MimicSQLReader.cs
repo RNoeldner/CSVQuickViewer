@@ -21,7 +21,7 @@ namespace CsvTools.Tests
 {
   public class MimicSQLReader
   {
-    private readonly List<IFileSetting> m_ReadSetting = new List<IFileSetting>();
+    private readonly Dictionary<IFileSetting,DataTable> m_ReadSetting = new Dictionary<IFileSetting, DataTable>();
 
     public void AddSetting(IFileSetting setting)
     {
@@ -30,20 +30,36 @@ namespace CsvTools.Tests
         throw new ArgumentNullException(nameof(setting));
       }
 
-      if (!m_ReadSetting.Any(x => x.ID.Equals(setting.ID, StringComparison.OrdinalIgnoreCase)))
-        m_ReadSetting.Add(setting);
+      if (!m_ReadSetting.Any(x => x.Key.ID.Equals(setting.ID, StringComparison.OrdinalIgnoreCase)))
+        m_ReadSetting.Add(setting, null);
     }
 
-    public List<IFileSetting> ReadSettings => m_ReadSetting;
+    public void AddSetting(string name, DataTable dt)
+    {
+      if (dt == null) throw new ArgumentNullException(nameof(dt));
+      if (string.IsNullOrEmpty(name))
+      {
+        throw new ArgumentNullException(nameof(name));
+      }
+
+      if (!m_ReadSetting.Any(x => x.Key.ID.Equals(name, StringComparison.OrdinalIgnoreCase)))
+        m_ReadSetting.Add(new CsvFile(name) {ID = name}, dt);
+    }
+    public ICollection<IFileSetting> ReadSettings => m_ReadSetting.Keys;
 
     public IDataReader ReadData(string settingName, IProcessDisplay processDisplay, int timeout)
     {
-      var setting = m_ReadSetting.FirstOrDefault(x => x.ID == settingName);
-      if (setting == null)
-        throw new FileReaderException($"{settingName} not found");
-      var reader = setting.GetFileReader(processDisplay);
-      reader.Open();
-      return reader;
+      var setting = m_ReadSetting.First(x => x.Key.ID == settingName);
+      if (setting.Value == null)
+      {
+        var reader = setting.Key.GetFileReader(processDisplay);
+        reader.Open();
+        return reader;
+      }
+      else
+      {
+        return setting.Value.CreateDataReader();
+      }
     }
   }
 }

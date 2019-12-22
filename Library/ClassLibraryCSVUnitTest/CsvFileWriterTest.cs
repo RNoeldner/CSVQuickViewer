@@ -14,6 +14,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Data;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -106,15 +107,87 @@ namespace CsvTools.Tests
       }
     }
 
+    [TestMethod]
+    public void WriteDataTableHandleIssues()
+    {
+      using (var dataTable = new DataTable
+      {
+        TableName = "DataTable",
+        Locale = CultureInfo.InvariantCulture
+      })
+      {
+        dataTable.Columns.Add("ID", typeof(int));
+        dataTable.Columns.Add("Text", typeof(string));
+        for (var i = 0; i < 100; i++)
+        {
+          var row = dataTable.NewRow();
+          row["ID"] = i;
+          row["Text"] = "Text" + i.ToString(CultureInfo.CurrentCulture);
+          dataTable.Rows.Add(row);
+        }
+        var writeFile = new CsvFile
+        {
+          ID = "Test.txt",
+          FileName = "Test.txt",
+          SqlStatement = "Hello"
+        };
+        writeFile.ColumnCollection.Add(new Column(){Name = "Text", DataType = DataType.Integer});
+        writeFile.Header = "##This is a header for {FileName}";
+        writeFile.Footer = "##This is a Footer\r\n{Records} in file";
+        var count = 0;
+        using (var processDisplay = new DummyProcessDisplay())
+        {
+          var writer = new CsvFileWriter(writeFile, processDisplay);
+          writer.Warning += (object sender, WarningEventArgs e) => { count++; };
+          Assert.AreEqual(100, writer.WriteDataTable(dataTable), "Records");
+          Assert.AreEqual(100, count, "Warnings");
+        }
+        Assert.IsTrue(File.Exists(writeFile.FullPath));
+      }
+    }
+
+
+    [TestMethod]
+    public void GetSourceTableTable()
+    {
+      using (var dataTable = new DataTable
+      {
+        TableName = "DataTable",
+        Locale = CultureInfo.InvariantCulture
+      })
+      {
+        dataTable.Columns.Add("ID", typeof(int));
+        dataTable.Columns.Add("Text", typeof(string));
+        for (var i = 0; i < 100; i++)
+        {
+          var row = dataTable.NewRow();
+          row["ID"] = i;
+          row["Text"] = "Text" + i.ToString(CultureInfo.CurrentCulture);
+          dataTable.Rows.Add(row);
+        }
+        var writeFile = new CsvFile
+        {
+          ID = "TestXYZ.txt",
+          FileName = "Test.txt",
+          SqlStatement = "Hello2"
+        };
+       UnitTestInitialize.MimicSQLReader.AddSetting("Hello2", dataTable); 
+
+        using (var processDisplay = new DummyProcessDisplay())
+        {
+          var writer = new CsvFileWriter(writeFile, processDisplay);
+          var dt = writer.GetSourceDataTable(10);
+          Assert.AreEqual(2, dt.Columns);
+        }
+      }
+    }
+
+    private void Writer_Warning(object sender, WarningEventArgs e) => throw new NotImplementedException();
+
     [TestInitialize]
     public void Init()
     {
-      m_ReadFile = new CsvFile("BasicCSV.txt")
-      {
-        ID = "Read"
-      };
-      m_ReadFile.FileFormat.FieldDelimiter = ",";
-      m_ReadFile.FileFormat.CommentLine = "#";
+      m_ReadFile = new CsvFile("BasicCSV.txt") {ID = "Read", FileFormat = {FieldDelimiter = ",", CommentLine = "#"}};
 
       var cf = m_ReadFile.ColumnCollection.AddIfNew(new Column { Name = "ExamDate", DataType = DataType.DateTime });
       cf.DateFormat = @"dd/MM/yyyy";
@@ -165,6 +238,7 @@ namespace CsvTools.Tests
       Assert.IsTrue(FileSystemUtils.FileExists(writeFile.FullPath));
       Assert.AreEqual(7, res);
     }
+
     [TestMethod]
     public void WritePGP()
     {

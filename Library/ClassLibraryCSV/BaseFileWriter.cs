@@ -367,7 +367,7 @@ namespace CsvTools
     /// <param name="reader">The reader.</param>
     /// <param name="handleQualify">The handle qualify.</param>
     /// <returns>
-    ///   proper formated CSV / Fix Length field
+    ///   proper formatted CSV / Fix Length field
     /// </returns>
     /// <exception cref="ArgumentNullException">
     ///   columnInfo
@@ -495,15 +495,15 @@ namespace CsvTools
     /// <param name="columnOrdinal">The column ordinal.</param>
     /// <param name="columnSize">defined size of the column.</param>
     /// <param name="columns">The column collection</param>
-    /// <param name="columnOridinalTimeZoneReader">The column oridinal time zone reader.</param>
+    /// <param name="columnOrdinalTimeZoneReader">The column ordinal time zone reader.</param>
     /// <param name="constantTimeZone">The constant time zone.</param>
     /// <returns>
-    ///   Can return multiple columns in case we have a TimeaPart and the other column is hidden (If the Time part is
+    ///   Can return multiple columns in case we have a TimePart and the other column is hidden (If the Time part is
     ///   not hidden it will be returned when looking at it)
     /// </returns>
     private static IEnumerable<ColumnInfo> GetColumnInformationForOneColumn(IFileSetting writerFileSetting,
       ICollection<string> headers, string columnName, Type columnDataType,
-      int columnOrdinal, int columnSize, ICollection<string> columns, int columnOridinalTimeZoneReader,
+      int columnOrdinal, int columnSize, ICollection<string> columns, int columnOrdinalTimeZoneReader,
       string constantTimeZone)
     {
       Contract.Requires(headers != null);
@@ -513,13 +513,13 @@ namespace CsvTools
         yield break;
 
       var valueFormat = columnFormat != null ? columnFormat.ValueFormat : writerFileSetting.FileFormat.ValueFormat;
-      var dataType = columnDataType.GetDataType();
+      var dataType = columnFormat != null ? columnFormat.ValueFormat.DataType : columnDataType.GetDataType();
 
       yield return new ColumnInfo
       {
         Header = GetUniqueFieldName(headers, columnName),
         ColumnOridinalReader = columnOrdinal,
-        ColumnOridinalTimeZoneReader = columnOridinalTimeZoneReader,
+        ColumnOridinalTimeZoneReader = columnOrdinalTimeZoneReader,
         ConstantTimeZone = constantTimeZone,
         Column = columnFormat,
         FieldLength = GetFieldLength(dataType, columnSize, valueFormat),
