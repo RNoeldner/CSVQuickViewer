@@ -72,8 +72,8 @@ namespace CsvTools
         var delete = false;
         if (File.Exists(fileName))
         {
-          var fileContens = File.ReadAllText(fileName);
-          if (fileContens.Equals(stringWriter.ToString()))
+          var fileContend = File.ReadAllText(fileName);
+          if (fileContend.Equals(stringWriter.ToString()))
             return;
 
           if (askOverwrite.Invoke())

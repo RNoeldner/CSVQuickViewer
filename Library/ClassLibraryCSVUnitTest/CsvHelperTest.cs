@@ -262,21 +262,75 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void GetEmptyColumnHeaderTest()
+    public void GetColumnHeadersFromReaderClosed()
     {
       var setting = new CsvFile
       {
-        FileFormat = {FieldDelimiter = ","},
+        FileFormat = { FieldDelimiter = "," },
         FileName = Path.Combine(m_ApplicationDirectory, "EmptyColumns.txt"),
         HasFieldHeader = false
       };
       using (var disp = new DummyProcessDisplay())
       {
-        Assert.IsTrue(CsvHelper.GetEmptyColumnHeader(setting, disp).Count ==0);
+        Assert.IsTrue(CsvHelper.GetEmptyColumnHeader(setting, disp).Count == 0);
+        setting.HasFieldHeader = true;
+        using (var reader = setting.GetFileReader(disp))
+        {
+
+          var res = CsvHelper.GetColumnHeadersFromReader(reader);
+          Assert.AreEqual(0, res.Count);
+        }
+
+
+      }
+    }
+    [TestMethod]
+    public void GuessJsonFile()
+    {
+      var setting = new CsvFile
+      {
+        JsonFormat =  true,
+        FileName = Path.Combine(m_ApplicationDirectory, "Jason1.json"),};
+
+      Assert.IsTrue(CsvHelper.GuessJsonFile(setting));
+    }
+
+    [TestMethod]
+    public void GetColumnHeadersFromReader()
+    {
+      var setting = new CsvFile
+      {
+        FileFormat = { FieldDelimiter = "," },
+        FileName = Path.Combine(m_ApplicationDirectory, "EmptyColumns.txt"),
+        HasFieldHeader = false
+      };
+      using (var disp = new DummyProcessDisplay())
+      {
+        using (var reader = setting.GetFileReader(disp))
+        {
+          reader.Open();
+          var res = CsvHelper.GetColumnHeadersFromReader(reader);
+          Assert.AreEqual(6, res.Count);
+        }
+      }
+    }
+
+    [TestMethod]
+    public void GetEmptyColumnHeaderTest()
+    {
+      var setting = new CsvFile
+      {
+        FileFormat = { FieldDelimiter = "," },
+        FileName = Path.Combine(m_ApplicationDirectory, "EmptyColumns.txt"),
+        HasFieldHeader = false
+      };
+      using (var disp = new DummyProcessDisplay())
+      {
+        Assert.IsTrue(CsvHelper.GetEmptyColumnHeader(setting, disp).Count == 0);
         setting.HasFieldHeader = true;
         var res = CsvHelper.GetEmptyColumnHeader(setting, disp);
 
-        Assert.IsFalse(res.Count==0);
+        Assert.IsFalse(res.Count == 0);
         Assert.AreEqual("ID", res.First());
       }
     }

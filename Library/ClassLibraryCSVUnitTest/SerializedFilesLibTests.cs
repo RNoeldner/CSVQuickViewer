@@ -44,7 +44,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void SaveCsvFileTest()
+    public void SaveAndLoadCsvFileTest()
     {
       var file = GetCsvFile();
       Assert.IsFalse(FileSystemUtils.FileExists(fileName));
@@ -62,6 +62,21 @@ namespace CsvTools.Tests
       Assert.AreEqual(TrimmingOption.Unquoted, test.TrimmingOption, "TrimmingOption");
       Assert.IsTrue(file.MappingCollection.CollectionEqual(test.MappingCollection), "Mapping");
       Assert.IsTrue(file.FileFormat.Equals(test.FileFormat), "FileFormat");
+    }
+
+    [TestMethod]
+    public void SaveCsvFileTest()
+    {
+      var file = GetCsvFile();
+      Assert.IsFalse(FileSystemUtils.FileExists(fileName));
+      var asked = false;
+      SerializedFilesLib.SaveCsvFile(fileName, file, () => true);
+      file.ID = "Test1000";
+      Assert.IsTrue(FileSystemUtils.FileExists(fileName));
+      SerializedFilesLib.SaveCsvFile(fileName, file, () => {
+        asked = true; return true;
+      });
+      Assert.IsTrue(asked);
     }
 
     private CsvFile GetCsvFile()
