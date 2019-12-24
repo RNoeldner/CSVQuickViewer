@@ -733,7 +733,9 @@ namespace CsvTools
     public static string CsvToolsStackTrace(this Exception exception)
     {
       var start = 0;
-      var indexof = exception.StackTrace.IndexOf("at ");
+      if (string.IsNullOrEmpty(exception.StackTrace))
+        return null;
+      var indexof = exception.StackTrace.IndexOf("at ", StringComparison.Ordinal);
       while (indexof != -1)
       {
         var part = exception.StackTrace.Substring(start, indexof - start).Trim();

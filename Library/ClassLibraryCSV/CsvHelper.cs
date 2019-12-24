@@ -36,9 +36,9 @@ namespace CsvTools
       var values = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
       if (fileReader == null)
         return values;
-      for (var colindex = 0; colindex < fileReader.FieldCount; colindex++)
+      for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
       {
-        var cf = fileReader.GetColumn(colindex);
+        var cf = fileReader.GetColumn(colIndex);
         if (!string.IsNullOrEmpty(cf.Name) && !cf.Ignore)
           values.Add(cf.Name);
       }

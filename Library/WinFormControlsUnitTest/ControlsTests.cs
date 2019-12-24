@@ -12,6 +12,7 @@
  *
  */
 
+using System;
 using System.Data;
 using System.Windows.Forms;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -24,6 +25,63 @@ namespace CsvTools.Tests
   {
     private static readonly DataTable m_DataTable = UnitTestStatic.GetDataTable(50);
     private readonly CsvFile m_CSVFile = new CsvFile(Path.Combine(FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles", "BasicCSV.txt"));
+
+    [TestMethod]
+    public void QuotingControl()
+    {
+      using (var frm = new QuotingControl())
+      {
+        frm.Show();
+        frm.CsvFile = new CsvFile();
+        System.Threading.Thread.Sleep(200);
+      }
+    }
+
+    [TestMethod]
+    public void CheckedListBoxHelper()
+    {
+      using (var tb = new TextBox())
+      using (var clb = new CheckedListBox())
+      {
+        var frm = new CheckedListBoxHelper(tb, clb) {Filter = "Test", Items =  new []{"Test", "TestA", "TestB" }, Exclude = "TestB"};
+      }
+        
+      
+    }
+    [TestMethod]
+    public void MultiselectTreeView()
+    {
+      using (var frm = new MultiselectTreeView())
+      {
+        frm.Show();
+        System.Threading.Thread.Sleep(200);
+      }
+    }
+
+    [TestMethod]
+    public void FolderTree()
+    {
+      using (var frm = new FolderTree())
+      {
+        frm.Show();
+        frm.SetCurrentPath("C:\\");
+        frm.Refresh();
+        frm.ShowError(new ApplicationException("Exception"), "Title");
+        System.Threading.Thread.Sleep(200);
+      }
+    }
+
+    [TestMethod]
+    public void FormSelectTimeZone()
+    {
+      using (var frm = new FormSelectTimeZone())
+      {
+        frm.ShowInTaskbar = false;
+        frm.Show();
+        System.Threading.Thread.Sleep(200);
+        frm.Close();
+      }
+    }
 
     [TestMethod]
     public void FormLimitSize()
