@@ -13,6 +13,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.Contracts;
@@ -25,85 +26,87 @@ namespace CsvTools
   ///   DataGridViewColumnFilter based on operations and values
   /// </summary>
   [DebuggerDisplay(
-    "DataGridViewColumnFilterOperator({m_FilterExpressionOperator}, {m_FilterExpressionValue}, {Active})")]
+    "ColumnFilterLogic({m_FilterExpressionOperator}, {m_FilterExpressionValue}, {Active})")]
   public class ColumnFilterLogic : INotifyPropertyChanged
   {
     /// <summary>
     ///   begins
     /// </summary>
-    public const string cOPbegins = "xxx…";
+    private const string c_OperatorBegins = "xxx…";
 
     /// <summary>
     ///   &gt;
     /// </summary>
-    public const string cOPbigger = ">";
+    private const string c_OperatorBigger = ">";
 
     /// <summary>
     ///   &gt;=
     /// </summary>
-    public const string cOPbiggerEqual = ">=";
+    private const string c_OperatorBiggerEqual = ">=";
 
     /// <summary>
     ///   ...xxx...
     /// </summary>
-    public const string cOPcontains = "…xxx…";
+    private const string c_OperatorContains = "…xxx…";
 
     /// <summary>
     ///   ...xxx
     /// </summary>
-    public const string cOPends = "…xxx";
+    private const string c_OperatorEnds = "…xxx";
 
     /// <summary>
     ///   =
     /// </summary>
-    public const string cOPequal = "=";
+    private const string c_OperatorEquals = "=";
 
     /// <summary>
     ///   (Not Blank)
     /// </summary>
-    public const string cOPisNotNull = "(Not Blank)";
+    private const string c_OperatorIsNotNull = "(Not Blank)";
 
     /// <summary>
     ///   (Blank)
     /// </summary>
-    public const string cOPisNull = "(Blank)";
+    private const string c_OperatorIsNull = "(Blank)";
+
+    public static string OperatorIsNull => c_OperatorIsNull;
 
     /// <summary>
     ///   shorter than
     /// </summary>
-    public const string cOpLonger = "longer";
+    private const string c_OperatorLonger = "longer";
 
     /// <summary>
     ///   &lt;&gt;
     /// </summary>
-    public const string cOPnotEqual = "<>";
+    private const string c_OperatorNotEqual = "<>";
 
     /// <summary>
     ///   shorter
     /// </summary>
-    public const string cOPshorter = "shorter";
+    private const string c_OperatorShorter = "shorter";
 
     /// <summary>
     ///   &lt;
     /// </summary>
-    public const string cOPsmaller = "<";
+    private const string c_OperatorSmaller = "<";
 
     /// <summary>
     ///   &lt;=
     /// </summary>
-    public const string cOPsmallerequal = "<=";
+    private const string c_OperatorSmallerEqual = "<=";
 
     /// <summary>
     ///   The m_ column data type
     /// </summary>
     private readonly Type m_ColumnDataType;
 
-    private readonly string m_DataPropertyNameEscape;
+    private string m_DataPropertyNameEscape;
 
     /// <summary>
     ///   Flag indicating if the whole filter is active
     /// </summary>
-    private bool m_Active = false;
+    private bool m_Active;
 
     /// <summary>
     ///   The m_ filter expression
@@ -111,9 +114,38 @@ namespace CsvTools
     private string m_FilterExpressionOperator = string.Empty;
 
     private string m_FilterExpressionValue = string.Empty;
-    private string m_Operator = cOPequal;
+    private string m_Operator = c_OperatorEquals;
     private DateTime m_ValueDateTime;
     private string m_ValueText = string.Empty;
+
+    public static bool IsNotNullCompare(string text)
+    {
+      if (string.IsNullOrEmpty(text))
+        return false;
+      return (text != c_OperatorIsNotNull
+            & text != OperatorIsNull);
+    }
+
+    public static object[] GetOperators(Type columnDataType)
+    {
+      var retValues = new List<object>();
+
+      if (columnDataType == typeof(string))
+        retValues.AddRange(new[] { c_OperatorContains, c_OperatorBegins, c_OperatorEnds });
+
+      // everyone gets = / <>
+      retValues.AddRange(new[] { c_OperatorEquals, c_OperatorNotEqual });
+
+      if (columnDataType == typeof(string))
+        retValues.AddRange(new[] { c_OperatorLonger, c_OperatorShorter });
+      else if (columnDataType == typeof(DateTime) || columnDataType == typeof(int) || columnDataType == typeof(long) || columnDataType == typeof(double) || columnDataType == typeof(float) || columnDataType == typeof(decimal)
+               || columnDataType == typeof(byte) || columnDataType == typeof(short))
+        retValues.AddRange(new[] { c_OperatorSmaller, c_OperatorSmallerEqual, c_OperatorBiggerEqual, c_OperatorBigger });
+
+      // everyone gets NUll comparison
+      retValues.AddRange(new[] { OperatorIsNull, c_OperatorIsNotNull });
+      return retValues.ToArray();
+    }
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="ColumnFilterLogic" /> class.
@@ -124,19 +156,26 @@ namespace CsvTools
     {
       Contract.Requires(columnDataType != null);
       Contract.Requires(dataPropertyName != null);
-      var dataPropertyName1 = dataPropertyName;
-      // Un-escape the name again
-      if (dataPropertyName.StartsWith("[", StringComparison.Ordinal) &&
-          dataPropertyName.EndsWith("]", StringComparison.Ordinal))
-      {
-        dataPropertyName1 = dataPropertyName.Substring(1, dataPropertyName.Length - 2).Replace(@"\]", "]")
-          .Replace(@"\\", @"\");
-      }
-
-      m_DataPropertyNameEscape = $"[{dataPropertyName1.SqlName()}]";
-
+      DataPropertyName = dataPropertyName;
       m_ColumnDataType = columnDataType;
       //  m_ValueClusterCollection.CollectionChanged += delegate(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e) { FilterChanged(); };
+    }
+
+    public string DataPropertyName
+    {
+      get => m_DataPropertyNameEscape;
+      private set
+      {
+        var dataPropertyName1 = value ?? string.Empty;
+        // Un-escape the name again
+        if (dataPropertyName1.StartsWith("[", StringComparison.Ordinal) && dataPropertyName1.EndsWith("]", StringComparison.Ordinal))
+        {
+          dataPropertyName1 = dataPropertyName1.Substring(1, dataPropertyName1.Length - 2).Replace(@"\]", "]")
+            .Replace(@"\\", @"\");
+        }
+
+        m_DataPropertyNameEscape = $"[{dataPropertyName1.SqlName()}]";
+      }
     }
 
     /// <summary>
@@ -179,11 +218,9 @@ namespace CsvTools
       get
       {
         Contract.Ensures(Contract.Result<string>() != null);
-        if (m_FilterExpressionOperator.Length > 0 && m_Operator != cOPisNotNull && m_FilterExpressionValue.Length > 0)
+        if (m_FilterExpressionOperator.Length > 0 && m_Operator != c_OperatorIsNotNull && m_FilterExpressionValue.Length > 0)
           return $"{m_FilterExpressionOperator} AND {m_FilterExpressionValue}";
-        if (m_FilterExpressionValue.Length > 0)
-          return m_FilterExpressionValue;
-        return m_FilterExpressionOperator;
+        return m_FilterExpressionValue.Length > 0 ? m_FilterExpressionValue : m_FilterExpressionOperator;
       }
     }
 
@@ -202,12 +239,10 @@ namespace CsvTools
         Contract.Assume(m_Operator != null);
 
         var newVal = value ?? string.Empty;
-        if (!m_Operator.Equals(newVal, StringComparison.Ordinal))
-        {
-          m_Operator = newVal;
-          FilterChanged();
-          NotifyPropertyChanged(nameof(Operator));
-        }
+        if (m_Operator.Equals(newVal, StringComparison.Ordinal)) return;
+        m_Operator = newVal;
+        FilterChanged();
+        NotifyPropertyChanged(nameof(Operator));
       }
     }
 
@@ -275,7 +310,7 @@ namespace CsvTools
     /// <returns></returns>
     public virtual string BuildSQLCommand(string valueText)
     {
-      if (valueText == cOPisNull)
+      if (valueText == OperatorIsNull)
         return string.Format(CultureInfo.InvariantCulture, "({0} IS NULL or {0} = '')", m_DataPropertyNameEscape);
       return string.Format(CultureInfo.InvariantCulture, "{0} = {1}", m_DataPropertyNameEscape,
         FormatValue(valueText, m_ColumnDataType));
@@ -295,7 +330,7 @@ namespace CsvTools
     {
       if (string.IsNullOrEmpty(value?.ToString()))
       {
-        Operator = cOPisNull;
+        Operator = OperatorIsNull;
       }
       else
       {
@@ -303,8 +338,9 @@ namespace CsvTools
           ValueDateTime = (DateTime)value;
         else
           ValueText = value.ToString();
-        Operator = cOPequal;
+        Operator = c_OperatorEquals;
       }
+      BuildFilterExpression();
     }
 
     /// <summary>
@@ -320,11 +356,11 @@ namespace CsvTools
       switch (Type.GetTypeCode(targetType))
       {
         case TypeCode.DateTime:
-          var dvalue = StringConversion.StringToDateTime(value,
+          var dateValue = StringConversion.StringToDateTime(value,
             CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern,
             CultureInfo.CurrentCulture.DateTimeFormat.DateSeparator,
             CultureInfo.CurrentCulture.DateTimeFormat.TimeSeparator, false, CultureInfo.CurrentCulture);
-          return dvalue.HasValue ? string.Format(CultureInfo.InvariantCulture, @"#{0:MM\/dd\/yyyy}#", dvalue.Value) : $"'{value.SqlQuote()}'";
+          return dateValue.HasValue ? string.Format(CultureInfo.InvariantCulture, @"#{0:MM\/dd\/yyyy}#", dateValue.Value) : $"'{value.SqlQuote()}'";
 
         case TypeCode.Byte:
         case TypeCode.Decimal:
@@ -337,18 +373,22 @@ namespace CsvTools
         case TypeCode.UInt16:
         case TypeCode.UInt32:
         case TypeCode.UInt64:
-          var nvalue = StringConversion.StringToDecimal(value,
+          var decValue = StringConversion.StringToDecimal(value,
                          CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator.GetFirstChar(),
                          CultureInfo.CurrentCulture.NumberFormat.NumberGroupSeparator.GetFirstChar(), true) ??
                        StringConversion.StringToDecimal(value, '.', '\0', true);
-          return string.Format(CultureInfo.InvariantCulture, "{0}", nvalue);
+          return string.Format(CultureInfo.InvariantCulture, "{0}", decValue);
 
         case TypeCode.Boolean:
-          var bvalue = StringConversion.StringToBoolean(value, "x", null);
-          if (bvalue.HasValue)
-            return bvalue.Value ? "1" : "0";
+          var boolValue = StringConversion.StringToBoolean(value, "x", null);
+          if (boolValue.HasValue)
+            return boolValue.Value ? "1" : "0";
           break;
 
+        case TypeCode.Empty:
+        case TypeCode.Object:
+        case TypeCode.DBNull:
+          break;
         default:
           return $"'{value.SqlQuote()}'";
       }
@@ -412,33 +452,27 @@ namespace CsvTools
     private string BuildFilterExpressionOperator()
     {
       Contract.Ensures(Contract.Result<string>() != null);
-      if (m_Operator == cOPisNull)
+      switch (m_Operator)
       {
-        if (Type.GetTypeCode(m_ColumnDataType) == TypeCode.String)
-          return string.Format(CultureInfo.InvariantCulture, "({0} IS NULL or {0} = '')", m_DataPropertyNameEscape);
-        else
-          return string.Format(CultureInfo.InvariantCulture, "{0} IS NULL", m_DataPropertyNameEscape);
-      }
-
-      if (m_Operator == cOPisNotNull)
-      {
-        if (Type.GetTypeCode(m_ColumnDataType) == TypeCode.String)
+        case c_OperatorIsNull:
+          return string.Format(CultureInfo.InvariantCulture, m_ColumnDataType == typeof(string) ? "({0} IS NULL or {0} = '')" : "{0} IS NULL", m_DataPropertyNameEscape);
+        case c_OperatorIsNotNull when Type.GetTypeCode(m_ColumnDataType) == TypeCode.String:
           return string.Format(CultureInfo.InvariantCulture, "NOT({0} IS NULL or {0} = '')", m_DataPropertyNameEscape);
-        else
+        case c_OperatorIsNotNull:
           return string.Format(CultureInfo.InvariantCulture, "NOT {0} IS NULL", m_DataPropertyNameEscape);
       }
 
       if (string.IsNullOrEmpty(m_ValueText) &&
-          (m_Operator == cOPcontains || m_Operator == cOpLonger || m_Operator == cOPshorter ||
-           m_Operator == cOPbegins ||
-           m_Operator == cOPends))
+          (m_Operator == c_OperatorContains || m_Operator == c_OperatorLonger || m_Operator == c_OperatorShorter ||
+           m_Operator == c_OperatorBegins ||
+           m_Operator == c_OperatorEnds))
       {
         return string.Empty;
       }
 
       switch (m_Operator)
       {
-        case cOPcontains:
+        case c_OperatorContains:
           if (!string.IsNullOrEmpty(m_ValueText))
           {
             return string.Format(CultureInfo.InvariantCulture, "{0} LIKE '%{1}%'", m_DataPropertyNameEscape,
@@ -447,21 +481,21 @@ namespace CsvTools
 
           break;
 
-        case cOpLonger:
+        case c_OperatorLonger:
           if (!string.IsNullOrEmpty(FormatValue(m_ValueText, typeof(int))))
             return string.Format(CultureInfo.InvariantCulture, "LEN({0})>{1}", m_DataPropertyNameEscape, m_ValueText);
           break;
 
-        case cOPshorter:
+        case c_OperatorShorter:
           if (!string.IsNullOrEmpty(FormatValue(m_ValueText, typeof(int))))
             return string.Format(CultureInfo.InvariantCulture, "LEN({0})<{1}", m_DataPropertyNameEscape, m_ValueText);
           break;
 
-        case cOPbegins:
+        case c_OperatorBegins:
           return string.Format(CultureInfo.InvariantCulture, "{0} LIKE '{1}%'", m_DataPropertyNameEscape,
             StringEscapeLike(m_ValueText));
 
-        case cOPends:
+        case c_OperatorEnds:
           return string.Format(CultureInfo.InvariantCulture, "{0} LIKE '%{1}'", m_DataPropertyNameEscape,
             StringEscapeLike(m_ValueText));
 
@@ -471,13 +505,16 @@ namespace CsvTools
           if (m_ColumnDataType == typeof(DateTime))
           {
             // Filtering for Dates we need to ignore time
-            filterValue = string.Format(@"#{0:MM\/dd\/yyyy}#", m_ValueDateTime);
-            if (m_Operator == cOPequal)
-              return string.Format(CultureInfo.InvariantCulture, "({0} >= {1} AND {0} < #{2:MM\\/dd\\/yyyy}#)", m_DataPropertyNameEscape, filterValue, m_ValueDateTime.AddDays(1));
-            if (m_Operator == cOPnotEqual)
-              return string.Format(CultureInfo.InvariantCulture, "({0} < {1} OR {0} > #{2:MM\\/dd\\/yyyy}#)", m_DataPropertyNameEscape, filterValue, m_ValueDateTime.AddDays(1));
-
-            return string.Format(CultureInfo.InvariantCulture, "{0} {1} {2}", m_DataPropertyNameEscape, m_Operator, filterValue);
+            filterValue = $@"#{m_ValueDateTime:MM\/dd\/yyyy}#";
+            switch (m_Operator)
+            {
+              case c_OperatorEquals:
+                return string.Format(CultureInfo.InvariantCulture, "({0} >= {1} AND {0} < #{2:MM\\/dd\\/yyyy}#)", m_DataPropertyNameEscape, filterValue, m_ValueDateTime.AddDays(1));
+              case c_OperatorNotEqual:
+                return string.Format(CultureInfo.InvariantCulture, "({0} < {1} OR {0} > #{2:MM\\/dd\\/yyyy}#)", m_DataPropertyNameEscape, filterValue, m_ValueDateTime.AddDays(1));
+              default:
+                return string.Format(CultureInfo.InvariantCulture, "{0} {1} {2}", m_DataPropertyNameEscape, m_Operator, filterValue);
+            }
           }
           else
           {
@@ -520,9 +557,7 @@ namespace CsvTools
 
       if (counter > 1)
         return "(" + sql + ")";
-      if (counter == 1)
-        return sql.ToString();
-      return string.Empty;
+      return counter == 1 ? sql.ToString() : string.Empty;
     }
 
     /// <summary>

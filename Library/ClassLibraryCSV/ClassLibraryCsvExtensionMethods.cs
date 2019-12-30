@@ -20,6 +20,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics.Contracts;
 using System.Globalization;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -155,10 +156,7 @@ namespace CsvTools
       if (items is ICollection col)
         return col.Count;
 
-      var counter = 0;
-      foreach (var _ in items)
-        counter++;
-      return counter;
+      return Enumerable.Count(items.Cast<object>());
     }
 
     /// <summary>
@@ -738,44 +736,47 @@ namespace CsvTools
       var indexof = exception.StackTrace.IndexOf("at ", StringComparison.Ordinal);
       while (indexof != -1)
       {
-        var part = exception.StackTrace.Substring(start, indexof - start).Trim();
-        if (!string.IsNullOrEmpty(part) && part.StartsWith("CsvTools."))
+        if (start >= 0 && exception.StackTrace.Length > start)
         {
-          var msg = part.Substring("CsvTools.".Length);
-          // In case it was an extension method, use stack trace
-          if (msg.StartsWith("ClassLibraryCsvExtensionMethods"))
+          var part = exception.StackTrace.Substring(start, indexof - start).Trim();
+          if (!string.IsNullOrEmpty(part) && part.StartsWith("CsvTools."))
           {
-            var st = new StackTrace();
-            var lastWaitToCompleteTask = -1;
-            for (var index = 0; index < st.FrameCount; index++)
+            var msg = part.Substring("CsvTools.".Length);
+            // In case it was an extension method, use stack trace
+            if (msg.StartsWith("ClassLibraryCsvExtensionMethods"))
             {
-              var trace = st.GetFrame(index);
-              if (trace.GetMethod().ToString().Contains("WaitToCompleteTask"))
-                lastWaitToCompleteTask = index;
-              else
+              var st = new StackTrace();
+              var lastWaitToCompleteTask = -1;
+              for (var index = 0; index < st.FrameCount; index++)
               {
-                if (lastWaitToCompleteTask > 0)
+                var trace = st.GetFrame(index);
+                if (trace.GetMethod().ToString().Contains("WaitToCompleteTask"))
+                  lastWaitToCompleteTask = index;
+                else
                 {
-                  msg = trace.ToString();
-                  var tracePosIn = msg.IndexOf(" in ");
-                  if (tracePosIn == -1)
-                    return msg;
-                  else
-                    return msg.Substring(0, tracePosIn);
+                  if (lastWaitToCompleteTask > 0)
+                  {
+                    msg = trace.ToString();
+                    var tracePosIn = msg.IndexOf(" in ", StringComparison.Ordinal);
+                    if (tracePosIn == -1)
+                      return msg;
+                    else
+                      return msg.Substring(0, tracePosIn);
+                  }
                 }
               }
             }
+            var posIn = msg.IndexOf(" in ", StringComparison.Ordinal);
+            var posLine = msg.LastIndexOf(":", StringComparison.Ordinal);
+            if (posIn != -1 && posLine != -1)
+              return msg.Substring(0, posIn) + " " + msg.Substring(posLine + 1);
+            else
+              return msg;
           }
-          var posIn = msg.IndexOf(" in ");
-          var posLine = msg.LastIndexOf(":");
-          if (posIn != -1 && posLine != -1)
-            return msg.Substring(0, posIn) + " " + msg.Substring(posLine + 1);
-          else
-            return msg;
         }
 
         start = indexof + 3;
-        indexof = exception.StackTrace.IndexOf("at ", start);
+        indexof = exception.StackTrace.IndexOf("at ", start, StringComparison.Ordinal);
       }
       return null;
     }
@@ -1255,21 +1256,30 @@ namespace CsvTools
 
       if (ReferenceEquals(other, self))
         return true;
+
+      // Shortcut if we have collections but different number of Items
+      if (self is ICollection<T> selfCol && other is ICollection<T> otherCol)
+        if (selfCol.Count != otherCol.Count)
+          return false;
+
       // use Enumerators to compare the two collections
       var comparer = EqualityComparer<T>.Default;
       using (var selfEnum = self.GetEnumerator())
       using (var otherEnum = other.GetEnumerator())
       {
-        while (selfEnum.MoveNext())
-          // there are less elements or the elements are not equal
-          if (!(otherEnum.MoveNext() && comparer.Equals(selfEnum.Current, otherEnum.Current)))
+        while(true)
+        {
+          // move to the next item
+          var s = selfEnum.MoveNext();
+          var o = otherEnum.MoveNext();
+          if (!s && !o)
+            return true;
+          if (!s || !o)
             return false;
-        // there are more elements
-        if (otherEnum.MoveNext())
-          return false;
+          if (!comparer.Equals(selfEnum.Current, otherEnum.Current))
+            return false;
+        }
       }
-
-      return true;
     }
 
     /// <summary>

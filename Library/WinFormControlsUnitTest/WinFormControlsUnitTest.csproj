@@ -78,6 +78,7 @@
     <Compile Include="ToolStripDataGridViewColumnFilterTests.cs" />
     <Compile Include="ValueCluster.cs" />
     <Compile Include="ValueClusterCollectionTests.cs" />
+    <Compile Include="WindowStateTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ClassLibraryCSV\ClassLibraryCSV.csproj">

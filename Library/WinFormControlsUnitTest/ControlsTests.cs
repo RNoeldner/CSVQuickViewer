@@ -36,14 +36,13 @@ namespace CsvTools.Tests
         System.Threading.Thread.Sleep(200);
       }
     }
-
     [TestMethod]
     public void CheckedListBoxHelper()
     {
       using (var tb = new TextBox())
       using (var clb = new CheckedListBox())
       {
-        var frm = new CheckedListBoxHelper(tb, clb) {Filter = "Test", Items =  new []{"Test", "TestA", "TestB" }, Exclude = "TestB"};
+        var checkedListBoxHelper = new CheckedListBoxHelper(tb, clb) {Filter = "Test", Items =  new []{"Test", "TestA", "TestB" }, Exclude = "TestB"};
       }
         
       
@@ -51,9 +50,20 @@ namespace CsvTools.Tests
     [TestMethod]
     public void MultiselectTreeView()
     {
-      using (var frm = new MultiselectTreeView())
+      using (var frm = new Form())
+      using (var treeView = new MultiselectTreeView())
       {
+        frm.Controls.Add(treeView);
+        treeView.Dock = System.Windows.Forms.DockStyle.Fill;
         frm.Show();
+        Assert.AreEqual(0,treeView.SelectedTreeNode.Count);
+
+        var treeNode = new TreeNode("Test") { Tag = "test" };
+        treeView.Nodes.Add(treeNode);
+        
+        var treeNode2 = new TreeNode("Test2") { Tag = "test2" };
+        treeNode.Nodes.Add(treeNode2);
+
         System.Threading.Thread.Sleep(200);
       }
     }
@@ -245,6 +255,8 @@ namespace CsvTools.Tests
       {
         form.ShowInTaskbar = false;
         form.Show();
+        form.Focus();
+        System.Threading.Thread.Sleep(1000);
         form.Close();
       }
     }

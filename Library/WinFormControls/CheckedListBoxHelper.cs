@@ -8,7 +8,7 @@ namespace CsvTools
 {
   public class CheckedListBoxHelper
   {
-    private const char Seperator = ',';
+    private const char c_Seperator = ',';
     private readonly List<string> m_AllItems = new List<string>();
     private readonly CheckedListBox m_CheckedListBox;
     private readonly List<string> m_ShownItems = new List<string>();
@@ -118,7 +118,7 @@ namespace CsvTools
           if (m_TextBoxItems.Contains(t))
           {
             if (sb.Length > 0)
-              sb.Append(Seperator);
+              sb.Append(c_Seperator);
             sb.Append(t);
           }
         }

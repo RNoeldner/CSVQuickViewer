@@ -34,7 +34,7 @@ namespace CsvTools.Tests
       Thread.Sleep(50);
       Assert.IsTrue(executed);
 
-      Extensions.WaitToCompleteTaskUI(task, 1);
+      task.WaitToCompleteTaskUI(1);
       Assert.IsTrue(executed);
     }
 
@@ -50,7 +50,7 @@ namespace CsvTools.Tests
         return true;
       });
       Assert.IsFalse(executed);
-      Extensions.WaitToCompleteTaskUI(task, 1);
+      task.WaitToCompleteTaskUI(1);
       Assert.IsTrue(executed);
     }
 
@@ -65,7 +65,7 @@ namespace CsvTools.Tests
 
       try
       {
-        Extensions.WaitToCompleteTaskUI(task, 1);
+        task.WaitToCompleteTaskUI(1);
         Assert.Fail("Timeout did not occur");
       }
       catch (TimeoutException)
@@ -86,7 +86,7 @@ namespace CsvTools.Tests
         {
           Thread.Sleep(5000);
           return true;
-        });
+        }, cts.Token);
 
         try
         {
@@ -95,8 +95,8 @@ namespace CsvTools.Tests
           {
             Thread.Sleep(200);
             cts.Cancel();
-          });
-          Extensions.WaitToCompleteTaskUI(task, 2d, cts.Token);
+          }, cts.Token);
+          task.WaitToCompleteTaskUI(2d, cts.Token);
           Assert.Fail("Timeout did not occur");
         }
         catch (AssertFailedException)
@@ -172,19 +172,19 @@ namespace CsvTools.Tests
     public void WriteBindingTest()
     {
       var obj = new DisplayItem<string>("15", "Text");
-      using (var bindrc = new BindingSource
+      using (var bindingSource = new BindingSource
       {
         DataSource = obj
       })
       {
-        var bind = new Binding("Text", bindrc, "ID", true);
-        using (var crtl = new TextBox())
+        var bind = new Binding("Text", bindingSource, "ID", true);
+        using (var textBoxBox = new TextBox())
         {
-          crtl.DataBindings.Add(bind);
-          crtl.Text = "12";
+          textBoxBox.DataBindings.Add(bind);
+          textBoxBox.Text = "12";
 
-          Assert.AreEqual(bind, crtl.GetTextBindng());
-          crtl.WriteBinding();
+          Assert.AreEqual(bind, textBoxBox.GetTextBindng());
+          textBoxBox.WriteBinding();
         }
       }
     }
@@ -232,10 +232,10 @@ namespace CsvTools.Tests
           CustomInt = 27,
           CustomText = "Test"
         };
-        var resul1 = -1;
+        var result1 = -1;
         var result2 = "Hello";
-        Extensions.LoadWindowState(value, state, (val) => { resul1 = val; }, (val) => { result2 = val; });
-        Assert.AreEqual(state.CustomInt, resul1);
+        value.LoadWindowState(state, (val) => { result1 = val; }, (val) => { result2 = val; });
+        Assert.AreEqual(state.CustomInt, result1);
         Assert.AreEqual(state.CustomText, result2);
       }
     }
@@ -266,11 +266,11 @@ namespace CsvTools.Tests
           CustomInt = 27,
           CustomText = "Test"
         };
-        var resul1 = -1;
+        var result1 = -1;
         var result2 = "Hello";
-        Extensions.LoadWindowState(value, state1, (val) => { resul1 = val; }, (val) => { result2 = val; });
+        value.LoadWindowState(state1, (val) => { result1 = val; }, (val) => { result2 = val; });
 
-        var state2 = Extensions.StoreWindowState(value, resul1, "World");
+        var state2 = value.StoreWindowState(result1, "World");
         Assert.AreEqual(state1.CustomInt, state2.CustomInt);
         Assert.AreEqual("World", state2.CustomText);
         Assert.AreEqual(state1.Left, state2.Left);

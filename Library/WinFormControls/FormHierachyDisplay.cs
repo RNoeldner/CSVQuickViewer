@@ -13,6 +13,7 @@
  */
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -43,7 +44,6 @@ namespace CsvTools
     ///   Required designer variable.
     /// </summary>
     private IContainer components;
-
     private ComboBox m_ComboBoxID;
 
     private ComboBox m_ComboBoxParentID;
@@ -67,7 +67,7 @@ namespace CsvTools
       m_DataRow = dataRows;
       InitializeComponent();
       m_TimerSearch.Elapsed += FilterValueChangedElapsed;
-      m_TimerSearch.Interval = 500;
+      m_TimerSearch.Interval = 200;
       m_TimerSearch.AutoReset = false;
 
       m_TimerDisplay.Elapsed += TimerDisplayElapsed;
@@ -96,12 +96,10 @@ namespace CsvTools
         return;
       if (disposing)
       {
-        if (components != null)
-          components.Dispose();
+        components?.Dispose();
         m_TimerDisplay.Dispose();
         m_TimerSearch.Dispose();
-        if (m_BuildProcess != null)
-          m_BuildProcess.Dispose();
+        m_BuildProcess?.Dispose();
 
         m_CancellationTokenSource.Dispose();
       }
@@ -114,8 +112,10 @@ namespace CsvTools
     /// </summary>
     /// <param name="root">The root.</param>
     /// <param name="rootNode">The root node.</param>
+    /// <param name="process">Progress display</param>
     private void AddTreeDataNodeWithChilds(TreeData root, TreeNode rootNode, IProcessDisplay process)
     {
+      if (process == null) throw new ArgumentNullException(nameof(process));
       Contract.Requires(root != null);
       root.Visited = true;
       var treeNode = new TreeNode(root.NodeTitle) { Tag = root };
@@ -131,9 +131,11 @@ namespace CsvTools
     ///   Builds the sub nodes.
     /// </summary>
     /// <param name="parent">The parent ID.</param>
+    /// <param name="process">Progress display</param>
     /// <returns></returns>
     private TreeNode[] BuildSubNodes(TreeData parent, IProcessDisplay process)
     {
+      if (process == null) throw new ArgumentNullException(nameof(process));
       Contract.Requires(parent != null);
       var treeNodes = new List<TreeNode>();
       foreach (var child in parent.Children)
@@ -175,6 +177,7 @@ namespace CsvTools
       }
       catch (Exception)
       {
+        // ignored
       }
       finally
       {
@@ -215,11 +218,7 @@ namespace CsvTools
       foreach (var dataRow in m_DataRow)
       {
         process.CancellationToken.ThrowIfCancellationRequested();
-        counter++;
-        intervalAction.Invoke(delegate
-        {
-          process.SetProcess($"Parent found {counter}/{process.Maximum} ", counter, false);
-        });
+        intervalAction.Invoke(count => process.SetProcess($"Parent found {count}/{process.Maximum} ", count, false), counter++);
         var id = dataRow[dataColumnID.Ordinal].ToString();
         if (string.IsNullOrEmpty(id))
           continue;
@@ -264,11 +263,7 @@ namespace CsvTools
         foreach (var parentID in additionalRootNodes)
         {
           process.CancellationToken.ThrowIfCancellationRequested();
-          counter++;
-          intervalAction.Invoke(delegate
-          {
-            process.SetProcess($"Parent not found (Step 1) {counter}/{process.Maximum} ", counter, false);
-          });
+          intervalAction.Invoke(count => process.SetProcess($"Parent not found (Step 1) {count}/{process.Maximum} ", count, false), counter++);
           var childData = new TreeData
           {
             ParentID = rootDataParentNotFound.ID,
@@ -284,11 +279,7 @@ namespace CsvTools
       foreach (var child in treeDataDictionary.Values)
       {
         process.CancellationToken.ThrowIfCancellationRequested();
-        counter++;
-        intervalAction.Invoke(delegate
-        {
-          process.SetProcess($"Parent not found (Step 2) {counter}/{process.Maximum} ", counter, false);
-        });
+        intervalAction.Invoke(count => process.SetProcess($"Parent not found (Step 2) {count}/{process.Maximum} ", count, false), counter++);
         if (string.IsNullOrEmpty(child.ParentID) && child.ID != rootDataParentFound.ID &&
             child.ID != rootDataParentNotFound.ID)
         {
@@ -302,11 +293,7 @@ namespace CsvTools
       foreach (var child in treeDataDictionary.Values)
       {
         process.CancellationToken.ThrowIfCancellationRequested();
-        counter++;
-        intervalAction.Invoke(delegate
-        {
-          process.SetProcess($"Set children {counter}/{process.Maximum} ", counter, false);
-        });
+        intervalAction.Invoke(count => process.SetProcess($"Set children {count}/{process.Maximum} ", count, false), counter++);
         if (!string.IsNullOrEmpty(child.ParentID))
           treeDataDictionary[child.ParentID].Children.Add(child);
       }
@@ -648,7 +635,7 @@ namespace CsvTools
       return false;
     }
 
-    private void Search(string text, TreeNodeCollection nodes, System.Threading.CancellationToken token)
+    private void Search(string text, ICollection nodes, System.Threading.CancellationToken token)
     {
       if (nodes == null)
         return;
