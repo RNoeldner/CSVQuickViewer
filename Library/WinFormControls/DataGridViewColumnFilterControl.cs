@@ -54,34 +54,7 @@ namespace CsvTools
 
       comboBoxOperator.BeginUpdate();
       comboBoxOperator.Items.Clear();
-
-      if (m_DataGridViewColumnFilter.ColumnDataType == typeof(string))
-        comboBoxOperator.Items.AddRange(new object[] { ColumnFilterLogic.cOPcontains, ColumnFilterLogic.cOPbegins, ColumnFilterLogic.cOPends });
-
-      comboBoxOperator.Items.AddRange(new object[] { ColumnFilterLogic.cOPequal, ColumnFilterLogic.cOPnotEqual });
-
-      if (m_DataGridViewColumnFilter.ColumnDataType == typeof(string))
-        comboBoxOperator.Items.AddRange(new object[] { ColumnFilterLogic.cOpLonger, ColumnFilterLogic.cOPshorter });
-
-      if (isNumeric || isDate)
-        comboBoxOperator.Items.AddRange(new object[] { ColumnFilterLogic.cOPsmaller, ColumnFilterLogic.cOPsmallerequal, ColumnFilterLogic.cOPbiggerEqual, ColumnFilterLogic.cOPbigger });
-
-      // comboBoxOperator.Items.AddRange(m_DataGridViewColumnFilter.ColumnDataType == typeof(string)
-      //   ? new object[]
-      //   {
-      //     ColumnFilterLogic.cOPcontains, ColumnFilterLogic.cOPbegins, ColumnFilterLogic.cOPends,
-      //     ColumnFilterLogic.cOPequal, ColumnFilterLogic.cOPnotEqual, ColumnFilterLogic.cOPisNull,
-      //     ColumnFilterLogic.cOPisNotNull, ColumnFilterLogic.cOpLonger, ColumnFilterLogic.cOPshorter
-      //   }
-      //   : new object[]
-      //   {
-      //     ColumnFilterLogic.cOPisNotNull, ColumnFilterLogic.cOPsmaller, ColumnFilterLogic.cOPsmallerequal,
-      //     ColumnFilterLogic.cOPequal, ColumnFilterLogic.cOPnotEqual, ColumnFilterLogic.cOPbiggerEqual,
-      //     ColumnFilterLogic.cOPbigger, ColumnFilterLogic.cOPisNull, ColumnFilterLogic.cOPisNotNull
-      //   });
-
-      comboBoxOperator.Items.AddRange(new object[] { ColumnFilterLogic.cOPisNull, ColumnFilterLogic.cOPisNotNull });
-
+      comboBoxOperator.Items.AddRange(ColumnFilterLogic.GetOperators(m_DataGridViewColumnFilter.ColumnDataType));
       comboBoxOperator.SelectedIndex = 0;
       comboBoxOperator.EndUpdate();
     }
@@ -123,12 +96,11 @@ namespace CsvTools
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
     private void ComboBoxOperator_SelectedIndexChanged(object sender, EventArgs e)
     {
+      var isNotNullCompare = ColumnFilterLogic.IsNotNullCompare(comboBoxOperator.Text);
       try
       {
-        dateTimePickerValue.Enabled = comboBoxOperator.Text != ColumnFilterLogic.cOPisNotNull &&
-                                      comboBoxOperator.Text != ColumnFilterLogic.cOPisNull;
-        textBoxValue.Enabled = comboBoxOperator.Text != ColumnFilterLogic.cOPisNotNull &&
-                               comboBoxOperator.Text != ColumnFilterLogic.cOPisNull;
+        dateTimePickerValue.Enabled = isNotNullCompare;
+        textBoxValue.Enabled = isNotNullCompare;
         m_DataGridViewColumnFilter.Operator = comboBoxOperator.Text;
       }
       catch (Exception ex)
@@ -148,17 +120,17 @@ namespace CsvTools
       {
         if (m_DataGridViewColumnFilter.ColumnDataType == typeof(DateTime))
         {
-          if (!(sender is DateTimePicker dtp))
+          if (!(sender is DateTimePicker dateTimePicker))
             return;
 
-          m_DataGridViewColumnFilter.ValueDateTime = dtp.Value;
+          m_DataGridViewColumnFilter.ValueDateTime = dateTimePicker.Value;
         }
         else
         {
-          if (!(sender is TextBox tb))
+          if (!(sender is TextBox textBox))
             return;
 
-          m_DataGridViewColumnFilter.ValueText = tb.Text;
+          m_DataGridViewColumnFilter.ValueText = textBox.Text;
         }
       }
       catch (Exception ex)

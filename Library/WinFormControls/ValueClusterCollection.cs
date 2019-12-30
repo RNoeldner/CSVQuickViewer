@@ -207,7 +207,7 @@ namespace CsvTools
             {
               Display = $"{from:t} - {to:t}",
               SQLCondition = string.Format(CultureInfo.InvariantCulture,
-                @"([{0}} >= #{1:MM\/dd\/yyyy HH:mm}# AND {0} < #{2:MM\/dd\/yyyy HH:mm}#)",
+                @"([{0}] >= #{1:MM\/dd\/yyyy HH:mm}# AND {0} < #{2:MM\/dd\/yyyy HH:mm}#)",
                 columnName.SqlName(), from, to),
               Sort = GetHourSort(dic)
             });
@@ -216,7 +216,7 @@ namespace CsvTools
           {
             m_ValueClusters.Add(new ValueCluster
             {
-              Display = ColumnFilterLogic.cOPisNull,
+              Display = ColumnFilterLogic.OperatorIsNull,
               SQLCondition = string.Format(CultureInfo.InvariantCulture, "([{0}] IS NULL)",
                 columnName.SqlName()),
               Sort = string.Empty
@@ -244,7 +244,7 @@ namespace CsvTools
           {
             m_ValueClusters.Add(new ValueCluster
             {
-              Display = ColumnFilterLogic.cOPisNull,
+              Display = ColumnFilterLogic.OperatorIsNull,
               SQLCondition =
                 string.Format(CultureInfo.InvariantCulture, c_IsNull, columnName.SqlName()),
               Sort = string.Empty
@@ -272,7 +272,7 @@ namespace CsvTools
           {
             m_ValueClusters.Add(new ValueCluster
             {
-              Display = ColumnFilterLogic.cOPisNull,
+              Display = ColumnFilterLogic.OperatorIsNull,
               SQLCondition =
                 string.Format(CultureInfo.InvariantCulture, c_IsNull, columnName.SqlName()),
               Sort = string.Empty
@@ -300,7 +300,7 @@ namespace CsvTools
           {
             m_ValueClusters.Add(new ValueCluster
             {
-              Display = ColumnFilterLogic.cOPisNull,
+              Display = ColumnFilterLogic.OperatorIsNull,
               SQLCondition =
                 string.Format(CultureInfo.InvariantCulture, c_IsNull, columnName.SqlName()),
               Sort = string.Empty
@@ -327,7 +327,7 @@ namespace CsvTools
       var clusterFractions = new HashSet<double>();
       var clusterOne = new HashSet<long>();
       var clusterTen = new HashSet<long>();
-      var clusterHundered = new HashSet<long>();
+      var clusterHundred = new HashSet<long>();
       var clusterThousand = new HashSet<long>();
 
       var columnName = dataTable.Columns[columnIndex].ColumnName;
@@ -338,7 +338,7 @@ namespace CsvTools
           clusterFractions.Add(int.MinValue);
           clusterOne.Add(int.MinValue);
           clusterTen.Add(int.MinValue);
-          clusterHundered.Add(int.MinValue);
+          clusterHundred.Add(int.MinValue);
         }
         else
         {
@@ -351,7 +351,7 @@ namespace CsvTools
           var key = Convert.ToInt64(dataRow[columnIndex], CultureInfo.CurrentCulture);
           clusterOne.Add(key);
           clusterTen.Add(key / 10);
-          clusterHundered.Add(key / 100);
+          clusterHundred.Add(key / 100);
           clusterThousand.Add(key / 1000);
         }
 
@@ -388,7 +388,7 @@ namespace CsvTools
           {
             m_ValueClusters.Add(new ValueCluster
             {
-              Display = ColumnFilterLogic.cOPisNull,
+              Display = ColumnFilterLogic.OperatorIsNull,
               SQLCondition = string.Format(CultureInfo.InvariantCulture, "({0} IS NULL)", colNameEsc),
               Sort = string.Empty
             });
@@ -414,7 +414,7 @@ namespace CsvTools
           {
             m_ValueClusters.Add(new ValueCluster
             {
-              Display = ColumnFilterLogic.cOPisNull,
+              Display = ColumnFilterLogic.OperatorIsNull,
               SQLCondition = string.Format(CultureInfo.InvariantCulture, "({0} IS NULL)", colNameEsc),
               Sort = string.Empty
             });
@@ -440,17 +440,17 @@ namespace CsvTools
           {
             m_ValueClusters.Add(new ValueCluster
             {
-              Display = ColumnFilterLogic.cOPisNull,
+              Display = ColumnFilterLogic.OperatorIsNull,
               SQLCondition = string.Format(CultureInfo.InvariantCulture, "({0} IS NULL)", colNameEsc),
               Sort = string.Empty
             });
           }
         }
       }
-      else if (clusterHundered.Count < maxNumber)
+      else if (clusterHundred.Count < maxNumber)
       {
         m_Type = ValueClustersGroupType.NumericHundreds;
-        foreach (var dic in clusterHundered.OrderBy(x => x))
+        foreach (var dic in clusterHundred.OrderBy(x => x))
         {
           if (dic != int.MinValue)
           {
@@ -466,7 +466,7 @@ namespace CsvTools
           {
             m_ValueClusters.Add(new ValueCluster
             {
-              Display = ColumnFilterLogic.cOPisNull,
+              Display = ColumnFilterLogic.OperatorIsNull,
               SQLCondition = string.Format(CultureInfo.InvariantCulture, "({0} IS NULL)", colNameEsc),
               Sort = string.Empty
             });
@@ -492,7 +492,7 @@ namespace CsvTools
           {
             m_ValueClusters.Add(new ValueCluster
             {
-              Display = ColumnFilterLogic.cOPisNull,
+              Display = ColumnFilterLogic.OperatorIsNull,
               SQLCondition = string.Format(CultureInfo.InvariantCulture, "({0} IS NULL)", colNameEsc),
               Sort = string.Empty
             });
@@ -519,7 +519,7 @@ namespace CsvTools
       var cluster = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
       foreach (DataRow dataRow in dataTable.Rows)
       {
-        var key = dataRow[columnIndex] == DBNull.Value ? ColumnFilterLogic.cOPisNull : dataRow[columnIndex].ToString();
+        var key = dataRow[columnIndex] == DBNull.Value ? ColumnFilterLogic.OperatorIsNull : dataRow[columnIndex].ToString();
         cluster.Add(key);
         // if we have more than the maximum entries stop, no value filter will be used
         if (cluster.Count <= maxNumber)
@@ -539,7 +539,7 @@ namespace CsvTools
         m_ValueClusters.Add(new ValueCluster
         {
           Display = text,
-          Sort = text == ColumnFilterLogic.cOPisNull ? string.Empty : text
+          Sort = text == ColumnFilterLogic.OperatorIsNull ? string.Empty : text
         });
       }
 
@@ -645,7 +645,7 @@ namespace CsvTools
     {
       foreach (DataRowView dataRow in dataView)
       {
-        var key = dataRow[columnIndex] == DBNull.Value ? ColumnFilterLogic.cOPisNull : dataRow[columnIndex].ToString();
+        var key = dataRow[columnIndex] == DBNull.Value ? ColumnFilterLogic.OperatorIsNull : dataRow[columnIndex].ToString();
 
         foreach (var item in m_ValueClusters)
         {

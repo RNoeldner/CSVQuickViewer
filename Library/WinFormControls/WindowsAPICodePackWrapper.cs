@@ -6,12 +6,12 @@ namespace CsvTools
 {
   public static class WindowsAPICodePackWrapper
   {
-    private static readonly bool s_CommonFileDialogSupported = CommonFileDialog.IsPlatformSupported;
-    private static bool s_TaskbarManagerSupported = TaskbarManager.IsPlatformSupported;
+    private static readonly bool m_CommonFileDialogSupported = CommonFileDialog.IsPlatformSupported;
+    private static bool m_TaskbarManagerSupported = TaskbarManager.IsPlatformSupported;
 
-    public static string Open(string InitialDirectory, string title, string filter, string preselectFileName)
+    public static string Open(string initialDirectory, string title, string filter, string preselectFileName)
     {
-      if (s_CommonFileDialogSupported)
+      if (m_CommonFileDialogSupported)
       {
         using (var commonOpenFileDialog = new CommonOpenFileDialog(title))
         {
@@ -25,7 +25,7 @@ namespace CsvTools
           commonOpenFileDialog.IsFolderPicker = false;
           if (!string.IsNullOrEmpty(preselectFileName))
             commonOpenFileDialog.DefaultFileName = preselectFileName;
-          commonOpenFileDialog.InitialDirectory = InitialDirectory.RemovePrefix();
+          commonOpenFileDialog.InitialDirectory = initialDirectory.RemovePrefix();
           if (commonOpenFileDialog.ShowDialog() == CommonFileDialogResult.Ok)
             return commonOpenFileDialog.FileName.LongFileName();
         }
@@ -36,7 +36,7 @@ namespace CsvTools
         {
           openFileDialogReference.AddExtension = false;
           openFileDialogReference.Filter = filter;
-          openFileDialogReference.InitialDirectory = InitialDirectory.RemovePrefix();
+          openFileDialogReference.InitialDirectory = initialDirectory.RemovePrefix();
           if (!string.IsNullOrEmpty(preselectFileName))
             openFileDialogReference.FileName = preselectFileName;
           if (openFileDialogReference.ShowDialog() == DialogResult.OK)
@@ -46,9 +46,9 @@ namespace CsvTools
       return null;
     }
 
-    public static string Save(string InitialDirectory, string title, string filter, string defaultExt, string preselectFileName)
+    public static string Save(string initialDirectory, string title, string filter, string defaultExt, string preselectFileName)
     {
-      if (s_CommonFileDialogSupported)
+      if (m_CommonFileDialogSupported)
       {
         using (var commonOpenFileDialog = new CommonSaveFileDialog(title))
         {
@@ -57,7 +57,7 @@ namespace CsvTools
           while (parts.Length > part + 2)
             commonOpenFileDialog.Filters.Add(new CommonFileDialogFilter(parts[part++], parts[part++]));
           commonOpenFileDialog.DefaultExtension = defaultExt;
-          commonOpenFileDialog.InitialDirectory = InitialDirectory.RemovePrefix();
+          commonOpenFileDialog.InitialDirectory = initialDirectory.RemovePrefix();
           commonOpenFileDialog.EnsurePathExists = true;
           commonOpenFileDialog.EnsureValidNames = true;
           commonOpenFileDialog.OverwritePrompt = true;
@@ -79,7 +79,7 @@ namespace CsvTools
           saveFileDialog.CheckPathExists = true;
           saveFileDialog.RestoreDirectory = true;
           saveFileDialog.Title = title;
-          saveFileDialog.InitialDirectory = InitialDirectory.RemovePrefix();
+          saveFileDialog.InitialDirectory = initialDirectory.RemovePrefix();
           if (!string.IsNullOrEmpty(preselectFileName))
             saveFileDialog.FileName = preselectFileName;
 
@@ -90,9 +90,9 @@ namespace CsvTools
       return null;
     }
 
-    public static string Folder(string initialDiretory, string title)
+    public static string Folder(string initialDirectory, string title)
     {
-      if (s_CommonFileDialogSupported)
+      if (m_CommonFileDialogSupported)
       {
         using (var commonOpenFileDialog = new CommonOpenFileDialog(title))
         {
@@ -100,7 +100,7 @@ namespace CsvTools
           commonOpenFileDialog.EnsurePathExists = true;
           commonOpenFileDialog.AllowNonFileSystemItems = false;
           commonOpenFileDialog.IsFolderPicker = true;
-          commonOpenFileDialog.InitialDirectory = initialDiretory;
+          commonOpenFileDialog.InitialDirectory = initialDirectory;
           if (commonOpenFileDialog.ShowDialog() == CommonFileDialogResult.Ok)
             return commonOpenFileDialog.FileName;
         }
@@ -108,7 +108,7 @@ namespace CsvTools
       else
         using (var folderDialog = new FolderTree())
         {
-          folderDialog.SetCurrentPath(initialDiretory);
+          folderDialog.SetCurrentPath(initialDirectory);
           if (folderDialog.ShowDialog() == DialogResult.OK)
             return folderDialog.SelectedPath;
         }
@@ -117,7 +117,7 @@ namespace CsvTools
 
     public static void SetProgressState(bool noProgress)
     {
-      if (!s_TaskbarManagerSupported)
+      if (!m_TaskbarManagerSupported)
         return;
       try
       {
@@ -129,13 +129,13 @@ namespace CsvTools
       catch (System.Exception)
       {
         //ignore
-        s_TaskbarManagerSupported = false;
+        m_TaskbarManagerSupported = false;
       }
     }
 
     public static void SetProgressValue(int currentValue, int maximumValue)
     {
-      if (!s_TaskbarManagerSupported)
+      if (!m_TaskbarManagerSupported)
         return;
       try
       {
@@ -144,7 +144,7 @@ namespace CsvTools
       catch (System.Exception)
       {
         //ignore
-        s_TaskbarManagerSupported = false;
+        m_TaskbarManagerSupported = false;
       }
     }
 

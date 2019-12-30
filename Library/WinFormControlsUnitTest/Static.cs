@@ -44,10 +44,10 @@ namespace CsvTools.Tests
 
     private static string GetRandomText(int length)
     {
-      const string cBase = "012345abcdefghijklmnopqrstuvwxyz6789ABCDEFGHIJKLMNOPQRSTUVWXYZ,.*$%&!";
+      const string c_Base = "012345abcdefghijklmnopqrstuvwxyz6789ABCDEFGHIJKLMNOPQRSTUVWXYZ,.*$%&!";
       var builder = new char[length];
       for (var i = 0; i < length; i++)
-        builder[i] = cBase[Convert.ToInt32(Math.Floor(cBase.Length * SecureString.Random.NextDouble()))];
+        builder[i] = c_Base[Convert.ToInt32(Math.Floor(c_Base.Length * SecureString.Random.NextDouble()))];
       return new string(builder);
     }
 
