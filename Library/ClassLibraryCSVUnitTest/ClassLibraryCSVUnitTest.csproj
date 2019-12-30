@@ -429,6 +429,9 @@
     <PackageReference Include="BouncyCastle.OpenPgp">
       <Version>1.8.1.1</Version>
     </PackageReference>
+    <PackageReference Include="JetBrains.DotMemoryUnit">
+      <Version>3.0.20171219.105559</Version>
+    </PackageReference>
     <PackageReference Include="NodaTime">
       <Version>2.4.7</Version>
     </PackageReference>

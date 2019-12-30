@@ -76,8 +76,8 @@ namespace CsvTools.Tests
         frm.Show();
         frm.SetCurrentPath("C:\\");
         frm.Refresh();
-        frm.ShowError(new ApplicationException("Exception"), "Title");
-        System.Threading.Thread.Sleep(200);
+        //frm.ShowError(new ApplicationException("Exception"), "Title" );
+        frm.Close();
       }
     }
 
