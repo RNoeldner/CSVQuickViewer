@@ -70,9 +70,24 @@ namespace CsvTools
       return 0;
     }
 
+    /// <summary>
+    /// Determines whether this text contains the another text
+    /// </summary>
+    /// <param name="text">The text to be checked </param>
+    /// <param name="toCheck">To text find.</param>
+    /// <param name="comp">The comparison.</param>
+    /// <returns>
+    ///   <c>true</c> if teh text does contains the check; otherwise, <c>false</c>.
+    /// </returns>
     public static bool Contains(this string text, string toCheck, StringComparison comp) => text?.IndexOf(toCheck, comp) >= 0;
 
-    public static int CountOccurance(this string text, string pattern)
+    /// <summary>
+    /// Counts the number of occurence of a pattern in a text.
+    /// </summary>
+    /// <param name="text">The text.</param>
+    /// <param name="pattern">The pattern.</param>
+    /// <returns></returns>
+    public static int CountOccurence(this string text, string pattern)
     {
       if (string.IsNullOrEmpty(pattern))
         return 0;
@@ -143,14 +158,14 @@ namespace CsvTools
       Contract.Requires(text != null);
       Contract.Ensures(Contract.Result<string>() != null);
       // Replace everything Unicode LINE SEPARATOR
-      const string c_PlaceholerStr = "\u2028";
-      const char c_PlaceholerChar = '\u2028';
-      text = text.Replace("\r\n", c_PlaceholerStr);
-      text = text.Replace("\n\r", c_PlaceholerStr);
-      text = text.Replace('\r', c_PlaceholerChar);
-      text = text.Replace('\n', c_PlaceholerChar);
+      const string c_PlaceholderStr = "\u2028";
+      const char c_PlaceholderChar = '\u2028';
+      text = text.Replace("\r\n", c_PlaceholderStr);
+      text = text.Replace("\n\r", c_PlaceholderStr);
+      text = text.Replace('\r', c_PlaceholderChar);
+      text = text.Replace('\n', c_PlaceholderChar);
       // now replace this with the desired replace (no matter if string or char)
-      return text.Replace(c_PlaceholerStr, replace);
+      return text.Replace(c_PlaceholderStr, replace);
     }
 
     /// <summary>
@@ -232,27 +247,27 @@ namespace CsvTools
     /// <param name="previousColumns">
     ///   A collection of already used names, these will not be changed
     /// </param>
-    /// <param name="nametoadd">The default name</param>
+    /// <param name="nameToAdd">The default name</param>
     /// <returns>The unique name</returns>
-    public static string MakeUniqueInCollection(ICollection<string> previousColumns, string nametoadd)
+    public static string MakeUniqueInCollection(ICollection<string> previousColumns, string nameToAdd)
     {
-      if (nametoadd is null)
-        throw new ArgumentNullException(nameof(nametoadd));
+      if (nameToAdd is null)
+        throw new ArgumentNullException(nameof(nameToAdd));
       Contract.Requires(previousColumns != null);
-      if (!previousColumns.Contains(nametoadd))
-        return nametoadd;
+      if (!previousColumns.Contains(nameToAdd))
+        return nameToAdd;
 
       // The name is present already
 
       // cut off any trailing numbers
-      nametoadd = nametoadd.TrimEnd('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '\t', ' ');
+      nameToAdd = nameToAdd.TrimEnd('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '\t', ' ');
 
       // add 1 for the first add 2 for the second etc
       var counterAdd = 1;
       string fieldName;
       do
       {
-        fieldName = nametoadd + counterAdd++;
+        fieldName = nameToAdd + counterAdd++;
       } while (previousColumns.Contains(fieldName));
 
       return fieldName;
@@ -263,7 +278,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="original">The original text.</param>
     /// <returns>The original text without control characters</returns>
-    public static string NoControlCharaters(this string original)
+    public static string NoControlCharacters(this string original)
     {
       if (original is null)
         throw new ArgumentNullException(nameof(original));

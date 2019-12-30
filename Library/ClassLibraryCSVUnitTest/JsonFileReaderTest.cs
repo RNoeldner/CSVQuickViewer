@@ -157,7 +157,7 @@ namespace CsvTools.Tests
         Assert.IsTrue(jfr.IsDBNull(jfr.GetOrdinal("ASSIGN_2ND_DEPT")));
         Assert.AreEqual((Int16) 0, jfr.GetInt16(jfr.GetOrdinal("Approvals")));
         Assert.AreEqual(0, jfr.GetInt32(jfr.GetOrdinal("Approvals")));
-        Assert.AreEqual(0l, jfr.GetInt64(jfr.GetOrdinal("Approvals")));
+        Assert.AreEqual(0L, jfr.GetInt64(jfr.GetOrdinal("Approvals")));
         Assert.AreEqual(0f, jfr.GetFloat(jfr.GetOrdinal("Approvals")));
         Assert.AreEqual((decimal)0, jfr.GetDecimal(jfr.GetOrdinal("Approvals")));
         Assert.AreEqual((double)0, jfr.GetDouble(jfr.GetOrdinal("Approvals")));

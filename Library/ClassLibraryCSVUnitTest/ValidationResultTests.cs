@@ -26,7 +26,6 @@ namespace CsvTools.Tests
 
     {
       var validationResult = new ValidationResult("Hello", 0, -1, -1);
-      Assert.IsTrue(validationResult is IValidationResult);
       Assert.AreEqual("Hello", validationResult.TableName);
       Assert.AreEqual(-1, validationResult.WarningCount);
       Assert.AreEqual(-1, validationResult.ErrorCount);

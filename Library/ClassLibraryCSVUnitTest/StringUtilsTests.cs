@@ -22,17 +22,17 @@ namespace CsvTools.Tests
   public class StringUtilsTests
   {
     [TestMethod]
-    public void CountOccurance()
+    public void CountOccurence()
     {
-      Assert.AreEqual(0, StringUtils.CountOccurance("", "."));
-      Assert.AreEqual(1, StringUtils.CountOccurance(",.,", "."));
-      Assert.AreEqual(2, StringUtils.CountOccurance(",.,", ","));
+      Assert.AreEqual(0, "".CountOccurence("."));
+      Assert.AreEqual(1, StringUtils.CountOccurence(",.,", "."));
+      Assert.AreEqual(2, StringUtils.CountOccurence(",.,", ","));
     }
 
     [TestMethod]
     public void Join()
     {
-      Assert.AreEqual("", StringUtils.Join(new string[] { }, ","));
+      Assert.AreEqual("", new string[] { }.Join(","));
       Assert.AreEqual("2", StringUtils.Join(new string[] { "2" }, ","));
       Assert.AreEqual("2,3", StringUtils.Join(new string[] { "2", "3" }, ","));
       Assert.AreEqual("2; 3", StringUtils.Join(new string[] { "2", "3" }, "; "));

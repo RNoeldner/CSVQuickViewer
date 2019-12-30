@@ -897,7 +897,7 @@ namespace CsvTools
 
     public virtual void SetSqlStatementRename(string value)
     {
-      var newVal = (value ?? string.Empty).NoControlCharaters();
+      var newVal = (value ?? string.Empty).NoControlCharacters();
       m_SqlStatement = newVal;
     }
 
@@ -918,7 +918,7 @@ namespace CsvTools
 
       set
       {
-        var newVal = (value ?? string.Empty).NoControlCharaters();
+        var newVal = (value ?? string.Empty).NoControlCharacters();
         if (m_SqlStatement.Equals(newVal, StringComparison.Ordinal))
           return;
         m_SqlStatement = newVal;

@@ -74,9 +74,9 @@ namespace CsvTools.Tests
       var test = new IntervalAction();
       long called = -1;
       test.Invoke(delegate (long l) { called = l; }, 666);
-      Assert.AreEqual(666l, called);
+      Assert.AreEqual(666L, called);
       test.Invoke(delegate (long l) { called = l; }, 669);
-      Assert.AreNotEqual(669l, called);
+      Assert.AreNotEqual(669L, called);
     }
 
     [TestMethod]
@@ -92,7 +92,7 @@ namespace CsvTools.Tests
         calledS = s;
         calledB = arg3;
       }, "Hello", -10, true);
-      Assert.AreEqual(-10l, called);
+      Assert.AreEqual(-10L, called);
       Assert.AreEqual("Hello", calledS);
       Assert.AreEqual(true, calledB);
       test.Invoke((s, l, arg3) =>
