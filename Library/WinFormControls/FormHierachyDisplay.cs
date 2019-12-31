@@ -92,19 +92,20 @@ namespace CsvTools
     /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
     protected override void Dispose(bool disposing)
     {
+
       if (m_DisposedValue)
         return;
       if (disposing)
       {
+        m_DisposedValue = true;
         components?.Dispose();
-        m_TimerDisplay.Dispose();
-        m_TimerSearch.Dispose();
+        m_TimerDisplay?.Dispose();
+        m_TimerSearch?.Dispose();
         m_BuildProcess?.Dispose();
-
-        m_CancellationTokenSource.Dispose();
+        m_CancellationTokenSource?.Dispose();
       }
+
       base.Dispose(disposing);
-      m_DisposedValue = true;
     }
 
     /// <summary>

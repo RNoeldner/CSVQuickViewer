@@ -9,6 +9,7 @@
     /// Required designer variable.
     /// </summary>
     private System.ComponentModel.IContainer components = null;
+    private bool m_DisposedValue; // To detect redundant calls
 
     /// <summary>
     /// Clean up any resources being used.
@@ -16,13 +17,14 @@
     /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
     protected override void Dispose(bool disposing)
     {
-      if (disposing && (components != null))
-      {
-        components.Dispose();
-      }
-      if (m_CancellationTokenSource != null)
-        m_CancellationTokenSource.Dispose();
+      if (m_DisposedValue) return;
 
+      if (disposing)
+      {
+        m_DisposedValue = true;
+        components?.Dispose();
+        m_CancellationTokenSource?.Dispose();
+      }
       base.Dispose(disposing);
     }
 
@@ -225,7 +227,7 @@
       // 
       // labelSepBy
       // 
-      labelSepBy.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+      labelSepBy.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
       labelSepBy.AutoSize = true;
       labelSepBy.Location = new System.Drawing.Point(60, 18);
@@ -237,7 +239,7 @@
       // 
       // labelPart
       // 
-      labelPart.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+      labelPart.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
       labelPart.AutoSize = true;
       labelPart.Location = new System.Drawing.Point(118, 54);
@@ -387,7 +389,7 @@
       this.comboBoxDateFormat.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
       this.comboBoxDateFormat.Name = "comboBoxDateFormat";
       this.comboBoxDateFormat.Size = new System.Drawing.Size(246, 28);
-      this.comboBoxDateFormat.TabIndex = 6;      
+      this.comboBoxDateFormat.TabIndex = 6;
       this.comboBoxDateFormat.TextChanged += new System.EventHandler(this.DateFormatChanged);
       // 
       // buttonAddFormat

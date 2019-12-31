@@ -472,25 +472,18 @@ namespace CsvTools
     /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
     protected override void Dispose(bool disposing)
     {
-      if (m_DisposedValue)
-        return;
+      if (m_DisposedValue)  return;
       if (disposing)
       {
-        if (components != null)
-          components.Dispose();
-        if (m_CurrentSearch != null)
-          m_CurrentSearch.Dispose();
-        if (m_DataTable != null)
-          m_DataTable.Dispose();
-        if (m_FilterDataTable != null)
-          m_FilterDataTable.Dispose();
-        if (m_HierachyDisplay != null)
-          m_HierachyDisplay.Dispose();
-
-        m_CancellationTokenSource.Dispose();
+        m_DisposedValue = true;
+        components?.Dispose();
+        m_CurrentSearch?.Dispose();
+        m_DataTable?.Dispose();
+        m_FilterDataTable?.Dispose();
+        m_HierachyDisplay?.Dispose();
+        m_CancellationTokenSource?.Dispose();
       }
       base.Dispose(disposing);
-      m_DisposedValue = true;
     }
 
     /// <summary>
