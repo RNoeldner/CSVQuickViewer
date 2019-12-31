@@ -9,6 +9,7 @@
     /// Required designer variable.
     /// </summary>
     private System.ComponentModel.IContainer components = null;
+    private bool m_DisposedValue; // To detect redundant calls
 
     /// <summary>
     /// Clean up any resources being used.
@@ -16,11 +17,15 @@
     /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
     protected override void Dispose(bool disposing)
     {
-      if (disposing && (components != null))
+      if (m_DisposedValue)
+        return;
+      if (disposing)
       {
-        components.Dispose();
+        m_DisposedValue = true;
+        components?.Dispose();
+        m_CancellationTokenSource?.Dispose();
       }
-      m_CancellationTokenSource.Dispose();
+
       base.Dispose(disposing);
     }
 
@@ -147,6 +152,6 @@
     private System.Windows.Forms.ComboBox comboBoxID;
     private DetailControl detailControl;
     private System.Windows.Forms.CheckBox checkBoxIgnoreNull;
-   
+
   }
 }

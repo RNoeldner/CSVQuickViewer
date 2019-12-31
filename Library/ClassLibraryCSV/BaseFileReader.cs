@@ -107,7 +107,7 @@ namespace CsvTools
     {
       if (processDisplay != null)
       {
-        processDisplay.Maximum = cMaxValue;
+        processDisplay.Maximum = 0;
         CancellationToken = processDisplay.CancellationToken;
       }
       else
@@ -898,6 +898,9 @@ namespace CsvTools
       if (FieldCount > 0)
         // Override the column settings and store the columns for later reference
         OverrideColumnFormatFromSetting(FieldCount);
+
+      if (ProcessDisplay != null)
+        ProcessDisplay.Maximum = cMaxValue;
     }
 
     protected DateTime? GetDateTimeNull(object inputDate, string strInputDate, object inputTime,

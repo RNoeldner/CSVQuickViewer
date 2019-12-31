@@ -395,25 +395,24 @@ namespace CsvTools
       toolStripMenuItemColumnVisibility.ItemCheck += CheckedListBox_ItemCheck;
       return hasChanges;
     }
-
+    
     /// <summary>
     ///   Clean up any resources being used.
     /// </summary>
     /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
     protected override void Dispose(bool disposing)
     {
+      CloseFilter();
       if (m_DisposedValue)
         return;
       if (disposing)
       {
-        CloseFilter();
+        m_DisposedValue = true;
         components?.Dispose();
-
-        m_CancellationTokenSource.Dispose();
+        m_CancellationTokenSource?.Dispose();
       }
 
       base.Dispose(disposing);
-      m_DisposedValue = true;
     }
 
     /// <summary>

@@ -6,31 +6,28 @@
     /// Required designer variable.
     /// </summary>
     private System.ComponentModel.IContainer components = null;
-
+    private bool m_DisposedValue;
     /// <summary>
     /// Clean up any resources being used.
     /// </summary>
     /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
     protected override void Dispose(bool disposing)
     {
-      if (disposing && (components != null))
+      if (m_DisposedValue) return;
+
+      if (disposing)
       {
-        components.Dispose();
+        m_DisposedValue = true;
+        components?.Dispose();
+        m_CancellationTokenSource?.Dispose();
+        m_CurrentCancellationTokenSource?.Dispose();
+        m_SettingsChangedTimerChange?.Dispose();
       }
-      if (m_CancellationTokenSource != null)
-        m_CancellationTokenSource.Dispose();
-
-      if (m_CurrentCancellationTokenSource != null)
-        m_CurrentCancellationTokenSource.Dispose();
-
-      if (m_SettingsChangedTimerChange != null)
-        m_SettingsChangedTimerChange.Dispose();
-
-
       Microsoft.Win32.SystemEvents.DisplaySettingsChanged -= SystemEvents_DisplaySettingsChanged;
       Microsoft.Win32.SystemEvents.PowerModeChanged -= SystemEvents_PowerModeChanged;
       base.Dispose(disposing);
     }
+
 
     #region Windows Form Designer generated code
 
@@ -156,10 +153,10 @@
     private System.IO.FileSystemWatcher fileSystemWatcher;
     private DetailControl detailControl;
     private LoggerDisplay textBoxProgress;
-    
+
     private System.Windows.Forms.Panel textPanel;
     private System.Windows.Forms.Button buttonCloseText;
-    private CsvTextDisplay csvTextDisplay;    
+    private CsvTextDisplay csvTextDisplay;
 
 
 
