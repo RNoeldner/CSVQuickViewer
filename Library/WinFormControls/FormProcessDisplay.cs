@@ -203,14 +203,14 @@ namespace CsvTools
           Show();
         m_LabelText.Text = text;
 
-        if (value <= 0)
+        if (value <= 0 || Maximum == 0)
         {
           m_LabelEtl.Visible = false;
           m_LabelPercent.Visible = false;
         }
         else
         {
-          m_ProgressBar.Value = TimeToCompletion.Value.ToInt();
+          m_ProgressBar.Value = (TimeToCompletion.Value > m_ProgressBar.Maximum ? m_ProgressBar.Maximum : TimeToCompletion.Value.ToInt());
           m_LabelPercent.Text = TimeToCompletion.PercentDisplay;
           m_LabelEtr.Text = TimeToCompletion.EstimatedTimeRemainingDisplay;
           m_LabelEtl.Visible = m_LabelEtr.Text.Length > 0;

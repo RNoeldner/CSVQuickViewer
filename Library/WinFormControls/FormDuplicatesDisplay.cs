@@ -16,7 +16,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
-using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.Threading;
 using System.Windows.Forms;
@@ -113,16 +112,14 @@ namespace CsvTools
         using (var display = new FormProcessDisplay($"Processing {dataColumnName}", false, m_CancellationTokenSource.Token))
         {
           display.Maximum = m_DataRow.Length;
-          for (var rowIdex = 0; rowIdex < m_DataRow.Length; rowIdex++)
+          display.Show(this);
+          for (var rowIndex = 0; rowIndex < m_DataRow.Length; rowIndex++)
           {
             if (display.CancellationToken.IsCancellationRequested)
               return;
-            intervalAction.Invoke(delegate
-            {
-              display.SetProcess("Getting duplicate values", rowIdex, true);
-            });
+            intervalAction.Invoke(row => display.SetProcess("Getting duplicate values", row, false), rowIndex);
 
-            var id = m_DataRow[rowIdex][dataColumnID.Ordinal].ToString().Trim();
+            var id = m_DataRow[rowIndex][dataColumnID.Ordinal].ToString().Trim();
             //if (id != null)
             //  id = id.Trim();
             if (ignoreNull && string.IsNullOrEmpty(id))
@@ -135,11 +132,11 @@ namespace CsvTools
                 dictFirstIDStored.Add(dupliacteRowIndex);
               }
 
-              dupliacteList.Add(rowIdex);
+              dupliacteList.Add(rowIndex);
             }
             else
             {
-              dictIDToRow.Add(id, rowIdex);
+              dictIDToRow.Add(id, rowIndex);
             }
           }
 
@@ -154,16 +151,12 @@ namespace CsvTools
           var counter = 0;
 
           display.Maximum = dupliacteList.Count;
-          display.Show(this);
+
           foreach (var rowIdex in dupliacteList)
           {
             if (display.CancellationToken.IsCancellationRequested)
               return;
-            counter++;
-            intervalAction.Invoke(delegate
-            {
-              display.SetProcess("Importing Rows to Grid", counter, false);
-            });
+            intervalAction.Invoke(row => display.SetProcess("Importing Rows to Grid", row, false), counter++);
             m_DataTable.ImportRow(m_DataRow[rowIdex]);
           }
 
@@ -184,7 +177,7 @@ namespace CsvTools
             }
             catch (Exception ex)
             {
-              Debug.WriteLine(ex.InnerExceptionMessages());
+              Logger.Warning(ex, "Sorting duplicate list {exception}", ex.SourceExceptionMessage());
             }
           });
         }

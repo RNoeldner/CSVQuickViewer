@@ -70,13 +70,14 @@ namespace CsvTools
     {
       if (processDisplay == null)
         throw new ArgumentNullException(nameof(processDisplay));
-
-      Contract.Requires(fileSetting != null);
-      var result = new List<string>();
+      if (fileSetting == null)
+        throw new ArgumentNullException(nameof(fileSetting));
+           
+      var result = new List<string>();      
 
       // if we should not detect, we can finish
-      if (!(fillGuessSettings.DectectNumbers || fillGuessSettings.DetectBoolean || fillGuessSettings.DetectDateTime ||
-            fillGuessSettings.DetectGUID || fillGuessSettings.DectectPercentage || fillGuessSettings.SerialDateTime))
+      if (!fillGuessSettings.Enabled || !(fillGuessSettings.DectectNumbers || fillGuessSettings.DetectBoolean || fillGuessSettings.DetectDateTime ||
+                                          fillGuessSettings.DetectGUID || fillGuessSettings.DectectPercentage || fillGuessSettings.SerialDateTime))
         return result;
 
       var present = new Collection<Column>(fileSetting.ColumnCollection);
