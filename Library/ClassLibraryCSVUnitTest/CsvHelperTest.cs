@@ -12,10 +12,10 @@
  *
  */
 
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
@@ -52,18 +52,15 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GuessHasHeader()
     {
-      using (var processDisplay = new DummyProcessDisplay())
+      Assert.IsTrue(CsvHelper.GuessHasHeader(new CsvFile
       {
-        Assert.IsTrue(CsvHelper.GuessHasHeader(new CsvFile
-        {
-          FileName = Path.Combine(m_ApplicationDirectory, "BasicCSV.txt")
-        }, processDisplay), "BasicCSV.txt");
+        FileName = Path.Combine(m_ApplicationDirectory, "BasicCSV.txt")
+      }, CancellationToken.None), "BasicCSV.txt");
 
-        Assert.IsFalse(CsvHelper.GuessHasHeader(new CsvFile
-        {
-          FileName = Path.Combine(m_ApplicationDirectory, "txTranscripts.txt")
-        }, processDisplay), "txTranscripts.txt");
-      }
+      Assert.IsFalse(CsvHelper.GuessHasHeader(new CsvFile
+      {
+        FileName = Path.Combine(m_ApplicationDirectory, "txTranscripts.txt")
+      }, CancellationToken.None), "txTranscripts.txt");
     }
 
     [TestMethod]
@@ -289,8 +286,9 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile
       {
-        JsonFormat =  true,
-        FileName = Path.Combine(m_ApplicationDirectory, "Jason1.json"),};
+        JsonFormat = true,
+        FileName = Path.Combine(m_ApplicationDirectory, "Jason1.json"),
+      };
 
       Assert.IsTrue(CsvHelper.GuessJsonFile(setting));
     }

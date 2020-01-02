@@ -40,6 +40,7 @@ namespace CsvTools
     private int m_SampleValues = 150;
     private bool m_SerialDateTime = true;
     private string m_TrueValue = "True";
+    private bool m_Enabled = true;
 
     /// <summary>
     ///   Occurs when a property value changes.
@@ -82,12 +83,25 @@ namespace CsvTools
       }
     }
 
+    [DefaultValue(true)]
+    [XmlElement]
+    public bool Enabled
+    {
+      get => m_Enabled; set
+      {
+        if (m_Enabled == value)
+          return;
+        m_Enabled = value;
+        NotifyPropertyChanged(nameof(Enabled));        
+      }
+    }
+
     /// <summary>
     ///   If set to <c>True</c> values are checked if they have a date part, default is <c>false</c>
     /// </summary>
     [DefaultValue(false)]
     [XmlElement]
-    public bool DateParts { get; set; } 
+    public bool DateParts { get; set; }
 
     /// <summary>
     ///   If set to <c>True</c> values are checked if they could be Numeric, default is <c>True</c>

@@ -12,6 +12,7 @@
  *
  */
 
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -21,7 +22,6 @@ using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Threading;
-using Newtonsoft.Json;
 
 namespace CsvTools
 {
@@ -198,7 +198,7 @@ namespace CsvTools
     /// <returns>
     ///   <c>True</c> we could use the first row as header, <c>false</c> should not use first row as header
     /// </returns>
-    public static bool GuessHasHeader(ICsvFile setting, IProcessDisplay processDisplay)
+    public static bool GuessHasHeader(ICsvFile setting, CancellationToken cancellationToken)
     {
       Contract.Requires(setting != null);
       // Only do so if HasFieldHeader is still true
@@ -208,7 +208,8 @@ namespace CsvTools
         return false;
       }
 
-      using (var csvDataReader = new CsvFileReader(setting, processDisplay))
+      using (var dummy = new DummyProcessDisplay(cancellationToken))
+      using (var csvDataReader = new CsvFileReader(setting, dummy))
       {
         csvDataReader.Open();
 
@@ -362,7 +363,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="file">The file.</param>
     /// <param name="display">The display.</param>
-    public static void RefreshCsvFile(this ICsvFile file, IProcessDisplay display)
+    public static void RefreshCsvFile(this ICsvFile file, IProcessDisplay display, bool guessJson = false, bool guessCodePage = true, bool guessDelimiter = true, bool guessQualifier = true, bool guessStartRow = true, bool guessHasHeader = true)
     {
       Contract.Requires(file != null);
       Contract.Requires(display != null);
@@ -371,29 +372,51 @@ namespace CsvTools
       file.FileName.GetAbsolutePath(root);
 
       display.SetProcess("Checking delimited file", -1, true);
-      GuessCodePage(file);
-      if (display.CancellationToken.IsCancellationRequested)
-        return;
-      display.SetProcess("Code Page: " +
-                         EncodingHelper.GetEncodingName(file.CurrentEncoding.CodePage, true, file.ByteOrderMark), -1, true);
+      file.JsonFormat = false;
+      if (guessJson)
+      {
+        if (CsvHelper.GuessJsonFile(file))
+          file.JsonFormat = true;
+      }
 
-      file.FileFormat.FieldDelimiter = GuessDelimiter(file);
-      if (display.CancellationToken.IsCancellationRequested)
-        return;
-      display.SetProcess("Delimiter: " + file.FileFormat.FieldDelimiter, -1, true);
-
-      var qual = GuessQualifier(file);
-      file.FileFormat.FieldQualifier = qual == '\0' ? string.Empty : char.ToString(qual);
-
-      file.SkipRows = GuessStartRow(file);
-
-      if (display.CancellationToken.IsCancellationRequested)
-        return;
-      if (file.SkipRows > 0)
-        display.SetProcess("Start Row: " + file.SkipRows.ToString(CultureInfo.InvariantCulture), -1, true);
-
-      file.HasFieldHeader = GuessHasHeader(file, display);
-      display.SetProcess("Column Header: " + file.HasFieldHeader, -1, true);
+      if (file.JsonFormat)
+        display.SetProcess("Detected Json file", -1, true);
+      else
+      {
+        if (guessCodePage)
+        {
+          GuessCodePage(file);
+          if (display.CancellationToken.IsCancellationRequested)
+            return;
+          display.SetProcess("Code Page: " +
+                             EncodingHelper.GetEncodingName(file.CurrentEncoding.CodePage, true, file.ByteOrderMark), -1, true);
+        }
+        if (guessDelimiter)
+        {
+          file.FileFormat.FieldDelimiter = GuessDelimiter(file);
+          if (display.CancellationToken.IsCancellationRequested)
+            return;
+          display.SetProcess("Delimiter: " + file.FileFormat.FieldDelimiter, -1, true);
+        }
+        if (guessQualifier)
+        {
+          var qual = GuessQualifier(file);
+          file.FileFormat.FieldQualifier = qual == '\0' ? string.Empty : char.ToString(qual);
+        }
+        if (guessStartRow)
+        {
+          file.SkipRows = GuessStartRow(file);
+          if (display.CancellationToken.IsCancellationRequested)
+            return;
+          if (file.SkipRows > 0)
+            display.SetProcess("Start Row: " + file.SkipRows.ToString(CultureInfo.InvariantCulture), -1, true);
+        }
+        if (guessHasHeader)
+        {
+          file.HasFieldHeader = GuessHasHeader(file, display.CancellationToken);
+          display.SetProcess("Column Header: " + file.HasFieldHeader, -1, true);
+        }
+      }
     }
 
     internal static bool IsJsonReadable(StreamReader streamReader)

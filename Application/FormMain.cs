@@ -12,6 +12,7 @@
  *
  */
 
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -25,7 +26,6 @@ using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
 using System.Xml.Serialization;
-using Microsoft.Win32;
 using Timer = System.Timers.Timer;
 
 namespace CsvTools
@@ -43,7 +43,6 @@ namespace CsvTools
     private readonly Collection<Column> m_StoreColumns = new Collection<Column>();
     private readonly ViewSettings m_ViewSettings;
     private bool m_ConfigChanged;
-    private CancellationTokenSource m_CurrentCancellationTokenSource;
     private bool m_FileChanged;
     private string m_FileName;
     private CsvFile m_FileSetting;
@@ -455,114 +454,73 @@ namespace CsvTools
         m_FileSetting.ID = m_FileName.GetIdFromFileName();
         Logger.Information($"Size of file: {StringConversion.DynamicStorageSize(fileInfo.Length)}");
 
-        using (var cancellationTokenSource =
-          CancellationTokenSource.CreateLinkedTokenSource(m_CancellationTokenSource.Token))
+
+        FrmLimitSize limitSizeForm = null;
+        if (fileInfo.Length > maxsize)
+        {
+          limitSizeForm = new FrmLimitSize();
+          limitSizeForm.Show();
+
+          // As the form closes it will store the information
+          limitSizeForm.FormClosing += (sender, args) =>
+          {
+            m_FileSetting.RecordLimit = limitSizeForm.RecordLimit.ToUint();
+            limitSizeForm = null;            
+          };          
+        }
+
+        try
+        {
+          if (FileSystemUtils.FileExists(m_FileName + CsvFile.cCsvSettingExtension))
+          {
+            m_FileSetting = SerializedFilesLib.LoadCsvFile(m_FileName + CsvFile.cCsvSettingExtension);
+            m_FileSetting.FileName = m_FileName;
+            Logger.Information("Configuration read from setting file {filename}", m_FileName + CsvFile.cCsvSettingExtension);
+            DisableIgnoreRead();
+            analyse = false;
+            // Add all columns as string
+
+            m_ConfigChanged = false;
+          }
+        }
+        catch (Exception exc)
+        {
+          _MessageBox.Show(this, exc.ExceptionMessages(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning, timeout: 0);
+        }
+        if (analyse)
         {
           try
           {
-            m_CurrentCancellationTokenSource = cancellationTokenSource;
-            FrmLimitSize limitSizeForm = null;
-            if (fileInfo.Length > maxsize)
+            using (var processDisplay = new FormProcessDisplay(m_FileSetting.ToString(), false, m_CancellationTokenSource.Token))
             {
-              limitSizeForm = new FrmLimitSize();
-
-              // As the form closes it will store the information
-              limitSizeForm.FormClosing += (sender, args) =>
+              processDisplay.Show();
+              if (limitSizeForm != null)
               {
-                if (limitSizeForm.DialogResult == DialogResult.Cancel)
-                  cancellationTokenSource.Cancel();
-                m_FileSetting.RecordLimit = limitSizeForm.RecordLimit.ToUint();
-                limitSizeForm = null;
-              };
-              limitSizeForm.Show();
-            }
-
-            try
-            {
-              if (FileSystemUtils.FileExists(m_FileName + CsvFile.cCsvSettingExtension))
-              {
-                m_FileSetting = SerializedFilesLib.LoadCsvFile(m_FileName + CsvFile.cCsvSettingExtension);
-                m_FileSetting.FileName = m_FileName;
-                Logger.Information("Configuration read from setting file {filename}", m_FileName + CsvFile.cCsvSettingExtension);
-                DisableIgnoreRead();
-                analyse = false;
-                // Add all columns as string
-
-                m_ConfigChanged = false;
+                processDisplay.Left = limitSizeForm.Left + limitSizeForm.Width;
+                limitSizeForm.Focus();
               }
+              m_FileSetting.HasFieldHeader = true;
+              System.Threading.Tasks.Task.Run(() =>
+              {                
+                m_FileSetting.RefreshCsvFile(processDisplay, m_ViewSettings.AllowJson, m_ViewSettings.GuessCodePage, m_ViewSettings.GuessDelimiter, m_ViewSettings.GuessQualifier, m_ViewSettings.GuessStartRow, m_ViewSettings.GuessHasHeader);
+                m_FileSetting.FillGuessColumnFormatReader(true, false, m_ViewSettings.FillGuessSettings, processDisplay);
+              }, processDisplay.CancellationToken).WaitToCompleteTaskUI(240);
             }
-            catch (Exception exc)
-            {
-              _MessageBox.Show(this, exc.ExceptionMessages(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning, timeout: 0);
-            }
-            if (analyse)
-            {
-              try
-              {
-                if (m_ViewSettings.AllowJson && CsvHelper.GuessJsonFile(m_FileSetting))
-                  m_FileSetting.JsonFormat = true;
-                else
-                {
-                  m_FileSetting.SkipRows = 0;
-                  if (m_ViewSettings.GuessCodePage)
-                    CsvHelper.GuessCodePage(m_FileSetting);
-
-                  if (m_ViewSettings.GuessDelimiter)
-                    m_FileSetting.FileFormat.FieldDelimiter = CsvHelper.GuessDelimiter(m_FileSetting);
-
-                  if (m_ViewSettings.GuessQualifier)
-                  {
-                    var determined = CsvHelper.GuessQualifier(m_FileSetting);
-                    m_FileSetting.FileFormat.FieldQualifier = determined == 0 ? string.Empty : char.ToString(determined);
-                  }
-                  if (m_ViewSettings.GuessStartRow)
-                    m_FileSetting.SkipRows = CsvHelper.GuessStartRow(m_FileSetting);
-
-                  if (m_ViewSettings.GuessHasHeader)
-                  {
-                    m_FileSetting.HasFieldHeader = true;
-                    using (var processDisplay = new DummyProcessDisplay(cancellationTokenSource.Token))
-                    {
-                      m_FileSetting.HasFieldHeader = CsvHelper.GuessHasHeader(m_FileSetting, processDisplay);
-                    }
-                  }
-
-                  using (var processDisplay = new FormProcessDisplay(m_FileSetting.ToString(), false, cancellationTokenSource.Token))
-                  {
-                    processDisplay.Show();
-                    if (limitSizeForm != null)
-                    {
-                      processDisplay.Left = limitSizeForm.Left + limitSizeForm.Width;
-                      limitSizeForm.Focus();
-                    }
-                    m_FileSetting.FillGuessColumnFormatReader(true, false, m_ViewSettings.FillGuessSettings, processDisplay);
-                  }
-
-                  if (m_FileSetting.ColumnCollection.Any(x => x.DataType != DataType.String))
-                  {
-                    detailControl.ButtonShowSource += DetailControl_ButtonShowSource;
-                    detailControl.ButtonAsText += DetailControl_ButtonAsText;
-                  }
-                }
-              }
-              catch (Exception ex)
-              {
-                this.ShowError(ex, "Inspecting file");
-              }
-            }
-
-            // wait for the size from to close (it closes automatically)
-            while (limitSizeForm != null)
-              Extensions.ProcessUIElements(125);
-
-            if (cancellationTokenSource.IsCancellationRequested)
-              return false;
           }
-          finally
+          catch (Exception ex)
           {
-            Cursor.Current = oldCursor;
-            m_CurrentCancellationTokenSource = null;
+            this.ShowError(ex, "Inspecting file");
           }
+
+          if (m_FileSetting.ColumnCollection.Any(x => x.DataType != DataType.String))
+          {
+            detailControl.ButtonShowSource += DetailControl_ButtonShowSource;
+            detailControl.ButtonAsText += DetailControl_ButtonAsText;
+          }
+
+          // wait for the size from to close (it closes automatically)
+          while (limitSizeForm != null)
+            Extensions.ProcessUIElements(125);
         }
 
         if (m_ViewSettings.DetectFileChanges)
@@ -739,7 +697,6 @@ namespace CsvTools
 
     private void ShowGrid(object sender, EventArgs e)
     {
-      m_CurrentCancellationTokenSource?.Cancel();
       ShowTextPanel(false);
     }
 

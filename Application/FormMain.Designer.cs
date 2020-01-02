@@ -19,8 +19,7 @@
       {
         m_DisposedValue = true;
         components?.Dispose();
-        m_CancellationTokenSource?.Dispose();
-        m_CurrentCancellationTokenSource?.Dispose();
+        m_CancellationTokenSource?.Dispose();       
         m_SettingsChangedTimerChange?.Dispose();
       }
       Microsoft.Win32.SystemEvents.DisplaySettingsChanged -= SystemEvents_DisplaySettingsChanged;
