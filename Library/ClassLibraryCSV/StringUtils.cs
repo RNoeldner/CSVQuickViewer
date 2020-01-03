@@ -403,6 +403,21 @@ namespace CsvTools
       return string.IsNullOrEmpty(inputValue) ? new string[] { } : inputValue.Split(m_DelimiterChar, StringSplitOptions.RemoveEmptyEntries);
     }
 
+    public static HashSet<string> SplitDistinct(this string inputValue, string alwaysInclude)
+    {
+      var keyColumns = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+      if (!string.IsNullOrWhiteSpace(alwaysInclude))
+        keyColumns.Add(alwaysInclude);
+
+      foreach (var keyColumn in inputValue.Split(','))
+      {
+        if (!string.IsNullOrWhiteSpace(keyColumn))
+          keyColumns.Add(keyColumn.Trim());
+      }
+
+      return keyColumns;
+    }
+
     /// <summary>
     ///   Splits the given string at the semicolon
     /// </summary>
