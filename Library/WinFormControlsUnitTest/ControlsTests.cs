@@ -36,17 +36,7 @@ namespace CsvTools.Tests
         System.Threading.Thread.Sleep(200);
       }
     }
-    [TestMethod]
-    public void CheckedListBoxHelper()
-    {
-      using (var tb = new TextBox())
-      using (var clb = new CheckedListBox())
-      {
-        var checkedListBoxHelper = new CheckedListBoxHelper(tb, clb) {Filter = "Test", Items =  new []{"Test", "TestA", "TestB" }, Exclude = "TestB"};
-      }
-        
-      
-    }
+
     [TestMethod]
     public void MultiselectTreeView()
     {

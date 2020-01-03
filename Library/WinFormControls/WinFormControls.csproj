@@ -51,8 +51,6 @@
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="BuildValueClustersResult.cs" />
-    <Compile Include="CheckAndFilteredText.cs" />
-    <Compile Include="CheckedListBoxHelper.cs" />
     <Compile Include="CsvRichTextBox.cs">
       <SubType>Component</SubType>
     </Compile>
