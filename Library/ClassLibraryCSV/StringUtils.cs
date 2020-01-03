@@ -14,6 +14,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.Globalization;
 using System.Text;
@@ -23,7 +24,7 @@ namespace CsvTools
   /// <summary>
   ///   Collection of static functions for string
   /// </summary>
-  [System.Diagnostics.DebuggerStepThrough]
+  [DebuggerStepThrough]
   public static class StringUtils
   {
     public static readonly char[] Spaces =
@@ -35,12 +36,12 @@ namespace CsvTools
     /// <summary>
     ///   ; | CR LF Tab
     /// </summary>
-    private static readonly char[] m_DelimiterChar = { ';', '|', '\r', '\n', '\t' };
+    private static readonly char[] m_DelimiterChar = {';', '|', '\r', '\n', '\t'};
 
     /// <summary>
     ///   ; CR LF
     /// </summary>
-    private static readonly char[] m_SplitChar = { ';', '\r', '\n' };
+    private static readonly char[] m_SplitChar = {';', '\r', '\n'};
 
     /// <summary>
     ///   Checks whether a column name text ends on the text ID or Ref
@@ -71,7 +72,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Determines whether this text contains the another text
+    ///   Determines whether this text contains the another text
     /// </summary>
     /// <param name="text">The text to be checked </param>
     /// <param name="toCheck">To text find.</param>
@@ -79,10 +80,11 @@ namespace CsvTools
     /// <returns>
     ///   <c>true</c> if teh text does contains the check; otherwise, <c>false</c>.
     /// </returns>
-    public static bool Contains(this string text, string toCheck, StringComparison comp) => text?.IndexOf(toCheck, comp) >= 0;
+    public static bool Contains(this string text, string toCheck, StringComparison comp) =>
+      text?.IndexOf(toCheck, comp) >= 0;
 
     /// <summary>
-    /// Counts the number of occurence of a pattern in a text.
+    ///   Counts the number of occurence of a pattern in a text.
     /// </summary>
     /// <param name="text">The text.</param>
     /// <param name="pattern">The pattern.</param>
@@ -103,7 +105,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Gets the a short representation of the text.
+    ///   Gets the a short representation of the text.
     /// </summary>
     /// <param name="text">The text.</param>
     /// <param name="length">The length.</param>
@@ -151,7 +153,7 @@ namespace CsvTools
     /// <param name="text">The Text</param>
     /// <param name="replace">The replacement value default is \n.</param>
     /// <returns>
-    ///   The text with every combination of line feed replaced with <see cref="replace"/>
+    ///   The text with every combination of line feed replaced with <see cref="replace" />
     /// </returns>
     public static string HandleCRLFCombinations(string text, string replace = "\n")
     {
@@ -169,11 +171,11 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Joins the strings
+    ///   Joins the strings
     /// </summary>
     /// <param name="parts">The parts to be joined.</param>
     /// <param name="joinWith">The join with.</param>
-    ///<example>JoinParts(new [] {"My","","Test")=> My, Test</example>
+    /// <example>JoinParts(new [] {"My","","Test")=> My, Test</example>
     /// <remarks>Any empty string will be ignored.</remarks>
     /// <returns>A string</returns>
     public static string Join(this IEnumerable<string> parts, string joinWith = ", ")
@@ -190,15 +192,16 @@ namespace CsvTools
           sb.Append(joinWith);
         sb.Append(part);
       }
+
       return sb.ToString();
     }
 
     /// <summary>
-    /// Joins the strings
+    ///   Joins the strings
     /// </summary>
     /// <param name="parts">The parts to be joined.</param>
     /// <param name="joinWith">The join with.</param>
-    ///<example>JoinParts(new [] {"My","","Test")=> My, Test</example>
+    /// <example>JoinParts(new [] {"My","","Test")=> My, Test</example>
     /// <remarks>Any empty string will be ignored.</remarks>
     /// <returns>A string</returns>
     public static string JoinChar(this IEnumerable<string> parts, char joinWith = ',')
@@ -215,15 +218,16 @@ namespace CsvTools
           sb.Append(joinWith);
         sb.Append(part);
       }
+
       return sb.ToString();
     }
 
     /// <summary>
-    /// Joins the strings
+    ///   Joins the strings
     /// </summary>
     /// <param name="parts">The parts to be joined.</param>
     /// <param name="joinWith">The join with.</param>
-    ///<example>JoinParts(new [] {"My","","Test")=> My, Test</example>
+    /// <example>JoinParts(new [] {"My","","Test")=> My, Test</example>
     /// <remarks>Any empty string will be ignored.</remarks>
     /// <returns>A string</returns>
     public static string Join(this IEnumerable<int> parts, string joinWith = ", ")
@@ -238,6 +242,7 @@ namespace CsvTools
           sb.Append(joinWith);
         sb.Append(part);
       }
+
       return sb.ToString();
     }
 
@@ -363,7 +368,8 @@ namespace CsvTools
     /// </remarks>
     public static string RReplace(this string original, string search, string replace)
     {
-      if (string.IsNullOrEmpty(search) || search.Equals(replace, StringComparison.Ordinal) || string.IsNullOrEmpty(original))
+      if (string.IsNullOrEmpty(search) || search.Equals(replace, StringComparison.Ordinal) ||
+          string.IsNullOrEmpty(original))
         return original;
       var ret = original;
       while (ret.Contains(search))
@@ -373,7 +379,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Checks if the provided text should be treated as NULLL
+    ///   Checks if the provided text should be treated as NULL
     /// </summary>
     /// <param name="value">A string with the text</param>
     /// <param name="treatAsNull">
@@ -400,9 +406,17 @@ namespace CsvTools
     public static string[] SplitByDelimiter(string inputValue)
     {
       Contract.Ensures(Contract.Result<string[]>() != null);
-      return string.IsNullOrEmpty(inputValue) ? new string[] { } : inputValue.Split(m_DelimiterChar, StringSplitOptions.RemoveEmptyEntries);
+      return string.IsNullOrEmpty(inputValue)
+        ? new string[] { }
+        : inputValue.Split(m_DelimiterChar, StringSplitOptions.RemoveEmptyEntries);
     }
 
+    /// <summary>
+    /// Splits the text into distinct texts, always adding the alwaysInclude Value.
+    /// </summary>
+    /// <param name="inputValue">The input value.</param>
+    /// <param name="alwaysInclude">This text will always be included in the result.</param>
+    /// <returns>A list of distinct value</returns>
     public static HashSet<string> SplitDistinct(this string inputValue, string alwaysInclude)
     {
       var keyColumns = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -410,10 +424,8 @@ namespace CsvTools
         keyColumns.Add(alwaysInclude);
 
       foreach (var keyColumn in inputValue.Split(','))
-      {
         if (!string.IsNullOrWhiteSpace(keyColumn))
           keyColumns.Add(keyColumn.Trim());
-      }
 
       return keyColumns;
     }
