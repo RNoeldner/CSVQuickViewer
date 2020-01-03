@@ -14,6 +14,6 @@ using System.Reflection;
 //
 // You can specify all the values or you can default the Build and Revision Numbers by using the '*'
 // as shown below: [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.6.4.425")]
-[assembly: AssemblyFileVersion("1.6.4.425")]
-[assembly: AssemblyInformationalVersion("1.6.4.425")] // a.k.a. "Product version"
+[assembly: AssemblyVersion("1.6.4.426")]
+[assembly: AssemblyFileVersion("1.6.4.426")]
+[assembly: AssemblyInformationalVersion("1.6.4.426")] // a.k.a. "Product version"
