@@ -64,7 +64,7 @@ namespace CsvTools
     private bool m_ShowProgress = true;
     private int m_SkipRows;
     private string m_SqlStatement = string.Empty;
-    private int m_SqlTimeout = 360;
+    private int m_Timeout = 90;
     private string m_TemplateName = string.Empty;
     private bool m_TreatNbspAsSpace;
     private string m_TreatTextAsNull = "NULL";
@@ -299,7 +299,7 @@ namespace CsvTools
           other.SkipEmptyLines == SkipEmptyLines &&
           other.SkipDuplicateHeader == SkipDuplicateHeader &&
           other.ReadToEndOfFile == ReadToEndOfFile &&
-          other.SQLTimeout == SQLTimeout &&
+          other.Timeout == Timeout &&
           other.ProcessTimeUtc == ProcessTimeUtc &&
           other.SetLatestSourceTimeForWrite == SetLatestSourceTimeForWrite &&
           string.Equals(other.SqlStatement, SqlStatement, StringComparison.OrdinalIgnoreCase) &&
@@ -930,22 +930,22 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///  Gets or sets the SQL statement.
+    ///  Gets or sets the Timeout of a call.
     /// </summary>
-    /// <value>The SQL statement.</value>
+    /// <value>The timeout in seconds.</value>
     [XmlAttribute]
-    [DefaultValue(360)]
-    public virtual int SQLTimeout
+    [DefaultValue(90)]
+    public virtual int Timeout
     {
-      get => m_SqlTimeout;
+      get => m_Timeout;
 
       set
       {
         var newVal = value > 0 ? value : 0;
-        if (m_SqlTimeout.Equals(newVal))
+        if (m_Timeout.Equals(newVal))
           return;
-        m_SqlTimeout = newVal;
-        NotifyPropertyChanged(nameof(SQLTimeout));
+        m_Timeout = newVal;
+        NotifyPropertyChanged(nameof(Timeout));
       }
     }
 
@@ -1112,7 +1112,7 @@ namespace CsvTools
       ColumnCollection.CopyTo(other.ColumnCollection);
       other.SqlStatement = m_SqlStatement;
       other.InOverview = m_InOverview;
-      other.SQLTimeout = m_SqlTimeout;
+      other.Timeout = m_Timeout;
       other.ReadToEndOfFile = ReadToEndOfFile;
       other.ProcessTimeUtc = ProcessTimeUtc;
       other.LatestSourceTimeUtc = LatestSourceTimeUtc;

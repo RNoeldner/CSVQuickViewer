@@ -12,11 +12,11 @@
  *
  */
 
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Xml;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
@@ -46,7 +46,7 @@ namespace CsvTools.Tests
       Assert.AreEqual(test.TreatUnknowCharaterAsSpace, false, "ReplaceUnknowCharater");
       Assert.AreEqual(test.SkipRows, 0, "SkipRows");
       Assert.AreEqual(string.Empty, test.SqlStatement, "SqlStatement");
-      Assert.AreEqual(360, test.SQLTimeout, "SQLTimeout");
+      Assert.IsTrue(test.Timeout > 0, "Timeout");
       Assert.AreEqual(string.Empty, test.TemplateName, "TemplateName");
       Assert.IsFalse(test.TreatNBSPAsSpace, "TreatNBSPAsSpace");
       Assert.IsTrue(test.WarnEmptyTailingColumns, "WarnEmptyTailingColumns");
@@ -349,7 +349,7 @@ namespace CsvTools.Tests
       m_CsvFile.ShowProgress = true;
       m_CsvFile.SkipRows = 1;
       m_CsvFile.SqlStatement = "SqlStatement";
-      m_CsvFile.SQLTimeout = 5;
+      m_CsvFile.Timeout = 5;
       m_CsvFile.TemplateName = "TemplateName";
       m_CsvFile.WarnLineFeed = false;
       Assert.IsFalse(m_CsvFile.WarnLineFeed);
@@ -429,7 +429,7 @@ namespace CsvTools.Tests
       Assert.AreEqual("SqlStatement", m_CsvFile.SqlStatementCData.InnerText, "SqlStatementCData");
       Assert.IsTrue(m_CsvFile.SqlStatementCDataSpecified, "SqlStatementCDataSpecified");
 
-      Assert.AreEqual(5, m_CsvFile.SQLTimeout, "SQLTimeout");
+      Assert.AreEqual(5, m_CsvFile.Timeout, "Timeout");
       Assert.AreEqual("TemplateName", m_CsvFile.TemplateName, "TemplateName");
 
       //Assert.AreEqual('/', m_CsvFile.UnknowCharaterReplacement, "UnknowCharaterReplacement");

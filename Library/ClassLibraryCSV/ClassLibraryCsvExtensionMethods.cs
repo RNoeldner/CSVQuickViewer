@@ -874,7 +874,11 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        Logger.Warning(ex, "{stacktrace}: {exception}", ex.CsvToolsStackTrace(), ex.ExceptionMessages());
+        var st = ex.CsvToolsStackTrace();
+        if (st == null)
+          Logger.Warning(ex, "{exception}", ex.ExceptionMessages());
+        else
+          Logger.Warning(ex, "{stacktrace}: {exception}", ex.CsvToolsStackTrace(), ex.ExceptionMessages());
         // return only the first exception if there are many
         if (ex is AggregateException ae)
           throw ae.Flatten().InnerExceptions[0];
@@ -998,7 +1002,7 @@ namespace CsvTools
     {
       var requestedRecords = records < 1 ? uint.MaxValue : records;
 
-      Logger.Information("Reading data…");
+
       var dataTable = new DataTable(fileSetting.ID)
       {
         MinimumCapacity = (int)Math.Min(requestedRecords, 5000)
