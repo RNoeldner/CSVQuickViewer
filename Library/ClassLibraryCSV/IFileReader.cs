@@ -27,6 +27,8 @@ namespace CsvTools
     /// </summary>
     event EventHandler ReadFinished;
 
+    Func<Exception, bool> RetryFunction { set; }
+
     /// <summary>
     ///  Event handler called if a warning or error occurred
     /// </summary>
