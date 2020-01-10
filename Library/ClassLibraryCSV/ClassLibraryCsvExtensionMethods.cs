@@ -854,7 +854,7 @@ namespace CsvTools
           if (stopwatch != null)
           {
             // Raise an exception when not activated
-            if (executeTask.Status == TaskStatus.WaitingForActivation && stopwatch.Elapsed.TotalSeconds > 10d)
+            if (executeTask.Status == TaskStatus.WaitingForActivation && stopwatch.Elapsed.TotalSeconds > timeoutSeconds)
               throw new TimeoutException($"Waited longer than {stopwatch.Elapsed.TotalSeconds:N1} seconds for task activation");
 
             // Raise an exception when waiting too long
@@ -1267,7 +1267,7 @@ namespace CsvTools
       using (var selfEnum = self.GetEnumerator())
       using (var otherEnum = other.GetEnumerator())
       {
-        while(true)
+        while (true)
         {
           // move to the next item
           var s = selfEnum.MoveNext();

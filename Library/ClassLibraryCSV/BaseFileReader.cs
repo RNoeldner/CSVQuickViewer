@@ -33,6 +33,12 @@ namespace CsvTools
     /// </summary>
     public const string cEndLineNumberFieldName = "#LineEnd";
 
+    public Func<Exception, bool> RetryFunction
+    {
+      protected get;
+      set;
+    }
+
     /// <summary>
     ///   Field name of the Error Field
     /// </summary>
