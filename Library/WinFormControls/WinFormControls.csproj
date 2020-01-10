@@ -246,12 +246,6 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ClassLibraryCSV\ClassLibraryCSV.csproj">
-      <Project>{0b6aee5a-8005-4b1d-987f-5790c34a2d52}</Project>
-      <Name>ClassLibraryCSV</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="Pri.LongPath">
       <Version>2.0.53</Version>
     </PackageReference>
@@ -260,6 +254,10 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ClassLibraryCSV\ClassLibraryCSV.csproj">
+      <Project>{0b6aee5a-8005-4b1d-987f-5790c34a2d52}</Project>
+      <Name>ClassLibraryCSV</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Library\ClassLibraryCSV\ClassLibraryCSV.csproj">
       <Project>{0b6aee5a-8005-4b1d-987f-5790c34a2d52}</Project>
       <Name>ClassLibraryCSV</Name>

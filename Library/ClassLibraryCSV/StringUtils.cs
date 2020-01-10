@@ -36,12 +36,12 @@ namespace CsvTools
     /// <summary>
     ///   ; | CR LF Tab
     /// </summary>
-    private static readonly char[] m_DelimiterChar = {';', '|', '\r', '\n', '\t'};
+    private static readonly char[] m_DelimiterChar = { ';', '|', '\r', '\n', '\t' };
 
     /// <summary>
     ///   ; CR LF
     /// </summary>
-    private static readonly char[] m_SplitChar = {';', '\r', '\n'};
+    private static readonly char[] m_SplitChar = { ';', '\r', '\n' };
 
     /// <summary>
     ///   Checks whether a column name text ends on the text ID or Ref
@@ -483,6 +483,47 @@ namespace CsvTools
 
       securePassword.MakeReadOnly();
       return securePassword;
+    }
+
+    /// <summary>
+    /// Check if a text would match a filter value, 
+    /// </summary>
+    /// <param name="item">The item of a list that should be checked</param>
+    /// <param name="filter">Filter value, for OR seperate words by space for AND seperate words by +</param>
+    /// <param name="stringComparison"></param>
+    /// <Note>In case the filter is empty there is no filter it will always return true</Note>
+    /// <returns>True if text matches</returns>
+    public static bool PassesFilter(this string item, string filter, StringComparison stringComparison = StringComparison.OrdinalIgnoreCase)
+    {
+      if (string.IsNullOrEmpty(filter))
+        return true;
+      if (string.IsNullOrEmpty(item))
+        return false;
+
+      if (filter.IndexOf('+') > -1)
+      {
+        var parts = filter.Split(new[] { '+' }, StringSplitOptions.RemoveEmptyEntries);
+
+        // 1st part
+        var all = item.IndexOf(parts[0], stringComparison) > -1;
+
+        // and all other parts
+        for (int index = 1; index < parts.Length && all; index++)
+        {
+          if (item.IndexOf(parts[index], stringComparison) == -1)
+            all = false;
+        }
+
+        return all;
+
+      }
+      // any Part will do
+      foreach (var part in filter.Split(new[] { ' ', ',', ';' }, StringSplitOptions.RemoveEmptyEntries))
+      {
+        if (item.IndexOf(part, stringComparison) != -1)
+          return true;
+      }
+      return false;
     }
   }
 }
