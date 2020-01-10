@@ -598,7 +598,7 @@ namespace CsvTools
               ShowTextPanel(true);
             csvDataReader.Warning -= warningList.Add;
             csvDataReader.Warning += AddWarning;
-
+            Logger.Information("Reading data…");
             data = csvDataReader.WriteToDataTable(m_FileSetting, m_FileSetting.RecordLimit,
                 processDisplay.CancellationToken);
 

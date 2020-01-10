@@ -207,10 +207,10 @@ namespace CsvTools
     string SqlStatement { get; set; }
 
     /// <summary>
-    ///  Gets or sets the SQL statement.
+    ///  Gets or sets the timeout value where appriate Web or SQL Calls.
     /// </summary>
-    /// <value>The SQL statement.</value>
-    int SQLTimeout { get; set; }
+    /// <value>The timeout in seconds.</value>
+    int Timeout { get; set; }
 
     /// <summary>
     ///  Gets or sets the name of the template.

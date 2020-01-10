@@ -12,6 +12,7 @@
  *
  */
 
+using Pri.LongPath;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -19,7 +20,6 @@ using System.Data.Common;
 using System.Diagnostics;
 using System.Globalization;
 using System.Threading;
-using Pri.LongPath;
 
 namespace CsvTools
 {
@@ -33,7 +33,7 @@ namespace CsvTools
     /// </summary>
     public const string cEndLineNumberFieldName = "#LineEnd";
 
-    public Func<Exception, bool> RetryFunction
+    public Func<Exception, IFileSetting, bool> RetryFunction
     {
       protected get;
       set;

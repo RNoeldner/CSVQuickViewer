@@ -482,7 +482,7 @@ namespace CsvTools
         throw new FileWriterException("No SQL Reader set");
 
       using (var dataReader =
-        ApplicationSetting.SQLDataReader(fileSettings.SqlStatement, processDisplay, fileSettings.SQLTimeout))
+        ApplicationSetting.SQLDataReader(fileSettings.SqlStatement, processDisplay, fileSettings.Timeout))
       {
         // Put the information into the list
         var dataRowCollection = dataReader.GetSchemaTable()?.Rows;

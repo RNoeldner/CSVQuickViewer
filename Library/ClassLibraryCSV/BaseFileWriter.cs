@@ -194,7 +194,7 @@ namespace CsvTools
       HandleProgress("Executing SQL Statement");
 
       using (var dataReader =
-        ApplicationSetting.SQLDataReader(m_FileSetting.SqlStatement, m_ProcessDisplay, m_FileSetting.SQLTimeout))
+        ApplicationSetting.SQLDataReader(m_FileSetting.SqlStatement, m_ProcessDisplay, m_FileSetting.Timeout))
       {
         HandleProgress("Reading returned data");
         var dt = new DataTable();
@@ -215,7 +215,7 @@ namespace CsvTools
         return 0;
 
       using (var reader =
-        ApplicationSetting.SQLDataReader(m_FileSetting.SqlStatement, m_ProcessDisplay, m_FileSetting.SQLTimeout))
+        ApplicationSetting.SQLDataReader(m_FileSetting.SqlStatement, m_ProcessDisplay, m_FileSetting.Timeout))
       {
         return Write(reader);
       }
