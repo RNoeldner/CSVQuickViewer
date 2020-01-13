@@ -25,21 +25,18 @@ namespace CsvTools
   {
     private string m_LastMessage = string.Empty;
     private bool m_Initial = true;
-    private readonly Action<string, Logger.Level> m_PreviousLog;
-    private readonly Logger.Level MinLevel;
+    private readonly Action<string, Logger.Level> m_PreviousLog = Logger.AddLog;
 
-    public LoggerDisplay() : this(Logger.Level.Debug)
-    {
-    }
+    public Logger.Level MinLevel { get; set; } = Logger.Level.Debug;
 
-    public LoggerDisplay(Logger.Level min)
+
+    public LoggerDisplay()
     {
       Multiline = true;
       KeyUp += base.FindForm().CtrlA;
-      m_PreviousLog = Logger.AddLog;
       Logger.AddLog = AddLog;
-      MinLevel = min;
     }
+
     public new void Clear()
     {
       this.SafeBeginInvoke(() =>
@@ -56,25 +53,32 @@ namespace CsvTools
 
       this.SafeBeginInvoke(() =>
       {
-        var col = ForeColor;
-        if (level < Logger.Level.Info)
-          col = Color.Gray;
-        if (level >= Logger.Level.Warn)
-          col = Color.Blue;
-        if (level >= Logger.Level.Error)
-          col = Color.Red;
-
-        SelectionStart = TextLength;
-        if (col != ForeColor)
+        try
         {
-          SelectionLength = 0;
-          SelectionColor = col;
-        }
-        ScrollToCaret();
-        AppendText(text);
+          var col = ForeColor;
+          if (level < Logger.Level.Info)
+            col = Color.Gray;
+          if (level >= Logger.Level.Warn)
+            col = Color.Blue;
+          if (level >= Logger.Level.Error)
+            col = Color.Red;
 
-        if (col != ForeColor)
-          SelectionColor = ForeColor;
+          SelectionStart = TextLength;
+          if (col != ForeColor)
+          {
+            SelectionLength = 0;
+            SelectionColor = col;
+          }
+          ScrollToCaret();
+          AppendText(text);
+
+          if (col != ForeColor)
+            SelectionColor = ForeColor;
+        }
+        catch
+        {
+          // ignore
+        }
       });
       Extensions.ProcessUIElements();
     }

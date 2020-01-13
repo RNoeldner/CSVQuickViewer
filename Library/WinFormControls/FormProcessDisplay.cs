@@ -166,6 +166,23 @@ namespace CsvTools
       get => m_DummyProcessDisplay.LogAsDebug; set => m_DummyProcessDisplay.LogAsDebug = value;
     }
 
+    public Logger.Level LoggerLevel
+    {
+      get
+      {
+        if (m_LoggerDisplay != null)
+          return m_LoggerDisplay.MinLevel;
+        else
+          return Logger.Level.Debug;
+      }
+      set
+      {
+        if (m_LoggerDisplay != null)
+          m_LoggerDisplay.MinLevel = value;
+      }
+
+    }
+
     /// <summary>
     ///   Closes the form used by Events
     /// </summary>

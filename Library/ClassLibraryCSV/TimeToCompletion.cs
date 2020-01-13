@@ -45,16 +45,20 @@ namespace CsvTools
 
     public TimeSpan EstimatedTimeRemaining { get; private set; } = TimeSpan.MaxValue;
 
+    public static string DisplayTimespan(TimeSpan value)
+    {
+      if (value == TimeSpan.MaxValue || value.TotalSeconds < 2)
+        return string.Empty;
+      if (value.TotalMinutes < 1)
+        return $"{value.Seconds} sec";
+      return value.TotalHours < 1 ?
+          $"{value.Minutes:D2}:{value.Seconds:D2}" :
+          $"{(int)value.TotalHours}:{value.Minutes:D2}:{value.Seconds:D2}";
+    }
+
     public string EstimatedTimeRemainingDisplay
     {
-      get
-      {
-        if (EstimatedTimeRemaining == TimeSpan.MaxValue)
-          return string.Empty;
-        if (EstimatedTimeRemaining.TotalMinutes < 1)
-          return $"{EstimatedTimeRemaining.Seconds} sec";
-        return EstimatedTimeRemaining.TotalHours < 1 ? $"{EstimatedTimeRemaining.Minutes:D2}:{EstimatedTimeRemaining.Seconds / 10 * 10:D2} min" : $"{(int)EstimatedTimeRemaining.TotalHours}:{EstimatedTimeRemaining.Minutes:D2}:{EstimatedTimeRemaining.Seconds:D2}";
-      }
+      get => DisplayTimespan(EstimatedTimeRemaining);
     }
 
     public string EstimatedTimeRemainingDisplaySeperator
@@ -131,9 +135,9 @@ namespace CsvTools
         {
           var finishedInTicks = (m_TargetValue - m_LastItem.Value) * (double)(m_LastItem.Tick - m_FirstItem.Tick) /
                                 (m_LastItem.Value - m_FirstItem.Value);
-          // Calculate the estimated finished time:
+          // Calculate the estimated finished time but add 5%
           EstimatedTimeRemaining = finishedInTicks / Stopwatch.Frequency > .9
-            ? TimeSpan.FromSeconds(finishedInTicks / Stopwatch.Frequency)
+            ? TimeSpan.FromSeconds(finishedInTicks / Stopwatch.Frequency * 1.05)
             : TimeSpan.MaxValue;
         }
       }
