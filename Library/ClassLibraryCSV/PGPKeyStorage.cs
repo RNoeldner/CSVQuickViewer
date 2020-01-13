@@ -473,7 +473,7 @@ namespace CsvTools
                   {
                     processDisplayTime.TimeToCompletion.Value = processed;
                     processDisplay.SetProcess(
-                      $"PGP Encrypting  {processDisplayTime.TimeToCompletion.PercentDisplay}{processDisplayTime.TimeToCompletion.EstimatedTimeRemainingDisplaySeperator} - {StringConversion.DynamicStorageSize(processed)}/{displayMax}",
+                      $"PGP Encrypting  {processDisplayTime.TimeToCompletion.PercentDisplay}{processDisplayTime.TimeToCompletion.EstimatedTimeRemainingDisplaySeparator} - {StringConversion.DynamicStorageSize(processed)}/{displayMax}",
                       processed, true);
                   }
                   else

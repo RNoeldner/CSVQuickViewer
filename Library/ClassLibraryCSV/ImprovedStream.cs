@@ -281,7 +281,7 @@ namespace CsvTools
                     {
                       processDisplayTime.TimeToCompletion.Value = p;
                       m_ProcessDisplay.SetProcess(
-                        $"GZip  {processDisplayTime.TimeToCompletion.PercentDisplay}{processDisplayTime.TimeToCompletion.EstimatedTimeRemainingDisplaySeperator} - {StringConversion.DynamicStorageSize(p)}/{displayMax}",
+                        $"GZip  {processDisplayTime.TimeToCompletion.PercentDisplay}{processDisplayTime.TimeToCompletion.EstimatedTimeRemainingDisplaySeparator} - {StringConversion.DynamicStorageSize(p)}/{displayMax}",
                         p, true);
                     }
                     else

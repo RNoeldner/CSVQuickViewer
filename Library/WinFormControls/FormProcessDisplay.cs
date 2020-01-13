@@ -30,10 +30,10 @@ namespace CsvTools
     private Label m_LabelPercent;
     private Label m_LabelText;
     private ProgressBar m_ProgressBar;
-    protected TableLayoutPanel tableLayoutPanel;
-    private DummyProcessDisplay m_DummyProcessDisplay;
+    private TableLayoutPanel m_TableLayoutPanel;
+    private readonly DummyProcessDisplay m_DummyProcessDisplay;
     private string m_Title;
-    private readonly LoggerDisplay m_LoggerDisplay = null;
+    private readonly LoggerDisplay m_LoggerDisplay;
 
     public FormProcessDisplay(string windowTitle) : this(windowTitle, true, CancellationToken.None)
     {
@@ -51,7 +51,7 @@ namespace CsvTools
       InitializeComponent();
 
       m_Title = windowTitle;
-      Text = windowTitle;
+      base.Text = windowTitle;
 
       TimeToCompletion = new TimeToCompletion();
       if (withLoggerDisplay)
@@ -67,8 +67,8 @@ namespace CsvTools
           TabIndex = 8
         };
 
-        tableLayoutPanel.SetColumnSpan(m_LoggerDisplay, 2);
-        tableLayoutPanel.Controls.Add(m_LoggerDisplay, 0, 3);
+        m_TableLayoutPanel.SetColumnSpan(m_LoggerDisplay, 2);
+        m_TableLayoutPanel.Controls.Add(m_LoggerDisplay, 0, 3);
         ResumeLayout(false);
       }
     }
@@ -205,6 +205,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="text">The text.</param>
     /// <param name="value">The value.</param>
+    /// <param name="log"></param>
     public virtual void SetProcess(string text, long value, bool log)
     {
       // if cancellation is requested do nothing
@@ -282,13 +283,13 @@ namespace CsvTools
       m_LabelEtr = new System.Windows.Forms.Label();
       m_LabelEtl = new System.Windows.Forms.Label();
       m_LabelPercent = new System.Windows.Forms.Label();
-      tableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
-      tableLayoutPanel.SuspendLayout();
+      m_TableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
+      m_TableLayoutPanel.SuspendLayout();
       SuspendLayout();
       //
       // m_ProgressBar
       //
-      tableLayoutPanel.SetColumnSpan(m_ProgressBar, 2);
+      m_TableLayoutPanel.SetColumnSpan(m_ProgressBar, 2);
       m_ProgressBar.Dock = System.Windows.Forms.DockStyle.Top;
       m_ProgressBar.Location = new System.Drawing.Point(4, 74);
       m_ProgressBar.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
@@ -299,7 +300,7 @@ namespace CsvTools
       //
       // m_LabelText
       //
-      tableLayoutPanel.SetColumnSpan(m_LabelText, 2);
+      m_TableLayoutPanel.SetColumnSpan(m_LabelText, 2);
       m_LabelText.Dock = System.Windows.Forms.DockStyle.Fill;
       m_LabelText.Location = new System.Drawing.Point(4, 0);
       m_LabelText.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
@@ -341,30 +342,30 @@ namespace CsvTools
       //
       // tableLayoutPanel
       //
-      tableLayoutPanel.ColumnCount = 2;
-      tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-      tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-      tableLayoutPanel.Controls.Add(m_ProgressBar, 0, 1);
-      tableLayoutPanel.Controls.Add(m_LabelEtr, 1, 2);
-      tableLayoutPanel.Controls.Add(m_LabelEtl, 0, 2);
-      tableLayoutPanel.Controls.Add(m_LabelText, 0, 0);
-      tableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-      tableLayoutPanel.Location = new System.Drawing.Point(0, 0);
-      tableLayoutPanel.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-      tableLayoutPanel.Name = "tableLayoutPanel";
-      tableLayoutPanel.RowCount = 3;
-      tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      tableLayoutPanel.Size = new System.Drawing.Size(522, 145);
-      tableLayoutPanel.TabIndex = 8;
+      m_TableLayoutPanel.ColumnCount = 2;
+      m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+      m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+      m_TableLayoutPanel.Controls.Add(m_ProgressBar, 0, 1);
+      m_TableLayoutPanel.Controls.Add(m_LabelEtr, 1, 2);
+      m_TableLayoutPanel.Controls.Add(m_LabelEtl, 0, 2);
+      m_TableLayoutPanel.Controls.Add(m_LabelText, 0, 0);
+      m_TableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+      m_TableLayoutPanel.Location = new System.Drawing.Point(0, 0);
+      m_TableLayoutPanel.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+      m_TableLayoutPanel.Name = "m_TableLayoutPanel";
+      m_TableLayoutPanel.RowCount = 3;
+      m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      m_TableLayoutPanel.Size = new System.Drawing.Size(522, 145);
+      m_TableLayoutPanel.TabIndex = 8;
       //
       // FormProcessDisplay
       //
       AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
       AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       ClientSize = new System.Drawing.Size(522, 145);
-      Controls.Add(tableLayoutPanel);
+      Controls.Add(m_TableLayoutPanel);
       Controls.Add(m_LabelPercent);
       DoubleBuffered = true;
       FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
@@ -376,8 +377,8 @@ namespace CsvTools
       Text = "Process";
       TopMost = true;
       FormClosing += new System.Windows.Forms.FormClosingEventHandler(ProcessDisplay_FormClosing);
-      tableLayoutPanel.ResumeLayout(false);
-      tableLayoutPanel.PerformLayout();
+      m_TableLayoutPanel.ResumeLayout(false);
+      m_TableLayoutPanel.PerformLayout();
       ResumeLayout(false);
     }
 
