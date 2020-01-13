@@ -33,35 +33,39 @@ namespace CsvTools
     private ProgressOverTime m_LastItem;
     private long m_TargetValue;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="TimeToCompletion"/> class.
+    /// </summary>
+    /// <param name="targetValue">The target value / maximum that would match 100%</param>
+    /// <param name="minimumData">The number of entries before a estimation is done.</param>
+    /// <param name="storedSeconds">The number of seconds to remember for estimation.</param>
     public TimeToCompletion(long targetValue = -1, byte minimumData = 4, double storedSeconds = 60.0)
     {
       m_MinimumData = minimumData;
-      m_MaximumTicks = (long)(storedSeconds * Stopwatch.Frequency);
+      m_MaximumTicks = (long) (storedSeconds * Stopwatch.Frequency);
       m_Queue = new Queue<ProgressOverTime>(minimumData * 2);
 
       m_LastItem.Value = 0;
       TargetValue = targetValue;
     }
 
+    /// <summary>
+    /// Gets the estimated time remaining to complete
+    /// </summary>
+    /// <value>
+    /// The estimated time remaining.
+    /// </value>
     public TimeSpan EstimatedTimeRemaining { get; private set; } = TimeSpan.MaxValue;
 
-    public static string DisplayTimespan(TimeSpan value)
-    {
-      if (value == TimeSpan.MaxValue || value.TotalSeconds < 2)
-        return string.Empty;
-      if (value.TotalMinutes < 1)
-        return $"{value.Seconds} sec";
-      return value.TotalHours < 1 ?
-          $"{value.Minutes:D2}:{value.Seconds:D2}" :
-          $"{(int)value.TotalHours}:{value.Minutes:D2}:{value.Seconds:D2}";
-    }
+    public string EstimatedTimeRemainingDisplay => DisplayTimespan(EstimatedTimeRemaining);
 
-    public string EstimatedTimeRemainingDisplay
-    {
-      get => DisplayTimespan(EstimatedTimeRemaining);
-    }
-
-    public string EstimatedTimeRemainingDisplaySeperator
+    /// <summary>
+    /// Gets the estimated time remaining display with a leading separator (if needed).
+    /// </summary>
+    /// <value>
+    /// The estimated time remaining display separator.
+    /// </value>
+    public string EstimatedTimeRemainingDisplaySeparator
     {
       get
       {
@@ -71,18 +75,22 @@ namespace CsvTools
       }
     }
 
+    /// <summary>
+    /// Gets the current percentage
+    /// </summary>
+    /// <value>
+    /// Percent (usually between 0 and 1)
+    /// </value>
     public double Percent { get; private set; }
 
-    public string PercentDisplay
-    {
-      get
-      {
-        if (Percent < 10)
-          return string.Format(CultureInfo.CurrentCulture, "{0:F1}%", Percent);
-        return string.Format(CultureInfo.CurrentCulture, "{0:F0}%", Percent);
-      }
-    }
+    public string PercentDisplay => string.Format(CultureInfo.CurrentCulture, Percent < 10 ? "{0:F1}%" : "{0:F0}%", Percent);
 
+    /// <summary>
+    /// Gets or sets the target value / maximum that would match 100%.
+    /// </summary>
+    /// <value>
+    /// The target value.
+    /// </value>
     public long TargetValue
     {
       get => m_TargetValue;
@@ -100,6 +108,12 @@ namespace CsvTools
       }
     }
 
+    /// <summary>
+    /// Gets or sets the current value in the process
+    /// </summary>
+    /// <value>
+    /// The value.
+    /// </value>
     public long Value
     {
       set
@@ -123,7 +137,7 @@ namespace CsvTools
         if (m_Queue.Count == 1)
           m_FirstItem = m_LastItem;
 
-        Percent = Math.Round((double)value / m_TargetValue * 100.0, 1, MidpointRounding.AwayFromZero);
+        Percent = Math.Round((double) value / m_TargetValue * 100.0, 1, MidpointRounding.AwayFromZero);
 
         // Make sure we have enough items to estimate
 
@@ -133,7 +147,7 @@ namespace CsvTools
         }
         else
         {
-          var finishedInTicks = (m_TargetValue - m_LastItem.Value) * (double)(m_LastItem.Tick - m_FirstItem.Tick) /
+          var finishedInTicks = (m_TargetValue - m_LastItem.Value) * (double) (m_LastItem.Tick - m_FirstItem.Tick) /
                                 (m_LastItem.Value - m_FirstItem.Value);
           // Calculate the estimated finished time but add 5%
           EstimatedTimeRemaining = finishedInTicks / Stopwatch.Frequency > .9
@@ -142,6 +156,22 @@ namespace CsvTools
         }
       }
       get => m_LastItem.Value;
+    }
+
+    /// <summary>
+    /// Displays the timespan in a human readable format
+    /// </summary>
+    /// <param name="value">The value.</param>
+    /// <returns></returns>
+    public static string DisplayTimespan(TimeSpan value)
+    {
+      if (value == TimeSpan.MaxValue || value.TotalSeconds < 2)
+        return string.Empty;
+      if (value.TotalMinutes < 1)
+        return $"{value.Seconds} sec";
+      return value.TotalHours < 1
+        ? $"{value.Minutes:D2}:{value.Seconds:D2}"
+        : $"{(int) value.TotalHours}:{value.Minutes:D2}:{value.Seconds:D2}";
     }
 
     private struct ProgressOverTime

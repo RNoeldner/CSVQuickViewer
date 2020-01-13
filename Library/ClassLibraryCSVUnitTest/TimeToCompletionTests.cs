@@ -26,7 +26,7 @@ namespace CsvTools.Tests
       Assert.IsNotNull(test);
       test.TargetValue = 20;
       Assert.AreEqual(20, test.TargetValue);
-      Assert.AreEqual(string.Empty, test.EstimatedTimeRemainingDisplaySeperator);
+      Assert.AreEqual(string.Empty, test.EstimatedTimeRemainingDisplaySeparator);
       Assert.AreEqual(string.Empty, test.EstimatedTimeRemainingDisplay);
 
       test.Value = 1;
@@ -48,7 +48,7 @@ namespace CsvTools.Tests
 
       Assert.IsTrue(test.EstimatedTimeRemaining.TotalSeconds > 0.0);
       Assert.IsTrue(test.EstimatedTimeRemaining.TotalSeconds < 5.0);
-      Assert.AreNotEqual(string.Empty, test.EstimatedTimeRemainingDisplaySeperator);
+      Assert.AreNotEqual(string.Empty, test.EstimatedTimeRemainingDisplaySeparator);
       Assert.AreNotEqual(string.Empty, test.EstimatedTimeRemainingDisplay);
     }
   }
