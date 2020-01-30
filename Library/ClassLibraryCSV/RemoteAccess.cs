@@ -24,15 +24,16 @@ namespace CsvTools
 #pragma warning restore CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
   {
     private string m_EncryptedPassword = string.Empty;
-    private string m_HostName = string.Empty;
+    private string m_EncryptedHostName = string.Empty;
     private AccessProtocol m_Protocol = AccessProtocol.Sftp;
     private int m_Port = 22;
-    private string m_User = string.Empty;
+    //private string m_User = string.Empty;
+    private string m_EncryptedUser = string.Empty;
 
     [XmlIgnore]
     [Browsable(true)]
     [ReadOnly(true)]
-    public virtual bool CanConnect => !string.IsNullOrEmpty(m_HostName);
+    public virtual bool CanConnect => !string.IsNullOrEmpty(m_EncryptedHostName);
 
     [XmlAttribute]
     [DefaultValue(AccessProtocol.Sftp)]
@@ -66,38 +67,44 @@ namespace CsvTools
       }
     }
 
-    [XmlAttribute]
+    [XmlAttribute("HostName")]
     [DefaultValue("")]
     [Browsable(true)]
     [ReadOnly(false)]
-    public virtual string HostName
+    public virtual string EncryptedHostName
     {
-      get => m_HostName;
+      get => m_EncryptedHostName;
       set
       {
         var newVal = value ?? string.Empty;
-        if (m_HostName.Equals(newVal))
+        if (m_EncryptedHostName.Equals(newVal))
           return;
-        m_HostName = newVal;
-        NotifyPropertyChanged(nameof(HostName));
+        // setting unencyrpted value will encrpt them automatically, in teh past HostName was not encyrpted
+        if (!newVal.IsEncyrpted() && !string.IsNullOrEmpty(newVal))
+          newVal = newVal.Encrypt();
+        m_EncryptedHostName = newVal;
+        NotifyPropertyChanged(nameof(EncryptedHostName));
         NotifyPropertyChanged(nameof(CanConnect));
       }
-    }
+    }   
 
-    [XmlAttribute]
+    [XmlAttribute("User")]
     [DefaultValue("")]
     [Browsable(true)]
     [ReadOnly(false)]
-    public virtual string User
+    public virtual string EncryptedUser
     {
-      get => m_User;
+      get => m_EncryptedUser;
       set
       {
         var newVal = value ?? string.Empty;
-        if (m_User.Equals(newVal))
+        if (m_EncryptedUser.Equals(newVal))
           return;
-        m_User = newVal;
-        NotifyPropertyChanged(nameof(User));
+        // setting unencyrpted value will encrpt them automatically, in teh past User was not encyrpted
+        if (!newVal.IsEncyrpted() && !string.IsNullOrEmpty(newVal))
+          newVal = newVal.Encrypt();
+        m_EncryptedUser = newVal;
+        NotifyPropertyChanged(nameof(EncryptedUser));
       }
     }
 
@@ -130,8 +137,8 @@ namespace CsvTools
       if (other == null)
         return;
       other.EncryptedPassword = EncryptedPassword;
-      other.User = User;
-      other.HostName = HostName;
+      other.EncryptedUser = EncryptedUser;
+      other.EncryptedHostName = EncryptedHostName;
       other.Protocol = Protocol;
     }
 
@@ -148,8 +155,8 @@ namespace CsvTools
       if (ReferenceEquals(this, other))
         return true;
       return string.Equals(EncryptedPassword, other.EncryptedPassword) && m_Protocol == other.Protocol &&
-             string.Equals(HostName, other.HostName, StringComparison.OrdinalIgnoreCase) &&
-             string.Equals(User, other.User, StringComparison.OrdinalIgnoreCase);
+             string.Equals(EncryptedHostName, other.EncryptedHostName, StringComparison.Ordinal) &&
+             string.Equals(EncryptedUser, other.EncryptedUser, StringComparison.Ordinal);
     }
 
     /// <summary>
@@ -179,8 +186,8 @@ namespace CsvTools
         var hashCode = m_EncryptedPassword != null ? m_EncryptedPassword.GetHashCode() : 0;
         hashCode = (hashCode * 397) ^ (int)m_Protocol;
         hashCode = (hashCode * 397) ^
-                   (m_HostName != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(m_HostName) : 0);
-        hashCode = (hashCode * 397) ^ (m_User != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(m_User) : 0);
+                   (m_EncryptedHostName != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(m_EncryptedHostName) : 0);
+        hashCode = (hashCode * 397) ^ (EncryptedUser != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(EncryptedUser) : 0);
         return hashCode;
       }
     }

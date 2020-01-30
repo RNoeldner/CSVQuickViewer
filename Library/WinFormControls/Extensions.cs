@@ -12,14 +12,13 @@
  *
  */
 
+using Pri.LongPath;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-
-using Pri.LongPath;
 
 namespace CsvTools
 {
@@ -44,12 +43,12 @@ namespace CsvTools
     /// <param name="additionalTitle">Title Bar information</param>
     public static void ShowError(this Form from, Exception ex, string additionalTitle = "")
     {
-      Logger.Warning(ex, "Issue in UI {form} : {message} {stack}", from.GetType().Name, ex.SourceExceptionMessage());
+      Logger.Warning(ex, "Error in {form} : {message}", from.GetType().Name, ex.SourceExceptionMessage());
       Cursor.Current = Cursors.Default;
-#if DEBUG
+#if DEBUG      
       _MessageBox.ShowBig(from, ex.ExceptionMessages() + "\n\nMethod:\n" + ex.CsvToolsStackTrace(), string.IsNullOrEmpty(additionalTitle) ? "Error" : $"Error {additionalTitle}", MessageBoxButtons.OK, MessageBoxIcon.Warning, timeout: 20);
 #else
-      MessageBox.Show(from, ex.ExceptionMessages(), string.IsNullOrEmpty(additionalTitle) ? "Error" : $"Error {additionalTitle}", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+      _MessageBox.Show(from, ex.ExceptionMessages(), string.IsNullOrEmpty(additionalTitle) ? "Error" : $"Error {additionalTitle}", MessageBoxButtons.OK, MessageBoxIcon.Warning, timeout: 60);
 #endif
     }
 
@@ -173,7 +172,7 @@ namespace CsvTools
 
       if (diagRes == DialogResult.Yes)
       {
-        retry:
+      retry:
         try
         {
           File.Delete(fileName);
