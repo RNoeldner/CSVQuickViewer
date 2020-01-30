@@ -513,7 +513,7 @@ namespace CsvTools
                 }
                 else
                 {
-                  var cols = ApplicationSetting.GetColumnHeader.Invoke(m_FileSetting, true, processDisplay);
+                  var cols = ApplicationSetting.GetColumnHeader.Invoke(m_FileSetting, true, processDisplay.CancellationToken);
                   if (cols != null)
                   {
                     foreach (var col in cols)

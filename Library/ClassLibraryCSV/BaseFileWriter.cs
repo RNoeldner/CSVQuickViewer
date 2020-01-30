@@ -192,18 +192,13 @@ namespace CsvTools
 
       // Using the connection string
       HandleProgress("Executing SQL Statement");
-
-      using (var dataReader =
-        ApplicationSetting.SQLDataReader(m_FileSetting.SqlStatement, m_ProcessDisplay, m_FileSetting.Timeout))
+      using (var sqlReader = ApplicationSetting.SQLDataReader(m_FileSetting.SqlStatement, m_ProcessDisplay, m_FileSetting.Timeout))
       {
         HandleProgress("Reading returned data");
-        var dt = new DataTable();
-        dt.BeginLoadData();
-        dt.Load(dataReader);
-        dt.EndLoadData();
-        return dt;
+        return sqlReader.Read2DataTable(m_ProcessDisplay, recordLimit);
       }
     }
+
 
     /// <summary>
     ///   Writes the specified file.
@@ -214,10 +209,9 @@ namespace CsvTools
       if (string.IsNullOrEmpty(m_FileSetting.SqlStatement))
         return 0;
 
-      using (var reader =
-        ApplicationSetting.SQLDataReader(m_FileSetting.SqlStatement, m_ProcessDisplay, m_FileSetting.Timeout))
+      using (var sqlReader = ApplicationSetting.SQLDataReader(m_FileSetting.SqlStatement, m_ProcessDisplay, m_FileSetting.Timeout))
       {
-        return Write(reader);
+        return Write(sqlReader);
       }
     }
 

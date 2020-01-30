@@ -588,7 +588,7 @@ namespace CsvTools
               if (!string.IsNullOrEmpty(cf.Name) && !cf.Ignore)
                 m_Headers.Add(cf.Name);
             }
-            ApplicationSetting.GetColumnHeader = delegate (IFileSetting dummy1, bool dummy, IProcessDisplay dummy3)
+            ApplicationSetting.GetColumnHeader = delegate (IFileSetting dummy1, bool dummy, CancellationToken dummy3)
             {
               return m_Headers;
             };

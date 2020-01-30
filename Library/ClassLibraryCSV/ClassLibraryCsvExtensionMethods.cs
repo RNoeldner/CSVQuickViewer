@@ -384,6 +384,52 @@ namespace CsvTools
       }
     }
 
+
+    public static DataTable Read2DataTable(this IDataReader dataReader, IProcessDisplay processDisplay, uint recordLimit)
+    {
+      var dataTable = new DataTable();
+      var display = (processDisplay?.Maximum ?? 0) > 1 ? "Reading rows\nRecord {0:N0}/" + $"{processDisplay?.Maximum:N0}" : "Reading rows\nRecords {0:N0}";
+      try
+      {
+        if (processDisplay != null && recordLimit > 0)
+          processDisplay.Maximum = recordLimit;
+
+        // create columns
+        var schemaTable = dataReader.GetSchemaTable();
+        if (schemaTable == null)
+          return null;
+        var columns = schemaTable.Rows.Count;
+
+        // We could have duplicate column names
+        // in this case we have need to adjust the conflicting name
+        var previousColumns = new List<string>();
+        foreach (DataRow dataRow in schemaTable.Rows)
+        {
+          var colName = StringUtils.MakeUniqueInCollection(previousColumns, (string)dataRow["ColumnName"]);
+          dataTable.Columns.Add(new DataColumn(colName, (Type)dataRow["DataType"]) { AllowDBNull = true });
+          previousColumns.Add(colName);
+        }
+
+        dataTable.BeginLoadData();
+        // load the Data into the dataTable
+        
+        var action = new IntervalAction(.3);
+        while (dataTable.Rows.Count < recordLimit && !processDisplay.CancellationToken.IsCancellationRequested && dataReader.Read())
+        {
+          var readerValues = new object[columns];
+          if (dataReader.GetValues(readerValues) > 0)
+            dataTable.Rows.Add(readerValues);
+          action.Invoke(() => processDisplay?.SetProcess(string.Format(display, dataTable.Rows.Count), dataTable.Rows.Count, false));
+        }
+      }
+      finally
+      {
+        processDisplay?.SetProcess(string.Format(display, dataTable.Rows.Count), dataTable.Rows.Count, false);
+        dataTable.EndLoadData();
+      }
+      return dataTable;
+    }
+
     /// <summary>
     ///   Get a list of column names that are not artificial
     /// </summary>
