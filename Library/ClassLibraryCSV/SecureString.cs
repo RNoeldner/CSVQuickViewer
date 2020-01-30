@@ -27,6 +27,7 @@ namespace CsvTools
   {
     private const int c_SlatSize = 8;
     private const int c_SlatSplit = 3;
+    private const string c_Base64 = "012345abcdefghijklmnopqrstuvwxyz6789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
     /// <summary>
     ///   A central Random instance that should be decently random, please use for any random number generation
@@ -43,6 +44,29 @@ namespace CsvTools
         "reCffmj/JWCQmL60+zVmPxBwHEkiZCwC+B1wZsXn4BpjBUg8IJ5".Decrypt("g4yTwMwpRfz4a1hBFkQQ"));
 
     /// <summary>
+    /// Checks if teh text is possibly an encyrpted text.
+    /// </summary>
+    /// <param name="cipherText"></param>
+    /// <returns><c>true</c> if it is possibly an encrypted text, <c>false</c> if it could not be an encrypted text</returns>
+    public static bool IsEncyrpted(this string cipherText)
+    {
+      if (cipherText == null)
+        return false;
+
+      // Any text (even empty) that is encyrpted is at least 30 chars
+      if (cipherText.Length < 30)
+        return false;
+
+      // in case the text does conatin a non Base64 chars it is not encrypted
+      var test = c_Base64 + "/+=";
+      for (int index = 0; index < cipherText.Length; index++)
+        if (test.IndexOf(cipherText[index]) == -1)
+          return false;
+
+      return true;
+    }
+
+    /// <summary>
     ///   Decrypts the Base64 encoded salted encrypted text using the specified password
     /// </summary>
     /// <param name="cipherText">The Base64 encoded encrypted cipher text.</param>
@@ -50,14 +74,17 @@ namespace CsvTools
     /// <returns>Plain decrypted text</returns>
     public static string Decrypt(this string cipherText, string pwd = null)
     {
-      if (string.IsNullOrEmpty(cipherText))
-        return string.Empty;
+      // any not encypted text does not need decryption
+      if (!cipherText.IsEncyrpted())
+        return cipherText;
+
       if (pwd == null)
         pwd = DefaultPhrase;
 
       var salt = cipherText.Substring(0, c_SlatSplit) +
-                 cipherText.Substring(cipherText.Length - (c_SlatSize - c_SlatSplit));
+                   cipherText.Substring(cipherText.Length - (c_SlatSize - c_SlatSplit));
       var base64 = cipherText.Substring(c_SlatSplit, cipherText.Length - c_SlatSize);
+
       // add the possibly removed padding
       if (base64.Length % 4 != 0)
         base64 += "=";
@@ -92,7 +119,6 @@ namespace CsvTools
       if (pwd == null)
         pwd = DefaultPhrase;
 
-      const string c_Base64 = "012345abcdefghijklmnopqrstuvwxyz6789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
       var builder = new char[c_SlatSize];
       // pick random salt characters
       for (var i = 0; i < c_SlatSize; i++)

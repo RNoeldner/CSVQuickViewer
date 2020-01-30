@@ -38,18 +38,18 @@ namespace CsvTools.Tests
       {
         hasFired = true;
       };
-      testCase.HostName = "Test";
-      Assert.AreEqual("Test", testCase.HostName);
+      testCase.EncryptedHostName = "Test";
+      Assert.AreEqual("Test", testCase.EncryptedHostName);
       Assert.IsTrue(hasFired);
       hasFired = false;
-      testCase.HostName = "Test";
+      testCase.EncryptedHostName = "Test";
       Assert.IsFalse(hasFired);
 
-      testCase.User = "Hello";
+      testCase.EncryptedUser = "Hello";
       Assert.IsTrue(hasFired);
-      Assert.AreEqual("Hello", testCase.User);
+      Assert.AreEqual("Hello", testCase.EncryptedUser);
       hasFired = false;
-      testCase.User = "Hello";
+      testCase.EncryptedUser = "Hello";
       Assert.IsFalse(hasFired);
 
       testCase.EncryptedPassword = "World";

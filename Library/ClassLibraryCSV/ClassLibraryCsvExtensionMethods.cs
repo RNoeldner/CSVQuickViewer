@@ -452,6 +452,44 @@ namespace CsvTools
       }
     }
 
+    public static string GetPlaceholderType(this string input, string placeholder)
+    {
+      var type = "{" + placeholder + "}";
+      if (input.IndexOf(type, StringComparison.OrdinalIgnoreCase) != -1)
+        return type;
+      type = "#" + placeholder + "#";
+      if (input.IndexOf(type, StringComparison.OrdinalIgnoreCase) != -1)
+        return type;
+
+      type = "#" + placeholder;
+      if (input.EndsWith(type, StringComparison.OrdinalIgnoreCase) || input.IndexOf(type + " ", StringComparison.OrdinalIgnoreCase) != -1)
+        return type;
+      return null;
+    }
+
+    public static string PlaceHolderTimes(this string text, string format, IFileSetting fileSetting, DateTime LastExecution, DateTime LastExecutionStart)
+    {
+      if (!string.IsNullOrEmpty(text))
+      {
+        if (fileSetting.ProcessTimeUtc != BaseSettings.ZeroTime)
+        {
+          var value = fileSetting.ProcessTimeUtc.ToString(format);
+          text = text.PlaceholderReplace("LastRunUTC", value);
+        }
+        if (LastExecutionStart != BaseSettings.ZeroTime)
+        {
+          var value = LastExecutionStart.ToString(format);
+          text = text.PlaceholderReplace("ScriptStartUTC", value);
+        }
+        if (LastExecution != BaseSettings.ZeroTime)
+        {
+          var value = LastExecution.ToString(format);
+          text = text.PlaceholderReplace("LastScriptEndUTC", value);
+        }
+      }
+      return text;
+    }
+
     /// <summary>
     ///   Replaces a placeholders with a text. The placeholder are identified surrounding { or a leading #
     /// </summary>
@@ -459,28 +497,25 @@ namespace CsvTools
     /// <param name="placeholder">The placeholder.</param>
     /// <param name="replacement">The replacement.</param>
     /// <returns>The new text based on input</returns>
-    [DebuggerStepThrough]
+    ///[DebuggerStepThrough]
     public static string PlaceholderReplace(this string input, string placeholder, string replacement)
     {
-      var type = "{" + placeholder + "}";
-      if (input.IndexOf(type, StringComparison.OrdinalIgnoreCase) != -1)
+      if (!string.IsNullOrEmpty(replacement))
       {
-        // remove leading delimiters " - " along with the empty text
-        if (string.IsNullOrEmpty(replacement))
+        var type = input.GetPlaceholderType(placeholder);
+        if (type != null)
         {
           if (input.IndexOf(" - " + type, StringComparison.OrdinalIgnoreCase) != -1)
             type = " - " + type;
           else if (input.IndexOf(" " + type, StringComparison.OrdinalIgnoreCase) != -1)
             type = " " + type;
+          else if (input.IndexOf(type + " ", StringComparison.OrdinalIgnoreCase) != -1)
+            replacement += " ";
+
+          return input.ReplaceCaseInsensitive(type, replacement);
         }
-
-        input = input.ReplaceCaseInsensitive(type, replacement);
       }
-
-      if (input.EndsWith("#" + placeholder, StringComparison.OrdinalIgnoreCase))
-        input = input.Substring(0, input.Length - placeholder.Length - 1) + replacement;
-
-      return input.ReplaceCaseInsensitive("#" + placeholder + " ", replacement + " ");
+      return input;
     }
 
     /// <summary>

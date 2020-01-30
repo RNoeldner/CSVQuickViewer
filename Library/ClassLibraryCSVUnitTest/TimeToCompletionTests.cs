@@ -24,30 +24,33 @@ namespace CsvTools.Tests
     {
       var test = new TimeToCompletion();
       Assert.IsNotNull(test);
-      test.TargetValue = 20;
-      Assert.AreEqual(20, test.TargetValue);
+      test.TargetValue = 150;
+      Assert.AreEqual(150, test.TargetValue);
       Assert.AreEqual(string.Empty, test.EstimatedTimeRemainingDisplaySeparator);
       Assert.AreEqual(string.Empty, test.EstimatedTimeRemainingDisplay);
 
       test.Value = 1;
-      Assert.AreEqual(1, test.Value);
-      Assert.AreEqual(5, test.Percent);
+      Assert.AreEqual(1, test.Value);      
       Thread.Sleep(100);
       test.Value = 2;
-      Assert.AreEqual(2, test.Value);
-      Assert.AreEqual(10, test.Percent);
+      Assert.AreEqual(2, test.Value);      
       Thread.Sleep(100);
       test.Value = 3;
-      Assert.AreEqual("15%", test.PercentDisplay);
+      Assert.AreEqual(2, test.Percent);
+      Assert.AreEqual(0.02.ToString("0.0%"), test.PercentDisplay);
       Thread.Sleep(100);
       test.Value = 4;
       Thread.Sleep(100);
       test.Value = 5;
-      Assert.AreEqual(5, test.Value);
-      Assert.AreEqual(25, test.Percent);
+      Assert.AreEqual(5, test.Value);      
+      for (int counter = 6; counter<60; counter++)
+      {
+        test.Value = counter;
+        Thread.Sleep(200);
+      }
 
       Assert.IsTrue(test.EstimatedTimeRemaining.TotalSeconds > 0.0);
-      Assert.IsTrue(test.EstimatedTimeRemaining.TotalSeconds < 5.0);
+      Assert.IsTrue(test.EstimatedTimeRemaining.TotalSeconds < 20.0);
       Assert.AreNotEqual(string.Empty, test.EstimatedTimeRemainingDisplaySeparator);
       Assert.AreNotEqual(string.Empty, test.EstimatedTimeRemainingDisplay);
     }
