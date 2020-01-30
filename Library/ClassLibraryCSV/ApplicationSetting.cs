@@ -15,6 +15,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Threading;
 
 namespace CsvTools
 {
@@ -26,7 +27,7 @@ namespace CsvTools
     /// <summary>
     /// Function to retrieve the column in a setting file
     /// </summary>
-    public static Func<IFileSetting, bool, IProcessDisplay, ICollection<string>> GetColumnHeader;
+    public static Func<IFileSetting, bool, CancellationToken, ICollection<string>> GetColumnHeader;
 
     /// <summary>
     /// Timezone, in case of reading the timezone to which conversion are done to, or when writing the source timezone from where to convert from
