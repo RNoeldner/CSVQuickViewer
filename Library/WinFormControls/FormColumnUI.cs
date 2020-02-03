@@ -126,7 +126,7 @@ namespace CsvTools
             var fileWriter = m_FileSetting.GetFileWriter(processDisplay);
             var hasRetried = false;
             retry:
-            var data = fileWriter.GetSourceDataTable(m_FillGuessSettings.CheckedRecords.ToUint());
+            var data = fileWriter.GetSourceDataTable(m_FillGuessSettings.CheckedRecords);
             {
               var found = new Column();
               var column = data.Columns[columnName];
@@ -688,7 +688,7 @@ namespace CsvTools
         if (m_WriteSetting)
         {
           var fileWriter = m_FileSetting.GetFileWriter(processDisplay);
-          var data = fileWriter.GetSourceDataTable((uint)m_FillGuessSettings.CheckedRecords);
+          var data = fileWriter.GetSourceDataTable(m_FillGuessSettings.CheckedRecords);
           {
             var colIndex = data.Columns.IndexOf(columnName);
             if (colIndex < 0)

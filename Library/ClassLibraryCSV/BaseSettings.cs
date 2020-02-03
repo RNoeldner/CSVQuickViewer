@@ -58,7 +58,7 @@ namespace CsvTools
     private long m_NumRecords;
     private string m_Passphrase = string.Empty;
     private string m_Recipient = string.Empty;
-    private uint m_RecordLimit;
+    private long m_RecordLimit;
     private string m_RemoteFileName = string.Empty;
     private bool m_ThrowErrorIfNotExists = true;
     private bool m_ShowProgress = true;
@@ -797,7 +797,7 @@ namespace CsvTools
     /// <value>The record limit.</value>
     [XmlElement]
     [DefaultValue(0)]
-    public virtual uint RecordLimit
+    public virtual long RecordLimit
     {
       get => m_RecordLimit;
 

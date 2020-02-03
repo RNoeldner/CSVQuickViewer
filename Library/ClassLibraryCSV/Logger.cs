@@ -71,7 +71,7 @@ namespace CsvTools
         // second log file in folder
         if (folder != null)
         {
-          var logfileFolder = new NLog.Targets.FileTarget("logfile2") { FileName = Path.Combine(folder, fileNameJson), Layout = "${longdate} ${level} ${message}  ${exception}" };
+          var logfileFolder = new NLog.Targets.FileTarget("logfile2") { FileName = Path.Combine(folder, fileNameJson), Layout = "${longdate} ${level} ${message}  ${exception:format=toString}" };
           if (config.AllTargets.Any(x => x is NLog.Targets.FileTarget target && !(target.Layout is JsonLayout)))
             config.RemoveTarget("logfile2");
           config.AddRule(minLevel, LogLevel.Fatal, logfileFolder);

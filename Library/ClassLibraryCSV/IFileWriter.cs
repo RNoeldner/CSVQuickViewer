@@ -50,7 +50,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="recordLimit">The record limit.</param>
     /// <returns>A data table with all source data</returns>
-    DataTable GetSourceDataTable(uint recordLimit);
+    DataTable GetSourceDataTable(long recordLimit);
 
     /// <summary>
     ///  Writes the specified file.
