@@ -185,7 +185,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="recordLimit">The record limit.</param>
     /// <returns>A data table with all source data</returns>
-    public virtual DataTable GetSourceDataTable(uint recordLimit)
+    public virtual DataTable GetSourceDataTable(long recordLimit)
     {
       if (string.IsNullOrEmpty(m_FileSetting.SqlStatement))
         return null;

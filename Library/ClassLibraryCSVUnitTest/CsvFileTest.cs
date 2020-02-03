@@ -421,7 +421,7 @@ namespace CsvTools.Tests
       Assert.AreEqual(TrimmingOption.Unquoted, m_CsvFile.TrimmingOption, "TrimmingOption");
       Assert.AreEqual(5, m_CsvFile.NumWarnings, "NumWarnings");
 
-      Assert.AreEqual(5U, m_CsvFile.RecordLimit, "RecordLimit");
+      Assert.AreEqual(5L, m_CsvFile.RecordLimit, "RecordLimit");
       Assert.IsTrue(m_CsvFile.TreatUnknowCharaterAsSpace, "ReplaceUnknowCharater");
       Assert.IsTrue(m_CsvFile.ShowProgress, "ShowProgress");
       Assert.AreEqual(1, m_CsvFile.SkipRows, "SkipRows");

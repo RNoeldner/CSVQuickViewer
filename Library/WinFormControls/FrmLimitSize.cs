@@ -52,7 +52,7 @@ namespace CsvTools
     /// <summary>
     ///   The selected record limit
     /// </summary>
-    public int RecordLimit { get; set; } = 0;
+    public long RecordLimit { get; set; } = 0;
 
     private void buttonCancel_Click(object sender, EventArgs e)
     {

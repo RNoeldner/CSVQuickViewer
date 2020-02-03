@@ -385,7 +385,7 @@ namespace CsvTools
     }
 
 
-    public static DataTable Read2DataTable(this IDataReader dataReader, IProcessDisplay processDisplay, uint recordLimit)
+    public static DataTable Read2DataTable(this IDataReader dataReader, IProcessDisplay processDisplay, long recordLimit)
     {
       var dataTable = new DataTable();
       var display = (processDisplay?.Maximum ?? 0) > 1 ? "Reading rows\nRecord {0:N0}/" + $"{processDisplay?.Maximum:N0}" : "Reading rows\nRecords {0:N0}";
@@ -411,10 +411,11 @@ namespace CsvTools
         }
 
         dataTable.BeginLoadData();
-        // load the Data into the dataTable
-        
+        if (recordLimit < 1)
+          recordLimit = int.MaxValue;
+        // load the Data into the dataTable        
         var action = new IntervalAction(.3);
-        while (dataTable.Rows.Count < recordLimit && !processDisplay.CancellationToken.IsCancellationRequested && dataReader.Read())
+        while (dataReader.Read() && dataTable.Rows.Count < recordLimit && !processDisplay.CancellationToken.IsCancellationRequested)
         {
           var readerValues = new object[columns];
           if (dataReader.GetValues(readerValues) > 0)
@@ -886,19 +887,6 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Get a valid unsigned integer from the integer
-    /// </summary>
-    /// <param name="value">The value.</param>
-    /// <returns></returns>
-    public static uint ToUint(this int value)
-    {
-      if (value < 0)
-        return 0;
-
-      return (uint)value;
-    }
-
-    /// <summary>
     ///   Run a task to completion with timeout
     ///   You should you expose synchronous wrappers for asynchronous methods, still here it is be very careful
     /// </summary>
@@ -1005,6 +993,46 @@ namespace CsvTools
       return false;
     }
 
+    public static CopyToDataTableInfo RemapCopyTo(this IFileReader fileReader, IFileSetting fileSetting,
+      DataTable dataTable, bool includeErrorField)
+    {
+      if (fileReader == null)
+        throw new ArgumentNullException(nameof(fileReader));
+      if (fileSetting == null)
+        throw new ArgumentNullException(nameof(fileSetting));
+      if (dataTable == null)
+        throw new ArgumentNullException(nameof(dataTable));
+
+      var result = new CopyToDataTableInfo
+      {
+        Mapping = new BiDirectionalDictionary<int, int>(),
+        ReaderColumns = new List<string>()
+      };
+
+      // Initialize a based on file reader
+      for (var col = 0; col < fileReader.FieldCount; col++)
+      {
+        result.ReaderColumns.Add(fileReader.GetName(col));
+        if (fileReader.IgnoreRead(col))
+          continue;
+        var cf = fileReader.GetColumn(col);
+        if (cf.Name.Equals(BaseFileReader.cStartLineNumberFieldName, StringComparison.OrdinalIgnoreCase))
+          continue;
+        result.Mapping.Add(col, dataTable.Columns[cf.Name].Ordinal);
+      }
+
+      result.StartLine = dataTable.Columns[BaseFileReader.cStartLineNumberFieldName];
+      if (fileSetting.DisplayRecordNo && !fileReader.HasColumnName(BaseFileReader.cRecordNumberFieldName))
+        result.RecordNumber = dataTable.Columns[BaseFileReader.cRecordNumberFieldName];
+
+      if (fileSetting.DisplayEndLineNo && !fileReader.HasColumnName(BaseFileReader.cEndLineNumberFieldName))
+        result.EndLine = dataTable.Columns[BaseFileReader.cEndLineNumberFieldName];
+
+      if (includeErrorField && !fileReader.HasColumnName(BaseFileReader.cErrorField))
+        result.Error = dataTable.Columns[BaseFileReader.cErrorField];
+
+      return result;
+    }
     public static CopyToDataTableInfo GetCopyToDataTableInfo(this IFileReader fileReader, IFileSetting fileSetting,
       DataTable dataTable, bool includeErrorField)
     {
@@ -1078,10 +1106,10 @@ namespace CsvTools
     /// <returns>
     ///   A <see cref="DataTable" /> with the records
     /// </returns>
-    public static DataTable WriteToDataTable(this IFileReader reader, IFileSetting fileSetting, uint records,
+    public static DataTable WriteToDataTable(this IFileReader reader, IFileSetting fileSetting, long records,
       CancellationToken cancellationToken)
     {
-      var requestedRecords = records < 1 ? uint.MaxValue : records;
+      var requestedRecords = records < 1 ? long.MaxValue : records;
 
 
       var dataTable = new DataTable(fileSetting.ID)

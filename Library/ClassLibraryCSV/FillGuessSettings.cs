@@ -27,7 +27,7 @@ namespace CsvTools
   public class FillGuessSettings : INotifyPropertyChanged, ICloneable<FillGuessSettings>, IEquatable<FillGuessSettings>
 #pragma warning restore CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
   {
-    private int m_CheckedRecords = 30000;
+    private long m_CheckedRecords = 30000;
     private bool m_CheckNamedDates = true;
     private bool m_DetectNumbers = true;
     private bool m_DetectPercentage = true;
@@ -52,7 +52,7 @@ namespace CsvTools
     /// </summary>
     [XmlAttribute]
     [DefaultValue(30000)]
-    public virtual int CheckedRecords
+    public virtual long CheckedRecords
     {
       get => m_CheckedRecords;
 

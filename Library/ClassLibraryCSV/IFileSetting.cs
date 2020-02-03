@@ -174,7 +174,7 @@ namespace CsvTools
     ///  Gets or sets the record limit.
     /// </summary>
     /// <value>The record limit. if set to 0 there is no limit</value>
-    uint RecordLimit { get; set; }
+    long RecordLimit { get; set; }
 
     ObservableCollection<SampleRecordEntry> Samples { get; set; }
 
