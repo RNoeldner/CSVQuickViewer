@@ -63,7 +63,7 @@ namespace CsvTools
       ApplicationSetting.PGPKeyStorage = m_ViewSettings.PGPInformation;
 
       InitializeComponent();
-      FillFromProperites();
+      FillFromProperties();
 
       m_SettingsChangedTimerChange.AutoReset = false;
       m_SettingsChangedTimerChange.Elapsed += delegate
@@ -383,7 +383,7 @@ namespace CsvTools
     /// </param>
     private void FileSystemWatcher_Changed(object sender, FileSystemEventArgs e) => m_FileChanged |= e.FullPath == m_FileSetting.FileName && e.ChangeType == WatcherChangeTypes.Changed;
 
-    private void FillFromProperites()
+    private void FillFromProperties()
     {
       ApplicationSetting.MenuDown = m_ViewSettings.MenuDown;
       detailControl.MoveMenu();
@@ -409,7 +409,7 @@ namespace CsvTools
     [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
     private bool InitFileSettings()
     {
-      const int maxsize = 1048576 * 20;
+      const int c_Maxsize = 1048576 * 20;
 
       if (string.IsNullOrEmpty(m_FileName) || !FileSystemUtils.FileExists(m_FileName))
         return false;
@@ -439,7 +439,7 @@ namespace CsvTools
           {
             frm.tabControl.SelectedTab = frm.tabPagePGP;
             frm.ShowDialog(this);
-            FillFromProperites();
+            FillFromProperties();
           }
           SaveDefault();
         }
@@ -456,7 +456,7 @@ namespace CsvTools
 
 
         FrmLimitSize limitSizeForm = null;
-        if (fileInfo.Length > maxsize)
+        if (fileInfo.Length > c_Maxsize)
         {
           limitSizeForm = new FrmLimitSize();
           limitSizeForm.Show();
@@ -526,7 +526,7 @@ namespace CsvTools
         if (m_ViewSettings.DetectFileChanges)
         {
           fileSystemWatcher.Filter = fileInfo.Name;
-          fileSystemWatcher.Path = FileSystemUtils.GetDirectoryName(fileInfo.FullName);
+          fileSystemWatcher.Path = fileInfo.FullName.GetDirectoryName();
         }
       }
       catch (Exception ex)
@@ -588,10 +588,7 @@ namespace CsvTools
               if (!string.IsNullOrEmpty(cf.Name) && !cf.Ignore)
                 m_Headers.Add(cf.Name);
             }
-            ApplicationSetting.GetColumnHeader = delegate (IFileSetting dummy1, bool dummy, CancellationToken dummy3)
-            {
-              return m_Headers;
-            };
+            ApplicationSetting.GetColumnHeader = (dummy1, dummy, dummy3) => m_Headers;
             if (warningList.CountRows > 0)
               _MessageBox.Show(this, warningList.Display, "Opening CSV File", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             if (!textPanel.Visible)
@@ -623,8 +620,8 @@ namespace CsvTools
           Logger.Information("Showing loaded data…");
           detailControl.DataTable = data;
         }
-        ApplicationSetting.SQLDataReader = delegate (string settingName, IProcessDisplay processDisplay, int timeout)
-        { return detailControl.DataTable.CreateDataReader(); };
+        ApplicationSetting.SQLDataReader =
+          (settingName, processDisplay, timeout) => detailControl.DataTable.CreateDataReader();
         detailControl.FileSetting = m_FileSetting;
         detailControl.FillGuessSettings = m_ViewSettings.FillGuessSettings;
 
@@ -674,6 +671,7 @@ namespace CsvTools
       }
       catch (Exception)
       {
+        // ignored
       }
     }
 
@@ -685,8 +683,7 @@ namespace CsvTools
         m_FileSetting.FileName = FileSystemUtils.SplitPath(m_FileSetting.FileName).FileName;
 
         Logger.Debug("Saving setting {path}", pathSetting);
-        SerializedFilesLib.SaveCsvFile(pathSetting, m_FileSetting, () => { return (_MessageBox.Show(this, $"Replace changed settings in {pathSetting} ?", "Settings", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes); }
-        );
+        SerializedFilesLib.SaveCsvFile(pathSetting, m_FileSetting, () => (_MessageBox.Show(this, $"Replace changed settings in {pathSetting} ?", "Settings", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes));
         m_ConfigChanged = false;
       }
       catch (Exception ex)
@@ -708,7 +705,7 @@ namespace CsvTools
         using (var frm = new FormEditSettings(m_ViewSettings))
         {
           frm.ShowDialog(MdiParent);
-          FillFromProperites();
+          FillFromProperties();
           SaveDefault();
         }
       }
