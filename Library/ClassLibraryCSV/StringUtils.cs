@@ -513,10 +513,9 @@ namespace CsvTools
           if (item.IndexOf(parts[index], stringComparison) == -1)
             all = false;
         }
-
         return all;
-
       }
+
       // any Part will do
       foreach (var part in filter.Split(new[] { ' ', ',', ';' }, StringSplitOptions.RemoveEmptyEntries))
       {

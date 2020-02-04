@@ -171,13 +171,43 @@ namespace CsvTools.Tests
           FileName = "Test.txt",
           SqlStatement = "Hello2"
         };
-       UnitTestInitialize.MimicSQLReader.AddSetting("Hello2", dataTable); 
+        UnitTestInitialize.MimicSQLReader.AddSetting("Hello2", dataTable); 
 
         using (var processDisplay = new DummyProcessDisplay())
         {
           var writer = new CsvFileWriter(writeFile, processDisplay);
           var dt = writer.GetSourceDataTable(10);
           Assert.AreEqual(2, dt.Columns.Count);
+        }
+      }
+    }
+
+    [TestMethod]
+    public void GetSchemaReader()
+    {
+      using (var dataTable = new DataTable { TableName = "DataTable", Locale = CultureInfo.InvariantCulture })
+      {
+        dataTable.Columns.Add("ID", typeof(int));
+        dataTable.Columns.Add("Text", typeof(string));
+        for (var i = 0; i < 100; i++)
+        {
+          var row = dataTable.NewRow();
+          row["ID"] = i;
+          row["Text"] = "Text" + i.ToString(CultureInfo.CurrentCulture);
+          dataTable.Rows.Add(row);
+        }
+        var writeFile = new CsvFile
+                          {
+                            ID = "TestXYZ.txt",
+                            FileName = "Test.txt",
+                            SqlStatement = "SELECT * FROM Hello2"
+                          };
+        UnitTestInitialize.MimicSQLReader.AddSetting("Hello2", dataTable);
+
+        using (var processDisplay = new DummyProcessDisplay())
+        {
+          var writer = new CsvFileWriter(writeFile, processDisplay);
+          var dt = writer.GetSchemaReader();
         }
       }
     }
@@ -277,6 +307,33 @@ namespace CsvTools.Tests
       cf.DateFormat = "yyyyMMdd";
       cf.TimePartFormat = @"hh:mm";
       cf.TimePart = "Time";
+      cf.TimeZonePart = "\"UTC\"";
+      var writer = new CsvFileWriter(writeFile, pd);
+
+      var res = writer.Write();
+      Assert.IsTrue(FileSystemUtils.FileExists(writeFile.FullPath));
+      Assert.AreEqual(1065, res, "Records");
+    }
+
+    [TestMethod]
+    public void TimeZoneConversions()
+    {
+      var pd = new MockProcessDisplay();
+
+      var writeFile = (CsvFile)m_WriteFile.Clone();
+      writeFile.FileName = "BasicCSVOut2.txt";
+
+      FileSystemUtils.FileDelete(writeFile.FullPath);
+      var setting = Helper.ReaderGetAllFormats();
+
+      UnitTestInitialize.MimicSQLReader.AddSetting(setting);
+      writeFile.SqlStatement = setting.ID;
+      writeFile.FileFormat.FieldDelimiter = "|";
+      var cf = writeFile.ColumnCollection.AddIfNew(new Column { Name = "DateTime", DataType = DataType.DateTime });
+      cf.DateFormat = "yyyyMMdd";
+      cf.TimePartFormat = @"hh:mm";
+      cf.TimePart = "Time";
+      cf.TimeZonePart = "TZ";
       var writer = new CsvFileWriter(writeFile, pd);
 
       var res = writer.Write();

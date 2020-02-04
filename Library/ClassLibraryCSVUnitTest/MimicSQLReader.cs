@@ -49,9 +49,10 @@ namespace CsvTools.Tests
 
     public IDataReader ReadData(string settingName, IProcessDisplay processDisplay, int timeout)
     {
-      var setting = m_ReadSetting.First(x => x.Key.ID == settingName);
+      var  setting = m_ReadSetting.Any(x => x.Key.ID == settingName)? m_ReadSetting.First(x => x.Key.ID == settingName) : m_ReadSetting.First();
       if (setting.Value == null)
       {
+
         var reader = setting.Key.GetFileReader(processDisplay);
         reader.Open();
         return reader;

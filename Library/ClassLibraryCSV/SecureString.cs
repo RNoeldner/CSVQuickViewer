@@ -12,22 +12,23 @@
  *
  */
 
-using System;
-using System.IO;
-using System.Security.Cryptography;
-using System.Text;
-
 namespace CsvTools
 {
+  using System;
+  using System.Diagnostics;
+  using System.IO;
+  using System.Security.Cryptography;
+  using System.Text;
+
   /// <summary>
   ///   Class to encrypt and decrypt text, any information that needs to be stored in a secure way should be encrypted
   /// </summary>
-  [System.Diagnostics.DebuggerStepThrough]
+  [DebuggerStepThrough]
   public static class SecureString
   {
+    private const string c_Base64 = "012345abcdefghijklmnopqrstuvwxyz6789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     private const int c_SlatSize = 8;
     private const int c_SlatSplit = 3;
-    private const string c_Base64 = "012345abcdefghijklmnopqrstuvwxyz6789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
     /// <summary>
     ///   A central Random instance that should be decently random, please use for any random number generation
@@ -35,36 +36,14 @@ namespace CsvTools
     public static Random Random = new Random(Guid.NewGuid().GetHashCode());
 
     private static readonly byte[] m_InitVectorBytes =
-      {112, 101, 109, 50, 97, 105, 108, 57, 117, 122, 108, 103, 122, 106, 55, 97};
+      {
+        112, 101, 109, 50, 97, 105, 108, 57, 117, 122, 108, 103, 122, 106, 55, 97
+      };
 
     private static string m_Phrase;
 
     private static string DefaultPhrase =>
-      m_Phrase ?? (m_Phrase =
-        "reCffmj/JWCQmL60+zVmPxBwHEkiZCwC+B1wZsXn4BpjBUg8IJ5".Decrypt("g4yTwMwpRfz4a1hBFkQQ"));
-
-    /// <summary>
-    /// Checks if teh text is possibly an encyrpted text.
-    /// </summary>
-    /// <param name="cipherText"></param>
-    /// <returns><c>true</c> if it is possibly an encrypted text, <c>false</c> if it could not be an encrypted text</returns>
-    public static bool IsEncyrpted(this string cipherText)
-    {
-      if (cipherText == null)
-        return false;
-
-      // Any text (even empty) that is encyrpted is at least 30 chars
-      if (cipherText.Length < 30)
-        return false;
-
-      // in case the text does conatin a non Base64 chars it is not encrypted
-      var test = c_Base64 + "/+=";
-      for (int index = 0; index < cipherText.Length; index++)
-        if (test.IndexOf(cipherText[index]) == -1)
-          return false;
-
-      return true;
-    }
+      m_Phrase ?? (m_Phrase = "reCffmj/JWCQmL60+zVmPxBwHEkiZCwC+B1wZsXn4BpjBUg8IJ5".Decrypt("g4yTwMwpRfz4a1hBFkQQ"));
 
     /// <summary>
     ///   Decrypts the Base64 encoded salted encrypted text using the specified password
@@ -81,8 +60,8 @@ namespace CsvTools
       if (pwd == null)
         pwd = DefaultPhrase;
 
-      var salt = cipherText.Substring(0, c_SlatSplit) +
-                   cipherText.Substring(cipherText.Length - (c_SlatSize - c_SlatSplit));
+      var salt = cipherText.Substring(0, c_SlatSplit)
+                 + cipherText.Substring(cipherText.Length - (c_SlatSize - c_SlatSplit));
       var base64 = cipherText.Substring(c_SlatSplit, cipherText.Length - c_SlatSize);
 
       // add the possibly removed padding
@@ -120,6 +99,7 @@ namespace CsvTools
         pwd = DefaultPhrase;
 
       var builder = new char[c_SlatSize];
+
       // pick random salt characters
       for (var i = 0; i < c_SlatSize; i++)
         builder[i] = c_Base64[Convert.ToInt32(Math.Floor(c_Base64.Length * Random.NextDouble()))];
@@ -136,6 +116,7 @@ namespace CsvTools
             cryptoStream.Write(plainTextBytes, 0, plainTextBytes.Length);
             cryptoStream.FlushFinalBlock();
             var text = Convert.ToBase64String(memoryStream.ToArray());
+
             // remove Base64 padding
             if (text.EndsWith("=="))
               text = text.Substring(0, text.Length - 2);
@@ -146,6 +127,29 @@ namespace CsvTools
           }
         }
       }
+    }
+
+    /// <summary>
+    ///   Checks if the text is possibly an encyrpted text.
+    /// </summary>
+    /// <param name="cipherText"></param>
+    /// <returns><c>true</c> if it is possibly an encrypted text, <c>false</c> if it could not be an encrypted text</returns>
+    public static bool IsEncyrpted(this string cipherText)
+    {
+      if (cipherText == null)
+        return false;
+
+      // Any text (even empty) that is encyrpted is at least 30 chars
+      if (cipherText.Length < 30)
+        return false;
+
+      // in case the text does conatin a non Base64 chars it is not encrypted
+      var test = c_Base64 + "/+=";
+      foreach (var t in cipherText)
+        if (test.IndexOf(t) == -1)
+          return false;
+
+      return true;
     }
   }
 }

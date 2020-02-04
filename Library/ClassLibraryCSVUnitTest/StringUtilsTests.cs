@@ -21,6 +21,19 @@ namespace CsvTools.Tests
   [TestClass]
   public class StringUtilsTests
   {
+
+    [TestMethod]
+    public void PassesFilter()
+    {
+      Assert.AreEqual(true, "".PassesFilter(""));
+      Assert.AreEqual(true, "This is a test".PassesFilter("test"));
+      Assert.AreEqual(true, "This is a test".PassesFilter("This"));
+      Assert.AreEqual(true, "This is a test".PassesFilter("This +test"));
+      Assert.AreEqual(false, "This is a test".PassesFilter("The+test"));
+
+    }
+
+
     [TestMethod]
     public void CountOccurence()
     {
