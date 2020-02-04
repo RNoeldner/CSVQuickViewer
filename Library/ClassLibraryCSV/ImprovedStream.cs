@@ -25,17 +25,17 @@ namespace CsvTools
   ///   A wrapper around file streams to handle pre and post processing, needed for sFTP, Encryption and Compression
   /// </summary>
   /// <seealso cref="System.IDisposable" />
-  public class ImprovedStream : IDisposable
+  public sealed class ImprovedStream : IDisposable
   {
     /// <summary>
     ///   A PGP stream, has a few underlying streams that need to be closed in teh right order
     /// </summary>
-    private Stream CompressStream = null;
+    private Stream m_CompressStream = null;
 
     /// <summary>
     ///   A PGP stream, has a few underlying streams that need to be closed in teh right order
     /// </summary>
-    private Stream EncryptedStream = null;
+    private Stream m_EncryptedStream = null;
 
     private bool m_AssumeGZip;
 
@@ -104,12 +104,8 @@ namespace CsvTools
     ///   Opens an file for writing
     /// </summary>
     /// <param name="path">The path.</param>
-    /// <param name="processDisplay">The process display.</param>
     /// <param name="recipient">The recipient.</param>
-    /// <returns></returns>
-    /// <remarks>
-    ///   There could be one steps a) in case its to be uploaded a temp file will be created
-    /// </remarks>
+    /// <returns>An improved stream object  </returns>
     public static ImprovedStream OpenWrite(string path, string recipient = null)
     {
       FileSystemUtils.FileDelete(path.LongPathPrefix());
@@ -129,8 +125,8 @@ namespace CsvTools
         retVal.Stream = ApplicationSetting.PGPKeyStorage.PGPStream(
           retVal.BaseStream,
           recipient,
-          out retVal.EncryptedStream,
-          out retVal.CompressStream);
+          out retVal.m_EncryptedStream,
+          out retVal.m_CompressStream);
         return retVal;
       }
 
@@ -147,15 +143,15 @@ namespace CsvTools
     {
       if (m_AssumePGP)
       {
-        CompressStream?.Close();
-        EncryptedStream?.Close();
+        m_CompressStream?.Close();
+        m_EncryptedStream?.Close();
       }
 
       Stream?.Close();
       BaseStream?.Close();
     }
 
-    public void Dispose() => Dispose(true); 
+    public void Dispose() => Dispose(true);
 
     public void ResetToStart(Action<Stream> afterInit)
     {
@@ -221,28 +217,26 @@ namespace CsvTools
       }
     }
 
-    protected virtual void Dispose(bool disposing)
+    private void Dispose(bool disposing)
     {
-      if (!m_DisposedValue)
+      if (m_DisposedValue) return;
+      if (disposing)
       {
-        if (disposing)
+        Close();
+        if (m_AssumePGP)
         {
-          Close();
-          if (m_AssumePGP)
-          {
-            CompressStream?.Dispose();
-            CompressStream = null;
+          m_CompressStream?.Dispose();
+          m_CompressStream = null;
 
-            EncryptedStream?.Dispose();
-            EncryptedStream = null;
-          }
-
-          Stream?.Dispose();
-          BaseStream?.Dispose();
+          m_EncryptedStream?.Dispose();
+          m_EncryptedStream = null;
         }
 
-        m_DisposedValue = true;
+        Stream?.Dispose();
+        BaseStream?.Dispose();
       }
+
+      m_DisposedValue = true;
     }
 
     /// <summary>
@@ -270,11 +264,5 @@ namespace CsvTools
         throw;
       }
     }
-
-    // TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
-    // ~ValidatorFileStream() {
-    // // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
-    // Dispose(false);
-    // }
   }
 }
