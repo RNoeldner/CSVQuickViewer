@@ -381,13 +381,13 @@ namespace CsvTools.Tests
         }
         catch (ArgumentOutOfRangeException)
         {
-        }
+        }        
         catch (AssertInconclusiveException)
         {
         }
-        catch
+        catch(Exception ex)
         {
-          Assert.Fail("Wrong or exception");
+          Assert.Fail("Wrong or exception thrown exception is : " + ex.GetType().Name);
         }
       }
     }

@@ -464,7 +464,7 @@ namespace CsvTools
           // As the form closes it will store the information
           limitSizeForm.FormClosing += (sender, args) =>
           {
-            m_FileSetting.RecordLimit = limitSizeForm.RecordLimit.ToUint();
+            m_FileSetting.RecordLimit = limitSizeForm.RecordLimit;
             limitSizeForm = null;            
           };          
         }

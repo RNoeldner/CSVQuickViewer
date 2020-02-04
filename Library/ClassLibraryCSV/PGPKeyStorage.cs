@@ -12,6 +12,9 @@
  *
  */
 
+using Org.BouncyCastle.Bcpg;
+using Org.BouncyCastle.Bcpg.OpenPgp;
+using Org.BouncyCastle.Security;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -20,9 +23,6 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Xml.Serialization;
-using Org.BouncyCastle.Bcpg;
-using Org.BouncyCastle.Bcpg.OpenPgp;
-using Org.BouncyCastle.Security;
 
 namespace CsvTools
 {
@@ -418,56 +418,82 @@ namespace CsvTools
       {
         var recipientsPublicKeys = GetRecipients();
         if (recipientsPublicKeys == null)
-          throw new EncryptionException("Could not get list of recipients from known private or public keys");
+          throw new EncryptionException("Could not get list of recipients from known private or public keys, decoding is not possible");
         var encryptedDataList = (PgpEncryptedDataList)new PgpObjectFactory(decoderStream).NextPgpObject();
-        foreach (PgpPublicKeyEncryptedData data in encryptedDataList.GetEncryptedDataObjects())
+        if (encryptedDataList != null)
         {
-          foreach (var keyValue in recipientsPublicKeys)
+          foreach (PgpPublicKeyEncryptedData data in encryptedDataList.GetEncryptedDataObjects())
           {
-            if (keyValue.Value.KeyId != data.KeyId)
-              continue;
-            foreach (var userID in keyValue.Value.GetUserIds())
-              return userID.ToString();
+            foreach (var keyValue in recipientsPublicKeys)
+            {
+              if (keyValue.Value.KeyId != data.KeyId)
+                continue;
+              foreach (var userID in keyValue.Value.GetUserIds())
+                return userID.ToString();
+            }
+            break;
           }
-
-          break;
         }
-
-        throw new EncryptionException("Could not locate encrypted data in stream to determine recipient");
+        throw new EncryptionException("Could not locate pgp encrypted data, decoding is not possible");
       }
     }
 
-    public virtual void PgpEncrypt(Stream toEncrypt, Stream outStream, string recipient, IProcessDisplay processDisplay)
+    /// <summary>
+    /// This is not working as of now, ideally this would retun a stream that can be used fro writing, but the result is not correct
+    /// </summary>
+    /// <param name="baseStream"></param>
+    /// <param name="recipients"></param>
+    /// <returns></returns>
+    public virtual Stream PGPStream(Stream baseStream, string recipients, out Stream encryptedStream, out Stream compressedStream )
     {
-      var encryptionKey = GetEncryptionKey(recipient);
-      var encryption = new PgpEncryptedDataGenerator(SymmetricKeyAlgorithmTag.TripleDes, false, new SecureRandom());
-      var literalizer = new PgpLiteralDataGenerator();
+      // Encryption
+      var encryption = new PgpEncryptedDataGenerator(SymmetricKeyAlgorithmTag.TripleDes, true, new SecureRandom());
+      foreach (var key in GetEncryptionKey(recipients))
+        encryption.AddMethod(key);
+
+      encryptedStream = encryption.Open(baseStream, new byte[32768]);
+
+      // Compression
       var compressor = new PgpCompressedDataGenerator(CompressionAlgorithmTag.Zip);
-      encryption.AddMethod(encryptionKey);
+      compressedStream = compressor.Open(encryptedStream);
+
+      // Lteral
+      var literalizer = new PgpLiteralDataGenerator();
+      return literalizer.Open(compressedStream, PgpLiteralDataGenerator.Binary, "PGPStream", DateTime.UtcNow, new byte[32768]);
+    }
+
+    public virtual void PgpEncrypt(Stream toEncrypt, Stream outStream, string recipients, IProcessDisplay processDisplay)
+    {
+      var encryption = new PgpEncryptedDataGenerator(SymmetricKeyAlgorithmTag.TripleDes, false, new SecureRandom());
+      foreach (var key in GetEncryptionKey(recipients))
+        encryption.AddMethod(key);
 
       using (var encryptedStream = encryption.Open(outStream, new byte[16384]))
       {
+        var compressor = new PgpCompressedDataGenerator(CompressionAlgorithmTag.Zip);
         using (var compressedStream = compressor.Open(encryptedStream))
         {
-          var copyBuffer = new byte[32768];
-          var action = new IntervalAction(0.5);
+          var literalizer = new PgpLiteralDataGenerator();
           using (var literalStream = literalizer.Open(compressedStream, PgpLiteralDataGenerator.Utf8, "PGPStream",
-            DateTime.Now, new byte[8192]))
+            DateTime.UtcNow, new byte[16384]))
           {
             // we are done if the whole stream is processed
-            processDisplay.Maximum = toEncrypt.Length;
+            if (processDisplay != null)
+              processDisplay.Maximum = toEncrypt.Length;
 
             long processed = 0;
             int lengthRead;
             var displayMax = StringConversion.DynamicStorageSize(toEncrypt.Length);
 
+            var action = processDisplay != null ? new IntervalAction(0.5) : null;
+            var copyBuffer = new byte[32768];
             while ((lengthRead = toEncrypt.Read(copyBuffer, 0, copyBuffer.Length)) > 0)
             {
-              processDisplay.CancellationToken.ThrowIfCancellationRequested();
+              processDisplay?.CancellationToken.ThrowIfCancellationRequested();
               literalStream.Write(copyBuffer, 0, lengthRead);
               processed += lengthRead;
 
-              action.Invoke(() =>
+              action?.Invoke(() =>
                 {
                   if (processDisplay is IProcessDisplayTime processDisplayTime)
                   {
@@ -550,18 +576,41 @@ namespace CsvTools
       throw new PgpException("Secret key for message not found.");
     }
 
-    private PgpPublicKey GetEncryptionKey(string recipient)
+    private IEnumerable<PgpPublicKey> GetEncryptionKey(string recipient)
     {
-      var recipients = GetRecipients();
-      foreach (var kvp in recipients)
-        if (kvp.Key.Equals(recipient, StringComparison.OrdinalIgnoreCase))
-          return kvp.Value;
+      var listofKeys = new List<PgpPublicKey>();
 
-      foreach (var kvp in recipients)
-        if (kvp.Key.ToUpperInvariant().Contains(recipient.ToUpperInvariant()))
-          return kvp.Value;
+      if (!string.IsNullOrEmpty(recipient))
+      {
+        var list = recipient.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+        var recipients = GetRecipients();
+        foreach (var name in list)
+        {
+          PgpPublicKey found = null;
+          foreach (var kvp in recipients)
+            if (kvp.Key.Equals(recipient, StringComparison.OrdinalIgnoreCase))
+            {
+              found = kvp.Value;
+              break;
+            }
 
-      throw new PgpException($"No encryption key found for {recipient} in known key(s).");
+          if (found == null)
+            foreach (var kvp in recipients)
+              if (kvp.Key.ToUpperInvariant().Contains(recipient.ToUpperInvariant()))
+              {
+                found = kvp.Value;
+                break;
+              }
+
+          if (found != null)
+            listofKeys.Add(found);
+        }
+      }
+
+      if (listofKeys.Count == 0)
+        throw new PgpException($"No encryption key found for {recipient} in known key(s).");
+
+      return listofKeys;
     }
 
     public override bool Equals(object obj) => Equals(obj as PGPKeyStorage);

@@ -618,7 +618,7 @@ namespace CsvTools
         }
 
       if (collectFor.Count == 0)
-        throw new ArgumentException(nameof(columns), "Column Collection can not be empty");
+        throw new ArgumentOutOfRangeException(nameof(columns), "Column Collection can not be empty");
 
       void WarningEvent(object sender, WarningEventArgs args)
       {

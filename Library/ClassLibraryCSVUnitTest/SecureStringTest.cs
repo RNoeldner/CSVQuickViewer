@@ -66,7 +66,7 @@ namespace CsvTools.Tests
     public void DecryptEmptyAndNull()
     {
       Assert.AreEqual(string.Empty, string.Empty.Decrypt());
-      Assert.AreEqual(string.Empty, SecureString.Decrypt(null));
+      Assert.AreEqual(null, SecureString.Decrypt(null));
     }
 
     #region Additional test attributes

@@ -46,7 +46,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="fileName">Name of the file.</param>
     /// <returns></returns>
-    public static bool AssumeGZip(this string fileName) => fileName.EndsWith(".gz", StringComparison.OrdinalIgnoreCase);
+    public static bool AssumeGZip(this string fileName) => fileName.EndsWith(".gz", StringComparison.OrdinalIgnoreCase) || fileName.EndsWith(".gzip", StringComparison.OrdinalIgnoreCase);
 
     /// <summary>
     ///   Check if the application should assume its PGP.
@@ -555,7 +555,10 @@ namespace CsvTools
           if (input.IndexOf(" - " + type, StringComparison.OrdinalIgnoreCase) != -1)
             type = " - " + type;
           else if (input.IndexOf(" " + type, StringComparison.OrdinalIgnoreCase) != -1)
+          {
             type = " " + type;
+            replacement = " " + replacement;
+          }
           else if (input.IndexOf(type + " ", StringComparison.OrdinalIgnoreCase) != -1)
             replacement += " ";
 

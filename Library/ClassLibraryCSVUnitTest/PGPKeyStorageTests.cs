@@ -78,6 +78,7 @@ iXhkjSU70YAKCIqMlrQALUBB9n6zVsfpRw5ShrKqm7URQTHCkuTLXYf6juGI
 
     #endregion const
 
+
     public static PGPKeyStorage PGPKeyStorage
     {
       get
@@ -104,6 +105,41 @@ iXhkjSU70YAKCIqMlrQALUBB9n6zVsfpRw5ShrKqm7URQTHCkuTLXYf6juGI
   public class PGPKeyStorageTests
   {
     private readonly PGPKeyStorage m_PGPKeyStorage = PGPKeyStorageTestHelper.PGPKeyStorage;
+    private readonly string m_ApplicationDirectory = FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles";
+
+    [TestMethod]
+    public void TestPGPStream()
+    {
+      var fullname = Path.Combine(m_ApplicationDirectory, "WriteMyPGP.pgp");
+      var encoding = EncodingHelper.GetEncoding(65001, true);
+
+      using (var baseStream = File.Create(fullname.LongPathPrefix()))
+      {        
+        using (var stream = m_PGPKeyStorage.PGPStream(baseStream, m_PGPKeyStorage.GetRecipientList().First(), out var stream1, out var stream2))
+        {
+          using (var writer = new StreamWriter(stream, encoding, 8192))
+          {
+            writer.WriteLine("This is a test");
+          }
+          stream2?.Close();
+          stream1?.Close();
+        }
+      }
+      // up to this point everything seems fine but teh fle is not correct...
+      using (var encryptedStream = File.OpenRead(fullname))
+      {
+        using (var decryptedStream = m_PGPKeyStorage.PgpDecrypt(encryptedStream, m_PGPKeyStorage.EncryptedPassphase.Decrypt().ToSecureString()))
+        {
+          using (var reader = new StreamReader(decryptedStream, encoding, true))
+          {
+            Assert.AreEqual("This is a test", reader.ReadLine());
+          }
+        }
+      }
+    }
+
+
+
 
     [TestMethod]
     public void IsValidKeyRingBundleTest()
@@ -310,12 +346,12 @@ dl9x0ovgSzpUErwY97OlA7iO2WJkevutvLq2ZZAwLfIxI01Zm309Zq63t8TKgPHJ
       {
         using (var input = new MemoryStream(Encoding.UTF8.GetBytes("This is a test")))
         {
-          using (var output = new MemoryStream())
+          using (var encrypted = new MemoryStream())
           {
-            m_PGPKeyStorage.PgpEncrypt(input, output, m_PGPKeyStorage.GetRecipientList().First(), pdt);
-            output.Position = 0;
+            m_PGPKeyStorage.PgpEncrypt(input, encrypted, m_PGPKeyStorage.GetRecipientList().First(), pdt);
+            encrypted.Position = 0;
             using (var decrypted =
-              m_PGPKeyStorage.PgpDecrypt(output, m_PGPKeyStorage.EncryptedPassphase.Decrypt().ToSecureString()))
+              m_PGPKeyStorage.PgpDecrypt(encrypted, m_PGPKeyStorage.EncryptedPassphase.Decrypt().ToSecureString()))
             {
               var buffer = new byte[1024];
               var count = decrypted.Read(buffer, 0, buffer.Length);
