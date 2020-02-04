@@ -12,38 +12,46 @@
  *
  */
 
-using Org.BouncyCastle.Bcpg.OpenPgp;
-using System;
-using System.IO;
-using System.IO.Compression;
-using File = Pri.LongPath.File;
-
 namespace CsvTools
 {
+  using System;
+  using System.IO;
+  using System.IO.Compression;
+  using Org.BouncyCastle.Bcpg.OpenPgp;
+
+  using File = Pri.LongPath.File;
+
   /// <summary>
   ///   A wrapper around file streams to handle pre and post processing, needed for sFTP, Encryption and Compression
   /// </summary>
   /// <seealso cref="System.IDisposable" />
   public class ImprovedStream : IDisposable
   {
+    /// <summary>
+    ///   A PGP stream, has a few underlying streams that need to be closed in teh right order
+    /// </summary>
+    private Stream CompressStream = null;
+
+    /// <summary>
+    ///   A PGP stream, has a few underlying streams that need to be closed in teh right order
+    /// </summary>
+    private Stream EncryptedStream = null;
+
     private bool m_AssumeGZip;
+
     private bool m_AssumePGP;
+
     private string m_BasePath;
+
+    private bool m_DisposedValue; // To detect redundant calls
+
     private string m_EncryptedPassphrase;
 
     public double Percentage => (double)BaseStream.Position / BaseStream.Length;
 
     public Stream Stream { get; set; }
-    private FileStream BaseStream { get; set; }
 
-    /// <summary>
-    /// A PGP stream, has a few underlying streams that need to be closed in teh right order
-    /// </summary>
-    private Stream EncryptedStream = null;
-    /// <summary>
-    /// A PGP stream, has a few underlying streams that need to be closed in teh right order
-    /// </summary>
-    private Stream CompressStream = null;
+    private FileStream BaseStream { get; set; }
 
     /// <summary>
     ///   Opens a file for reading
@@ -75,16 +83,19 @@ namespace CsvTools
     {
       var retVal = OpenBaseStream(setting.FullPath, setting.GetEncryptedPassphraseFunction);
 
-      retVal.ResetToStart(delegate
-      {
-        if (!retVal.m_AssumePGP)
-          return;
-        // Store the passphrase for next use, this does not mean it is correct
-        setting.Passphrase = retVal.m_EncryptedPassphrase;
+      retVal.ResetToStart(
+        delegate
+          {
+            if (!retVal.m_AssumePGP)
+              return;
 
-        if (ApplicationSetting.PGPKeyStorage != null && ApplicationSetting.PGPKeyStorage.EncryptedPassphase.Length == 0)
-          ApplicationSetting.PGPKeyStorage.EncryptedPassphase = retVal.m_EncryptedPassphrase;
-      });
+            // Store the passphrase for next use, this does not mean it is correct
+            setting.Passphrase = retVal.m_EncryptedPassphrase;
+
+            if (ApplicationSetting.PGPKeyStorage != null
+                && ApplicationSetting.PGPKeyStorage.EncryptedPassphase.Length == 0)
+              ApplicationSetting.PGPKeyStorage.EncryptedPassphase = retVal.m_EncryptedPassphrase;
+          });
 
       return retVal;
     }
@@ -103,11 +114,7 @@ namespace CsvTools
     {
       FileSystemUtils.FileDelete(path.LongPathPrefix());
 
-      var retVal = new ImprovedStream
-      {
-        m_AssumePGP = path.AssumePgp(),
-        m_AssumeGZip = path.AssumeGZip(),
-      };
+      var retVal = new ImprovedStream { m_AssumePGP = path.AssumePgp(), m_AssumeGZip = path.AssumeGZip(), };
 
       if (retVal.m_AssumeGZip)
       {
@@ -115,10 +122,15 @@ namespace CsvTools
         retVal.Stream = new GZipStream(retVal.BaseStream, CompressionMode.Compress);
         return retVal;
       }
+
       if (retVal.m_AssumePGP)
       {
         retVal.BaseStream = File.Create(path.LongPathPrefix());
-        retVal.Stream = ApplicationSetting.PGPKeyStorage.PGPStream(retVal.BaseStream, recipient, out retVal.EncryptedStream, out retVal.CompressStream);
+        retVal.Stream = ApplicationSetting.PGPKeyStorage.PGPStream(
+          retVal.BaseStream,
+          recipient,
+          out retVal.EncryptedStream,
+          out retVal.CompressStream);
         return retVal;
       }
 
@@ -138,9 +150,12 @@ namespace CsvTools
         CompressStream?.Close();
         EncryptedStream?.Close();
       }
+
       Stream?.Close();
       BaseStream?.Close();
     }
+
+    public void Dispose() => Dispose(true); 
 
     public void ResetToStart(Action<Stream> afterInit)
     {
@@ -156,6 +171,7 @@ namespace CsvTools
           if (Stream != null)
           {
             Stream.Close();
+
             // need to reopen the base stream
             BaseStream = File.OpenRead(m_BasePath);
           }
@@ -168,6 +184,7 @@ namespace CsvTools
           else if (m_AssumePGP)
           {
             System.Security.SecureString decryptedPassphrase;
+
             // need to use the setting function, opening a form to enter the passphrase is not in this library
             if (string.IsNullOrEmpty(m_EncryptedPassphrase))
               throw new EncryptionException("Please provide a passphrase.");
@@ -204,44 +221,6 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   Opens the base stream, handling sFTP access
-    /// </summary>
-    /// <param name="path">The path.</param>
-    /// <param name="encryptedPassphraseFunc">The encrypted passphrase function.</param>
-    /// <returns>
-    ///   An improved stream where the base stream is set
-    /// </returns>
-    private static ImprovedStream OpenBaseStream(string path, Func<string> encryptedPassphraseFunc)
-    {
-      var retVal = new ImprovedStream
-      {
-        m_AssumePGP = path.AssumePgp(),
-        m_AssumeGZip = path.AssumeGZip()
-      };
-      if (retVal.m_AssumePGP && encryptedPassphraseFunc != null)
-        retVal.m_EncryptedPassphrase = encryptedPassphraseFunc();
-      try
-      {
-        retVal.m_BasePath = path;
-        retVal.BaseStream = File.OpenRead(path);
-        return retVal;
-      }
-      catch (Exception)
-      {
-        retVal.Close();
-        throw;
-      }
-    }
-    #region IDisposable Support
-
-    private bool m_DisposedValue; // To detect redundant calls
-
-    // This code added to correctly implement the disposable pattern.
-    public void Dispose() =>
-      // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
-      Dispose(true); // TODO: uncomment the following line if the finalizer is overridden above.// GC.SuppressFinalize(this);
-
     protected virtual void Dispose(bool disposing)
     {
       if (!m_DisposedValue)
@@ -257,6 +236,7 @@ namespace CsvTools
             EncryptedStream?.Dispose();
             EncryptedStream = null;
           }
+
           Stream?.Dispose();
           BaseStream?.Dispose();
         }
@@ -265,12 +245,36 @@ namespace CsvTools
       }
     }
 
+    /// <summary>
+    ///   Opens the base stream, handling sFTP access
+    /// </summary>
+    /// <param name="path">The path.</param>
+    /// <param name="encryptedPassphraseFunc">The encrypted passphrase function.</param>
+    /// <returns>
+    ///   An improved stream where the base stream is set
+    /// </returns>
+    private static ImprovedStream OpenBaseStream(string path, Func<string> encryptedPassphraseFunc)
+    {
+      var retVal = new ImprovedStream { m_AssumePGP = path.AssumePgp(), m_AssumeGZip = path.AssumeGZip() };
+      if (retVal.m_AssumePGP && encryptedPassphraseFunc != null)
+        retVal.m_EncryptedPassphrase = encryptedPassphraseFunc();
+      try
+      {
+        retVal.m_BasePath = path;
+        retVal.BaseStream = File.OpenRead(path);
+        return retVal;
+      }
+      catch (Exception)
+      {
+        retVal.Close();
+        throw;
+      }
+    }
+
     // TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
     // ~ValidatorFileStream() {
-    //  // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
-    //  Dispose(false);
+    // // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+    // Dispose(false);
     // }
-
-    #endregion IDisposable Support
   }
 }
