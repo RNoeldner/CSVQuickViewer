@@ -12,12 +12,11 @@
  *
  */
 
+using Org.BouncyCastle.Bcpg.OpenPgp;
 using System;
 using System.IO;
 using System.IO.Compression;
-using Org.BouncyCastle.Bcpg.OpenPgp;
 using File = Pri.LongPath.File;
-using FileInfo = Pri.LongPath.FileInfo;
 
 namespace CsvTools
 {
@@ -31,15 +30,20 @@ namespace CsvTools
     private bool m_AssumePGP;
     private string m_BasePath;
     private string m_EncryptedPassphrase;
-    private IProcessDisplay m_ProcessDisplay;
-    private string m_Recipient;
-    private string m_TempFile;
-    private string m_WritePath;
 
     public double Percentage => (double)BaseStream.Position / BaseStream.Length;
 
     public Stream Stream { get; set; }
     private FileStream BaseStream { get; set; }
+
+    /// <summary>
+    /// A PGP stream, has a few underlying streams that need to be closed in teh right order
+    /// </summary>
+    private Stream EncryptedStream = null;
+    /// <summary>
+    /// A PGP stream, has a few underlying streams that need to be closed in teh right order
+    /// </summary>
+    private Stream CompressStream = null;
 
     /// <summary>
     ///   Opens a file for reading
@@ -95,29 +99,31 @@ namespace CsvTools
     /// <remarks>
     ///   There could be one steps a) in case its to be uploaded a temp file will be created
     /// </remarks>
-    public static ImprovedStream OpenWrite(string path, IProcessDisplay processDisplay = null, string recipient = null)
+    public static ImprovedStream OpenWrite(string path, string recipient = null)
     {
+      FileSystemUtils.FileDelete(path.LongPathPrefix());
+
       var retVal = new ImprovedStream
       {
-        m_WritePath = path.RemovePrefix(),
-        m_ProcessDisplay = processDisplay,
-        m_Recipient = recipient
+        m_AssumePGP = path.AssumePgp(),
+        m_AssumeGZip = path.AssumeGZip(),
       };
-      if (path.AssumePgp() || path.AssumeGZip())
-      {
-        var filename = Path.GetTempFileName();
-        Logger.Debug("Creating temporary file {filename}", filename);
-        retVal.m_TempFile = filename;
 
-        // download the file to a temp file
-        retVal.BaseStream = File.Create(retVal.m_TempFile);
-      }
-      else
+      if (retVal.m_AssumeGZip)
       {
-        FileSystemUtils.FileDelete(path.LongPathPrefix());
         retVal.BaseStream = File.Create(path.LongPathPrefix());
+        retVal.Stream = new GZipStream(retVal.BaseStream, CompressionMode.Compress);
+        return retVal;
+      }
+      if (retVal.m_AssumePGP)
+      {
+        retVal.BaseStream = File.Create(path.LongPathPrefix());
+        retVal.Stream = ApplicationSetting.PGPKeyStorage.PGPStream(retVal.BaseStream, recipient, out retVal.EncryptedStream, out retVal.CompressStream);
+        return retVal;
       }
 
+      FileSystemUtils.FileDelete(path.LongPathPrefix());
+      retVal.BaseStream = File.Create(path.LongPathPrefix());
       retVal.Stream = retVal.BaseStream;
       return retVal;
     }
@@ -127,21 +133,13 @@ namespace CsvTools
     /// </summary>
     public void Close()
     {
+      if (m_AssumePGP)
+      {
+        CompressStream?.Close();
+        EncryptedStream?.Close();
+      }
       Stream?.Close();
       BaseStream?.Close();
-      try
-      {
-        if (!string.IsNullOrEmpty(m_WritePath))
-          CloseWrite();
-      }
-      finally
-      {
-        if (FileSystemUtils.FileExists(m_TempFile))
-        {
-          Logger.Debug("Removing temporary file {filename}", m_TempFile);
-          File.Delete(m_TempFile);
-        }
-      }
     }
 
     public void ResetToStart(Action<Stream> afterInit)
@@ -235,87 +233,6 @@ namespace CsvTools
         throw;
       }
     }
-
-    private void CloseWrite()
-    {
-      // If we are writing we have possibly two steps,
-      // a) compress / encrypt the data from temp
-      // b) upload the data to sFTP
-      if (!m_WritePath.AssumeGZip() && !m_WritePath.AssumePgp()) return;
-      var selfOpenedProcessDisplay = false;
-      if (m_ProcessDisplay == null)
-      {
-        selfOpenedProcessDisplay = true;
-        m_ProcessDisplay = new DummyProcessDisplay();
-      }
-
-      try
-      {
-        // Compress the file
-        if (m_WritePath.AssumeGZip())
-        {
-          Logger.Debug("Compressing temporary file to GZip file");
-          var action = new IntervalAction(0.5);
-          using (var inFile = File.OpenRead(m_TempFile))
-          {
-            // Create the compressed file.
-            using (var outFile = File.Create(m_WritePath))
-            {
-              using (var compress = new GZipStream(outFile, CompressionMode.Compress))
-              {
-                var inputBuffer = new byte[16384];
-
-                var displayMax = StringConversion.DynamicStorageSize(inFile.Length);
-                m_ProcessDisplay.Maximum = inFile.Length;
-                int length;
-                long processed = 0;
-                while ((length = inFile.Read(inputBuffer, 0, inputBuffer.Length)) > 0)
-                {
-                  compress.Write(inputBuffer, 0, length);
-                  processed += length;
-                  m_ProcessDisplay.CancellationToken.ThrowIfCancellationRequested();
-
-                  action.Invoke(p =>
-                  {
-                    if (m_ProcessDisplay is IProcessDisplayTime processDisplayTime)
-                    {
-                      processDisplayTime.TimeToCompletion.Value = p;
-                      m_ProcessDisplay.SetProcess(
-                        $"GZip  {processDisplayTime.TimeToCompletion.PercentDisplay}{processDisplayTime.TimeToCompletion.EstimatedTimeRemainingDisplaySeparator} - {StringConversion.DynamicStorageSize(p)}/{displayMax}",
-                        p, true);
-                    }
-                    else
-                    {
-                      m_ProcessDisplay.SetProcess(
-                        $"GZip - {StringConversion.DynamicStorageSize(p)}/{displayMax}", p, true);
-                    }
-                  }, processed);
-                }
-              }
-            }
-          }
-        }
-        // need to encrypt the file
-        else if (m_WritePath.AssumePgp())
-        {
-          using (FileStream inputStream = new FileInfo(m_TempFile).OpenRead(),
-            output = new FileStream(m_WritePath.LongPathPrefix(), FileMode.Create))
-          {
-            Logger.Debug("Encrypting temporary file {inputfilename} to PGP file {outputfilename}", m_TempFile,
-              m_WritePath);
-            ApplicationSetting.PGPKeyStorage.PgpEncrypt(inputStream, output, m_Recipient, m_ProcessDisplay);
-          }
-        }
-      }
-      finally
-      {
-        Logger.Debug("Removing temporary file {filename}", m_TempFile);
-        File.Delete(m_TempFile);
-        if (selfOpenedProcessDisplay)
-          m_ProcessDisplay.Dispose();
-      }
-    }
-
     #region IDisposable Support
 
     private bool m_DisposedValue; // To detect redundant calls
@@ -332,9 +249,16 @@ namespace CsvTools
         if (disposing)
         {
           Close();
+          if (m_AssumePGP)
+          {
+            CompressStream?.Dispose();
+            CompressStream = null;
+
+            EncryptedStream?.Dispose();
+            EncryptedStream = null;
+          }
           Stream?.Dispose();
           BaseStream?.Dispose();
-          m_ProcessDisplay?.Dispose();
         }
 
         m_DisposedValue = true;

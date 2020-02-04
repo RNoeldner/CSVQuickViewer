@@ -38,25 +38,28 @@ namespace CsvTools.Tests
       {
         hasFired = true;
       };
-      testCase.EncryptedHostName = "Test";
-      Assert.AreEqual("Test", testCase.EncryptedHostName);
+      var testVal = "Test".Encrypt();
+      testCase.EncryptedHostName = testVal;
+      Assert.AreEqual(testVal, testCase.EncryptedHostName);
       Assert.IsTrue(hasFired);
       hasFired = false;
-      testCase.EncryptedHostName = "Test";
+      testCase.EncryptedHostName = testVal;
       Assert.IsFalse(hasFired);
 
-      testCase.EncryptedUser = "Hello";
+      var testVal2 = "Hello".Encrypt();
+      testCase.EncryptedUser = testVal2;
       Assert.IsTrue(hasFired);
-      Assert.AreEqual("Hello", testCase.EncryptedUser);
+      Assert.AreEqual(testVal2, testCase.EncryptedUser);
       hasFired = false;
-      testCase.EncryptedUser = "Hello";
+      testCase.EncryptedUser = testVal2;
       Assert.IsFalse(hasFired);
 
-      testCase.EncryptedPassword = "World";
+      var testVal3 = "World".Encrypt();
+      testCase.EncryptedPassword = testVal3;
       Assert.IsTrue(hasFired);
-      Assert.AreEqual("World", testCase.EncryptedPassword);
+      Assert.AreEqual(testVal3, testCase.EncryptedPassword);
       hasFired = false;
-      testCase.EncryptedPassword = "World";
+      testCase.EncryptedPassword = testVal3;
       Assert.IsFalse(hasFired);
     }
   }

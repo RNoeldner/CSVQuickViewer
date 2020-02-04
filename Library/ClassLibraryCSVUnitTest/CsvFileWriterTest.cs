@@ -243,10 +243,11 @@ namespace CsvTools.Tests
     public void WritePGP()
     {
       var pd = new MockProcessDisplay();
-
+      
       var writeFile = (CsvFile)m_WriteFile.Clone();
       writeFile.FileName = "BasicCSVOut.txt.pgp";
-      
+      PGPKeyStorageTestHelper.SetApplicationSetting();
+      writeFile.Recipient = ApplicationSetting.PGPKeyStorage.GetRecipients().First().Key;
       FileSystemUtils.FileDelete(writeFile.FullPath);
       writeFile.FileFormat.FieldDelimiter = "|";
 
