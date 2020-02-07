@@ -12,8 +12,8 @@
  *
  */
 
-using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 
 namespace CsvTools.Tests
 {
@@ -26,14 +26,14 @@ namespace CsvTools.Tests
     public void Configure()
     {
       var jsonLogFileName = m_ApplicationDirectory + "\\Log.json";
-      Logger.Configure(jsonLogFileName, Logger.Level.Info, m_ApplicationDirectory);
+      Logger.Configure(jsonLogFileName, Logger.Level.Info, m_ApplicationDirectory + "\\text.log");
       string lastMessage = string.Empty;
       Logger.AddLog = (param, level) => { lastMessage = param; };
 
       Logger.Debug("MyMessage1");
-      
+
       Logger.Information("MyMessage1");
-      
+
       Logger.Warning("Hello {param1}", "World");
       Assert.AreEqual("Hello \"World\"", lastMessage);
 
@@ -46,4 +46,3 @@ namespace CsvTools.Tests
     }
   }
 }
-  
