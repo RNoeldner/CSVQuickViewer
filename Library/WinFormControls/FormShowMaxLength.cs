@@ -12,22 +12,26 @@
  *
  */
 
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Diagnostics.Contracts;
-using System.Globalization;
-using System.Windows.Forms;
-
 namespace CsvTools
 {
+  using System;
+  using System.Collections.Generic;
+  using System.ComponentModel;
+  using System.Data;
+  using System.Diagnostics.Contracts;
+  using System.Drawing;
+  using System.Globalization;
+  using System.Windows.Forms;
+
   /// <summary>
   ///   Form showing the length of columns
   /// </summary>
   public class FormShowMaxLength : Form
   {
     private readonly DataRow[] m_DataRow;
+
     private readonly DataTable m_DataTable;
+
     private FilteredDataGridView m_DataGridView;
 
     /// <summary>
@@ -50,78 +54,66 @@ namespace CsvTools
     /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
     protected override void Dispose(bool disposing) => base.Dispose(disposing);
 
-    #region Windows Form Designer generated code
-
     /// <summary>
     ///   Required method for Designer support - do not modify the contents of this method with the
     ///   code editor.
     /// </summary>
     private void InitializeComponent()
     {
-      var dataGridViewCellStyle5 =
-        new System.Windows.Forms.DataGridViewCellStyle();
-      var dataGridViewCellStyle6 =
-        new System.Windows.Forms.DataGridViewCellStyle();
-      var dataGridViewCellStyle7 =
-        new System.Windows.Forms.DataGridViewCellStyle();
-      var dataGridViewCellStyle8 =
-        new System.Windows.Forms.DataGridViewCellStyle();
-      m_DataGridView = new CsvTools.FilteredDataGridView();
-      ((System.ComponentModel.ISupportInitialize)(m_DataGridView)).BeginInit();
+      var dataGridViewCellStyle5 = new DataGridViewCellStyle();
+      var dataGridViewCellStyle6 = new DataGridViewCellStyle();
+      var dataGridViewCellStyle7 = new DataGridViewCellStyle();
+      var dataGridViewCellStyle8 = new DataGridViewCellStyle();
+      m_DataGridView = new FilteredDataGridView();
+      ((ISupportInitialize)(m_DataGridView)).BeginInit();
       SuspendLayout();
-      //
+
       // dataGridView
-      //
       m_DataGridView.AllowUserToAddRows = false;
       m_DataGridView.AllowUserToDeleteRows = false;
       m_DataGridView.AllowUserToOrderColumns = true;
-      dataGridViewCellStyle5.BackColor = System.Drawing.Color.FromArgb(224,
-        224, 224);
+      dataGridViewCellStyle5.BackColor = Color.FromArgb(224, 224, 224);
       m_DataGridView.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle5;
-      dataGridViewCellStyle6.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-      dataGridViewCellStyle6.BackColor = System.Drawing.SystemColors.Control;
-      dataGridViewCellStyle6.ForeColor = System.Drawing.SystemColors.WindowText;
-      dataGridViewCellStyle6.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-      dataGridViewCellStyle6.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-      dataGridViewCellStyle6.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+      dataGridViewCellStyle6.Alignment = DataGridViewContentAlignment.MiddleLeft;
+      dataGridViewCellStyle6.BackColor = SystemColors.Control;
+      dataGridViewCellStyle6.ForeColor = SystemColors.WindowText;
+      dataGridViewCellStyle6.SelectionBackColor = SystemColors.Highlight;
+      dataGridViewCellStyle6.SelectionForeColor = SystemColors.HighlightText;
+      dataGridViewCellStyle6.WrapMode = DataGridViewTriState.True;
       m_DataGridView.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle6;
-      m_DataGridView.ColumnHeadersHeightSizeMode =
-        System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-      dataGridViewCellStyle7.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-      dataGridViewCellStyle7.BackColor = System.Drawing.SystemColors.Window;
-      dataGridViewCellStyle7.ForeColor = System.Drawing.Color.Black;
-      dataGridViewCellStyle7.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-      dataGridViewCellStyle7.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-      dataGridViewCellStyle7.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+      m_DataGridView.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+      dataGridViewCellStyle7.Alignment = DataGridViewContentAlignment.MiddleLeft;
+      dataGridViewCellStyle7.BackColor = SystemColors.Window;
+      dataGridViewCellStyle7.ForeColor = Color.Black;
+      dataGridViewCellStyle7.SelectionBackColor = SystemColors.Highlight;
+      dataGridViewCellStyle7.SelectionForeColor = SystemColors.HighlightText;
+      dataGridViewCellStyle7.WrapMode = DataGridViewTriState.False;
       m_DataGridView.DefaultCellStyle = dataGridViewCellStyle7;
-      m_DataGridView.Dock = System.Windows.Forms.DockStyle.Fill;
-      m_DataGridView.Location = new System.Drawing.Point(0, 0);
+      m_DataGridView.Dock = DockStyle.Fill;
+      m_DataGridView.Location = new Point(0, 0);
       m_DataGridView.Name = "m_DataGridView";
-      dataGridViewCellStyle8.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-      dataGridViewCellStyle8.BackColor = System.Drawing.SystemColors.Control;
-      dataGridViewCellStyle8.ForeColor = System.Drawing.SystemColors.WindowText;
-      dataGridViewCellStyle8.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-      dataGridViewCellStyle8.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-      dataGridViewCellStyle8.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+      dataGridViewCellStyle8.Alignment = DataGridViewContentAlignment.MiddleLeft;
+      dataGridViewCellStyle8.BackColor = SystemColors.Control;
+      dataGridViewCellStyle8.ForeColor = SystemColors.WindowText;
+      dataGridViewCellStyle8.SelectionBackColor = SystemColors.Highlight;
+      dataGridViewCellStyle8.SelectionForeColor = SystemColors.HighlightText;
+      dataGridViewCellStyle8.WrapMode = DataGridViewTriState.True;
       m_DataGridView.RowHeadersDefaultCellStyle = dataGridViewCellStyle8;
-      m_DataGridView.Size = new System.Drawing.Size(362, 310);
+      m_DataGridView.Size = new Size(362, 310);
       m_DataGridView.TabIndex = 0;
-      //
+
       // FormShowMaxLength
-      //
-      ClientSize = new System.Drawing.Size(362, 310);
+      ClientSize = new Size(362, 310);
       Controls.Add(m_DataGridView);
-      FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
+      FormBorderStyle = FormBorderStyle.SizableToolWindow;
       MaximizeBox = false;
       MinimizeBox = false;
       Name = "FormShowMaxLength";
       Text = "Column Length";
-      Load += new System.EventHandler(ShowMaxLength_Load);
-      ((System.ComponentModel.ISupportInitialize)(m_DataGridView)).EndInit();
+      Load += new EventHandler(ShowMaxLength_Load);
+      ((ISupportInitialize)(m_DataGridView)).EndInit();
       ResumeLayout(false);
     }
-
-    #endregion Windows Form Designer generated code
 
     /// <summary>
     ///   Handles the Load event of the ShowMaxLength control.
@@ -135,11 +127,7 @@ namespace CsvTools
 
       try
       {
-        var dataTable = new DataTable
-        {
-          TableName = "DataTable",
-          Locale = CultureInfo.InvariantCulture
-        };
+        var dataTable = new DataTable { TableName = "DataTable", Locale = CultureInfo.InvariantCulture };
         var dataColumnName = dataTable.Columns.Add("Name", typeof(string));
         dataColumnName.AllowDBNull = false;
 
@@ -163,15 +151,16 @@ namespace CsvTools
         if (colIndex.Count > 0)
         {
           foreach (var row in m_DataRow)
-            foreach (var col in checkCols)
+          foreach (var col in checkCols)
+          {
+            var cl = (row[col.Value] == DBNull.Value) ? 0 : row[col.Value].ToString().Length;
+            if (cl > maxLength[col.Key])
             {
-              var cl = (row[col.Value] == DBNull.Value) ? 0 : row[col.Value].ToString().Length;
-              if (cl > maxLength[col.Key])
-              {
-                maxLength[col.Key] = cl;
-              }
+              maxLength[col.Key] = cl;
             }
+          }
         }
+
         var colNo = 1;
         foreach (var len in maxLength)
         {

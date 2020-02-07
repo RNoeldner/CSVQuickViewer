@@ -12,16 +12,27 @@
  *
  */
 
-using System;
-using System.Windows.Forms;
-
 namespace CsvTools
 {
+  using System;
+  using System.Windows.Forms;
+
   /// <summary>
   ///   Event Arguments for Finding a text in a DataGridView
   /// </summary>
   public class FoundEventArgs : EventArgs
   {
+    /// <summary>
+    ///   Initializes a new instance of the <see cref="FoundEventArgs" /> class.
+    /// </summary>
+    /// <param name="index">The index.</param>
+    /// <param name="cell">The cell.</param>
+    public FoundEventArgs(int index, DataGridViewCell cell)
+    {
+      Index = index;
+      Cell = cell;
+    }
+
 #pragma warning disable CA1051 // Do not declare visible instance fields
 
     /// <summary>
@@ -35,16 +46,5 @@ namespace CsvTools
     public int Index;
 
 #pragma warning restore CA1051 // Do not declare visible instance fields
-
-    /// <summary>
-    ///   Initializes a new instance of the <see cref="FoundEventArgs" /> class.
-    /// </summary>
-    /// <param name="index">The index.</param>
-    /// <param name="cell">The cell.</param>
-    public FoundEventArgs(int index, DataGridViewCell cell)
-    {
-      Index = index;
-      Cell = cell;
-    }
   }
 }

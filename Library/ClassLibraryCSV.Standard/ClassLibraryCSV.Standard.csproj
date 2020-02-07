@@ -3,7 +3,6 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
     <RootNamespace>CsvTools</RootNamespace>
-    <PackageId>ClassLibraryCSV</PackageId>
     <Authors>Raphael Nöldner</Authors>
     <Company></Company>
     <Product>CSVTools</Product>
@@ -17,7 +16,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Remove="..\**\ClassLibraryCSV.AssemblyInfo.cs" />    
+    <Compile Remove="..\**\ClassLibraryCSV.AssemblyInfo.cs" />
+    <Compile Remove="obj\**" />
+    <EmbeddedResource Remove="..\ClassLibraryCSV\obj\**" />
+    <EmbeddedResource Remove="obj\**" />
+    <None Remove="obj\**" />    
   </ItemGroup>
 
   <ItemGroup>

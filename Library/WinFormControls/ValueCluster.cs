@@ -12,21 +12,24 @@
  *
  */
 
-using System;
-using System.Diagnostics.Contracts;
-
 namespace CsvTools
 {
+  using System;
+  using System.Diagnostics.Contracts;
+
 #pragma warning disable CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
 
   /// <summary>
   ///   A representation for a group / cluster of records
   /// </summary>
   public class ValueCluster : IEquatable<ValueCluster>, ICloneable<ValueCluster>
-#pragma warning restore CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
+#pragma warning restore CS0659
   {
+    // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
     private string m_Display = string.Empty;
+
     private string m_Sort;
+
     private string m_SQLCondition = string.Empty;
 
     /// <summary>
@@ -70,18 +73,6 @@ namespace CsvTools
     /// <value>
     ///   The display.
     /// </value>
-    public string Sort
-    {
-      get => m_Sort ?? Display;
-      set => m_Sort = value ?? string.Empty;
-    }
-
-    /// <summary>
-    ///   Gets or sets the displayed text
-    /// </summary>
-    /// <value>
-    ///   The display.
-    /// </value>
     public string Display
     {
       get => m_Display;
@@ -95,6 +86,18 @@ namespace CsvTools
     ///   The parent.
     /// </value>
     public ValueCluster Parent { get; set; }
+
+    /// <summary>
+    ///   Gets or sets the displayed text
+    /// </summary>
+    /// <value>
+    ///   The display.
+    /// </value>
+    public string Sort
+    {
+      get => m_Sort ?? Display;
+      set => m_Sort = value ?? string.Empty;
+    }
 
     /// <summary>
     ///   Gets or sets the SQL condition to get a list of the records
@@ -147,16 +150,11 @@ namespace CsvTools
         return false;
       if (ReferenceEquals(this, other))
         return true;
-      return string.Equals(Display, other.Display, StringComparison.OrdinalIgnoreCase) &&
-             string.Equals(Sort, other.Sort, StringComparison.Ordinal) && string.Equals(SQLCondition, other.SQLCondition, StringComparison.OrdinalIgnoreCase) &&
-             Active == other.Active && Count == other.Count && Equals(Parent, other.Parent);
+      return string.Equals(Display, other.Display, StringComparison.OrdinalIgnoreCase)
+             && string.Equals(Sort, other.Sort, StringComparison.Ordinal)
+             && string.Equals(SQLCondition, other.SQLCondition, StringComparison.OrdinalIgnoreCase)
+             && Active == other.Active && Count == other.Count && Equals(Parent, other.Parent);
     }
-
-    /// <summary>
-    ///   Return a string representation of this cluster
-    /// </summary>
-    /// <returns></returns>
-    public override string ToString() => $"{Display ?? "[empty]"} {Count} {(Count == 1 ? "item" : "items")}";
 
     /// <summary>Determines whether the specified object is equal to the current object.</summary>
     /// <param name="obj">The object to compare with the current object. </param>
@@ -171,6 +169,12 @@ namespace CsvTools
         return true;
       return (obj is ValueCluster typed) && Equals(typed);
     }
+
+    /// <summary>
+    ///   Return a string representation of this cluster
+    /// </summary>
+    /// <returns></returns>
+    public override string ToString() => $"{Display ?? "[empty]"} {Count} {(Count == 1 ? "item" : "items")}";
 
     /*
     /// <summary>Serves as the default hash function. </summary>

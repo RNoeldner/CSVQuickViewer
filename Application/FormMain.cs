@@ -12,41 +12,56 @@
  *
  */
 
-using Microsoft.Win32;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Data;
-using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Threading;
-using System.Windows.Forms;
-using System.Xml.Serialization;
-using Timer = System.Timers.Timer;
-
 namespace CsvTools
 {
+  using System;
+  using System.Collections.Generic;
+  using System.Collections.ObjectModel;
+  using System.ComponentModel;
+  using System.Data;
+  using System.Diagnostics.CodeAnalysis;
+  using System.Globalization;
+  using System.IO;
+  using System.Linq;
+  using System.Reflection;
+  using System.Threading;
+  using System.Threading.Tasks;
+  using System.Windows.Forms;
+  using System.Xml.Serialization;
+
+  using Microsoft.Win32;
+
+  using Timer = System.Timers.Timer;
+
   /// <summary>
   ///   Form to Display a CSV File
   /// </summary>
   public sealed partial class FormMain : Form
   {
     private static readonly string cSettingFolder = Environment.ExpandEnvironmentVariables("%APPDATA%\\CSVQuickViewer");
+
     private static readonly string cSettingPath = cSettingFolder + "\\Setting.xml";
+
     private static readonly XmlSerializer m_SerializerViewSettings = new XmlSerializer(typeof(ViewSettings));
+
     private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
+
     private readonly Timer m_SettingsChangedTimerChange = new Timer(200);
+
     private readonly Collection<Column> m_StoreColumns = new Collection<Column>();
+
     private readonly ViewSettings m_ViewSettings;
+
     private bool m_ConfigChanged;
+
     private bool m_FileChanged;
+
     private string m_FileName;
+
     private CsvFile m_FileSetting;
+
     private HashSet<string> m_Headers;
+
     private int m_WarningCount;
 
     /// <summary>
@@ -66,8 +81,7 @@ namespace CsvTools
       FillFromProperties();
 
       m_SettingsChangedTimerChange.AutoReset = false;
-      m_SettingsChangedTimerChange.Elapsed += delegate
-      { this.SafeInvoke(() => OpenDataReader(true)); };
+      m_SettingsChangedTimerChange.Elapsed += delegate { this.SafeInvoke(() => OpenDataReader(true)); };
       m_SettingsChangedTimerChange.Stop();
 
       // Done in code to be able to select controls in the designer
@@ -120,6 +134,7 @@ namespace CsvTools
       {
         Logger.Error(ex, "Loading defaults {path}", cSettingPath);
       }
+
       return new ViewSettings();
     }
 
@@ -134,7 +149,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// As any property is changed this will cause a reload from file
+    ///   As any property is changed this will cause a reload from file
     /// </summary>
     /// <param name="sender">The sender.</param>
     /// <param name="e">The <see cref="PropertyChangedEventArgs" /> instance containing the event data.</param>
@@ -142,7 +157,7 @@ namespace CsvTools
     private void AnyPropertyChangedReload(object sender, PropertyChangedEventArgs e) => m_ConfigChanged = true;
 
     /// <summary>
-    /// Attaches the property changed handlers for the file Settings
+    ///   Attaches the property changed handlers for the file Settings
     /// </summary>
     /// <param name="fileSetting">The file setting.</param>
     private void AttachPropertyChanged(ICsvFile fileSetting)
@@ -200,7 +215,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Detaches the property changed handlers for the file Setting
+    ///   Detaches the property changed handlers for the file Setting
     /// </summary>
     /// <param name="fileSetting">The file setting.</param>
     private void DetachPropertyChanged(ICsvFile fileSetting)
@@ -232,6 +247,7 @@ namespace CsvTools
         detailControl.ButtonAsTextCaption = "Text";
         m_StoreColumns.CollectionCopy(m_FileSetting.ColumnCollection);
       }
+
       OpenDataReader(true);
     }
 
@@ -263,13 +279,26 @@ namespace CsvTools
       {
         m_ConfigChanged = false;
         detailControl.MoveMenu();
-        if (_MessageBox.Show(this, "The configuration has changed do you want to reload the data?", "Configuration changed", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
+        if (_MessageBox.Show(
+              this,
+              "The configuration has changed do you want to reload the data?",
+              "Configuration changed",
+              MessageBoxButtons.YesNo,
+              MessageBoxIcon.Question,
+              MessageBoxDefaultButton.Button2) == DialogResult.Yes)
           OpenDataReader(true);
       }
+
       if (m_FileChanged)
       {
         m_FileChanged = false;
-        if (_MessageBox.Show(this, "The displayed file has changed do you want to reload the data?", "File changed", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
+        if (_MessageBox.Show(
+              this,
+              "The displayed file has changed do you want to reload the data?",
+              "File changed",
+              MessageBoxButtons.YesNo,
+              MessageBoxIcon.Question,
+              MessageBoxDefaultButton.Button2) == DialogResult.Yes)
           OpenDataReader(true);
       }
     }
@@ -297,8 +326,11 @@ namespace CsvTools
       this.LoadWindowState(m_ViewSettings.WindowPosition);
       if (string.IsNullOrEmpty(m_FileName) || !FileSystemUtils.FileExists(m_FileName))
       {
-        var strFilter = (m_ViewSettings.StoreSettingsByFile) ? "Delimited files (*.csv;*.txt;*.tab;*.tsv;*.dat)|*.csv;*.txt;*.tab;*.tsv;*.dat|Setting files (*" +
-            CsvFile.cCsvSettingExtension + ")|*" + CsvFile.cCsvSettingExtension + "|All files (*.*)|*.*" : "Delimited files (*.csv;*.txt;*.tab;*.tsv;*.dat)|*.csv;*.txt;*.tab;*.tsv;*.dat|All files (*.*)|*.*";
+        var strFilter = (m_ViewSettings.StoreSettingsByFile)
+                          ? "Delimited files (*.csv;*.txt;*.tab;*.tsv;*.dat)|*.csv;*.txt;*.tab;*.tsv;*.dat|Setting files (*"
+                            + CsvFile.cCsvSettingExtension + ")|*" + CsvFile.cCsvSettingExtension
+                            + "|All files (*.*)|*.*"
+                          : "Delimited files (*.csv;*.txt;*.tab;*.tsv;*.dat)|*.csv;*.txt;*.tab;*.tsv;*.dat|All files (*.*)|*.*";
         m_FileName = WindowsAPICodePackWrapper.Open(".", "Setting File", strFilter, null);
       }
 
@@ -312,6 +344,7 @@ namespace CsvTools
         if (m_FileName.EndsWith(CsvFile.cCsvSettingExtension, StringComparison.OrdinalIgnoreCase))
         {
           m_FileSetting = SerializedFilesLib.LoadCsvFile(m_FileName);
+
           // Ignore all information in m_FileSetting.FileName
           m_FileSetting.FileName = m_FileName.Substring(0, m_FileName.Length - CsvFile.cCsvSettingExtension.Length);
           m_FileName = m_FileSetting.FileName;
@@ -322,6 +355,7 @@ namespace CsvTools
           doClose = !InitFileSettings();
         }
       }
+
       if (doClose)
         return;
       OpenDataReader(false);
@@ -330,47 +364,48 @@ namespace CsvTools
     private void FileFormat_PropertyChanged(object sender, PropertyChangedEventArgs e)
     {
       if (e.PropertyName == nameof(FileFormat.FieldDelimiterChar)
-       || e.PropertyName == nameof(FileFormat.EscapeCharacterChar)
-       || e.PropertyName == nameof(FileFormat.CommentLine)
-       || e.PropertyName == nameof(FileFormat.FieldQualifierChar)
-       || e.PropertyName == nameof(FileFormat.QuotePlaceholder)
-       || e.PropertyName == nameof(FileFormat.DelimiterPlaceholder)
-       || e.PropertyName == nameof(FileFormat.NewLinePlaceholder)
-        )
+          || e.PropertyName == nameof(FileFormat.EscapeCharacterChar)
+          || e.PropertyName == nameof(FileFormat.CommentLine) || e.PropertyName == nameof(FileFormat.FieldQualifierChar)
+          || e.PropertyName == nameof(FileFormat.QuotePlaceholder)
+          || e.PropertyName == nameof(FileFormat.DelimiterPlaceholder)
+          || e.PropertyName == nameof(FileFormat.NewLinePlaceholder))
         m_ConfigChanged = true;
     }
 
     /// <summary>
-    /// Handles the PropertyChanged event of the FileSetting control.
+    ///   Handles the PropertyChanged event of the FileSetting control.
     /// </summary>
     /// <param name="sender">The source of the event.</param>
-    /// <param name="e">The <see cref="PropertyChangedEventArgs"/> instance containing the event data.</param>
+    /// <param name="e">The <see cref="PropertyChangedEventArgs" /> instance containing the event data.</param>
     private void FileSetting_PropertyChanged(object sender, PropertyChangedEventArgs e)
     {
-      if (e.PropertyName == nameof(ICsvFile.AllowRowCombining)
-       || e.PropertyName == nameof(ICsvFile.AlternateQuoting)
-       || e.PropertyName == nameof(ICsvFile.ByteOrderMark)
-       || e.PropertyName == nameof(ICsvFile.CodePageId)
-       || e.PropertyName == nameof(ICsvFile.ConsecutiveEmptyRows)
-       || e.PropertyName == nameof(ICsvFile.DoubleDecode)
-       || e.PropertyName == nameof(ICsvFile.HasFieldHeader)
-       || e.PropertyName == nameof(ICsvFile.NumWarnings)
-       || e.PropertyName == nameof(ICsvFile.SkipEmptyLines)
-       || e.PropertyName == nameof(ICsvFile.SkipRows)
-       || e.PropertyName == nameof(ICsvFile.TreatLFAsSpace)
-       || e.PropertyName == nameof(ICsvFile.TreatNBSPAsSpace)
-       || e.PropertyName == nameof(ICsvFile.TreatTextAsNull)
-       || e.PropertyName == nameof(ICsvFile.TreatUnknowCharaterAsSpace)
-       || e.PropertyName == nameof(ICsvFile.TryToSolveMoreColumns)
-       || e.PropertyName == nameof(ICsvFile.WarnDelimiterInValue)
-       || e.PropertyName == nameof(ICsvFile.WarnEmptyTailingColumns)
-       || e.PropertyName == nameof(ICsvFile.WarnLineFeed)
-       || e.PropertyName == nameof(ICsvFile.WarnNBSP)
-       || e.PropertyName == nameof(ICsvFile.WarnQuotes)
-       || e.PropertyName == nameof(ICsvFile.WarnQuotesInQuotes)
-       || e.PropertyName == nameof(ICsvFile.WarnUnknowCharater)
-       || e.PropertyName == nameof(ICsvFile.FileName)
-       )
+      if (e.PropertyName == nameof(ICsvFile.AllowRowCombining) || e.PropertyName == nameof(ICsvFile.AlternateQuoting)
+                                                               || e.PropertyName == nameof(ICsvFile.ByteOrderMark)
+                                                               || e.PropertyName == nameof(ICsvFile.CodePageId)
+                                                               || e.PropertyName
+                                                               == nameof(ICsvFile.ConsecutiveEmptyRows)
+                                                               || e.PropertyName == nameof(ICsvFile.DoubleDecode)
+                                                               || e.PropertyName == nameof(ICsvFile.HasFieldHeader)
+                                                               || e.PropertyName == nameof(ICsvFile.NumWarnings)
+                                                               || e.PropertyName == nameof(ICsvFile.SkipEmptyLines)
+                                                               || e.PropertyName == nameof(ICsvFile.SkipRows)
+                                                               || e.PropertyName == nameof(ICsvFile.TreatLFAsSpace)
+                                                               || e.PropertyName == nameof(ICsvFile.TreatNBSPAsSpace)
+                                                               || e.PropertyName == nameof(ICsvFile.TreatTextAsNull)
+                                                               || e.PropertyName
+                                                               == nameof(ICsvFile.TreatUnknowCharaterAsSpace)
+                                                               || e.PropertyName
+                                                               == nameof(ICsvFile.TryToSolveMoreColumns)
+                                                               || e.PropertyName
+                                                               == nameof(ICsvFile.WarnDelimiterInValue)
+                                                               || e.PropertyName
+                                                               == nameof(ICsvFile.WarnEmptyTailingColumns)
+                                                               || e.PropertyName == nameof(ICsvFile.WarnLineFeed)
+                                                               || e.PropertyName == nameof(ICsvFile.WarnNBSP)
+                                                               || e.PropertyName == nameof(ICsvFile.WarnQuotes)
+                                                               || e.PropertyName == nameof(ICsvFile.WarnQuotesInQuotes)
+                                                               || e.PropertyName == nameof(ICsvFile.WarnUnknowCharater)
+                                                               || e.PropertyName == nameof(ICsvFile.FileName))
         m_ConfigChanged = true;
     }
 
@@ -381,7 +416,8 @@ namespace CsvTools
     /// <param name="e">
     ///   The <see cref="FileSystemEventArgs" /> instance containing the event data.
     /// </param>
-    private void FileSystemWatcher_Changed(object sender, FileSystemEventArgs e) => m_FileChanged |= e.FullPath == m_FileSetting.FileName && e.ChangeType == WatcherChangeTypes.Changed;
+    private void FileSystemWatcher_Changed(object sender, FileSystemEventArgs e) =>
+      m_FileChanged |= e.FullPath == m_FileSetting.FileName && e.ChangeType == WatcherChangeTypes.Changed;
 
     private void FillFromProperties()
     {
@@ -429,7 +465,13 @@ namespace CsvTools
 
       if (m_FileName.AssumePgp() && (ApplicationSetting.PGPKeyStorage?.PrivateKeys?.Length == 0))
       {
-        var res = _MessageBox.Show(this, "The private key for decryption has not been setup.\n\nDo you want to add them now ?", "Decryption", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, timeout: 5);
+        var res = _MessageBox.Show(
+          this,
+          "The private key for decryption has not been setup.\n\nDo you want to add them now ?",
+          "Decryption",
+          MessageBoxButtons.YesNoCancel,
+          MessageBoxIcon.Question,
+          timeout: 5);
         if (res == DialogResult.Cancel)
           return false;
 
@@ -441,6 +483,7 @@ namespace CsvTools
             frm.ShowDialog(this);
             FillFromProperties();
           }
+
           SaveDefault();
         }
       }
@@ -454,7 +497,6 @@ namespace CsvTools
         m_FileSetting.ID = m_FileName.GetIdFromFileName();
         Logger.Information($"Size of file: {StringConversion.DynamicStorageSize(fileInfo.Length)}");
 
-
         FrmLimitSize limitSizeForm = null;
         if (fileInfo.Length > c_Maxsize)
         {
@@ -463,10 +505,10 @@ namespace CsvTools
 
           // As the form closes it will store the information
           limitSizeForm.FormClosing += (sender, args) =>
-          {
-            m_FileSetting.RecordLimit = limitSizeForm.RecordLimit;
-            limitSizeForm = null;            
-          };          
+            {
+              m_FileSetting.RecordLimit = limitSizeForm.RecordLimit;
+              limitSizeForm = null;
+            };
         }
 
         try
@@ -475,23 +517,35 @@ namespace CsvTools
           {
             m_FileSetting = SerializedFilesLib.LoadCsvFile(m_FileName + CsvFile.cCsvSettingExtension);
             m_FileSetting.FileName = m_FileName;
-            Logger.Information("Configuration read from setting file {filename}", m_FileName + CsvFile.cCsvSettingExtension);
+            Logger.Information(
+              "Configuration read from setting file {filename}",
+              m_FileName + CsvFile.cCsvSettingExtension);
             DisableIgnoreRead();
             analyse = false;
-            // Add all columns as string
 
+            // Add all columns as string
             m_ConfigChanged = false;
           }
         }
         catch (Exception exc)
         {
-          _MessageBox.Show(this, exc.ExceptionMessages(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning, timeout: 0);
+          _MessageBox.Show(
+            this,
+            exc.ExceptionMessages(),
+            "Error",
+            MessageBoxButtons.OK,
+            MessageBoxIcon.Warning,
+            timeout: 0);
         }
+
         if (analyse)
         {
           try
           {
-            using (var processDisplay = new FormProcessDisplay(m_FileSetting.ToString(), false, m_CancellationTokenSource.Token))
+            using (var processDisplay = new FormProcessDisplay(
+              m_FileSetting.ToString(),
+              false,
+              m_CancellationTokenSource.Token))
             {
               processDisplay.Show();
               if (limitSizeForm != null)
@@ -499,12 +553,26 @@ namespace CsvTools
                 processDisplay.Left = limitSizeForm.Left + limitSizeForm.Width;
                 limitSizeForm.Focus();
               }
+
               m_FileSetting.HasFieldHeader = true;
-              System.Threading.Tasks.Task.Run(() =>
-              {                
-                m_FileSetting.RefreshCsvFile(processDisplay, m_ViewSettings.AllowJson, m_ViewSettings.GuessCodePage, m_ViewSettings.GuessDelimiter, m_ViewSettings.GuessQualifier, m_ViewSettings.GuessStartRow, m_ViewSettings.GuessHasHeader);
-                m_FileSetting.FillGuessColumnFormatReader(true, false, m_ViewSettings.FillGuessSettings, processDisplay);
-              }, processDisplay.CancellationToken).WaitToCompleteTaskUI(240);
+              Task.Run(
+                () =>
+                  {
+                    m_FileSetting.RefreshCsvFile(
+                      processDisplay,
+                      m_ViewSettings.AllowJson,
+                      m_ViewSettings.GuessCodePage,
+                      m_ViewSettings.GuessDelimiter,
+                      m_ViewSettings.GuessQualifier,
+                      m_ViewSettings.GuessStartRow,
+                      m_ViewSettings.GuessHasHeader);
+                    m_FileSetting.FillGuessColumnFormatReader(
+                      true,
+                      false,
+                      m_ViewSettings.FillGuessSettings,
+                      processDisplay);
+                  },
+                processDisplay.CancellationToken).WaitToCompleteTaskUI(240);
             }
           }
           catch (Exception ex)
@@ -588,16 +656,24 @@ namespace CsvTools
               if (!string.IsNullOrEmpty(cf.Name) && !cf.Ignore)
                 m_Headers.Add(cf.Name);
             }
+
             ApplicationSetting.GetColumnHeader = (dummy1, dummy, dummy3) => m_Headers;
             if (warningList.CountRows > 0)
-              _MessageBox.Show(this, warningList.Display, "Opening CSV File", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+              _MessageBox.Show(
+                this,
+                warningList.Display,
+                "Opening CSV File",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Warning);
             if (!textPanel.Visible)
               ShowTextPanel(true);
             csvDataReader.Warning -= warningList.Add;
             csvDataReader.Warning += AddWarning;
             Logger.Information("Reading data…");
-            data = csvDataReader.WriteToDataTable(m_FileSetting, m_FileSetting.RecordLimit,
-                processDisplay.CancellationToken);
+            data = csvDataReader.WriteToDataTable(
+              m_FileSetting,
+              m_FileSetting.RecordLimit,
+              processDisplay.CancellationToken);
 
             foreach (var columnName in data.GetRealColumns())
               if (m_FileSetting.ColumnCollection.Get(columnName) == null)
@@ -605,13 +681,17 @@ namespace CsvTools
             if (processDisplay.CancellationToken.IsCancellationRequested)
             {
               Logger.Information("Cancellation was requested.");
-              if (_MessageBox.Show(this,
+              if (_MessageBox.Show(
+                    this,
                     "The load was not completed, cancellation was requested.\rDo you want to display the already loaded data?",
-                    "Cancellation Requested", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
+                    "Cancellation Requested",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Question) == DialogResult.No)
                 Close();
             }
           }
         }
+
         detailControl.CancellationToken = m_CancellationTokenSource.Token;
 
         if (data != null)
@@ -620,13 +700,14 @@ namespace CsvTools
           Logger.Information("Showing loaded data…");
           detailControl.DataTable = data;
         }
+
         ApplicationSetting.SQLDataReader =
           (settingName, processDisplay, timeout) => detailControl.DataTable.CreateDataReader();
         detailControl.FileSetting = m_FileSetting;
         detailControl.FillGuessSettings = m_ViewSettings.FillGuessSettings;
 
         // if (m_FileSetting.NoDelimitedFile)
-        //  detailControl_ButtonShowSource(this, null);
+        // detailControl_ButtonShowSource(this, null);
       }
       catch (ObjectDisposedException)
       {
@@ -640,6 +721,7 @@ namespace CsvTools
         if (detailControl.DataTable == null)
           Logger.Information("No data…");
         else
+
           // if (!m_FileSetting.NoDelimitedFile)
           ShowTextPanel(false);
         Cursor.Current = oldCursor;
@@ -647,8 +729,10 @@ namespace CsvTools
         {
           col.PropertyChanged += AnyPropertyChangedReload;
         }
+
         m_ConfigChanged = false;
         m_FileChanged = false;
+
         // Re enable event watching
         AttachPropertyChanged(m_FileSetting);
       }
@@ -665,7 +749,10 @@ namespace CsvTools
         using (var stringWriter = new StringWriter(CultureInfo.InvariantCulture))
         {
           m_ViewSettings.FileName = string.Empty;
-          m_SerializerViewSettings.Serialize(stringWriter, m_ViewSettings, SerializedFilesLib.EmptyXmlSerializerNamespaces.Value);
+          m_SerializerViewSettings.Serialize(
+            stringWriter,
+            m_ViewSettings,
+            SerializedFilesLib.EmptyXmlSerializerNamespaces.Value);
           File.WriteAllText(cSettingPath, stringWriter.ToString());
         }
       }
@@ -683,7 +770,15 @@ namespace CsvTools
         m_FileSetting.FileName = FileSystemUtils.SplitPath(m_FileSetting.FileName).FileName;
 
         Logger.Debug("Saving setting {path}", pathSetting);
-        SerializedFilesLib.SaveCsvFile(pathSetting, m_FileSetting, () => (_MessageBox.Show(this, $"Replace changed settings in {pathSetting} ?", "Settings", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes));
+        SerializedFilesLib.SaveCsvFile(
+          pathSetting,
+          m_FileSetting,
+          () => (_MessageBox.Show(
+                   this,
+                   $"Replace changed settings in {pathSetting} ?",
+                   "Settings",
+                   MessageBoxButtons.YesNo,
+                   MessageBoxIcon.Question) == DialogResult.Yes));
         m_ConfigChanged = false;
       }
       catch (Exception ex)
@@ -721,7 +816,8 @@ namespace CsvTools
       detailControl.Visible = !visible;
     }
 
-    private void SystemEvents_DisplaySettingsChanged(object sender, EventArgs e) => this.LoadWindowState(m_ViewSettings.WindowPosition);
+    private void SystemEvents_DisplaySettingsChanged(object sender, EventArgs e) =>
+      this.LoadWindowState(m_ViewSettings.WindowPosition);
 
     private void SystemEvents_PowerModeChanged(object sender, PowerModeChangedEventArgs e)
     {

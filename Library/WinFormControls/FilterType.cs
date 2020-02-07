@@ -11,18 +11,24 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-using System;
 
 namespace CsvTools
 {
+  using System;
+
   [Flags]
   public enum FilterType
   {
     ShowIssueFree = 1,
+
     ShowWarning = 2,
+
     ShowErrors = 4,
+
     ErrorsAndWarning = 2 + 4,
+
     All = 1 + 2 + 4,
+
     OnlyTrueErrors = 8
   }
 }

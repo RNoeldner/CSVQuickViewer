@@ -10,12 +10,13 @@
     <Authors>Raphael Nöldner</Authors>
     <PackageIcon>csv_text.ico</PackageIcon>
     <PackageIconUrl />
+    <SignAssembly>false</SignAssembly>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DefineConstants>TRACE;NETCOREAPP30</DefineConstants>
+    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
- 
   <ItemGroup>
     <Compile Include="..\Application\**\*.cs" />
     <EmbeddedResource Include="..\Application\**\*.resx" />
@@ -26,17 +27,19 @@
     <Compile Remove="..\Application\Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.7.0" />
+    <None Include="..\Application\csv_text.ico">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Library\ClassLibraryCSV.Standard\ClassLibraryCSV.Standard.csproj" />
     <ProjectReference Include="..\Library\WinFormsControls.core\WinFormsControls.core.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\Application\csv_text.ico">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
+    <Folder Include="Properties\" />
   </ItemGroup>
-  
+  <ItemGroup>
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.7.0" />
+  </ItemGroup>
 </Project>

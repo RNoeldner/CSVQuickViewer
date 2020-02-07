@@ -11,10 +11,11 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-using System;
 
 namespace CsvTools
 {
+  using System;
+
   /// <summary>
   ///   Event Arguments for the Search
   /// </summary>

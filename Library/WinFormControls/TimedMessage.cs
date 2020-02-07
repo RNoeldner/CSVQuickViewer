@@ -1,208 +1,38 @@
-﻿using System;
-using System.Drawing;
-using System.Windows.Forms;
-
-namespace CsvTools
+﻿namespace CsvTools
 {
+  using System;
+  using System.ComponentModel;
+  using System.Drawing;
+  using System.Windows.Forms;
+
   public class TimedMessage : Form
   {
-    private System.Windows.Forms.Button button1;
-    private System.Windows.Forms.Button button2;
-    private System.Windows.Forms.Button button3;
+    private Button button1;
+
+    private Button button2;
+
+    private Button button3;
 
     /// <summary>
-    /// Required designer variable.
+    ///   Required designer variable.
     /// </summary>
-    private System.ComponentModel.IContainer components = null;
+    private IContainer components = null;
+
+    private ImageList imageList;
 
     private Label label;
+
     private int m_Counter = 0;
+
     private MessageBoxButtons m_MessageBoxButtons = MessageBoxButtons.OKCancel;
+
     private PictureBox pictureBox;
+
     private RichTextBox richTextBox;
+
     private TableLayoutPanel tableLayoutPanel;
-    private ImageList imageList;
+
     private Timer timer;
-
-    #region Windows Form Designer generated code
-
-    /// <summary>
-    /// Required method for Designer support - do not modify
-    /// the contents of this method with the code editor.
-    /// </summary>
-    private void InitializeComponent()
-    {
-      this.components = new System.ComponentModel.Container();
-      System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(TimedMessage));
-      this.button1 = new System.Windows.Forms.Button();
-      this.richTextBox = new System.Windows.Forms.RichTextBox();
-      this.label = new System.Windows.Forms.Label();
-      this.timer = new System.Windows.Forms.Timer(this.components);
-      this.button2 = new System.Windows.Forms.Button();
-      this.button3 = new System.Windows.Forms.Button();
-      this.pictureBox = new System.Windows.Forms.PictureBox();
-      this.tableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
-      this.imageList = new System.Windows.Forms.ImageList(this.components);
-      ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
-      this.tableLayoutPanel.SuspendLayout();
-      this.SuspendLayout();
-      // 
-      // button1
-      // 
-      this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-      this.button1.BackColor = System.Drawing.SystemColors.ButtonFace;
-      this.button1.Location = new System.Drawing.Point(371, 126);
-      this.button1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-      this.button1.Name = "button1";
-      this.button1.Size = new System.Drawing.Size(89, 27);
-      this.button1.TabIndex = 0;
-      this.button1.Text = "button1";
-      this.button1.UseVisualStyleBackColor = false;
-      this.button1.MouseEnter += new System.EventHandler(this.MouseEnterElement);
-      this.button1.MouseLeave += new System.EventHandler(this.MouseLeaveElement);
-      // 
-      // richTextBox
-      // 
-      this.richTextBox.BackColor = System.Drawing.SystemColors.Control;
-      this.richTextBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
-      this.tableLayoutPanel.SetColumnSpan(this.richTextBox, 4);
-      this.richTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.richTextBox.Location = new System.Drawing.Point(65, 4);
-      this.richTextBox.Margin = new System.Windows.Forms.Padding(4);
-      this.richTextBox.Name = "richTextBox";
-      this.richTextBox.ReadOnly = true;
-      this.richTextBox.Size = new System.Drawing.Size(584, 115);
-      this.richTextBox.TabIndex = 3;
-      this.richTextBox.Text = "";
-      this.richTextBox.MouseEnter += new System.EventHandler(this.MouseEnterElement);
-      this.richTextBox.MouseLeave += new System.EventHandler(this.MouseLeaveElement);
-      // 
-      // label
-      // 
-      this.label.BackColor = System.Drawing.Color.Transparent;
-      this.tableLayoutPanel.SetColumnSpan(this.label, 2);
-      this.label.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.label.ForeColor = System.Drawing.SystemColors.InfoText;
-      this.label.Location = new System.Drawing.Point(8, 123);
-      this.label.Name = "label";
-      this.label.Size = new System.Drawing.Size(357, 32);
-      this.label.TabIndex = 2;
-      this.label.Text = "Default in 5 seconds";
-      this.label.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-      // 
-      // timer
-      // 
-      this.timer.Enabled = true;
-      this.timer.Interval = 500;
-      this.timer.Tick += new System.EventHandler(this.Timer_Tick);
-      // 
-      // button2
-      // 
-      this.button2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-      this.button2.BackColor = System.Drawing.SystemColors.ButtonFace;
-      this.button2.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-      this.button2.Location = new System.Drawing.Point(466, 126);
-      this.button2.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-      this.button2.Name = "button2";
-      this.button2.Size = new System.Drawing.Size(89, 27);
-      this.button2.TabIndex = 1;
-      this.button2.Text = "button2";
-      this.button2.UseVisualStyleBackColor = false;
-      this.button2.MouseEnter += new System.EventHandler(this.MouseEnterElement);
-      this.button2.MouseLeave += new System.EventHandler(this.MouseLeaveElement);
-      // 
-      // button3
-      // 
-      this.button3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-      this.button3.BackColor = System.Drawing.SystemColors.ButtonFace;
-      this.button3.Location = new System.Drawing.Point(561, 126);
-      this.button3.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-      this.button3.Name = "button3";
-      this.button3.Size = new System.Drawing.Size(89, 27);
-      this.button3.TabIndex = 2;
-      this.button3.Text = "button3";
-      this.button3.UseVisualStyleBackColor = false;
-      this.button3.MouseEnter += new System.EventHandler(this.MouseEnterElement);
-      this.button3.MouseLeave += new System.EventHandler(this.MouseLeaveElement);
-      // 
-      // pictureBox
-      // 
-      this.pictureBox.ErrorImage = null;
-      this.pictureBox.InitialImage = null;
-      this.pictureBox.Location = new System.Drawing.Point(9, 3);
-      this.pictureBox.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-      this.pictureBox.Name = "pictureBox";
-      this.pictureBox.Size = new System.Drawing.Size(48, 48);
-      this.pictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
-      this.pictureBox.TabIndex = 4;
-      this.pictureBox.TabStop = false;
-      // 
-      // tableLayoutPanel
-      // 
-      this.tableLayoutPanel.AutoSize = true;
-      this.tableLayoutPanel.BackColor = System.Drawing.Color.Transparent;
-      this.tableLayoutPanel.ColumnCount = 5;
-      this.tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-      this.tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-      this.tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-      this.tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-      this.tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-      this.tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 27F));
-      this.tableLayoutPanel.Controls.Add(this.label, 0, 1);
-      this.tableLayoutPanel.Controls.Add(this.button3, 4, 1);
-      this.tableLayoutPanel.Controls.Add(this.button2, 3, 1);
-      this.tableLayoutPanel.Controls.Add(this.richTextBox, 1, 0);
-      this.tableLayoutPanel.Controls.Add(this.button1, 2, 1);
-      this.tableLayoutPanel.Controls.Add(this.pictureBox, 0, 0);
-      this.tableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.tableLayoutPanel.Location = new System.Drawing.Point(0, 0);
-      this.tableLayoutPanel.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-      this.tableLayoutPanel.Name = "tableLayoutPanel";
-      this.tableLayoutPanel.Padding = new System.Windows.Forms.Padding(5, 0, 13, 4);
-      this.tableLayoutPanel.RowCount = 2;
-      this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-      this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.tableLayoutPanel.Size = new System.Drawing.Size(666, 159);
-      this.tableLayoutPanel.TabIndex = 5;
-      // 
-      // imageList
-      // 
-      this.imageList.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageList.ImageStream")));
-      this.imageList.TransparentColor = System.Drawing.Color.Transparent;
-      this.imageList.Images.SetKeyName(0, "Info-icon.bmp");
-      this.imageList.Images.SetKeyName(1, "icon-warning.bmp");
-      this.imageList.Images.SetKeyName(2, "icon-question.bmp");
-      this.imageList.Images.SetKeyName(3, "error-icon.bmp");
-      // 
-      // TimedMessage
-      // 
-      this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
-      this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-      this.AutoSize = true;
-      this.BackColor = System.Drawing.SystemColors.Control;
-      this.ClientSize = new System.Drawing.Size(666, 159);
-      this.Controls.Add(this.tableLayoutPanel);
-      this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
-      this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-      this.MaximizeBox = false;
-      this.MinimizeBox = false;
-      this.MinimumSize = new System.Drawing.Size(340, 79);
-      this.Name = "TimedMessage";
-      this.ShowIcon = false;
-      this.ShowInTaskbar = false;
-      this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Show;
-      this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-      this.Text = "Timed Message";
-      this.TopMost = true;
-      ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).EndInit();
-      this.tableLayoutPanel.ResumeLayout(false);
-      this.tableLayoutPanel.PerformLayout();
-      this.ResumeLayout(false);
-      this.PerformLayout();
-
-    }
-
-    #endregion Windows Form Designer generated code
 
     public TimedMessage() => InitializeComponent();
 
@@ -220,7 +50,17 @@ namespace CsvTools
       set => richTextBox.Rtf = value;
     }
 
-    public DialogResult Show(Form owner, string message, string title, MessageBoxButtons buttons, MessageBoxIcon icon, MessageBoxDefaultButton defaultButton, double timeout, string button1Text, string button2Text, string button3Text)
+    public DialogResult Show(
+      Form owner,
+      string message,
+      string title,
+      MessageBoxButtons buttons,
+      MessageBoxIcon icon,
+      MessageBoxDefaultButton defaultButton,
+      double timeout,
+      string button1Text,
+      string button2Text,
+      string button3Text)
     {
       Text = title;
       Message = message;
@@ -238,9 +78,8 @@ namespace CsvTools
       }
 
       // Two Button
-      if (buttons == MessageBoxButtons.YesNo ||
-          buttons == MessageBoxButtons.OKCancel ||
-          buttons == MessageBoxButtons.RetryCancel)
+      if (buttons == MessageBoxButtons.YesNo || buttons == MessageBoxButtons.OKCancel
+                                             || buttons == MessageBoxButtons.RetryCancel)
       {
         HideColumn(4, false);
         button3.Visible = false;
@@ -251,16 +90,19 @@ namespace CsvTools
         button1.Text = "&OK";
         button1.DialogResult = DialogResult.OK;
       }
+
       if ((buttons == MessageBoxButtons.YesNo || buttons == MessageBoxButtons.YesNoCancel))
       {
         button1.Text = "&Yes";
         button1.DialogResult = DialogResult.Yes;
       }
+
       if ((buttons == MessageBoxButtons.AbortRetryIgnore))
       {
         button1.Text = "&Abort";
         button1.DialogResult = DialogResult.Abort;
       }
+
       if ((buttons == MessageBoxButtons.RetryCancel))
       {
         button1.Text = "&Retry";
@@ -273,11 +115,13 @@ namespace CsvTools
         button2.Text = "&No";
         button2.DialogResult = DialogResult.No;
       }
+
       if ((buttons == MessageBoxButtons.AbortRetryIgnore))
       {
         button2.Text = "&Retry";
         button2.DialogResult = DialogResult.Retry;
       }
+
       if ((buttons == MessageBoxButtons.RetryCancel || buttons == MessageBoxButtons.OKCancel))
       {
         button2.Text = "&Cancel";
@@ -291,6 +135,7 @@ namespace CsvTools
         button3.Text = "&Ignore";
         button3.DialogResult = DialogResult.Ignore;
       }
+
       if (buttons == MessageBoxButtons.YesNoCancel)
       {
         button3.Text = "&Cancel";
@@ -345,7 +190,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Clean up any resources being used.
+    ///   Clean up any resources being used.
     /// </summary>
     /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
     protected override void Dispose(bool disposing)
@@ -354,6 +199,7 @@ namespace CsvTools
       {
         components?.Dispose();
       }
+
       base.Dispose(disposing);
     }
 
@@ -369,6 +215,171 @@ namespace CsvTools
         styles[colNumber].SizeType = SizeType.Absolute;
         styles[colNumber].Width = 0;
       }
+    }
+
+    /// <summary>
+    ///   Required method for Designer support - do not modify
+    ///   the contents of this method with the code editor.
+    /// </summary>
+    private void InitializeComponent()
+    {
+      this.components = new Container();
+      ComponentResourceManager resources = new ComponentResourceManager(typeof(TimedMessage));
+      this.button1 = new Button();
+      this.richTextBox = new RichTextBox();
+      this.label = new Label();
+      this.timer = new Timer(this.components);
+      this.button2 = new Button();
+      this.button3 = new Button();
+      this.pictureBox = new PictureBox();
+      this.tableLayoutPanel = new TableLayoutPanel();
+      this.imageList = new ImageList(this.components);
+      ((ISupportInitialize)(this.pictureBox)).BeginInit();
+      this.tableLayoutPanel.SuspendLayout();
+      this.SuspendLayout();
+
+      // button1
+      this.button1.Anchor = ((AnchorStyles)((AnchorStyles.Bottom | AnchorStyles.Right)));
+      this.button1.BackColor = SystemColors.ButtonFace;
+      this.button1.Location = new Point(371, 126);
+      this.button1.Margin = new Padding(3, 2, 3, 2);
+      this.button1.Name = "button1";
+      this.button1.Size = new Size(89, 27);
+      this.button1.TabIndex = 0;
+      this.button1.Text = "button1";
+      this.button1.UseVisualStyleBackColor = false;
+      this.button1.MouseEnter += new EventHandler(this.MouseEnterElement);
+      this.button1.MouseLeave += new EventHandler(this.MouseLeaveElement);
+
+      // richTextBox
+      this.richTextBox.BackColor = SystemColors.Control;
+      this.richTextBox.BorderStyle = BorderStyle.None;
+      this.tableLayoutPanel.SetColumnSpan(this.richTextBox, 4);
+      this.richTextBox.Dock = DockStyle.Fill;
+      this.richTextBox.Location = new Point(65, 4);
+      this.richTextBox.Margin = new Padding(4);
+      this.richTextBox.Name = "richTextBox";
+      this.richTextBox.ReadOnly = true;
+      this.richTextBox.Size = new Size(584, 115);
+      this.richTextBox.TabIndex = 3;
+      this.richTextBox.Text = string.Empty;
+      this.richTextBox.MouseEnter += new EventHandler(this.MouseEnterElement);
+      this.richTextBox.MouseLeave += new EventHandler(this.MouseLeaveElement);
+
+      // label
+      this.label.BackColor = Color.Transparent;
+      this.tableLayoutPanel.SetColumnSpan(this.label, 2);
+      this.label.Dock = DockStyle.Fill;
+      this.label.ForeColor = SystemColors.InfoText;
+      this.label.Location = new Point(8, 123);
+      this.label.Name = "label";
+      this.label.Size = new Size(357, 32);
+      this.label.TabIndex = 2;
+      this.label.Text = "Default in 5 seconds";
+      this.label.TextAlign = ContentAlignment.MiddleLeft;
+
+      // timer
+      this.timer.Enabled = true;
+      this.timer.Interval = 500;
+      this.timer.Tick += new EventHandler(this.Timer_Tick);
+
+      // button2
+      this.button2.Anchor = ((AnchorStyles)((AnchorStyles.Bottom | AnchorStyles.Right)));
+      this.button2.BackColor = SystemColors.ButtonFace;
+      this.button2.DialogResult = DialogResult.Cancel;
+      this.button2.Location = new Point(466, 126);
+      this.button2.Margin = new Padding(3, 2, 3, 2);
+      this.button2.Name = "button2";
+      this.button2.Size = new Size(89, 27);
+      this.button2.TabIndex = 1;
+      this.button2.Text = "button2";
+      this.button2.UseVisualStyleBackColor = false;
+      this.button2.MouseEnter += new EventHandler(this.MouseEnterElement);
+      this.button2.MouseLeave += new EventHandler(this.MouseLeaveElement);
+
+      // button3
+      this.button3.Anchor = ((AnchorStyles)((AnchorStyles.Bottom | AnchorStyles.Right)));
+      this.button3.BackColor = SystemColors.ButtonFace;
+      this.button3.Location = new Point(561, 126);
+      this.button3.Margin = new Padding(3, 2, 3, 2);
+      this.button3.Name = "button3";
+      this.button3.Size = new Size(89, 27);
+      this.button3.TabIndex = 2;
+      this.button3.Text = "button3";
+      this.button3.UseVisualStyleBackColor = false;
+      this.button3.MouseEnter += new EventHandler(this.MouseEnterElement);
+      this.button3.MouseLeave += new EventHandler(this.MouseLeaveElement);
+
+      // pictureBox
+      this.pictureBox.ErrorImage = null;
+      this.pictureBox.InitialImage = null;
+      this.pictureBox.Location = new Point(9, 3);
+      this.pictureBox.Margin = new Padding(4, 3, 4, 3);
+      this.pictureBox.Name = "pictureBox";
+      this.pictureBox.Size = new Size(48, 48);
+      this.pictureBox.SizeMode = PictureBoxSizeMode.AutoSize;
+      this.pictureBox.TabIndex = 4;
+      this.pictureBox.TabStop = false;
+
+      // tableLayoutPanel
+      this.tableLayoutPanel.AutoSize = true;
+      this.tableLayoutPanel.BackColor = Color.Transparent;
+      this.tableLayoutPanel.ColumnCount = 5;
+      this.tableLayoutPanel.ColumnStyles.Add(new ColumnStyle());
+      this.tableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+      this.tableLayoutPanel.ColumnStyles.Add(new ColumnStyle());
+      this.tableLayoutPanel.ColumnStyles.Add(new ColumnStyle());
+      this.tableLayoutPanel.ColumnStyles.Add(new ColumnStyle());
+      this.tableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 27F));
+      this.tableLayoutPanel.Controls.Add(this.label, 0, 1);
+      this.tableLayoutPanel.Controls.Add(this.button3, 4, 1);
+      this.tableLayoutPanel.Controls.Add(this.button2, 3, 1);
+      this.tableLayoutPanel.Controls.Add(this.richTextBox, 1, 0);
+      this.tableLayoutPanel.Controls.Add(this.button1, 2, 1);
+      this.tableLayoutPanel.Controls.Add(this.pictureBox, 0, 0);
+      this.tableLayoutPanel.Dock = DockStyle.Fill;
+      this.tableLayoutPanel.Location = new Point(0, 0);
+      this.tableLayoutPanel.Margin = new Padding(3, 2, 3, 2);
+      this.tableLayoutPanel.Name = "tableLayoutPanel";
+      this.tableLayoutPanel.Padding = new Padding(5, 0, 13, 4);
+      this.tableLayoutPanel.RowCount = 2;
+      this.tableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+      this.tableLayoutPanel.RowStyles.Add(new RowStyle());
+      this.tableLayoutPanel.Size = new Size(666, 159);
+      this.tableLayoutPanel.TabIndex = 5;
+
+      // imageList
+      this.imageList.ImageStream = ((ImageListStreamer)(resources.GetObject("imageList.ImageStream")));
+      this.imageList.TransparentColor = Color.Transparent;
+      this.imageList.Images.SetKeyName(0, "Info-icon.bmp");
+      this.imageList.Images.SetKeyName(1, "icon-warning.bmp");
+      this.imageList.Images.SetKeyName(2, "icon-question.bmp");
+      this.imageList.Images.SetKeyName(3, "error-icon.bmp");
+
+      // TimedMessage
+      this.AutoScaleDimensions = new SizeF(8F, 16F);
+      this.AutoScaleMode = AutoScaleMode.Font;
+      this.AutoSize = true;
+      this.BackColor = SystemColors.Control;
+      this.ClientSize = new Size(666, 159);
+      this.Controls.Add(this.tableLayoutPanel);
+      this.FormBorderStyle = FormBorderStyle.SizableToolWindow;
+      this.Margin = new Padding(3, 2, 3, 2);
+      this.MaximizeBox = false;
+      this.MinimizeBox = false;
+      this.MinimumSize = new Size(340, 79);
+      this.Name = "TimedMessage";
+      this.ShowIcon = false;
+      this.ShowInTaskbar = false;
+      this.SizeGripStyle = SizeGripStyle.Show;
+      this.StartPosition = FormStartPosition.CenterParent;
+      this.Text = "Timed Message";
+      this.TopMost = true;
+      ((ISupportInitialize)(this.pictureBox)).EndInit();
+      this.tableLayoutPanel.ResumeLayout(false);
+      this.tableLayoutPanel.PerformLayout();
+      this.ResumeLayout(false);
+      this.PerformLayout();
     }
 
     private void MouseEnterElement(object sender, EventArgs e)

@@ -12,17 +12,22 @@
  *
  */
 
-using System;
-using System.Windows.Forms;
-
 namespace CsvTools
 {
+  using System;
+  using System.IO;
+  using System.Threading;
+  using System.Windows.Forms;
+
+  using FileInfo = Pri.LongPath.FileInfo;
+
   /// <summary>
   ///   UserControl: CsvTextDisplay
   /// </summary>
   public partial class CsvTextDisplay : UserControl
   {
     private ICsvFile m_CsvFile;
+
     private int m_DisplayedAt;
 
     /// <summary>
@@ -47,7 +52,7 @@ namespace CsvTools
         }
         else
         {
-          var file = new Pri.LongPath.FileInfo(value.FullPath);
+          var file = new FileInfo(value.FullPath);
 
           if (!file.Exists)
           {
@@ -100,14 +105,14 @@ namespace CsvTools
         return;
       try
       {
-        using (var procDisp = new ProcessDisplayTime(System.Threading.CancellationToken.None))
+        using (var procDisp = new ProcessDisplayTime(CancellationToken.None))
         using (var istream = ImprovedStream.OpenRead(m_CsvFile))
-        using (var sr = new System.IO.StreamReader(istream.Stream, m_CsvFile.GetEncoding(), m_CsvFile.ByteOrderMark))
+        using (var sr = new StreamReader(istream.Stream, m_CsvFile.GetEncoding(), m_CsvFile.ByteOrderMark))
         {
           // Some stream do not support seek...
           if (istream.Stream.CanSeek)
           {
-            istream.Stream.Seek(m_DisplayedAt, System.IO.SeekOrigin.Begin);
+            istream.Stream.Seek(m_DisplayedAt, SeekOrigin.Begin);
             if (m_DisplayedAt != 0)
             {
               // find the line start

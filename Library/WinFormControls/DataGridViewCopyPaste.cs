@@ -12,15 +12,15 @@
  *
  */
 
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.Contracts;
-using System.Text;
-using System.Threading;
-using System.Windows.Forms;
-
 namespace CsvTools
 {
+  using System;
+  using System.Collections.Generic;
+  using System.Diagnostics.Contracts;
+  using System.Text;
+  using System.Threading;
+  using System.Windows.Forms;
+
   /// <summary>
   ///   Class to provide HTMLÖ Copy and Past functionality to a DataGrid
   /// </summary>
@@ -43,7 +43,8 @@ namespace CsvTools
     /// <param name="addErrorInfo">if set to <c>true</c> add error information.</param>
     /// <param name="cutLength">if set to <c>true</c> cut off long text.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    public static void SelectedDataIntoClipboard(this DataGridView dataGridView,
+    public static void SelectedDataIntoClipboard(
+      this DataGridView dataGridView,
       bool addErrorInfo,
       bool cutLength,
       CancellationToken cancellationToken)
@@ -56,15 +57,22 @@ namespace CsvTools
         if (dataGridView.GetCellCount(DataGridViewElementStates.Selected) == 1)
           CopyOneCellIntoClipboard(dataGridView.SelectedCells[0]);
         else if (dataGridView.AreAllCellsSelected(false))
-          CopyAllCellsIntoClipboard(addErrorInfo, cutLength,
+          CopyAllCellsIntoClipboard(
+            addErrorInfo,
+            cutLength,
             !Equals(dataGridView.AlternatingRowsDefaultCellStyle, dataGridView.RowsDefaultCellStyle),
             dataGridView.Columns,
-            dataGridView.Rows, cancellationToken);
+            dataGridView.Rows,
+            cancellationToken);
         else
-          CopySelectedCellsIntoClipboard(addErrorInfo, cutLength,
+          CopySelectedCellsIntoClipboard(
+            addErrorInfo,
+            cutLength,
             !Equals(dataGridView.AlternatingRowsDefaultCellStyle, dataGridView.RowsDefaultCellStyle),
             dataGridView.Columns,
-            dataGridView.Rows, dataGridView.SelectedCells, cancellationToken);
+            dataGridView.Rows,
+            dataGridView.SelectedCells,
+            cancellationToken);
       }
       catch (Exception exc)
       {
@@ -85,8 +93,13 @@ namespace CsvTools
     /// <param name="appendTab">if set to <c>true</c> [append tab].</param>
     /// <param name="addErrorInfo">if set to <c>true</c> [add error info].</param>
     /// <param name="cutLength">Maximum length of the resulting text</param>
-    private static void AddCell(DataGridViewCell cell, StringBuilder buffer, StringBuilder sbHtml, bool appendTab,
-      bool addErrorInfo, bool cutLength)
+    private static void AddCell(
+      DataGridViewCell cell,
+      StringBuilder buffer,
+      StringBuilder sbHtml,
+      bool appendTab,
+      bool addErrorInfo,
+      bool cutLength)
     {
       Contract.Requires(cell != null);
       Contract.Requires(buffer != null);
@@ -102,8 +115,12 @@ namespace CsvTools
         buffer.Append('\t');
       buffer.Append(EscapeTab(cellValue));
 
-      HTMLStyle.AddHtmlCell(sbHtml, cell.ValueType == typeof(string) ? m_HtmlStyle.TD : m_HtmlStyle.TDNonText,
-        cellValue, cell.ErrorText, addErrorInfo);
+      HTMLStyle.AddHtmlCell(
+        sbHtml,
+        cell.ValueType == typeof(string) ? m_HtmlStyle.TD : m_HtmlStyle.TDNonText,
+        cellValue,
+        cell.ErrorText,
+        addErrorInfo);
     }
 
     /// <summary>
@@ -136,8 +153,13 @@ namespace CsvTools
     /// <param name="columns">The columns.</param>
     /// <param name="rows">The rows.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    private static void CopyAllCellsIntoClipboard(bool addErrorInfo, bool cutLength, bool alternatingRows,
-      DataGridViewColumnCollection columns, DataGridViewRowCollection rows, CancellationToken cancellationToken)
+    private static void CopyAllCellsIntoClipboard(
+      bool addErrorInfo,
+      bool cutLength,
+      bool alternatingRows,
+      DataGridViewColumnCollection columns,
+      DataGridViewRowCollection rows,
+      CancellationToken cancellationToken)
     {
       Contract.Requires(columns != null);
       Contract.Requires(rows != null);
@@ -150,6 +172,7 @@ namespace CsvTools
 
       var visibleColumns = new SortedDictionary<int, DataGridViewColumn>();
       foreach (DataGridViewColumn c in columns)
+
         // Do not include the error field it will be retrieved from the error collection with nice coloring
         if (c.Visible && c.HeaderText != BaseFileReader.cErrorField)
           visibleColumns.Add(c.DisplayIndex, c);
@@ -241,8 +264,13 @@ namespace CsvTools
     /// <param name="rows">The rows.</param>
     /// <param name="selectedCells">The selected cells.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    private static void CopySelectedCellsIntoClipboard(bool addErrorInfo, bool cutLength, bool alternatingRows,
-      DataGridViewColumnCollection columns, DataGridViewRowCollection rows, DataGridViewSelectedCellCollection selectedCells,
+    private static void CopySelectedCellsIntoClipboard(
+      bool addErrorInfo,
+      bool cutLength,
+      bool alternatingRows,
+      DataGridViewColumnCollection columns,
+      DataGridViewRowCollection rows,
+      DataGridViewSelectedCellCollection selectedCells,
       CancellationToken cancellationToken)
     {
       Contract.Requires(columns != null);

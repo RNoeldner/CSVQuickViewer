@@ -12,18 +12,20 @@
  *
  */
 
-using System;
-using System.Windows.Forms;
-
 namespace CsvTools
 {
+  using System;
+  using System.Windows.Forms;
+
   /// <summary>
   ///   A pop up form to set the record limit
   /// </summary>
   public partial class FrmLimitSize : Form
   {
     private static int[] intRecords = new int[] { 10000, 20000, 50000, 100000 };
+
     private int m_Counter = 0;
+
     private double m_Duration = 5.0;
 
     /// <summary>
@@ -39,16 +41,6 @@ namespace CsvTools
       UpdateLabel();
     }
 
-    private void Timer_Tick(object sender, EventArgs e)
-    {
-      m_Counter++;
-      UpdateLabel();
-      if (m_Duration > 0 && (m_Counter * timer.Interval) / 1000 > m_Duration)
-      {
-        buttonOK_Click(sender, e);
-      }
-    }
-
     /// <summary>
     ///   The selected record limit
     /// </summary>
@@ -60,6 +52,23 @@ namespace CsvTools
       Close();
     }
 
+    private void buttonOK_Click(object sender, EventArgs e)
+    {
+      if (trackBarLimit.Value != 5)
+        RecordLimit = intRecords[4 - trackBarLimit.Value];
+      Close();
+    }
+
+    private void Timer_Tick(object sender, EventArgs e)
+    {
+      m_Counter++;
+      UpdateLabel();
+      if (m_Duration > 0 && (m_Counter * timer.Interval) / 1000 > m_Duration)
+      {
+        buttonOK_Click(sender, e);
+      }
+    }
+
     private void UpdateLabel()
     {
       var displ = Convert.ToInt32((m_Duration - (m_Counter * timer.Interval) / 1000 + .75));
@@ -69,14 +78,8 @@ namespace CsvTools
       }
       else
         label.Text = string.Empty;
-      Application.DoEvents();
-    }
 
-    private void buttonOK_Click(object sender, EventArgs e)
-    {
-      if (trackBarLimit.Value != 5)
-        RecordLimit = intRecords[4 - trackBarLimit.Value];
-      Close();
+      Application.DoEvents();
     }
   }
 }

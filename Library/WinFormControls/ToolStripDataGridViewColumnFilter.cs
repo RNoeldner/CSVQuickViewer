@@ -12,12 +12,12 @@
  *
  */
 
-using System;
-using System.Diagnostics.Contracts;
-using System.Windows.Forms;
-
 namespace CsvTools
 {
+  using System;
+  using System.Diagnostics.Contracts;
+  using System.Windows.Forms;
+
   /// <summary>
   ///   FilterControl that can live in a ToolStrip
   /// </summary>

@@ -12,31 +12,38 @@
  *
  */
 
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-
 namespace CsvTools
 {
+  using System;
+  using System.Collections.Generic;
+  using System.Data;
+  using System.Diagnostics;
+  using System.Linq;
+  using System.Threading;
+  using System.Threading.Tasks;
+
   /// <summary>
   ///   Utility Class to filter a DataTable for Errors
   /// </summary>
   /// <seealso cref="System.IDisposable" />
   public class FilterDataTable : IDisposable
   {
-    private readonly DataTable m_SourceTable;
-    private readonly List<string> m_UniqueFieldName = new List<string>();
-    private HashSet<string> m_ColumnWithoutErrors;
-    private volatile bool m_Filtering;
     private readonly CancellationToken m_CancellationToken;
+
+    private readonly DataTable m_SourceTable;
+
+    private readonly List<string> m_UniqueFieldName = new List<string>();
+
+    private HashSet<string> m_ColumnWithoutErrors;
+
     private CancellationTokenSource m_CurrentFilterCancellationTokenSource;
 
+    private bool m_DisposedValue; // To detect redundant calls
+
+    private volatile bool m_Filtering;
+
     /// <summary>
-    /// Initializes a new instance of the <see cref="FilterDataTable" /> class.
+    ///   Initializes a new instance of the <see cref="FilterDataTable" /> class.
     /// </summary>
     /// <param name="init">The initial DataTable</param>
     /// <param name="cancellationToken">The cancellation token.</param>
@@ -72,25 +79,6 @@ namespace CsvTools
       }
     }
 
-    public void Cancel()
-    {
-      // stop old filtering
-      if (m_CurrentFilterCancellationTokenSource != null && !m_CurrentFilterCancellationTokenSource.IsCancellationRequested)
-        m_CurrentFilterCancellationTokenSource?.Cancel();
-      // wait in order to start new one
-      WaitForFilter();
-    }
-
-    private void WaitForFilter()
-    {
-      // wait for filtering to finish
-      while (m_Filtering)
-      {
-        m_CancellationToken.ThrowIfCancellationRequested();
-        Thread.Sleep(200);
-      }
-    }
-
     /// <summary>
     ///   Gets the columns without errors.
     /// </summary>
@@ -112,10 +100,11 @@ namespace CsvTools
           foreach (DataColumn col in FilterTable.Columns)
           {
             m_CancellationToken.ThrowIfCancellationRequested();
+
             // Always keep the line number, error field and any uniques
-            if (col.ColumnName.Equals(BaseFileReader.cStartLineNumberFieldName, StringComparison.OrdinalIgnoreCase) ||
-                col.ColumnName.Equals(BaseFileReader.cErrorField, StringComparison.OrdinalIgnoreCase) ||
-                m_UniqueFieldName.Contains(col.ColumnName))
+            if (col.ColumnName.Equals(BaseFileReader.cStartLineNumberFieldName, StringComparison.OrdinalIgnoreCase)
+                || col.ColumnName.Equals(BaseFileReader.cErrorField, StringComparison.OrdinalIgnoreCase)
+                || m_UniqueFieldName.Contains(col.ColumnName))
               continue;
 
             // Check if there are errors in this column
@@ -135,8 +124,10 @@ namespace CsvTools
 
               if (string.IsNullOrEmpty(row.RowError))
                 continue;
-              if (!row.RowError.Contains(inRowErrorDesc0, StringComparison.OrdinalIgnoreCase) && !row.RowError.Contains(inRowErrorDesc1, StringComparison.OrdinalIgnoreCase) &&
-                  !row.RowError.Contains(inRowErrorDesc2, StringComparison.OrdinalIgnoreCase) && !row.RowError.Contains(inRowErrorDesc3, StringComparison.OrdinalIgnoreCase))
+              if (!row.RowError.Contains(inRowErrorDesc0, StringComparison.OrdinalIgnoreCase)
+                  && !row.RowError.Contains(inRowErrorDesc1, StringComparison.OrdinalIgnoreCase)
+                  && !row.RowError.Contains(inRowErrorDesc2, StringComparison.OrdinalIgnoreCase)
+                  && !row.RowError.Contains(inRowErrorDesc3, StringComparison.OrdinalIgnoreCase))
                 continue;
 
               hasErrors = true;
@@ -147,11 +138,14 @@ namespace CsvTools
               m_ColumnWithoutErrors.Add(col.ColumnName);
           }
         }
+
         return m_ColumnWithoutErrors;
       }
     }
 
     public bool CutAtLimit { get; private set; }
+
+    public bool Filtering => m_Filtering;
 
     /// <summary>
     ///   Gets the error table.
@@ -160,8 +154,6 @@ namespace CsvTools
     ///   The error table.
     /// </value>
     public DataTable FilterTable { get; private set; }
-
-    public bool Filtering => m_Filtering;
 
     public FilterType FilterType { get; private set; }
 
@@ -179,6 +171,17 @@ namespace CsvTools
           m_UniqueFieldName.AddRange(value);
         m_ColumnWithoutErrors = null;
       }
+    }
+
+    public void Cancel()
+    {
+      // stop old filtering
+      if (m_CurrentFilterCancellationTokenSource != null
+          && !m_CurrentFilterCancellationTokenSource.IsCancellationRequested)
+        m_CurrentFilterCancellationTokenSource?.Cancel();
+
+      // wait in order to start new one
+      WaitForFilter();
     }
 
     /// <summary>
@@ -231,11 +234,13 @@ namespace CsvTools
                 import = true;
             }
           }
+
           if (import)
             FilterTable.ImportRow(m_SourceTable.Rows[counter]);
 
           rows++;
         }
+
         CutAtLimit = (rows >= limit);
       }
       catch (Exception ex)
@@ -248,13 +253,13 @@ namespace CsvTools
       }
     }
 
-    public void StartFilter(int limit, FilterType type, Action finishedActionIfResults) => Task.Run(() => Filter(limit, type)).ContinueWith((task =>
-                                                                                           {
-                                                                                             if (FilterTable.Rows.Count == 0)
-                                                                                               finishedActionIfResults.Invoke();
-                                                                                           }));
-
-    private bool m_DisposedValue; // To detect redundant calls
+    public void StartFilter(int limit, FilterType type, Action finishedActionIfResults) =>
+      Task.Run(() => Filter(limit, type)).ContinueWith(
+        (task =>
+            {
+              if (FilterTable.Rows.Count == 0)
+                finishedActionIfResults.Invoke();
+            }));
 
     protected virtual void Dispose(bool disposing)
     {
@@ -270,6 +275,16 @@ namespace CsvTools
       }
 
       m_DisposedValue = true;
+    }
+
+    private void WaitForFilter()
+    {
+      // wait for filtering to finish
+      while (m_Filtering)
+      {
+        m_CancellationToken.ThrowIfCancellationRequested();
+        Thread.Sleep(200);
+      }
     }
   }
 }

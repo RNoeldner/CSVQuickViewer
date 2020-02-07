@@ -12,25 +12,28 @@
  *
  */
 
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Diagnostics.Contracts;
-using System.Threading;
-using System.Windows.Forms;
-
 namespace CsvTools
 {
+  using System;
+  using System.Collections.Generic;
+  using System.ComponentModel;
+  using System.Data;
+  using System.Diagnostics.Contracts;
+  using System.Threading;
+  using System.Windows.Forms;
+
   public partial class FormUniqueDisplay : Form
   {
-    private readonly CancellationTokenSource m_CancellationTokenSource =
-      new CancellationTokenSource();
+    private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
 
     private readonly DataRow[] m_DataRow;
+
     private readonly DataTable m_DataTable;
+
     private readonly string m_InitialColumn;
+
     private string m_LastDataColumnName = string.Empty;
+
     private bool m_LastIgnoreNull = true;
 
     /// <summary>
@@ -55,7 +58,8 @@ namespace CsvTools
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
-    private void ComboBoxID_SelectedIndexChanged(object sender, EventArgs e) => Work(comboBoxID.Text, checkBoxIgnoreNull.Checked);
+    private void ComboBoxID_SelectedIndexChanged(object sender, EventArgs e) =>
+      Work(comboBoxID.Text, checkBoxIgnoreNull.Checked);
 
     private void UniqueDisplay_FormClosing(object sender, FormClosingEventArgs e) => m_CancellationTokenSource.Cancel();
 
@@ -70,8 +74,8 @@ namespace CsvTools
       var current = 0;
       foreach (var columnName in m_DataTable.GetRealColumns())
       {
-        if (!string.IsNullOrEmpty(m_InitialColumn) &&
-            columnName.Equals(m_InitialColumn, StringComparison.OrdinalIgnoreCase))
+        if (!string.IsNullOrEmpty(m_InitialColumn)
+            && columnName.Equals(m_InitialColumn, StringComparison.OrdinalIgnoreCase))
           index = current;
         comboBoxID.Items.Add(columnName);
         current++;
@@ -90,22 +94,25 @@ namespace CsvTools
       m_LastDataColumnName = dataColumnName;
       m_LastIgnoreNull = ignoreNull;
 
-      this.SafeInvoke(() =>
-      {
-        detailControl.Visible = false;
-        detailControl.SuspendLayout();
-      });
+      this.SafeInvoke(
+        () =>
+          {
+            detailControl.Visible = false;
+            detailControl.SuspendLayout();
+          });
       Extensions.ProcessUIElements();
       try
       {
-        this.SafeBeginInvoke(() =>
-          Text = $"Unique Values Display - {dataColumnName} ");
+        this.SafeBeginInvoke(() => Text = $"Unique Values Display - {dataColumnName} ");
 
         var dataColumnID = m_DataTable.Columns[dataColumnName];
         var dictIDToRow = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
         var intervalAction = new IntervalAction();
 
-        using (var display = new FormProcessDisplay($"Processing {dataColumnName}", false, m_CancellationTokenSource.Token))
+        using (var display = new FormProcessDisplay(
+          $"Processing {dataColumnName}",
+          false,
+          m_CancellationTokenSource.Token))
         {
           display.Maximum = m_DataRow.Length;
           display.Show(this);
@@ -114,10 +121,7 @@ namespace CsvTools
           {
             if (display.CancellationToken.IsCancellationRequested)
               return;
-            intervalAction.Invoke(delegate
-            {
-              display.SetProcess("Getting Unique values", rowIdex, true);
-            });
+            intervalAction.Invoke(delegate { display.SetProcess("Getting Unique values", rowIdex, true); });
             var id = m_DataRow[rowIdex][dataColumnID.Ordinal].ToString().Trim();
             if (ignoreNull && string.IsNullOrEmpty(id))
               continue;
@@ -125,8 +129,8 @@ namespace CsvTools
               dictIDToRow.Add(id, rowIdex);
           }
 
-          this.SafeInvoke(() => Text =
-            $"Unique Values Display - {dataColumnName} - Rows {dictIDToRow.Count}/{m_DataRow.Length}");
+          this.SafeInvoke(
+            () => Text = $"Unique Values Display - {dataColumnName} - Rows {dictIDToRow.Count}/{m_DataRow.Length}");
 
           m_DataTable.BeginLoadData();
           m_DataTable.Clear();
@@ -139,10 +143,7 @@ namespace CsvTools
               return;
             counter++;
             if (counter % 100 == 0)
-              intervalAction.Invoke(delegate
-              {
-                display.SetProcess("Importing Rows to Grid", counter, true);
-              });
+              intervalAction.Invoke(delegate { display.SetProcess("Importing Rows to Grid", counter, true); });
             m_DataTable.ImportRow(m_DataRow[rowIdex]);
           }
 
@@ -150,22 +151,23 @@ namespace CsvTools
           detailControl.CancellationToken = m_CancellationTokenSource.Token;
           display.Maximum = 0;
           display.SetProcess("Sorting");
-          detailControl.SafeInvoke(() =>
-          {
-            try
-            {
-              foreach (DataGridViewColumn col in detailControl.DataGridView.Columns)
-                if (col.DataPropertyName == dataColumnName)
+          detailControl.SafeInvoke(
+            () =>
+              {
+                try
                 {
-                  detailControl.DataGridView.Sort(col, ListSortDirection.Ascending);
-                  break;
+                  foreach (DataGridViewColumn col in detailControl.DataGridView.Columns)
+                    if (col.DataPropertyName == dataColumnName)
+                    {
+                      detailControl.DataGridView.Sort(col, ListSortDirection.Ascending);
+                      break;
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
-              Logger.Warning(ex, "Processing Unique Sorting {exception}", ex.InnerExceptionMessages());
-            }
-          });
+                catch (Exception ex)
+                {
+                  Logger.Warning(ex, "Processing Unique Sorting {exception}", ex.InnerExceptionMessages());
+                }
+              });
         }
       }
       catch (Exception ex)
@@ -174,11 +176,12 @@ namespace CsvTools
       }
       finally
       {
-        this.SafeInvoke(() =>
-        {
-          detailControl.Visible = true;
-          detailControl.ResumeLayout(true);
-        });
+        this.SafeInvoke(
+          () =>
+            {
+              detailControl.Visible = true;
+              detailControl.ResumeLayout(true);
+            });
       }
     }
   }
