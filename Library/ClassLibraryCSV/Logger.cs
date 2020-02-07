@@ -1,8 +1,7 @@
-﻿using System;
-using System.Linq;
-using NLog;
+﻿using NLog;
 using NLog.Layouts;
-using Pri.LongPath;
+using System;
+using System.Linq;
 
 namespace CsvTools
 {
@@ -24,7 +23,7 @@ namespace CsvTools
       None = 100,
     }
 
-    public static void Configure(string fileNameJson, Level level, string folder = null)
+    public static void Configure(string fileNameJson, Level level, string fileNameText = null)
     {
       var config = LogManager.Configuration ?? new NLog.Config.LoggingConfiguration();
       if (level != Level.None)
@@ -37,20 +36,25 @@ namespace CsvTools
         else if (level == Level.Error)
           minLevel = LogLevel.Error;
 
-        if (!string.IsNullOrEmpty(fileNameJson) && !config.AllTargets.Any(x => x is NLog.Targets.FileTarget target && target.Layout is JsonLayout))
+        if (!string.IsNullOrEmpty(fileNameJson))
         {
-          var logfileRoot = new NLog.Targets.FileTarget("jsonFile")
+          var existing = config.AllTargets.FirstOrDefault(x => x is NLog.Targets.FileTarget target && target.Layout is JsonLayout);
+          if (existing == null)
           {
-            FileName = fileNameJson,
-            Layout = new JsonLayout
+            var logfileRoot = new NLog.Targets.FileTarget("jsonFile")
             {
-              Attributes =
+              FileName = fileNameJson,
+              ArchiveAboveSize = 1048576,
+              Layout = new JsonLayout
+              {
+                Attributes =
               {
                 new JsonAttribute("time", "${longdate}"),
-                new JsonAttribute("type", "${exception:format=Type}"),
+                new JsonAttribute("level", "${level}"),                
                 new JsonAttribute("message", "${message}"),
                 new JsonAttribute("properties", "${all-event-properties}"),
-                new JsonAttribute("innerException", new JsonLayout
+                new JsonAttribute("type", "${exception:format=Type}"),
+                  new JsonAttribute("innerException", new JsonLayout
                   {
                     Attributes =
                     {
@@ -63,15 +67,20 @@ namespace CsvTools
                   },
                   true),
               }
-            }
-          };
-          config.AddRule(minLevel, LogLevel.Fatal, logfileRoot);
+              }
+            };
+            config.AddRule(minLevel, LogLevel.Fatal, logfileRoot);
+          }
+          else
+          {
+            // TODO change the level            
+          }
         }
 
         // second log file in folder
-        if (folder != null)
+        if (!string.IsNullOrEmpty(fileNameText))
         {
-          var logfileFolder = new NLog.Targets.FileTarget("logfile2") { FileName = Path.Combine(folder, fileNameJson), Layout = "${longdate} ${level} ${message}  ${exception:format=toString}" };
+          var logfileFolder = new NLog.Targets.FileTarget("logfile2") { FileName = fileNameText, ArchiveAboveSize = 1048576, Layout = "${longdate} ${level} ${message}  ${exception:format=toString}" };
           if (config.AllTargets.Any(x => x is NLog.Targets.FileTarget target && !(target.Layout is JsonLayout)))
             config.RemoveTarget("logfile2");
           config.AddRule(minLevel, LogLevel.Fatal, logfileFolder);
