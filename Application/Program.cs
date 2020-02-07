@@ -56,11 +56,13 @@ namespace CsvTools
 
       Application.EnableVisualStyles();
       Application.SetCompatibleTextRenderingDefault(false);
-
       // read the command line parameter
-      if (args.Length >= 1)
+      if (args.Length == 1)
         fileName = args[0];
-
+      // in case we have multiple arguments assume the path was split at space
+      else if (args.Length > 1)
+        fileName = args.Join(" ");
+  
 #if NETCOREAPP31
       Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 #endif
