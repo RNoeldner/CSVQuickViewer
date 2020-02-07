@@ -412,7 +412,7 @@ namespace CsvTools
 
         dataTable.BeginLoadData();
         if (recordLimit < 1)
-          recordLimit = int.MaxValue;
+          recordLimit = long.MaxValue;
         // load the Data into the dataTable        
         var action = processDisplay == null ? null : new IntervalAction(.3);
         while (dataReader.Read() && dataTable.Rows.Count < recordLimit && !(processDisplay?.CancellationToken.IsCancellationRequested ?? false))
