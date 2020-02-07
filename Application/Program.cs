@@ -12,14 +12,13 @@
  *
  */
 
-using System;
-using System.Diagnostics.CodeAnalysis;
-
-using System.Threading;
-using System.Windows.Forms;
-
 namespace CsvTools
 {
+  using System;
+  using System.Diagnostics.CodeAnalysis;
+  using System.Threading;
+  using System.Windows.Forms;
+
   internal static class Program
   {
     internal const string cPhrase = "R@pHa€l";
@@ -31,7 +30,8 @@ namespace CsvTools
     /// <param name="e">
     ///   The <see cref="ThreadExceptionEventArgs" /> instance containing the event data.
     /// </param>
-    private static void Application_ThreadException(object sender, ThreadExceptionEventArgs e) => UnhandledException(e.Exception);
+    private static void Application_ThreadException(object sender, ThreadExceptionEventArgs e) =>
+      UnhandledException(e.Exception);
 
     /// <summary>
     ///   Handles the UnhandledException event of the CurrentDomain control.
@@ -40,7 +40,8 @@ namespace CsvTools
     /// <param name="e">
     ///   The <see cref="UnhandledExceptionEventArgs" /> instance containing the event data.
     /// </param>
-    private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e) => UnhandledException((Exception)e.ExceptionObject);
+    private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e) =>
+      UnhandledException((Exception)e.ExceptionObject);
 
     /// <summary>
     ///   The main entry point for the application.
@@ -56,13 +57,15 @@ namespace CsvTools
 
       Application.EnableVisualStyles();
       Application.SetCompatibleTextRenderingDefault(false);
+
       // read the command line parameter
       if (args.Length == 1)
         fileName = args[0];
+
       // in case we have multiple arguments assume the path was split at space
       else if (args.Length > 1)
         fileName = args.Join(" ");
-  
+
 #if NETCOREAPP31
       Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 #endif
@@ -81,8 +84,8 @@ namespace CsvTools
 #if DEBUG
       System.Diagnostics.Debug.Assert(false, @"Not handled Exception", message);
 #else
-      if (MessageBox.Show(message, @"Not handled Exception", MessageBoxButtons.AbortRetryIgnore, MessageBoxIcon.Stop) ==
-          DialogResult.Abort)
+      if (MessageBox.Show(message, @"Not handled Exception", MessageBoxButtons.AbortRetryIgnore, MessageBoxIcon.Stop)
+          == DialogResult.Abort)
         Application.Exit();
 #endif
     }

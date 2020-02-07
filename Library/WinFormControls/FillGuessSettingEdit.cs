@@ -12,10 +12,11 @@
  *
  */
 
-using System.Windows.Forms;
-
 namespace CsvTools
 {
+  using System.ComponentModel;
+  using System.Windows.Forms;
+
   /// <summary>
   ///   Class to edit FillGuessSettings
   /// </summary>
@@ -43,16 +44,20 @@ namespace CsvTools
         textBoxCheckedRecords.Focus();
     }
 
-    private void TextBoxSampleValues_Validating(object sender, System.ComponentModel.CancelEventArgs e)
+    private void TextBoxMinSamples_Validating(object sender, CancelEventArgs e)
     {
       if (int.TryParse(textBoxSampleValues.Text, out var max) && int.TryParse(textBoxMinSamples.Text, out var min))
-        errorProvider.SetError(textBoxSampleValues, (max < min) ? "Maximum samples must be greater then minumu samples" : string.Empty);
+        errorProvider.SetError(
+          textBoxMinSamples,
+          (min < max) ? "Minmum samples must be less then maximum samples" : string.Empty);
     }
 
-    private void TextBoxMinSamples_Validating(object sender, System.ComponentModel.CancelEventArgs e)
+    private void TextBoxSampleValues_Validating(object sender, CancelEventArgs e)
     {
       if (int.TryParse(textBoxSampleValues.Text, out var max) && int.TryParse(textBoxMinSamples.Text, out var min))
-        errorProvider.SetError(textBoxMinSamples, (min < max) ? "Minmum samples must be less then maximum samples" : string.Empty);
+        errorProvider.SetError(
+          textBoxSampleValues,
+          (max < min) ? "Maximum samples must be greater then minumu samples" : string.Empty);
     }
   }
 }

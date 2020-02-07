@@ -12,12 +12,12 @@
  *
  */
 
-using System;
-using System.ComponentModel;
-using System.Xml.Serialization;
-
 namespace CsvTools
 {
+  using System;
+  using System.ComponentModel;
+  using System.Xml.Serialization;
+
   /// <summary>
   ///   Class containing the all configuration, used in serialization to store the settings
   /// </summary>
@@ -29,18 +29,41 @@ namespace CsvTools
     public WindowState WindowPosition;
 
 #pragma warning restore CA1051 // Do not declare visible instance fields
+    private bool m_AllowJson = true;
 
     private bool m_DetectFileChanges = true;
+
     private FillGuessSettings m_FillGuessSettings = new FillGuessSettings();
+
     private bool m_GuessCodePage = true;
+
     private bool m_GuessDelimiter = true;
+
     private bool m_GuessHasHeader = true;
-    private bool m_GuessStartRow = true;
+
     private bool m_GuessQualifier = false;
-    private bool m_AllowJson = true;
+
+    private bool m_GuessStartRow = true;
+
     private bool m_MenuDown = false;
+
     private PGPKeyStorage m_PGPKeyStorage = new PGPKeyStorage();
+
     private bool m_StoreSettingsByFile = false;
+
+    [XmlAttribute]
+    [DefaultValue(true)]
+    public bool AllowJson
+    {
+      get => m_AllowJson;
+      set
+      {
+        if (m_AllowJson == value)
+          return;
+        m_AllowJson = value;
+        NotifyPropertyChanged(nameof(AllowJson));
+      }
+    }
 
     [XmlAttribute]
     [DefaultValue(true)]
@@ -129,20 +152,6 @@ namespace CsvTools
     }
 
     [XmlAttribute]
-    [DefaultValue(true)]
-    public bool GuessStartRow
-    {
-      get => m_GuessStartRow;
-      set
-      {
-        if (m_GuessStartRow == value)
-          return;
-        m_GuessStartRow = value;
-        NotifyPropertyChanged(nameof(GuessStartRow));
-      }
-    }
-
-    [XmlAttribute]
     [DefaultValue(false)]
     public bool GuessQualifier
     {
@@ -158,15 +167,15 @@ namespace CsvTools
 
     [XmlAttribute]
     [DefaultValue(true)]
-    public bool AllowJson
+    public bool GuessStartRow
     {
-      get => m_AllowJson;
+      get => m_GuessStartRow;
       set
       {
-        if (m_AllowJson == value)
+        if (m_GuessStartRow == value)
           return;
-        m_AllowJson = value;
-        NotifyPropertyChanged(nameof(AllowJson));
+        m_GuessStartRow = value;
+        NotifyPropertyChanged(nameof(GuessStartRow));
       }
     }
 
@@ -198,7 +207,8 @@ namespace CsvTools
     [DefaultValue(false)]
     public bool StoreSettingsByFile
     {
-      get => m_StoreSettingsByFile; set
+      get => m_StoreSettingsByFile;
+      set
       {
         if (m_StoreSettingsByFile == value)
           return;
@@ -213,6 +223,7 @@ namespace CsvTools
       {
         return;
       }
+
       csvDest.AllowRowCombining = csvSrc.AllowRowCombining;
       csvDest.AlternateQuoting = csvSrc.AlternateQuoting;
       csvDest.ByteOrderMark = csvSrc.ByteOrderMark;

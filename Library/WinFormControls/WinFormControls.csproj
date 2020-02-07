@@ -41,7 +41,6 @@
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
@@ -250,7 +249,7 @@
       <Version>2.0.53</Version>
     </PackageReference>
     <PackageReference Include="WindowsAPICodePack">
-      <Version>1.1.0</Version>
+      <Version>1.1.1</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>

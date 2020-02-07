@@ -12,17 +12,18 @@
  *
  */
 
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics.Contracts;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
-
 namespace CsvTools
 {
+  using System;
+  using System.Collections.Generic;
+  using System.ComponentModel;
+  using System.Diagnostics.Contracts;
+  using System.Drawing;
+  using System.Globalization;
+  using System.Linq;
+  using System.Text;
+  using System.Windows.Forms;
+
   /// <summary>
   ///   An extension of the regular TreeView
   /// </summary>
@@ -55,12 +56,14 @@ namespace CsvTools
 
       if (bControl)
       {
-        if (!SelectedTreeNode.Contains(e.Node)) // new node ?
+        if (!SelectedTreeNode.Contains(e.Node))
         {
+          // new node ?
           SelectedTreeNode.Add(e.Node);
         }
-        else // not new, remove it from the collection
+        else
         {
+          // not new, remove it from the collection
           RemovePaintFromNodes();
           SelectedTreeNode.Remove(e.Node);
         }
@@ -78,13 +81,15 @@ namespace CsvTools
           Contract.Assume(m_FirstNode != null);
 
           var bottomnode = e.Node;
+
           // case 1 : begin and end nodes are parent
           var bParent = IsParent(m_FirstNode, e.Node); // is m_firstNode parent (direct or not) of e.Node
           if (!bParent)
           {
             bParent = IsParent(bottomnode, uppernode);
-            if (bParent) // swap nodes
+            if (bParent)
             {
+              // swap nodes
               var t = uppernode;
               uppernode = bottomnode;
               bottomnode = t;
@@ -102,16 +107,19 @@ namespace CsvTools
               n = n.Parent;
             }
           }
+
           // case 2 : nor the begin nor the end node are descendant one another
           else
           {
-            if (uppernode.Parent == null && bottomnode.Parent == null ||
-                uppernode.Parent != null && uppernode.Parent.Nodes.Contains(bottomnode)) // are they siblings ?
+            if (uppernode.Parent == null && bottomnode.Parent == null
+                || uppernode.Parent != null && uppernode.Parent.Nodes.Contains(bottomnode))
             {
+              // are they siblings ?
               var nIndexUpper = uppernode.Index;
               var nIndexBottom = bottomnode.Index;
-              if (nIndexBottom < nIndexUpper) // reversed?
+              if (nIndexBottom < nIndexUpper)
               {
+                // reversed?
                 var t = uppernode;
                 uppernode = bottomnode;
                 bottomnode = t;
@@ -128,7 +136,8 @@ namespace CsvTools
                 n = n.NextNode;
 
                 nIndexUpper++;
-              } // end while
+              }
+ // end while
             }
             else
             {
@@ -144,7 +153,8 @@ namespace CsvTools
 
           PaintSelectedNodes();
           m_FirstNode = e.Node; // let us chain several SHIFTs if we like it
-        } // end if m_bShift
+        }
+ // end if m_bShift
         else
         {
           // in the case of a simple click, just add this item
@@ -198,6 +208,7 @@ namespace CsvTools
     protected override void OnKeyDown(KeyEventArgs e)
     {
       base.OnKeyDown(e);
+
       // Handle CRTL -A
       if (e.Control && e.KeyCode == Keys.A)
       {
@@ -206,6 +217,7 @@ namespace CsvTools
           AddNodeWithSubnodes(item);
 
         PaintSelectedNodes();
+
         // SelectedTreeNode = this.Nodes;
       }
 
@@ -258,7 +270,11 @@ namespace CsvTools
               sbHtml.Append(style.TDEmpty);
             if (level != item.Level)
               continue;
-            sbHtml.Append(HTMLStyle.AddTd("<td colspan='{0}'>{1}</td>", (maxLevel - level + 1).ToString(System.Globalization.CultureInfo.InvariantCulture), text));
+            sbHtml.Append(
+              HTMLStyle.AddTd(
+                "<td colspan='{0}'>{1}</td>",
+                (maxLevel - level + 1).ToString(CultureInfo.InvariantCulture),
+                text));
             buffer.Append(item.Text);
           }
 

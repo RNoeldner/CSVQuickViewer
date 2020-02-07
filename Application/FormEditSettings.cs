@@ -12,13 +12,15 @@
  *
  */
 
-using System;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Windows.Forms;
-
 namespace CsvTools
 {
+  using System;
+  using System.ComponentModel;
+  using System.Diagnostics;
+  using System.Globalization;
+  using System.Threading;
+  using System.Windows.Forms;
+
   /// <summary>
   ///   Form to edit the Settings
   /// </summary>
@@ -58,7 +60,6 @@ namespace CsvTools
       catch (Exception ex)
       {
         this.ShowError(ex);
-        
       }
     }
 
@@ -67,7 +68,11 @@ namespace CsvTools
       try
       {
         var split = FileSystemUtils.SplitPath(textBoxFile.Text);
-        var newFileName = WindowsAPICodePackWrapper.Open(split.DirectoryName, "Delimited File", "Delimited files (*.csv;*.txt;*.tab;*.tsv)|*.csv;*.txt;*.tab;*.tsv|All files (*.*)|*.*", split.FileName);
+        var newFileName = WindowsAPICodePackWrapper.Open(
+          split.DirectoryName,
+          "Delimited File",
+          "Delimited files (*.csv;*.txt;*.tab;*.tsv)|*.csv;*.txt;*.tab;*.tsv|All files (*.*)|*.*",
+          split.FileName);
         if (!string.IsNullOrEmpty(newFileName))
           ChangeFileName(newFileName);
       }
@@ -170,19 +175,29 @@ namespace CsvTools
         m_ViewSettings.SkipRows = csvFile.SkipRows;
         m_ViewSettings.HasFieldHeader = csvFile.HasFieldHeader;
 
-        if (MessageBox.Show(this, "Should the value format of the columns be analyzed?", "Value Format",
-              MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+        if (MessageBox.Show(
+              this,
+              "Should the value format of the columns be analyzed?",
+              "Value Format",
+              MessageBoxButtons.YesNo,
+              MessageBoxIcon.Question) == DialogResult.Yes)
         {
-          if (m_ViewSettings.ColumnCollection.Count > 0 &&
-              MessageBox.Show(this,
+          if (m_ViewSettings.ColumnCollection.Count > 0 && MessageBox.Show(
+                this,
                 "Any already typed value will not be analyzed.\r\n Should the existing formats be removed before doing so?",
-                "Value Format", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                "Value Format",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question) == DialogResult.Yes)
             m_ViewSettings.ColumnCollection.Clear();
           try
           {
-            using (var processDisplay = m_ViewSettings.GetProcessDisplay(this, true, System.Threading.CancellationToken.None))
+            using (var processDisplay = m_ViewSettings.GetProcessDisplay(this, true, CancellationToken.None))
             {
-              m_ViewSettings.FillGuessColumnFormatReader(false, false, m_ViewSettings.FillGuessSettings, processDisplay);
+              m_ViewSettings.FillGuessColumnFormatReader(
+                false,
+                false,
+                m_ViewSettings.FillGuessSettings,
+                processDisplay);
             }
           }
           catch (Exception exc)
@@ -230,6 +245,8 @@ namespace CsvTools
       UpdatePassphraseInfoText();
     }
 
+    private void FormEditSettings_FormClosing(object sender, FormClosingEventArgs e) => ValidateChildren();
+
     private void GetPrivateKeys()
     {
       listBoxPrivKeys.Items.Clear();
@@ -243,7 +260,7 @@ namespace CsvTools
 
       Debug.Assert(tb != null, nameof(tb) + " != null");
       var ok = int.TryParse(tb.Text, out var parse);
-      var reformat = parse.ToString(System.Globalization.CultureInfo.CurrentCulture);
+      var reformat = parse.ToString(CultureInfo.CurrentCulture);
       ok = ok && parse >= 0 && reformat == tb.Text;
 
       if (!ok)
@@ -302,7 +319,5 @@ namespace CsvTools
           labelPassphrase.Text = "Passphrase is set but invalid";
         }
     }
-
-    private void FormEditSettings_FormClosing(object sender, FormClosingEventArgs e) => ValidateChildren();
   }
 }

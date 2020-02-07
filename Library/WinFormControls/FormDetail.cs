@@ -12,14 +12,15 @@
  *
  */
 
-using System.Collections.Generic;
-using System.Data;
-using System.Diagnostics.Contracts;
-using System.Threading;
-using System.Windows.Forms;
-
 namespace CsvTools
 {
+  using System.Collections.Generic;
+  using System.Data;
+  using System.Diagnostics.Contracts;
+  using System.Drawing;
+  using System.Threading;
+  using System.Windows.Forms;
+
   /// <summary>
   ///   A Form to display a Data Table
   /// </summary>
@@ -45,19 +46,19 @@ namespace CsvTools
 
       SuspendLayout();
 
-      var dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle
+      var dataGridViewCellStyle1 = new DataGridViewCellStyle
       {
-        BackColor = System.Drawing.Color.Gainsboro
+        BackColor = Color.Gainsboro
       };
 
-      var dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle
+      var dataGridViewCellStyle2 = new DataGridViewCellStyle
       {
         Alignment = DataGridViewContentAlignment.MiddleLeft,
-        BackColor = System.Drawing.SystemColors.Window,
-        ForeColor = System.Drawing.Color.Black,
-        SelectionBackColor = System.Drawing.SystemColors.Highlight,
-        SelectionForeColor = System.Drawing.SystemColors.HighlightText,
-        WrapMode = System.Windows.Forms.DataGridViewTriState.False
+        BackColor = SystemColors.Window,
+        ForeColor = Color.Black,
+        SelectionBackColor = SystemColors.Highlight,
+        SelectionForeColor = SystemColors.HighlightText,
+        WrapMode = DataGridViewTriState.False
       };
       detailControl = new DetailControl
       {
@@ -65,17 +66,17 @@ namespace CsvTools
         AlternatingRowDefaultCellSyle = dataGridViewCellStyle1,
         DefaultCellStyle = dataGridViewCellStyle2,
         Dock = DockStyle.Fill,
-        Location = new System.Drawing.Point(0, 0),
+        Location = new Point(0, 0),
         Name = "detailControl",
         ReadOnly = readOnly,
-        Size = new System.Drawing.Size(767, 394),
+        Size = new Size(767, 394),
         TabIndex = 0,
         FileSetting = setting,
         FillGuessSettings = fillGuessSettings
       };
 
-      ClientSize = new System.Drawing.Size(767, 394);
-      MinimumSize = new System.Drawing.Size(100, 100);
+      ClientSize = new Size(767, 394);
+      MinimumSize = new Size(100, 100);
       Controls.Add(detailControl);
       KeyPreview = true;
       Name = "FormDetail";

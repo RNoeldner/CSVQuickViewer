@@ -16,7 +16,7 @@
       <Version>2.0.53</Version>
     </PackageReference>
     <PackageReference Include="WindowsAPICodePack">
-      <Version>1.1.0</Version>
+      <Version>1.1.1</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>

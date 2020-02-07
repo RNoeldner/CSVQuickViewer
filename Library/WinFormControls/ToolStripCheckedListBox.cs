@@ -12,12 +12,12 @@
  *
  */
 
-using System.Diagnostics.Contracts;
-using System.Drawing;
-using System.Windows.Forms;
-
 namespace CsvTools
 {
+  using System.Diagnostics.Contracts;
+  using System.Drawing;
+  using System.Windows.Forms;
+
   /// <summary>
   ///   CheckedListBox that can live in a ToolStrip
   /// </summary>
@@ -27,19 +27,25 @@ namespace CsvTools
     ///   Initializes a new instance of the <see cref="ToolStripCheckedListBox" /> class.
     /// </summary>
     public ToolStripCheckedListBox()
-      : base(new CheckedListBox
-      {
-        BorderStyle = BorderStyle.FixedSingle,
-        MultiColumn = true,
-        CheckOnClick = true,
-        SelectionMode = SelectionMode.One,
-        ThreeDCheckBoxes = true,
-        ColumnWidth = 300,
-        MaximumSize = new Size(600, 600),
-        BackColor = SystemColors.Window
-      })
+      : base(
+        new CheckedListBox
+          {
+            BorderStyle = BorderStyle.FixedSingle,
+            MultiColumn = true,
+            CheckOnClick = true,
+            SelectionMode = SelectionMode.One,
+            ThreeDCheckBoxes = true,
+            ColumnWidth = 300,
+            MaximumSize = new Size(600, 600),
+            BackColor = SystemColors.Window
+          })
     {
     }
+
+    /// <summary>
+    ///   Tell the world that an item was checked
+    /// </summary>
+    public event ItemCheckEventHandler ItemCheck;
 
     /// <summary>
     ///   Gets the checked ListBox.
@@ -60,11 +66,6 @@ namespace CsvTools
     ///   Gets the items shown in the checked list box
     /// </summary>
     public CheckedListBox.ObjectCollection Items => CheckedListBoxControl.Items;
-
-    /// <summary>
-    ///   Tell the world that an item was checked
-    /// </summary>
-    public event ItemCheckEventHandler ItemCheck;
 
     /// <summary>
     ///   Listen for events on the underlying control

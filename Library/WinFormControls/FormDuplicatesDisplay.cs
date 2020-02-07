@@ -12,30 +12,32 @@
  *
  */
 
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Diagnostics.Contracts;
-using System.Threading;
-using System.Windows.Forms;
-
 namespace CsvTools
 {
+  using System;
+  using System.Collections.Generic;
+  using System.ComponentModel;
+  using System.Data;
+  using System.Diagnostics.Contracts;
+  using System.Threading;
+  using System.Windows.Forms;
+
   /// <summary>
   ///   Windows Form UI showing duplicate records
   /// </summary>
   public partial class FormDuplicatesDisplay : Form
   {
+    private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
+
     private readonly DataRow[] m_DataRow;
+
     private readonly DataTable m_DataTable;
+
     private readonly string m_InitialColumn;
 
     private string m_LastDataColumnName = string.Empty;
-    private bool m_LastIgnoreNull = true;
 
-    private readonly CancellationTokenSource m_CancellationTokenSource =
-      new CancellationTokenSource();
+    private bool m_LastIgnoreNull = true;
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="FormDuplicatesDisplay" /> class.
@@ -60,9 +62,11 @@ namespace CsvTools
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
-    private void ComboBoxID_SelectedIndexChanged(object sender, EventArgs e) => Work(comboBoxID.Text, checkBoxIgnoreNull.Checked);
+    private void ComboBoxID_SelectedIndexChanged(object sender, EventArgs e) =>
+      Work(comboBoxID.Text, checkBoxIgnoreNull.Checked);
 
-    private void DuplicatesDisplay_FormClosing(object sender, FormClosingEventArgs e) => m_CancellationTokenSource.Cancel();
+    private void DuplicatesDisplay_FormClosing(object sender, FormClosingEventArgs e) =>
+      m_CancellationTokenSource.Cancel();
 
     /// <summary>
     ///   Handles the Load event of the HirachyDisplay control.
@@ -75,8 +79,8 @@ namespace CsvTools
       var current = 0;
       foreach (var columnName in m_DataTable.GetRealColumns())
       {
-        if (!string.IsNullOrEmpty(m_InitialColumn) &&
-            columnName.Equals(m_InitialColumn, StringComparison.OrdinalIgnoreCase))
+        if (!string.IsNullOrEmpty(m_InitialColumn)
+            && columnName.Equals(m_InitialColumn, StringComparison.OrdinalIgnoreCase))
           index = current;
         comboBoxID.Items.Add(columnName);
         current++;
@@ -89,27 +93,31 @@ namespace CsvTools
     {
       if (string.IsNullOrEmpty(dataColumnName))
         return;
-      if (dataColumnName.Equals(m_LastDataColumnName, StringComparison.OrdinalIgnoreCase) && m_LastIgnoreNull == ignoreNull)
+      if (dataColumnName.Equals(m_LastDataColumnName, StringComparison.OrdinalIgnoreCase)
+          && m_LastIgnoreNull == ignoreNull)
         return;
 
       m_LastDataColumnName = dataColumnName;
       m_LastIgnoreNull = ignoreNull;
-      this.SafeInvoke(() =>
-      {
-        detailControl.Visible = false;
-        detailControl.SuspendLayout();
-      });
+      this.SafeInvoke(
+        () =>
+          {
+            detailControl.Visible = false;
+            detailControl.SuspendLayout();
+          });
       try
       {
         var dupliacteList = new List<int>();
         var dictIDToRow = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
         var dictFirstIDStored = new HashSet<int>();
         var dataColumnID = m_DataTable.Columns[dataColumnName];
-        this.SafeInvoke(() =>
-          Text = $"Duplicate Display - {dataColumnName}");
+        this.SafeInvoke(() => Text = $"Duplicate Display - {dataColumnName}");
 
         var intervalAction = new IntervalAction();
-        using (var display = new FormProcessDisplay($"Processing {dataColumnName}", false, m_CancellationTokenSource.Token))
+        using (var display = new FormProcessDisplay(
+          $"Processing {dataColumnName}",
+          false,
+          m_CancellationTokenSource.Token))
         {
           display.Maximum = m_DataRow.Length;
           display.Show(this);
@@ -120,8 +128,9 @@ namespace CsvTools
             intervalAction.Invoke(row => display.SetProcess("Getting duplicate values", row, false), rowIndex);
 
             var id = m_DataRow[rowIndex][dataColumnID.Ordinal].ToString().Trim();
-            //if (id != null)
-            //  id = id.Trim();
+
+            // if (id != null)
+            // id = id.Trim();
             if (ignoreNull && string.IsNullOrEmpty(id))
               continue;
             if (dictIDToRow.TryGetValue(id, out var dupliacteRowIndex))
@@ -143,8 +152,8 @@ namespace CsvTools
           dictFirstIDStored.Clear();
           dictIDToRow.Clear();
 
-          this.SafeInvoke(() => Text =
-            $"Duplicate Display - {dataColumnName} - Rows {dupliacteList.Count} / {m_DataRow.Length}");
+          this.SafeInvoke(
+            () => Text = $"Duplicate Display - {dataColumnName} - Rows {dupliacteList.Count} / {m_DataRow.Length}");
 
           m_DataTable.BeginLoadData();
           m_DataTable.Clear();
@@ -164,31 +173,33 @@ namespace CsvTools
           display.Maximum = 0;
           display.SetProcess("Sorting");
 
-          detailControl.SafeInvoke(() =>
-          {
-            try
-            {
-              foreach (DataGridViewColumn col in detailControl.DataGridView.Columns)
-                if (col.DataPropertyName == dataColumnName)
+          detailControl.SafeInvoke(
+            () =>
+              {
+                try
                 {
-                  detailControl.DataGridView.Sort(col, ListSortDirection.Ascending);
-                  break;
+                  foreach (DataGridViewColumn col in detailControl.DataGridView.Columns)
+                    if (col.DataPropertyName == dataColumnName)
+                    {
+                      detailControl.DataGridView.Sort(col, ListSortDirection.Ascending);
+                      break;
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
-              Logger.Warning(ex, "Sorting duplicate list {exception}", ex.SourceExceptionMessage());
-            }
-          });
+                catch (Exception ex)
+                {
+                  Logger.Warning(ex, "Sorting duplicate list {exception}", ex.SourceExceptionMessage());
+                }
+              });
         }
       }
       finally
       {
-        this.SafeInvoke(() =>
-        {
-          detailControl.Visible = true;
-          detailControl.ResumeLayout(true);
-        });
+        this.SafeInvoke(
+          () =>
+            {
+              detailControl.Visible = true;
+              detailControl.ResumeLayout(true);
+            });
       }
     }
   }

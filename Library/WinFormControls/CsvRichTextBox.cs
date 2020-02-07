@@ -12,22 +12,29 @@
  *
  */
 
-using System.Text;
-using System.Windows.Forms;
-
 namespace CsvTools
 {
+  using System;
+  using System.Text;
+  using System.Windows.Forms;
+
   /// <summary>
   ///   Rich Text box that will highlight the delimiter and quote
   /// </summary>
   public class CSVRichTextBox : RichTextBox
   {
     private int m_CurrentColor = -1;
+
     private char m_Delimiter = ',';
+
     private bool m_DisplaySpace = true;
+
     private char m_Escape = '\\';
+
     private bool m_InQuote;
+
     private char m_Quote = '"';
+
     private string m_Text = string.Empty;
 
     /// <summary>
@@ -35,22 +42,21 @@ namespace CsvTools
     /// </summary>
     public char Delimiter
     {
+      get => m_Delimiter;
       set
       {
-        if (m_Delimiter.Equals(value))
+        if (this.m_Delimiter.Equals(value))
           return;
-        m_Delimiter = value;
+        this.m_Delimiter = value;
         try
         {
-          this.SafeInvoke(() => Rtf = GetRtfFromText(m_Text));
+          this.SafeInvoke(() => this.Rtf = this.GetRtfFromText(this.m_Text));
         }
-        catch (System.Exception)
+        catch (Exception)
         {
           // ignore   this could happen if the control is not fully initialized
         }
       }
-
-      get => m_Delimiter;
     }
 
     /// <summary>
@@ -72,15 +78,14 @@ namespace CsvTools
     /// </summary>
     public char Escape
     {
+      get => m_Escape;
       set
       {
-        if (m_Escape.Equals(value))
+        if (this.m_Escape.Equals(value))
           return;
-        m_Escape = value;
-        Rtf = GetRtfFromText(m_Text);
+        this.m_Escape = value;
+        this.Rtf = this.GetRtfFromText(this.m_Text);
       }
-
-      get => m_Escape;
     }
 
     /// <summary>
@@ -88,15 +93,14 @@ namespace CsvTools
     /// </summary>
     public char Quote
     {
+      get => m_Quote;
       set
       {
-        if (m_Quote.Equals(value))
+        if (this.m_Quote.Equals(value))
           return;
-        m_Quote = value;
-        Rtf = GetRtfFromText(m_Text);
+        this.m_Quote = value;
+        this.Rtf = this.GetRtfFromText(this.m_Text);
       }
-
-      get => m_Quote;
     }
 
     /// <summary>
@@ -221,15 +225,17 @@ namespace CsvTools
             if (curChar >= 32 && curChar <= 127 || curChar == '\t')
               AddChar(rtf, 1, curChar);
             else
+
               // others need to be passed on with their decimal code
               AddText(rtf, 1, $"\\u{(int)curChar}?");
           }
         }
       }
-      catch (System.Exception ex)
+      catch (Exception ex)
       {
         FindForm().ShowError(ex);
       }
+
       rtf.AppendLine(@"\par");
       rtf.AppendLine("}");
       return rtf.ToString();

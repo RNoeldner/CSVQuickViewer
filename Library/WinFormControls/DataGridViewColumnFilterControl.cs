@@ -12,14 +12,14 @@
  *
  */
 
-using System;
-using System.ComponentModel;
-using System.Diagnostics.Contracts;
-using System.Globalization;
-using System.Windows.Forms;
-
 namespace CsvTools
 {
+  using System;
+  using System.ComponentModel;
+  using System.Diagnostics.Contracts;
+  using System.Globalization;
+  using System.Windows.Forms;
+
   /// <summary>
   ///   Control to allow entering filters
   /// </summary>
@@ -46,8 +46,11 @@ namespace CsvTools
       Contract.Assume(textBoxValue != null);
 
       var isDate = m_DataGridViewColumnFilter.ColumnDataType == typeof(DateTime);
-      var isNumeric = m_DataGridViewColumnFilter.ColumnDataType == typeof(int) || m_DataGridViewColumnFilter.ColumnDataType == typeof(double) || m_DataGridViewColumnFilter.ColumnDataType == typeof(float)
-                  || m_DataGridViewColumnFilter.ColumnDataType == typeof(byte) || m_DataGridViewColumnFilter.ColumnDataType == typeof(long);
+      var isNumeric = m_DataGridViewColumnFilter.ColumnDataType == typeof(int)
+                      || m_DataGridViewColumnFilter.ColumnDataType == typeof(double)
+                      || m_DataGridViewColumnFilter.ColumnDataType == typeof(float)
+                      || m_DataGridViewColumnFilter.ColumnDataType == typeof(byte)
+                      || m_DataGridViewColumnFilter.ColumnDataType == typeof(long);
 
       dateTimePickerValue.Visible = isDate;
       textBoxValue.Visible = !isDate;
@@ -109,6 +112,24 @@ namespace CsvTools
       }
     }
 
+    private void FilterLogic_PropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+      switch (e.PropertyName)
+      {
+        case "ValueText":
+          textBoxValue.Text = m_DataGridViewColumnFilter.ValueText;
+          break;
+
+        case "ValueDateTime":
+          dateTimePickerValue.Value = m_DataGridViewColumnFilter.ValueDateTime;
+          break;
+
+        case "Operator":
+          comboBoxOperator.Text = m_DataGridViewColumnFilter.Operator;
+          break;
+      }
+    }
+
     /// <summary>
     ///   Starts the clock to change the filter with a delay
     /// </summary>
@@ -147,27 +168,9 @@ namespace CsvTools
       m_DataGridViewColumnFilter.ApplyFilter();
     }
 
-    private void FilterLogic_PropertyChanged(object sender, PropertyChangedEventArgs e)
-    {
-      switch (e.PropertyName)
-      {
-        case "ValueText":
-          textBoxValue.Text = m_DataGridViewColumnFilter.ValueText;
-          break;
-
-        case "ValueDateTime":
-          dateTimePickerValue.Value = m_DataGridViewColumnFilter.ValueDateTime;
-          break;
-
-        case "Operator":
-          comboBoxOperator.Text = m_DataGridViewColumnFilter.Operator;
-          break;
-      }
-    }
-
     private void TextBoxValue_Validated(object sender, EventArgs e)
     {
-      errorProvider1.SetError(textBoxValue, "");
+      errorProvider1.SetError(textBoxValue, string.Empty);
       textBoxValue.Width = dateTimePickerValue.Width;
       switch (Type.GetTypeCode(m_DataGridViewColumnFilter.ColumnDataType))
       {
@@ -182,10 +185,11 @@ namespace CsvTools
         case TypeCode.UInt16:
         case TypeCode.UInt32:
         case TypeCode.UInt64:
-          var nvalue = StringConversion.StringToDecimal(textBoxValue.Text,
+          var nvalue = StringConversion.StringToDecimal(
+                         textBoxValue.Text,
                          CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator.GetFirstChar(),
-                         CultureInfo.CurrentCulture.NumberFormat.NumberGroupSeparator.GetFirstChar(), true) ??
-                       StringConversion.StringToDecimal(textBoxValue.Text, '.', '\0', true);
+                         CultureInfo.CurrentCulture.NumberFormat.NumberGroupSeparator.GetFirstChar(),
+                         true) ?? StringConversion.StringToDecimal(textBoxValue.Text, '.', '\0', true);
           if (!nvalue.HasValue)
           {
             textBoxValue.Width = dateTimePickerValue.Width - 20;

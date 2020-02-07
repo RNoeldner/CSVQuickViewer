@@ -1,13 +1,72 @@
-﻿using Microsoft.WindowsAPICodePack.Dialogs;
-using Microsoft.WindowsAPICodePack.Taskbar;
-using System.Windows.Forms;
-
-namespace CsvTools
+﻿namespace CsvTools
 {
+  using System;
+  using System.Windows.Forms;
+
+  using Microsoft.WindowsAPICodePack.Dialogs;
+  using Microsoft.WindowsAPICodePack.Taskbar;
+
   public static class WindowsAPICodePackWrapper
   {
     private static readonly bool m_CommonFileDialogSupported = CommonFileDialog.IsPlatformSupported;
+
     private static bool m_TaskbarManagerSupported = TaskbarManager.IsPlatformSupported;
+
+    public static void AttachTaskbarProgress(this IProcessDisplayTime MainProcess)
+    {
+      // Handle the TaskBarProcess as well
+      MainProcess.Progress += delegate(object sender, ProgressEventArgs e)
+        {
+          if (MainProcess.Maximum != -1 && MainProcess.TimeToCompletion.Value > -1
+                                        && MainProcess.TimeToCompletion.Value
+                                        != MainProcess.TimeToCompletion.TargetValue)
+          {
+            SetProgressState(false);
+            SetProgressValue(
+              MainProcess.TimeToCompletion.Value.ToInt(),
+              MainProcess.TimeToCompletion.TargetValue.ToInt());
+          }
+
+          if (MainProcess.TimeToCompletion.Value == MainProcess.TimeToCompletion.TargetValue)
+
+            // done
+            SetProgressState(true);
+          Extensions.ProcessUIElements();
+        };
+
+      MainProcess.SetMaximum += delegate(object sender, long max)
+        {
+          if (max < 1)
+            SetProgressState(true);
+          Extensions.ProcessUIElements();
+        };
+    }
+
+    public static string Folder(string initialDirectory, string title)
+    {
+      if (m_CommonFileDialogSupported)
+      {
+        using (var commonOpenFileDialog = new CommonOpenFileDialog(title))
+        {
+          commonOpenFileDialog.Multiselect = false;
+          commonOpenFileDialog.EnsurePathExists = true;
+          commonOpenFileDialog.AllowNonFileSystemItems = false;
+          commonOpenFileDialog.IsFolderPicker = true;
+          commonOpenFileDialog.InitialDirectory = initialDirectory;
+          if (commonOpenFileDialog.ShowDialog() == CommonFileDialogResult.Ok)
+            return commonOpenFileDialog.FileName;
+        }
+      }
+      else
+        using (var folderDialog = new FolderTree())
+        {
+          folderDialog.SetCurrentPath(initialDirectory);
+          if (folderDialog.ShowDialog() == DialogResult.OK)
+            return folderDialog.SelectedPath;
+        }
+
+      return null;
+    }
 
     public static string Open(string initialDirectory, string title, string filter, string preselectFileName)
     {
@@ -43,10 +102,16 @@ namespace CsvTools
             return openFileDialogReference.FileName.LongFileName();
         }
       }
+
       return null;
     }
 
-    public static string Save(string initialDirectory, string title, string filter, string defaultExt, string preselectFileName)
+    public static string Save(
+      string initialDirectory,
+      string title,
+      string filter,
+      string defaultExt,
+      string preselectFileName)
     {
       if (m_CommonFileDialogSupported)
       {
@@ -87,31 +152,7 @@ namespace CsvTools
             return saveFileDialog.FileName.LongFileName();
         }
       }
-      return null;
-    }
 
-    public static string Folder(string initialDirectory, string title)
-    {
-      if (m_CommonFileDialogSupported)
-      {
-        using (var commonOpenFileDialog = new CommonOpenFileDialog(title))
-        {
-          commonOpenFileDialog.Multiselect = false;
-          commonOpenFileDialog.EnsurePathExists = true;
-          commonOpenFileDialog.AllowNonFileSystemItems = false;
-          commonOpenFileDialog.IsFolderPicker = true;
-          commonOpenFileDialog.InitialDirectory = initialDirectory;
-          if (commonOpenFileDialog.ShowDialog() == CommonFileDialogResult.Ok)
-            return commonOpenFileDialog.FileName;
-        }
-      }
-      else
-        using (var folderDialog = new FolderTree())
-        {
-          folderDialog.SetCurrentPath(initialDirectory);
-          if (folderDialog.ShowDialog() == DialogResult.OK)
-            return folderDialog.SelectedPath;
-        }
       return null;
     }
 
@@ -126,9 +167,9 @@ namespace CsvTools
         else
           TaskbarManager.Instance.SetProgressState(TaskbarProgressBarState.NoProgress);
       }
-      catch (System.Exception)
+      catch (Exception)
       {
-        //ignore
+        // ignore
         m_TaskbarManagerSupported = false;
       }
     }
@@ -141,35 +182,11 @@ namespace CsvTools
       {
         TaskbarManager.Instance.SetProgressValue(currentValue, maximumValue);
       }
-      catch (System.Exception)
+      catch (Exception)
       {
-        //ignore
+        // ignore
         m_TaskbarManagerSupported = false;
       }
-    }
-
-    public static void AttachTaskbarProgress(this IProcessDisplayTime MainProcess)
-    {
-      // Handle the TaskBarProcess as well
-      MainProcess.Progress += delegate (object sender, ProgressEventArgs e)
-      {
-        if (MainProcess.Maximum != -1 && MainProcess.TimeToCompletion.Value > -1 && MainProcess.TimeToCompletion.Value != MainProcess.TimeToCompletion.TargetValue)
-        {
-          SetProgressState(false);
-          SetProgressValue(MainProcess.TimeToCompletion.Value.ToInt(), MainProcess.TimeToCompletion.TargetValue.ToInt());
-        }
-        if (MainProcess.TimeToCompletion.Value == MainProcess.TimeToCompletion.TargetValue)
-          // done
-          SetProgressState(true);
-        Extensions.ProcessUIElements();
-      };
-
-      MainProcess.SetMaximum += delegate (object sender, long max)
-      {
-        if (max < 1)
-          SetProgressState(true);
-        Extensions.ProcessUIElements();
-      };
     }
   }
 }

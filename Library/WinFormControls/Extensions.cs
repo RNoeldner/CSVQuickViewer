@@ -12,96 +12,22 @@
  *
  */
 
-using Pri.LongPath;
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-
 namespace CsvTools
 {
+  using System;
+  using System.Collections.Generic;
+  using System.Drawing;
+  using System.Threading;
+  using System.Threading.Tasks;
+  using System.Windows.Forms;
+
+  using Pri.LongPath;
+
   /// <summary>
   ///   Helper class
   /// </summary>
   public static class Extensions
   {
-    /// <summary>
-    /// Extends regular ValidateChildren with Timeout and Cancellation
-    /// </summary>
-    /// <param name="container">Control with validate able children</param>
-    /// <param name="cancellationToken">Cancellation Token</param>
-    /// <returns><c>True</c> if children where validated, <c>false</c> otherwise</returns>
-    public static bool ValidateChildren(this ContainerControl container, CancellationToken cancellationToken) => Task.Run(() => container.ValidateChildren(), cancellationToken).WaitToCompleteTaskResult(1, Application.DoEvents);
-
-    /// <summary>
-    /// Show error information to a user, and logs the message
-    /// </summary>
-    /// <param name="from">The current Form</param>
-    /// <param name="ex">the Exception</param>
-    /// <param name="additionalTitle">Title Bar information</param>
-    public static void ShowError(this Form from, Exception ex, string additionalTitle = "")
-    {
-      Logger.Warning(ex, "Error in {form} : {message}", from.GetType().Name, ex.SourceExceptionMessage());
-      Cursor.Current = Cursors.Default;
-#if DEBUG      
-      _MessageBox.ShowBig(from, ex.ExceptionMessages() + "\n\nMethod:\n" + ex.CsvToolsStackTrace(), string.IsNullOrEmpty(additionalTitle) ? "Error" : $"Error {additionalTitle}", MessageBoxButtons.OK, MessageBoxIcon.Warning, timeout: 20);
-#else
-      _MessageBox.Show(from, ex.ExceptionMessages(), string.IsNullOrEmpty(additionalTitle) ? "Error" : $"Error {additionalTitle}", MessageBoxButtons.OK, MessageBoxIcon.Warning, timeout: 60);
-#endif
-    }
-
-    /// <summary>
-    /// Handles UI elements while waiting on something
-    /// </summary>
-    /// <param name="milliseconds">number of milliseconds to not process the calling thread</param>
-    public static void ProcessUIElements(int milliseconds = 0)
-    {
-#if wpf
-      Application.Current.Dispatcher.Invoke(DispatcherPriority.Background,
-                                          new Action(delegate { }));
-#else
-      Application.DoEvents();
-      if (milliseconds > 10)
-        Thread.Sleep(milliseconds);
-#endif
-    }
-
-    /// <summary>
-    /// Run a task synchronously with timeout
-    /// </summary>
-    /// <param name="executeTask">The started <see cref="System.Threading.Tasks.Task"/></param>
-    /// <param name="timeoutSeconds">Timeout for the completion of the task, if more time is spent running / waiting the wait is finished</param>
-    /// <param name="cancellationToken">Cancellation Token to be able to cancel the task</param>
-    public static void WaitToCompleteTaskUI(this Task executeTask, double timeoutSeconds, CancellationToken cancellationToken) =>
-      executeTask.WaitToCompleteTask(timeoutSeconds, Application.DoEvents, cancellationToken);
-
-    /// <summary>
-    /// Run a task synchronously with timeout
-    /// </summary>
-    /// <param name="executeTask">The started <see cref="System.Threading.Tasks.Task"/></param>
-    /// <param name="timeoutSeconds">Timeout for the completion of the task, if more time is spent running / waiting the wait is finished</param>
-    public static void WaitToCompleteTaskUI(this Task executeTask, double timeoutSeconds) =>
-      executeTask.WaitToCompleteTask(timeoutSeconds, Application.DoEvents);
-
-    /// <summary>
-    /// Run a task synchronously with timeout
-    /// </summary>
-    /// <param name="executeTask">The started <see cref="System.Threading.Tasks.Task"/></param>
-    /// <param name="timeoutSeconds">Timeout for the completion of the task, if more time is spent running / waiting the wait is finished</param>
-    /// <param name="cancellationToken">Cancellation Token to be able to cancel the task</param>
-    public static T WaitToCompleteTaskUI<T>(this Task<T> executeTask, double timeoutSeconds, CancellationToken cancellationToken) =>
-      executeTask.WaitToCompleteTaskResult(timeoutSeconds, Application.DoEvents, cancellationToken);
-
-    /// <summary>
-    /// Run a task synchronously with timeout
-    /// </summary>
-    /// <param name="executeTask">The started <see cref="System.Threading.Tasks.Task"/></param>
-    /// <param name="timeoutSeconds">Timeout for the completion of the task, if more time is spent running / waiting the wait is finished</param>
-    public static T WaitToCompleteTaskUI<T>(this Task<T> executeTask, double timeoutSeconds) =>
-      executeTask.WaitToCompleteTaskResult(timeoutSeconds, Application.DoEvents);
-
     /// <summary>
     ///   Handles a CTRL-A select all in the form.
     /// </summary>
@@ -134,19 +60,15 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Store a bound value
-    /// </summary>
-    /// <param name="ctrl">The control</param>
-    public static void WriteBinding(this Control ctrl) => ctrl.GetTextBindng()?.WriteValue();
-
-    /// <summary>
-    /// Deleting a file, in case it exists it will ask if it should be deleted
+    ///   Deleting a file, in case it exists it will ask if it should be deleted
     /// </summary>
     /// <param name="fileName"></param>
     /// <param name="ask"></param>
-    /// <returns>true: the file does not exist, or it was deleted
-    /// false: the file was not deleted it does still exist
-    /// null: user pressed cancel</returns>
+    /// <returns>
+    ///   true: the file does not exist, or it was deleted
+    ///   false: the file was not deleted it does still exist
+    ///   null: user pressed cancel
+    /// </returns>
     public static bool? DeleteFileQuestion(this string fileName, bool ask)
     {
       if (!FileSystemUtils.FileExists(fileName))
@@ -162,17 +84,23 @@ namespace CsvTools
         {
           // ignored
         }
+
         return false;
       }
+
       var res = FileSystemUtils.SplitPath(fileName);
       var disp = res.FileName;
 
-      var diagRes = _MessageBox.Show(null,
-            $"The file {disp} does exist already, do you want to delete the existing file?", "File", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+      var diagRes = _MessageBox.Show(
+        null,
+        $"The file {disp} does exist already, do you want to delete the existing file?",
+        "File",
+        MessageBoxButtons.YesNoCancel,
+        MessageBoxIcon.Question);
 
       if (diagRes == DialogResult.Yes)
       {
-      retry:
+        retry:
         try
         {
           File.Delete(fileName);
@@ -181,12 +109,16 @@ namespace CsvTools
         catch (Exception ex)
         {
           diagRes = DialogResult.No;
-          if (_MessageBox.Show(null,
-                $"The file {disp} could not be deleted.\n{ex.ExceptionMessages()}", "File",
-                MessageBoxButtons.RetryCancel, MessageBoxIcon.Warning) == DialogResult.Retry)
+          if (_MessageBox.Show(
+                null,
+                $"The file {disp} could not be deleted.\n{ex.ExceptionMessages()}",
+                "File",
+                MessageBoxButtons.RetryCancel,
+                MessageBoxIcon.Warning) == DialogResult.Retry)
             goto retry;
         }
       }
+
       if (diagRes == DialogResult.Cancel)
         return null;
       else
@@ -194,14 +126,14 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Gets the encrypted passphrase open form.
+    ///   Gets the encrypted passphrase open form.
     /// </summary>
     /// <param name="setting">The setting.</param>
     /// <returns></returns>
     /// <exception cref="EncryptionException">
-    /// The private key for decryption has not been setup
-    /// or
-    /// A passphrase is needed for decryption.
+    ///   The private key for decryption has not been setup
+    ///   or
+    ///   A passphrase is needed for decryption.
     /// </exception>
     public static string GetEncryptedPassphraseOpenForm(this IFileSetting setting)
     {
@@ -225,16 +157,20 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Gets the process display.
+    ///   Gets the process display.
     /// </summary>
     /// <param name="fileSetting">The setting.</param>
     /// <param name="owner">The owner form, in case the owner is minimized or closed this progress will do the same</param>
     /// <param name="withLogger">if set to <c>true</c> [with logger].</param>
     /// <param name="cancellationToken">A Cancellation token</param>
     /// <returns>
-    /// A process display, if the stetting want a process
+    ///   A process display, if the stetting want a process
     /// </returns>
-    public static IProcessDisplay GetProcessDisplay(this IFileSetting fileSetting, Form owner, bool withLogger, CancellationToken cancellationToken)
+    public static IProcessDisplay GetProcessDisplay(
+      this IFileSetting fileSetting,
+      Form owner,
+      bool withLogger,
+      CancellationToken cancellationToken)
     {
       if (!fileSetting.ShowProgress)
         return new DummyProcessDisplay(cancellationToken);
@@ -252,7 +188,11 @@ namespace CsvTools
       return null;
     }
 
-    public static void LoadWindowState(this Form form, WindowState windowPosition, Action<int> setCustomValue1 = null, Action<string> setCustomValue2 = null)
+    public static void LoadWindowState(
+      this Form form,
+      WindowState windowPosition,
+      Action<int> setCustomValue1 = null,
+      Action<string> setCustomValue2 = null)
     {
       if (windowPosition == null || windowPosition.Width == 0 || windowPosition.Height == 0)
         return;
@@ -268,7 +208,8 @@ namespace CsvTools
       */
       form.StartPosition = FormStartPosition.Manual;
 
-      var screen = Screen.FromRectangle(new Rectangle(windowPosition.Left, windowPosition.Top, windowPosition.Width, windowPosition.Height));
+      var screen = Screen.FromRectangle(
+        new Rectangle(windowPosition.Left, windowPosition.Top, windowPosition.Width, windowPosition.Height));
       var width = Math.Min(windowPosition.Width, screen.WorkingArea.Width);
       var height = Math.Min(windowPosition.Height, screen.WorkingArea.Height);
       var left = Math.Min(screen.WorkingArea.Right - width, Math.Max(windowPosition.Left, screen.WorkingArea.Left));
@@ -280,6 +221,22 @@ namespace CsvTools
         setCustomValue1.Invoke(windowPosition.CustomInt);
       if (!string.IsNullOrEmpty(windowPosition.CustomText) && setCustomValue2 != null)
         setCustomValue2.Invoke(windowPosition.CustomText);
+    }
+
+    /// <summary>
+    ///   Handles UI elements while waiting on something
+    /// </summary>
+    /// <param name="milliseconds">number of milliseconds to not process the calling thread</param>
+    public static void ProcessUIElements(int milliseconds = 0)
+    {
+#if wpf
+      Application.Current.Dispatcher.Invoke(DispatcherPriority.Background,
+                                          new Action(delegate { }));
+#else
+      Application.DoEvents();
+      if (milliseconds > 10)
+        Thread.Sleep(milliseconds);
+#endif
     }
 
     /// <summary>
@@ -328,12 +285,36 @@ namespace CsvTools
         action();
     }
 
+    /// <summary>
+    ///   Show error information to a user, and logs the message
+    /// </summary>
+    /// <param name="from">The current Form</param>
+    /// <param name="ex">the Exception</param>
+    /// <param name="additionalTitle">Title Bar information</param>
+    public static void ShowError(this Form from, Exception ex, string additionalTitle = "")
+    {
+      Logger.Warning(ex, "Error in {form} : {message}", from.GetType().Name, ex.SourceExceptionMessage());
+      Cursor.Current = Cursors.Default;
+#if DEBUG
+      _MessageBox.ShowBig(from, ex.ExceptionMessages() + "\n\nMethod:\n" + ex.CsvToolsStackTrace(), string.IsNullOrEmpty(additionalTitle) ? "Error" : $"Error {additionalTitle}", MessageBoxButtons.OK, MessageBoxIcon.Warning, timeout: 20);
+#else
+      _MessageBox.Show(
+        from,
+        ex.ExceptionMessages(),
+        string.IsNullOrEmpty(additionalTitle) ? "Error" : $"Error {additionalTitle}",
+        MessageBoxButtons.OK,
+        MessageBoxIcon.Warning,
+        timeout: 60);
+#endif
+    }
+
     public static WindowState StoreWindowState(this Form form, int customInt = int.MinValue, string customText = "")
     {
       try
       {
         var windowPosition = form.DesktopBounds;
         var windowState = form.WindowState;
+
         // Get the original WindowPosition in case of maximize or minimize
         if (windowState != FormWindowState.Normal)
         {
@@ -344,7 +325,17 @@ namespace CsvTools
           form.WindowState = windowState;
           form.Visible = oldVis;
         }
-        return new WindowState { Left = windowPosition.Left, Top = windowPosition.Top, Height = windowPosition.Height, Width = windowPosition.Width, State = (int)windowState, CustomInt = customInt, CustomText = customText };
+
+        return new WindowState
+                 {
+                   Left = windowPosition.Left,
+                   Top = windowPosition.Top,
+                   Height = windowPosition.Height,
+                   Width = windowPosition.Width,
+                   State = (int)windowState,
+                   CustomInt = customInt,
+                   CustomText = customText
+                 };
       }
       catch
       {
@@ -363,8 +354,7 @@ namespace CsvTools
         return;
       if (listView.InvokeRequired)
       {
-        listView.Invoke((MethodInvoker)delegate
-        { listView.UpdateListViewColumnFormat(columnFormat); });
+        listView.Invoke((MethodInvoker)delegate { listView.UpdateListViewColumnFormat(columnFormat); });
       }
       else
       {
@@ -383,5 +373,72 @@ namespace CsvTools
         listView.EndUpdate();
       }
     }
+
+    /// <summary>
+    ///   Extends regular ValidateChildren with Timeout and Cancellation
+    /// </summary>
+    /// <param name="container">Control with validate able children</param>
+    /// <param name="cancellationToken">Cancellation Token</param>
+    /// <returns><c>True</c> if children where validated, <c>false</c> otherwise</returns>
+    public static bool ValidateChildren(this ContainerControl container, CancellationToken cancellationToken) =>
+      Task.Run(() => container.ValidateChildren(), cancellationToken).WaitToCompleteTaskResult(1, Application.DoEvents);
+
+    /// <summary>
+    ///   Run a task synchronously with timeout
+    /// </summary>
+    /// <param name="executeTask">The started <see cref="System.Threading.Tasks.Task" /></param>
+    /// <param name="timeoutSeconds">
+    ///   Timeout for the completion of the task, if more time is spent running / waiting the wait
+    ///   is finished
+    /// </param>
+    /// <param name="cancellationToken">Cancellation Token to be able to cancel the task</param>
+    public static void WaitToCompleteTaskUI(
+      this Task executeTask,
+      double timeoutSeconds,
+      CancellationToken cancellationToken) =>
+      executeTask.WaitToCompleteTask(timeoutSeconds, Application.DoEvents, cancellationToken);
+
+    /// <summary>
+    ///   Run a task synchronously with timeout
+    /// </summary>
+    /// <param name="executeTask">The started <see cref="System.Threading.Tasks.Task" /></param>
+    /// <param name="timeoutSeconds">
+    ///   Timeout for the completion of the task, if more time is spent running / waiting the wait
+    ///   is finished
+    /// </param>
+    public static void WaitToCompleteTaskUI(this Task executeTask, double timeoutSeconds) =>
+      executeTask.WaitToCompleteTask(timeoutSeconds, Application.DoEvents);
+
+    /// <summary>
+    ///   Run a task synchronously with timeout
+    /// </summary>
+    /// <param name="executeTask">The started <see cref="System.Threading.Tasks.Task" /></param>
+    /// <param name="timeoutSeconds">
+    ///   Timeout for the completion of the task, if more time is spent running / waiting the wait
+    ///   is finished
+    /// </param>
+    /// <param name="cancellationToken">Cancellation Token to be able to cancel the task</param>
+    public static T WaitToCompleteTaskUI<T>(
+      this Task<T> executeTask,
+      double timeoutSeconds,
+      CancellationToken cancellationToken) =>
+      executeTask.WaitToCompleteTaskResult(timeoutSeconds, Application.DoEvents, cancellationToken);
+
+    /// <summary>
+    ///   Run a task synchronously with timeout
+    /// </summary>
+    /// <param name="executeTask">The started <see cref="System.Threading.Tasks.Task" /></param>
+    /// <param name="timeoutSeconds">
+    ///   Timeout for the completion of the task, if more time is spent running / waiting the wait
+    ///   is finished
+    /// </param>
+    public static T WaitToCompleteTaskUI<T>(this Task<T> executeTask, double timeoutSeconds) =>
+      executeTask.WaitToCompleteTaskResult(timeoutSeconds, Application.DoEvents);
+
+    /// <summary>
+    ///   Store a bound value
+    /// </summary>
+    /// <param name="ctrl">The control</param>
+    public static void WriteBinding(this Control ctrl) => ctrl.GetTextBindng()?.WriteValue();
   }
 }
