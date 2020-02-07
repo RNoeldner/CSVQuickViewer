@@ -414,13 +414,13 @@ namespace CsvTools
         if (recordLimit < 1)
           recordLimit = int.MaxValue;
         // load the Data into the dataTable        
-        var action = new IntervalAction(.3);
-        while (dataReader.Read() && dataTable.Rows.Count < recordLimit && !processDisplay.CancellationToken.IsCancellationRequested)
+        var action = processDisplay == null ? null : new IntervalAction(.3);
+        while (dataReader.Read() && dataTable.Rows.Count < recordLimit && !(processDisplay?.CancellationToken.IsCancellationRequested ?? false))
         {
           var readerValues = new object[columns];
           if (dataReader.GetValues(readerValues) > 0)
             dataTable.Rows.Add(readerValues);
-          action.Invoke(() => processDisplay?.SetProcess(string.Format(display, dataTable.Rows.Count), dataTable.Rows.Count, false));
+          action?.Invoke(() => processDisplay.SetProcess(string.Format(display, dataTable.Rows.Count), dataTable.Rows.Count, false));
         }
       }
       finally
