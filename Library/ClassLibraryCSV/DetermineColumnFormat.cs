@@ -735,7 +735,7 @@ namespace CsvTools
     ///   A collection of distinct not null values, in case the text is long only the first 40 characters are stored
     /// </returns>
     public static SampleResult GetSampleValues(IFileReader dataReader, long maxRecords,
-      int columnIndex, int enoughSamples, string treatAsNull, CancellationToken cancellationToken) => GetSampleValues(dataReader, maxRecords, new int[] { columnIndex }, enoughSamples, treatAsNull, cancellationToken)[columnIndex];
+      int columnIndex, int enoughSamples, string treatAsNull, CancellationToken cancellationToken) => GetSampleValues(dataReader, maxRecords, new[] { columnIndex }, enoughSamples, treatAsNull, cancellationToken)[columnIndex];
 
     /// <summary>
     ///   Gets the writer source columns.
@@ -754,6 +754,14 @@ namespace CsvTools
       }
     }
 
+    /// <summary>
+    /// Guesses the date time fromat
+    /// </summary>
+    /// <param name="samples">The sample texts.</param>
+    /// <param name="checkNamedDates">if set to <c>true</c> [check named dates].</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentNullException">samples</exception>
     public static CheckResult GuessDateTime(ICollection<string> samples, bool checkNamedDates,
       CancellationToken cancellationToken)
     {

@@ -33,7 +33,7 @@ namespace CsvTools
 
     private Button m_BtnOk;
 
-    private int m_Counter = 0;
+    private int m_Counter;
 
     private TableLayoutPanel tableLayoutPanel1;
 
@@ -187,7 +187,7 @@ namespace CsvTools
     {
       m_Counter++;
       UpdateLabel();
-      if (m_Duration > 0 && (m_Counter * timer.Interval) / 1000 > m_Duration)
+      if (m_Duration > 0 && m_Counter * timer.Interval / 1000 > m_Duration)
       {
         BtnOK_Click(sender, e);
       }

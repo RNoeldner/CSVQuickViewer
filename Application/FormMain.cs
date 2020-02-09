@@ -38,9 +38,9 @@ namespace CsvTools
   /// </summary>
   public sealed partial class FormMain : Form
   {
-    private static readonly string cSettingFolder = Environment.ExpandEnvironmentVariables("%APPDATA%\\CSVQuickViewer");
+    private static readonly string m_SettingFolder = Environment.ExpandEnvironmentVariables("%APPDATA%\\CSVQuickViewer");
 
-    private static readonly string cSettingPath = cSettingFolder + "\\Setting.xml";
+    private static readonly string m_SettingPath = m_SettingFolder + "\\Setting.xml";
 
     private static readonly XmlSerializer m_SerializerViewSettings = new XmlSerializer(typeof(ViewSettings));
 
@@ -120,10 +120,10 @@ namespace CsvTools
     {
       try
       {
-        Logger.Debug("Loading defaults {path}", cSettingPath);
-        if (FileSystemUtils.FileExists(cSettingPath))
+        Logger.Debug("Loading defaults {path}", m_SettingPath);
+        if (FileSystemUtils.FileExists(m_SettingPath))
         {
-          var serial = File.ReadAllText(cSettingPath);
+          var serial = File.ReadAllText(m_SettingPath);
           using (TextReader reader = new StringReader(serial))
           {
             return (ViewSettings)m_SerializerViewSettings.Deserialize(reader);
@@ -132,7 +132,7 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        Logger.Error(ex, "Loading defaults {path}", cSettingPath);
+        Logger.Error(ex, "Loading defaults {path}", m_SettingPath);
       }
 
       return new ViewSettings();
@@ -455,7 +455,6 @@ namespace CsvTools
       Logger.Information("Examining file {filename}", m_FileName);
       Text = $"{AssemblyTitle} : {sDisplay}";
 
-      var oldCursor = Cursor.Current == Cursors.WaitCursor ? Cursors.WaitCursor : Cursors.Default;
       Cursor.Current = Cursors.WaitCursor;
       DetachPropertyChanged(m_FileSetting);
 
@@ -742,10 +741,10 @@ namespace CsvTools
     {
       try
       {
-        if (!FileSystemUtils.DirectoryExists(cSettingFolder))
-          FileSystemUtils.CreateDirectory(cSettingFolder);
+        if (!FileSystemUtils.DirectoryExists(m_SettingFolder))
+          FileSystemUtils.CreateDirectory(m_SettingFolder);
 
-        FileSystemUtils.DeleteWithBackup(cSettingPath, false);
+        FileSystemUtils.DeleteWithBackup(m_SettingPath, false);
         using (var stringWriter = new StringWriter(CultureInfo.InvariantCulture))
         {
           m_ViewSettings.FileName = string.Empty;
@@ -753,7 +752,7 @@ namespace CsvTools
             stringWriter,
             m_ViewSettings,
             SerializedFilesLib.EmptyXmlSerializerNamespaces.Value);
-          File.WriteAllText(cSettingPath, stringWriter.ToString());
+          File.WriteAllText(m_SettingPath, stringWriter.ToString());
         }
       }
       catch (Exception)

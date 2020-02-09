@@ -34,7 +34,7 @@ namespace CsvTools.Tests
     {
       var testCase = new RemoteAccess();
       var hasFired = false;
-      testCase.PropertyChanged += delegate (object sender, System.ComponentModel.PropertyChangedEventArgs e)
+      testCase.PropertyChanged += delegate
       {
         hasFired = true;
       };

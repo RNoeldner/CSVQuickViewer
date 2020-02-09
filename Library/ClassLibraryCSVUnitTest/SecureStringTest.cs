@@ -46,9 +46,9 @@ namespace CsvTools.Tests
     [TestMethod]
     public void Decrypt()
     {
-      const string testValue = "This is a a test";
-      var encyrpted1 = testValue.Encrypt();
-      Assert.AreEqual(testValue, encyrpted1.Decrypt());
+      const string c_TestValue = "This is a a test";
+      var encyrpted1 = c_TestValue.Encrypt();
+      Assert.AreEqual(c_TestValue, encyrpted1.Decrypt());
     }
 
     [TestMethod]

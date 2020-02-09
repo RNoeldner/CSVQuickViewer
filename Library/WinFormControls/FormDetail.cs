@@ -37,8 +37,9 @@ namespace CsvTools
     /// <param name="readOnly">if set to <c>true</c> the data will not be editable</param>
     /// <param name="onlyErrors">if set to <c>true</c> non error will be hidden</param>
     /// <param name="frozenColumns">The frozen columns.</param>
+    /// <param name="fillGuessSettings"></param>
     /// <param name="cancellationToken">The cancellation token</param>
-    ///
+    /// 
     public FormDetail(DataTable dataTable, IEnumerable<string> uniqueFieldName, IFileSetting setting, bool readOnly,
       bool onlyErrors, int frozenColumns, FillGuessSettings fillGuessSettings, CancellationToken cancellationToken)
     {

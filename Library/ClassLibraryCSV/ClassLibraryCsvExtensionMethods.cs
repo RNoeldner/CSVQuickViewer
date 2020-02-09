@@ -499,6 +499,12 @@ namespace CsvTools
       }
     }
 
+    /// <summary>
+    /// Gets the type of the placeholder.
+    /// </summary>
+    /// <param name="input">The input.</param>
+    /// <param name="placeholder">The placeholder.</param>
+    /// <returns></returns>
     public static string GetPlaceholderType(this string input, string placeholder)
     {
       var type = "{" + placeholder + "}";
@@ -514,7 +520,16 @@ namespace CsvTools
       return null;
     }
 
-    public static string PlaceHolderTimes(this string text, string format, IFileSetting fileSetting, DateTime LastExecution, DateTime LastExecutionStart)
+    /// <summary>
+    /// Places the holder times.
+    /// </summary>
+    /// <param name="text">The text.</param>
+    /// <param name="format">The format.</param>
+    /// <param name="fileSetting">The file setting.</param>
+    /// <param name="lastExecution">The last execution.</param>
+    /// <param name="lastExecutionStart">The last execution start.</param>
+    /// <returns></returns>
+    public static string PlaceHolderTimes(this string text, string format, IFileSetting fileSetting, DateTime lastExecution, DateTime lastExecutionStart)
     {
       if (!string.IsNullOrEmpty(text))
       {
@@ -523,14 +538,14 @@ namespace CsvTools
           var value = fileSetting.ProcessTimeUtc.ToString(format);
           text = text.PlaceholderReplace("LastRunUTC", value);
         }
-        if (LastExecutionStart != BaseSettings.ZeroTime)
+        if (lastExecutionStart != BaseSettings.ZeroTime)
         {
-          var value = LastExecutionStart.ToString(format);
+          var value = lastExecutionStart.ToString(format);
           text = text.PlaceholderReplace("ScriptStartUTC", value);
         }
-        if (LastExecution != BaseSettings.ZeroTime)
+        if (lastExecution != BaseSettings.ZeroTime)
         {
-          var value = LastExecution.ToString(format);
+          var value = lastExecution.ToString(format);
           text = text.PlaceholderReplace("LastScriptEndUTC", value);
         }
       }

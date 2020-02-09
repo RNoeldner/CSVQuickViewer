@@ -439,10 +439,12 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// This is not working as of now, ideally this would retun a stream that can be used fro writing, but the result is not correct
+    /// This is not working as of now, ideally this would return a stream that can be used fro writing, but the result is not correct
     /// </summary>
-    /// <param name="baseStream"></param>
-    /// <param name="recipients"></param>
+    /// <param name="baseStream">The underlying base stream usually a file</param>
+    /// <param name="recipients">teh recipient(s) of the file, only they can decrypt the contens</param>
+    /// <param name="encryptedStream">Sets the encrypted stream, needs to be closed so data is progressed</param>
+    /// <param name="compressedStream">Sets the compress stream, this needs to be closed as well</param>
     /// <returns></returns>
     public virtual Stream PGPStream(Stream baseStream, string recipients, out Stream encryptedStream, out Stream compressedStream )
     {
@@ -576,18 +578,17 @@ namespace CsvTools
       throw new PgpException("Secret key for message not found.");
     }
 
-    private IEnumerable<PgpPublicKey> GetEncryptionKey(string recipient)
+    private IEnumerable<PgpPublicKey> GetEncryptionKey(string recipients)
     {
-      var listofKeys = new List<PgpPublicKey>();
+      var listOfKeys = new List<PgpPublicKey>();
 
-      if (!string.IsNullOrEmpty(recipient))
+      if (!string.IsNullOrEmpty(recipients))
       {
-        var list = recipient.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
-        var recipients = GetRecipients();
-        foreach (var name in list)
+        var knownRecipients = GetRecipients();
+        foreach (var recipient in recipients.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
         {
           PgpPublicKey found = null;
-          foreach (var kvp in recipients)
+          foreach (var kvp in knownRecipients)
             if (kvp.Key.Equals(recipient, StringComparison.OrdinalIgnoreCase))
             {
               found = kvp.Value;
@@ -595,7 +596,7 @@ namespace CsvTools
             }
 
           if (found == null)
-            foreach (var kvp in recipients)
+            foreach (var kvp in knownRecipients)
               if (kvp.Key.ToUpperInvariant().Contains(recipient.ToUpperInvariant()))
               {
                 found = kvp.Value;
@@ -603,14 +604,14 @@ namespace CsvTools
               }
 
           if (found != null)
-            listofKeys.Add(found);
+            listOfKeys.Add(found);
         }
       }
 
-      if (listofKeys.Count == 0)
-        throw new PgpException($"No encryption key found for {recipient} in known key(s).");
+      if (listOfKeys.Count == 0)
+        throw new PgpException($"No encryption key found for {recipients} in known key(s).");
 
-      return listofKeys;
+      return listOfKeys;
     }
 
     public override bool Equals(object obj) => Equals(obj as PGPKeyStorage);
