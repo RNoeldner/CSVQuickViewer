@@ -180,6 +180,11 @@ namespace CsvTools
       }
     }
 
+    /// <summary>
+    /// Guesses the json file.
+    /// </summary>
+    /// <param name="setting">The setting.</param>
+    /// <returns></returns>
     public static bool GuessJsonFile(IFileSettingPhysicalFile setting)
     {
       Contract.Requires(setting != null);
@@ -194,7 +199,7 @@ namespace CsvTools
     ///   Opens the csv file, and tries to read the headers
     /// </summary>
     /// <param name="setting">The CSVFile fileSetting</param>
-    /// <param name="processDisplay">The process display.</param>
+    /// <param name="cancellationToken">A cancellation token</param>
     /// <returns>
     ///   <c>True</c> we could use the first row as header, <c>false</c> should not use first row as header
     /// </returns>
@@ -363,6 +368,12 @@ namespace CsvTools
     /// </summary>
     /// <param name="file">The file.</param>
     /// <param name="display">The display.</param>
+    /// <param name="guessJson">if true trying to determine if file is a JSOn file</param>
+    /// <param name="guessCodePage">if true, try to determine teh codepage</param>
+    /// <param name="guessDelimiter">if true, try to determine the delimiter</param>
+    /// <param name="guessQualifier">if true, try to determine teh qualifier for text</param>
+    /// <param name="guessStartRow">if true, try to determine teh number of skipped rows</param>
+    /// <param name="guessHasHeader">if true, try to determine if the file does have a header row</param>
     public static void RefreshCsvFile(this ICsvFile file, IProcessDisplay display, bool guessJson = false, bool guessCodePage = true, bool guessDelimiter = true, bool guessQualifier = true, bool guessStartRow = true, bool guessHasHeader = true)
     {
       Contract.Requires(file != null);

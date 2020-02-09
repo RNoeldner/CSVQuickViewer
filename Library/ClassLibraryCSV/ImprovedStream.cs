@@ -30,12 +30,12 @@ namespace CsvTools
     /// <summary>
     ///   A PGP stream, has a few underlying streams that need to be closed in teh right order
     /// </summary>
-    private Stream m_CompressStream = null;
+    private Stream m_CompressStream;
 
     /// <summary>
     ///   A PGP stream, has a few underlying streams that need to be closed in teh right order
     /// </summary>
-    private Stream m_EncryptedStream = null;
+    private Stream m_EncryptedStream;
 
     private bool m_AssumeGZip;
 

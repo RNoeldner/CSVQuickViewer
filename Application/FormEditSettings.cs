@@ -101,12 +101,7 @@ namespace CsvTools
       GetPrivateKeys();
     }
 
-    private void ButtonCancel_Click(object sender, EventArgs e)
-    {
-      DialogResult = DialogResult.Cancel;
-      Close();
-    }
-
+  
     private void ButtonGuessCP_Click(object sender, EventArgs e)
     {
       var oldCursor = Cursor.Current == Cursors.WaitCursor ? Cursors.WaitCursor : Cursors.Default;

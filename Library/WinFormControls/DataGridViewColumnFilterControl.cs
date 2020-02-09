@@ -46,11 +46,6 @@ namespace CsvTools
       Contract.Assume(textBoxValue != null);
 
       var isDate = m_DataGridViewColumnFilter.ColumnDataType == typeof(DateTime);
-      var isNumeric = m_DataGridViewColumnFilter.ColumnDataType == typeof(int)
-                      || m_DataGridViewColumnFilter.ColumnDataType == typeof(double)
-                      || m_DataGridViewColumnFilter.ColumnDataType == typeof(float)
-                      || m_DataGridViewColumnFilter.ColumnDataType == typeof(byte)
-                      || m_DataGridViewColumnFilter.ColumnDataType == typeof(long);
 
       dateTimePickerValue.Visible = isDate;
       textBoxValue.Visible = !isDate;
