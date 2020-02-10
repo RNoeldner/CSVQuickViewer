@@ -36,7 +36,7 @@ namespace CsvTools
   /// <summary>
   ///   Form to Display a CSV File
   /// </summary>
-  public sealed partial class FormMain : Form
+  public sealed partial class FormMain : ResizeForm
   {
     private static readonly string m_SettingFolder = Environment.ExpandEnvironmentVariables("%APPDATA%\\CSVQuickViewer");
 

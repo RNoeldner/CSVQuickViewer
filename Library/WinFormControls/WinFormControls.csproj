@@ -50,6 +50,9 @@
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="BuildValueClustersResult.cs" />
+    <Compile Include="ResizeForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="CsvRichTextBox.cs">
       <SubType>Component</SubType>
     </Compile>

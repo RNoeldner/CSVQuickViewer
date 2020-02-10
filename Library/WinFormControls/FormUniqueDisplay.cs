@@ -22,7 +22,7 @@ namespace CsvTools
   using System.Threading;
   using System.Windows.Forms;
 
-  public partial class FormUniqueDisplay : Form
+  public partial class FormUniqueDisplay : ResizeForm
   {
     private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
 

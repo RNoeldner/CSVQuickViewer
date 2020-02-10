@@ -31,7 +31,7 @@ namespace CsvTools
   /// <summary>
   ///   Windows Form to Display the hierarchy
   /// </summary>
-  public class FormHierachyDisplay : Form
+  public class FormHierachyDisplay : ResizeForm
   {
     private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
 

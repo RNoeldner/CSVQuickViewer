@@ -25,7 +25,7 @@ namespace CsvTools
   /// <summary>
   ///   Windows Form UI showing duplicate records
   /// </summary>
-  public partial class FormDuplicatesDisplay : Form
+  public partial class FormDuplicatesDisplay : ResizeForm
   {
     private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
 

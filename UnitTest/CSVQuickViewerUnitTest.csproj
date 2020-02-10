@@ -55,6 +55,10 @@
       <Project>{0b6aee5a-8005-4b1d-987f-5790c34a2d52}</Project>
       <Name>ClassLibraryCSV</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Library\WinFormControls\WinFormControls.csproj">
+      <Project>{55ad0a98-c175-4b38-a3d0-321740820d41}</Project>
+      <Name>WinFormControls</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="TestFiles\BasicCSV.txt">

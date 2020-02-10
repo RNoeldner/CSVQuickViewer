@@ -20,7 +20,7 @@ namespace CsvTools
 
   using Pri.LongPath;
 
-  public sealed class FormKeyFile : Form
+  public sealed class FormKeyFile : ResizeForm
   {
     private const string c_Default =
       "-----BEGIN PGP PRIVATE KEY BLOCK-----\r\nVersion: GnuPG v2\r\n\r\n.....\r\nPlease copy the text\r\nor drag and drop file.\r\n.....\r\n\r\n-----END PGP PRIVATE KEY BLOCK-----";

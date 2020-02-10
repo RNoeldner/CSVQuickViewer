@@ -14,7 +14,7 @@
   /// <summary>
   ///   Summary description for ExplorerTree.
   /// </summary>
-  public class FolderTree : Form
+  public class FolderTree : ResizeForm
   {
     private IContainer components;
 

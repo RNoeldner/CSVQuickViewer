@@ -107,6 +107,7 @@ namespace CsvTools
       comboBoxTrim.Items.Add(new DisplayItem<int>(1, "Unquoted"));
       comboBoxTrim.Items.Add(new DisplayItem<int>(3, "All"));
       UpdateUI();
+      Font = SystemFonts.IconTitleFont;
     }
 
     [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]

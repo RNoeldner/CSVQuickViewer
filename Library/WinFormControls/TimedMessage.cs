@@ -5,7 +5,7 @@
   using System.Drawing;
   using System.Windows.Forms;
 
-  public class TimedMessage : Form
+  public class TimedMessage : ResizeForm
   {
     private Button m_Button1;
 

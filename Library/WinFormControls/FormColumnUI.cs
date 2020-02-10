@@ -33,7 +33,7 @@ namespace CsvTools
   /// <summary>
   ///   Windows Form UI editing a <see cref="Column" />
   /// </summary>
-  public partial class FormColumnUI : Form
+  public partial class FormColumnUI : ResizeForm
   {
     private const string c_NoSampleDate =
       "The source does not contain any sample data without warnings in the {0:N0} records read";

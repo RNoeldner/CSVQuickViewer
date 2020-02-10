@@ -24,7 +24,7 @@ namespace CsvTools
   /// <summary>
   ///   Form to edit the Settings
   /// </summary>
-  public partial class FormEditSettings : Form
+  public partial class FormEditSettings : ResizeForm
   {
     private readonly ViewSettings m_ViewSettings;
 
