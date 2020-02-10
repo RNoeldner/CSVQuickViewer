@@ -15,6 +15,7 @@
 namespace CsvTools
 {
   using System;
+  using System.ComponentModel;
   using System.Drawing;
   using System.Windows.Forms;
 
@@ -28,9 +29,11 @@ namespace CsvTools
 
     private TextBox m_TextBox;
 
-    private TableLayoutPanel tableLayoutPanel1;
+    private TableLayoutPanel m_TableLayoutPanel;
 
-    public FormPassphrase() => InitializeComponent();
+    public FormPassphrase() : this("Passphrase")
+    {
+    }
 
     public FormPassphrase(string title)
     {
@@ -38,6 +41,11 @@ namespace CsvTools
       Text = title;
     }
 
+
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    [Bindable(false)]
+    [Browsable(false)]
     public string EncryptedPassphrase
     {
       get
@@ -73,9 +81,9 @@ namespace CsvTools
       this.m_BtnOk = new Button();
       this.m_TextBox = new TextBox();
       this.m_CheckBoxShowHide = new CheckBox();
-      this.tableLayoutPanel1 = new TableLayoutPanel();
+      this.m_TableLayoutPanel = new TableLayoutPanel();
       this.m_BtnCancel = new Button();
-      this.tableLayoutPanel1.SuspendLayout();
+      this.m_TableLayoutPanel.SuspendLayout();
       this.SuspendLayout();
 
       // m_BtnOk
@@ -89,7 +97,7 @@ namespace CsvTools
       this.m_BtnOk.Click += new EventHandler(this.BtnOK_Click);
 
       // m_TextBox
-      this.tableLayoutPanel1.SetColumnSpan(this.m_TextBox, 3);
+      this.m_TableLayoutPanel.SetColumnSpan(this.m_TextBox, 3);
       this.m_TextBox.Dock = DockStyle.Top;
       this.m_TextBox.Location = new Point(4, 5);
       this.m_TextBox.Margin = new Padding(4, 5, 4, 5);
@@ -110,23 +118,23 @@ namespace CsvTools
       this.m_CheckBoxShowHide.CheckedChanged += new EventHandler(this.CheckBoxShowHide_CheckedChanged);
 
       // tableLayoutPanel1
-      this.tableLayoutPanel1.ColumnCount = 3;
-      this.tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
-      this.tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 105F));
-      this.tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 105F));
-      this.tableLayoutPanel1.Controls.Add(this.m_BtnCancel, 2, 1);
-      this.tableLayoutPanel1.Controls.Add(this.m_TextBox, 0, 0);
-      this.tableLayoutPanel1.Controls.Add(this.m_BtnOk, 1, 1);
-      this.tableLayoutPanel1.Controls.Add(this.m_CheckBoxShowHide, 0, 1);
-      this.tableLayoutPanel1.Dock = DockStyle.Fill;
-      this.tableLayoutPanel1.Location = new Point(0, 0);
-      this.tableLayoutPanel1.Margin = new Padding(4, 5, 4, 5);
-      this.tableLayoutPanel1.Name = "tableLayoutPanel1";
-      this.tableLayoutPanel1.RowCount = 2;
-      this.tableLayoutPanel1.RowStyles.Add(new RowStyle());
-      this.tableLayoutPanel1.RowStyles.Add(new RowStyle());
-      this.tableLayoutPanel1.Size = new Size(599, 78);
-      this.tableLayoutPanel1.TabIndex = 0;
+      this.m_TableLayoutPanel.ColumnCount = 3;
+      this.m_TableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+      this.m_TableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 105F));
+      this.m_TableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 105F));
+      this.m_TableLayoutPanel.Controls.Add(this.m_BtnCancel, 2, 1);
+      this.m_TableLayoutPanel.Controls.Add(this.m_TextBox, 0, 0);
+      this.m_TableLayoutPanel.Controls.Add(this.m_BtnOk, 1, 1);
+      this.m_TableLayoutPanel.Controls.Add(this.m_CheckBoxShowHide, 0, 1);
+      this.m_TableLayoutPanel.Dock = DockStyle.Fill;
+      this.m_TableLayoutPanel.Location = new Point(0, 0);
+      this.m_TableLayoutPanel.Margin = new Padding(4, 5, 4, 5);
+      this.m_TableLayoutPanel.Name = "tableLayoutPanel1";
+      this.m_TableLayoutPanel.RowCount = 2;
+      this.m_TableLayoutPanel.RowStyles.Add(new RowStyle());
+      this.m_TableLayoutPanel.RowStyles.Add(new RowStyle());
+      this.m_TableLayoutPanel.Size = new Size(599, 78);
+      this.m_TableLayoutPanel.TabIndex = 0;
 
       // m_BtnCancel
       this.m_BtnCancel.AutoSize = true;
@@ -144,7 +152,7 @@ namespace CsvTools
       this.AutoScaleMode = AutoScaleMode.Font;
       this.CancelButton = this.m_BtnCancel;
       this.ClientSize = new Size(599, 78);
-      this.Controls.Add(this.tableLayoutPanel1);
+      this.Controls.Add(this.m_TableLayoutPanel);
       this.FormBorderStyle = FormBorderStyle.SizableToolWindow;
       this.Margin = new Padding(4, 5, 4, 5);
       this.MinimumSize = new Size(500, 88);
@@ -152,8 +160,8 @@ namespace CsvTools
       this.ShowIcon = false;
       this.Text = "PGP Private Key Passphrase";
       this.TopMost = true;
-      this.tableLayoutPanel1.ResumeLayout(false);
-      this.tableLayoutPanel1.PerformLayout();
+      this.m_TableLayoutPanel.ResumeLayout(false);
+      this.m_TableLayoutPanel.PerformLayout();
       this.ResumeLayout(false);
     }
   }

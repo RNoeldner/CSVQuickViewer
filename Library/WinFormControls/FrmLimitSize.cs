@@ -46,13 +46,13 @@ namespace CsvTools
     /// </summary>
     public long RecordLimit { get; set; } = 0;
 
-    private void buttonCancel_Click(object sender, EventArgs e)
+    private void ButtonCancel_Click(object sender, EventArgs e)
     {
       DialogResult = DialogResult.Cancel;
       Close();
     }
 
-    private void buttonOK_Click(object sender, EventArgs e)
+    private void ButtonOK_Click(object sender, EventArgs e)
     {
       if (trackBarLimit.Value != 5)
         RecordLimit = intRecords[4 - trackBarLimit.Value];
@@ -65,7 +65,7 @@ namespace CsvTools
       UpdateLabel();
       if (m_Duration > 0 && (m_Counter * timer.Interval) / 1000 > m_Duration)
       {
-        buttonOK_Click(sender, e);
+        ButtonOK_Click(sender, e);
       }
     }
 

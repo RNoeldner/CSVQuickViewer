@@ -44,7 +44,7 @@ namespace CsvTools
 
     private TextBox m_SearchTextBoxText;
 
-    private TableLayoutPanel tableLayoutPanel1;
+    private TableLayoutPanel m_TableLayoutPanel;
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="Search" /> class.
@@ -154,9 +154,9 @@ namespace CsvTools
       this.m_LblResults = new Label();
       this.m_BtnNext = new Button();
       this.m_BtnPrevious = new Button();
-      this.tableLayoutPanel1 = new TableLayoutPanel();
+      this.m_TableLayoutPanel = new TableLayoutPanel();
       label1 = new Label();
-      this.tableLayoutPanel1.SuspendLayout();
+      this.m_TableLayoutPanel.SuspendLayout();
       this.SuspendLayout();
 
       // label1
@@ -235,34 +235,34 @@ namespace CsvTools
       this.m_BtnPrevious.Click += new EventHandler(this.Previous_Click);
 
       // tableLayoutPanel1
-      this.tableLayoutPanel1.ColumnCount = 6;
-      this.tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle());
-      this.tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
-      this.tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle());
-      this.tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle());
-      this.tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle());
-      this.tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle());
-      this.tableLayoutPanel1.Controls.Add(label1, 0, 0);
-      this.tableLayoutPanel1.Controls.Add(this.m_BtnCancel, 5, 0);
-      this.tableLayoutPanel1.Controls.Add(this.m_BtnNext, 4, 0);
-      this.tableLayoutPanel1.Controls.Add(this.m_SearchTextBoxText, 1, 0);
-      this.tableLayoutPanel1.Controls.Add(this.m_BtnPrevious, 3, 0);
-      this.tableLayoutPanel1.Controls.Add(this.m_LblResults, 2, 0);
-      this.tableLayoutPanel1.Dock = DockStyle.Fill;
-      this.tableLayoutPanel1.Location = new Point(0, 0);
-      this.tableLayoutPanel1.Name = "tableLayoutPanel1";
-      this.tableLayoutPanel1.RowCount = 1;
-      this.tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-      this.tableLayoutPanel1.Size = new Size(364, 35);
-      this.tableLayoutPanel1.TabIndex = 7;
+      this.m_TableLayoutPanel.ColumnCount = 6;
+      this.m_TableLayoutPanel.ColumnStyles.Add(new ColumnStyle());
+      this.m_TableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+      this.m_TableLayoutPanel.ColumnStyles.Add(new ColumnStyle());
+      this.m_TableLayoutPanel.ColumnStyles.Add(new ColumnStyle());
+      this.m_TableLayoutPanel.ColumnStyles.Add(new ColumnStyle());
+      this.m_TableLayoutPanel.ColumnStyles.Add(new ColumnStyle());
+      this.m_TableLayoutPanel.Controls.Add(label1, 0, 0);
+      this.m_TableLayoutPanel.Controls.Add(this.m_BtnCancel, 5, 0);
+      this.m_TableLayoutPanel.Controls.Add(this.m_BtnNext, 4, 0);
+      this.m_TableLayoutPanel.Controls.Add(this.m_SearchTextBoxText, 1, 0);
+      this.m_TableLayoutPanel.Controls.Add(this.m_BtnPrevious, 3, 0);
+      this.m_TableLayoutPanel.Controls.Add(this.m_LblResults, 2, 0);
+      this.m_TableLayoutPanel.Dock = DockStyle.Fill;
+      this.m_TableLayoutPanel.Location = new Point(0, 0);
+      this.m_TableLayoutPanel.Name = "tableLayoutPanel1";
+      this.m_TableLayoutPanel.RowCount = 1;
+      this.m_TableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+      this.m_TableLayoutPanel.Size = new Size(364, 35);
+      this.m_TableLayoutPanel.TabIndex = 7;
 
       // Search
       this.BackColor = SystemColors.Info;
-      this.Controls.Add(this.tableLayoutPanel1);
+      this.Controls.Add(this.m_TableLayoutPanel);
       this.Name = "Search";
       this.Size = new Size(364, 35);
-      this.tableLayoutPanel1.ResumeLayout(false);
-      this.tableLayoutPanel1.PerformLayout();
+      this.m_TableLayoutPanel.ResumeLayout(false);
+      this.m_TableLayoutPanel.PerformLayout();
       this.ResumeLayout(false);
     }
 

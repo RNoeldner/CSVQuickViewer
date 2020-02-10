@@ -33,9 +33,9 @@ namespace CsvTools
 
     private Label m_Label1;
 
-    private TableLayoutPanel tableLayoutPanel1;
+    private TableLayoutPanel m_TableLayoutPanel1;
 
-    private TextBox textBox;
+    private TextBox m_TextBox;
 
     public FormKeyFile() => InitializeComponent();
 
@@ -52,8 +52,8 @@ namespace CsvTools
     /// </summary>
     public string KeyBlock
     {
-      get => textBox.Text;
-      set => textBox.Text = value;
+      get => m_TextBox.Text;
+      set => m_TextBox.Text = value;
     }
 
     private void BtnCancel_Click(object sender, EventArgs e)
@@ -64,7 +64,7 @@ namespace CsvTools
 
     private void BtnOK_Click(object sender, EventArgs e)
     {
-      var isPgpKeyRingBundle = PGPKeyStorage.IsValidKeyRingBundle(textBox.Text, m_PrivateKey, out var message);
+      var isPgpKeyRingBundle = PGPKeyStorage.IsValidKeyRingBundle(m_TextBox.Text, m_PrivateKey, out var message);
 
       if (!isPgpKeyRingBundle)
       {
@@ -84,7 +84,7 @@ namespace CsvTools
       }
     }
 
-    private void FormPassphrase_Load(object sender, EventArgs e) => textBox.Focus();
+    private void FormPassphrase_Load(object sender, EventArgs e) => m_TextBox.Focus();
 
     /// <summary>
     ///   Required method for Designer support - do not modify
@@ -93,11 +93,11 @@ namespace CsvTools
     private void InitializeComponent()
     {
       this.m_BtnOk = new Button();
-      this.textBox = new TextBox();
+      this.m_TextBox = new TextBox();
       this.m_BtnCancel = new Button();
       this.m_Label1 = new Label();
-      this.tableLayoutPanel1 = new TableLayoutPanel();
-      this.tableLayoutPanel1.SuspendLayout();
+      this.m_TableLayoutPanel1 = new TableLayoutPanel();
+      this.m_TableLayoutPanel1.SuspendLayout();
       this.SuspendLayout();
 
       // m_BtnOk
@@ -112,20 +112,20 @@ namespace CsvTools
       this.m_BtnOk.Click += new EventHandler(this.BtnOK_Click);
 
       // textBox
-      this.textBox.AcceptsReturn = true;
-      this.textBox.AllowDrop = true;
-      this.tableLayoutPanel1.SetColumnSpan(this.textBox, 3);
-      this.textBox.Dock = DockStyle.Fill;
-      this.textBox.Location = new Point(3, 3);
-      this.textBox.Multiline = true;
-      this.textBox.Name = "textBox";
-      this.textBox.ScrollBars = ScrollBars.Both;
-      this.textBox.Size = new Size(664, 459);
-      this.textBox.TabIndex = 1;
-      this.textBox.DragDrop += new DragEventHandler(this.TextBox_DragDrop);
-      this.textBox.DragEnter += new DragEventHandler(this.TextBox_DragEnter);
-      this.textBox.Enter += new EventHandler(this.TextBox_Enter);
-      this.textBox.Leave += new EventHandler(this.TextBox_Leave);
+      this.m_TextBox.AcceptsReturn = true;
+      this.m_TextBox.AllowDrop = true;
+      this.m_TableLayoutPanel1.SetColumnSpan(this.m_TextBox, 3);
+      this.m_TextBox.Dock = DockStyle.Fill;
+      this.m_TextBox.Location = new Point(3, 3);
+      this.m_TextBox.Multiline = true;
+      this.m_TextBox.Name = "textBox";
+      this.m_TextBox.ScrollBars = ScrollBars.Both;
+      this.m_TextBox.Size = new Size(664, 459);
+      this.m_TextBox.TabIndex = 1;
+      this.m_TextBox.DragDrop += new DragEventHandler(this.TextBox_DragDrop);
+      this.m_TextBox.DragEnter += new DragEventHandler(this.TextBox_DragEnter);
+      this.m_TextBox.Enter += new EventHandler(this.TextBox_Enter);
+      this.m_TextBox.Leave += new EventHandler(this.TextBox_Leave);
 
       // m_BtnCancel
       this.m_BtnCancel.Anchor = ((AnchorStyles)((AnchorStyles.Top | AnchorStyles.Right)));
@@ -148,22 +148,22 @@ namespace CsvTools
       this.m_Label1.Text = "(The text is stored encrypted)";
 
       // tableLayoutPanel1
-      this.tableLayoutPanel1.ColumnCount = 3;
-      this.tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle());
-      this.tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
-      this.tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle());
-      this.tableLayoutPanel1.Controls.Add(this.textBox, 0, 0);
-      this.tableLayoutPanel1.Controls.Add(this.m_Label1, 0, 1);
-      this.tableLayoutPanel1.Controls.Add(this.m_BtnOk, 1, 1);
-      this.tableLayoutPanel1.Controls.Add(this.m_BtnCancel, 2, 1);
-      this.tableLayoutPanel1.Dock = DockStyle.Fill;
-      this.tableLayoutPanel1.Location = new Point(0, 0);
-      this.tableLayoutPanel1.Name = "tableLayoutPanel1";
-      this.tableLayoutPanel1.RowCount = 2;
-      this.tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-      this.tableLayoutPanel1.RowStyles.Add(new RowStyle());
-      this.tableLayoutPanel1.Size = new Size(670, 505);
-      this.tableLayoutPanel1.TabIndex = 7;
+      this.m_TableLayoutPanel1.ColumnCount = 3;
+      this.m_TableLayoutPanel1.ColumnStyles.Add(new ColumnStyle());
+      this.m_TableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+      this.m_TableLayoutPanel1.ColumnStyles.Add(new ColumnStyle());
+      this.m_TableLayoutPanel1.Controls.Add(this.m_TextBox, 0, 0);
+      this.m_TableLayoutPanel1.Controls.Add(this.m_Label1, 0, 1);
+      this.m_TableLayoutPanel1.Controls.Add(this.m_BtnOk, 1, 1);
+      this.m_TableLayoutPanel1.Controls.Add(this.m_BtnCancel, 2, 1);
+      this.m_TableLayoutPanel1.Dock = DockStyle.Fill;
+      this.m_TableLayoutPanel1.Location = new Point(0, 0);
+      this.m_TableLayoutPanel1.Name = "tableLayoutPanel1";
+      this.m_TableLayoutPanel1.RowCount = 2;
+      this.m_TableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+      this.m_TableLayoutPanel1.RowStyles.Add(new RowStyle());
+      this.m_TableLayoutPanel1.Size = new Size(670, 505);
+      this.m_TableLayoutPanel1.TabIndex = 7;
 
       // FormKeyFile
       this.AcceptButton = this.m_BtnOk;
@@ -172,7 +172,7 @@ namespace CsvTools
       this.CancelButton = this.m_BtnCancel;
       this.ClientSize = new Size(670, 505);
       this.ControlBox = false;
-      this.Controls.Add(this.tableLayoutPanel1);
+      this.Controls.Add(this.m_TableLayoutPanel1);
       this.FormBorderStyle = FormBorderStyle.SizableToolWindow;
       this.MaximumSize = new Size(1027, 747);
       this.MinimumSize = new Size(548, 285);
@@ -180,8 +180,8 @@ namespace CsvTools
       this.ShowIcon = false;
       this.TopMost = true;
       this.Load += new EventHandler(this.FormPassphrase_Load);
-      this.tableLayoutPanel1.ResumeLayout(false);
-      this.tableLayoutPanel1.PerformLayout();
+      this.m_TableLayoutPanel1.ResumeLayout(false);
+      this.m_TableLayoutPanel1.PerformLayout();
       this.ResumeLayout(false);
     }
 
@@ -208,7 +208,7 @@ namespace CsvTools
             continue;
           }
 
-          textBox.Text = File.ReadAllText(absoluteFile);
+          m_TextBox.Text = File.ReadAllText(absoluteFile);
           break;
         }
       }
@@ -230,17 +230,17 @@ namespace CsvTools
 
     private void TextBox_Enter(object sender, EventArgs e)
     {
-      if (c_Default == textBox.Text)
-        textBox.Text = string.Empty;
-      textBox.ForeColor = SystemColors.ControlText;
+      if (c_Default == m_TextBox.Text)
+        m_TextBox.Text = string.Empty;
+      m_TextBox.ForeColor = SystemColors.ControlText;
     }
 
     private void TextBox_Leave(object sender, EventArgs e)
     {
-      if (!string.IsNullOrEmpty(textBox.Text))
+      if (!string.IsNullOrEmpty(m_TextBox.Text))
         return;
-      textBox.Text = c_Default;
-      textBox.ForeColor = SystemColors.GrayText;
+      m_TextBox.Text = c_Default;
+      m_TextBox.ForeColor = SystemColors.GrayText;
     }
   }
 }
