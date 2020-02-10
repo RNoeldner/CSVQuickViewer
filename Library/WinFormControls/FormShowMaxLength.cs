@@ -26,7 +26,7 @@ namespace CsvTools
   /// <summary>
   ///   Form showing the length of columns
   /// </summary>
-  public class FormShowMaxLength : Form
+  public class FormShowMaxLength : ResizeForm
   {
     private readonly DataRow[] m_DataRow;
 

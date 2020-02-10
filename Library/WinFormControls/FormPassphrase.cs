@@ -19,7 +19,7 @@ namespace CsvTools
   using System.Drawing;
   using System.Windows.Forms;
 
-  public sealed class FormPassphrase : Form
+  public sealed class FormPassphrase : ResizeForm
   {
     private Button m_BtnCancel;
 

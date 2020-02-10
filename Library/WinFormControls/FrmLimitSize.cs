@@ -15,12 +15,13 @@
 namespace CsvTools
 {
   using System;
+  using System.Drawing;
   using System.Windows.Forms;
 
   /// <summary>
   ///   A pop up form to set the record limit
   /// </summary>
-  public partial class FrmLimitSize : Form
+  public partial class FrmLimitSize : ResizeForm
   {
     private static int[] intRecords = new int[] { 10000, 20000, 50000, 100000 };
 
@@ -39,6 +40,7 @@ namespace CsvTools
       labelCount3.Text = $"{intRecords[2]:N0}";
       labelCount4.Text = $"{intRecords[3]:N0}";
       UpdateLabel();
+      Font = SystemFonts.IconTitleFont;
     }
 
     /// <summary>

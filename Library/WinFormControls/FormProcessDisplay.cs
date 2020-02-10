@@ -22,7 +22,7 @@ namespace CsvTools
   /// <summary>
   ///   A Po pup Form to display progress information
   /// </summary>
-  public class FormProcessDisplay : Form, IProcessDisplayTime
+  public class FormProcessDisplay : ResizeForm, IProcessDisplayTime
   {
     private readonly DummyProcessDisplay m_DummyProcessDisplay;
 

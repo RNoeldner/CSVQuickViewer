@@ -24,7 +24,7 @@ namespace CsvTools
   /// <summary>
   ///   A Form to display a Data Table
   /// </summary>
-  public class FormDetail : Form
+  public class FormDetail : ResizeForm
   {
     private readonly DetailControl detailControl;
 

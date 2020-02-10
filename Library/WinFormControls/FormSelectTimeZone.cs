@@ -19,7 +19,7 @@ namespace CsvTools
   using System.Drawing;
   using System.Windows.Forms;
 
-  public sealed class FormSelectTimeZone : Form
+  public sealed class FormSelectTimeZone : ResizeForm
   {
     private readonly double m_Duration = 5.0;
 
