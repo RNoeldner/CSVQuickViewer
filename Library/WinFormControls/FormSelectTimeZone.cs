@@ -35,13 +35,15 @@ namespace CsvTools
 
     private int m_Counter;
 
-    private TableLayoutPanel tableLayoutPanel1;
+    private TableLayoutPanel m_TableLayoutPanel;
 
     private Timer timer;
 
-    private TimeZoneSelector timeZoneSelector1;
+    private TimeZoneSelector m_TimeZoneSelector;
 
-    public FormSelectTimeZone() => InitializeComponent();
+    public FormSelectTimeZone() : this("Timezone")
+    {
+    }
 
     public FormSelectTimeZone(string title)
     {
@@ -49,10 +51,14 @@ namespace CsvTools
       Text = title;
     }
 
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    [Bindable(false)]
+    [Browsable(false)]
     public string TimeZoneID
     {
-      get => timeZoneSelector1.TimeZoneID;
-      set => this.timeZoneSelector1.TimeZoneID = value;
+      get => m_TimeZoneSelector.TimeZoneID;
+      set => this.m_TimeZoneSelector.TimeZoneID = value;
     }
 
     private void BtnCancel_Click(object sender, EventArgs e)
@@ -80,10 +86,10 @@ namespace CsvTools
       this.m_BtnCancel = new Button();
       this.label1 = new Label();
       this.timer = new Timer(this.components);
-      this.timeZoneSelector1 = new TimeZoneSelector();
+      this.m_TimeZoneSelector = new TimeZoneSelector();
       this.label = new Label();
-      this.tableLayoutPanel1 = new TableLayoutPanel();
-      this.tableLayoutPanel1.SuspendLayout();
+      this.m_TableLayoutPanel = new TableLayoutPanel();
+      this.m_TableLayoutPanel.SuspendLayout();
       this.SuspendLayout();
 
       // m_BtnOk
@@ -108,7 +114,7 @@ namespace CsvTools
 
       // label1
       this.label1.AutoSize = true;
-      this.tableLayoutPanel1.SetColumnSpan(this.label1, 3);
+      this.m_TableLayoutPanel.SetColumnSpan(this.label1, 3);
       this.label1.Dock = DockStyle.Top;
       this.label1.Location = new Point(3, 0);
       this.label1.Name = "label1";
@@ -124,13 +130,13 @@ namespace CsvTools
       this.timer.Tick += new EventHandler(this.timer_Tick);
 
       // timeZoneSelector1
-      this.tableLayoutPanel1.SetColumnSpan(this.timeZoneSelector1, 3);
-      this.timeZoneSelector1.Dock = DockStyle.Top;
-      this.timeZoneSelector1.Location = new Point(3, 43);
-      this.timeZoneSelector1.Name = "timeZoneSelector1";
-      this.timeZoneSelector1.Size = new Size(638, 38);
-      this.timeZoneSelector1.TabIndex = 0;
-      this.timeZoneSelector1.TimeZoneID = "(local)";
+      this.m_TableLayoutPanel.SetColumnSpan(this.m_TimeZoneSelector, 3);
+      this.m_TimeZoneSelector.Dock = DockStyle.Top;
+      this.m_TimeZoneSelector.Location = new Point(3, 43);
+      this.m_TimeZoneSelector.Name = "timeZoneSelector1";
+      this.m_TimeZoneSelector.Size = new Size(638, 38);
+      this.m_TimeZoneSelector.TabIndex = 0;
+      this.m_TimeZoneSelector.TimeZoneID = "(local)";
 
       // label
       this.label.Anchor = AnchorStyles.Left;
@@ -143,25 +149,25 @@ namespace CsvTools
       this.label.Text = "Default in 5 seconds";
 
       // tableLayoutPanel1
-      this.tableLayoutPanel1.AutoSize = true;
-      this.tableLayoutPanel1.ColumnCount = 3;
-      this.tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
-      this.tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle());
-      this.tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle());
-      this.tableLayoutPanel1.Controls.Add(this.m_BtnCancel, 2, 2);
-      this.tableLayoutPanel1.Controls.Add(this.label, 0, 2);
-      this.tableLayoutPanel1.Controls.Add(this.m_BtnOk, 1, 2);
-      this.tableLayoutPanel1.Controls.Add(this.label1, 0, 0);
-      this.tableLayoutPanel1.Controls.Add(this.timeZoneSelector1, 0, 1);
-      this.tableLayoutPanel1.Dock = DockStyle.Top;
-      this.tableLayoutPanel1.Location = new Point(0, 0);
-      this.tableLayoutPanel1.Name = "tableLayoutPanel1";
-      this.tableLayoutPanel1.RowCount = 3;
-      this.tableLayoutPanel1.RowStyles.Add(new RowStyle());
-      this.tableLayoutPanel1.RowStyles.Add(new RowStyle());
-      this.tableLayoutPanel1.RowStyles.Add(new RowStyle());
-      this.tableLayoutPanel1.Size = new Size(644, 124);
-      this.tableLayoutPanel1.TabIndex = 13;
+      this.m_TableLayoutPanel.AutoSize = true;
+      this.m_TableLayoutPanel.ColumnCount = 3;
+      this.m_TableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+      this.m_TableLayoutPanel.ColumnStyles.Add(new ColumnStyle());
+      this.m_TableLayoutPanel.ColumnStyles.Add(new ColumnStyle());
+      this.m_TableLayoutPanel.Controls.Add(this.m_BtnCancel, 2, 2);
+      this.m_TableLayoutPanel.Controls.Add(this.label, 0, 2);
+      this.m_TableLayoutPanel.Controls.Add(this.m_BtnOk, 1, 2);
+      this.m_TableLayoutPanel.Controls.Add(this.label1, 0, 0);
+      this.m_TableLayoutPanel.Controls.Add(this.m_TimeZoneSelector, 0, 1);
+      this.m_TableLayoutPanel.Dock = DockStyle.Top;
+      this.m_TableLayoutPanel.Location = new Point(0, 0);
+      this.m_TableLayoutPanel.Name = "tableLayoutPanel1";
+      this.m_TableLayoutPanel.RowCount = 3;
+      this.m_TableLayoutPanel.RowStyles.Add(new RowStyle());
+      this.m_TableLayoutPanel.RowStyles.Add(new RowStyle());
+      this.m_TableLayoutPanel.RowStyles.Add(new RowStyle());
+      this.m_TableLayoutPanel.Size = new Size(644, 124);
+      this.m_TableLayoutPanel.TabIndex = 13;
 
       // FormSelectTimeZone
       this.AcceptButton = this.m_BtnOk;
@@ -169,7 +175,7 @@ namespace CsvTools
       this.AutoScaleMode = AutoScaleMode.Font;
       this.CancelButton = this.m_BtnCancel;
       this.ClientSize = new Size(644, 132);
-      this.Controls.Add(this.tableLayoutPanel1);
+      this.Controls.Add(this.m_TableLayoutPanel);
       this.FormBorderStyle = FormBorderStyle.SizableToolWindow;
       this.MaximizeBox = false;
       this.MinimizeBox = false;
@@ -177,8 +183,8 @@ namespace CsvTools
       this.Text = "Select Time Zone";
       this.TopMost = true;
       this.MouseMove += new MouseEventHandler(this.FormSelectTimeZone_MouseMove);
-      this.tableLayoutPanel1.ResumeLayout(false);
-      this.tableLayoutPanel1.PerformLayout();
+      this.m_TableLayoutPanel.ResumeLayout(false);
+      this.m_TableLayoutPanel.PerformLayout();
       this.ResumeLayout(false);
       this.PerformLayout();
     }

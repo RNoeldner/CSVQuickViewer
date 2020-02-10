@@ -31,17 +31,15 @@ namespace CsvTools
     /// <summary>
     ///   Initializes a new instance of the <see cref="FormEditSettings" /> class.
     /// </summary>
-    public FormEditSettings()
+    public FormEditSettings() : this(new  ViewSettings())
     {
-      InitializeComponent();
-      fillGuessSettingEdit.FillGuessSettings = m_ViewSettings.FillGuessSettings;
-      GetPrivateKeys();
     }
 
     public FormEditSettings(ViewSettings viewSettings)
     {
+      InitializeComponent();      
       m_ViewSettings = viewSettings;
-      InitializeComponent();
+      fillGuessSettingEdit.FillGuessSettings = viewSettings.FillGuessSettings;
       GetPrivateKeys();
     }
 

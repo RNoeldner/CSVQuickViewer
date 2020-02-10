@@ -2,12 +2,17 @@
 {
   using System;
   using System.Collections.Generic;
+  using System.ComponentModel;
   using System.Windows.Forms;
 
   public partial class TimeZoneSelector : UserControl
   {
     public TimeZoneSelector() => InitializeComponent();
 
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    [Bindable(true)]
+    [Browsable(true)]
     public string TimeZoneID
     {
       get => (string)comboBoxTimeZoneID.SelectedValue;

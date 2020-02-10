@@ -27,9 +27,16 @@ namespace CsvTools
     /// </summary>
     public FillGuessSettingEdit() => InitializeComponent();
 
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    [Bindable(false)]
+    [Browsable(false)]
     public FillGuessSettings FillGuessSettings
     {
-      set => fillGuessSettingsBindingSource.DataSource = value;
+      set
+      {
+        fillGuessSettingsBindingSource.DataSource = value;
+      }
     }
 
     /// <summary>
@@ -59,5 +66,6 @@ namespace CsvTools
           textBoxSampleValues,
           (max < min) ? "Maximum samples must be greater then minumu samples" : string.Empty);
     }
+
   }
 }

@@ -37,15 +37,15 @@ namespace CsvTools
     /// <summary>
     ///   The components
     /// </summary>
-    private IContainer components;
+    private IContainer m_Components;
 
-    private Label label1;
+    private Label m_Label_1;
 
-    private Label label2;
+    private Label m_Label_2;
 
-    private Label label3;
+    private Label m_Label_3;
 
-    private Label label4;
+    private Label m_Label_4;
 
     private ICsvFile m_CsvFile;
 
@@ -95,7 +95,7 @@ namespace CsvTools
 
     private ToolTip m_ToolTip;
 
-    private TableLayoutPanel tableLayoutPanel1;
+    private TableLayoutPanel m_TableLayoutPanel;
 
     /// <summary>
     ///   CTOR of QuotingControl
@@ -154,6 +154,8 @@ namespace CsvTools
       }
     }
 
+    bool m_IsDisposed = false;
+
     /// <summary>
     ///   Dispose
     /// </summary>
@@ -163,10 +165,12 @@ namespace CsvTools
     /// </param>
     protected override void Dispose(bool disposing)
     {
+      if (m_IsDisposed) return;
       if (disposing)
-        components?.Dispose();
+        m_Components?.Dispose();
 
       base.Dispose(disposing);
+      m_IsDisposed = true;
     }
 
     private void FormatPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -180,20 +184,20 @@ namespace CsvTools
     /// </summary>
     private void InitializeComponent()
     {
-      components = new Container();
+      m_Components = new Container();
       Label m_Label5;
       m_RichTextBox10 = new CSVRichTextBox();
       m_LabelQuote = new Label();
       m_LabelQuotePlaceholer = new Label();
       m_TextBoxEscape = new TextBox();
-      m_FileFormatBindingSource = new BindingSource(components);
+      m_FileFormatBindingSource = new BindingSource(m_Components);
       m_LabelEscapeCharacter = new Label();
       m_LabelTrim = new Label();
       m_TextBoxQuote = new TextBox();
       m_TextBoxQuotePlaceHolder = new TextBox();
       checkBoxAlternateQuoting = new CheckBox();
-      m_FileSettingBindingSource = new BindingSource(components);
-      m_ToolTip = new ToolTip(components);
+      m_FileSettingBindingSource = new BindingSource(m_Components);
+      m_ToolTip = new ToolTip(m_Components);
       comboBoxTrim = new ComboBox();
       m_Label2 = new Label();
       m_RichTextBox02 = new CSVRichTextBox();
@@ -204,12 +208,12 @@ namespace CsvTools
       m_Label1 = new Label();
       m_Label3 = new Label();
       m_LabelInfoQuoting = new Label();
-      m_ErrorProvider = new ErrorProvider(components);
-      tableLayoutPanel1 = new TableLayoutPanel();
-      label3 = new Label();
-      label4 = new Label();
-      label2 = new Label();
-      label1 = new Label();
+      m_ErrorProvider = new ErrorProvider(m_Components);
+      m_TableLayoutPanel = new TableLayoutPanel();
+      m_Label_3 = new Label();
+      m_Label_4 = new Label();
+      m_Label_2 = new Label();
+      m_Label_1 = new Label();
       m_RichTextBoxSrc = new CSVRichTextBox();
       checkBoxQualifyAlways = new CheckBox();
       checkBoxQualifyOnlyNeeded = new CheckBox();
@@ -217,13 +221,13 @@ namespace CsvTools
       ((ISupportInitialize)(m_FileFormatBindingSource)).BeginInit();
       ((ISupportInitialize)(m_FileSettingBindingSource)).BeginInit();
       ((ISupportInitialize)(m_ErrorProvider)).BeginInit();
-      tableLayoutPanel1.SuspendLayout();
+      m_TableLayoutPanel.SuspendLayout();
       SuspendLayout();
       //
       // m_Label5
       //
       m_Label5.AutoSize = true;
-      tableLayoutPanel1.SetColumnSpan(m_Label5, 5);
+      m_TableLayoutPanel.SetColumnSpan(m_Label5, 5);
       m_Label5.Location = new Point(28, 274);
       m_Label5.Margin = new Padding(4, 0, 4, 0);
       m_Label5.Name = "m_Label5";
@@ -254,7 +258,7 @@ namespace CsvTools
       //
       m_LabelQuote.Anchor = AnchorStyles.Right;
       m_LabelQuote.AutoSize = true;
-      tableLayoutPanel1.SetColumnSpan(m_LabelQuote, 2);
+      m_TableLayoutPanel.SetColumnSpan(m_LabelQuote, 2);
       m_LabelQuote.Location = new Point(40, 8);
       m_LabelQuote.Margin = new Padding(4, 0, 4, 0);
       m_LabelQuote.Name = "m_LabelQuote";
@@ -266,7 +270,7 @@ namespace CsvTools
       //
       m_LabelQuotePlaceholer.Anchor = AnchorStyles.Right;
       m_LabelQuotePlaceholer.AutoSize = true;
-      tableLayoutPanel1.SetColumnSpan(m_LabelQuotePlaceholer, 2);
+      m_TableLayoutPanel.SetColumnSpan(m_LabelQuotePlaceholer, 2);
       m_LabelQuotePlaceholer.Location = new Point(49, 80);
       m_LabelQuotePlaceholer.Margin = new Padding(4, 0, 4, 0);
       m_LabelQuotePlaceholer.Name = "m_LabelQuotePlaceholer";
@@ -293,7 +297,7 @@ namespace CsvTools
       //
       m_LabelEscapeCharacter.Anchor = AnchorStyles.Right;
       m_LabelEscapeCharacter.AutoSize = true;
-      tableLayoutPanel1.SetColumnSpan(m_LabelEscapeCharacter, 2);
+      m_TableLayoutPanel.SetColumnSpan(m_LabelEscapeCharacter, 2);
       m_LabelEscapeCharacter.Location = new Point(4, 44);
       m_LabelEscapeCharacter.Margin = new Padding(4, 0, 4, 0);
       m_LabelEscapeCharacter.Name = "m_LabelEscapeCharacter";
@@ -305,7 +309,7 @@ namespace CsvTools
       //
       m_LabelTrim.Anchor = AnchorStyles.Right;
       m_LabelTrim.AutoSize = true;
-      tableLayoutPanel1.SetColumnSpan(m_LabelTrim, 2);
+      m_TableLayoutPanel.SetColumnSpan(m_LabelTrim, 2);
       m_LabelTrim.Location = new Point(17, 117);
       m_LabelTrim.Margin = new Padding(4, 0, 4, 0);
       m_LabelTrim.Name = "m_LabelTrim";
@@ -349,7 +353,7 @@ namespace CsvTools
       //
       checkBoxAlternateQuoting.Anchor = AnchorStyles.Left;
       checkBoxAlternateQuoting.AutoSize = true;
-      tableLayoutPanel1.SetColumnSpan(checkBoxAlternateQuoting, 3);
+      m_TableLayoutPanel.SetColumnSpan(checkBoxAlternateQuoting, 3);
       checkBoxAlternateQuoting.DataBindings.Add(
         new Binding("Checked", m_FileSettingBindingSource, "AlternateQuoting", true));
       checkBoxAlternateQuoting.Location = new Point(452, 6);
@@ -411,7 +415,7 @@ namespace CsvTools
       m_RichTextBox02.Name = "m_RichTextBox02";
       m_RichTextBox02.Quote = '\"';
       m_RichTextBox02.ReadOnly = true;
-      tableLayoutPanel1.SetRowSpan(m_RichTextBox02, 2);
+      m_TableLayoutPanel.SetRowSpan(m_RichTextBox02, 2);
       m_RichTextBox02.ScrollBars = RichTextBoxScrollBars.None;
       m_RichTextBox02.Size = new Size(172, 62);
       m_RichTextBox02.TabIndex = 23;
@@ -488,7 +492,7 @@ namespace CsvTools
       m_RichTextBox12.Name = "m_RichTextBox12";
       m_RichTextBox12.Quote = '\"';
       m_RichTextBox12.ReadOnly = true;
-      tableLayoutPanel1.SetRowSpan(m_RichTextBox12, 2);
+      m_TableLayoutPanel.SetRowSpan(m_RichTextBox12, 2);
       m_RichTextBox12.ScrollBars = RichTextBoxScrollBars.None;
       m_RichTextBox12.Size = new Size(289, 62);
       m_RichTextBox12.TabIndex = 24;
@@ -515,7 +519,7 @@ namespace CsvTools
       m_Label3.Location = new Point(451, 232);
       m_Label3.Margin = new Padding(3, 3, 3, 3);
       m_Label3.Name = "m_Label3";
-      tableLayoutPanel1.SetRowSpan(m_Label3, 2);
+      m_TableLayoutPanel.SetRowSpan(m_Label3, 2);
       m_Label3.Size = new Size(18, 20);
       m_Label3.TabIndex = 22;
       m_Label3.Text = "3";
@@ -526,7 +530,7 @@ namespace CsvTools
       m_LabelInfoQuoting.AutoSize = true;
       m_LabelInfoQuoting.BackColor = SystemColors.Info;
       m_LabelInfoQuoting.BorderStyle = BorderStyle.FixedSingle;
-      tableLayoutPanel1.SetColumnSpan(m_LabelInfoQuoting, 3);
+      m_TableLayoutPanel.SetColumnSpan(m_LabelInfoQuoting, 3);
       m_LabelInfoQuoting.ForeColor = SystemColors.InfoText;
       m_LabelInfoQuoting.Location = new Point(452, 116);
       m_LabelInfoQuoting.Margin = new Padding(4, 0, 4, 0);
@@ -541,111 +545,111 @@ namespace CsvTools
       //
       // tableLayoutPanel1
       //
-      tableLayoutPanel1.AutoSize = true;
-      tableLayoutPanel1.ColumnCount = 6;
-      tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle());
-      tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle());
-      tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50.90994F));
-      tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle());
-      tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle());
-      tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 49.09006F));
-      tableLayoutPanel1.Controls.Add(m_LabelQuote, 0, 0);
-      tableLayoutPanel1.Controls.Add(m_LabelEscapeCharacter, 0, 1);
-      tableLayoutPanel1.Controls.Add(m_LabelQuotePlaceholer, 0, 2);
-      tableLayoutPanel1.Controls.Add(m_Label5, 1, 8);
-      tableLayoutPanel1.Controls.Add(label3, 0, 6);
-      tableLayoutPanel1.Controls.Add(label4, 0, 7);
-      tableLayoutPanel1.Controls.Add(label2, 0, 5);
-      tableLayoutPanel1.Controls.Add(label1, 0, 4);
-      tableLayoutPanel1.Controls.Add(m_RichTextBoxSrc, 1, 4);
-      tableLayoutPanel1.Controls.Add(m_RichTextBox10, 5, 4);
-      tableLayoutPanel1.Controls.Add(m_RichTextBox11, 5, 5);
-      tableLayoutPanel1.Controls.Add(m_RichTextBox12, 5, 6);
-      tableLayoutPanel1.Controls.Add(m_TextBoxQuote, 2, 0);
-      tableLayoutPanel1.Controls.Add(m_TextBoxEscape, 2, 1);
-      tableLayoutPanel1.Controls.Add(m_TextBoxQuotePlaceHolder, 2, 2);
-      tableLayoutPanel1.Controls.Add(comboBoxTrim, 2, 3);
-      tableLayoutPanel1.Controls.Add(m_LabelTrim, 0, 3);
-      tableLayoutPanel1.Controls.Add(m_RichTextBox00, 4, 4);
-      tableLayoutPanel1.Controls.Add(m_RichTextBox01, 4, 5);
-      tableLayoutPanel1.Controls.Add(m_RichTextBox02, 4, 6);
-      tableLayoutPanel1.Controls.Add(m_Label2, 3, 4);
-      tableLayoutPanel1.Controls.Add(m_Label1, 3, 5);
-      tableLayoutPanel1.Controls.Add(m_Label3, 3, 6);
-      tableLayoutPanel1.Controls.Add(m_LabelInfoQuoting, 3, 3);
-      tableLayoutPanel1.Controls.Add(checkBoxQualifyAlways, 3, 1);
-      tableLayoutPanel1.Controls.Add(checkBoxQualifyOnlyNeeded, 3, 2);
-      tableLayoutPanel1.Controls.Add(checkBoxAlternateQuoting, 3, 0);
-      tableLayoutPanel1.Dock = DockStyle.Top;
-      tableLayoutPanel1.Location = new Point(0, 0);
-      tableLayoutPanel1.Margin = new Padding(4, 5, 4, 5);
-      tableLayoutPanel1.Name = "tableLayoutPanel1";
-      tableLayoutPanel1.RowCount = 9;
-      tableLayoutPanel1.RowStyles.Add(new RowStyle());
-      tableLayoutPanel1.RowStyles.Add(new RowStyle());
-      tableLayoutPanel1.RowStyles.Add(new RowStyle());
-      tableLayoutPanel1.RowStyles.Add(new RowStyle());
-      tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Absolute, 32F));
-      tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Absolute, 32F));
-      tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Absolute, 32F));
-      tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Absolute, 32F));
-      tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-      tableLayoutPanel1.Size = new Size(933, 294);
-      tableLayoutPanel1.TabIndex = 0;
+      m_TableLayoutPanel.AutoSize = true;
+      m_TableLayoutPanel.ColumnCount = 6;
+      m_TableLayoutPanel.ColumnStyles.Add(new ColumnStyle());
+      m_TableLayoutPanel.ColumnStyles.Add(new ColumnStyle());
+      m_TableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50.90994F));
+      m_TableLayoutPanel.ColumnStyles.Add(new ColumnStyle());
+      m_TableLayoutPanel.ColumnStyles.Add(new ColumnStyle());
+      m_TableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 49.09006F));
+      m_TableLayoutPanel.Controls.Add(m_LabelQuote, 0, 0);
+      m_TableLayoutPanel.Controls.Add(m_LabelEscapeCharacter, 0, 1);
+      m_TableLayoutPanel.Controls.Add(m_LabelQuotePlaceholer, 0, 2);
+      m_TableLayoutPanel.Controls.Add(m_Label5, 1, 8);
+      m_TableLayoutPanel.Controls.Add(m_Label_3, 0, 6);
+      m_TableLayoutPanel.Controls.Add(m_Label_4, 0, 7);
+      m_TableLayoutPanel.Controls.Add(m_Label_2, 0, 5);
+      m_TableLayoutPanel.Controls.Add(m_Label_1, 0, 4);
+      m_TableLayoutPanel.Controls.Add(m_RichTextBoxSrc, 1, 4);
+      m_TableLayoutPanel.Controls.Add(m_RichTextBox10, 5, 4);
+      m_TableLayoutPanel.Controls.Add(m_RichTextBox11, 5, 5);
+      m_TableLayoutPanel.Controls.Add(m_RichTextBox12, 5, 6);
+      m_TableLayoutPanel.Controls.Add(m_TextBoxQuote, 2, 0);
+      m_TableLayoutPanel.Controls.Add(m_TextBoxEscape, 2, 1);
+      m_TableLayoutPanel.Controls.Add(m_TextBoxQuotePlaceHolder, 2, 2);
+      m_TableLayoutPanel.Controls.Add(comboBoxTrim, 2, 3);
+      m_TableLayoutPanel.Controls.Add(m_LabelTrim, 0, 3);
+      m_TableLayoutPanel.Controls.Add(m_RichTextBox00, 4, 4);
+      m_TableLayoutPanel.Controls.Add(m_RichTextBox01, 4, 5);
+      m_TableLayoutPanel.Controls.Add(m_RichTextBox02, 4, 6);
+      m_TableLayoutPanel.Controls.Add(m_Label2, 3, 4);
+      m_TableLayoutPanel.Controls.Add(m_Label1, 3, 5);
+      m_TableLayoutPanel.Controls.Add(m_Label3, 3, 6);
+      m_TableLayoutPanel.Controls.Add(m_LabelInfoQuoting, 3, 3);
+      m_TableLayoutPanel.Controls.Add(checkBoxQualifyAlways, 3, 1);
+      m_TableLayoutPanel.Controls.Add(checkBoxQualifyOnlyNeeded, 3, 2);
+      m_TableLayoutPanel.Controls.Add(checkBoxAlternateQuoting, 3, 0);
+      m_TableLayoutPanel.Dock = DockStyle.Top;
+      m_TableLayoutPanel.Location = new Point(0, 0);
+      m_TableLayoutPanel.Margin = new Padding(4, 5, 4, 5);
+      m_TableLayoutPanel.Name = "tableLayoutPanel1";
+      m_TableLayoutPanel.RowCount = 9;
+      m_TableLayoutPanel.RowStyles.Add(new RowStyle());
+      m_TableLayoutPanel.RowStyles.Add(new RowStyle());
+      m_TableLayoutPanel.RowStyles.Add(new RowStyle());
+      m_TableLayoutPanel.RowStyles.Add(new RowStyle());
+      m_TableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 32F));
+      m_TableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 32F));
+      m_TableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 32F));
+      m_TableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 32F));
+      m_TableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+      m_TableLayoutPanel.Size = new Size(933, 294);
+      m_TableLayoutPanel.TabIndex = 0;
       //
       // label3
       //
-      label3.Anchor = AnchorStyles.Right;
-      label3.AutoSize = true;
-      label3.ForeColor = Color.Teal;
-      label3.Location = new Point(3, 216);
-      label3.Margin = new Padding(3, 3, 3, 3);
-      label3.Name = "label3";
-      label3.Size = new Size(18, 20);
-      label3.TabIndex = 21;
-      label3.Text = "3";
+      m_Label_3.Anchor = AnchorStyles.Right;
+      m_Label_3.AutoSize = true;
+      m_Label_3.ForeColor = Color.Teal;
+      m_Label_3.Location = new Point(3, 216);
+      m_Label_3.Margin = new Padding(3, 3, 3, 3);
+      m_Label_3.Name = "label3";
+      m_Label_3.Size = new Size(18, 20);
+      m_Label_3.TabIndex = 21;
+      m_Label_3.Text = "3";
       //
       // label4
       //
-      label4.Anchor = AnchorStyles.Right;
-      label4.AutoSize = true;
-      label4.ForeColor = Color.Teal;
-      label4.Location = new Point(3, 248);
-      label4.Margin = new Padding(3, 3, 3, 3);
-      label4.Name = "label4";
-      label4.Size = new Size(18, 20);
-      label4.TabIndex = 25;
-      label4.Text = "4";
+      m_Label_4.Anchor = AnchorStyles.Right;
+      m_Label_4.AutoSize = true;
+      m_Label_4.ForeColor = Color.Teal;
+      m_Label_4.Location = new Point(3, 248);
+      m_Label_4.Margin = new Padding(3, 3, 3, 3);
+      m_Label_4.Name = "label4";
+      m_Label_4.Size = new Size(18, 20);
+      m_Label_4.TabIndex = 25;
+      m_Label_4.Text = "4";
       //
       // label2
       //
-      label2.Anchor = AnchorStyles.Right;
-      label2.AutoSize = true;
-      label2.ForeColor = Color.Teal;
-      label2.Location = new Point(3, 184);
-      label2.Margin = new Padding(3, 3, 3, 3);
-      label2.Name = "label2";
-      label2.Size = new Size(18, 20);
-      label2.TabIndex = 17;
-      label2.Text = "2";
+      m_Label_2.Anchor = AnchorStyles.Right;
+      m_Label_2.AutoSize = true;
+      m_Label_2.ForeColor = Color.Teal;
+      m_Label_2.Location = new Point(3, 184);
+      m_Label_2.Margin = new Padding(3, 3, 3, 3);
+      m_Label_2.Name = "label2";
+      m_Label_2.Size = new Size(18, 20);
+      m_Label_2.TabIndex = 17;
+      m_Label_2.Text = "2";
       //
       // label1
       //
-      label1.Anchor = AnchorStyles.Right;
-      label1.AutoSize = true;
-      label1.ForeColor = Color.Teal;
-      label1.Location = new Point(3, 152);
-      label1.Margin = new Padding(3, 3, 3, 3);
-      label1.Name = "label1";
-      label1.Size = new Size(18, 20);
-      label1.TabIndex = 12;
-      label1.Text = "1\r\n";
+      m_Label_1.Anchor = AnchorStyles.Right;
+      m_Label_1.AutoSize = true;
+      m_Label_1.ForeColor = Color.Teal;
+      m_Label_1.Location = new Point(3, 152);
+      m_Label_1.Margin = new Padding(3, 3, 3, 3);
+      m_Label_1.Name = "label1";
+      m_Label_1.Size = new Size(18, 20);
+      m_Label_1.TabIndex = 12;
+      m_Label_1.Text = "1\r\n";
       //
       // m_RichTextBoxSrc
       //
       m_RichTextBoxSrc.BackColor = SystemColors.Window;
       m_RichTextBoxSrc.BorderStyle = BorderStyle.None;
-      tableLayoutPanel1.SetColumnSpan(m_RichTextBoxSrc, 2);
+      m_TableLayoutPanel.SetColumnSpan(m_RichTextBoxSrc, 2);
       m_RichTextBoxSrc.DataBindings.Add(
         new Binding(
           "Delimiter",
@@ -662,7 +666,7 @@ namespace CsvTools
       m_RichTextBoxSrc.Name = "m_RichTextBoxSrc";
       m_RichTextBoxSrc.Quote = '\"';
       m_RichTextBoxSrc.ReadOnly = true;
-      tableLayoutPanel1.SetRowSpan(m_RichTextBoxSrc, 4);
+      m_TableLayoutPanel.SetRowSpan(m_RichTextBoxSrc, 4);
       m_RichTextBoxSrc.ScrollBars = RichTextBoxScrollBars.None;
       m_RichTextBoxSrc.Size = new Size(424, 128);
       m_RichTextBoxSrc.TabIndex = 13;
@@ -673,7 +677,7 @@ namespace CsvTools
       //
       checkBoxQualifyAlways.Anchor = AnchorStyles.Left;
       checkBoxQualifyAlways.AutoSize = true;
-      tableLayoutPanel1.SetColumnSpan(checkBoxQualifyAlways, 3);
+      m_TableLayoutPanel.SetColumnSpan(checkBoxQualifyAlways, 3);
       checkBoxQualifyAlways.DataBindings.Add(new Binding("Checked", m_FileFormatBindingSource, "QualifyAlways", true));
       checkBoxQualifyAlways.Location = new Point(452, 42);
       checkBoxQualifyAlways.Margin = new Padding(4, 5, 4, 5);
@@ -688,7 +692,7 @@ namespace CsvTools
       //
       checkBoxQualifyOnlyNeeded.Anchor = AnchorStyles.Left;
       checkBoxQualifyOnlyNeeded.AutoSize = true;
-      tableLayoutPanel1.SetColumnSpan(checkBoxQualifyOnlyNeeded, 3);
+      m_TableLayoutPanel.SetColumnSpan(checkBoxQualifyOnlyNeeded, 3);
       checkBoxQualifyOnlyNeeded.DataBindings.Add(
         new Binding("Checked", m_FileFormatBindingSource, "QualifyOnlyIfNeeded", true));
       checkBoxQualifyOnlyNeeded.Location = new Point(452, 78);
@@ -704,7 +708,7 @@ namespace CsvTools
       //
       AutoScaleDimensions = new SizeF(9F, 20F);
       AutoScaleMode = AutoScaleMode.Font;
-      Controls.Add(tableLayoutPanel1);
+      Controls.Add(m_TableLayoutPanel);
       Margin = new Padding(4, 5, 4, 5);
       MinimumSize = new Size(933, 0);
       Name = "QuotingControl";
@@ -712,8 +716,8 @@ namespace CsvTools
       ((ISupportInitialize)(m_FileFormatBindingSource)).EndInit();
       ((ISupportInitialize)(m_FileSettingBindingSource)).EndInit();
       ((ISupportInitialize)(m_ErrorProvider)).EndInit();
-      tableLayoutPanel1.ResumeLayout(false);
-      tableLayoutPanel1.PerformLayout();
+      m_TableLayoutPanel.ResumeLayout(false);
+      m_TableLayoutPanel.PerformLayout();
       ResumeLayout(false);
       PerformLayout();
     }
