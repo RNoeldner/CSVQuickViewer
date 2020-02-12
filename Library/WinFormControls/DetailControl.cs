@@ -1064,7 +1064,6 @@ namespace CsvTools
       m_FilteredDataGridView.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
       dataGridViewCellStyle3.Alignment = DataGridViewContentAlignment.MiddleLeft;
       dataGridViewCellStyle3.BackColor = SystemColors.Window;
-      dataGridViewCellStyle3.Font = new Font("Microsoft Sans Serif", 8.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
       dataGridViewCellStyle3.ForeColor = Color.Black;
       dataGridViewCellStyle3.SelectionBackColor = SystemColors.Highlight;
       dataGridViewCellStyle3.SelectionForeColor = SystemColors.HighlightText;

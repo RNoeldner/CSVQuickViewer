@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.Diagnostics.Contracts;
@@ -25,7 +26,7 @@ namespace CsvTools
     /// </summary>
     /// <returns>An array with the found data types</returns>
     /// <remarks>In case of mixed types, string is preferred over everything</remarks>
-    protected DataType[] GetColumnType(Func<int, bool> getNextRow)
+    protected DataType[] GetColumnType()
     {
       Contract.Ensures(Contract.Result<DataType[]>() != null);
       Contract.Ensures(Contract.Result<DataType[]>().Length == FieldCount);
@@ -38,9 +39,6 @@ namespace CsvTools
         colType[col] = DataType.TextPart;
       for (var row = 1; row < 50; row++)
       {
-        if (!getNextRow(row))
-          break;
-
         for (var col = 0; col < FieldCount; col++)
         {
           // if a column was detected as string, keep it that way
@@ -60,6 +58,8 @@ namespace CsvTools
           if (detected == DataType.String || colType[col] == DataType.TextPart)
             colType[col] = detected;
         }
+        if (!Read())
+          break;
       }
 
       for (var col = 0; col < FieldCount; col++)
