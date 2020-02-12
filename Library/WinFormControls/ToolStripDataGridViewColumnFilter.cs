@@ -23,16 +23,21 @@ namespace CsvTools
   /// </summary>
   public class ToolStripDataGridViewColumnFilter : ToolStripControlHost
   {
+    public ToolStripDataGridViewColumnFilter() : this (new DataGridViewTextBoxColumn()
+    {
+      ValueType = typeof(int),
+      Name = "int",
+      DataPropertyName = "int"
+    })
+    {
+    }
     /// <summary>
     ///   Initializes a new instance of the <see cref="ToolStripDataGridViewColumnFilter" /> class.
     /// </summary>
-    /// <param name="columnDataType">Type of the column data.</param>
     /// <param name="dataGridViewColumn">The data grid view column.</param>
-    public ToolStripDataGridViewColumnFilter(Type columnDataType, DataGridViewColumn dataGridViewColumn)
-      : base(new DataGridViewColumnFilterControl(columnDataType, dataGridViewColumn))
-    {
-      Contract.Requires(dataGridViewColumn != null);
-      Contract.Requires(columnDataType != null);
+    public ToolStripDataGridViewColumnFilter(DataGridViewColumn dataGridViewColumn)
+      : base(new DataGridViewColumnFilterControl(dataGridViewColumn))
+    {            
     }
 
     /// <summary>

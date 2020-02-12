@@ -33,7 +33,7 @@ namespace CsvTools.Tests
           Name = "int",
           DataPropertyName = "int"
         };
-        var test = new ToolStripDataGridViewColumnFilter(typeof(int), col);
+        var test = new ToolStripDataGridViewColumnFilter(col);
         Assert.AreEqual(false, test.ColumnFilterLogic.Active);
         test.ColumnFilterLogic.Active = true;
         Assert.AreEqual(false, test.ColumnFilterLogic.Active);
