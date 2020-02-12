@@ -1,0 +1,59 @@
+﻿{
+  "time": "2020-02-07 12:43:33.4823",
+  "level": "Error",
+  "message": "Loading EdgeAPI vw_rpt_transcript to database",
+  "properties": "filesetting=EdgeAPI vw_rpt_transcript",
+  "type": "CsvTools.FileReaderException",
+  "innerException": "{ \"type\": \"System.OperationCanceledException\", \"message\": \"The operation was canceled.\" }"
+} 
+{
+  "time": "2020-02-07 12:43:33.5073",
+  "level": "Error",
+  "message": "Reading EdgeAPI vw_rpt_transcript",
+  "properties": "filesetting=EdgeAPI vw_rpt_transcript",
+  "type": "CsvTools.FileReaderException",
+  "innerException": "{ \"type\": \"System.OperationCanceledException\", \"message\": \"The operation was canceled.\" }"
+}  {
+  "time": "2020-02-07 16:26:25.5327",
+  "level": "Error",
+  "message": "Trying to execute SQL and show result SQL:\n\"SELECT DISTINCT\n[Location ID] as [OU ID],\n[Location ID] as [OU Name],\r\ntrue as [Active],\r\nfalse as [Allow Reconciliation],\n'WL' as [Partent ID],\r\n'City' as [Facility Type],\r\n28 as [Time Zone]\r\n \n\nFROM [Users]\nWHERE [Location ID] IS NOT NULL\n\nUNION\n\nSELECT \n'WL', 'Work Location' ,  true, false, null , 'Region',  28 \n\"",
+  "properties": "sql=SELECT DISTINCT\n[Location ID] as [OU ID],\n[Location ID] as [OU Name],\r\ntrue as [Active],\r\nfalse as [Allow Reconciliation],\n'WL' as [Partent ID],\r\n'City' as [Facility Type],\r\n28 as [Time Zone]\r\n \n\nFROM [Users]\nWHERE [Location ID] IS NOT NULL\n\nUNION\n\nSELECT \n'WL', 'Work Location' ,  true, false, null , 'Region',  28 \n",
+  "type": "System.Data.DataException",
+  "innerException": "{ \"type\": \"System.Data.SqlClient.SqlException\", \"message\": \"Invalid column name 'true'.\\r\\nInvalid column name 'false'.\\r\\nInvalid column name 'true'.\\r\\nInvalid column name 'false'.\" }"
+} {
+  "time": "2020-02-07 16:26:47.3919",
+  "level": "Error",
+  "message": "Trying to execute SQL and show result SQL:\n\"SELECT DISTINCT\n[Location ID] as [OU ID],\n[Location ID] as [OU Name],\r\ntrue as [Active],\r\nfalse as [Allow Reconciliation],\n'WL' as [Partent ID],\r\n'City' as [Facility Type],\r\n28 as [Time Zone]\r\n \nFROM [Users]\nWHERE [Location ID] IS NOT NULL\"",
+  "properties": "sql=SELECT DISTINCT\n[Location ID] as [OU ID],\n[Location ID] as [OU Name],\r\ntrue as [Active],\r\nfalse as [Allow Reconciliation],\n'WL' as [Partent ID],\r\n'City' as [Facility Type],\r\n28 as [Time Zone]\r\n \nFROM [Users]\nWHERE [Location ID] IS NOT NULL",
+  "type": "System.Data.DataException",
+  "innerException": "{ \"type\": \"System.Data.SqlClient.SqlException\", \"message\": \"Invalid column name 'true'.\\r\\nInvalid column name 'false'.\" }"
+} {
+  "time": "2020-02-07 19:36:03.6608",
+  "level": "Warn",
+  "message": "\"Timeout after 2,2 seconds\"",
+  "properties": "exception=Timeout after 2,2 seconds",
+  "type": "System.TimeoutException"
+} {
+  "time": "2020-02-10 18:53:26.5175",
+  "level": "Warn",
+  "message": "\"The operation was canceled.\"",
+  "properties": "exception=The operation was canceled.",
+  "type": "System.OperationCanceledException"
+} {
+  "time": "2020-02-10 18:53:26.5789",
+  "level": "Error",
+  "message": "Retrieving data though API",
+  "type": "System.OperationCanceledException"
+} {
+  "time": "2020-02-10 18:53:26.6184",
+  "level": "Error",
+  "message": "Loading EdgeAPI vw_rpt_training_curricula to database",
+  "properties": "filesetting=EdgeAPI vw_rpt_training_curricula",
+  "type": "System.OperationCanceledException"
+} {
+  "time": "2020-02-10 18:53:29.6400",
+  "level": "Warn",
+  "message": "Exception in background refresh \"The operation was canceled.\"",
+  "properties": "exception=The operation was canceled.",
+  "type": "System.OperationCanceledException"
+}

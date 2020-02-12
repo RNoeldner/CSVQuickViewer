@@ -291,7 +291,7 @@ namespace CsvTools.Tests
       };
 
       Assert.IsTrue(CsvHelper.GuessJsonFile(setting));
-    }
+    }    
 
     [TestMethod]
     public void GetColumnHeadersFromReader()
