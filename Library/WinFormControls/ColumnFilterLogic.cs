@@ -125,10 +125,8 @@ namespace CsvTools
     /// <param name="dataPropertyName">Name of the data property.</param>
     public ColumnFilterLogic(Type columnDataType, string dataPropertyName)
     {
-      Contract.Requires(columnDataType != null);
-      Contract.Requires(dataPropertyName != null);
-      DataPropertyName = dataPropertyName;
-      m_ColumnDataType = columnDataType;
+      DataPropertyName = dataPropertyName ?? throw new ArgumentNullException(nameof(dataPropertyName));
+      m_ColumnDataType = columnDataType ?? throw new ArgumentNullException(nameof(columnDataType));
 
       // m_ValueClusterCollection.CollectionChanged += delegate(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e) { FilterChanged(); };
     }

@@ -317,7 +317,7 @@ namespace CsvTools.Tests
         DataPropertyName = m_DataTable.Columns[0].ColumnName,
       };
 
-      ShowControl(new DataGridViewColumnFilterControl(m_DataTable.Columns[0].DataType, col));
+      ShowControl(new DataGridViewColumnFilterControl( col));
     }
 
     [TestMethod]

@@ -32,12 +32,11 @@ namespace CsvTools
     /// </summary>
     /// <param name="columnDataType">Type of the column data.</param>
     /// <param name="dataGridViewColumn">The data grid view column.</param>
-    public DataGridViewColumnFilterControl(Type columnDataType, DataGridViewColumn dataGridViewColumn)
+    public DataGridViewColumnFilterControl(DataGridViewColumn dataGridViewColumn)
     {
-      Contract.Requires(dataGridViewColumn != null);
-      Contract.Requires(dataGridViewColumn.DataPropertyName != null);
-
-      m_DataGridViewColumnFilter = new ColumnFilterLogic(columnDataType, dataGridViewColumn.DataPropertyName);
+      if (dataGridViewColumn == null)
+        throw new ArgumentNullException(nameof(dataGridViewColumn));      
+      m_DataGridViewColumnFilter = new ColumnFilterLogic(dataGridViewColumn.ValueType, dataGridViewColumn.DataPropertyName);
       m_DataGridViewColumnFilter.PropertyChanged += FilterLogic_PropertyChanged;
       InitializeComponent();
       lblCondition.Text = dataGridViewColumn.HeaderText;
@@ -49,12 +48,12 @@ namespace CsvTools
 
       dateTimePickerValue.Visible = isDate;
       textBoxValue.Visible = !isDate;
-
+      
       comboBoxOperator.BeginUpdate();
       comboBoxOperator.Items.Clear();
       comboBoxOperator.Items.AddRange(ColumnFilterLogic.GetOperators(m_DataGridViewColumnFilter.ColumnDataType));
       comboBoxOperator.SelectedIndex = 0;
-      comboBoxOperator.EndUpdate();
+      comboBoxOperator.EndUpdate();      
     }
 
     /// <summary>
@@ -165,7 +164,7 @@ namespace CsvTools
 
     private void TextBoxValue_Validated(object sender, EventArgs e)
     {
-      errorProvider1.SetError(textBoxValue, string.Empty);
+      errorProvider.SetError(textBoxValue, string.Empty);
       textBoxValue.Width = dateTimePickerValue.Width;
       switch (Type.GetTypeCode(m_DataGridViewColumnFilter.ColumnDataType))
       {
@@ -188,7 +187,7 @@ namespace CsvTools
           if (!nvalue.HasValue)
           {
             textBoxValue.Width = dateTimePickerValue.Width - 20;
-            errorProvider1.SetError(textBoxValue, "Not a valid numeric value");
+            errorProvider.SetError(textBoxValue, "Not a valid numeric value");
           }
           else
           {
