@@ -11,6 +11,7 @@ namespace CsvTools
     private readonly ICsvFile m_StructuredFile;
     private ImprovedStream m_ImprovedStream;
     private StreamReader m_TextReader;
+    private long m_TextReaderLine;
     private JsonTextReader m_JsonTextReader;
     private bool m_DisposedValue;
     private bool m_AssumeLog;
@@ -65,26 +66,103 @@ namespace CsvTools
       }
     }
 
+    #region TextReader
+    // Buffer size set to 64kB, if set to large the display in percentage will jump
+    private const int c_BufferSize = 65536;
+
+    /// <summary>
+    ///   16k Buffer of the file data
+    /// </summary>
+    private readonly char[] m_Buffer = new char[c_BufferSize];
+
+    /// <summary>
+    ///   Length of the buffer (can be smaller then buffer size at end of file)
+    /// </summary>
+    private int m_BufferFilled;
+
+    /// <summary>
+    ///   Position in the buffer
+    /// </summary>
+    private int m_BufferPos = -1;
+    /// <summary>
+    ///   The line-feed character. Escape code is <c>\n</c>.
+    /// </summary>
+    private const char c_Lf = (char)0x0a;
+
+    /// <summary>
+    ///   The carriage return character. Escape code is <c>\r</c>.
+    /// </summary>
+    private const char c_Cr = (char)0x0d;
+
+    /// <summary>
+    ///   Fills the buffer with data from the reader.
+    /// </summary>
+    /// <returns><c>true</c> if data was successfully read; otherwise, <c>false</c>.</returns>
+    private void ReadIntoBuffer()
+    {
+      if (EndOfFile)
+        return;
+      m_BufferFilled = m_TextReader.Read(m_Buffer, 0, c_BufferSize);
+      EndOfFile |= m_BufferFilled == 0;
+      // Handle double decoding
+      if (m_BufferFilled <= 0)
+        return;
+      var result = Encoding.UTF8.GetChars(Encoding.GetEncoding(28591).GetBytes(m_Buffer, 0, m_BufferFilled));
+      // The twice decode text is smaller
+      m_BufferFilled = result.GetLength(0);
+      result.CopyTo(m_Buffer, 0);
+    }
+
+    private char NextChar()
+    {
+      if (m_BufferPos >= m_BufferFilled || m_BufferFilled==0)
+      {
+        ReadIntoBuffer();
+        m_BufferPos = 0;
+      }
+
+      // If of file its does not matter what to return simply return something
+      if (EndOfFile)
+        return c_Lf;
+
+      return m_Buffer[m_BufferPos];
+    }
+    private char EatNextCRLF(char character)
+    {
+      m_TextReaderLine++;
+      if (EndOfFile) return '\0';
+      var nextChar = NextChar();
+      if ((character != c_Cr || nextChar != c_Lf) && (character != c_Lf || nextChar != c_Cr)) return '\0';
+      // New line sequence is either CRLF or LFCR, disregard the character
+      m_BufferPos++;
+      // Very special a LF CR is counted as two lines.
+      if (character == c_Lf && nextChar == c_Cr)
+        m_TextReaderLine++;
+      return nextChar;
+    }
+
     private void SetTextReader()
     {
       // find the beginning      
-      while (!m_TextReader.EndOfStream)
+      while (!EndOfFile)
       {
-        var peek = m_TextReader.Peek();
-        if (peek != '{' && peek != '[')
-          m_TextReader.Read();
-        else
+        var peek = NextChar();
+        if (peek == '{' || peek == '[')
           break;
+        m_BufferPos++;
+        if (peek == c_Cr || peek == c_Lf)
+          EatNextCRLF(peek);                  
       }
 
       // get a Serilaized Jason object it starts with { and ends with }
       int openCurly = 0;
       int openSquare = 0;
       var sb = new StringBuilder();
-      while (!m_TextReader.EndOfStream)
+      while (!EndOfFile)
       {
-        int chr = m_TextReader.Read();
-        sb.Append((char)chr);
+        var chr = NextChar();
+        m_BufferPos++;
+        sb.Append(chr);
         if (chr == '{')
           openCurly++;
         else if (chr == '}')
@@ -93,12 +171,16 @@ namespace CsvTools
           openSquare++;
         else if (chr == ']')
           openSquare--;
+        else if (chr == c_Cr || chr == c_Lf)
+          EatNextCRLF(chr);
 
         if (openCurly == 0 && openSquare == 0)
           break;
       }
       m_JsonTextReader = new JsonTextReader(new StringReader(sb.ToString()));
     }
+
+    #endregion
 
     /// <summary>
     /// Reads a data row from the JsonTextReader and stores the values and text, 
@@ -108,7 +190,11 @@ namespace CsvTools
     public ICollection<KeyValuePair<string, object>> GetNextRecord()
     {
       if (m_AssumeLog)
+      {
         SetTextReader();
+        StartLineNumber = m_TextReaderLine;
+      }
+
 
       var headers = new Dictionary<string, bool>();
       var keyValuePairs = new Dictionary<string, object>();
@@ -119,18 +205,15 @@ namespace CsvTools
         if (!m_JsonTextReader.Read())
           return null;
       }
-      //while (m_JsonTextReader.TokenType != JsonToken.PropertyName)
-      //{
-      //  if (!m_JsonTextReader.Read())
-      //    return null;
-      //}
+
       // sore the parent Property Name in parentKey
       var startKey = string.Empty;
       var endKey = string.Empty;
       var key = string.Empty;
 
       // sore the current Property Name in key
-      StartLineNumber = m_JsonTextReader.LineNumber;
+      if (!m_AssumeLog)
+        StartLineNumber = m_JsonTextReader.LineNumber;
       var inArray = false;
       do
       {
@@ -193,7 +276,10 @@ namespace CsvTools
       } while (!(m_JsonTextReader.TokenType == JsonToken.EndObject && startKey == endKey)
               && m_JsonTextReader.Read());
 
-      EndLineNumber = m_JsonTextReader.LineNumber;
+      if (!m_AssumeLog)
+        EndLineNumber = m_JsonTextReader.LineNumber;
+      else
+        EndLineNumber = m_TextReaderLine;
       RecordNumber++;
 
       foreach (var kv in headers)
@@ -242,7 +328,7 @@ namespace CsvTools
           var line2 = GetNextRecord();
         }
         catch (JsonReaderException ex)
-        {          
+        {
           Logger.Warning(ex, "Issue reading the JSon file, trying to read it as JSon Log output");
           m_AssumeLog = true;
           ResetPositionToStartOrOpen();
@@ -351,9 +437,12 @@ namespace CsvTools
       });
 
       // End Line should be at 1, later on as the line is read the start line s set to this value
-      StartLineNumber = 1;
+      StartLineNumber = 1;      
       EndLineNumber = 1;
       RecordNumber = 0;
+
+      m_TextReaderLine = 1;
+      m_BufferPos = 0;
 
       EndOfFile = m_TextReader.EndOfStream;
       m_JsonTextReader = new JsonTextReader(m_TextReader)
