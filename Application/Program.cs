@@ -16,6 +16,7 @@ namespace CsvTools
 {
   using System;
   using System.Diagnostics.CodeAnalysis;
+  using System.Text;
   using System.Threading;
   using System.Windows.Forms;
 
@@ -66,7 +67,7 @@ namespace CsvTools
       else if (args.Length > 1)
         fileName = args.Join(" ");
 
-#if NETCOREAPP31
+#if NETCOREAPP3_1
       Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 #endif
 

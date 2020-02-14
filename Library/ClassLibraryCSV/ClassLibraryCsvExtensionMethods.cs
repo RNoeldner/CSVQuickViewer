@@ -1091,6 +1091,7 @@ namespace CsvTools
       result.StartLine = new DataColumn(BaseFileReader.cStartLineNumberFieldName, typeof(long));
       dataTable.Columns.Add(result.StartLine);
 
+      // TODO: check if this is a performance hit
       dataTable.PrimaryKey = new[] { result.StartLine };
 
       if (fileSetting.DisplayRecordNo && !fileReader.HasColumnName(BaseFileReader.cRecordNumberFieldName))
