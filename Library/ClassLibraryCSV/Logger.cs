@@ -44,15 +44,21 @@ namespace CsvTools
             var logfileRoot = new NLog.Targets.FileTarget("jsonFile")
             {
               FileName = fileNameJson,
-              ArchiveAboveSize = 1048576,
+              ArchiveAboveSize = 2097152,
               Layout = new JsonLayout
               {
                 Attributes =
               {
-                new JsonAttribute("time", "${longdate}"),
-                new JsonAttribute("level", "${level}"),                
-                new JsonAttribute("message", "${message}"),
-                new JsonAttribute("properties", "${all-event-properties}"),
+                new JsonAttribute("time", "${longdate}", false),
+                new JsonAttribute("level", "${level}", false),
+                new JsonAttribute("message", "${message}", true),
+                // new JsonAttribute("properties", "${all-event-properties}"),
+                new JsonAttribute("properties",  new JsonLayout
+                  {
+                   IncludeAllProperties = true,
+                   MaxRecursionLimit=2,
+                   RenderEmptyObject = true
+                  }),
                 new JsonAttribute("type", "${exception:format=Type}"),
                   new JsonAttribute("innerException", new JsonLayout
                   {
@@ -65,7 +71,7 @@ namespace CsvTools
                     },
                     RenderEmptyObject = false
                   },
-                  true),
+                  false),
               }
               }
             };
@@ -80,7 +86,21 @@ namespace CsvTools
         // second log file in folder
         if (!string.IsNullOrEmpty(fileNameText))
         {
-          var logfileFolder = new NLog.Targets.FileTarget("logfile2") { FileName = fileNameText, ArchiveAboveSize = 1048576, Layout = "${longdate} ${level} ${message}  ${exception:format=toString}" };
+          var logfileFolder = new NLog.Targets.FileTarget("logfile2") { FileName = fileNameText, ArchiveAboveSize = 2097152 };
+          var layout = new CsvLayout()
+          {
+            Delimiter = CsvColumnDelimiterMode.Tab,
+            WithHeader = true,
+            Quoting = CsvQuotingMode.Auto
+          };
+          layout.Columns.Add(new CsvColumn() { Name = "Time", Layout = "${longdate}", Quoting = CsvQuotingMode.Nothing });
+          layout.Columns.Add(new CsvColumn() { Name = "Level", Layout = "${level}", Quoting = CsvQuotingMode.Nothing });
+          layout.Columns.Add(new CsvColumn() { Name = "Message", Layout = "${message}", Quoting = CsvQuotingMode.All });
+          layout.Columns.Add(new CsvColumn() { Name = "property1", Layout = "${event-properties:property1}" });
+          layout.Columns.Add(new CsvColumn() { Name = "property2", Layout = "${event-properties:property2}" });
+          layout.Columns.Add(new CsvColumn() { Name = "property3", Layout = "${event-properties:property3}" });
+          layout.Columns.Add(new CsvColumn() { Name = "Exception", Layout = "${exception:format=toString}", Quoting = CsvQuotingMode.All });
+          logfileFolder.Layout = layout;
           if (config.AllTargets.Any(x => x is NLog.Targets.FileTarget target && !(target.Layout is JsonLayout)))
             config.RemoveTarget("logfile2");
           config.AddRule(minLevel, LogLevel.Fatal, logfileFolder);

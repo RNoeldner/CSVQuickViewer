@@ -43,19 +43,19 @@ namespace CsvTools
     /// <summary>
     ///   The carriage return character. Escape code is <c>\r</c>.
     /// </summary>
-    private const char c_Cr = (char) 0x0d;
+    private const char c_Cr = (char)0x0d;
 
     /// <summary>
     ///   The line-feed character. Escape code is <c>\n</c>.
     /// </summary>
-    private const char c_Lf = (char) 0x0a;
+    private const char c_Lf = (char)0x0a;
 
     /// <summary>
     ///   A non-breaking space..
     /// </summary>
-    private const char c_Nbsp = (char) 0xA0;
+    private const char c_Nbsp = (char)0xA0;
 
-    private const char c_UnknownChar = (char) 0xFFFD;
+    private const char c_UnknownChar = (char)0xFFFD;
 
     /// <summary>
     ///   16k Buffer of the file data
@@ -354,9 +354,9 @@ namespace CsvTools
     {
       // if we know how many records to read, use that
       if (m_CsvFile.RecordLimit > 0)
-        return (int) ((double) RecordNumber / m_CsvFile.RecordLimit * cMaxValue);
+        return (int)((double)RecordNumber / m_CsvFile.RecordLimit * cMaxValue);
 
-      return (int) (m_ImprovedStream.Percentage * cMaxValue);
+      return (int)(m_ImprovedStream.Percentage * cMaxValue);
     }
 
     private bool AllEmptyAndCountConsecutiveEmptyRows(string[] columns)
@@ -400,147 +400,156 @@ namespace CsvTools
     /// </returns>
     private bool GetNextRecord()
     {
+      try
+      {
       Restart:
-      CurrentRowColumnText = ReadNextRow(true, true);
+        CurrentRowColumnText = ReadNextRow(true, true);
 
-      if (!AllEmptyAndCountConsecutiveEmptyRows(CurrentRowColumnText))
-      {
-        // Regular row with data
-        RecordNumber++;
-      }
-      else
-      {
-        if (EndOfFile)
-          return false;
-
-        // an empty line
-        if (m_CsvFile.SkipEmptyLines)
-          goto Restart;
-        RecordNumber++;
-      }
-
-      var hasWarningCombinedWrning = false;
-      Restart2:
-      var rowLength = CurrentRowColumnText.Length;
-      if (rowLength == FieldCount)
-      {
-        // Check if we have row that matches the header row
-        if (m_HeaderRow != null && m_CsvFile.HasFieldHeader && !hasWarningCombinedWrning)
+        if (!AllEmptyAndCountConsecutiveEmptyRows(CurrentRowColumnText))
         {
-          var isRepeatedHeader = true;
-          for (var col = 0; col < FieldCount; col++)
-            if (!m_HeaderRow[col].Equals(CurrentRowColumnText[col], StringComparison.OrdinalIgnoreCase))
-            {
-              isRepeatedHeader = false;
-              break;
-            }
-
-          if (isRepeatedHeader && m_CsvFile.SkipDuplicateHeader)
-          {
-            RecordNumber--;
-            goto Restart;
-          }
-
-          if (m_RealignColumns != null && !isRepeatedHeader)
-            m_RealignColumns.AddRow(CurrentRowColumnText);
-        }
-      }
-      // If less columns are present
-      else if (rowLength < FieldCount)
-      {
-        // if we still have only one column and we should have a number of columns assume this was nonsense like a report footer
-        if (rowLength == 1 && EndOfFile && CurrentRowColumnText[0].Length < 10)
-        {
-          RecordNumber--;
-          HandleWarning(-1, $"Last line {StartLineNumber}{cLessColumns}. Assumed to be a EOF marker and ignored.");
-          return false;
-        }
-
-        if (!m_CsvFile.AllowRowCombining)
-        {
-          HandleWarning(-1, $"Line {StartLineNumber}{cLessColumns} ({rowLength}/{FieldCount}).");
+          // Regular row with data
+          RecordNumber++;
         }
         else
         {
-          var oldPos = m_BufferPos;
-          var startLine = StartLineNumber;
-          // get the next row
-          var nextLine = ReadNextRow(true, true);
-          StartLineNumber = startLine;
+          if (EndOfFile)
+            return false;
 
-          // allow up to two extra columns they can be combined later
-          if (nextLine != null && nextLine.Length > 0 && nextLine.Length + rowLength < FieldCount + 4)
+          // an empty line
+          if (m_CsvFile.SkipEmptyLines)
+            goto Restart;
+          RecordNumber++;
+        }
+
+        var hasWarningCombinedWrning = false;
+      Restart2:
+        var rowLength = CurrentRowColumnText.Length;
+        if (rowLength == FieldCount)
+        {
+          // Check if we have row that matches the header row
+          if (m_HeaderRow != null && m_CsvFile.HasFieldHeader && !hasWarningCombinedWrning)
           {
-            var combined = new List<string>(CurrentRowColumnText);
+            var isRepeatedHeader = true;
+            for (var col = 0; col < FieldCount; col++)
+              if (!m_HeaderRow[col].Equals(CurrentRowColumnText[col], StringComparison.OrdinalIgnoreCase))
+              {
+                isRepeatedHeader = false;
+                break;
+              }
 
-            // the first column belongs to the last column of the previous
-            // ignore NumWarningsLinefeed otherwise as this is important information
-            m_NumWarningsLinefeed++;
-            HandleWarning(rowLength - 1,
-              $"Added first column from line {EndLineNumber}, assuming a linefeed has split the rows into an additional line.");
-            combined[rowLength - 1] += ' ' + nextLine[0];
-
-            for (var col = 1; col < nextLine.Length; col++)
-              combined.Add(nextLine[col]);
-
-            if (!hasWarningCombinedWrning)
+            if (isRepeatedHeader && m_CsvFile.SkipDuplicateHeader)
             {
-              HandleWarning(-1, $"Line {StartLineNumber}-{EndLineNumber - 1}{cLessColumns}. Lines have been combined.");
-              hasWarningCombinedWrning = true;
+              RecordNumber--;
+              goto Restart;
             }
 
-            CurrentRowColumnText = combined.ToArray();
-            goto Restart2;
+            if (m_RealignColumns != null && !isRepeatedHeader)
+              m_RealignColumns.AddRow(CurrentRowColumnText);
+          }
+        }
+        // If less columns are present
+        else if (rowLength < FieldCount)
+        {
+          // if we still have only one column and we should have a number of columns assume this was nonsense like a report footer
+          if (rowLength == 1 && EndOfFile && CurrentRowColumnText[0].Length < 10)
+          {
+            RecordNumber--;
+            HandleWarning(-1, $"Last line {StartLineNumber}{cLessColumns}. Assumed to be a EOF marker and ignored.");
+            return false;
           }
 
-          if (m_BufferPos < oldPos)
+          if (!m_CsvFile.AllowRowCombining)
+          {
+            HandleWarning(-1, $"Line {StartLineNumber}{cLessColumns} ({rowLength}/{FieldCount}).");
+          }
+          else
+          {
+            var oldPos = m_BufferPos;
+            var startLine = StartLineNumber;
+            // get the next row
+            var nextLine = ReadNextRow(true, true);
+            StartLineNumber = startLine;
+
+            // allow up to two extra columns they can be combined later
+            if (nextLine != null && nextLine.Length > 0 && nextLine.Length + rowLength < FieldCount + 4)
+            {
+              var combined = new List<string>(CurrentRowColumnText);
+
+              // the first column belongs to the last column of the previous
+              // ignore NumWarningsLinefeed otherwise as this is important information
+              m_NumWarningsLinefeed++;
+              HandleWarning(rowLength - 1,
+                $"Added first column from line {EndLineNumber}, assuming a linefeed has split the rows into an additional line.");
+              combined[rowLength - 1] += ' ' + nextLine[0];
+
+              for (var col = 1; col < nextLine.Length; col++)
+                combined.Add(nextLine[col]);
+
+              if (!hasWarningCombinedWrning)
+              {
+                HandleWarning(-1, $"Line {StartLineNumber}-{EndLineNumber - 1}{cLessColumns}. Lines have been combined.");
+                hasWarningCombinedWrning = true;
+              }
+
+              CurrentRowColumnText = combined.ToArray();
+              goto Restart2;
+            }
+
+            if (m_BufferPos < oldPos)
             // we have an issue we went into the next Buffer there is no way back.
-          {
-            HandleError(-1,
-              $"Line {StartLineNumber}{cLessColumns}\nAttempting to combined lines some line have been read that is now lost, please turn off Row Combination");
-          }
-          else
-          {
-            // return to the old position so reading the next row did not matter
-            if (!hasWarningCombinedWrning)
-              HandleWarning(-1, $"Line {StartLineNumber}{cLessColumns} ({rowLength}/{FieldCount}).");
-            m_BufferPos = oldPos;
+            {
+              HandleError(-1,
+                $"Line {StartLineNumber}{cLessColumns}\nAttempting to combined lines some line have been read that is now lost, please turn off Row Combination");
+            }
+            else
+            {
+              // return to the old position so reading the next row did not matter
+              if (!hasWarningCombinedWrning)
+                HandleWarning(-1, $"Line {StartLineNumber}{cLessColumns} ({rowLength}/{FieldCount}).");
+              m_BufferPos = oldPos;
+            }
           }
         }
-      }
 
-      // If more columns are present
-      if (rowLength > FieldCount && (m_CsvFile.WarnEmptyTailingColumns || m_RealignColumns != null))
+        // If more columns are present
+        if (rowLength > FieldCount && (m_CsvFile.WarnEmptyTailingColumns || m_RealignColumns != null))
+        {
+          // check if the additional columns have contents
+          var hasContens = false;
+          for (var extraCol = FieldCount; extraCol < rowLength; extraCol++)
+          {
+            if (string.IsNullOrEmpty(CurrentRowColumnText[extraCol]))
+              continue;
+            hasContens = true;
+            break;
+          }
+
+          if (hasContens)
+          {
+            if (m_RealignColumns != null)
+            {
+              HandleWarning(-1,
+                $"Line {StartLineNumber}{cMoreColumns}. Trying to realign columns.");
+              // determine which column could have caused the issue
+              // it could be any column, try to establish
+              CurrentRowColumnText = m_RealignColumns.RealignColumn(CurrentRowColumnText, HandleWarning);
+            }
+            else
+            {
+              HandleWarning(-1,
+                $"Line {StartLineNumber}{cMoreColumns} ({rowLength}/{FieldCount}). The data in extra columns is not read.");
+            }
+          }
+        }
+
+        return true;
+      }
+      catch (Exception ex)
       {
-        // check if the additional columns have contents
-        var hasContens = false;
-        for (var extraCol = FieldCount; extraCol < rowLength; extraCol++)
-        {
-          if (string.IsNullOrEmpty(CurrentRowColumnText[extraCol]))
-            continue;
-          hasContens = true;
-          break;
-        }
-
-        if (hasContens)
-        {
-          if (m_RealignColumns != null)
-          {
-            HandleWarning(-1,
-              $"Line {StartLineNumber}{cMoreColumns}. Trying to realign columns.");
-            // determine which column could have caused the issue
-            // it could be any column, try to establish
-            CurrentRowColumnText = m_RealignColumns.RealignColumn(CurrentRowColumnText, HandleWarning);
-          }
-          else
-          {
-            HandleWarning(-1,
-              $"Line {StartLineNumber}{cMoreColumns} ({rowLength}/{FieldCount}). The data in extra columns is not read.");
-          }
-        }
+        HandleError(-1, ex.Message);        
+        EndOfFile = true;
+        return false;
       }
-
-      return true;
     }
 
     /// <summary>
@@ -830,7 +839,7 @@ namespace CsvTools
               m_BufferPos++;
             }
             else
-              // end-quote reached any additional characters are disregarded
+            // end-quote reached any additional characters are disregarded
             {
               postdata = true;
             }
@@ -902,7 +911,7 @@ namespace CsvTools
     /// </returns>
     private string[] ReadNextRow(bool regularDataRow, bool storeWarnings)
     {
-      Restart:
+    Restart:
       // Store the starting Line Number
       StartLineNumber = EndLineNumber;
 
@@ -1010,7 +1019,7 @@ namespace CsvTools
 
       if (m_BufferPos != 0 || RecordNumber != 0 || m_BufferFilled == 0)
       {
-        m_ImprovedStream.ResetToStart(delegate(Stream str)
+        m_ImprovedStream.ResetToStart(delegate (Stream str)
         {
           // in case we can not seek need to reopen the stream reader
           if (!str.CanSeek || m_TextReader == null)
