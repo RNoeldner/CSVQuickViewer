@@ -9,7 +9,7 @@
   <Identity
     Name="ce7d6142-e0b7-402f-b558-d820653aa320"
     Publisher="CN=r_n"
-    Version="1.6.4.0" />
+    Version="1.6.7.0" />
 
   <Properties>
     <DisplayName>CSVQuickViewer</DisplayName>

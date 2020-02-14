@@ -17,6 +17,11 @@
     <DefineConstants>TRACE;NETCOREAPP30</DefineConstants>
     <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\Application\**\*.cs" />
     <EmbeddedResource Include="..\Application\**\*.resx" />

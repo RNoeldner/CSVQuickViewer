@@ -51,6 +51,12 @@ namespace CsvTools
 
         private bool m_StoreSettingsByFile;
 
+        [DefaultValue(0)]
+        public override long RecordLimit
+        { get => 0;
+          set { }
+        }
+
         [XmlAttribute]
         [DefaultValue(true)]
         public bool AllowJson
