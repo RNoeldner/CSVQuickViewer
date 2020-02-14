@@ -546,7 +546,7 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        HandleError(-1, ex.Message);        
+        HandleError(-1, ex.Message);
         EndOfFile = true;
         return false;
       }
@@ -822,28 +822,21 @@ namespace CsvTools
         if (m_HasQualifier && character == m_CsvFile.FileFormat.FieldQualifierChar && quoted && !escaped)
         {
           var peekNextChar = NextChar();
-          if (m_CsvFile.AlternateQuoting)
+          if (m_CsvFile.DuplicateQuotingToEscape && peekNextChar == m_CsvFile.FileFormat.FieldQualifierChar)
           {
-            if (peekNextChar == m_CsvFile.FileFormat.FieldDelimiterChar || peekNextChar == c_Cr || peekNextChar == c_Lf)
-            {
+            // double quotes within quoted string means add a quote
+            stringBuilder.Append(m_CsvFile.FileFormat.FieldQualifierChar);
+            m_BufferPos++;
+            continue;
+          }
+          if (m_CsvFile.AlternateQuoting && (peekNextChar == m_CsvFile.FileFormat.FieldDelimiterChar || peekNextChar == c_Cr || peekNextChar == c_Lf))
+          {
               postdata = true;
               continue;
-            }
           }
-          else
+          if (!m_CsvFile.AlternateQuoting)
           {
-            if (peekNextChar == m_CsvFile.FileFormat.FieldQualifierChar)
-            {
-              // double quotes within quoted string means add a quote
-              stringBuilder.Append(m_CsvFile.FileFormat.FieldQualifierChar);
-              m_BufferPos++;
-            }
-            else
-            // end-quote reached any additional characters are disregarded
-            {
-              postdata = true;
-            }
-
+            postdata = true;
             continue;
           }
         }

@@ -42,6 +42,7 @@ namespace CsvTools
     /// </example>
     bool AlternateQuoting { get; set; }
 
+    bool DuplicateQuotingToEscape { get; set; }
     /// <summary>
     ///  Gets or sets a value indicating whether the byte order mark should be written in Unicode files.
     /// </summary>

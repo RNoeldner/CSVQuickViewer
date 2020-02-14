@@ -95,11 +95,8 @@ namespace CsvTools
           };
           layout.Columns.Add(new CsvColumn() { Name = "Time", Layout = "${longdate}", Quoting = CsvQuotingMode.Nothing });
           layout.Columns.Add(new CsvColumn() { Name = "Level", Layout = "${level}", Quoting = CsvQuotingMode.Nothing });
-          layout.Columns.Add(new CsvColumn() { Name = "Message", Layout = "${message}", Quoting = CsvQuotingMode.All });
-          layout.Columns.Add(new CsvColumn() { Name = "property1", Layout = "${event-properties:property1}" });
-          layout.Columns.Add(new CsvColumn() { Name = "property2", Layout = "${event-properties:property2}" });
-          layout.Columns.Add(new CsvColumn() { Name = "property3", Layout = "${event-properties:property3}" });
-          layout.Columns.Add(new CsvColumn() { Name = "Exception", Layout = "${exception:format=toString}", Quoting = CsvQuotingMode.All });
+          layout.Columns.Add(new CsvColumn() { Name = "Message", Layout = "${message}" });
+          layout.Columns.Add(new CsvColumn() { Name = "Exception", Layout = "${exception:format=toString}" });
           logfileFolder.Layout = layout;
           if (config.AllTargets.Any(x => x is NLog.Targets.FileTarget target && !(target.Layout is JsonLayout)))
             config.RemoveTarget("logfile2");
