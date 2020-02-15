@@ -822,18 +822,28 @@ namespace CsvTools
         if (m_HasQualifier && character == m_CsvFile.FileFormat.FieldQualifierChar && quoted && !escaped)
         {
           var peekNextChar = NextChar();
+          // a "" should be reagrded as " if the text is quoted
           if (m_CsvFile.DuplicateQuotingToEscape && peekNextChar == m_CsvFile.FileFormat.FieldQualifierChar)
           {
             // double quotes within quoted string means add a quote
             stringBuilder.Append(m_CsvFile.FileFormat.FieldQualifierChar);
             m_BufferPos++;
+            // secial handliung for "" that is not only representing a " but also closes the text
+            peekNextChar = NextChar();
+            if (m_CsvFile.AlternateQuoting && (peekNextChar == m_CsvFile.FileFormat.FieldDelimiterChar || peekNextChar == c_Cr || peekNextChar == c_Lf))
+            {
+              postdata = true;
+              continue;
+            }
             continue;
           }
+          // a single " should be reagrded as clsoing when its followed by the delimter 
           if (m_CsvFile.AlternateQuoting && (peekNextChar == m_CsvFile.FileFormat.FieldDelimiterChar || peekNextChar == c_Cr || peekNextChar == c_Lf))
           {
               postdata = true;
               continue;
           }
+          // a single " should be reagrded as closing if we do not have alternate quoting
           if (!m_CsvFile.AlternateQuoting)
           {
             postdata = true;
