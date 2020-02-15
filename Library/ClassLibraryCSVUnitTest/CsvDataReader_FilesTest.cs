@@ -117,6 +117,30 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    public void AlternateTextQualifiersDoubleQuotes()
+    {
+      var setting = new CsvFile
+                      {
+                        HasFieldHeader = false,
+                        AlternateQuoting = true,
+                        DuplicateQuotingToEscape = true
+                      };
+      setting.FileFormat.FieldDelimiter = ",";
+      setting.FileName = Path.Combine(m_ApplicationDirectory, "AlternateTextQualifiersDoubleQuote.txt");
+      using (var processDisplay = new DummyProcessDisplay())
+      using (var test = new CsvFileReader(setting, processDisplay))
+      {
+        test.Open();
+        Assert.IsTrue(test.Read());
+        Assert.AreEqual("This is a \"Test\" of doubled quoted Text", test.GetString(1), " \"\"should be regarded as \"");
+        Assert.IsTrue(test.Read());
+        Assert.AreEqual("This is a \"Test\" of not repeated quotes", test.GetString(1), "Training space not trimmed");
+        Assert.IsTrue(test.Read());
+        Assert.AreEqual("Tricky endig duplicated quotes that close...\nLine \"Test\"", StringUtils.HandleCRLFCombinations(test.GetString(1)), "Ending with two doble quotes but one is a closing quote");
+      }
+    }
+
+    [TestMethod]
     public void AlternateTextQualifiersTrimQuoted()
     {
       var setting = new CsvFile

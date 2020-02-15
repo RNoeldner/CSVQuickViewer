@@ -191,13 +191,16 @@ namespace CsvTools
       this.m_LabelQuote = new System.Windows.Forms.Label();
       this.m_LabelQuotePlaceholer = new System.Windows.Forms.Label();
       this.m_TextBoxEscape = new System.Windows.Forms.TextBox();
+      this.m_FileFormatBindingSource = new System.Windows.Forms.BindingSource(this.components);
       this.m_LabelEscapeCharacter = new System.Windows.Forms.Label();
       this.m_LabelTrim = new System.Windows.Forms.Label();
       this.m_TextBoxQuote = new System.Windows.Forms.TextBox();
       this.m_TextBoxQuotePlaceHolder = new System.Windows.Forms.TextBox();
       this.checkBoxAlternateQuoting = new System.Windows.Forms.CheckBox();
+      this.m_FileSettingBindingSource = new System.Windows.Forms.BindingSource(this.components);
       this.m_ToolTip = new System.Windows.Forms.ToolTip(this.components);
       this.comboBoxTrim = new System.Windows.Forms.ComboBox();
+      this.checkBoxDuplicateQuotingToEscape = new System.Windows.Forms.CheckBox();
       this.m_Label2 = new System.Windows.Forms.Label();
       this.m_Label1 = new System.Windows.Forms.Label();
       this.m_Label3 = new System.Windows.Forms.Label();
@@ -208,23 +211,20 @@ namespace CsvTools
       this.m_Label_4 = new System.Windows.Forms.Label();
       this.m_Label_2 = new System.Windows.Forms.Label();
       this.m_Label_1 = new System.Windows.Forms.Label();
-      this.checkBoxQualifyAlways = new System.Windows.Forms.CheckBox();
-      this.checkBoxQualifyOnlyNeeded = new System.Windows.Forms.CheckBox();
-      this.m_FileSettingBindingSource = new System.Windows.Forms.BindingSource(this.components);
-      this.m_RichTextBox02 = new CsvTools.CSVRichTextBox();
-      this.m_RichTextBox12 = new CsvTools.CSVRichTextBox();
       this.m_RichTextBoxSrc = new CsvTools.CSVRichTextBox();
-      this.m_FileFormatBindingSource = new System.Windows.Forms.BindingSource(this.components);
       this.m_RichTextBox10 = new CsvTools.CSVRichTextBox();
       this.m_RichTextBox11 = new CsvTools.CSVRichTextBox();
+      this.m_RichTextBox12 = new CsvTools.CSVRichTextBox();
       this.m_RichTextBox00 = new CsvTools.CSVRichTextBox();
       this.m_RichTextBox01 = new CsvTools.CSVRichTextBox();
-      this.checkBoxDuplicateQuotingToEscape = new System.Windows.Forms.CheckBox();
+      this.m_RichTextBox02 = new CsvTools.CSVRichTextBox();
+      this.checkBoxQualifyAlways = new System.Windows.Forms.CheckBox();
+      this.checkBoxQualifyOnlyNeeded = new System.Windows.Forms.CheckBox();
       m_Label5 = new System.Windows.Forms.Label();
+      ((System.ComponentModel.ISupportInitialize)(this.m_FileFormatBindingSource)).BeginInit();
+      ((System.ComponentModel.ISupportInitialize)(this.m_FileSettingBindingSource)).BeginInit();
       ((System.ComponentModel.ISupportInitialize)(this.m_ErrorProvider)).BeginInit();
       this.m_TableLayoutPanel.SuspendLayout();
-      ((System.ComponentModel.ISupportInitialize)(this.m_FileSettingBindingSource)).BeginInit();
-      ((System.ComponentModel.ISupportInitialize)(this.m_FileFormatBindingSource)).BeginInit();
       this.SuspendLayout();
       // 
       // m_Label5
@@ -267,10 +267,15 @@ namespace CsvTools
       this.m_TextBoxEscape.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.m_FileFormatBindingSource, "EscapeCharacter", true));
       this.m_TextBoxEscape.Dock = System.Windows.Forms.DockStyle.Top;
       this.m_TextBoxEscape.Location = new System.Drawing.Point(137, 34);
-      this.m_TextBoxEscape.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+      this.m_TextBoxEscape.Margin = new System.Windows.Forms.Padding(4);
       this.m_TextBoxEscape.Name = "m_TextBoxEscape";
       this.m_TextBoxEscape.Size = new System.Drawing.Size(243, 22);
       this.m_TextBoxEscape.TabIndex = 6;
+      // 
+      // m_FileFormatBindingSource
+      // 
+      this.m_FileFormatBindingSource.AllowNew = false;
+      this.m_FileFormatBindingSource.DataSource = typeof(CsvTools.FileFormat);
       // 
       // m_LabelEscapeCharacter
       // 
@@ -301,7 +306,7 @@ namespace CsvTools
       this.m_TextBoxQuote.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.m_FileFormatBindingSource, "FieldQualifier", true));
       this.m_TextBoxQuote.Dock = System.Windows.Forms.DockStyle.Top;
       this.m_TextBoxQuote.Location = new System.Drawing.Point(137, 4);
-      this.m_TextBoxQuote.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+      this.m_TextBoxQuote.Margin = new System.Windows.Forms.Padding(4);
       this.m_TextBoxQuote.Name = "m_TextBoxQuote";
       this.m_TextBoxQuote.Size = new System.Drawing.Size(243, 22);
       this.m_TextBoxQuote.TabIndex = 1;
@@ -318,7 +323,7 @@ namespace CsvTools
       this.m_TextBoxQuotePlaceHolder.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.m_FileFormatBindingSource, "QuotePlaceholder", true));
       this.m_TextBoxQuotePlaceHolder.Dock = System.Windows.Forms.DockStyle.Top;
       this.m_TextBoxQuotePlaceHolder.Location = new System.Drawing.Point(137, 64);
-      this.m_TextBoxQuotePlaceHolder.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+      this.m_TextBoxQuotePlaceHolder.Margin = new System.Windows.Forms.Padding(4);
       this.m_TextBoxQuotePlaceHolder.Name = "m_TextBoxQuotePlaceHolder";
       this.m_TextBoxQuotePlaceHolder.Size = new System.Drawing.Size(243, 22);
       this.m_TextBoxQuotePlaceHolder.TabIndex = 8;
@@ -331,9 +336,9 @@ namespace CsvTools
       this.checkBoxAlternateQuoting.Anchor = System.Windows.Forms.AnchorStyles.Left;
       this.checkBoxAlternateQuoting.AutoSize = true;
       this.m_TableLayoutPanel.SetColumnSpan(this.checkBoxAlternateQuoting, 2);
-      this.checkBoxAlternateQuoting.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.m_FileSettingBindingSource, "AlternateQuoting", true));
+      this.checkBoxAlternateQuoting.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.m_FileSettingBindingSource, "AlternateQuoting", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
       this.checkBoxAlternateQuoting.Location = new System.Drawing.Point(388, 4);
-      this.checkBoxAlternateQuoting.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+      this.checkBoxAlternateQuoting.Margin = new System.Windows.Forms.Padding(4);
       this.checkBoxAlternateQuoting.Name = "checkBoxAlternateQuoting";
       this.checkBoxAlternateQuoting.Size = new System.Drawing.Size(192, 21);
       this.checkBoxAlternateQuoting.TabIndex = 2;
@@ -343,13 +348,18 @@ namespace CsvTools
       this.checkBoxAlternateQuoting.UseVisualStyleBackColor = true;
       this.checkBoxAlternateQuoting.Visible = false;
       // 
+      // m_FileSettingBindingSource
+      // 
+      this.m_FileSettingBindingSource.AllowNew = false;
+      this.m_FileSettingBindingSource.DataSource = typeof(CsvTools.CsvFile);
+      // 
       // comboBoxTrim
       // 
       this.comboBoxTrim.DisplayMember = "Display";
       this.comboBoxTrim.Dock = System.Windows.Forms.DockStyle.Top;
       this.comboBoxTrim.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
       this.comboBoxTrim.Location = new System.Drawing.Point(137, 94);
-      this.comboBoxTrim.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+      this.comboBoxTrim.Margin = new System.Windows.Forms.Padding(4);
       this.comboBoxTrim.Name = "comboBoxTrim";
       this.comboBoxTrim.Size = new System.Drawing.Size(243, 24);
       this.comboBoxTrim.TabIndex = 10;
@@ -357,6 +367,19 @@ namespace CsvTools
         "was not quoted; All will remove white spaces even if the column was quoted");
       this.comboBoxTrim.ValueMember = "ID";
       this.comboBoxTrim.SelectedIndexChanged += new System.EventHandler(this.SetTrimming);
+      // 
+      // checkBoxDuplicateQuotingToEscape
+      // 
+      this.checkBoxDuplicateQuotingToEscape.AutoSize = true;
+      this.checkBoxDuplicateQuotingToEscape.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.m_FileSettingBindingSource, "DuplicateQuotingToEscape", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+      this.checkBoxDuplicateQuotingToEscape.Location = new System.Drawing.Point(587, 3);
+      this.checkBoxDuplicateQuotingToEscape.Name = "checkBoxDuplicateQuotingToEscape";
+      this.checkBoxDuplicateQuotingToEscape.Size = new System.Drawing.Size(146, 21);
+      this.checkBoxDuplicateQuotingToEscape.TabIndex = 27;
+      this.checkBoxDuplicateQuotingToEscape.Text = "Repeated Quoting";
+      this.m_ToolTip.SetToolTip(this.checkBoxDuplicateQuotingToEscape, "Assume a repeated quote in a qualified text represent a quote that does not end t" +
+        "ext qualification");
+      this.checkBoxDuplicateQuotingToEscape.UseVisualStyleBackColor = true;
       // 
       // m_Label2
       // 
@@ -454,7 +477,7 @@ namespace CsvTools
       this.m_TableLayoutPanel.Controls.Add(this.checkBoxDuplicateQuotingToEscape, 5, 0);
       this.m_TableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Top;
       this.m_TableLayoutPanel.Location = new System.Drawing.Point(0, 0);
-      this.m_TableLayoutPanel.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+      this.m_TableLayoutPanel.Margin = new System.Windows.Forms.Padding(4);
       this.m_TableLayoutPanel.Name = "m_TableLayoutPanel";
       this.m_TableLayoutPanel.RowCount = 9;
       this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
@@ -517,81 +540,6 @@ namespace CsvTools
       this.m_Label_1.TabIndex = 12;
       this.m_Label_1.Text = "1\r\n";
       // 
-      // checkBoxQualifyAlways
-      // 
-      this.checkBoxQualifyAlways.Anchor = System.Windows.Forms.AnchorStyles.Left;
-      this.checkBoxQualifyAlways.AutoSize = true;
-      this.m_TableLayoutPanel.SetColumnSpan(this.checkBoxQualifyAlways, 3);
-      this.checkBoxQualifyAlways.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.m_FileFormatBindingSource, "QualifyAlways", true));
-      this.checkBoxQualifyAlways.Location = new System.Drawing.Point(388, 34);
-      this.checkBoxQualifyAlways.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
-      this.checkBoxQualifyAlways.Name = "checkBoxQualifyAlways";
-      this.checkBoxQualifyAlways.Size = new System.Drawing.Size(121, 21);
-      this.checkBoxQualifyAlways.TabIndex = 3;
-      this.checkBoxQualifyAlways.Text = "Qualify Always";
-      this.checkBoxQualifyAlways.UseVisualStyleBackColor = true;
-      this.checkBoxQualifyAlways.Visible = false;
-      // 
-      // checkBoxQualifyOnlyNeeded
-      // 
-      this.checkBoxQualifyOnlyNeeded.Anchor = System.Windows.Forms.AnchorStyles.Left;
-      this.checkBoxQualifyOnlyNeeded.AutoSize = true;
-      this.m_TableLayoutPanel.SetColumnSpan(this.checkBoxQualifyOnlyNeeded, 3);
-      this.checkBoxQualifyOnlyNeeded.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.m_FileFormatBindingSource, "QualifyOnlyIfNeeded", true));
-      this.checkBoxQualifyOnlyNeeded.Location = new System.Drawing.Point(388, 64);
-      this.checkBoxQualifyOnlyNeeded.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
-      this.checkBoxQualifyOnlyNeeded.Name = "checkBoxQualifyOnlyNeeded";
-      this.checkBoxQualifyOnlyNeeded.Size = new System.Drawing.Size(172, 21);
-      this.checkBoxQualifyOnlyNeeded.TabIndex = 4;
-      this.checkBoxQualifyOnlyNeeded.Text = "Qualify Only If Needed";
-      this.checkBoxQualifyOnlyNeeded.UseVisualStyleBackColor = true;
-      this.checkBoxQualifyOnlyNeeded.Visible = false;
-      // 
-      // m_FileSettingBindingSource
-      // 
-      this.m_FileSettingBindingSource.AllowNew = false;
-      this.m_FileSettingBindingSource.DataSource = typeof(CsvTools.CsvFile);
-      // 
-      // m_RichTextBox02
-      // 
-      this.m_RichTextBox02.BackColor = System.Drawing.SystemColors.Window;
-      this.m_RichTextBox02.BorderStyle = System.Windows.Forms.BorderStyle.None;
-      this.m_RichTextBox02.Delimiter = ',';
-      this.m_RichTextBox02.DisplaySpace = true;
-      this.m_RichTextBox02.Dock = System.Windows.Forms.DockStyle.Top;
-      this.m_RichTextBox02.Escape = '\\';
-      this.m_RichTextBox02.Location = new System.Drawing.Point(406, 174);
-      this.m_RichTextBox02.Margin = new System.Windows.Forms.Padding(0);
-      this.m_RichTextBox02.Name = "m_RichTextBox02";
-      this.m_RichTextBox02.Quote = '\"';
-      this.m_RichTextBox02.ReadOnly = true;
-      this.m_TableLayoutPanel.SetRowSpan(this.m_RichTextBox02, 2);
-      this.m_RichTextBox02.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
-      this.m_RichTextBox02.Size = new System.Drawing.Size(178, 50);
-      this.m_RichTextBox02.TabIndex = 23;
-      this.m_RichTextBox02.Text = "Example ";
-      this.m_RichTextBox02.WordWrap = false;
-      // 
-      // m_RichTextBox12
-      // 
-      this.m_RichTextBox12.BackColor = System.Drawing.SystemColors.Window;
-      this.m_RichTextBox12.BorderStyle = System.Windows.Forms.BorderStyle.None;
-      this.m_RichTextBox12.Delimiter = ',';
-      this.m_RichTextBox12.DisplaySpace = true;
-      this.m_RichTextBox12.Dock = System.Windows.Forms.DockStyle.Top;
-      this.m_RichTextBox12.Escape = '\\';
-      this.m_RichTextBox12.Location = new System.Drawing.Point(584, 174);
-      this.m_RichTextBox12.Margin = new System.Windows.Forms.Padding(0);
-      this.m_RichTextBox12.Name = "m_RichTextBox12";
-      this.m_RichTextBox12.Quote = '\"';
-      this.m_RichTextBox12.ReadOnly = true;
-      this.m_TableLayoutPanel.SetRowSpan(this.m_RichTextBox12, 2);
-      this.m_RichTextBox12.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
-      this.m_RichTextBox12.Size = new System.Drawing.Size(245, 50);
-      this.m_RichTextBox12.TabIndex = 24;
-      this.m_RichTextBox12.Text = "Column with \nLinefeed";
-      this.m_RichTextBox12.WordWrap = false;
-      // 
       // m_RichTextBoxSrc
       // 
       this.m_RichTextBoxSrc.BackColor = System.Drawing.SystemColors.Window;
@@ -613,11 +561,6 @@ namespace CsvTools
       this.m_RichTextBoxSrc.TabIndex = 13;
       this.m_RichTextBoxSrc.Text = "\"This is \";Column with:, Delimiter\n a Trimming ;Column with \"\" Quote\nExample ;\"Co" +
     "lumn with \nLinefeed\"";
-      // 
-      // m_FileFormatBindingSource
-      // 
-      this.m_FileFormatBindingSource.AllowNew = false;
-      this.m_FileFormatBindingSource.DataSource = typeof(CsvTools.FileFormat);
       // 
       // m_RichTextBox10
       // 
@@ -657,6 +600,26 @@ namespace CsvTools
       this.m_RichTextBox11.Text = "Column with \" Quote";
       this.m_RichTextBox11.WordWrap = false;
       // 
+      // m_RichTextBox12
+      // 
+      this.m_RichTextBox12.BackColor = System.Drawing.SystemColors.Window;
+      this.m_RichTextBox12.BorderStyle = System.Windows.Forms.BorderStyle.None;
+      this.m_RichTextBox12.Delimiter = ',';
+      this.m_RichTextBox12.DisplaySpace = true;
+      this.m_RichTextBox12.Dock = System.Windows.Forms.DockStyle.Top;
+      this.m_RichTextBox12.Escape = '\\';
+      this.m_RichTextBox12.Location = new System.Drawing.Point(584, 174);
+      this.m_RichTextBox12.Margin = new System.Windows.Forms.Padding(0);
+      this.m_RichTextBox12.Name = "m_RichTextBox12";
+      this.m_RichTextBox12.Quote = '\"';
+      this.m_RichTextBox12.ReadOnly = true;
+      this.m_TableLayoutPanel.SetRowSpan(this.m_RichTextBox12, 2);
+      this.m_RichTextBox12.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
+      this.m_RichTextBox12.Size = new System.Drawing.Size(245, 50);
+      this.m_RichTextBox12.TabIndex = 24;
+      this.m_RichTextBox12.Text = "Column with \nLinefeed";
+      this.m_RichTextBox12.WordWrap = false;
+      // 
       // m_RichTextBox00
       // 
       this.m_RichTextBox00.BackColor = System.Drawing.SystemColors.Window;
@@ -695,33 +658,70 @@ namespace CsvTools
       this.m_RichTextBox01.Text = " a Trimming ";
       this.m_RichTextBox01.WordWrap = false;
       // 
-      // checkBoxDuplicateQuotingToEscape
+      // m_RichTextBox02
       // 
-      this.checkBoxDuplicateQuotingToEscape.AutoSize = true;
-      this.checkBoxDuplicateQuotingToEscape.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.m_FileSettingBindingSource, "DuplicateQuotingToEscape", true));
-      this.checkBoxDuplicateQuotingToEscape.Location = new System.Drawing.Point(587, 3);
-      this.checkBoxDuplicateQuotingToEscape.Name = "checkBoxDuplicateQuotingToEscape";
-      this.checkBoxDuplicateQuotingToEscape.Size = new System.Drawing.Size(146, 21);
-      this.checkBoxDuplicateQuotingToEscape.TabIndex = 27;
-      this.checkBoxDuplicateQuotingToEscape.Text = "Repeated Quoting";
-      this.m_ToolTip.SetToolTip(this.checkBoxDuplicateQuotingToEscape, "Assume a repeated quote in a qualified text represent a quote that does not end t" +
-        "ext qualification");
-      this.checkBoxDuplicateQuotingToEscape.UseVisualStyleBackColor = true;
+      this.m_RichTextBox02.BackColor = System.Drawing.SystemColors.Window;
+      this.m_RichTextBox02.BorderStyle = System.Windows.Forms.BorderStyle.None;
+      this.m_RichTextBox02.Delimiter = ',';
+      this.m_RichTextBox02.DisplaySpace = true;
+      this.m_RichTextBox02.Dock = System.Windows.Forms.DockStyle.Top;
+      this.m_RichTextBox02.Escape = '\\';
+      this.m_RichTextBox02.Location = new System.Drawing.Point(406, 174);
+      this.m_RichTextBox02.Margin = new System.Windows.Forms.Padding(0);
+      this.m_RichTextBox02.Name = "m_RichTextBox02";
+      this.m_RichTextBox02.Quote = '\"';
+      this.m_RichTextBox02.ReadOnly = true;
+      this.m_TableLayoutPanel.SetRowSpan(this.m_RichTextBox02, 2);
+      this.m_RichTextBox02.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
+      this.m_RichTextBox02.Size = new System.Drawing.Size(178, 50);
+      this.m_RichTextBox02.TabIndex = 23;
+      this.m_RichTextBox02.Text = "Example ";
+      this.m_RichTextBox02.WordWrap = false;
+      // 
+      // checkBoxQualifyAlways
+      // 
+      this.checkBoxQualifyAlways.Anchor = System.Windows.Forms.AnchorStyles.Left;
+      this.checkBoxQualifyAlways.AutoSize = true;
+      this.m_TableLayoutPanel.SetColumnSpan(this.checkBoxQualifyAlways, 3);
+      this.checkBoxQualifyAlways.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.m_FileFormatBindingSource, "QualifyAlways", true));
+      this.checkBoxQualifyAlways.Location = new System.Drawing.Point(388, 34);
+      this.checkBoxQualifyAlways.Margin = new System.Windows.Forms.Padding(4);
+      this.checkBoxQualifyAlways.Name = "checkBoxQualifyAlways";
+      this.checkBoxQualifyAlways.Size = new System.Drawing.Size(121, 21);
+      this.checkBoxQualifyAlways.TabIndex = 3;
+      this.checkBoxQualifyAlways.Text = "Qualify Always";
+      this.checkBoxQualifyAlways.UseVisualStyleBackColor = true;
+      this.checkBoxQualifyAlways.Visible = false;
+      // 
+      // checkBoxQualifyOnlyNeeded
+      // 
+      this.checkBoxQualifyOnlyNeeded.Anchor = System.Windows.Forms.AnchorStyles.Left;
+      this.checkBoxQualifyOnlyNeeded.AutoSize = true;
+      this.m_TableLayoutPanel.SetColumnSpan(this.checkBoxQualifyOnlyNeeded, 3);
+      this.checkBoxQualifyOnlyNeeded.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.m_FileFormatBindingSource, "QualifyOnlyIfNeeded", true));
+      this.checkBoxQualifyOnlyNeeded.Location = new System.Drawing.Point(388, 64);
+      this.checkBoxQualifyOnlyNeeded.Margin = new System.Windows.Forms.Padding(4);
+      this.checkBoxQualifyOnlyNeeded.Name = "checkBoxQualifyOnlyNeeded";
+      this.checkBoxQualifyOnlyNeeded.Size = new System.Drawing.Size(172, 21);
+      this.checkBoxQualifyOnlyNeeded.TabIndex = 4;
+      this.checkBoxQualifyOnlyNeeded.Text = "Qualify Only If Needed";
+      this.checkBoxQualifyOnlyNeeded.UseVisualStyleBackColor = true;
+      this.checkBoxQualifyOnlyNeeded.Visible = false;
       // 
       // QuotingControl
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.Controls.Add(this.m_TableLayoutPanel);
-      this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+      this.Margin = new System.Windows.Forms.Padding(4);
       this.MinimumSize = new System.Drawing.Size(829, 0);
       this.Name = "QuotingControl";
       this.Size = new System.Drawing.Size(829, 264);
+      ((System.ComponentModel.ISupportInitialize)(this.m_FileFormatBindingSource)).EndInit();
+      ((System.ComponentModel.ISupportInitialize)(this.m_FileSettingBindingSource)).EndInit();
       ((System.ComponentModel.ISupportInitialize)(this.m_ErrorProvider)).EndInit();
       this.m_TableLayoutPanel.ResumeLayout(false);
       this.m_TableLayoutPanel.PerformLayout();
-      ((System.ComponentModel.ISupportInitialize)(this.m_FileSettingBindingSource)).EndInit();
-      ((System.ComponentModel.ISupportInitialize)(this.m_FileFormatBindingSource)).EndInit();
       this.ResumeLayout(false);
       this.PerformLayout();
 
