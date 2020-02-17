@@ -33,17 +33,6 @@ namespace CsvTools
     bool AllowRowCombining { get; set; }
 
     /// <summary>
-    ///  Gets or sets a value indicating whether this instance should use alternate quoting
-    /// </summary>
-    /// <value><c>true</c> if Alternate quoting should be used, <c>false</c> otherwise.</value>
-    /// <example>
-    ///  Test,"This is a "Test"",OK
-    ///  -- &gt; This is a "Test"
-    /// </example>
-    bool AlternateQuoting { get; set; }
-
-    bool DuplicateQuotingToEscape { get; set; }
-    /// <summary>
     ///  Gets or sets a value indicating whether the byte order mark should be written in Unicode files.
     /// </summary>
     /// <value><c>true</c> write byte order mark; otherwise, <c>false</c>.</value>

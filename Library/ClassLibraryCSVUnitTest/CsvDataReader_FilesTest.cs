@@ -100,8 +100,9 @@ namespace CsvTools.Tests
       var setting = new CsvFile
       {
         HasFieldHeader = false,
-        AlternateQuoting = true
+        
       };
+      setting.FileFormat.AlternateQuoting = true;
       setting.TrimmingOption = TrimmingOption.All;
       setting.FileName = Path.Combine(m_ApplicationDirectory, "AlternateTextQualifiers.txt");
 
@@ -121,11 +122,12 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile
                       {
-                        HasFieldHeader = false,
-                        AlternateQuoting = true,
-                        DuplicateQuotingToEscape = true
+                        HasFieldHeader = false
                       };
+
       setting.FileFormat.FieldDelimiter = ",";
+      setting.FileFormat.AlternateQuoting = true;
+      setting.FileFormat.DuplicateQuotingToEscape = true;
       setting.FileName = Path.Combine(m_ApplicationDirectory, "AlternateTextQualifiersDoubleQuote.txt");
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(setting, processDisplay))
@@ -145,10 +147,10 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile
       {
-        HasFieldHeader = false,
-        AlternateQuoting = true
+        HasFieldHeader = false
       };
       setting.FileFormat.FieldDelimiter = ",";
+      setting.FileFormat.AlternateQuoting = true;
       setting.TrimmingOption = TrimmingOption.All;
       setting.FileName = Path.Combine(m_ApplicationDirectory, "AlternateTextQualifiers.txt");
       using (var processDisplay = new DummyProcessDisplay())
@@ -181,10 +183,10 @@ namespace CsvTools.Tests
       var setting = new CsvFile
       {
         HasFieldHeader = false,
-        AlternateQuoting = true,
         WarnQuotes = true
       };
       setting.FileFormat.FieldDelimiter = ",";
+      setting.FileFormat.AlternateQuoting = true;
       setting.TrimmingOption = TrimmingOption.Unquoted;
       setting.FileName = Path.Combine(m_ApplicationDirectory, "AlternateTextQualifiers.txt");
 

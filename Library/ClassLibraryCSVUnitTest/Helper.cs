@@ -44,7 +44,7 @@ namespace CsvTools.Tests
         HasFieldHeader = true,
         FileFormat = {FieldDelimiter = "TAB"}
       };
-
+      
       var timeFld = readFile.ColumnCollection.AddIfNew(new Column { Name = "DateTime", DataType = DataType.DateTime });
       Debug.Assert(timeFld != null);
       timeFld.DateFormat = @"dd/MM/yyyy";

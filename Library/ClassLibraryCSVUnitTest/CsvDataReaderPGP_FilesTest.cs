@@ -24,9 +24,9 @@ namespace CsvTools.Tests
       var setting = new CsvFile
       {
         HasFieldHeader = true,
-        AlternateQuoting = true
       };
       setting.FileName = "BasicCSV.txt.gz";
+      setting.FileFormat.AlternateQuoting = true;
       setting.ColumnCollection.AddIfNew(new Column
       {
         Name = "ExamDate",
@@ -60,9 +60,9 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile
       {
-        HasFieldHeader = true,
-        AlternateQuoting = true
+        HasFieldHeader = true
       };
+      setting.FileFormat.AlternateQuoting = true;
       PGPKeyStorageTestHelper.SetApplicationSetting();
       setting.FileName = "BasicCSV.pgp";
       setting.ColumnCollection.AddIfNew(new Column
@@ -97,9 +97,9 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile
       {
-        HasFieldHeader = true,
-        AlternateQuoting = true
+        HasFieldHeader = true
       };
+      setting.FileFormat.AlternateQuoting = true;
       PGPKeyStorageTestHelper.SetApplicationSetting();
       setting.FileName = "BasicCSV.pgp";
       setting.ColumnCollection.AddIfNew(new Column

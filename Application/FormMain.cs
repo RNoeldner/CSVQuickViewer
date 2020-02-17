@@ -164,7 +164,7 @@ namespace CsvTools
     {
       fileSystemWatcher.EnableRaisingEvents = m_ViewSettings.DetectFileChanges;
       fileSetting.PropertyChanged += FileSetting_PropertyChanged;
-      fileSetting.FileFormat.PropertyChanged += FileFormat_PropertyChanged;
+      fileSetting.FileFormat.PropertyChanged += AnyPropertyChangedReload;
       foreach (var col in fileSetting.ColumnCollection)
         col.PropertyChanged += AnyPropertyChangedReload;
     }
@@ -225,7 +225,7 @@ namespace CsvTools
       if (fileSetting != null)
       {
         fileSetting.PropertyChanged -= FileSetting_PropertyChanged;
-        fileSetting.FileFormat.PropertyChanged -= FileFormat_PropertyChanged;
+        fileSetting.FileFormat.PropertyChanged -= AnyPropertyChangedReload;
         foreach (var col in fileSetting.ColumnCollection)
           col.PropertyChanged -= AnyPropertyChangedReload;
       }
@@ -277,7 +277,6 @@ namespace CsvTools
     {
       if (m_ConfigChanged)
       {
-        m_ConfigChanged = false;
         detailControl.MoveMenu();
         if (_MessageBox.Show(
               this,
@@ -286,12 +285,17 @@ namespace CsvTools
               MessageBoxButtons.YesNo,
               MessageBoxIcon.Question,
               MessageBoxDefaultButton.Button2) == DialogResult.Yes)
+        {
           OpenDataReader(true);
+        }
+        else
+        {
+          m_ConfigChanged = false;
+        }
       }
 
       if (m_FileChanged)
       {
-        m_FileChanged = false;
         if (_MessageBox.Show(
               this,
               "The displayed file has changed do you want to reload the data?",
@@ -299,7 +303,14 @@ namespace CsvTools
               MessageBoxButtons.YesNo,
               MessageBoxIcon.Question,
               MessageBoxDefaultButton.Button2) == DialogResult.Yes)
+        {
           OpenDataReader(true);
+        }
+        else
+        {
+          m_FileChanged = false;
+        }
+
       }
     }
 
@@ -361,17 +372,6 @@ namespace CsvTools
       OpenDataReader(false);
     }
 
-    private void FileFormat_PropertyChanged(object sender, PropertyChangedEventArgs e)
-    {
-      if (e.PropertyName == nameof(FileFormat.FieldDelimiterChar)
-          || e.PropertyName == nameof(FileFormat.EscapeCharacterChar)
-          || e.PropertyName == nameof(FileFormat.CommentLine) || e.PropertyName == nameof(FileFormat.FieldQualifierChar)
-          || e.PropertyName == nameof(FileFormat.QuotePlaceholder)
-          || e.PropertyName == nameof(FileFormat.DelimiterPlaceholder)
-          || e.PropertyName == nameof(FileFormat.NewLinePlaceholder))
-        m_ConfigChanged = true;
-    }
-
     /// <summary>
     ///   Handles the PropertyChanged event of the FileSetting control.
     /// </summary>
@@ -379,33 +379,28 @@ namespace CsvTools
     /// <param name="e">The <see cref="PropertyChangedEventArgs" /> instance containing the event data.</param>
     private void FileSetting_PropertyChanged(object sender, PropertyChangedEventArgs e)
     {
-      if (e.PropertyName == nameof(ICsvFile.AllowRowCombining) || e.PropertyName == nameof(ICsvFile.AlternateQuoting)
-                                                               || e.PropertyName == nameof(ICsvFile.ByteOrderMark)
-                                                               || e.PropertyName == nameof(ICsvFile.CodePageId)
-                                                               || e.PropertyName
-                                                               == nameof(ICsvFile.ConsecutiveEmptyRows)
-                                                               || e.PropertyName == nameof(ICsvFile.DoubleDecode)
-                                                               || e.PropertyName == nameof(ICsvFile.HasFieldHeader)
-                                                               || e.PropertyName == nameof(ICsvFile.NumWarnings)
-                                                               || e.PropertyName == nameof(ICsvFile.SkipEmptyLines)
-                                                               || e.PropertyName == nameof(ICsvFile.SkipRows)
-                                                               || e.PropertyName == nameof(ICsvFile.TreatLFAsSpace)
-                                                               || e.PropertyName == nameof(ICsvFile.TreatNBSPAsSpace)
-                                                               || e.PropertyName == nameof(ICsvFile.TreatTextAsNull)
-                                                               || e.PropertyName
-                                                               == nameof(ICsvFile.TreatUnknowCharaterAsSpace)
-                                                               || e.PropertyName
-                                                               == nameof(ICsvFile.TryToSolveMoreColumns)
-                                                               || e.PropertyName
-                                                               == nameof(ICsvFile.WarnDelimiterInValue)
-                                                               || e.PropertyName
-                                                               == nameof(ICsvFile.WarnEmptyTailingColumns)
-                                                               || e.PropertyName == nameof(ICsvFile.WarnLineFeed)
-                                                               || e.PropertyName == nameof(ICsvFile.WarnNBSP)
-                                                               || e.PropertyName == nameof(ICsvFile.WarnQuotes)
-                                                               || e.PropertyName == nameof(ICsvFile.WarnQuotesInQuotes)
-                                                               || e.PropertyName == nameof(ICsvFile.WarnUnknowCharater)
-                                                               || e.PropertyName == nameof(ICsvFile.FileName))
+      if (e.PropertyName == nameof(ICsvFile.AllowRowCombining)
+         || e.PropertyName == nameof(ICsvFile.ByteOrderMark)
+         || e.PropertyName == nameof(ICsvFile.CodePageId)
+         || e.PropertyName == nameof(ICsvFile.ConsecutiveEmptyRows)
+         || e.PropertyName == nameof(ICsvFile.DoubleDecode)
+         || e.PropertyName == nameof(ICsvFile.HasFieldHeader)
+         || e.PropertyName == nameof(ICsvFile.NumWarnings)
+         || e.PropertyName == nameof(ICsvFile.SkipEmptyLines)
+         || e.PropertyName == nameof(ICsvFile.SkipRows)
+         || e.PropertyName == nameof(ICsvFile.TreatLFAsSpace)
+         || e.PropertyName == nameof(ICsvFile.TreatNBSPAsSpace)
+         || e.PropertyName == nameof(ICsvFile.TreatTextAsNull)
+         || e.PropertyName == nameof(ICsvFile.TreatUnknowCharaterAsSpace)
+         || e.PropertyName == nameof(ICsvFile.TryToSolveMoreColumns)
+         || e.PropertyName == nameof(ICsvFile.WarnDelimiterInValue)
+         || e.PropertyName == nameof(ICsvFile.WarnEmptyTailingColumns)
+         || e.PropertyName == nameof(ICsvFile.WarnLineFeed)
+         || e.PropertyName == nameof(ICsvFile.WarnNBSP)
+         || e.PropertyName == nameof(ICsvFile.WarnQuotes)
+         || e.PropertyName == nameof(ICsvFile.WarnQuotesInQuotes)
+         || e.PropertyName == nameof(ICsvFile.WarnUnknowCharater)
+         || e.PropertyName == nameof(ICsvFile.FileName))
         m_ConfigChanged = true;
     }
 

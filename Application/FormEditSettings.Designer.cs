@@ -30,7 +30,6 @@
     {
       this.components = new System.ComponentModel.Container();
       System.Windows.Forms.TableLayoutPanel tableLayoutPanelFile;
-      System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormEditSettings));
       System.Windows.Forms.TableLayoutPanel tableLayoutPanelAdvanced;
       System.Windows.Forms.TableLayoutPanel tableLayoutPanelPGP;
       System.Windows.Forms.TableLayoutPanel tableLayoutPanelBehavior;
@@ -185,8 +184,9 @@
       this.textBoxComment.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.fileFormatBindingSource, "CommentLine", true));
       this.textBoxComment.Location = new System.Drawing.Point(111, 126);
       this.textBoxComment.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.textBoxComment.MinimumSize = new System.Drawing.Size(60, 0);
       this.textBoxComment.Name = "textBoxComment";
-      this.textBoxComment.Size = new System.Drawing.Size(51, 22);
+      this.textBoxComment.Size = new System.Drawing.Size(60, 22);
       this.textBoxComment.TabIndex = 10;
       // 
       // fileFormatBindingSource
@@ -213,6 +213,7 @@
       this.textBoxFile.Dock = System.Windows.Forms.DockStyle.Top;
       this.textBoxFile.Location = new System.Drawing.Point(111, 2);
       this.textBoxFile.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.textBoxFile.MinimumSize = new System.Drawing.Size(60, 0);
       this.textBoxFile.Name = "textBoxFile";
       this.textBoxFile.Size = new System.Drawing.Size(648, 22);
       this.textBoxFile.TabIndex = 0;
@@ -246,10 +247,12 @@
       this.textBox1.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.fileFormatBindingSource, "EscapeCharacter", true));
       this.textBox1.Location = new System.Drawing.Point(513, 94);
       this.textBox1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.textBox1.MinimumSize = new System.Drawing.Size(60, 0);
       this.textBox1.Name = "textBox1";
       this.textBox1.Size = new System.Drawing.Size(69, 22);
       this.textBox1.TabIndex = 45;
-      this.toolTip.SetToolTip(this.textBox1, resources.GetString("textBox1.ToolTip"));
+      this.toolTip.SetToolTip(this.textBox1, "An escape character is used for escaping quotes and delimiters in the regular tex" +
+        "t. ");
       this.textBox1.TextChanged += new System.EventHandler(this.TextBoxDelimiter_TextChanged);
       // 
       // label3
@@ -294,8 +297,9 @@
       this.textBoxDelimiter.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.fileFormatBindingSource, "FieldDelimiter", true));
       this.textBoxDelimiter.Location = new System.Drawing.Point(111, 94);
       this.textBoxDelimiter.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.textBoxDelimiter.MinimumSize = new System.Drawing.Size(60, 0);
       this.textBoxDelimiter.Name = "textBoxDelimiter";
-      this.textBoxDelimiter.Size = new System.Drawing.Size(51, 22);
+      this.textBoxDelimiter.Size = new System.Drawing.Size(60, 22);
       this.textBoxDelimiter.TabIndex = 7;
       this.textBoxDelimiter.TextChanged += new System.EventHandler(this.TextBoxDelimiter_TextChanged);
       // 
@@ -330,6 +334,7 @@
       this.cboCodePage.FormattingEnabled = true;
       this.cboCodePage.Location = new System.Drawing.Point(111, 58);
       this.cboCodePage.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.cboCodePage.MinimumSize = new System.Drawing.Size(60, 0);
       this.cboCodePage.Name = "cboCodePage";
       this.cboCodePage.Size = new System.Drawing.Size(331, 24);
       this.cboCodePage.TabIndex = 4;
@@ -503,8 +508,9 @@
       this.textBoxLimitRows.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.fileSettingBindingSource, "RecordLimit", true));
       this.textBoxLimitRows.Location = new System.Drawing.Point(155, 111);
       this.textBoxLimitRows.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.textBoxLimitRows.MinimumSize = new System.Drawing.Size(60, 0);
       this.textBoxLimitRows.Name = "textBoxLimitRows";
-      this.textBoxLimitRows.Size = new System.Drawing.Size(0, 22);
+      this.textBoxLimitRows.Size = new System.Drawing.Size(100, 22);
       this.textBoxLimitRows.TabIndex = 6;
       this.textBoxLimitRows.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
       this.textBoxLimitRows.Validating += new System.ComponentModel.CancelEventHandler(this.PositiveNumberValidating);
@@ -529,8 +535,9 @@
       this.textBoxNLPlaceholder.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.fileFormatBindingSource, "NewLinePlaceholder", true));
       this.textBoxNLPlaceholder.Location = new System.Drawing.Point(155, 59);
       this.textBoxNLPlaceholder.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.textBoxNLPlaceholder.MinimumSize = new System.Drawing.Size(60, 0);
       this.textBoxNLPlaceholder.Name = "textBoxNLPlaceholder";
-      this.textBoxNLPlaceholder.Size = new System.Drawing.Size(0, 22);
+      this.textBoxNLPlaceholder.Size = new System.Drawing.Size(100, 22);
       this.textBoxNLPlaceholder.TabIndex = 4;
       // 
       // textBoxDelimiterPlaceholder
@@ -542,8 +549,9 @@
       this.textBoxDelimiterPlaceholder.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.fileFormatBindingSource, "DelimiterPlaceholder", true));
       this.textBoxDelimiterPlaceholder.Location = new System.Drawing.Point(155, 33);
       this.textBoxDelimiterPlaceholder.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.textBoxDelimiterPlaceholder.MinimumSize = new System.Drawing.Size(60, 0);
       this.textBoxDelimiterPlaceholder.Name = "textBoxDelimiterPlaceholder";
-      this.textBoxDelimiterPlaceholder.Size = new System.Drawing.Size(0, 22);
+      this.textBoxDelimiterPlaceholder.Size = new System.Drawing.Size(100, 22);
       this.textBoxDelimiterPlaceholder.TabIndex = 3;
       // 
       // labelRecordLimit
@@ -565,8 +573,9 @@
       this.textBoxTextAsNull.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.fileSettingBindingSource, "TreatTextAsNull", true));
       this.textBoxTextAsNull.Location = new System.Drawing.Point(155, 85);
       this.textBoxTextAsNull.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.textBoxTextAsNull.MinimumSize = new System.Drawing.Size(60, 0);
       this.textBoxTextAsNull.Name = "textBoxTextAsNull";
-      this.textBoxTextAsNull.Size = new System.Drawing.Size(0, 22);
+      this.textBoxTextAsNull.Size = new System.Drawing.Size(100, 22);
       this.textBoxTextAsNull.TabIndex = 5;
       // 
       // buttonSkipLine
@@ -600,8 +609,9 @@
       this.textBoxSkipRows.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.fileSettingBindingSource, "SkipRows", true));
       this.textBoxSkipRows.Location = new System.Drawing.Point(155, 2);
       this.textBoxSkipRows.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.textBoxSkipRows.MinimumSize = new System.Drawing.Size(60, 0);
       this.textBoxSkipRows.Name = "textBoxSkipRows";
-      this.textBoxSkipRows.Size = new System.Drawing.Size(0, 22);
+      this.textBoxSkipRows.Size = new System.Drawing.Size(100, 22);
       this.textBoxSkipRows.TabIndex = 0;
       this.textBoxSkipRows.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
       this.textBoxSkipRows.Validating += new System.ComponentModel.CancelEventHandler(this.PositiveNumberValidating);
@@ -683,7 +693,7 @@
       this.btnPassp.Location = new System.Drawing.Point(563, 2);
       this.btnPassp.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
       this.btnPassp.Name = "btnPassp";
-      this.btnPassp.Size = new System.Drawing.Size(357, 27);
+      this.btnPassp.Size = new System.Drawing.Size(344, 27);
       this.btnPassp.TabIndex = 1;
       this.btnPassp.Text = "Set Default Decryption Passphrase";
       this.btnPassp.UseVisualStyleBackColor = true;
@@ -886,8 +896,9 @@
       this.textBoxNumWarnings.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.fileSettingBindingSource, "NumWarnings", true));
       this.textBoxNumWarnings.Location = new System.Drawing.Point(107, 152);
       this.textBoxNumWarnings.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.textBoxNumWarnings.MinimumSize = new System.Drawing.Size(60, 0);
       this.textBoxNumWarnings.Name = "textBoxNumWarnings";
-      this.textBoxNumWarnings.Size = new System.Drawing.Size(40, 22);
+      this.textBoxNumWarnings.Size = new System.Drawing.Size(60, 22);
       this.textBoxNumWarnings.TabIndex = 6;
       this.textBoxNumWarnings.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
       this.textBoxNumWarnings.Validating += new System.ComponentModel.CancelEventHandler(this.PositiveNumberValidating);
@@ -986,7 +997,7 @@
       this.fillGuessSettingEdit.Margin = new System.Windows.Forms.Padding(1);
       this.fillGuessSettingEdit.MinimumSize = new System.Drawing.Size(631, 240);
       this.fillGuessSettingEdit.Name = "fillGuessSettingEdit";
-      this.fillGuessSettingEdit.Size = new System.Drawing.Size(631, 240);
+      this.fillGuessSettingEdit.Size = new System.Drawing.Size(945, 339);
       this.fillGuessSettingEdit.TabIndex = 101;
       // 
       // tabPageWarnings
@@ -1056,6 +1067,7 @@
       // 
       this.quotingControl.BackColor = System.Drawing.SystemColors.Control;
       this.quotingControl.Dock = System.Windows.Forms.DockStyle.Fill;
+      this.quotingControl.Font = new System.Drawing.Font("Segoe UI", 9F);
       this.quotingControl.IsWriteSetting = false;
       this.quotingControl.Location = new System.Drawing.Point(3, 2);
       this.quotingControl.Margin = new System.Windows.Forms.Padding(5, 6, 5, 6);
