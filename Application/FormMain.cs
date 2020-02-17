@@ -277,6 +277,7 @@ namespace CsvTools
     {
       if (m_ConfigChanged)
       {
+        m_ConfigChanged = false;
         detailControl.MoveMenu();
         if (_MessageBox.Show(
               this,
@@ -296,6 +297,7 @@ namespace CsvTools
 
       if (m_FileChanged)
       {
+        m_FileChanged = false;
         if (_MessageBox.Show(
               this,
               "The displayed file has changed do you want to reload the data?",
@@ -749,6 +751,8 @@ namespace CsvTools
             SerializedFilesLib.EmptyXmlSerializerNamespaces.Value);
           File.WriteAllText(m_SettingPath, stringWriter.ToString());
         }
+
+        Display_Activated(this, null);
       }
       catch (Exception)
       {

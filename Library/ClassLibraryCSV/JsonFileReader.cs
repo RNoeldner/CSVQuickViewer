@@ -210,7 +210,7 @@ namespace CsvTools
 
         // sore the parent Property Name in parentKey
         var startKey = string.Empty;
-        var endKey = string.Empty;
+        var endKey = "<dummy>";
         var key = string.Empty;
 
         // sore the current Property Name in key
