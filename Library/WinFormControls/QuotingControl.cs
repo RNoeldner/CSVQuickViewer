@@ -94,6 +94,7 @@ namespace CsvTools
     private ToolTip m_ToolTip;
     private IContainer components;
     private CheckBox checkBoxDuplicateQuotingToEscape;
+    private Label labelNoQuotes;
     private TableLayoutPanel m_TableLayoutPanel;
 
     /// <summary>
@@ -189,6 +190,7 @@ namespace CsvTools
       this.m_LabelQuote = new System.Windows.Forms.Label();
       this.m_LabelQuotePlaceholer = new System.Windows.Forms.Label();
       this.m_TextBoxEscape = new System.Windows.Forms.TextBox();
+      this.m_FileFormatBindingSource = new System.Windows.Forms.BindingSource(this.components);
       this.m_LabelEscapeCharacter = new System.Windows.Forms.Label();
       this.m_LabelTrim = new System.Windows.Forms.Label();
       this.m_TextBoxQuote = new System.Windows.Forms.TextBox();
@@ -216,11 +218,11 @@ namespace CsvTools
       this.m_RichTextBox02 = new CsvTools.CSVRichTextBox();
       this.checkBoxQualifyAlways = new System.Windows.Forms.CheckBox();
       this.checkBoxQualifyOnlyNeeded = new System.Windows.Forms.CheckBox();
-      this.m_FileFormatBindingSource = new System.Windows.Forms.BindingSource(this.components);
+      this.labelNoQuotes = new System.Windows.Forms.Label();
       m_Label5 = new System.Windows.Forms.Label();
+      ((System.ComponentModel.ISupportInitialize)(this.m_FileFormatBindingSource)).BeginInit();
       ((System.ComponentModel.ISupportInitialize)(this.m_ErrorProvider)).BeginInit();
       this.m_TableLayoutPanel.SuspendLayout();
-      ((System.ComponentModel.ISupportInitialize)(this.m_FileFormatBindingSource)).BeginInit();
       this.SuspendLayout();
       // 
       // m_Label5
@@ -267,6 +269,11 @@ namespace CsvTools
       this.m_TextBoxEscape.Name = "m_TextBoxEscape";
       this.m_TextBoxEscape.Size = new System.Drawing.Size(243, 22);
       this.m_TextBoxEscape.TabIndex = 6;
+      // 
+      // m_FileFormatBindingSource
+      // 
+      this.m_FileFormatBindingSource.AllowNew = false;
+      this.m_FileFormatBindingSource.DataSource = typeof(CsvTools.FileFormat);
       // 
       // m_LabelEscapeCharacter
       // 
@@ -461,11 +468,12 @@ namespace CsvTools
       this.m_TableLayoutPanel.Controls.Add(this.checkBoxQualifyOnlyNeeded, 3, 2);
       this.m_TableLayoutPanel.Controls.Add(this.checkBoxAlternateQuoting, 3, 0);
       this.m_TableLayoutPanel.Controls.Add(this.checkBoxDuplicateQuotingToEscape, 5, 0);
+      this.m_TableLayoutPanel.Controls.Add(this.labelNoQuotes, 5, 1);
       this.m_TableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Top;
       this.m_TableLayoutPanel.Location = new System.Drawing.Point(0, 0);
       this.m_TableLayoutPanel.Margin = new System.Windows.Forms.Padding(4);
       this.m_TableLayoutPanel.Name = "m_TableLayoutPanel";
-      this.m_TableLayoutPanel.RowCount = 9;
+      this.m_TableLayoutPanel.RowCount = 10;
       this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
@@ -475,7 +483,9 @@ namespace CsvTools
       this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 26F));
       this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 26F));
       this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-      this.m_TableLayoutPanel.Size = new System.Drawing.Size(829, 243);
+      this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+      this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+      this.m_TableLayoutPanel.Size = new System.Drawing.Size(829, 263);
       this.m_TableLayoutPanel.TabIndex = 0;
       // 
       // m_Label_3
@@ -668,7 +678,7 @@ namespace CsvTools
       // 
       this.checkBoxQualifyAlways.Anchor = System.Windows.Forms.AnchorStyles.Left;
       this.checkBoxQualifyAlways.AutoSize = true;
-      this.m_TableLayoutPanel.SetColumnSpan(this.checkBoxQualifyAlways, 3);
+      this.m_TableLayoutPanel.SetColumnSpan(this.checkBoxQualifyAlways, 2);
       this.checkBoxQualifyAlways.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.m_FileFormatBindingSource, "QualifyAlways", true));
       this.checkBoxQualifyAlways.Location = new System.Drawing.Point(388, 34);
       this.checkBoxQualifyAlways.Margin = new System.Windows.Forms.Padding(4);
@@ -694,10 +704,21 @@ namespace CsvTools
       this.checkBoxQualifyOnlyNeeded.UseVisualStyleBackColor = true;
       this.checkBoxQualifyOnlyNeeded.Visible = false;
       // 
-      // m_FileFormatBindingSource
+      // labelNoQuotes
       // 
-      this.m_FileFormatBindingSource.AllowNew = false;
-      this.m_FileFormatBindingSource.DataSource = typeof(CsvTools.FileFormat);
+      this.labelNoQuotes.Anchor = System.Windows.Forms.AnchorStyles.Left;
+      this.labelNoQuotes.AutoSize = true;
+      this.labelNoQuotes.BackColor = System.Drawing.SystemColors.Info;
+      this.labelNoQuotes.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+      this.labelNoQuotes.ForeColor = System.Drawing.SystemColors.InfoText;
+      this.labelNoQuotes.Location = new System.Drawing.Point(588, 35);
+      this.labelNoQuotes.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+      this.labelNoQuotes.Name = "labelNoQuotes";
+      this.labelNoQuotes.Size = new System.Drawing.Size(188, 19);
+      this.labelNoQuotes.TabIndex = 28;
+      this.labelNoQuotes.Text = "Text can not contain Quotes";
+      this.m_ToolTip.SetToolTip(this.labelNoQuotes, "Either “Context Sensitive Quoting”, “Repeated Quotes” or an “Escape Character” ne" +
+        "ed to be defined to allow a quote to be part of the text");
       // 
       // QuotingControl
       // 
@@ -708,10 +729,10 @@ namespace CsvTools
       this.MinimumSize = new System.Drawing.Size(829, 0);
       this.Name = "QuotingControl";
       this.Size = new System.Drawing.Size(829, 264);
+      ((System.ComponentModel.ISupportInitialize)(this.m_FileFormatBindingSource)).EndInit();
       ((System.ComponentModel.ISupportInitialize)(this.m_ErrorProvider)).EndInit();
       this.m_TableLayoutPanel.ResumeLayout(false);
       this.m_TableLayoutPanel.PerformLayout();
-      ((System.ComponentModel.ISupportInitialize)(this.m_FileFormatBindingSource)).EndInit();
       this.ResumeLayout(false);
       this.PerformLayout();
 
@@ -748,6 +769,10 @@ namespace CsvTools
       this.SafeInvoke(
         () =>
           {
+            labelNoQuotes.Visible = !(m_CsvFile.FileFormat.AlternateQuoting 
+                                      || m_CsvFile.FileFormat.DuplicateQuotingToEscape
+                                      || m_CsvFile.FileFormat.EscapeCharacterChar != '\0');
+
             m_ErrorProvider.SetError(m_TextBoxQuote, "");
 
             var quote = FileFormat.GetChar(m_TextBoxQuote.Text).ToString(CultureInfo.CurrentCulture);
@@ -777,17 +802,9 @@ namespace CsvTools
               m_RichTextBox12.Text = "Column with \nLinefeed";
             }
 
-            if (checkBoxAlternateQuoting.Checked && !checkBoxDuplicateQuotingToEscape.Checked)
-            {
-              m_RichTextBox11.Text = "Column with:" + quote + quote + " Quote";
-            }
-            else
-            {
-              m_RichTextBox11.Text = "Column with:" + quote + " Quote";
-            }
+             m_RichTextBox11.Text = "Column with:" + quote + " Quote";
 
-            
-            // richTextBox11.Quote = quote[0];
+             // richTextBox11.Quote = quote[0];
 
             var newToolTip = m_IsWriteSetting
                                ? "Start the column with a quote, if a quote is part of the text the quote is replaced with a placeholder."
@@ -807,9 +824,17 @@ namespace CsvTools
               sampleText = sampleText.Replace("{*}", m_TextBoxQuotePlaceHolder.Text);
             }
 
-            if (checkBoxAlternateQuoting.Checked)
+            if (m_CsvFile.FileFormat.AlternateQuoting)
             {
-              sampleText = sampleText.Replace("{*}", quote);
+              if (!m_CsvFile.FileFormat.DuplicateQuotingToEscape)
+              {
+                sampleText = sampleText.Replace("{*}", quote);
+              }
+              else
+              {
+                sampleText = sampleText.Replace("{*}", quote + quote);
+              }
+
             }
             else
             {
