@@ -823,14 +823,15 @@ namespace CsvTools
         {
           var peekNextChar = NextChar();
           // a "" should be reagrded as " if the text is quoted
-          if (m_CsvFile.DuplicateQuotingToEscape && peekNextChar == m_CsvFile.FileFormat.FieldQualifierChar)
+          if (m_CsvFile.FileFormat.DuplicateQuotingToEscape && peekNextChar == m_CsvFile.FileFormat.FieldQualifierChar)
           {
             // double quotes within quoted string means add a quote
             stringBuilder.Append(m_CsvFile.FileFormat.FieldQualifierChar);
             m_BufferPos++;
+            //TODO: decide if we should have this its hard to explain but might make sense
             // secial handliung for "" that is not only representing a " but also closes the text
             peekNextChar = NextChar();
-            if (m_CsvFile.AlternateQuoting && (peekNextChar == m_CsvFile.FileFormat.FieldDelimiterChar || peekNextChar == c_Cr || peekNextChar == c_Lf))
+            if (m_CsvFile.FileFormat.AlternateQuoting && (peekNextChar == m_CsvFile.FileFormat.FieldDelimiterChar || peekNextChar == c_Cr || peekNextChar == c_Lf))
             {
               postdata = true;
               continue;
@@ -838,13 +839,13 @@ namespace CsvTools
             continue;
           }
           // a single " should be reagrded as clsoing when its followed by the delimter 
-          if (m_CsvFile.AlternateQuoting && (peekNextChar == m_CsvFile.FileFormat.FieldDelimiterChar || peekNextChar == c_Cr || peekNextChar == c_Lf))
+          if (m_CsvFile.FileFormat.AlternateQuoting && (peekNextChar == m_CsvFile.FileFormat.FieldDelimiterChar || peekNextChar == c_Cr || peekNextChar == c_Lf))
           {
               postdata = true;
               continue;
           }
           // a single " should be reagrded as closing if we do not have alternate quoting
-          if (!m_CsvFile.AlternateQuoting)
+          if (!m_CsvFile.FileFormat.AlternateQuoting)
           {
             postdata = true;
             continue;

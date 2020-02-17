@@ -53,8 +53,6 @@ namespace CsvTools
 
     private BindingSource m_FileFormatBindingSource;
 
-    private BindingSource m_FileSettingBindingSource;
-
     private bool m_IsWriteSetting;
 
     private Label m_Label1;
@@ -125,7 +123,6 @@ namespace CsvTools
         if (m_CsvFile == null)
           return;
 
-        m_FileSettingBindingSource.DataSource = m_CsvFile;
         m_FileFormatBindingSource.DataSource = m_CsvFile.FileFormat;
 
         m_CsvFile.FileFormat.PropertyChanged += FormatPropertyChanged;
@@ -177,7 +174,8 @@ namespace CsvTools
 
     private void FormatPropertyChanged(object sender, PropertyChangedEventArgs e)
     {
-      if (e.PropertyName == nameof(FileFormat.FieldDelimiter))
+      if (e.PropertyName == nameof(FileFormat.FieldDelimiter) ||
+          e.PropertyName == nameof(FileFormat.DuplicateQuotingToEscape))
         SetToolTipPlaceholder();
     }
 
@@ -191,13 +189,11 @@ namespace CsvTools
       this.m_LabelQuote = new System.Windows.Forms.Label();
       this.m_LabelQuotePlaceholer = new System.Windows.Forms.Label();
       this.m_TextBoxEscape = new System.Windows.Forms.TextBox();
-      this.m_FileFormatBindingSource = new System.Windows.Forms.BindingSource(this.components);
       this.m_LabelEscapeCharacter = new System.Windows.Forms.Label();
       this.m_LabelTrim = new System.Windows.Forms.Label();
       this.m_TextBoxQuote = new System.Windows.Forms.TextBox();
       this.m_TextBoxQuotePlaceHolder = new System.Windows.Forms.TextBox();
       this.checkBoxAlternateQuoting = new System.Windows.Forms.CheckBox();
-      this.m_FileSettingBindingSource = new System.Windows.Forms.BindingSource(this.components);
       this.m_ToolTip = new System.Windows.Forms.ToolTip(this.components);
       this.comboBoxTrim = new System.Windows.Forms.ComboBox();
       this.checkBoxDuplicateQuotingToEscape = new System.Windows.Forms.CheckBox();
@@ -220,11 +216,11 @@ namespace CsvTools
       this.m_RichTextBox02 = new CsvTools.CSVRichTextBox();
       this.checkBoxQualifyAlways = new System.Windows.Forms.CheckBox();
       this.checkBoxQualifyOnlyNeeded = new System.Windows.Forms.CheckBox();
+      this.m_FileFormatBindingSource = new System.Windows.Forms.BindingSource(this.components);
       m_Label5 = new System.Windows.Forms.Label();
-      ((System.ComponentModel.ISupportInitialize)(this.m_FileFormatBindingSource)).BeginInit();
-      ((System.ComponentModel.ISupportInitialize)(this.m_FileSettingBindingSource)).BeginInit();
       ((System.ComponentModel.ISupportInitialize)(this.m_ErrorProvider)).BeginInit();
       this.m_TableLayoutPanel.SuspendLayout();
+      ((System.ComponentModel.ISupportInitialize)(this.m_FileFormatBindingSource)).BeginInit();
       this.SuspendLayout();
       // 
       // m_Label5
@@ -271,11 +267,6 @@ namespace CsvTools
       this.m_TextBoxEscape.Name = "m_TextBoxEscape";
       this.m_TextBoxEscape.Size = new System.Drawing.Size(243, 22);
       this.m_TextBoxEscape.TabIndex = 6;
-      // 
-      // m_FileFormatBindingSource
-      // 
-      this.m_FileFormatBindingSource.AllowNew = false;
-      this.m_FileFormatBindingSource.DataSource = typeof(CsvTools.FileFormat);
       // 
       // m_LabelEscapeCharacter
       // 
@@ -336,7 +327,7 @@ namespace CsvTools
       this.checkBoxAlternateQuoting.Anchor = System.Windows.Forms.AnchorStyles.Left;
       this.checkBoxAlternateQuoting.AutoSize = true;
       this.m_TableLayoutPanel.SetColumnSpan(this.checkBoxAlternateQuoting, 2);
-      this.checkBoxAlternateQuoting.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.m_FileSettingBindingSource, "AlternateQuoting", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+      this.checkBoxAlternateQuoting.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.m_FileFormatBindingSource, "AlternateQuoting", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
       this.checkBoxAlternateQuoting.Location = new System.Drawing.Point(388, 4);
       this.checkBoxAlternateQuoting.Margin = new System.Windows.Forms.Padding(4);
       this.checkBoxAlternateQuoting.Name = "checkBoxAlternateQuoting";
@@ -347,11 +338,6 @@ namespace CsvTools
         "ter");
       this.checkBoxAlternateQuoting.UseVisualStyleBackColor = true;
       this.checkBoxAlternateQuoting.Visible = false;
-      // 
-      // m_FileSettingBindingSource
-      // 
-      this.m_FileSettingBindingSource.AllowNew = false;
-      this.m_FileSettingBindingSource.DataSource = typeof(CsvTools.CsvFile);
       // 
       // comboBoxTrim
       // 
@@ -371,7 +357,7 @@ namespace CsvTools
       // checkBoxDuplicateQuotingToEscape
       // 
       this.checkBoxDuplicateQuotingToEscape.AutoSize = true;
-      this.checkBoxDuplicateQuotingToEscape.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.m_FileSettingBindingSource, "DuplicateQuotingToEscape", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+      this.checkBoxDuplicateQuotingToEscape.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.m_FileFormatBindingSource, "DuplicateQuotingToEscape", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
       this.checkBoxDuplicateQuotingToEscape.Location = new System.Drawing.Point(587, 3);
       this.checkBoxDuplicateQuotingToEscape.Name = "checkBoxDuplicateQuotingToEscape";
       this.checkBoxDuplicateQuotingToEscape.Size = new System.Drawing.Size(146, 21);
@@ -708,6 +694,11 @@ namespace CsvTools
       this.checkBoxQualifyOnlyNeeded.UseVisualStyleBackColor = true;
       this.checkBoxQualifyOnlyNeeded.Visible = false;
       // 
+      // m_FileFormatBindingSource
+      // 
+      this.m_FileFormatBindingSource.AllowNew = false;
+      this.m_FileFormatBindingSource.DataSource = typeof(CsvTools.FileFormat);
+      // 
       // QuotingControl
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -717,11 +708,10 @@ namespace CsvTools
       this.MinimumSize = new System.Drawing.Size(829, 0);
       this.Name = "QuotingControl";
       this.Size = new System.Drawing.Size(829, 264);
-      ((System.ComponentModel.ISupportInitialize)(this.m_FileFormatBindingSource)).EndInit();
-      ((System.ComponentModel.ISupportInitialize)(this.m_FileSettingBindingSource)).EndInit();
       ((System.ComponentModel.ISupportInitialize)(this.m_ErrorProvider)).EndInit();
       this.m_TableLayoutPanel.ResumeLayout(false);
       this.m_TableLayoutPanel.PerformLayout();
+      ((System.ComponentModel.ISupportInitialize)(this.m_FileFormatBindingSource)).EndInit();
       this.ResumeLayout(false);
       this.PerformLayout();
 
@@ -787,7 +777,16 @@ namespace CsvTools
               m_RichTextBox12.Text = "Column with \nLinefeed";
             }
 
-            m_RichTextBox11.Text = "Column with:" + quote + " Quote";
+            if (checkBoxAlternateQuoting.Checked && !checkBoxDuplicateQuotingToEscape.Checked)
+            {
+              m_RichTextBox11.Text = "Column with:" + quote + quote + " Quote";
+            }
+            else
+            {
+              m_RichTextBox11.Text = "Column with:" + quote + " Quote";
+            }
+
+            
             // richTextBox11.Quote = quote[0];
 
             var newToolTip = m_IsWriteSetting

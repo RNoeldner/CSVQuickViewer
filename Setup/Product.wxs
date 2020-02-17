@@ -123,7 +123,7 @@
       <Feature Id="FeatureMenu" Title="Startmenu Shortcuts" Level="1" Description="Adding the $(var.Application) to the Start Menu">
         <ComponentRef Id="StartMenintcuts" />
       </Feature>
-      <Feature Id="FeatureOpen" Title="File Context Menu" Level="1" Description="Associate the $(var.Application) to .csv,.*.tab,*.txt and add a View with ... to the Windows File Context Menu">
+      <Feature Id="FeatureOpen" Title="File Context Menu" Level="1" Description="Associate the $(var.Application) to .csv,.*.tab,*.txt and add a 'View with ...' to the Windows File Context Menu">
         <ComponentRef Id="OpenWith" />
       </Feature>
       <Feature Id="FeatureDesktop" Title="Desktop Icon" Level="1" Description="Create a Windwos Desptop item for the $(var.Application).">

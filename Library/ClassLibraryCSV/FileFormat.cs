@@ -12,45 +12,102 @@
  *
  */
 
-using System;
-using System.ComponentModel;
-using System.Diagnostics.Contracts;
-using System.Xml.Serialization;
-
 namespace CsvTools
 {
+  using System;
+  using System.ComponentModel;
+  using System.Diagnostics.Contracts;
+  using System.Xml.Serialization;
+
   /// <summary>
   ///   Setting class for a general file format
   /// </summary>
   [Serializable]
 #pragma warning disable CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
   public class FileFormat : INotifyPropertyChanged, IEquatable<FileFormat>, ICloneable<FileFormat>
-#pragma warning restore CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
+#pragma warning restore CS0659
   {
-    private const string c_CommentLineDefault = "";
-    private const string c_DelimiterPlaceholderDefault = "";
+    // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
     public const string cEscapeCharacterDefault = "";
+
+    private const string c_CommentLineDefault = "";
+
+    private const string c_DelimiterPlaceholderDefault = "";
+
     private const string c_FieldDelimiterDefault = ",";
+
     private const string c_FieldQualifierDefault = "\"";
+
     private const string c_NewLineDefault = "CRLF";
+
     private const string c_NewLinePlaceholderDefault = "";
+
     private const bool c_QualifyOnlyIfNeededDefault = true;
+
     private const string c_QuotePlaceholderDefault = "";
 
+    public bool m_DuplicateQuotingToEscape = true;
+
+    private bool m_AlternateQuoting;
+
     private string m_CommentLine = c_CommentLineDefault;
+
     private string m_DelimiterPlaceholder = c_DelimiterPlaceholderDefault;
+
     private string m_EscapeCharacter = cEscapeCharacterDefault;
+
     private char m_EscapeCharacterChar = GetChar(cEscapeCharacterDefault);
+
     private string m_FieldDelimiter = c_FieldDelimiterDefault;
+
     private char m_FieldDelimiterChar = GetChar(c_FieldDelimiterDefault);
+
     private string m_FieldQualifier = c_FieldQualifierDefault;
+
     private char m_FieldQualifierChar = GetChar(c_FieldQualifierDefault);
+
     private string m_NewLine = c_NewLineDefault;
+
     private string m_NewLinePlaceholder = c_NewLinePlaceholderDefault;
+
     private bool m_QualifyAlways;
+
     private bool m_QualifyOnlyIfNeeded = c_QualifyOnlyIfNeededDefault;
+
     private string m_QuotePlaceholder = c_QuotePlaceholderDefault;
+
     private ValueFormat m_ValueFormat = new ValueFormat();
+
+    /// <summary>
+    ///   Occurs when a property value changes.
+    /// </summary>
+    public event PropertyChangedEventHandler PropertyChanged;
+
+    /// <summary>
+    ///   Gets or sets a value indicating whether the byte order mark should be written in Unicode files.
+    /// </summary>
+    /// <value><c>true</c> write byte order mark; otherwise, <c>false</c>.</value>
+    [XmlAttribute]
+    [DefaultValue(false)]
+    public virtual bool AlternateQuoting
+    {
+      get => m_AlternateQuoting;
+      set
+      {
+        if (m_AlternateQuoting.Equals(value))
+          return;
+        m_AlternateQuoting = value;
+        NotifyPropertyChanged(nameof(AlternateQuoting));
+
+        // If Anternate Quoting is dsiabled, enable DuplicateQuotingToEscape automatically
+        if (!m_AlternateQuoting && !DuplicateQuotingToEscape)
+          DuplicateQuotingToEscape = true;
+
+        // If Anternate Quoting is enabled, disable DuplicateQuotingToEscape automatically
+        if (m_AlternateQuoting && DuplicateQuotingToEscape)
+          DuplicateQuotingToEscape = false;
+      }
+    }
 
     /// <summary>
     ///   Gets a value indicating whether column format specified.
@@ -73,6 +130,7 @@ namespace CsvTools
         Contract.Ensures(Contract.Result<string>() != null);
         return m_CommentLine;
       }
+
       set
       {
         var newVal = (value ?? string.Empty).Trim();
@@ -96,6 +154,7 @@ namespace CsvTools
         Contract.Ensures(Contract.Result<string>() != null);
         return m_DelimiterPlaceholder;
       }
+
       set
       {
         var newVal = (value ?? string.Empty).Trim();
@@ -103,6 +162,24 @@ namespace CsvTools
           return;
         m_DelimiterPlaceholder = newVal;
         NotifyPropertyChanged(nameof(DelimiterPlaceholder));
+      }
+    }
+
+    /// <summary>
+    ///   Gets or sets a value indicating whether the byte order mark should be written in Unicode files.
+    /// </summary>
+    /// <value><c>true</c> write byte order mark; otherwise, <c>false</c>.</value>
+    [XmlAttribute]
+    [DefaultValue(true)]
+    public virtual bool DuplicateQuotingToEscape
+    {
+      get => m_DuplicateQuotingToEscape;
+      set
+      {
+        if (m_DuplicateQuotingToEscape.Equals(value))
+          return;
+        m_DuplicateQuotingToEscape = value;
+        NotifyPropertyChanged(nameof(DuplicateQuotingToEscape));
       }
     }
 
@@ -151,6 +228,7 @@ namespace CsvTools
         Contract.Ensures(Contract.Result<string>() != null);
         return m_FieldDelimiter;
       }
+
       set
       {
         var newVal = (value ?? string.Empty).Trim(StringUtils.Spaces);
@@ -182,6 +260,7 @@ namespace CsvTools
         Contract.Ensures(Contract.Result<string>() != null);
         return m_FieldQualifier;
       }
+
       set
       {
         var newVal = (value ?? string.Empty).Trim();
@@ -244,6 +323,7 @@ namespace CsvTools
         Contract.Ensures(Contract.Result<string>() != null);
         return m_NewLinePlaceholder;
       }
+
       set
       {
         var newVal = value ?? c_NewLinePlaceholderDefault;
@@ -251,6 +331,26 @@ namespace CsvTools
           return;
         m_NewLinePlaceholder = newVal;
         NotifyPropertyChanged(nameof(NewLinePlaceholder));
+      }
+    }
+
+    /// <summary>
+    ///   Gets or sets a value indicating whether to qualify every text even if number or empty.
+    /// </summary>
+    /// <value><c>true</c> if qualify only if needed; otherwise, <c>false</c>.</value>
+    [XmlAttribute]
+    [DefaultValue(false)]
+    public virtual bool QualifyAlways
+    {
+      get => m_QualifyAlways;
+      set
+      {
+        if (m_QualifyAlways.Equals(value))
+          return;
+        m_QualifyAlways = value;
+        if (m_QualifyAlways)
+          QualifyOnlyIfNeeded = false;
+        NotifyPropertyChanged(nameof(QualifyAlways));
       }
     }
 
@@ -276,26 +376,6 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets or sets a value indicating whether to qualify every text even if number or empty.
-    /// </summary>
-    /// <value><c>true</c> if qualify only if needed; otherwise, <c>false</c>.</value>
-    [XmlAttribute]
-    [DefaultValue(false)]
-    public virtual bool QualifyAlways
-    {
-      get => m_QualifyAlways;
-      set
-      {
-        if (m_QualifyAlways.Equals(value))
-          return;
-        m_QualifyAlways = value;
-        if (m_QualifyAlways)
-          QualifyOnlyIfNeeded = false;
-        NotifyPropertyChanged(nameof(QualifyAlways));
-      }
-    }
-
-    /// <summary>
     ///   Gets or sets the quote placeholder.
     /// </summary>
     /// <value>The quote placeholder.</value>
@@ -308,6 +388,7 @@ namespace CsvTools
         Contract.Ensures(Contract.Result<string>() != null);
         return m_QuotePlaceholder;
       }
+
       set
       {
         var newVal = (value ?? string.Empty).Trim();
@@ -359,70 +440,6 @@ namespace CsvTools
         return !m_ValueFormat.Equals(new ValueFormat());
       }
     }
-
-    /// <summary>
-    ///   Clones this instance into a new instance of the same type
-    /// </summary>
-    /// <returns></returns>
-    public FileFormat Clone()
-    {
-      Contract.Ensures(Contract.Result<FileFormat>() != null);
-      var other = new FileFormat();
-      CopyTo(other);
-      return other;
-    }
-
-    /// <summary>
-    ///   Copies to.
-    /// </summary>
-    /// <param name="other">The other.</param>
-    public virtual void CopyTo(FileFormat other)
-    {
-      if (other == null)
-        return;
-
-      other.CommentLine = m_CommentLine;
-      other.DelimiterPlaceholder = m_DelimiterPlaceholder;
-      other.EscapeCharacter = m_EscapeCharacter;
-      other.FieldDelimiter = m_FieldDelimiter;
-      other.FieldQualifier = m_FieldQualifier;
-      other.NewLine = m_NewLine;
-      other.NewLinePlaceholder = m_NewLinePlaceholder;
-      other.QualifyOnlyIfNeeded = m_QualifyOnlyIfNeeded;
-      other.QualifyAlways = m_QualifyAlways;
-      other.QuotePlaceholder = m_QuotePlaceholder;
-      ValueFormat.CopyTo(other.ValueFormat);
-    }
-
-    /// <summary>Indicates whether the current object is equal to another object of the same type.</summary>
-    /// <param name="other">An object to compare with this object.</param>
-    /// <returns>
-    ///   <see langword="true" /> if the current object is equal to the <paramref name="other" /> parameter; otherwise,
-    ///   <see langword="false" />.
-    /// </returns>
-    public bool Equals(FileFormat other)
-    {
-      if (other is null)
-        return false;
-      if (ReferenceEquals(this, other))
-        return true;
-      return string.Equals(m_CommentLine, other.m_CommentLine, StringComparison.Ordinal) &&
-             string.Equals(m_DelimiterPlaceholder, other.m_DelimiterPlaceholder, StringComparison.Ordinal) &&
-             string.Equals(m_EscapeCharacter, other.m_EscapeCharacter, StringComparison.Ordinal) &&
-             m_EscapeCharacterChar == other.m_EscapeCharacterChar &&
-             string.Equals(m_FieldDelimiter, other.m_FieldDelimiter, StringComparison.Ordinal) &&
-             m_FieldDelimiterChar == other.m_FieldDelimiterChar &&
-             string.Equals(m_FieldQualifier, other.m_FieldQualifier, StringComparison.Ordinal) &&
-             m_FieldQualifierChar == other.m_FieldQualifierChar && string.Equals(m_NewLine, other.m_NewLine, StringComparison.Ordinal) &&
-             string.Equals(m_NewLinePlaceholder, other.m_NewLinePlaceholder, StringComparison.Ordinal) &&
-             m_QualifyAlways == other.m_QualifyAlways && m_QualifyOnlyIfNeeded == other.m_QualifyOnlyIfNeeded &&
-             string.Equals(m_QuotePlaceholder, other.m_QuotePlaceholder, StringComparison.Ordinal) && Equals(m_ValueFormat, other.m_ValueFormat);
-    }
-
-    /// <summary>
-    ///   Occurs when a property value changes.
-    /// </summary>
-    public event PropertyChangedEventHandler PropertyChanged;
 
     /// <summary>
     ///   Gets a char from a text
@@ -514,10 +531,83 @@ namespace CsvTools
     }
 
     /// <summary>
+    ///   Clones this instance into a new instance of the same type
+    /// </summary>
+    /// <returns></returns>
+    public FileFormat Clone()
+    {
+      Contract.Ensures(Contract.Result<FileFormat>() != null);
+      var other = new FileFormat();
+      CopyTo(other);
+      return other;
+    }
+
+    /// <summary>
+    ///   Copies to.
+    /// </summary>
+    /// <param name="other">The other.</param>
+    public virtual void CopyTo(FileFormat other)
+    {
+      if (other == null)
+        return;
+
+      other.CommentLine = m_CommentLine;
+      other.AlternateQuoting = m_AlternateQuoting;
+      other.DuplicateQuotingToEscape = m_DuplicateQuotingToEscape;
+      other.DelimiterPlaceholder = m_DelimiterPlaceholder;
+      other.EscapeCharacter = m_EscapeCharacter;
+      other.FieldDelimiter = m_FieldDelimiter;
+      other.FieldQualifier = m_FieldQualifier;
+      other.NewLine = m_NewLine;
+      other.NewLinePlaceholder = m_NewLinePlaceholder;
+      other.QualifyOnlyIfNeeded = m_QualifyOnlyIfNeeded;
+      other.QualifyAlways = m_QualifyAlways;
+      other.QuotePlaceholder = m_QuotePlaceholder;
+      ValueFormat.CopyTo(other.ValueFormat);
+    }
+
+    /// <summary>Indicates whether the current object is equal to another object of the same type.</summary>
+    /// <param name="other">An object to compare with this object.</param>
+    /// <returns>
+    ///   <see langword="true" /> if the current object is equal to the <paramref name="other" /> parameter; otherwise,
+    ///   <see langword="false" />.
+    /// </returns>
+    public bool Equals(FileFormat other)
+    {
+      if (other is null)
+        return false;
+      if (ReferenceEquals(this, other))
+        return true;
+      return m_AlternateQuoting == other.AlternateQuoting
+             && m_DuplicateQuotingToEscape == other.DuplicateQuotingToEscape
+             && string.Equals(m_CommentLine, other.m_CommentLine, StringComparison.Ordinal)
+             && string.Equals(m_DelimiterPlaceholder, other.m_DelimiterPlaceholder, StringComparison.Ordinal)
+             && string.Equals(m_EscapeCharacter, other.m_EscapeCharacter, StringComparison.Ordinal)
+             && m_EscapeCharacterChar == other.m_EscapeCharacterChar
+             && string.Equals(m_FieldDelimiter, other.m_FieldDelimiter, StringComparison.Ordinal)
+             && m_FieldDelimiterChar == other.m_FieldDelimiterChar
+             && string.Equals(m_FieldQualifier, other.m_FieldQualifier, StringComparison.Ordinal)
+             && m_FieldQualifierChar == other.m_FieldQualifierChar
+             && string.Equals(m_NewLine, other.m_NewLine, StringComparison.Ordinal)
+             && string.Equals(m_NewLinePlaceholder, other.m_NewLinePlaceholder, StringComparison.Ordinal)
+             && m_QualifyAlways == other.m_QualifyAlways && m_QualifyOnlyIfNeeded == other.m_QualifyOnlyIfNeeded
+             && string.Equals(m_QuotePlaceholder, other.m_QuotePlaceholder, StringComparison.Ordinal)
+             && Equals(m_ValueFormat, other.m_ValueFormat);
+    }
+
+    /// <summary>Determines whether the specified object is equal to the current object.</summary>
+    /// <param name="obj">The object to compare with the current object. </param>
+    /// <returns>
+    ///   <see langword="true" /> if the specified object  is equal to the current object; otherwise, <see langword="false" />.
+    /// </returns>
+    public override bool Equals(object obj) => Equals(obj as FileFormat);
+
+    /// <summary>
     ///   Notifies the property changed.
     /// </summary>
     /// <param name="info">The info.</param>
-    public virtual void NotifyPropertyChanged(string info) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(info));
+    public virtual void NotifyPropertyChanged(string info) =>
+      PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(info));
 
     /// <summary>
     ///   Returns a <see cref="string" /> that represents this instance.
@@ -543,13 +633,6 @@ namespace CsvTools
       Contract.Invariant(m_NewLinePlaceholder != null);
       Contract.Invariant(m_ValueFormat != null);
     }
-
-    /// <summary>Determines whether the specified object is equal to the current object.</summary>
-    /// <param name="obj">The object to compare with the current object. </param>
-    /// <returns>
-    ///   <see langword="true" /> if the specified object  is equal to the current object; otherwise, <see langword="false" />.
-    /// </returns>
-    public override bool Equals(object obj) => Equals(obj as FileFormat);
 
     /*
     /// <summary>Serves as the default hash function. </summary>

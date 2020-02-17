@@ -27,6 +27,29 @@ namespace CsvTools.Tests
     private readonly string tzPST = "America/Los_Angeles";
 
     [TestMethod()]
+    public void GetTimeZoneID()
+    {
+      Assert.AreEqual(tzCET, TimeZoneMapping.GetTimeZoneID(tzCET));
+      Assert.AreEqual("Europe/Berlin", TimeZoneMapping.GetTimeZoneID("W. Europe Standard Time"));
+    }
+
+    [TestMethod()]
+    public void GetTranstionTimes()
+    {
+      var res = TimeZoneMapping.GetTranstionTimes(tzCET, 2020);
+
+      Assert.AreEqual(new DateTime(2020, 3, 29, 1, 0, 0, DateTimeKind.Utc), res.Item1);
+      Assert.AreEqual(new DateTime(2020, 10, 25, 1, 0, 0, DateTimeKind.Utc), res.Item2);
+    }
+
+    [TestMethod()]
+    public void ConvertTimeUTC()
+    {
+      Assert.AreEqual(new DateTime(2020, 1, 2, 1, 0, 0, DateTimeKind.Utc), TimeZoneMapping.ConvertTimeUTC(new DateTime(2020, 1, 2), tzCET));
+    }
+
+
+    [TestMethod()]
     public void ConvertTime()
     {
       // 26/06/2017 08:00	CET - 26/06/2017 09:00	MSK -  25/06/2017 23:00	PST - 26/06/2017 03:00	(UTC-03:00) Brasilia

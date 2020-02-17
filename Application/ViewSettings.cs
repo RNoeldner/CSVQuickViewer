@@ -230,7 +230,6 @@ namespace CsvTools
             }
 
             csvDest.AllowRowCombining = csvSrc.AllowRowCombining;
-            csvDest.AlternateQuoting = csvSrc.AlternateQuoting;
             csvDest.ByteOrderMark = csvSrc.ByteOrderMark;
             csvDest.CodePageId = csvSrc.CodePageId;
             csvDest.ConsecutiveEmptyRows = csvSrc.ConsecutiveEmptyRows;

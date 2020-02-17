@@ -88,49 +88,8 @@ namespace CsvTools
     [XmlIgnore]
     public static bool UnknowCharaterReplacementSpecified => false;
 
-    /// <summary>
-    ///   Gets or sets a value indicating whether the byte order mark should be written in Unicode files.
-    /// </summary>
-    /// <value><c>true</c> write byte order mark; otherwise, <c>false</c>.</value>
-    [XmlAttribute]
-    [DefaultValue(false)]
-    public virtual bool AlternateQuoting
-    {
-      get => m_AlternateQuoting;
-      set
-      {
-        if (m_AlternateQuoting.Equals(value))
-          return;
-        m_AlternateQuoting = value;
-        NotifyPropertyChanged(nameof(AlternateQuoting));
 
-        // If Anternate Quoting is dsiabled, enable DuplicateQuotingToEscape automatically
-        if (!m_AlternateQuoting && !DuplicateQuotingToEscape)
-          DuplicateQuotingToEscape = true;
-
-        // If Anternate Quoting is enabled, disable DuplicateQuotingToEscape automatically
-        if (m_AlternateQuoting && DuplicateQuotingToEscape)
-          DuplicateQuotingToEscape = false;
-      }
-    }
-
-    /// <summary>
-    ///   Gets or sets a value indicating whether the byte order mark should be written in Unicode files.
-    /// </summary>
-    /// <value><c>true</c> write byte order mark; otherwise, <c>false</c>.</value>
-    [XmlAttribute]
-    [DefaultValue(true)]
-    public virtual bool DuplicateQuotingToEscape
-    {
-      get => m_DuplicateQuotingToEscape;
-      set
-      {
-        if (m_DuplicateQuotingToEscape.Equals(value))
-          return;
-        m_DuplicateQuotingToEscape = value;
-        NotifyPropertyChanged(nameof(DuplicateQuotingToEscape));
-      }
-    }
+    
 
     /// <summary>
     ///   Gets or sets a value indicating whether the byte order mark should be written in Unicode files.
@@ -505,8 +464,6 @@ namespace CsvTools
       if (!(other is ICsvFile csv))
         return;
       csv.ByteOrderMark = m_ByteOrderMark;
-      csv.AlternateQuoting = m_AlternateQuoting;
-      csv.DuplicateQuotingToEscape = m_DuplicateQuotingToEscape;
       csv.DoubleDecode = m_DoubleDecode;
       csv.WarnQuotes = m_WarnQuotes;
       csv.JsonFormat = m_JsonFormat;
@@ -559,9 +516,7 @@ namespace CsvTools
         return false;
       if (ReferenceEquals(this, other))
         return true;
-      return m_AlternateQuoting == other.AlternateQuoting &&
-             m_DuplicateQuotingToEscape == other.DuplicateQuotingToEscape &&
-             m_ByteOrderMark == other.ByteOrderMark && m_CodePageId == other.CodePageId &&
+      return m_ByteOrderMark == other.ByteOrderMark && m_CodePageId == other.CodePageId &&
              Equals(m_CurrentEncoding, other.CurrentEncoding) && m_DoubleDecode == other.DoubleDecode &&
              m_JsonFormat == other.JsonFormat &&
              m_NoDelimitedFile == other.NoDelimitedFile && m_NumWarnings == other.NumWarnings &&
