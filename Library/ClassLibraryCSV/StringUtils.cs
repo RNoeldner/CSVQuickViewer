@@ -489,7 +489,7 @@ namespace CsvTools
     /// Check if a text would match a filter value, 
     /// </summary>
     /// <param name="item">The item of a list that should be checked</param>
-    /// <param name="filter">Filter value, for OR seperate words by space for AND seperate words by +</param>
+    /// <param name="filter">Filter value, for OR separate words by space for AND separate words by +</param>
     /// <param name="stringComparison"></param>
     /// <Note>In case the filter is empty there is no filter it will always return true</Note>
     /// <returns>True if text matches</returns>

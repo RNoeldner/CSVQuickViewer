@@ -36,12 +36,12 @@ namespace CsvTools
     /// <summary>
     ///   The c field placeholder
     /// </summary>
-    public const string cFieldPlaceholderByNumber = "[value{0}]";
+    private const string c_FieldPlaceholderByNumber = "[value{0}]";
 
     /// <summary>
     ///   The header placeholder
     /// </summary>
-    public const string cHeaderPlaceholder = "[column{0}]";
+    private const string c_HeaderPlaceholder = "[column{0}]";
 
     private readonly StructuredFile m_StructuredWriterFile;
 
@@ -64,7 +64,7 @@ namespace CsvTools
     /// <param name="writer">The writer.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <exception cref="FileWriterException">No columns defined to be written.</exception>
-    protected void DataReader2Stream(IDataReader reader, TextWriter writer,
+    private void DataReader2Stream(IDataReader reader, TextWriter writer,
       CancellationToken cancellationToken)
     {
       Contract.Requires(reader != null);
@@ -97,7 +97,7 @@ namespace CsvTools
 
       foreach (var columnInfo in columnInfos)
       {
-        var placeHolder = string.Format(System.Globalization.CultureInfo.CurrentCulture, cHeaderPlaceholder, colNum);
+        var placeHolder = string.Format(System.Globalization.CultureInfo.CurrentCulture, c_HeaderPlaceholder, colNum);
         if (m_StructuredWriterFile.XMLEncode)
           withHeader = withHeader.Replace(placeHolder, HTMLStyle.XmlElementName(columnInfo.Header));
         else if (m_StructuredWriterFile.JSONEncode)
@@ -105,7 +105,7 @@ namespace CsvTools
         else
           withHeader = withHeader.Replace(placeHolder, columnInfo.Header);
 
-        placeHolderLookup1.Add(colNum, string.Format(System.Globalization.CultureInfo.CurrentCulture, cFieldPlaceholderByNumber, colNum));
+        placeHolderLookup1.Add(colNum, string.Format(System.Globalization.CultureInfo.CurrentCulture, c_FieldPlaceholderByNumber, colNum));
         placeHolderLookup2.Add(colNum, string.Format(System.Globalization.CultureInfo.CurrentCulture, cFieldPlaceholderByName, columnInfo.Header));
         colNum++;
       }
@@ -123,7 +123,7 @@ namespace CsvTools
         colNum = 0;
         foreach (var columnInfo in columnInfos)
         {
-          var col = reader.GetValue(columnInfo.ColumnOridinalReader);
+          var col = reader.GetValue(columnInfo.ColumnOrdinalReader);
           var value = (m_StructuredWriterFile.XMLEncode) ?
                     SecurityElement.Escape(TextEncodeField(m_StructuredWriterFile.FileFormat, col, columnInfo, false, reader, null)) :
                     Newtonsoft.Json.JsonConvert.ToString(col);

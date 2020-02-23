@@ -27,13 +27,12 @@ namespace CsvTools
         break;
       }
 
-      if (!found)
-      {
-        Add(fieldMapping);
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Collection"));
-      }
+      if (found) return false;
 
-      return !found;
+      Add(fieldMapping);
+      PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Collection"));
+
+      return true;
     }
 
     /// <summary>

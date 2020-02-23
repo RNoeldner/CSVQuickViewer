@@ -114,7 +114,7 @@ namespace CsvTools
 
         foreach (var columnInfo in columnInfos)
         {
-          var col = reader.GetValue(columnInfo.ColumnOridinalReader);
+          var col = reader.GetValue(columnInfo.ColumnOrdinalReader);
           if (col == DBNull.Value)
             emptyColumns++;
 

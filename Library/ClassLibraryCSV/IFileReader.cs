@@ -22,11 +22,6 @@ namespace CsvTools
   /// </summary>
   public interface IFileReader : IDataReader
   {
-    /// <summary>
-    ///  Event handler called as the read is done
-    /// </summary>
-    event EventHandler ReadFinished;
-
     Func<Exception, IFileSetting, bool> RetryFunction { set; }
 
     /// <summary>
@@ -83,8 +78,7 @@ namespace CsvTools
     /// <summary>
     ///  Overrides the column format with values from settings
     /// </summary>
-    /// <param name="fieldCount">The field count.</param>
-    void OverrideColumnFormatFromSetting(int fieldCount);
+    void OverrideColumnFormatFromSetting();
 
     /// <summary>
     ///  Resets the position and buffer to the header in case the file has a header

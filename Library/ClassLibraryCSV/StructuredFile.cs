@@ -105,7 +105,7 @@ namespace CsvTools
     ///   Clones this instance.
     /// </summary>
     /// <returns></returns>
-    public override IFileSetting Clone()
+    public IFileSetting Clone()
     {
       Contract.Ensures(Contract.Result<IFileSetting>() != null);
       var other = new StructuredFile();

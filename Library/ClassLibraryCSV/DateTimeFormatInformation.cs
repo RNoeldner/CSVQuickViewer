@@ -27,7 +27,7 @@ namespace CsvTools
       NamedDate = (format.IndexOf("ddd", StringComparison.Ordinal) != -1 || format.IndexOf("MMM", StringComparison.Ordinal) != -1);
 
       if (m_MinDayLong == int.MaxValue)
-        DetermineLenth();
+        DetermineLength();
 
       format = SetMinMax(format, "dddd", ref m_MinLength, ref m_MaxLength, m_MinDayLong, m_MaxDayLong);
       format = SetMinMax(format, "ddd", ref m_MinLength, ref m_MaxLength, m_MinDayMid, m_MaxDayMid);
@@ -67,12 +67,14 @@ namespace CsvTools
     }
 
     //  public string Format { get => m_Format; }
-    public int MaxLength { get => m_MaxLength; set => m_MaxLength = value; }
+    public int MaxLength { get => m_MaxLength;
+	    private set => m_MaxLength = value; }
 
-    public int MinLength { get => m_MinLength; set => m_MinLength = value; }
-    public bool NamedDate { get; set; }
+    public int MinLength { get => m_MinLength;
+	    private set => m_MinLength = value; }
+    public bool NamedDate { get; private set; }
 
-    private static void DetermineLenth()
+    private static void DetermineLength()
     {
       for (var weekday = 0; weekday < 7; weekday++)
       {

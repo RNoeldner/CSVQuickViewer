@@ -67,7 +67,7 @@ namespace CsvTools
     /// <summary>
     ///   Collection of the artificial field names
     /// </summary>
-    public static ICollection<string> ArtificalFields = new HashSet<string>
+    public static ICollection<string> ArtificialFields = new HashSet<string>
       {cRecordNumberFieldName, cStartLineNumberFieldName, cEndLineNumberFieldName, cErrorField, cPartitionField};
 
     private readonly IFileSetting m_FileSetting;
@@ -770,8 +770,7 @@ namespace CsvTools
     /// <summary>
     ///   Overrides the column format from setting.
     /// </summary>
-    /// <param name="fieldCount">The field count.</param>
-    public virtual void OverrideColumnFormatFromSetting(int fieldCount)
+    public virtual void OverrideColumnFormatFromSetting()
     {
       Debug.Assert(AssociatedTimeCol != null);
 
@@ -903,7 +902,7 @@ namespace CsvTools
       m_IsFinished = false;
       if (FieldCount > 0)
         // Override the column settings and store the columns for later reference
-        OverrideColumnFormatFromSetting(FieldCount);
+        OverrideColumnFormatFromSetting();
 
       if (ProcessDisplay != null)
         ProcessDisplay.Maximum = cMaxValue;
@@ -1101,11 +1100,11 @@ namespace CsvTools
       return ret ?? DBNull.Value;
     }
 
-    protected virtual string GetUniqueName(ICollection<string> previousColumns, int ordinal, string nametoadd)
+    protected virtual string GetUniqueName(ICollection<string> previousColumns, int ordinal, string nameToAdd)
     {
-      var newName = StringUtils.MakeUniqueInCollection(previousColumns, nametoadd);
-      if (newName != nametoadd)
-        HandleWarning(ordinal, $"Column '{nametoadd}' exists more than once replaced with {newName}");
+      var newName = StringUtils.MakeUniqueInCollection(previousColumns, nameToAdd);
+      if (newName != nameToAdd)
+        HandleWarning(ordinal, $"Column '{nameToAdd}' exists more than once replaced with {newName}");
 
       return newName;
     }

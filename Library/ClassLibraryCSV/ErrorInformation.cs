@@ -147,12 +147,12 @@ namespace CsvTools
     /// </remarks>
     /// <param name="errorList">A text containing different types of messages that are concatenated.</param>
     /// <returns>two strings first error second warnings</returns>
-    public static Tuple<string, string> GetErrorsAndWarings(this string errorList)
+    public static Tuple<string, string> GetErrorsAndWarnings(this string errorList)
     {
       Contract.Requires(errorList != null);
       Contract.Ensures(Contract.Result<Tuple<string, string>>() != null);
-      var sberrors = new StringBuilder();
-      var sbwaring = new StringBuilder();
+      var sbErrors = new StringBuilder();
+      var sbWaring = new StringBuilder();
 
       foreach (var parts in ParseList(errorList))
       {
@@ -168,17 +168,17 @@ namespace CsvTools
             var part = parts.Item2.Substring(start, end - start);
             if (part.IsWarningMessage())
             {
-              if (sbwaring.Length > 0)
-                sbwaring.Append(cSeparator);
-              sbwaring.Append(parts.Item1.Length == 0
+              if (sbWaring.Length > 0)
+	              sbWaring.Append(cSeparator);
+              sbWaring.Append(parts.Item1.Length == 0
                 ? part.WithoutWarningId()
                 : CombineColumnAndError(parts.Item1, part.WithoutWarningId()));
             }
             else
             {
-              if (sberrors.Length > 0)
-                sberrors.Append(cSeparator);
-              sberrors.Append(parts.Item1.Length == 0 ? part : CombineColumnAndError(parts.Item1, part));
+              if (sbErrors.Length > 0)
+                sbErrors.Append(cSeparator);
+              sbErrors.Append(parts.Item1.Length == 0 ? part : CombineColumnAndError(parts.Item1, part));
             }
           }
 
@@ -186,7 +186,7 @@ namespace CsvTools
         }
       }
 
-      return new Tuple<string, string>(sberrors.ToString(), sbwaring.ToString());
+      return new Tuple<string, string>(sbErrors.ToString(), sbWaring.ToString());
     }
 
     /// <summary>
@@ -280,7 +280,7 @@ namespace CsvTools
         if (parts.Item1.Length == 0)
           row.RowError = parts.Item2;
         else
-          SetColumErrorInformation(row, parts);
+          SetColumnErrorInformation(row, parts);
     }
 
     /// <summary>
@@ -351,23 +351,23 @@ namespace CsvTools
     ///   Sets the column error information.
     /// </summary>
     /// <param name="row">The row.</param>
-    /// <param name="columErrorInformation">The column error information.</param>
-    private static void SetColumErrorInformation(DataRow row, Tuple<string, string> columErrorInformation)
+    /// <param name="columnErrorInformation">The column error information.</param>
+    private static void SetColumnErrorInformation(DataRow row, Tuple<string, string> columnErrorInformation)
     {
-      Contract.Requires(columErrorInformation != null);
+      Contract.Requires(columnErrorInformation != null);
       var start = 0;
       // If we have combinations of columns, e,G. Combined Keys or Less Than errors store the error in each column
-      while (start < columErrorInformation.Item1.Length)
+      while (start < columnErrorInformation.Item1.Length)
       {
-        var end = columErrorInformation.Item1.IndexOf(cFieldSeparator, start + 1);
+        var end = columnErrorInformation.Item1.IndexOf(cFieldSeparator, start + 1);
         if (end == -1)
-          end = columErrorInformation.Item1.Length;
-        var colName = columErrorInformation.Item1.Substring(start, end - start);
+          end = columnErrorInformation.Item1.Length;
+        var colName = columnErrorInformation.Item1.Substring(start, end - start);
         if (row.Table.Columns.Contains(colName))
-          row.SetColumnError(colName, row.GetColumnError(colName).AddMessage(columErrorInformation.Item2));
+          row.SetColumnError(colName, row.GetColumnError(colName).AddMessage(columnErrorInformation.Item2));
         else
           row.RowError =
-            row.RowError.AddMessage(CombineColumnAndError(columErrorInformation.Item1, columErrorInformation.Item2));
+            row.RowError.AddMessage(CombineColumnAndError(columnErrorInformation.Item1, columnErrorInformation.Item2));
         start = end + 1;
       }
     }

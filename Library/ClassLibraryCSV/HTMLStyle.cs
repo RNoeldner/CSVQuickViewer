@@ -48,7 +48,7 @@ namespace CsvTools
         return;
       }
 
-      var errorsAndWarnings = errorText.GetErrorsAndWarings();
+      var errorsAndWarnings = errorText.GetErrorsAndWarnings();
       if (string.IsNullOrEmpty(regularText))
       {
         if (errorsAndWarnings.Item2.Length == 0 && errorsAndWarnings.Item1.Length > 0)
