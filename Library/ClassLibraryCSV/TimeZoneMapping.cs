@@ -35,7 +35,7 @@ namespace CsvTools
     /// <value>
     /// The used time zone ids.
     /// </value>
-    public static IList<string> UsedTz { get; } = new List<string>();
+    private static IList<string> UsedTz { get; } = new List<string>();
 
     /// <summary>
     /// Gets the alternate names for the time zone
@@ -100,7 +100,7 @@ namespace CsvTools
     /// <param name="timeZoneName">Name of the time zone.</param>
     /// <param name="year">The year.</param>
     /// <returns></returns>
-    public static Tuple<DateTime, DateTime> GetTranstionTimes(this string timeZoneName, int year)
+    public static Tuple<DateTime, DateTime> GetTransitionTimes(this string timeZoneName, int year)
     {
       foreach (var saving in IntervalsInYear(timeZoneName, year).Where(x => x.Savings.Seconds >= c_MinSavingSeconds))
         return new Tuple<DateTime, DateTime>(saving.Start.ToDateTimeUtc(), saving.End.ToDateTimeUtc());
@@ -163,11 +163,11 @@ namespace CsvTools
     public static IEnumerable<KeyValuePair<TimeZoneInfo, string>> MappedSystemTimeZone()
     {
       var ret = new Dictionary<TimeZoneInfo, string>();
-      foreach (var wintz in TimeZoneInfo.GetSystemTimeZones())
+      foreach (var winTimeZone in TimeZoneInfo.GetSystemTimeZones())
       {
-        if (NodaTime.TimeZones.TzdbDateTimeZoneSource.Default.WindowsMapping.PrimaryMapping.TryGetValue(wintz.Id, out var zoneID) &&
+        if (NodaTime.TimeZones.TzdbDateTimeZoneSource.Default.WindowsMapping.PrimaryMapping.TryGetValue(winTimeZone.Id, out var zoneID) &&
             DateTimeZoneProviders.Tzdb.Ids.Contains(zoneID))
-          ret.Add(wintz, zoneID);
+          ret.Add(winTimeZone, zoneID);
       }
       return ret;
     }
@@ -270,10 +270,10 @@ namespace CsvTools
     private static void InitMapping()
     {
       m_NeedsInit = false;
-      foreach (var wintz in MappedSystemTimeZone())
+      foreach (var winTZ in MappedSystemTimeZone())
       {
-        m_Mapping.AddIfNew(wintz.Key.Id, wintz.Value);
-        m_Mapping.AddIfNew(wintz.Key.DisplayName, wintz.Value);
+        m_Mapping.AddIfNew(winTZ.Key.Id, winTZ.Value);
+        m_Mapping.AddIfNew(winTZ.Key.DisplayName, winTZ.Value);
       }
 
       using (var reader = FileSystemUtils.GetStreamReaderForFileOrResource("TZMapping.txt"))

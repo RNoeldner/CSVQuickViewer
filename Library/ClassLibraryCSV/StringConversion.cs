@@ -32,13 +32,13 @@ namespace CsvTools
     public static readonly DateTimeFormatCollection StandardDateTimeFormats =
       new DateTimeFormatCollection("DateTimeFormats.txt");
 
-    public static HashSet<string> DateSeparators =
+    public static readonly HashSet<string> DateSeparators =
           new HashSet<string>(new[] { CultureInfo.CurrentCulture.DateTimeFormat.DateSeparator, "/", ".", "-" });
 
-    public static HashSet<char> DecimalGroupings = new HashSet<char>(new[]
+    public static readonly HashSet<char> DecimalGroupings = new HashSet<char>(new[]
           {'\0', CultureInfo.CurrentCulture.NumberFormat.NumberGroupSeparator[0], '.', ',', ' '});
 
-    public static HashSet<char> DecimalSeparators = new HashSet<char>(new[]
+    public static readonly HashSet<char> DecimalSeparators = new HashSet<char>(new[]
           {CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator[0], '.', ','});
 
     private static readonly string[] m_FalseValues =
@@ -437,7 +437,7 @@ namespace CsvTools
         timeColumnIssues = false;
       }
 
-      // It could be that the dateValue is indeed m_FirstDateTime, but only if the text matches the proper formated value
+      // It could be that the dateValue is indeed m_FirstDateTime, but only if the text matches the proper formatted value
       if (dateValue == m_FirstDateTime && dateColumn == null &&
           (string.IsNullOrEmpty(dateColumnText) || !dateColumnText.Equals(DateTimeToString(m_FirstDateTime, df.ValueFormat), StringComparison.Ordinal)))
       {
@@ -542,10 +542,10 @@ namespace CsvTools
         break;
       }
 
-      var strFrmt = "{0:" + new string('0', pad) + "}";
+      var strFormat = "{0:" + new string('0', pad) + "}";
       return dateTime.ToString(
         result.Replace("HH",
-          string.Format(CultureInfo.CurrentCulture, strFrmt, Math.Floor((dateTime - m_FirstDateTime).TotalHours))),
+          string.Format(CultureInfo.CurrentCulture, strFormat, Math.Floor((dateTime - m_FirstDateTime).TotalHours))),
         CultureInfo.InvariantCulture).ReplaceDefaults("/", format.DateSeparator,
         ":", format.TimeSeparator);
     }
@@ -690,7 +690,7 @@ namespace CsvTools
     /// <returns>A Time</returns>
     public static DateTime GetTimeFromTicks(long ticks) => m_FirstDateTime.Add(new TimeSpan(ticks));
 
-    public static bool IsDuration(DateTime dateTime) => (dateTime >= m_FirstDateTime && dateTime < m_FirstDateTime.AddHours(240));
+    private static bool IsDuration(DateTime dateTime) => (dateTime >= m_FirstDateTime && dateTime < m_FirstDateTime.AddHours(240));
 
     public static bool IsTimeOnly(DateTime dateTime) => (dateTime >= m_FirstDateTime && dateTime < m_FirstDateTimeNextDay);
 
@@ -700,7 +700,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="value">The Value as string</param>
     /// <returns></returns>
-    public static DateTime? SerialStringToDateTime(string value)
+    private static DateTime? SerialStringToDateTime(string value)
     {
       var stringDateValue = value?.Trim() ?? string.Empty;
       try
@@ -936,17 +936,17 @@ namespace CsvTools
         stringFieldValue = "-" + stringFieldValue.Substring(1, stringFieldValue.Length - 2).TrimStart();
       }
 
-      var percentage = false;
-      var permille = false;
+      var perCentage = false;
+      var perMille = false;
       if (allowPercentage && stringFieldValue.EndsWith("%", StringComparison.Ordinal))
       {
-        percentage = true;
+	      perCentage = true;
         stringFieldValue = stringFieldValue.Substring(0, stringFieldValue.Length - 1);
       }
 
       if (allowPercentage && stringFieldValue.EndsWith("‰", StringComparison.Ordinal))
       {
-        permille = true;
+        perMille = true;
         stringFieldValue = stringFieldValue.Substring(0, stringFieldValue.Length - 1);
       }
 
@@ -958,9 +958,9 @@ namespace CsvTools
         // Try to convert this value to a decimal value. Try to convert this value to a decimal value.
         if (decimal.TryParse(stringFieldValue, NumberStyles.Number, numberFormatProvider, out var result))
         {
-          if (percentage)
+          if (perCentage)
             return result / 100m;
-          if (permille)
+          if (perMille)
             return result / 1000m;
           return result;
         }

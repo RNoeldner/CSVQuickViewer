@@ -19,7 +19,7 @@ namespace CsvTools
   /// <summary>
   ///   Column errors for one row
   /// </summary>
-  public class ColumnErrorDictionary : Dictionary<int, string>
+  public sealed class ColumnErrorDictionary : Dictionary<int, string>
   {
     private readonly ICollection<int> m_IgnoredColumns;
 
@@ -45,7 +45,7 @@ namespace CsvTools
     ///   Combines all messages in order to display them
     /// </summary>
     /// <value>One string with all messages</value>
-    public virtual string Display => Values.JoinChar(ErrorInformation.cSeparator);
+    public string Display => Values.JoinChar(ErrorInformation.cSeparator);
 
     /// <summary>
     ///   Adds the column error.

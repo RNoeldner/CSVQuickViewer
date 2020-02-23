@@ -189,14 +189,14 @@ namespace CsvTools
         return files[0];
 
       // If a pattern is present in the folder this is not going to work
-      var newset = new DateTime(0);
+      var newSet = new DateTime(0);
       string lastFile = null;
       foreach (var fileName in files)
       {
         var fileTime = new FileInfo(fileName).LastWriteTime;
-        if (fileTime <= newset)
+        if (fileTime <= newSet)
           continue;
-        newset = fileTime;
+        newSet = fileTime;
         lastFile = fileName;
       }
 
@@ -245,15 +245,15 @@ namespace CsvTools
       if (sameCounter == 0)
         return otherDir;
 
-      var sbuilder = new StringBuilder();
+      var sBuilder = new StringBuilder();
       for (var i = sameCounter; i < startPathParts.Length; i++)
-        sbuilder.Append(".." + Path.DirectorySeparatorChar);
+        sBuilder.Append(".." + Path.DirectorySeparatorChar);
 
       for (var i = sameCounter; i < destinationPathParts.Length; i++)
-        sbuilder.Append(destinationPathParts[i] + Path.DirectorySeparatorChar);
-      sbuilder.Length--;
+        sBuilder.Append(destinationPathParts[i] + Path.DirectorySeparatorChar);
+      sBuilder.Length--;
 
-      return sbuilder.ToString();
+      return sBuilder.ToString();
     }
 
     /// <summary>

@@ -29,11 +29,6 @@ namespace CsvTools
     event EventHandler<WarningEventArgs> Warning;
 
     /// <summary>
-    ///  Event handler called as writing is done
-    /// </summary>
-    event EventHandler WriteFinished;
-
-    /// <summary>
     ///  Gets the error message.
     /// </summary>
     string ErrorMessage { get; }

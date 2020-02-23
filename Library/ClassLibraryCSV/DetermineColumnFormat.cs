@@ -252,7 +252,7 @@ namespace CsvTools
         processDisplay.CancellationToken.ThrowIfCancellationRequested();
 
         // The fileReader does not have the column information yet, let the reader know
-        fileReader.OverrideColumnFormatFromSetting(fileReader.FieldCount);
+        fileReader.OverrideColumnFormatFromSetting();
 
         // check all doubles if they could be integer
         // needed for excel files as the typed values do not distinguish between double and integer.
@@ -318,9 +318,9 @@ namespace CsvTools
 
             // Possibly add Time Zone
             if (columnDate.DataType == DataType.DateTime && string.IsNullOrEmpty(columnDate.TimeZonePart))
-              for (var coltimeZone = 0; coltimeZone < fileReader.FieldCount; coltimeZone++)
+              for (var colTimeZone = 0; colTimeZone < fileReader.FieldCount; colTimeZone++)
               {
-                var columnTimeZone = fileReader.GetColumn(coltimeZone);
+                var columnTimeZone = fileReader.GetColumn(colTimeZone);
                 var colName = columnTimeZone.Name.NoSpecials().ToUpperInvariant();
                 if (columnTimeZone.DataType != DataType.String && columnTimeZone.DataType != DataType.Integer ||
                     colName != "TIMEZONE" && colName != "TIMEZONEID" && colName != "TIME ZONE" &&
@@ -335,9 +335,9 @@ namespace CsvTools
                 columnDate.ValueFormat.DateFormat.IndexOfAny(new[] { ':', 'h', 'H', 'm', 's', 't' }) != -1)
               continue;
             // We have a date column without time
-            for (var coltime = 0; coltime < fileReader.FieldCount; coltime++)
+            for (var colTime = 0; colTime < fileReader.FieldCount; colTime++)
             {
-              var columnTime = fileReader.GetColumn(coltime);
+              var columnTime = fileReader.GetColumn(colTime);
               if (columnTime.DataType != DataType.DateTime || !string.IsNullOrEmpty(columnDate.TimePart) ||
                   columnTime.ValueFormat.DateFormat.IndexOfAny(new[] { '/', 'y', 'M', 'd' }) != -1)
                 continue;
@@ -516,7 +516,7 @@ namespace CsvTools
         culture = CultureInfo.CurrentCulture;
 
       // Standard Date Time formats
-      foreach (var fmt in StringConversion.StandardDateTimeFormats.MatchingforLength(value.Length, true))
+      foreach (var fmt in StringConversion.StandardDateTimeFormats.MatchingForLength(value.Length, true))
         foreach (var sep in StringConversion.DateSeparators)
           if (StringConversion.StringToDateTimeExact(value, fmt, sep, culture.DateTimeFormat.TimeSeparator, culture)
             .HasValue)
@@ -595,7 +595,7 @@ namespace CsvTools
     /// <param name="cancellationToken">A cancellation token</param>
     /// <returns></returns>
     /// <exception cref="ArgumentNullException">dataReader</exception>
-    public static IDictionary<int, SampleResult> GetSampleValues(IFileReader dataReader, long maxRecords,
+    private static IDictionary<int, SampleResult> GetSampleValues(IFileReader dataReader, long maxRecords,
       IEnumerable<int> columns, int enoughSamples, string treatAsNull, CancellationToken cancellationToken)
     {
       if (dataReader == null)
@@ -755,7 +755,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Guesses the date time fromat
+    /// Guesses the date time format
     /// </summary>
     /// <param name="samples">The sample texts.</param>
     /// <param name="checkNamedDates">if set to <c>true</c> [check named dates].</param>
@@ -776,7 +776,7 @@ namespace CsvTools
       var commonLength = (int)(length / samples.Count);
 
       ICollection<string> possibleDateSeparators = null;
-      foreach (var fmt in StringConversion.StandardDateTimeFormats.MatchingforLength(commonLength, checkNamedDates))
+      foreach (var fmt in StringConversion.StandardDateTimeFormats.MatchingForLength(commonLength, checkNamedDates))
       {
         if (cancellationToken.IsCancellationRequested)
           return null;

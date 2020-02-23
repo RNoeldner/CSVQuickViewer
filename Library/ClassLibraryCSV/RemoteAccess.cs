@@ -58,8 +58,8 @@ namespace CsvTools
         if (m_EncryptedHostName.Equals(newVal))
           return;
 
-        // setting unencyrpted value will encrpt them automatically, in teh past HostName was not encyrpted
-        if (!newVal.IsEncyrpted() && !string.IsNullOrEmpty(newVal))
+        // setting un encyrpted value will encrypt them automatically, in teh past HostName was not encrypted
+        if (!newVal.IsEncrypted() && !string.IsNullOrEmpty(newVal))
           newVal = newVal.Encrypt();
         m_EncryptedHostName = newVal;
         NotifyPropertyChanged(nameof(EncryptedHostName));
@@ -98,7 +98,7 @@ namespace CsvTools
           return;
 
         // setting unencyrpted value will encrpt them automatically, in teh past User was not encyrpted
-        if (!newVal.IsEncyrpted() && !string.IsNullOrEmpty(newVal))
+        if (!newVal.IsEncrypted() && !string.IsNullOrEmpty(newVal))
           newVal = newVal.Encrypt();
         m_EncryptedUser = newVal;
         NotifyPropertyChanged(nameof(EncryptedUser));

@@ -1374,7 +1374,7 @@ namespace CsvTools
             var colNames = new Dictionary<int, string>();
             foreach (DataGridViewColumn col in m_FilteredDataGridView.Columns)
             {
-              if (col.Visible && !BaseFileReader.ArtificalFields.Contains(col.DataPropertyName))
+              if (col.Visible && !BaseFileReader.ArtificialFields.Contains(col.DataPropertyName))
                 colNames.Add(col.DisplayIndex, col.DataPropertyName);
             }
 

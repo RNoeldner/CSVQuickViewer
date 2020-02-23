@@ -62,10 +62,6 @@ namespace CsvTools
 
     public CancellationTokenSource CancellationTokenSource { get; }
 
-    public static void Show()
-    {
-    }
-
     /// <summary>
     ///   To be called if the process should be closed, this will cancel any processing
     /// </summary>
@@ -114,7 +110,7 @@ namespace CsvTools
       // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
       Dispose(true);
 
-    protected virtual void Dispose(bool disposing)
+    protected void Dispose(bool disposing)
     {
       Cancel();
       if (m_DisposedValue)

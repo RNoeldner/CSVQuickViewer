@@ -33,7 +33,7 @@ namespace CsvTools
     /// <summary>
     ///   A central Random instance that should be decently random, please use for any random number generation
     /// </summary>
-    public static Random Random = new Random(Guid.NewGuid().GetHashCode());
+    public static readonly Random Random = new Random(Guid.NewGuid().GetHashCode());
 
     private static readonly byte[] m_InitVectorBytes =
       {
@@ -53,8 +53,8 @@ namespace CsvTools
     /// <returns>Plain decrypted text</returns>
     public static string Decrypt(this string cipherText, string pwd = null)
     {
-      // any not encypted text does not need decryption
-      if (!cipherText.IsEncyrpted())
+      // any not encrypted text does not need decryption
+      if (!cipherText.IsEncrypted())
         return cipherText;
 
       if (pwd == null)
@@ -130,20 +130,20 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Checks if the text is possibly an encyrpted text.
+    ///   Checks if the text is possibly an encrypted text.
     /// </summary>
     /// <param name="cipherText"></param>
     /// <returns><c>true</c> if it is possibly an encrypted text, <c>false</c> if it could not be an encrypted text</returns>
-    public static bool IsEncyrpted(this string cipherText)
+    public static bool IsEncrypted(this string cipherText)
     {
       if (cipherText == null)
         return false;
 
-      // Any text (even empty) that is encyrpted is at least 30 chars
+      // Any text (even empty) that is encrypted is at least 30 chars
       if (cipherText.Length < 30)
         return false;
 
-      // in case the text does conatin a non Base64 chars it is not encrypted
+      // in case the text does contains a non Base64 chars it is not encrypted
       var test = c_Base64 + "/+=";
       foreach (var t in cipherText)
         if (test.IndexOf(t) == -1)

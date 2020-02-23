@@ -37,8 +37,6 @@ namespace CsvTools
 
     private bool m_AllowRowCombining;
 
-    private bool m_AlternateQuoting;
-    private bool m_DuplicateQuotingToEscape = true;
     private bool m_ByteOrderMark = true;
     private int m_CodePageId = 65001;
 
@@ -443,7 +441,7 @@ namespace CsvTools
     ///   Clones this instance.
     /// </summary>
     /// <returns></returns>
-    public override IFileSetting Clone()
+    public IFileSetting Clone()
     {
       Contract.Ensures(Contract.Result<IFileSetting>() != null);
       var other = new CsvFile();

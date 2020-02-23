@@ -48,7 +48,7 @@ namespace CsvTools
       None = 0,
 
       /// <summary>
-      ///  The vast majority of code pages in current use are supersets of ASCII, a 7-bit code
+      ///  The vast majority of code pages in current use are super sets of ASCII, a 7-bit code
       ///  representing 128 control codes and printable characters.
       /// </summary>
       ASCII = 20127,

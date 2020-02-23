@@ -145,15 +145,6 @@ namespace CsvTools
     string Passphrase { get; set; }
 
     /// <summary>
-    ///  Gets or sets a value indicating whether the file has been read to completion
-    /// </summary>
-    /// <value><c>true</c> if line no should be displayed; otherwise, <c>false</c>.</value>
-    /// <remarks>
-    ///  This is used to determine if the maximum length of each column has been determined yet
-    /// </remarks>
-    bool ReadToEndOfFile { get; set; }
-
-    /// <summary>
     ///  As the data is loaded and not further validation is done this will be set to true
     ///  Once validation is happening and validation errors are stored this is false again.
     ///

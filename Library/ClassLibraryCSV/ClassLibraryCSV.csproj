@@ -14,6 +14,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="ColumnSize.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="DateTimeFormats.txt" />
     <None Remove="TZMapping.txt" />
   </ItemGroup>

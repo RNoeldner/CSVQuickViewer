@@ -455,7 +455,7 @@ namespace CsvTools
       if (dataTable == null)
         yield break;
       foreach (DataColumn col in dataTable.Columns)
-        if (!BaseFileReader.ArtificalFields.Contains(col.ColumnName))
+        if (!BaseFileReader.ArtificialFields.Contains(col.ColumnName))
           yield return col;
     }
 
@@ -505,7 +505,7 @@ namespace CsvTools
     /// <param name="input">The input.</param>
     /// <param name="placeholder">The placeholder.</param>
     /// <returns></returns>
-    public static string GetPlaceholderType(this string input, string placeholder)
+    private static string GetPlaceholderType(this string input, string placeholder)
     {
       var type = "{" + placeholder + "}";
       if (input.IndexOf(type, StringComparison.OrdinalIgnoreCase) != -1)

@@ -34,9 +34,9 @@ namespace CsvTools.Tests
     }
 
     [TestMethod()]
-    public void GetTranstionTimes()
+    public void GetTransitionTimes()
     {
-      var res = TimeZoneMapping.GetTranstionTimes(tzCET, 2020);
+      var res = TimeZoneMapping.GetTransitionTimes(tzCET, 2020);
 
       Assert.AreEqual(new DateTime(2020, 3, 29, 1, 0, 0, DateTimeKind.Utc), res.Item1);
       Assert.AreEqual(new DateTime(2020, 10, 25, 1, 0, 0, DateTimeKind.Utc), res.Item2);

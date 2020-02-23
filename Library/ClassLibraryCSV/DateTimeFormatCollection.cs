@@ -40,7 +40,7 @@ namespace CsvTools
 
     public IEnumerable<string> Keys => m_DateLengthMinMax.Keys;
 
-    public IEnumerable<string> MatchingforLength(int length, bool checkNamedDates)
+    public IEnumerable<string> MatchingForLength(int length, bool checkNamedDates)
     {
       var result = new List<string>();
       foreach (var kvFormatInformation in m_DateLengthMinMax)
@@ -49,13 +49,6 @@ namespace CsvTools
           result.Add(kvFormatInformation.Key);
       }
       return result;
-    }
-
-    public void Replace(string[] customList)
-    {
-      m_DateLengthMinMax.Clear();
-      foreach (var entry in customList)
-        Add(entry);
     }
 
     public bool TryGetValue(string key, out DateTimeFormatInformation value) => m_DateLengthMinMax.TryGetValue(key, out value);

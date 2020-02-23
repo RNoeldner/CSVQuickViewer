@@ -21,21 +21,12 @@ namespace CsvTools
   /// </summary>
   public class ProgressEventArgs : EventArgs
   {
-    /// <summary>
-    ///  Initializes a new instance of the <see cref="ProgressEventArgs" /> class.
-    /// </summary>
-    /// <param name="text">The text.</param>
-    public ProgressEventArgs(string text)
-     : this(text, -1)
-    {
-    }
-
-    /// <summary>
+	  /// <summary>
     ///  Initializes a new instance of the <see cref="ProgressEventArgs" /> class.
     /// </summary>
     /// <param name="text">The text.</param>
     /// <param name="value">The value.</param>
-    public ProgressEventArgs(string text, long value)
+    public ProgressEventArgs(string text, long value = -1)
     {
       Text = text;
       Value = value;
@@ -57,13 +48,13 @@ namespace CsvTools
     /// <summary>
     /// Indicating if a progress should be logged or not
     /// </summary>
-    public bool Log { get; set; } = true;
+    public bool Log { get; } = true;
 
     /// <summary>
     ///  Gets or sets the text.
     /// </summary>
     /// <value>The text.</value>
-    public string Text { get; set; }
+    public string Text { get; }
 
     /// <summary>
     ///  Gets or sets the value.
@@ -71,6 +62,6 @@ namespace CsvTools
     /// <value>
     ///  The value.
     /// </value>
-    public long Value { get; set; }
+    public long Value { get; }
   }
 }

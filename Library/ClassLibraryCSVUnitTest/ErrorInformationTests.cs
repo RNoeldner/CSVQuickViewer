@@ -76,7 +76,7 @@ namespace CsvTools.Tests
       Assert.AreEqual("Error on ColumnA\nAnother Error on Column", row.GetColumnError(1));
       Assert.AreEqual("Warning on ColumnB", row.GetColumnError(2).WithoutWarningId());
 
-      var res = errorInfo.GetErrorsAndWarings();
+      var res = errorInfo.GetErrorsAndWarnings();
       Assert.AreEqual(4, res.Item1.Count(x => x == ErrorInformation.cSeparator) + 1);
       Assert.AreEqual(3, res.Item2.Count(x => x == ErrorInformation.cSeparator) + 1);
     }

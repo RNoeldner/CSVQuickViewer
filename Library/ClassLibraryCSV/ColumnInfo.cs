@@ -20,21 +20,21 @@ namespace CsvTools
   ///   ColumnInfo
   /// </summary>
   [DebuggerDisplay("ColumnInfo( {Header} {DataType} - {Column.GetFormatDescription})")]
-  public class ColumnInfo
+  public sealed class ColumnInfo
   {
     /// <summary>
     ///   Gets or sets the column format.
     /// </summary>
     /// <value>The column format.</value>
-    public virtual Column Column { get; set; }
+    public Column Column { get; set; }
 
     /// <summary>
     ///   Gets or sets the reader column ordinal
     /// </summary>
     /// <value>The column ordinal.</value>
-    public virtual int ColumnOridinalReader { get; set; } = -1;
+    public int ColumnOrdinalReader { get; set; } = -1;
 
-    public int ColumnOridinalTimeZoneReader { get; set; } = -1;
+    public int ColumnOrdinalTimeZoneReader { get; set; } = -1;
 
     public string ConstantTimeZone { get; set; } = string.Empty;
 
@@ -42,30 +42,30 @@ namespace CsvTools
     ///   Gets or sets the type of the data.
     /// </summary>
     /// <value>The type of the data.</value>
-    public virtual DataType DataType { get; set; }
+    public DataType DataType { get; set; }
 
     /// <summary>
     ///   Gets or sets the length of the field.
     /// </summary>
     /// <value>The length of the field. 0 means unrestricted length</value>
-    public virtual int FieldLength { get; set; }
+    public int FieldLength { get; set; }
 
     /// <summary>
     ///   Gets or sets the header.
     /// </summary>
     /// <value>The header.</value>
-    public virtual string Header { get; set; }
+    public string Header { get; set; }
 
     /// <summary>
     ///   Gets or sets a value indicating whether is a time part
     /// </summary>
     /// <value><c>true</c> if is a time part of another field; otherwise, <c>false</c>.</value>
-    public virtual bool IsTimePart { get; set; }
+    public bool IsTimePart { get; set; }
 
     /// <summary>
     ///   Gets or sets the value format.
     /// </summary>
     /// <value>The value format.</value>
-    public virtual ValueFormat ValueFormat { get; set; }
+    public ValueFormat ValueFormat { get; set; }
   }
 }

@@ -127,18 +127,18 @@ namespace CsvTools
 
       return m_Buffer[m_BufferPos];
     }
-    private char EatNextCRLF(char character)
+
+    private void EatNextCRLF(char character)
     {
       m_TextReaderLine++;
-      if (EndOfFile) return '\0';
+      if (EndOfFile) return;
       var nextChar = NextChar();
-      if ((character != c_Cr || nextChar != c_Lf) && (character != c_Lf || nextChar != c_Cr)) return '\0';
+      if ((character != c_Cr || nextChar != c_Lf) && (character != c_Lf || nextChar != c_Cr)) return;
       // New line sequence is either CRLF or LFCR, disregard the character
       m_BufferPos++;
       // Very special a LF CR is counted as two lines.
       if (character == c_Lf && nextChar == c_Cr)
         m_TextReaderLine++;
-      return nextChar;
     }
 
     private void SetTextReader()
@@ -154,9 +154,9 @@ namespace CsvTools
           EatNextCRLF(peek);
       }
 
-      // get a Serilaized Jason object it starts with { and ends with }
-      int openCurly = 0;
-      int openSquare = 0;
+      // get a Serialized Jason object it starts with { and ends with }
+      var openCurly = 0;
+      var openSquare = 0;
       var sb = new StringBuilder();
       while (!EndOfFile)
       {
@@ -187,7 +187,7 @@ namespace CsvTools
     /// this will flatten the structure of the Json file
     /// </summary>
     /// <returns>A collection with name and value of the properties</returns>
-    public ICollection<KeyValuePair<string, object>> GetNextRecord(bool throwError)
+    private ICollection<KeyValuePair<string, object>> GetNextRecord(bool throwError)
     {
       try
       {
@@ -338,7 +338,7 @@ namespace CsvTools
         var line = GetNextRecord(false);
         try
         {
-          var line2 = GetNextRecord(true);
+	        GetNextRecord(true);
         }
         catch (JsonReaderException ex)
         {

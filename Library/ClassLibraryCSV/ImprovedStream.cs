@@ -49,7 +49,7 @@ namespace CsvTools
 
     public double Percentage => (double)BaseStream.Position / BaseStream.Length;
 
-    public Stream Stream { get; set; }
+    public Stream Stream { get; private set; }
 
     private FileStream BaseStream { get; set; }
 
