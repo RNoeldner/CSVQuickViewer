@@ -310,7 +310,8 @@ namespace CsvTools
 							foreach (PgpPublicKeyRing kRing in pgpSec.GetKeyRings())
 								foreach (PgpPublicKey key in kRing.GetPublicKeys())
 								{
-									if (!key.IsEncryptionKey)
+									// no not return signature keys, keys that are reovoked or expired
+									if (!key.IsEncryptionKey || key.IsRevoked() || !key.GetUserIds().GetEnumerator().MoveNext() || (key.GetValidSeconds() > 0 && key.CreationTime.AddSeconds(key.GetValidSeconds()) < DateTime.Now))
 										continue;
 									foreach (var userID in key.GetUserIds())
 										if (!m_Recipients.ContainsKey(userID.ToString()))
@@ -332,9 +333,10 @@ namespace CsvTools
 						foreach (PgpSecretKeyRing ring in pgpSec.GetKeyRings())
 						{
 							var key = ring.GetPublicKey();
-							if (!key.IsEncryptionKey)
+							// no not return signature keys, keys that are reovoked or expired
+							if (!key.IsEncryptionKey || key.IsRevoked() || !key.GetUserIds().GetEnumerator().MoveNext() || (key.GetValidSeconds() > 0 && key.CreationTime.AddSeconds(key.GetValidSeconds()) < DateTime.Now))
 								continue;
-							foreach (var userID in key.GetUserIds())
+								foreach (var userID in key.GetUserIds())
 								if (!m_Recipients.ContainsKey(userID.ToString()))
 									m_Recipients.Add(userID.ToString(), key);
 							// get the strongest key
@@ -433,7 +435,7 @@ namespace CsvTools
 						}
 						break;
 					}
-				}
+				}				
 				throw new EncryptionException("Could not locate pgp encrypted data, decoding is not possible");
 			}
 		}
@@ -574,8 +576,7 @@ namespace CsvTools
 						}
 					}
 				}
-
-			throw new PgpException("Secret key for message not found.");
+			throw new EncryptionException("No mathing private key found for encrypted data.");			
 		}
 
 		private IEnumerable<PgpPublicKey> GetEncryptionKey(string recipients)
@@ -609,7 +610,7 @@ namespace CsvTools
 			}
 
 			if (listOfKeys.Count == 0)
-				throw new PgpException($"No encryption key found for {recipients} in known key(s).");
+				throw new EncryptionException($"No encryption key found for {recipients} in known key(s).");
 
 			return listOfKeys;
 		}
