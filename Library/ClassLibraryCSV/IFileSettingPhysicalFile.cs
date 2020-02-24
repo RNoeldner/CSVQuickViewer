@@ -12,6 +12,8 @@
  *
  */
 
+using System;
+
 namespace CsvTools
 {
   public interface IFileSettingPhysicalFile : IFileSetting
@@ -58,5 +60,5 @@ namespace CsvTools
     ///  <c>true</c> if throw an error if not exists; otherwise, <c>false</c>.
     /// </value>
     bool ThrowErrorIfNotExists { get; set; }
-  }
+	}
 }

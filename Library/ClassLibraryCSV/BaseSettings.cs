@@ -1128,21 +1128,7 @@ namespace CsvTools
 			other.ID = m_Id;
 			other.NumRecords = m_NumRecords;
 		}
-
-		/// <summary>
-		/// Gets the file writer.
-		/// </summary>
-		/// <param name="processDisplay">The process display.</param>
-		/// <returns></returns>
-		public abstract IFileWriter GetFileWriter(IProcessDisplay processDisplay);
-
-		/// <summary>
-		/// Gets the file reader.
-		/// </summary>
-		/// <param name="processDisplay">The process display.</param>
-		/// <returns></returns>
-		public abstract IFileReader GetFileReader(IProcessDisplay processDisplay);
-
+		
 		/*
     /// <summary>Serves as the default hash function. </summary>
     /// <returns>A hash code for the current object.</returns>

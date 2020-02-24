@@ -1368,7 +1368,7 @@ namespace CsvTools
 
           using (var processDisplay = writeFile.GetProcessDisplay(ParentForm, true, m_CancellationTokenSource.Token))
           {
-            var writer = writeFile.GetFileWriter(processDisplay);
+            var writer = ApplicationSetting.GetFileWriter(writeFile, processDisplay);
 
             // Restrict to shown data
             var colNames = new Dictionary<int, string>();

@@ -17,72 +17,75 @@ using System.Data;
 
 namespace CsvTools
 {
-  /// <summary>
-  ///  Interface for a File Reader.
-  /// </summary>
-  public interface IFileReader : IDataReader
-  {
-    Func<Exception, IFileSetting, bool> RetryFunction { set; }
+	/// <summary>
+	///  Interface for a File Reader.
+	/// </summary>
+	public interface IFileReader : IDataReader
+	{		
+		/// <summary>
+		///  Event handler called if a warning or error occurred
+		/// </summary>
+		event EventHandler<WarningEventArgs> Warning;
 
-    /// <summary>
-    ///  Event handler called if a warning or error occurred
-    /// </summary>
-    event EventHandler<WarningEventArgs> Warning;
+		/// <summary>
+		///  Gets the end line number
+		/// </summary>
+		/// <value>The line number in which the record ended</value>
+		long EndLineNumber { get; }
 
-    /// <summary>
-    ///  Gets the end line number
-    /// </summary>
-    /// <value>The line number in which the record ended</value>
-    long EndLineNumber { get; }
+		/// <summary>
+		///  Determine if the data Reader is at the end of the file
+		/// </summary>
+		/// <returns>True if you can read; otherwise, false.</returns>
+		bool EndOfFile { get; }
 
-    /// <summary>
-    ///  Determine if the data Reader is at the end of the file
-    /// </summary>
-    /// <returns>True if you can read; otherwise, false.</returns>
-    bool EndOfFile { get; }
+		/// <summary>
+		///  Gets the record number.
+		/// </summary>
+		/// <value>The record number.</value>
+		long RecordNumber { get; }
 
-    /// <summary>
-    ///  Gets the record number.
-    /// </summary>
-    /// <value>The record number.</value>
-    long RecordNumber { get; }
+		/// <summary>
+		///  Gets the start line number.
+		/// </summary>
+		/// <value>The line number in which the record started.</value>
+		long StartLineNumber { get; }
 
-    /// <summary>
-    ///  Gets the start line number.
-    /// </summary>
-    /// <value>The line number in which the record started.</value>
-    long StartLineNumber { get; }
+		/// <summary>
+		///  Gets the column information for a given column number
+		/// </summary>
+		/// <param name="column">The column.</param>
+		/// <returns>A <see cref="Column" /> with all information on the column</returns>
+		Column GetColumn(int column);
 
-    /// <summary>
-    ///  Gets the column information for a given column number
-    /// </summary>
-    /// <param name="column">The column.</param>
-    /// <returns>A <see cref="Column" /> with all information on the column</returns>
-    Column GetColumn(int column);
+		/// <summary>
+		///  Checks if the column should be read
+		/// </summary>
+		/// <param name="column">The column number.</param>
+		/// <returns><c>true</c> if this column should not be read</returns>
+		bool IgnoreRead(int column);
 
-    /// <summary>
-    ///  Checks if the column should be read
-    /// </summary>
-    /// <param name="column">The column number.</param>
-    /// <returns><c>true</c> if this column should not be read</returns>
-    bool IgnoreRead(int column);
+		/// <summary>
+		/// Opens the text file and begins to read the meta data, like columns
+		/// </summary>
+		/// <returns>
+		/// Number of records in the file if known (use determineColumnSize), -1 otherwise
+		/// </returns>
+		void Open();
 
-    /// <summary>
-    /// Opens the text file and begins to read the meta data, like columns
-    /// </summary>
-    /// <returns>
-    /// Number of records in the file if known (use determineColumnSize), -1 otherwise
-    /// </returns>
-    void Open();
+		/// <summary>
+		///  Overrides the column format with values from settings
+		/// </summary>
+		void OverrideColumnFormatFromSetting();
 
-    /// <summary>
-    ///  Overrides the column format with values from settings
-    /// </summary>
-    void OverrideColumnFormatFromSetting();
+		/// <summary>
+		///  Resets the position and buffer to the header in case the file has a header
+		/// </summary>
+		void ResetPositionToFirstDataRow();
 
-    /// <summary>
-    ///  Resets the position and buffer to the header in case the file has a header
-    /// </summary>
-    void ResetPositionToFirstDataRow();
-  }
+		/// <summary>
+		/// Underlying FileSetting
+		/// </summary>
+		IFileSetting FileSetting { get; }
+	}
 }
