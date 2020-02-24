@@ -52,9 +52,12 @@ namespace CsvTools.Tests
       var  setting = m_ReadSetting.Any(x => x.Key.ID == settingName)? m_ReadSetting.First(x => x.Key.ID == settingName) : m_ReadSetting.First();
       if (setting.Value == null)
       {
-
-        var reader = setting.Key.GetFileReader(processDisplay);
-        reader.Open();
+				IFileReader reader = null;
+				if (setting.Key is CsvFile csvSetting)
+				{
+					reader = new CsvFileReader(csvSetting, processDisplay);
+					reader.Open();
+				}
         return reader;
       }
       else

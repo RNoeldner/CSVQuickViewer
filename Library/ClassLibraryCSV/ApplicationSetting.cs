@@ -19,50 +19,92 @@ using System.Threading;
 
 namespace CsvTools
 {
-  /// <summary>
-  ///  Static class to access application wide settings, currently HTMLStyle, FillGuessSetting and a ColumnHeaderCache
-  /// </summary>
-  public static class ApplicationSetting
-  {
-    /// <summary>
-    /// Function to retrieve the column in a setting file
-    /// </summary>
-    public static Func<IFileSetting, bool, CancellationToken, ICollection<string>> GetColumnHeader;
+	/// <summary>
+	///  Static class to access application wide settings, currently HTMLStyle, FillGuessSetting and a ColumnHeaderCache
+	/// </summary>
+	public static class ApplicationSetting
+	{
+		/// <summary>
+		/// Function to retrieve the column in a setting file
+		/// </summary>
+		public static Func<IFileSetting, bool, CancellationToken, ICollection<string>> GetColumnHeader;
 
-    /// <summary>
-    /// Timezone, in case of reading the timezone to which conversion are done to, or when writing the source timezone from where to convert from
-    /// </summary>
-    public static string DestinationTimeZone { get; set; } = TimeZoneMapping.cIdLocal;
+		/// <summary>
+		/// Timezone, in case of reading the timezone to which conversion are done to, or when writing the source timezone from where to convert from
+		/// </summary>
+		public static string DestinationTimeZone { get; set; } = TimeZoneMapping.cIdLocal;
 
+		/// <summary>
+		/// Function to be called if opening teh file failed, this could be a timeout issue or the source does not exist (yet)
+		/// Thge return value is <c>true</c> to try to open the file again
+		/// </summary>
+		public static Func<Exception, IFileSetting, bool> RetryFunction { get; set; } = null;
 
-    /// <summary>
-    ///  The Application wide HTMLStyle
-    /// </summary>
-    public static HTMLStyle HTMLStyle { get; } = new HTMLStyle();
+		/// <summary>
+		/// Function to be called when a physical file is opened, this allowws download the file from a remote host, preprocess the file etc.
+		/// The return value is the DateTime of the source in UTC
+		/// </summary>
+		public static Func<IFileSetting, IProcessDisplay, DateTime> BeforeOpenFunction { get; set; } = null;
 
-    /// <summary>
-    ///  General Setting that determines if the menu is display in the bottom of a detail control
-    /// </summary>
-    public static bool MenuDown { get; set; } = false;
+		/// <summary>
+		/// Function that will return a reader for a setting
+		/// </summary>
+		public static Func<IFileSetting, IProcessDisplay, IFileReader> GetFileReader { get; set; } = (IFileSetting setting, IProcessDisplay processDisplay) =>
+		{
+			if (setting is CsvFile csv)
+			{
+				if (csv.JsonFormat)
+					return new JsonFileReader(csv, processDisplay);
+				return new CsvFileReader(csv, processDisplay);
 
-    public static PGPKeyStorage PGPKeyStorage { get; set; } = new PGPKeyStorage();
+			}
 
-    public static Func<string, string, string, IProcessDisplay, bool, DateTime> RemoteFileHandler { get; set; }
+			throw new NotImplementedException($"Reader for {setting} not found");
+		};
 
-    public static string RootFolder { get; set; } = ".";
+		/// <summary>
+		/// Function that will return a writer for a setting
+		/// </summary>
+		public static Func<IFileSetting, IProcessDisplay, IFileWriter> GetFileWriter { get; set; } = (IFileSetting setting, IProcessDisplay processDisplay) =>
+		{
+			if (setting is CsvFile csv)
+			{
+				if (!csv.JsonFormat)
+					return new CsvFileWriter(csv, processDisplay);
+			}
+			else if (setting is StructuredFile struc)
+				return new StructuredFileWriter(struc, processDisplay);
+			throw new NotImplementedException($"Writer for {setting} not found");
+		};
 
-    /// <summary>
-    /// Gets or sets the SQL data reader.
-    /// </summary>
-    /// <value>
-    /// The SQL data reader.
-    /// </value>
-    /// <exception cref="ArgumentNullException">SQL Data Reader is not set</exception>
-    public static Func<string, IProcessDisplay, int, IDataReader> SQLDataReader { get; set; }
+		/// <summary>
+		///  The Application wide HTMLStyle
+		/// </summary>
+		public static HTMLStyle HTMLStyle { get; } = new HTMLStyle();
 
-    /// <summary>
-    /// Action to store the headers of a file in a cache
-    /// </summary>
-    public static Action<IFileSetting, IEnumerable<Column>> StoreHeader { get; set; }
-  }
+		/// <summary>
+		///  General Setting that determines if the menu is display in the bottom of a detail control
+		/// </summary>
+		public static bool MenuDown { get; set; } = false;
+
+		public static PGPKeyStorage PGPKeyStorage { get; set; } = new PGPKeyStorage();
+
+		// public static Func<string, string, string, IProcessDisplay, bool, DateTime> RemoteFileHandler { get; set; }
+
+		public static string RootFolder { get; set; } = ".";
+
+		/// <summary>
+		/// Gets or sets the SQL data reader.
+		/// </summary>
+		/// <value>
+		/// The SQL data reader.
+		/// </value>
+		/// <exception cref="ArgumentNullException">SQL Data Reader is not set</exception>
+		public static Func<string, IProcessDisplay, int, IDataReader> SQLDataReader { get; set; }
+
+		/// <summary>
+		/// Action to store the headers of a file in a cache
+		/// </summary>
+		public static Action<IFileSetting, IEnumerable<Column>> StoreHeader { get; set; }
+	}
 }

@@ -103,7 +103,7 @@ namespace CsvTools
       var othersValueFormatDate = CommonDateFormat(present);
       // need a dummy process display to have pass in Cancellation token to reader
       using (var prc2 = new DummyProcessDisplay(processDisplay.CancellationToken))
-      using (var fileReader = fileSettingCopy.GetFileReader(prc2))
+      using (var fileReader = ApplicationSetting.GetFileReader(fileSettingCopy, prc2))
       {
         Contract.Assume(fileReader != null);
         fileReader.Open();
@@ -747,7 +747,7 @@ namespace CsvTools
     IProcessDisplay processDisplay)
     {
       Contract.Requires(fileSettings != null);
-      var writer = fileSettings.GetFileWriter(processDisplay);
+      var writer = ApplicationSetting.GetFileWriter(fileSettings, processDisplay);
       using (var data = writer.GetSchemaReader())
       {
         return writer.GetSourceColumnInformation(data);

@@ -12,6 +12,7 @@
  *
  */
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Diagnostics.Contracts;
 
 namespace CsvTools.Tests
@@ -26,9 +27,9 @@ namespace CsvTools.Tests
     {
       ApplicationSetting.RootFolder = FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles";
       ApplicationSetting.SQLDataReader = MimicSQLReader.ReadData;
-
-      // avoid contract violation kill the process
-      Contract.ContractFailed += Contract_ContractFailed;
+		
+			// avoid contract violation kill the process
+			Contract.ContractFailed += Contract_ContractFailed;
     }
 
     private static void Contract_ContractFailed(object sender, ContractFailedEventArgs e)

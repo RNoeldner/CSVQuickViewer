@@ -244,16 +244,6 @@ namespace CsvTools
     ValidationResult ValidationResult { get; set; }
 
     /// <summary>
-    ///  Gets the right data reader for this File Setting
-    /// </summary>
-    IFileReader GetFileReader(IProcessDisplay processDisplay);
-
-    /// <summary>
-    ///  Gets the right data writer for this File Setting
-    /// </summary>
-    IFileWriter GetFileWriter(IProcessDisplay processDisplay);
-
-    /// <summary>
     /// The latest value of possible sources, e.G. the file time from the sources in a SQL,
     /// As calculating might be time consuming, use   CalculateLatestSource to rebuild the value
     /// </summary>

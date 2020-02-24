@@ -445,7 +445,7 @@
       this.comboBoxTimePart.TabIndex = 1;
       this.toolTip.SetToolTip(this.comboBoxTimePart, "Combining a time column will result in a combination of the column and the select" +
         "ed time column\r\ne.G “17/Aug/2019” & “17:54” will become “17/Aug/2019 17:54”\r\n");
-      this.comboBoxTimePart.SelectedIndexChanged += new System.EventHandler(this.comboBoxTimePart_SelectedIndexChanged);
+      this.comboBoxTimePart.SelectedIndexChanged += new System.EventHandler(this.ComboBoxTimePart_SelectedIndexChanged);
       this.comboBoxTimePart.TextUpdate += new System.EventHandler(this.DateFormatChanged);
       // 
       // textBoxTimeSeparator

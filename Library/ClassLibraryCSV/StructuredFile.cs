@@ -163,20 +163,6 @@ namespace CsvTools
     /// </returns>
     public override bool Equals(object obj) => Equals(obj as StructuredFile);
 
-    /// <summary>
-    ///   Gets the file reader.
-    /// </summary>
-    /// <returns></returns>
-    /// <exception cref="NotImplementedException"> Structured files can not be read they are for writing only</exception>
-    public override IFileReader GetFileReader(IProcessDisplay processDisplay) => throw new NotImplementedException("XML Structured files can not be read they are for writing only");
-
-    /// <summary>
-    /// Gets the file writer.
-    /// </summary>
-    /// <param name="processDisplay">The process display.</param>
-    /// <returns></returns>
-    public override IFileWriter GetFileWriter(IProcessDisplay processDisplay) => new StructuredFileWriter(this, processDisplay);
-
     public static bool operator ==(StructuredFile file1, StructuredFile file2) => EqualityComparer<StructuredFile>.Default.Equals(file1, file2);
 
     public static bool operator !=(StructuredFile file1, StructuredFile file2) => !(file1 == file2);

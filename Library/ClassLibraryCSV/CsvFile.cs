@@ -483,31 +483,7 @@ namespace CsvTools
     }
 
     public bool Equals(IFileSetting other) => Equals(other as ICsvFile);
-
-    /// <summary>
-    ///   Gets the file reader.
-    /// </summary>
-    /// <returns></returns>
-    public override IFileReader GetFileReader(IProcessDisplay processDisplay)
-    {
-      if (JsonFormat)
-        return new JsonFileReader(this, processDisplay);
-      return new CsvFileReader(this, processDisplay);
-    }
-
-    /// <summary>
-    ///   Gets the file writer.
-    /// </summary>
-    /// <param name="processDisplay">The process display.</param>
-    /// <returns></returns>
-    /// <exception cref="NotImplementedException">For writing Json files please use a structured file to define the layout.</exception>
-    public override IFileWriter GetFileWriter(IProcessDisplay processDisplay)
-    {
-      if (JsonFormat)
-        throw new NotImplementedException("For writing Json files please use a structured file to define the layout.");
-      return new CsvFileWriter(this, processDisplay);
-    }
-
+   
     public virtual bool Equals(ICsvFile other)
     {
       if (other is null)
