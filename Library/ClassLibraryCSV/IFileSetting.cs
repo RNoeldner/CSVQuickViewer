@@ -252,6 +252,7 @@ namespace CsvTools
     /// <summary>
     /// Examine the source and determine LatestSource
     /// </summary>
-    void CalculateLatestSourceTime();
+    /// <param name="allSettings">All settings.</param>
+    void CalculateLatestSourceTime(ICollection<IFileSetting> allSettings);
   }
 }

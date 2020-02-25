@@ -593,10 +593,7 @@ namespace CsvTools
 								}
 								else
 								{
-									var cols = ApplicationSetting.GetColumnHeader.Invoke(
-										m_FileSetting,
-										true,
-										processDisplay.CancellationToken);
+									var cols = ApplicationSetting.GetColumnHeader.Invoke(m_FileSetting, processDisplay.CancellationToken);
 									if (cols != null)
 									{
 										foreach (var col in cols)
@@ -718,7 +715,7 @@ namespace CsvTools
 
 				var sourceDate = new DateTime(2013, 4, 7, 15, 45, 50, 345, DateTimeKind.Local);
 
-				if (hasTimePart && vf.DateFormat.IndexOfAny(new char[] { 'h', 'H', 'm', 'S', 's' }) == -1)
+				if (hasTimePart && vf.DateFormat.IndexOfAny(new[] { 'h', 'H', 'm', 'S', 's' }) == -1)
 					vf.DateFormat += " " + comboBoxTPFormat.Text;
 
 				labelSampleDisplay.Text = StringConversion.DateTimeToString(sourceDate, vf);
@@ -869,9 +866,9 @@ namespace CsvTools
 				toolTip.SetToolTip(textBoxGroupSeparator, FileFormat.GetDescription(vf.GroupSeparator));
 
 				var sample = StringConversion.DoubleToString(1234.567, vf);
-				labelNumber.Text = $"Input: \"{sample}\"";
+				labelNumber.Text = $@"Input: ""{sample}""";
 				labelNumberOutput.Text =
-					$"Output: \"{StringConversion.StringToDecimal(sample, FileFormat.GetChar(vf.DecimalSeparator), FileFormat.GetChar(vf.GroupSeparator), false):N}\"";
+					$@"Output: ""{StringConversion.StringToDecimal(sample, FileFormat.GetChar(vf.DecimalSeparator), FileFormat.GetChar(vf.GroupSeparator), false):N}""";
 			}
 			catch (Exception ex)
 			{

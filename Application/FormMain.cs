@@ -448,7 +448,7 @@ namespace CsvTools
 			ClearProcess();
 			var sDisplay = FileSystemUtils.GetShortDisplayFileName(m_FileName, 80);
 			Logger.Information("Examining file {filename}", m_FileName);
-			Text = $"{AssemblyTitle} : {sDisplay}";
+			Text = $@"{AssemblyTitle} : {sDisplay}";
 
 			Cursor.Current = Cursors.WaitCursor;
 			DetachPropertyChanged(m_FileSetting);
@@ -627,7 +627,7 @@ namespace CsvTools
 				Logger.Information("Opening File…");
 
 				Text =
-					$"{AssemblyTitle} : {FileSystemUtils.GetShortDisplayFileName(m_FileSetting.FileName, 80)}  - {EncodingHelper.GetEncodingName(m_FileSetting.CurrentEncoding.CodePage, true, m_FileSetting.ByteOrderMark)}";
+					$@"{AssemblyTitle} : {FileSystemUtils.GetShortDisplayFileName(m_FileSetting.FileName, 80)}  - {EncodingHelper.GetEncodingName(m_FileSetting.CurrentEncoding.CodePage, true, m_FileSetting.ByteOrderMark)}";
 
 				DataTable data;
 				using (var processDisplay = m_FileSetting.GetProcessDisplay(this, false, m_CancellationTokenSource.Token))
@@ -651,7 +651,7 @@ namespace CsvTools
 								m_Headers.Add(cf.Name);
 						}
 
-						ApplicationSetting.GetColumnHeader = (dummy1, dummy, dummy3) => m_Headers;
+						ApplicationSetting.GetColumnHeader = (dummy1, dummy3) => m_Headers;
 						if (warningList.CountRows > 0)
 							_MessageBox.Show(
 								this,
