@@ -475,7 +475,7 @@ namespace CsvTools
 			get
 			{
 				if (m_LatestSourceTimeUtc == ZeroTime)
-					CalculateLatestSourceTime();
+					CalculateLatestSourceTime(null);
 				return m_LatestSourceTimeUtc;
 			}
 			set
@@ -489,7 +489,7 @@ namespace CsvTools
 
 		public bool HasLatestSourceTimeUtc => (m_LatestSourceTimeUtc != ZeroTime);
 
-		public virtual void CalculateLatestSourceTime()
+		public virtual void CalculateLatestSourceTime(ICollection<IFileSetting> allSettings)
 		{
 			if (this is IFileSettingPhysicalFile settingPhysicalFile && !string.IsNullOrEmpty(settingPhysicalFile.FullPath))
 			{
