@@ -35,46 +35,35 @@ namespace CsvTools
 		public static string DestinationTimeZone { get; set; } = TimeZoneMapping.cIdLocal;
 
 		/// <summary>
-		/// Function to be called if opening teh file failed, this could be a timeout issue or the source does not exist (yet)
-		/// Thge return value is <c>true</c> to try to open the file again
-		/// </summary>
-		public static Func<Exception, IFileSetting, bool> RetryFunction { get; set; } = null;
-
-		/// <summary>
-		/// Function to be called when a physical file is opened, this allowws download the file from a remote host, preprocess the file etc.
-		/// The return value is the DateTime of the source in UTC
-		/// </summary>
-		public static Func<IFileSetting, IProcessDisplay, DateTime> BeforeOpenFunction { get; set; } = null;
-
-		/// <summary>
 		/// Function that will return a reader for a setting
 		/// </summary>
-		public static Func<IFileSetting, IProcessDisplay, IFileReader> GetFileReader { get; set; } = (IFileSetting setting, IProcessDisplay processDisplay) =>
+		public static Func<IFileSetting, IProcessDisplay, IFileReader> GetFileReader { get; set; } = (setting, processDisplay) =>
 		{
-			if (setting is CsvFile csv)
+			switch (setting)
 			{
-				if (csv.JsonFormat)
+				case CsvFile csv when csv.JsonFormat:
 					return new JsonFileReader(csv, processDisplay);
-				return new CsvFileReader(csv, processDisplay);
-
+				case CsvFile csv:
+					return new CsvFileReader(csv, processDisplay);
+				default:
+					throw new NotImplementedException($"Reader for {setting} not found");
 			}
-
-			throw new NotImplementedException($"Reader for {setting} not found");
 		};
 
 		/// <summary>
 		/// Function that will return a writer for a setting
 		/// </summary>
-		public static Func<IFileSetting, IProcessDisplay, IFileWriter> GetFileWriter { get; set; } = (IFileSetting setting, IProcessDisplay processDisplay) =>
+		public static Func<IFileSetting, IProcessDisplay, IFileWriter> GetFileWriter { get; set; } = (setting, processDisplay) =>
 		{
-			if (setting is CsvFile csv)
+			switch (setting)
 			{
-				if (!csv.JsonFormat)
+				case CsvFile csv when !csv.JsonFormat:
 					return new CsvFileWriter(csv, processDisplay);
+				case StructuredFile structuredFile:
+					return new StructuredFileWriter(structuredFile, processDisplay);
+				default:
+					throw new NotImplementedException($"Writer for {setting} not found");
 			}
-			else if (setting is StructuredFile struc)
-				return new StructuredFileWriter(struc, processDisplay);
-			throw new NotImplementedException($"Writer for {setting} not found");
 		};
 
 		/// <summary>
@@ -85,7 +74,7 @@ namespace CsvTools
 		/// <summary>
 		///  General Setting that determines if the menu is display in the bottom of a detail control
 		/// </summary>
-		public static bool MenuDown { get; set; } = false;
+		public static bool MenuDown { get; set; }
 
 		public static PGPKeyStorage PGPKeyStorage { get; set; } = new PGPKeyStorage();
 

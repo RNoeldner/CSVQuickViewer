@@ -127,12 +127,10 @@ namespace CsvTools
 		///  Used for XML Serialization
 		/// </remarks>
 		[XmlIgnore]
-		public virtual bool MappingSpecified => MappingCollection.Count > 0;
-
-
+		public bool MappingSpecified => MappingCollection.Count > 0;
 
 		[XmlIgnore]
-		public virtual bool ErrorsSpecified => Errors.Count > 0;
+		public bool ErrorsSpecified => Errors.Count > 0;
 
 		[XmlIgnore]
 		public ICollection<IFileSetting> SourceFileSettings { get; set; }
@@ -147,7 +145,7 @@ namespace CsvTools
 		///  Used for XML Serialization
 		/// </remarks>
 		[XmlIgnore]
-		public virtual bool FileFormatSpecified => !FileFormat.Equals(new FileFormat());
+		public bool FileFormatSpecified => !FileFormat.Equals(new FileFormat());
 
 		/// <summary>
 		///  Gets a value indicating whether FileLastWriteTimeUtc is specified.
@@ -159,10 +157,10 @@ namespace CsvTools
 		///  Used for XML Serialization
 		/// </remarks>
 		[XmlIgnore]
-		public virtual bool FileLastWriteTimeUtcSpecified => ProcessTimeUtc != ZeroTime;
+		public bool FileLastWriteTimeUtcSpecified => ProcessTimeUtc != ZeroTime;
 
 		[XmlIgnore]
-		public virtual bool PassphraseSpecified
+		public bool PassphraseSpecified
 		{
 			get
 			{
@@ -213,7 +211,8 @@ namespace CsvTools
 			}
 		}
 
-		[XmlIgnore] public virtual bool SamplesSpecified => Samples.Count > 0;
+		[XmlIgnore] 
+		public bool SamplesSpecified => Samples.Count > 0;
 
 		/// <summary>
 		///  Utility calls to get or set the SQL Statement as CDataSection
@@ -222,7 +221,7 @@ namespace CsvTools
 		 "System.Xml.XmlNode")]
 		[SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public virtual methods", MessageId = "0")]
 		[DefaultValue("")]
-		public virtual XmlCDataSection SqlStatementCData
+		public XmlCDataSection SqlStatementCData
 		{
 			get
 			{
@@ -242,7 +241,7 @@ namespace CsvTools
 		///  Used for XML Serialization
 		/// </remarks>
 		[XmlIgnore]
-		public virtual bool SqlStatementCDataSpecified => !string.IsNullOrEmpty(SqlStatement);
+		public bool SqlStatementCDataSpecified => !string.IsNullOrEmpty(SqlStatement);
 
 		/// <summary>Indicates whether the current object is equal to another object of the same type.</summary>
 		/// <param name="other">An object to compare with this object.</param>
@@ -1182,7 +1181,7 @@ namespace CsvTools
 		///  Notifies the completed property changed.
 		/// </summary>
 		/// <param name="info">The info.</param>
-		public virtual void NotifyPropertyChanged(string info)
+		protected void NotifyPropertyChanged(string info)
 		{
 			if (PropertyChanged == null)
 				return;
