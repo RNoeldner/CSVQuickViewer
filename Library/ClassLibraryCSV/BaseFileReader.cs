@@ -12,7 +12,6 @@
  *
  */
 
-using Pri.LongPath;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -20,6 +19,7 @@ using System.Data.Common;
 using System.Diagnostics;
 using System.Globalization;
 using System.Threading;
+using Pri.LongPath;
 
 namespace CsvTools
 {
@@ -64,18 +64,12 @@ namespace CsvTools
 		public static ICollection<string> ArtificialFields = new HashSet<string>
 			{cRecordNumberFieldName, cStartLineNumberFieldName, cEndLineNumberFieldName, cErrorField, cPartitionField};
 
-		private readonly IFileSetting m_FileSetting;
 		private readonly IntervalAction m_IntervalAction = new IntervalAction();
 
 		/// <summary>
 		///   An array of associated col
 		/// </summary>
 		protected int[] AssociatedTimeCol;
-
-		/// <summary>
-		///   An array of associated col
-		/// </summary>
-		protected int[] AssociatedTimeZoneCol;
 
 		/// <summary>
 		///   An array of column
@@ -86,6 +80,11 @@ namespace CsvTools
 		///   An array of current row column text
 		/// </summary>
 		protected string[] CurrentRowColumnText;
+
+		/// <summary>
+		///   An array of associated col
+		/// </summary>
+		private int[] m_AssociatedTimeZoneCol;
 
 		/// <summary>
 		///   Used to avoid duplicate disposal
@@ -105,6 +104,8 @@ namespace CsvTools
 
 		protected BaseFileReader(IFileSetting fileSetting, IProcessDisplay processDisplay)
 		{
+			FileSetting = fileSetting ?? throw new ArgumentNullException(nameof(fileSetting));
+
 			if (processDisplay != null)
 			{
 				processDisplay.Maximum = 0;
@@ -116,8 +117,6 @@ namespace CsvTools
 			}
 
 			ProcessDisplay = processDisplay;
-
-			m_FileSetting = fileSetting ?? throw new ArgumentNullException(nameof(fileSetting));
 			Logger.Debug("Created Reader for {filesetting}", fileSetting);
 		}
 
@@ -180,9 +179,18 @@ namespace CsvTools
 		/// <summary>
 		///   A process display to stop long running processes
 		/// </summary>
-		protected IProcessDisplay ProcessDisplay { get; }
+		public IProcessDisplay ProcessDisplay { get; }
 
-		public IFileSetting FileSetting => m_FileSetting;
+		/// <summary>
+		///   Gets the file setting used in this reader
+		/// </summary>
+		/// <value>
+		///   The file setting.
+		/// </value>
+		public IFileSetting FileSetting
+		{
+			get;
+		}
 
 		/// <summary>
 		///   Gets the <see cref="object" /> with the specified name.
@@ -203,9 +211,29 @@ namespace CsvTools
 		public virtual void Dispose() => Dispose(true);
 
 		/// <summary>
+		///   Occurs before the file is opened
+		/// </summary>
+		public event EventHandler OnOpen;
+
+		/// <summary>
+		///   Occurs when something went wrong during opening of the setting, this might be the file does not exist or a query ran
+		///   into a timeout
+		/// </summary>
+		public virtual event EventHandler<RetryEventArgs> OnAskRetry;
+
+		protected bool ShouldRetry(Exception ex)
+		{
+			if (CancellationToken.IsCancellationRequested) return false;
+
+			var eventArgs = new RetryEventArgs(ex);
+			OnAskRetry?.Invoke(this, eventArgs);
+			return eventArgs.Retry;
+		}
+
+		/// <summary>
 		///   Event to be raised if reading the files is completed
 		/// </summary>
-		public virtual event EventHandler ReadFinished;
+		public event EventHandler ReadFinished;
 
 		/// <summary>
 		///   Event handler called if a warning or error occurred
@@ -217,13 +245,11 @@ namespace CsvTools
 		/// </summary>
 		public virtual void Close() => EndOfFile = true;
 
-		public virtual void Dispose(bool disposing)
+		protected virtual void Dispose(bool disposing)
 		{
-			if (!m_DisposedValue)
-			{
-				Close();
-				m_DisposedValue = true;
-			}
+			if (m_DisposedValue) return;
+			Close();
+			m_DisposedValue = true;
 		}
 
 		// To detect redundant calls
@@ -300,7 +326,7 @@ namespace CsvTools
 		public virtual long GetChars(int i, long fieldoffset, char[] buffer, int bufferoffset, int length)
 		{
 			Debug.Assert(CurrentRowColumnText != null);
-			var offset = (int)fieldoffset;
+			var offset = (int) fieldoffset;
 			var maxLen = CurrentRowColumnText[i].Length - offset;
 			if (maxLen > length)
 				maxLen = length;
@@ -434,7 +460,7 @@ namespace CsvTools
 		/// <param name="inputValue">The input.</param>
 		/// <param name="columnNumber">The column number.</param>
 		/// <returns></returns>
-		public virtual Guid? GetGuidNull(string inputValue, int columnNumber)
+		private Guid? GetGuidNull(string inputValue, int columnNumber)
 		{
 			if (string.IsNullOrEmpty(inputValue))
 				return null;
@@ -490,7 +516,7 @@ namespace CsvTools
 		/// <param name="inputValue">The input.</param>
 		/// <param name="column">The column.</param>
 		/// <returns></returns>
-		public virtual int? GetInt32Null(string inputValue, Column column)
+		public int? GetInt32Null(string inputValue, Column column)
 		{
 			Debug.Assert(column != null);
 			var ret = StringConversion.StringToInt32(inputValue, column.DecimalSeparatorChar, column.GroupSeparatorChar);
@@ -525,7 +551,7 @@ namespace CsvTools
 		/// <param name="inputValue">The input.</param>
 		/// <param name="column">The column.</param>
 		/// <returns></returns>
-		public virtual long? GetInt64Null(string inputValue, Column column)
+		public long? GetInt64Null(string inputValue, Column column)
 		{
 			Debug.Assert(column != null);
 			var ret = StringConversion.StringToInt64(inputValue, column.DecimalSeparatorChar, column.GroupSeparatorChar);
@@ -698,7 +724,7 @@ namespace CsvTools
 		/// <param name="text">Leading Text</param>
 		/// <param name="recordNumber">The record number.</param>
 		/// <param name="progress">The progress (a value between 0 and MaxValue)</param>
-		public virtual void HandleShowProgress(string text, long recordNumber, int progress)
+		protected virtual void HandleShowProgress(string text, long recordNumber, int progress)
 		{
 			var rec = recordNumber > 1 ? $"\nRecord {recordNumber:N0}" : string.Empty;
 			ProcessDisplay?.SetProcess($"{text}{rec}", progress, false);
@@ -715,7 +741,7 @@ namespace CsvTools
 		///   Displays progress, is called after <see langword="abstract" />row has been read
 		/// </summary>
 		/// <param name="hasReadRow"><c>true</c> if a row has been read</param>
-		public virtual void InfoDisplay(bool hasReadRow)
+		protected void InfoDisplay(bool hasReadRow)
 		{
 			if (!hasReadRow)
 				HandleReadFinished();
@@ -745,13 +771,13 @@ namespace CsvTools
 					return string.IsNullOrEmpty(CurrentRowColumnText[columnNumber]);
 
 				return string.IsNullOrEmpty(CurrentRowColumnText[columnNumber]) &&
-							 string.IsNullOrEmpty(CurrentRowColumnText[AssociatedTimeCol[columnNumber]]);
+				       string.IsNullOrEmpty(CurrentRowColumnText[AssociatedTimeCol[columnNumber]]);
 			}
 
 			if (string.IsNullOrEmpty(CurrentRowColumnText[columnNumber]))
 				return true;
 
-			if (m_FileSetting.TrimmingOption == TrimmingOption.All && Column[columnNumber].DataType >= DataType.String)
+			if (FileSetting.TrimmingOption == TrimmingOption.All && Column[columnNumber].DataType >= DataType.String)
 				return CurrentRowColumnText[columnNumber].Trim().Length == 0;
 
 			return false;
@@ -772,7 +798,7 @@ namespace CsvTools
 
 			for (var colindex = 0; colindex < FieldCount; colindex++)
 			{
-				var setting = m_FileSetting.ColumnCollection.Get(Column[colindex].Name);
+				var setting = FileSetting.ColumnCollection.Get(Column[colindex].Name);
 				if (setting != null)
 				{
 					setting.CopyTo(Column[colindex]);
@@ -781,21 +807,21 @@ namespace CsvTools
 				}
 
 				if (Column[colindex].DataType != DataType.DateTime || setting == null || !setting.Convert ||
-						setting.Ignore)
+				    setting.Ignore)
 					continue;
 
 				AssociatedTimeCol[colindex] = GetOrdinal(Column[colindex].TimePart);
-				AssociatedTimeZoneCol[colindex] = GetOrdinal(Column[colindex].TimeZonePart);
+				m_AssociatedTimeZoneCol[colindex] = GetOrdinal(Column[colindex].TimeZonePart);
 			}
 
 			// Any defined column not present in file is removed
 			// this can happen if the file is changed or changing the encoding the name might show different W�hrung <> Währung
 			var remove = new List<Column>();
-			foreach (var setting in m_FileSetting.ColumnCollection)
+			foreach (var setting in FileSetting.ColumnCollection)
 			{
 				var found = false;
-				for (var colindex = 0; colindex < FieldCount; colindex++)
-					if (Column[colindex].Name.Equals(setting.Name, StringComparison.OrdinalIgnoreCase))
+				for (var colIndex = 0; colIndex < FieldCount; colIndex++)
+					if (Column[colIndex].Name.Equals(setting.Name, StringComparison.OrdinalIgnoreCase))
 					{
 						found = true;
 						break;
@@ -807,7 +833,7 @@ namespace CsvTools
 
 			foreach (var col in remove)
 				// HandleWarning(-1, $"Column \"{col.Name}\" not found in file, this can happen if column name is changed");
-				m_FileSetting.ColumnCollection.Remove(col);
+				FileSetting.ColumnCollection.Remove(col);
 		}
 
 		/// <summary>
@@ -825,30 +851,30 @@ namespace CsvTools
 		///   an Array of objects for a new row in a Schema Table
 		/// </returns>
 		protected internal static object[] GetDefaultSchemaRowArray() => new object[]
-			{
-				true, // 00- AllowDBNull
-        null, // 01- BaseColumnName
-        string.Empty, // 02- BaseSchemaName
-        string.Empty, // 03- BaseTableName
-        null, // 04- ColumnName
-        null, // 05- ColumnOrdinal
-        int.MaxValue, // 06- ColumnSize
-        typeof(string), // 07- DataType
-        false, // 08- IsAliased
-        false, // 09- IsExpression
-        false, // 10- IsKey
-        false, // 11- IsLong
-        false, // 12- IsUnique
-        DBNull.Value, // 13- NumericPrecision
-        DBNull.Value, // 14- NumericScale
-        (int) DbType.String, // 15- ProviderType
-        string.Empty, // 16- BaseCatalogName
-        string.Empty, // 17- BaseServerName
-        false, // 18- IsAutoIncrement
-        false, // 19- IsHidden
-        true, // 20- IsReadOnly
-        false // 21- IsRowVersion
-      };
+		{
+			true, // 00- AllowDBNull
+			null, // 01- BaseColumnName
+			string.Empty, // 02- BaseSchemaName
+			string.Empty, // 03- BaseTableName
+			null, // 04- ColumnName
+			null, // 05- ColumnOrdinal
+			int.MaxValue, // 06- ColumnSize
+			typeof(string), // 07- DataType
+			false, // 08- IsAliased
+			false, // 09- IsExpression
+			false, // 10- IsKey
+			false, // 11- IsLong
+			false, // 12- IsUnique
+			DBNull.Value, // 13- NumericPrecision
+			DBNull.Value, // 14- NumericScale
+			(int) DbType.String, // 15- ProviderType
+			string.Empty, // 16- BaseCatalogName
+			string.Empty, // 17- BaseServerName
+			false, // 18- IsAutoIncrement
+			false, // 19- IsHidden
+			true, // 20- IsReadOnly
+			false // 21- IsRowVersion
+		};
 
 		/// <summary>
 		///   Gets the empty schema table.
@@ -856,7 +882,7 @@ namespace CsvTools
 		/// <returns>
 		///   A Data Table with the columns for a Schema Table
 		/// </returns>
-		protected internal static DataTable GetEmptySchemaTable()
+		protected static DataTable GetEmptySchemaTable()
 		{
 			var dataTable = new DataTable
 			{
@@ -894,7 +920,7 @@ namespace CsvTools
 
 		protected virtual void FinishOpen()
 		{
-			ApplicationSetting.StoreHeader?.Invoke(m_FileSetting, Column);
+			ApplicationSetting.StoreHeader?.Invoke(FileSetting, Column);
 			m_IsFinished = false;
 			if (FieldCount > 0)
 				// Override the column settings and store the columns for later reference
@@ -919,7 +945,7 @@ namespace CsvTools
 			}
 
 			if (!dateTime.HasValue && !string.IsNullOrEmpty(strInputDate) && !string.IsNullOrEmpty(column.DateFormat) &&
-					strInputDate.Length > column.DateFormat.Length)
+			    strInputDate.Length > column.DateFormat.Length)
 			{
 				var inputDateNew = strInputDate.Substring(0, column.DateFormat.Length);
 				dateTime = StringConversion.CombineStringsToDateTime(inputDateNew, column.DateFormat, strInputTime,
@@ -950,7 +976,7 @@ namespace CsvTools
 		///   The decimal value if conversion is not successful: <c>NULL</c> the event handler for
 		///   warnings is called
 		/// </returns>
-		protected decimal? GetDecimalNull(string inputValue, Column column)
+		private decimal? GetDecimalNull(string inputValue, Column column)
 		{
 			Debug.Assert(column != null);
 			var decimalValue =
@@ -971,7 +997,7 @@ namespace CsvTools
 		///   The decimal value if conversion is not successful: <c>NULL</c> the event handler for
 		///   warnings is called
 		/// </returns>
-		protected decimal? GetDecimalNull(string inputValue, int columnNumber)
+		private decimal? GetDecimalNull(string inputValue, int columnNumber)
 		{
 			Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount);
 			return GetDecimalNull(inputValue, GetColumn(columnNumber));
@@ -986,7 +1012,7 @@ namespace CsvTools
 		///   The parsed value if conversion is not successful: <c>NULL</c> is returned and the event
 		///   handler for warnings is called
 		/// </returns>
-		protected double? GetDoubleNull(string inputValue, Column column)
+		private double? GetDoubleNull(string inputValue, Column column)
 		{
 			Debug.Assert(column != null);
 			var decimalValue = GetDecimalNull(inputValue, column);
@@ -1006,7 +1032,7 @@ namespace CsvTools
 		///   The parsed value if conversion is not successful: <c>NULL</c> is returned and the event
 		///   handler for warnings is called
 		/// </returns>
-		protected short GetInt16(string value, int columnNumber)
+		private short GetInt16(string value, int columnNumber)
 		{
 			Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount);
 			var column = GetColumn(columnNumber);
@@ -1054,7 +1080,7 @@ namespace CsvTools
 		///   The parsed value if conversion is not successful: <c>DBNull.Value</c> is returned and the
 		///   event handler for warnings is called
 		/// </returns>
-		protected virtual object GetTypedValueFromString(string value, string timeValue, Column column)
+		protected object GetTypedValueFromString(string value, string timeValue, Column column)
 		{
 			Debug.Assert(column != null);
 
@@ -1096,7 +1122,7 @@ namespace CsvTools
 			return ret ?? DBNull.Value;
 		}
 
-		protected virtual string GetUniqueName(ICollection<string> previousColumns, int ordinal, string nameToAdd)
+		protected string GetUniqueName(ICollection<string> previousColumns, int ordinal, string nameToAdd)
 		{
 			var newName = StringUtils.MakeUniqueInCollection(previousColumns, nameToAdd);
 			if (newName != nameToAdd)
@@ -1111,7 +1137,7 @@ namespace CsvTools
 		/// <param name="inputDate">The input date.</param>
 		/// <param name="inputTime">The input time.</param>
 		/// <param name="columnNumber">The column.</param>
-		protected virtual void HandleDateError(string inputDate, string inputTime, int columnNumber)
+		protected void HandleDateError(string inputDate, string inputTime, int columnNumber)
 		{
 			Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount);
 			var column = GetColumn(columnNumber);
@@ -1130,7 +1156,8 @@ namespace CsvTools
 		/// </summary>
 		/// <param name="columnNumber">The column number.</param>
 		/// <param name="message">The message.</param>
-		protected virtual void HandleError(int columnNumber, string message) => Warning?.Invoke(this, new WarningEventArgs(RecordNumber, columnNumber, message, StartLineNumber, EndLineNumber,
+		protected void HandleError(int columnNumber, string message) => Warning?.Invoke(this,
+			new WarningEventArgs(RecordNumber, columnNumber, message, StartLineNumber, EndLineNumber,
 				Column != null && columnNumber >= 0 && columnNumber < m_FieldCount && Column[columnNumber] != null
 					? Column[columnNumber].Name
 					: null));
@@ -1151,10 +1178,10 @@ namespace CsvTools
 			if (string.IsNullOrEmpty(inputString))
 				return inputString;
 
-			if (handleNullText && StringUtils.ShouldBeTreatedAsNull(inputString, m_FileSetting.TreatTextAsNull))
+			if (handleNullText && StringUtils.ShouldBeTreatedAsNull(inputString, FileSetting.TreatTextAsNull))
 				return null;
 
-			if (m_FileSetting.TrimmingOption == TrimmingOption.All)
+			if (FileSetting.TrimmingOption == TrimmingOption.All)
 				inputString = inputString.Trim();
 
 			var column = GetColumn(columnNumber);
@@ -1184,8 +1211,8 @@ namespace CsvTools
 			if (string.IsNullOrEmpty(output))
 				return null;
 
-			if (m_FileSetting.TreatNBSPAsSpace && output.IndexOf((char)0xA0) != -1)
-				output = output.Replace((char)0xA0, ' ');
+			if (FileSetting.TreatNBSPAsSpace && output.IndexOf((char) 0xA0) != -1)
+				output = output.Replace((char) 0xA0, ' ');
 
 			if (output.Length > 0 && column.Size < output.Length)
 				column.Size = output.Length;
@@ -1196,52 +1223,55 @@ namespace CsvTools
 		/// <summary>
 		///   Handles the Event if reading the file is completed
 		/// </summary>
-		protected virtual void HandleReadFinished()
+		protected void HandleReadFinished()
 		{
 			if (m_IsFinished)
 				return;
 			m_IsFinished = true;
-			m_FileSetting.ProcessTimeUtc = DateTime.UtcNow;
-			if (m_FileSetting is IFileSettingPhysicalFile physicalFile)
+			FileSetting.ProcessTimeUtc = DateTime.UtcNow;
+			if (FileSetting is IFileSettingPhysicalFile physicalFile)
 			{
 				physicalFile.FileSize = new FileInfo(physicalFile.FullPath).Length;
-				Logger.Debug("Finished reading {filesetting} Records: {records} in {filesize} Byte", m_FileSetting,
+				Logger.Debug("Finished reading {filesetting} Records: {records} in {filesize} Byte", FileSetting,
 					RecordNumber, physicalFile.FileSize);
 			}
 			else
 			{
-				Logger.Debug("Finished reading {filesetting} Records: {records}", m_FileSetting, RecordNumber);
+				Logger.Debug("Finished reading {filesetting} Records: {records}", FileSetting, RecordNumber);
 			}
 
 			HandleShowProgress("Finished Reading from source", RecordNumber, cMaxValue);
 			ReadFinished?.Invoke(this, null);
 		}
 
+		protected bool HasOpen()
+		{
+			return (OnOpen != null);
+		}
+
 		protected void BeforeOpen()
 		{
-			if (ApplicationSetting.BeforeOpenFunction != null)
-			{
-				HandleShowProgress("Preparing to open file…");
-				m_FileSetting.LatestSourceTimeUtc = ApplicationSetting.BeforeOpenFunction(FileSetting, ProcessDisplay);
-			}
+			if (!HasOpen()) return;
+
+			HandleShowProgress("Preparing to open file…");
+			OnOpen?.Invoke(this, new EventArgs());
 		}
 
 		/// <summary>
 		///   Shows the process.
 		/// </summary>
 		/// <param name="text">The text.</param>
-		protected virtual void HandleShowProgress(string text) => ProcessDisplay?.SetProcess(text, -1, true);
+		protected void HandleShowProgress(string text) => ProcessDisplay?.SetProcess(text, -1, true);
 
 		/// <summary>
 		///   Shows the process twice a second
 		/// </summary>
 		/// <param name="text">Leading Text</param>
 		/// <param name="recordNumber">The record number.</param>
-		protected virtual void HandleShowProgressPeriodic(string text, long recordNumber)
+		protected void HandleShowProgressPeriodic(string text, long recordNumber)
 		{
 			if (ProcessDisplay != null)
-				m_IntervalAction.Invoke(delegate
-				{ HandleShowProgress(text, recordNumber, GetRelativePosition()); });
+				m_IntervalAction.Invoke(delegate { HandleShowProgress(text, recordNumber, GetRelativePosition()); });
 		}
 
 		/// <summary>
@@ -1250,15 +1280,15 @@ namespace CsvTools
 		/// <param name="inputValue">The not trimmed raw value</param>
 		/// <param name="quoted">Set to <c>true</c> if the read text was quoted</param>
 		/// <returns>The correctly trimmed and Null replaced value</returns>
-		protected virtual string HandleTrimAndNBSP(string inputValue, bool quoted = false)
+		protected string HandleTrimAndNBSP(string inputValue, bool quoted = false)
 		{
 			if (string.IsNullOrEmpty(inputValue))
 				return inputValue;
 
-			if (m_FileSetting.TreatNBSPAsSpace)
-				inputValue = inputValue.Replace((char)0xA0, ' ');
-			if (m_FileSetting.TrimmingOption == TrimmingOption.All ||
-					!quoted && m_FileSetting.TrimmingOption == TrimmingOption.Unquoted)
+			if (FileSetting.TreatNBSPAsSpace)
+				inputValue = inputValue.Replace((char) 0xA0, ' ');
+			if (FileSetting.TrimmingOption == TrimmingOption.All ||
+			    !quoted && FileSetting.TrimmingOption == TrimmingOption.Unquoted)
 				return inputValue.Trim();
 
 			return inputValue;
@@ -1269,7 +1299,8 @@ namespace CsvTools
 		/// </summary>
 		/// <param name="columnNumber">The column.</param>
 		/// <param name="message">The message.</param>
-		protected virtual void HandleWarning(int columnNumber, string message) => Warning?.Invoke(this, new WarningEventArgs(RecordNumber, columnNumber, message.AddWarningId(), StartLineNumber,
+		protected void HandleWarning(int columnNumber, string message) => Warning?.Invoke(this,
+			new WarningEventArgs(RecordNumber, columnNumber, message.AddWarningId(), StartLineNumber,
 				EndLineNumber,
 				Column != null && columnNumber >= 0 && columnNumber < m_FieldCount && Column[columnNumber] != null
 					? Column[columnNumber].Name
@@ -1286,12 +1317,12 @@ namespace CsvTools
 			Column = new Column[fieldCount];
 			CurrentRowColumnText = new string[fieldCount];
 			AssociatedTimeCol = new int[fieldCount];
-			AssociatedTimeZoneCol = new int[fieldCount];
+			m_AssociatedTimeZoneCol = new int[fieldCount];
 			for (var counter = 0; counter < fieldCount; counter++)
 			{
-				Column[counter] = new Column { ColumnOrdinal = counter };
+				Column[counter] = new Column {ColumnOrdinal = counter};
 				AssociatedTimeCol[counter] = -1;
-				AssociatedTimeZoneCol[counter] = -1;
+				m_AssociatedTimeZoneCol[counter] = -1;
 			}
 		}
 
@@ -1307,7 +1338,7 @@ namespace CsvTools
 				return;
 			InitColumn(FieldCount);
 
-			if (!m_FileSetting.HasFieldHeader)
+			if (!FileSetting.HasFieldHeader)
 			{
 				for (var i = 0; i < FieldCount; i++)
 					GetColumn(i).Name = GetDefaultName(i);
@@ -1353,7 +1384,7 @@ namespace CsvTools
 		/// </summary>
 		/// <param name="columnNumber">The column.</param>
 		/// <param name="message">The message.</param>
-		protected virtual FormatException WarnAddFormatException(int columnNumber, string message)
+		protected FormatException WarnAddFormatException(int columnNumber, string message)
 		{
 			HandleError(columnNumber, message);
 			return new FormatException(message);
@@ -1366,14 +1397,14 @@ namespace CsvTools
 			string timeZone = null;
 			// Constant value
 			if (column.TimeZonePart.Length > 2 && column.TimeZonePart.StartsWith("\"", StringComparison.Ordinal) &&
-					column.TimeZonePart.EndsWith("\"", StringComparison.Ordinal))
+			    column.TimeZonePart.EndsWith("\"", StringComparison.Ordinal))
 			{
 				timeZone = column.TimeZonePart.Substring(1, column.TimeZonePart.Length - 2);
 			}
 			// lookup in other column
 			else
 			{
-				var colTimeZone = AssociatedTimeZoneCol[column.ColumnOrdinal];
+				var colTimeZone = m_AssociatedTimeZoneCol[column.ColumnOrdinal];
 				if (colTimeZone > -1 && colTimeZone < FieldCount)
 					timeZone = GetString(colTimeZone);
 			}

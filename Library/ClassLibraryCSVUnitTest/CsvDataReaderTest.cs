@@ -563,9 +563,9 @@ namespace CsvTools.Tests
 			catch (FileReaderException)
 			{
 			}
-			catch (Exception)
+			catch (Exception ex)
 			{
-				Assert.Fail("Wrong Exception Type, Empty Filename");
+				Assert.Fail($"Wrong Exception Type {ex.GetType()}, Empty Filename");
 			}
 
 			try
@@ -583,9 +583,9 @@ namespace CsvTools.Tests
 			catch (FileNotFoundException)
 			{
 			}
-			catch (Exception)
+			catch (Exception ex)
 			{
-				Assert.Fail("Wrong Exception Type, Invalid Filename");
+				Assert.Fail($"Wrong Exception Type {ex.GetType()}, Invalid Filename");
 			}
 		}
 
