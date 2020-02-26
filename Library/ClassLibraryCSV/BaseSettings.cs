@@ -1082,7 +1082,7 @@ namespace CsvTools
 			m_FileFormat.CopyTo(other.FileFormat);
 			MappingCollection.CopyTo(other.MappingCollection);
 			other.ConsecutiveEmptyRows = m_ConsecutiveEmptyRows;
-			other.TrimmingOption = TrimmingOption;
+			other.TrimmingOption = m_TrimmingOption;
 			other.TemplateName = m_TemplateName;
 			other.GetEncryptedPassphraseFunction = GetEncryptedPassphraseFunction;
 			other.IsEnabled = m_IsEnabled;
@@ -1097,8 +1097,8 @@ namespace CsvTools
 			other.Validate = m_Validate;
 			other.RecordLimit = m_RecordLimit;
 			other.SkipRows = m_SkipRows;
-			other.SkipEmptyLines = SkipEmptyLines;
-			other.SkipDuplicateHeader = SkipDuplicateHeader;
+			other.SkipEmptyLines = m_SkipEmptyLines;
+			other.SkipDuplicateHeader = m_SkipDuplicateHeader;
 
 			other.Passphrase = m_Passphrase;
 			other.Recipient = m_Recipient;
@@ -1107,19 +1107,19 @@ namespace CsvTools
 			other.SqlStatement = m_SqlStatement;
 			other.InOverview = m_InOverview;
 			other.Timeout = m_Timeout;
-			other.ProcessTimeUtc = ProcessTimeUtc;
-			other.LatestSourceTimeUtc = LatestSourceTimeUtc;
+			other.ProcessTimeUtc = m_ProcessTimeUtc;
+			other.LatestSourceTimeUtc = m_LatestSourceTimeUtc;
 
-			other.Footer = Footer;
-			other.Header = Header;
-			Samples.CollectionCopy(other.Samples);
-			Errors.CollectionCopy(other.Errors);
+			other.Footer = m_Footer;
+			other.Header = m_Header;
+			m_Samples.CollectionCopy(other.Samples);
 			other.NumErrors = m_NumErrors;
+			m_Errors.CollectionCopy(other.Errors);
 
 			// FileName and ID are set at the end otherwise column collection changes will invalidate the column header cache of the source
 			if (other is IFileSettingPhysicalFile fileSettingPhysicalFile)
 			{
-				fileSettingPhysicalFile.FileSize = FileSize;
+				fileSettingPhysicalFile.FileSize = m_FileSize;
 				fileSettingPhysicalFile.FileName = m_FileName;
 				fileSettingPhysicalFile.RemoteFileName = m_RemoteFileName;
 				fileSettingPhysicalFile.ThrowErrorIfNotExists = m_ThrowErrorIfNotExists;
