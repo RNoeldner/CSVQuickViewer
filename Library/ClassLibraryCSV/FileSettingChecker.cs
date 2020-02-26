@@ -21,5 +21,5 @@ namespace CsvTools
 	/// </summary>
 	/// <param name="fileSetting">The file setting.</param>
 	/// <param name="processDisplay">The process display.</param>
-	public delegate void FileSettingChecker(IFileSetting fileSetting, ICollection<IFileSetting> allSetting, IProcessDisplay processDisplay);
+	public delegate void FileSettingChecker(IFileSetting fileSetting, IReadOnlyCollection<IFileSetting> allSetting, IProcessDisplay processDisplay);
 }
