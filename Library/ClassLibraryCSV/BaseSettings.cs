@@ -489,7 +489,7 @@ namespace CsvTools
 
 		public bool HasLatestSourceTimeUtc => (m_LatestSourceTimeUtc != ZeroTime);
 
-		public virtual void CalculateLatestSourceTime(ICollection<IFileSetting> allSettings)
+		public virtual void CalculateLatestSourceTime(IReadOnlyCollection<IFileSetting> allSettings)
 		{
 			if (this is IFileSettingPhysicalFile settingPhysicalFile && !string.IsNullOrEmpty(settingPhysicalFile.FullPath))
 			{
