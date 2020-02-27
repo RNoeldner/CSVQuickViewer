@@ -31,12 +31,10 @@ namespace CsvTools
     {
       for (var col = 0; col < reader.FieldCount; col++)
       {
-        if (reader.IgnoreRead(col))
-        {
-          if (m_IgnoredColumns == null)
-            m_IgnoredColumns = new HashSet<int>();
-          m_IgnoredColumns.Add(col);
-        }
+        if (!reader.IgnoreRead(col)) continue;
+        if (m_IgnoredColumns == null)
+          m_IgnoredColumns = new HashSet<int>();
+        m_IgnoredColumns.Add(col);
       }
       reader.Warning += (s, args) => { Add(args.ColumnNumber, args.Message); };
     }

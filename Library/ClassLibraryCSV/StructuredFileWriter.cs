@@ -133,11 +133,9 @@ namespace CsvTools
         }
         sb.Append(row);
 
-        if (sb.Length > 512)
-        {
-          writer.Write(sb.ToString());
-          sb.Length = 0;
-        }
+        if (sb.Length <= 512) continue;
+        writer.Write(sb.ToString());
+        sb.Length = 0;
       }
 
       if (sb.Length > 0)

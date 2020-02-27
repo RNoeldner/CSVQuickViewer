@@ -795,16 +795,19 @@ namespace CsvTools
           && DataType == DataType.Integer)
         return true;
 
-      if (expected.DataType == DataType.Integer
-          && (DataType == DataType.Numeric || DataType == DataType.Double || DataType == DataType.Integer))
-        return true;
-      // if we have dates, check the formats
-      if (expected.DataType == DataType.DateTime && DataType == DataType.DateTime)
-        return expected.DateFormat.Equals(m_DateFormat, StringComparison.Ordinal) &&
-               (m_DateFormat.IndexOf('/') == -1 ||
-                expected.DateSeparator.Equals(DateSeparator, StringComparison.Ordinal)) &&
-               (m_DateFormat.IndexOf(':') == -1 ||
-                expected.TimeSeparator.Equals(TimeSeparator, StringComparison.Ordinal));
+      switch (expected.DataType)
+      {
+        case DataType.Integer when (DataType == DataType.Numeric || DataType == DataType.Double || DataType == DataType.Integer):
+          return true;
+        // if we have dates, check the formats
+        case DataType.DateTime when DataType == DataType.DateTime:
+          return expected.DateFormat.Equals(m_DateFormat, StringComparison.Ordinal) &&
+                 (m_DateFormat.IndexOf('/') == -1 ||
+                  expected.DateSeparator.Equals(DateSeparator, StringComparison.Ordinal)) &&
+                 (m_DateFormat.IndexOf(':') == -1 ||
+                  expected.TimeSeparator.Equals(TimeSeparator, StringComparison.Ordinal));
+      }
+
       // if we have decimals, check the formats
       if ((expected.DataType == DataType.Numeric || expected.DataType == DataType.Double) &&
           (DataType == DataType.Numeric || DataType == DataType.Double))

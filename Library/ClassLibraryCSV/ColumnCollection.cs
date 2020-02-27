@@ -55,13 +55,11 @@ namespace CsvTools
     /// <value>The column format found by the given name, <c>NULL</c> otherwise</value>
     public Column Get(string fieldName)
     {
-      if (!string.IsNullOrEmpty(fieldName))
+      if (string.IsNullOrEmpty(fieldName)) return null;
+      foreach (var column in Items)
       {
-        foreach (var column in Items)
-        {
-          if (column.Name.Equals(fieldName, StringComparison.OrdinalIgnoreCase))
-            return column;
-        }
+        if (column.Name.Equals(fieldName, StringComparison.OrdinalIgnoreCase))
+          return column;
       }
       return null;
     }

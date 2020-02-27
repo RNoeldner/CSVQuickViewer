@@ -20,6 +20,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics.Contracts;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading;
 
@@ -49,8 +50,8 @@ namespace CsvTools
 		/// <summary>
 		///   Gets the column header of a file
 		/// </summary>
-		/// <param name="fileSetting">The file setting.</param>
-		/// <param name="processDisplay">The get process display.</param>
+		/// <param name="fileReader">a file reader</param>
+		/// <param name="cancellationToken">a cancellation token</param>
 		/// <returns>
 		///   An array of string with the column headers where the column is empty
 		/// </returns>
@@ -66,10 +67,7 @@ namespace CsvTools
 
 			while (fileReader.Read() && !cancellationToken.IsCancellationRequested && needToCheck.Count > 0)
 			{
-				var hasData = new List<int>();
-				foreach (var col in needToCheck)
-					if (!string.IsNullOrEmpty(fileReader.GetString(col)))
-						hasData.Add(col);
+				var hasData = needToCheck.Where(col => !string.IsNullOrEmpty(fileReader.GetString(col))).ToList();
 
 				foreach (var col in hasData)
 					needToCheck.Remove(col);
@@ -166,8 +164,8 @@ namespace CsvTools
 			{
 				for (var i = 0; i < setting.SkipRows; i++)
 					streamReader.ReadLine();
-				var result = GuessDelimiter(streamReader, setting.FileFormat.EscapeCharacterChar, out var noDelim);
-				setting.NoDelimitedFile = noDelim;
+				var result = GuessDelimiter(streamReader, setting.FileFormat.EscapeCharacterChar, out var noDelimiter);
+				setting.NoDelimitedFile = noDelimiter;
 				return result;
 			}
 		}
@@ -271,7 +269,7 @@ namespace CsvTools
 		/// <returns>
 		///   The number of rows to skip
 		/// </returns>
-		public static char GuessQualifier(ICsvFile setting)
+		private static char GuessQualifier(ICsvFile setting)
 		{
 			Contract.Requires(setting != null);
 			using (var improvedStream = ImprovedStream.OpenRead(setting))
@@ -325,7 +323,7 @@ namespace CsvTools
 				{
 					var read = streamReader.ReadBlock(buff, 0, 262143);
 
-					// Look for Delimiter [Whitespace] Qualifier or StartofLine [Whitespace] Qualifier
+					// Look for Delimiter [Whitespace] Qualifier or Start o fLine [Whitespace] Qualifier
 					for (var current = 0; current < read; current++)
 					{
 						if (token.IsCancellationRequested)
@@ -378,7 +376,7 @@ namespace CsvTools
 			file.JsonFormat = false;
 			if (guessJson)
 			{
-				if (CsvHelper.GuessJsonFile(file))
+				if (GuessJsonFile(file))
 					file.JsonFormat = true;
 			}
 
@@ -403,8 +401,8 @@ namespace CsvTools
 				}
 				if (guessQualifier)
 				{
-					var qual = GuessQualifier(file);
-					file.FileFormat.FieldQualifier = qual == '\0' ? string.Empty : char.ToString(qual);
+					var qualifier = GuessQualifier(file);
+					file.FileFormat.FieldQualifier = qualifier == '\0' ? string.Empty : char.ToString(qualifier);
 				}
 				if (guessStartRow)
 				{
@@ -422,7 +420,7 @@ namespace CsvTools
 			}
 		}
 
-		internal static bool IsJsonReadable(StreamReader streamReader)
+		private static bool IsJsonReadable(TextReader streamReader)
 		{
 			if (streamReader == null)
 			{
@@ -465,7 +463,7 @@ namespace CsvTools
 		///   No Error will not be thrown.
 		/// </remarks>
 		[SuppressMessage("Microsoft.Performance", "CA1814:PreferJaggedArraysOverMultidimensional", MessageId = "Body")]
-		internal static string GuessDelimiter(StreamReader streamReader, char escapeCharacter, out bool hasDelimiter)
+		private static string GuessDelimiter(StreamReader streamReader, char escapeCharacter, out bool hasDelimiter)
 		{
 			if (streamReader == null)
 				throw new ArgumentNullException(nameof(streamReader));
@@ -536,10 +534,17 @@ namespace CsvTools
 						var dist = dc.SeparatorsCount[index, row] - avg;
 						if (dist > 2 || dist < -2)
 							cutVariance += 8;
-						else if (dist == 2 || dist == -2)
-							cutVariance += 4;
-						else if (dist == 1 || dist == -1)
-							cutVariance++;
+						else switch (dist)
+						{
+							case 2:
+							case -2:
+								cutVariance += 4;
+								break;
+							case 1:
+							case -1:
+								cutVariance++;
+								break;
+						}
 					}
 
 					// The score is dependent on the average columns found and the regularity
@@ -563,7 +568,7 @@ namespace CsvTools
 			return result;
 		}
 
-		internal static string GuessNewline(StreamReader streamReader, char fieldQualifier)
+		private static string GuessNewline(TextReader streamReader, char fieldQualifier)
 		{
 			Contract.Requires(streamReader != null);
 			Contract.Ensures(Contract.Result<string>() != null);
@@ -641,7 +646,7 @@ namespace CsvTools
 			return "CRLF";
 		}
 
-		internal static char GuessQualifier(StreamReader streamReader, char delimiter, int skipRows)
+		private static char GuessQualifier(TextReader streamReader, char delimiter, int skipRows)
 		{
 			if (streamReader == null)
 				return '\0';
@@ -686,10 +691,12 @@ namespace CsvTools
 					max = counter[testChar];
 
 			// We need a certain level of confidence only one quoted column is not enough,
-			if (max > 1)
+			if (max <= 1) return '\0';
+			{
 				for (var testChar = 0; testChar < possibleQuotes.Length; testChar++)
 					if (counter[testChar] == max)
 						return possibleQuotes[testChar];
+			}
 			return '\0';
 		}
 
@@ -704,7 +711,7 @@ namespace CsvTools
 		///   The number of rows to skip
 		/// </returns>
 		/// <exception cref="ArgumentNullException">commentLine</exception>
-		internal static int GuessStartRow(StreamReader streamReader, char delimiter, char quoteChar, string commentLine)
+		private static int GuessStartRow(TextReader streamReader, char delimiter, char quoteChar, string commentLine)
 		{
 			if (commentLine == null)
 				throw new ArgumentNullException(nameof(commentLine));
@@ -843,11 +850,9 @@ namespace CsvTools
 				for (var row = columnCount.Count - 1; row > 0; row--)
 					if (columnCount[row] > 0)
 					{
-						if (columnCount[row] < avg - 1)
-						{
-							Logger.Information("Start Row: {row}", row);
-							return rowMapping[row];
-						}
+						if (columnCount[row] >= avg - 1) continue;
+						Logger.Information("Start Row: {row}", row);
+						return rowMapping[row];
 					}
 					// In case we have an empty line but the next line are roughly good match take that empty line
 					else if (row + 2 < columnCount.Count && columnCount[row + 1] == columnCount[row + 2] &&
@@ -867,7 +872,7 @@ namespace CsvTools
 			return 0;
 		}
 
-		private static DelimiterCounter GetDelimiterCounter(StreamReader streamReader, char escapeCharacter, int numRows)
+		private static DelimiterCounter GetDelimiterCounter(TextReader streamReader, char escapeCharacter, int numRows)
 		{
 			Contract.Ensures(Contract.Result<DelimiterCounter>() != null);
 
@@ -962,9 +967,9 @@ namespace CsvTools
 				NumRows = numRows;
 				try
 				{
-					var csls = CultureInfo.CurrentCulture.TextInfo.ListSeparator[0];
-					if (c_DefaultSeparators.IndexOf(csls) == -1)
-						Separators = c_DefaultSeparators + csls;
+					var listSeparatorr = CultureInfo.CurrentCulture.TextInfo.ListSeparator[0];
+					if (c_DefaultSeparators.IndexOf(listSeparatorr) == -1)
+						Separators = c_DefaultSeparators + listSeparatorr;
 					else
 						Separators = c_DefaultSeparators;
 					SeparatorsCount = new int[Separators.Length, NumRows];

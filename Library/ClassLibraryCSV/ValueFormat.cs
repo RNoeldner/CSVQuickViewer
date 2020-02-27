@@ -26,7 +26,7 @@ namespace CsvTools
   ///   Setting for a value format
   /// </summary>
   [Serializable]
-  [DebuggerDisplay("{DebuggerDisplay,nq}")]
+  [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
   public class ValueFormat : ICloneable<ValueFormat>, IEquatable<ValueFormat>, INotifyPropertyChanged
   {
     /// <summary>

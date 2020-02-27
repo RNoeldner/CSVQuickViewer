@@ -54,7 +54,7 @@ namespace CsvTools
 		///   Gets or sets the error message.
 		/// </summary>
 		/// <value>The error message.</value>
-		public virtual string ErrorMessage { get; protected internal set; }
+		public virtual string ErrorMessage { get; protected set; }
 
 		/// <summary>
 		///   Event handler called if a warning or error occurred
@@ -163,15 +163,14 @@ namespace CsvTools
 			// only use the last command
 			var sql = m_FileSetting.SqlStatement;
 			// in case there is no filter add a filer that filters all we only need the Schema
-			if (sql.Contains("SELECT", StringComparison.OrdinalIgnoreCase) &&
-					!sql.Contains("WHERE", StringComparison.OrdinalIgnoreCase))
-			{
-				var indexOf = sql.IndexOf("ORDER BY", StringComparison.OrdinalIgnoreCase);
-				if (indexOf == -1)
-					sql += " WHERE 1=0";
-				else
-					sql = sql.Substring(0, indexOf) + "WHERE 1=0";
-			}
+			if (!sql.Contains("SELECT", StringComparison.OrdinalIgnoreCase) ||
+			    sql.Contains("WHERE", StringComparison.OrdinalIgnoreCase))
+				return ApplicationSetting.SQLDataReader(sql, m_ProcessDisplay, 20);
+			var indexOf = sql.IndexOf("ORDER BY", StringComparison.OrdinalIgnoreCase);
+			if (indexOf == -1)
+				sql += " WHERE 1=0";
+			else
+				sql = sql.Substring(0, indexOf) + "WHERE 1=0";
 
 			return ApplicationSetting.SQLDataReader(sql, m_ProcessDisplay, 20);
 		}
@@ -254,7 +253,7 @@ namespace CsvTools
 			}
 		}
 
-		protected internal virtual string ReplacePlaceHolder(string input) => input.PlaceholderReplace("ID", m_FileSetting.ID)
+		protected virtual string ReplacePlaceHolder(string input) => input.PlaceholderReplace("ID", m_FileSetting.ID)
 				.PlaceholderReplace("FileName", m_FileSetting.FileName)
 				.PlaceholderReplace("Records", string.Format(new CultureInfo("en-US"), "{0:n0}", m_Records))
 				.PlaceholderReplace("Delim", m_FileSetting.FileFormat.FieldDelimiterChar.ToString(CultureInfo.CurrentCulture))
@@ -270,7 +269,7 @@ namespace CsvTools
 
 		// protected void HandleProgress(string text, int progress) => m_ProcessDisplay?.SetProcess(text, progress);
 
-		protected void HandleProgress(string text) => m_ProcessDisplay?.SetProcess(text, -1, true);
+		private void HandleProgress(string text) => m_ProcessDisplay?.SetProcess(text, -1, true);
 
 		/// <summary>
 		///   Handles the time zone for a date time column
@@ -322,7 +321,7 @@ namespace CsvTools
 		/// <param name="message">The message.</param>
 		protected virtual void HandleWarning(string columnName, string message) => Warning?.Invoke(this, new WarningEventArgs(m_Records, 0, message.AddWarningId(), 0, 0, columnName));
 
-		protected void HandleWriteFinished()
+		private void HandleWriteFinished()
 		{
 			m_FileSetting.ProcessTimeUtc = DateTime.UtcNow;
 			if (!(m_FileSetting is IFileSettingPhysicalFile physicalFile) ||
@@ -500,7 +499,7 @@ namespace CsvTools
 				yield break;
 
 			var valueFormat = columnFormat != null ? columnFormat.ValueFormat : writerFileSetting.FileFormat.ValueFormat;
-			var dataType = columnFormat != null ? columnFormat.ValueFormat.DataType : columnDataType.GetDataType();
+			var dataType = columnFormat?.ValueFormat.DataType ?? columnDataType.GetDataType();
 
 			yield return new ColumnInfo
 			{

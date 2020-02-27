@@ -249,24 +249,22 @@ namespace CsvTools
 						keyValuePairs.Remove(kv.Key);
 
 				// store the information into our fixed structure, even if the tokens in Json change order they will aligned
-				if (Column != null && Column.Length != 0)
+				if (Column == null || Column.Length == 0) return keyValuePairs;
+				var colNum = 0;
+				foreach (var col in Column)
 				{
-					var colNum = 0;
-					foreach (var col in Column)
-					{
-						if (keyValuePairs.TryGetValue(col.Name, out CurrentValues[colNum]))
-							if (CurrentValues[colNum] != null)
-								CurrentRowColumnText[colNum] = CurrentValues[colNum].ToString();
-						colNum++;
-					}
-
-					if (keyValuePairs.Count < FieldCount)
-						HandleWarning(-1,
-							$"Line {StartLineNumber} has fewer columns than expected ({keyValuePairs.Count}/{FieldCount}).");
-					else if (keyValuePairs.Count > FieldCount)
-						HandleWarning(-1,
-							$"Line {StartLineNumber} has more columns than expected ({keyValuePairs.Count}/{FieldCount}). The data in extra columns is not read.");
+					if (keyValuePairs.TryGetValue(col.Name, out CurrentValues[colNum]))
+						if (CurrentValues[colNum] != null)
+							CurrentRowColumnText[colNum] = CurrentValues[colNum].ToString();
+					colNum++;
 				}
+
+				if (keyValuePairs.Count < FieldCount)
+					HandleWarning(-1,
+						$"Line {StartLineNumber} has fewer columns than expected ({keyValuePairs.Count}/{FieldCount}).");
+				else if (keyValuePairs.Count > FieldCount)
+					HandleWarning(-1,
+						$"Line {StartLineNumber} has more columns than expected ({keyValuePairs.Count}/{FieldCount}). The data in extra columns is not read.");
 
 				return keyValuePairs;
 			}
@@ -401,10 +399,7 @@ namespace CsvTools
 			}
 
 			// If of file its does not matter what to return simply return something
-			if (EndOfFile)
-				return c_Lf;
-
-			return m_Buffer[m_BufferPos];
+			return EndOfFile ? c_Lf : m_Buffer[m_BufferPos];
 		}
 
 		private void EatNextCRLF(char character)
@@ -442,16 +437,25 @@ namespace CsvTools
 				var chr = NextChar();
 				m_BufferPos++;
 				sb.Append(chr);
-				if (chr == '{')
-					openCurly++;
-				else if (chr == '}')
-					openCurly--;
-				else if (chr == '[')
-					openSquare++;
-				else if (chr == ']')
-					openSquare--;
-				else if (chr == c_Cr || chr == c_Lf)
-					EatNextCRLF(chr);
+				switch (chr)
+				{
+					case '{':
+						openCurly++;
+						break;
+					case '}':
+						openCurly--;
+						break;
+					case '[':
+						openSquare++;
+						break;
+					case ']':
+						openSquare--;
+						break;
+					case c_Cr:
+					case c_Lf:
+						EatNextCRLF(chr);
+						break;
+				}
 
 				if (openCurly == 0 && openSquare == 0)
 					break;

@@ -352,11 +352,11 @@ namespace CsvTools
 			return (int) (m_ImprovedStream.Percentage * cMaxValue);
 		}
 
-		private bool AllEmptyAndCountConsecutiveEmptyRows(string[] columns)
+		private bool AllEmptyAndCountConsecutiveEmptyRows(IReadOnlyList<string> columns)
 		{
 			if (columns != null)
 			{
-				var rowLength = columns.Length;
+				var rowLength = columns.Count;
 				for (var col = 0; col < rowLength && col < FieldCount; col++)
 					if (!string.IsNullOrEmpty(columns[col]))
 					{
@@ -576,10 +576,7 @@ namespace CsvTools
 			}
 
 			// If of file its does not matter what to return simply return something
-			if (EndOfFile)
-				return c_Lf;
-
-			return m_Buffer[m_BufferPos];
+			return EndOfFile ? c_Lf : m_Buffer[m_BufferPos];
 		}
 
 		/// <summary>
@@ -693,20 +690,29 @@ namespace CsvTools
 					if (!EndOfFile)
 					{
 						m_BufferPos++;
-						// Handle \ Notation of common not visible characters
-						if (m_CsvFile.FileFormat.EscapeCharacterChar == '\\' && nextChar == 'n')
-							character = '\n';
-						else if (m_CsvFile.FileFormat.EscapeCharacterChar == '\\' && nextChar == 'r')
-							character = '\r';
-						else if (m_CsvFile.FileFormat.EscapeCharacterChar == '\\' && nextChar == 't')
-							character = '\t';
-						else if (m_CsvFile.FileFormat.EscapeCharacterChar == '\\' && nextChar == 'b')
-							character = '\b';
-						else if (m_CsvFile.FileFormat.EscapeCharacterChar == '\\' && nextChar == 'a')
-							character = '\a';
-						// in case a linefeed actually follows ignore the EscapeCharacterChar but handle the regular processing
-						else
-							character = nextChar;
+						switch (m_CsvFile.FileFormat.EscapeCharacterChar)
+						{
+							// Handle \ Notation of common not visible characters
+							case '\\' when nextChar == 'n':
+								character = '\n';
+								break;
+							case '\\' when nextChar == 'r':
+								character = '\r';
+								break;
+							case '\\' when nextChar == 't':
+								character = '\t';
+								break;
+							case '\\' when nextChar == 'b':
+								character = '\b';
+								break;
+							// in case a linefeed actually follows ignore the EscapeCharacterChar but handle the regular processing
+							case '\\' when nextChar == 'a':
+								character = '\a';
+								break;
+							default:
+								character = nextChar;
+								break;
+						}
 					}
 				}
 

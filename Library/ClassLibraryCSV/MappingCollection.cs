@@ -79,13 +79,11 @@ namespace CsvTools
     /// </returns>
     public Mapping GetByField(string templateFieldName)
     {
-      if (!string.IsNullOrEmpty(templateFieldName))
+      if (string.IsNullOrEmpty(templateFieldName)) return null;
+      foreach (var map in Items)
       {
-        foreach (var map in Items)
-        {
-          if (map.TemplateField.Equals(templateFieldName, StringComparison.OrdinalIgnoreCase))
-            return map;
-        }
+        if (map.TemplateField.Equals(templateFieldName, StringComparison.OrdinalIgnoreCase))
+          return map;
       }
       return null;
     }

@@ -29,12 +29,18 @@ namespace CsvTools
       if (level != Level.None)
       {
         var minLevel = LogLevel.Debug;
-        if (level == Level.Info)
-          minLevel = LogLevel.Info;
-        else if (level == Level.Warn)
-          minLevel = LogLevel.Warn;
-        else if (level == Level.Error)
-          minLevel = LogLevel.Error;
+        switch (level)
+        {
+          case Level.Info:
+            minLevel = LogLevel.Info;
+            break;
+          case Level.Warn:
+            minLevel = LogLevel.Warn;
+            break;
+          case Level.Error:
+            minLevel = LogLevel.Error;
+            break;
+        }
 
         if (!string.IsNullOrEmpty(fileNameJson))
         {
@@ -158,12 +164,18 @@ namespace CsvTools
         return;
 
       var level = LogLevel.Debug;
-      if (lvl == Level.Info)
-        level = LogLevel.Info;
-      else if (lvl == Level.Warn)
-        level = LogLevel.Warn;
-      else if (lvl == Level.Error)
-        level = LogLevel.Error;
+      switch (lvl)
+      {
+        case Level.Info:
+          level = LogLevel.Info;
+          break;
+        case Level.Warn:
+          level = LogLevel.Warn;
+          break;
+        case Level.Error:
+          level = LogLevel.Error;
+          break;
+      }
 
       try
       {
