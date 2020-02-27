@@ -167,6 +167,10 @@ namespace CsvTools
 		/// <value>The record limit. if set to 0 there is no limit</value>
 		long RecordLimit { get; set; }
 
+
+		/// <summary>
+		/// SAmple records for validation and reporting
+		/// </summary>
 		ObservableCollection<SampleRecordEntry> Samples { get; set; }
 
 		/// <summary>
@@ -175,6 +179,10 @@ namespace CsvTools
 		/// <value><c>true</c> if progress should be displayed; otherwise, <c>false</c>.</value>
 		bool ShowProgress { get; set; }
 
+		/// <summary>
+		///   Gets or sets a value indicating whether to ignore rows that  macth the header row, 
+		///   this happens if two delimited files are appended without removing the header of the appended file
+		/// </summary>
 		bool SkipDuplicateHeader { get; set; }
 
 		/// <summary>
@@ -189,7 +197,12 @@ namespace CsvTools
 		/// <value>The skip rows.</value>
 		int SkipRows { get; set; }
 
-		ICollection<IFileSetting> SourceFileSettings { get; set; }
+		/// <summary>
+		///   Storage for the settings used as direct or indirect sources.
+		/// </summary>
+		/// <remarks>This is used for queries that might refer to data that is produced by other settings but not for file setting pointing to a specifc physical file</remarks>
+		/// <example>A setting A using setting B that is dependent on C1 and C2 both dependent on D-> A is {B,C1,C2,D}. B is {C1,C2,D}, C1 is {D} C2 is {D} </empty>  </example>
+		IReadOnlyCollection<IFileSetting> SourceFileSettings { get; set; }
 
 		/// <summary>
 		///  Gets or sets the SQL statement.
@@ -252,7 +265,7 @@ namespace CsvTools
 		/// <summary>
 		/// Examine the source and determine LatestSource
 		/// </summary>
-		/// <param name="allSettings">All settings.</param>
-		void CalculateLatestSourceTime(IReadOnlyCollection<IFileSetting> allSettings);
+		/// <param name="allSettings">In case of the setting beeing depenent on other setting, these have to be provided.</param>
+		void CalculateLatestSourceTime();
 	}
 }
