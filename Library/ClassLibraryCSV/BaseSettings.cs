@@ -132,8 +132,14 @@ namespace CsvTools
 		[XmlIgnore]
 		public bool ErrorsSpecified => Errors.Count > 0;
 
+
+		/// <summary>
+		///   Storage for the settings used as direct or indirect sources.
+		/// </summary>
+		/// <remarks>This is used for queries that might refer to data that is produced by other settings but not for file setting pointing to a specifc physical file</remarks>
+		/// <example>A setting A using setting B that is dependent on C1 and C2 both dependent on D-> A is {B,C1,C2,D}. B is {C1,C2,D}, C1 is {D} C2 is {D} </empty>  </example>
 		[XmlIgnore]
-		public ICollection<IFileSetting> SourceFileSettings { get; set; }
+		public IReadOnlyCollection<IFileSetting> SourceFileSettings { get; set; }
 
 		/// <summary>
 		///  Gets a value indicating whether FileFormat is specified.
@@ -211,7 +217,7 @@ namespace CsvTools
 			}
 		}
 
-		[XmlIgnore] 
+		[XmlIgnore]
 		public bool SamplesSpecified => Samples.Count > 0;
 
 		/// <summary>
@@ -451,7 +457,7 @@ namespace CsvTools
 		///  The UTC time the file was last written to, or when it was last read, this is different to <see cref="LatestSourceTimeUtc"/>.
 		///  Changes to this date should not be considered as changes to the configuration
 		/// </summary>
-		[XmlAttribute("FileLastWriteTimeUtc")]
+		[XmlIgnore]
 		public virtual DateTime ProcessTimeUtc
 		{
 			get => m_ProcessTimeUtc;
@@ -475,7 +481,7 @@ namespace CsvTools
 			get
 			{
 				if (m_LatestSourceTimeUtc == ZeroTime)
-					CalculateLatestSourceTime(null);
+					CalculateLatestSourceTime();
 				return m_LatestSourceTimeUtc;
 			}
 			set
@@ -487,18 +493,24 @@ namespace CsvTools
 			}
 		}
 
+		[XmlIgnore]
 		public bool HasLatestSourceTimeUtc => (m_LatestSourceTimeUtc != ZeroTime);
 
-		public virtual void CalculateLatestSourceTime(IReadOnlyCollection<IFileSetting> allSettings)
+
+		/// <summary>
+		/// As this might be a time consumig process, do this only if the time was not determined before
+		/// </summary>
+		/// <remarks>For a physical file ist possibly easiest as it teh file time, overwriitten for more complx things like a Query</remarks>
+		public virtual void CalculateLatestSourceTime()
 		{
 			if (this is IFileSettingPhysicalFile settingPhysicalFile && !string.IsNullOrEmpty(settingPhysicalFile.FullPath))
 			{
 				var fi = new Pri.LongPath.FileInfo(settingPhysicalFile.FullPath);
-				LatestSourceTimeUtc = fi.Exists ? fi.LastWriteTimeUtc : ZeroTime;
+				m_LatestSourceTimeUtc = fi.Exists ? fi.LastWriteTimeUtc : ZeroTime;
 			}
 			else
-				// in case the source is not a physical file, assume its the processing time
-				LatestSourceTimeUtc = ProcessTimeUtc;
+				// in case the source is not a physical file, assume it's the processing time
+				m_LatestSourceTimeUtc = ProcessTimeUtc;
 		}
 
 		private static string FileNameFix(string value)
@@ -1127,7 +1139,7 @@ namespace CsvTools
 			other.ID = m_Id;
 			other.NumRecords = m_NumRecords;
 		}
-		
+
 		/*
     /// <summary>Serves as the default hash function. </summary>
     /// <returns>A hash code for the current object.</returns>
