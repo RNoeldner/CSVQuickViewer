@@ -135,10 +135,7 @@ namespace CsvTools
 
       // the intervals have names, pick an interval without offset
       var inter = IntervalsInYear(timeZoneName, DateTime.UtcNow.Year).FirstOrDefault(x => x.Savings.Seconds < c_MinSavingSeconds && !string.IsNullOrEmpty(x.Name));
-      if (inter != null)
-        return inter.Name;
-
-      return dateTimeZone.Id;
+      return inter != null ? inter.Name : dateTimeZone.Id;
     }
 
     /// <summary>
@@ -182,10 +179,7 @@ namespace CsvTools
     public static string Offset(this string timeZoneName, int year)
     {
       var std = IntervalsInYear(timeZoneName, year).FirstOrDefault(x => x.Savings.Seconds < c_MinSavingSeconds);
-      if (std != null)
-        return std.StandardOffset.ToString();
-      else
-        return GetTimeZone(timeZoneName).MaxOffset.ToString();
+      return std != null ? std.StandardOffset.ToString() : GetTimeZone(timeZoneName).MaxOffset.ToString();
     }
 
     /// <summary>

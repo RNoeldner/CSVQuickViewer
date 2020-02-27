@@ -46,7 +46,7 @@ namespace CsvTools
 
     private const string c_QuotePlaceholderDefault = "";
 
-    public bool m_DuplicateQuotingToEscape = true;
+    private bool m_DuplicateQuotingToEscape = true;
 
     private bool m_AlternateQuoting;
 
@@ -99,11 +99,11 @@ namespace CsvTools
         m_AlternateQuoting = value;
         NotifyPropertyChanged(nameof(AlternateQuoting));
 
-        // If Anternate Quoting is dsiabled, enable DuplicateQuotingToEscape automatically
+        // If Alternate Quoting is disabled, enable DuplicateQuotingToEscape automatically
         if (!m_AlternateQuoting && !DuplicateQuotingToEscape)
           DuplicateQuotingToEscape = true;
 
-        // If Anternate Quoting is enabled, disable DuplicateQuotingToEscape automatically
+        // If Alternate Quoting is enabled, disable DuplicateQuotingToEscape automatically
         if (m_AlternateQuoting && DuplicateQuotingToEscape)
           DuplicateQuotingToEscape = false;
       }
@@ -451,9 +451,7 @@ namespace CsvTools
       if (string.IsNullOrEmpty(value))
         return '\0';
       var puctuation = value.WrittenPunctuationToChar();
-      if (puctuation != '\0')
-        return puctuation;
-      return value[0];
+      return puctuation != '\0' ? puctuation : value[0];
     }
 
     /// <summary>
@@ -618,20 +616,6 @@ namespace CsvTools
       if (IsFixedLength)
         return "FixedLength";
       return m_FieldDelimiter + " " + m_FieldQualifier;
-    }
-
-    [ContractInvariantMethod]
-    private void ObjectInvariant()
-    {
-      Contract.Invariant(m_CommentLine != null);
-      Contract.Invariant(m_EscapeCharacter != null);
-      Contract.Invariant(m_FieldDelimiter != null);
-      Contract.Invariant(m_FieldQualifier != null);
-      Contract.Invariant(m_DelimiterPlaceholder != null);
-      Contract.Invariant(m_QuotePlaceholder != null);
-      Contract.Invariant(m_NewLine != null);
-      Contract.Invariant(m_NewLinePlaceholder != null);
-      Contract.Invariant(m_ValueFormat != null);
     }
 
     /*

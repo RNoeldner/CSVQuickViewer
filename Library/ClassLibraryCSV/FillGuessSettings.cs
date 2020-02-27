@@ -176,7 +176,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   If set to <c>True</c> values are checked if they could be GUIDs, default is <c>Fasle</c>
+    ///   If set to <c>True</c> values are checked if they could be GUIDs, default is <c>False</c>
     /// </summary>
     [DefaultValue(false)]
     [XmlElement]

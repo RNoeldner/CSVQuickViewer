@@ -69,7 +69,7 @@ namespace CsvTools
     /// <param name="writer">The writer.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <exception cref="FileWriterException">No columns defined to be written.</exception>
-    protected void DataReader2Stream(IDataReader reader, TextWriter writer,
+    private void DataReader2Stream(IDataReader reader, TextWriter writer,
       CancellationToken cancellationToken)
     {
       Contract.Requires(reader != null);

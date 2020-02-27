@@ -48,17 +48,15 @@ namespace CsvTools
       if (subResult == null || !subResult.PossibleMatch)
         return;
 
-      if (PossibleMatch == false || subResult.ExampleNonMatch.Count < ExampleNonMatch.Count)
-      {
-        ExampleNonMatch.Clear();
-        PossibleMatch = true;
-        ValueFormatPossibleMatch = subResult.ValueFormatPossibleMatch;
+      if (PossibleMatch && subResult.ExampleNonMatch.Count >= ExampleNonMatch.Count) return;
+      ExampleNonMatch.Clear();
+      PossibleMatch = true;
+      ValueFormatPossibleMatch = subResult.ValueFormatPossibleMatch;
 
-        foreach (var ex in subResult.ExampleNonMatch)
-        {
-          if (!string.IsNullOrEmpty(ex))
-            ExampleNonMatch.Add(ex);
-        }
+      foreach (var ex in subResult.ExampleNonMatch)
+      {
+        if (!string.IsNullOrEmpty(ex))
+          ExampleNonMatch.Add(ex);
       }
     }
   }

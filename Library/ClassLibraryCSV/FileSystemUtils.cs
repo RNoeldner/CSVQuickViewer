@@ -77,10 +77,7 @@ namespace CsvTools
 
 		public static bool DirectoryExists(string directoryName)
 		{
-			if (string.IsNullOrEmpty(directoryName))
-				return false;
-
-			return Directory.Exists(directoryName);
+			return !string.IsNullOrEmpty(directoryName) && Directory.Exists(directoryName);
 		}
 
 		/// <summary>
@@ -118,10 +115,9 @@ namespace CsvTools
 			using (var fromStream = new FileInfo(sourceFile).OpenRead())
 			using (var toStream = new FileInfo(destFile).OpenWrite())
 			{
-				byte[] bytes = new byte[81920];
-				int bytesRead = -1;
+				var bytes = new byte[81920];
+				int bytesRead;
 				long totalReads = 0;
-				var totalBytes = fromStream.Length;
 
 				long oldMax = 0;
 				if (processDisplay != null)
@@ -133,10 +129,10 @@ namespace CsvTools
 				var intervalAction = processDisplay == null ? null : new IntervalAction();
 				while ((bytesRead = fromStream.Read(bytes, 0, bytes.Length)) > 0)
 				{
-					processDisplay.CancellationToken.ThrowIfCancellationRequested();
+					processDisplay?.CancellationToken.ThrowIfCancellationRequested();
 					totalReads += bytesRead;
 					toStream.Write(bytes, 0, bytesRead);
-					intervalAction?.Invoke(pos => processDisplay.SetProcess($"Copy file", pos, false), totalReads);
+					intervalAction?.Invoke(pos => processDisplay.SetProcess("Copy file", pos, false), totalReads);
 				}
 				if (processDisplay != null)
 				{
@@ -147,9 +143,7 @@ namespace CsvTools
 
 		public static bool FileExists(string fileName)
 		{
-			if (string.IsNullOrEmpty(fileName))
-				return false;
-			return File.Exists(fileName);
+			return !string.IsNullOrEmpty(fileName) && File.Exists(fileName);
 		}
 
 		/// <summary>
@@ -164,17 +158,7 @@ namespace CsvTools
 			if (string.IsNullOrEmpty(fileName))
 				return string.Empty;
 
-			if (!Path.IsPathRooted(fileName))
-			{
-				if (string.IsNullOrEmpty(basePath))
-					return Path.GetFullPath(fileName);
-				else
-				{
-					return Path.GetFullPath(Path.Combine(basePath, fileName));
-				}
-			}
-
-			return fileName;
+			return !Path.IsPathRooted(fileName) ? Path.GetFullPath(string.IsNullOrEmpty(basePath) ? fileName : Path.Combine(basePath, fileName)) : fileName;
 		}
 
 		/// <summary>
@@ -196,10 +180,7 @@ namespace CsvTools
 
 			// get the directory from under it
 			var lastIndex = fileOrDirectory.LastIndexOf('\\');
-			if (lastIndex > 0)
-				return fileOrDirectory.Substring(0, lastIndex).RemovePrefix();
-
-			return null;
+			return lastIndex > 0 ? fileOrDirectory.Substring(0, lastIndex).RemovePrefix() : null;
 		}
 
 		public static string[] GetFiles(string folder, string searchPattern)
@@ -223,10 +204,13 @@ namespace CsvTools
 				return null;
 			var files = GetFiles(folder, searchPattern);
 
-			if (files.Length == 0)
-				return null;
-			if (files.Length == 1)
-				return files[0];
+			switch (files.Length)
+			{
+				case 0:
+					return null;
+				case 1:
+					return files[0];
+			}
 
 			// If a pattern is present in the folder this is not going to work
 			var newSet = new DateTime(0);
@@ -392,9 +376,7 @@ namespace CsvTools
 				return path;
 			if (path.StartsWith(c_LongPathPrefix, StringComparison.Ordinal))
 				return path.Substring(c_LongPathPrefix.Length);
-			if (path.StartsWith(c_UncLongPathPrefix, StringComparison.Ordinal))
-				return path.Substring(c_UncLongPathPrefix.Length);
-			return path;
+			return path.StartsWith(c_UncLongPathPrefix, StringComparison.Ordinal) ? path.Substring(c_UncLongPathPrefix.Length) : path;
 		}
 
 		public static string ResolvePattern(string fileName)
@@ -411,10 +393,7 @@ namespace CsvTools
 
 			var lastFile = GetLatestFileOfPattern(folder, searchPattern);
 
-			if (!string.IsNullOrEmpty(lastFile))
-				return lastFile;
-
-			return fileName;
+			return !string.IsNullOrEmpty(lastFile) ? lastFile : fileName;
 		}
 
 		/// <summary>
@@ -498,10 +477,7 @@ namespace CsvTools
 				path = Path.GetFullPath(path);
 
 			var lastIndex = path.LastIndexOf(Path.DirectorySeparatorChar);
-			if (lastIndex != -1)
-				return new SplitResult(path.Substring(0, lastIndex), path.Substring(lastIndex + 1));
-			else
-				return new SplitResult(Path.GetFullPath(path), path);
+			return lastIndex != -1 ? new SplitResult(path.Substring(0, lastIndex), path.Substring(lastIndex + 1)) : new SplitResult(Path.GetFullPath(path), path);
 		}
 
 		[DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
@@ -560,10 +536,7 @@ namespace CsvTools
 				get
 				{
 					var index = FileName.LastIndexOf('.');
-					if (index == -1)
-						return FileName;
-					else
-						return FileName.Substring(0, index);
+					return index == -1 ? FileName : FileName.Substring(0, index);
 				}
 			}
 		}

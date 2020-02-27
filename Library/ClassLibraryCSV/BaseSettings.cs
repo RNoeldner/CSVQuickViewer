@@ -136,8 +136,8 @@ namespace CsvTools
 		/// <summary>
 		///   Storage for the settings used as direct or indirect sources.
 		/// </summary>
-		/// <remarks>This is used for queries that might refer to data that is produced by other settings but not for file setting pointing to a specifc physical file</remarks>
-		/// <example>A setting A using setting B that is dependent on C1 and C2 both dependent on D-> A is {B,C1,C2,D}. B is {C1,C2,D}, C1 is {D} C2 is {D} </empty>  </example>
+		/// <remarks>This is used for queries that might refer to data that is produced by other settings but not for file setting pointing to a specific physical file</remarks>
+		/// <example>A setting A using setting B that is dependent on C1 and C2 both dependent on D-> A is {B,C1,C2,D}. B is {C1,C2,D}, C1 is {D} C2 is {D}  </example>
 		[XmlIgnore]
 		public IReadOnlyCollection<IFileSetting> SourceFileSettings { get; set; }
 
@@ -262,46 +262,75 @@ namespace CsvTools
 			if (ReferenceEquals(this, other))
 				return true;
 
-			if (other is IFileSettingPhysicalFile otherRemote)
-			{
-				if (otherRemote.RemoteFileName != RemoteFileName ||
-						otherRemote.ThrowErrorIfNotExists != ThrowErrorIfNotExists ||
-						otherRemote.FileSize != FileSize ||
-						!string.Equals(otherRemote.FileName, FileName, StringComparison.OrdinalIgnoreCase)
-					)
-					return false;
-			}
+			if (!(other is IFileSettingPhysicalFile otherRemote))
+				return string.Equals(other.TemplateName, TemplateName, StringComparison.OrdinalIgnoreCase) &&
+				       other.SkipRows == SkipRows &&
+				       other.IsEnabled == IsEnabled &&
+				       other.TreatNBSPAsSpace == TreatNBSPAsSpace &&
+				       other.DisplayStartLineNo == DisplayStartLineNo &&
+				       other.DisplayEndLineNo == DisplayEndLineNo &&
+				       other.HasFieldHeader == HasFieldHeader &&
+				       other.InOverview == InOverview &&
+				       other.Validate == Validate &&
+				       other.TrimmingOption == TrimmingOption &&
+				       other.ConsecutiveEmptyRows == m_ConsecutiveEmptyRows &&
+				       string.Equals(other.TreatTextAsNull, TreatTextAsNull, StringComparison.OrdinalIgnoreCase) &&
+				       other.DisplayRecordNo == DisplayRecordNo &&
+				       other.RecordLimit == RecordLimit &&
+				       other.ShowProgress == ShowProgress &&
+				       string.Equals(other.ID, ID, StringComparison.OrdinalIgnoreCase) &&
+				       other.FileFormat.Equals(FileFormat) &&
+				       other.Passphrase.Equals(Passphrase, StringComparison.Ordinal) &&
+				       other.Recipient.Equals(Recipient, StringComparison.Ordinal) &&
+				       other.NumErrors == NumErrors &&
+				       other.SkipEmptyLines == SkipEmptyLines &&
+				       other.SkipDuplicateHeader == SkipDuplicateHeader &&
+				       other.Timeout == Timeout &&
+				       other.ProcessTimeUtc == ProcessTimeUtc &&
+				       other.SetLatestSourceTimeForWrite == SetLatestSourceTimeForWrite &&
+				       string.Equals(other.SqlStatement, SqlStatement, StringComparison.OrdinalIgnoreCase) &&
+				       string.Equals(other.Footer, Footer, StringComparison.OrdinalIgnoreCase) &&
+				       string.Equals(other.Header, Header, StringComparison.OrdinalIgnoreCase) &&
+				       MappingCollection.Equals(other.MappingCollection) && Samples.CollectionEqual(other.Samples) &&
+				       Errors.CollectionEqual(other.Errors) &&
+				       ColumnCollection.Equals(other.ColumnCollection);
+			if (otherRemote.RemoteFileName != RemoteFileName ||
+			    otherRemote.ThrowErrorIfNotExists != ThrowErrorIfNotExists ||
+			    otherRemote.FileSize != FileSize ||
+			    !string.Equals(otherRemote.FileName, FileName, StringComparison.OrdinalIgnoreCase)
+			)
+				return false;
 			return string.Equals(other.TemplateName, TemplateName, StringComparison.OrdinalIgnoreCase) &&
-					other.SkipRows == SkipRows &&
-					other.IsEnabled == IsEnabled &&
-					other.TreatNBSPAsSpace == TreatNBSPAsSpace &&
-					other.DisplayStartLineNo == DisplayStartLineNo &&
-					other.DisplayEndLineNo == DisplayEndLineNo &&
-					other.HasFieldHeader == HasFieldHeader &&
-					other.InOverview == InOverview &&
-					other.Validate == Validate &&
-					other.TrimmingOption == TrimmingOption &&
-					other.ConsecutiveEmptyRows == m_ConsecutiveEmptyRows &&
-					string.Equals(other.TreatTextAsNull, TreatTextAsNull, StringComparison.OrdinalIgnoreCase) &&
-					other.DisplayRecordNo == DisplayRecordNo &&
-					other.RecordLimit == RecordLimit &&
-					other.ShowProgress == ShowProgress &&
-					string.Equals(other.ID, ID, StringComparison.OrdinalIgnoreCase) &&
-					other.FileFormat.Equals(FileFormat) &&
-					other.Passphrase.Equals(Passphrase, StringComparison.Ordinal) &&
-					other.Recipient.Equals(Recipient, StringComparison.Ordinal) &&
-					other.NumErrors == NumErrors &&
-					other.SkipEmptyLines == SkipEmptyLines &&
-					other.SkipDuplicateHeader == SkipDuplicateHeader &&
-					other.Timeout == Timeout &&
-					other.ProcessTimeUtc == ProcessTimeUtc &&
-					other.SetLatestSourceTimeForWrite == SetLatestSourceTimeForWrite &&
-					string.Equals(other.SqlStatement, SqlStatement, StringComparison.OrdinalIgnoreCase) &&
-					string.Equals(other.Footer, Footer, StringComparison.OrdinalIgnoreCase) &&
-					string.Equals(other.Header, Header, StringComparison.OrdinalIgnoreCase) &&
-					MappingCollection.Equals(other.MappingCollection) && Samples.CollectionEqual(other.Samples) &&
-					Errors.CollectionEqual(other.Errors) &&
-					ColumnCollection.Equals(other.ColumnCollection);
+			       other.SkipRows == SkipRows &&
+			       other.IsEnabled == IsEnabled &&
+			       other.TreatNBSPAsSpace == TreatNBSPAsSpace &&
+			       other.DisplayStartLineNo == DisplayStartLineNo &&
+			       other.DisplayEndLineNo == DisplayEndLineNo &&
+			       other.HasFieldHeader == HasFieldHeader &&
+			       other.InOverview == InOverview &&
+			       other.Validate == Validate &&
+			       other.TrimmingOption == TrimmingOption &&
+			       other.ConsecutiveEmptyRows == m_ConsecutiveEmptyRows &&
+			       string.Equals(other.TreatTextAsNull, TreatTextAsNull, StringComparison.OrdinalIgnoreCase) &&
+			       other.DisplayRecordNo == DisplayRecordNo &&
+			       other.RecordLimit == RecordLimit &&
+			       other.ShowProgress == ShowProgress &&
+			       string.Equals(other.ID, ID, StringComparison.OrdinalIgnoreCase) &&
+			       other.FileFormat.Equals(FileFormat) &&
+			       other.Passphrase.Equals(Passphrase, StringComparison.Ordinal) &&
+			       other.Recipient.Equals(Recipient, StringComparison.Ordinal) &&
+			       other.NumErrors == NumErrors &&
+			       other.SkipEmptyLines == SkipEmptyLines &&
+			       other.SkipDuplicateHeader == SkipDuplicateHeader &&
+			       other.Timeout == Timeout &&
+			       other.ProcessTimeUtc == ProcessTimeUtc &&
+			       other.SetLatestSourceTimeForWrite == SetLatestSourceTimeForWrite &&
+			       string.Equals(other.SqlStatement, SqlStatement, StringComparison.OrdinalIgnoreCase) &&
+			       string.Equals(other.Footer, Footer, StringComparison.OrdinalIgnoreCase) &&
+			       string.Equals(other.Header, Header, StringComparison.OrdinalIgnoreCase) &&
+			       MappingCollection.Equals(other.MappingCollection) && Samples.CollectionEqual(other.Samples) &&
+			       Errors.CollectionEqual(other.Errors) &&
+			       ColumnCollection.Equals(other.ColumnCollection);
 		}
 
 		/// <summary>
@@ -498,9 +527,9 @@ namespace CsvTools
 
 
 		/// <summary>
-		/// As this might be a time consumig process, do this only if the time was not determined before
+		/// As this might be a time consuming process, do this only if the time was not determined before
 		/// </summary>
-		/// <remarks>For a physical file ist possibly easiest as it teh file time, overwriitten for more complx things like a Query</remarks>
+		/// <remarks>For a physical file ist possibly easiest as it teh file time, overwritten for more complex things like a Query</remarks>
 		public virtual void CalculateLatestSourceTime()
 		{
 			if (this is IFileSettingPhysicalFile settingPhysicalFile && !string.IsNullOrEmpty(settingPhysicalFile.FullPath))
@@ -915,8 +944,7 @@ namespace CsvTools
 
 		/// <summary>
 		///  Gets or sets the SQL statement.
-		///  TODO: Ignore Rename of Settings if possible
-		/// </summary>
+    /// </summary>
 		/// <value>The SQL statement.</value>
 		[XmlIgnore]
 		[DefaultValue("")]
@@ -1215,11 +1243,9 @@ namespace CsvTools
 				stringBuilder.Append(" ");
 			stringBuilder.Append(ID);
 
-			if (this is IFileSettingPhysicalFile settingPhysicalFile)
-			{
-				stringBuilder.Append(" - ");
-				stringBuilder.Append(FileSystemUtils.GetShortDisplayFileName(settingPhysicalFile.FileName, 80));
-			}
+			if (!(this is IFileSettingPhysicalFile settingPhysicalFile)) return stringBuilder.ToString();
+			stringBuilder.Append(" - ");
+			stringBuilder.Append(FileSystemUtils.GetShortDisplayFileName(settingPhysicalFile.FileName, 80));
 			return stringBuilder.ToString();
 		}
 

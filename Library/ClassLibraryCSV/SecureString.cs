@@ -12,6 +12,8 @@
  *
  */
 
+using System.Linq;
+
 namespace CsvTools
 {
   using System;
@@ -144,12 +146,8 @@ namespace CsvTools
         return false;
 
       // in case the text does contains a non Base64 chars it is not encrypted
-      var test = c_Base64 + "/+=";
-      foreach (var t in cipherText)
-        if (test.IndexOf(t) == -1)
-          return false;
-
-      return true;
+      const string c_Test = c_Base64 + "/+=";
+      return cipherText.All(t => c_Test.IndexOf(t) != -1);
     }
   }
 }

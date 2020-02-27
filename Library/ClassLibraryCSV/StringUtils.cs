@@ -141,10 +141,7 @@ namespace CsvTools
         return string.Empty;
 
       var strVal = val.ToString();
-      if (string.IsNullOrEmpty(strVal))
-        return string.Empty;
-
-      return strVal.Trim().ToUpperInvariant();
+      return string.IsNullOrEmpty(strVal) ? string.Empty : strVal.Trim().ToUpperInvariant();
     }
 
     /// <summary>
@@ -438,10 +435,7 @@ namespace CsvTools
     public static string[] SplitValidValues(string inputValue)
     {
       Contract.Ensures(Contract.Result<string[]>() != null);
-      if (string.IsNullOrEmpty(inputValue))
-        return new string[] { };
-
-      return inputValue.Split(m_SplitChar, StringSplitOptions.RemoveEmptyEntries);
+      return string.IsNullOrEmpty(inputValue) ? new string[] { } : inputValue.Split(m_SplitChar, StringSplitOptions.RemoveEmptyEntries);
     }
 
     /// <summary>
@@ -452,10 +446,7 @@ namespace CsvTools
     public static string SqlName(this string contents)
     {
       Contract.Ensures(Contract.Result<string>() != null);
-      if (string.IsNullOrEmpty(contents))
-        return string.Empty;
-
-      return contents.Replace("]", "]]");
+      return string.IsNullOrEmpty(contents) ? string.Empty : contents.Replace("]", "]]");
     }
 
     /// <summary>
@@ -466,10 +457,7 @@ namespace CsvTools
     public static string SqlQuote(this string contents)
     {
       Contract.Ensures(Contract.Result<string>() != null);
-      if (string.IsNullOrEmpty(contents))
-        return string.Empty;
-
-      return contents.Replace("'", "''");
+      return string.IsNullOrEmpty(contents) ? string.Empty : contents.Replace("'", "''");
     }
 
     public static System.Security.SecureString ToSecureString(this string text)
@@ -508,7 +496,7 @@ namespace CsvTools
         var all = item.IndexOf(parts[0], stringComparison) > -1;
 
         // and all other parts
-        for (int index = 1; index < parts.Length && all; index++)
+        for (var index = 1; index < parts.Length && all; index++)
         {
           if (item.IndexOf(parts[index], stringComparison) == -1)
             all = false;

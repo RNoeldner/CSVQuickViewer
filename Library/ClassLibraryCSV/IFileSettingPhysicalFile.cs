@@ -12,8 +12,6 @@
  *
  */
 
-using System;
-
 namespace CsvTools
 {
   public interface IFileSettingPhysicalFile : IFileSetting
@@ -51,7 +49,7 @@ namespace CsvTools
     /// In case of creating a file, should the time of the latest source be used?
     /// Default: <c>false</c> - Use the current datetime for the file, otherwise use the time of teh latest source
     /// </summary>
-    bool SetLatestSourceTimeForWrite { get; set; }
+    bool SetLatestSourceTimeForWrite { get; }
 
     /// <summary>
     /// Gets or sets a value indicating whether tho throw an error if the remote file could not be found .

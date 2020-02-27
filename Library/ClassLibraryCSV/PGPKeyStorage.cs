@@ -333,10 +333,10 @@ namespace CsvTools
 						foreach (PgpSecretKeyRing ring in pgpSec.GetKeyRings())
 						{
 							var key = ring.GetPublicKey();
-							// no not return signature keys, keys that are reovoked or expired
+							// no not return signature keys, keys that are revoked or expired
 							if (!key.IsEncryptionKey || key.IsRevoked() || !key.GetUserIds().GetEnumerator().MoveNext() || (key.GetValidSeconds() > 0 && key.CreationTime.AddSeconds(key.GetValidSeconds()) < DateTime.Now))
 								continue;
-								foreach (var userID in key.GetUserIds())
+							foreach (var userID in key.GetUserIds())
 								if (!m_Recipients.ContainsKey(userID.ToString()))
 									m_Recipients.Add(userID.ToString(), key);
 							// get the strongest key
@@ -399,13 +399,15 @@ namespace CsvTools
 			if (pgpObject is PgpCompressedData data)
 				pgpObject = new PgpObjectFactory(data.GetDataStream()).NextPgpObject();
 
-			if (pgpObject is PgpLiteralData literalData)
-				return literalData.GetInputStream();
-
-			if (pgpObject is PgpOnePassSignatureList)
-				throw new PgpException("Encrypted message contains a signed message - not literal data.");
-
-			throw new PgpException("Message is not a simple encrypted file - type unknown.");
+			switch (pgpObject)
+			{
+				case PgpLiteralData literalData:
+					return literalData.GetInputStream();
+				case PgpOnePassSignatureList _:
+					throw new PgpException("Encrypted message contains a signed message - not literal data.");
+				default:
+					throw new PgpException("Message is not a simple encrypted file - type unknown.");
+			}
 		}
 
 		/// <summary>

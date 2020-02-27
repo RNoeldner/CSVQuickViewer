@@ -6,8 +6,6 @@ using System.Xml.Serialization;
 
 namespace CsvTools
 {
-  
-
   [Serializable]
   public class SampleAndErrorsInformation : INotifyPropertyChanged,  ICloneable<SampleAndErrorsInformation>
   {

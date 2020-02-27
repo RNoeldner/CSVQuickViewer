@@ -17,112 +17,108 @@ using System.Threading;
 
 namespace CsvTools
 {
-  public class DummyProcessDisplay : IProcessDisplay
-  {
-    public DummyProcessDisplay() : this(CancellationToken.None)
-    {
-    }
+	public class DummyProcessDisplay : IProcessDisplay
+	{
+		public DummyProcessDisplay() : this(CancellationToken.None)
+		{
+		}
 
-    /// <summary>
-    ///   Initializes a new instance of the <see cref="DummyProcessDisplay" /> class.
-    /// </summary>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    public DummyProcessDisplay(CancellationToken cancellationToken)
-    {
-      if (cancellationToken == CancellationToken.None || cancellationToken.IsCancellationRequested)
-        CancellationTokenSource = new CancellationTokenSource();
-      else
-        CancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-    }
+		/// <summary>
+		///   Initializes a new instance of the <see cref="DummyProcessDisplay" /> class.
+		/// </summary>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		public DummyProcessDisplay(CancellationToken cancellationToken)
+		{
+			if (cancellationToken == CancellationToken.None || cancellationToken.IsCancellationRequested)
+				CancellationTokenSource = new CancellationTokenSource();
+			else
+				CancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+		}
 
-    /// <summary>
-    ///   Event handler called as progress should be displayed
-    /// </summary>
-    public virtual event EventHandler<ProgressEventArgs> Progress;
+		/// <summary>
+		///   Event handler called as progress should be displayed
+		/// </summary>
+		public virtual event EventHandler<ProgressEventArgs> Progress;
 
-    /// <summary>
-    ///   Gets or sets the cancellation token.
-    /// </summary>
-    /// <value>
-    ///   The cancellation token.
-    /// </value>
-    public CancellationToken CancellationToken => CancellationTokenSource.Token;
+		/// <summary>
+		///   Gets or sets the cancellation token.
+		/// </summary>
+		/// <value>
+		///   The cancellation token.
+		/// </value>
+		public CancellationToken CancellationToken => CancellationTokenSource.Token;
 
-    public bool LogAsDebug { get; set; } = true;
+		public bool LogAsDebug { get; set; } = true;
 
-    /// <summary>
-    ///   Gets or sets the maximum value for the Progress
-    /// </summary>
-    /// <value>
-    ///   The maximum value.
-    /// </value>
-    public virtual long Maximum { get; set; }
+		/// <summary>
+		///   Gets or sets the maximum value for the Progress
+		/// </summary>
+		/// <value>
+		///   The maximum value.
+		/// </value>
+		public virtual long Maximum { get; set; }
 
-    public virtual string Title { get; set; }
+		public virtual string Title { get; set; }
 
-    public CancellationTokenSource CancellationTokenSource { get; }
+		public CancellationTokenSource CancellationTokenSource { get; }
 
-    /// <summary>
-    ///   To be called if the process should be closed, this will cancel any processing
-    /// </summary>
-    public virtual void Cancel()
-    {
-      if (!CancellationTokenSource.IsCancellationRequested)
-        CancellationTokenSource.Cancel();
-    }
+		/// <summary>
+		///   To be called if the process should be closed, this will cancel any processing
+		/// </summary>
+		public virtual void Cancel()
+		{
+			if (!CancellationTokenSource.IsCancellationRequested)
+				CancellationTokenSource.Cancel();
+		}
 
-    /// <summary>
-    /// Sets the process.
-    /// </summary>
-    /// <param name="text">The text.</param>
-    /// <param name="value">The value.</param>
-    /// <param name="log"><c>True</c> if progress should be logged, <c>false</c> otherwise.</param>
-    public virtual void SetProcess(string text, long value, bool log)
-    {
-      if (log)
-      {
-        if (LogAsDebug)
-          Logger.Debug(text);
-        else
-          Logger.Information(text);
-      }
-      Progress?.Invoke(this, new ProgressEventArgs(text, value, log));
-    }
+		/// <summary>
+		/// Sets the process.
+		/// </summary>
+		/// <param name="text">The text.</param>
+		/// <param name="value">The value.</param>
+		/// <param name="log"><c>True</c> if progress should be logged, <c>false</c> otherwise.</param>
+		public virtual void SetProcess(string text, long value, bool log)
+		{
+			if (log)
+			{
+				if (LogAsDebug)
+					Logger.Debug(text);
+				else
+					Logger.Information(text);
+			}
+			Progress?.Invoke(this, new ProgressEventArgs(text, value, log));
+		}
 
-    /// <summary>
-    ///   Set the progress used by Events
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    public void SetProcess(object sender, ProgressEventArgs e)
-    {
-      if (e == null)
-        return;
-      SetProcess(e.Text ?? string.Empty, e.Value, e.Log);
-    }
+		/// <summary>
+		///   Set the progress used by Events
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		public void SetProcess(object sender, ProgressEventArgs e)
+		{
+			if (e == null)
+				return;
+			SetProcess(e.Text ?? string.Empty, e.Value, e.Log);
+		}
 
-    #region IDisposable Support
+		#region IDisposable Support
 
-    private bool m_DisposedValue; // To detect redundant calls
+		private bool m_DisposedValue; // To detect redundant calls
 
-    // This code added to correctly implement the disposable pattern.
-    public void Dispose() =>
-      // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
-      Dispose(true);
+		// This code added to correctly implement the disposable pattern.
+		public void Dispose() =>
+			// Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+			Dispose(true);
 
-    protected void Dispose(bool disposing)
-    {
-      Cancel();
-      if (m_DisposedValue)
-        return;
-      if (disposing)
-      {
-        CancellationTokenSource.Dispose();
-      }
+		private void Dispose(bool disposing)
+		{
+			Cancel();
+			if (m_DisposedValue) return;
+			if (!disposing) return;
+			CancellationTokenSource.Dispose();
+			m_DisposedValue = true;
+		}
 
-      m_DisposedValue = true;
-    }
-
-    #endregion IDisposable Support
-  }
+		#endregion IDisposable Support
+	}
 }

@@ -162,6 +162,7 @@ namespace CsvTools
 		/// Displays the timespan in a human readable format
 		/// </summary>
 		/// <param name="value">The value.</param>
+		/// <param name="cut2Sec">If true any value shorter than 2 seconds will be empty</param>
 		/// <returns></returns>
 		public static string DisplayTimespan(TimeSpan value, bool cut2Sec = true)
 		{

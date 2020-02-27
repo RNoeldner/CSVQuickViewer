@@ -72,7 +72,7 @@ namespace CsvTools
 
     public int MinLength { get => m_MinLength;
 	    private set => m_MinLength = value; }
-    public bool NamedDate { get; private set; }
+    public bool NamedDate { get; }
 
     private static void DetermineLength()
     {

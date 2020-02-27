@@ -265,7 +265,6 @@ namespace CsvTools
 		/// <summary>
 		/// Examine the source and determine LatestSource
 		/// </summary>
-		/// <param name="allSettings">In case of the setting beeing depenent on other setting, these have to be provided.</param>
 		void CalculateLatestSourceTime();
 	}
 }

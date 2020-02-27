@@ -150,13 +150,15 @@ namespace CsvTools
     [DebuggerStepThrough]
     public static int Count(this IEnumerable items)
     {
-      if (items == null)
-        return 0;
-
-      if (items is ICollection col)
-        return col.Count;
-
-      return Enumerable.Count(items.Cast<object>());
+      switch (items)
+      {
+        case null:
+          return 0;
+        case ICollection col:
+          return col.Count;
+        default:
+          return Enumerable.Count(items.Cast<object>());
+      }
     }
 
     /// <summary>
@@ -197,8 +199,11 @@ namespace CsvTools
         case DataType.TextToHtmlFull:
           return "Encode HTML ('<' -> '&lt;')";
 
-        default:
+        case DataType.String:
           return "Text";
+        
+        default:
+          throw new ArgumentOutOfRangeException(nameof(dt), dt, "Data Type not known");
       }
     }
 
@@ -254,17 +259,13 @@ namespace CsvTools
       {
         case TypeCode.Boolean:
           return DataType.Boolean;
-
         case TypeCode.DateTime:
           return DataType.DateTime;
-
         case TypeCode.Single:
         case TypeCode.Double:
           return DataType.Double;
-
         case TypeCode.Decimal:
           return DataType.Numeric;
-
         case TypeCode.Byte:
         case TypeCode.Int16:
         case TypeCode.Int32:
@@ -274,14 +275,12 @@ namespace CsvTools
         case TypeCode.UInt32:
         case TypeCode.UInt64:
           return DataType.Integer;
-
+        case TypeCode.Object when type.ToString().Equals("System.TimeSpan", StringComparison.Ordinal):
+          return DataType.DateTime;
+        case TypeCode.Object when type.ToString().Equals("System.Guid", StringComparison.Ordinal):
+          return DataType.Guid;
         case TypeCode.Object:
-          if (type.ToString().Equals("System.TimeSpan", StringComparison.Ordinal))
-            return DataType.DateTime;
-          if (type.ToString().Equals("System.Guid", StringComparison.Ordinal))
-            return DataType.Guid;
           return DataType.String;
-
         default:
           return DataType.String;
       }
@@ -361,24 +360,18 @@ namespace CsvTools
       {
         case DataType.DateTime:
           return typeof(DateTime);
-
+        case DataType.Integer when IntPtr.Size == 4:
+          return typeof(int);
         case DataType.Integer:
-          if (IntPtr.Size == 4)
-            return typeof(int);
           return typeof(long);
-
         case DataType.Double:
           return typeof(double);
-
         case DataType.Numeric:
           return typeof(decimal);
-
         case DataType.Boolean:
           return typeof(bool);
-
         case DataType.Guid:
           return typeof(Guid);
-
         default:
           return typeof(string);
       }
@@ -543,7 +536,8 @@ namespace CsvTools
           var value = lastExecutionStart.ToString(format);
           text = text.PlaceholderReplace("ScriptStartUTC", value);
         }
-        if (lastExecution != BaseSettings.ZeroTime)
+
+        if (lastExecution == BaseSettings.ZeroTime) return text;
         {
           var value = lastExecution.ToString(format);
           text = text.PlaceholderReplace("LastScriptEndUTC", value);
@@ -854,15 +848,10 @@ namespace CsvTools
                   lastWaitToCompleteTask = index;
                 else
                 {
-                  if (lastWaitToCompleteTask > 0)
-                  {
-                    msg = trace.ToString();
-                    var tracePosIn = msg.IndexOf(" in ", StringComparison.Ordinal);
-                    if (tracePosIn == -1)
-                      return msg;
-                    else
-                      return msg.Substring(0, tracePosIn);
-                  }
+                  if (lastWaitToCompleteTask <= 0) continue;
+                  msg = trace.ToString();
+                  var tracePosIn = msg.IndexOf(" in ", StringComparison.Ordinal);
+                  return tracePosIn == -1 ? msg : msg.Substring(0, tracePosIn);
                 }
               }
             }
@@ -920,7 +909,7 @@ namespace CsvTools
     /// </param>
     /// <remarks>Will only return the first exception in case of aggregate exceptions.</remarks>
     public static void WaitToCompleteTask(this Task executeTask, double timeoutSeconds, Action every250Ms = null,
-      CancellationToken cancellationToken = default(CancellationToken))
+      CancellationToken cancellationToken = default)
     {
       if (executeTask == null)
         throw new ArgumentNullException(nameof(executeTask));
@@ -988,7 +977,7 @@ namespace CsvTools
     ///   it can be provided
     /// </param>
     /// <returns>Task Result if finished successfully, otherwise raises an error</returns>
-    public static T WaitToCompleteTaskResult<T>(this Task<T> executeTask, double timeoutSeconds, Action every250Ms = null, CancellationToken cancellationToken = default(CancellationToken))
+    public static T WaitToCompleteTaskResult<T>(this Task<T> executeTask, double timeoutSeconds, Action every250Ms = null, CancellationToken cancellationToken = default)
     {
       WaitToCompleteTask(executeTask, timeoutSeconds, every250Ms, cancellationToken);
       return executeTask.Result;
@@ -1051,6 +1040,7 @@ namespace CsvTools
 
       return result;
     }
+
     public static CopyToDataTableInfo GetCopyToDataTableInfo(this IFileReader fileReader, IFileSetting fileSetting,
       DataTable dataTable, bool includeErrorField)
     {

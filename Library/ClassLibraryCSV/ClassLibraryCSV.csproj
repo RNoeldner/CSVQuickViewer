@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <Compile Remove="ColumnSize.cs" />
+    <Compile Remove="GetValidationResultNoCache.cs" />
   </ItemGroup>
 
   <ItemGroup>

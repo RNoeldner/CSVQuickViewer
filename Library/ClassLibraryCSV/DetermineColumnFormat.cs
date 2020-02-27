@@ -32,24 +32,20 @@ namespace CsvTools
     public static ValueFormat CommonDateFormat(IEnumerable<Column> columns)
     {
       ValueFormat best = null;
-      if (columns != null)
+      if (columns == null) return best;
+      var counterByFormat = new Dictionary<ValueFormat, int>();
+      var maxValue = int.MinValue;
+      foreach (var newColumn in columns)
       {
-        var counterByFormat = new Dictionary<ValueFormat, int>();
-        var maxValue = int.MinValue;
-        foreach (var newColumn in columns)
-        {
-          if (newColumn?.ValueFormat == null || newColumn.ValueFormat.DataType != DataType.DateTime)
-            continue;
-          var vf = newColumn.ValueFormat;
-          if (!counterByFormat.ContainsKey(vf))
-            counterByFormat.Add(vf, 0);
+        if (newColumn?.ValueFormat == null || newColumn.ValueFormat.DataType != DataType.DateTime)
+          continue;
+        var vf = newColumn.ValueFormat;
+        if (!counterByFormat.ContainsKey(vf))
+          counterByFormat.Add(vf, 0);
 
-          if (++counterByFormat[vf] > maxValue)
-          {
-            maxValue = counterByFormat[vf];
-            best = vf;
-          }
-        }
+        if (++counterByFormat[vf] <= maxValue) continue;
+        maxValue = counterByFormat[vf];
+        best = vf;
       }
 
       return best;
@@ -265,45 +261,43 @@ namespace CsvTools
             var detect = !(fillGuessSettings.IgnoreIdColums &&
                            StringUtils.AssumeIDColumn(oldColumn.Name) > 0);
 
-            if (oldColumn != null && oldColumn.DataType == DataType.Double)
+            if (oldColumn == null || oldColumn.DataType != DataType.Double) continue;
+            Column newColumn = null;
+
+            if (detect)
             {
-              Column newColumn = null;
+              SampleResult samples;
+              if (sampleList.Keys.Contains(colindex + 1))
+                samples = sampleList[colindex + 1];
+              else
+                samples = GetSampleValues(fileReader, fillGuessSettings.CheckedRecords, 
+                  colindex, fillGuessSettings.SampleValues, fileSetting.TreatTextAsNull,
+                  processDisplay.CancellationToken);
 
-              if (detect)
+              if (samples.Values.Count > 0)
               {
-                SampleResult samples;
-                if (sampleList.Keys.Contains(colindex + 1))
-                  samples = sampleList[colindex + 1];
-                else
-                  samples = GetSampleValues(fileReader, fillGuessSettings.CheckedRecords, 
-                    colindex, fillGuessSettings.SampleValues, fileSetting.TreatTextAsNull,
-                    processDisplay.CancellationToken);
-
-                if (samples.Values.Count > 0)
+                var checkResult = GuessNumeric(samples.Values, false, true, processDisplay.CancellationToken);
+                if (checkResult != null && checkResult.FoundValueFormat.DataType != DataType.Double)
                 {
-                  var checkResult = GuessNumeric(samples.Values, false, true, processDisplay.CancellationToken);
-                  if (checkResult != null && checkResult.FoundValueFormat.DataType != DataType.Double)
-                  {
-                    newColumn = fileSetting.ColumnCollection.Get(oldColumn.Name) ??
-                                fileSetting.ColumnCollection.AddIfNew(oldColumn);
+                  newColumn = fileSetting.ColumnCollection.Get(oldColumn.Name) ??
+                              fileSetting.ColumnCollection.AddIfNew(oldColumn);
 
-                    newColumn.DataType = checkResult.FoundValueFormat.DataType;
-                  }
+                  newColumn.DataType = checkResult.FoundValueFormat.DataType;
                 }
               }
-              else
-              {
-                newColumn = fileSetting.ColumnCollection.Get(oldColumn.Name) ??
-                            fileSetting.ColumnCollection.AddIfNew(oldColumn);
-                newColumn.DataType = DataType.String;
-              }
+            }
+            else
+            {
+              newColumn = fileSetting.ColumnCollection.Get(oldColumn.Name) ??
+                          fileSetting.ColumnCollection.AddIfNew(oldColumn);
+              newColumn.DataType = DataType.String;
+            }
 
-              if (newColumn != null)
-              {
-                var msg = $"{newColumn.Name} – Overwritten Excel Format : {newColumn.GetTypeAndFormatDescription()}";
-                processDisplay.SetProcess(msg, colindex, true);
-                result.Add(msg);
-              }
+            if (newColumn != null)
+            {
+              var msg = $"{newColumn.Name} – Overwritten Excel Format : {newColumn.GetTypeAndFormatDescription()}";
+              processDisplay.SetProcess(msg, colindex, true);
+              result.Add(msg);
             }
           }
 
@@ -454,9 +448,9 @@ namespace CsvTools
             existing.Add(col);
 
         fileSetting.ColumnCollection.Clear();
-        if (existing != null)
-          foreach (var column in existing)
-            fileSetting.ColumnCollection.AddIfNew(column);
+        if (existing == null) return result;
+        foreach (var column in existing)
+          fileSetting.ColumnCollection.AddIfNew(column);
       }
 
       return result;
@@ -743,7 +737,7 @@ namespace CsvTools
     /// <param name="fileSettings">The file settings.</param>
     /// <param name="processDisplay">The process display.</param>
     /// <returns></returns>
-    public static ICollection<ColumnInfo> GetSourceColumnInformation(IFileSetting fileSettings,
+    public static IEnumerable<ColumnInfo> GetSourceColumnInformation(IFileSetting fileSettings,
     IProcessDisplay processDisplay)
     {
       Contract.Requires(fileSettings != null);
@@ -791,11 +785,9 @@ namespace CsvTools
               foreach (var entry in samples)
               {
                 cancellationToken.ThrowIfCancellationRequested();
-                if (entry.IndexOf(sep, StringComparison.Ordinal) != -1)
-                {
-                  possibleDateSeparators.Add(sep);
-                  break;
-                }
+                if (entry.IndexOf(sep, StringComparison.Ordinal) == -1) continue;
+                possibleDateSeparators.Add(sep);
+                break;
               }
           }
 

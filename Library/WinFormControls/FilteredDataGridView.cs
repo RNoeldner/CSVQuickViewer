@@ -61,7 +61,7 @@ namespace CsvTools
     /// </summary>
     public FilteredDataGridView()
     {
-      //Workaround as Text on Windwos 8 is too small
+      //Workaround as Text on Windows 8 is too small
       if (Environment.OSVersion.Version.Major == 6 && Environment.OSVersion.Version.Minor > 1)
         Paint += FilteredDataGridView_Paint;      
 
@@ -72,8 +72,7 @@ namespace CsvTools
       InitializeComponent();
       DataError += FilteredDataGridView_DataError;
       toolStripMenuItemColumnVisibility.ItemCheck += CheckedListBox_ItemCheck;
-      var tableLayoutSettings = contextMenuStripHeader.LayoutSettings as TableLayoutSettings;
-      tableLayoutSettings.ColumnCount = 3;
+      if (contextMenuStripHeader.LayoutSettings is TableLayoutSettings tableLayoutSettings) tableLayoutSettings.ColumnCount = 3;
 
       ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
 
@@ -442,18 +441,18 @@ namespace CsvTools
     /// <returns>A number for DataGridViewColumn.With</returns>
     private static int GetColumnWith(DataColumn col, DataRowCollection rowCollection)
     {
-      const int widthInt = 25;
-      const int widthDec = 50;
-      const int widthDate = 110;
-      const int widthTextMed = 225;
-      const int widthTextLong = 350;
+      const int c_WidthInt = 25;
+      const int c_WidthDec = 50;
+      const int c_WidthDate = 110;
+      const int c_WidthTextMed = 225;
+      const int c_WidthTextLong = 350;
 
       if (col.DataType == typeof(int) || col.DataType == typeof(bool) || col.DataType == typeof(long))
-        return widthInt;
+        return c_WidthInt;
       if (col.DataType == typeof(decimal))
-        return widthDec;
+        return c_WidthDec;
       if (col.DataType == typeof(DateTime))
-        return widthDate;
+        return c_WidthDate;
       if (col.DataType == typeof(string))
       {
         var remain = 30;
@@ -462,9 +461,9 @@ namespace CsvTools
           if (dataRow[col] != DBNull.Value)
           {
             if (dataRow[col].ToString().Length > 80)
-              return widthTextLong;
+              return c_WidthTextLong;
             if (dataRow[col].ToString().Length > 15)
-              return widthTextMed;
+              return c_WidthTextMed;
           }
 
           if (remain-- < 0)
@@ -631,7 +630,7 @@ namespace CsvTools
           toolStripMenuItemCF.Visible = columnFormat != null;
           toolStripSeparatorCF.Visible = columnFormat != null;
           if (columnFormat != null)
-            toolStripMenuItemCF.Text = $"Change column format: {columnFormat.DataType.DataTypeDisplay()}";
+            toolStripMenuItemCF.Text = $@"Change column format: {columnFormat.DataType.DataTypeDisplay()}";
 
           toolStripMenuItemRemoveOne.Enabled &= e.ColumnIndex != -1;
           contextMenuStripHeader.Show(Cursor.Position);
@@ -1032,23 +1031,23 @@ namespace CsvTools
         switch (result)
         {
           case BuildValueClustersResult.WrongType:
-            newMenuItem.Text = "Type can not be clustered";
-            newMenuItem.ToolTipText = "This type of column can not be filter by value";
+            newMenuItem.Text = @"Type can not be clustered";
+            newMenuItem.ToolTipText = @"This type of column can not be filter by value";
             break;
 
           case BuildValueClustersResult.TooManyValues:
-            newMenuItem.Text = "More than 40 values";
-            newMenuItem.ToolTipText = "Too many different values found to list them all";
+            newMenuItem.Text = @"More than 40 values";
+            newMenuItem.ToolTipText = @"Too many different values found to list them all";
             break;
 
           case BuildValueClustersResult.NoValues:
-            newMenuItem.Text = "No values";
-            newMenuItem.ToolTipText = "This column is empty";
+            newMenuItem.Text = @"No values";
+            newMenuItem.ToolTipText = @"This column is empty";
             break;
 
           case BuildValueClustersResult.ListFilled:
-            newMenuItem.Text = "Any of:";
-            newMenuItem.ToolTipText = "Check all values you want to filter for";
+            newMenuItem.Text = @"Any of:";
+            newMenuItem.ToolTipText = @"Check all values you want to filter for";
             break;
         }
 
@@ -1072,7 +1071,7 @@ namespace CsvTools
             itemVc.Active = sendItem.Checked;
         };
         if (item.Count > 0)
-          newMenuItem.ShortcutKeyDisplayString = $"{item.Count} items";
+          newMenuItem.ShortcutKeyDisplayString = $@"{item.Count} items";
         contextMenuStripFilter.Items.Insert(2, newMenuItem);
       }
 
@@ -1203,6 +1202,7 @@ namespace CsvTools
       }
       catch
       {
+	      // ignored
       }
     }
 
@@ -1225,6 +1225,7 @@ namespace CsvTools
       }
       catch
       {
+	      // ignored
       }
     }
 
@@ -1248,6 +1249,7 @@ namespace CsvTools
       }
       catch
       {
+	      // ignored
       }
     }
 
@@ -1270,6 +1272,7 @@ namespace CsvTools
       }
       catch
       {
+	      // ignored
       }
     }
 

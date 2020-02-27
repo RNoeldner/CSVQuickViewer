@@ -61,7 +61,7 @@ namespace CsvTools
 		/// <summary>
 		///   Collection of the artificial field names
 		/// </summary>
-		public static ICollection<string> ArtificialFields = new HashSet<string>
+		public static readonly ICollection<string> ArtificialFields = new HashSet<string>
 			{cRecordNumberFieldName, cStartLineNumberFieldName, cEndLineNumberFieldName, cErrorField, cPartitionField};
 
 		private readonly IntervalAction m_IntervalAction = new IntervalAction();
@@ -315,22 +315,22 @@ namespace CsvTools
 		///   starting at the given buffer offset.
 		/// </summary>
 		/// <param name="i">The zero-based column ordinal.</param>
-		/// <param name="fieldoffset">The index within the row from which to start the read operation.</param>
+		/// <param name="fieldOffset">The index within the row from which to start the read operation.</param>
 		/// <param name="buffer">The buffer into which to read the stream of bytes.</param>
-		/// <param name="bufferoffset">The index for <paramref name="buffer" /> to start the read operation.</param>
+		/// <param name="bufferOffset">The index for <paramref name="buffer" /> to start the read operation.</param>
 		/// <param name="length">The number of bytes to read.</param>
 		/// <returns>The actual number of characters read.</returns>
 		/// <exception cref="IndexOutOfRangeException">
 		///   The index passed was outside the range of 0 through <see cref="IDataRecord.FieldCount" />.
 		/// </exception>
-		public virtual long GetChars(int i, long fieldoffset, char[] buffer, int bufferoffset, int length)
+		public virtual long GetChars(int i, long fieldOffset, char[] buffer, int bufferOffset, int length)
 		{
 			Debug.Assert(CurrentRowColumnText != null);
-			var offset = (int) fieldoffset;
+			var offset = (int) fieldOffset;
 			var maxLen = CurrentRowColumnText[i].Length - offset;
 			if (maxLen > length)
 				maxLen = length;
-			CurrentRowColumnText[i].CopyTo(offset, buffer ?? throw new ArgumentNullException(nameof(buffer)), bufferoffset,
+			CurrentRowColumnText[i].CopyTo(offset, buffer ?? throw new ArgumentNullException(nameof(buffer)), bufferOffset,
 				maxLen);
 			return maxLen;
 		}
@@ -696,9 +696,7 @@ namespace CsvTools
 				return DBNull.Value;
 			}
 
-			if (ret == null)
-				return DBNull.Value;
-			return ret;
+			return ret ?? DBNull.Value;
 		}
 
 		/// <summary>
@@ -850,7 +848,7 @@ namespace CsvTools
 		/// <returns>
 		///   an Array of objects for a new row in a Schema Table
 		/// </returns>
-		protected internal static object[] GetDefaultSchemaRowArray() => new object[]
+		protected static object[] GetDefaultSchemaRowArray() => new object[]
 		{
 			true, // 00- AllowDBNull
 			null, // 01- BaseColumnName
@@ -1122,7 +1120,7 @@ namespace CsvTools
 			return ret ?? DBNull.Value;
 		}
 
-		protected string GetUniqueName(ICollection<string> previousColumns, int ordinal, string nameToAdd)
+		private string GetUniqueName(ICollection<string> previousColumns, int ordinal, string nameToAdd)
 		{
 			var newName = StringUtils.MakeUniqueInCollection(previousColumns, nameToAdd);
 			if (newName != nameToAdd)
@@ -1137,7 +1135,7 @@ namespace CsvTools
 		/// <param name="inputDate">The input date.</param>
 		/// <param name="inputTime">The input time.</param>
 		/// <param name="columnNumber">The column.</param>
-		protected void HandleDateError(string inputDate, string inputTime, int columnNumber)
+		private void HandleDateError(string inputDate, string inputTime, int columnNumber)
 		{
 			Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount);
 			var column = GetColumn(columnNumber);
@@ -1188,25 +1186,30 @@ namespace CsvTools
 			var output = inputString;
 
 			switch (column.DataType)
-			{
-				case DataType.TextToHtml:
-					output = HTMLStyle.TextToHtmlEncode(inputString);
-					if (!inputString.Equals(output, StringComparison.Ordinal))
-						HandleWarning(columnNumber, $"HTML encoding removed from {inputString}");
-					break;
-
-				case DataType.TextToHtmlFull:
-					output = HTMLStyle.HtmlEncodeShort(inputString);
-					if (!inputString.Equals(output, StringComparison.Ordinal))
-						HandleWarning(columnNumber, $"HTML encoding removed from {inputString}");
-					break;
-
-				case DataType.TextPart:
-					output = StringConversion.StringToTextPart(inputString, column.PartSplitter, column.Part, column.PartToEnd);
-					if (output == null)
-						HandleWarning(columnNumber, $"Part {column.Part} of text {inputString} is empty.");
-					break;
-			}
+      {
+        case DataType.TextToHtml:
+        {
+          output = HTMLStyle.TextToHtmlEncode(inputString);
+          if (!inputString.Equals(output, StringComparison.Ordinal))
+            HandleWarning(columnNumber, $"HTML encoding removed from {inputString}");
+          break;
+        }
+        case DataType.TextToHtmlFull:
+        {
+          output = HTMLStyle.HtmlEncodeShort(inputString);
+          if (!inputString.Equals(output, StringComparison.Ordinal))
+            HandleWarning(columnNumber, $"HTML encoding removed from {inputString}");
+          break;
+        }
+        case DataType.TextPart:
+        {
+          output = StringConversion.StringToTextPart(inputString, column.PartSplitter, column.Part,
+            column.PartToEnd);
+          if (output == null)
+            HandleWarning(columnNumber, $"Part {column.Part} of text {inputString} is empty.");
+          break;
+        }
+      }
 
 			if (string.IsNullOrEmpty(output))
 				return null;
