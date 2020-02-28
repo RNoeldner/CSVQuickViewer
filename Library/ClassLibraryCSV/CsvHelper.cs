@@ -27,7 +27,7 @@ using System.Threading;
 namespace CsvTools
 {
   /// <summary>
-  ///   Helper class
+  /// Helper class
   /// </summary>
   public static class CsvHelper
   {
@@ -48,13 +48,11 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets the column header of a file
+    /// Gets the column header of a file
     /// </summary>
     /// <param name="fileReader">a file reader</param>
     /// <param name="cancellationToken">a cancellation token</param>
-    /// <returns>
-    ///   An array of string with the column headers where the column is empty
-    /// </returns>
+    /// <returns>An array of string with the column headers where the column is empty</returns>
     public static ICollection<string> GetEmptyColumnHeader(IFileReader fileReader, CancellationToken cancellationToken)
     {
       Contract.Requires(fileReader != null);
@@ -81,7 +79,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets the <see cref="Encoding" /> of the textFile
+    /// Gets the <see cref="Encoding"/> of the textFile
     /// </summary>
     /// <param name="setting">The setting.</param>
     /// <returns></returns>
@@ -103,12 +101,10 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Guesses the code page ID of a file
+    /// Guesses the code page ID of a file
     /// </summary>
     /// <param name="setting">The CSVFile fileSetting</param>
-    /// <remarks>
-    ///   No Error will be thrown, the CodePage and the BOM will bet set
-    /// </remarks>
+    /// <remarks>No Error will be thrown, the CodePage and the BOM will bet set</remarks>
     public static void GuessCodePage(ICsvFile setting)
     {
       Contract.Requires(setting != null);
@@ -144,23 +140,19 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Guesses the delimiter for a files. Done with a rather simple csv parsing, and trying to find
-    ///   the delimiter that has the least variance in the read rows, if that is not possible the
-    ///   delimiter with the highest number of occurrences.
+    /// Guesses the delimiter for a files. Done with a rather simple csv parsing, and trying to find
+    /// the delimiter that has the least variance in the read rows, if that is not possible the
+    /// delimiter with the highest number of occurrences.
     /// </summary>
     /// <param name="setting">The CSVFile fileSetting</param>
-    /// <returns>
-    ///   A character with the assumed delimiter for the file
-    /// </returns>
-    /// <remarks>
-    ///   No Error will not be thrown.
-    /// </remarks>
+    /// <returns>A character with the assumed delimiter for the file</returns>
+    /// <remarks>No Error will not be thrown.</remarks>
     public static string GuessDelimiter(ICsvFile setting)
     {
       Contract.Requires(setting != null);
       Contract.Ensures(Contract.Result<string>() != null);
-      using (var improvedStream = ImprovedStream.OpenRead(setting))
-      using (var streamReader = new StreamReader(improvedStream.Stream, setting.GetEncoding(), setting.ByteOrderMark))
+      using (var IImprovedStream = ImprovedStream.OpenRead(setting))
+      using (var streamReader = new StreamReader(IImprovedStream.Stream, setting.GetEncoding(), setting.ByteOrderMark))
       {
         for (var i = 0; i < setting.SkipRows; i++)
           streamReader.ReadLine();
@@ -178,20 +170,20 @@ namespace CsvTools
     public static bool GuessJsonFile(IFileSettingPhysicalFile setting)
     {
       Contract.Requires(setting != null);
-      using (var improvedStream = ImprovedStream.OpenRead(setting))
-      using (var streamReader = new StreamReader(improvedStream.Stream))
+      using (var IImprovedStream = ImprovedStream.OpenRead(setting))
+      using (var streamReader = new StreamReader(IImprovedStream.Stream))
       {
         return IsJsonReadable(streamReader);
       }
     }
 
     /// <summary>
-    ///   Opens the csv file, and tries to read the headers
+    /// Opens the csv file, and tries to read the headers
     /// </summary>
     /// <param name="setting">The CSVFile fileSetting</param>
     /// <param name="cancellationToken">A cancellation token</param>
     /// <returns>
-    ///   <c>True</c> we could use the first row as header, <c>false</c> should not use first row as header
+    /// <c>True</c> we could use the first row as header, <c>false</c> should not use first row as header
     /// </returns>
     public static bool GuessHasHeader(ICsvFile setting, CancellationToken cancellationToken)
     {
@@ -210,8 +202,8 @@ namespace CsvTools
 
         var defaultNames = 0;
 
-        // In addition check that all columns have real names and did not get an artificial name
-        // or are numbers
+        // In addition check that all columns have real names and did not get an artificial name or
+        // are numbers
         for (var counter = 0; counter < csvDataReader.FieldCount; counter++)
         {
           var columnName = csvDataReader.GetName(counter);
@@ -246,15 +238,15 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Try to guess the new line sequence
+    /// Try to guess the new line sequence
     /// </summary>
-    /// <param name="setting"><see cref="ICsvFile" /> with the information</param>
+    /// <param name="setting"><see cref="ICsvFile"/> with the information</param>
     /// <returns>The NewLine Combination used</returns>
     public static string GuessNewline(ICsvFile setting)
     {
       Contract.Requires(setting != null);
-      using (var improvedStream = ImprovedStream.OpenRead(setting))
-      using (var streamReader = new StreamReader(improvedStream.Stream, setting.GetEncoding(), setting.ByteOrderMark))
+      using (var IImprovedStream = ImprovedStream.OpenRead(setting))
+      using (var streamReader = new StreamReader(IImprovedStream.Stream, setting.GetEncoding(), setting.ByteOrderMark))
       {
         for (var i = 0; i < setting.SkipRows; i++)
           streamReader.ReadLine();
@@ -263,34 +255,30 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Determines the start row in the file
+    /// Determines the start row in the file
     /// </summary>
-    /// <param name="setting"><see cref="ICsvFile" /> with the information</param>
-    /// <returns>
-    ///   The number of rows to skip
-    /// </returns>
+    /// <param name="setting"><see cref="ICsvFile"/> with the information</param>
+    /// <returns>The number of rows to skip</returns>
     private static char GuessQualifier(ICsvFile setting)
     {
       Contract.Requires(setting != null);
-      using (var improvedStream = ImprovedStream.OpenRead(setting))
-      using (var streamReader = new StreamReader(improvedStream.Stream, setting.GetEncoding(), setting.ByteOrderMark))
+      using (var IImprovedStream = ImprovedStream.OpenRead(setting))
+      using (var streamReader = new StreamReader(IImprovedStream.Stream, setting.GetEncoding(), setting.ByteOrderMark))
       {
         return GuessQualifier(streamReader, setting.FileFormat.FieldDelimiterChar, setting.SkipRows);
       }
     }
 
     /// <summary>
-    ///   Determines the start row in the file
+    /// Determines the start row in the file
     /// </summary>
-    /// <param name="setting"><see cref="ICsvFile" /> with the information</param>
-    /// <returns>
-    ///   The number of rows to skip
-    /// </returns>
+    /// <param name="setting"><see cref="ICsvFile"/> with the information</param>
+    /// <returns>The number of rows to skip</returns>
     public static int GuessStartRow(ICsvFile setting)
     {
       Contract.Requires(setting != null);
-      using (var improvedStream = ImprovedStream.OpenRead(setting))
-      using (var streamReader = new StreamReader(improvedStream.Stream, setting.GetEncoding(), setting.ByteOrderMark))
+      using (var IImprovedStream = ImprovedStream.OpenRead(setting))
+      using (var streamReader = new StreamReader(IImprovedStream.Stream, setting.GetEncoding(), setting.ByteOrderMark))
       {
         return GuessStartRow(streamReader, setting.FileFormat.FieldDelimiterChar, setting.FileFormat.FieldQualifierChar,
           setting.FileFormat.CommentLine);
@@ -298,13 +286,11 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Does check if quoting was actually used in the file
+    /// Does check if quoting was actually used in the file
     /// </summary>
     /// <param name="setting">The setting.</param>
     /// <param name="token">The token.</param>
-    /// <returns>
-    ///   <c>true</c> if [has used qualifier] [the specified setting]; otherwise, <c>false</c>.
-    /// </returns>
+    /// <returns><c>true</c> if [has used qualifier] [the specified setting]; otherwise, <c>false</c>.</returns>
     public static bool HasUsedQualifier(ICsvFile setting, CancellationToken token)
     {
       Contract.Requires(setting != null);
@@ -312,8 +298,8 @@ namespace CsvTools
       if (string.IsNullOrEmpty(setting.FileFormat.FieldQualifier) || token.IsCancellationRequested)
         return false;
 
-      using (var improvedStream = ImprovedStream.OpenRead(setting))
-      using (var streamReader = new StreamReader(improvedStream.Stream, setting.GetEncoding(), setting.ByteOrderMark))
+      using (var IImprovedStream = ImprovedStream.OpenRead(setting))
+      using (var streamReader = new StreamReader(IImprovedStream.Stream, setting.GetEncoding(), setting.ByteOrderMark))
       {
         for (var i = 0; i < setting.SkipRows; i++)
           streamReader.ReadLine();
@@ -354,7 +340,8 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Refreshes the settings assuming the file has changed, checks CodePage, Delimiter, Start Row and Header
+    /// Refreshes the settings assuming the file has changed, checks CodePage, Delimiter, Start Row
+    /// and Header
     /// </summary>
     /// <param name="file">The file.</param>
     /// <param name="display">The display.</param>
@@ -448,20 +435,16 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Guesses the delimiter for a files.
-    ///   Done with a rather simple csv parsing, and trying to find the delimiter that has the least variance in the read rows,
-    ///   if that is not possible the delimiter with the highest number of occurrences.
+    /// Guesses the delimiter for a files. Done with a rather simple csv parsing, and trying to find
+    /// the delimiter that has the least variance in the read rows, if that is not possible the
+    /// delimiter with the highest number of occurrences.
     /// </summary>
     /// <param name="streamReader">The StreamReader with the data</param>
     /// <param name="escapeCharacter">The escape character.</param>
     /// <param name="hasDelimiter">if set to <c>true</c> [has delimiter].</param>
-    /// <returns>
-    ///   A character with the assumed delimiter for the file
-    /// </returns>
+    /// <returns>A character with the assumed delimiter for the file</returns>
     /// <exception cref="ArgumentNullException">streamReader</exception>
-    /// <remarks>
-    ///   No Error will not be thrown.
-    /// </remarks>
+    /// <remarks>No Error will not be thrown.</remarks>
     [SuppressMessage("Microsoft.Performance", "CA1814:PreferJaggedArraysOverMultidimensional", MessageId = "Body")]
     private static string GuessDelimiter(StreamReader streamReader, char escapeCharacter, out bool hasDelimiter)
     {
@@ -481,8 +464,8 @@ namespace CsvTools
       var validSeparatorIndex = new List<int>();
       for (var index = 0; index < dc.Separators.Length; index++)
       {
-        // only regard a delimiter if we have 75% of the rows with this delimiter
-        // we can still have a lot of commented lines
+        // only regard a delimiter if we have 75% of the rows with this delimiter we can still have
+        // a lot of commented lines
         if (dc.SeparatorRows[index] == 0 || dc.SeparatorRows[index] < dc.LastRow * .75d && dc.LastRow > 5)
           continue;
         validSeparatorIndex.Add(index);
@@ -540,6 +523,7 @@ namespace CsvTools
                 case -2:
                   cutVariance += 4;
                   break;
+
                 case 1:
                 case -1:
                   cutVariance++;
@@ -666,7 +650,8 @@ namespace CsvTools
         if (lineNo < skipRows)
           continue;
 
-        // Note: Delimiters in quoted text will split the actual column in multiple this will be ignore here, we hope to find columns that do not contain delimiters
+        // Note: Delimiters in quoted text will split the actual column in multiple this will be
+        //       ignore here, we hope to find columns that do not contain delimiters
         var cols = line.Split(delimiter);
         foreach (var col in cols)
         {
@@ -701,15 +686,13 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Guesses the start row of a CSV file Done with a rather simple csv parsing
+    /// Guesses the start row of a CSV file Done with a rather simple csv parsing
     /// </summary>
     /// <param name="streamReader">The stream reader with the data</param>
     /// <param name="delimiter">The delimiter.</param>
     /// <param name="quoteChar">The quoting char</param>
     /// <param name="commentLine">The characters for a comment line.</param>
-    /// <returns>
-    ///   The number of rows to skip
-    /// </returns>
+    /// <returns>The number of rows to skip</returns>
     /// <exception cref="ArgumentNullException">commentLine</exception>
     private static int GuessStartRow(TextReader streamReader, char delimiter, char quoteChar, string commentLine)
     {
@@ -820,8 +803,8 @@ namespace CsvTools
       if (columnCount.Count < 4)
         return 0;
 
-      // In case we have a row that is exactly twice as long as the row
-      // before and row after, assume its missing a linefeed
+      // In case we have a row that is exactly twice as long as the row before and row after, assume
+      // its missing a linefeed
       for (var row = 1; row < columnCount.Count - 1; row++)
         if (columnCount[row + 1] > 0 && columnCount[row] == columnCount[row + 1] * 2 &&
             columnCount[row] == columnCount[row - 1] * 2)

@@ -11,7 +11,7 @@ namespace CsvTools
     private readonly ICsvFile m_StructuredFile;
     private bool m_AssumeLog;
     private bool m_DisposedValue;
-    private ImprovedStream m_ImprovedStream;
+    private IImprovedStream m_ImprovedStream;
     private JsonTextReader m_JsonTextReader;
     private StreamReader m_TextReader;
     private long m_TextReaderLine;

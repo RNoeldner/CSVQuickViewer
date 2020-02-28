@@ -25,7 +25,7 @@ using FileInfo = Pri.LongPath.FileInfo;
 namespace CsvTools
 {
   /// <summary>
-  ///   A Class to write CSV Files
+  /// A Class to write CSV Files
   /// </summary>
   public abstract class BaseFileWriter
   {
@@ -35,7 +35,7 @@ namespace CsvTools
     private long m_Records;
 
     /// <summary>
-    ///   Initializes a new instance of the <see cref="BaseFileWriter" /> class.
+    /// Initializes a new instance of the <see cref="BaseFileWriter"/> class.
     /// </summary>
     /// <param name="fileSetting">the file setting with the definition for the file</param>
     /// <param name="processDisplay">The process display.</param>
@@ -51,31 +51,27 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets or sets the error message.
+    /// Gets or sets the error message.
     /// </summary>
     /// <value>The error message.</value>
     public virtual string ErrorMessage { get; protected set; }
 
     /// <summary>
-    ///   Event handler called if a warning or error occurred
+    /// Event handler called if a warning or error occurred
     /// </summary>
     public virtual event EventHandler<WarningEventArgs> Warning;
 
     /// <summary>
-    ///   Event to be raised if writing is finished
+    /// Event to be raised if writing is finished
     /// </summary>
     public event EventHandler WriteFinished;
 
     /// <summary>
-    ///   Gets the column information based on the SQL Source, but overwritten with the definitions
+    /// Gets the column information based on the SQL Source, but overwritten with the definitions
     /// </summary>
     /// <param name="reader">The reader.</param>
     /// <returns></returns>
-    /// <exception cref="ArgumentNullException">
-    ///   reader
-    ///   or
-    ///   reader
-    /// </exception>
+    /// <exception cref="ArgumentNullException">reader</exception>
     public ICollection<ColumnInfo> GetSourceColumnInformation(IDataReader reader)
     {
       if (reader == null)
@@ -152,7 +148,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets the data reader schema.
+    /// Gets the data reader schema.
     /// </summary>
     /// <returns>A Data Table</returns>
     public virtual IDataReader GetSchemaReader()
@@ -176,7 +172,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets the source data table.
+    /// Gets the source data table.
     /// </summary>
     /// <param name="recordLimit">The record limit.</param>
     /// <returns>A data table with all source data</returns>
@@ -194,9 +190,8 @@ namespace CsvTools
       }
     }
 
-
     /// <summary>
-    ///   Writes the specified file.
+    /// Writes the specified file.
     /// </summary>
     /// <returns>Number of records written</returns>
     public virtual long Write()
@@ -239,9 +234,9 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Writes the specified file reading from the a data table
+    /// Writes the specified file reading from the a data table
     /// </summary>
-    /// <param name="source">The data that should be written in a <see cref="DataTable" /></param>
+    /// <param name="source">The data that should be written in a <see cref="DataTable"/></param>
     /// <returns>Number of records written</returns>
     public virtual long WriteDataTable(DataTable source)
     {
@@ -261,18 +256,19 @@ namespace CsvTools
         .PlaceholderReplace("CDateLong", string.Format(new CultureInfo("en-US"), "{0:MMMM dd\\, yyyy}", DateTime.Now));
 
     /// <summary>
-    ///   Handles the error.
+    /// Handles the error.
     /// </summary>
     /// <param name="columnName">The column name.</param>
     /// <param name="message">The message.</param>
     protected virtual void HandleError(string columnName, string message) => Warning?.Invoke(this, new WarningEventArgs(m_Records, 0, message, 0, 0, columnName));
 
-    // protected void HandleProgress(string text, int progress) => m_ProcessDisplay?.SetProcess(text, progress);
+    // protected void HandleProgress(string text, int progress) =>
+    // m_ProcessDisplay?.SetProcess(text, progress);
 
     private void HandleProgress(string text) => m_ProcessDisplay?.SetProcess(text, -1, true);
 
     /// <summary>
-    ///   Handles the time zone for a date time column
+    /// Handles the time zone for a date time column
     /// </summary>
     /// <param name="dataObject">The data object.</param>
     /// <param name="columnInfo">The column information.</param>
@@ -315,7 +311,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Calls the event handler for warnings
+    /// Calls the event handler for warnings
     /// </summary>
     /// <param name="columnName">The column.</param>
     /// <param name="message">The message.</param>
@@ -344,7 +340,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Encodes the field.
+    /// Encodes the field.
     /// </summary>
     /// <param name="fileFormat">The settings.</param>
     /// <param name="dataObject">The data object.</param>
@@ -352,15 +348,11 @@ namespace CsvTools
     /// <param name="isHeader">if set to <c>true</c> the current line is the header.</param>
     /// <param name="reader">The reader.</param>
     /// <param name="handleQualify">The handle qualify.</param>
-    /// <returns>
-    ///   proper formatted CSV / Fix Length field
-    /// </returns>
-    /// <exception cref="ArgumentNullException">
-    ///   columnInfo
-    ///   or
-    ///   dataObject
+    /// <returns>proper formatted CSV / Fix Length field</returns>
+    /// <exception cref="ArgumentNullException">columnInfo or dataObject</exception>
+    /// <exception cref="FileWriterException">
+    /// For fix length output the length of the columns needs to be specified.
     /// </exception>
-    /// <exception cref="FileWriterException">For fix length output the length of the columns needs to be specified.</exception>
     protected string TextEncodeField(FileFormat fileFormat, object dataObject, ColumnInfo columnInfo, bool isHeader,
       IDataReader reader, Func<string, ColumnInfo, FileFormat, string> handleQualify)
     {
@@ -443,7 +435,8 @@ namespace CsvTools
         }
         catch (Exception ex)
         {
-          // In case a cast did fail (eg.g trying to format as integer and providing a text, use the original value
+          // In case a cast did fail (eg.g trying to format as integer and providing a text, use the
+          // original value
           displayAs = dataObject?.ToString() ?? string.Empty;
           if (string.IsNullOrEmpty(displayAs))
             HandleError(columnInfo.Header, ex.Message);
@@ -472,7 +465,8 @@ namespace CsvTools
     protected abstract void Write(IDataReader reader, Stream output, CancellationToken cancellationToken);
 
     /// <summary>
-    ///   Gets the column information for one column, can return up to two columns for a date time column because of TimePart
+    /// Gets the column information for one column, can return up to two columns for a date time
+    /// column because of TimePart
     /// </summary>
     /// <param name="writerFileSetting">The writer file setting.</param>
     /// <param name="headers">The column headers.</param>
@@ -484,8 +478,8 @@ namespace CsvTools
     /// <param name="columnOrdinalTimeZoneReader">The column ordinal time zone reader.</param>
     /// <param name="constantTimeZone">The constant time zone.</param>
     /// <returns>
-    ///   Can return multiple columns in case we have a TimePart and the other column is hidden (If the Time part is
-    ///   not hidden it will be returned when looking at it)
+    /// Can return multiple columns in case we have a TimePart and the other column is hidden (If
+    /// the Time part is not hidden it will be returned when looking at it)
     /// </returns>
     private static IEnumerable<ColumnInfo> GetColumnInformationForOneColumn(IFileSetting writerFileSetting,
       ICollection<string> headers, string columnName, Type columnDataType,
@@ -547,12 +541,12 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Get the length of a fields based on the value format, value fields do have a length for
-    ///   aligned text exports
+    /// Get the length of a fields based on the value format, value fields do have a length for
+    /// aligned text exports
     /// </summary>
     /// <param name="dataType">Type of the data.</param>
     /// <param name="defaultLength">The default length.</param>
-    /// <param name="format">The format <see cref="ValueFormat" />.</param>
+    /// <param name="format">The format <see cref="ValueFormat"/>.</param>
     /// <returns>The length of the field in characters.</returns>
     private static int GetFieldLength(DataType dataType, int defaultLength, ValueFormat format)
     {

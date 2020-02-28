@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
 using System.Linq;
@@ -21,8 +22,6 @@ namespace CsvTools.Tests
   public class ImprovedStreamTests
   {
     private readonly string m_ApplicationDirectory = FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles";
-
-
 
     [TestMethod()]
     public void OpenReadTestSetting()
@@ -68,6 +67,7 @@ namespace CsvTools.Tests
         Assert.IsNotNull(res.Stream);
       }
     }
+
     private void WriteFile(string fileName)
     {
       var fullname = Path.Combine(m_ApplicationDirectory, fileName);
@@ -108,10 +108,8 @@ namespace CsvTools.Tests
     [TestMethod()]
     public void OpenWriteTestgZip() => WriteFile("WriteText.gz");
 
-
     [TestMethod()]
     public void OpenWriteTestRegular() => WriteFile("WriteText.txt");
-
 
     [TestMethod()]
     public void OpenWriteTestPgp()

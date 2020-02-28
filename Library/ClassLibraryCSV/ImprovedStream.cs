@@ -21,18 +21,18 @@ namespace CsvTools
   using File = Pri.LongPath.File;
 
   /// <summary>
-  ///   A wrapper around file streams to handle pre and post processing, needed for sFTP, Encryption and Compression
+  /// A wrapper around file streams to handle pre and post processing, needed for sFTP, Encryption
+  /// and Compression
   /// </summary>
-  /// <seealso cref="System.IDisposable" />
-  public sealed class ImprovedStream : IDisposable
+  public sealed class ImprovedStream : IImprovedStream
   {
     /// <summary>
-    ///   A PGP stream, has a few underlying streams that need to be closed in teh right order
+    /// A PGP stream, has a few underlying streams that need to be closed in teh right order
     /// </summary>
     private Stream m_CompressStream;
 
     /// <summary>
-    ///   A PGP stream, has a few underlying streams that need to be closed in teh right order
+    /// A PGP stream, has a few underlying streams that need to be closed in teh right order
     /// </summary>
     private Stream m_EncryptedStream;
 
@@ -53,13 +53,13 @@ namespace CsvTools
     private FileStream BaseStream { get; set; }
 
     /// <summary>
-    ///   Opens a file for reading
+    /// Opens a file for reading
     /// </summary>
     /// <param name="path">The path.</param>
     /// <param name="encryptedPassphrase">The encrypted passphrase.</param>
     /// <returns></returns>
     /// <exception cref="ArgumentException">Path must be set - path</exception>
-    public static ImprovedStream OpenRead(string path, Func<string> encryptedPassphrase = null)
+    public static IImprovedStream OpenRead(string path, Func<string> encryptedPassphrase = null)
     {
       if (string.IsNullOrEmpty(path))
         throw new ArgumentException("Path must be set", nameof(path));
@@ -69,19 +69,16 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Opens the a setting for reading
+    /// Opens the a setting for reading
     /// </summary>
     /// <param name="setting">The setting.</param>
     /// <returns></returns>
     /// <exception cref="EncryptionException">
-    ///   Please provide a passphrase.
-    ///   or
-    ///   Please reenter the passphrase, the passphrase could not be decrypted.
+    /// Please provide a passphrase. or Please reenter the passphrase, the passphrase could not be decrypted.
     /// </exception>
-    public static ImprovedStream OpenRead(IFileSettingPhysicalFile setting)
+    public static IImprovedStream OpenRead(IFileSettingPhysicalFile setting)
     {
-      var retVal = OpenBaseStream(setting.FullPath, setting.GetEncryptedPassphraseFunction);
-
+      var retVal = OpenBaseStream(setting.FullPath, setting.GetEncryptedPassphraseFunction) as ImprovedStream;
       retVal.ResetToStart(
         delegate
           {
@@ -100,12 +97,12 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Opens an file for writing
+    /// Opens an file for writing
     /// </summary>
     /// <param name="path">The path.</param>
     /// <param name="recipient">The recipient.</param>
-    /// <returns>An improved stream object  </returns>
-    public static ImprovedStream OpenWrite(string path, string recipient = null)
+    /// <returns>An improved stream object</returns>
+    public static IImprovedStream OpenWrite(string path, string recipient = null)
     {
       FileSystemUtils.FileDelete(path.LongPathPrefix());
 
@@ -136,7 +133,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Closes the stream in case of a file opened for writing it would be uploaded to the sFTP
+    /// Closes the stream in case of a file opened for writing it would be uploaded to the sFTP
     /// </summary>
     public void Close()
     {
@@ -180,7 +177,8 @@ namespace CsvTools
           {
             System.Security.SecureString decryptedPassphrase;
 
-            // need to use the setting function, opening a form to enter the passphrase is not in this library
+            // need to use the setting function, opening a form to enter the passphrase is not in
+            // this library
             if (string.IsNullOrEmpty(m_EncryptedPassphrase))
               throw new EncryptionException("Please provide a passphrase.");
             try
@@ -239,14 +237,12 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Opens the base stream, handling sFTP access
+    /// Opens the base stream, handling sFTP access
     /// </summary>
     /// <param name="path">The path.</param>
     /// <param name="encryptedPassphraseFunc">The encrypted passphrase function.</param>
-    /// <returns>
-    ///   An improved stream where the base stream is set
-    /// </returns>
-    private static ImprovedStream OpenBaseStream(string path, Func<string> encryptedPassphraseFunc)
+    /// <returns>An improved stream where the base stream is set</returns>
+    private static IImprovedStream OpenBaseStream(string path, Func<string> encryptedPassphraseFunc)
     {
       var retVal = new ImprovedStream { m_AssumePGP = path.AssumePgp(), m_AssumeGZip = path.AssumeGZip() };
       if (retVal.m_AssumePGP && encryptedPassphraseFunc != null)

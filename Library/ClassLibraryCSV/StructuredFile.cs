@@ -21,7 +21,7 @@ using System.Xml.Serialization;
 namespace CsvTools
 {
   /// <summary>
-  ///   Setting for StructuredFile
+  /// Setting for StructuredFile
   /// </summary>
   [Serializable]
   public class StructuredFile : BaseSettings, IFileSettingPhysicalFile, IEquatable<StructuredFile>
@@ -33,7 +33,7 @@ namespace CsvTools
     private bool m_XMLEncode;
 
     /// <summary>
-    ///   Initializes a new instance of the <see cref="StructuredFile" /> class.
+    /// Initializes a new instance of the <see cref="StructuredFile"/> class.
     /// </summary>
     /// <param name="fileName">Name of the file.</param>
     public StructuredFile(string fileName)
@@ -42,14 +42,14 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Initializes a new instance of the <see cref="StructuredFile" /> class.
+    /// Initializes a new instance of the <see cref="StructuredFile"/> class.
     /// </summary>
     public StructuredFile()
     {
     }
 
     /// <summary>
-    ///   Set to <c>true</c> if the contend needs to be HTML Encoded, needed for XML Files
+    /// Set to <c>true</c> if the contend needs to be HTML Encoded, needed for XML Files
     /// </summary>
     [XmlAttribute]
     [DefaultValue(true)]
@@ -66,7 +66,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Template for a row
+    /// Template for a row
     /// </summary>
     [XmlElement]
     [DefaultValue("")]
@@ -85,7 +85,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Set to <c>true</c> if the contend needs to be HTML Encoded, needed for XML Files
+    /// Set to <c>true</c> if the contend needs to be HTML Encoded, needed for XML Files
     /// </summary>
     [XmlAttribute]
     [DefaultValue(false)]
@@ -102,7 +102,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Clones this instance.
+    /// Clones this instance.
     /// </summary>
     /// <returns></returns>
     public IFileSetting Clone()
@@ -114,7 +114,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Copies all values to other instance
+    /// Copies all values to other instance
     /// </summary>
     /// <param name="other">The other.</param>
     public void CopyTo(IFileSetting other)
@@ -134,11 +134,13 @@ namespace CsvTools
       otherSwf.JSONEncode = m_JSONEncode;
     }
 
-    /// <summary>Indicates whether the current object is equal to another object of the same type.</summary>
+    /// <summary>
+    /// Indicates whether the current object is equal to another object of the same type.
+    /// </summary>
     /// <param name="other">An object to compare with this object.</param>
     /// <returns>
-    ///   <see langword="true" /> if the current object is equal to the <paramref name="other" /> parameter; otherwise,
-    ///   <see langword="false" />.
+    /// <see langword="true"/> if the current object is equal to the <paramref name="other"/>
+    /// parameter; otherwise, <see langword="false"/>.
     /// </returns>
     public bool Equals(StructuredFile other)
     {
@@ -156,10 +158,13 @@ namespace CsvTools
 
     public bool Equals(IFileSetting other) => Equals(other as StructuredFile);
 
-    /// <summary>Determines whether the specified object is equal to the current object.</summary>
-    /// <param name="obj">The object to compare with the current object. </param>
+    /// <summary>
+    /// Determines whether the specified object is equal to the current object.
+    /// </summary>
+    /// <param name="obj">The object to compare with the current object.</param>
     /// <returns>
-    ///   <see langword="true" /> if the specified object  is equal to the current object; otherwise, <see langword="false" />.
+    /// <see langword="true"/> if the specified object is equal to the current object; otherwise,
+    /// <see langword="false"/>.
     /// </returns>
     public override bool Equals(object obj) => Equals(obj as StructuredFile);
 
@@ -168,7 +173,9 @@ namespace CsvTools
     public static bool operator !=(StructuredFile file1, StructuredFile file2) => !(file1 == file2);
 
     /*
-    /// <summary>Serves as the default hash function. </summary>
+    /// <summary>
+    /// Serves as the default hash function.
+    /// </summary>
     /// <returns>A hash code for the current object.</returns>
     public override int GetHashCode()
     {
