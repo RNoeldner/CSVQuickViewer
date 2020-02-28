@@ -33,7 +33,7 @@ namespace CsvTools.Tests
     {
       var setting = m_ComHelper.GetCsvFileSetting();
       Assert.IsTrue(setting is ICsvFile);
-      setting.FileName = System.IO.Path.Combine(m_ApplicationDirectory, "BasicCSV.txt");
+      setting.FileName = System.IO.UnitTestInitialize.GetTestPath("BasicCSV.txt");
       setting.ShowProgress = false;
       var result = m_ComHelper.GetDataReader(setting);
       Assert.IsTrue(result is IFileReaderCOM);
@@ -44,7 +44,7 @@ namespace CsvTools.Tests
     {
       var setting = m_ComHelper.GetExcelFileSetting();
       Assert.IsTrue(setting is IExcelFile);
-      setting.FileName = System.IO.Path.Combine(m_ApplicationDirectory, "Small.xlsx");
+      setting.FileName = System.IO.UnitTestInitialize.GetTestPath("Small.xlsx");
       setting.SheetName = "Sheet1";
       setting.ShowProgress = false;
       var result = m_ComHelper.GetDataReader(setting);
@@ -57,7 +57,7 @@ namespace CsvTools.Tests
     {
       var setting = m_ComHelper.GetExcelFileSetting();
       Assert.IsTrue(setting is IExcelFile);
-      setting.FileName = System.IO.Path.Combine(m_ApplicationDirectory, "Small.xlsx");
+      setting.FileName = System.IO.UnitTestInitialize.GetTestPath("Small.xlsx");
       setting.SheetName = "Sheet1";
       m_ComHelper.ShowUI(setting, true, true, false);
     }
@@ -71,7 +71,7 @@ namespace CsvTools.Tests
       writeFile.ShowProgress = false;
       readFile.ShowProgress = false;
       readFile.ID = "Read";
-      readFile.FileName = System.IO.Path.Combine(m_ApplicationDirectory, "BasicCSV.txt");
+      readFile.FileName = System.IO.UnitTestInitialize.GetTestPath("BasicCSV.txt");
       readFile.ColumnFormatAdd(new ColumnFormat
       {
         Name = "ExamDate",
@@ -115,7 +115,7 @@ namespace CsvTools.Tests
         TimePart = "ExamTime"
       });
       writeFile.GetColumnFormat("ExamDate").ValueFormat.DateFormat = "MM/dd/yyyy";
-      writeFile.FileName = System.IO.Path.Combine(m_ApplicationDirectory, "BasicCSVOut.txt");
+      writeFile.FileName = System.IO.UnitTestInitialize.GetTestPath("BasicCSVOut.txt");
 
       m_ComHelper.WriteFile(writeFile, false);
     }

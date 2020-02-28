@@ -40,7 +40,7 @@ namespace CsvTools.Tests
       var readFile = new CsvFile
       {
         ID = id,
-        FileName = Path.Combine(FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles", "AllFormats.txt"),
+        FileName = Path.Combine(UnitTestInitialize.GetTestPath("AllFormats.txt")),
         HasFieldHeader = true,
         FileFormat = { FieldDelimiter = "TAB" }
       };
@@ -78,7 +78,7 @@ namespace CsvTools.Tests
         ID = id
       };
       readFile.FileFormat.CommentLine = "#";
-      readFile.FileName = Path.Combine(FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles", "BasicCSV.txt");
+      readFile.FileName = Path.Combine(UnitTestInitialize.GetTestPath("BasicCSV.txt"));
       var examDateFld = readFile.ColumnCollection.AddIfNew(new Column { Name = "ExamDate", DataType = DataType.DateTime });
 
       Debug.Assert(examDateFld != null);

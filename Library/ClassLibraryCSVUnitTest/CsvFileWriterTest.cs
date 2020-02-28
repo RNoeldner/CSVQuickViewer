@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Data;
@@ -142,7 +143,6 @@ namespace CsvTools.Tests
       }
     }
 
-
     [TestMethod]
     public void GetSourceTableTable()
     {
@@ -254,26 +254,6 @@ namespace CsvTools.Tests
 
       var writeFile = (CsvFile)m_WriteFile.Clone();
       writeFile.FileName = "BasicCSVOut.txt.gz";
-      FileSystemUtils.FileDelete(writeFile.FullPath);
-      writeFile.FileFormat.FieldDelimiter = "|";
-
-      var writer = new CsvFileWriter(writeFile, pd);
-      Assert.IsTrue(string.IsNullOrEmpty(writer.ErrorMessage));
-
-      var res = writer.Write();
-      Assert.IsTrue(FileSystemUtils.FileExists(writeFile.FullPath));
-      Assert.AreEqual(7, res);
-    }
-
-    [TestMethod]
-    public void WritePGP()
-    {
-      var pd = new MockProcessDisplay();
-
-      var writeFile = (CsvFile)m_WriteFile.Clone();
-      writeFile.FileName = "BasicCSVOut.txt.pgp";
-      PGPKeyStorageTestHelper.SetApplicationSetting();
-      writeFile.Recipient = ApplicationSetting.PGPKeyStorage.GetRecipients().First().Key;
       FileSystemUtils.FileDelete(writeFile.FullPath);
       writeFile.FileFormat.FieldDelimiter = "|";
 

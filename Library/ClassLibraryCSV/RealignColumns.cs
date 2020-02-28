@@ -18,7 +18,8 @@ using System.Collections.Generic;
 namespace CsvTools
 {
   /// <summary>
-  /// Class that is used to condense columns of a row in a sensible way, assuming a delimiter in a column lead to more than the expected columns
+  /// Class that is used to condense columns of a row in a sensible way, assuming a delimiter in a
+  /// column lead to more than the expected columns
   /// </summary>
   public class ReAlignColumns
   {
@@ -51,7 +52,7 @@ namespace CsvTools
         m_GoodRows.Add(newRow);
       else
         // Store the row in our list
-        m_GoodRows[SecureString.Random.Next(0, c_MaxGoodRows)] = newRow;
+        m_GoodRows[new Random(Guid.NewGuid().GetHashCode()).Next(0, c_MaxGoodRows)] = newRow;
     }
 
     /// <summary>

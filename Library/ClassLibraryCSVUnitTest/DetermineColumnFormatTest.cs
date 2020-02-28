@@ -25,8 +25,6 @@ namespace CsvTools.Tests
   [TestClass]
   public class DetermineColumnFormatTest
   {
-    private readonly string m_ApplicationDirectory = FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles";
-
     [TestMethod]
     public void GetAllPossibleFormatsD()
     {
@@ -83,7 +81,7 @@ namespace CsvTools.Tests
       }
 
       Assert.IsTrue(found);
-      // we should have M/d/yyyy H:mm:ss  and d/M/yyyy H:mm:ss
+      // we should have M/d/yyyy H:mm:ss and d/M/yyyy H:mm:ss
       Assert.AreEqual(2, res.Count);
     }
 
@@ -92,7 +90,7 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile
       {
-        FileName = Path.Combine(m_ApplicationDirectory, "BasicCSV.txt")
+        FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt")
       };
       setting.FileFormat.FieldDelimiter = ",";
       setting.HasFieldHeader = true;
@@ -186,7 +184,7 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile
       {
-        FileName = Path.Combine(m_ApplicationDirectory, "DateAndNumber.csv"),
+        FileName = UnitTestInitialize.GetTestPath("DateAndNumber.csv"),
         HasFieldHeader = true
       };
       setting.FileFormat.FieldQualifier = "Quote";
@@ -224,7 +222,7 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile
       {
-        FileName = Path.Combine(m_ApplicationDirectory, "BasicCSV.txt")
+        FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt")
       };
       setting.FileFormat.FieldDelimiter = ",";
       setting.HasFieldHeader = true;
@@ -254,7 +252,7 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile
       {
-        FileName = Path.Combine(m_ApplicationDirectory, "Test.csv"),
+        FileName = UnitTestInitialize.GetTestPath("Test.csv"),
         HasFieldHeader = true,
         ByteOrderMark = true
       };
@@ -287,7 +285,7 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile
       {
-        FileName = Path.Combine(m_ApplicationDirectory, "Sessions.txt"),
+        FileName = UnitTestInitialize.GetTestPath("Sessions.txt"),
         HasFieldHeader = true,
         ByteOrderMark = true
       };
@@ -321,7 +319,7 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile
       {
-        FileName = Path.Combine(m_ApplicationDirectory, "Test.csv"),
+        FileName = UnitTestInitialize.GetTestPath("Test.csv"),
         HasFieldHeader = true,
         ByteOrderMark = true
       };
@@ -348,7 +346,7 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile
       {
-        FileName = Path.Combine(m_ApplicationDirectory, "BasicCSV.txt"),
+        FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt"),
         HasFieldHeader = true
       };
       using (var processDisplay = new DummyProcessDisplay())
@@ -368,7 +366,7 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile
       {
-        FileName = Path.Combine(m_ApplicationDirectory, "CSVTestEmpty.txt"),
+        FileName = UnitTestInitialize.GetTestPath("CSVTestEmpty.txt"),
         HasFieldHeader = true
       };
       using (var processDisplay = new DummyProcessDisplay())

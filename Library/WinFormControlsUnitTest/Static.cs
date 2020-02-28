@@ -20,6 +20,7 @@ namespace CsvTools.Tests
 {
   public static class UnitTestStatic
   {
+    private static readonly Random m_Random = new Random(Guid.NewGuid().GetHashCode());
 #pragma warning disable CA2211 // Non-constant fields should not be visible
 
     public static Column[] ColumnsDT2 =
@@ -47,7 +48,7 @@ namespace CsvTools.Tests
       const string c_Base = "012345abcdefghijklmnopqrstuvwxyz6789ABCDEFGHIJKLMNOPQRSTUVWXYZ,.*$%&!";
       var builder = new char[length];
       for (var i = 0; i < length; i++)
-        builder[i] = c_Base[Convert.ToInt32(Math.Floor(c_Base.Length * SecureString.Random.NextDouble()))];
+        builder[i] = c_Base[Convert.ToInt32(Math.Floor(c_Base.Length * m_Random.NextDouble()))];
       return new string(builder);
     }
 
@@ -96,22 +97,22 @@ namespace CsvTools.Tests
         if (i % 10 == 0)
           dr[0] = dr[0] + "\r\nA Second Line";
         dr[1] = i;
-        if (SecureString.Random.NextDouble() < .3)
+        if (m_Random.NextDouble() < .3)
         {
           dr[2] = DBNull.Value;
         }
         else
         {
-          var dtm = Convert.ToInt64((maxDate - minDate) * SecureString.Random.NextDouble() + minDate);
+          var dtm = Convert.ToInt64((maxDate - minDate) * m_Random.NextDouble() + minDate);
           dr[2] = new DateTime(dtm);
         }
 
         dr[3] = i % 2 == 0;
-        dr[4] = SecureString.Random.NextDouble() * 123.78;
+        dr[4] = m_Random.NextDouble() * 123.78;
         if (i % 3 == 0)
-          dr[5] = SecureString.Random.NextDouble();
-        dr[7] = SecureString.Random.NextDouble() < .3 ? null : GetRandomText(100);
-        dr[8] = SecureString.Random.Next(1, 5000000);
+          dr[5] = m_Random.NextDouble();
+        dr[7] = m_Random.NextDouble() < .3 ? null : GetRandomText(100);
+        dr[8] = m_Random.Next(1, 5000000);
         if (i % 33 < 3)
           dr.SetColumnError(i % 33, "ColumnError");
         if (i % 35 == 0)

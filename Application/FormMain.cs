@@ -32,7 +32,7 @@ namespace CsvTools
   using Timer = System.Timers.Timer;
 
   /// <summary>
-  ///   Form to Display a CSV File
+  /// Form to Display a CSV File
   /// </summary>
   public sealed partial class FormMain : ResizeForm
   {
@@ -63,17 +63,14 @@ namespace CsvTools
     private int m_WarningCount;
 
     /// <summary>
-    ///   Initializes a new instance of the <see cref="FormMain" /> class.
+    /// Initializes a new instance of the <see cref="FormMain"/> class.
     /// </summary>
     /// <param name="fileName">Name of the file.</param>
     public FormMain(string fileName)
     {
       m_FileName = fileName;
       m_ViewSettings = LoadDefault();
-      m_ViewSettings.PGPInformation.AllowSavingPassphrase = true;
       m_ViewSettings.FillGuessSettings.PropertyChanged += AnyPropertyChangedReload;
-
-      ApplicationSetting.PGPKeyStorage = m_ViewSettings.PGPInformation;
 
       InitializeComponent();
       FillFromProperties();
@@ -147,15 +144,17 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   As any property is changed this will cause a reload from file
+    /// As any property is changed this will cause a reload from file
     /// </summary>
     /// <param name="sender">The sender.</param>
-    /// <param name="e">The <see cref="PropertyChangedEventArgs" /> instance containing the event data.</param>
+    /// <param name="e">
+    /// The <see cref="PropertyChangedEventArgs"/> instance containing the event data.
+    /// </param>
     /// <remarks>Called by ViewSettings.FillGuessSetting or Columns</remarks>
     private void AnyPropertyChangedReload(object sender, PropertyChangedEventArgs e) => m_ConfigChanged = true;
 
     /// <summary>
-    ///   Attaches the property changed handlers for the file Settings
+    /// Attaches the property changed handlers for the file Settings
     /// </summary>
     /// <param name="fileSetting">The file setting.</param>
     private void AttachPropertyChanged(ICsvFile fileSetting)
@@ -182,10 +181,10 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Handles the DragDrop event of the dataGridView control.
+    /// Handles the DragDrop event of the dataGridView control.
     /// </summary>
     /// <param name="sender">The source of the event.</param>
-    /// <param name="e">The <see cref="DragEventArgs" /> instance containing the event data.</param>
+    /// <param name="e">The <see cref="DragEventArgs"/> instance containing the event data.</param>
     private void DataGridView_DragDrop(object sender, DragEventArgs e)
     {
       // Set the filename
@@ -202,10 +201,10 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Handles the DragEnter event of the dataGridView control.
+    /// Handles the DragEnter event of the dataGridView control.
     /// </summary>
     /// <param name="sender">The source of the event.</param>
-    /// <param name="e">The <see cref="DragEventArgs" /> instance containing the event data.</param>
+    /// <param name="e">The <see cref="DragEventArgs"/> instance containing the event data.</param>
     private void DataGridView_DragEnter(object sender, DragEventArgs e)
     {
       if (e.Data.GetDataPresent(DataFormats.FileDrop, false))
@@ -213,7 +212,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Detaches the property changed handlers for the file Setting
+    /// Detaches the property changed handlers for the file Setting
     /// </summary>
     /// <param name="fileSetting">The file setting.</param>
     private void DetachPropertyChanged(ICsvFile fileSetting)
@@ -267,10 +266,10 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Handles the Activated event of the Display control.
+    /// Handles the Activated event of the Display control.
     /// </summary>
     /// <param name="sender">The source of the event.</param>
-    /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
+    /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
     private void Display_Activated(object sender, EventArgs e)
     {
       if (m_ConfigChanged)
@@ -310,7 +309,6 @@ namespace CsvTools
         {
           m_FileChanged = false;
         }
-
       }
     }
 
@@ -328,10 +326,10 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Handles the Shown event of the Display control.
+    /// Handles the Shown event of the Display control.
     /// </summary>
     /// <param name="sender">The source of the event.</param>
-    /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
+    /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
     private void Display_Shown(object sender, EventArgs e)
     {
       this.LoadWindowState(m_ViewSettings.WindowPosition);
@@ -373,10 +371,12 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Handles the PropertyChanged event of the FileSetting control.
+    /// Handles the PropertyChanged event of the FileSetting control.
     /// </summary>
     /// <param name="sender">The source of the event.</param>
-    /// <param name="e">The <see cref="PropertyChangedEventArgs" /> instance containing the event data.</param>
+    /// <param name="e">
+    /// The <see cref="PropertyChangedEventArgs"/> instance containing the event data.
+    /// </param>
     private void FileSetting_PropertyChanged(object sender, PropertyChangedEventArgs e)
     {
       if (e.PropertyName == nameof(ICsvFile.AllowRowCombining)
@@ -405,12 +405,10 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Handles the Changed event of the fileSystemWatcher control.
+    /// Handles the Changed event of the fileSystemWatcher control.
     /// </summary>
     /// <param name="sender">The source of the event.</param>
-    /// <param name="e">
-    ///   The <see cref="FileSystemEventArgs" /> instance containing the event data.
-    /// </param>
+    /// <param name="e">The <see cref="FileSystemEventArgs"/> instance containing the event data.</param>
     private void FileSystemWatcher_Changed(object sender, FileSystemEventArgs e) =>
       m_FileChanged |= e.FullPath == m_FileSetting.FileName && e.ChangeType == WatcherChangeTypes.Changed;
 
@@ -434,7 +432,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Initializes the file settings.
+    /// Initializes the file settings.
     /// </summary>
     /// <returns></returns>
     [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
@@ -456,33 +454,6 @@ namespace CsvTools
       m_FileSetting = new CsvFile();
       ViewSettings.CopyConfiuration(m_ViewSettings, m_FileSetting);
       m_FileSetting.FileName = m_FileName;
-
-      if (m_FileName.AssumePgp() && (ApplicationSetting.PGPKeyStorage?.PrivateKeys?.Length == 0))
-      {
-        var res = _MessageBox.Show(
-          this,
-          "The private key for decryption has not been setup.\n\nDo you want to add them now ?",
-          "Decryption",
-          MessageBoxButtons.YesNoCancel,
-          MessageBoxIcon.Question,
-          timeout: 5);
-        if (res == DialogResult.Cancel)
-          return false;
-
-        if (res == DialogResult.Yes)
-        {
-          using (var frm = new FormEditSettings(m_ViewSettings))
-          {
-            frm.tabControl.SelectedTab = frm.tabPagePGP;
-            frm.ShowDialog(this);
-            FillFromProperties();
-          }
-
-          SaveDefault();
-        }
-      }
-
-      m_FileSetting.GetEncryptedPassphraseFunction = m_FileSetting.GetEncryptedPassphraseOpenForm;
 
       try
       {
@@ -606,7 +577,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Opens the data reader.
+    /// Opens the data reader.
     /// </summary>
     private void OpenDataReader(bool clear)
     {
@@ -616,8 +587,7 @@ namespace CsvTools
       var oldCursor = Cursor.Current == Cursors.WaitCursor ? Cursors.WaitCursor : Cursors.Default;
       Cursor.Current = Cursors.WaitCursor;
 
-      // Stop Property changed events for the time this is processed
-      // We might store data in the FileSetting
+      // Stop Property changed events for the time this is processed We might store data in the FileSetting
       DetachPropertyChanged(m_FileSetting);
 
       try
@@ -700,8 +670,7 @@ namespace CsvTools
         detailControl.FileSetting = m_FileSetting;
         detailControl.FillGuessSettings = m_ViewSettings.FillGuessSettings;
 
-        // if (m_FileSetting.NoDelimitedFile)
-        // detailControl_ButtonShowSource(this, null);
+        // if (m_FileSetting.NoDelimitedFile) detailControl_ButtonShowSource(this, null);
       }
       catch (ObjectDisposedException)
       {

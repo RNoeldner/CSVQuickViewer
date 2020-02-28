@@ -26,13 +26,12 @@ namespace CsvTools.Tests
   [TestClass]
   public class CsvDataReaderUnitTest
   {
-    private readonly string m_ApplicationDirectory = FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles";
     private readonly CsvFile m_ValidSetting = new CsvFile();
 
     [TestInitialize]
     public void Init()
     {
-      m_ValidSetting.FileName = Path.Combine(m_ApplicationDirectory, "BasicCSV.txt");
+      m_ValidSetting.FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt");
       var cf = m_ValidSetting.ColumnCollection.AddIfNew(new Column
       {
         DataType = DataType.DateTime,
@@ -56,7 +55,7 @@ namespace CsvTools.Tests
         TreatLFAsSpace = true,
         TryToSolveMoreColumns = true,
         AllowRowCombining = true,
-        FileName = Path.Combine(m_ApplicationDirectory, "BadIssues.csv")
+        FileName = UnitTestInitialize.GetTestPath("BadIssues.csv")
       };
       basIssues.FileFormat.FieldDelimiter = "TAB";
       basIssues.FileFormat.FieldQualifier = string.Empty;
@@ -330,11 +329,9 @@ namespace CsvTools.Tests
     //    PartToEnd = false
     //  };
 
-    //  using (var test = new CsvFileReader(m_ValidSetting, null))
-    //  {
-    //    var inputValue = "17-Hello-World";
-    //    var value = test.GetPart(inputValue, partToEnd);
-    //    Assert.AreEqual("Hello-World", value);
+    // using (var test = new CsvFileReader(m_ValidSetting, null)) { var inputValue =
+    // "17-Hello-World"; var value = test.GetPart(inputValue, partToEnd);
+    // Assert.AreEqual("Hello-World", value);
 
     //    var value2 = test.GetPart(inputValue, justPart);
     //    Assert.AreEqual("Hello", value2);
@@ -427,7 +424,7 @@ namespace CsvTools.Tests
     {
       var csvFile = new CsvFile
       {
-        FileName = Path.Combine(m_ApplicationDirectory, "TestFile.txt"),
+        FileName = UnitTestInitialize.GetTestPath("TestFile.txt"),
         CodePageId = 65001,
         FileFormat = { FieldDelimiter = "tab" }
       };
@@ -466,7 +463,7 @@ namespace CsvTools.Tests
       {
         HasFieldHeader = true,
         TrimmingOption = TrimmingOption.All,
-        FileName = Path.Combine(m_ApplicationDirectory, "Warnings.txt"),
+        FileName = UnitTestInitialize.GetTestPath("Warnings.txt"),
         ID = "DataTable",
         WarnUnknowCharater = true,
         DisplayEndLineNo = false,
@@ -486,8 +483,8 @@ namespace CsvTools.Tests
 
           var res = test.WriteToDataTable(setting, 0, CancellationToken.None);
 
-          // The error must have moved from column 4 to column 3 as Column 2 is ignored
-          // no error in column 4 of Row 6
+          // The error must have moved from column 4 to column 3 as Column 2 is ignored no error in
+          // column 4 of Row 6
           Assert.IsTrue(string.IsNullOrEmpty(res.Rows[5].GetColumnError(3)));
           // error in column 3 of Row 6
           Assert.IsTrue(!string.IsNullOrEmpty(res.Rows[5].GetColumnError(2)));
@@ -594,7 +591,7 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile
       {
-        FileName = Path.Combine(m_ApplicationDirectory, "BasicCSVEmptyLine.txt"),
+        FileName = UnitTestInitialize.GetTestPath("BasicCSVEmptyLine.txt"),
         HasFieldHeader = true
       };
 
@@ -615,7 +612,7 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile
       {
-        FileName = Path.Combine(m_ApplicationDirectory, "BasicCSVEmptyLine.txt"),
+        FileName = UnitTestInitialize.GetTestPath("BasicCSVEmptyLine.txt"),
         HasFieldHeader = true,
         SkipEmptyLines = false,
         ConsecutiveEmptyRows = 3
@@ -1053,7 +1050,7 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile
       {
-        FileName = Path.Combine(m_ApplicationDirectory, "BasicCSV.txt"),
+        FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt"),
         HasFieldHeader = false,
         SkipRows = 1
       };
@@ -1077,7 +1074,7 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile
       {
-        FileName = Path.Combine(m_ApplicationDirectory, "BasicCSV.txt"),
+        FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt"),
         HasFieldHeader = false,
         SkipRows = 1
       };
@@ -1112,7 +1109,7 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile
       {
-        FileName = Path.Combine(m_ApplicationDirectory, "BasicCSV.txt"),
+        FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt"),
         HasFieldHeader = false,
         SkipRows = 1
       };
@@ -1147,7 +1144,7 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile
       {
-        FileName = Path.Combine(m_ApplicationDirectory, "BasicCSV.txt"),
+        FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt"),
         HasFieldHeader = false,
         SkipRows = 1
       };
@@ -1182,7 +1179,7 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile
       {
-        FileName = Path.Combine(m_ApplicationDirectory, "BasicCSV.txt"),
+        FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt"),
         HasFieldHeader = true,
         CodePageId = 0
       };
@@ -1201,7 +1198,7 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile
       {
-        FileName = Path.Combine(m_ApplicationDirectory, "BasicCSV.txt"),
+        FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt"),
         HasFieldHeader = false,
         SkipRows = 1
       };
@@ -1236,7 +1233,7 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile
       {
-        FileName = Path.Combine(m_ApplicationDirectory, "BasicCSV.txt"),
+        FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt"),
         HasFieldHeader = false,
         SkipRows = 1
       };
@@ -1271,7 +1268,7 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile
       {
-        FileName = Path.Combine(m_ApplicationDirectory, "BasicCSV.txt"),
+        FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt"),
         HasFieldHeader = false,
         SkipRows = 1
       };
@@ -1578,7 +1575,7 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile
       {
-        FileName = Path.Combine(m_ApplicationDirectory, "BasicCSV.txt"),
+        FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt"),
         HasFieldHeader = false,
         SkipRows = 1
       };
@@ -1602,7 +1599,7 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile
       {
-        FileName = Path.Combine(m_ApplicationDirectory, "BasicCSV.txt"),
+        FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt"),
         HasFieldHeader = false,
         SkipRows = 1
       };

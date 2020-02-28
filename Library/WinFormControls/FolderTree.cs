@@ -3,7 +3,6 @@
   using System;
   using System.Collections.Generic;
   using System.ComponentModel;
-  using System.Drawing;
   using System.IO;
   using System.Security.AccessControl;
   using System.Security.Principal;
@@ -12,7 +11,7 @@
   using Directory = Pri.LongPath.Directory;
 
   /// <summary>
-  ///   Summary description for ExplorerTree.
+  /// Summary description for ExplorerTree.
   /// </summary>
   public class FolderTree : ResizeForm
   {
@@ -33,7 +32,7 @@
     private TextBox m_TxtPath;
 
     /// <summary>
-    ///   Initializes a new instance of the <see cref="FolderTree" /> class.
+    /// Initializes a new instance of the <see cref="FolderTree"/> class.
     /// </summary>
     public FolderTree()
     {
@@ -86,7 +85,7 @@
     }
 
     /// <summary>
-    ///   Forces the control to invalidate its client area and immediately redraw itself and any child controls.
+    /// Forces the control to invalidate its client area and immediately redraw itself and any child controls.
     /// </summary>
     public new void Refresh()
     {
@@ -95,7 +94,7 @@
     }
 
     /// <summary>
-    ///   Sets the current path.
+    /// Sets the current path.
     /// </summary>
     /// <param name="strPath">The string path.</param>
     public void SetCurrentPath(string strPath)
@@ -112,118 +111,126 @@
     private void buttonOK_Click(object sender, EventArgs e) => Close();
 
     /// <summary>
-    ///   Required method for Designer support - do not modify
-    ///   the contents of this method with the code editor.
+    /// Required method for Designer support - do not modify the contents of this method with the
+    /// code editor.
     /// </summary>
     private void InitializeComponent()
     {
-      components = new Container();
-      var resources = new ComponentResourceManager(typeof(FolderTree));
-      m_TxtPath = new TextBox();
-      m_TreeView = new TreeView();
-      m_ImageList = new ImageList(components);
-      m_ButtonOk = new Button();
-      m_ButtonCancel = new Button();
-      m_TableLayoutPanel = new TableLayoutPanel();
-      m_TableLayoutPanel.SuspendLayout();
-      SuspendLayout();
-
+      this.components = new System.ComponentModel.Container();
+      System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FolderTree));
+      this.m_TxtPath = new System.Windows.Forms.TextBox();
+      this.m_TreeView = new System.Windows.Forms.TreeView();
+      this.m_ImageList = new System.Windows.Forms.ImageList(this.components);
+      this.m_ButtonOk = new System.Windows.Forms.Button();
+      this.m_ButtonCancel = new System.Windows.Forms.Button();
+      this.m_TableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
+      this.m_TableLayoutPanel.SuspendLayout();
+      this.SuspendLayout();
+      // 
       // m_TxtPath
-      m_TxtPath.AllowDrop = true;
-      m_TxtPath.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
-      m_TxtPath.AutoCompleteSource = AutoCompleteSource.FileSystem;
-      m_TableLayoutPanel.SetColumnSpan(m_TxtPath, 2);
-      m_TxtPath.Dock = DockStyle.Top;
-      m_TxtPath.Location = new Point(3, 3);
-      m_TxtPath.Name = "m_TxtPath";
-      m_TxtPath.Size = new Size(322, 26);
-      m_TxtPath.TabIndex = 61;
-      m_TxtPath.DragDrop += new DragEventHandler(txtPath_DragDrop);
-      m_TxtPath.DragEnter += new DragEventHandler(txtPath_DragEnter);
-      m_TxtPath.KeyUp += new KeyEventHandler(txtPath_KeyUp);
-
+      // 
+      this.m_TxtPath.AllowDrop = true;
+      this.m_TxtPath.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
+      this.m_TxtPath.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.FileSystem;
+      this.m_TableLayoutPanel.SetColumnSpan(this.m_TxtPath, 2);
+      this.m_TxtPath.Dock = System.Windows.Forms.DockStyle.Top;
+      this.m_TxtPath.Location = new System.Drawing.Point(3, 3);
+      this.m_TxtPath.Name = "m_TxtPath";
+      this.m_TxtPath.Size = new System.Drawing.Size(322, 24);
+      this.m_TxtPath.TabIndex = 61;
+      this.m_TxtPath.DragDrop += new System.Windows.Forms.DragEventHandler(this.txtPath_DragDrop);
+      this.m_TxtPath.DragEnter += new System.Windows.Forms.DragEventHandler(this.txtPath_DragEnter);
+      this.m_TxtPath.KeyUp += new System.Windows.Forms.KeyEventHandler(this.txtPath_KeyUp);
+      // 
       // m_TreeView
-      m_TreeView.AllowDrop = true;
-      m_TreeView.BackColor = Color.White;
-      m_TableLayoutPanel.SetColumnSpan(m_TreeView, 2);
-      m_TreeView.Dock = DockStyle.Fill;
-      m_TreeView.ImageIndex = 0;
-      m_TreeView.ImageList = m_ImageList;
-      m_TreeView.Location = new Point(3, 35);
-      m_TreeView.Name = "m_TreeView";
-      m_TreeView.SelectedImageIndex = 0;
-      m_TreeView.ShowLines = false;
-      m_TreeView.ShowRootLines = false;
-      m_TreeView.Size = new Size(322, 417);
-      m_TreeView.TabIndex = 59;
-      m_TreeView.AfterSelect += new TreeViewEventHandler(TreeNode_AfterSelect);
-      m_TreeView.DragDrop += new DragEventHandler(txtPath_DragDrop);
-      m_TreeView.DragEnter += new DragEventHandler(txtPath_DragEnter);
-      m_TreeView.DoubleClick += new EventHandler(TreeNode_DoubleClick);
-
+      // 
+      this.m_TreeView.AllowDrop = true;
+      this.m_TreeView.BackColor = System.Drawing.Color.White;
+      this.m_TableLayoutPanel.SetColumnSpan(this.m_TreeView, 2);
+      this.m_TreeView.Dock = System.Windows.Forms.DockStyle.Fill;
+      this.m_TreeView.ImageIndex = 0;
+      this.m_TreeView.ImageList = this.m_ImageList;
+      this.m_TreeView.Location = new System.Drawing.Point(3, 33);
+      this.m_TreeView.Name = "m_TreeView";
+      this.m_TreeView.SelectedImageIndex = 0;
+      this.m_TreeView.ShowLines = false;
+      this.m_TreeView.ShowRootLines = false;
+      this.m_TreeView.Size = new System.Drawing.Size(322, 423);
+      this.m_TreeView.TabIndex = 59;
+      this.m_TreeView.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.TreeNode_AfterSelect);
+      this.m_TreeView.DragDrop += new System.Windows.Forms.DragEventHandler(this.txtPath_DragDrop);
+      this.m_TreeView.DragEnter += new System.Windows.Forms.DragEventHandler(this.txtPath_DragEnter);
+      this.m_TreeView.DoubleClick += new System.EventHandler(this.TreeNode_DoubleClick);
+      // 
       // m_ImageList
-      m_ImageList.ImageStream = ((ImageListStreamer)(resources.GetObject("m_ImageList.ImageStream")));
-      m_ImageList.TransparentColor = Color.Transparent;
-      m_ImageList.Images.SetKeyName(0, "Drive");
-      m_ImageList.Images.SetKeyName(1, "Folder");
-      m_ImageList.Images.SetKeyName(2, "CDRom");
-      m_ImageList.Images.SetKeyName(3, "Network");
-      m_ImageList.Images.SetKeyName(4, "Desktop");
-      m_ImageList.Images.SetKeyName(5, "Removable");
-      m_ImageList.Images.SetKeyName(6, "DocumentFolder");
-      m_ImageList.Images.SetKeyName(7, "DesktopFolder");
-
+      // 
+      this.m_ImageList.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("m_ImageList.ImageStream")));
+      this.m_ImageList.TransparentColor = System.Drawing.Color.Transparent;
+      this.m_ImageList.Images.SetKeyName(0, "Drive");
+      this.m_ImageList.Images.SetKeyName(1, "Folder");
+      this.m_ImageList.Images.SetKeyName(2, "CDRom");
+      this.m_ImageList.Images.SetKeyName(3, "Network");
+      this.m_ImageList.Images.SetKeyName(4, "Desktop");
+      this.m_ImageList.Images.SetKeyName(5, "Removable");
+      this.m_ImageList.Images.SetKeyName(6, "DocumentFolder");
+      this.m_ImageList.Images.SetKeyName(7, "DesktopFolder");
+      // 
       // m_ButtonOk
-      m_ButtonOk.Anchor = (AnchorStyles.Top | AnchorStyles.Right);
-      m_ButtonOk.DialogResult = DialogResult.OK;
-      m_ButtonOk.Location = new Point(115, 458);
-      m_ButtonOk.Name = "m_ButtonOk";
-      m_ButtonOk.Size = new Size(102, 34);
-      m_ButtonOk.TabIndex = 62;
-      m_ButtonOk.Text = "&OK";
-      m_ButtonOk.UseVisualStyleBackColor = true;
-      m_ButtonOk.Click += new EventHandler(buttonOK_Click);
-
+      // 
+      this.m_ButtonOk.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+      this.m_ButtonOk.DialogResult = System.Windows.Forms.DialogResult.OK;
+      this.m_ButtonOk.Location = new System.Drawing.Point(115, 462);
+      this.m_ButtonOk.Name = "m_ButtonOk";
+      this.m_ButtonOk.Size = new System.Drawing.Size(102, 30);
+      this.m_ButtonOk.TabIndex = 62;
+      this.m_ButtonOk.Text = "&OK";
+      this.m_ButtonOk.UseVisualStyleBackColor = true;
+      this.m_ButtonOk.Click += new System.EventHandler(this.buttonOK_Click);
+      // 
       // m_ButtonCancel
-      m_ButtonCancel.DialogResult = DialogResult.Cancel;
-      m_ButtonCancel.Location = new Point(223, 458);
-      m_ButtonCancel.Name = "m_ButtonCancel";
-      m_ButtonCancel.Size = new Size(102, 34);
-      m_ButtonCancel.TabIndex = 63;
-      m_ButtonCancel.Text = "&Cancel";
-      m_ButtonCancel.UseVisualStyleBackColor = true;
-      m_ButtonCancel.Click += new EventHandler(buttonOK_Click);
-
+      // 
+      this.m_ButtonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+      this.m_ButtonCancel.Location = new System.Drawing.Point(223, 462);
+      this.m_ButtonCancel.Name = "m_ButtonCancel";
+      this.m_ButtonCancel.Size = new System.Drawing.Size(102, 30);
+      this.m_ButtonCancel.TabIndex = 63;
+      this.m_ButtonCancel.Text = "&Cancel";
+      this.m_ButtonCancel.UseVisualStyleBackColor = true;
+      this.m_ButtonCancel.Click += new System.EventHandler(this.buttonOK_Click);
+      // 
       // m_TableLayoutPanel
-      m_TableLayoutPanel.ColumnCount = 2;
-      m_TableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
-      m_TableLayoutPanel.ColumnStyles.Add(new ColumnStyle());
-      m_TableLayoutPanel.Controls.Add(m_ButtonCancel, 1, 2);
-      m_TableLayoutPanel.Controls.Add(m_TxtPath, 0, 0);
-      m_TableLayoutPanel.Controls.Add(m_TreeView, 0, 1);
-      m_TableLayoutPanel.Controls.Add(m_ButtonOk, 0, 2);
-      m_TableLayoutPanel.Dock = DockStyle.Fill;
-      m_TableLayoutPanel.Location = new Point(0, 0);
-      m_TableLayoutPanel.Name = "m_TableLayoutPanel";
-      m_TableLayoutPanel.RowCount = 3;
-      m_TableLayoutPanel.RowStyles.Add(new RowStyle());
-      m_TableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-      m_TableLayoutPanel.RowStyles.Add(new RowStyle());
-      m_TableLayoutPanel.Size = new Size(328, 495);
-      m_TableLayoutPanel.TabIndex = 64;
-
+      // 
+      this.m_TableLayoutPanel.ColumnCount = 2;
+      this.m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+      this.m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+      this.m_TableLayoutPanel.Controls.Add(this.m_ButtonCancel, 1, 2);
+      this.m_TableLayoutPanel.Controls.Add(this.m_TxtPath, 0, 0);
+      this.m_TableLayoutPanel.Controls.Add(this.m_TreeView, 0, 1);
+      this.m_TableLayoutPanel.Controls.Add(this.m_ButtonOk, 0, 2);
+      this.m_TableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+      this.m_TableLayoutPanel.Location = new System.Drawing.Point(0, 0);
+      this.m_TableLayoutPanel.Name = "m_TableLayoutPanel";
+      this.m_TableLayoutPanel.RowCount = 3;
+      this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+      this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      this.m_TableLayoutPanel.Size = new System.Drawing.Size(328, 495);
+      this.m_TableLayoutPanel.TabIndex = 64;
+      // 
       // FolderTree
-      AcceptButton = m_ButtonOk;
-      BackColor = SystemColors.Control;
-      CancelButton = m_ButtonCancel;
-      ClientSize = new Size(328, 495);
-      Controls.Add(m_TableLayoutPanel);
-      FormBorderStyle = FormBorderStyle.SizableToolWindow;
-      Name = "FolderTree";
-      Text = "Select Folder";
-      m_TableLayoutPanel.ResumeLayout(false);
-      m_TableLayoutPanel.PerformLayout();
-      ResumeLayout(false);
+      // 
+      this.AcceptButton = this.m_ButtonOk;
+      this.BackColor = System.Drawing.SystemColors.Control;
+      this.CancelButton = this.m_ButtonCancel;
+      this.ClientSize = new System.Drawing.Size(328, 495);
+      this.Controls.Add(this.m_TableLayoutPanel);
+      this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
+      this.Name = "FolderTree";
+      this.Text = "Select Folder";
+      this.m_TableLayoutPanel.ResumeLayout(false);
+      this.m_TableLayoutPanel.PerformLayout();
+      this.ResumeLayout(false);
+
     }
 
     private void NavigateToPath(string path)
@@ -325,7 +332,7 @@
     }
 
     /// <summary>
-    ///   Rebuilds the complete tree.
+    /// Rebuilds the complete tree.
     /// </summary>
     private void ReBuildTree()
     {
@@ -375,8 +382,8 @@
 
     private void TreeNode_AfterExpand(object sender, TreeViewEventArgs e)
     {
-      // Do not act on expanding the root node, its has been populated before
-      // it has slow child nodes these are only opened when selected
+      // Do not act on expanding the root node, its has been populated before it has slow child
+      // nodes these are only opened when selected
       if (e.Node == m_RootTreeNode)
         return;
       foreach (TreeNode child in e.Node.Nodes)

@@ -7,6 +7,7 @@ namespace CsvTools
   public class ResizeForm : Form
   {
     private static readonly Font myfont = SystemFonts.IconTitleFont;
+
     // new Font(SystemFonts.IconTitleFont.FontFamily, SystemFonts.IconTitleFont.Size - 2, SystemFonts.IconTitleFont.Style);
 
     /// <summary>
@@ -38,9 +39,11 @@ namespace CsvTools
 
     public ResizeForm()
     {
-      // 6.1 is Windows 7, 6.2 and 6.3 is Windows 8, Windows 10 is 10.x 
+      // 6.1 is Windows 7, 6.2 and 6.3 is Windows 8, Windows 10 is 10.x
       if (Environment.OSVersion.Version.Major == 6 && Environment.OSVersion.Version.Minor > 1)
         SetFonts(this);
+      else
+        this.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
     }
   }
 }

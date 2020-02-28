@@ -23,18 +23,16 @@ namespace CsvTools
   using System.Windows.Forms;
 
   /// <summary>
-  ///   Helper class
+  /// Helper class
   /// </summary>
   public static class Extensions
   {
     /// <summary>
-    ///   Handles a CTRL-A select all in the form.
+    /// Handles a CTRL-A select all in the form.
     /// </summary>
     /// <param name="frm">The calling form</param>
     /// <param name="sender">The sender.</param>
-    /// <param name="e">
-    ///   The <see cref="KeyEventArgs" /> instance containing the event data.
-    /// </param>
+    /// <param name="e">The <see cref="KeyEventArgs"/> instance containing the event data.</param>
     public static void CtrlA(this Form frm, object sender, KeyEventArgs e)
     {
       if (e == null || !e.Control || e.KeyCode.ToString() != "A")
@@ -60,14 +58,14 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Deleting a file, in case it exists it will ask if it should be deleted
+    /// Deleting a file, in case it exists it will ask if it should be deleted
     /// </summary>
     /// <param name="fileName"></param>
     /// <param name="ask"></param>
     /// <returns>
-    ///   true: the file does not exist, or it was deleted
-    ///   false: the file was not deleted it does still exist
-    ///   null: user pressed cancel
+    /// true: the file does not exist, or it was deleted
+    /// false: the file was not deleted it does still exist
+    /// null: user pressed cancel
     /// </returns>
     public static bool? DeleteFileQuestion(this string fileName, bool ask)
     {
@@ -126,46 +124,15 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets the encrypted passphrase open form.
-    /// </summary>
-    /// <param name="setting">The setting.</param>
-    /// <returns></returns>
-    /// <exception cref="EncryptionException">
-    ///   The private key for decryption has not been setup
-    ///   or
-    ///   A passphrase is needed for decryption.
-    /// </exception>
-    public static string GetEncryptedPassphraseOpenForm(this IFileSetting setting)
-    {
-      if (ApplicationSetting.PGPKeyStorage?.PrivateKeys?.Length == 0)
-        throw new EncryptionException("The private key for decryption has not been setup");
-
-      if (!string.IsNullOrEmpty(setting?.Passphrase))
-        return setting.Passphrase;
-
-      if (!string.IsNullOrEmpty(ApplicationSetting.PGPKeyStorage?.EncryptedPassphase))
-        return ApplicationSetting.PGPKeyStorage.EncryptedPassphase;
-
-      // Need to enter Passphrase
-      using (var frm = new FormPassphrase())
-      {
-        if (frm.ShowDialog() == DialogResult.OK)
-          return frm.EncryptedPassphrase;
-        else
-          throw new EncryptionException("A passphrase is needed for decryption.");
-      }
-    }
-
-    /// <summary>
-    ///   Gets the process display.
+    /// Gets the process display.
     /// </summary>
     /// <param name="fileSetting">The setting.</param>
-    /// <param name="owner">The owner form, in case the owner is minimized or closed this progress will do the same</param>
+    /// <param name="owner">
+    /// The owner form, in case the owner is minimized or closed this progress will do the same
+    /// </param>
     /// <param name="withLogger">if set to <c>true</c> [with logger].</param>
     /// <param name="cancellationToken">A Cancellation token</param>
-    /// <returns>
-    ///   A process display, if the stetting want a process
-    /// </returns>
+    /// <returns>A process display, if the stetting want a process</returns>
     public static IProcessDisplay GetProcessDisplay(
       this IFileSetting fileSetting,
       Form owner,
@@ -224,7 +191,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Handles UI elements while waiting on something
+    /// Handles UI elements while waiting on something
     /// </summary>
     /// <param name="milliseconds">number of milliseconds to not process the calling thread</param>
     public static void ProcessUIElements(int milliseconds = 0)
@@ -240,7 +207,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Extensions Methods to Simplify WinForms Thread Invoking, start the action synchrony
+    /// Extensions Methods to Simplify WinForms Thread Invoking, start the action synchrony
     /// </summary>
     /// <param name="uiElement">Type of the Object that will get the extension</param>
     /// <param name="action">A delegate for the action</param>
@@ -255,7 +222,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Extensions Methods to Simplify WinForms Thread Invoking, start the action synchrony
+    /// Extensions Methods to Simplify WinForms Thread Invoking, start the action synchrony
     /// </summary>
     /// <param name="uiElement">Type of the Object that will get the extension</param>
     /// <param name="action">A delegate for the action</param>
@@ -271,7 +238,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Extensions Methods to Simplify WinForms Thread Invoking, start the action synchrony
+    /// Extensions Methods to Simplify WinForms Thread Invoking, start the action synchrony
     /// </summary>
     /// <param name="uiElement">Type of the Object that will get the extension</param>
     /// <param name="action">A delegate for the action</param>
@@ -286,7 +253,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Show error information to a user, and logs the message
+    /// Show error information to a user, and logs the message
     /// </summary>
     /// <param name="from">The current Form</param>
     /// <param name="ex">the Exception</param>
@@ -344,7 +311,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Updates the list view column format.
+    /// Updates the list view column format.
     /// </summary>
     /// <param name="columnFormat">The column format.</param>
     /// <param name="listView">The list view.</param>
@@ -375,7 +342,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Extends regular ValidateChildren with Timeout and Cancellation
+    /// Extends regular ValidateChildren with Timeout and Cancellation
     /// </summary>
     /// <param name="container">Control with validate able children</param>
     /// <param name="cancellationToken">Cancellation Token</param>
@@ -384,12 +351,11 @@ namespace CsvTools
       Task.Run(() => container.ValidateChildren(), cancellationToken).WaitToCompleteTaskResult(1, Application.DoEvents);
 
     /// <summary>
-    ///   Run a task synchronously with timeout
+    /// Run a task synchronously with timeout
     /// </summary>
-    /// <param name="executeTask">The started <see cref="System.Threading.Tasks.Task" /></param>
+    /// <param name="executeTask">The started <see cref="System.Threading.Tasks.Task"/></param>
     /// <param name="timeoutSeconds">
-    ///   Timeout for the completion of the task, if more time is spent running / waiting the wait
-    ///   is finished
+    /// Timeout for the completion of the task, if more time is spent running / waiting the wait is finished
     /// </param>
     /// <param name="cancellationToken">Cancellation Token to be able to cancel the task</param>
     public static void WaitToCompleteTaskUI(
@@ -399,23 +365,21 @@ namespace CsvTools
       executeTask.WaitToCompleteTask(timeoutSeconds, Application.DoEvents, cancellationToken);
 
     /// <summary>
-    ///   Run a task synchronously with timeout
+    /// Run a task synchronously with timeout
     /// </summary>
-    /// <param name="executeTask">The started <see cref="System.Threading.Tasks.Task" /></param>
+    /// <param name="executeTask">The started <see cref="System.Threading.Tasks.Task"/></param>
     /// <param name="timeoutSeconds">
-    ///   Timeout for the completion of the task, if more time is spent running / waiting the wait
-    ///   is finished
+    /// Timeout for the completion of the task, if more time is spent running / waiting the wait is finished
     /// </param>
     public static void WaitToCompleteTaskUI(this Task executeTask, double timeoutSeconds) =>
       executeTask.WaitToCompleteTask(timeoutSeconds, Application.DoEvents);
 
     /// <summary>
-    ///   Run a task synchronously with timeout
+    /// Run a task synchronously with timeout
     /// </summary>
-    /// <param name="executeTask">The started <see cref="System.Threading.Tasks.Task" /></param>
+    /// <param name="executeTask">The started <see cref="System.Threading.Tasks.Task"/></param>
     /// <param name="timeoutSeconds">
-    ///   Timeout for the completion of the task, if more time is spent running / waiting the wait
-    ///   is finished
+    /// Timeout for the completion of the task, if more time is spent running / waiting the wait is finished
     /// </param>
     /// <param name="cancellationToken">Cancellation Token to be able to cancel the task</param>
     public static T WaitToCompleteTaskUI<T>(
@@ -425,18 +389,17 @@ namespace CsvTools
       executeTask.WaitToCompleteTaskResult(timeoutSeconds, Application.DoEvents, cancellationToken);
 
     /// <summary>
-    ///   Run a task synchronously with timeout
+    /// Run a task synchronously with timeout
     /// </summary>
-    /// <param name="executeTask">The started <see cref="System.Threading.Tasks.Task" /></param>
+    /// <param name="executeTask">The started <see cref="System.Threading.Tasks.Task"/></param>
     /// <param name="timeoutSeconds">
-    ///   Timeout for the completion of the task, if more time is spent running / waiting the wait
-    ///   is finished
+    /// Timeout for the completion of the task, if more time is spent running / waiting the wait is finished
     /// </param>
     public static T WaitToCompleteTaskUI<T>(this Task<T> executeTask, double timeoutSeconds) =>
       executeTask.WaitToCompleteTaskResult(timeoutSeconds, Application.DoEvents);
 
     /// <summary>
-    ///   Store a bound value
+    /// Store a bound value
     /// </summary>
     /// <param name="ctrl">The control</param>
     public static void WriteBinding(this Control ctrl) => ctrl.GetTextBindng()?.WriteValue();

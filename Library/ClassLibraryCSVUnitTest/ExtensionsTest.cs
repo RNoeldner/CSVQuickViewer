@@ -25,7 +25,6 @@ namespace CsvTools.Tests
   [TestClass]
   public class ExtensionsTest
   {
-
     [TestMethod]
     public void GetIdFromFileName()
     {
@@ -56,20 +55,6 @@ namespace CsvTools.Tests
       Assert.AreEqual("Hello TaskName", "Hello #TaskID".PlaceholderReplace("TaskID", "TaskName"));
       Assert.AreEqual("Hello Nice World", "Hello #TaskID World".PlaceholderReplace("TaskID", "Nice"));
       Assert.AreEqual("Hello #TaskIDWorld", "Hello #TaskIDWorld".PlaceholderReplace("TaskID", "Nice"));
-    }
-
-    [TestMethod()]
-    public void GetEncryptedPassphraseTest()
-    {
-      var setting = new CsvFile()
-      {
-        FileName = "Test.pgp"
-      };
-      ApplicationSetting.PGPKeyStorage.AddPrivateKey(PGPKeyStorageTestHelper.PRIVATE);
-      ApplicationSetting.PGPKeyStorage.EncryptedPassphase = "Hello";
-      Assert.AreEqual("Hello", setting.GetEncryptedPassphraseFunction.Invoke());
-      setting.Passphrase = "World";
-      Assert.AreEqual("World", setting.GetEncryptedPassphraseFunction.Invoke());
     }
 
     [TestMethod]
@@ -194,7 +179,7 @@ namespace CsvTools.Tests
       catch (Exception ex)
       {
         var message = ex.ExceptionMessages();
-        //  "<Exception1>" is not reached
+        // "<Exception1>" is not reached
         Assert.IsFalse(message.Contains("<Exception1>"));
 
         Assert.IsTrue(message.Contains("<Exception4>"));

@@ -214,7 +214,7 @@ namespace CsvTools
         m_ProcessDisplay.Maximum = -1;
       try
       {
-        using (var improvedStream = ImprovedStream.OpenWrite(m_FileSetting.FullPath, m_FileSetting.Recipient))
+        using (var improvedStream = ApplicationSetting.OpenWrite(m_FileSetting.FullPath, m_FileSetting.Recipient))
         {
           Write(reader, improvedStream.Stream, m_ProcessDisplay?.CancellationToken ?? CancellationToken.None);
         }

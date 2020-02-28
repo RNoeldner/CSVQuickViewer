@@ -273,17 +273,6 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void FormKeyFile()
-    {
-      using (var form = new FormKeyFile("Test", true))
-      {
-        form.ShowInTaskbar = false;
-        form.Show();
-        form.Close();
-      }
-    }
-
-    [TestMethod]
     public void FormShowMaxLength()
     {
       using (var form = new FormShowMaxLength(m_DataTable, m_DataTable.Select()))
@@ -317,17 +306,6 @@ namespace CsvTools.Tests
       };
 
       ShowControl(new DataGridViewColumnFilterControl(col));
-    }
-
-    [TestMethod]
-    public void FormPassphrase()
-    {
-      using (var form = new FormPassphrase("Test"))
-      {
-        form.ShowInTaskbar = false;
-        form.Show();
-        form.Close();
-      }
     }
   }
 }

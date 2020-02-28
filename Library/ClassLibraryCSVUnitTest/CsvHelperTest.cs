@@ -22,28 +22,26 @@ namespace CsvTools.Tests
   [TestClass]
   public class CsvHelperTest
   {
-    private readonly string m_ApplicationDirectory = FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles";
-
     [TestMethod]
     public void GuessCodePage()
     {
       var setting = new CsvFile
       {
-        FileName = Path.Combine(m_ApplicationDirectory, "BasicCSV.txt")
+        FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt")
       };
       CsvHelper.GuessCodePage(setting);
       Assert.AreEqual(1200, setting.CodePageId);
 
       var setting2 = new CsvFile
       {
-        FileName = Path.Combine(m_ApplicationDirectory, "UnicodeUTF16BE.txt")
+        FileName = UnitTestInitialize.GetTestPath("UnicodeUTF16BE.txt")
       };
       CsvHelper.GuessCodePage(setting2);
       Assert.AreEqual(1201, setting2.CodePageId);
 
       var setting3 = new CsvFile
       {
-        FileName = Path.Combine(m_ApplicationDirectory, "Test.csv")
+        FileName = UnitTestInitialize.GetTestPath("Test.csv")
       };
       CsvHelper.GuessCodePage(setting3);
       Assert.AreEqual(65001, setting3.CodePageId);
@@ -54,19 +52,19 @@ namespace CsvTools.Tests
     {
       Assert.IsTrue(CsvHelper.GuessHasHeader(new CsvFile
       {
-        FileName = Path.Combine(m_ApplicationDirectory, "BasicCSV.txt")
+        FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt")
       }, CancellationToken.None), "BasicCSV.txt");
 
       Assert.IsFalse(CsvHelper.GuessHasHeader(new CsvFile
       {
-        FileName = Path.Combine(m_ApplicationDirectory, "txTranscripts.txt")
+        FileName = UnitTestInitialize.GetTestPath("txTranscripts.txt")
       }, CancellationToken.None), "txTranscripts.txt");
     }
 
     [TestMethod]
     public void GuessStartRow() => Assert.AreEqual(0, CsvHelper.GuessStartRow(new CsvFile
     {
-      FileName = Path.Combine(m_ApplicationDirectory, "BasicCSV.txt")
+      FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt")
     }), "BasicCSV.txt");
 
     [TestMethod]
@@ -74,7 +72,7 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile
       {
-        FileName = Path.Combine(m_ApplicationDirectory, "LongHeaders.txt")
+        FileName = UnitTestInitialize.GetTestPath("LongHeaders.txt")
       };
       setting.FileFormat.CommentLine = "#";
       Assert.AreEqual(0, CsvHelper.GuessStartRow(setting), "LongHeaders.txt");
@@ -85,11 +83,11 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile
       {
-        FileName = Path.Combine(m_ApplicationDirectory, "BasicCSV.txt")
+        FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt")
       };
       Assert.AreEqual(",", CsvHelper.GuessDelimiter(setting));
 
-      ICsvFile test = new CsvFile(Path.Combine(m_ApplicationDirectory, "LateStartRow.txt"))
+      ICsvFile test = new CsvFile(UnitTestInitialize.GetTestPath("LateStartRow.txt"))
       {
         SkipRows = 10,
         CodePageId = 20127
@@ -103,7 +101,7 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile
       {
-        FileName = Path.Combine(m_ApplicationDirectory, "BasicCSV.txt")
+        FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt")
       };
       using (var processDisplay = new DummyProcessDisplay())
       {
@@ -116,7 +114,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GuessDelimiterComma()
     {
-      ICsvFile test = new CsvFile(Path.Combine(m_ApplicationDirectory, "AlternateTextQualifiers.txt"))
+      ICsvFile test = new CsvFile(UnitTestInitialize.GetTestPath("AlternateTextQualifiers.txt"))
       {
         CodePageId = -1
       };
@@ -128,7 +126,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GuessDelimiterPipe()
     {
-      ICsvFile test = new CsvFile(Path.Combine(m_ApplicationDirectory, "DifferentColumnDelimiter.txt"))
+      ICsvFile test = new CsvFile(UnitTestInitialize.GetTestPath("DifferentColumnDelimiter.txt"))
       {
         CodePageId = -1
       };
@@ -139,7 +137,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GuessDelimiterQualifier()
     {
-      ICsvFile test = new CsvFile(Path.Combine(m_ApplicationDirectory, "TextQualifiers.txt"))
+      ICsvFile test = new CsvFile(UnitTestInitialize.GetTestPath("TextQualifiers.txt"))
       {
         CodePageId = -1
       };
@@ -150,7 +148,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GuessDelimiterTAB()
     {
-      ICsvFile test = new CsvFile(Path.Combine(m_ApplicationDirectory, "txTranscripts.txt"))
+      ICsvFile test = new CsvFile(UnitTestInitialize.GetTestPath("txTranscripts.txt"))
       {
         CodePageId = -1
       };
@@ -161,7 +159,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GuessStartRow0()
     {
-      ICsvFile test = new CsvFile(Path.Combine(m_ApplicationDirectory, "TextQualifiers.txt"))
+      ICsvFile test = new CsvFile(UnitTestInitialize.GetTestPath("TextQualifiers.txt"))
       {
         CodePageId = -1
       };
@@ -173,7 +171,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GuessStartRow12()
     {
-      ICsvFile test = new CsvFile(Path.Combine(m_ApplicationDirectory, "SkippingEmptyRowsWithDelimiter.txt"))
+      ICsvFile test = new CsvFile(UnitTestInitialize.GetTestPath("SkippingEmptyRowsWithDelimiter.txt"))
       {
         CodePageId = -1
       };
@@ -187,7 +185,7 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile
       {
-        FileName = Path.Combine(m_ApplicationDirectory, "BasicCSV.txt"),
+        FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt"),
         HasFieldHeader = true
       };
 
@@ -199,7 +197,7 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile
       {
-        FileName = Path.Combine(m_ApplicationDirectory, "AlternateTextQualifiers.txt")
+        FileName = UnitTestInitialize.GetTestPath("AlternateTextQualifiers.txt")
       };
       Assert.IsTrue(CsvHelper.HasUsedQualifier(setting, CancellationToken.None));
     }
@@ -209,7 +207,7 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile
       {
-        FileName = Path.Combine(m_ApplicationDirectory, "BasicCSV.txt")
+        FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt")
       };
       using (var display = new DummyProcessDisplay())
       {
@@ -226,7 +224,7 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile
       {
-        FileName = Path.Combine(m_ApplicationDirectory, "CSVTestEmpty.txt")
+        FileName = UnitTestInitialize.GetTestPath("CSVTestEmpty.txt")
       };
       using (var display = new DummyProcessDisplay())
       {
@@ -239,7 +237,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void TestGuessStartRow()
     {
-      ICsvFile test = new CsvFile(Path.Combine(m_ApplicationDirectory, "LateStartRow.txt"))
+      ICsvFile test = new CsvFile(UnitTestInitialize.GetTestPath("LateStartRow.txt"))
       {
         CodePageId = 20127
       };
@@ -264,7 +262,7 @@ namespace CsvTools.Tests
       var setting = new CsvFile
       {
         FileFormat = { FieldDelimiter = "," },
-        FileName = Path.Combine(m_ApplicationDirectory, "EmptyColumns.txt"),
+        FileName = UnitTestInitialize.GetTestPath("EmptyColumns.txt"),
         HasFieldHeader = false
       };
       using (var disp = new DummyProcessDisplay())
@@ -278,21 +276,19 @@ namespace CsvTools.Tests
         setting.HasFieldHeader = true;
         using (var reader = ApplicationSetting.GetFileReader(setting, disp))
         {
-
           var res = CsvHelper.GetColumnHeadersFromReader(reader);
           Assert.AreEqual(0, res.Count);
         }
-
-
       }
     }
+
     [TestMethod]
     public void GuessJsonFile()
     {
       var setting = new CsvFile
       {
         JsonFormat = true,
-        FileName = Path.Combine(m_ApplicationDirectory, "Jason1.json"),
+        FileName = UnitTestInitialize.GetTestPath("Jason1.json"),
       };
 
       Assert.IsTrue(CsvHelper.GuessJsonFile(setting));
@@ -304,7 +300,7 @@ namespace CsvTools.Tests
       var setting = new CsvFile
       {
         FileFormat = { FieldDelimiter = "," },
-        FileName = Path.Combine(m_ApplicationDirectory, "EmptyColumns.txt"),
+        FileName = UnitTestInitialize.GetTestPath("EmptyColumns.txt"),
         HasFieldHeader = false
       };
       using (var disp = new DummyProcessDisplay())
@@ -324,7 +320,7 @@ namespace CsvTools.Tests
       var setting = new CsvFile
       {
         FileFormat = { FieldDelimiter = "," },
-        FileName = Path.Combine(m_ApplicationDirectory, "EmptyColumns.txt"),
+        FileName = UnitTestInitialize.GetTestPath("EmptyColumns.txt"),
         HasFieldHeader = true
       };
       using (var disp = new DummyProcessDisplay())
@@ -343,7 +339,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GuessNewlineTest()
     {
-      var path = Path.Combine(m_ApplicationDirectory, "TestFile.txt");
+      var path = UnitTestInitialize.GetTestPath("TestFile.txt");
       FileSystemUtils.FileDelete(path);
       using (var file = File.CreateText(path))
       {

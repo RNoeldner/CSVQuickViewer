@@ -19,7 +19,7 @@ namespace CsvTools
   using System.Xml.Serialization;
 
   /// <summary>
-  ///   Class containing the all configuration, used in serialization to store the settings
+  /// Class containing the all configuration, used in serialization to store the settings
   /// </summary>
   [Serializable]
   public class ViewSettings : CsvFile
@@ -46,8 +46,6 @@ namespace CsvTools
     private bool m_GuessStartRow = true;
 
     private bool m_MenuDown;
-
-    private PGPKeyStorage m_PGPKeyStorage = new PGPKeyStorage();
 
     private bool m_StoreSettingsByFile;
 
@@ -87,11 +85,9 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets or sets the fill guess settings.
+    /// Gets or sets the fill guess settings.
     /// </summary>
-    /// <value>
-    ///   The fill guess settings.
-    /// </value>
+    /// <value>The fill guess settings.</value>
     [XmlElement]
     public virtual FillGuessSettings FillGuessSettings
     {
@@ -107,11 +103,9 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets a value indicating whether fill guess settings as specified
+    /// Gets a value indicating whether fill guess settings as specified
     /// </summary>
-    /// <value>
-    ///   <c>true</c> if [fill guess settings specified]; otherwise, <c>false</c>.
-    /// </value>
+    /// <value><c>true</c> if [fill guess settings specified]; otherwise, <c>false</c>.</value>
     [XmlIgnore]
     public virtual bool FillGuessSettingsSpecified => !m_FillGuessSettings.Equals(new FillGuessSettings());
 
@@ -199,15 +193,6 @@ namespace CsvTools
         NotifyPropertyChanged(nameof(MenuDown));
       }
     }
-
-    [XmlElement]
-    public virtual PGPKeyStorage PGPInformation
-    {
-      get => m_PGPKeyStorage;
-      set => m_PGPKeyStorage = value ?? new PGPKeyStorage();
-    }
-
-    [XmlIgnore] public virtual bool PGPInformationSpecified => PGPInformation.Specified;
 
     [XmlAttribute]
     [DefaultValue(false)]

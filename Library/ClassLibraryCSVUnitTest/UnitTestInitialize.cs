@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Diagnostics.Contracts;
 
@@ -19,6 +20,10 @@ namespace CsvTools.Tests
   [TestClass]
   public static class UnitTestInitialize
   {
+    private static readonly string m_ApplicationDirectory = FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles";
+
+    public static string GetTestPath(string fileName) => System.IO.Path.Combine(m_ApplicationDirectory, fileName.TrimStart(new[] { ' ', '\\', '/' }));
+
     public static MimicSQLReader MimicSQLReader { get; } = new MimicSQLReader();
 
     [AssemblyInitialize]
