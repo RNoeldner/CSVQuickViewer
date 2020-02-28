@@ -12,11 +12,11 @@
  *
  */
 
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Globalization;
 using System.IO;
 using System.Text;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
@@ -100,7 +100,7 @@ namespace CsvTools.Tests
       var setting = new CsvFile
       {
         HasFieldHeader = false,
-        
+
       };
       setting.FileFormat.AlternateQuoting = true;
       setting.TrimmingOption = TrimmingOption.All;
@@ -121,9 +121,9 @@ namespace CsvTools.Tests
     public void AlternateTextQualifiersDoubleQuotes()
     {
       var setting = new CsvFile
-                      {
-                        HasFieldHeader = false
-                      };
+      {
+        HasFieldHeader = false
+      };
 
       setting.FileFormat.FieldDelimiter = ",";
       setting.FileFormat.AlternateQuoting = true;

@@ -102,9 +102,6 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void ValueFormatNotEqualsNull()
-    {
-      Assert.IsFalse(m_ValueFormatGerman.Equals(null));
-    }
+    public void ValueFormatNotEqualsNull() => Assert.IsFalse(m_ValueFormatGerman.Equals(null));
   }
 }

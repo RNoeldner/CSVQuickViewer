@@ -224,17 +224,17 @@ namespace CsvTools
         if (string.IsNullOrEmpty(id))
           continue;
         var treeData = new TreeData
-                         {
-                           ID = id,
-                           Title = dataColumnDisplay1 != null
+        {
+          ID = id,
+          Title = dataColumnDisplay1 != null
                                      ? dataColumnDisplay2 != null
                                          ?
                                          dataRow[dataColumnDisplay1.Ordinal] + " - "
                                                                              + dataRow[dataColumnDisplay2.Ordinal]
                                          : dataRow[dataColumnDisplay1.Ordinal].ToString()
                                      : id,
-                           ParentID = dataRow[dataColumnParent.Ordinal].ToString()
-                         };
+          ParentID = dataRow[dataColumnParent.Ordinal].ToString()
+        };
         if (dataColumnDisplay1 != null)
           treeData.Tag = dataRow[dataColumnDisplay1.Ordinal].ToString();
 
@@ -267,11 +267,11 @@ namespace CsvTools
             count => process.SetProcess($"Parent not found (Step 1) {count}/{process.Maximum} ", count, false),
             counter++);
           var childData = new TreeData
-                            {
-                              ParentID = rootDataParentNotFound.ID,
-                              ID = parentID,
-                              Title = $"{m_ComboBoxID.SelectedItem} - {parentID}"
-                            };
+          {
+            ParentID = rootDataParentNotFound.ID,
+            ID = parentID,
+            Title = $"{m_ComboBoxID.SelectedItem} - {parentID}"
+          };
           treeDataDictionary.Add(parentID, childData);
         }
       }

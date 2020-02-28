@@ -16,10 +16,10 @@ using System.Collections.Generic;
 
 namespace CsvTools
 {
-	/// <summary>
-	///   A function to check and address that used tables might not be current and need to be reread
-	/// </summary>
-	/// <param name="fileSetting">The file setting.</param>
-	/// <param name="processDisplay">The process display.</param>
-	public delegate void FileSettingChecker(IFileSetting fileSetting, IReadOnlyCollection<IFileSetting> allSetting, IProcessDisplay processDisplay);
+  /// <summary>
+  ///   A function to check and address that used tables might not be current and need to be reread
+  /// </summary>
+  /// <param name="fileSetting">The file setting.</param>
+  /// <param name="processDisplay">The process display.</param>
+  public delegate void FileSettingChecker(IFileSetting fileSetting, IReadOnlyCollection<IFileSetting> allSetting, IProcessDisplay processDisplay);
 }

@@ -35,7 +35,7 @@ namespace CsvTools
     public DataGridViewColumnFilterControl(DataGridViewColumn dataGridViewColumn)
     {
       if (dataGridViewColumn == null)
-        throw new ArgumentNullException(nameof(dataGridViewColumn));      
+        throw new ArgumentNullException(nameof(dataGridViewColumn));
       m_DataGridViewColumnFilter = new ColumnFilterLogic(dataGridViewColumn.ValueType, dataGridViewColumn.DataPropertyName);
       m_DataGridViewColumnFilter.PropertyChanged += FilterLogic_PropertyChanged;
       InitializeComponent();
@@ -48,12 +48,12 @@ namespace CsvTools
 
       dateTimePickerValue.Visible = isDate;
       textBoxValue.Visible = !isDate;
-      
+
       comboBoxOperator.BeginUpdate();
       comboBoxOperator.Items.Clear();
       comboBoxOperator.Items.AddRange(ColumnFilterLogic.GetOperators(m_DataGridViewColumnFilter.ColumnDataType));
       comboBoxOperator.SelectedIndex = 0;
-      comboBoxOperator.EndUpdate();      
+      comboBoxOperator.EndUpdate();
     }
 
     /// <summary>

@@ -12,11 +12,11 @@
  *
  */
 
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
@@ -42,9 +42,9 @@ namespace CsvTools.Tests
         ID = id,
         FileName = Path.Combine(FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles", "AllFormats.txt"),
         HasFieldHeader = true,
-        FileFormat = {FieldDelimiter = "TAB"}
+        FileFormat = { FieldDelimiter = "TAB" }
       };
-      
+
       var timeFld = readFile.ColumnCollection.AddIfNew(new Column { Name = "DateTime", DataType = DataType.DateTime });
       Debug.Assert(timeFld != null);
       timeFld.DateFormat = @"dd/MM/yyyy";

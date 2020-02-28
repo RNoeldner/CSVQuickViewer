@@ -14,14 +14,13 @@
 
 namespace CsvTools
 {
+  using Pri.LongPath;
   using System;
   using System.Collections.Generic;
   using System.Drawing;
   using System.Threading;
   using System.Threading.Tasks;
   using System.Windows.Forms;
-
-  using Pri.LongPath;
 
   /// <summary>
   ///   Helper class
@@ -101,7 +100,7 @@ namespace CsvTools
 
       if (diagRes == DialogResult.Yes)
       {
-        retry:
+      retry:
         try
         {
           File.Delete(fileName);
@@ -328,15 +327,15 @@ namespace CsvTools
         }
 
         return new WindowState
-                 {
-                   Left = windowPosition.Left,
-                   Top = windowPosition.Top,
-                   Height = windowPosition.Height,
-                   Width = windowPosition.Width,
-                   State = (int)windowState,
-                   CustomInt = customInt,
-                   CustomText = customText
-                 };
+        {
+          Left = windowPosition.Left,
+          Top = windowPosition.Top,
+          Height = windowPosition.Height,
+          Width = windowPosition.Width,
+          State = (int)windowState,
+          CustomInt = customInt,
+          CustomText = customText
+        };
       }
       catch
       {

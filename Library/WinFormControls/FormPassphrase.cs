@@ -78,91 +78,91 @@ namespace CsvTools
     /// </summary>
     private void InitializeComponent()
     {
-      this.m_BtnOk = new Button();
-      this.m_TextBox = new TextBox();
-      this.m_CheckBoxShowHide = new CheckBox();
-      this.m_TableLayoutPanel = new TableLayoutPanel();
-      this.m_BtnCancel = new Button();
-      this.m_TableLayoutPanel.SuspendLayout();
-      this.SuspendLayout();
+      m_BtnOk = new Button();
+      m_TextBox = new TextBox();
+      m_CheckBoxShowHide = new CheckBox();
+      m_TableLayoutPanel = new TableLayoutPanel();
+      m_BtnCancel = new Button();
+      m_TableLayoutPanel.SuspendLayout();
+      SuspendLayout();
 
       // m_BtnOk
-      this.m_BtnOk.AutoSize = true;
-      this.m_BtnOk.DialogResult = DialogResult.OK;
-      this.m_BtnOk.Location = new Point(392, 39);
-      this.m_BtnOk.Name = "m_BtnOk";
-      this.m_BtnOk.Size = new Size(99, 34);
-      this.m_BtnOk.TabIndex = 3;
-      this.m_BtnOk.Text = "OK";
-      this.m_BtnOk.Click += new EventHandler(this.BtnOK_Click);
+      m_BtnOk.AutoSize = true;
+      m_BtnOk.DialogResult = DialogResult.OK;
+      m_BtnOk.Location = new Point(392, 39);
+      m_BtnOk.Name = "m_BtnOk";
+      m_BtnOk.Size = new Size(99, 34);
+      m_BtnOk.TabIndex = 3;
+      m_BtnOk.Text = "OK";
+      m_BtnOk.Click += new EventHandler(BtnOK_Click);
 
       // m_TextBox
-      this.m_TableLayoutPanel.SetColumnSpan(this.m_TextBox, 3);
-      this.m_TextBox.Dock = DockStyle.Top;
-      this.m_TextBox.Location = new Point(4, 5);
-      this.m_TextBox.Margin = new Padding(4, 5, 4, 5);
-      this.m_TextBox.Name = "m_TextBox";
-      this.m_TextBox.PasswordChar = '*';
-      this.m_TextBox.Size = new Size(591, 26);
-      this.m_TextBox.TabIndex = 0;
+      m_TableLayoutPanel.SetColumnSpan(m_TextBox, 3);
+      m_TextBox.Dock = DockStyle.Top;
+      m_TextBox.Location = new Point(4, 5);
+      m_TextBox.Margin = new Padding(4, 5, 4, 5);
+      m_TextBox.Name = "m_TextBox";
+      m_TextBox.PasswordChar = '*';
+      m_TextBox.Size = new Size(591, 26);
+      m_TextBox.TabIndex = 0;
 
       // m_CheckBoxShowHide
-      this.m_CheckBoxShowHide.Anchor = AnchorStyles.Right;
-      this.m_CheckBoxShowHide.AutoSize = true;
-      this.m_CheckBoxShowHide.Location = new Point(270, 45);
-      this.m_CheckBoxShowHide.Name = "m_CheckBoxShowHide";
-      this.m_CheckBoxShowHide.Size = new Size(116, 24);
-      this.m_CheckBoxShowHide.TabIndex = 1;
-      this.m_CheckBoxShowHide.Text = "Show Entry";
-      this.m_CheckBoxShowHide.UseVisualStyleBackColor = true;
-      this.m_CheckBoxShowHide.CheckedChanged += new EventHandler(this.CheckBoxShowHide_CheckedChanged);
+      m_CheckBoxShowHide.Anchor = AnchorStyles.Right;
+      m_CheckBoxShowHide.AutoSize = true;
+      m_CheckBoxShowHide.Location = new Point(270, 45);
+      m_CheckBoxShowHide.Name = "m_CheckBoxShowHide";
+      m_CheckBoxShowHide.Size = new Size(116, 24);
+      m_CheckBoxShowHide.TabIndex = 1;
+      m_CheckBoxShowHide.Text = "Show Entry";
+      m_CheckBoxShowHide.UseVisualStyleBackColor = true;
+      m_CheckBoxShowHide.CheckedChanged += new EventHandler(CheckBoxShowHide_CheckedChanged);
 
       // tableLayoutPanel1
-      this.m_TableLayoutPanel.ColumnCount = 3;
-      this.m_TableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
-      this.m_TableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 105F));
-      this.m_TableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 105F));
-      this.m_TableLayoutPanel.Controls.Add(this.m_BtnCancel, 2, 1);
-      this.m_TableLayoutPanel.Controls.Add(this.m_TextBox, 0, 0);
-      this.m_TableLayoutPanel.Controls.Add(this.m_BtnOk, 1, 1);
-      this.m_TableLayoutPanel.Controls.Add(this.m_CheckBoxShowHide, 0, 1);
-      this.m_TableLayoutPanel.Dock = DockStyle.Fill;
-      this.m_TableLayoutPanel.Location = new Point(0, 0);
-      this.m_TableLayoutPanel.Margin = new Padding(4, 5, 4, 5);
-      this.m_TableLayoutPanel.Name = "tableLayoutPanel1";
-      this.m_TableLayoutPanel.RowCount = 2;
-      this.m_TableLayoutPanel.RowStyles.Add(new RowStyle());
-      this.m_TableLayoutPanel.RowStyles.Add(new RowStyle());
-      this.m_TableLayoutPanel.Size = new Size(599, 78);
-      this.m_TableLayoutPanel.TabIndex = 0;
+      m_TableLayoutPanel.ColumnCount = 3;
+      m_TableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+      m_TableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 105F));
+      m_TableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 105F));
+      m_TableLayoutPanel.Controls.Add(m_BtnCancel, 2, 1);
+      m_TableLayoutPanel.Controls.Add(m_TextBox, 0, 0);
+      m_TableLayoutPanel.Controls.Add(m_BtnOk, 1, 1);
+      m_TableLayoutPanel.Controls.Add(m_CheckBoxShowHide, 0, 1);
+      m_TableLayoutPanel.Dock = DockStyle.Fill;
+      m_TableLayoutPanel.Location = new Point(0, 0);
+      m_TableLayoutPanel.Margin = new Padding(4, 5, 4, 5);
+      m_TableLayoutPanel.Name = "tableLayoutPanel1";
+      m_TableLayoutPanel.RowCount = 2;
+      m_TableLayoutPanel.RowStyles.Add(new RowStyle());
+      m_TableLayoutPanel.RowStyles.Add(new RowStyle());
+      m_TableLayoutPanel.Size = new Size(599, 78);
+      m_TableLayoutPanel.TabIndex = 0;
 
       // m_BtnCancel
-      this.m_BtnCancel.AutoSize = true;
-      this.m_BtnCancel.DialogResult = DialogResult.Cancel;
-      this.m_BtnCancel.Location = new Point(497, 39);
-      this.m_BtnCancel.Name = "m_BtnCancel";
-      this.m_BtnCancel.Size = new Size(99, 34);
-      this.m_BtnCancel.TabIndex = 4;
-      this.m_BtnCancel.Text = "Cancel";
-      this.m_BtnCancel.Click += new EventHandler(this.BtnCancel_Click);
+      m_BtnCancel.AutoSize = true;
+      m_BtnCancel.DialogResult = DialogResult.Cancel;
+      m_BtnCancel.Location = new Point(497, 39);
+      m_BtnCancel.Name = "m_BtnCancel";
+      m_BtnCancel.Size = new Size(99, 34);
+      m_BtnCancel.TabIndex = 4;
+      m_BtnCancel.Text = "Cancel";
+      m_BtnCancel.Click += new EventHandler(BtnCancel_Click);
 
       // FormPassphrase
-      this.AcceptButton = this.m_BtnOk;
-      this.AutoScaleDimensions = new SizeF(9F, 20F);
-      this.AutoScaleMode = AutoScaleMode.Font;
-      this.CancelButton = this.m_BtnCancel;
-      this.ClientSize = new Size(599, 78);
-      this.Controls.Add(this.m_TableLayoutPanel);
-      this.FormBorderStyle = FormBorderStyle.SizableToolWindow;
-      this.Margin = new Padding(4, 5, 4, 5);
-      this.MinimumSize = new Size(500, 88);
-      this.Name = "FormPassphrase";
-      this.ShowIcon = false;
-      this.Text = "PGP Private Key Passphrase";
-      this.TopMost = true;
-      this.m_TableLayoutPanel.ResumeLayout(false);
-      this.m_TableLayoutPanel.PerformLayout();
-      this.ResumeLayout(false);
+      AcceptButton = m_BtnOk;
+      AutoScaleDimensions = new SizeF(9F, 20F);
+      AutoScaleMode = AutoScaleMode.Font;
+      CancelButton = m_BtnCancel;
+      ClientSize = new Size(599, 78);
+      Controls.Add(m_TableLayoutPanel);
+      FormBorderStyle = FormBorderStyle.SizableToolWindow;
+      Margin = new Padding(4, 5, 4, 5);
+      MinimumSize = new Size(500, 88);
+      Name = "FormPassphrase";
+      ShowIcon = false;
+      Text = "PGP Private Key Passphrase";
+      TopMost = true;
+      m_TableLayoutPanel.ResumeLayout(false);
+      m_TableLayoutPanel.PerformLayout();
+      ResumeLayout(false);
     }
   }
 }

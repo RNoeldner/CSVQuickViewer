@@ -152,7 +152,7 @@ namespace CsvTools
             {
               // decimal numeric entity
               sb.Append("&#");
-              sb.Append(((int) text[i]).ToString(CultureInfo.InvariantCulture));
+              sb.Append(((int)text[i]).ToString(CultureInfo.InvariantCulture));
               sb.Append(";");
             }
             else
@@ -253,7 +253,7 @@ namespace CsvTools
           text.EndsWith("]]>", StringComparison.OrdinalIgnoreCase))
         return text.Substring(9, text.Length - 12);
 
-      return StringUtils.HandleCRLFCombinations(text, "<br>").Replace((char) 0xA0, ' ').Replace('\t', ' ')
+      return StringUtils.HandleCRLFCombinations(text, "<br>").Replace((char)0xA0, ' ').Replace('\t', ' ')
         .Replace("  ", " ").Replace("  ", " ");
     }
 

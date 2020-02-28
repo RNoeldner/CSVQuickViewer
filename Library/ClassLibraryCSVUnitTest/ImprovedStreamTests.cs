@@ -27,7 +27,7 @@ namespace CsvTools.Tests
     [TestMethod()]
     public void OpenReadTestSetting()
     {
-      CsvFile setting = new CsvFile
+      var setting = new CsvFile
       {
         FileName = Path.Combine(m_ApplicationDirectory, "BasicCsV.txt")
       };
@@ -106,17 +106,11 @@ namespace CsvTools.Tests
     }
 
     [TestMethod()]
-    public void OpenWriteTestgZip()
-    {
-      WriteFile("WriteText.gz");
-    }
+    public void OpenWriteTestgZip() => WriteFile("WriteText.gz");
 
 
     [TestMethod()]
-    public void OpenWriteTestRegular()
-    {
-      WriteFile("WriteText.txt");
-    }
+    public void OpenWriteTestRegular() => WriteFile("WriteText.txt");
 
 
     [TestMethod()]

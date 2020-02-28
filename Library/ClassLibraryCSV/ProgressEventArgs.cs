@@ -21,7 +21,7 @@ namespace CsvTools
   /// </summary>
   public class ProgressEventArgs : EventArgs
   {
-	  /// <summary>
+    /// <summary>
     ///  Initializes a new instance of the <see cref="ProgressEventArgs" /> class.
     /// </summary>
     /// <param name="text">The text.</param>

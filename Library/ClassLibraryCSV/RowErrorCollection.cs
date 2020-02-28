@@ -38,15 +38,9 @@ namespace CsvTools
     ///   Attach the error collection to the reader
     /// </summary>
     /// <param name="reader"></param>
-    public RowErrorCollection(IFileReader reader)
-    {
-      reader.Warning += Add;
-    }
+    public RowErrorCollection(IFileReader reader) => reader.Warning += Add;
 
-    public RowErrorCollection(int maxRows)
-    {
-      m_MaxRows = maxRows;
-    }
+    public RowErrorCollection(int maxRows) => m_MaxRows = maxRows;
 
     /// <summary>
     ///   Number of Rows in the warning list
@@ -66,12 +60,12 @@ namespace CsvTools
         // Go though all rows
         foreach (var errorsInColumn in m_RowErrorCollection.Values)
           // And all columns
-        foreach (var message in errorsInColumn.Values)
-        {
-          if (sb.Length > 0)
-            sb.Append(ErrorInformation.cSeparator);
-          sb.Append(message);
-        }
+          foreach (var message in errorsInColumn.Values)
+          {
+            if (sb.Length > 0)
+              sb.Append(ErrorInformation.cSeparator);
+            sb.Append(message);
+          }
 
         return sb.ToString();
       }
@@ -151,10 +145,7 @@ namespace CsvTools
     /// <summary>
     ///   Empties out the warning list
     /// </summary>
-    public void Clear()
-    {
-      m_RowErrorCollection.Clear();
-    }
+    public void Clear() => m_RowErrorCollection.Clear();
 
     /// <summary>
     ///   Tries the retrieve the value for a given record

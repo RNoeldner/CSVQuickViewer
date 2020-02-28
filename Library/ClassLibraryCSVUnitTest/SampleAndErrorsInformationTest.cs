@@ -12,8 +12,8 @@
  *
  */
 
-using System.Collections.ObjectModel;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Collections.ObjectModel;
 
 namespace CsvTools.Tests
 {

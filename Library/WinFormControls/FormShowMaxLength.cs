@@ -151,14 +151,14 @@ namespace CsvTools
         if (colIndex.Count > 0)
         {
           foreach (var row in m_DataRow)
-          foreach (var col in checkCols)
-          {
-            var cl = (row[col.Value] == DBNull.Value) ? 0 : row[col.Value].ToString().Length;
-            if (cl > maxLength[col.Key])
+            foreach (var col in checkCols)
             {
-              maxLength[col.Key] = cl;
+              var cl = (row[col.Value] == DBNull.Value) ? 0 : row[col.Value].ToString().Length;
+              if (cl > maxLength[col.Key])
+              {
+                maxLength[col.Key] = cl;
+              }
             }
-          }
         }
 
         var colNo = 1;

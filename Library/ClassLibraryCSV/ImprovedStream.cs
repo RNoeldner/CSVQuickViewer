@@ -14,11 +14,10 @@
 
 namespace CsvTools
 {
+  using Org.BouncyCastle.Bcpg.OpenPgp;
   using System;
   using System.IO;
   using System.IO.Compression;
-  using Org.BouncyCastle.Bcpg.OpenPgp;
-
   using File = Pri.LongPath.File;
 
   /// <summary>

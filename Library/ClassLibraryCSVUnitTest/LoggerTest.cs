@@ -27,7 +27,7 @@ namespace CsvTools.Tests
     {
       var jsonLogFileName = m_ApplicationDirectory + "\\Log.json";
       Logger.Configure(jsonLogFileName, Logger.Level.Info, m_ApplicationDirectory + "\\text.log");
-      string lastMessage = string.Empty;
+      var lastMessage = string.Empty;
       Logger.AddLog = (param, level) => { lastMessage = param; };
 
       Logger.Debug("MyMessage1");

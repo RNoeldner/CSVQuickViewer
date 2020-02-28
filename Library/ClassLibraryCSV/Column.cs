@@ -822,10 +822,7 @@ namespace CsvTools
     ///   Notifies the property changed.
     /// </summary>
     /// <param name="info">The info.</param>
-    public virtual void NotifyPropertyChanged(string info)
-    {
-      PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(info));
-    }
+    public virtual void NotifyPropertyChanged(string info) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(info));
 
     /// <summary>Determines whether the specified object is equal to the current object.</summary>
     /// <param name="obj">The object to compare with the current object. </param>
@@ -951,10 +948,7 @@ namespace CsvTools
     ///   Returns a <see cref="string" /> that represents this instance.
     /// </summary>
     /// <returns>A <see cref="string" /> that represents this instance.</returns>
-    public override string ToString()
-    {
-      return $"{Name} ({GetTypeAndFormatDescription()})";
-    }
+    public override string ToString() => $"{Name} ({GetTypeAndFormatDescription()})";
 
     #endregion Display Methods
   }

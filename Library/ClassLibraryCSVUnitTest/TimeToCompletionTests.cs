@@ -30,10 +30,10 @@ namespace CsvTools.Tests
       Assert.AreEqual(string.Empty, test.EstimatedTimeRemainingDisplay);
 
       test.Value = 1;
-      Assert.AreEqual(1, test.Value);      
+      Assert.AreEqual(1, test.Value);
       Thread.Sleep(100);
       test.Value = 2;
-      Assert.AreEqual(2, test.Value);      
+      Assert.AreEqual(2, test.Value);
       Thread.Sleep(100);
       test.Value = 3;
       Assert.AreEqual(2, test.Percent);
@@ -42,8 +42,8 @@ namespace CsvTools.Tests
       test.Value = 4;
       Thread.Sleep(100);
       test.Value = 5;
-      Assert.AreEqual(5, test.Value);      
-      for (int counter = 6; counter<60; counter++)
+      Assert.AreEqual(5, test.Value);
+      for (var counter = 6; counter < 60; counter++)
       {
         test.Value = counter;
         Thread.Sleep(200);

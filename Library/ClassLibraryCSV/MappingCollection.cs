@@ -98,7 +98,7 @@ namespace CsvTools
     {
       var toBeRemoved = new List<Mapping>(GetByColumn(columnName));
 
-      if (toBeRemoved.Count==0)
+      if (toBeRemoved.Count == 0)
         return;
 
       foreach (var fieldMapping in toBeRemoved)

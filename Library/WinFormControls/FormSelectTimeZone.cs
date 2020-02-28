@@ -58,7 +58,7 @@ namespace CsvTools
     public string TimeZoneID
     {
       get => m_TimeZoneSelector.TimeZoneID;
-      set => this.m_TimeZoneSelector.TimeZoneID = value;
+      set => m_TimeZoneSelector.TimeZoneID = value;
     }
 
     private void BtnCancel_Click(object sender, EventArgs e)
@@ -81,112 +81,112 @@ namespace CsvTools
     /// </summary>
     private void InitializeComponent()
     {
-      this.components = new Container();
-      this.m_BtnOk = new Button();
-      this.m_BtnCancel = new Button();
-      this.label1 = new Label();
-      this.timer = new Timer(this.components);
-      this.m_TimeZoneSelector = new TimeZoneSelector();
-      this.label = new Label();
-      this.m_TableLayoutPanel = new TableLayoutPanel();
-      this.m_TableLayoutPanel.SuspendLayout();
-      this.SuspendLayout();
+      components = new Container();
+      m_BtnOk = new Button();
+      m_BtnCancel = new Button();
+      label1 = new Label();
+      timer = new Timer(components);
+      m_TimeZoneSelector = new TimeZoneSelector();
+      label = new Label();
+      m_TableLayoutPanel = new TableLayoutPanel();
+      m_TableLayoutPanel.SuspendLayout();
+      SuspendLayout();
 
       // m_BtnOk
-      this.m_BtnOk.AutoSize = true;
-      this.m_BtnOk.DialogResult = DialogResult.OK;
-      this.m_BtnOk.Location = new Point(431, 87);
-      this.m_BtnOk.Name = "m_BtnOk";
-      this.m_BtnOk.Size = new Size(102, 34);
-      this.m_BtnOk.TabIndex = 2;
-      this.m_BtnOk.Text = "&OK";
-      this.m_BtnOk.Click += new EventHandler(this.BtnOK_Click);
+      m_BtnOk.AutoSize = true;
+      m_BtnOk.DialogResult = DialogResult.OK;
+      m_BtnOk.Location = new Point(431, 87);
+      m_BtnOk.Name = "m_BtnOk";
+      m_BtnOk.Size = new Size(102, 34);
+      m_BtnOk.TabIndex = 2;
+      m_BtnOk.Text = "&OK";
+      m_BtnOk.Click += new EventHandler(BtnOK_Click);
 
       // m_BtnCancel
-      this.m_BtnCancel.AutoSize = true;
-      this.m_BtnCancel.DialogResult = DialogResult.Cancel;
-      this.m_BtnCancel.Location = new Point(539, 87);
-      this.m_BtnCancel.Name = "m_BtnCancel";
-      this.m_BtnCancel.Size = new Size(102, 34);
-      this.m_BtnCancel.TabIndex = 1;
-      this.m_BtnCancel.Text = "&Cancel";
-      this.m_BtnCancel.Click += new EventHandler(this.BtnCancel_Click);
+      m_BtnCancel.AutoSize = true;
+      m_BtnCancel.DialogResult = DialogResult.Cancel;
+      m_BtnCancel.Location = new Point(539, 87);
+      m_BtnCancel.Name = "m_BtnCancel";
+      m_BtnCancel.Size = new Size(102, 34);
+      m_BtnCancel.TabIndex = 1;
+      m_BtnCancel.Text = "&Cancel";
+      m_BtnCancel.Click += new EventHandler(BtnCancel_Click);
 
       // label1
-      this.label1.AutoSize = true;
-      this.m_TableLayoutPanel.SetColumnSpan(this.label1, 3);
-      this.label1.Dock = DockStyle.Top;
-      this.label1.Location = new Point(3, 0);
-      this.label1.Name = "label1";
-      this.label1.Size = new Size(638, 40);
-      this.label1.TabIndex = 5;
-      this.label1.Text = "At least one column with a time has been found without time zone information.\r\nPl"
+      label1.AutoSize = true;
+      m_TableLayoutPanel.SetColumnSpan(label1, 3);
+      label1.Dock = DockStyle.Top;
+      label1.Location = new Point(3, 0);
+      label1.Name = "label1";
+      label1.Size = new Size(638, 40);
+      label1.TabIndex = 5;
+      label1.Text = "At least one column with a time has been found without time zone information.\r\nPl"
                          + "ease determine the timezone of all date/time columns without explicit time zone."
                          + string.Empty;
 
       // timer
-      this.timer.Enabled = true;
-      this.timer.Interval = 500;
-      this.timer.Tick += new EventHandler(this.timer_Tick);
+      timer.Enabled = true;
+      timer.Interval = 500;
+      timer.Tick += new EventHandler(timer_Tick);
 
       // timeZoneSelector1
-      this.m_TableLayoutPanel.SetColumnSpan(this.m_TimeZoneSelector, 3);
-      this.m_TimeZoneSelector.Dock = DockStyle.Top;
-      this.m_TimeZoneSelector.Location = new Point(3, 43);
-      this.m_TimeZoneSelector.Name = "timeZoneSelector1";
-      this.m_TimeZoneSelector.Size = new Size(638, 38);
-      this.m_TimeZoneSelector.TabIndex = 0;
-      this.m_TimeZoneSelector.TimeZoneID = "(local)";
+      m_TableLayoutPanel.SetColumnSpan(m_TimeZoneSelector, 3);
+      m_TimeZoneSelector.Dock = DockStyle.Top;
+      m_TimeZoneSelector.Location = new Point(3, 43);
+      m_TimeZoneSelector.Name = "timeZoneSelector1";
+      m_TimeZoneSelector.Size = new Size(638, 38);
+      m_TimeZoneSelector.TabIndex = 0;
+      m_TimeZoneSelector.TimeZoneID = "(local)";
 
       // label
-      this.label.Anchor = AnchorStyles.Left;
-      this.label.AutoSize = true;
-      this.label.ForeColor = SystemColors.ControlDarkDark;
-      this.label.Location = new Point(3, 94);
-      this.label.Name = "label";
-      this.label.Size = new Size(154, 20);
-      this.label.TabIndex = 12;
-      this.label.Text = "Default in 5 seconds";
+      label.Anchor = AnchorStyles.Left;
+      label.AutoSize = true;
+      label.ForeColor = SystemColors.ControlDarkDark;
+      label.Location = new Point(3, 94);
+      label.Name = "label";
+      label.Size = new Size(154, 20);
+      label.TabIndex = 12;
+      label.Text = "Default in 5 seconds";
 
       // tableLayoutPanel1
-      this.m_TableLayoutPanel.AutoSize = true;
-      this.m_TableLayoutPanel.ColumnCount = 3;
-      this.m_TableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
-      this.m_TableLayoutPanel.ColumnStyles.Add(new ColumnStyle());
-      this.m_TableLayoutPanel.ColumnStyles.Add(new ColumnStyle());
-      this.m_TableLayoutPanel.Controls.Add(this.m_BtnCancel, 2, 2);
-      this.m_TableLayoutPanel.Controls.Add(this.label, 0, 2);
-      this.m_TableLayoutPanel.Controls.Add(this.m_BtnOk, 1, 2);
-      this.m_TableLayoutPanel.Controls.Add(this.label1, 0, 0);
-      this.m_TableLayoutPanel.Controls.Add(this.m_TimeZoneSelector, 0, 1);
-      this.m_TableLayoutPanel.Dock = DockStyle.Top;
-      this.m_TableLayoutPanel.Location = new Point(0, 0);
-      this.m_TableLayoutPanel.Name = "tableLayoutPanel1";
-      this.m_TableLayoutPanel.RowCount = 3;
-      this.m_TableLayoutPanel.RowStyles.Add(new RowStyle());
-      this.m_TableLayoutPanel.RowStyles.Add(new RowStyle());
-      this.m_TableLayoutPanel.RowStyles.Add(new RowStyle());
-      this.m_TableLayoutPanel.Size = new Size(644, 124);
-      this.m_TableLayoutPanel.TabIndex = 13;
+      m_TableLayoutPanel.AutoSize = true;
+      m_TableLayoutPanel.ColumnCount = 3;
+      m_TableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+      m_TableLayoutPanel.ColumnStyles.Add(new ColumnStyle());
+      m_TableLayoutPanel.ColumnStyles.Add(new ColumnStyle());
+      m_TableLayoutPanel.Controls.Add(m_BtnCancel, 2, 2);
+      m_TableLayoutPanel.Controls.Add(label, 0, 2);
+      m_TableLayoutPanel.Controls.Add(m_BtnOk, 1, 2);
+      m_TableLayoutPanel.Controls.Add(label1, 0, 0);
+      m_TableLayoutPanel.Controls.Add(m_TimeZoneSelector, 0, 1);
+      m_TableLayoutPanel.Dock = DockStyle.Top;
+      m_TableLayoutPanel.Location = new Point(0, 0);
+      m_TableLayoutPanel.Name = "tableLayoutPanel1";
+      m_TableLayoutPanel.RowCount = 3;
+      m_TableLayoutPanel.RowStyles.Add(new RowStyle());
+      m_TableLayoutPanel.RowStyles.Add(new RowStyle());
+      m_TableLayoutPanel.RowStyles.Add(new RowStyle());
+      m_TableLayoutPanel.Size = new Size(644, 124);
+      m_TableLayoutPanel.TabIndex = 13;
 
       // FormSelectTimeZone
-      this.AcceptButton = this.m_BtnOk;
-      this.AutoScaleDimensions = new SizeF(9F, 20F);
-      this.AutoScaleMode = AutoScaleMode.Font;
-      this.CancelButton = this.m_BtnCancel;
-      this.ClientSize = new Size(644, 132);
-      this.Controls.Add(this.m_TableLayoutPanel);
-      this.FormBorderStyle = FormBorderStyle.SizableToolWindow;
-      this.MaximizeBox = false;
-      this.MinimizeBox = false;
-      this.Name = "FormSelectTimeZone";
-      this.Text = "Select Time Zone";
-      this.TopMost = true;
-      this.MouseMove += new MouseEventHandler(this.FormSelectTimeZone_MouseMove);
-      this.m_TableLayoutPanel.ResumeLayout(false);
-      this.m_TableLayoutPanel.PerformLayout();
-      this.ResumeLayout(false);
-      this.PerformLayout();
+      AcceptButton = m_BtnOk;
+      AutoScaleDimensions = new SizeF(9F, 20F);
+      AutoScaleMode = AutoScaleMode.Font;
+      CancelButton = m_BtnCancel;
+      ClientSize = new Size(644, 132);
+      Controls.Add(m_TableLayoutPanel);
+      FormBorderStyle = FormBorderStyle.SizableToolWindow;
+      MaximizeBox = false;
+      MinimizeBox = false;
+      Name = "FormSelectTimeZone";
+      Text = "Select Time Zone";
+      TopMost = true;
+      MouseMove += new MouseEventHandler(FormSelectTimeZone_MouseMove);
+      m_TableLayoutPanel.ResumeLayout(false);
+      m_TableLayoutPanel.PerformLayout();
+      ResumeLayout(false);
+      PerformLayout();
     }
 
     private void timer_Tick(object sender, EventArgs e)

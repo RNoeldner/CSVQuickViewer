@@ -14,7 +14,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Data;
-using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -27,10 +26,7 @@ namespace CsvTools.Tests
     private static CsvFile m_WriteFile;
     private static CsvFile m_ReadFile;
 
-    private void Prc_Progress(object sender, ProgressEventArgs e)
-    {
-      throw new NotImplementedException();
-    }
+    private void Prc_Progress(object sender, ProgressEventArgs e) => throw new NotImplementedException();
 
     [TestMethod]
     public void WriteFileLocked()
@@ -43,7 +39,7 @@ namespace CsvTools.Tests
       {
         dataTable.Columns.Add("ID", typeof(int));
         dataTable.Columns.Add("Text", typeof(string));
-        for (int i = 0; i < 5; i++)
+        for (var i = 0; i < 5; i++)
         {
           var row = dataTable.NewRow();
           row["ID"] = i;
@@ -58,7 +54,7 @@ namespace CsvTools.Tests
           SqlStatement = "dummy"
         };
         FileSystemUtils.FileDelete(writeFile.FileName);
-        using (System.IO.StreamWriter file = new System.IO.StreamWriter(writeFile.FullPath))
+        using (var file = new System.IO.StreamWriter(writeFile.FullPath))
         {
           file.WriteLine("Hello");
           using (var processDisplay = new DummyProcessDisplay())
@@ -85,7 +81,7 @@ namespace CsvTools.Tests
       {
         dataTable.Columns.Add("ID", typeof(int));
         dataTable.Columns.Add("Text", typeof(string));
-        for (int i = 0; i < 100; i++)
+        for (var i = 0; i < 100; i++)
         {
           var row = dataTable.NewRow();
           row["ID"] = i;
@@ -131,7 +127,7 @@ namespace CsvTools.Tests
           FileName = "Test.txt",
           SqlStatement = "Hello"
         };
-        writeFile.ColumnCollection.Add(new Column(){Name = "Text", DataType = DataType.Integer});
+        writeFile.ColumnCollection.Add(new Column() { Name = "Text", DataType = DataType.Integer });
         writeFile.Header = "##This is a header for {FileName}";
         writeFile.Footer = "##This is a Footer\r\n{Records} in file";
         var count = 0;
@@ -171,7 +167,7 @@ namespace CsvTools.Tests
           FileName = "Test.txt",
           SqlStatement = "Hello2"
         };
-        UnitTestInitialize.MimicSQLReader.AddSetting("Hello2", dataTable); 
+        UnitTestInitialize.MimicSQLReader.AddSetting("Hello2", dataTable);
 
         using (var processDisplay = new DummyProcessDisplay())
         {
@@ -197,11 +193,11 @@ namespace CsvTools.Tests
           dataTable.Rows.Add(row);
         }
         var writeFile = new CsvFile
-                          {
-                            ID = "TestXYZ.txt",
-                            FileName = "Test.txt",
-                            SqlStatement = "SELECT * FROM Hello2"
-                          };
+        {
+          ID = "TestXYZ.txt",
+          FileName = "Test.txt",
+          SqlStatement = "SELECT * FROM Hello2"
+        };
         UnitTestInitialize.MimicSQLReader.AddSetting("Hello2", dataTable);
 
         using (var processDisplay = new DummyProcessDisplay())
@@ -217,7 +213,7 @@ namespace CsvTools.Tests
     [TestInitialize]
     public void Init()
     {
-      m_ReadFile = new CsvFile("BasicCSV.txt") {ID = "Read", FileFormat = {FieldDelimiter = ",", CommentLine = "#"}};
+      m_ReadFile = new CsvFile("BasicCSV.txt") { ID = "Read", FileFormat = { FieldDelimiter = ",", CommentLine = "#" } };
 
       var cf = m_ReadFile.ColumnCollection.AddIfNew(new Column { Name = "ExamDate", DataType = DataType.DateTime });
       cf.DateFormat = @"dd/MM/yyyy";
@@ -273,7 +269,7 @@ namespace CsvTools.Tests
     public void WritePGP()
     {
       var pd = new MockProcessDisplay();
-      
+
       var writeFile = (CsvFile)m_WriteFile.Clone();
       writeFile.FileName = "BasicCSVOut.txt.pgp";
       PGPKeyStorageTestHelper.SetApplicationSetting();

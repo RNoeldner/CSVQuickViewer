@@ -16,36 +16,33 @@ namespace CsvTools
 {
   using System;
   using System.Diagnostics.CodeAnalysis;
-  using System.Text;
   using System.Threading;
   using System.Windows.Forms;
 
   internal static class Program
   {
-    internal const string cPhrase = "R@pHa€l";
-
     /// <summary>
-    ///   Handles the ThreadException event of the Application control.
+    /// Handles the ThreadException event of the Application control.
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">
-    ///   The <see cref="ThreadExceptionEventArgs" /> instance containing the event data.
+    /// The <see cref="ThreadExceptionEventArgs"/> instance containing the event data.
     /// </param>
     private static void Application_ThreadException(object sender, ThreadExceptionEventArgs e) =>
       UnhandledException(e.Exception);
 
     /// <summary>
-    ///   Handles the UnhandledException event of the CurrentDomain control.
+    /// Handles the UnhandledException event of the CurrentDomain control.
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">
-    ///   The <see cref="UnhandledExceptionEventArgs" /> instance containing the event data.
+    /// The <see cref="UnhandledExceptionEventArgs"/> instance containing the event data.
     /// </param>
     private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e) =>
       UnhandledException((Exception)e.ExceptionObject);
 
     /// <summary>
-    ///   The main entry point for the application.
+    /// The main entry point for the application.
     /// </summary>
     [STAThread]
     private static void Main(string[] args)
@@ -75,7 +72,9 @@ namespace CsvTools
       Application.Exit();
     }
 
-    /// <summary>Handle's any not yet handled exception</summary>
+    /// <summary>
+    /// Handle's any not yet handled exception
+    /// </summary>
     /// <param name="ex">The exception.</param>
     [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
     private static void UnhandledException(Exception ex)

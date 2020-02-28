@@ -1,5 +1,4 @@
-﻿using CsvTools;
-/*
+﻿/*
 * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
 *
 * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
@@ -77,7 +76,7 @@ namespace CsvTools.Tests
       columnFilterLogic.ValueText = "2";
       Assert.AreEqual("ValueText", prop);
       Assert.AreEqual("[Column1] = 2", columnFilterLogic.BuildSQLCommand(columnFilterLogic.ValueText));
-      
+
     }
 
     [TestMethod]
@@ -99,10 +98,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod()]
-    public void IsNullCompareTest()
-    {
-      Assert.IsFalse(ColumnFilterLogic.IsNotNullCompare(ColumnFilterLogic.OperatorIsNull));
-    }
+    public void IsNullCompareTest() => Assert.IsFalse(ColumnFilterLogic.IsNotNullCompare(ColumnFilterLogic.OperatorIsNull));
 
     [TestMethod()]
     public void GetOperatorsTest()
@@ -127,10 +123,7 @@ namespace CsvTools.Tests
       Assert.IsTrue(test.Contains("[COLUMN1]<#02/21/2020#"));
     }
 
-    private void TestFilterExpression(string expected, ColumnFilterLogic columnFilterLogic)
-    {
-      Assert.AreEqual(expected.ToUpperInvariant().Replace(" ", ""), columnFilterLogic.FilterExpression.ToUpperInvariant().Replace(" ", ""), $"Ignoring case and space, Expected: {expected} Actual: {columnFilterLogic.FilterExpression}");
-    }
+    private void TestFilterExpression(string expected, ColumnFilterLogic columnFilterLogic) => Assert.AreEqual(expected.ToUpperInvariant().Replace(" ", ""), columnFilterLogic.FilterExpression.ToUpperInvariant().Replace(" ", ""), $"Ignoring case and space, Expected: {expected} Actual: {columnFilterLogic.FilterExpression}");
     [TestMethod()]
     public void FilterExpressionNumber()
     {
@@ -155,7 +148,7 @@ namespace CsvTools.Tests
       var columnFilterLogic = new ColumnFilterLogic(typeof(string), "Column1");
       columnFilterLogic.SetFilter("Hello");
       TestFilterExpression("[COLUMN1]='Hello'", columnFilterLogic);
-      
+
       columnFilterLogic.SetFilter("He\'llo");
       TestFilterExpression("[Column1]='He\'\'llo'", columnFilterLogic);
 

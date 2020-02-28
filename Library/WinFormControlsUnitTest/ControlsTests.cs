@@ -12,11 +12,10 @@
  *
  */
 
-using System;
-using System.Data;
-using System.Windows.Forms;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Pri.LongPath;
+using System.Data;
+using System.Windows.Forms;
 
 namespace CsvTools.Tests
 {
@@ -46,11 +45,11 @@ namespace CsvTools.Tests
         frm.Controls.Add(treeView);
         treeView.Dock = System.Windows.Forms.DockStyle.Fill;
         frm.Show();
-        Assert.AreEqual(0,treeView.SelectedTreeNode.Count);
+        Assert.AreEqual(0, treeView.SelectedTreeNode.Count);
 
         var treeNode = new TreeNode("Test") { Tag = "test" };
         treeView.Nodes.Add(treeNode);
-        
+
         var treeNode2 = new TreeNode("Test2") { Tag = "test2" };
         treeNode.Nodes.Add(treeNode2);
 
@@ -317,7 +316,7 @@ namespace CsvTools.Tests
         DataPropertyName = m_DataTable.Columns[0].ColumnName,
       };
 
-      ShowControl(new DataGridViewColumnFilterControl( col));
+      ShowControl(new DataGridViewColumnFilterControl(col));
     }
 
     [TestMethod]

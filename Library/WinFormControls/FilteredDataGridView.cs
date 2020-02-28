@@ -63,7 +63,7 @@ namespace CsvTools
     {
       //Workaround as Text on Windows 8 is too small
       if (Environment.OSVersion.Version.Major == 6 && Environment.OSVersion.Version.Minor > 1)
-        Paint += FilteredDataGridView_Paint;      
+        Paint += FilteredDataGridView_Paint;
 
       var resources = new ComponentResourceManager(typeof(FilteredDataGridView));
       m_ImgFilterIndicator = ((Image)(resources.GetObject("toolStripMenuItem2.Image")));
@@ -102,10 +102,7 @@ namespace CsvTools
       SystemEvents.UserPreferenceChanged += SystemEvents_UserPreferenceChanged;
     }
 
-    private void FilteredDataGridView_Paint(object sender, PaintEventArgs e)
-    {
-      m_DefRowHeight = (TextRenderer.MeasureText(e.Graphics,"My Text", base.Font).Height * 120) / 100;      
-    }    
+    private void FilteredDataGridView_Paint(object sender, PaintEventArgs e) => m_DefRowHeight = (TextRenderer.MeasureText(e.Graphics, "My Text", base.Font).Height * 120) / 100;
 
     /// <summary>
     ///   Occurs when the next result should be shown
@@ -1202,7 +1199,7 @@ namespace CsvTools
       }
       catch
       {
-	      // ignored
+        // ignored
       }
     }
 
@@ -1225,7 +1222,7 @@ namespace CsvTools
       }
       catch
       {
-	      // ignored
+        // ignored
       }
     }
 
@@ -1249,7 +1246,7 @@ namespace CsvTools
       }
       catch
       {
-	      // ignored
+        // ignored
       }
     }
 
@@ -1272,7 +1269,7 @@ namespace CsvTools
       }
       catch
       {
-	      // ignored
+        // ignored
       }
     }
 

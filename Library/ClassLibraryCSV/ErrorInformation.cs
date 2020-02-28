@@ -169,7 +169,7 @@ namespace CsvTools
             if (part.IsWarningMessage())
             {
               if (sbWaring.Length > 0)
-	              sbWaring.Append(cSeparator);
+                sbWaring.Append(cSeparator);
               sbWaring.Append(parts.Item1.Length == 0
                 ? part.WithoutWarningId()
                 : CombineColumnAndError(parts.Item1, part.WithoutWarningId()));

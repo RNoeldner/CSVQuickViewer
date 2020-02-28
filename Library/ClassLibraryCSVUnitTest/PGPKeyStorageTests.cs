@@ -83,7 +83,7 @@ iXhkjSU70YAKCIqMlrQALUBB9n6zVsfpRw5ShrKqm7URQTHCkuTLXYf6juGI
     {
       get
       {
-        PGPKeyStorage pGPKeyStorage = new PGPKeyStorage
+        var pGPKeyStorage = new PGPKeyStorage
         {
           EncryptedPassphase = "UGotMe".Encrypt()
         };
@@ -114,7 +114,7 @@ iXhkjSU70YAKCIqMlrQALUBB9n6zVsfpRw5ShrKqm7URQTHCkuTLXYf6juGI
       var encoding = EncodingHelper.GetEncoding(65001, true);
 
       using (var baseStream = File.Create(fullname.LongPathPrefix()))
-      {        
+      {
         using (var stream = m_PGPKeyStorage.PGPStream(baseStream, m_PGPKeyStorage.GetRecipientList().First(), out var stream1, out var stream2))
         {
           using (var writer = new StreamWriter(stream, encoding, 8192))

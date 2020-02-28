@@ -38,7 +38,7 @@ namespace CsvTools.Tests
         Assert.AreEqual("level", jfr.GetColumn(1).Name);
         Assert.AreEqual("Error", jfr.GetValue(1));
 
-        jfr.Read();        
+        jfr.Read();
         Assert.AreEqual("Reading EdgeAPI vw_rpt_transcript", jfr.GetValue(2));
 
         jfr.Read();
@@ -178,7 +178,7 @@ namespace CsvTools.Tests
         Assert.AreEqual("T454898", jfr.GetValue(1));
         Assert.AreEqual(new DateTime(2012, 02, 06), jfr.GetValue(jfr.GetOrdinal("LastHireDate")));
         Assert.IsTrue(jfr.IsDBNull(jfr.GetOrdinal("ASSIGN_2ND_DEPT")));
-        Assert.AreEqual((Int16)0, jfr.GetInt16(jfr.GetOrdinal("Approvals")));
+        Assert.AreEqual((short)0, jfr.GetInt16(jfr.GetOrdinal("Approvals")));
         Assert.AreEqual(0, jfr.GetInt32(jfr.GetOrdinal("Approvals")));
         Assert.AreEqual(0L, jfr.GetInt64(jfr.GetOrdinal("Approvals")));
         Assert.AreEqual(0f, jfr.GetFloat(jfr.GetOrdinal("Approvals")));

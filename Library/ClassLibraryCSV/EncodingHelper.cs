@@ -317,12 +317,12 @@ namespace CsvTools
             name = Encoding.GetEncoding(codePage).EncodingName + suffixBom;
             break;
         }
-      }      
+      }
       catch (NotSupportedException)
       {
         return $"CP {codePage}";
       }
-      
+
       return $"CP {codePage} - {name}";
     }
 

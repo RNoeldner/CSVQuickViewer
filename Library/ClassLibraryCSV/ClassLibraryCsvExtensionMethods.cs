@@ -201,7 +201,7 @@ namespace CsvTools
 
         case DataType.String:
           return "Text";
-        
+
         default:
           throw new ArgumentOutOfRangeException(nameof(dt), dt, "Data Type not known");
       }

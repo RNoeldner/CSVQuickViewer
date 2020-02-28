@@ -12,13 +12,13 @@
  *
  */
 
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Data;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
@@ -381,11 +381,11 @@ namespace CsvTools.Tests
         }
         catch (ArgumentOutOfRangeException)
         {
-        }        
+        }
         catch (AssertInconclusiveException)
         {
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
           Assert.Fail("Wrong or exception thrown exception is : " + ex.GetType().Name);
         }

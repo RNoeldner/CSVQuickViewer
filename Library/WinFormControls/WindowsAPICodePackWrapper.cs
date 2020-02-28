@@ -1,10 +1,9 @@
 ﻿namespace CsvTools
 {
-  using System;
-  using System.Windows.Forms;
-
   using Microsoft.WindowsAPICodePack.Dialogs;
   using Microsoft.WindowsAPICodePack.Taskbar;
+  using System;
+  using System.Windows.Forms;
 
   public static class WindowsAPICodePackWrapper
   {
@@ -15,7 +14,7 @@
     public static void AttachTaskbarProgress(this IProcessDisplayTime MainProcess)
     {
       // Handle the TaskBarProcess as well
-      MainProcess.Progress += delegate(object sender, ProgressEventArgs e)
+      MainProcess.Progress += delegate (object sender, ProgressEventArgs e)
         {
           if (MainProcess.Maximum != -1 && MainProcess.TimeToCompletion.Value > -1
                                         && MainProcess.TimeToCompletion.Value
@@ -34,7 +33,7 @@
           Extensions.ProcessUIElements();
         };
 
-      MainProcess.SetMaximum += delegate(object sender, long max)
+      MainProcess.SetMaximum += delegate (object sender, long max)
         {
           if (max < 1)
             SetProgressState(true);

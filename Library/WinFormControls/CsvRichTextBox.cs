@@ -45,12 +45,12 @@ namespace CsvTools
       get => m_Delimiter;
       set
       {
-        if (this.m_Delimiter.Equals(value))
+        if (m_Delimiter.Equals(value))
           return;
-        this.m_Delimiter = value;
+        m_Delimiter = value;
         try
         {
-          this.SafeInvoke(() => this.Rtf = this.GetRtfFromText(this.m_Text));
+          this.SafeInvoke(() => Rtf = GetRtfFromText(m_Text));
         }
         catch (Exception)
         {
@@ -81,10 +81,10 @@ namespace CsvTools
       get => m_Escape;
       set
       {
-        if (this.m_Escape.Equals(value))
+        if (m_Escape.Equals(value))
           return;
-        this.m_Escape = value;
-        this.Rtf = this.GetRtfFromText(this.m_Text);
+        m_Escape = value;
+        Rtf = GetRtfFromText(m_Text);
       }
     }
 
@@ -96,10 +96,10 @@ namespace CsvTools
       get => m_Quote;
       set
       {
-        if (this.m_Quote.Equals(value))
+        if (m_Quote.Equals(value))
           return;
-        this.m_Quote = value;
-        this.Rtf = this.GetRtfFromText(this.m_Text);
+        m_Quote = value;
+        Rtf = GetRtfFromText(m_Text);
       }
     }
 
