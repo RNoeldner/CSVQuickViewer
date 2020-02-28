@@ -118,9 +118,6 @@
     <Compile Include="FormHierachyDisplay.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="FormKeyFile.cs">
-      <SubType>Form</SubType>
-    </Compile>
     <Compile Include="FormSelectTimeZone.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -135,9 +132,6 @@
     </Compile>
     <Compile Include="FormUniqueDisplay.Designer.cs">
       <DependentUpon>FormUniqueDisplay.cs</DependentUpon>
-    </Compile>
-    <Compile Include="FormPassphrase.cs">
-      <SubType>Form</SubType>
     </Compile>
     <Compile Include="LoggerDisplay.cs">
       <SubType>Component</SubType>
@@ -186,6 +180,9 @@
     <EmbeddedResource Include="FrmLimitSize.resx">
       <DependentUpon>FrmLimitSize.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="ResizeForm.resx">
+      <DependentUpon>ResizeForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="TimeZoneSelector.resx">
       <DependentUpon>TimeZoneSelector.cs</DependentUpon>
     </EmbeddedResource>
@@ -222,12 +219,6 @@
     <None Include="FormHierachyDisplay.resx">
       <DependentUpon>FormHierachyDisplay.cs</DependentUpon>
       <SubType>Designer</SubType>
-    </None>
-    <None Include="FormKeyFile.resx">
-      <DependentUpon>FormKeyFile.cs</DependentUpon>
-    </None>
-    <None Include="FormPassphrase.resx">
-      <DependentUpon>FormPassphrase.cs</DependentUpon>
     </None>
     <None Include="FormProcessDisplay.resx">
       <DependentUpon>FormProcessDisplay.cs</DependentUpon>

@@ -14,7 +14,6 @@
 
 namespace CsvTools
 {
-  using Org.BouncyCastle.Bcpg.OpenPgp;
   using System;
   using System.IO;
   using System.IO.Compression;
@@ -26,25 +25,17 @@ namespace CsvTools
   /// </summary>
   public sealed class ImprovedStream : IImprovedStream
   {
-    /// <summary>
-    /// A PGP stream, has a few underlying streams that need to be closed in teh right order
-    /// </summary>
-    private Stream m_CompressStream;
+    public ImprovedStream(string path)
+    {
+      m_BasePath = path;
+      m_AssumeGZip = path.AssumeGZip();
+    }
 
-    /// <summary>
-    /// A PGP stream, has a few underlying streams that need to be closed in teh right order
-    /// </summary>
-    private Stream m_EncryptedStream;
+    private readonly bool m_AssumeGZip;
 
-    private bool m_AssumeGZip;
-
-    private bool m_AssumePGP;
-
-    private string m_BasePath;
+    private readonly string m_BasePath;
 
     private bool m_DisposedValue; // To detect redundant calls
-
-    private string m_EncryptedPassphrase;
 
     public double Percentage => (double)BaseStream.Position / BaseStream.Length;
 
@@ -59,40 +50,12 @@ namespace CsvTools
     /// <param name="encryptedPassphrase">The encrypted passphrase.</param>
     /// <returns></returns>
     /// <exception cref="ArgumentException">Path must be set - path</exception>
-    public static IImprovedStream OpenRead(string path, Func<string> encryptedPassphrase = null)
+    public static IImprovedStream OpenRead(string path)
     {
       if (string.IsNullOrEmpty(path))
         throw new ArgumentException("Path must be set", nameof(path));
-      var retVal = OpenBaseStream(path, encryptedPassphrase);
+      var retVal = OpenBaseStream(path);
       retVal.ResetToStart(null);
-      return retVal;
-    }
-
-    /// <summary>
-    /// Opens the a setting for reading
-    /// </summary>
-    /// <param name="setting">The setting.</param>
-    /// <returns></returns>
-    /// <exception cref="EncryptionException">
-    /// Please provide a passphrase. or Please reenter the passphrase, the passphrase could not be decrypted.
-    /// </exception>
-    public static IImprovedStream OpenRead(IFileSettingPhysicalFile setting)
-    {
-      var retVal = OpenBaseStream(setting.FullPath, setting.GetEncryptedPassphraseFunction) as ImprovedStream;
-      retVal.ResetToStart(
-        delegate
-          {
-            if (!retVal.m_AssumePGP)
-              return;
-
-            // Store the passphrase for next use, this does not mean it is correct
-            setting.Passphrase = retVal.m_EncryptedPassphrase;
-
-            if (ApplicationSetting.PGPKeyStorage != null
-                && ApplicationSetting.PGPKeyStorage.EncryptedPassphase.Length == 0)
-              ApplicationSetting.PGPKeyStorage.EncryptedPassphase = retVal.m_EncryptedPassphrase;
-          });
-
       return retVal;
     }
 
@@ -102,27 +65,16 @@ namespace CsvTools
     /// <param name="path">The path.</param>
     /// <param name="recipient">The recipient.</param>
     /// <returns>An improved stream object</returns>
-    public static IImprovedStream OpenWrite(string path, string recipient = null)
+    public static IImprovedStream OpenWrite(string path)
     {
       FileSystemUtils.FileDelete(path.LongPathPrefix());
 
-      var retVal = new ImprovedStream { m_AssumePGP = path.AssumePgp(), m_AssumeGZip = path.AssumeGZip(), };
+      var retVal = new ImprovedStream(path);
 
       if (retVal.m_AssumeGZip)
       {
         retVal.BaseStream = File.Create(path.LongPathPrefix());
         retVal.Stream = new GZipStream(retVal.BaseStream, CompressionMode.Compress);
-        return retVal;
-      }
-
-      if (retVal.m_AssumePGP)
-      {
-        retVal.BaseStream = File.Create(path.LongPathPrefix());
-        retVal.Stream = ApplicationSetting.PGPKeyStorage.PGPStream(
-          retVal.BaseStream,
-          recipient,
-          out retVal.m_EncryptedStream,
-          out retVal.m_CompressStream);
         return retVal;
       }
 
@@ -137,12 +89,6 @@ namespace CsvTools
     /// </summary>
     public void Close()
     {
-      if (m_AssumePGP)
-      {
-        m_CompressStream?.Close();
-        m_EncryptedStream?.Close();
-      }
-
       Stream?.Close();
       BaseStream?.Close();
     }
@@ -173,35 +119,6 @@ namespace CsvTools
             Logger.Debug("Decompressing GZip Stream {filename}", m_BasePath);
             Stream = new GZipStream(BaseStream, CompressionMode.Decompress);
           }
-          else if (m_AssumePGP)
-          {
-            System.Security.SecureString decryptedPassphrase;
-
-            // need to use the setting function, opening a form to enter the passphrase is not in
-            // this library
-            if (string.IsNullOrEmpty(m_EncryptedPassphrase))
-              throw new EncryptionException("Please provide a passphrase.");
-            try
-            {
-              decryptedPassphrase = m_EncryptedPassphrase.Decrypt().ToSecureString();
-            }
-            catch (Exception)
-            {
-              throw new EncryptionException("Please reenter the passphrase, the passphrase could not be decrypted.");
-            }
-
-            try
-            {
-              Logger.Debug("Decrypt PGP Stream {filename}", m_BasePath);
-              Stream = ApplicationSetting.PGPKeyStorage.PgpDecrypt(BaseStream, decryptedPassphrase);
-            }
-            catch (PgpException ex)
-            {
-              // removed possibly stored passphrase
-              var recipient = ApplicationSetting.PGPKeyStorage?.GetEncryptedKeyID(BaseStream);
-              throw new EncryptionException($"The message is encrypted for '{recipient}'.", ex);
-            }
-          }
           else
           {
             Stream = BaseStream;
@@ -220,15 +137,6 @@ namespace CsvTools
       if (disposing)
       {
         Close();
-        if (m_AssumePGP)
-        {
-          m_CompressStream?.Dispose();
-          m_CompressStream = null;
-
-          m_EncryptedStream?.Dispose();
-          m_EncryptedStream = null;
-        }
-
         Stream?.Dispose();
         BaseStream?.Dispose();
       }
@@ -242,14 +150,11 @@ namespace CsvTools
     /// <param name="path">The path.</param>
     /// <param name="encryptedPassphraseFunc">The encrypted passphrase function.</param>
     /// <returns>An improved stream where the base stream is set</returns>
-    private static IImprovedStream OpenBaseStream(string path, Func<string> encryptedPassphraseFunc)
+    private static ImprovedStream OpenBaseStream(string path)
     {
-      var retVal = new ImprovedStream { m_AssumePGP = path.AssumePgp(), m_AssumeGZip = path.AssumeGZip() };
-      if (retVal.m_AssumePGP && encryptedPassphraseFunc != null)
-        retVal.m_EncryptedPassphrase = encryptedPassphraseFunc();
+      var retVal = new ImprovedStream(path);
       try
       {
-        retVal.m_BasePath = path;
         retVal.BaseStream = File.OpenRead(path);
         return retVal;
       }

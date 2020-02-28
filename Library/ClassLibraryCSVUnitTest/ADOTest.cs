@@ -66,7 +66,7 @@ namespace CsvTools.Tests
         HasFieldHeader = true
       };
 
-      setting.FileName = System.IO.Path.Combine(m_ApplicationDirectory, "BasicCSVEmptyLine.txt");
+      setting.FileName = System.IO.UnitTestInitialize.GetTestPath("BasicCSVEmptyLine.txt");
       ImportCOM(setting);
     }
 

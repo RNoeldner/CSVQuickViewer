@@ -19,81 +19,103 @@ using System.Threading;
 
 namespace CsvTools
 {
-	/// <summary>
-	///  Static class to access application wide settings, currently HTMLStyle, FillGuessSetting and a ColumnHeaderCache
-	/// </summary>
-	public static class ApplicationSetting
-	{
-		/// <summary>
-		/// Function to retrieve the column in a setting file
-		/// </summary>
-		public static Func<IFileSetting, CancellationToken, ICollection<string>> GetColumnHeader;
+  /// <summary>
+  /// Static class to access application wide settings, currently HTMLStyle, FillGuessSetting and a ColumnHeaderCache
+  /// </summary>
+  public static class ApplicationSetting
+  {
+    /// <summary>
+    /// Function to retrieve the column in a setting file
+    /// </summary>
+    public static Func<IFileSetting, CancellationToken, ICollection<string>> GetColumnHeader;
 
-		/// <summary>
-		/// Timezone, in case of reading the timezone to which conversion are done to, or when writing the source timezone from where to convert from
-		/// </summary>
-		public static string DestinationTimeZone { get; set; } = TimeZoneMapping.cIdLocal;
+    /// <summary>
+    /// Funtion taht will retriev teh passphase
+    /// </summary>
+    public static Func<IFileSetting, string> GetEncryptedPassphrase = (setting) => { return null; };
 
-		/// <summary>
-		/// Function that will return a reader for a setting
-		/// </summary>
-		public static Func<IFileSetting, IProcessDisplay, IFileReader> GetFileReader { get; set; } = (setting, processDisplay) =>
-		{
-			switch (setting)
-			{
-				case CsvFile csv when csv.JsonFormat:
-					return new JsonFileReader(csv, processDisplay);
-				case CsvFile csv:
-					return new CsvFileReader(csv, processDisplay);
-				default:
-					throw new NotImplementedException($"Reader for {setting} not found");
-			}
-		};
+    /// <summary>
+    /// General function to open a file for reading, it will take care of things like comression and encryption
+    /// </summary>
+    public static Func<string, IImprovedStream> OpenRead = (path) => ImprovedStream.OpenRead(path);
 
-		/// <summary>
-		/// Function that will return a writer for a setting
-		/// </summary>
-		public static Func<IFileSetting, IProcessDisplay, IFileWriter> GetFileWriter { get; set; } = (setting, processDisplay) =>
-		{
-			switch (setting)
-			{
-				case CsvFile csv when !csv.JsonFormat:
-					return new CsvFileWriter(csv, processDisplay);
-				case StructuredFile structuredFile:
-					return new StructuredFileWriter(structuredFile, processDisplay);
-				default:
-					throw new NotImplementedException($"Writer for {setting} not found");
-			}
-		};
+    /// <summary>
+    /// General function to open a file for reading, it will take care of things like comression and encryption
+    /// </summary>
+    public static Func<IFileSettingPhysicalFile, IImprovedStream> OpenReadS = (setting) => ImprovedStream.OpenRead(setting.FullPath);
 
-		/// <summary>
-		///  The Application wide HTMLStyle
-		/// </summary>
-		public static HTMLStyle HTMLStyle { get; } = new HTMLStyle();
+    /// <summary>
+    /// General function to open a file for writing, it will take care of things like comression and encryption
+    /// </summary>
+    public static Func<string, string, IImprovedStream> OpenWrite => (path, recepient) => ImprovedStream.OpenWrite(path);
 
-		/// <summary>
-		///  General Setting that determines if the menu is display in the bottom of a detail control
-		/// </summary>
-		public static bool MenuDown { get; set; }
+    /// <summary>
+    /// Timezone, in case of reading the timezone to which conversion are done to, or when writing
+    /// the source timezone from where to convert from
+    /// </summary>
+    public static string DestinationTimeZone { get; set; } = TimeZoneMapping.cIdLocal;
 
-		public static PGPKeyStorage PGPKeyStorage { get; set; } = new PGPKeyStorage();
+    /// <summary>
+    /// Function that will return a reader for a setting
+    /// </summary>
+    public static Func<IFileSetting, IProcessDisplay, IFileReader> GetFileReader { get; set; } = (setting, processDisplay) =>
+    {
+      switch (setting)
+      {
+        case CsvFile csv when csv.JsonFormat:
+          return new JsonFileReader(csv, processDisplay);
 
-		// public static Func<string, string, string, IProcessDisplay, bool, DateTime> RemoteFileHandler { get; set; }
+        case CsvFile csv:
+          return new CsvFileReader(csv, processDisplay);
 
-		public static string RootFolder { get; set; } = ".";
+        default:
+          throw new NotImplementedException($"Reader for {setting} not found");
+      }
+    };
 
-		/// <summary>
-		/// Gets or sets the SQL data reader.
-		/// </summary>
-		/// <value>
-		/// The SQL data reader.
-		/// </value>
-		/// <exception cref="ArgumentNullException">SQL Data Reader is not set</exception>
-		public static Func<string, IProcessDisplay, int, IDataReader> SQLDataReader { get; set; }
+    /// <summary>
+    /// Function that will return a writer for a setting
+    /// </summary>
+    public static Func<IFileSetting, IProcessDisplay, IFileWriter> GetFileWriter { get; set; } = (setting, processDisplay) =>
+    {
+      switch (setting)
+      {
+        case CsvFile csv when !csv.JsonFormat:
+          return new CsvFileWriter(csv, processDisplay);
 
-		/// <summary>
-		/// Action to store the headers of a file in a cache
-		/// </summary>
-		public static Action<IFileSetting, IEnumerable<Column>> StoreHeader { get; set; }
-	}
+        case StructuredFile structuredFile:
+          return new StructuredFileWriter(structuredFile, processDisplay);
+
+        default:
+          throw new NotImplementedException($"Writer for {setting} not found");
+      }
+    };
+
+    /// <summary>
+    /// The Application wide HTMLStyle
+    /// </summary>
+    public static HTMLStyle HTMLStyle { get; } = new HTMLStyle();
+
+    /// <summary>
+    /// General Setting that determines if the menu is display in the bottom of a detail control
+    /// </summary>
+    public static bool MenuDown { get; set; }
+
+    // public static Func<string, string, string, IProcessDisplay, bool, DateTime> RemoteFileHandler
+    // { get; set; }
+
+    public static string RootFolder { get; set; } = ".";
+
+    /// <summary>
+    /// Gets or sets the SQL data reader.
+    /// </summary>
+    /// <value>The SQL data reader.</value>
+    /// <exception cref="ArgumentNullException">SQL Data Reader is not set</exception>
+    public static Func<string, IProcessDisplay, int, IDataReader> SQLDataReader { get; set; }
+
+    /// <summary>
+    /// Action to store the headers of a file in a cache
+    /// </summary>
+    public static Action<IFileSetting, IEnumerable<Column>> StoreHeader { get; set; }
+  }
 }

@@ -1026,7 +1026,8 @@ namespace CsvTools
     /// </summary>
     private void ResetPositionToStartOrOpen()
     {
-      if (m_ImprovedStream == null) m_ImprovedStream = ImprovedStream.OpenRead(m_CsvFile);
+      if (m_ImprovedStream == null)
+        m_ImprovedStream = ApplicationSetting.OpenReadS(m_CsvFile);
 
       if (m_BufferPos != 0 || RecordNumber != 0 || m_BufferFilled == 0)
       {

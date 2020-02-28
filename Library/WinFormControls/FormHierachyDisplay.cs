@@ -417,197 +417,215 @@ namespace CsvTools
     /// </summary>
     private void InitializeComponent()
     {
-      components = new Container();
-      Label label1;
-      Label label2;
-      Label label3;
-      ContextMenuStrip contextMenuStrip;
-      ToolStripMenuItem expandAllToolStripMenuItem;
-      ToolStripMenuItem closeAllToolStripMenuItem;
-      Label label4;
-      m_TableLayoutPanel1 = new TableLayoutPanel();
-      m_ComboBoxID = new ComboBox();
-      m_ComboBoxParentID = new ComboBox();
-      m_TreeView = new MultiselectTreeView();
-      m_TextBoxValue = new TextBox();
-      m_ComboBoxDisplay2 = new ComboBox();
-      m_ComboBoxDisplay1 = new ComboBox();
-      label1 = new Label();
-      label2 = new Label();
-      label3 = new Label();
-      contextMenuStrip = new ContextMenuStrip(components);
-      expandAllToolStripMenuItem = new ToolStripMenuItem();
-      closeAllToolStripMenuItem = new ToolStripMenuItem();
-      label4 = new Label();
+      this.components = new System.ComponentModel.Container();
+      System.Windows.Forms.Label label1;
+      System.Windows.Forms.Label label2;
+      System.Windows.Forms.Label label3;
+      System.Windows.Forms.ContextMenuStrip contextMenuStrip;
+      System.Windows.Forms.ToolStripMenuItem expandAllToolStripMenuItem;
+      System.Windows.Forms.ToolStripMenuItem closeAllToolStripMenuItem;
+      System.Windows.Forms.Label label4;
+      this.m_TableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+      this.m_ComboBoxID = new System.Windows.Forms.ComboBox();
+      this.m_ComboBoxParentID = new System.Windows.Forms.ComboBox();
+      this.m_TreeView = new CsvTools.MultiselectTreeView();
+      this.m_TextBoxValue = new System.Windows.Forms.TextBox();
+      this.m_ComboBoxDisplay2 = new System.Windows.Forms.ComboBox();
+      this.m_ComboBoxDisplay1 = new System.Windows.Forms.ComboBox();
+      label1 = new System.Windows.Forms.Label();
+      label2 = new System.Windows.Forms.Label();
+      label3 = new System.Windows.Forms.Label();
+      contextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
+      expandAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+      closeAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+      label4 = new System.Windows.Forms.Label();
       contextMenuStrip.SuspendLayout();
-      m_TableLayoutPanel1.SuspendLayout();
-      SuspendLayout();
-
+      this.m_TableLayoutPanel1.SuspendLayout();
+      this.SuspendLayout();
+      // 
       // label1
-      label1.Anchor = AnchorStyles.Right;
+      // 
+      label1.Anchor = System.Windows.Forms.AnchorStyles.Right;
       label1.AutoSize = true;
-      label1.Location = new Point(63, 9);
-      label1.Margin = new Padding(4, 0, 4, 0);
+      label1.Location = new System.Drawing.Point(66, 8);
+      label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
       label1.Name = "label1";
-      label1.Size = new Size(26, 20);
+      label1.Size = new System.Drawing.Size(22, 18);
       label1.TabIndex = 3;
       label1.Text = "ID";
-
+      // 
       // label2
-      label2.Anchor = AnchorStyles.Right;
+      // 
+      label2.Anchor = System.Windows.Forms.AnchorStyles.Right;
       label2.AutoSize = true;
-      label2.Location = new Point(29, 47);
-      label2.Margin = new Padding(4, 0, 4, 0);
+      label2.Location = new System.Drawing.Point(32, 42);
+      label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
       label2.Name = "label2";
-      label2.Size = new Size(60, 20);
+      label2.Size = new System.Drawing.Size(56, 18);
       label2.TabIndex = 5;
       label2.Text = "Display";
-
+      // 
       // label3
-      label3.Anchor = AnchorStyles.Right;
+      // 
+      label3.Anchor = System.Windows.Forms.AnchorStyles.Right;
       label3.AutoSize = true;
-      label3.Location = new Point(12, 85);
-      label3.Margin = new Padding(4, 0, 4, 0);
+      label3.Location = new System.Drawing.Point(19, 76);
+      label3.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
       label3.Name = "label3";
-      label3.Size = new Size(77, 20);
+      label3.Size = new System.Drawing.Size(69, 18);
       label3.TabIndex = 7;
       label3.Text = "Parent ID";
-
+      // 
       // contextMenuStrip
-      contextMenuStrip.ImageScalingSize = new Size(20, 20);
-      contextMenuStrip.Items.AddRange(new ToolStripItem[] { expandAllToolStripMenuItem, closeAllToolStripMenuItem });
+      // 
+      contextMenuStrip.ImageScalingSize = new System.Drawing.Size(20, 20);
+      contextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            expandAllToolStripMenuItem,
+            closeAllToolStripMenuItem});
       contextMenuStrip.Name = "contextMenuStrip";
-      contextMenuStrip.Size = new Size(168, 68);
-
+      contextMenuStrip.Size = new System.Drawing.Size(150, 52);
+      // 
       // expandAllToolStripMenuItem
+      // 
       expandAllToolStripMenuItem.Name = "expandAllToolStripMenuItem";
-      expandAllToolStripMenuItem.Size = new Size(167, 32);
+      expandAllToolStripMenuItem.Size = new System.Drawing.Size(149, 24);
       expandAllToolStripMenuItem.Text = "Expand All";
-      expandAllToolStripMenuItem.Click += new EventHandler(ExpandAllToolStripMenuItem_Click);
-
+      expandAllToolStripMenuItem.Click += new System.EventHandler(this.ExpandAllToolStripMenuItem_Click);
+      // 
       // closeAllToolStripMenuItem
+      // 
       closeAllToolStripMenuItem.Name = "closeAllToolStripMenuItem";
-      closeAllToolStripMenuItem.Size = new Size(167, 32);
+      closeAllToolStripMenuItem.Size = new System.Drawing.Size(149, 24);
       closeAllToolStripMenuItem.Text = "Close All";
-      closeAllToolStripMenuItem.Click += new EventHandler(CloseAllToolStripMenuItem_Click);
-
+      closeAllToolStripMenuItem.Click += new System.EventHandler(this.CloseAllToolStripMenuItem_Click);
+      // 
       // label4
-      label4.Anchor = AnchorStyles.Right;
+      // 
+      label4.Anchor = System.Windows.Forms.AnchorStyles.Right;
       label4.AutoSize = true;
-      label4.Location = new Point(49, 122);
-      label4.Margin = new Padding(4, 0, 4, 0);
+      label4.Location = new System.Drawing.Point(52, 109);
+      label4.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
       label4.Name = "label4";
-      label4.Size = new Size(40, 20);
+      label4.Size = new System.Drawing.Size(36, 18);
       label4.TabIndex = 5;
       label4.Text = "Find";
-
+      // 
       // m_TableLayoutPanel1
-      m_TableLayoutPanel1.ColumnCount = 3;
-      m_TableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 93F));
-      m_TableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
-      m_TableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
-      m_TableLayoutPanel1.Controls.Add(label1, 0, 0);
-      m_TableLayoutPanel1.Controls.Add(label2, 0, 1);
-      m_TableLayoutPanel1.Controls.Add(label3, 0, 2);
-      m_TableLayoutPanel1.Controls.Add(m_ComboBoxID, 1, 0);
-      m_TableLayoutPanel1.Controls.Add(m_ComboBoxParentID, 1, 2);
-      m_TableLayoutPanel1.Controls.Add(m_TreeView, 0, 4);
-      m_TableLayoutPanel1.Controls.Add(m_TextBoxValue, 1, 3);
-      m_TableLayoutPanel1.Controls.Add(label4, 0, 3);
-      m_TableLayoutPanel1.Controls.Add(m_ComboBoxDisplay2, 2, 1);
-      m_TableLayoutPanel1.Controls.Add(m_ComboBoxDisplay1, 1, 1);
-      m_TableLayoutPanel1.Dock = DockStyle.Fill;
-      m_TableLayoutPanel1.Location = new Point(0, 0);
-      m_TableLayoutPanel1.Margin = new Padding(4, 5, 4, 5);
-      m_TableLayoutPanel1.Name = "m_TableLayoutPanel1";
-      m_TableLayoutPanel1.RowCount = 5;
-      m_TableLayoutPanel1.RowStyles.Add(new RowStyle());
-      m_TableLayoutPanel1.RowStyles.Add(new RowStyle());
-      m_TableLayoutPanel1.RowStyles.Add(new RowStyle());
-      m_TableLayoutPanel1.RowStyles.Add(new RowStyle());
-      m_TableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-      m_TableLayoutPanel1.Size = new Size(698, 568);
-      m_TableLayoutPanel1.TabIndex = 10;
-
+      // 
+      this.m_TableLayoutPanel1.ColumnCount = 3;
+      this.m_TableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 92F));
+      this.m_TableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+      this.m_TableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+      this.m_TableLayoutPanel1.Controls.Add(label1, 0, 0);
+      this.m_TableLayoutPanel1.Controls.Add(label2, 0, 1);
+      this.m_TableLayoutPanel1.Controls.Add(label3, 0, 2);
+      this.m_TableLayoutPanel1.Controls.Add(this.m_ComboBoxID, 1, 0);
+      this.m_TableLayoutPanel1.Controls.Add(this.m_ComboBoxParentID, 1, 2);
+      this.m_TableLayoutPanel1.Controls.Add(this.m_TreeView, 0, 4);
+      this.m_TableLayoutPanel1.Controls.Add(this.m_TextBoxValue, 1, 3);
+      this.m_TableLayoutPanel1.Controls.Add(label4, 0, 3);
+      this.m_TableLayoutPanel1.Controls.Add(this.m_ComboBoxDisplay2, 2, 1);
+      this.m_TableLayoutPanel1.Controls.Add(this.m_ComboBoxDisplay1, 1, 1);
+      this.m_TableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
+      this.m_TableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
+      this.m_TableLayoutPanel1.Margin = new System.Windows.Forms.Padding(4);
+      this.m_TableLayoutPanel1.Name = "m_TableLayoutPanel1";
+      this.m_TableLayoutPanel1.RowCount = 5;
+      this.m_TableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      this.m_TableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      this.m_TableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      this.m_TableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      this.m_TableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+      this.m_TableLayoutPanel1.Size = new System.Drawing.Size(698, 511);
+      this.m_TableLayoutPanel1.TabIndex = 10;
+      // 
       // m_ComboBoxID
-      m_TableLayoutPanel1.SetColumnSpan(m_ComboBoxID, 2);
-      m_ComboBoxID.Dock = DockStyle.Top;
-      m_ComboBoxID.DropDownStyle = ComboBoxStyle.DropDownList;
-      m_ComboBoxID.FormattingEnabled = true;
-      m_ComboBoxID.Location = new Point(97, 5);
-      m_ComboBoxID.Margin = new Padding(4, 5, 4, 5);
-      m_ComboBoxID.Name = "m_ComboBoxID";
-      m_ComboBoxID.Size = new Size(597, 28);
-      m_ComboBoxID.TabIndex = 0;
-      m_ComboBoxID.SelectedIndexChanged += new EventHandler(ComboBox_SelectionChangeCommitted);
-
+      // 
+      this.m_TableLayoutPanel1.SetColumnSpan(this.m_ComboBoxID, 2);
+      this.m_ComboBoxID.Dock = System.Windows.Forms.DockStyle.Top;
+      this.m_ComboBoxID.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+      this.m_ComboBoxID.FormattingEnabled = true;
+      this.m_ComboBoxID.Location = new System.Drawing.Point(96, 4);
+      this.m_ComboBoxID.Margin = new System.Windows.Forms.Padding(4);
+      this.m_ComboBoxID.Name = "m_ComboBoxID";
+      this.m_ComboBoxID.Size = new System.Drawing.Size(598, 26);
+      this.m_ComboBoxID.TabIndex = 0;
+      this.m_ComboBoxID.SelectedIndexChanged += new System.EventHandler(this.ComboBox_SelectionChangeCommitted);
+      // 
       // m_ComboBoxParentID
-      m_TableLayoutPanel1.SetColumnSpan(m_ComboBoxParentID, 2);
-      m_ComboBoxParentID.Dock = DockStyle.Top;
-      m_ComboBoxParentID.DropDownStyle = ComboBoxStyle.DropDownList;
-      m_ComboBoxParentID.FormattingEnabled = true;
-      m_ComboBoxParentID.Location = new Point(97, 81);
-      m_ComboBoxParentID.Margin = new Padding(4, 5, 4, 5);
-      m_ComboBoxParentID.Name = "m_ComboBoxParentID";
-      m_ComboBoxParentID.Size = new Size(597, 28);
-      m_ComboBoxParentID.TabIndex = 1;
-      m_ComboBoxParentID.SelectedIndexChanged += new EventHandler(ComboBox_SelectionChangeCommitted);
-
+      // 
+      this.m_TableLayoutPanel1.SetColumnSpan(this.m_ComboBoxParentID, 2);
+      this.m_ComboBoxParentID.Dock = System.Windows.Forms.DockStyle.Top;
+      this.m_ComboBoxParentID.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+      this.m_ComboBoxParentID.FormattingEnabled = true;
+      this.m_ComboBoxParentID.Location = new System.Drawing.Point(96, 72);
+      this.m_ComboBoxParentID.Margin = new System.Windows.Forms.Padding(4);
+      this.m_ComboBoxParentID.Name = "m_ComboBoxParentID";
+      this.m_ComboBoxParentID.Size = new System.Drawing.Size(598, 26);
+      this.m_ComboBoxParentID.TabIndex = 1;
+      this.m_ComboBoxParentID.SelectedIndexChanged += new System.EventHandler(this.ComboBox_SelectionChangeCommitted);
+      // 
       // m_TreeView
-      m_TableLayoutPanel1.SetColumnSpan(m_TreeView, 3);
-      m_TreeView.ContextMenuStrip = contextMenuStrip;
-      m_TreeView.Dock = DockStyle.Fill;
-      m_TreeView.Location = new Point(4, 155);
-      m_TreeView.Margin = new Padding(4, 5, 4, 5);
-      m_TreeView.Name = "m_TreeView";
-      m_TreeView.Size = new Size(690, 408);
-      m_TreeView.TabIndex = 9;
-
+      // 
+      this.m_TableLayoutPanel1.SetColumnSpan(this.m_TreeView, 3);
+      this.m_TreeView.ContextMenuStrip = contextMenuStrip;
+      this.m_TreeView.Dock = System.Windows.Forms.DockStyle.Fill;
+      this.m_TreeView.Location = new System.Drawing.Point(4, 138);
+      this.m_TreeView.Margin = new System.Windows.Forms.Padding(4);
+      this.m_TreeView.Name = "m_TreeView";
+      this.m_TreeView.Size = new System.Drawing.Size(690, 369);
+      this.m_TreeView.TabIndex = 9;
+      // 
       // m_TextBoxValue
-      m_TextBoxValue.Dock = DockStyle.Top;
-      m_TextBoxValue.Location = new Point(97, 119);
-      m_TextBoxValue.Margin = new Padding(4, 5, 4, 5);
-      m_TextBoxValue.Name = "m_TextBoxValue";
-      m_TextBoxValue.Size = new Size(294, 26);
-      m_TextBoxValue.TabIndex = 2;
-      m_TextBoxValue.TextChanged += new EventHandler(TimerSearchRestart);
-
+      // 
+      this.m_TextBoxValue.Dock = System.Windows.Forms.DockStyle.Top;
+      this.m_TextBoxValue.Location = new System.Drawing.Point(96, 106);
+      this.m_TextBoxValue.Margin = new System.Windows.Forms.Padding(4);
+      this.m_TextBoxValue.Name = "m_TextBoxValue";
+      this.m_TextBoxValue.Size = new System.Drawing.Size(295, 24);
+      this.m_TextBoxValue.TabIndex = 2;
+      this.m_TextBoxValue.TextChanged += new System.EventHandler(this.TimerSearchRestart);
+      // 
       // m_ComboBoxDisplay2
-      m_ComboBoxDisplay2.Dock = DockStyle.Top;
-      m_ComboBoxDisplay2.FormattingEnabled = true;
-      m_ComboBoxDisplay2.Location = new Point(399, 43);
-      m_ComboBoxDisplay2.Margin = new Padding(4, 5, 4, 5);
-      m_ComboBoxDisplay2.Name = "m_ComboBoxDisplay2";
-      m_ComboBoxDisplay2.Size = new Size(295, 28);
-      m_ComboBoxDisplay2.TabIndex = 15;
-      m_ComboBoxDisplay2.SelectedIndexChanged += new EventHandler(TimeDisplayRestart);
-
+      // 
+      this.m_ComboBoxDisplay2.Dock = System.Windows.Forms.DockStyle.Top;
+      this.m_ComboBoxDisplay2.FormattingEnabled = true;
+      this.m_ComboBoxDisplay2.Location = new System.Drawing.Point(399, 38);
+      this.m_ComboBoxDisplay2.Margin = new System.Windows.Forms.Padding(4);
+      this.m_ComboBoxDisplay2.Name = "m_ComboBoxDisplay2";
+      this.m_ComboBoxDisplay2.Size = new System.Drawing.Size(295, 26);
+      this.m_ComboBoxDisplay2.TabIndex = 15;
+      this.m_ComboBoxDisplay2.SelectedIndexChanged += new System.EventHandler(this.TimeDisplayRestart);
+      // 
       // m_ComboBoxDisplay1
-      m_ComboBoxDisplay1.Dock = DockStyle.Top;
-      m_ComboBoxDisplay1.FormattingEnabled = true;
-      m_ComboBoxDisplay1.Location = new Point(97, 43);
-      m_ComboBoxDisplay1.Margin = new Padding(4, 5, 4, 5);
-      m_ComboBoxDisplay1.Name = "m_ComboBoxDisplay1";
-      m_ComboBoxDisplay1.Size = new Size(294, 28);
-      m_ComboBoxDisplay1.TabIndex = 16;
-      m_ComboBoxDisplay1.SelectedIndexChanged += new EventHandler(TimeDisplayRestart);
-
+      // 
+      this.m_ComboBoxDisplay1.Dock = System.Windows.Forms.DockStyle.Top;
+      this.m_ComboBoxDisplay1.FormattingEnabled = true;
+      this.m_ComboBoxDisplay1.Location = new System.Drawing.Point(96, 38);
+      this.m_ComboBoxDisplay1.Margin = new System.Windows.Forms.Padding(4);
+      this.m_ComboBoxDisplay1.Name = "m_ComboBoxDisplay1";
+      this.m_ComboBoxDisplay1.Size = new System.Drawing.Size(295, 26);
+      this.m_ComboBoxDisplay1.TabIndex = 16;
+      this.m_ComboBoxDisplay1.SelectedIndexChanged += new System.EventHandler(this.TimeDisplayRestart);
+      // 
       // FormHierachyDisplay
-      AutoScaleDimensions = new SizeF(9F, 20F);
-      AutoScaleMode = AutoScaleMode.Font;
-      ClientSize = new Size(698, 568);
-      Controls.Add(m_TableLayoutPanel1);
-      FormBorderStyle = FormBorderStyle.SizableToolWindow;
-      Margin = new Padding(4, 5, 4, 5);
-      MinimumSize = new Size(499, 278);
-      Name = "FormHierachyDisplay";
-      Text = "Hierarchy";
-      FormClosed += new FormClosedEventHandler(FormHierachyDisplay_FormClosed);
-      Load += new EventHandler(HirachyDisplay_Load);
+      // 
+      this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 18F);
+      this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+      this.ClientSize = new System.Drawing.Size(698, 511);
+      this.Controls.Add(this.m_TableLayoutPanel1);
+      this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
+      this.Margin = new System.Windows.Forms.Padding(4);
+      this.MinimumSize = new System.Drawing.Size(500, 255);
+      this.Name = "FormHierachyDisplay";
+      this.Text = "Hierarchy";
+      this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.FormHierachyDisplay_FormClosed);
+      this.Load += new System.EventHandler(this.HirachyDisplay_Load);
       contextMenuStrip.ResumeLayout(false);
-      m_TableLayoutPanel1.ResumeLayout(false);
-      m_TableLayoutPanel1.PerformLayout();
-      ResumeLayout(false);
+      this.m_TableLayoutPanel1.ResumeLayout(false);
+      this.m_TableLayoutPanel1.PerformLayout();
+      this.ResumeLayout(false);
+
     }
 
     private bool MarkInCycle(TreeData treeData, ICollection<TreeData> visitedEntries)

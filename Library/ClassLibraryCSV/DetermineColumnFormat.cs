@@ -25,7 +25,7 @@ using System.Threading;
 namespace CsvTools
 {
   /// <summary>
-  ///   Helper class
+  /// Helper class
   /// </summary>
   public static class DetermineColumnFormat
   {
@@ -52,7 +52,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Fills the Column Format for reader fileSettings
+    /// Fills the Column Format for reader fileSettings
     /// </summary>
     /// <param name="fileSetting">The file setting to check, and fill</param>
     /// <param name="addTextColumns">if set to <c>true</c> event string columns are added.</param>
@@ -195,7 +195,8 @@ namespace CsvTools
             }
 
             var oldColumn = fileSetting.ColumnCollection.Get(newColumn.Name);
-            // if we have a mapping to a template that expects a integer and we only have integers but not enough
+            // if we have a mapping to a template that expects a integer and we only have integers
+            // but not enough
             if (oldColumn != null)
             {
               var oldValueFormat = oldColumn.GetTypeAndFormatDescription();
@@ -209,7 +210,8 @@ namespace CsvTools
                 }
                 else
                 {
-                  // if he date format does not match the last found date format reset the assumed correct format
+                  // if he date format does not match the last found date format reset the assumed
+                  // correct format
                   if (!othersValueFormatDate.Equals(checkResult.FoundValueFormat))
                     othersValueFormatDate = null;
                 }
@@ -250,8 +252,8 @@ namespace CsvTools
         // The fileReader does not have the column information yet, let the reader know
         fileReader.OverrideColumnFormatFromSetting();
 
-        // check all doubles if they could be integer
-        // needed for excel files as the typed values do not distinguish between double and integer.
+        // check all doubles if they could be integer needed for excel files as the typed values do
+        // not distinguish between double and integer.
         if (checkDoubleToBeInteger)
           for (var colindex = 0; colindex < fileReader.FieldCount; colindex++)
           {
@@ -303,8 +305,8 @@ namespace CsvTools
 
         if (fillGuessSettings.DateParts)
         {
-          // Try to find a time for a date if the date does not already have a time
-          // Case a) TimeFormat has already been recognized
+          // Try to find a time for a date if the date does not already have a time Case a)
+          // TimeFormat has already been recognized
           for (var colindex = 0; colindex < fileReader.FieldCount; colindex++)
           {
             processDisplay.CancellationToken.ThrowIfCancellationRequested();
@@ -335,8 +337,7 @@ namespace CsvTools
               if (columnTime.DataType != DataType.DateTime || !string.IsNullOrEmpty(columnDate.TimePart) ||
                   columnTime.ValueFormat.DateFormat.IndexOfAny(new[] { '/', 'y', 'M', 'd' }) != -1)
                 continue;
-              // We now have a time column,
-              // checked if the names somehow make sense
+              // We now have a time column, checked if the names somehow make sense
               if (!columnDate.Name.NoSpecials().ToUpperInvariant().Replace("DATE", string.Empty).Equals(
                 columnTime.Name.NoSpecials().ToUpperInvariant().Replace("TIME", string.Empty),
                 StringComparison.Ordinal))
@@ -348,7 +349,8 @@ namespace CsvTools
             }
           }
 
-          // Case b) TimeFormat has not been recognized (e.G. all values are 08:00) only look in adjacent fields
+          // Case b) TimeFormat has not been recognized (e.G. all values are 08:00) only look in
+          // adjacent fields
           for (var colindex = 0; colindex < fileReader.FieldCount; colindex++)
           {
             processDisplay.CancellationToken.ThrowIfCancellationRequested();
@@ -457,16 +459,12 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Fills the Column Format for writer fileSettings
+    /// Fills the Column Format for writer fileSettings
     /// </summary>
     /// <param name="fileSettings">The file settings.</param>
     /// <param name="all">if set to <c>true</c> event string columns are added.</param>
     /// <param name="processDisplay">The process display.</param>
-    /// <exception cref="FileWriterException">
-    ///   No SQL Statement given
-    ///   or
-    ///   No SQL Reader set
-    /// </exception>
+    /// <exception cref="FileWriterException">No SQL Statement given or No SQL Reader set</exception>
     public static void FillGuessColumnFormatWriter(this IFileSetting fileSettings, bool all,
       IProcessDisplay processDisplay)
     {
@@ -499,7 +497,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets all possible formats based on the provided value
+    /// Gets all possible formats based on the provided value
     /// </summary>
     /// <param name="value">The value.</param>
     /// <param name="culture">The culture.</param>
@@ -518,7 +516,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Get sample values for a column
+    /// Get sample values for a column
     /// </summary>
     /// <param name="dataTable">The data table.</param>
     /// <param name="columnIndex">Index of the column.</param>
@@ -578,12 +576,14 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Get sample values for several columns at once, ignoring rows with issues or warning in the columns, looping though
-    ///   all records in the reader
+    /// Get sample values for several columns at once, ignoring rows with issues or warning in the
+    /// columns, looping though all records in the reader
     /// </summary>
-    /// <param name="dataReader">A <see cref="IFileReader" /> data reader</param>
+    /// <param name="dataReader">A <see cref="IFileReader"/> data reader</param>
     /// <param name="maxRecords">The maximum records.</param>
-    /// <param name="columns">A Dictionary listing the columns and the number of samples needed for each</param>
+    /// <param name="columns">
+    /// A Dictionary listing the columns and the number of samples needed for each
+    /// </param>
     /// <param name="enoughSamples">The enough samples.</param>
     /// <param name="treatAsNull">Text that should be regarded as an empty column</param>
     /// <param name="cancellationToken">A cancellation token</param>
@@ -637,8 +637,8 @@ namespace CsvTools
           dataReader.ResetPositionToFirstDataRow();
         }
 
-        // Ready to start store the record number we are currently at,
-        // we could be in the middle of the file already
+        // Ready to start store the record number we are currently at, we could be in the middle of
+        // the file already
         var startRecordNumber = dataReader.RecordNumber;
 
         var maxSamples = 2000;
@@ -647,9 +647,9 @@ namespace CsvTools
 
         var enough = new List<int>();
         // Get distinct sample values until we have
-        //   * parsed the maximum number
-        //   * have enough samples to be satisfied
-        //   * we are at the beginning record again
+        // * parsed the maximum number
+        // * have enough samples to be satisfied
+        // * we are at the beginning record again
         while (++recordRead < maxRecords && !cancellationToken.IsCancellationRequested &&
                collectFor.Count > enough.Count)
         {
@@ -716,23 +716,24 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Get sample values for a column, ignoring all rows with issues for the column, looping though all records in the
-    ///   reader
+    /// Get sample values for a column, ignoring all rows with issues for the column, looping though
+    /// all records in the reader
     /// </summary>
-    /// <param name="dataReader">A <see cref="IFileReader" /> data reader</param>
+    /// <param name="dataReader">A <see cref="IFileReader"/> data reader</param>
     /// <param name="maxRecords">The maximum records.</param>
     /// <param name="columnIndex">Index of the column.</param>
     /// <param name="enoughSamples">The number samples.</param>
     /// <param name="treatAsNull">Text that should be regarded as an empty column</param>
     /// <param name="cancellationToken">A cancellation token</param>
     /// <returns>
-    ///   A collection of distinct not null values, in case the text is long only the first 40 characters are stored
+    /// A collection of distinct not null values, in case the text is long only the first 40
+    /// characters are stored
     /// </returns>
     public static SampleResult GetSampleValues(IFileReader dataReader, long maxRecords,
       int columnIndex, int enoughSamples, string treatAsNull, CancellationToken cancellationToken) => GetSampleValues(dataReader, maxRecords, new[] { columnIndex }, enoughSamples, treatAsNull, cancellationToken)[columnIndex];
 
     /// <summary>
-    ///   Gets the writer source columns.
+    /// Gets the writer source columns.
     /// </summary>
     /// <param name="fileSettings">The file settings.</param>
     /// <param name="processDisplay">The process display.</param>
@@ -777,7 +778,8 @@ namespace CsvTools
 
         if (fmt.IndexOf('/') > 0)
         {
-          // if we do not have determined the list of possibleDateSeparators so far do so now, but only once
+          // if we do not have determined the list of possibleDateSeparators so far do so now, but
+          // only once
           if (possibleDateSeparators == null)
           {
             possibleDateSeparators = new List<string>();
@@ -875,7 +877,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Guesses the value format.
+    /// Guesses the value format.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token</param>
     /// <param name="samples">The samples.</param>
@@ -890,10 +892,10 @@ namespace CsvTools
     /// <param name="serialDateTime">Allow serial Date time</param>
     /// <param name="checkNamedDates">if set to <c>true</c> [check named dates].</param>
     /// <param name="othersValueFormatDate">
-    ///   The date format found in prior columns, assuming the data format is the same in
-    ///   other columns, we do not need that many samples
+    /// The date format found in prior columns, assuming the data format is the same in other
+    /// columns, we do not need that many samples
     /// </param>
-    /// <returns><c>Null</c> if no format could be determined otherwise a <see cref="ValueFormat" /></returns>
+    /// <returns><c>Null</c> if no format could be determined otherwise a <see cref="ValueFormat"/></returns>
     public static CheckResult GuessValueFormat(ICollection<string> samples, int minRequiredSamples,
       string trueValue, string falseValue, bool guessBoolean, bool guessGuid, bool guessNumeric, bool guessDateTime,
       bool guessPercentage, bool serialDateTime, bool checkNamedDates, ValueFormat othersValueFormatDate,
@@ -907,7 +909,7 @@ namespace CsvTools
 
       var checkResult = new CheckResult { FoundValueFormat = new ValueFormat() };
 
-      // ---------------- Boolean  --------------------------
+      // ---------------- Boolean --------------------------
       if (guessBoolean && count <= 2)
       {
         var allParsed = true;
@@ -942,7 +944,7 @@ namespace CsvTools
       if (cancellationToken.IsCancellationRequested)
         return null;
 
-      // ---------------- GUID  --------------------------
+      // ---------------- GUID --------------------------
       if (guessGuid && StringConversion.CheckGuid(samples))
       {
         checkResult.FoundValueFormat.DataType = DataType.Guid;
@@ -952,8 +954,7 @@ namespace CsvTools
       if (cancellationToken.IsCancellationRequested)
         return null;
 
-      // ---------------- Text --------------------------
-      // in case we have named dates, this is not feasible
+      // ---------------- Text -------------------------- in case we have named dates, this is not feasible
       if (!checkNamedDates)
       {
         // Trying some chars, if they are in, assume its a string
@@ -1034,8 +1035,7 @@ namespace CsvTools
         if (cancellationToken.IsCancellationRequested)
           return null;
 
-        // ---------------- Date --------------------------
-        // Minimum length of a date is 4 characters
+        // ---------------- Date -------------------------- Minimum length of a date is 4 characters
         if (guessDateTime && firstValue.Length > 3)
         {
           var res = GuessDateTime(samples, checkNamedDates, cancellationToken);
@@ -1048,9 +1048,9 @@ namespace CsvTools
           return null;
       }
 
-      // Assume dates are of the same format across the files we check if the dates
-      // we have would possibly match no matter how many samples we have
-      // this time we do not care about matching length Check Date will cut off time information , this is independent from minRequiredSamples
+      // Assume dates are of the same format across the files we check if the dates we have would
+      // possibly match no matter how many samples we have this time we do not care about matching
+      // length Check Date will cut off time information , this is independent from minRequiredSamples
       if (guessDateTime && othersValueFormatDate != null)
       {
         var res = StringConversion.CheckDate(samples, othersValueFormatDate.DateFormat,
@@ -1088,7 +1088,7 @@ namespace CsvTools
         Values = new HashSet<string>();
         while (source.Count > 0)
         {
-          var index = SecureString.Random.Next(0, source.Count); //pick a random item from the master list
+          var index = new Random(Guid.NewGuid().GetHashCode()).Next(0, source.Count); //pick a random item from the master list
           Values.Add(source[index]); //place it at the end of the randomized list
           source.RemoveAt(index);
         }

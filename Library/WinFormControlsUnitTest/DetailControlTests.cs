@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.ComponentModel;
@@ -21,6 +22,8 @@ namespace CsvTools.Tests
   [TestClass]
   public class DetailControlTests
   {
+    private Random random = new Random(Guid.NewGuid().GetHashCode());
+
     [TestMethod]
     public void DetailControlTest()
     {
@@ -53,9 +56,9 @@ namespace CsvTools.Tests
           row[1] = $"This is text {line / 2}";
           row[2] = new DateTime(2001, 6, 6).AddHours(line * 3);
           row[3] = line % 3 == 0;
-          if (SecureString.Random.Next(1, 10) == 5)
-            row.SetColumnError(SecureString.Random.Next(0, 3), "Error");
-          if (SecureString.Random.Next(1, 50) == 5)
+          if (random.Next(1, 10) == 5)
+            row.SetColumnError(random.Next(0, 3), "Error");
+          if (random.Next(1, 50) == 5)
             row.RowError = "Row Error";
           dt.Rows.Add(row);
         }
@@ -98,7 +101,7 @@ namespace CsvTools.Tests
         for (var line = 1; line < 5000; line++)
         {
           var row = dt.NewRow();
-          row[0] = SecureString.Random.Next(1, 5000);
+          row[0] = random.Next(1, 5000);
           row[1] = $"This is text {line / 2}";
           row[2] = new DateTime(2001, 6, 6).AddHours(line * 3);
           row[3] = line % 3 == 0;

@@ -20,7 +20,7 @@ namespace CsvTools
       : base(fileSetting, processDisplay) => m_StructuredFile = fileSetting;
 
     /// <summary>
-    ///   Gets a value indicating whether this instance is closed.
+    /// Gets a value indicating whether this instance is closed.
     /// </summary>
     /// <value><c>true</c> if this instance is closed; otherwise, <c>false</c>.</value>
     public bool IsClosed => m_TextReader == null;
@@ -97,7 +97,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Advances to the next record.
+    /// Advances to the next record.
     /// </summary>
     /// <returns>true if there are more rows; otherwise, false.</returns>
     public override bool Read()
@@ -118,11 +118,11 @@ namespace CsvTools
     public void ResetPositionToFirstDataRow() => ResetPositionToStartOrOpen();
 
     /// <summary>
-    ///   Releases unmanaged and - optionally - managed resources
+    /// Releases unmanaged and - optionally - managed resources
     /// </summary>
     /// <param name="disposing">
-    ///   <c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only
-    ///   unmanaged resources.
+    /// <c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only
+    /// unmanaged resources.
     /// </param>
     protected override void Dispose(bool disposing)
     {
@@ -150,8 +150,8 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Reads a data row from the JsonTextReader and stores the values and text,
-    ///   this will flatten the structure of the Json file
+    /// Reads a data row from the JsonTextReader and stores the values and text, this will flatten
+    /// the structure of the Json file
     /// </summary>
     /// <returns>A collection with name and value of the properties</returns>
     private ICollection<KeyValuePair<string, object>> GetNextRecord(bool throwError)
@@ -164,11 +164,10 @@ namespace CsvTools
           StartLineNumber = m_TextReaderLine;
         }
 
-
         var headers = new Dictionary<string, bool>();
         var keyValuePairs = new Dictionary<string, object>();
         while (m_JsonTextReader.TokenType != JsonToken.StartObject
-               // && m_JsonTextReader.TokenType != JsonToken.PropertyName 
+               // && m_JsonTextReader.TokenType != JsonToken.PropertyName
                && m_JsonTextReader.TokenType != JsonToken.StartArray)
           if (!m_JsonTextReader.Read())
             return null;
@@ -248,7 +247,8 @@ namespace CsvTools
           if (!kv.Value)
             keyValuePairs.Remove(kv.Key);
 
-        // store the information into our fixed structure, even if the tokens in Json change order they will aligned
+        // store the information into our fixed structure, even if the tokens in Json change order
+        // they will aligned
         if (Column == null || Column.Length == 0) return keyValuePairs;
         var colNum = 0;
         foreach (var col in Column)
@@ -280,7 +280,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets the relative position.
+    /// Gets the relative position.
     /// </summary>
     /// <returns>A value between 0 and MaxValue</returns>
     protected override int GetRelativePosition()
@@ -293,8 +293,8 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Resets the position and buffer to the first line, excluding headers, use ResetPositionToStart if you want to go to
-    ///   first data line
+    /// Resets the position and buffer to the first line, excluding headers, use
+    /// ResetPositionToStart if you want to go to first data line
     /// </summary>
     private void ResetPositionToStartOrOpen()
     {
@@ -306,7 +306,7 @@ namespace CsvTools
       m_ImprovedStream = ImprovedStream.OpenRead(m_StructuredFile);
         */
       if (m_ImprovedStream == null)
-        m_ImprovedStream = ImprovedStream.OpenRead(m_StructuredFile);
+        m_ImprovedStream = ApplicationSetting.OpenReadS(m_StructuredFile);
 
       m_ImprovedStream.ResetToStart(delegate (Stream str)
       {
@@ -347,32 +347,32 @@ namespace CsvTools
     private const int c_BufferSize = 65536;
 
     /// <summary>
-    ///   16k Buffer of the file data
+    /// 16k Buffer of the file data
     /// </summary>
     private readonly char[] m_Buffer = new char[c_BufferSize];
 
     /// <summary>
-    ///   Length of the buffer (can be smaller then buffer size at end of file)
+    /// Length of the buffer (can be smaller then buffer size at end of file)
     /// </summary>
     private int m_BufferFilled;
 
     /// <summary>
-    ///   Position in the buffer
+    /// Position in the buffer
     /// </summary>
     private int m_BufferPos = -1;
 
     /// <summary>
-    ///   The line-feed character. Escape code is <c>\n</c>.
+    /// The line-feed character. Escape code is <c>\n</c>.
     /// </summary>
     private const char c_Lf = (char)0x0a;
 
     /// <summary>
-    ///   The carriage return character. Escape code is <c>\r</c>.
+    /// The carriage return character. Escape code is <c>\r</c>.
     /// </summary>
     private const char c_Cr = (char)0x0d;
 
     /// <summary>
-    ///   Fills the buffer with data from the reader.
+    /// Fills the buffer with data from the reader.
     /// </summary>
     /// <returns><c>true</c> if data was successfully read; otherwise, <c>false</c>.</returns>
     private void ReadIntoBuffer()
@@ -417,7 +417,7 @@ namespace CsvTools
 
     private void SetTextReader()
     {
-      // find the beginning      
+      // find the beginning
       while (!EndOfFile)
       {
         var peek = NextChar();
@@ -442,15 +442,19 @@ namespace CsvTools
           case '{':
             openCurly++;
             break;
+
           case '}':
             openCurly--;
             break;
+
           case '[':
             openSquare++;
             break;
+
           case ']':
             openSquare--;
             break;
+
           case c_Cr:
           case c_Lf:
             EatNextCRLF(chr);
@@ -464,6 +468,6 @@ namespace CsvTools
       m_JsonTextReader = new JsonTextReader(new StringReader(sb.ToString()));
     }
 
-    #endregion
+    #endregion TextReader
   }
 }

@@ -60,59 +60,48 @@ namespace CsvTools
     /// </summary>
     private void InitializeComponent()
     {
-      var dataGridViewCellStyle5 = new DataGridViewCellStyle();
-      var dataGridViewCellStyle6 = new DataGridViewCellStyle();
-      var dataGridViewCellStyle7 = new DataGridViewCellStyle();
-      var dataGridViewCellStyle8 = new DataGridViewCellStyle();
-      m_DataGridView = new FilteredDataGridView();
-      ((ISupportInitialize)(m_DataGridView)).BeginInit();
-      SuspendLayout();
-
-      // dataGridView
-      m_DataGridView.AllowUserToAddRows = false;
-      m_DataGridView.AllowUserToDeleteRows = false;
-      m_DataGridView.AllowUserToOrderColumns = true;
-      dataGridViewCellStyle5.BackColor = Color.FromArgb(224, 224, 224);
-      m_DataGridView.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle5;
-      dataGridViewCellStyle6.Alignment = DataGridViewContentAlignment.MiddleLeft;
-      dataGridViewCellStyle6.BackColor = SystemColors.Control;
-      dataGridViewCellStyle6.ForeColor = SystemColors.WindowText;
-      dataGridViewCellStyle6.SelectionBackColor = SystemColors.Highlight;
-      dataGridViewCellStyle6.SelectionForeColor = SystemColors.HighlightText;
-      dataGridViewCellStyle6.WrapMode = DataGridViewTriState.True;
-      m_DataGridView.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle6;
-      m_DataGridView.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-      dataGridViewCellStyle7.Alignment = DataGridViewContentAlignment.MiddleLeft;
-      dataGridViewCellStyle7.BackColor = SystemColors.Window;
-      dataGridViewCellStyle7.ForeColor = Color.Black;
-      dataGridViewCellStyle7.SelectionBackColor = SystemColors.Highlight;
-      dataGridViewCellStyle7.SelectionForeColor = SystemColors.HighlightText;
-      dataGridViewCellStyle7.WrapMode = DataGridViewTriState.False;
-      m_DataGridView.DefaultCellStyle = dataGridViewCellStyle7;
-      m_DataGridView.Dock = DockStyle.Fill;
-      m_DataGridView.Location = new Point(0, 0);
-      m_DataGridView.Name = "m_DataGridView";
-      dataGridViewCellStyle8.Alignment = DataGridViewContentAlignment.MiddleLeft;
-      dataGridViewCellStyle8.BackColor = SystemColors.Control;
-      dataGridViewCellStyle8.ForeColor = SystemColors.WindowText;
-      dataGridViewCellStyle8.SelectionBackColor = SystemColors.Highlight;
-      dataGridViewCellStyle8.SelectionForeColor = SystemColors.HighlightText;
-      dataGridViewCellStyle8.WrapMode = DataGridViewTriState.True;
-      m_DataGridView.RowHeadersDefaultCellStyle = dataGridViewCellStyle8;
-      m_DataGridView.Size = new Size(362, 310);
-      m_DataGridView.TabIndex = 0;
-
+      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+      this.m_DataGridView = new CsvTools.FilteredDataGridView();
+      ((System.ComponentModel.ISupportInitialize)(this.m_DataGridView)).BeginInit();
+      this.SuspendLayout();
+      // 
+      // m_DataGridView
+      // 
+      this.m_DataGridView.AllowUserToAddRows = false;
+      this.m_DataGridView.AllowUserToDeleteRows = false;
+      this.m_DataGridView.AllowUserToOrderColumns = true;
+      dataGridViewCellStyle1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
+      this.m_DataGridView.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
+      this.m_DataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+      dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+      dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
+      dataGridViewCellStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+      dataGridViewCellStyle2.ForeColor = System.Drawing.Color.Black;
+      dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+      dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+      dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+      this.m_DataGridView.DefaultCellStyle = dataGridViewCellStyle2;
+      this.m_DataGridView.Dock = System.Windows.Forms.DockStyle.Fill;
+      this.m_DataGridView.Location = new System.Drawing.Point(0, 0);
+      this.m_DataGridView.Name = "m_DataGridView";
+      this.m_DataGridView.RowHeadersWidth = 51;
+      this.m_DataGridView.Size = new System.Drawing.Size(362, 310);
+      this.m_DataGridView.TabIndex = 0;
+      // 
       // FormShowMaxLength
-      ClientSize = new Size(362, 310);
-      Controls.Add(m_DataGridView);
-      FormBorderStyle = FormBorderStyle.SizableToolWindow;
-      MaximizeBox = false;
-      MinimizeBox = false;
-      Name = "FormShowMaxLength";
-      Text = "Column Length";
-      Load += new EventHandler(ShowMaxLength_Load);
-      ((ISupportInitialize)(m_DataGridView)).EndInit();
-      ResumeLayout(false);
+      // 
+      this.ClientSize = new System.Drawing.Size(362, 310);
+      this.Controls.Add(this.m_DataGridView);
+      this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
+      this.MaximizeBox = false;
+      this.MinimizeBox = false;
+      this.Name = "FormShowMaxLength";
+      this.Text = "Column Length";
+      this.Load += new System.EventHandler(this.ShowMaxLength_Load);
+      ((System.ComponentModel.ISupportInitialize)(this.m_DataGridView)).EndInit();
+      this.ResumeLayout(false);
+
     }
 
     /// <summary>

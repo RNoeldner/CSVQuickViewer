@@ -21,12 +21,10 @@ namespace CsvTools.Tests
   [TestClass]
   public class JsonFileReaderTest
   {
-    private readonly string m_ApplicationDirectory = FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles";
-
     [TestMethod]
     public void OpenLog()
     {
-      var setting = new CsvFile(Path.Combine(m_ApplicationDirectory, "LogFile.json"))
+      var setting = new CsvFile(UnitTestInitialize.GetTestPath("LogFile.json"))
       {
         JsonFormat = true
       };
@@ -49,7 +47,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void NotSupported()
     {
-      var setting = new CsvFile(Path.Combine(m_ApplicationDirectory, "Emp.json"))
+      var setting = new CsvFile(UnitTestInitialize.GetTestPath("Emp.json"))
       {
         JsonFormat = true
       };
@@ -154,15 +152,13 @@ namespace CsvTools.Tests
         {
           Assert.Fail($"GetData - Wrong type of exception  {ex.GetType().Name}");
         }
-
       }
-
     }
 
     [TestMethod]
     public void ReadJSonEmp()
     {
-      var setting = new CsvFile(Path.Combine(m_ApplicationDirectory, "Emp.json"))
+      var setting = new CsvFile(UnitTestInitialize.GetTestPath("Emp.json"))
       {
         JsonFormat = true
       };
@@ -200,7 +196,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void ReadJSon1()
     {
-      var setting = new CsvFile(Path.Combine(m_ApplicationDirectory, "Jason1.json"))
+      var setting = new CsvFile(UnitTestInitialize.GetTestPath("Jason1.json"))
       {
         JsonFormat = true
       };
@@ -221,7 +217,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void ReadJSon2()
     {
-      var setting = new CsvFile(Path.Combine(m_ApplicationDirectory, "Jason2.json"))
+      var setting = new CsvFile(UnitTestInitialize.GetTestPath("Jason2.json"))
       {
         JsonFormat = true
       };
@@ -243,7 +239,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void ReadJSon3()
     {
-      var setting = new CsvFile(Path.Combine(m_ApplicationDirectory, "Jason3.json"))
+      var setting = new CsvFile(UnitTestInitialize.GetTestPath("Jason3.json"))
       {
         JsonFormat = true
       };

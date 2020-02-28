@@ -22,14 +22,14 @@ namespace CsvTools
   using System.Windows.Forms;
 
   /// <summary>
-  ///   Form to edit the Settings
+  /// Form to edit the Settings
   /// </summary>
   public partial class FormEditSettings : ResizeForm
   {
     private readonly ViewSettings m_ViewSettings;
 
     /// <summary>
-    ///   Initializes a new instance of the <see cref="FormEditSettings" /> class.
+    /// Initializes a new instance of the <see cref="FormEditSettings"/> class.
     /// </summary>
     public FormEditSettings() : this(new ViewSettings())
     {
@@ -40,25 +40,6 @@ namespace CsvTools
       InitializeComponent();
       m_ViewSettings = viewSettings;
       fillGuessSettingEdit.FillGuessSettings = viewSettings.FillGuessSettings;
-      GetPrivateKeys();
-    }
-
-    private void BtnAddPrivKey_Click(object sender, EventArgs e)
-    {
-      try
-      {
-        using (var kf = new FormKeyFile("Private PGP Key", true))
-        {
-          if (kf.ShowDialog(this) != DialogResult.OK)
-            return;
-          m_ViewSettings.PGPInformation.AddPrivateKey(kf.KeyBlock);
-          GetPrivateKeys();
-        }
-      }
-      catch (Exception ex)
-      {
-        this.ShowError(ex);
-      }
     }
 
     private void BtnOpenFile_Click(object sender, EventArgs e)
@@ -79,26 +60,6 @@ namespace CsvTools
         this.ShowError(ex);
       }
     }
-
-    private void BtnPassp_Click(object sender, EventArgs e)
-    {
-      using (var inp = new FormPassphrase("Default Encryption Pass-phrase"))
-      {
-        if (inp.ShowDialog(this) == DialogResult.OK)
-          m_ViewSettings.PGPInformation.EncryptedPassphase = inp.EncryptedPassphrase;
-      }
-
-      UpdatePassphraseInfoText();
-    }
-
-    private void BtnRemPrivKey_Click(object sender, EventArgs e)
-    {
-      if (listBoxPrivKeys.SelectedIndex < 0)
-        return;
-      m_ViewSettings.PGPInformation.RemovePrivateKey(listBoxPrivKeys.SelectedIndex);
-      GetPrivateKeys();
-    }
-
 
     private void ButtonGuessCP_Click(object sender, EventArgs e)
     {
@@ -156,7 +117,6 @@ namespace CsvTools
       try
       {
         var csvFile = new CsvFile(newFileName);
-        csvFile.GetEncryptedPassphraseFunction = csvFile.GetEncryptedPassphraseOpenForm;
         using (var processDisplay = new DummyProcessDisplay())
         {
           csvFile.RefreshCsvFile(processDisplay);
@@ -220,10 +180,10 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Handles the Load event of the EditSettings control.
+    /// Handles the Load event of the EditSettings control.
     /// </summary>
     /// <param name="sender">The source of the event.</param>
-    /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
+    /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
     private void EditSettings_Load(object sender, EventArgs e)
     {
       fileSettingBindingSource.DataSource = m_ViewSettings;
@@ -234,18 +194,9 @@ namespace CsvTools
         cboCodePage.Items.Add(new DisplayItem<int>(cp, EncodingHelper.GetEncodingName(cp, false, false)));
       quotingControl.CsvFile = m_ViewSettings;
       CsvFile_PropertyChanged(null, new PropertyChangedEventArgs("CodePageId"));
-
-      UpdatePassphraseInfoText();
     }
 
     private void FormEditSettings_FormClosing(object sender, FormClosingEventArgs e) => ValidateChildren();
-
-    private void GetPrivateKeys()
-    {
-      listBoxPrivKeys.Items.Clear();
-      foreach (var text in m_ViewSettings.PGPInformation.GetPrivateKeyRingBundleList())
-        listBoxPrivKeys.Items.Add(text);
-    }
 
     private void PositiveNumberValidating(object sender, CancelEventArgs e)
     {
@@ -295,22 +246,6 @@ namespace CsvTools
       {
         errorProvider.SetError(textBoxFile, string.Empty);
       }
-    }
-
-    private void UpdatePassphraseInfoText()
-    {
-      if (string.IsNullOrEmpty(m_ViewSettings.PGPInformation.EncryptedPassphase))
-        labelPassphrase.Text = "Default passphrase is not yet set";
-      else
-        try
-        {
-          m_ViewSettings.PGPInformation.EncryptedPassphase.Decrypt();
-          labelPassphrase.Text = "Default passphrase is set";
-        }
-        catch
-        {
-          labelPassphrase.Text = "Passphrase is set but invalid";
-        }
     }
   }
 }

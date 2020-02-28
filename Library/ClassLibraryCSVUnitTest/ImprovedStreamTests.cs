@@ -21,16 +21,14 @@ namespace CsvTools.Tests
   [TestClass()]
   public class ImprovedStreamTests
   {
-    private readonly string m_ApplicationDirectory = FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles";
-
     [TestMethod()]
     public void OpenReadTestSetting()
     {
       var setting = new CsvFile
       {
-        FileName = Path.Combine(m_ApplicationDirectory, "BasicCsV.txt")
+        FileName = UnitTestInitialize.GetTestPath("BasicCsV.txt")
       };
-      using (var res = ImprovedStream.OpenRead(setting))
+      using (var res = ImprovedStream.OpenRead(setting.FullPath))
       {
         Assert.IsNotNull(res);
         Assert.IsNotNull(res.Stream);
@@ -40,7 +38,7 @@ namespace CsvTools.Tests
     [TestMethod()]
     public void OpenReadTestRegular()
     {
-      using (var res = ImprovedStream.OpenRead(Path.Combine(m_ApplicationDirectory, "BasicCsV.txt")))
+      using (var res = ImprovedStream.OpenRead(UnitTestInitialize.GetTestPath("BasicCsV.txt")))
       {
         Assert.IsNotNull(res);
         Assert.IsNotNull(res.Stream);
@@ -50,18 +48,7 @@ namespace CsvTools.Tests
     [TestMethod()]
     public void OpenReadTestgZip()
     {
-      using (var res = ImprovedStream.OpenRead(Path.Combine(m_ApplicationDirectory, "BasicCsV.txt.gz")))
-      {
-        Assert.IsNotNull(res);
-        Assert.IsNotNull(res.Stream);
-      }
-    }
-
-    [TestMethod()]
-    public void OpenReadTestPGP()
-    {
-      PGPKeyStorageTestHelper.SetApplicationSetting();
-      using (var res = ImprovedStream.OpenRead(Path.Combine(m_ApplicationDirectory, "BasicCsV.pgp"), () => { return "UGotMe".Encrypt(); }))
+      using (var res = ImprovedStream.OpenRead(UnitTestInitialize.GetTestPath("BasicCsV.txt.gz")))
       {
         Assert.IsNotNull(res);
         Assert.IsNotNull(res.Stream);
@@ -70,14 +57,14 @@ namespace CsvTools.Tests
 
     private void WriteFile(string fileName)
     {
-      var fullname = Path.Combine(m_ApplicationDirectory, fileName);
+      var fullname = UnitTestInitialize.GetTestPath(fileName);
 
       var encoding = EncodingHelper.GetEncoding(65001, true);
       const string Line1 = "This is a test of compressed data written to a file";
       const string Line2 = "Yet another line to be written";
       const string Line3 = "A text with non ASCII chacarters: Raphael Nöldner";
 
-      using (var improvedStream = ImprovedStream.OpenWrite(fullname, PGPKeyStorageTestHelper.PGPKeyStorage.GetRecipients().Keys.First()))
+      using (var improvedStream = ImprovedStream.OpenWrite(fullname))
       {
         using (var writer = new StreamWriter(improvedStream.Stream, encoding, 8192))
         {
@@ -91,7 +78,7 @@ namespace CsvTools.Tests
       }
       Assert.IsTrue(FileSystemUtils.FileExists(fullname), "Check if File is created" + fileName);
 
-      using (var improvedStream = ImprovedStream.OpenRead(fullname, () => { return PGPKeyStorageTestHelper.PGPKeyStorage.EncryptedPassphase; }))
+      using (var improvedStream = ImprovedStream.OpenRead(fullname))
       {
         using (var textReader = new StreamReader(improvedStream.Stream, encoding, true))
         {
@@ -112,23 +99,16 @@ namespace CsvTools.Tests
     public void OpenWriteTestRegular() => WriteFile("WriteText.txt");
 
     [TestMethod()]
-    public void OpenWriteTestPgp()
-    {
-      PGPKeyStorageTestHelper.SetApplicationSetting();
-      WriteFile("WriteText.pgp");
-    }
-
-    [TestMethod()]
     public void CloseTest()
     {
-      var res = ImprovedStream.OpenRead(Path.Combine(m_ApplicationDirectory, "BasicCsV.txt"));
+      var res = ImprovedStream.OpenRead(UnitTestInitialize.GetTestPath("BasicCsV.txt"));
       res.Close();
     }
 
     [TestMethod()]
     public void DisposeTest()
     {
-      var res = ImprovedStream.OpenRead(Path.Combine(m_ApplicationDirectory, "BasicCsV.txt"));
+      var res = ImprovedStream.OpenRead(UnitTestInitialize.GetTestPath("BasicCsV.txt"));
       res.Dispose();
     }
   }

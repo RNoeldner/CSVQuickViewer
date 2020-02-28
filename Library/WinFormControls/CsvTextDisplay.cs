@@ -22,7 +22,7 @@ namespace CsvTools
   using FileInfo = Pri.LongPath.FileInfo;
 
   /// <summary>
-  ///   UserControl: CsvTextDisplay
+  /// UserControl: CsvTextDisplay
   /// </summary>
   public partial class CsvTextDisplay : UserControl
   {
@@ -31,7 +31,7 @@ namespace CsvTools
     private int m_DisplayedAt;
 
     /// <summary>
-    ///   CTOR CsvTextDisplay
+    /// CTOR CsvTextDisplay
     /// </summary>
     public CsvTextDisplay()
     {
@@ -40,7 +40,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   CSV File to display
+    /// CSV File to display
     /// </summary>
     public ICsvFile CsvFile
     {
@@ -106,7 +106,7 @@ namespace CsvTools
       try
       {
         using (var procDisp = new ProcessDisplayTime(CancellationToken.None))
-        using (var istream = ImprovedStream.OpenRead(m_CsvFile))
+        using (var istream = ApplicationSetting.OpenReadS(m_CsvFile))
         using (var sr = new StreamReader(istream.Stream, m_CsvFile.GetEncoding(), m_CsvFile.ByteOrderMark))
         {
           // Some stream do not support seek...
