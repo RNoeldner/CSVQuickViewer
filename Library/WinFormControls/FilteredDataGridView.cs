@@ -66,8 +66,16 @@ namespace CsvTools
         Paint += FilteredDataGridView_Paint;
 
       var resources = new ComponentResourceManager(typeof(FilteredDataGridView));
-      m_ImgFilterIndicator = ((Image)(resources.GetObject("toolStripMenuItem2.Image")));
-      m_ImgNbSp = ((Image)(resources.GetObject("NBSP")));
+      try
+      {
+        m_ImgFilterIndicator = ((Image)(resources.GetObject("toolStripMenuItem2.Image")));
+        m_ImgNbSp = ((Image)(resources.GetObject("NBSP")));
+      }
+      catch 
+      {
+        //ignore
+      }
+      
 
       InitializeComponent();
       DataError += FilteredDataGridView_DataError;

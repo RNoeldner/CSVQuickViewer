@@ -21,11 +21,11 @@
       base.Dispose(disposing);
     }
 
-    #region 
-
+    #region
 
     /// <summary>
-    /// Initializes the component.
+    /// Required method for Designer support - do not modify
+    /// the contents of this method with the code editor.
     /// </summary>
     private void InitializeComponent()
     {
@@ -36,7 +36,7 @@
       // ScrollBarVertical
       // 
       this.ScrollBarVertical.Dock = System.Windows.Forms.DockStyle.Right;
-      this.ScrollBarVertical.Location = new System.Drawing.Point(419, 0);
+      this.ScrollBarVertical.Location = new System.Drawing.Point(371, 0);
       this.ScrollBarVertical.Name = "ScrollBarVertical";
       this.ScrollBarVertical.Size = new System.Drawing.Size(17, 248);
       this.ScrollBarVertical.TabIndex = 0;
@@ -53,30 +53,31 @@
       this.CSVTextBox.Dock = System.Windows.Forms.DockStyle.Left;
       this.CSVTextBox.Escape = '\\';
       this.CSVTextBox.Location = new System.Drawing.Point(0, 0);
+      this.CSVTextBox.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
       this.CSVTextBox.Name = "CSVTextBox";
       this.CSVTextBox.Quote = '\"';
       this.CSVTextBox.ReadOnly = true;
       this.CSVTextBox.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Horizontal;
-      this.CSVTextBox.Size = new System.Drawing.Size(384, 248);
+      this.CSVTextBox.Size = new System.Drawing.Size(341, 248);
       this.CSVTextBox.TabIndex = 1;
       this.CSVTextBox.Text = "";
       // 
       // CsvTextDisplay
       // 
-      this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
+      this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.Controls.Add(this.CSVTextBox);
       this.Controls.Add(this.ScrollBarVertical);
+      this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
       this.Name = "CsvTextDisplay";
-      this.Size = new System.Drawing.Size(436, 248);
+      this.Size = new System.Drawing.Size(388, 248);
       this.SizeChanged += new System.EventHandler(this.SizeChangedEvent);
       this.ResumeLayout(false);
-
     }
 
-    #endregion
+#endregion
 
     private System.Windows.Forms.VScrollBar ScrollBarVertical;
-    private CSVRichTextBox CSVTextBox;
+    private CsvTools.CSVRichTextBox CSVTextBox;
   }
 }

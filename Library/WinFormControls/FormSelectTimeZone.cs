@@ -140,7 +140,7 @@ namespace CsvTools
       // 
       this.m_TableLayoutPanel.SetColumnSpan(this.m_TimeZoneSelector, 3);
       this.m_TimeZoneSelector.Dock = System.Windows.Forms.DockStyle.Top;
-      this.m_TimeZoneSelector.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+      this.m_TimeZoneSelector.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
       this.m_TimeZoneSelector.Location = new System.Drawing.Point(4, 40);
       this.m_TimeZoneSelector.Margin = new System.Windows.Forms.Padding(4);
       this.m_TimeZoneSelector.Name = "m_TimeZoneSelector";

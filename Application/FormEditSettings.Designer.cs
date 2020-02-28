@@ -910,7 +910,7 @@
       // fillGuessSettingEdit
       // 
       this.fillGuessSettingEdit.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.fillGuessSettingEdit.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+      this.fillGuessSettingEdit.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
       this.fillGuessSettingEdit.Location = new System.Drawing.Point(2, 2);
       this.fillGuessSettingEdit.Margin = new System.Windows.Forms.Padding(1);
       this.fillGuessSettingEdit.MinimumSize = new System.Drawing.Size(710, 270);

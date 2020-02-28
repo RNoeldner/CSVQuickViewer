@@ -92,7 +92,7 @@
       this.Controls.Add(this.textBoxValue);
       this.Controls.Add(this.comboBoxOperator);
       this.Controls.Add(this.lblCondition);
-      this.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+      this.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
       this.Name = "DataGridViewColumnFilterControl";
       this.Size = new System.Drawing.Size(312, 74);
       this.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.HandleEnterKeyPress);
