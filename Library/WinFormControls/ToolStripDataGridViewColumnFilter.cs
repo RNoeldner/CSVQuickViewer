@@ -14,7 +14,6 @@
 
 namespace CsvTools
 {
-  using System;
   using System.Diagnostics.Contracts;
   using System.Windows.Forms;
 
@@ -23,7 +22,7 @@ namespace CsvTools
   /// </summary>
   public class ToolStripDataGridViewColumnFilter : ToolStripControlHost
   {
-    public ToolStripDataGridViewColumnFilter() : this (new DataGridViewTextBoxColumn()
+    public ToolStripDataGridViewColumnFilter() : this(new DataGridViewTextBoxColumn()
     {
       ValueType = typeof(int),
       Name = "int",
@@ -37,7 +36,7 @@ namespace CsvTools
     /// <param name="dataGridViewColumn">The data grid view column.</param>
     public ToolStripDataGridViewColumnFilter(DataGridViewColumn dataGridViewColumn)
       : base(new DataGridViewColumnFilterControl(dataGridViewColumn))
-    {            
+    {
     }
 
     /// <summary>

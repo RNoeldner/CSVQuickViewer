@@ -14,11 +14,10 @@
 
 namespace CsvTools
 {
+  using Pri.LongPath;
   using System;
   using System.Drawing;
   using System.Windows.Forms;
-
-  using Pri.LongPath;
 
   public sealed class FormKeyFile : ResizeForm
   {
@@ -92,97 +91,97 @@ namespace CsvTools
     /// </summary>
     private void InitializeComponent()
     {
-      this.m_BtnOk = new Button();
-      this.m_TextBox = new TextBox();
-      this.m_BtnCancel = new Button();
-      this.m_Label1 = new Label();
-      this.m_TableLayoutPanel1 = new TableLayoutPanel();
-      this.m_TableLayoutPanel1.SuspendLayout();
-      this.SuspendLayout();
+      m_BtnOk = new Button();
+      m_TextBox = new TextBox();
+      m_BtnCancel = new Button();
+      m_Label1 = new Label();
+      m_TableLayoutPanel1 = new TableLayoutPanel();
+      m_TableLayoutPanel1.SuspendLayout();
+      SuspendLayout();
 
       // m_BtnOk
-      this.m_BtnOk.Anchor = ((AnchorStyles)((AnchorStyles.Top | AnchorStyles.Right)));
-      this.m_BtnOk.AutoSize = true;
-      this.m_BtnOk.DialogResult = DialogResult.OK;
-      this.m_BtnOk.Location = new Point(457, 468);
-      this.m_BtnOk.Name = "m_BtnOk";
-      this.m_BtnOk.Size = new Size(102, 34);
-      this.m_BtnOk.TabIndex = 0;
-      this.m_BtnOk.Text = "&OK";
-      this.m_BtnOk.Click += new EventHandler(this.BtnOK_Click);
+      m_BtnOk.Anchor = (AnchorStyles.Top | AnchorStyles.Right);
+      m_BtnOk.AutoSize = true;
+      m_BtnOk.DialogResult = DialogResult.OK;
+      m_BtnOk.Location = new Point(457, 468);
+      m_BtnOk.Name = "m_BtnOk";
+      m_BtnOk.Size = new Size(102, 34);
+      m_BtnOk.TabIndex = 0;
+      m_BtnOk.Text = "&OK";
+      m_BtnOk.Click += new EventHandler(BtnOK_Click);
 
       // textBox
-      this.m_TextBox.AcceptsReturn = true;
-      this.m_TextBox.AllowDrop = true;
-      this.m_TableLayoutPanel1.SetColumnSpan(this.m_TextBox, 3);
-      this.m_TextBox.Dock = DockStyle.Fill;
-      this.m_TextBox.Location = new Point(3, 3);
-      this.m_TextBox.Multiline = true;
-      this.m_TextBox.Name = "textBox";
-      this.m_TextBox.ScrollBars = ScrollBars.Both;
-      this.m_TextBox.Size = new Size(664, 459);
-      this.m_TextBox.TabIndex = 1;
-      this.m_TextBox.DragDrop += new DragEventHandler(this.TextBox_DragDrop);
-      this.m_TextBox.DragEnter += new DragEventHandler(this.TextBox_DragEnter);
-      this.m_TextBox.Enter += new EventHandler(this.TextBox_Enter);
-      this.m_TextBox.Leave += new EventHandler(this.TextBox_Leave);
+      m_TextBox.AcceptsReturn = true;
+      m_TextBox.AllowDrop = true;
+      m_TableLayoutPanel1.SetColumnSpan(m_TextBox, 3);
+      m_TextBox.Dock = DockStyle.Fill;
+      m_TextBox.Location = new Point(3, 3);
+      m_TextBox.Multiline = true;
+      m_TextBox.Name = "textBox";
+      m_TextBox.ScrollBars = ScrollBars.Both;
+      m_TextBox.Size = new Size(664, 459);
+      m_TextBox.TabIndex = 1;
+      m_TextBox.DragDrop += new DragEventHandler(TextBox_DragDrop);
+      m_TextBox.DragEnter += new DragEventHandler(TextBox_DragEnter);
+      m_TextBox.Enter += new EventHandler(TextBox_Enter);
+      m_TextBox.Leave += new EventHandler(TextBox_Leave);
 
       // m_BtnCancel
-      this.m_BtnCancel.Anchor = ((AnchorStyles)((AnchorStyles.Top | AnchorStyles.Right)));
-      this.m_BtnCancel.AutoSize = true;
-      this.m_BtnCancel.DialogResult = DialogResult.Cancel;
-      this.m_BtnCancel.Location = new Point(565, 468);
-      this.m_BtnCancel.Name = "m_BtnCancel";
-      this.m_BtnCancel.Size = new Size(102, 34);
-      this.m_BtnCancel.TabIndex = 4;
-      this.m_BtnCancel.Text = "&Cancel";
-      this.m_BtnCancel.Click += new EventHandler(this.BtnCancel_Click);
+      m_BtnCancel.Anchor = (AnchorStyles.Top | AnchorStyles.Right);
+      m_BtnCancel.AutoSize = true;
+      m_BtnCancel.DialogResult = DialogResult.Cancel;
+      m_BtnCancel.Location = new Point(565, 468);
+      m_BtnCancel.Name = "m_BtnCancel";
+      m_BtnCancel.Size = new Size(102, 34);
+      m_BtnCancel.TabIndex = 4;
+      m_BtnCancel.Text = "&Cancel";
+      m_BtnCancel.Click += new EventHandler(BtnCancel_Click);
 
       // m_Label1
-      this.m_Label1.Anchor = AnchorStyles.Left;
-      this.m_Label1.AutoSize = true;
-      this.m_Label1.Location = new Point(3, 475);
-      this.m_Label1.Name = "m_Label1";
-      this.m_Label1.Size = new Size(214, 20);
-      this.m_Label1.TabIndex = 5;
-      this.m_Label1.Text = "(The text is stored encrypted)";
+      m_Label1.Anchor = AnchorStyles.Left;
+      m_Label1.AutoSize = true;
+      m_Label1.Location = new Point(3, 475);
+      m_Label1.Name = "m_Label1";
+      m_Label1.Size = new Size(214, 20);
+      m_Label1.TabIndex = 5;
+      m_Label1.Text = "(The text is stored encrypted)";
 
       // tableLayoutPanel1
-      this.m_TableLayoutPanel1.ColumnCount = 3;
-      this.m_TableLayoutPanel1.ColumnStyles.Add(new ColumnStyle());
-      this.m_TableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
-      this.m_TableLayoutPanel1.ColumnStyles.Add(new ColumnStyle());
-      this.m_TableLayoutPanel1.Controls.Add(this.m_TextBox, 0, 0);
-      this.m_TableLayoutPanel1.Controls.Add(this.m_Label1, 0, 1);
-      this.m_TableLayoutPanel1.Controls.Add(this.m_BtnOk, 1, 1);
-      this.m_TableLayoutPanel1.Controls.Add(this.m_BtnCancel, 2, 1);
-      this.m_TableLayoutPanel1.Dock = DockStyle.Fill;
-      this.m_TableLayoutPanel1.Location = new Point(0, 0);
-      this.m_TableLayoutPanel1.Name = "tableLayoutPanel1";
-      this.m_TableLayoutPanel1.RowCount = 2;
-      this.m_TableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-      this.m_TableLayoutPanel1.RowStyles.Add(new RowStyle());
-      this.m_TableLayoutPanel1.Size = new Size(670, 505);
-      this.m_TableLayoutPanel1.TabIndex = 7;
+      m_TableLayoutPanel1.ColumnCount = 3;
+      m_TableLayoutPanel1.ColumnStyles.Add(new ColumnStyle());
+      m_TableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+      m_TableLayoutPanel1.ColumnStyles.Add(new ColumnStyle());
+      m_TableLayoutPanel1.Controls.Add(m_TextBox, 0, 0);
+      m_TableLayoutPanel1.Controls.Add(m_Label1, 0, 1);
+      m_TableLayoutPanel1.Controls.Add(m_BtnOk, 1, 1);
+      m_TableLayoutPanel1.Controls.Add(m_BtnCancel, 2, 1);
+      m_TableLayoutPanel1.Dock = DockStyle.Fill;
+      m_TableLayoutPanel1.Location = new Point(0, 0);
+      m_TableLayoutPanel1.Name = "tableLayoutPanel1";
+      m_TableLayoutPanel1.RowCount = 2;
+      m_TableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+      m_TableLayoutPanel1.RowStyles.Add(new RowStyle());
+      m_TableLayoutPanel1.Size = new Size(670, 505);
+      m_TableLayoutPanel1.TabIndex = 7;
 
       // FormKeyFile
-      this.AcceptButton = this.m_BtnOk;
-      this.AutoScaleDimensions = new SizeF(9F, 20F);
-      this.AutoScaleMode = AutoScaleMode.Font;
-      this.CancelButton = this.m_BtnCancel;
-      this.ClientSize = new Size(670, 505);
-      this.ControlBox = false;
-      this.Controls.Add(this.m_TableLayoutPanel1);
-      this.FormBorderStyle = FormBorderStyle.SizableToolWindow;
-      this.MaximumSize = new Size(1027, 747);
-      this.MinimumSize = new Size(548, 285);
-      this.Name = "FormKeyFile";
-      this.ShowIcon = false;
-      this.TopMost = true;
-      this.Load += new EventHandler(this.FormPassphrase_Load);
-      this.m_TableLayoutPanel1.ResumeLayout(false);
-      this.m_TableLayoutPanel1.PerformLayout();
-      this.ResumeLayout(false);
+      AcceptButton = m_BtnOk;
+      AutoScaleDimensions = new SizeF(9F, 20F);
+      AutoScaleMode = AutoScaleMode.Font;
+      CancelButton = m_BtnCancel;
+      ClientSize = new Size(670, 505);
+      ControlBox = false;
+      Controls.Add(m_TableLayoutPanel1);
+      FormBorderStyle = FormBorderStyle.SizableToolWindow;
+      MaximumSize = new Size(1027, 747);
+      MinimumSize = new Size(548, 285);
+      Name = "FormKeyFile";
+      ShowIcon = false;
+      TopMost = true;
+      Load += new EventHandler(FormPassphrase_Load);
+      m_TableLayoutPanel1.ResumeLayout(false);
+      m_TableLayoutPanel1.PerformLayout();
+      ResumeLayout(false);
     }
 
     private void TextBox_DragDrop(object sender, DragEventArgs e)

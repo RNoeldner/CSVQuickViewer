@@ -12,7 +12,6 @@
  *
  */
 
-using System.ComponentModel;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
@@ -30,16 +29,16 @@ namespace CsvTools.Tests
       Assert.AreEqual(-1, validationResult.WarningCount);
       Assert.AreEqual(-1, validationResult.ErrorCount);
       Assert.AreEqual(0, validationResult.NumberRecords);
-      
+
     }
     [TestMethod]
     public void ValidationResultSetValidationSetting()
 
     {
       var setting = new CsvFile("Name")
-        {ID = "TableName", NumRecords = 10};
+      { ID = "TableName", NumRecords = 10 };
       var validationResult = new ValidationResult(setting);
-      
+
       Assert.AreEqual(setting.ID, validationResult.TableName);
       Assert.AreEqual(setting.NumRecords, validationResult.NumberRecords);
     }

@@ -7,7 +7,7 @@ using System.Xml.Serialization;
 namespace CsvTools
 {
   [Serializable]
-  public class SampleAndErrorsInformation : INotifyPropertyChanged,  ICloneable<SampleAndErrorsInformation>
+  public class SampleAndErrorsInformation : INotifyPropertyChanged, ICloneable<SampleAndErrorsInformation>
   {
     private ObservableCollection<SampleRecordEntry> m_Errors = new ObservableCollection<SampleRecordEntry>();
     private int m_NumErrors = -1;

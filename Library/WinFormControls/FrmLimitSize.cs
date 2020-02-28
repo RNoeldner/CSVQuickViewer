@@ -23,11 +23,11 @@ namespace CsvTools
   /// </summary>
   public partial class FrmLimitSize : ResizeForm
   {
-    private static int[] intRecords = new int[] { 10000, 20000, 50000, 100000 };
+    private static readonly int[] intRecords = new int[] { 10000, 20000, 50000, 100000 };
 
     private int m_Counter = 0;
 
-    private double m_Duration = 5.0;
+    private readonly double m_Duration = 5.0;
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="FrmLimitSize" /> class.

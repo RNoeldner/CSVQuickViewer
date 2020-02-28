@@ -117,7 +117,7 @@ namespace CsvTools.Tests
         if (i % 35 == 0)
           dr.RowError = "RowError";
         dr[8] = i;   // ID
-        dr[9] = i*2; // #Line
+        dr[9] = i * 2; // #Line
         dataTable.Rows.Add(dr);
       }
 

@@ -31,13 +31,13 @@ namespace CsvTools
     /// <summary>
     ///   Initializes a new instance of the <see cref="FormEditSettings" /> class.
     /// </summary>
-    public FormEditSettings() : this(new  ViewSettings())
+    public FormEditSettings() : this(new ViewSettings())
     {
     }
 
     public FormEditSettings(ViewSettings viewSettings)
     {
-      InitializeComponent();      
+      InitializeComponent();
       m_ViewSettings = viewSettings;
       fillGuessSettingEdit.FillGuessSettings = viewSettings.FillGuessSettings;
       GetPrivateKeys();
@@ -99,7 +99,7 @@ namespace CsvTools
       GetPrivateKeys();
     }
 
-  
+
     private void ButtonGuessCP_Click(object sender, EventArgs e)
     {
       var oldCursor = Cursor.Current == Cursors.WaitCursor ? Cursors.WaitCursor : Cursors.Default;

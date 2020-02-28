@@ -33,10 +33,7 @@ namespace CsvTools
     [Browsable(false)]
     public FillGuessSettings FillGuessSettings
     {
-      set
-      {
-        fillGuessSettingsBindingSource.DataSource = value;
-      }
+      set => fillGuessSettingsBindingSource.DataSource = value;
     }
 
     /// <summary>

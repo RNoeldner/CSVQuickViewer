@@ -96,7 +96,7 @@ namespace CsvTools
     /// </summary>
     /// <returns></returns>
     public SampleRecordEntry Clone() => new SampleRecordEntry(RecordNumber, ProvideEvidence, Error);
-    
+
     /// <summary>Determines whether the specified object is equal to the current object.</summary>
     /// <param name="obj">The object to compare with the current object. </param>
     /// <returns>

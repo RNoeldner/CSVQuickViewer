@@ -12,9 +12,9 @@
  *
  */
 
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Text;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
@@ -41,7 +41,7 @@ namespace CsvTools.Tests
 
       style.TD = "TestTD";
       Assert.AreEqual("TestTD", style.TD);
-      
+
       style.TDNonText = "TestTDNT";
       Assert.AreEqual("TestTDNT", style.TDNonText);
 

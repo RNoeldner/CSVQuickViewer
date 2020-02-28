@@ -94,14 +94,14 @@ namespace CsvTools
 
     public static string GetTimeZoneID(string timeZoneName) => GetTimeZone(timeZoneName).Id;
 
-		/// <summary>
-		/// Gets the time zone savings times in a year.
-		/// </summary>
-		/// <param name="timeZoneName">Name of the time zone.</param>
-		/// <param name="year">The year.</param>
-		/// <returns>Item1 is the start of Summertime (Spring), Item2 is the end of Summertime (Autum)</returns>
-		/// TODO: Migarting to C# 7.0 Impoove this 
-		public static Tuple<DateTime, DateTime> GetTransitionTimes(this string timeZoneName, int year)
+    /// <summary>
+    /// Gets the time zone savings times in a year.
+    /// </summary>
+    /// <param name="timeZoneName">Name of the time zone.</param>
+    /// <param name="year">The year.</param>
+    /// <returns>Item1 is the start of Summertime (Spring), Item2 is the end of Summertime (Autum)</returns>
+    /// TODO: Migarting to C# 7.0 Impoove this 
+    public static Tuple<DateTime, DateTime> GetTransitionTimes(this string timeZoneName, int year)
     {
       foreach (var saving in IntervalsInYear(timeZoneName, year).Where(x => x.Savings.Seconds >= c_MinSavingSeconds))
         return new Tuple<DateTime, DateTime>(saving.Start.ToDateTimeUtc(), saving.End.ToDateTimeUtc());

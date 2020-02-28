@@ -23,23 +23,24 @@ namespace CsvTools.Tests
     [TestMethod]
     public void Equals()
     {
-      var notEqual = new Mapping();
-      notEqual.FileColumn = m_FieldMapping.FileColumn + "a";
-      notEqual.TemplateField = m_FieldMapping.TemplateField;
+      var notEqual = new Mapping
+      {
+        FileColumn = m_FieldMapping.FileColumn + "a",
+        TemplateField = m_FieldMapping.TemplateField
+      };
 
-      var equal = new Mapping();
-      equal.FileColumn = m_FieldMapping.FileColumn;
-      equal.TemplateField = m_FieldMapping.TemplateField;
+      var equal = new Mapping
+      {
+        FileColumn = m_FieldMapping.FileColumn,
+        TemplateField = m_FieldMapping.TemplateField
+      };
 
       Assert.IsTrue(m_FieldMapping.Equals(equal));
       Assert.IsFalse(m_FieldMapping.Equals(notEqual));
     }
 
     [TestMethod]
-    public void EqualsNull()
-    {
-      Assert.IsFalse(m_FieldMapping.Equals(null));
-    }
+    public void EqualsNull() => Assert.IsFalse(m_FieldMapping.Equals(null));
 
     [TestInitialize]
     public void Init()

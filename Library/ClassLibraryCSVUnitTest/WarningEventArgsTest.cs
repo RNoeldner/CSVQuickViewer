@@ -22,8 +22,8 @@ namespace CsvTools.Tests
     [TestMethod]
     public void WarningEventArgsPropertySetGet()
     {
-      
-      var test1 = new WarningEventArgs(100,200,"Warning",201,202,"ColName");
+
+      var test1 = new WarningEventArgs(100, 200, "Warning", 201, 202, "ColName");
       Assert.AreEqual(100, test1.RecordNumber);
       Assert.AreEqual(200, test1.ColumnNumber);
       Assert.AreEqual("Warning", test1.Message);

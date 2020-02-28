@@ -7,7 +7,7 @@ namespace CsvTools
   public class ResizeForm : Form
   {
     private static readonly Font myfont = SystemFonts.IconTitleFont;
-      // new Font(SystemFonts.IconTitleFont.FontFamily, SystemFonts.IconTitleFont.Size - 2, SystemFonts.IconTitleFont.Style);
+    // new Font(SystemFonts.IconTitleFont.FontFamily, SystemFonts.IconTitleFont.Size - 2, SystemFonts.IconTitleFont.Style);
 
     /// <summary>
     /// Recursivly change the font of all controls, needed on Windows 8 / 2012

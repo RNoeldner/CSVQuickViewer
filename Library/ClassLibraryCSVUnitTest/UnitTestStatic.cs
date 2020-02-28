@@ -21,7 +21,7 @@ namespace CsvTools.Tests
   {
     public static T ExecuteWithCulture<T>(Func<T> methodFunc, string cultureName)
     {
-      T result = default(T);
+      var result = default(T);
 
       var thread = new Thread(() => { result = methodFunc(); })
       {

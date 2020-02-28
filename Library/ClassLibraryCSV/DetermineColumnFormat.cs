@@ -270,7 +270,7 @@ namespace CsvTools
               if (sampleList.Keys.Contains(colindex + 1))
                 samples = sampleList[colindex + 1];
               else
-                samples = GetSampleValues(fileReader, fillGuessSettings.CheckedRecords, 
+                samples = GetSampleValues(fileReader, fillGuessSettings.CheckedRecords,
                   colindex, fillGuessSettings.SampleValues, fileSetting.TreatTextAsNull,
                   processDisplay.CancellationToken);
 
@@ -641,7 +641,7 @@ namespace CsvTools
         // we could be in the middle of the file already
         var startRecordNumber = dataReader.RecordNumber;
 
-        int maxSamples = 2000;
+        var maxSamples = 2000;
         if (maxSamples < enoughSamples)
           maxSamples = enoughSamples;
 

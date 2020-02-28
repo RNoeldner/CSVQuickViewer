@@ -148,16 +148,16 @@ namespace CsvTools
     private void InitializeComponent()
     {
       Label label1;
-      ComponentResourceManager resources = new ComponentResourceManager(typeof(Search));
-      this.m_BtnCancel = new Button();
-      this.m_SearchTextBoxText = new TextBox();
-      this.m_LblResults = new Label();
-      this.m_BtnNext = new Button();
-      this.m_BtnPrevious = new Button();
-      this.m_TableLayoutPanel = new TableLayoutPanel();
+      var resources = new ComponentResourceManager(typeof(Search));
+      m_BtnCancel = new Button();
+      m_SearchTextBoxText = new TextBox();
+      m_LblResults = new Label();
+      m_BtnNext = new Button();
+      m_BtnPrevious = new Button();
+      m_TableLayoutPanel = new TableLayoutPanel();
       label1 = new Label();
-      this.m_TableLayoutPanel.SuspendLayout();
-      this.SuspendLayout();
+      m_TableLayoutPanel.SuspendLayout();
+      SuspendLayout();
 
       // label1
       label1.Anchor = AnchorStyles.Left;
@@ -170,100 +170,100 @@ namespace CsvTools
       label1.Text = "Find what:";
 
       // m_BtnCancel
-      this.m_BtnCancel.BackColor = SystemColors.Info;
-      this.m_BtnCancel.DialogResult = DialogResult.Cancel;
-      this.m_BtnCancel.FlatAppearance.BorderColor = SystemColors.ButtonFace;
-      this.m_BtnCancel.FlatStyle = FlatStyle.Flat;
-      this.m_BtnCancel.Image = ((Image)(resources.GetObject("m_BtnCancel.Image")));
-      this.m_BtnCancel.ImageAlign = ContentAlignment.BottomCenter;
-      this.m_BtnCancel.Location = new Point(337, 3);
-      this.m_BtnCancel.Name = "m_BtnCancel";
-      this.m_BtnCancel.Size = new Size(24, 24);
-      this.m_BtnCancel.TabIndex = 4;
-      this.m_BtnCancel.UseVisualStyleBackColor = false;
-      this.m_BtnCancel.Click += new EventHandler(this.Cancel_Click);
+      m_BtnCancel.BackColor = SystemColors.Info;
+      m_BtnCancel.DialogResult = DialogResult.Cancel;
+      m_BtnCancel.FlatAppearance.BorderColor = SystemColors.ButtonFace;
+      m_BtnCancel.FlatStyle = FlatStyle.Flat;
+      m_BtnCancel.Image = ((Image)(resources.GetObject("m_BtnCancel.Image")));
+      m_BtnCancel.ImageAlign = ContentAlignment.BottomCenter;
+      m_BtnCancel.Location = new Point(337, 3);
+      m_BtnCancel.Name = "m_BtnCancel";
+      m_BtnCancel.Size = new Size(24, 24);
+      m_BtnCancel.TabIndex = 4;
+      m_BtnCancel.UseVisualStyleBackColor = false;
+      m_BtnCancel.Click += new EventHandler(Cancel_Click);
 
       // m_SearchTextBoxText
-      this.m_SearchTextBoxText.Anchor = AnchorStyles.Left;
-      this.m_SearchTextBoxText.BackColor = SystemColors.Info;
-      this.m_SearchTextBoxText.BorderStyle = BorderStyle.FixedSingle;
-      this.m_SearchTextBoxText.ForeColor = SystemColors.InfoText;
-      this.m_SearchTextBoxText.Location = new Point(91, 4);
-      this.m_SearchTextBoxText.MaxLength = 50;
-      this.m_SearchTextBoxText.Name = "m_SearchTextBoxText";
-      this.m_SearchTextBoxText.Size = new Size(106, 26);
-      this.m_SearchTextBoxText.TabIndex = 1;
-      this.m_SearchTextBoxText.TextChanged += new EventHandler(this.SearchText_TextChanged);
+      m_SearchTextBoxText.Anchor = AnchorStyles.Left;
+      m_SearchTextBoxText.BackColor = SystemColors.Info;
+      m_SearchTextBoxText.BorderStyle = BorderStyle.FixedSingle;
+      m_SearchTextBoxText.ForeColor = SystemColors.InfoText;
+      m_SearchTextBoxText.Location = new Point(91, 4);
+      m_SearchTextBoxText.MaxLength = 50;
+      m_SearchTextBoxText.Name = "m_SearchTextBoxText";
+      m_SearchTextBoxText.Size = new Size(106, 26);
+      m_SearchTextBoxText.TabIndex = 1;
+      m_SearchTextBoxText.TextChanged += new EventHandler(SearchText_TextChanged);
 
       // m_LblResults
-      this.m_LblResults.Anchor = AnchorStyles.Left;
-      this.m_LblResults.AutoSize = true;
-      this.m_LblResults.ForeColor = SystemColors.InfoText;
-      this.m_LblResults.Location = new Point(222, 7);
-      this.m_LblResults.Name = "m_LblResults";
-      this.m_LblResults.Size = new Size(49, 20);
-      this.m_LblResults.TabIndex = 0;
-      this.m_LblResults.Text = "0 of 0";
-      this.m_LblResults.TextChanged += new EventHandler(this.LblResultsTextChanged);
+      m_LblResults.Anchor = AnchorStyles.Left;
+      m_LblResults.AutoSize = true;
+      m_LblResults.ForeColor = SystemColors.InfoText;
+      m_LblResults.Location = new Point(222, 7);
+      m_LblResults.Name = "m_LblResults";
+      m_LblResults.Size = new Size(49, 20);
+      m_LblResults.TabIndex = 0;
+      m_LblResults.Text = "0 of 0";
+      m_LblResults.TextChanged += new EventHandler(LblResultsTextChanged);
 
       // m_BtnNext
-      this.m_BtnNext.BackColor = SystemColors.Info;
-      this.m_BtnNext.BackgroundImageLayout = ImageLayout.Center;
-      this.m_BtnNext.FlatAppearance.BorderColor = SystemColors.ButtonFace;
-      this.m_BtnNext.FlatStyle = FlatStyle.Flat;
-      this.m_BtnNext.Image = ((Image)(resources.GetObject("m_BtnNext.Image")));
-      this.m_BtnNext.ImageAlign = ContentAlignment.BottomCenter;
-      this.m_BtnNext.Location = new Point(307, 3);
-      this.m_BtnNext.Name = "m_BtnNext";
-      this.m_BtnNext.Size = new Size(24, 24);
-      this.m_BtnNext.TabIndex = 6;
-      this.m_BtnNext.UseVisualStyleBackColor = false;
-      this.m_BtnNext.Click += new EventHandler(this.Next_Click);
+      m_BtnNext.BackColor = SystemColors.Info;
+      m_BtnNext.BackgroundImageLayout = ImageLayout.Center;
+      m_BtnNext.FlatAppearance.BorderColor = SystemColors.ButtonFace;
+      m_BtnNext.FlatStyle = FlatStyle.Flat;
+      m_BtnNext.Image = ((Image)(resources.GetObject("m_BtnNext.Image")));
+      m_BtnNext.ImageAlign = ContentAlignment.BottomCenter;
+      m_BtnNext.Location = new Point(307, 3);
+      m_BtnNext.Name = "m_BtnNext";
+      m_BtnNext.Size = new Size(24, 24);
+      m_BtnNext.TabIndex = 6;
+      m_BtnNext.UseVisualStyleBackColor = false;
+      m_BtnNext.Click += new EventHandler(Next_Click);
 
       // m_BtnPrevious
-      this.m_BtnPrevious.BackColor = SystemColors.Info;
-      this.m_BtnPrevious.BackgroundImageLayout = ImageLayout.Center;
-      this.m_BtnPrevious.FlatAppearance.BorderColor = SystemColors.ButtonFace;
-      this.m_BtnPrevious.FlatStyle = FlatStyle.Flat;
-      this.m_BtnPrevious.Image = ((Image)(resources.GetObject("m_BtnPrevious.Image")));
-      this.m_BtnPrevious.ImageAlign = ContentAlignment.BottomCenter;
-      this.m_BtnPrevious.Location = new Point(277, 3);
-      this.m_BtnPrevious.Name = "m_BtnPrevious";
-      this.m_BtnPrevious.Size = new Size(24, 24);
-      this.m_BtnPrevious.TabIndex = 5;
-      this.m_BtnPrevious.UseVisualStyleBackColor = false;
-      this.m_BtnPrevious.Click += new EventHandler(this.Previous_Click);
+      m_BtnPrevious.BackColor = SystemColors.Info;
+      m_BtnPrevious.BackgroundImageLayout = ImageLayout.Center;
+      m_BtnPrevious.FlatAppearance.BorderColor = SystemColors.ButtonFace;
+      m_BtnPrevious.FlatStyle = FlatStyle.Flat;
+      m_BtnPrevious.Image = ((Image)(resources.GetObject("m_BtnPrevious.Image")));
+      m_BtnPrevious.ImageAlign = ContentAlignment.BottomCenter;
+      m_BtnPrevious.Location = new Point(277, 3);
+      m_BtnPrevious.Name = "m_BtnPrevious";
+      m_BtnPrevious.Size = new Size(24, 24);
+      m_BtnPrevious.TabIndex = 5;
+      m_BtnPrevious.UseVisualStyleBackColor = false;
+      m_BtnPrevious.Click += new EventHandler(Previous_Click);
 
       // tableLayoutPanel1
-      this.m_TableLayoutPanel.ColumnCount = 6;
-      this.m_TableLayoutPanel.ColumnStyles.Add(new ColumnStyle());
-      this.m_TableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
-      this.m_TableLayoutPanel.ColumnStyles.Add(new ColumnStyle());
-      this.m_TableLayoutPanel.ColumnStyles.Add(new ColumnStyle());
-      this.m_TableLayoutPanel.ColumnStyles.Add(new ColumnStyle());
-      this.m_TableLayoutPanel.ColumnStyles.Add(new ColumnStyle());
-      this.m_TableLayoutPanel.Controls.Add(label1, 0, 0);
-      this.m_TableLayoutPanel.Controls.Add(this.m_BtnCancel, 5, 0);
-      this.m_TableLayoutPanel.Controls.Add(this.m_BtnNext, 4, 0);
-      this.m_TableLayoutPanel.Controls.Add(this.m_SearchTextBoxText, 1, 0);
-      this.m_TableLayoutPanel.Controls.Add(this.m_BtnPrevious, 3, 0);
-      this.m_TableLayoutPanel.Controls.Add(this.m_LblResults, 2, 0);
-      this.m_TableLayoutPanel.Dock = DockStyle.Fill;
-      this.m_TableLayoutPanel.Location = new Point(0, 0);
-      this.m_TableLayoutPanel.Name = "tableLayoutPanel1";
-      this.m_TableLayoutPanel.RowCount = 1;
-      this.m_TableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-      this.m_TableLayoutPanel.Size = new Size(364, 35);
-      this.m_TableLayoutPanel.TabIndex = 7;
+      m_TableLayoutPanel.ColumnCount = 6;
+      m_TableLayoutPanel.ColumnStyles.Add(new ColumnStyle());
+      m_TableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+      m_TableLayoutPanel.ColumnStyles.Add(new ColumnStyle());
+      m_TableLayoutPanel.ColumnStyles.Add(new ColumnStyle());
+      m_TableLayoutPanel.ColumnStyles.Add(new ColumnStyle());
+      m_TableLayoutPanel.ColumnStyles.Add(new ColumnStyle());
+      m_TableLayoutPanel.Controls.Add(label1, 0, 0);
+      m_TableLayoutPanel.Controls.Add(m_BtnCancel, 5, 0);
+      m_TableLayoutPanel.Controls.Add(m_BtnNext, 4, 0);
+      m_TableLayoutPanel.Controls.Add(m_SearchTextBoxText, 1, 0);
+      m_TableLayoutPanel.Controls.Add(m_BtnPrevious, 3, 0);
+      m_TableLayoutPanel.Controls.Add(m_LblResults, 2, 0);
+      m_TableLayoutPanel.Dock = DockStyle.Fill;
+      m_TableLayoutPanel.Location = new Point(0, 0);
+      m_TableLayoutPanel.Name = "tableLayoutPanel1";
+      m_TableLayoutPanel.RowCount = 1;
+      m_TableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+      m_TableLayoutPanel.Size = new Size(364, 35);
+      m_TableLayoutPanel.TabIndex = 7;
 
       // Search
-      this.BackColor = SystemColors.Info;
-      this.Controls.Add(this.m_TableLayoutPanel);
-      this.Name = "Search";
-      this.Size = new Size(364, 35);
-      this.m_TableLayoutPanel.ResumeLayout(false);
-      this.m_TableLayoutPanel.PerformLayout();
-      this.ResumeLayout(false);
+      BackColor = SystemColors.Info;
+      Controls.Add(m_TableLayoutPanel);
+      Name = "Search";
+      Size = new Size(364, 35);
+      m_TableLayoutPanel.ResumeLayout(false);
+      m_TableLayoutPanel.PerformLayout();
+      ResumeLayout(false);
     }
 
     private void LblResultsTextChanged(object sender, EventArgs e)

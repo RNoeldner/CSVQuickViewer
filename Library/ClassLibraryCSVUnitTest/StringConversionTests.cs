@@ -202,28 +202,16 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void CheckTimeDefault()
-    {
-      Assert.IsTrue(StringConversion.CheckTime(new[] { "10:00:00", "10:00", "1:00" }, ""));
-    }
+    public void CheckTimeDefault() => Assert.IsTrue(StringConversion.CheckTime(new[] { "10:00:00", "10:00", "1:00" }, ""));
 
     [TestMethod]
-    public void CheckTimeNotOK()
-    {
-      Assert.IsFalse(StringConversion.CheckTime(new[] { "10:00:00", "Test", "1:00" }, ":"));
-    }
+    public void CheckTimeNotOK() => Assert.IsFalse(StringConversion.CheckTime(new[] { "10:00:00", "Test", "1:00" }, ":"));
 
     [TestMethod]
-    public void CheckTimeNull()
-    {
-      Assert.IsFalse(StringConversion.CheckTime(null, ""));
-    }
+    public void CheckTimeNull() => Assert.IsFalse(StringConversion.CheckTime(null, ""));
 
     [TestMethod]
-    public void CheckTimeOK()
-    {
-      Assert.IsTrue(StringConversion.CheckTime(new[] { "10:00:00", "10:00", "1:00" }, ":"));
-    }
+    public void CheckTimeOK() => Assert.IsTrue(StringConversion.CheckTime(new[] { "10:00:00", "10:00", "1:00" }, ":"));
 
     [TestMethod]
     public void DateTimeToStringOK()
@@ -275,28 +263,16 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void StringToDurationInDays12Hrs()
-    {
-      Assert.AreEqual(0.5, StringConversion.StringToDurationInDays("12:00", ":", false));
-    }
+    public void StringToDurationInDays12Hrs() => Assert.AreEqual(0.5, StringConversion.StringToDurationInDays("12:00", ":", false));
 
     [TestMethod]
-    public void StringToDurationInDays48hrs()
-    {
-      Assert.AreEqual(2, StringConversion.StringToDurationInDays("48:00", ":", false));
-    }
+    public void StringToDurationInDays48hrs() => Assert.AreEqual(2, StringConversion.StringToDurationInDays("48:00", ":", false));
 
     [TestMethod]
-    public void StringToDurationInDaysNull()
-    {
-      Assert.AreEqual(0, StringConversion.StringToDurationInDays(null, null, false));
-    }
+    public void StringToDurationInDaysNull() => Assert.AreEqual(0, StringConversion.StringToDurationInDays(null, null, false));
 
     [TestMethod]
-    public void StringToGuidInvalid()
-    {
-      Assert.IsNull(StringConversion.StringToGuid("Test"));
-    }
+    public void StringToGuidInvalid() => Assert.IsNull(StringConversion.StringToGuid("Test"));
 
     [TestMethod]
     public void StringToGuidNull()

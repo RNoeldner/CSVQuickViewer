@@ -77,7 +77,7 @@ namespace CsvTools
       var recordEnd = m_StructuredWriterFile.FileFormat.NewLine.Replace("CR", "\r").Replace("LF", "\n").Replace(" ", "")
         .Replace("\t", "");
       HandleWriteStart();
-      
+
 
       // Header
       if (!string.IsNullOrEmpty(m_StructuredWriterFile.Header))
@@ -111,7 +111,7 @@ namespace CsvTools
       }
 
       withHeader = withHeader.Trim();
-      
+
       var sb = new StringBuilder(1024); // Assume a capacity of 1024 characters to start, data is flushed every 512 chars
       while (reader.Read() && !cancellationToken.IsCancellationRequested)
       {

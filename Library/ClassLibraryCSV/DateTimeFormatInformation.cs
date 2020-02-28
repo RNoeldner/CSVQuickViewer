@@ -67,11 +67,17 @@ namespace CsvTools
     }
 
     //  public string Format { get => m_Format; }
-    public int MaxLength { get => m_MaxLength;
-	    private set => m_MaxLength = value; }
+    public int MaxLength
+    {
+      get => m_MaxLength;
+      private set => m_MaxLength = value;
+    }
 
-    public int MinLength { get => m_MinLength;
-	    private set => m_MinLength = value; }
+    public int MinLength
+    {
+      get => m_MinLength;
+      private set => m_MinLength = value;
+    }
     public bool NamedDate { get; }
 
     private static void DetermineLength()

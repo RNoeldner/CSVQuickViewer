@@ -137,7 +137,7 @@ namespace CsvTools
 
                 nIndexUpper++;
               }
- // end while
+              // end while
             }
             else
             {
@@ -154,7 +154,7 @@ namespace CsvTools
           PaintSelectedNodes();
           m_FirstNode = e.Node; // let us chain several SHIFTs if we like it
         }
- // end if m_bShift
+        // end if m_bShift
         else
         {
           // in the case of a simple click, just add this item

@@ -73,7 +73,8 @@ namespace CsvTools.Tests
       SerializedFilesLib.SaveCsvFile(fileName, file, () => true);
       file.ID = "Test1000";
       Assert.IsTrue(FileSystemUtils.FileExists(fileName));
-      SerializedFilesLib.SaveCsvFile(fileName, file, () => {
+      SerializedFilesLib.SaveCsvFile(fileName, file, () =>
+      {
         asked = true; return true;
       });
       Assert.IsTrue(asked);

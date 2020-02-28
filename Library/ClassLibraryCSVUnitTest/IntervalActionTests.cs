@@ -84,8 +84,8 @@ namespace CsvTools.Tests
     {
       var test = new IntervalAction();
       long called = -1;
-      string calledS = string.Empty;
-      bool calledB = false;
+      var calledS = string.Empty;
+      var calledB = false;
       test.Invoke((s, l, arg3) =>
       {
         called = l;

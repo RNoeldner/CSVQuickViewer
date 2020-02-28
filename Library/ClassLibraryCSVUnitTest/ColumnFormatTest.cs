@@ -89,10 +89,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void ColumnNotEqualsNull()
-    {
-      Assert.IsFalse(m_Column.Equals(null));
-    }
+    public void ColumnNotEqualsNull() => Assert.IsFalse(m_Column.Equals(null));
 
     [TestMethod]
     public void ColumnPropertyChanged()
@@ -111,10 +108,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void ColumnToString()
-    {
-      Assert.IsNotNull(m_Column.ToString());
-    }
+    public void ColumnToString() => Assert.IsNotNull(m_Column.ToString());
 
     [TestMethod]
     public void GetDataTypeDescriptionBool()

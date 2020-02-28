@@ -43,10 +43,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod()]
-    public void ConvertTimeUTC()
-    {
-      Assert.AreEqual(new DateTime(2020, 1, 2, 1, 0, 0, DateTimeKind.Utc), TimeZoneMapping.ConvertTimeUTC(new DateTime(2020, 1, 2), tzCET));
-    }
+    public void ConvertTimeUTC() => Assert.AreEqual(new DateTime(2020, 1, 2, 1, 0, 0, DateTimeKind.Utc), TimeZoneMapping.ConvertTimeUTC(new DateTime(2020, 1, 2), tzCET));
 
 
     [TestMethod()]
@@ -112,10 +109,10 @@ namespace CsvTools.Tests
       var tzs = new string[] { tzCET, tzMSK, tzBRT, tzPST, tzIST };
       var rnd = new Random(200);
 
-      int incorrect = 0;
+      var incorrect = 0;
 
-      int correct = 0;
-      for (int i = 0; i < 10000; i++)
+      var correct = 0;
+      for (var i = 0; i < 10000; i++)
       {
         var src = rnd.Next(0, 4);
         var dest = rnd.Next(0, 4);
@@ -169,22 +166,13 @@ namespace CsvTools.Tests
     }
 
     [TestMethod()]
-    public void HasDaylightSavingTime()
-    {
-      Assert.IsTrue(tzCET.SupportsDaylightSavingTime(2018));
-    }
+    public void HasDaylightSavingTime() => Assert.IsTrue(tzCET.SupportsDaylightSavingTime(2018));
 
     [TestInitialize]
-    public void Init()
-    {
-      tzCET.GetTZAbbreviation();
-    }
+    public void Init() => tzCET.GetTZAbbreviation();
 
     [TestMethod()]
-    public void IsDaylightSavingTime()
-    {
-      Assert.IsTrue(tzCET.IsDaylightSavingTime(new DateTime(2018, 06, 26, 8, 00, 00)));
-    }
+    public void IsDaylightSavingTime() => Assert.IsTrue(tzCET.IsDaylightSavingTime(new DateTime(2018, 06, 26, 8, 00, 00)));
 
     [TestMethod()]
     public void TimingConversionNET()
@@ -197,7 +185,7 @@ namespace CsvTools.Tests
 
       var rnd = new Random(188);
 
-      for (int i = 0; i < 10000; i++)
+      for (var i = 0; i < 10000; i++)
       {
         var src = rnd.Next(0, 4);
         var dest = rnd.Next(0, 4);
@@ -221,8 +209,8 @@ namespace CsvTools.Tests
     {
       var tzs = new string[] { tzCET, tzMSK, tzBRT, tzPST, tzIST };
 
-      Random rnd = new Random(188);
-      for (int i = 0; i < 10000; i++)
+      var rnd = new Random(188);
+      for (var i = 0; i < 10000; i++)
       {
         var src = rnd.Next(0, 4);
         var dest = rnd.Next(0, 4);
@@ -235,7 +223,7 @@ namespace CsvTools.Tests
     public void WithSameRule()
     {
       var result = TimeZoneMapping.WithSameRule(tzCET, 2017);
-      bool found = false;
+      var found = false;
       foreach (var item in result)
         if (item.Equals("Europe/Berlin", StringComparison.OrdinalIgnoreCase))
           found = true;

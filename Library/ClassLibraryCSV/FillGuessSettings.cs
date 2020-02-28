@@ -92,7 +92,7 @@ namespace CsvTools
         if (m_Enabled == value)
           return;
         m_Enabled = value;
-        NotifyPropertyChanged(nameof(Enabled));        
+        NotifyPropertyChanged(nameof(Enabled));
       }
     }
 

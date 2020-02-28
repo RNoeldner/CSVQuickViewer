@@ -29,16 +29,16 @@ namespace CsvTools
     public ToolStripCheckedListBox()
       : base(
         new CheckedListBox
-          {
-            BorderStyle = BorderStyle.FixedSingle,
-            MultiColumn = true,
-            CheckOnClick = true,
-            SelectionMode = SelectionMode.One,
-            ThreeDCheckBoxes = true,
-            ColumnWidth = 300,
-            MaximumSize = new Size(600, 600),
-            BackColor = SystemColors.Window
-          })
+        {
+          BorderStyle = BorderStyle.FixedSingle,
+          MultiColumn = true,
+          CheckOnClick = true,
+          SelectionMode = SelectionMode.One,
+          ThreeDCheckBoxes = true,
+          ColumnWidth = 300,
+          MaximumSize = new Size(600, 600),
+          BackColor = SystemColors.Window
+        })
     {
     }
 

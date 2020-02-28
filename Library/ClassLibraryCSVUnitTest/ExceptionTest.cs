@@ -41,7 +41,7 @@ namespace CsvTools.Tests
       Assert.AreEqual(ex1, ex2.InnerException);
       Assert.AreEqual("MyMessage2", ex2.Message);
     }
-    
+
 
     [TestMethod]
     public void FileReaderException()

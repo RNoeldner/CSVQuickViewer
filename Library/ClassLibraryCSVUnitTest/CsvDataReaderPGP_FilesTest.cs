@@ -46,7 +46,7 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay()) using (var test = new CsvFileReader(setting, processDisplay))
       {
         test.Open();
-        int row = 0;
+        var row = 0;
         while (test.Read())
           row++;
         Assert.AreEqual(row, test.RecordNumber);
@@ -84,7 +84,7 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay()) using (var test = new CsvFileReader(setting, processDisplay))
       {
         test.Open();
-        int row = 0;
+        var row = 0;
         while (test.Read())
           row++;
         Assert.AreEqual(row, test.RecordNumber);
@@ -122,7 +122,7 @@ namespace CsvTools.Tests
       using (var test = new CsvFileReader(setting, processDisplay))
       {
         test.Open();
-        int row = 0;
+        var row = 0;
         while (test.Read())
           row++;
         Assert.AreEqual(row, test.RecordNumber);

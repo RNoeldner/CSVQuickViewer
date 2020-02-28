@@ -16,7 +16,7 @@
     public string TimeZoneID
     {
       get => (string)comboBoxTimeZoneID.SelectedValue;
-      set => this.comboBoxTimeZoneID.SelectedValue = value;
+      set => comboBoxTimeZoneID.SelectedValue = value;
     }
 
     private void ButtonLocalTZ_Click(object sender, EventArgs e) => TimeZoneID = TimeZoneMapping.cIdLocal;

@@ -932,7 +932,7 @@ namespace CsvTools
       var perMille = false;
       if (allowPercentage && stringFieldValue.EndsWith("%", StringComparison.Ordinal))
       {
-	      perCentage = true;
+        perCentage = true;
         stringFieldValue = stringFieldValue.Substring(0, stringFieldValue.Length - 1);
       }
 

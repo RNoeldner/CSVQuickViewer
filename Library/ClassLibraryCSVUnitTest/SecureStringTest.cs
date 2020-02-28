@@ -28,7 +28,7 @@ namespace CsvTools.Tests
       var encyrpted2 = "This is a a test".Encrypt();
       Assert.AreNotEqual(encyrpted1, encyrpted2);
 
-      foreach (var test in new[] { "", "1", "=", "Hello",  "a", "ä", "Test", "World", "short" })
+      foreach (var test in new[] { "", "1", "=", "Hello", "a", "ä", "Test", "World", "short" })
       {
         var encyrpted3 = test.Encrypt();
         Assert.IsTrue(encyrpted3.Length > 29, test);

@@ -283,110 +283,110 @@ namespace CsvTools
     /// </summary>
     private void InitializeComponent()
     {
-      this.m_ProgressBar = new System.Windows.Forms.ProgressBar();
-      this.m_LabelText = new System.Windows.Forms.Label();
-      this.m_LabelEtr = new System.Windows.Forms.Label();
-      this.m_LabelEtl = new System.Windows.Forms.Label();
-      this.m_LabelPercent = new System.Windows.Forms.Label();
-      this.m_TableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
-      this.m_TableLayoutPanel.SuspendLayout();
-      this.SuspendLayout();
+      m_ProgressBar = new System.Windows.Forms.ProgressBar();
+      m_LabelText = new System.Windows.Forms.Label();
+      m_LabelEtr = new System.Windows.Forms.Label();
+      m_LabelEtl = new System.Windows.Forms.Label();
+      m_LabelPercent = new System.Windows.Forms.Label();
+      m_TableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
+      m_TableLayoutPanel.SuspendLayout();
+      SuspendLayout();
       // 
       // m_ProgressBar
       // 
-      this.m_TableLayoutPanel.SetColumnSpan(this.m_ProgressBar, 2);
-      this.m_ProgressBar.Dock = System.Windows.Forms.DockStyle.Top;
-      this.m_ProgressBar.Location = new System.Drawing.Point(8, 67);
-      this.m_ProgressBar.Margin = new System.Windows.Forms.Padding(8, 4, 8, 4);
-      this.m_ProgressBar.Name = "m_ProgressBar";
-      this.m_ProgressBar.Size = new System.Drawing.Size(472, 25);
-      this.m_ProgressBar.Style = System.Windows.Forms.ProgressBarStyle.Marquee;
-      this.m_ProgressBar.TabIndex = 0;
+      m_TableLayoutPanel.SetColumnSpan(m_ProgressBar, 2);
+      m_ProgressBar.Dock = System.Windows.Forms.DockStyle.Top;
+      m_ProgressBar.Location = new System.Drawing.Point(8, 67);
+      m_ProgressBar.Margin = new System.Windows.Forms.Padding(8, 4, 8, 4);
+      m_ProgressBar.Name = "m_ProgressBar";
+      m_ProgressBar.Size = new System.Drawing.Size(472, 25);
+      m_ProgressBar.Style = System.Windows.Forms.ProgressBarStyle.Marquee;
+      m_ProgressBar.TabIndex = 0;
       // 
       // m_LabelText
       // 
-      this.m_LabelText.BackColor = System.Drawing.SystemColors.Control;
-      this.m_TableLayoutPanel.SetColumnSpan(this.m_LabelText, 2);
-      this.m_LabelText.Location = new System.Drawing.Point(4, 4);
-      this.m_LabelText.Margin = new System.Windows.Forms.Padding(4);
-      this.m_LabelText.Name = "m_LabelText";
-      this.m_LabelText.Size = new System.Drawing.Size(476, 55);
-      this.m_LabelText.TabIndex = 1;
-      this.m_LabelText.Text = "Text";
-      this.m_LabelText.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+      m_LabelText.BackColor = System.Drawing.SystemColors.Control;
+      m_TableLayoutPanel.SetColumnSpan(m_LabelText, 2);
+      m_LabelText.Location = new System.Drawing.Point(4, 4);
+      m_LabelText.Margin = new System.Windows.Forms.Padding(4);
+      m_LabelText.Name = "m_LabelText";
+      m_LabelText.Size = new System.Drawing.Size(476, 55);
+      m_LabelText.TabIndex = 1;
+      m_LabelText.Text = "Text";
+      m_LabelText.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
       // 
       // m_LabelEtr
       // 
-      this.m_LabelEtr.Anchor = System.Windows.Forms.AnchorStyles.Left;
-      this.m_LabelEtr.Location = new System.Drawing.Point(182, 102);
-      this.m_LabelEtr.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-      this.m_LabelEtr.Name = "m_LabelEtr";
-      this.m_LabelEtr.Size = new System.Drawing.Size(167, 16);
-      this.m_LabelEtr.TabIndex = 7;
+      m_LabelEtr.Anchor = System.Windows.Forms.AnchorStyles.Left;
+      m_LabelEtr.Location = new System.Drawing.Point(182, 102);
+      m_LabelEtr.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+      m_LabelEtr.Name = "m_LabelEtr";
+      m_LabelEtr.Size = new System.Drawing.Size(167, 16);
+      m_LabelEtr.TabIndex = 7;
       // 
       // m_LabelEtl
       // 
-      this.m_LabelEtl.Anchor = System.Windows.Forms.AnchorStyles.Right;
-      this.m_LabelEtl.AutoSize = true;
-      this.m_LabelEtl.Location = new System.Drawing.Point(4, 101);
-      this.m_LabelEtl.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-      this.m_LabelEtl.Name = "m_LabelEtl";
-      this.m_LabelEtl.Size = new System.Drawing.Size(170, 17);
-      this.m_LabelEtl.TabIndex = 6;
-      this.m_LabelEtl.Text = "Estimated time remaining:";
-      this.m_LabelEtl.Visible = false;
+      m_LabelEtl.Anchor = System.Windows.Forms.AnchorStyles.Right;
+      m_LabelEtl.AutoSize = true;
+      m_LabelEtl.Location = new System.Drawing.Point(4, 101);
+      m_LabelEtl.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+      m_LabelEtl.Name = "m_LabelEtl";
+      m_LabelEtl.Size = new System.Drawing.Size(170, 17);
+      m_LabelEtl.TabIndex = 6;
+      m_LabelEtl.Text = "Estimated time remaining:";
+      m_LabelEtl.Visible = false;
       // 
       // m_LabelPercent
       // 
-      this.m_LabelPercent.Location = new System.Drawing.Point(360, 86);
-      this.m_LabelPercent.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-      this.m_LabelPercent.Name = "m_LabelPercent";
-      this.m_LabelPercent.Size = new System.Drawing.Size(52, 16);
-      this.m_LabelPercent.TabIndex = 5;
-      this.m_LabelPercent.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+      m_LabelPercent.Location = new System.Drawing.Point(360, 86);
+      m_LabelPercent.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+      m_LabelPercent.Name = "m_LabelPercent";
+      m_LabelPercent.Size = new System.Drawing.Size(52, 16);
+      m_LabelPercent.TabIndex = 5;
+      m_LabelPercent.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
       // 
       // m_TableLayoutPanel
       // 
-      this.m_TableLayoutPanel.AutoSize = true;
-      this.m_TableLayoutPanel.ColumnCount = 2;
-      this.m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-      this.m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-      this.m_TableLayoutPanel.Controls.Add(this.m_ProgressBar, 0, 1);
-      this.m_TableLayoutPanel.Controls.Add(this.m_LabelEtr, 1, 2);
-      this.m_TableLayoutPanel.Controls.Add(this.m_LabelEtl, 0, 2);
-      this.m_TableLayoutPanel.Controls.Add(this.m_LabelText, 0, 0);
-      this.m_TableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.m_TableLayoutPanel.Location = new System.Drawing.Point(0, 0);
-      this.m_TableLayoutPanel.Margin = new System.Windows.Forms.Padding(4);
-      this.m_TableLayoutPanel.Name = "m_TableLayoutPanel";
-      this.m_TableLayoutPanel.RowCount = 3;
-      this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.m_TableLayoutPanel.Size = new System.Drawing.Size(487, 124);
-      this.m_TableLayoutPanel.TabIndex = 8;
+      m_TableLayoutPanel.AutoSize = true;
+      m_TableLayoutPanel.ColumnCount = 2;
+      m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+      m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+      m_TableLayoutPanel.Controls.Add(m_ProgressBar, 0, 1);
+      m_TableLayoutPanel.Controls.Add(m_LabelEtr, 1, 2);
+      m_TableLayoutPanel.Controls.Add(m_LabelEtl, 0, 2);
+      m_TableLayoutPanel.Controls.Add(m_LabelText, 0, 0);
+      m_TableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+      m_TableLayoutPanel.Location = new System.Drawing.Point(0, 0);
+      m_TableLayoutPanel.Margin = new System.Windows.Forms.Padding(4);
+      m_TableLayoutPanel.Name = "m_TableLayoutPanel";
+      m_TableLayoutPanel.RowCount = 3;
+      m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      m_TableLayoutPanel.Size = new System.Drawing.Size(487, 124);
+      m_TableLayoutPanel.TabIndex = 8;
       // 
       // FormProcessDisplay
       // 
-      this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
-      this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-      this.ClientSize = new System.Drawing.Size(487, 124);
-      this.Controls.Add(this.m_TableLayoutPanel);
-      this.Controls.Add(this.m_LabelPercent);
-      this.DoubleBuffered = true;
-      this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
-      this.Margin = new System.Windows.Forms.Padding(4);
-      this.MinimumSize = new System.Drawing.Size(505, 114);
-      this.Name = "FormProcessDisplay";
-      this.ShowIcon = false;
-      this.ShowInTaskbar = false;
-      this.Text = "Process";
-      this.TopMost = true;
-      this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.ProcessDisplay_FormClosing);
-      this.m_TableLayoutPanel.ResumeLayout(false);
-      this.m_TableLayoutPanel.PerformLayout();
-      this.ResumeLayout(false);
-      this.PerformLayout();
+      AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+      AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+      ClientSize = new System.Drawing.Size(487, 124);
+      Controls.Add(m_TableLayoutPanel);
+      Controls.Add(m_LabelPercent);
+      DoubleBuffered = true;
+      FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
+      Margin = new System.Windows.Forms.Padding(4);
+      MinimumSize = new System.Drawing.Size(505, 114);
+      Name = "FormProcessDisplay";
+      ShowIcon = false;
+      ShowInTaskbar = false;
+      Text = "Process";
+      TopMost = true;
+      FormClosing += new System.Windows.Forms.FormClosingEventHandler(ProcessDisplay_FormClosing);
+      m_TableLayoutPanel.ResumeLayout(false);
+      m_TableLayoutPanel.PerformLayout();
+      ResumeLayout(false);
+      PerformLayout();
 
     }
 

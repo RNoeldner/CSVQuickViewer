@@ -152,11 +152,11 @@ namespace CsvTools
       get => m_Active;
       set
       {
-        this.m_Active = value;
+        m_Active = value;
 
         // If set active from the outside, make sure the Expression is correct
-        if (this.m_Active)
-          this.m_Active = this.BuildFilterExpression();
+        if (m_Active)
+          m_Active = BuildFilterExpression();
       }
     }
 

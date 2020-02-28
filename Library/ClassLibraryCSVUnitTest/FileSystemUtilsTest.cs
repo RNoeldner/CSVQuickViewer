@@ -12,8 +12,8 @@
  *
  */
 
-using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.IO;
 using System.Linq;
 
@@ -48,7 +48,7 @@ namespace CsvTools.Tests
       Assert.AreEqual("C:\\CsvHelperTest.cs", FileSystemUtils.ShortFileName("C:\\CsvHelperTest.cs"));
       var root = FileSystemUtils.ExecutableDirectoryName();
       var fn = root + "\\VeryLongNameForAFile.txt";
-      using (StreamWriter sw = File.CreateText(fn))
+      using (var sw = File.CreateText(fn))
       {
         sw.WriteLine("Hello");
         sw.WriteLine("And");
@@ -76,10 +76,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void SafePath()
-    {
-      Assert.AreEqual("Test$Files\\Basic$CSV.txt", FileSystemUtils.SafePath("Test|Files\\Basic<CSV.txt", "$"));
-    }
+    public void SafePath() => Assert.AreEqual("Test$Files\\Basic$CSV.txt", FileSystemUtils.SafePath("Test|Files\\Basic<CSV.txt", "$"));
 
     [TestMethod]
     public void GetFiles()

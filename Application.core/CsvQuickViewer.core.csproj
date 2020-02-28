@@ -27,7 +27,11 @@
     <EmbeddedResource Include="..\Application\**\*.resx" />
     <EmbeddedResource Include="..\Application\**\*.ico" />
   </ItemGroup>
- 
+  <ItemGroup>
+    <Compile Remove="..\Application\obj\Debug\**" />
+    <Compile Remove="..\Application\obj\Release\**" />
+  </ItemGroup>
+
   <ItemGroup>
     <Compile Remove="..\Application\Properties\AssemblyInfo.cs" />
   </ItemGroup>
