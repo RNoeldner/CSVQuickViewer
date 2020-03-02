@@ -128,7 +128,7 @@ namespace CsvTools.Tests
           FileName = "Test.txt",
           SqlStatement = "Hello"
         };
-        writeFile.ColumnCollection.Add(new Column() { Name = "Text", DataType = DataType.Integer });
+        writeFile.ColumnCollection.Add(new Column("Text", DataType.Integer));
         writeFile.Header = "##This is a header for {FileName}";
         writeFile.Footer = "##This is a Footer\r\n{Records} in file";
         var count = 0;
@@ -215,17 +215,21 @@ namespace CsvTools.Tests
     {
       m_ReadFile = new CsvFile("BasicCSV.txt") { ID = "Read", FileFormat = { FieldDelimiter = ",", CommentLine = "#" } };
 
-      var cf = m_ReadFile.ColumnCollection.AddIfNew(new Column { Name = "ExamDate", DataType = DataType.DateTime });
-      cf.DateFormat = @"dd/MM/yyyy";
-      m_ReadFile.ColumnCollection.AddIfNew(new Column { Name = "Score", DataType = DataType.Integer });
-      m_ReadFile.ColumnCollection.AddIfNew(new Column { Name = "Proficiency", DataType = DataType.Numeric });
-      m_ReadFile.ColumnCollection.AddIfNew(new Column { Name = "IsNativeLang", DataType = DataType.Boolean, Ignore = true });
+      var cf = m_ReadFile.ColumnCollection.AddIfNew(new Column("ExamDate", DataType.DateTime));
+      cf.ValueFormat.DateFormat = @"dd/MM/yyyy";
+      m_ReadFile.ColumnCollection.AddIfNew(new Column("Score", DataType.Integer));
+      m_ReadFile.ColumnCollection.AddIfNew(new Column("Proficiency", DataType.Numeric));
+      m_ReadFile.ColumnCollection.AddIfNew(new Column("IsNativeLang", DataType.Boolean) { Ignore = true });
 
       UnitTestInitialize.MimicSQLReader.AddSetting(m_ReadFile);
 
-      m_WriteFile = new CsvFile { ID = "Write", SqlStatement = m_ReadFile.ID };
+      m_WriteFile = new CsvFile
+      {
+        ID = "Write",
+        SqlStatement = m_ReadFile.ID
+      };
 
-      m_WriteFile.ColumnCollection.AddIfNew(new Column { Name = "ExamDate", DataType = DataType.DateTime, DateFormat = @"MM/dd/yyyy", TimePart = "ExamTime" });
+      m_WriteFile.ColumnCollection.AddIfNew(new Column("ExamDate", DataType.DateTime, @"MM/dd/yyyy") { TimePart = "ExamTime" });
       m_WriteFile.ColumnCollection.AddIfNew(new Column { Name = "Proficiency", Ignore = true });
     }
 
@@ -279,8 +283,8 @@ namespace CsvTools.Tests
       UnitTestInitialize.MimicSQLReader.AddSetting(setting);
       writeFile.SqlStatement = setting.ID;
       writeFile.FileFormat.FieldDelimiter = "|";
-      var cf = writeFile.ColumnCollection.AddIfNew(new Column { Name = "DateTime", DataType = DataType.DateTime });
-      cf.DateFormat = "yyyyMMdd";
+      var cf = writeFile.ColumnCollection.AddIfNew(new Column("DateTime", DataType.DateTime));
+      cf.ValueFormat.DateFormat = "yyyyMMdd";
       cf.TimePartFormat = @"hh:mm";
       cf.TimePart = "Time";
       cf.TimeZonePart = "\"UTC\"";
@@ -305,8 +309,8 @@ namespace CsvTools.Tests
       UnitTestInitialize.MimicSQLReader.AddSetting(setting);
       writeFile.SqlStatement = setting.ID;
       writeFile.FileFormat.FieldDelimiter = "|";
-      var cf = writeFile.ColumnCollection.AddIfNew(new Column { Name = "DateTime", DataType = DataType.DateTime });
-      cf.DateFormat = "yyyyMMdd";
+      var cf = writeFile.ColumnCollection.AddIfNew(new Column("DateTime", DataType.DateTime));
+      cf.ValueFormat.DateFormat = "yyyyMMdd";
       cf.TimePartFormat = @"hh:mm";
       cf.TimePart = "Time";
       cf.TimeZonePart = "TZ";

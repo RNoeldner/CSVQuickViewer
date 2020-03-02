@@ -154,8 +154,10 @@ namespace CsvTools
       {
         case null:
           return 0;
+
         case ICollection col:
           return col.Count;
+
         default:
           return Enumerable.Count(items.Cast<object>());
       }
@@ -212,9 +214,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="exception">The exception of type <see cref="Exception" /></param>
     /// <param name="maxDepth">The maximum depth.</param>
-    /// <returns>
-    ///   A string with all messages in the error stack
-    /// </returns>
+    /// <returns>A string with all messages in the error stack</returns>
     [DebuggerStepThrough]
     public static string ExceptionMessages(this Exception exception, int maxDepth = 3)
     {
@@ -223,8 +223,7 @@ namespace CsvTools
 
       var sb = new StringBuilder();
 
-      // Special handling of AggregateException
-      // There can be many InnerExceptions
+      // Special handling of AggregateException There can be many InnerExceptions
       if (exception is AggregateException ae)
       {
         foreach (var ie in ae.Flatten().InnerExceptions)
@@ -259,13 +258,17 @@ namespace CsvTools
       {
         case TypeCode.Boolean:
           return DataType.Boolean;
+
         case TypeCode.DateTime:
           return DataType.DateTime;
+
         case TypeCode.Single:
         case TypeCode.Double:
           return DataType.Double;
+
         case TypeCode.Decimal:
           return DataType.Numeric;
+
         case TypeCode.Byte:
         case TypeCode.Int16:
         case TypeCode.Int32:
@@ -275,12 +278,16 @@ namespace CsvTools
         case TypeCode.UInt32:
         case TypeCode.UInt64:
           return DataType.Integer;
+
         case TypeCode.Object when type.ToString().Equals("System.TimeSpan", StringComparison.Ordinal):
           return DataType.DateTime;
+
         case TypeCode.Object when type.ToString().Equals("System.Guid", StringComparison.Ordinal):
           return DataType.Guid;
+
         case TypeCode.Object:
           return DataType.String;
+
         default:
           return DataType.String;
       }
@@ -322,8 +329,9 @@ namespace CsvTools
       const string c_Month = @"(0[1-9]|1[012])"; // 01-12
       const string c_Day = @"(0[1-9]|[12]\d|3[01])"; // 01 - 31
 
-      // Replace Dates YYYYMMDDHHMMSS
-      // fileName = Regex.Replace(fileName, S + YYYY + S + MM + S + DD + T + "?" + HH + T + MS + T + "?" + MS + "?" + TT, string.Empty, RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.CultureInvariant);
+      // Replace Dates YYYYMMDDHHMMSS fileName = Regex.Replace(fileName, S + YYYY + S + MM + S + DD
+      // + T + "?" + HH + T + MS + T + "?" + MS + "?" + TT, string.Empty, RegexOptions.IgnoreCase |
+      // RegexOptions.Singleline | RegexOptions.CultureInvariant);
 
       // Replace Dates YYYYMMDD / MMDDYYYY / DDMMYYYY
       fileName = Regex.Replace(fileName,
@@ -360,23 +368,29 @@ namespace CsvTools
       {
         case DataType.DateTime:
           return typeof(DateTime);
+
         case DataType.Integer when IntPtr.Size == 4:
           return typeof(int);
+
         case DataType.Integer:
           return typeof(long);
+
         case DataType.Double:
           return typeof(double);
+
         case DataType.Numeric:
           return typeof(decimal);
+
         case DataType.Boolean:
           return typeof(bool);
+
         case DataType.Guid:
           return typeof(Guid);
+
         default:
           return typeof(string);
       }
     }
-
 
     public static DataTable Read2DataTable(this IDataReader dataReader, IProcessDisplay processDisplay, long recordLimit)
     {
@@ -393,8 +407,7 @@ namespace CsvTools
           return null;
         var columns = schemaTable.Rows.Count;
 
-        // We could have duplicate column names
-        // in this case we have need to adjust the conflicting name
+        // We could have duplicate column names in this case we have need to adjust the conflicting name
         var previousColumns = new List<string>();
         foreach (DataRow dataRow in schemaTable.Rows)
         {
@@ -406,7 +419,7 @@ namespace CsvTools
         dataTable.BeginLoadData();
         if (recordLimit < 1)
           recordLimit = long.MaxValue;
-        // load the Data into the dataTable        
+        // load the Data into the dataTable
         var action = processDisplay == null ? null : new IntervalAction(.3);
         while (dataReader.Read() && dataTable.Rows.Count < recordLimit && !(processDisplay?.CancellationToken.IsCancellationRequested ?? false))
         {
@@ -457,9 +470,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="exception">The exception of type <see cref="Exception" /></param>
     /// <param name="maxDepth">The maximum depth.</param>
-    /// <returns>
-    ///   A string with all inner messages of the error stack
-    /// </returns>
+    /// <returns>A string with all inner messages of the error stack</returns>
     [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
     [DebuggerStepThrough]
     public static string InnerExceptionMessages(this Exception exception, int maxDepth = 2)
@@ -493,7 +504,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Gets the type of the placeholder.
+    ///   Gets the type of the placeholder.
     /// </summary>
     /// <param name="input">The input.</param>
     /// <param name="placeholder">The placeholder.</param>
@@ -514,7 +525,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Places the holder times.
+    ///   Places the holder times.
     /// </summary>
     /// <param name="text">The text.</param>
     /// <param name="format">The format.</param>
@@ -749,7 +760,7 @@ namespace CsvTools
     /// <summary>
     ///   Replace placeholder in a template with value of property
     /// </summary>
-    /// <param name="template">The template with placeholder in {}, e.G. ID:{ID} </param>
+    /// <param name="template">The template with placeholder in {}, e.G. ID:{ID}</param>
     /// <param name="obj">The object that is used to look at the properties</param>
     /// <returns>Any found property placeholder is replaced by the property value</returns>
     [DebuggerStepThrough]
@@ -782,7 +793,7 @@ namespace CsvTools
             placeholder.Add(match.Value, prop.GetValue(obj).ToString());
         }
 
-      // replace them  with the property value from setting
+      // replace them with the property value from setting
       foreach (var pro in placeholder)
         template = template.ReplaceCaseInsensitive(pro.Key, pro.Value);
 
@@ -790,11 +801,13 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Replace placeholder in a template with the text provide in the parameters the order of the placeholders is important
-    ///   not their contend
+    ///   Replace placeholder in a template with the text provide in the parameters the order of the
+    ///   placeholders is important not their contend
     /// </summary>
-    /// <param name="template">The template with placeholder in {}, e.G. ID:{ID} </param>
-    /// <param name="values">a variable number of text that will replace the placeholder in order of appearance</param>
+    /// <param name="template">The template with placeholder in {}, e.G. ID:{ID}</param>
+    /// <param name="values">
+    ///   a variable number of text that will replace the placeholder in order of appearance
+    /// </param>
     /// <returns>Any found property placeholder is replaced by the provide text</returns>
     [DebuggerStepThrough]
     public static string ReplacePlaceholderWithText(this string template, params string[] values)
@@ -815,7 +828,7 @@ namespace CsvTools
           placeholder.Add(match.Value, values[index++]);
       }
 
-      // replace them  with the property value from setting
+      // replace them with the property value from setting
       foreach (var pro in placeholder)
         template = template.ReplaceCaseInsensitive(pro.Key, pro.Value);
 
@@ -894,18 +907,20 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Run a task to completion with timeout
-    ///   You should you expose synchronous wrappers for asynchronous methods, still here it is be very careful
+    ///   Run a task to completion with timeout You should you expose synchronous wrappers for
+    ///   asynchronous methods, still here it is be very careful
     /// </summary>
     /// <param name="executeTask">The started <see cref="System.Threading.Tasks.Task" /></param>
     /// <param name="timeoutSeconds">
     ///   Timeout for the completion of the task, if more time is spent running / waiting the wait
     ///   is finished
     /// </param>
-    /// <param name="every250Ms">Action to be invoked every 1/4 second while waiting to finish, usually used for UI updates</param>
+    /// <param name="every250Ms">
+    ///   Action to be invoked every 1/4 second while waiting to finish, usually used for UI updates
+    /// </param>
     /// <param name="cancellationToken">
-    ///   Best is to start tasks with the cancellation token but some async methods do not do, so
-    ///   it can be provided
+    ///   Best is to start tasks with the cancellation token but some async methods do not do, so it
+    ///   can be provided
     /// </param>
     /// <remarks>Will only return the first exception in case of aggregate exceptions.</remarks>
     public static void WaitToCompleteTask(this Task executeTask, double timeoutSeconds, Action every250Ms = null,
@@ -963,18 +978,22 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Run a task to completion with timeout
-    ///   You should you expose synchronous wrappers for asynchronous methods, still here it is be very careful
+    ///   Run a task to completion with timeout You should you expose synchronous wrappers for
+    ///   asynchronous methods, still here it is be very careful
     /// </summary>
-    /// <param name="executeTask">The started <see cref="System.Threading.Tasks.Task" /> with a return value</param>
+    /// <param name="executeTask">
+    ///   The started <see cref="System.Threading.Tasks.Task" /> with a return value
+    /// </param>
     /// <param name="timeoutSeconds">
     ///   Timeout for the completion of the task, if more time is spent running / waiting the wait
     ///   is finished
     /// </param>
-    /// <param name="every250Ms">Action to be invoked every 1/4 second while waiting to finish, usually used for UI updates</param>
+    /// <param name="every250Ms">
+    ///   Action to be invoked every 1/4 second while waiting to finish, usually used for UI updates
+    /// </param>
     /// <param name="cancellationToken">
-    ///   Best is to start tasks with the cancellation token but some async methods do not do, so
-    ///   it can be provided
+    ///   Best is to start tasks with the cancellation token but some async methods do not do, so it
+    ///   can be provided
     /// </param>
     /// <returns>Task Result if finished successfully, otherwise raises an error</returns>
     public static T WaitToCompleteTaskResult<T>(this Task<T> executeTask, double timeoutSeconds, Action every250Ms = null, CancellationToken cancellationToken = default)
@@ -1072,12 +1091,11 @@ namespace CsvTools
           continue;
         result.Mapping.Add(col, dataTable.Columns.Count);
         // Special handling for #Line, this has to be a int64, not based on system
-        dataTable.Columns.Add(new DataColumn(cf.Name, cf.DataType.GetNetType()));
+        dataTable.Columns.Add(new DataColumn(cf.Name, cf.ValueFormat.DataType.GetNetType()));
       }
 
-      // Append Artificial columns
-      // This needs to happen in the same order as we have in CreateTableFromReader otherwise BulkCopy does not work
-      // see  SqlServerConnector.CreateTable
+      // Append Artificial columns This needs to happen in the same order as we have in
+      // CreateTableFromReader otherwise BulkCopy does not work see SqlServerConnector.CreateTable
       result.StartLine = new DataColumn(BaseFileReader.cStartLineNumberFieldName, typeof(long));
       dataTable.Columns.Add(result.StartLine);
 
@@ -1112,14 +1130,11 @@ namespace CsvTools
     /// <param name="fileSetting">The file setting.</param>
     /// <param name="records">The number of records.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>
-    ///   A <see cref="DataTable" /> with the records
-    /// </returns>
+    /// <returns>A <see cref="DataTable" /> with the records</returns>
     public static DataTable WriteToDataTable(this IFileReader reader, IFileSetting fileSetting, long records,
       CancellationToken cancellationToken)
     {
       var requestedRecords = records < 1 ? long.MaxValue : records;
-
 
       var dataTable = new DataTable(fileSetting.ID)
       {
@@ -1313,7 +1328,8 @@ namespace CsvTools
 #if !GetHashByGUID
 
     /// <summary>
-    ///   Check if a collection is equal, the items can be in any order as long as all exist in the th other
+    ///   Check if a collection is equal, the items can be in any order as long as all exist in the
+    ///   th other
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="self">The collection.</param>

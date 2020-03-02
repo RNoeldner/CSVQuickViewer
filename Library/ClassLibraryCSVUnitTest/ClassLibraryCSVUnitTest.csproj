@@ -211,7 +211,6 @@
     <Compile Include="CsvFileTest.cs" />
     <Compile Include="FieldMappingTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ValueFormatTests.cs" />
     <Compile Include="WarningEventArgsTests.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -19,10 +19,10 @@ namespace CsvTools.Tests
 {
   public class MockProcessDisplay : IProcessDisplay
   {
-    private bool m_Disposed;
+    private bool m_Disposed = false;
     public bool Shown = false;
     public string Text;
-    private bool m_Visible;
+    private bool m_Visible = true;
     public virtual string Title { get; set; }
     public TimeToCompletion TimeToCompletion => new TimeToCompletion();
 
@@ -35,8 +35,11 @@ namespace CsvTools.Tests
 
     public virtual void Dispose()
     {
-      m_Visible = true;
-      m_Disposed = true;
+      if (!m_Disposed)
+      {
+        m_Visible = true;
+        m_Disposed = true;
+      }
     }
 
     public void Cancel()
@@ -59,7 +62,7 @@ namespace CsvTools.Tests
 
     public void Close()
     {
-      m_Visible = true;
+      m_Visible = !m_Visible;
       m_Disposed = true;
       ProgressStopEvent?.Invoke(this, null);
     }

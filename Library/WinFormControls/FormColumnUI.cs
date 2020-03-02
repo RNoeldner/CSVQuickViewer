@@ -146,10 +146,10 @@ namespace CsvTools
                 goto retry;
               }
 
-              found.DataType = column.DataType.GetDataType();
-              if (found.DataType == DataType.String)
+              found.ValueFormat.DataType = column.DataType.GetDataType();
+              if (found.ValueFormat.DataType == DataType.String)
                 return;
-              m_ColumnEdit.DataType = found.DataType;
+              m_ColumnEdit.ValueFormat.DataType = found.ValueFormat.DataType;
               processDisplay.Hide();
 
               RefreshData();
@@ -498,23 +498,23 @@ namespace CsvTools
         foreach (var ind in uncheck)
           checkedListBoxDateFormats.SetItemCheckState(ind, CheckState.Unchecked);
 
-        m_ColumnEdit.DateFormat = format;
+        m_ColumnEdit.ValueFormat.DateFormat = format;
       }
       else
       {
-        var parts = new List<string>(StringUtils.SplitByDelimiter(m_ColumnEdit.DateFormat));
+        var parts = new List<string>(StringUtils.SplitByDelimiter(m_ColumnEdit.ValueFormat.DateFormat));
         var isInList = parts.Contains(format);
 
         if (e.NewValue == CheckState.Checked && !isInList)
         {
           parts.Add(format);
-          m_ColumnEdit.DateFormat = parts.Join(";");
+          m_ColumnEdit.ValueFormat.DateFormat = parts.Join(";");
         }
 
         if (e.NewValue == CheckState.Checked || !isInList)
           return;
         parts.Remove(format);
-        m_ColumnEdit.DateFormat = parts.Join(";");
+        m_ColumnEdit.ValueFormat.DateFormat = parts.Join(";");
       }
     }
 
@@ -652,7 +652,7 @@ namespace CsvTools
         if (comboBoxDataType.SelectedValue == null)
           return;
         var selType = (DataType)comboBoxDataType.SelectedValue;
-        m_ColumnEdit.DataType = selType;
+        m_ColumnEdit.ValueFormat.DataType = selType;
 
         groupBoxNumber.Visible = selType == DataType.Numeric || selType == DataType.Double;
         if (groupBoxNumber.Visible)
@@ -914,7 +914,7 @@ namespace CsvTools
       var di = new List<DisplayItem<int>>();
       foreach (DataType item in Enum.GetValues(typeof(DataType)))
         di.Add(new DisplayItem<int>((int)item, item.DataTypeDisplay()));
-      var selValue = (int)m_ColumnEdit.DataType;
+      var selValue = (int)m_ColumnEdit.ValueFormat.DataType;
       comboBoxDataType.DataSource = di;
       comboBoxDataType.SelectedValue = selValue;
     }
@@ -970,7 +970,7 @@ namespace CsvTools
       AddNotExisting(formatsReg, "MM/dd/yyyy HH:mm:ss");
       AddNotExisting(formatsReg, "dd/MM/yyyy");
       AddNotExisting(formatsReg, "yyyy/MM/dd");
-      var parts = StringUtils.SplitByDelimiter(m_ColumnEdit.DateFormat);
+      var parts = StringUtils.SplitByDelimiter(m_ColumnEdit.ValueFormat.DateFormat);
       foreach (var format in parts)
         AddNotExisting(formatsReg, format);
 

@@ -95,7 +95,7 @@ namespace CsvTools.Tests
       Assert.AreEqual(m_CsvFile.MappingCollection.Count, test.MappingCollection.Count, "FieldMapping");
       Assert.AreEqual(TrimmingOption.Unquoted, test.TrimmingOption, "TrimmingOption");
       Assert.IsTrue(m_CsvFile.MappingCollection.CollectionEqualWithOrder(test.MappingCollection), "Mapping");
-      Assert.IsTrue(m_CsvFile.ColumnCollection.CollectionEqualWithOrder(test.ColumnCollection), "Column");
+      Assert.IsTrue(m_CsvFile.ColumnCollection.CollectionEqualWithOrder(test.ColumnCollection), "ColumnCollection");
       Assert.IsTrue(m_CsvFile.FileFormat.Equals(test.FileFormat), "FileFormat");
       Assert.IsTrue(test.Equals(m_CsvFile), "Equals");
     }
@@ -114,7 +114,7 @@ namespace CsvTools.Tests
       Assert.AreEqual(TrimmingOption.Unquoted, test.TrimmingOption, "TrimmingOption");
       Assert.IsTrue(m_CsvFile.MappingCollection.CollectionEqualWithOrder(test.MappingCollection), "Mapping");
       //Assert.IsTrue(m_CsvFile.Errors.CollectionEqualWithOrder(test.Errors), "Errors");
-      Assert.IsTrue(m_CsvFile.ColumnCollection.CollectionEqualWithOrder(test.ColumnCollection), "Column");
+      Assert.IsTrue(m_CsvFile.ColumnCollection.CollectionEqualWithOrder(test.ColumnCollection), "ColumnCollection");
       Assert.IsTrue(m_CsvFile.FileFormat.Equals(test.FileFormat), "FileFormat");
 
       Assert.IsTrue(test.Equals(m_CsvFile), "Equals");
@@ -370,13 +370,11 @@ namespace CsvTools.Tests
       Assert.AreEqual(2, m_CsvFile.MappingCollection.Count, "FieldMapping");
 
       m_CsvFile.ColumnCollection.Clear();
-      m_CsvFile.ColumnCollection.AddIfNew(new Column
+      m_CsvFile.ColumnCollection.AddIfNew(new Column("ID", DataType.Integer)
       {
         ColumnOrdinal = 1,
-        DataType = DataType.Integer,
         Ignore = false,
         Convert = true,
-        Name = "ID"
       });
       m_CsvFile.ColumnCollection.AddIfNew(new Column { ColumnOrdinal = 2, Name = "Name" });
 

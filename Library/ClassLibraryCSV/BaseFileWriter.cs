@@ -506,13 +506,8 @@ namespace CsvTools
       if (!addTimeFormat)
         yield break;
       var columnNameTime = GetUniqueFieldName(headers, columnFormat.TimePart);
-      var cfTimePart = new Column
-      {
-        Name = columnNameTime,
-        DataType = DataType.DateTime,
-        TimeSeparator = columnFormat.TimeSeparator,
-        DateFormat = columnFormat.TimePartFormat
-      };
+      var cfTimePart = new Column(columnNameTime, DataType.DateTime, columnFormat.TimePartFormat);
+      cfTimePart.ValueFormat.TimeSeparator = columnFormat.ValueFormat.TimeSeparator;
 
       // In case we have a split column, add the second column (unless the column is also present
       yield return new ColumnInfo
@@ -525,7 +520,7 @@ namespace CsvTools
         FieldLength = columnFormat.TimePartFormat.Length,
         ValueFormat = new ValueFormat
         {
-          TimeSeparator = columnFormat.TimeSeparator,
+          TimeSeparator = columnFormat.ValueFormat.TimeSeparator,
           DateFormat = columnFormat.TimePartFormat
         }
       };

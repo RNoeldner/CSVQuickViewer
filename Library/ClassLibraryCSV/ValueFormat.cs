@@ -55,10 +55,12 @@ namespace CsvTools
     private string m_DateSeparator = cDateSeparatorDefault;
 
     private string m_DecimalSeparator = cDecimalSeparatorDefault;
+    private char m_DecimalSeparatorChar = cDecimalSeparatorDefault[0];
 
     private string m_False = cFalseDefault;
 
     private string m_GroupSeparator = cGroupSeparatorDefault;
+    private char m_GroupSeparatorChar = '\0';
 
     private string m_NumberFormat = cNumberFormatDefault;
 
@@ -81,6 +83,12 @@ namespace CsvTools
     /// <param name="dataType">Type of the data.</param>
     public ValueFormat(DataType dataType) => m_DataType = dataType;
 
+    [XmlIgnore]
+    public char GroupSeparatorChar => m_GroupSeparatorChar;
+
+    [XmlIgnore]
+    public char DecimalSeparatorChar => m_DecimalSeparatorChar;
+
     /// <summary>
     ///   Gets or sets the type of the data.
     /// </summary>
@@ -101,7 +109,8 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Writing data you can specify how a NULL value should be written, commonly its empty, in some circumstances you might want to have n/a etc.
+    ///   Writing data you can specify how a NULL value should be written, commonly its empty, in
+    ///   some circumstances you might want to have n/a etc.
     /// </summary>
     /// <value>Text used if the value is NULL</value>
     [XmlAttribute]
@@ -178,15 +187,17 @@ namespace CsvTools
         var newVal = chr != '\0' ? chr.ToString(CultureInfo.CurrentCulture) : string.Empty;
         if (m_DecimalSeparator.Equals(newVal, StringComparison.Ordinal))
           return;
-        // If we set the DecimalSeparator to be the Group separator, store the old
-        // DecimalSeparator in the group separator;
+        // If we set the DecimalSeparator to be the Group separator, store the old DecimalSeparator
+        // in the group separator;
         if (m_GroupSeparator.Equals(newVal, StringComparison.Ordinal))
         {
           m_GroupSeparator = m_DecimalSeparator;
+          m_GroupSeparatorChar = m_GroupSeparator.GetFirstChar();
           NotifyPropertyChanged(nameof(GroupSeparator));
         }
 
         m_DecimalSeparator = newVal;
+        m_DecimalSeparatorChar = m_DecimalSeparator.GetFirstChar();
         NotifyPropertyChanged(nameof(DecimalSeparator));
       }
     }
@@ -228,15 +239,17 @@ namespace CsvTools
 
         if (m_GroupSeparator.Equals(newVal, StringComparison.Ordinal))
           return;
-        // If we set the DecimalSeparator to be the group separator, store the old
-        // DecimalSeparator in the group separator;
+        // If we set the DecimalSeparator to be the group separator, store the old DecimalSeparator
+        // in the group separator;
         if (m_DecimalSeparator.Equals(newVal, StringComparison.Ordinal))
         {
           m_DecimalSeparator = m_GroupSeparator;
+          m_DecimalSeparatorChar = m_DecimalSeparator.GetFirstChar();
           NotifyPropertyChanged(nameof(DecimalSeparator));
         }
 
         m_GroupSeparator = newVal;
+        m_GroupSeparatorChar = m_GroupSeparator.GetFirstChar();
         NotifyPropertyChanged(nameof(GroupSeparator));
       }
     }
@@ -359,11 +372,13 @@ namespace CsvTools
       }
     }
 
-    /// <summary>Indicates whether the current object is equal to another object of the same type.</summary>
+    /// <summary>
+    ///   Indicates whether the current object is equal to another object of the same type.
+    /// </summary>
     /// <param name="other">An object to compare with this object.</param>
     /// <returns>
-    ///   <see langword="true" /> if the current object is equal to the <paramref name="other" /> parameter; otherwise,
-    ///   <see langword="false" />.
+    ///   <see langword="true" /> if the current object is equal to the <paramref name="other" />
+    ///   parameter; otherwise, <see langword="false" />.
     /// </returns>
     public bool Equals(ValueFormat other)
     {
@@ -461,14 +476,65 @@ namespace CsvTools
     /// <param name="info">The info.</param>
     public virtual void NotifyPropertyChanged(string info) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(info));
 
-    /// <summary>Determines whether the specified object is equal to the current object.</summary>
-    /// <param name="obj">The object to compare with the current object. </param>
+    /// <summary>
+    ///   Determines whether the specified object is equal to the current object.
+    /// </summary>
+    /// <param name="obj">The object to compare with the current object.</param>
     /// <returns>
-    ///   <see langword="true" /> if the specified object  is equal to the current object; otherwise, <see langword="false" />.
+    ///   <see langword="true" /> if the specified object is equal to the current object; otherwise,
+    ///   <see langword="false" />.
     /// </returns>
     public override bool Equals(object obj) => Equals(obj as ValueFormat);
 
-    /// <summary>Serves as the default hash function. </summary>
+    /// <summary>
+    ///   Determines whether the specified expected column is matching this column.
+    /// </summary>
+    /// <param name="expected">The expected column format.</param>
+    /// <returns>
+    ///   <c>true</c> if the current format would be acceptable for the expected data type.
+    /// </returns>
+    /// <remarks>
+    ///   Is matching only looks at data type and some formats, it is assumed that we do not
+    ///   distinguish between numeric formats, it is O.K. to expect a money value but have a integer
+    /// </remarks>
+    public bool IsMatching(ValueFormat expected)
+    {
+      if (expected.DataType == m_DataType)
+        return true;
+
+      // if one is integer but we expect numeric or vice versa, assume its OK, one of the sides does
+      // not have a decimal separator
+      if ((expected.DataType == DataType.Numeric || expected.DataType == DataType.Double ||
+           expected.DataType == DataType.Integer)
+          && m_DataType == DataType.Integer)
+        return true;
+
+      switch (expected.DataType)
+      {
+        case DataType.Integer when (m_DataType == DataType.Numeric || m_DataType == DataType.Double || m_DataType == DataType.Integer):
+          return true;
+        // if we have dates, check the formats
+        case DataType.DateTime when m_DataType == DataType.DateTime:
+          return expected.DateFormat.Equals(m_DateFormat, StringComparison.Ordinal) &&
+                 (m_DateFormat.IndexOf('/') == -1 ||
+                  expected.DateSeparator.Equals(DateSeparator, StringComparison.Ordinal)) &&
+                 (m_DateFormat.IndexOf(':') == -1 ||
+                  expected.TimeSeparator.Equals(TimeSeparator, StringComparison.Ordinal));
+      }
+
+      // if we have decimals, check the formats
+      if ((expected.DataType == DataType.Numeric || expected.DataType == DataType.Double) &&
+          (m_DataType == DataType.Numeric || m_DataType == DataType.Double))
+        return expected.NumberFormat.Equals(m_NumberFormat, StringComparison.Ordinal) &&
+               expected.DecimalSeparator.Equals(m_DecimalSeparator, StringComparison.Ordinal) &&
+               expected.GroupSeparator.Equals(m_GroupSeparator, StringComparison.Ordinal);
+      // For everything else assume its wrong
+      return false;
+    }
+
+    /// <summary>
+    ///   Serves as the default hash function.
+    /// </summary>
     /// <returns>A hash code for the current object.</returns>
     public override int GetHashCode()
     {

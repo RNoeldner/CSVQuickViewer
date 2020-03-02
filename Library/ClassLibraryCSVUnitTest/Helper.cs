@@ -45,27 +45,27 @@ namespace CsvTools.Tests
         FileFormat = { FieldDelimiter = "TAB" }
       };
 
-      var timeFld = readFile.ColumnCollection.AddIfNew(new Column { Name = "DateTime", DataType = DataType.DateTime });
+      var timeFld = readFile.ColumnCollection.AddIfNew(new Column("DateTime", DataType.DateTime));
       Debug.Assert(timeFld != null);
-      timeFld.DateFormat = @"dd/MM/yyyy";
+      timeFld.ValueFormat.DateFormat = @"dd/MM/yyyy";
       timeFld.TimePart = "Time";
       timeFld.TimePartFormat = "HH:mm:ss";
-      readFile.ColumnCollection.AddIfNew(new Column { Name = "Integer", DataType = DataType.Integer });
+      readFile.ColumnCollection.AddIfNew(new Column("Integer", DataType.Integer));
 
-      readFile.ColumnCollection.AddIfNew(new Column { Name = "Numeric", DataType = DataType.Numeric });
+      readFile.ColumnCollection.AddIfNew(new Column("Numeric", DataType.Numeric));
 
       var numericFld = readFile.ColumnCollection.Get("Numeric");
       Debug.Assert(numericFld != null);
-      numericFld.DecimalSeparator = ".";
+      numericFld.ValueFormat.DecimalSeparator = ".";
 
-      var doubleFld = readFile.ColumnCollection.AddIfNew(new Column { Name = "Double", DataType = DataType.Double });
+      var doubleFld = readFile.ColumnCollection.AddIfNew(new Column("Double", DataType.Double));
       Debug.Assert(doubleFld != null);
-      doubleFld.DecimalSeparator = ".";
-      readFile.ColumnCollection.AddIfNew(new Column { Name = "Boolean", DataType = DataType.Boolean });
-      readFile.ColumnCollection.AddIfNew(new Column { Name = "GUID", DataType = DataType.Guid });
+      doubleFld.ValueFormat.DecimalSeparator = ".";
+      readFile.ColumnCollection.AddIfNew(new Column("Boolean", DataType.Boolean));
+      readFile.ColumnCollection.AddIfNew(new Column("GUID", DataType.Guid));
 
-      var timeFld2 = readFile.ColumnCollection.AddIfNew(new Column { Name = "Time", DataType = DataType.DateTime });
-      timeFld2.DateFormat = "HH:mm:ss";
+      var timeFld2 = readFile.ColumnCollection.AddIfNew(new Column("Time", DataType.DateTime));
+      timeFld2.ValueFormat.DateFormat = "HH:mm:ss";
       timeFld2.Ignore = true;
 
       return readFile;
@@ -79,14 +79,16 @@ namespace CsvTools.Tests
       };
       readFile.FileFormat.CommentLine = "#";
       readFile.FileName = Path.Combine(UnitTestInitialize.GetTestPath("BasicCSV.txt"));
-      var examDateFld = readFile.ColumnCollection.AddIfNew(new Column { Name = "ExamDate", DataType = DataType.DateTime });
+      var examDateFld = readFile.ColumnCollection.AddIfNew(new Column("ExamDate", DataType.DateTime));
 
       Debug.Assert(examDateFld != null);
       examDateFld.ValueFormat.DateFormat = @"dd/MM/yyyy";
 
-      readFile.ColumnCollection.AddIfNew(new Column { Name = "Score", DataType = DataType.Integer });
-      readFile.ColumnCollection.AddIfNew(new Column { Name = "Proficiency", DataType = DataType.Numeric });
-      readFile.ColumnCollection.AddIfNew(new Column { Name = "IsNativeLang", DataType = DataType.Boolean });
+      readFile.ColumnCollection.AddIfNew(new Column("Score", DataType.Integer));
+
+      readFile.ColumnCollection.AddIfNew(new Column("Proficiency", DataType.Numeric));
+
+      readFile.ColumnCollection.AddIfNew(new Column("IsNativeLang", DataType.Boolean));
 
       return readFile;
     }

@@ -51,7 +51,7 @@ namespace CsvTools.Tests
       Assert.AreEqual(m_StructuredFile.MappingCollection.Count, test.MappingCollection.Count, "FieldMapping");
       Assert.AreEqual(TrimmingOption.Unquoted, test.TrimmingOption, "TrimmingOption");
       Assert.IsTrue(m_StructuredFile.MappingCollection.CollectionEqualWithOrder(test.MappingCollection), "Mapping");
-      Assert.IsTrue(m_StructuredFile.ColumnCollection.CollectionEqualWithOrder(test.ColumnCollection), "Column");
+      Assert.IsTrue(m_StructuredFile.ColumnCollection.CollectionEqualWithOrder(test.ColumnCollection), "ColumnCollection");
       Assert.IsTrue(m_StructuredFile.FileFormat.Equals(test.FileFormat), "FileFormat");
       Assert.IsTrue(test.Equals(m_StructuredFile), "Equals");
     }
@@ -108,13 +108,11 @@ namespace CsvTools.Tests
       Assert.AreEqual(2, m_StructuredFile.MappingCollection.Count, "FieldMapping");
 
       m_StructuredFile.ColumnCollection.Clear();
-      m_StructuredFile.ColumnCollection.AddIfNew(new Column
+      m_StructuredFile.ColumnCollection.AddIfNew(new Column("ID", DataType.Integer)
       {
         ColumnOrdinal = 1,
-        DataType = DataType.Integer,
         Ignore = false,
-        Convert = true,
-        Name = "ID"
+        Convert = true
       });
       m_StructuredFile.ColumnCollection.AddIfNew(new Column { ColumnOrdinal = 2, Name = "Name" });
     }

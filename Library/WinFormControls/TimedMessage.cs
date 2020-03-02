@@ -15,8 +15,6 @@
 
     private ImageList m_ImageList;
 
-    private IContainer m_Components;
-
     private Label m_LabelDefault;
 
     private int m_Counter = 0;
@@ -186,20 +184,6 @@
       }
 
       return ShowDialog(owner);
-    }
-
-    /// <summary>
-    ///   Clean up any resources being used.
-    /// </summary>
-    /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
-    protected override void Dispose(bool disposing)
-    {
-      if (disposing)
-      {
-        m_Components?.Dispose();
-      }
-
-      base.Dispose(disposing);
     }
 
     private void HideColumn(int colNumber, bool visible)

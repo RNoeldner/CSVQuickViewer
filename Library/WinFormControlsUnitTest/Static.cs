@@ -25,20 +25,20 @@ namespace CsvTools.Tests
 
     public static Column[] ColumnsDT2 =
     {
-      new Column {Name = "string", DataType = DataType.String} //0
+      new Column ("string", DataType.String) //0
     };
 
     public static Column[] ColumnsDT =
     {
-      new Column {Name = "string", DataType = DataType.String}, //0
-      new Column {Name = "int", DataType = DataType.Integer}, //1
-      new Column {Name = "DateTime", DataType = DataType.DateTime}, //2
-      new Column {Name = "bool", DataType = DataType.Boolean}, //3
-      new Column {Name = "double", DataType = DataType.Double}, //4
-      new Column {Name = "numeric", DataType = DataType.Numeric}, //5
-      new Column {Name = "AllEmpty", DataType = DataType.String}, //6
-      new Column {Name = "PartEmpty", DataType = DataType.String}, //7
-      new Column {Name = "ID", DataType = DataType.Integer} //8
+      new Column ("string", DataType.String), //0
+      new Column ("int", DataType.Integer), //1
+      new Column ("DateTime", DataType.DateTime), //2
+      new Column ( "bool",DataType.Boolean), //3
+      new Column ("double",DataType.Double), //4
+      new Column ( "numeric",DataType.Numeric), //5
+      new Column ( "AllEmpty",DataType.String), //6
+      new Column ( "PartEmpty",DataType.String), //7
+      new Column ( "ID",DataType.Integer) //8
     };
 
 #pragma warning restore CA2211 // Non-constant fields should not be visible

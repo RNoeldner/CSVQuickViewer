@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.ComponentModel;
@@ -98,13 +99,16 @@ namespace CsvTools.Tests
       var test = new Column();
       test.PropertyChanged += delegate (object sender, PropertyChangedEventArgs e)
       {
-        Assert.IsTrue(e.PropertyName == nameof(Column.DataType) || e.PropertyName == nameof(Column.Convert));
         numCalled++;
       };
-      test.DataType = DataType.DateTime;
+      test.ValueFormat.DataType = DataType.DateTime;
+      Assert.AreEqual(DataType.DateTime, test.ValueFormat.DataType);
       Assert.IsTrue(test.Convert);
-      Assert.AreEqual(DataType.DateTime, test.DataType);
-      Assert.AreEqual(2, numCalled);
+
+      Assert.AreEqual(0, numCalled);
+
+      test.Name = "Name";
+      Assert.AreEqual(1, numCalled);
     }
 
     [TestMethod]
@@ -113,23 +117,15 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GetDataTypeDescriptionBool()
     {
-      var target = new Column
-      {
-        DataType = DataType.Boolean,
-        Name = "Test"
-      };
+      var target = new Column("Test", DataType.Boolean);
       Assert.AreEqual("Boolean", target.GetTypeAndFormatDescription());
     }
 
     [TestMethod]
     public void GetDataTypeDescriptionDouble()
     {
-      var target = new Column
-      {
-        DataType = DataType.Numeric,
-        Name = "Test",
-        NumberFormat = "00.000"
-      };
+      var target = new Column("Test", DataType.Numeric);
+      target.ValueFormat.NumberFormat = "00.000";
 
       Assert.AreEqual("Money (High Precision) (00.000)", target.GetTypeAndFormatDescription());
     }
@@ -137,10 +133,8 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GetDataTypeDescriptionIgnore()
     {
-      var target = new Column
+      var target = new Column("Test", DataType.String)
       {
-        DataType = DataType.String,
-        Name = "Test",
         Ignore = true
       };
 
@@ -171,7 +165,7 @@ namespace CsvTools.Tests
 
       ff.ColumnCollection.AddIfNew(m_Column);
       Assert.AreEqual("StartDate", m_Column.Name, "Name");
-      Assert.AreEqual(DataType.DateTime, m_Column.DataType, "DataType");
+      Assert.AreEqual(DataType.DateTime, m_Column.ValueFormat.DataType, "DataType");
       Assert.IsTrue(m_Column.Convert, "Convert");
       Assert.IsTrue(m_Column.Ignore, "Ignore");
     }
