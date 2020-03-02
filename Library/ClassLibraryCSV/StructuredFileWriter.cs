@@ -49,6 +49,7 @@ namespace CsvTools
     ///   Initializes a new instance of the <see cref="StructuredFileWriter" /> class.
     /// </summary>
     /// <param name="file">The file.</param>
+    /// <param name="timeZone">The timezone in the source</param>
     /// <param name="processDisplay">The process display.</param>
     public StructuredFileWriter(StructuredFile file, string timeZone, IProcessDisplay processDisplay)
       : base(file, timeZone, processDisplay)
@@ -71,7 +72,7 @@ namespace CsvTools
       Contract.Requires(writer != null);
 
       GetSourceColumnInformation(reader);
-      var numColumns = m_Columns.Count();
+      var numColumns = Columns.Count();
       if (numColumns == 0)
         throw new FileWriterException("No columns defined to be written.");
       var recordEnd = m_StructuredWriterFile.FileFormat.NewLine.Replace("CR", "\r").Replace("LF", "\n").Replace(" ", "")
@@ -94,7 +95,7 @@ namespace CsvTools
       var placeHolderLookup1 = new Dictionary<int, string>();
       var placeHolderLookup2 = new Dictionary<int, string>();
 
-      foreach (var columnInfo in m_Columns)
+      foreach (var columnInfo in Columns)
       {
         var placeHolder = string.Format(System.Globalization.CultureInfo.CurrentCulture, c_HeaderPlaceholder, colNum);
         if (m_StructuredWriterFile.XMLEncode)
@@ -120,7 +121,7 @@ namespace CsvTools
         sb.Append(recordEnd);
         var row = withHeader;
         colNum = 0;
-        foreach (var columnInfo in m_Columns)
+        foreach (var columnInfo in Columns)
         {
           var col = reader.GetValue(columnInfo.ColumnOrdinalReader);
           var value = (m_StructuredWriterFile.XMLEncode) ?
