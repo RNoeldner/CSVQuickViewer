@@ -47,23 +47,23 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="TestFiles\BasicCSV.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\Application\CSVQuickViewer.csproj">
       <Project>{611f276a-12c1-43f1-b4f2-3237529a0265}</Project>
       <Name>CSVQuickViewer</Name>
     </ProjectReference>
     <ProjectReference Include="..\Library\ClassLibraryCSV\ClassLibraryCSV.csproj">
-      <Project>{0b6aee5a-8005-4b1d-987f-5790c34a2d52}</Project>
+      <Project>{0b6aee5a-8005-4b1d-987f-5790d34a2d52}</Project>
       <Name>ClassLibraryCSV</Name>
     </ProjectReference>
     <ProjectReference Include="..\Library\WinFormControls\WinFormControls.csproj">
       <Project>{55ad0a98-c175-4b38-a3d0-321740820d41}</Project>
       <Name>WinFormControls</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="TestFiles\BasicCSV.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -13,6 +13,7 @@
  */
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
@@ -68,17 +69,6 @@ namespace CsvTools.Tests
       Assert.IsTrue(result.Contains(setting.GetType().Name));
       Assert.IsTrue(result.Contains(setting.ID));
       Assert.IsTrue(result.Contains(setting.FileName));
-    }
-
-    [TestMethod]
-    public void GetEncryptedPassphraseFunction()
-    {
-      var test = new CsvFile
-      {
-        GetEncryptedPassphraseFunction = delegate () { return "Hello World"; }
-      };
-      Assert.IsNotNull(test.GetEncryptedPassphraseFunction);
-      Assert.AreEqual("Hello World", test.GetEncryptedPassphraseFunction.Invoke());
     }
 
     [TestMethod]
@@ -172,7 +162,7 @@ namespace CsvTools.Tests
     {
       m_CsvFile.FileName = "BasicCSV.txt";
       using (var processDisplay = new DummyProcessDisplay())
-      using (var res = ApplicationSetting.GetFileReader(m_CsvFile, processDisplay))
+      using (var res = ApplicationSetting.GetFileReader(m_CsvFile, TimeZoneInfo.Local.Id, processDisplay))
         Assert.IsInstanceOfType(res, typeof(IFileReader));
     }
 
@@ -181,7 +171,7 @@ namespace CsvTools.Tests
     {
       using (var processDisplay = new DummyProcessDisplay())
       {
-        var res = ApplicationSetting.GetFileWriter(m_CsvFile, processDisplay);
+        var res = ApplicationSetting.GetFileWriter(m_CsvFile, TimeZoneInfo.Local.Id, processDisplay);
         Assert.IsInstanceOfType(res, typeof(IFileWriter));
       }
     }

@@ -45,6 +45,7 @@ namespace CsvTools.Tests
       if (!m_ReadSetting.Any(x => x.Key.ID.Equals(name, StringComparison.OrdinalIgnoreCase)))
         m_ReadSetting.Add(new CsvFile(name) { ID = name }, dt);
     }
+
     public ICollection<IFileSetting> ReadSettings => m_ReadSetting.Keys;
 
     public IDataReader ReadData(string settingName, IProcessDisplay processDisplay, int timeout)
@@ -55,7 +56,7 @@ namespace CsvTools.Tests
         IFileReader reader = null;
         if (setting.Key is CsvFile csvSetting)
         {
-          reader = new CsvFileReader(csvSetting, processDisplay);
+          reader = new CsvFileReader(csvSetting, TimeZoneInfo.Local.Id, processDisplay);
           reader.Open();
         }
         return reader;

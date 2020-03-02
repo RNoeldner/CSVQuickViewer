@@ -13,6 +13,7 @@
  */
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -246,7 +247,7 @@ namespace CsvTools.Tests
       test.SkipRows = CsvHelper.GuessStartRow(test);
 
       using (var display = new DummyProcessDisplay())
-      using (var reader = new CsvFileReader(test, display))
+      using (var reader = new CsvFileReader(test, TimeZoneInfo.Local.Id, display))
       {
         reader.Open();
         Assert.AreEqual("RecordNumber", reader.GetName(0));
@@ -267,14 +268,14 @@ namespace CsvTools.Tests
       };
       using (var disp = new DummyProcessDisplay())
       {
-        using (var read = new CsvFileReader(setting, disp))
+        using (var read = new CsvFileReader(setting, TimeZoneInfo.Local.Id, disp))
         {
           read.Open();
           Assert.IsTrue(CsvHelper.GetEmptyColumnHeader(read, disp.CancellationToken).Count == 0);
         }
 
         setting.HasFieldHeader = true;
-        using (var reader = ApplicationSetting.GetFileReader(setting, disp))
+        using (var reader = ApplicationSetting.GetFileReader(setting, TimeZoneInfo.Local.Id, disp))
         {
           var res = CsvHelper.GetColumnHeadersFromReader(reader);
           Assert.AreEqual(0, res.Count);
@@ -305,7 +306,7 @@ namespace CsvTools.Tests
       };
       using (var disp = new DummyProcessDisplay())
       {
-        using (var reader = ApplicationSetting.GetFileReader(setting, disp))
+        using (var reader = ApplicationSetting.GetFileReader(setting, TimeZoneInfo.Local.Id, disp))
         {
           reader.Open();
           var res = CsvHelper.GetColumnHeadersFromReader(reader);
@@ -325,7 +326,7 @@ namespace CsvTools.Tests
       };
       using (var disp = new DummyProcessDisplay())
       {
-        using (var read = new CsvFileReader(setting, disp))
+        using (var read = new CsvFileReader(setting, TimeZoneInfo.Local.Id, disp))
         {
           read.Open();
           var res = CsvHelper.GetEmptyColumnHeader(read, disp.CancellationToken);

@@ -260,3 +260,4 @@ paket-files/
 __pycache__/
 *.pyc
 /Setup/FileList.txt.bak
+/Library/ClassLibraryCSV_new

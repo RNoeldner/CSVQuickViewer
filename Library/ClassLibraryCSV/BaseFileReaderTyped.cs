@@ -15,8 +15,7 @@ namespace CsvTools
     protected object[] CurrentValues;
 #pragma warning restore CA1051 // Do not declare visible instance fields
 
-    protected BaseFileReaderTyped(IFileSetting fileSetting, IProcessDisplay processDisplay) : base(fileSetting,
-      processDisplay)
+    protected BaseFileReaderTyped(IFileSetting fileSetting, string timeZone, IProcessDisplay processDisplay) : base(fileSetting, timeZone, processDisplay)
     {
     }
 
@@ -93,24 +92,22 @@ namespace CsvTools
     ///   Gets the 8-bit unsigned integer value of the specified column.
     /// </summary>
     /// <param name="i">The zero-based column ordinal.</param>
-    /// <returns>
-    ///   The 8-bit unsigned integer value of the specified column.
-    /// </returns>
+    /// <returns>The 8-bit unsigned integer value of the specified column.</returns>
     /// <exception cref="NotImplementedException"></exception>
     public override byte GetByte(int i) => throw new NotImplementedException();
 
     /// <summary>
-    ///   Reads a stream of bytes from the specified column offset into the buffer as an array, starting at the given buffer
-    ///   offset.
+    ///   Reads a stream of bytes from the specified column offset into the buffer as an array,
+    ///   starting at the given buffer offset.
     /// </summary>
     /// <param name="i">The zero-based column ordinal.</param>
     /// <param name="fieldOffset">The index within the field from which to start the read operation.</param>
     /// <param name="buffer">The buffer into which to read the stream of bytes.</param>
-    /// <param name="bufferoffset">The index for <paramref name="buffer" /> to start the read operation.</param>
+    /// <param name="bufferoffset">
+    ///   The index for <paramref name="buffer" /> to start the read operation.
+    /// </param>
     /// <param name="length">The number of bytes to read.</param>
-    /// <returns>
-    ///   The actual number of bytes read.
-    /// </returns>
+    /// <returns>The actual number of bytes read.</returns>
     /// <exception cref="NotImplementedException"></exception>
     public long GetBytes(int i, long fieldOffset, byte[] buffer, int bufferoffset, int length) =>
       throw new NotImplementedException();
@@ -119,24 +116,22 @@ namespace CsvTools
     ///   Gets the character value of the specified column.
     /// </summary>
     /// <param name="i">The zero-based column ordinal.</param>
-    /// <returns>
-    ///   The character value of the specified column.
-    /// </returns>
+    /// <returns>The character value of the specified column.</returns>
     /// <exception cref="NotImplementedException"></exception>
     public override char GetChar(int i) => throw new NotImplementedException();
 
     /// <summary>
-    ///   Reads a stream of characters from the specified column offset into the buffer as an array, starting at the given
-    ///   buffer offset.
+    ///   Reads a stream of characters from the specified column offset into the buffer as an array,
+    ///   starting at the given buffer offset.
     /// </summary>
     /// <param name="i">The zero-based column ordinal.</param>
     /// <param name="fieldoffset">The index within the row from which to start the read operation.</param>
     /// <param name="buffer">The buffer into which to read the stream of bytes.</param>
-    /// <param name="bufferoffset">The index for <paramref name="buffer" /> to start the read operation.</param>
+    /// <param name="bufferoffset">
+    ///   The index for <paramref name="buffer" /> to start the read operation.
+    /// </param>
     /// <param name="length">The number of bytes to read.</param>
-    /// <returns>
-    ///   The actual number of characters read.
-    /// </returns>
+    /// <returns>The actual number of characters read.</returns>
     /// <exception cref="NotImplementedException"></exception>
     public override long GetChars(int i, long fieldoffset, char[] buffer, int bufferoffset, int length) =>
       throw new NotImplementedException();
@@ -145,9 +140,7 @@ namespace CsvTools
     ///   Returns an <see cref="IDataReader" /> for the specified column ordinal.
     /// </summary>
     /// <param name="i">The index of the field to find.</param>
-    /// <returns>
-    ///   The <see cref="IDataReader" /> for the specified column ordinal.
-    /// </returns>
+    /// <returns>The <see cref="IDataReader" /> for the specified column ordinal.</returns>
     /// <exception cref="NotImplementedException"></exception>
     public IDataReader GetData(int i) => throw new NotImplementedException();
 
@@ -155,9 +148,7 @@ namespace CsvTools
     ///   Gets the data type information for the specified field.
     /// </summary>
     /// <param name="i">The index of the field to find.</param>
-    /// <returns>
-    ///   The data type information for the specified field.
-    /// </returns>
+    /// <returns>The data type information for the specified field.</returns>
     /// <exception cref="NotImplementedException"></exception>
     public string GetDataTypeName(int i) => GetFieldType(i).Name;
 
@@ -165,9 +156,7 @@ namespace CsvTools
     ///   Gets the date and time data value of the specified field.
     /// </summary>
     /// <param name="columnNumber">The index of the field to find.</param>
-    /// <returns>
-    ///   The date and time data value of the specified field.
-    /// </returns>
+    /// <returns>The date and time data value of the specified field.</returns>
     public override DateTime GetDateTime(int columnNumber)
     {
       Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount);
@@ -232,9 +221,7 @@ namespace CsvTools
     ///   Gets the single-precision floating point number of the specified field.
     /// </summary>
     /// <param name="columnNumber">The index of the field to find.</param>
-    /// <returns>
-    ///   The single-precision floating point number of the specified field.
-    /// </returns>
+    /// <returns>The single-precision floating point number of the specified field.</returns>
     public override float GetFloat(int columnNumber)
     {
       Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount);
@@ -269,9 +256,7 @@ namespace CsvTools
     ///   Gets the 16-bit signed integer value of the specified field.
     /// </summary>
     /// <param name="columnNumber">The index of the field to find.</param>
-    /// <returns>
-    ///   The 16-bit signed integer value of the specified field.
-    /// </returns>
+    /// <returns>The 16-bit signed integer value of the specified field.</returns>
     public override short GetInt16(int columnNumber)
     {
       Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount);

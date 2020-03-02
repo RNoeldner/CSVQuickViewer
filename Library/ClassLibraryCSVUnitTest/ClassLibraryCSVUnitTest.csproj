@@ -205,7 +205,6 @@
     <Compile Include="ColumnInfoTest.cs" />
     <Compile Include="MimicSQLReader.cs" />
     <Compile Include="TimeToCompletionTests.cs" />
-    <Compile Include="TimeZoneMappingTests.cs" />
     <Compile Include="UnitTestInitialize.cs" />
     <Compile Include="ValidationResultTests.cs" />
     <Compile Include="ValueFormatTest.cs" />
@@ -399,12 +398,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="TestFiles\BadIssues.csv">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="TestFiles\BasicCSV.gpg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="TestFiles\BasicCSV.pgp">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="TestFiles\BasicCSV.txt.gz">

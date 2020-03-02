@@ -350,7 +350,7 @@ namespace CsvTools.Tests
         HasFieldHeader = true
       };
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, processDisplay))
+      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         var samples = DetermineColumnFormat.GetSampleValues(test, 1000, 0, 20, "NULL", CancellationToken.None);
@@ -370,7 +370,7 @@ namespace CsvTools.Tests
         HasFieldHeader = true
       };
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, processDisplay))
+      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         try

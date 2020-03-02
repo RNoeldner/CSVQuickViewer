@@ -40,8 +40,8 @@ namespace CsvTools
     /// </summary>
     /// <param name="file">The file.</param>
     /// <param name="processDisplay">The process display.</param>
-    public CsvFileWriter(ICsvFile file, IProcessDisplay processDisplay)
-      : base(file, processDisplay)
+    public CsvFileWriter(ICsvFile file, string timeZone, IProcessDisplay processDisplay)
+      : base(file, timeZone, processDisplay)
     {
       Contract.Requires(file != null);
       m_CsvFile = file;
@@ -75,16 +75,16 @@ namespace CsvTools
       Contract.Requires(reader != null);
       Contract.Requires(writer != null);
 
-      var columnInfos = GetSourceColumnInformation(reader);
+      GetSourceColumnInformation(reader);
 
-      if (columnInfos.Count == 0)
+      if (m_Columns.Count == 0)
         throw new FileWriterException("No columns defined to be written.");
       var recordEnd = m_CsvFile.FileFormat.NewLine.Replace("CR", "\r").Replace("LF", "\n").Replace(" ", "")
         .Replace("\t", "");
 
       HandleWriteStart();
 
-      var numColumns = columnInfos.Count();
+      var numColumns = m_Columns.Count();
       var
         sb = new StringBuilder(1024); // Assume a capacity of 1024 characters to start , data is flushed every 512 chars
       var hasFieldDelimiter = !m_CsvFile.FileFormat.IsFixedLength;
@@ -97,7 +97,7 @@ namespace CsvTools
 
       if (m_CsvFile.HasFieldHeader)
       {
-        sb.Append(GetHeaderRow(columnInfos));
+        sb.Append(GetHeaderRow(m_Columns));
         sb.Append(recordEnd);
       }
 
@@ -112,7 +112,7 @@ namespace CsvTools
 
         var emptyColumns = 0;
 
-        foreach (var columnInfo in columnInfos)
+        foreach (var columnInfo in m_Columns)
         {
           var col = reader.GetValue(columnInfo.ColumnOrdinalReader);
           if (col == DBNull.Value)
@@ -184,7 +184,8 @@ namespace CsvTools
       if (!qualifyThis)
       {
         if (fileFormat.QualifyOnlyIfNeeded)
-          // Qualify the text if the delimiter or Linefeed is present, or if the text starts with the Qualifier
+          // Qualify the text if the delimiter or Linefeed is present, or if the text starts with
+          // the Qualifier
           qualifyThis = displayAs.Length > 0 && (displayAs.IndexOfAny(m_QualifyCharArray) > -1 ||
                                                  displayAs[0].Equals(fileFormat.FieldQualifierChar) ||
                                                  displayAs[0].Equals(' '));

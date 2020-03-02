@@ -11,7 +11,9 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Text;
 
 namespace CsvTools.Tests
@@ -66,7 +68,7 @@ namespace CsvTools.Tests
           sb.Length -= 2;
         sb.AppendLine("},");
         writeFile.Row = sb.ToString();
-        var writer = new StructuredFileWriter(writeFile, processDisplay);
+        var writer = new StructuredFileWriter(writeFile, TimeZoneInfo.Local.Id, processDisplay);
         _ = writer.Write();
       }
     }
@@ -101,7 +103,7 @@ namespace CsvTools.Tests
         writeFile.Row = sb.ToString();
         writeFile.Footer = "</rowset>";
 
-        var writer = new StructuredFileWriter(writeFile, processDisplay);
+        var writer = new StructuredFileWriter(writeFile, TimeZoneInfo.Local.Id, processDisplay);
         _ = writer.Write();
       }
     }

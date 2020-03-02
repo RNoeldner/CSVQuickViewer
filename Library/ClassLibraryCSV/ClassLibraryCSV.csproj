@@ -10,30 +10,20 @@
     <AssemblyVersion>1.6.4.394</AssemblyVersion>
     <FileVersion>1.6.4.394</FileVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <UserSecretsId>8407e8a4-78f2-485c-b32c-5694cf6ab0d0</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="ColumnSize.cs" />
-    <Compile Remove="GetValidationResultNoCache.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Remove="DateTimeFormats.txt" />
-    <None Remove="TZMapping.txt" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="DateTimeFormats.txt" />
-    <EmbeddedResource Include="TZMapping.txt" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="NLog" Version="4.6.8" />
-    <PackageReference Include="NodaTime" Version="2.4.7" />
     <PackageReference Include="Pri.LongPath" Version="2.0.53" />
     <PackageReference Include="Ude.NetStandard" Version="1.2.0" />
   </ItemGroup>
-
 </Project>

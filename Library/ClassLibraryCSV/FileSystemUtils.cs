@@ -331,6 +331,10 @@ namespace CsvTools
         var stream = executingAssembly.GetManifestResourceStream("CsvTools." + file);
         if (stream != null)
           return new StreamReader(stream, true);
+        var callingAssembly = Assembly.GetCallingAssembly();
+        stream = callingAssembly.GetManifestResourceStream("CsvTools." + file);
+        if (stream != null)
+          return new StreamReader(stream, true);
       }
       catch (Exception ex)
       {

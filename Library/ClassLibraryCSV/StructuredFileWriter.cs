@@ -46,19 +46,19 @@ namespace CsvTools
     private readonly StructuredFile m_StructuredWriterFile;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="StructuredFileWriter" /> class.
+    ///   Initializes a new instance of the <see cref="StructuredFileWriter" /> class.
     /// </summary>
     /// <param name="file">The file.</param>
     /// <param name="processDisplay">The process display.</param>
-    public StructuredFileWriter(StructuredFile file, IProcessDisplay processDisplay)
-      : base(file, processDisplay)
+    public StructuredFileWriter(StructuredFile file, string timeZone, IProcessDisplay processDisplay)
+      : base(file, timeZone, processDisplay)
     {
       Contract.Requires(file != null);
       m_StructuredWriterFile = file;
     }
 
     /// <summary>
-    /// Stores that data in the given stream.
+    ///   Stores that data in the given stream.
     /// </summary>
     /// <param name="reader">The data reader.</param>
     /// <param name="writer">The writer.</param>
@@ -70,14 +70,13 @@ namespace CsvTools
       Contract.Requires(reader != null);
       Contract.Requires(writer != null);
 
-      var columnInfos = GetSourceColumnInformation(reader);
-      var numColumns = columnInfos.Count();
+      GetSourceColumnInformation(reader);
+      var numColumns = m_Columns.Count();
       if (numColumns == 0)
         throw new FileWriterException("No columns defined to be written.");
       var recordEnd = m_StructuredWriterFile.FileFormat.NewLine.Replace("CR", "\r").Replace("LF", "\n").Replace(" ", "")
         .Replace("\t", "");
       HandleWriteStart();
-
 
       // Header
       if (!string.IsNullOrEmpty(m_StructuredWriterFile.Header))
@@ -95,7 +94,7 @@ namespace CsvTools
       var placeHolderLookup1 = new Dictionary<int, string>();
       var placeHolderLookup2 = new Dictionary<int, string>();
 
-      foreach (var columnInfo in columnInfos)
+      foreach (var columnInfo in m_Columns)
       {
         var placeHolder = string.Format(System.Globalization.CultureInfo.CurrentCulture, c_HeaderPlaceholder, colNum);
         if (m_StructuredWriterFile.XMLEncode)
@@ -121,7 +120,7 @@ namespace CsvTools
         sb.Append(recordEnd);
         var row = withHeader;
         colNum = 0;
-        foreach (var columnInfo in columnInfos)
+        foreach (var columnInfo in m_Columns)
         {
           var col = reader.GetValue(columnInfo.ColumnOrdinalReader);
           var value = (m_StructuredWriterFile.XMLEncode) ?
@@ -147,7 +146,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Writes the specified file reading from the given reader
+    ///   Writes the specified file reading from the given reader
     /// </summary>
     /// <param name="reader">A Data Reader with the data</param>
     /// <param name="output">The output.</param>

@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 
@@ -60,7 +61,7 @@ namespace CsvTools.Tests
     {
       try
       {
-        var res = ApplicationSetting.GetFileReader(m_StructuredFile, null);
+        var res = ApplicationSetting.GetFileReader(m_StructuredFile, TimeZoneInfo.Local.Id, null);
         Assert.Fail("Should throw error");
       }
       catch (NotImplementedException)
@@ -74,7 +75,7 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay())
       {
         m_StructuredFile.SqlStatement = "dummy";
-        var res = ApplicationSetting.GetFileWriter(m_StructuredFile, processDisplay);
+        var res = ApplicationSetting.GetFileWriter(m_StructuredFile, TimeZoneInfo.Local.Id, processDisplay);
         Assert.IsInstanceOfType(res, typeof(IFileWriter));
       }
     }

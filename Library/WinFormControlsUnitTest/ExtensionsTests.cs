@@ -261,7 +261,7 @@ namespace CsvTools.Tests
       using (var value = new FormProcessDisplay())
       {
         value.Show();
-        var state1 = new WindowState(new System.Drawing.Rectangle(10, 10, 400, 400), FormWindowState.Normal)
+        var state1 = new WindowState(new System.Drawing.Rectangle(10, 10, value.Width, value.Height), FormWindowState.Normal)
         {
           CustomInt = 27,
           CustomText = "Test"

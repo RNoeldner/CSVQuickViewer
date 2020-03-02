@@ -43,7 +43,7 @@ namespace CsvTools.Tests
       });
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, processDisplay))
+      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         test.Read();
@@ -78,7 +78,7 @@ namespace CsvTools.Tests
 
       // all will be converted to TimeZoneInfo.Local, but we concert then to UTC
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, processDisplay))
+      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         test.Read();
@@ -105,7 +105,7 @@ namespace CsvTools.Tests
 
       using (var processDisplay = new DummyProcessDisplay())
       {
-        using (var test = new CsvFileReader(setting, processDisplay))
+        using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
         {
           test.Open();
           processDisplay.Cancel();
@@ -127,7 +127,7 @@ namespace CsvTools.Tests
       setting.FileFormat.DuplicateQuotingToEscape = true;
       setting.FileName = UnitTestInitialize.GetTestPath("AlternateTextQualifiersDoubleQuote.txt");
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, processDisplay))
+      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         Assert.IsTrue(test.Read());
@@ -151,7 +151,7 @@ namespace CsvTools.Tests
       setting.TrimmingOption = TrimmingOption.All;
       setting.FileName = UnitTestInitialize.GetTestPath("AlternateTextQualifiers.txt");
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, processDisplay))
+      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         Assert.IsTrue(test.Read());
@@ -188,7 +188,7 @@ namespace CsvTools.Tests
       setting.FileName = UnitTestInitialize.GetTestPath("AlternateTextQualifiers.txt");
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, processDisplay))
+      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
         var warningList = new RowErrorCollection(test);
         test.Open();
@@ -227,7 +227,7 @@ namespace CsvTools.Tests
       setting.FileName = UnitTestInitialize.GetTestPath("BasicEscapedCharacters.txt");
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, processDisplay))
+      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         Assert.IsTrue(test.Read());
@@ -267,7 +267,7 @@ namespace CsvTools.Tests
       setting.FileName = UnitTestInitialize.GetTestPath("ComplexDataDelimiter.txt");
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, processDisplay))
+      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         var message = string.Empty;
@@ -295,7 +295,7 @@ namespace CsvTools.Tests
       setting.FileName = UnitTestInitialize.GetTestPath("ComplexDataDelimiter.txt");
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, processDisplay))
+      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         test.Read();
@@ -324,7 +324,7 @@ namespace CsvTools.Tests
       setting.FileName = UnitTestInitialize.GetTestPath("ComplexDataDelimiter.txt");
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, processDisplay))
+      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         Assert.AreEqual(6, test.FieldCount);
@@ -385,7 +385,7 @@ namespace CsvTools.Tests
       setting.FileName = UnitTestInitialize.GetTestPath("QuoteInText.txt");
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, processDisplay))
+      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         Assert.AreEqual(6, test.FieldCount);
@@ -419,7 +419,7 @@ namespace CsvTools.Tests
       setting.FileName = UnitTestInitialize.GetTestPath("ComplexDataDelimiter.txt");
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, processDisplay))
+      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         Assert.AreEqual(6, test.FieldCount);
@@ -469,7 +469,7 @@ namespace CsvTools.Tests
       setting.FileName = UnitTestInitialize.GetTestPath("CSVTestEmpty.txt");
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, processDisplay))
+      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         Assert.AreEqual(0, test.FieldCount);
@@ -488,7 +488,7 @@ namespace CsvTools.Tests
       setting.FileName = UnitTestInitialize.GetTestPath("DifferentColumnDelimiter.txt");
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, processDisplay))
+      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         Assert.AreEqual(6, test.FieldCount);
@@ -522,7 +522,7 @@ namespace CsvTools.Tests
       setting.FileName = UnitTestInitialize.GetTestPath("EscapedCharacterAtEndOfFile.txt");
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, processDisplay))
+      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         Assert.AreEqual(6, test.FieldCount);
@@ -555,7 +555,7 @@ namespace CsvTools.Tests
       setting.FileName = UnitTestInitialize.GetTestPath("EscapedCharacterAtEndOfRowDelimiter.txt");
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, processDisplay))
+      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         Assert.AreEqual(6, test.FieldCount);
@@ -582,7 +582,7 @@ namespace CsvTools.Tests
       setting.FileName = UnitTestInitialize.GetTestPath("EscapedCharacterAtEndOfRowDelimiter.txt");
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, processDisplay))
+      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         Assert.AreEqual(6, test.FieldCount);
@@ -610,7 +610,7 @@ namespace CsvTools.Tests
       setting.FileName = UnitTestInitialize.GetTestPath("EscapeWithoutTextQualifier.txt");
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, processDisplay))
+      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         Assert.AreEqual(6, test.FieldCount);
@@ -640,7 +640,7 @@ namespace CsvTools.Tests
       setting.FileName = UnitTestInitialize.GetTestPath("HandlingDuplicateColumnNames.txt");
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, processDisplay))
+      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
         var message = string.Empty;
         test.Warning += delegate (object sender, WarningEventArgs args)
@@ -661,7 +661,7 @@ namespace CsvTools.Tests
       setting.FileName = UnitTestInitialize.GetTestPath("LastRowWithRowDelimiter.txt");
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, processDisplay))
+      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         Assert.AreEqual(6, test.FieldCount);
@@ -687,7 +687,7 @@ namespace CsvTools.Tests
       setting.FileName = UnitTestInitialize.GetTestPath("LastRowWithRowDelimiter.txt");
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, processDisplay))
+      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         Assert.AreEqual(6, test.FieldCount);
@@ -711,7 +711,7 @@ namespace CsvTools.Tests
       setting.FileName = UnitTestInitialize.GetTestPath("LongHeaders.txt");
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, processDisplay))
+      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
         var warningsList = new RowErrorCollection(test);
         test.Open();
@@ -748,7 +748,7 @@ namespace CsvTools.Tests
       setting.FileName = UnitTestInitialize.GetTestPath("MoreColumnsThanHeaders.txt");
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, processDisplay))
+      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
         var warningList = new RowErrorCollection(test);
         test.Open();
@@ -791,7 +791,7 @@ namespace CsvTools.Tests
       setting.FileName = UnitTestInitialize.GetTestPath("TextQualifierDataPastClosingQuote.txt");
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, processDisplay))
+      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         Assert.AreEqual(6, test.FieldCount);
@@ -829,7 +829,7 @@ namespace CsvTools.Tests
       setting.FileFormat.NewLinePlaceholder = @"<\r>";
       setting.FileName = UnitTestInitialize.GetTestPath("Placeholder.txt");
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, processDisplay))
+      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         Assert.IsTrue(test.Read());
@@ -852,7 +852,7 @@ namespace CsvTools.Tests
       pd.ProgressStopEvent += delegate
       { stopped = true; };
       Assert.AreEqual(null, pd.Text);
-      using (var test = new CsvFileReader(setting, pd))
+      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, pd))
       {
         test.Open();
 
@@ -875,7 +875,7 @@ namespace CsvTools.Tests
       setting.FileName = UnitTestInitialize.GetTestPath("ReadingInHeaderAfterComments.txt");
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, processDisplay))
+      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
 
@@ -898,7 +898,7 @@ namespace CsvTools.Tests
       setting.FileName = UnitTestInitialize.GetTestPath("RowWithoutColumnDelimiter.txt");
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, processDisplay))
+      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         Assert.AreEqual(1, test.FieldCount);
@@ -925,7 +925,7 @@ namespace CsvTools.Tests
       setting.WarnUnknowCharater = true;
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, processDisplay))
+      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
         var warningList = new RowErrorCollection(test);
         test.Open();
@@ -980,7 +980,7 @@ namespace CsvTools.Tests
       setting.FileFormat.CommentLine = "#";
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, processDisplay))
+      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
         var warningList = new RowErrorCollection(test);
         test.Open();
@@ -1026,7 +1026,7 @@ namespace CsvTools.Tests
       setting.FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt");
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, processDisplay))
+      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         Assert.AreEqual(0, test.FieldCount);
@@ -1044,7 +1044,7 @@ namespace CsvTools.Tests
       setting.FileName = UnitTestInitialize.GetTestPath("SkippingComments.txt");
       setting.FileFormat.CommentLine = "#";
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, processDisplay))
+      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         Assert.AreEqual(6, test.FieldCount);
@@ -1097,7 +1097,7 @@ namespace CsvTools.Tests
       setting.FileName = UnitTestInitialize.GetTestPath("SkippingEmptyRowsWithDelimiter.txt");
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, processDisplay))
+      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         Assert.AreEqual(6, test.FieldCount);
@@ -1148,7 +1148,7 @@ namespace CsvTools.Tests
       });
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, processDisplay))
+      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         Assert.AreEqual(6, test.FieldCount);
@@ -1177,7 +1177,7 @@ namespace CsvTools.Tests
       setting.FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt");
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, processDisplay))
+      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         Assert.AreEqual(6, test.FieldCount);
@@ -1214,7 +1214,7 @@ namespace CsvTools.Tests
       setting.FileFormat.FieldDelimiter = ",";
       setting.FileName = UnitTestInitialize.GetTestPath("BasicCSVEmptyLine.txt");
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, processDisplay))
+      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         Assert.AreEqual(6, test.FieldCount);
@@ -1241,7 +1241,7 @@ namespace CsvTools.Tests
       setting.FileFormat.FieldDelimiter = ",";
       setting.FileName = UnitTestInitialize.GetTestPath("BasicCSVEmptyLine.txt");
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, processDisplay))
+      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         Assert.AreEqual(6, test.FieldCount);
@@ -1271,7 +1271,7 @@ namespace CsvTools.Tests
       setting.FileName = UnitTestInitialize.GetTestPath("TextQualifierBeginningAndEnd.txt");
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, processDisplay))
+      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         Assert.AreEqual(5, test.FieldCount);
@@ -1309,7 +1309,7 @@ namespace CsvTools.Tests
       setting.FileName = UnitTestInitialize.GetTestPath("TextQualifierDataPastClosingQuote.txt");
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, processDisplay))
+      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         Assert.AreEqual(6, test.FieldCount);
@@ -1345,7 +1345,7 @@ namespace CsvTools.Tests
       setting.FileName = UnitTestInitialize.GetTestPath("TextQualifierNotClosedAtEnd.txt");
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, processDisplay))
+      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         Assert.AreEqual(6, test.FieldCount);
@@ -1398,7 +1398,7 @@ namespace CsvTools.Tests
       setting.FileName = UnitTestInitialize.GetTestPath("TextQualifiers.txt");
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, processDisplay))
+      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         Assert.AreEqual(6, test.FieldCount);
@@ -1433,7 +1433,7 @@ namespace CsvTools.Tests
       setting.FileName = UnitTestInitialize.GetTestPath("TextQualifiersWithDelimiters.txt");
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, processDisplay))
+      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
         var warningList = new RowErrorCollection(test);
         test.Open();
@@ -1489,7 +1489,7 @@ namespace CsvTools.Tests
       setting.FileName = UnitTestInitialize.GetTestPath("TrimmingHeaders.txt");
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, processDisplay))
+      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
         var warningList = new RowErrorCollection(test);
         test.Open();
@@ -1518,7 +1518,7 @@ namespace CsvTools.Tests
       setting.FileName = UnitTestInitialize.GetTestPath("UnicodeUTF16BE.txt");
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, processDisplay))
+      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         Assert.AreEqual(Encoding.BigEndianUnicode, setting.CurrentEncoding);
@@ -1570,7 +1570,7 @@ namespace CsvTools.Tests
       setting.FileName = UnitTestInitialize.GetTestPath("UnicodeUTF16LE.txt");
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, processDisplay))
+      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         Assert.AreEqual(4, test.FieldCount);
@@ -1620,7 +1620,7 @@ namespace CsvTools.Tests
       setting.FileName = UnitTestInitialize.GetTestPath("UnicodeUTF8.txt");
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, processDisplay))
+      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         Assert.AreEqual(Encoding.UTF8, setting.CurrentEncoding);

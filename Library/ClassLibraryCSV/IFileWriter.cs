@@ -19,48 +19,52 @@ using System.Data;
 namespace CsvTools
 {
   /// <summary>
-  ///  Interface for a File Writer.
+  ///   Interface for a File Writer.
   /// </summary>
   public interface IFileWriter
   {
     /// <summary>
-    ///  Event handler called if a warning or error occurred
+    ///   Event handler called if a warning or error occurred
     /// </summary>
     event EventHandler<WarningEventArgs> Warning;
 
     /// <summary>
-    ///  Gets the error message.
+    ///   Gets the error message.
     /// </summary>
     string ErrorMessage { get; }
 
-    /// <summary>Gets the column information from the reader and overwrite setting with definition from the setting.</summary>
+    /// <summary>
+    ///   Gets the column information from the reader and overwrite setting with definition from the setting.
+    /// </summary>
     /// <param name="reader">Any data reader</param>
-    ICollection<ColumnInfo> GetSourceColumnInformation(IDataReader reader);
+    IReadOnlyCollection<ColumnInfo> GetSourceColumnInformation(IDataReader reader);
 
-    /// <summary>Gets the a data reader for the allowing to look at the schema.</summary>
+    /// <summary>
+    ///   Gets the a data reader for the allowing to look at the schema.
+    /// </summary>
     IDataReader GetSchemaReader();
 
     /// <summary>
-    ///  Gets the source data table.
+    ///   Gets the source data table.
     /// </summary>
     /// <param name="recordLimit">The record limit.</param>
     /// <returns>A data table with all source data</returns>
     DataTable GetSourceDataTable(long recordLimit);
 
     /// <summary>
-    ///  Writes the specified file.
+    ///   Writes the specified file.
     /// </summary>
     /// <returns>Number of records written</returns>
     long Write();
 
     /// <summary>
-    ///  Writes the specified file getting data from the fileReader
+    ///   Writes the specified file getting data from the fileReader
     /// </summary>
     /// <returns>Number of records written</returns>
     long Write(IDataReader reader);
 
     /// <summary>
-    ///  Writes the specified file reading from the a data table
+    ///   Writes the specified file reading from the a data table
     /// </summary>
     /// <param name="source">The data that should be written in a <see cref="DataTable" /></param>
     /// <returns>Number of records written</returns>
