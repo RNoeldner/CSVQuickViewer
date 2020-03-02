@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
@@ -163,7 +164,7 @@ namespace CsvTools.Tests
     public void CombineStringsToDateTimeExcel()
     {
       var res = StringConversion.CombineObjectsToDateTime(new DateTime(2010, 01, 1), null,
-        new DateTime(2001, 02, 1, 07, 13, 55, 0), null, false, new Column(), out var _);
+        new DateTime(2001, 02, 1, 07, 13, 55, 0), null, false, new Column().ValueFormat, out var _);
       Assert.AreEqual(new DateTime(2010, 01, 1, 07, 13, 55, 0), res);
     }
 
@@ -348,7 +349,7 @@ namespace CsvTools.Tests
       actual = StringConversion.StringToTimeSpan("0.0937500000000000", ":", true);
       Assert.AreEqual(new TimeSpan(2, 15, 0), actual);
 
-      // 29/06/1968  15:23:00
+      // 29/06/1968 15:23:00
       actual = StringConversion.StringToTimeSpan("0.6409722222", ":", true);
       Assert.AreEqual(new TimeSpan(15, 23, 0), actual);
     }
@@ -417,7 +418,7 @@ namespace CsvTools.Tests
     public void CombineStringsToDateTimeExcelTest()
     {
       Assert.IsFalse(StringConversion.CombineObjectsToDateTime(null, null, null, null, true,
-        new Column { DateFormat = "yyyyMMdd", DateSeparator = "", TimeSeparator = ":" }, out var _).HasValue);
+        new ValueFormat { DateFormat = "yyyyMMdd", DateSeparator = "", TimeSeparator = ":" }, out var _).HasValue);
 
       Assert.AreEqual(new DateTime(2010, 10, 10),
         StringConversion.CombineObjectsToDateTime(new DateTime(2010, 10, 10),
@@ -431,7 +432,7 @@ namespace CsvTools.Tests
       Assert.AreEqual(new DateTime(2010, 10, 13),
         StringConversion.CombineObjectsToDateTime(null,
           "2010/10/13",
-          null, null, false, new Column { DateFormat = "yyyy/MM/dd", DateSeparator = "/", TimeSeparator = ":" }, out var _).Value);
+          null, null, false, new ValueFormat { DateFormat = "yyyy/MM/dd", DateSeparator = "/", TimeSeparator = ":" }, out var _).Value);
 
       Assert.AreEqual(new DateTime(2010, 10, 10, 8, 12, 54),
         StringConversion.CombineObjectsToDateTime(new DateTime(2010, 10, 10),
@@ -441,25 +442,25 @@ namespace CsvTools.Tests
       Assert.AreEqual(new DateTime(2010, 10, 10, 8, 12, 54),
         StringConversion.CombineObjectsToDateTime(null, "20101010",
           new DateTime(new TimeSpan(8, 12, 54).Ticks), null, true,
-          new Column { DateFormat = "yyyyMMdd", DateSeparator = "", TimeSeparator = ":" }, out var _).Value);
+          new ValueFormat { DateFormat = "yyyyMMdd", DateSeparator = "", TimeSeparator = ":" }, out var _).Value);
 
       Assert.AreEqual(new DateTime(2010, 10, 13, 8, 12, 54),
         StringConversion.CombineObjectsToDateTime(null, "2010/10/13",
           new DateTime(new TimeSpan(8, 12, 54).Ticks).ToOADate(), null, true,
-          new Column { DateFormat = "yyyy/MM/dd", DateSeparator = "/", TimeSeparator = ":" }, out var _).Value);
+          new ValueFormat { DateFormat = "yyyy/MM/dd", DateSeparator = "/", TimeSeparator = ":" }, out var _).Value);
 
       Assert.AreEqual(new DateTime(2010, 10, 13, 8, 12, 54),
         StringConversion.CombineObjectsToDateTime(new DateTime(2010, 10, 13).ToOADate(),
           null,
           new DateTime(new TimeSpan(8, 12, 54).Ticks).ToOADate(), null, true,
-          new Column { DateFormat = "yyyy/MM/dd", DateSeparator = "/", TimeSeparator = ":" }, out var _).Value);
+          new ValueFormat { DateFormat = "yyyy/MM/dd", DateSeparator = "/", TimeSeparator = ":" }, out var _).Value);
 
       // Pass in a time that is >23:59 to adjust date part
       Assert.AreEqual(new DateTime(2010, 10, 15, 5, 10, 00),
         StringConversion.CombineObjectsToDateTime(null,
           "2010/10/14",
           null, "29:10:00", false,
-          new Column { DateFormat = "yyyy/MM/dd", DateSeparator = "/", TimeSeparator = ":", TimePartFormat = "HH:mm:ss" }, out var issues).Value);
+          new ValueFormat { DateFormat = "yyyy/MM/dd", DateSeparator = "/", TimeSeparator = ":" }, out var issues).Value);
       // should issue a warning
       Assert.IsTrue(issues);
     }

@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 
@@ -34,56 +35,14 @@ namespace CsvTools.Tests
       var col = new Column();
       Assert.AreEqual(string.Empty, col.GetFormatDescription());
 
-      col.DataType = DataType.TextPart;
+      col.ValueFormat.DataType = DataType.TextPart;
       Assert.AreNotEqual(string.Empty, col.GetFormatDescription());
 
-      col.DataType = DataType.DateTime;
+      col.ValueFormat.DataType = DataType.DateTime;
       Assert.AreNotEqual(string.Empty, col.GetFormatDescription());
 
-      col.DataType = DataType.Numeric;
+      col.ValueFormat.DataType = DataType.Numeric;
       Assert.AreNotEqual(string.Empty, col.GetFormatDescription());
-    }
-
-    [TestMethod]
-    public void IsMatching()
-    {
-      var expected = new Column();
-      var current = new Column();
-
-      foreach (DataType item in Enum.GetValues(typeof(DataType)))
-      {
-        expected.DataType = item;
-        current.DataType = item;
-        Assert.IsTrue(current.IsMatching(expected.ValueFormat), item.ToString());
-      }
-
-      expected.DataType = DataType.Integer;
-      current.DataType = DataType.Numeric;
-      Assert.IsTrue(current.IsMatching(expected.ValueFormat));
-
-      expected.DataType = DataType.Integer;
-      current.DataType = DataType.Double;
-      Assert.IsTrue(current.IsMatching(expected.ValueFormat));
-
-      expected.DataType = DataType.Numeric;
-      current.DataType = DataType.Double;
-      Assert.IsTrue(current.IsMatching(expected.ValueFormat));
-
-      expected.DataType = DataType.Double;
-      current.DataType = DataType.Numeric;
-      Assert.IsTrue(current.IsMatching(expected.ValueFormat));
-
-      expected.DataType = DataType.Numeric;
-      current.DataType = DataType.Integer;
-      Assert.IsTrue(current.IsMatching(expected.ValueFormat));
-
-      expected.DataType = DataType.DateTime;
-      current.DataType = DataType.DateTime;
-      Assert.IsTrue(current.IsMatching(expected.ValueFormat));
-
-      expected.DataType = DataType.DateTime;
-      current.DataType = DataType.String;
-      Assert.IsFalse(current.IsMatching(expected.ValueFormat));
     }
   }
 }

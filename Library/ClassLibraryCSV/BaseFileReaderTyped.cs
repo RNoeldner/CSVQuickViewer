@@ -331,7 +331,7 @@ namespace CsvTools
       Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount);
       if (CurrentValues == null || CurrentValues.Length <= columnNumber)
         return true;
-      if (Column[columnNumber].DataType == DataType.DateTime)
+      if (Column[columnNumber].ValueFormat.DataType == DataType.DateTime)
       {
         if (AssociatedTimeCol[columnNumber] == -1)
           return CurrentValues[columnNumber] == null || CurrentValues[columnNumber] == DBNull.Value;

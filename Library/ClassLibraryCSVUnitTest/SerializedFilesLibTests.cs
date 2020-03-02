@@ -90,8 +90,8 @@ namespace CsvTools.Tests
 
       file.MappingCollection.Add(new Mapping { FileColumn = "Fld1", TemplateField = "FldA" });
       file.MappingCollection.Add(new Mapping { FileColumn = "Fld2", TemplateField = "FldB" });
-      file.ColumnCollection.AddIfNew(new Column { ColumnOrdinal = 1, DataType = DataType.Integer, Ignore = false, Name = "ID" });
-      file.ColumnCollection.AddIfNew(new Column { ColumnOrdinal = 2, Name = "Name", Part = 2 });
+      file.ColumnCollection.AddIfNew(new Column("ID", DataType.Integer) { ColumnOrdinal = 1, Ignore = false });
+      file.ColumnCollection.AddIfNew(new Column("Name", DataType.String) { ColumnOrdinal = 2, Part = 2 });
       return file;
     }
   }

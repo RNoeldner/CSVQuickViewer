@@ -231,7 +231,7 @@ namespace CsvTools
     private void DetailControl_ButtonAsText(object sender, EventArgs e)
     {
       // Assume data type is not recognize
-      if (m_FileSetting.ColumnCollection.Any(x => x.DataType != DataType.String))
+      if (m_FileSetting.ColumnCollection.Any(x => x.ValueFormat.DataType != DataType.String))
       {
         Logger.Debug("Showing columns as text");
         m_FileSetting.ColumnCollection.CollectionCopy(m_StoreColumns);
@@ -547,7 +547,7 @@ namespace CsvTools
             this.ShowError(ex, "Inspecting file");
           }
 
-          if (m_FileSetting.ColumnCollection.Any(x => x.DataType != DataType.String))
+          if (m_FileSetting.ColumnCollection.Any(x => x.ValueFormat.DataType != DataType.String))
           {
             detailControl.ButtonShowSource += DetailControl_ButtonShowSource;
             detailControl.ButtonAsText += DetailControl_ButtonAsText;

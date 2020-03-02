@@ -268,7 +268,7 @@ namespace CsvTools
         return parsed.Value;
       // Warning was added by GetBooleanNull
       throw WarnAddFormatException(i,
-        $"'{CurrentRowColumnText[i]}' is not a boolean ({GetColumn(i).True}/{GetColumn(i).False})");
+        $"'{CurrentRowColumnText[i]}' is not a boolean ({GetColumn(i).ValueFormat.True}/{GetColumn(i).ValueFormat.False})");
     }
 
     /// <summary>
@@ -369,7 +369,7 @@ namespace CsvTools
 
       // Warning was added by GetDecimalNull
       throw WarnAddFormatException(columnNumber,
-        $"'{CurrentRowColumnText[columnNumber]}' is not a date of the format {GetColumn(columnNumber).DateFormat}");
+        $"'{CurrentRowColumnText[columnNumber]}' is not a date of the format {GetColumn(columnNumber).ValueFormat.DateFormat}");
     }
 
     /// <summary>
@@ -414,7 +414,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="columnNumber">The column number.</param>
     /// <returns>The .NET type of the column</returns>
-    public virtual Type GetFieldType(int columnNumber) => GetColumn(columnNumber).DataType.GetNetType();
+    public virtual Type GetFieldType(int columnNumber) => GetColumn(columnNumber).ValueFormat.DataType.GetNetType();
 
     /// <summary>
     ///   Gets the single-precision floating point number of the specified field.
@@ -496,8 +496,7 @@ namespace CsvTools
       Debug.Assert(CurrentRowColumnText != null && columnNumber < CurrentRowColumnText.Length);
       var column = GetColumn(columnNumber);
 
-      var parsed = StringConversion.StringToInt32(CurrentRowColumnText[columnNumber], column.DecimalSeparatorChar,
-        column.GroupSeparatorChar);
+      var parsed = StringConversion.StringToInt32(CurrentRowColumnText[columnNumber], column.ValueFormat.DecimalSeparatorChar, column.ValueFormat.GroupSeparatorChar);
       if (parsed.HasValue)
         return parsed.Value;
 
@@ -515,7 +514,7 @@ namespace CsvTools
     public int? GetInt32Null(string inputValue, Column column)
     {
       Debug.Assert(column != null);
-      var ret = StringConversion.StringToInt32(inputValue, column.DecimalSeparatorChar, column.GroupSeparatorChar);
+      var ret = StringConversion.StringToInt32(inputValue, column.ValueFormat.DecimalSeparatorChar, column.ValueFormat.GroupSeparatorChar);
       if (ret.HasValue)
         return ret.Value;
 
@@ -532,8 +531,8 @@ namespace CsvTools
     {
       var column = GetColumn(columnNumber);
 
-      var parsed = StringConversion.StringToInt64(CurrentRowColumnText[columnNumber], column.DecimalSeparatorChar,
-        column.GroupSeparatorChar);
+      var parsed = StringConversion.StringToInt64(CurrentRowColumnText[columnNumber], column.ValueFormat.DecimalSeparatorChar,
+        column.ValueFormat.GroupSeparatorChar);
       if (parsed.HasValue)
         return parsed.Value;
 
@@ -550,7 +549,7 @@ namespace CsvTools
     public long? GetInt64Null(string inputValue, Column column)
     {
       Debug.Assert(column != null);
-      var ret = StringConversion.StringToInt64(inputValue, column.DecimalSeparatorChar, column.GroupSeparatorChar);
+      var ret = StringConversion.StringToInt64(inputValue, column.ValueFormat.DecimalSeparatorChar, column.ValueFormat.GroupSeparatorChar);
       if (ret.HasValue)
         return ret.Value;
 
@@ -611,8 +610,8 @@ namespace CsvTools
         schemaRow[6] = column.Size;
 
         // If there is a conversion get the information
-        if (column.Convert && column.DataType != DataType.String)
-          schemaRow[7] = column.DataType.GetNetType();
+        if (column.Convert && column.ValueFormat.DataType != DataType.String)
+          schemaRow[7] = column.ValueFormat.DataType.GetNetType();
         else
           schemaRow[7] = typeof(string);
 
@@ -653,7 +652,7 @@ namespace CsvTools
       object ret;
       try
       {
-        switch (column.DataType)
+        switch (column.ValueFormat.DataType)
         {
           case DataType.DateTime:
             ret = GetDateTime(columnNumber);
@@ -752,7 +751,7 @@ namespace CsvTools
       Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount);
       if (CurrentRowColumnText == null || CurrentRowColumnText.Length <= columnNumber)
         return true;
-      if (Column[columnNumber].DataType == DataType.DateTime)
+      if (Column[columnNumber].ValueFormat.DataType == DataType.DateTime)
       {
         if (AssociatedTimeCol[columnNumber] == -1 || AssociatedTimeCol[columnNumber] >= CurrentRowColumnText.Length)
           return string.IsNullOrEmpty(CurrentRowColumnText[columnNumber]);
@@ -764,7 +763,7 @@ namespace CsvTools
       if (string.IsNullOrEmpty(CurrentRowColumnText[columnNumber]))
         return true;
 
-      if (FileSetting.TrimmingOption == TrimmingOption.All && Column[columnNumber].DataType >= DataType.String)
+      if (FileSetting.TrimmingOption == TrimmingOption.All && Column[columnNumber].ValueFormat.DataType >= DataType.String)
         return CurrentRowColumnText[columnNumber].Trim().Length == 0;
 
       return false;
@@ -793,7 +792,7 @@ namespace CsvTools
           Column[colindex].ColumnOrdinal = colindex;
         }
 
-        if (Column[colindex].DataType != DataType.DateTime || setting == null || !setting.Convert ||
+        if (Column[colindex].ValueFormat.DataType != DataType.DateTime || setting == null || !setting.Convert ||
             setting.Ignore)
           continue;
 
@@ -914,11 +913,22 @@ namespace CsvTools
         ProcessDisplay.Maximum = cMaxValue;
     }
 
+    /// <summary>
+    ///   This routine will read a date from a typed or untyped reader, will combined date with time
+    ///   and apply timeZone adjustments
+    /// </summary>
+    /// <param name="inputDate"></param>
+    /// <param name="strInputDate"></param>
+    /// <param name="inputTime"></param>
+    /// <param name="strInputTime"></param>
+    /// <param name="column"></param>
+    /// <param name="serialDateTime"></param>
+    /// <returns></returns>
     protected DateTime? GetDateTimeNull(object inputDate, string strInputDate, object inputTime,
       string strInputTime, Column column, bool serialDateTime)
     {
       var dateTime = StringConversion.CombineObjectsToDateTime(inputDate, strInputDate, inputTime, strInputTime,
-        serialDateTime, column, out var timeSpanLongerThanDay);
+        serialDateTime, column.ValueFormat, out var timeSpanLongerThanDay);
       if (timeSpanLongerThanDay)
       {
         var passedIn = strInputTime;
@@ -928,15 +938,15 @@ namespace CsvTools
           $"'{passedIn}' is outside expected range 00:00 - 23:59, the date has been adjusted");
       }
 
-      if (!dateTime.HasValue && !string.IsNullOrEmpty(strInputDate) && !string.IsNullOrEmpty(column.DateFormat) &&
-          strInputDate.Length > column.DateFormat.Length)
+      if (!dateTime.HasValue && !string.IsNullOrEmpty(strInputDate) && !string.IsNullOrEmpty(column.ValueFormat.DateFormat) &&
+          strInputDate.Length > column.ValueFormat.DateFormat.Length)
       {
-        var inputDateNew = strInputDate.Substring(0, column.DateFormat.Length);
-        dateTime = StringConversion.CombineStringsToDateTime(inputDateNew, column.DateFormat, strInputTime,
-          column.DateSeparator, column.TimeSeparator, serialDateTime);
+        var inputDateNew = strInputDate.Substring(0, column.ValueFormat.DateFormat.Length);
+        dateTime = StringConversion.CombineStringsToDateTime(inputDateNew, column.ValueFormat.DateFormat, strInputTime,
+          column.ValueFormat.DateSeparator, column.ValueFormat.TimeSeparator, serialDateTime);
         if (dateTime.HasValue)
         {
-          var display = column.DateFormat.ReplaceDefaults("/", column.DateSeparator, ":", column.TimeSeparator);
+          var display = column.ValueFormat.DateFormat.ReplaceDefaults("/", column.ValueFormat.DateSeparator, ":", column.ValueFormat.TimeSeparator);
           HandleWarning(column.ColumnOrdinal,
             !string.IsNullOrEmpty(strInputTime)
               ? $"'{strInputDate} {strInputTime}' is not a date of the format {display} {column.TimePartFormat}, used '{inputDateNew} {strInputTime}'"
@@ -964,7 +974,7 @@ namespace CsvTools
     {
       Debug.Assert(column != null);
       var decimalValue =
-        StringConversion.StringToDecimal(inputValue, column.DecimalSeparatorChar, column.GroupSeparatorChar, true);
+        StringConversion.StringToDecimal(inputValue, column.ValueFormat.DecimalSeparatorChar, column.ValueFormat.GroupSeparatorChar, true);
       if (decimalValue.HasValue)
         return decimalValue.Value;
 
@@ -1021,7 +1031,7 @@ namespace CsvTools
       Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount);
       var column = GetColumn(columnNumber);
 
-      var parsed = StringConversion.StringToInt16(value, column.DecimalSeparatorChar, column.GroupSeparatorChar);
+      var parsed = StringConversion.StringToInt16(value, column.ValueFormat.DecimalSeparatorChar, column.ValueFormat.GroupSeparatorChar);
       if (parsed.HasValue)
         return parsed.Value;
 
@@ -1071,7 +1081,7 @@ namespace CsvTools
       object ret;
 
       // Get Column Format for Column
-      switch (column.DataType)
+      switch (column.ValueFormat.DataType)
       {
         case DataType.DateTime:
           ret = GetDateTimeNull(null, value, null, timeValue, column, true);
@@ -1090,7 +1100,7 @@ namespace CsvTools
           break;
 
         case DataType.Boolean:
-          ret = StringConversion.StringToBoolean(value, column.True, column.False);
+          ret = StringConversion.StringToBoolean(value, column.ValueFormat.True, column.ValueFormat.False);
           break;
 
         case DataType.Guid:
@@ -1127,7 +1137,7 @@ namespace CsvTools
       var column = GetColumn(columnNumber);
       if (column.Ignore)
         return;
-      var display = column.DateFormat.ReplaceDefaults("/", column.DateSeparator, ":", column.TimeSeparator);
+      var display = column.ValueFormat.DateFormat.ReplaceDefaults("/", column.ValueFormat.DateSeparator, ":", column.ValueFormat.TimeSeparator);
 
       HandleError(columnNumber,
         !string.IsNullOrEmpty(inputTime)
@@ -1170,7 +1180,7 @@ namespace CsvTools
       var column = GetColumn(columnNumber);
       var output = inputString;
 
-      switch (column.DataType)
+      switch (column.ValueFormat.DataType)
       {
         case DataType.TextToHtml:
         {
@@ -1413,7 +1423,7 @@ namespace CsvTools
       Debug.Assert(columnNumber < FieldCount);
       var column = GetColumn(columnNumber);
 
-      var strictBool = StringConversion.StringToBooleanStrict(inputBoolean, column.True, column.False);
+      var strictBool = StringConversion.StringToBooleanStrict(inputBoolean, column.ValueFormat.True, column.ValueFormat.False);
       if (strictBool != null)
         return strictBool.Item1;
 

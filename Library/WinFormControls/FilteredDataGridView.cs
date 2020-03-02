@@ -635,7 +635,7 @@ namespace CsvTools
           toolStripMenuItemCF.Visible = columnFormat != null;
           toolStripSeparatorCF.Visible = columnFormat != null;
           if (columnFormat != null)
-            toolStripMenuItemCF.Text = $@"Change column format: {columnFormat.DataType.DataTypeDisplay()}";
+            toolStripMenuItemCF.Text = $@"Change column format: {columnFormat.ValueFormat.DataType.DataTypeDisplay()}";
 
           toolStripMenuItemRemoveOne.Enabled &= e.ColumnIndex != -1;
           contextMenuStripHeader.Show(Cursor.Position);

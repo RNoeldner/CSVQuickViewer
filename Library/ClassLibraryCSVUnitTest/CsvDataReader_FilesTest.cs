@@ -33,11 +33,8 @@ namespace CsvTools.Tests
         ByteOrderMark = true
       };
       setting.FileFormat.FieldDelimiter = "\t";
-      setting.ColumnCollection.AddIfNew(new Column()
+      setting.ColumnCollection.AddIfNew(new Column("Start Date", DataType.DateTime, "MM/dd/yyyy")
       {
-        Name = "Start Date",
-        DataType = DataType.DateTime,
-        DateFormat = "MM/dd/yyyy",
         TimePart = "Start Time",
         TimePartFormat = "HH:mm:ss"
       });
@@ -66,11 +63,8 @@ namespace CsvTools.Tests
         ByteOrderMark = true
       };
       setting.FileFormat.FieldDelimiter = "\t";
-      setting.ColumnCollection.AddIfNew(new Column()
+      setting.ColumnCollection.AddIfNew(new Column("Start Date", DataType.DateTime, "MM/dd/yyyy")
       {
-        Name = "Start Date",
-        DataType = DataType.DateTime,
-        DateFormat = "MM/dd/yyyy",
         TimePart = "Start Time",
         TimePartFormat = "HH:mm:ss",
         TimeZonePart = "Time Zone"
@@ -1130,22 +1124,9 @@ namespace CsvTools.Tests
       };
       setting.FileFormat.FieldDelimiter = ",";
       setting.FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt");
-      setting.ColumnCollection.AddIfNew(new Column
-      {
-        Name = "ExamDate",
-        DataType = DataType.DateTime,
-        DateFormat = @"dd/MM/yyyy"
-      });
-      setting.ColumnCollection.AddIfNew(new Column
-      {
-        Name = "ID",
-        DataType = DataType.Integer
-      });
-      setting.ColumnCollection.AddIfNew(new Column
-      {
-        Name = "IsNativeLang",
-        DataType = DataType.Boolean
-      });
+      setting.ColumnCollection.AddIfNew(new Column("ExamDate", DataType.DateTime, @"dd/MM/yyyy"));
+      setting.ColumnCollection.AddIfNew(new Column("ID", DataType.Integer));
+      setting.ColumnCollection.AddIfNew(new Column("IsNativeLang", DataType.Boolean));
 
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))

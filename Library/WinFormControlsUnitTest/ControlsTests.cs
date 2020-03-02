@@ -183,7 +183,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void FormColumnUI()
     {
-      var col = new Column { Name = "ExamDate", DataType = DataType.DateTime };
+      var col = new Column("ExamDate", DataType.DateTime);
       m_CSVFile.ColumnCollection.AddIfNew(col);
       using (var frm = new FormColumnUI(col, false, m_CSVFile, new FillGuessSettings(), false))
       {
@@ -196,7 +196,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void FormColumnUI_Opt1()
     {
-      var col = new Column { Name = "ExamDate", DataType = DataType.DateTime };
+      var col = new Column("ExamDate", DataType.DateTime);
       m_CSVFile.ColumnCollection.AddIfNew(col);
       using (var form = new FormColumnUI(col, false, m_CSVFile, new FillGuessSettings(), true))
       {
@@ -210,7 +210,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void FormColumnUI_Opt2()
     {
-      var col = new Column { Name = "ExamDate", DataType = DataType.DateTime };
+      var col = new Column("ExamDate", DataType.DateTime);
       m_CSVFile.ColumnCollection.AddIfNew(col);
       using (var form = new FormColumnUI(col, false, m_CSVFile, new FillGuessSettings(), false))
       {
@@ -223,7 +223,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void FormColumnUI_ButtonGuessClick()
     {
-      var col = new Column { Name = "ExamDate", DataType = DataType.DateTime };
+      var col = new Column("ExamDate", DataType.DateTime);
       m_CSVFile.ColumnCollection.AddIfNew(col);
 
       using (var form = new FormColumnUI(col, false, m_CSVFile, new FillGuessSettings(), true))

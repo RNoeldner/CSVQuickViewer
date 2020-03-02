@@ -71,7 +71,7 @@ namespace CsvTools
 
         // Read the types of the first row
         for (var counter = 0; counter < FieldCount; counter++)
-          GetColumn(counter).DataType = colType[counter];
+          GetColumn(counter).ValueFormat.DataType = colType[counter];
 
         base.FinishOpen();
 

@@ -263,7 +263,7 @@ namespace CsvTools
             var detect = !(fillGuessSettings.IgnoreIdColums &&
                            StringUtils.AssumeIDColumn(oldColumn.Name) > 0);
 
-            if (oldColumn == null || oldColumn.DataType != DataType.Double) continue;
+            if (oldColumn == null || oldColumn.ValueFormat.DataType != DataType.Double) continue;
             Column newColumn = null;
 
             if (detect)
@@ -284,7 +284,7 @@ namespace CsvTools
                   newColumn = fileSetting.ColumnCollection.Get(oldColumn.Name) ??
                               fileSetting.ColumnCollection.AddIfNew(oldColumn);
 
-                  newColumn.DataType = checkResult.FoundValueFormat.DataType;
+                  newColumn.ValueFormat.DataType = checkResult.FoundValueFormat.DataType;
                 }
               }
             }
@@ -292,7 +292,7 @@ namespace CsvTools
             {
               newColumn = fileSetting.ColumnCollection.Get(oldColumn.Name) ??
                           fileSetting.ColumnCollection.AddIfNew(oldColumn);
-              newColumn.DataType = DataType.String;
+              newColumn.ValueFormat.DataType = DataType.String;
             }
 
             if (newColumn != null)
@@ -313,12 +313,12 @@ namespace CsvTools
             var columnDate = fileReader.GetColumn(colindex);
 
             // Possibly add Time Zone
-            if (columnDate.DataType == DataType.DateTime && string.IsNullOrEmpty(columnDate.TimeZonePart))
+            if (columnDate.ValueFormat.DataType == DataType.DateTime && string.IsNullOrEmpty(columnDate.TimeZonePart))
               for (var colTimeZone = 0; colTimeZone < fileReader.FieldCount; colTimeZone++)
               {
                 var columnTimeZone = fileReader.GetColumn(colTimeZone);
                 var colName = columnTimeZone.Name.NoSpecials().ToUpperInvariant();
-                if (columnTimeZone.DataType != DataType.String && columnTimeZone.DataType != DataType.Integer ||
+                if (columnTimeZone.ValueFormat.DataType != DataType.String && columnTimeZone.ValueFormat.DataType != DataType.Integer ||
                     colName != "TIMEZONE" && colName != "TIMEZONEID" && colName != "TIME ZONE" &&
                     colName != "TIME ZONE ID")
                   continue;
@@ -327,14 +327,14 @@ namespace CsvTools
                 result.Add($"{columnDate.Name} – Added Time Zone : {columnTimeZone.Name}");
               }
 
-            if (columnDate.DataType != DataType.DateTime || !string.IsNullOrEmpty(columnDate.TimePart) ||
+            if (columnDate.ValueFormat.DataType != DataType.DateTime || !string.IsNullOrEmpty(columnDate.TimePart) ||
                 columnDate.ValueFormat.DateFormat.IndexOfAny(new[] { ':', 'h', 'H', 'm', 's', 't' }) != -1)
               continue;
             // We have a date column without time
             for (var colTime = 0; colTime < fileReader.FieldCount; colTime++)
             {
               var columnTime = fileReader.GetColumn(colTime);
-              if (columnTime.DataType != DataType.DateTime || !string.IsNullOrEmpty(columnDate.TimePart) ||
+              if (columnTime.ValueFormat.DataType != DataType.DateTime || !string.IsNullOrEmpty(columnDate.TimePart) ||
                   columnTime.ValueFormat.DateFormat.IndexOfAny(new[] { '/', 'y', 'M', 'd' }) != -1)
                 continue;
               // We now have a time column, checked if the names somehow make sense
@@ -355,14 +355,14 @@ namespace CsvTools
           {
             processDisplay.CancellationToken.ThrowIfCancellationRequested();
             var columnDate = fileReader.GetColumn(colindex);
-            if (columnDate.DataType != DataType.DateTime || !string.IsNullOrEmpty(columnDate.TimePart) ||
+            if (columnDate.ValueFormat.DataType != DataType.DateTime || !string.IsNullOrEmpty(columnDate.TimePart) ||
                 columnDate.ValueFormat.DateFormat.IndexOfAny(new[] { ':', 'h', 'H', 'm', 's', 't' }) != -1)
               continue;
 
             if (colindex + 1 < fileReader.FieldCount)
             {
               var columnTime = fileReader.GetColumn(colindex + 1);
-              if (columnTime.DataType == DataType.String && columnDate.Name.NoSpecials().ToUpperInvariant()
+              if (columnTime.ValueFormat.DataType == DataType.String && columnDate.Name.NoSpecials().ToUpperInvariant()
                     .Replace("DATE", string.Empty)
                     .Equals(columnTime.Name.NoSpecials().ToUpperInvariant().Replace("TIME", string.Empty),
                       StringComparison.OrdinalIgnoreCase))
@@ -378,7 +378,7 @@ namespace CsvTools
                   {
                     if (first.Length == 8 || first.Length == 5)
                     {
-                      columnTime.DataType = DataType.DateTime;
+                      columnTime.ValueFormat.DataType = DataType.DateTime;
                       var val = new ValueFormat(DataType.DateTime)
                       {
                         DateFormat = first.Length == 8 ? "HH:mm:ss" : "HH:mm"
@@ -401,7 +401,7 @@ namespace CsvTools
               continue;
             {
               var columnTime = fileReader.GetColumn(colindex - 1);
-              if (columnTime.DataType != DataType.String ||
+              if (columnTime.ValueFormat.DataType != DataType.String ||
                   !columnDate.Name.NoSpecials().ToUpperInvariant().Replace("DATE", string.Empty).Equals(
                     columnTime.Name.NoSpecials().ToUpperInvariant().Replace("TIME", string.Empty),
                     StringComparison.Ordinal))
@@ -486,12 +486,8 @@ namespace CsvTools
 
             if (!all && colType == DataType.String)
               continue;
-            var fsColumn = new Column
-            {
-              Name = header,
-              DataType = colType
-            };
-            fileSettings.ColumnCollection.AddIfNew(fsColumn);
+
+            fileSettings.ColumnCollection.AddIfNew(new Column(header, colType));
           }
       }
     }

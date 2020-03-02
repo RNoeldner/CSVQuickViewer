@@ -32,19 +32,15 @@ namespace CsvTools.Tests
     public void Init()
     {
       m_ValidSetting.FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt");
-      var cf = m_ValidSetting.ColumnCollection.AddIfNew(new Column
-      {
-        DataType = DataType.DateTime,
-        Name = "ExamDate"
-      });
+      var cf = m_ValidSetting.ColumnCollection.AddIfNew(new Column("ExamDate", DataType.DateTime));
 
       Assert.IsNotNull(cf);
-      cf.DateFormat = @"dd/MM/yyyy";
+      cf.ValueFormat.DateFormat = @"dd/MM/yyyy";
       m_ValidSetting.FileFormat.FieldDelimiter = ",";
       m_ValidSetting.FileFormat.CommentLine = "#";
-      m_ValidSetting.ColumnCollection.AddIfNew(new Column { Name = "Score", DataType = DataType.Integer });
-      m_ValidSetting.ColumnCollection.AddIfNew(new Column { Name = "Proficiency", DataType = DataType.Numeric });
-      m_ValidSetting.ColumnCollection.AddIfNew(new Column { Name = "IsNativeLang", DataType = DataType.Boolean });
+      m_ValidSetting.ColumnCollection.AddIfNew(new Column("Score", DataType.Integer));
+      m_ValidSetting.ColumnCollection.AddIfNew(new Column("Proficiency", DataType.Numeric));
+      m_ValidSetting.ColumnCollection.AddIfNew(new Column("IsNativeLang", DataType.Boolean));
     }
 
     [TestMethod]
@@ -59,40 +55,15 @@ namespace CsvTools.Tests
       };
       basIssues.FileFormat.FieldDelimiter = "TAB";
       basIssues.FileFormat.FieldQualifier = string.Empty;
-      basIssues.ColumnCollection.AddIfNew(new Column
-      {
-        DataType = DataType.DateTime,
-        DateFormat = "yyyy/MM/dd",
-        DateSeparator = "-",
-        Name = "effectiveDate"
-      });
-      basIssues.ColumnCollection.AddIfNew(new Column
-      {
-        DataType = DataType.DateTime,
-        DateFormat = "yyyy/MM/ddTHH:mm:ss",
-        DateSeparator = "-",
-        Name = "timestamp"
-      });
-      basIssues.ColumnCollection.AddIfNew(new Column
-      {
-        DataType = DataType.Integer,
-        Name = "version"
-      });
-      basIssues.ColumnCollection.AddIfNew(new Column
-      {
-        DataType = DataType.Boolean,
-        Name = "retrainingRequired"
-      });
-      basIssues.ColumnCollection.AddIfNew(new Column
-      {
-        DataType = DataType.Boolean,
-        Name = "classroomTraining"
-      });
-      basIssues.ColumnCollection.AddIfNew(new Column
-      {
-        DataType = DataType.TextToHtml,
-        Name = "webLink"
-      });
+      var nf = basIssues.ColumnCollection.AddIfNew(new Column("effectiveDate", DataType.DateTime, "yyyy/MM/dd"));
+      nf.ValueFormat.DateSeparator = "-";
+      nf = basIssues.ColumnCollection.AddIfNew(new Column("timestamp", DataType.DateTime, "yyyy/MM/ddTHH:mm:ss"));
+      nf.ValueFormat.DateSeparator = "-";
+      basIssues.ColumnCollection.AddIfNew(new Column("version", DataType.Integer));
+      basIssues.ColumnCollection.AddIfNew(new Column("retrainingRequired", DataType.Boolean));
+
+      basIssues.ColumnCollection.AddIfNew(new Column("classroomTraining", DataType.Boolean));
+      basIssues.ColumnCollection.AddIfNew(new Column("webLink", DataType.TextToHtml));
 
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(basIssues, TimeZoneInfo.Local.Id, processDisplay))
@@ -213,7 +184,7 @@ namespace CsvTools.Tests
             EndLine = lineNumberColumn
           };
           test.CopyRowToTable(dataTable, columnWarningsReader, info, null);
-          var dataRow = dataTable.NewRow();
+          _ = dataTable.NewRow();
         }
         test.Read();
 
@@ -296,10 +267,9 @@ namespace CsvTools.Tests
         var lineNumberColumn = dataTable.Columns.Add(BaseFileReader.cEndLineNumberFieldName, typeof(int));
         lineNumberColumn.AllowDBNull = true;
 
-        var dataRow = dataTable.NewRow();
+        _ = dataTable.NewRow();
         test.Read();
-
-        var warningsList = new Dictionary<int, string>
+        _ = new Dictionary<int, string>
         {
           {-1, "Test1"},
           {0, "Test2"}
@@ -341,12 +311,11 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GetInteger32And64()
     {
-      var column = new Column
-      {
-        DataType = DataType.Integer,
-        GroupSeparator = ",",
-        DecimalSeparator = "."
-      };
+      var column = new Column();
+      column.ValueFormat.DataType = DataType.Integer;
+      column.ValueFormat.GroupSeparator = ",";
+      column.ValueFormat.DecimalSeparator = ",";
+
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
@@ -429,7 +398,7 @@ namespace CsvTools.Tests
         FileFormat = { FieldDelimiter = "tab" }
       };
 
-      csvFile.ColumnCollection.AddIfNew(new Column { Name = "Title", DataType = DataType.DateTime });
+      csvFile.ColumnCollection.AddIfNew(new Column("Title", DataType.DateTime));
 
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(csvFile, TimeZoneInfo.Local.Id, processDisplay))

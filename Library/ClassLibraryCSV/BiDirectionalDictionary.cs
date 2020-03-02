@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 using System;
 using System.Collections.Generic;
 
@@ -21,25 +22,23 @@ namespace CsvTools
     private readonly IDictionary<TValue, TKey> m_SecondToFirst;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="BiDirectionalDictionary{TKey, TValue}"/> class.
+    ///   Initializes a new instance of the <see cref="BiDirectionalDictionary{TKey, TValue}" /> class.
     /// </summary>
     public BiDirectionalDictionary() => m_SecondToFirst = new Dictionary<TValue, TKey>();
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="BiDirectionalDictionary{TKey, TValue}"/> class.
+    ///   Initializes a new instance of the <see cref="BiDirectionalDictionary{TKey, TValue}" /> class.
     /// </summary>
     /// <param name="capacity">Initial capacity.</param>
     public BiDirectionalDictionary(int capacity) : base(capacity) => m_SecondToFirst = new Dictionary<TValue, TKey>(capacity);
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="BiDirectionalDictionary{TKey, TValue}"/> class.
+    ///   Initializes a new instance of the <see cref="BiDirectionalDictionary{TKey, TValue}" /> class.
     /// </summary>
-    /// <param name="dictionary">A <see cref="T:System.Collections.Generic.IDictionary`2" />, that will copied to the new class</param>
-    /// <exception cref="ArgumentException">
-    /// Duplicate key - key
-    /// or
-    /// Duplicate value - value
-    /// </exception>
+    /// <param name="dictionary">
+    ///   A <see cref="T:System.Collections.Generic.IDictionary`2" />, that will copied to the new class
+    /// </param>
+    /// <exception cref="ArgumentException">Duplicate key - key or Duplicate value - value</exception>
     public BiDirectionalDictionary(IDictionary<TKey, TValue> dictionary)
     {
       m_SecondToFirst = new Dictionary<TValue, TKey>(dictionary?.Count ?? 0);
@@ -49,15 +48,11 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Adds a key / value to teh dictionary
+    ///   Adds a key / value to teh dictionary
     /// </summary>
     /// <param name="key">The key of the dictionary.</param>
     /// <param name="value">the value for teh key, there can not be two keys with teh same value</param>
-    /// <exception cref="ArgumentException">
-    /// Duplicate key - key
-    /// or
-    /// Duplicate value - value
-    /// </exception>
+    /// <exception cref="ArgumentException">Duplicate key - key or Duplicate value - value</exception>
     public new void Add(TKey key, TValue value)
     {
       if (ContainsKey(key))
@@ -70,13 +65,12 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Tries to add the pair to the dictionary.
-    /// Returns false if either element is already in the dictionary
+    ///   Tries to add the pair to the dictionary. Returns false if either element is already in the dictionary
     /// </summary>
     /// <param name="key"></param>
     /// <param name="value"></param>
     /// <returns>true if successfully added, false if either element are already in the dictionary</returns>
-    public new bool TryAdd(TKey key, TValue value)
+    public bool TryAdd(TKey key, TValue value)
     {
       if (ContainsKey(key) || m_SecondToFirst.ContainsKey(value))
         return false;
@@ -87,8 +81,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Find the TFirst corresponding to the TSecond value.
-    /// Returns false if value is not in the dictionary.
+    ///   Find the TFirst corresponding to the TSecond value. Returns false if value is not in the dictionary.
     /// </summary>
     /// <param name="value">the key to search for</param>
     /// <param name="key">the corresponding value</param>
@@ -96,8 +89,8 @@ namespace CsvTools
     public bool TryGetByValue(TValue value, out TKey key) => m_SecondToFirst.TryGetValue(value, out key);
 
     /// <summary>
-    /// Find the TFirst corresponding to the Second value.
-    /// Throws an exception if value is not in the dictionary.
+    ///   Find the TFirst corresponding to the Second value. Throws an exception if value is not in
+    ///   the dictionary.
     /// </summary>
     /// <param name="value">the key to search for</param>
     /// <returns>the value corresponding to value</returns>
@@ -110,7 +103,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Removes all items from the dictionary.
+    ///   Removes all items from the dictionary.
     /// </summary>
     public new void Clear()
     {
