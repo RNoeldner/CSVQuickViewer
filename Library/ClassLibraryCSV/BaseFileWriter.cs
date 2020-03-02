@@ -39,6 +39,7 @@ namespace CsvTools
     ///   Initializes a new instance of the <see cref="BaseFileWriter" /> class.
     /// </summary>
     /// <param name="fileSetting">the file setting with the definition for the file</param>
+    /// <param name="sourceTimeZone">Timezone of the source</param>
     /// <param name="processDisplay">The process display.</param>
     /// <exception cref="ArgumentNullException">fileSetting</exception>
     /// <exception cref="ArgumentException">No SQL Reader set</exception>
@@ -68,7 +69,7 @@ namespace CsvTools
     /// </summary>
     public event EventHandler WriteFinished;
 
-    protected readonly List<ColumnInfo> m_Columns = new List<ColumnInfo>();
+    protected readonly List<ColumnInfo> Columns = new List<ColumnInfo>();
 
     /// <summary>
     ///   Gets the column information based on the SQL Source, but overwritten with the definitions
@@ -144,12 +145,12 @@ namespace CsvTools
       }
 
       // remove all ignored columns
-      m_Columns.Clear();
+      Columns.Clear();
       foreach (var x in fieldInfoList)
         if (x != null && (x.Column == null || !x.Column.Ignore))
-          m_Columns.Add(x);
+          Columns.Add(x);
 
-      return m_Columns;
+      return Columns;
     }
 
     /// <summary>
@@ -291,11 +292,11 @@ namespace CsvTools
         if (string.IsNullOrEmpty(destinationTimeZoneID))
           HandleWarning(columnInfo.Header, "Time zone is empty, value not converted");
         else
-          return ApplicationSetting.AdjustTZ(dataObject, m_SourceTimeZone, destinationTimeZoneID, m_Columns.IndexOf(columnInfo), (int columnNo, string msg) => HandleWarning(m_Columns[columnNo].Header, msg)).Value;
+          return ApplicationSetting.AdjustTZ(dataObject, m_SourceTimeZone, destinationTimeZoneID, Columns.IndexOf(columnInfo), (int columnNo, string msg) => HandleWarning(Columns[columnNo].Header, msg)).Value;
       }
       else if (columnInfo.ConstantTimeZone.Length > 0)
       {
-        return ApplicationSetting.AdjustTZ(dataObject, m_SourceTimeZone, columnInfo.ConstantTimeZone, m_Columns.IndexOf(columnInfo), (int columnNo, string msg) => HandleWarning(m_Columns[columnNo].Header, msg)).Value;
+        return ApplicationSetting.AdjustTZ(dataObject, m_SourceTimeZone, columnInfo.ConstantTimeZone, Columns.IndexOf(columnInfo), (int columnNo, string msg) => HandleWarning(Columns[columnNo].Header, msg)).Value;
       }
 
       return dataObject;
@@ -506,8 +507,10 @@ namespace CsvTools
       if (!addTimeFormat)
         yield break;
       var columnNameTime = GetUniqueFieldName(headers, columnFormat.TimePart);
-      var cfTimePart = new Column(columnNameTime, DataType.DateTime, columnFormat.TimePartFormat);
-      cfTimePart.ValueFormat.TimeSeparator = columnFormat.ValueFormat.TimeSeparator;
+      var cfTimePart = new Column(columnNameTime, columnFormat.TimePartFormat)
+      {
+        ValueFormat = {TimeSeparator = columnFormat.ValueFormat.TimeSeparator}
+      };
 
       // In case we have a split column, add the second column (unless the column is also present
       yield return new ColumnInfo

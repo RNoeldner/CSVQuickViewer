@@ -38,10 +38,10 @@ namespace CsvTools
     private const bool c_PartToEnd = true;
     private readonly ValueFormat m_ValueFormat = new ValueFormat();
     private int m_ColumnOrdinal;
-    private bool? m_Convert = null;
+    private bool? m_Convert;
     private string m_DestinationName = string.Empty;
     private bool m_Ignore;
-    private string m_Name = string.Empty;
+    private string m_Name;
     private int m_Part = c_PartDefault;
     private char m_PartSplitter = c_PartSplitterDefault;
     private bool m_PartToEnd = c_PartToEnd;
@@ -50,17 +50,21 @@ namespace CsvTools
     private string m_TimePartFormat = cDefaultTimePartFormat;
     private string m_TimeZonePart = string.Empty;
 
-    public Column() : this(string.Empty, DataType.String)
+    public Column() : this(string.Empty)
     {
     }
 
-    public Column(string name, DataType dataType)
+    public Column(string name, DataType dataType = DataType.String)
     {
       m_Name = name;
       m_ValueFormat.DataType = dataType;
     }
 
-    public Column(string name, DataType dataType, string dateFormat) : this(name, dataType) => m_ValueFormat.DateFormat = dateFormat;
+    public Column(string name, string dateFormat, string dateSeparator = ValueFormat.cDateSeparatorDefault) : this(name, DataType.DateTime)
+    {
+      m_ValueFormat.DateFormat = dateFormat;
+      m_ValueFormat.DateSeparator = dateSeparator;
+    }
 
     /// <summary>
     ///   The Ordinal Position of the column
@@ -86,21 +90,20 @@ namespace CsvTools
         if (m_Name.Equals(newVal, StringComparison.Ordinal))
           return;
         m_Name = newVal;
-
         NotifyPropertyChanged(nameof(Name));
       }
     }
 
     /// <summary>
     ///   Gets or sets a value indicating whether this <see cref="Column" /> is convert. Only used
-    ///   to untype a typed value (reading typed value from Excel to make it a string)
+    ///   to read a typed value as text 
     /// </summary>
     /// <value><c>true</c> if the column should be convert; otherwise, <c>false</c>.</value>
     [XmlAttribute]
     [DefaultValue(false)]
     public virtual bool Convert
     {
-      get => m_Convert.HasValue ? m_Convert.Value : m_ValueFormat.DataType != DataType.String;
+      get => m_Convert ?? m_ValueFormat.DataType != DataType.String;
       set
       {
         if (m_Convert.HasValue && m_Convert.Equals(value))
@@ -598,17 +601,6 @@ namespace CsvTools
     /// </summary>
     public virtual event PropertyChangedEventHandler PropertyChanged;
 
-    /// <summary>
-    ///   Determines whether the specified expected column is matching this column.
-    /// </summary>
-    /// <param name="expected">The expected column format.</param>
-    /// <returns>
-    ///   <c>true</c> if the current format would be acceptable for the expected data type.
-    /// </returns>
-    /// <remarks>
-    ///   Is matching only looks at data type and some formats, it is assumed that we do not
-    ///   distinguish between numeric formats, it is O.K. to expect a money value but have a integer
-    /// </remarks>
     /// <summary>
     ///   Notifies the property changed.
     /// </summary>

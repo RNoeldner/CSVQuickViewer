@@ -55,10 +55,9 @@ namespace CsvTools.Tests
       };
       basIssues.FileFormat.FieldDelimiter = "TAB";
       basIssues.FileFormat.FieldQualifier = string.Empty;
-      var nf = basIssues.ColumnCollection.AddIfNew(new Column("effectiveDate", DataType.DateTime, "yyyy/MM/dd"));
-      nf.ValueFormat.DateSeparator = "-";
-      nf = basIssues.ColumnCollection.AddIfNew(new Column("timestamp", DataType.DateTime, "yyyy/MM/ddTHH:mm:ss"));
-      nf.ValueFormat.DateSeparator = "-";
+      basIssues.ColumnCollection.AddIfNew(new Column("effectiveDate", "yyyy/MM/dd", "-"));
+      basIssues.ColumnCollection.AddIfNew(new Column("timestamp",  "yyyy/MM/ddTHH:mm:ss", "-"));
+      
       basIssues.ColumnCollection.AddIfNew(new Column("version", DataType.Integer));
       basIssues.ColumnCollection.AddIfNew(new Column("retrainingRequired", DataType.Boolean));
 
@@ -517,7 +516,7 @@ namespace CsvTools.Tests
       try
       {
         setting.FileName = string.Empty;
-        using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, null))
+        using (new CsvFileReader(setting, TimeZoneInfo.Local.Id, null))
         {
         }
 
@@ -537,7 +536,7 @@ namespace CsvTools.Tests
       try
       {
         setting.FileName = @"b;dslkfg;sldfkgjs;ldfkgj;sldfkg.sdfgsfd";
-        using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, null))
+        using (new CsvFileReader(setting, TimeZoneInfo.Local.Id, null))
         {
         }
 
@@ -1039,16 +1038,16 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void CsvDataReaderInitErrorFieldDelimiterCR()
+    public void CsvDataReaderInitErrorFieldDelimiterCr()
     {
       var setting = new CsvFile
       {
         FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt"),
         HasFieldHeader = false,
-        SkipRows = 1
+        SkipRows = 1,
+        FileFormat = {FieldDelimiter = "\r"}
       };
-      setting.FileFormat.FieldDelimiter = "\r";
-      var Exception = false;
+      var exception = false;
       try
       {
         using (var processDisplay = new DummyProcessDisplay())
@@ -1059,22 +1058,22 @@ namespace CsvTools.Tests
       }
       catch (ArgumentException)
       {
-        Exception = true;
+        exception = true;
       }
       catch (FileReaderException)
       {
-        Exception = true;
+        exception = true;
       }
       catch (Exception)
       {
         Assert.Fail("Wrong Exception Type");
       }
 
-      Assert.IsTrue(Exception, "No Exception thrown");
+      Assert.IsTrue(exception, "No Exception thrown");
     }
 
     [TestMethod]
-    public void CsvDataReaderInitErrorFieldQualifierCR()
+    public void CsvDataReaderInitErrorFieldQualifierCr()
     {
       var setting = new CsvFile
       {
@@ -1115,10 +1114,10 @@ namespace CsvTools.Tests
       {
         FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt"),
         HasFieldHeader = false,
-        SkipRows = 1
+        SkipRows = 1,
+        FileFormat = {FieldQualifier = "Line feed"}
       };
-      setting.FileFormat.FieldQualifier = "Line feed";
-      var Exception = false;
+      var exception = false;
       try
       {
         using (var processDisplay = new DummyProcessDisplay())
@@ -1129,18 +1128,18 @@ namespace CsvTools.Tests
       }
       catch (ArgumentException)
       {
-        Exception = true;
+        exception = true;
       }
       catch (FileReaderException)
       {
-        Exception = true;
+        exception = true;
       }
       catch (Exception)
       {
         Assert.Fail("Wrong Exception Type");
       }
 
-      Assert.IsTrue(Exception, "No Exception thrown");
+      Assert.IsTrue(exception, "No Exception thrown");
     }
 
     [TestMethod]
@@ -1169,10 +1168,10 @@ namespace CsvTools.Tests
       {
         FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt"),
         HasFieldHeader = false,
-        SkipRows = 1
+        SkipRows = 1,
+        FileFormat = {FieldDelimiter = "\n"}
       };
-      setting.FileFormat.FieldDelimiter = "\n";
-      var Exception = false;
+      var exception = false;
       try
       {
         using (var processDisplay = new DummyProcessDisplay())
@@ -1183,18 +1182,18 @@ namespace CsvTools.Tests
       }
       catch (ArgumentException)
       {
-        Exception = true;
+        exception = true;
       }
       catch (FileReaderException)
       {
-        Exception = true;
+        exception = true;
       }
       catch (Exception)
       {
         Assert.Fail("Wrong Exception Type");
       }
 
-      Assert.IsTrue(Exception, "No Exception thrown");
+      Assert.IsTrue(exception, "No Exception thrown");
     }
 
     [TestMethod]
@@ -1204,10 +1203,10 @@ namespace CsvTools.Tests
       {
         FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt"),
         HasFieldHeader = false,
-        SkipRows = 1
+        SkipRows = 1,
+        FileFormat = {FieldDelimiter = " "}
       };
-      setting.FileFormat.FieldDelimiter = " ";
-      var Exception = false;
+      var exception = false;
       try
       {
         using (var processDisplay = new DummyProcessDisplay())
@@ -1218,18 +1217,18 @@ namespace CsvTools.Tests
       }
       catch (ArgumentException)
       {
-        Exception = true;
+        exception = true;
       }
       catch (FileReaderException)
       {
-        Exception = true;
+        exception = true;
       }
       catch (Exception)
       {
         Assert.Fail("Wrong Exception Type");
       }
 
-      Assert.IsTrue(Exception, "No Exception thrown");
+      Assert.IsTrue(exception, "No Exception thrown");
     }
 
     [TestMethod]
@@ -1239,11 +1238,11 @@ namespace CsvTools.Tests
       {
         FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt"),
         HasFieldHeader = false,
-        SkipRows = 1
+        SkipRows = 1,
+        FileFormat = {FieldQualifier = "\""}
       };
-      setting.FileFormat.FieldQualifier = "\"";
       setting.FileFormat.FieldDelimiter = setting.FileFormat.FieldQualifier;
-      var Exception = false;
+      var exception = false;
       try
       {
         using (var processDisplay = new DummyProcessDisplay())
@@ -1254,24 +1253,24 @@ namespace CsvTools.Tests
       }
       catch (ArgumentException)
       {
-        Exception = true;
+        exception = true;
       }
       catch (FileReaderException)
       {
-        Exception = true;
+        exception = true;
       }
       catch (Exception)
       {
         Assert.Fail("Wrong Exception Type");
       }
 
-      Assert.IsTrue(Exception, "No Exception thrown");
+      Assert.IsTrue(exception, "No Exception thrown");
     }
 
     [TestMethod]
     public void CsvDataReaderGetInt16Format()
     {
-      var Exception = false;
+      var exception = false;
       try
       {
         using (var processDisplay = new DummyProcessDisplay())
@@ -1284,14 +1283,14 @@ namespace CsvTools.Tests
       }
       catch (FormatException)
       {
-        Exception = true;
+        exception = true;
       }
       catch (Exception)
       {
         Assert.Fail("Wrong Exception Type");
       }
 
-      Assert.IsTrue(Exception, "No Exception thrown");
+      Assert.IsTrue(exception, "No Exception thrown");
     }
 
     [TestMethod]
@@ -1309,7 +1308,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CsvDataReaderGetInt64Error()
     {
-      var Exception = false;
+      var exception = false;
       try
       {
         using (var processDisplay = new DummyProcessDisplay())
@@ -1322,14 +1321,14 @@ namespace CsvTools.Tests
       }
       catch (FormatException)
       {
-        Exception = true;
+        exception = true;
       }
       catch (Exception)
       {
         Assert.Fail("Wrong Exception Type");
       }
 
-      Assert.IsTrue(Exception, "No Exception thrown");
+      Assert.IsTrue(exception, "No Exception thrown");
     }
 
     [TestMethod]
@@ -1350,7 +1349,7 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        var Exception = false;
+        var exception = false;
         test.Open();
         test.Read();
         try
@@ -1359,18 +1358,18 @@ namespace CsvTools.Tests
         }
         catch (IndexOutOfRangeException)
         {
-          Exception = true;
+          exception = true;
         }
         catch (InvalidOperationException)
         {
-          Exception = true;
+          exception = true;
         }
         catch (Exception)
         {
           Assert.Fail("Wrong Exception Type");
         }
 
-        Assert.IsTrue(Exception, "No Exception thrown");
+        Assert.IsTrue(exception, "No Exception thrown");
       }
     }
 

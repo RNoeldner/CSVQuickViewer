@@ -229,7 +229,7 @@ namespace CsvTools.Tests
         SqlStatement = m_ReadFile.ID
       };
 
-      m_WriteFile.ColumnCollection.AddIfNew(new Column("ExamDate", DataType.DateTime, @"MM/dd/yyyy") { TimePart = "ExamTime" });
+      m_WriteFile.ColumnCollection.AddIfNew(new Column("ExamDate",  @"MM/dd/yyyy") { TimePart = "ExamTime" });
       m_WriteFile.ColumnCollection.AddIfNew(new Column { Name = "Proficiency", Ignore = true });
     }
 
@@ -325,13 +325,13 @@ namespace CsvTools.Tests
     public void WriteSameAsReader()
     {
       var writeFile = (CsvFile)m_WriteFile.Clone();
-      writeFile.FileName = UnitTestInitialize.MimicSQLReader.ReadSettings.OfType<IFileSettingPhysicalFile>().FirstOrDefault(x => x.ID == "Read").FileName;
+      writeFile.FileName = UnitTestInitialize.MimicSQLReader.ReadSettings.OfType<IFileSettingPhysicalFile>().FirstOrDefault(x => x.ID == "Read")?.FileName;
       writeFile.FileFormat.FieldDelimiter = "|";
       using (var processDisplay = new DummyProcessDisplay())
       {
         var writer = new CsvFileWriter(writeFile, TimeZoneInfo.Local.Id, processDisplay);
         Assert.IsTrue(string.IsNullOrEmpty(writer.ErrorMessage));
-        var res = writer.Write();
+        writer.Write();
         Assert.IsFalse(string.IsNullOrEmpty(writer.ErrorMessage));
       }
     }
@@ -340,7 +340,7 @@ namespace CsvTools.Tests
     public void WriteSameAsReaderCritical()
     {
       var writeFile = (CsvFile)m_WriteFile.Clone();
-      writeFile.FileName = UnitTestInitialize.MimicSQLReader.ReadSettings.OfType<IFileSettingPhysicalFile>().FirstOrDefault(x => x.ID == "Read").FileName;
+      writeFile.FileName = UnitTestInitialize.MimicSQLReader.ReadSettings.OfType<IFileSettingPhysicalFile>().FirstOrDefault(x => x.ID == "Read")?.FileName;
       writeFile.InOverview = true;
       writeFile.FileFormat.FieldDelimiter = "|";
       try
@@ -348,7 +348,7 @@ namespace CsvTools.Tests
         using (var processDisplay = new DummyProcessDisplay())
         {
           var writer = new CsvFileWriter(writeFile, TimeZoneInfo.Local.Id, processDisplay);
-          var res = writer.Write();
+          writer.Write();
         }
         Assert.Fail("No Exception");
       }

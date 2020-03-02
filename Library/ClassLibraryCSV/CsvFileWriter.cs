@@ -39,6 +39,7 @@ namespace CsvTools
     ///   Initializes a new instance of the <see cref="CsvFileWriter" /> class.
     /// </summary>
     /// <param name="file">The file.</param>
+    /// <param name="timeZone">The timezone to convert to</param>
     /// <param name="processDisplay">The process display.</param>
     public CsvFileWriter(ICsvFile file, string timeZone, IProcessDisplay processDisplay)
       : base(file, timeZone, processDisplay)
@@ -77,14 +78,14 @@ namespace CsvTools
 
       GetSourceColumnInformation(reader);
 
-      if (m_Columns.Count == 0)
+      if (Columns.Count == 0)
         throw new FileWriterException("No columns defined to be written.");
       var recordEnd = m_CsvFile.FileFormat.NewLine.Replace("CR", "\r").Replace("LF", "\n").Replace(" ", "")
         .Replace("\t", "");
 
       HandleWriteStart();
 
-      var numColumns = m_Columns.Count();
+      var numColumns = Columns.Count();
       var
         sb = new StringBuilder(1024); // Assume a capacity of 1024 characters to start , data is flushed every 512 chars
       var hasFieldDelimiter = !m_CsvFile.FileFormat.IsFixedLength;
@@ -97,7 +98,7 @@ namespace CsvTools
 
       if (m_CsvFile.HasFieldHeader)
       {
-        sb.Append(GetHeaderRow(m_Columns));
+        sb.Append(GetHeaderRow(Columns));
         sb.Append(recordEnd);
       }
 
@@ -112,7 +113,7 @@ namespace CsvTools
 
         var emptyColumns = 0;
 
-        foreach (var columnInfo in m_Columns)
+        foreach (var columnInfo in Columns)
         {
           var col = reader.GetValue(columnInfo.ColumnOrdinalReader);
           if (col == DBNull.Value)

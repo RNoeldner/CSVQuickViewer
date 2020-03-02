@@ -25,19 +25,19 @@ namespace CsvTools.Tests
 
     public static Column[] ColumnsDT2 =
     {
-      new Column ("string", DataType.String) //0
+      new Column ("string") //0
     };
 
     public static Column[] ColumnsDT =
     {
-      new Column ("string", DataType.String), //0
+      new Column ("string"), //0
       new Column ("int", DataType.Integer), //1
       new Column ("DateTime", DataType.DateTime), //2
       new Column ( "bool",DataType.Boolean), //3
       new Column ("double",DataType.Double), //4
       new Column ( "numeric",DataType.Numeric), //5
-      new Column ( "AllEmpty",DataType.String), //6
-      new Column ( "PartEmpty",DataType.String), //7
+      new Column ( "AllEmpty"), //6
+      new Column ( "PartEmpty"), //7
       new Column ( "ID",DataType.Integer) //8
     };
 
@@ -45,7 +45,7 @@ namespace CsvTools.Tests
 
     private static string GetRandomText(int length)
     {
-      const string c_Base = "012345abcdefghijklmnopqrstuvwxyz6789ABCDEFGHIJKLMNOPQRSTUVWXYZ,.*$%&!";
+      const string c_Base = @"012345abcdefghijklmnopqrstuvwxyz6789ABCDEFGHIJKLMNOPQRSTUVWXYZ,.*$%&!";
       var builder = new char[length];
       for (var i = 0; i < length; i++)
         builder[i] = c_Base[Convert.ToInt32(Math.Floor(c_Base.Length * m_Random.NextDouble()))];
@@ -114,9 +114,9 @@ namespace CsvTools.Tests
         dr[7] = m_Random.NextDouble() < .3 ? null : GetRandomText(100);
         dr[8] = m_Random.Next(1, 5000000);
         if (i % 33 < 3)
-          dr.SetColumnError(i % 33, "ColumnError");
+          dr.SetColumnError(i % 33, @"ColumnError");
         if (i % 35 == 0)
-          dr.RowError = "RowError";
+          dr.RowError = @"RowError";
         dr[8] = i;   // ID
         dr[9] = i * 2; // #Line
         dataTable.Rows.Add(dr);

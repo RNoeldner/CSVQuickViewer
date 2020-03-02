@@ -30,10 +30,10 @@ namespace CsvTools.Tests
       {
         FileName = UnitTestInitialize.GetTestPath("Sessions.txt"),
         HasFieldHeader = true,
-        ByteOrderMark = true
+        ByteOrderMark = true,
+        FileFormat = {FieldDelimiter = "\t"}
       };
-      setting.FileFormat.FieldDelimiter = "\t";
-      setting.ColumnCollection.AddIfNew(new Column("Start Date", DataType.DateTime, "MM/dd/yyyy")
+      setting.ColumnCollection.AddIfNew(new Column("Start Date", "MM/dd/yyyy")
       {
         TimePart = "Start Time",
         TimePartFormat = "HH:mm:ss"
@@ -63,7 +63,7 @@ namespace CsvTools.Tests
         ByteOrderMark = true
       };
       setting.FileFormat.FieldDelimiter = "\t";
-      setting.ColumnCollection.AddIfNew(new Column("Start Date", DataType.DateTime, "MM/dd/yyyy")
+      setting.ColumnCollection.AddIfNew(new Column("Start Date",  "MM/dd/yyyy")
       {
         TimePart = "Start Time",
         TimePartFormat = "HH:mm:ss",
@@ -1124,7 +1124,7 @@ namespace CsvTools.Tests
       };
       setting.FileFormat.FieldDelimiter = ",";
       setting.FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt");
-      setting.ColumnCollection.AddIfNew(new Column("ExamDate", DataType.DateTime, @"dd/MM/yyyy"));
+      setting.ColumnCollection.AddIfNew(new Column("ExamDate", @"dd/MM/yyyy"));
       setting.ColumnCollection.AddIfNew(new Column("ID", DataType.Integer));
       setting.ColumnCollection.AddIfNew(new Column("IsNativeLang", DataType.Boolean));
 
@@ -1493,10 +1493,10 @@ namespace CsvTools.Tests
       {
         HasFieldHeader = false,
         CodePageId = 1201,
-        ByteOrderMark = true
+        ByteOrderMark = true,
+        FileFormat = {FieldDelimiter = ","},
+        FileName = UnitTestInitialize.GetTestPath("UnicodeUTF16BE.txt")
       };
-      setting.FileFormat.FieldDelimiter = ",";
-      setting.FileName = UnitTestInitialize.GetTestPath("UnicodeUTF16BE.txt");
 
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
@@ -1545,10 +1545,10 @@ namespace CsvTools.Tests
       {
         HasFieldHeader = false,
         CodePageId = 1200,
-        ByteOrderMark = true
+        ByteOrderMark = true,
+        FileFormat = {FieldDelimiter = ","},
+        FileName = UnitTestInitialize.GetTestPath("UnicodeUTF16LE.txt")
       };
-      setting.FileFormat.FieldDelimiter = ",";
-      setting.FileName = UnitTestInitialize.GetTestPath("UnicodeUTF16LE.txt");
 
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
@@ -1595,10 +1595,10 @@ namespace CsvTools.Tests
       var setting = new CsvFile
       {
         HasFieldHeader = false,
-        CodePageId = 65001
+        CodePageId = 65001,
+        FileFormat = {FieldDelimiter = ","},
+        FileName = UnitTestInitialize.GetTestPath("UnicodeUTF8.txt")
       };
-      setting.FileFormat.FieldDelimiter = ",";
-      setting.FileName = UnitTestInitialize.GetTestPath("UnicodeUTF8.txt");
 
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
