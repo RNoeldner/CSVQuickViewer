@@ -27,8 +27,8 @@ namespace CsvTools
 {
   // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
   /// <summary>
-  /// Abstract calls containing the basic setting for an IFileSetting if contains <see
-  /// cref="ColumnCollection"/>, <see cref="MappingCollection"/> and <see cref="FileFormat"/>
+  ///   Abstract calls containing the basic setting for an IFileSetting if contains <see
+  ///   cref="ColumnCollection" />, <see cref="MappingCollection" /> and <see cref="FileFormat" />
   /// </summary>
 #pragma warning disable CS0659
 
@@ -77,7 +77,7 @@ namespace CsvTools
     private TrimmingOption m_TrimmingOption = TrimmingOption.Unquoted;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="BaseSettings"/> class.
+    ///   Initializes a new instance of the <see cref="BaseSettings" /> class.
     /// </summary>
     /// <param name="fileName">The filename.</param>
     protected BaseSettings(string fileName)
@@ -88,7 +88,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="BaseSettings"/> class.
+    ///   Initializes a new instance of the <see cref="BaseSettings" /> class.
     /// </summary>
     protected BaseSettings() : this(string.Empty)
     {
@@ -112,7 +112,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Gets a value indicating whether field mapping specified.
+    ///   Gets a value indicating whether field mapping specified.
     /// </summary>
     /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
     /// <remarks>Used for XML Serialization</remarks>
@@ -123,21 +123,21 @@ namespace CsvTools
     public bool ErrorsSpecified => Errors.Count > 0;
 
     /// <summary>
-    /// Storage for the settings used as direct or indirect sources.
+    ///   Storage for the settings used as direct or indirect sources.
     /// </summary>
     /// <remarks>
-    /// This is used for queries that might refer to data that is produced by other settings but not
-    /// for file setting pointing to a specific physical file
+    ///   This is used for queries that might refer to data that is produced by other settings but
+    ///   not for file setting pointing to a specific physical file
     /// </remarks>
     /// <example>
-    /// A setting A using setting B that is dependent on C1 and C2 both dependent on D-&gt; A is
-    /// {B,C1,C2,D}. B is {C1,C2,D}, C1 is {D} C2 is {D}
+    ///   A setting A using setting B that is dependent on C1 and C2 both dependent on D-&gt; A is
+    ///   {B,C1,C2,D}. B is {C1,C2,D}, C1 is {D} C2 is {D}
     /// </example>
     [XmlIgnore]
     public IReadOnlyCollection<IFileSetting> SourceFileSettings { get; set; }
 
     /// <summary>
-    /// Gets a value indicating whether FileFormat is specified.
+    ///   Gets a value indicating whether FileFormat is specified.
     /// </summary>
     /// <value><c>true</c> if specified; otherwise, <c>false</c>.</value>
     /// <remarks>Used for XML Serialization</remarks>
@@ -145,7 +145,7 @@ namespace CsvTools
     public bool FileFormatSpecified => !FileFormat.Equals(new FileFormat());
 
     /// <summary>
-    /// Gets a value indicating whether FileLastWriteTimeUtc is specified.
+    ///   Gets a value indicating whether FileLastWriteTimeUtc is specified.
     /// </summary>
     /// <value><c>true</c> if specified; otherwise, <c>false</c>.</value>
     /// <remarks>Used for XML Serialization</remarks>
@@ -153,7 +153,7 @@ namespace CsvTools
     public bool FileLastWriteTimeUtcSpecified => ProcessTimeUtc != ZeroTime;
 
     /// <summary>
-    /// Gets or sets the name of the file.
+    ///   Gets or sets the name of the file.
     /// </summary>
     /// <value>The name of the file.</value>
     [XmlAttribute]
@@ -173,7 +173,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Gets or sets the name of the file.
+    ///   Gets or sets the name of the file.
     /// </summary>
     /// <value>The name of the file.</value>
     [XmlAttribute]
@@ -194,7 +194,7 @@ namespace CsvTools
     public bool SamplesSpecified => Samples.Count > 0;
 
     /// <summary>
-    /// Utility calls to get or set the SQL Statement as CDataSection
+    ///   Utility calls to get or set the SQL Statement as CDataSection
     /// </summary>
     [SuppressMessage("Microsoft.Design", "CA1059:MembersShouldNotExposeCertainConcreteTypes", MessageId =
      "System.Xml.XmlNode")]
@@ -211,7 +211,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Gets a value indicating whether SqlStatementCData is specified.
+    ///   Gets a value indicating whether SqlStatementCData is specified.
     /// </summary>
     /// <value><c>true</c> if specified; otherwise, <c>false</c>.</value>
     /// <remarks>Used for XML Serialization</remarks>
@@ -219,12 +219,12 @@ namespace CsvTools
     public bool SqlStatementCDataSpecified => !string.IsNullOrEmpty(SqlStatement);
 
     /// <summary>
-    /// Indicates whether the current object is equal to another object of the same type.
+    ///   Indicates whether the current object is equal to another object of the same type.
     /// </summary>
     /// <param name="other">An object to compare with this object.</param>
     /// <returns>
-    /// <see langword="true"/> if the current object is equal to the <paramref name="other"/>
-    /// parameter; otherwise, <see langword="false"/>.
+    ///   <see langword="true" /> if the current object is equal to the <paramref name="other" />
+    ///   parameter; otherwise, <see langword="false" />.
     /// </returns>
     protected virtual bool BaseSettingsEquals(BaseSettings other)
     {
@@ -305,17 +305,17 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Occurs after a property value changes.
+    ///   Occurs after a property value changes.
     /// </summary>
     public virtual event PropertyChangedEventHandler PropertyChanged;
 
     /// <summary>
-    /// Occurs when a string value property changed providing information on old and new value
+    ///   Occurs when a string value property changed providing information on old and new value
     /// </summary>
     public virtual event EventHandler<PropertyChangedEventArgs<string>> PropertyChangedString;
 
     /// <summary>
-    /// Gets or sets the number consecutive empty rows that should finish a read
+    ///   Gets or sets the number consecutive empty rows that should finish a read
     /// </summary>
     /// <value>The consecutive empty rows.</value>
     [XmlAttribute]
@@ -336,21 +336,21 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Gets or sets the options for a column
+    ///   Gets or sets the options for a column
     /// </summary>
     /// <value>The column options</value>
     [XmlElement("Format")]
     public ColumnCollection ColumnCollection { get; } = new ColumnCollection();
 
     /// <summary>
-    /// Gets a value indicating whether column format specified.
+    ///   Gets a value indicating whether column format specified.
     /// </summary>
     /// <value><c>true</c> if column format specified; otherwise, <c>false</c>.</value>
     [XmlIgnore]
     public bool ColumnSpecified => ColumnCollection.Count > 0;
 
     /// <summary>
-    /// Gets or sets a value indicating whether to display end line numbers.
+    ///   Gets or sets a value indicating whether to display end line numbers.
     /// </summary>
     /// <value><c>true</c> if end line no should be displayed; otherwise, <c>false</c>.</value>
     [XmlElement]
@@ -369,7 +369,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Gets or sets a value indicating whether to display record no.
+    ///   Gets or sets a value indicating whether to display record no.
     /// </summary>
     /// <value><c>true</c> if record number should be displayed; otherwise, <c>false</c>.</value>
     [XmlElement]
@@ -388,7 +388,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Gets or sets a value indicating whether to display start line numbers
+    ///   Gets or sets a value indicating whether to display start line numbers
     /// </summary>
     /// <value><c>true</c> if start line no should be displayed; otherwise, <c>false</c>.</value>
     [XmlElement]
@@ -437,7 +437,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Gets or sets the file format.
+    ///   Gets or sets the file format.
     /// </summary>
     /// <value>The file format.</value>
     [XmlElement]
@@ -448,9 +448,9 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// The UTC time the file was last written to, or when it was last read, this is different to
-    /// <see cref="LatestSourceTimeUtc"/>. Changes to this date should not be considered as changes
-    /// to the configuration
+    ///   The UTC time the file was last written to, or when it was last read, this is different to
+    ///   <see cref="LatestSourceTimeUtc" />. Changes to this date should not be considered as
+    ///   changes to the configuration
     /// </summary>
     [XmlIgnore]
     public virtual DateTime ProcessTimeUtc
@@ -467,9 +467,9 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// The time of the source, either a file time, or in case the setting is dependent on multiple
-    /// sources the time of the last source Changes to this date should not be considered as changes
-    /// to the configuration
+    ///   The time of the source, either a file time, or in case the setting is dependent on
+    ///   multiple sources the time of the last source Changes to this date should not be considered
+    ///   as changes to the configuration
     /// </summary>
     [XmlIgnore]
     public DateTime LatestSourceTimeUtc
@@ -493,11 +493,11 @@ namespace CsvTools
     public bool HasLatestSourceTimeUtc => (m_LatestSourceTimeUtc != ZeroTime);
 
     /// <summary>
-    /// As this might be a time consuming process, do this only if the time was not determined before
+    ///   As this might be a time consuming process, do this only if the time was not determined before
     /// </summary>
     /// <remarks>
-    /// For a physical file ist possibly easiest as it teh file time, overwritten for more complex
-    /// things like a Query
+    ///   For a physical file ist possibly easiest as it teh file time, overwritten for more complex
+    ///   things like a Query
     /// </remarks>
     public virtual void CalculateLatestSourceTime()
     {
@@ -520,7 +520,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Gets or sets the name of the file.
+    ///   Gets or sets the name of the file.
     /// </summary>
     /// <value>The name of the file.</value>
     [XmlAttribute]
@@ -543,7 +543,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Gets or sets the date the file when it was read
+    ///   Gets or sets the date the file when it was read
     /// </summary>
     /// <value>The consecutive empty rows.</value>
     [XmlAttribute]
@@ -561,7 +561,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Gets or sets the Footer.
+    ///   Gets or sets the Footer.
     /// </summary>
     /// <value>The Footer for outbound data.</value>
     [DefaultValue("")]
@@ -596,17 +596,17 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// As the data is loaded and not further validation is done this will be set to true Once
-    /// validation is happening and validation errors are stored this is false again. This is stored
-    /// on FileSetting level even as it actually is used for determine th freshness of a loaded data
-    /// in the validator, but there is not suitable data structure
+    ///   As the data is loaded and not further validation is done this will be set to true Once
+    ///   validation is happening and validation errors are stored this is false again. This is
+    ///   stored on FileSetting level even as it actually is used for determine th freshness of a
+    ///   loaded data in the validator, but there is not suitable data structure
     /// </summary>
     [XmlIgnore]
     [DefaultValue(false)]
     public virtual bool RecentlyLoaded { get; set; }
 
     /// <summary>
-    /// Gets or sets a value indicating whether this instance has field header.
+    ///   Gets or sets a value indicating whether this instance has field header.
     /// </summary>
     /// <value><c>true</c> if this instance has field header; otherwise, <c>false</c>.</value>
     [XmlAttribute]
@@ -624,7 +624,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Gets or sets the Footer.
+    ///   Gets or sets the Footer.
     /// </summary>
     /// <value>The Footer for outbound data.</value>
     [DefaultValue("")]
@@ -643,7 +643,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Gets or sets the ID.
+    ///   Gets or sets the ID.
     /// </summary>
     /// <value>The ID.</value>
     [XmlAttribute]
@@ -666,7 +666,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Gets or sets a value indicating whether this instance is critical.
+    ///   Gets or sets a value indicating whether this instance is critical.
     /// </summary>
     /// <value><c>true</c> if this file is critical for the export; otherwise, <c>false</c>.</value>
     [XmlAttribute(AttributeName = "IsCritical")]
@@ -685,13 +685,13 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// The identified to find this specific instance
+    ///   The identified to find this specific instance
     /// </summary>
     [XmlIgnore]
     public virtual string InternalID => string.IsNullOrEmpty(ID) ? FileName : ID;
 
     /// <summary>
-    /// Gets or sets a value indicating whether this instance is enabled.
+    ///   Gets or sets a value indicating whether this instance is enabled.
     /// </summary>
     /// <value><c>true</c> if this file is enabled; otherwise, <c>false</c>.</value>
     [XmlAttribute]
@@ -710,14 +710,14 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Gets or sets the field mapping.
+    ///   Gets or sets the field mapping.
     /// </summary>
     /// <value>The field mapping.</value>
     [XmlElement("Mapping")]
     public MappingCollection MappingCollection { get; } = new MappingCollection();
 
     /// <summary>
-    /// Gets or sets the ID.
+    ///   Gets or sets the ID.
     /// </summary>
     /// <value>The ID.</value>
     [XmlAttribute]
@@ -743,7 +743,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Gets or sets the ID.
+    ///   Gets or sets the ID.
     /// </summary>
     /// <value>The ID.</value>
     [XmlIgnore]
@@ -761,7 +761,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Pass phrase for Decryption
+    ///   Pass phrase for Decryption
     /// </summary>
     [XmlIgnore]
     [DefaultValue("")]
@@ -772,7 +772,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Recipient for a outbound PGP encryption
+    ///   Recipient for a outbound PGP encryption
     /// </summary>
     [XmlAttribute]
     [DefaultValue("")]
@@ -790,7 +790,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Gets or sets the record limit.
+    ///   Gets or sets the record limit.
     /// </summary>
     /// <value>The record limit.</value>
     [XmlElement]
@@ -822,7 +822,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Gets or sets a value indicating whether to show progress.
+    ///   Gets or sets a value indicating whether to show progress.
     /// </summary>
     /// <value><c>true</c> if progress should be shown; otherwise, <c>false</c>.</value>
     [XmlAttribute]
@@ -841,7 +841,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Gets or sets a value indicating if the reader will skip empty lines.
+    ///   Gets or sets a value indicating if the reader will skip empty lines.
     /// </summary>
     /// <value>if <c>true</c> the reader will skip empty lines.</value>
     [XmlAttribute]
@@ -873,7 +873,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Gets or sets the number of rows that should be skipped at the start of the file
+    ///   Gets or sets the number of rows that should be skipped at the start of the file
     /// </summary>
     /// <value>The skip rows.</value>
     [XmlAttribute]
@@ -892,7 +892,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Sets the SQL statement rename.
+    ///   Sets the SQL statement rename.
     /// </summary>
     /// <param name="value">The value.</param>
     public void SetSqlStatementRename(string value)
@@ -902,7 +902,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Gets or sets the SQL statement.
+    ///   Gets or sets the SQL statement.
     /// </summary>
     /// <value>The SQL statement.</value>
     [XmlIgnore]
@@ -929,7 +929,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Gets or sets the Timeout of a call.
+    ///   Gets or sets the Timeout of a call.
     /// </summary>
     /// <value>The timeout in seconds.</value>
     [XmlAttribute]
@@ -949,7 +949,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Gets or sets the template used for the file
+    ///   Gets or sets the template used for the file
     /// </summary>
     /// <value>The connection string.</value>
     [XmlElement]
@@ -973,7 +973,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Gets or sets a value indicating whether to treat NBSP as space.
+    ///   Gets or sets a value indicating whether to treat NBSP as space.
     /// </summary>
     /// <value><c>true</c> if NBSP should be treated as space; otherwise, <c>false</c>.</value>
     [XmlAttribute]
@@ -992,7 +992,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Gets or sets a value indicating whether this instance should treat any text listed here as Null
+    ///   Gets or sets a value indicating whether this instance should treat any text listed here as Null
     /// </summary>
     [XmlAttribute]
     [DefaultValue("NULL")]
@@ -1014,7 +1014,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Gets or sets a value indicating of and if training and leading spaces should be trimmed.
+    ///   Gets or sets a value indicating of and if training and leading spaces should be trimmed.
     /// </summary>
     /// <value><c>true</c> ; otherwise, <c>false</c>.</value>
     [XmlAttribute]
@@ -1032,10 +1032,11 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Gets or sets a value indicating whether this instance is imported
+    ///   Gets or sets a value indicating whether this instance is imported
     /// </summary>
     /// <remarks>
-    /// Only used in CSV Validator to distinguish between imported files and extracts for reference checks
+    ///   Only used in CSV Validator to distinguish between imported files and extracts for
+    ///   reference checks
     /// </remarks>
     /// <value><c>true</c> if this file is imported; otherwise, <c>false</c>.</value>
     [XmlAttribute(AttributeName = "IsImported")]
@@ -1054,7 +1055,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Gets or sets the <see cref="ValidationResult"/>
+    ///   Gets or sets the <see cref="ValidationResult" />
     /// </summary>
     public ValidationResult ValidationResult
     {
@@ -1071,7 +1072,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Copies all values to other instance
+    ///   Copies all values to other instance
     /// </summary>
     /// <param name="other">The other.</param>
     protected virtual void BaseSettingsCopyTo(BaseSettings other)
@@ -1083,7 +1084,6 @@ namespace CsvTools
       other.ConsecutiveEmptyRows = m_ConsecutiveEmptyRows;
       other.TrimmingOption = m_TrimmingOption;
       other.TemplateName = m_TemplateName;
-      other.GetEncryptedPassphraseFunction = GetEncryptedPassphraseFunction;
       other.IsEnabled = m_IsEnabled;
       other.DisplayStartLineNo = m_DisplayStartLineNo;
       other.SetLatestSourceTimeForWrite = m_SetLatestSourceTimeForWrite;
@@ -1130,7 +1130,7 @@ namespace CsvTools
 
     /*
     /// <summary>
-    /// Serves as the default hash function.
+    ///   Serves as the default hash function.
     /// </summary>
     /// <returns>A hash code for the current object.</returns>
     protected virtual int GetBaseHashCode()
@@ -1180,7 +1180,7 @@ namespace CsvTools
       */
 
     /// <summary>
-    /// Notifies the completed property changed.
+    ///   Notifies the completed property changed.
     /// </summary>
     /// <param name="info">The info.</param>
     protected void NotifyPropertyChanged(string info)
@@ -1210,8 +1210,5 @@ namespace CsvTools
       stringBuilder.Append(FileSystemUtils.GetShortDisplayFileName(settingPhysicalFile.FileName, 80));
       return stringBuilder.ToString();
     }
-
-    [XmlIgnore]
-    public Func<string> GetEncryptedPassphraseFunction { get; set; }
   }
 }

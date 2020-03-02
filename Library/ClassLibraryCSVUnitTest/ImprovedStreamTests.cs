@@ -36,9 +36,9 @@ namespace CsvTools.Tests
     }
 
     [TestMethod()]
-    public void OpenReadTestRegular()
+    public void OpenReadTestgZip()
     {
-      using (var res = ImprovedStream.OpenRead(UnitTestInitialize.GetTestPath("BasicCsV.txt")))
+      using (var res = ImprovedStream.OpenRead(UnitTestInitialize.GetTestPath("BasicCsV.txt.gz")))
       {
         Assert.IsNotNull(res);
         Assert.IsNotNull(res.Stream);
@@ -46,9 +46,9 @@ namespace CsvTools.Tests
     }
 
     [TestMethod()]
-    public void OpenReadTestgZip()
+    public void OpenReadTestRegular()
     {
-      using (var res = ImprovedStream.OpenRead(UnitTestInitialize.GetTestPath("BasicCsV.txt.gz")))
+      using (var res = ImprovedStream.OpenRead(UnitTestInitialize.GetTestPath("BasicCsV.txt")))
       {
         Assert.IsNotNull(res);
         Assert.IsNotNull(res.Stream);

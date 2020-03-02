@@ -25,7 +25,7 @@ using System.Threading;
 namespace CsvTools
 {
   /// <summary>
-  /// Helper class
+  ///   Helper class
   /// </summary>
   public static class DetermineColumnFormat
   {
@@ -52,7 +52,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Fills the Column Format for reader fileSettings
+    ///   Fills the Column Format for reader fileSettings
     /// </summary>
     /// <param name="fileSetting">The file setting to check, and fill</param>
     /// <param name="addTextColumns">if set to <c>true</c> event string columns are added.</param>
@@ -99,7 +99,7 @@ namespace CsvTools
       var othersValueFormatDate = CommonDateFormat(present);
       // need a dummy process display to have pass in Cancellation token to reader
       using (var prc2 = new DummyProcessDisplay(processDisplay.CancellationToken))
-      using (var fileReader = ApplicationSetting.GetFileReader(fileSettingCopy, prc2))
+      using (var fileReader = ApplicationSetting.GetFileReader(fileSettingCopy, null, prc2))
       {
         Contract.Assume(fileReader != null);
         fileReader.Open();
@@ -459,7 +459,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Fills the Column Format for writer fileSettings
+    ///   Fills the Column Format for writer fileSettings
     /// </summary>
     /// <param name="fileSettings">The file settings.</param>
     /// <param name="all">if set to <c>true</c> event string columns are added.</param>
@@ -497,7 +497,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Gets all possible formats based on the provided value
+    ///   Gets all possible formats based on the provided value
     /// </summary>
     /// <param name="value">The value.</param>
     /// <param name="culture">The culture.</param>
@@ -516,7 +516,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Get sample values for a column
+    ///   Get sample values for a column
     /// </summary>
     /// <param name="dataTable">The data table.</param>
     /// <param name="columnIndex">Index of the column.</param>
@@ -576,13 +576,13 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Get sample values for several columns at once, ignoring rows with issues or warning in the
-    /// columns, looping though all records in the reader
+    ///   Get sample values for several columns at once, ignoring rows with issues or warning in the
+    ///   columns, looping though all records in the reader
     /// </summary>
-    /// <param name="dataReader">A <see cref="IFileReader"/> data reader</param>
+    /// <param name="dataReader">A <see cref="IFileReader" /> data reader</param>
     /// <param name="maxRecords">The maximum records.</param>
     /// <param name="columns">
-    /// A Dictionary listing the columns and the number of samples needed for each
+    ///   A Dictionary listing the columns and the number of samples needed for each
     /// </param>
     /// <param name="enoughSamples">The enough samples.</param>
     /// <param name="treatAsNull">Text that should be regarded as an empty column</param>
@@ -716,24 +716,24 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Get sample values for a column, ignoring all rows with issues for the column, looping though
-    /// all records in the reader
+    ///   Get sample values for a column, ignoring all rows with issues for the column, looping
+    ///   though all records in the reader
     /// </summary>
-    /// <param name="dataReader">A <see cref="IFileReader"/> data reader</param>
+    /// <param name="dataReader">A <see cref="IFileReader" /> data reader</param>
     /// <param name="maxRecords">The maximum records.</param>
     /// <param name="columnIndex">Index of the column.</param>
     /// <param name="enoughSamples">The number samples.</param>
     /// <param name="treatAsNull">Text that should be regarded as an empty column</param>
     /// <param name="cancellationToken">A cancellation token</param>
     /// <returns>
-    /// A collection of distinct not null values, in case the text is long only the first 40
-    /// characters are stored
+    ///   A collection of distinct not null values, in case the text is long only the first 40
+    ///   characters are stored
     /// </returns>
     public static SampleResult GetSampleValues(IFileReader dataReader, long maxRecords,
       int columnIndex, int enoughSamples, string treatAsNull, CancellationToken cancellationToken) => GetSampleValues(dataReader, maxRecords, new[] { columnIndex }, enoughSamples, treatAsNull, cancellationToken)[columnIndex];
 
     /// <summary>
-    /// Gets the writer source columns.
+    ///   Gets the writer source columns.
     /// </summary>
     /// <param name="fileSettings">The file settings.</param>
     /// <param name="processDisplay">The process display.</param>
@@ -742,7 +742,7 @@ namespace CsvTools
     IProcessDisplay processDisplay)
     {
       Contract.Requires(fileSettings != null);
-      var writer = ApplicationSetting.GetFileWriter(fileSettings, processDisplay);
+      var writer = ApplicationSetting.GetFileWriter(fileSettings, null, processDisplay);
       using (var data = writer.GetSchemaReader())
       {
         return writer.GetSourceColumnInformation(data);
@@ -750,7 +750,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Guesses the date time format
+    ///   Guesses the date time format
     /// </summary>
     /// <param name="samples">The sample texts.</param>
     /// <param name="checkNamedDates">if set to <c>true</c> [check named dates].</param>
@@ -877,7 +877,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Guesses the value format.
+    ///   Guesses the value format.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token</param>
     /// <param name="samples">The samples.</param>
@@ -892,10 +892,12 @@ namespace CsvTools
     /// <param name="serialDateTime">Allow serial Date time</param>
     /// <param name="checkNamedDates">if set to <c>true</c> [check named dates].</param>
     /// <param name="othersValueFormatDate">
-    /// The date format found in prior columns, assuming the data format is the same in other
-    /// columns, we do not need that many samples
+    ///   The date format found in prior columns, assuming the data format is the same in other
+    ///   columns, we do not need that many samples
     /// </param>
-    /// <returns><c>Null</c> if no format could be determined otherwise a <see cref="ValueFormat"/></returns>
+    /// <returns>
+    ///   <c>Null</c> if no format could be determined otherwise a <see cref="ValueFormat" />
+    /// </returns>
     public static CheckResult GuessValueFormat(ICollection<string> samples, int minRequiredSamples,
       string trueValue, string falseValue, bool guessBoolean, bool guessGuid, bool guessNumeric, bool guessDateTime,
       bool guessPercentage, bool serialDateTime, bool checkNamedDates, ValueFormat othersValueFormatDate,

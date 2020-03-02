@@ -49,18 +49,13 @@ namespace CsvTools
     /// <summary>
     ///   Gets the file setting.
     /// </summary>
-    /// <value>
-    ///   The file setting.
-    /// </value>
+    /// <value>The file setting.</value>
     IFileSetting FileSetting { get; }
-
 
     /// <summary>
     ///   Gets the process display.
     /// </summary>
-    /// <value>
-    ///   The process display.
-    /// </value>
+    /// <value>The process display.</value>
     IProcessDisplay ProcessDisplay { get; }
 
     /// <summary>
@@ -69,12 +64,14 @@ namespace CsvTools
     event EventHandler<WarningEventArgs> Warning;
 
     /// <summary>
-    ///   Occurs before the initial open. Can be used to prepare teh data like download it from a Remote location
+    ///   Occurs before the initial open. Can be used to prepare teh data like download it from a
+    ///   Remote location
     /// </summary>
     event EventHandler OnOpen;
 
     /// <summary>
-    ///   Occurs when an open process failed, allowing the user to change the timeout or provide the needed file etc.
+    ///   Occurs when an open process failed, allowing the user to change the timeout or provide the
+    ///   needed file etc.
     /// </summary>
     event EventHandler<RetryEventArgs> OnAskRetry;
 
@@ -95,9 +92,7 @@ namespace CsvTools
     /// <summary>
     ///   Opens the text file and begins to read the meta data, like columns
     /// </summary>
-    /// <returns>
-    ///   Number of records in the file if known (use determineColumnSize), -1 otherwise
-    /// </returns>
+    /// <returns>Number of records in the file if known (use determineColumnSize), -1 otherwise</returns>
     void Open();
 
     /// <summary>

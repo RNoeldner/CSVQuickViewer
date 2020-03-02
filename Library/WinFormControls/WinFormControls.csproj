@@ -7,7 +7,7 @@
     <ProjectGuid>{55AD0A98-C175-4B38-A3D0-321740820D41}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>WinFormControls</RootNamespace>
+    <RootNamespace>CsvTools</RootNamespace>
     <AssemblyName>WinFormControls</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -18,7 +18,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;log4net</DefineConstants>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <NoWarn>1701;1702;1705</NoWarn>
@@ -247,17 +247,13 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ClassLibraryCSV\ClassLibraryCSV.csproj">
-      <Project>{0b6aee5a-8005-4b1d-987f-5790c34a2d52}</Project>
-      <Name>ClassLibraryCSV</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Library\ClassLibraryCSV\ClassLibraryCSV.csproj">
-      <Project>{0b6aee5a-8005-4b1d-987f-5790c34a2d52}</Project>
-      <Name>ClassLibraryCSV</Name>
-    </ProjectReference>
+    <None Include="Resources\NBSP.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\NBSP.png" />
+    <ProjectReference Include="..\ClassLibraryCSV\ClassLibraryCSV.csproj">
+      <Project>{0b6aee5a-8005-4b1d-987f-5790d34a2d52}</Project>
+      <Name>ClassLibraryCSV</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

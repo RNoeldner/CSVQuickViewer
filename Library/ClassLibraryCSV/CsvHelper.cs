@@ -27,7 +27,7 @@ using System.Threading;
 namespace CsvTools
 {
   /// <summary>
-  /// Helper class
+  ///   Helper class
   /// </summary>
   public static class CsvHelper
   {
@@ -48,7 +48,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Gets the column header of a file
+    ///   Gets the column header of a file
     /// </summary>
     /// <param name="fileReader">a file reader</param>
     /// <param name="cancellationToken">a cancellation token</param>
@@ -79,7 +79,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Gets the <see cref="Encoding"/> of the textFile
+    ///   Gets the <see cref="Encoding" /> of the textFile
     /// </summary>
     /// <param name="setting">The setting.</param>
     /// <returns></returns>
@@ -101,7 +101,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Guesses the code page ID of a file
+    ///   Guesses the code page ID of a file
     /// </summary>
     /// <param name="setting">The CSVFile fileSetting</param>
     /// <remarks>No Error will be thrown, the CodePage and the BOM will bet set</remarks>
@@ -140,9 +140,9 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Guesses the delimiter for a files. Done with a rather simple csv parsing, and trying to find
-    /// the delimiter that has the least variance in the read rows, if that is not possible the
-    /// delimiter with the highest number of occurrences.
+    ///   Guesses the delimiter for a files. Done with a rather simple csv parsing, and trying to
+    ///   find the delimiter that has the least variance in the read rows, if that is not possible
+    ///   the delimiter with the highest number of occurrences.
     /// </summary>
     /// <param name="setting">The CSVFile fileSetting</param>
     /// <returns>A character with the assumed delimiter for the file</returns>
@@ -163,7 +163,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Guesses the json file.
+    ///   Guesses the json file.
     /// </summary>
     /// <param name="setting">The setting.</param>
     /// <returns></returns>
@@ -178,12 +178,12 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Opens the csv file, and tries to read the headers
+    ///   Opens the csv file, and tries to read the headers
     /// </summary>
     /// <param name="setting">The CSVFile fileSetting</param>
     /// <param name="cancellationToken">A cancellation token</param>
     /// <returns>
-    /// <c>True</c> we could use the first row as header, <c>false</c> should not use first row as header
+    ///   <c>True</c> we could use the first row as header, <c>false</c> should not use first row as header
     /// </returns>
     public static bool GuessHasHeader(ICsvFile setting, CancellationToken cancellationToken)
     {
@@ -196,7 +196,7 @@ namespace CsvTools
       }
 
       using (var dummy = new DummyProcessDisplay(cancellationToken))
-      using (var csvDataReader = new CsvFileReader(setting, dummy))
+      using (var csvDataReader = new CsvFileReader(setting, null, dummy))
       {
         csvDataReader.Open();
 
@@ -238,9 +238,9 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Try to guess the new line sequence
+    ///   Try to guess the new line sequence
     /// </summary>
-    /// <param name="setting"><see cref="ICsvFile"/> with the information</param>
+    /// <param name="setting"><see cref="ICsvFile" /> with the information</param>
     /// <returns>The NewLine Combination used</returns>
     public static string GuessNewline(ICsvFile setting)
     {
@@ -255,9 +255,9 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Determines the start row in the file
+    ///   Determines the start row in the file
     /// </summary>
-    /// <param name="setting"><see cref="ICsvFile"/> with the information</param>
+    /// <param name="setting"><see cref="ICsvFile" /> with the information</param>
     /// <returns>The number of rows to skip</returns>
     private static char GuessQualifier(ICsvFile setting)
     {
@@ -270,9 +270,9 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Determines the start row in the file
+    ///   Determines the start row in the file
     /// </summary>
-    /// <param name="setting"><see cref="ICsvFile"/> with the information</param>
+    /// <param name="setting"><see cref="ICsvFile" /> with the information</param>
     /// <returns>The number of rows to skip</returns>
     public static int GuessStartRow(ICsvFile setting)
     {
@@ -286,7 +286,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Does check if quoting was actually used in the file
+    ///   Does check if quoting was actually used in the file
     /// </summary>
     /// <param name="setting">The setting.</param>
     /// <param name="token">The token.</param>
@@ -340,8 +340,8 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Refreshes the settings assuming the file has changed, checks CodePage, Delimiter, Start Row
-    /// and Header
+    ///   Refreshes the settings assuming the file has changed, checks CodePage, Delimiter, Start
+    ///   Row and Header
     /// </summary>
     /// <param name="file">The file.</param>
     /// <param name="display">The display.</param>
@@ -350,7 +350,9 @@ namespace CsvTools
     /// <param name="guessDelimiter">if true, try to determine the delimiter</param>
     /// <param name="guessQualifier">if true, try to determine teh qualifier for text</param>
     /// <param name="guessStartRow">if true, try to determine teh number of skipped rows</param>
-    /// <param name="guessHasHeader">if true, try to determine if the file does have a header row</param>
+    /// <param name="guessHasHeader">
+    ///   if true, try to determine if the file does have a header row
+    /// </param>
     public static void RefreshCsvFile(this ICsvFile file, IProcessDisplay display, bool guessJson = false, bool guessCodePage = true, bool guessDelimiter = true, bool guessQualifier = true, bool guessStartRow = true, bool guessHasHeader = true)
     {
       Contract.Requires(file != null);
@@ -435,9 +437,9 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Guesses the delimiter for a files. Done with a rather simple csv parsing, and trying to find
-    /// the delimiter that has the least variance in the read rows, if that is not possible the
-    /// delimiter with the highest number of occurrences.
+    ///   Guesses the delimiter for a files. Done with a rather simple csv parsing, and trying to
+    ///   find the delimiter that has the least variance in the read rows, if that is not possible
+    ///   the delimiter with the highest number of occurrences.
     /// </summary>
     /// <param name="streamReader">The StreamReader with the data</param>
     /// <param name="escapeCharacter">The escape character.</param>
@@ -684,7 +686,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Guesses the start row of a CSV file Done with a rather simple csv parsing
+    ///   Guesses the start row of a CSV file Done with a rather simple csv parsing
     /// </summary>
     /// <param name="streamReader">The stream reader with the data</param>
     /// <param name="delimiter">The delimiter.</param>

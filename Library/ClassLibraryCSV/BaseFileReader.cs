@@ -96,16 +96,18 @@ namespace CsvTools
     /// </summary>
     private int m_FieldCount;
 
+    protected readonly string m_DestinationTimeZone;
+
     /// <summary>
-    ///   used to avoid reporting a fished execution twice it might be called on error before being called once execution is
-    ///   done
+    ///   used to avoid reporting a fished execution twice it might be called on error before being
+    ///   called once execution is done
     /// </summary>
     private bool m_IsFinished;
 
-    protected BaseFileReader(IFileSetting fileSetting, IProcessDisplay processDisplay)
+    protected BaseFileReader(IFileSetting fileSetting, string destinationTimeZone, IProcessDisplay processDisplay)
     {
       FileSetting = fileSetting ?? throw new ArgumentNullException(nameof(fileSetting));
-
+      m_DestinationTimeZone = string.IsNullOrEmpty(destinationTimeZone) ? TimeZoneInfo.Local.Id : destinationTimeZone;
       if (processDisplay != null)
       {
         processDisplay.Maximum = 0;
@@ -184,9 +186,7 @@ namespace CsvTools
     /// <summary>
     ///   Gets the file setting used in this reader
     /// </summary>
-    /// <value>
-    ///   The file setting.
-    /// </value>
+    /// <value>The file setting.</value>
     public IFileSetting FileSetting
     {
       get;
@@ -216,8 +216,8 @@ namespace CsvTools
     public event EventHandler OnOpen;
 
     /// <summary>
-    ///   Occurs when something went wrong during opening of the setting, this might be the file does not exist or a query ran
-    ///   into a timeout
+    ///   Occurs when something went wrong during opening of the setting, this might be the file
+    ///   does not exist or a query ran into a timeout
     /// </summary>
     public virtual event EventHandler<RetryEventArgs> OnAskRetry;
 
@@ -317,7 +317,9 @@ namespace CsvTools
     /// <param name="i">The zero-based column ordinal.</param>
     /// <param name="fieldOffset">The index within the row from which to start the read operation.</param>
     /// <param name="buffer">The buffer into which to read the stream of bytes.</param>
-    /// <param name="bufferOffset">The index for <paramref name="buffer" /> to start the read operation.</param>
+    /// <param name="bufferOffset">
+    ///   The index for <paramref name="buffer" /> to start the read operation.
+    /// </param>
     /// <param name="length">The number of bytes to read.</param>
     /// <returns>The actual number of characters read.</returns>
     /// <exception cref="IndexOutOfRangeException">
@@ -354,9 +356,7 @@ namespace CsvTools
     ///   Gets the date and time data value of the specified field.
     /// </summary>
     /// <param name="columnNumber">The index of the field to find.</param>
-    /// <returns>
-    ///   The date and time data value of the specified field.
-    /// </returns>
+    /// <returns>The date and time data value of the specified field.</returns>
     public virtual DateTime GetDateTime(int columnNumber)
     {
       Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount);
@@ -420,9 +420,7 @@ namespace CsvTools
     ///   Gets the single-precision floating point number of the specified field.
     /// </summary>
     /// <param name="columnNumber">The index of the field to find.</param>
-    /// <returns>
-    ///   The single-precision floating point number of the specified field.
-    /// </returns>
+    /// <returns>The single-precision floating point number of the specified field.</returns>
     public virtual float GetFloat(int columnNumber)
     {
       Debug.Assert(0 <= columnNumber);
@@ -479,9 +477,7 @@ namespace CsvTools
     ///   Gets the 16-bit signed integer value of the specified field.
     /// </summary>
     /// <param name="columnNumber">The index of the field to find.</param>
-    /// <returns>
-    ///   The 16-bit signed integer value of the specified field.
-    /// </returns>
+    /// <returns>The 16-bit signed integer value of the specified field.</returns>
     public virtual short GetInt16(int columnNumber)
     {
       Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount);
@@ -595,12 +591,10 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Returns a <see cref="DataTable" /> that describes the column meta data of the
-    ///   <see cref="IDataReader" />.
+    ///   Returns a <see cref="DataTable" /> that describes the column meta data of the <see
+    ///   cref="IDataReader" />.
     /// </summary>
-    /// <returns>
-    ///   A <see cref="DataTable" /> that describes the column meta data.
-    /// </returns>
+    /// <returns>A <see cref="DataTable" /> that describes the column meta data.</returns>
     /// <exception cref="InvalidOperationException">The <see cref="IDataReader" /> is closed.</exception>
     public virtual DataTable GetSchemaTable()
     {
@@ -702,9 +696,7 @@ namespace CsvTools
     /// <summary>
     ///   Gets all the attribute fields in the collection for the current record.
     /// </summary>
-    /// <param name="values">
-    ///   An array of object to copy the attribute fields into.
-    /// </param>
+    /// <param name="values">An array of object to copy the attribute fields into.</param>
     /// <returns>The number of instances of object in the array.</returns>
     public virtual int GetValues(object[] values)
     {
@@ -736,7 +728,7 @@ namespace CsvTools
     public virtual bool IgnoreRead(int columnNumber) => GetColumn(columnNumber).Ignore;
 
     /// <summary>
-    ///   Displays progress, is called after <see langword="abstract" />row has been read
+    ///   Displays progress, is called after <see langword="abstract" /> row has been read
     /// </summary>
     /// <param name="hasReadRow"><c>true</c> if a row has been read</param>
     protected void InfoDisplay(bool hasReadRow)
@@ -751,12 +743,9 @@ namespace CsvTools
     ///   Return whether the specified field is set to null.
     /// </summary>
     /// <param name="columnNumber">The index of the field to find.</param>
-    /// <returns>
-    ///   true if the specified field is set to null; otherwise, false.
-    /// </returns>
+    /// <returns>true if the specified field is set to null; otherwise, false.</returns>
     /// <exception cref="IndexOutOfRangeException">
-    ///   The index passed was outside the range of 0 through
-    ///   <see cref="IDataRecord.FieldCount" />.
+    ///   The index passed was outside the range of 0 through <see cref="IDataRecord.FieldCount" />.
     /// </exception>
     public virtual bool IsDBNull(int columnNumber)
     {
@@ -812,8 +801,8 @@ namespace CsvTools
         m_AssociatedTimeZoneCol[colindex] = GetOrdinal(Column[colindex].TimeZonePart);
       }
 
-      // Any defined column not present in file is removed
-      // this can happen if the file is changed or changing the encoding the name might show different W�hrung <> Währung
+      // Any defined column not present in file is removed this can happen if the file is changed or
+      // changing the encoding the name might show different W�hrung <> Währung
       var remove = new List<Column>();
       foreach (var setting in FileSetting.ColumnCollection)
       {
@@ -830,7 +819,8 @@ namespace CsvTools
       }
 
       foreach (var col in remove)
-        // HandleWarning(-1, $"Column \"{col.Name}\" not found in file, this can happen if column name is changed");
+        // HandleWarning(-1, $"Column \"{col.Name}\" not found in file, this can happen if column
+        // name is changed");
         FileSetting.ColumnCollection.Remove(col);
     }
 
@@ -845,9 +835,7 @@ namespace CsvTools
     /// <summary>
     ///   Gets the default schema row array.
     /// </summary>
-    /// <returns>
-    ///   an Array of objects for a new row in a Schema Table
-    /// </returns>
+    /// <returns>an Array of objects for a new row in a Schema Table</returns>
     protected static object[] GetDefaultSchemaRowArray() => new object[]
     {
       true, // 00- AllowDBNull
@@ -877,9 +865,7 @@ namespace CsvTools
     /// <summary>
     ///   Gets the empty schema table.
     /// </summary>
-    /// <returns>
-    ///   A Data Table with the columns for a Schema Table
-    /// </returns>
+    /// <returns>A Data Table with the columns for a Schema Table</returns>
     protected static DataTable GetEmptySchemaTable()
     {
       var dataTable = new DataTable
@@ -1161,15 +1147,14 @@ namespace CsvTools
           : null));
 
     /// <summary>
-    ///   Does handle TextToHML, TextToHtmlFull, TextPart and TreatNBSPAsSpace and does update the maximum column size
+    ///   Does handle TextToHML, TextToHtmlFull, TextPart and TreatNBSPAsSpace and does update the
+    ///   maximum column size
     ///   Attention: Trimming needs to be handled before hand
     /// </summary>
     /// <param name="inputString">The input string.</param>
     /// <param name="columnNumber">The column number</param>
     /// <param name="handleNullText">if set to <c>true</c> [handle null text].</param>
-    /// <returns>
-    ///   The proper encoded or cut text as returned for the column
-    /// </returns>
+    /// <returns>The proper encoded or cut text as returned for the column</returns>
     protected string HandleTextAndSetSize(string inputString, int columnNumber, bool handleNullText)
     {
       // in case its not a string
@@ -1353,7 +1338,8 @@ namespace CsvTools
         if (string.IsNullOrEmpty(columnName))
         {
           resultingName = GetDefaultName(counter);
-          // HandleWarning(counter, string.Format(CultureInfo.CurrentCulture, "{0}Column title is empty.", CWarningId));
+          // HandleWarning(counter, string.Format(CultureInfo.CurrentCulture, "{0}Column title is
+          // empty.", CWarningId));
         }
         else
         {
@@ -1409,15 +1395,7 @@ namespace CsvTools
           timeZone = GetString(colTimeZone);
       }
 
-      try
-      {
-        return input.Value.ConvertTime(timeZone, ApplicationSetting.DestinationTimeZone);
-      }
-      catch (ConversionException ex)
-      {
-        HandleWarning(column.ColumnOrdinal, ex.Message);
-        return null;
-      }
+      return ApplicationSetting.AdjustTZ(input, timeZone, m_DestinationTimeZone, column.ColumnOrdinal, HandleWarning);
     }
 
     /// <summary>
@@ -1426,7 +1404,8 @@ namespace CsvTools
     /// <param name="inputBoolean">The input.</param>
     /// <param name="columnNumber">The column.</param>
     /// <returns>
-    ///   The Boolean, if conversion is not successful: <c>NULL</c> the event handler for warnings is called
+    ///   The Boolean, if conversion is not successful: <c>NULL</c> the event handler for warnings
+    ///   is called
     /// </returns>
     private bool? GetBooleanNull(string inputBoolean, int columnNumber)
     {

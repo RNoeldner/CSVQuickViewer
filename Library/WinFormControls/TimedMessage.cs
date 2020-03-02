@@ -21,15 +21,13 @@
 
     private int m_Counter = 0;
 
-    private MessageBoxButtons m_MessageBoxButtons = MessageBoxButtons.OKCancel;
-
     private PictureBox m_PictureBox;
 
     private RichTextBox m_RichTextBox;
 
     private TableLayoutPanel m_TableLayoutPanel;
-        private IContainer components;
-        private Timer timer;
+    private IContainer components;
+    private Timer timer;
 
     public TimedMessage() => InitializeComponent();
 
@@ -62,8 +60,6 @@
       Text = title;
       Message = message;
       Duration = timeout;
-
-      m_MessageBoxButtons = buttons;
 
       // One Button
       if (buttons == MessageBoxButtons.OK)
@@ -161,6 +157,8 @@
       {
         AcceptButton = m_Button3;
       }
+      else
+        AcceptButton = m_Button1;
 
       if (icon != MessageBoxIcon.None)
       {
@@ -169,15 +167,19 @@
           case MessageBoxIcon.Error:
             m_PictureBox.Image = m_ImageList.Images[3];
             break;
+
           case MessageBoxIcon.Information:
             m_PictureBox.Image = m_ImageList.Images[0];
             break;
+
           case MessageBoxIcon.Warning:
             m_PictureBox.Image = m_ImageList.Images[1];
             break;
+
           case MessageBoxIcon.Question:
             m_PictureBox.Image = m_ImageList.Images[2];
             break;
+
           default:
             break;
         }
@@ -215,8 +217,8 @@
     }
 
     /// <summary>
-    ///   Required method for Designer support - do not modify
-    ///   the contents of this method with the code editor.
+    ///   Required method for Designer support - do not modify the contents of this method with the
+    ///   code editor.
     /// </summary>
     private void InitializeComponent()
     {
@@ -234,9 +236,7 @@
       ((System.ComponentModel.ISupportInitialize)(this.m_PictureBox)).BeginInit();
       this.m_TableLayoutPanel.SuspendLayout();
       this.SuspendLayout();
-      // 
       // m_Button1
-      // 
       this.m_Button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
       this.m_Button1.BackColor = System.Drawing.SystemColors.ButtonFace;
       this.m_Button1.Location = new System.Drawing.Point(419, 143);
@@ -248,9 +248,7 @@
       this.m_Button1.UseVisualStyleBackColor = false;
       this.m_Button1.MouseEnter += new System.EventHandler(this.MouseEnterElement);
       this.m_Button1.MouseLeave += new System.EventHandler(this.MouseLeaveElement);
-      // 
       // m_RichTextBox
-      // 
       this.m_RichTextBox.BackColor = System.Drawing.SystemColors.Control;
       this.m_RichTextBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
       this.m_TableLayoutPanel.SetColumnSpan(this.m_RichTextBox, 4);
@@ -264,9 +262,7 @@
       this.m_RichTextBox.Text = "";
       this.m_RichTextBox.MouseEnter += new System.EventHandler(this.MouseEnterElement);
       this.m_RichTextBox.MouseLeave += new System.EventHandler(this.MouseLeaveElement);
-      // 
       // m_LabelDefault
-      // 
       this.m_LabelDefault.BackColor = System.Drawing.Color.Transparent;
       this.m_TableLayoutPanel.SetColumnSpan(this.m_LabelDefault, 2);
       this.m_LabelDefault.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -277,15 +273,11 @@
       this.m_LabelDefault.TabIndex = 2;
       this.m_LabelDefault.Text = "Default in 5 seconds";
       this.m_LabelDefault.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-      // 
       // timer
-      // 
       this.timer.Enabled = true;
       this.timer.Interval = 500;
       this.timer.Tick += new System.EventHandler(this.Timer_Tick);
-      // 
       // m_Button2
-      // 
       this.m_Button2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
       this.m_Button2.BackColor = System.Drawing.SystemColors.ButtonFace;
       this.m_Button2.DialogResult = System.Windows.Forms.DialogResult.Cancel;
@@ -298,9 +290,7 @@
       this.m_Button2.UseVisualStyleBackColor = false;
       this.m_Button2.MouseEnter += new System.EventHandler(this.MouseEnterElement);
       this.m_Button2.MouseLeave += new System.EventHandler(this.MouseLeaveElement);
-      // 
       // m_Button3
-      // 
       this.m_Button3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
       this.m_Button3.BackColor = System.Drawing.SystemColors.ButtonFace;
       this.m_Button3.Location = new System.Drawing.Point(631, 143);
@@ -312,9 +302,7 @@
       this.m_Button3.UseVisualStyleBackColor = false;
       this.m_Button3.MouseEnter += new System.EventHandler(this.MouseEnterElement);
       this.m_Button3.MouseLeave += new System.EventHandler(this.MouseLeaveElement);
-      // 
       // m_PictureBox
-      // 
       this.m_PictureBox.ErrorImage = null;
       this.m_PictureBox.InitialImage = null;
       this.m_PictureBox.Location = new System.Drawing.Point(10, 3);
@@ -324,9 +312,7 @@
       this.m_PictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
       this.m_PictureBox.TabIndex = 4;
       this.m_PictureBox.TabStop = false;
-      // 
       // m_TableLayoutPanel
-      // 
       this.m_TableLayoutPanel.AutoSize = true;
       this.m_TableLayoutPanel.BackColor = System.Drawing.Color.Transparent;
       this.m_TableLayoutPanel.ColumnCount = 5;
@@ -352,18 +338,14 @@
       this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.m_TableLayoutPanel.Size = new System.Drawing.Size(749, 179);
       this.m_TableLayoutPanel.TabIndex = 5;
-      // 
       // m_ImageList
-      // 
       this.m_ImageList.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("m_ImageList.ImageStream")));
       this.m_ImageList.TransparentColor = System.Drawing.Color.Transparent;
       this.m_ImageList.Images.SetKeyName(0, "Info-icon.bmp");
       this.m_ImageList.Images.SetKeyName(1, "icon-warning.bmp");
       this.m_ImageList.Images.SetKeyName(2, "icon-question.bmp");
       this.m_ImageList.Images.SetKeyName(3, "error-icon.bmp");
-      // 
       // TimedMessage
-      // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 18F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.AutoSize = true;
@@ -387,7 +369,6 @@
       this.m_TableLayoutPanel.PerformLayout();
       this.ResumeLayout(false);
       this.PerformLayout();
-
     }
 
     private void MouseEnterElement(object sender, EventArgs e)
@@ -409,7 +390,7 @@
 
       if (Duration > 0 && (m_Counter * timer.Interval) / 1000 > Duration)
       {
-        AcceptButton.PerformClick();
+        AcceptButton?.PerformClick();
       }
     }
 

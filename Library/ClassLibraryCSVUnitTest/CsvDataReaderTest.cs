@@ -95,7 +95,7 @@ namespace CsvTools.Tests
       });
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(basIssues, processDisplay))
+      using (var test = new CsvFileReader(basIssues, TimeZoneInfo.Local.Id, processDisplay))
       {
         var warningList = new RowErrorCollection(test);
         test.Open();
@@ -177,7 +177,7 @@ namespace CsvTools.Tests
     public void TestGetDataTypeName()
     {
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
+      using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         Assert.AreEqual("String", test.GetDataTypeName(0));
@@ -188,7 +188,7 @@ namespace CsvTools.Tests
     public void TestWarningsRecordWithMapping()
     {
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
+      using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         using (var dataTable = new DataTable
@@ -230,7 +230,7 @@ namespace CsvTools.Tests
     public void CopyRowToTableNullWarningList()
     {
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
+      using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         try
@@ -255,7 +255,7 @@ namespace CsvTools.Tests
     public void CopyRowToTableNullDataTable()
     {
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
+      using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         try
@@ -279,7 +279,7 @@ namespace CsvTools.Tests
     public void TestWarningsRecordNoMapping()
     {
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
+      using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         var dataTable = new DataTable
@@ -348,7 +348,7 @@ namespace CsvTools.Tests
         DecimalSeparator = "."
       };
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
+      using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         var inputValue = "17";
 
@@ -371,7 +371,7 @@ namespace CsvTools.Tests
     {
       var finished = false;
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
+      using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.ReadFinished += delegate
         { finished = true; };
@@ -390,7 +390,7 @@ namespace CsvTools.Tests
     {
       var finished = false;
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
+      using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.ReadFinished += delegate
         { finished = true; };
@@ -432,7 +432,7 @@ namespace CsvTools.Tests
       csvFile.ColumnCollection.AddIfNew(new Column { Name = "Title", DataType = DataType.DateTime });
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(csvFile, processDisplay))
+      using (var test = new CsvFileReader(csvFile, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         test.Read();
@@ -444,7 +444,7 @@ namespace CsvTools.Tests
     public void CsvDataReaderWriteToDataTable()
     {
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
+      using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
 
@@ -477,7 +477,7 @@ namespace CsvTools.Tests
 
       using (var processDisplay = new DummyProcessDisplay())
       {
-        using (var test = new CsvFileReader(setting, processDisplay))
+        using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
         {
           test.Open();
 
@@ -496,7 +496,7 @@ namespace CsvTools.Tests
     public void CsvDataReaderWriteToDataTable_RowErrorCollection()
     {
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
+      using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
 
@@ -514,7 +514,7 @@ namespace CsvTools.Tests
       var newCsvFile = (CsvFile)m_ValidSetting.Clone();
       newCsvFile.DisplayRecordNo = true;
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(newCsvFile, processDisplay))
+      using (var test = new CsvFileReader(newCsvFile, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         var res = test.WriteToDataTable(newCsvFile, 0, CancellationToken.None);
@@ -529,7 +529,7 @@ namespace CsvTools.Tests
     public void CsvDataReaderWriteToDataTable2()
     {
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
+      using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         var res = test.WriteToDataTable(m_ValidSetting, 2, CancellationToken.None);
@@ -548,7 +548,7 @@ namespace CsvTools.Tests
       try
       {
         setting.FileName = string.Empty;
-        using (var test = new CsvFileReader(setting, null))
+        using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, null))
         {
         }
 
@@ -568,7 +568,7 @@ namespace CsvTools.Tests
       try
       {
         setting.FileName = @"b;dslkfg;sldfkgjs;ldfkgj;sldfkg.sdfgsfd";
-        using (var test = new CsvFileReader(setting, null))
+        using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, null))
         {
         }
 
@@ -596,7 +596,7 @@ namespace CsvTools.Tests
       };
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, processDisplay))
+      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         var row = 0;
@@ -632,7 +632,7 @@ namespace CsvTools.Tests
 */
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, processDisplay))
+      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         var row = 0;
@@ -647,7 +647,7 @@ namespace CsvTools.Tests
     public void CsvDataReaderProperties()
     {
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
+      using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
 
@@ -665,7 +665,7 @@ namespace CsvTools.Tests
     public void CsvDataReaderGetName()
     {
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
+      using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         Assert.AreEqual("ID", test.GetName(0));
@@ -681,7 +681,7 @@ namespace CsvTools.Tests
     public void CsvDataReaderGetOrdinal()
     {
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
+      using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         Assert.AreEqual(0, test.GetOrdinal("ID"));
@@ -698,7 +698,7 @@ namespace CsvTools.Tests
     public void CsvDataReaderUseIndexer()
     {
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
+      using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         Assert.IsTrue(test.Read());
@@ -714,7 +714,7 @@ namespace CsvTools.Tests
     public void CsvDataReaderGetValueNull()
     {
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
+      using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         Assert.IsTrue(test.Read());
@@ -766,7 +766,7 @@ namespace CsvTools.Tests
     public void CsvDataReaderGetBoolean()
     {
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
+      using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         Assert.IsTrue(test.Read());
@@ -781,7 +781,7 @@ namespace CsvTools.Tests
     public void CsvDataReaderGetBooleanError()
     {
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
+      using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         Assert.IsTrue(test.Read());
@@ -793,7 +793,7 @@ namespace CsvTools.Tests
     public void CsvDataReaderGetDateTime()
     {
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
+      using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         Assert.IsTrue(test.Read());
@@ -807,7 +807,7 @@ namespace CsvTools.Tests
     public void CsvDataReaderGetDateTimeError()
     {
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
+      using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         Assert.IsTrue(test.Read());
@@ -819,7 +819,7 @@ namespace CsvTools.Tests
     public void CsvDataReaderGetInt32()
     {
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
+      using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         Assert.IsTrue(test.Read());
@@ -832,7 +832,7 @@ namespace CsvTools.Tests
     public void CsvDataReaderGetInt32Error()
     {
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
+      using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         Assert.IsTrue(test.Read());
@@ -844,7 +844,7 @@ namespace CsvTools.Tests
     public void CsvDataReaderGetDecimal()
     {
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
+      using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         Assert.IsTrue(test.Read());
@@ -857,7 +857,7 @@ namespace CsvTools.Tests
     public void CsvDataReaderGetDecimalError()
     {
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
+      using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         Assert.IsTrue(test.Read());
@@ -870,7 +870,7 @@ namespace CsvTools.Tests
     public void CsvDataReaderGetInt32Null()
     {
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
+      using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         Assert.IsTrue(test.Read());
@@ -884,7 +884,7 @@ namespace CsvTools.Tests
     public void CsvDataReaderGetBytes()
     {
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
+      using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         test.GetBytes(0, 0, null, 0, 0);
@@ -896,7 +896,7 @@ namespace CsvTools.Tests
     public void CsvDataReaderGetData()
     {
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
+      using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         test.GetData(0);
@@ -907,7 +907,7 @@ namespace CsvTools.Tests
     public void CsvDataReaderGetFloat()
     {
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
+      using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         Assert.IsTrue(test.Read());
@@ -920,7 +920,7 @@ namespace CsvTools.Tests
     public void CsvDataReaderGetFloatError()
     {
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
+      using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         Assert.IsTrue(test.Read());
@@ -933,7 +933,7 @@ namespace CsvTools.Tests
     public void CsvDataReaderGetGuid()
     {
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
+      using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         Assert.IsTrue(test.Read());
@@ -946,7 +946,7 @@ namespace CsvTools.Tests
     public void CsvDataReaderGetDateTimeNull()
     {
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
+      using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         Assert.IsTrue(test.Read());
@@ -961,7 +961,7 @@ namespace CsvTools.Tests
     public void CsvDataReaderGetDateTimeWrongType()
     {
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
+      using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         Assert.IsTrue(test.Read());
@@ -974,7 +974,7 @@ namespace CsvTools.Tests
     public void CsvDataReaderGetDecimalFormatException()
     {
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
+      using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         Assert.IsTrue(test.Read());
@@ -987,7 +987,7 @@ namespace CsvTools.Tests
     public void CsvDataReaderGetByte()
     {
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
+      using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         Assert.IsTrue(test.Read());
@@ -1000,7 +1000,7 @@ namespace CsvTools.Tests
     public void CsvDataReaderGetByteFrormat()
     {
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
+      using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         Assert.IsTrue(test.Read());
@@ -1012,7 +1012,7 @@ namespace CsvTools.Tests
     public void CsvDataReaderGetDouble()
     {
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
+      using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         Assert.IsTrue(test.Read());
@@ -1025,7 +1025,7 @@ namespace CsvTools.Tests
     public void CsvDataReaderGetDoubleFrormat()
     {
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
+      using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         Assert.IsTrue(test.Read());
@@ -1037,7 +1037,7 @@ namespace CsvTools.Tests
     public void CsvDataReaderGetInt16()
     {
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
+      using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         Assert.IsTrue(test.Read());
@@ -1058,7 +1058,7 @@ namespace CsvTools.Tests
       setting.FileFormat.FieldDelimiter = ",,";
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, processDisplay))
+      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
         var warningList = new RowErrorCollection(test);
         test.Open();
@@ -1083,7 +1083,7 @@ namespace CsvTools.Tests
       try
       {
         using (var processDisplay = new DummyProcessDisplay())
-        using (var test = new CsvFileReader(setting, processDisplay))
+        using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
         {
           test.Open();
         }
@@ -1118,7 +1118,7 @@ namespace CsvTools.Tests
       try
       {
         using (var processDisplay = new DummyProcessDisplay())
-        using (var test = new CsvFileReader(setting, processDisplay))
+        using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
         {
           test.Open();
         }
@@ -1153,7 +1153,7 @@ namespace CsvTools.Tests
       try
       {
         using (var processDisplay = new DummyProcessDisplay())
-        using (var test = new CsvFileReader(setting, processDisplay))
+        using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
         {
           test.Open();
         }
@@ -1185,7 +1185,7 @@ namespace CsvTools.Tests
       };
       setting.FileFormat.FieldDelimiter = ",";
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, processDisplay))
+      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
       }
@@ -1207,7 +1207,7 @@ namespace CsvTools.Tests
       try
       {
         using (var processDisplay = new DummyProcessDisplay())
-        using (var test = new CsvFileReader(setting, processDisplay))
+        using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
         {
           test.Open();
         }
@@ -1242,7 +1242,7 @@ namespace CsvTools.Tests
       try
       {
         using (var processDisplay = new DummyProcessDisplay())
-        using (var test = new CsvFileReader(setting, processDisplay))
+        using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
         {
           test.Open();
         }
@@ -1278,7 +1278,7 @@ namespace CsvTools.Tests
       try
       {
         using (var processDisplay = new DummyProcessDisplay())
-        using (var test = new CsvFileReader(setting, processDisplay))
+        using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
         {
           test.Open();
         }
@@ -1306,7 +1306,7 @@ namespace CsvTools.Tests
       try
       {
         using (var processDisplay = new DummyProcessDisplay())
-        using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
+        using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
         {
           test.Open();
           Assert.IsTrue(test.Read());
@@ -1329,7 +1329,7 @@ namespace CsvTools.Tests
     public void CsvDataReaderGetInt64()
     {
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
+      using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         Assert.IsTrue(test.Read());
@@ -1344,7 +1344,7 @@ namespace CsvTools.Tests
       try
       {
         using (var processDisplay = new DummyProcessDisplay())
-        using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
+        using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
         {
           test.Open();
           Assert.IsTrue(test.Read());
@@ -1367,7 +1367,7 @@ namespace CsvTools.Tests
     public void CsvDataReaderGetChar()
     {
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
+      using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         Assert.IsTrue(test.Read());
@@ -1379,7 +1379,7 @@ namespace CsvTools.Tests
     public void CsvDataReaderGetStringColumnNotExisting()
     {
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
+      using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         var Exception = false;
         test.Open();
@@ -1409,7 +1409,7 @@ namespace CsvTools.Tests
     public void CsvDataReaderGetString()
     {
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
+      using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         Assert.IsTrue(test.Read());
@@ -1421,7 +1421,7 @@ namespace CsvTools.Tests
     public void DataReaderResetPositionToFirstDataRow()
     {
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
+      using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.ResetPositionToFirstDataRow();
       }
@@ -1432,7 +1432,7 @@ namespace CsvTools.Tests
     public void CsvDataReaderIsDBNull()
     {
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
+      using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         Assert.IsTrue(test.Read());
@@ -1448,7 +1448,7 @@ namespace CsvTools.Tests
     {
       //m_ValidSetting.TreatTextNullAsNull = true;
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
+      using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         Assert.IsTrue(test.Read());
@@ -1466,7 +1466,7 @@ namespace CsvTools.Tests
     {
       m_ValidSetting.TreatTextAsNull = null;
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
+      using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         Assert.IsTrue(test.Read());
@@ -1483,7 +1483,7 @@ namespace CsvTools.Tests
     public void CsvDataReaderGetValues()
     {
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
+      using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         Assert.IsTrue(test.Read());
@@ -1496,7 +1496,7 @@ namespace CsvTools.Tests
     public void CsvDataReaderGetChars()
     {
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
+      using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         Assert.IsTrue(test.Read());
@@ -1513,7 +1513,7 @@ namespace CsvTools.Tests
     public void CsvDataReaderGetSchemaTable()
     {
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
+      using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         var dt = test.GetSchemaTable();
@@ -1526,7 +1526,7 @@ namespace CsvTools.Tests
     public void CsvDataReaderReadAfterEnd()
     {
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
+      using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         Assert.IsTrue(test.Read());
@@ -1546,7 +1546,7 @@ namespace CsvTools.Tests
     public void CsvDataReaderReadAfterClose()
     {
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
+      using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         Assert.IsTrue(test.Read());
@@ -1581,7 +1581,7 @@ namespace CsvTools.Tests
       };
       setting.FileFormat.FieldDelimiter = ",";
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, processDisplay))
+      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         test.Read();
@@ -1605,7 +1605,7 @@ namespace CsvTools.Tests
       };
       setting.FileFormat.FieldDelimiter = ",";
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, processDisplay))
+      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
         Assert.AreEqual("Column1", test.GetName(0));

@@ -60,7 +60,7 @@ namespace CsvTools.Tests
           file.WriteLine("Hello");
           using (var processDisplay = new DummyProcessDisplay())
           {
-            var writer = new CsvFileWriter(writeFile, processDisplay);
+            var writer = new CsvFileWriter(writeFile, TimeZoneInfo.Local.Id, processDisplay);
 
             writer.WriteDataTable(dataTable);
             Assert.IsTrue(!string.IsNullOrEmpty(writer.ErrorMessage));
@@ -97,7 +97,7 @@ namespace CsvTools.Tests
         };
         using (var processDisplay = new DummyProcessDisplay())
         {
-          var writer = new CsvFileWriter(writeFile, processDisplay);
+          var writer = new CsvFileWriter(writeFile, TimeZoneInfo.Local.Id, processDisplay);
           Assert.AreEqual(100, writer.WriteDataTable(dataTable));
         }
         Assert.IsTrue(File.Exists(writeFile.FullPath));
@@ -134,7 +134,7 @@ namespace CsvTools.Tests
         var count = 0;
         using (var processDisplay = new DummyProcessDisplay())
         {
-          var writer = new CsvFileWriter(writeFile, processDisplay);
+          var writer = new CsvFileWriter(writeFile, TimeZoneInfo.Local.Id, processDisplay);
           writer.Warning += (object sender, WarningEventArgs e) => { count++; };
           Assert.AreEqual(100, writer.WriteDataTable(dataTable), "Records");
           Assert.AreEqual(100, count, "Warnings");
@@ -171,7 +171,7 @@ namespace CsvTools.Tests
 
         using (var processDisplay = new DummyProcessDisplay())
         {
-          var writer = new CsvFileWriter(writeFile, processDisplay);
+          var writer = new CsvFileWriter(writeFile, TimeZoneInfo.Local.Id, processDisplay);
           var dt = writer.GetSourceDataTable(10);
           Assert.AreEqual(2, dt.Columns.Count);
         }
@@ -202,7 +202,7 @@ namespace CsvTools.Tests
 
         using (var processDisplay = new DummyProcessDisplay())
         {
-          var writer = new CsvFileWriter(writeFile, processDisplay);
+          var writer = new CsvFileWriter(writeFile, TimeZoneInfo.Local.Id, processDisplay);
           var dt = writer.GetSchemaReader();
         }
       }
@@ -239,7 +239,7 @@ namespace CsvTools.Tests
       FileSystemUtils.FileDelete(writeFile.FullPath);
       writeFile.FileFormat.FieldDelimiter = "|";
 
-      var writer = new CsvFileWriter(writeFile, pd);
+      var writer = new CsvFileWriter(writeFile, TimeZoneInfo.Local.Id, pd);
       Assert.IsTrue(string.IsNullOrEmpty(writer.ErrorMessage));
 
       var res = writer.Write();
@@ -257,7 +257,7 @@ namespace CsvTools.Tests
       FileSystemUtils.FileDelete(writeFile.FullPath);
       writeFile.FileFormat.FieldDelimiter = "|";
 
-      var writer = new CsvFileWriter(writeFile, pd);
+      var writer = new CsvFileWriter(writeFile, TimeZoneInfo.Local.Id, pd);
       Assert.IsTrue(string.IsNullOrEmpty(writer.ErrorMessage));
 
       var res = writer.Write();
@@ -284,7 +284,7 @@ namespace CsvTools.Tests
       cf.TimePartFormat = @"hh:mm";
       cf.TimePart = "Time";
       cf.TimeZonePart = "\"UTC\"";
-      var writer = new CsvFileWriter(writeFile, pd);
+      var writer = new CsvFileWriter(writeFile, TimeZoneInfo.Local.Id, pd);
 
       var res = writer.Write();
       Assert.IsTrue(FileSystemUtils.FileExists(writeFile.FullPath));
@@ -310,7 +310,7 @@ namespace CsvTools.Tests
       cf.TimePartFormat = @"hh:mm";
       cf.TimePart = "Time";
       cf.TimeZonePart = "TZ";
-      var writer = new CsvFileWriter(writeFile, pd);
+      var writer = new CsvFileWriter(writeFile, TimeZoneInfo.Local.Id, pd);
 
       var res = writer.Write();
       Assert.IsTrue(FileSystemUtils.FileExists(writeFile.FullPath));
@@ -325,7 +325,7 @@ namespace CsvTools.Tests
       writeFile.FileFormat.FieldDelimiter = "|";
       using (var processDisplay = new DummyProcessDisplay())
       {
-        var writer = new CsvFileWriter(writeFile, processDisplay);
+        var writer = new CsvFileWriter(writeFile, TimeZoneInfo.Local.Id, processDisplay);
         Assert.IsTrue(string.IsNullOrEmpty(writer.ErrorMessage));
         var res = writer.Write();
         Assert.IsFalse(string.IsNullOrEmpty(writer.ErrorMessage));
@@ -343,7 +343,7 @@ namespace CsvTools.Tests
       {
         using (var processDisplay = new DummyProcessDisplay())
         {
-          var writer = new CsvFileWriter(writeFile, processDisplay);
+          var writer = new CsvFileWriter(writeFile, TimeZoneInfo.Local.Id, processDisplay);
           var res = writer.Write();
         }
         Assert.Fail("No Exception");

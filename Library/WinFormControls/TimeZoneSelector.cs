@@ -19,7 +19,7 @@
       set => comboBoxTimeZoneID.SelectedValue = value;
     }
 
-    private void ButtonLocalTZ_Click(object sender, EventArgs e) => TimeZoneID = TimeZoneMapping.cIdLocal;
+    private void ButtonLocalTZ_Click(object sender, EventArgs e) => TimeZoneID = TimeZoneInfo.Local.Id;
 
     private void ComboBoxTimeZoneID_SelectedIndexChanged(object sender, EventArgs e)
     {
@@ -43,12 +43,12 @@
       var display = new List<DisplayItem<string>>
                       {
                         new DisplayItem<string>(
-                          TimeZoneMapping.cIdLocal,
+                          TimeZoneInfo.Local.Id,
                           $"{TimeZoneInfo.Local.DisplayName} *[Local System]")
                       };
 
-      foreach (var wintz in TimeZoneMapping.MappedSystemTimeZone())
-        display.Add(new DisplayItem<string>(wintz.Value, wintz.Key.DisplayName));
+      foreach (var wintz in TimeZoneInfo.GetSystemTimeZones())
+        display.Add(new DisplayItem<string>(wintz.Id, wintz.DisplayName));
 
       comboBoxTimeZoneID.DataSource = display;
     }

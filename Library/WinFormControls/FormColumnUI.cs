@@ -57,11 +57,7 @@ namespace CsvTools
     /// <param name="fileSetting">The file setting.</param>
     /// <param name="fillGuessSettings">The fill guess settings.</param>
     /// <param name="showIgnore">if set to <c>true</c> [show ignore].</param>
-    /// <exception cref="ArgumentNullException">
-    ///   fileSetting
-    ///   or
-    ///   fileSefillGuessSettingstting
-    /// </exception>
+    /// <exception cref="ArgumentNullException">fileSetting or fileSefillGuessSettingstting</exception>
     public FormColumnUI(
       Column column,
       bool writeSetting,
@@ -81,15 +77,11 @@ namespace CsvTools
 
       comboBoxColumnName.Enabled = showIgnore;
 
-      var source = ApplicationSetting.DestinationTimeZone;
-      if (source == TimeZoneMapping.cIdLocal)
-        source = "the local time zone of you system";
-
       toolTip.SetToolTip(
         comboBoxTimeZone,
         !m_WriteSetting
-          ? $"Assuming the time read is based in the time zone stored in this column or a constant value and being converted to {source}"
-          : $"Converting the time in {source} to the time zone in this column or a constant value");
+          ? $"Assuming the time read is based in the time zone stored in this column or a constant value and being converted to the local time zone of you system"
+          : $"Converting the time in the local time zone of you system to the time zone in this column or a constant value");
 
       labelDisplayNullAs.Visible = writeSetting;
       textBoxDisplayNullAs.Visible = writeSetting;
@@ -137,7 +129,7 @@ namespace CsvTools
           processDisplay.Show();
           if (m_WriteSetting)
           {
-            var fileWriter = ApplicationSetting.GetFileWriter(m_FileSetting, processDisplay);
+            var fileWriter = ApplicationSetting.GetFileWriter(m_FileSetting, TimeZoneInfo.Local.Id, processDisplay);
             var hasRetried = false;
           retry:
             var data = fileWriter.GetSourceDataTable(m_FillGuessSettings.CheckedRecords);
@@ -172,11 +164,8 @@ namespace CsvTools
           else
           {
             var samples = GetSampleValues(columnName, processDisplay);
-            // shuffle samples, take some from the end and put it in the first 10
-            // 1 - 1
-            // 2 - Last
-            // 3 - 2
-            // 4 - Last - 1
+            // shuffle samples, take some from the end and put it in the first 10 1 - 1 2 - Last 3 -
+            // 2 4 - Last - 1
 
             if (samples.Values.Count == 0)
             {
@@ -312,8 +301,8 @@ namespace CsvTools
                           MessageBoxButtons.YesNo,
                           MessageBoxIcon.Question) == DialogResult.Yes)
                     {
-                      // use the closest match  instead of Text
-                      // can not use ValueFormat.CopyTo,. Column is quite specific and need it to be set,
+                      // use the closest match instead of Text can not use ValueFormat.CopyTo,.
+                      // Column is quite specific and need it to be set,
                       m_ColumnEdit.ValueFormat = checkResult.ValueFormatPossibleMatch;
                     }
                   }
@@ -584,7 +573,7 @@ namespace CsvTools
                 // if there are ignored columns need to open file and get all columns
                 if (m_FileSetting.ColumnCollection.Any(x => x.Ignore) || ApplicationSetting.GetColumnHeader == null)
                 {
-                  using (var fileReader = ApplicationSetting.GetFileReader(m_FileSetting, processDisplay))
+                  using (var fileReader = ApplicationSetting.GetFileReader(m_FileSetting, null, processDisplay))
                   {
                     fileReader.Open();
                     for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
@@ -605,7 +594,7 @@ namespace CsvTools
               }
               else
               {
-                var writer = ApplicationSetting.GetFileWriter(m_FileSetting, processDisplay);
+                var writer = ApplicationSetting.GetFileWriter(m_FileSetting, null, processDisplay);
                 using (var schemaReader = writer.GetSchemaReader())
                 using (var dataTable = schemaReader.GetSchemaTable())
                 {
@@ -723,8 +712,8 @@ namespace CsvTools
         if (comboBoxTimeZone.Text.Length > 2 && comboBoxTimeZone.Text.StartsWith("\"", StringComparison.Ordinal)
                                              && comboBoxTimeZone.Text.EndsWith("\"", StringComparison.Ordinal))
         {
-          var destTz = TimeZoneMapping.cIdLocal;
-          var srcTz = TimeZoneMapping.cIdLocal;
+          var destTz = TimeZoneInfo.Local.Id;
+          var srcTz = TimeZoneInfo.Local.Id;
           if (m_WriteSetting)
             srcTz = comboBoxTimeZone.Text.Substring(1, comboBoxTimeZone.Text.Length - 2);
           else
@@ -732,7 +721,7 @@ namespace CsvTools
 
           labelInputTZ.Text = srcTz;
           labelOutPutTZ.Text = destTz;
-          sourceDate = sourceDate.ConvertTime(srcTz, destTz);
+          sourceDate = ApplicationSetting.AdjustTZ(sourceDate, srcTz, destTz, -1, null).Value;
         }
         else
         {
@@ -756,9 +745,7 @@ namespace CsvTools
     /// <returns></returns>
     /// <exception cref="ConfigurationException">FileSetting not set</exception>
     /// <exception cref="FileException">
-    ///   Column {columnName} not found.
-    ///   or
-    ///   Column {columnName} not found.
+    ///   Column {columnName} not found. or Column {columnName} not found.
     /// </exception>
     private DetermineColumnFormat.SampleResult GetSampleValues(string columnName, IProcessDisplay processDisplay)
     {
@@ -771,7 +758,7 @@ namespace CsvTools
       {
         if (m_WriteSetting)
         {
-          var fileWriter = ApplicationSetting.GetFileWriter(m_FileSetting, processDisplay);
+          var fileWriter = ApplicationSetting.GetFileWriter(m_FileSetting, null, processDisplay);
           var data = fileWriter.GetSourceDataTable(m_FillGuessSettings.CheckedRecords);
           {
             var colIndex = data.Columns.IndexOf(columnName);
@@ -791,8 +778,8 @@ namespace CsvTools
         var hasRetried = false;
 
         var fileSettingCopy = m_FileSetting.Clone();
-        // Make sure that if we do have a CSV file without header that we will skip the first row that
-        // might contain headers, but its simply set as without headers.
+        // Make sure that if we do have a CSV file without header that we will skip the first row
+        // that might contain headers, but its simply set as without headers.
         if (fileSettingCopy is CsvFile csv)
         {
           if (!csv.HasFieldHeader && csv.SkipRows == 0)
@@ -808,7 +795,7 @@ namespace CsvTools
         }
 
       retry:
-        using (var fileReader = ApplicationSetting.GetFileReader(fileSettingCopy, processDisplay))
+        using (var fileReader = ApplicationSetting.GetFileReader(fileSettingCopy, null, processDisplay))
         {
           fileReader.Open();
           var colIndex = fileReader.GetOrdinal(columnName);
