@@ -162,8 +162,8 @@ namespace CsvTools
       if (m_IsDisposed) return;
       if (disposing)
       {
-        base.Dispose(disposing);
         m_IsDisposed = true;
+        base.Dispose(disposing);
       }
     }
 

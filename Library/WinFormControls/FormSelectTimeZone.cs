@@ -94,24 +94,22 @@ namespace CsvTools
       // 
       // m_BtnOk
       // 
-      this.m_BtnOk.AutoSize = true;
       this.m_BtnOk.DialogResult = System.Windows.Forms.DialogResult.OK;
-      this.m_BtnOk.Location = new System.Drawing.Point(409, 81);
+      this.m_BtnOk.Location = new System.Drawing.Point(416, 81);
       this.m_BtnOk.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
       this.m_BtnOk.Name = "m_BtnOk";
-      this.m_BtnOk.Size = new System.Drawing.Size(101, 47);
+      this.m_BtnOk.Size = new System.Drawing.Size(111, 28);
       this.m_BtnOk.TabIndex = 2;
       this.m_BtnOk.Text = "&OK";
       this.m_BtnOk.Click += new System.EventHandler(this.BtnOK_Click);
       // 
       // m_BtnCancel
       // 
-      this.m_BtnCancel.AutoSize = true;
       this.m_BtnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-      this.m_BtnCancel.Location = new System.Drawing.Point(514, 81);
+      this.m_BtnCancel.Location = new System.Drawing.Point(531, 81);
       this.m_BtnCancel.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
       this.m_BtnCancel.Name = "m_BtnCancel";
-      this.m_BtnCancel.Size = new System.Drawing.Size(128, 47);
+      this.m_BtnCancel.Size = new System.Drawing.Size(111, 28);
       this.m_BtnCancel.TabIndex = 1;
       this.m_BtnCancel.Text = "&Cancel";
       this.m_BtnCancel.Click += new System.EventHandler(this.BtnCancel_Click);
@@ -152,7 +150,7 @@ namespace CsvTools
       this.label.Anchor = System.Windows.Forms.AnchorStyles.Left;
       this.label.AutoSize = true;
       this.label.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
-      this.label.Location = new System.Drawing.Point(2, 95);
+      this.label.Location = new System.Drawing.Point(2, 86);
       this.label.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
       this.label.Name = "label";
       this.label.Size = new System.Drawing.Size(142, 18);
@@ -179,7 +177,7 @@ namespace CsvTools
       this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.m_TableLayoutPanel.Size = new System.Drawing.Size(644, 131);
+      this.m_TableLayoutPanel.Size = new System.Drawing.Size(644, 112);
       this.m_TableLayoutPanel.TabIndex = 13;
       // 
       // FormSelectTimeZone

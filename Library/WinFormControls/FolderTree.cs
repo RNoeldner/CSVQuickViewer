@@ -155,7 +155,7 @@
       this.m_TreeView.SelectedImageIndex = 0;
       this.m_TreeView.ShowLines = false;
       this.m_TreeView.ShowRootLines = false;
-      this.m_TreeView.Size = new System.Drawing.Size(322, 423);
+      this.m_TreeView.Size = new System.Drawing.Size(322, 425);
       this.m_TreeView.TabIndex = 59;
       this.m_TreeView.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.TreeNode_AfterSelect);
       this.m_TreeView.DragDrop += new System.Windows.Forms.DragEventHandler(this.txtPath_DragDrop);
@@ -179,9 +179,9 @@
       // 
       this.m_ButtonOk.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
       this.m_ButtonOk.DialogResult = System.Windows.Forms.DialogResult.OK;
-      this.m_ButtonOk.Location = new System.Drawing.Point(115, 462);
+      this.m_ButtonOk.Location = new System.Drawing.Point(115, 464);
       this.m_ButtonOk.Name = "m_ButtonOk";
-      this.m_ButtonOk.Size = new System.Drawing.Size(102, 30);
+      this.m_ButtonOk.Size = new System.Drawing.Size(102, 28);
       this.m_ButtonOk.TabIndex = 62;
       this.m_ButtonOk.Text = "&OK";
       this.m_ButtonOk.UseVisualStyleBackColor = true;
@@ -190,9 +190,9 @@
       // m_ButtonCancel
       // 
       this.m_ButtonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-      this.m_ButtonCancel.Location = new System.Drawing.Point(223, 462);
+      this.m_ButtonCancel.Location = new System.Drawing.Point(223, 464);
       this.m_ButtonCancel.Name = "m_ButtonCancel";
-      this.m_ButtonCancel.Size = new System.Drawing.Size(102, 30);
+      this.m_ButtonCancel.Size = new System.Drawing.Size(102, 28);
       this.m_ButtonCancel.TabIndex = 63;
       this.m_ButtonCancel.Text = "&Cancel";
       this.m_ButtonCancel.UseVisualStyleBackColor = true;

@@ -315,6 +315,7 @@ namespace CsvTools
       // the referenced objects are large, such as big arrays, collections, etc.
       if (disposing)
       {
+        m_DisposedValue = true;
         Close();
         if (m_TextReader != null)
         {
@@ -324,8 +325,6 @@ namespace CsvTools
 
         base.Dispose(true);
       }
-
-      m_DisposedValue = true;
     }
 
     #region Parsing

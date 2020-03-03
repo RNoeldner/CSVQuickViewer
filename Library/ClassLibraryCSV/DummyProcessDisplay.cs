@@ -43,9 +43,7 @@ namespace CsvTools
     /// <summary>
     ///   Gets or sets the cancellation token.
     /// </summary>
-    /// <value>
-    ///   The cancellation token.
-    /// </value>
+    /// <value>The cancellation token.</value>
     public CancellationToken CancellationToken => CancellationTokenSource.Token;
 
     public bool LogAsDebug { get; set; } = true;
@@ -53,9 +51,7 @@ namespace CsvTools
     /// <summary>
     ///   Gets or sets the maximum value for the Progress
     /// </summary>
-    /// <value>
-    ///   The maximum value.
-    /// </value>
+    /// <value>The maximum value.</value>
     public virtual long Maximum { get; set; }
 
     public virtual string Title { get; set; }
@@ -72,7 +68,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Sets the process.
+    ///   Sets the process.
     /// </summary>
     /// <param name="text">The text.</param>
     /// <param name="value">The value.</param>
@@ -115,8 +111,8 @@ namespace CsvTools
       Cancel();
       if (m_DisposedValue) return;
       if (!disposing) return;
-      CancellationTokenSource.Dispose();
       m_DisposedValue = true;
+      CancellationTokenSource.Dispose();
     }
 
     #endregion IDisposable Support
