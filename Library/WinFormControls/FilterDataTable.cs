@@ -56,9 +56,7 @@ namespace CsvTools
     /// <summary>
     ///   Gets the columns without errors.
     /// </summary>
-    /// <value>
-    ///   The columns without errors.
-    /// </value>
+    /// <value>The columns without errors.</value>
     public virtual ICollection<string> ColumnsWithErrors
     {
       get
@@ -82,9 +80,7 @@ namespace CsvTools
     /// <summary>
     ///   Gets the columns without errors.
     /// </summary>
-    /// <value>
-    ///   The columns without errors.
-    /// </value>
+    /// <value>The columns without errors.</value>
     public virtual ICollection<string> ColumnsWithoutErrors
     {
       get
@@ -150,9 +146,7 @@ namespace CsvTools
     /// <summary>
     ///   Gets the error table.
     /// </summary>
-    /// <value>
-    ///   The error table.
-    /// </value>
+    /// <value>The error table.</value>
     public DataTable FilterTable { get; private set; }
 
     public FilterType FilterType { get; private set; }
@@ -185,7 +179,8 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+    ///   Performs application-defined tasks associated with freeing, releasing, or resetting
+    ///   unmanaged resources.
     /// </summary>
     public void Dispose() => Dispose(true);
 
@@ -268,13 +263,12 @@ namespace CsvTools
         return;
       if (disposing)
       {
+        m_DisposedValue = true;
         if (m_CurrentFilterCancellationTokenSource != null)
           m_CurrentFilterCancellationTokenSource.Dispose();
         if (FilterTable != null)
           FilterTable.Dispose();
       }
-
-      m_DisposedValue = true;
     }
 
     private void WaitForFilter()

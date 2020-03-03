@@ -20,8 +20,8 @@ namespace CsvTools
   using File = Pri.LongPath.File;
 
   /// <summary>
-  /// A wrapper around file streams to handle pre and post processing, needed for sFTP, Encryption
-  /// and Compression
+  ///   A wrapper around file streams to handle pre and post processing, needed for sFTP, Encryption
+  ///   and Compression
   /// </summary>
   public sealed class ImprovedStream : IImprovedStream
   {
@@ -44,7 +44,7 @@ namespace CsvTools
     private FileStream BaseStream { get; set; }
 
     /// <summary>
-    /// Opens a file for reading
+    ///   Opens a file for reading
     /// </summary>
     /// <param name="path">The path.</param>
     /// <param name="encryptedPassphrase">The encrypted passphrase.</param>
@@ -60,7 +60,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Opens an file for writing
+    ///   Opens an file for writing
     /// </summary>
     /// <param name="path">The path.</param>
     /// <param name="recipient">The recipient.</param>
@@ -85,7 +85,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Closes the stream in case of a file opened for writing it would be uploaded to the sFTP
+    ///   Closes the stream in case of a file opened for writing it would be uploaded to the sFTP
     /// </summary>
     public void Close()
     {
@@ -136,16 +136,15 @@ namespace CsvTools
       if (m_DisposedValue) return;
       if (disposing)
       {
+        m_DisposedValue = true;
         Close();
         Stream?.Dispose();
         BaseStream?.Dispose();
       }
-
-      m_DisposedValue = true;
     }
 
     /// <summary>
-    /// Opens the base stream, handling sFTP access
+    ///   Opens the base stream, handling sFTP access
     /// </summary>
     /// <param name="path">The path.</param>
     /// <param name="encryptedPassphraseFunc">The encrypted passphrase function.</param>
