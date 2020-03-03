@@ -20,9 +20,9 @@ namespace CsvTools.Tests
   [TestClass]
   public static class UnitTestInitialize
   {
-    private static readonly string m_ApplicationDirectory = FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles";
+    internal static readonly string ApplicationDirectory = FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles";
 
-    public static string GetTestPath(string fileName) => System.IO.Path.Combine(m_ApplicationDirectory, fileName.TrimStart(new[] { ' ', '\\', '/' }));
+    public static string GetTestPath(string fileName) => System.IO.Path.Combine(ApplicationDirectory, fileName.TrimStart(new[] { ' ', '\\', '/' }));
 
     public static MimicSQLReader MimicSQLReader { get; } = new MimicSQLReader();
 

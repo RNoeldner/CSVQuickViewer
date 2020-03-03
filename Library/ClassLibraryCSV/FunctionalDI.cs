@@ -32,7 +32,7 @@ namespace CsvTools
     /// <summary>
     ///   Retrieve the passphrase
     /// </summary>
-    public static Func<IFileSetting, string> GetEncryptedPassphrase = fileSetting =>
+    public static Func<IFileSetting, string> GetEncryptedPassphrase = (fileSetting) =>
     {
       if (fileSetting == null) return null;
       return !string.IsNullOrEmpty(fileSetting.Passphrase) ? fileSetting.Passphrase : null;
@@ -91,9 +91,14 @@ namespace CsvTools
     public static Func<IFileSetting, CancellationToken, ICollection<string>> GetColumnHeader;
 
     /// <summary>
+    ///   Action to store the headers of a file in a cache
+    /// </summary>
+    public static Action<IFileSetting, IEnumerable<Column>> StoreHeader;
+
+    /// <summary>
     ///   Return the right reader for a file setting
     /// </summary>
-    public static Func<IFileSetting, string, IProcessDisplay, IFileReader> GetFileReader { get; set; } = DefaultFileReader;
+    public static Func<IFileSetting, string, IProcessDisplay, IFileReader> GetFileReader = DefaultFileReader;
 
     public static IFileReader DefaultFileReader(IFileSetting setting, string timeZone, IProcessDisplay processDisplay)
     {
@@ -113,7 +118,7 @@ namespace CsvTools
     /// <summary>
     ///   Return a right writer for a file setting
     /// </summary>
-    public static Func<IFileSetting, string, IProcessDisplay, IFileWriter> GetFileWriter { get; set; } = DefaultFileWriter;
+    public static Func<IFileSetting, string, IProcessDisplay, IFileWriter> GetFileWriter = DefaultFileWriter;
 
     public static IFileWriter DefaultFileWriter(IFileSetting setting, string timeZone, IProcessDisplay processDisplay)
     {
@@ -131,15 +136,10 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Action to store the headers of a file in a cache
-    /// </summary>
-    public static Action<IFileSetting, IEnumerable<Column>> StoreHeader { get; set; }
-
-    /// <summary>
     ///   Gets or sets the SQL data reader.
     /// </summary>
     /// <value>The SQL data reader.</value>
     /// <exception cref="ArgumentNullException">SQL Data Reader is not set</exception>
-    public static Func<string, IProcessDisplay, int, IDataReader> SQLDataReader { get; set; }
+    public static Func<string, IProcessDisplay, int, IDataReader> SQLDataReader;
   }
 }

@@ -287,9 +287,9 @@ namespace CsvTools.Tests
       {
         FileName = UnitTestInitialize.GetTestPath("Sessions.txt"),
         HasFieldHeader = true,
-        ByteOrderMark = true
+        ByteOrderMark = true,
+        FileFormat = {FieldDelimiter = "\t"}
       };
-      setting.FileFormat.FieldDelimiter = "\t";
       var fillGuessSettings = new FillGuessSettings()
       {
         DectectNumbers = true,
@@ -375,7 +375,7 @@ namespace CsvTools.Tests
         test.Open();
         try
         {
-          var samples = DetermineColumnFormat.GetSampleValues(test, 100, 0, 20, "NULL", CancellationToken.None);
+          DetermineColumnFormat.GetSampleValues(test, 100, 0, 20, "NULL", CancellationToken.None);
         }
         catch (ArgumentOutOfRangeException)
         {

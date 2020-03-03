@@ -22,7 +22,7 @@ namespace CsvTools
   using System.Windows.Forms;
 
   /// <summary>
-  ///   Class to provide HTMLÖ Copy and Past functionality to a DataGrid
+  ///   Class to provide HTML Copy and Past functionality to a DataGrid
   /// </summary>
   public static class DataGridViewCopyPaste
   {

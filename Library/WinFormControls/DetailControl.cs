@@ -64,7 +64,7 @@ namespace CsvTools
 
     private bool m_HasButtonShowSource;
 
-    private FormHierachyDisplay m_HierachyDisplay;
+    private FormHierarchyDisplay m_HierarchyDisplay;
 
     private Form m_ParentForm;
 
@@ -495,7 +495,7 @@ namespace CsvTools
         m_CurrentSearch?.Dispose();
         m_DataTable?.Dispose();
         m_FilterDataTable?.Dispose();
-        m_HierachyDisplay?.Dispose();
+        m_HierarchyDisplay?.Dispose();
         m_CancellationTokenSource?.Dispose();
       }
 
@@ -640,13 +640,13 @@ namespace CsvTools
 
       try
       {
-        m_HierachyDisplay?.Close();
-        m_HierachyDisplay =
-          new FormHierachyDisplay(m_DataTable.Clone(), m_DataTable.Select(DataGridView.CurrentFilter))
+        m_HierarchyDisplay?.Close();
+        m_HierarchyDisplay =
+          new FormHierarchyDisplay(m_DataTable.Clone(), m_DataTable.Select(DataGridView.CurrentFilter))
           {
             Icon = ParentForm?.Icon
           };
-        m_HierachyDisplay.Show();
+        m_HierarchyDisplay.Show();
       }
       catch (Exception ex)
       {

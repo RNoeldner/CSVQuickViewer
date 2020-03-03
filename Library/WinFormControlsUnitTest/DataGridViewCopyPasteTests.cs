@@ -42,6 +42,64 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+
+    public void CopySelectedRowsIntoClipboard()
+    {
+      using (var dgv = new DataGridView())
+      {
+        dgv.AutoGenerateColumns = true;
+        using (var dt = UnitTestStatic.GetDataTable(100))
+        {
+          dgv.DataSource = dt;
+          using (var frm = new Form())
+          {
+            frm.Controls.Add(dgv);
+            frm.Show();
+            dgv.Rows[1].Selected=true;
+            dgv.Rows[2].Selected = true;
+            dgv.Rows[3].Selected = true;
+
+            Clipboard.Clear();
+            dgv.SelectedDataIntoClipboard(false, true, CancellationToken.None);
+            
+            var dataObject = Clipboard.GetDataObject();
+            Assert.IsNotNull(dataObject);
+            Assert.IsNotNull(dataObject.GetData(DataFormats.Html));
+            Assert.IsNotNull(dataObject.GetData(DataFormats.Text));
+          }
+        }
+      }
+    }
+
+
+    [TestMethod]
+
+    public void CopySelectedColumnsIntoClipboard()
+    {
+      using (var dgv = new DataGridView())
+      {
+        dgv.AutoGenerateColumns = true;
+        using (var dt = UnitTestStatic.GetDataTable(100))
+        {
+          dgv.DataSource = dt;
+          using (var frm = new Form())
+          {
+            frm.Controls.Add(dgv);
+            frm.Show();
+            dgv.Columns[1].Selected = true;
+            dgv.Columns[2].Selected = true;
+            Clipboard.Clear();
+            dgv.SelectedDataIntoClipboard(true, false, CancellationToken.None);
+            var dataObject = Clipboard.GetDataObject();
+            Assert.IsNotNull(dataObject);
+            Assert.IsNotNull(dataObject.GetData(DataFormats.Text));
+          }
+        }
+      }
+    }
+
+
+    [TestMethod]
     public void SelectedDataIntoClipboardTest()
     {
       using (var dgv = new DataGridView())
@@ -54,8 +112,11 @@ namespace CsvTools.Tests
           {
             frm.Controls.Add(dgv);
             frm.Show();
-
+            Clipboard.Clear();
             dgv.SelectedDataIntoClipboard(true, false, CancellationToken.None);
+            var dataObject = Clipboard.GetDataObject();
+            Assert.IsNotNull(dataObject);
+            Assert.IsNotNull(dataObject.GetData(DataFormats.Text));
           }
         }
       }

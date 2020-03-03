@@ -23,6 +23,9 @@ namespace CsvTools.Tests
   [TestClass]
   public class CsvHelperTest
   {
+
+   
+
     [TestMethod]
     public void GuessCodePage()
     {
@@ -82,12 +85,9 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GuessDelimiter()
     {
-      var setting = new CsvFile
-      {
-        FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt")
-      };
-      Assert.AreEqual(",", CsvHelper.GuessDelimiter(setting));
-
+      Assert.AreEqual(",", CsvHelper.GuessDelimiter(new CsvFile(UnitTestInitialize.GetTestPath("BasicCSV.txt"))));
+      Assert.AreEqual("|", CsvHelper.GuessDelimiter(new CsvFile(UnitTestInitialize.GetTestPath("AllFormatsPipe.txt"))));
+      
       ICsvFile test = new CsvFile(UnitTestInitialize.GetTestPath("LateStartRow.txt"))
       {
         SkipRows = 10,
@@ -98,7 +98,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void HasUsedQualifier()
+    public void RefreshCsvFile()
     {
       var setting = new CsvFile
       {
@@ -108,8 +108,18 @@ namespace CsvTools.Tests
       {
         CsvHelper.RefreshCsvFile(setting, processDisplay);
       }
+
       Assert.AreEqual(1200, setting.CodePageId);
       Assert.AreEqual(",", setting.FileFormat.FieldDelimiter);
+
+      foreach (var fileName in FileSystemUtils.GetFiles(UnitTestInitialize.ApplicationDirectory, "AllFor*.txt"))
+      {
+        var testSetting = new CsvFile(fileName);
+        using (var processDisplay = new DummyProcessDisplay())
+        {
+          CsvHelper.RefreshCsvFile(testSetting, processDisplay);
+        }
+      }
     }
 
     [TestMethod]
@@ -340,27 +350,65 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GuessNewlineTest()
     {
-      var path = UnitTestInitialize.GetTestPath("TestFile.txt");
-      FileSystemUtils.FileDelete(path);
-      using (var file = File.CreateText(path))
-      {
-        file.Write("ID\tTitle\tObject ID\n");
-        file.Write("12367890\t\"5 Overview\"\tc41f21c8-d2cc-472b-8cd9-707ddd8d24fe\n");
-        file.Write("3ICC\t10/14/2010\t0e413ed0-3086-47b6-90f3-836a24f7cb2e\n");
-        file.Write("3SOF\t\"3 Overview\"\taff9ed00-016e-4202-a3df-27a3ce443e80\n");
-        file.Write("3T1SA\t3 Phase 1\t8d527a23-2777-4754-a73d-029f67abe715\n");
-        file.Write("3T22A\t3 Phase 2\tf9a99add-4cc2-4e41-a29f-a01f5b3b61b2\n");
-        file.Write("3T25C\t3 Phase 2\tab416221-9f79-484e-a7c9-bc9a375a6147\n");
-        file.Write("7S721A\t\"7 راز\"\t2b9d291f-ce76-4947-ae7b-fec3531d1766\n");
-        file.Write("#Hello\t7th Heaven\t1d5b894b-95e6-4026-9ffe-64197e79c3d1\n");
-      }
-      var test = new CsvFile(path)
-      {
-        CodePageId = 65001
-      };
-      test.FileFormat.FieldQualifier = "\"";
 
-      Assert.AreEqual("LF", CsvHelper.GuessNewline(test));
+      // Storing Text file with given line ends is tricky, editor and source control might change them
+      // therefore creating the text files in code
+      
+      var path = UnitTestInitialize.GetTestPath("TestFile.txt");
+      try
+      {
+        FileSystemUtils.FileDelete(path);
+        using (var file = File.CreateText(path))
+        {
+          file.Write("ID\tTitle\tObject ID\n");
+          file.Write("12367890\t\"5\rOverview\"\tc41f21c8-d2cc-472b-8cd9-707ddd8d24fe\n");
+          file.Write("3ICC\t10/14/2010\t0e413ed0-3086-47b6-90f3-836a24f7cb2e\n");
+          file.Write("3SOF\t\"3 Overview\"\taff9ed00-016e-4202-a3df-27a3ce443e80\n");
+          file.Write("3T1SA\t3 Phase 1\t8d527a23-2777-4754-a73d-029f67abe715\n");
+          file.Write("3T22A\t3 Phase 2\tf9a99add-4cc2-4e41-a29f-a01f5b3b61b2\n");
+          file.Write("3T25C\t3 Phase 2\tab416221-9f79-484e-a7c9-bc9a375a6147\n");
+          file.Write("7S721A\t\"7 راز\"\t2b9d291f-ce76-4947-ae7b-fec3531d1766\n");
+          file.Write("#Hello\t7th Heaven\t1d5b894b-95e6-4026-9ffe-64197e79c3d1\n");
+        }
+
+        var test = new CsvFile(path) { CodePageId = 65001, FileFormat = { FieldQualifier = "\"" } };
+
+        Assert.AreEqual("LF", CsvHelper.GuessNewline(test));
+
+        FileSystemUtils.FileDelete(path);
+        using (var file = File.CreateText(path))
+        {
+          file.Write("ID\tTitle\tObject ID\n\r");
+          file.Write("12367890\t\"5\nOverview\"\tc41f21c8-d2cc-472b-8cd9-707ddd8d24fe\n\r");
+          file.Write("3ICC\t10/14/2010\t0e413ed0-3086-47b6-90f3-836a24f7cb2e\n\r");
+          file.Write("3SOF\t\"3 Overview\"\taff9ed00-016e-4202-a3df-27a3ce443e80\n\r");
+          file.Write("3T1SA\t3 Phase 1\t8d527a23-2777-4754-a73d-029f67abe715\n\r");
+          file.Write("3T22A\t3 Phase 2\tf9a99add-4cc2-4e41-a29f-a01f5b3b61b2\n\r");
+          file.Write("3T25C\t3 Phase 2\tab416221-9f79-484e-a7c9-bc9a375a6147\n\r");
+          file.Write("7S721A\t\"7 راز\"\t2b9d291f-ce76-4947-ae7b-fec3531d1766\n\r");
+          file.Write("#Hello\t7th Heaven\t1d5b894b-95e6-4026-9ffe-64197e79c3d1\n\r");
+        }
+        Assert.AreEqual("LFCR", CsvHelper.GuessNewline(test));
+
+        FileSystemUtils.FileDelete(path);
+        using (var file = File.CreateText(path))
+        {
+          file.Write("ID\tTitle\tObject ID\r\n");
+          file.Write("12367890\t\"5\nOverview\"\tc41f21c8-d2cc-472b-8cd9-707ddd8d24fe\r\n");
+          file.Write("3ICC\t10/14/2010\t0e413ed0-3086-47b6-90f3-836a24f7cb2e\r\n");
+          file.Write("3SOF\t\"3 Overview\"\taff9ed00-016e-4202-a3df-27a3ce443e80\r\n");
+          file.Write("3T1SA\t3 Phase 1\t8d527a23-2777-4754-a73d-029f67abe715\r\n");
+          file.Write("3T22A\t3 Phase 2\tf9a99add-4cc2-4e41-a29f-a01f5b3b61b2\r\n");
+          file.Write("3T25C\t3 Phase 2\tab416221-9f79-484e-a7c9-bc9a375a6147\r\n");
+          file.Write("7S721A\t\"7 راز\"\t2b9d291f-ce76-4947-ae7b-fec3531d1766\r\n");
+          file.Write("#Hello\t7th Heaven\t1d5b894b-95e6-4026-9ffe-64197e79c3d1\r\n");
+        }
+        Assert.AreEqual("CRLF", CsvHelper.GuessNewline(test));
+      }
+      finally
+      {
+        FileSystemUtils.FileDelete(path);
+      }
     }
   }
 }

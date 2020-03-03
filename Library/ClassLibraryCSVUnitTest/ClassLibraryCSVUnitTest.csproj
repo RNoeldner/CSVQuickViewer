@@ -163,6 +163,7 @@
     <Compile Include="BiDirectionalDictionaryTests.cs" />
     <Compile Include="RetryEventArgsTest.cs" />
     <Compile Include="ColumnCollectionTest.cs" />
+    <Compile Include="ProcessDisplayTimeTest.cs" />
     <Compile Include="WarningEventArgsTest.cs" />
     <Compile Include="ColumnTest.cs" />
     <Compile Include="ExceptionTest.cs" />
@@ -173,7 +174,6 @@
     <Compile Include="DisplayItemTests.cs" />
     <Compile Include="DummyProcessDisplayTests.cs" />
     <Compile Include="EncodingHelperTest.cs" />
-    <Compile Include="EncodingHelperTests.cs" />
     <Compile Include="ExtensionsTest.cs" />
     <Compile Include="FileFormatTest.cs" />
     <Compile Include="FileSystemUtilsTest.cs" />
@@ -215,6 +215,13 @@
     <Compile Include="WarningEventArgsTests.cs" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="SampleFile.txt" />
+    <Content Include="TestFiles\AllFormatsColon.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="TestFiles\AllFormatsPipe.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="TestFiles\AllFormats.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
