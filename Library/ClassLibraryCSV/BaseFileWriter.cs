@@ -48,7 +48,7 @@ namespace CsvTools
       m_ProcessDisplay = processDisplay;
       m_SourceTimeZone = string.IsNullOrEmpty(sourceTimeZone) ? TimeZoneInfo.Local.Id : sourceTimeZone;
       m_FileSetting = fileSetting ?? throw new ArgumentNullException(nameof(fileSetting));
-      if (ApplicationSetting.SQLDataReader == null)
+      if (FunctionalDI.SQLDataReader == null)
         throw new ArgumentException("No SQL Reader set");
       Logger.Debug("Created Writer for {filesetting}", fileSetting);
     }
@@ -167,14 +167,14 @@ namespace CsvTools
       // in case there is no filter add a filer that filters all we only need the Schema
       if (!sql.Contains("SELECT", StringComparison.OrdinalIgnoreCase) ||
           sql.Contains("WHERE", StringComparison.OrdinalIgnoreCase))
-        return ApplicationSetting.SQLDataReader(sql, m_ProcessDisplay, 20);
+        return FunctionalDI.SQLDataReader(sql, m_ProcessDisplay, 20);
       var indexOf = sql.IndexOf("ORDER BY", StringComparison.OrdinalIgnoreCase);
       if (indexOf == -1)
         sql += " WHERE 1=0";
       else
         sql = sql.Substring(0, indexOf) + "WHERE 1=0";
 
-      return ApplicationSetting.SQLDataReader(sql, m_ProcessDisplay, 20);
+      return FunctionalDI.SQLDataReader(sql, m_ProcessDisplay, 20);
     }
 
     /// <summary>
@@ -189,7 +189,7 @@ namespace CsvTools
 
       // Using the connection string
       HandleProgress("Executing SQL Statement");
-      using (var sqlReader = ApplicationSetting.SQLDataReader(m_FileSetting.SqlStatement, m_ProcessDisplay, m_FileSetting.Timeout))
+      using (var sqlReader = FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement, m_ProcessDisplay, m_FileSetting.Timeout))
       {
         HandleProgress("Reading returned data");
         return sqlReader.Read2DataTable(m_ProcessDisplay, recordLimit);
@@ -205,7 +205,7 @@ namespace CsvTools
       if (string.IsNullOrEmpty(m_FileSetting.SqlStatement))
         return 0;
 
-      using (var sqlReader = ApplicationSetting.SQLDataReader(m_FileSetting.SqlStatement, m_ProcessDisplay, m_FileSetting.Timeout))
+      using (var sqlReader = FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement, m_ProcessDisplay, m_FileSetting.Timeout))
       {
         return Write(sqlReader);
       }
@@ -220,7 +220,7 @@ namespace CsvTools
         m_ProcessDisplay.Maximum = -1;
       try
       {
-        using (var improvedStream = ApplicationSetting.OpenWrite(m_FileSetting.FullPath, m_FileSetting.Recipient))
+        using (var improvedStream = FunctionalDI.OpenWrite(m_FileSetting.FullPath, m_FileSetting.Recipient))
         {
           Write(reader, improvedStream.Stream, m_ProcessDisplay?.CancellationToken ?? CancellationToken.None);
         }
@@ -292,11 +292,11 @@ namespace CsvTools
         if (string.IsNullOrEmpty(destinationTimeZoneID))
           HandleWarning(columnInfo.Header, "Time zone is empty, value not converted");
         else
-          return ApplicationSetting.AdjustTZ(dataObject, m_SourceTimeZone, destinationTimeZoneID, Columns.IndexOf(columnInfo), (int columnNo, string msg) => HandleWarning(Columns[columnNo].Header, msg)).Value;
+          return FunctionalDI.AdjustTZ(dataObject, m_SourceTimeZone, destinationTimeZoneID, Columns.IndexOf(columnInfo), (columnNo, msg) => HandleWarning(Columns[columnNo].Header, msg)).Value;
       }
       else if (columnInfo.ConstantTimeZone.Length > 0)
       {
-        return ApplicationSetting.AdjustTZ(dataObject, m_SourceTimeZone, columnInfo.ConstantTimeZone, Columns.IndexOf(columnInfo), (int columnNo, string msg) => HandleWarning(Columns[columnNo].Header, msg)).Value;
+        return FunctionalDI.AdjustTZ(dataObject, m_SourceTimeZone, columnInfo.ConstantTimeZone, Columns.IndexOf(columnInfo), ( columnNo, msg) => HandleWarning(Columns[columnNo].Header, msg)).Value;
       }
 
       return dataObject;

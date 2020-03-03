@@ -129,7 +129,7 @@ namespace CsvTools
           processDisplay.Show();
           if (m_WriteSetting)
           {
-            var fileWriter = ApplicationSetting.GetFileWriter(m_FileSetting, TimeZoneInfo.Local.Id, processDisplay);
+            var fileWriter = FunctionalDI.GetFileWriter(m_FileSetting, TimeZoneInfo.Local.Id, processDisplay);
             var hasRetried = false;
           retry:
             var data = fileWriter.GetSourceDataTable(m_FillGuessSettings.CheckedRecords);
@@ -291,7 +291,7 @@ namespace CsvTools
                   if (checkResult.PossibleMatch)
                     msg +=
                       $"          Close match\t: {checkResult.ValueFormatPossibleMatch.GetTypeAndFormatDescription()}\n";
-                  msg += "\n" + sb.ToString();
+                  msg += "\n" + sb;
                   if (suggestClosestMatch)
                   {
                     if (_MessageBox.ShowBig(
@@ -543,7 +543,7 @@ namespace CsvTools
       try
       {
         if (m_WriteSetting)
-          labelAllowedDateFormats.Text = "Date Format:";
+          labelAllowedDateFormats.Text = @"Date Format:";
         Extensions.ProcessUIElements();
 
         columnBindingSource.DataSource = m_ColumnEdit;
@@ -571,9 +571,9 @@ namespace CsvTools
               if (!m_WriteSetting)
               {
                 // if there are ignored columns need to open file and get all columns
-                if (m_FileSetting.ColumnCollection.Any(x => x.Ignore) || ApplicationSetting.GetColumnHeader == null)
+                if (m_FileSetting.ColumnCollection.Any(x => x.Ignore) || FunctionalDI.GetColumnHeader == null)
                 {
-                  using (var fileReader = ApplicationSetting.GetFileReader(m_FileSetting, null, processDisplay))
+                  using (var fileReader = FunctionalDI.GetFileReader(m_FileSetting, null, processDisplay))
                   {
                     fileReader.Open();
                     for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
@@ -582,7 +582,7 @@ namespace CsvTools
                 }
                 else
                 {
-                  var cols = ApplicationSetting.GetColumnHeader.Invoke(m_FileSetting, processDisplay.CancellationToken);
+                  var cols = FunctionalDI.GetColumnHeader.Invoke(m_FileSetting, processDisplay.CancellationToken);
                   if (cols != null)
                   {
                     foreach (var col in cols)
@@ -594,12 +594,16 @@ namespace CsvTools
               }
               else
               {
-                var writer = ApplicationSetting.GetFileWriter(m_FileSetting, null, processDisplay);
+                var writer = FunctionalDI.GetFileWriter(m_FileSetting, null, processDisplay);
+
                 using (var schemaReader = writer.GetSchemaReader())
                 using (var dataTable = schemaReader.GetSchemaTable())
                 {
-                  foreach (DataRow schemaRow in dataTable.Rows)
-                    allColumns.Add(schemaRow[SchemaTableColumn.ColumnName].ToString());
+                  if (dataTable != null)
+                  {
+                    foreach (DataRow schemaRow in dataTable.Rows)
+                      allColumns.Add(schemaRow[SchemaTableColumn.ColumnName].ToString());
+                  }
                 }
               }
             }
@@ -721,7 +725,7 @@ namespace CsvTools
 
           labelInputTZ.Text = srcTz;
           labelOutPutTZ.Text = destTz;
-          sourceDate = ApplicationSetting.AdjustTZ(sourceDate, srcTz, destTz, -1, null).Value;
+          sourceDate = FunctionalDI.AdjustTZ(sourceDate, srcTz, destTz, -1, null).Value;
         }
         else
         {
@@ -758,7 +762,7 @@ namespace CsvTools
       {
         if (m_WriteSetting)
         {
-          var fileWriter = ApplicationSetting.GetFileWriter(m_FileSetting, null, processDisplay);
+          var fileWriter = FunctionalDI.GetFileWriter(m_FileSetting, null, processDisplay);
           var data = fileWriter.GetSourceDataTable(m_FillGuessSettings.CheckedRecords);
           {
             var colIndex = data.Columns.IndexOf(columnName);
@@ -795,7 +799,7 @@ namespace CsvTools
         }
 
       retry:
-        using (var fileReader = ApplicationSetting.GetFileReader(fileSettingCopy, null, processDisplay))
+        using (var fileReader = FunctionalDI.GetFileReader(fileSettingCopy, null, processDisplay))
         {
           fileReader.Open();
           var colIndex = fileReader.GetOrdinal(columnName);

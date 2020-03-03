@@ -275,7 +275,7 @@ namespace CsvTools.Tests
         }
 
         setting.HasFieldHeader = true;
-        using (var reader = ApplicationSetting.GetFileReader(setting, TimeZoneInfo.Local.Id, disp))
+        using (var reader = FunctionalDI.GetFileReader(setting, TimeZoneInfo.Local.Id, disp))
         {
           var res = CsvHelper.GetColumnHeadersFromReader(reader);
           Assert.AreEqual(0, res.Count);
@@ -306,7 +306,7 @@ namespace CsvTools.Tests
       };
       using (var disp = new DummyProcessDisplay())
       {
-        using (var reader = ApplicationSetting.GetFileReader(setting, TimeZoneInfo.Local.Id, disp))
+        using (var reader = FunctionalDI.GetFileReader(setting, TimeZoneInfo.Local.Id, disp))
         {
           reader.Open();
           var res = CsvHelper.GetColumnHeadersFromReader(reader);
@@ -354,13 +354,13 @@ namespace CsvTools.Tests
         file.Write("7S721A\t\"7 راز\"\t2b9d291f-ce76-4947-ae7b-fec3531d1766\n");
         file.Write("#Hello\t7th Heaven\t1d5b894b-95e6-4026-9ffe-64197e79c3d1\n");
       }
-      var Test = new CsvFile(path)
+      var test = new CsvFile(path)
       {
         CodePageId = 65001
       };
-      Test.FileFormat.FieldQualifier = "\"";
+      test.FileFormat.FieldQualifier = "\"";
 
-      Assert.AreEqual("LF", CsvHelper.GuessNewline(Test));
+      Assert.AreEqual("LF", CsvHelper.GuessNewline(test));
     }
   }
 }

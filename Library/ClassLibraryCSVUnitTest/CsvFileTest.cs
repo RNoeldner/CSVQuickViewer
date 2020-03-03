@@ -162,7 +162,7 @@ namespace CsvTools.Tests
     {
       m_CsvFile.FileName = "BasicCSV.txt";
       using (var processDisplay = new DummyProcessDisplay())
-      using (var res = ApplicationSetting.GetFileReader(m_CsvFile, TimeZoneInfo.Local.Id, processDisplay))
+      using (var res = FunctionalDI.GetFileReader(m_CsvFile, TimeZoneInfo.Local.Id, processDisplay))
         Assert.IsInstanceOfType(res, typeof(IFileReader));
     }
 
@@ -171,7 +171,7 @@ namespace CsvTools.Tests
     {
       using (var processDisplay = new DummyProcessDisplay())
       {
-        var res = ApplicationSetting.GetFileWriter(m_CsvFile, TimeZoneInfo.Local.Id, processDisplay);
+        var res = FunctionalDI.GetFileWriter(m_CsvFile, TimeZoneInfo.Local.Id, processDisplay);
         Assert.IsInstanceOfType(res, typeof(IFileWriter));
       }
     }
@@ -261,11 +261,8 @@ namespace CsvTools.Tests
     [TestMethod]
     public void FileFormatColumnFormatAddExisting()
     {
-      var m_Column = new Column
-      {
-        Name = "Name"
-      };
-      m_CsvFile.ColumnCollection.AddIfNew(m_Column);
+      var column = new Column("Name");
+      m_CsvFile.ColumnCollection.AddIfNew(column);
       Assert.AreEqual(2, m_CsvFile.ColumnCollection.Count);
     }
 
@@ -273,6 +270,7 @@ namespace CsvTools.Tests
     public void FileFormat()
     {
       var csv = m_CsvFile.Clone() as CsvFile;
+      if (csv == null) throw new ArgumentNullException(nameof(csv));
       csv.FileFormat = new FileFormat()
       {
         QualifyAlways = true
@@ -288,11 +286,8 @@ namespace CsvTools.Tests
     [TestMethod]
     public void FileFormatColumnFormatAddNew()
     {
-      var m_Column = new Column
-      {
-        Name = "Name2"
-      };
-      m_CsvFile.ColumnCollection.AddIfNew(m_Column);
+      var column = new Column("Name2");
+      m_CsvFile.ColumnCollection.AddIfNew(column);
       Assert.AreEqual(3, m_CsvFile.ColumnCollection.Count);
     }
 

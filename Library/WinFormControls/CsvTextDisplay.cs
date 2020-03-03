@@ -105,8 +105,8 @@ namespace CsvTools
         return;
       try
       {
-        using (var procDisp = new ProcessDisplayTime(CancellationToken.None))
-        using (var istream = ApplicationSetting.OpenReadS(m_CsvFile))
+        using (new ProcessDisplayTime(CancellationToken.None))
+        using (var istream = FunctionalDI.OpenReadS(m_CsvFile))
         using (var sr = new StreamReader(istream.Stream, m_CsvFile.GetEncoding(), m_CsvFile.ByteOrderMark))
         {
           // Some stream do not support seek...

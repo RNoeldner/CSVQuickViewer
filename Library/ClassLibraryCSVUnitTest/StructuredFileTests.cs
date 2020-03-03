@@ -61,7 +61,7 @@ namespace CsvTools.Tests
     {
       try
       {
-        var res = ApplicationSetting.GetFileReader(m_StructuredFile, TimeZoneInfo.Local.Id, null);
+        FunctionalDI.GetFileReader(m_StructuredFile, TimeZoneInfo.Local.Id, null);
         Assert.Fail("Should throw error");
       }
       catch (NotImplementedException)
@@ -75,7 +75,7 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay())
       {
         m_StructuredFile.SqlStatement = "dummy";
-        var res = ApplicationSetting.GetFileWriter(m_StructuredFile, TimeZoneInfo.Local.Id, processDisplay);
+        var res = FunctionalDI.GetFileWriter(m_StructuredFile, TimeZoneInfo.Local.Id, processDisplay);
         Assert.IsInstanceOfType(res, typeof(IFileWriter));
       }
     }

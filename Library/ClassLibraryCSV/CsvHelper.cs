@@ -112,7 +112,7 @@ namespace CsvTools
       // Read 256 kBytes
       var buff = new byte[262144];
       int length;
-      using (var fileStream = ApplicationSetting.OpenReadS(setting))
+      using (var fileStream = FunctionalDI.OpenReadS(setting))
       {
         length = fileStream.Stream.Read(buff, 0, buff.Length);
       }
@@ -151,8 +151,8 @@ namespace CsvTools
     {
       Contract.Requires(setting != null);
       Contract.Ensures(Contract.Result<string>() != null);
-      using (var IImprovedStream = ApplicationSetting.OpenReadS(setting))
-      using (var streamReader = new StreamReader(IImprovedStream.Stream, setting.GetEncoding(), setting.ByteOrderMark))
+      using (var improvedStream = FunctionalDI.OpenReadS(setting))
+      using (var streamReader = new StreamReader(improvedStream.Stream, setting.GetEncoding(), setting.ByteOrderMark))
       {
         for (var i = 0; i < setting.SkipRows; i++)
           streamReader.ReadLine();
@@ -170,8 +170,8 @@ namespace CsvTools
     public static bool GuessJsonFile(IFileSettingPhysicalFile setting)
     {
       Contract.Requires(setting != null);
-      using (var IImprovedStream = ApplicationSetting.OpenReadS(setting))
-      using (var streamReader = new StreamReader(IImprovedStream.Stream))
+      using (var improvedStream = FunctionalDI.OpenReadS(setting))
+      using (var streamReader = new StreamReader(improvedStream.Stream))
       {
         return IsJsonReadable(streamReader);
       }
@@ -245,8 +245,8 @@ namespace CsvTools
     public static string GuessNewline(ICsvFile setting)
     {
       Contract.Requires(setting != null);
-      using (var IImprovedStream = ApplicationSetting.OpenReadS(setting))
-      using (var streamReader = new StreamReader(IImprovedStream.Stream, setting.GetEncoding(), setting.ByteOrderMark))
+      using (var improvedStream = FunctionalDI.OpenReadS(setting))
+      using (var streamReader = new StreamReader(improvedStream.Stream, setting.GetEncoding(), setting.ByteOrderMark))
       {
         for (var i = 0; i < setting.SkipRows; i++)
           streamReader.ReadLine();
@@ -262,8 +262,8 @@ namespace CsvTools
     private static char GuessQualifier(ICsvFile setting)
     {
       Contract.Requires(setting != null);
-      using (var IImprovedStream = ApplicationSetting.OpenReadS(setting))
-      using (var streamReader = new StreamReader(IImprovedStream.Stream, setting.GetEncoding(), setting.ByteOrderMark))
+      using (var improvedStream = FunctionalDI.OpenReadS(setting))
+      using (var streamReader = new StreamReader(improvedStream.Stream, setting.GetEncoding(), setting.ByteOrderMark))
       {
         return GuessQualifier(streamReader, setting.FileFormat.FieldDelimiterChar, setting.SkipRows);
       }
@@ -277,8 +277,8 @@ namespace CsvTools
     public static int GuessStartRow(ICsvFile setting)
     {
       Contract.Requires(setting != null);
-      using (var IImprovedStream = ApplicationSetting.OpenReadS(setting))
-      using (var streamReader = new StreamReader(IImprovedStream.Stream, setting.GetEncoding(), setting.ByteOrderMark))
+      using (var improvedStream = FunctionalDI.OpenReadS(setting))
+      using (var streamReader = new StreamReader(improvedStream.Stream, setting.GetEncoding(), setting.ByteOrderMark))
       {
         return GuessStartRow(streamReader, setting.FileFormat.FieldDelimiterChar, setting.FileFormat.FieldQualifierChar,
           setting.FileFormat.CommentLine);
@@ -298,8 +298,8 @@ namespace CsvTools
       if (string.IsNullOrEmpty(setting.FileFormat.FieldQualifier) || token.IsCancellationRequested)
         return false;
 
-      using (var IImprovedStream = ApplicationSetting.OpenReadS(setting))
-      using (var streamReader = new StreamReader(IImprovedStream.Stream, setting.GetEncoding(), setting.ByteOrderMark))
+      using (var improvedStream = FunctionalDI.OpenReadS(setting))
+      using (var streamReader = new StreamReader(improvedStream.Stream, setting.GetEncoding(), setting.ByteOrderMark))
       {
         for (var i = 0; i < setting.SkipRows; i++)
           streamReader.ReadLine();
@@ -520,17 +520,17 @@ namespace CsvTools
             if (dist > 2 || dist < -2)
               cutVariance += 8;
             else switch (dist)
-              {
-                case 2:
-                case -2:
-                  cutVariance += 4;
-                  break;
+            {
+              case 2:
+              case -2:
+                cutVariance += 4;
+                break;
 
-                case 1:
-                case -1:
-                  cutVariance++;
-                  break;
-              }
+              case 1:
+              case -1:
+                cutVariance++;
+                break;
+            }
           }
 
           // The score is dependent on the average columns found and the regularity
