@@ -903,7 +903,7 @@ namespace CsvTools
 
     protected virtual void FinishOpen()
     {
-      ApplicationSetting.StoreHeader?.Invoke(FileSetting, Column);
+      FunctionalDI.StoreHeader?.Invoke(FileSetting, Column);
       m_IsFinished = false;
       if (FieldCount > 0)
         // Override the column settings and store the columns for later reference
@@ -1405,7 +1405,7 @@ namespace CsvTools
           timeZone = GetString(colTimeZone);
       }
 
-      return ApplicationSetting.AdjustTZ(input, timeZone, m_DestinationTimeZone, column.ColumnOrdinal, HandleWarning);
+      return FunctionalDI.AdjustTZ(input, timeZone, m_DestinationTimeZone, column.ColumnOrdinal, HandleWarning);
     }
 
     /// <summary>

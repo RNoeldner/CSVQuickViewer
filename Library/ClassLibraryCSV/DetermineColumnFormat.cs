@@ -32,7 +32,7 @@ namespace CsvTools
     public static ValueFormat CommonDateFormat(IEnumerable<Column> columns)
     {
       ValueFormat best = null;
-      if (columns == null) return best;
+      if (columns == null) return null;
       var counterByFormat = new Dictionary<ValueFormat, int>();
       var maxValue = int.MinValue;
       foreach (var newColumn in columns)
@@ -99,7 +99,7 @@ namespace CsvTools
       var othersValueFormatDate = CommonDateFormat(present);
       // need a dummy process display to have pass in Cancellation token to reader
       using (var prc2 = new DummyProcessDisplay(processDisplay.CancellationToken))
-      using (var fileReader = ApplicationSetting.GetFileReader(fileSettingCopy, null, prc2))
+      using (var fileReader = FunctionalDI.GetFileReader(fileSettingCopy, null, prc2))
       {
         Contract.Assume(fileReader != null);
         fileReader.Open();
@@ -111,27 +111,27 @@ namespace CsvTools
         // build a list of columns to check
         var getSamples = new List<int>();
         var columnNamesInFile = new List<string>();
-        for (var colindex = 0; colindex < fileReader.FieldCount; colindex++)
+        for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
         {
-          var newColumn = fileReader.GetColumn(colindex);
+          var newColumn = fileReader.GetColumn(colIndex);
           columnNamesInFile.Add(newColumn.Name);
 
           if (BaseFileReader.cStartLineNumberFieldName.Equals(newColumn.Name, StringComparison.OrdinalIgnoreCase) ||
               BaseFileReader.cErrorField.Equals(newColumn.Name, StringComparison.OrdinalIgnoreCase))
           {
-            processDisplay.SetProcess(newColumn.Name + " – Reserved columns ignored", colindex, true);
+            processDisplay.SetProcess(newColumn.Name + " – Reserved columns ignored", colIndex, true);
             newColumn.Ignore = true;
             fileSetting.ColumnCollection.AddIfNew(newColumn);
           }
           else if (fillGuessSettings.IgnoreIdColums && StringUtils.AssumeIDColumn(newColumn.Name) > 0)
           {
-            processDisplay.SetProcess(newColumn.Name + " – ID columns ignored", colindex, true);
+            processDisplay.SetProcess(newColumn.Name + " – ID columns ignored", colIndex, true);
             if (addTextColumns)
               fileSetting.ColumnCollection.AddIfNew(newColumn);
           }
           else
           {
-            getSamples.Add(colindex);
+            getSamples.Add(colIndex);
           }
         }
 
@@ -140,17 +140,17 @@ namespace CsvTools
           getSamples, fillGuessSettings.SampleValues, fileSetting.TreatTextAsNull,
           processDisplay.CancellationToken);
 
-        foreach (var colindex in sampleList.Keys)
+        foreach (var colIndex in sampleList.Keys)
         {
           processDisplay.CancellationToken.ThrowIfCancellationRequested();
 
-          var newColumn = fileReader.GetColumn(colindex);
-          var samples = sampleList[colindex];
+          var newColumn = fileReader.GetColumn(colIndex);
+          var samples = sampleList[colIndex];
 
           processDisplay.CancellationToken.ThrowIfCancellationRequested();
           if (samples.Values.Count == 0)
           {
-            processDisplay.SetProcess(newColumn.Name + " – No values found", colindex, true);
+            processDisplay.SetProcess(newColumn.Name + " – No values found", colIndex, true);
             if (!addTextColumns)
               continue;
             result.Add($"{newColumn.Name} – No values found – Format : {newColumn.GetTypeAndFormatDescription()}");
@@ -163,14 +163,14 @@ namespace CsvTools
             {
               processDisplay.SetProcess(
                 $"{newColumn.Name} – Only {samples.Values.Count()} values found in {samples.RecordsRead:N0} rows",
-                colindex, true);
+                colIndex, true);
               detect = false;
             }
             else
             {
               processDisplay.SetProcess(
                 $"{newColumn.Name} – {samples.Values.Count()} values found in {samples.RecordsRead:N0} rows – Examining format",
-                colindex, true);
+                colIndex, true);
             }
 
             var checkResult = GuessValueFormat(samples.Values, fillGuessSettings.MinSamples,
@@ -219,7 +219,7 @@ namespace CsvTools
 
               if (checkResult.FoundValueFormat.Equals(oldColumn.ValueFormat))
                 processDisplay.SetProcess($"{newColumn.Name} – Format : {oldValueFormat} – not changed",
-                  colindex, true);
+                  colIndex, true);
               else
                 oldColumn.ValueFormat = checkResult.FoundValueFormat;
 
@@ -228,7 +228,7 @@ namespace CsvTools
                 continue;
               var msg = $"{newColumn.Name} – Format : {newValueFormat} – updated from {oldValueFormat}";
               result.Add(msg);
-              processDisplay.SetProcess(msg, colindex, true);
+              processDisplay.SetProcess(msg, colIndex, true);
             }
             else
             {
@@ -236,7 +236,7 @@ namespace CsvTools
                 continue;
               newColumn.ValueFormat = checkResult.FoundValueFormat;
               var msg = $"{newColumn.Name} – Format : {newColumn.GetTypeAndFormatDescription()}";
-              processDisplay.SetProcess(msg, colindex, true);
+              processDisplay.SetProcess(msg, colIndex, true);
               result.Add(msg);
               fileSetting.ColumnCollection.AddIfNew(newColumn);
 
@@ -255,11 +255,11 @@ namespace CsvTools
         // check all doubles if they could be integer needed for excel files as the typed values do
         // not distinguish between double and integer.
         if (checkDoubleToBeInteger)
-          for (var colindex = 0; colindex < fileReader.FieldCount; colindex++)
+          for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
           {
             processDisplay.CancellationToken.ThrowIfCancellationRequested();
 
-            var oldColumn = fileReader.GetColumn(colindex);
+            var oldColumn = fileReader.GetColumn(colIndex);
             var detect = !(fillGuessSettings.IgnoreIdColums &&
                            StringUtils.AssumeIDColumn(oldColumn.Name) > 0);
 
@@ -269,11 +269,11 @@ namespace CsvTools
             if (detect)
             {
               SampleResult samples;
-              if (sampleList.Keys.Contains(colindex + 1))
-                samples = sampleList[colindex + 1];
+              if (sampleList.Keys.Contains(colIndex + 1))
+                samples = sampleList[colIndex + 1];
               else
                 samples = GetSampleValues(fileReader, fillGuessSettings.CheckedRecords,
-                  colindex, fillGuessSettings.SampleValues, fileSetting.TreatTextAsNull,
+                  colIndex, fillGuessSettings.SampleValues, fileSetting.TreatTextAsNull,
                   processDisplay.CancellationToken);
 
               if (samples.Values.Count > 0)
@@ -298,7 +298,7 @@ namespace CsvTools
             if (newColumn != null)
             {
               var msg = $"{newColumn.Name} – Overwritten Excel Format : {newColumn.GetTypeAndFormatDescription()}";
-              processDisplay.SetProcess(msg, colindex, true);
+              processDisplay.SetProcess(msg, colIndex, true);
               result.Add(msg);
             }
           }
@@ -307,10 +307,10 @@ namespace CsvTools
         {
           // Try to find a time for a date if the date does not already have a time Case a)
           // TimeFormat has already been recognized
-          for (var colindex = 0; colindex < fileReader.FieldCount; colindex++)
+          for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
           {
             processDisplay.CancellationToken.ThrowIfCancellationRequested();
-            var columnDate = fileReader.GetColumn(colindex);
+            var columnDate = fileReader.GetColumn(colIndex);
 
             // Possibly add Time Zone
             if (columnDate.ValueFormat.DataType == DataType.DateTime && string.IsNullOrEmpty(columnDate.TimeZonePart))
@@ -351,17 +351,17 @@ namespace CsvTools
 
           // Case b) TimeFormat has not been recognized (e.G. all values are 08:00) only look in
           // adjacent fields
-          for (var colindex = 0; colindex < fileReader.FieldCount; colindex++)
+          for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
           {
             processDisplay.CancellationToken.ThrowIfCancellationRequested();
-            var columnDate = fileReader.GetColumn(colindex);
+            var columnDate = fileReader.GetColumn(colIndex);
             if (columnDate.ValueFormat.DataType != DataType.DateTime || !string.IsNullOrEmpty(columnDate.TimePart) ||
                 columnDate.ValueFormat.DateFormat.IndexOfAny(new[] { ':', 'h', 'H', 'm', 's', 't' }) != -1)
               continue;
 
-            if (colindex + 1 < fileReader.FieldCount)
+            if (colIndex + 1 < fileReader.FieldCount)
             {
-              var columnTime = fileReader.GetColumn(colindex + 1);
+              var columnTime = fileReader.GetColumn(colIndex + 1);
               if (columnTime.ValueFormat.DataType == DataType.String && columnDate.Name.NoSpecials().ToUpperInvariant()
                     .Replace("DATE", string.Empty)
                     .Equals(columnTime.Name.NoSpecials().ToUpperInvariant().Replace("TIME", string.Empty),
@@ -369,9 +369,9 @@ namespace CsvTools
               {
                 columnDate.TimePart = columnTime.Name;
                 {
-                  var samples = sampleList.Keys.Contains(colindex + 1)
-                    ? sampleList[colindex + 1]
-                    : GetSampleValues(fileReader, 1, colindex + 1, 1, fileSetting.TreatTextAsNull,
+                  var samples = sampleList.Keys.Contains(colIndex + 1)
+                    ? sampleList[colIndex + 1]
+                    : GetSampleValues(fileReader, 1, colIndex + 1, 1, fileSetting.TreatTextAsNull,
                       processDisplay.CancellationToken);
 
                   foreach (var first in samples.Values)
@@ -397,10 +397,10 @@ namespace CsvTools
               }
             }
 
-            if (colindex <= 0)
+            if (colIndex <= 0)
               continue;
             {
-              var columnTime = fileReader.GetColumn(colindex - 1);
+              var columnTime = fileReader.GetColumn(colIndex - 1);
               if (columnTime.ValueFormat.DataType != DataType.String ||
                   !columnDate.Name.NoSpecials().ToUpperInvariant().Replace("DATE", string.Empty).Equals(
                     columnTime.Name.NoSpecials().ToUpperInvariant().Replace("TIME", string.Empty),
@@ -409,9 +409,9 @@ namespace CsvTools
 
               columnDate.TimePart = columnTime.Name;
               {
-                var samples = sampleList.Keys.Contains(colindex - 1)
-                  ? sampleList[colindex - 1]
-                  : GetSampleValues(fileReader, 1, colindex - 1, 1, fileSetting.TreatTextAsNull,
+                var samples = sampleList.Keys.Contains(colIndex - 1)
+                  ? sampleList[colIndex - 1]
+                  : GetSampleValues(fileReader, 1, colIndex - 1, 1, fileSetting.TreatTextAsNull,
                     processDisplay.CancellationToken);
                 foreach (var first in samples.Values)
                 {
@@ -470,11 +470,11 @@ namespace CsvTools
     {
       if (string.IsNullOrEmpty(fileSettings.SqlStatement))
         throw new FileWriterException("No SQL Statement given");
-      if (ApplicationSetting.SQLDataReader == null)
+      if (FunctionalDI.SQLDataReader == null)
         throw new FileWriterException("No SQL Reader set");
 
       using (var dataReader =
-        ApplicationSetting.SQLDataReader(fileSettings.SqlStatement, processDisplay, fileSettings.Timeout))
+        FunctionalDI.SQLDataReader(fileSettings.SqlStatement, processDisplay, fileSettings.Timeout))
       {
         // Put the information into the list
         var dataRowCollection = dataReader.GetSchemaTable()?.Rows;
@@ -738,7 +738,7 @@ namespace CsvTools
     IProcessDisplay processDisplay)
     {
       Contract.Requires(fileSettings != null);
-      var writer = ApplicationSetting.GetFileWriter(fileSettings, null, processDisplay);
+      var writer = FunctionalDI.GetFileWriter(fileSettings, null, processDisplay);
       using (var data = writer.GetSchemaReader())
       {
         return writer.GetSourceColumnInformation(data);

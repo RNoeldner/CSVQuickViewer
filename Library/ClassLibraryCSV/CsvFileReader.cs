@@ -1029,7 +1029,7 @@ namespace CsvTools
     private void ResetPositionToStartOrOpen()
     {
       if (m_ImprovedStream == null)
-        m_ImprovedStream = ApplicationSetting.OpenReadS(m_CsvFile);
+        m_ImprovedStream = FunctionalDI.OpenReadS(m_CsvFile);
 
       if (m_BufferPos != 0 || RecordNumber != 0 || m_BufferFilled == 0)
       {
@@ -1056,13 +1056,10 @@ namespace CsvTools
             )
               m_TextReader.Read();
 
-            if (m_CsvFile.ByteOrderMark && (m_CsvFile.CodePageId == 1201 || // UTF16Be
-                                            m_CsvFile.CodePageId == 1200) // UTF16Le
-                                        && m_TextReader.Peek() == 65279)
-            {
-              m_TextReader.Read();
-              m_TextReader.Read();
-            }
+            if (!m_CsvFile.ByteOrderMark || (m_CsvFile.CodePageId != 1201 && m_CsvFile.CodePageId != 1200) ||
+                m_TextReader.Peek() != 65279) return;
+            m_TextReader.Read();
+            m_TextReader.Read();
           }
         });
 

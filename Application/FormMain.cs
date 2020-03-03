@@ -607,7 +607,7 @@ namespace CsvTools
           if (processDisplay is IProcessDisplayTime pdt)
             pdt.AttachTaskbarProgress();
 
-          using (var csvDataReader = ApplicationSetting.GetFileReader(m_FileSetting, TimeZoneInfo.Local.Id, processDisplay))
+          using (var csvDataReader = FunctionalDI.GetFileReader(m_FileSetting, TimeZoneInfo.Local.Id, processDisplay))
           {
             var warningList = new RowErrorCollection(csvDataReader);
             csvDataReader.Open();
@@ -623,7 +623,7 @@ namespace CsvTools
                 m_Headers.Add(cf.Name);
             }
 
-            ApplicationSetting.GetColumnHeader = (dummy1, dummy3) => m_Headers;
+            FunctionalDI.GetColumnHeader = (dummy1, dummy3) => m_Headers;
             if (warningList.CountRows > 0)
               _MessageBox.Show(
                 this,
@@ -667,7 +667,7 @@ namespace CsvTools
           detailControl.DataTable = data;
         }
 
-        ApplicationSetting.SQLDataReader =
+        FunctionalDI.SQLDataReader =
           (settingName, processDisplay, timeout) => detailControl.DataTable.CreateDataReader();
         detailControl.FileSetting = m_FileSetting;
         detailControl.FillGuessSettings = m_ViewSettings.FillGuessSettings;

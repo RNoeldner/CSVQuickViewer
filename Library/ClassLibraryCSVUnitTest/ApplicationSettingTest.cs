@@ -41,15 +41,14 @@ namespace CsvTools.Tests
     {
       try
       {
-        ApplicationSetting.SQLDataReader = null;
-        var ignore = ApplicationSetting.SQLDataReader;
+        FunctionalDI.SQLDataReader = null;
       }
       catch (ArgumentNullException)
       {
         // all good
       }
-      ApplicationSetting.SQLDataReader = UnitTestInitialize.MimicSQLReader.ReadData;
-      var reader = ApplicationSetting.SQLDataReader;
+      FunctionalDI.SQLDataReader = UnitTestInitialize.MimicSQLReader.ReadData;
+      var reader = FunctionalDI.SQLDataReader;
       Assert.IsNotNull(reader);
     }
 
