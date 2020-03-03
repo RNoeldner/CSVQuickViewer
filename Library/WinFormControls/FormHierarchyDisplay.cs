@@ -12,26 +12,25 @@
  *
  */
 
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Diagnostics;
+using System.Diagnostics.Contracts;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Timers;
+using System.Windows.Forms;
+using Timer = System.Timers.Timer;
+
 namespace CsvTools
 {
-  using System;
-  using System.Collections;
-  using System.Collections.Generic;
-  using System.ComponentModel;
-  using System.Data;
-  using System.Diagnostics;
-  using System.Diagnostics.Contracts;
-  using System.Drawing;
-  using System.Threading;
-  using System.Timers;
-  using System.Windows.Forms;
-
-  using Timer = System.Timers.Timer;
-
   /// <summary>
   ///   Windows Form to Display the hierarchy
   /// </summary>
-  public class FormHierachyDisplay : ResizeForm
+  public class FormHierarchyDisplay : ResizeForm
   {
     private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
 
@@ -69,11 +68,11 @@ namespace CsvTools
     private MultiselectTreeView m_TreeView;
 
     /// <summary>
-    ///   Initializes a new instance of the <see cref="FormHierachyDisplay" /> class.
+    ///   Initializes a new instance of the <see cref="FormHierarchyDisplay" /> class.
     /// </summary>
     /// <param name="dataTable">The data table.</param>
     /// <param name="dataRows">The filter.</param>
-    public FormHierachyDisplay(DataTable dataTable, DataRow[] dataRows)
+    public FormHierarchyDisplay(DataTable dataTable, DataRow[] dataRows)
     {
       Contract.Requires(dataTable != null);
       Contract.Requires(dataRows != null);
@@ -110,13 +109,14 @@ namespace CsvTools
       base.Dispose(disposing);
     }
 
+
     /// <summary>
     ///   Adds the tree data node with child's.
     /// </summary>
     /// <param name="root">The root.</param>
     /// <param name="rootNode">The root node.</param>
     /// <param name="process">Progress display</param>
-    private void AddTreeDataNodeWithChilds(TreeData root, TreeNode rootNode, IProcessDisplay process)
+    private void AddTreeDataNodeWithChild(TreeData root, TreeNode rootNode, IProcessDisplay process)
     {
       if (process == null) throw new ArgumentNullException(nameof(process));
       Contract.Requires(root != null);
@@ -164,7 +164,7 @@ namespace CsvTools
     /// <summary>
     ///   Builds the tree.
     /// </summary>
-    private void BuildTree()
+    public void BuildTree(string parent, string id, string display1 = null, string display2 = null)
     {
       var oldCursor = Cursor.Current == Cursors.WaitCursor ? Cursors.WaitCursor : Cursors.Default;
       Cursor.Current = Cursors.WaitCursor;
@@ -173,7 +173,8 @@ namespace CsvTools
         m_BuildProcess = new FormProcessDisplay("Building Tree", false, m_CancellationTokenSource.Token);
         m_BuildProcess.Show(this);
         m_BuildProcess.Maximum = m_DataRow.GetLength(0) * 2;
-        BuildTreeData(m_BuildProcess);
+
+        BuildTreeData(parent, id, display1, display2, m_BuildProcess);
 
         m_BuildProcess.Maximum = 0;
         ShowTree(m_BuildProcess);
@@ -193,19 +194,14 @@ namespace CsvTools
     /// <summary>
     ///   Builds the tree data.
     /// </summary>
-    private void BuildTreeData(IProcessDisplay process)
+    private void BuildTreeData(string parentCol, string idCol, string display1, string display2, IProcessDisplay process)
     {
-      Contract.Requires(m_DataTable != null);
       var intervalAction = new IntervalAction();
 
-      var dataColumnParent = m_DataTable.Columns[m_ComboBoxParentID.SelectedItem.ToString()];
-      var dataColumnID = m_DataTable.Columns[m_ComboBoxID.SelectedItem.ToString()];
-      var dataColumnDisplay1 = m_ComboBoxDisplay1.SelectedItem != null
-                                 ? m_DataTable.Columns[m_ComboBoxDisplay1.SelectedItem.ToString()]
-                                 : null;
-      var dataColumnDisplay2 = m_ComboBoxDisplay2.SelectedItem != null
-                                 ? m_DataTable.Columns[m_ComboBoxDisplay2.SelectedItem.ToString()]
-                                 : null;
+      var dataColumnParent = m_DataTable.Columns[parentCol];
+      var dataColumnID = m_DataTable.Columns[idCol];
+      var dataColumnDisplay1 = string.IsNullOrEmpty(display1) ? null:m_DataTable.Columns[display1];
+      var dataColumnDisplay2 = string.IsNullOrEmpty(display2) ? null : m_DataTable.Columns[display2];
 
       // Using a dictionary here to speed up lookups
       var treeDataDictionary = new Dictionary<string, TreeData>();
@@ -227,12 +223,11 @@ namespace CsvTools
         {
           ID = id,
           Title = dataColumnDisplay1 != null
-                                     ? dataColumnDisplay2 != null
-                                         ?
-                                         dataRow[dataColumnDisplay1.Ordinal] + " - "
-                                                                             + dataRow[dataColumnDisplay2.Ordinal]
-                                         : dataRow[dataColumnDisplay1.Ordinal].ToString()
-                                     : id,
+            ? dataColumnDisplay2 != null
+              ? dataRow[dataColumnDisplay1.Ordinal] + " - "
+                                                    + dataRow[dataColumnDisplay2.Ordinal]
+              : dataRow[dataColumnDisplay1.Ordinal].ToString()
+            : id,
           ParentID = dataRow[dataColumnParent.Ordinal].ToString()
         };
         if (dataColumnDisplay1 != null)
@@ -246,10 +241,8 @@ namespace CsvTools
       // Generate a list of missing parents
       var additionalRootNodes = new HashSet<string>();
       foreach (var child in treeDataDictionary.Values)
-      {
         if (!string.IsNullOrEmpty(child.ParentID) && !treeDataDictionary.ContainsKey(child.ParentID))
           additionalRootNodes.Add(child.ParentID);
-      }
 
       var rootDataParentNotFound = new TreeData { ID = "{M}", Title = "Parent not found" };
 
@@ -286,9 +279,7 @@ namespace CsvTools
           counter++);
         if (string.IsNullOrEmpty(child.ParentID) && child.ID != rootDataParentFound.ID
                                                  && child.ID != rootDataParentNotFound.ID)
-        {
           child.ParentID = rootDataParentFound.ID;
-        }
       }
 
       process.Maximum = treeDataDictionary.Values.Count;
@@ -336,15 +327,11 @@ namespace CsvTools
       var newValue = cb.SelectedItem.ToString();
       if (m_ComboBoxParentID == cb && m_ComboBoxID.SelectedItem != null
                                    && m_ComboBoxID.SelectedItem.ToString() == newValue)
-      {
         m_ComboBoxID.SelectedIndex = -1;
-      }
 
       if (m_ComboBoxID == cb && m_ComboBoxParentID.SelectedItem != null
                              && m_ComboBoxParentID.SelectedItem.ToString() == newValue)
-      {
         m_ComboBoxParentID.SelectedIndex = -1;
-      }
 
       m_TimerDisplay.Stop();
       m_TimerDisplay.Start();
@@ -371,29 +358,27 @@ namespace CsvTools
       // go to UI Main thread
       m_TextBoxValue.Invoke(
         (MethodInvoker)delegate
-          {
-            try
-            {
-              using (var proc = new FormProcessDisplay("Searching", false, m_CancellationTokenSource.Token))
-              {
-                proc.Show(this);
-                Search(m_TextBoxValue.Text, m_TreeView.Nodes, proc.CancellationToken);
-              }
-            }
-            catch (Exception ex)
-            {
-              this.ShowError(ex);
-            }
-          });
-
-    private void FormHierachyDisplay_FormClosed(object sender, FormClosedEventArgs e) => Dispose(true);
+       {
+         try
+         {
+           using (var proc = new FormProcessDisplay("Searching", false, m_CancellationTokenSource.Token))
+           {
+             proc.Show(this);
+             Search(m_TextBoxValue.Text, m_TreeView.Nodes, proc.CancellationToken);
+           }
+         }
+         catch (Exception ex)
+         {
+           this.ShowError(ex);
+         }
+       });
 
     /// <summary>
-    ///   Handles the Load event of the HirachyDisplay control.
+    ///   Handles the Load event of the HierarchyDisplay control.
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
-    private void HirachyDisplay_Load(object sender, EventArgs e)
+    private void FormHierarchyDisplay_Load(object sender, EventArgs e)
     {
       try
       {
@@ -418,13 +403,13 @@ namespace CsvTools
     private void InitializeComponent()
     {
       this.components = new System.ComponentModel.Container();
-      System.Windows.Forms.Label label1;
-      System.Windows.Forms.Label label2;
-      System.Windows.Forms.Label label3;
+      System.Windows.Forms.Label labelID;
+      System.Windows.Forms.Label labelDisplay;
+      System.Windows.Forms.Label labelParent;
       System.Windows.Forms.ContextMenuStrip contextMenuStrip;
       System.Windows.Forms.ToolStripMenuItem expandAllToolStripMenuItem;
       System.Windows.Forms.ToolStripMenuItem closeAllToolStripMenuItem;
-      System.Windows.Forms.Label label4;
+      System.Windows.Forms.Label labelFind;
       this.m_TableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
       this.m_ComboBoxID = new System.Windows.Forms.ComboBox();
       this.m_ComboBoxParentID = new System.Windows.Forms.ComboBox();
@@ -432,49 +417,49 @@ namespace CsvTools
       this.m_TextBoxValue = new System.Windows.Forms.TextBox();
       this.m_ComboBoxDisplay2 = new System.Windows.Forms.ComboBox();
       this.m_ComboBoxDisplay1 = new System.Windows.Forms.ComboBox();
-      label1 = new System.Windows.Forms.Label();
-      label2 = new System.Windows.Forms.Label();
-      label3 = new System.Windows.Forms.Label();
+      labelID = new System.Windows.Forms.Label();
+      labelDisplay = new System.Windows.Forms.Label();
+      labelParent = new System.Windows.Forms.Label();
       contextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
       expandAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       closeAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-      label4 = new System.Windows.Forms.Label();
+      labelFind = new System.Windows.Forms.Label();
       contextMenuStrip.SuspendLayout();
       this.m_TableLayoutPanel1.SuspendLayout();
       this.SuspendLayout();
       // 
-      // label1
+      // labelID
       // 
-      label1.Anchor = System.Windows.Forms.AnchorStyles.Right;
-      label1.AutoSize = true;
-      label1.Location = new System.Drawing.Point(66, 8);
-      label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-      label1.Name = "label1";
-      label1.Size = new System.Drawing.Size(22, 18);
-      label1.TabIndex = 3;
-      label1.Text = "ID";
+      labelID.Anchor = System.Windows.Forms.AnchorStyles.Right;
+      labelID.AutoSize = true;
+      labelID.Location = new System.Drawing.Point(66, 8);
+      labelID.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+      labelID.Name = "labelID";
+      labelID.Size = new System.Drawing.Size(22, 18);
+      labelID.TabIndex = 3;
+      labelID.Text = "ID";
       // 
-      // label2
+      // labelDisplay
       // 
-      label2.Anchor = System.Windows.Forms.AnchorStyles.Right;
-      label2.AutoSize = true;
-      label2.Location = new System.Drawing.Point(32, 42);
-      label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-      label2.Name = "label2";
-      label2.Size = new System.Drawing.Size(56, 18);
-      label2.TabIndex = 5;
-      label2.Text = "Display";
+      labelDisplay.Anchor = System.Windows.Forms.AnchorStyles.Right;
+      labelDisplay.AutoSize = true;
+      labelDisplay.Location = new System.Drawing.Point(32, 42);
+      labelDisplay.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+      labelDisplay.Name = "labelDisplay";
+      labelDisplay.Size = new System.Drawing.Size(56, 18);
+      labelDisplay.TabIndex = 5;
+      labelDisplay.Text = "Display";
       // 
-      // label3
+      // labelParent
       // 
-      label3.Anchor = System.Windows.Forms.AnchorStyles.Right;
-      label3.AutoSize = true;
-      label3.Location = new System.Drawing.Point(19, 76);
-      label3.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-      label3.Name = "label3";
-      label3.Size = new System.Drawing.Size(69, 18);
-      label3.TabIndex = 7;
-      label3.Text = "Parent ID";
+      labelParent.Anchor = System.Windows.Forms.AnchorStyles.Right;
+      labelParent.AutoSize = true;
+      labelParent.Location = new System.Drawing.Point(19, 76);
+      labelParent.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+      labelParent.Name = "labelParent";
+      labelParent.Size = new System.Drawing.Size(69, 18);
+      labelParent.TabIndex = 7;
+      labelParent.Text = "Parent ID";
       // 
       // contextMenuStrip
       // 
@@ -499,16 +484,16 @@ namespace CsvTools
       closeAllToolStripMenuItem.Text = "Close All";
       closeAllToolStripMenuItem.Click += new System.EventHandler(this.CloseAllToolStripMenuItem_Click);
       // 
-      // label4
+      // labelFind
       // 
-      label4.Anchor = System.Windows.Forms.AnchorStyles.Right;
-      label4.AutoSize = true;
-      label4.Location = new System.Drawing.Point(52, 109);
-      label4.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-      label4.Name = "label4";
-      label4.Size = new System.Drawing.Size(36, 18);
-      label4.TabIndex = 5;
-      label4.Text = "Find";
+      labelFind.Anchor = System.Windows.Forms.AnchorStyles.Right;
+      labelFind.AutoSize = true;
+      labelFind.Location = new System.Drawing.Point(52, 109);
+      labelFind.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+      labelFind.Name = "labelFind";
+      labelFind.Size = new System.Drawing.Size(36, 18);
+      labelFind.TabIndex = 5;
+      labelFind.Text = "Find";
       // 
       // m_TableLayoutPanel1
       // 
@@ -516,14 +501,14 @@ namespace CsvTools
       this.m_TableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 92F));
       this.m_TableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
       this.m_TableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-      this.m_TableLayoutPanel1.Controls.Add(label1, 0, 0);
-      this.m_TableLayoutPanel1.Controls.Add(label2, 0, 1);
-      this.m_TableLayoutPanel1.Controls.Add(label3, 0, 2);
+      this.m_TableLayoutPanel1.Controls.Add(labelID, 0, 0);
+      this.m_TableLayoutPanel1.Controls.Add(labelDisplay, 0, 1);
+      this.m_TableLayoutPanel1.Controls.Add(labelParent, 0, 2);
       this.m_TableLayoutPanel1.Controls.Add(this.m_ComboBoxID, 1, 0);
       this.m_TableLayoutPanel1.Controls.Add(this.m_ComboBoxParentID, 1, 2);
       this.m_TableLayoutPanel1.Controls.Add(this.m_TreeView, 0, 4);
       this.m_TableLayoutPanel1.Controls.Add(this.m_TextBoxValue, 1, 3);
-      this.m_TableLayoutPanel1.Controls.Add(label4, 0, 3);
+      this.m_TableLayoutPanel1.Controls.Add(labelFind, 0, 3);
       this.m_TableLayoutPanel1.Controls.Add(this.m_ComboBoxDisplay2, 2, 1);
       this.m_TableLayoutPanel1.Controls.Add(this.m_ComboBoxDisplay1, 1, 1);
       this.m_TableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -550,7 +535,7 @@ namespace CsvTools
       this.m_ComboBoxID.Name = "m_ComboBoxID";
       this.m_ComboBoxID.Size = new System.Drawing.Size(598, 26);
       this.m_ComboBoxID.TabIndex = 0;
-      this.m_ComboBoxID.SelectedIndexChanged += new System.EventHandler(this.ComboBox_SelectionChangeCommitted);
+      this.m_ComboBoxID.SelectedIndexChanged += new System.EventHandler(this.TimeDisplayRestart);
       // 
       // m_ComboBoxParentID
       // 
@@ -563,7 +548,7 @@ namespace CsvTools
       this.m_ComboBoxParentID.Name = "m_ComboBoxParentID";
       this.m_ComboBoxParentID.Size = new System.Drawing.Size(598, 26);
       this.m_ComboBoxParentID.TabIndex = 1;
-      this.m_ComboBoxParentID.SelectedIndexChanged += new System.EventHandler(this.ComboBox_SelectionChangeCommitted);
+      this.m_ComboBoxParentID.SelectedIndexChanged += new System.EventHandler(this.TimeDisplayRestart);
       // 
       // m_TreeView
       // 
@@ -608,7 +593,7 @@ namespace CsvTools
       this.m_ComboBoxDisplay1.TabIndex = 16;
       this.m_ComboBoxDisplay1.SelectedIndexChanged += new System.EventHandler(this.TimeDisplayRestart);
       // 
-      // FormHierachyDisplay
+      // FormHierarchyDisplay
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 18F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -617,10 +602,9 @@ namespace CsvTools
       this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
       this.Margin = new System.Windows.Forms.Padding(4);
       this.MinimumSize = new System.Drawing.Size(500, 255);
-      this.Name = "FormHierachyDisplay";
+      this.Name = "FormHierarchyDisplay";
       this.Text = "Hierarchy";
-      this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.FormHierachyDisplay_FormClosed);
-      this.Load += new System.EventHandler(this.HirachyDisplay_Load);
+      this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormHierarchyDisplay_FormClosing);
       contextMenuStrip.ResumeLayout(false);
       this.m_TableLayoutPanel1.ResumeLayout(false);
       this.m_TableLayoutPanel1.PerformLayout();
@@ -640,15 +624,11 @@ namespace CsvTools
 
       visitedEntries.Add(treeData);
       foreach (var child in treeData.Children)
-      {
         if (MarkInCycle(child, visitedEntries))
           break;
-      }
 
       return false;
     }
-
-    private void Refresh_Click(object sender, EventArgs e) => m_TimerDisplay.Start();
 
     private void Search(string text, ICollection nodes, CancellationToken token)
     {
@@ -658,7 +638,6 @@ namespace CsvTools
         return;
       token.ThrowIfCancellationRequested();
       foreach (TreeNode node in nodes)
-      {
         if (node.Text.Contains(text))
         {
           m_TreeView.Select();
@@ -666,7 +645,6 @@ namespace CsvTools
           m_TreeView.SelectedNode = node;
           return;
         }
-      }
 
       foreach (TreeNode node in nodes)
         Search(text, node.Nodes, token);
@@ -692,7 +670,7 @@ namespace CsvTools
           process.CancellationToken.ThrowIfCancellationRequested();
           Extensions.ProcessUIElements();
           if (string.IsNullOrEmpty(treeData.ParentID))
-            AddTreeDataNodeWithChilds(treeData, null, process);
+            AddTreeDataNodeWithChild(treeData, null, process);
         }
 
         process.SetProcess("Finding Cycles in Hierarchy", -1, true);
@@ -728,7 +706,7 @@ namespace CsvTools
           process.CancellationToken.ThrowIfCancellationRequested();
           Extensions.ProcessUIElements();
           if (!root.Visited && root.InCycle)
-            AddTreeDataNodeWithChilds(root, rootNode, process);
+            AddTreeDataNodeWithChild(root, rootNode, process);
         }
       }
       catch
@@ -750,16 +728,19 @@ namespace CsvTools
     }
 
     private void TimerDisplayElapsed(object sender, ElapsedEventArgs e) =>
-      this.SafeBeginInvoke(
-        () =>
+      Task.Run(() =>
+      {
+        m_TimerDisplay.Stop();
+        this.SafeBeginInvoke(
+          () =>
           {
             if (m_ComboBoxID.SelectedItem != null && m_ComboBoxParentID.SelectedItem != null)
-            {
-              BuildTree();
-            }
-
-            ;
+              BuildTree(m_ComboBoxParentID.SelectedItem.ToString(),
+                m_ComboBoxID.SelectedItem.ToString(),
+                m_ComboBoxDisplay1.SelectedItem.ToString(),
+                m_ComboBoxDisplay2.SelectedItem.ToString());
           });
+      }, m_CancellationTokenSource.Token);
 
     private void TimerSearchRestart(object sender, EventArgs e)
     {
@@ -776,6 +757,8 @@ namespace CsvTools
 
       public bool InCycle;
 
+      private int m_StoreIndirect = -1;
+
       public string ParentID;
 
       public string Tag;
@@ -784,16 +767,14 @@ namespace CsvTools
 
       public bool Visited;
 
-      private int m_StoreIndirect = -1;
+      private int DirectChildren => Children.Count;
 
-      public int DirectCildren => Children.Count;
-
-      public int InDirectCildren
+      private int InDirectChildren
       {
         get
         {
           if (m_StoreIndirect < 0)
-            m_StoreIndirect = GetInDirectCildren(this);
+            m_StoreIndirect = GetInDirectChildren(this);
           return m_StoreIndirect;
         }
       }
@@ -802,28 +783,31 @@ namespace CsvTools
       {
         get
         {
-          if (DirectCildren <= 0)
+          if (DirectChildren <= 0)
             return Title;
-          return DirectCildren == InDirectCildren
-                   ? $"{Title} - Direct {DirectCildren}"
-                   : $"{Title} - Direct {DirectCildren} - Indirect {InDirectCildren}";
+          return DirectChildren == InDirectChildren
+            ? $"{Title} - Direct {DirectChildren}"
+            : $"{Title} - Direct {DirectChildren} - Indirect {InDirectChildren}";
         }
       }
 
-      private static int GetInDirectCildren(TreeData root)
+      private static int GetInDirectChildren(TreeData root)
       {
         if (root == null || root.InCycle)
           return 0;
 
         var returnVal = root.Children.Count;
         foreach (var child in root.Children)
-        {
           if (child.Children.Count > 0)
-            returnVal += GetInDirectCildren(child);
-        }
+            returnVal += GetInDirectChildren(child);
 
         return returnVal;
       }
+    }
+
+    private void FormHierarchyDisplay_FormClosing(object sender, FormClosingEventArgs e)
+    {
+      m_CancellationTokenSource.Cancel();
     }
   }
 }

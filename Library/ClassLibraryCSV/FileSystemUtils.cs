@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -182,12 +183,7 @@ namespace CsvTools
       Contract.Requires(!string.IsNullOrEmpty(folder));
       Contract.Requires(!string.IsNullOrEmpty(searchPattern));
 
-      if (folder.IndexOfAny(new[] { '*', '?', '[', ']' }) == -1)
-      {
-        return Directory.GetFiles(folder, searchPattern, SearchOption.TopDirectoryOnly);
-      }
-
-      return new string[] { };
+      return folder.IndexOfAny(new[] { '*', '?', '[', ']' }) == -1 ? Directory.GetFiles(folder, searchPattern, SearchOption.TopDirectoryOnly) : new string[] { };
     }
 
     public static string GetLatestFileOfPattern(string folder, string searchPattern)
@@ -327,14 +323,17 @@ namespace CsvTools
           return new StreamReader(fileName, true);
 
         var executingAssembly = Assembly.GetExecutingAssembly();
-        // try the embedded resource
-        var stream = executingAssembly.GetManifestResourceStream("CsvTools." + file);
-        if (stream != null)
-          return new StreamReader(stream, true);
+        var foundName = executingAssembly.GetManifestResourceNames().FirstOrDefault(x => x.EndsWith("." + file));
+        if (foundName != null)
+          // try the embedded resource
+          return new StreamReader(executingAssembly.GetManifestResourceStream(foundName), true);
         var callingAssembly = Assembly.GetCallingAssembly();
-        stream = callingAssembly.GetManifestResourceStream("CsvTools." + file);
-        if (stream != null)
-          return new StreamReader(stream, true);
+        if (callingAssembly != executingAssembly)
+        {
+          foundName = callingAssembly.GetManifestResourceNames().FirstOrDefault(x => x.EndsWith("." + file));
+          if (foundName != null)
+            return new StreamReader(callingAssembly.GetManifestResourceStream(foundName), true);
+        }
       }
       catch (Exception ex)
       {

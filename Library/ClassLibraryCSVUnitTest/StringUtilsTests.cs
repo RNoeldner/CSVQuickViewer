@@ -12,15 +12,53 @@
  *
  */
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
   [TestClass]
   public class StringUtilsTests
   {
+    [TestMethod]
+    public void SplitDistinct()
+    {
+      var test = "This,is,a,test".SplitDistinct("test");
+      Assert.AreEqual(4, test.Count);
+      var test2 = "This,is,this,test".SplitDistinct("is");
+      Assert.AreEqual(3, test2.Count);
+      var test3 = "Hello,Great".SplitDistinct("World");
+      Assert.AreEqual(3, test3.Count);
+    }
+
+    [TestMethod]
+    public void ToSecureString()
+    {
+      var test = "Hello World".ToSecureString();
+      Assert.AreEqual(11, test.Length);
+
+      var test2 = "".ToSecureString();
+      Assert.AreEqual(0, test2.Length);
+    }
+
+    [TestMethod]
+    public void Join()
+    {
+      var test = StringUtils.Join(new[] {"this", "is", "a"});
+      Assert.AreEqual("this, is, a", test);
+
+      var test2 = StringUtils.Join(new[] {"Hello", "World"}, "|");
+      Assert.AreEqual("Hello|World", test2);
+
+      var test3 = new List<string>().Join("*");
+      Assert.AreEqual("", test3);
+
+      Assert.AreEqual("", new string[] { }.Join(","));
+      Assert.AreEqual("2", new[] { "2" }.Join(","));
+      Assert.AreEqual("2,3", new[] { "2", "3" }.Join(","));
+      Assert.AreEqual("2; 3", new[] { "2", "3" }.Join("; "));
+    }
 
     [TestMethod]
     public void PassesFilter()
@@ -30,7 +68,6 @@ namespace CsvTools.Tests
       Assert.AreEqual(true, "This is a test".PassesFilter("This"));
       Assert.AreEqual(true, "This is a test".PassesFilter("This +test"));
       Assert.AreEqual(false, "This is a test".PassesFilter("The+test"));
-
     }
 
 
@@ -38,18 +75,10 @@ namespace CsvTools.Tests
     public void CountOccurence()
     {
       Assert.AreEqual(0, "".CountOccurence("."));
-      Assert.AreEqual(1, StringUtils.CountOccurence(",.,", "."));
-      Assert.AreEqual(2, StringUtils.CountOccurence(",.,", ","));
+      Assert.AreEqual(1, ",.,".CountOccurence("."));
+      Assert.AreEqual(2, ",.,".CountOccurence(","));
     }
 
-    [TestMethod]
-    public void Join()
-    {
-      Assert.AreEqual("", new string[] { }.Join(","));
-      Assert.AreEqual("2", StringUtils.Join(new string[] { "2" }, ","));
-      Assert.AreEqual("2,3", StringUtils.Join(new string[] { "2", "3" }, ","));
-      Assert.AreEqual("2; 3", StringUtils.Join(new string[] { "2", "3" }, "; "));
-    }
 
     [TestMethod]
     public void ColumnNameEndsOnID()
@@ -82,7 +111,7 @@ namespace CsvTools.Tests
 
     [TestMethod]
     public void GetShortDisplayFileNameLongFileName() => Assert.AreEqual(20,
-        FileSystemUtils.GetShortDisplayFileName("ThisIsALongFileNameThatNeedsToBeShorter.txt", 20).Length);
+      FileSystemUtils.GetShortDisplayFileName("ThisIsALongFileNameThatNeedsToBeShorter.txt", 20).Length);
 
     [TestMethod]
     public void GetShortDisplayFileNameNull()

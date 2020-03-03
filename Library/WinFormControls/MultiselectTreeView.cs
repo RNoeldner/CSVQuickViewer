@@ -248,7 +248,7 @@ namespace CsvTools
         {
           var text = item.Text;
           sbHtml.Append(style.TROpen);
-          if (item.Tag is FormHierachyDisplay.TreeData data)
+          if (item.Tag is FormHierarchyDisplay.TreeData data)
           {
             text = data.Title;
             if (!string.IsNullOrEmpty(data.Tag))

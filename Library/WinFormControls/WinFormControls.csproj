@@ -115,7 +115,7 @@
     <Compile Include="FormDuplicatesDisplay.Designer.cs">
       <DependentUpon>FormDuplicatesDisplay.cs</DependentUpon>
     </Compile>
-    <Compile Include="FormHierachyDisplay.cs">
+    <Compile Include="FormHierarchyDisplay.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="FormSelectTimeZone.cs">
@@ -216,8 +216,8 @@
       <DependentUpon>FormDuplicatesDisplay.cs</DependentUpon>
       <SubType>Designer</SubType>
     </None>
-    <None Include="FormHierachyDisplay.resx">
-      <DependentUpon>FormHierachyDisplay.cs</DependentUpon>
+    <None Include="FormHierarchyDisplay.resx">
+      <DependentUpon>FormHierarchyDisplay.cs</DependentUpon>
       <SubType>Designer</SubType>
     </None>
     <None Include="FormProcessDisplay.resx">

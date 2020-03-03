@@ -15,6 +15,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Pri.LongPath;
 using System.Data;
+using System.Threading;
 using System.Windows.Forms;
 
 namespace CsvTools.Tests
@@ -238,14 +239,55 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void FormHierachyDisplay()
+    public void FormProcessDisplay()
     {
-      using (var form = new FormHierachyDisplay(m_DataTable, m_DataTable.Select()))
+      // Log
+      using (var frm = new FormProcessDisplay("Test Logger", true, CancellationToken.None))
+      {
+        frm.Show();
+        frm.Maximum = 100;
+        for (int c = 0; c < 70; c++)
+        {
+          frm.SetProcess($"This is a text\nLine {c}", c, true);
+          Extensions.ProcessUIElements(100);
+        }
+      }
+
+      // marquee
+      using (var frm = new FormProcessDisplay("Test Marquee", false, CancellationToken.None))
+      {
+        frm.Show();
+        for (int c = 0; c < 100; c++)
+        {
+          frm.SetProcess($"This is a text\nLine {c}", c, true);
+          Extensions.ProcessUIElements(20);
+        }
+      }
+
+      // NoLog
+      using (var frm = new FormProcessDisplay("Test", false, CancellationToken.None))
+      {
+        frm.Show();
+        frm.Maximum = 100;
+        for (int c = 0; c < 102; c++)
+        {
+          frm.SetProcess($"This is a text\nLine {c}", c, true);
+          Extensions.ProcessUIElements(50);
+        }
+      }
+
+      
+    }
+
+    [TestMethod]
+    public void FormHierarchyDisplay()
+    {
+      using (var form = new FormHierarchyDisplay(m_DataTable, m_DataTable.Select()))
       {
         form.ShowInTaskbar = false;
         form.Show();
         form.Focus();
-        System.Threading.Thread.Sleep(1000);
+        form.BuildTree("int","ID");
         form.Close();
       }
     }

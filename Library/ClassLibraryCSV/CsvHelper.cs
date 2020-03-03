@@ -468,7 +468,7 @@ namespace CsvTools
       {
         // only regard a delimiter if we have 75% of the rows with this delimiter we can still have
         // a lot of commented lines
-        if (dc.SeparatorRows[index] == 0 || dc.SeparatorRows[index] < dc.LastRow * .75d && dc.LastRow > 5)
+        if (dc.SeparatorRows[index] == 0 || dc.SeparatorRows[index] < dc.LastRow * .70d && dc.LastRow > 5)
           continue;
         validSeparatorIndex.Add(index);
       }
@@ -520,17 +520,17 @@ namespace CsvTools
             if (dist > 2 || dist < -2)
               cutVariance += 8;
             else switch (dist)
-            {
-              case 2:
-              case -2:
-                cutVariance += 4;
-                break;
+              {
+                case 2:
+                case -2:
+                  cutVariance += 4;
+                  break;
 
-              case 1:
-              case -1:
-                cutVariance++;
-                break;
-            }
+                case 1:
+                case -1:
+                  cutVariance++;
+                  break;
+              }
           }
 
           // The score is dependent on the average columns found and the regularity
@@ -933,13 +933,9 @@ namespace CsvTools
     private class DelimiterCounter
     {
       public readonly int NumRows;
-
       public readonly int[] SeparatorRows;
-
       public readonly string Separators;
-#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
       public readonly int[,] SeparatorsCount;
-
       public int LastRow;
 
       // Added INFORMATION SEPARATOR ONE to FOUR
@@ -948,23 +944,14 @@ namespace CsvTools
       public DelimiterCounter(int numRows)
       {
         NumRows = numRows;
-        try
-        {
-          var listSeparatorr = CultureInfo.CurrentCulture.TextInfo.ListSeparator[0];
-          if (c_DefaultSeparators.IndexOf(listSeparatorr) == -1)
-            Separators = c_DefaultSeparators + listSeparatorr;
-          else
-            Separators = c_DefaultSeparators;
-          SeparatorsCount = new int[Separators.Length, NumRows];
-          SeparatorRows = new int[Separators.Length];
-        }
-        catch (Exception ex)
-        {
-          Debug.WriteLine(ex.InnerExceptionMessages());
-        }
+        var listSeparator = CultureInfo.CurrentCulture.TextInfo.ListSeparator[0];
+        if (c_DefaultSeparators.IndexOf(listSeparator) == -1)
+          Separators = c_DefaultSeparators + listSeparator;
+        else
+          Separators = c_DefaultSeparators;
+        SeparatorsCount = new int[Separators.Length, NumRows];
+        SeparatorRows = new int[Separators.Length];
       }
     }
-
-#pragma warning restore CA1814 // Prefer jagged arrays over multidimensional
   }
 }

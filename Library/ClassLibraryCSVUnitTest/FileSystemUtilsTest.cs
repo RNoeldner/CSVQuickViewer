@@ -16,12 +16,53 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
 using System.Linq;
+using System.Threading;
 
 namespace CsvTools.Tests
 {
   [TestClass]
   public class FileSystemUtilsTest
   {
+
+    [TestMethod]
+    public void GetStreamReaderForFileOrResource()
+    {
+      // load a known resource from the DLL
+      var test1 = FileSystemUtils.GetStreamReaderForFileOrResource("DateTimeFormats.txt");
+      Assert.IsNotNull(test1);
+
+      // load a known resource from this DLL
+      var test2 = FileSystemUtils.GetStreamReaderForFileOrResource("SampleFile.txt");
+      Assert.IsNotNull(test2);
+    }
+
+
+    [TestMethod]
+    public void FileCopy()
+    {
+      var dest = UnitTestInitialize.GetTestPath("xyz.txt");
+      try
+      {
+        using (var processDisplay = new DummyProcessDisplay(CancellationToken.None))
+        {
+          processDisplay.Maximum = -100;
+
+          Assert.IsFalse(FileSystemUtils.FileExists(dest));
+          FileSystemUtils.FileCopy(UnitTestInitialize.GetTestPath("AllFormats.txt"), dest, processDisplay);
+          Assert.IsTrue(FileSystemUtils.FileExists(dest));
+          Assert.AreEqual(-100, processDisplay.Maximum);
+
+          // Copy again, the old file should be overwritten
+          FileSystemUtils.FileCopy(UnitTestInitialize.GetTestPath("AlternateTextQualifiers.txt"), dest, processDisplay);
+          Assert.IsTrue(FileSystemUtils.FileExists(dest));
+          Assert.AreEqual((new FileInfo(UnitTestInitialize.GetTestPath("AlternateTextQualifiers.txt"))).Length, new FileInfo(dest).Length);
+        }
+      }
+      finally
+      {
+        FileSystemUtils.FileDelete(dest);
+      }
+    }
 
     [TestMethod]
     public void CreateDirectory()
