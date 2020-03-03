@@ -162,6 +162,7 @@
     <Compile Include="ColumnFormatTest.cs" />
     <Compile Include="BiDirectionalDictionaryTests.cs" />
     <Compile Include="RetryEventArgsTest.cs" />
+    <Compile Include="ColumnCollectionTest.cs" />
     <Compile Include="WarningEventArgsTest.cs" />
     <Compile Include="ColumnTest.cs" />
     <Compile Include="ExceptionTest.cs" />
