@@ -182,8 +182,10 @@
             break;
         }
       }
-
-      return ShowDialog(owner);
+      if (owner == null)
+        return ShowDialog();
+      else
+        return ShowDialog(owner);
     }
 
     private void HideColumn(int colNumber, bool visible)

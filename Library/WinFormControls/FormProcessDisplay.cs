@@ -303,9 +303,10 @@ namespace CsvTools
       // m_ProgressBar
       // 
       this.m_TableLayoutPanel.SetColumnSpan(this.m_ProgressBar, 3);
-      this.m_ProgressBar.Location = new System.Drawing.Point(3, 60);
+      this.m_ProgressBar.Location = new System.Drawing.Point(2, 49);
+      this.m_ProgressBar.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
       this.m_ProgressBar.Name = "m_ProgressBar";
-      this.m_ProgressBar.Size = new System.Drawing.Size(471, 24);
+      this.m_ProgressBar.Size = new System.Drawing.Size(353, 20);
       this.m_ProgressBar.Style = System.Windows.Forms.ProgressBarStyle.Marquee;
       this.m_ProgressBar.TabIndex = 0;
       // 
@@ -315,11 +316,11 @@ namespace CsvTools
       this.m_TableLayoutPanel.SetColumnSpan(this.m_LabelText, 3);
       this.m_LabelText.Dock = System.Windows.Forms.DockStyle.Fill;
       this.m_LabelText.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-      this.m_LabelText.Location = new System.Drawing.Point(6, 6);
-      this.m_LabelText.Margin = new System.Windows.Forms.Padding(6);
-      this.m_LabelText.MaximumSize = new System.Drawing.Size(468, 267);
+      this.m_LabelText.Location = new System.Drawing.Point(4, 5);
+      this.m_LabelText.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+      this.m_LabelText.MaximumSize = new System.Drawing.Size(351, 217);
       this.m_LabelText.Name = "m_LabelText";
-      this.m_LabelText.Size = new System.Drawing.Size(468, 45);
+      this.m_LabelText.Size = new System.Drawing.Size(351, 37);
       this.m_LabelText.TabIndex = 1;
       this.m_LabelText.Text = "Text\r\nLine 2";
       this.m_LabelText.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -327,20 +328,20 @@ namespace CsvTools
       // m_LabelEtr
       // 
       this.m_LabelEtr.AutoSize = true;
-      this.m_LabelEtr.Location = new System.Drawing.Point(203, 90);
-      this.m_LabelEtr.Margin = new System.Windows.Forms.Padding(3);
+      this.m_LabelEtr.Location = new System.Drawing.Point(152, 73);
+      this.m_LabelEtr.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
       this.m_LabelEtr.Name = "m_LabelEtr";
-      this.m_LabelEtr.Size = new System.Drawing.Size(48, 17);
+      this.m_LabelEtr.Size = new System.Drawing.Size(37, 13);
       this.m_LabelEtr.TabIndex = 7;
       this.m_LabelEtr.Text = "0:1:17";
       // 
       // m_LabelEtl
       // 
       this.m_LabelEtl.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-      this.m_LabelEtl.Location = new System.Drawing.Point(19, 90);
-      this.m_LabelEtl.Margin = new System.Windows.Forms.Padding(3);
+      this.m_LabelEtl.Location = new System.Drawing.Point(14, 73);
+      this.m_LabelEtl.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
       this.m_LabelEtl.Name = "m_LabelEtl";
-      this.m_LabelEtl.Size = new System.Drawing.Size(178, 17);
+      this.m_LabelEtl.Size = new System.Drawing.Size(134, 14);
       this.m_LabelEtl.TabIndex = 6;
       this.m_LabelEtl.Text = "Estimated time remaining:";
       this.m_LabelEtl.Visible = false;
@@ -348,18 +349,18 @@ namespace CsvTools
       // m_LabelPercent
       // 
       this.m_LabelPercent.AutoSize = true;
-      this.m_LabelPercent.Location = new System.Drawing.Point(283, 90);
-      this.m_LabelPercent.Margin = new System.Windows.Forms.Padding(3);
+      this.m_LabelPercent.Location = new System.Drawing.Point(212, 73);
+      this.m_LabelPercent.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
       this.m_LabelPercent.Name = "m_LabelPercent";
-      this.m_LabelPercent.Size = new System.Drawing.Size(36, 17);
+      this.m_LabelPercent.Size = new System.Drawing.Size(27, 13);
       this.m_LabelPercent.TabIndex = 5;
       this.m_LabelPercent.Text = "50%";
       // 
       // m_TableLayoutPanel
       // 
       this.m_TableLayoutPanel.ColumnCount = 3;
-      this.m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 200F));
-      this.m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 80F));
+      this.m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 150F));
+      this.m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60F));
       this.m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
       this.m_TableLayoutPanel.Controls.Add(this.m_ProgressBar, 0, 1);
       this.m_TableLayoutPanel.Controls.Add(this.m_LabelPercent, 2, 2);
@@ -368,27 +369,25 @@ namespace CsvTools
       this.m_TableLayoutPanel.Controls.Add(this.m_LabelEtr, 1, 2);
       this.m_TableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
       this.m_TableLayoutPanel.Location = new System.Drawing.Point(0, 0);
-      this.m_TableLayoutPanel.Margin = new System.Windows.Forms.Padding(4);
       this.m_TableLayoutPanel.Name = "m_TableLayoutPanel";
       this.m_TableLayoutPanel.RowCount = 4;
       this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-      this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
-      this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
+      this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 24F));
+      this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 24F));
       this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.m_TableLayoutPanel.Size = new System.Drawing.Size(480, 117);
+      this.m_TableLayoutPanel.Size = new System.Drawing.Size(362, 95);
       this.m_TableLayoutPanel.TabIndex = 8;
       // 
       // FormProcessDisplay
       // 
-      this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+      this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-      this.ClientSize = new System.Drawing.Size(480, 117);
+      this.ClientSize = new System.Drawing.Size(362, 95);
       this.Controls.Add(this.m_TableLayoutPanel);
       this.DoubleBuffered = true;
       this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
-      this.Margin = new System.Windows.Forms.Padding(4);
-      this.MaximumSize = new System.Drawing.Size(498, 361);
-      this.MinimumSize = new System.Drawing.Size(498, 140);
+      this.MaximumSize = new System.Drawing.Size(378, 301);
+      this.MinimumSize = new System.Drawing.Size(378, 121);
       this.Name = "FormProcessDisplay";
       this.ShowIcon = false;
       this.ShowInTaskbar = false;
