@@ -19,30 +19,36 @@ namespace CsvTools
   using System.Threading;
   using System.Windows.Forms;
 
+#if NETCOREAPP3_1
+
+  using System.Text;
+
+#endif
+
   internal static class Program
   {
     /// <summary>
-    /// Handles the ThreadException event of the Application control.
+    ///   Handles the ThreadException event of the Application control.
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">
-    /// The <see cref="ThreadExceptionEventArgs"/> instance containing the event data.
+    ///   The <see cref="ThreadExceptionEventArgs" /> instance containing the event data.
     /// </param>
     private static void Application_ThreadException(object sender, ThreadExceptionEventArgs e) =>
       UnhandledException(e.Exception);
 
     /// <summary>
-    /// Handles the UnhandledException event of the CurrentDomain control.
+    ///   Handles the UnhandledException event of the CurrentDomain control.
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">
-    /// The <see cref="UnhandledExceptionEventArgs"/> instance containing the event data.
+    ///   The <see cref="UnhandledExceptionEventArgs" /> instance containing the event data.
     /// </param>
     private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e) =>
       UnhandledException((Exception)e.ExceptionObject);
 
     /// <summary>
-    /// The main entry point for the application.
+    ///   The main entry point for the application.
     /// </summary>
     [STAThread]
     private static void Main(string[] args)
@@ -73,7 +79,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Handle's any not yet handled exception
+    ///   Handle's any not yet handled exception
     /// </summary>
     /// <param name="ex">The exception.</param>
     [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
