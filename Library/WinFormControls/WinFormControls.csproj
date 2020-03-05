@@ -74,7 +74,6 @@
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Extensions.cs" />
-    <Compile Include="FilterType.cs" />
     <Compile Include="FrmLimitSize.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -91,7 +90,6 @@
     <Compile Include="FillGuessSettingEdit.Designer.cs">
       <DependentUpon>FillGuessSettingEdit.cs</DependentUpon>
     </Compile>
-    <Compile Include="FilterDataTable.cs" />
     <Compile Include="FilteredDataGridView.cs">
       <SubType>Component</SubType>
     </Compile>

@@ -34,7 +34,7 @@ namespace CsvTools.Tests
       Thread.Sleep(50);
       Assert.IsTrue(executed);
 
-      task.WaitToCompleteTaskUI(1);
+      task.WaitToCompleteTask(1);
       Assert.IsTrue(executed);
     }
 
@@ -50,7 +50,7 @@ namespace CsvTools.Tests
         return true;
       });
       Assert.IsFalse(executed);
-      task.WaitToCompleteTaskUI(1);
+      task.WaitToCompleteTask(1);
       Assert.IsTrue(executed);
     }
 
@@ -65,7 +65,7 @@ namespace CsvTools.Tests
 
       try
       {
-        task.WaitToCompleteTaskUI(1);
+        task.WaitToCompleteTask(1);
         Assert.Fail("Timeout did not occur");
       }
       catch (TimeoutException)
@@ -96,7 +96,7 @@ namespace CsvTools.Tests
             Thread.Sleep(200);
             cts.Cancel();
           }, cts.Token);
-          task.WaitToCompleteTaskUI(2d, cts.Token);
+          task.WaitToCompleteTask(2d, cts.Token);
           Assert.Fail("Timeout did not occur");
         }
         catch (AssertFailedException)
@@ -128,7 +128,7 @@ namespace CsvTools.Tests
             else
               // Testing WaitToCompleteTask<T> I need a task that returns something
               return true;
-          }).WaitToCompleteTaskUI(1.5d);
+          }).WaitToCompleteTask(1.5d);
 
           Assert.Fail("no Exception did not occur");
         }
@@ -188,9 +188,6 @@ namespace CsvTools.Tests
         }
       }
     }
-
-    [TestMethod()]
-    public void DeleteFileQuestionTest() => Assert.AreEqual(true, ".\\Test.hshsh".DeleteFileQuestion(false));
 
     [TestMethod()]
     public void GetProcessDisplayTest()

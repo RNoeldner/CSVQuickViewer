@@ -22,7 +22,7 @@ namespace CsvTools
   /// <summary>
   ///   A Po pup Form to display progress information
   /// </summary>
-  public class FormProcessDisplay : Form, IProcessDisplayTime
+  public class FormProcessDisplay : ResizeForm, IProcessDisplayTime
   {
     private readonly DummyProcessDisplay m_DummyProcessDisplay;
     private readonly LoggerDisplay m_LoggerDisplay;
@@ -108,17 +108,13 @@ namespace CsvTools
     /// <summary>
     ///   Gets or sets the cancellation token.
     /// </summary>
-    /// <value>
-    ///   The cancellation token.
-    /// </value>
+    /// <value>The cancellation token.</value>
     public CancellationToken CancellationToken => m_DummyProcessDisplay.CancellationToken;
 
     /// <summary>
     ///   Gets or sets the cancellation token.
     /// </summary>
-    /// <value>
-    ///   The cancellation token.
-    /// </value>
+    /// <value>The cancellation token.</value>
     public CancellationTokenSource CancellationTokenSource => m_DummyProcessDisplay.CancellationTokenSource;
 
     public bool LogAsDebug
@@ -147,9 +143,7 @@ namespace CsvTools
     /// <summary>
     ///   Gets or sets the maximum value for the Progress
     /// </summary>
-    /// <value>
-    ///   The maximum value.
-    /// </value>
+    /// <value>The maximum value.</value>
     public long Maximum
     {
       get => TimeToCompletion.TargetValue;
@@ -299,9 +293,7 @@ namespace CsvTools
       this.m_TableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
       this.m_TableLayoutPanel.SuspendLayout();
       this.SuspendLayout();
-      // 
       // m_ProgressBar
-      // 
       this.m_TableLayoutPanel.SetColumnSpan(this.m_ProgressBar, 3);
       this.m_ProgressBar.Location = new System.Drawing.Point(2, 49);
       this.m_ProgressBar.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
@@ -309,9 +301,7 @@ namespace CsvTools
       this.m_ProgressBar.Size = new System.Drawing.Size(353, 20);
       this.m_ProgressBar.Style = System.Windows.Forms.ProgressBarStyle.Marquee;
       this.m_ProgressBar.TabIndex = 0;
-      // 
       // m_LabelText
-      // 
       this.m_LabelText.BackColor = System.Drawing.SystemColors.Control;
       this.m_TableLayoutPanel.SetColumnSpan(this.m_LabelText, 3);
       this.m_LabelText.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -324,9 +314,7 @@ namespace CsvTools
       this.m_LabelText.TabIndex = 1;
       this.m_LabelText.Text = "Text\r\nLine 2";
       this.m_LabelText.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-      // 
       // m_LabelEtr
-      // 
       this.m_LabelEtr.AutoSize = true;
       this.m_LabelEtr.Location = new System.Drawing.Point(152, 73);
       this.m_LabelEtr.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
@@ -334,9 +322,7 @@ namespace CsvTools
       this.m_LabelEtr.Size = new System.Drawing.Size(37, 13);
       this.m_LabelEtr.TabIndex = 7;
       this.m_LabelEtr.Text = "0:1:17";
-      // 
       // m_LabelEtl
-      // 
       this.m_LabelEtl.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
       this.m_LabelEtl.Location = new System.Drawing.Point(14, 73);
       this.m_LabelEtl.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
@@ -345,9 +331,7 @@ namespace CsvTools
       this.m_LabelEtl.TabIndex = 6;
       this.m_LabelEtl.Text = "Estimated time remaining:";
       this.m_LabelEtl.Visible = false;
-      // 
       // m_LabelPercent
-      // 
       this.m_LabelPercent.AutoSize = true;
       this.m_LabelPercent.Location = new System.Drawing.Point(212, 73);
       this.m_LabelPercent.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
@@ -355,9 +339,7 @@ namespace CsvTools
       this.m_LabelPercent.Size = new System.Drawing.Size(27, 13);
       this.m_LabelPercent.TabIndex = 5;
       this.m_LabelPercent.Text = "50%";
-      // 
       // m_TableLayoutPanel
-      // 
       this.m_TableLayoutPanel.ColumnCount = 3;
       this.m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 150F));
       this.m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60F));
@@ -377,9 +359,7 @@ namespace CsvTools
       this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.m_TableLayoutPanel.Size = new System.Drawing.Size(362, 95);
       this.m_TableLayoutPanel.TabIndex = 8;
-      // 
       // FormProcessDisplay
-      // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.ClientSize = new System.Drawing.Size(362, 95);
@@ -397,7 +377,6 @@ namespace CsvTools
       this.m_TableLayoutPanel.ResumeLayout(false);
       this.m_TableLayoutPanel.PerformLayout();
       this.ResumeLayout(false);
-
     }
 
     private void ProcessDisplay_FormClosing(object sender, FormClosingEventArgs e)
