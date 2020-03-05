@@ -418,9 +418,6 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="BouncyCastle.OpenPgp">
-      <Version>1.8.1.1</Version>
-    </PackageReference>
     <PackageReference Include="NodaTime">
       <Version>2.4.7</Version>
     </PackageReference>
