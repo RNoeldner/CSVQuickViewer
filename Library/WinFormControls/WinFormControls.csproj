@@ -82,6 +82,7 @@
       <DependentUpon>FrmLimitSize.cs</DependentUpon>
     </Compile>
     <Compile Include="FoundEventArgs.cs" />
+    <Compile Include="RtfHelper.cs" />
     <Compile Include="SearchEventArgs.cs" />
     <Compile Include="WindowsAPICodePackWrapper.cs" />
     <Compile Include="FillGuessSettingEdit.cs">

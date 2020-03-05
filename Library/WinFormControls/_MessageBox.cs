@@ -64,6 +64,23 @@ namespace CsvTools
       }
     }
 
+    public static DialogResult ShowBigRtf(
+      Form owner,
+      string messageRtf,
+      string title,
+      MessageBoxButtons buttons = MessageBoxButtons.OKCancel,
+      MessageBoxIcon icon = MessageBoxIcon.None,
+      MessageBoxDefaultButton defaultButton = MessageBoxDefaultButton.Button1,
+      double timeout = 4.0)
+    {
+      using (var tm = new TimedMessage())
+      {
+        tm.MessageRtf = messageRtf;
+        tm.Size = new Size(600, 450);
+        return tm.Show(owner, null, title, buttons, icon, defaultButton, timeout, null, null, null);
+      }
+    }
+
     public static DialogResult ShowBig(
       Form owner,
       string message,

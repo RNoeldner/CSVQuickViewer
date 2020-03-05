@@ -96,6 +96,14 @@ namespace CsvTools.Tests
       }
     }
 
+    public void MessageBox_ShowBigRtf()
+    {
+      var rtfHelper = new RtfHelper();
+      rtfHelper.AddParagraph("RTF \\ Table {Nice}");
+      rtfHelper.AddTable(new[] { "Hello", "World", "", null, "A", "Table", "Test", null, "Another", "Row", "Long Column Text" }, 4);
+      _MessageBox.ShowBigRtf(null, rtfHelper.Rtf, "RTF Text", MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1, 2);
+    }
+
     [TestMethod]
     public void TimedMessage()
     {
@@ -275,8 +283,6 @@ namespace CsvTools.Tests
           Extensions.ProcessUIElements(50);
         }
       }
-
-      
     }
 
     [TestMethod]
@@ -287,7 +293,7 @@ namespace CsvTools.Tests
         form.ShowInTaskbar = false;
         form.Show();
         form.Focus();
-        form.BuildTree("int","ID");
+        form.BuildTree("int", "ID");
         form.Close();
       }
     }
