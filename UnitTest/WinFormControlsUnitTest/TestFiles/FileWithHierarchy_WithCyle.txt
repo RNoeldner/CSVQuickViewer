@@ -1,0 +1,15 @@
+﻿ID	Data1	Data2	ReferenceID1	ReferenceID2
+A	Data	12.03.2012	E	
+B	Data B	12.03.2012	A	
+C	Data C	13.03.2010	B	A
+D	Data D	02.12.2010	B	B
+E	Data E	17.05.2009	C	A
+F	Data F	19.01.2001	C	B
+G	Data G	01.09.2001	 	B
+H	Data H	01.09.2001	C	 
+J	Data J	01.10.2001	H	C
+K	Data K	03.11.2001	H	
+L	Data L	23.11.2008	H	
+M	Data M	23.11.2008	M	
+N	Data N	24.10.2008	N	
+O	Data O	08.06.2007	C	

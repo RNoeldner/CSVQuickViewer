@@ -1136,6 +1136,9 @@ namespace CsvTools
     {
       var requestedRecords = records < 1 ? long.MaxValue : records;
 
+      if (reader.IsClosed)
+        reader.Open();
+
       var dataTable = new DataTable(fileSetting.ID)
       {
         MinimumCapacity = (int)Math.Min(requestedRecords, 5000)

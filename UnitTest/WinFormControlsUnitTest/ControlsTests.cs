@@ -299,6 +299,36 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    public void FormHierarchyDisplay_DataWithCyle()
+    {
+      DataTable dt = null;
+      // load the csvFile FileWithHierarchy
+      using (var processDisplay = new FormProcessDisplay("FileWithHierarchy"))
+      {
+        processDisplay.Show();
+        var cvsSetting = new CsvFile(Path.Combine(FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles", "FileWithHierarchy_WithCyle.txt"));
+        cvsSetting.FileFormat.FieldDelimiter = "\t";
+        using (var csvDataReader = new CsvFileReader(cvsSetting, null, processDisplay))
+        {
+          dt = csvDataReader.WriteToDataTable(
+              cvsSetting,
+              0,
+              processDisplay.CancellationToken);
+        }
+      }
+      using (var form = new FormHierarchyDisplay(dt, m_DataTable.Select()))
+      {
+        form.ShowInTaskbar = false;
+        form.Show();
+        form.Focus();
+        form.BuildTree("ReferenceID1", "ID");
+        Application.DoEvents();
+        System.Threading.Thread.Sleep(200);
+        form.Close();
+      }
+    }
+
+    [TestMethod]
     public void FormDuplicatesDisplay()
     {
       using (var form = new FormDuplicatesDisplay(m_DataTable, m_DataTable.Select(), m_DataTable.Columns[0].ColumnName))
