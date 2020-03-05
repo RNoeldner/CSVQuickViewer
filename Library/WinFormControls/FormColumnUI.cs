@@ -251,6 +251,7 @@ namespace CsvTools
               {
                 var rtffHelper = new RtfHelper();
                 rtffHelper.AddParagraph($"No format could be determined in {ClassLibraryCsvExtensionMethods.Count(samples.Values):N0} sample values of {samples.RecordsRead:N0} records.");
+                rtffHelper.AddParagraph();
                 rtffHelper.AddParagraph("Examples");
                 rtffHelper.AddTable(samples.Values.Take(4 * 5), 4);
                 _MessageBox.ShowBigRtf(
@@ -293,7 +294,7 @@ namespace CsvTools
                   var suggestClosestMatch = (checkResult.PossibleMatch
                                              && (checkResult.FoundValueFormat == null
                                                  || checkResult.FoundValueFormat.DataType == DataType.String));
-                  rtf.AddParagraph("");
+                  rtf.AddParagraph();
                   rtf.AddParagraph($"Determined Format : {checkResult.FoundValueFormat.GetTypeAndFormatDescription()}");
 
                   if (checkResult.PossibleMatch)
@@ -301,7 +302,7 @@ namespace CsvTools
 
                   if (suggestClosestMatch)
                   {
-                    rtf.AddParagraph("");
+                    rtf.AddParagraph();
                     rtf.AddParagraph("Should the closest match be used?");
                     if (_MessageBox.ShowBigRtf(
                           this,
@@ -443,7 +444,8 @@ namespace CsvTools
           else
           {
             var rtffHelper = new RtfHelper();
-            rtffHelper.AddParagraph("Found falues");
+            rtffHelper.AddParagraph("Found values");
+            rtffHelper.AddParagraph();
             rtffHelper.AddTable(values.Values.Take(4 * 5), 4);
             _MessageBox.ShowBigRtf(this,
         rtffHelper.Rtf,
