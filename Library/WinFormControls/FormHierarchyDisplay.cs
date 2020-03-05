@@ -699,10 +699,10 @@ namespace CsvTools
           () =>
           {
             if (m_ComboBoxID.SelectedItem != null && m_ComboBoxParentID.SelectedItem != null)
-              BuildTree(m_ComboBoxParentID.SelectedItem.ToString(),
-                m_ComboBoxID.SelectedItem.ToString(),
-                m_ComboBoxDisplay1.SelectedItem.ToString(),
-                m_ComboBoxDisplay2.SelectedItem.ToString());
+              BuildTree(m_ComboBoxParentID.Text,
+                m_ComboBoxID.Text,
+                m_ComboBoxDisplay1.Text,
+                m_ComboBoxDisplay2.Text);
           });
       }, m_CancellationTokenSource.Token);
 

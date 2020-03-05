@@ -41,6 +41,8 @@ namespace CsvTools
       return input.Replace(@"\", @"\'5c").Replace("{", @"\'7b").Replace("}", @"\'7d");
     }
 
+    public void AddParagraph() => AddParagraph(null);
+
     public void AddParagraph(string text)
     {
       stringBuilder.AppendLine($"{EscapeText(text)}\\par");
