@@ -249,10 +249,13 @@ namespace CsvTools
               processDisplay.Hide();
               if (checkResult == null)
               {
-                _MessageBox.ShowBig(
+                var rtffHelper = new RtfHelper();
+                rtffHelper.AddParagraph($"No format could be determined in {ClassLibraryCsvExtensionMethods.Count(samples.Values):N0} sample values of {samples.RecordsRead:N0} records.");
+                rtffHelper.AddParagraph("Examples");
+                rtffHelper.AddTable(samples.Values.Take(4 * 5), 4);
+                _MessageBox.ShowBigRtf(
                   this,
-                  $"No format could be determined in {ClassLibraryCsvExtensionMethods.Count(samples.Values):N0} sample values of {samples.RecordsRead:N0} records.\nSamples:\n"
-                  + samples.Values.Take(42).Join("\t"),
+                  rtffHelper.Rtf,
                   $"Column: {columnName}",
                   MessageBoxButtons.OK,
                   MessageBoxIcon.Information);
@@ -277,26 +280,32 @@ namespace CsvTools
                     if (checkResult.ValueFormatPossibleMatch.DataType == DataType.DateTime)
                       AddFormatToComboBoxDateFormat(checkResult.ValueFormatPossibleMatch.DateFormat);
                   }
-
+                  var rtf = new RtfHelper();
                   var sb = new StringBuilder();
                   if (checkResult.ExampleNonMatch.Count > 0)
-                    sb.AppendFormat("Not matching:\n{0}\n", checkResult.ExampleNonMatch.Take(4).Join("\t"));
-                  sb.AppendFormat("Samples:\n{0}", samples.Values.Take(42).Join("\t"));
+                  {
+                    rtf.AddParagraph("Not matching:");
+                    rtf.AddTable(checkResult.ExampleNonMatch.Take(4));
+                  }
+                  rtf.AddParagraph("Samples:");
+                  rtf.AddTable(samples.Values.Take(40));
 
                   var suggestClosestMatch = (checkResult.PossibleMatch
                                              && (checkResult.FoundValueFormat == null
                                                  || checkResult.FoundValueFormat.DataType == DataType.String));
+                  rtf.AddParagraph("");
+                  rtf.AddParagraph($"Determined Format : {checkResult.FoundValueFormat.GetTypeAndFormatDescription()}");
 
-                  var msg = $"Determined Format\t: {checkResult.FoundValueFormat.GetTypeAndFormatDescription()}\n";
                   if (checkResult.PossibleMatch)
-                    msg +=
-                      $"          Close match\t: {checkResult.ValueFormatPossibleMatch.GetTypeAndFormatDescription()}\n";
-                  msg += "\n" + sb;
+                    rtf.AddParagraph($"Closest match is : {checkResult.ValueFormatPossibleMatch.GetTypeAndFormatDescription()}");
+
                   if (suggestClosestMatch)
                   {
-                    if (_MessageBox.ShowBig(
+                    rtf.AddParagraph("");
+                    rtf.AddParagraph("Should the closest match be used?");
+                    if (_MessageBox.ShowBigRtf(
                           this,
-                          $"{msg}\n\nShould the closest match be used?",
+                          rtf.Rtf,
                           $"Column: {columnName}",
                           MessageBoxButtons.YesNo,
                           MessageBoxIcon.Question) == DialogResult.Yes)
@@ -308,9 +317,9 @@ namespace CsvTools
                   }
                   else
                   {
-                    _MessageBox.ShowBig(
+                    _MessageBox.ShowBigRtf(
                       this,
-                      msg,
+                      rtf.Rtf,
                       $"Column: {columnName}",
                       MessageBoxButtons.OK,
                       MessageBoxIcon.Information);
@@ -433,12 +442,14 @@ namespace CsvTools
           }
           else
           {
-            _MessageBox.Show(
-              this,
-              "Found values:\n" + values.Values.Take(42).Join("\t"),
-              comboBoxColumnName.Text,
-              MessageBoxButtons.OK,
-              MessageBoxIcon.Information);
+            var rtffHelper = new RtfHelper();
+            rtffHelper.AddParagraph("Found falues");
+            rtffHelper.AddTable(values.Values.Take(4 * 5), 4);
+            _MessageBox.ShowBigRtf(this,
+        rtffHelper.Rtf,
+        comboBoxColumnName.Text,
+        MessageBoxButtons.OK,
+        MessageBoxIcon.Information);
           }
         }
       }

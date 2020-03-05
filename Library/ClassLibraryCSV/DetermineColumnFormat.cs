@@ -59,7 +59,7 @@ namespace CsvTools
     /// <param name="checkDoubleToBeInteger">if set to <c>true</c> [check double to be integer].</param>
     /// <param name="fillGuessSettings">The fill guess settings.</param>
     /// <param name="processDisplay">The process display.</param>
-    /// <returns></returns>
+    /// <returns>A list of columns with new format that have been changed</returns>
     /// <exception cref="ArgumentNullException">processDisplay</exception>
     public static IList<string> FillGuessColumnFormatReader(this IFileSetting fileSetting, bool addTextColumns,
       bool checkDoubleToBeInteger, FillGuessSettings fillGuessSettings, IProcessDisplay processDisplay)
