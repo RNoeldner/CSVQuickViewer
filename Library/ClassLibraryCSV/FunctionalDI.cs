@@ -20,12 +20,10 @@ using System.Threading;
 namespace CsvTools
 {
   /// <summary>
-  /// 
   ///   This class implements a lightweight Dependency injection without a framework and or configuration
-  /// 
-  ///   It uses a static delegate function to give the ability to overload the default functionality by implementations not
-  ///   know to this library
-  /// 
+  ///
+  ///   It uses a static delegate function to give the ability to overload the default functionality
+  ///   by implementations not know to this library
   /// </summary>
   public static class FunctionalDI
   {
@@ -38,17 +36,19 @@ namespace CsvTools
       return !string.IsNullOrEmpty(fileSetting.Passphrase) ? fileSetting.Passphrase : null;
     };
 
-
     /// <summary>
-    ///   Open a file for reading, it will take care of things like compression
-    ///   and encryption
+    ///   Open a file for reading, it will take care of things like compression and encryption
     /// </summary>
     public static Func<string, IImprovedStream> OpenRead = ImprovedStream.OpenRead;
 
+    /// <summary>
+    ///   Action to be performed while waiting on a background class, something to kee the UI alive,
+    ///   send busys singals etc.
+    /// </summary>
+    public static Action SingnalUIUpdate = null;
 
     /// <summary>
-    ///   Open a file for reading, it will take care of things like compression
-    ///   and encryption
+    ///   Open a file for reading, it will take care of things like compression and encryption
     /// </summary>
     public static Func<IFileSettingPhysicalFile, IImprovedStream> OpenReadS = setting =>
       ImprovedStream.OpenRead(setting.FullPath);
@@ -60,9 +60,9 @@ namespace CsvTools
     public static Func<string, string, IImprovedStream> OpenWrite = (path, recipient) => ImprovedStream.OpenWrite(path);
 
     /// <summary>
-    ///   Timezone conversion, in case the conversion fails a error handler
-    ///   is called that does match the base file readers HandleWarning the validation library will
-    ///   overwrite this is an implementation using Noda Time
+    ///   Timezone conversion, in case the conversion fails a error handler is called that does
+    ///   match the base file readers HandleWarning the validation library will overwrite this is an
+    ///   implementation using Noda Time
     /// </summary>
     public static Func<DateTime?, string, string, int, Action<int, string>, DateTime?> AdjustTZ =
       (input, srcTimeZone, destTimeZone, columnOrdinal, handleWarning) =>
@@ -83,7 +83,6 @@ namespace CsvTools
           return null;
         }
       };
-
 
     /// <summary>
     ///   Function to retrieve the column in a setting file

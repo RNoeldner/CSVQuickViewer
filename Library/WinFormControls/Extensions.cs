@@ -23,16 +23,16 @@ namespace CsvTools
   using System.Windows.Forms;
 
   /// <summary>
-  /// Helper class
+  ///   Helper class
   /// </summary>
   public static class Extensions
   {
     /// <summary>
-    /// Handles a CTRL-A select all in the form.
+    ///   Handles a CTRL-A select all in the form.
     /// </summary>
     /// <param name="frm">The calling form</param>
     /// <param name="sender">The sender.</param>
-    /// <param name="e">The <see cref="KeyEventArgs"/> instance containing the event data.</param>
+    /// <param name="e">The <see cref="KeyEventArgs" /> instance containing the event data.</param>
     public static void CtrlA(this Form frm, object sender, KeyEventArgs e)
     {
       if (e == null || !e.Control || e.KeyCode.ToString() != "A")
@@ -58,77 +58,11 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Deleting a file, in case it exists it will ask if it should be deleted
-    /// </summary>
-    /// <param name="fileName"></param>
-    /// <param name="ask"></param>
-    /// <returns>
-    /// true: the file does not exist, or it was deleted
-    /// false: the file was not deleted it does still exist
-    /// null: user pressed cancel
-    /// </returns>
-    public static bool? DeleteFileQuestion(this string fileName, bool ask)
-    {
-      if (!FileSystemUtils.FileExists(fileName))
-        return true;
-      if (!ask)
-      {
-        try
-        {
-          File.Delete(fileName);
-          return true;
-        }
-        catch
-        {
-          // ignored
-        }
-
-        return false;
-      }
-
-      var res = FileSystemUtils.SplitPath(fileName);
-      var disp = res.FileName;
-
-      var diagRes = _MessageBox.Show(
-        null,
-        $"The file {disp} does exist already, do you want to delete the existing file?",
-        "File",
-        MessageBoxButtons.YesNoCancel,
-        MessageBoxIcon.Question);
-
-      if (diagRes == DialogResult.Yes)
-      {
-      retry:
-        try
-        {
-          File.Delete(fileName);
-          return true;
-        }
-        catch (Exception ex)
-        {
-          diagRes = DialogResult.No;
-          if (_MessageBox.Show(
-                null,
-                $"The file {disp} could not be deleted.\n{ex.ExceptionMessages()}",
-                "File",
-                MessageBoxButtons.RetryCancel,
-                MessageBoxIcon.Warning) == DialogResult.Retry)
-            goto retry;
-        }
-      }
-
-      if (diagRes == DialogResult.Cancel)
-        return null;
-      else
-        return (diagRes == DialogResult.Yes);
-    }
-
-    /// <summary>
-    /// Gets the process display.
+    ///   Gets the process display.
     /// </summary>
     /// <param name="fileSetting">The setting.</param>
     /// <param name="owner">
-    /// The owner form, in case the owner is minimized or closed this progress will do the same
+    ///   The owner form, in case the owner is minimized or closed this progress will do the same
     /// </param>
     /// <param name="withLogger">if set to <c>true</c> [with logger].</param>
     /// <param name="cancellationToken">A Cancellation token</param>
@@ -191,7 +125,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Handles UI elements while waiting on something
+    ///   Handles UI elements while waiting on something
     /// </summary>
     /// <param name="milliseconds">number of milliseconds to not process the calling thread</param>
     public static void ProcessUIElements(int milliseconds = 0)
@@ -207,7 +141,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Extensions Methods to Simplify WinForms Thread Invoking, start the action synchrony
+    ///   Extensions Methods to Simplify WinForms Thread Invoking, start the action synchrony
     /// </summary>
     /// <param name="uiElement">Type of the Object that will get the extension</param>
     /// <param name="action">A delegate for the action</param>
@@ -222,7 +156,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Extensions Methods to Simplify WinForms Thread Invoking, start the action synchrony
+    ///   Extensions Methods to Simplify WinForms Thread Invoking, start the action synchrony
     /// </summary>
     /// <param name="uiElement">Type of the Object that will get the extension</param>
     /// <param name="action">A delegate for the action</param>
@@ -238,7 +172,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Extensions Methods to Simplify WinForms Thread Invoking, start the action synchrony
+    ///   Extensions Methods to Simplify WinForms Thread Invoking, start the action synchrony
     /// </summary>
     /// <param name="uiElement">Type of the Object that will get the extension</param>
     /// <param name="action">A delegate for the action</param>
@@ -253,7 +187,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Show error information to a user, and logs the message
+    ///   Show error information to a user, and logs the message
     /// </summary>
     /// <param name="from">The current Form</param>
     /// <param name="ex">the Exception</param>
@@ -311,7 +245,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Updates the list view column format.
+    ///   Updates the list view column format.
     /// </summary>
     /// <param name="columnFormat">The column format.</param>
     /// <param name="listView">The list view.</param>
@@ -342,64 +276,16 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Extends regular ValidateChildren with Timeout and Cancellation
+    ///   Extends regular ValidateChildren with Timeout and Cancellation
     /// </summary>
     /// <param name="container">Control with validate able children</param>
     /// <param name="cancellationToken">Cancellation Token</param>
     /// <returns><c>True</c> if children where validated, <c>false</c> otherwise</returns>
     public static bool ValidateChildren(this ContainerControl container, CancellationToken cancellationToken) =>
-      Task.Run(() => container.ValidateChildren(), cancellationToken).WaitToCompleteTaskResult(1, Application.DoEvents);
+      Task.Run(() => container.ValidateChildren(), cancellationToken).WaitToCompleteTask(1);
 
     /// <summary>
-    /// Run a task synchronously with timeout
-    /// </summary>
-    /// <param name="executeTask">The started <see cref="System.Threading.Tasks.Task"/></param>
-    /// <param name="timeoutSeconds">
-    /// Timeout for the completion of the task, if more time is spent running / waiting the wait is finished
-    /// </param>
-    /// <param name="cancellationToken">Cancellation Token to be able to cancel the task</param>
-    public static void WaitToCompleteTaskUI(
-      this Task executeTask,
-      double timeoutSeconds,
-      CancellationToken cancellationToken) =>
-      executeTask.WaitToCompleteTask(timeoutSeconds, Application.DoEvents, cancellationToken);
-
-    /// <summary>
-    /// Run a task synchronously with timeout
-    /// </summary>
-    /// <param name="executeTask">The started <see cref="System.Threading.Tasks.Task"/></param>
-    /// <param name="timeoutSeconds">
-    /// Timeout for the completion of the task, if more time is spent running / waiting the wait is finished
-    /// </param>
-    public static void WaitToCompleteTaskUI(this Task executeTask, double timeoutSeconds) =>
-      executeTask.WaitToCompleteTask(timeoutSeconds, Application.DoEvents);
-
-    /// <summary>
-    /// Run a task synchronously with timeout
-    /// </summary>
-    /// <param name="executeTask">The started <see cref="System.Threading.Tasks.Task"/></param>
-    /// <param name="timeoutSeconds">
-    /// Timeout for the completion of the task, if more time is spent running / waiting the wait is finished
-    /// </param>
-    /// <param name="cancellationToken">Cancellation Token to be able to cancel the task</param>
-    public static T WaitToCompleteTaskUI<T>(
-      this Task<T> executeTask,
-      double timeoutSeconds,
-      CancellationToken cancellationToken) =>
-      executeTask.WaitToCompleteTaskResult(timeoutSeconds, Application.DoEvents, cancellationToken);
-
-    /// <summary>
-    /// Run a task synchronously with timeout
-    /// </summary>
-    /// <param name="executeTask">The started <see cref="System.Threading.Tasks.Task"/></param>
-    /// <param name="timeoutSeconds">
-    /// Timeout for the completion of the task, if more time is spent running / waiting the wait is finished
-    /// </param>
-    public static T WaitToCompleteTaskUI<T>(this Task<T> executeTask, double timeoutSeconds) =>
-      executeTask.WaitToCompleteTaskResult(timeoutSeconds, Application.DoEvents);
-
-    /// <summary>
-    /// Store a bound value
+    ///   Store a bound value
     /// </summary>
     /// <param name="ctrl">The control</param>
     public static void WriteBinding(this Control ctrl) => ctrl.GetTextBindng()?.WriteValue();

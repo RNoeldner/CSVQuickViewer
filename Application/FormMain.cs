@@ -539,7 +539,7 @@ namespace CsvTools
                       m_ViewSettings.FillGuessSettings,
                       processDisplay);
                   },
-                processDisplay.CancellationToken).WaitToCompleteTaskUI(240);
+                processDisplay.CancellationToken).WaitToCompleteTask(240);
             }
           }
           catch (Exception ex)

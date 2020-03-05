@@ -923,7 +923,7 @@ namespace CsvTools
     ///   can be provided
     /// </param>
     /// <remarks>Will only return the first exception in case of aggregate exceptions.</remarks>
-    public static void WaitToCompleteTask(this Task executeTask, double timeoutSeconds, Action every250Ms = null,
+    public static void WaitToCompleteTask(this Task executeTask, double timeoutSeconds,
       CancellationToken cancellationToken = default)
     {
       if (executeTask == null)
@@ -954,7 +954,7 @@ namespace CsvTools
           }
 
           // Invoke action every 1/4 second
-          every250Ms?.Invoke();
+          FunctionalDI.SingnalUIUpdate?.Invoke();
 
           // wait will raise an AggregateException if the task throws an exception
           executeTask.Wait(250, cancellationToken);
@@ -996,9 +996,9 @@ namespace CsvTools
     ///   can be provided
     /// </param>
     /// <returns>Task Result if finished successfully, otherwise raises an error</returns>
-    public static T WaitToCompleteTaskResult<T>(this Task<T> executeTask, double timeoutSeconds, Action every250Ms = null, CancellationToken cancellationToken = default)
+    public static T WaitToCompleteTask<T>(this Task<T> executeTask, double timeoutSeconds, CancellationToken cancellationToken = default)
     {
-      WaitToCompleteTask(executeTask, timeoutSeconds, every250Ms, cancellationToken);
+      WaitToCompleteTask((Task)executeTask, timeoutSeconds, cancellationToken);
       return executeTask.Result;
     }
 
