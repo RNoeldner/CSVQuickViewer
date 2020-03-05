@@ -71,7 +71,7 @@ namespace CsvTools
       m_FileName = fileName;
       m_ViewSettings = LoadDefault();
       m_ViewSettings.FillGuessSettings.PropertyChanged += AnyPropertyChangedReload;
-
+      FunctionalDI.SingnalUIUpdate = Application.DoEvents;
       InitializeComponent();
       FillFromProperties();
 
