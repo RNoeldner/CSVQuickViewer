@@ -358,9 +358,6 @@ namespace CsvTools
       Contract.Requires(file != null);
       Contract.Requires(display != null);
 
-      var root = ApplicationSetting.RootFolder;
-      file.FileName.GetAbsolutePath(root);
-
       display.SetProcess("Checking delimited file", -1, true);
       file.JsonFormat = false;
       if (guessJson)
