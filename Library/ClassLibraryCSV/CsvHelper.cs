@@ -112,7 +112,7 @@ namespace CsvTools
       // Read 256 kBytes
       var buff = new byte[262144];
       int length;
-      using (var fileStream = FunctionalDI.OpenReadS(setting))
+      using (var fileStream = FunctionalDI.OpenRead(setting))
       {
         length = fileStream.Stream.Read(buff, 0, buff.Length);
       }
@@ -151,7 +151,7 @@ namespace CsvTools
     {
       Contract.Requires(setting != null);
       Contract.Ensures(Contract.Result<string>() != null);
-      using (var improvedStream = FunctionalDI.OpenReadS(setting))
+      using (var improvedStream = FunctionalDI.OpenRead(setting))
       using (var streamReader = new StreamReader(improvedStream.Stream, setting.GetEncoding(), setting.ByteOrderMark))
       {
         for (var i = 0; i < setting.SkipRows; i++)
@@ -170,7 +170,7 @@ namespace CsvTools
     public static bool GuessJsonFile(IFileSettingPhysicalFile setting)
     {
       Contract.Requires(setting != null);
-      using (var improvedStream = FunctionalDI.OpenReadS(setting))
+      using (var improvedStream = FunctionalDI.OpenRead(setting))
       using (var streamReader = new StreamReader(improvedStream.Stream))
       {
         return IsJsonReadable(streamReader);
@@ -245,7 +245,7 @@ namespace CsvTools
     public static string GuessNewline(ICsvFile setting)
     {
       Contract.Requires(setting != null);
-      using (var improvedStream = FunctionalDI.OpenReadS(setting))
+      using (var improvedStream = FunctionalDI.OpenRead(setting))
       using (var streamReader = new StreamReader(improvedStream.Stream, setting.GetEncoding(), setting.ByteOrderMark))
       {
         for (var i = 0; i < setting.SkipRows; i++)
@@ -262,7 +262,7 @@ namespace CsvTools
     private static char GuessQualifier(ICsvFile setting)
     {
       Contract.Requires(setting != null);
-      using (var improvedStream = FunctionalDI.OpenReadS(setting))
+      using (var improvedStream = FunctionalDI.OpenRead(setting))
       using (var streamReader = new StreamReader(improvedStream.Stream, setting.GetEncoding(), setting.ByteOrderMark))
       {
         return GuessQualifier(streamReader, setting.FileFormat.FieldDelimiterChar, setting.SkipRows);
@@ -277,7 +277,7 @@ namespace CsvTools
     public static int GuessStartRow(ICsvFile setting)
     {
       Contract.Requires(setting != null);
-      using (var improvedStream = FunctionalDI.OpenReadS(setting))
+      using (var improvedStream = FunctionalDI.OpenRead(setting))
       using (var streamReader = new StreamReader(improvedStream.Stream, setting.GetEncoding(), setting.ByteOrderMark))
       {
         return GuessStartRow(streamReader, setting.FileFormat.FieldDelimiterChar, setting.FileFormat.FieldQualifierChar,
@@ -298,7 +298,7 @@ namespace CsvTools
       if (string.IsNullOrEmpty(setting.FileFormat.FieldQualifier) || token.IsCancellationRequested)
         return false;
 
-      using (var improvedStream = FunctionalDI.OpenReadS(setting))
+      using (var improvedStream = FunctionalDI.OpenRead(setting))
       using (var streamReader = new StreamReader(improvedStream.Stream, setting.GetEncoding(), setting.ByteOrderMark))
       {
         for (var i = 0; i < setting.SkipRows; i++)

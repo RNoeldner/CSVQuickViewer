@@ -27,7 +27,7 @@ namespace CsvTools
   {
     public ImprovedStream(string path)
     {
-      m_BasePath = path;
+      m_BasePath = path.LongPathPrefix();
       m_AssumeGZip = path.AssumeGZip();
     }
 
@@ -50,11 +50,25 @@ namespace CsvTools
     /// <param name="encryptedPassphrase">The encrypted passphrase.</param>
     /// <returns></returns>
     /// <exception cref="ArgumentException">Path must be set - path</exception>
-    public static IImprovedStream OpenRead(string path)
+    public static IImprovedStream OpenRead(IFileSettingPhysicalFile setting)
     {
-      if (string.IsNullOrEmpty(path))
-        throw new ArgumentException("Path must be set", nameof(path));
-      var retVal = OpenBaseStream(path);
+      if (setting is null)
+        throw new ArgumentNullException(nameof(setting));
+      return OpenRead(setting.FullPath);
+    }
+
+    /// <summary>
+    ///   Opens a file for reading
+    /// </summary>
+    /// <param name="path">The path.</param>
+    /// <param name="encryptedPassphrase">The encrypted passphrase.</param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentException">Path must be set - path</exception>
+    public static IImprovedStream OpenRead(string fileName)
+    {
+      if (string.IsNullOrEmpty(fileName))
+        throw new ArgumentException("Path must be provided", nameof(fileName));
+      var retVal = OpenBaseStream(fileName);
       retVal.ResetToStart(null);
       return retVal;
     }
@@ -65,21 +79,35 @@ namespace CsvTools
     /// <param name="path">The path.</param>
     /// <param name="recipient">The recipient.</param>
     /// <returns>An improved stream object</returns>
-    public static IImprovedStream OpenWrite(string path)
+    public static IImprovedStream OpenWrite(IFileSettingPhysicalFile setting)
     {
-      FileSystemUtils.FileDelete(path.LongPathPrefix());
+      if (setting is null)
+        throw new ArgumentNullException(nameof(setting));
+      return OpenWrite(setting.FullPath);
+    }
 
-      var retVal = new ImprovedStream(path);
+    /// <summary>
+    ///   Opens an file for writing
+    /// </summary>
+    /// <param name="path">The path.</param>
+    /// <param name="recipient">The recipient.</param>
+    /// <returns>An improved stream object</returns>
+    public static IImprovedStream OpenWrite(string fileName)
+    {
+      if (string.IsNullOrEmpty(fileName))
+        throw new ArgumentException("Path must be provided", nameof(fileName));
+      FileSystemUtils.FileDelete(fileName);
 
+      var retVal = new ImprovedStream(fileName);
       if (retVal.m_AssumeGZip)
       {
-        retVal.BaseStream = File.Create(path.LongPathPrefix());
+        retVal.BaseStream = File.Create(retVal.m_BasePath);
         retVal.Stream = new GZipStream(retVal.BaseStream, CompressionMode.Compress);
         return retVal;
       }
 
-      FileSystemUtils.FileDelete(path.LongPathPrefix());
-      retVal.BaseStream = File.Create(path.LongPathPrefix());
+      FileSystemUtils.FileDelete(retVal.m_BasePath);
+      retVal.BaseStream = File.Create(retVal.m_BasePath);
       retVal.Stream = retVal.BaseStream;
       return retVal;
     }
@@ -154,7 +182,7 @@ namespace CsvTools
       var retVal = new ImprovedStream(path);
       try
       {
-        retVal.BaseStream = File.OpenRead(path);
+        retVal.BaseStream = File.OpenRead(retVal.m_BasePath);
         return retVal;
       }
       catch (Exception)

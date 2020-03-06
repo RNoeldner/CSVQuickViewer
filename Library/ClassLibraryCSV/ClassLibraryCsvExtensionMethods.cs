@@ -954,7 +954,7 @@ namespace CsvTools
           }
 
           // Invoke action every 1/4 second
-          FunctionalDI.SingnalUIUpdate?.Invoke();
+          FunctionalDI.SignalBackground?.Invoke();
 
           // wait will raise an AggregateException if the task throws an exception
           executeTask.Wait(250, cancellationToken);

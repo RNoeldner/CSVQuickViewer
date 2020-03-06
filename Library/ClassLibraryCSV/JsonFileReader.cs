@@ -306,7 +306,7 @@ namespace CsvTools
       m_ImprovedStream = ImprovedStream.OpenRead(m_StructuredFile);
         */
       if (m_ImprovedStream == null)
-        m_ImprovedStream = FunctionalDI.OpenReadS(m_StructuredFile);
+        m_ImprovedStream = FunctionalDI.OpenRead(m_StructuredFile);
 
       m_ImprovedStream.ResetToStart(delegate (Stream str)
       {

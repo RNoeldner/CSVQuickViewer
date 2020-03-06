@@ -1028,7 +1028,7 @@ namespace CsvTools
     private void ResetPositionToStartOrOpen()
     {
       if (m_ImprovedStream == null)
-        m_ImprovedStream = FunctionalDI.OpenReadS(m_CsvFile);
+        m_ImprovedStream = FunctionalDI.OpenRead(m_CsvFile);
 
       if (m_BufferPos != 0 || RecordNumber != 0 || m_BufferFilled == 0)
       {
