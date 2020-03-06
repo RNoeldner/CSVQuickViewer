@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net45</TargetFrameworks>
+    <TargetFrameworks>net461</TargetFrameworks>
     <RootNamespace>CsvTools</RootNamespace>
     <PackageId>ClassLibraryCSV</PackageId>
     <Authors>Raphael Nöldner</Authors>

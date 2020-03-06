@@ -220,7 +220,7 @@ namespace CsvTools
         m_ProcessDisplay.Maximum = -1;
       try
       {
-        using (var improvedStream = FunctionalDI.OpenWrite(m_FileSetting.FullPath, m_FileSetting.Recipient))
+        using (var improvedStream = FunctionalDI.OpenWrite(m_FileSetting))
         {
           Write(reader, improvedStream.Stream, m_ProcessDisplay?.CancellationToken ?? CancellationToken.None);
         }
@@ -296,7 +296,7 @@ namespace CsvTools
       }
       else if (columnInfo.ConstantTimeZone.Length > 0)
       {
-        return FunctionalDI.AdjustTZ(dataObject, m_SourceTimeZone, columnInfo.ConstantTimeZone, Columns.IndexOf(columnInfo), ( columnNo, msg) => HandleWarning(Columns[columnNo].Header, msg)).Value;
+        return FunctionalDI.AdjustTZ(dataObject, m_SourceTimeZone, columnInfo.ConstantTimeZone, Columns.IndexOf(columnInfo), (columnNo, msg) => HandleWarning(Columns[columnNo].Header, msg)).Value;
       }
 
       return dataObject;
@@ -509,7 +509,7 @@ namespace CsvTools
       var columnNameTime = GetUniqueFieldName(headers, columnFormat.TimePart);
       var cfTimePart = new Column(columnNameTime, columnFormat.TimePartFormat)
       {
-        ValueFormat = {TimeSeparator = columnFormat.ValueFormat.TimeSeparator}
+        ValueFormat = { TimeSeparator = columnFormat.ValueFormat.TimeSeparator }
       };
 
       // In case we have a split column, add the second column (unless the column is also present

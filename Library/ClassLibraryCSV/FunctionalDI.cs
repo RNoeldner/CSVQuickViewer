@@ -20,7 +20,7 @@ using System.Threading;
 namespace CsvTools
 {
   /// <summary>
-  ///   This class implements a lightweight Dependency injection without a framework and or configuration
+  ///   This class implements a lightweight Dependency injection without a framework
   ///
   ///   It uses a static delegate function to give the ability to overload the default functionality
   ///   by implementations not know to this library
@@ -37,27 +37,23 @@ namespace CsvTools
     };
 
     /// <summary>
-    ///   Open a file for reading, it will take care of things like compression and encryption
+    ///   Action to be performed while waiting on a background process, do something like handing
+    ///   message queues (WinForms =&gt; DoEvents) call a Dispatcher to take care of the UI or send
+    ///   singals that the application is not stale
     /// </summary>
-    public static Func<string, IImprovedStream> OpenRead = ImprovedStream.OpenRead;
-
-    /// <summary>
-    ///   Action to be performed while waiting on a background class, something to kee the UI alive,
-    ///   send busys singals etc.
-    /// </summary>
-    public static Action SingnalUIUpdate = null;
+    public static Action SignalBackground = null;
 
     /// <summary>
     ///   Open a file for reading, it will take care of things like compression and encryption
     /// </summary>
-    public static Func<IFileSettingPhysicalFile, IImprovedStream> OpenReadS = setting =>
-      ImprovedStream.OpenRead(setting.FullPath);
+    public static Func<IFileSettingPhysicalFile, IImprovedStream> OpenRead = setting =>
+      ImprovedStream.OpenRead(setting);
 
     /// <summary>
     ///   General function to open a file for writing, it will take care of things like compression
     ///   and encryption
     /// </summary>
-    public static Func<string, string, IImprovedStream> OpenWrite = (path, recipient) => ImprovedStream.OpenWrite(path);
+    public static Func<IFileSettingPhysicalFile, IImprovedStream> OpenWrite = setting => ImprovedStream.OpenWrite(setting);
 
     /// <summary>
     ///   Timezone conversion, in case the conversion fails a error handler is called that does
