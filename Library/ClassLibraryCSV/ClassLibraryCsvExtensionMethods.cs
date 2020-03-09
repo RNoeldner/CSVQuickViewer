@@ -34,12 +34,6 @@ namespace CsvTools
   /// </summary>
   public static class ClassLibraryCsvExtensionMethods
   {
-    [DebuggerStepThrough]
-    public static void AddComma(this StringBuilder sb)
-    {
-      if (sb.Length > 0)
-        sb.Append(", ");
-    }
 
     /// <summary>
     ///   Check if the application should assume its gZIP
@@ -97,49 +91,6 @@ namespace CsvTools
       other.Clear();
       foreach (var item in self)
         other.Add(item);
-    }
-
-    /// <summary>
-    ///   Copies the row to table.
-    /// </summary>
-    /// <param name="reader">The reader.</param>
-    /// <param name="dataTable">The data table.</param>
-    /// <param name="columnWarningsReader">The column warnings reader.</param>
-    /// <param name="dataTableInfo">The data table information.</param>
-    /// <param name="handleColumnIssues">The handle column issues.</param>
-    public static void CopyRowToTable(this IFileReader reader, DataTable dataTable,
-      ColumnErrorDictionary columnWarningsReader,
-      CopyToDataTableInfo dataTableInfo, Action<ColumnErrorDictionary, DataRow> handleColumnIssues)
-    {
-      Contract.Requires(dataTable != null);
-
-      var dataRow = dataTable.NewRow();
-      if (dataTableInfo.RecordNumber != null)
-        dataRow[dataTableInfo.RecordNumber] = reader.RecordNumber;
-
-      if (dataTableInfo.EndLine != null)
-        dataRow[dataTableInfo.EndLine] = reader.EndLineNumber;
-
-      if (dataTableInfo.StartLine != null)
-        dataRow[dataTableInfo.StartLine] = reader.StartLineNumber;
-      dataTable.Rows.Add(dataRow);
-
-      // TODO: check if this is really necessary, usually GetValue  should not error out
-      try
-      {
-        foreach (var keyValuePair in dataTableInfo.Mapping)
-          dataRow[keyValuePair.Value] = reader.GetValue(keyValuePair.Key);
-      }
-      catch (Exception exc)
-      {
-        columnWarningsReader.Add(-1, exc.ExceptionMessages());
-      }
-
-      if (columnWarningsReader.Count > 0)
-      {
-        handleColumnIssues?.Invoke(columnWarningsReader, dataRow);
-        columnWarningsReader.Clear();
-      }
     }
 
     /// <summary>
@@ -293,9 +244,30 @@ namespace CsvTools
       }
     }
 
+    public static string NoRecordSQL(this string source)
+    {
+      if (String.IsNullOrEmpty(source))
+        return String.Empty;
+
+      // if its not SQL or has a Where condition do nothing
+      if (!source.Contains("SELECT", StringComparison.OrdinalIgnoreCase) ||
+          source.Contains("WHERE", StringComparison.OrdinalIgnoreCase))
+        return source;
+
+      // Remove Order By and Add a WHERE
+      var indexOf = source.IndexOf("ORDER BY", StringComparison.OrdinalIgnoreCase);
+      if (indexOf == -1)
+        source += " WHERE 1=0";
+      else
+        source = source.Substring(0, indexOf) + "WHERE 1=0";
+
+      return source;
+    }
+
+
     public static char GetFirstChar(this string text)
     {
-      if (string.IsNullOrEmpty(text))
+      if (String.IsNullOrEmpty(text))
         return '\0';
 
       return text[0];
@@ -337,11 +309,11 @@ namespace CsvTools
       fileName = Regex.Replace(fileName,
         "(" + c_DateSep + c_Year + c_DateSep + c_Month + c_DateSep + c_Day + ")|(" + c_DateSep + c_Month + c_DateSep +
         c_Day + c_DateSep + c_Year + ")|(" + c_DateSep + c_Day + c_DateSep + c_Month + c_DateSep + c_Year + ")",
-        string.Empty, RegexOptions.Singleline);
+        String.Empty, RegexOptions.Singleline);
 
       // Replace Times 3_53_34_AM
       fileName = Regex.Replace(fileName,
-        c_DateSep + c_Hour + c_TimeSep + c_MinSec + c_TimeSep + c_MinSec + "?" + c_AmPm, string.Empty,
+        c_DateSep + c_Hour + c_TimeSep + c_MinSec + c_TimeSep + c_MinSec + "?" + c_AmPm, String.Empty,
         RegexOptions.IgnoreCase | RegexOptions.Singleline);
       /*
       // Replace Dates YYMMDD
@@ -392,14 +364,30 @@ namespace CsvTools
       }
     }
 
-    public static DataTable Read2DataTable(this IDataReader dataReader, IProcessDisplay processDisplay, long recordLimit)
+    /// <summary>
+    /// Method to copy rows from a data Reader  to a data table.
+    /// </summary>
+    /// <param name="dataReader"></param>
+    /// <param name="processDisplay"></param>
+    /// <param name="recordLimit"></param>
+    /// <returns></returns>
+    /// <remarks>There is a similar function that uses a file reader</remarks>
+    public static DataTable Read2DataTable(this IDataReader dataReader, IProcessDisplay processDisplay,
+      long recordLimit)
     {
       var dataTable = new DataTable();
-      var display = (processDisplay?.Maximum ?? 0) > 1 ? "Reading rows\nRecord {0:N0}/" + $"{processDisplay?.Maximum:N0}" : "Reading rows\nRecords {0:N0}";
+      long oldMax = -1;
+      var display = (processDisplay?.Maximum ?? 0) > 1
+        ? "Reading rows\nRecord {0:N0}/" + $"{processDisplay?.Maximum:N0}"
+        : "Reading rows\nRecords {0:N0}";
+
       try
       {
         if (processDisplay != null && recordLimit > 0)
+        {
+          oldMax = processDisplay.Maximum;
           processDisplay.Maximum = recordLimit;
+        }
 
         // create columns
         var schemaTable = dataReader.GetSchemaTable();
@@ -421,17 +409,25 @@ namespace CsvTools
           recordLimit = long.MaxValue;
         // load the Data into the dataTable
         var action = processDisplay == null ? null : new IntervalAction(.3);
-        while (dataReader.Read() && dataTable.Rows.Count < recordLimit && !(processDisplay?.CancellationToken.IsCancellationRequested ?? false))
+        while (dataReader.Read() && dataTable.Rows.Count < recordLimit &&
+               !(processDisplay?.CancellationToken.IsCancellationRequested ?? false))
         {
           var readerValues = new object[columns];
           if (dataReader.GetValues(readerValues) > 0)
             dataTable.Rows.Add(readerValues);
-          action?.Invoke(() => processDisplay.SetProcess(string.Format(display, dataTable.Rows.Count), dataTable.Rows.Count, false));
+          action?.Invoke(() =>
+            processDisplay.SetProcess(string.Format(display, dataTable.Rows.Count), dataTable.Rows.Count, false));
         }
       }
       finally
       {
-        processDisplay?.SetProcess(string.Format(display, dataTable.Rows.Count), dataTable.Rows.Count, false);
+        if (processDisplay != null)
+        {
+          processDisplay.SetProcess(string.Format(display, dataTable.Rows.Count), dataTable.Rows.Count, false);
+          if (oldMax > 0)
+            processDisplay.Maximum = oldMax;
+        }
+
         dataTable.EndLoadData();
       }
       return dataTable;
@@ -477,7 +473,7 @@ namespace CsvTools
     {
       Contract.Ensures(Contract.Result<string>() != null);
       if (exception == null)
-        return string.Empty;
+        return String.Empty;
       try
       {
         var sb = new StringBuilder();
@@ -499,7 +495,7 @@ namespace CsvTools
       {
         // Ignore problems within this method - there's nothing more stupid than an error in the
         // error handler
-        return string.Empty;
+        return String.Empty;
       }
     }
 
@@ -535,7 +531,7 @@ namespace CsvTools
     /// <returns></returns>
     public static string PlaceHolderTimes(this string text, string format, IFileSetting fileSetting, DateTime lastExecution, DateTime lastExecutionStart)
     {
-      if (!string.IsNullOrEmpty(text))
+      if (!String.IsNullOrEmpty(text))
       {
         if (fileSetting.ProcessTimeUtc != BaseSettings.ZeroTime)
         {
@@ -567,7 +563,7 @@ namespace CsvTools
     ///[DebuggerStepThrough]
     public static string PlaceholderReplace(this string input, string placeholder, string replacement)
     {
-      if (!string.IsNullOrEmpty(replacement))
+      if (!String.IsNullOrEmpty(replacement))
       {
         var type = input.GetPlaceholderType(placeholder);
         if (type != null)
@@ -647,7 +643,7 @@ namespace CsvTools
       var position0 = 0;
       int position1;
 
-      if (string.IsNullOrEmpty(pattern))
+      if (String.IsNullOrEmpty(pattern))
         return original;
 
       var upperString = original.ToUpperInvariant();
@@ -684,11 +680,11 @@ namespace CsvTools
       Contract.Requires(original != null);
       Contract.Ensures(Contract.Result<string>() != null);
 
-      if (string.IsNullOrEmpty(pattern))
+      if (String.IsNullOrEmpty(pattern))
         return original;
 
       if (replacement == null)
-        replacement = string.Empty;
+        replacement = String.Empty;
 
       // if pattern matches replacement exit
       if (replacement.Equals(pattern, StringComparison.Ordinal))
@@ -732,14 +728,14 @@ namespace CsvTools
     [DebuggerStepThrough]
     public static string ReplaceDefaults(this string inputValue, string old1, string new1, string old2, string new2)
     {
-      Contract.Requires(!string.IsNullOrEmpty(old1));
+      Contract.Requires(!String.IsNullOrEmpty(old1));
       Contract.Ensures(Contract.Result<string>() != null);
 
-      if (string.IsNullOrEmpty(inputValue))
-        return string.Empty;
+      if (String.IsNullOrEmpty(inputValue))
+        return String.Empty;
 
-      var exhange1 = !string.IsNullOrEmpty(old1) && string.Compare(old1, new1, StringComparison.Ordinal) != 0;
-      var exhange2 = !string.IsNullOrEmpty(old2) && string.Compare(old2, new2, StringComparison.Ordinal) != 0;
+      var exhange1 = !String.IsNullOrEmpty(old1) && String.Compare(old1, new1, StringComparison.Ordinal) != 0;
+      var exhange2 = !String.IsNullOrEmpty(old2) && String.Compare(old2, new2, StringComparison.Ordinal) != 0;
       if (exhange1 && exhange2 && new1 == old2)
       {
         inputValue = inputValue.Replace(old1, "{\0}");
@@ -838,7 +834,7 @@ namespace CsvTools
     public static string CsvToolsStackTrace(this Exception exception)
     {
       var start = 0;
-      if (string.IsNullOrEmpty(exception.StackTrace))
+      if (String.IsNullOrEmpty(exception.StackTrace))
         return null;
       var indexof = exception.StackTrace.IndexOf("at ", StringComparison.Ordinal);
       while (indexof != -1)
@@ -846,7 +842,7 @@ namespace CsvTools
         if (start >= 0 && exception.StackTrace.Length > start)
         {
           var part = exception.StackTrace.Substring(start, indexof - start).Trim();
-          if (!string.IsNullOrEmpty(part) && part.StartsWith("CsvTools."))
+          if (!String.IsNullOrEmpty(part) && part.StartsWith("CsvTools."))
           {
             var msg = part.Substring("CsvTools.".Length);
             // In case it was an extension method, use stack trace
@@ -899,10 +895,10 @@ namespace CsvTools
 
     public static int ToInt(this long value)
     {
-      if (value > int.MaxValue)
-        return int.MaxValue;
-      if (value < int.MinValue)
-        return int.MinValue;
+      if (value > Int32.MaxValue)
+        return Int32.MaxValue;
+      if (value < Int32.MinValue)
+        return Int32.MinValue;
       return Convert.ToInt32(value);
     }
 
@@ -914,9 +910,6 @@ namespace CsvTools
     /// <param name="timeoutSeconds">
     ///   Timeout for the completion of the task, if more time is spent running / waiting the wait
     ///   is finished
-    /// </param>
-    /// <param name="every250Ms">
-    ///   Action to be invoked every 1/4 second while waiting to finish, usually used for UI updates
     /// </param>
     /// <param name="cancellationToken">
     ///   Best is to start tasks with the cancellation token but some async methods do not do, so it
@@ -988,9 +981,6 @@ namespace CsvTools
     ///   Timeout for the completion of the task, if more time is spent running / waiting the wait
     ///   is finished
     /// </param>
-    /// <param name="every250Ms">
-    ///   Action to be invoked every 1/4 second while waiting to finish, usually used for UI updates
-    /// </param>
     /// <param name="cancellationToken">
     ///   Best is to start tasks with the cancellation token but some async methods do not do, so it
     ///   can be provided
@@ -1000,176 +990,6 @@ namespace CsvTools
     {
       WaitToCompleteTask((Task)executeTask, timeoutSeconds, cancellationToken);
       return executeTask.Result;
-    }
-
-    private static bool HasColumnName(this IFileReader reader, string columnName)
-    {
-      Contract.Requires(reader != null, "reader");
-      Contract.Requires(!string.IsNullOrEmpty(columnName));
-
-      for (var col = 0; col < reader.FieldCount; col++)
-      {
-        var column = reader.GetColumn(col);
-        if (column.Ignore)
-          continue;
-        if (columnName.Equals(column.Name, StringComparison.OrdinalIgnoreCase))
-          return true;
-      }
-
-      return false;
-    }
-
-    public static CopyToDataTableInfo RemapCopyTo(this IFileReader fileReader, IFileSetting fileSetting,
-      DataTable dataTable, bool includeErrorField)
-    {
-      if (fileReader == null)
-        throw new ArgumentNullException(nameof(fileReader));
-      if (fileSetting == null)
-        throw new ArgumentNullException(nameof(fileSetting));
-      if (dataTable == null)
-        throw new ArgumentNullException(nameof(dataTable));
-
-      var result = new CopyToDataTableInfo
-      {
-        Mapping = new BiDirectionalDictionary<int, int>(),
-        ReaderColumns = new List<string>()
-      };
-
-      // Initialize a based on file reader
-      for (var col = 0; col < fileReader.FieldCount; col++)
-      {
-        result.ReaderColumns.Add(fileReader.GetName(col));
-        if (fileReader.IgnoreRead(col))
-          continue;
-        var cf = fileReader.GetColumn(col);
-        if (cf.Name.Equals(BaseFileReader.cStartLineNumberFieldName, StringComparison.OrdinalIgnoreCase))
-          continue;
-        result.Mapping.Add(col, dataTable.Columns[cf.Name].Ordinal);
-      }
-
-      result.StartLine = dataTable.Columns[BaseFileReader.cStartLineNumberFieldName];
-      if (fileSetting.DisplayRecordNo && !fileReader.HasColumnName(BaseFileReader.cRecordNumberFieldName))
-        result.RecordNumber = dataTable.Columns[BaseFileReader.cRecordNumberFieldName];
-
-      if (fileSetting.DisplayEndLineNo && !fileReader.HasColumnName(BaseFileReader.cEndLineNumberFieldName))
-        result.EndLine = dataTable.Columns[BaseFileReader.cEndLineNumberFieldName];
-
-      if (includeErrorField && !fileReader.HasColumnName(BaseFileReader.cErrorField))
-        result.Error = dataTable.Columns[BaseFileReader.cErrorField];
-
-      return result;
-    }
-
-    public static CopyToDataTableInfo GetCopyToDataTableInfo(this IFileReader fileReader, IFileSetting fileSetting,
-      DataTable dataTable, bool includeErrorField)
-    {
-      if (fileReader == null)
-        throw new ArgumentNullException(nameof(fileReader));
-      if (fileSetting == null)
-        throw new ArgumentNullException(nameof(fileSetting));
-      if (dataTable == null)
-        throw new ArgumentNullException(nameof(dataTable));
-
-      dataTable.TableName = fileSetting.ID;
-      dataTable.Locale = CultureInfo.InvariantCulture;
-
-      var result = new CopyToDataTableInfo
-      {
-        Mapping = new BiDirectionalDictionary<int, int>(),
-        ReaderColumns = new List<string>()
-      };
-
-      // Initialize a based on file reader
-      for (var col = 0; col < fileReader.FieldCount; col++)
-      {
-        result.ReaderColumns.Add(fileReader.GetName(col));
-        if (fileReader.IgnoreRead(col))
-          continue;
-        var cf = fileReader.GetColumn(col);
-        // a reader column BaseFileReader.cStartLineNumberFieldName will be ignored
-        if (cf.Name.Equals(BaseFileReader.cStartLineNumberFieldName, StringComparison.OrdinalIgnoreCase))
-          continue;
-        result.Mapping.Add(col, dataTable.Columns.Count);
-        // Special handling for #Line, this has to be a int64, not based on system
-        dataTable.Columns.Add(new DataColumn(cf.Name, cf.ValueFormat.DataType.GetNetType()));
-      }
-
-      // Append Artificial columns This needs to happen in the same order as we have in
-      // CreateTableFromReader otherwise BulkCopy does not work see SqlServerConnector.CreateTable
-      result.StartLine = new DataColumn(BaseFileReader.cStartLineNumberFieldName, typeof(long));
-      dataTable.Columns.Add(result.StartLine);
-
-      // TODO: check if this is a performance hit
-      dataTable.PrimaryKey = new[] { result.StartLine };
-
-      if (fileSetting.DisplayRecordNo && !fileReader.HasColumnName(BaseFileReader.cRecordNumberFieldName))
-      {
-        result.RecordNumber = new DataColumn(BaseFileReader.cRecordNumberFieldName, typeof(long));
-        dataTable.Columns.Add(result.RecordNumber);
-      }
-
-      if (fileSetting.DisplayEndLineNo && !fileReader.HasColumnName(BaseFileReader.cEndLineNumberFieldName))
-      {
-        result.EndLine = new DataColumn(BaseFileReader.cEndLineNumberFieldName, typeof(long));
-        dataTable.Columns.Add(result.EndLine);
-      }
-
-      if (includeErrorField && !fileReader.HasColumnName(BaseFileReader.cErrorField))
-      {
-        result.Error = new DataColumn(BaseFileReader.cErrorField, typeof(string));
-        dataTable.Columns.Add(result.Error);
-      }
-
-      return result;
-    }
-
-    /// <summary>
-    ///   Writes the data to a data table.
-    /// </summary>
-    /// <param name="reader">The reader.</param>
-    /// <param name="fileSetting">The file setting.</param>
-    /// <param name="records">The number of records.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A <see cref="DataTable" /> with the records</returns>
-    public static DataTable WriteToDataTable(this IFileReader reader, IFileSetting fileSetting, long records,
-      CancellationToken cancellationToken)
-    {
-      var requestedRecords = records < 1 ? long.MaxValue : records;
-
-      if (reader.IsClosed)
-        reader.Open();
-
-      var dataTable = new DataTable(fileSetting.ID)
-      {
-        MinimumCapacity = (int)Math.Min(requestedRecords, 5000)
-      };
-
-      try
-      {
-        var columnErrorDictionary = new ColumnErrorDictionary(reader);
-        var copyToDataTableInfo = reader.GetCopyToDataTableInfo(fileSetting, dataTable, false);
-
-        while (!cancellationToken.IsCancellationRequested && requestedRecords > 0 && reader.Read())
-        {
-          reader.CopyRowToTable(dataTable, columnErrorDictionary, copyToDataTableInfo,
-            (columnError, row) =>
-            {
-              foreach (var keyValuePair in columnError)
-                if (keyValuePair.Key == -1)
-                  row.RowError = keyValuePair.Value;
-                else if (copyToDataTableInfo.Mapping.TryGetValue(keyValuePair.Key, out var dbCol))
-                  row.SetColumnError(dbCol, keyValuePair.Value);
-            });
-          requestedRecords--;
-        }
-      }
-      catch
-      {
-        dataTable.Dispose();
-        throw;
-      }
-
-      return dataTable;
     }
 
     /// <summary>

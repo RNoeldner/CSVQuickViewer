@@ -738,10 +738,12 @@ namespace CsvTools
     IProcessDisplay processDisplay)
     {
       Contract.Requires(fileSettings != null);
-      var writer = FunctionalDI.GetFileWriter(fileSettings, null, processDisplay);
-      using (var data = writer.GetSchemaReader())
+
+      if (string.IsNullOrEmpty(fileSettings.SqlStatement))
+        return new List<ColumnInfo>();
+      using (var data = FunctionalDI.SQLDataReader(fileSettings.SqlStatement.NoRecordSQL(), processDisplay, fileSettings.Timeout))
       {
-        return writer.GetSourceColumnInformation(data);
+        return BaseFileWriter.GetSourceColumnInformation(fileSettings, data);
       }
     }
 

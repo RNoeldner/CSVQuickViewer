@@ -51,10 +51,9 @@ namespace CsvTools.Tests
         TreatLFAsSpace = true,
         TryToSolveMoreColumns = true,
         AllowRowCombining = true,
-        FileName = UnitTestInitialize.GetTestPath("BadIssues.csv")
+        FileName = UnitTestInitialize.GetTestPath("BadIssues.csv"),
+        FileFormat = {FieldDelimiter = "TAB", FieldQualifier = string.Empty}
       };
-      basIssues.FileFormat.FieldDelimiter = "TAB";
-      basIssues.FileFormat.FieldQualifier = string.Empty;
       basIssues.ColumnCollection.AddIfNew(new Column("effectiveDate", "yyyy/MM/dd", "-"));
       basIssues.ColumnCollection.AddIfNew(new Column("timestamp",  "yyyy/MM/ddTHH:mm:ss", "-"));
       
@@ -154,97 +153,7 @@ namespace CsvTools.Tests
       }
     }
 
-    [TestMethod]
-    public void TestWarningsRecordWithMapping()
-    {
-      using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
-      {
-        test.Open();
-        using (var dataTable = new DataTable
-        {
-          TableName = "DataTable",
-          Locale = CultureInfo.InvariantCulture
-        })
-        {
-          dataTable.Columns.Add(test.GetName(0), test.GetFieldType(0));
-
-          var recordNumberColumn = dataTable.Columns.Add(BaseFileReader.cRecordNumberFieldName, typeof(int));
-          recordNumberColumn.AllowDBNull = true;
-
-          var lineNumberColumn = dataTable.Columns.Add(BaseFileReader.cEndLineNumberFieldName, typeof(int));
-          lineNumberColumn.AllowDBNull = true;
-
-          var columnWarningsReader = new ColumnErrorDictionary(test);
-          var info = new CopyToDataTableInfo()
-          {
-            Mapping = new BiDirectionalDictionary<int, int>(),
-            RecordNumber = recordNumberColumn,
-            EndLine = lineNumberColumn
-          };
-          test.CopyRowToTable(dataTable, columnWarningsReader, info, null);
-          _ = dataTable.NewRow();
-        }
-        test.Read();
-
-        //warningsList.Add(-1, "Test1");
-        //warningsList.Add(0, "Test2");
-        //test.AssignNumbersAndWarnings(dataRow, columnMapping, recordNumberColumn, lineNumberColumn, null, warningsList);
-
-        //Assert.AreEqual("Test1", dataRow.RowError);
-        //Assert.AreEqual("Test2", dataRow.GetColumnError(0));
-      }
-    }
-
-    [TestMethod]
-    public void CopyRowToTableNullWarningList()
-    {
-      using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
-      {
-        test.Open();
-        try
-        {
-          using (var dataTable = new DataTable())
-            test.CopyRowToTable(dataTable, null, new CopyToDataTableInfo(), null);
-        }
-        catch (ArgumentNullException)
-        {
-          return;
-        }
-        catch (NullReferenceException)
-        {
-          return;
-        }
-
-        Assert.Fail("Expected Exception");
-      }
-    }
-
-    [TestMethod]
-    public void CopyRowToTableNullDataTable()
-    {
-      using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
-      {
-        test.Open();
-        try
-        {
-          test.CopyRowToTable(null, new ColumnErrorDictionary(test), new CopyToDataTableInfo(), null);
-        }
-        catch (ArgumentNullException)
-        {
-        }
-        catch (NullReferenceException)
-        {
-        }
-        catch
-        {
-          Assert.Fail();
-        }
-      }
-    }
-
+ 
     [TestMethod]
     public void TestWarningsRecordNoMapping()
     {
@@ -405,106 +314,6 @@ namespace CsvTools.Tests
         test.Open();
         test.Read();
         test.GetDateTime(1);
-      }
-    }
-
-    [TestMethod]
-    public void CsvDataReaderWriteToDataTable()
-    {
-      using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
-      {
-        test.Open();
-
-        var res = test.WriteToDataTable(m_ValidSetting, 0, CancellationToken.None);
-        Assert.AreEqual(7, res.Rows.Count);
-        Assert.AreEqual(
-          6 + (m_ValidSetting.DisplayStartLineNo ? 1 : 0) + (m_ValidSetting.DisplayEndLineNo ? 1 : 0) +
-          (m_ValidSetting.DisplayRecordNo ? 1 : 0), res.Columns.Count);
-      }
-    }
-
-    [TestMethod]
-    public void WriteToDataTable_IgnoredColumnsRealignWarning()
-    {
-      var setting = new CsvFile
-      {
-        HasFieldHeader = true,
-        TrimmingOption = TrimmingOption.All,
-        FileName = UnitTestInitialize.GetTestPath("Warnings.txt"),
-        ID = "DataTable",
-        WarnUnknowCharater = true,
-        DisplayEndLineNo = false,
-        DisplayStartLineNo = false,
-        DisplayRecordNo = false,
-      };
-      setting.FileFormat.FieldDelimiter = "tab";
-
-      // ignore one column this should move the warning of the Desc
-      setting.ColumnCollection.Add(new Column() { Ignore = true, Name = "InternalCode" });
-
-      using (var processDisplay = new DummyProcessDisplay())
-      {
-        using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
-        {
-          test.Open();
-
-          var res = test.WriteToDataTable(setting, 0, CancellationToken.None);
-
-          // The error must have moved from column 4 to column 3 as Column 2 is ignored no error in
-          // column 4 of Row 6
-          Assert.IsTrue(string.IsNullOrEmpty(res.Rows[5].GetColumnError(3)));
-          // error in column 3 of Row 6
-          Assert.IsTrue(!string.IsNullOrEmpty(res.Rows[5].GetColumnError(2)));
-        }
-      }
-    }
-
-    [TestMethod]
-    public void CsvDataReaderWriteToDataTable_RowErrorCollection()
-    {
-      using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
-      {
-        test.Open();
-
-        var res = test.WriteToDataTable(m_ValidSetting, 0, CancellationToken.None);
-        Assert.AreEqual(7, res.Rows.Count);
-        Assert.AreEqual(
-          6 + (m_ValidSetting.DisplayStartLineNo ? 1 : 0) + (m_ValidSetting.DisplayEndLineNo ? 1 : 0) +
-          (m_ValidSetting.DisplayRecordNo ? 1 : 0), res.Columns.Count);
-      }
-    }
-
-    [TestMethod]
-    public void CsvDataReaderWriteToDataTableDisplayRecordNo()
-    {
-      var newCsvFile = (CsvFile)m_ValidSetting.Clone();
-      newCsvFile.DisplayRecordNo = true;
-      using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(newCsvFile, TimeZoneInfo.Local.Id, processDisplay))
-      {
-        test.Open();
-        var res = test.WriteToDataTable(newCsvFile, 0, CancellationToken.None);
-        Assert.AreEqual(7, res.Rows.Count);
-        Assert.AreEqual(
-          6 + (newCsvFile.DisplayStartLineNo ? 1 : 0) + (newCsvFile.DisplayEndLineNo ? 1 : 0) +
-          (newCsvFile.DisplayRecordNo ? 1 : 0), res.Columns.Count);
-      }
-    }
-
-    [TestMethod]
-    public void CsvDataReaderWriteToDataTable2()
-    {
-      using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
-      {
-        test.Open();
-        var res = test.WriteToDataTable(m_ValidSetting, 2, CancellationToken.None);
-        Assert.AreEqual(2, res.Rows.Count);
-        Assert.AreEqual(
-          6 + (m_ValidSetting.DisplayStartLineNo ? 1 : 0) + (m_ValidSetting.DisplayEndLineNo ? 1 : 0) +
-          (m_ValidSetting.DisplayRecordNo ? 1 : 0), res.Columns.Count);
       }
     }
 
@@ -1079,10 +888,10 @@ namespace CsvTools.Tests
       {
         FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt"),
         HasFieldHeader = false,
-        SkipRows = 1
+        SkipRows = 1,
+        FileFormat = {FieldQualifier = "Carriage return"}
       };
-      setting.FileFormat.FieldQualifier = "Carriage return";
-      var Exception = false;
+      var exception = false;
       try
       {
         using (var processDisplay = new DummyProcessDisplay())
@@ -1093,18 +902,18 @@ namespace CsvTools.Tests
       }
       catch (ArgumentException)
       {
-        Exception = true;
+        exception = true;
       }
       catch (FileReaderException)
       {
-        Exception = true;
+        exception = true;
       }
       catch (Exception)
       {
         Assert.Fail("Wrong Exception Type");
       }
 
-      Assert.IsTrue(Exception, "No Exception thrown");
+      Assert.IsTrue(exception, "No Exception thrown");
     }
 
     [TestMethod]

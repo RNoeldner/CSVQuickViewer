@@ -33,23 +33,6 @@ namespace CsvTools
     /// </summary>
     string ErrorMessage { get; }
 
-    /// <summary>
-    ///   Gets the column information from the reader and overwrite setting with definition from the setting.
-    /// </summary>
-    /// <param name="reader">Any data reader</param>
-    IReadOnlyCollection<ColumnInfo> GetSourceColumnInformation(IDataReader reader);
-
-    /// <summary>
-    ///   Gets the a data reader for the allowing to look at the schema.
-    /// </summary>
-    IDataReader GetSchemaReader();
-
-    /// <summary>
-    ///   Gets the source data table.
-    /// </summary>
-    /// <param name="recordLimit">The record limit.</param>
-    /// <returns>A data table with all source data</returns>
-    DataTable GetSourceDataTable(long recordLimit);
 
     /// <summary>
     ///   Writes the specified file.

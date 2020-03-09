@@ -192,9 +192,9 @@ namespace CsvTools
 
     /// <summary> Storage for the settings used as direct or indirect sources. </summary>
     /// <remarks>This is used for queries that might refer to data that is produced by other
-    /// settings but not for file setting pointing to a specifc physical file</remarks> <example>A
-    /// setting A using setting B that is dependent on C1 and C2 both dependent on D-> A is
-    /// {B,C1,C2,D}. B is {C1,C2,D}, C1 is {D} C2 is {D} </empty> </example>
+    /// settings but not for file setting pointing to a specif physical file</remarks>
+    /// <example>A setting A using setting B that is dependent on C1 and C2 both dependent on D-> A is
+    /// {B,C1,C2,D}. B is {C1,C2,D}, C1 is {D} C2 is {D}</example>
     IReadOnlyCollection<IFileSetting> SourceFileSettings { get; set; }
 
     /// <summary>
@@ -204,7 +204,7 @@ namespace CsvTools
     string SqlStatement { get; set; }
 
     /// <summary>
-    /// Gets or sets the timeout value where appriate Web or SQL Calls.
+    /// Gets or sets the timeout value mainly used in Web or SQL Calls.
     /// </summary>
     /// <value>The timeout in seconds.</value>
     int Timeout { get; set; }
