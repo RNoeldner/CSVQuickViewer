@@ -44,8 +44,10 @@ namespace CsvTools.Tests
       };
 
       Assert.AreEqual("This is a test 12234", "This is a test {Id}".ReplacePlaceholderWithPropertyValues(csv));
-      Assert.AreEqual("This is fileName a test 12234", "This is {FileName} a test {Id}".ReplacePlaceholderWithPropertyValues(csv));
-      Assert.AreEqual("This is {nonsense} a test", "This is {nonsense} a test".ReplacePlaceholderWithPropertyValues(csv));
+      Assert.AreEqual("This is fileName a test 12234",
+        "This is {FileName} a test {Id}".ReplacePlaceholderWithPropertyValues(csv));
+      Assert.AreEqual("This is {nonsense} a test",
+        "This is {nonsense} a test".ReplacePlaceholderWithPropertyValues(csv));
     }
 
     [TestMethod()]
@@ -62,17 +64,17 @@ namespace CsvTools.Tests
     {
       var fileSetting = new CsvFile();
 
-      var existingColumns = new[] { "Col1", "Col2", "Col3" };
-      var additionalColumns = new[] { "Col4", "Col5" };
+      var existingColumns = new[] {"Col1", "Col2", "Col3"};
+      var additionalColumns = new[] {"Col4", "Col5"};
       var checkColumns = new List<string>();
       foreach (var col in existingColumns)
       {
-        fileSetting.MappingCollection.Add(new Mapping { FileColumn = col, TemplateField = col });
+        fileSetting.MappingCollection.Add(new Mapping {FileColumn = col, TemplateField = col});
         checkColumns.Add(col);
       }
 
       foreach (var col in additionalColumns)
-        fileSetting.MappingCollection.Add(new Mapping { FileColumn = col, TemplateField = col });
+        fileSetting.MappingCollection.Add(new Mapping {FileColumn = col, TemplateField = col});
 
       checkColumns.Add("Col6");
       var result = fileSetting.RemoveMappingWithoutSource(checkColumns).ToList();
@@ -141,7 +143,8 @@ namespace CsvTools.Tests
     [TestMethod]
     public void SourceExceptionMessage()
     {
-      var ex = new Exception("Exception L1", new Exception("Exception L2", new Exception("Exception L3", new Exception("Exception L4"))));
+      var ex = new Exception("Exception L1",
+        new Exception("Exception L2", new Exception("Exception L3", new Exception("Exception L4"))));
       Assert.AreEqual("Exception L4", ex.SourceExceptionMessage());
     }
 
@@ -153,8 +156,16 @@ namespace CsvTools.Tests
         var task1 = new Task(() =>
         {
           Thread.Sleep(50);
-          var task2 = new Task(() => { Thread.Sleep(50); throw new Exception("<Exception2>"); });
-          var task3 = new Task(() => { Thread.Sleep(50); throw new Exception("<Exception3>"); });
+          var task2 = new Task(() =>
+          {
+            Thread.Sleep(50);
+            throw new Exception("<Exception2>");
+          });
+          var task3 = new Task(() =>
+          {
+            Thread.Sleep(50);
+            throw new Exception("<Exception3>");
+          });
           task2.Start();
           task3.Start();
           Task.WaitAll(task2, task3);
@@ -217,25 +228,32 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void ReplaceCaseInsensitiveChar() => Assert.AreEqual("Text1|Text2", "Text1{0}Text2".ReplaceCaseInsensitive("{0}", '|'));
+    public void ReplaceCaseInsensitiveChar() =>
+      Assert.AreEqual("Text1|Text2", "Text1{0}Text2".ReplaceCaseInsensitive("{0}", '|'));
 
     [TestMethod]
-    public void ReplaceCaseInsensitiveCharEqualLen() => Assert.AreEqual("Text1,Text2", "Text1|Text2".ReplaceCaseInsensitive("|", ','));
+    public void ReplaceCaseInsensitiveCharEqualLen() =>
+      Assert.AreEqual("Text1,Text2", "Text1|Text2".ReplaceCaseInsensitive("|", ','));
 
     [TestMethod]
-    public void ReplaceCaseInsensitiveCharNotFound() => Assert.AreEqual("Text1{0}Text2", "Text1{0}Text2".ReplaceCaseInsensitive("{1}", '|'));
+    public void ReplaceCaseInsensitiveCharNotFound() =>
+      Assert.AreEqual("Text1{0}Text2", "Text1{0}Text2".ReplaceCaseInsensitive("{1}", '|'));
 
     [TestMethod]
-    public void ReplaceCaseInsensitiveEqualLen() => Assert.AreEqual("Text1{0}Text2", "Text1{0}Text2".ReplaceCaseInsensitive("{0}", "{0}"));
+    public void ReplaceCaseInsensitiveEqualLen() =>
+      Assert.AreEqual("Text1{0}Text2", "Text1{0}Text2".ReplaceCaseInsensitive("{0}", "{0}"));
 
     [TestMethod]
-    public void ReplaceCaseInsensitiveLonger() => Assert.AreEqual("Text1Test3Text2", "Text1{0}Text2".ReplaceCaseInsensitive("{0}", "Test3"));
+    public void ReplaceCaseInsensitiveLonger() =>
+      Assert.AreEqual("Text1Test3Text2", "Text1{0}Text2".ReplaceCaseInsensitive("{0}", "Test3"));
 
     [TestMethod]
-    public void ReplaceCaseInsensitiveNotFound() => Assert.AreEqual("Text1{0}Text2", "Text1{0}Text2".ReplaceCaseInsensitive("{1}", "|"));
+    public void ReplaceCaseInsensitiveNotFound() =>
+      Assert.AreEqual("Text1{0}Text2", "Text1{0}Text2".ReplaceCaseInsensitive("{1}", "|"));
 
     [TestMethod]
-    public void ReplaceCaseInsensitiveShorter() => Assert.AreEqual("Text1|Text2", "Text1{0}Text2".ReplaceCaseInsensitive("{0}", "|"));
+    public void ReplaceCaseInsensitiveShorter() =>
+      Assert.AreEqual("Text1|Text2", "Text1{0}Text2".ReplaceCaseInsensitive("{0}", "|"));
 
     [TestMethod]
     public void GetRealDataColumnsTest()
@@ -258,9 +276,38 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    public void AssumeExtension()
+    {
+      Assert.IsTrue("Test.pgp".AssumePgp());
+      Assert.IsTrue("Test.GpG".AssumePgp());
+      Assert.IsTrue("Test.ZIP".AssumeZip());
+      Assert.IsTrue("Test.gz".AssumeGZip());
+      Assert.IsFalse("Test.gz".AssumeZip());
+      Assert.IsFalse("Test.gz".AssumePgp());
+    }
+
+    [TestMethod]
+    public void CollectionCopy()
+    {
+      var col1 = new ColumnCollection();
+      var col2 = new List<Column>();
+      col1.CollectionCopy(col2);
+      Assert.AreEqual(0, col2.Count);
+
+      col2.Add(new Column());
+      Assert.AreEqual(1, col2.Count);
+      col1.CollectionCopy(col2);
+      Assert.AreEqual(0, col2.Count);
+
+      col1.AddIfNew(new Column() {Name = "ID"});
+      col1.CollectionCopy(col2);
+      Assert.AreEqual(1, col2.Count);
+    }
+
+    [TestMethod]
     public void CollectionCopyStructTest()
     {
-      var l1 = new[] { 1, 2, 13, 5, 17 }.ToList();
+      var l1 = new[] {1, 2, 13, 5, 17}.ToList();
       var l2 = new List<int>();
       l1.CollectionCopyStruct(l2);
       foreach (var i in l1)
@@ -270,8 +317,8 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CollectionEqualTest1()
     {
-      var l1 = new[] { 1, 2, 13, 5, 17 }.ToList();
-      var l2 = new[] { 2, 1, 5, 13, 17 }.ToList();
+      var l1 = new[] {1, 2, 13, 5, 17}.ToList();
+      var l2 = new[] {2, 1, 5, 13, 17}.ToList();
       Assert.IsTrue(l1.CollectionEqual(l1));
       Assert.IsFalse(l1.CollectionEqual(null));
       Assert.IsTrue(l1.CollectionEqual(l2));
@@ -285,10 +332,10 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CollectionEqualTest2()
     {
-      var l1 = new[] { 1, 1, 13, 5, 17 }.ToList();
+      var l1 = new[] {1, 1, 13, 5, 17}.ToList();
       Assert.IsTrue(l1.CollectionEqual(l1));
 
-      var l2 = new[] { 2, 1, 1, 13, 17 }.ToList();
+      var l2 = new[] {2, 1, 1, 13, 17}.ToList();
       Assert.IsFalse(l1.CollectionEqual(l2));
 
       l1.Add(2);
@@ -300,10 +347,10 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CollectionEqualWithOrder()
     {
-      var l1 = new[] { 1, 2, 3, 5, 17 }.ToList();
+      var l1 = new[] {1, 2, 3, 5, 17}.ToList();
       Assert.IsTrue(l1.CollectionEqualWithOrder(l1));
 
-      var l2 = new[] { 1, 2, 3, 5 }.ToList();
+      var l2 = new[] {1, 2, 3, 5}.ToList();
       Assert.IsFalse(l1.CollectionEqualWithOrder(l2));
 
       l2.Add(17);
@@ -315,23 +362,41 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CollectionHashCode()
     {
-      var li1 = new[] { "Hello", "World" };
+      var li1 = new[] {"Hello", "World"};
       Assert.AreEqual(li1.CollectionHashCode(), li1.CollectionHashCode());
 
-      var li2 = new[] { "Hello", "World" };
+      var li2 = new[] {"Hello", "World"};
       Assert.AreEqual(li1.CollectionHashCode(), li2.CollectionHashCode());
 
-      var li3 = new[] { "World", "Hello" };
+      var li3 = new[] {"World", "Hello"};
       Assert.AreNotEqual(li3.CollectionHashCode(), li2.CollectionHashCode());
     }
 
     [TestMethod]
-    public void AssumePGPTest()
+    public void GetRealColumns()
     {
-      Assert.IsTrue(".pgp".AssumePgp());
-      Assert.IsTrue(".gpg".AssumePgp());
-      Assert.IsFalse("Test.pgp.txt".AssumePgp());
-      Assert.IsFalse("Hello.gpg.zip".AssumePgp());
+      var dt = new DataTable();
+      Assert.AreEqual(0, dt.GetRealColumns().Count());
+      Assert.AreEqual(0, dt.GetRealDataColumns().Count());
+
+      dt.Columns.Add(new DataColumn() {ColumnName = BaseFileReader.cEndLineNumberFieldName});
+      Assert.AreEqual(0, dt.GetRealColumns().Count());
+      Assert.AreEqual(0, dt.GetRealDataColumns().Count());
+
+      var dataColumn = new DataColumn() {ColumnName = "Test"};
+      dt.Columns.Add(dataColumn);
+      Assert.AreEqual(1, dt.GetRealColumns().Count());
+      Assert.AreEqual(1, dt.GetRealDataColumns().Count());
+      Assert.AreEqual(dataColumn.ColumnName, dt.GetRealColumns().FirstOrDefault());
+      Assert.AreEqual(dataColumn, dt.GetRealDataColumns().FirstOrDefault());
+
+    }
+
+    [TestMethod]
+    public void ReplacePlaceholderWithText()
+    {
+      Assert.AreEqual("Die ist ein Test", "Die ist ein Test".ReplacePlaceholderWithText(new string[] {"Shiny"}));
+      Assert.AreEqual("Die ist Shiny Test", "Die ist {ein} Test".ReplacePlaceholderWithText(new string[] {"Shiny"}));
     }
   }
 }

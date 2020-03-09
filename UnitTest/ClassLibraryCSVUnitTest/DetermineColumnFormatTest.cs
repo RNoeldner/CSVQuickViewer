@@ -185,10 +185,10 @@ namespace CsvTools.Tests
       var setting = new CsvFile
       {
         FileName = UnitTestInitialize.GetTestPath("DateAndNumber.csv"),
-        HasFieldHeader = true
+        HasFieldHeader = true,
+        FileFormat = {FieldQualifier = "Quote"},
+        CodePageId = 1252
       };
-      setting.FileFormat.FieldQualifier = "Quote";
-      setting.CodePageId = 1252;
       setting.FileFormat.FieldDelimiter = "TAB";
 
       var fillGuessSettings = new FillGuessSettings()

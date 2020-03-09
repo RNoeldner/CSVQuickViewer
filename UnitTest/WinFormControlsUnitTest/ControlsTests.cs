@@ -12,11 +12,12 @@
  *
  */
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Pri.LongPath;
 using System.Data;
+using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Pri.LongPath;
 
 namespace CsvTools.Tests
 {
@@ -24,7 +25,9 @@ namespace CsvTools.Tests
   public class ControlsTests
   {
     private static readonly DataTable m_DataTable = UnitTestStatic.GetDataTable(50);
-    private readonly CsvFile m_CSVFile = new CsvFile(Path.Combine(FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles", "BasicCSV.txt"));
+
+    private readonly CsvFile m_CSVFile =
+      new CsvFile(Path.Combine(FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles", "BasicCSV.txt"));
 
     [TestMethod]
     public void QuotingControl()
@@ -33,7 +36,7 @@ namespace CsvTools.Tests
       {
         frm.Show();
         frm.CsvFile = new CsvFile();
-        System.Threading.Thread.Sleep(200);
+        Thread.Sleep(200);
       }
     }
 
@@ -44,17 +47,17 @@ namespace CsvTools.Tests
       using (var treeView = new MultiselectTreeView())
       {
         frm.Controls.Add(treeView);
-        treeView.Dock = System.Windows.Forms.DockStyle.Fill;
+        treeView.Dock = DockStyle.Fill;
         frm.Show();
         Assert.AreEqual(0, treeView.SelectedTreeNode.Count);
 
-        var treeNode = new TreeNode("Test") { Tag = "test" };
+        var treeNode = new TreeNode("Test") {Tag = "test"};
         treeView.Nodes.Add(treeNode);
 
-        var treeNode2 = new TreeNode("Test2") { Tag = "test2" };
+        var treeNode2 = new TreeNode("Test2") {Tag = "test2"};
         treeNode.Nodes.Add(treeNode2);
 
-        System.Threading.Thread.Sleep(200);
+        Thread.Sleep(200);
       }
     }
 
@@ -78,7 +81,7 @@ namespace CsvTools.Tests
       {
         frm.ShowInTaskbar = false;
         frm.Show();
-        System.Threading.Thread.Sleep(200);
+        Thread.Sleep(200);
         frm.Close();
       }
     }
@@ -92,7 +95,7 @@ namespace CsvTools.Tests
         frm.ShowInTaskbar = false;
         frm.Show();
         frm.RecordLimit = 20;
-        System.Threading.Thread.Sleep(200);
+        Thread.Sleep(200);
       }
     }
 
@@ -100,8 +103,10 @@ namespace CsvTools.Tests
     {
       var rtfHelper = new RtfHelper();
       rtfHelper.AddParagraph("RTF \\ Table {Nice}");
-      rtfHelper.AddTable(new[] { "Hello", "World", "", null, "A", "Table", "Test", null, "Another", "Row", "Long Column Text" }, 4);
-      _MessageBox.ShowBigRtf(null, rtfHelper.Rtf, "RTF Text", MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1, 2);
+      rtfHelper.AddTable(new[]
+        {"Hello", "World", "", null, "A", "Table", "Test", null, "Another", "Row", "Long Column Text"});
+      _MessageBox.ShowBigRtf(null, rtfHelper.Rtf, "RTF Text", MessageBoxButtons.OK, MessageBoxIcon.Information,
+        MessageBoxDefaultButton.Button1, 2);
     }
 
     [TestMethod]
@@ -109,11 +114,14 @@ namespace CsvTools.Tests
     {
       using (var tm = new TimedMessage())
       {
-        tm.Show(null, "This is my message", "Title1", MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button1, 2, null, null, null);
+        tm.Show(null, "This is my message", "Title1", MessageBoxButtons.OK, MessageBoxIcon.Asterisk,
+          MessageBoxDefaultButton.Button1, 2, null, null, null);
       }
+
       using (var tm = new TimedMessage())
       {
-        tm.Show(null, "This is another message\n with a linefeed", "Title12", MessageBoxButtons.YesNo, MessageBoxIcon.Error, MessageBoxDefaultButton.Button2, 2, null, null, null);
+        tm.Show(null, "This is another message\n with a linefeed", "Title12", MessageBoxButtons.YesNo,
+          MessageBoxIcon.Error, MessageBoxDefaultButton.Button2, 2, null, null, null);
       }
     }
 
@@ -152,15 +160,15 @@ namespace CsvTools.Tests
       {
         frm.SuspendLayout();
         frm.Text = ctrl.GetType().FullName;
-        frm.BackColor = System.Drawing.SystemColors.Control;
-        frm.ClientSize = new System.Drawing.Size(800, 800);
+        frm.BackColor = SystemColors.Control;
+        frm.ClientSize = new Size(800, 800);
         frm.ShowInTaskbar = false;
         frm.FormBorderStyle = FormBorderStyle.SizableToolWindow;
         frm.StartPosition = FormStartPosition.CenterScreen;
 
         ctrl.Dock = DockStyle.Fill;
-        ctrl.Location = new System.Drawing.Point(0, 0);
-        ctrl.Size = new System.Drawing.Size(600, 600);
+        ctrl.Location = new Point(0, 0);
+        ctrl.Size = new Size(600, 600);
         frm.Controls.Add(ctrl);
         frm.TopMost = true;
         frm.ResumeLayout(false);
@@ -168,14 +176,14 @@ namespace CsvTools.Tests
         frm.Show();
         frm.Focus();
         ctrl.Focus();
-        System.Threading.Thread.Sleep(100);
+        Thread.Sleep(100);
 
         frm.Close();
       }
     }
 
     [TestMethod]
-    public void CsvTextDisplayShow() => ShowControl(new CsvTextDisplay()
+    public void CsvTextDisplayShow() => ShowControl(new CsvTextDisplay
     {
       CsvFile = m_CSVFile
     });
@@ -254,7 +262,7 @@ namespace CsvTools.Tests
       {
         frm.Show();
         frm.Maximum = 100;
-        for (int c = 0; c < 70; c++)
+        for (var c = 0; c < 70; c++)
         {
           frm.SetProcess($"This is a text\nLine {c}", c, true);
           Extensions.ProcessUIElements(100);
@@ -265,7 +273,7 @@ namespace CsvTools.Tests
       using (var frm = new FormProcessDisplay("Test Marquee", false, CancellationToken.None))
       {
         frm.Show();
-        for (int c = 0; c < 100; c++)
+        for (var c = 0; c < 100; c++)
         {
           frm.SetProcess($"This is a text\nLine {c}", c, true);
           Extensions.ProcessUIElements(20);
@@ -277,7 +285,7 @@ namespace CsvTools.Tests
       {
         frm.Show();
         frm.Maximum = 100;
-        for (int c = 0; c < 102; c++)
+        for (var c = 0; c < 102; c++)
         {
           frm.SetProcess($"This is a text\nLine {c}", c, true);
           Extensions.ProcessUIElements(50);
@@ -299,23 +307,21 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void FormHierarchyDisplay_DataWithCyle()
+    public void FormHierarchyDisplay_DataWithCycle()
     {
-      DataTable dt = null;
+      DataTable dt;
       // load the csvFile FileWithHierarchy
       using (var processDisplay = new FormProcessDisplay("FileWithHierarchy"))
       {
         processDisplay.Show();
-        var cvsSetting = new CsvFile(Path.Combine(FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles", "FileWithHierarchy_WithCyle.txt"));
-        cvsSetting.FileFormat.FieldDelimiter = "\t";
+        var cvsSetting = new CsvFile(Path.Combine(FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles",
+          "FileWithHierarchy_WithCyle.txt")) {FileFormat = {FieldDelimiter = "\t"}};
         using (var csvDataReader = new CsvFileReader(cvsSetting, null, processDisplay))
         {
-          dt = csvDataReader.WriteToDataTable(
-              cvsSetting,
-              0,
-              processDisplay.CancellationToken);
+          dt = csvDataReader.Read2DataTable(processDisplay, 0);
         }
       }
+
       using (var form = new FormHierarchyDisplay(dt, m_DataTable.Select()))
       {
         form.ShowInTaskbar = false;
@@ -323,7 +329,7 @@ namespace CsvTools.Tests
         form.Focus();
         form.BuildTree("ReferenceID1", "ID");
         Application.DoEvents();
-        System.Threading.Thread.Sleep(200);
+        Thread.Sleep(200);
         form.Close();
       }
     }
@@ -365,7 +371,8 @@ namespace CsvTools.Tests
     public void FormDetail()
     {
       using (var processDisplay = new DummyProcessDisplay())
-      using (var form = new FormDetail(m_DataTable, null, null, true, false, 0, new FillGuessSettings(), processDisplay.CancellationToken))
+      using (var form = new FormDetail(m_DataTable, null, null, true, false, 0, new FillGuessSettings(),
+        processDisplay.CancellationToken))
       {
         form.ShowInTaskbar = false;
         form.Show();
@@ -380,7 +387,7 @@ namespace CsvTools.Tests
       {
         ValueType = m_DataTable.Columns[0].DataType,
         Name = m_DataTable.Columns[0].ColumnName,
-        DataPropertyName = m_DataTable.Columns[0].ColumnName,
+        DataPropertyName = m_DataTable.Columns[0].ColumnName
       };
 
       ShowControl(new DataGridViewColumnFilterControl(col));

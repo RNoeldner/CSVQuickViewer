@@ -636,10 +636,7 @@ namespace CsvTools
             csvDataReader.Warning -= warningList.Add;
             csvDataReader.Warning += AddWarning;
             Logger.Information("Reading data…");
-            data = csvDataReader.WriteToDataTable(
-              m_FileSetting,
-              m_FileSetting.RecordLimit,
-              processDisplay.CancellationToken);
+            data = csvDataReader.Read2DataTable(processDisplay, m_FileSetting.RecordLimit);
 
             foreach (var columnName in data.GetRealColumns())
               if (m_FileSetting.ColumnCollection.Get(columnName) == null)

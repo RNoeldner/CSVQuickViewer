@@ -71,7 +71,8 @@ namespace CsvTools
       Contract.Requires(reader != null);
       Contract.Requires(writer != null);
 
-      GetSourceColumnInformation(reader);
+      Columns.Clear();
+      Columns.AddRange(GetSourceColumnInformation(m_StructuredWriterFile, reader));
       var numColumns = Columns.Count();
       if (numColumns == 0)
         throw new FileWriterException("No columns defined to be written.");

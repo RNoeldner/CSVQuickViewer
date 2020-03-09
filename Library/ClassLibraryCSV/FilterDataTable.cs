@@ -12,12 +12,12 @@
  *
  */
 
+
 namespace CsvTools
 {
   using System;
   using System.Collections.Generic;
   using System.Data;
-  using System.Diagnostics;
   using System.Linq;
   using System.Threading;
   using System.Threading.Tasks;
@@ -26,10 +26,8 @@ namespace CsvTools
   ///   Utility Class to filter a DataTable for Errors
   /// </summary>
   /// <seealso cref="System.IDisposable" />
-  public class FilterDataTable : IDisposable
+  public sealed class FilterDataTable : IDisposable
   {
-    private readonly CancellationToken m_CancellationToken;
-
     private readonly DataTable m_SourceTable;
 
     private readonly List<string> m_UniqueFieldName = new List<string>();
@@ -46,18 +44,16 @@ namespace CsvTools
     ///   Initializes a new instance of the <see cref="FilterDataTable" /> class.
     /// </summary>
     /// <param name="init">The initial DataTable</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    public FilterDataTable(DataTable init, CancellationToken cancellationToken)
+    public FilterDataTable(DataTable init)
     {
       m_SourceTable = init;
-      m_CancellationToken = cancellationToken;
     }
 
     /// <summary>
     ///   Gets the columns without errors.
     /// </summary>
     /// <value>The columns without errors.</value>
-    public virtual ICollection<string> ColumnsWithErrors
+    public ICollection<string> ColumnsWithErrors
     {
       get
       {
@@ -81,58 +77,55 @@ namespace CsvTools
     ///   Gets the columns without errors.
     /// </summary>
     /// <value>The columns without errors.</value>
-    public virtual ICollection<string> ColumnsWithoutErrors
+    public ICollection<string> ColumnsWithoutErrors
     {
       get
       {
-        if (m_ColumnWithoutErrors == null)
+        if (m_ColumnWithoutErrors != null) return m_ColumnWithoutErrors;
+
+        // Wait until we are actually done filtering, max 60 seconds
+        WaitCompeteFilter(60);
+
+        m_ColumnWithoutErrors = new HashSet<string>();
+
+        // m_ColumnWithoutErrors will not contain UniqueFields nor line number / error
+        foreach (DataColumn col in FilterTable.Columns)
         {
-          m_ColumnWithoutErrors = new HashSet<string>();
+          // Always keep the line number, error field and any uniques
+          if (col.ColumnName.Equals(BaseFileReader.cStartLineNumberFieldName, StringComparison.OrdinalIgnoreCase)
+              || col.ColumnName.Equals(BaseFileReader.cErrorField, StringComparison.OrdinalIgnoreCase)
+              || m_UniqueFieldName.Contains(col.ColumnName))
+            continue;
 
-          // wait for filtering to finish
-          WaitForFilter();
-
-          // m_ColumnWithoutErrors will not contain UniqueFields nor line number / error
-          foreach (DataColumn col in FilterTable.Columns)
+          // Check if there are errors in this column
+          var hasErrors = false;
+          var inRowErrorDesc0 = "[" + col.ColumnName + "]";
+          var inRowErrorDesc1 = "[" + col.ColumnName + ",";
+          var inRowErrorDesc2 = "," + col.ColumnName + "]";
+          var inRowErrorDesc3 = "," + col.ColumnName + ",";
+          foreach (DataRow row in FilterTable.Rows)
           {
-            m_CancellationToken.ThrowIfCancellationRequested();
-
-            // Always keep the line number, error field and any uniques
-            if (col.ColumnName.Equals(BaseFileReader.cStartLineNumberFieldName, StringComparison.OrdinalIgnoreCase)
-                || col.ColumnName.Equals(BaseFileReader.cErrorField, StringComparison.OrdinalIgnoreCase)
-                || m_UniqueFieldName.Contains(col.ColumnName))
-              continue;
-
-            // Check if there are errors in this column
-            var hasErrors = false;
-            var inRowErrorDesc0 = "[" + col.ColumnName + "]";
-            var inRowErrorDesc1 = "[" + col.ColumnName + ",";
-            var inRowErrorDesc2 = "," + col.ColumnName + "]";
-            var inRowErrorDesc3 = "," + col.ColumnName + ",";
-            foreach (DataRow row in FilterTable.Rows)
+            // In case there is a column error..
+            if (row.GetColumnError(col).Length > 0)
             {
-              // In case there is a column error..
-              if (row.GetColumnError(col).Length > 0)
-              {
-                hasErrors = true;
-                break;
-              }
-
-              if (string.IsNullOrEmpty(row.RowError))
-                continue;
-              if (!row.RowError.Contains(inRowErrorDesc0, StringComparison.OrdinalIgnoreCase)
-                  && !row.RowError.Contains(inRowErrorDesc1, StringComparison.OrdinalIgnoreCase)
-                  && !row.RowError.Contains(inRowErrorDesc2, StringComparison.OrdinalIgnoreCase)
-                  && !row.RowError.Contains(inRowErrorDesc3, StringComparison.OrdinalIgnoreCase))
-                continue;
-
               hasErrors = true;
               break;
             }
 
-            if (!hasErrors)
-              m_ColumnWithoutErrors.Add(col.ColumnName);
+            if (string.IsNullOrEmpty(row.RowError))
+              continue;
+            if (!row.RowError.Contains(inRowErrorDesc0, StringComparison.OrdinalIgnoreCase)
+                && !row.RowError.Contains(inRowErrorDesc1, StringComparison.OrdinalIgnoreCase)
+                && !row.RowError.Contains(inRowErrorDesc2, StringComparison.OrdinalIgnoreCase)
+                && !row.RowError.Contains(inRowErrorDesc3, StringComparison.OrdinalIgnoreCase))
+              continue;
+
+            hasErrors = true;
+            break;
           }
+
+          if (!hasErrors)
+            m_ColumnWithoutErrors.Add(col.ColumnName);
         }
 
         return m_ColumnWithoutErrors;
@@ -149,21 +142,21 @@ namespace CsvTools
     /// <value>The error table.</value>
     public DataTable FilterTable { get; private set; }
 
-    public FilterType FilterType { get; private set; }
+    public FilterType FilterType  { get; private set; }
 
     /// <summary>
     ///   Sets the name of the unique field.
     /// </summary>
     /// <value>The name of the unique field.</value>
     /// <remarks>Setting the UniqueFieldName will update ColumnWithoutErrors</remarks>
-    public virtual IEnumerable<string> UniqueFieldName
+    public IEnumerable<string> UniqueFieldName
     {
       set
       {
         m_UniqueFieldName.Clear();
         if (value != null && value.Any())
           m_UniqueFieldName.AddRange(value);
-        m_ColumnWithoutErrors = null;
+
       }
     }
 
@@ -172,10 +165,13 @@ namespace CsvTools
       // stop old filtering
       if (m_CurrentFilterCancellationTokenSource != null
           && !m_CurrentFilterCancellationTokenSource.IsCancellationRequested)
-        m_CurrentFilterCancellationTokenSource?.Cancel();
+      {
+        m_CurrentFilterCancellationTokenSource.Cancel();
+        m_CurrentFilterCancellationTokenSource.Dispose();
+      }
 
-      // wait in order to start new one
-      WaitForFilter();
+      // make sure the filtering is canceled
+      WaitCompeteFilter(0.2);
     }
 
     /// <summary>
@@ -184,26 +180,18 @@ namespace CsvTools
     /// </summary>
     public void Dispose() => Dispose(true);
 
-    public void Filter(int limit, FilterType type)
+    private void Filter(int limit, FilterType type)
     {
-      if (m_Filtering)
-        Cancel();
+      if (limit < 1)
+        limit = int.MaxValue;
 
       try
       {
-        m_CurrentFilterCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(m_CancellationToken);
-        m_Filtering = true;
-        m_CancellationToken.ThrowIfCancellationRequested();
-        FilterTable = m_SourceTable.Clone();
-        FilterType = type;
-
         var rows = 0;
         var max = m_SourceTable.Rows.Count;
-
+        FilterType = type;
         for (var counter = 0; counter < max && rows < limit; counter++)
         {
-          if (m_CurrentFilterCancellationTokenSource.IsCancellationRequested)
-            return;
           var errorOrWarning = m_SourceTable.Rows[counter].GetErrorInformation();
 
           if (type.HasFlag(FilterType.OnlyTrueErrors) && errorOrWarning == "-")
@@ -217,7 +205,7 @@ namespace CsvTools
           }
           else
           {
-            if (!import && errorOrWarning.IsWarningMessage())
+            if (errorOrWarning.IsWarningMessage())
             {
               if (type.HasFlag(FilterType.ShowWarning))
                 import = true;
@@ -240,45 +228,46 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        Debug.WriteLine(ex.InnerExceptionMessages());
+        Logger.Warning(ex.SourceExceptionMessage());
       }
-      finally
-      {
-        m_Filtering = false;
-      }
+     
     }
 
-    public void StartFilter(int limit, FilterType type, Action finishedActionIfResults) =>
-      Task.Run(() => Filter(limit, type)).ContinueWith(
-        (task =>
-            {
-              if (FilterTable.Rows.Count == 0)
-                finishedActionIfResults.Invoke();
-            }));
+    public Task StartFilter(int limit, FilterType type, CancellationToken cancellationToken)
+    {
+      if (m_Filtering)
+        Cancel();
+      m_Filtering = true;
+      m_ColumnWithoutErrors = null;
+      FilterTable = m_SourceTable.Clone();
 
-    protected virtual void Dispose(bool disposing)
+      m_CurrentFilterCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+      // the task itself should not cancel as it would not run into finally
+      return Task.Run(() => Filter(limit, type), m_CurrentFilterCancellationTokenSource.Token).ContinueWith(task => m_Filtering = false, cancellationToken);
+    }
+
+
+    public void WaitCompeteFilter(double timeoutInSeconds)
+    {
+      if (m_Filtering)
+      {
+        Task.Run(() =>
+        {
+          while (m_Filtering)
+          {
+          }
+        }).WaitToCompleteTask(timeoutInSeconds);
+      }
+    }
+    private void Dispose(bool disposing)
     {
       Cancel();
       if (m_DisposedValue)
         return;
-      if (disposing)
-      {
-        m_DisposedValue = true;
-        if (m_CurrentFilterCancellationTokenSource != null)
-          m_CurrentFilterCancellationTokenSource.Dispose();
-        if (FilterTable != null)
-          FilterTable.Dispose();
-      }
-    }
-
-    private void WaitForFilter()
-    {
-      // wait for filtering to finish
-      while (m_Filtering)
-      {
-        m_CancellationToken.ThrowIfCancellationRequested();
-        Thread.Sleep(200);
-      }
+      if (!disposing) return;
+      m_DisposedValue = true;
+      m_CurrentFilterCancellationTokenSource?.Dispose();
+      FilterTable?.Dispose();
     }
   }
 }

@@ -129,11 +129,12 @@ namespace CsvTools
           processDisplay.Show();
           if (m_WriteSetting)
           {
-            var fileWriter = FunctionalDI.GetFileWriter(m_FileSetting, TimeZoneInfo.Local.Id, processDisplay);
             var hasRetried = false;
           retry:
-            var data = fileWriter.GetSourceDataTable(m_FillGuessSettings.CheckedRecords);
+            using (var sqlReader =
+              FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement, processDisplay, m_FileSetting.Timeout))
             {
+              var data = sqlReader.Read2DataTable(processDisplay, m_FileSetting.RecordLimit);
               var found = new Column();
               var column = data.Columns[columnName];
               if (column == null)
@@ -160,6 +161,7 @@ namespace CsvTools
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Information);
             }
+
           }
           else
           {
@@ -607,9 +609,7 @@ namespace CsvTools
               }
               else
               {
-                var writer = FunctionalDI.GetFileWriter(m_FileSetting, null, processDisplay);
-
-                using (var schemaReader = writer.GetSchemaReader())
+                using (var schemaReader = FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement.NoRecordSQL(), processDisplay, m_FileSetting.Timeout))
                 using (var dataTable = schemaReader.GetSchemaTable())
                 {
                   if (dataTable != null)
@@ -775,9 +775,10 @@ namespace CsvTools
       {
         if (m_WriteSetting)
         {
-          var fileWriter = FunctionalDI.GetFileWriter(m_FileSetting, null, processDisplay);
-          var data = fileWriter.GetSourceDataTable(m_FillGuessSettings.CheckedRecords);
+          using (var sqlReader =
+            FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement, processDisplay, m_FileSetting.Timeout))
           {
+            var data = sqlReader.Read2DataTable(processDisplay, m_FileSetting.RecordLimit);
             var colIndex = data.Columns.IndexOf(columnName);
             if (colIndex < 0)
               throw new FileException($"Column {columnName} not found.");

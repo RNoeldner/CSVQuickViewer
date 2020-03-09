@@ -74,19 +74,20 @@ namespace CsvTools
     /// <summary>
     ///   Gets the column information based on the SQL Source, but overwritten with the definitions
     /// </summary>
-    /// <param name="reader">The reader.</param>
+    /// <param name="writerFileSetting">The file settings with definitions</param>
+    /// <param name="sourceSchemaDataReader">The reader for the source.</param>
     /// <returns></returns>
     /// <exception cref="ArgumentNullException">reader</exception>
-    public IReadOnlyCollection<ColumnInfo> GetSourceColumnInformation(IDataReader reader)
+    public static IReadOnlyCollection<ColumnInfo> GetSourceColumnInformation(IFileSetting writerFileSetting, IDataReader sourceSchemaDataReader)
     {
-      if (reader == null)
-        throw new ArgumentNullException(nameof(reader));
+      if (sourceSchemaDataReader == null)
+        throw new ArgumentNullException(nameof(sourceSchemaDataReader));
       var fieldInfoList = new List<ColumnInfo>();
       Contract.Ensures(Contract.Result<ICollection<ColumnInfo>>() != null);
-      using (var dataTable = reader.GetSchemaTable())
+      using (var dataTable = sourceSchemaDataReader.GetSchemaTable())
       {
         if (dataTable == null)
-          throw new ArgumentNullException(nameof(reader));
+          throw new ArgumentNullException(nameof(sourceSchemaDataReader));
 
         var headers = new HashSet<string>();
 
@@ -109,7 +110,7 @@ namespace CsvTools
           {
             var timeZonePartOrdinal = -1;
             var constTimeZone = string.Empty;
-            var col = m_FileSetting.ColumnCollection.Get(schemaRow[SchemaTableColumn.ColumnName].ToString());
+            var col = writerFileSetting.ColumnCollection.Get(schemaRow[SchemaTableColumn.ColumnName].ToString());
             if (!string.IsNullOrEmpty(col?.TimeZonePart))
             {
               if (col.TimeZonePart.Length > 2 && col.TimeZonePart.StartsWith("\"", StringComparison.Ordinal) &&
@@ -126,7 +127,7 @@ namespace CsvTools
                 }
             }
 
-            fieldInfoList.AddRange(GetColumnInformationForOneColumn(m_FileSetting, headers,
+            fieldInfoList.AddRange(GetColumnInformationForOneColumn(writerFileSetting, headers,
               schemaRow[SchemaTableColumn.ColumnName].ToString(), (Type)schemaRow[SchemaTableColumn.DataType],
               (int)schemaRow[SchemaTableColumn.ColumnOrdinal], (int)schemaRow[SchemaTableColumn.ColumnSize],
               allColumns,
@@ -139,61 +140,18 @@ namespace CsvTools
             allColumns.Add(col.ColumnName);
           // Its a data table retrieve information from columns
           foreach (DataColumn col in dataTable.Columns)
-            fieldInfoList.AddRange(GetColumnInformationForOneColumn(m_FileSetting, headers,
+            fieldInfoList.AddRange(GetColumnInformationForOneColumn(writerFileSetting, headers,
               col.ColumnName, col.DataType, col.Ordinal, col.MaxLength, allColumns, -1, string.Empty));
         }
       }
 
+      var columns = new List<ColumnInfo>();
       // remove all ignored columns
-      Columns.Clear();
       foreach (var x in fieldInfoList)
         if (x != null && (x.Column == null || !x.Column.Ignore))
-          Columns.Add(x);
+          columns.Add(x);
 
-      return Columns;
-    }
-
-    /// <summary>
-    ///   Gets the data reader schema.
-    /// </summary>
-    /// <returns>A Data Table</returns>
-    public virtual IDataReader GetSchemaReader()
-    {
-      if (string.IsNullOrEmpty(m_FileSetting.SqlStatement))
-        return null;
-
-      // only use the last command
-      var sql = m_FileSetting.SqlStatement;
-      // in case there is no filter add a filer that filters all we only need the Schema
-      if (!sql.Contains("SELECT", StringComparison.OrdinalIgnoreCase) ||
-          sql.Contains("WHERE", StringComparison.OrdinalIgnoreCase))
-        return FunctionalDI.SQLDataReader(sql, m_ProcessDisplay, 20);
-      var indexOf = sql.IndexOf("ORDER BY", StringComparison.OrdinalIgnoreCase);
-      if (indexOf == -1)
-        sql += " WHERE 1=0";
-      else
-        sql = sql.Substring(0, indexOf) + "WHERE 1=0";
-
-      return FunctionalDI.SQLDataReader(sql, m_ProcessDisplay, 20);
-    }
-
-    /// <summary>
-    ///   Gets the source data table.
-    /// </summary>
-    /// <param name="recordLimit">The record limit.</param>
-    /// <returns>A data table with all source data</returns>
-    public virtual DataTable GetSourceDataTable(long recordLimit)
-    {
-      if (string.IsNullOrEmpty(m_FileSetting.SqlStatement))
-        return null;
-
-      // Using the connection string
-      HandleProgress("Executing SQL Statement");
-      using (var sqlReader = FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement, m_ProcessDisplay, m_FileSetting.Timeout))
-      {
-        HandleProgress("Reading returned data");
-        return sqlReader.Read2DataTable(m_ProcessDisplay, recordLimit);
-      }
+      return columns;
     }
 
     /// <summary>

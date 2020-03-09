@@ -75,10 +75,10 @@ namespace CsvTools.Tests
     {
       var readFile = new CsvFile
       {
-        ID = id
+        ID = id,
+        FileFormat = {CommentLine = "#"},
+        FileName = Path.Combine(UnitTestInitialize.GetTestPath("BasicCSV.txt"))
       };
-      readFile.FileFormat.CommentLine = "#";
-      readFile.FileName = Path.Combine(UnitTestInitialize.GetTestPath("BasicCSV.txt"));
       var examDateFld = readFile.ColumnCollection.AddIfNew(new Column("ExamDate", DataType.DateTime));
 
       Debug.Assert(examDateFld != null);
