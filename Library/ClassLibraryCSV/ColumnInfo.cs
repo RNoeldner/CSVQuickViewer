@@ -12,6 +12,10 @@
  *
  */
 
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.Common;
 using System.Diagnostics;
 
 namespace CsvTools
@@ -19,42 +23,40 @@ namespace CsvTools
   /// <summary>
   ///   ColumnInfo
   /// </summary>
-  [DebuggerDisplay("ColumnInfo( {Header} {DataType} - {Column.GetFormatDescription})")]
+  [DebuggerDisplay("ColumnInfo( {Column.Name}  - {Column.ValueFormat.GetFormatDescription()})")]
   public sealed class ColumnInfo
   {
+    public ColumnInfo(Column column, int fieldLength, bool isTimePart, int columnOrdinalReader = -1, string constantTimeZone = null, int columnOrdinalTimeZoneReader = -1)
+    {
+      Column = column;
+      FieldLength = fieldLength;
+      IsTimePart = isTimePart;
+      ColumnOrdinalReader = columnOrdinalReader;
+      ConstantTimeZone = constantTimeZone;
+      ColumnOrdinalTimeZoneReader = columnOrdinalTimeZoneReader;
+    }
+
     /// <summary>
     ///   Gets or sets the column format.
     /// </summary>
     /// <value>The column format.</value>
-    public Column Column { get; set; }
+    public Column Column { get; }
 
     /// <summary>
     ///   Gets or sets the reader column ordinal
     /// </summary>
     /// <value>The column ordinal.</value>
-    public int ColumnOrdinalReader { get; set; } = -1;
+    public int ColumnOrdinalReader { get; }
 
-    public int ColumnOrdinalTimeZoneReader { get; set; } = -1;
+    public int ColumnOrdinalTimeZoneReader { get; private set; }
 
-    public string ConstantTimeZone { get; set; } = string.Empty;
-
-    /// <summary>
-    ///   Gets or sets the type of the data.
-    /// </summary>
-    /// <value>The type of the data.</value>
-    public DataType DataType { get; set; }
+    public string ConstantTimeZone { get; private set; }
 
     /// <summary>
     ///   Gets or sets the length of the field.
     /// </summary>
     /// <value>The length of the field. 0 means unrestricted length</value>
-    public int FieldLength { get; set; }
-
-    /// <summary>
-    ///   Gets or sets the header.
-    /// </summary>
-    /// <value>The header.</value>
-    public string Header { get; set; }
+    public int FieldLength { get; }
 
     /// <summary>
     ///   Gets or sets a value indicating whether is a time part
@@ -63,9 +65,100 @@ namespace CsvTools
     public bool IsTimePart { get; set; }
 
     /// <summary>
-    ///   Gets or sets the value format.
+    ///   Gets the column information based on the SQL Source, but overwritten with the definitions
     /// </summary>
-    /// <value>The value format.</value>
-    public ValueFormat ValueFormat { get; set; }
+    /// <param name="writerFileSetting">The file settings with definitions</param>
+    /// <param name="sourceSchemaDataReader">The reader for the source.</param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentNullException">reader</exception>
+    public static IEnumerable<ColumnInfo> GetSourceColumnInformation(IFileSetting writerFileSetting,
+      IDataReader sourceSchemaDataReader)
+    {
+      if (sourceSchemaDataReader == null)
+        throw new ArgumentNullException(nameof(sourceSchemaDataReader));
+      var result = new List<ColumnInfo>();
+      using (var dataTable = sourceSchemaDataReader.GetSchemaTable())
+      {
+        if (dataTable == null)
+          throw new ArgumentNullException(nameof(sourceSchemaDataReader));
+
+        var colName = new BiDirectionalDictionary<int, string>();
+
+        // Make names unique and fill the dictionary
+        foreach (DataRow schemaRow in dataTable.Rows)
+        {
+          var colNo = (int)schemaRow[SchemaTableColumn.ColumnOrdinal];
+          var newName =
+            StringUtils.MakeUniqueInCollection(colName.Values, schemaRow[SchemaTableColumn.ColumnName].ToString());
+
+          colName.Add(colNo, newName);
+        }
+
+        foreach (DataRow schemaRow in dataTable.Rows)
+        {
+          var colNo = (int)schemaRow[SchemaTableColumn.ColumnOrdinal];
+          var valueFormat = writerFileSetting.FileFormat.ValueFormat;
+          valueFormat.DataType = ((Type)schemaRow[SchemaTableColumn.DataType]).GetDataType();
+          var column = writerFileSetting.ColumnCollection.Get(colName[colNo]);
+          if (column != null)
+          {
+            if (column.Ignore)
+              continue;
+            valueFormat = column.ValueFormat;
+          }
+
+          var fieldLength = Math.Max((int)schemaRow[SchemaTableColumn.ColumnSize], 0);
+          if (valueFormat.DataType == DataType.Integer)
+          {
+            fieldLength = 10;
+          }
+          else if (valueFormat.DataType == DataType.Boolean)
+          {
+            var lenTrue = valueFormat.True.Length;
+            var lenFalse = valueFormat.False.Length;
+            fieldLength = lenTrue > lenFalse ? lenTrue : lenFalse;
+          }
+          else if (valueFormat.DataType == DataType.Double || valueFormat.DataType == DataType.Numeric)
+          {
+            fieldLength = 28;
+          }
+          else if (valueFormat.DataType == DataType.DateTime)
+          {
+            fieldLength = valueFormat.DateFormat.Length;
+          }
+          var ci = new ColumnInfo(new Column(colName[colNo], valueFormat), fieldLength, false, colNo);
+
+          // the timezone information
+          if (column != null)
+          {
+            var tz = column.TimeZonePart;
+            if (!string.IsNullOrEmpty(tz))
+            {
+              var tzInfo = tz.GetPossiblyConstant();
+              if (tzInfo.Item2)
+                ci.ConstantTimeZone = tzInfo.Item1;
+              else
+              {
+                if (colName.TryGetByValue(tzInfo.Item1, out var ordinal))
+                  ci.ColumnOrdinalTimeZoneReader = ordinal;
+              }
+            }
+          }
+
+          result.Add(ci);
+
+          // add an extra column for the time, reading columns get combined, writing they get separated 
+          if (column != null && !string.IsNullOrEmpty(column.TimePart) && !colName.ContainsValue(column.TimePart))
+          {
+            if (ci.Column.ValueFormat.DateFormat.IndexOfAny(new[] { 'h', 'H', 'm', 's' }) != -1)
+              Logger.Warning($"'{ci.Column.Name}' will create a separate time column '{column.TimePart}' but seems to write time itself '{ci.Column.ValueFormat.DateFormat}'");
+            // In case we have a split column, add the second column (unless the column is also present
+            result.Add(new ColumnInfo(new Column(column.TimePart, column.TimePartFormat) { ValueFormat = { TimeSeparator = column.ValueFormat.TimeSeparator } }, column.TimePartFormat.Length, true, colNo));
+          }
+        }
+
+      }
+      return result;
+    }
   }
 }

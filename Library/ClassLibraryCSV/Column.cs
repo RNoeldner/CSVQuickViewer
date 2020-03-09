@@ -36,7 +36,7 @@ namespace CsvTools
     private const int c_PartDefault = 2;
     private const char c_PartSplitterDefault = ':';
     private const bool c_PartToEnd = true;
-    private readonly ValueFormat m_ValueFormat = new ValueFormat();
+    private readonly ValueFormat m_ValueFormat;
     private int m_ColumnOrdinal;
     private bool? m_Convert;
     private string m_DestinationName = string.Empty;
@@ -54,16 +54,24 @@ namespace CsvTools
     {
     }
 
-    public Column(string name, DataType dataType = DataType.String)
+    public Column(string name, ValueFormat valueFormat)
     {
       m_Name = name;
-      m_ValueFormat.DataType = dataType;
+      m_ValueFormat = valueFormat.Clone();
     }
 
-    public Column(string name, string dateFormat, string dateSeparator = ValueFormat.cDateSeparatorDefault) : this(name, DataType.DateTime)
+    public Column(string name, DataType dataType = DataType.String) 
     {
-      m_ValueFormat.DateFormat = dateFormat;
-      m_ValueFormat.DateSeparator = dateSeparator;
+      m_Name = name;
+      m_ValueFormat = new ValueFormat(dataType);
+    }
+
+
+    public Column(string name, string dateFormat, string dateSeparator = ValueFormat.cDateSeparatorDefault) 
+    {
+      m_Name = name;
+      m_ValueFormat = new ValueFormat(DataType.DateTime) {DateFormat = dateFormat, DateSeparator = dateSeparator};
+
     }
 
     /// <summary>

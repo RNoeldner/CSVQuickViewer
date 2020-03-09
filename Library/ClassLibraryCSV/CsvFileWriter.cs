@@ -77,7 +77,7 @@ namespace CsvTools
       Contract.Requires(writer != null);
 
       Columns.Clear();
-      Columns.AddRange(GetSourceColumnInformation(m_CsvFile, reader));
+      Columns.AddRange(ColumnInfo.GetSourceColumnInformation(m_CsvFile, reader));
 
       if (Columns.Count == 0)
         throw new FileWriterException("No columns defined to be written.");
@@ -170,7 +170,7 @@ namespace CsvTools
       foreach (var columnInfo in columnInfos)
       {
         Contract.Assume(columnInfo != null);
-        sb.Append(TextEncodeField(m_CsvFile.FileFormat, columnInfo.Header, columnInfo, true, null, QualifyText));
+        sb.Append(TextEncodeField(m_CsvFile.FileFormat, columnInfo.Column.Name, columnInfo, true, null, QualifyText));
         if (!m_CsvFile.FileFormat.IsFixedLength)
           sb.Append(m_CsvFile.FileFormat.FieldDelimiterChar);
       }
@@ -180,7 +180,7 @@ namespace CsvTools
       return sb.ToString();
     }
 
-    private string QualifyText(string displayAs, ColumnInfo columnInfo, FileFormat fileFormat)
+    private string QualifyText(string displayAs, DataType dataType, FileFormat fileFormat)
     {
       var qualifyThis = fileFormat.QualifyAlways;
       if (!qualifyThis)
@@ -193,7 +193,7 @@ namespace CsvTools
                                                  displayAs[0].Equals(' '));
         else
           // quality any text or something containing a Qualify Char
-          qualifyThis = columnInfo.DataType == DataType.String || columnInfo.DataType == DataType.TextToHtml ||
+          qualifyThis = dataType == DataType.String || dataType == DataType.TextToHtml ||
                         displayAs.IndexOfAny(m_QualifyCharArray) > -1;
       }
 

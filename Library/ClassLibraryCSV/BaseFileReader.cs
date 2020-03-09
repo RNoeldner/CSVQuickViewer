@@ -96,7 +96,7 @@ namespace CsvTools
     /// </summary>
     private int m_FieldCount;
 
-    protected readonly string m_DestinationTimeZone;
+    protected readonly string DestinationTimeZone;
 
     /// <summary>
     ///   used to avoid reporting a fished execution twice it might be called on error before being
@@ -107,7 +107,7 @@ namespace CsvTools
     protected BaseFileReader(IFileSetting fileSetting, string destinationTimeZone, IProcessDisplay processDisplay)
     {
       FileSetting = fileSetting ?? throw new ArgumentNullException(nameof(fileSetting));
-      m_DestinationTimeZone = string.IsNullOrEmpty(destinationTimeZone) ? TimeZoneInfo.Local.Id : destinationTimeZone;
+      DestinationTimeZone = string.IsNullOrEmpty(destinationTimeZone) ? TimeZoneInfo.Local.Id : destinationTimeZone;
       if (processDisplay != null)
       {
         processDisplay.Maximum = 0;
@@ -154,7 +154,10 @@ namespace CsvTools
 
     public double NotifyAfterSeconds
     {
-      set => m_IntervalAction.NotifyAfterSeconds = value;
+      set
+      {
+        if (m_IntervalAction != null) m_IntervalAction.NotifyAfterSeconds = value;
+      }
     }
 
     /// <summary>
@@ -1391,12 +1394,10 @@ namespace CsvTools
       if (!input.HasValue)
         return null;
       string timeZone = null;
+      var res = column.TimeZonePart.GetPossiblyConstant();
       // Constant value
-      if (column.TimeZonePart.Length > 2 && column.TimeZonePart.StartsWith("\"", StringComparison.Ordinal) &&
-          column.TimeZonePart.EndsWith("\"", StringComparison.Ordinal))
-      {
-        timeZone = column.TimeZonePart.Substring(1, column.TimeZonePart.Length - 2);
-      }
+      if (res.Item2)
+        timeZone= res.Item1;
       // lookup in other column
       else
       {
@@ -1405,7 +1406,7 @@ namespace CsvTools
           timeZone = GetString(colTimeZone);
       }
 
-      return FunctionalDI.AdjustTZ(input, timeZone, m_DestinationTimeZone, column.ColumnOrdinal, HandleWarning);
+      return FunctionalDI.AdjustTZ(input, timeZone, DestinationTimeZone, column.ColumnOrdinal, HandleWarning);
     }
 
     /// <summary>

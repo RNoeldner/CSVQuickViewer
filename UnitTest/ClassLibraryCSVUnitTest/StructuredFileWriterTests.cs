@@ -55,8 +55,8 @@ namespace CsvTools.Tests
         // { "firstName":"John", "lastName":"Doe"},
         foreach (var col in cols)
         {
-          sb.AppendFormat("\"{0}\":\"{1}\", ", HTMLStyle.JsonElementName(col.Header),
-            string.Format(System.Globalization.CultureInfo.InvariantCulture, StructuredFileWriter.cFieldPlaceholderByName, col.Header));
+          sb.AppendFormat("\"{0}\":\"{1}\", ", HTMLStyle.JsonElementName(col.Column.Name),
+            string.Format(System.Globalization.CultureInfo.InvariantCulture, StructuredFileWriter.cFieldPlaceholderByName, col.Column.Name));
         }
 
         if (sb.Length > 1)
@@ -90,8 +90,8 @@ namespace CsvTools.Tests
         sb.AppendLine("  <row>");
         foreach (var col in cols)
         {
-          sb.AppendFormat("    <{0}>{1}</{0}>\n", HTMLStyle.XmlElementName(col.Header),
-            string.Format(System.Globalization.CultureInfo.InvariantCulture, StructuredFileWriter.cFieldPlaceholderByName, col.Header));
+          sb.AppendFormat("    <{0}>{1}</{0}>\n", HTMLStyle.XmlElementName(col.Column.Name),
+            string.Format(System.Globalization.CultureInfo.InvariantCulture, StructuredFileWriter.cFieldPlaceholderByName, col.Column.Name));
         }
 
         sb.AppendLine("  </row>");

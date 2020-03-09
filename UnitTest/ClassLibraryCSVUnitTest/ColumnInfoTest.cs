@@ -11,6 +11,9 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
+using System.Data;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
@@ -21,19 +24,56 @@ namespace CsvTools.Tests
     [TestMethod]
     public void ColumnInfoPropertySetGet()
     {
-      var ci = new ColumnInfo();
-      var col = new Column();
-      ci.Column = col;
+      var vf = new ValueFormat();
+      var col = new Column("Test", vf);
+      var ci = new ColumnInfo(col, 100, false);
+
       Assert.AreEqual(col, ci.Column);
-      ci.FieldLength = 10;
-      Assert.AreEqual(10, ci.FieldLength);
+      Assert.AreEqual(100, ci.FieldLength);
 
       ci.IsTimePart = true;
       Assert.AreEqual(true, ci.IsTimePart);
 
-      var vf = new ValueFormat();
-      ci.ValueFormat = vf;
-      Assert.AreEqual(vf, ci.ValueFormat);
+      Assert.AreEqual(vf, ci.Column.ValueFormat);
     }
+
+    [TestMethod]
+    public void GetSourceColumnInformation_OverwrittenType()
+    {
+      var writerFileSetting = new CsvFile();
+      writerFileSetting.ColumnCollection.AddIfNew(new Column("Test1", DataType.Double));
+
+      writerFileSetting.ColumnCollection.AddIfNew(new Column("Test2", new ValueFormat(DataType.DateTime) { DateFormat = "dd/MM/yyyy HH:mm" })
+      { TimeZonePart = "\"UTC\"" });
+
+      var dt = new DataTable();
+      dt.Columns.AddRange(new DataColumn[] { new DataColumn("Test1", typeof(int)), new DataColumn("Test2", typeof(string)), new DataColumn("Test3", typeof(System.DateTime)) });
+      var res = ColumnInfo.GetSourceColumnInformation(writerFileSetting, dt.CreateDataReader()).ToList();
+      Assert.AreEqual(3, res.Count());
+      // 
+      Assert.AreEqual(DataType.Double, res[0].Column.ValueFormat.DataType, "Usually it would be Integer bt is has to be double");
+      Assert.AreEqual(DataType.DateTime, res[2].Column.ValueFormat.DataType);
+    }
+
+    [TestMethod]
+    public void GetSourceColumnInformation_AddedTime()
+    {
+      var writerFileSetting = new CsvFile();
+      writerFileSetting.ColumnCollection.AddIfNew(new Column("Test3", new ValueFormat(DataType.DateTime) { DateFormat = "dd/MM/yyyy HH:mm" })
+      {
+        TimeZonePart = "\"UTC\"",
+        TimePart = "Col2"
+      });
+
+      var dt = new DataTable();
+      dt.Columns.AddRange(new DataColumn[] { new DataColumn("Test1", typeof(int)), new DataColumn("Test2", typeof(string)), new DataColumn("Test3", typeof(System.DateTime)) });
+      var res = ColumnInfo.GetSourceColumnInformation(writerFileSetting, dt.CreateDataReader()).ToList();
+      Assert.AreEqual(4, res.Count());
+      Assert.AreEqual(DataType.Integer, res[0].Column.ValueFormat.DataType);
+      Assert.AreEqual(DataType.DateTime, res[2].Column.ValueFormat.DataType);
+      Assert.AreEqual("Col2", res[3].Column.Name, "Added column for Time is Col2");
+      Assert.AreEqual(DataType.DateTime, res[3].Column.ValueFormat.DataType, "Added column for Time is of type dateTime");
+    }
+
   }
 }
