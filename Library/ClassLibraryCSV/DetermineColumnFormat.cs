@@ -743,7 +743,7 @@ namespace CsvTools
         return new List<ColumnInfo>();
       using (var data = FunctionalDI.SQLDataReader(fileSettings.SqlStatement.NoRecordSQL(), processDisplay, fileSettings.Timeout))
       {
-        return BaseFileWriter.GetSourceColumnInformation(fileSettings, data);
+        return ColumnInfo.GetSourceColumnInformation(fileSettings, data);
       }
     }
 

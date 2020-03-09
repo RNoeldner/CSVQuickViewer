@@ -72,7 +72,7 @@ namespace CsvTools
       Contract.Requires(writer != null);
 
       Columns.Clear();
-      Columns.AddRange(GetSourceColumnInformation(m_StructuredWriterFile, reader));
+      Columns.AddRange(ColumnInfo.GetSourceColumnInformation(m_StructuredWriterFile, reader));
       var numColumns = Columns.Count();
       if (numColumns == 0)
         throw new FileWriterException("No columns defined to be written.");
@@ -100,14 +100,14 @@ namespace CsvTools
       {
         var placeHolder = string.Format(System.Globalization.CultureInfo.CurrentCulture, c_HeaderPlaceholder, colNum);
         if (m_StructuredWriterFile.XMLEncode)
-          withHeader = withHeader.Replace(placeHolder, HTMLStyle.XmlElementName(columnInfo.Header));
+          withHeader = withHeader.Replace(placeHolder, HTMLStyle.XmlElementName(columnInfo.Column.Name));
         else if (m_StructuredWriterFile.JSONEncode)
-          withHeader = withHeader.Replace(placeHolder, HTMLStyle.JsonElementName(columnInfo.Header));
+          withHeader = withHeader.Replace(placeHolder, HTMLStyle.JsonElementName(columnInfo.Column.Name));
         else
-          withHeader = withHeader.Replace(placeHolder, columnInfo.Header);
+          withHeader = withHeader.Replace(placeHolder, columnInfo.Column.Name);
 
         placeHolderLookup1.Add(colNum, string.Format(System.Globalization.CultureInfo.CurrentCulture, c_FieldPlaceholderByNumber, colNum));
-        placeHolderLookup2.Add(colNum, string.Format(System.Globalization.CultureInfo.CurrentCulture, cFieldPlaceholderByName, columnInfo.Header));
+        placeHolderLookup2.Add(colNum, string.Format(System.Globalization.CultureInfo.CurrentCulture, cFieldPlaceholderByName, columnInfo.Column.Name));
         colNum++;
       }
 

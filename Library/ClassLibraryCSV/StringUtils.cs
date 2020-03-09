@@ -512,5 +512,17 @@ namespace CsvTools
       }
       return false;
     }
+
+    public static Tuple<string, bool> GetPossiblyConstant(this string value)
+    {
+      if (string.IsNullOrEmpty(value))
+        return new Tuple<string, bool>(string.Empty, false);
+      if (value.Length > 2 && value.StartsWith("\"", StringComparison.Ordinal) &&
+          value.EndsWith("\"", StringComparison.Ordinal))
+      {
+        return new Tuple<string, bool>(value.Substring(1, value.Length - 2), true);
+      }
+      return new Tuple<string, bool>(value, false);
+    }
   }
 }

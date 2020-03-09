@@ -124,9 +124,8 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GetDataTypeDescriptionDouble()
     {
-      var target = new Column("Test", DataType.Numeric);
-      target.ValueFormat.NumberFormat = "00.000";
-
+      var target = new Column("Test", new ValueFormat(DataType.Numeric) { NumberFormat = "00.000" });
+      
       Assert.AreEqual("Money (High Precision) (00.000)", target.GetTypeAndFormatDescription());
     }
 

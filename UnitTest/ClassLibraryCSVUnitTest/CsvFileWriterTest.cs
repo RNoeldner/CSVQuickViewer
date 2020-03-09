@@ -150,8 +150,7 @@ namespace CsvTools.Tests
     {
       m_ReadFile = new CsvFile("BasicCSV.txt") { ID = "Read", FileFormat = { FieldDelimiter = ",", CommentLine = "#" } };
 
-      var cf = m_ReadFile.ColumnCollection.AddIfNew(new Column("ExamDate", DataType.DateTime));
-      cf.ValueFormat.DateFormat = @"dd/MM/yyyy";
+      var cf = m_ReadFile.ColumnCollection.AddIfNew(new Column("ExamDate", new ValueFormat(DataType.DateTime) { DateFormat = @"dd/MM/yyyy" }));
       m_ReadFile.ColumnCollection.AddIfNew(new Column("Score", DataType.Integer));
       m_ReadFile.ColumnCollection.AddIfNew(new Column("Proficiency", DataType.Numeric));
       m_ReadFile.ColumnCollection.AddIfNew(new Column("IsNativeLang", DataType.Boolean) { Ignore = true });
@@ -244,8 +243,7 @@ namespace CsvTools.Tests
       UnitTestInitialize.MimicSQLReader.AddSetting(setting);
       writeFile.SqlStatement = setting.ID;
       writeFile.FileFormat.FieldDelimiter = "|";
-      var cf = writeFile.ColumnCollection.AddIfNew(new Column("DateTime", DataType.DateTime));
-      cf.ValueFormat.DateFormat = "yyyyMMdd";
+      var cf = writeFile.ColumnCollection.AddIfNew(new Column("DateTime", new ValueFormat(DataType.DateTime) { DateFormat = "yyyyMMdd" }));
       cf.TimePartFormat = @"hh:mm";
       cf.TimePart = "Time";
       cf.TimeZonePart = "TZ";

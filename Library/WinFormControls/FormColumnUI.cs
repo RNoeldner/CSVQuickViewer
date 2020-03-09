@@ -726,15 +726,15 @@ namespace CsvTools
 
         labelSampleDisplay.Text = StringConversion.DateTimeToString(sourceDate, vf);
 
-        if (comboBoxTimeZone.Text.Length > 2 && comboBoxTimeZone.Text.StartsWith("\"", StringComparison.Ordinal)
-                                             && comboBoxTimeZone.Text.EndsWith("\"", StringComparison.Ordinal))
+        var res = comboBoxTimeZone.Text.GetPossiblyConstant();
+        if (res.Item2)
         {
           var destTz = TimeZoneInfo.Local.Id;
           var srcTz = TimeZoneInfo.Local.Id;
           if (m_WriteSetting)
-            srcTz = comboBoxTimeZone.Text.Substring(1, comboBoxTimeZone.Text.Length - 2);
+            srcTz = res.Item1;
           else
-            destTz = comboBoxTimeZone.Text.Substring(1, comboBoxTimeZone.Text.Length - 2);
+            destTz = res.Item1;
 
           labelInputTZ.Text = srcTz;
           labelOutPutTZ.Text = destTz;
