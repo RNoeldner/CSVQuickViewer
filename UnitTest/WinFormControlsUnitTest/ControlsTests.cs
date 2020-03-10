@@ -57,8 +57,7 @@ namespace CsvTools.Tests
 
         var treeNode2 = new TreeNode("Test2") { Tag = "test2" };
         treeNode.Nodes.Add(treeNode2);
-
-        Thread.Sleep(200);
+        UnitTestStatic.WaitSomeTime(.2);
       }
     }
 

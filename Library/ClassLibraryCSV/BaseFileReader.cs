@@ -347,11 +347,8 @@ namespace CsvTools
     /// <returns></returns>
     public virtual Column GetColumn(int columnNumber)
     {
-      if (Column == null)
-        throw new InvalidOperationException("File has not been read");
-      if (columnNumber < 0 || columnNumber >= FieldCount || columnNumber >= Column.Length)
-        throw new IndexOutOfRangeException(nameof(columnNumber));
-
+      Debug.Assert(Column != null);
+      Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount && columnNumber < Column.Length);
       return Column[columnNumber];
     }
 
@@ -648,6 +645,8 @@ namespace CsvTools
     /// <returns>The value of the specific field</returns>
     public virtual object GetValue(int columnNumber)
     {
+      Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount);
+
       if (IsDBNull(columnNumber))
         return DBNull.Value;
       var column = GetColumn(columnNumber);
@@ -704,9 +703,8 @@ namespace CsvTools
     {
       if (values is null)
         throw new ArgumentNullException(nameof(values));
-      Debug.Assert(CurrentRowColumnText != null);
-      for (var col = 0; col < FieldCount; col++)
-        values[col] = CurrentRowColumnText[col];
+      for (var col = 0; col < values.Length; col++)
+        values[col] = GetValue(col);
       return FieldCount;
     }
 
@@ -1397,7 +1395,7 @@ namespace CsvTools
       var res = column.TimeZonePart.GetPossiblyConstant();
       // Constant value
       if (res.Item2)
-        timeZone= res.Item1;
+        timeZone = res.Item1;
       // lookup in other column
       else
       {
