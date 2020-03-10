@@ -12,6 +12,7 @@
  *
  */
 
+using System;
 using System.Data;
 using System.Drawing;
 using System.Threading;
@@ -51,10 +52,10 @@ namespace CsvTools.Tests
         frm.Show();
         Assert.AreEqual(0, treeView.SelectedTreeNode.Count);
 
-        var treeNode = new TreeNode("Test") {Tag = "test"};
+        var treeNode = new TreeNode("Test") { Tag = "test" };
         treeView.Nodes.Add(treeNode);
 
-        var treeNode2 = new TreeNode("Test2") {Tag = "test2"};
+        var treeNode2 = new TreeNode("Test2") { Tag = "test2" };
         treeNode.Nodes.Add(treeNode2);
 
         Thread.Sleep(200);
@@ -69,6 +70,7 @@ namespace CsvTools.Tests
         frm.Show();
         frm.SetCurrentPath("C:\\");
         frm.Refresh();
+        UnitTestStatic.WaitSomeTime(.2);
         //frm.ShowError(new ApplicationException("Exception"), "Title" );
         frm.Close();
       }
@@ -79,10 +81,10 @@ namespace CsvTools.Tests
     {
       using (var frm = new FormSelectTimeZone())
       {
+        frm.TimeZoneID = TimeZoneInfo.Local.Id;
+        frm.DestTimeZoneID = TimeZoneInfo.Local.Id;
         frm.ShowInTaskbar = false;
-        frm.Show();
-        Thread.Sleep(200);
-        frm.Close();
+        frm.ShowDialog();
       }
     }
 
@@ -95,7 +97,7 @@ namespace CsvTools.Tests
         frm.ShowInTaskbar = false;
         frm.Show();
         frm.RecordLimit = 20;
-        Thread.Sleep(200);
+        UnitTestStatic.WaitSomeTime(.2);
       }
     }
 
@@ -176,7 +178,7 @@ namespace CsvTools.Tests
         frm.Show();
         frm.Focus();
         ctrl.Focus();
-        Thread.Sleep(100);
+        UnitTestStatic.WaitSomeTime(.1);
 
         frm.Close();
       }
@@ -206,6 +208,7 @@ namespace CsvTools.Tests
       {
         frm.ShowInTaskbar = false;
         frm.Show();
+        UnitTestStatic.WaitSomeTime(.2);
         frm.Close();
       }
     }
@@ -220,6 +223,7 @@ namespace CsvTools.Tests
         form.ShowInTaskbar = false;
         form.ShowGuess = false;
         form.Show();
+        UnitTestStatic.WaitSomeTime(.2);
         form.Close();
       }
     }
@@ -233,6 +237,7 @@ namespace CsvTools.Tests
       {
         form.ShowInTaskbar = false;
         form.Show();
+        UnitTestStatic.WaitSomeTime(.2);
         form.Close();
       }
     }
@@ -247,8 +252,10 @@ namespace CsvTools.Tests
       {
         form.ShowInTaskbar = false;
         form.Show();
+
         // open the reader file
         form.ButtonGuessClick(null, null);
+        UnitTestStatic.WaitSomeTime(.2);
 
         form.Close();
       }
@@ -262,10 +269,10 @@ namespace CsvTools.Tests
       {
         frm.Show();
         frm.Maximum = 100;
-        for (var c = 0; c < 70; c++)
+        for (var c = 0; c < 70 && !frm.CancellationToken.IsCancellationRequested; c++)
         {
           frm.SetProcess($"This is a text\nLine {c}", c, true);
-          Extensions.ProcessUIElements(100);
+          UnitTestStatic.WaitSomeTime(.1);
         }
       }
 
@@ -273,10 +280,10 @@ namespace CsvTools.Tests
       using (var frm = new FormProcessDisplay("Test Marquee", false, CancellationToken.None))
       {
         frm.Show();
-        for (var c = 0; c < 100; c++)
+        for (var c = 0; c < 100 && !frm.CancellationToken.IsCancellationRequested; c++)
         {
           frm.SetProcess($"This is a text\nLine {c}", c, true);
-          Extensions.ProcessUIElements(20);
+          UnitTestStatic.WaitSomeTime(.1);
         }
       }
 
@@ -285,10 +292,10 @@ namespace CsvTools.Tests
       {
         frm.Show();
         frm.Maximum = 100;
-        for (var c = 0; c < 102; c++)
+        for (var c = 0; c < 102 && !frm.CancellationToken.IsCancellationRequested; c++)
         {
           frm.SetProcess($"This is a text\nLine {c}", c, true);
-          Extensions.ProcessUIElements(50);
+          UnitTestStatic.WaitSomeTime(.2);
         }
       }
     }
@@ -302,6 +309,7 @@ namespace CsvTools.Tests
         form.Show();
         form.Focus();
         form.BuildTree("int", "ID");
+        UnitTestStatic.WaitSomeTime(.2);
         form.Close();
       }
     }
@@ -315,7 +323,8 @@ namespace CsvTools.Tests
       {
         processDisplay.Show();
         var cvsSetting = new CsvFile(Path.Combine(FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles",
-          "FileWithHierarchy_WithCyle.txt")) {FileFormat = {FieldDelimiter = "\t"}};
+          "FileWithHierarchy_WithCyle.txt"))
+        { FileFormat = { FieldDelimiter = "\t" } };
         using (var csvDataReader = new CsvFileReader(cvsSetting, null, processDisplay))
         {
           dt = csvDataReader.Read2DataTable(processDisplay, 0);
@@ -329,7 +338,7 @@ namespace CsvTools.Tests
         form.Focus();
         form.BuildTree("ReferenceID1", "ID");
         Application.DoEvents();
-        Thread.Sleep(200);
+        UnitTestStatic.WaitSomeTime(.2);
         form.Close();
       }
     }
@@ -341,6 +350,7 @@ namespace CsvTools.Tests
       {
         form.ShowInTaskbar = false;
         form.Show();
+        UnitTestStatic.WaitSomeTime(.2);
         form.Close();
       }
     }
@@ -352,6 +362,7 @@ namespace CsvTools.Tests
       {
         form.ShowInTaskbar = false;
         form.Show();
+        UnitTestStatic.WaitSomeTime(.1);
         form.Close();
       }
     }
@@ -363,6 +374,7 @@ namespace CsvTools.Tests
       {
         form.ShowInTaskbar = false;
         form.Show();
+        UnitTestStatic.WaitSomeTime(.1);
         form.Close();
       }
     }
@@ -376,6 +388,7 @@ namespace CsvTools.Tests
       {
         form.ShowInTaskbar = false;
         form.Show();
+        UnitTestStatic.WaitSomeTime(.1);
         form.Close();
       }
     }

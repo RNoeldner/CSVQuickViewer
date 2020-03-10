@@ -14,7 +14,10 @@
 
 using System;
 using System.Data;
+using System.Diagnostics;
 using System.Globalization;
+using System.Threading;
+using System.Windows.Forms;
 
 namespace CsvTools.Tests
 {
@@ -22,6 +25,17 @@ namespace CsvTools.Tests
   {
     private static readonly Random m_Random = new Random(Guid.NewGuid().GetHashCode());
 #pragma warning disable CA2211 // Non-constant fields should not be visible
+
+    public static void WaitSomeTime(double seconds)
+    {
+      var sw = new Stopwatch();
+      sw.Start();
+      while (sw.Elapsed.TotalSeconds < seconds)
+      {
+        Application.DoEvents();
+        Thread.Sleep(50);
+      }
+    }
 
     public static Column[] ColumnsDT2 =
     {
