@@ -62,6 +62,20 @@ namespace CsvTools
 
     private int m_WarningCount;
 
+    // used in Unit Tests to check loaded data
+    public DataTable DataTable
+    {
+      get;
+      private set;
+    }
+
+    // used in Unit Tests to determine when a laod process is finished.
+    public bool LoadFinished
+    {
+      get;
+      set;
+    }
+
     /// <summary>
     ///   Initializes a new instance of the <see cref="FormMain" /> class.
     /// </summary>
@@ -444,7 +458,7 @@ namespace CsvTools
 
       if (string.IsNullOrEmpty(m_FileName) || !FileSystemUtils.FileExists(m_FileName))
         return false;
-
+      LoadFinished = false;
       ClearProcess();
       var sDisplay = FileSystemUtils.GetShortDisplayFileName(m_FileName, 80);
       Logger.Information("Examining file {filename}", m_FileName);
@@ -601,7 +615,6 @@ namespace CsvTools
         Text =
           $@"{AssemblyTitle} : {FileSystemUtils.GetShortDisplayFileName(m_FileSetting.FileName, 80)}  - {EncodingHelper.GetEncodingName(m_FileSetting.CurrentEncoding.CodePage, true, m_FileSetting.ByteOrderMark)}";
 
-        DataTable data;
         using (var processDisplay = m_FileSetting.GetProcessDisplay(this, false, m_CancellationTokenSource.Token))
         {
           if (processDisplay is IProcessDisplayTime pdt)
@@ -636,9 +649,9 @@ namespace CsvTools
             csvDataReader.Warning -= warningList.Add;
             csvDataReader.Warning += AddWarning;
             Logger.Information("Reading data…");
-            data = csvDataReader.Read2DataTable(processDisplay, m_FileSetting.RecordLimit);
+            DataTable = csvDataReader.Read2DataTable(processDisplay, m_FileSetting.RecordLimit);
 
-            foreach (var columnName in data.GetRealColumns())
+            foreach (var columnName in DataTable.GetRealColumns())
               if (m_FileSetting.ColumnCollection.Get(columnName) == null)
                 m_FileSetting.ColumnCollection.AddIfNew(new Column { Name = columnName });
             if (processDisplay.CancellationToken.IsCancellationRequested)
@@ -657,11 +670,11 @@ namespace CsvTools
 
         detailControl.CancellationToken = m_CancellationTokenSource.Token;
 
-        if (data != null)
+        if (DataTable != null)
         {
           // Show the data
           Logger.Information("Showing loaded data…");
-          detailControl.DataTable = data;
+          detailControl.DataTable = DataTable;
         }
 
         FunctionalDI.SQLDataReader =
@@ -680,7 +693,7 @@ namespace CsvTools
       }
       finally
       {
-        if (detailControl.DataTable == null)
+        if (DataTable == null)
           Logger.Information("No data…");
         else
 
@@ -697,6 +710,8 @@ namespace CsvTools
 
         // Re enable event watching
         AttachPropertyChanged(m_FileSetting);
+
+        LoadFinished = true;
       }
     }
 

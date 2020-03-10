@@ -108,7 +108,7 @@ namespace CsvTools
 
     public void HandleIgnoredColumns(IFileReader reader)
     {
-      if (reader.FieldCount == 0)
+      if (reader.IsClosed)
         throw new InvalidOperationException("Reader has not been opened.");
 
       for (var col = 0; col < reader.FieldCount; col++)

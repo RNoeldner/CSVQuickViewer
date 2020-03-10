@@ -19,6 +19,7 @@
       {
         m_DisposedValue = true;
         components?.Dispose();
+        DataTable?.Dispose();
         m_CancellationTokenSource?.Dispose();       
         m_SettingsChangedTimerChange?.Dispose();
       }

@@ -13,6 +13,8 @@
  */
 
 using System.IO;
+using System.Threading;
+using System.Windows.Forms;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
@@ -28,17 +30,40 @@ namespace CsvTools.Tests
       using (var frm = new FormEditSettings(new ViewSettings()))
       {
         frm.Show();
+        Application.DoEvents();
         System.Threading.Thread.Sleep(200);
       }
     }
 
     [TestMethod]
-    public void FormMain()
+    public void FormMain_BasicCSV()
     {
-      using (var frm = new FormMain(Path.Combine(m_ApplicationDirectory, "BasicCSV.txt")))
+      using (var frm = new FormMain(Path.Combine(m_ApplicationDirectory, "BasicCSV.txt.gz")))
       {
         frm.Show();
-        System.Threading.Thread.Sleep(200);
+        while (!frm.LoadFinished)
+        {
+          Application.DoEvents();
+          Thread.Sleep(200);
+        }
+        Assert.IsNotNull(frm.DataTable);
+        Assert.AreEqual(7, frm.DataTable.Rows.Count);
+      }
+    }
+
+    [TestMethod]
+    public void FormMain_AllFormatsPipe()
+    {
+      using (var frm = new FormMain(Path.Combine(m_ApplicationDirectory, "AllFormatsPipe.txt")))
+      {
+        frm.Show();
+        while (!frm.LoadFinished)
+        {
+          Application.DoEvents();
+          Thread.Sleep(200);
+        }
+        Assert.IsNotNull(frm.DataTable);
+        Assert.AreEqual(45, frm.DataTable.Rows.Count);
       }
     }
   }
