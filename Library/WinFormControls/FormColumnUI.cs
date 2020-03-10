@@ -40,7 +40,6 @@ namespace CsvTools
     private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
 
     private readonly Column m_ColumnEdit = new Column();
-
     private readonly Column m_ColumnRef;
 
     private readonly IFileSetting m_FileSetting;
@@ -74,6 +73,10 @@ namespace CsvTools
       m_WriteSetting = writeSetting;
 
       InitializeComponent();
+      // needed for TimeZon, Name or TimePart
+      columnBindingSource.DataSource = m_ColumnEdit;
+      // neede for Formats
+      bindingSourceValueFormat.DataSource = m_ColumnEdit.ValueFormat;
 
       comboBoxColumnName.Enabled = showIgnore;
 
@@ -161,7 +164,6 @@ namespace CsvTools
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Information);
             }
-
           }
           else
           {
@@ -269,7 +271,7 @@ namespace CsvTools
                 {
                   if (checkResult.FoundValueFormat != null)
                   {
-                    m_ColumnEdit.ValueFormat = checkResult.FoundValueFormat;
+                    checkResult.FoundValueFormat.CopyTo(m_ColumnEdit.ValueFormat);
                     if (checkResult.FoundValueFormat.DataType == DataType.DateTime)
                       AddFormatToComboBoxDateFormat(checkResult.FoundValueFormat.DateFormat);
 
@@ -315,7 +317,7 @@ namespace CsvTools
                     {
                       // use the closest match instead of Text can not use ValueFormat.CopyTo,.
                       // Column is quite specific and need it to be set,
-                      m_ColumnEdit.ValueFormat = checkResult.ValueFormatPossibleMatch;
+                      checkResult.ValueFormatPossibleMatch.CopyTo(m_ColumnEdit.ValueFormat);
                     }
                   }
                   else
@@ -537,6 +539,8 @@ namespace CsvTools
     {
       try
       {
+        SystemEvents.UserPreferenceChanged -= SystemEvents_UserPreferenceChanged;
+
         if (!m_CancellationTokenSource.IsCancellationRequested)
           m_CancellationTokenSource.Cancel();
       }
@@ -559,7 +563,6 @@ namespace CsvTools
       {
         if (m_WriteSetting)
           labelAllowedDateFormats.Text = @"Date Format:";
-        Extensions.ProcessUIElements();
 
         columnBindingSource.DataSource = m_ColumnEdit;
         SystemEvents.UserPreferenceChanged += SystemEvents_UserPreferenceChanged;
@@ -686,7 +689,7 @@ namespace CsvTools
           SetSamplePart(null, null);
 
         //TODO: opening on OS and scaling a different value might be needed
-        Height = tableLayoutPanelForm.Height + SystemInformation.CaptionHeight + 13;
+        Height = tableLayoutPanelForm.Height + (SystemInformation.CaptionHeight * 175) / 100;
       }
       catch (Exception ex)
       {
@@ -706,15 +709,17 @@ namespace CsvTools
     {
       try
       {
-        var vf = new ValueFormat();
         var hasTimePart = !string.IsNullOrEmpty(comboBoxTimePart.Text);
+        string dateFormat = (sender == comboBoxDateFormat ? comboBoxDateFormat.Text : checkedListBoxDateFormats.Text);
+        if (string.IsNullOrEmpty(dateFormat)) return;
 
+        var vf = new ValueFormat(DataType.DateTime)
+        {
+          DateFormat = dateFormat,
+          DateSeparator = textBoxDateSeparator.Text,
+          TimeSeparator = textBoxTimeSeparator.Text
+        };
         comboBoxTPFormat.Enabled = hasTimePart;
-        vf.DateFormat = sender == comboBoxDateFormat ? comboBoxDateFormat.Text : checkedListBoxDateFormats.Text;
-        if (string.IsNullOrEmpty(vf.DateFormat))
-          return;
-        vf.DateSeparator = textBoxDateSeparator.Text;
-        vf.TimeSeparator = textBoxTimeSeparator.Text;
 
         toolTip.SetToolTip(textBoxDateSeparator, FileFormat.GetDescription(vf.DateSeparator));
         toolTip.SetToolTip(textBoxTimeSeparator, FileFormat.GetDescription(vf.TimeSeparator));
@@ -732,9 +737,9 @@ namespace CsvTools
           var destTz = TimeZoneInfo.Local.Id;
           var srcTz = TimeZoneInfo.Local.Id;
           if (m_WriteSetting)
-            srcTz = res.Item1;
-          else
             destTz = res.Item1;
+          else
+            srcTz = res.Item1;
 
           labelInputTZ.Text = srcTz;
           labelOutPutTZ.Text = destTz;
@@ -910,7 +915,12 @@ namespace CsvTools
     private void RefreshData()
     {
       SetDateFormat();
-      SetComboBoxDataType();
+      var di = new List<DisplayItem<int>>();
+      foreach (DataType item in Enum.GetValues(typeof(DataType)))
+        di.Add(new DisplayItem<int>((int)item, item.DataTypeDisplay()));
+      var selValue = (int)m_ColumnEdit.ValueFormat.DataType;
+      comboBoxDataType.DataSource = di;
+      comboBoxDataType.SelectedValue = selValue;
       ComboBoxColumnName_TextUpdate(null, null);
     }
 
@@ -925,16 +935,6 @@ namespace CsvTools
       {
         this.ShowError(ex);
       }
-    }
-
-    private void SetComboBoxDataType()
-    {
-      var di = new List<DisplayItem<int>>();
-      foreach (DataType item in Enum.GetValues(typeof(DataType)))
-        di.Add(new DisplayItem<int>((int)item, item.DataTypeDisplay()));
-      var selValue = (int)m_ColumnEdit.ValueFormat.DataType;
-      comboBoxDataType.DataSource = di;
-      comboBoxDataType.SelectedValue = selValue;
     }
 
     private void SetDateFormat()

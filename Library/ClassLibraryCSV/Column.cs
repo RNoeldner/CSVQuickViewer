@@ -60,18 +60,16 @@ namespace CsvTools
       m_ValueFormat = valueFormat.Clone();
     }
 
-    public Column(string name, DataType dataType = DataType.String) 
+    public Column(string name, DataType dataType = DataType.String)
     {
       m_Name = name;
       m_ValueFormat = new ValueFormat(dataType);
     }
 
-
-    public Column(string name, string dateFormat, string dateSeparator = ValueFormat.cDateSeparatorDefault) 
+    public Column(string name, string dateFormat, string dateSeparator = ValueFormat.cDateSeparatorDefault)
     {
       m_Name = name;
-      m_ValueFormat = new ValueFormat(DataType.DateTime) {DateFormat = dateFormat, DateSeparator = dateSeparator};
-
+      m_ValueFormat = new ValueFormat(DataType.DateTime) { DateFormat = dateFormat, DateSeparator = dateSeparator };
     }
 
     /// <summary>
@@ -104,7 +102,7 @@ namespace CsvTools
 
     /// <summary>
     ///   Gets or sets a value indicating whether this <see cref="Column" /> is convert. Only used
-    ///   to read a typed value as text 
+    ///   to read a typed value as text
     /// </summary>
     /// <value><c>true</c> if the column should be convert; otherwise, <c>false</c>.</value>
     [XmlAttribute]
@@ -135,11 +133,9 @@ namespace CsvTools
     /// <value>The type of the data.</value>
     [XmlAttribute("Type")]
     [DefaultValue(DataType.String)]
-    [Obsolete("Please use ValueFormat.DataType")]
     public virtual DataType DataType
     {
       get => m_ValueFormat.DataType;
-
       set => m_ValueFormat.DataType = value;
     }
 
@@ -149,11 +145,9 @@ namespace CsvTools
     /// <value>The date format.</value>
     [XmlAttribute]
     [DefaultValue(CsvTools.ValueFormat.cDateFormatDefault)]
-    [Obsolete("Please use ValueFormat.DateFormat")]
     public virtual string DateFormat
     {
       get => m_ValueFormat.DateFormat;
-
       set => m_ValueFormat.DateFormat = value;
     }
 
@@ -171,7 +165,6 @@ namespace CsvTools
     /// <value>The date separator.</value>
     [XmlAttribute]
     [DefaultValue(CsvTools.ValueFormat.cDateSeparatorDefault)]
-    [Obsolete("Please use ValueFormat.DateSeparator")]
     public virtual string DateSeparator
     {
       get => m_ValueFormat.DateSeparator;
@@ -192,7 +185,6 @@ namespace CsvTools
     /// <value>The decimal separator.</value>
     [XmlAttribute]
     [DefaultValue(CsvTools.ValueFormat.cDecimalSeparatorDefault)]
-    [Obsolete("Please use ValueFormat.DecimalSeparator")]
     public virtual string DecimalSeparator
     {
       get => m_ValueFormat.DecimalSeparator;
@@ -235,7 +227,6 @@ namespace CsvTools
     /// <value>The false.</value>
     [XmlAttribute]
     [DefaultValue(CsvTools.ValueFormat.cFalseDefault)]
-    [Obsolete("Please use ValueFormat.False")]
 #pragma warning disable CA1716 // Identifiers should not match keywords
     public virtual string False
 #pragma warning restore CA1716 // Identifiers should not match keywords
@@ -258,7 +249,6 @@ namespace CsvTools
     /// <value>The group separator.</value>
     [XmlAttribute]
     [DefaultValue(CsvTools.ValueFormat.cGroupSeparatorDefault)]
-    [Obsolete("Please use ValueFormat.GroupSeparator")]
     public virtual string GroupSeparator
     {
       get => m_ValueFormat.GroupSeparator;
@@ -299,7 +289,6 @@ namespace CsvTools
     /// <value>The number format.</value>
     [XmlAttribute]
     [DefaultValue(CsvTools.ValueFormat.cNumberFormatDefault)]
-    [Obsolete("Please use ValueFormat.NumberFormat")]
     public virtual string NumberFormat
     {
       get => m_ValueFormat.NumberFormat;
@@ -529,15 +518,7 @@ namespace CsvTools
     /// </summary>
     /// <value>The value format.</value>
     [XmlIgnore]
-    public ValueFormat ValueFormat
-    {
-      get => m_ValueFormat;
-      set
-      {
-        var newVal = value ?? new ValueFormat();
-        newVal.CopyTo(m_ValueFormat);
-      }
-    }
+    public ValueFormat ValueFormat => m_ValueFormat;
 
     /// <summary>
     ///   Clones this instance into a new instance of the same type
@@ -559,7 +540,7 @@ namespace CsvTools
       if (other == null)
         return;
       m_ValueFormat.CopyTo(other.ValueFormat);
-      other.ValueFormat = m_ValueFormat;
+      // other.ValueFormat = m_ValueFormat;
       other.PartSplitter = m_PartSplitter;
       other.Part = m_Part;
       other.PartToEnd = m_PartToEnd;

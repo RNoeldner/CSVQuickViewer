@@ -125,7 +125,7 @@ namespace CsvTools.Tests
     public void GetDataTypeDescriptionDouble()
     {
       var target = new Column("Test", new ValueFormat(DataType.Numeric) { NumberFormat = "00.000" });
-      
+
       Assert.AreEqual("Money (High Precision) (00.000)", target.GetTypeAndFormatDescription());
     }
 
@@ -157,16 +157,13 @@ namespace CsvTools.Tests
       };
 
       var ff = new CsvFile();
+      var col = new Column("StartDate", m_ValueFormatGerman) { Ignore = true };
 
-      m_Column.Name = "StartDate";
-      m_Column.Ignore = true;
-      m_Column.ValueFormat = m_ValueFormatGerman;
-
-      ff.ColumnCollection.AddIfNew(m_Column);
-      Assert.AreEqual("StartDate", m_Column.Name, "Name");
-      Assert.AreEqual(DataType.DateTime, m_Column.ValueFormat.DataType, "DataType");
-      Assert.IsTrue(m_Column.Convert, "Convert");
-      Assert.IsTrue(m_Column.Ignore, "Ignore");
+      ff.ColumnCollection.AddIfNew(col);
+      Assert.AreEqual("StartDate", col.Name, "Name");
+      Assert.AreEqual(DataType.DateTime, col.ValueFormat.DataType, "DataType");
+      Assert.IsTrue(col.Convert, "Convert");
+      Assert.IsTrue(col.Ignore, "Ignore");
     }
 
     //[TestMethod]

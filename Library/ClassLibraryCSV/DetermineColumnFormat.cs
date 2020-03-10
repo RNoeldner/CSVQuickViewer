@@ -221,7 +221,7 @@ namespace CsvTools
                 processDisplay.SetProcess($"{newColumn.Name} – Format : {oldValueFormat} – not changed",
                   colIndex, true);
               else
-                oldColumn.ValueFormat = checkResult.FoundValueFormat;
+                checkResult.FoundValueFormat.CopyTo(oldColumn.ValueFormat);
 
               var newValueFormat = checkResult.FoundValueFormat.GetTypeAndFormatDescription();
               if (oldValueFormat.Equals(newValueFormat, StringComparison.Ordinal))
@@ -234,7 +234,7 @@ namespace CsvTools
             {
               if (!addTextColumns && checkResult.FoundValueFormat.DataType == DataType.String)
                 continue;
-              newColumn.ValueFormat = checkResult.FoundValueFormat;
+              checkResult.FoundValueFormat.CopyTo(newColumn.ValueFormat);
               var msg = $"{newColumn.Name} – Format : {newColumn.GetTypeAndFormatDescription()}";
               processDisplay.SetProcess(msg, colIndex, true);
               result.Add(msg);
@@ -383,7 +383,7 @@ namespace CsvTools
                       {
                         DateFormat = first.Length == 8 ? "HH:mm:ss" : "HH:mm"
                       };
-                      columnTime.ValueFormat = val;
+                      val.CopyTo(columnTime.ValueFormat);
                       fileSetting.ColumnCollection.AddIfNew(columnTime);
                       result.Add($"{columnTime.Name} – Format : {columnTime.GetTypeAndFormatDescription()}");
                     }
@@ -422,7 +422,7 @@ namespace CsvTools
                       DateFormat = first.Length == 8 ? "HH:mm:ss" : "HH:mm"
                     };
                     fileSetting.ColumnCollection.AddIfNew(columnTime);
-                    columnTime.ValueFormat = val;
+                    val.CopyTo(columnTime.ValueFormat);
                     result.Add($"{columnTime.Name} – Format : {columnTime.GetTypeAndFormatDescription()}");
                   }
 
