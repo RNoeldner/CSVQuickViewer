@@ -1,0 +1,30 @@
+﻿using System;
+using System.Windows.Forms;
+
+namespace CsvTools
+{
+  /// <summary> Class to store Dialog choices in a persistent way </summary
+  public class PersistentChoice
+  {
+    public PersistentChoice(DialogResult option)
+    {
+      if (option != DialogResult.Yes && option != DialogResult.No)
+        throw new ArgumentOutOfRangeException(nameof(option), option, "Only Yes and No are supported");
+      DialogResult = option;
+    }
+
+    public bool Choosen { get; set; }
+
+    public DialogResult DialogResult { get; private set; }
+
+    public int NumRecs { get; private set; }
+
+    public void ProcessedOne() => NumRecs--;
+
+    public void Reset(int counter)
+    {
+      NumRecs = counter;
+      Choosen = false;
+    }
+  }
+}
