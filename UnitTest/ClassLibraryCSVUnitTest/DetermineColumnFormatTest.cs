@@ -12,13 +12,12 @@
  *
  */
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Data;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Threading;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
@@ -32,13 +31,12 @@ namespace CsvTools.Tests
       var found = false;
 
       foreach (var item in res)
-      {
-        if (item.DateFormat.Equals("dd/MMM/yy HH:mm:ss tt", System.StringComparison.InvariantCulture) && item.DateSeparator == "-")
+        if (item.DateFormat.Equals("dd/MMM/yy HH:mm:ss tt", StringComparison.InvariantCulture) &&
+            item.DateSeparator == "-")
         {
           found = true;
           break;
         }
-      }
 
       Assert.IsTrue(found);
     }
@@ -51,13 +49,12 @@ namespace CsvTools.Tests
 
       var found = false;
       foreach (var item in res)
-      {
-        if (item.DateFormat.Equals("MM/dd/yyyy HH:mm", System.StringComparison.InvariantCulture) && item.DateSeparator == "/")
+        if (item.DateFormat.Equals("MM/dd/yyyy HH:mm", StringComparison.InvariantCulture) && item.DateSeparator == "/")
         {
           found = true;
           break;
         }
-      }
+
       Assert.IsTrue(found);
 
       // we should have MM/dd/yyyy HH:mm, M/d/yyyy HH:mm, MM/dd/yyyy H:mm, M/d/yyyy H:mm,
@@ -65,20 +62,18 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void GetAllPossibleFormatsFR()
+    public void GetAllPossibleFormatsFrance()
     {
       var ci = new CultureInfo("fr-FR");
       var res = DetermineColumnFormat.GetAllPossibleFormats("1/2/2019 3:26:10", ci).ToList();
 
       var found = false;
       foreach (var item in res)
-      {
-        if (item.DateFormat.Equals("M/d/yyyy H:mm:ss", System.StringComparison.InvariantCulture) && item.DateSeparator == "/")
+        if (item.DateFormat.Equals("M/d/yyyy H:mm:ss", StringComparison.InvariantCulture) && item.DateSeparator == "/")
         {
           found = true;
           break;
         }
-      }
 
       Assert.IsTrue(found);
       // we should have M/d/yyyy H:mm:ss and d/M/yyyy H:mm:ss
@@ -90,12 +85,12 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile
       {
-        FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt")
+        FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt"),
+        FileFormat = {FieldDelimiter = ","},
+        HasFieldHeader = true
       };
-      setting.FileFormat.FieldDelimiter = ",";
-      setting.HasFieldHeader = true;
 
-      var fillGuessSettings = new FillGuessSettings()
+      var fillGuessSettings = new FillGuessSettings
       {
         DectectNumbers = true,
         DetectDateTime = true,
@@ -108,10 +103,41 @@ namespace CsvTools.Tests
       {
         setting.FillGuessColumnFormatReader(false, false, fillGuessSettings, processDisplay);
       }
+
       Assert.AreEqual(DataType.Integer, setting.ColumnCollection.Get("ID").ValueFormat.DataType);
       Assert.AreEqual(DataType.DateTime, setting.ColumnCollection.Get("ExamDate").ValueFormat.DataType);
       Assert.AreEqual(DataType.Boolean, setting.ColumnCollection.Get("IsNativeLang").ValueFormat.DataType);
     }
+
+    [TestMethod]
+    public void FillGuessColumnFormatAddTextCol()
+    {
+      var setting = new CsvFile
+      {
+        FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt"),
+        FileFormat = { FieldDelimiter = "," },
+        HasFieldHeader = true
+      };
+
+      var fillGuessSettings = new FillGuessSettings
+      {
+        DectectNumbers = true,
+        DetectDateTime = true,
+        DectectPercentage = true,
+        DetectBoolean = true,
+        DetectGUID = true,
+        IgnoreIdColums = false
+      };
+      using (var processDisplay = new DummyProcessDisplay())
+      {
+        setting.FillGuessColumnFormatReader(true, false, fillGuessSettings, processDisplay);
+      }
+
+      Assert.AreEqual(DataType.Integer, setting.ColumnCollection.Get("ID").ValueFormat.DataType);
+      Assert.AreEqual(DataType.DateTime, setting.ColumnCollection.Get("ExamDate").ValueFormat.DataType);
+      Assert.AreEqual(DataType.Boolean, setting.ColumnCollection.Get("IsNativeLang").ValueFormat.DataType);
+    }
+
 
     [TestMethod]
     public void DetermineColumnFormatGetSampleValues()
@@ -191,7 +217,7 @@ namespace CsvTools.Tests
       };
       setting.FileFormat.FieldDelimiter = "TAB";
 
-      var fillGuessSettings = new FillGuessSettings()
+      var fillGuessSettings = new FillGuessSettings
       {
         DectectNumbers = true,
         DetectDateTime = true,
@@ -209,9 +235,11 @@ namespace CsvTools.Tests
 
       Assert.IsNotNull(setting.ColumnCollection.Get(@"Betrag Brutto (2 Nachkommastellen)"), "Data Type recognized");
 
-      Assert.AreEqual(DataType.Numeric, setting.ColumnCollection.Get(@"Betrag Brutto (2 Nachkommastellen)").ValueFormat.DataType,
+      Assert.AreEqual(DataType.Numeric,
+        setting.ColumnCollection.Get(@"Betrag Brutto (2 Nachkommastellen)").ValueFormat.DataType,
         "Is Numeric");
-      Assert.AreEqual(",", setting.ColumnCollection.Get(@"Betrag Brutto (2 Nachkommastellen)").ValueFormat.DecimalSeparator,
+      Assert.AreEqual(",",
+        setting.ColumnCollection.Get(@"Betrag Brutto (2 Nachkommastellen)").ValueFormat.DecimalSeparator,
         "Decimal Separator found");
 
       Assert.AreEqual(DataType.DateTime, setting.ColumnCollection.Get(@"Erstelldatum Rechnung").ValueFormat.DataType);
@@ -222,13 +250,13 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile
       {
-        FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt")
+        FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt"),
+        FileFormat = {FieldDelimiter = ","},
+        HasFieldHeader = true
       };
-      setting.FileFormat.FieldDelimiter = ",";
-      setting.HasFieldHeader = true;
       // setting.TreatTextNullAsNull = true;
 
-      var fillGuessSettings = new FillGuessSettings()
+      var fillGuessSettings = new FillGuessSettings
       {
         DectectNumbers = true,
         DetectDateTime = true,
@@ -260,7 +288,7 @@ namespace CsvTools.Tests
       setting.SkipRows = 1;
       setting.ColumnCollection.Clear();
 
-      var fillGuessSettings = new FillGuessSettings()
+      var fillGuessSettings = new FillGuessSettings
       {
         DectectNumbers = true,
         DetectDateTime = true,
@@ -273,11 +301,15 @@ namespace CsvTools.Tests
       {
         setting.FillGuessColumnFormatReader(false, true, fillGuessSettings, processDisplay);
       }
+
       // need to identify 5 typed column of the 11 existing
       Assert.AreEqual(5, setting.ColumnCollection.Count, "Number of recognized Columns");
-      Assert.AreEqual(DataType.DateTime, setting.ColumnCollection[2].ValueFormat.DataType, "Contract Date (Date Time (MM/dd/yyyy))");
-      Assert.AreEqual(DataType.DateTime, setting.ColumnCollection[3].ValueFormat.DataType, "Kickoff Date (Date Time (MM/dd/yyyy))");
-      Assert.AreEqual(DataType.DateTime, setting.ColumnCollection[4].ValueFormat.DataType, "Target Completion Date (Date Time (MM/dd/yyyy))");
+      Assert.AreEqual(DataType.DateTime, setting.ColumnCollection[2].ValueFormat.DataType,
+        "Contract Date (Date Time (MM/dd/yyyy))");
+      Assert.AreEqual(DataType.DateTime, setting.ColumnCollection[3].ValueFormat.DataType,
+        "Kickoff Date (Date Time (MM/dd/yyyy))");
+      Assert.AreEqual(DataType.DateTime, setting.ColumnCollection[4].ValueFormat.DataType,
+        "Target Completion Date (Date Time (MM/dd/yyyy))");
     }
 
     [TestMethod]
@@ -290,7 +322,7 @@ namespace CsvTools.Tests
         ByteOrderMark = true,
         FileFormat = {FieldDelimiter = "\t"}
       };
-      var fillGuessSettings = new FillGuessSettings()
+      var fillGuessSettings = new FillGuessSettings
       {
         DectectNumbers = true,
         DetectDateTime = true,
@@ -321,11 +353,11 @@ namespace CsvTools.Tests
       {
         FileName = UnitTestInitialize.GetTestPath("Test.csv"),
         HasFieldHeader = true,
-        ByteOrderMark = true
+        ByteOrderMark = true,
+        FileFormat = {FieldDelimiter = ","},
+        SkipRows = 1
       };
-      setting.FileFormat.FieldDelimiter = ",";
-      setting.SkipRows = 1;
-      var fillGuessSettings = new FillGuessSettings()
+      var fillGuessSettings = new FillGuessSettings
       {
         IgnoreIdColums = true
       };
@@ -334,6 +366,7 @@ namespace CsvTools.Tests
       {
         setting.FillGuessColumnFormatReader(true, true, fillGuessSettings, processDisplay);
       }
+
       Assert.AreEqual(11, setting.ColumnCollection.Count);
       Assert.AreEqual(DataType.DateTime, setting.ColumnCollection[7].ValueFormat.DataType);
       Assert.AreEqual(DataType.DateTime, setting.ColumnCollection[8].ValueFormat.DataType);
@@ -393,7 +426,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GuessColumnFormatBoolean1()
     {
-      string[] values = { "True", "False" };
+      string[] values = {"True", "False"};
 
       var res = DetermineColumnFormat.GuessValueFormat(values, 4, "True", "False", true, false, true,
         true, true, false, false, null, CancellationToken.None);
@@ -403,7 +436,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GuessColumnFormatBoolean2()
     {
-      string[] values = { "Yes", "No" };
+      string[] values = {"Yes", "No"};
 
       var res = DetermineColumnFormat.GuessValueFormat(values, 2, null, "False", true, false, true,
         true, true, false, false, null, CancellationToken.None);
@@ -413,7 +446,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GuessColumnFormatDateNotMatching()
     {
-      string[] values = { "01/02/2010", "14/02/2012", "02/14/2012" };
+      string[] values = {"01/02/2010", "14/02/2012", "02/14/2012"};
 
       var res = DetermineColumnFormat.GuessValueFormat(values, 4, null, "false", true, false, true,
         true, true, false, false, null, CancellationToken.None);
@@ -423,7 +456,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GuessColumnFormatddMMyyyy()
     {
-      string[] values = { "01/02/2010", "14/02/2012", "01/02/2012", "12/12/2012", "16/12/2012" };
+      string[] values = {"01/02/2010", "14/02/2012", "01/02/2012", "12/12/2012", "16/12/2012"};
 
       var res = DetermineColumnFormat.GuessValueFormat(values, 4, null, "false", true, false, true,
         true, true, false, false, null, CancellationToken.None);
@@ -435,7 +468,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GuessColumnFormatddMMyyyy2()
     {
-      string[] values = { "01.02.2010", "14.02.2012", "16.02.2012", "01.04.2014", "31.12.2010" };
+      string[] values = {"01.02.2010", "14.02.2012", "16.02.2012", "01.04.2014", "31.12.2010"};
 
       var res = DetermineColumnFormat.GuessValueFormat(values, 4, null, "false", true, false, true,
         true, true, false, false, null, CancellationToken.None);
@@ -447,7 +480,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GuessColumnFormatGuid()
     {
-      string[] values = { "{0799A029-8B85-4589-8341-C7038AFF5B48}", "99DDD263-2E2D-434F-9265-33CF893B02DF" };
+      string[] values = {"{0799A029-8B85-4589-8341-C7038AFF5B48}", "99DDD263-2E2D-434F-9265-33CF893B02DF"};
 
       var res = DetermineColumnFormat.GuessValueFormat(values, 4, null, "false", false, true, false,
         false, false, false, false, null, CancellationToken.None);
@@ -457,7 +490,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GuessColumnFormatInteger()
     {
-      string[] values = { "1", "2", "3", "4", "5" };
+      string[] values = {"1", "2", "3", "4", "5"};
 
       var res = DetermineColumnFormat.GuessValueFormat(values, 4, null, "False", true, false, true,
         true, true, false, false, null, CancellationToken.None);
@@ -467,7 +500,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GuessColumnFormatInteger2()
     {
-      string[] values = { "-1", " 2", "3 ", "4", "100", "10" };
+      string[] values = {"-1", " 2", "3 ", "4", "100", "10"};
 
       var res = DetermineColumnFormat.GuessValueFormat(values, 4, null, "False", true, false, true,
         true, true, false, false, null, CancellationToken.None);
@@ -477,7 +510,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GuessColumnFormatMMddyyyy()
     {
-      string[] values = { "01/02/2010", "02/14/2012", "02/17/2012", "02/22/2012", "03/01/2012" };
+      string[] values = {"01/02/2010", "02/14/2012", "02/17/2012", "02/22/2012", "03/01/2012"};
 
       var res = DetermineColumnFormat.GuessValueFormat(values, 4, null, "false", true, false, true,
         true, true, false, false, null, CancellationToken.None);
@@ -489,10 +522,11 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GuessColumnFormatMMddyyyySuggestion()
     {
-      string[] values = { "01/02/2010", "02/12/2012" };
+      string[] values = {"01/02/2010", "02/12/2012"};
 
       var res = DetermineColumnFormat.GuessValueFormat(values, 4, null, "false", true, false, true,
-        true, true, false, false, new ValueFormat(DataType.DateTime) { DateFormat = "MM/dd/yyyy", DateSeparator = "/" }, CancellationToken.None);
+        true, true, false, false, new ValueFormat(DataType.DateTime) {DateFormat = "MM/dd/yyyy", DateSeparator = "/"},
+        CancellationToken.None);
       Assert.AreEqual(DataType.DateTime, res.FoundValueFormat.DataType);
       Assert.AreEqual(@"MM/dd/yyyy", res.FoundValueFormat.DateFormat);
       Assert.AreEqual("/", res.FoundValueFormat.DateSeparator);
@@ -501,7 +535,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GuessColumnFormatMMddyyyyNotenough()
     {
-      string[] values = { "01/02/2010", "02/12/2012" };
+      string[] values = {"01/02/2010", "02/12/2012"};
       var res = DetermineColumnFormat.GuessValueFormat(values, 4, null, "false", true, false, true,
         true, true, false, false, null, CancellationToken.None);
       Assert.IsFalse(res?.PossibleMatch ?? false);
@@ -520,7 +554,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GuessColumnFormatNumeric()
     {
-      string[] values = { "1", "2.5", "3", "4", "5.3" };
+      string[] values = {"1", "2.5", "3", "4", "5.3"};
 
       var res = DetermineColumnFormat.GuessValueFormat(values, 4, null, "False", true, false, true,
         true, true, false, false, null, CancellationToken.None);
@@ -528,7 +562,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void GuessColumnFormatNumersAsDate()
+    public void GuessColumnFormatNumbersAsDate()
     {
       string[] values =
       {
@@ -547,7 +581,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GuessColumnFormatText()
     {
-      string[] values = { "Hallo", "Welt" };
+      string[] values = {"Hallo", "Welt"};
 
       var res = DetermineColumnFormat.GuessValueFormat(values, 4, null, "false", true, false, true,
         true, true, false, false, null, CancellationToken.None);
@@ -557,7 +591,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GuessColumnFormatVersionNumbers()
     {
-      string[] values = { "1.0.1.2", "1.0.2.1", "1.0.2.2", "1.0.2.3", "1.0.2.3" };
+      string[] values = {"1.0.1.2", "1.0.2.1", "1.0.2.2", "1.0.2.3", "1.0.2.3"};
 
       var res = DetermineColumnFormat.GuessValueFormat(values, 4, null, "False", false, false, true,
         false, false, false, false, null, CancellationToken.None);

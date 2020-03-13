@@ -64,17 +64,17 @@ namespace CsvTools.Tests
     {
       var fileSetting = new CsvFile();
 
-      var existingColumns = new[] {"Col1", "Col2", "Col3"};
-      var additionalColumns = new[] {"Col4", "Col5"};
+      var existingColumns = new[] { "Col1", "Col2", "Col3" };
+      var additionalColumns = new[] { "Col4", "Col5" };
       var checkColumns = new List<string>();
       foreach (var col in existingColumns)
       {
-        fileSetting.MappingCollection.Add(new Mapping {FileColumn = col, TemplateField = col});
+        fileSetting.MappingCollection.Add(new Mapping { FileColumn = col, TemplateField = col });
         checkColumns.Add(col);
       }
 
       foreach (var col in additionalColumns)
-        fileSetting.MappingCollection.Add(new Mapping {FileColumn = col, TemplateField = col});
+        fileSetting.MappingCollection.Add(new Mapping { FileColumn = col, TemplateField = col });
 
       checkColumns.Add("Col6");
       var result = fileSetting.RemoveMappingWithoutSource(checkColumns).ToList();
@@ -299,7 +299,7 @@ namespace CsvTools.Tests
       col1.CollectionCopy(col2);
       Assert.AreEqual(0, col2.Count);
 
-      col1.AddIfNew(new Column() {Name = "ID"});
+      col1.AddIfNew(new Column() { Name = "ID" });
       col1.CollectionCopy(col2);
       Assert.AreEqual(1, col2.Count);
     }
@@ -307,7 +307,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CollectionCopyStructTest()
     {
-      var l1 = new[] {1, 2, 13, 5, 17}.ToList();
+      var l1 = new[] { 1, 2, 13, 5, 17 }.ToList();
       var l2 = new List<int>();
       l1.CollectionCopyStruct(l2);
       foreach (var i in l1)
@@ -317,8 +317,8 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CollectionEqualTest1()
     {
-      var l1 = new[] {1, 2, 13, 5, 17}.ToList();
-      var l2 = new[] {2, 1, 5, 13, 17}.ToList();
+      var l1 = new[] { 1, 2, 13, 5, 17 }.ToList();
+      var l2 = new[] { 2, 1, 5, 13, 17 }.ToList();
       Assert.IsTrue(l1.CollectionEqual(l1));
       Assert.IsFalse(l1.CollectionEqual(null));
       Assert.IsTrue(l1.CollectionEqual(l2));
@@ -332,10 +332,10 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CollectionEqualTest2()
     {
-      var l1 = new[] {1, 1, 13, 5, 17}.ToList();
+      var l1 = new[] { 1, 1, 13, 5, 17 }.ToList();
       Assert.IsTrue(l1.CollectionEqual(l1));
 
-      var l2 = new[] {2, 1, 1, 13, 17}.ToList();
+      var l2 = new[] { 2, 1, 1, 13, 17 }.ToList();
       Assert.IsFalse(l1.CollectionEqual(l2));
 
       l1.Add(2);
@@ -347,10 +347,10 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CollectionEqualWithOrder()
     {
-      var l1 = new[] {1, 2, 3, 5, 17}.ToList();
+      var l1 = new[] { 1, 2, 3, 5, 17 }.ToList();
       Assert.IsTrue(l1.CollectionEqualWithOrder(l1));
 
-      var l2 = new[] {1, 2, 3, 5}.ToList();
+      var l2 = new[] { 1, 2, 3, 5 }.ToList();
       Assert.IsFalse(l1.CollectionEqualWithOrder(l2));
 
       l2.Add(17);
@@ -362,13 +362,13 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CollectionHashCode()
     {
-      var li1 = new[] {"Hello", "World"};
+      var li1 = new[] { "Hello", "World" };
       Assert.AreEqual(li1.CollectionHashCode(), li1.CollectionHashCode());
 
-      var li2 = new[] {"Hello", "World"};
+      var li2 = new[] { "Hello", "World" };
       Assert.AreEqual(li1.CollectionHashCode(), li2.CollectionHashCode());
 
-      var li3 = new[] {"World", "Hello"};
+      var li3 = new[] { "World", "Hello" };
       Assert.AreNotEqual(li3.CollectionHashCode(), li2.CollectionHashCode());
     }
 
@@ -379,11 +379,11 @@ namespace CsvTools.Tests
       Assert.AreEqual(0, dt.GetRealColumns().Count());
       Assert.AreEqual(0, dt.GetRealDataColumns().Count());
 
-      dt.Columns.Add(new DataColumn() {ColumnName = BaseFileReader.cEndLineNumberFieldName});
+      dt.Columns.Add(new DataColumn() { ColumnName = BaseFileReader.cEndLineNumberFieldName });
       Assert.AreEqual(0, dt.GetRealColumns().Count());
       Assert.AreEqual(0, dt.GetRealDataColumns().Count());
 
-      var dataColumn = new DataColumn() {ColumnName = "Test"};
+      var dataColumn = new DataColumn() { ColumnName = "Test" };
       dt.Columns.Add(dataColumn);
       Assert.AreEqual(1, dt.GetRealColumns().Count());
       Assert.AreEqual(1, dt.GetRealDataColumns().Count());
@@ -395,8 +395,50 @@ namespace CsvTools.Tests
     [TestMethod]
     public void ReplacePlaceholderWithText()
     {
-      Assert.AreEqual("Die ist ein Test", "Die ist ein Test".ReplacePlaceholderWithText(new string[] {"Shiny"}));
-      Assert.AreEqual("Die ist Shiny Test", "Die ist {ein} Test".ReplacePlaceholderWithText(new string[] {"Shiny"}));
+      Assert.AreEqual("Die ist ein Test", "Die ist ein Test".ReplacePlaceholderWithText(new string[] { "Shiny" }));
+      Assert.AreEqual("Die ist Shiny Test", "Die ist {ein} Test".ReplacePlaceholderWithText(new string[] { "Shiny" }));
+    }
+
+    private string Routine()
+    {
+      throw new ApplicationException();
+    }
+
+    [TestMethod]
+    public void CsvToolsStackTraceTest()
+    {
+      var ex = new ApplicationException();
+      Assert.IsNull(ex.CsvToolsStackTrace());
+
+      try
+      {
+        throw ex;
+      }
+      catch (Exception e)
+      {
+        Assert.IsTrue(e.CsvToolsStackTrace().Contains("ExtensionsTest.CsvToolsStackTraceTest"), $"Expected: 'ExtensionsTest.CsvToolsStackTraceTest' Value: '{e.CsvToolsStackTrace()}'");
+      }
+
+      try
+      {
+        Task.Run(() => Routine()).WaitToCompleteTask(1);
+      }
+      catch (Exception e)
+      {
+        Assert.IsTrue(e.CsvToolsStackTrace().Contains("ExtensionsTest.CsvToolsStackTraceTest"), $"Expected: 'ExtensionsTest.CsvToolsStackTraceTest' Value: '{e.CsvToolsStackTrace()}'");
+      }
+
+    }
+
+    [TestMethod]
+    public void NoRecordSQLTest()
+    {
+      Assert.AreEqual("", "".NoRecordSQL());
+      Assert.AreEqual("EXEC mySP", "EXEC mySP".NoRecordSQL());
+
+      Assert.AreEqual("SELECT Field1 FROM MyTable WHERE 1=0", "SELECT Field1 FROM MyTable".NoRecordSQL());
+      Assert.AreEqual("SELECT * FROM MyTable WHERE 1=0 AND X=1", "SELECT * FROM MyTable WHERE X=1".NoRecordSQL());
+      Assert.AreEqual("SELECT Field1 FROM [MyTable] WHERE 1=0", "SELECT Field1 FROM [MyTable] Order By Fields2".NoRecordSQL());
     }
   }
 }

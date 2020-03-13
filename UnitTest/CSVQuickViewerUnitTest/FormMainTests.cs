@@ -20,20 +20,9 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace CsvTools.Tests
 {
   [TestClass]
-  public class FormsTest
+  public class FormMainTests
   {
     private readonly string m_ApplicationDirectory = FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles";
-
-    [TestMethod]
-    public void FormEditSettings()
-    {
-      using (var frm = new FormEditSettings(new ViewSettings()))
-      {
-        frm.Show();
-        Application.DoEvents();
-        System.Threading.Thread.Sleep(200);
-      }
-    }
 
     [TestMethod]
     public void FormMain_BasicCSV()

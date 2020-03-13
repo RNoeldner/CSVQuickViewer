@@ -67,9 +67,7 @@ namespace CsvTools
     public static void CollectionCopy<T>(this IEnumerable<T> self, ICollection<T> other) where T : ICloneable<T>
     {
       Contract.Requires(self != null);
-      if (other == null)
-        return;
-
+      if (other == null) return;
       other.Clear();
       foreach (var item in self)
         other.Add(item.Clone());
@@ -246,13 +244,15 @@ namespace CsvTools
 
     public static string NoRecordSQL(this string source)
     {
-      if (String.IsNullOrEmpty(source))
-        return String.Empty;
+      if (string.IsNullOrEmpty(source))
+        return string.Empty;
 
       // if its not SQL or has a Where condition do nothing
-      if (!source.Contains("SELECT", StringComparison.OrdinalIgnoreCase) ||
-          source.Contains("WHERE", StringComparison.OrdinalIgnoreCase))
+      if (!source.Contains("SELECT", StringComparison.OrdinalIgnoreCase))
         return source;
+
+      if (source.Contains(" WHERE ", StringComparison.OrdinalIgnoreCase))
+        return source.Replace(" WHERE ", " WHERE 1=0 AND ");
 
       // Remove Order By and Add a WHERE
       var indexOf = source.IndexOf("ORDER BY", StringComparison.OrdinalIgnoreCase);
@@ -265,13 +265,7 @@ namespace CsvTools
     }
 
 
-    public static char GetFirstChar(this string text)
-    {
-      if (String.IsNullOrEmpty(text))
-        return '\0';
-
-      return text[0];
-    }
+    public static char GetFirstChar(this string text) => string.IsNullOrEmpty(text) ? '\0' : text[0];
 
     /// <summary>
     ///   Gets a suitable ID for a filename
@@ -309,11 +303,11 @@ namespace CsvTools
       fileName = Regex.Replace(fileName,
         "(" + c_DateSep + c_Year + c_DateSep + c_Month + c_DateSep + c_Day + ")|(" + c_DateSep + c_Month + c_DateSep +
         c_Day + c_DateSep + c_Year + ")|(" + c_DateSep + c_Day + c_DateSep + c_Month + c_DateSep + c_Year + ")",
-        String.Empty, RegexOptions.Singleline);
+        string.Empty, RegexOptions.Singleline);
 
       // Replace Times 3_53_34_AM
       fileName = Regex.Replace(fileName,
-        c_DateSep + c_Hour + c_TimeSep + c_MinSec + c_TimeSep + c_MinSec + "?" + c_AmPm, String.Empty,
+        c_DateSep + c_Hour + c_TimeSep + c_MinSec + c_TimeSep + c_MinSec + "?" + c_AmPm, string.Empty,
         RegexOptions.IgnoreCase | RegexOptions.Singleline);
       /*
       // Replace Dates YYMMDD
@@ -473,7 +467,7 @@ namespace CsvTools
     {
       Contract.Ensures(Contract.Result<string>() != null);
       if (exception == null)
-        return String.Empty;
+        return string.Empty;
       try
       {
         var sb = new StringBuilder();
@@ -495,7 +489,7 @@ namespace CsvTools
       {
         // Ignore problems within this method - there's nothing more stupid than an error in the
         // error handler
-        return String.Empty;
+        return string.Empty;
       }
     }
 
@@ -531,7 +525,7 @@ namespace CsvTools
     /// <returns></returns>
     public static string PlaceHolderTimes(this string text, string format, IFileSetting fileSetting, DateTime lastExecution, DateTime lastExecutionStart)
     {
-      if (!String.IsNullOrEmpty(text))
+      if (!string.IsNullOrEmpty(text))
       {
         if (fileSetting.ProcessTimeUtc != BaseSettings.ZeroTime)
         {
@@ -563,7 +557,7 @@ namespace CsvTools
     ///[DebuggerStepThrough]
     public static string PlaceholderReplace(this string input, string placeholder, string replacement)
     {
-      if (!String.IsNullOrEmpty(replacement))
+      if (!string.IsNullOrEmpty(replacement))
       {
         var type = input.GetPlaceholderType(placeholder);
         if (type != null)
@@ -643,7 +637,7 @@ namespace CsvTools
       var position0 = 0;
       int position1;
 
-      if (String.IsNullOrEmpty(pattern))
+      if (string.IsNullOrEmpty(pattern))
         return original;
 
       var upperString = original.ToUpperInvariant();
@@ -680,11 +674,11 @@ namespace CsvTools
       Contract.Requires(original != null);
       Contract.Ensures(Contract.Result<string>() != null);
 
-      if (String.IsNullOrEmpty(pattern))
+      if (string.IsNullOrEmpty(pattern))
         return original;
 
       if (replacement == null)
-        replacement = String.Empty;
+        replacement = string.Empty;
 
       // if pattern matches replacement exit
       if (replacement.Equals(pattern, StringComparison.Ordinal))
@@ -728,15 +722,15 @@ namespace CsvTools
     [DebuggerStepThrough]
     public static string ReplaceDefaults(this string inputValue, string old1, string new1, string old2, string new2)
     {
-      Contract.Requires(!String.IsNullOrEmpty(old1));
+      Contract.Requires(!string.IsNullOrEmpty(old1));
       Contract.Ensures(Contract.Result<string>() != null);
 
-      if (String.IsNullOrEmpty(inputValue))
-        return String.Empty;
+      if (string.IsNullOrEmpty(inputValue))
+        return string.Empty;
 
-      var exhange1 = !String.IsNullOrEmpty(old1) && String.Compare(old1, new1, StringComparison.Ordinal) != 0;
-      var exhange2 = !String.IsNullOrEmpty(old2) && String.Compare(old2, new2, StringComparison.Ordinal) != 0;
-      if (exhange1 && exhange2 && new1 == old2)
+      var exchange1 = !string.IsNullOrEmpty(old1) && string.Compare(old1, new1, StringComparison.Ordinal) != 0;
+      var exchange2 = !string.IsNullOrEmpty(old2) && string.Compare(old2, new2, StringComparison.Ordinal) != 0;
+      if (exchange1 && exchange2 && new1 == old2)
       {
         inputValue = inputValue.Replace(old1, "{\0}");
         inputValue = inputValue.Replace(old2, new2);
@@ -744,9 +738,9 @@ namespace CsvTools
       }
       else
       {
-        if (exhange1)
+        if (exchange1)
           inputValue = inputValue.Replace(old1, new1);
-        if (exhange2)
+        if (exchange2)
           inputValue = inputValue.Replace(old2, new2);
       }
 
@@ -833,48 +827,15 @@ namespace CsvTools
 
     public static string CsvToolsStackTrace(this Exception exception)
     {
-      var start = 0;
-      if (String.IsNullOrEmpty(exception.StackTrace))
-        return null;
-      var indexof = exception.StackTrace.IndexOf("at ", StringComparison.Ordinal);
-      while (indexof != -1)
-      {
-        if (start >= 0 && exception.StackTrace.Length > start)
-        {
-          var part = exception.StackTrace.Substring(start, indexof - start).Trim();
-          if (!String.IsNullOrEmpty(part) && part.StartsWith("CsvTools."))
-          {
-            var msg = part.Substring("CsvTools.".Length);
-            // In case it was an extension method, use stack trace
-            if (msg.StartsWith("ClassLibraryCsvExtensionMethods"))
-            {
-              var st = new StackTrace();
-              var lastWaitToCompleteTask = -1;
-              for (var index = 0; index < st.FrameCount; index++)
-              {
-                var trace = st.GetFrame(index);
-                if (trace.GetMethod().ToString().Contains("WaitToCompleteTask"))
-                  lastWaitToCompleteTask = index;
-                else
-                {
-                  if (lastWaitToCompleteTask <= 0) continue;
-                  msg = trace.ToString();
-                  var tracePosIn = msg.IndexOf(" in ", StringComparison.Ordinal);
-                  return tracePosIn == -1 ? msg : msg.Substring(0, tracePosIn);
-                }
-              }
-            }
-            var posIn = msg.IndexOf(" in ", StringComparison.Ordinal);
-            var posLine = msg.LastIndexOf(":", StringComparison.Ordinal);
-            if (posIn != -1 && posLine != -1)
-              return msg.Substring(0, posIn) + " " + msg.Substring(posLine + 1);
-            else
-              return msg;
-          }
-        }
 
-        start = indexof + 3;
-        indexof = exception.StackTrace.IndexOf("at ", start, StringComparison.Ordinal);
+      if (string.IsNullOrEmpty(exception.StackTrace))
+        return null;
+
+      var start = exception.StackTrace.LastIndexOf("   ", StringComparison.Ordinal);
+      if (start != -1)
+      {
+        start = exception.StackTrace.IndexOf(" ", start + 3, StringComparison.Ordinal);
+        return $"at {exception.StackTrace.Substring(start)}";
       }
       return null;
     }
@@ -958,11 +919,8 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        var st = ex.CsvToolsStackTrace();
-        if (st == null)
-          Logger.Warning(ex, "{exception}", ex.ExceptionMessages());
-        else
-          Logger.Warning(ex, "{stacktrace}: {exception}", ex.CsvToolsStackTrace(), ex.ExceptionMessages());
+        Logger.Warning(ex, "{exception}", ex.ExceptionMessages());
+
         // return only the first exception if there are many
         if (ex is AggregateException ae)
           throw ae.Flatten().InnerExceptions[0];

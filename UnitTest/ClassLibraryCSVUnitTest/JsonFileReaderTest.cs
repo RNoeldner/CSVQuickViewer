@@ -13,7 +13,6 @@
  */
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Pri.LongPath;
 using System;
 
 namespace CsvTools.Tests
