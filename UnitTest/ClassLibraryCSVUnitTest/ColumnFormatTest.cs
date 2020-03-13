@@ -85,8 +85,9 @@ namespace CsvTools.Tests
     [TestMethod]
     public void ColumnNotEquals()
     {
-      var target = new Column();
-      Assert.IsFalse(m_Column.Equals(target));
+      var target1 = new Column {Name = "Hello"};
+      var target2 = new Column {Name = "World"};
+      Assert.IsFalse(target1.Equals(target2));
     }
 
     [TestMethod]

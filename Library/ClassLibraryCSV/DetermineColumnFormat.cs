@@ -478,17 +478,17 @@ namespace CsvTools
       {
         // Put the information into the list
         var dataRowCollection = dataReader.GetSchemaTable()?.Rows;
-        if (dataRowCollection != null)
-          foreach (DataRow schemaRow in dataRowCollection)
-          {
-            var header = schemaRow[SchemaTableColumn.ColumnName].ToString();
-            var colType = ((Type)schemaRow[SchemaTableColumn.DataType]).GetDataType();
+        if (dataRowCollection == null) return;
+        foreach (DataRow schemaRow in dataRowCollection)
+        {
+          var header = schemaRow[SchemaTableColumn.ColumnName].ToString();
+          var colType = ((Type)schemaRow[SchemaTableColumn.DataType]).GetDataType();
 
-            if (!all && colType == DataType.String)
-              continue;
+          if (!all && colType == DataType.String)
+            continue;
 
-            fileSettings.ColumnCollection.AddIfNew(new Column(header, colType));
-          }
+          fileSettings.ColumnCollection.AddIfNew(new Column(header, colType));
+        }
       }
     }
 
@@ -565,7 +565,7 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        Debug.WriteLine(ex.InnerExceptionMessages());
+        Logger.Warning(ex, "Issue getting sample values");
       }
 
       return new SampleResult(samples, recordNumber);

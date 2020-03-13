@@ -57,7 +57,7 @@ namespace CsvTools
       Contract.Ensures(Contract.Result<string>() != null);
 
       if (string.IsNullOrEmpty(newError))
-        throw new ArgumentException("newError is empty");
+        throw new ArgumentException("Error can not be empty", nameof(newError));
 
       // no need to check for null
       if (errorList.Length == 0)

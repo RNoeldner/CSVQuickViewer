@@ -11,9 +11,10 @@ namespace CsvTools.Tests
     [TestMethod]
     public void Properties()
     {
-      var test = new ProcessDisplayTime(CancellationToken.None);
-
-      test.LogAsDebug = true;
+      var test = new ProcessDisplayTime(CancellationToken.None)
+      {
+        LogAsDebug = true
+      };
       Assert.IsTrue( test.LogAsDebug);
       test.LogAsDebug = false;
       Assert.IsFalse(test.LogAsDebug);

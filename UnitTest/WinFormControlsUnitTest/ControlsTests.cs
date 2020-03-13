@@ -260,44 +260,7 @@ namespace CsvTools.Tests
       }
     }
 
-    [TestMethod]
-    public void FormProcessDisplay()
-    {
-      // Log
-      using (var frm = new FormProcessDisplay("Test Logger", true, CancellationToken.None))
-      {
-        frm.Show();
-        frm.Maximum = 100;
-        for (var c = 0; c < 70 && !frm.CancellationToken.IsCancellationRequested; c++)
-        {
-          frm.SetProcess($"This is a text\nLine {c}", c, true);
-          UnitTestStatic.WaitSomeTime(.1);
-        }
-      }
-
-      // marquee
-      using (var frm = new FormProcessDisplay("Test Marquee", false, CancellationToken.None))
-      {
-        frm.Show();
-        for (var c = 0; c < 100 && !frm.CancellationToken.IsCancellationRequested; c++)
-        {
-          frm.SetProcess($"This is a text\nLine {c}", c, true);
-          UnitTestStatic.WaitSomeTime(.1);
-        }
-      }
-
-      // NoLog
-      using (var frm = new FormProcessDisplay("Test", false, CancellationToken.None))
-      {
-        frm.Show();
-        frm.Maximum = 100;
-        for (var c = 0; c < 102 && !frm.CancellationToken.IsCancellationRequested; c++)
-        {
-          frm.SetProcess($"This is a text\nLine {c}", c, true);
-          UnitTestStatic.WaitSomeTime(.2);
-        }
-      }
-    }
+   
 
     [TestMethod]
     public void FormHierarchyDisplay()

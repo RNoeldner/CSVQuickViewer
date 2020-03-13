@@ -36,6 +36,7 @@ namespace CsvTools
           m_IgnoredColumns = new HashSet<int>();
         m_IgnoredColumns.Add(col);
       }
+
       reader.Warning += (s, args) => { Add(args.ColumnNumber, args.Message); };
     }
 
@@ -52,7 +53,7 @@ namespace CsvTools
     /// <param name="message">The message.</param>
     public new void Add(int columnNumber, string message)
     {
-      if ((m_IgnoredColumns != null && m_IgnoredColumns.Contains(columnNumber)) || string.IsNullOrEmpty(message))
+      if (m_IgnoredColumns != null && m_IgnoredColumns.Contains(columnNumber) || string.IsNullOrEmpty(message))
         return;
 
       if (TryGetValue(columnNumber, out var old))

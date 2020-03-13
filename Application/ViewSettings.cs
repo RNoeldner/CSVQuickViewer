@@ -95,7 +95,7 @@ namespace CsvTools
       set
       {
         var newVal = value ?? new FillGuessSettings();
-        if (m_FillGuessSettings.Equals(newVal))
+        if (ReferenceEquals(m_FillGuessSettings, newVal))
           return;
         m_FillGuessSettings = newVal;
         NotifyPropertyChanged(nameof(FillGuessSettings));
@@ -208,7 +208,7 @@ namespace CsvTools
       }
     }
 
-    public static void CopyConfiuration(ICsvFile csvSrc, ICsvFile csvDest)
+    public static void CopyConfiguration(ICsvFile csvSrc, ICsvFile csvDest)
     {
       if (csvSrc == null || csvDest == null)
       {

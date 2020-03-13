@@ -434,7 +434,7 @@ namespace CsvTools
       detailControl.MoveMenu();
       if (m_FileSetting == null)
         return;
-      ViewSettings.CopyConfiuration(m_ViewSettings, m_FileSetting);
+      ViewSettings.CopyConfiguration(m_ViewSettings, m_FileSetting);
       m_FileSetting.FileName = m_FileName;
     }
 
@@ -468,7 +468,7 @@ namespace CsvTools
       DetachPropertyChanged(m_FileSetting);
 
       m_FileSetting = new CsvFile();
-      ViewSettings.CopyConfiuration(m_ViewSettings, m_FileSetting);
+      ViewSettings.CopyConfiguration(m_ViewSettings, m_FileSetting);
       m_FileSetting.FileName = m_FileName;
 
       try
@@ -547,6 +547,7 @@ namespace CsvTools
                       m_ViewSettings.GuessQualifier,
                       m_ViewSettings.GuessStartRow,
                       m_ViewSettings.GuessHasHeader);
+
                     m_FileSetting.FillGuessColumnFormatReader(
                       true,
                       false,
@@ -772,7 +773,7 @@ namespace CsvTools
     {
       try
       {
-        ViewSettings.CopyConfiuration(m_FileSetting, m_ViewSettings);
+        ViewSettings.CopyConfiguration(m_FileSetting, m_ViewSettings);
         using (var frm = new FormEditSettings(m_ViewSettings))
         {
           frm.ShowDialog(MdiParent);

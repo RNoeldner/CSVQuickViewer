@@ -12,23 +12,65 @@
  *
  */
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Threading;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
-  [TestClass()]
+  [TestClass]
   public class FormProcessDisplayTests
   {
-    [TestMethod()]
+    [TestMethod]
+    public void FormProcessDisplay()
+    {
+      // Log
+      using (var frm = new FormProcessDisplay("Test Logger", true, CancellationToken.None))
+      {
+        frm.Show();
+        frm.Maximum = 100;
+        for (var c = 0; c < 70 && !frm.CancellationToken.IsCancellationRequested; c += 5)
+        {
+          frm.SetProcess($"This is a text\nLine {c}", c, true);
+          UnitTestStatic.WaitSomeTime(.1);
+        }
+      }
+
+      // marquee
+      using (var frm = new FormProcessDisplay("Test Marquee", false, CancellationToken.None))
+      {
+        frm.Show();
+        frm.Maximum = 0;
+        for (var c = 0; c < 100 && !frm.CancellationToken.IsCancellationRequested; c += 5)
+        {
+          frm.SetProcess($"This is a text\nLine {c}", c, true);
+          UnitTestStatic.WaitSomeTime(.1);
+        }
+      }
+
+      // NoLog
+      using (var frm = new FormProcessDisplay("Test", false, CancellationToken.None))
+      {
+        frm.Show();
+        frm.Maximum = 100;
+        for (var c = 0; c < 102 && !frm.CancellationToken.IsCancellationRequested; c += 4)
+        {
+          frm.SetProcess($"This is a text\nLine {c}", c, true);
+          UnitTestStatic.WaitSomeTime(.1);
+        }
+      }
+    }
+
+    [TestMethod]
     public void FormProcessDisplayTest()
     {
       using (var value = new FormProcessDisplay())
-      { Assert.IsNotNull(value); }
+      {
+        Assert.IsNotNull(value);
+      }
     }
 
-    [TestMethod()]
+    [TestMethod]
     public void FormProcessDisplayTest1()
     {
       using (var tokenSrc = new CancellationTokenSource())
@@ -43,7 +85,7 @@ namespace CsvTools.Tests
       }
     }
 
-    [TestMethod()]
+    [TestMethod]
     public void CancelTest()
     {
       using (var tokenSrc = new CancellationTokenSource())
@@ -58,7 +100,7 @@ namespace CsvTools.Tests
       }
     }
 
-    [TestMethod()]
+    [TestMethod]
     public void SetProcessTest()
     {
       using (var frm = new FormProcessDisplay())
@@ -68,7 +110,7 @@ namespace CsvTools.Tests
       }
     }
 
-    [TestMethod()]
+    [TestMethod]
     public void SetProcessTest1()
     {
       using (var frm = new FormProcessDisplay())
@@ -79,7 +121,7 @@ namespace CsvTools.Tests
       }
     }
 
-    [TestMethod()]
+    [TestMethod]
     public void DoHideTest()
     {
       using (var frm = new FormProcessDisplay())
@@ -89,7 +131,7 @@ namespace CsvTools.Tests
       }
     }
 
-    [TestMethod()]
+    [TestMethod]
     public void SetProcessTest2()
     {
       using (var frm = new FormProcessDisplay())
@@ -98,10 +140,7 @@ namespace CsvTools.Tests
 
         frm.Show();
         long called = 10;
-        frm.Progress += delegate (object sender, ProgressEventArgs e)
-        {
-          called = e.Value;
-        };
+        frm.Progress += delegate (object sender, ProgressEventArgs e) { called = e.Value; };
         frm.SetProcess("Help", 20, true);
 
         Assert.AreEqual(20, called);

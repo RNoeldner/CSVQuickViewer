@@ -183,14 +183,7 @@ namespace CsvTools
     /// </summary>
     /// <value>An array of common code pages.</value>
     [SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays")]
-    public static int[] CommonCodePages
-    {
-      get
-      {
-        Contract.Ensures(Contract.Result<int[]>() != null);
-        return m_CommonCodePages.Value;
-      }
-    }
+    public static int[] CommonCodePages => m_CommonCodePages.Value;
 
     /// <summary>
     ///   Gets the code page by byte order mark.
@@ -339,14 +332,14 @@ namespace CsvTools
 
       var detectedCodePage = CodePage.UTF8;
 
-      var cdet = new CharsetDetector();
-      cdet.Feed(buff, 0, len);
-      cdet.DataEnd();
+      var charsetDetector = new CharsetDetector();
+      charsetDetector.Feed(buff, 0, len);
+      charsetDetector.DataEnd();
 
-      if (cdet.Charset == null)
+      if (charsetDetector.Charset == null)
         return (int)detectedCodePage;
 #pragma warning disable CA1308 // Normalize strings to uppercase
-      switch (cdet.Charset.ToLowerInvariant())
+      switch (charsetDetector.Charset.ToLowerInvariant())
       {
         case "ascii":
           detectedCodePage = CodePage.ASCII;

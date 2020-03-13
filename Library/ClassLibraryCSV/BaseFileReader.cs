@@ -783,22 +783,22 @@ namespace CsvTools
     {
       Debug.Assert(AssociatedTimeCol != null);
 
-      for (var colindex = 0; colindex < FieldCount; colindex++)
+      for (var colIndex = 0; colIndex < FieldCount; colIndex++)
       {
-        var setting = FileSetting.ColumnCollection.Get(Column[colindex].Name);
+        var setting = FileSetting.ColumnCollection.Get(Column[colIndex].Name);
         if (setting != null)
         {
-          setting.CopyTo(Column[colindex]);
+          setting.CopyTo(Column[colIndex]);
           // Copy to has replaced he column Ordinal but this should be kept
-          Column[colindex].ColumnOrdinal = colindex;
+          Column[colIndex].ColumnOrdinal = colIndex;
         }
 
-        if (Column[colindex].ValueFormat.DataType != DataType.DateTime || setting == null || !setting.Convert ||
+        if (Column[colIndex].ValueFormat.DataType != DataType.DateTime || setting == null || !setting.Convert ||
             setting.Ignore)
           continue;
 
-        AssociatedTimeCol[colindex] = GetOrdinal(Column[colindex].TimePart);
-        m_AssociatedTimeZoneCol[colindex] = GetOrdinal(Column[colindex].TimeZonePart);
+        AssociatedTimeCol[colIndex] = GetOrdinal(Column[colIndex].TimePart);
+        m_AssociatedTimeZoneCol[colIndex] = GetOrdinal(Column[colIndex].TimeZonePart);
       }
 
       // Any defined column not present in file is removed this can happen if the file is changed or
@@ -1151,7 +1151,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="columnNumber">The column number.</param>
     /// <param name="message">The message.</param>
-    protected void HandleError(int columnNumber, string message) => Warning?.Invoke(this,
+    public void HandleError(int columnNumber, string message) => Warning?.Invoke(this,
       new WarningEventArgs(RecordNumber, columnNumber, message, StartLineNumber, EndLineNumber,
         Column != null && columnNumber >= 0 && columnNumber < m_FieldCount && Column[columnNumber] != null
           ? Column[columnNumber].Name
@@ -1295,7 +1295,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="columnNumber">The column.</param>
     /// <param name="message">The message.</param>
-    protected void HandleWarning(int columnNumber, string message) => Warning?.Invoke(this,
+    public void HandleWarning(int columnNumber, string message) => Warning?.Invoke(this,
       new WarningEventArgs(RecordNumber, columnNumber, message.AddWarningId(), StartLineNumber,
         EndLineNumber,
         Column != null && columnNumber >= 0 && columnNumber < m_FieldCount && Column[columnNumber] != null
