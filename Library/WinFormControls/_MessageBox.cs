@@ -38,15 +38,17 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   MessageBox for handling Choice for a number of disloags, one button will be reserved to
+    ///   MessageBox for handling Choice for a number of dialogs, one button will be reserved to
     ///   answer for all option, if this is selected, it will be stored and returned in consecutive calls
     /// </summary>
     /// <param name="owner">The calling from, can be null</param>
     /// <param name="message">Dialog Message</param>
     /// <param name="title">Dialog Message</param>
     /// <param name="massChoice">
-    ///   A class to maintain information if a defualt is choosen and how many dialogs might be presented
+    ///   A class to maintain information if a default is chosen and how many dialogs might be presented
     /// </param>
+    /// <param name="button1Text">By Default "Yes"</param>
+    /// <param name="button2Text">By Default "No"</param>
     /// <returns>DialogResult.Yes or DialogResult.No</returns>
     public static DialogResult PersistentChoice(
       Form owner,
@@ -63,18 +65,18 @@ namespace CsvTools
       {
         var result = tm.Show(
           owner, message, title,
-          // add a thrid button in case we expect followup dialogs
+          // add a third button in case we expect followup dialogs
           massChoice.NumRecs > 1 ? MessageBoxButtons.YesNoCancel : MessageBoxButtons.YesNo,
           MessageBoxIcon.Question,
           // Depending on the massChoice Result, select the right button
           (massChoice.DialogResult == DialogResult.Yes) ? MessageBoxDefaultButton.Button1 : MessageBoxDefaultButton.Button2,
           4.0,
-          // do not overwite Button 1 or Button 2
+          // do not overwrite Button 1 or Button 2
           button1Text, button2Text,
           // but set Button 3 if needed
           massChoice.NumRecs > 1 ? $"{massChoice.DialogResult == DialogResult.Yes: button1Text : button2Text} To All ({massChoice.NumRecs})" : null);
 
-        // Button3 results in Cancel and is the Masschoice
+        // Button3 results in Cancel and is the Mass choice
         if (result == DialogResult.Cancel)
         {
           massChoice.Choosen = true;

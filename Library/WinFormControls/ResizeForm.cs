@@ -6,19 +6,19 @@ namespace CsvTools
 {
   public class ResizeForm : Form
   {
-    private static readonly Font myfont = SystemFonts.IconTitleFont;
+    private static readonly Font m_Font = SystemFonts.DialogFont;
 
     // new Font(SystemFonts.IconTitleFont.FontFamily, SystemFonts.IconTitleFont.Size - 2, SystemFonts.IconTitleFont.Style);
 
     /// <summary>
-    ///   Recursivly change the font of all controls, needed on Windows 8 / 2012
+    ///   Recursively change the font of all controls, needed on Windows 8 / 2012
     /// </summary>
     /// <param name="container">A container control like a form or panel</param>
-    private void SetFonts(ContainerControl container)
+    private void SetFonts(Control container)
     {
-      if (container.Font != SystemFonts.IconTitleFont)
+      if (!Equals(container.Font, SystemFonts.IconTitleFont))
       {
-        Logger.Debug($"Changed font from {container.Font} to {myfont} for Container : {container}");
+        Logger.Debug($"Changed font from {container.Font} to {m_Font} for Container : {container}");
         container.Font = SystemFonts.IconTitleFont;
       }
 
@@ -28,22 +28,20 @@ namespace CsvTools
           SetFonts(cc);
         else
         {
-          if (ctrl.Font != SystemFonts.IconTitleFont)
-          {
-            Logger.Debug($"Changed Font from {ctrl.Font} to {SystemFonts.IconTitleFont} for Control : {ctrl}");
-            ctrl.Font = SystemFonts.IconTitleFont;
-          }
+          if (Equals(ctrl.Font, SystemFonts.IconTitleFont)) continue;
+          Logger.Debug($"Changed Font from {ctrl.Font} to {SystemFonts.IconTitleFont} for Control : {ctrl}");
+          ctrl.Font = SystemFonts.IconTitleFont;
         }
       }
     }
 
-    public ResizeForm()
+    protected ResizeForm()
     {
-#if !NETCOREAPP3_1
+      //#if !NETCOREAPP3_1
       // 6.2 and 6.3 is Windows 8 / Windows Server 2012
       if (Environment.OSVersion.Version.Major == 6 && Environment.OSVersion.Version.Minor > 1)
         SetFonts(this);
-#endif
+      //#endif
     }
   }
 }

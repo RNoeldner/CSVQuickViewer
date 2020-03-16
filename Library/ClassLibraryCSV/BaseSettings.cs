@@ -761,7 +761,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Pass phrase for Decryption
+    ///   Passphrase for Decryption, will not be stored
     /// </summary>
     [XmlIgnore]
     [DefaultValue("")]

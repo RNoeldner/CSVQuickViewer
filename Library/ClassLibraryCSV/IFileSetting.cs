@@ -136,7 +136,7 @@ namespace CsvTools
     long NumRecords { get; set; }
 
     /// <summary>
-    /// Pass phrase for Decryption
+    /// Passphrase for Decryption
     /// </summary>
     string Passphrase { get; set; }
 

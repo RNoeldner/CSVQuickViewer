@@ -46,8 +46,6 @@ namespace CsvTools
     /// <summary>
     ///   Opens a file for reading
     /// </summary>
-    /// <param name="path">The path.</param>
-    /// <param name="encryptedPassphrase">The encrypted passphrase.</param>
     /// <returns></returns>
     /// <exception cref="ArgumentException">Path must be set - path</exception>
     public static IImprovedStream OpenRead(IFileSettingPhysicalFile setting)
@@ -60,8 +58,7 @@ namespace CsvTools
     /// <summary>
     ///   Opens a file for reading
     /// </summary>
-    /// <param name="path">The path.</param>
-    /// <param name="encryptedPassphrase">The encrypted passphrase.</param>
+    /// <param name="fileName">The path.</param>
     /// <returns></returns>
     /// <exception cref="ArgumentException">Path must be set - path</exception>
     public static IImprovedStream OpenRead(string fileName)
@@ -76,8 +73,6 @@ namespace CsvTools
     /// <summary>
     ///   Opens an file for writing
     /// </summary>
-    /// <param name="path">The path.</param>
-    /// <param name="recipient">The recipient.</param>
     /// <returns>An improved stream object</returns>
     public static IImprovedStream OpenWrite(IFileSettingPhysicalFile setting)
     {
@@ -89,8 +84,7 @@ namespace CsvTools
     /// <summary>
     ///   Opens an file for writing
     /// </summary>
-    /// <param name="path">The path.</param>
-    /// <param name="recipient">The recipient.</param>
+    /// <param name="fileName">The path.</param>
     /// <returns>An improved stream object</returns>
     public static IImprovedStream OpenWrite(string fileName)
     {
@@ -175,7 +169,6 @@ namespace CsvTools
     ///   Opens the base stream, handling sFTP access
     /// </summary>
     /// <param name="path">The path.</param>
-    /// <param name="encryptedPassphraseFunc">The encrypted passphrase function.</param>
     /// <returns>An improved stream where the base stream is set</returns>
     private static ImprovedStream OpenBaseStream(string path)
     {
