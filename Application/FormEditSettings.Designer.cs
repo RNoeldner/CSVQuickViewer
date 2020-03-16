@@ -909,8 +909,7 @@
       // 
       // fillGuessSettingEdit
       // 
-      this.fillGuessSettingEdit.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.fillGuessSettingEdit.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+      this.fillGuessSettingEdit.Dock = System.Windows.Forms.DockStyle.Fill;      
       this.fillGuessSettingEdit.Location = new System.Drawing.Point(2, 2);
       this.fillGuessSettingEdit.Margin = new System.Windows.Forms.Padding(1);
       this.fillGuessSettingEdit.MinimumSize = new System.Drawing.Size(710, 270);
@@ -984,7 +983,6 @@
       // 
       this.quotingControl.BackColor = System.Drawing.SystemColors.Control;
       this.quotingControl.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.quotingControl.Font = new System.Drawing.Font("Segoe UI", 9F);
       this.quotingControl.IsWriteSetting = false;
       this.quotingControl.Location = new System.Drawing.Point(2, 2);
       this.quotingControl.Margin = new System.Windows.Forms.Padding(7);

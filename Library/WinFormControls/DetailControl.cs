@@ -365,7 +365,6 @@ namespace CsvTools
         if (m_FilterDataTable == null) return;
         m_FilterDataTable.WaitCompeteFilter(5);
         m_FilterDataTable.UniqueFieldName = value;
-
       }
     }
 
@@ -992,7 +991,6 @@ namespace CsvTools
       this.m_ToolStripButtonMovePreviousItem.Text = "Move previous";
       // m_ToolStripTextBox1
       this.m_ToolStripTextBox1.AccessibleName = "Position";
-      this.m_ToolStripTextBox1.Font = new System.Drawing.Font("Segoe UI", 9F);
       this.m_ToolStripTextBox1.Name = "m_ToolStripTextBox1";
       this.m_ToolStripTextBox1.Size = new System.Drawing.Size(50, 27);
       this.m_ToolStripTextBox1.Text = "0";
@@ -1016,7 +1014,6 @@ namespace CsvTools
       this.m_Search.AutoSize = true;
       this.m_Search.BackColor = System.Drawing.SystemColors.Info;
       this.m_Search.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-      this.m_Search.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
       this.m_Search.Location = new System.Drawing.Point(722, 4);
       this.m_Search.Margin = new System.Windows.Forms.Padding(4);
       this.m_Search.Name = "m_Search";
@@ -1035,7 +1032,6 @@ namespace CsvTools
       this.DataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
       dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
       dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
-      dataGridViewCellStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
       dataGridViewCellStyle2.ForeColor = System.Drawing.Color.Black;
       dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
       dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
@@ -1054,7 +1050,6 @@ namespace CsvTools
       this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.Controls.Add(this.m_ToolStripContainer);
-      this.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
       this.Margin = new System.Windows.Forms.Padding(4);
       this.Name = "DetailControl";
       this.Size = new System.Drawing.Size(1162, 432);

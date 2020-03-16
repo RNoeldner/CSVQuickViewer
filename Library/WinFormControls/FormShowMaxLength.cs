@@ -65,9 +65,7 @@ namespace CsvTools
       this.m_DataGridView = new CsvTools.FilteredDataGridView();
       ((System.ComponentModel.ISupportInitialize)(this.m_DataGridView)).BeginInit();
       this.SuspendLayout();
-      // 
       // m_DataGridView
-      // 
       this.m_DataGridView.AllowUserToAddRows = false;
       this.m_DataGridView.AllowUserToDeleteRows = false;
       this.m_DataGridView.AllowUserToOrderColumns = true;
@@ -88,9 +86,7 @@ namespace CsvTools
       this.m_DataGridView.RowHeadersWidth = 51;
       this.m_DataGridView.Size = new System.Drawing.Size(362, 310);
       this.m_DataGridView.TabIndex = 0;
-      // 
       // FormShowMaxLength
-      // 
       this.ClientSize = new System.Drawing.Size(362, 310);
       this.Controls.Add(this.m_DataGridView);
       this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
@@ -101,7 +97,6 @@ namespace CsvTools
       this.Load += new System.EventHandler(this.ShowMaxLength_Load);
       ((System.ComponentModel.ISupportInitialize)(this.m_DataGridView)).EndInit();
       this.ResumeLayout(false);
-
     }
 
     /// <summary>

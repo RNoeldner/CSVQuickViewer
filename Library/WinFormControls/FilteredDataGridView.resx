@@ -117,13 +117,13 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <metadata name="contextMenuStripCell.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>17, 65</value>
+  </metadata>
+  <metadata name="contextMenuStripFilter.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>17, 161</value>
+  </metadata>
   <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
-  <data name="contextMenuStripCell.TrayLocation" type="System.Drawing.Point, System.Drawing">
-    <value>17, 60</value>
-  </data>
-  <data name="contextMenuStripFilter.TrayLocation" type="System.Drawing.Point, System.Drawing">
-    <value>17, 146</value>
-  </data>
   <data name="toolStripMenuItemApplyFilter.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         R0lGODlhEAAQAIcAAAAAACZ/AF0+AEFeAFxuAJNdAJReAJNhAJNiAJdjAJdkAJKjApK+f/+cH/+eHv+o
@@ -142,26 +142,6 @@
         ACH/C05FVFNDQVBFMi4wAwEBAAAh+QQBAAD/ACwAAAAAEAAQAAAIgQAPJDBQoKDBgwYUIBCgoqHDhw8F
         /BNg4kSJESA8aIDQwMEDCxL/TTSRgoSIDxskVMAAUqRLiihGfIhwIUNLly9NmOhAwcJNnDk5TPgJ1KWB
         EBwMFC16NOlSoEcXEGBAtSrTEAGyas16VWpVq0AFhPD6lcFSAVu3Ph0wtezTiUUDAgA7
-</value>
-  </data>
-  <data name="toolStripMenuItemFilterAdd.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        R0lGODlhEAAQAIcAAAAAAF0+AJNdAJReAJNhAJNiAJdjAJdkAP+cH/+eHv+oGv+1Bv+9D/+yGv+yHP+4
-        FP+gLf+nKv+qI/+rJ/+pKf/EAP/CCv/IBv/OAP/RAP/SAP/sAP/uAP/3AP//AP/1MP/rRf/4Sf/ta//r
-        cv/sdP///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-        AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-        AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-        AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-        AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-        AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-        AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-        AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-        AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-        AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-        AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-        ACH/C05FVFNDQVBFMi4wAwEBAAAh+QQBAAD/ACwAAAAAEAAQAAAIdAAJGBggoKDBgwMOFAhQoqHDhw8D
-        /AsQQgQIDxsyVFiAIIGCCBL/TQxB4kMHDRYaQJgAUqRLiiM8aGAggUJLly9DhMDwIMJNnDkvOPgJ1OUA
-        DhcGFC16NOlSoE2VPjWKVOrUf1GvigxQVetWp14nWvUaEmdAADs=
 </value>
   </data>
   <data name="toolStripMenuItem2.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
@@ -225,12 +205,32 @@
         9J8AvAIE6GW7NLBIwwEBADs=
 </value>
   </data>
-  <data name="contextMenuStripColumns.TrayLocation" type="System.Drawing.Point, System.Drawing">
-    <value>17, 189</value>
+  <metadata name="contextMenuStripColumns.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>17, 209</value>
+  </metadata>
+  <data name="toolStripMenuItemFilterAdd.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        R0lGODlhEAAQAIcAAAAAAF0+AJNdAJReAJNhAJNiAJdjAJdkAP+cH/+eHv+oGv+1Bv+9D/+yGv+yHP+4
+        FP+gLf+nKv+qI/+rJ/+pKf/EAP/CCv/IBv/OAP/RAP/SAP/sAP/uAP/3AP//AP/1MP/rRf/4Sf/ta//r
+        cv/sdP///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+        AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+        AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+        AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+        AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+        AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+        AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+        AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+        AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+        AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+        AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+        ACH/C05FVFNDQVBFMi4wAwEBAAAh+QQBAAD/ACwAAAAAEAAQAAAIdAAJGBggoKDBgwMOFAhQoqHDhw8D
+        /AsQQgQIDxsyVFiAIIGCCBL/TQxB4kMHDRYaQJgAUqRLiiM8aGAggUJLly9DhMDwIMJNnDkvOPgJ1OUA
+        DhcGFC16NOlSoE2VPjWKVOrUf1GvigxQVetWp14nWvUaEmdAADs=
+</value>
   </data>
-  <data name="contextMenuStripHeader.TrayLocation" type="System.Drawing.Point, System.Drawing">
-    <value>17, 103</value>
-  </data>
+  <metadata name="contextMenuStripHeader.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>17, 113</value>
+  </metadata>
   <data name="toolStripMenuItemRemoveOne.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         R0lGODlhEAAQAIcAAAAAAF0+AJMAAJNdAJReAJNhAJNiAJdjAJdkAMopAP8pAP8zAP9MDP9sFP+cH/+e
@@ -301,15 +301,10 @@
         bHRdOAAAAABJRU5ErkJggg==
 </value>
   </data>
-  <data name="timerColumsFilter.TrayLocation" type="System.Drawing.Point, System.Drawing">
+  <metadata name="timerColumsFilter.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>400, 71</value>
-  </data>
-  <assembly alias="mscorlib" name="mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="$this.TrayLargeIcon" type="System.Boolean, mscorlib">
+  </metadata>
+  <metadata name="$this.TrayLargeIcon" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
     <value>False</value>
-  </data>
-  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="NBSP" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>Resources\NBSP.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
+  </metadata>
 </root>

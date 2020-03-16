@@ -197,7 +197,7 @@ namespace CsvTools
       Logger.Warning(ex, "Error in {form} : {message}", from.GetType().Name, ex.SourceExceptionMessage());
       Cursor.Current = Cursors.Default;
 #if DEBUG
-      _MessageBox.ShowBig(from, ex.ExceptionMessages() + "\n\nMethod:\n" + ex.CsvToolsStackTrace(), string.IsNullOrEmpty(additionalTitle) ? "Error" : $"Error {additionalTitle}", MessageBoxButtons.OK, MessageBoxIcon.Warning, timeout: 20);
+      _MessageBox.ShowBig(from, ex.ExceptionMessages() + "\n\nMethod:\n" + ex.StackTrace, string.IsNullOrEmpty(additionalTitle) ? "Error" : $"Error {additionalTitle}", MessageBoxButtons.OK, MessageBoxIcon.Warning, timeout: 20);
 #else
       _MessageBox.Show(
         from,

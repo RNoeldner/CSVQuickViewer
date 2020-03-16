@@ -149,7 +149,7 @@ namespace CsvTools
         else
         {
           TimeToCompletion.TargetValue = 1;
-          
+
           m_ProgressBar.SafeInvoke(() =>
           {
             m_ProgressBar.Maximum = 0;
@@ -286,21 +286,16 @@ namespace CsvTools
       this.m_TableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
       this.m_TableLayoutPanel.SuspendLayout();
       this.SuspendLayout();
-      // 
       // m_ProgressBar
-      // 
       this.m_ProgressBar.Location = new System.Drawing.Point(3, 65);
       this.m_ProgressBar.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
       this.m_ProgressBar.Name = "m_ProgressBar";
       this.m_ProgressBar.Size = new System.Drawing.Size(471, 25);
       this.m_ProgressBar.Style = System.Windows.Forms.ProgressBarStyle.Marquee;
       this.m_ProgressBar.TabIndex = 0;
-      // 
       // m_LabelText
-      // 
       this.m_LabelText.BackColor = System.Drawing.SystemColors.Control;
       this.m_LabelText.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.m_LabelText.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
       this.m_LabelText.Location = new System.Drawing.Point(5, 6);
       this.m_LabelText.Margin = new System.Windows.Forms.Padding(5, 6, 5, 6);
       this.m_LabelText.MaximumSize = new System.Drawing.Size(468, 267);
@@ -309,9 +304,7 @@ namespace CsvTools
       this.m_LabelText.TabIndex = 1;
       this.m_LabelText.Text = "Text\r\nLine 2";
       this.m_LabelText.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-      // 
       // m_LabelEtl
-      // 
       this.m_LabelEtl.Dock = System.Windows.Forms.DockStyle.Top;
       this.m_LabelEtl.Location = new System.Drawing.Point(3, 95);
       this.m_LabelEtl.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -319,9 +312,7 @@ namespace CsvTools
       this.m_LabelEtl.Size = new System.Drawing.Size(472, 18);
       this.m_LabelEtl.TabIndex = 6;
       this.m_LabelEtl.Text = "Estimated time remaining:";
-      // 
       // m_TableLayoutPanel
-      // 
       this.m_TableLayoutPanel.ColumnCount = 1;
       this.m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
       this.m_TableLayoutPanel.Controls.Add(this.m_ProgressBar, 0, 1);
@@ -338,9 +329,7 @@ namespace CsvTools
       this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.m_TableLayoutPanel.Size = new System.Drawing.Size(478, 117);
       this.m_TableLayoutPanel.TabIndex = 8;
-      // 
       // FormProcessDisplay
-      // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.ClientSize = new System.Drawing.Size(478, 117);
@@ -358,7 +347,6 @@ namespace CsvTools
       this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.ProcessDisplay_FormClosing);
       this.m_TableLayoutPanel.ResumeLayout(false);
       this.ResumeLayout(false);
-
     }
 
     private void ProcessDisplay_FormClosing(object sender, FormClosingEventArgs e)

@@ -48,14 +48,10 @@
       this.CSVTextBox.AcceptsTab = true;
       this.CSVTextBox.AutoWordSelection = true;
       this.CSVTextBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
-      this.CSVTextBox.Delimiter = ',';
-      this.CSVTextBox.DisplaySpace = true;
-      this.CSVTextBox.Dock = System.Windows.Forms.DockStyle.Left;
-      this.CSVTextBox.Escape = '\\';
+      this.CSVTextBox.Dock = System.Windows.Forms.DockStyle.Left;      
       this.CSVTextBox.Location = new System.Drawing.Point(0, 0);
       this.CSVTextBox.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-      this.CSVTextBox.Name = "CSVTextBox";
-      this.CSVTextBox.Quote = '\"';
+      this.CSVTextBox.Name = "CSVTextBox";      
       this.CSVTextBox.ReadOnly = true;
       this.CSVTextBox.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Horizontal;
       this.CSVTextBox.Size = new System.Drawing.Size(341, 248);
