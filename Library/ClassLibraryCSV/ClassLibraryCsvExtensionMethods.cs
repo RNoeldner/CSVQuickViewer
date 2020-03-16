@@ -73,6 +73,7 @@ namespace CsvTools
         other.Add(item.Clone());
     }
 
+
     /// <summary>
     ///   Copies all elements from one collection to the other
     /// </summary>
