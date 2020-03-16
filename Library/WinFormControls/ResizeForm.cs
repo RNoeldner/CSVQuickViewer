@@ -16,10 +16,10 @@ namespace CsvTools
     /// <param name="container">A container control like a form or panel</param>
     private void SetFonts(Control container)
     {
-      if (!Equals(container.Font, SystemFonts.IconTitleFont))
+      if (!Equals(container.Font, m_Font))
       {
         Logger.Debug($"Changed font from {container.Font} to {m_Font} for Container : {container}");
-        container.Font = SystemFonts.IconTitleFont;
+        container.Font = m_Font;
       }
 
       foreach (Control ctrl in base.Controls)
@@ -28,9 +28,9 @@ namespace CsvTools
           SetFonts(cc);
         else
         {
-          if (Equals(ctrl.Font, SystemFonts.IconTitleFont)) continue;
+          if (Equals(ctrl.Font, m_Font)) continue;
           Logger.Debug($"Changed Font from {ctrl.Font} to {SystemFonts.IconTitleFont} for Control : {ctrl}");
-          ctrl.Font = SystemFonts.IconTitleFont;
+          ctrl.Font = m_Font;
         }
       }
     }

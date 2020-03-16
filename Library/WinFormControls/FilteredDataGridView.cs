@@ -71,11 +71,10 @@ namespace CsvTools
         m_ImgFilterIndicator = ((Image)(resources.GetObject("toolStripMenuItem2.Image")));
         m_ImgNbSp = ((Image)(resources.GetObject("NBSP")));
       }
-      catch 
+      catch
       {
         //ignore
       }
-      
 
       InitializeComponent();
       DataError += FilteredDataGridView_DataError;
@@ -132,28 +131,16 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets or sets the name of the list or table in the data source for which the
-    ///   <see
-    ///     cref="DataGridView" />
-    ///   is displaying data.
+    ///   Gets or sets the name of the list or table in the data source for which the <see
+    ///   cref="DataGridView" /> is displaying data.
     /// </summary>
     /// <returns>
-    ///   The name of the table or list in the
-    ///   <see
-    ///     cref="DataSource" />
-    ///   for which the
-    ///   <see
-    ///     cref="DataGridView" />
-    ///   is displaying data. The default is <see cref="string.Empty" />.
+    ///   The name of the table or list in the <see cref="DataSource" /> for which the <see
+    ///   cref="DataGridView" /> is displaying data. The default is <see cref="string.Empty" />.
     /// </returns>
     /// <exception cref="Exception">
-    ///   An error occurred in the data source and either there is no handler for the
-    ///   <see
-    ///     cref="DataError" />
-    ///   event or the handler has set the
-    ///   <see
-    ///     cref="Exception" />
-    ///   property to
+    ///   An error occurred in the data source and either there is no handler for the <see
+    ///   cref="DataError" /> event or the handler has set the <see cref="Exception" /> property to
     ///   true. The exception object can typically be cast to type <see cref="FormatException" />.
     /// </exception>
     public new string DataMember
@@ -176,20 +163,12 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets or sets the data source that the <see cref="DataGridView" /> is
-    ///   displaying data for.
+    ///   Gets or sets the data source that the <see cref="DataGridView" /> is displaying data for.
     /// </summary>
-    /// <returns>
-    ///   The object that contains data for the <see cref="DataGridView" /> to display.
-    /// </returns>
+    /// <returns>The object that contains data for the <see cref="DataGridView" /> to display.</returns>
     /// <exception cref="Exception">
-    ///   An error occurred in the data source and either there is no handler for the
-    ///   <see
-    ///     cref="DataError" />
-    ///   event or the handler has set the
-    ///   <see
-    ///     cref="Exception" />
-    ///   property to
+    ///   An error occurred in the data source and either there is no handler for the <see
+    ///   cref="DataError" /> event or the handler has set the <see cref="Exception" /> property to
     ///   true. The exception object can typically be cast to type <see cref="FormatException" />.
     /// </exception>
     public new object DataSource
@@ -214,9 +193,7 @@ namespace CsvTools
     /// <summary>
     ///   Sets the file setting.
     /// </summary>
-    /// <value>
-    ///   The file setting.
-    /// </value>
+    /// <value>The file setting.</value>
     public IFileSetting FileSetting
     {
       private get;
@@ -232,9 +209,7 @@ namespace CsvTools
     /// <summary>
     ///   Sets the frozen columns.
     /// </summary>
-    /// <value>
-    ///   The frozen columns.
-    /// </value>
+    /// <value>The frozen columns.</value>
     public int FrozenColumns
     {
       set
@@ -488,7 +463,8 @@ namespace CsvTools
     /// <returns></returns>
     private static int GetDesiredRowHeight(DataGridViewRow row, IEnumerable<DataGridViewColumn> checkedColumns)
     {
-      // Actually depend on scaling, best approach is to get the initial row.Height of the very first call
+      // Actually depend on scaling, best approach is to get the initial row.Height of the very
+      // first call
       if (m_DefRowHeight == -1)
         m_DefRowHeight = row.Height;
       // in case the row is not bigger than normal check if it would need to be higher
@@ -657,8 +633,8 @@ namespace CsvTools
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">
-    ///   The <see cref="System.Windows.Forms.DataGridViewColumnEventArgs" /> instance containing the
-    ///   event data.
+    ///   The <see cref="System.Windows.Forms.DataGridViewColumnEventArgs" /> instance containing
+    ///   the event data.
     /// </param>
     private void FilteredDataGridView_ColumnAdded(object sender, DataGridViewColumnEventArgs e)
     {
@@ -681,8 +657,8 @@ namespace CsvTools
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">
-    ///   The <see cref="System.Windows.Forms.DataGridViewColumnEventArgs" /> instance containing the
-    ///   event data.
+    ///   The <see cref="System.Windows.Forms.DataGridViewColumnEventArgs" /> instance containing
+    ///   the event data.
     /// </param>
     private void FilteredDataGridView_ColumnRemoved(object sender, DataGridViewColumnEventArgs e)
     {
@@ -699,8 +675,8 @@ namespace CsvTools
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">
-    ///   The <see cref="System.Windows.Forms.DataGridViewColumnEventArgs" /> instance containing the
-    ///   event data.
+    ///   The <see cref="System.Windows.Forms.DataGridViewColumnEventArgs" /> instance containing
+    ///   the event data.
     /// </param>
     private void FilteredDataGridView_ColumnWidthChanged(object sender, DataGridViewColumnEventArgs e)
     {
@@ -1084,11 +1060,14 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Called when the preferences are changed by a user.
-    ///   In case the Local was changed we need to clear the cache so date and number are displayed correctly again
+    ///   Called when the preferences are changed by a user. In case the Local was changed we need
+    ///   to clear the cache so date and number are displayed correctly again
     /// </summary>
     /// <param name="sender">The source of the event.</param>
-    /// <param name="e">The <see cref="Microsoft.Win32.UserPreferenceChangedEventArgs" /> instance containing the event data.</param>
+    /// <param name="e">
+    ///   The <see cref="Microsoft.Win32.UserPreferenceChangedEventArgs" /> instance containing the
+    ///   event data.
+    /// </param>
     private void SystemEvents_UserPreferenceChanged(object sender, UserPreferenceChangedEventArgs e)
     {
       if (e.Category == UserPreferenceCategory.Locale)

@@ -218,201 +218,238 @@ namespace CsvTools
       ((System.ComponentModel.ISupportInitialize)(this.m_ErrorProvider)).BeginInit();
       this.m_TableLayoutPanel.SuspendLayout();
       this.SuspendLayout();
+      // 
       // m_Label5
+      // 
       m_Label5.AutoSize = true;
       this.m_TableLayoutPanel.SetColumnSpan(m_Label5, 5);
-      m_Label5.Location = new System.Drawing.Point(40, 349);
-      m_Label5.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
+      m_Label5.Location = new System.Drawing.Point(28, 234);
+      m_Label5.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
       m_Label5.Name = "m_Label5";
-      m_Label5.Size = new System.Drawing.Size(748, 29);
+      m_Label5.Size = new System.Drawing.Size(490, 20);
       m_Label5.TabIndex = 26;
       m_Label5.Text = "Tab visualized as »   Linefeed visualized as ¶    Space visualized as ●";
+      // 
       // m_LabelQuote
+      // 
       this.m_LabelQuote.Anchor = System.Windows.Forms.AnchorStyles.Right;
       this.m_LabelQuote.AutoSize = true;
       this.m_TableLayoutPanel.SetColumnSpan(this.m_LabelQuote, 2);
-      this.m_LabelQuote.Location = new System.Drawing.Point(53, 8);
-      this.m_LabelQuote.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
+      this.m_LabelQuote.Location = new System.Drawing.Point(40, 6);
+      this.m_LabelQuote.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
       this.m_LabelQuote.Name = "m_LabelQuote";
-      this.m_LabelQuote.Size = new System.Drawing.Size(163, 29);
+      this.m_LabelQuote.Size = new System.Drawing.Size(105, 20);
       this.m_LabelQuote.TabIndex = 0;
       this.m_LabelQuote.Text = "Text Qualifier:";
+      // 
       // m_LabelQuotePlaceholer
+      // 
       this.m_LabelQuotePlaceholer.Anchor = System.Windows.Forms.AnchorStyles.Right;
       this.m_LabelQuotePlaceholer.AutoSize = true;
       this.m_TableLayoutPanel.SetColumnSpan(this.m_LabelQuotePlaceholer, 2);
-      this.m_LabelQuotePlaceholer.Location = new System.Drawing.Point(67, 113);
-      this.m_LabelQuotePlaceholer.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
+      this.m_LabelQuotePlaceholer.Location = new System.Drawing.Point(49, 70);
+      this.m_LabelQuotePlaceholer.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
       this.m_LabelQuotePlaceholer.Name = "m_LabelQuotePlaceholer";
-      this.m_LabelQuotePlaceholer.Size = new System.Drawing.Size(149, 29);
+      this.m_LabelQuotePlaceholer.Size = new System.Drawing.Size(96, 20);
       this.m_LabelQuotePlaceholer.TabIndex = 7;
       this.m_LabelQuotePlaceholer.Text = "Placeholder:";
+      // 
       // m_TextBoxEscape
+      // 
       this.m_TextBoxEscape.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.m_FileFormatBindingSource, "EscapeCharacter", true));
       this.m_TextBoxEscape.Dock = System.Windows.Forms.DockStyle.Top;
-      this.m_TextBoxEscape.Location = new System.Drawing.Point(228, 50);
-      this.m_TextBoxEscape.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
+      this.m_TextBoxEscape.Location = new System.Drawing.Point(153, 35);
+      this.m_TextBoxEscape.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
       this.m_TextBoxEscape.Name = "m_TextBoxEscape";
-      this.m_TextBoxEscape.Size = new System.Drawing.Size(250, 35);
+      this.m_TextBoxEscape.Size = new System.Drawing.Size(279, 26);
       this.m_TextBoxEscape.TabIndex = 6;
+      // 
       // m_FileFormatBindingSource
+      // 
       this.m_FileFormatBindingSource.AllowNew = false;
       this.m_FileFormatBindingSource.DataSource = typeof(CsvTools.FileFormat);
+      // 
       // m_LabelEscapeCharacter
+      // 
       this.m_LabelEscapeCharacter.Anchor = System.Windows.Forms.AnchorStyles.Right;
       this.m_LabelEscapeCharacter.AutoSize = true;
       this.m_TableLayoutPanel.SetColumnSpan(this.m_LabelEscapeCharacter, 2);
-      this.m_LabelEscapeCharacter.Location = new System.Drawing.Point(6, 60);
-      this.m_LabelEscapeCharacter.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
+      this.m_LabelEscapeCharacter.Location = new System.Drawing.Point(4, 38);
+      this.m_LabelEscapeCharacter.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
       this.m_LabelEscapeCharacter.Name = "m_LabelEscapeCharacter";
-      this.m_LabelEscapeCharacter.Size = new System.Drawing.Size(210, 29);
+      this.m_LabelEscapeCharacter.Size = new System.Drawing.Size(141, 20);
       this.m_LabelEscapeCharacter.TabIndex = 5;
       this.m_LabelEscapeCharacter.Text = "Escape Character:";
+      // 
       // m_LabelTrim
+      // 
       this.m_LabelTrim.Anchor = System.Windows.Forms.AnchorStyles.Right;
       this.m_LabelTrim.AutoSize = true;
       this.m_TableLayoutPanel.SetColumnSpan(this.m_LabelTrim, 2);
-      this.m_LabelTrim.Location = new System.Drawing.Point(16, 159);
-      this.m_LabelTrim.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
+      this.m_LabelTrim.Location = new System.Drawing.Point(17, 103);
+      this.m_LabelTrim.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
       this.m_LabelTrim.Name = "m_LabelTrim";
-      this.m_LabelTrim.Size = new System.Drawing.Size(200, 29);
+      this.m_LabelTrim.Size = new System.Drawing.Size(128, 20);
       this.m_LabelTrim.TabIndex = 9;
       this.m_LabelTrim.Text = "Trimming Option:";
+      // 
       // m_TextBoxQuote
+      // 
       this.m_TextBoxQuote.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.m_FileFormatBindingSource, "FieldQualifier", true));
       this.m_TextBoxQuote.Dock = System.Windows.Forms.DockStyle.Top;
-      this.m_TextBoxQuote.Location = new System.Drawing.Point(228, 5);
-      this.m_TextBoxQuote.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
+      this.m_TextBoxQuote.Location = new System.Drawing.Point(153, 3);
+      this.m_TextBoxQuote.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
       this.m_TextBoxQuote.Name = "m_TextBoxQuote";
-      this.m_TextBoxQuote.Size = new System.Drawing.Size(250, 35);
+      this.m_TextBoxQuote.Size = new System.Drawing.Size(279, 26);
       this.m_TextBoxQuote.TabIndex = 1;
       this.m_ToolTip.SetToolTip(this.m_TextBoxQuote, "Columns may be qualified with a character; usually these are \" the quotes are rem" +
         "oved by the reading applications.");
       this.m_TextBoxQuote.TextChanged += new System.EventHandler(this.QuoteChanged);
+      // 
       // m_TextBoxQuotePlaceHolder
+      // 
       this.m_TextBoxQuotePlaceHolder.AutoCompleteCustomSource.AddRange(new string[] {
             "{q}",
             "&quot;"});
       this.m_TextBoxQuotePlaceHolder.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
       this.m_TextBoxQuotePlaceHolder.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.m_FileFormatBindingSource, "QuotePlaceholder", true));
       this.m_TextBoxQuotePlaceHolder.Dock = System.Windows.Forms.DockStyle.Top;
-      this.m_TextBoxQuotePlaceHolder.Location = new System.Drawing.Point(228, 110);
-      this.m_TextBoxQuotePlaceHolder.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
+      this.m_TextBoxQuotePlaceHolder.Location = new System.Drawing.Point(153, 67);
+      this.m_TextBoxQuotePlaceHolder.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
       this.m_TextBoxQuotePlaceHolder.Name = "m_TextBoxQuotePlaceHolder";
-      this.m_TextBoxQuotePlaceHolder.Size = new System.Drawing.Size(250, 35);
+      this.m_TextBoxQuotePlaceHolder.Size = new System.Drawing.Size(279, 26);
       this.m_TextBoxQuotePlaceHolder.TabIndex = 8;
       this.m_ToolTip.SetToolTip(this.m_TextBoxQuotePlaceHolder, "If this placeholder is part of the text it will be replaced with the quoting char" +
         "acter");
       this.m_TextBoxQuotePlaceHolder.TextChanged += new System.EventHandler(this.QuoteChanged);
+      // 
       // checkBoxAlternateQuoting
+      // 
       this.checkBoxAlternateQuoting.Anchor = System.Windows.Forms.AnchorStyles.Left;
       this.checkBoxAlternateQuoting.AutoSize = true;
       this.m_TableLayoutPanel.SetColumnSpan(this.checkBoxAlternateQuoting, 2);
       this.checkBoxAlternateQuoting.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.m_FileFormatBindingSource, "AlternateQuoting", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-      this.checkBoxAlternateQuoting.Location = new System.Drawing.Point(490, 6);
-      this.checkBoxAlternateQuoting.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
+      this.checkBoxAlternateQuoting.Location = new System.Drawing.Point(440, 4);
+      this.checkBoxAlternateQuoting.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
       this.checkBoxAlternateQuoting.Name = "checkBoxAlternateQuoting";
-      this.checkBoxAlternateQuoting.Size = new System.Drawing.Size(315, 33);
+      this.checkBoxAlternateQuoting.Size = new System.Drawing.Size(218, 24);
       this.checkBoxAlternateQuoting.TabIndex = 2;
       this.checkBoxAlternateQuoting.Text = "Context Sensitive Quoting";
       this.m_ToolTip.SetToolTip(this.checkBoxAlternateQuoting, "A quote is only regarded as closing quote if it is followed by linefeed or delimi" +
         "ter");
       this.checkBoxAlternateQuoting.UseVisualStyleBackColor = true;
       this.checkBoxAlternateQuoting.Visible = false;
+      // 
       // comboBoxTrim
+      // 
       this.comboBoxTrim.DisplayMember = "Display";
       this.comboBoxTrim.Dock = System.Windows.Forms.DockStyle.Top;
       this.comboBoxTrim.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-      this.comboBoxTrim.Location = new System.Drawing.Point(228, 155);
-      this.comboBoxTrim.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
+      this.comboBoxTrim.Location = new System.Drawing.Point(153, 99);
+      this.comboBoxTrim.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
       this.comboBoxTrim.Name = "comboBoxTrim";
-      this.comboBoxTrim.Size = new System.Drawing.Size(250, 37);
+      this.comboBoxTrim.Size = new System.Drawing.Size(279, 28);
       this.comboBoxTrim.TabIndex = 10;
       this.m_ToolTip.SetToolTip(this.comboBoxTrim, "None will not remove whitespace; Unquoted will remove white spaces if the column " +
         "was not quoted; All will remove white spaces even if the column was quoted");
       this.comboBoxTrim.ValueMember = "ID";
       this.comboBoxTrim.SelectedIndexChanged += new System.EventHandler(this.SetTrimming);
+      // 
       // checkBoxDuplicateQuotingToEscape
+      // 
       this.checkBoxDuplicateQuotingToEscape.AutoSize = true;
       this.checkBoxDuplicateQuotingToEscape.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.m_FileFormatBindingSource, "DuplicateQuotingToEscape", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-      this.checkBoxDuplicateQuotingToEscape.Location = new System.Drawing.Point(1054, 4);
-      this.checkBoxDuplicateQuotingToEscape.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+      this.checkBoxDuplicateQuotingToEscape.Location = new System.Drawing.Point(671, 3);
       this.checkBoxDuplicateQuotingToEscape.Name = "checkBoxDuplicateQuotingToEscape";
-      this.checkBoxDuplicateQuotingToEscape.Size = new System.Drawing.Size(236, 33);
+      this.checkBoxDuplicateQuotingToEscape.Size = new System.Drawing.Size(166, 24);
       this.checkBoxDuplicateQuotingToEscape.TabIndex = 27;
       this.checkBoxDuplicateQuotingToEscape.Text = "Repeated Quoting";
       this.m_ToolTip.SetToolTip(this.checkBoxDuplicateQuotingToEscape, "Assume a repeated quote in a qualified text represent a quote that does not end t" +
         "ext qualification");
       this.checkBoxDuplicateQuotingToEscape.UseVisualStyleBackColor = true;
+      // 
       // labelNoQuotes
+      // 
       this.labelNoQuotes.Anchor = System.Windows.Forms.AnchorStyles.Left;
       this.labelNoQuotes.AutoSize = true;
       this.labelNoQuotes.BackColor = System.Drawing.SystemColors.Info;
       this.labelNoQuotes.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
       this.labelNoQuotes.ForeColor = System.Drawing.SystemColors.InfoText;
-      this.labelNoQuotes.Location = new System.Drawing.Point(1056, 45);
-      this.labelNoQuotes.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
+      this.labelNoQuotes.Location = new System.Drawing.Point(672, 37);
+      this.labelNoQuotes.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
       this.labelNoQuotes.Name = "labelNoQuotes";
-      this.labelNoQuotes.Size = new System.Drawing.Size(234, 60);
+      this.labelNoQuotes.Size = new System.Drawing.Size(210, 22);
       this.labelNoQuotes.TabIndex = 28;
       this.labelNoQuotes.Text = "Text can not contain Quotes";
       this.m_ToolTip.SetToolTip(this.labelNoQuotes, "Either “Context Sensitive Quoting”, “Repeated Quotes” or an “Escape Character” ne" +
         "ed to be defined to allow a quote to be part of the text");
+      // 
       // m_Label2
+      // 
       this.m_Label2.Anchor = System.Windows.Forms.AnchorStyles.Right;
       this.m_Label2.AutoSize = true;
       this.m_Label2.ForeColor = System.Drawing.Color.Teal;
-      this.m_Label2.Location = new System.Drawing.Point(488, 201);
-      this.m_Label2.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+      this.m_Label2.Location = new System.Drawing.Point(439, 133);
+      this.m_Label2.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
       this.m_Label2.Name = "m_Label2";
-      this.m_Label2.Size = new System.Drawing.Size(26, 29);
+      this.m_Label2.Size = new System.Drawing.Size(18, 20);
       this.m_Label2.TabIndex = 14;
       this.m_Label2.Text = "1\r\n";
+      // 
       // m_Label1
+      // 
       this.m_Label1.Anchor = System.Windows.Forms.AnchorStyles.Right;
       this.m_Label1.AutoSize = true;
       this.m_Label1.ForeColor = System.Drawing.Color.Teal;
-      this.m_Label1.Location = new System.Drawing.Point(488, 239);
-      this.m_Label1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+      this.m_Label1.Location = new System.Drawing.Point(439, 159);
+      this.m_Label1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
       this.m_Label1.Name = "m_Label1";
-      this.m_Label1.Size = new System.Drawing.Size(26, 29);
+      this.m_Label1.Size = new System.Drawing.Size(18, 20);
       this.m_Label1.TabIndex = 18;
       this.m_Label1.Text = "2";
+      // 
       // m_Label3
+      // 
       this.m_Label3.Anchor = System.Windows.Forms.AnchorStyles.Right;
       this.m_Label3.AutoSize = true;
       this.m_Label3.ForeColor = System.Drawing.Color.Teal;
-      this.m_Label3.Location = new System.Drawing.Point(488, 296);
-      this.m_Label3.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+      this.m_Label3.Location = new System.Drawing.Point(439, 198);
+      this.m_Label3.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
       this.m_Label3.Name = "m_Label3";
       this.m_TableLayoutPanel.SetRowSpan(this.m_Label3, 2);
-      this.m_Label3.Size = new System.Drawing.Size(26, 29);
+      this.m_Label3.Size = new System.Drawing.Size(18, 20);
       this.m_Label3.TabIndex = 22;
       this.m_Label3.Text = "3";
+      // 
       // m_LabelInfoQuoting
+      // 
       this.m_LabelInfoQuoting.Anchor = System.Windows.Forms.AnchorStyles.Left;
       this.m_LabelInfoQuoting.AutoSize = true;
       this.m_LabelInfoQuoting.BackColor = System.Drawing.SystemColors.Info;
       this.m_LabelInfoQuoting.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
       this.m_TableLayoutPanel.SetColumnSpan(this.m_LabelInfoQuoting, 3);
       this.m_LabelInfoQuoting.ForeColor = System.Drawing.SystemColors.InfoText;
-      this.m_LabelInfoQuoting.Location = new System.Drawing.Point(490, 158);
-      this.m_LabelInfoQuoting.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
+      this.m_LabelInfoQuoting.Location = new System.Drawing.Point(440, 102);
+      this.m_LabelInfoQuoting.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
       this.m_LabelInfoQuoting.Name = "m_LabelInfoQuoting";
-      this.m_LabelInfoQuoting.Size = new System.Drawing.Size(509, 31);
+      this.m_LabelInfoQuoting.Size = new System.Drawing.Size(332, 22);
       this.m_LabelInfoQuoting.TabIndex = 11;
       this.m_LabelInfoQuoting.Text = "Not possible to have leading or trailing spaces";
+      // 
       // m_ErrorProvider
+      // 
       this.m_ErrorProvider.ContainerControl = this;
+      // 
       // m_TableLayoutPanel
+      // 
       this.m_TableLayoutPanel.AutoSize = true;
       this.m_TableLayoutPanel.ColumnCount = 6;
       this.m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
       this.m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-      this.m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.67178F));
+      this.m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 51.15865F));
       this.m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
       this.m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-      this.m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 49.32822F));
+      this.m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 48.84135F));
       this.m_TableLayoutPanel.Controls.Add(this.m_LabelQuote, 0, 0);
       this.m_TableLayoutPanel.Controls.Add(this.m_LabelEscapeCharacter, 0, 1);
       this.m_TableLayoutPanel.Controls.Add(this.m_LabelQuotePlaceholer, 0, 2);
@@ -444,62 +481,72 @@ namespace CsvTools
       this.m_TableLayoutPanel.Controls.Add(this.labelNoQuotes, 5, 1);
       this.m_TableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Top;
       this.m_TableLayoutPanel.Location = new System.Drawing.Point(0, 0);
-      this.m_TableLayoutPanel.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
+      this.m_TableLayoutPanel.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
       this.m_TableLayoutPanel.Name = "m_TableLayoutPanel";
       this.m_TableLayoutPanel.RowCount = 9;
       this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 38F));
-      this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 38F));
-      this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 38F));
-      this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 38F));
+      this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 26F));
+      this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 26F));
+      this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 26F));
+      this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 26F));
       this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-      this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 29F));
-      this.m_TableLayoutPanel.Size = new System.Drawing.Size(1306, 378);
+      this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+      this.m_TableLayoutPanel.Size = new System.Drawing.Size(942, 254);
       this.m_TableLayoutPanel.TabIndex = 0;
+      // 
       // m_Label_3
+      // 
       this.m_Label_3.Anchor = System.Windows.Forms.AnchorStyles.Right;
       this.m_Label_3.AutoSize = true;
       this.m_Label_3.ForeColor = System.Drawing.Color.Teal;
-      this.m_Label_3.Location = new System.Drawing.Point(4, 277);
-      this.m_Label_3.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+      this.m_Label_3.Location = new System.Drawing.Point(3, 185);
+      this.m_Label_3.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
       this.m_Label_3.Name = "m_Label_3";
-      this.m_Label_3.Size = new System.Drawing.Size(26, 29);
+      this.m_Label_3.Size = new System.Drawing.Size(18, 20);
       this.m_Label_3.TabIndex = 21;
       this.m_Label_3.Text = "3";
+      // 
       // m_Label_4
+      // 
       this.m_Label_4.Anchor = System.Windows.Forms.AnchorStyles.Right;
       this.m_Label_4.AutoSize = true;
       this.m_Label_4.ForeColor = System.Drawing.Color.Teal;
-      this.m_Label_4.Location = new System.Drawing.Point(4, 315);
-      this.m_Label_4.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+      this.m_Label_4.Location = new System.Drawing.Point(3, 211);
+      this.m_Label_4.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
       this.m_Label_4.Name = "m_Label_4";
-      this.m_Label_4.Size = new System.Drawing.Size(26, 29);
+      this.m_Label_4.Size = new System.Drawing.Size(18, 20);
       this.m_Label_4.TabIndex = 25;
       this.m_Label_4.Text = "4";
+      // 
       // m_Label_2
+      // 
       this.m_Label_2.Anchor = System.Windows.Forms.AnchorStyles.Right;
       this.m_Label_2.AutoSize = true;
       this.m_Label_2.ForeColor = System.Drawing.Color.Teal;
-      this.m_Label_2.Location = new System.Drawing.Point(4, 239);
-      this.m_Label_2.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+      this.m_Label_2.Location = new System.Drawing.Point(3, 159);
+      this.m_Label_2.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
       this.m_Label_2.Name = "m_Label_2";
-      this.m_Label_2.Size = new System.Drawing.Size(26, 29);
+      this.m_Label_2.Size = new System.Drawing.Size(18, 20);
       this.m_Label_2.TabIndex = 17;
       this.m_Label_2.Text = "2";
+      // 
       // m_Label_1
+      // 
       this.m_Label_1.Anchor = System.Windows.Forms.AnchorStyles.Right;
       this.m_Label_1.AutoSize = true;
       this.m_Label_1.ForeColor = System.Drawing.Color.Teal;
-      this.m_Label_1.Location = new System.Drawing.Point(4, 201);
-      this.m_Label_1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+      this.m_Label_1.Location = new System.Drawing.Point(3, 133);
+      this.m_Label_1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
       this.m_Label_1.Name = "m_Label_1";
-      this.m_Label_1.Size = new System.Drawing.Size(26, 29);
+      this.m_Label_1.Size = new System.Drawing.Size(18, 20);
       this.m_Label_1.TabIndex = 12;
       this.m_Label_1.Text = "1\r\n";
+      // 
       // m_RichTextBoxSrc
+      // 
       this.m_RichTextBoxSrc.BackColor = System.Drawing.SystemColors.Window;
       this.m_RichTextBoxSrc.BorderStyle = System.Windows.Forms.BorderStyle.None;
       this.m_TableLayoutPanel.SetColumnSpan(this.m_RichTextBoxSrc, 2);
@@ -507,136 +554,155 @@ namespace CsvTools
       this.m_RichTextBoxSrc.Delimiter = ';';
       this.m_RichTextBoxSrc.Dock = System.Windows.Forms.DockStyle.Top;
       this.m_RichTextBoxSrc.Escape = '>';
-      this.m_RichTextBoxSrc.Location = new System.Drawing.Point(34, 197);
+      this.m_RichTextBoxSrc.Location = new System.Drawing.Point(24, 130);
       this.m_RichTextBoxSrc.Margin = new System.Windows.Forms.Padding(0);
       this.m_RichTextBoxSrc.Name = "m_RichTextBoxSrc";
       this.m_RichTextBoxSrc.ReadOnly = true;
       this.m_TableLayoutPanel.SetRowSpan(this.m_RichTextBoxSrc, 4);
       this.m_RichTextBoxSrc.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
-      this.m_RichTextBoxSrc.Size = new System.Drawing.Size(450, 152);
+      this.m_RichTextBoxSrc.Size = new System.Drawing.Size(412, 104);
       this.m_RichTextBoxSrc.TabIndex = 13;
       this.m_RichTextBoxSrc.Text = "\"This is \";Column with:, Delimiter\n a Trimming ;Column with \"\" Quote\nExample ;\"Co" +
     "lumn with \nLinefeed\"";
+      // 
       // m_RichTextBox10
+      // 
       this.m_RichTextBox10.BackColor = System.Drawing.SystemColors.Window;
       this.m_RichTextBox10.BorderStyle = System.Windows.Forms.BorderStyle.None;
       this.m_RichTextBox10.Dock = System.Windows.Forms.DockStyle.Top;
-      this.m_RichTextBox10.Location = new System.Drawing.Point(1050, 197);
+      this.m_RichTextBox10.Location = new System.Drawing.Point(668, 130);
       this.m_RichTextBox10.Margin = new System.Windows.Forms.Padding(0);
       this.m_RichTextBox10.Name = "m_RichTextBox10";
       this.m_RichTextBox10.ReadOnly = true;
       this.m_RichTextBox10.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
-      this.m_RichTextBox10.Size = new System.Drawing.Size(256, 38);
+      this.m_RichTextBox10.Size = new System.Drawing.Size(274, 26);
       this.m_RichTextBox10.TabIndex = 16;
       this.m_RichTextBox10.Text = "Column with:, Delimiter";
       this.m_RichTextBox10.WordWrap = false;
+      // 
       // m_RichTextBox11
+      // 
       this.m_RichTextBox11.BackColor = System.Drawing.SystemColors.Window;
       this.m_RichTextBox11.BorderStyle = System.Windows.Forms.BorderStyle.None;
       this.m_RichTextBox11.Dock = System.Windows.Forms.DockStyle.Top;
-      this.m_RichTextBox11.Location = new System.Drawing.Point(1050, 235);
+      this.m_RichTextBox11.Location = new System.Drawing.Point(668, 156);
       this.m_RichTextBox11.Margin = new System.Windows.Forms.Padding(0);
       this.m_RichTextBox11.Name = "m_RichTextBox11";
       this.m_RichTextBox11.ReadOnly = true;
       this.m_RichTextBox11.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
-      this.m_RichTextBox11.Size = new System.Drawing.Size(256, 38);
+      this.m_RichTextBox11.Size = new System.Drawing.Size(274, 26);
       this.m_RichTextBox11.TabIndex = 20;
       this.m_RichTextBox11.Text = "Column with \" Quote";
       this.m_RichTextBox11.WordWrap = false;
+      // 
       // m_RichTextBox12
+      // 
       this.m_RichTextBox12.BackColor = System.Drawing.SystemColors.Window;
       this.m_RichTextBox12.BorderStyle = System.Windows.Forms.BorderStyle.None;
       this.m_RichTextBox12.Dock = System.Windows.Forms.DockStyle.Top;
-      this.m_RichTextBox12.Location = new System.Drawing.Point(1050, 273);
+      this.m_RichTextBox12.Location = new System.Drawing.Point(668, 182);
       this.m_RichTextBox12.Margin = new System.Windows.Forms.Padding(0);
       this.m_RichTextBox12.Name = "m_RichTextBox12";
       this.m_RichTextBox12.ReadOnly = true;
       this.m_TableLayoutPanel.SetRowSpan(this.m_RichTextBox12, 2);
       this.m_RichTextBox12.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
-      this.m_RichTextBox12.Size = new System.Drawing.Size(256, 74);
+      this.m_RichTextBox12.Size = new System.Drawing.Size(274, 51);
       this.m_RichTextBox12.TabIndex = 24;
       this.m_RichTextBox12.Text = "Column with \nLinefeed";
       this.m_RichTextBox12.WordWrap = false;
+      // 
       // m_RichTextBox00
+      // 
       this.m_RichTextBox00.BackColor = System.Drawing.SystemColors.Window;
       this.m_RichTextBox00.BorderStyle = System.Windows.Forms.BorderStyle.None;
       this.m_RichTextBox00.Dock = System.Windows.Forms.DockStyle.Top;
-      this.m_RichTextBox00.Location = new System.Drawing.Point(518, 197);
+      this.m_RichTextBox00.Location = new System.Drawing.Point(460, 130);
       this.m_RichTextBox00.Margin = new System.Windows.Forms.Padding(0);
       this.m_RichTextBox00.Name = "m_RichTextBox00";
       this.m_RichTextBox00.ReadOnly = true;
       this.m_RichTextBox00.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
-      this.m_RichTextBox00.Size = new System.Drawing.Size(532, 38);
+      this.m_RichTextBox00.Size = new System.Drawing.Size(208, 26);
       this.m_RichTextBox00.TabIndex = 15;
       this.m_RichTextBox00.Text = "This is ";
       this.m_RichTextBox00.WordWrap = false;
+      // 
       // m_RichTextBox01
+      // 
       this.m_RichTextBox01.BackColor = System.Drawing.SystemColors.Window;
       this.m_RichTextBox01.BorderStyle = System.Windows.Forms.BorderStyle.None;
       this.m_RichTextBox01.Dock = System.Windows.Forms.DockStyle.Top;
-      this.m_RichTextBox01.Location = new System.Drawing.Point(518, 235);
+      this.m_RichTextBox01.Location = new System.Drawing.Point(460, 156);
       this.m_RichTextBox01.Margin = new System.Windows.Forms.Padding(0);
       this.m_RichTextBox01.Name = "m_RichTextBox01";
       this.m_RichTextBox01.ReadOnly = true;
       this.m_RichTextBox01.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
-      this.m_RichTextBox01.Size = new System.Drawing.Size(532, 38);
+      this.m_RichTextBox01.Size = new System.Drawing.Size(208, 26);
       this.m_RichTextBox01.TabIndex = 19;
       this.m_RichTextBox01.Text = " a Trimming ";
       this.m_RichTextBox01.WordWrap = false;
+      // 
       // m_RichTextBox02
+      // 
       this.m_RichTextBox02.BackColor = System.Drawing.SystemColors.Window;
       this.m_RichTextBox02.BorderStyle = System.Windows.Forms.BorderStyle.None;
       this.m_RichTextBox02.Dock = System.Windows.Forms.DockStyle.Top;
-      this.m_RichTextBox02.Location = new System.Drawing.Point(518, 273);
+      this.m_RichTextBox02.Location = new System.Drawing.Point(460, 182);
       this.m_RichTextBox02.Margin = new System.Windows.Forms.Padding(0);
       this.m_RichTextBox02.Name = "m_RichTextBox02";
       this.m_RichTextBox02.ReadOnly = true;
       this.m_TableLayoutPanel.SetRowSpan(this.m_RichTextBox02, 2);
       this.m_RichTextBox02.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
-      this.m_RichTextBox02.Size = new System.Drawing.Size(532, 74);
+      this.m_RichTextBox02.Size = new System.Drawing.Size(208, 51);
       this.m_RichTextBox02.TabIndex = 23;
       this.m_RichTextBox02.Text = "Example ";
       this.m_RichTextBox02.WordWrap = false;
+      // 
       // checkBoxQualifyAlways
+      // 
       this.checkBoxQualifyAlways.Anchor = System.Windows.Forms.AnchorStyles.Left;
       this.checkBoxQualifyAlways.AutoSize = true;
       this.m_TableLayoutPanel.SetColumnSpan(this.checkBoxQualifyAlways, 2);
       this.checkBoxQualifyAlways.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.m_FileFormatBindingSource, "QualifyAlways", true));
-      this.checkBoxQualifyAlways.Location = new System.Drawing.Point(490, 58);
-      this.checkBoxQualifyAlways.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
+      this.checkBoxQualifyAlways.Location = new System.Drawing.Point(440, 36);
+      this.checkBoxQualifyAlways.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
       this.checkBoxQualifyAlways.Name = "checkBoxQualifyAlways";
-      this.checkBoxQualifyAlways.Size = new System.Drawing.Size(194, 33);
+      this.checkBoxQualifyAlways.Size = new System.Drawing.Size(136, 24);
       this.checkBoxQualifyAlways.TabIndex = 3;
       this.checkBoxQualifyAlways.Text = "Qualify Always";
       this.checkBoxQualifyAlways.UseVisualStyleBackColor = true;
       this.checkBoxQualifyAlways.Visible = false;
+      // 
       // checkBoxQualifyOnlyNeeded
+      // 
       this.checkBoxQualifyOnlyNeeded.Anchor = System.Windows.Forms.AnchorStyles.Left;
       this.checkBoxQualifyOnlyNeeded.AutoSize = true;
       this.m_TableLayoutPanel.SetColumnSpan(this.checkBoxQualifyOnlyNeeded, 3);
       this.checkBoxQualifyOnlyNeeded.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.m_FileFormatBindingSource, "QualifyOnlyIfNeeded", true));
-      this.checkBoxQualifyOnlyNeeded.Location = new System.Drawing.Point(490, 111);
-      this.checkBoxQualifyOnlyNeeded.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
+      this.checkBoxQualifyOnlyNeeded.Location = new System.Drawing.Point(440, 68);
+      this.checkBoxQualifyOnlyNeeded.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
       this.checkBoxQualifyOnlyNeeded.Name = "checkBoxQualifyOnlyNeeded";
-      this.checkBoxQualifyOnlyNeeded.Size = new System.Drawing.Size(280, 33);
+      this.checkBoxQualifyOnlyNeeded.Size = new System.Drawing.Size(192, 24);
       this.checkBoxQualifyOnlyNeeded.TabIndex = 4;
       this.checkBoxQualifyOnlyNeeded.Text = "Qualify Only If Needed";
       this.checkBoxQualifyOnlyNeeded.UseVisualStyleBackColor = true;
       this.checkBoxQualifyOnlyNeeded.Visible = false;
+      // 
       // QuotingControl
-      this.AutoScaleDimensions = new System.Drawing.SizeF(14F, 29F);
+      // 
+      this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.Controls.Add(this.m_TableLayoutPanel);
-      this.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
-      this.MinimumSize = new System.Drawing.Size(1306, 0);
+      this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+      this.MinimumSize = new System.Drawing.Size(840, 0);
       this.Name = "QuotingControl";
-      this.Size = new System.Drawing.Size(1306, 393);
+      this.Size = new System.Drawing.Size(942, 299);
       ((System.ComponentModel.ISupportInitialize)(this.m_FileFormatBindingSource)).EndInit();
       ((System.ComponentModel.ISupportInitialize)(this.m_ErrorProvider)).EndInit();
       this.m_TableLayoutPanel.ResumeLayout(false);
       this.m_TableLayoutPanel.PerformLayout();
       this.ResumeLayout(false);
       this.PerformLayout();
+
     }
 
     private void QuoteChanged(object sender, EventArgs e)

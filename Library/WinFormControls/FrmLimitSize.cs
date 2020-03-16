@@ -40,7 +40,6 @@ namespace CsvTools
       labelCount3.Text = $"{intRecords[2]:N0}";
       labelCount4.Text = $"{intRecords[3]:N0}";
       UpdateLabel();
-      Font = SystemFonts.IconTitleFont;
     }
 
     /// <summary>
