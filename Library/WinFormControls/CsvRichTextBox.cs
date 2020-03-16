@@ -15,7 +15,7 @@
 namespace CsvTools
 {
   using System;
-  using System.Text;
+  using System.ComponentModel;
   using System.Windows.Forms;
 
   /// <summary>
@@ -23,23 +23,17 @@ namespace CsvTools
   /// </summary>
   public class CSVRichTextBox : RichTextBox
   {
-    private int m_CurrentColor = -1;
-
     private char m_Delimiter = ',';
-
     private bool m_DisplaySpace = true;
-
     private char m_Escape = '\\';
-
     private bool m_InQuote;
-
     private char m_Quote = '"';
-
     private string m_Text = string.Empty;
 
     /// <summary>
-    ///   Field Delimiter Character
+    ///   Field Delimiter Character Default: ,
     /// </summary>
+    [DefaultValue(',')]
     public char Delimiter
     {
       get => m_Delimiter;
@@ -48,34 +42,31 @@ namespace CsvTools
         if (m_Delimiter.Equals(value))
           return;
         m_Delimiter = value;
-        try
-        {
-          this.SafeInvoke(() => Rtf = GetRtfFromText(m_Text));
-        }
-        catch (Exception)
-        {
-          // ignore   this could happen if the control is not fully initialized
-        }
+        SetRtfFromText();
       }
     }
 
     /// <summary>
     ///   Set to true in order to display spaces a with a Dot so they are more visible
     /// </summary>
+    [DefaultValue(true)]
     public bool DisplaySpace
     {
       get => m_DisplaySpace;
 
       set
       {
+        if (m_DisplaySpace == value)
+          return;
         m_DisplaySpace = value;
-        Rtf = GetRtfFromText(m_Text);
+        SetRtfFromText();
       }
     }
 
     /// <summary>
     ///   Field Escape Character for quotes in quotes
     /// </summary>
+    [DefaultValue('\\')]
     public char Escape
     {
       get => m_Escape;
@@ -84,13 +75,14 @@ namespace CsvTools
         if (m_Escape.Equals(value))
           return;
         m_Escape = value;
-        Rtf = GetRtfFromText(m_Text);
+        SetRtfFromText();
       }
     }
 
     /// <summary>
-    ///   Field Quoting Character
+    ///   Field Quoting Character Default: "
     /// </summary>
+    [DefaultValue('"')]
     public char Quote
     {
       get => m_Quote;
@@ -99,85 +91,48 @@ namespace CsvTools
         if (m_Quote.Equals(value))
           return;
         m_Quote = value;
-        Rtf = GetRtfFromText(m_Text);
+        SetRtfFromText();
       }
     }
 
     /// <summary>
     ///   Displayed Text
     /// </summary>
+    [DefaultValue("")]
     public override string Text
     {
       get => m_Text;
-
       set
       {
-        m_Text = value;
-        Rtf = GetRtfFromText(m_Text);
+        var newVal = value ?? string.Empty;
+        if (m_Text.Equals(newVal))
+          return;
+        m_Text = newVal;
+        SetRtfFromText();
       }
     }
 
-    private void AddChar(StringBuilder rtf, int color, char character)
+    private void SetRtfFromText()
     {
-      AddColor(rtf, color, character);
-      if (character == '\t')
-      {
-        rtf.Append("»");
-      }
-      else if ((character == '\r' || character == '\n') && m_DisplaySpace)
-      {
-        rtf.Append("¶");
-      }
-      else
-      {
-        if (character == '\\' || character == '{' || character == '}')
-          rtf.Append('\\');
-        rtf.Append(character);
-      }
-    }
-
-    private void AddColor(StringBuilder rtf, int color, char nextChar)
-    {
-      if (color == m_CurrentColor)
-        return;
-      rtf.AppendFormat(nextChar == '\\' ? "\\cf{0}" : "\\cf{0} ", color);
-      m_CurrentColor = color;
-    }
-
-    private void AddText(StringBuilder rtf, int color, string text)
-    {
-      if (string.IsNullOrEmpty(text))
-        return;
-      AddColor(rtf, color, text[0]);
-      rtf.Append(text);
-    }
-
-    private string GetRtfFromText(string inputString)
-    {
-      var rtf = new StringBuilder(@"{\rtf1\ansi\ansicpg1252\deff0\deflang1033");
-      rtf.AppendLine(@"{\fonttbl{\f0\fnil\fcharset0 Microsoft Sans Serif;}}");
-      rtf.AppendLine(
-        @"{\colortbl ;\red0\green0\blue0;\red255\green0\blue0;\red0\green0\blue255;\red255\green168\blue0;}");
-      rtf.AppendLine(@"\viewkind4\uc1\pard\f0\fs24 ");
+      var rtfHelper = new RtfHelper(m_DisplaySpace, 24);
       try
       {
-        if (!string.IsNullOrEmpty(inputString))
+        if (!string.IsNullOrEmpty(m_Text))
         {
-          m_CurrentColor = -1;
           var curChar = '\0';
           m_InQuote = false;
 
-          for (var pos = 0; pos < inputString.Length; pos++)
+          for (var pos = 0; pos < m_Text.Length; pos++)
           {
             // get the charters and the surroundings
             var lastChar = curChar;
-            curChar = inputString[pos];
-            var nextChar = pos < inputString.Length - 1 ? inputString[pos + 1] : '\0';
+            curChar = m_Text[pos];
+            var nextChar = pos < m_Text.Length - 1 ? m_Text[pos + 1] : '\0';
 
             if (curChar == '\r' || curChar == '\n')
             {
-              AddChar(rtf, 4, curChar);
-              AddText(rtf, 1, "\\par\n");
+              rtfHelper.AddChar(4, curChar);
+              rtfHelper.AddRtf(1, "\\par\n");
               if (curChar == '\r' && nextChar == '\n' || curChar == '\n' && nextChar == '\r')
                 pos++;
               continue;
@@ -185,13 +140,13 @@ namespace CsvTools
 
             if (m_DisplaySpace && curChar == ' ')
             {
-              AddText(rtf, 4, "\\bullet");
+              rtfHelper.AddRtf(4, "\\bullet");
               continue;
             }
 
             if (curChar == m_Delimiter && !m_InQuote)
             {
-              AddChar(rtf, 2, curChar);
+              rtfHelper.AddChar(2, curChar);
               continue;
             }
 
@@ -200,7 +155,7 @@ namespace CsvTools
               // Start m_InQuote
               if (!m_InQuote)
               {
-                AddChar(rtf, 3, curChar);
+                rtfHelper.AddChar(3, curChar);
                 m_InQuote = true;
                 continue;
               }
@@ -208,37 +163,35 @@ namespace CsvTools
               // Stop quote but skip internal Quotes
               if (!(lastChar == m_Escape || nextChar == m_Quote))
               {
-                AddChar(rtf, 3, curChar);
+                rtfHelper.AddChar(3, curChar);
                 m_InQuote = false;
                 continue;
               }
 
               if (nextChar == m_Quote)
               {
-                AddChar(rtf, 1, curChar);
-                AddChar(rtf, 1, nextChar);
+                rtfHelper.AddChar(1, curChar);
+                rtfHelper.AddChar(1, nextChar);
                 pos++;
                 continue;
               }
             }
 
             if (curChar >= 32 && curChar <= 127 || curChar == '\t')
-              AddChar(rtf, 1, curChar);
+              rtfHelper.AddChar(1, curChar);
             else
 
               // others need to be passed on with their decimal code
-              AddText(rtf, 1, $"\\u{(int)curChar}?");
+              rtfHelper.AddRtf(1, $"\\u{(int)curChar}?");
           }
         }
+
+        Rtf = rtfHelper.Rtf;
       }
       catch (Exception ex)
       {
         FindForm().ShowError(ex);
       }
-
-      rtf.AppendLine(@"\par");
-      rtf.AppendLine("}");
-      return rtf.ToString();
     }
   }
 }

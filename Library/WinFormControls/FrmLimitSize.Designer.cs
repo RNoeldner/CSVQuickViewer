@@ -44,7 +44,7 @@
       this.buttonCancel = new System.Windows.Forms.Button();
       label2 = new System.Windows.Forms.Label();
       label4 = new System.Windows.Forms.Label();
-      ((System.ComponentModel.ISupportInitialize) (this.trackBarLimit)).BeginInit();
+      ((System.ComponentModel.ISupportInitialize)(this.trackBarLimit)).BeginInit();
       this.tableLayoutPanel1.SuspendLayout();
       this.SuspendLayout();
       // 
@@ -52,10 +52,10 @@
       // 
       label2.AutoSize = true;
       this.tableLayoutPanel1.SetColumnSpan(label2, 6);
-      label2.Location = new System.Drawing.Point(2, 25);
-      label2.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+      label2.Location = new System.Drawing.Point(4, 34);
+      label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
       label2.Name = "label2";
-      label2.Size = new System.Drawing.Size(448, 25);
+      label2.Size = new System.Drawing.Size(717, 34);
       label2.TabIndex = 2;
       label2.Text = "Please move the slider to restrict the number of records to view.\r\n";
       label2.UseCompatibleTextRendering = true;
@@ -64,10 +64,10 @@
       // 
       label4.AutoSize = true;
       this.tableLayoutPanel1.SetColumnSpan(label4, 6);
-      label4.Location = new System.Drawing.Point(2, 0);
-      label4.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+      label4.Location = new System.Drawing.Point(4, 0);
+      label4.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
       label4.Name = "label4";
-      label4.Size = new System.Drawing.Size(309, 25);
+      label4.Size = new System.Drawing.Size(491, 34);
       label4.TabIndex = 1;
       label4.Text = "Display high amounts of data might be slow.";
       label4.UseCompatibleTextRendering = true;
@@ -75,10 +75,10 @@
       // labelCount2
       // 
       this.labelCount2.AutoSize = true;
-      this.labelCount2.Location = new System.Drawing.Point(94, 106);
-      this.labelCount2.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+      this.labelCount2.Location = new System.Drawing.Point(153, 150);
+      this.labelCount2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
       this.labelCount2.Name = "labelCount2";
-      this.labelCount2.Size = new System.Drawing.Size(52, 20);
+      this.labelCount2.Size = new System.Drawing.Size(84, 29);
       this.labelCount2.TabIndex = 5;
       this.labelCount2.Text = "20.000";
       this.labelCount2.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -86,10 +86,10 @@
       // labelCount3
       // 
       this.labelCount3.AutoSize = true;
-      this.labelCount3.Location = new System.Drawing.Point(189, 106);
-      this.labelCount3.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+      this.labelCount3.Location = new System.Drawing.Point(322, 150);
+      this.labelCount3.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
       this.labelCount3.Name = "labelCount3";
-      this.labelCount3.Size = new System.Drawing.Size(52, 20);
+      this.labelCount3.Size = new System.Drawing.Size(84, 29);
       this.labelCount3.TabIndex = 6;
       this.labelCount3.Text = "50.000";
       this.labelCount3.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -100,12 +100,12 @@
       this.tableLayoutPanel1.SetColumnSpan(this.trackBarLimit, 5);
       this.trackBarLimit.Dock = System.Windows.Forms.DockStyle.Top;
       this.trackBarLimit.LargeChange = 1;
-      this.trackBarLimit.Location = new System.Drawing.Point(2, 54);
-      this.trackBarLimit.Margin = new System.Windows.Forms.Padding(2, 4, 2, 4);
+      this.trackBarLimit.Location = new System.Drawing.Point(4, 74);
+      this.trackBarLimit.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
       this.trackBarLimit.Maximum = 5;
       this.trackBarLimit.Minimum = 1;
       this.trackBarLimit.Name = "trackBarLimit";
-      this.trackBarLimit.Size = new System.Drawing.Size(409, 48);
+      this.trackBarLimit.Size = new System.Drawing.Size(717, 70);
       this.trackBarLimit.TabIndex = 2;
       this.trackBarLimit.Value = 3;
       // 
@@ -113,20 +113,20 @@
       // 
       this.label5.AutoSize = true;
       this.tableLayoutPanel1.SetColumnSpan(this.label5, 2);
-      this.label5.Location = new System.Drawing.Point(389, 106);
-      this.label5.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+      this.label5.Location = new System.Drawing.Point(682, 150);
+      this.label5.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
       this.label5.Name = "label5";
-      this.label5.Size = new System.Drawing.Size(27, 20);
+      this.label5.Size = new System.Drawing.Size(40, 29);
       this.label5.TabIndex = 7;
       this.label5.Text = "All";
       // 
       // labelCount1
       // 
       this.labelCount1.AutoSize = true;
-      this.labelCount1.Location = new System.Drawing.Point(2, 106);
-      this.labelCount1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+      this.labelCount1.Location = new System.Drawing.Point(4, 150);
+      this.labelCount1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
       this.labelCount1.Name = "labelCount1";
-      this.labelCount1.Size = new System.Drawing.Size(52, 20);
+      this.labelCount1.Size = new System.Drawing.Size(84, 29);
       this.labelCount1.TabIndex = 4;
       this.labelCount1.Text = "10.000";
       this.labelCount1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -134,10 +134,10 @@
       // labelCount4
       // 
       this.labelCount4.AutoSize = true;
-      this.labelCount4.Location = new System.Drawing.Point(287, 106);
-      this.labelCount4.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+      this.labelCount4.Location = new System.Drawing.Point(488, 150);
+      this.labelCount4.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
       this.labelCount4.Name = "labelCount4";
-      this.labelCount4.Size = new System.Drawing.Size(60, 20);
+      this.labelCount4.Size = new System.Drawing.Size(97, 29);
       this.labelCount4.TabIndex = 10;
       this.labelCount4.Text = "100.000";
       this.labelCount4.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -151,16 +151,11 @@
       // tableLayoutPanel1
       // 
       this.tableLayoutPanel1.ColumnCount = 6;
-      this.tableLayoutPanel1.ColumnStyles.Add(
-        new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 22.1831F));
-      this.tableLayoutPanel1.ColumnStyles.Add(
-        new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 23.00469F));
-      this.tableLayoutPanel1.ColumnStyles.Add(
-        new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 23.59155F));
-      this.tableLayoutPanel1.ColumnStyles.Add(
-        new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 24.76191F));
-      this.tableLayoutPanel1.ColumnStyles.Add(
-        new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 6.476191F));
+      this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20.55172F));
+      this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 23.31034F));
+      this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 22.89655F));
+      this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 26.75862F));
+      this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 6.476191F));
       this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
       this.tableLayoutPanel1.Controls.Add(label4, 0, 0);
       this.tableLayoutPanel1.Controls.Add(this.label5, 4, 3);
@@ -175,19 +170,17 @@
       this.tableLayoutPanel1.Controls.Add(this.buttonCancel, 5, 4);
       this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
       this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
-      this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(2, 4, 2, 4);
+      this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
       this.tableLayoutPanel1.Name = "tableLayoutPanel1";
       this.tableLayoutPanel1.RowCount = 5;
       this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.tableLayoutPanel1.RowStyles.Add(
-        new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+      this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
       this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.tableLayoutPanel1.RowStyles.Add(
-        new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-      this.tableLayoutPanel1.Size = new System.Drawing.Size(534, 179);
+      this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 29F));
+      this.tableLayoutPanel1.Size = new System.Drawing.Size(934, 260);
       this.tableLayoutPanel1.TabIndex = 12;
       // 
       // label
@@ -196,24 +189,22 @@
       this.label.AutoSize = true;
       this.tableLayoutPanel1.SetColumnSpan(this.label, 3);
       this.label.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
-      this.label.Location = new System.Drawing.Point(2, 150);
-      this.label.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+      this.label.Location = new System.Drawing.Point(4, 219);
+      this.label.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
       this.label.Name = "label";
-      this.label.Size = new System.Drawing.Size(143, 20);
+      this.label.Size = new System.Drawing.Size(229, 29);
       this.label.TabIndex = 11;
       this.label.Text = "Default in 5 seconds";
       // 
       // buttonOK
       // 
-      this.buttonOK.Anchor =
-        ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Top |
-                                               System.Windows.Forms.AnchorStyles.Right)));
+      this.buttonOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
       this.tableLayoutPanel1.SetColumnSpan(this.buttonOK, 2);
       this.buttonOK.DialogResult = System.Windows.Forms.DialogResult.OK;
-      this.buttonOK.Location = new System.Drawing.Point(297, 145);
-      this.buttonOK.Margin = new System.Windows.Forms.Padding(2, 4, 2, 4);
+      this.buttonOK.Location = new System.Drawing.Point(521, 214);
+      this.buttonOK.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
       this.buttonOK.Name = "buttonOK";
-      this.buttonOK.Size = new System.Drawing.Size(114, 30);
+      this.buttonOK.Size = new System.Drawing.Size(200, 40);
       this.buttonOK.TabIndex = 9;
       this.buttonOK.Text = "&OK";
       this.buttonOK.UseVisualStyleBackColor = true;
@@ -222,10 +213,10 @@
       // buttonCancel
       // 
       this.buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-      this.buttonCancel.Location = new System.Drawing.Point(415, 145);
-      this.buttonCancel.Margin = new System.Windows.Forms.Padding(2, 4, 2, 4);
+      this.buttonCancel.Location = new System.Drawing.Point(729, 214);
+      this.buttonCancel.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
       this.buttonCancel.Name = "buttonCancel";
-      this.buttonCancel.Size = new System.Drawing.Size(114, 30);
+      this.buttonCancel.Size = new System.Drawing.Size(200, 40);
       this.buttonCancel.TabIndex = 8;
       this.buttonCancel.Text = "&Cancel";
       this.buttonCancel.UseVisualStyleBackColor = true;
@@ -234,22 +225,23 @@
       // FrmLimitSize
       // 
       this.AcceptButton = this.buttonOK;
-      this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
+      this.AutoScaleDimensions = new System.Drawing.SizeF(14F, 29F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.CancelButton = this.buttonCancel;
-      this.ClientSize = new System.Drawing.Size(534, 179);
+      this.ClientSize = new System.Drawing.Size(934, 260);
       this.Controls.Add(this.tableLayoutPanel1);
       this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
-      this.Margin = new System.Windows.Forms.Padding(2, 4, 2, 4);
+      this.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
       this.Name = "FrmLimitSize";
       this.ShowInTaskbar = false;
       this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
       this.Text = "Limit Records";
       this.TopMost = true;
-      ((System.ComponentModel.ISupportInitialize) (this.trackBarLimit)).EndInit();
+      ((System.ComponentModel.ISupportInitialize)(this.trackBarLimit)).EndInit();
       this.tableLayoutPanel1.ResumeLayout(false);
       this.tableLayoutPanel1.PerformLayout();
       this.ResumeLayout(false);
+
     }
 
 #endregion
