@@ -15,7 +15,9 @@
 using System;
 using System.Data;
 using System.Drawing;
+using System.Runtime.InteropServices;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Pri.LongPath;
@@ -25,7 +27,7 @@ namespace CsvTools.Tests
   [TestClass]
   public class ControlsTests
   {
-    private static readonly DataTable m_DataTable = UnitTestStatic.GetDataTable(50);
+    private static readonly DataTable m_DataTable = UnitTestStatic.GetDataTable(60);
 
     private readonly CsvFile m_CSVFile =
       new CsvFile(Path.Combine(FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles", "BasicCSV.txt"));
@@ -33,31 +35,102 @@ namespace CsvTools.Tests
     [TestMethod]
     public void QuotingControl()
     {
-      using (var frm = new QuotingControl())
+      
+      using (var ctrl = new QuotingControl())
       {
-        frm.Show();
-        frm.CsvFile = new CsvFile();
-        Thread.Sleep(200);
+        ctrl.CsvFile = new CsvFile();
+        ShowControl(ctrl);
+      }
+    }
+
+    [TestMethod]
+    public void APICodePackWrapperOpen()
+    {
+      FunctionalDI.SignalBackground = Application.DoEvents;
+      try
+      {
+        Task.Run(() => WindowsAPICodePackWrapper.Open(FileSystemUtils.ExecutableDirectoryName(), "Test", "*.cs", null)).WaitToCompleteTask(.2);
+      }
+      catch (COMException)
+      { }
+      catch (OperationCanceledException)
+      { }
+      catch (Exception ex)
+      {
+        Assert.Fail($"Wrong exception got {ex.GetType().Name} expected OperationCanceledException : {ex.ExceptionMessages()}");
+      }
+
+
+    }
+    [TestMethod]
+    public void WindowsAPICodePackWrapperFolder()
+    {
+      FunctionalDI.SignalBackground = Application.DoEvents;
+
+      try
+      {
+        Task.Run(() => { WindowsAPICodePackWrapper.Folder(FileSystemUtils.ExecutableDirectoryName(), "Test"); }).WaitToCompleteTask(.2);
+      }
+      catch (COMException)
+      { }
+      catch (OperationCanceledException)
+      { }
+      catch (Exception ex)
+      {
+        Assert.Fail($"Wrong exception got {ex.GetType().Name} expected OperationCanceledException : {ex.ExceptionMessages()}");
+      }
+    }
+
+    [TestMethod]
+    public void WindowsAPICodePackWrapperSave()
+    {
+      FunctionalDI.SignalBackground = Application.DoEvents;
+
+      try
+      {
+        Task.Run(() =>
+        {
+          WindowsAPICodePackWrapper.Save(FileSystemUtils.ExecutableDirectoryName(), "Test", "*.pdf", "*.pdf",
+              "test.pdf");
+        }).WaitToCompleteTask(.2);
+      }
+      catch (COMException)
+      { }
+      catch (OperationCanceledException)
+      { }
+      catch (Exception ex)
+      {
+        Assert.Fail($"Wrong exception got {ex.GetType().Name} expected OperationCanceledException : {ex.ExceptionMessages()}");
       }
     }
 
     [TestMethod]
     public void MultiselectTreeView()
     {
-      using (var frm = new Form())
+     
       using (var treeView = new MultiselectTreeView())
       {
-        frm.Controls.Add(treeView);
-        treeView.Dock = DockStyle.Fill;
-        frm.Show();
+        
         Assert.AreEqual(0, treeView.SelectedTreeNode.Count);
-
+        
         var treeNode = new TreeNode("Test") { Tag = "test" };
         treeView.Nodes.Add(treeNode);
 
         var treeNode2 = new TreeNode("Test2") { Tag = "test2" };
         treeNode.Nodes.Add(treeNode2);
-        UnitTestStatic.WaitSomeTime(.2);
+
+
+        bool firedAfter = false;
+        bool firedBefore = false;
+        treeView.AfterSelect += (s, args) => { firedAfter = true; };
+        treeView.BeforeSelect += (s, args) => { firedBefore = true; };
+
+        ShowControl(treeView, () =>
+        {
+          treeView.SelectedNode = treeNode2;
+          treeNode.ExpandAll();
+        });
+
       }
     }
 
@@ -83,7 +156,8 @@ namespace CsvTools.Tests
         frm.TimeZoneID = TimeZoneInfo.Local.Id;
         frm.DestTimeZoneID = TimeZoneInfo.Local.Id;
         frm.ShowInTaskbar = false;
-        frm.ShowDialog();
+        frm.Show();
+        UnitTestStatic.WaitSomeTime(.2);
       }
     }
 
@@ -155,7 +229,7 @@ namespace CsvTools.Tests
       }
     }
 
-    private void ShowControl(Control ctrl)
+    private void ShowControl(Control ctrl, Action toDo = null)
     {
       using (var frm = new Form())
       {
@@ -178,6 +252,7 @@ namespace CsvTools.Tests
         frm.Focus();
         ctrl.Focus();
         UnitTestStatic.WaitSomeTime(.1);
+        toDo?.Invoke();
 
         frm.Close();
       }
@@ -260,7 +335,6 @@ namespace CsvTools.Tests
       }
     }
 
-   
 
     [TestMethod]
     public void FormHierarchyDisplay()
@@ -336,10 +410,13 @@ namespace CsvTools.Tests
       {
         form.ShowInTaskbar = false;
         form.Show();
+        form.Focus();
         UnitTestStatic.WaitSomeTime(.1);
         form.Close();
       }
     }
+
+   
 
     [TestMethod]
     public void FormDetail()

@@ -33,6 +33,7 @@ namespace CsvTools.Tests
         {
           frm.SetProcess($"This is a text\nLine {c}", c, true);
           UnitTestStatic.WaitSomeTime(.1);
+          frm.SetFonts(frm);
         }
       }
 

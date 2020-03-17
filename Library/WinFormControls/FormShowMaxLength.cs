@@ -12,26 +12,24 @@
  *
  */
 
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Diagnostics.Contracts;
+using System.Drawing;
+using System.Globalization;
+using System.Windows.Forms;
+
 namespace CsvTools
 {
-  using System;
-  using System.Collections.Generic;
-  using System.ComponentModel;
-  using System.Data;
-  using System.Diagnostics.Contracts;
-  using System.Drawing;
-  using System.Globalization;
-  using System.Windows.Forms;
-
   /// <summary>
   ///   Form showing the length of columns
   /// </summary>
   public class FormShowMaxLength : ResizeForm
   {
     private readonly DataRow[] m_DataRow;
-
     private readonly DataTable m_DataTable;
-
     private FilteredDataGridView m_DataGridView;
 
     /// <summary>
@@ -41,18 +39,10 @@ namespace CsvTools
     /// <param name="dataRows">The data rows.</param>
     public FormShowMaxLength(DataTable dataTable, DataRow[] dataRows)
     {
-      Contract.Requires(dataTable != null);
-      Contract.Requires(dataRows != null);
-      m_DataTable = dataTable;
-      m_DataRow = dataRows;
+      m_DataTable = dataTable ?? throw new ArgumentNullException(nameof(dataTable));
+      m_DataRow = dataRows ?? throw new ArgumentNullException(nameof(dataRows));
       InitializeComponent();
     }
-
-    /// <summary>
-    ///   Clean up any resources being used.
-    /// </summary>
-    /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
-    protected override void Dispose(bool disposing) => base.Dispose(disposing);
 
     /// <summary>
     ///   Required method for Designer support - do not modify the contents of this method with the
@@ -60,42 +50,42 @@ namespace CsvTools
     /// </summary>
     private void InitializeComponent()
     {
-      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
-      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
-      this.m_DataGridView = new CsvTools.FilteredDataGridView();
-      ((System.ComponentModel.ISupportInitialize)(this.m_DataGridView)).BeginInit();
-      this.SuspendLayout();
+      var dataGridViewCellStyle1 = new DataGridViewCellStyle();
+      var dataGridViewCellStyle2 = new DataGridViewCellStyle();
+      m_DataGridView = new FilteredDataGridView();
+      ((ISupportInitialize)m_DataGridView).BeginInit();
+      SuspendLayout();
       // m_DataGridView
-      this.m_DataGridView.AllowUserToAddRows = false;
-      this.m_DataGridView.AllowUserToDeleteRows = false;
-      this.m_DataGridView.AllowUserToOrderColumns = true;
-      dataGridViewCellStyle1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-      this.m_DataGridView.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
-      this.m_DataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-      dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-      dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
-      dataGridViewCellStyle2.ForeColor = System.Drawing.Color.Black;
-      dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-      dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-      dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-      this.m_DataGridView.DefaultCellStyle = dataGridViewCellStyle2;
-      this.m_DataGridView.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.m_DataGridView.Location = new System.Drawing.Point(0, 0);
-      this.m_DataGridView.Name = "m_DataGridView";
-      this.m_DataGridView.RowHeadersWidth = 51;
-      this.m_DataGridView.Size = new System.Drawing.Size(362, 310);
-      this.m_DataGridView.TabIndex = 0;
+      m_DataGridView.AllowUserToAddRows = false;
+      m_DataGridView.AllowUserToDeleteRows = false;
+      m_DataGridView.AllowUserToOrderColumns = true;
+      dataGridViewCellStyle1.BackColor = Color.FromArgb(224, 224, 224);
+      m_DataGridView.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
+      m_DataGridView.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+      dataGridViewCellStyle2.Alignment = DataGridViewContentAlignment.MiddleLeft;
+      dataGridViewCellStyle2.BackColor = SystemColors.Window;
+      dataGridViewCellStyle2.ForeColor = Color.Black;
+      dataGridViewCellStyle2.SelectionBackColor = SystemColors.Highlight;
+      dataGridViewCellStyle2.SelectionForeColor = SystemColors.HighlightText;
+      dataGridViewCellStyle2.WrapMode = DataGridViewTriState.False;
+      m_DataGridView.DefaultCellStyle = dataGridViewCellStyle2;
+      m_DataGridView.Dock = DockStyle.Fill;
+      m_DataGridView.Location = new Point(0, 0);
+      m_DataGridView.Name = "m_DataGridView";
+      m_DataGridView.RowHeadersWidth = 51;
+      m_DataGridView.Size = new Size(362, 310);
+      m_DataGridView.TabIndex = 0;
       // FormShowMaxLength
-      this.ClientSize = new System.Drawing.Size(362, 310);
-      this.Controls.Add(this.m_DataGridView);
-      this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
-      this.MaximizeBox = false;
-      this.MinimizeBox = false;
-      this.Name = "FormShowMaxLength";
-      this.Text = "Column Length";
-      this.Load += new System.EventHandler(this.ShowMaxLength_Load);
-      ((System.ComponentModel.ISupportInitialize)(this.m_DataGridView)).EndInit();
-      this.ResumeLayout(false);
+      ClientSize = new Size(362, 310);
+      Controls.Add(m_DataGridView);
+      FormBorderStyle = FormBorderStyle.SizableToolWindow;
+      MaximizeBox = false;
+      MinimizeBox = false;
+      Name = "FormShowMaxLength";
+      Text = @"Column Length";
+      Load += ShowMaxLength_Load;
+      ((ISupportInitialize)m_DataGridView).EndInit();
+      ResumeLayout(false);
     }
 
     /// <summary>
@@ -105,7 +95,7 @@ namespace CsvTools
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
     private void ShowMaxLength_Load(object sender, EventArgs e)
     {
-      if (m_DataTable == null || m_DataRow == null || m_DataRow.Length == 0)
+      if (m_DataRow.Length == 0)
         return;
 
       try
@@ -132,17 +122,12 @@ namespace CsvTools
         }
 
         if (colIndex.Count > 0)
-        {
           foreach (var row in m_DataRow)
             foreach (var col in checkCols)
             {
-              var cl = (row[col.Value] == DBNull.Value) ? 0 : row[col.Value].ToString().Length;
-              if (cl > maxLength[col.Key])
-              {
-                maxLength[col.Key] = cl;
-              }
+              var cl = row[col.Value] == DBNull.Value ? 0 : row[col.Value].ToString().Length;
+              if (cl > maxLength[col.Key]) maxLength[col.Key] = cl;
             }
-        }
 
         var colNo = 1;
         foreach (var len in maxLength)
