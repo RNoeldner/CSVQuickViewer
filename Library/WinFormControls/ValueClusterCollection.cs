@@ -33,29 +33,19 @@ namespace CsvTools
     private readonly List<ValueCluster> m_ValueClusters = new List<ValueCluster>();
 
     private BuildValueClustersResult m_Result = BuildValueClustersResult.NotRun;
-
     private ValueClustersGroupType m_Type = ValueClustersGroupType.Text;
 
     private enum ValueClustersGroupType
     {
       Text,
-
       NumericFraction,
-
       NumericOnes,
-
       NumericTens,
-
       NumericHundreds,
-
       NumericThousands,
-
       DateHours,
-
       DateDay,
-
       DateMonth,
-
       DateYear
     }
 
@@ -63,7 +53,7 @@ namespace CsvTools
     ///   Gets the values.
     /// </summary>
     /// <value>The values.</value>
-    public IEnumerable<ValueCluster> ValueClusters
+    public IReadOnlyCollection<ValueCluster> ValueClusters
     {
       get
       {

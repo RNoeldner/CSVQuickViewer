@@ -14,7 +14,7 @@ namespace CsvTools
     ///   Recursively change the font of all controls, needed on Windows 8 / 2012
     /// </summary>
     /// <param name="container">A container control like a form or panel</param>
-    private void SetFonts(Control container)
+    public void SetFonts(Control container)
     {
       if (!Equals(container.Font, m_Font))
       {
@@ -22,7 +22,7 @@ namespace CsvTools
         container.Font = m_Font;
       }
 
-      foreach (Control ctrl in base.Controls)
+      foreach (Control ctrl in container.Controls)
       {
         if (ctrl is ContainerControl cc)
           SetFonts(cc);

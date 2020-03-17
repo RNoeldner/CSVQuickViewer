@@ -272,7 +272,7 @@ namespace CsvTools
       }
     }
 
-    internal ValueClusterCollection ValueClusterCollection { get; } = new ValueClusterCollection();
+    public ValueClusterCollection ValueClusterCollection { get; } = new ValueClusterCollection();
 
     public static object[] GetOperators(Type columnDataType)
     {
@@ -367,17 +367,19 @@ namespace CsvTools
         return string.Empty;
       switch (Type.GetTypeCode(targetType))
       {
+
         case TypeCode.DateTime:
-          var dateValue = StringConversion.StringToDateTime(
-            value,
-            CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern,
-            CultureInfo.CurrentCulture.DateTimeFormat.DateSeparator,
-            CultureInfo.CurrentCulture.DateTimeFormat.TimeSeparator,
-            false,
-            CultureInfo.CurrentCulture);
-          return dateValue.HasValue
-                   ? string.Format(CultureInfo.InvariantCulture, @"#{0:MM\/dd\/yyyy}#", dateValue.Value)
-                   : $"'{value.SqlQuote()}'";
+          throw new NotImplementedException("ValueDateTime Time should be used, not ValueText");
+        //  var dateValue = StringConversion.StringToDateTime(
+        //    value,
+        //    CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern,
+        //    CultureInfo.CurrentCulture.DateTimeFormat.DateSeparator,
+        //    CultureInfo.CurrentCulture.DateTimeFormat.TimeSeparator,
+        //    false,
+        //    CultureInfo.CurrentCulture);
+        //  return dateValue.HasValue
+        //           ? string.Format(CultureInfo.InvariantCulture, @"#{0:MM\/dd\/yyyy}#", dateValue.Value)
+        //           : $"'{value.SqlQuote()}'";
 
         case TypeCode.Byte:
         case TypeCode.Decimal:

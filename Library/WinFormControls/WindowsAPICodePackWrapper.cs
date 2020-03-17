@@ -11,29 +11,29 @@
 
     private static bool m_TaskbarManagerSupported = TaskbarManager.IsPlatformSupported;
 
-    public static void AttachTaskbarProgress(this IProcessDisplayTime MainProcess)
+    public static void AttachTaskbarProgress(this IProcessDisplayTime mainProcess)
     {
       // Handle the TaskBarProcess as well
-      MainProcess.Progress += delegate (object sender, ProgressEventArgs e)
-        {
-          if (MainProcess.Maximum != -1 && MainProcess.TimeToCompletion.Value > -1
-                                        && MainProcess.TimeToCompletion.Value
-                                        != MainProcess.TimeToCompletion.TargetValue)
+      mainProcess.Progress += delegate
+      {
+          if (mainProcess.Maximum != -1 && mainProcess.TimeToCompletion.Value > -1
+                                        && mainProcess.TimeToCompletion.Value
+                                        != mainProcess.TimeToCompletion.TargetValue)
           {
             SetProgressState(false);
             SetProgressValue(
-              MainProcess.TimeToCompletion.Value.ToInt(),
-              MainProcess.TimeToCompletion.TargetValue.ToInt());
+              mainProcess.TimeToCompletion.Value.ToInt(),
+              mainProcess.TimeToCompletion.TargetValue.ToInt());
           }
 
-          if (MainProcess.TimeToCompletion.Value == MainProcess.TimeToCompletion.TargetValue)
+          if (mainProcess.TimeToCompletion.Value == mainProcess.TimeToCompletion.TargetValue)
 
             // done
             SetProgressState(true);
           Extensions.ProcessUIElements();
         };
 
-      MainProcess.SetMaximum += delegate (object sender, long max)
+      mainProcess.SetMaximum += delegate (object sender, long max)
         {
           if (max < 1)
             SetProgressState(true);
@@ -155,16 +155,15 @@
       return null;
     }
 
-    public static void SetProgressState(bool noProgress)
+    private static void SetProgressState(bool noProgress)
     {
       if (!m_TaskbarManagerSupported)
         return;
       try
       {
-        if (!noProgress)
-          TaskbarManager.Instance.SetProgressState(TaskbarProgressBarState.Normal);
-        else
-          TaskbarManager.Instance.SetProgressState(TaskbarProgressBarState.NoProgress);
+        TaskbarManager.Instance.SetProgressState(!noProgress
+          ? TaskbarProgressBarState.Normal
+          : TaskbarProgressBarState.NoProgress);
       }
       catch (Exception)
       {
@@ -173,7 +172,7 @@
       }
     }
 
-    public static void SetProgressValue(int currentValue, int maximumValue)
+    private static void SetProgressValue(int currentValue, int maximumValue)
     {
       if (!m_TaskbarManagerSupported)
         return;

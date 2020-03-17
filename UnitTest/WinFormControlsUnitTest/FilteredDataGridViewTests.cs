@@ -1,16 +1,17 @@
-﻿/*
- * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
- *
- * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
- * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
- * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
- *
- * You should have received a copy of the GNU Lesser Public License along with this program.
- * If not, see http://www.gnu.org/licenses/ .
- *
- */
+﻿using CsvTools;
+/*
+* Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
+*
+* This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
+* License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+* of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
+*
+* You should have received a copy of the GNU Lesser Public License along with this program.
+* If not, see http://www.gnu.org/licenses/ .
+*
+*/
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Drawing;
@@ -52,7 +53,7 @@ namespace CsvTools.Tests
         fdgv.ApplyFilters();
       }
 
-      using (var dt = UnitTestStatic.GetDataTable(100))
+      using (var dt = UnitTestStatic.GetDataTable())
       using (var filteredDataGridView = new FilteredDataGridView())
       {
         filteredDataGridView.DataSource = dt;
@@ -70,7 +71,7 @@ namespace CsvTools.Tests
     {
       using (var filteredDataGridView = new FilteredDataGridView())
       {
-        var dt = UnitTestStatic.GetDataTable(100);
+        var dt = UnitTestStatic.GetDataTable();
         filteredDataGridView.DataSource = dt;
         using (var frm = new Form())
         {
@@ -96,7 +97,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void SetRowHeightTest()
     {
-      using (var dt = UnitTestStatic.GetDataTable(100))
+      using (var dt = UnitTestStatic.GetDataTable())
       using (var filteredDataGridView = new FilteredDataGridView())
       {
         filteredDataGridView.DataSource = dt;
@@ -106,6 +107,33 @@ namespace CsvTools.Tests
           frm.Show();
           filteredDataGridView.SetRowHeight();
         }
+      }
+    }
+
+
+
+    [TestMethod()]
+    public void FrozenColumns()
+    {
+      using (var dt = UnitTestStatic.GetDataTable())
+      using (var filteredDataGridView = new FilteredDataGridView())
+      {
+        filteredDataGridView.DataSource = dt;
+        filteredDataGridView.FrozenColumns = 2;
+        UnitTestStatic.WaitSomeTime(.2);
+      }
+    }
+
+    [TestMethod()]
+    public void HighlightText()
+    {
+      using (var dt = UnitTestStatic.GetDataTable())
+      using (var filteredDataGridView = new FilteredDataGridView())
+      {
+        filteredDataGridView.DataSource = dt;
+        filteredDataGridView.HighlightText = "ag";
+        UnitTestStatic.WaitSomeTime(.2);
+        Assert.AreEqual("",filteredDataGridView.CurrentFilter);
       }
     }
   }

@@ -38,8 +38,6 @@ namespace CsvTools
 
     private static int m_DefRowHeight = -1;
 
-    internal Func<string, IDataReader> ToolDataReader;
-
     private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
 
     private readonly List<ToolStripDataGridViewColumnFilter> m_Filter =
@@ -130,37 +128,6 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   Gets or sets the name of the list or table in the data source for which the <see
-    ///   cref="DataGridView" /> is displaying data.
-    /// </summary>
-    /// <returns>
-    ///   The name of the table or list in the <see cref="DataSource" /> for which the <see
-    ///   cref="DataGridView" /> is displaying data. The default is <see cref="string.Empty" />.
-    /// </returns>
-    /// <exception cref="Exception">
-    ///   An error occurred in the data source and either there is no handler for the <see
-    ///   cref="DataError" /> event or the handler has set the <see cref="Exception" /> property to
-    ///   true. The exception object can typically be cast to type <see cref="FormatException" />.
-    /// </exception>
-    public new string DataMember
-    {
-      get => base.DataMember;
-
-      set
-      {
-        if (value == null)
-        {
-          ResetDataSource();
-        }
-        else
-        {
-          base.DataMember = value;
-          SetBoundDataView(true);
-          GenerateDataGridViewColumn();
-        }
-      }
-    }
 
     /// <summary>
     ///   Gets or sets the data source that the <see cref="DataGridView" /> is displaying data for.
@@ -519,6 +486,7 @@ namespace CsvTools
         return itemIndex;
       itemIndex = toolStripMenuItemColumnVisibility.CheckedListBoxControl.Items.Add(text);
 
+      // ReSharper disable once PossibleNullReferenceException
       toolStripMenuItemColumnVisibility.CheckedListBoxControl.SetItemChecked(itemIndex, Columns[text].Visible);
       return itemIndex;
     }
@@ -923,7 +891,7 @@ namespace CsvTools
       CloseFilter();
       Columns.Clear();
       base.DataSource = null;
-      base.DataMember = null;
+      DataMember = null;
       DataView = null;
     }
 
@@ -938,9 +906,9 @@ namespace CsvTools
       m_BindingSource = null;
       var dataSource = DataSource;
       var dataMember = DataMember;
-      var maxIter = 5;
+      var maxIteration = 5;
 
-      while (dataSource != null && !(dataSource is DataView) && maxIter > 0)
+      while (dataSource != null && !(dataSource is DataView) && maxIteration > 0)
       {
         if (dataSource is BindingSource bs)
         {
@@ -965,14 +933,12 @@ namespace CsvTools
           }
         }
 
-        maxIter--;
+        maxIteration--;
       }
 
       try
       {
         DataView = (DataView)dataSource;
-
-        // m_GeneralDataView = m_BoundDataView.Table.Copy().DefaultView;
       }
       catch (Exception ex)
       {
@@ -1105,8 +1071,7 @@ namespace CsvTools
             {
               var itemName = toolStripMenuItemColumnVisibility.CheckedListBoxControl.Items[index].ToString();
               var dataGridViewColumn = Columns[itemName];
-              Debug.Assert(dataGridViewColumn != null, nameof(dataGridViewColumn) + " != null");
-              if (dataGridViewColumn.Visible)
+              if (dataGridViewColumn?.Visible ?? true)
                 continue;
               dataGridViewColumn.Visible = true;
               changes = true;

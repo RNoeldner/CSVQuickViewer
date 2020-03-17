@@ -282,7 +282,7 @@ namespace CsvTools
     /// <param name="cancellationToken">Cancellation Token</param>
     /// <returns><c>True</c> if children where validated, <c>false</c> otherwise</returns>
     public static bool ValidateChildren(this ContainerControl container, CancellationToken cancellationToken) =>
-      Task.Run(() => container.ValidateChildren(), cancellationToken).WaitToCompleteTask(1);
+      Task.Run(container.ValidateChildren, cancellationToken).WaitToCompleteTask(1);
 
     /// <summary>
     ///   Store a bound value

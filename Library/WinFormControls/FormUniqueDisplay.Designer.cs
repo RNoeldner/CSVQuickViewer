@@ -83,7 +83,7 @@
       // detailControl
       // 
       dataGridViewCellStyle1.BackColor = System.Drawing.Color.Gainsboro;
-      this.detailControl.AlternatingRowDefaultCellSyle = dataGridViewCellStyle1;
+      this.detailControl.AlternatingRowDefaultCellStyle = dataGridViewCellStyle1;
       tableLayoutPanel1.SetColumnSpan(this.detailControl, 3);
       this.detailControl.DataTable = null;
       dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
