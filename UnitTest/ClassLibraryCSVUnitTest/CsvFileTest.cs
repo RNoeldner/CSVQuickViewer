@@ -44,7 +44,7 @@ namespace CsvTools.Tests
       Assert.AreEqual(test.IsEnabled, true, "IsEnabled");
       Assert.AreEqual(test.NumWarnings, 0, "NumWarnings");
       Assert.AreEqual(test.RecordLimit, 0U, "RecordLimit");
-      Assert.AreEqual(test.TreatUnknowCharaterAsSpace, false, "ReplaceUnknowCharater");
+      Assert.AreEqual(test.TreatUnknowCharaterAsSpace, false, "TreatUnknownCharacterAsSpace");
       Assert.AreEqual(test.SkipRows, 0, "SkipRows");
       Assert.AreEqual(string.Empty, test.SqlStatement, "SqlStatement");
       Assert.IsTrue(test.Timeout > 0, "Timeout");
@@ -329,7 +329,7 @@ namespace CsvTools.Tests
 
       m_CsvFile.RecordLimit = 5;
       m_CsvFile.TreatUnknowCharaterAsSpace = true;
-      Assert.AreEqual(true, m_CsvFile.TreatUnknowCharaterAsSpace, "TreatUnknowCharaterAsSpace");
+      Assert.AreEqual(true, m_CsvFile.TreatUnknowCharaterAsSpace, "TreatUnknownCharacterAsSpace");
 
       m_CsvFile.ShowProgress = true;
       m_CsvFile.SkipRows = 1;

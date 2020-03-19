@@ -614,7 +614,9 @@ namespace CsvTools
         Logger.Information("Opening File…");
 
         Text =
-          $@"{AssemblyTitle} : {FileSystemUtils.GetShortDisplayFileName(m_FileSetting.FileName, 80)}  - {EncodingHelper.GetEncodingName(m_FileSetting.CurrentEncoding.CodePage, true, m_FileSetting.ByteOrderMark)}";
+        $@"{AssemblyTitle} : {FileSystemUtils.GetShortDisplayFileName(m_FileSetting.FileName, 80)}  - {EncodingHelper.GetEncodingName(m_FileSetting.CurrentEncoding.CodePage, true, m_FileSetting.ByteOrderMark)}";
+
+
 
         using (var processDisplay = m_FileSetting.GetProcessDisplay(this, false, m_CancellationTokenSource.Token))
         {
@@ -630,9 +632,9 @@ namespace CsvTools
 
             // Store the header in this might be used later on by FormColumnUI
             m_Headers = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            for (var colindex = 0; colindex < csvDataReader.FieldCount; colindex++)
+            for (var colIndex = 0; colIndex < csvDataReader.FieldCount; colIndex++)
             {
-              var cf = csvDataReader.GetColumn(colindex);
+              var cf = csvDataReader.GetColumn(colIndex);
               if (!string.IsNullOrEmpty(cf.Name) && !cf.Ignore)
                 m_Headers.Add(cf.Name);
             }
@@ -650,6 +652,7 @@ namespace CsvTools
             csvDataReader.Warning -= warningList.Add;
             csvDataReader.Warning += AddWarning;
             Logger.Information("Reading data…");
+
             DataTable = csvDataReader.Read2DataTable(processDisplay, m_FileSetting.RecordLimit);
 
             foreach (var columnName in DataTable.GetRealColumns())

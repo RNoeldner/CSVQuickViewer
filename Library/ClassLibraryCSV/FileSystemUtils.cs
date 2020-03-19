@@ -517,10 +517,7 @@ namespace CsvTools
         get
         {
           var index = FileName.LastIndexOf('.');
-          if (index == -1)
-            return string.Empty;
-          else
-            return FileName.Substring(index);
+          return index == -1 ? string.Empty : FileName.Substring(index);
         }
       }
 

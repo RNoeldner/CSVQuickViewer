@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace CsvTools
@@ -58,9 +59,7 @@ namespace CsvTools
 
         // need to call InitColumn to set the Field Count and initialize all array
         base.InitColumn(line.Count);
-        var header = new List<string>();
-        foreach (var colValue in line)
-          header.Add(colValue.Key);
+        var header = line.Select(colValue => colValue.Key).ToList();
         ParseColumnName(header);
 
         // Set CurrentValues as it has been created now

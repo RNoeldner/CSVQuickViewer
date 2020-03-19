@@ -1272,17 +1272,24 @@ namespace CsvTools
       if (!(m_FileSetting is IFileSettingPhysicalFile settingPhysicalFile)) return;
       var split = FileSystemUtils.SplitPath(settingPhysicalFile.FullPath);
 
+      // This will always write a delimited text file
+      ICsvFile writeFile = new CsvFile();
+      m_FileSetting.CopyTo(writeFile);
+      if (writeFile.JsonFormat)
+      {
+        writeFile.JsonFormat = false;
+      }
+        
+
       var fileName = WindowsAPICodePackWrapper.Save(
         split.DirectoryName,
         "Delimited File",
         "Text file (*.txt)|*.txt|Comma delimited (*.csv)|*.csv|Tab delimited (*.tab;*.tsv)|*.tab;*.tsv|All files (*.*)|*.*",
-        split.Extension,
+        null,
         split.FileName);
       if (string.IsNullOrEmpty(fileName))
         return;
 
-      var writeFile = m_FileSetting.Clone() as IFileSettingPhysicalFile;
-      if (writeFile == null) return;
       writeFile.FileName = fileName;
 
       using (var processDisplay = writeFile.GetProcessDisplay(ParentForm, true, m_CancellationTokenSource.Token))
@@ -1290,10 +1297,7 @@ namespace CsvTools
         var writer = FunctionalDI.GetFileWriter(writeFile, TimeZoneInfo.Local.Id, processDisplay);
 
         // Restrict to shown data
-        var colNames = new Dictionary<int, string>();
-        foreach (DataGridViewColumn col in DataGridView.Columns)
-          if (col.Visible && !BaseFileReader.ArtificialFields.Contains(col.DataPropertyName))
-            colNames.Add(col.DisplayIndex, col.DataPropertyName);
+        var colNames = DataGridView.Columns.Cast<DataGridViewColumn>().Where(col => col.Visible && !BaseFileReader.ArtificialFields.Contains(col.DataPropertyName)).ToDictionary(col => col.DisplayIndex, col => col.DataPropertyName);
 
         // can not use filteredDataGridView.Columns directly
         writer.WriteDataTable(
