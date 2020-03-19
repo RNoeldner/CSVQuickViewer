@@ -164,9 +164,9 @@ namespace CsvTools
       label1.Anchor = System.Windows.Forms.AnchorStyles.Left;
       label1.AutoSize = true;
       label1.ForeColor = System.Drawing.SystemColors.InfoText;
-      label1.Location = new System.Drawing.Point(3, 7);
+      label1.Location = new System.Drawing.Point(3, 9);
       label1.Name = "label1";
-      label1.Size = new System.Drawing.Size(123, 29);
+      label1.Size = new System.Drawing.Size(72, 17);
       label1.TabIndex = 0;
       label1.Text = "Find what:";
       // 
@@ -179,7 +179,7 @@ namespace CsvTools
       this.m_BtnCancel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
       this.m_BtnCancel.Image = ((System.Drawing.Image)(resources.GetObject("m_BtnCancel.Image")));
       this.m_BtnCancel.ImageAlign = System.Drawing.ContentAlignment.BottomCenter;
-      this.m_BtnCancel.Location = new System.Drawing.Point(337, 9);
+      this.m_BtnCancel.Location = new System.Drawing.Point(337, 5);
       this.m_BtnCancel.Name = "m_BtnCancel";
       this.m_BtnCancel.Size = new System.Drawing.Size(24, 24);
       this.m_BtnCancel.TabIndex = 4;
@@ -192,10 +192,10 @@ namespace CsvTools
       this.m_SearchTextBoxText.BackColor = System.Drawing.SystemColors.Info;
       this.m_SearchTextBoxText.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
       this.m_SearchTextBoxText.ForeColor = System.Drawing.SystemColors.InfoText;
-      this.m_SearchTextBoxText.Location = new System.Drawing.Point(132, 4);
+      this.m_SearchTextBoxText.Location = new System.Drawing.Point(81, 6);
       this.m_SearchTextBoxText.MaxLength = 50;
       this.m_SearchTextBoxText.Name = "m_SearchTextBoxText";
-      this.m_SearchTextBoxText.Size = new System.Drawing.Size(62, 35);
+      this.m_SearchTextBoxText.Size = new System.Drawing.Size(62, 22);
       this.m_SearchTextBoxText.TabIndex = 1;
       this.m_SearchTextBoxText.TextChanged += new System.EventHandler(this.SearchText_TextChanged);
       // 
@@ -204,9 +204,9 @@ namespace CsvTools
       this.m_LblResults.Anchor = System.Windows.Forms.AnchorStyles.Left;
       this.m_LblResults.AutoSize = true;
       this.m_LblResults.ForeColor = System.Drawing.SystemColors.InfoText;
-      this.m_LblResults.Location = new System.Drawing.Point(200, 7);
+      this.m_LblResults.Location = new System.Drawing.Point(227, 9);
       this.m_LblResults.Name = "m_LblResults";
-      this.m_LblResults.Size = new System.Drawing.Size(71, 29);
+      this.m_LblResults.Size = new System.Drawing.Size(44, 17);
       this.m_LblResults.TabIndex = 0;
       this.m_LblResults.Text = "0 of 0";
       this.m_LblResults.TextChanged += new System.EventHandler(this.LblResultsTextChanged);
@@ -220,7 +220,7 @@ namespace CsvTools
       this.m_BtnNext.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
       this.m_BtnNext.Image = ((System.Drawing.Image)(resources.GetObject("m_BtnNext.Image")));
       this.m_BtnNext.ImageAlign = System.Drawing.ContentAlignment.BottomCenter;
-      this.m_BtnNext.Location = new System.Drawing.Point(307, 9);
+      this.m_BtnNext.Location = new System.Drawing.Point(307, 5);
       this.m_BtnNext.Name = "m_BtnNext";
       this.m_BtnNext.Size = new System.Drawing.Size(24, 24);
       this.m_BtnNext.TabIndex = 6;
@@ -236,7 +236,7 @@ namespace CsvTools
       this.m_BtnPrevious.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
       this.m_BtnPrevious.Image = ((System.Drawing.Image)(resources.GetObject("m_BtnPrevious.Image")));
       this.m_BtnPrevious.ImageAlign = System.Drawing.ContentAlignment.BottomCenter;
-      this.m_BtnPrevious.Location = new System.Drawing.Point(277, 9);
+      this.m_BtnPrevious.Location = new System.Drawing.Point(277, 5);
       this.m_BtnPrevious.Name = "m_BtnPrevious";
       this.m_BtnPrevious.Size = new System.Drawing.Size(24, 24);
       this.m_BtnPrevious.TabIndex = 5;
@@ -263,7 +263,7 @@ namespace CsvTools
       this.m_TableLayoutPanel.Name = "m_TableLayoutPanel";
       this.m_TableLayoutPanel.RowCount = 1;
       this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-      this.m_TableLayoutPanel.Size = new System.Drawing.Size(364, 43);
+      this.m_TableLayoutPanel.Size = new System.Drawing.Size(364, 35);
       this.m_TableLayoutPanel.TabIndex = 7;
       // 
       // Search
@@ -271,7 +271,7 @@ namespace CsvTools
       this.BackColor = System.Drawing.SystemColors.Info;
       this.Controls.Add(this.m_TableLayoutPanel);
       this.Name = "Search";
-      this.Size = new System.Drawing.Size(364, 43);
+      this.Size = new System.Drawing.Size(364, 35);
       this.m_TableLayoutPanel.ResumeLayout(false);
       this.m_TableLayoutPanel.PerformLayout();
       this.ResumeLayout(false);

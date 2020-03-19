@@ -53,6 +53,8 @@ namespace CsvTools.Tests
       }
       catch (COMException)
       { }
+      catch (TimeoutException)
+      { }
       catch (OperationCanceledException)
       { }
       catch (Exception ex)
@@ -73,7 +75,7 @@ namespace CsvTools.Tests
       }
       catch (COMException)
       { }
-      catch (OperationCanceledException)
+      catch (TimeoutException)
       { }
       catch (Exception ex)
       {
@@ -96,7 +98,7 @@ namespace CsvTools.Tests
       }
       catch (COMException)
       { }
-      catch (OperationCanceledException)
+      catch (TimeoutException)
       { }
       catch (Exception ex)
       {
