@@ -110,15 +110,15 @@ namespace CsvTools
     {
       switch (e.PropertyName)
       {
-        case "ValueText":
+        case nameof(ColumnFilterLogic.ValueText):
           textBoxValue.Text = m_DataGridViewColumnFilter.ValueText;
           break;
 
-        case "ValueDateTime":
+        case nameof(ColumnFilterLogic.ValueDateTime):
           dateTimePickerValue.Value = m_DataGridViewColumnFilter.ValueDateTime;
           break;
 
-        case "Operator":
+        case nameof(ColumnFilterLogic.Operator):
           comboBoxOperator.Text = m_DataGridViewColumnFilter.Operator;
           break;
       }

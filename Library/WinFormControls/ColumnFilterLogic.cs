@@ -128,7 +128,8 @@ namespace CsvTools
       DataPropertyName = dataPropertyName ?? throw new ArgumentNullException(nameof(dataPropertyName));
       m_ColumnDataType = columnDataType ?? throw new ArgumentNullException(nameof(columnDataType));
 
-      // m_ValueClusterCollection.CollectionChanged += delegate(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e) { FilterChanged(); };
+      // m_ValueClusterCollection.CollectionChanged += delegate(object sender,
+      // System.Collections.Specialized.NotifyCollectionChangedEventArgs e) { FilterChanged(); };
     }
 
     /// <summary>
@@ -163,9 +164,7 @@ namespace CsvTools
     /// <summary>
     ///   Gets the type of the column data.
     /// </summary>
-    /// <value>
-    ///   The type of the column data.
-    /// </value>
+    /// <value>The type of the column data.</value>
     public virtual Type ColumnDataType
     {
       get
@@ -213,9 +212,7 @@ namespace CsvTools
     /// <summary>
     ///   Gets or sets the operator, setting the operator will build the filter
     /// </summary>
-    /// <value>
-    ///   The operator.
-    /// </value>
+    /// <value>The operator.</value>
     public virtual string Operator
     {
       get => m_Operator;
@@ -235,9 +232,7 @@ namespace CsvTools
     /// <summary>
     ///   Gets or sets the value date time.
     /// </summary>
-    /// <value>
-    ///   The value date time1.
-    /// </value>
+    /// <value>The value date time1.</value>
     public virtual DateTime ValueDateTime
     {
       get => m_ValueDateTime;
@@ -253,9 +248,7 @@ namespace CsvTools
     /// <summary>
     ///   Gets or sets the value text.
     /// </summary>
-    /// <value>
-    ///   The value text.
-    /// </value>
+    /// <value>The value text.</value>
     public virtual string ValueText
     {
       get => m_ValueText;
@@ -367,19 +360,14 @@ namespace CsvTools
         return string.Empty;
       switch (Type.GetTypeCode(targetType))
       {
-
         case TypeCode.DateTime:
           throw new NotImplementedException("ValueDateTime Time should be used, not ValueText");
-        //  var dateValue = StringConversion.StringToDateTime(
-        //    value,
-        //    CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern,
-        //    CultureInfo.CurrentCulture.DateTimeFormat.DateSeparator,
-        //    CultureInfo.CurrentCulture.DateTimeFormat.TimeSeparator,
-        //    false,
-        //    CultureInfo.CurrentCulture);
-        //  return dateValue.HasValue
-        //           ? string.Format(CultureInfo.InvariantCulture, @"#{0:MM\/dd\/yyyy}#", dateValue.Value)
-        //           : $"'{value.SqlQuote()}'";
+        // var dateValue = StringConversion.StringToDateTime( value,
+        // CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern,
+        // CultureInfo.CurrentCulture.DateTimeFormat.DateSeparator,
+        // CultureInfo.CurrentCulture.DateTimeFormat.TimeSeparator, false,
+        // CultureInfo.CurrentCulture); return dateValue.HasValue ?
+        // string.Format(CultureInfo.InvariantCulture, @"#{0:MM\/dd\/yyyy}#", dateValue.Value) : $"'{value.SqlQuote()}'";
 
         case TypeCode.Byte:
         case TypeCode.Decimal:
@@ -405,10 +393,15 @@ namespace CsvTools
             return boolValue.Value ? "1" : "0";
           break;
 
-        case TypeCode.Empty:
         case TypeCode.Object:
+          if (targetType == typeof(System.Guid))
+            return $"'{value.SqlQuote()}'";
+          break;
+
+        case TypeCode.Empty:
         case TypeCode.DBNull:
           break;
+
         default:
           return $"'{value.SqlQuote()}'";
       }
@@ -479,8 +472,10 @@ namespace CsvTools
             CultureInfo.InvariantCulture,
             m_ColumnDataType == typeof(string) ? "({0} IS NULL or {0} = '')" : "{0} IS NULL",
             m_DataPropertyNameEscape);
+
         case c_OperatorIsNotNull when Type.GetTypeCode(m_ColumnDataType) == TypeCode.String:
           return string.Format(CultureInfo.InvariantCulture, "NOT({0} IS NULL or {0} = '')", m_DataPropertyNameEscape);
+
         case c_OperatorIsNotNull:
           return string.Format(CultureInfo.InvariantCulture, "NOT {0} IS NULL", m_DataPropertyNameEscape);
       }
@@ -547,6 +542,7 @@ namespace CsvTools
                   m_DataPropertyNameEscape,
                   filterValue,
                   m_ValueDateTime.AddDays(1));
+
               case c_OperatorNotEqual:
                 return string.Format(
                   CultureInfo.InvariantCulture,
@@ -554,6 +550,7 @@ namespace CsvTools
                   m_DataPropertyNameEscape,
                   filterValue,
                   m_ValueDateTime.AddDays(1));
+
               default:
                 return string.Format(
                   CultureInfo.InvariantCulture,

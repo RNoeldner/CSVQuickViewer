@@ -64,15 +64,15 @@ namespace CsvTools
         Paint += FilteredDataGridView_Paint;
 
       var resources = new ComponentResourceManager(typeof(FilteredDataGridView));
-      try
-      {
-        m_ImgFilterIndicator = ((Image)(resources.GetObject("toolStripMenuItem2.Image")));
-        m_ImgNbSp = ((Image)(resources.GetObject("NBSP")));
-      }
-      catch
-      {
-        //ignore
-      }
+      //try
+      //{
+      m_ImgFilterIndicator = ((Image)(resources.GetObject("toolStripMenuItem2.Image")));
+      m_ImgNbSp = ((Image)(resources.GetObject("NBSP")));
+      //}
+      //catch
+      //{
+      //  //ignore
+      //}
 
       InitializeComponent();
       DataError += FilteredDataGridView_DataError;
@@ -127,7 +127,6 @@ namespace CsvTools
         return DataView?.RowFilter;
       }
     }
-
 
     /// <summary>
     ///   Gets or sets the data source that the <see cref="DataGridView" /> is displaying data for.
