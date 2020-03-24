@@ -20,6 +20,7 @@ using System.Data.Common;
 using System.Diagnostics;
 using System.Globalization;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace CsvTools
 {
@@ -622,6 +623,17 @@ namespace CsvTools
     }
 
     /// <summary>
+    ///   Returns a <see cref="DataTable" /> that describes the column meta data of the <see
+    ///   cref="IDataReader" />.
+    /// </summary>
+    /// <returns>A <see cref="DataTable" /> that describes the column meta data.</returns>
+    /// <exception cref="InvalidOperationException">The <see cref="IDataReader" /> is closed.</exception>
+    public virtual async Task<DataTable> GetSchemaTableAsync()
+    {
+      return await Task<DataTable>.Run(() => GetSchemaTable());
+    }
+
+    /// <summary>
     ///   Gets the originally provided text in a column
     /// </summary>
     /// <param name="columnNumber">The column number.</param>
@@ -775,6 +787,8 @@ namespace CsvTools
     /// </summary>
     /// <returns>true if there are more rows; otherwise, false.</returns>
     public virtual bool NextResult() => false;
+
+    public virtual async Task<bool> NextResultAsync() => await Task.FromResult(false);
 
     /// <summary>
     ///   Overrides the column format from setting.

@@ -199,7 +199,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="DragEventArgs" /> instance containing the event data.</param>
-    private void DataGridView_DragDrop(object sender, DragEventArgs e)
+    private async void DataGridView_DragDropAsync(object sender, DragEventArgs e)
     {
       // Set the filename
       var files = (string[])e.Data.GetData(DataFormats.FileDrop);
@@ -210,7 +210,7 @@ namespace CsvTools
 
       m_FileName = files[0];
 
-      if (InitFileSettings())
+      if (await InitFileSettingsAsync())
         OpenDataReader(false);
     }
 
@@ -344,7 +344,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
-    private void Display_Shown(object sender, EventArgs e)
+    private async void Display_ShownAsync(object sender, EventArgs e)
     {
       this.LoadWindowState(m_ViewSettings.WindowPosition);
       if (string.IsNullOrEmpty(m_FileName) || !FileSystemUtils.FileExists(m_FileName))
@@ -375,7 +375,7 @@ namespace CsvTools
         }
         else
         {
-          doClose = !InitFileSettings();
+          doClose = !await InitFileSettingsAsync();
         }
       }
 
@@ -452,7 +452,7 @@ namespace CsvTools
     /// </summary>
     /// <returns></returns>
     [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
-    private bool InitFileSettings()
+    private async Task<bool> InitFileSettingsAsync()
     {
       const int c_Maxsize = 1048576 * 20;
 
@@ -536,25 +536,21 @@ namespace CsvTools
               }
 
               m_FileSetting.HasFieldHeader = true;
-              Task.Run(
-                () =>
-                  {
-                    m_FileSetting.RefreshCsvFile(
-                      processDisplay,
-                      m_ViewSettings.AllowJson,
-                      m_ViewSettings.GuessCodePage,
-                      m_ViewSettings.GuessDelimiter,
-                      m_ViewSettings.GuessQualifier,
-                      m_ViewSettings.GuessStartRow,
-                      m_ViewSettings.GuessHasHeader);
 
-                    m_FileSetting.FillGuessColumnFormatReader(
-                      true,
-                      false,
-                      m_ViewSettings.FillGuessSettings,
-                      processDisplay);
-                  },
-                processDisplay.CancellationToken).WaitToCompleteTask(240);
+              await m_FileSetting.RefreshCsvFileAsync(
+                processDisplay,
+                m_ViewSettings.AllowJson,
+                m_ViewSettings.GuessCodePage,
+                m_ViewSettings.GuessDelimiter,
+                m_ViewSettings.GuessQualifier,
+                m_ViewSettings.GuessStartRow,
+                m_ViewSettings.GuessHasHeader);
+
+              await Task.Run(() => m_FileSetting.FillGuessColumnFormatReader(
+                true,
+                false,
+                m_ViewSettings.FillGuessSettings,
+                processDisplay), processDisplay.CancellationToken);
             }
           }
           catch (Exception ex)
@@ -615,8 +611,6 @@ namespace CsvTools
 
         Text =
         $@"{AssemblyTitle} : {FileSystemUtils.GetShortDisplayFileName(m_FileSetting.FileName, 80)}  - {EncodingHelper.GetEncodingName(m_FileSetting.CurrentEncoding.CodePage, true, m_FileSetting.ByteOrderMark)}";
-
-
 
         using (var processDisplay = m_FileSetting.GetProcessDisplay(this, false, m_CancellationTokenSource.Token))
         {

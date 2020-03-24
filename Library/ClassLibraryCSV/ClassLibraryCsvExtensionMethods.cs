@@ -34,7 +34,6 @@ namespace CsvTools
   /// </summary>
   public static class ClassLibraryCsvExtensionMethods
   {
-
     /// <summary>
     ///   Check if the application should assume its gZIP
     /// </summary>
@@ -72,7 +71,6 @@ namespace CsvTools
       foreach (var item in self)
         other.Add(item.Clone());
     }
-
 
     /// <summary>
     ///   Copies all elements from one collection to the other
@@ -265,7 +263,6 @@ namespace CsvTools
       return source;
     }
 
-
     public static char GetFirstChar(this string text) => string.IsNullOrEmpty(text) ? '\0' : text[0];
 
     /// <summary>
@@ -360,7 +357,76 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Method to copy rows from a data Reader  to a data table.
+    ///   Async method to copy rows from a data Reader to a data table.
+    /// </summary>
+    /// <param name="dataReader"></param>
+    /// <param name="processDisplay"></param>
+    /// <param name="recordLimit"></param>
+    /// <returns></returns>
+    /// <remarks>There is a similar function that uses a file reader</remarks>
+    public static async Task<DataTable> Read2DataTableAsync(this IDataReaderAsync dataReader, IProcessDisplay processDisplay,
+      long recordLimit)
+    {
+      var dataTable = new DataTable();
+      long oldMax = -1;
+      var display = (processDisplay?.Maximum ?? 0) > 1
+        ? "Reading rows\nRecord {0:N0}/" + $"{processDisplay?.Maximum:N0}"
+        : "Reading rows\nRecords {0:N0}";
+
+      try
+      {
+        if (processDisplay != null && recordLimit > 0)
+        {
+          oldMax = processDisplay.Maximum;
+          processDisplay.Maximum = recordLimit;
+        }
+
+        // create columns
+        var schemaTable = await dataReader.GetSchemaTableAsync();
+        if (schemaTable == null)
+          return null;
+        var columns = schemaTable.Rows.Count;
+
+        // We could have duplicate column names in this case we have need to adjust the conflicting name
+        var previousColumns = new List<string>();
+        foreach (DataRow dataRow in schemaTable.Rows)
+        {
+          var colName = StringUtils.MakeUniqueInCollection(previousColumns, (string)dataRow["ColumnName"]);
+          dataTable.Columns.Add(new DataColumn(colName, (Type)dataRow["DataType"]) { AllowDBNull = true });
+          previousColumns.Add(colName);
+        }
+
+        dataTable.BeginLoadData();
+        if (recordLimit < 1)
+          recordLimit = long.MaxValue;
+        // load the Data into the dataTable
+        var action = processDisplay == null ? null : new IntervalAction(.3);
+        while (await dataReader.ReadAsync() && dataTable.Rows.Count < recordLimit &&
+               !(processDisplay?.CancellationToken.IsCancellationRequested ?? false))
+        {
+          var readerValues = new object[columns];
+          if (dataReader.GetValues(readerValues) > 0)
+            dataTable.Rows.Add(readerValues);
+          action?.Invoke(() =>
+            processDisplay.SetProcess(string.Format(display, dataTable.Rows.Count), dataTable.Rows.Count, false));
+        }
+      }
+      finally
+      {
+        if (processDisplay != null)
+        {
+          processDisplay.SetProcess(string.Format(display, dataTable.Rows.Count), dataTable.Rows.Count, false);
+          if (oldMax > 0)
+            processDisplay.Maximum = oldMax;
+        }
+
+        dataTable.EndLoadData();
+      }
+      return dataTable;
+    }
+
+    /// <summary>
+    ///   Method to copy rows from a data Reader to a data table.
     /// </summary>
     /// <param name="dataReader"></param>
     /// <param name="processDisplay"></param>
@@ -368,7 +434,7 @@ namespace CsvTools
     /// <returns></returns>
     /// <remarks>There is a similar function that uses a file reader</remarks>
     public static DataTable Read2DataTable(this IDataReader dataReader, IProcessDisplay processDisplay,
-      long recordLimit)
+     long recordLimit)
     {
       var dataTable = new DataTable();
       long oldMax = -1;
@@ -828,7 +894,6 @@ namespace CsvTools
 
     public static string CsvToolsStackTrace(this Exception exception)
     {
-
       if (string.IsNullOrEmpty(exception.StackTrace))
         return null;
 

@@ -71,7 +71,7 @@ namespace CsvTools
             ScrollBarVertical.Maximum = (int)file.Length;
             m_CsvFile = value;
 
-            UpdateView();
+            UpdateViewAsync();
           }
         }
       }
@@ -93,12 +93,12 @@ namespace CsvTools
     private void ScrollEvent(object sender, ScrollEventArgs e)
     {
       if (m_DisplayedAt != ScrollBarVertical.Value && ScrollBarVertical.Enabled)
-        UpdateView();
+        UpdateViewAsync();
     }
 
     private void SizeChangedEvent(object sender, EventArgs e) => CSVTextBox.Width = ScrollBarVertical.Left;
 
-    private void UpdateView()
+    private async void UpdateViewAsync()
     {
       m_DisplayedAt = ScrollBarVertical.Value;
       if (string.IsNullOrEmpty(m_CsvFile.FileName))
@@ -107,7 +107,7 @@ namespace CsvTools
       {
         using (new ProcessDisplayTime(CancellationToken.None))
         using (var istream = FunctionalDI.OpenRead(m_CsvFile))
-        using (var sr = new StreamReader(istream.Stream, m_CsvFile.GetEncoding(), m_CsvFile.ByteOrderMark))
+        using (var sr = new ImprovedTextReader(istream, (await m_CsvFile.GetEncodingAsync()).CodePage, m_CsvFile.ByteOrderMark))
         {
           // Some stream do not support seek...
           if (istream.Stream.CanSeek)
@@ -116,13 +116,16 @@ namespace CsvTools
             if (m_DisplayedAt != 0)
             {
               // find the line start
-              var read = sr.Read();
-              while (read != 13 && read != 10 && !sr.EndOfStream)
-                read = sr.Read();
+              var read = await sr.ReadAsync();
 
-              var next = sr.Peek();
+              while (read != 13 && read != 10 && !sr.EndOfFile)
+              {
+                await sr.ReadAsync();
+              }
+
+              var next = await sr.PeekAsync();
               if (read == 13 && next == 10 || read == 10 && next == 13)
-                sr.Read();
+                await sr.ReadAsync();
             }
           }
           else
@@ -130,9 +133,7 @@ namespace CsvTools
             ScrollBarVertical.Enabled = false;
           }
 
-          var buffer = new char[32000];
-          var len = sr.Read(buffer, 0, buffer.Length);
-          CSVTextBox.Text = new string(buffer, 0, len);
+          CSVTextBox.Text = new string(sr.Buffer, 0, sr.BufferFilled);
         }
       }
       catch (Exception exc)
@@ -144,7 +145,7 @@ namespace CsvTools
     private void ValueChangedEvent(object sender, EventArgs e)
     {
       if (m_DisplayedAt != ScrollBarVertical.Value)
-        UpdateView();
+        UpdateViewAsync();
     }
   }
 }

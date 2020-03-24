@@ -152,6 +152,8 @@
   <ItemGroup>
     <Compile Include="ColumnErrorDictionaryTests.cs" />
     <Compile Include="FilterDataTableTests.cs" />
+    <Compile Include="ImprovedTextReaderPositionStoreTests.cs" />
+    <Compile Include="ImprovedTextReaderTests.cs" />
     <Compile Include="SampleAndErrorsInformationTest.cs" />
     <Compile Include="LoggerTest.cs" />
     <Compile Include="ApplicationSettingTest.cs" />

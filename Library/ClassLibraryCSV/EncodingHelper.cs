@@ -37,139 +37,151 @@ namespace CsvTools
    10029, 20127, 28597, 50220, 28592, 28595, 28598, 20866, 932, 54936
   });
 
+    public static byte BOMLength(CodePage codePage)
+    {
+      if (codePage == CodePage.UTF8)
+        return 3;
+      else if (codePage == CodePage.UTF7 || codePage == CodePage.UTF32Le || codePage == CodePage.UTF32Be || codePage == CodePage.GB18030)
+        return 4;
+      else if (codePage == CodePage.UTF16Le || codePage == CodePage.UTF16Be)
+        return 2;
+      return 0;
+    }
+
     /// <summary>
-    ///  A code page is a table of values that describes the character set for encoding a particular language.
+    ///   A code page is a table of values that describes the character set for encoding a
+    ///   particular language.
     /// </summary>
-    private enum CodePage
+    public enum CodePage
     {
       /// <summary>
-      ///  Artificial CodePage to show no ode page has been determined
+      ///   Artificial CodePage to show no ode page has been determined
       /// </summary>
       None = 0,
 
       /// <summary>
-      ///  The vast majority of code pages in current use are super sets of ASCII, a 7-bit code
-      ///  representing 128 control codes and printable characters.
+      ///   The vast majority of code pages in current use are super sets of ASCII, a 7-bit code
+      ///   representing 128 control codes and printable characters.
       /// </summary>
       ASCII = 20127,
 
       /// <summary>
-      ///  ANSI/OEM Traditional Chinese (Taiwan; Hong Kong SAR, PRC); Chinese Traditional (Big5)
+      ///   ANSI/OEM Traditional Chinese (Taiwan; Hong Kong SAR, PRC); Chinese Traditional (Big5)
       /// </summary>
       BIG5 = 10002,
 
       /// <summary>
-      ///  EUC Japanese
+      ///   EUC Japanese
       /// </summary>
       EUCJP = 51932,
 
       /// <summary>
-      ///  EUC Korean
+      ///   EUC Korean
       /// </summary>
       EUCKR = 51949,
 
       /// <summary>
-      ///  GB18030 Simplified Chinese (4 byte); Chinese Simplified (GB18030)
+      ///   GB18030 Simplified Chinese (4 byte); Chinese Simplified (GB18030)
       /// </summary>
       GB18030 = 54936,
 
       /// <summary>
-      ///  OEM Cyrillic (primarily Russian)
+      ///   OEM Cyrillic (primarily Russian)
       /// </summary>
       IBM855 = 855,
 
       /// <summary>
-      ///  OEM Russian; Cyrillic (DOS)
+      ///   OEM Russian; Cyrillic (DOS)
       /// </summary>
       IBM866 = 866,
 
       /// <summary>
-      ///  ISO 8859-7 Greek
+      ///   ISO 8859-7 Greek
       /// </summary>
       ISO88597 = 28597,
 
       /// <summary>
-      ///  ISO 8859-2 Central European; Central European (ISO)
+      ///   ISO 8859-2 Central European; Central European (ISO)
       /// </summary>
       ISO88592 = 28592,
 
       /// <summary>
-      ///  ISO 8859-5 Cyrillic
+      ///   ISO 8859-5 Cyrillic
       /// </summary>
       ISO88595 = 28595,
 
       /// <summary>
-      ///  ISO 8859-8 Hebrew; Hebrew (ISO-Visual)
+      ///   ISO 8859-8 Hebrew; Hebrew (ISO-Visual)
       /// </summary>
       ISO88598 = 28598,
 
       /// <summary>
-      ///  Russian (KOI8-R); Cyrillic (KOI8-R)
+      ///   Russian (KOI8-R); Cyrillic (KOI8-R)
       /// </summary>
       KOI8R = 20866,
 
       /// <summary>
-      ///  Cyrillic (Mac)
+      ///   Cyrillic (Mac)
       /// </summary>
       MacCyrillic = 10007,
 
       /// <summary>
-      ///  ANSI/OEM Japanese; Japanese (Shift-JIS)
+      ///   ANSI/OEM Japanese; Japanese (Shift-JIS)
       /// </summary>
       ShiftJis = 932,
 
       /// <summary>
-      ///  Unicode UTF-16, big endian byte order;
+      ///   Unicode UTF-16, big endian byte order;
       /// </summary>
       UTF16Be = 1201,
 
       /// <summary>
-      ///  Unicode UTF-16, little endian byte order (BMP of ISO 10646);
+      ///   Unicode UTF-16, little endian byte order (BMP of ISO 10646);
       /// </summary>
       UTF16Le = 1200,
 
       /// <summary>
-      ///  Unicode UTF-32, big endian byte order
+      ///   Unicode UTF-32, big endian byte order
       /// </summary>
       UTF32Be = 12001,
 
       /// <summary>
-      ///  Unicode UTF-32, little endian byte order
+      ///   Unicode UTF-32, little endian byte order
       /// </summary>
       UTF32Le = 12000,
 
       /// <summary>
-      ///  Unicode (UTF-7)
+      ///   Unicode (UTF-7)
       /// </summary>
       UTF7 = 65000,
 
       /// <summary>
-      ///  Unicode (UTF-8)
+      ///   Unicode (UTF-8)
       /// </summary>
       UTF8 = 65001,
 
       /// <summary>
-      ///  ANSI Central European; Central European (Windows)
+      ///   ANSI Central European; Central European (Windows)
       /// </summary>
       WIN1250 = 1250,
 
       /// <summary>
-      ///  ANSI Cyrillic; Cyrillic (Windows)
+      ///   ANSI Cyrillic; Cyrillic (Windows)
       /// </summary>
       WIN1251 = 1251,
 
       /// <summary>
-      ///  ANSI Latin 1; Western European (Windows)
+      ///   ANSI Latin 1; Western European (Windows)
       /// </summary>
       WIN1252 = 1252,
 
       /// <summary>
-      ///  ANSI Greek; Greek (Windows)
+      ///   ANSI Greek; Greek (Windows)
       /// </summary>
       WIN1253 = 1253,
 
       /// <summary>
-      ///  ANSI Turkish; Turkish (Windows)
+      ///   ANSI Turkish; Turkish (Windows)
       /// </summary>
       WIN1255 = 1254,
 
@@ -179,7 +191,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///  Gets a collection of the most common code pages.
+    ///   Gets a collection of the most common code pages.
     /// </summary>
     /// <value>An array of common code pages.</value>
     [SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays")]
@@ -205,7 +217,7 @@ namespace CsvTools
         if (buff[0] == 0x84 && buff[1] == 0x31 && buff[2] == 0x95 && buff[3] == 0x33)
           return (int)CodePage.GB18030;
         if (buff[0] == 0x2B && buff[1] == 0x2F && buff[2] == 0x76 &&
-          (buff[3] == 0x38 || buff[3] == 0x39 || buff[3] == 0x2B || buff[3] == 0xef))
+          (buff[3] == 0x38 || buff[3] == 0x39 || buff[3] == 0x2B || buff[3] == 0x2f))
         {
           return (int)CodePage.UTF7;
         }
@@ -344,69 +356,91 @@ namespace CsvTools
         case "ascii":
           detectedCodePage = CodePage.ASCII;
           break;
+
         case "windows-1252":
           detectedCodePage = CodePage.WIN1252;
           break;
+
         case "big-5":
           detectedCodePage = CodePage.BIG5;
           break;
+
         case "euc-jp":
           detectedCodePage = CodePage.EUCJP;
           break;
+
         case "euc-kr":
           detectedCodePage = CodePage.EUCKR;
           break;
+
         case "gb18030":
           detectedCodePage = CodePage.GB18030;
           break;
+
         case "shift-jis":
           detectedCodePage = CodePage.ShiftJis;
           break;
+
         case "iso-8859-8":
           detectedCodePage = CodePage.ISO88598;
           break;
+
         case "windows-1255":
           detectedCodePage = CodePage.WIN1255;
           break;
+
         case "windows-1250":
           detectedCodePage = CodePage.WIN1250;
           break;
+
         case "windows-1253":
           detectedCodePage = CodePage.WIN1253;
           break;
+
         case "ibm866":
           detectedCodePage = CodePage.IBM866;
           break;
+
         case "ibm855":
           detectedCodePage = CodePage.IBM855;
           break;
+
         case "x-mac-cyrillic":
           detectedCodePage = CodePage.MacCyrillic;
           break;
+
         case "iso-8859-5":
           detectedCodePage = CodePage.ISO88595;
           break;
+
         case "windows-1251":
           detectedCodePage = CodePage.WIN1251;
           break;
+
         case "iso-8859-7":
           detectedCodePage = CodePage.ISO88597;
           break;
+
         case "iso-8859-2":
           detectedCodePage = CodePage.ISO88592;
           break;
+
         case "koi8-r":
           detectedCodePage = CodePage.KOI8R;
           break;
+
         case "utf-16le":
           detectedCodePage = CodePage.UTF16Le;
           break;
+
         case "utf-16be":
           detectedCodePage = CodePage.UTF16Be;
           break;
+
         case "utf-32be":
           detectedCodePage = CodePage.UTF32Be;
           break;
+
         case "utf-32le":
           detectedCodePage = CodePage.UTF32Le;
           break;

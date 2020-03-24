@@ -56,7 +56,7 @@
       label1.Location = new System.Drawing.Point(4, 8);
       label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
       label1.Name = "label1";
-      label1.Size = new System.Drawing.Size(39, 18);
+      label1.Size = new System.Drawing.Size(43, 20);
       label1.TabIndex = 3;
       label1.Text = "Field";
       // 
@@ -77,7 +77,7 @@
       tableLayoutPanel1.RowCount = 2;
       tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
       tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-      tableLayoutPanel1.Size = new System.Drawing.Size(719, 669);
+      tableLayoutPanel1.Size = new System.Drawing.Size(724, 726);
       tableLayoutPanel1.TabIndex = 10;
       // 
       // detailControl
@@ -88,19 +88,20 @@
       this.detailControl.DataTable = null;
       dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
       dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
+      dataGridViewCellStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
       dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.ControlText;
       dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
       dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
       dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
       this.detailControl.DefaultCellStyle = dataGridViewCellStyle2;
       this.detailControl.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.detailControl.Location = new System.Drawing.Point(4, 38);
+      this.detailControl.Location = new System.Drawing.Point(4, 40);
       this.detailControl.Margin = new System.Windows.Forms.Padding(4);
       this.detailControl.Name = "detailControl";
       this.detailControl.ReadOnly = true;
       this.detailControl.ShowFilter = false;
       this.detailControl.ShowInfoButtons = false;
-      this.detailControl.Size = new System.Drawing.Size(711, 627);
+      this.detailControl.Size = new System.Drawing.Size(716, 682);
       this.detailControl.TabIndex = 2;
       // 
       // comboBoxID
@@ -108,10 +109,10 @@
       this.comboBoxID.Dock = System.Windows.Forms.DockStyle.Top;
       this.comboBoxID.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
       this.comboBoxID.FormattingEnabled = true;
-      this.comboBoxID.Location = new System.Drawing.Point(51, 4);
+      this.comboBoxID.Location = new System.Drawing.Point(55, 4);
       this.comboBoxID.Margin = new System.Windows.Forms.Padding(4);
       this.comboBoxID.Name = "comboBoxID";
-      this.comboBoxID.Size = new System.Drawing.Size(543, 26);
+      this.comboBoxID.Size = new System.Drawing.Size(531, 28);
       this.comboBoxID.TabIndex = 0;
       this.comboBoxID.SelectedIndexChanged += new System.EventHandler(this.ComboBoxID_SelectedIndexChanged);
       // 
@@ -119,10 +120,10 @@
       // 
       this.checkBoxIgnoreNull.Anchor = System.Windows.Forms.AnchorStyles.Left;
       this.checkBoxIgnoreNull.AutoSize = true;
-      this.checkBoxIgnoreNull.Location = new System.Drawing.Point(602, 6);
+      this.checkBoxIgnoreNull.Location = new System.Drawing.Point(594, 6);
       this.checkBoxIgnoreNull.Margin = new System.Windows.Forms.Padding(4);
       this.checkBoxIgnoreNull.Name = "checkBoxIgnoreNull";
-      this.checkBoxIgnoreNull.Size = new System.Drawing.Size(113, 22);
+      this.checkBoxIgnoreNull.Size = new System.Drawing.Size(126, 24);
       this.checkBoxIgnoreNull.TabIndex = 1;
       this.checkBoxIgnoreNull.Text = "Ignore NULL";
       this.checkBoxIgnoreNull.UseVisualStyleBackColor = true;
@@ -130,9 +131,9 @@
       // 
       // FormUniqueDisplay
       // 
-      this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 18F);
+      this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-      this.ClientSize = new System.Drawing.Size(719, 669);
+      this.ClientSize = new System.Drawing.Size(724, 726);
       this.Controls.Add(tableLayoutPanel1);
       this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
       this.Margin = new System.Windows.Forms.Padding(4);
