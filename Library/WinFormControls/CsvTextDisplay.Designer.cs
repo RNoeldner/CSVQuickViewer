@@ -36,9 +36,9 @@
       // ScrollBarVertical
       // 
       this.ScrollBarVertical.Dock = System.Windows.Forms.DockStyle.Right;
-      this.ScrollBarVertical.Location = new System.Drawing.Point(371, 0);
+      this.ScrollBarVertical.Location = new System.Drawing.Point(427, 0);
       this.ScrollBarVertical.Name = "ScrollBarVertical";
-      this.ScrollBarVertical.Size = new System.Drawing.Size(17, 248);
+      this.ScrollBarVertical.Size = new System.Drawing.Size(24, 263);
       this.ScrollBarVertical.TabIndex = 0;
       this.ScrollBarVertical.Scroll += new System.Windows.Forms.ScrollEventHandler(this.ScrollEvent);
       this.ScrollBarVertical.ValueChanged += new System.EventHandler(this.ValueChangedEvent);
@@ -48,27 +48,27 @@
       this.CSVTextBox.AcceptsTab = true;
       this.CSVTextBox.AutoWordSelection = true;
       this.CSVTextBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
-      this.CSVTextBox.Dock = System.Windows.Forms.DockStyle.Left;      
+      this.CSVTextBox.Dock = System.Windows.Forms.DockStyle.Left;
       this.CSVTextBox.Location = new System.Drawing.Point(0, 0);
       this.CSVTextBox.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-      this.CSVTextBox.Name = "CSVTextBox";      
+      this.CSVTextBox.Name = "CSVTextBox";
       this.CSVTextBox.ReadOnly = true;
       this.CSVTextBox.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Horizontal;
-      this.CSVTextBox.Size = new System.Drawing.Size(341, 248);
+      this.CSVTextBox.Size = new System.Drawing.Size(411, 263);
       this.CSVTextBox.TabIndex = 1;
-      this.CSVTextBox.Text = "";
       // 
       // CsvTextDisplay
       // 
-      this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
+      this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.Controls.Add(this.CSVTextBox);
       this.Controls.Add(this.ScrollBarVertical);
       this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
       this.Name = "CsvTextDisplay";
-      this.Size = new System.Drawing.Size(388, 248);
+      this.Size = new System.Drawing.Size(451, 263);
       this.SizeChanged += new System.EventHandler(this.SizeChangedEvent);
       this.ResumeLayout(false);
+
     }
 
 #endregion

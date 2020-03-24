@@ -31,7 +31,7 @@ namespace CsvTools.Tests
         FileName = UnitTestInitialize.GetTestPath("Sessions.txt"),
         HasFieldHeader = true,
         ByteOrderMark = true,
-        FileFormat = {FieldDelimiter = "\t"}
+        FileFormat = { FieldDelimiter = "\t" }
       };
       setting.ColumnCollection.AddIfNew(new Column("Start Date", "MM/dd/yyyy")
       {
@@ -63,7 +63,7 @@ namespace CsvTools.Tests
         ByteOrderMark = true
       };
       setting.FileFormat.FieldDelimiter = "\t";
-      setting.ColumnCollection.AddIfNew(new Column("Start Date",  "MM/dd/yyyy")
+      setting.ColumnCollection.AddIfNew(new Column("Start Date", "MM/dd/yyyy")
       {
         TimePart = "Start Time",
         TimePartFormat = "HH:mm:ss",
@@ -1494,7 +1494,7 @@ namespace CsvTools.Tests
         HasFieldHeader = false,
         CodePageId = 1201,
         ByteOrderMark = true,
-        FileFormat = {FieldDelimiter = ","},
+        FileFormat = { FieldDelimiter = "," },
         FileName = UnitTestInitialize.GetTestPath("UnicodeUTF16BE.txt")
       };
 
@@ -1546,7 +1546,7 @@ namespace CsvTools.Tests
         HasFieldHeader = false,
         CodePageId = 1200,
         ByteOrderMark = true,
-        FileFormat = {FieldDelimiter = ","},
+        FileFormat = { FieldDelimiter = "," },
         FileName = UnitTestInitialize.GetTestPath("UnicodeUTF16LE.txt")
       };
 
@@ -1596,7 +1596,7 @@ namespace CsvTools.Tests
       {
         HasFieldHeader = false,
         CodePageId = 65001,
-        FileFormat = {FieldDelimiter = ","},
+        FileFormat = { FieldDelimiter = "," },
         FileName = UnitTestInitialize.GetTestPath("UnicodeUTF8.txt")
       };
 

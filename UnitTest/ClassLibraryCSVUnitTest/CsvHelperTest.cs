@@ -23,9 +23,6 @@ namespace CsvTools.Tests
   [TestClass]
   public class CsvHelperTest
   {
-
-   
-
     [TestMethod]
     public void GuessCodePage()
     {
@@ -33,21 +30,21 @@ namespace CsvTools.Tests
       {
         FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt")
       };
-      CsvHelper.GuessCodePage(setting);
+      CsvHelper.GuessCodePageAsync(setting).WaitToCompleteTask(5);
       Assert.AreEqual(1200, setting.CodePageId);
 
       var setting2 = new CsvFile
       {
         FileName = UnitTestInitialize.GetTestPath("UnicodeUTF16BE.txt")
       };
-      CsvHelper.GuessCodePage(setting2);
+      CsvHelper.GuessCodePageAsync(setting2).WaitToCompleteTask(5);
       Assert.AreEqual(1201, setting2.CodePageId);
 
       var setting3 = new CsvFile
       {
         FileName = UnitTestInitialize.GetTestPath("Test.csv")
       };
-      CsvHelper.GuessCodePage(setting3);
+      CsvHelper.GuessCodePageAsync(setting3).WaitToCompleteTask(5);
       Assert.AreEqual(65001, setting3.CodePageId);
     }
 
@@ -66,10 +63,10 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void GuessStartRow() => Assert.AreEqual(0, CsvHelper.GuessStartRow(new CsvFile
+    public void GuessStartRow() => Assert.AreEqual(0, CsvHelper.GuessStartRowAsync(new CsvFile
     {
       FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt")
-    }), "BasicCSV.txt");
+    }).Result, "BasicCSV.txt");
 
     [TestMethod]
     public void GuessStartRowWithComments()
@@ -79,22 +76,22 @@ namespace CsvTools.Tests
         FileName = UnitTestInitialize.GetTestPath("LongHeaders.txt")
       };
       setting.FileFormat.CommentLine = "#";
-      Assert.AreEqual(0, CsvHelper.GuessStartRow(setting), "LongHeaders.txt");
+      Assert.AreEqual(0, CsvHelper.GuessStartRowAsync(setting).Result, "LongHeaders.txt");
     }
 
     [TestMethod]
     public void GuessDelimiter()
     {
-      Assert.AreEqual(",", CsvHelper.GuessDelimiter(new CsvFile(UnitTestInitialize.GetTestPath("BasicCSV.txt"))));
-      Assert.AreEqual("|", CsvHelper.GuessDelimiter(new CsvFile(UnitTestInitialize.GetTestPath("AllFormatsPipe.txt"))));
-      
+      Assert.AreEqual(",", CsvHelper.GuessDelimiterAsync(new CsvFile(UnitTestInitialize.GetTestPath("BasicCSV.txt"))).Result);
+      Assert.AreEqual("|", CsvHelper.GuessDelimiterAsync(new CsvFile(UnitTestInitialize.GetTestPath("AllFormatsPipe.txt"))).Result);
+
       ICsvFile test = new CsvFile(UnitTestInitialize.GetTestPath("LateStartRow.txt"))
       {
         SkipRows = 10,
         CodePageId = 20127
       };
       test.FileFormat.FieldQualifier = "\"";
-      Assert.AreEqual("|", CsvHelper.GuessDelimiter(test));
+      Assert.AreEqual("|", CsvHelper.GuessDelimiterAsync(test).Result);
     }
 
     [TestMethod]
@@ -106,7 +103,7 @@ namespace CsvTools.Tests
       };
       using (var processDisplay = new DummyProcessDisplay())
       {
-        CsvHelper.RefreshCsvFile(setting, processDisplay);
+        CsvHelper.RefreshCsvFileAsync(setting, processDisplay).WaitToCompleteTask(10);
       }
 
       Assert.AreEqual(1200, setting.CodePageId);
@@ -117,7 +114,7 @@ namespace CsvTools.Tests
         var testSetting = new CsvFile(fileName);
         using (var processDisplay = new DummyProcessDisplay())
         {
-          CsvHelper.RefreshCsvFile(testSetting, processDisplay);
+          CsvHelper.RefreshCsvFileAsync(testSetting, processDisplay).WaitToCompleteTask(10);
         }
       }
     }
@@ -131,7 +128,7 @@ namespace CsvTools.Tests
       };
       test.FileFormat.EscapeCharacter = "\\";
 
-      Assert.AreEqual(",", CsvHelper.GuessDelimiter(test));
+      Assert.AreEqual(",", CsvHelper.GuessDelimiterAsync(test).Result);
     }
 
     [TestMethod]
@@ -142,7 +139,7 @@ namespace CsvTools.Tests
         CodePageId = -1
       };
       test.FileFormat.EscapeCharacter = "";
-      Assert.AreEqual("|", CsvHelper.GuessDelimiter(test));
+      Assert.AreEqual("|", CsvHelper.GuessDelimiterAsync(test).Result);
     }
 
     [TestMethod]
@@ -153,7 +150,7 @@ namespace CsvTools.Tests
         CodePageId = -1
       };
       test.FileFormat.EscapeCharacter = "";
-      Assert.AreEqual(",", CsvHelper.GuessDelimiter(test));
+      Assert.AreEqual(",", CsvHelper.GuessDelimiterAsync(test).Result);
     }
 
     [TestMethod]
@@ -164,7 +161,7 @@ namespace CsvTools.Tests
         CodePageId = -1
       };
       test.FileFormat.EscapeCharacter = "\\";
-      Assert.AreEqual("TAB", CsvHelper.GuessDelimiter(test));
+      Assert.AreEqual("TAB", CsvHelper.GuessDelimiterAsync(test).Result);
     }
 
     [TestMethod]
@@ -176,7 +173,7 @@ namespace CsvTools.Tests
       };
       test.FileFormat.FieldDelimiter = ",";
       test.FileFormat.FieldQualifier = "\"";
-      Assert.AreEqual(0, CsvHelper.GuessStartRow(test));
+      Assert.AreEqual(0, CsvHelper.GuessStartRowAsync(test).Result);
     }
 
     [TestMethod]
@@ -188,7 +185,7 @@ namespace CsvTools.Tests
       };
       test.FileFormat.FieldDelimiter = ",";
       test.FileFormat.FieldQualifier = "\"";
-      Assert.AreEqual(12, CsvHelper.GuessStartRow(test));
+      Assert.AreEqual(12, CsvHelper.GuessStartRowAsync(test).Result);
     }
 
     [TestMethod]
@@ -200,7 +197,7 @@ namespace CsvTools.Tests
         HasFieldHeader = true
       };
 
-      Assert.IsFalse(CsvHelper.HasUsedQualifier(setting, CancellationToken.None));
+      Assert.IsFalse(CsvHelper.HasUsedQualifierAsync(setting, CancellationToken.None).WaitToCompleteTask(10));
     }
 
     [TestMethod]
@@ -210,7 +207,7 @@ namespace CsvTools.Tests
       {
         FileName = UnitTestInitialize.GetTestPath("AlternateTextQualifiers.txt")
       };
-      Assert.IsTrue(CsvHelper.HasUsedQualifier(setting, CancellationToken.None));
+      Assert.IsTrue(CsvHelper.HasUsedQualifierAsync(setting, CancellationToken.None).WaitToCompleteTask(10));
     }
 
     [TestMethod]
@@ -222,7 +219,7 @@ namespace CsvTools.Tests
       };
       using (var display = new DummyProcessDisplay())
       {
-        setting.RefreshCsvFile(display);
+        setting.RefreshCsvFileAsync(display).WaitToCompleteTask(10);
       }
 
       Assert.AreEqual(0, setting.SkipRows);
@@ -239,7 +236,7 @@ namespace CsvTools.Tests
       };
       using (var display = new DummyProcessDisplay())
       {
-        setting.RefreshCsvFile(display);
+        setting.RefreshCsvFileAsync(display).WaitToCompleteTask(10);
       }
 
       Assert.AreEqual(0, setting.SkipRows);
@@ -254,7 +251,7 @@ namespace CsvTools.Tests
       };
       test.FileFormat.FieldDelimiter = "|";
       test.FileFormat.FieldQualifier = "\"";
-      test.SkipRows = CsvHelper.GuessStartRow(test);
+      test.SkipRows = CsvHelper.GuessStartRowAsync(test).Result;
 
       using (var display = new DummyProcessDisplay())
       using (var reader = new CsvFileReader(test, TimeZoneInfo.Local.Id, display))
@@ -302,7 +299,7 @@ namespace CsvTools.Tests
         FileName = UnitTestInitialize.GetTestPath("Jason1.json"),
       };
 
-      Assert.IsTrue(CsvHelper.GuessJsonFile(setting));
+      Assert.IsTrue(CsvHelper.GuessJsonFileAsync(setting).Result);
     }
 
     [TestMethod]
@@ -350,10 +347,9 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GuessNewlineTest()
     {
+      // Storing Text file with given line ends is tricky, editor and source control might change
+      // them therefore creating the text files in code
 
-      // Storing Text file with given line ends is tricky, editor and source control might change them
-      // therefore creating the text files in code
-      
       var path = UnitTestInitialize.GetTestPath("TestFile.txt");
       try
       {
@@ -373,7 +369,7 @@ namespace CsvTools.Tests
 
         var test = new CsvFile(path) { CodePageId = 65001, FileFormat = { FieldQualifier = "\"" } };
 
-        Assert.AreEqual("LF", CsvHelper.GuessNewline(test));
+        Assert.AreEqual("LF", CsvHelper.GuessNewlineAsync(test).Result);
 
         FileSystemUtils.FileDelete(path);
         using (var file = File.CreateText(path))
@@ -388,7 +384,7 @@ namespace CsvTools.Tests
           file.Write("7S721A\t\"7 راز\"\t2b9d291f-ce76-4947-ae7b-fec3531d1766\n\r");
           file.Write("#Hello\t7th Heaven\t1d5b894b-95e6-4026-9ffe-64197e79c3d1\n\r");
         }
-        Assert.AreEqual("LFCR", CsvHelper.GuessNewline(test));
+        Assert.AreEqual("LFCR", CsvHelper.GuessNewlineAsync(test).Result);
 
         FileSystemUtils.FileDelete(path);
         using (var file = File.CreateText(path))
@@ -403,7 +399,7 @@ namespace CsvTools.Tests
           file.Write("7S721A\t\"7 راز\"\t2b9d291f-ce76-4947-ae7b-fec3531d1766\r\n");
           file.Write("#Hello\t7th Heaven\t1d5b894b-95e6-4026-9ffe-64197e79c3d1\r\n");
         }
-        Assert.AreEqual("CRLF", CsvHelper.GuessNewline(test));
+        Assert.AreEqual("CRLF", CsvHelper.GuessNewlineAsync(test).Result);
       }
       finally
       {

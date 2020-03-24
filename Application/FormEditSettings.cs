@@ -22,14 +22,14 @@ namespace CsvTools
   using System.Windows.Forms;
 
   /// <summary>
-  /// Form to edit the Settings
+  ///   Form to edit the Settings
   /// </summary>
   public partial class FormEditSettings : ResizeForm
   {
     private readonly ViewSettings m_ViewSettings;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="FormEditSettings"/> class.
+    ///   Initializes a new instance of the <see cref="FormEditSettings" /> class.
     /// </summary>
     public FormEditSettings() : this(new ViewSettings())
     {
@@ -42,7 +42,7 @@ namespace CsvTools
       fillGuessSettingEdit.FillGuessSettings = viewSettings.FillGuessSettings;
     }
 
-    private void BtnOpenFile_Click(object sender, EventArgs e)
+    private async void BtnOpenFile_ClickAsync(object sender, EventArgs e)
     {
       try
       {
@@ -53,7 +53,7 @@ namespace CsvTools
           "Delimited files (*.csv;*.txt;*.tab;*.tsv)|*.csv;*.txt;*.tab;*.tsv|All files (*.*)|*.*",
           split.FileName);
         if (!string.IsNullOrEmpty(newFileName))
-          ChangeFileName(newFileName);
+          await ChangeFileNameAsync(newFileName);
       }
       catch (Exception ex)
       {
@@ -61,13 +61,13 @@ namespace CsvTools
       }
     }
 
-    private void ButtonGuessCP_Click(object sender, EventArgs e)
+    private async void ButtonGuessCP_ClickAsync(object sender, EventArgs e)
     {
       var oldCursor = Cursor.Current == Cursors.WaitCursor ? Cursors.WaitCursor : Cursors.Default;
       Cursor.Current = Cursors.WaitCursor;
       try
       {
-        CsvHelper.GuessCodePage(m_ViewSettings);
+        await CsvHelper.GuessCodePageAsync(m_ViewSettings);
       }
       finally
       {
@@ -75,13 +75,13 @@ namespace CsvTools
       }
     }
 
-    private void ButtonGuessDelimiter_Click(object sender, EventArgs e)
+    private async void ButtonGuessDelimiter_ClickAsync(object sender, EventArgs e)
     {
       var oldCursor = Cursor.Current == Cursors.WaitCursor ? Cursors.WaitCursor : Cursors.Default;
       Cursor.Current = Cursors.WaitCursor;
       try
       {
-        m_ViewSettings.FileFormat.FieldDelimiter = CsvHelper.GuessDelimiter(m_ViewSettings);
+        m_ViewSettings.FileFormat.FieldDelimiter = await CsvHelper.GuessDelimiterAsync(m_ViewSettings);
       }
       finally
       {
@@ -89,13 +89,13 @@ namespace CsvTools
       }
     }
 
-    private void ButtonSkipLine_Click(object sender, EventArgs e)
+    private async void ButtonSkipLine_ClickAsync(object sender, EventArgs e)
     {
       var oldCursor = Cursor.Current == Cursors.WaitCursor ? Cursors.WaitCursor : Cursors.Default;
       Cursor.Current = Cursors.WaitCursor;
       try
       {
-        m_ViewSettings.SkipRows = CsvHelper.GuessStartRow(m_ViewSettings);
+        m_ViewSettings.SkipRows = await CsvHelper.GuessStartRowAsync(m_ViewSettings);
       }
       finally
       {
@@ -109,7 +109,7 @@ namespace CsvTools
         m_ViewSettings.CodePageId = ((DisplayItem<int>)cboCodePage.SelectedItem).ID;
     }
 
-    private void ChangeFileName(string newFileName)
+    private async System.Threading.Tasks.Task ChangeFileNameAsync(string newFileName)
     {
       m_ViewSettings.FileName = newFileName.GetRelativePath(ApplicationSetting.RootFolder);
       var oldCursor = Cursor.Current == Cursors.WaitCursor ? Cursors.WaitCursor : Cursors.Default;
@@ -119,7 +119,7 @@ namespace CsvTools
         var csvFile = new CsvFile(newFileName);
         using (var processDisplay = new DummyProcessDisplay())
         {
-          csvFile.RefreshCsvFile(processDisplay);
+          await csvFile.RefreshCsvFileAsync(processDisplay);
         }
 
         m_ViewSettings.FileFormat.FieldDelimiter = csvFile.FileFormat.FieldDelimiter;
@@ -180,10 +180,10 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Handles the Load event of the EditSettings control.
+    ///   Handles the Load event of the EditSettings control.
     /// </summary>
     /// <param name="sender">The source of the event.</param>
-    /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
+    /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
     private void EditSettings_Load(object sender, EventArgs e)
     {
       fileSettingBindingSource.DataSource = m_ViewSettings;

@@ -1038,7 +1038,7 @@ namespace CsvTools
           if (!str.CanSeek || m_TextReader == null)
           {
             m_TextReader?.Dispose();
-            m_TextReader = new StreamReader(str, m_CsvFile.GetEncoding(), m_CsvFile.ByteOrderMark);
+            m_TextReader = new StreamReader(str, m_CsvFile.GetEncodingAsync().Result, m_CsvFile.ByteOrderMark);
           }
           else
           {
