@@ -107,7 +107,7 @@ namespace CsvTools
       {
         using (new ProcessDisplayTime(CancellationToken.None))
         using (var istream = FunctionalDI.OpenRead(m_CsvFile))
-        using (var sr = new ImprovedTextReader(istream, (await m_CsvFile.GetEncodingAsync()).CodePage, m_CsvFile.ByteOrderMark))
+        using (var sr = new ImprovedTextReader(istream, (await m_CsvFile.GetEncodingAsync()).CodePage))
         {
           // Some stream do not support seek...
           if (istream.Stream.CanSeek)

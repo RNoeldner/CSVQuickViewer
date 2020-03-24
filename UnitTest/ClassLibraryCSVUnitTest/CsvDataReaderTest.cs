@@ -19,7 +19,6 @@ using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
-using System.Threading;
 
 namespace CsvTools.Tests
 {
@@ -88,23 +87,29 @@ namespace CsvTools.Tests
 
         test.Read();
         Assert.AreEqual("Eagle_600.364", test.GetValue(0));
+        Assert.AreEqual(4, test.StartLineNumber);
 
         test.Read();
         Assert.AreEqual("Eagle_spt029698", test.GetValue(0));
+        Assert.AreEqual(5, test.StartLineNumber);
 
         test.Read();
         Assert.AreEqual("Eagle_SRD-0137698", test.GetValue(0));
         Assert.AreEqual(2, warningList.CountRows);
+        Assert.AreEqual(6, test.StartLineNumber);
 
         test.Read();
         Assert.AreEqual("Eagle_SRD-0138074", test.GetValue(0));
+        Assert.AreEqual(7, test.StartLineNumber);
 
         test.Read();
         Assert.AreEqual("Eagle_SRD-0125563", test.GetValue(0));
+        Assert.AreEqual(8, test.StartLineNumber);
 
         test.Read();
         Assert.AreEqual("doc_1004040002982", test.GetValue(0));
         Assert.AreEqual(3, warningList.CountRows);
+        Assert.AreEqual(9, test.StartLineNumber);
 
         test.Read();
         Assert.AreEqual("doc_1004040002913", test.GetValue(0));

@@ -146,6 +146,7 @@ namespace CsvTools
     ///   the delimiter with the highest number of occurrences.
     /// </summary>
     /// <param name="setting">The CSVFile fileSetting</param>
+    /// <param name="cancellationToken"></param>
     /// <returns>A character with the assumed delimiter for the file</returns>
     /// <remarks>No Error will not be thrown.</remarks>
     public static async Task<string> GuessDelimiterAsync(ICsvFile setting, CancellationToken cancellationToken)
@@ -153,7 +154,7 @@ namespace CsvTools
       Contract.Requires(setting != null);
       Contract.Ensures(Contract.Result<string>() != null);
       using (var improvedStream = FunctionalDI.OpenRead(setting))
-      using (var textReader = new ImprovedTextReader(improvedStream, (await setting.GetEncodingAsync()).CodePage, setting.ByteOrderMark, setting.SkipRows))
+      using (var textReader = new ImprovedTextReader(improvedStream, (await setting.GetEncodingAsync()).CodePage, setting.SkipRows))
       {
         var result = await GuessDelimiterAsync(textReader, setting.FileFormat.EscapeCharacterChar, cancellationToken);
         setting.FileFormat.FieldDelimiter = result.Item1;
@@ -241,12 +242,13 @@ namespace CsvTools
     ///   Try to guess the new line sequence
     /// </summary>
     /// <param name="setting"><see cref="ICsvFile" /> with the information</param>
+    /// <param name="cancellationToken"></param>
     /// <returns>The NewLine Combination used</returns>
     public static async Task<string> GuessNewlineAsync(ICsvFile setting, CancellationToken cancellationToken)
     {
       Contract.Requires(setting != null);
       using (var improvedStream = FunctionalDI.OpenRead(setting))
-      using (var streamReader = new ImprovedTextReader(improvedStream, setting.CodePageId, setting.ByteOrderMark, setting.SkipRows))
+      using (var streamReader = new ImprovedTextReader(improvedStream, setting.CodePageId, setting.SkipRows))
       {
         return await GuessNewlineAsync(streamReader, setting.FileFormat.FieldQualifierChar, cancellationToken);
       }
@@ -256,12 +258,13 @@ namespace CsvTools
     ///   Determines the start row in the file
     /// </summary>
     /// <param name="setting"><see cref="ICsvFile" /> with the information</param>
+    /// <param name="cancellationToken"></param>
     /// <returns>The number of rows to skip</returns>
     public static async Task<int> GuessStartRowAsync(ICsvFile setting, CancellationToken cancellationToken)
     {
       Contract.Requires(setting != null);
       using (var improvedStream = FunctionalDI.OpenRead(setting))
-      using (var streamReader = new ImprovedTextReader(improvedStream, (await setting.GetEncodingAsync()).CodePage, setting.ByteOrderMark))
+      using (var streamReader = new ImprovedTextReader(improvedStream, (await setting.GetEncodingAsync()).CodePage))
       {
         return await GuessStartRowAsync(streamReader, setting.FileFormat.FieldDelimiterChar, setting.FileFormat.FieldQualifierChar,
           setting.FileFormat.CommentLine, cancellationToken);
@@ -282,7 +285,7 @@ namespace CsvTools
         return false;
 
       using (var improvedStream = FunctionalDI.OpenRead(setting))
-      using (var streamReader = new ImprovedTextReader(improvedStream, (await setting.GetEncodingAsync()).CodePage, setting.ByteOrderMark, setting.SkipRows))
+      using (var streamReader = new ImprovedTextReader(improvedStream, (await setting.GetEncodingAsync()).CodePage, setting.SkipRows))
       {
         var isStartOfColumn = true;
         while (!streamReader.EndOfFile)
@@ -317,7 +320,7 @@ namespace CsvTools
     ///   Refreshes the settings assuming the file has changed, checks CodePage, Delimiter, Start
     ///   Row and Header
     /// </summary>
-    /// <param name="file">The file.</param>
+    /// <param name="setting"></param>
     /// <param name="display">The display.</param>
     /// <param name="guessJson">if true trying to determine if file is a JSOn file</param>
     /// <param name="guessCodePage">if true, try to determine teh codepage</param>
@@ -362,7 +365,7 @@ namespace CsvTools
           if (guessStartRow)
           {
             improvedStream.ResetToStart(null);
-            using (var textReader = new ImprovedTextReader(improvedStream, setting.CodePageId, setting.ByteOrderMark))
+            using (var textReader = new ImprovedTextReader(improvedStream, setting.CodePageId))
               setting.SkipRows = await GuessStartRowAsync(textReader, setting.FileFormat.FieldDelimiterChar, setting.FileFormat.FieldQualifierChar,
               setting.FileFormat.CommentLine, display.CancellationToken);
 
@@ -373,7 +376,7 @@ namespace CsvTools
               display.SetProcess("Start Row: " + setting.SkipRows.ToString(CultureInfo.InvariantCulture), -1, true);
           }
           improvedStream.ResetToStart(null);
-          using (var textReader = new ImprovedTextReader(improvedStream, setting.CodePageId, setting.ByteOrderMark, setting.SkipRows))
+          using (var textReader = new ImprovedTextReader(improvedStream, setting.CodePageId, setting.SkipRows))
           {
             if (guessDelimiter)
             {
@@ -387,7 +390,7 @@ namespace CsvTools
 
             if (guessQualifier)
             {
-              var qualifier = await GuessQualifierAsync(textReader, setting.FileFormat.FieldDelimiterChar, setting.SkipRows);
+              var qualifier = await GuessQualifierAsync(textReader, setting.FileFormat.FieldDelimiterChar);
               setting.FileFormat.FieldQualifier = qualifier == '\0' ? string.Empty : char.ToString(qualifier);
             }
             if (display.CancellationToken.IsCancellationRequested)
@@ -483,7 +486,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="textReader">The StreamReader with the data</param>
     /// <param name="escapeCharacter">The escape character.</param>
-    /// <param name="hasDelimiter">if set to <c>true</c> [has delimiter].</param>
+    /// <param name="cancellationToken"></param>
     /// <returns>A character with the assumed delimiter for the file</returns>
     /// <exception cref="ArgumentNullException">streamReader</exception>
     /// <remarks>No Error will not be thrown.</remarks>
@@ -561,17 +564,17 @@ namespace CsvTools
             if (dist > 2 || dist < -2)
               cutVariance += 8;
             else switch (dist)
-              {
-                case 2:
-                case -2:
-                  cutVariance += 4;
-                  break;
+            {
+              case 2:
+              case -2:
+                cutVariance += 4;
+                break;
 
-                case 1:
-                case -1:
-                  cutVariance++;
-                  break;
-              }
+              case 1:
+              case -1:
+                cutVariance++;
+                break;
+            }
           }
 
           // The score is dependent on the average columns found and the regularity
@@ -592,7 +595,7 @@ namespace CsvTools
 
       var result = match == '\t' ? "TAB" : match.ToString(CultureInfo.CurrentCulture);
       Logger.Information("Delimiter: {delimiter}", result);
-      return new Tuple<string, bool>(result, hasDelimiter);
+      return new Tuple<string, bool>(result, true);
     }
 
     private static async Task<string> GuessNewlineAsync(ImprovedTextReader textReader, char fieldQualifier, CancellationToken token)
@@ -682,13 +685,13 @@ namespace CsvTools
     {
       Contract.Requires(setting != null);
       using (var improvedStream = FunctionalDI.OpenRead(setting))
-      using (var streamReader = new ImprovedTextReader(improvedStream, (await setting.GetEncodingAsync()).CodePage, setting.ByteOrderMark))
+      using (var streamReader = new ImprovedTextReader(improvedStream, (await setting.GetEncodingAsync()).CodePage))
       {
-        return await GuessQualifierAsync(streamReader, setting.FileFormat.FieldDelimiterChar, setting.SkipRows);
+        return await GuessQualifierAsync(streamReader, setting.FileFormat.FieldDelimiterChar);
       }
     }
 
-    private static async Task<char> GuessQualifierAsync(ImprovedTextReader textReader, char delimiter, int skipRows)
+    private static async Task<char> GuessQualifierAsync(ImprovedTextReader textReader, char delimiter)
     {
       if (textReader == null)
         return '\0';
@@ -749,9 +752,10 @@ namespace CsvTools
     /// <param name="delimiter">The delimiter.</param>
     /// <param name="quoteChar">The quoting char</param>
     /// <param name="commentLine">The characters for a comment line.</param>
+    /// <param name="cancellationToken"></param>
     /// <returns>The number of rows to skip</returns>
     /// <exception cref="ArgumentNullException">commentLine</exception>
-    private static async Task<int> GuessStartRowAsync(ImprovedTextReader textReader, char delimiter, char quoteChar, string commentLine, CancellationToken token)
+    private static async Task<int> GuessStartRowAsync(ImprovedTextReader textReader, char delimiter, char quoteChar, string commentLine, CancellationToken cancellationToken)
     {
       if (commentLine == null)
         throw new ArgumentNullException(nameof(commentLine));
@@ -769,7 +773,7 @@ namespace CsvTools
         var firstChar = true;
         var lastRow = 0;
 
-        while (lastRow < c_MaxRows && !textReader.EndOfFile && !token.IsCancellationRequested)
+        while (lastRow < c_MaxRows && !textReader.EndOfFile && !cancellationToken.IsCancellationRequested)
         {
           var readChar = await textReader.ReadAsync();
 
@@ -847,7 +851,7 @@ namespace CsvTools
           if (firstChar && readChar != ' ')
             firstChar = false;
         }
-        token.ThrowIfCancellationRequested();
+        cancellationToken.ThrowIfCancellationRequested();
         // remove all rows that are comment lines...
         for (var row = 0; row < lastRow; row++)
         {
@@ -867,7 +871,7 @@ namespace CsvTools
         if (columnCount[row + 1] > 0 && columnCount[row] == columnCount[row + 1] * 2 &&
             columnCount[row] == columnCount[row - 1] * 2)
           columnCount[row] = columnCount[row + 1];
-      token.ThrowIfCancellationRequested();
+      cancellationToken.ThrowIfCancellationRequested();
       // Get the average of the last 15 rows
       var num = 0;
       var sum = 0;
