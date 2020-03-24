@@ -39,13 +39,21 @@ namespace CsvTools
 
     public static byte BOMLength(CodePage codePage)
     {
-      if (codePage == CodePage.UTF8)
-        return 3;
-      else if (codePage == CodePage.UTF7 || codePage == CodePage.UTF32Le || codePage == CodePage.UTF32Be || codePage == CodePage.GB18030)
-        return 4;
-      else if (codePage == CodePage.UTF16Le || codePage == CodePage.UTF16Be)
-        return 2;
-      return 0;
+      switch (codePage)
+      {
+        case CodePage.UTF8:
+          return 3;
+        case CodePage.UTF7:
+        case CodePage.UTF32Le:
+        case CodePage.UTF32Be:
+        case CodePage.GB18030:
+          return 4;
+        case CodePage.UTF16Le:
+        case CodePage.UTF16Be:
+          return 2;
+        default:
+          return 0;
+      }
     }
 
     /// <summary>
