@@ -37,9 +37,6 @@ namespace CsvTools
     /// </summary>
     public const string cMoreColumns = " has more columns than expected";
 
-    // Buffer size set to 64kB, if set to large the display in percentage will jump
-    private const int c_BufferSize = 65536;
-
     /// <summary>
     ///   The carriage return character. Escape code is <c>\r</c>.
     /// </summary>
@@ -57,22 +54,7 @@ namespace CsvTools
 
     private const char c_UnknownChar = (char)0xFFFD;
 
-    /// <summary>
-    ///   16k Buffer of the file data
-    /// </summary>
-    private readonly char[] m_Buffer = new char[c_BufferSize];
-
     private readonly ICsvFile m_CsvFile;
-
-    /// <summary>
-    ///   Length of the buffer (can be smaller then buffer size at end of file)
-    /// </summary>
-    private int m_BufferFilled;
-
-    /// <summary>
-    ///   Position in the buffer
-    /// </summary>
-    private int m_BufferPos = -1;
 
     private int m_ConsecutiveEmptyRows;
 
@@ -102,7 +84,7 @@ namespace CsvTools
     /// <summary>
     ///   The TextReader to read the file
     /// </summary>
-    private StreamReader m_TextReader;
+    private ImprovedTextReader m_TextReader;
 
     public CsvFileReader(ICsvFile fileSetting, string timeZone, IProcessDisplay processDisplay)
       : base(fileSetting, timeZone, processDisplay)
@@ -220,6 +202,11 @@ namespace CsvTools
     /// </summary>
     public void Open()
     {
+      if (m_ImprovedStream == null)
+        m_ImprovedStream = FunctionalDI.OpenRead(m_CsvFile);
+      if (m_TextReader == null)
+        m_TextReader = new ImprovedTextReader(m_ImprovedStream, m_CsvFile.CodePageId, m_CsvFile.ByteOrderMark, m_CsvFile.SkipRows);
+
       m_HasQualifier |= m_CsvFile.FileFormat.FieldQualifierChar != '\0';
 
       if (m_CsvFile.FileFormat.FieldQualifier.Length > 1 &&
@@ -350,7 +337,7 @@ namespace CsvTools
       if (m_CsvFile.RecordLimit > 0)
         return (int)((double)RecordNumber / m_CsvFile.RecordLimit * cMaxValue);
 
-      return (int)(m_ImprovedStream.Percentage * cMaxValue);
+      return (int)(m_ImprovedStream?.Percentage ?? 0 * cMaxValue);
     }
 
     private bool AllEmptyAndCountConsecutiveEmptyRows(IReadOnlyList<string> columns)
@@ -373,16 +360,12 @@ namespace CsvTools
 
     private char EatNextCRLF(char character)
     {
-      EndLineNumber++;
       if (EndOfFile) return '\0';
-      var nextChar = NextChar();
+      var nextChar = m_TextReader.Peek();
       if ((character != c_Cr || nextChar != c_Lf) && (character != c_Lf || nextChar != c_Cr)) return '\0';
       // New line sequence is either CRLF or LFCR, disregard the character
-      m_BufferPos++;
-      // Very special a LF CR is counted as two lines.
-      if (character == c_Lf && nextChar == c_Cr)
-        EndLineNumber++;
-      return nextChar;
+      m_TextReader.NextChar();
+      return (char)nextChar;
     }
 
     /// <summary>
@@ -459,11 +442,10 @@ namespace CsvTools
           }
           else
           {
-            var oldPos = m_BufferPos;
-            var startLine = StartLineNumber;
+            var oldPos = m_TextReader.BufferPos;
+            StartLineNumber = m_TextReader.LineNumber;
             // get the next row
             var nextLine = ReadNextRow(true, true);
-            StartLineNumber = startLine;
 
             // allow up to two extra columns they can be combined later
             if (nextLine != null && nextLine.Length > 0 && nextLine.Length + rowLength < FieldCount + 4)
@@ -491,7 +473,7 @@ namespace CsvTools
               goto Restart2;
             }
 
-            if (m_BufferPos < oldPos)
+            if (m_TextReader.BufferPos < oldPos)
             // we have an issue we went into the next Buffer there is no way back.
             {
               HandleError(-1,
@@ -502,7 +484,7 @@ namespace CsvTools
               // return to the old position so reading the next row did not matter
               if (!hasWarningCombinedWarning)
                 HandleWarning(-1, $"Line {StartLineNumber}{cLessColumns} ({rowLength}/{FieldCount}).");
-              m_BufferPos = oldPos;
+              m_TextReader.BufferPos = oldPos;
             }
           }
         }
@@ -564,23 +546,6 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets the next char from the buffer, but stay at the current position
-    /// </summary>
-    /// <returns>The next char</returns>
-    private char NextChar()
-    {
-      Contract.Requires(m_Buffer != null);
-      if (m_BufferPos >= m_BufferFilled)
-      {
-        ReadIntoBuffer();
-        m_BufferPos = 0;
-      }
-
-      // If of file its does not matter what to return simply return something
-      return EndOfFile ? c_Lf : m_Buffer[m_BufferPos];
-    }
-
-    /// <summary>
     ///   Gets the number of fields.
     /// </summary>
     private int ParseFieldCount(IList<string> headerRow)
@@ -631,28 +596,6 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Fills the buffer with data from the reader.
-    /// </summary>
-    /// <returns><c>true</c> if data was successfully read; otherwise, <c>false</c>.</returns>
-    private void ReadIntoBuffer()
-    {
-      Contract.Requires(m_TextReader != null);
-      Contract.Requires(m_Buffer != null);
-
-      if (EndOfFile)
-        return;
-      m_BufferFilled = m_TextReader.Read(m_Buffer, 0, c_BufferSize);
-      EndOfFile |= m_BufferFilled == 0;
-      // Handle double decoding
-      if (!m_CsvFile.DoubleDecode || m_BufferFilled <= 0)
-        return;
-      var result = Encoding.UTF8.GetChars(Encoding.GetEncoding(28591).GetBytes(m_Buffer, 0, m_BufferFilled));
-      // The twice decode text is smaller
-      m_BufferFilled = result.GetLength(0);
-      result.CopyTo(m_Buffer, 0);
-    }
-
-    /// <summary>
     ///   Gets the next column in the buffer.
     /// </summary>
     /// <param name="columnNo">The column number for warnings</param>
@@ -683,17 +626,18 @@ namespace CsvTools
       while (!EndOfFile)
       {
         // Increase position
-        var character = NextChar();
-        m_BufferPos++;
+        var read = m_TextReader.Read();
+        if (read == -1) continue;
+        var character = (char)read;
 
         var escaped = character == m_CsvFile.FileFormat.EscapeCharacterChar && !postData;
         // Handle escaped characters
         if (escaped)
         {
-          var nextChar = NextChar();
+          var nextChar = m_TextReader.Peek();
           if (!EndOfFile)
           {
-            m_BufferPos++;
+            m_TextReader.NextChar();
             switch (m_CsvFile.FileFormat.EscapeCharacterChar)
             {
               // Handle \ Notation of common not visible characters
@@ -719,7 +663,7 @@ namespace CsvTools
                 break;
 
               default:
-                character = nextChar;
+                character = (char)nextChar;
                 break;
             }
           }
@@ -731,7 +675,7 @@ namespace CsvTools
           var singleLF = true;
           if (!EndOfFile)
           {
-            var nextChar = NextChar();
+            var nextChar = m_TextReader.Peek();
             if (nextChar == c_Cr)
               singleLF = false;
           }
@@ -739,7 +683,6 @@ namespace CsvTools
           if (singleLF)
           {
             character = ' ';
-            EndLineNumber++;
             if (m_CsvFile.WarnLineFeed)
               WarnLinefeed(columnNo);
           }
@@ -828,16 +771,16 @@ namespace CsvTools
 
         if (m_HasQualifier && character == m_CsvFile.FileFormat.FieldQualifierChar && quoted && !escaped)
         {
-          var peekNextChar = NextChar();
+          var peekNextChar = (char)m_TextReader.Peek();
           // a "" should be regarded as " if the text is quoted
           if (m_CsvFile.FileFormat.DuplicateQuotingToEscape && peekNextChar == m_CsvFile.FileFormat.FieldQualifierChar)
           {
             // double quotes within quoted string means add a quote
             stringBuilder.Append(m_CsvFile.FileFormat.FieldQualifierChar);
-            m_BufferPos++;
+            m_TextReader.NextChar();
             //TODO: decide if we should have this its hard to explain but might make sense
             // special handling for "" that is not only representing a " but also closes the text
-            peekNextChar = NextChar();
+            peekNextChar = (char)m_TextReader.Peek();
             if (m_CsvFile.FileFormat.AlternateQuoting && (peekNextChar == m_CsvFile.FileFormat.FieldDelimiterChar ||
                                                           peekNextChar == c_Cr ||
                                                           peekNextChar == c_Lf)) postData = true;
@@ -926,7 +869,7 @@ namespace CsvTools
     {
     Restart:
       // Store the starting Line Number
-      StartLineNumber = EndLineNumber;
+      StartLineNumber = m_TextReader.LineNumber;
 
       // If already at end of file, return null
       if (EndOfFile || m_TextReader == null)
@@ -1001,7 +944,7 @@ namespace CsvTools
         col++;
         item = ReadNextColumn(col, storeWarnings);
       }
-
+      EndLineNumber = m_TextReader.LineNumber;
       return columns.ToArray();
     }
 
@@ -1012,8 +955,7 @@ namespace CsvTools
     {
       while (!EndOfFile)
       {
-        var character = NextChar();
-        m_BufferPos++;
+        var character = (char)m_TextReader.Read();
         if (character != c_Cr && character != c_Lf)
           continue;
         EatNextCRLF(character);
@@ -1027,46 +969,7 @@ namespace CsvTools
     /// </summary>
     private void ResetPositionToStartOrOpen()
     {
-      if (m_ImprovedStream == null)
-        m_ImprovedStream = FunctionalDI.OpenRead(m_CsvFile);
-
-      if (m_BufferPos != 0 || RecordNumber != 0 || m_BufferFilled == 0)
-      {
-        m_ImprovedStream.ResetToStart(delegate (Stream str)
-        {
-          // in case we can not seek need to reopen the stream reader
-          if (!str.CanSeek || m_TextReader == null)
-          {
-            m_TextReader?.Dispose();
-            m_TextReader = new StreamReader(str, m_CsvFile.GetEncodingAsync().Result, m_CsvFile.ByteOrderMark);
-          }
-          else
-          {
-            m_TextReader.BaseStream.Seek(0, SeekOrigin.Begin);
-            // only discard the buffer
-            m_TextReader.DiscardBufferedData();
-
-            // we reset the position a BOM is showing again - TODO why this is happening, this
-            // should actually not be needed
-            if (m_CsvFile.ByteOrderMark && (m_CsvFile.CodePageId == 12001 && m_TextReader.Peek() > 65000 || //  UTF32Be
-                                            m_CsvFile.CodePageId == 12000 && m_TextReader.Peek() > 65000 || //  UTF32Le
-                                            m_CsvFile.CodePageId == 65000 && m_TextReader.Peek() > 65000 || // UTF7
-                                            m_CsvFile.CodePageId == 65001 && m_TextReader.Peek() == 65279) // UTF8
-            )
-              m_TextReader.Read();
-
-            if (!m_CsvFile.ByteOrderMark || (m_CsvFile.CodePageId != 1201 && m_CsvFile.CodePageId != 1200) ||
-                m_TextReader.Peek() != 65279) return;
-            m_TextReader.Read();
-            m_TextReader.Read();
-          }
-        });
-
-        m_CsvFile.CurrentEncoding = m_TextReader.CurrentEncoding;
-        m_BufferFilled = 0;
-      }
-
-      m_BufferPos = 0;
+      m_TextReader.ToBeginning();
 
       // End Line should be at 1, later on as the line is read the start line s set to this value
       StartLineNumber = 1;
@@ -1074,10 +977,6 @@ namespace CsvTools
       RecordNumber = 0;
       m_EndOfLine = false;
       EndOfFile = false;
-
-      // Skip the given number of lines <= so we do skip the right number
-      while (EndLineNumber <= m_CsvFile.SkipRows && !EndOfFile)
-        ReadToEOL();
     }
 
     #endregion Parsing
