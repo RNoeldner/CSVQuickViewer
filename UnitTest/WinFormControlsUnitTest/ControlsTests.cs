@@ -33,6 +33,17 @@ namespace CsvTools.Tests
       new CsvFile(Path.Combine(FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles", "BasicCSV.txt"));
 
     [TestMethod]
+    public void TimeZoneSelector()
+    {
+      using (var ctrl = new TimeZoneSelector())
+      {
+        ShowControl(ctrl);
+      }
+    }
+
+
+    
+    [TestMethod]
     public void QuotingControl()
     {
       
