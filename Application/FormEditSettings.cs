@@ -81,7 +81,7 @@ namespace CsvTools
       Cursor.Current = Cursors.WaitCursor;
       try
       {
-        m_ViewSettings.FileFormat.FieldDelimiter = await CsvHelper.GuessDelimiterAsync(m_ViewSettings);
+        m_ViewSettings.FileFormat.FieldDelimiter = await CsvHelper.GuessDelimiterAsync(m_ViewSettings, CancellationToken.None);
       }
       finally
       {
@@ -95,7 +95,7 @@ namespace CsvTools
       Cursor.Current = Cursors.WaitCursor;
       try
       {
-        m_ViewSettings.SkipRows = await CsvHelper.GuessStartRowAsync(m_ViewSettings);
+        m_ViewSettings.SkipRows = await CsvHelper.GuessStartRowAsync(m_ViewSettings, CancellationToken.None);
       }
       finally
       {
