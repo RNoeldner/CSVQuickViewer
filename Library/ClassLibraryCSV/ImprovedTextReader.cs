@@ -17,6 +17,11 @@ namespace CsvTools
     /// </summary>
     public int BufferFilled;
 
+    /// <summary>
+    ///   Position in the buffer
+    /// </summary>
+    public int BufferPos;
+
     // Buffer size set to 64kB, if set to large the display in percentage will jump
     private const int c_BufferSize = 65536;
 
@@ -33,11 +38,6 @@ namespace CsvTools
     private readonly IImprovedStream m_ImprovedStream;
 
     private readonly int m_SkipLines = -1;
-
-    /// <summary>
-    ///   Position in the buffer
-    /// </summary>
-    private int m_BufferPos = -1;
 
     private bool m_DisposedValue = false;
 
@@ -80,7 +80,16 @@ namespace CsvTools
       else
       {
         ByteOrderMark = false;
-        CodePage = (EncodingHelper.CodePage)codePageId;
+
+        try
+        {
+          CodePage = (EncodingHelper.CodePage)codePageId;
+        }
+        catch (Exception)
+        {
+          Logger.Warning($"Codepage {0} not supported, using UTF8", codePageId);
+          CodePage = EncodingHelper.CodePage.UTF8;
+        }
       }
       ToBeginning();
     }
@@ -126,7 +135,7 @@ namespace CsvTools
     ///   with <see cref="PeekAsync" /> does not need to be read teh next call of <see
     ///   cref="ReadAsync" />
     /// </summary>
-    public void NextChar() => m_BufferPos++;
+    public void NextChar() => BufferPos++;
 
     /// <summary>
     ///   Gets the next character but does not progress, as this can be done numerous times on the
@@ -135,14 +144,49 @@ namespace CsvTools
     /// <returns></returns>
     public async Task<int> PeekAsync()
     {
-      if (m_BufferPos >= BufferFilled)
+      if (BufferPos >= BufferFilled)
         // Prvent marshalling the continuation back to the original context. This is good for
         // performance and to avoid deadlocks
         await ReadIntoBufferAsync().ConfigureAwait(false);
       if (EndOfFile)
         return -1;
 
-      return Buffer[m_BufferPos];
+      return Buffer[BufferPos];
+    }
+
+    public int Peek()
+    {
+      if (BufferPos >= BufferFilled)
+        ReadIntoBuffer();
+      if (EndOfFile)
+        return -1;
+
+      return Buffer[BufferPos];
+    }
+
+    /// <summary>
+    ///   Reads the next character and progresses one further, and tracks the line number
+    /// </summary>
+    /// <remarks>
+    ///   In case the caracter is a cr or Lf it will increase the lineNumber, to prevent a CR LF
+    ///   combination to count as two lines Make sure you "eat" the pssoble next char using <see
+    ///   cref="PeekAsync" /> and <see cref="NextChar" />
+    /// </remarks>
+    /// <returns></returns>
+    public int Read()
+    {
+      var caracter = Peek();
+
+      if (caracter == c_Lf || caracter == c_Cr)
+        LineNumber++;
+
+      if (EndOfFile)
+        return -1;
+      else
+      {
+        NextChar();
+        return caracter;
+      }
     }
 
     /// <summary>
@@ -170,7 +214,29 @@ namespace CsvTools
       }
     }
 
-    public string ReadLine() => ReadLineAsync().Result;
+    public string ReadLine()
+    {
+      var sb = new StringBuilder();
+      while (!EndOfFile)
+      {
+        var character = Read();
+        if (character != -1)
+        {
+          if (character == c_Cr || character == c_Lf)
+          {
+            var nextChar = Peek();
+
+            if ((character == c_Cr && nextChar == c_Lf) ||
+                (character == c_Lf && nextChar == c_Cr)) NextChar();
+            return sb.ToString();
+          }
+          sb.Append((char)character);
+        }
+      }
+      if (sb.Length > 0)
+        return sb.ToString();
+      return null;
+    }
 
     /// <summary>
     ///   Reads a sequence of characters followed by a linefeed or carriage return or the end of the
@@ -209,7 +275,7 @@ namespace CsvTools
     /// </summary>
     public void ToBeginning()
     {
-      m_BufferPos = 0;
+      BufferPos = 0;
       LineNumber = 1;
 
       var addBom = ByteOrderMark ? EncodingHelper.BOMLength(CodePage) : 0;
@@ -274,13 +340,26 @@ namespace CsvTools
     ///   Read teh data from teh textreader into the buffer
     /// </summary>
     /// <returns></returns>
+    private void ReadIntoBuffer()
+    {
+      EndOfFile = TextReader.EndOfStream;
+      if (EndOfFile)
+        return;
+      BufferFilled = TextReader.Read(Buffer, 0, c_BufferSize);
+      BufferPos = 0;
+    }
+
+    /// <summary>
+    ///   Read teh data from teh textreader into the buffer
+    /// </summary>
+    /// <returns></returns>
     private async Task ReadIntoBufferAsync()
     {
       EndOfFile = TextReader.EndOfStream;
       if (EndOfFile)
         return;
       BufferFilled = await TextReader.ReadAsync(Buffer, 0, c_BufferSize);
-      m_BufferPos = 0;
+      BufferPos = 0;
     }
   }
 }
