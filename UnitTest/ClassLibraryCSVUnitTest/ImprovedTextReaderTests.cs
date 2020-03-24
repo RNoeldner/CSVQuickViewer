@@ -13,7 +13,7 @@ namespace CsvTools.Tests
     {
       using (var impStream = ImprovedStream.OpenRead(UnitTestInitialize.GetTestPath("BasicCsV.txt")))
       {
-        using (var test = new ImprovedTextReader(impStream, 65001, true))
+        using (var test = new ImprovedTextReader(impStream, 65001))
         {
           Assert.AreEqual(1, test.LineNumber);
           Assert.AreEqual("ID,LangCodeID,ExamDate,Score,Proficiency,IsNativeLang", test.ReadLine());
@@ -27,7 +27,7 @@ namespace CsvTools.Tests
     {
       using (var impStream = ImprovedStream.OpenRead(UnitTestInitialize.GetTestPath("BasicCsV.txt")))
       {
-        using (var test = new ImprovedTextReader(impStream, 12000, false))
+        using (var test = new ImprovedTextReader(impStream, 12000))
         {
           Assert.AreEqual(1, test.LineNumber);
           Assert.AreEqual("ID,LangCodeID,ExamDate,Score,Proficiency,IsNativeLang", test.ReadLine());
@@ -41,7 +41,7 @@ namespace CsvTools.Tests
     {
       using (var impStream = ImprovedStream.OpenRead(UnitTestInitialize.GetTestPath("BasicCsV.txt.gz")))
       {
-        using (var test = new ImprovedTextReader(impStream, 12000, false))
+        using (var test = new ImprovedTextReader(impStream, 12000))
         {
           Assert.AreEqual(1, test.LineNumber);
           Assert.AreEqual("ID,LangCodeID,ExamDate,Score,Proficiency,IsNativeLang", test.ReadLine());
@@ -87,7 +87,7 @@ namespace CsvTools.Tests
         }
         using (var impStream = ImprovedStream.OpenRead(fileName))
         {
-          using (var test = new ImprovedTextReader(impStream, type.Item2, true, 0))
+          using (var test = new ImprovedTextReader(impStream, type.Item2, 0))
           {
             Assert.AreEqual(1, test.LineNumber);
             Assert.AreEqual(line1, test.ReadLine(), $"Issue reading Line1 {type.Item1}");

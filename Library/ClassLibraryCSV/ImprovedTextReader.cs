@@ -37,31 +37,30 @@ namespace CsvTools
 
     private readonly IImprovedStream m_ImprovedStream;
 
-    private readonly int m_SkipLines = -1;
+    private readonly int m_SkipLines;
 
-    private bool m_DisposedValue = false;
+    private bool m_DisposedValue;
 
     /// <summary>
     ///   Creates an instance of the TextReader
     /// </summary>
     /// <param name="improvedStream">An Improved Stream</param>
     /// <param name="codePageId">The assumed code page id</param>
-    /// <param name="byteOrderMark">Falg indicating that a BOM is present</param>
     /// <param name="skipLines">
-    ///   Number of lines that should be skpped at teh beginnign of the file
+    ///   Number of lines that should be skipped at the begining of the file
     /// </param>
     /// <remarks>
-    ///   This routine uses a TextReader to allow character decoding, it will laways read they teh
+    ///   This routine uses a TextReader to allow character decoding, it will always read they teh
     ///   first few bytes of teh source stream to look at a possible existing BOM if found, it will
-    ///   overwite the provided data
+    ///   overwrite the provided data
     /// </remarks>
-    public ImprovedTextReader(IImprovedStream improvedStream, int codePageId = 65001, bool byteOrderMark = true, int skipLines = 0)
+    public ImprovedTextReader(IImprovedStream improvedStream, int codePageId = 65001, int skipLines = 0)
     {
       if (improvedStream == null)
         throw new ArgumentNullException(nameof(improvedStream));
 
       if (improvedStream.Percentage > 0.00001)
-        throw new ArgumentException(nameof(improvedStream), "The stream is not on the start position");
+        throw new ArgumentException(nameof(improvedStream), @"The stream is not on the start position");
 
       m_SkipLines = skipLines;
       m_ImprovedStream = improvedStream;
@@ -69,13 +68,13 @@ namespace CsvTools
       // read the BOM in any case
       var buff = new byte[4];
       m_ImprovedStream.Stream.Read(buff, 0, buff.Length);
-      var intCodePageByBOM = EncodingHelper.GetCodePageByByteOrderMark(buff);
+      var intCodePageByBom = EncodingHelper.GetCodePageByByteOrderMark(buff);
       improvedStream.ResetToStart(null);
 
-      if (intCodePageByBOM != 0)
+      if (intCodePageByBom != 0)
       {
-        ByteOrderMark = (intCodePageByBOM != 0);
-        CodePage = (EncodingHelper.CodePage)intCodePageByBOM;
+        ByteOrderMark = (intCodePageByBom != 0);
+        CodePage = (EncodingHelper.CodePage)intCodePageByBom;
       }
       else
       {
@@ -87,7 +86,7 @@ namespace CsvTools
         }
         catch (Exception)
         {
-          Logger.Warning($"Codepage {0} not supported, using UTF8", codePageId);
+          Logger.Warning("Codepage {0} not supported, using UTF8", codePageId);
           CodePage = EncodingHelper.CodePage.UTF8;
         }
       }
@@ -98,7 +97,7 @@ namespace CsvTools
     ///   Gets or sets a value indicating whether the reader is at the end of the file.
     /// </summary>
     /// <value><c>true</c> if at the end of file; otherwise, <c>false</c>.</value>
-    public virtual bool EndOfFile { get; protected set; } = true;
+    public virtual bool EndOfFile { get; private set; } = true;
 
     public long LineNumber
     {
@@ -145,7 +144,7 @@ namespace CsvTools
     public async Task<int> PeekAsync()
     {
       if (BufferPos >= BufferFilled)
-        // Prvent marshalling the continuation back to the original context. This is good for
+        // Prevent marshalling the continuation back to the original context. This is good for
         // performance and to avoid deadlocks
         await ReadIntoBufferAsync().ConfigureAwait(false);
       if (EndOfFile)
@@ -168,50 +167,44 @@ namespace CsvTools
     ///   Reads the next character and progresses one further, and tracks the line number
     /// </summary>
     /// <remarks>
-    ///   In case the caracter is a cr or Lf it will increase the lineNumber, to prevent a CR LF
-    ///   combination to count as two lines Make sure you "eat" the pssoble next char using <see
+    ///   In case the character is a cr or Lf it will increase the lineNumber, to prevent a CR LF
+    ///   combination to count as two lines Make sure you "eat" the possible next char using <see
     ///   cref="PeekAsync" /> and <see cref="NextChar" />
     /// </remarks>
     /// <returns></returns>
     public int Read()
     {
-      var caracter = Peek();
+      var character = Peek();
 
-      if (caracter == c_Lf || caracter == c_Cr)
+      if (character == c_Lf || character == c_Cr)
         LineNumber++;
 
       if (EndOfFile)
         return -1;
-      else
-      {
-        NextChar();
-        return caracter;
-      }
+      NextChar();
+      return character;
     }
 
     /// <summary>
     ///   Reads the next character and progresses one further, and tracks the line number
     /// </summary>
     /// <remarks>
-    ///   In case the caracter is a cr or Lf it will increase the lineNumber, to prevent a CR LF
-    ///   combination to count as two lines Make sure you "eat" the pssoble next char using <see
+    ///   In case the character is a cr or Lf it will increase the lineNumber, to prevent a CR LF
+    ///   combination to count as two lines Make sure you "eat" the possible next char using <see
     ///   cref="PeekAsync" /> and <see cref="NextChar" />
     /// </remarks>
     /// <returns></returns>
     public async Task<int> ReadAsync()
     {
-      var caracter = await PeekAsync();
+      var character = await PeekAsync();
 
-      if (caracter == c_Lf || caracter == c_Cr)
+      if (character == c_Lf || character == c_Cr)
         LineNumber++;
 
       if (EndOfFile)
         return -1;
-      else
-      {
-        NextChar();
-        return caracter;
-      }
+      NextChar();
+      return character;
     }
 
     public string ReadLine()
@@ -291,13 +284,14 @@ namespace CsvTools
         }
         catch (Exception)
         {
+          // ignored
         }
       }
       // In case the buffer is bigger than the stream, we do not need to rest
       if (streamLengthNotOk)
       {
         BufferFilled = 0;
-        // Some improoved stream might need to reopen the streams
+        // Some improved stream might need to reopen the streams
         m_ImprovedStream.ResetToStart(delegate (Stream stream)
         {
           // eat the bom
@@ -328,12 +322,11 @@ namespace CsvTools
 
     protected virtual void Dispose(bool disposing)
     {
-      if (!m_DisposedValue)
-      {
-        if (disposing)
-          TextReader?.Dispose();
-        m_DisposedValue = true;
-      }
+      if (m_DisposedValue) return;
+      EndOfFile = true;
+      if (disposing)
+        TextReader?.Dispose();
+      m_DisposedValue = true;
     }
 
     /// <summary>

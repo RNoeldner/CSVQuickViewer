@@ -86,6 +86,8 @@ namespace CsvTools
     /// </summary>
     private ImprovedTextReader m_TextReader;
 
+    public override bool EndOfFile => m_TextReader?.EndOfFile ?? true;
+
     public CsvFileReader(ICsvFile fileSetting, string timeZone, IProcessDisplay processDisplay)
       : base(fileSetting, timeZone, processDisplay)
     {
@@ -205,7 +207,7 @@ namespace CsvTools
       if (m_ImprovedStream == null)
         m_ImprovedStream = FunctionalDI.OpenRead(m_CsvFile);
       if (m_TextReader == null)
-        m_TextReader = new ImprovedTextReader(m_ImprovedStream, m_CsvFile.CodePageId, m_CsvFile.ByteOrderMark, m_CsvFile.SkipRows);
+        m_TextReader = new ImprovedTextReader(m_ImprovedStream, m_CsvFile.CodePageId, m_CsvFile.SkipRows);
 
       m_HasQualifier |= m_CsvFile.FileFormat.FieldQualifierChar != '\0';
 
@@ -275,9 +277,10 @@ namespace CsvTools
     {
       if (!CancellationToken.IsCancellationRequested)
       {
+        StartLineNumber = m_TextReader.LineNumber;
         var couldRead = GetNextRecord();
         InfoDisplay(couldRead);
-
+        
         if (couldRead && !IsClosed)
           return true;
       }
@@ -379,7 +382,8 @@ namespace CsvTools
     {
       try
       {
-      Restart:
+        Restart:
+        EndLineNumber = m_TextReader.LineNumber;
         CurrentRowColumnText = ReadNextRow(true, true);
 
         if (!AllEmptyAndCountConsecutiveEmptyRows(CurrentRowColumnText))
@@ -473,8 +477,8 @@ namespace CsvTools
               goto Restart2;
             }
 
-            if (m_TextReader.BufferPos < oldPos)
             // we have an issue we went into the next Buffer there is no way back.
+            if (m_TextReader.BufferPos < oldPos)
             {
               HandleError(-1,
                 $"Line {StartLineNumber}{cLessColumns}\nAttempting to combined lines some line have been read that is now lost, please turn off Row Combination");
@@ -490,31 +494,30 @@ namespace CsvTools
         }
 
         // If more columns are present
-        if (rowLength > FieldCount && (m_CsvFile.WarnEmptyTailingColumns || m_RealignColumns != null))
+        if (rowLength <= FieldCount || (!m_CsvFile.WarnEmptyTailingColumns && m_RealignColumns == null)) 
+          return true;
+        // check if the additional columns have contents
+        var hasContent = false;
+        for (var extraCol = FieldCount; extraCol < rowLength; extraCol++)
         {
-          // check if the additional columns have contents
-          var hasContent = false;
-          for (var extraCol = FieldCount; extraCol < rowLength; extraCol++)
-          {
-            if (string.IsNullOrEmpty(CurrentRowColumnText[extraCol]))
-              continue;
-            hasContent = true;
-            break;
-          }
+          if (string.IsNullOrEmpty(CurrentRowColumnText[extraCol]))
+            continue;
+          hasContent = true;
+          break;
+        }
 
-          if (!hasContent) return true;
-          if (m_RealignColumns != null)
-          {
-            HandleWarning(-1,
-              $"Line {StartLineNumber}{cMoreColumns}. Trying to realign columns.");
-            // determine which column could have caused the issue it could be any column, try to establish
-            CurrentRowColumnText = m_RealignColumns.RealignColumn(CurrentRowColumnText, HandleWarning);
-          }
-          else
-          {
-            HandleWarning(-1,
-              $"Line {StartLineNumber}{cMoreColumns} ({rowLength}/{FieldCount}). The data in extra columns is not read.");
-          }
+        if (!hasContent) return true;
+        if (m_RealignColumns != null)
+        {
+          HandleWarning(-1,
+            $"Line {StartLineNumber}{cMoreColumns}. Trying to realign columns.");
+          // determine which column could have caused the issue it could be any column, try to establish
+          CurrentRowColumnText = m_RealignColumns.RealignColumn(CurrentRowColumnText, HandleWarning);
+        }
+        else
+        {
+          HandleWarning(-1,
+            $"Line {StartLineNumber}{cMoreColumns} ({rowLength}/{FieldCount}). The data in extra columns is not read.");
         }
 
         return true;
@@ -627,7 +630,6 @@ namespace CsvTools
       {
         // Increase position
         var read = m_TextReader.Read();
-        if (read == -1) continue;
         var character = (char)read;
 
         var escaped = character == m_CsvFile.FileFormat.EscapeCharacterChar && !postData;
@@ -868,10 +870,7 @@ namespace CsvTools
     private string[] ReadNextRow(bool regularDataRow, bool storeWarnings)
     {
     Restart:
-      // Store the starting Line Number
-      StartLineNumber = m_TextReader.LineNumber;
-
-      // If already at end of file, return null
+    // If already at end of file, return null
       if (EndOfFile || m_TextReader == null)
         return null;
 
@@ -944,7 +943,6 @@ namespace CsvTools
         col++;
         item = ReadNextColumn(col, storeWarnings);
       }
-      EndLineNumber = m_TextReader.LineNumber;
       return columns.ToArray();
     }
 
