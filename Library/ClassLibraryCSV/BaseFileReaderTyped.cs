@@ -20,6 +20,12 @@ namespace CsvTools
     }
 
     /// <summary>
+    ///   Advances the DataReader to the next non empty record
+    /// </summary>
+    /// <returns>true if there are more rows; otherwise, false.</returns>
+    public abstract bool Read();
+
+    /// <summary>
     ///   Gets the type of the column by looking at the first 50 rows
     /// </summary>
     /// <returns>An array with the found data types</returns>
@@ -56,6 +62,7 @@ namespace CsvTools
           if (detected == DataType.String || colType[col] == DataType.TextPart)
             colType[col] = detected;
         }
+        // get the next record
         if (!Read())
           break;
       }

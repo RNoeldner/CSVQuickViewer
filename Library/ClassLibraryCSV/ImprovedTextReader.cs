@@ -41,6 +41,8 @@ namespace CsvTools
 
     private bool m_DisposedValue;
 
+    public Encoding CurrentEncoding => TextReader.CurrentEncoding;
+
     /// <summary>
     ///   Creates an instance of the TextReader
     /// </summary>
@@ -134,7 +136,7 @@ namespace CsvTools
     ///   with <see cref="PeekAsync" /> does not need to be read teh next call of <see
     ///   cref="ReadAsync" />
     /// </summary>
-    public void NextChar() => BufferPos++;
+    public void MoveNext() => BufferPos++;
 
     /// <summary>
     ///   Gets the next character but does not progress, as this can be done numerous times on the
@@ -169,7 +171,7 @@ namespace CsvTools
     /// <remarks>
     ///   In case the character is a cr or Lf it will increase the lineNumber, to prevent a CR LF
     ///   combination to count as two lines Make sure you "eat" the possible next char using <see
-    ///   cref="PeekAsync" /> and <see cref="NextChar" />
+    ///   cref="PeekAsync" /> and <see cref="MoveNext" />
     /// </remarks>
     /// <returns></returns>
     public int Read()
@@ -181,7 +183,7 @@ namespace CsvTools
 
       if (EndOfFile)
         return -1;
-      NextChar();
+      MoveNext();
       return character;
     }
 
@@ -191,7 +193,7 @@ namespace CsvTools
     /// <remarks>
     ///   In case the character is a cr or Lf it will increase the lineNumber, to prevent a CR LF
     ///   combination to count as two lines Make sure you "eat" the possible next char using <see
-    ///   cref="PeekAsync" /> and <see cref="NextChar" />
+    ///   cref="PeekAsync" /> and <see cref="MoveNext" />
     /// </remarks>
     /// <returns></returns>
     public async Task<int> ReadAsync()
@@ -203,8 +205,28 @@ namespace CsvTools
 
       if (EndOfFile)
         return -1;
-      NextChar();
+      MoveNext();
       return character;
+    }
+
+    private bool HandleCrLF(int character, Func<int> getNext)
+    {
+      if (character == c_Cr || character == c_Lf)
+      {
+        var nextChar = getNext();
+        if (character == c_Cr && nextChar == c_Lf)
+        {
+          MoveNext();
+        }
+        if (character == c_Lf && nextChar == c_Cr)
+        {
+          LineNumber++;
+          MoveNext();
+        }
+
+        return true;
+      }
+      return false;
     }
 
     public string ReadLine()
@@ -218,11 +240,19 @@ namespace CsvTools
           if (character == c_Cr || character == c_Lf)
           {
             var nextChar = Peek();
+            if (character == c_Cr && nextChar == c_Lf)
+            {
+              MoveNext();
+            }
+            if (character == c_Lf && nextChar == c_Cr)
+            {
+              LineNumber++;
+              MoveNext();
+            }
 
-            if ((character == c_Cr && nextChar == c_Lf) ||
-                (character == c_Lf && nextChar == c_Cr)) NextChar();
             return sb.ToString();
           }
+
           sb.Append((char)character);
         }
       }
@@ -248,9 +278,16 @@ namespace CsvTools
           if (character == c_Cr || character == c_Lf)
           {
             var nextChar = await PeekAsync();
+            if (character == c_Cr && nextChar == c_Lf)
+            {
+              MoveNext();
+            }
+            if (character == c_Lf && nextChar == c_Cr)
+            {
+              LineNumber++;
+              MoveNext();
+            }
 
-            if ((character == c_Cr && nextChar == c_Lf) ||
-                (character == c_Lf && nextChar == c_Cr)) NextChar();
             return sb.ToString();
           }
           sb.Append((char)character);

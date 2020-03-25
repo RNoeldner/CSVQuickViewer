@@ -105,7 +105,7 @@ namespace CsvTools
       // Read 256 kBytes
       var buff = new byte[262144];
       int length;
-      stream.ResetToStart(null);
+
       length = await stream.Stream.ReadAsync(buff, 0, buff.Length);
       if (length >= 2)
       {
@@ -242,7 +242,7 @@ namespace CsvTools
     ///   Try to guess the new line sequence
     /// </summary>
     /// <param name="setting"><see cref="ICsvFile" /> with the information</param>
-    /// <param name="cancellationToken"></param>
+    /// <param name="cancellationToken">A cancellation token</param>
     /// <returns>The NewLine Combination used</returns>
     public static async Task<string> GuessNewlineAsync(ICsvFile setting, CancellationToken cancellationToken)
     {
@@ -258,7 +258,7 @@ namespace CsvTools
     ///   Determines the start row in the file
     /// </summary>
     /// <param name="setting"><see cref="ICsvFile" /> with the information</param>
-    /// <param name="cancellationToken"></param>
+    /// <param name="cancellationToken">A cancellation token</param>
     /// <returns>The number of rows to skip</returns>
     public static async Task<int> GuessStartRowAsync(ICsvFile setting, CancellationToken cancellationToken)
     {
@@ -275,7 +275,7 @@ namespace CsvTools
     ///   Does check if quoting was actually used in the file
     /// </summary>
     /// <param name="setting">The setting.</param>
-    /// <param name="cancellationToken">The token.</param>
+    /// <param name="cancellationToken">A cancellation token</param>
     /// <returns><c>true</c> if [has used qualifier] [the specified setting]; otherwise, <c>false</c>.</returns>
     public static async Task<bool> HasUsedQualifierAsync(ICsvFile setting, CancellationToken cancellationToken)
     {
@@ -335,74 +335,86 @@ namespace CsvTools
       Contract.Requires(setting != null);
       Contract.Requires(display != null);
 
+      if (!(guessJson || guessCodePage || guessCodePage || guessStartRow || guessQualifier || guessQualifier || guessHasHeader))
+        return;
       display.SetProcess("Checking delimited file", -1, true);
-
       using (var improvedStream = FunctionalDI.OpenRead(setting))
       {
         setting.JsonFormat = false;
         if (guessJson)
         {
+          display.SetProcess("Checking Json fromat", -1, true);
           if (await IsJsonReadableAsync(improvedStream))
             setting.JsonFormat = true;
         }
 
         if (setting.JsonFormat)
-          display.SetProcess("Detected Json file", -1, true);
-        else
         {
-          if (guessCodePage)
-          {
-            var result = await GuessCodePageAsync(improvedStream);
-            setting.CodePageId = result.Item1;
-            setting.ByteOrderMark = result.Item2;
-            if (display.CancellationToken.IsCancellationRequested)
-              return;
-            display.SetProcess("Code Page: " +
-                               EncodingHelper.GetEncodingName(setting.CurrentEncoding.CodePage, true, setting.ByteOrderMark), -1, true);
-          }
+          display.SetProcess("Detected Json file", -1, true);
+          return;
+        }
 
-          // from here on us the encoding to read the stream again
-          if (guessStartRow)
-          {
-            improvedStream.ResetToStart(null);
-            using (var textReader = new ImprovedTextReader(improvedStream, setting.CodePageId))
-              setting.SkipRows = await GuessStartRowAsync(textReader, setting.FileFormat.FieldDelimiterChar, setting.FileFormat.FieldQualifierChar,
-              setting.FileFormat.CommentLine, display.CancellationToken);
+        if (guessCodePage)
+        {
+          if (display.CancellationToken.IsCancellationRequested)
+            return;
+          display.SetProcess("Checking Code Page", -1, true);
+          improvedStream.ResetToStart(null);
+          var result = await GuessCodePageAsync(improvedStream);
+          setting.CodePageId = result.Item1;
+          setting.ByteOrderMark = result.Item2;
+          display.SetProcess("Code Page: " +
+                             EncodingHelper.GetEncodingName(setting.CurrentEncoding.CodePage, true, setting.ByteOrderMark), -1, true);
+        }
 
-            if (display.CancellationToken.IsCancellationRequested)
-              return;
-
-            if (setting.SkipRows > 0)
-              display.SetProcess("Start Row: " + setting.SkipRows.ToString(CultureInfo.InvariantCulture), -1, true);
-          }
+        // from here on us the encoding to read the stream again
+        if (guessStartRow)
+        {
+          if (display.CancellationToken.IsCancellationRequested)
+            return;
+          display.SetProcess("Checking Start Row", -1, true);
+          improvedStream.ResetToStart(null);
+          using (var textReader = new ImprovedTextReader(improvedStream, setting.CodePageId))
+            setting.SkipRows = await GuessStartRowAsync(textReader, setting.FileFormat.FieldDelimiterChar, setting.FileFormat.FieldQualifierChar,
+            setting.FileFormat.CommentLine, display.CancellationToken);
+          if (setting.SkipRows > 0)
+            display.SetProcess("Start Row: " + setting.SkipRows.ToString(CultureInfo.InvariantCulture), -1, true);
+        }
+        if (guessQualifier || guessQualifier)
+        {
           improvedStream.ResetToStart(null);
           using (var textReader = new ImprovedTextReader(improvedStream, setting.CodePageId, setting.SkipRows))
           {
             if (guessDelimiter)
             {
+              if (display.CancellationToken.IsCancellationRequested)
+                return;
+              display.SetProcess("Checking Delimiter", -1, true);
               var result = await GuessDelimiterAsync(textReader, setting.FileFormat.EscapeCharacterChar, display.CancellationToken);
               setting.NoDelimitedFile = result.Item2;
               setting.FileFormat.FieldDelimiter = result.Item1;
+              display.SetProcess("Delimiter: " + setting.FileFormat.FieldDelimiter, -1, true);
             }
-            if (display.CancellationToken.IsCancellationRequested)
-              return;
-            display.SetProcess("Delimiter: " + setting.FileFormat.FieldDelimiter, -1, true);
 
             if (guessQualifier)
             {
+              if (display.CancellationToken.IsCancellationRequested)
+                return;
+              display.SetProcess("Checking Qualifier", -1, true);
               var qualifier = await GuessQualifierAsync(textReader, setting.FileFormat.FieldDelimiterChar);
               setting.FileFormat.FieldQualifier = qualifier == '\0' ? string.Empty : char.ToString(qualifier);
+              display.SetProcess("Qualifier: " + setting.FileFormat.FieldQualifier, -1, true);
             }
-            if (display.CancellationToken.IsCancellationRequested)
-              return;
-            display.SetProcess("Qualifier: " + setting.FileFormat.FieldQualifier, -1, true);
           }
         }
-        if (guessHasHeader)
-        {
-          setting.HasFieldHeader = GuessHasHeader(setting, display.CancellationToken);
-          display.SetProcess("Column Header: " + setting.HasFieldHeader, -1, true);
-        }
+      }
+      if (guessHasHeader)
+      {
+        if (display.CancellationToken.IsCancellationRequested)
+          return;
+
+        setting.HasFieldHeader = GuessHasHeader(setting, display.CancellationToken);
+        display.SetProcess("Column Header: " + setting.HasFieldHeader, -1, true);
       }
     }
 
@@ -434,7 +446,7 @@ namespace CsvTools
               if (await textReader.PeekAsync() != '"')
                 quoted = false;
               else
-                textReader.NextChar();
+                textReader.MoveNext();
             }
             else
             {
@@ -486,7 +498,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="textReader">The StreamReader with the data</param>
     /// <param name="escapeCharacter">The escape character.</param>
-    /// <param name="cancellationToken"></param>
+    /// <param name="cancellationToken">A cancellation token</param>
     /// <returns>A character with the assumed delimiter for the file</returns>
     /// <exception cref="ArgumentNullException">streamReader</exception>
     /// <remarks>No Error will not be thrown.</remarks>
@@ -564,17 +576,17 @@ namespace CsvTools
             if (dist > 2 || dist < -2)
               cutVariance += 8;
             else switch (dist)
-            {
-              case 2:
-              case -2:
-                cutVariance += 4;
-                break;
+              {
+                case 2:
+                case -2:
+                  cutVariance += 4;
+                  break;
 
-              case 1:
-              case -1:
-                cutVariance++;
-                break;
-            }
+                case 1:
+                case -1:
+                  cutVariance++;
+                  break;
+              }
           }
 
           // The score is dependent on the average columns found and the regularity
@@ -626,7 +638,7 @@ namespace CsvTools
             if (await textReader.PeekAsync() != fieldQualifier)
               quoted = false;
             else
-              textReader.NextChar();
+              textReader.MoveNext();
           }
           else
           {
@@ -640,7 +652,7 @@ namespace CsvTools
         {
           if (await textReader.PeekAsync() == '\r')
           {
-            textReader.NextChar();
+            textReader.MoveNext();
             count[c_Lfcr]++;
           }
           else
@@ -655,7 +667,7 @@ namespace CsvTools
           continue;
         if (await textReader.PeekAsync() == '\n')
         {
-          textReader.NextChar();
+          textReader.MoveNext();
           count[c_CRLF]++;
         }
         else
@@ -801,7 +813,7 @@ namespace CsvTools
               if (await textReader.PeekAsync() != '"')
                 quoted = false;
               else
-                textReader.NextChar();
+                textReader.MoveNext();
             }
             else
             {
@@ -820,7 +832,7 @@ namespace CsvTools
                 lastRow++;
                 firstChar = true;
                 if (await textReader.PeekAsync() == '\r')
-                  textReader.NextChar();
+                  textReader.MoveNext();
               }
 
               break;
@@ -831,7 +843,7 @@ namespace CsvTools
                 lastRow++;
                 firstChar = true;
                 if (await textReader.PeekAsync() == '\n')
-                  textReader.NextChar();
+                  textReader.MoveNext();
               }
 
               break;

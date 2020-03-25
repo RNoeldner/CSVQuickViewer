@@ -607,7 +607,6 @@ namespace CsvTools
       {
         if (clear)
           ClearProcess();
-        Logger.Information("Opening File…");
 
         Text =
         $@"{AssemblyTitle} : {FileSystemUtils.GetShortDisplayFileName(m_FileSetting.FileName, 80)}  - {EncodingHelper.GetEncodingName(m_FileSetting.CurrentEncoding.CodePage, true, m_FileSetting.ByteOrderMark)}";
@@ -616,6 +615,7 @@ namespace CsvTools
         {
           if (processDisplay is IProcessDisplayTime pdt)
             pdt.AttachTaskbarProgress();
+          processDisplay.SetProcess("Opening File…", -1, true);
 
           using (var csvDataReader = FunctionalDI.GetFileReader(m_FileSetting, TimeZoneInfo.Local.Id, processDisplay))
           {
@@ -635,19 +635,23 @@ namespace CsvTools
 
             FunctionalDI.GetColumnHeader = (dummy1, dummy3) => m_Headers;
             if (warningList.CountRows > 0)
+            {
+              processDisplay.SetProcess("Warning opening the file", -1, true);
               _MessageBox.Show(
                 this,
                 warningList.Display,
                 "Opening CSV File",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Warning);
+            }
+
             if (!textPanel.Visible)
               ShowTextPanel(true);
             csvDataReader.Warning -= warningList.Add;
             csvDataReader.Warning += AddWarning;
-            Logger.Information("Reading data…");
 
-            DataTable = csvDataReader.Read2DataTable(processDisplay, m_FileSetting.RecordLimit);
+            processDisplay.SetProcess("Reading data…", -1, true);
+            DataTable = csvDataReader.Read2DataTable(null, m_FileSetting.RecordLimit);
 
             foreach (var columnName in DataTable.GetRealColumns())
               if (m_FileSetting.ColumnCollection.Get(columnName) == null)

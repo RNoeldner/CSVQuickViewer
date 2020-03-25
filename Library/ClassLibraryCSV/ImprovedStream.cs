@@ -124,7 +124,8 @@ namespace CsvTools
         // in case the stream is at the beginning do nothing
         if (Stream != null && Stream.CanSeek)
         {
-          Stream.Position = 0;
+          if (Stream.Position!=0)
+            Stream.Position = 0;
         }
         else
         {

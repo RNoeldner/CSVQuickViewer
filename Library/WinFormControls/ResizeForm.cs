@@ -43,5 +43,17 @@ namespace CsvTools
         SetFonts(this);
       //#endif
     }
-  }
+
+        private void InitializeComponent()
+        {
+      this.SuspendLayout();
+      // 
+      // ResizeForm
+      // 
+      this.ClientSize = new System.Drawing.Size(292, 253);
+      this.Name = "ResizeForm";
+      this.ResumeLayout(false);
+
+        }
+    }
 }

@@ -198,6 +198,10 @@ namespace CsvTools.Tests
         Assert.AreEqual("This is a \"Test\"", test.GetString(3), "Containing Quote and quote at the end");
         Assert.AreEqual("18", test.GetString(5), "Line ending with quote");
 
+        /*
+"19  ","20,21","Another
+Line "Test"", "22",23,"  24"
+*/
         Assert.IsTrue(test.Read());
         Assert.AreEqual("19  ", test.GetString(0), "Training space not trimmed");
         Assert.AreEqual("20,21", test.GetString(1), "Delimiter in quotes");
@@ -404,6 +408,7 @@ namespace CsvTools.Tests
       {
         HasFieldHeader = false
       };
+      setting.ConsecutiveEmptyRows = 5;
       setting.FileFormat.CommentLine = "#";
       setting.FileFormat.EscapeCharacter = "\\";
       setting.FileFormat.FieldQualifier = "\"";
@@ -419,6 +424,7 @@ namespace CsvTools.Tests
 
         Assert.IsTrue(test.Read()); // 1
         Assert.AreEqual(1U, test.StartLineNumber, "LineNumber");
+        Assert.AreEqual("1", test.GetString(0));
         Assert.AreEqual("5\"", test.GetString(4));
 
         Assert.IsTrue(test.Read()); // 2
@@ -436,12 +442,22 @@ namespace CsvTools.Tests
         Assert.AreEqual("6\"", test.GetString(5));
 
         Assert.IsTrue(test.Read()); // 4
+        Assert.AreEqual("g", test.GetString(0));
         Assert.AreEqual("k", test.GetString(4));
         Assert.AreEqual(9, test.StartLineNumber, "LineNumber");
 
         Assert.IsTrue(test.Read()); // 5
+        Assert.AreEqual("7", test.GetString(0));
+        Assert.AreEqual(11, test.StartLineNumber, "LineNumber");
+
         Assert.IsTrue(test.Read()); // 6
+        Assert.AreEqual("m", test.GetString(0));
+        Assert.AreEqual(12, test.StartLineNumber, "LineNumber");
+
         Assert.IsTrue(test.Read()); // 7
+        Assert.AreEqual("13", test.GetString(0));
+        Assert.AreEqual(17, test.StartLineNumber, "LineNumber");
+
         Assert.IsTrue(test.Read()); // 8
         Assert.IsTrue(test.Read()); // 9
         Assert.IsTrue(test.Read()); // 10
@@ -551,15 +567,15 @@ namespace CsvTools.Tests
       using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
-        Assert.AreEqual(6, test.FieldCount);
+        Assert.AreEqual(6, test.FieldCount, "FieldCount");
         Assert.IsTrue(test.Read());
         Assert.IsTrue(test.Read());
         Assert.IsTrue(test.Read());
         Assert.AreEqual("l", test.GetString(5));  // Important to not trim the value otherwise the linefeed is gone
         Assert.IsTrue(test.Read());
         Assert.AreEqual("7", test.GetString(0), @"Next Row");
-        Assert.AreEqual(4U, test.StartLineNumber);
-        Assert.AreEqual(4U, test.RecordNumber);
+        Assert.AreEqual(4U, test.StartLineNumber, "StartLineNumber");
+        Assert.AreEqual(4U, test.RecordNumber, "RecordNumber");
       }
     }
 
@@ -1093,7 +1109,7 @@ namespace CsvTools.Tests
       using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
-        Assert.AreEqual(6, test.FieldCount);
+        Assert.AreEqual(6, test.FieldCount, "FieldCount");
         Assert.IsTrue(test.Read());
         Assert.AreEqual(3U, test.StartLineNumber, "LineNumber");
         Assert.AreEqual("a", test.GetString(0));
@@ -1562,7 +1578,6 @@ namespace CsvTools.Tests
 
         Assert.IsTrue(test.Read());
         Assert.AreEqual(2U, test.StartLineNumber, "LineNumber");
-
         Assert.AreEqual("různá", test.GetString(0));
         Assert.AreEqual("čísla", test.GetString(1));
         Assert.AreEqual("pro", test.GetString(2));
@@ -1570,7 +1585,6 @@ namespace CsvTools.Tests
 
         Assert.IsTrue(test.Read());
         Assert.AreEqual(3U, test.StartLineNumber, "LineNumber");
-
         Assert.AreEqual("rozumieją", test.GetString(0));
         Assert.AreEqual("přiřazuje", test.GetString(1));
         Assert.AreEqual("gemeinnützige", test.GetString(2));
@@ -1578,7 +1592,6 @@ namespace CsvTools.Tests
 
         Assert.IsTrue(test.Read());
         Assert.AreEqual(4U, test.StartLineNumber, "LineNumber");
-
         Assert.AreEqual("sprachunabhängig", test.GetString(0));
         Assert.AreEqual("that's all", test.GetString(1));
         Assert.AreEqual("for", test.GetString(2));

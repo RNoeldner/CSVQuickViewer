@@ -838,12 +838,6 @@ namespace CsvTools
         FileSetting.ColumnCollection.Remove(col);
     }
 
-    /// <summary>
-    ///   Advances the DataReader to the next non empty record
-    /// </summary>
-    /// <returns>true if there are more rows; otherwise, false.</returns>
-    public abstract bool Read();
-
     protected internal static string GetDefaultName(int i) => $"Column{i + 1}";
 
     /// <summary>
