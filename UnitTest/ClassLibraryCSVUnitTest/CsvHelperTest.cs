@@ -236,7 +236,7 @@ namespace CsvTools.Tests
       };
       using (var display = new DummyProcessDisplay())
       {
-        setting.RefreshCsvFileAsync(display).WaitToCompleteTask(10);
+        setting.RefreshCsvFileAsync(display).WaitToCompleteTask(30);
       }
 
       Assert.AreEqual(0, setting.SkipRows);

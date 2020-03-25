@@ -12,7 +12,6 @@
  *
  */
 
-using System;
 using System.Threading.Tasks;
 
 namespace CsvTools
@@ -20,7 +19,7 @@ namespace CsvTools
   /// <summary>
   ///   Interface for a File Reader.
   /// </summary>
-  public interface IFileReaderAsync : IDataReaderAsync, IFileReader
+  public interface IFileReaderAsync : IDataReaderAsync, IFileReaderBase
   {
     /// <summary>
     ///   Opens the text file and begins to read the meta data, like columns

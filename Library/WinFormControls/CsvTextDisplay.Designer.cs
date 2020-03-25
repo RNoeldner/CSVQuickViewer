@@ -36,9 +36,9 @@
       // ScrollBarVertical
       // 
       this.ScrollBarVertical.Dock = System.Windows.Forms.DockStyle.Right;
-      this.ScrollBarVertical.Location = new System.Drawing.Point(427, 0);
+      this.ScrollBarVertical.Location = new System.Drawing.Point(430, 0);
       this.ScrollBarVertical.Name = "ScrollBarVertical";
-      this.ScrollBarVertical.Size = new System.Drawing.Size(24, 263);
+      this.ScrollBarVertical.Size = new System.Drawing.Size(21, 263);
       this.ScrollBarVertical.TabIndex = 0;
       this.ScrollBarVertical.Scroll += new System.Windows.Forms.ScrollEventHandler(this.ScrollEvent);
       this.ScrollBarVertical.ValueChanged += new System.EventHandler(this.ValueChangedEvent);
@@ -54,7 +54,7 @@
       this.CSVTextBox.Name = "CSVTextBox";
       this.CSVTextBox.ReadOnly = true;
       this.CSVTextBox.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Horizontal;
-      this.CSVTextBox.Size = new System.Drawing.Size(411, 263);
+      this.CSVTextBox.Size = new System.Drawing.Size(427, 263);
       this.CSVTextBox.TabIndex = 1;
       // 
       // CsvTextDisplay

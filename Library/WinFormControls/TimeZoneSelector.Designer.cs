@@ -39,7 +39,7 @@
       this.tableLayoutPanel.AutoSize = true;
       this.tableLayoutPanel.ColumnCount = 2;
       this.tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-      this.tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 84F));
+      this.tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 90F));
       this.tableLayoutPanel.Controls.Add(this.comboBoxTimeZoneID, 0, 0);
       this.tableLayoutPanel.Controls.Add(this.buttonLocalTZ, 1, 0);
       this.tableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Top;
@@ -48,17 +48,17 @@
       this.tableLayoutPanel.Name = "tableLayoutPanel";
       this.tableLayoutPanel.RowCount = 1;
       this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.tableLayoutPanel.Size = new System.Drawing.Size(435, 33);
+      this.tableLayoutPanel.Size = new System.Drawing.Size(441, 36);
       this.tableLayoutPanel.TabIndex = 30;
       // 
       // comboBoxTimeZoneID
       // 
       this.comboBoxTimeZoneID.Anchor = System.Windows.Forms.AnchorStyles.Left;
       this.comboBoxTimeZoneID.FormattingEnabled = true;
-      this.comboBoxTimeZoneID.Location = new System.Drawing.Point(3, 2);
+      this.comboBoxTimeZoneID.Location = new System.Drawing.Point(3, 4);
       this.comboBoxTimeZoneID.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
       this.comboBoxTimeZoneID.Name = "comboBoxTimeZoneID";
-      this.comboBoxTimeZoneID.Size = new System.Drawing.Size(340, 28);
+      this.comboBoxTimeZoneID.Size = new System.Drawing.Size(345, 28);
       this.comboBoxTimeZoneID.TabIndex = 28;
       this.comboBoxTimeZoneID.SelectedIndexChanged += new System.EventHandler(this.ComboBoxTimeZoneID_SelectedIndexChanged);
       // 
@@ -67,7 +67,7 @@
       this.buttonLocalTZ.Location = new System.Drawing.Point(354, 2);
       this.buttonLocalTZ.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
       this.buttonLocalTZ.Name = "buttonLocalTZ";
-      this.buttonLocalTZ.Size = new System.Drawing.Size(78, 29);
+      this.buttonLocalTZ.Size = new System.Drawing.Size(81, 32);
       this.buttonLocalTZ.TabIndex = 29;
       this.buttonLocalTZ.Text = "Local";
       this.buttonLocalTZ.UseVisualStyleBackColor = true;
@@ -81,7 +81,7 @@
       this.Margin = new System.Windows.Forms.Padding(0);
       this.MinimumSize = new System.Drawing.Size(432, 34);
       this.Name = "TimeZoneSelector";
-      this.Size = new System.Drawing.Size(435, 37);
+      this.Size = new System.Drawing.Size(441, 37);
       this.Load += new System.EventHandler(this.TimeZoneSelector_Load);
       this.tableLayoutPanel.ResumeLayout(false);
       this.ResumeLayout(false);

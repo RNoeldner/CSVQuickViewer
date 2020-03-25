@@ -14,18 +14,18 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Diagnostics.Contracts;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace CsvTools
 {
   /// <summary>
   ///   A data reader for CSV files
   /// </summary>
-  public sealed class CsvFileReader : CsvFileReaderBase, IFileReader
+  public sealed class CsvFileReaderAsync : CsvFileReaderBase, IFileReaderAsync
   {
-    public CsvFileReader(ICsvFile fileSetting, string timeZone, IProcessDisplay processDisplay)
+    public CsvFileReaderAsync(ICsvFile fileSetting, string timeZone, IProcessDisplay processDisplay)
       : base(fileSetting, timeZone, processDisplay)
     {
     }
@@ -33,7 +33,7 @@ namespace CsvTools
     /// <summary>
     ///   Open the file Reader; Start processing the Headers and determine the maximum column size
     /// </summary>
-    public void Open()
+    public async Task OpenAsync()
     {
       OpenStart();
     Retry:
@@ -50,7 +50,7 @@ namespace CsvTools
 
         ResetPositionToStartOrOpen();
 
-        m_HeaderRow = ReadNextRow(false, false);
+        m_HeaderRow = await ReadNextRowAsync(false, false);
         if (m_HeaderRow == null || m_HeaderRow.GetLength(0) == 0)
         {
           InitColumn(0);
@@ -58,7 +58,7 @@ namespace CsvTools
         else
         {
           // Get the column count
-          InitColumn(ParseFieldCount(m_HeaderRow));
+          InitColumn(await ParseFieldCountAsync(m_HeaderRow));
 
           // Get the column names
           ParseColumnName(m_HeaderRow);
@@ -69,7 +69,7 @@ namespace CsvTools
 
         FinishOpen();
 
-        ResetPositionToFirstDataRow();
+        await ResetPositionToFirstDataRowAsync();
       }
       catch (Exception ex)
       {
@@ -90,15 +90,11 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   Advances the <see cref="IDataReader" /> to the next record.
-    /// </summary>
-    /// <returns>true if there are more rows; otherwise, false.</returns>
-    public bool Read()
+    public async Task<bool> ReadAsync()
     {
       if (!CancellationToken.IsCancellationRequested)
       {
-        var couldRead = GetNextRecord();
+        var couldRead = await GetNextRecordAsync();
 
         InfoDisplay(couldRead);
 
@@ -109,36 +105,24 @@ namespace CsvTools
       HandleReadFinished();
       return false;
     }
+    public bool Read() => ReadAsync().Result;
 
     /// <summary>
     ///   Resets the position and buffer to the header in case the file has a header
     /// </summary>
-    public void ResetPositionToFirstDataRow()
+    public async Task ResetPositionToFirstDataRowAsync()
     {
       ResetPositionToStartOrOpen();
       if (m_CsvFile.HasFieldHeader)
         // Read the header row, this could be more than one line
-        ReadNextRow(false, false);
+        await ReadNextRowAsync(false, false);
     }
 
-    /// <summary>
-    ///   Gets the relative position.
-    /// </summary>
-    /// <returns>A value between 0 and MaxValue</returns>
-    protected override int GetRelativePosition()
-    {
-      // if we know how many records to read, use that
-      if (m_CsvFile.RecordLimit > 0)
-        return (int)((double)RecordNumber / m_CsvFile.RecordLimit * cMaxValue);
-
-      return (int)((m_ImprovedStream?.Percentage ?? 0) * cMaxValue);
-    }
-
-    private char EatNextCRLF(char character)
+    private async Task<char> EatNextCRLFAsync(char character)
     {
       EndLineNumber++;
       if (EndOfFile) return '\0';
-      var nextChar = Peek();
+      var nextChar = await PeekAsync();
       if ((character != c_Cr || nextChar != c_Lf) && (character != c_Lf || nextChar != c_Cr)) return '\0';
       // New line sequence is either CRLF or LFCR, disregard the character
       m_TextReader.MoveNext();
@@ -154,13 +138,13 @@ namespace CsvTools
     ///   <c>NULL</c> if the row can not be read, array of string values representing the columns of
     ///   the row
     /// </returns>
-    private bool GetNextRecord()
+    private async Task<bool> GetNextRecordAsync()
     {
       try
       {
       Restart:
 
-        CurrentRowColumnText = ReadNextRow(true, true);
+        CurrentRowColumnText = await ReadNextRowAsync(true, true);
 
         if (!AllEmptyAndCountConsecutiveEmptyRows(CurrentRowColumnText))
         {
@@ -225,7 +209,7 @@ namespace CsvTools
             var oldPos = m_TextReader.BufferPos;
             var startLine = StartLineNumber;
             // get the next row
-            var nextLine = ReadNextRow(true, true);
+            var nextLine = await ReadNextRowAsync(true, true);
             StartLineNumber = startLine;
 
             // allow up to two extra columns they can be combined later
@@ -307,10 +291,22 @@ namespace CsvTools
       }
     }
 
+    private async Task<char> PeekAsync()
+    {
+      var res = await m_TextReader.PeekAsync();
+      if (res == -1)
+      {
+        EndOfFile = true;
+        // return a lf to determine the end of quoting easily
+        return c_Lf;
+      }
+      return (char)res;
+    }
+
     /// <summary>
     ///   Gets the number of fields.
     /// </summary>
-    private int ParseFieldCount(IList<string> headerRow)
+    private async Task<int> ParseFieldCountAsync(IList<string> headerRow)
     {
       Contract.Ensures(Contract.Result<int>() >= 0);
       if (headerRow == null || headerRow.Count == 0 || string.IsNullOrEmpty(headerRow[0]))
@@ -325,7 +321,7 @@ namespace CsvTools
       // check if the next lines do have data in the last column
       for (var additional = 0; !EndOfFile && additional < 10; additional++)
       {
-        var nextLine = ReadNextRow(false, false);
+        var nextLine = await ReadNextRowAsync(false, false);
         // if we have less columns than in the header exit the loop
         if (nextLine.GetLength(0) < fields)
           break;
@@ -358,22 +354,6 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets the next char from the buffer, but stay at the current position
-    /// </summary>
-    /// <returns>The next char</returns>
-    private char Peek()
-    {
-      var res = m_TextReader.Peek();
-      if (res == -1)
-      {
-        EndOfFile = true;
-        // return a lf to determine the end of quoting easily
-        return c_Lf;
-      }
-      return (char)res;
-    }
-
-    /// <summary>
     ///   Gets the next column in the buffer.
     /// </summary>
     /// <param name="columnNo">The column number for warnings</param>
@@ -382,7 +362,7 @@ namespace CsvTools
     /// <remarks>
     ///   If NULL is returned we are at the end of the file, an empty column is read as empty string
     /// </remarks>
-    private string ReadNextColumn(int columnNo, bool storeWarnings)
+    private async Task<string> ReadNextColumnAsync(int columnNo, bool storeWarnings)
     {
       if (EndOfFile)
         return null;
@@ -404,14 +384,14 @@ namespace CsvTools
       while (!EndOfFile)
       {
         // Increase position
-        var character = Peek();
+        var character = await PeekAsync();
         m_TextReader.MoveNext();
 
         var escaped = character == m_CsvFile.FileFormat.EscapeCharacterChar && !postData;
         // Handle escaped characters
         if (escaped)
         {
-          var nextChar = Peek();
+          var nextChar = await PeekAsync();
           if (!EndOfFile)
           {
             m_TextReader.MoveNext();
@@ -452,7 +432,7 @@ namespace CsvTools
           var singleLF = true;
           if (!EndOfFile)
           {
-            var nextChar = Peek();
+            var nextChar = await PeekAsync();
             if (nextChar == c_Cr)
               singleLF = false;
           }
@@ -490,7 +470,7 @@ namespace CsvTools
 
           case c_Cr:
           case c_Lf:
-            var nextChar = EatNextCRLF(character);
+            var nextChar = await EatNextCRLFAsync(character);
             if (character == c_Cr && nextChar == c_Lf || character == c_Lf && nextChar == c_Cr)
               if (quoted && !postData)
               {
@@ -549,7 +529,7 @@ namespace CsvTools
 
         if (m_HasQualifier && character == m_CsvFile.FileFormat.FieldQualifierChar && quoted && !escaped)
         {
-          var peekNextChar = Peek();
+          var peekNextChar = await PeekAsync();
           // a "" should be regarded as " if the text is quoted
           if (m_CsvFile.FileFormat.DuplicateQuotingToEscape && peekNextChar == m_CsvFile.FileFormat.FieldQualifierChar)
           {
@@ -558,7 +538,7 @@ namespace CsvTools
             m_TextReader.MoveNext();
             //TODO: decide if we should have this its hard to explain but might make sense
             // special handling for "" that is not only representing a " but also closes the text
-            peekNextChar = Peek();
+            peekNextChar = await PeekAsync();
             if (m_CsvFile.FileFormat.AlternateQuoting && (peekNextChar == m_CsvFile.FileFormat.FieldDelimiterChar ||
                                                           peekNextChar == c_Cr ||
                                                           peekNextChar == c_Lf)) postData = true;
@@ -600,7 +580,7 @@ namespace CsvTools
     ///   <c>NULL</c> if the row can not be read, array of string values representing the columns of
     ///   the row
     /// </returns>
-    private string[] ReadNextRow(bool regularDataRow, bool storeWarnings)
+    private async Task<string[]> ReadNextRowAsync(bool regularDataRow, bool storeWarnings)
     {
     Restart:
       // Store the starting Line Number
@@ -610,7 +590,7 @@ namespace CsvTools
       if (EndOfFile || m_TextReader == null)
         return null;
 
-      var item = ReadNextColumn(0, storeWarnings);
+      var item = await ReadNextColumnAsync(0, storeWarnings);
       // An empty line does not have any data
       if (string.IsNullOrEmpty(item) && m_EndOfLine)
       {
@@ -633,7 +613,7 @@ namespace CsvTools
           m_EndOfLine = false;
         else
           // it might happen that the comment line contains a Delimiter
-          ReadToEOL();
+          await ReadToEOLAsync();
         goto Restart;
       }
 
@@ -677,7 +657,7 @@ namespace CsvTools
         columns.Add(item);
 
         col++;
-        item = ReadNextColumn(col, storeWarnings);
+        item = await ReadNextColumnAsync(col, storeWarnings);
       }
 
       return columns.ToArray();
@@ -686,15 +666,15 @@ namespace CsvTools
     /// <summary>
     ///   Reads from the buffer until the line has ended
     /// </summary>
-    private void ReadToEOL()
+    private async Task ReadToEOLAsync()
     {
       while (!EndOfFile)
       {
-        var character = Peek();
+        var character = await PeekAsync();
         m_TextReader.MoveNext();
         if (character != c_Cr && character != c_Lf)
           continue;
-        EatNextCRLF(character);
+        await EatNextCRLFAsync(character);
         return;
       }
     }

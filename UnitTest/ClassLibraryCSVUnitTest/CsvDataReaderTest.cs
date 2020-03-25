@@ -51,11 +51,11 @@ namespace CsvTools.Tests
         TryToSolveMoreColumns = true,
         AllowRowCombining = true,
         FileName = UnitTestInitialize.GetTestPath("BadIssues.csv"),
-        FileFormat = {FieldDelimiter = "TAB", FieldQualifier = string.Empty}
+        FileFormat = { FieldDelimiter = "TAB", FieldQualifier = string.Empty }
       };
       basIssues.ColumnCollection.AddIfNew(new Column("effectiveDate", "yyyy/MM/dd", "-"));
-      basIssues.ColumnCollection.AddIfNew(new Column("timestamp",  "yyyy/MM/ddTHH:mm:ss", "-"));
-      
+      basIssues.ColumnCollection.AddIfNew(new Column("timestamp", "yyyy/MM/ddTHH:mm:ss", "-"));
+
       basIssues.ColumnCollection.AddIfNew(new Column("version", DataType.Integer));
       basIssues.ColumnCollection.AddIfNew(new Column("retrainingRequired", DataType.Boolean));
 
@@ -113,7 +113,7 @@ namespace CsvTools.Tests
 
         test.Read();
         Assert.AreEqual("doc_1004040002913", test.GetValue(0));
-        Assert.AreEqual(10, test.StartLineNumber);
+        Assert.AreEqual(10, test.StartLineNumber, "StartLineNumber");
         Assert.AreEqual(5, warningList.CountRows);
 
         test.Read();
@@ -158,7 +158,6 @@ namespace CsvTools.Tests
       }
     }
 
- 
     [TestMethod]
     public void TestWarningsRecordNoMapping()
     {
@@ -420,7 +419,7 @@ namespace CsvTools.Tests
         var row = 0;
         while (test.Read())
           row++;
-        Assert.AreEqual(row, test.RecordNumber, "Compare with read numbers");
+        Assert.AreEqual(row, test.RecordNumber, "Compare with RecordNumber");
         Assert.AreEqual(7, row, "Read");
       }
     }
@@ -859,7 +858,7 @@ namespace CsvTools.Tests
         FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt"),
         HasFieldHeader = false,
         SkipRows = 1,
-        FileFormat = {FieldDelimiter = "\r"}
+        FileFormat = { FieldDelimiter = "\r" }
       };
       var exception = false;
       try
@@ -894,7 +893,7 @@ namespace CsvTools.Tests
         FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt"),
         HasFieldHeader = false,
         SkipRows = 1,
-        FileFormat = {FieldQualifier = "Carriage return"}
+        FileFormat = { FieldQualifier = "Carriage return" }
       };
       var exception = false;
       try
@@ -929,7 +928,7 @@ namespace CsvTools.Tests
         FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt"),
         HasFieldHeader = false,
         SkipRows = 1,
-        FileFormat = {FieldQualifier = "Line feed"}
+        FileFormat = { FieldQualifier = "Line feed" }
       };
       var exception = false;
       try
@@ -983,7 +982,7 @@ namespace CsvTools.Tests
         FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt"),
         HasFieldHeader = false,
         SkipRows = 1,
-        FileFormat = {FieldDelimiter = "\n"}
+        FileFormat = { FieldDelimiter = "\n" }
       };
       var exception = false;
       try
@@ -1018,7 +1017,7 @@ namespace CsvTools.Tests
         FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt"),
         HasFieldHeader = false,
         SkipRows = 1,
-        FileFormat = {FieldDelimiter = " "}
+        FileFormat = { FieldDelimiter = " " }
       };
       var exception = false;
       try
@@ -1053,7 +1052,7 @@ namespace CsvTools.Tests
         FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt"),
         HasFieldHeader = false,
         SkipRows = 1,
-        FileFormat = {FieldQualifier = "\""}
+        FileFormat = { FieldQualifier = "\"" }
       };
       setting.FileFormat.FieldDelimiter = setting.FileFormat.FieldQualifier;
       var exception = false;

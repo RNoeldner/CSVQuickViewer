@@ -122,7 +122,7 @@
       this.detailControl.Location = new System.Drawing.Point(0, 0);
       this.detailControl.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
       this.detailControl.Name = "detailControl";
-      this.detailControl.Size = new System.Drawing.Size(1121, 667);
+      this.detailControl.Size = new System.Drawing.Size(1129, 674);
       this.detailControl.TabIndex = 1;
       this.detailControl.ButtonShowSource += new System.EventHandler(this.DetailControl_ButtonShowSource);
       this.detailControl.OnSettingsClick += new System.EventHandler(this.ShowSettings);
@@ -132,7 +132,7 @@
       this.AllowDrop = true;
       this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-      this.ClientSize = new System.Drawing.Size(1121, 667);
+      this.ClientSize = new System.Drawing.Size(1129, 674);
       this.Controls.Add(this.detailControl);
       this.Controls.Add(this.textPanel);
       this.HelpButton = true;

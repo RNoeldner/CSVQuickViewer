@@ -289,7 +289,7 @@ namespace CsvTools
       // 
       // m_ProgressBar
       // 
-      this.m_ProgressBar.Location = new System.Drawing.Point(3, 61);
+      this.m_ProgressBar.Location = new System.Drawing.Point(3, 59);
       this.m_ProgressBar.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
       this.m_ProgressBar.Name = "m_ProgressBar";
       this.m_ProgressBar.Size = new System.Drawing.Size(530, 31);
@@ -304,7 +304,7 @@ namespace CsvTools
       this.m_LabelText.Margin = new System.Windows.Forms.Padding(6, 8, 6, 8);
       this.m_LabelText.MaximumSize = new System.Drawing.Size(526, 334);
       this.m_LabelText.Name = "m_LabelText";
-      this.m_LabelText.Size = new System.Drawing.Size(526, 43);
+      this.m_LabelText.Size = new System.Drawing.Size(526, 41);
       this.m_LabelText.TabIndex = 1;
       this.m_LabelText.Text = "Text\r\nLine 2";
       this.m_LabelText.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -312,7 +312,7 @@ namespace CsvTools
       // m_LabelEtl
       // 
       this.m_LabelEtl.Dock = System.Windows.Forms.DockStyle.Top;
-      this.m_LabelEtl.Location = new System.Drawing.Point(3, 99);
+      this.m_LabelEtl.Location = new System.Drawing.Point(3, 97);
       this.m_LabelEtl.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
       this.m_LabelEtl.Name = "m_LabelEtl";
       this.m_LabelEtl.Size = new System.Drawing.Size(532, 22);
@@ -335,14 +335,14 @@ namespace CsvTools
       this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 38F));
       this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
       this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.m_TableLayoutPanel.Size = new System.Drawing.Size(533, 127);
+      this.m_TableLayoutPanel.Size = new System.Drawing.Size(537, 125);
       this.m_TableLayoutPanel.TabIndex = 8;
       // 
       // FormProcessDisplay
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-      this.ClientSize = new System.Drawing.Size(533, 127);
+      this.ClientSize = new System.Drawing.Size(537, 125);
       this.Controls.Add(this.m_TableLayoutPanel);
       this.DoubleBuffered = true;
       this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
