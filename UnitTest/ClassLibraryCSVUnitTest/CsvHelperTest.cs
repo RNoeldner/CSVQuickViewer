@@ -51,15 +51,14 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GuessHasHeader()
     {
-      Assert.IsTrue(CsvHelper.GuessHasHeader(new CsvFile
-      {
-        FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt")
-      }, CancellationToken.None), "BasicCSV.txt");
 
-      Assert.IsFalse(CsvHelper.GuessHasHeader(new CsvFile
-      {
-        FileName = UnitTestInitialize.GetTestPath("txTranscripts.txt")
-      }, CancellationToken.None), "txTranscripts.txt");
+      using (var stream = ImprovedStream.OpenRead(UnitTestInitialize.GetTestPath("BasicCSV.txt")))
+      using (var reader = new ImprovedTextReader(stream, 65001, 0))
+        Assert.IsTrue(CsvHelper.GuessHasHeaderAsync(reader, "#", ',', CancellationToken.None).Result);
+
+      using (var stream = ImprovedStream.OpenRead(UnitTestInitialize.GetTestPath("HandlingDuplicateColumnNames.txt")))
+      using (var reader = new ImprovedTextReader(stream, 65001, 0))
+        Assert.IsFalse(CsvHelper.GuessHasHeaderAsync(reader, "#", ',', CancellationToken.None).Result);
     }
 
     [TestMethod]
@@ -154,7 +153,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void GuessDelimiterTAB()
+    public void GuessDelimiterTab()
     {
       ICsvFile test = new CsvFile(UnitTestInitialize.GetTestPath("txTranscripts.txt"))
       {

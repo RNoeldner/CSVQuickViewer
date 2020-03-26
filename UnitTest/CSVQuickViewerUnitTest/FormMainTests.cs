@@ -52,7 +52,7 @@ namespace CsvTools.Tests
           Thread.Sleep(200);
         }
         Assert.IsNotNull(frm.DataTable);
-        Assert.AreEqual(45, frm.DataTable.Rows.Count);
+        Assert.AreEqual(47, frm.DataTable.Rows.Count);
       }
     }
   }

@@ -382,7 +382,7 @@ namespace CsvTools
         }
 
         // create columns
-        var schemaTable = await dataReader.GetSchemaTableAsync();
+        var schemaTable = dataReader.GetSchemaTable();
         if (schemaTable == null)
           return null;
         var columns = schemaTable.Rows.Count;
@@ -396,19 +396,22 @@ namespace CsvTools
           previousColumns.Add(colName);
         }
 
-        dataTable.BeginLoadData();
-        if (recordLimit < 1)
-          recordLimit = long.MaxValue;
-        // load the Data into the dataTable
-        var action = processDisplay == null ? null : new IntervalAction(.3);
-        while (await dataReader.ReadAsync() && dataTable.Rows.Count < recordLimit &&
-               !(processDisplay?.CancellationToken.IsCancellationRequested ?? false))
+        if (!(processDisplay?.CancellationToken.IsCancellationRequested ?? false))
         {
-          var readerValues = new object[columns];
-          if (dataReader.GetValues(readerValues) > 0)
-            dataTable.Rows.Add(readerValues);
-          action?.Invoke(() =>
-            processDisplay.SetProcess(string.Format(display, dataTable.Rows.Count), dataTable.Rows.Count, false));
+          dataTable.BeginLoadData();
+          if (recordLimit < 1)
+            recordLimit = long.MaxValue;
+          // load the Data into the dataTable
+          var action = processDisplay == null ? null : new IntervalAction(.3);
+          while (await dataReader.ReadAsync() && dataTable.Rows.Count < recordLimit &&
+                 !(processDisplay?.CancellationToken.IsCancellationRequested ?? false))
+          {
+            var readerValues = new object[columns];
+            if (dataReader.GetValues(readerValues) > 0)
+              dataTable.Rows.Add(readerValues);
+            action?.Invoke(() =>
+              processDisplay.SetProcess(string.Format(display, dataTable.Rows.Count), dataTable.Rows.Count, false));
+          }
         }
       }
       finally
@@ -419,7 +422,6 @@ namespace CsvTools
           if (oldMax > 0)
             processDisplay.Maximum = oldMax;
         }
-
         dataTable.EndLoadData();
       }
       return dataTable;
