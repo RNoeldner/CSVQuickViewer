@@ -14,6 +14,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics.Contracts;
 using System.Text;
 
@@ -38,7 +39,7 @@ namespace CsvTools
     ///   Attach the error collection to the reader
     /// </summary>
     /// <param name="reader"></param>
-    public RowErrorCollection(IFileReader reader) => reader.Warning += Add;
+    public RowErrorCollection(IFileReaderBase reader) => reader.Warning += Add;
 
     public RowErrorCollection(int maxRows) => m_MaxRows = maxRows;
 
@@ -107,6 +108,20 @@ namespace CsvTools
     }
 
     public void HandleIgnoredColumns(IFileReader reader)
+    {
+      if (reader.IsClosed)
+        throw new InvalidOperationException("Reader has not been opened.");
+
+      for (var col = 0; col < reader.FieldCount; col++)
+        if (reader.IgnoreRead(col))
+        {
+          if (m_IgnoredColumns == null)
+            m_IgnoredColumns = new HashSet<int>();
+          m_IgnoredColumns.Add(col);
+        }
+    }
+
+    public void HandleIgnoredColumns(IFileReaderAsync reader)
     {
       if (reader.IsClosed)
         throw new InvalidOperationException("Reader has not been opened.");

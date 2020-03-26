@@ -623,17 +623,6 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Returns a <see cref="DataTable" /> that describes the column meta data of the <see
-    ///   cref="IDataReader" />.
-    /// </summary>
-    /// <returns>A <see cref="DataTable" /> that describes the column meta data.</returns>
-    /// <exception cref="InvalidOperationException">The <see cref="IDataReader" /> is closed.</exception>
-    public virtual async Task<DataTable> GetSchemaTableAsync()
-    {
-      return await Task<DataTable>.Run(() => GetSchemaTable());
-    }
-
-    /// <summary>
     ///   Gets the originally provided text in a column
     /// </summary>
     /// <param name="columnNumber">The column number.</param>
@@ -1330,6 +1319,41 @@ namespace CsvTools
       }
     }
 
+    public static IEnumerable<string> ParseColumnNames(IEnumerable<string> columns, int fieldCount, ColumnErrorDictionary warnings)
+    {
+      var previousColumns = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+      using (var enumerator = columns.GetEnumerator())
+        for (var counter = 0; counter < fieldCount; counter++)
+        {
+          var columnName = (enumerator.MoveNext()) ? enumerator.Current : string.Empty;
+          string resultingName;
+          if (string.IsNullOrEmpty(columnName))
+          {
+            resultingName = GetDefaultName(counter);
+            warnings.Add(counter, $"Column title was empty, set to {resultingName}.".AddWarningId());
+          }
+          else
+          {
+            resultingName = columnName.Trim();
+            if (columnName.Length != resultingName.Length)
+              warnings.Add(counter, $"Column title '{columnName}' had leading or tailing spaces, these have been removed.".AddWarningId());
+
+            if (resultingName.Length > 128)
+            {
+              resultingName = resultingName.Substring(0, 128);
+              warnings.Add(counter, $"Column title '{resultingName.Substring(0, 20)}…' too long, cut off after 128 characters.".AddWarningId());
+            }
+
+            var newName = StringUtils.MakeUniqueInCollection(previousColumns, resultingName);
+            if (newName != resultingName)
+              warnings.Add(counter, $"Column title '{resultingName}' exists more than once replaced with {newName}");
+          }
+
+          yield return resultingName;
+          previousColumns.Add(resultingName);
+        }
+    }
+
     /// <summary>
     ///   Gets the field headers and Initialized the columns
     /// </summary>
@@ -1349,39 +1373,13 @@ namespace CsvTools
         return;
       }
 
-      var previousColumns = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-      for (var counter = 0; counter < FieldCount; counter++)
-      {
-        var columnName = counter < headerRow.Count ? headerRow[counter] : string.Empty;
-        string resultingName;
-        if (string.IsNullOrEmpty(columnName))
-        {
-          resultingName = GetDefaultName(counter);
-          // HandleWarning(counter, string.Format(CultureInfo.CurrentCulture, "{0}Column title is
-          // empty.", CWarningId));
-        }
-        else
-        {
-          resultingName = columnName.Trim();
-          if (columnName.Length != resultingName.Length)
-            HandleWarning(counter,
-              $"Column title '{columnName}' had leading or tailing spaces, these have been removed."
-                .AddWarningId());
+      var warnings = new ColumnErrorDictionary();
+      var counter = 0;
+      foreach (var columnName in ParseColumnNames(headerRow, FieldCount, warnings))
+        GetColumn(counter++).Name = columnName;
 
-          if (resultingName.Length > 128)
-          {
-            resultingName = resultingName.Substring(0, 128);
-            HandleWarning(counter,
-              $"Column title '{resultingName.Substring(0, 20)}…' has been cut off after 128 characters."
-                .AddWarningId());
-          }
-
-          resultingName = GetUniqueName(previousColumns, counter, resultingName);
-        }
-
-        GetColumn(counter).Name = resultingName;
-        previousColumns.Add(resultingName);
-      }
+      foreach (var warning in warnings)
+        HandleWarning(warning.Key, warning.Value);
     }
 
     /// <summary>

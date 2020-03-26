@@ -69,11 +69,11 @@ namespace CsvTools
       private set;
     }
 
-    // used in Unit Tests to determine when a laod process is finished.
+    // used in Unit Tests to determine when a load process is finished.
     public bool LoadFinished
     {
       get;
-      set;
+      private set;
     }
 
     /// <summary>
@@ -90,7 +90,7 @@ namespace CsvTools
       FillFromProperties();
 
       m_SettingsChangedTimerChange.AutoReset = false;
-      m_SettingsChangedTimerChange.Elapsed += delegate { this.SafeInvoke(() => OpenDataReader(true)); };
+      m_SettingsChangedTimerChange.Elapsed += async (sender, args) => await OpenDataReaderAsync(true);
       m_SettingsChangedTimerChange.Stop();
 
       // Done in code to be able to select controls in the designer
@@ -211,7 +211,7 @@ namespace CsvTools
       m_FileName = files[0];
 
       if (await InitFileSettingsAsync())
-        OpenDataReader(false);
+        await OpenDataReaderAsync(false);
     }
 
     /// <summary>
@@ -242,7 +242,7 @@ namespace CsvTools
       }
     }
 
-    private void DetailControl_ButtonAsText(object sender, EventArgs e)
+    private async void DetailControl_ButtonAsText(object sender, EventArgs e)
     {
       // Assume data type is not recognize
       if (m_FileSetting.ColumnCollection.Any(x => x.ValueFormat.DataType != DataType.String))
@@ -259,7 +259,7 @@ namespace CsvTools
         m_StoreColumns.CollectionCopy(m_FileSetting.ColumnCollection);
       }
 
-      OpenDataReader(true);
+      await OpenDataReaderAsync(true);
     }
 
     private void DetailControl_ButtonShowSource(object sender, EventArgs e)
@@ -284,7 +284,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
-    private void Display_Activated(object sender, EventArgs e)
+    private async void Display_Activated(object sender, EventArgs e)
     {
       if (m_ConfigChanged)
       {
@@ -298,7 +298,7 @@ namespace CsvTools
               MessageBoxIcon.Question,
               MessageBoxDefaultButton.Button2) == DialogResult.Yes)
         {
-          OpenDataReader(true);
+          await OpenDataReaderAsync(true);
         }
         else
         {
@@ -317,7 +317,7 @@ namespace CsvTools
               MessageBoxIcon.Question,
               MessageBoxDefaultButton.Button2) == DialogResult.Yes)
         {
-          OpenDataReader(true);
+          await OpenDataReaderAsync(true);
         }
         else
         {
@@ -381,7 +381,7 @@ namespace CsvTools
 
       if (doClose)
         return;
-      OpenDataReader(false);
+      await OpenDataReaderAsync(false);
     }
 
     /// <summary>
@@ -438,13 +438,11 @@ namespace CsvTools
       m_FileSetting.FileName = m_FileName;
     }
 
-    private void FormMain_KeyUp(object sender, KeyEventArgs e)
+    private async void FormMain_KeyUpAsync(object sender, KeyEventArgs e)
     {
-      if (e.KeyCode == Keys.F5 || (e.Control && e.KeyCode == Keys.R))
-      {
-        e.Handled = true;
-        OpenDataReader(true);
-      }
+      if (e.KeyCode != Keys.F5 && (!e.Control || e.KeyCode != Keys.R)) return;
+      e.Handled = true;
+      await OpenDataReaderAsync(true);
     }
 
     /// <summary>
@@ -592,7 +590,7 @@ namespace CsvTools
     /// <summary>
     ///   Opens the data reader.
     /// </summary>
-    private void OpenDataReader(bool clear)
+    private async Task OpenDataReaderAsync(bool clear)
     {
       if (m_FileSetting == null)
         return;
@@ -617,10 +615,10 @@ namespace CsvTools
             pdt.AttachTaskbarProgress();
           processDisplay.SetProcess("Opening File…", -1, true);
 
-          using (var csvDataReader = FunctionalDI.GetFileReader(m_FileSetting, TimeZoneInfo.Local.Id, processDisplay))
+          using (var csvDataReader = new CsvFileReaderAsync(m_FileSetting, TimeZoneInfo.Local.Id, processDisplay))
           {
             var warningList = new RowErrorCollection(csvDataReader);
-            csvDataReader.Open();
+            await csvDataReader.OpenAsync();
             warningList.HandleIgnoredColumns(csvDataReader);
             warningList.PassWarning += AddWarning;
 
@@ -651,7 +649,7 @@ namespace CsvTools
             csvDataReader.Warning += AddWarning;
 
             processDisplay.SetProcess("Reading data…", -1, true);
-            DataTable = csvDataReader.Read2DataTable(null, m_FileSetting.RecordLimit);
+            DataTable = await csvDataReader.Read2DataTableAsync(null, m_FileSetting.RecordLimit);
 
             foreach (var columnName in DataTable.GetRealColumns())
               if (m_FileSetting.ColumnCollection.Get(columnName) == null)

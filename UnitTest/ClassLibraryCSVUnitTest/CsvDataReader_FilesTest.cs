@@ -713,11 +713,10 @@ Line "Test"", "22",23,"  24"
     {
       var setting = new CsvFile
       {
-        HasFieldHeader = true
+        HasFieldHeader = true,
+        FileFormat = {FieldDelimiter = ",", CommentLine = "#"},
+        FileName = UnitTestInitialize.GetTestPath("LongHeaders.txt")
       };
-      setting.FileFormat.FieldDelimiter = ",";
-      setting.FileFormat.CommentLine = "#";
-      setting.FileName = UnitTestInitialize.GetTestPath("LongHeaders.txt");
 
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
@@ -735,7 +734,7 @@ Line "Test"", "22",23,"  24"
         Assert.AreEqual("e", test.GetName(4));
         Assert.AreEqual("f", test.GetName(5));
         Assert.AreEqual(1, warningsList.CountRows, "Warnings");
-        Assert.IsTrue(warningsList.Display.Contains("has been cut off"));
+        Assert.IsTrue(warningsList.Display.Contains("too long"));
 
         // check if we read the right line , and we do not end up in a commented line of read the
         // header ahgin
@@ -751,10 +750,10 @@ Line "Test"", "22",23,"  24"
       var setting = new CsvFile
       {
         HasFieldHeader = false,
-        WarnEmptyTailingColumns = true
+        WarnEmptyTailingColumns = true,
+        FileFormat = {FieldDelimiter = ","},
+        FileName = UnitTestInitialize.GetTestPath("MoreColumnsThanHeaders.txt")
       };
-      setting.FileFormat.FieldDelimiter = ",";
-      setting.FileName = UnitTestInitialize.GetTestPath("MoreColumnsThanHeaders.txt");
 
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))

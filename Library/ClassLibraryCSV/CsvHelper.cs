@@ -164,65 +164,69 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   Opens the csv file, and tries to read the headers
-    /// </summary>
-    /// <param name="setting">The CSVFile fileSetting</param>
-    /// <param name="cancellationToken">A cancellation token</param>
-    /// <returns>
-    ///   <c>True</c> we could use the first row as header, <c>false</c> should not use first row as header
-    /// </returns>
-    public static bool GuessHasHeader(ICsvFile setting, CancellationToken cancellationToken)
+    public static async Task<bool> GuessHasHeaderAsync(ImprovedTextReader reader, string comment, char delimiter, CancellationToken cancellationToken)
     {
-      Contract.Requires(setting != null);
-      // Only do so if HasFieldHeader is still true
-      if (!setting.HasFieldHeader)
+      var headerLine = string.Empty;
+
+      while (string.IsNullOrEmpty(headerLine) && !reader.EndOfFile)
+      {
+        cancellationToken.ThrowIfCancellationRequested();
+        headerLine = await reader.ReadLineAsync();
+        if (!string.IsNullOrEmpty(comment) && headerLine.TrimStart().StartsWith(comment))
+          headerLine = string.Empty;
+      }
+
+      if (string.IsNullOrEmpty(headerLine))
       {
         Logger.Information("Without Header Row");
         return false;
       }
 
-      using (var dummy = new DummyProcessDisplay(cancellationToken))
-      using (var csvDataReader = new CsvFileReader(setting, null, dummy))
+      var headerRow = headerLine.Split(delimiter);
+      // get the average field count looking at the header and 12 additional valid lines
+      var fieldCount = headerRow.Length;
+      var counter = 1;
+      while (counter < 12 && !cancellationToken.IsCancellationRequested && !reader.EndOfFile)
       {
-        csvDataReader.Open();
-
-        var defaultNames = 0;
-
-        // In addition check that all columns have real names and did not get an artificial name or
-        // are numbers
-        for (var counter = 0; counter < csvDataReader.FieldCount; counter++)
-        {
-          var columnName = csvDataReader.GetName(counter);
-
-          // if replaced by a default assume no header
-          if (columnName.Equals(BaseFileReader.GetDefaultName(counter), StringComparison.OrdinalIgnoreCase))
-            if (defaultNames++ == (int)Math.Ceiling(csvDataReader.FieldCount / 2.0))
-            {
-              Logger.Information("Without Header Row");
-              return false;
-            }
-
-          // if its a number assume no headers
-          if (StringConversion.StringToDecimal(columnName, '.', ',', false).HasValue)
-          {
-            Logger.Information("Without Header Row");
-            return false;
-          }
-
-          // if its rather long assume no header
-          if (columnName.Length > 80)
-          {
-            Logger.Information("Without Header Row");
-            return false;
-          }
-        }
-
-        Logger.Information("With Header Row");
-        // if there is only one line assume its does not have a header
-        return true;
+        var dataLine = await reader.ReadLineAsync();
+        if (string.IsNullOrEmpty(dataLine) || (!string.IsNullOrEmpty(comment) && dataLine.TrimStart().StartsWith(comment)))
+          continue;
+        counter++;
+        fieldCount += dataLine.Split(delimiter).Length;
       }
+
+      var avgFieldCount = fieldCount / (double)counter;
+      // The average should not be smaller than the columns in the initial row
+      if (avgFieldCount < headerRow.Length)
+        avgFieldCount = headerRow.Length;
+      var halfTheColumns = (int)Math.Ceiling(avgFieldCount / 2.0);
+
+      // use the same routine that is used in readers to determine the names of the columns
+      var warning = new ColumnErrorDictionary();
+      var columns = BaseFileReader.ParseColumnNames(headerRow, (int)avgFieldCount, warning).ToList();
+
+      // looking at the warnings raised 
+      if (warning.Any(x => x.Value.Contains("exists more than once"))
+        || warning.Any(x => x.Value.Contains("too long"))
+        || warning.Count(x => x.Value.Contains("title was empty")) >= halfTheColumns)
+      {
+        Logger.Information("Without Header Row");
+        return false;
+      }
+
+      // Columns are only one or two char, that does not look descriptive
+      if (columns.Count(x => x.Length < 3) > halfTheColumns)
+      {
+        Logger.Information("Without Header Row");
+        return false;
+      }
+
+      Logger.Information("With Header Row");
+      // if there is only one line assume its does not have a header
+      return true;
     }
+
+
 
     /// <summary>
     ///   Guesses if the file is a json file.
@@ -335,7 +339,7 @@ namespace CsvTools
       Contract.Requires(setting != null);
       Contract.Requires(display != null);
 
-      if (!(guessJson || guessCodePage || guessCodePage || guessStartRow || guessQualifier || guessQualifier || guessHasHeader))
+      if (!(guessJson || guessCodePage || guessDelimiter || guessStartRow || guessQualifier || guessHasHeader))
         return;
       display.SetProcess("Checking delimited file", -1, true);
       using (var improvedStream = FunctionalDI.OpenRead(setting))
@@ -343,7 +347,7 @@ namespace CsvTools
         setting.JsonFormat = false;
         if (guessJson)
         {
-          display.SetProcess("Checking Json fromat", -1, true);
+          display.SetProcess("Checking Json format", -1, true);
           if (await IsJsonReadableAsync(improvedStream))
             setting.JsonFormat = true;
         }
@@ -380,7 +384,8 @@ namespace CsvTools
           if (setting.SkipRows > 0)
             display.SetProcess("Start Row: " + setting.SkipRows.ToString(CultureInfo.InvariantCulture), -1, true);
         }
-        if (guessQualifier || guessQualifier)
+
+        if (guessQualifier || guessDelimiter || guessHasHeader)
         {
           improvedStream.ResetToStart(null);
           using (var textReader = new ImprovedTextReader(improvedStream, setting.CodePageId, setting.SkipRows))
@@ -405,16 +410,19 @@ namespace CsvTools
               setting.FileFormat.FieldQualifier = qualifier == '\0' ? string.Empty : char.ToString(qualifier);
               display.SetProcess("Qualifier: " + setting.FileFormat.FieldQualifier, -1, true);
             }
+
+            if (guessHasHeader)
+            {
+              if (display.CancellationToken.IsCancellationRequested)
+                return;
+              display.SetProcess("Checking for Header", -1, true);
+              textReader.ToBeginning();
+              setting.HasFieldHeader = await GuessHasHeaderAsync(textReader, setting.FileFormat.CommentLine,
+                setting.FileFormat.FieldDelimiterChar, display.CancellationToken);
+              display.SetProcess("Column Header: " + setting.HasFieldHeader, -1, true);
+            }
           }
         }
-      }
-      if (guessHasHeader)
-      {
-        if (display.CancellationToken.IsCancellationRequested)
-          return;
-
-        setting.HasFieldHeader = GuessHasHeader(setting, display.CancellationToken);
-        display.SetProcess("Column Header: " + setting.HasFieldHeader, -1, true);
       }
     }
 
@@ -426,14 +434,13 @@ namespace CsvTools
 
       var quoted = false;
       var firstChar = true;
-      int readChar = -1;
-      int lastChar;
+      var readChar = -1;
       var contends = new StringBuilder();
       var textReaderPosition = new ImprovedTextReaderPositionStore(textReader);
 
       while (dc.LastRow < dc.NumRows && !textReaderPosition.AllRead && !cancellationToken.IsCancellationRequested)
       {
-        lastChar = readChar;
+        var lastChar = readChar;
         readChar = await textReader.ReadAsync();
         contends.Append(readChar);
         if (lastChar == escapeCharacter)
@@ -581,7 +588,6 @@ namespace CsvTools
                 case -2:
                   cutVariance += 4;
                   break;
-
                 case 1:
                 case -1:
                   cutVariance++;

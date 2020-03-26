@@ -12,36 +12,87 @@
  *
  */
 
+using System;
+using System.IO;
+using System.IO.Compression;
+using File = Pri.LongPath.File;
+
 namespace CsvTools
 {
-  using System;
-  using System.IO;
-  using System.IO.Compression;
-  using File = Pri.LongPath.File;
-
   /// <summary>
   ///   A wrapper around file streams to handle pre and post processing, needed for sFTP, Encryption
   ///   and Compression
   /// </summary>
   public sealed class ImprovedStream : IImprovedStream
   {
-    public ImprovedStream(string path)
+    private readonly bool m_AssumeGZip;
+    private readonly string m_BasePath;
+    private readonly bool m_IsReading;
+
+    private bool m_DisposedValue; // To detect redundant calls
+
+    private ImprovedStream(string path, bool isReading)
     {
+      m_IsReading = isReading;
       m_BasePath = path.LongPathPrefix();
       m_AssumeGZip = path.AssumeGZip();
     }
 
-    private readonly bool m_AssumeGZip;
-
-    private readonly string m_BasePath;
-
-    private bool m_DisposedValue; // To detect redundant calls
+    private FileStream BaseStream { get; set; }
 
     public double Percentage => (double)BaseStream.Position / BaseStream.Length;
 
     public Stream Stream { get; private set; }
 
-    private FileStream BaseStream { get; set; }
+    /// <summary>
+    ///   Closes the stream in case of a file opened for writing it would be uploaded to the sFTP
+    /// </summary>
+    public void Close()
+    {
+      Stream?.Close();
+      BaseStream?.Close();
+    }
+
+    public void Dispose() => Dispose(true);
+
+    public void ResetToStart(Action<Stream> afterInit)
+    {
+      if (!m_IsReading)
+        throw new FileException("The stream need to be opened for reading");
+      try
+      {
+        // in case the stream is at the beginning do nothing
+        if (Stream != null && Stream.CanSeek)
+        {
+          if (Stream.Position != 0)
+            Stream.Position = 0;
+        }
+        else
+        {
+          if (Stream != null)
+          {
+            Stream.Close();
+
+            // need to reopen the base stream
+            BaseStream = File.OpenRead(m_BasePath);
+          }
+
+          if (m_AssumeGZip)
+          {
+            Logger.Debug("Decompressing GZip Stream {filename}", m_BasePath);
+            Stream = new GZipStream(BaseStream, CompressionMode.Decompress);
+          }
+          else
+          {
+            Stream = BaseStream;
+          }
+        }
+      }
+      finally
+      {
+        afterInit?.Invoke(Stream);
+      }
+    }
 
     /// <summary>
     ///   Opens a file for reading
@@ -92,7 +143,7 @@ namespace CsvTools
         throw new ArgumentException("Path must be provided", nameof(fileName));
       FileSystemUtils.FileDelete(fileName);
 
-      var retVal = new ImprovedStream(fileName);
+      var retVal = new ImprovedStream(fileName, false);
       if (retVal.m_AssumeGZip)
       {
         retVal.BaseStream = File.Create(retVal.m_BasePath);
@@ -106,64 +157,14 @@ namespace CsvTools
       return retVal;
     }
 
-    /// <summary>
-    ///   Closes the stream in case of a file opened for writing it would be uploaded to the sFTP
-    /// </summary>
-    public void Close()
-    {
-      Stream?.Close();
-      BaseStream?.Close();
-    }
-
-    public void Dispose() => Dispose(true);
-
-    public void ResetToStart(Action<Stream> afterInit)
-    {
-      try
-      {
-        // in case the stream is at the beginning do nothing
-        if (Stream != null && Stream.CanSeek)
-        {
-          if (Stream.Position!=0)
-            Stream.Position = 0;
-        }
-        else
-        {
-          if (Stream != null)
-          {
-            Stream.Close();
-
-            // need to reopen the base stream
-            BaseStream = File.OpenRead(m_BasePath);
-          }
-
-          if (m_AssumeGZip)
-          {
-            Logger.Debug("Decompressing GZip Stream {filename}", m_BasePath);
-            Stream = new GZipStream(BaseStream, CompressionMode.Decompress);
-          }
-          else
-          {
-            Stream = BaseStream;
-          }
-        }
-      }
-      finally
-      {
-        afterInit?.Invoke(Stream);
-      }
-    }
-
     private void Dispose(bool disposing)
     {
       if (m_DisposedValue) return;
-      if (disposing)
-      {
-        m_DisposedValue = true;
-        Close();
-        Stream?.Dispose();
-        BaseStream?.Dispose();
-      }
+      if (!disposing) return;
+      m_DisposedValue = true;
+      Close();
+      Stream?.Dispose();
+      BaseStream?.Dispose();
     }
 
     /// <summary>
@@ -173,7 +174,7 @@ namespace CsvTools
     /// <returns>An improved stream where the base stream is set</returns>
     private static ImprovedStream OpenBaseStream(string path)
     {
-      var retVal = new ImprovedStream(path);
+      var retVal = new ImprovedStream(path, true);
       try
       {
         retVal.BaseStream = File.OpenRead(retVal.m_BasePath);

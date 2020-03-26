@@ -146,7 +146,7 @@
       this.Shown += new System.EventHandler(this.Display_ShownAsync);
       this.DragDrop += new System.Windows.Forms.DragEventHandler(this.DataGridView_DragDropAsync);
       this.DragEnter += new System.Windows.Forms.DragEventHandler(this.DataGridView_DragEnter);
-      this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.FormMain_KeyUp);
+      this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.FormMain_KeyUpAsync);
       ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher)).EndInit();
       this.textPanel.ResumeLayout(false);
       this.ResumeLayout(false);
