@@ -15,10 +15,12 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
 using System.Diagnostics.Contracts;
 using System.Globalization;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 using FileInfo = Pri.LongPath.FileInfo;
 
 namespace CsvTools
@@ -28,11 +30,11 @@ namespace CsvTools
   /// </summary>
   public abstract class BaseFileWriter
   {
+    protected readonly List<ColumnInfo> Columns = new List<ColumnInfo>();
     private readonly IFileSettingPhysicalFile m_FileSetting;
     private readonly IProcessDisplay m_ProcessDisplay;
-    private DateTime m_LastNotification = DateTime.Now;
-    private long m_Records;
     private readonly string m_SourceTimeZone;
+    private DateTime m_LastNotification = DateTime.Now;
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="BaseFileWriter" /> class.
@@ -42,15 +44,16 @@ namespace CsvTools
     /// <param name="processDisplay">The process display.</param>
     /// <exception cref="ArgumentNullException">fileSetting</exception>
     /// <exception cref="ArgumentException">No SQL Reader set</exception>
-    protected BaseFileWriter(IFileSettingPhysicalFile fileSetting, string sourceTimeZone, IProcessDisplay processDisplay)
+    protected BaseFileWriter(IFileSettingPhysicalFile fileSetting, string sourceTimeZone,
+      IProcessDisplay processDisplay)
     {
       m_ProcessDisplay = processDisplay;
       m_SourceTimeZone = string.IsNullOrEmpty(sourceTimeZone) ? TimeZoneInfo.Local.Id : sourceTimeZone;
       m_FileSetting = fileSetting ?? throw new ArgumentNullException(nameof(fileSetting));
-      if (FunctionalDI.SQLDataReader == null)
-        throw new ArgumentException("No SQL Reader set");
       Logger.Debug("Created Writer for {filesetting}", fileSetting);
     }
+
+    protected long Records { get; private set; }
 
     /// <summary>
     ///   Gets or sets the error message.
@@ -68,36 +71,49 @@ namespace CsvTools
     /// </summary>
     public event EventHandler WriteFinished;
 
-    protected readonly List<ColumnInfo> Columns = new List<ColumnInfo>();
-
-
-    /// <summary>
-    ///   Writes the specified file.
-    /// </summary>
-    /// <returns>Number of records written</returns>
     public virtual long Write()
     {
       if (string.IsNullOrEmpty(m_FileSetting.SqlStatement))
         return 0;
-
-      using (var sqlReader = FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement, m_ProcessDisplay, m_FileSetting.Timeout))
+      if (FunctionalDI.SQLDataReader == null)
+        throw new ArgumentException("No SQL Reader set");
+      using (var sqlReader =
+        FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement, m_ProcessDisplay, m_FileSetting.Timeout))
       {
         return Write(sqlReader);
       }
     }
 
-    public long Write(IDataReader reader)
+    /// <summary>
+    ///   Writes the specified file.
+    /// </summary>
+    /// <returns>Number of records written</returns>
+    public virtual async Task<long> WriteAsync()
+    {
+      if (string.IsNullOrEmpty(m_FileSetting.SqlStatement))
+        return 0;
+      if (FunctionalDI.SQLDataReader == null)
+        throw new ArgumentException("No SQL Reader set");
+      using (var sqlReader =
+        FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement, m_ProcessDisplay, m_FileSetting.Timeout))
+      {
+        return await WriteAsync(sqlReader);
+      }
+    }
+
+    public async Task<long> WriteAsync(DbDataReader reader)
     {
       if (reader == null)
         return -1;
-      m_Records = 0;
+      HandleWriteStart();
       if (m_ProcessDisplay != null)
         m_ProcessDisplay.Maximum = -1;
       try
       {
         using (var improvedStream = FunctionalDI.OpenWrite(m_FileSetting))
         {
-          Write(reader, improvedStream.Stream, m_ProcessDisplay?.CancellationToken ?? CancellationToken.None);
+          await WriteReaderAsync(reader, reader.ReadAsync, improvedStream.Stream,
+            m_ProcessDisplay?.CancellationToken ?? CancellationToken.None);
         }
       }
       catch (Exception exc)
@@ -111,37 +127,108 @@ namespace CsvTools
         HandleWriteFinished();
       }
 
-      return m_Records;
+      return Records;
     }
 
-    /// <summary>
-    ///   Writes the specified file reading from the a data table
-    /// </summary>
-    /// <param name="source">The data that should be written in a <see cref="DataTable" /></param>
-    /// <returns>Number of records written</returns>
-    public virtual long WriteDataTable(DataTable source)
+    public long Write(DbDataReader reader)
     {
-      if (source is null)
-        throw new ArgumentNullException(nameof(source));
-      using (var reader = source.CreateDataReader())
+      if (reader == null)
+        return -1;
+      HandleWriteStart();
+      if (m_ProcessDisplay != null)
+        m_ProcessDisplay.Maximum = -1;
+      try
       {
-        return Write(reader);
+        using (var improvedStream = FunctionalDI.OpenWrite(m_FileSetting))
+        {
+          WriteReader(reader, improvedStream.Stream, m_ProcessDisplay?.CancellationToken ?? CancellationToken.None);
+        }
       }
+      catch (Exception exc)
+      {
+        ErrorMessage = $"Could not write file '{m_FileSetting.FileName}'.\r\n{exc.ExceptionMessages()}";
+        if (m_FileSetting.InOverview)
+          throw;
+      }
+      finally
+      {
+        HandleWriteFinished();
+      }
+
+      return Records;
+    }
+
+    public async Task<long> WriteAsync(IFileReader reader)
+    {
+      if (reader == null)
+        return -1;
+      HandleWriteStart();
+      if (m_ProcessDisplay != null)
+        m_ProcessDisplay.Maximum = -1;
+      try
+      {
+        using (var improvedStream = FunctionalDI.OpenWrite(m_FileSetting))
+        {
+          await WriteReaderAsync(reader, reader.ReadAsync, improvedStream.Stream,
+            m_ProcessDisplay?.CancellationToken ?? CancellationToken.None);
+        }
+      }
+      catch (Exception exc)
+      {
+        ErrorMessage = $"Could not write file '{m_FileSetting.FileName}'.\r\n{exc.ExceptionMessages()}";
+        if (m_FileSetting.InOverview)
+          throw;
+      }
+      finally
+      {
+        HandleWriteFinished();
+      }
+
+      return Records;
+    }
+
+    public long Write(IFileReader reader)
+    {
+      if (reader == null)
+        return -1;
+      HandleWriteStart();
+      if (m_ProcessDisplay != null)
+        m_ProcessDisplay.Maximum = -1;
+      try
+      {
+        using (var improvedStream = FunctionalDI.OpenWrite(m_FileSetting))
+        {
+          WriteReader(reader, improvedStream.Stream, m_ProcessDisplay?.CancellationToken ?? CancellationToken.None);
+        }
+      }
+      catch (Exception exc)
+      {
+        ErrorMessage = $"Could not write file '{m_FileSetting.FileName}'.\r\n{exc.ExceptionMessages()}";
+        if (m_FileSetting.InOverview)
+          throw;
+      }
+      finally
+      {
+        HandleWriteFinished();
+      }
+
+      return Records;
     }
 
     protected virtual string ReplacePlaceHolder(string input) => input.PlaceholderReplace("ID", m_FileSetting.ID)
-        .PlaceholderReplace("FileName", m_FileSetting.FileName)
-        .PlaceholderReplace("Records", string.Format(new CultureInfo("en-US"), "{0:n0}", m_Records))
-        .PlaceholderReplace("Delim", m_FileSetting.FileFormat.FieldDelimiterChar.ToString(CultureInfo.CurrentCulture))
-        .PlaceholderReplace("CDate", string.Format(new CultureInfo("en-US"), "{0:dd-MMM-yyyy}", DateTime.Now))
-        .PlaceholderReplace("CDateLong", string.Format(new CultureInfo("en-US"), "{0:MMMM dd\\, yyyy}", DateTime.Now));
+      .PlaceholderReplace("FileName", m_FileSetting.FileName)
+      .PlaceholderReplace("Records", string.Format(new CultureInfo("en-US"), "{0:n0}", Records))
+      .PlaceholderReplace("Delim", m_FileSetting.FileFormat.FieldDelimiterChar.ToString(CultureInfo.CurrentCulture))
+      .PlaceholderReplace("CDate", string.Format(new CultureInfo("en-US"), "{0:dd-MMM-yyyy}", DateTime.Now))
+      .PlaceholderReplace("CDateLong", string.Format(new CultureInfo("en-US"), "{0:MMMM dd\\, yyyy}", DateTime.Now));
 
     /// <summary>
     ///   Handles the error.
     /// </summary>
     /// <param name="columnName">The column name.</param>
     /// <param name="message">The message.</param>
-    protected virtual void HandleError(string columnName, string message) => Warning?.Invoke(this, new WarningEventArgs(m_Records, 0, message, 0, 0, columnName));
+    protected virtual void HandleError(string columnName, string message) =>
+      Warning?.Invoke(this, new WarningEventArgs(Records, 0, message, 0, 0, columnName));
 
     // protected void HandleProgress(string text, int progress) =>
     // m_ProcessDisplay?.SetProcess(text, progress);
@@ -167,11 +254,13 @@ namespace CsvTools
         if (string.IsNullOrEmpty(destinationTimeZoneID))
           HandleWarning(columnInfo.Column.Name, "Time zone is empty, value not converted");
         else
-          return FunctionalDI.AdjustTZ(dataObject, m_SourceTimeZone, destinationTimeZoneID, Columns.IndexOf(columnInfo), (columnNo, msg) => HandleWarning(Columns[columnNo].Column.Name, msg)).Value;
+          return FunctionalDI.AdjustTZ(dataObject, m_SourceTimeZone, destinationTimeZoneID, Columns.IndexOf(columnInfo),
+            (columnNo, msg) => HandleWarning(Columns[columnNo].Column.Name, msg)).Value;
       }
       else if (!string.IsNullOrEmpty(columnInfo.ConstantTimeZone))
       {
-        return FunctionalDI.AdjustTZ(dataObject, m_SourceTimeZone, columnInfo.ConstantTimeZone, Columns.IndexOf(columnInfo), (columnNo, msg) => HandleWarning(Columns[columnNo].Column.Name, msg)).Value;
+        return FunctionalDI.AdjustTZ(dataObject, m_SourceTimeZone, columnInfo.ConstantTimeZone,
+          Columns.IndexOf(columnInfo), (columnNo, msg) => HandleWarning(Columns[columnNo].Column.Name, msg)).Value;
       }
 
       return dataObject;
@@ -182,28 +271,29 @@ namespace CsvTools
     /// </summary>
     /// <param name="columnName">The column.</param>
     /// <param name="message">The message.</param>
-    protected virtual void HandleWarning(string columnName, string message) => Warning?.Invoke(this, new WarningEventArgs(m_Records, 0, message.AddWarningId(), 0, 0, columnName));
+    protected virtual void HandleWarning(string columnName, string message) => Warning?.Invoke(this,
+      new WarningEventArgs(Records, 0, message.AddWarningId(), 0, 0, columnName));
 
     private void HandleWriteFinished()
     {
       m_FileSetting.ProcessTimeUtc = DateTime.UtcNow;
       if (!(m_FileSetting is IFileSettingPhysicalFile physicalFile) ||
           !physicalFile.SetLatestSourceTimeForWrite) return;
-      _ = new FileInfo(physicalFile.FullPath) { LastWriteTimeUtc = m_FileSetting.LatestSourceTimeUtc };
+      _ = new FileInfo(physicalFile.FullPath) {LastWriteTimeUtc = m_FileSetting.LatestSourceTimeUtc};
 
-      Logger.Debug("Finished writing {filesetting} Records: {records}", m_FileSetting, m_Records);
+      Logger.Debug("Finished writing {filesetting} Records: {records}", m_FileSetting, Records);
       WriteFinished?.Invoke(this, null);
     }
 
-    protected void HandleWriteStart() => m_Records = 0;
+    protected void HandleWriteStart() => Records = 0;
 
     protected void NextRecord()
     {
-      m_Records++;
+      Records++;
       if (!((DateTime.Now - m_LastNotification).TotalSeconds > .15))
         return;
       m_LastNotification = DateTime.Now;
-      HandleProgress($"Record {m_Records:N0}");
+      HandleProgress($"Record {Records:N0}");
     }
 
     /// <summary>
@@ -238,7 +328,6 @@ namespace CsvTools
       }
       else
       {
-
         try
         {
           if (dataObject == null || dataObject is DBNull)
@@ -249,11 +338,13 @@ namespace CsvTools
               case DataType.Integer:
                 displayAs = dataObject is long l
                   ? l.ToString("0", CultureInfo.InvariantCulture)
-                  : ((int)dataObject).ToString("0", CultureInfo.InvariantCulture);
+                  : ((int) dataObject).ToString("0", CultureInfo.InvariantCulture);
                 break;
 
               case DataType.Boolean:
-                displayAs = (bool)dataObject ? columnInfo.Column.ValueFormat.True : columnInfo.Column.ValueFormat.False;
+                displayAs = (bool) dataObject
+                  ? columnInfo.Column.ValueFormat.True
+                  : columnInfo.Column.ValueFormat.False;
                 break;
 
               case DataType.Double:
@@ -266,17 +357,18 @@ namespace CsvTools
                 displayAs = StringConversion.DecimalToString(
                   dataObject is decimal @decimal
                     ? @decimal
-                    : Convert.ToDecimal(dataObject.ToString(), CultureInfo.InvariantCulture), columnInfo.Column.ValueFormat);
+                    : Convert.ToDecimal(dataObject.ToString(), CultureInfo.InvariantCulture),
+                  columnInfo.Column.ValueFormat);
                 break;
 
               case DataType.DateTime:
                 displayAs = StringConversion.DateTimeToString(
-                  HandleTimeZone((DateTime)dataObject, columnInfo, reader), columnInfo.Column.ValueFormat);
+                  HandleTimeZone((DateTime) dataObject, columnInfo, reader), columnInfo.Column.ValueFormat);
                 break;
 
               case DataType.Guid:
                 // 382c74c3-721d-4f34-80e5-57657b6cbc27
-                displayAs = ((Guid)dataObject).ToString();
+                displayAs = ((Guid) dataObject).ToString();
                 break;
 
               default:
@@ -327,6 +419,11 @@ namespace CsvTools
       return displayAs;
     }
 
-    protected abstract void Write(IDataReader reader, Stream output, CancellationToken cancellationToken);
+    protected abstract void WriteReader(IDataReader reader, Stream output,
+      CancellationToken cancellationToken);
+
+    protected abstract Task WriteReaderAsync(IDataReader reader, Func<Task<bool>> readAsync,
+      Stream output,
+      CancellationToken cancellationToken);
   }
 }

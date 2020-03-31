@@ -42,11 +42,11 @@ namespace CsvTools.Tests
     }
 
 
-    
+
     [TestMethod]
     public void QuotingControl()
     {
-      
+
       using (var ctrl = new QuotingControl())
       {
         ctrl.CsvFile = new CsvFile();
@@ -120,12 +120,12 @@ namespace CsvTools.Tests
     [TestMethod]
     public void MultiselectTreeView()
     {
-     
+
       using (var treeView = new MultiselectTreeView())
       {
-        
+
         Assert.AreEqual(0, treeView.SelectedTreeNode.Count);
-        
+
         var treeNode = new TreeNode("Test") { Tag = "test" };
         treeView.Nodes.Add(treeNode);
 
@@ -392,6 +392,7 @@ namespace CsvTools.Tests
       }
     }
 
+
     [TestMethod]
     public void FormDuplicatesDisplay()
     {
@@ -429,7 +430,7 @@ namespace CsvTools.Tests
       }
     }
 
-   
+
 
     [TestMethod]
     public void FormDetail()

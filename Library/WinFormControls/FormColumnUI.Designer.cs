@@ -957,7 +957,7 @@
       this.toolTip.SetToolTip(this.buttonDisplayValues, "Read the content of the source and display the read values.\r\nNote: Any column tha" +
         "t has possible alignment issues will be ignored\r\n");
       this.buttonDisplayValues.UseVisualStyleBackColor = true;
-      this.buttonDisplayValues.Click += new System.EventHandler(this.ButtonDisplayValues_Click);
+      this.buttonDisplayValues.Click += new System.EventHandler(this.ButtonDisplayValues_ClickAsync);
       // 
       // tableLayoutPanelForm
       // 
@@ -1031,7 +1031,7 @@
       this.ShowInTaskbar = false;
       this.Text = "Column Format";
       this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.ColumnFormatUI_FormClosing);
-      this.Load += new System.EventHandler(this.ColumnFormatUI_Load);
+      this.Load += new System.EventHandler(this.ColumnFormatUI_LoadAsync);
       tableLayoutPanel2.ResumeLayout(false);
       tableLayoutPanel2.PerformLayout();
       ((System.ComponentModel.ISupportInitialize)(this.bindingSourceValueFormat)).EndInit();

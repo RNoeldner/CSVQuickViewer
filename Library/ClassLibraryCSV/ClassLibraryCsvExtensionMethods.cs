@@ -39,15 +39,18 @@ namespace CsvTools
     /// </summary>
     /// <param name="fileName">Name of the file.</param>
     /// <returns></returns>
-    public static bool AssumeGZip(this string fileName) => fileName.EndsWith(".gz", StringComparison.OrdinalIgnoreCase) || fileName.EndsWith(".gzip", StringComparison.OrdinalIgnoreCase);
+    public static bool AssumeGZip(this string fileName) =>
+      fileName.EndsWith(".gz", StringComparison.OrdinalIgnoreCase) ||
+      fileName.EndsWith(".gzip", StringComparison.OrdinalIgnoreCase);
 
     /// <summary>
     ///   Check if the application should assume its PGP.
     /// </summary>
     /// <param name="fileName">Name of the file.</param>
     /// <returns></returns>
-    public static bool AssumePgp(this string fileName) => fileName.EndsWith(".pgp", StringComparison.OrdinalIgnoreCase) ||
-             fileName.EndsWith(".gpg", StringComparison.OrdinalIgnoreCase);
+    public static bool AssumePgp(this string fileName) =>
+      fileName.EndsWith(".pgp", StringComparison.OrdinalIgnoreCase) ||
+      fileName.EndsWith(".gpg", StringComparison.OrdinalIgnoreCase);
 
     /// <summary>
     ///   Check if the application should assume its ZIP
@@ -357,14 +360,91 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Async method to copy rows from a data Reader to a data table.
+    ///   Common implementation of Read2DataTableAsync used for DbDataReader and IDataReaderAsync
+    /// </summary>
+    /// <param name="getSchemaTable"></param>
+    /// <param name="readAsync"></param>
+    /// <param name="getValues"></param>
+    /// <param name="processDisplay"></param>
+    /// <param name="recordLimit"></param>
+    /// <returns></returns>
+    public static async Task<DataTable> Read2DataTableAsync(Func<DataTable> getSchemaTable, Func<Task<bool>> readAsync,
+      Func<object[], int> getValues,
+      IProcessDisplay processDisplay,
+      long recordLimit)
+    {
+      var dataTable = new DataTable();
+      long oldMax = -1;
+      var display = (processDisplay?.Maximum ?? 0) > 1
+        ? "Reading rows\nRecord {0:N0}/" + $"{processDisplay?.Maximum:N0}"
+        : "Reading rows\nRecords {0:N0}";
+
+      try
+      {
+        if (processDisplay != null && recordLimit > 0)
+        {
+          oldMax = processDisplay.Maximum;
+          processDisplay.Maximum = recordLimit;
+        }
+
+        // create columns
+        var schemaTable = getSchemaTable.Invoke();
+        if (schemaTable == null)
+          return null;
+        var columns = schemaTable.Rows.Count;
+
+        // We could have duplicate column names in this case we have need to adjust the conflicting name
+        var previousColumns = new List<string>();
+        foreach (DataRow dataRow in schemaTable.Rows)
+        {
+          var colName = StringUtils.MakeUniqueInCollection(previousColumns, (string) dataRow["ColumnName"]);
+          dataTable.Columns.Add(new DataColumn(colName, (Type) dataRow["DataType"]) {AllowDBNull = true});
+          previousColumns.Add(colName);
+        }
+
+        if (!(processDisplay?.CancellationToken.IsCancellationRequested ?? false))
+        {
+          dataTable.BeginLoadData();
+          if (recordLimit < 1)
+            recordLimit = long.MaxValue;
+          // load the Data into the dataTable
+          var action = processDisplay == null ? null : new IntervalAction(.3);
+          while (await readAsync() && dataTable.Rows.Count < recordLimit &&
+                 !(processDisplay?.CancellationToken.IsCancellationRequested ?? false))
+          {
+            var readerValues = new object[columns];
+            if (getValues(readerValues) > 0)
+              dataTable.Rows.Add(readerValues);
+            action?.Invoke(() =>
+              processDisplay.SetProcess(string.Format(display, dataTable.Rows.Count), dataTable.Rows.Count, false));
+          }
+        }
+      }
+      finally
+      {
+        if (processDisplay != null)
+        {
+          processDisplay.SetProcess(string.Format(display, dataTable.Rows.Count), dataTable.Rows.Count, false);
+          if (oldMax > 0)
+            processDisplay.Maximum = oldMax;
+        }
+
+        dataTable.EndLoadData();
+      }
+
+      return dataTable;
+    }
+
+    /// <summary>
+    ///   Synchronous method to copy rows from a IDataReader to a data table, I DataReader is implemented by IFileReader or
+    ///   DbDataReader
     /// </summary>
     /// <param name="dataReader"></param>
     /// <param name="processDisplay"></param>
     /// <param name="recordLimit"></param>
     /// <returns></returns>
     /// <remarks>There is a similar function that uses a file reader</remarks>
-    public static async Task<DataTable> Read2DataTableAsync(this IDataReaderAsync dataReader, IProcessDisplay processDisplay,
+    public static DataTable Read2DataTable(this IDataReader dataReader, IProcessDisplay processDisplay,
       long recordLimit)
     {
       var dataTable = new DataTable();
@@ -391,8 +471,8 @@ namespace CsvTools
         var previousColumns = new List<string>();
         foreach (DataRow dataRow in schemaTable.Rows)
         {
-          var colName = StringUtils.MakeUniqueInCollection(previousColumns, (string)dataRow["ColumnName"]);
-          dataTable.Columns.Add(new DataColumn(colName, (Type)dataRow["DataType"]) { AllowDBNull = true });
+          var colName = StringUtils.MakeUniqueInCollection(previousColumns, (string) dataRow["ColumnName"]);
+          dataTable.Columns.Add(new DataColumn(colName, (Type) dataRow["DataType"]) {AllowDBNull = true});
           previousColumns.Add(colName);
         }
 
@@ -403,7 +483,7 @@ namespace CsvTools
             recordLimit = long.MaxValue;
           // load the Data into the dataTable
           var action = processDisplay == null ? null : new IntervalAction(.3);
-          while (await dataReader.ReadAsync() && dataTable.Rows.Count < recordLimit &&
+          while (dataReader.Read() && dataTable.Rows.Count < recordLimit &&
                  !(processDisplay?.CancellationToken.IsCancellationRequested ?? false))
           {
             var readerValues = new object[columns];
@@ -422,79 +502,13 @@ namespace CsvTools
           if (oldMax > 0)
             processDisplay.Maximum = oldMax;
         }
-        dataTable.EndLoadData();
-      }
-      return dataTable;
-    }
-
-    /// <summary>
-    ///   Method to copy rows from a data Reader to a data table.
-    /// </summary>
-    /// <param name="dataReader"></param>
-    /// <param name="processDisplay"></param>
-    /// <param name="recordLimit"></param>
-    /// <returns></returns>
-    /// <remarks>There is a similar function that uses a file reader</remarks>
-    public static DataTable Read2DataTable(this IDataReader dataReader, IProcessDisplay processDisplay,
-     long recordLimit)
-    {
-      var dataTable = new DataTable();
-      long oldMax = -1;
-      var display = (processDisplay?.Maximum ?? 0) > 1
-        ? "Reading rows\nRecord {0:N0}/" + $"{processDisplay?.Maximum:N0}"
-        : "Reading rows\nRecords {0:N0}";
-
-      try
-      {
-        if (processDisplay != null && recordLimit > 0)
-        {
-          oldMax = processDisplay.Maximum;
-          processDisplay.Maximum = recordLimit;
-        }
-
-        // create columns
-        var schemaTable = dataReader.GetSchemaTable();
-        if (schemaTable == null)
-          return null;
-        var columns = schemaTable.Rows.Count;
-
-        // We could have duplicate column names in this case we have need to adjust the conflicting name
-        var previousColumns = new List<string>();
-        foreach (DataRow dataRow in schemaTable.Rows)
-        {
-          var colName = StringUtils.MakeUniqueInCollection(previousColumns, (string)dataRow["ColumnName"]);
-          dataTable.Columns.Add(new DataColumn(colName, (Type)dataRow["DataType"]) { AllowDBNull = true });
-          previousColumns.Add(colName);
-        }
-
-        dataTable.BeginLoadData();
-        if (recordLimit < 1)
-          recordLimit = long.MaxValue;
-        // load the Data into the dataTable
-        var action = processDisplay == null ? null : new IntervalAction(.3);
-        while (dataReader.Read() && dataTable.Rows.Count < recordLimit &&
-               !(processDisplay?.CancellationToken.IsCancellationRequested ?? false))
-        {
-          var readerValues = new object[columns];
-          if (dataReader.GetValues(readerValues) > 0)
-            dataTable.Rows.Add(readerValues);
-          action?.Invoke(() =>
-            processDisplay.SetProcess(string.Format(display, dataTable.Rows.Count), dataTable.Rows.Count, false));
-        }
-      }
-      finally
-      {
-        if (processDisplay != null)
-        {
-          processDisplay.SetProcess(string.Format(display, dataTable.Rows.Count), dataTable.Rows.Count, false);
-          if (oldMax > 0)
-            processDisplay.Maximum = oldMax;
-        }
 
         dataTable.EndLoadData();
       }
+
       return dataTable;
     }
+
 
     /// <summary>
     ///   Get a list of column names that are not artificial
@@ -578,7 +592,8 @@ namespace CsvTools
         return type;
 
       type = "#" + placeholder;
-      if (input.EndsWith(type, StringComparison.OrdinalIgnoreCase) || input.IndexOf(type + " ", StringComparison.OrdinalIgnoreCase) != -1)
+      if (input.EndsWith(type, StringComparison.OrdinalIgnoreCase) ||
+          input.IndexOf(type + " ", StringComparison.OrdinalIgnoreCase) != -1)
         return type;
       return null;
     }
@@ -592,7 +607,8 @@ namespace CsvTools
     /// <param name="lastExecution">The last execution.</param>
     /// <param name="lastExecutionStart">The last execution start.</param>
     /// <returns></returns>
-    public static string PlaceHolderTimes(this string text, string format, IFileSetting fileSetting, DateTime lastExecution, DateTime lastExecutionStart)
+    public static string PlaceHolderTimes(this string text, string format, IFileSetting fileSetting,
+      DateTime lastExecution, DateTime lastExecutionStart)
     {
       if (!string.IsNullOrEmpty(text))
       {
@@ -601,6 +617,7 @@ namespace CsvTools
           var value = fileSetting.ProcessTimeUtc.ToString(format);
           text = text.PlaceholderReplace("LastRunUTC", value);
         }
+
         if (lastExecutionStart != BaseSettings.ZeroTime)
         {
           var value = lastExecutionStart.ToString(format);
@@ -613,6 +630,7 @@ namespace CsvTools
           text = text.PlaceholderReplace("LastScriptEndUTC", value);
         }
       }
+
       return text;
     }
 
@@ -623,7 +641,7 @@ namespace CsvTools
     /// <param name="placeholder">The placeholder.</param>
     /// <param name="replacement">The replacement.</param>
     /// <returns>The new text based on input</returns>
-    ///[DebuggerStepThrough]
+    /// [DebuggerStepThrough]
     public static string PlaceholderReplace(this string input, string placeholder, string replacement)
     {
       if (!string.IsNullOrEmpty(replacement))
@@ -632,18 +650,23 @@ namespace CsvTools
         if (type != null)
         {
           if (input.IndexOf(" - " + type, StringComparison.OrdinalIgnoreCase) != -1)
+          {
             type = " - " + type;
+          }
           else if (input.IndexOf(" " + type, StringComparison.OrdinalIgnoreCase) != -1)
           {
             type = " " + type;
             replacement = " " + replacement;
           }
           else if (input.IndexOf(type + " ", StringComparison.OrdinalIgnoreCase) != -1)
+          {
             replacement += " ";
+          }
 
           return input.ReplaceCaseInsensitive(type, replacement);
         }
       }
+
       return input;
     }
 
@@ -905,6 +928,7 @@ namespace CsvTools
         start = exception.StackTrace.IndexOf(" ", start + 3, StringComparison.Ordinal);
         return $"at {exception.StackTrace.Substring(start)}";
       }
+
       return null;
     }
 
@@ -924,10 +948,10 @@ namespace CsvTools
 
     public static int ToInt(this long value)
     {
-      if (value > Int32.MaxValue)
-        return Int32.MaxValue;
-      if (value < Int32.MinValue)
-        return Int32.MinValue;
+      if (value > int.MaxValue)
+        return int.MaxValue;
+      if (value < int.MinValue)
+        return int.MinValue;
       return Convert.ToInt32(value);
     }
 
@@ -955,7 +979,7 @@ namespace CsvTools
         return;
       cancellationToken.ThrowIfCancellationRequested();
 
-      var stopwatch = (timeoutSeconds > 0.01) ? new Stopwatch() : null;
+      var stopwatch = timeoutSeconds > 0.01 ? new Stopwatch() : null;
       stopwatch?.Start();
 
       try
@@ -965,7 +989,6 @@ namespace CsvTools
         {
           cancellationToken.ThrowIfCancellationRequested();
           if (stopwatch != null)
-          {
             // Raise an exception when not activated
             //if (executeTask.Status == TaskStatus.WaitingForActivation && stopwatch.Elapsed.TotalSeconds > timeoutSeconds)
             //  throw new TimeoutException($"Waited longer than {stopwatch.Elapsed.TotalSeconds:N1} seconds for task activation");
@@ -973,10 +996,9 @@ namespace CsvTools
             // Raise an exception when waiting too long
             if (timeoutSeconds > 0 && stopwatch.Elapsed.TotalSeconds > timeoutSeconds)
               throw new TimeoutException($"Timeout after {stopwatch.Elapsed.TotalSeconds:N1} seconds");
-          }
 
           // Invoke action every 1/4 second
-          FunctionalDI.SignalBackground?.Invoke();
+          // FunctionalDI.SignalBackground?.Invoke();
 
           // wait will raise an AggregateException if the task throws an exception
           executeTask.Wait(250, cancellationToken);
@@ -1012,9 +1034,10 @@ namespace CsvTools
     ///   can be provided
     /// </param>
     /// <returns>Task Result if finished successfully, otherwise raises an error</returns>
-    public static T WaitToCompleteTask<T>(this Task<T> executeTask, double timeoutSeconds, CancellationToken cancellationToken = default)
+    public static T WaitToCompleteTask<T>(this Task<T> executeTask, double timeoutSeconds,
+      CancellationToken cancellationToken = default)
     {
-      WaitToCompleteTask((Task)executeTask, timeoutSeconds, cancellationToken);
+      WaitToCompleteTask((Task) executeTask, timeoutSeconds, cancellationToken);
       return executeTask.Result;
     }
 

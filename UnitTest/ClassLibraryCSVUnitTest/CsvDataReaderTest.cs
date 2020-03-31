@@ -31,15 +31,13 @@ namespace CsvTools.Tests
     public void Init()
     {
       m_ValidSetting.FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt");
-      var cf = m_ValidSetting.ColumnCollection.AddIfNew(new Column("ExamDate", DataType.DateTime));
-
-      Assert.IsNotNull(cf);
-      cf.ValueFormat.DateFormat = @"dd/MM/yyyy";
       m_ValidSetting.FileFormat.FieldDelimiter = ",";
       m_ValidSetting.FileFormat.CommentLine = "#";
       m_ValidSetting.ColumnCollection.AddIfNew(new Column("Score", DataType.Integer));
       m_ValidSetting.ColumnCollection.AddIfNew(new Column("Proficiency", DataType.Numeric));
       m_ValidSetting.ColumnCollection.AddIfNew(new Column("IsNativeLang", DataType.Boolean));
+      var cf = m_ValidSetting.ColumnCollection.AddIfNew(new Column("ExamDate", DataType.DateTime));
+      cf.ValueFormat.DateFormat = @"dd/MM/yyyy";
     }
 
     [TestMethod]
@@ -72,78 +70,78 @@ namespace CsvTools.Tests
         Assert.AreEqual(22, test.GetSchemaTable().Rows.Count());
 
         // This should work
-        test.Read();
+        test.ReadAsync().WaitToCompleteTask(2);
         Assert.AreEqual(0, warningList.CountRows);
 
         Assert.AreEqual("Eagle_sop020517", test.GetValue(0));
         Assert.AreEqual("de-DE", test.GetValue(2));
 
         // There are more columns
-        test.Read();
+        test.ReadAsync().WaitToCompleteTask(2);
         Assert.AreEqual(1, warningList.CountRows);
         Assert.AreEqual("Eagle_SRD-0137699", test.GetValue(0));
         Assert.AreEqual("de-DE", test.GetValue(2));
         Assert.AreEqual(3, test.StartLineNumber);
 
-        test.Read();
+        test.ReadAsync().WaitToCompleteTask(2);
         Assert.AreEqual("Eagle_600.364", test.GetValue(0));
         Assert.AreEqual(4, test.StartLineNumber);
 
-        test.Read();
+        test.ReadAsync().WaitToCompleteTask(2);
         Assert.AreEqual("Eagle_spt029698", test.GetValue(0));
         Assert.AreEqual(5, test.StartLineNumber);
 
-        test.Read();
+        test.ReadAsync().WaitToCompleteTask(2);
         Assert.AreEqual("Eagle_SRD-0137698", test.GetValue(0));
         Assert.AreEqual(2, warningList.CountRows);
         Assert.AreEqual(6, test.StartLineNumber);
 
-        test.Read();
+        test.ReadAsync().WaitToCompleteTask(2);
         Assert.AreEqual("Eagle_SRD-0138074", test.GetValue(0));
         Assert.AreEqual(7, test.StartLineNumber);
 
-        test.Read();
+        test.ReadAsync().WaitToCompleteTask(2);
         Assert.AreEqual("Eagle_SRD-0125563", test.GetValue(0));
         Assert.AreEqual(8, test.StartLineNumber);
 
-        test.Read();
+        test.ReadAsync().WaitToCompleteTask(2);
         Assert.AreEqual("doc_1004040002982", test.GetValue(0));
         Assert.AreEqual(3, warningList.CountRows);
         Assert.AreEqual(9, test.StartLineNumber);
 
-        test.Read();
+        test.ReadAsync().WaitToCompleteTask(2);
         Assert.AreEqual("doc_1004040002913", test.GetValue(0));
         Assert.AreEqual(10, test.StartLineNumber, "StartLineNumber");
         Assert.AreEqual(5, warningList.CountRows);
 
-        test.Read();
+        test.ReadAsync().WaitToCompleteTask(2);
         Assert.AreEqual("doc_1003001000427", test.GetValue(0));
         Assert.AreEqual(12, test.StartLineNumber);
 
-        test.Read();
+        test.ReadAsync().WaitToCompleteTask(2);
         Assert.AreEqual("doc_1008017000611", test.GetValue(0));
 
-        test.Read();
+        test.ReadAsync().WaitToCompleteTask(2);
         Assert.AreEqual("doc_1004040000268", test.GetValue(0));
 
-        test.Read();
+        test.ReadAsync().WaitToCompleteTask(2);
         Assert.AreEqual("doc_1008011000554", test.GetValue(0));
-        test.Read();
+        test.ReadAsync().WaitToCompleteTask(2);
         Assert.AreEqual("doc_1003001000936", test.GetValue(0));
 
-        test.Read();
+        test.ReadAsync().WaitToCompleteTask(2);
         Assert.AreEqual("doc_1200000124471", test.GetValue(0));
 
-        test.Read();
+        test.ReadAsync().WaitToCompleteTask(2);
         Assert.AreEqual("doc_1200000134529", test.GetValue(0));
 
-        test.Read();
+        test.ReadAsync().WaitToCompleteTask(2);
         Assert.AreEqual("doc_1004040003504", test.GetValue(0));
 
-        test.Read();
+        test.ReadAsync().WaitToCompleteTask(2);
         Assert.AreEqual("doc_1200000016068", test.GetValue(0));
 
-        test.Read();
+        test.ReadAsync().WaitToCompleteTask(2);
       }
     }
 
@@ -180,7 +178,7 @@ namespace CsvTools.Tests
         lineNumberColumn.AllowDBNull = true;
 
         _ = dataTable.NewRow();
-        test.Read();
+        test.ReadAsync().WaitToCompleteTask(2);
         _ = new Dictionary<int, string>
         {
           {-1, "Test1"},
@@ -258,7 +256,7 @@ namespace CsvTools.Tests
         { finished = true; };
         test.Open();
 
-        while (test.Read())
+        while (test.ReadAsync().WaitToCompleteTask(2))
         {
         }
       }
@@ -276,7 +274,7 @@ namespace CsvTools.Tests
         test.ReadFinished += delegate
         { finished = true; };
         test.Open();
-        while (test.Read())
+        while (test.ReadAsync().WaitToCompleteTask(2))
         {
         }
       }
@@ -381,7 +379,7 @@ namespace CsvTools.Tests
       {
         test.Open();
         var row = 0;
-        while (test.Read())
+        while (test.ReadAsync().WaitToCompleteTask(2))
           row++;
         Assert.AreEqual(row, test.RecordNumber);
         Assert.AreEqual(2, row);
@@ -417,7 +415,7 @@ namespace CsvTools.Tests
       {
         test.Open();
         var row = 0;
-        while (test.Read())
+        while (test.ReadAsync().WaitToCompleteTask(2))
           row++;
         Assert.AreEqual(row, test.RecordNumber, "Compare with RecordNumber");
         Assert.AreEqual(7, row, "Read");
@@ -482,11 +480,11 @@ namespace CsvTools.Tests
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
-        Assert.IsTrue(test.Read());
+        Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
         Assert.AreEqual("1", test["ID"]);
         Assert.AreEqual("German", test[1]);
         Assert.AreEqual(new DateTime(2010, 01, 20), test["ExamDate"]);
-        Assert.IsTrue(test.Read());
+        Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
         Assert.AreEqual(DBNull.Value, test["Proficiency"]);
       }
     }
@@ -498,8 +496,8 @@ namespace CsvTools.Tests
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
-        Assert.IsTrue(test.Read());
-        Assert.IsTrue(test.Read());
+        Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
+        Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
         Assert.AreEqual(DBNull.Value, test.GetValue(4));
       }
     }
@@ -511,8 +509,8 @@ namespace CsvTools.Tests
       using (CsvFileReader test = new CsvFileReader())
       {
         test.Open(false);
-        Assert.IsTrue(test.Read());
-        Assert.IsTrue(test.Read());
+        Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
+        Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
         Assert.AreEqual(DBNull.Value, test.GetValueADO(4));
       }
     }
@@ -534,7 +532,7 @@ namespace CsvTools.Tests
       using (CsvFileReader test = new CsvFileReader())
       {
         test.Open(false);
-        Assert.IsTrue(test.Read());
+        Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
         Assert.AreEqual("1", test.GetValueADO(0));
         Assert.AreEqual("German", test.GetValueADO(1));
         Assert.AreEqual(new DateTime(2010, 01, 20), test.GetValueADO(2));
@@ -550,9 +548,9 @@ namespace CsvTools.Tests
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
-        Assert.IsTrue(test.Read());
+        Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
         Assert.IsTrue(test.GetBoolean(5));
-        Assert.IsTrue(test.Read());
+        Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
         Assert.IsFalse(test.GetBoolean(5));
       }
     }
@@ -565,7 +563,7 @@ namespace CsvTools.Tests
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
-        Assert.IsTrue(test.Read());
+        Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
         test.GetBoolean(1);
       }
     }
@@ -577,7 +575,7 @@ namespace CsvTools.Tests
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
-        Assert.IsTrue(test.Read());
+        Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
         // 20/01/2010
         Assert.AreEqual(new DateTime(2010, 01, 20), test.GetDateTime(2));
       }
@@ -591,7 +589,7 @@ namespace CsvTools.Tests
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
-        Assert.IsTrue(test.Read());
+        Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
         test.GetDateTime(1);
       }
     }
@@ -603,7 +601,7 @@ namespace CsvTools.Tests
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
-        Assert.IsTrue(test.Read());
+        Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
         Assert.AreEqual(276, test.GetInt32(3));
       }
     }
@@ -616,7 +614,7 @@ namespace CsvTools.Tests
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
-        Assert.IsTrue(test.Read());
+        Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
         test.GetInt32(1);
       }
     }
@@ -628,7 +626,7 @@ namespace CsvTools.Tests
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
-        Assert.IsTrue(test.Read());
+        Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
         Assert.AreEqual(0.94m, test.GetDecimal(4));
       }
     }
@@ -641,7 +639,7 @@ namespace CsvTools.Tests
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
-        Assert.IsTrue(test.Read());
+        Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
         test.GetDecimal(1);
       }
     }
@@ -654,8 +652,8 @@ namespace CsvTools.Tests
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
-        Assert.IsTrue(test.Read());
-        Assert.IsTrue(test.Read());
+        Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
+        Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
         test.GetInt32(4);
       }
     }
@@ -691,7 +689,7 @@ namespace CsvTools.Tests
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
-        Assert.IsTrue(test.Read());
+        Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
         Assert.AreEqual(Convert.ToSingle(0.94), test.GetFloat(4));
       }
     }
@@ -704,7 +702,7 @@ namespace CsvTools.Tests
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
-        Assert.IsTrue(test.Read());
+        Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
         test.GetFloat(1);
       }
     }
@@ -717,7 +715,7 @@ namespace CsvTools.Tests
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
-        Assert.IsTrue(test.Read());
+        Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
         test.GetGuid(1);
       }
     }
@@ -730,9 +728,9 @@ namespace CsvTools.Tests
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
-        Assert.IsTrue(test.Read());
-        Assert.IsTrue(test.Read());
-        Assert.IsTrue(test.Read());
+        Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
+        Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
+        Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
         test.GetDateTime(2);
       }
     }
@@ -745,7 +743,7 @@ namespace CsvTools.Tests
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
-        Assert.IsTrue(test.Read());
+        Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
         test.GetDateTime(1);
       }
     }
@@ -758,8 +756,8 @@ namespace CsvTools.Tests
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
-        Assert.IsTrue(test.Read());
-        Assert.IsTrue(test.Read());
+        Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
+        Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
         test.GetDecimal(4);
       }
     }
@@ -771,7 +769,7 @@ namespace CsvTools.Tests
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
-        Assert.IsTrue(test.Read());
+        Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
         Assert.AreEqual(1, test.GetByte(0));
       }
     }
@@ -784,7 +782,7 @@ namespace CsvTools.Tests
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
-        Assert.IsTrue(test.Read());
+        Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
         Assert.AreEqual(1, test.GetByte(1));
       }
     }
@@ -796,7 +794,7 @@ namespace CsvTools.Tests
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
-        Assert.IsTrue(test.Read());
+        Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
         Assert.AreEqual(1, test.GetDouble(0));
       }
     }
@@ -809,7 +807,7 @@ namespace CsvTools.Tests
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
-        Assert.IsTrue(test.Read());
+        Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
         Assert.AreEqual(1, test.GetDouble(1));
       }
     }
@@ -821,7 +819,7 @@ namespace CsvTools.Tests
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
-        Assert.IsTrue(test.Read());
+        Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
         Assert.AreEqual(1, test.GetInt16(0));
       }
     }
@@ -1090,7 +1088,7 @@ namespace CsvTools.Tests
         using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
         {
           test.Open();
-          Assert.IsTrue(test.Read());
+          Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
           Assert.AreEqual(1, test.GetInt16(1));
         }
       }
@@ -1113,7 +1111,7 @@ namespace CsvTools.Tests
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
-        Assert.IsTrue(test.Read());
+        Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
         Assert.AreEqual(1, test.GetInt64(0));
       }
     }
@@ -1128,7 +1126,7 @@ namespace CsvTools.Tests
         using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
         {
           test.Open();
-          Assert.IsTrue(test.Read());
+          Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
           Assert.AreEqual(1, test.GetInt64(1));
         }
       }
@@ -1151,7 +1149,7 @@ namespace CsvTools.Tests
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
-        Assert.IsTrue(test.Read());
+        Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
         Assert.AreEqual('G', test.GetChar(1));
       }
     }
@@ -1164,7 +1162,7 @@ namespace CsvTools.Tests
       {
         var exception = false;
         test.Open();
-        test.Read();
+        test.ReadAsync().WaitToCompleteTask(2);
         try
         {
           test.GetString(666);
@@ -1193,7 +1191,7 @@ namespace CsvTools.Tests
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
-        Assert.IsTrue(test.Read());
+        Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
         Assert.AreEqual("German", test.GetString(1));
         Assert.AreEqual("German", test.GetValue(1));
       }
@@ -1216,9 +1214,9 @@ namespace CsvTools.Tests
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
-        Assert.IsTrue(test.Read());
+        Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
         Assert.IsFalse(test.IsDBNull(4));
-        Assert.IsTrue(test.Read());
+        Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
         Assert.IsTrue(test.IsDBNull(4));
         test.Close();
       }
@@ -1232,11 +1230,11 @@ namespace CsvTools.Tests
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
-        Assert.IsTrue(test.Read());
-        Assert.IsTrue(test.Read());
-        Assert.IsTrue(test.Read());
-        Assert.IsTrue(test.Read());
-        Assert.IsTrue(test.Read());
+        Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
+        Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
+        Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
+        Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
+        Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
 
         Assert.AreEqual(DBNull.Value, test["LangCodeID"]);
       }
@@ -1250,11 +1248,11 @@ namespace CsvTools.Tests
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
-        Assert.IsTrue(test.Read());
-        Assert.IsTrue(test.Read());
-        Assert.IsTrue(test.Read());
-        Assert.IsTrue(test.Read());
-        Assert.IsTrue(test.Read());
+        Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
+        Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
+        Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
+        Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
+        Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
 
         Assert.AreEqual("NULL", test["LangCodeID"]);
       }
@@ -1267,7 +1265,7 @@ namespace CsvTools.Tests
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
-        Assert.IsTrue(test.Read());
+        Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
         var values = new object[test.FieldCount];
         Assert.AreEqual(6, test.GetValues(values));
       }
@@ -1280,7 +1278,7 @@ namespace CsvTools.Tests
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
-        Assert.IsTrue(test.Read());
+        Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
         char[] buffer = { '0', '0', '0', '0' };
         test.GetChars(1, 0, buffer, 0, 4);
         Assert.AreEqual('G', buffer[0], "G");
@@ -1311,14 +1309,14 @@ namespace CsvTools.Tests
       {
         test.Open();
         Assert.IsTrue(test.Read());
+        Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
+        Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
         Assert.IsTrue(test.Read());
-        Assert.IsTrue(test.Read());
-        Assert.IsTrue(test.Read());
-        Assert.IsTrue(test.Read());
-        Assert.IsTrue(test.Read());
-        Assert.IsTrue(test.Read());
-        Assert.IsFalse(test.Read());
-        Assert.IsFalse(test.Read());
+        Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
+        Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
+        Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
+        Assert.IsFalse(test.ReadAsync().WaitToCompleteTask(2));
+        Assert.IsFalse(test.ReadAsync().WaitToCompleteTask(2));
       }
     }
 
@@ -1330,9 +1328,9 @@ namespace CsvTools.Tests
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
-        Assert.IsTrue(test.Read());
+        Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
         test.Close();
-        Assert.IsFalse(test.Read());
+        Assert.IsFalse(test.ReadAsync().WaitToCompleteTask(2));
       }
     }
 
@@ -1365,7 +1363,7 @@ namespace CsvTools.Tests
       using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.Open();
-        test.Read();
+        test.ReadAsync().WaitToCompleteTask(2);
         Assert.AreEqual(1, test.GetColumn(0).Size, "ID: 1");
         Assert.AreEqual(6, test.GetColumn(1).Size, "LangCodeID: German");
         Assert.AreEqual(10, test.GetColumn(2).Size, "ExamDate");

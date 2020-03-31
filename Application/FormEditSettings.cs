@@ -146,7 +146,7 @@ namespace CsvTools
           {
             using (var processDisplay = m_ViewSettings.GetProcessDisplay(this, true, CancellationToken.None))
             {
-              m_ViewSettings.FillGuessColumnFormatReader(
+              await m_ViewSettings.FillGuessColumnFormatReaderAsync(
                 false,
                 false,
                 m_ViewSettings.FillGuessSettings,

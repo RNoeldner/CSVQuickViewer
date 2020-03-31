@@ -3,6 +3,8 @@ using System.Data;
 using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.Globalization;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace CsvTools
 {
@@ -18,6 +20,13 @@ namespace CsvTools
     protected BaseFileReaderTyped(IFileSetting fileSetting, string timeZone, IProcessDisplay processDisplay) : base(fileSetting, timeZone, processDisplay)
     {
     }
+
+    /// <summary>
+    ///   Advances the DataReader to the next non empty record
+    /// </summary>
+    /// <returns>true if there are more rows; otherwise, false.</returns>
+    public virtual async Task<bool> ReadAsync() => Read();
+
 
     /// <summary>
     ///   Advances the DataReader to the next non empty record

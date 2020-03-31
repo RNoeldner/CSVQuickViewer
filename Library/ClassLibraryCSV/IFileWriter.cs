@@ -13,8 +13,9 @@
  */
 
 using System;
-using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
+using System.Threading.Tasks;
 
 namespace CsvTools
 {
@@ -33,7 +34,6 @@ namespace CsvTools
     /// </summary>
     string ErrorMessage { get; }
 
-
     /// <summary>
     ///   Writes the specified file.
     /// </summary>
@@ -41,16 +41,26 @@ namespace CsvTools
     long Write();
 
     /// <summary>
-    ///   Writes the specified file getting data from the fileReader
+    ///   Writes the specified file reading from the a data table
+    /// </summary>
+    /// <param name="source">The data that should be written in a <see cref="DataTable" /></param>
+    /// <returns>Number of records written</returns>
+    long Write(DbDataReader source);
+    long Write(IFileReader source);
+
+    /// <summary>
+    ///   Writes the specified file.
     /// </summary>
     /// <returns>Number of records written</returns>
-    long Write(IDataReader reader);
+    Task<long> WriteAsync();
+
 
     /// <summary>
     ///   Writes the specified file reading from the a data table
     /// </summary>
     /// <param name="source">The data that should be written in a <see cref="DataTable" /></param>
     /// <returns>Number of records written</returns>
-    long WriteDataTable(DataTable source);
+    Task<long> WriteAsync(DbDataReader source);
+    Task<long> WriteAsync(IFileReader source);
   }
 }

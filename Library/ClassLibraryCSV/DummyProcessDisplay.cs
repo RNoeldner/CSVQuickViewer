@@ -13,10 +13,12 @@
  */
 
 using System;
+using System.Diagnostics;
 using System.Threading;
 
 namespace CsvTools
 {
+  [DebuggerStepThrough]
   public class DummyProcessDisplay : IProcessDisplay
   {
     public DummyProcessDisplay() : this(CancellationToken.None)
