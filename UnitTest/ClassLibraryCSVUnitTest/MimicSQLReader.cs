@@ -15,6 +15,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
 using System.Linq;
 
 namespace CsvTools.Tests
@@ -31,7 +32,28 @@ namespace CsvTools.Tests
       }
 
       if (!m_ReadSetting.Any(x => x.Key.ID.Equals(setting.ID, StringComparison.OrdinalIgnoreCase)))
-        m_ReadSetting.Add(setting, null);
+      {
+        try
+        {
+          using (var prc = new DummyProcessDisplay())
+          {
+            using (var reader = FunctionalDI.GetFileReader(setting, "UTC", prc))
+            {
+              reader.Open();
+              m_ReadSetting.Add(setting, reader.Read2DataTable(prc, 0));
+            }
+          }
+        }
+        catch (Exception e)
+        {
+          Console.WriteLine(e);
+          m_ReadSetting.Add(setting, null);
+
+        }
+
+
+      }
+
     }
 
     public void AddSetting(string name, DataTable dt)
@@ -43,28 +65,17 @@ namespace CsvTools.Tests
       }
 
       if (!m_ReadSetting.Any(x => x.Key.ID.Equals(name, StringComparison.OrdinalIgnoreCase)))
-        m_ReadSetting.Add(new CsvFile(name) { ID = name }, dt);
+        m_ReadSetting.Add(new CsvFile(name) {ID = name}, dt);
     }
 
     public ICollection<IFileSetting> ReadSettings => m_ReadSetting.Keys;
 
-    public IDataReader ReadData(string settingName, IProcessDisplay processDisplay, int timeout)
+    public DbDataReader ReadData(string settingName, IProcessDisplay processDisplay, int timeout)
     {
-      var setting = m_ReadSetting.Any(x => x.Key.ID == settingName) ? m_ReadSetting.First(x => x.Key.ID == settingName) : m_ReadSetting.First();
-      if (setting.Value == null)
-      {
-        IFileReader reader = null;
-        if (setting.Key is CsvFile csvSetting)
-        {
-          reader = new CsvFileReader(csvSetting, TimeZoneInfo.Local.Id, processDisplay);
-          reader.Open();
-        }
-        return reader;
-      }
-      else
-      {
-        return setting.Value.CreateDataReader();
-      }
+      var setting = m_ReadSetting.Any(x => x.Key.ID == settingName)
+        ? m_ReadSetting.First(x => x.Key.ID == settingName)
+        : m_ReadSetting.First();
+      return setting.Value.CreateDataReader();
     }
   }
 }

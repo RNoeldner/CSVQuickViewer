@@ -58,7 +58,7 @@ namespace CsvTools
 
     private CsvFile m_FileSetting;
 
-    private HashSet<string> m_Headers;
+    private ICollection<string> m_Headers;
 
     private int m_WarningCount;
 
@@ -544,11 +544,11 @@ namespace CsvTools
                 m_ViewSettings.GuessStartRow,
                 m_ViewSettings.GuessHasHeader);
 
-              await Task.Run(() => m_FileSetting.FillGuessColumnFormatReader(
+              await m_FileSetting.FillGuessColumnFormatReaderAsync(
                 true,
                 false,
                 m_ViewSettings.FillGuessSettings,
-                processDisplay), processDisplay.CancellationToken);
+                processDisplay);
             }
           }
           catch (Exception ex)
@@ -615,18 +615,18 @@ namespace CsvTools
             pdt.AttachTaskbarProgress();
           processDisplay.SetProcess("Opening File…", -1, true);
 
-          using (var csvDataReader = new CsvFileReaderAsync(m_FileSetting, TimeZoneInfo.Local.Id, processDisplay))
+          using (var fileReader = FunctionalDI.GetFileReader(m_FileSetting, TimeZoneInfo.Local.Id, processDisplay))
           {
-            var warningList = new RowErrorCollection(csvDataReader);
-            await csvDataReader.OpenAsync();
-            warningList.HandleIgnoredColumns(csvDataReader);
+            var warningList = new RowErrorCollection(fileReader);
+            fileReader.Open();
+            warningList.HandleIgnoredColumns(fileReader);
             warningList.PassWarning += AddWarning;
 
             // Store the header in this might be used later on by FormColumnUI
             m_Headers = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            for (var colIndex = 0; colIndex < csvDataReader.FieldCount; colIndex++)
+            for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
             {
-              var cf = csvDataReader.GetColumn(colIndex);
+              var cf = fileReader.GetColumn(colIndex);
               if (!string.IsNullOrEmpty(cf.Name) && !cf.Ignore)
                 m_Headers.Add(cf.Name);
             }
@@ -645,11 +645,13 @@ namespace CsvTools
 
             if (!textPanel.Visible)
               ShowTextPanel(true);
-            csvDataReader.Warning -= warningList.Add;
-            csvDataReader.Warning += AddWarning;
+            fileReader.Warning -= warningList.Add;
+            fileReader.Warning += AddWarning;
 
             processDisplay.SetProcess("Reading data…", -1, true);
-            DataTable = await csvDataReader.Read2DataTableAsync(null, m_FileSetting.RecordLimit);
+
+            DataTable = await ClassLibraryCsvExtensionMethods.Read2DataTableAsync(fileReader.GetSchemaTable, fileReader.ReadAsync,
+              fileReader.GetValues, processDisplay, m_FileSetting.RecordLimit);
 
             foreach (var columnName in DataTable.GetRealColumns())
               if (m_FileSetting.ColumnCollection.Get(columnName) == null)
@@ -676,9 +678,7 @@ namespace CsvTools
           Logger.Information("Showing loaded data…");
           detailControl.DataTable = DataTable;
         }
-
-        FunctionalDI.SQLDataReader =
-          (settingName, processDisplay, timeout) => detailControl.DataTable.CreateDataReader();
+        FunctionalDI.SQLDataReader = (settingName, processDisplay, timeout) => detailControl.DataTable.CreateDataReader();
         detailControl.FileSetting = m_FileSetting;
         detailControl.FillGuessSettings = m_ViewSettings.FillGuessSettings;
 

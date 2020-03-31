@@ -20,6 +20,7 @@ using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace CsvTools
 {
@@ -64,102 +65,167 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Stores that data in the given stream.
-    /// </summary>
-    /// <param name="reader">The data reader.</param>
-    /// <param name="writer">The writer.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <exception cref="FileWriterException">No columns defined to be written.</exception>
-    private void DataReader2Stream(IDataReader reader, TextWriter writer,
-      CancellationToken cancellationToken)
-    {
-      Contract.Requires(reader != null);
-      Contract.Requires(writer != null);
-
-      Columns.Clear();
-      Columns.AddRange(ColumnInfo.GetSourceColumnInformation(m_CsvFile, reader));
-
-      if (Columns.Count == 0)
-        throw new FileWriterException("No columns defined to be written.");
-      var recordEnd = m_CsvFile.FileFormat.NewLine.Replace("CR", "\r").Replace("LF", "\n").Replace(" ", "")
-        .Replace("\t", "");
-
-      HandleWriteStart();
-
-      var numColumns = Columns.Count();
-      var
-        sb = new StringBuilder(1024); // Assume a capacity of 1024 characters to start , data is flushed every 512 chars
-      var hasFieldDelimiter = !m_CsvFile.FileFormat.IsFixedLength;
-      if (!string.IsNullOrEmpty(m_CsvFile.Header))
-      {
-        sb.Append(ReplacePlaceHolder(StringUtils.HandleCRLFCombinations(m_CsvFile.Header, recordEnd)));
-        if (!m_CsvFile.Header.EndsWith(recordEnd, StringComparison.Ordinal))
-          sb.Append(recordEnd);
-      }
-
-      if (m_CsvFile.HasFieldHeader)
-      {
-        sb.Append(GetHeaderRow(Columns));
-        sb.Append(recordEnd);
-      }
-
-      while (reader.Read() && !cancellationToken.IsCancellationRequested)
-      {
-        NextRecord();
-        if (sb.Length > 32768)
-        {
-          writer.Write(sb.ToString());
-          sb.Length = 0;
-        }
-
-        var emptyColumns = 0;
-
-        foreach (var columnInfo in Columns)
-        {
-          var col = reader.GetValue(columnInfo.ColumnOrdinalReader);
-          if (col == DBNull.Value)
-            emptyColumns++;
-
-          sb.Append(TextEncodeField(m_CsvFile.FileFormat, col, columnInfo, false, reader, QualifyText));
-
-          if (hasFieldDelimiter)
-            sb.Append(m_CsvFile.FileFormat.FieldDelimiterChar);
-        }
-
-        if (hasFieldDelimiter)
-          sb.Length--;
-        if (emptyColumns == numColumns)
-        {
-          // Remove the delimiters again
-          if (hasFieldDelimiter)
-            sb.Length -= numColumns;
-          break;
-        }
-
-        sb.Append(recordEnd);
-      }
-
-      if (!string.IsNullOrEmpty(m_CsvFile.Footer))
-        sb.Append(ReplacePlaceHolder(StringUtils.HandleCRLFCombinations(m_CsvFile.Footer, recordEnd)));
-      else if (sb.Length > 0)
-        sb.Length -= recordEnd.Length;
-
-      writer.Write(sb.ToString());
-    }
-
-    /// <summary>
     ///   Writes the specified file reading from the given reader
     /// </summary>
     /// <param name="reader">A Data Reader with the data</param>
+    /// /// <param name="readAsync">Asynchronous method to get the next record</param>
     /// <param name="output">The output.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    protected override void Write(IDataReader reader, Stream output, CancellationToken cancellationToken)
+    protected override async Task WriteReaderAsync(IDataReader reader, Func<Task<bool>> readAsync, Stream output, CancellationToken cancellationToken)
     {
       Contract.Assume(!string.IsNullOrEmpty(m_CsvFile.FullPath));
 
       using (var writer = new StreamWriter(output,
         EncodingHelper.GetEncoding(m_CsvFile.CodePageId, m_CsvFile.ByteOrderMark), 8192))
-        DataReader2Stream(reader, writer, cancellationToken);
+      {
+
+        Columns.Clear();
+        Columns.AddRange(ColumnInfo.GetSourceColumnInformation(m_CsvFile, reader));
+
+        if (Columns.Count == 0)
+          throw new FileWriterException("No columns defined to be written.");
+        var recordEnd = m_CsvFile.FileFormat.NewLine.Replace("CR", "\r").Replace("LF", "\n").Replace(" ", "")
+          .Replace("\t", "");
+
+        HandleWriteStart();
+
+        var numColumns = Columns.Count();
+        var sb = new StringBuilder();
+        var hasFieldDelimiter = !m_CsvFile.FileFormat.IsFixedLength;
+        if (!string.IsNullOrEmpty(m_CsvFile.Header))
+        {
+          sb.Append(ReplacePlaceHolder(StringUtils.HandleCRLFCombinations(m_CsvFile.Header, recordEnd)));
+          if (!m_CsvFile.Header.EndsWith(recordEnd, StringComparison.Ordinal))
+            sb.Append(recordEnd);
+        }
+
+        if (m_CsvFile.HasFieldHeader)
+        {
+          sb.Append(GetHeaderRow(Columns));
+          sb.Append(recordEnd);
+        }
+
+        while (await readAsync() && !cancellationToken.IsCancellationRequested)
+        {
+          NextRecord();
+          if (sb.Length > 32768)
+          {
+            await writer.WriteAsync(sb.ToString());
+            sb.Length = 0;
+          }
+
+          var emptyColumns = 0;
+
+          foreach (var columnInfo in Columns)
+          {
+            var col = reader.GetValue(columnInfo.ColumnOrdinalReader);
+            if (col == DBNull.Value)
+              emptyColumns++;
+
+            sb.Append(TextEncodeField(m_CsvFile.FileFormat, col, columnInfo, false, reader, QualifyText));
+
+            if (hasFieldDelimiter)
+              sb.Append(m_CsvFile.FileFormat.FieldDelimiterChar);
+          }
+
+          if (hasFieldDelimiter)
+            sb.Length--;
+          if (emptyColumns == numColumns)
+          {
+            // Remove the delimiters again
+            if (hasFieldDelimiter)
+              sb.Length -= numColumns;
+            break;
+          }
+
+          sb.Append(recordEnd);
+        }
+
+        if (!string.IsNullOrEmpty(m_CsvFile.Footer))
+          sb.Append(ReplacePlaceHolder(StringUtils.HandleCRLFCombinations(m_CsvFile.Footer, recordEnd)));
+        else if (sb.Length > 0)
+          sb.Length -= recordEnd.Length;
+
+        await writer.WriteAsync(sb.ToString());
+      }
+    }
+
+    protected override void WriteReader(IDataReader reader, Stream output, CancellationToken cancellationToken)
+    {
+      Contract.Assume(!string.IsNullOrEmpty(m_CsvFile.FullPath));
+
+      using (var writer = new StreamWriter(output,
+        EncodingHelper.GetEncoding(m_CsvFile.CodePageId, m_CsvFile.ByteOrderMark), 8192))
+      {
+        Columns.Clear();
+        Columns.AddRange(ColumnInfo.GetSourceColumnInformation(m_CsvFile, reader));
+
+        if (Columns.Count == 0)
+          throw new FileWriterException("No columns defined to be written.");
+        var recordEnd = m_CsvFile.FileFormat.NewLine.Replace("CR", "\r").Replace("LF", "\n").Replace(" ", "")
+          .Replace("\t", "");
+
+        HandleWriteStart();
+
+        var numColumns = Columns.Count();
+        var sb = new StringBuilder();
+        var hasFieldDelimiter = !m_CsvFile.FileFormat.IsFixedLength;
+        if (!string.IsNullOrEmpty(m_CsvFile.Header))
+        {
+          sb.Append(ReplacePlaceHolder(StringUtils.HandleCRLFCombinations(m_CsvFile.Header, recordEnd)));
+          if (!m_CsvFile.Header.EndsWith(recordEnd, StringComparison.Ordinal))
+            sb.Append(recordEnd);
+        }
+
+        if (m_CsvFile.HasFieldHeader)
+        {
+          sb.Append(GetHeaderRow(Columns));
+          sb.Append(recordEnd);
+        }
+
+        while (reader.Read() && !cancellationToken.IsCancellationRequested)
+        {
+          NextRecord();
+          if (sb.Length > 32768)
+          {
+            writer.Write(sb.ToString());
+            sb.Length = 0;
+          }
+
+          var emptyColumns = 0;
+
+          foreach (var columnInfo in Columns)
+          {
+            var col = reader.GetValue(columnInfo.ColumnOrdinalReader);
+            if (col == DBNull.Value)
+              emptyColumns++;
+
+            sb.Append(TextEncodeField(m_CsvFile.FileFormat, col, columnInfo, false, reader, QualifyText));
+
+            if (hasFieldDelimiter)
+              sb.Append(m_CsvFile.FileFormat.FieldDelimiterChar);
+          }
+
+          if (hasFieldDelimiter)
+            sb.Length--;
+          if (emptyColumns == numColumns)
+          {
+            // Remove the delimiters again
+            if (hasFieldDelimiter)
+              sb.Length -= numColumns;
+            break;
+          }
+
+          sb.Append(recordEnd);
+        }
+
+        if (!string.IsNullOrEmpty(m_CsvFile.Footer))
+          sb.Append(ReplacePlaceHolder(StringUtils.HandleCRLFCombinations(m_CsvFile.Footer, recordEnd)));
+        else if (sb.Length > 0)
+          sb.Length -= recordEnd.Length;
+
+        writer.Write(sb.ToString());
+      }
     }
 
     private string GetHeaderRow(IEnumerable<ColumnInfo> columnInfos)

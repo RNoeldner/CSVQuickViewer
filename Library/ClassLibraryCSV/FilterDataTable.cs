@@ -163,15 +163,15 @@ namespace CsvTools
     public void Cancel()
     {
       // stop old filtering
-      if (m_CurrentFilterCancellationTokenSource != null
-          && !m_CurrentFilterCancellationTokenSource.IsCancellationRequested)
-      {
-        m_CurrentFilterCancellationTokenSource.Cancel();
-        m_CurrentFilterCancellationTokenSource.Dispose();
-      }
-
+      if (m_CurrentFilterCancellationTokenSource?.IsCancellationRequested ?? true) return;
+      
+      m_CurrentFilterCancellationTokenSource.Cancel();
+      
       // make sure the filtering is canceled
       WaitCompeteFilter(0.2);
+
+      m_CurrentFilterCancellationTokenSource.Dispose();
+      m_CurrentFilterCancellationTokenSource = null;
     }
 
     /// <summary>
@@ -237,13 +237,16 @@ namespace CsvTools
     {
       if (m_Filtering)
         Cancel();
+
       m_Filtering = true;
       m_ColumnWithoutErrors = null;
       FilterTable = m_SourceTable.Clone();
 
       m_CurrentFilterCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
       // the task itself should not cancel as it would not run into finally
-      return Task.Run(() => Filter(limit, type), m_CurrentFilterCancellationTokenSource.Token).ContinueWith(task => m_Filtering = false, cancellationToken);
+      return Task
+        .Run(() => Filter(limit, type), m_CurrentFilterCancellationTokenSource.Token)
+        .ContinueWith(task => m_Filtering = false);
     }
 
 
@@ -255,10 +258,12 @@ namespace CsvTools
         {
           while (m_Filtering)
           {
+            FunctionalDI.SignalBackground?.Invoke();
           }
         }).WaitToCompleteTask(timeoutInSeconds);
       }
     }
+
     private void Dispose(bool disposing)
     {
       Cancel();

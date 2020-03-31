@@ -49,7 +49,7 @@ namespace CsvTools
     /// <param name="improvedStream">An Improved Stream</param>
     /// <param name="codePageId">The assumed code page id</param>
     /// <param name="skipLines">
-    ///   Number of lines that should be skipped at the begining of the file
+    ///   Number of lines that should be skipped at the beginning of the file
     /// </param>
     /// <remarks>
     ///   This routine uses a TextReader to allow character decoding, it will always read they teh
@@ -61,8 +61,8 @@ namespace CsvTools
       if (improvedStream == null)
         throw new ArgumentNullException(nameof(improvedStream));
 
-      if (improvedStream.Percentage > 0.00001)
-        throw new ArgumentException(nameof(improvedStream), @"The stream is not on the start position");
+      //if (improvedStream.Percentage > 0.00001)
+      //  throw new ArgumentException(nameof(improvedStream), @"The stream is not on the start position");
 
       m_SkipLines = skipLines;
       m_ImprovedStream = improvedStream;

@@ -31,14 +31,14 @@ namespace CsvTools.Tests
       using (var jfr = new JsonFileReader(setting, TimeZoneInfo.Local.Id, dpd))
       {
         jfr.Open();
-        jfr.Read();
+        _ = jfr.Read();
         Assert.AreEqual("level", jfr.GetColumn(1).Name);
         Assert.AreEqual("Error", jfr.GetValue(1));
 
-        jfr.Read();
+        _ = jfr.ReadAsync().Result;
         Assert.AreEqual("Reading EdgeAPI vw_rpt_transcript", jfr.GetValue(2));
 
-        jfr.Read();
+        _ = jfr.ReadAsync().Result;
         Assert.AreEqual("System.Data.DataException", jfr.GetValue(4));
       }
     }
@@ -55,7 +55,7 @@ namespace CsvTools.Tests
       using (var jfr = new JsonFileReader(setting, TimeZoneInfo.Local.Id, dpd))
       {
         jfr.Open();
-        jfr.Read();
+        _ = jfr.ReadAsync().Result;
 
         try
         {
@@ -167,7 +167,7 @@ namespace CsvTools.Tests
       {
         jfr.Open();
         Assert.AreEqual(110, jfr.FieldCount);
-        jfr.Read();
+        jfr.ReadAsync().WaitToCompleteTask(2);
         Assert.AreEqual("String", jfr.GetDataTypeName(0));
         Assert.AreEqual("43357099", jfr.GetValue(0));
         Assert.AreEqual("T454898", jfr.GetValue(1));
@@ -181,11 +181,11 @@ namespace CsvTools.Tests
         Assert.AreEqual(0, jfr.GetDouble(jfr.GetOrdinal("Approvals")));
         Assert.IsTrue(jfr.GetBoolean(2));
         Assert.AreEqual(1.000, jfr.GetValue(jfr.GetOrdinal("FTE")));
-        jfr.Read();
+        _ = jfr.ReadAsync().Result;
         Assert.AreEqual("43357196", jfr.GetValue(0));
-        jfr.Read();
+        _ = jfr.ReadAsync().Result;
         Assert.AreEqual("43357477", jfr.GetValue(0));
-        while (jfr.Read())
+        while (jfr.ReadAsync().Result)
         {
         }
         Assert.AreEqual(2782, jfr.RecordNumber);
@@ -205,9 +205,9 @@ namespace CsvTools.Tests
       {
         jfr.Open();
         Assert.AreEqual(20, jfr.FieldCount);
-        jfr.Read();
+        _ = jfr.ReadAsync().Result;
         Assert.AreEqual("5048fde7c4aa917cbd4d8e13", jfr.GetValue(0));
-        jfr.Read();
+        _ = jfr.Read();
         Assert.AreEqual("5048fde7c4aa917cbd4d22333", jfr.GetValue(0));
         Assert.AreEqual(2, jfr.RecordNumber);
       }
@@ -225,10 +225,10 @@ namespace CsvTools.Tests
       {
         jfr.Open();
         Assert.AreEqual(7, jfr.FieldCount);
-        jfr.Read();
-        jfr.Read();
+        jfr.ReadAsync().WaitToCompleteTask(2);
+        jfr.ReadAsync().WaitToCompleteTask(2);
         Assert.AreEqual("Loading defaults C:\\Users\\rnoldner\\AppData\\Roaming\\CSVFileValidator\\Setting.xml", jfr.GetValue(6));
-        while (jfr.Read())
+        while (jfr.ReadAsync().Result)
         {
         }
         Assert.AreEqual(29, jfr.RecordNumber);
@@ -248,11 +248,11 @@ namespace CsvTools.Tests
       {
         jfr.Open();
         Assert.AreEqual(2, jfr.FieldCount);
-        jfr.Read();
+        jfr.ReadAsync().WaitToCompleteTask(2);
         Assert.AreEqual(28L, jfr.GetValue(0));
-        jfr.Read();
+        jfr.ReadAsync().WaitToCompleteTask(2);
         Assert.AreEqual(56L, jfr.GetValue(0));
-        while (jfr.Read())
+        while (jfr.ReadAsync().WaitToCompleteTask(2))
         {
         }
         Assert.AreEqual(3, jfr.RecordNumber);

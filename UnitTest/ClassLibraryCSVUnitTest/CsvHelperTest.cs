@@ -298,7 +298,7 @@ namespace CsvTools.Tests
         FileName = UnitTestInitialize.GetTestPath("Jason1.json"),
       };
 
-      Assert.IsTrue(CsvHelper.GuessJsonFileAsync(setting).Result);
+      Assert.IsTrue(CsvHelper.GuessJsonFileAsync(setting, CancellationToken.None).Result);
     }
 
     [TestMethod]

@@ -12,15 +12,98 @@
  *
  */
 
+using System;
 using System.Data;
+using System.Threading.Tasks;
 
 namespace CsvTools
 {
   /// <summary>
   ///   Interface for a File Reader.
   /// </summary>
-  public interface IFileReader : IDataReader, IFileReaderBase
+  public interface IFileReader : IDataReader
   {
+    /// <summary>
+    ///   Gets the end line number
+    /// </summary>
+    /// <value>The line number in which the record ended</value>
+    long EndLineNumber { get; }
+
+    /// <summary>
+    ///   Determine if the data Reader is at the end of the file
+    /// </summary>
+    /// <returns>True if you can read; otherwise, false.</returns>
+    bool EndOfFile { get; }
+
+    /// <summary>
+    ///   Gets the record number.
+    /// </summary>
+    /// <value>The record number.</value>
+    long RecordNumber { get; }
+
+    /// <summary>
+    ///   Gets the start line number.
+    /// </summary>
+    /// <value>The line number in which the record started.</value>
+    long StartLineNumber { get; }
+
+    /// <summary>
+    ///   Gets the file setting.
+    /// </summary>
+    /// <value>The file setting.</value>
+    IFileSetting FileSetting { get; }
+
+    /// <summary>
+    ///   Gets the process display.
+    /// </summary>
+    /// <value>The process display.</value>
+    IProcessDisplay ProcessDisplay { get; }
+
+    [Obsolete("Use ReadAsync if possible")]
+    new bool Read();
+
+    /// <summary>
+    ///   Reads the next record of the current result set
+    /// </summary>
+    /// <returns>Awaitable bool, if true a record was read</returns>
+    Task<bool> ReadAsync();
+
+    /// <summary>
+    ///   Event handler called if a warning or error occurred
+    /// </summary>
+    event EventHandler<WarningEventArgs> Warning;
+
+    /// <summary>
+    ///   Occurs before the initial open. Can be used to prepare teh data like download it from a
+    ///   Remote location
+    /// </summary>
+    event EventHandler OnOpen;
+
+    /// <summary>
+    ///   Occurs when an open process failed, allowing the user to change the timeout or provide the
+    ///   needed file etc.
+    /// </summary>
+    event EventHandler<RetryEventArgs> OnAskRetry;
+
+    /// <summary>
+    ///   Gets the column information for a given column number
+    /// </summary>
+    /// <param name="column">The column.</param>
+    /// <returns>A <see cref="Column" /> with all information on the column</returns>
+    Column GetColumn(int column);
+
+    /// <summary>
+    ///   Checks if the column should be read
+    /// </summary>
+    /// <param name="column">The column number.</param>
+    /// <returns><c>true</c> if this column should not be read</returns>
+    bool IgnoreRead(int column);
+
+    /// <summary>
+    ///   Overrides the column format with values from settings
+    /// </summary>
+    void OverrideColumnFormatFromSetting();
+
     /// <summary>
     ///   Opens the text file and begins to read the meta data, like columns
     /// </summary>

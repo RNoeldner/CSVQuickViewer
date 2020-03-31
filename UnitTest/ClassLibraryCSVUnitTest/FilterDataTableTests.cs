@@ -82,6 +82,8 @@ namespace CsvTools.Tests
     {
       var dt = GetDataTable(2000);
       var test = new FilterDataTable(dt.Item1);
+      test.Cancel();
+      // No effect but no error either
       test.StartFilter(0, FilterType.ShowErrors, CancellationToken.None);
       Assert.IsTrue(test.Filtering);
       test.Cancel();

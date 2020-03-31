@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace CsvTools
 {
@@ -114,6 +115,20 @@ namespace CsvTools
       return false;
     }
 
+    public async override Task<bool> ReadAsync()
+    {
+      if (!CancellationToken.IsCancellationRequested)
+      {
+        var couldRead = await GetNextRecordAsync() != null;
+        InfoDisplay(couldRead);
+
+        if (couldRead && !IsClosed)
+          return true;
+      }
+
+      HandleReadFinished();
+      return false;
+    }
     public void ResetPositionToFirstDataRow() => ResetPositionToStartOrOpen();
 
     /// <summary>
@@ -277,6 +292,127 @@ namespace CsvTools
         return null;
       }
     }
+    private async Task<ICollection<KeyValuePair<string, object>>> GetNextRecordAsync()
+    {
+      try
+      {
+        if (m_AssumeLog)
+        {
+          SetTextReader();
+          StartLineNumber = m_TextReaderLine;
+        }
+
+        var headers = new Dictionary<string, bool>();
+        var keyValuePairs = new Dictionary<string, object>();
+        while (m_JsonTextReader.TokenType != JsonToken.StartObject
+               // && m_JsonTextReader.TokenType != JsonToken.PropertyName
+               && m_JsonTextReader.TokenType != JsonToken.StartArray)
+          if (!await m_JsonTextReader.ReadAsync())
+            return null;
+
+        // sore the parent Property Name in parentKey
+        var startKey = string.Empty;
+        var endKey = "<dummy>";
+        var key = string.Empty;
+
+        // sore the current Property Name in key
+        if (!m_AssumeLog)
+          StartLineNumber = m_JsonTextReader.LineNumber;
+        var inArray = false;
+        do
+        {
+          switch (m_JsonTextReader.TokenType)
+          {
+            // either the start of the row or a sub object that will be flattened
+            case JsonToken.StartObject:
+              if (startKey.Length == 0)
+                startKey = m_JsonTextReader.Path;
+              break;
+
+            case JsonToken.EndObject:
+              endKey = m_JsonTextReader.Path;
+              break;
+
+            // arrays will be read as multi line columns
+            case JsonToken.StartArray:
+              inArray = true;
+              break;
+
+            case JsonToken.PropertyName:
+              key = startKey.Length > 0 ? m_JsonTextReader.Path.Substring(startKey.Length + 1) : m_JsonTextReader.Path;
+              if (!headers.ContainsKey(key))
+              {
+                headers.Add(key, false);
+                keyValuePairs.Add(key, null);
+              }
+
+              break;
+
+            case JsonToken.Raw:
+            case JsonToken.Null:
+              headers[key] = true;
+              break;
+
+            case JsonToken.Date:
+            case JsonToken.Bytes:
+            case JsonToken.Integer:
+            case JsonToken.Float:
+            case JsonToken.String:
+            case JsonToken.Boolean:
+              // in case there is a property its a real column, otherwise its used for structuring only
+              headers[key] = true;
+
+              // in case we are in an array combine all values but separate them with linefeed
+              if (inArray && keyValuePairs[key] != null)
+                keyValuePairs[key] = keyValuePairs[key].ToString() + '\n' + m_JsonTextReader.Value;
+              else
+                keyValuePairs[key] = m_JsonTextReader.Value;
+              break;
+
+            case JsonToken.EndArray:
+              inArray = false;
+              break;
+          }
+
+          CancellationToken.ThrowIfCancellationRequested();
+        } while (!(m_JsonTextReader.TokenType == JsonToken.EndObject && startKey == endKey)
+                 && await m_JsonTextReader.ReadAsync());
+
+        EndLineNumber = !m_AssumeLog ? m_JsonTextReader.LineNumber : m_TextReaderLine;
+        RecordNumber++;
+
+        foreach (var kv in headers.Where(kv => !kv.Value))
+          keyValuePairs.Remove(kv.Key);
+
+        // store the information into our fixed structure, even if the tokens in Json change order
+        // they will aligned
+        if (Column == null || Column.Length == 0) return keyValuePairs;
+        var colNum = 0;
+        foreach (var col in Column)
+        {
+          if (keyValuePairs.TryGetValue(col.Name, out CurrentValues[colNum]))
+            if (CurrentValues[colNum] != null)
+              CurrentRowColumnText[colNum] = CurrentValues[colNum].ToString();
+          colNum++;
+        }
+
+        if (keyValuePairs.Count < FieldCount)
+          HandleWarning(-1,
+            $"Line {StartLineNumber} has fewer columns than expected ({keyValuePairs.Count}/{FieldCount}).");
+        else if (keyValuePairs.Count > FieldCount)
+          HandleWarning(-1,
+            $"Line {StartLineNumber} has more columns than expected ({keyValuePairs.Count}/{FieldCount}). The data in extra columns is not read.");
+
+        return keyValuePairs;
+      }
+      catch (Exception ex)
+      {
+        // A serious error will be logged and its assume the file is ended
+        HandleError(-1, ex.Message);
+        EndOfFile = true;
+        return null;
+      }
+    }
 
     /// <summary>
     ///   Gets the relative position.
@@ -300,10 +436,7 @@ namespace CsvTools
       m_JsonTextReader?.Close();
       m_TextReader?.Dispose();
       m_TextReader = null;
-      /*m_ImprovedStream?.Dispose();
-
-      m_ImprovedStream = ImprovedStream.OpenRead(m_StructuredFile);
-        */
+      
       if (m_ImprovedStream == null)
         m_ImprovedStream = FunctionalDI.OpenRead(m_StructuredFile);
 

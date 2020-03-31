@@ -13,6 +13,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="CsvFileReaderAsync.cs" />
+    <Compile Remove="DataTableReaderAsync.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="DateTimeFormats.txt" />
   </ItemGroup>
 

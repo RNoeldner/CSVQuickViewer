@@ -12,23 +12,23 @@
  *
  */
 
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Data.Common;
+using System.Diagnostics;
+using System.Diagnostics.Contracts;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using Microsoft.Win32;
+
 namespace CsvTools
 {
-  using Microsoft.Win32;
-  using System;
-  using System.Collections.Generic;
-  using System.ComponentModel;
-  using System.Data;
-  using System.Data.Common;
-  using System.Diagnostics;
-  using System.Diagnostics.Contracts;
-  using System.Globalization;
-  using System.IO;
-  using System.Linq;
-  using System.Text;
-  using System.Threading;
-  using System.Windows.Forms;
-
   /// <summary>
   ///   Windows Form UI editing a <see cref="Column" />
   /// </summary>
@@ -83,12 +83,12 @@ namespace CsvTools
       toolTip.SetToolTip(
         comboBoxTimeZone,
         !m_WriteSetting
-          ? $"Assuming the time read is based in the time zone stored in this column or a constant value and being converted to the local time zone of you system"
-          : $"Converting the time in the local time zone of you system to the time zone in this column or a constant value");
+          ? "Assuming the time read is based in the time zone stored in this column or a constant value and being converted to the local time zone of you system"
+          : "Converting the time in the local time zone of you system to the time zone in this column or a constant value");
 
       labelDisplayNullAs.Visible = writeSetting;
       textBoxDisplayNullAs.Visible = writeSetting;
-      checkBoxIgnore.Visible = (!writeSetting && showIgnore);
+      checkBoxIgnore.Visible = !writeSetting && showIgnore;
     }
 
     public bool ShowGuess
@@ -113,7 +113,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
-    public void ButtonGuessClick(object sender, EventArgs e)
+    public async void ButtonGuessClick(object sender, EventArgs e)
     {
       var columnName = comboBoxColumnName.Text;
       if (string.IsNullOrEmpty(columnName))
@@ -133,11 +133,13 @@ namespace CsvTools
           if (m_WriteSetting)
           {
             var hasRetried = false;
-          retry:
+            retry:
             using (var sqlReader =
               FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement, processDisplay, m_FileSetting.Timeout))
             {
-              var data = sqlReader.Read2DataTable(processDisplay, m_FileSetting.RecordLimit);
+              var data = await ClassLibraryCsvExtensionMethods.Read2DataTableAsync(sqlReader.GetSchemaTable,
+                sqlReader.ReadAsync,
+                sqlReader.GetValues, processDisplay, m_FileSetting.RecordLimit);
               var found = new Column();
               var column = data.Columns[columnName];
               if (column == null)
@@ -167,7 +169,7 @@ namespace CsvTools
           }
           else
           {
-            var samples = GetSampleValues(columnName, processDisplay);
+            var samples = await GetSampleValuesAsync(columnName, processDisplay);
             // shuffle samples, take some from the end and put it in the first 10 1 - 1 2 - Last 3 -
             // 2 4 - Last - 1
 
@@ -188,7 +190,7 @@ namespace CsvTools
               var detectDateTime = true;
               if (comboBoxDataType.SelectedValue != null)
               {
-                var selectedType = (DataType)comboBoxDataType.SelectedValue;
+                var selectedType = (DataType) comboBoxDataType.SelectedValue;
                 if (selectedType != DataType.String && selectedType != DataType.TextToHtml
                                                     && selectedType != DataType.TextToHtmlFull
                                                     && selectedType != DataType.TextPart)
@@ -202,7 +204,6 @@ namespace CsvTools
                   if (resp == DialogResult.Cancel)
                     return;
                   if (resp == DialogResult.Yes)
-                  {
                     switch (selectedType)
                     {
                       case DataType.Integer:
@@ -231,7 +232,6 @@ namespace CsvTools
                         detectDateTime = false;
                         break;
                     }
-                  }
                 }
               }
 
@@ -253,14 +253,15 @@ namespace CsvTools
               processDisplay.Hide();
               if (checkResult == null)
               {
-                var rtffHelper = new RtfHelper();
-                rtffHelper.AddParagraph($"No format could be determined in {ClassLibraryCsvExtensionMethods.Count(samples.Values):N0} sample values of {samples.RecordsRead:N0} records.");
-                rtffHelper.AddParagraph();
-                rtffHelper.AddParagraph("Examples");
-                rtffHelper.AddTable(samples.Values.Take(4 * 5), 4);
+                var rtfHelper = new RtfHelper();
+                rtfHelper.AddParagraph(
+                  $"No format could be determined in {ClassLibraryCsvExtensionMethods.Count(samples.Values):N0} sample values of {samples.RecordsRead:N0} records.");
+                rtfHelper.AddParagraph();
+                rtfHelper.AddParagraph("Examples");
+                rtfHelper.AddTable(samples.Values.Take(4 * 5));
                 _MessageBox.ShowBigRtf(
                   this,
-                  rtffHelper.Rtf,
+                  rtfHelper.Rtf,
                   $"Column: {columnName}",
                   MessageBoxButtons.OK,
                   MessageBoxIcon.Information);
@@ -285,40 +286,40 @@ namespace CsvTools
                     if (checkResult.ValueFormatPossibleMatch.DataType == DataType.DateTime)
                       AddFormatToComboBoxDateFormat(checkResult.ValueFormatPossibleMatch.DateFormat);
                   }
+
                   var rtf = new RtfHelper();
-                  var sb = new StringBuilder();
                   if (checkResult.ExampleNonMatch.Count > 0)
                   {
                     rtf.AddParagraph("Not matching:");
                     rtf.AddTable(checkResult.ExampleNonMatch.Take(4));
                   }
+
                   rtf.AddParagraph("Samples:");
                   rtf.AddTable(samples.Values.Take(40));
 
-                  var suggestClosestMatch = (checkResult.PossibleMatch
-                                             && (checkResult.FoundValueFormat == null
-                                                 || checkResult.FoundValueFormat.DataType == DataType.String));
+                  var suggestClosestMatch = checkResult.PossibleMatch
+                                            && (checkResult.FoundValueFormat == null
+                                                || checkResult.FoundValueFormat.DataType == DataType.String);
                   rtf.AddParagraph();
                   rtf.AddParagraph($"Determined Format : {checkResult.FoundValueFormat.GetTypeAndFormatDescription()}");
 
                   if (checkResult.PossibleMatch)
-                    rtf.AddParagraph($"Closest match is : {checkResult.ValueFormatPossibleMatch.GetTypeAndFormatDescription()}");
+                    rtf.AddParagraph(
+                      $"Closest match is : {checkResult.ValueFormatPossibleMatch.GetTypeAndFormatDescription()}");
 
                   if (suggestClosestMatch)
                   {
                     rtf.AddParagraph();
                     rtf.AddParagraph("Should the closest match be used?");
                     if (_MessageBox.ShowBigRtf(
-                          this,
-                          rtf.Rtf,
-                          $"Column: {columnName}",
-                          MessageBoxButtons.YesNo,
-                          MessageBoxIcon.Question) == DialogResult.Yes)
-                    {
+                        this,
+                        rtf.Rtf,
+                        $"Column: {columnName}",
+                        MessageBoxButtons.YesNo,
+                        MessageBoxIcon.Question) == DialogResult.Yes)
                       // use the closest match instead of Text can not use ValueFormat.CopyTo,.
                       // Column is quite specific and need it to be set,
                       checkResult.ValueFormatPossibleMatch.CopyTo(m_ColumnEdit.ValueFormat);
-                    }
                   }
                   else
                   {
@@ -361,14 +362,12 @@ namespace CsvTools
                     else
                     {
                       if (_MessageBox.ShowBig(
-                            this,
-                            displayMsg + "\n\nShould this be set to text?",
-                            $"Column: {columnName}",
-                            MessageBoxButtons.YesNo,
-                            MessageBoxIcon.Question) == DialogResult.Yes)
-                      {
+                        this,
+                        displayMsg + "\n\nShould this be set to text?",
+                        $"Column: {columnName}",
+                        MessageBoxButtons.YesNo,
+                        MessageBoxIcon.Question) == DialogResult.Yes)
                         m_ColumnEdit.ValueFormat.DataType = DataType.String;
-                      }
                     }
                   }
                 }
@@ -423,7 +422,7 @@ namespace CsvTools
     private void ButtonAddFormat_Click(object sender, EventArgs e) =>
       AddFormatToComboBoxDateFormat(comboBoxDateFormat.Text);
 
-    private void ButtonDisplayValues_Click(object sender, EventArgs e)
+    private async void ButtonDisplayValues_ClickAsync(object sender, EventArgs e)
     {
       buttonDisplayValues.Enabled = false;
       var oldCursor = Cursor.Current == Cursors.WaitCursor ? Cursors.WaitCursor : Cursors.Default;
@@ -433,7 +432,7 @@ namespace CsvTools
         using (var processDisplay = new FormProcessDisplay("Display Values", true, m_CancellationTokenSource.Token))
         {
           processDisplay.Show(this);
-          var values = GetSampleValues(comboBoxColumnName.Text, processDisplay);
+          var values = await GetSampleValuesAsync(comboBoxColumnName.Text, processDisplay);
           processDisplay.Hide();
           Cursor.Current = Cursors.Default;
           if (values.Values.Count == 0)
@@ -447,15 +446,15 @@ namespace CsvTools
           }
           else
           {
-            var rtffHelper = new RtfHelper();
-            rtffHelper.AddParagraph("Found values");
-            rtffHelper.AddParagraph();
-            rtffHelper.AddTable(values.Values.Take(4 * 5), 4);
+            var rtfHelper = new RtfHelper();
+            rtfHelper.AddParagraph("Found values");
+            rtfHelper.AddParagraph();
+            rtfHelper.AddTable(values.Values.Take(4 * 5));
             _MessageBox.ShowBigRtf(this,
-        rtffHelper.Rtf,
-        comboBoxColumnName.Text,
-        MessageBoxButtons.OK,
-        MessageBoxIcon.Information);
+              rtfHelper.Rtf,
+              comboBoxColumnName.Text,
+              MessageBoxButtons.OK,
+              MessageBoxIcon.Information);
           }
         }
       }
@@ -554,7 +553,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
-    private void ColumnFormatUI_Load(object sender, EventArgs e)
+    private async void ColumnFormatUI_LoadAsync(object sender, EventArgs e)
     {
       var oldCursor = Cursor.Current == Cursors.WaitCursor ? Cursors.WaitCursor : Cursors.Default;
       Cursor.Current = Cursors.WaitCursor;
@@ -602,24 +601,19 @@ namespace CsvTools
                 {
                   var cols = FunctionalDI.GetColumnHeader.Invoke(m_FileSetting, processDisplay.CancellationToken);
                   if (cols != null)
-                  {
                     foreach (var col in cols)
-                    {
                       allColumns.Add(col);
-                    }
-                  }
                 }
               }
               else
               {
-                using (var schemaReader = FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement.NoRecordSQL(), processDisplay, m_FileSetting.Timeout))
+                using (var schemaReader = FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement.NoRecordSQL(),
+                  processDisplay, m_FileSetting.Timeout))
                 using (var dataTable = schemaReader.GetSchemaTable())
                 {
                   if (dataTable != null)
-                  {
                     foreach (DataRow schemaRow in dataTable.Rows)
                       allColumns.Add(schemaRow[SchemaTableColumn.ColumnName].ToString());
-                  }
                 }
               }
             }
@@ -671,7 +665,7 @@ namespace CsvTools
       {
         if (comboBoxDataType.SelectedValue == null)
           return;
-        var selType = (DataType)comboBoxDataType.SelectedValue;
+        var selType = (DataType) comboBoxDataType.SelectedValue;
         m_ColumnEdit.ValueFormat.DataType = selType;
 
         groupBoxNumber.Visible = selType == DataType.Numeric || selType == DataType.Double;
@@ -689,7 +683,7 @@ namespace CsvTools
           SetSamplePart(null, null);
 
         //TODO: opening on OS and scaling a different value might be needed
-        Height = tableLayoutPanelForm.Height + (SystemInformation.CaptionHeight * 175) / 100;
+        Height = tableLayoutPanelForm.Height + SystemInformation.CaptionHeight * 175 / 100;
       }
       catch (Exception ex)
       {
@@ -710,7 +704,7 @@ namespace CsvTools
       try
       {
         var hasTimePart = !string.IsNullOrEmpty(comboBoxTimePart.Text);
-        string dateFormat = (sender == comboBoxDateFormat ? comboBoxDateFormat.Text : checkedListBoxDateFormats.Text);
+        var dateFormat = sender == comboBoxDateFormat ? comboBoxDateFormat.Text : checkedListBoxDateFormats.Text;
         if (string.IsNullOrEmpty(dateFormat)) return;
 
         var vf = new ValueFormat(DataType.DateTime)
@@ -726,7 +720,7 @@ namespace CsvTools
 
         var sourceDate = new DateTime(2013, 4, 7, 15, 45, 50, 345, DateTimeKind.Local);
 
-        if (hasTimePart && vf.DateFormat.IndexOfAny(new[] { 'h', 'H', 'm', 'S', 's' }) == -1)
+        if (hasTimePart && vf.DateFormat.IndexOfAny(new[] {'h', 'H', 'm', 'S', 's'}) == -1)
           vf.DateFormat += " " + comboBoxTPFormat.Text;
 
         labelSampleDisplay.Text = StringConversion.DateTimeToString(sourceDate, vf);
@@ -769,7 +763,8 @@ namespace CsvTools
     /// <exception cref="FileException">
     ///   Column {columnName} not found. or Column {columnName} not found.
     /// </exception>
-    private DetermineColumnFormat.SampleResult GetSampleValues(string columnName, IProcessDisplay processDisplay)
+    private async Task<DetermineColumnFormat.SampleResult> GetSampleValuesAsync(string columnName,
+      IProcessDisplay processDisplay)
     {
       Contract.Requires(!string.IsNullOrEmpty(columnName));
       Contract.Ensures(Contract.Result<IEnumerable<string>>() != null);
@@ -779,23 +774,20 @@ namespace CsvTools
       try
       {
         if (m_WriteSetting)
-        {
           using (var sqlReader =
             FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement, processDisplay, m_FileSetting.Timeout))
           {
-            var data = sqlReader.Read2DataTable(processDisplay, m_FileSetting.RecordLimit);
-            var colIndex = data.Columns.IndexOf(columnName);
+            var colIndex = sqlReader.GetOrdinal(columnName);
             if (colIndex < 0)
               throw new FileException($"Column {columnName} not found.");
 
-            return DetermineColumnFormat.GetSampleValues(
-              data,
+            return await DetermineColumnFormat.GetSampleValuesAsync(
+              sqlReader,
               colIndex,
               m_FillGuessSettings.SampleValues,
               m_FileSetting.TreatTextAsNull,
               processDisplay.CancellationToken);
           }
-        }
 
         // must be file reader if this is reached
         var hasRetried = false;
@@ -817,7 +809,7 @@ namespace CsvTools
           csv.WarnQuotesInQuotes = false;
         }
 
-      retry:
+        retry:
         using (var fileReader = FunctionalDI.GetFileReader(fileSettingCopy, null, processDisplay))
         {
           fileReader.Open();
@@ -837,7 +829,7 @@ namespace CsvTools
             throw new FileException($"Column {columnName} not found.");
           }
 
-          return DetermineColumnFormat.GetSampleValues(
+          return await DetermineColumnFormat.GetSampleValuesAsync(
             fileReader,
             m_FillGuessSettings.CheckedRecords,
             colIndex,
@@ -917,8 +909,8 @@ namespace CsvTools
       SetDateFormat();
       var di = new List<DisplayItem<int>>();
       foreach (DataType item in Enum.GetValues(typeof(DataType)))
-        di.Add(new DisplayItem<int>((int)item, item.DataTypeDisplay()));
-      var selValue = (int)m_ColumnEdit.ValueFormat.DataType;
+        di.Add(new DisplayItem<int>((int) item, item.DataTypeDisplay()));
+      var selValue = (int) m_ColumnEdit.ValueFormat.DataType;
       comboBoxDataType.DataSource = di;
       comboBoxDataType.SelectedValue = selValue;
       ComboBoxColumnName_TextUpdate(null, null);

@@ -15,7 +15,9 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace CsvTools
 {
@@ -95,10 +97,6 @@ namespace CsvTools
     /// </summary>
     public static Func<IFileSetting, string, IProcessDisplay, IFileReader> GetFileReader = DefaultFileReader;
 
-    /// <summary>
-    ///   Return the right reader for a file setting
-    /// </summary>
-    public static Func<IFileSetting, string, IProcessDisplay, IFileReaderAsync> GetFileReaderAsync = DefaultFileReaderAsync;
 
     public static IFileReader DefaultFileReader(IFileSetting setting, string timeZone, IProcessDisplay processDisplay)
     {
@@ -109,19 +107,6 @@ namespace CsvTools
 
         case CsvFile csv:
           return new CsvFileReader(csv, timeZone, processDisplay);
-
-        default:
-          throw new NotImplementedException($"Reader for {setting} not found");
-      }
-    }
-
-    public static IFileReaderAsync DefaultFileReaderAsync(IFileSetting setting, string timeZone, IProcessDisplay processDisplay)
-    {
-      switch (setting)
-      {
-        // case CsvFile csv when csv.JsonFormat:
-        case CsvFile csv:
-          return new CsvFileReaderAsync(csv, timeZone, processDisplay);
 
         default:
           throw new NotImplementedException($"Reader for {setting} not found");
@@ -153,6 +138,7 @@ namespace CsvTools
     /// </summary>
     /// <value>The SQL data reader.</value>
     /// <exception cref="ArgumentNullException">SQL Data Reader is not set</exception>
-    public static Func<string, IProcessDisplay, int, IDataReader> SQLDataReader;
+    public static Func<string, IProcessDisplay, int, DbDataReader> SQLDataReader;
+
   }
 }
