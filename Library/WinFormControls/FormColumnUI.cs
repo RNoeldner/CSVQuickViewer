@@ -133,7 +133,7 @@ namespace CsvTools
           if (m_WriteSetting)
           {
             var hasRetried = false;
-            retry:
+          retry:
             using (var sqlReader =
               FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement, processDisplay, m_FileSetting.Timeout))
             {
@@ -188,7 +188,7 @@ namespace CsvTools
               var detectDateTime = true;
               if (comboBoxDataType.SelectedValue != null)
               {
-                var selectedType = (DataType) comboBoxDataType.SelectedValue;
+                var selectedType = (DataType)comboBoxDataType.SelectedValue;
                 if (selectedType != DataType.String && selectedType != DataType.TextToHtml
                                                     && selectedType != DataType.TextToHtmlFull
                                                     && selectedType != DataType.TextPart)
@@ -256,7 +256,23 @@ namespace CsvTools
                   $"No format could be determined in {ClassLibraryCsvExtensionMethods.Count(samples.Values):N0} sample values of {samples.RecordsRead:N0} records.");
                 rtfHelper.AddParagraph();
                 rtfHelper.AddParagraph("Examples");
-                rtfHelper.AddTable(samples.Values.Take(4 * 5));
+                var texts = samples.Values.Take(4 * 5).ToArray();
+                var hasCutoff = false;
+                for (var index = 0; index < texts.Length; index++)
+                {
+                  if (texts[index].Length > 15)
+                  {
+                    hasCutoff = true;
+                    texts[index] = texts[index].Substring(0, 15);
+                  }
+                }
+                rtfHelper.AddTable(texts);
+                if (hasCutoff)
+                {
+                  rtfHelper.AddParagraph();
+                  rtfHelper.AddParagraph("Note: Text has been cut off after 15 characters");
+                }
+
                 _MessageBox.ShowBigRtf(
                   this,
                   rtfHelper.Rtf,
@@ -285,33 +301,48 @@ namespace CsvTools
                       AddFormatToComboBoxDateFormat(checkResult.ValueFormatPossibleMatch.DateFormat);
                   }
 
-                  var rtf = new RtfHelper();
+                  var rtfHelper = new RtfHelper();
                   if (checkResult.ExampleNonMatch.Count > 0)
                   {
-                    rtf.AddParagraph("Not matching:");
-                    rtf.AddTable(checkResult.ExampleNonMatch.Take(4));
+                    rtfHelper.AddParagraph("Not matching:");
+                    rtfHelper.AddTable(checkResult.ExampleNonMatch.Take(4));
                   }
 
-                  rtf.AddParagraph("Samples:");
-                  rtf.AddTable(samples.Values.Take(40));
+                  rtfHelper.AddParagraph("Samples:");
+                  var texts = samples.Values.Take(4 * 5).ToArray();
+                  var hasCutoff = false;
+                  for (var index = 0; index < texts.Length; index++)
+                  {
+                    if (texts[index].Length > 15)
+                    {
+                      hasCutoff = true;
+                      texts[index] = texts[index].Substring(0, 15);
+                    }
+                  }
+                  rtfHelper.AddTable(texts);
+                  if (hasCutoff)
+                  {
+                    rtfHelper.AddParagraph();
+                    rtfHelper.AddParagraph("Note: Text has been cut off after 15 characters");
+                  }
 
                   var suggestClosestMatch = checkResult.PossibleMatch
                                             && (checkResult.FoundValueFormat == null
                                                 || checkResult.FoundValueFormat.DataType == DataType.String);
-                  rtf.AddParagraph();
-                  rtf.AddParagraph($"Determined Format : {checkResult.FoundValueFormat.GetTypeAndFormatDescription()}");
+                  rtfHelper.AddParagraph();
+                  rtfHelper.AddParagraph($"Determined Format : {checkResult.FoundValueFormat.GetTypeAndFormatDescription()}");
 
                   if (checkResult.PossibleMatch)
-                    rtf.AddParagraph(
+                    rtfHelper.AddParagraph(
                       $"Closest match is : {checkResult.ValueFormatPossibleMatch.GetTypeAndFormatDescription()}");
 
                   if (suggestClosestMatch)
                   {
-                    rtf.AddParagraph();
-                    rtf.AddParagraph("Should the closest match be used?");
+                    rtfHelper.AddParagraph();
+                    rtfHelper.AddParagraph("Should the closest match be used?");
                     if (_MessageBox.ShowBigRtf(
                         this,
-                        rtf.Rtf,
+                        rtfHelper.Rtf,
                         $"Column: {columnName}",
                         MessageBoxButtons.YesNo,
                         MessageBoxIcon.Question) == DialogResult.Yes)
@@ -323,7 +354,7 @@ namespace CsvTools
                   {
                     _MessageBox.ShowBigRtf(
                       this,
-                      rtf.Rtf,
+                      rtfHelper.Rtf,
                       $"Column: {columnName}",
                       MessageBoxButtons.OK,
                       MessageBoxIcon.Information);
@@ -447,7 +478,23 @@ namespace CsvTools
             var rtfHelper = new RtfHelper();
             rtfHelper.AddParagraph("Found values");
             rtfHelper.AddParagraph();
-            rtfHelper.AddTable(values.Values.Take(4 * 5));
+            var texts = values.Values.Take(4 * 5).ToArray();
+            var hasCutoff = false;
+            for (var index = 0; index < texts.Length; index++)
+            {
+              if (texts[index].Length > 15)
+              {
+                hasCutoff = true;
+                texts[index] = texts[index].Substring(0, 15);
+              }
+            }
+            rtfHelper.AddTable(texts);
+            if (hasCutoff)
+            {
+              rtfHelper.AddParagraph();
+              rtfHelper.AddParagraph("Note: Text has been cut off after 15 characters");
+            }
+
             _MessageBox.ShowBigRtf(this,
               rtfHelper.Rtf,
               comboBoxColumnName.Text,
@@ -663,7 +710,7 @@ namespace CsvTools
       {
         if (comboBoxDataType.SelectedValue == null)
           return;
-        var selType = (DataType) comboBoxDataType.SelectedValue;
+        var selType = (DataType)comboBoxDataType.SelectedValue;
         m_ColumnEdit.ValueFormat.DataType = selType;
 
         groupBoxNumber.Visible = selType == DataType.Numeric || selType == DataType.Double;
@@ -718,7 +765,7 @@ namespace CsvTools
 
         var sourceDate = new DateTime(2013, 4, 7, 15, 45, 50, 345, DateTimeKind.Local);
 
-        if (hasTimePart && vf.DateFormat.IndexOfAny(new[] {'h', 'H', 'm', 'S', 's'}) == -1)
+        if (hasTimePart && vf.DateFormat.IndexOfAny(new[] { 'h', 'H', 'm', 'S', 's' }) == -1)
           vf.DateFormat += " " + comboBoxTPFormat.Text;
 
         labelSampleDisplay.Text = StringConversion.DateTimeToString(sourceDate, vf);
@@ -781,7 +828,7 @@ namespace CsvTools
               throw new FileException($"Column {columnName} not found.");
 
             return await DetermineColumnFormat.GetSampleValuesAsync(
-              sqlReader,0,
+              sqlReader, 0,
               colIndex,
               m_FillGuessSettings.SampleValues,
               m_FileSetting.TreatTextAsNull,
@@ -808,7 +855,7 @@ namespace CsvTools
           csv.WarnQuotesInQuotes = false;
         }
 
-        retry:
+      retry:
         using (var fileReader = FunctionalDI.GetFileReader(fileSettingCopy, null, processDisplay))
         {
           fileReader.Open();
@@ -908,8 +955,8 @@ namespace CsvTools
       SetDateFormat();
       var di = new List<DisplayItem<int>>();
       foreach (DataType item in Enum.GetValues(typeof(DataType)))
-        di.Add(new DisplayItem<int>((int) item, item.DataTypeDisplay()));
-      var selValue = (int) m_ColumnEdit.ValueFormat.DataType;
+        di.Add(new DisplayItem<int>((int)item, item.DataTypeDisplay()));
+      var selValue = (int)m_ColumnEdit.ValueFormat.DataType;
       comboBoxDataType.DataSource = di;
       comboBoxDataType.SelectedValue = selValue;
       ComboBoxColumnName_TextUpdate(null, null);

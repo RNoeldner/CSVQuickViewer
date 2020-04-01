@@ -19,7 +19,6 @@ using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
 using System.Diagnostics.Contracts;
-using System.Diagnostics.Eventing.Reader;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
@@ -1106,7 +1105,7 @@ namespace CsvTools
     {
       foreach (var columnIndex in samples.Keys.Where(x => !enough.Contains(x)))
       {
-        var value = fileReader.GetValue(columnIndex).ToString();
+        var value = fileReader.GetString(columnIndex);
 
         // Any non existing value is not of interest
         if (string.IsNullOrWhiteSpace(value))
