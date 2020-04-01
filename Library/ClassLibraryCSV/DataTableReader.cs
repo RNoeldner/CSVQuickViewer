@@ -72,7 +72,10 @@ namespace CsvTools
 
     public override double GetDouble(int i) => m_DbDataReader.GetDouble(i);
 
-    public override string GetString(int i) => m_DbDataReader.GetString(i);
+    public override string GetString(int i)
+    {
+      return m_DbDataReader.GetValue(i).ToString();
+    }
 
     public override decimal GetDecimal(int i) => m_DbDataReader.GetDecimal(i);
 
