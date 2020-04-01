@@ -66,10 +66,9 @@ namespace CsvTools
     ///   Writes the specified file reading from the given reader
     /// </summary>
     /// <param name="reader">A Data Reader with the data</param>
-    /// /// <param name="readAsync">Asynchronous method to get the next record</param>
     /// <param name="output">The output.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    protected override async Task WriteReaderAsync(IDataReader reader, Func<Task<bool>> readAsync, Stream output, CancellationToken cancellationToken)
+    protected override async Task WriteReaderAsync(IFileReader reader, Stream output, CancellationToken cancellationToken)
     {
       Contract.Assume(!string.IsNullOrEmpty(m_StructuredWriterFile.FullPath));
 
@@ -119,7 +118,7 @@ namespace CsvTools
         withHeader = withHeader.Trim();
         var
           sb = new StringBuilder(1024); // Assume a capacity of 1024 characters to start, data is flushed every 512 chars
-        while (await readAsync() && !cancellationToken.IsCancellationRequested)
+        while (await reader.ReadAsync() && !cancellationToken.IsCancellationRequested)
         {
           NextRecord();
 
@@ -154,7 +153,7 @@ namespace CsvTools
       }
     }
 
-    protected override void WriteReader(IDataReader reader, Stream output, CancellationToken cancellationToken)
+    protected override void WriteReader(IFileReader reader, Stream output, CancellationToken cancellationToken)
     {
       Contract.Assume(!string.IsNullOrEmpty(m_StructuredWriterFile.FullPath));
 

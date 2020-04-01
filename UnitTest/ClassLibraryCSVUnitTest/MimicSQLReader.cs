@@ -33,27 +33,8 @@ namespace CsvTools.Tests
 
       if (!m_ReadSetting.Any(x => x.Key.ID.Equals(setting.ID, StringComparison.OrdinalIgnoreCase)))
       {
-        try
-        {
-          using (var prc = new DummyProcessDisplay())
-          {
-            using (var reader = FunctionalDI.GetFileReader(setting, "UTC", prc))
-            {
-              reader.Open();
-              m_ReadSetting.Add(setting, reader.Read2DataTable(prc, 0));
-            }
-          }
-        }
-        catch (Exception e)
-        {
-          Console.WriteLine(e);
-          m_ReadSetting.Add(setting, null);
-
-        }
-
-
+        m_ReadSetting.Add(setting, null);
       }
-
     }
 
     public void AddSetting(string name, DataTable dt)
@@ -65,17 +46,20 @@ namespace CsvTools.Tests
       }
 
       if (!m_ReadSetting.Any(x => x.Key.ID.Equals(name, StringComparison.OrdinalIgnoreCase)))
-        m_ReadSetting.Add(new CsvFile(name) {ID = name}, dt);
+        m_ReadSetting.Add(new CsvFile(name) { ID = name }, dt);
     }
 
     public ICollection<IFileSetting> ReadSettings => m_ReadSetting.Keys;
 
-    public DbDataReader ReadData(string settingName, IProcessDisplay processDisplay, int timeout)
+    public IFileReader ReadData(string settingName, IProcessDisplay processDisplay, int timeout)
     {
       var setting = m_ReadSetting.Any(x => x.Key.ID == settingName)
         ? m_ReadSetting.First(x => x.Key.ID == settingName)
         : m_ReadSetting.First();
-      return setting.Value.CreateDataReader();
+
+      var reader = setting.Value != null ? new DataTableReader(setting.Value, settingName, processDisplay) : FunctionalDI.GetFileReader(setting.Key, null, processDisplay);
+      reader.Open();
+      return reader;
     }
   }
 }

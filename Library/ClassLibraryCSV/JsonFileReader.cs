@@ -25,7 +25,7 @@ namespace CsvTools
     ///   Gets a value indicating whether this instance is closed.
     /// </summary>
     /// <value><c>true</c> if this instance is closed; otherwise, <c>false</c>.</value>
-    public bool IsClosed => m_TextReader == null;
+    public override bool IsClosed => m_TextReader == null;
 
     public override void Close()
     {
@@ -36,7 +36,7 @@ namespace CsvTools
       base.Close();
     }
 
-    public void Open()
+    public override void Open()
     {
     Retry:
 
@@ -129,7 +129,7 @@ namespace CsvTools
       HandleReadFinished();
       return false;
     }
-    public void ResetPositionToFirstDataRow() => ResetPositionToStartOrOpen();
+    public override void ResetPositionToFirstDataRow() => ResetPositionToStartOrOpen();
 
     /// <summary>
     ///   Releases unmanaged and - optionally - managed resources

@@ -45,7 +45,6 @@ namespace CsvTools
     /// </summary>
     /// <param name="source">The data that should be written in a <see cref="DataTable" /></param>
     /// <returns>Number of records written</returns>
-    long Write(DbDataReader source);
     long Write(IFileReader source);
 
     /// <summary>
@@ -60,7 +59,6 @@ namespace CsvTools
     /// </summary>
     /// <param name="source">The data that should be written in a <see cref="DataTable" /></param>
     /// <returns>Number of records written</returns>
-    Task<long> WriteAsync(DbDataReader source);
     Task<long> WriteAsync(IFileReader source);
   }
 }

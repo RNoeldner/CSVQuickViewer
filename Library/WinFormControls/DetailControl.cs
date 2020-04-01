@@ -82,7 +82,7 @@ namespace CsvTools
 
     private ToolStripButton m_ToolStripButtonDuplicates;
 
-    private ToolStripButton m_ToolStripButtonHiearchy;
+    private ToolStripButton m_ToolStripButtonHierarchy;
 
     private ToolStripButton m_ToolStripButtonMoveFirstItem;
 
@@ -388,9 +388,9 @@ namespace CsvTools
         m_ToolStripTop.Items.Remove(m_ToolStripButtonDuplicates);
         m_BindingNavigator.Items.Add(m_ToolStripButtonDuplicates);
         m_ToolStripButtonDuplicates.DisplayStyle = ToolStripItemDisplayStyle.Image;
-        m_ToolStripTop.Items.Remove(m_ToolStripButtonHiearchy);
-        m_BindingNavigator.Items.Add(m_ToolStripButtonHiearchy);
-        m_ToolStripButtonHiearchy.DisplayStyle = ToolStripItemDisplayStyle.Image;
+        m_ToolStripTop.Items.Remove(m_ToolStripButtonHierarchy);
+        m_BindingNavigator.Items.Add(m_ToolStripButtonHierarchy);
+        m_ToolStripButtonHierarchy.DisplayStyle = ToolStripItemDisplayStyle.Image;
         m_ToolStripTop.Items.Remove(m_ToolStripButtonColumnLength);
         m_BindingNavigator.Items.Add(m_ToolStripButtonColumnLength);
         m_ToolStripButtonColumnLength.DisplayStyle = ToolStripItemDisplayStyle.Image;
@@ -419,9 +419,9 @@ namespace CsvTools
         m_BindingNavigator.Items.Remove(m_ToolStripButtonDuplicates);
         m_ToolStripTop.Items.Add(m_ToolStripButtonDuplicates);
         m_ToolStripButtonDuplicates.DisplayStyle = ToolStripItemDisplayStyle.ImageAndText;
-        m_BindingNavigator.Items.Remove(m_ToolStripButtonHiearchy);
-        m_ToolStripTop.Items.Add(m_ToolStripButtonHiearchy);
-        m_ToolStripButtonHiearchy.DisplayStyle = ToolStripItemDisplayStyle.ImageAndText;
+        m_BindingNavigator.Items.Remove(m_ToolStripButtonHierarchy);
+        m_ToolStripTop.Items.Add(m_ToolStripButtonHierarchy);
+        m_ToolStripButtonHierarchy.DisplayStyle = ToolStripItemDisplayStyle.ImageAndText;
         m_BindingNavigator.Items.Remove(m_ToolStripButtonColumnLength);
         m_ToolStripTop.Items.Add(m_ToolStripButtonColumnLength);
         m_ToolStripButtonColumnLength.DisplayStyle = ToolStripItemDisplayStyle.ImageAndText;
@@ -618,7 +618,7 @@ namespace CsvTools
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
     private void ButtonHierachy_Click(object sender, EventArgs e)
     {
-      m_ToolStripButtonHiearchy.Enabled = false;
+      m_ToolStripButtonHierarchy.Enabled = false;
 
       try
       {
@@ -636,7 +636,7 @@ namespace CsvTools
       }
       finally
       {
-        m_ToolStripButtonHiearchy.Enabled = true;
+        m_ToolStripButtonHierarchy.Enabled = true;
       }
     }
 
@@ -798,7 +798,7 @@ namespace CsvTools
       m_ToolStripButtonUniqueValues = new ToolStripButton();
       m_ToolStripButtonColumnLength = new ToolStripButton();
       m_ToolStripButtonDuplicates = new ToolStripButton();
-      m_ToolStripButtonHiearchy = new ToolStripButton();
+      m_ToolStripButtonHierarchy = new ToolStripButton();
       m_ToolStripButtonSource = new ToolStripButton();
       m_ToolStripButtonAsText = new ToolStripButton();
       m_ToolStripButtonStore = new ToolStripButton();
@@ -834,7 +834,7 @@ namespace CsvTools
         m_ToolStripButtonUniqueValues,
         m_ToolStripButtonColumnLength,
         m_ToolStripButtonDuplicates,
-        m_ToolStripButtonHiearchy,
+        m_ToolStripButtonHierarchy,
         m_ToolStripButtonSource,
         m_ToolStripButtonAsText,
         m_ToolStripButtonStore
@@ -889,12 +889,12 @@ namespace CsvTools
       m_ToolStripButtonDuplicates.ToolTipText = "Display Duplicate Values";
       m_ToolStripButtonDuplicates.Click += ButtonDuplicates_Click;
       // m_ToolStripButtonHierachy
-      m_ToolStripButtonHiearchy.Image = (Image) resources.GetObject("m_ToolStripButtonHierachy.Image");
-      m_ToolStripButtonHiearchy.Name = "m_ToolStripButtonHiearchy";
-      m_ToolStripButtonHiearchy.Size = new Size(82, 24);
-      m_ToolStripButtonHiearchy.Text = "Hierarchy";
-      m_ToolStripButtonHiearchy.ToolTipText = "Display a Hierarchy Structure";
-      m_ToolStripButtonHiearchy.Click += ButtonHierachy_Click;
+      m_ToolStripButtonHierarchy.Image = (Image) resources.GetObject("m_ToolStripButtonHierachy.Image");
+      m_ToolStripButtonHierarchy.Name = "m_ToolStripButtonHierarchy";
+      m_ToolStripButtonHierarchy.Size = new Size(82, 24);
+      m_ToolStripButtonHierarchy.Text = "Hierarchy";
+      m_ToolStripButtonHierarchy.ToolTipText = "Display a Hierarchy Structure";
+      m_ToolStripButtonHierarchy.Click += ButtonHierachy_Click;
       // m_ToolStripButtonSource
       m_ToolStripButtonSource.Image = (Image) resources.GetObject("m_ToolStripButtonSource.Image");
       m_ToolStripButtonSource.Name = "m_ToolStripButtonSource";
@@ -1191,7 +1191,7 @@ namespace CsvTools
           m_ToolStripButtonAsText.Visible = m_ShowButtons && m_HasButtonAsText;
 
           // Extended
-          m_ToolStripButtonHiearchy.Visible = m_ShowButtons;
+          m_ToolStripButtonHierarchy.Visible = m_ShowButtons;
           m_ToolStripButtonStore.Visible = m_ShowButtons && m_FileSetting is CsvFile;
           m_ToolStripButtonSource.Visible = m_ShowButtons && m_HasButtonShowSource;
 
@@ -1297,10 +1297,14 @@ namespace CsvTools
           .Where(col => col.Visible && !BaseFileReader.ArtificialFields.Contains(col.DataPropertyName))
           .ToDictionary(col => col.DisplayIndex, col => col.DataPropertyName);
 
-        // can not use filteredDataGridView.Columns directly
-        await writer.WriteAsync(
-          DataGridView.DataView.ToTable(false, colNames.OrderBy(x => x.Key).Select(x => x.Value).ToArray())
-            .CreateDataReader());
+        using (var dt = new DataTableReader(
+          DataGridView.DataView.ToTable(false, colNames.OrderBy(x => x.Key).Select(x => x.Value).ToArray()), "Export",
+          processDisplay))
+        {
+          dt.Open();
+          // can not use filteredDataGridView.Columns directly
+          await writer.WriteAsync(dt);
+        }
       }
     }
 

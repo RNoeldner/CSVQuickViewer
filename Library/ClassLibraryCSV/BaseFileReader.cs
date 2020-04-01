@@ -122,6 +122,22 @@ namespace CsvTools
       ProcessDisplay = processDisplay;
       Logger.Debug("Created Reader for {filesetting}", fileSetting);
     }
+    public virtual bool SupportsReset => true;
+
+    #region Abstracts
+    public abstract bool Read();
+
+    public abstract Task<bool> ReadAsync();
+
+    public abstract bool IsClosed
+    {
+      get;
+    }
+    public abstract void Open();
+
+    public abstract void ResetPositionToFirstDataRow();
+    #endregion
+
 
     /// <summary>
     ///   A cancellation token, to stop long running processes
@@ -372,6 +388,70 @@ namespace CsvTools
       throw WarnAddFormatException(columnNumber,
         $"'{CurrentRowColumnText[columnNumber]}' is not a date of the format {GetColumn(columnNumber).ValueFormat.DateFormat}");
     }
+    public virtual DataTable GetDataTable(long recordLimit)
+    {
+      if (IsClosed)
+        Open();
+
+      var dataTable = new DataTable();
+      try
+      {
+        for (var col = 0; col < FieldCount; col++)
+          dataTable.Columns.Add(new DataColumn(GetName(col), GetFieldType(col)));
+
+        if (!CancellationToken.IsCancellationRequested)
+        {
+          dataTable.BeginLoadData();
+          if (recordLimit < 1)
+            recordLimit = long.MaxValue;
+
+          while (Read() && dataTable.Rows.Count < recordLimit && !CancellationToken.IsCancellationRequested)
+          {
+            var readerValues = new object[FieldCount];
+            if (GetValues(readerValues) > 0)
+              dataTable.Rows.Add(readerValues);
+          }
+        }
+      }
+      finally
+      {
+        dataTable.EndLoadData();
+      }
+      return dataTable;
+    }
+
+    public virtual async Task<DataTable> GetDataTableAsync(long recordLimit)
+    {
+      if (IsClosed)
+        Open();
+
+      var dataTable = new DataTable();
+      try
+      {
+        // create columns, it is been relied on that teh column names are unique
+        for (var col = 0; col < FieldCount; col++)
+          dataTable.Columns.Add(new DataColumn(GetName(col), GetFieldType(col)));
+
+        if (!CancellationToken.IsCancellationRequested)
+        {
+          dataTable.BeginLoadData();
+          if (recordLimit < 1)
+            recordLimit = long.MaxValue;
+
+          while (await ReadAsync() && dataTable.Rows.Count < recordLimit && !CancellationToken.IsCancellationRequested)
+          {
+            var readerValues = new object[FieldCount];
+            if (GetValues(readerValues) > 0)
+              dataTable.Rows.Add(readerValues);
+          }
+        }
+      }
+      finally
+      {
+        dataTable.EndLoadData();
+      }
+      return dataTable;
+    }
 
     /// <summary>
     ///   Gets the decimal.
@@ -598,6 +678,8 @@ namespace CsvTools
     /// <exception cref="InvalidOperationException">The <see cref="IDataReader" /> is closed.</exception>
     public virtual DataTable GetSchemaTable()
     {
+      if (IsClosed)
+        Open();
       var dataTable = GetEmptySchemaTable();
       var schemaRow = GetDefaultSchemaRowArray();
 
@@ -776,8 +858,6 @@ namespace CsvTools
     /// </summary>
     /// <returns>true if there are more rows; otherwise, false.</returns>
     public virtual bool NextResult() => false;
-
-    public virtual async Task<bool> NextResultAsync() => await Task.FromResult(false);
 
     /// <summary>
     ///   Overrides the column format from setting.
@@ -1112,15 +1192,6 @@ namespace CsvTools
       }
 
       return ret ?? DBNull.Value;
-    }
-
-    private string GetUniqueName(ICollection<string> previousColumns, int ordinal, string nameToAdd)
-    {
-      var newName = StringUtils.MakeUniqueInCollection(previousColumns, nameToAdd);
-      if (newName != nameToAdd)
-        HandleWarning(ordinal, $"Column '{nameToAdd}' exists more than once replaced with {newName}");
-
-      return newName;
     }
 
     /// <summary>

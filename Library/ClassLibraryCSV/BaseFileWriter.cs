@@ -53,7 +53,7 @@ namespace CsvTools
       Logger.Debug("Created Writer for {filesetting}", fileSetting);
     }
 
-    protected long Records { get; private set; }
+    private long Records { get; set; }
 
     /// <summary>
     ///   Gets or sets the error message.
@@ -101,63 +101,6 @@ namespace CsvTools
       }
     }
 
-    public async Task<long> WriteAsync(DbDataReader reader)
-    {
-      if (reader == null)
-        return -1;
-      HandleWriteStart();
-      if (m_ProcessDisplay != null)
-        m_ProcessDisplay.Maximum = -1;
-      try
-      {
-        using (var improvedStream = FunctionalDI.OpenWrite(m_FileSetting))
-        {
-          await WriteReaderAsync(reader, reader.ReadAsync, improvedStream.Stream,
-            m_ProcessDisplay?.CancellationToken ?? CancellationToken.None);
-        }
-      }
-      catch (Exception exc)
-      {
-        ErrorMessage = $"Could not write file '{m_FileSetting.FileName}'.\r\n{exc.ExceptionMessages()}";
-        if (m_FileSetting.InOverview)
-          throw;
-      }
-      finally
-      {
-        HandleWriteFinished();
-      }
-
-      return Records;
-    }
-
-    public long Write(DbDataReader reader)
-    {
-      if (reader == null)
-        return -1;
-      HandleWriteStart();
-      if (m_ProcessDisplay != null)
-        m_ProcessDisplay.Maximum = -1;
-      try
-      {
-        using (var improvedStream = FunctionalDI.OpenWrite(m_FileSetting))
-        {
-          WriteReader(reader, improvedStream.Stream, m_ProcessDisplay?.CancellationToken ?? CancellationToken.None);
-        }
-      }
-      catch (Exception exc)
-      {
-        ErrorMessage = $"Could not write file '{m_FileSetting.FileName}'.\r\n{exc.ExceptionMessages()}";
-        if (m_FileSetting.InOverview)
-          throw;
-      }
-      finally
-      {
-        HandleWriteFinished();
-      }
-
-      return Records;
-    }
-
     public async Task<long> WriteAsync(IFileReader reader)
     {
       if (reader == null)
@@ -169,7 +112,10 @@ namespace CsvTools
       {
         using (var improvedStream = FunctionalDI.OpenWrite(m_FileSetting))
         {
-          await WriteReaderAsync(reader, reader.ReadAsync, improvedStream.Stream,
+          if (reader.IsClosed)
+            reader.Open();
+
+          await WriteReaderAsync(reader, improvedStream.Stream,
             m_ProcessDisplay?.CancellationToken ?? CancellationToken.None);
         }
       }
@@ -198,6 +144,9 @@ namespace CsvTools
       {
         using (var improvedStream = FunctionalDI.OpenWrite(m_FileSetting))
         {
+          if (reader.IsClosed)
+            reader.Open();
+
           WriteReader(reader, improvedStream.Stream, m_ProcessDisplay?.CancellationToken ?? CancellationToken.None);
         }
       }
@@ -315,7 +264,7 @@ namespace CsvTools
     {
       if (columnInfo is null)
         throw new ArgumentNullException(nameof(columnInfo));
-      Contract.Requires(fileFormat != null);
+      
       if (fileFormat.IsFixedLength && columnInfo.FieldLength == 0)
         throw new FileWriterException("For fix length output the length of the columns needs to be specified.");
 
@@ -419,11 +368,10 @@ namespace CsvTools
       return displayAs;
     }
 
-    protected abstract void WriteReader(IDataReader reader, Stream output,
+    protected abstract void WriteReader(IFileReader reader, Stream output,
       CancellationToken cancellationToken);
 
-    protected abstract Task WriteReaderAsync(IDataReader reader, Func<Task<bool>> readAsync,
-      Stream output,
+    protected abstract Task WriteReaderAsync(IFileReader reader, Stream output,
       CancellationToken cancellationToken);
   }
 }

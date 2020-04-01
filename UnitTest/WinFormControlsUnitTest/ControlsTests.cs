@@ -376,7 +376,7 @@ namespace CsvTools.Tests
         { FileFormat = { FieldDelimiter = "\t" } };
         using (var csvDataReader = new CsvFileReader(cvsSetting, null, processDisplay))
         {
-          dt = csvDataReader.Read2DataTable(processDisplay, 0);
+          dt = csvDataReader.GetDataTable(0);
         }
       }
 
