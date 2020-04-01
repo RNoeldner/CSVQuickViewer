@@ -21,18 +21,7 @@ namespace CsvTools
     {
     }
 
-    /// <summary>
-    ///   Advances the DataReader to the next non empty record
-    /// </summary>
-    /// <returns>true if there are more rows; otherwise, false.</returns>
-    public virtual async Task<bool> ReadAsync() => Read();
-
-
-    /// <summary>
-    ///   Advances the DataReader to the next non empty record
-    /// </summary>
-    /// <returns>true if there are more rows; otherwise, false.</returns>
-    public abstract bool Read();
+    public async override Task<bool> ReadAsync() => Read();
 
     /// <summary>
     ///   Gets the type of the column by looking at the first 50 rows

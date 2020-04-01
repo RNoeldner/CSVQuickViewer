@@ -650,8 +650,7 @@ namespace CsvTools
 
             processDisplay.SetProcess("Reading data…", -1, true);
 
-            DataTable = await ClassLibraryCsvExtensionMethods.Read2DataTableAsync(fileReader.GetSchemaTable, fileReader.ReadAsync,
-              fileReader.GetValues, processDisplay, m_FileSetting.RecordLimit);
+            DataTable = await fileReader.GetDataTableAsync(m_FileSetting.RecordLimit);
 
             foreach (var columnName in DataTable.GetRealColumns())
               if (m_FileSetting.ColumnCollection.Get(columnName) == null)
@@ -678,7 +677,15 @@ namespace CsvTools
           Logger.Information("Showing loaded data…");
           detailControl.DataTable = DataTable;
         }
-        FunctionalDI.SQLDataReader = (settingName, processDisplay, timeout) => detailControl.DataTable.CreateDataReader();
+
+        // The reader is used when data ist stored through the detailControl
+        FunctionalDI.SQLDataReader = (settingName, processDisplay, timeout) =>
+        {
+          var dt = new DataTableReader(detailControl.DataTable, detailControl.DataTable.TableName, null);
+          dt.Open();
+          return dt;
+        };
+        
         detailControl.FileSetting = m_FileSetting;
         detailControl.FillGuessSettings = m_ViewSettings.FillGuessSettings;
 

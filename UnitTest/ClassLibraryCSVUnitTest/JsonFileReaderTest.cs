@@ -35,10 +35,10 @@ namespace CsvTools.Tests
         Assert.AreEqual("level", jfr.GetColumn(1).Name);
         Assert.AreEqual("Error", jfr.GetValue(1));
 
-        _ = jfr.ReadAsync().Result;
+        _ = jfr.ReadAsync().WaitToCompleteTask(2);
         Assert.AreEqual("Reading EdgeAPI vw_rpt_transcript", jfr.GetValue(2));
 
-        _ = jfr.ReadAsync().Result;
+        _ = jfr.ReadAsync().WaitToCompleteTask(2);
         Assert.AreEqual("System.Data.DataException", jfr.GetValue(4));
       }
     }
@@ -55,7 +55,7 @@ namespace CsvTools.Tests
       using (var jfr = new JsonFileReader(setting, TimeZoneInfo.Local.Id, dpd))
       {
         jfr.Open();
-        _ = jfr.ReadAsync().Result;
+        _ = jfr.ReadAsync().WaitToCompleteTask(2);
 
         try
         {
@@ -181,11 +181,11 @@ namespace CsvTools.Tests
         Assert.AreEqual(0, jfr.GetDouble(jfr.GetOrdinal("Approvals")));
         Assert.IsTrue(jfr.GetBoolean(2));
         Assert.AreEqual(1.000, jfr.GetValue(jfr.GetOrdinal("FTE")));
-        _ = jfr.ReadAsync().Result;
+        _ = jfr.ReadAsync().WaitToCompleteTask(2);
         Assert.AreEqual("43357196", jfr.GetValue(0));
-        _ = jfr.ReadAsync().Result;
+        _ = jfr.ReadAsync().WaitToCompleteTask(2);
         Assert.AreEqual("43357477", jfr.GetValue(0));
-        while (jfr.ReadAsync().Result)
+        while (jfr.ReadAsync().WaitToCompleteTask(2))
         {
         }
         Assert.AreEqual(2782, jfr.RecordNumber);
@@ -205,7 +205,7 @@ namespace CsvTools.Tests
       {
         jfr.Open();
         Assert.AreEqual(20, jfr.FieldCount);
-        _ = jfr.ReadAsync().Result;
+        _ = jfr.Read();
         Assert.AreEqual("5048fde7c4aa917cbd4d8e13", jfr.GetValue(0));
         _ = jfr.Read();
         Assert.AreEqual("5048fde7c4aa917cbd4d22333", jfr.GetValue(0));
@@ -228,7 +228,7 @@ namespace CsvTools.Tests
         jfr.ReadAsync().WaitToCompleteTask(2);
         jfr.ReadAsync().WaitToCompleteTask(2);
         Assert.AreEqual("Loading defaults C:\\Users\\rnoldner\\AppData\\Roaming\\CSVFileValidator\\Setting.xml", jfr.GetValue(6));
-        while (jfr.ReadAsync().Result)
+        while (jfr.ReadAsync().WaitToCompleteTask(2))
         {
         }
         Assert.AreEqual(29, jfr.RecordNumber);

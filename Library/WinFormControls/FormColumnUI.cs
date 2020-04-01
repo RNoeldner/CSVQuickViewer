@@ -137,9 +137,7 @@ namespace CsvTools
             using (var sqlReader =
               FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement, processDisplay, m_FileSetting.Timeout))
             {
-              var data = await ClassLibraryCsvExtensionMethods.Read2DataTableAsync(sqlReader.GetSchemaTable,
-                sqlReader.ReadAsync,
-                sqlReader.GetValues, processDisplay, m_FileSetting.RecordLimit);
+              var data = sqlReader.GetDataTable(m_FileSetting.RecordLimit);
               var found = new Column();
               var column = data.Columns[columnName];
               if (column == null)
@@ -777,12 +775,13 @@ namespace CsvTools
           using (var sqlReader =
             FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement, processDisplay, m_FileSetting.Timeout))
           {
+            sqlReader.Open();
             var colIndex = sqlReader.GetOrdinal(columnName);
             if (colIndex < 0)
               throw new FileException($"Column {columnName} not found.");
 
             return await DetermineColumnFormat.GetSampleValuesAsync(
-              sqlReader,
+              sqlReader,0,
               colIndex,
               m_FillGuessSettings.SampleValues,
               m_FileSetting.TreatTextAsNull,

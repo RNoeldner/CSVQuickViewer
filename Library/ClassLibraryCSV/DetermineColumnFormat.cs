@@ -19,6 +19,7 @@ using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
 using System.Diagnostics.Contracts;
+using System.Diagnostics.Eventing.Reader;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
@@ -909,58 +910,101 @@ namespace CsvTools
             yield return new ValueFormat(DataType.DateTime) { DateFormat = fmt, DateSeparator = sep };
     }
 
+
     /// <summary>
-    ///   Get sample values for a column
+    ///   Get sample values for several columns at once, ignoring rows with issues or warning in the
+    ///   columns, looping though all records in the reader
     /// </summary>
-    /// <param name="dataReader">A data reader, in contrast to teh FileReader we do not see warnings</param>
-    /// <param name="columnIndex">Index of the column.</param>
+    /// <param name="fileReader">A <see cref="IFileReader" /> data reader</param>
+    /// <param name="maxRecords">The maximum records.</param>
+    /// <param name="columns">
+    ///   A Dictionary listing the columns and the number of samples needed for each
+    /// </param>
     /// <param name="enoughSamples">The enough samples.</param>
     /// <param name="treatAsNull">Text that should be regarded as an empty column</param>
     /// <param name="cancellationToken">A cancellation token</param>
-    /// <returns>A collection of distinct not null values</returns>
-    public static async Task<SampleResult> GetSampleValuesAsync(DbDataReader dataReader, int columnIndex,
-      int enoughSamples, string treatAsNull, CancellationToken cancellationToken)
+    /// <returns></returns>
+    /// <exception cref="ArgumentNullException">dataReader</exception>
+    /// <exception cref="ArgumentOutOfRangeException">no valid columns provided</exception>
+    private static async Task<IDictionary<int, SampleResult>> GetSampleValuesAsync(IFileReader fileReader, long maxRecords,
+      IEnumerable<int> columns, int enoughSamples, string treatAsNull, CancellationToken cancellationToken)
     {
-      Contract.Ensures(Contract.Result<IEnumerable<string>>() != null);
+      var samples = GetSampleValuesValidate(fileReader, ref maxRecords, columns, ref treatAsNull);
 
-      if (string.IsNullOrEmpty(treatAsNull))
-        treatAsNull = "NULL;n/a";
+      var hasWarning = false;
+      var remainingShows = 10;
+      void WarningEvent(object sender, WarningEventArgs args)
+      {
+        if (args.ColumnNumber != -1 && !samples.ContainsKey(args.ColumnNumber))
+          return;
+        if (remainingShows-- > 0)
+          Logger.Debug("Row ignored in detection: " + args.Message);
+        if (remainingShows == 0)
+          Logger.Debug("No further warning shown");
 
-      var samples = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-      var recordNumber = 0;
+        hasWarning = true;
+      }
+
+      fileReader.Warning += WarningEvent;
+
+      var recordRead = 0;
       try
       {
-        while (!cancellationToken.IsCancellationRequested && await dataReader.ReadAsync() && samples.Count < enoughSamples )
+        // could already be at EOF need to reset
+        if (fileReader.EndOfFile && fileReader.SupportsReset)
         {
-          recordNumber++;
-          
-          if (dataReader[columnIndex] == DBNull.Value)
-            continue;
+          Logger.Debug("Resetting read position to the beginning");
+          fileReader.ResetPositionToFirstDataRow();
+        }
 
-          var value = dataReader[columnIndex].ToString();
-          if (string.IsNullOrWhiteSpace(value))
-            continue;
+        // Ready to start store the record number we are currently at, we could be in the middle of
+        // the file already
+        var startRecordNumber = fileReader.RecordNumber;
 
-          // Always trim
-          value = value.Trim();
+        var maxSamples = 2000;
+        if (maxSamples < enoughSamples)
+          maxSamples = enoughSamples;
 
-          // Always do treat Text "Null" as Null
-          if (StringUtils.ShouldBeTreatedAsNull(value, treatAsNull))
-            continue;
+        var enough = new List<int>();
+        // Get distinct sample values until we have
+        // * parsed the maximum number
+        // * have enough samples to be satisfied
+        // * we are at the beginning record again
+        while (++recordRead < maxRecords && !cancellationToken.IsCancellationRequested &&
+               samples.Keys.Count > enough.Count)
+        {
+          // if at the end start from the beginning
+          if (!await fileReader.ReadAsync() && fileReader.EndOfFile)
+          {
+            if (!fileReader.SupportsReset)
+              break;
+            fileReader.ResetPositionToFirstDataRow();
+            // If still at the end, we do not have a line
+            if (startRecordNumber == 0 || !await fileReader.ReadAsync())
+              break;
+          }
 
-          // cut of after 40 chars
-          if (value.Length > 40)
-            value = value.Substring(0, 40);
+          // In case there was a warning reading the line, ignore the line
+          if (!hasWarning)
+            GetSampleValuesProcessRecord(fileReader, enoughSamples, treatAsNull, samples, maxSamples, enough);
+          else
+            hasWarning = false;
 
-          samples.Add(value);
+          // Once we arrive the starting row we have read all records
+          if (fileReader.RecordNumber == startRecordNumber)
+            break;
         }
       }
       catch (Exception ex)
       {
-        Logger.Warning(ex, "Issue getting sample values");
+        Debug.WriteLine(ex.InnerExceptionMessages());
+      }
+      finally
+      {
+        fileReader.Warning -= WarningEvent;
       }
 
-      return new SampleResult(samples, recordNumber);
+      return samples.ToDictionary(keyValue => keyValue.Key, keyValue => new SampleResult(keyValue.Value, recordRead));
     }
 
     /// <summary>
@@ -977,156 +1021,17 @@ namespace CsvTools
     /// <param name="cancellationToken">A cancellation token</param>
     /// <returns></returns>
     /// <exception cref="ArgumentNullException">dataReader</exception>
-    private static async Task<IDictionary<int, SampleResult>> GetSampleValuesAsync(IFileReader fileReader, long maxRecords,
-      IEnumerable<int> columns, int enoughSamples, string treatAsNull, CancellationToken cancellationToken)
-    {
-      if (fileReader == null)
-        throw new ArgumentNullException(nameof(fileReader));
-
-      if (string.IsNullOrEmpty(treatAsNull))
-        treatAsNull = "NULL;n/a";
-
-      var hasWarning = false;
-      var samples = new Dictionary<int, ICollection<string>>();
-
-      var remainingShows = 10;
-      var recordRead = 0;
-      var collectFor = new List<int>();
-      foreach (var col in columns)
-        if (col > -1 && col < fileReader.FieldCount)
-        {
-          collectFor.Add(col);
-          samples.Add(col, new HashSet<string>(StringComparer.OrdinalIgnoreCase));
-        }
-
-      if (collectFor.Count == 0)
-        throw new ArgumentOutOfRangeException(nameof(columns), "Column Collection can not be empty");
-
-      void WarningEvent(object sender, WarningEventArgs args)
-      {
-        if (args.ColumnNumber != -1 && !collectFor.Contains(args.ColumnNumber))
-          return;
-        if (remainingShows-- > 0)
-          Logger.Debug("Row ignored in detection: " + args.Message);
-        if (remainingShows == 0)
-          Logger.Debug("No further warning shown");
-
-        hasWarning = true;
-      }
-
-      fileReader.Warning += WarningEvent;
-
-      try
-      {
-        // could already be at EOF need to reset
-        if (fileReader.EndOfFile)
-        {
-          Logger.Debug("Resetting read position to the beginning");
-          fileReader.ResetPositionToFirstDataRow();
-        }
-
-        // Ready to start store the record number we are currently at, we could be in the middle of
-        // the file already
-        var startRecordNumber = fileReader.RecordNumber;
-
-        var maxSamples = 2000;
-        if (maxSamples < enoughSamples)
-          maxSamples = enoughSamples;
-
-        var enough = new List<int>();
-        // Get distinct sample values until we have
-        // * parsed the maximum number
-        // * have enough samples to be satisfied
-        // * we are at the beginning record again
-        while (++recordRead < maxRecords && !cancellationToken.IsCancellationRequested &&
-               collectFor.Count > enough.Count)
-        {
-          // if at the end start from the beginning
-          if (!await fileReader.ReadAsync() && fileReader.EndOfFile)
-          {
-            fileReader.ResetPositionToFirstDataRow();
-            // If still at the end, we do not have a line
-            if (startRecordNumber == 0 || !await fileReader.ReadAsync())
-              break;
-          }
-
-          // Once we arrive the starting row we have read all records
-          if (fileReader.RecordNumber == startRecordNumber)
-            break;
-
-          // In case there was a warning reading the line, ignore the line
-          if (!hasWarning)
-            foreach (var columnIndex in collectFor)
-            {
-              var value = fileReader.GetString(columnIndex);
-
-              // Any non existing value is not of interest
-              if (string.IsNullOrWhiteSpace(value))
-                continue;
-
-              // Always trim
-              value = value.Trim();
-
-              // Always do treat Text "Null" as Null
-              if (StringUtils.ShouldBeTreatedAsNull(value, treatAsNull))
-                continue;
-
-              // cut of after 40 chars
-              if (value.Length > 40)
-                value = value.Substring(0, 40);
-
-              // Have a max of 2000 values
-              if (samples[columnIndex].Count < maxSamples)
-                samples[columnIndex].Add(value);
-
-              if (!enough.Contains(columnIndex) && samples[columnIndex].Count > enoughSamples)
-                enough.Add(columnIndex);
-            }
-          else
-            // Reset the warning for the next line
-            hasWarning = false;
-        }
-      }
-      catch (Exception ex)
-      {
-        Debug.WriteLine(ex.InnerExceptionMessages());
-      }
-      finally
-      {
-        if (fileReader != null)
-          fileReader.Warning -= WarningEvent;
-      }
-
-      return samples.ToDictionary(keyValue => keyValue.Key, keyValue => new SampleResult(keyValue.Value, recordRead));
-    }
+    /// <exception cref="ArgumentOutOfRangeException">no valid columns provided</exception>
     private static IDictionary<int, SampleResult> GetSampleValues(IFileReader fileReader, long maxRecords,
      IEnumerable<int> columns, int enoughSamples, string treatAsNull, CancellationToken cancellationToken)
     {
-      if (fileReader == null)
-        throw new ArgumentNullException(nameof(fileReader));
-
-      if (string.IsNullOrEmpty(treatAsNull))
-        treatAsNull = "NULL;n/a";
+      var samples = GetSampleValuesValidate(fileReader, ref maxRecords, columns, ref treatAsNull);
 
       var hasWarning = false;
-      var samples = new Dictionary<int, ICollection<string>>();
-
       var remainingShows = 10;
-      var recordRead = 0;
-      var collectFor = new List<int>();
-      foreach (var col in columns)
-        if (col > -1 && col < fileReader.FieldCount)
-        {
-          collectFor.Add(col);
-          samples.Add(col, new HashSet<string>(StringComparer.OrdinalIgnoreCase));
-        }
-
-      if (collectFor.Count == 0)
-        throw new ArgumentOutOfRangeException(nameof(columns), "Column Collection can not be empty");
-
       void WarningEvent(object sender, WarningEventArgs args)
       {
-        if (args.ColumnNumber != -1 && !collectFor.Contains(args.ColumnNumber))
+        if (args.ColumnNumber != -1 && !samples.ContainsKey(args.ColumnNumber))
           return;
         if (remainingShows-- > 0)
           Logger.Debug("Row ignored in detection: " + args.Message);
@@ -1137,11 +1042,11 @@ namespace CsvTools
       }
 
       fileReader.Warning += WarningEvent;
-
+      var recordRead = 0;
       try
       {
         // could already be at EOF need to reset
-        if (fileReader.EndOfFile)
+        if (fileReader.EndOfFile && fileReader.SupportsReset)
         {
           Logger.Debug("Resetting read position to the beginning");
           fileReader.ResetPositionToFirstDataRow();
@@ -1161,52 +1066,27 @@ namespace CsvTools
         // * have enough samples to be satisfied
         // * we are at the beginning record again
         while (++recordRead < maxRecords && !cancellationToken.IsCancellationRequested &&
-               collectFor.Count > enough.Count)
+               samples.Keys.Count > enough.Count)
         {
           // if at the end start from the beginning
           if (!fileReader.Read() && fileReader.EndOfFile)
           {
+            if (!fileReader.SupportsReset)
+              break;
             fileReader.ResetPositionToFirstDataRow();
             // If still at the end, we do not have a line
             if (startRecordNumber == 0 || !fileReader.Read())
               break;
           }
 
+          if (!hasWarning)
+            GetSampleValuesProcessRecord(fileReader, enoughSamples, treatAsNull, samples, maxSamples, enough);
+          else
+            hasWarning = false;
+
           // Once we arrive the starting row we have read all records
           if (fileReader.RecordNumber == startRecordNumber)
             break;
-
-          // In case there was a warning reading the line, ignore the line
-          if (!hasWarning)
-            foreach (var columnIndex in collectFor)
-            {
-              var value = fileReader.GetString(columnIndex);
-
-              // Any non existing value is not of interest
-              if (string.IsNullOrWhiteSpace(value))
-                continue;
-
-              // Always trim
-              value = value.Trim();
-
-              // Always do treat Text "Null" as Null
-              if (StringUtils.ShouldBeTreatedAsNull(value, treatAsNull))
-                continue;
-
-              // cut of after 40 chars
-              if (value.Length > 40)
-                value = value.Substring(0, 40);
-
-              // Have a max of 2000 values
-              if (samples[columnIndex].Count < maxSamples)
-                samples[columnIndex].Add(value);
-
-              if (!enough.Contains(columnIndex) && samples[columnIndex].Count > enoughSamples)
-                enough.Add(columnIndex);
-            }
-          else
-            // Reset the warning for the next line
-            hasWarning = false;
         }
       }
       catch (Exception ex)
@@ -1215,11 +1095,65 @@ namespace CsvTools
       }
       finally
       {
-        if (fileReader != null)
-          fileReader.Warning -= WarningEvent;
+        fileReader.Warning -= WarningEvent;
       }
 
       return samples.ToDictionary(keyValue => keyValue.Key, keyValue => new SampleResult(keyValue.Value, recordRead));
+    }
+
+    private static void GetSampleValuesProcessRecord(IDataRecord fileReader, int enoughSamples, string treatAsNull,
+      Dictionary<int, ICollection<string>> samples, int maxSamples, ICollection<int> enough)
+    {
+      foreach (var columnIndex in samples.Keys.Where(x => !enough.Contains(x)))
+      {
+        var value = fileReader.GetValue(columnIndex).ToString();
+
+        // Any non existing value is not of interest
+        if (string.IsNullOrWhiteSpace(value))
+          continue;
+
+        // Always trim
+        value = value.Trim();
+
+        // Always do treat Text "Null" as Null
+        if (StringUtils.ShouldBeTreatedAsNull(value, treatAsNull))
+          continue;
+
+        // cut of after 40 chars
+        if (value.Length > 40)
+          value = value.Substring(0, 40);
+
+        // Have a max of 2000 values
+        if (samples[columnIndex].Count < maxSamples)
+          samples[columnIndex].Add(value);
+
+        if (samples[columnIndex].Count >= enoughSamples)
+          enough.Add(columnIndex);
+      }
+    }
+
+    private static Dictionary<int, ICollection<string>> GetSampleValuesValidate(IFileReader fileReader, ref long maxRecords, IEnumerable<int> columns,
+      ref string treatAsNull)
+    {
+      if (fileReader == null)
+        throw new ArgumentNullException(nameof(fileReader));
+
+      if (string.IsNullOrEmpty(treatAsNull))
+        treatAsNull = "NULL;n/a";
+
+      if (maxRecords < 1)
+        maxRecords = long.MaxValue;
+
+      if (fileReader.IsClosed)
+        fileReader.Open();
+
+      var samples = columns.Where(col => col > -1 && col < fileReader.FieldCount)
+        .ToDictionary<int, int, ICollection<string>>(col => col,
+          col => new HashSet<string>(StringComparer.OrdinalIgnoreCase));
+
+      if (samples.Keys.Count == 0)
+        throw new ArgumentOutOfRangeException(nameof(columns), "Column Collection can not be empty");
+      return samples;
     }
 
     /// <summary>
@@ -1237,9 +1171,9 @@ namespace CsvTools
     ///   characters are stored
     /// </returns>
     public static async Task<SampleResult> GetSampleValuesAsync(IFileReader fileReader, long maxRecords,
-      int columnIndex, int enoughSamples, string treatAsNull, CancellationToken cancellationToken) =>  (await GetSampleValuesAsync(fileReader, maxRecords, new[] { columnIndex }, enoughSamples, treatAsNull, cancellationToken))[columnIndex];
+      int columnIndex, int enoughSamples, string treatAsNull, CancellationToken cancellationToken) => (await GetSampleValuesAsync(fileReader, maxRecords, new[] { columnIndex }, enoughSamples, treatAsNull, cancellationToken))[columnIndex];
     public static SampleResult GetSampleValues(IFileReader fileReader, long maxRecords,
-      int columnIndex, int enoughSamples, string treatAsNull, CancellationToken cancellationToken) => (GetSampleValues(fileReader, maxRecords, new[] { columnIndex }, enoughSamples, treatAsNull, cancellationToken))[columnIndex];
+      int columnIndex, int enoughSamples, string treatAsNull, CancellationToken cancellationToken) => GetSampleValues(fileReader, maxRecords, new[] { columnIndex }, enoughSamples, treatAsNull, cancellationToken)[columnIndex];
 
     /// <summary>
     ///   Gets the writer source columns.
@@ -1254,6 +1188,8 @@ namespace CsvTools
 
       if (string.IsNullOrEmpty(fileSettings.SqlStatement))
         return new List<ColumnInfo>();
+      if (FunctionalDI.SQLDataReader == null)
+        throw new FileWriterException("No SQL Reader set");
       using (var data = FunctionalDI.SQLDataReader(fileSettings.SqlStatement.NoRecordSQL(), processDisplay, fileSettings.Timeout))
       {
         return ColumnInfo.GetSourceColumnInformation(fileSettings, data);

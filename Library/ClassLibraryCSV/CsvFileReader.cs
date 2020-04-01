@@ -132,7 +132,7 @@ namespace CsvTools
     ///   Gets a value indicating whether this instance is closed.
     /// </summary>
     /// <value><c>true</c> if this instance is closed; otherwise, <c>false</c>.</value>
-    public bool IsClosed => m_TextReader == null;
+    public override bool IsClosed => m_TextReader == null;
 
     public override void Close()
     {
@@ -204,7 +204,7 @@ namespace CsvTools
     /// <summary>
     ///   Open the file Reader; Start processing the Headers and determine the maximum column size
     /// </summary>
-    public void Open()
+    public override void Open()
     {
       m_HasQualifier |= m_CsvFile.FileFormat.FieldQualifierChar != '\0';
 
@@ -276,7 +276,7 @@ namespace CsvTools
     ///   Advances the <see cref="IDataReader" /> to the next record.
     /// </summary>
     /// <returns>true if there are more rows; otherwise, false.</returns>
-    public bool Read()
+    public override bool Read()
     {
       if (!CancellationToken.IsCancellationRequested)
       {
@@ -292,7 +292,7 @@ namespace CsvTools
       return false;
     }
 
-    public async Task<bool> ReadAsync()
+    public async override Task<bool> ReadAsync()
     {
       if (!CancellationToken.IsCancellationRequested)
       {
@@ -311,7 +311,7 @@ namespace CsvTools
     /// <summary>
     ///   Resets the position and buffer to the header in case the file has a header
     /// </summary>
-    public void ResetPositionToFirstDataRow()
+    public override void ResetPositionToFirstDataRow()
     {
       ResetPositionToStartOrOpen();
       if (m_CsvFile.HasFieldHeader)

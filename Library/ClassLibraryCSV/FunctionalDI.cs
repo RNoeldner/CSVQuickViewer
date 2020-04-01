@@ -134,11 +134,11 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets or sets the SQL data reader.
+    ///   Gets or sets a data reader
     /// </summary>
-    /// <value>The SQL data reader.</value>
-    /// <exception cref="ArgumentNullException">SQL Data Reader is not set</exception>
-    public static Func<string, IProcessDisplay, int, DbDataReader> SQLDataReader;
+    /// <value>The statement for reader the data.</value>
+    /// <remarks>Make sure teh returned reader is open when needed</remarks>
+    public static Func<string, IProcessDisplay, int, IFileReader> SQLDataReader;
 
   }
 }

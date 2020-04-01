@@ -397,8 +397,8 @@ namespace CsvTools
         var previousColumns = new List<string>();
         foreach (DataRow dataRow in schemaTable.Rows)
         {
-          var colName = StringUtils.MakeUniqueInCollection(previousColumns, (string) dataRow["ColumnName"]);
-          dataTable.Columns.Add(new DataColumn(colName, (Type) dataRow["DataType"]) {AllowDBNull = true});
+          var colName = StringUtils.MakeUniqueInCollection(previousColumns, (string)dataRow["ColumnName"]);
+          dataTable.Columns.Add(new DataColumn(colName, (Type)dataRow["DataType"]) { AllowDBNull = true });
           previousColumns.Add(colName);
         }
 
@@ -435,79 +435,6 @@ namespace CsvTools
       return dataTable;
     }
 
-    /// <summary>
-    ///   Synchronous method to copy rows from a IDataReader to a data table, I DataReader is implemented by IFileReader or
-    ///   DbDataReader
-    /// </summary>
-    /// <param name="dataReader"></param>
-    /// <param name="processDisplay"></param>
-    /// <param name="recordLimit"></param>
-    /// <returns></returns>
-    /// <remarks>There is a similar function that uses a file reader</remarks>
-    public static DataTable Read2DataTable(this IDataReader dataReader, IProcessDisplay processDisplay,
-      long recordLimit)
-    {
-      var dataTable = new DataTable();
-      long oldMax = -1;
-      var display = (processDisplay?.Maximum ?? 0) > 1
-        ? "Reading rows\nRecord {0:N0}/" + $"{processDisplay?.Maximum:N0}"
-        : "Reading rows\nRecords {0:N0}";
-
-      try
-      {
-        if (processDisplay != null && recordLimit > 0)
-        {
-          oldMax = processDisplay.Maximum;
-          processDisplay.Maximum = recordLimit;
-        }
-
-        // create columns
-        var schemaTable = dataReader.GetSchemaTable();
-        if (schemaTable == null)
-          return null;
-        var columns = schemaTable.Rows.Count;
-
-        // We could have duplicate column names in this case we have need to adjust the conflicting name
-        var previousColumns = new List<string>();
-        foreach (DataRow dataRow in schemaTable.Rows)
-        {
-          var colName = StringUtils.MakeUniqueInCollection(previousColumns, (string) dataRow["ColumnName"]);
-          dataTable.Columns.Add(new DataColumn(colName, (Type) dataRow["DataType"]) {AllowDBNull = true});
-          previousColumns.Add(colName);
-        }
-
-        if (!(processDisplay?.CancellationToken.IsCancellationRequested ?? false))
-        {
-          dataTable.BeginLoadData();
-          if (recordLimit < 1)
-            recordLimit = long.MaxValue;
-          // load the Data into the dataTable
-          var action = processDisplay == null ? null : new IntervalAction(.3);
-          while (dataReader.Read() && dataTable.Rows.Count < recordLimit &&
-                 !(processDisplay?.CancellationToken.IsCancellationRequested ?? false))
-          {
-            var readerValues = new object[columns];
-            if (dataReader.GetValues(readerValues) > 0)
-              dataTable.Rows.Add(readerValues);
-            action?.Invoke(() =>
-              processDisplay.SetProcess(string.Format(display, dataTable.Rows.Count), dataTable.Rows.Count, false));
-          }
-        }
-      }
-      finally
-      {
-        if (processDisplay != null)
-        {
-          processDisplay.SetProcess(string.Format(display, dataTable.Rows.Count), dataTable.Rows.Count, false);
-          if (oldMax > 0)
-            processDisplay.Maximum = oldMax;
-        }
-
-        dataTable.EndLoadData();
-      }
-
-      return dataTable;
-    }
 
 
     /// <summary>
@@ -976,7 +903,12 @@ namespace CsvTools
         throw new ArgumentNullException(nameof(executeTask));
 
       if (executeTask.IsCompleted)
+      {
+        if (executeTask.Exception != null)
+          throw executeTask.Exception.Flatten().InnerExceptions[0];
         return;
+      }
+        
       cancellationToken.ThrowIfCancellationRequested();
 
       var stopwatch = timeoutSeconds > 0.01 ? new Stopwatch() : null;
@@ -1037,7 +969,7 @@ namespace CsvTools
     public static T WaitToCompleteTask<T>(this Task<T> executeTask, double timeoutSeconds,
       CancellationToken cancellationToken = default)
     {
-      WaitToCompleteTask((Task) executeTask, timeoutSeconds, cancellationToken);
+      WaitToCompleteTask((Task)executeTask, timeoutSeconds, cancellationToken);
       return executeTask.Result;
     }
 
