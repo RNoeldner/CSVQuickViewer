@@ -12,6 +12,7 @@
  *
  */
 
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -25,7 +26,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Microsoft.Win32;
 
 namespace CsvTools
 {
@@ -56,7 +56,7 @@ namespace CsvTools
     /// <param name="fileSetting">The file setting.</param>
     /// <param name="fillGuessSettings">The fill guess settings.</param>
     /// <param name="showIgnore">if set to <c>true</c> [show ignore].</param>
-    /// <exception cref="ArgumentNullException">fileSetting or fileSefillGuessSettingstting</exception>
+    /// <exception cref="ArgumentNullException">fileSetting or fillGuessSettings NULL</exception>
     public FormColumnUI(
       Column column,
       bool writeSetting,
@@ -75,7 +75,7 @@ namespace CsvTools
       InitializeComponent();
       // needed for TimeZon, Name or TimePart
       columnBindingSource.DataSource = m_ColumnEdit;
-      // neede for Formats
+      // needed for Formats
       bindingSourceValueFormat.DataSource = m_ColumnEdit.ValueFormat;
 
       comboBoxColumnName.Enabled = showIgnore;
@@ -253,25 +253,9 @@ namespace CsvTools
               {
                 var rtfHelper = new RtfHelper();
                 rtfHelper.AddParagraph(
-                  $"No format could be determined in {ClassLibraryCsvExtensionMethods.Count(samples.Values):N0} sample values of {samples.RecordsRead:N0} records.");
+                  $"No format could be determined in {samples.Values.Count():N0} sample values of {samples.RecordsRead:N0} records.");
                 rtfHelper.AddParagraph();
-                rtfHelper.AddParagraph("Examples");
-                var texts = samples.Values.Take(4 * 5).ToArray();
-                var hasCutoff = false;
-                for (var index = 0; index < texts.Length; index++)
-                {
-                  if (texts[index].Length > 15)
-                  {
-                    hasCutoff = true;
-                    texts[index] = texts[index].Substring(0, 15);
-                  }
-                }
-                rtfHelper.AddTable(texts);
-                if (hasCutoff)
-                {
-                  rtfHelper.AddParagraph();
-                  rtfHelper.AddParagraph("Note: Text has been cut off after 15 characters");
-                }
+                AddSamples(samples.Values, rtfHelper, "Examples", 4);
 
                 _MessageBox.ShowBigRtf(
                   this,
@@ -304,27 +288,10 @@ namespace CsvTools
                   var rtfHelper = new RtfHelper();
                   if (checkResult.ExampleNonMatch.Count > 0)
                   {
-                    rtfHelper.AddParagraph("Not matching:");
-                    rtfHelper.AddTable(checkResult.ExampleNonMatch.Take(4));
+                    AddSamples(checkResult.ExampleNonMatch, rtfHelper, "Not matching:", 2);
                   }
 
-                  rtfHelper.AddParagraph("Samples:");
-                  var texts = samples.Values.Take(4 * 5).ToArray();
-                  var hasCutoff = false;
-                  for (var index = 0; index < texts.Length; index++)
-                  {
-                    if (texts[index].Length > 15)
-                    {
-                      hasCutoff = true;
-                      texts[index] = texts[index].Substring(0, 15);
-                    }
-                  }
-                  rtfHelper.AddTable(texts);
-                  if (hasCutoff)
-                  {
-                    rtfHelper.AddParagraph();
-                    rtfHelper.AddParagraph("Note: Text has been cut off after 15 characters");
-                  }
+                  AddSamples(samples.Values, rtfHelper, "Samples:", 4);
 
                   var suggestClosestMatch = checkResult.PossibleMatch
                                             && (checkResult.FoundValueFormat == null
@@ -368,7 +335,7 @@ namespace CsvTools
                   var displayMsg =
                     $"No specific format found in {samples.RecordsRead:N0} records. Need {m_FillGuessSettings.MinSamples:N0} distinct values.\n\n{checkResult.ExampleNonMatch.Concat(samples.Values).Take(42).Join("\t")}";
 
-                  if (ClassLibraryCsvExtensionMethods.Count(samples.Values) < m_FillGuessSettings.MinSamples)
+                  if (samples.Values.Count() < m_FillGuessSettings.MinSamples)
                   {
                     _MessageBox.ShowBig(
                       this,
@@ -476,24 +443,7 @@ namespace CsvTools
           else
           {
             var rtfHelper = new RtfHelper();
-            rtfHelper.AddParagraph("Found values");
-            rtfHelper.AddParagraph();
-            var texts = values.Values.Take(4 * 5).ToArray();
-            var hasCutoff = false;
-            for (var index = 0; index < texts.Length; index++)
-            {
-              if (texts[index].Length > 15)
-              {
-                hasCutoff = true;
-                texts[index] = texts[index].Substring(0, 15);
-              }
-            }
-            rtfHelper.AddTable(texts);
-            if (hasCutoff)
-            {
-              rtfHelper.AddParagraph();
-              rtfHelper.AddParagraph("Note: Text has been cut off after 15 characters");
-            }
+            AddSamples(values.Values, rtfHelper, "Found values", 4);
 
             _MessageBox.ShowBigRtf(this,
               rtfHelper.Rtf,
@@ -512,6 +462,25 @@ namespace CsvTools
         buttonDisplayValues.Enabled = true;
         Cursor.Current = oldCursor;
       }
+    }
+
+    private static void AddSamples(IEnumerable<string> values, RtfHelper rtfHelper, string header, int rows)
+    {
+      rtfHelper.AddParagraph(header);
+      rtfHelper.AddParagraph();
+      var texts = values.Take(4 * rows).ToArray();
+      var hasCutoff = false;
+      for (var index = 0; index < texts.Length; index++)
+      {
+        if (texts[index].Length <= 15) continue;
+        hasCutoff = true;
+        texts[index] = texts[index].Substring(0, 15);
+      }
+
+      rtfHelper.AddTable(texts);
+      if (!hasCutoff) return;
+      rtfHelper.AddParagraph();
+      rtfHelper.AddParagraph("Note: Text has been cut off after 15 characters");
     }
 
     /// <summary>
@@ -598,7 +567,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
-    private async void ColumnFormatUI_LoadAsync(object sender, EventArgs e)
+    private void ColumnFormatUI_Load(object sender, EventArgs e)
     {
       var oldCursor = Cursor.Current == Cursors.WaitCursor ? Cursors.WaitCursor : Cursors.Default;
       Cursor.Current = Cursors.WaitCursor;
@@ -631,7 +600,7 @@ namespace CsvTools
             try
             {
               if (!m_WriteSetting)
-              {
+              { // Read Settings  -- open teh source that is a file
                 // if there are ignored columns need to open file and get all columns
                 if (m_FileSetting.ColumnCollection.Any(x => x.Ignore) || FunctionalDI.GetColumnHeader == null)
                 {
@@ -650,15 +619,14 @@ namespace CsvTools
                       allColumns.Add(col);
                 }
               }
-              else
-              {
-                using (var schemaReader = FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement.NoRecordSQL(),
+              else 
+              { // Write Setting ----- open the source that is SQL
+                using (var fileReader = FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement.NoRecordSQL(),
                   processDisplay, m_FileSetting.Timeout))
-                using (var dataTable = schemaReader.GetSchemaTable())
                 {
-                  if (dataTable != null)
-                    foreach (DataRow schemaRow in dataTable.Rows)
-                      allColumns.Add(schemaRow[SchemaTableColumn.ColumnName].ToString());
+                  fileReader.Open();
+                  for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
+                    allColumns.Add(fileReader.GetColumn(colIndex).Name);
                 }
               }
             }
@@ -855,7 +823,7 @@ namespace CsvTools
           csv.WarnQuotesInQuotes = false;
         }
 
-      retry:
+        retry:
         using (var fileReader = FunctionalDI.GetFileReader(fileSettingCopy, null, processDisplay))
         {
           fileReader.Open();

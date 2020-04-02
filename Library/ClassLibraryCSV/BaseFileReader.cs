@@ -981,11 +981,15 @@ namespace CsvTools
 
     protected virtual void FinishOpen()
     {
-      FunctionalDI.StoreHeader?.Invoke(FileSetting, Column);
+
       m_IsFinished = false;
       if (FieldCount > 0)
         // Override the column settings and store the columns for later reference
         OverrideColumnFormatFromSetting();
+
+      // in case caching is setup store the headers
+      if (FunctionalDI.GetColumnHeader != null)
+        FunctionalDI.StoreHeader?.Invoke(FileSetting, Column);
 
       if (ProcessDisplay != null)
         ProcessDisplay.Maximum = cMaxValue;

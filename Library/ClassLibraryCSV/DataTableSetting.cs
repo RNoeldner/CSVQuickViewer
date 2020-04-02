@@ -1,10 +1,19 @@
-﻿namespace CsvTools
+﻿using System;
+
+namespace CsvTools
 {
   public class DataTableSetting : BaseSettings, IFileSetting
   {
+    public DataTableSetting(string tableName)
+    {
+      base.FileName = tableName;
+      base.ID = Guid.NewGuid().ToString();
+      base.HasFieldHeader = true;
+    }
+
     public IFileSetting Clone()
     {
-      var other = new DataTableSetting();
+      var other = new DataTableSetting(FileName);
       CopyTo(other);
       return other;
     }
