@@ -88,9 +88,9 @@ namespace CsvTools
     public static Func<IFileSetting, CancellationToken, ICollection<string>> GetColumnHeader;
 
     /// <summary>
-    ///   Action to store the headers of a file in a cache
+    ///   Action to store the headers of a file in a cache, ignored columns should be excluded
     /// </summary>
-    public static Action<IFileSetting, IEnumerable<Column>> StoreHeader;
+    public static Action<IFileSetting, ICollection<Column>> StoreHeader;
 
     /// <summary>
     ///   Return the right reader for a file setting

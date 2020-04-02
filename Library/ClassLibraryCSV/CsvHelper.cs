@@ -31,22 +31,6 @@ namespace CsvTools
   /// </summary>
   public static class CsvHelper
   {
-    public static ICollection<string> GetColumnHeadersFromReader(IFileReader fileReader)
-    {
-      Contract.Ensures(Contract.Result<IEnumerable<string>>() != null);
-      var values = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-      if (fileReader == null)
-        return values;
-      for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
-      {
-        var cf = fileReader.GetColumn(colIndex);
-        if (!string.IsNullOrEmpty(cf.Name) && !cf.Ignore)
-          values.Add(cf.Name);
-      }
-
-      return values;
-    }
-
     /// <summary>
     ///   Gets the column header of a file
     /// </summary>

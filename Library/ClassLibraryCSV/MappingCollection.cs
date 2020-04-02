@@ -1,14 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 
 namespace CsvTools
 {
-  public sealed class MappingCollection : Collection<Mapping>, ICloneable<MappingCollection>, IEquatable<MappingCollection>, INotifyPropertyChanged
+  public sealed class MappingCollection : ObservableCollection<Mapping>, ICloneable<MappingCollection>, IEquatable<MappingCollection>
   {
-    public event PropertyChangedEventHandler PropertyChanged;
-
     public bool AddIfNew(Mapping fieldMapping)
     {
       if (fieldMapping == null)
@@ -30,8 +27,6 @@ namespace CsvTools
       if (found) return false;
 
       Add(fieldMapping);
-      PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Collection"));
-
       return true;
     }
 
@@ -103,8 +98,6 @@ namespace CsvTools
 
       foreach (var fieldMapping in toBeRemoved)
         Remove(fieldMapping);
-
-      PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Collection"));
     }
   }
 }

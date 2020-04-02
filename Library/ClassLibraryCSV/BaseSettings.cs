@@ -83,8 +83,17 @@ namespace CsvTools
     protected BaseSettings(string fileName)
     {
       m_FileName = FileNameFix(fileName);
-      ColumnCollection.CollectionChanged += ColumnCollectionChanged;
-      MappingCollection.PropertyChanged += delegate { NotifyPropertyChanged(nameof(MappingCollection)); };
+      // adding or removing columns should cause a property changed for ColumnCollection
+      ColumnCollection.CollectionChanged += (sender, e) =>
+      {
+        if (e.Action == NotifyCollectionChangedAction.Remove || e.Action == NotifyCollectionChangedAction.Add)
+          NotifyPropertyChanged(nameof(ColumnCollection));
+      };
+      MappingCollection.CollectionChanged += (sender, e) =>
+      {
+        if (e.Action == NotifyCollectionChangedAction.Remove || e.Action == NotifyCollectionChangedAction.Add)
+          NotifyPropertyChanged(nameof(MappingCollection));
+      };
     }
 
     /// <summary>
@@ -92,23 +101,6 @@ namespace CsvTools
     /// </summary>
     protected BaseSettings() : this(string.Empty)
     {
-    }
-
-    private void ColumnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-    {
-      if (e.NewItems != null)
-      {
-        foreach (Column item in e.NewItems)
-        {
-          item.PropertyChanged += delegate (object s, PropertyChangedEventArgs colEvent)
-          {
-            if (colEvent.PropertyName == nameof(Column.Ignore))
-              NotifyPropertyChanged(nameof(ColumnCollection));
-          };
-        }
-      }
-      if (e.NewItems != null || e.OldItems != null)
-        NotifyPropertyChanged(nameof(ColumnCollection));
     }
 
     /// <summary>

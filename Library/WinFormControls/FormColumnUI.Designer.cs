@@ -1031,7 +1031,7 @@
       this.ShowInTaskbar = false;
       this.Text = "Column Format";
       this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.ColumnFormatUI_FormClosing);
-      this.Load += new System.EventHandler(this.ColumnFormatUI_LoadAsync);
+      this.Load += new System.EventHandler(this.ColumnFormatUI_Load);
       tableLayoutPanel2.ResumeLayout(false);
       tableLayoutPanel2.PerformLayout();
       ((System.ComponentModel.ISupportInitialize)(this.bindingSourceValueFormat)).EndInit();

@@ -263,31 +263,7 @@ namespace CsvTools.Tests
       Assert.AreEqual(10, test.SkipRows);
     }
 
-    [TestMethod]
-    public void GetColumnHeadersFromReaderClosed()
-    {
-      var setting = new CsvFile
-      {
-        FileFormat = { FieldDelimiter = "," },
-        FileName = UnitTestInitialize.GetTestPath("EmptyColumns.txt"),
-        HasFieldHeader = false
-      };
-      using (var disp = new DummyProcessDisplay())
-      {
-        using (var read = new CsvFileReader(setting, TimeZoneInfo.Local.Id, disp))
-        {
-          read.Open();
-          Assert.IsTrue(CsvHelper.GetEmptyColumnHeader(read, disp.CancellationToken).Count == 0);
-        }
-
-        setting.HasFieldHeader = true;
-        using (var reader = FunctionalDI.GetFileReader(setting, TimeZoneInfo.Local.Id, disp))
-        {
-          var res = CsvHelper.GetColumnHeadersFromReader(reader);
-          Assert.AreEqual(0, res.Count);
-        }
-      }
-    }
+  
 
     [TestMethod]
     public void GuessJsonFile()
@@ -299,26 +275,6 @@ namespace CsvTools.Tests
       };
 
       Assert.IsTrue(CsvHelper.GuessJsonFileAsync(setting, CancellationToken.None).WaitToCompleteTask(2));
-    }
-
-    [TestMethod]
-    public void GetColumnHeadersFromReader()
-    {
-      var setting = new CsvFile
-      {
-        FileFormat = { FieldDelimiter = "," },
-        FileName = UnitTestInitialize.GetTestPath("EmptyColumns.txt"),
-        HasFieldHeader = false
-      };
-      using (var disp = new DummyProcessDisplay())
-      {
-        using (var reader = FunctionalDI.GetFileReader(setting, TimeZoneInfo.Local.Id, disp))
-        {
-          reader.Open();
-          var res = CsvHelper.GetColumnHeadersFromReader(reader);
-          Assert.AreEqual(6, res.Count);
-        }
-      }
     }
 
     [TestMethod]

@@ -29,7 +29,7 @@ namespace CsvTools
     private DbDataReader m_DbDataReader;
 
     public DataTableReader(DataTable dt, string id, IProcessDisplay processDisplay) : base(
-      new DataTableSetting() { ID = id ?? "DataTable", HasFieldHeader = true }, TimeZoneInfo.Local.Id, processDisplay) =>
+      new DataTableSetting(dt.TableName), TimeZoneInfo.Local.Id, processDisplay) =>
       m_DataTable = dt ?? throw new ArgumentNullException(nameof(dt));
 
     public override DataTable GetDataTable(long recordLimit) => m_DataTable;
