@@ -41,17 +41,17 @@ namespace CsvTools
     /// <summary>
     ///   The carriage return character. Escape code is <c>\r</c>.
     /// </summary>
-    private const char c_Cr = (char) 0x0d;
+    private const char c_Cr = (char)0x0d;
 
     /// <summary> The line-feed character. Escape code is <c>\n</c>. </summary>
-    private const char c_Lf = (char) 0x0a;
+    private const char c_Lf = (char)0x0a;
 
     /// <summary>
     ///   A non-breaking space..
     /// </summary>
-    private const char c_Nbsp = (char) 0xA0;
+    private const char c_Nbsp = (char)0xA0;
 
-    private const char c_UnknownChar = (char) 0xFFFD;
+    private const char c_UnknownChar = (char)0xFFFD;
 
     private readonly ICsvFile m_CsvFile;
 
@@ -218,7 +218,7 @@ namespace CsvTools
           $"Only the first character of '{m_CsvFile.FileFormat.FieldDelimiter}' is used as delimiter.");
 
       BeforeOpen();
-      Retry:
+    Retry:
       try
       {
         var fn = FileSystemUtils.SplitPath(m_CsvFile.FullPath);
@@ -513,9 +513,9 @@ namespace CsvTools
     {
       // if we know how many records to read, use that
       if (m_CsvFile.RecordLimit > 0)
-        return (int) ((double) RecordNumber / m_CsvFile.RecordLimit * cMaxValue);
+        return (int)((double)RecordNumber / m_CsvFile.RecordLimit * cMaxValue);
 
-      return (int) ((m_ImprovedStream?.Percentage ?? 0) * cMaxValue);
+      return (int)((m_ImprovedStream?.Percentage ?? 0) * cMaxValue);
     }
 
     private char EatNextCRLF(char character)
@@ -542,9 +542,8 @@ namespace CsvTools
     {
       try
       {
-        Restart:
-
-        CurrentRowColumnText = ReadNextRow(true, true);
+      Restart:
+      CurrentRowColumnText = ReadNextRow(true, true);
 
         if (!AllEmptyAndCountConsecutiveEmptyRows(CurrentRowColumnText))
         {
@@ -563,7 +562,7 @@ namespace CsvTools
         }
 
         var hasWarningCombinedWarning = false;
-        Restart2:
+      Restart2:
         var rowLength = CurrentRowColumnText.Length;
         if (rowLength == FieldCount)
         {
@@ -657,17 +656,16 @@ namespace CsvTools
         // If more columns are present
         if (rowLength > FieldCount && (m_CsvFile.WarnEmptyTailingColumns || m_RealignColumns != null))
         {
-          // check if the additional columns have contents
-          var hasContent = false;
-          for (var extraCol = FieldCount; extraCol < rowLength; extraCol++)
-          {
-            if (string.IsNullOrEmpty(CurrentRowColumnText[extraCol]))
-              continue;
-            hasContent = true;
-            break;
-          }
+          // check if the additional columns have contents, if that is not the case and we did not have any issues in the row assume all good.
+          //var hasContent = false;
+          //for (var extraCol = FieldCount; extraCol < rowLength; extraCol++)
+          //{
+          //  if (string.IsNullOrEmpty(CurrentRowColumnText[extraCol]))
+          //    continue;
+          //  hasContent = true;
+          //  break;
+          //}
 
-          if (!hasContent) return true;
           if (m_RealignColumns != null)
           {
             HandleWarning(-1,
@@ -678,7 +676,7 @@ namespace CsvTools
           else
           {
             HandleWarning(-1,
-              $"Line {StartLineNumber}{cMoreColumns} ({rowLength}/{FieldCount}). The data in extra columns is not read.");
+              $"Line {StartLineNumber}{cMoreColumns} ({rowLength}/{FieldCount}). The columns might be not aligned.");
           }
         }
 
@@ -696,7 +694,7 @@ namespace CsvTools
     {
       try
       {
-        Restart:
+      Restart:
         // Store the starting Line Number
         StartLineNumber = EndLineNumber;
 
@@ -799,7 +797,7 @@ namespace CsvTools
         }
 
         var hasWarningCombinedWarning = false;
-        Restart2:
+      Restart2:
         var rowLength = CurrentRowColumnText.Length;
         if (rowLength == FieldCount)
         {
@@ -992,7 +990,7 @@ namespace CsvTools
         return c_Lf;
       }
 
-      return (char) res;
+      return (char)res;
     }
 
     private async Task<char> PeekAsync()
@@ -1005,7 +1003,7 @@ namespace CsvTools
         return c_Lf;
       }
 
-      return (char) res;
+      return (char)res;
     }
 
     /// <summary>
@@ -1463,7 +1461,7 @@ namespace CsvTools
     /// </returns>
     private string[] ReadNextRow(bool regularDataRow, bool storeWarnings)
     {
-      Restart:
+    Restart:
       // Store the starting Line Number
       StartLineNumber = EndLineNumber;
 
