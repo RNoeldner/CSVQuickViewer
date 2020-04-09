@@ -278,28 +278,6 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void GetEmptyColumnHeaderTest()
-    {
-      var setting = new CsvFile
-      {
-        FileFormat = { FieldDelimiter = "," },
-        FileName = UnitTestInitialize.GetTestPath("EmptyColumns.txt"),
-        HasFieldHeader = true
-      };
-      using (var disp = new DummyProcessDisplay())
-      {
-        using (var read = new CsvFileReader(setting, TimeZoneInfo.Local.Id, disp))
-        {
-          read.Open();
-          var res = CsvHelper.GetEmptyColumnHeader(read, disp.CancellationToken);
-
-          Assert.IsFalse(res.Count == 0);
-          Assert.AreEqual("ID", res.First());
-        }
-      }
-    }
-
-    [TestMethod]
     public void GuessNewlineTest()
     {
       // Storing Text file with given line ends is tricky, editor and source control might change
