@@ -12,9 +12,10 @@
  *
  */
 
+using System.Linq;
+
 namespace CsvTools
 {
-  using Pri.LongPath;
   using System;
   using System.Collections.Generic;
   using System.Drawing;
@@ -83,10 +84,7 @@ namespace CsvTools
 
     public static Binding GetTextBindng(this Control ctrl)
     {
-      foreach (Binding bind in ctrl.DataBindings)
-        if (bind.PropertyName == "Text" || bind.PropertyName == "Value")
-          return bind;
-      return null;
+      return ctrl.DataBindings.Cast<Binding>().FirstOrDefault(bind => bind.PropertyName == "Text" || bind.PropertyName == "Value");
     }
 
     public static void LoadWindowState(
@@ -118,10 +116,10 @@ namespace CsvTools
 
       form.DesktopBounds = new Rectangle(left, top, width, height);
       form.WindowState = (FormWindowState)windowPosition.State;
-      if (windowPosition.CustomInt != int.MinValue && setCustomValue1 != null)
-        setCustomValue1.Invoke(windowPosition.CustomInt);
-      if (!string.IsNullOrEmpty(windowPosition.CustomText) && setCustomValue2 != null)
-        setCustomValue2.Invoke(windowPosition.CustomText);
+      if (windowPosition.CustomInt != int.MinValue)
+        setCustomValue1?.Invoke(windowPosition.CustomInt);
+      if (!string.IsNullOrEmpty(windowPosition.CustomText))
+        setCustomValue2?.Invoke(windowPosition.CustomText);
     }
 
     /// <summary>

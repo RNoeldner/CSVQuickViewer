@@ -14,7 +14,6 @@
 
 using System;
 using System.Data;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace CsvTools
@@ -79,7 +78,7 @@ namespace CsvTools
     ///   Asynchronous method to copy rows from a the reader to a data table
     /// </summary>
     /// <returns>A DataTable</returns>
-    Task<DataTable>GetDataTableAsync(long recordLimit);
+    Task<DataTable> GetDataTableAsync(long recordLimit);
 
     /// <summary>
     ///   Reads the next record of the current result set
