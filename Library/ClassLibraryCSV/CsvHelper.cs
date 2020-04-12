@@ -141,7 +141,8 @@ namespace CsvTools
       while (counter < 12 && !cancellationToken.IsCancellationRequested && !reader.EndOfFile)
       {
         var dataLine = await reader.ReadLineAsync();
-        if (string.IsNullOrEmpty(dataLine) || (!string.IsNullOrEmpty(comment) && dataLine.TrimStart().StartsWith(comment)))
+        if (string.IsNullOrEmpty(dataLine)
+            || !string.IsNullOrEmpty(comment) && dataLine.TrimStart().StartsWith(comment))
           continue;
         counter++;
         fieldCount += dataLine.Split(delimiter).Length;
@@ -377,7 +378,7 @@ namespace CsvTools
         }
       }
     }
-   
+
     private static async Task<DelimiterCounter> GetDelimiterCounterAsync(ImprovedTextReader textReader, char escapeCharacter, int numRows, CancellationToken cancellationToken)
     {
       Contract.Ensures(Contract.Result<DelimiterCounter>() != null);
@@ -535,16 +536,16 @@ namespace CsvTools
             if (dist > 2 || dist < -2)
               cutVariance += 8;
             else switch (dist)
-            {
-              case 2:
-              case -2:
-                cutVariance += 4;
-                break;
-              case 1:
-              case -1:
-                cutVariance++;
-                break;
-            }
+              {
+                case 2:
+                case -2:
+                  cutVariance += 4;
+                  break;
+                case 1:
+                case -1:
+                  cutVariance++;
+                  break;
+              }
           }
 
           // The score is dependent on the average columns found and the regularity
@@ -692,12 +693,8 @@ namespace CsvTools
 
       // We need a certain level of confidence only one quoted column is not enough,
       if (max <= 1) return '\0';
-      {
-        for (var testChar = 0; testChar < possibleQuotes.Length; testChar++)
-          if (counter[testChar] == max)
-            return possibleQuotes[testChar];
-      }
-      return '\0';
+
+      return possibleQuotes.Where((t, testChar) => counter[testChar] == max).FirstOrDefault();
     }
 
     /// <summary>

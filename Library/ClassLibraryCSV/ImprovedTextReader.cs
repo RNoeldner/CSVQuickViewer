@@ -75,7 +75,7 @@ namespace CsvTools
 
       if (intCodePageByBom != 0)
       {
-        ByteOrderMark = (intCodePageByBom != 0);
+        ByteOrderMark = intCodePageByBom != 0;
         CodePage = (EncodingHelper.CodePage)intCodePageByBom;
       }
       else
@@ -207,26 +207,6 @@ namespace CsvTools
         return -1;
       MoveNext();
       return character;
-    }
-
-    private bool HandleCrLF(int character, Func<int> getNext)
-    {
-      if (character == c_Cr || character == c_Lf)
-      {
-        var nextChar = getNext();
-        if (character == c_Cr && nextChar == c_Lf)
-        {
-          MoveNext();
-        }
-        if (character == c_Lf && nextChar == c_Cr)
-        {
-          LineNumber++;
-          MoveNext();
-        }
-
-        return true;
-      }
-      return false;
     }
 
     public string ReadLine()

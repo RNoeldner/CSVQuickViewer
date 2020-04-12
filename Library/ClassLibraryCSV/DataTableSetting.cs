@@ -22,9 +22,7 @@ namespace CsvTools
     {
       if (other is null)
         return false;
-      if (ReferenceEquals(this, other))
-        return true;
-      return BaseSettingsEquals(other as BaseSettings);
+      return ReferenceEquals(this, other) || this.BaseSettingsEquals(other as BaseSettings);
     }
 
     public void CopyTo(IFileSetting other)

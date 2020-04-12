@@ -15,11 +15,12 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing;
 using System.Windows.Forms;
 
 namespace CsvTools
 {
+  using System.Linq;
+
   public sealed class FormSelectTimeZone : ResizeForm
   {
     private readonly double m_Duration = 5.0;
@@ -52,9 +53,8 @@ namespace CsvTools
           TimeZoneInfo.Local.Id,
           $"{TimeZoneInfo.Local.DisplayName} *[Local System]")
       };
-
-      foreach (var wintz in TimeZoneInfo.GetSystemTimeZones())
-        display.Add(new DisplayItem<string>(wintz.Id, wintz.DisplayName));
+      display.AddRange(
+        TimeZoneInfo.GetSystemTimeZones().Select(wintz => new DisplayItem<string>(wintz.Id, wintz.DisplayName)));
 
       m_ComboBoxTimeZoneID.DataSource = display;
     }

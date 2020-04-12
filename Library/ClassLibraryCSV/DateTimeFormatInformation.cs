@@ -24,7 +24,7 @@ namespace CsvTools
     {
       MinLength = format.Length;
       MaxLength = format.Length;
-      NamedDate = (format.IndexOf("ddd", StringComparison.Ordinal) != -1 || format.IndexOf("MMM", StringComparison.Ordinal) != -1);
+      NamedDate = format.IndexOf("ddd", StringComparison.Ordinal) != -1 || format.IndexOf("MMM", StringComparison.Ordinal) != -1;
 
       if (m_MinDayLong == int.MaxValue)
         DetermineLength();

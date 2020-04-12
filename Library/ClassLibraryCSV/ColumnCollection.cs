@@ -3,6 +3,8 @@ using System.Collections.ObjectModel;
 
 namespace CsvTools
 {
+  using System.Linq;
+
   public sealed class ColumnCollection : ObservableCollection<Column>, ICloneable<ColumnCollection>, IEquatable<ColumnCollection>
   {
     /// <summary>
@@ -56,12 +58,7 @@ namespace CsvTools
     public Column Get(string fieldName)
     {
       if (string.IsNullOrEmpty(fieldName)) return null;
-      foreach (var column in Items)
-      {
-        if (column.Name.Equals(fieldName, StringComparison.OrdinalIgnoreCase))
-          return column;
-      }
-      return null;
+      return this.Items.FirstOrDefault(column => column.Name.Equals(fieldName, StringComparison.OrdinalIgnoreCase));
     }
   }
 }

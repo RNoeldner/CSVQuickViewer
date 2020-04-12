@@ -20,8 +20,8 @@
     /// <summary>
     ///   True if we have read all data in the reader once
     /// </summary>
-    public bool AllRead => (m_ImprovedTextReader.EndOfFile && !CanStartFromBeginning)
-                        || (m_ArrivedAtEndOnce && m_ImprovedTextReader.LineNumber > m_LineStarted);
+    public bool AllRead => this.m_ImprovedTextReader.EndOfFile && !this.CanStartFromBeginning
+                        || this.m_ArrivedAtEndOnce && this.m_ImprovedTextReader.LineNumber > this.m_LineStarted;
 
     /// <summary>
     ///   Determines if we could reset the position to allow processing text taht had been read before

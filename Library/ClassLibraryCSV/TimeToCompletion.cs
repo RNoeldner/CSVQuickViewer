@@ -166,7 +166,7 @@ namespace CsvTools
     /// <returns></returns>
     public static string DisplayTimespan(TimeSpan value, bool cut2Sec = true)
     {
-      if (value == TimeSpan.MaxValue || (cut2Sec && value.TotalSeconds < 2))
+      if (value == TimeSpan.MaxValue || cut2Sec && value.TotalSeconds < 2)
         return string.Empty;
       if (value.TotalMinutes < 1)
         return $"{Math.Round(value.TotalSeconds, 0, MidpointRounding.AwayFromZero):0} sec";

@@ -4,6 +4,8 @@ using System.Collections.ObjectModel;
 
 namespace CsvTools
 {
+  using System.Linq;
+
   public sealed class MappingCollection : ObservableCollection<Mapping>, ICloneable<MappingCollection>, IEquatable<MappingCollection>
   {
     public bool AddIfNew(Mapping fieldMapping)
@@ -11,20 +13,10 @@ namespace CsvTools
       if (fieldMapping == null)
         return false;
 
-      var found = false;
-      foreach (var map in Items)
-      {
-        if (!map.FileColumn.Equals(fieldMapping.FileColumn, StringComparison.OrdinalIgnoreCase) ||
-            !map.TemplateField.Equals(fieldMapping.TemplateField, StringComparison.OrdinalIgnoreCase))
-        {
-          continue;
-        }
-
-        found = true;
-        break;
-      }
-
-      if (found) return false;
+      if (Items.Any(
+        map => map.FileColumn.Equals(fieldMapping.FileColumn, StringComparison.OrdinalIgnoreCase)
+               && map.TemplateField.Equals(fieldMapping.TemplateField, StringComparison.OrdinalIgnoreCase)))
+        return false;
 
       Add(fieldMapping);
       return true;
@@ -56,14 +48,8 @@ namespace CsvTools
     /// </returns>
     public bool Equals(MappingCollection other) => Items.CollectionEqual(other);
 
-    public IEnumerable<Mapping> GetByColumn(string columnName)
-    {
-      foreach (var mapping in Items)
-      {
-        if (mapping.FileColumn.Equals(columnName, StringComparison.OrdinalIgnoreCase))
-          yield return mapping;
-      }
-    }
+    public IEnumerable<Mapping> GetByColumn(string columnName) =>
+      Items.Where(mapping => mapping.FileColumn.Equals(columnName, StringComparison.OrdinalIgnoreCase));
 
     /// <summary>
     /// Get the IFileSetting Mapping by template column
@@ -75,12 +61,8 @@ namespace CsvTools
     public Mapping GetByField(string templateFieldName)
     {
       if (string.IsNullOrEmpty(templateFieldName)) return null;
-      foreach (var map in Items)
-      {
-        if (map.TemplateField.Equals(templateFieldName, StringComparison.OrdinalIgnoreCase))
-          return map;
-      }
-      return null;
+      return Items.FirstOrDefault(
+        map => map.TemplateField.Equals(templateFieldName, StringComparison.OrdinalIgnoreCase));
     }
 
     public string GetColumnName(string templateFieldName) => GetByField(templateFieldName)?.FileColumn;

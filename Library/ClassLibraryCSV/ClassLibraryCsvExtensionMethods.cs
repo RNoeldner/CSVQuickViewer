@@ -368,72 +368,72 @@ namespace CsvTools
     /// <param name="processDisplay"></param>
     /// <param name="recordLimit"></param>
     /// <returns></returns>
-    public static async Task<DataTable> Read2DataTableAsync(Func<DataTable> getSchemaTable, Func<Task<bool>> readAsync,
-      Func<object[], int> getValues,
-      IProcessDisplay processDisplay,
-      long recordLimit)
-    {
-      var dataTable = new DataTable();
-      long oldMax = -1;
-      var display = (processDisplay?.Maximum ?? 0) > 1
-        ? "Reading rows\nRecord {0:N0}/" + $"{processDisplay?.Maximum:N0}"
-        : "Reading rows\nRecords {0:N0}";
+    //public static async Task<DataTable> Read2DataTableAsync(Func<DataTable> getSchemaTable, Func<Task<bool>> readAsync,
+    //  Func<object[], int> getValues,
+    //  IProcessDisplay processDisplay,
+    //  long recordLimit)
+    //{
+    //  var dataTable = new DataTable();
+    //  long oldMax = -1;
+    //  var display = (processDisplay?.Maximum ?? 0) > 1
+    //    ? "Reading rows\nRecord {0:N0}/" + $"{processDisplay?.Maximum:N0}"
+    //    : "Reading rows\nRecords {0:N0}";
 
-      try
-      {
-        if (processDisplay != null && recordLimit > 0)
-        {
-          oldMax = processDisplay.Maximum;
-          processDisplay.Maximum = recordLimit;
-        }
+    //  try
+    //  {
+    //    if (processDisplay != null && recordLimit > 0)
+    //    {
+    //      oldMax = processDisplay.Maximum;
+    //      processDisplay.Maximum = recordLimit;
+    //    }
 
-        // create columns
-        var schemaTable = getSchemaTable.Invoke();
-        if (schemaTable == null)
-          return null;
-        var columns = schemaTable.Rows.Count;
+    //    // create columns
+    //    var schemaTable = getSchemaTable.Invoke();
+    //    if (schemaTable == null)
+    //      return null;
+    //    var columns = schemaTable.Rows.Count;
 
-        // We could have duplicate column names in this case we have need to adjust the conflicting name
-        var previousColumns = new List<string>();
-        foreach (DataRow dataRow in schemaTable.Rows)
-        {
-          var colName = StringUtils.MakeUniqueInCollection(previousColumns, (string)dataRow["ColumnName"]);
-          dataTable.Columns.Add(new DataColumn(colName, (Type)dataRow["DataType"]) { AllowDBNull = true });
-          previousColumns.Add(colName);
-        }
+    //    // We could have duplicate column names in this case we have need to adjust the conflicting name
+    //    var previousColumns = new List<string>();
+    //    foreach (DataRow dataRow in schemaTable.Rows)
+    //    {
+    //      var colName = StringUtils.MakeUniqueInCollection(previousColumns, (string)dataRow["ColumnName"]);
+    //      dataTable.Columns.Add(new DataColumn(colName, (Type)dataRow["DataType"]) { AllowDBNull = true });
+    //      previousColumns.Add(colName);
+    //    }
 
-        if (!(processDisplay?.CancellationToken.IsCancellationRequested ?? false))
-        {
-          dataTable.BeginLoadData();
-          if (recordLimit < 1)
-            recordLimit = long.MaxValue;
-          // load the Data into the dataTable
-          var action = processDisplay == null ? null : new IntervalAction(.3);
-          while (await readAsync() && dataTable.Rows.Count < recordLimit &&
-                 !(processDisplay?.CancellationToken.IsCancellationRequested ?? false))
-          {
-            var readerValues = new object[columns];
-            if (getValues(readerValues) > 0)
-              dataTable.Rows.Add(readerValues);
-            action?.Invoke(() =>
-              processDisplay.SetProcess(string.Format(display, dataTable.Rows.Count), dataTable.Rows.Count, false));
-          }
-        }
-      }
-      finally
-      {
-        if (processDisplay != null)
-        {
-          processDisplay.SetProcess(string.Format(display, dataTable.Rows.Count), dataTable.Rows.Count, false);
-          if (oldMax > 0)
-            processDisplay.Maximum = oldMax;
-        }
+    //    if (!(processDisplay?.CancellationToken.IsCancellationRequested ?? false))
+    //    {
+    //      dataTable.BeginLoadData();
+    //      if (recordLimit < 1)
+    //        recordLimit = long.MaxValue;
+    //      // load the Data into the dataTable
+    //      var action = processDisplay == null ? null : new IntervalAction(.3);
+    //      while (await readAsync() && dataTable.Rows.Count < recordLimit &&
+    //             !(processDisplay?.CancellationToken.IsCancellationRequested ?? false))
+    //      {
+    //        var readerValues = new object[columns];
+    //        if (getValues(readerValues) > 0)
+    //          dataTable.Rows.Add(readerValues);
+    //        action?.Invoke(() =>
+    //          processDisplay.SetProcess(string.Format(display, dataTable.Rows.Count), dataTable.Rows.Count, false));
+    //      }
+    //    }
+    //  }
+    //  finally
+    //  {
+    //    if (processDisplay != null)
+    //    {
+    //      processDisplay.SetProcess(string.Format(display, dataTable.Rows.Count), dataTable.Rows.Count, false);
+    //      if (oldMax > 0)
+    //        processDisplay.Maximum = oldMax;
+    //    }
 
-        dataTable.EndLoadData();
-      }
+    //    dataTable.EndLoadData();
+    //  }
 
-      return dataTable;
-    }
+    //  return dataTable;
+    //}
 
 
 
@@ -537,25 +537,23 @@ namespace CsvTools
     public static string PlaceHolderTimes(this string text, string format, IFileSetting fileSetting,
       DateTime lastExecution, DateTime lastExecutionStart)
     {
-      if (!string.IsNullOrEmpty(text))
+      if (string.IsNullOrEmpty(text)) return text;
+      if (fileSetting.ProcessTimeUtc != BaseSettings.ZeroTime)
       {
-        if (fileSetting.ProcessTimeUtc != BaseSettings.ZeroTime)
-        {
-          var value = fileSetting.ProcessTimeUtc.ToString(format);
-          text = text.PlaceholderReplace("LastRunUTC", value);
-        }
+        var value = fileSetting.ProcessTimeUtc.ToString(format);
+        text = text.PlaceholderReplace("LastRunUTC", value);
+      }
 
-        if (lastExecutionStart != BaseSettings.ZeroTime)
-        {
-          var value = lastExecutionStart.ToString(format);
-          text = text.PlaceholderReplace("ScriptStartUTC", value);
-        }
+      if (lastExecutionStart != BaseSettings.ZeroTime)
+      {
+        var value = lastExecutionStart.ToString(format);
+        text = text.PlaceholderReplace("ScriptStartUTC", value);
+      }
 
-        if (lastExecution == BaseSettings.ZeroTime) return text;
-        {
-          var value = lastExecution.ToString(format);
-          text = text.PlaceholderReplace("LastScriptEndUTC", value);
-        }
+      if (lastExecution == BaseSettings.ZeroTime) return text;
+      {
+        var value = lastExecution.ToString(format);
+        text = text.PlaceholderReplace("LastScriptEndUTC", value);
       }
 
       return text;
@@ -571,27 +569,25 @@ namespace CsvTools
     /// [DebuggerStepThrough]
     public static string PlaceholderReplace(this string input, string placeholder, string replacement)
     {
-      if (!string.IsNullOrEmpty(replacement))
+      if (string.IsNullOrEmpty(replacement)) return input;
+      var type = input.GetPlaceholderType(placeholder);
+      if (type != null)
       {
-        var type = input.GetPlaceholderType(placeholder);
-        if (type != null)
+        if (input.IndexOf(" - " + type, StringComparison.OrdinalIgnoreCase) != -1)
         {
-          if (input.IndexOf(" - " + type, StringComparison.OrdinalIgnoreCase) != -1)
-          {
-            type = " - " + type;
-          }
-          else if (input.IndexOf(" " + type, StringComparison.OrdinalIgnoreCase) != -1)
-          {
-            type = " " + type;
-            replacement = " " + replacement;
-          }
-          else if (input.IndexOf(type + " ", StringComparison.OrdinalIgnoreCase) != -1)
-          {
-            replacement += " ";
-          }
-
-          return input.ReplaceCaseInsensitive(type, replacement);
+          type = " - " + type;
         }
+        else if (input.IndexOf(" " + type, StringComparison.OrdinalIgnoreCase) != -1)
+        {
+          type = " " + type;
+          replacement = " " + replacement;
+        }
+        else if (input.IndexOf(type + " ", StringComparison.OrdinalIgnoreCase) != -1)
+        {
+          replacement += " ";
+        }
+
+        return input.ReplaceCaseInsensitive(type, replacement);
       }
 
       return input;
@@ -603,27 +599,17 @@ namespace CsvTools
     /// <param name="columns">List of columns</param>
     /// <param name="fileSetting">The setting.</param>
     public static IEnumerable<string> RemoveMappingWithoutSource(this IFileSetting fileSetting,
-      ICollection<string> columns)
+      IEnumerable<string> columns)
     {
       Contract.Ensures(Contract.Result<IEnumerable<string>>() != null);
       var notFoundColumnNames = new List<string>();
 
-      if (fileSetting == null || columns == null || columns.Count == 0)
+      if (fileSetting == null || columns == null)
         return notFoundColumnNames;
-      foreach (var map in fileSetting.MappingCollection)
-      {
-        var foundColumn = false;
-        foreach (var col in columns)
-        {
-          if (!col.Equals(map.FileColumn, StringComparison.OrdinalIgnoreCase))
-            continue;
-          foundColumn = true;
-          break;
-        }
-
-        if (!foundColumn)
-          notFoundColumnNames.Add(map.FileColumn);
-      }
+      notFoundColumnNames.AddRange(
+        from map in fileSetting.MappingCollection
+        where !columns.Any(col => col.Equals(map.FileColumn, StringComparison.OrdinalIgnoreCase))
+        select map.FileColumn);
 
       if (notFoundColumnNames.Count <= 0)
         return notFoundColumnNames;
@@ -782,29 +768,20 @@ namespace CsvTools
       var rgx = new Regex(@"\{[^\}]+\}");
 
       var placeholder = new Dictionary<string, string>();
-      var props = new List<PropertyInfo>();
-      foreach (var prop in obj.GetType().GetProperties())
-        if (prop.GetMethod != null)
-          props.Add(prop);
+      var props = obj.GetType().GetProperties().Where(prop => prop.GetMethod != null).ToList();
 
       foreach (Match match in rgx.Matches(template))
         if (!placeholder.ContainsKey(match.Value))
         {
-          PropertyInfo prop = null;
-          foreach (var x in props)
-            if (x.Name.Equals(match.Value.Substring(1, match.Value.Length - 2), StringComparison.OrdinalIgnoreCase))
-            {
-              prop = x;
-              break;
-            }
+          PropertyInfo prop = props.FirstOrDefault(
+            x => x.Name.Equals(match.Value.Substring(1, match.Value.Length - 2), StringComparison.OrdinalIgnoreCase));
 
           if (prop != null)
             placeholder.Add(match.Value, prop.GetValue(obj).ToString());
         }
 
       // replace them with the property value from setting
-      foreach (var pro in placeholder)
-        template = template.ReplaceCaseInsensitive(pro.Key, pro.Value);
+      template = placeholder.Aggregate(template, (current, pro) => current.ReplaceCaseInsensitive(pro.Key, pro.Value));
 
       return template.Replace("  ", " ");
     }
@@ -838,8 +815,7 @@ namespace CsvTools
       }
 
       // replace them with the property value from setting
-      foreach (var pro in placeholder)
-        template = template.ReplaceCaseInsensitive(pro.Key, pro.Value);
+      template = placeholder.Aggregate(template, (current, pro) => current.ReplaceCaseInsensitive(pro.Key, pro.Value));
 
       return template.Replace("  ", " ");
     }
@@ -850,13 +826,10 @@ namespace CsvTools
         return null;
 
       var start = exception.StackTrace.LastIndexOf("   ", StringComparison.Ordinal);
-      if (start != -1)
-      {
-        start = exception.StackTrace.IndexOf(" ", start + 3, StringComparison.Ordinal);
-        return $"at {exception.StackTrace.Substring(start)}";
-      }
+      if (start == -1) return null;
+      start = exception.StackTrace.IndexOf(" ", start + 3, StringComparison.Ordinal);
+      return $"at {exception.StackTrace.Substring(start)}";
 
-      return null;
     }
 
     /// <summary>
@@ -877,9 +850,7 @@ namespace CsvTools
     {
       if (value > int.MaxValue)
         return int.MaxValue;
-      if (value < int.MinValue)
-        return int.MinValue;
-      return Convert.ToInt32(value);
+      return value < int.MinValue ? int.MinValue : Convert.ToInt32(value);
     }
 
     /// <summary>
@@ -908,7 +879,7 @@ namespace CsvTools
           throw executeTask.Exception.Flatten().InnerExceptions[0];
         return;
       }
-        
+
       cancellationToken.ThrowIfCancellationRequested();
 
       var stopwatch = timeoutSeconds > 0.01 ? new Stopwatch() : null;
@@ -1149,36 +1120,8 @@ namespace CsvTools
         return true;
       if (other.Count != self.Count)
         return false;
-      var equal = true;
       // Check the item, all should be the same, order does not matter though
-      foreach (var ot in other)
-      {
-        var found = false;
-        if (ot == null)
-          foreach (var x in self)
-          {
-            if (x != null)
-              continue;
-            found = true;
-            break;
-          }
-        else
-          foreach (var th in self)
-          {
-            if (!ot.Equals(th))
-              continue;
-            found = true;
-            break;
-          }
-
-        if (found)
-          continue;
-        equal = false;
-        break;
-      }
-
-      // No need to check the other way around, as all items are the same and the number matches
-      return equal;
+      return other.All(ot => ot == null ? self.Any(x => x == null) : self.Any(th => ot.Equals(th)));
     }
 
     /// <summary>
@@ -1233,11 +1176,8 @@ namespace CsvTools
     {
       unchecked
       {
-        var hashCode = 731;
         var order = 0;
-        foreach (var item in collection)
-          hashCode = (hashCode * 397) ^ (item.GetHashCode() + order++);
-        return hashCode;
+        return collection.Cast<object>().Aggregate(731, (current, item) => (current * 397) ^ (item.GetHashCode() + order++));
       }
     }
 

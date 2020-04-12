@@ -349,10 +349,7 @@ namespace CsvTools
         return shortPath;
       if (shortPath.Contains("~"))
         return shortPath.LongFileNameKernel();
-      if (shortPath.Contains(".\\"))
-        return Path.GetFullPath(shortPath);
-
-      return shortPath;
+      return shortPath.Contains(".\\") ? Path.GetFullPath(shortPath) : shortPath;
     }
 
     public static string LongPathPrefix(this string path)

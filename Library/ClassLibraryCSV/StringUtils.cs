@@ -21,6 +21,8 @@ using System.Text;
 
 namespace CsvTools
 {
+  using System.Linq;
+
   /// <summary>
   ///   Collection of static functions for string
   /// </summary>
@@ -288,11 +290,12 @@ namespace CsvTools
 
       var chars = new char[original.Length];
       var count = 0;
-      foreach (var c in original)
+      foreach (var c in from c in original
+                        let oc = CharUnicodeInfo.GetUnicodeCategory(c)
+                        where UnicodeCategory.Control != oc || c == '\r' || c == '\n'
+                        select c)
       {
-        var oc = CharUnicodeInfo.GetUnicodeCategory(c);
-        if (UnicodeCategory.Control != oc || c == '\r' || c == '\n')
-          chars[count++] = c;
+        chars[count++] = c;
       }
 
       return new string(chars, 0, count);
@@ -342,11 +345,12 @@ namespace CsvTools
 
       var chars = new char[normalizedString.Length];
       var count = 0;
-      foreach (var c in normalizedString)
+      foreach (var c in from c in normalizedString
+                        let oc = CharUnicodeInfo.GetUnicodeCategory(c)
+                        where testFunction(oc)
+                        select c)
       {
-        var oc = CharUnicodeInfo.GetUnicodeCategory(c);
-        if (testFunction(oc))
-          chars[count++] = c;
+        chars[count++] = c;
       }
 
       return new string(chars, 0, count);
@@ -388,11 +392,7 @@ namespace CsvTools
       if (string.IsNullOrEmpty(value))
         return true;
 
-      foreach (var part in SplitByDelimiter(treatAsNull))
-        if (value.Equals(part, StringComparison.OrdinalIgnoreCase))
-          return true;
-
-      return false;
+      return SplitByDelimiter(treatAsNull).Any(part => value.Equals(part, StringComparison.OrdinalIgnoreCase));
     }
 
     /// <summary>
@@ -505,12 +505,8 @@ namespace CsvTools
       }
 
       // any Part will do
-      foreach (var part in filter.Split(new[] { ' ', ',', ';' }, StringSplitOptions.RemoveEmptyEntries))
-      {
-        if (item.IndexOf(part, stringComparison) != -1)
-          return true;
-      }
-      return false;
+      return filter.Split(new[] { ' ', ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
+        .Any(part => item.IndexOf(part, stringComparison) != -1);
     }
 
     public static Tuple<string, bool> GetPossiblyConstant(this string value)
