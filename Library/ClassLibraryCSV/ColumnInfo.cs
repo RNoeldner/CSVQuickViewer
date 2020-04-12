@@ -108,23 +108,25 @@ namespace CsvTools
           }
 
           var fieldLength = Math.Max((int)schemaRow[SchemaTableColumn.ColumnSize], 0);
-          if (valueFormat.DataType == DataType.Integer)
+          switch (valueFormat.DataType)
           {
-            fieldLength = 10;
-          }
-          else if (valueFormat.DataType == DataType.Boolean)
-          {
-            var lenTrue = valueFormat.True.Length;
-            var lenFalse = valueFormat.False.Length;
-            fieldLength = lenTrue > lenFalse ? lenTrue : lenFalse;
-          }
-          else if (valueFormat.DataType == DataType.Double || valueFormat.DataType == DataType.Numeric)
-          {
-            fieldLength = 28;
-          }
-          else if (valueFormat.DataType == DataType.DateTime)
-          {
-            fieldLength = valueFormat.DateFormat.Length;
+            case DataType.Integer:
+              fieldLength = 10;
+              break;
+            case DataType.Boolean:
+              {
+                var lenTrue = valueFormat.True.Length;
+                var lenFalse = valueFormat.False.Length;
+                fieldLength = lenTrue > lenFalse ? lenTrue : lenFalse;
+                break;
+              }
+            case DataType.Double:
+            case DataType.Numeric:
+              fieldLength = 28;
+              break;
+            case DataType.DateTime:
+              fieldLength = valueFormat.DateFormat.Length;
+              break;
           }
           var ci = new ColumnInfo(new Column(colName[colNo], valueFormat), fieldLength, false, colNo);
 

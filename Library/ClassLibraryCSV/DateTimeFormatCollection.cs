@@ -17,6 +17,8 @@ using System.Collections.Generic;
 
 namespace CsvTools
 {
+  using System.Linq;
+
   public class DateTimeFormatCollection
   {
     private readonly Dictionary<string, DateTimeFormatInformation> m_DateLengthMinMax = new Dictionary<string, DateTimeFormatInformation>();
@@ -40,16 +42,11 @@ namespace CsvTools
 
     public IEnumerable<string> Keys => m_DateLengthMinMax.Keys;
 
-    public IEnumerable<string> MatchingForLength(int length, bool checkNamedDates)
-    {
-      var result = new List<string>();
-      foreach (var kvFormatInformation in m_DateLengthMinMax)
-      {
-        if ((checkNamedDates || !kvFormatInformation.Value.NamedDate) && length >= kvFormatInformation.Value.MinLength && length <= kvFormatInformation.Value.MaxLength)
-          result.Add(kvFormatInformation.Key);
-      }
-      return result;
-    }
+    public IEnumerable<string> MatchingForLength(int length, bool checkNamedDates) =>
+      (from kvFormatInformation in m_DateLengthMinMax
+       where (checkNamedDates || !kvFormatInformation.Value.NamedDate) && length >= kvFormatInformation.Value.MinLength
+                                                                       && length <= kvFormatInformation.Value.MaxLength
+       select kvFormatInformation.Key);
 
     public bool TryGetValue(string key, out DateTimeFormatInformation value) => m_DateLengthMinMax.TryGetValue(key, out value);
 

@@ -903,11 +903,18 @@ namespace CsvTools
 
       // Standard Date Time formats
       foreach (var fmt in StringConversion.StandardDateTimeFormats.MatchingForLength(value.Length, true))
+      {
         foreach (var sep in StringConversion.DateSeparators)
+        {
           if (StringConversion.StringToDateTimeExact(value, fmt, sep, culture.DateTimeFormat.TimeSeparator, culture)
             .HasValue)
+          {
             yield return new ValueFormat(DataType.DateTime) { DateFormat = fmt, DateSeparator = sep };
+          }
+        }
+      }
     }
+
 
 
     /// <summary>
@@ -1211,9 +1218,7 @@ namespace CsvTools
 
       var checkResult = new CheckResult();
 
-      long length = 0;
-      foreach (var sample in samples)
-        length += sample.Length;
+      long length = samples.Aggregate<string, long>(0, (current, sample) => current + sample.Length);
       var commonLength = (int)(length / samples.Count);
 
       ICollection<string> possibleDateSeparators = null;
@@ -1268,36 +1273,16 @@ namespace CsvTools
       var checkResult = new CheckResult();
       if (samples == null)
         return checkResult;
-
-      var possibleGrouping = new List<char>();
       // Determine which decimalGrouping could be used
-      foreach (var character in StringConversion.DecimalGroupings)
-      {
-        if (character == '\0')
-          continue;
-        foreach (var smp in samples)
-        {
-          if (smp.IndexOf(character) <= -1)
-            continue;
-          possibleGrouping.Add(character);
-          break;
-        }
-      }
+      var possibleGrouping = StringConversion.DecimalGroupings.Where(character => character != '\0' 
+                                                                                  && samples.Any(
+                                                                                    smp => smp.IndexOf(character) > -1))
+        .ToList();
+      
 
       possibleGrouping.Add('\0');
-      var possibleDecimal = new List<char>();
-      foreach (var character in StringConversion.DecimalSeparators)
-      {
-        if (character == '\0')
-          continue;
-        foreach (var smp in samples)
-        {
-          if (smp.IndexOf(character) <= -1)
-            continue;
-          possibleDecimal.Add(character);
-          break;
-        }
-      }
+      var possibleDecimal = StringConversion.DecimalSeparators.Where(character => character != '\0')
+        .Where(character => samples.Any(smp => smp.IndexOf(character) > -1)).ToList();
 
       // Need to have at least one decimal separator
       if (possibleDecimal.Count == 0)

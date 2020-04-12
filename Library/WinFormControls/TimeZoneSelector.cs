@@ -3,6 +3,7 @@
   using System;
   using System.Collections.Generic;
   using System.ComponentModel;
+  using System.Linq;
   using System.Windows.Forms;
 
   public partial class TimeZoneSelector : UserControl
@@ -46,9 +47,8 @@
                           TimeZoneInfo.Local.Id,
                           $"{TimeZoneInfo.Local.DisplayName} *[Local System]")
                       };
-
-      foreach (var wintz in TimeZoneInfo.GetSystemTimeZones())
-        display.Add(new DisplayItem<string>(wintz.Id, wintz.DisplayName));
+      display.AddRange(
+        TimeZoneInfo.GetSystemTimeZones().Select(wintz => new DisplayItem<string>(wintz.Id, wintz.DisplayName)));
 
       comboBoxTimeZoneID.DataSource = display;
     }

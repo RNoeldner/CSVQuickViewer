@@ -129,7 +129,7 @@ namespace CsvTools
       HandleReadFinished();
       return false;
     }
-    public override void ResetPositionToFirstDataRow() => ResetPositionToStartOrOpen();
+    public new void ResetPositionToFirstDataRow() => ResetPositionToStartOrOpen();
 
     /// <summary>
     ///   Releases unmanaged and - optionally - managed resources

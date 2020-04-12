@@ -311,7 +311,7 @@ namespace CsvTools
     /// <summary>
     ///   Resets the position and buffer to the header in case the file has a header
     /// </summary>
-    public override void ResetPositionToFirstDataRow()
+    public new void ResetPositionToFirstDataRow()
     {
       ResetPositionToStartOrOpen();
       if (m_CsvFile.HasFieldHeader)

@@ -57,19 +57,12 @@ namespace CsvTools
     {
       get
       {
-        var columnWithErrors = new List<string>();
         var withoutErrors = ColumnsWithoutErrors;
-        foreach (DataColumn col in FilterTable.Columns)
-        {
-          // Always ignore line number and ErrorField
-          if (col.ColumnName.Equals(BaseFileReader.cErrorField, StringComparison.OrdinalIgnoreCase))
-            continue;
 
-          if (!withoutErrors.Contains(col.ColumnName))
-            columnWithErrors.Add(col.ColumnName);
-        }
-
-        return columnWithErrors;
+        return (from DataColumn col in this.FilterTable.Columns
+                where !col.ColumnName.Equals(BaseFileReader.cErrorField, StringComparison.OrdinalIgnoreCase)
+                where !withoutErrors.Contains(col.ColumnName)
+                select col.ColumnName).ToList();
       }
     }
 
@@ -224,7 +217,7 @@ namespace CsvTools
           rows++;
         }
 
-        CutAtLimit = (rows >= limit);
+        CutAtLimit = rows >= limit;
       }
       catch (Exception ex)
       {
@@ -246,7 +239,7 @@ namespace CsvTools
       // the task itself should not cancel as it would not run into finally
       return Task
         .Run(() => Filter(limit, type), m_CurrentFilterCancellationTokenSource.Token)
-        .ContinueWith(task => m_Filtering = false);
+        .ContinueWith(task => m_Filtering = false, m_CurrentFilterCancellationTokenSource.Token);
     }
 
 

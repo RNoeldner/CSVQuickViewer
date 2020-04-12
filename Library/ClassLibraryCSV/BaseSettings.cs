@@ -482,7 +482,7 @@ namespace CsvTools
     }
 
     [XmlIgnore]
-    public bool HasLatestSourceTimeUtc => (m_LatestSourceTimeUtc != ZeroTime);
+    public bool HasLatestSourceTimeUtc => m_LatestSourceTimeUtc != ZeroTime;
 
     /// <summary>
     ///   As this might be a time consuming process, do this only if the time was not determined before

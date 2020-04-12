@@ -1,12 +1,15 @@
-﻿using NLog;
-using NLog.Layouts;
-using System;
-using System.Linq;
-
-namespace CsvTools
+﻿namespace CsvTools
 {
+  using System;
+  using System.Linq;
+
+  using NLog;
+  using NLog.Config;
+  using NLog.Layouts;
+  using NLog.Targets;
+
   /// <summary>
-  /// Abstraction to be able to switch Loggers
+  ///   Abstraction to be able to switch Loggers
   /// </summary>
   public static class Logger
   {
@@ -17,15 +20,19 @@ namespace CsvTools
     public enum Level
     {
       Debug = 30,
+
       Info = 40,
+
       Warn = 50,
+
       Error = 60,
+
       None = 100,
     }
 
     public static void Configure(string fileNameJson, Level level, string fileNameText = null)
     {
-      var config = LogManager.Configuration ?? new NLog.Config.LoggingConfiguration();
+      var config = LogManager.Configuration ?? new LoggingConfiguration();
       if (level != Level.None)
       {
         var minLevel = LogLevel.Debug;
@@ -44,43 +51,50 @@ namespace CsvTools
 
         if (!string.IsNullOrEmpty(fileNameJson))
         {
-          var existing = config.AllTargets.FirstOrDefault(x => x is NLog.Targets.FileTarget target && target.Layout is JsonLayout);
+          var existing = config.AllTargets.FirstOrDefault(x => x is FileTarget target && target.Layout is JsonLayout);
           if (existing == null)
           {
-            var logfileRoot = new NLog.Targets.FileTarget("jsonFile")
-            {
-              FileName = fileNameJson,
-              ArchiveAboveSize = 2097152,
-              Layout = new JsonLayout
-              {
-                Attributes =
-              {
-                new JsonAttribute("time", "${longdate}", false),
-                new JsonAttribute("level", "${level}", false),
-                new JsonAttribute("message", "${message}", true),
-                // new JsonAttribute("properties", "${all-event-properties}"),
-                new JsonAttribute("properties",  new JsonLayout
-                  {
-                   IncludeAllProperties = true,
-                   MaxRecursionLimit=2,
-                   RenderEmptyObject = true
-                  }),
-                new JsonAttribute("type", "${exception:format=Type}"),
-                  new JsonAttribute("innerException", new JsonLayout
-                  {
-                    Attributes =
-                    {
-                      new JsonAttribute("type",
-                        "${exception:format=:innerFormat=Type:MaxInnerExceptionLevel=2:InnerExceptionSeparator=}"),
-                      new JsonAttribute("message",
-                        "${exception:format=:innerFormat=Message:MaxInnerExceptionLevel=2:InnerExceptionSeparator=}"),
-                    },
-                    RenderEmptyObject = false
-                  },
-                  false),
-              }
-              }
-            };
+            var logfileRoot = new FileTarget("jsonFile")
+                                {
+                                  FileName = fileNameJson,
+                                  ArchiveAboveSize = 2097152,
+                                  Layout = new JsonLayout
+                                             {
+                                               Attributes =
+                                                 {
+                                                   new JsonAttribute("time", "${longdate}", false),
+                                                   new JsonAttribute("level", "${level}", false),
+                                                   new JsonAttribute("message", "${message}", true),
+
+                                                   // new JsonAttribute("properties", "${all-event-properties}"),
+                                                   new JsonAttribute(
+                                                     "properties",
+                                                     new JsonLayout
+                                                       {
+                                                         IncludeAllProperties = true,
+                                                         MaxRecursionLimit = 2,
+                                                         RenderEmptyObject = true
+                                                       }),
+                                                   new JsonAttribute("type", "${exception:format=Type}"),
+                                                   new JsonAttribute(
+                                                     "innerException",
+                                                     new JsonLayout
+                                                       {
+                                                         Attributes =
+                                                           {
+                                                             new JsonAttribute(
+                                                               "type",
+                                                               "${exception:format=:innerFormat=Type:MaxInnerExceptionLevel=2:InnerExceptionSeparator=}"),
+                                                             new JsonAttribute(
+                                                               "message",
+                                                               "${exception:format=:innerFormat=Message:MaxInnerExceptionLevel=2:InnerExceptionSeparator=}")
+                                                           },
+                                                         RenderEmptyObject = false
+                                                       },
+                                                     false),
+                                                 }
+                                             }
+                                };
             config.AddRule(minLevel, LogLevel.Fatal, logfileRoot);
           }
           else
@@ -92,23 +106,23 @@ namespace CsvTools
         // second log file in folder
         if (!string.IsNullOrEmpty(fileNameText))
         {
-          var logfileFolder = new NLog.Targets.FileTarget("logfile2") { FileName = fileNameText, ArchiveAboveSize = 2097152 };
+          var logfileFolder = new FileTarget("logfile2") { FileName = fileNameText, ArchiveAboveSize = 2097152 };
           var layout = new CsvLayout()
-          {
-            Delimiter = CsvColumnDelimiterMode.Tab,
-            WithHeader = true,
-            Quoting = CsvQuotingMode.Auto
-          };
-          layout.Columns.Add(new CsvColumn() { Name = "Time", Layout = "${longdate}", Quoting = CsvQuotingMode.Nothing });
-          layout.Columns.Add(new CsvColumn() { Name = "Level", Layout = "${level}", Quoting = CsvQuotingMode.Nothing });
-          layout.Columns.Add(new CsvColumn() { Name = "Message", Layout = "${message}" });
-          layout.Columns.Add(new CsvColumn() { Name = "Exception", Layout = "${exception:format=toString}" });
+                         {
+                           Delimiter = CsvColumnDelimiterMode.Tab, WithHeader = true, Quoting = CsvQuotingMode.Auto
+                         };
+          layout.Columns.Add(
+            new CsvColumn { Name = "Time", Layout = "${longdate}", Quoting = CsvQuotingMode.Nothing });
+          layout.Columns.Add(new CsvColumn { Name = "Level", Layout = "${level}", Quoting = CsvQuotingMode.Nothing });
+          layout.Columns.Add(new CsvColumn { Name = "Message", Layout = "${message}" });
+          layout.Columns.Add(new CsvColumn { Name = "Exception", Layout = "${exception:format=toString}" });
           logfileFolder.Layout = layout;
-          if (config.AllTargets.Any(x => x is NLog.Targets.FileTarget target && !(target.Layout is JsonLayout)))
+          if (config.AllTargets.Any(x => x is FileTarget target && !(target.Layout is JsonLayout)))
             config.RemoveTarget("logfile2");
           config.AddRule(minLevel, LogLevel.Fatal, logfileFolder);
         }
       }
+
       // Apply configuration
       LogManager.Configuration = config;
       Debug("Logging started");
@@ -179,7 +193,13 @@ namespace CsvTools
 
       try
       {
-        var logEnvent = new LogEventInfo(level: level, loggerName: "screen", formatProvider: null, message: message, parameters: args, exception: exception);
+        var logEnvent = new LogEventInfo(
+          level: level,
+          loggerName: "screen",
+          formatProvider: null,
+          message: message,
+          parameters: args,
+          exception: exception);
         AddLog.Invoke(logEnvent.FormattedMessage, lvl);
       }
       catch (Exception)

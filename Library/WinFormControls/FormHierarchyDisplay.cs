@@ -27,6 +27,8 @@ using Timer = System.Timers.Timer;
 
 namespace CsvTools
 {
+  using System.Linq;
+
   /// <summary>
   ///   Windows Form to Display the hierarchy
   /// </summary>
@@ -760,12 +762,7 @@ namespace CsvTools
         if (root == null || root.InCycle)
           return 0;
 
-        var returnVal = root.Children.Count;
-        foreach (var child in root.Children)
-          if (child.Children.Count > 0)
-            returnVal += GetInDirectChildren(child);
-
-        return returnVal;
+        return root.Children.Count + root.Children.Where(child => child.Children.Count > 0).Sum(child => GetInDirectChildren(child));
       }
     }
 

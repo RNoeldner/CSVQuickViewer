@@ -20,6 +20,8 @@ using System.Text;
 
 namespace CsvTools
 {
+  using System.Linq;
+
   /// <summary>
   ///   Static class to extract and restore dataRow error information
   /// </summary>
@@ -133,8 +135,8 @@ namespace CsvTools
       var list = new List<Tuple<string, string>>();
       if (!string.IsNullOrEmpty(row.RowError))
         list.Add(new Tuple<string, string>(string.Empty, row.RowError));
-      foreach (var col in row.GetColumnsInError())
-        list.Add(new Tuple<string, string>(col.ColumnName, row.GetColumnError(col)));
+      list.AddRange(
+        row.GetColumnsInError().Select(col => new Tuple<string, string>(col.ColumnName, row.GetColumnError(col))));
       return BuildList(list);
     }
 

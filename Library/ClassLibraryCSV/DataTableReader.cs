@@ -152,10 +152,9 @@ namespace CsvTools
       return false;
     }
 
-    public override void ResetPositionToFirstDataRow()
+    public new void ResetPositionToFirstDataRow()
     {
-      EndOfFile = false;
-      RecordNumber = 0;
+      base.ResetPositionToFirstDataRow();
       m_DbDataReader?.Dispose();
       m_DbDataReader = m_DataTable.CreateDataReader();
     }

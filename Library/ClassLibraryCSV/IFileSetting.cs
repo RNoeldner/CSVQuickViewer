@@ -173,7 +173,7 @@ namespace CsvTools
     bool ShowProgress { get; set; }
 
     /// <summary>
-    /// Gets or sets a value indicating whether to ignore rows that macth the header row, this
+    /// Gets or sets a value indicating whether to ignore rows that match the header row, this
     /// happens if two delimited files are appended without removing the header of the appended file
     /// </summary>
     bool SkipDuplicateHeader { get; set; }
