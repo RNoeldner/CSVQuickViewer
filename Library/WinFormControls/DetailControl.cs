@@ -742,7 +742,7 @@ namespace CsvTools
       }
     }
 
-    private void FilteredDataGridView_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+    private static void FilteredDataGridView_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
     {
       if (!(e.Value is DateTime cellValue))
         return;
@@ -763,7 +763,10 @@ namespace CsvTools
       // Hide any showing search
       m_Search.Visible = false;
       if (type != FilterType.All && type != m_FilterDataTable.FilterType)
-        m_FilterDataTable.StartFilter(int.MaxValue, type, m_CancellationTokenSource.Token).WaitToCompleteTask(360);
+      {
+        m_FilterDataTable.StartFilter(int.MaxValue, type, m_CancellationTokenSource.Token);
+        m_FilterDataTable.WaitCompeteFilter(60);
+      }
 
       var newDt = type == FilterType.All ? m_DataTable : m_FilterDataTable.FilterTable;
       if (newDt == m_BindingSource.DataSource)
@@ -889,7 +892,7 @@ namespace CsvTools
       m_ToolStripButtonDuplicates.ToolTipText = "Display Duplicate Values";
       m_ToolStripButtonDuplicates.Click += ButtonDuplicates_Click;
       // m_ToolStripButtonHierachy
-      m_ToolStripButtonHierarchy.Image = (Image) resources.GetObject("m_ToolStripButtonHierachy.Image");
+      m_ToolStripButtonHierarchy.Image = (Image) resources.GetObject("m_ToolStripButtonHierarchy.Image");
       m_ToolStripButtonHierarchy.Name = "m_ToolStripButtonHierarchy";
       m_ToolStripButtonHierarchy.Size = new Size(82, 24);
       m_ToolStripButtonHierarchy.Text = "Hierarchy";

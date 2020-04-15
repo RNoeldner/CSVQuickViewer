@@ -106,13 +106,13 @@ namespace CsvTools
       try
       {
         using (new ProcessDisplayTime(CancellationToken.None))
-        using (var istream = FunctionalDI.OpenRead(m_CsvFile))
-        using (var sr = new ImprovedTextReader(istream, (await m_CsvFile.GetEncodingAsync()).CodePage))
+        using (var iStream = FunctionalDI.OpenRead(m_CsvFile))
+        using (var sr = new ImprovedTextReader(iStream, (await m_CsvFile.GetEncodingAsync()).CodePage))
         {
           // Some stream do not support seek...
-          if (istream.Stream.CanSeek)
+          if (iStream.Stream.CanSeek)
           {
-            istream.Stream.Seek(m_DisplayedAt, SeekOrigin.Begin);
+            iStream.Stream.Seek(m_DisplayedAt, SeekOrigin.Begin);
             if (m_DisplayedAt != 0)
             {
               // find the line start

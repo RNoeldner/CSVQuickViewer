@@ -12,17 +12,17 @@
  *
  */
 
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Diagnostics.Contracts;
-using System.Globalization;
-using System.IO;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace CsvTools
 {
+  using System;
+  using System.Collections.Generic;
+  using System.Data;
+  using System.Diagnostics.Contracts;
+  using System.Globalization;
+  using System.IO;
+  using System.Text;
+  using System.Threading.Tasks;
+
   /// <summary>
   ///   A data reader for CSV files
   /// </summary>
@@ -65,7 +65,9 @@ namespace CsvTools
     private bool m_EndOfLine;
 
     private bool m_HasQualifier;
+
     private string[] m_HeaderRow;
+
     private IImprovedStream m_ImprovedStream;
 
     /// <summary>
@@ -76,8 +78,11 @@ namespace CsvTools
     private ushort m_NumWarningsLinefeed;
 
     private ushort m_NumWarningsNbspChar;
+
     private ushort m_NumWarningsQuote;
+
     private ushort m_NumWarningsUnknownChar;
+
     private ReAlignColumns m_RealignColumns;
 
     /// <summary>
@@ -104,10 +109,9 @@ namespace CsvTools
           throw new FileNotFoundException(
             $"The file '{FileSystemUtils.GetShortDisplayFileName(m_CsvFile.FileName, 80)}' does not exist or is not accessible.",
             m_CsvFile.FileName);
-      if (m_CsvFile.FileFormat.FieldDelimiterChar == c_Cr ||
-          m_CsvFile.FileFormat.FieldDelimiterChar == c_Lf ||
-          m_CsvFile.FileFormat.FieldDelimiterChar == ' ' ||
-          m_CsvFile.FileFormat.FieldDelimiterChar == '\0')
+      if (m_CsvFile.FileFormat.FieldDelimiterChar == c_Cr || m_CsvFile.FileFormat.FieldDelimiterChar == c_Lf
+                                                          || m_CsvFile.FileFormat.FieldDelimiterChar == ' '
+                                                          || m_CsvFile.FileFormat.FieldDelimiterChar == '\0')
         throw new FileReaderException(
           "The field delimiter character is invalid, please use something else than CR, LF or Space");
 
@@ -126,7 +130,6 @@ namespace CsvTools
         throw new FileReaderException(
           "The text quoting characters is invalid, please use something else than CR or LF");
     }
-
 
     /// <summary>
     ///   Gets a value indicating whether this instance is closed.
@@ -197,7 +200,9 @@ namespace CsvTools
       if (IsDBNull(columnNumber))
         return DBNull.Value;
 
-      return GetTypedValueFromString(CurrentRowColumnText[columnNumber], GetTimeValue(columnNumber),
+      return GetTypedValueFromString(
+        CurrentRowColumnText[columnNumber],
+        GetTimeValue(columnNumber),
         GetColumn(columnNumber));
     }
 
@@ -208,14 +213,14 @@ namespace CsvTools
     {
       m_HasQualifier |= m_CsvFile.FileFormat.FieldQualifierChar != '\0';
 
-      if (m_CsvFile.FileFormat.FieldQualifier.Length > 1 &&
-          m_CsvFile.FileFormat.FieldQualifier.WrittenPunctuationToChar() == '\0')
-        HandleWarning(-1,
+      if (m_CsvFile.FileFormat.FieldQualifier.Length > 1
+          && m_CsvFile.FileFormat.FieldQualifier.WrittenPunctuationToChar() == '\0')
+        HandleWarning(
+          -1,
           $"Only the first character of '{m_CsvFile.FileFormat.FieldQualifier}' is be used for quoting.");
-      if (m_CsvFile.FileFormat.FieldDelimiter.Length > 1 &&
-          m_CsvFile.FileFormat.FieldDelimiter.WrittenPunctuationToChar() == '\0')
-        HandleWarning(-1,
-          $"Only the first character of '{m_CsvFile.FileFormat.FieldDelimiter}' is used as delimiter.");
+      if (m_CsvFile.FileFormat.FieldDelimiter.Length > 1
+          && m_CsvFile.FileFormat.FieldDelimiter.WrittenPunctuationToChar() == '\0')
+        HandleWarning(-1, $"Only the first character of '{m_CsvFile.FileFormat.FieldDelimiter}' is used as delimiter.");
 
       BeforeOpen();
     Retry:
@@ -268,7 +273,7 @@ namespace CsvTools
       }
       finally
       {
-        HandleShowProgress("");
+        HandleShowProgress(string.Empty);
       }
     }
 
@@ -315,8 +320,51 @@ namespace CsvTools
     {
       ResetPositionToStartOrOpen();
       if (m_CsvFile.HasFieldHeader)
+
         // Read the header row, this could be more than one line
         ReadNextRow(false, false);
+    }
+
+    /// <summary>
+    ///   Releases unmanaged and - optionally - managed resources
+    /// </summary>
+    /// <param name="disposing">
+    ///   <c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only
+    ///   unmanaged resources.
+    /// </param>
+    protected override void Dispose(bool disposing)
+    {
+      if (m_DisposedValue) return;
+
+      // Dispose-time code should also set references of all owned objects to null, after disposing
+      // them. This will allow the referenced objects to be garbage collected even if not all
+      // references to the "parent" are released. It may be a significant memory consumption win if
+      // the referenced objects are large, such as big arrays, collections, etc.
+      if (disposing)
+      {
+        m_DisposedValue = true;
+        Close();
+        if (m_TextReader != null)
+        {
+          m_TextReader.Dispose();
+          m_TextReader = null;
+        }
+
+        base.Dispose(true);
+      }
+    }
+
+    /// <summary>
+    ///   Gets the relative position.
+    /// </summary>
+    /// <returns>A value between 0 and MaxValue</returns>
+    protected override int GetRelativePosition()
+    {
+      // if we know how many records to read, use that
+      if (m_CsvFile.RecordLimit > 0)
+        return (int)((double)RecordNumber / m_CsvFile.RecordLimit * cMaxValue);
+
+      return (int)((m_ImprovedStream?.Percentage ?? 0) * cMaxValue);
     }
 
     private bool AllEmptyAndCountConsecutiveEmptyRows(IReadOnlyList<string> columns)
@@ -337,193 +385,13 @@ namespace CsvTools
       return true;
     }
 
-    /// <summary>
-    ///   Releases unmanaged and - optionally - managed resources
-    /// </summary>
-    /// <param name="disposing">
-    ///   <c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only
-    ///   unmanaged resources.
-    /// </param>
-    protected override void Dispose(bool disposing)
-    {
-      if (m_DisposedValue) return;
-      // Dispose-time code should also set references of all owned objects to null, after disposing
-      // them. This will allow the referenced objects to be garbage collected even if not all
-      // references to the "parent" are released. It may be a significant memory consumption win if
-      // the referenced objects are large, such as big arrays, collections, etc.
-      if (disposing)
-      {
-        m_DisposedValue = true;
-        Close();
-        if (m_TextReader != null)
-        {
-          m_TextReader.Dispose();
-          m_TextReader = null;
-        }
-
-        base.Dispose(true);
-      }
-    }
-
-    /// <summary>
-    ///   Indicates whether the specified Unicode character is categorized as white space.
-    /// </summary>
-    /// <param name="c">A Unicode character.</param>
-    /// <returns><c>true</c> if the character is a whitespace</returns>
-    private bool IsWhiteSpace(char c)
-    {
-      // Handle cases where the delimiter is a whitespace (e.g. tab)
-      if (c == m_CsvFile.FileFormat.FieldDelimiterChar)
-        return false;
-
-      // See char.IsLatin1(char c) in Reflector
-      if (c <= '\x00ff')
-        return c == ' ' || c == '\t';
-
-      return CharUnicodeInfo.GetUnicodeCategory(c) == UnicodeCategory.SpaceSeparator;
-    }
-
-    private string ReadNextColumnEnd(int columnNo, StringBuilder stringBuilder, bool storeWarnings, bool quoted,
-      bool hadUnknownChar, bool hadDelimiterInValue, bool hadNbsp)
-    {
-      var returnValue = HandleTrimAndNBSP(stringBuilder.ToString(), quoted);
-
-      if (!storeWarnings)
-        return returnValue;
-      // if (m_HasQualifier && quoted && m_StructuredWriterFile.WarnQuotesInQuotes &&
-      // returnValue.IndexOf(m_StructuredWriterFile.FileFormat.FieldQualifierChar) != -1) WarnQuoteInQuotes(columnNo);
-      if (m_HasQualifier && m_CsvFile.WarnQuotes && returnValue.IndexOf(m_CsvFile.FileFormat.FieldQualifierChar) > 0)
-      {
-        m_NumWarningsQuote++;
-        if (m_CsvFile.NumWarnings < 1 || m_NumWarningsQuote <= m_CsvFile.NumWarnings)
-          HandleWarning(columnNo,
-            $"Field qualifier '{FileFormat.GetDescription(m_CsvFile.FileFormat.FieldQualifier)}' found in field"
-              .AddWarningId());
-      }
-
-      if (m_CsvFile.WarnDelimiterInValue && hadDelimiterInValue)
-      {
-        m_NumWarningsDelimiter++;
-        if (m_CsvFile.NumWarnings < 1 || m_NumWarningsDelimiter <= m_CsvFile.NumWarnings)
-          HandleWarning(columnNo,
-            $"Field delimiter '{FileFormat.GetDescription(m_CsvFile.FileFormat.FieldDelimiter)}' found in field"
-              .AddWarningId());
-      }
-
-      if (m_CsvFile.WarnUnknowCharater)
-        if (hadUnknownChar)
-        {
-          WarnUnknownChar(columnNo, false);
-        }
-        else
-        {
-          var numberQuestionMark = 0;
-          var lastPos = -1;
-          var length = returnValue.Length;
-          for (var pos = length - 1; pos >= 0; pos--)
-          {
-            if (returnValue[pos] != '?')
-              continue;
-            numberQuestionMark++;
-            // If we have at least two and there are two consecutive or more than 3+ in 12
-            // characters, or 4+ in 16 characters
-            if (numberQuestionMark > 2 && (lastPos == pos + 1 || numberQuestionMark > length / 4))
-            {
-              WarnUnknownChar(columnNo, true);
-              break;
-            }
-
-            lastPos = pos;
-          }
-        }
-
-      if (m_CsvFile.WarnNBSP && hadNbsp)
-      {
-        m_NumWarningsNbspChar++;
-        if (m_CsvFile.NumWarnings < 1 || m_NumWarningsNbspChar <= m_CsvFile.NumWarnings)
-          HandleWarning(columnNo,
-            m_CsvFile.TreatNBSPAsSpace
-              ? "Character Non Breaking Space found, this character was treated as space".AddWarningId()
-              : "Character Non Breaking Space found in field".AddWarningId());
-      }
-
-      if (m_CsvFile.WarnLineFeed && (returnValue.IndexOf('\r') != -1 || returnValue.IndexOf('\n') != -1))
-        WarnLinefeed(columnNo);
-      return returnValue;
-    }
-
-    /// <summary>
-    ///   Resets the position and buffer to the first line, excluding headers, use
-    ///   ResetPositionToStart if you want to go to first data line
-    /// </summary>
-    private void ResetPositionToStartOrOpen()
-    {
-      m_TextReader.ToBeginning();
-
-      StartLineNumber = 1 + m_CsvFile.SkipRows;
-      EndLineNumber = 1 + m_CsvFile.SkipRows;
-      RecordNumber = 0;
-      m_EndOfLine = false;
-      EndOfFile = false;
-    }
-
-    /// <summary>
-    ///   Add warnings for Linefeed.
-    /// </summary>
-    /// <param name="column">The column.</param>
-    private void WarnLinefeed(int column)
-    {
-      m_NumWarningsLinefeed++;
-      if (m_CsvFile.NumWarnings >= 1 && m_NumWarningsLinefeed > m_CsvFile.NumWarnings)
-        return;
-      HandleWarning(column, "Linefeed found in field".AddWarningId());
-    }
-
-    /// <summary>
-    ///   Add warnings for unknown char.
-    /// </summary>
-    /// <param name="column">The column.</param>
-    /// <param name="questionMark"></param>
-    private void WarnUnknownChar(int column, bool questionMark)
-    {
-      // in case the column is ignored do not warn
-      if (Column[column].Ignore)
-        return;
-
-      m_NumWarningsUnknownChar++;
-      if (m_CsvFile.NumWarnings >= 1 && m_NumWarningsUnknownChar > m_CsvFile.NumWarnings)
-        return;
-      if (questionMark)
-      {
-        HandleWarning(column, "Unusual high occurrence of ? this indicates unmapped characters.".AddWarningId());
-        return;
-      }
-
-      HandleWarning(column,
-        m_CsvFile.TreatUnknowCharaterAsSpace
-          ? "Unknown Character '�' found, this character was replaced with space".AddWarningId()
-          : "Unknown Character '�' found in field".AddWarningId());
-    }
-
-    /// <summary>
-    ///   Gets the relative position.
-    /// </summary>
-    /// <returns>A value between 0 and MaxValue</returns>
-    protected override int GetRelativePosition()
-    {
-      // if we know how many records to read, use that
-      if (m_CsvFile.RecordLimit > 0)
-        return (int)((double)RecordNumber / m_CsvFile.RecordLimit * cMaxValue);
-
-      return (int)((m_ImprovedStream?.Percentage ?? 0) * cMaxValue);
-    }
-
     private char EatNextCRLF(char character)
     {
       EndLineNumber++;
       if (EndOfFile) return '\0';
       var nextChar = Peek();
       if ((character != c_Cr || nextChar != c_Lf) && (character != c_Lf || nextChar != c_Cr)) return '\0';
+
       // New line sequence is either CRLF or LFCR, disregard the character
       m_TextReader.MoveNext();
       if (character == c_Lf && nextChar == c_Cr)
@@ -543,7 +411,7 @@ namespace CsvTools
       try
       {
       Restart:
-      CurrentRowColumnText = ReadNextRow(true, true);
+        CurrentRowColumnText = ReadNextRow(true, true);
 
         if (!AllEmptyAndCountConsecutiveEmptyRows(CurrentRowColumnText))
         {
@@ -587,6 +455,7 @@ namespace CsvTools
               m_RealignColumns.AddRow(CurrentRowColumnText);
           }
         }
+
         // If less columns are present
         else if (rowLength < FieldCount)
         {
@@ -607,6 +476,7 @@ namespace CsvTools
           {
             var oldPos = m_TextReader.BufferPos;
             var startLine = StartLineNumber;
+
             // get the next row
             var nextLine = ReadNextRow(true, true);
             StartLineNumber = startLine;
@@ -619,7 +489,8 @@ namespace CsvTools
               // the first column belongs to the last column of the previous ignore
               // NumWarningsLinefeed otherwise as this is important information
               m_NumWarningsLinefeed++;
-              HandleWarning(rowLength - 1,
+              HandleWarning(
+                rowLength - 1,
                 $"Added first column from line {EndLineNumber}, assuming a linefeed has split the rows into an additional line.");
               combined[rowLength - 1] += ' ' + nextLine[0];
 
@@ -628,7 +499,8 @@ namespace CsvTools
 
               if (!hasWarningCombinedWarning)
               {
-                HandleWarning(-1,
+                HandleWarning(
+                  -1,
                   $"Line {StartLineNumber}-{EndLineNumber - 1}{cLessColumns}. Lines have been combined.");
                 hasWarningCombinedWarning = true;
               }
@@ -640,7 +512,8 @@ namespace CsvTools
             // we have an issue we went into the next Buffer there is no way back.
             if (m_TextReader.BufferPos < oldPos)
             {
-              HandleError(-1,
+              HandleError(
+                -1,
                 $"Line {StartLineNumber}{cLessColumns}\nAttempting to combined lines some line have been read that is now lost, please turn off Row Combination");
             }
             else
@@ -657,25 +530,25 @@ namespace CsvTools
         if (rowLength > FieldCount && (m_CsvFile.WarnEmptyTailingColumns || m_RealignColumns != null))
         {
           // check if the additional columns have contents, if that is not the case and we did not have any issues in the row assume all good.
-          //var hasContent = false;
-          //for (var extraCol = FieldCount; extraCol < rowLength; extraCol++)
-          //{
-          //  if (string.IsNullOrEmpty(CurrentRowColumnText[extraCol]))
-          //    continue;
-          //  hasContent = true;
-          //  break;
-          //}
-
+          // var hasContent = false;
+          // for (var extraCol = FieldCount; extraCol < rowLength; extraCol++)
+          // {
+          // if (string.IsNullOrEmpty(CurrentRowColumnText[extraCol]))
+          // continue;
+          // hasContent = true;
+          // break;
+          // }
           if (m_RealignColumns != null)
           {
-            HandleWarning(-1,
-              $"Line {StartLineNumber}{cMoreColumns}. Trying to realign columns.");
+            HandleWarning(-1, $"Line {StartLineNumber}{cMoreColumns}. Trying to realign columns.");
+
             // determine which column could have caused the issue it could be any column, try to establish
             CurrentRowColumnText = m_RealignColumns.RealignColumn(CurrentRowColumnText, HandleWarning);
           }
           else
           {
-            HandleWarning(-1,
+            HandleWarning(
+              -1,
               $"Line {StartLineNumber}{cMoreColumns} ({rowLength}/{FieldCount}). The columns might be not aligned.");
           }
         }
@@ -695,6 +568,7 @@ namespace CsvTools
       try
       {
       Restart:
+
         // Store the starting Line Number
         StartLineNumber = EndLineNumber;
 
@@ -706,11 +580,13 @@ namespace CsvTools
         else
         {
           var item = await ReadNextColumnAsync(0, true);
+
           // An empty line does not have any data
           if (string.IsNullOrEmpty(item) && m_EndOfLine)
           {
             m_EndOfLine = false;
             if (m_CsvFile.SkipEmptyLines)
+
               // go to the next line
               goto Restart;
 
@@ -719,14 +595,15 @@ namespace CsvTools
           }
           else
           {
-            if (m_CsvFile.FileFormat.CommentLine.Length > 0 &&
-                !string.IsNullOrEmpty(item) &&
-                item.StartsWith(m_CsvFile.FileFormat.CommentLine, StringComparison.Ordinal)
-            ) // A commented line does start with the comment
+            if (m_CsvFile.FileFormat.CommentLine.Length > 0 && !string.IsNullOrEmpty(item) && item.StartsWith(
+                  m_CsvFile.FileFormat.CommentLine,
+                  StringComparison.Ordinal))
             {
+              // A commented line does start with the comment
               if (m_EndOfLine)
                 m_EndOfLine = false;
               else
+
                 // it might happen that the comment line contains a Delimiter
                 ReadToEOL();
               goto Restart;
@@ -739,10 +616,10 @@ namespace CsvTools
             {
               // If a column is quoted and does contain the delimiter and linefeed, issue a warning, we
               // might have an opening delimiter with a missing closing delimiter
-              if (EndLineNumber > StartLineNumber + 4 &&
-                  item.Length > 1024 &&
-                  item.IndexOf(m_CsvFile.FileFormat.FieldDelimiterChar) != -1)
-                HandleWarning(col1,
+              if (EndLineNumber > StartLineNumber + 4 && item.Length > 1024
+                                                      && item.IndexOf(m_CsvFile.FileFormat.FieldDelimiterChar) != -1)
+                HandleWarning(
+                  col1,
                   $"Column has {EndLineNumber - StartLineNumber + 1} lines and has a length of {item.Length} characters"
                     .AddWarningId());
 
@@ -759,9 +636,10 @@ namespace CsvTools
                 else
                 {
                   item = item.ReplaceCaseInsensitive(m_CsvFile.FileFormat.NewLinePlaceholder, Environment.NewLine)
-                    .ReplaceCaseInsensitive(m_CsvFile.FileFormat.DelimiterPlaceholder,
-                      m_CsvFile.FileFormat.FieldDelimiterChar)
-                    .ReplaceCaseInsensitive(m_CsvFile.FileFormat.QuotePlaceholder,
+                    .ReplaceCaseInsensitive(
+                      m_CsvFile.FileFormat.DelimiterPlaceholder,
+                      m_CsvFile.FileFormat.FieldDelimiterChar).ReplaceCaseInsensitive(
+                      m_CsvFile.FileFormat.QuotePlaceholder,
                       m_CsvFile.FileFormat.FieldQualifierChar);
 
                   if (col1 < FieldCount)
@@ -778,7 +656,6 @@ namespace CsvTools
             CurrentRowColumnText = columns.ToArray();
           }
         }
-
 
         if (!AllEmptyAndCountConsecutiveEmptyRows(CurrentRowColumnText))
         {
@@ -822,6 +699,7 @@ namespace CsvTools
               m_RealignColumns.AddRow(CurrentRowColumnText);
           }
         }
+
         // If less columns are present
         else if (rowLength < FieldCount)
         {
@@ -842,6 +720,7 @@ namespace CsvTools
           {
             var oldPos = m_TextReader.BufferPos;
             var startLine = StartLineNumber;
+
             // get the next row
             var nextLine = ReadNextRow(true, true);
             StartLineNumber = startLine;
@@ -854,7 +733,8 @@ namespace CsvTools
               // the first column belongs to the last column of the previous ignore
               // NumWarningsLinefeed otherwise as this is important information
               m_NumWarningsLinefeed++;
-              HandleWarning(rowLength - 1,
+              HandleWarning(
+                rowLength - 1,
                 $"Added first column from line {EndLineNumber}, assuming a linefeed has split the rows into an additional line.");
               combined[rowLength - 1] += ' ' + nextLine[0];
 
@@ -863,7 +743,8 @@ namespace CsvTools
 
               if (!hasWarningCombinedWarning)
               {
-                HandleWarning(-1,
+                HandleWarning(
+                  -1,
                   $"Line {StartLineNumber}-{EndLineNumber - 1}{cLessColumns}. Lines have been combined.");
                 hasWarningCombinedWarning = true;
               }
@@ -875,7 +756,8 @@ namespace CsvTools
             // we have an issue we went into the next Buffer there is no way back.
             if (m_TextReader.BufferPos < oldPos)
             {
-              HandleError(-1,
+              HandleError(
+                -1,
                 $"Line {StartLineNumber}{cLessColumns}\nAttempting to combined lines some line have been read that is now lost, please turn off Row Combination");
             }
             else
@@ -904,14 +786,15 @@ namespace CsvTools
           if (!hasContent) return true;
           if (m_RealignColumns != null)
           {
-            HandleWarning(-1,
-              $"Line {StartLineNumber}{cMoreColumns}. Trying to realign columns.");
+            HandleWarning(-1, $"Line {StartLineNumber}{cMoreColumns}. Trying to realign columns.");
+
             // determine which column could have caused the issue it could be any column, try to establish
             CurrentRowColumnText = m_RealignColumns.RealignColumn(CurrentRowColumnText, HandleWarning);
           }
           else
           {
-            HandleWarning(-1,
+            HandleWarning(
+              -1,
               $"Line {StartLineNumber}{cMoreColumns} ({rowLength}/{FieldCount}). The data in extra columns is not read.");
           }
         }
@@ -924,6 +807,24 @@ namespace CsvTools
         EndOfFile = true;
         return false;
       }
+    }
+
+    /// <summary>
+    ///   Indicates whether the specified Unicode character is categorized as white space.
+    /// </summary>
+    /// <param name="c">A Unicode character.</param>
+    /// <returns><c>true</c> if the character is a whitespace</returns>
+    private bool IsWhiteSpace(char c)
+    {
+      // Handle cases where the delimiter is a whitespace (e.g. tab)
+      if (c == m_CsvFile.FileFormat.FieldDelimiterChar)
+        return false;
+
+      // See char.IsLatin1(char c) in Reflector
+      if (c <= '\x00ff')
+        return c == ' ' || c == '\t';
+
+      return CharUnicodeInfo.GetUnicodeCategory(c) == UnicodeCategory.SpaceSeparator;
     }
 
     /// <summary>
@@ -945,6 +846,7 @@ namespace CsvTools
       for (var additional = 0; !EndOfFile && additional < 10; additional++)
       {
         var nextLine = ReadNextRow(false, false);
+
         // if we have less columns than in the header exit the loop
         if (nextLine.GetLength(0) < fields)
           break;
@@ -967,7 +869,8 @@ namespace CsvTools
 
       if (string.IsNullOrEmpty(headerRow[headerRow.Count - 1]))
       {
-        HandleWarning(fields,
+        HandleWarning(
+          fields,
           "The last column does not have a column name and seems to be empty, this column will be ignored."
             .AddWarningId());
         return fields - 1;
@@ -986,6 +889,7 @@ namespace CsvTools
       if (res == -1)
       {
         EndOfFile = true;
+
         // return a lf to determine the end of quoting easily
         return c_Lf;
       }
@@ -999,6 +903,7 @@ namespace CsvTools
       if (res == -1)
       {
         EndOfFile = true;
+
         // return a lf to determine the end of quoting easily
         return c_Lf;
       }
@@ -1041,6 +946,7 @@ namespace CsvTools
         m_TextReader.MoveNext();
 
         var escaped = character == m_CsvFile.FileFormat.EscapeCharacterChar && !postData;
+
         // Handle escaped characters
         if (escaped)
         {
@@ -1066,6 +972,7 @@ namespace CsvTools
               case '\\' when nextChar == 'b':
                 character = '\b';
                 break;
+
               // in case a linefeed actually follows ignore the EscapeCharacterChar but handle the
               // regular processing
               case '\\' when nextChar == 'a':
@@ -1120,7 +1027,6 @@ namespace CsvTools
             }
 
             break;
-
           case c_Cr:
           case c_Lf:
             var nextChar = EatNextCRLF(character);
@@ -1139,12 +1045,21 @@ namespace CsvTools
         if (character == m_CsvFile.FileFormat.FieldDelimiterChar && !escaped && (postData || !quoted) || EndOfFile)
           break;
 
-        // Finished with reading the column by Linefeed
-        if ((character == c_Cr || character == c_Lf) && (preData || postData || !quoted))
+        // Finished with reading the column by end of record
+        if ((preData || postData || !quoted) && (character == c_Cr || character == c_Lf
+                                                                   || (character == '\u001E'
+                                                                       && (m_CsvFile.FileFormat.NewLine == "\u001E"
+                                                                           || m_CsvFile.FileFormat.NewLine == "␞"
+                                                                           || m_CsvFile.FileFormat.NewLine == "RS"))
+                                                                   || (character == '\u001F'
+                                                                       && (m_CsvFile.FileFormat.NewLine == "\u001F"
+                                                                           || m_CsvFile.FileFormat.NewLine == "␟"
+                                                                           || m_CsvFile.FileFormat.NewLine == "US"))))
         {
           m_EndOfLine = true;
           break;
         }
+
 
         // Only check the characters if not past end of data
         if (postData)
@@ -1157,6 +1072,7 @@ namespace CsvTools
           {
             // Store the white spaces if we do any kind of trimming
             if (m_CsvFile.TrimmingOption == TrimmingOption.None)
+
               // Values will be trimmed later but we need to find out, if the filed is quoted first
               stringBuilder.Append(character);
             continue;
@@ -1164,11 +1080,13 @@ namespace CsvTools
 
           // data is starting
           preData = false;
+
           // Can not be escaped here
           if (m_HasQualifier && character == m_CsvFile.FileFormat.FieldQualifierChar && !escaped)
           {
             if (m_CsvFile.TrimmingOption != TrimmingOption.None)
               stringBuilder.Length = 0;
+
             // quoted data is starting
             quoted = true;
           }
@@ -1183,24 +1101,26 @@ namespace CsvTools
         if (m_HasQualifier && character == m_CsvFile.FileFormat.FieldQualifierChar && quoted && !escaped)
         {
           var peekNextChar = Peek();
+
           // a "" should be regarded as " if the text is quoted
           if (m_CsvFile.FileFormat.DuplicateQuotingToEscape && peekNextChar == m_CsvFile.FileFormat.FieldQualifierChar)
           {
             // double quotes within quoted string means add a quote
             stringBuilder.Append(m_CsvFile.FileFormat.FieldQualifierChar);
             m_TextReader.MoveNext();
-            //TODO: decide if we should have this its hard to explain but might make sense
+
+            // TODO: decide if we should have this its hard to explain but might make sense
             // special handling for "" that is not only representing a " but also closes the text
             peekNextChar = Peek();
-            if (m_CsvFile.FileFormat.AlternateQuoting && (peekNextChar == m_CsvFile.FileFormat.FieldDelimiterChar ||
-                                                          peekNextChar == c_Cr ||
-                                                          peekNextChar == c_Lf)) postData = true;
+            if (m_CsvFile.FileFormat.AlternateQuoting && (peekNextChar == m_CsvFile.FileFormat.FieldDelimiterChar
+                                                          || peekNextChar == c_Cr
+                                                          || peekNextChar == c_Lf)) postData = true;
             continue;
           }
 
           // a single " should be regarded as closing when its followed by the delimiter
-          if (m_CsvFile.FileFormat.AlternateQuoting && (peekNextChar == m_CsvFile.FileFormat.FieldDelimiterChar ||
-                                                        peekNextChar == c_Cr || peekNextChar == c_Lf))
+          if (m_CsvFile.FileFormat.AlternateQuoting && (peekNextChar == m_CsvFile.FileFormat.FieldDelimiterChar
+                                                        || peekNextChar == c_Cr || peekNextChar == c_Lf))
           {
             postData = true;
             continue;
@@ -1215,11 +1135,18 @@ namespace CsvTools
         }
 
         hadDelimiterInValue |= character == m_CsvFile.FileFormat.FieldDelimiterChar;
+
         // all cases covered, character must be data
         stringBuilder.Append(character);
       }
 
-      return ReadNextColumnEnd(columnNo, stringBuilder, storeWarnings, quoted, hadUnknownChar, hadDelimiterInValue,
+      return ReadNextColumnEnd(
+        columnNo,
+        stringBuilder,
+        storeWarnings,
+        quoted,
+        hadUnknownChar,
+        hadDelimiterInValue,
         hadNbsp);
     }
 
@@ -1249,6 +1176,7 @@ namespace CsvTools
         m_TextReader.MoveNext();
 
         var escaped = character == m_CsvFile.FileFormat.EscapeCharacterChar && !postData;
+
         // Handle escaped characters
         if (escaped)
         {
@@ -1274,6 +1202,7 @@ namespace CsvTools
               case '\\' when nextChar == 'b':
                 character = '\b';
                 break;
+
               // in case a linefeed actually follows ignore the EscapeCharacterChar but handle the
               // regular processing
               case '\\' when nextChar == 'a':
@@ -1382,6 +1311,7 @@ namespace CsvTools
           {
             // Store the white spaces if we do any kind of trimming
             if (m_CsvFile.TrimmingOption == TrimmingOption.None)
+
               // Values will be trimmed later but we need to find out, if the filed is quoted first
               stringBuilder.Append(character);
             continue;
@@ -1389,11 +1319,13 @@ namespace CsvTools
 
           // data is starting
           preData = false;
+
           // Can not be escaped here
           if (m_HasQualifier && character == m_CsvFile.FileFormat.FieldQualifierChar && !escaped)
           {
             if (m_CsvFile.TrimmingOption != TrimmingOption.None)
               stringBuilder.Length = 0;
+
             // quoted data is starting
             quoted = true;
           }
@@ -1408,24 +1340,26 @@ namespace CsvTools
         if (m_HasQualifier && character == m_CsvFile.FileFormat.FieldQualifierChar && quoted && !escaped)
         {
           var peekNextChar = await PeekAsync();
+
           // a "" should be regarded as " if the text is quoted
           if (m_CsvFile.FileFormat.DuplicateQuotingToEscape && peekNextChar == m_CsvFile.FileFormat.FieldQualifierChar)
           {
             // double quotes within quoted string means add a quote
             stringBuilder.Append(m_CsvFile.FileFormat.FieldQualifierChar);
             m_TextReader.MoveNext();
-            //TODO: decide if we should have this its hard to explain but might make sense
+
+            // TODO: decide if we should have this its hard to explain but might make sense
             // special handling for "" that is not only representing a " but also closes the text
             peekNextChar = Peek();
-            if (m_CsvFile.FileFormat.AlternateQuoting && (peekNextChar == m_CsvFile.FileFormat.FieldDelimiterChar ||
-                                                          peekNextChar == c_Cr ||
-                                                          peekNextChar == c_Lf)) postData = true;
+            if (m_CsvFile.FileFormat.AlternateQuoting && (peekNextChar == m_CsvFile.FileFormat.FieldDelimiterChar
+                                                          || peekNextChar == c_Cr
+                                                          || peekNextChar == c_Lf)) postData = true;
             continue;
           }
 
           // a single " should be regarded as closing when its followed by the delimiter
-          if (m_CsvFile.FileFormat.AlternateQuoting && (peekNextChar == m_CsvFile.FileFormat.FieldDelimiterChar ||
-                                                        peekNextChar == c_Cr || peekNextChar == c_Lf))
+          if (m_CsvFile.FileFormat.AlternateQuoting && (peekNextChar == m_CsvFile.FileFormat.FieldDelimiterChar
+                                                        || peekNextChar == c_Cr || peekNextChar == c_Lf))
           {
             postData = true;
             continue;
@@ -1440,12 +1374,99 @@ namespace CsvTools
         }
 
         hadDelimiterInValue |= character == m_CsvFile.FileFormat.FieldDelimiterChar;
+
         // all cases covered, character must be data
         stringBuilder.Append(character);
       }
 
-      return ReadNextColumnEnd(columnNo, stringBuilder, storeWarnings, quoted, hadUnknownChar, hadDelimiterInValue,
+      return ReadNextColumnEnd(
+        columnNo,
+        stringBuilder,
+        storeWarnings,
+        quoted,
+        hadUnknownChar,
+        hadDelimiterInValue,
         hadNbsp);
+    }
+
+    private string ReadNextColumnEnd(
+      int columnNo,
+      StringBuilder stringBuilder,
+      bool storeWarnings,
+      bool quoted,
+      bool hadUnknownChar,
+      bool hadDelimiterInValue,
+      bool hadNbsp)
+    {
+      var returnValue = HandleTrimAndNBSP(stringBuilder.ToString(), quoted);
+
+      if (!storeWarnings)
+        return returnValue;
+
+      // if (m_HasQualifier && quoted && m_StructuredWriterFile.WarnQuotesInQuotes &&
+      // returnValue.IndexOf(m_StructuredWriterFile.FileFormat.FieldQualifierChar) != -1) WarnQuoteInQuotes(columnNo);
+      if (m_HasQualifier && m_CsvFile.WarnQuotes && returnValue.IndexOf(m_CsvFile.FileFormat.FieldQualifierChar) > 0)
+      {
+        m_NumWarningsQuote++;
+        if (m_CsvFile.NumWarnings < 1 || m_NumWarningsQuote <= m_CsvFile.NumWarnings)
+          HandleWarning(
+            columnNo,
+            $"Field qualifier '{FileFormat.GetDescription(m_CsvFile.FileFormat.FieldQualifier)}' found in field"
+              .AddWarningId());
+      }
+
+      if (m_CsvFile.WarnDelimiterInValue && hadDelimiterInValue)
+      {
+        m_NumWarningsDelimiter++;
+        if (m_CsvFile.NumWarnings < 1 || m_NumWarningsDelimiter <= m_CsvFile.NumWarnings)
+          HandleWarning(
+            columnNo,
+            $"Field delimiter '{FileFormat.GetDescription(m_CsvFile.FileFormat.FieldDelimiter)}' found in field"
+              .AddWarningId());
+      }
+
+      if (m_CsvFile.WarnUnknowCharater)
+        if (hadUnknownChar)
+        {
+          WarnUnknownChar(columnNo, false);
+        }
+        else
+        {
+          var numberQuestionMark = 0;
+          var lastPos = -1;
+          var length = returnValue.Length;
+          for (var pos = length - 1; pos >= 0; pos--)
+          {
+            if (returnValue[pos] != '?')
+              continue;
+            numberQuestionMark++;
+
+            // If we have at least two and there are two consecutive or more than 3+ in 12
+            // characters, or 4+ in 16 characters
+            if (numberQuestionMark > 2 && (lastPos == pos + 1 || numberQuestionMark > length / 4))
+            {
+              WarnUnknownChar(columnNo, true);
+              break;
+            }
+
+            lastPos = pos;
+          }
+        }
+
+      if (m_CsvFile.WarnNBSP && hadNbsp)
+      {
+        m_NumWarningsNbspChar++;
+        if (m_CsvFile.NumWarnings < 1 || m_NumWarningsNbspChar <= m_CsvFile.NumWarnings)
+          HandleWarning(
+            columnNo,
+            m_CsvFile.TreatNBSPAsSpace
+              ? "Character Non Breaking Space found, this character was treated as space".AddWarningId()
+              : "Character Non Breaking Space found in field".AddWarningId());
+      }
+
+      if (m_CsvFile.WarnLineFeed && (returnValue.IndexOf('\r') != -1 || returnValue.IndexOf('\n') != -1))
+        WarnLinefeed(columnNo);
+      return returnValue;
     }
 
     /// <summary>
@@ -1462,6 +1483,7 @@ namespace CsvTools
     private string[] ReadNextRow(bool regularDataRow, bool storeWarnings)
     {
     Restart:
+
       // Store the starting Line Number
       StartLineNumber = EndLineNumber;
 
@@ -1470,11 +1492,13 @@ namespace CsvTools
         return null;
 
       var item = ReadNextColumn(0, storeWarnings);
+
       // An empty line does not have any data
       if (string.IsNullOrEmpty(item) && m_EndOfLine)
       {
         m_EndOfLine = false;
         if (m_CsvFile.SkipEmptyLines || !regularDataRow)
+
           // go to the next line
           goto Restart;
 
@@ -1483,14 +1507,15 @@ namespace CsvTools
       }
 
       // Skip commented lines
-      if (m_CsvFile.FileFormat.CommentLine.Length > 0 &&
-          !string.IsNullOrEmpty(item) &&
-          item.StartsWith(m_CsvFile.FileFormat.CommentLine, StringComparison.Ordinal)
-      ) // A commented line does start with the comment
+      if (m_CsvFile.FileFormat.CommentLine.Length > 0 && !string.IsNullOrEmpty(item) && item.StartsWith(
+            m_CsvFile.FileFormat.CommentLine,
+            StringComparison.Ordinal))
       {
+        // A commented line does start with the comment
         if (m_EndOfLine)
           m_EndOfLine = false;
         else
+
           // it might happen that the comment line contains a Delimiter
           ReadToEOL();
         goto Restart;
@@ -1503,11 +1528,10 @@ namespace CsvTools
       {
         // If a column is quoted and does contain the delimiter and linefeed, issue a warning, we
         // might have an opening delimiter with a missing closing delimiter
-        if (storeWarnings &&
-            EndLineNumber > StartLineNumber + 4 &&
-            item.Length > 1024 &&
-            item.IndexOf(m_CsvFile.FileFormat.FieldDelimiterChar) != -1)
-          HandleWarning(col,
+        if (storeWarnings && EndLineNumber > StartLineNumber + 4 && item.Length > 1024
+            && item.IndexOf(m_CsvFile.FileFormat.FieldDelimiterChar) != -1)
+          HandleWarning(
+            col,
             $"Column has {EndLineNumber - StartLineNumber + 1} lines and has a length of {item.Length} characters"
               .AddWarningId());
 
@@ -1524,9 +1548,11 @@ namespace CsvTools
           else
           {
             item = item.ReplaceCaseInsensitive(m_CsvFile.FileFormat.NewLinePlaceholder, Environment.NewLine)
-              .ReplaceCaseInsensitive(m_CsvFile.FileFormat.DelimiterPlaceholder,
-                m_CsvFile.FileFormat.FieldDelimiterChar)
-              .ReplaceCaseInsensitive(m_CsvFile.FileFormat.QuotePlaceholder, m_CsvFile.FileFormat.FieldQualifierChar);
+              .ReplaceCaseInsensitive(
+                m_CsvFile.FileFormat.DelimiterPlaceholder,
+                m_CsvFile.FileFormat.FieldDelimiterChar).ReplaceCaseInsensitive(
+                m_CsvFile.FileFormat.QuotePlaceholder,
+                m_CsvFile.FileFormat.FieldQualifierChar);
 
             if (regularDataRow && col < FieldCount)
               item = HandleTextAndSetSize(item, col, false);
@@ -1556,6 +1582,60 @@ namespace CsvTools
         EatNextCRLF(character);
         return;
       }
+    }
+
+    /// <summary>
+    ///   Resets the position and buffer to the first line, excluding headers, use
+    ///   ResetPositionToStart if you want to go to first data line
+    /// </summary>
+    private void ResetPositionToStartOrOpen()
+    {
+      m_TextReader.ToBeginning();
+
+      StartLineNumber = 1 + m_CsvFile.SkipRows;
+      EndLineNumber = 1 + m_CsvFile.SkipRows;
+      RecordNumber = 0;
+      m_EndOfLine = false;
+      EndOfFile = false;
+    }
+
+    /// <summary>
+    ///   Add warnings for Linefeed.
+    /// </summary>
+    /// <param name="column">The column.</param>
+    private void WarnLinefeed(int column)
+    {
+      m_NumWarningsLinefeed++;
+      if (m_CsvFile.NumWarnings >= 1 && m_NumWarningsLinefeed > m_CsvFile.NumWarnings)
+        return;
+      HandleWarning(column, "Linefeed found in field".AddWarningId());
+    }
+
+    /// <summary>
+    ///   Add warnings for unknown char.
+    /// </summary>
+    /// <param name="column">The column.</param>
+    /// <param name="questionMark"></param>
+    private void WarnUnknownChar(int column, bool questionMark)
+    {
+      // in case the column is ignored do not warn
+      if (Column[column].Ignore)
+        return;
+
+      m_NumWarningsUnknownChar++;
+      if (m_CsvFile.NumWarnings >= 1 && m_NumWarningsUnknownChar > m_CsvFile.NumWarnings)
+        return;
+      if (questionMark)
+      {
+        HandleWarning(column, "Unusual high occurrence of ? this indicates unmapped characters.".AddWarningId());
+        return;
+      }
+
+      HandleWarning(
+        column,
+        m_CsvFile.TreatUnknowCharaterAsSpace
+          ? "Unknown Character '�' found, this character was replaced with space".AddWarningId()
+          : "Unknown Character '�' found in field".AddWarningId());
     }
   }
 }

@@ -280,7 +280,7 @@
       }
     }
 
-    private void PopulateNode(TreeNode parentNode)
+    private static void PopulateNode(TreeNode parentNode)
     {
       if (parentNode == null || parentNode.Nodes.Count != 0)
         return;

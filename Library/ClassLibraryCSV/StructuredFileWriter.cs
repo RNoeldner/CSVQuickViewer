@@ -79,8 +79,7 @@ namespace CsvTools
         var numColumns = Columns.Count();
         if (numColumns == 0)
           throw new FileWriterException("No columns defined to be written.");
-        var recordEnd = m_StructuredWriterFile.FileFormat.NewLine.Replace("CR", "\r").Replace("LF", "\n").Replace(" ", "")
-          .Replace("\t", "");
+        var recordEnd = this.GetRedordEnd();
         HandleWriteStart();
 
         // Header
@@ -164,8 +163,7 @@ namespace CsvTools
         var numColumns = Columns.Count();
         if (numColumns == 0)
           throw new FileWriterException("No columns defined to be written.");
-        var recordEnd = m_StructuredWriterFile.FileFormat.NewLine.Replace("CR", "\r").Replace("LF", "\n").Replace(" ", "")
-          .Replace("\t", "");
+        var recordEnd = this.GetRedordEnd();
         HandleWriteStart();
 
         // Header

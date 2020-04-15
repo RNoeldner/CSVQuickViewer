@@ -12,38 +12,59 @@
  *
  */
 
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.Common;
-using System.Threading;
-using System.Threading.Tasks;
-
 namespace CsvTools
 {
+  using System;
+  using System.Collections.Generic;
+  using System.Threading;
+
   /// <summary>
   ///   This class implements a lightweight Dependency injection without a framework
-  ///
   ///   It uses a static delegate function to give the ability to overload the default functionality
   ///   by implementations not know to this library
   /// </summary>
   public static class FunctionalDI
   {
     /// <summary>
+    ///   Timezone conversion, in case the conversion fails a error handler is called that does
+    ///   match the base file readers HandleWarning the validation library will overwrite this is an
+    ///   implementation using Noda Time
+    /// </summary>
+    public static Func<DateTime?, string, string, int, Action<int, string>, DateTime?> AdjustTZ =
+      (input, srcTimeZone, destTimeZone, columnOrdinal, handleWarning) =>
+        {
+          if (!input.HasValue || string.IsNullOrEmpty(srcTimeZone) || string.IsNullOrEmpty(destTimeZone)
+              || srcTimeZone.Equals(destTimeZone))
+            return input;
+          try
+          {
+            // default implementation will convert using the .NET library
+            return TimeZoneInfo.ConvertTime(
+              input.Value,
+              TimeZoneInfo.FindSystemTimeZoneById(srcTimeZone),
+              TimeZoneInfo.FindSystemTimeZoneById(destTimeZone));
+          }
+          catch (Exception ex)
+          {
+            if (handleWarning == null) throw;
+            handleWarning.Invoke(columnOrdinal, ex.Message);
+            return null;
+          }
+        };
+
+    /// <summary>
+    ///   Function to retrieve the column in a setting file
+    /// </summary>
+    public static Func<IFileSetting, CancellationToken, ICollection<string>> GetColumnHeader;
+
+    /// <summary>
     ///   Retrieve the passphrase
     /// </summary>
     public static Func<IFileSetting, string> GetEncryptedPassphrase = (fileSetting) =>
-    {
-      if (fileSetting == null) return null;
-      return !string.IsNullOrEmpty(fileSetting.Passphrase) ? fileSetting.Passphrase : null;
-    };
-
-    /// <summary>
-    ///   Action to be performed while waiting on a background process, do something like handing
-    ///   message queues (WinForms =&gt; DoEvents) call a Dispatcher to take care of the UI or send
-    ///   singals that the application is not stale
-    /// </summary>
-    public static Action SignalBackground = null;
+      {
+        if (fileSetting == null) return null;
+        return !string.IsNullOrEmpty(fileSetting.Passphrase) ? fileSetting.Passphrase : null;
+      };
 
     /// <summary>
     ///   Open a file for reading, it will take care of things like compression and encryption
@@ -55,37 +76,15 @@ namespace CsvTools
     ///   General function to open a file for writing, it will take care of things like compression
     ///   and encryption
     /// </summary>
-    public static Func<IFileSettingPhysicalFile, IImprovedStream> OpenWrite = setting => ImprovedStream.OpenWrite(setting);
+    public static Func<IFileSettingPhysicalFile, IImprovedStream> OpenWrite = setting =>
+      ImprovedStream.OpenWrite(setting);
 
     /// <summary>
-    ///   Timezone conversion, in case the conversion fails a error handler is called that does
-    ///   match the base file readers HandleWarning the validation library will overwrite this is an
-    ///   implementation using Noda Time
+    ///   Action to be performed while waiting on a background process, do something like handing
+    ///   message queues (WinForms =&gt; DoEvents) call a Dispatcher to take care of the UI or send
+    ///   singals that the application is not stale
     /// </summary>
-    public static Func<DateTime?, string, string, int, Action<int, string>, DateTime?> AdjustTZ =
-      (input, srcTimeZone, destTimeZone, columnOrdinal, handleWarning) =>
-      {
-        if (!input.HasValue || string.IsNullOrEmpty(srcTimeZone) || string.IsNullOrEmpty(destTimeZone) ||
-            srcTimeZone.Equals(destTimeZone))
-          return input;
-        try
-        {
-          // default implementation will convert using the .NET library
-          return TimeZoneInfo.ConvertTime(input.Value, TimeZoneInfo.FindSystemTimeZoneById(srcTimeZone),
-            TimeZoneInfo.FindSystemTimeZoneById(destTimeZone));
-        }
-        catch (Exception ex)
-        {
-          if (handleWarning == null) throw;
-          handleWarning.Invoke(columnOrdinal, ex.Message);
-          return null;
-        }
-      };
-
-    /// <summary>
-    ///   Function to retrieve the column in a setting file
-    /// </summary>
-    public static Func<IFileSetting, CancellationToken, ICollection<string>> GetColumnHeader;
+    public static Action SignalBackground = null;
 
     /// <summary>
     ///   Action to store the headers of a file in a cache, ignored columns should be excluded
@@ -97,15 +96,26 @@ namespace CsvTools
     /// </summary>
     public static Func<IFileSetting, string, IProcessDisplay, IFileReader> GetFileReader = DefaultFileReader;
 
+    /// <summary>
+    ///   Return a right writer for a file setting
+    /// </summary>
+    public static Func<IFileSetting, string, IProcessDisplay, IFileWriter> GetFileWriter = DefaultFileWriter;
+
+    /// <summary>
+    ///   Gets or sets a data reader
+    /// </summary>
+    /// <value>The statement for reader the data.</value>
+    /// <remarks>Make sure teh returned reader is open when needed</remarks>
+    public static Func<string, IProcessDisplay, int, IFileReader> SQLDataReader;
 
     public static IFileReader DefaultFileReader(IFileSetting setting, string timeZone, IProcessDisplay processDisplay)
     {
       switch (setting)
       {
-        case CsvFile csv when csv.JsonFormat:
+        case ICsvFile csv when csv.JsonFormat:
           return new JsonFileReader(csv, timeZone, processDisplay);
 
-        case CsvFile csv:
+        case ICsvFile csv:
           return new CsvFileReader(csv, timeZone, processDisplay);
 
         default:
@@ -113,16 +123,11 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   Return a right writer for a file setting
-    /// </summary>
-    public static Func<IFileSetting, string, IProcessDisplay, IFileWriter> GetFileWriter = DefaultFileWriter;
-
     public static IFileWriter DefaultFileWriter(IFileSetting setting, string timeZone, IProcessDisplay processDisplay)
     {
       switch (setting)
       {
-        case CsvFile csv when !csv.JsonFormat:
+        case ICsvFile csv when !csv.JsonFormat:
           return new CsvFileWriter(csv, timeZone, processDisplay);
 
         case StructuredFile structuredFile:
@@ -132,13 +137,5 @@ namespace CsvTools
           throw new NotImplementedException($"Writer for {setting} not found");
       }
     }
-
-    /// <summary>
-    ///   Gets or sets a data reader
-    /// </summary>
-    /// <value>The statement for reader the data.</value>
-    /// <remarks>Make sure teh returned reader is open when needed</remarks>
-    public static Func<string, IProcessDisplay, int, IFileReader> SQLDataReader;
-
   }
 }

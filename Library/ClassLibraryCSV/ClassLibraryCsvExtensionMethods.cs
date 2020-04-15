@@ -1063,6 +1063,7 @@ namespace CsvTools
       if (inputString.Equals("Return", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("CarriageReturn", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("CR", StringComparison.OrdinalIgnoreCase) ||
+          inputString.Equals("␍", StringComparison.Ordinal) ||
           inputString.Equals("Carriage return", StringComparison.OrdinalIgnoreCase))
         return '\r';
 
@@ -1074,16 +1075,19 @@ namespace CsvTools
       if (inputString.Equals("Feed", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("LineFeed", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("LF", StringComparison.OrdinalIgnoreCase) ||
+          inputString.Equals("␊", StringComparison.Ordinal) ||
           inputString.Equals("Line feed", StringComparison.OrdinalIgnoreCase))
         return '\n';
 
       if (inputString.StartsWith("Unit separator", StringComparison.OrdinalIgnoreCase) ||
           inputString.Contains("31") ||
+          inputString.Equals("␟", StringComparison.Ordinal) ||
           inputString.Equals("US", StringComparison.OrdinalIgnoreCase))
         return '\u001F';
 
       if (inputString.StartsWith("Record separator", StringComparison.OrdinalIgnoreCase) ||
           inputString.Contains("30") ||
+          inputString.Equals("␞", StringComparison.Ordinal) ||
           inputString.Equals("RS", StringComparison.OrdinalIgnoreCase))
         return '\u001E';
 

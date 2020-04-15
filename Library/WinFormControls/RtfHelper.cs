@@ -55,7 +55,7 @@ namespace CsvTools
     {
       var item = 0;
       var tableData = new List<string>(data);
-      var lastRow = (tableData.Count) / columns + (tableData.Count % columns == 0 ? 0 : 1);
+      var lastRow = tableData.Count / columns + (tableData.Count % columns == 0 ? 0 : 1);
       for (var row = 0; row < lastRow; row++)
       {
         m_StringBuilder.AppendLine(@"\trowd");
@@ -83,6 +83,6 @@ namespace CsvTools
       m_StringBuilder.AppendLine($"{EscapeText(text)}\\par");
     }
 
-    public string Rtf => m_StringBuilder.ToString() + @"\pard}";
+    public string Rtf => this.m_StringBuilder + @"\pard}";
   }
 }

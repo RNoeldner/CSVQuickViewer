@@ -167,7 +167,7 @@ namespace CsvTools
         return false;
       if (ReferenceEquals(this, obj))
         return true;
-      return (obj is ValueCluster typed) && Equals(typed);
+      return obj is ValueCluster typed && Equals(typed);
     }
 
     /// <summary>

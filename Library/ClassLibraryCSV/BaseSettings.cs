@@ -263,7 +263,9 @@ namespace CsvTools
           !string.Equals(otherRemote.FileName, FileName, StringComparison.OrdinalIgnoreCase)
       )
         return false;
+
       return string.Equals(other.TemplateName, TemplateName, StringComparison.OrdinalIgnoreCase) &&
+             
              other.SkipRows == SkipRows &&
              other.IsEnabled == IsEnabled &&
              other.TreatNBSPAsSpace == TreatNBSPAsSpace &&
@@ -287,6 +289,7 @@ namespace CsvTools
              other.SkipDuplicateHeader == SkipDuplicateHeader &&
              other.Timeout == Timeout &&
              other.ProcessTimeUtc == ProcessTimeUtc &&
+             other.LatestSourceTimeUtc == LatestSourceTimeUtc &&
              other.SetLatestSourceTimeForWrite == SetLatestSourceTimeForWrite &&
              string.Equals(other.SqlStatement, SqlStatement, StringComparison.OrdinalIgnoreCase) &&
              string.Equals(other.Footer, Footer, StringComparison.OrdinalIgnoreCase) &&

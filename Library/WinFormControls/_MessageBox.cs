@@ -69,7 +69,7 @@ namespace CsvTools
           massChoice.NumRecs > 1 ? MessageBoxButtons.YesNoCancel : MessageBoxButtons.YesNo,
           MessageBoxIcon.Question,
           // Depending on the massChoice Result, select the right button
-          (massChoice.DialogResult == DialogResult.Yes) ? MessageBoxDefaultButton.Button1 : MessageBoxDefaultButton.Button2,
+          massChoice.DialogResult == DialogResult.Yes ? MessageBoxDefaultButton.Button1 : MessageBoxDefaultButton.Button2,
           4.0,
           // do not overwrite Button 1 or Button 2
           button1Text, button2Text,

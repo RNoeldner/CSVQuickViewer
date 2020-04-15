@@ -576,14 +576,16 @@ namespace CsvTools
       const int c_NumRows = 50;
 
       var lastRow = 0;
-
       var quoted = false;
 
       const int c_Cr = 0;
-      const int c_LF = 1;
-      const int c_CRLF = 2;
+      const int c_Lf = 1;
+      const int c_CrLf = 2;
       const int c_Lfcr = 3;
-      int[] count = { 0, 0, 0, 0 };
+      const int c_RecSep = 4;
+      const int c_UnitSep = 5;
+      
+      int[] count = { 0, 0, 0, 0, 0, 0 };
 
       // \r = CR (Carriage Return) \n = LF (Line Feed)
 
@@ -607,6 +609,18 @@ namespace CsvTools
 
         if (quoted)
           continue;
+
+        if (readChar == '\u001E')
+        {
+          count[c_RecSep]++;
+          continue;
+        }
+        if (readChar == '\u001F')
+        {
+          count[c_UnitSep]++;
+          continue;
+        }
+       
         if (readChar == '\n')
         {
           if (await textReader.PeekAsync() == '\r')
@@ -616,7 +630,7 @@ namespace CsvTools
           }
           else
           {
-            count[c_LF]++;
+            count[c_Lf]++;
           }
 
           lastRow++;
@@ -627,7 +641,7 @@ namespace CsvTools
         if (await textReader.PeekAsync() == '\n')
         {
           textReader.MoveNext();
-          count[c_CRLF]++;
+          count[c_CrLf]++;
         }
         else
         {
@@ -637,14 +651,13 @@ namespace CsvTools
         lastRow++;
       }
 
-      if (count[c_Cr] > count[c_CRLF] && count[c_Cr] > count[c_Lfcr] && count[c_Cr] > count[c_LF])
-        return "CR";
-      if (count[c_LF] > count[c_CRLF] && count[c_LF] > count[c_Lfcr] && count[c_LF] > count[c_Cr])
-        return "LF";
-      if (count[c_Lfcr] > count[c_CRLF] && count[c_Lfcr] > count[c_LF] && count[c_Lfcr] > count[c_Cr])
-        return "LFCR";
+      var maxCount = count.Max();
 
-      return "CRLF";
+      return count[c_RecSep] == maxCount ? "␞" :
+             count[c_UnitSep] == maxCount ? "␟" :
+             count[c_Cr] == maxCount ? "␍" :
+             count[c_Lf] == maxCount ? "␊" :
+             count[c_Lfcr] == maxCount ? "␊␍" : "␍␊";
     }
 
     private static async Task<char> GuessQualifierAsync(ImprovedTextReader textReader, char delimiter)

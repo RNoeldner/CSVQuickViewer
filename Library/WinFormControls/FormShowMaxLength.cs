@@ -16,7 +16,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
-using System.Diagnostics.Contracts;
 using System.Drawing;
 using System.Globalization;
 using System.Windows.Forms;
@@ -144,19 +143,22 @@ namespace CsvTools
           dataTable.Rows.Add(lastRow);
         }
 
-        m_DataGridView.DataSource = dataTable;
+        if (m_DataGridView != null)
+        {
+          m_DataGridView.DataSource = dataTable;
 
-        m_DataGridView.Columns[dataColumnName.ColumnName].Width = 150;
+          m_DataGridView.Columns[dataColumnName.ColumnName].Width = 150;
 
-        m_DataGridView.Columns[dataColumnLength.ColumnName].Width = 60;
-        m_DataGridView.Columns[dataColumnLength.ColumnName].DefaultCellStyle.Alignment =
-          DataGridViewContentAlignment.MiddleRight;
-        m_DataGridView.Columns[dataColumnLength.ColumnName].DefaultCellStyle.Format = "0";
+          m_DataGridView.Columns[dataColumnLength.ColumnName].Width = 60;
+          m_DataGridView.Columns[dataColumnLength.ColumnName].DefaultCellStyle.Alignment =
+            DataGridViewContentAlignment.MiddleRight;
+          m_DataGridView.Columns[dataColumnLength.ColumnName].DefaultCellStyle.Format = "0";
 
-        m_DataGridView.Columns[dataColumnNo.ColumnName].Width = 60;
-        m_DataGridView.Columns[dataColumnNo.ColumnName].DefaultCellStyle.Alignment =
-          DataGridViewContentAlignment.MiddleRight;
-        m_DataGridView.Columns[dataColumnNo.ColumnName].DefaultCellStyle.Format = "0";
+          m_DataGridView.Columns[dataColumnNo.ColumnName].Width = 60;
+          m_DataGridView.Columns[dataColumnNo.ColumnName].DefaultCellStyle.Alignment =
+            DataGridViewContentAlignment.MiddleRight;
+          m_DataGridView.Columns[dataColumnNo.ColumnName].DefaultCellStyle.Format = "0";
+        }
       }
       catch (Exception ex)
       {

@@ -162,9 +162,8 @@ namespace CsvTools
 
       if (Columns.Count == 0)
         throw new FileWriterException("No columns defined to be written.");
-      recordEnd = m_CsvFile.FileFormat.NewLine.Replace("CR", "\r").Replace("LF", "\n").Replace(" ", "")
-        .Replace("\t", "");
-
+      
+      recordEnd = this.GetRedordEnd();
       HandleWriteStart();
 
       var sb = new StringBuilder();
