@@ -28,97 +28,123 @@ namespace CsvTools.Tests
     {
       foreach (var type in GetAllIEquatable())
       {
-        var obj1 = Activator.CreateInstance(type);
-        var obj3 = Activator.CreateInstance(type);
-
-        var properties = type.GetProperties().Where(prop => prop.GetMethod != null && prop.SetMethod != null &&
-                                                            (prop.PropertyType == typeof(int) ||
-                                                             prop.PropertyType == typeof(long) ||
-                                                             prop.PropertyType == typeof(string) ||
-                                                             prop.PropertyType == typeof(bool) ||
-                                                             prop.PropertyType == typeof(DateTime))).ToArray();
-        if (properties.Length == 0)
-          continue;
-        // Set some properties that should not match the default
-        foreach (var prop in properties)
+        try
         {
-          if (prop.PropertyType == typeof(int) || prop.PropertyType == typeof(long))
+          var obj1 = Activator.CreateInstance(type);
+          var obj3 = Activator.CreateInstance(type);
+
+          var properties = type.GetProperties().Where(
+            prop => prop.GetMethod != null && prop.SetMethod != null
+                                           && (prop.PropertyType == typeof(int) || prop.PropertyType == typeof(long)
+                                                                                || prop.PropertyType == typeof(string)
+                                                                                || prop.PropertyType == typeof(bool)
+                                                                                || prop.PropertyType == typeof(DateTime)
+                                              )).ToArray();
+          if (properties.Length == 0)
+            continue;
+          // Set some properties that should not match the default
+          foreach (var prop in properties)
           {
-            prop.SetValue(obj1, 13);
-            prop.SetValue(obj3, 13);
-          }
-
-          if (prop.PropertyType == typeof(bool))
-          {
-            prop.SetValue(obj1, !(bool)prop.GetValue(obj1));
-            prop.SetValue(obj3, prop.GetValue(obj1));
-          }
-
-          if (prop.PropertyType == typeof(string))
-          {
-            prop.SetValue(obj1, "Raphael");
-            prop.SetValue(obj3, prop.GetValue(obj1));
-          }
-
-          if (prop.PropertyType == typeof(DateTime))
-          {
-            prop.SetValue(obj1, new DateTime(2014, 12, 24));
-            prop.SetValue(obj3, prop.GetValue(obj1));
-          }
-        }
-
-        var methodEquals = type.GetMethod("Equals",
-          BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly, null, CallingConventions.Any,
-          new[] { type }, null);
-        if (methodEquals != null)
-          try
-          {
-            var isEqual = (bool)methodEquals.Invoke(obj1, new[] { obj3 });
-            Assert.IsTrue(isEqual, $"Type: {type.FullName}");
-
-            isEqual = (bool)methodEquals.Invoke(obj1, new[] { obj1 });
-            Assert.IsTrue(isEqual, $"Type: {type.FullName}");
-
-            isEqual = (bool)methodEquals.Invoke(obj1, new object[] { null });
-            Assert.IsFalse(isEqual, $"Type: {type.FullName}");
-
-            // Chane only one Attribute at a time
-            for (var c = 0; c < properties.Count(); c++)
+            if (prop.PropertyType == typeof(int) || prop.PropertyType == typeof(long))
             {
-              var d = 0;
-              PropertyInfo currentTest = null;
-              var obj2 = Activator.CreateInstance(type);
-              foreach (var prop in properties)
-              {
-                if (c != d)
-                {
-                  prop.SetValue(obj2, prop.GetValue(obj1));
-                }
-                else
-                {
-                  currentTest = prop;
-                  if (prop.PropertyType == typeof(int) || prop.PropertyType == typeof(long))
-                    prop.SetValue(obj2, 18);
-                  else if (prop.PropertyType == typeof(bool))
-                    prop.SetValue(obj2, !(bool)prop.GetValue(obj1));
-                  else if (prop.PropertyType == typeof(string))
-                    prop.SetValue(obj2, "Nöldner");
-                  else if (prop.PropertyType == typeof(DateTime))
-                    prop.SetValue(obj2, new DateTime(2015, 12, 24));
-                }
+              prop.SetValue(obj1, 13);
+              prop.SetValue(obj3, 13);
+            }
 
-                d++;
-              }
+            if (prop.PropertyType == typeof(bool))
+            {
+              prop.SetValue(obj1, !(bool)prop.GetValue(obj1));
+              prop.SetValue(obj3, prop.GetValue(obj1));
+            }
 
-              isEqual = (bool)methodEquals.Invoke(obj1, new[] { obj2 });
-              Assert.IsFalse(isEqual, string.Format(System.Globalization.CultureInfo.InvariantCulture, "Type: {0}  Property:{1}", type.FullName, currentTest.Name));
+            if (prop.PropertyType == typeof(string))
+            {
+              prop.SetValue(obj1, "Raphael");
+              prop.SetValue(obj3, prop.GetValue(obj1));
+            }
+
+            if (prop.PropertyType == typeof(DateTime))
+            {
+              prop.SetValue(obj1, new DateTime(2014, 12, 24));
+              Assert.AreEqual(
+                new DateTime(2014, 12, 24),
+                prop.GetValue(obj1),
+                $"The set value is stored for Type: {type.FullName}  Property:{prop.Name}");
+              prop.SetValue(obj3, prop.GetValue(obj1));
             }
           }
-          catch (Exception ex)
-          {
-            // Ignore all NotImplementedException these are cause by compatibility setting or mocks
-            Debug.Write(ex.ExceptionMessages());
-          }
+
+          var methodEquals = type.GetMethod(
+            "Equals",
+            BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly,
+            null,
+            CallingConventions.Any,
+            new[] { type },
+            null);
+          if (methodEquals != null)
+            try
+            {
+              var isEqual = (bool)methodEquals.Invoke(obj1, new[] { obj3 });
+              Assert.IsTrue(isEqual, $"Type: {type.FullName}");
+
+              isEqual = (bool)methodEquals.Invoke(obj1, new[] { obj1 });
+              Assert.IsTrue(isEqual, $"Type: {type.FullName}");
+
+              isEqual = (bool)methodEquals.Invoke(obj1, new object[] { null });
+              Assert.IsFalse(isEqual, $"Type: {type.FullName}");
+
+              // Chane only one Attribute at a time
+              for (var c = 0; c < properties.Count(); c++)
+              {
+                var d = 0;
+                PropertyInfo currentTest = null;
+                var obj2 = Activator.CreateInstance(type);
+                foreach (var prop in properties)
+                {
+                  if (c != d)
+                  {
+                    prop.SetValue(obj2, prop.GetValue(obj1));
+                  }
+                  else
+                  {
+                    currentTest = prop;
+                    if (prop.PropertyType == typeof(int) || prop.PropertyType == typeof(long))
+                      prop.SetValue(obj2, 18);
+                    else if (prop.PropertyType == typeof(bool))
+                      prop.SetValue(obj2, !(bool)prop.GetValue(obj1));
+                    else if (prop.PropertyType == typeof(string))
+                      prop.SetValue(obj2, "Nöldner");
+                    else if (prop.PropertyType == typeof(DateTime))
+                      prop.SetValue(obj2, new DateTime(2015, 12, 24));
+                  }
+
+                  d++;
+                }
+
+                isEqual = (bool)methodEquals.Invoke(obj1, new[] { obj2 });
+                Assert.IsFalse(
+                  isEqual,
+                  string.Format(
+                    System.Globalization.CultureInfo.InvariantCulture,
+                    "Type: {0}  Property:{1}",
+                    type.FullName,
+                    currentTest.Name));
+              }
+            }
+            catch (Exception ex)
+            {
+              // Ignore all NotImplementedException these are cause by compatibility setting or mocks
+              Debug.Write(ex.ExceptionMessages());
+            }
+        }
+        catch (MissingMethodException)
+        {
+          // Ignore, there is no constructor without parameter
+        }
+        catch (Exception e)
+        {
+          Assert.Fail($"Issue with {type.FullName} {e.Message}");
+        }
       }
     }
 

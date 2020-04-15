@@ -40,36 +40,34 @@ namespace CsvTools
 
     public void AddLog(string text, Logger.Level level)
     {
-      if (!string.IsNullOrWhiteSpace(text) && !m_LastMessage.Equals(text, StringComparison.Ordinal)
-                                           && level >= MinLevel)
+      if (string.IsNullOrWhiteSpace(text) || m_LastMessage.Equals(text, StringComparison.Ordinal)
+                                          || level < this.MinLevel) return;
+      try
       {
-        try
+        var appended = false;
+        var posSlash = text.IndexOf('–', 0);
+        if (posSlash != -1 && this.m_LastMessage.StartsWith(
+              text.Substring(0, posSlash - 1).Trim(),
+              StringComparison.Ordinal))
         {
-          var appended = false;
-          var posSlash = text.IndexOf('–', 0);
-          if (posSlash != -1 && m_LastMessage.StartsWith(
-                text.Substring(0, posSlash - 1).Trim(),
-                StringComparison.Ordinal))
-          {
-            // add to previous item,
-            AppendText(text.Substring(posSlash - 1), level);
-            appended = true;
-          }
-
-          m_LastMessage = text;
-          if (!appended)
-          {
-            if (level < Logger.Level.Warn)
-              text = StringUtils.GetShortDisplay(StringUtils.HandleCRLFCombinations(text, " "), 120);
-            AppendText($"{(m_Initial ? string.Empty : "\n")}{DateTime.Now:HH:mm:ss}  {text}", level);
-          }
-
-          m_Initial = false;
+          // add to previous item,
+          this.AppendText(text.Substring(posSlash - 1), level);
+          appended = true;
         }
-        catch (Exception)
+
+        this.m_LastMessage = text;
+        if (!appended)
         {
-          // ignore
+          if (level < Logger.Level.Warn)
+            text = StringUtils.GetShortDisplay(StringUtils.HandleCRLFCombinations(text, " "), 120);
+          this.AppendText($"{(this.m_Initial ? string.Empty : "\n")}{DateTime.Now:HH:mm:ss}  {text}", level);
         }
+
+        this.m_Initial = false;
+      }
+      catch (Exception)
+      {
+        // ignore
       }
     }
 

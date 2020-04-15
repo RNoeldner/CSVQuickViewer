@@ -24,19 +24,19 @@
 
     [XmlAttribute]
 #pragma warning disable CA1051 // Do not declare visible instance fields
-    public int Left = 0;
+    public int Left;
 
     [XmlAttribute]
-    public int Top = 0;
+    public int Top;
 
     [XmlAttribute]
-    public int Width = 0;
+    public int Width;
 
     [XmlAttribute]
-    public int Height = 0;
+    public int Height;
 
     [XmlAttribute]
-    public int State = 0;
+    public int State;
 
     /// <summary>
     ///   Store form specific values like selected Tab or Splitter distance, can store any value but -1

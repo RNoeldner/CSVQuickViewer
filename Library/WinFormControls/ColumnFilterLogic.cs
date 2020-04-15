@@ -295,7 +295,7 @@ namespace CsvTools
     {
       if (string.IsNullOrEmpty(text))
         return false;
-      return (text != c_OperatorIsNotNull & text != OperatorIsNull);
+      return text != c_OperatorIsNotNull & text != OperatorIsNull;
     }
 
     /// <summary>
@@ -323,7 +323,7 @@ namespace CsvTools
     ///   Notifies the property changed.
     /// </summary>
     /// <param name="info">The info.</param>
-    public virtual void NotifyPropertyChanged(string info) =>
+    protected virtual void NotifyPropertyChanged(string info) =>
       PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(info));
 
     /// <summary>
@@ -394,7 +394,7 @@ namespace CsvTools
           break;
 
         case TypeCode.Object:
-          if (targetType == typeof(System.Guid))
+          if (targetType == typeof(Guid))
             return $"'{value.SqlQuote()}'";
           break;
 

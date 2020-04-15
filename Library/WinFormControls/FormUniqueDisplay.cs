@@ -137,14 +137,14 @@ namespace CsvTools
           display.Maximum = dictIDToRow.Count;
 
           var counter = 0;
-          foreach (var rowIdex in dictIDToRow.Values)
+          foreach (var rowIndex in dictIDToRow.Values)
           {
             if (display.CancellationToken.IsCancellationRequested)
               return;
             counter++;
             if (counter % 100 == 0)
               intervalAction.Invoke(delegate { display.SetProcess("Importing Rows to Grid", counter, true); });
-            m_DataTable.ImportRow(m_DataRow[rowIdex]);
+            m_DataTable.ImportRow(m_DataRow[rowIndex]);
           }
 
           m_DataTable.EndLoadData();

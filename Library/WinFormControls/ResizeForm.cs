@@ -44,16 +44,15 @@ namespace CsvTools
       //#endif
     }
 
-        private void InitializeComponent()
-        {
-      this.SuspendLayout();
+    private void InitializeComponent()
+    {
+      SuspendLayout();
       // 
       // ResizeForm
       // 
-      this.ClientSize = new System.Drawing.Size(292, 253);
-      this.Name = "ResizeForm";
-      this.ResumeLayout(false);
-
-        }
+      ClientSize = new Size(292, 253);
+      Name = "ResizeForm";
+      ResumeLayout(false);
     }
+  }
 }

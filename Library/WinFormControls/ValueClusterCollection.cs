@@ -132,12 +132,7 @@ namespace CsvTools
     /// <returns></returns>
     public IEnumerable<ValueCluster> GetActiveValueCluster()
     {
-      foreach (var value in m_ValueClusters)
-      {
-        if (string.IsNullOrEmpty(value.Display) || !value.Active)
-          continue;
-        yield return value;
-      }
+      return this.m_ValueClusters.Where(value => !string.IsNullOrEmpty(value.Display) && value.Active);
     }
 
     private static string GetDaySort(DateTime date) => date.ToString("s", CultureInfo.CurrentCulture);
@@ -646,13 +641,10 @@ namespace CsvTools
 
         if (sort == null)
           continue;
-        foreach (var item in m_ValueClusters)
+        foreach (var item in this.m_ValueClusters.Where(item => sort.Equals(item.Sort, StringComparison.Ordinal)))
         {
-          if (sort.Equals(item.Sort, StringComparison.Ordinal))
-          {
-            item.Count++;
-            break;
-          }
+          item.Count++;
+          break;
         }
       }
     }
@@ -697,13 +689,10 @@ namespace CsvTools
 
         if (sort == null)
           continue;
-        foreach (var item in m_ValueClusters)
+        foreach (var item in this.m_ValueClusters.Where(item => sort.Equals(item.Sort, StringComparison.Ordinal)))
         {
-          if (sort.Equals(item.Sort, StringComparison.Ordinal))
-          {
-            item.Count++;
-            break;
-          }
+          item.Count++;
+          break;
         }
       }
     }
@@ -716,13 +705,10 @@ namespace CsvTools
                     ? ColumnFilterLogic.OperatorIsNull
                     : dataRow[columnIndex].ToString();
 
-        foreach (var item in m_ValueClusters)
+        foreach (var item in this.m_ValueClusters.Where(item => key.Equals(item.Sort, StringComparison.Ordinal)))
         {
-          if (key.Equals(item.Sort, StringComparison.Ordinal))
-          {
-            item.Count++;
-            break;
-          }
+          item.Count++;
+          break;
         }
       }
     }

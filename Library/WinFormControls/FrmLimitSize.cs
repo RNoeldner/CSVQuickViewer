@@ -15,7 +15,6 @@
 namespace CsvTools
 {
   using System;
-  using System.Drawing;
   using System.Windows.Forms;
 
   /// <summary>
@@ -23,11 +22,11 @@ namespace CsvTools
   /// </summary>
   public partial class FrmLimitSize : ResizeForm
   {
+    private const double m_Duration = 5.0;
+
     private static readonly int[] intRecords = new int[] { 10000, 20000, 50000, 100000 };
 
-    private int m_Counter = 0;
-
-    private readonly double m_Duration = 5.0;
+    private int m_Counter;
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="FrmLimitSize" /> class.

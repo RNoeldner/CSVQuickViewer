@@ -38,12 +38,12 @@ namespace CsvTools
     /// <summary>
     ///   The cell
     /// </summary>
-    public DataGridViewCell Cell;
+    public readonly DataGridViewCell Cell;
 
     /// <summary>
     ///   The index
     /// </summary>
-    public int Index;
+    public readonly int Index;
 
 #pragma warning restore CA1051 // Do not declare visible instance fields
   }

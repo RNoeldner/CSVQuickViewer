@@ -18,6 +18,9 @@ using System.Windows.Forms;
 
 namespace CsvTools.Tests
 {
+  using System;
+  using System.Runtime.InteropServices;
+
   [TestClass]
   public class DataGridViewCopyPasteTests
   {
@@ -88,11 +91,19 @@ namespace CsvTools.Tests
             frm.Show();
             dgv.Columns[1].Selected = true;
             dgv.Columns[2].Selected = true;
-            Clipboard.Clear();
-            dgv.SelectedDataIntoClipboard(true, false, CancellationToken.None);
-            var dataObject = Clipboard.GetDataObject();
-            Assert.IsNotNull(dataObject);
-            Assert.IsNotNull(dataObject.GetData(DataFormats.Text));
+            try
+            {
+              Clipboard.Clear();
+              dgv.SelectedDataIntoClipboard(true, false, CancellationToken.None);
+              var dataObject = Clipboard.GetDataObject();
+              Assert.IsNotNull(dataObject);
+              Assert.IsNotNull(dataObject.GetData(DataFormats.Text));
+            }
+            catch (ExternalException e)
+            {
+              Console.WriteLine(e);
+              Assert.Inconclusive(e.Message);
+            }
           }
         }
       }

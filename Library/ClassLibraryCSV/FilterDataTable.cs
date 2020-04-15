@@ -18,6 +18,7 @@ namespace CsvTools
   using System;
   using System.Collections.Generic;
   using System.Data;
+  using System.Diagnostics;
   using System.Linq;
   using System.Threading;
   using System.Threading.Tasks;
@@ -135,7 +136,7 @@ namespace CsvTools
     /// <value>The error table.</value>
     public DataTable FilterTable { get; private set; }
 
-    public FilterType FilterType  { get; private set; }
+    public FilterType FilterType { get; private set; }
 
     /// <summary>
     ///   Sets the name of the unique field.
@@ -157,9 +158,9 @@ namespace CsvTools
     {
       // stop old filtering
       if (m_CurrentFilterCancellationTokenSource?.IsCancellationRequested ?? true) return;
-      
+
       m_CurrentFilterCancellationTokenSource.Cancel();
-      
+
       // make sure the filtering is canceled
       WaitCompeteFilter(0.2);
 
@@ -178,6 +179,7 @@ namespace CsvTools
       if (limit < 1)
         limit = int.MaxValue;
 
+      m_Filtering = true;
       try
       {
         var rows = 0;
@@ -219,11 +221,15 @@ namespace CsvTools
 
         CutAtLimit = rows >= limit;
       }
+      
       catch (Exception ex)
       {
         Logger.Warning(ex.SourceExceptionMessage());
       }
-     
+      finally
+      {
+        m_Filtering = false;
+      }
     }
 
     public Task StartFilter(int limit, FilterType type, CancellationToken cancellationToken)
@@ -231,15 +237,12 @@ namespace CsvTools
       if (m_Filtering)
         Cancel();
 
-      m_Filtering = true;
       m_ColumnWithoutErrors = null;
       FilterTable = m_SourceTable.Clone();
 
       m_CurrentFilterCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
       // the task itself should not cancel as it would not run into finally
-      return Task
-        .Run(() => Filter(limit, type), m_CurrentFilterCancellationTokenSource.Token)
-        .ContinueWith(task => m_Filtering = false, m_CurrentFilterCancellationTokenSource.Token);
+      return Task.Run(() => Filter(limit, type), m_CurrentFilterCancellationTokenSource.Token);
     }
 
 
@@ -247,13 +250,18 @@ namespace CsvTools
     {
       if (m_Filtering)
       {
-        Task.Run(() =>
+        var stopwatch = timeoutInSeconds > 0.01 ? new Stopwatch() : null;
+        stopwatch?.Start();
+        while (m_Filtering)
         {
-          while (m_Filtering)
+          FunctionalDI.SignalBackground?.Invoke();
+          if (timeoutInSeconds > 0 && stopwatch.Elapsed.TotalSeconds > timeoutInSeconds)
           {
-            FunctionalDI.SignalBackground?.Invoke();
+            // can not call Cancel as this method is called by cancel
+            m_CurrentFilterCancellationTokenSource.Cancel();
+            break;
           }
-        }).WaitToCompleteTask(timeoutInSeconds);
+        }
       }
     }
 

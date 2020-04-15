@@ -30,7 +30,6 @@ namespace CsvTools
     /// <summary>
     ///   Initializes a new instance of the <see cref="DataGridViewColumnFilterControl" /> class.
     /// </summary>
-    /// <param name="columnDataType">Type of the column data.</param>
     /// <param name="dataGridViewColumn">The data grid view column.</param>
     public DataGridViewColumnFilterControl(DataGridViewColumn dataGridViewColumn)
     {

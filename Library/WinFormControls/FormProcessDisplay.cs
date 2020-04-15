@@ -237,9 +237,9 @@ namespace CsvTools
             }
             else
             {
-              m_ProgressBar.Value = (TimeToCompletion.Value > m_ProgressBar.Maximum
-                                       ? m_ProgressBar.Maximum
-                                       : TimeToCompletion.Value.ToInt());
+              m_ProgressBar.Value = this.TimeToCompletion.Value > this.m_ProgressBar.Maximum
+                                      ? this.m_ProgressBar.Maximum
+                                      : this.TimeToCompletion.Value.ToInt();
               var sb = new StringBuilder(TimeToCompletion.PercentDisplay.PadLeft(10));
 
               var t1 = TimeToCompletion.EstimatedTimeRemainingDisplay;
