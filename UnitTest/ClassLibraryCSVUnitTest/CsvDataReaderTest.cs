@@ -22,6 +22,9 @@ using System.IO;
 
 namespace CsvTools.Tests
 {
+  using System.Runtime.InteropServices;
+  using System.Threading.Tasks;
+
   [TestClass]
   public class CsvDataReaderUnitTest
   {
@@ -38,6 +41,48 @@ namespace CsvTools.Tests
       m_ValidSetting.ColumnCollection.AddIfNew(new Column("IsNativeLang", DataType.Boolean));
       var cf = m_ValidSetting.ColumnCollection.AddIfNew(new Column("ExamDate", DataType.DateTime));
       cf.ValueFormat.DateFormat = @"dd/MM/yyyy";
+    }
+
+    [TestMethod]
+    public async Task AllFormatsPipeReaderAsync()
+    {
+      var setting =
+        new CsvFile(UnitTestInitialize.GetTestPath("AllFormatsPipe.txt"))
+        {
+          HasFieldHeader = true,
+          FileFormat = { FieldDelimiter = "|", FieldQualifier = "\"" }
+        };
+
+
+      using (var processDisplay = new DummyProcessDisplay())
+      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
+      {
+        test.Open();
+        Assert.AreEqual(10, test.FieldCount);
+        await test.ReadAsync();
+        Assert.AreEqual(2, test.StartLineNumber);
+        Assert.AreEqual(3, test.EndLineNumber);
+        Assert.AreEqual(1, test.RecordNumber);
+        Assert.AreEqual("-22477", test.GetString(1));
+        await test.ReadAsync();
+        Assert.AreEqual(3, test.StartLineNumber);
+        Assert.AreEqual(4, test.EndLineNumber);
+        Assert.AreEqual(2, test.RecordNumber);
+        Assert.AreEqual("22435", test.GetString(1));
+        for (int row = 3; row < 25; row++)
+          await test.ReadAsync();
+        Assert.AreEqual("-21928", test.GetString(1));
+        Assert.IsTrue(test.GetString(4).EndsWith("twpapulfffy"));
+        Assert.AreEqual(25, test.StartLineNumber);
+        Assert.AreEqual(27, test.EndLineNumber);
+        Assert.AreEqual(24, test.RecordNumber);
+        
+        for (int row = 25; row < 47; row++)
+          await test.ReadAsync();
+        Assert.AreEqual(49, test.EndLineNumber);
+        Assert.AreEqual("4390", test.GetString(1));
+        Assert.AreEqual(46, test.RecordNumber);
+      }
     }
 
     [TestMethod]

@@ -201,7 +201,7 @@ namespace CsvTools
     /// <param name="setting"><see cref="ICsvFile" /> with the information</param>
     /// <param name="cancellationToken">A cancellation token</param>
     /// <returns>The NewLine Combination used</returns>
-    public static async Task<string> GuessNewlineAsync(ICsvFile setting, CancellationToken cancellationToken)
+    public static async Task<RecordDelimiterType> GuessNewlineAsync(ICsvFile setting, CancellationToken cancellationToken)
     {
       Contract.Requires(setting != null);
       using (var improvedStream = FunctionalDI.OpenRead(setting))
@@ -287,12 +287,21 @@ namespace CsvTools
     /// <param name="guessHasHeader">
     ///   if true, try to determine if the file does have a header row
     /// </param>
-    public static async Task RefreshCsvFileAsync(this ICsvFile setting, IProcessDisplay display, bool guessJson = false, bool guessCodePage = true, bool guessDelimiter = true, bool guessQualifier = true, bool guessStartRow = true, bool guessHasHeader = true)
+    public static async Task RefreshCsvFileAsync(
+      this ICsvFile setting,
+      IProcessDisplay display,
+      bool guessJson = false,
+      bool guessCodePage = true,
+      bool guessDelimiter = true,
+      bool guessQualifier = true,
+      bool guessStartRow = true,
+      bool guessHasHeader = true,
+      bool guessNewLine = true)
     {
       Contract.Requires(setting != null);
       Contract.Requires(display != null);
 
-      if (!(guessJson || guessCodePage || guessDelimiter || guessStartRow || guessQualifier || guessHasHeader))
+      if (!(guessJson || guessCodePage || guessDelimiter || guessStartRow || guessQualifier || guessHasHeader || guessNewLine))
         return;
       display.SetProcess("Checking delimited file", -1, true);
       using (var improvedStream = FunctionalDI.OpenRead(setting))
@@ -310,6 +319,7 @@ namespace CsvTools
           display.SetProcess("Detected Json file", -1, true);
           return;
         }
+
 
         if (guessCodePage)
         {
@@ -353,14 +363,23 @@ namespace CsvTools
               setting.FileFormat.FieldDelimiter = result.Item1;
               display.SetProcess("Delimiter: " + setting.FileFormat.FieldDelimiter, -1, true);
             }
-
+            if (guessNewLine)
+            {
+              if (display.CancellationToken.IsCancellationRequested)
+                return;
+              display.SetProcess("Checking Record Delimiter", -1, true);
+              improvedStream.ResetToStart(null);
+              setting.FileFormat.NewLine = await GuessNewlineAsync(textReader, setting.FileFormat.FieldDelimiterChar, display.CancellationToken);
+              display.SetProcess("Record Delimiter: " + setting.FileFormat.NewLine.Description(), -1, true);
+            }
             if (guessQualifier)
             {
               if (display.CancellationToken.IsCancellationRequested)
                 return;
               display.SetProcess("Checking Qualifier", -1, true);
               var qualifier = await GuessQualifierAsync(textReader, setting.FileFormat.FieldDelimiterChar);
-              setting.FileFormat.FieldQualifier = qualifier == '\0' ? string.Empty : char.ToString(qualifier);
+              if (qualifier != '\0')
+                setting.FileFormat.FieldQualifier = char.ToString(qualifier);
               display.SetProcess("Qualifier: " + setting.FileFormat.FieldQualifier, -1, true);
             }
 
@@ -569,7 +588,7 @@ namespace CsvTools
       return new Tuple<string, bool>(result, true);
     }
 
-    private static async Task<string> GuessNewlineAsync(ImprovedTextReader textReader, char fieldQualifier, CancellationToken token)
+    private static async Task<RecordDelimiterType> GuessNewlineAsync(ImprovedTextReader textReader, char fieldQualifier, CancellationToken token)
     {
       Contract.Requires(textReader != null);
       Contract.Ensures(Contract.Result<string>() != null);
@@ -584,12 +603,13 @@ namespace CsvTools
       const int c_Lfcr = 3;
       const int c_RecSep = 4;
       const int c_UnitSep = 5;
-      
+
       int[] count = { 0, 0, 0, 0, 0, 0 };
 
       // \r = CR (Carriage Return) \n = LF (Line Feed)
 
-      while (lastRow < c_NumRows && !textReader.EndOfFile && !token.IsCancellationRequested)
+      var textReaderPosition = new ImprovedTextReaderPositionStore(textReader);
+      while (lastRow < c_NumRows && !textReaderPosition.AllRead && !token.IsCancellationRequested)
       {
         var readChar = await textReader.ReadAsync();
         if (readChar == fieldQualifier)
@@ -610,20 +630,20 @@ namespace CsvTools
         if (quoted)
           continue;
 
-        if (readChar == '\u001E')
+        if (readChar == 30)
         {
           count[c_RecSep]++;
           continue;
         }
-        if (readChar == '\u001F')
+        if (readChar == 31)
         {
           count[c_UnitSep]++;
           continue;
         }
-       
-        if (readChar == '\n')
+
+        if (readChar == 10)
         {
-          if (await textReader.PeekAsync() == '\r')
+          if (await textReader.PeekAsync() == 13)
           {
             textReader.MoveNext();
             count[c_Lfcr]++;
@@ -636,9 +656,9 @@ namespace CsvTools
           lastRow++;
         }
 
-        if (readChar != '\r')
+        if (readChar != 13)
           continue;
-        if (await textReader.PeekAsync() == '\n')
+        if (await textReader.PeekAsync() == 10)
         {
           textReader.MoveNext();
           count[c_CrLf]++;
@@ -653,11 +673,13 @@ namespace CsvTools
 
       var maxCount = count.Max();
 
-      return count[c_RecSep] == maxCount ? "␞" :
-             count[c_UnitSep] == maxCount ? "␟" :
-             count[c_Cr] == maxCount ? "␍" :
-             count[c_Lf] == maxCount ? "␊" :
-             count[c_Lfcr] == maxCount ? "␊␍" : "␍␊";
+      return count[c_RecSep] == maxCount ? RecordDelimiterType.RS :
+             count[c_UnitSep] == maxCount ? RecordDelimiterType.US :
+             count[c_Cr] == maxCount ? RecordDelimiterType.CR :
+             count[c_Lf] == maxCount ? RecordDelimiterType.LF :
+             count[c_Lfcr] == maxCount ? RecordDelimiterType.LFCR :
+             count[c_CrLf] == maxCount ? RecordDelimiterType.CRLF
+             : RecordDelimiterType.None;
     }
 
     private static async Task<char> GuessQualifierAsync(ImprovedTextReader textReader, char delimiter)
@@ -728,102 +750,102 @@ namespace CsvTools
       const int c_MaxRows = 50;
       if (textReader == null)
         return 0;
+
       textReader.ToBeginning();
       var columnCount = new List<int>(c_MaxRows);
       var rowMapping = new Dictionary<int, int>(c_MaxRows);
+      var colCount = new int[c_MaxRows];
+      var isComment = new bool[c_MaxRows];
+      var quoted = false;
+      var firstChar = true;
+      var lastRow = 0;
+
+      while (lastRow < c_MaxRows && !textReader.EndOfFile && !cancellationToken.IsCancellationRequested)
       {
-        var colCount = new int[c_MaxRows];
-        var isComment = new bool[c_MaxRows];
-        var quoted = false;
-        var firstChar = true;
-        var lastRow = 0;
+        var readChar = await textReader.ReadAsync();
 
-        while (lastRow < c_MaxRows && !textReader.EndOfFile && !cancellationToken.IsCancellationRequested)
+        // Handle Commented lines
+        if (firstChar && commentLine.Length > 0 && !isComment[lastRow] && readChar == commentLine[0])
         {
-          var readChar = await textReader.ReadAsync();
+          isComment[lastRow] = true;
 
-          // Handle Commented lines
-          if (firstChar && commentLine.Length > 0 && !isComment[lastRow] && readChar == commentLine[0])
+          for (var pos = 1; pos < commentLine.Length; pos++)
           {
-            isComment[lastRow] = true;
-
-            for (var pos = 1; pos < commentLine.Length; pos++)
+            var nextChar = await textReader.PeekAsync();
+            if (nextChar != commentLine[pos])
             {
-              var nextChar = await textReader.PeekAsync();
-              if (nextChar != commentLine[pos])
-              {
-                isComment[lastRow] = false;
-                break;
-              }
+              isComment[lastRow] = false;
+              break;
             }
           }
+        }
 
-          // Handle Quoting
-          if (readChar == quoteChar && !isComment[lastRow])
+        // Handle Quoting
+        if (readChar == quoteChar && !isComment[lastRow])
+        {
+          if (quoted)
           {
-            if (quoted)
+            if (await textReader.PeekAsync() != '"')
+              quoted = false;
+            else
+              textReader.MoveNext();
+          }
+          else
+          {
+            quoted |= firstChar;
+          }
+
+          continue;
+        }
+
+        switch (readChar)
+        {
+          // Feed and NewLines
+          case '\n':
+            if (!quoted)
             {
-              if (await textReader.PeekAsync() != '"')
-                quoted = false;
-              else
+              lastRow++;
+              firstChar = true;
+              if (await textReader.PeekAsync() == '\r')
                 textReader.MoveNext();
             }
-            else
+
+            break;
+
+          case '\r':
+            if (!quoted)
             {
-              quoted |= firstChar;
+              lastRow++;
+              firstChar = true;
+              if (await textReader.PeekAsync() == '\n')
+                textReader.MoveNext();
             }
 
-            continue;
-          }
+            break;
 
-          switch (readChar)
-          {
-            // Feed and NewLines
-            case '\n':
-              if (!quoted)
-              {
-                lastRow++;
-                firstChar = true;
-                if (await textReader.PeekAsync() == '\r')
-                  textReader.MoveNext();
-              }
+          default:
+            if (!isComment[lastRow] && !quoted && readChar == delimiter)
+            {
+              colCount[lastRow]++;
+              firstChar = true;
+              continue;
+            }
 
-              break;
-
-            case '\r':
-              if (!quoted)
-              {
-                lastRow++;
-                firstChar = true;
-                if (await textReader.PeekAsync() == '\n')
-                  textReader.MoveNext();
-              }
-
-              break;
-
-            default:
-              if (!isComment[lastRow] && !quoted && readChar == delimiter)
-              {
-                colCount[lastRow]++;
-                firstChar = true;
-                continue;
-              }
-
-              break;
-          }
-
-          // Its still the first char if its a leading space
-          if (firstChar && readChar != ' ')
-            firstChar = false;
+            break;
         }
-        cancellationToken.ThrowIfCancellationRequested();
-        // remove all rows that are comment lines...
-        for (var row = 0; row < lastRow; row++)
-        {
-          rowMapping[columnCount.Count] = row;
-          if (!isComment[row])
-            columnCount.Add(colCount[row]);
-        }
+
+        // Its still the first char if its a leading space
+        if (firstChar && readChar != ' ')
+          firstChar = false;
+      }
+
+      cancellationToken.ThrowIfCancellationRequested();
+      // remove all rows that are comment lines...
+      for (var row = 0; row < lastRow; row++)
+      {
+        rowMapping[columnCount.Count] = row;
+        if (!isComment[row])
+          columnCount.Add(colCount[row]);
       }
 
       // if we do not more than 4 proper rows do nothing

@@ -49,8 +49,8 @@
                       };
       display.AddRange(
         TimeZoneInfo.GetSystemTimeZones().Select(wintz => new DisplayItem<string>(wintz.Id, wintz.DisplayName)));
-
       comboBoxTimeZoneID.DataSource = display;
+      comboBoxTimeZoneID.SelectedIndex = 0;
     }
   }
 }

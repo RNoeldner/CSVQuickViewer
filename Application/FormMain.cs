@@ -542,7 +542,8 @@ namespace CsvTools
                 m_ViewSettings.GuessDelimiter,
                 m_ViewSettings.GuessQualifier,
                 m_ViewSettings.GuessStartRow,
-                m_ViewSettings.GuessHasHeader);
+                m_ViewSettings.GuessHasHeader,
+                m_ViewSettings.GuessNewLine);
 
               await m_FileSetting.FillGuessColumnFormatReaderAsync(
                 true,
@@ -685,7 +686,7 @@ namespace CsvTools
           dt.Open();
           return dt;
         };
-        
+
         detailControl.FileSetting = m_FileSetting;
         detailControl.FillGuessSettings = m_ViewSettings.FillGuessSettings;
 

@@ -139,7 +139,7 @@ namespace CsvTools.Tests
 
         var test = new CsvFile(path) { CodePageId = 65001, FileFormat = { FieldQualifier = "\"" } };
 
-        Assert.AreEqual("␊", await CsvHelper.GuessNewlineAsync(test, CancellationToken.None));
+        Assert.AreEqual(RecordDelimiterType.LF, await CsvHelper.GuessNewlineAsync(test, CancellationToken.None));
 
         FileSystemUtils.FileDelete(path);
         using (var file = File.CreateText(path))
@@ -155,7 +155,7 @@ namespace CsvTools.Tests
           file.Write("#Hello\t7th Heaven\t1d5b894b-95e6-4026-9ffe-64197e79c3d1\u001E");
         }
 
-        Assert.AreEqual("␞", await CsvHelper.GuessNewlineAsync(test, CancellationToken.None));
+        Assert.AreEqual(RecordDelimiterType.RS, await CsvHelper.GuessNewlineAsync(test, CancellationToken.None));
 
         FileSystemUtils.FileDelete(path);
         using (var file = File.CreateText(path))
@@ -171,7 +171,7 @@ namespace CsvTools.Tests
           file.Write("#Hello\t7th Heaven\t1d5b894b-95e6-4026-9ffe-64197e79c3d1\n\r");
         }
 
-        Assert.AreEqual("␊␍", await CsvHelper.GuessNewlineAsync(test, CancellationToken.None));
+        Assert.AreEqual(RecordDelimiterType.LFCR, await CsvHelper.GuessNewlineAsync(test, CancellationToken.None));
 
         FileSystemUtils.FileDelete(path);
         using (var file = File.CreateText(path))
@@ -187,7 +187,7 @@ namespace CsvTools.Tests
           file.Write("#Hello\t7th Heaven\t1d5b894b-95e6-4026-9ffe-64197e79c3d1\r\n");
         }
 
-        Assert.AreEqual("␍␊", await CsvHelper.GuessNewlineAsync(test, CancellationToken.None));
+        Assert.AreEqual(RecordDelimiterType.CRLF, await CsvHelper.GuessNewlineAsync(test, CancellationToken.None));
       }
       finally
       {

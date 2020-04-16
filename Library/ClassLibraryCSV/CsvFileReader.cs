@@ -1046,15 +1046,9 @@ namespace CsvTools
           break;
 
         // Finished with reading the column by end of record
-        if ((preData || postData || !quoted) && (character == c_Cr || character == c_Lf
-                                                                   || (character == '\u001E'
-                                                                       && (m_CsvFile.FileFormat.NewLine == "\u001E"
-                                                                           || m_CsvFile.FileFormat.NewLine == "␞"
-                                                                           || m_CsvFile.FileFormat.NewLine == "RS"))
-                                                                   || (character == '\u001F'
-                                                                       && (m_CsvFile.FileFormat.NewLine == "\u001F"
-                                                                           || m_CsvFile.FileFormat.NewLine == "␟"
-                                                                           || m_CsvFile.FileFormat.NewLine == "US"))))
+        if ((preData || postData || !quoted) && (((character == c_Cr || character == c_Lf) && this.m_CsvFile.FileFormat.NewLine < RecordDelimiterType.RS )
+                                                 || (character == '▲' && m_CsvFile.FileFormat.NewLine == RecordDelimiterType.RS)
+                                                 || (character == '▼' && m_CsvFile.FileFormat.NewLine == RecordDelimiterType.US)))
         {
           m_EndOfLine = true;
           break;

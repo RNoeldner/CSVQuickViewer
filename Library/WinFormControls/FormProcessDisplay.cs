@@ -289,10 +289,10 @@ namespace CsvTools
       // 
       // m_ProgressBar
       // 
-      this.m_ProgressBar.Location = new System.Drawing.Point(3, 59);
+      this.m_ProgressBar.Location = new System.Drawing.Point(3, 48);
       this.m_ProgressBar.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
       this.m_ProgressBar.Name = "m_ProgressBar";
-      this.m_ProgressBar.Size = new System.Drawing.Size(530, 31);
+      this.m_ProgressBar.Size = new System.Drawing.Size(471, 25);
       this.m_ProgressBar.Style = System.Windows.Forms.ProgressBarStyle.Marquee;
       this.m_ProgressBar.TabIndex = 0;
       // 
@@ -300,11 +300,11 @@ namespace CsvTools
       // 
       this.m_LabelText.BackColor = System.Drawing.SystemColors.Control;
       this.m_LabelText.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.m_LabelText.Location = new System.Drawing.Point(6, 8);
-      this.m_LabelText.Margin = new System.Windows.Forms.Padding(6, 8, 6, 8);
-      this.m_LabelText.MaximumSize = new System.Drawing.Size(526, 334);
+      this.m_LabelText.Location = new System.Drawing.Point(5, 6);
+      this.m_LabelText.Margin = new System.Windows.Forms.Padding(5, 6, 5, 6);
+      this.m_LabelText.MaximumSize = new System.Drawing.Size(468, 267);
       this.m_LabelText.Name = "m_LabelText";
-      this.m_LabelText.Size = new System.Drawing.Size(526, 41);
+      this.m_LabelText.Size = new System.Drawing.Size(468, 34);
       this.m_LabelText.TabIndex = 1;
       this.m_LabelText.Text = "Text\r\nLine 2";
       this.m_LabelText.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -312,10 +312,10 @@ namespace CsvTools
       // m_LabelEtl
       // 
       this.m_LabelEtl.Dock = System.Windows.Forms.DockStyle.Top;
-      this.m_LabelEtl.Location = new System.Drawing.Point(3, 97);
+      this.m_LabelEtl.Location = new System.Drawing.Point(3, 78);
       this.m_LabelEtl.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
       this.m_LabelEtl.Name = "m_LabelEtl";
-      this.m_LabelEtl.Size = new System.Drawing.Size(532, 22);
+      this.m_LabelEtl.Size = new System.Drawing.Size(473, 18);
       this.m_LabelEtl.TabIndex = 6;
       this.m_LabelEtl.Text = "Estimated time remaining:";
       // 
@@ -328,27 +328,27 @@ namespace CsvTools
       this.m_TableLayoutPanel.Controls.Add(this.m_LabelText, 0, 0);
       this.m_TableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
       this.m_TableLayoutPanel.Location = new System.Drawing.Point(0, 0);
-      this.m_TableLayoutPanel.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+      this.m_TableLayoutPanel.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
       this.m_TableLayoutPanel.Name = "m_TableLayoutPanel";
       this.m_TableLayoutPanel.RowCount = 4;
       this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-      this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 38F));
       this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
+      this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 24F));
       this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.m_TableLayoutPanel.Size = new System.Drawing.Size(537, 125);
+      this.m_TableLayoutPanel.Size = new System.Drawing.Size(477, 100);
       this.m_TableLayoutPanel.TabIndex = 8;
       // 
       // FormProcessDisplay
       // 
-      this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
+      this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-      this.ClientSize = new System.Drawing.Size(537, 125);
+      this.ClientSize = new System.Drawing.Size(477, 100);
       this.Controls.Add(this.m_TableLayoutPanel);
       this.DoubleBuffered = true;
       this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
-      this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-      this.MaximumSize = new System.Drawing.Size(555, 431);
-      this.MinimumSize = new System.Drawing.Size(555, 154);
+      this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+      this.MaximumSize = new System.Drawing.Size(495, 354);
+      this.MinimumSize = new System.Drawing.Size(495, 133);
       this.Name = "FormProcessDisplay";
       this.ShowIcon = false;
       this.ShowInTaskbar = false;
