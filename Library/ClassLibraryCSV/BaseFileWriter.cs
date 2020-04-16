@@ -99,10 +99,7 @@ namespace CsvTools
       }
     }
 
-    protected string GetRedordEnd() =>
-      m_FileSetting.FileFormat.NewLine.Replace("␍", "\r").Replace("␊", "\n").Replace("␞", "\u001e")
-        .Replace("␟", "\u001f").Replace("CR", "\r").Replace("LF", "\n").Replace(" ", "")
-        .Replace("\t", "");
+    protected string GetRedordEnd() =>  m_FileSetting.FileFormat.NewLine.NewLineString();
 
     public async Task<long> WriteAsync(IFileReader reader)
     {

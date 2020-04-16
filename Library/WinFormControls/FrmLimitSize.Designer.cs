@@ -52,9 +52,9 @@
       // 
       label2.AutoSize = true;
       this.tableLayoutPanel1.SetColumnSpan(label2, 6);
-      label2.Location = new System.Drawing.Point(3, 24);
+      label2.Location = new System.Drawing.Point(3, 20);
       label2.Name = "label2";
-      label2.Size = new System.Drawing.Size(478, 24);
+      label2.Size = new System.Drawing.Size(389, 20);
       label2.TabIndex = 2;
       label2.Text = "Please move the slider to restrict the number of records to view.\r\n";
       label2.UseCompatibleTextRendering = true;
@@ -65,7 +65,7 @@
       this.tableLayoutPanel1.SetColumnSpan(label4, 6);
       label4.Location = new System.Drawing.Point(3, 0);
       label4.Name = "label4";
-      label4.Size = new System.Drawing.Size(327, 24);
+      label4.Size = new System.Drawing.Size(266, 20);
       label4.TabIndex = 1;
       label4.Text = "Display high amounts of data might be slow.";
       label4.UseCompatibleTextRendering = true;
@@ -73,9 +73,9 @@
       // labelCount2
       // 
       this.labelCount2.AutoSize = true;
-      this.labelCount2.Location = new System.Drawing.Point(99, 104);
+      this.labelCount2.Location = new System.Drawing.Point(88, 84);
       this.labelCount2.Name = "labelCount2";
-      this.labelCount2.Size = new System.Drawing.Size(58, 20);
+      this.labelCount2.Size = new System.Drawing.Size(52, 17);
       this.labelCount2.TabIndex = 5;
       this.labelCount2.Text = "20.000";
       this.labelCount2.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -83,9 +83,9 @@
       // labelCount3
       // 
       this.labelCount3.AutoSize = true;
-      this.labelCount3.Location = new System.Drawing.Point(208, 104);
+      this.labelCount3.Location = new System.Drawing.Point(184, 84);
       this.labelCount3.Name = "labelCount3";
-      this.labelCount3.Size = new System.Drawing.Size(58, 20);
+      this.labelCount3.Size = new System.Drawing.Size(52, 17);
       this.labelCount3.TabIndex = 6;
       this.labelCount3.Text = "50.000";
       this.labelCount3.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -96,12 +96,11 @@
       this.tableLayoutPanel1.SetColumnSpan(this.trackBarLimit, 5);
       this.trackBarLimit.Dock = System.Windows.Forms.DockStyle.Top;
       this.trackBarLimit.LargeChange = 1;
-      this.trackBarLimit.Location = new System.Drawing.Point(3, 52);
-      this.trackBarLimit.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+      this.trackBarLimit.Location = new System.Drawing.Point(3, 43);
       this.trackBarLimit.Maximum = 5;
       this.trackBarLimit.Minimum = 1;
       this.trackBarLimit.Name = "trackBarLimit";
-      this.trackBarLimit.Size = new System.Drawing.Size(461, 48);
+      this.trackBarLimit.Size = new System.Drawing.Size(407, 38);
       this.trackBarLimit.TabIndex = 2;
       this.trackBarLimit.Value = 3;
       // 
@@ -109,18 +108,18 @@
       // 
       this.label5.AutoSize = true;
       this.tableLayoutPanel1.SetColumnSpan(this.label5, 2);
-      this.label5.Location = new System.Drawing.Point(440, 104);
+      this.label5.Location = new System.Drawing.Point(390, 84);
       this.label5.Name = "label5";
-      this.label5.Size = new System.Drawing.Size(28, 20);
+      this.label5.Size = new System.Drawing.Size(23, 17);
       this.label5.TabIndex = 7;
       this.label5.Text = "All";
       // 
       // labelCount1
       // 
       this.labelCount1.AutoSize = true;
-      this.labelCount1.Location = new System.Drawing.Point(3, 104);
+      this.labelCount1.Location = new System.Drawing.Point(3, 84);
       this.labelCount1.Name = "labelCount1";
-      this.labelCount1.Size = new System.Drawing.Size(58, 20);
+      this.labelCount1.Size = new System.Drawing.Size(52, 17);
       this.labelCount1.TabIndex = 4;
       this.labelCount1.Text = "10.000";
       this.labelCount1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -128,9 +127,9 @@
       // labelCount4
       // 
       this.labelCount4.AutoSize = true;
-      this.labelCount4.Location = new System.Drawing.Point(315, 104);
+      this.labelCount4.Location = new System.Drawing.Point(279, 84);
       this.labelCount4.Name = "labelCount4";
-      this.labelCount4.Size = new System.Drawing.Size(67, 20);
+      this.labelCount4.Size = new System.Drawing.Size(60, 17);
       this.labelCount4.TabIndex = 10;
       this.labelCount4.Text = "100.000";
       this.labelCount4.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -163,7 +162,6 @@
       this.tableLayoutPanel1.Controls.Add(this.buttonCancel, 5, 4);
       this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
       this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
-      this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
       this.tableLayoutPanel1.Name = "tableLayoutPanel1";
       this.tableLayoutPanel1.RowCount = 5;
       this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
@@ -172,8 +170,8 @@
       this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
       this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-      this.tableLayoutPanel1.Size = new System.Drawing.Size(603, 184);
+      this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 16F));
+      this.tableLayoutPanel1.Size = new System.Drawing.Size(536, 147);
       this.tableLayoutPanel1.TabIndex = 12;
       // 
       // label
@@ -182,9 +180,9 @@
       this.label.AutoSize = true;
       this.tableLayoutPanel1.SetColumnSpan(this.label, 3);
       this.label.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
-      this.label.Location = new System.Drawing.Point(3, 154);
+      this.label.Location = new System.Drawing.Point(3, 121);
       this.label.Name = "label";
-      this.label.Size = new System.Drawing.Size(163, 20);
+      this.label.Size = new System.Drawing.Size(137, 17);
       this.label.TabIndex = 11;
       this.label.Text = "Default in 5 seconds";
       // 
@@ -193,10 +191,9 @@
       this.buttonOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
       this.tableLayoutPanel1.SetColumnSpan(this.buttonOK, 2);
       this.buttonOK.DialogResult = System.Windows.Forms.DialogResult.OK;
-      this.buttonOK.Location = new System.Drawing.Point(335, 148);
-      this.buttonOK.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+      this.buttonOK.Location = new System.Drawing.Point(295, 116);
       this.buttonOK.Name = "buttonOK";
-      this.buttonOK.Size = new System.Drawing.Size(129, 32);
+      this.buttonOK.Size = new System.Drawing.Size(115, 28);
       this.buttonOK.TabIndex = 9;
       this.buttonOK.Text = "&OK";
       this.buttonOK.UseVisualStyleBackColor = true;
@@ -205,10 +202,9 @@
       // buttonCancel
       // 
       this.buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-      this.buttonCancel.Location = new System.Drawing.Point(470, 148);
-      this.buttonCancel.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+      this.buttonCancel.Location = new System.Drawing.Point(416, 116);
       this.buttonCancel.Name = "buttonCancel";
-      this.buttonCancel.Size = new System.Drawing.Size(129, 32);
+      this.buttonCancel.Size = new System.Drawing.Size(115, 28);
       this.buttonCancel.TabIndex = 8;
       this.buttonCancel.Text = "&Cancel";
       this.buttonCancel.UseVisualStyleBackColor = true;
@@ -217,13 +213,12 @@
       // FrmLimitSize
       // 
       this.AcceptButton = this.buttonOK;
-      this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
+      this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.CancelButton = this.buttonCancel;
-      this.ClientSize = new System.Drawing.Size(603, 184);
+      this.ClientSize = new System.Drawing.Size(536, 147);
       this.Controls.Add(this.tableLayoutPanel1);
       this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
-      this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
       this.Name = "FrmLimitSize";
       this.ShowInTaskbar = false;
       this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;

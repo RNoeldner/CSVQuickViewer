@@ -435,7 +435,12 @@ namespace CsvTools
       if (IsClosed)
         Open();
 
-      var dataTable = new DataTable();
+      var dataTable = new DataTable
+      {
+        TableName = FileSetting.ID,
+        Locale = CultureInfo.CurrentCulture,
+        CaseSensitive = false
+      };
       try
       {
         // create columns, it is been relied on that teh column names are unique

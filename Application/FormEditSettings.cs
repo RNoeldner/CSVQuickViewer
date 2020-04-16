@@ -15,6 +15,7 @@
 namespace CsvTools
 {
   using System;
+  using System.Collections.Generic;
   using System.ComponentModel;
   using System.Diagnostics;
   using System.Globalization;
@@ -169,14 +170,16 @@ namespace CsvTools
 
     private void CsvFile_PropertyChanged(object sender, PropertyChangedEventArgs e)
     {
-      if (e.PropertyName != "CodePageId")
+      if (e.PropertyName == nameof(ViewSettings.CodePageId))
+      {
+        foreach (var ite in cboCodePage.Items)
+          if (((DisplayItem<int>)ite).ID == m_ViewSettings.CodePageId)
+          {
+            cboCodePage.SelectedItem = ite;
+            break;
+          }
         return;
-      foreach (var ite in cboCodePage.Items)
-        if (((DisplayItem<int>)ite).ID == m_ViewSettings.CodePageId)
-        {
-          cboCodePage.SelectedItem = ite;
-          break;
-        }
+      }
     }
 
     /// <summary>
@@ -192,8 +195,23 @@ namespace CsvTools
       // Fill Drop down
       foreach (var cp in EncodingHelper.CommonCodePages)
         cboCodePage.Items.Add(new DisplayItem<int>(cp, EncodingHelper.GetEncodingName(cp, false, false)));
+
+      var di = new List<DisplayItem<int>>();
+      var descConv = new EnumDescriptionConverter(typeof(RecordDelimiterType));
+      foreach (RecordDelimiterType item in Enum.GetValues(typeof(RecordDelimiterType)))
+      {
+        di.Add(new DisplayItem<int>((int)item, descConv.ConvertToString(item)));
+      }
+
+      var selValue = (int)m_ViewSettings.FileFormat.NewLine;
+      cboRecordDelimiter.DataSource = di;
+      cboRecordDelimiter.DisplayMember = nameof(DisplayItem<int>.Display);
+      cboRecordDelimiter.ValueMember = nameof(DisplayItem<int>.ID);
+      cboRecordDelimiter.SelectedValue = selValue;
+
       quotingControl.CsvFile = m_ViewSettings;
-      CsvFile_PropertyChanged(null, new PropertyChangedEventArgs("CodePageId"));
+      
+      CsvFile_PropertyChanged(null, new PropertyChangedEventArgs(nameof(ViewSettings.CodePageId)));
     }
 
     private void FormEditSettings_FormClosing(object sender, FormClosingEventArgs e) => ValidateChildren();
@@ -246,6 +264,27 @@ namespace CsvTools
       {
         errorProvider.SetError(textBoxFile, string.Empty);
       }
+    }
+
+    private async void GuessNewline_Click(object sender, EventArgs e)
+    {
+      var oldCursor = Cursor.Current == Cursors.WaitCursor ? Cursors.WaitCursor : Cursors.Default;
+      Cursor.Current = Cursors.WaitCursor;
+      try
+      {
+        m_ViewSettings.FileFormat.NewLine = await CsvHelper.GuessNewlineAsync(m_ViewSettings, CancellationToken.None);
+      }
+      finally
+      {
+        Cursor.Current = oldCursor;
+      }
+    }
+
+    private void cboRecordDelimiter_SelectedIndexChanged(object sender, EventArgs e)
+
+    {
+      if (cboRecordDelimiter.SelectedItem != null)
+        m_ViewSettings.FileFormat.NewLine = (RecordDelimiterType)cboRecordDelimiter.SelectedValue;
     }
   }
 }

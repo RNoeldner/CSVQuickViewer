@@ -38,7 +38,7 @@ namespace CsvTools
 
     private const string c_FieldQualifierDefault = "\"";
 
-    private const string c_NewLineDefault = "CRLF";
+    public const RecordDelimiterType c_NewLineDefault = RecordDelimiterType.CRLF;
 
     private const string c_NewLinePlaceholderDefault = "";
 
@@ -66,7 +66,7 @@ namespace CsvTools
 
     private char m_FieldQualifierChar = GetChar(c_FieldQualifierDefault);
 
-    private string m_NewLine = c_NewLineDefault;
+    private RecordDelimiterType m_NewLine = c_NewLineDefault;
 
     private string m_NewLinePlaceholder = c_NewLinePlaceholderDefault;
 
@@ -292,20 +292,18 @@ namespace CsvTools
     /// <value>The newline.</value>
     [XmlAttribute]
     [DefaultValue(c_NewLineDefault)]
-    public virtual string NewLine
+    public virtual RecordDelimiterType NewLine
     {
       get
       {
-        Contract.Ensures(Contract.Result<string>() != null);
         return m_NewLine;
       }
 
       set
       {
-        var newVal = value ?? c_NewLineDefault;
-        if (m_NewLine.Equals(newVal, StringComparison.Ordinal))
+        if (m_NewLine.Equals(value))
           return;
-        m_NewLine = newVal;
+        m_NewLine = value;
         NotifyPropertyChanged(nameof(NewLine));
       }
     }
@@ -586,7 +584,7 @@ namespace CsvTools
              && m_FieldDelimiterChar == other.m_FieldDelimiterChar
              && string.Equals(m_FieldQualifier, other.m_FieldQualifier, StringComparison.Ordinal)
              && m_FieldQualifierChar == other.m_FieldQualifierChar
-             && string.Equals(m_NewLine, other.m_NewLine, StringComparison.Ordinal)
+             && m_NewLine.Equals(other.m_NewLine)
              && string.Equals(m_NewLinePlaceholder, other.m_NewLinePlaceholder, StringComparison.Ordinal)
              && m_QualifyAlways == other.m_QualifyAlways && m_QualifyOnlyIfNeeded == other.m_QualifyOnlyIfNeeded
              && string.Equals(m_QuotePlaceholder, other.m_QuotePlaceholder, StringComparison.Ordinal)

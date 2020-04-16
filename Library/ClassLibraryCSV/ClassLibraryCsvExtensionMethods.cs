@@ -34,6 +34,22 @@ namespace CsvTools
   /// </summary>
   public static class ClassLibraryCsvExtensionMethods
   {
+    public static string Description(this RecordDelimiterType item)
+    {
+      var descConv = new EnumDescriptionConverter(typeof(RecordDelimiterType));
+      return descConv.ConvertToString(item);
+    }
+
+    public static string NewLineString(this RecordDelimiterType type)
+    {
+      if (type == RecordDelimiterType.LF) return "\n";
+      else if (type == RecordDelimiterType.CR) return "\r";
+      else if (type == RecordDelimiterType.CRLF) return "\r\n";
+      else if (type == RecordDelimiterType.LFCR) return "\n\r";
+      else if (type == RecordDelimiterType.RS) return "▲";
+      else if (type == RecordDelimiterType.US) return "▼";
+      return string.Empty;
+    }
     /// <summary>
     ///   Check if the application should assume its gZIP
     /// </summary>

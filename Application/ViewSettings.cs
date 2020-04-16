@@ -45,6 +45,7 @@ namespace CsvTools
 
     private bool m_GuessStartRow = true;
 
+    private bool m_GuessNewLine = true;
     private bool m_MenuDown;
 
     private bool m_StoreSettingsByFile;
@@ -135,6 +136,21 @@ namespace CsvTools
           return;
         m_GuessDelimiter = value;
         NotifyPropertyChanged(nameof(GuessDelimiter));
+      }
+    }
+
+    [XmlAttribute]
+    [DefaultValue(true)]
+    public bool GuessNewLine
+    {
+      get => m_GuessNewLine;
+
+      set
+      {
+        if (m_GuessNewLine == value)
+          return;
+        m_GuessNewLine = value;
+        NotifyPropertyChanged(nameof(GuessNewLine));
       }
     }
 

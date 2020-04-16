@@ -163,6 +163,7 @@ namespace CsvTools
       if (Columns.Count == 0)
         throw new FileWriterException("No columns defined to be written.");
       
+
       recordEnd = this.GetRedordEnd();
       HandleWriteStart();
 
