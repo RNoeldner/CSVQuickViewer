@@ -498,7 +498,7 @@ namespace CsvTools
     {
       if (this is IFileSettingPhysicalFile settingPhysicalFile && !string.IsNullOrEmpty(settingPhysicalFile.FullPath))
       {
-        var fi = new Pri.LongPath.FileInfo(settingPhysicalFile.FullPath);
+        var fi = settingPhysicalFile.FullPath.GetFileInfo();
         m_LatestSourceTimeUtc = fi.Exists ? fi.LastWriteTimeUtc : ZeroTime;
       }
       else

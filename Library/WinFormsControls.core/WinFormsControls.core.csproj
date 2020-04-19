@@ -9,12 +9,13 @@
     <EmbeddedResource Include="..\WinFormControls\**\*.resx" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Remove="..\WinFormControls\FolderTree.cs" />
     <Compile Remove="..\WinFormControls\Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Pri.LongPath">
-      <Version>2.0.53</Version>
-    </PackageReference>
+    <EmbeddedResource Remove="..\WinFormControls\FolderTree.resx" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="WindowsAPICodePack">
       <Version>1.1.1</Version>
     </PackageReference>

@@ -19,8 +19,6 @@ namespace CsvTools
   using System.Threading;
   using System.Windows.Forms;
 
-  using FileInfo = Pri.LongPath.FileInfo;
-
   /// <summary>
   ///   UserControl: CsvTextDisplay
   /// </summary>
@@ -52,7 +50,7 @@ namespace CsvTools
         }
         else
         {
-          var file = new FileInfo(value.FullPath);
+          var file = value.FullPath.GetFileInfo();
 
           if (!file.Exists)
           {

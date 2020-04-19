@@ -20,13 +20,25 @@ namespace CsvTools
   using System.Windows.Forms;
 
 #if NETCOREAPP3_1
-
   using System.Text;
-
 #endif
 
   internal static class Program
   {
+#if !NETCOREAPP3_1
+    static Program()
+    {
+      try
+      {
+        CosturaUtility.Initialize();
+      }
+      catch (Exception ex)
+      {
+        UnhandledException(ex);
+      }
+    }
+#endif
+
     /// <summary>
     ///   Handles the ThreadException event of the Application control.
     /// </summary>

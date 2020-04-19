@@ -95,9 +95,6 @@
     <Compile Include="FilteredDataGridView.Designer.cs">
       <DependentUpon>FilteredDataGridView.cs</DependentUpon>
     </Compile>
-    <Compile Include="FolderTree.cs">
-      <SubType>Form</SubType>
-    </Compile>
     <Compile Include="FormColumnUI.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -172,9 +169,6 @@
     <EmbeddedResource Include="DataGridViewColumnFilterControl.resx">
       <DependentUpon>DataGridViewColumnFilterControl.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="FolderTree.resx">
-      <DependentUpon>FolderTree.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="FrmLimitSize.resx">
       <DependentUpon>FrmLimitSize.cs</DependentUpon>
     </EmbeddedResource>
@@ -239,9 +233,6 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Pri.LongPath">
-      <Version>2.0.53</Version>
-    </PackageReference>
     <PackageReference Include="WindowsAPICodePack">
       <Version>1.1.1</Version>
     </PackageReference>

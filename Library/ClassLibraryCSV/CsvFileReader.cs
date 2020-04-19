@@ -226,8 +226,8 @@ namespace CsvTools
     Retry:
       try
       {
-        var fn = FileSystemUtils.SplitPath(m_CsvFile.FullPath);
-        HandleShowProgress($"Opening text file {fn.FileName}");
+        var fn = FileSystemUtils.GetFileName(m_CsvFile.FullPath);
+        HandleShowProgress($"Opening text file {fn}");
 
         m_ImprovedStream?.Dispose();
         m_ImprovedStream = FunctionalDI.OpenRead(m_CsvFile);

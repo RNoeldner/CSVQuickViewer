@@ -51,17 +51,18 @@
           commonOpenFileDialog.EnsurePathExists = true;
           commonOpenFileDialog.AllowNonFileSystemItems = false;
           commonOpenFileDialog.IsFolderPicker = true;
-          commonOpenFileDialog.InitialDirectory = initialDirectory;
+          commonOpenFileDialog.InitialDirectory = initialDirectory.RemovePrefix();
           if (commonOpenFileDialog.ShowDialog() == CommonFileDialogResult.Ok)
             return commonOpenFileDialog.FileName;
         }
       }
       else
-        using (var folderDialog = new FolderTree())
+        using (var openFileDialogReference = new OpenFileDialog())
         {
-          folderDialog.SetCurrentPath(initialDirectory);
-          if (folderDialog.ShowDialog() == DialogResult.OK)
-            return folderDialog.SelectedPath;
+          openFileDialogReference.AddExtension = false;
+          openFileDialogReference.InitialDirectory = initialDirectory.RemovePrefix();
+          if (openFileDialogReference.ShowDialog() == DialogResult.OK)
+            return openFileDialogReference.FileName.GetDirectoryName();
         }
 
       return null;

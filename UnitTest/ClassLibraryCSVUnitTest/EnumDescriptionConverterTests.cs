@@ -44,6 +44,18 @@ namespace CsvTools.Tests
     {
       var test = new EnumDescriptionConverter(typeof(RecordDelimiterType));
       Assert.AreEqual("Line feed", test.ConvertTo(RecordDelimiterType.LF, typeof(string)));
+      Assert.AreEqual(1, test.ConvertTo(RecordDelimiterType.LF, typeof(int)));
+      try
+      {
+        test.ConvertTo(null, typeof(string));
+      }
+      catch (ArgumentNullException e)
+      {
+      }
+      catch (Exception ex)
+      {
+        Assert.Fail($"Wrong Exception Type {ex.GetType()}, Invalid Filename");
+      }
 
     }
   }

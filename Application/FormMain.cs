@@ -754,7 +754,7 @@ namespace CsvTools
       try
       {
         var pathSetting = m_FileSetting.FileName + CsvFile.cCsvSettingExtension;
-        m_FileSetting.FileName = FileSystemUtils.SplitPath(m_FileSetting.FileName).FileName;
+        m_FileSetting.FileName = FileSystemUtils.GetFileName(m_FileSetting.FileName);
 
         Logger.Debug("Saving setting {path}", pathSetting);
         SerializedFilesLib.SaveCsvFile(

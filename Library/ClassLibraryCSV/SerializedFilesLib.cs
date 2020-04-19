@@ -17,7 +17,6 @@ using System.Diagnostics.Contracts;
 using System.Globalization;
 using System.IO;
 using System.Xml.Serialization;
-using File = Pri.LongPath.File;
 
 namespace CsvTools
 {
@@ -50,7 +49,7 @@ namespace CsvTools
     public static CsvFile LoadCsvFile(string fileName)
     {
       Contract.Requires(fileName != null);
-      var serial = File.ReadAllText(fileName);
+      var serial = File.ReadAllText(fileName.LongPathPrefix());
       using (TextReader reader = new StringReader(serial))
       {
         return (CsvFile)m_SerializerCurrentCsvFile.Value.Deserialize(reader);
@@ -70,9 +69,9 @@ namespace CsvTools
       {
         m_SerializerCurrentCsvFile.Value.Serialize(stringWriter, csvFile, EmptyXmlSerializerNamespaces.Value);
         var delete = false;
-        if (File.Exists(fileName))
+        if (FileSystemUtils.FileExists(fileName))
         {
-          var fileContend = File.ReadAllText(fileName);
+          var fileContend = File.ReadAllText(fileName.LongPathPrefix());
           if (fileContend.Equals(stringWriter.ToString()))
             return;
 
