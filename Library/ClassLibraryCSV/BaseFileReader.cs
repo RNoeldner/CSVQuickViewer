@@ -22,7 +22,6 @@ namespace CsvTools
   using System.Globalization;
   using System.Threading;
   using System.Threading.Tasks;
-  using Pri.LongPath;
 
   /// <summary>
   ///   Abstract class as base for all DataReaders
@@ -1228,7 +1227,7 @@ namespace CsvTools
       FileSetting.ProcessTimeUtc = DateTime.UtcNow;
       if (FileSetting is IFileSettingPhysicalFile physicalFile)
       {
-        physicalFile.FileSize = new FileInfo(physicalFile.FullPath).Length;
+        physicalFile.FileSize = FileSystemUtils.GetFileInfo(physicalFile.FullPath).Length;
         Logger.Debug(
           "Finished reading {filesetting} Records: {records} in {filesize} Byte",
           FileSetting,

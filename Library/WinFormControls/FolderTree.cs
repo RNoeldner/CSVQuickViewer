@@ -8,7 +8,7 @@
   using System.Security.Principal;
   using System.Windows.Forms;
 
-  using Directory = Pri.LongPath.Directory;
+  
 
   /// <summary>
   /// Summary description for ExplorerTree.
@@ -57,7 +57,7 @@
       WindowsPrincipal currentuser,
       FileSystemRights desiredFlag)
     {
-      var security = Directory.GetAccessControl(directory.GetDirectoryName());
+      var security = System.IO.Directory.GetAccessControl(directory.GetDirectoryName().LongPathPrefix());
       var result = false;
       foreach (FileSystemAccessRule rule in security.GetAccessRules(true, true, typeof(NTAccount)))
       {
@@ -288,8 +288,8 @@
       Cursor.Current = Cursors.WaitCursor;
       try
       {
-        var di = new DriveInfo(parentNode.Tag.ToString());
-        var dirList = Directory.GetDirectories(parentNode.Tag.ToString());
+        var di = new System.IO.DriveInfo(parentNode.Tag.ToString());
+        var dirList = System.IO.Directory.GetDirectories(parentNode.Tag.ToString().LongPathPrefix());
         var directories = new SortedList<string, string>();
         var currentuser = new WindowsPrincipal(WindowsIdentity.GetCurrent());
 
@@ -297,7 +297,7 @@
         foreach (var directory in dirList)
 
           // HasDirectoryPermission does not work on network
-          if (di.DriveType == DriveType.Network
+          if (di.DriveType == System.IO.DriveType.Network
               || HasDirectoryPermission(directory, currentuser, FileSystemRights.Write))
             directories.Add(directory, directory);
         var myDocuments = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
@@ -345,22 +345,22 @@
       // m_RootTreeNode.SelectedImageIndex = 4;
       m_TreeView.Nodes.Add(m_RootTreeNode);
 
-      foreach (var drive in DriveInfo.GetDrives())
+      foreach (var drive in System.IO.DriveInfo.GetDrives())
       {
         var nodeDrive = new TreeNode { Tag = drive, Text = drive.Name };
         switch (drive.DriveType)
         {
-          case DriveType.CDRom:
+          case System.IO.DriveType.CDRom:
             nodeDrive.ImageIndex = 2;
             nodeDrive.SelectedImageIndex = 2;
             break;
 
-          case DriveType.Network:
+          case System.IO.DriveType.Network:
             nodeDrive.ImageIndex = 3;
             nodeDrive.SelectedImageIndex = 3;
             break;
 
-          case DriveType.Removable:
+          case System.IO.DriveType.Removable:
             nodeDrive.ImageIndex = 5;
             nodeDrive.SelectedImageIndex = 5;
             break;

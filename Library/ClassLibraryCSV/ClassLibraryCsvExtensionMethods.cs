@@ -294,7 +294,7 @@ namespace CsvTools
       Contract.Requires(path != null);
       Contract.Ensures(Contract.Result<string>() != null);
 
-      var fileName = StringUtils.ProcessByCategory(FileSystemUtils.SplitPath(path).FileName, x =>
+      var fileName = StringUtils.ProcessByCategory(FileSystemUtils.GetFileName(path), x =>
         x == UnicodeCategory.UppercaseLetter || x == UnicodeCategory.LowercaseLetter ||
         x == UnicodeCategory.OtherLetter ||
         x == UnicodeCategory.ConnectorPunctuation || x == UnicodeCategory.DashPunctuation ||

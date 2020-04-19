@@ -19,7 +19,6 @@ using System.Globalization;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using FileInfo = Pri.LongPath.FileInfo;
 
 namespace CsvTools
 {
@@ -228,7 +227,9 @@ namespace CsvTools
       m_FileSetting.ProcessTimeUtc = DateTime.UtcNow;
       if (!(m_FileSetting is IFileSettingPhysicalFile physicalFile) ||
           !physicalFile.SetLatestSourceTimeForWrite) return;
-      _ = new FileInfo(physicalFile.FullPath) {LastWriteTimeUtc = m_FileSetting.LatestSourceTimeUtc};
+
+      var fi = FileSystemUtils.GetFileInfo(physicalFile.FullPath);
+      fi.LastWriteTimeUtc = m_FileSetting.LatestSourceTimeUtc;
 
       Logger.Debug("Finished writing {filesetting} Records: {records}", m_FileSetting, Records);
       WriteFinished?.Invoke(this, null);

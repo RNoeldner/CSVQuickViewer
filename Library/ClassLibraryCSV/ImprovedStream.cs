@@ -15,7 +15,7 @@
 using System;
 using System.IO;
 using System.IO.Compression;
-using File = Pri.LongPath.File;
+
 
 namespace CsvTools
 {
@@ -74,7 +74,7 @@ namespace CsvTools
             Stream.Close();
 
             // need to reopen the base stream
-            BaseStream = File.OpenRead(m_BasePath);
+            BaseStream = File.OpenRead(m_BasePath.LongPathPrefix());
           }
 
           if (m_AssumeGZip)

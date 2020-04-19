@@ -151,6 +151,7 @@
   </Choose>
   <ItemGroup>
     <Compile Include="ColumnErrorDictionaryTests.cs" />
+    <Compile Include="DataTableReaderTests.cs" />
     <Compile Include="DataTableSettingTests.cs" />
     <Compile Include="EnumDescriptionConverterTests.cs" />
     <Compile Include="FilterDataTableTests.cs" />
@@ -422,10 +423,10 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="MSTest.TestAdapter">
-      <Version>2.1.0</Version>
+      <Version>2.1.1</Version>
     </PackageReference>
     <PackageReference Include="MSTest.TestFramework">
-      <Version>2.1.0</Version>
+      <Version>2.1.1</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>

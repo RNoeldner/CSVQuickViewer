@@ -98,6 +98,7 @@
       this.tabPageBehaviour = new System.Windows.Forms.TabPage();
       this.toolTip = new System.Windows.Forms.ToolTip(this.components);
       this.errorProvider = new System.Windows.Forms.ErrorProvider(this.components);
+      this.m_LabelInfoQuoting = new System.Windows.Forms.Label();
       tableLayoutPanelFile = new System.Windows.Forms.TableLayoutPanel();
       tableLayoutPanelAdvanced = new System.Windows.Forms.TableLayoutPanel();
       tableLayoutPanelBehavior = new System.Windows.Forms.TableLayoutPanel();
@@ -152,18 +153,20 @@
       tableLayoutPanelFile.Controls.Add(this.textBox1, 3, 3);
       tableLayoutPanelFile.Controls.Add(this.button1, 7, 5);
       tableLayoutPanelFile.Controls.Add(this.label4, 0, 5);
+      tableLayoutPanelFile.Controls.Add(this.m_LabelInfoQuoting, 1, 6);
       tableLayoutPanelFile.Dock = System.Windows.Forms.DockStyle.Top;
       tableLayoutPanelFile.Location = new System.Drawing.Point(2, 2);
       tableLayoutPanelFile.Margin = new System.Windows.Forms.Padding(2);
       tableLayoutPanelFile.Name = "tableLayoutPanelFile";
-      tableLayoutPanelFile.RowCount = 6;
+      tableLayoutPanelFile.RowCount = 7;
       tableLayoutPanelFile.RowStyles.Add(new System.Windows.Forms.RowStyle());
       tableLayoutPanelFile.RowStyles.Add(new System.Windows.Forms.RowStyle());
       tableLayoutPanelFile.RowStyles.Add(new System.Windows.Forms.RowStyle());
       tableLayoutPanelFile.RowStyles.Add(new System.Windows.Forms.RowStyle());
       tableLayoutPanelFile.RowStyles.Add(new System.Windows.Forms.RowStyle());
       tableLayoutPanelFile.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      tableLayoutPanelFile.Size = new System.Drawing.Size(948, 175);
+      tableLayoutPanelFile.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+      tableLayoutPanelFile.Size = new System.Drawing.Size(958, 195);
       tableLayoutPanelFile.TabIndex = 48;
       // 
       // cboRecordDelimiter
@@ -498,7 +501,7 @@
       tableLayoutPanelAdvanced.RowStyles.Add(new System.Windows.Forms.RowStyle());
       tableLayoutPanelAdvanced.RowStyles.Add(new System.Windows.Forms.RowStyle());
       tableLayoutPanelAdvanced.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 16F));
-      tableLayoutPanelAdvanced.Size = new System.Drawing.Size(952, 160);
+      tableLayoutPanelAdvanced.Size = new System.Drawing.Size(962, 160);
       tableLayoutPanelAdvanced.TabIndex = 120;
       // 
       // labelSkipFirstLines
@@ -693,7 +696,7 @@
       tableLayoutPanelBehavior.RowStyles.Add(new System.Windows.Forms.RowStyle());
       tableLayoutPanelBehavior.RowStyles.Add(new System.Windows.Forms.RowStyle());
       tableLayoutPanelBehavior.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      tableLayoutPanelBehavior.Size = new System.Drawing.Size(948, 225);
+      tableLayoutPanelBehavior.Size = new System.Drawing.Size(958, 225);
       tableLayoutPanelBehavior.TabIndex = 9;
       // 
       // checkBoxDetectFileChanges
@@ -841,7 +844,7 @@
       tableLayoutPanelWarnings.RowStyles.Add(new System.Windows.Forms.RowStyle());
       tableLayoutPanelWarnings.RowStyles.Add(new System.Windows.Forms.RowStyle());
       tableLayoutPanelWarnings.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      tableLayoutPanelWarnings.Size = new System.Drawing.Size(952, 176);
+      tableLayoutPanelWarnings.Size = new System.Drawing.Size(962, 176);
       tableLayoutPanelWarnings.TabIndex = 58;
       // 
       // checkBoxWarnEmptyTailingColumns
@@ -953,7 +956,7 @@
       this.tabPageFormat.Margin = new System.Windows.Forms.Padding(2);
       this.tabPageFormat.Name = "tabPageFormat";
       this.tabPageFormat.Padding = new System.Windows.Forms.Padding(2);
-      this.tabPageFormat.Size = new System.Drawing.Size(952, 339);
+      this.tabPageFormat.Size = new System.Drawing.Size(962, 322);
       this.tabPageFormat.TabIndex = 0;
       this.tabPageFormat.Text = "Detect Types";
       // 
@@ -964,7 +967,7 @@
       this.fillGuessSettingEdit.Margin = new System.Windows.Forms.Padding(1);
       this.fillGuessSettingEdit.MinimumSize = new System.Drawing.Size(631, 240);
       this.fillGuessSettingEdit.Name = "fillGuessSettingEdit";
-      this.fillGuessSettingEdit.Size = new System.Drawing.Size(948, 335);
+      this.fillGuessSettingEdit.Size = new System.Drawing.Size(958, 318);
       this.fillGuessSettingEdit.TabIndex = 101;
       // 
       // tabPageWarnings
@@ -974,7 +977,7 @@
       this.tabPageWarnings.Location = new System.Drawing.Point(4, 25);
       this.tabPageWarnings.Margin = new System.Windows.Forms.Padding(2);
       this.tabPageWarnings.Name = "tabPageWarnings";
-      this.tabPageWarnings.Size = new System.Drawing.Size(952, 339);
+      this.tabPageWarnings.Size = new System.Drawing.Size(962, 322);
       this.tabPageWarnings.TabIndex = 3;
       this.tabPageWarnings.Text = "Warnings";
       // 
@@ -985,7 +988,7 @@
       this.tabPageAdvanced.Location = new System.Drawing.Point(4, 25);
       this.tabPageAdvanced.Margin = new System.Windows.Forms.Padding(2);
       this.tabPageAdvanced.Name = "tabPageAdvanced";
-      this.tabPageAdvanced.Size = new System.Drawing.Size(952, 339);
+      this.tabPageAdvanced.Size = new System.Drawing.Size(962, 322);
       this.tabPageAdvanced.TabIndex = 2;
       this.tabPageAdvanced.Text = "Advanced";
       // 
@@ -1002,7 +1005,7 @@
       this.tabControl.Margin = new System.Windows.Forms.Padding(2);
       this.tabControl.Name = "tabControl";
       this.tabControl.SelectedIndex = 0;
-      this.tabControl.Size = new System.Drawing.Size(960, 368);
+      this.tabControl.Size = new System.Drawing.Size(970, 351);
       this.tabControl.TabIndex = 0;
       // 
       // tabPageFile
@@ -1013,7 +1016,7 @@
       this.tabPageFile.Margin = new System.Windows.Forms.Padding(2);
       this.tabPageFile.Name = "tabPageFile";
       this.tabPageFile.Padding = new System.Windows.Forms.Padding(2);
-      this.tabPageFile.Size = new System.Drawing.Size(952, 339);
+      this.tabPageFile.Size = new System.Drawing.Size(962, 322);
       this.tabPageFile.TabIndex = 6;
       this.tabPageFile.Text = "File";
       // 
@@ -1024,7 +1027,7 @@
       this.tabPageQuoting.Margin = new System.Windows.Forms.Padding(2);
       this.tabPageQuoting.Name = "tabPageQuoting";
       this.tabPageQuoting.Padding = new System.Windows.Forms.Padding(2);
-      this.tabPageQuoting.Size = new System.Drawing.Size(952, 339);
+      this.tabPageQuoting.Size = new System.Drawing.Size(962, 322);
       this.tabPageQuoting.TabIndex = 7;
       this.tabPageQuoting.Text = "Text Qualifier";
       this.tabPageQuoting.UseVisualStyleBackColor = true;
@@ -1038,7 +1041,7 @@
       this.quotingControl.Margin = new System.Windows.Forms.Padding(6);
       this.quotingControl.MinimumSize = new System.Drawing.Size(553, 0);
       this.quotingControl.Name = "quotingControl";
-      this.quotingControl.Size = new System.Drawing.Size(948, 335);
+      this.quotingControl.Size = new System.Drawing.Size(958, 318);
       this.quotingControl.TabIndex = 2;
       // 
       // tabPageBehaviour
@@ -1049,7 +1052,7 @@
       this.tabPageBehaviour.Margin = new System.Windows.Forms.Padding(2);
       this.tabPageBehaviour.Name = "tabPageBehaviour";
       this.tabPageBehaviour.Padding = new System.Windows.Forms.Padding(2);
-      this.tabPageBehaviour.Size = new System.Drawing.Size(952, 339);
+      this.tabPageBehaviour.Size = new System.Drawing.Size(962, 322);
       this.tabPageBehaviour.TabIndex = 9;
       this.tabPageBehaviour.Text = "Behavior";
       // 
@@ -1057,11 +1060,27 @@
       // 
       this.errorProvider.ContainerControl = this;
       // 
+      // m_LabelInfoQuoting
+      // 
+      this.m_LabelInfoQuoting.Anchor = System.Windows.Forms.AnchorStyles.Left;
+      this.m_LabelInfoQuoting.AutoSize = true;
+      this.m_LabelInfoQuoting.BackColor = System.Drawing.SystemColors.Info;
+      this.m_LabelInfoQuoting.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+      tableLayoutPanelFile.SetColumnSpan(this.m_LabelInfoQuoting, 7);
+      this.m_LabelInfoQuoting.ForeColor = System.Drawing.SystemColors.InfoText;
+      this.m_LabelInfoQuoting.Location = new System.Drawing.Point(125, 175);
+      this.m_LabelInfoQuoting.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+      this.m_LabelInfoQuoting.Name = "m_LabelInfoQuoting";
+      this.m_LabelInfoQuoting.Size = new System.Drawing.Size(732, 19);
+      this.m_LabelInfoQuoting.TabIndex = 50;
+      this.m_LabelInfoQuoting.Text = "Note: Any combination of CR and LF will be treated properly as record delimter , " +
+    "no matter what specific type is  set";
+      // 
       // FormEditSettings
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-      this.ClientSize = new System.Drawing.Size(960, 368);
+      this.ClientSize = new System.Drawing.Size(970, 351);
       this.Controls.Add(this.tabControl);
       this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
       this.Margin = new System.Windows.Forms.Padding(2);
@@ -1168,5 +1187,6 @@
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.ComboBox cboRecordDelimiter;
+        private System.Windows.Forms.Label m_LabelInfoQuoting;
     }
 }

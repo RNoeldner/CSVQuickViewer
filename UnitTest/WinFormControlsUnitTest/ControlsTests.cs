@@ -16,11 +16,9 @@ using System;
 using System.Data;
 using System.Drawing;
 using System.Runtime.InteropServices;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Pri.LongPath;
 
 namespace CsvTools.Tests
 {
@@ -30,7 +28,7 @@ namespace CsvTools.Tests
     private static readonly DataTable m_DataTable = UnitTestStatic.GetDataTable(60);
 
     private readonly CsvFile m_CSVFile =
-      new CsvFile(Path.Combine(FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles", "BasicCSV.txt"));
+      new CsvFile(System.IO.Path.Combine(FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles", "BasicCSV.txt"));
 
     [TestMethod]
     public void TimeZoneSelector()
@@ -144,20 +142,6 @@ namespace CsvTools.Tests
           treeNode.ExpandAll();
         });
 
-      }
-    }
-
-    [TestMethod]
-    public void FolderTree()
-    {
-      using (var frm = new FolderTree())
-      {
-        frm.Show();
-        frm.SetCurrentPath("C:\\");
-        frm.Refresh();
-        UnitTestStatic.WaitSomeTime(.2);
-        //frm.ShowError(new ApplicationException("Exception"), "Title" );
-        frm.Close();
       }
     }
 
@@ -371,7 +355,7 @@ namespace CsvTools.Tests
       using (var processDisplay = new FormProcessDisplay("FileWithHierarchy"))
       {
         processDisplay.Show();
-        var cvsSetting = new CsvFile(Path.Combine(FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles",
+        var cvsSetting = new CsvFile(System.IO.Path.Combine(FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles",
           "FileWithHierarchy_WithCyle.txt"))
         { FileFormat = { FieldDelimiter = "\t" } };
         using (var csvDataReader = new CsvFileReader(cvsSetting, null, processDisplay))
