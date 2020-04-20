@@ -51,7 +51,8 @@ namespace CsvTools
     /// <param name="newError">A new message that should be added to the list</param>
     /// <returns>
     ///   A new error list text, if the message was already contained is not added a second time,
-    ///   usually messages are appended, unless they are errors and the list contains only warnings so far
+    ///   usually messages are appended, unless they are errors and the list contains only warnings
+    ///   so far
     /// </returns>
     public static string AddMessage(this string errorList, string newError)
     {
@@ -144,8 +145,8 @@ namespace CsvTools
     ///   Extracts the errors from a combined error warning text
     /// </summary>
     /// <remarks>
-    ///   This is currently only used to get the errors from HTML for a cell or a row, could possibly be optimized to
-    ///   that purpose
+    ///   This is currently only used to get the errors from HTML for a cell or a row, could
+    ///   possibly be optimized to that purpose
     /// </remarks>
     /// <param name="errorList">A text containing different types of messages that are concatenated.</param>
     /// <returns>two strings first error second warnings</returns>
@@ -196,8 +197,8 @@ namespace CsvTools
     /// </summary>
     /// <param name="errorList">A text containing different types of messages that are concatenated</param>
     /// <returns>
-    ///   <c>true</c> if the text should be regarded as a error message, <c>false</c> if its a warning
-    ///   message or empty
+    ///   <c>true</c> if the text should be regarded as a error message, <c>false</c> if its a
+    ///   warning message or empty
     /// </returns>
     public static bool IsErrorMessage(this string errorList)
     {
@@ -224,13 +225,10 @@ namespace CsvTools
       if (errorList.StartsWith(c_WarningId, StringComparison.Ordinal))
         return true;
 
-      // In case we have a column name in front we have to look into the middle of the string
-      // We only look at the first entry, assuming error would be sorted into the front
+      // In case we have a column name in front we have to look into the middle of the string We
+      // only look at the first entry, assuming error would be sorted into the front
       var splitter = errorList.IndexOf(c_ClosingField);
-      if (splitter != -1 && errorList.Length - 2 > splitter)
-        return errorList.Substring(splitter + 2).StartsWith(c_WarningId, StringComparison.Ordinal);
-
-      return false;
+      return (splitter != -1 && splitter < errorList.Length - 2) ? errorList.Substring(splitter + 2).StartsWith(c_WarningId, StringComparison.Ordinal) : false;
     }
 
     /// <summary>
@@ -245,7 +243,8 @@ namespace CsvTools
         return null;
       var list = new List<Tuple<string, string>>();
 
-      // Tried Parallel.Foreach but it was not reliable, with a few million executions some values where wrong
+      // Tried Parallel.Foreach but it was not reliable, with a few million executions some values
+      // where wrong
       foreach (var entry in columnErrors)
       {
         var colName = entry.Key >= 0 && columns.Count > entry.Key ? columns[entry.Key] : string.Empty;
@@ -268,8 +267,7 @@ namespace CsvTools
     ///   Set the Row and Column errors of the DataRow, based on parameter
     /// </summary>
     /// <param name="row">The DataRow that will get the error information</param>
-    /// <param name="errorList">
-    /// </param>
+    /// <param name="errorList"></param>
     public static void SetErrorInformation(this DataRow row, string errorList)
     {
       Contract.Requires(row != null, "row");
@@ -301,7 +299,8 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Builds a list from the provided error list, sorting error in front, this will show duplicates though
+    ///   Builds a list from the provided error list, sorting error in front, this will show
+    ///   duplicates though
     /// </summary>
     /// <param name="errorList">The error list.</param>
     /// <returns></returns>
@@ -358,7 +357,8 @@ namespace CsvTools
     {
       Contract.Requires(columnErrorInformation != null);
       var start = 0;
-      // If we have combinations of columns, e,G. Combined Keys or Less Than errors store the error in each column
+      // If we have combinations of columns, e,G. Combined Keys or Less Than errors store the error
+      // in each column
       while (start < columnErrorInformation.Item1.Length)
       {
         var end = columnErrorInformation.Item1.IndexOf(cFieldSeparator, start + 1);

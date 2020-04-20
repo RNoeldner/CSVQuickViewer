@@ -786,7 +786,7 @@ namespace CsvTools
       e.Handled = true;
       e.PaintBackground(e.CellBounds, true);
 
-      if (nbspIndex >= 0 && (linefeedIndex == -1 || nbspIndex < linefeedIndex)
+      if (nbspIndex >= 0 && m_ImgNbSp != null && (linefeedIndex == -1 || nbspIndex < linefeedIndex)
                          && e.CellStyle.Alignment == DataGridViewContentAlignment.MiddleLeft)
       {
         var hlRect = new Rectangle();
