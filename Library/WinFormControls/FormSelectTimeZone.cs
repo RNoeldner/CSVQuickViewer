@@ -33,8 +33,8 @@ namespace CsvTools
     private int m_Counter;
     private Label m_Label;
     private Label m_LabelExplain;
-    private TableLayoutPanel m_TableLayoutPanel;
     private Timer m_Timer;
+    private TableLayoutPanel m_TableLayoutPanel;
 
     public FormSelectTimeZone() : this("Timezone")
     {
@@ -57,6 +57,7 @@ namespace CsvTools
         TimeZoneInfo.GetSystemTimeZones().Select(wintz => new DisplayItem<string>(wintz.Id, wintz.DisplayName)));
 
       m_ComboBoxTimeZoneID.DataSource = display;
+      m_ComboBoxTimeZoneID.SelectedValue = TimeZoneInfo.Local.Id;
     }
 
     [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -65,7 +66,7 @@ namespace CsvTools
     [Browsable(false)]
     public string TimeZoneID
     {
-      get => (string) m_ComboBoxTimeZoneID.SelectedValue;
+      get => (string)m_ComboBoxTimeZoneID.SelectedValue;
       set => m_ComboBoxTimeZoneID.SelectedValue = value;
     }
 
@@ -76,18 +77,6 @@ namespace CsvTools
     public string DestTimeZoneID
     {
       set => m_LabelExplain.Text = string.Format(m_LabelExplain.Tag.ToString(), value);
-    }
-
-    private void BtnCancel_Click(object sender, EventArgs e)
-    {
-      DialogResult = DialogResult.Cancel;
-      Close();
-    }
-
-    private void BtnOK_Click(object sender, EventArgs e)
-    {
-      DialogResult = DialogResult.OK;
-      Close();
     }
 
     private void FormSelectTimeZone_MouseMove(object sender, MouseEventArgs e) => m_Timer.Enabled = false;
@@ -102,69 +91,54 @@ namespace CsvTools
       this.m_BtnOk = new System.Windows.Forms.Button();
       this.m_BtnCancel = new System.Windows.Forms.Button();
       this.m_LabelExplain = new System.Windows.Forms.Label();
-      this.m_Timer = new System.Windows.Forms.Timer(this.components);
       this.m_Label = new System.Windows.Forms.Label();
       this.m_TableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
       this.m_ButtonLocalTZ = new System.Windows.Forms.Button();
       this.m_ComboBoxTimeZoneID = new System.Windows.Forms.ComboBox();
+      this.m_Timer = new System.Windows.Forms.Timer(this.components);
       this.m_TableLayoutPanel.SuspendLayout();
       this.SuspendLayout();
-      // 
       // m_BtnOk
-      // 
       this.m_BtnOk.AutoSize = true;
       this.m_BtnOk.DialogResult = System.Windows.Forms.DialogResult.OK;
-      this.m_BtnOk.Location = new System.Drawing.Point(551, 86);
+      this.m_BtnOk.Location = new System.Drawing.Point(500, 73);
       this.m_BtnOk.Margin = new System.Windows.Forms.Padding(2);
       this.m_BtnOk.Name = "m_BtnOk";
-      this.m_BtnOk.Size = new System.Drawing.Size(92, 32);
+      this.m_BtnOk.Size = new System.Drawing.Size(82, 27);
       this.m_BtnOk.TabIndex = 4;
       this.m_BtnOk.Text = "&OK";
-      // 
       // m_BtnCancel
-      // 
       this.m_BtnCancel.AutoSize = true;
       this.m_BtnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-      this.m_BtnCancel.Location = new System.Drawing.Point(647, 86);
+      this.m_BtnCancel.Location = new System.Drawing.Point(586, 73);
       this.m_BtnCancel.Margin = new System.Windows.Forms.Padding(2);
       this.m_BtnCancel.Name = "m_BtnCancel";
-      this.m_BtnCancel.Size = new System.Drawing.Size(92, 32);
+      this.m_BtnCancel.Size = new System.Drawing.Size(82, 27);
       this.m_BtnCancel.TabIndex = 5;
       this.m_BtnCancel.Text = "&Cancel";
-      // 
       // m_LabelExplain
-      // 
       this.m_LabelExplain.AutoSize = true;
       this.m_TableLayoutPanel.SetColumnSpan(this.m_LabelExplain, 3);
       this.m_LabelExplain.Dock = System.Windows.Forms.DockStyle.Top;
-      this.m_LabelExplain.Location = new System.Drawing.Point(3, 4);
-      this.m_LabelExplain.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+      this.m_LabelExplain.Location = new System.Drawing.Point(3, 3);
+      this.m_LabelExplain.Margin = new System.Windows.Forms.Padding(3);
       this.m_LabelExplain.Name = "m_LabelExplain";
-      this.m_LabelExplain.Size = new System.Drawing.Size(735, 40);
+      this.m_LabelExplain.Size = new System.Drawing.Size(664, 34);
       this.m_LabelExplain.TabIndex = 0;
       this.m_LabelExplain.Tag = "A column with a date / time value has been found, we do not have information on t" +
     "he time zone.\r\nPlease select the time zone... It will be converted to {0}";
       this.m_LabelExplain.Text = "A column with a date / time value has been found, we do not have information on t" +
     "he time zone.\r\nPlease select the time zone...";
-      // 
-      // m_Timer
-      // 
-      this.m_Timer.Enabled = true;
-      this.m_Timer.Interval = 500;
-      // 
       // m_Label
-      // 
       this.m_Label.AutoSize = true;
       this.m_Label.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
-      this.m_Label.Location = new System.Drawing.Point(3, 93);
-      this.m_Label.Margin = new System.Windows.Forms.Padding(3, 9, 3, 4);
+      this.m_Label.Location = new System.Drawing.Point(3, 78);
+      this.m_Label.Margin = new System.Windows.Forms.Padding(3, 7, 3, 3);
       this.m_Label.Name = "m_Label";
-      this.m_Label.Size = new System.Drawing.Size(163, 20);
+      this.m_Label.Size = new System.Drawing.Size(137, 17);
       this.m_Label.TabIndex = 3;
       this.m_Label.Text = "Default in 5 seconds";
-      // 
       // m_TableLayoutPanel
-      // 
       this.m_TableLayoutPanel.AutoSize = true;
       this.m_TableLayoutPanel.ColumnCount = 3;
       this.m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
@@ -184,44 +158,43 @@ namespace CsvTools
       this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.m_TableLayoutPanel.Size = new System.Drawing.Size(741, 128);
+      this.m_TableLayoutPanel.Size = new System.Drawing.Size(670, 107);
       this.m_TableLayoutPanel.TabIndex = 0;
-      // 
       // m_ButtonLocalTZ
-      // 
       this.m_ButtonLocalTZ.AutoSize = true;
-      this.m_ButtonLocalTZ.Location = new System.Drawing.Point(647, 50);
+      this.m_ButtonLocalTZ.Location = new System.Drawing.Point(586, 42);
       this.m_ButtonLocalTZ.Margin = new System.Windows.Forms.Padding(2);
       this.m_ButtonLocalTZ.Name = "m_ButtonLocalTZ";
-      this.m_ButtonLocalTZ.Size = new System.Drawing.Size(92, 32);
+      this.m_ButtonLocalTZ.Size = new System.Drawing.Size(82, 27);
       this.m_ButtonLocalTZ.TabIndex = 2;
       this.m_ButtonLocalTZ.Text = "&Local";
       this.m_ButtonLocalTZ.UseVisualStyleBackColor = true;
-      // 
+      this.m_ButtonLocalTZ.Click += new System.EventHandler(this.buttonLocalTZ_Click);
       // m_ComboBoxTimeZoneID
-      // 
       this.m_TableLayoutPanel.SetColumnSpan(this.m_ComboBoxTimeZoneID, 2);
       this.m_ComboBoxTimeZoneID.Dock = System.Windows.Forms.DockStyle.Top;
       this.m_ComboBoxTimeZoneID.FormattingEnabled = true;
-      this.m_ComboBoxTimeZoneID.Location = new System.Drawing.Point(3, 50);
+      this.m_ComboBoxTimeZoneID.Location = new System.Drawing.Point(3, 42);
       this.m_ComboBoxTimeZoneID.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
       this.m_ComboBoxTimeZoneID.Name = "m_ComboBoxTimeZoneID";
-      this.m_ComboBoxTimeZoneID.Size = new System.Drawing.Size(639, 28);
+      this.m_ComboBoxTimeZoneID.Size = new System.Drawing.Size(578, 24);
       this.m_ComboBoxTimeZoneID.TabIndex = 1;
-      // 
+      // m_Timer
+      this.m_Timer.Enabled = true;
+      this.m_Timer.Interval = 500;
+      this.m_Timer.Tick += new System.EventHandler(this.timer_Tick);
       // FormSelectTimeZone
-      // 
       this.AcceptButton = this.m_BtnOk;
-      this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
+      this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.CancelButton = this.m_BtnCancel;
-      this.ClientSize = new System.Drawing.Size(741, 128);
+      this.ClientSize = new System.Drawing.Size(670, 107);
       this.Controls.Add(this.m_TableLayoutPanel);
       this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
       this.Margin = new System.Windows.Forms.Padding(2);
       this.MaximizeBox = false;
       this.MinimizeBox = false;
-      this.MinimumSize = new System.Drawing.Size(748, 175);
+      this.MinimumSize = new System.Drawing.Size(667, 149);
       this.Name = "FormSelectTimeZone";
       this.Text = "Select Time Zone";
       this.TopMost = true;
@@ -229,14 +202,17 @@ namespace CsvTools
       this.m_TableLayoutPanel.PerformLayout();
       this.ResumeLayout(false);
       this.PerformLayout();
-
     }
 
     private void timer_Tick(object sender, EventArgs e)
     {
       m_Counter++;
       UpdateLabel();
-      if (m_Duration > 0 && m_Counter * m_Timer.Interval / 1000 > m_Duration) BtnOK_Click(sender, e);
+      if (m_Duration > 0 && m_Counter * m_Timer.Interval / 1000 > m_Duration)
+      {
+        this.DialogResult = DialogResult.OK;
+        Close();
+      }
     }
 
     private void UpdateLabel()
