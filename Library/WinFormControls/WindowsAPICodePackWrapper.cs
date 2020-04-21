@@ -14,24 +14,29 @@
     public static void AttachTaskbarProgress(this IProcessDisplayTime mainProcess)
     {
       // Handle the TaskBarProcess as well
-      mainProcess.Progress += delegate
+      mainProcess.Progress += (sender, args) =>
       {
-          if (mainProcess.Maximum != -1 && mainProcess.TimeToCompletion.Value > -1
+        if (string.IsNullOrEmpty(args.Text)&& args.Value<0)
+          SetProgressState(true);
+        else
+        {
+          if (mainProcess.TimeToCompletion.Value == mainProcess.TimeToCompletion.TargetValue)
+            SetProgressState(true);
+          else
+          {
+            if (mainProcess.Maximum > 0 && mainProcess.TimeToCompletion.Value > -1
                                         && mainProcess.TimeToCompletion.Value
                                         != mainProcess.TimeToCompletion.TargetValue)
-          {
-            SetProgressState(false);
-            SetProgressValue(
-              mainProcess.TimeToCompletion.Value.ToInt(),
-              mainProcess.TimeToCompletion.TargetValue.ToInt());
+            {
+              SetProgressState(false);
+              SetProgressValue(
+                mainProcess.TimeToCompletion.Value.ToInt(),
+                mainProcess.TimeToCompletion.TargetValue.ToInt());
+            }
           }
-
-          if (mainProcess.TimeToCompletion.Value == mainProcess.TimeToCompletion.TargetValue)
-
-            // done
-            SetProgressState(true);
-          Extensions.ProcessUIElements();
-        };
+        }
+        Extensions.ProcessUIElements();
+      };
 
       mainProcess.SetMaximum += delegate (object sender, long max)
         {
