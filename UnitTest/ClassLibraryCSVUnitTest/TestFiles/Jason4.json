@@ -1,0 +1,57 @@
+﻿{
+  "time": "2020-04-20 15:15:22.2519",
+  "level": "Debug",
+  "message": "Loading TemplateSet from file \"C:\\Users\\rnoldner\\AppData\\Roaming\\CSVFileValidator\\TemplateSet.xml\""
+} {
+  "time": "2020-04-20 15:15:25.0128",
+  "level": "Debug",
+  "message": "Checking physical files"
+} {
+  "time": "2020-04-20 15:15:25.1375",
+  "level": "Debug",
+  "message": "Getting tables from database"
+} {
+  "time": "2020-04-20 15:15:25.4586",
+  "level": "Debug",
+  "message": "Created Reader for DataTableSetting bd6e067a-fdba-4fb2-a92a-c43724afece1"
+} {
+  "time": "2020-04-20 15:15:25.4586",
+  "level": "Debug",
+  "message": "Finished reading DataTableSetting bd6e067a-fdba-4fb2-a92a-c43724afece1 Records: 15"
+} {
+  "time": "2020-04-20 15:15:25.4876",
+  "level": "Debug",
+  "message": "Getting validation results \"Online_Transcript_Report_extract_1\""
+} {
+  "time": "2020-04-20 15:15:25.5125",
+  "level": "Debug",
+  "message": "Getting number of rows in \"Online_Transcript_Report_extract_1\""
+} {
+  "time": "2020-04-20 15:15:25.5726",
+  "level": "Debug",
+  "message": "Getting error count from \"Online_Transcript_Report_extract_1\""
+} {
+  "time": "2020-04-20 15:15:25.7806",
+  "level": "Debug",
+  "message": "Created Reader for DataTableSetting 169ad0bd-9ec8-4b9a-8450-0fc32dc1be99"
+} {
+  "time": "2020-04-20 15:15:26.0136",
+  "level": "Debug",
+  "message": "Finished reading DataTableSetting 169ad0bd-9ec8-4b9a-8450-0fc32dc1be99 Records: 417"
+} {
+  "time": "2020-04-20 15:15:26.0226",
+  "level": "Debug",
+  "message": "Getting creation time of \"Online_Transcript_Report_extract_1\""
+} {
+  "time": "2020-04-20 15:15:26.2921",
+  "level": "Debug",
+  "message": "Getting validation results \"Online_Transcript_Report_extract_2\""
+} {
+  "time": "2020-04-20 15:15:26.2921",
+  "level": "Debug",
+  "message": "Getting number of rows in \"Online_Transcript_Report_extract_2\""
+} {
+  "time": "2020-04-20 15:15:26.3471",
+  "level": "Debug",
+  "message": "Getting error count from \"Online_Transcript_Report_extract_2\""
+}

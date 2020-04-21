@@ -258,5 +258,21 @@ namespace CsvTools.Tests
         Assert.AreEqual(3, jfr.RecordNumber);
       }
     }
+
+    [TestMethod]
+    public void ReadJSon4()
+    {
+      var setting = new CsvFile(UnitTestInitialize.GetTestPath("Jason4.json"))
+      {
+        JsonFormat = true
+      };
+
+      using (var dpd = new DummyProcessDisplay())
+      using (var jfr = new JsonFileReader(setting, TimeZoneInfo.Local.Id, dpd))
+      {
+        jfr.Open();
+        Assert.AreEqual(2, jfr.FieldCount);
+      }
+    }
   }
 }

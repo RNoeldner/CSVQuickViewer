@@ -47,7 +47,7 @@ namespace CsvTools
       m_ProcessDisplay = processDisplay;
       m_SourceTimeZone = string.IsNullOrEmpty(sourceTimeZone) ? TimeZoneInfo.Local.Id : sourceTimeZone;
       m_FileSetting = fileSetting ?? throw new ArgumentNullException(nameof(fileSetting));
-      Logger.Debug("Created Writer for {filesetting}", fileSetting);
+      Logger.Debug("Created Writer for {filesetting}", fileSetting.ToString());
     }
 
     private long Records { get; set; }
@@ -98,7 +98,7 @@ namespace CsvTools
       }
     }
 
-    protected string GetRedordEnd() =>  m_FileSetting.FileFormat.NewLine.NewLineString();
+    protected string GetRedordEnd() => m_FileSetting.FileFormat.NewLine.NewLineString();
 
     public async Task<long> WriteAsync(IFileReader reader)
     {
@@ -231,7 +231,7 @@ namespace CsvTools
       var fi = FileSystemUtils.GetFileInfo(physicalFile.FullPath);
       fi.LastWriteTimeUtc = m_FileSetting.LatestSourceTimeUtc;
 
-      Logger.Debug("Finished writing {filesetting} Records: {records}", m_FileSetting, Records);
+      Logger.Debug("Finished writing {filesetting} Records: {records}", m_FileSetting.ToString(), Records);
       WriteFinished?.Invoke(this, null);
     }
 
@@ -265,7 +265,7 @@ namespace CsvTools
     {
       if (columnInfo is null)
         throw new ArgumentNullException(nameof(columnInfo));
-      
+
       if (fileFormat.IsFixedLength && columnInfo.FieldLength == 0)
         throw new FileWriterException("For fix length output the length of the columns needs to be specified.");
 
@@ -288,11 +288,11 @@ namespace CsvTools
               case DataType.Integer:
                 displayAs = dataObject is long l
                   ? l.ToString("0", CultureInfo.InvariantCulture)
-                  : ((int) dataObject).ToString("0", CultureInfo.InvariantCulture);
+                  : ((int)dataObject).ToString("0", CultureInfo.InvariantCulture);
                 break;
 
               case DataType.Boolean:
-                displayAs = (bool) dataObject
+                displayAs = (bool)dataObject
                   ? columnInfo.Column.ValueFormat.True
                   : columnInfo.Column.ValueFormat.False;
                 break;
@@ -313,12 +313,12 @@ namespace CsvTools
 
               case DataType.DateTime:
                 displayAs = StringConversion.DateTimeToString(
-                  HandleTimeZone((DateTime) dataObject, columnInfo, reader), columnInfo.Column.ValueFormat);
+                  HandleTimeZone((DateTime)dataObject, columnInfo, reader), columnInfo.Column.ValueFormat);
                 break;
 
               case DataType.Guid:
                 // 382c74c3-721d-4f34-80e5-57657b6cbc27
-                displayAs = ((Guid) dataObject).ToString();
+                displayAs = ((Guid)dataObject).ToString();
                 break;
 
               default:

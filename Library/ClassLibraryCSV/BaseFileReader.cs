@@ -125,7 +125,7 @@ namespace CsvTools
       }
 
       ProcessDisplay = processDisplay;
-      Logger.Debug("Created Reader for {filesetting}", fileSetting);
+      Logger.Debug("Created Reader for {filesetting}", fileSetting.ToString());
     }
 
     /// <summary>
@@ -698,10 +698,8 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Returns a <see cref="DataTable" /> that describes the column meta data of the
-    ///   <see
-    ///     cref="IDataReader" />
-    ///   .
+    ///   Returns a <see cref="DataTable" /> that describes the column meta data of the <see
+    ///   cref="IDataReader" /> .
     /// </summary>
     /// <returns>A <see cref="DataTable" /> that describes the column meta data.</returns>
     /// <exception cref="InvalidOperationException">The <see cref="IDataReader" /> is closed.</exception>
@@ -1007,9 +1005,11 @@ namespace CsvTools
     protected static DataTable GetEmptySchemaTable()
     {
       var dataTable = new DataTable
-                        {
-                          TableName = "SchemaTable", Locale = CultureInfo.InvariantCulture, MinimumCapacity = 10
-                        };
+      {
+        TableName = "SchemaTable",
+        Locale = CultureInfo.InvariantCulture,
+        MinimumCapacity = 10
+      };
 
       dataTable.Columns.Add(SchemaTableColumn.AllowDBNull, typeof(bool)).ReadOnly = true;
       dataTable.Columns.Add(SchemaTableColumn.BaseColumnName, typeof(string)).ReadOnly = true;
@@ -1230,13 +1230,13 @@ namespace CsvTools
         physicalFile.FileSize = FileSystemUtils.GetFileInfo(physicalFile.FullPath).Length;
         Logger.Debug(
           "Finished reading {filesetting} Records: {records} in {filesize} Byte",
-          FileSetting,
+          FileSetting.ToString(),
           RecordNumber,
           physicalFile.FileSize);
       }
       else
       {
-        Logger.Debug("Finished reading {filesetting} Records: {records}", FileSetting, RecordNumber);
+        Logger.Debug("Finished reading {filesetting} Records: {records}", FileSetting.ToString(), RecordNumber);
       }
 
       HandleShowProgress("Finished Reading from source", RecordNumber, cMaxValue);
@@ -1299,28 +1299,28 @@ namespace CsvTools
       switch (column.ValueFormat.DataType)
       {
         case DataType.TextToHtml:
-          {
-            output = HTMLStyle.TextToHtmlEncode(inputString);
-            if (!inputString.Equals(output, StringComparison.Ordinal))
-              HandleWarning(columnNumber, $"HTML encoding removed from {inputString}");
-            break;
-          }
+        {
+          output = HTMLStyle.TextToHtmlEncode(inputString);
+          if (!inputString.Equals(output, StringComparison.Ordinal))
+            HandleWarning(columnNumber, $"HTML encoding removed from {inputString}");
+          break;
+        }
 
         case DataType.TextToHtmlFull:
-          {
-            output = HTMLStyle.HtmlEncodeShort(inputString);
-            if (!inputString.Equals(output, StringComparison.Ordinal))
-              HandleWarning(columnNumber, $"HTML encoding removed from {inputString}");
-            break;
-          }
+        {
+          output = HTMLStyle.HtmlEncodeShort(inputString);
+          if (!inputString.Equals(output, StringComparison.Ordinal))
+            HandleWarning(columnNumber, $"HTML encoding removed from {inputString}");
+          break;
+        }
 
         case DataType.TextPart:
-          {
-            output = StringConversion.StringToTextPart(inputString, column.PartSplitter, column.Part, column.PartToEnd);
-            if (output == null)
-              HandleWarning(columnNumber, $"Part {column.Part} of text {inputString} is empty.");
-            break;
-          }
+        {
+          output = StringConversion.StringToTextPart(inputString, column.PartSplitter, column.Part, column.PartToEnd);
+          if (output == null)
+            HandleWarning(columnNumber, $"Part {column.Part} of text {inputString} is empty.");
+          break;
+        }
       }
 
       if (string.IsNullOrEmpty(output))
