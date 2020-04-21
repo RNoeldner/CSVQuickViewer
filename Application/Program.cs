@@ -25,19 +25,23 @@ namespace CsvTools
 
   internal static class Program
   {
-#if !NETCOREAPP3_1
+
     static Program()
     {
       try
       {
+#if NETCOREAPP3_1
+        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+#else
         CosturaUtility.Initialize();
+#endif
       }
       catch (Exception ex)
       {
         UnhandledException(ex);
       }
     }
-#endif
+
 
     /// <summary>
     ///   Handles the ThreadException event of the Application control.
@@ -47,7 +51,7 @@ namespace CsvTools
     ///   The <see cref="ThreadExceptionEventArgs" /> instance containing the event data.
     /// </param>
     private static void Application_ThreadException(object sender, ThreadExceptionEventArgs e) =>
-      UnhandledException(e.Exception);
+  UnhandledException(e.Exception);
 
     /// <summary>
     ///   Handles the UnhandledException event of the CurrentDomain control.
@@ -81,10 +85,6 @@ namespace CsvTools
       // in case we have multiple arguments assume the path was split at space
       else if (args.Length > 1)
         fileName = args.Join(" ");
-
-#if NETCOREAPP3_1
-      Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-#endif
 
       Application.Run(new FormMain(fileName));
       Application.Exit();

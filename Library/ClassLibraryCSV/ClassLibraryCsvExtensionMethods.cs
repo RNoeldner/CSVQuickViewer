@@ -888,6 +888,7 @@ namespace CsvTools
               throw new TimeoutException($"Timeout after {stopwatch.Elapsed.TotalSeconds:N1} seconds");
 
           // Invoke action every 1/4 second FunctionalDI.SignalBackground?.Invoke();
+          FunctionalDI.SignalBackground?.Invoke();
 
           // wait will raise an AggregateException if the task throws an exception
           executeTask.Wait(250, cancellationToken);
