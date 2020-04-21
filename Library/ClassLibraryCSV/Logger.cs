@@ -41,9 +41,11 @@
           case Level.Info:
             minLevel = LogLevel.Info;
             break;
+
           case Level.Warn:
             minLevel = LogLevel.Warn;
             break;
+
           case Level.Error:
             minLevel = LogLevel.Error;
             break;
@@ -55,16 +57,16 @@
           if (existing == null)
           {
             var logfileRoot = new FileTarget("jsonFile")
-                                {
-                                  FileName = fileNameJson,
-                                  ArchiveAboveSize = 2097152,
-                                  Layout = new JsonLayout
-                                             {
-                                               Attributes =
+            {
+              FileName = fileNameJson,
+              ArchiveAboveSize = 2097152,
+              Layout = new JsonLayout
+              {
+                Attributes =
                                                  {
-                                                   new JsonAttribute("time", "${longdate}", false),
-                                                   new JsonAttribute("level", "${level}", false),
-                                                   new JsonAttribute("message", "${message}", true),
+                                                   new JsonAttribute("time", "${longdate}"),
+                                                   new JsonAttribute("level", "${level}"),
+                                                   new JsonAttribute("message", "${message}"),
 
                                                    // new JsonAttribute("properties", "${all-event-properties}"),
                                                    new JsonAttribute(
@@ -72,12 +74,11 @@
                                                      new JsonLayout
                                                        {
                                                          IncludeAllProperties = true,
-                                                         MaxRecursionLimit = 2,
-                                                         RenderEmptyObject = true
+                                                         MaxRecursionLimit = 1,
+                                                         RenderEmptyObject = false
                                                        }),
                                                    new JsonAttribute("type", "${exception:format=Type}"),
-                                                   new JsonAttribute(
-                                                     "innerException",
+                                                   new JsonAttribute("innerException",
                                                      new JsonLayout
                                                        {
                                                          Attributes =
@@ -93,13 +94,13 @@
                                                        },
                                                      false),
                                                  }
-                                             }
-                                };
+              }
+            };
             config.AddRule(minLevel, LogLevel.Fatal, logfileRoot);
           }
           else
           {
-            // TODO change the level            
+            // TODO change the level
           }
         }
 
@@ -108,9 +109,11 @@
         {
           var logfileFolder = new FileTarget("logfile2") { FileName = fileNameText, ArchiveAboveSize = 2097152 };
           var layout = new CsvLayout()
-                         {
-                           Delimiter = CsvColumnDelimiterMode.Tab, WithHeader = true, Quoting = CsvQuotingMode.Auto
-                         };
+          {
+            Delimiter = CsvColumnDelimiterMode.Tab,
+            WithHeader = true,
+            Quoting = CsvQuotingMode.Auto
+          };
           layout.Columns.Add(
             new CsvColumn { Name = "Time", Layout = "${longdate}", Quoting = CsvQuotingMode.Nothing });
           layout.Columns.Add(new CsvColumn { Name = "Level", Layout = "${level}", Quoting = CsvQuotingMode.Nothing });
@@ -183,9 +186,11 @@
         case Level.Info:
           level = LogLevel.Info;
           break;
+
         case Level.Warn:
           level = LogLevel.Warn;
           break;
+
         case Level.Error:
           level = LogLevel.Error;
           break;

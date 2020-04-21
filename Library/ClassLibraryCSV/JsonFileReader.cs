@@ -44,6 +44,7 @@ namespace CsvTools
       {
         HandleShowProgress("Opening Json file…");
         m_AssumeLog = false;
+      again:
         ResetPositionToStartOrOpen();
 
         var line = GetNextRecord(false);
@@ -55,7 +56,7 @@ namespace CsvTools
         {
           Logger.Warning(ex, "Issue reading the JSon file, trying to read it as JSon Log output");
           m_AssumeLog = true;
-          ResetPositionToStartOrOpen();
+          goto again;
         }
 
         // need to call InitColumn to set the Field Count and initialize all array
@@ -129,6 +130,7 @@ namespace CsvTools
       HandleReadFinished();
       return false;
     }
+
     public new void ResetPositionToFirstDataRow() => ResetPositionToStartOrOpen();
 
     /// <summary>
@@ -292,6 +294,7 @@ namespace CsvTools
         return null;
       }
     }
+
     private async Task<ICollection<KeyValuePair<string, object>>> GetNextRecordAsync()
     {
       try
@@ -436,7 +439,7 @@ namespace CsvTools
       m_JsonTextReader?.Close();
       m_TextReader?.Dispose();
       m_TextReader = null;
-      
+
       if (m_ImprovedStream == null)
         m_ImprovedStream = FunctionalDI.OpenRead(m_StructuredFile);
 

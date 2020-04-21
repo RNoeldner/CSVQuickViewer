@@ -50,6 +50,7 @@ namespace CsvTools
       else if (type == RecordDelimiterType.US) return "▼";
       return string.Empty;
     }
+
     /// <summary>
     ///   Check if the application should assume its gZIP
     /// </summary>
@@ -395,63 +396,33 @@ namespace CsvTools
     //    ? "Reading rows\nRecord {0:N0}/" + $"{processDisplay?.Maximum:N0}"
     //    : "Reading rows\nRecords {0:N0}";
 
-    //  try
-    //  {
-    //    if (processDisplay != null && recordLimit > 0)
-    //    {
-    //      oldMax = processDisplay.Maximum;
-    //      processDisplay.Maximum = recordLimit;
-    //    }
+    // try { if (processDisplay != null && recordLimit > 0) { oldMax = processDisplay.Maximum;
+    // processDisplay.Maximum = recordLimit; }
 
-    //    // create columns
-    //    var schemaTable = getSchemaTable.Invoke();
-    //    if (schemaTable == null)
-    //      return null;
-    //    var columns = schemaTable.Rows.Count;
+    // // create columns var schemaTable = getSchemaTable.Invoke(); if (schemaTable == null) return
+    // null; var columns = schemaTable.Rows.Count;
 
-    //    // We could have duplicate column names in this case we have need to adjust the conflicting name
-    //    var previousColumns = new List<string>();
-    //    foreach (DataRow dataRow in schemaTable.Rows)
-    //    {
-    //      var colName = StringUtils.MakeUniqueInCollection(previousColumns, (string)dataRow["ColumnName"]);
-    //      dataTable.Columns.Add(new DataColumn(colName, (Type)dataRow["DataType"]) { AllowDBNull = true });
-    //      previousColumns.Add(colName);
-    //    }
+    // // We could have duplicate column names in this case we have need to adjust the conflicting
+    // name var previousColumns = new List<string>(); foreach (DataRow dataRow in schemaTable.Rows)
+    // { var colName = StringUtils.MakeUniqueInCollection(previousColumns,
+    // (string)dataRow["ColumnName"]); dataTable.Columns.Add(new DataColumn(colName,
+    // (Type)dataRow["DataType"]) { AllowDBNull = true }); previousColumns.Add(colName); }
 
-    //    if (!(processDisplay?.CancellationToken.IsCancellationRequested ?? false))
-    //    {
-    //      dataTable.BeginLoadData();
-    //      if (recordLimit < 1)
-    //        recordLimit = long.MaxValue;
-    //      // load the Data into the dataTable
-    //      var action = processDisplay == null ? null : new IntervalAction(.3);
-    //      while (await readAsync() && dataTable.Rows.Count < recordLimit &&
-    //             !(processDisplay?.CancellationToken.IsCancellationRequested ?? false))
-    //      {
-    //        var readerValues = new object[columns];
-    //        if (getValues(readerValues) > 0)
-    //          dataTable.Rows.Add(readerValues);
-    //        action?.Invoke(() =>
-    //          processDisplay.SetProcess(string.Format(display, dataTable.Rows.Count), dataTable.Rows.Count, false));
-    //      }
-    //    }
-    //  }
-    //  finally
-    //  {
-    //    if (processDisplay != null)
-    //    {
-    //      processDisplay.SetProcess(string.Format(display, dataTable.Rows.Count), dataTable.Rows.Count, false);
-    //      if (oldMax > 0)
-    //        processDisplay.Maximum = oldMax;
-    //    }
+    // if (!(processDisplay?.CancellationToken.IsCancellationRequested ?? false)) {
+    // dataTable.BeginLoadData(); if (recordLimit < 1) recordLimit = long.MaxValue; // load the Data
+    // into the dataTable var action = processDisplay == null ? null : new IntervalAction(.3); while
+    // (await readAsync() && dataTable.Rows.Count < recordLimit &&
+    // !(processDisplay?.CancellationToken.IsCancellationRequested ?? false)) { var readerValues =
+    // new object[columns]; if (getValues(readerValues) > 0) dataTable.Rows.Add(readerValues);
+    // action?.Invoke(() => processDisplay.SetProcess(string.Format(display, dataTable.Rows.Count),
+    // dataTable.Rows.Count, false)); } } } finally { if (processDisplay != null) {
+    // processDisplay.SetProcess(string.Format(display, dataTable.Rows.Count), dataTable.Rows.Count,
+    // false); if (oldMax > 0) processDisplay.Maximum = oldMax; }
 
-    //    dataTable.EndLoadData();
-    //  }
+    // dataTable.EndLoadData(); }
 
     //  return dataTable;
     //}
-
-
 
     /// <summary>
     ///   Get a list of column names that are not artificial
@@ -576,7 +547,8 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Replaces a placeholders with a text. The placeholder are identified surrounding { or a leading #
+    ///   Replaces a placeholders with a text. The placeholder are identified surrounding { or a
+    ///   leading #
     /// </summary>
     /// <param name="input">The input.</param>
     /// <param name="placeholder">The placeholder.</param>
@@ -634,7 +606,7 @@ namespace CsvTools
       {
         Logger.Warning(
           "Column {columnname} was expected but was not found in {filesetting}. The invalid column mapping will be removed.",
-          fileSetting, notFound);
+          notFound, fileSetting.ToString());
         fileSetting.MappingCollection.RemoveColumn(notFound);
       }
 
@@ -845,7 +817,6 @@ namespace CsvTools
       if (start == -1) return null;
       start = exception.StackTrace.IndexOf(" ", start + 3, StringComparison.Ordinal);
       return $"at {exception.StackTrace.Substring(start)}";
-
     }
 
     /// <summary>
@@ -916,8 +887,7 @@ namespace CsvTools
             if (timeoutSeconds > 0 && stopwatch.Elapsed.TotalSeconds > timeoutSeconds)
               throw new TimeoutException($"Timeout after {stopwatch.Elapsed.TotalSeconds:N1} seconds");
 
-          // Invoke action every 1/4 second
-          // FunctionalDI.SignalBackground?.Invoke();
+          // Invoke action every 1/4 second FunctionalDI.SignalBackground?.Invoke();
 
           // wait will raise an AggregateException if the task throws an exception
           executeTask.Wait(250, cancellationToken);
