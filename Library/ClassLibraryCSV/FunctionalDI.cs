@@ -14,6 +14,8 @@
 
 namespace CsvTools
 {
+
+  using System.Threading.Tasks;
   using System;
   using System.Collections.Generic;
   using System.Threading;
@@ -82,7 +84,7 @@ namespace CsvTools
     /// <summary>
     ///   Action to be performed while waiting on a background process, do something like handing
     ///   message queues (WinForms =&gt; DoEvents) call a Dispatcher to take care of the UI or send
-    ///   singals that the application is not stale
+    ///   signals that the application is not stale
     /// </summary>
     public static Action SignalBackground = null;
 
@@ -107,7 +109,7 @@ namespace CsvTools
     /// <value>The statement for reader the data.</value>
     /// <remarks>Make sure teh returned reader is open when needed</remarks>
     public static Func<string, IProcessDisplay, int, IFileReader> SQLDataReader;
-
+    public static Func<string, IProcessDisplay, int, Task<IFileReader>> SQLDataReaderAsync;
     public static IFileReader DefaultFileReader(IFileSetting setting, string timeZone, IProcessDisplay processDisplay)
     {
       switch (setting)

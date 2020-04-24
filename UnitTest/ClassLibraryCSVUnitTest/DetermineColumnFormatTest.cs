@@ -22,24 +22,86 @@ namespace CsvTools.Tests
 
   using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-  using DataTableReader = CsvTools.DataTableReader;
+  using DataTableReader = DataTableReader;
   using Enumerable = System.Linq.Enumerable;
 
   [TestClass]
   public class DetermineColumnFormatTest
   {
+    [TestMethod()]
+    public void GetSourceColumnInformationTest()
+    {
+      var setting = new CsvFile
+      {
+        ID = "ID122",
+        FileName = "BasicCSV.txt",
+        HasFieldHeader = true,
+        SqlStatement = "ID122",
+        FileFormat = { FieldDelimiter = "," }
+      };
+      using (var reader = new CsvFileReader(setting, null, null))
+      {
+        UnitTestInitialize.MimicSQLReader.AddSetting(setting.ID, reader.GetDataTable(0));
+      }
+
+      using (var processDisplay = new DummyProcessDisplay())
+      {
+        var res1 = DetermineColumnFormat.GetSourceColumnInformation(setting, processDisplay);
+        Assert.AreEqual(6, res1.Count());
+      }
+    }
+
+    [TestMethod()]
+    public void GetAllPossibleFormatsTest()
+    {
+      var res1 = DetermineColumnFormat.GetAllPossibleFormats("1/1/2020", null);
+      Assert.AreEqual(2, res1.Count());
+      
+      var res2 = DetermineColumnFormat.GetAllPossibleFormats("01/01/2020", null);
+      Assert.AreEqual(4, res2.Count());
+
+      var res3 = DetermineColumnFormat.GetAllPossibleFormats("30/1/2020", null);
+      Assert.AreEqual(1, res3.Count());
+    }
+
+    [TestMethod()]
+    public void FillGuessColumnFormatReaderTest()
+    {
+      var setting = new CsvFile
+      {
+        ID = "DetermineColumnFormatFillGuessColumnFormatWriter",
+        FileName = "BasicCSV.txt",
+        HasFieldHeader = true,
+        FileFormat = { FieldDelimiter = "," }
+      };
+      var fillGuessSettings = new FillGuessSettings
+      {
+        DectectNumbers = true,
+        DetectDateTime = true,
+        DectectPercentage = true,
+        DetectBoolean = true,
+        DetectGUID = true,
+        IgnoreIdColums = false
+      };
+      using (var processDisplay = new DummyProcessDisplay())
+      {
+        setting.FillGuessColumnFormatReader(false, true, fillGuessSettings, processDisplay);
+
+        setting.FillGuessColumnFormatReader(true, false, fillGuessSettings, processDisplay);
+      }
+    }
+
+
     [TestMethod]
     public void DetermineColumnFormatFillGuessColumnFormatWriter()
     {
       var setting = new CsvFile
-                      {
-                        ID = "DetermineColumnFormatFillGuessColumnFormatWriter",
-                        FileName = "BasicCSV.txt",
-                        HasFieldHeader = true,
-                        FileFormat = {
-                                        FieldDelimiter = "," 
-                                     }
-                      };
+      {
+        ID = "DetermineColumnFormatFillGuessColumnFormatWriter",
+        FileName = "BasicCSV.txt",
+        HasFieldHeader = true,
+        FileFormat = { FieldDelimiter = "," }
+      };
 
       using (var reader = new CsvFileReader(setting, null, null))
       {
@@ -157,7 +219,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void DetermineColumnFormatGetSampleValuesNoColumns()
+    public async Task DetermineColumnFormatGetSampleValuesNoColumns()
     {
       using (var dt = new DataTable())
       {
@@ -167,9 +229,8 @@ namespace CsvTools.Tests
           {
             try
             {
-              var res = DetermineColumnFormat
-                .GetSampleValuesAsync(reader, 0, 0, 20, string.Empty, processDisplay.CancellationToken)
-                .WaitToCompleteTask(2);
+              var res = await DetermineColumnFormat
+                .GetSampleValuesAsync(reader, 0, 0, 20, string.Empty, processDisplay.CancellationToken);
 
               Assert.Fail("Expected Exception not thrown");
             }
@@ -190,23 +251,23 @@ namespace CsvTools.Tests
     public void FillGuessColumnFormatAddTextCol()
     {
       var setting = new CsvFile
-                      {
-                        FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt"),
-                        FileFormat = {
-                                        FieldDelimiter = "," 
+      {
+        FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt"),
+        FileFormat = {
+                                        FieldDelimiter = ","
                                      },
-                        HasFieldHeader = true
-                      };
+        HasFieldHeader = true
+      };
 
       var fillGuessSettings = new FillGuessSettings
-                                {
-                                  DectectNumbers = true,
-                                  DetectDateTime = true,
-                                  DectectPercentage = true,
-                                  DetectBoolean = true,
-                                  DetectGUID = true,
-                                  IgnoreIdColums = false
-                                };
+      {
+        DectectNumbers = true,
+        DetectDateTime = true,
+        DectectPercentage = true,
+        DetectBoolean = true,
+        DetectGUID = true,
+        IgnoreIdColums = false
+      };
       using (var processDisplay = new DummyProcessDisplay())
       {
         setting.FillGuessColumnFormatReaderAsync(true, false, fillGuessSettings, processDisplay).WaitToCompleteTask(2);
@@ -221,24 +282,24 @@ namespace CsvTools.Tests
     public void FillGuessColumnFormatDateParts()
     {
       var setting = new CsvFile
-                      {
-                        FileName = UnitTestInitialize.GetTestPath("Sessions.txt"),
-                        HasFieldHeader = true,
-                        ByteOrderMark = true,
-                        FileFormat = {
-                                        FieldDelimiter = "\t" 
+      {
+        FileName = UnitTestInitialize.GetTestPath("Sessions.txt"),
+        HasFieldHeader = true,
+        ByteOrderMark = true,
+        FileFormat = {
+                                        FieldDelimiter = "\t"
                                      }
-                      };
+      };
       var fillGuessSettings = new FillGuessSettings
-                                {
-                                  DectectNumbers = true,
-                                  DetectDateTime = true,
-                                  DectectPercentage = true,
-                                  DetectBoolean = true,
-                                  DetectGUID = true,
-                                  DateParts = true,
-                                  IgnoreIdColums = true
-                                };
+      {
+        DectectNumbers = true,
+        DetectDateTime = true,
+        DectectPercentage = true,
+        DetectBoolean = true,
+        DetectGUID = true,
+        DateParts = true,
+        IgnoreIdColums = true
+      };
 
       using (var processDisplay = new DummyProcessDisplay())
       {
@@ -257,23 +318,23 @@ namespace CsvTools.Tests
     public void FillGuessColumnFormatDoNotIgnoreID()
     {
       var setting = new CsvFile
-                      {
-                        FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt"),
-                        FileFormat = {
-                                        FieldDelimiter = "," 
+      {
+        FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt"),
+        FileFormat = {
+                                        FieldDelimiter = ","
                                      },
-                        HasFieldHeader = true
-                      };
+        HasFieldHeader = true
+      };
 
       var fillGuessSettings = new FillGuessSettings
-                                {
-                                  DectectNumbers = true,
-                                  DetectDateTime = true,
-                                  DectectPercentage = true,
-                                  DetectBoolean = true,
-                                  DetectGUID = true,
-                                  IgnoreIdColums = false
-                                };
+      {
+        DectectNumbers = true,
+        DetectDateTime = true,
+        DectectPercentage = true,
+        DetectBoolean = true,
+        DetectGUID = true,
+        IgnoreIdColums = false
+      };
       using (var processDisplay = new DummyProcessDisplay())
       {
         setting.FillGuessColumnFormatReaderAsync(false, false, fillGuessSettings, processDisplay)
@@ -289,25 +350,25 @@ namespace CsvTools.Tests
     public void FillGuessColumnFormatGermanDateAndNumbers()
     {
       var setting = new CsvFile
-                      {
-                        FileName = UnitTestInitialize.GetTestPath("DateAndNumber.csv"),
-                        HasFieldHeader = true,
-                        FileFormat = {
-                                        FieldQualifier = "Quote" 
+      {
+        FileName = UnitTestInitialize.GetTestPath("DateAndNumber.csv"),
+        HasFieldHeader = true,
+        FileFormat = {
+                                        FieldQualifier = "Quote"
                                      },
-                        CodePageId = 1252
-                      };
+        CodePageId = 1252
+      };
       setting.FileFormat.FieldDelimiter = "TAB";
 
       var fillGuessSettings = new FillGuessSettings
-                                {
-                                  DectectNumbers = true,
-                                  DetectDateTime = true,
-                                  DectectPercentage = true,
-                                  DetectBoolean = true,
-                                  DetectGUID = true,
-                                  IgnoreIdColums = true
-                                };
+      {
+        DectectNumbers = true,
+        DetectDateTime = true,
+        DectectPercentage = true,
+        DetectBoolean = true,
+        DetectGUID = true,
+        IgnoreIdColums = true
+      };
 
       // setting.TreatTextNullAsNull = true;
       using (var processDisplay = new DummyProcessDisplay())
@@ -331,31 +392,30 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void FillGuessColumnFormatIgnoreID()
+    public async Task FillGuessColumnFormatIgnoreID()
     {
       var setting = new CsvFile
-                      {
-                        FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt"),
-                        FileFormat = {
-                                        FieldDelimiter = "," 
+      {
+        FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt"),
+        FileFormat = {
+                                        FieldDelimiter = ","
                                      },
-                        HasFieldHeader = true
-                      };
+        HasFieldHeader = true
+      };
 
       // setting.TreatTextNullAsNull = true;
       var fillGuessSettings = new FillGuessSettings
-                                {
-                                  DectectNumbers = true,
-                                  DetectDateTime = true,
-                                  DectectPercentage = true,
-                                  DetectBoolean = true,
-                                  DetectGUID = true,
-                                  IgnoreIdColums = true
-                                };
+      {
+        DectectNumbers = true,
+        DetectDateTime = true,
+        DectectPercentage = true,
+        DetectBoolean = true,
+        DetectGUID = true,
+        IgnoreIdColums = true
+      };
       using (var processDisplay = new DummyProcessDisplay())
       {
-        setting.FillGuessColumnFormatReaderAsync(false, false, fillGuessSettings, processDisplay)
-          .WaitToCompleteTask(20);
+        await setting.FillGuessColumnFormatReaderAsync(false, false, fillGuessSettings, processDisplay);
       }
 
       Assert.IsTrue(setting.ColumnCollection.Get("ID") == null || setting.ColumnCollection.Get("ID").Convert == false);
@@ -367,15 +427,15 @@ namespace CsvTools.Tests
     public void FillGuessColumnFormatTextColumns()
     {
       var setting = new CsvFile
-                      {
-                        FileName = UnitTestInitialize.GetTestPath("Test.csv"),
-                        HasFieldHeader = true,
-                        ByteOrderMark = true,
-                        FileFormat = {
-                                        FieldDelimiter = "," 
+      {
+        FileName = UnitTestInitialize.GetTestPath("Test.csv"),
+        HasFieldHeader = true,
+        ByteOrderMark = true,
+        FileFormat = {
+                                        FieldDelimiter = ","
                                      },
-                        SkipRows = 1
-                      };
+        SkipRows = 1
+      };
       var fillGuessSettings = new FillGuessSettings { IgnoreIdColums = true };
 
       using (var processDisplay = new DummyProcessDisplay())
@@ -394,26 +454,26 @@ namespace CsvTools.Tests
     public void FillGuessColumnFormatTrailingColumns()
     {
       var setting = new CsvFile
-                      {
-                        FileName = UnitTestInitialize.GetTestPath("Test.csv"),
-                        HasFieldHeader = true,
-                        ByteOrderMark = true,
-                        FileFormat = {
-                                        FieldDelimiter = "," 
+      {
+        FileName = UnitTestInitialize.GetTestPath("Test.csv"),
+        HasFieldHeader = true,
+        ByteOrderMark = true,
+        FileFormat = {
+                                        FieldDelimiter = ","
                                      },
-                        SkipRows = 1
-                      };
+        SkipRows = 1
+      };
       setting.ColumnCollection.Clear();
 
       var fillGuessSettings = new FillGuessSettings
-                                {
-                                  DectectNumbers = true,
-                                  DetectDateTime = true,
-                                  DectectPercentage = true,
-                                  DetectBoolean = true,
-                                  DetectGUID = true,
-                                  IgnoreIdColums = true
-                                };
+      {
+        DectectNumbers = true,
+        DetectDateTime = true,
+        DectectPercentage = true,
+        DetectBoolean = true,
+        DetectGUID = true,
+        IgnoreIdColums = true
+      };
       using (var processDisplay = new DummyProcessDisplay())
       {
         setting.FillGuessColumnFormatReaderAsync(false, true, fillGuessSettings, processDisplay).WaitToCompleteTask(20);
@@ -529,9 +589,10 @@ namespace CsvTools.Tests
     public void GetSampleValuesFileEmpty()
     {
       var setting = new CsvFile
-                      {
-                        FileName = UnitTestInitialize.GetTestPath("CSVTestEmpty.txt"), HasFieldHeader = true
-                      };
+      {
+        FileName = UnitTestInitialize.GetTestPath("CSVTestEmpty.txt"),
+        HasFieldHeader = true
+      };
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
@@ -557,9 +618,10 @@ namespace CsvTools.Tests
     public async Task GetSampleValuesFileEmptyAsync()
     {
       var setting = new CsvFile
-                      {
-                        FileName = UnitTestInitialize.GetTestPath("CSVTestEmpty.txt"), HasFieldHeader = true
-                      };
+      {
+        FileName = UnitTestInitialize.GetTestPath("CSVTestEmpty.txt"),
+        HasFieldHeader = true
+      };
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {

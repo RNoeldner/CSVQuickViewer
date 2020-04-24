@@ -164,7 +164,7 @@ namespace CsvTools
         throw new FileWriterException("No columns defined to be written.");
       
 
-      recordEnd = this.GetRedordEnd();
+      recordEnd = this.GetRecordEnd();
       HandleWriteStart();
 
       var sb = new StringBuilder();

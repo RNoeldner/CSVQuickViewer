@@ -200,7 +200,7 @@ namespace CsvTools.Tests
         Assert.IsTrue(File.Exists(writeFile.FullPath));
       }
     }
-
+    
     [TestMethod]
     public void WriteDataTableHandleIssues()
     {

@@ -98,7 +98,7 @@ namespace CsvTools
       }
     }
 
-    protected string GetRedordEnd() => m_FileSetting.FileFormat.NewLine.NewLineString();
+    protected string GetRecordEnd() => m_FileSetting.FileFormat.NewLine.NewLineString();
 
     public async Task<long> WriteAsync(IFileReader reader)
     {
