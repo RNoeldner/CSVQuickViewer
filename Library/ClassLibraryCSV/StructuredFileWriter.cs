@@ -79,7 +79,7 @@ namespace CsvTools
         var numColumns = Columns.Count();
         if (numColumns == 0)
           throw new FileWriterException("No columns defined to be written.");
-        var recordEnd = this.GetRedordEnd();
+        var recordEnd = this.GetRecordEnd();
         HandleWriteStart();
 
         // Header
@@ -163,7 +163,7 @@ namespace CsvTools
         var numColumns = Columns.Count();
         if (numColumns == 0)
           throw new FileWriterException("No columns defined to be written.");
-        var recordEnd = this.GetRedordEnd();
+        var recordEnd = this.GetRecordEnd();
         HandleWriteStart();
 
         // Header
