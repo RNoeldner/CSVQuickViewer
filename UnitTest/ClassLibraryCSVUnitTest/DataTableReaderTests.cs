@@ -36,7 +36,7 @@ namespace CsvTools.Tests
         {
           Assert.IsTrue(test.IsClosed);
           var dt = await test.GetDataTableAsync(200);
-          Assert.IsFalse(test.IsClosed);
+          Assert.AreEqual(m_DataTable, dt);
         }
       }
     }
@@ -70,7 +70,8 @@ namespace CsvTools.Tests
         using (var test = new DataTableReader(m_DataTable, "id", pd))
         {
           test.Open();
-          Assert.AreEqual("int", test.GetDataTypeName(0));
+          var typeName = test.GetDataTypeName(0);
+          Assert.IsTrue(typeName.Equals("int") || typeName.Equals("Int32") || typeName.Equals("Int64") || typeName.Equals("long"));
         }
       }
     }

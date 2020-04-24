@@ -29,7 +29,7 @@ namespace CsvTools
     private DbDataReader m_DbDataReader;
 
     public DataTableReader(DataTable dt, string id, IProcessDisplay processDisplay) : base(
-      new DataTableSetting(dt.TableName), TimeZoneInfo.Local.Id, processDisplay) =>
+      new DataTableSetting(id), TimeZoneInfo.Local.Id, processDisplay) =>
       m_DataTable = dt ?? throw new ArgumentNullException(nameof(dt));
 
     public override DataTable GetDataTable(long recordLimit) => m_DataTable;
@@ -102,7 +102,7 @@ namespace CsvTools
 
     public override void Open()
     {
-      BeforeOpen("Opeing Data Table");
+      BeforeOpen("Opening Data Table");
       InitColumn(m_DataTable.Columns.Count);
 
       // Initialize the Columns

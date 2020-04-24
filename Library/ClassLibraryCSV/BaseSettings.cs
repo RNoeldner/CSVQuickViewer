@@ -265,7 +265,7 @@ namespace CsvTools
         return false;
 
       return string.Equals(other.TemplateName, TemplateName, StringComparison.OrdinalIgnoreCase) &&
-             
+
              other.SkipRows == SkipRows &&
              other.IsEnabled == IsEnabled &&
              other.TreatNBSPAsSpace == TreatNBSPAsSpace &&
@@ -498,8 +498,8 @@ namespace CsvTools
     {
       if (this is IFileSettingPhysicalFile settingPhysicalFile && !string.IsNullOrEmpty(settingPhysicalFile.FullPath))
       {
-        var fi = settingPhysicalFile.FullPath.GetFileInfo();
-        m_LatestSourceTimeUtc = fi.Exists ? fi.LastWriteTimeUtc : ZeroTime;
+        var fileName = FileSystemUtils.ResolvePattern(settingPhysicalFile.FullPath);
+        m_LatestSourceTimeUtc = string.IsNullOrEmpty(fileName) ? ZeroTime : FileSystemUtils.GetLastWriteTimeUtc(fileName);
       }
       else
         // in case the source is not a physical file, assume it's the processing time
@@ -582,9 +582,7 @@ namespace CsvTools
       get
       {
         if (m_FullPath == null || !FileSystemUtils.FileExists(m_FullPath))
-        {
           m_FullPath = FileSystemUtils.ResolvePattern(m_FileName.GetAbsolutePath(ApplicationSetting.RootFolder));
-        }
 
         return m_FullPath;
       }

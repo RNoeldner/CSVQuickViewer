@@ -50,9 +50,7 @@ namespace CsvTools
         }
         else
         {
-          var file = value.FullPath.GetFileInfo();
-
-          if (!file.Exists)
+          if (FileSystemUtils.FileExists(value.FullPath))
           {
             CSVTextBox.DisplaySpace = false;
             CSVTextBox.Text = $"\n\nThe file {value.FileName} does not exist.";
@@ -66,7 +64,7 @@ namespace CsvTools
             CSVTextBox.Escape = value.FileFormat.EscapeCharacterChar;
 
             ScrollBarVertical.LargeChange = 4096;
-            ScrollBarVertical.Maximum = (int)file.Length;
+            ScrollBarVertical.Maximum = FileSystemUtils.FileLength(value.FullPath).ToInt();
             m_CsvFile = value;
 
             UpdateViewAsync();

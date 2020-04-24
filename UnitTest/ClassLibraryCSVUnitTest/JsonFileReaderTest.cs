@@ -271,7 +271,7 @@ namespace CsvTools.Tests
       using (var jfr = new JsonFileReader(setting, TimeZoneInfo.Local.Id, dpd))
       {
         jfr.Open();
-        Assert.AreEqual(2, jfr.FieldCount);
+        Assert.AreEqual(3, jfr.FieldCount);
       }
     }
   }

@@ -34,7 +34,7 @@ namespace CsvTools
     private ImprovedStream(string path, bool isReading)
     {
       m_IsReading = isReading;
-      m_BasePath = path.LongPathPrefix();
+      m_BasePath = path;
       m_AssumeGZip = path.AssumeGZip();
     }
 
@@ -74,7 +74,7 @@ namespace CsvTools
             Stream.Close();
 
             // need to reopen the base stream
-            BaseStream = File.OpenRead(m_BasePath.LongPathPrefix());
+            BaseStream = FileSystemUtils.OpenRead(m_BasePath);
           }
 
           if (m_AssumeGZip)
@@ -146,7 +146,7 @@ namespace CsvTools
       var retVal = new ImprovedStream(fileName, false);
       if (retVal.m_AssumeGZip)
       {
-        retVal.BaseStream = File.Create(retVal.m_BasePath);
+        retVal.BaseStream = FileSystemUtils.OpenWrite(retVal.m_BasePath);
         retVal.Stream = new GZipStream(retVal.BaseStream, CompressionMode.Compress);
         return retVal;
       }
@@ -177,7 +177,7 @@ namespace CsvTools
       var retVal = new ImprovedStream(path, true);
       try
       {
-        retVal.BaseStream = File.OpenRead(retVal.m_BasePath);
+        retVal.BaseStream = FileSystemUtils.OpenRead(retVal.m_BasePath);
         return retVal;
       }
       catch (Exception)

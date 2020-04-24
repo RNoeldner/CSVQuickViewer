@@ -166,5 +166,39 @@ namespace CsvTools.Tests
       Assert.AreEqual("Test", split.FileNameWithoutExtension);
       Assert.AreEqual(".dat", split.Extension);
     }
+
+    [TestMethod]
+    public void TestMethodsOnLongPath()
+    {
+      Directory.SetCurrentDirectory(UnitTestInitialize.ApplicationDirectory);
+      var relPath = ".";
+      var directory = UnitTestInitialize.ApplicationDirectory;
+      while (directory.Length < 260)
+      {
+        relPath += "\\This is a subfolder";
+        directory += "\\This is a subfolder";
+        FileSystemUtils.CreateDirectory(directory);
+      }
+
+      for (var counter = 0; counter < 10; counter++)
+      {
+        using (var stream = FileSystemUtils.CreateText(directory + $"\\File{counter:000}.txt"))
+        {
+          stream.WriteLine($"Small Test {counter:000}");
+        }
+      }
+
+      var fn1 = FileSystemUtils.ResolvePattern(directory + $"\\File*.txt");
+      Assert.IsNotNull(fn1);
+
+      var fn2 = FileSystemUtils.ResolvePattern(relPath + $"\\File*.txt");
+      Assert.AreEqual(fn1, fn2);
+
+      // cleanup
+      for (var counter = 0; counter < 10; counter++)
+      {
+        FileSystemUtils.FileDelete(directory + $"\\File{counter:000}.txt");
+      }
+    }
   }
 }
