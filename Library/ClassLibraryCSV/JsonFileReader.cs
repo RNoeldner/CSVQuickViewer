@@ -38,11 +38,10 @@ namespace CsvTools
 
     public override void Open()
     {
+      BeforeOpen($"Opening Json file {FileSystemUtils.GetShortDisplayFileName(m_StructuredFile.FileName, 80)}");
     Retry:
-
       try
       {
-        HandleShowProgress("Opening Json file…");
         m_AssumeLog = false;
       again:
         ResetPositionToStartOrOpen();

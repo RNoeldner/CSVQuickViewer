@@ -20,7 +20,7 @@ using System.Threading.Tasks;
 namespace CsvTools
 {
   /// <summary>
-  /// IFileReader implementation based on a data table
+  ///   IFileReader implementation based on a data table
   /// </summary>
   /// <remarks>Some functionality for progress report are not implemented</remarks>
   public class DataTableReader : BaseFileReader, IFileReader
@@ -99,8 +99,10 @@ namespace CsvTools
     public override DataTable GetSchemaTable() => m_DbDataReader.GetSchemaTable();
 
     public override bool NextResult() => m_DbDataReader.NextResult();
+
     public override void Open()
     {
+      BeforeOpen("Opeing Data Table");
       InitColumn(m_DataTable.Columns.Count);
 
       // Initialize the Columns
@@ -158,7 +160,6 @@ namespace CsvTools
       m_DbDataReader?.Dispose();
       m_DbDataReader = m_DataTable.CreateDataReader();
     }
-
 
     protected override int GetRelativePosition() => (int)((double)RecordNumber / m_DataTable.Rows.Count * cMaxValue);
 

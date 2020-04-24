@@ -152,7 +152,7 @@ namespace CsvTools
       if (string.IsNullOrEmpty(args.Message))
         return;
       if (++m_WarningCount == m_FileSetting.NumWarnings)
-        Logger.Warning("No further warnings displayed…");
+        Logger.Warning("No further warnings displayed");
       else if (m_WarningCount < m_FileSetting.NumWarnings)
         Logger.Warning(args.Display(true, true));
     }
@@ -614,7 +614,7 @@ namespace CsvTools
         {
           if (processDisplay is IProcessDisplayTime pdt)
             pdt.AttachTaskbarProgress();
-          processDisplay.SetProcess("Opening File…", -1, true);
+          processDisplay.SetProcess("Opening File...", -1, true);
 
           using (var fileReader = FunctionalDI.GetFileReader(m_FileSetting, TimeZoneInfo.Local.Id, processDisplay))
           {
@@ -649,7 +649,7 @@ namespace CsvTools
             fileReader.Warning -= warningList.Add;
             fileReader.Warning += AddWarning;
 
-            processDisplay.SetProcess("Reading data…", -1, true);
+            processDisplay.SetProcess("Reading data...", -1, true);
 
             DataTable = await fileReader.GetDataTableAsync(m_FileSetting.RecordLimit);
 
@@ -675,7 +675,7 @@ namespace CsvTools
         if (DataTable != null)
         {
           // Show the data
-          Logger.Information("Showing loaded data…");
+          Logger.Information("Showing loaded data...");
           detailControl.DataTable = DataTable;
         }
 
@@ -702,7 +702,7 @@ namespace CsvTools
       finally
       {
         if (DataTable == null)
-          Logger.Information("No data…");
+          Logger.Information("No data...");
         else
 
           // if (!m_FileSetting.NoDelimitedFile)

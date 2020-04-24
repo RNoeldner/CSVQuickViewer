@@ -25,7 +25,6 @@ namespace CsvTools
 
   internal static class Program
   {
-
     static Program()
     {
       try
@@ -41,7 +40,6 @@ namespace CsvTools
         UnhandledException(ex);
       }
     }
-
 
     /// <summary>
     ///   Handles the ThreadException event of the Application control.
@@ -72,7 +70,7 @@ namespace CsvTools
       Logger.Configure("CSVQuickViewer_Log.json", Logger.Level.Info);
       Application.ThreadException += Application_ThreadException;
       AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
-      Logger.Debug("Application start…");
+      Logger.Debug("Application start");
       var fileName = string.Empty;
 
       Application.EnableVisualStyles();
