@@ -20,6 +20,7 @@ namespace CsvTools
   using System.Data.Common;
   using System.Diagnostics;
   using System.Globalization;
+  using System.IO;
   using System.Threading;
   using System.Threading.Tasks;
 
@@ -113,6 +114,17 @@ namespace CsvTools
     protected BaseFileReader(IFileSetting fileSetting, string destinationTimeZone, IProcessDisplay processDisplay)
     {
       FileSetting = fileSetting ?? throw new ArgumentNullException(nameof(fileSetting));
+      if (FileSetting is IFileSettingPhysicalFile fileSettingPhysical)
+      {
+        if (string.IsNullOrEmpty(fileSettingPhysical.FileName))
+          throw new FileReaderException("FileName must be set");
+
+        if (OnOpen == null)
+          if (!FileSystemUtils.FileExists(fileSettingPhysical.FullPath))
+            throw new FileNotFoundException(
+              $"The file '{FileSystemUtils.GetShortDisplayFileName(fileSettingPhysical.FileName, 80)}' does not exist or is not accessible.",
+              fileSettingPhysical.FileName);
+      }
       DestinationTimeZone = string.IsNullOrEmpty(destinationTimeZone) ? TimeZoneInfo.Local.Id : destinationTimeZone;
       if (processDisplay != null)
       {
@@ -1038,12 +1050,17 @@ namespace CsvTools
       return dataTable;
     }
 
-    protected void BeforeOpen()
+    protected void BeforeOpen(string message)
     {
-      if (!HasOpen()) return;
+      HandleShowProgress(message);
 
-      HandleShowProgress("Preparing to open file…");
       OnOpen?.Invoke(this, new EventArgs());
+
+      // now a physical file must exist
+      if (FileSetting is IFileSettingPhysicalFile fileSettingPhysical && !FileSystemUtils.FileExists(fileSettingPhysical.FullPath))
+        throw new FileNotFoundException(
+          $"The file '{FileSystemUtils.GetShortDisplayFileName(fileSettingPhysical.FileName, 80)}' does not exist or is not accessible.",
+          fileSettingPhysical.FileName);
     }
 
     protected virtual void Dispose(bool disposing)
@@ -1354,8 +1371,6 @@ namespace CsvTools
 
       return inputValue;
     }
-
-    protected bool HasOpen() => (OnOpen != null);
 
     /// <summary>
     ///   Displays progress, is called after <see langword="abstract" /> row has been read
