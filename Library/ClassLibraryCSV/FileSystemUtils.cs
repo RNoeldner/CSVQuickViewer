@@ -21,6 +21,10 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
+using Path = Pri.LongPath.Path;
+using Directory = Pri.LongPath.Directory;
+using File = Pri.LongPath.File;
+using FileInfo = Pri.LongPath.FileInfo;
 
 namespace CsvTools
 {
@@ -33,12 +37,12 @@ namespace CsvTools
 
     private const string c_UncLongPathPrefix = @"\\?\UNC\";
 
+
     public static void CreateDirectory(string directoryName)
     {
       if (string.IsNullOrEmpty(directoryName))
         return;
-
-      Directory.CreateDirectory(directoryName.LongPathPrefix());
+      Directory.CreateDirectory(directoryName);
     }
 
     /// <summary>
@@ -53,12 +57,11 @@ namespace CsvTools
       {
         if (!FileExists(fileName))
           return;
-        fileName = fileName.LongPathPrefix();
-        var backupName = (fileName + ".bak").LongPathPrefix();
+        var backupName = (fileName + ".bak");
         var backupName2 = string.Empty;
         if (twoBackups)
         {
-          backupName2 = (fileName + "2.bak").LongPathPrefix();
+          backupName2 = (fileName + "2.bak");
           FileDelete(backupName2);
         }
 
@@ -69,7 +72,7 @@ namespace CsvTools
           FileDelete(backupName);
         }
 
-        File.Move(fileName.LongPathPrefix(), backupName.LongPathPrefix());
+        File.Move(fileName, backupName);
       }
       catch
       {
@@ -78,7 +81,7 @@ namespace CsvTools
     }
 
     public static bool DirectoryExists(string directoryName) =>
-      !string.IsNullOrEmpty(directoryName) && Directory.Exists(directoryName.LongPathPrefix());
+      !string.IsNullOrEmpty(directoryName) && Directory.Exists(directoryName);
 
     /// <summary>
     ///   Folder of the executing assembly, mainly used in Unit testing
@@ -91,7 +94,7 @@ namespace CsvTools
         directory = Assembly.GetEntryAssembly()?.Location;
       if (string.IsNullOrEmpty(directory))
         directory = ".";
-      return Path.GetDirectoryName(directory.LongPathPrefix());
+      return Path.GetDirectoryName(directory);
     }
 
     /// <summary>
@@ -104,8 +107,8 @@ namespace CsvTools
     {
       if (FileExists(sourceFile))
         FileDelete(destFile);
-      using (var fromStream = sourceFile.GetFileInfo().OpenRead())
-      using (var toStream = destFile.GetFileInfo().OpenWrite())
+      using (var fromStream = OpenRead(sourceFile))
+      using (var toStream = OpenWrite(destFile))
       {
         var bytes = new byte[81920];
         int bytesRead;
@@ -138,12 +141,12 @@ namespace CsvTools
     {
       if (FileExists(fileName))
       {
-        File.Delete(fileName.LongPathPrefix());
+        File.Delete(fileName);
       }
     }
 
     public static bool FileExists(string fileName) =>
-      !string.IsNullOrEmpty(fileName) && File.Exists(fileName.LongPathPrefix());
+      !string.IsNullOrEmpty(fileName) && File.Exists(fileName);
 
     /// <summary>
     ///   Gets the absolute path.
@@ -156,10 +159,9 @@ namespace CsvTools
       Contract.Ensures(Contract.Result<string>() != null);
       if (string.IsNullOrEmpty(fileName))
         return string.Empty;
-      fileName = fileName.LongPathPrefix();
 
       return !Path.IsPathRooted(fileName)
-               ? Path.GetFullPath(string.IsNullOrEmpty(basePath) ? fileName : Path.Combine(basePath, fileName))
+               ? Path.GetFullPath(string.IsNullOrEmpty(basePath) ? fileName : PathCombine(basePath, fileName))
                : fileName;
     }
 
@@ -175,7 +177,7 @@ namespace CsvTools
         return null;
 
       if (fileOrDirectory[0] == '.')
-        fileOrDirectory = Path.GetFullPath(fileOrDirectory.LongPathPrefix());
+        fileOrDirectory = Path.GetFullPath(fileOrDirectory);
 
       if (DirectoryExists(fileOrDirectory))
         return fileOrDirectory;
@@ -185,10 +187,9 @@ namespace CsvTools
       return lastIndex > 0 ? fileOrDirectory.Substring(0, lastIndex).RemovePrefix() : null;
     }
 
-    public static FileInfo GetFileInfo(this string fileName)
-    {
-      return new FileInfo(fileName.LongPathPrefix());
-    }
+    public static long FileLength(string fileName) => new FileInfo(fileName).Length;
+    public static DateTime GetLastWriteTimeUtc(string fileName) => new FileInfo(fileName).LastWriteTimeUtc;
+    public static DateTime SetLastWriteTimeUtc(string fileName, DateTime newTime) => new FileInfo(fileName).LastWriteTimeUtc = newTime;
 
     public static string[] GetFiles(string folder, string searchPattern)
     {
@@ -196,7 +197,7 @@ namespace CsvTools
       Contract.Requires(!string.IsNullOrEmpty(searchPattern));
 
       return folder.IndexOfAny(new[] { '*', '?', '[', ']' }) == -1
-               ? Directory.GetFiles(folder.LongPathPrefix(), searchPattern, SearchOption.TopDirectoryOnly)
+               ? Directory.GetFiles(folder, searchPattern, SearchOption.TopDirectoryOnly)
                : new string[] { };
     }
 
@@ -204,7 +205,7 @@ namespace CsvTools
     {
       Contract.Requires(!string.IsNullOrEmpty(folder));
       Contract.Requires(!string.IsNullOrEmpty(searchPattern));
-      if (!Directory.Exists(folder.LongPathPrefix()))
+      if (!Directory.Exists(folder))
         return null;
       var files = GetFiles(folder, searchPattern);
 
@@ -221,7 +222,7 @@ namespace CsvTools
       string lastFile = null;
       foreach (var fileName in files)
       {
-        var fileTime = fileName.GetFileInfo().LastWriteTime;
+        var fileTime = GetLastWriteTimeUtc(fileName);
         if (fileTime <= newSet)
           continue;
         newSet = fileTime;
@@ -252,7 +253,7 @@ namespace CsvTools
         return ".";
       if (fileName.StartsWith(basePath, StringComparison.OrdinalIgnoreCase))
         return fileName.Substring(basePath.Length + 1);
-      var otherDir = Path.GetFullPath(fileName.LongPathPrefix()).RemovePrefix();
+      var otherDir = Path.GetFullPath(fileName);
 
       return GetRelativePathQuick(otherDir, basePath);
     }
@@ -330,13 +331,22 @@ namespace CsvTools
       return relative.Length < absolute.Length ? relative : absolute;
     }
 
+    public static string GetFileNameWithoutExtension(string path) => Path.GetFileNameWithoutExtension(path);
+    public static string PathCombine(string path1, string path2) => Path.Combine(path1, path2);
+    public static string GetFullPath(string path) => Path.GetFullPath(path);
+    public static FileStream OpenRead(string fileName) => File.OpenRead(fileName);
+    public static FileStream OpenWrite(string fileName) => File.OpenWrite(fileName);
+    public static FileStream Create(string fileName, int bufferSize, FileOptions options) => File.Create(fileName, bufferSize, options);
+    public static void WriteAllText(string fileName, string contents) => File.WriteAllText(fileName, contents);
+
     public static StreamReader GetStreamReaderForFileOrResource(string file)
     {
-      var fileName = (ExecutableDirectoryName() + "\\" + file).LongPathPrefix();
+      var fileName = ExecutableDirectoryName() + "\\" + file;
       try
       {
+
         if (FileExists(fileName))
-          return new StreamReader(fileName.LongPathPrefix(), true);
+          return new StreamReader(OpenRead(fileName), true);
 
         var executingAssembly = Assembly.GetExecutingAssembly();
         var foundName = executingAssembly.GetManifestResourceNames().FirstOrDefault(x => x.EndsWith("." + file));
@@ -367,7 +377,7 @@ namespace CsvTools
         return shortPath;
       if (shortPath.Contains("~"))
         return shortPath.LongFileNameKernel();
-      return shortPath.Contains(".\\") ? Path.GetFullPath(shortPath.LongPathPrefix()) : shortPath;
+      return shortPath.Contains(".\\") ? Path.GetFullPath(shortPath) : shortPath;
     }
 
     public static string LongPathPrefix(this string path)
@@ -404,9 +414,7 @@ namespace CsvTools
       var folder = split.DirectoryName;
       var searchPattern = split.FileName;
 
-      var lastFile = GetLatestFileOfPattern(folder, searchPattern);
-
-      return !string.IsNullOrEmpty(lastFile) ? lastFile : fileName;
+      return GetLatestFileOfPattern(folder, searchPattern);
     }
 
     /// <summary>
@@ -455,7 +463,7 @@ namespace CsvTools
       if (string.IsNullOrEmpty(longPath))
         return longPath;
 
-      var fi = longPath.GetFileInfo();
+      var fi = new FileInfo(longPath);
 
       const uint c_BufferSize = 512;
       var shortNameBuffer = new StringBuilder((int)c_BufferSize);
@@ -471,7 +479,7 @@ namespace CsvTools
       }
 
       // if we have at least the directory shorten this
-      if (!fi.Directory.Exists) throw new Exception($"Could not get a short path for the file ${longPath}");
+      if (!(fi.Directory?.Exists ?? false)) throw new Exception($"Could not get a short path for the file ${longPath}");
       {
         var length = GetShortPathName(fi.Directory.FullName, shortNameBuffer, c_BufferSize);
         if (length > 0)
@@ -490,18 +498,27 @@ namespace CsvTools
       return (lastIndex != -1) ? path.Substring(lastIndex + 1) : path;
     }
 
+    public static StreamWriter CreateText(string path)
+    {
+      return File.CreateText(path);
+    }
+
+    public static string ReadAllText(string path)
+    {
+      return File.ReadAllText(path);
+    }
+
     public static SplitResult SplitPath(string path)
     {
       if (string.IsNullOrEmpty(path))
         return new SplitResult(string.Empty, string.Empty);
 
-      if (path[0] == '.')
-        path = Path.GetFullPath(path.LongPathPrefix());
-      path = path.LongPathPrefix();
+      path = Path.GetFullPath(path);
+
       var lastIndex = path.LastIndexOf(Path.DirectorySeparatorChar);
       return lastIndex != -1
                ? new SplitResult(path.Substring(0, lastIndex), path.Substring(lastIndex + 1))
-               : new SplitResult(Path.GetFullPath(path), path);
+               : new SplitResult(path, string.Empty);
     }
 
     [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]

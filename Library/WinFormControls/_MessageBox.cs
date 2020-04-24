@@ -58,7 +58,7 @@ namespace CsvTools
       string button1Text = "Yes",
       string button2Text = "No")
     {
-      if (massChoice.Choosen)
+      if (massChoice.Chosen)
         return massChoice.DialogResult;
 
       using (var tm = new TimedMessage())
@@ -79,7 +79,7 @@ namespace CsvTools
         // Button3 results in Cancel and is the Mass choice
         if (result == DialogResult.Cancel)
         {
-          massChoice.Choosen = true;
+          massChoice.Chosen = true;
           return massChoice.DialogResult;
         }
         return result;

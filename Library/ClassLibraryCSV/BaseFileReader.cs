@@ -1244,7 +1244,7 @@ namespace CsvTools
       FileSetting.ProcessTimeUtc = DateTime.UtcNow;
       if (FileSetting is IFileSettingPhysicalFile physicalFile)
       {
-        physicalFile.FileSize = FileSystemUtils.GetFileInfo(physicalFile.FullPath).Length;
+        physicalFile.FileSize = FileSystemUtils.FileLength(physicalFile.FullPath);
         Logger.Debug(
           "Finished reading {filesetting} Records: {records} in {filesize} Byte",
           FileSetting.ToString(),

@@ -9,11 +9,11 @@ namespace CsvTools
     public PersistentChoice(DialogResult option)
     {
       if (option != DialogResult.Yes && option != DialogResult.No)
-        throw new ArgumentOutOfRangeException(nameof(option), option, "Only Yes and No are supported");
+        throw new ArgumentOutOfRangeException(nameof(option), option, @"Only Yes and No are supported");
       DialogResult = option;
     }
 
-    public bool Choosen { get; set; }
+    public bool Chosen { get; set; }
 
     public DialogResult DialogResult { get; private set; }
 
@@ -24,7 +24,7 @@ namespace CsvTools
     public void Reset(int counter)
     {
       NumRecs = counter;
-      Choosen = false;
+      Chosen = false;
     }
   }
 }

@@ -49,7 +49,7 @@ namespace CsvTools
     public static CsvFile LoadCsvFile(string fileName)
     {
       Contract.Requires(fileName != null);
-      var serial = File.ReadAllText(fileName.LongPathPrefix());
+      var serial = FileSystemUtils.ReadAllText(fileName);
       using (TextReader reader = new StringReader(serial))
       {
         return (CsvFile)m_SerializerCurrentCsvFile.Value.Deserialize(reader);
@@ -71,7 +71,7 @@ namespace CsvTools
         var delete = false;
         if (FileSystemUtils.FileExists(fileName))
         {
-          var fileContend = File.ReadAllText(fileName.LongPathPrefix());
+          var fileContend = FileSystemUtils.ReadAllText(fileName);
           if (fileContend.Equals(stringWriter.ToString()))
             return;
 

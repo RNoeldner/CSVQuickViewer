@@ -277,7 +277,9 @@
     <Content Include="TestFiles\TrimmingHeaders.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <None Include="TestFiles\Jason4.json" />
+    <None Include="TestFiles\Jason4.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="TestFiles\LogFile.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

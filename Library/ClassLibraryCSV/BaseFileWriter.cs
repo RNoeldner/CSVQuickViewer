@@ -227,9 +227,7 @@ namespace CsvTools
       m_FileSetting.ProcessTimeUtc = DateTime.UtcNow;
       if (!(m_FileSetting is IFileSettingPhysicalFile physicalFile) ||
           !physicalFile.SetLatestSourceTimeForWrite) return;
-
-      var fi = FileSystemUtils.GetFileInfo(physicalFile.FullPath);
-      fi.LastWriteTimeUtc = m_FileSetting.LatestSourceTimeUtc;
+      FileSystemUtils.SetLastWriteTimeUtc(physicalFile.FullPath, m_FileSetting.LatestSourceTimeUtc);
 
       Logger.Debug("Finished writing {filesetting} Records: {records}", m_FileSetting.ToString(), Records);
       WriteFinished?.Invoke(this, null);
