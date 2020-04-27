@@ -1310,6 +1310,9 @@ namespace CsvTools
       if (FileSetting.TrimmingOption == TrimmingOption.All)
         inputString = inputString.Trim();
 
+      if (columnNumber >= FieldCount)
+        return inputString;
+
       var column = GetColumn(columnNumber);
       var output = inputString;
 

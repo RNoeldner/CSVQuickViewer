@@ -74,7 +74,7 @@ namespace CsvTools
           // do not overwrite Button 1 or Button 2
           button1Text, button2Text,
           // but set Button 3 if needed
-          massChoice.NumRecs > 1 ? $"{massChoice.DialogResult == DialogResult.Yes: button1Text : button2Text} To All ({massChoice.NumRecs})" : null);
+          massChoice.NumRecs > 1 ? $"{((massChoice.DialogResult == DialogResult.Yes) ? button1Text : button2Text)} To All ({massChoice.NumRecs})" : null);
 
         // Button3 results in Cancel and is the Mass choice
         if (result == DialogResult.Cancel)

@@ -170,9 +170,11 @@ namespace CsvTools
         return string.Empty;
       if (value.TotalMinutes < 1)
         return $"{Math.Round(value.TotalSeconds, 0, MidpointRounding.AwayFromZero):0} sec";
-      return value.TotalHours < 1
-        ? $"{value.Minutes:D2}:{value.Seconds:D2}"
-        : $"{(int)value.TotalHours}:{value.Minutes:D2}:{value.Seconds:D2}";
+      if (value.TotalHours < 1)
+        return $"{value.Minutes:D2}:{value.Seconds:D2}";
+      if (value.TotalHours<24)
+        return $"{(int)value.TotalHours}:{value.Minutes:D2}";
+      return $"{value.Days:N0} days {value.Hours:N0} hrs";
     }
 
     private struct ProgressOverTime

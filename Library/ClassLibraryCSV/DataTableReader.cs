@@ -100,6 +100,8 @@ namespace CsvTools
 
     public override bool NextResult() => m_DbDataReader.NextResult();
 
+    // public async Task OpenAsync() => Open();
+
     public override void Open()
     {
       BeforeOpen("Opening Data Table");
