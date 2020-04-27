@@ -199,6 +199,76 @@ namespace CsvTools
         GetColumn(columnNumber));
     }
 
+    /*
+    public async Task OpenAsync()
+    {
+      m_HasQualifier |= m_CsvFile.FileFormat.FieldQualifierChar != '\0';
+
+      if (m_CsvFile.FileFormat.FieldQualifier.Length > 1
+          && m_CsvFile.FileFormat.FieldQualifier.WrittenPunctuationToChar() == '\0')
+        HandleWarning(
+          -1,
+          $"Only the first character of '{m_CsvFile.FileFormat.FieldQualifier}' is be used for quoting.");
+      if (m_CsvFile.FileFormat.FieldDelimiter.Length > 1
+          && m_CsvFile.FileFormat.FieldDelimiter.WrittenPunctuationToChar() == '\0')
+        HandleWarning(-1, $"Only the first character of '{m_CsvFile.FileFormat.FieldDelimiter}' is used as delimiter.");
+
+      BeforeOpen($"Opening delimited file {FileSystemUtils.GetShortDisplayFileName(m_CsvFile.FileName, 80)}");
+    Retry:
+      try
+      {
+        var fn = FileSystemUtils.GetFileName(m_CsvFile.FullPath);
+        HandleShowProgress($"Opening text file {fn}");
+
+        m_ImprovedStream?.Dispose();
+        m_ImprovedStream = FunctionalDI.OpenRead(m_CsvFile);
+        m_TextReader?.Dispose();
+        m_TextReader = new ImprovedTextReader(m_ImprovedStream, m_CsvFile.CodePageId, m_CsvFile.SkipRows);
+        m_CsvFile.CurrentEncoding = m_TextReader.CurrentEncoding;
+
+        ResetPositionToStartOrOpen();
+        await GetNextRecordAsync();
+        m_HeaderRow = CurrentRowColumnText;
+        if (m_HeaderRow == null || m_HeaderRow.GetLength(0) == 0)
+        {
+          InitColumn(0);
+        }
+        else
+        {
+          // Get the column count
+          InitColumn(ParseFieldCount(m_HeaderRow));
+
+          // Get the column names
+          ParseColumnName(m_HeaderRow);
+        }
+
+        if (m_CsvFile.TryToSolveMoreColumns && m_CsvFile.FileFormat.FieldDelimiterChar != '\0')
+          m_RealignColumns = new ReAlignColumns(FieldCount);
+
+        FinishOpen();
+
+        ResetPositionToFirstDataRow();
+      }
+      catch (Exception ex)
+      {
+        if (ShouldRetry(ex))
+          goto Retry;
+
+        Close();
+        var appEx = new FileReaderException(
+          "Error opening text file for reading.\nPlease make sure the file does exist, is of the right type and is not locked by another process.",
+          ex);
+        HandleError(-1, appEx.ExceptionMessages());
+        HandleReadFinished();
+        throw appEx;
+      }
+      finally
+      {
+        HandleShowProgress(string.Empty);
+      }
+    }
+    */
+
     /// <summary>
     ///   Open the file Reader; Start processing the Headers and determine the maximum column size
     /// </summary>
