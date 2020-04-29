@@ -19,7 +19,6 @@ using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
-using System.Windows.Forms;
 
 namespace CsvTools.Tests
 {
@@ -34,7 +33,7 @@ namespace CsvTools.Tests
       sw.Start();
       while (sw.Elapsed.TotalSeconds < seconds)
       {
-        Application.DoEvents();
+        FunctionalDI.SignalBackground?.Invoke();
         Thread.Sleep(50);
       }
     }
