@@ -174,6 +174,7 @@
     </EmbeddedResource>
     <EmbeddedResource Include="ResizeForm.resx">
       <DependentUpon>ResizeForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="TimeZoneSelector.resx">
       <DependentUpon>TimeZoneSelector.cs</DependentUpon>
@@ -215,9 +216,6 @@
       <DependentUpon>FormHierarchyDisplay.cs</DependentUpon>
       <SubType>Designer</SubType>
     </None>
-    <None Include="FormProcessDisplay.resx">
-      <DependentUpon>FormProcessDisplay.cs</DependentUpon>
-    </None>
     <None Include="FormShowMaxLength.resx">
       <DependentUpon>FormShowMaxLength.cs</DependentUpon>
     </None>
@@ -246,9 +244,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\DataSources\" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\NBSP.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

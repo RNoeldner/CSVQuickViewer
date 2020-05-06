@@ -35,24 +35,25 @@ namespace CsvTools
       }
     }
 
-    protected ResizeForm()
+    public ResizeForm()
     {
       //#if !NETCOREAPP3_1
       // 6.2 and 6.3 is Windows 8 / Windows Server 2012
       if (Environment.OSVersion.Version.Major == 6 && Environment.OSVersion.Version.Minor > 1)
         SetFonts(this);
       //#endif
+      InitializeComponent();
     }
 
     private void InitializeComponent()
     {
-      SuspendLayout();
-      // 
+      System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ResizeForm));
+      this.SuspendLayout();
       // ResizeForm
-      // 
-      ClientSize = new Size(292, 253);
-      Name = "ResizeForm";
-      ResumeLayout(false);
+      this.ClientSize = new System.Drawing.Size(292, 253);
+      this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+      this.Name = "ResizeForm";
+      this.ResumeLayout(false);
     }
   }
 }
