@@ -38,7 +38,7 @@ namespace CsvTools
 
     private const string c_FieldQualifierDefault = "\"";
 
-    public const RecordDelimiterType c_NewLineDefault = RecordDelimiterType.CRLF;
+    public const RecordDelimiterType cNewLineDefault = RecordDelimiterType.CRLF;
 
     private const string c_NewLinePlaceholderDefault = "";
 
@@ -66,7 +66,7 @@ namespace CsvTools
 
     private char m_FieldQualifierChar = GetChar(c_FieldQualifierDefault);
 
-    private RecordDelimiterType m_NewLine = c_NewLineDefault;
+    private RecordDelimiterType m_NewLine = cNewLineDefault;
 
     private string m_NewLinePlaceholder = c_NewLinePlaceholderDefault;
 
@@ -291,13 +291,10 @@ namespace CsvTools
     /// </summary>
     /// <value>The newline.</value>
     [XmlAttribute]
-    [DefaultValue(c_NewLineDefault)]
+    [DefaultValue(cNewLineDefault)]
     public virtual RecordDelimiterType NewLine
     {
-      get
-      {
-        return m_NewLine;
-      }
+      get => m_NewLine;
 
       set
       {

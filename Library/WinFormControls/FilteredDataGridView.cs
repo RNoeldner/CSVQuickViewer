@@ -34,7 +34,7 @@ namespace CsvTools
   {
     private static Image m_ImgFilterIndicator;
 
-    private static Image m_ImgNbSp;
+    //private static Image m_ImgNbSp;
 
     private static int m_DefRowHeight = -1;
 
@@ -67,7 +67,7 @@ namespace CsvTools
       //try
       //{
       m_ImgFilterIndicator = ((Image)(resources.GetObject("toolStripMenuItem2.Image")));
-      m_ImgNbSp = ((Image)(resources.GetObject("NBSP")));
+      // m_ImgNbSp = ((Image)(resources.GetObject("NBSP")));
       //}
       //catch
       //{
@@ -786,11 +786,11 @@ namespace CsvTools
       e.Handled = true;
       e.PaintBackground(e.CellBounds, true);
 
-      if (nbspIndex >= 0 && m_ImgNbSp != null && (linefeedIndex == -1 || nbspIndex < linefeedIndex)
+      if (nbspIndex >= 0 && (linefeedIndex == -1 || nbspIndex < linefeedIndex)
                          && e.CellStyle.Alignment == DataGridViewContentAlignment.MiddleLeft)
       {
         var hlRect = new Rectangle();
-
+        var widthSpace = TextRenderer.MeasureText(e.Graphics, @" ", e.CellStyle.Font, e.ClipBounds.Size).Width;
         // Only do this as long the NBSP is before a linefeed
         while (nbspIndex >= 0 && (linefeedIndex == -1 || nbspIndex < linefeedIndex))
         {
@@ -814,9 +814,13 @@ namespace CsvTools
           // if we are outside the bound stop
           if (hlRect.X > e.CellBounds.X + e.CellBounds.Width)
             break;
-          e.Graphics.DrawImageUnscaled(m_ImgNbSp, new Point(hlRect.X, hlRect.Y));
-
-          // e.Graphics.FillRectangle(hl_brush, hl_rect);
+          e.Graphics.DrawLines(new Pen(Brushes.LightSalmon, 2), new[]
+          {
+            new Point(hlRect.X, e.CellBounds.Bottom - 10),
+            new Point(hlRect.X, e.CellBounds.Bottom - 5),
+            new Point(hlRect.X + widthSpace, e.CellBounds.Bottom - 5),
+            new Point(hlRect.X + widthSpace, e.CellBounds.Bottom - 10)
+          });
           nbspIndex = val.IndexOf((char)0xA0, nbspIndex + 1);
         }
       }

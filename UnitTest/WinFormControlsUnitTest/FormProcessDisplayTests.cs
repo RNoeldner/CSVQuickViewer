@@ -27,38 +27,44 @@ namespace CsvTools.Tests
       // Log
       using (var frm = new FormProcessDisplay("Test Logger", true, CancellationToken.None))
       {
+        frm.ShowInTaskbar = false;
         frm.Show();
         frm.Maximum = 100;
         for (var c = 0; c < 70 && !frm.CancellationToken.IsCancellationRequested; c += 5)
         {
           frm.SetProcess($"This is a text\nLine {c}", c, true);
-          UnitTestStatic.WaitSomeTime(.1);
+          UnitTestInitialize.WaitSomeTime(.1);
           frm.SetFonts(frm);
         }
+        frm.Close();
       }
 
       // marquee
       using (var frm = new FormProcessDisplay("Test Marquee", false, CancellationToken.None))
       {
+        frm.ShowInTaskbar = false;
         frm.Show();
         frm.Maximum = 0;
         for (var c = 0; c < 100 && !frm.CancellationToken.IsCancellationRequested; c += 5)
         {
           frm.SetProcess($"This is a text\nLine {c}", c, true);
-          UnitTestStatic.WaitSomeTime(.1);
+          UnitTestInitialize.WaitSomeTime(.1);
         }
+        frm.Close();
       }
 
       // NoLog
       using (var frm = new FormProcessDisplay("Test", false, CancellationToken.None))
       {
+        frm.ShowInTaskbar = false;
         frm.Show();
         frm.Maximum = 100;
         for (var c = 0; c < 102 && !frm.CancellationToken.IsCancellationRequested; c += 4)
         {
           frm.SetProcess($"This is a text\nLine {c}", c, true);
-          UnitTestStatic.WaitSomeTime(.1);
+          UnitTestInitialize.WaitSomeTime(.1);
         }
+        frm.Close();
       }
     }
 
