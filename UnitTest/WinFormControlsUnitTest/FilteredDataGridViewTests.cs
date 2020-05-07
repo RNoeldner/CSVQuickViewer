@@ -120,7 +120,7 @@ namespace CsvTools.Tests
       {
         filteredDataGridView.DataSource = dt;
         filteredDataGridView.FrozenColumns = 2;
-        UnitTestStatic.WaitSomeTime(.2);
+        UnitTestInitialize.WaitSomeTime(.2);
       }
     }
 
@@ -132,7 +132,7 @@ namespace CsvTools.Tests
       {
         filteredDataGridView.DataSource = dt;
         filteredDataGridView.HighlightText = "ag";
-        UnitTestStatic.WaitSomeTime(.2);
+        UnitTestInitialize.WaitSomeTime(.2);
         Assert.AreEqual("",filteredDataGridView.CurrentFilter);
       }
     }

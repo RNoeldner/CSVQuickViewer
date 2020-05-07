@@ -287,6 +287,7 @@ namespace CsvTools
     /// <param name="guessHasHeader">
     ///   if true, try to determine if the file does have a header row
     /// </param>
+    /// <param name="guessNewLine"> if true, try to determine what kind of new line we do use</param>
     public static async Task RefreshCsvFileAsync(
       this ICsvFile setting,
       IProcessDisplay display,
@@ -369,8 +370,18 @@ namespace CsvTools
                 return;
               display.SetProcess("Checking Record Delimiter", -1, true);
               improvedStream.ResetToStart(null);
-              setting.FileFormat.NewLine = await GuessNewlineAsync(textReader, setting.FileFormat.FieldDelimiterChar, display.CancellationToken);
-              display.SetProcess("Record Delimiter: " + setting.FileFormat.NewLine.Description(), -1, true);
+              var res =  await GuessNewlineAsync(textReader, setting.FileFormat.FieldQualifierChar, display.CancellationToken);
+              if (res != RecordDelimiterType.None)
+              {
+                setting.FileFormat.NewLine = res;
+                display.SetProcess("Record Delimiter: " + res.Description(), -1, true);
+              }
+              else
+              {
+                display.SetProcess("Record Delimiter could not be determined", -1, true);
+              }
+              
+              
             }
             if (guessQualifier)
             {
@@ -555,16 +566,16 @@ namespace CsvTools
             if (dist > 2 || dist < -2)
               cutVariance += 8;
             else switch (dist)
-              {
-                case 2:
-                case -2:
-                  cutVariance += 4;
-                  break;
-                case 1:
-                case -1:
-                  cutVariance++;
-                  break;
-              }
+            {
+              case 2:
+              case -2:
+                cutVariance += 4;
+                break;
+              case 1:
+              case -1:
+                cutVariance++;
+                break;
+            }
           }
 
           // The score is dependent on the average columns found and the regularity
@@ -592,9 +603,9 @@ namespace CsvTools
     {
       Contract.Requires(textReader != null);
       Contract.Ensures(Contract.Result<string>() != null);
-      const int c_NumRows = 50;
+      const int c_NumChars = 8192;
 
-      var lastRow = 0;
+      var currentChar = 0;
       var quoted = false;
 
       const int c_Cr = 0;
@@ -609,7 +620,7 @@ namespace CsvTools
       // \r = CR (Carriage Return) \n = LF (Line Feed)
 
       var textReaderPosition = new ImprovedTextReaderPositionStore(textReader);
-      while (lastRow < c_NumRows && !textReaderPosition.AllRead && !token.IsCancellationRequested)
+      while (currentChar < c_NumChars && !textReaderPosition.AllRead && !token.IsCancellationRequested)
       {
         var readChar = await textReader.ReadAsync();
         if (readChar == fieldQualifier)
@@ -630,48 +641,51 @@ namespace CsvTools
         if (quoted)
           continue;
 
-        if (readChar == 30)
+        switch (readChar)
         {
-          count[c_RecSep]++;
-          continue;
-        }
-        if (readChar == 31)
-        {
-          count[c_UnitSep]++;
-          continue;
-        }
-
-        if (readChar == 10)
-        {
-          if (await textReader.PeekAsync() == 13)
+          case 30:
+            count[c_RecSep]++;
+            continue;
+          case 31:
+            count[c_UnitSep]++;
+            continue;
+          case 10:
           {
-            textReader.MoveNext();
-            count[c_Lfcr]++;
+            if (await textReader.PeekAsync() == 13)
+            {
+              textReader.MoveNext();
+              count[c_Lfcr]++;
+            }
+            else
+            {
+              count[c_Lf]++;
+            }
+
+            currentChar++;
+            break;
           }
-          else
+          case 13:
           {
-            count[c_Lf]++;
+            if (await textReader.PeekAsync() == 10)
+            {
+              textReader.MoveNext();
+              count[c_CrLf]++;
+            }
+            else
+            {
+              count[c_Cr]++;
+            }
+
+            break;
           }
-
-          lastRow++;
         }
 
-        if (readChar != 13)
-          continue;
-        if (await textReader.PeekAsync() == 10)
-        {
-          textReader.MoveNext();
-          count[c_CrLf]++;
-        }
-        else
-        {
-          count[c_Cr]++;
-        }
-
-        lastRow++;
+        currentChar++;
       }
 
       var maxCount = count.Max();
+      if (maxCount == 0)
+        return RecordDelimiterType.None;
 
       return count[c_RecSep] == maxCount ? RecordDelimiterType.RS :
              count[c_UnitSep] == maxCount ? RecordDelimiterType.US :
@@ -692,6 +706,7 @@ namespace CsvTools
       var counter = new int[possibleQuotes.Length];
 
       var textReaderPosition = new ImprovedTextReaderPositionStore(textReader);
+      var max = 0;
       // skip the first line it usually a header
       for (var lineNo = 0; lineNo < c_MaxLine && !textReaderPosition.AllRead; lineNo++)
       {
@@ -706,30 +721,25 @@ namespace CsvTools
         var cols = line.Split(delimiter);
         foreach (var col in cols)
         {
-          if (string.IsNullOrEmpty(col))
+          if (string.IsNullOrWhiteSpace(col))
             continue;
+          
           var test = col.Trim();
-          // the column need to start and end with the same characters, its at least 2 char long
-          if (test.Length < 2 || test[0] != test[test.Length - 1])
-            continue;
-
-          // check all setup test chars
           for (var testChar = 0; testChar < possibleQuotes.Length; testChar++)
-            if (test[0] == possibleQuotes[testChar])
+          {
+            if (test[0] != possibleQuotes[testChar]) continue;
+            counter[testChar]++;
+            // Ideally column need to start and end with the same characters (but end quote could be on another line)
+            // if the start and end are indeed teh same give it extra credit
+            if (test.Length > 1 && test[0] == test[test.Length - 1])
               counter[testChar]++;
+            if (counter[testChar] > max)
+              max = counter[testChar];
+          }
         }
       }
 
-      // get the highest number of quoted columns
-      var max = 1;
-      for (var testChar = 0; testChar < possibleQuotes.Length; testChar++)
-        if (counter[testChar] > max)
-          max = counter[testChar];
-
-      // We need a certain level of confidence only one quoted column is not enough,
-      if (max <= 1) return '\0';
-
-      return possibleQuotes.Where((t, testChar) => counter[testChar] == max).FirstOrDefault();
+      return max < 1 ? '\0' : possibleQuotes.Where((t, testChar) => counter[testChar] == max).FirstOrDefault();
     }
 
     /// <summary>

@@ -35,7 +35,7 @@ namespace CsvTools.Tests
     {
       using (var ctrl = new TimeZoneSelector())
       {
-        ShowControl(ctrl);
+        UnitTestInitialize.ShowControl(ctrl);
       }
     }
 
@@ -48,14 +48,13 @@ namespace CsvTools.Tests
       using (var ctrl = new QuotingControl())
       {
         ctrl.CsvFile = new CsvFile();
-        ShowControl(ctrl);
+        UnitTestInitialize.ShowControl(ctrl);
       }
     }
 
     [TestMethod]
     public void APICodePackWrapperOpen()
     {
-      FunctionalDI.SignalBackground = Application.DoEvents;
       try
       {
         Task.Run(() => WindowsAPICodePackWrapper.Open(FileSystemUtils.ExecutableDirectoryName(), "Test", "*.cs", null)).WaitToCompleteTask(.2);
@@ -76,8 +75,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void WindowsAPICodePackWrapperFolder()
     {
-      FunctionalDI.SignalBackground = Application.DoEvents;
-
+      
       try
       {
         Task.Run(() => { WindowsAPICodePackWrapper.Folder(FileSystemUtils.ExecutableDirectoryName(), "Test"); }).WaitToCompleteTask(.2);
@@ -95,7 +93,6 @@ namespace CsvTools.Tests
     [TestMethod]
     public void WindowsAPICodePackWrapperSave()
     {
-      FunctionalDI.SignalBackground = Application.DoEvents;
 
       try
       {
@@ -136,7 +133,7 @@ namespace CsvTools.Tests
         treeView.AfterSelect += (s, args) => { firedAfter = true; };
         treeView.BeforeSelect += (s, args) => { firedBefore = true; };
 
-        ShowControl(treeView, () =>
+        UnitTestInitialize.ShowControl(treeView, .2, () =>
         {
           treeView.SelectedNode = treeNode2;
           treeNode.ExpandAll();
@@ -152,9 +149,7 @@ namespace CsvTools.Tests
       {
         frm.TimeZoneID = TimeZoneInfo.Local.Id;
         frm.DestTimeZoneID = TimeZoneInfo.Local.Id;
-        frm.ShowInTaskbar = false;
-        frm.Show();
-        UnitTestStatic.WaitSomeTime(.2);
+        UnitTestInitialize.ShowFormAndClose(frm);
       }
     }
 
@@ -164,13 +159,13 @@ namespace CsvTools.Tests
       using (var frm = new FrmLimitSize())
       {
         frm.RecordLimit = 1000;
-        frm.ShowInTaskbar = false;
         frm.Show();
         frm.RecordLimit = 20;
-        UnitTestStatic.WaitSomeTime(.2);
+        UnitTestInitialize.ShowFormAndClose(frm);
       }
     }
 
+    [TestMethod]
     public void MessageBox_ShowBigRtf()
     {
       var rtfHelper = new RtfHelper();
@@ -222,53 +217,26 @@ namespace CsvTools.Tests
         ctrl.Quote = '?';
         Assert.AreEqual('?', ctrl.Quote);
 
-        ShowControl(ctrl);
+        UnitTestInitialize.ShowControl(ctrl);
       }
     }
 
-    private void ShowControl(Control ctrl, Action toDo = null)
-    {
-      using (var frm = new Form())
-      {
-        frm.SuspendLayout();
-        frm.Text = ctrl.GetType().FullName;
-        frm.BackColor = SystemColors.Control;
-        frm.ClientSize = new Size(800, 800);
-        frm.ShowInTaskbar = false;
-        frm.FormBorderStyle = FormBorderStyle.SizableToolWindow;
-        frm.StartPosition = FormStartPosition.CenterScreen;
-
-        ctrl.Dock = DockStyle.Fill;
-        ctrl.Location = new Point(0, 0);
-        ctrl.Size = new Size(600, 600);
-        frm.Controls.Add(ctrl);
-        frm.TopMost = true;
-        frm.ResumeLayout(false);
-
-        frm.Show();
-        frm.Focus();
-        ctrl.Focus();
-        UnitTestStatic.WaitSomeTime(.1);
-        toDo?.Invoke();
-
-        frm.Close();
-      }
-    }
+   
 
     [TestMethod]
-    public void CsvTextDisplayShow() => ShowControl(new CsvTextDisplay
+    public void CsvTextDisplayShow() => UnitTestInitialize.ShowControl(new CsvTextDisplay
     {
       CsvFile = m_CSVFile
     });
 
     [TestMethod]
-    public void SearchShow() => ShowControl(new Search());
+    public void SearchShow() => UnitTestInitialize.ShowControl(new Search());
 
     [TestMethod]
-    public void FillGuessSettingEditShow() => ShowControl(new FillGuessSettingEdit());
+    public void FillGuessSettingEditShow() => UnitTestInitialize.ShowControl(new FillGuessSettingEdit());
 
     [TestMethod]
-    public void FilteredDataGridViewShow() => ShowControl(new FilteredDataGridView());
+    public void FilteredDataGridViewShow() => UnitTestInitialize.ShowControl(new FilteredDataGridView());
 
     [TestMethod]
     public void FormColumnUI()
@@ -277,10 +245,7 @@ namespace CsvTools.Tests
       m_CSVFile.ColumnCollection.AddIfNew(col);
       using (var frm = new FormColumnUI(col, false, m_CSVFile, new FillGuessSettings(), false))
       {
-        frm.ShowInTaskbar = false;
-        frm.Show();
-        UnitTestStatic.WaitSomeTime(.2);
-        frm.Close();
+        UnitTestInitialize.ShowFormAndClose(frm);
       }
     }
 
@@ -291,11 +256,8 @@ namespace CsvTools.Tests
       m_CSVFile.ColumnCollection.AddIfNew(col);
       using (var form = new FormColumnUI(col, false, m_CSVFile, new FillGuessSettings(), true))
       {
-        form.ShowInTaskbar = false;
         form.ShowGuess = false;
-        form.Show();
-        UnitTestStatic.WaitSomeTime(.2);
-        form.Close();
+        UnitTestInitialize.ShowFormAndClose(form);
       }
     }
 
@@ -306,10 +268,7 @@ namespace CsvTools.Tests
       m_CSVFile.ColumnCollection.AddIfNew(col);
       using (var form = new FormColumnUI(col, false, m_CSVFile, new FillGuessSettings(), false))
       {
-        form.ShowInTaskbar = false;
-        form.Show();
-        UnitTestStatic.WaitSomeTime(.2);
-        form.Close();
+        UnitTestInitialize.ShowFormAndClose(form);
       }
     }
 
@@ -321,12 +280,11 @@ namespace CsvTools.Tests
 
       using (var form = new FormColumnUI(col, false, m_CSVFile, new FillGuessSettings(), true))
       {
-        form.ShowInTaskbar = false;
-        form.Show();
+        UnitTestInitialize.ShowFormAndClose(form, .2, () => form.ButtonGuessClick(null, null));
 
         // open the reader file
         form.ButtonGuessClick(null, null);
-        UnitTestStatic.WaitSomeTime(.2);
+        UnitTestInitialize.WaitSomeTime(.2);
 
         form.Close();
       }
@@ -338,12 +296,8 @@ namespace CsvTools.Tests
     {
       using (var form = new FormHierarchyDisplay(m_DataTable, m_DataTable.Select()))
       {
-        form.ShowInTaskbar = false;
-        form.Show();
-        form.Focus();
-        form.BuildTree("int", "ID");
-        UnitTestStatic.WaitSomeTime(.2);
-        form.Close();
+        UnitTestInitialize.ShowFormAndClose(form, 0.1, ()=> form.BuildTree("int", "ID"));
+        
       }
     }
 
@@ -366,12 +320,7 @@ namespace CsvTools.Tests
 
       using (var form = new FormHierarchyDisplay(dt, m_DataTable.Select()))
       {
-        form.ShowInTaskbar = false;
-        form.Show();
-        form.Focus();
-        form.BuildTree("ReferenceID1", "ID");
-        Application.DoEvents();
-        UnitTestStatic.WaitSomeTime(.2);
+        UnitTestInitialize.ShowFormAndClose(form, .1, ()=> form.BuildTree("ReferenceID1", "ID"));
         form.Close();
       }
     }
@@ -382,10 +331,7 @@ namespace CsvTools.Tests
     {
       using (var form = new FormDuplicatesDisplay(m_DataTable, m_DataTable.Select(), m_DataTable.Columns[0].ColumnName))
       {
-        form.ShowInTaskbar = false;
-        form.Show();
-        UnitTestStatic.WaitSomeTime(.2);
-        form.Close();
+        UnitTestInitialize.ShowFormAndClose(form);
       }
     }
 
@@ -394,10 +340,7 @@ namespace CsvTools.Tests
     {
       using (var form = new FormUniqueDisplay(m_DataTable, m_DataTable.Select(), m_DataTable.Columns[0].ColumnName))
       {
-        form.ShowInTaskbar = false;
-        form.Show();
-        UnitTestStatic.WaitSomeTime(.1);
-        form.Close();
+        UnitTestInitialize.ShowFormAndClose(form);
       }
     }
 
@@ -406,11 +349,7 @@ namespace CsvTools.Tests
     {
       using (var form = new FormShowMaxLength(m_DataTable, m_DataTable.Select()))
       {
-        form.ShowInTaskbar = false;
-        form.Show();
-        form.Focus();
-        UnitTestStatic.WaitSomeTime(.1);
-        form.Close();
+        UnitTestInitialize.ShowFormAndClose(form);
       }
     }
 
@@ -423,10 +362,7 @@ namespace CsvTools.Tests
       using (var form = new FormDetail(m_DataTable, null, null, true, false, 0, new FillGuessSettings(),
         processDisplay.CancellationToken))
       {
-        form.ShowInTaskbar = false;
-        form.Show();
-        UnitTestStatic.WaitSomeTime(.1);
-        form.Close();
+        UnitTestInitialize.ShowFormAndClose(form);
       }
     }
 
@@ -440,7 +376,7 @@ namespace CsvTools.Tests
         DataPropertyName = m_DataTable.Columns[0].ColumnName
       };
 
-      ShowControl(new DataGridViewColumnFilterControl(col));
+      UnitTestInitialize.ShowControl(new DataGridViewColumnFilterControl(col));
     }
   }
 }
