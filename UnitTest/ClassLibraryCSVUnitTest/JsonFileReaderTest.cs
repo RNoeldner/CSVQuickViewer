@@ -21,7 +21,7 @@ namespace CsvTools.Tests
   public class JsonFileReaderTest
   {
     [TestMethod]
-    public void OpenLog()
+    public async System.Threading.Tasks.Task OpenLogAsync()
     {
       var setting = new CsvFile(UnitTestInitialize.GetTestPath("LogFile.json"))
       {
@@ -30,15 +30,15 @@ namespace CsvTools.Tests
       using (var dpd = new DummyProcessDisplay())
       using (var jfr = new JsonFileReader(setting, TimeZoneInfo.Local.Id, dpd))
       {
-        jfr.Open();
+        await jfr.OpenAsync();
         _ = jfr.Read();
         Assert.AreEqual("level", jfr.GetColumn(1).Name);
         Assert.AreEqual("Error", jfr.GetValue(1));
 
-        _ = jfr.ReadAsync().WaitToCompleteTask(2);
+        _ = jfr.ReadAsync();
         Assert.AreEqual("Reading EdgeAPI vw_rpt_transcript", jfr.GetValue(2));
 
-        _ = jfr.ReadAsync().WaitToCompleteTask(2);
+        _ = jfr.ReadAsync();
         Assert.AreEqual("System.Data.DataException", jfr.GetValue(4));
       }
     }
@@ -155,7 +155,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void ReadJSonEmp()
+    public async System.Threading.Tasks.Task ReadJSonEmpAsync()
     {
       var setting = new CsvFile(UnitTestInitialize.GetTestPath("Emp.json"))
       {
@@ -165,9 +165,9 @@ namespace CsvTools.Tests
       using (var dpd = new DummyProcessDisplay())
       using (var jfr = new JsonFileReader(setting, TimeZoneInfo.Local.Id, dpd))
       {
-        jfr.Open();
+        await jfr.OpenAsync();
         Assert.AreEqual(110, jfr.FieldCount);
-        jfr.ReadAsync().WaitToCompleteTask(2);
+        await jfr.ReadAsync();
         Assert.AreEqual("String", jfr.GetDataTypeName(0));
         Assert.AreEqual("43357099", jfr.GetValue(0));
         Assert.AreEqual("T454898", jfr.GetValue(1));
@@ -181,11 +181,11 @@ namespace CsvTools.Tests
         Assert.AreEqual(0, jfr.GetDouble(jfr.GetOrdinal("Approvals")));
         Assert.IsTrue(jfr.GetBoolean(2));
         Assert.AreEqual(1.000, jfr.GetValue(jfr.GetOrdinal("FTE")));
-        _ = jfr.ReadAsync().WaitToCompleteTask(2);
+        _ = await jfr.ReadAsync();
         Assert.AreEqual("43357196", jfr.GetValue(0));
-        _ = jfr.ReadAsync().WaitToCompleteTask(2);
+        _ = await jfr.ReadAsync();
         Assert.AreEqual("43357477", jfr.GetValue(0));
-        while (jfr.ReadAsync().WaitToCompleteTask(2))
+        while (await jfr.ReadAsync())
         {
         }
         Assert.AreEqual(2782, jfr.RecordNumber);

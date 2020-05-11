@@ -27,8 +27,8 @@ namespace CsvTools.Tests
     [TestInitialize]
     public void Init()
     {
-      var readFile = new CsvFile {ID = c_ReadID, FileName = "BasicCSV.txt", FileFormat = {CommentLine = "#"}};
-      readFile.ColumnCollection.AddIfNew(new Column("ExamDate",  @"dd/MM/yyyy"));
+      var readFile = new CsvFile { ID = c_ReadID, FileName = "BasicCSV.txt", FileFormat = { CommentLine = "#" } };
+      readFile.ColumnCollection.AddIfNew(new Column("ExamDate", @"dd/MM/yyyy"));
       readFile.ColumnCollection.AddIfNew(new Column("Score", DataType.Integer));
       readFile.ColumnCollection.AddIfNew(new Column("Proficiency", DataType.Numeric));
       readFile.ColumnCollection.AddIfNew(new Column("IsNativeLang", DataType.Boolean) { Ignore = true });
@@ -70,7 +70,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public async Task StructuredFileWriterJSONEncodeTest()
+    public void StructuredFileWriterJSONEncodeTest()
     {
       var writeFile = new StructuredFile
       {

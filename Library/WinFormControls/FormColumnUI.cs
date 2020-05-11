@@ -134,10 +134,9 @@ namespace CsvTools
           {
             var hasRetried = false;
           retry:
-            using (var sqlReader =
-              FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement, processDisplay, m_FileSetting.Timeout))
+            using (var sqlReader = await FunctionalDI.SQLDataReaderAsync(m_FileSetting.SqlStatement, processDisplay, m_FileSetting.Timeout))
             {
-              var data = sqlReader.GetDataTable(m_FileSetting.RecordLimit);
+              var data = await sqlReader.GetDataTableAsync(m_FileSetting.RecordLimit);
               var found = new Column();
               var column = data.Columns[columnName];
               if (column == null)
@@ -567,7 +566,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
-    private void ColumnFormatUI_Load(object sender, EventArgs e)
+    private async void ColumnFormatUI_Load(object sender, EventArgs e)
     {
       var oldCursor = Cursor.Current == Cursors.WaitCursor ? Cursors.WaitCursor : Cursors.Default;
       Cursor.Current = Cursors.WaitCursor;
@@ -606,7 +605,7 @@ namespace CsvTools
                 {
                   using (var fileReader = FunctionalDI.GetFileReader(m_FileSetting, null, processDisplay))
                   {
-                    fileReader.Open();
+                    await fileReader.OpenAsync();
                     for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
                       allColumns.Add(fileReader.GetColumn(colIndex).Name);
                   }
@@ -619,12 +618,12 @@ namespace CsvTools
                       allColumns.Add(col);
                 }
               }
-              else 
+              else
               { // Write Setting ----- open the source that is SQL
                 using (var fileReader = FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement.NoRecordSQL(),
                   processDisplay, m_FileSetting.Timeout))
                 {
-                  fileReader.Open();
+                  await fileReader.OpenAsync();
                   for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
                     allColumns.Add(fileReader.GetColumn(colIndex).Name);
                 }
@@ -790,7 +789,7 @@ namespace CsvTools
           using (var sqlReader =
             FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement, processDisplay, m_FileSetting.Timeout))
           {
-            sqlReader.Open();
+            await sqlReader.OpenAsync();
             var colIndex = sqlReader.GetOrdinal(columnName);
             if (colIndex < 0)
               throw new FileException($"Column {columnName} not found.");
@@ -823,10 +822,10 @@ namespace CsvTools
           csv.WarnQuotesInQuotes = false;
         }
 
-        retry:
+      retry:
         using (var fileReader = FunctionalDI.GetFileReader(fileSettingCopy, null, processDisplay))
         {
-          fileReader.Open();
+          await fileReader.OpenAsync();
           var colIndex = fileReader.GetOrdinal(columnName);
           if (colIndex < 0)
           {

@@ -53,7 +53,6 @@ namespace CsvTools.Tests
           FileFormat = { FieldDelimiter = "|", FieldQualifier = "\"" }
         };
 
-
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
@@ -76,7 +75,7 @@ namespace CsvTools.Tests
         Assert.AreEqual(25, test.StartLineNumber);
         Assert.AreEqual(27, test.EndLineNumber);
         Assert.AreEqual(24, test.RecordNumber);
-        
+
         for (int row = 25; row < 47; row++)
           await test.ReadAsync();
         Assert.AreEqual(49, test.EndLineNumber);
@@ -728,13 +727,13 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void CsvDataReaderGetFloat()
+    public async Task CsvDataReaderGetFloatAsync()
     {
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        test.Open();
-        Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
+        await test.OpenAsync();
+        Assert.IsTrue(await test.ReadAsync());
         Assert.AreEqual(Convert.ToSingle(0.94), test.GetFloat(4));
       }
     }
@@ -1347,21 +1346,21 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void CsvDataReaderReadAfterEnd()
+    public async Task CsvDataReaderReadAfterEndAsync()
     {
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        test.Open();
+        await test.OpenAsync();
         Assert.IsTrue(test.Read());
-        Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
-        Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
+        Assert.IsTrue(await test.ReadAsync());
+        Assert.IsTrue(await test.ReadAsync());
         Assert.IsTrue(test.Read());
-        Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
-        Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
-        Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
-        Assert.IsFalse(test.ReadAsync().WaitToCompleteTask(2));
-        Assert.IsFalse(test.ReadAsync().WaitToCompleteTask(2));
+        Assert.IsTrue(await test.ReadAsync());
+        Assert.IsTrue(await test.ReadAsync());
+        Assert.IsTrue(await test.ReadAsync());
+        Assert.IsFalse(await test.ReadAsync());
+        Assert.IsFalse(await test.ReadAsync());
       }
     }
 
@@ -1395,7 +1394,7 @@ namespace CsvTools.Tests
     //}
 
     [TestMethod]
-    public void CsvDataReaderOpenDetailSkipRows()
+    public async Task CsvDataReaderOpenDetailSkipRowsAsync()
     {
       var setting = new CsvFile
       {
@@ -1407,8 +1406,8 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        test.Open();
-        test.ReadAsync().WaitToCompleteTask(2);
+        await test.OpenAsync();
+        await test.ReadAsync();
         Assert.AreEqual(1, test.GetColumn(0).Size, "ID: 1");
         Assert.AreEqual(6, test.GetColumn(1).Size, "LangCodeID: German");
         Assert.AreEqual(10, test.GetColumn(2).Size, "ExamDate");

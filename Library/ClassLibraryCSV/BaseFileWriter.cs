@@ -89,10 +89,9 @@ namespace CsvTools
     {
       if (string.IsNullOrEmpty(m_FileSetting.SqlStatement))
         return 0;
-      if (FunctionalDI.SQLDataReader == null)
-        throw new ArgumentException("No SQL Reader set");
-      using (var sqlReader =
-        FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement, m_ProcessDisplay, m_FileSetting.Timeout))
+      if (FunctionalDI.SQLDataReaderAsync == null)
+        throw new ArgumentException("No Async SQL Reader set");
+      using (var sqlReader = await FunctionalDI.SQLDataReaderAsync(m_FileSetting.SqlStatement, m_ProcessDisplay, m_FileSetting.Timeout))
       {
         return await WriteAsync(sqlReader);
       }
@@ -112,7 +111,7 @@ namespace CsvTools
         using (var improvedStream = FunctionalDI.OpenWrite(m_FileSetting))
         {
           if (reader.IsClosed)
-            reader.Open();
+            await reader.OpenAsync();
 
           await WriteReaderAsync(reader, improvedStream.Stream,
             m_ProcessDisplay?.CancellationToken ?? CancellationToken.None);

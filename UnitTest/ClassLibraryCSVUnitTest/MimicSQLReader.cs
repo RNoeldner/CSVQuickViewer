@@ -49,7 +49,6 @@ namespace CsvTools.Tests
         m_ReadSetting.Add(new CsvFile(name) { ID = name }, dt);
     }
 
-
     public async Task<IFileReader> ReadDataAsync(string settingName, IProcessDisplay processDisplay, int timeout)
     {
       var setting = m_ReadSetting.Any(x => x.Key.ID == settingName)
@@ -57,7 +56,7 @@ namespace CsvTools.Tests
         : m_ReadSetting.First();
 
       var reader = setting.Value != null ? new DataTableReader(setting.Value, settingName, processDisplay) : FunctionalDI.GetFileReader(setting.Key, null, processDisplay);
-      reader.Open();
+      await reader.OpenAsync();
       return reader;
     }
 

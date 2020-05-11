@@ -20,8 +20,6 @@ namespace CsvTools
     {
     }
 
-    public async override Task<bool> ReadAsync() => Read();
-
     /// <summary>
     ///   Gets the type of the column by looking at the first 50 rows
     /// </summary>

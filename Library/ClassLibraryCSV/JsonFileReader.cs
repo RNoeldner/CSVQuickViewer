@@ -36,6 +36,66 @@ namespace CsvTools
       base.Close();
     }
 
+    public override async Task OpenAsync()
+    {
+      BeforeOpen($"Opening Json file {FileSystemUtils.GetShortDisplayFileName(m_StructuredFile.FileName, 80)}");
+    Retry:
+      try
+      {
+        m_AssumeLog = false;
+      again:
+        ResetPositionToStartOrOpen();
+
+        var line = await GetNextRecordAsync(false);
+        try
+        {
+          await GetNextRecordAsync(true);
+        }
+        catch (JsonReaderException ex)
+        {
+          Logger.Warning(ex, "Issue reading the JSon file, trying to read it as JSon Log output");
+          m_AssumeLog = true;
+          goto again;
+        }
+
+        // need to call InitColumn to set the Field Count and initialize all array
+        base.InitColumn(line.Count);
+        var header = line.Select(colValue => colValue.Key).ToList();
+        ParseColumnName(header);
+
+        // Set CurrentValues as it has been created now
+        var col = 0;
+        foreach (var colValue in line)
+          CurrentValues[col++] = colValue.Value;
+        var colType = GetColumnType();
+
+        // Read the types of the first row
+        for (var counter = 0; counter < FieldCount; counter++)
+          GetColumn(counter).ValueFormat.DataType = colType[counter];
+
+        base.FinishOpen();
+
+        ResetPositionToStartOrOpen();
+      }
+      catch (Exception ex)
+      {
+        if (ShouldRetry(ex))
+          goto Retry;
+
+        Close();
+        var appEx = new FileReaderException(
+          "Error opening structured text file for reading.\nPlease make sure the file does exist, is of the right type and is not locked by another process.",
+          ex);
+        HandleError(-1, appEx.ExceptionMessages());
+        HandleReadFinished();
+        throw appEx;
+      }
+      finally
+      {
+        HandleShowProgress("");
+      }
+    }
+
     public override void Open()
     {
       BeforeOpen($"Opening Json file {FileSystemUtils.GetShortDisplayFileName(m_StructuredFile.FileName, 80)}");
@@ -119,7 +179,7 @@ namespace CsvTools
     {
       if (!CancellationToken.IsCancellationRequested)
       {
-        var couldRead = await GetNextRecordAsync() != null;
+        var couldRead = await GetNextRecordAsync(false) != null;
         InfoDisplay(couldRead);
 
         if (couldRead && !IsClosed)
@@ -294,7 +354,7 @@ namespace CsvTools
       }
     }
 
-    private async Task<ICollection<KeyValuePair<string, object>>> GetNextRecordAsync()
+    private async Task<ICollection<KeyValuePair<string, object>>> GetNextRecordAsync(bool throwError)
     {
       try
       {
@@ -409,6 +469,8 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
+        if (throwError)
+          throw;
         // A serious error will be logged and its assume the file is ended
         HandleError(-1, ex.Message);
         EndOfFile = true;

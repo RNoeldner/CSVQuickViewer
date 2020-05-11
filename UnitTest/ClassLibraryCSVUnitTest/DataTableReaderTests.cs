@@ -122,7 +122,7 @@ namespace CsvTools.Tests
       {
         using (var test = new DataTableReader(m_DataTable, "id", pd))
         {
-          test.Open();
+          await test.OpenAsync();
           Assert.IsTrue(await test.ReadAsync());
         }
       }
