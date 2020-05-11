@@ -619,7 +619,7 @@ namespace CsvTools
           using (var fileReader = FunctionalDI.GetFileReader(m_FileSetting, TimeZoneInfo.Local.Id, processDisplay))
           {
             var warningList = new RowErrorCollection(fileReader);
-            fileReader.Open();
+            await fileReader.OpenAsync();
             warningList.HandleIgnoredColumns(fileReader);
             warningList.PassWarning += AddWarning;
 
@@ -684,6 +684,13 @@ namespace CsvTools
         {
           var dt = new DataTableReader(detailControl.DataTable, detailControl.DataTable.TableName, null);
           dt.Open();
+          return dt;
+        };
+
+        FunctionalDI.SQLDataReaderAsync = async (settingName, processDisplay, timeout) =>
+        {
+          var dt = new DataTableReader(detailControl.DataTable, detailControl.DataTable.TableName, null);
+          await dt.OpenAsync();
           return dt;
         };
 

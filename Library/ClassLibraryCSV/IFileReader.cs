@@ -62,9 +62,12 @@ namespace CsvTools
     [Obsolete("Use ReadAsync if possible")]
     new bool Read();
 
-    /// <summary>Advances the data reader to the next result, when reading the results of batch SQL statements.</summary>
+    /// <summary>
+    ///   Advances the data reader to the next result, when reading the results of batch SQL statements.
+    /// </summary>
     /// <returns>
-    /// <see langword="true" /> if there are more rows; otherwise, <see langword="false" />.</returns>
+    ///   <see langword="true" /> if there are more rows; otherwise, <see langword="false" />.
+    /// </returns>
     [Obsolete("Not supported")]
     new bool NextResult();
 
@@ -126,7 +129,10 @@ namespace CsvTools
     ///   Opens the text file and begins to read the meta data, like columns
     /// </summary>
     /// <returns>Number of records in the file if known (use determineColumnSize), -1 otherwise</returns>
+    [Obsolete("Use OpenAsync if possible")]
     void Open();
+
+    Task OpenAsync();
 
     bool SupportsReset { get; }
 

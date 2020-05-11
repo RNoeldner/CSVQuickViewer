@@ -23,7 +23,7 @@ namespace CsvTools.Tests
   public class CsvDataReaderUnitTestReadFiles
   {
     [TestMethod]
-    public void ReadDateWithTime()
+    public async System.Threading.Tasks.Task ReadDateWithTimeAsync()
     {
       var setting = new CsvFile
       {
@@ -41,8 +41,8 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        test.Open();;
-        test.ReadAsync().WaitToCompleteTask(2);
+        await test.OpenAsync();
+        await test.ReadAsync();
         var cultureInfo = new CultureInfo("en-US");
         Assert.AreEqual("01/08/2013 07:00:00", test.GetDateTime(0).ToString("MM/dd/yyyy HH:mm:ss", cultureInfo));
         test.ReadAsync().WaitToCompleteTask(2); // 01/19/2010	24:00:00 --> 01/20/2010	00:00:00
@@ -73,7 +73,7 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        test.Open();;
+        test.Open(); ;
         test.ReadAsync().WaitToCompleteTask(2);
         var cultureInfo = new CultureInfo("en-US");
         // 01/08/2013 07:00:00 IST --> 01/08/2013 01:30:00 UTC
@@ -86,7 +86,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void CsvDataReaderCancellationOnOpen()
+    public async System.Threading.Tasks.Task CsvDataReaderCancellationOnOpenAsync()
     {
       var setting = new CsvFile
       {
@@ -100,9 +100,9 @@ namespace CsvTools.Tests
       {
         using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
         {
-          test.Open();;
+          await test.OpenAsync(); ;
           processDisplay.Cancel();
-          Assert.IsFalse(test.ReadAsync().WaitToCompleteTask(2));
+          Assert.IsFalse(await test.ReadAsync());
         }
       }
     }
@@ -122,7 +122,7 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        test.Open();;
+        test.Open(); ;
         Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
         Assert.AreEqual("This is a \"Test\" of doubled quoted Text", test.GetString(1), " \"\"should be regarded as \"");
         Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
@@ -146,7 +146,7 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        test.Open();;
+        test.Open(); ;
         Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
         Assert.AreEqual("a", test.GetString(0), "Start of file with quote");
         Assert.AreEqual("a", test.GetValue(0), "Start of file with quote");
@@ -184,7 +184,7 @@ namespace CsvTools.Tests
       using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
         var warningList = new RowErrorCollection(test);
-        test.Open();;
+        test.Open(); ;
         warningList.HandleIgnoredColumns(test);
 
         Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
@@ -226,7 +226,7 @@ Line "Test"", "22",23,"  24"
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        test.Open();;
+        test.Open(); ;
         Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
         Assert.AreEqual("a\"", test.GetString(0), @"a\""");
         Assert.AreEqual("b", test.GetString(1), "b");
@@ -266,7 +266,7 @@ Line "Test"", "22",23,"  24"
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        test.Open();;
+        test.Open(); ;
         var message = string.Empty;
         test.Warning += delegate (object sender, WarningEventArgs args)
         { message = args.Message; };
@@ -294,7 +294,7 @@ Line "Test"", "22",23,"  24"
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        test.Open();;
+        test.Open(); ;
         test.ReadAsync().WaitToCompleteTask(2);
         test.ReadAsync().WaitToCompleteTask(2);
         var message = string.Empty;
@@ -323,7 +323,7 @@ Line "Test"", "22",23,"  24"
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        test.Open();;
+        test.Open(); ;
         Assert.AreEqual(6, test.FieldCount);
         Assert.AreEqual(1U, test.StartLineNumber, "LineNumber");
 
@@ -384,7 +384,7 @@ Line "Test"", "22",23,"  24"
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        test.Open();;
+        test.Open(); ;
         Assert.AreEqual(6, test.FieldCount);
 
         Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2)); // 1
@@ -419,7 +419,7 @@ Line "Test"", "22",23,"  24"
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        test.Open();;
+        test.Open(); ;
         Assert.AreEqual(6, test.FieldCount);
 
         Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2)); // 1
@@ -480,7 +480,7 @@ Line "Test"", "22",23,"  24"
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        test.Open();;
+        test.Open(); ;
         Assert.AreEqual(0, test.FieldCount);
         Assert.IsFalse(test.ReadAsync().WaitToCompleteTask(2));
       }
@@ -499,7 +499,7 @@ Line "Test"", "22",23,"  24"
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        test.Open();;
+        test.Open(); ;
         Assert.AreEqual(6, test.FieldCount);
         Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
         Assert.AreEqual(1U, test.StartLineNumber, "LineNumber");
@@ -533,7 +533,7 @@ Line "Test"", "22",23,"  24"
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        test.Open();;
+        test.Open(); ;
         Assert.AreEqual(6, test.FieldCount);
         Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
         Assert.AreEqual("a\"", test.GetString(0), @"a\""");
@@ -566,7 +566,7 @@ Line "Test"", "22",23,"  24"
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        test.Open();;
+        test.Open(); ;
         Assert.AreEqual(6, test.FieldCount, "FieldCount");
         Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
         Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
@@ -593,7 +593,7 @@ Line "Test"", "22",23,"  24"
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        test.Open();;
+        test.Open(); ;
         Assert.AreEqual(6, test.FieldCount);
         Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
         Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
@@ -621,7 +621,7 @@ Line "Test"", "22",23,"  24"
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        test.Open();;
+        test.Open(); ;
         Assert.AreEqual(6, test.FieldCount);
         Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
         Assert.AreEqual(@"a\", test.GetString(0), @"a\\");
@@ -654,7 +654,7 @@ Line "Test"", "22",23,"  24"
         var message = string.Empty;
         test.Warning += delegate (object sender, WarningEventArgs args)
         { message = args.Message; };
-        test.Open();;
+        test.Open(); ;
         Assert.IsTrue(message.Contains("exists more than once"));
       }
     }
@@ -672,7 +672,7 @@ Line "Test"", "22",23,"  24"
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        test.Open();;
+        test.Open(); ;
         Assert.AreEqual(6, test.FieldCount);
 
         Assert.AreEqual("a", test.GetName(0));
@@ -698,7 +698,7 @@ Line "Test"", "22",23,"  24"
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        test.Open();;
+        test.Open(); ;
         Assert.AreEqual(6, test.FieldCount);
 
         Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
@@ -714,7 +714,7 @@ Line "Test"", "22",23,"  24"
       var setting = new CsvFile
       {
         HasFieldHeader = true,
-        FileFormat = {FieldDelimiter = ",", CommentLine = "#"},
+        FileFormat = { FieldDelimiter = ",", CommentLine = "#" },
         FileName = UnitTestInitialize.GetTestPath("LongHeaders.txt")
       };
 
@@ -722,7 +722,7 @@ Line "Test"", "22",23,"  24"
       using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
         var warningsList = new RowErrorCollection(test);
-        test.Open();;
+        test.Open(); ;
 
         Assert.AreEqual(6, test.FieldCount);
         Assert.AreEqual("a", test.GetName(0));
@@ -751,7 +751,7 @@ Line "Test"", "22",23,"  24"
       {
         HasFieldHeader = false,
         WarnEmptyTailingColumns = true,
-        FileFormat = {FieldDelimiter = ","},
+        FileFormat = { FieldDelimiter = "," },
         FileName = UnitTestInitialize.GetTestPath("MoreColumnsThanHeaders.txt")
       };
 
@@ -801,7 +801,7 @@ Line "Test"", "22",23,"  24"
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        test.Open();;
+        test.Open(); ;
         Assert.AreEqual(6, test.FieldCount);
         Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
         //"a"a,b,c,d,e,f
@@ -839,7 +839,7 @@ Line "Test"", "22",23,"  24"
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        test.Open();;
+        test.Open(); ;
         Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
         Assert.AreEqual("A \r\nLine\r\nBreak", test.GetString(1));
 
@@ -862,7 +862,7 @@ Line "Test"", "22",23,"  24"
       Assert.AreEqual(null, pd.Text);
       using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, pd))
       {
-        test.Open();;
+        test.Open(); ;
 
         for (var i = 0; i < 500; i++)
           Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
@@ -885,7 +885,7 @@ Line "Test"", "22",23,"  24"
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        test.Open();;
+        test.Open(); ;
 
         Assert.AreEqual(6, test.FieldCount);
         Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
@@ -908,7 +908,7 @@ Line "Test"", "22",23,"  24"
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        test.Open();;
+        test.Open(); ;
         Assert.AreEqual(1, test.FieldCount);
         Assert.AreEqual("abcdef", test.GetName(0));
         Assert.AreEqual(1U, test.StartLineNumber, "LineNumber");
@@ -936,7 +936,7 @@ Line "Test"", "22",23,"  24"
       using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
         var warningList = new RowErrorCollection(test);
-        test.Open();;
+        test.Open(); ;
         Assert.AreEqual(6, test.FieldCount);
         Assert.AreEqual(1U, test.StartLineNumber, "LineNumber");
 
@@ -991,7 +991,7 @@ Line "Test"", "22",23,"  24"
       using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
         var warningList = new RowErrorCollection(test);
-        test.Open();;
+        test.Open(); ;
         Assert.AreEqual(6, test.FieldCount);
         Assert.AreEqual("1", test.GetName(0));
         Assert.AreEqual("2", test.GetName(1));
@@ -1036,7 +1036,7 @@ Line "Test"", "22",23,"  24"
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        test.Open();;
+        test.Open(); ;
         Assert.AreEqual(0, test.FieldCount);
       }
     }
@@ -1054,7 +1054,7 @@ Line "Test"", "22",23,"  24"
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        test.Open();;
+        test.Open(); ;
         Assert.AreEqual(6, test.FieldCount);
         Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
         Assert.AreEqual(2U, test.StartLineNumber, "LineNumber");
@@ -1107,7 +1107,7 @@ Line "Test"", "22",23,"  24"
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        test.Open();;
+        test.Open(); ;
         Assert.AreEqual(6, test.FieldCount, "FieldCount");
         Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
         Assert.AreEqual(3U, test.StartLineNumber, "LineNumber");
@@ -1145,7 +1145,7 @@ Line "Test"", "22",23,"  24"
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        test.Open();;
+        test.Open(); ;
         Assert.AreEqual(6, test.FieldCount);
         Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
         Assert.AreEqual(new DateTime(2010, 1, 20), test.GetValue(2));
@@ -1174,7 +1174,7 @@ Line "Test"", "22",23,"  24"
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        test.Open();;
+        test.Open(); ;
         Assert.AreEqual(6, test.FieldCount);
         // Start at line 2
         Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
@@ -1211,7 +1211,7 @@ Line "Test"", "22",23,"  24"
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        test.Open();;
+        test.Open(); ;
         Assert.AreEqual(6, test.FieldCount);
         Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2), "Read() 1");
 
@@ -1238,7 +1238,7 @@ Line "Test"", "22",23,"  24"
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        test.Open();;
+        test.Open(); ;
         Assert.AreEqual(6, test.FieldCount);
         Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
         Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
@@ -1268,7 +1268,7 @@ Line "Test"", "22",23,"  24"
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        test.Open();;
+        test.Open(); ;
         Assert.AreEqual(5, test.FieldCount);
         Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
         Assert.AreEqual(1U, test.StartLineNumber, "LineNumber");
@@ -1306,7 +1306,7 @@ Line "Test"", "22",23,"  24"
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        test.Open();;
+        test.Open(); ;
         Assert.AreEqual(6, test.FieldCount);
         Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
         //"a"a,b,c,d,e,f
@@ -1342,7 +1342,7 @@ Line "Test"", "22",23,"  24"
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        test.Open();;
+        test.Open(); ;
         Assert.AreEqual(6, test.FieldCount);
         Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
         Assert.AreEqual(1U, test.StartLineNumber, "LineNumber");
@@ -1395,7 +1395,7 @@ Line "Test"", "22",23,"  24"
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        test.Open();;
+        test.Open(); ;
         Assert.AreEqual(6, test.FieldCount);
         Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
         Assert.AreEqual("a", test.GetString(0));
@@ -1431,7 +1431,7 @@ Line "Test"", "22",23,"  24"
       using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
         var warningList = new RowErrorCollection(test);
-        test.Open();;
+        test.Open(); ;
         Assert.AreEqual(6, test.FieldCount);
         Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
         Assert.AreEqual(1U, test.StartLineNumber, "LineNumber");
@@ -1487,7 +1487,7 @@ Line "Test"", "22",23,"  24"
       using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
         var warningList = new RowErrorCollection(test);
-        test.Open();;
+        test.Open(); ;
         Assert.AreEqual(6, test.FieldCount);
         Assert.AreEqual("a", test.GetName(0));
         Assert.AreEqual("b", test.GetName(1));
@@ -1515,7 +1515,7 @@ Line "Test"", "22",23,"  24"
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        test.Open();;
+        test.Open(); ;
         Assert.AreEqual(Encoding.BigEndianUnicode, setting.CurrentEncoding);
         Assert.AreEqual(4, test.FieldCount);
         Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
@@ -1567,7 +1567,7 @@ Line "Test"", "22",23,"  24"
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        test.Open();;
+        test.Open(); ;
         Assert.AreEqual(4, test.FieldCount);
         Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));
         Assert.AreEqual(1U, test.StartLineNumber, "LineNumber");
@@ -1614,7 +1614,7 @@ Line "Test"", "22",23,"  24"
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        test.Open();;
+        test.Open(); ;
         Assert.AreEqual(Encoding.UTF8, setting.CurrentEncoding);
         Assert.AreEqual(4, test.FieldCount);
         Assert.IsTrue(test.ReadAsync().WaitToCompleteTask(2));

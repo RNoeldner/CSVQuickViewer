@@ -15,6 +15,8 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.ComponentModel;
+using System.Data;
+using System.Linq;
 
 namespace CsvTools.Tests
 {
@@ -44,7 +46,6 @@ namespace CsvTools.Tests
       columnFilterLogic.ApplyFilter();
       Assert.IsTrue(called);
     }
-
 
     [TestMethod]
     public void BuildSQLCommand()
@@ -76,7 +77,6 @@ namespace CsvTools.Tests
       columnFilterLogic.ValueText = "2";
       Assert.AreEqual("ValueText", prop);
       Assert.AreEqual("[Column1] = 2", columnFilterLogic.BuildSQLCommand(columnFilterLogic.ValueText));
-
     }
 
     [TestMethod]
@@ -124,6 +124,7 @@ namespace CsvTools.Tests
     }
 
     private void TestFilterExpression(string expected, ColumnFilterLogic columnFilterLogic) => Assert.AreEqual(expected.ToUpperInvariant().Replace(" ", ""), columnFilterLogic.FilterExpression.ToUpperInvariant().Replace(" ", ""), $"Ignoring case and space, Expected: {expected} Actual: {columnFilterLogic.FilterExpression}");
+
     [TestMethod()]
     public void FilterExpressionNumber()
     {
@@ -155,6 +156,91 @@ namespace CsvTools.Tests
       columnFilterLogic.SetFilter(10);
       columnFilterLogic.Operator = "longer";
       TestFilterExpression("Len([Column1]) > 10", columnFilterLogic);
+    }
+
+    [TestMethod()]
+    public void Contains()
+    {
+      var columnFilterLogic = new ColumnFilterLogic(typeof(string), "strCol");
+      columnFilterLogic.SetFilter("Hello");
+      columnFilterLogic.Operator = ColumnFilterLogic.GetOperators(typeof(string)).First().ToString();
+      TestFilterExpression("[strCol] like '%Hello%'", columnFilterLogic);
+    }
+
+    [TestMethod()]
+    public void AllFilterString()
+    {
+      var columnFilterLogic = new ColumnFilterLogic(typeof(string), "strCol") { ValueText = "Hello" };
+
+      foreach (var op in ColumnFilterLogic.GetOperators(columnFilterLogic.ColumnDataType))
+      {
+        columnFilterLogic.Operator = op.ToString();
+        columnFilterLogic.Active = true;
+        Assert.IsNotNull(columnFilterLogic.FilterExpression);
+      }
+    }
+
+    [TestMethod()]
+    public void AllFilterDateTime()
+    {
+      var dtm = DateTime.Now;
+      var columnFilterLogic = new ColumnFilterLogic(typeof(DateTime), "dtmCol") { ValueDateTime = dtm };
+      Assert.AreEqual(dtm, columnFilterLogic.ValueDateTime);
+
+      foreach (var op in ColumnFilterLogic.GetOperators(columnFilterLogic.ColumnDataType))
+      {
+        columnFilterLogic.Operator = op.ToString();
+        columnFilterLogic.Active = true;
+        Assert.IsNotNull(columnFilterLogic.FilterExpression);
+      }
+    }
+
+    [TestMethod()]
+    public void ValueClusterCollection()
+    {
+      var columnFilterLogic = new ColumnFilterLogic(typeof(int), "intCol");
+
+      using (var data = UnitTestStatic.GetDataTable(200))
+      {
+        using (var dataView = new DataView(data, null, null, DataViewRowState.CurrentRows))
+        {
+          columnFilterLogic.ValueClusterCollection.BuildValueClusters(dataView, typeof(int), 1, 200);
+          int i = 0;
+          foreach (var cluster in columnFilterLogic.ValueClusterCollection.ValueClusters)
+          {
+            cluster.Active = true;
+            if (i++ > 2) break;
+          }
+
+          columnFilterLogic.Active = true;
+          Assert.IsNotNull(columnFilterLogic.FilterExpression);
+        }
+      }
+    }
+
+    [TestMethod()]
+    public void AllFilterInt()
+    {
+      var columnFilterLogic = new ColumnFilterLogic(typeof(int), "intCol") { ValueText = "-10" };
+      Assert.AreEqual("-10", columnFilterLogic.ValueText);
+      foreach (var op in ColumnFilterLogic.GetOperators(columnFilterLogic.ColumnDataType))
+      {
+        columnFilterLogic.Operator = op.ToString();
+        columnFilterLogic.Active = true;
+        Assert.IsNotNull(columnFilterLogic.FilterExpression);
+      }
+    }
+
+    [TestMethod()]
+    public void AllFilterBool()
+    {
+      var columnFilterLogic = new ColumnFilterLogic(typeof(bool), "strCol");
+      columnFilterLogic.SetFilter("true");
+      foreach (var op in ColumnFilterLogic.GetOperators(columnFilterLogic.ColumnDataType))
+      {
+        columnFilterLogic.Operator = op.ToString();
+        Assert.IsNotNull(columnFilterLogic.FilterExpression);
+      }
     }
   }
 }

@@ -107,7 +107,7 @@ namespace CsvTools
       using (var fileReader = FunctionalDI.GetFileReader(fileSettingCopy, null, prc2))
       {
         Contract.Assume(fileReader != null);
-        fileReader.Open();
+        await fileReader.OpenAsync();
         if (fileReader.FieldCount == 0 || fileReader.EndOfFile)
           return result;
         processDisplay.SetProcess("Getting column headers", -1, true);
@@ -194,7 +194,7 @@ namespace CsvTools
             if (checkResult == null)
             {
               if (addTextColumns)
-                checkResult = new CheckResult {FoundValueFormat = new ValueFormat()};
+                checkResult = new CheckResult { FoundValueFormat = new ValueFormat() };
               else
                 continue;
             }
@@ -334,14 +334,14 @@ namespace CsvTools
               }
 
             if (columnDate.ValueFormat.DataType != DataType.DateTime || !string.IsNullOrEmpty(columnDate.TimePart) ||
-                columnDate.ValueFormat.DateFormat.IndexOfAny(new[] {':', 'h', 'H', 'm', 's', 't'}) != -1)
+                columnDate.ValueFormat.DateFormat.IndexOfAny(new[] { ':', 'h', 'H', 'm', 's', 't' }) != -1)
               continue;
             // We have a date column without time
             for (var colTime = 0; colTime < fileReader.FieldCount; colTime++)
             {
               var columnTime = fileReader.GetColumn(colTime);
               if (columnTime.ValueFormat.DataType != DataType.DateTime || !string.IsNullOrEmpty(columnDate.TimePart) ||
-                  columnTime.ValueFormat.DateFormat.IndexOfAny(new[] {'/', 'y', 'M', 'd'}) != -1)
+                  columnTime.ValueFormat.DateFormat.IndexOfAny(new[] { '/', 'y', 'M', 'd' }) != -1)
                 continue;
               // We now have a time column, checked if the names somehow make sense
               if (!columnDate.Name.NoSpecials().ToUpperInvariant().Replace("DATE", string.Empty).Equals(
@@ -362,7 +362,7 @@ namespace CsvTools
             processDisplay.CancellationToken.ThrowIfCancellationRequested();
             var columnDate = fileReader.GetColumn(colIndex);
             if (columnDate.ValueFormat.DataType != DataType.DateTime || !string.IsNullOrEmpty(columnDate.TimePart) ||
-                columnDate.ValueFormat.DateFormat.IndexOfAny(new[] {':', 'h', 'H', 'm', 's', 't'}) != -1)
+                columnDate.ValueFormat.DateFormat.IndexOfAny(new[] { ':', 'h', 'H', 'm', 's', 't' }) != -1)
               continue;
 
             if (colIndex + 1 < fileReader.FieldCount)
@@ -442,13 +442,13 @@ namespace CsvTools
 
         var existing = new Collection<Column>();
         foreach (var colName in columnNamesInFile)
-        foreach (var col in fileSetting.ColumnCollection)
-        {
-          if (!col.Name.Equals(colName, StringComparison.OrdinalIgnoreCase))
-            continue;
-          existing.Add(col);
-          break;
-        }
+          foreach (var col in fileSetting.ColumnCollection)
+          {
+            if (!col.Name.Equals(colName, StringComparison.OrdinalIgnoreCase))
+              continue;
+            existing.Add(col);
+            break;
+          }
 
         // 2nd columns defined but not in list
         foreach (var col in fileSetting.ColumnCollection)
@@ -594,7 +594,7 @@ namespace CsvTools
             if (checkResult == null)
             {
               if (addTextColumns)
-                checkResult = new CheckResult {FoundValueFormat = new ValueFormat()};
+                checkResult = new CheckResult { FoundValueFormat = new ValueFormat() };
               else
                 continue;
             }
@@ -734,14 +734,14 @@ namespace CsvTools
               }
 
             if (columnDate.ValueFormat.DataType != DataType.DateTime || !string.IsNullOrEmpty(columnDate.TimePart) ||
-                columnDate.ValueFormat.DateFormat.IndexOfAny(new[] {':', 'h', 'H', 'm', 's', 't'}) != -1)
+                columnDate.ValueFormat.DateFormat.IndexOfAny(new[] { ':', 'h', 'H', 'm', 's', 't' }) != -1)
               continue;
             // We have a date column without time
             for (var colTime = 0; colTime < fileReader.FieldCount; colTime++)
             {
               var columnTime = fileReader.GetColumn(colTime);
               if (columnTime.ValueFormat.DataType != DataType.DateTime || !string.IsNullOrEmpty(columnDate.TimePart) ||
-                  columnTime.ValueFormat.DateFormat.IndexOfAny(new[] {'/', 'y', 'M', 'd'}) != -1)
+                  columnTime.ValueFormat.DateFormat.IndexOfAny(new[] { '/', 'y', 'M', 'd' }) != -1)
                 continue;
               // We now have a time column, checked if the names somehow make sense
               if (!columnDate.Name.NoSpecials().ToUpperInvariant().Replace("DATE", string.Empty).Equals(
@@ -762,7 +762,7 @@ namespace CsvTools
             processDisplay.CancellationToken.ThrowIfCancellationRequested();
             var columnDate = fileReader.GetColumn(colIndex);
             if (columnDate.ValueFormat.DataType != DataType.DateTime || !string.IsNullOrEmpty(columnDate.TimePart) ||
-                columnDate.ValueFormat.DateFormat.IndexOfAny(new[] {':', 'h', 'H', 'm', 's', 't'}) != -1)
+                columnDate.ValueFormat.DateFormat.IndexOfAny(new[] { ':', 'h', 'H', 'm', 's', 't' }) != -1)
               continue;
 
             if (colIndex + 1 < fileReader.FieldCount)
@@ -842,13 +842,13 @@ namespace CsvTools
 
         var existing = new Collection<Column>();
         foreach (var colName in columnNamesInFile)
-        foreach (var col in fileSetting.ColumnCollection)
-        {
-          if (!col.Name.Equals(colName, StringComparison.OrdinalIgnoreCase))
-            continue;
-          existing.Add(col);
-          break;
-        }
+          foreach (var col in fileSetting.ColumnCollection)
+          {
+            if (!col.Name.Equals(colName, StringComparison.OrdinalIgnoreCase))
+              continue;
+            existing.Add(col);
+            break;
+          }
 
         // 2nd columns defined but not in list
         foreach (var col in fileSetting.ColumnCollection)
@@ -888,7 +888,7 @@ namespace CsvTools
         foreach (DataRow schemaRow in dataRowCollection)
         {
           var header = schemaRow[SchemaTableColumn.ColumnName].ToString();
-          var colType = ((Type) schemaRow[SchemaTableColumn.DataType]).GetDataType();
+          var colType = ((Type)schemaRow[SchemaTableColumn.DataType]).GetDataType();
 
           if (!all && colType == DataType.String)
             continue;
@@ -910,8 +910,8 @@ namespace CsvTools
     {
       if (string.IsNullOrEmpty(fileSettings.SqlStatement))
         throw new FileWriterException("No SQL Statement given");
-      if (FunctionalDI.SQLDataReader == null)
-        throw new FileWriterException("No SQL Reader set");
+      if (FunctionalDI.SQLDataReaderAsync == null)
+        throw new FileWriterException("No Async SQL Reader set");
 
       using (var fileReader =
         await FunctionalDI.SQLDataReaderAsync(fileSettings.SqlStatement, processDisplay, fileSettings.Timeout))
@@ -922,7 +922,7 @@ namespace CsvTools
         foreach (DataRow schemaRow in dataRowCollection)
         {
           var header = schemaRow[SchemaTableColumn.ColumnName].ToString();
-          var colType = ((Type) schemaRow[SchemaTableColumn.DataType]).GetDataType();
+          var colType = ((Type)schemaRow[SchemaTableColumn.DataType]).GetDataType();
 
           if (!all && colType == DataType.String)
             continue;
@@ -945,10 +945,10 @@ namespace CsvTools
 
       // Standard Date Time formats
       foreach (var fmt in StringConversion.StandardDateTimeFormats.MatchingForLength(value.Length, true))
-      foreach (var sep in StringConversion.DateSeparators.Where(sep => StringConversion
-        .StringToDateTimeExact(value, fmt, sep, culture.DateTimeFormat.TimeSeparator, culture)
-        .HasValue))
-        yield return new ValueFormat(DataType.DateTime) {DateFormat = fmt, DateSeparator = sep};
+        foreach (var sep in StringConversion.DateSeparators.Where(sep => StringConversion
+          .StringToDateTimeExact(value, fmt, sep, culture.DateTimeFormat.TimeSeparator, culture)
+          .HasValue))
+          yield return new ValueFormat(DataType.DateTime) { DateFormat = fmt, DateSeparator = sep };
     }
 
     /// <summary>
@@ -1216,12 +1216,12 @@ namespace CsvTools
     /// </returns>
     public static async Task<SampleResult> GetSampleValuesAsync(IFileReader fileReader, long maxRecords,
       int columnIndex, int enoughSamples, string treatAsNull, CancellationToken cancellationToken) =>
-      (await GetSampleValuesAsync(fileReader, maxRecords, new[] {columnIndex}, enoughSamples, treatAsNull,
+      (await GetSampleValuesAsync(fileReader, maxRecords, new[] { columnIndex }, enoughSamples, treatAsNull,
         cancellationToken))[columnIndex];
 
     public static SampleResult GetSampleValues(IFileReader fileReader, long maxRecords,
       int columnIndex, int enoughSamples, string treatAsNull, CancellationToken cancellationToken) =>
-      GetSampleValues(fileReader, maxRecords, new[] {columnIndex}, enoughSamples, treatAsNull, cancellationToken)
+      GetSampleValues(fileReader, maxRecords, new[] { columnIndex }, enoughSamples, treatAsNull, cancellationToken)
         [columnIndex];
 
     /// <summary>
@@ -1263,7 +1263,7 @@ namespace CsvTools
       var checkResult = new CheckResult();
 
       var length = samples.Aggregate<string, long>(0, (current, sample) => current + sample.Length);
-      var commonLength = (int) (length / samples.Count);
+      var commonLength = (int)(length / samples.Count);
 
       ICollection<string> possibleDateSeparators = null;
       foreach (var fmt in StringConversion.StandardDateTimeFormats.MatchingForLength(commonLength, checkNamedDates))
@@ -1279,13 +1279,13 @@ namespace CsvTools
           {
             possibleDateSeparators = new List<string>();
             foreach (var sep in StringConversion.DateSeparators)
-            foreach (var entry in samples)
-            {
-              cancellationToken.ThrowIfCancellationRequested();
-              if (entry.IndexOf(sep, StringComparison.Ordinal) == -1) continue;
-              possibleDateSeparators.Add(sep);
-              break;
-            }
+              foreach (var entry in samples)
+              {
+                cancellationToken.ThrowIfCancellationRequested();
+                if (entry.IndexOf(sep, StringComparison.Ordinal) == -1) continue;
+                possibleDateSeparators.Add(sep);
+                break;
+              }
           }
 
           foreach (var sep in possibleDateSeparators)
@@ -1323,7 +1323,6 @@ namespace CsvTools
                                                                                     smp => smp.IndexOf(character) > -1))
         .ToList();
 
-
       possibleGrouping.Add('\0');
       var possibleDecimal = StringConversion.DecimalSeparators.Where(character => character != '\0')
         .Where(character => samples.Any(smp => smp.IndexOf(character) > -1)).ToList();
@@ -1334,19 +1333,19 @@ namespace CsvTools
 
       foreach (var thousandSeparator in possibleGrouping)
         // Try Numbers: Int and Decimal
-      foreach (var decimalSeparator in possibleDecimal)
-      {
-        if (cancellationToken.IsCancellationRequested)
-          return null;
-        if (decimalSeparator.Equals(thousandSeparator))
-          continue;
-        var res = StringConversion.CheckNumber(samples, decimalSeparator, thousandSeparator, guessPercentage,
-          allowStartingZero);
-        if (res.FoundValueFormat != null)
-          return res;
+        foreach (var decimalSeparator in possibleDecimal)
+        {
+          if (cancellationToken.IsCancellationRequested)
+            return null;
+          if (decimalSeparator.Equals(thousandSeparator))
+            continue;
+          var res = StringConversion.CheckNumber(samples, decimalSeparator, thousandSeparator, guessPercentage,
+            allowStartingZero);
+          if (res.FoundValueFormat != null)
+            return res;
 
-        checkResult.KeepBestPossibleMatch(res);
-      }
+          checkResult.KeepBestPossibleMatch(res);
+        }
 
       return checkResult;
     }
@@ -1384,7 +1383,7 @@ namespace CsvTools
       if (count == 0)
         return null;
 
-      var checkResult = new CheckResult {FoundValueFormat = new ValueFormat()};
+      var checkResult = new CheckResult { FoundValueFormat = new ValueFormat() };
 
       // ---------------- Boolean --------------------------
       if (guessBoolean && count <= 2)
@@ -1441,7 +1440,7 @@ namespace CsvTools
           // Not having AM PM or T as it might be part of a date Not having E in there as might be
           // part of a number u 1.487% o 6.264% n 2.365% i 6.286% h 7.232% s 6.327% This adds to a
           // 30% chance for each position in the text to determine if a text a regular text,
-          if (value.IndexOfAny(new[] {'u', 'U', 'o', 'O', 'i', 'I', 'n', 'N', 's', 'S', 'h', 'H'}) <= -1)
+          if (value.IndexOfAny(new[] { 'u', 'U', 'o', 'O', 'i', 'I', 'n', 'N', 's', 'S', 'h', 'H' }) <= -1)
             continue;
           valuesWithChars++;
           // Only do so if more then half of the samples are string

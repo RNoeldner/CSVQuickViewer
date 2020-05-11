@@ -444,7 +444,7 @@ namespace CsvTools
     public virtual async Task<DataTable> GetDataTableAsync(long recordLimit)
     {
       if (IsClosed)
-        Open();
+        await OpenAsync();
 
       var dataTable = new DataTable
       {
@@ -912,6 +912,8 @@ namespace CsvTools
     public virtual bool NextResult() => false;
 
     public abstract void Open();
+
+    public virtual async Task OpenAsync() => Open();
 
     /// <summary>
     ///   Overrides the column format from setting.

@@ -324,7 +324,7 @@ namespace CsvTools.Tests
       using (var display = new DummyProcessDisplay())
       using (var reader = new CsvFileReader(test, TimeZoneInfo.Local.Id, display))
       {
-        reader.Open();
+        await reader.OpenAsync();
         Assert.AreEqual("RecordNumber", reader.GetName(0));
         await reader.ReadAsync();
         Assert.AreEqual("0F8C40DB-EE2C-4C7C-A226-3C43E72584B0", reader.GetString(1));

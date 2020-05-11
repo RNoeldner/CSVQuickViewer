@@ -269,6 +269,74 @@ namespace CsvTools
     }
     */
 
+    public override async Task OpenAsync()
+    {
+      m_HasQualifier |= m_CsvFile.FileFormat.FieldQualifierChar != '\0';
+
+      if (m_CsvFile.FileFormat.FieldQualifier.Length > 1
+          && m_CsvFile.FileFormat.FieldQualifier.WrittenPunctuationToChar() == '\0')
+        HandleWarning(
+          -1,
+          $"Only the first character of '{m_CsvFile.FileFormat.FieldQualifier}' is be used for quoting.");
+      if (m_CsvFile.FileFormat.FieldDelimiter.Length > 1
+          && m_CsvFile.FileFormat.FieldDelimiter.WrittenPunctuationToChar() == '\0')
+        HandleWarning(-1, $"Only the first character of '{m_CsvFile.FileFormat.FieldDelimiter}' is used as delimiter.");
+
+      BeforeOpen($"Opening delimited file {FileSystemUtils.GetShortDisplayFileName(m_CsvFile.FileName, 80)}");
+    Retry:
+      try
+      {
+        var fn = FileSystemUtils.GetFileName(m_CsvFile.FullPath);
+        HandleShowProgress($"Opening text file {fn}");
+
+        m_ImprovedStream?.Dispose();
+        m_ImprovedStream = FunctionalDI.OpenRead(m_CsvFile);
+        m_TextReader?.Dispose();
+        m_TextReader = new ImprovedTextReader(m_ImprovedStream, m_CsvFile.CodePageId, m_CsvFile.SkipRows);
+        m_CsvFile.CurrentEncoding = m_TextReader.CurrentEncoding;
+
+        ResetPositionToStartOrOpen();
+
+        m_HeaderRow = await ReadNextRowAsync(false, false);
+        if (m_HeaderRow == null || m_HeaderRow.GetLength(0) == 0)
+        {
+          InitColumn(0);
+        }
+        else
+        {
+          // Get the column count
+          InitColumn(await ParseFieldCountAsync(m_HeaderRow));
+
+          // Get the column names
+          ParseColumnName(m_HeaderRow);
+        }
+
+        if (m_CsvFile.TryToSolveMoreColumns && m_CsvFile.FileFormat.FieldDelimiterChar != '\0')
+          m_RealignColumns = new ReAlignColumns(FieldCount);
+
+        FinishOpen();
+
+        ResetPositionToFirstDataRow();
+      }
+      catch (Exception ex)
+      {
+        if (ShouldRetry(ex))
+          goto Retry;
+
+        Close();
+        var appEx = new FileReaderException(
+          "Error opening text file for reading.\nPlease make sure the file does exist, is of the right type and is not locked by another process.",
+          ex);
+        HandleError(-1, appEx.ExceptionMessages());
+        HandleReadFinished();
+        throw appEx;
+      }
+      finally
+      {
+        HandleShowProgress(string.Empty);
+      }
+    }
+
     /// <summary>
     ///   Open the file Reader; Start processing the Headers and determine the maximum column size
     /// </summary>
@@ -900,6 +968,55 @@ namespace CsvTools
       for (var additional = 0; !EndOfFile && additional < 10; additional++)
       {
         var nextLine = ReadNextRow(false, false);
+
+        // if we have less columns than in the header exit the loop
+        if (nextLine.GetLength(0) < fields)
+          break;
+
+        // special case of missing linefeed, the line is twice as long minus 1 because of the
+        // combined column in the middle
+        if (nextLine.Length == fields * 2 - 1)
+          continue;
+
+        while (nextLine.GetLength(0) > fields)
+        {
+          HandleWarning(fields, $"No header for last {nextLine.GetLength(0) - fields} column(s)".AddWarningId());
+          fields++;
+        }
+
+        // if we have data in the column assume the header was missing
+        if (!string.IsNullOrEmpty(nextLine[fields - 1]))
+          return fields;
+      }
+
+      if (string.IsNullOrEmpty(headerRow[headerRow.Count - 1]))
+      {
+        HandleWarning(
+          fields,
+          "The last column does not have a column name and seems to be empty, this column will be ignored."
+            .AddWarningId());
+        return fields - 1;
+      }
+
+      return fields;
+    }
+
+    private async Task<int> ParseFieldCountAsync(IList<string> headerRow)
+    {
+      Contract.Ensures(Contract.Result<int>() >= 0);
+      if (headerRow == null || headerRow.Count == 0 || string.IsNullOrEmpty(headerRow[0]))
+        return 0;
+
+      var fields = headerRow.Count;
+
+      // The last column is empty but we expect a header column, assume if a trailing separator
+      if (fields <= 1)
+        return fields;
+
+      // check if the next lines do have data in the last column
+      for (var additional = 0; !EndOfFile && additional < 10; additional++)
+      {
+        var nextLine = await ReadNextRowAsync(false, false);
 
         // if we have less columns than in the header exit the loop
         if (nextLine.GetLength(0) < fields)
@@ -1611,6 +1728,94 @@ namespace CsvTools
 
         col++;
         item = ReadNextColumn(col, storeWarnings);
+      }
+
+      return columns.ToArray();
+    }
+
+    private async Task<string[]> ReadNextRowAsync(bool regularDataRow, bool storeWarnings)
+    {
+    Restart:
+
+      // Store the starting Line Number
+      StartLineNumber = EndLineNumber;
+
+      // If already at end of file, return null
+      if (EndOfFile || m_TextReader == null)
+        return null;
+
+      var item = await ReadNextColumnAsync(0, storeWarnings);
+
+      // An empty line does not have any data
+      if (string.IsNullOrEmpty(item) && m_EndOfLine)
+      {
+        m_EndOfLine = false;
+        if (m_CsvFile.SkipEmptyLines || !regularDataRow)
+
+          // go to the next line
+          goto Restart;
+
+        // Return it as array of empty columns
+        return new string[FieldCount];
+      }
+
+      // Skip commented lines
+      if (m_CsvFile.FileFormat.CommentLine.Length > 0 && !string.IsNullOrEmpty(item) && item.StartsWith(
+            m_CsvFile.FileFormat.CommentLine,
+            StringComparison.Ordinal))
+      {
+        // A commented line does start with the comment
+        if (m_EndOfLine)
+          m_EndOfLine = false;
+        else
+
+          // it might happen that the comment line contains a Delimiter
+          ReadToEOL();
+        goto Restart;
+      }
+
+      var col = 0;
+      var columns = new List<string>(FieldCount);
+
+      while (item != null)
+      {
+        // If a column is quoted and does contain the delimiter and linefeed, issue a warning, we
+        // might have an opening delimiter with a missing closing delimiter
+        if (storeWarnings && EndLineNumber > StartLineNumber + 4 && item.Length > 1024
+            && item.IndexOf(m_CsvFile.FileFormat.FieldDelimiterChar) != -1)
+          HandleWarning(
+            col,
+            $"Column has {EndLineNumber - StartLineNumber + 1} lines and has a length of {item.Length} characters"
+              .AddWarningId());
+
+        if (item.Length == 0)
+        {
+          item = null;
+        }
+        else
+        {
+          if (StringUtils.ShouldBeTreatedAsNull(item, m_CsvFile.TreatTextAsNull))
+          {
+            item = null;
+          }
+          else
+          {
+            item = item.ReplaceCaseInsensitive(m_CsvFile.FileFormat.NewLinePlaceholder, Environment.NewLine)
+              .ReplaceCaseInsensitive(
+                m_CsvFile.FileFormat.DelimiterPlaceholder,
+                m_CsvFile.FileFormat.FieldDelimiterChar).ReplaceCaseInsensitive(
+                m_CsvFile.FileFormat.QuotePlaceholder,
+                m_CsvFile.FileFormat.FieldQualifierChar);
+
+            if (regularDataRow && col < FieldCount)
+              item = HandleTextAndSetSize(item, col, false);
+          }
+        }
+
+        columns.Add(item);
+
+        col++;
+        item = await ReadNextColumnAsync(col, storeWarnings);
       }
 
       return columns.ToArray();

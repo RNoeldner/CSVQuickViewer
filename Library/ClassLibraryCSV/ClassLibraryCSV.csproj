@@ -7,9 +7,10 @@
     <Authors>Raphael Nöldner</Authors>
     <Company></Company>
     <Product>CSVTools</Product>
-    <AssemblyVersion>1.6.4.394</AssemblyVersion>
-    <FileVersion>1.6.4.394</FileVersion>
+    <AssemblyVersion>1.6.5.448</AssemblyVersion>
+    <FileVersion>1.6.4.448</FileVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <Version>1.6.5.448</Version>
   </PropertyGroup>
 
   <ItemGroup>
