@@ -79,16 +79,6 @@
     <Compile Include="WindowStateTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Library\ClassLibraryCSV\ClassLibraryCSV.csproj">
-      <Project>{0b6aee5a-8005-4b1d-987f-5790d34a2d52}</Project>
-      <Name>ClassLibraryCSV</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Library\WinFormControls\WinFormControls.csproj">
-      <Project>{55ad0a98-c175-4b38-a3d0-321740820d41}</Project>
-      <Name>WinFormControls</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="TestFiles\BasicCSV.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -103,6 +93,16 @@
     <PackageReference Include="MSTest.TestFramework">
       <Version>2.1.1</Version>
     </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Library\ClassLibraryCSV\ClassLibraryCSV.csproj">
+      <Project>{0b6aee5a-8005-4b1d-987f-5790d34a2d52}</Project>
+      <Name>ClassLibraryCSV</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Library\WinFormControls\WinFormControls.csproj">
+      <Project>{55ad0a98-c175-4b38-a3d0-321740820d41}</Project>
+      <Name>WinFormControls</Name>
+    </ProjectReference>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

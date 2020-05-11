@@ -20,7 +20,4 @@
       <Version>1.1.1</Version>
     </PackageReference>
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\ClassLibraryCSV.Standard\ClassLibraryCSV.Standard.csproj" />
-  </ItemGroup>
 </Project>
