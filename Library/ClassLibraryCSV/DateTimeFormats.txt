@@ -128,8 +128,6 @@ dddd, dd. MMMM yyyy H:mm
 yyyy,MMMM dd, dddd HH:mm
 yyyy/MM/dd HH:mm:ss,FFFF
 yyyy/MM/dd HH:mm:ss.FFFF
-yyyy/MM/dd HH:mm:ss,FFF
-yyyy/MM/dd HH:mm:ss.FFF
 yyyy/MM/ddTHH:mm:sszz00
 d MMM, yyyy hh:mm:ss tt
 d MMMM yyyy hh:mm:ss tt
@@ -180,7 +178,6 @@ MM/dd/yyyy h:mm:ss tt
 dd/MM/yyyy h:mm:ss tt
 yyyy/MM/dd h:mm:ss tt
 yyyy/MM/ddTHH:mm:sszz
-yyyyMMddTHH:mm:ss.FFF
 yyyyMMddTHH:mm:ss.FFFF
 MMM/dd/yy hh:mm:ss tt
 d MMMM, yyyy hh:mm tt

@@ -10,9 +10,8 @@ namespace CsvTools.Tests
   [TestClass]
   public class FilterDataTableTests
   {
-    private Tuple<DataTable, int, int, int, int> GetDataTable(int count)
-    {
-      var countRows = 0;
+    private Tuple<DataTable,int, int, int> GetDataTable(int count)
+    {      
       var countErrors = 0;
       var countWarning = 0;
       var countErrorOrWarning = 0;
@@ -33,13 +32,11 @@ namespace CsvTools.Tests
         row[2] = $"Text {i * 2} !";
         row[3] = new DateTime(random.Next(1900, 2030), random.Next(1, 12), 1).AddDays(random.Next(1, 31));
         dt.Rows.Add(row);
-        var errType = random.Next(1, 7);
+        var errType = random.Next(1, 6);
         var isError = false;
         var isWarning = false;
-
-        if (errType < 4) countRows++;
-
-        if (errType == 1 || errType == 2)
+        
+        if (errType == 1 )
         {
           var asWarning = random.Next(1, 3) == 1;
           if (asWarning)
@@ -49,7 +46,7 @@ namespace CsvTools.Tests
           row.RowError = asWarning ? "Row Warning".AddWarningId() : "Row Error";
         }
 
-        if (errType == 2 || errType == 3)
+        if (errType == 2 )
         {
           var asWarning = random.Next(1, 3) == 1;
           if (asWarning)
@@ -67,7 +64,7 @@ namespace CsvTools.Tests
           countErrorOrWarning++;
       }
 
-      return new Tuple<DataTable, int, int, int, int>(dt, countRows, countErrors, countWarning, countErrorOrWarning);
+      return new Tuple<DataTable, int, int, int>(dt, countErrors, countWarning, countErrorOrWarning);
     }
 
 
@@ -102,7 +99,7 @@ namespace CsvTools.Tests
       var dt = GetDataTable(2000);
       var test = new FilterDataTable(dt.Item1);
       test.StartFilter(0, FilterType.ErrorsAndWarning, CancellationToken.None);
-      Assert.AreEqual(dt.Item2 - dt.Item5 , test.ColumnsWithoutErrors.Count);
+      Assert.AreEqual(dt.Item1.Rows.Count - dt.Item4 , test.ColumnsWithoutErrors.Count);
     }
 
     [TestMethod]

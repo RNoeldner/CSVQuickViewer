@@ -256,7 +256,7 @@ namespace CsvTools.Tests
           for (var day = 10; day < 15; day++)
             for (var hrs = 11; hrs < 13; hrs++)
               for (var min = 24; min < 26; min++)
-                samples.Add(new DateTime(2010, month, day, hrs, min, 10, 16, DateTimeKind.Local).ToString(fmt, culture));
+                samples.Add(new DateTime(2010, month, day, hrs, min, 10, 876, DateTimeKind.Local).ToString(fmt, culture));
 
         Assert.IsNotNull(StringConversion.CheckDate(samples, fmt, dateSep, ":", CultureInfo.CurrentCulture).FoundValueFormat,
           $"Test format {fmt}\nFirst not matching: {samples.First()}");

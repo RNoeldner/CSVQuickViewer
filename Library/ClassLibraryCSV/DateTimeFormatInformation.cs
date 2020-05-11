@@ -51,6 +51,8 @@ namespace CsvTools
       format = SetMinMax(format, "MM", ref m_MinLength, ref m_MaxLength, 2, 2);
       format = SetMinMax(format, "M", ref m_MinLength, ref m_MaxLength, 1, 2);
 
+      format = SetMinMax(format, "F", ref m_MinLength, ref m_MaxLength, 0, 1);
+
       format = SetMinMax(format, "ss", ref m_MinLength, ref m_MaxLength, 2, 2);
       format = SetMinMax(format, "s", ref m_MinLength, ref m_MaxLength, 1, 2);
 
@@ -66,7 +68,7 @@ namespace CsvTools
       SetMinMax(format, "tt", ref m_MinLength, ref m_MaxLength, m_MinDesignator, m_MaxDesignator);
     }
 
-    //  public string Format { get => m_Format; }
+    // public string Format { get => m_Format; }
     public int MaxLength
     {
       get => m_MaxLength;
@@ -78,6 +80,7 @@ namespace CsvTools
       get => m_MinLength;
       private set => m_MinLength = value;
     }
+
     public bool NamedDate { get; }
 
     private static void DetermineLength()
