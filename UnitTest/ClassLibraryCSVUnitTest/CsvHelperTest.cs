@@ -33,7 +33,7 @@ namespace CsvTools.Tests
         await setting.RefreshCsvFileAsync(display, true);
       }
 
-      Assert.AreEqual(RecordDelimiterType.LF, setting.FileFormat.NewLine);
+      Assert.AreEqual(RecordDelimiterType.CRLF, setting.FileFormat.NewLine);
     }
 
     [TestMethod]
