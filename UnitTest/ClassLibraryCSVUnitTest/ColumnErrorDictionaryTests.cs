@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
@@ -7,7 +8,7 @@ namespace CsvTools.Tests
   public class ColumnErrorDictionaryTests
   {
     [TestMethod]
-    public void ColumnErrorDictionaryTest1()
+    public async Task ColumnErrorDictionaryTest1Async()
     {
       var setting = new CsvFile
       {
@@ -21,7 +22,7 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay())
       using (var reader = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        reader.Open();
+        await reader.OpenAsync();
         var test1 = new ColumnErrorDictionary(reader);
         Assert.IsNotNull(test1);
 

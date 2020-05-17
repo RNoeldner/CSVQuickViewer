@@ -39,12 +39,9 @@ namespace CsvTools.Tests
       }
     }
 
-
-
     [TestMethod]
     public void QuotingControl()
     {
-
       using (var ctrl = new QuotingControl())
       {
         ctrl.CsvFile = new CsvFile();
@@ -57,6 +54,7 @@ namespace CsvTools.Tests
     {
       try
       {
+        // Used to cancel after .2 seconds
         Task.Run(() => WindowsAPICodePackWrapper.Open(FileSystemUtils.ExecutableDirectoryName(), "Test", "*.cs", null)).WaitToCompleteTask(.2);
       }
       catch (COMException)
@@ -69,15 +67,14 @@ namespace CsvTools.Tests
       {
         Assert.Fail($"Wrong exception got {ex.GetType().Name} expected OperationCanceledException : {ex.ExceptionMessages()}");
       }
-
-
     }
+
     [TestMethod]
     public void WindowsAPICodePackWrapperFolder()
     {
-      
       try
       {
+        // Used to cancel after .2 seconds
         Task.Run(() => { WindowsAPICodePackWrapper.Folder(FileSystemUtils.ExecutableDirectoryName(), "Test"); }).WaitToCompleteTask(.2);
       }
       catch (COMException)
@@ -93,9 +90,9 @@ namespace CsvTools.Tests
     [TestMethod]
     public void WindowsAPICodePackWrapperSave()
     {
-
       try
       {
+        // Used to cancel after .2 seconds
         Task.Run(() =>
         {
           WindowsAPICodePackWrapper.Save(FileSystemUtils.ExecutableDirectoryName(), "Test", "*.pdf", "*.pdf",
@@ -115,10 +112,8 @@ namespace CsvTools.Tests
     [TestMethod]
     public void MultiselectTreeView()
     {
-
       using (var treeView = new MultiselectTreeView())
       {
-
         Assert.AreEqual(0, treeView.SelectedTreeNode.Count);
 
         var treeNode = new TreeNode("Test") { Tag = "test" };
@@ -126,7 +121,6 @@ namespace CsvTools.Tests
 
         var treeNode2 = new TreeNode("Test2") { Tag = "test2" };
         treeNode.Nodes.Add(treeNode2);
-
 
         bool firedAfter = false;
         bool firedBefore = false;
@@ -138,7 +132,8 @@ namespace CsvTools.Tests
           treeView.SelectedNode = treeNode2;
           treeNode.ExpandAll();
         });
-
+        Assert.IsTrue(firedAfter);
+        Assert.IsTrue(firedBefore);
       }
     }
 
@@ -221,8 +216,6 @@ namespace CsvTools.Tests
       }
     }
 
-   
-
     [TestMethod]
     public void CsvTextDisplayShow() => UnitTestInitialize.ShowControl(new CsvTextDisplay
     {
@@ -290,19 +283,17 @@ namespace CsvTools.Tests
       }
     }
 
-
     [TestMethod]
     public void FormHierarchyDisplay()
     {
       using (var form = new FormHierarchyDisplay(m_DataTable, m_DataTable.Select()))
       {
-        UnitTestInitialize.ShowFormAndClose(form, 0.1, ()=> form.BuildTree("int", "ID"));
-        
+        UnitTestInitialize.ShowFormAndClose(form, 0.1, () => form.BuildTree("int", "ID"));
       }
     }
 
     [TestMethod]
-    public void FormHierarchyDisplay_DataWithCycle()
+    public async Task FormHierarchyDisplay_DataWithCycleAsync()
     {
       DataTable dt;
       // load the csvFile FileWithHierarchy
@@ -314,17 +305,16 @@ namespace CsvTools.Tests
         { FileFormat = { FieldDelimiter = "\t" } };
         using (var csvDataReader = new CsvFileReader(cvsSetting, null, processDisplay))
         {
-          dt = csvDataReader.GetDataTable(0);
+          dt = await csvDataReader.GetDataTableAsync(0, false, false);
         }
       }
 
       using (var form = new FormHierarchyDisplay(dt, m_DataTable.Select()))
       {
-        UnitTestInitialize.ShowFormAndClose(form, .1, ()=> form.BuildTree("ReferenceID1", "ID"));
+        UnitTestInitialize.ShowFormAndClose(form, .1, () => form.BuildTree("ReferenceID1", "ID"));
         form.Close();
       }
     }
-
 
     [TestMethod]
     public void FormDuplicatesDisplay()
@@ -352,8 +342,6 @@ namespace CsvTools.Tests
         UnitTestInitialize.ShowFormAndClose(form);
       }
     }
-
-
 
     [TestMethod]
     public void FormDetail()

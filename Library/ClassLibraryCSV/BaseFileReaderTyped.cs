@@ -25,7 +25,7 @@ namespace CsvTools
     /// </summary>
     /// <returns>An array with the found data types</returns>
     /// <remarks>In case of mixed types, string is preferred over everything</remarks>
-    protected DataType[] GetColumnType()
+    protected async Task<DataType[]> GetColumnTypeAsync()
     {
       Contract.Ensures(Contract.Result<DataType[]>() != null);
       Contract.Ensures(Contract.Result<DataType[]>().Length == FieldCount);
@@ -58,7 +58,7 @@ namespace CsvTools
             colType[col] = detected;
         }
         // get the next record
-        if (!Read())
+        if (!await ReadAsync())
           break;
       }
 

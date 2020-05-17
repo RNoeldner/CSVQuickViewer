@@ -14,7 +14,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Diagnostics.Contracts;
 using System.Text;
 
@@ -61,12 +60,12 @@ namespace CsvTools
         // Go though all rows
         foreach (var errorsInColumn in m_RowErrorCollection.Values)
           // And all columns
-          foreach (var message in errorsInColumn.Values)
-          {
-            if (sb.Length > 0)
-              sb.Append(ErrorInformation.cSeparator);
-            sb.Append(message);
-          }
+        foreach (var message in errorsInColumn.Values)
+        {
+          if (sb.Length > 0)
+            sb.Append(ErrorInformation.cSeparator);
+          sb.Append(message);
+        }
 
         return sb.ToString();
       }

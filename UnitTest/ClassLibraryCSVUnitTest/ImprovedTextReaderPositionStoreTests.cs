@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Threading.Tasks;
 
 namespace CsvTools.Tests
 {
@@ -27,7 +28,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void ImprovedTextReaderPositionStoreTestStartAsync()
+    public async Task ImprovedTextReaderPositionStoreTestAsyncStartAsync()
     {
       using (var impStream = ImprovedStream.OpenRead(UnitTestInitialize.GetTestPath("txTranscripts.txt")))
       {
@@ -37,9 +38,9 @@ namespace CsvTools.Tests
           Assert.AreEqual(1, test.LineNumber);
           Assert.AreEqual(
             "#UserID	CurriculumID	TranscriptStatus	RequestDateTime	RegistrationDateTime	CompletionDateTime",
-            test.ReadLineAsync().WaitToCompleteTask(2));
+           await test.ReadLineAsync());
           var lastLine = string.Empty;
-          while (!store.AllRead) lastLine = test.ReadLineAsync().WaitToCompleteTask(2);
+          while (!store.AllRead) lastLine = await test.ReadLineAsync();
           Assert.AreEqual(
             @"GCS_002846_Benavides	A23c25d3-3420-449c-a75b-0d74d29ddc38	Completed	13/03/2008 00:00:00	13/03/2008 00:00:00	13/03/2008 00:00:00",
             lastLine);

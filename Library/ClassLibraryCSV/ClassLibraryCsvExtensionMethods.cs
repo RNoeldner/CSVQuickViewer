@@ -34,6 +34,17 @@ namespace CsvTools
   /// </summary>
   public static class ClassLibraryCsvExtensionMethods
   {
+    /// <summary>
+    ///   Gets the SQl Info messages and logs them
+    /// </summary>
+    /// <param name="process">The process display.</param>
+    /// <returns></returns>
+    public static EventHandler<string> GetLogInfoMessage(this IProcessDisplay process) => delegate (object sender, string message)
+    {
+      Logger.Information("SQL Information: {message}", message);
+      process?.SetProcess(message, -1, true);
+    };
+
     public static string Description(this RecordDelimiterType item)
     {
       var descConv = new EnumDescriptionConverter(typeof(RecordDelimiterType));
@@ -376,53 +387,6 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   Common implementation of Read2DataTableAsync used for DbDataReader and IDataReaderAsync
-    /// </summary>
-    /// <param name="getSchemaTable"></param>
-    /// <param name="readAsync"></param>
-    /// <param name="getValues"></param>
-    /// <param name="processDisplay"></param>
-    /// <param name="recordLimit"></param>
-    /// <returns></returns>
-    //public static async Task<DataTable> Read2DataTableAsync(Func<DataTable> getSchemaTable, Func<Task<bool>> readAsync,
-    //  Func<object[], int> getValues,
-    //  IProcessDisplay processDisplay,
-    //  long recordLimit)
-    //{
-    //  var dataTable = new DataTable();
-    //  long oldMax = -1;
-    //  var display = (processDisplay?.Maximum ?? 0) > 1
-    //    ? "Reading rows\nRecord {0:N0}/" + $"{processDisplay?.Maximum:N0}"
-    //    : "Reading rows\nRecords {0:N0}";
-
-    // try { if (processDisplay != null && recordLimit > 0) { oldMax = processDisplay.Maximum;
-    // processDisplay.Maximum = recordLimit; }
-
-    // // create columns var schemaTable = getSchemaTable.Invoke(); if (schemaTable == null) return
-    // null; var columns = schemaTable.Rows.Count;
-
-    // // We could have duplicate column names in this case we have need to adjust the conflicting
-    // name var previousColumns = new List<string>(); foreach (DataRow dataRow in schemaTable.Rows)
-    // { var colName = StringUtils.MakeUniqueInCollection(previousColumns,
-    // (string)dataRow["ColumnName"]); dataTable.Columns.Add(new DataColumn(colName,
-    // (Type)dataRow["DataType"]) { AllowDBNull = true }); previousColumns.Add(colName); }
-
-    // if (!(processDisplay?.CancellationToken.IsCancellationRequested ?? false)) {
-    // dataTable.BeginLoadData(); if (recordLimit < 1) recordLimit = long.MaxValue; // load the Data
-    // into the dataTable var action = processDisplay == null ? null : new IntervalAction(.3); while
-    // (await readAsync() && dataTable.Rows.Count < recordLimit &&
-    // !(processDisplay?.CancellationToken.IsCancellationRequested ?? false)) { var readerValues =
-    // new object[columns]; if (getValues(readerValues) > 0) dataTable.Rows.Add(readerValues);
-    // action?.Invoke(() => processDisplay.SetProcess(string.Format(display, dataTable.Rows.Count),
-    // dataTable.Rows.Count, false)); } } } finally { if (processDisplay != null) {
-    // processDisplay.SetProcess(string.Format(display, dataTable.Rows.Count), dataTable.Rows.Count,
-    // false); if (oldMax > 0) processDisplay.Maximum = oldMax; }
-
-    // dataTable.EndLoadData(); }
-
-    //  return dataTable;
-    //}
 
     /// <summary>
     ///   Get a list of column names that are not artificial
@@ -1101,7 +1065,7 @@ namespace CsvTools
     /// <param name="self">The collection.</param>
     /// <param name="other">The other collection.</param>
     /// <returns></returns>
-    public static bool CollectionEqual<T>(this ICollection<T> self, ICollection<T> other) where T : IEquatable<T>
+    public static bool CollectionEqual<T>(this IEnumerable<T> self, IEnumerable<T> other) where T : IEquatable<T>
     {
       if (self == null)
         throw new ArgumentNullException(nameof(self));
@@ -1109,10 +1073,8 @@ namespace CsvTools
         return false;
       if (ReferenceEquals(other, self))
         return true;
-      if (other.Count != self.Count)
-        return false;
+      return other.Count() == self.Count() && other.All(ot => ot == null ? self.Any(x => x == null) : self.Any(th => ot.Equals(th)));
       // Check the item, all should be the same, order does not matter though
-      return other.All(ot => ot == null ? self.Any(x => x == null) : self.Any(th => ot.Equals(th)));
     }
 
     /// <summary>

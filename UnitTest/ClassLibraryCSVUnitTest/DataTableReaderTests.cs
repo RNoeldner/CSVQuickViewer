@@ -14,28 +14,42 @@ namespace CsvTools.Tests
     private readonly DataTable m_DataTable = RandomDataTable(100);
 
     [TestMethod()]
-    public void DataTableReaderTest()
+    public async Task DataTableReaderTestAsync()
     {
       using (var pd = new DummyProcessDisplay())
       {
         using (var test = new DataTableReader(m_DataTable, "id", pd))
         {
           Assert.IsTrue(test.IsClosed);
-          test.Open();
+          await test.OpenAsync();
           Assert.IsFalse(test.IsClosed);
         }
       }
     }
 
     [TestMethod()]
-    public async Task GetDataTableAsyncTestAsync()
+    public async Task GetDataTableAsyncTest1Async()
     {
       using (var pd = new DummyProcessDisplay())
       {
         using (var test = new DataTableReader(m_DataTable, "id", pd))
         {
           Assert.IsTrue(test.IsClosed);
-          var dt = await test.GetDataTableAsync(200);
+          var dt = await test.GetDataTableAsync(200, false, false);
+          Assert.AreEqual(m_DataTable, dt);
+        }
+      }
+    }
+
+    [TestMethod()]
+    public async Task GetDataTableAsyncTest2Async()
+    {
+      using (var pd = new DummyProcessDisplay())
+      {
+        using (var test = new DataTableReader(m_DataTable, "id", pd))
+        {
+          Assert.IsTrue(test.IsClosed);
+          var dt = await test.GetDataTableAsync(200, true, true);
           Assert.AreEqual(m_DataTable, dt);
         }
       }
@@ -63,13 +77,13 @@ namespace CsvTools.Tests
     }
 
     [TestMethod()]
-    public void GetDataTypeNameTest()
+    public async Task GetDataTypeNameTestAsync()
     {
       using (var pd = new DummyProcessDisplay())
       {
         using (var test = new DataTableReader(m_DataTable, "id", pd))
         {
-          test.Open();
+          await test.OpenAsync();
           var typeName = test.GetDataTypeName(0);
           Assert.IsTrue(typeName.Equals("int") || typeName.Equals("Int32") || typeName.Equals("Int64") || typeName.Equals("long"));
         }
@@ -77,39 +91,39 @@ namespace CsvTools.Tests
     }
 
     [TestMethod()]
-    public void GetFieldTypeTest()
+    public async Task GetFieldTypeTestAsync()
     {
       using (var pd = new DummyProcessDisplay())
       {
         using (var test = new DataTableReader(m_DataTable, "id", pd))
         {
-          test.Open();
+          await test.OpenAsync();
           Assert.AreEqual(typeof(int), test.GetFieldType(0));
         }
       }
     }
 
     [TestMethod()]
-    public void GetNameTest()
+    public async Task GetNameTestAsync()
     {
       using (var pd = new DummyProcessDisplay())
       {
         using (var test = new DataTableReader(m_DataTable, "id", pd))
         {
-          test.Open();
+          await test.OpenAsync();
           Assert.AreEqual("ID", test.GetName(0));
         }
       }
     }
 
     [TestMethod()]
-    public void GetOrdinalTest()
+    public async Task GetOrdinalTestAsync()
     {
       using (var pd = new DummyProcessDisplay())
       {
         using (var test = new DataTableReader(m_DataTable, "id", pd))
         {
-          test.Open();
+          await test.OpenAsync();
           Assert.AreEqual(2, test.GetOrdinal("ColText1"));
         }
       }
@@ -129,14 +143,14 @@ namespace CsvTools.Tests
     }
 
     [TestMethod()]
-    public void ReadTest()
+    public async Task ReadTestAsync()
     {
       using (var pd = new DummyProcessDisplay())
       {
         using (var test = new DataTableReader(m_DataTable, "id", pd))
         {
-          test.Open();
-          Assert.IsTrue(test.Read());
+          await test.OpenAsync();
+          Assert.IsTrue(await test.ReadAsync());
         }
       }
     }

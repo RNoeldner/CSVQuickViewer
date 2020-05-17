@@ -510,7 +510,7 @@ namespace CsvTools
             : DataGridViewAutoSizeColumnsMode.DisplayedCells);
     }
 
-    private void BackgoundSearchThread(object obj)
+    private void BackgroundSearchThread(object obj)
     {
       var processInformation = (ProcessInformation)obj;
       processInformation.IsRunning = true;
@@ -612,11 +612,11 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Handles the Click event of the buttonHierachy control.
+    ///   Handles the Click event of the buttonHierarchy control.
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
-    private void ButtonHierachy_Click(object sender, EventArgs e)
+    private void ButtonHierarchy_Click(object sender, EventArgs e)
     {
       m_ToolStripButtonHierarchy.Enabled = false;
 
@@ -897,7 +897,7 @@ namespace CsvTools
       m_ToolStripButtonHierarchy.Size = new Size(82, 24);
       m_ToolStripButtonHierarchy.Text = "Hierarchy";
       m_ToolStripButtonHierarchy.ToolTipText = "Display a Hierarchy Structure";
-      m_ToolStripButtonHierarchy.Click += ButtonHierachy_Click;
+      m_ToolStripButtonHierarchy.Click += ButtonHierarchy_Click;
       // m_ToolStripButtonSource
       m_ToolStripButtonSource.Image = (Image)resources.GetObject("m_ToolStripButtonSource.Image");
       m_ToolStripButtonSource.Name = "m_ToolStripButtonSource";
@@ -1267,7 +1267,7 @@ namespace CsvTools
       processInformation.SearchCompleteEvent += SearchComplete;
       processInformation.SearchEventArgs = e;
       m_CurrentSearch = processInformation;
-      ThreadPool.QueueUserWorkItem(BackgoundSearchThread, processInformation);
+      ThreadPool.QueueUserWorkItem(BackgroundSearchThread, processInformation);
     }
 
     private async void ToolStripButtonStoreAsCsvAsync(object sender, EventArgs e)
@@ -1313,7 +1313,7 @@ namespace CsvTools
           .Select(col => col.DataPropertyName).ToArray()), "Export",
           processDisplay))
         {
-          dt.Open();
+          await dt.OpenAsync();
           // can not use filteredDataGridView.Columns directly
           await writer.WriteAsync(dt);
         }

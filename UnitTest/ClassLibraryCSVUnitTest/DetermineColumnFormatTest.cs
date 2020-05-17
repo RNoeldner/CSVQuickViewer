@@ -29,7 +29,7 @@ namespace CsvTools.Tests
   public class DetermineColumnFormatTest
   {
     [TestMethod()]
-    public void GetSourceColumnInformationTest()
+    public async Task GetSourceColumnInformationTestAsync()
     {
       var setting = new CsvFile
       {
@@ -41,12 +41,12 @@ namespace CsvTools.Tests
       };
       using (var reader = new CsvFileReader(setting, null, null))
       {
-        UnitTestInitialize.MimicSQLReader.AddSetting(setting.ID, reader.GetDataTable(0));
+        UnitTestInitialize.MimicSQLReader.AddSetting(setting.ID, await reader.GetDataTableAsync(0, false, false));
       }
 
       using (var processDisplay = new DummyProcessDisplay())
       {
-        var res1 = DetermineColumnFormat.GetSourceColumnInformation(setting, processDisplay);
+        var res1 = await DetermineColumnFormat.GetSourceColumnInformationAsync(setting, processDisplay);
         Assert.AreEqual(6, res1.Count());
       }
     }
@@ -56,7 +56,7 @@ namespace CsvTools.Tests
     {
       var res1 = DetermineColumnFormat.GetAllPossibleFormats("1/1/2020", null);
       Assert.AreEqual(2, res1.Count());
-      
+
       var res2 = DetermineColumnFormat.GetAllPossibleFormats("01/01/2020", null);
       Assert.AreEqual(4, res2.Count());
 
@@ -65,7 +65,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod()]
-    public void FillGuessColumnFormatReaderTest()
+    public async Task FillGuessColumnFormatReaderTestAsync()
     {
       var setting = new CsvFile
       {
@@ -85,15 +85,14 @@ namespace CsvTools.Tests
       };
       using (var processDisplay = new DummyProcessDisplay())
       {
-        setting.FillGuessColumnFormatReader(false, true, fillGuessSettings, processDisplay);
+        await setting.FillGuessColumnFormatReaderAsync(false, true, fillGuessSettings, processDisplay);
 
-        setting.FillGuessColumnFormatReader(true, false, fillGuessSettings, processDisplay);
+        await setting.FillGuessColumnFormatReaderAsync(true, false, fillGuessSettings, processDisplay);
       }
     }
 
-
     [TestMethod]
-    public void DetermineColumnFormatFillGuessColumnFormatWriter()
+    public async Task DetermineColumnFormatFillGuessColumnFormatWriterAsync()
     {
       var setting = new CsvFile
       {
@@ -105,20 +104,20 @@ namespace CsvTools.Tests
 
       using (var reader = new CsvFileReader(setting, null, null))
       {
-        UnitTestInitialize.MimicSQLReader.AddSetting(setting.ID, reader.GetDataTable(0));
+        UnitTestInitialize.MimicSQLReader.AddSetting(setting.ID, await reader.GetDataTableAsync(0, false, false));
       }
 
       var writer = new CsvFile { SqlStatement = setting.ID };
 
       using (var processDisplay = new DummyProcessDisplay())
       {
-        writer.FillGuessColumnFormatWriter(true, processDisplay);
+        await writer.FillGuessColumnFormatWriterAsync(true, processDisplay);
         Assert.AreEqual(6, writer.ColumnCollection.Count);
       }
     }
 
     [TestMethod]
-    public void DetermineColumnFormatGetSampleRollOver()
+    public async Task DetermineColumnFormatGetSampleRollOverAsync()
     {
       using (var dt = new DataTable())
       {
@@ -137,12 +136,12 @@ namespace CsvTools.Tests
         {
           using (var reader = new DataTableReader(dt, "empty", processDisplay))
           {
-            reader.Open();
+            await reader.OpenAsync();
 
             // Move teh reader to a late record
             for (var i = 0; i < dt.Rows.Count / 2; i++)
-              reader.Read();
-            var res = DetermineColumnFormat.GetSampleValues(
+              await reader.ReadAsync();
+            var res = await DetermineColumnFormat.GetSampleValuesAsync(
               reader,
               0,
               0,
@@ -157,7 +156,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void DetermineColumnFormatGetSampleValues2()
+    public async Task DetermineColumnFormatGetSampleValues2Async()
     {
       using (var dt = new DataTable())
       {
@@ -175,7 +174,7 @@ namespace CsvTools.Tests
         {
           using (var reader = new DataTableReader(dt, "empty", processDisplay))
           {
-            var res = DetermineColumnFormat.GetSampleValues(
+            var res = await DetermineColumnFormat.GetSampleValuesAsync(
               reader,
               0,
               0,
@@ -190,7 +189,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void DetermineColumnFormatGetSampleValuesAsync2()
+    public async Task DetermineColumnFormatGetSampleValuesAsync2Async()
     {
       using (var dt = new DataTable())
       {
@@ -208,9 +207,7 @@ namespace CsvTools.Tests
         {
           using (var reader = new DataTableReader(dt, "empty", processDisplay))
           {
-            var res = DetermineColumnFormat
-              .GetSampleValuesAsync(reader, 0, 0, 20, string.Empty, processDisplay.CancellationToken)
-              .WaitToCompleteTask(2);
+            var res = await DetermineColumnFormat.GetSampleValuesAsync(reader, 0, 0, 20, string.Empty, processDisplay.CancellationToken);
             Assert.IsTrue(res.RecordsRead >= 20);
             Assert.AreEqual(20, res.Values.Count());
           }
@@ -229,8 +226,7 @@ namespace CsvTools.Tests
           {
             try
             {
-              var res = await DetermineColumnFormat
-                .GetSampleValuesAsync(reader, 0, 0, 20, string.Empty, processDisplay.CancellationToken);
+              var res = await DetermineColumnFormat.GetSampleValuesAsync(reader, 0, 0, 20, string.Empty, processDisplay.CancellationToken);
 
               Assert.Fail("Expected Exception not thrown");
             }
@@ -248,7 +244,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void FillGuessColumnFormatAddTextCol()
+    public async Task FillGuessColumnFormatAddTextColAsync()
     {
       var setting = new CsvFile
       {
@@ -270,7 +266,7 @@ namespace CsvTools.Tests
       };
       using (var processDisplay = new DummyProcessDisplay())
       {
-        setting.FillGuessColumnFormatReaderAsync(true, false, fillGuessSettings, processDisplay).WaitToCompleteTask(2);
+        await setting.FillGuessColumnFormatReaderAsync(true, false, fillGuessSettings, processDisplay);
       }
 
       Assert.AreEqual(DataType.Integer, setting.ColumnCollection.Get("ID").ValueFormat.DataType);
@@ -279,7 +275,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void FillGuessColumnFormatDateParts()
+    public async Task FillGuessColumnFormatDatePartsAsync()
     {
       var setting = new CsvFile
       {
@@ -303,7 +299,7 @@ namespace CsvTools.Tests
 
       using (var processDisplay = new DummyProcessDisplay())
       {
-        setting.FillGuessColumnFormatReaderAsync(false, true, fillGuessSettings, processDisplay).WaitToCompleteTask(20);
+        await setting.FillGuessColumnFormatReaderAsync(false, true, fillGuessSettings, processDisplay);
       }
 
       Assert.AreEqual("Start Date", setting.ColumnCollection[0].Name, "Column 1 Start date");
@@ -315,7 +311,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void FillGuessColumnFormatDoNotIgnoreID()
+    public async Task FillGuessColumnFormatDoNotIgnoreIDAsync()
     {
       var setting = new CsvFile
       {
@@ -337,8 +333,7 @@ namespace CsvTools.Tests
       };
       using (var processDisplay = new DummyProcessDisplay())
       {
-        setting.FillGuessColumnFormatReaderAsync(false, false, fillGuessSettings, processDisplay)
-          .WaitToCompleteTask(20);
+        await setting.FillGuessColumnFormatReaderAsync(false, false, fillGuessSettings, processDisplay);
       }
 
       Assert.AreEqual(DataType.Integer, setting.ColumnCollection.Get("ID").ValueFormat.DataType);
@@ -347,7 +342,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void FillGuessColumnFormatGermanDateAndNumbers()
+    public async Task FillGuessColumnFormatGermanDateAndNumbersAsync()
     {
       var setting = new CsvFile
       {
@@ -373,8 +368,7 @@ namespace CsvTools.Tests
       // setting.TreatTextNullAsNull = true;
       using (var processDisplay = new DummyProcessDisplay())
       {
-        setting.FillGuessColumnFormatReaderAsync(false, false, fillGuessSettings, processDisplay)
-          .WaitToCompleteTask(20);
+        await setting.FillGuessColumnFormatReaderAsync(false, false, fillGuessSettings, processDisplay);
       }
 
       Assert.IsNotNull(setting.ColumnCollection.Get(@"Betrag Brutto (2 Nachkommastellen)"), "Data Type recognized");
@@ -424,7 +418,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void FillGuessColumnFormatTextColumns()
+    public async Task FillGuessColumnFormatTextColumnsAsync()
     {
       var setting = new CsvFile
       {
@@ -440,7 +434,7 @@ namespace CsvTools.Tests
 
       using (var processDisplay = new DummyProcessDisplay())
       {
-        setting.FillGuessColumnFormatReaderAsync(true, true, fillGuessSettings, processDisplay).WaitToCompleteTask(20);
+        await setting.FillGuessColumnFormatReaderAsync(true, true, fillGuessSettings, processDisplay);
       }
 
       Assert.AreEqual(11, setting.ColumnCollection.Count);
@@ -451,7 +445,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void FillGuessColumnFormatTrailingColumns()
+    public async Task FillGuessColumnFormatTrailingColumnsAsync()
     {
       var setting = new CsvFile
       {
@@ -476,7 +470,7 @@ namespace CsvTools.Tests
       };
       using (var processDisplay = new DummyProcessDisplay())
       {
-        setting.FillGuessColumnFormatReaderAsync(false, true, fillGuessSettings, processDisplay).WaitToCompleteTask(20);
+        await setting.FillGuessColumnFormatReaderAsync(false, true, fillGuessSettings, processDisplay);
       }
 
       // need to identify 5 typed column of the 11 existing
@@ -553,64 +547,18 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void GetSampleValuesByColIndex()
+    public async Task GetSampleValuesByColIndexAsync()
     {
       var setting = new CsvFile { FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt"), HasFieldHeader = true };
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        test.Open();
-        var samples = DetermineColumnFormat.GetSampleValues(test, 1000, 0, 20, "NULL", CancellationToken.None);
+        await test.OpenAsync();
+        var samples = await DetermineColumnFormat.GetSampleValuesAsync(test, 1000, 0, 20, "NULL", CancellationToken.None);
         Assert.AreEqual(7, samples.Values.Count());
         Assert.IsTrue(samples.RecordsRead >= 7);
         Assert.IsTrue(samples.Values.Contains("1"));
         Assert.IsTrue(samples.Values.Contains("4"));
-      }
-    }
-
-    [TestMethod]
-    public void GetSampleValuesByColIndexAsync()
-    {
-      var setting = new CsvFile { FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt"), HasFieldHeader = true };
-      using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
-      {
-        test.Open();
-        var samples = DetermineColumnFormat.GetSampleValuesAsync(test, 1000, 0, 20, "NULL", CancellationToken.None)
-          .WaitToCompleteTask(20);
-        Assert.AreEqual(7, samples.Values.Count());
-        Assert.IsTrue(samples.RecordsRead >= 7);
-        Assert.IsTrue(samples.Values.Contains("1"));
-        Assert.IsTrue(samples.Values.Contains("4"));
-      }
-    }
-
-    [TestMethod]
-    public void GetSampleValuesFileEmpty()
-    {
-      var setting = new CsvFile
-      {
-        FileName = UnitTestInitialize.GetTestPath("CSVTestEmpty.txt"),
-        HasFieldHeader = true
-      };
-      using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
-      {
-        test.Open();
-        try
-        {
-          DetermineColumnFormat.GetSampleValues(test, 100, 0, 20, "NULL", CancellationToken.None);
-        }
-        catch (ArgumentOutOfRangeException)
-        {
-        }
-        catch (AssertInconclusiveException)
-        {
-        }
-        catch (Exception ex)
-        {
-          Assert.Fail("Wrong or exception thrown exception is : " + ex.GetType().Name);
-        }
       }
     }
 
@@ -625,12 +573,15 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        test.Open();
+        await test.OpenAsync();
         try
         {
           await DetermineColumnFormat.GetSampleValuesAsync(test, 100, 0, 20, "NULL", CancellationToken.None);
         }
         catch (ArgumentOutOfRangeException)
+        {
+        }
+        catch (AssertInconclusiveException)
         {
         }
         catch (Exception ex)

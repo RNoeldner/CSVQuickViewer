@@ -75,6 +75,7 @@ namespace CsvTools
     private ObservableCollection<SampleRecordEntry> m_Samples = new ObservableCollection<SampleRecordEntry>();
     private ObservableCollection<SampleRecordEntry> m_Errors = new ObservableCollection<SampleRecordEntry>();
     private TrimmingOption m_TrimmingOption = TrimmingOption.Unquoted;
+    private IReadOnlyCollection<IFileSetting> m_SourceFileSettings;
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="BaseSettings" /> class.
@@ -126,7 +127,22 @@ namespace CsvTools
     ///   {B,C1,C2,D}. B is {C1,C2,D}, C1 is {D} C2 is {D}
     /// </example>
     [XmlIgnore]
-    public IReadOnlyCollection<IFileSetting> SourceFileSettings { get; set; }
+    public IReadOnlyCollection<IFileSetting> SourceFileSettings
+    {
+      get => m_SourceFileSettings;
+      set
+      {
+        if (m_SourceFileSettings == null && value == null) return;
+        if (value == null || !value.CollectionEqual(m_SourceFileSettings))
+        {
+          // do not notify if we change from null to an empty list
+          var notify = (value?.Count() > 0 || m_SourceFileSettings != null);
+          m_SourceFileSettings = value;
+          if (notify)
+            NotifyPropertyChanged(nameof(SourceFileSettings));
+        }
+      }
+    }
 
     /// <summary>
     ///   Gets a value indicating whether FileFormat is specified.
@@ -218,7 +234,7 @@ namespace CsvTools
     ///   <see langword="true" /> if the current object is equal to the <paramref name="other" />
     ///   parameter; otherwise, <see langword="false" />.
     /// </returns>
-    protected virtual bool BaseSettingsEquals(BaseSettings other)
+    protected bool BaseSettingsEquals(BaseSettings other)
     {
       if (other is null)
         return false;
@@ -911,7 +927,7 @@ namespace CsvTools
       set
       {
         var newVal = (value ?? string.Empty).NoControlCharacters();
-        if (m_SqlStatement.Equals(newVal, StringComparison.Ordinal))
+        if (newVal.Equals(m_SqlStatement, StringComparison.Ordinal))
           return;
         m_SqlStatement = newVal;
 

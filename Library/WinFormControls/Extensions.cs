@@ -162,11 +162,22 @@ namespace CsvTools
     {
       if (uiElement == null || uiElement.IsDisposed || action == null || !uiElement.IsHandleCreated)
         return;
+      UiElementInvoke(uiElement, action, TimeSpan.TicksPerSecond / 10);
+
+      ProcessUIElements();
+    }
+
+    private static void UiElementInvoke(Control uiElement, Action action, long timeoutTicks)
+    {
       if (uiElement.InvokeRequired)
-        uiElement.Invoke(action);
+      {
+        var result = uiElement.BeginInvoke(action);
+        result.AsyncWaitHandle.WaitOne(new TimeSpan(timeoutTicks));
+        result.AsyncWaitHandle.Close();
+        // uiElement.EndInvoke(result);
+      }
       else
         action();
-      ProcessUIElements();
     }
 
     /// <summary>
@@ -178,10 +189,7 @@ namespace CsvTools
     {
       if (uiElement == null || uiElement.IsDisposed || action == null)
         return;
-      if (uiElement.InvokeRequired)
-        uiElement.Invoke(action);
-      else
-        action();
+      UiElementInvoke(uiElement, action, TimeSpan.TicksPerSecond / 10);
     }
 
     /// <summary>

@@ -26,7 +26,8 @@ namespace CsvTools
   [DebuggerDisplay("ColumnInfo( {Column.Name}  - {Column.ValueFormat.GetFormatDescription()})")]
   public sealed class ColumnInfo
   {
-    public ColumnInfo(Column column, int fieldLength, bool isTimePart, int columnOrdinalReader = -1, string constantTimeZone = null, int columnOrdinalTimeZoneReader = -1)
+    public ColumnInfo(Column column, int fieldLength, bool isTimePart, int columnOrdinalReader = -1,
+      string constantTimeZone = null, int columnOrdinalTimeZoneReader = -1)
     {
       Column = column;
       FieldLength = fieldLength;
@@ -87,7 +88,7 @@ namespace CsvTools
         // Make names unique and fill the dictionary
         foreach (DataRow schemaRow in dataTable.Rows)
         {
-          var colNo = (int)schemaRow[SchemaTableColumn.ColumnOrdinal];
+          var colNo = (int) schemaRow[SchemaTableColumn.ColumnOrdinal];
           var newName =
             StringUtils.MakeUniqueInCollection(colName.Values, schemaRow[SchemaTableColumn.ColumnName].ToString());
 
@@ -96,9 +97,9 @@ namespace CsvTools
 
         foreach (DataRow schemaRow in dataTable.Rows)
         {
-          var colNo = (int)schemaRow[SchemaTableColumn.ColumnOrdinal];
+          var colNo = (int) schemaRow[SchemaTableColumn.ColumnOrdinal];
           var valueFormat = writerFileSetting.FileFormat.ValueFormat;
-          valueFormat.DataType = ((Type)schemaRow[SchemaTableColumn.DataType]).GetDataType();
+          valueFormat.DataType = ((Type) schemaRow[SchemaTableColumn.DataType]).GetDataType();
           var column = writerFileSetting.ColumnCollection.Get(colName[colNo]);
           if (column != null)
           {
@@ -107,27 +108,30 @@ namespace CsvTools
             valueFormat = column.ValueFormat;
           }
 
-          var fieldLength = Math.Max((int)schemaRow[SchemaTableColumn.ColumnSize], 0);
+          var fieldLength = Math.Max((int) schemaRow[SchemaTableColumn.ColumnSize], 0);
           switch (valueFormat.DataType)
           {
             case DataType.Integer:
               fieldLength = 10;
               break;
+
             case DataType.Boolean:
-              {
-                var lenTrue = valueFormat.True.Length;
-                var lenFalse = valueFormat.False.Length;
-                fieldLength = lenTrue > lenFalse ? lenTrue : lenFalse;
-                break;
-              }
+            {
+              var lenTrue = valueFormat.True.Length;
+              var lenFalse = valueFormat.False.Length;
+              fieldLength = lenTrue > lenFalse ? lenTrue : lenFalse;
+              break;
+            }
             case DataType.Double:
             case DataType.Numeric:
               fieldLength = 28;
               break;
+
             case DataType.DateTime:
               fieldLength = valueFormat.DateFormat.Length;
               break;
           }
+
           var ci = new ColumnInfo(new Column(colName[colNo], valueFormat), fieldLength, false, colNo);
 
           // the timezone information
@@ -138,7 +142,9 @@ namespace CsvTools
             {
               var tzInfo = tz.GetPossiblyConstant();
               if (tzInfo.Item2)
+              {
                 ci.ConstantTimeZone = tzInfo.Item1;
+              }
               else
               {
                 if (colName.TryGetByValue(tzInfo.Item1, out var ordinal))
@@ -149,17 +155,21 @@ namespace CsvTools
 
           result.Add(ci);
 
-          // add an extra column for the time, reading columns get combined, writing they get separated 
+          // add an extra column for the time, reading columns get combined, writing they get separated
           if (column != null && !string.IsNullOrEmpty(column.TimePart) && !colName.ContainsValue(column.TimePart))
           {
-            if (ci.Column.ValueFormat.DateFormat.IndexOfAny(new[] { 'h', 'H', 'm', 's' }) != -1)
-              Logger.Warning($"'{ci.Column.Name}' will create a separate time column '{column.TimePart}' but seems to write time itself '{ci.Column.ValueFormat.DateFormat}'");
+            if (ci.Column.ValueFormat.DateFormat.IndexOfAny(new[] {'h', 'H', 'm', 's'}) != -1)
+              Logger.Warning(
+                $"'{ci.Column.Name}' will create a separate time column '{column.TimePart}' but seems to write time itself '{ci.Column.ValueFormat.DateFormat}'");
             // In case we have a split column, add the second column (unless the column is also present
-            result.Add(new ColumnInfo(new Column(column.TimePart, column.TimePartFormat) { ValueFormat = { TimeSeparator = column.ValueFormat.TimeSeparator } }, column.TimePartFormat.Length, true, colNo));
+            result.Add(new ColumnInfo(
+              new Column(column.TimePart, column.TimePartFormat)
+                {ValueFormat = {TimeSeparator = column.ValueFormat.TimeSeparator}}, column.TimePartFormat.Length, true,
+              colNo));
           }
         }
-
       }
+
       return result;
     }
   }

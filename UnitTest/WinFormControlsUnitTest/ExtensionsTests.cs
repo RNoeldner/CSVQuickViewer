@@ -128,7 +128,7 @@ namespace CsvTools.Tests
             else
               // Testing WaitToCompleteTask<T> I need a task that returns something
               return true;
-          }).WaitToCompleteTask(1.5d);
+          }, cts.Token).WaitToCompleteTask(1.5d);
 
           Assert.Fail("no Exception did not occur");
         }

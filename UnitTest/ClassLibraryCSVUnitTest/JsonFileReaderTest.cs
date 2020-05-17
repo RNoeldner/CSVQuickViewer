@@ -14,6 +14,7 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Threading.Tasks;
 
 namespace CsvTools.Tests
 {
@@ -21,7 +22,7 @@ namespace CsvTools.Tests
   public class JsonFileReaderTest
   {
     [TestMethod]
-    public async System.Threading.Tasks.Task OpenLogAsync()
+    public async Task OpenLogAsync()
     {
       var setting = new CsvFile(UnitTestInitialize.GetTestPath("LogFile.json"))
       {
@@ -31,20 +32,20 @@ namespace CsvTools.Tests
       using (var jfr = new JsonFileReader(setting, TimeZoneInfo.Local.Id, dpd))
       {
         await jfr.OpenAsync();
-        _ = jfr.Read();
+        await jfr.ReadAsync();
         Assert.AreEqual("level", jfr.GetColumn(1).Name);
         Assert.AreEqual("Error", jfr.GetValue(1));
 
-        _ = jfr.ReadAsync();
+        await jfr.ReadAsync();
         Assert.AreEqual("Reading EdgeAPI vw_rpt_transcript", jfr.GetValue(2));
 
-        _ = jfr.ReadAsync();
+        await jfr.ReadAsync();
         Assert.AreEqual("System.Data.DataException", jfr.GetValue(4));
       }
     }
 
     [TestMethod]
-    public void NotSupported()
+    public async Task NotSupportedAsync()
     {
       var setting = new CsvFile(UnitTestInitialize.GetTestPath("Emp.json"))
       {
@@ -54,8 +55,8 @@ namespace CsvTools.Tests
       using (var dpd = new DummyProcessDisplay())
       using (var jfr = new JsonFileReader(setting, TimeZoneInfo.Local.Id, dpd))
       {
-        jfr.Open();
-        _ = jfr.ReadAsync().WaitToCompleteTask(2);
+        await jfr.OpenAsync();
+        await jfr.ReadAsync();
 
         try
         {
@@ -155,7 +156,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public async System.Threading.Tasks.Task ReadJSonEmpAsync()
+    public async Task ReadJSonEmpAsync()
     {
       var setting = new CsvFile(UnitTestInitialize.GetTestPath("Emp.json"))
       {
@@ -193,7 +194,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void ReadJSon1()
+    public async Task ReadJSon1Async()
     {
       var setting = new CsvFile(UnitTestInitialize.GetTestPath("Jason1.json"))
       {
@@ -203,18 +204,18 @@ namespace CsvTools.Tests
       using (var dpd = new DummyProcessDisplay())
       using (var jfr = new JsonFileReader(setting, TimeZoneInfo.Local.Id, dpd))
       {
-        jfr.Open();
+        await jfr.OpenAsync();
         Assert.AreEqual(20, jfr.FieldCount);
-        _ = jfr.Read();
+        await jfr.ReadAsync();
         Assert.AreEqual("5048fde7c4aa917cbd4d8e13", jfr.GetValue(0));
-        _ = jfr.Read();
+        await jfr.ReadAsync();
         Assert.AreEqual("5048fde7c4aa917cbd4d22333", jfr.GetValue(0));
         Assert.AreEqual(2, jfr.RecordNumber);
       }
     }
 
     [TestMethod]
-    public void ReadJSon2()
+    public async Task ReadJSon2Async()
     {
       var setting = new CsvFile(UnitTestInitialize.GetTestPath("Jason2.json"))
       {
@@ -223,12 +224,12 @@ namespace CsvTools.Tests
       using (var dpd = new DummyProcessDisplay())
       using (var jfr = new JsonFileReader(setting, TimeZoneInfo.Local.Id, dpd))
       {
-        jfr.Open();
+        await jfr.OpenAsync();
         Assert.AreEqual(7, jfr.FieldCount);
-        jfr.ReadAsync().WaitToCompleteTask(2);
-        jfr.ReadAsync().WaitToCompleteTask(2);
+        await jfr.ReadAsync();
+        await jfr.ReadAsync();
         Assert.AreEqual("Loading defaults C:\\Users\\rnoldner\\AppData\\Roaming\\CSVFileValidator\\Setting.xml", jfr.GetValue(6));
-        while (jfr.ReadAsync().WaitToCompleteTask(2))
+        while (await jfr.ReadAsync())
         {
         }
         Assert.AreEqual(29, jfr.RecordNumber);
@@ -236,7 +237,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void ReadJSon3()
+    public async Task ReadJSon3Async()
     {
       var setting = new CsvFile(UnitTestInitialize.GetTestPath("Jason3.json"))
       {
@@ -246,13 +247,13 @@ namespace CsvTools.Tests
       using (var dpd = new DummyProcessDisplay())
       using (var jfr = new JsonFileReader(setting, TimeZoneInfo.Local.Id, dpd))
       {
-        jfr.Open();
+        await jfr.OpenAsync();
         Assert.AreEqual(2, jfr.FieldCount);
-        jfr.ReadAsync().WaitToCompleteTask(2);
+        await jfr.ReadAsync();
         Assert.AreEqual(28L, jfr.GetValue(0));
-        jfr.ReadAsync().WaitToCompleteTask(2);
+        await jfr.ReadAsync();
         Assert.AreEqual(56L, jfr.GetValue(0));
-        while (jfr.ReadAsync().WaitToCompleteTask(2))
+        while (await jfr.ReadAsync())
         {
         }
         Assert.AreEqual(3, jfr.RecordNumber);
@@ -260,7 +261,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void ReadJSon4()
+    public async Task ReadJSon4Async()
     {
       var setting = new CsvFile(UnitTestInitialize.GetTestPath("Jason4.json"))
       {
@@ -270,7 +271,7 @@ namespace CsvTools.Tests
       using (var dpd = new DummyProcessDisplay())
       using (var jfr = new JsonFileReader(setting, TimeZoneInfo.Local.Id, dpd))
       {
-        jfr.Open();
+        await jfr.OpenAsync();
         Assert.AreEqual(3, jfr.FieldCount);
       }
     }

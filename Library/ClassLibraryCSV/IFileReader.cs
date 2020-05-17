@@ -59,6 +59,8 @@ namespace CsvTools
     /// <value>The process display.</value>
     IProcessDisplay ProcessDisplay { get; }
 
+    bool SupportsReset { get; }
+
     [Obsolete("Use ReadAsync if possible")]
     new bool Read();
 
@@ -72,16 +74,10 @@ namespace CsvTools
     new bool NextResult();
 
     /// <summary>
-    ///   Synchronous method to copy rows from a the reader to a data table
-    /// </summary>
-    /// <returns>A DataTable</returns>
-    DataTable GetDataTable(long recordLimit);
-
-    /// <summary>
     ///   Asynchronous method to copy rows from a the reader to a data table
     /// </summary>
     /// <returns>A DataTable</returns>
-    Task<DataTable> GetDataTableAsync(long recordLimit);
+    Task<DataTable> GetDataTableAsync(long recordLimit, bool addStrtaLine, bool addRecNo);
 
     /// <summary>
     ///   Reads the next record of the current result set
@@ -129,16 +125,11 @@ namespace CsvTools
     ///   Opens the text file and begins to read the meta data, like columns
     /// </summary>
     /// <returns>Number of records in the file if known (use determineColumnSize), -1 otherwise</returns>
-    [Obsolete("Use OpenAsync if possible")]
-    void Open();
-
     Task OpenAsync();
-
-    bool SupportsReset { get; }
 
     /// <summary>
     ///   Resets the position and buffer to the header in case the file has a header
     /// </summary>
-    void ResetPositionToFirstDataRow();
+    Task ResetPositionToFirstDataRowAsync();
   }
 }

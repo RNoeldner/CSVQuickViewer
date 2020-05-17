@@ -12,18 +12,17 @@
  *
  */
 
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+
 namespace CsvTools
 {
-
-  using System.Threading.Tasks;
-  using System;
-  using System.Collections.Generic;
-  using System.Threading;
-
   /// <summary>
-  ///   This class implements a lightweight Dependency injection without a framework
-  ///   It uses a static delegate function to give the ability to overload the default functionality
-  ///   by implementations not know to this library
+  ///   This class implements a lightweight Dependency injection without a framework It uses a
+  ///   static delegate function to give the ability to overload the default functionality by
+  ///   implementations not know to this library
   /// </summary>
   public static class FunctionalDI
   {
@@ -34,39 +33,39 @@ namespace CsvTools
     /// </summary>
     public static Func<DateTime?, string, string, int, Action<int, string>, DateTime?> AdjustTZ =
       (input, srcTimeZone, destTimeZone, columnOrdinal, handleWarning) =>
+      {
+        if (!input.HasValue || string.IsNullOrEmpty(srcTimeZone) || string.IsNullOrEmpty(destTimeZone)
+            || srcTimeZone.Equals(destTimeZone))
+          return input;
+        try
         {
-          if (!input.HasValue || string.IsNullOrEmpty(srcTimeZone) || string.IsNullOrEmpty(destTimeZone)
-              || srcTimeZone.Equals(destTimeZone))
-            return input;
-          try
-          {
-            // default implementation will convert using the .NET library
-            return TimeZoneInfo.ConvertTime(
-              input.Value,
-              TimeZoneInfo.FindSystemTimeZoneById(srcTimeZone),
-              TimeZoneInfo.FindSystemTimeZoneById(destTimeZone));
-          }
-          catch (Exception ex)
-          {
-            if (handleWarning == null) throw;
-            handleWarning.Invoke(columnOrdinal, ex.Message);
-            return null;
-          }
-        };
+          // default implementation will convert using the .NET library
+          return TimeZoneInfo.ConvertTime(
+            input.Value,
+            TimeZoneInfo.FindSystemTimeZoneById(srcTimeZone),
+            TimeZoneInfo.FindSystemTimeZoneById(destTimeZone));
+        }
+        catch (Exception ex)
+        {
+          if (handleWarning == null) throw;
+          handleWarning.Invoke(columnOrdinal, ex.Message);
+          return null;
+        }
+      };
 
     /// <summary>
     ///   Function to retrieve the column in a setting file
     /// </summary>
-    public static Func<IFileSetting, CancellationToken, ICollection<string>> GetColumnHeader;
+    public static Func<IFileSetting, CancellationToken, Task<ICollection<string>>> GetColumnHeader;
 
     /// <summary>
     ///   Retrieve the passphrase
     /// </summary>
-    public static Func<IFileSetting, string> GetEncryptedPassphrase = (fileSetting) =>
-      {
-        if (fileSetting == null) return null;
-        return !string.IsNullOrEmpty(fileSetting.Passphrase) ? fileSetting.Passphrase : null;
-      };
+    public static Func<IFileSetting, string> GetEncryptedPassphrase = fileSetting =>
+    {
+      if (fileSetting == null) return null;
+      return !string.IsNullOrEmpty(fileSetting.Passphrase) ? fileSetting.Passphrase : null;
+    };
 
     /// <summary>
     ///   Open a file for reading, it will take care of things like compression and encryption
@@ -108,9 +107,9 @@ namespace CsvTools
     /// </summary>
     /// <value>The statement for reader the data.</value>
     /// <remarks>Make sure teh returned reader is open when needed</remarks>
-    public static Func<string, IProcessDisplay, int, IFileReader> SQLDataReader;
-    public static Func<string, IProcessDisplay, int, Task<IFileReader>> SQLDataReaderAsync;
-    public static IFileReader DefaultFileReader(IFileSetting setting, string timeZone, IProcessDisplay processDisplay)
+    public static Func<string, IProcessDisplay, int, Task<IFileReader>> SQLDataReader;
+
+    private static IFileReader DefaultFileReader(IFileSetting setting, string timeZone, IProcessDisplay processDisplay)
     {
       switch (setting)
       {
@@ -125,7 +124,7 @@ namespace CsvTools
       }
     }
 
-    public static IFileWriter DefaultFileWriter(IFileSetting setting, string timeZone, IProcessDisplay processDisplay)
+    private static IFileWriter DefaultFileWriter(IFileSetting setting, string timeZone, IProcessDisplay processDisplay)
     {
       switch (setting)
       {

@@ -48,14 +48,13 @@ namespace CsvTools.Tests
       {
         test.ConvertTo(null, typeof(string));
       }
-      catch (ArgumentNullException e)
+      catch (ArgumentNullException)
       {
       }
       catch (Exception ex)
       {
         Assert.Fail($"Wrong Exception Type {ex.GetType()}, Invalid Filename");
       }
-
     }
   }
 }

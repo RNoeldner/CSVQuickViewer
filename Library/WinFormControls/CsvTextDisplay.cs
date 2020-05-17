@@ -17,6 +17,7 @@ namespace CsvTools
   using System;
   using System.IO;
   using System.Threading;
+  using System.Threading.Tasks;
   using System.Windows.Forms;
 
   /// <summary>
@@ -67,7 +68,8 @@ namespace CsvTools
             ScrollBarVertical.Maximum = FileSystemUtils.FileLength(value.FullPath).ToInt();
             m_CsvFile = value;
 
-            UpdateViewAsync();
+            // Starting task without error handler
+            _ = UpdateViewAsync();
           }
         }
       }
@@ -86,15 +88,15 @@ namespace CsvTools
       ScrollBarVertical.Value = newValue;
     }
 
-    private void ScrollEvent(object sender, ScrollEventArgs e)
+    private async void ScrollEvent(object sender, ScrollEventArgs e)
     {
       if (m_DisplayedAt != ScrollBarVertical.Value && ScrollBarVertical.Enabled)
-        UpdateViewAsync();
+        await UpdateViewAsync();
     }
 
     private void SizeChangedEvent(object sender, EventArgs e) => CSVTextBox.Width = ScrollBarVertical.Left;
 
-    private async void UpdateViewAsync()
+    private async Task UpdateViewAsync()
     {
       m_DisplayedAt = ScrollBarVertical.Value;
       if (string.IsNullOrEmpty(m_CsvFile.FileName))
@@ -138,10 +140,10 @@ namespace CsvTools
       }
     }
 
-    private void ValueChangedEvent(object sender, EventArgs e)
+    private async void ValueChangedEvent(object sender, EventArgs e)
     {
       if (m_DisplayedAt != ScrollBarVertical.Value)
-        UpdateViewAsync();
+        await UpdateViewAsync();
     }
   }
 }
