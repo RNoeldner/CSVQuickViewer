@@ -45,7 +45,6 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-
     public void CopySelectedRowsIntoClipboard()
     {
       using (var dgv = new DataGridView())
@@ -58,13 +57,13 @@ namespace CsvTools.Tests
           {
             frm.Controls.Add(dgv);
             frm.Show();
-            dgv.Rows[1].Selected=true;
+            dgv.Rows[1].Selected = true;
             dgv.Rows[2].Selected = true;
             dgv.Rows[3].Selected = true;
 
             Clipboard.Clear();
             dgv.SelectedDataIntoClipboard(false, true, CancellationToken.None);
-            
+
             var dataObject = Clipboard.GetDataObject();
             Assert.IsNotNull(dataObject);
             Assert.IsNotNull(dataObject.GetData(DataFormats.Html));
@@ -74,9 +73,7 @@ namespace CsvTools.Tests
       }
     }
 
-
     [TestMethod]
-
     public void CopySelectedColumnsIntoClipboard()
     {
       using (var dgv = new DataGridView())
@@ -109,7 +106,6 @@ namespace CsvTools.Tests
       }
     }
 
-
     [TestMethod]
     public void SelectedDataIntoClipboardTest()
     {
@@ -123,11 +119,22 @@ namespace CsvTools.Tests
           {
             frm.Controls.Add(dgv);
             frm.Show();
-            Clipboard.Clear();
-            dgv.SelectedDataIntoClipboard(true, false, CancellationToken.None);
-            var dataObject = Clipboard.GetDataObject();
-            Assert.IsNotNull(dataObject);
-            Assert.IsNotNull(dataObject.GetData(DataFormats.Text));
+            try
+            {
+              Clipboard.Clear();
+              dgv.SelectedDataIntoClipboard(true, false, CancellationToken.None);
+              var dataObject = Clipboard.GetDataObject();
+              Assert.IsNotNull(dataObject);
+              Assert.IsNotNull(dataObject.GetData(DataFormats.Text));
+            }
+            catch (ExternalException)
+            {
+              Assert.Inconclusive("Exception thrown but this can happen");
+            }
+            catch (Exception ex)
+            {
+              Assert.Fail($"Wrong exception {ex.Message}");
+            }
           }
         }
       }

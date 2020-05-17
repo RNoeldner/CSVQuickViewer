@@ -14,7 +14,6 @@
 
 using System;
 using System.Data;
-using System.Data.Common;
 using System.Threading.Tasks;
 
 namespace CsvTools
@@ -25,34 +24,20 @@ namespace CsvTools
   public interface IFileWriter
   {
     /// <summary>
-    ///   Event handler called if a warning or error occurred
-    /// </summary>
-    event EventHandler<WarningEventArgs> Warning;
-
-    /// <summary>
     ///   Gets the error message.
     /// </summary>
     string ErrorMessage { get; }
 
     /// <summary>
-    ///   Writes the specified file.
+    ///   Event handler called if a warning or error occurred
     /// </summary>
-    /// <returns>Number of records written</returns>
-    long Write();
-
-    /// <summary>
-    ///   Writes the specified file reading from the a data table
-    /// </summary>
-    /// <param name="source">The data that should be written in a <see cref="DataTable" /></param>
-    /// <returns>Number of records written</returns>
-    long Write(IFileReader source);
+    event EventHandler<WarningEventArgs> Warning;
 
     /// <summary>
     ///   Writes the specified file.
     /// </summary>
     /// <returns>Number of records written</returns>
     Task<long> WriteAsync();
-
 
     /// <summary>
     ///   Writes the specified file reading from the a data table

@@ -134,9 +134,9 @@ namespace CsvTools
           {
             var hasRetried = false;
           retry:
-            using (var sqlReader = await FunctionalDI.SQLDataReaderAsync(m_FileSetting.SqlStatement, processDisplay, m_FileSetting.Timeout))
+            using (var sqlReader = await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement, processDisplay, m_FileSetting.Timeout))
             {
-              var data = await sqlReader.GetDataTableAsync(m_FileSetting.RecordLimit);
+              var data = await sqlReader.GetDataTableAsync(m_FileSetting.RecordLimit, false, false);
               var found = new Column();
               var column = data.Columns[columnName];
               if (column == null)
@@ -612,7 +612,7 @@ namespace CsvTools
                 }
                 else
                 {
-                  var cols = FunctionalDI.GetColumnHeader.Invoke(m_FileSetting, processDisplay.CancellationToken);
+                  var cols = await FunctionalDI.GetColumnHeader.Invoke(m_FileSetting, processDisplay.CancellationToken);
                   if (cols != null)
                     foreach (var col in cols)
                       allColumns.Add(col);
@@ -620,7 +620,7 @@ namespace CsvTools
               }
               else
               { // Write Setting ----- open the source that is SQL
-                using (var fileReader = FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement.NoRecordSQL(),
+                using (var fileReader = await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement.NoRecordSQL(),
                   processDisplay, m_FileSetting.Timeout))
                 {
                   await fileReader.OpenAsync();
@@ -787,7 +787,7 @@ namespace CsvTools
       {
         if (m_WriteSetting)
           using (var sqlReader =
-            FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement, processDisplay, m_FileSetting.Timeout))
+            await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement, processDisplay, m_FileSetting.Timeout))
           {
             await sqlReader.OpenAsync();
             var colIndex = sqlReader.GetOrdinal(columnName);

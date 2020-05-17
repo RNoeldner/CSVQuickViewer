@@ -5,24 +5,25 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
+  using System.Collections.Generic;
   using System.Threading.Tasks;
 
   [TestClass]
   public class FilterDataTableTests
   {
-    private Tuple<DataTable,int, int, int> GetDataTable(int count)
-    {      
-      var countErrors = 0;
-      var countWarning = 0;
-      var countErrorOrWarning = 0;
+    private Tuple<DataTable, int> GetDataTable(int count)
+    {
       var dt = new DataTable("dt");
-      dt.Columns.AddRange(new[]
+
+      var withoutErrors = new List<DataColumn>(new[]
       {
         new DataColumn("ColID", typeof(int)),
         new DataColumn("ColText1", typeof(string)),
         new DataColumn("ColText2", typeof(string)),
         new DataColumn("ColTextDT", typeof(DateTime))
       });
+      dt.Columns.AddRange(withoutErrors.ToArray());
+
       var random = new Random(new Guid().GetHashCode());
       for (var i = 0; i < count; i++)
       {
@@ -34,39 +35,30 @@ namespace CsvTools.Tests
         dt.Rows.Add(row);
         var errType = random.Next(1, 6);
         var isError = false;
-        var isWarning = false;
-        
-        if (errType == 1 )
+
+        if (errType == 1)
         {
           var asWarning = random.Next(1, 3) == 1;
-          if (asWarning)
-            isWarning = true;
-          else
-            isError = true;
+          isError = (!asWarning);
+
           row.RowError = asWarning ? "Row Warning".AddWarningId() : "Row Error";
         }
 
-        if (errType == 2 )
+        if (errType == 2)
         {
           var asWarning = random.Next(1, 3) == 1;
-          if (asWarning)
-            isWarning = true;
-          else
-            isError = true;
-          row.SetColumnError(random.Next(0, 4), asWarning ? "Col Warning".AddWarningId() : "Col Error");
-        }
+          isError = (!asWarning);
 
-        if (isError)
-          countErrors++;
-        if (isWarning)
-          countWarning++;
-        if (isError || isWarning)
-          countErrorOrWarning++;
+          var colNum = random.Next(0, dt.Columns.Count);
+          if (isError)
+            if (withoutErrors.Contains(dt.Columns[colNum]))
+              withoutErrors.Remove(dt.Columns[colNum]);
+          row.SetColumnError(colNum, asWarning ? "Col Warning".AddWarningId() : "Col Error");
+        }
       }
 
-      return new Tuple<DataTable, int, int, int>(dt, countErrors, countWarning, countErrorOrWarning);
+      return new Tuple<DataTable, int>(dt, withoutErrors.Count);
     }
-
 
     [TestMethod]
     public async Task FilterDataTableTest()
@@ -80,7 +72,6 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    
     public void CancelTest()
     {
       var dt = GetDataTable(2000);
@@ -88,18 +79,19 @@ namespace CsvTools.Tests
       test.Cancel();
       // No effect but no error either
       _ = test.StartFilter(0, FilterType.ShowErrors, CancellationToken.None);
-    //  Assert.IsTrue(test.Filtering);
+      // Assert.IsTrue(test.Filtering);
       test.Cancel();
-    //  Assert.IsFalse(test.Filtering);
+      // Assert.IsFalse(test.Filtering);
     }
 
     [TestMethod]
-    public void ColumnsWithoutErrors()
+    public async Task ColumnsWithoutErrorsAsync()
     {
       var dt = GetDataTable(2000);
       var test = new FilterDataTable(dt.Item1);
-      test.StartFilter(0, FilterType.ErrorsAndWarning, CancellationToken.None);
-      Assert.AreEqual(dt.Item1.Rows.Count - dt.Item4 , test.ColumnsWithoutErrors.Count);
+      await test.StartFilter(0, FilterType.ErrorsAndWarning, CancellationToken.None);
+      // not a good test, but its known how many columns will have errors
+      Assert.AreEqual(dt.Item2, test.ColumnsWithoutErrors.Count);
     }
 
     [TestMethod]

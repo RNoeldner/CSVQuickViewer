@@ -12,8 +12,8 @@
  *
  */
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
@@ -47,19 +47,20 @@ namespace CsvTools.Tests
       {
         // all good
       }
-      FunctionalDI.SQLDataReader = UnitTestInitialize.MimicSQLReader.ReadData;
-      var reader = FunctionalDI.SQLDataReader;
-      Assert.IsNotNull(reader);
+
+      FunctionalDI.SQLDataReader = UnitTestInitialize.MimicSQLReader.ReadDataAsync;
+      var readerAsync = FunctionalDI.SQLDataReader;
+      Assert.IsNotNull(readerAsync);
     }
 
-    [TestMethod()]
+    [TestMethod]
     public void GetMappingByFieldTest()
     {
       var csv = new CsvFile();
       Assert.IsNull(csv.MappingCollection.GetByField(""));
       Assert.IsNull(csv.MappingCollection.GetByField("Hello"));
 
-      var map = new Mapping()
+      var map = new Mapping
       {
         FileColumn = "Column",
         TemplateField = "Field"

@@ -30,8 +30,7 @@ namespace CsvTools.Tests
     public static void AssemblyInitialize(TestContext context)
     {
       ApplicationSetting.RootFolder = FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles";
-      FunctionalDI.SQLDataReader = MimicSQLReader.ReadData;
-      FunctionalDI.SQLDataReaderAsync = MimicSQLReader.ReadDataAsync;
+      FunctionalDI.SQLDataReader = MimicSQLReader.ReadDataAsync;
 
       // avoid contract violation kill the process
       Contract.ContractFailed += Contract_ContractFailed;

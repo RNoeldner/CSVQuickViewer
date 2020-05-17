@@ -632,7 +632,8 @@ namespace CsvTools
                 m_Headers.Add(cf.Name);
             }
 
-            FunctionalDI.GetColumnHeader = (dummy1, dummy3) => m_Headers;
+            FunctionalDI.GetColumnHeader = (dummy1, dummy3) => Task.FromResult(m_Headers);
+
             if (warningList.CountRows > 0)
             {
               processDisplay.SetProcess("Warning opening the file", -1, true);
@@ -651,7 +652,7 @@ namespace CsvTools
 
             processDisplay.SetProcess("Reading data...", -1, true);
 
-            DataTable = await fileReader.GetDataTableAsync(m_FileSetting.RecordLimit);
+            DataTable = await fileReader.GetDataTableAsync(m_FileSetting.RecordLimit, m_FileSetting.DisplayStartLineNo, m_FileSetting.DisplayRecordNo);
 
             foreach (var columnName in DataTable.GetRealColumns())
               if (m_FileSetting.ColumnCollection.Get(columnName) == null)
@@ -680,14 +681,7 @@ namespace CsvTools
         }
 
         // The reader is used when data ist stored through the detailControl
-        FunctionalDI.SQLDataReader = (settingName, processDisplay, timeout) =>
-        {
-          var dt = new DataTableReader(detailControl.DataTable, detailControl.DataTable.TableName, null);
-          dt.Open();
-          return dt;
-        };
-
-        FunctionalDI.SQLDataReaderAsync = async (settingName, processDisplay, timeout) =>
+        FunctionalDI.SQLDataReader = async (settingName, processDisplay, timeout) =>
         {
           var dt = new DataTableReader(detailControl.DataTable, detailControl.DataTable.TableName, null);
           await dt.OpenAsync();

@@ -50,7 +50,7 @@ namespace CsvTools.Tests
       var sb = new StringBuilder("{");
       using (var processDisplay = new DummyProcessDisplay())
       {
-        var cols = DetermineColumnFormat.GetSourceColumnInformation(writeFile, processDisplay);
+        var cols = await DetermineColumnFormat.GetSourceColumnInformationAsync(writeFile, processDisplay);
         writeFile.Header = "{\"rowset\":[\n";
 
         // { "firstName":"John", "lastName":"Doe"},
@@ -70,40 +70,6 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void StructuredFileWriterJSONEncodeTest()
-    {
-      var writeFile = new StructuredFile
-      {
-        ID = "Write",
-        FileName = "StructuredFileOutputJSON.txt",
-        SqlStatement = c_ReadID,
-        InOverview = true,
-        JSONEncode = true
-      };
-
-      var sb = new StringBuilder("{");
-      using (var processDisplay = new DummyProcessDisplay())
-      {
-        var cols = DetermineColumnFormat.GetSourceColumnInformation(writeFile, processDisplay);
-        writeFile.Header = "{\"rowset\":[\n";
-
-        // { "firstName":"John", "lastName":"Doe"},
-        foreach (var col in cols)
-        {
-          sb.AppendFormat("\"{0}\":\"{1}\", ", HTMLStyle.JsonElementName(col.Column.Name),
-            string.Format(System.Globalization.CultureInfo.InvariantCulture, StructuredFileWriter.cFieldPlaceholderByName, col.Column.Name));
-        }
-
-        if (sb.Length > 1)
-          sb.Length -= 2;
-        sb.AppendLine("},");
-        writeFile.Row = sb.ToString();
-        var writer = new StructuredFileWriter(writeFile, TimeZoneInfo.Local.Id, processDisplay);
-        writer.Write();
-      }
-    }
-
-    [TestMethod]
     public async Task StructuredFileWriterXMLEncodeTest()
     {
       var writeFile = new StructuredFile
@@ -117,7 +83,7 @@ namespace CsvTools.Tests
       var sb = new StringBuilder();
       using (var processDisplay = new DummyProcessDisplay())
       {
-        var cols = DetermineColumnFormat.GetSourceColumnInformation(writeFile, processDisplay);
+        var cols = await DetermineColumnFormat.GetSourceColumnInformationAsync(writeFile, processDisplay);
         sb.AppendLine("<?xml version=\"1.0\"?>\n");
         sb.AppendLine("<rowset>");
         writeFile.Header = sb.ToString();

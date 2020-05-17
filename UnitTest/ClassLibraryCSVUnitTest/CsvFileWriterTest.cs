@@ -52,7 +52,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void TimeZoneConversions()
+    public async Task TimeZoneConversionsAsync()
     {
       var pd = new MockProcessDisplay();
 
@@ -72,13 +72,13 @@ namespace CsvTools.Tests
       cf.TimeZonePart = "TZ";
       var writer = new CsvFileWriter(writeFile, TimeZoneInfo.Local.Id, pd);
 
-      var res = writer.WriteAsync().WaitToCompleteTask(2);
+      var res = await writer.WriteAsync();
       Assert.IsTrue(FileSystemUtils.FileExists(writeFile.FullPath));
       Assert.AreEqual(1065, res, "Records");
     }
 
     [TestMethod]
-    public void Write()
+    public async Task Write()
     {
       var pd = new MockProcessDisplay();
 
@@ -90,13 +90,13 @@ namespace CsvTools.Tests
       var writer = new CsvFileWriter(writeFile, TimeZoneInfo.Local.Id, pd);
       Assert.IsTrue(string.IsNullOrEmpty(writer.ErrorMessage));
 
-      var res = writer.WriteAsync().WaitToCompleteTask(2);
+      var res = await writer.WriteAsync();
       Assert.IsTrue(FileSystemUtils.FileExists(writeFile.FullPath));
       Assert.AreEqual(7, res);
     }
 
     [TestMethod]
-    public void WriteAllFormats()
+    public async Task WriteAllFormatsAsync()
     {
       var pd = new MockProcessDisplay();
 
@@ -116,62 +116,9 @@ namespace CsvTools.Tests
       cf.TimeZonePart = "\"UTC\"";
       var writer = new CsvFileWriter(writeFile, TimeZoneInfo.Local.Id, pd);
 
-      var res = writer.Write();
+      var res = await writer.WriteAsync();
       Assert.IsTrue(FileSystemUtils.FileExists(writeFile.FullPath));
       Assert.AreEqual(1065, res, "Records");
-    }
-
-    [TestMethod]
-    public void WriteAllFormatsAsync()
-    {
-      var pd = new MockProcessDisplay();
-
-      var writeFile = (CsvFile)m_WriteFile.Clone();
-      writeFile.FileName = "BasicCSVOut2.txt";
-
-      FileSystemUtils.FileDelete(writeFile.FullPath);
-      var setting = Helper.ReaderGetAllFormats();
-
-      UnitTestInitialize.MimicSQLReader.AddSetting(setting);
-      writeFile.SqlStatement = setting.ID;
-      writeFile.FileFormat.FieldDelimiter = "|";
-      var cf = writeFile.ColumnCollection.AddIfNew(new Column("DateTime", DataType.DateTime));
-      cf.ValueFormat.DateFormat = "yyyyMMdd";
-      cf.TimePartFormat = @"hh:mm";
-      cf.TimePart = "Time";
-      cf.TimeZonePart = "\"UTC\"";
-      var writer = new CsvFileWriter(writeFile, TimeZoneInfo.Local.Id, pd);
-
-      var res = writer.WriteAsync().WaitToCompleteTask(60);
-      Assert.IsTrue(FileSystemUtils.FileExists(writeFile.FullPath));
-      Assert.AreEqual(1065, res, "Records");
-    }
-
-    [TestMethod]
-    public void WriteDataTable()
-    {
-      using (var dataTable = new DataTable { TableName = "DataTable", Locale = CultureInfo.InvariantCulture })
-      {
-        dataTable.Columns.Add("ID", typeof(int));
-        dataTable.Columns.Add("Text", typeof(string));
-        for (var i = 0; i < 100; i++)
-        {
-          var row = dataTable.NewRow();
-          row["ID"] = i;
-          row["Text"] = i.ToString(CultureInfo.CurrentCulture);
-          dataTable.Rows.Add(row);
-        }
-
-        var writeFile = new CsvFile { ID = "Test.txt", FileName = "Test.txt", SqlStatement = "Hello" };
-        using (var processDisplay = new DummyProcessDisplay())
-        {
-          var writer = new CsvFileWriter(writeFile, TimeZoneInfo.Local.Id, processDisplay);
-          using (var reader = new DataTableReader(dataTable, "dummy", processDisplay))
-            Assert.AreEqual(100, writer.Write(reader));
-        }
-
-        Assert.IsTrue(File.Exists(writeFile.FullPath));
-      }
     }
 
     [TestMethod]
@@ -200,9 +147,9 @@ namespace CsvTools.Tests
         Assert.IsTrue(File.Exists(writeFile.FullPath));
       }
     }
-    
+
     [TestMethod]
-    public void WriteDataTableHandleIssues()
+    public async Task WriteDataTableHandleIssuesAsync()
     {
       using (var dataTable = new DataTable { TableName = "DataTable", Locale = CultureInfo.InvariantCulture })
       {
@@ -226,7 +173,7 @@ namespace CsvTools.Tests
           var writer = new CsvFileWriter(writeFile, TimeZoneInfo.Local.Id, processDisplay);
           writer.Warning += (object sender, WarningEventArgs e) => { count++; };
           using (var reader = new DataTableReader(dataTable, "dummy", processDisplay))
-            Assert.AreEqual(100, writer.Write(reader), "Records");
+            Assert.AreEqual(100, await writer.WriteAsync(reader), "Records");
           Assert.AreEqual(100, count, "Warnings");
         }
 
@@ -235,7 +182,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void WriteFileLocked()
+    public async Task WriteFileLocked()
     {
       using (var dataTable = new DataTable { TableName = "DataTable", Locale = CultureInfo.InvariantCulture })
       {
@@ -250,26 +197,26 @@ namespace CsvTools.Tests
         }
 
         var writeFile = new CsvFile
-                          {
-                            ID = "Test.txt",
-                            FileName = "WriteFileLocked.txt",
-                            InOverview = false,
-                            SqlStatement = "dummy"
-                          };
+        {
+          ID = "Test.txt",
+          FileName = "WriteFileLocked.txt",
+          InOverview = false,
+          SqlStatement = "dummy"
+        };
         FileSystemUtils.FileDelete(writeFile.FileName);
         using (var file = new StreamWriter(writeFile.FullPath))
         {
-          file.WriteLine("Hello");
+          await file.WriteLineAsync("Hello");
           using (var processDisplay = new DummyProcessDisplay())
           {
             var writer = new CsvFileWriter(writeFile, TimeZoneInfo.Local.Id, processDisplay);
             using (var reader = new DataTableReader(dataTable, "dummy", processDisplay))
-              writer.WriteAsync(reader).WaitToCompleteTask(60);
+              await writer.WriteAsync(reader);
 
             Assert.IsTrue(!string.IsNullOrEmpty(writer.ErrorMessage));
           }
 
-          file.WriteLine("World");
+          await file.WriteLineAsync("World");
         }
 
         FileSystemUtils.FileDelete(writeFile.FileName);
@@ -277,7 +224,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void WriteGZip()
+    public async Task WriteGZipAsync()
     {
       var pd = new MockProcessDisplay();
 
@@ -289,7 +236,7 @@ namespace CsvTools.Tests
       var writer = new CsvFileWriter(writeFile, TimeZoneInfo.Local.Id, pd);
       Assert.IsTrue(string.IsNullOrEmpty(writer.ErrorMessage));
 
-      var res = writer.WriteAsync().WaitToCompleteTask(2);
+      var res = await writer.WriteAsync();
       Assert.IsTrue(FileSystemUtils.FileExists(writeFile.FullPath));
       Assert.AreEqual(7, res);
     }

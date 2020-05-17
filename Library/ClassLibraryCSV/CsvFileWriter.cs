@@ -52,13 +52,13 @@ namespace CsvTools
       m_FieldDelimiter = m_CsvFile.FileFormat.FieldDelimiterChar.ToString(CultureInfo.CurrentCulture);
       if (!string.IsNullOrEmpty(file.FileFormat.EscapeCharacter))
       {
-        m_QualifyCharArray = new[] { (char)0x0a, (char)0x0d };
+        m_QualifyCharArray = new[] {(char) 0x0a, (char) 0x0d};
         m_FieldQualifierEscaped = file.FileFormat.EscapeCharacterChar + m_FieldQualifier;
         m_FieldDelimiterEscaped = file.FileFormat.EscapeCharacterChar + m_FieldDelimiter;
       }
       else
       {
-        m_QualifyCharArray = new[] { (char)0x0a, (char)0x0d, m_CsvFile.FileFormat.FieldDelimiterChar };
+        m_QualifyCharArray = new[] {(char) 0x0a, (char) 0x0d, m_CsvFile.FileFormat.FieldDelimiterChar};
         m_FieldQualifierEscaped = new string(m_CsvFile.FileFormat.FieldQualifierChar, 2);
         m_FieldDelimiterEscaped = new string(m_CsvFile.FileFormat.FieldDelimiterChar, 1);
       }
@@ -70,7 +70,8 @@ namespace CsvTools
     /// <param name="reader">A Data Reader with the data</param>
     /// <param name="output">The output.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    protected override async Task WriteReaderAsync(IFileReader reader, Stream output, CancellationToken cancellationToken)
+    protected override async Task WriteReaderAsync(IFileReader reader, Stream output,
+      CancellationToken cancellationToken)
     {
       using (var writer = new StreamWriter(output,
         EncodingHelper.GetEncoding(m_CsvFile.CodePageId, m_CsvFile.ByteOrderMark), 8192))
@@ -84,9 +85,9 @@ namespace CsvTools
             await writer.WriteAsync(sb.ToString());
             sb.Length = 0;
           }
-          if (WriterProcessRecord(reader, sb, writer, Columns.Count(), recordEnd)) break;
-        }
 
+          if (WriterProcessRecord(reader, sb, Columns.Count(), recordEnd)) break;
+        }
 
         if (!string.IsNullOrEmpty(m_CsvFile.Footer))
           sb.Append(ReplacePlaceHolder(StringUtils.HandleCRLFCombinations(m_CsvFile.Footer, recordEnd)));
@@ -97,34 +98,7 @@ namespace CsvTools
       }
     }
 
-    protected override void WriteReader(IFileReader reader, Stream output, CancellationToken cancellationToken)
-    {
-      using (var writer = new StreamWriter(output,
-        EncodingHelper.GetEncoding(m_CsvFile.CodePageId, m_CsvFile.ByteOrderMark), 8192))
-      {
-        var sb = WriterStart(reader, out var recordEnd);
-
-        while (reader.Read() && !cancellationToken.IsCancellationRequested)
-        {
-          if (sb.Length > 32768)
-          {
-            writer.Write(sb.ToString());
-            sb.Length = 0;
-          }
-          if (WriterProcessRecord(reader, sb, writer, Columns.Count(), recordEnd)) break;
-        }
-
-
-        if (!string.IsNullOrEmpty(m_CsvFile.Footer))
-          sb.Append(ReplacePlaceHolder(StringUtils.HandleCRLFCombinations(m_CsvFile.Footer, recordEnd)));
-        else if (sb.Length > 0)
-          sb.Length -= recordEnd.Length;
-
-        writer.Write(sb.ToString());
-      }
-    }
-
-    private bool WriterProcessRecord(IDataReader reader, StringBuilder sb, TextWriter writer,
+    private bool WriterProcessRecord(IDataReader reader, StringBuilder sb,
       int numColumns, string recordEnd)
     {
       NextRecord();
@@ -162,9 +136,8 @@ namespace CsvTools
 
       if (Columns.Count == 0)
         throw new FileWriterException("No columns defined to be written.");
-      
 
-      recordEnd = this.GetRecordEnd();
+      recordEnd = GetRecordEnd();
       HandleWriteStart();
 
       var sb = new StringBuilder();

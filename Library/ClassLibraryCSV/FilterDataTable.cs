@@ -12,17 +12,16 @@
  *
  */
 
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Diagnostics;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace CsvTools
 {
-  using System;
-  using System.Collections.Generic;
-  using System.Data;
-  using System.Diagnostics;
-  using System.Linq;
-  using System.Threading;
-  using System.Threading.Tasks;
-
   /// <summary>
   ///   Utility Class to filter a DataTable for Errors
   /// </summary>
@@ -45,10 +44,7 @@ namespace CsvTools
     ///   Initializes a new instance of the <see cref="FilterDataTable" /> class.
     /// </summary>
     /// <param name="init">The initial DataTable</param>
-    public FilterDataTable(DataTable init)
-    {
-      m_SourceTable = init;
-    }
+    public FilterDataTable(DataTable init) => m_SourceTable = init;
 
     /// <summary>
     ///   Gets the columns without errors.
@@ -60,10 +56,10 @@ namespace CsvTools
       {
         var withoutErrors = ColumnsWithoutErrors;
 
-        return (from DataColumn col in this.FilterTable.Columns
-                where !col.ColumnName.Equals(BaseFileReader.cErrorField, StringComparison.OrdinalIgnoreCase)
-                where !withoutErrors.Contains(col.ColumnName)
-                select col.ColumnName).ToList();
+        return (from DataColumn col in FilterTable.Columns
+          where !col.ColumnName.Equals(BaseFileReader.cErrorField, StringComparison.OrdinalIgnoreCase)
+          where !withoutErrors.Contains(col.ColumnName)
+          select col.ColumnName).ToList();
       }
     }
 
@@ -150,9 +146,14 @@ namespace CsvTools
         m_UniqueFieldName.Clear();
         if (value != null && value.Any())
           m_UniqueFieldName.AddRange(value);
-
       }
     }
+
+    /// <summary>
+    ///   Performs application-defined tasks associated with freeing, releasing, or resetting
+    ///   unmanaged resources.
+    /// </summary>
+    public void Dispose() => Dispose(true);
 
     public void Cancel()
     {
@@ -168,17 +169,11 @@ namespace CsvTools
       m_CurrentFilterCancellationTokenSource = null;
     }
 
-    /// <summary>
-    ///   Performs application-defined tasks associated with freeing, releasing, or resetting
-    ///   unmanaged resources.
-    /// </summary>
-    public void Dispose() => Dispose(true);
-
     private void Filter(int limit, FilterType type)
     {
       if (limit < 1)
         limit = int.MaxValue;
-
+      m_ColumnWithoutErrors = null;
       m_Filtering = true;
       try
       {
@@ -221,7 +216,6 @@ namespace CsvTools
 
         CutAtLimit = rows >= limit;
       }
-      
       catch (Exception ex)
       {
         Logger.Warning(ex.SourceExceptionMessage());
@@ -245,7 +239,6 @@ namespace CsvTools
       return Task.Run(() => Filter(limit, type), m_CurrentFilterCancellationTokenSource.Token);
     }
 
-
     public void WaitCompeteFilter(double timeoutInSeconds)
     {
       if (m_Filtering)
@@ -255,7 +248,7 @@ namespace CsvTools
         while (m_Filtering)
         {
           FunctionalDI.SignalBackground?.Invoke();
-          if (timeoutInSeconds > 0 && stopwatch.Elapsed.TotalSeconds > timeoutInSeconds)
+          if (timeoutInSeconds > 0.01 && stopwatch.Elapsed.TotalSeconds > timeoutInSeconds)
           {
             // can not call Cancel as this method is called by cancel
             m_CurrentFilterCancellationTokenSource.Cancel();

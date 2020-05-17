@@ -1,10 +1,25 @@
-﻿using Newtonsoft.Json;
+﻿/*
+ * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
+ *
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
+ * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License along with this program.
+ * If not, see http://www.gnu.org/licenses/ .
+ *
+ */
+
+
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace CsvTools
 {
@@ -39,11 +54,11 @@ namespace CsvTools
     public override async Task OpenAsync()
     {
       BeforeOpen($"Opening Json file {FileSystemUtils.GetShortDisplayFileName(m_StructuredFile.FileName, 80)}");
-    Retry:
+      Retry:
       try
       {
         m_AssumeLog = false;
-      again:
+        again:
         ResetPositionToStartOrOpen();
 
         var line = await GetNextRecordAsync(false);
@@ -67,7 +82,7 @@ namespace CsvTools
         var col = 0;
         foreach (var colValue in line)
           CurrentValues[col++] = colValue.Value;
-        var colType = GetColumnType();
+        var colType = await GetColumnTypeAsync();
 
         // Read the types of the first row
         for (var counter = 0; counter < FieldCount; counter++)
@@ -96,86 +111,7 @@ namespace CsvTools
       }
     }
 
-    public override void Open()
-    {
-      BeforeOpen($"Opening Json file {FileSystemUtils.GetShortDisplayFileName(m_StructuredFile.FileName, 80)}");
-    Retry:
-      try
-      {
-        m_AssumeLog = false;
-      again:
-        ResetPositionToStartOrOpen();
-
-        var line = GetNextRecord(false);
-        try
-        {
-          GetNextRecord(true);
-        }
-        catch (JsonReaderException ex)
-        {
-          Logger.Warning(ex, "Issue reading the JSon file, trying to read it as JSon Log output");
-          m_AssumeLog = true;
-          goto again;
-        }
-
-        // need to call InitColumn to set the Field Count and initialize all array
-        base.InitColumn(line.Count);
-        var header = line.Select(colValue => colValue.Key).ToList();
-        ParseColumnName(header);
-
-        // Set CurrentValues as it has been created now
-        var col = 0;
-        foreach (var colValue in line)
-          CurrentValues[col++] = colValue.Value;
-        var colType = GetColumnType();
-
-        // Read the types of the first row
-        for (var counter = 0; counter < FieldCount; counter++)
-          GetColumn(counter).ValueFormat.DataType = colType[counter];
-
-        base.FinishOpen();
-
-        ResetPositionToStartOrOpen();
-      }
-      catch (Exception ex)
-      {
-        if (ShouldRetry(ex))
-          goto Retry;
-
-        Close();
-        var appEx = new FileReaderException(
-          "Error opening structured text file for reading.\nPlease make sure the file does exist, is of the right type and is not locked by another process.",
-          ex);
-        HandleError(-1, appEx.ExceptionMessages());
-        HandleReadFinished();
-        throw appEx;
-      }
-      finally
-      {
-        HandleShowProgress("");
-      }
-    }
-
-    /// <summary>
-    ///   Advances to the next record.
-    /// </summary>
-    /// <returns>true if there are more rows; otherwise, false.</returns>
-    public override bool Read()
-    {
-      if (!CancellationToken.IsCancellationRequested)
-      {
-        var couldRead = GetNextRecord(false) != null;
-        InfoDisplay(couldRead);
-
-        if (couldRead && !IsClosed)
-          return true;
-      }
-
-      HandleReadFinished();
-      return false;
-    }
-
-    public async override Task<bool> ReadAsync()
+    public override async Task<bool> ReadAsync()
     {
       if (!CancellationToken.IsCancellationRequested)
       {
@@ -190,7 +126,7 @@ namespace CsvTools
       return false;
     }
 
-    public new void ResetPositionToFirstDataRow() => ResetPositionToStartOrOpen();
+    public new async Task ResetPositionToFirstDataRowAsync() => ResetPositionToStartOrOpen();
 
     /// <summary>
     ///   Releases unmanaged and - optionally - managed resources
@@ -229,131 +165,6 @@ namespace CsvTools
     ///   the structure of the Json file
     /// </summary>
     /// <returns>A collection with name and value of the properties</returns>
-    private ICollection<KeyValuePair<string, object>> GetNextRecord(bool throwError)
-    {
-      try
-      {
-        if (m_AssumeLog)
-        {
-          SetTextReader();
-          StartLineNumber = m_TextReaderLine;
-        }
-
-        var headers = new Dictionary<string, bool>();
-        var keyValuePairs = new Dictionary<string, object>();
-        while (m_JsonTextReader.TokenType != JsonToken.StartObject
-               // && m_JsonTextReader.TokenType != JsonToken.PropertyName
-               && m_JsonTextReader.TokenType != JsonToken.StartArray)
-          if (!m_JsonTextReader.Read())
-            return null;
-
-        // sore the parent Property Name in parentKey
-        var startKey = string.Empty;
-        var endKey = "<dummy>";
-        var key = string.Empty;
-
-        // sore the current Property Name in key
-        if (!m_AssumeLog)
-          StartLineNumber = m_JsonTextReader.LineNumber;
-        var inArray = false;
-        do
-        {
-          switch (m_JsonTextReader.TokenType)
-          {
-            // either the start of the row or a sub object that will be flattened
-            case JsonToken.StartObject:
-              if (startKey.Length == 0)
-                startKey = m_JsonTextReader.Path;
-              break;
-
-            case JsonToken.EndObject:
-              endKey = m_JsonTextReader.Path;
-              break;
-
-            // arrays will be read as multi line columns
-            case JsonToken.StartArray:
-              inArray = true;
-              break;
-
-            case JsonToken.PropertyName:
-              key = startKey.Length > 0 ? m_JsonTextReader.Path.Substring(startKey.Length + 1) : m_JsonTextReader.Path;
-              if (!headers.ContainsKey(key))
-              {
-                headers.Add(key, false);
-                keyValuePairs.Add(key, null);
-              }
-
-              break;
-
-            case JsonToken.Raw:
-            case JsonToken.Null:
-              headers[key] = true;
-              break;
-
-            case JsonToken.Date:
-            case JsonToken.Bytes:
-            case JsonToken.Integer:
-            case JsonToken.Float:
-            case JsonToken.String:
-            case JsonToken.Boolean:
-              // in case there is a property its a real column, otherwise its used for structuring only
-              headers[key] = true;
-
-              // in case we are in an array combine all values but separate them with linefeed
-              if (inArray && keyValuePairs[key] != null)
-                keyValuePairs[key] = keyValuePairs[key].ToString() + '\n' + m_JsonTextReader.Value;
-              else
-                keyValuePairs[key] = m_JsonTextReader.Value;
-              break;
-
-            case JsonToken.EndArray:
-              inArray = false;
-              break;
-          }
-
-          CancellationToken.ThrowIfCancellationRequested();
-        } while (!(m_JsonTextReader.TokenType == JsonToken.EndObject && startKey == endKey)
-                 && m_JsonTextReader.Read());
-
-        EndLineNumber = !m_AssumeLog ? m_JsonTextReader.LineNumber : m_TextReaderLine;
-        RecordNumber++;
-
-        foreach (var kv in headers)
-          if (!kv.Value)
-            keyValuePairs.Remove(kv.Key);
-
-        // store the information into our fixed structure, even if the tokens in Json change order
-        // they will aligned
-        if (Column == null || Column.Length == 0) return keyValuePairs;
-        var colNum = 0;
-        foreach (var col in Column)
-        {
-          if (keyValuePairs.TryGetValue(col.Name, out CurrentValues[colNum]))
-            if (CurrentValues[colNum] != null)
-              CurrentRowColumnText[colNum] = CurrentValues[colNum].ToString();
-          colNum++;
-        }
-
-        if (keyValuePairs.Count < FieldCount)
-          HandleWarning(-1,
-            $"Line {StartLineNumber} has fewer columns than expected ({keyValuePairs.Count}/{FieldCount}).");
-        else if (keyValuePairs.Count > FieldCount)
-          HandleWarning(-1,
-            $"Line {StartLineNumber} has more columns than expected ({keyValuePairs.Count}/{FieldCount}). The data in extra columns is not read.");
-
-        return keyValuePairs;
-      }
-      catch (Exception ex)
-      {
-        if (throwError)
-          throw;
-        // A serious error will be logged and its assume the file is ended
-        HandleError(-1, ex.Message);
-        EndOfFile = true;
-        return null;
-      }
-    }
-
     private async Task<ICollection<KeyValuePair<string, object>>> GetNextRecordAsync(bool throwError)
     {
       try
@@ -486,9 +297,9 @@ namespace CsvTools
     {
       // if we know how many records to read, use that
       if (m_StructuredFile.RecordLimit > 0)
-        return (int)(RecordNumber / m_StructuredFile.RecordLimit * cMaxValue);
+        return (int) (RecordNumber / m_StructuredFile.RecordLimit * cMaxValue);
 
-      return (int)(m_ImprovedStream.Percentage * cMaxValue);
+      return (int) (m_ImprovedStream.Percentage * cMaxValue);
     }
 
     /// <summary>
@@ -504,7 +315,7 @@ namespace CsvTools
       if (m_ImprovedStream == null)
         m_ImprovedStream = FunctionalDI.OpenRead(m_StructuredFile);
 
-      m_ImprovedStream.ResetToStart(delegate (Stream str)
+      m_ImprovedStream.ResetToStart(delegate(Stream str)
       {
         // in case we can not seek need to reopen the stream reader
         if (!str.CanSeek || m_TextReader == null)
@@ -537,7 +348,7 @@ namespace CsvTools
       };
     }
 
-    #region TextReader
+#region TextReader
 
     // Buffer size set to 64kB, if set to large the display in percentage will jump
     private const int c_BufferSize = 65536;
@@ -560,12 +371,12 @@ namespace CsvTools
     /// <summary>
     ///   The line-feed character. Escape code is <c>\n</c>.
     /// </summary>
-    private const char c_Lf = (char)0x0a;
+    private const char c_Lf = (char) 0x0a;
 
     /// <summary>
     ///   The carriage return character. Escape code is <c>\r</c>.
     /// </summary>
-    private const char c_Cr = (char)0x0d;
+    private const char c_Cr = (char) 0x0d;
 
     /// <summary>
     ///   Fills the buffer with data from the reader.
@@ -664,6 +475,6 @@ namespace CsvTools
       m_JsonTextReader = new JsonTextReader(new StringReader(sb.ToString()));
     }
 
-    #endregion TextReader
+#endregion TextReader
   }
 }

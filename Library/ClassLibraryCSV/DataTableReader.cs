@@ -32,9 +32,7 @@ namespace CsvTools
       new DataTableSetting(id), TimeZoneInfo.Local.Id, processDisplay) =>
       m_DataTable = dt ?? throw new ArgumentNullException(nameof(dt));
 
-    public override DataTable GetDataTable(long recordLimit) => m_DataTable;
-
-    public override async Task<DataTable> GetDataTableAsync(long recordLimit) => m_DataTable;
+    public override async Task<DataTable> GetDataTableAsync(long recordLimit, bool ignore1, bool ignore2) => m_DataTable;
 
     public override string GetName(int i) => m_DbDataReader.GetName(i);
 
@@ -72,10 +70,7 @@ namespace CsvTools
 
     public override double GetDouble(int i) => m_DbDataReader.GetDouble(i);
 
-    public override string GetString(int i)
-    {
-      return m_DbDataReader.GetValue(i).ToString();
-    }
+    public override string GetString(int i) => m_DbDataReader.GetValue(i).ToString();
 
     public override decimal GetDecimal(int i) => m_DbDataReader.GetDecimal(i);
 
@@ -87,9 +82,9 @@ namespace CsvTools
 
     public override int FieldCount => m_DbDataReader.FieldCount;
 
-    public object this[int i] => m_DbDataReader[i];
+    public new object this[int i] => m_DbDataReader[i];
 
-    public object this[string name] => m_DbDataReader[name];
+    public new object this[string name] => m_DbDataReader[name];
 
     public override int RecordsAffected => m_DbDataReader.RecordsAffected;
     public override int Depth => m_DbDataReader.Depth;
@@ -100,7 +95,7 @@ namespace CsvTools
 
     public override bool NextResult() => m_DbDataReader.NextResult();
 
-    public override void Open()
+    public override async Task OpenAsync()
     {
       BeforeOpen("Opening Data Table");
       InitColumn(m_DataTable.Columns.Count);
@@ -112,7 +107,8 @@ namespace CsvTools
         column.ValueFormat.DataType = col.DataType.GetDataType();
         column.Name = col.ColumnName;
       }
-      ResetPositionToFirstDataRow();
+
+      await ResetPositionToFirstDataRowAsync();
     }
 
     public override void Close()
@@ -124,22 +120,7 @@ namespace CsvTools
     public override long StartLineNumber => RecordNumber;
     public override long EndLineNumber => RecordNumber;
 
-    public override bool Read()
-    {
-      if (!CancellationToken.IsCancellationRequested)
-      {
-        EndOfFile = !m_DbDataReader.Read();
-        if (!EndOfFile) RecordNumber++;
-
-        InfoDisplay(!EndOfFile);
-        if (!EndOfFile && !IsClosed)
-          return true;
-      }
-      HandleReadFinished();
-      return false;
-    }
-
-    public async override Task<bool> ReadAsync()
+    public override async Task<bool> ReadAsync()
     {
       if (!CancellationToken.IsCancellationRequested)
       {
@@ -150,18 +131,19 @@ namespace CsvTools
         if (!EndOfFile && !IsClosed)
           return true;
       }
+
       HandleReadFinished();
       return false;
     }
 
-    public new void ResetPositionToFirstDataRow()
+    public new async Task ResetPositionToFirstDataRowAsync()
     {
-      base.ResetPositionToFirstDataRow();
+      await base.ResetPositionToFirstDataRowAsync();
       m_DbDataReader?.Dispose();
       m_DbDataReader = m_DataTable.CreateDataReader();
     }
 
-    protected override int GetRelativePosition() => (int)((double)RecordNumber / m_DataTable.Rows.Count * cMaxValue);
+    protected override int GetRelativePosition() => (int) ((double) RecordNumber / m_DataTable.Rows.Count * cMaxValue);
 
     protected override void Dispose(bool disposing)
     {

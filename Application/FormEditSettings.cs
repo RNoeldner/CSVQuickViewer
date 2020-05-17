@@ -20,6 +20,7 @@ namespace CsvTools
   using System.Diagnostics;
   using System.Globalization;
   using System.Threading;
+  using System.Threading.Tasks;
   using System.Windows.Forms;
 
   /// <summary>
@@ -110,7 +111,7 @@ namespace CsvTools
         m_ViewSettings.CodePageId = ((DisplayItem<int>)cboCodePage.SelectedItem).ID;
     }
 
-    private async System.Threading.Tasks.Task ChangeFileNameAsync(string newFileName)
+    private async Task ChangeFileNameAsync(string newFileName)
     {
       m_ViewSettings.FileName = newFileName.GetRelativePath(ApplicationSetting.RootFolder);
       var oldCursor = Cursor.Current == Cursors.WaitCursor ? Cursors.WaitCursor : Cursors.Default;
@@ -210,7 +211,7 @@ namespace CsvTools
       cboRecordDelimiter.SelectedValue = selValue;
 
       quotingControl.CsvFile = m_ViewSettings;
-      
+
       CsvFile_PropertyChanged(null, new PropertyChangedEventArgs(nameof(ViewSettings.CodePageId)));
     }
 

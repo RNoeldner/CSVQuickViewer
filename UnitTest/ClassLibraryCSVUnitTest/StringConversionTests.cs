@@ -111,13 +111,6 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void TestStartDate()
-    {
-      Assert.AreEqual(0, new DateTime(1899, 12, 30).ToOADate());
-      Assert.AreEqual(0, StringConversion.FixExcelNPOIDate(new DateTime(1899, 12, 31)).ToOADate());
-    }
-
-    [TestMethod]
     public void DisplayDateTime()
     {
       Assert.AreEqual("12/14/2001",

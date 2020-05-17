@@ -68,19 +68,6 @@ namespace CsvTools
     /// </summary>
     public event EventHandler WriteFinished;
 
-    public virtual long Write()
-    {
-      if (string.IsNullOrEmpty(m_FileSetting.SqlStatement))
-        return 0;
-      if (FunctionalDI.SQLDataReader == null)
-        throw new ArgumentException("No SQL Reader set");
-      using (var sqlReader =
-        FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement, m_ProcessDisplay, m_FileSetting.Timeout))
-      {
-        return Write(sqlReader);
-      }
-    }
-
     /// <summary>
     ///   Writes the specified file.
     /// </summary>
@@ -89,9 +76,9 @@ namespace CsvTools
     {
       if (string.IsNullOrEmpty(m_FileSetting.SqlStatement))
         return 0;
-      if (FunctionalDI.SQLDataReaderAsync == null)
+      if (FunctionalDI.SQLDataReader == null)
         throw new ArgumentException("No Async SQL Reader set");
-      using (var sqlReader = await FunctionalDI.SQLDataReaderAsync(m_FileSetting.SqlStatement, m_ProcessDisplay, m_FileSetting.Timeout))
+      using (var sqlReader = await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement, m_ProcessDisplay, m_FileSetting.Timeout))
       {
         return await WriteAsync(sqlReader);
       }
@@ -115,37 +102,6 @@ namespace CsvTools
 
           await WriteReaderAsync(reader, improvedStream.Stream,
             m_ProcessDisplay?.CancellationToken ?? CancellationToken.None);
-        }
-      }
-      catch (Exception exc)
-      {
-        ErrorMessage = $"Could not write file '{m_FileSetting.FileName}'.\r\n{exc.ExceptionMessages()}";
-        if (m_FileSetting.InOverview)
-          throw;
-      }
-      finally
-      {
-        HandleWriteFinished();
-      }
-
-      return Records;
-    }
-
-    public long Write(IFileReader reader)
-    {
-      if (reader == null)
-        return -1;
-      HandleWriteStart();
-      if (m_ProcessDisplay != null)
-        m_ProcessDisplay.Maximum = -1;
-      try
-      {
-        using (var improvedStream = FunctionalDI.OpenWrite(m_FileSetting))
-        {
-          if (reader.IsClosed)
-            reader.Open();
-
-          WriteReader(reader, improvedStream.Stream, m_ProcessDisplay?.CancellationToken ?? CancellationToken.None);
         }
       }
       catch (Exception exc)
@@ -365,9 +321,6 @@ namespace CsvTools
 
       return displayAs;
     }
-
-    protected abstract void WriteReader(IFileReader reader, Stream output,
-      CancellationToken cancellationToken);
 
     protected abstract Task WriteReaderAsync(IFileReader reader, Stream output,
       CancellationToken cancellationToken);

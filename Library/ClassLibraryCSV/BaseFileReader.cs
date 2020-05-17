@@ -12,18 +12,18 @@
  *
  */
 
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.Common;
+using System.Diagnostics;
+using System.Globalization;
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
+
 namespace CsvTools
 {
-  using System;
-  using System.Collections.Generic;
-  using System.Data;
-  using System.Data.Common;
-  using System.Diagnostics;
-  using System.Globalization;
-  using System.IO;
-  using System.Threading;
-  using System.Threading.Tasks;
-
   /// <summary>
   ///   Abstract class as base for all DataReaders
   /// </summary>
@@ -63,15 +63,17 @@ namespace CsvTools
     ///   Collection of the artificial field names
     /// </summary>
     public static readonly ICollection<string> ArtificialFields = new HashSet<string>
-                                                                    {
-                                                                      cRecordNumberFieldName,
-                                                                      cStartLineNumberFieldName,
-                                                                      cEndLineNumberFieldName,
-                                                                      cErrorField,
-                                                                      cPartitionField
-                                                                    };
+    {
+      cRecordNumberFieldName,
+      cStartLineNumberFieldName,
+      cEndLineNumberFieldName,
+      cErrorField,
+      cPartitionField
+    };
 
     protected readonly string DestinationTimeZone;
+
+    private readonly IntervalAction m_IntervalAction = new IntervalAction();
 
     /// <summary>
     ///   An array of associated col
@@ -87,8 +89,6 @@ namespace CsvTools
     ///   An array of current row column text
     /// </summary>
     protected string[] CurrentRowColumnText;
-
-    private readonly IntervalAction m_IntervalAction = new IntervalAction();
 
     /// <summary>
     ///   An array of associated col
@@ -125,6 +125,7 @@ namespace CsvTools
               $"The file '{FileSystemUtils.GetShortDisplayFileName(fileSettingPhysical.FileName, 80)}' does not exist or is not accessible.",
               fileSettingPhysical.FileName);
       }
+
       DestinationTimeZone = string.IsNullOrEmpty(destinationTimeZone) ? TimeZoneInfo.Local.Id : destinationTimeZone;
       if (processDisplay != null)
       {
@@ -139,27 +140,6 @@ namespace CsvTools
       ProcessDisplay = processDisplay;
       Logger.Debug("Created Reader for {filesetting}", fileSetting.ToString());
     }
-
-    /// <summary>
-    ///   Occurs when something went wrong during opening of the setting, this might be the file
-    ///   does not exist or a query ran into a timeout
-    /// </summary>
-    public virtual event EventHandler<RetryEventArgs> OnAskRetry;
-
-    /// <summary>
-    ///   Occurs before the file is opened
-    /// </summary>
-    public event EventHandler OnOpen;
-
-    /// <summary>
-    ///   Event to be raised if reading the files is completed
-    /// </summary>
-    public event EventHandler ReadFinished;
-
-    /// <summary>
-    ///   Event handler called if a warning or error occurred
-    /// </summary>
-    public virtual event EventHandler<WarningEventArgs> Warning;
 
     /// <summary>
     ///   Gets a value indicating the depth of nesting for the current row.
@@ -253,6 +233,33 @@ namespace CsvTools
     /// <value></value>
     public object this[int columnNumber] => GetValue(columnNumber);
 
+    /// <summary>
+    ///   Performs application-defined tasks associated with freeing, releasing, or resetting
+    ///   unmanaged resources.
+    /// </summary>
+    public virtual void Dispose() => Dispose(true);
+
+    /// <summary>
+    ///   Occurs when something went wrong during opening of the setting, this might be the file
+    ///   does not exist or a query ran into a timeout
+    /// </summary>
+    public virtual event EventHandler<RetryEventArgs> OnAskRetry;
+
+    /// <summary>
+    ///   Occurs before the file is opened
+    /// </summary>
+    public event EventHandler OnOpen;
+
+    /// <summary>
+    ///   Event to be raised if reading the files is completed
+    /// </summary>
+    public event EventHandler ReadFinished;
+
+    /// <summary>
+    ///   Event handler called if a warning or error occurred
+    /// </summary>
+    public virtual event EventHandler<WarningEventArgs> Warning;
+
     public static IEnumerable<string> ParseColumnNames(
       IEnumerable<string> columns,
       int fieldCount,
@@ -260,9 +267,10 @@ namespace CsvTools
     {
       var previousColumns = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
       using (var enumerator = columns.GetEnumerator())
+      {
         for (var counter = 0; counter < fieldCount; counter++)
         {
-          var columnName = (enumerator.MoveNext()) ? enumerator.Current : string.Empty;
+          var columnName = enumerator.MoveNext() ? enumerator.Current : string.Empty;
           string resultingName;
           if (string.IsNullOrEmpty(columnName))
           {
@@ -294,18 +302,13 @@ namespace CsvTools
           yield return resultingName;
           previousColumns.Add(resultingName);
         }
+      }
     }
 
     /// <summary>
     ///   Closes the <see cref="IDataReader" /> Object.
     /// </summary>
     public virtual void Close() => EndOfFile = true;
-
-    /// <summary>
-    ///   Performs application-defined tasks associated with freeing, releasing, or resetting
-    ///   unmanaged resources.
-    /// </summary>
-    public virtual void Dispose() => Dispose(true);
 
     // To detect redundant calls
     /// <summary>
@@ -384,7 +387,7 @@ namespace CsvTools
     public virtual long GetChars(int i, long fieldOffset, char[] buffer, int bufferOffset, int length)
     {
       Debug.Assert(CurrentRowColumnText != null);
-      var offset = (int)fieldOffset;
+      var offset = (int) fieldOffset;
       var maxLen = CurrentRowColumnText[i].Length - offset;
       if (maxLen > length)
         maxLen = length;
@@ -408,40 +411,7 @@ namespace CsvTools
       return Column[columnNumber];
     }
 
-    public virtual DataTable GetDataTable(long recordLimit)
-    {
-      if (IsClosed)
-        Open();
-
-      var dataTable = new DataTable();
-      try
-      {
-        for (var col = 0; col < FieldCount; col++)
-          dataTable.Columns.Add(new DataColumn(GetName(col), GetFieldType(col)));
-
-        if (!CancellationToken.IsCancellationRequested)
-        {
-          dataTable.BeginLoadData();
-          if (recordLimit < 1)
-            recordLimit = long.MaxValue;
-
-          while (Read() && dataTable.Rows.Count < recordLimit && !CancellationToken.IsCancellationRequested)
-          {
-            var readerValues = new object[FieldCount];
-            if (GetValues(readerValues) > 0)
-              dataTable.Rows.Add(readerValues);
-          }
-        }
-      }
-      finally
-      {
-        dataTable.EndLoadData();
-      }
-
-      return dataTable;
-    }
-
-    public virtual async Task<DataTable> GetDataTableAsync(long recordLimit)
+    public virtual async Task<DataTable> GetDataTableAsync(long recordLimit, bool addStartLineNumber, bool addRecordNo)
     {
       if (IsClosed)
         await OpenAsync();
@@ -458,17 +428,35 @@ namespace CsvTools
         for (var col = 0; col < FieldCount; col++)
           dataTable.Columns.Add(new DataColumn(GetName(col), GetFieldType(col)));
 
+        var startLineColNo = -1;
+        var recNumColNo = -1;
+        if (addStartLineNumber)
+        {
+          startLineColNo = dataTable.Columns.Count;
+          dataTable.Columns.Add(new DataColumn(cStartLineNumberFieldName, typeof(long)));
+        }
+
+        if (addRecordNo)
+        {
+          recNumColNo = dataTable.Columns.Count;
+          dataTable.Columns.Add(new DataColumn(cRecordNumberFieldName, typeof(long)));
+        }
+
         if (!CancellationToken.IsCancellationRequested)
         {
           dataTable.BeginLoadData();
           if (recordLimit < 1)
             recordLimit = long.MaxValue;
-
           while (await ReadAsync() && dataTable.Rows.Count < recordLimit && !CancellationToken.IsCancellationRequested)
           {
-            var readerValues = new object[FieldCount];
-            if (GetValues(readerValues) > 0)
-              dataTable.Rows.Add(readerValues);
+            var readerValues = new object[dataTable.Columns.Count];
+            for (var col = 0; col < FieldCount; col++)
+              readerValues[col] = GetValue(col);
+            if (recNumColNo > -1)
+              readerValues[recNumColNo] = RecordNumber;
+            if (startLineColNo > -1)
+              readerValues[startLineColNo] = StartLineNumber;
+            dataTable.Rows.Add(readerValues);
           }
         }
       }
@@ -710,15 +698,18 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Returns a <see cref="DataTable" /> that describes the column meta data of the <see
-    ///   cref="IDataReader" /> .
+    ///   Returns a <see cref="DataTable" /> that describes the column meta data of the
+    ///   <see
+    ///     cref="IDataReader" />
+    ///   .
     /// </summary>
     /// <returns>A <see cref="DataTable" /> that describes the column meta data.</returns>
     /// <exception cref="InvalidOperationException">The <see cref="IDataReader" /> is closed.</exception>
     public virtual DataTable GetSchemaTable()
     {
       if (IsClosed)
-        Open();
+        OpenAsync().WaitToCompleteTask(10);
+
       var dataTable = GetEmptySchemaTable();
       var schemaRow = GetDefaultSchemaRowArray();
 
@@ -825,7 +816,10 @@ namespace CsvTools
     {
       if (values is null)
         throw new ArgumentNullException(nameof(values));
-      for (var col = 0; col < values.Length; col++)
+      var maxFld = values.Length;
+      if (maxFld > FieldCount)
+        maxFld = FieldCount;
+      for (var col = 0; col < maxFld; col++)
         values[col] = GetValue(col);
       return FieldCount;
     }
@@ -911,9 +905,7 @@ namespace CsvTools
     /// <returns>true if there are more rows; otherwise, false.</returns>
     public virtual bool NextResult() => false;
 
-    public abstract void Open();
-
-    public virtual async Task OpenAsync() => Open();
+    public abstract Task OpenAsync();
 
     /// <summary>
     ///   Overrides the column format from setting.
@@ -965,14 +957,14 @@ namespace CsvTools
         FileSetting.ColumnCollection.Remove(col);
     }
 
-    public abstract bool Read();
+    public virtual bool Read() => ReadAsync().Result;
 
     public abstract Task<bool> ReadAsync();
 
     /// <summary>
     ///   Resets the position and buffer to the header in case the file has a header
     /// </summary>
-    public void ResetPositionToFirstDataRow()
+    public virtual async Task ResetPositionToFirstDataRowAsync()
     {
       EndLineNumber = 0;
       RecordNumber = 0;
@@ -987,30 +979,30 @@ namespace CsvTools
     /// <returns>an Array of objects for a new row in a Schema Table</returns>
     protected static object[] GetDefaultSchemaRowArray() =>
       new object[]
-        {
-          true, // 00- AllowDBNull
-          null, // 01- BaseColumnName
-          string.Empty, // 02- BaseSchemaName
-          string.Empty, // 03- BaseTableName
-          null, // 04- ColumnName
-          null, // 05- ColumnOrdinal
-          int.MaxValue, // 06- ColumnSize
-          typeof(string), // 07- DataType
-          false, // 08- IsAliased
-          false, // 09- IsExpression
-          false, // 10- IsKey
-          false, // 11- IsLong
-          false, // 12- IsUnique
-          DBNull.Value, // 13- NumericPrecision
-          DBNull.Value, // 14- NumericScale
-          (int)DbType.String, // 15- ProviderType
-          string.Empty, // 16- BaseCatalogName
-          string.Empty, // 17- BaseServerName
-          false, // 18- IsAutoIncrement
-          false, // 19- IsHidden
-          true, // 20- IsReadOnly
-          false // 21- IsRowVersion
-        };
+      {
+        true, // 00- AllowDBNull
+        null, // 01- BaseColumnName
+        string.Empty, // 02- BaseSchemaName
+        string.Empty, // 03- BaseTableName
+        null, // 04- ColumnName
+        null, // 05- ColumnOrdinal
+        int.MaxValue, // 06- ColumnSize
+        typeof(string), // 07- DataType
+        false, // 08- IsAliased
+        false, // 09- IsExpression
+        false, // 10- IsKey
+        false, // 11- IsLong
+        false, // 12- IsUnique
+        DBNull.Value, // 13- NumericPrecision
+        DBNull.Value, // 14- NumericScale
+        (int) DbType.String, // 15- ProviderType
+        string.Empty, // 16- BaseCatalogName
+        string.Empty, // 17- BaseServerName
+        false, // 18- IsAutoIncrement
+        false, // 19- IsHidden
+        true, // 20- IsReadOnly
+        false // 21- IsRowVersion
+      };
 
     /// <summary>
     ///   Gets the empty schema table.
@@ -1059,7 +1051,8 @@ namespace CsvTools
       OnOpen?.Invoke(this, new EventArgs());
 
       // now a physical file must exist
-      if (FileSetting is IFileSettingPhysicalFile fileSettingPhysical && !FileSystemUtils.FileExists(fileSettingPhysical.FullPath))
+      if (FileSetting is IFileSettingPhysicalFile fileSettingPhysical &&
+          !FileSystemUtils.FileExists(fileSettingPhysical.FullPath))
         throw new FileNotFoundException(
           $"The file '{FileSystemUtils.GetShortDisplayFileName(fileSettingPhysical.FileName, 80)}' does not exist or is not accessible.",
           fileSettingPhysical.FileName);
@@ -1348,8 +1341,8 @@ namespace CsvTools
       if (string.IsNullOrEmpty(output))
         return null;
 
-      if (FileSetting.TreatNBSPAsSpace && output.IndexOf((char)0xA0) != -1)
-        output = output.Replace((char)0xA0, ' ');
+      if (FileSetting.TreatNBSPAsSpace && output.IndexOf((char) 0xA0) != -1)
+        output = output.Replace((char) 0xA0, ' ');
 
       if (output.Length > 0 && column.Size < output.Length)
         column.Size = output.Length;
@@ -1369,7 +1362,7 @@ namespace CsvTools
         return inputValue;
 
       if (FileSetting.TreatNBSPAsSpace)
-        inputValue = inputValue.Replace((char)0xA0, ' ');
+        inputValue = inputValue.Replace((char) 0xA0, ' ');
       if (FileSetting.TrimmingOption == TrimmingOption.All
           || !quoted && FileSetting.TrimmingOption == TrimmingOption.Unquoted)
         return inputValue.Trim();
@@ -1403,7 +1396,7 @@ namespace CsvTools
       m_AssociatedTimeZoneCol = new int[fieldCount];
       for (var counter = 0; counter < fieldCount; counter++)
       {
-        Column[counter] = new Column { ColumnOrdinal = counter };
+        Column[counter] = new Column {ColumnOrdinal = counter};
         AssociatedTimeCol[counter] = -1;
         m_AssociatedTimeZoneCol[counter] = -1;
       }
@@ -1466,7 +1459,9 @@ namespace CsvTools
 
       // Constant value
       if (res.Item2)
+      {
         timeZone = res.Item1;
+      }
 
       // lookup in other column
       else

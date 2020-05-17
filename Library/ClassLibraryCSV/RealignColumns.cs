@@ -60,8 +60,9 @@ namespace CsvTools
     /// </summary>
     /// <param name="row">Array with the columns of that row</param>
     /// <param name="handleWarning">Action to be called to store a warning</param>
+    /// <param name="rawText">The raw text of the file before splitting  it into columns</param>
     /// <returns>A new list of columns</returns>
-    public string[] RealignColumn(string[] row, Action<int, string> handleWarning)
+    public string[] RealignColumn(string[] row, Action<int, string> handleWarning, string rawText)
     {
       if (row == null)
         throw new ArgumentNullException(nameof(row));
@@ -98,7 +99,22 @@ namespace CsvTools
             {
               if (!string.IsNullOrEmpty(columns[col]))
               {
-                columns[col - 1] = columns[col - 1] + " " + columns[col];
+                var fromRaw = false;
+                if (!string.IsNullOrEmpty(rawText))
+                {
+                  var pos1 = rawText.IndexOf(columns[col - 1], StringComparison.Ordinal);
+                  if (pos1 != -1)
+                  {
+                    var pos2 = rawText.IndexOf(columns[col], pos1 + columns[col - 1].Length, StringComparison.Ordinal);
+                    if (pos2 != -1)
+                    {
+                      fromRaw = true;
+                      columns[col - 1] = rawText.Substring(pos1, pos2 + columns[col].Length - pos1);
+                    }
+                  }
+                }
+                if (!fromRaw)
+                  columns[col - 1] = columns[col - 1] + " " + columns[col];
                 handleWarning(col - 1, "Extra information from in next column has been appended, assuming the data was misaligned.");
               }
               else
