@@ -75,14 +75,14 @@ namespace CsvTools
       CancellationToken cancellationToken)
     {
       if (!fileSetting.ShowProgress)
-        return new DummyProcessDisplay(cancellationToken);
+        return new CustomProcessDisplay(cancellationToken, null);
 
       var processDisplay = new FormProcessDisplay(fileSetting.ToString(), withLogger, cancellationToken);
       processDisplay.Show(owner);
       return processDisplay;
     }
 
-    public static Binding GetTextBindng(this Control ctrl)
+    public static Binding GetTextBinding(this Control ctrl)
     {
       return ctrl.DataBindings.Cast<Binding>().FirstOrDefault(bind => bind.PropertyName == "Text" || bind.PropertyName == "Value");
     }
@@ -294,6 +294,6 @@ namespace CsvTools
     ///   Store a bound value
     /// </summary>
     /// <param name="ctrl">The control</param>
-    public static void WriteBinding(this Control ctrl) => ctrl.GetTextBindng()?.WriteValue();
+    public static void WriteBinding(this Control ctrl) => ctrl.GetTextBinding()?.WriteValue();
   }
 }

@@ -183,7 +183,7 @@ namespace CsvTools.Tests
           textBoxBox.DataBindings.Add(bind);
           textBoxBox.Text = "12";
 
-          Assert.AreEqual(bind, textBoxBox.GetTextBindng());
+          Assert.AreEqual(bind, textBoxBox.GetTextBinding());
           textBoxBox.WriteBinding();
         }
       }

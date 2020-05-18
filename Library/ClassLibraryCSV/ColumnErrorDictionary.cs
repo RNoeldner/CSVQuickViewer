@@ -14,7 +14,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data;
 
 namespace CsvTools
 {
@@ -42,19 +41,7 @@ namespace CsvTools
         m_IgnoredColumns.Add(col);
       }
 
-      reader.Warning += (s, args) =>
-      {
-        Add(args.ColumnNumber, args.Message);
-      };
-    }
-
-    public void StoreInDataRow(DataRow row, IDictionary<int, int> mapping)
-    {
-      foreach (var keyValuePair in this)
-        if (keyValuePair.Key == -1)
-          row.RowError = keyValuePair.Value;
-        else if (mapping.TryGetValue(keyValuePair.Key, out var dbCol))
-          row.SetColumnError(dbCol, keyValuePair.Value);
+      reader.Warning += (s, args) => { Add(args.ColumnNumber, args.Message); };
     }
 
     /// <summary>
