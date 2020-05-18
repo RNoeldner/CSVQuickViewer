@@ -14,6 +14,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
 
 namespace CsvTools
 {
@@ -28,9 +29,9 @@ namespace CsvTools
     {
     }
 
-    public ColumnErrorDictionary(IFileReader reader) 
+    public ColumnErrorDictionary(IFileReader reader)
     {
-      if (reader==null)
+      if (reader == null)
         throw new ArgumentNullException(nameof(reader));
 
       for (var col = 0; col < reader.FieldCount; col++)
@@ -41,8 +42,21 @@ namespace CsvTools
         m_IgnoredColumns.Add(col);
       }
 
-      reader.Warning += (s, args) => { Add(args.ColumnNumber, args.Message); };
+      reader.Warning += (s, args) =>
+      {
+        Add(args.ColumnNumber, args.Message);
+      };
     }
+
+    public void StoreInDataRow(DataRow row, IDictionary<int, int> mapping)
+    {
+      foreach (var keyValuePair in this)
+        if (keyValuePair.Key == -1)
+          row.RowError = keyValuePair.Value;
+        else if (mapping.TryGetValue(keyValuePair.Key, out var dbCol))
+          row.SetColumnError(dbCol, keyValuePair.Value);
+    }
+
     /// <summary>
     ///   Combines all messages in order to display them
     /// </summary>

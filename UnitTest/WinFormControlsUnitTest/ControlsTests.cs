@@ -217,10 +217,11 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void CsvTextDisplayShow() => UnitTestInitialize.ShowControl(new CsvTextDisplay
+    public void CsvTextDisplayShow()
     {
-      CsvFile = m_CSVFile
-    });
+      var ctrl = new CsvTextDisplay();
+      UnitTestInitialize.ShowControl(ctrl, .1, async () => await ctrl.SetCsvFile(m_CSVFile));
+    }
 
     [TestMethod]
     public void SearchShow() => UnitTestInitialize.ShowControl(new Search());

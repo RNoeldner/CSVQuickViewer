@@ -411,8 +411,6 @@ namespace CsvTools
       return Column[columnNumber];
     }
 
-    #region DataTable
-
     private IEnumerable<Column> NotIgnoredColumns()
     {
       for (var index = 0; index < Column.Length; index++)
@@ -442,157 +440,6 @@ namespace CsvTools
       return false;
     }
 
-    /// <summary>
-    /// Create a data table for the reader excluding all ignored columns but adding artificial columns like Line or Rop
-    /// </summary>
-    /// <param name="dataTable"></param>
-    /// <param name="includeErrorField"></param>
-    /// <returns></returns>
-    public CopyToDataTableInfo GetCopyToDataTableInfo(DataTable dataTable, bool includeErrorField)
-    {
-      if (dataTable == null)
-        throw new ArgumentNullException(nameof(dataTable));
-
-      var copyToDataTableInfo = new CopyToDataTableInfo
-      {
-        Mapping = new BiDirectionalDictionary<int, int>(),
-        ReaderColumns = new List<string>()
-      };
-
-      // Initialize a based on file reader
-      foreach (var cf in NotIgnoredColumns())
-      {
-        copyToDataTableInfo.ReaderColumns.Add(cf.Name);
-        if (cf.Name.Equals(cStartLineNumberFieldName, StringComparison.OrdinalIgnoreCase))
-          continue;
-        copyToDataTableInfo.Mapping.Add(cf.ColumnOrdinal, dataTable.Columns[cf.Name].Ordinal);
-        dataTable.Columns.Add(new DataColumn(cf.Name, cf.ValueFormat.DataType.GetNetType()));
-      }
-
-      // Append Artificial columns This needs to happen in the same order as we have in
-      // CreateTableFromReader otherwise BulkCopy does not work see SqlServerConnector.CreateTable
-      copyToDataTableInfo.StartLine = new DataColumn(cStartLineNumberFieldName, typeof(long));
-      dataTable.Columns.Add(copyToDataTableInfo.StartLine);
-
-      dataTable.PrimaryKey = new[] { copyToDataTableInfo.StartLine };
-
-      if (FileSetting.DisplayRecordNo && !HasColumnName(cRecordNumberFieldName))
-      {
-        copyToDataTableInfo.RecordNumber = new DataColumn(cRecordNumberFieldName, typeof(long));
-        dataTable.Columns.Add(copyToDataTableInfo.RecordNumber);
-      }
-
-      if (FileSetting.DisplayEndLineNo && !HasColumnName(cEndLineNumberFieldName))
-      {
-        copyToDataTableInfo.EndLine = new DataColumn(cEndLineNumberFieldName, typeof(long));
-        dataTable.Columns.Add(copyToDataTableInfo.EndLine);
-      }
-
-      if (includeErrorField && !HasColumnName(cErrorField))
-      {
-        copyToDataTableInfo.Error = new DataColumn(cErrorField, typeof(string));
-        dataTable.Columns.Add(copyToDataTableInfo.Error);
-      }
-
-      return copyToDataTableInfo;
-    }
-
-
-    /// <summary>
-    ///   Copies a row from the reader to the data table, handling artificial fields and storing possible warnings
-    /// </summary>
-    /// <param name="dataTable">The data table.</param>
-    /// <param name="columnWarningsReader">The column warnings reader.</param>
-    /// <param name="dataTableInfo">The data table information.</param>
-    /// <param name="handleColumnIssues">The handle column issues.</param>
-    public void CopyRowToTable(DataTable dataTable, ColumnErrorDictionary columnWarningsReader,
-      CopyToDataTableInfo dataTableInfo, Action<ColumnErrorDictionary, DataRow> handleColumnIssues)
-    {
-      if (dataTable == null)
-        throw new ArgumentNullException(nameof(dataTable));
-      if (columnWarningsReader == null)
-        throw new ArgumentNullException(nameof(columnWarningsReader));
-
-      var dataRow = dataTable.NewRow();
-      if (dataTableInfo.RecordNumber != null)
-        dataRow[dataTableInfo.RecordNumber] = RecordNumber;
-
-      if (dataTableInfo.EndLine != null)
-        dataRow[dataTableInfo.EndLine] = EndLineNumber;
-
-      if (dataTableInfo.StartLine != null)
-        dataRow[dataTableInfo.StartLine] = StartLineNumber;
-      dataTable.Rows.Add(dataRow);
-
-      try
-      {
-        foreach (var keyValuePair in dataTableInfo.Mapping)
-          dataRow[keyValuePair.Value] = GetValue(keyValuePair.Key);
-      }
-      catch (Exception exc)
-      {
-        columnWarningsReader.Add(-1, exc.ExceptionMessages());
-      }
-
-      if (columnWarningsReader.Count <= 0) return;
-      handleColumnIssues?.Invoke(columnWarningsReader, dataRow);
-      columnWarningsReader.Clear();
-    }
-
-    /// <summary>
-    ///   Asynchronous method to copy rows from a the reader to a data table
-    /// </summary>
-    /// <param name="recordLimit">Number of maximum records, 0 for all existing </param>
-    /// <param name="cancellationToken">Cancellation toke to stop filling the data table</param>
-    /// <returns>A Data Table with teh data</returns>
-    public virtual async Task<DataTable> GetDataTableAsync(long recordLimit, CancellationToken cancellationToken)
-    {
-      if (IsClosed)
-        await OpenAsync();
-
-      var dataTable = new DataTable
-      {
-        TableName = FileSetting.ID,
-        Locale = CultureInfo.CurrentCulture,
-        CaseSensitive = false
-      };
-      try
-      {
-        var columnWarningsReader = new ColumnErrorDictionary(this as IFileReader);
-        var copyToInfoBuffer = GetCopyToDataTableInfo(dataTable, false);
-        // create columns, it is been relied on that the column names are unique
-
-        if (!cancellationToken.IsCancellationRequested)
-        {
-          dataTable.BeginLoadData();
-          if (recordLimit < 1)
-            recordLimit = long.MaxValue;
-          while (await ReadAsync() && dataTable.Rows.Count < recordLimit && !cancellationToken.IsCancellationRequested)
-          {
-            CopyRowToTable(dataTable, columnWarningsReader, copyToInfoBuffer,
-              (columnError, row) =>
-              {
-                foreach (var issue in columnError)
-                {
-                  if (issue.Key != -1)
-                    row.SetColumnError(issue.Key, issue.Value);
-                  else
-                    row.RowError = issue.Value;
-                }
-              });
-          }
-        }
-      }
-      finally
-      {
-        dataTable.EndLoadData();
-      }
-
-      return dataTable;
-    }
-
-
-    #endregion
     /// <summary>
     ///   Gets the date and time data value of the specified field.
     /// </summary>
@@ -823,10 +670,8 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Returns a <see cref="DataTable" /> that describes the column meta data of the
-    ///   <see
-    ///     cref="IDataReader" />
-    ///   .
+    ///   Returns a <see cref="DataTable" /> that describes the column meta data of the <see
+    ///   cref="IDataReader" /> .
     /// </summary>
     /// <returns>A <see cref="DataTable" /> that describes the column meta data.</returns>
     /// <exception cref="InvalidOperationException">The <see cref="IDataReader" /> is closed.</exception>
@@ -972,18 +817,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="columnNumber">The column.</param>
     /// <param name="message">The message.</param>
-    public void HandleWarning(int columnNumber, string message) =>
-      Warning?.Invoke(
-        this,
-        new WarningEventArgs(
-          RecordNumber,
-          columnNumber,
-          message.AddWarningId(),
-          StartLineNumber,
-          EndLineNumber,
-          Column != null && columnNumber >= 0 && columnNumber < m_FieldCount && Column[columnNumber] != null
-            ? Column[columnNumber].Name
-            : null));
+    public void HandleWarning(int columnNumber, string message) => HandleError(columnNumber, message.AddWarningId());
 
     /// <summary>
     ///   Checks if the column should be read
@@ -1753,5 +1587,46 @@ namespace CsvTools
           ? $"'{inputDate} {inputTime}' is not a date of the format {display} {column.TimePartFormat}"
           : $"'{inputDate}' is not a date of the format {display}");
     }
+
+    #region DataTable
+
+    /// <summary>
+    ///   Asynchronous method to copy rows from a the reader to a data table
+    /// </summary>
+    /// <param name="recordLimit">Number of maximum records, 0 for all existing</param>
+    /// <param name="cancellationToken">Cancellation toke to stop filling the data table</param>
+    /// <returns>A Data Table with teh data</returns>
+    public virtual async Task<DataTable> GetDataTableAsync(long recordLimit, CancellationToken cancellationToken)
+    {
+      if (IsClosed)
+        await OpenAsync();
+
+      // This tracks errors and warnings
+      cancellationToken.ThrowIfCancellationRequested();
+      var columnErrorDictionary = new ColumnErrorDictionary(this as IFileReader);
+
+      // This has a mpping of the columns between raeder and data table
+      cancellationToken.ThrowIfCancellationRequested();
+      var copyToDataTableInfo = new CopyToDataTableInfo(this as IFileReader, false);
+
+      cancellationToken.ThrowIfCancellationRequested();
+      copyToDataTableInfo.DataTable.BeginLoadData();
+      if (recordLimit < 1)
+        recordLimit = FileSetting.RecordLimit < 1 ? long.MaxValue : FileSetting.RecordLimit;
+      var rec = 0L;
+      while (await ReadAsync() && rec++ < recordLimit && !cancellationToken.IsCancellationRequested)
+      {
+        var dataRow = copyToDataTableInfo.CopyRowToTable(this as IFileReader);
+        if (columnErrorDictionary.Count > 0)
+        {
+          columnErrorDictionary.StoreInDataRow(dataRow, copyToDataTableInfo.Mapping);
+          columnErrorDictionary.Clear();
+        }
+      }
+      copyToDataTableInfo.DataTable.EndLoadData();
+      return copyToDataTableInfo.DataTable;
+    }
+
+    #endregion DataTable
   }
 }

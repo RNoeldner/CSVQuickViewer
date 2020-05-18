@@ -40,19 +40,19 @@ namespace CsvTools
     /// <summary>
     ///   The carriage return character. Escape code is <c>\r</c>.
     /// </summary>
-    private const char c_Cr = (char) 0x0d;
+    private const char c_Cr = (char)0x0d;
 
     /// <summary>
     ///   The line-feed character. Escape code is <c>\n</c>.
     /// </summary>
-    private const char c_Lf = (char) 0x0a;
+    private const char c_Lf = (char)0x0a;
 
     /// <summary>
     ///   A non-breaking space..
     /// </summary>
-    private const char c_Nbsp = (char) 0xA0;
+    private const char c_Nbsp = (char)0xA0;
 
-    private const char c_UnknownChar = (char) 0xFFFD;
+    private const char c_UnknownChar = (char)0xFFFD;
 
     private readonly ICsvFile m_CsvFile;
 
@@ -218,7 +218,7 @@ namespace CsvTools
         HandleWarning(-1, $"Only the first character of '{m_CsvFile.FileFormat.FieldDelimiter}' is used as delimiter.");
 
       BeforeOpen($"Opening delimited file {FileSystemUtils.GetShortDisplayFileName(m_CsvFile.FileName, 80)}");
-      Retry:
+    Retry:
       try
       {
         var fn = FileSystemUtils.GetFileName(m_CsvFile.FullPath);
@@ -336,9 +336,9 @@ namespace CsvTools
     {
       // if we know how many records to read, use that
       if (m_CsvFile.RecordLimit > 0)
-        return (int) ((double) RecordNumber / m_CsvFile.RecordLimit * cMaxValue);
+        return (int)((double)RecordNumber / m_CsvFile.RecordLimit * cMaxValue);
 
-      return (int) ((m_ImprovedStream?.Percentage ?? 0) * cMaxValue);
+      return (int)((m_ImprovedStream?.Percentage ?? 0) * cMaxValue);
     }
 
     private bool AllEmptyAndCountConsecutiveEmptyRows(IReadOnlyList<string> columns)
@@ -372,7 +372,6 @@ namespace CsvTools
       if (character == c_Lf && nextChar == c_Cr)
         EndLineNumber++;
     }
-
 
     /// <summary>
     ///   Indicates whether the specified Unicode character is categorized as white space.
@@ -448,7 +447,7 @@ namespace CsvTools
     private async Task<char> PeekAsync()
     {
       var res = await m_TextReader.PeekAsync();
-      if (res != -1) return (char) res;
+      if (res != -1) return (char)res;
       EndOfFile = true;
 
       // return a lf to determine the end of quoting easily
@@ -789,7 +788,7 @@ namespace CsvTools
     /// </returns>
     private async Task<string[]> ReadNextRowAsync(bool regularDataRow, bool storeWarnings)
     {
-      Restart:
+    Restart:
 
       // Store the starting Line Number
       StartLineNumber = EndLineNumber;
@@ -889,7 +888,7 @@ namespace CsvTools
     {
       try
       {
-        Restart:
+      Restart:
         CurrentRowColumnText = await ReadNextRowAsync(true, true);
 
         if (AllEmptyAndCountConsecutiveEmptyRows(CurrentRowColumnText))
@@ -904,7 +903,7 @@ namespace CsvTools
 
         RecordNumber++;
         var hasWarningCombinedWarning = false;
-        Restart2:
+      Restart2:
         var rowLength = CurrentRowColumnText.Length;
         if (rowLength == FieldCount)
         {

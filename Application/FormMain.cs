@@ -262,12 +262,12 @@ namespace CsvTools
       await OpenDataReaderAsync(true);
     }
 
-    private void DetailControl_ButtonShowSource(object sender, EventArgs e)
+    private async void DetailControl_ButtonShowSource(object sender, EventArgs e)
     {
       textBoxProgress.Visible = false;
       Logger.AddLog = null;
       csvTextDisplay.Visible = true;
-      csvTextDisplay.CsvFile = m_FileSetting;
+      await csvTextDisplay.SetCsvFile(m_FileSetting);
       ShowTextPanel(true);
       buttonCloseText.Visible = true;
     }

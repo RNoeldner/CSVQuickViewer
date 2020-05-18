@@ -18,8 +18,8 @@ using System.Collections.Generic;
 namespace CsvTools
 {
   /// <summary>
-  /// Class that is used to condense columns of a row in a sensible way, assuming a delimiter in a
-  /// column lead to more than the expected columns
+  ///   Class that is used to condense columns of a row in a sensible way, assuming a delimiter in a
+  ///   column lead to more than the expected columns
   /// </summary>
   public class ReAlignColumns
   {
@@ -43,7 +43,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Adds a new row assuming the data is well aligned
+    ///   Adds a new row assuming the data is well aligned
     /// </summary>
     /// <param name="newRow">Array with the columns of that row</param>
     public void AddRow(string[] newRow)
@@ -56,11 +56,11 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Tries to condense the columns in a way that makes sense.
+    ///   Tries to condense the columns in a way that makes sense.
     /// </summary>
     /// <param name="row">Array with the columns of that row</param>
     /// <param name="handleWarning">Action to be called to store a warning</param>
-    /// <param name="rawText">The raw text of the file before splitting  it into columns</param>
+    /// <param name="rawText">The raw text of the file before splitting it into columns</param>
     /// <returns>A new list of columns</returns>
     public string[] RealignColumn(string[] row, Action<int, string> handleWarning, string rawText)
     {
@@ -70,14 +70,19 @@ namespace CsvTools
       if (handleWarning == null)
         throw new ArgumentNullException(nameof(handleWarning));
 
-      var columns = new List<string>(row);
+      if (m_GoodRows.Count < 2)
+      {
+        handleWarning(0, "Not enough error free rows have been read to allow realigning of columns.");
+        return row;
+      }
 
+      var columns = new List<string>(row);
       //Get the Options for all good rows
       var otherColumns = new List<ColumnOption>(m_ExpectedColumns);
       for (var col2 = 0; col2 < m_ExpectedColumns; col2++)
         otherColumns.Add(GetColumnOptionAllRows(col2, m_GoodRows));
 
-      if (row.Length == m_ExpectedColumns * 2 - 1 && m_GoodRows.Count == 0)
+      if (row.Length == m_ExpectedColumns * 2 - 1)
       {
         // take the columns as is...
         while (columns.Count > m_ExpectedColumns)

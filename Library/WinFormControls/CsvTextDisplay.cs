@@ -41,36 +41,33 @@ namespace CsvTools
     /// <summary>
     ///   CSV File to display
     /// </summary>
-    public ICsvFile CsvFile
+    public async Task SetCsvFile(ICsvFile value)
     {
-      set
+      if (value == null)
       {
-        if (value == null)
+        CSVTextBox.Text = null;
+      }
+      else
+      {
+        if (!FileSystemUtils.FileExists(value.FullPath))
         {
-          CSVTextBox.Text = null;
+          CSVTextBox.DisplaySpace = false;
+          CSVTextBox.Text = $"\n\nThe file {value.FileName} does not exist.";
         }
         else
         {
-          if (FileSystemUtils.FileExists(value.FullPath))
-          {
-            CSVTextBox.DisplaySpace = false;
-            CSVTextBox.Text = $"\n\nThe file {value.FileName} does not exist.";
-          }
-          else
-          {
-            CSVTextBox.Text = null;
-            CSVTextBox.DisplaySpace = true;
-            CSVTextBox.Quote = value.FileFormat.FieldQualifierChar;
-            CSVTextBox.Delimiter = value.FileFormat.FieldDelimiterChar;
-            CSVTextBox.Escape = value.FileFormat.EscapeCharacterChar;
+          CSVTextBox.Text = null;
+          CSVTextBox.DisplaySpace = true;
+          CSVTextBox.Quote = value.FileFormat.FieldQualifierChar;
+          CSVTextBox.Delimiter = value.FileFormat.FieldDelimiterChar;
+          CSVTextBox.Escape = value.FileFormat.EscapeCharacterChar;
 
-            ScrollBarVertical.LargeChange = 4096;
-            ScrollBarVertical.Maximum = FileSystemUtils.FileLength(value.FullPath).ToInt();
-            m_CsvFile = value;
+          ScrollBarVertical.LargeChange = 4096;
+          ScrollBarVertical.Maximum = FileSystemUtils.FileLength(value.FullPath).ToInt();
+          m_CsvFile = value;
 
-            // Starting task without error handler
-            _ = UpdateViewAsync();
-          }
+          // Starting task without error handler
+          await UpdateViewAsync();
         }
       }
     }
@@ -124,6 +121,11 @@ namespace CsvTools
               var next = await sr.PeekAsync();
               if (read == 13 && next == 10 || read == 10 && next == 13)
                 await sr.ReadAsync();
+            }
+            else
+            {
+              // Fill the buffer
+              await sr.PeekAsync();
             }
           }
           else
