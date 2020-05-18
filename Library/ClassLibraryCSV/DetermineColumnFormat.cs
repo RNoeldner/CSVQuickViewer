@@ -721,7 +721,7 @@ namespace CsvTools
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns></returns>
     /// <exception cref="ArgumentNullException">samples</exception>
-    private static CheckResult GuessDateTime(ICollection<string> samples, bool checkNamedDates,
+    public static CheckResult GuessDateTime(ICollection<string> samples, bool checkNamedDates,
       CancellationToken cancellationToken)
     {
       if (samples == null || samples.Count == 0)
@@ -778,7 +778,7 @@ namespace CsvTools
       return checkResult;
     }
 
-    private static CheckResult GuessNumeric(ICollection<string> samples, bool guessPercentage,
+    public static CheckResult GuessNumeric(ICollection<string> samples, bool guessPercentage,
       bool allowStartingZero, CancellationToken cancellationToken)
     {
       var checkResult = new CheckResult();
