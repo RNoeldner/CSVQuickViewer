@@ -12,7 +12,6 @@
  *
  */
 
-
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -54,11 +53,11 @@ namespace CsvTools
     public override async Task OpenAsync()
     {
       BeforeOpen($"Opening Json file {FileSystemUtils.GetShortDisplayFileName(m_StructuredFile.FileName, 80)}");
-      Retry:
+    Retry:
       try
       {
         m_AssumeLog = false;
-        again:
+      again:
         ResetPositionToStartOrOpen();
 
         var line = await GetNextRecordAsync(false);
@@ -297,9 +296,9 @@ namespace CsvTools
     {
       // if we know how many records to read, use that
       if (m_StructuredFile.RecordLimit > 0)
-        return (int) (RecordNumber / m_StructuredFile.RecordLimit * cMaxValue);
+        return (int)(RecordNumber / m_StructuredFile.RecordLimit * cMaxValue);
 
-      return (int) (m_ImprovedStream.Percentage * cMaxValue);
+      return (int)(m_ImprovedStream.Percentage * cMaxValue);
     }
 
     /// <summary>
@@ -315,7 +314,7 @@ namespace CsvTools
       if (m_ImprovedStream == null)
         m_ImprovedStream = FunctionalDI.OpenRead(m_StructuredFile);
 
-      m_ImprovedStream.ResetToStart(delegate(Stream str)
+      m_ImprovedStream.ResetToStart(delegate (Stream str)
       {
         // in case we can not seek need to reopen the stream reader
         if (!str.CanSeek || m_TextReader == null)
@@ -348,7 +347,7 @@ namespace CsvTools
       };
     }
 
-#region TextReader
+    #region TextReader
 
     // Buffer size set to 64kB, if set to large the display in percentage will jump
     private const int c_BufferSize = 65536;
@@ -371,12 +370,12 @@ namespace CsvTools
     /// <summary>
     ///   The line-feed character. Escape code is <c>\n</c>.
     /// </summary>
-    private const char c_Lf = (char) 0x0a;
+    private const char c_Lf = (char)0x0a;
 
     /// <summary>
     ///   The carriage return character. Escape code is <c>\r</c>.
     /// </summary>
-    private const char c_Cr = (char) 0x0d;
+    private const char c_Cr = (char)0x0d;
 
     /// <summary>
     ///   Fills the buffer with data from the reader.
@@ -475,6 +474,6 @@ namespace CsvTools
       m_JsonTextReader = new JsonTextReader(new StringReader(sb.ToString()));
     }
 
-#endregion TextReader
+    #endregion TextReader
   }
 }
