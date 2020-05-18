@@ -14,8 +14,9 @@
 
 using System;
 using System.Data;
-using System.Drawing;
+using System.IO;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -28,7 +29,7 @@ namespace CsvTools.Tests
     private static readonly DataTable m_DataTable = UnitTestStatic.GetDataTable(60);
 
     private readonly CsvFile m_CSVFile =
-      new CsvFile(System.IO.Path.Combine(FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles", "BasicCSV.txt"));
+      new CsvFile(Path.Combine(FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles", "BasicCSV.txt"));
 
     [TestMethod]
     public void TimeZoneSelector()
@@ -55,17 +56,22 @@ namespace CsvTools.Tests
       try
       {
         // Used to cancel after .2 seconds
-        Task.Run(() => WindowsAPICodePackWrapper.Open(FileSystemUtils.ExecutableDirectoryName(), "Test", "*.cs", null)).WaitToCompleteTask(.2);
+        Task.Run(() => WindowsAPICodePackWrapper.Open(FileSystemUtils.ExecutableDirectoryName(), "Test", "*.cs", null))
+          .WaitToCompleteTask(.2);
       }
       catch (COMException)
-      { }
+      {
+      }
       catch (TimeoutException)
-      { }
+      {
+      }
       catch (OperationCanceledException)
-      { }
+      {
+      }
       catch (Exception ex)
       {
-        Assert.Fail($"Wrong exception got {ex.GetType().Name} expected OperationCanceledException : {ex.ExceptionMessages()}");
+        Assert.Fail(
+          $"Wrong exception got {ex.GetType().Name} expected OperationCanceledException : {ex.ExceptionMessages()}");
       }
     }
 
@@ -75,15 +81,19 @@ namespace CsvTools.Tests
       try
       {
         // Used to cancel after .2 seconds
-        Task.Run(() => { WindowsAPICodePackWrapper.Folder(FileSystemUtils.ExecutableDirectoryName(), "Test"); }).WaitToCompleteTask(.2);
+        Task.Run(() => { WindowsAPICodePackWrapper.Folder(FileSystemUtils.ExecutableDirectoryName(), "Test"); })
+          .WaitToCompleteTask(.2);
       }
       catch (COMException)
-      { }
+      {
+      }
       catch (TimeoutException)
-      { }
+      {
+      }
       catch (Exception ex)
       {
-        Assert.Fail($"Wrong exception got {ex.GetType().Name} expected OperationCanceledException : {ex.ExceptionMessages()}");
+        Assert.Fail(
+          $"Wrong exception got {ex.GetType().Name} expected OperationCanceledException : {ex.ExceptionMessages()}");
       }
     }
 
@@ -96,16 +106,19 @@ namespace CsvTools.Tests
         Task.Run(() =>
         {
           WindowsAPICodePackWrapper.Save(FileSystemUtils.ExecutableDirectoryName(), "Test", "*.pdf", "*.pdf",
-              "test.pdf");
+            "test.pdf");
         }).WaitToCompleteTask(.2);
       }
       catch (COMException)
-      { }
+      {
+      }
       catch (TimeoutException)
-      { }
+      {
+      }
       catch (Exception ex)
       {
-        Assert.Fail($"Wrong exception got {ex.GetType().Name} expected OperationCanceledException : {ex.ExceptionMessages()}");
+        Assert.Fail(
+          $"Wrong exception got {ex.GetType().Name} expected OperationCanceledException : {ex.ExceptionMessages()}");
       }
     }
 
@@ -116,14 +129,14 @@ namespace CsvTools.Tests
       {
         Assert.AreEqual(0, treeView.SelectedTreeNode.Count);
 
-        var treeNode = new TreeNode("Test") { Tag = "test" };
+        var treeNode = new TreeNode("Test") {Tag = "test"};
         treeView.Nodes.Add(treeNode);
 
-        var treeNode2 = new TreeNode("Test2") { Tag = "test2" };
+        var treeNode2 = new TreeNode("Test2") {Tag = "test2"};
         treeNode.Nodes.Add(treeNode2);
 
-        bool firedAfter = false;
-        bool firedBefore = false;
+        var firedAfter = false;
+        var firedBefore = false;
         treeView.AfterSelect += (s, args) => { firedAfter = true; };
         treeView.BeforeSelect += (s, args) => { firedBefore = true; };
 
@@ -301,9 +314,9 @@ namespace CsvTools.Tests
       using (var processDisplay = new FormProcessDisplay("FileWithHierarchy"))
       {
         processDisplay.Show();
-        var cvsSetting = new CsvFile(System.IO.Path.Combine(FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles",
-          "FileWithHierarchy_WithCyle.txt"))
-        { FileFormat = { FieldDelimiter = "\t" } };
+        var cvsSetting = new CsvFile(Path.Combine(FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles",
+            "FileWithHierarchy_WithCyle.txt"))
+          {FileFormat = {FieldDelimiter = "\t"}};
         using (var csvDataReader = new CsvFileReader(cvsSetting, null, processDisplay))
         {
           dt = await csvDataReader.GetDataTableAsync(0, processDisplay.CancellationToken);
@@ -347,7 +360,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void FormDetail()
     {
-      using (var processDisplay = new DummyProcessDisplay())
+      using (var processDisplay = new CustomProcessDisplay(CancellationToken.None, null))
       using (var form = new FormDetail(m_DataTable, null, null, true, false, 0, new FillGuessSettings(),
         processDisplay.CancellationToken))
       {

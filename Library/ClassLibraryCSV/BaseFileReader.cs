@@ -411,16 +411,6 @@ namespace CsvTools
       return Column[columnNumber];
     }
 
-    private IEnumerable<Column> NotIgnoredColumns()
-    {
-      for (var index = 0; index < Column.Length; index++)
-      {
-        if (Column[index].Ignore)
-          continue;
-        yield return Column[index];
-      }
-    }
-
     /// <summary>
     ///   Determines if the reader has a certain columns, any ignored columns will be treated as not existing
     /// </summary>
@@ -431,12 +421,14 @@ namespace CsvTools
       if (!string.IsNullOrEmpty(columnName))
         return true;
 
-      foreach (var col in NotIgnoredColumns())
+      for (var index = 0; index < Column.Length; index++)
       {
-        if (columnName.Equals(col.Name, StringComparison.OrdinalIgnoreCase))
+        if (Column[index].Ignore)
+          continue;
+
+        if (string.Equals(columnName, Column[index].Name, StringComparison.OrdinalIgnoreCase))
           return true;
       }
-
       return false;
     }
 
@@ -1605,7 +1597,7 @@ namespace CsvTools
       cancellationToken.ThrowIfCancellationRequested();
       var columnErrorDictionary = new ColumnErrorDictionary(this as IFileReader);
 
-      // This has a mpping of the columns between raeder and data table
+      // This has a mapping of the columns between reader and data table
       cancellationToken.ThrowIfCancellationRequested();
       var copyToDataTableInfo = new CopyToDataTableInfo(this as IFileReader, false);
 
@@ -1617,11 +1609,13 @@ namespace CsvTools
       while (await ReadAsync() && rec++ < recordLimit && !cancellationToken.IsCancellationRequested)
       {
         var dataRow = copyToDataTableInfo.CopyRowToTable(this as IFileReader);
-        if (columnErrorDictionary.Count > 0)
-        {
-          columnErrorDictionary.StoreInDataRow(dataRow, copyToDataTableInfo.Mapping);
-          columnErrorDictionary.Clear();
-        }
+        if (columnErrorDictionary.Count <= 0) continue;
+        foreach (var keyValuePair in columnErrorDictionary)
+          if (keyValuePair.Key == -1)
+            dataRow.RowError = keyValuePair.Value;
+          else if (copyToDataTableInfo.Mapping.TryGetValue(keyValuePair.Key, out var dbCol))
+            dataRow.SetColumnError(dbCol, keyValuePair.Value);
+        columnErrorDictionary.Clear();
       }
       copyToDataTableInfo.DataTable.EndLoadData();
       return copyToDataTableInfo.DataTable;

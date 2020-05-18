@@ -29,7 +29,7 @@
 
       if (!(sender is Control ctrl))
         return;
-      var bind = ctrl.GetTextBindng();
+      var bind = ctrl.GetTextBinding();
       if (bind == null)
         return;
       bind.WriteValue();

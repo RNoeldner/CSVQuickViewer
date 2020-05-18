@@ -19,15 +19,15 @@ using System.Globalization;
 
 namespace CsvTools
 {
-  public class CopyToDataTableInfo : IDisposable
+  public sealed class CopyToDataTableInfo : IDisposable
   {
     public readonly DataTable DataTable;
     public readonly DataColumn Error;
     public readonly BiDirectionalDictionary<int, int> Mapping = new BiDirectionalDictionary<int, int>();
     public readonly IList<string> ReaderColumns = new List<string>();
-    private readonly DataColumn EndLine;
-    private readonly DataColumn RecordNumber;
-    private readonly DataColumn StartLine;
+    private readonly DataColumn m_EndLine;
+    private readonly DataColumn m_RecordNumber;
+    private readonly DataColumn m_StartLine;
 
     public CopyToDataTableInfo(IFileReader reader, bool includeErrorField)
     {
@@ -53,21 +53,21 @@ namespace CsvTools
 
       // Append Artificial columns This needs to happen in the same order as we have in
       // CreateTableFromReader otherwise BulkCopy does not work see SqlServerConnector.CreateTable
-      StartLine = new DataColumn(BaseFileReader.cStartLineNumberFieldName, typeof(long));
-      DataTable.Columns.Add(StartLine);
+      m_StartLine = new DataColumn(BaseFileReader.cStartLineNumberFieldName, typeof(long));
+      DataTable.Columns.Add(m_StartLine);
 
-      DataTable.PrimaryKey = new[] { StartLine };
+      DataTable.PrimaryKey = new[] { m_StartLine };
 
       if (reader.FileSetting.DisplayRecordNo && !reader.HasColumnName(BaseFileReader.cRecordNumberFieldName))
       {
-        RecordNumber = new DataColumn(BaseFileReader.cRecordNumberFieldName, typeof(long));
-        DataTable.Columns.Add(RecordNumber);
+        m_RecordNumber = new DataColumn(BaseFileReader.cRecordNumberFieldName, typeof(long));
+        DataTable.Columns.Add(m_RecordNumber);
       }
 
       if (reader.FileSetting.DisplayEndLineNo && !reader.HasColumnName(BaseFileReader.cEndLineNumberFieldName))
       {
-        EndLine = new DataColumn(BaseFileReader.cEndLineNumberFieldName, typeof(long));
-        DataTable.Columns.Add(EndLine);
+        m_EndLine = new DataColumn(BaseFileReader.cEndLineNumberFieldName, typeof(long));
+        DataTable.Columns.Add(m_EndLine);
       }
 
       if (includeErrorField && !reader.HasColumnName(BaseFileReader.cErrorField))
@@ -80,14 +80,14 @@ namespace CsvTools
     public DataRow CopyRowToTable(IFileReader reader)
     {
       var dataRow = DataTable.NewRow();
-      if (RecordNumber != null)
-        dataRow[RecordNumber] = RecordNumber;
+      if (m_RecordNumber != null)
+        dataRow[m_RecordNumber] = m_RecordNumber;
 
-      if (EndLine != null)
-        dataRow[EndLine] = reader.EndLineNumber;
+      if (m_EndLine != null)
+        dataRow[m_EndLine] = reader.EndLineNumber;
 
-      if (StartLine != null)
-        dataRow[StartLine] = reader.StartLineNumber;
+      if (m_StartLine != null)
+        dataRow[m_StartLine] = reader.StartLineNumber;
 
       DataTable.Rows.Add(dataRow);
 
@@ -97,15 +97,10 @@ namespace CsvTools
       return dataRow;
     }
 
-    public void StoreError(DataRow row, IDictionary<int, string> columnWarningsReader)
-    {
-      if (Error != null && ReaderColumns.Count > 0)
-        row[Error] = ErrorInformation.ReadErrorInformation(columnWarningsReader, ReaderColumns);
-    }
-
+ 
     #region IDisposable Support
 
-    private bool disposedValue = false; // To detect redundant calls
+    private bool m_DisposedValue; // To detect redundant calls
 
     // This code added to correctly implement the disposable pattern.
     public void Dispose()
@@ -115,18 +110,16 @@ namespace CsvTools
       // TODO: uncomment the following line if the finalizer is overridden above. GC.SuppressFinalize(this);
     }
 
-    protected virtual void Dispose(bool disposing)
+    private void Dispose(bool disposing)
     {
-      if (!disposedValue)
+      if (m_DisposedValue) return;
+      if (disposing)
       {
-        if (disposing)
-        {
-          ReaderColumns.Clear();
-          Mapping.Clear();
-          DataTable?.Dispose();
-        }
-        disposedValue = true;
+        ReaderColumns.Clear();
+        Mapping.Clear();
+        DataTable?.Dispose();
       }
+      m_DisposedValue = true;
     }
 
     #endregion IDisposable Support

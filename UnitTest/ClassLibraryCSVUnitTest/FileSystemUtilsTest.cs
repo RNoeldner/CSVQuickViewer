@@ -43,7 +43,7 @@ namespace CsvTools.Tests
       var dest = UnitTestInitialize.GetTestPath("xyz.txt");
       try
       {
-        using (var processDisplay = new DummyProcessDisplay(CancellationToken.None))
+        using (var processDisplay = new CustomProcessDisplay(CancellationToken.None, null))
         {
           processDisplay.Maximum = -100;
 

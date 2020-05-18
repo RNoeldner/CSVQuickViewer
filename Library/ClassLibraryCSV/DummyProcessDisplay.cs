@@ -18,6 +18,8 @@ using System.Threading;
 
 namespace CsvTools
 {
+ 
+
   [DebuggerStepThrough]
   public class DummyProcessDisplay : IProcessDisplay
   {
@@ -77,13 +79,6 @@ namespace CsvTools
     /// <param name="log"><c>True</c> if progress should be logged, <c>false</c> otherwise.</param>
     public virtual void SetProcess(string text, long value, bool log)
     {
-      if (log)
-      {
-        if (LogAsDebug)
-          Logger.Debug(text);
-        else
-          Logger.Information(text);
-      }
       Progress?.Invoke(this, new ProgressEventArgs(text, value, log));
     }
 
