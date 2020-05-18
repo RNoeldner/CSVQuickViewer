@@ -35,21 +35,7 @@ namespace CsvTools.Tests
         using (var test = new DataTableReader(m_DataTable, "id", pd))
         {
           Assert.IsTrue(test.IsClosed);
-          var dt = await test.GetDataTableAsync(200, false, false);
-          Assert.AreEqual(m_DataTable, dt);
-        }
-      }
-    }
-
-    [TestMethod()]
-    public async Task GetDataTableAsyncTest2Async()
-    {
-      using (var pd = new DummyProcessDisplay())
-      {
-        using (var test = new DataTableReader(m_DataTable, "id", pd))
-        {
-          Assert.IsTrue(test.IsClosed);
-          var dt = await test.GetDataTableAsync(200, true, true);
+          var dt = await test.GetDataTableAsync(200, pd.CancellationToken);
           Assert.AreEqual(m_DataTable, dt);
         }
       }

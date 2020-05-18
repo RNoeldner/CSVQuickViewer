@@ -387,7 +387,7 @@ namespace CsvTools
     public virtual long GetChars(int i, long fieldOffset, char[] buffer, int bufferOffset, int length)
     {
       Debug.Assert(CurrentRowColumnText != null);
-      var offset = (int) fieldOffset;
+      var offset = (int)fieldOffset;
       var maxLen = CurrentRowColumnText[i].Length - offset;
       if (maxLen > length)
         maxLen = length;
@@ -411,7 +411,141 @@ namespace CsvTools
       return Column[columnNumber];
     }
 
-    public virtual async Task<DataTable> GetDataTableAsync(long recordLimit, bool addStartLineNumber, bool addRecordNo)
+    #region DataTable
+
+    private IEnumerable<Column> NotIgnoredColumns()
+    {
+      for (var index = 0; index < Column.Length; index++)
+      {
+        if (Column[index].Ignore)
+          continue;
+        yield return Column[index];
+      }
+    }
+
+    /// <summary>
+    ///   Determines if the reader has a certain columns, any ignored columns will be treated as not existing
+    /// </summary>
+    /// <param name="columnName"></param>
+    /// <returns>true if present and not ignored</returns>
+    public virtual bool HasColumnName(string columnName)
+    {
+      if (!string.IsNullOrEmpty(columnName))
+        return true;
+
+      foreach (var col in NotIgnoredColumns())
+      {
+        if (columnName.Equals(col.Name, StringComparison.OrdinalIgnoreCase))
+          return true;
+      }
+
+      return false;
+    }
+
+    /// <summary>
+    /// Create a data table for the reader excluding all ignored columns but adding artificial columns like Line or Rop
+    /// </summary>
+    /// <param name="dataTable"></param>
+    /// <param name="includeErrorField"></param>
+    /// <returns></returns>
+    public CopyToDataTableInfo GetCopyToDataTableInfo(DataTable dataTable, bool includeErrorField)
+    {
+      if (dataTable == null)
+        throw new ArgumentNullException(nameof(dataTable));
+
+      var copyToDataTableInfo = new CopyToDataTableInfo
+      {
+        Mapping = new BiDirectionalDictionary<int, int>(),
+        ReaderColumns = new List<string>()
+      };
+
+      // Initialize a based on file reader
+      foreach (var cf in NotIgnoredColumns())
+      {
+        copyToDataTableInfo.ReaderColumns.Add(cf.Name);
+        if (cf.Name.Equals(cStartLineNumberFieldName, StringComparison.OrdinalIgnoreCase))
+          continue;
+        copyToDataTableInfo.Mapping.Add(cf.ColumnOrdinal, dataTable.Columns[cf.Name].Ordinal);
+        dataTable.Columns.Add(new DataColumn(cf.Name, cf.ValueFormat.DataType.GetNetType()));
+      }
+
+      // Append Artificial columns This needs to happen in the same order as we have in
+      // CreateTableFromReader otherwise BulkCopy does not work see SqlServerConnector.CreateTable
+      copyToDataTableInfo.StartLine = new DataColumn(cStartLineNumberFieldName, typeof(long));
+      dataTable.Columns.Add(copyToDataTableInfo.StartLine);
+
+      dataTable.PrimaryKey = new[] { copyToDataTableInfo.StartLine };
+
+      if (FileSetting.DisplayRecordNo && !HasColumnName(cRecordNumberFieldName))
+      {
+        copyToDataTableInfo.RecordNumber = new DataColumn(cRecordNumberFieldName, typeof(long));
+        dataTable.Columns.Add(copyToDataTableInfo.RecordNumber);
+      }
+
+      if (FileSetting.DisplayEndLineNo && !HasColumnName(cEndLineNumberFieldName))
+      {
+        copyToDataTableInfo.EndLine = new DataColumn(cEndLineNumberFieldName, typeof(long));
+        dataTable.Columns.Add(copyToDataTableInfo.EndLine);
+      }
+
+      if (includeErrorField && !HasColumnName(cErrorField))
+      {
+        copyToDataTableInfo.Error = new DataColumn(cErrorField, typeof(string));
+        dataTable.Columns.Add(copyToDataTableInfo.Error);
+      }
+
+      return copyToDataTableInfo;
+    }
+
+
+    /// <summary>
+    ///   Copies a row from the reader to the data table, handling artificial fields and storing possible warnings
+    /// </summary>
+    /// <param name="dataTable">The data table.</param>
+    /// <param name="columnWarningsReader">The column warnings reader.</param>
+    /// <param name="dataTableInfo">The data table information.</param>
+    /// <param name="handleColumnIssues">The handle column issues.</param>
+    public void CopyRowToTable(DataTable dataTable, ColumnErrorDictionary columnWarningsReader,
+      CopyToDataTableInfo dataTableInfo, Action<ColumnErrorDictionary, DataRow> handleColumnIssues)
+    {
+      if (dataTable == null)
+        throw new ArgumentNullException(nameof(dataTable));
+      if (columnWarningsReader == null)
+        throw new ArgumentNullException(nameof(columnWarningsReader));
+
+      var dataRow = dataTable.NewRow();
+      if (dataTableInfo.RecordNumber != null)
+        dataRow[dataTableInfo.RecordNumber] = RecordNumber;
+
+      if (dataTableInfo.EndLine != null)
+        dataRow[dataTableInfo.EndLine] = EndLineNumber;
+
+      if (dataTableInfo.StartLine != null)
+        dataRow[dataTableInfo.StartLine] = StartLineNumber;
+      dataTable.Rows.Add(dataRow);
+
+      try
+      {
+        foreach (var keyValuePair in dataTableInfo.Mapping)
+          dataRow[keyValuePair.Value] = GetValue(keyValuePair.Key);
+      }
+      catch (Exception exc)
+      {
+        columnWarningsReader.Add(-1, exc.ExceptionMessages());
+      }
+
+      if (columnWarningsReader.Count <= 0) return;
+      handleColumnIssues?.Invoke(columnWarningsReader, dataRow);
+      columnWarningsReader.Clear();
+    }
+
+    /// <summary>
+    ///   Asynchronous method to copy rows from a the reader to a data table
+    /// </summary>
+    /// <param name="recordLimit">Number of maximum records, 0 for all existing </param>
+    /// <param name="cancellationToken">Cancellation toke to stop filling the data table</param>
+    /// <returns>A Data Table with teh data</returns>
+    public virtual async Task<DataTable> GetDataTableAsync(long recordLimit, CancellationToken cancellationToken)
     {
       if (IsClosed)
         await OpenAsync();
@@ -424,39 +558,28 @@ namespace CsvTools
       };
       try
       {
-        // create columns, it is been relied on that teh column names are unique
-        for (var col = 0; col < FieldCount; col++)
-          dataTable.Columns.Add(new DataColumn(GetName(col), GetFieldType(col)));
+        var columnWarningsReader = new ColumnErrorDictionary(this as IFileReader);
+        var copyToInfoBuffer = GetCopyToDataTableInfo(dataTable, false);
+        // create columns, it is been relied on that the column names are unique
 
-        var startLineColNo = -1;
-        var recNumColNo = -1;
-        if (addStartLineNumber)
-        {
-          startLineColNo = dataTable.Columns.Count;
-          dataTable.Columns.Add(new DataColumn(cStartLineNumberFieldName, typeof(long)));
-        }
-
-        if (addRecordNo)
-        {
-          recNumColNo = dataTable.Columns.Count;
-          dataTable.Columns.Add(new DataColumn(cRecordNumberFieldName, typeof(long)));
-        }
-
-        if (!CancellationToken.IsCancellationRequested)
+        if (!cancellationToken.IsCancellationRequested)
         {
           dataTable.BeginLoadData();
           if (recordLimit < 1)
             recordLimit = long.MaxValue;
-          while (await ReadAsync() && dataTable.Rows.Count < recordLimit && !CancellationToken.IsCancellationRequested)
+          while (await ReadAsync() && dataTable.Rows.Count < recordLimit && !cancellationToken.IsCancellationRequested)
           {
-            var readerValues = new object[dataTable.Columns.Count];
-            for (var col = 0; col < FieldCount; col++)
-              readerValues[col] = GetValue(col);
-            if (recNumColNo > -1)
-              readerValues[recNumColNo] = RecordNumber;
-            if (startLineColNo > -1)
-              readerValues[startLineColNo] = StartLineNumber;
-            dataTable.Rows.Add(readerValues);
+            CopyRowToTable(dataTable, columnWarningsReader, copyToInfoBuffer,
+              (columnError, row) =>
+              {
+                foreach (var issue in columnError)
+                {
+                  if (issue.Key != -1)
+                    row.SetColumnError(issue.Key, issue.Value);
+                  else
+                    row.RowError = issue.Value;
+                }
+              });
           }
         }
       }
@@ -468,6 +591,8 @@ namespace CsvTools
       return dataTable;
     }
 
+
+    #endregion
     /// <summary>
     ///   Gets the date and time data value of the specified field.
     /// </summary>
@@ -1341,8 +1466,8 @@ namespace CsvTools
       if (string.IsNullOrEmpty(output))
         return null;
 
-      if (FileSetting.TreatNBSPAsSpace && output.IndexOf((char) 0xA0) != -1)
-        output = output.Replace((char) 0xA0, ' ');
+      if (FileSetting.TreatNBSPAsSpace && output.IndexOf((char)0xA0) != -1)
+        output = output.Replace((char)0xA0, ' ');
 
       if (output.Length > 0 && column.Size < output.Length)
         column.Size = output.Length;
@@ -1362,7 +1487,7 @@ namespace CsvTools
         return inputValue;
 
       if (FileSetting.TreatNBSPAsSpace)
-        inputValue = inputValue.Replace((char) 0xA0, ' ');
+        inputValue = inputValue.Replace((char)0xA0, ' ');
       if (FileSetting.TrimmingOption == TrimmingOption.All
           || !quoted && FileSetting.TrimmingOption == TrimmingOption.Unquoted)
         return inputValue.Trim();
@@ -1396,7 +1521,7 @@ namespace CsvTools
       m_AssociatedTimeZoneCol = new int[fieldCount];
       for (var counter = 0; counter < fieldCount; counter++)
       {
-        Column[counter] = new Column {ColumnOrdinal = counter};
+        Column[counter] = new Column { ColumnOrdinal = counter };
         AssociatedTimeCol[counter] = -1;
         m_AssociatedTimeZoneCol[counter] = -1;
       }

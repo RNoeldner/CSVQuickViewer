@@ -41,7 +41,7 @@ namespace CsvTools.Tests
       };
       using (var reader = new CsvFileReader(setting, null, null))
       {
-        UnitTestInitialize.MimicSQLReader.AddSetting(setting.ID, await reader.GetDataTableAsync(0, false, false));
+        UnitTestInitialize.MimicSQLReader.AddSetting(setting.ID, await reader.GetDataTableAsync(0, CancellationToken.None));
       }
 
       using (var processDisplay = new DummyProcessDisplay())
@@ -104,7 +104,7 @@ namespace CsvTools.Tests
 
       using (var reader = new CsvFileReader(setting, null, null))
       {
-        UnitTestInitialize.MimicSQLReader.AddSetting(setting.ID, await reader.GetDataTableAsync(0, false, false));
+        UnitTestInitialize.MimicSQLReader.AddSetting(setting.ID, await reader.GetDataTableAsync(0, CancellationToken.None));
       }
 
       var writer = new CsvFile { SqlStatement = setting.ID };

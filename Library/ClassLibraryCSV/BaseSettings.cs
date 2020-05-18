@@ -234,7 +234,7 @@ namespace CsvTools
     ///   <see langword="true" /> if the current object is equal to the <paramref name="other" />
     ///   parameter; otherwise, <see langword="false" />.
     /// </returns>
-    protected bool BaseSettingsEquals(BaseSettings other)
+    protected virtual bool BaseSettingsEquals(BaseSettings other)
     {
       if (other is null)
         return false;

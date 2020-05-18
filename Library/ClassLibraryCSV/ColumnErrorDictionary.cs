@@ -12,6 +12,7 @@
  *
  */
 
+using System;
 using System.Collections.Generic;
 
 namespace CsvTools
@@ -27,8 +28,11 @@ namespace CsvTools
     {
     }
 
-    public ColumnErrorDictionary(IFileReader reader)
+    public ColumnErrorDictionary(IFileReader reader) 
     {
+      if (reader==null)
+        throw new ArgumentNullException(nameof(reader));
+
       for (var col = 0; col < reader.FieldCount; col++)
       {
         if (!reader.IgnoreRead(col)) continue;
@@ -39,7 +43,6 @@ namespace CsvTools
 
       reader.Warning += (s, args) => { Add(args.ColumnNumber, args.Message); };
     }
-
     /// <summary>
     ///   Combines all messages in order to display them
     /// </summary>

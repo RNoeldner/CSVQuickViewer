@@ -14,6 +14,7 @@
 
 using System;
 using System.Data;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace CsvTools
@@ -76,8 +77,35 @@ namespace CsvTools
     /// <summary>
     ///   Asynchronous method to copy rows from a the reader to a data table
     /// </summary>
-    /// <returns>A DataTable</returns>
-    Task<DataTable> GetDataTableAsync(long recordLimit, bool addStrtaLine, bool addRecNo);
+    /// <param name="recordLimit">Number of maximum records, 0 for all existing </param>
+    /// <param name="cancellationToken">Cancellation toke to stop filling the data table</param>
+    /// <returns>A Data Table with teh data</returns>
+    Task<DataTable> GetDataTableAsync(long recordLimit, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Create a data table for the reader excluding all ignored columns but adding artificial columns like Line or Rop
+    /// </summary>
+    /// <param name="dataTable"></param>
+    /// <param name="includeErrorField"></param>
+    /// <returns></returns>
+    CopyToDataTableInfo GetCopyToDataTableInfo(DataTable dataTable, bool includeErrorField);
+
+    /// <summary>
+    ///   Copies a row from the reader to the data table, handling artificial fields and storing possible warnings
+    /// </summary>
+    /// <param name="dataTable"></param>
+    /// <param name="columnWarningsReader"></param>
+    /// <param name="dataTableInfo"></param>
+    /// <param name="handleColumnIssues"></param>
+    void CopyRowToTable(DataTable dataTable, ColumnErrorDictionary columnWarningsReader,
+      CopyToDataTableInfo dataTableInfo, Action<ColumnErrorDictionary, DataRow> handleColumnIssues);
+
+    /// <summary>
+    ///   Determines if the reader has a certain columns, any ignored columns will be treated as not existing
+    /// </summary>
+    /// <param name="columnName"></param>
+    /// <returns>true if present and not ignored</returns>
+    bool HasColumnName(string columnName);
 
     /// <summary>
     ///   Reads the next record of the current result set

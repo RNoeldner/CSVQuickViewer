@@ -818,6 +818,7 @@ namespace CsvTools
     ///   can be provided
     /// </param>
     /// <remarks>Will only return the first exception in case of aggregate exceptions.</remarks>
+    [Obsolete]
     public static void WaitToCompleteTask(this Task executeTask, double timeoutSeconds,
       CancellationToken cancellationToken = default)
     {
