@@ -18,6 +18,7 @@ namespace CsvTools.Tests
         HasFieldHeader = true,
         FileFormat = { FieldDelimiter = "\t" },
         TryToSolveMoreColumns = true,
+        AllowRowCombining = true,
         SkipEmptyLines = false
       };
 
@@ -35,7 +36,7 @@ namespace CsvTools.Tests
 
         // Issue row Column 3 = Text|6
         await test.ReadAsync(); // Line 6
-        var val1 = test.GetValue(3);
+        Assert.AreEqual("Text\tF", test.GetValue(3));
 
         await test.ReadAsync(); // Line 7
         await test.ReadAsync(); // Line 8
@@ -43,20 +44,16 @@ namespace CsvTools.Tests
         await test.ReadAsync(); // Line 10
 
         await test.ReadAsync(); // Line 11
-        var val2 = test.GetValue(5);
-
-        await test.ReadAsync(); // Line 11
+        Assert.AreEqual("Memo: A long text, \t multiple words 11", test.GetValue(5));
         await test.ReadAsync(); // Line 12
+
         await test.ReadAsync(); // Line 13
         await test.ReadAsync(); // Line 14
         await test.ReadAsync(); // Line 15
         await test.ReadAsync(); // Line 16
         await test.ReadAsync(); // Line 17
-        await test.ReadAsync(); // Line 18
+        Assert.AreEqual("Memo: A long text\nmultiple words 17", test.GetValue(5));
 
-        Assert.AreEqual("Memo: A long text\n multiple words 18", test.GetValue(4));
-        Assert.AreEqual("Text\tF", val1);
-        Assert.AreEqual("Memo: A long text, \t multiple words 11", val2);
       }
     }
 

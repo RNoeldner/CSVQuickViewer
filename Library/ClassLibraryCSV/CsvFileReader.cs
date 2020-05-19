@@ -964,7 +964,7 @@ namespace CsvTools
               HandleWarning(
                 rowLength - 1,
                 $"Added first column from line {EndLineNumber}, assuming a linefeed has split the rows into an additional line.");
-              combined[rowLength - 1] += ' ' + nextLine[0];
+              combined[rowLength - 1] += '\n' + nextLine[0];
 
               for (var col = 1; col < nextLine.Length; col++)
                 combined.Add(nextLine[col]);
@@ -1001,17 +1001,6 @@ namespace CsvTools
         // If more columns are present
         if (rowLength > FieldCount && (m_CsvFile.WarnEmptyTailingColumns || m_RealignColumns != null))
         {
-          // check if the additional columns have contents
-          var hasContent = false;
-          for (var extraCol = FieldCount; extraCol < rowLength; extraCol++)
-          {
-            if (string.IsNullOrEmpty(CurrentRowColumnText[extraCol]))
-              continue;
-            hasContent = true;
-            break;
-          }
-
-          if (!hasContent) return true;
           if (m_RealignColumns != null)
           {
             HandleWarning(-1, $"Line {StartLineNumber}{cMoreColumns}. Trying to realign columns.");
@@ -1022,6 +1011,18 @@ namespace CsvTools
           }
           else
           {
+            // check if the additional columns have contents
+            var hasContent = false;
+            for (var extraCol = FieldCount; extraCol < rowLength; extraCol++)
+            {
+              if (string.IsNullOrEmpty(CurrentRowColumnText[extraCol]))
+                continue;
+              hasContent = true;
+              break;
+            }
+
+            if (!hasContent) return true;
+
             HandleWarning(
               -1,
               $"Line {StartLineNumber}{cMoreColumns} ({rowLength}/{FieldCount}). The data in extra columns is not read.");

@@ -95,47 +95,60 @@ namespace CsvTools
       }
       else
       {
+        for (var colIndex = 0; colIndex < columns.Count; colIndex++)
+        {
+          if (columns[colIndex] == null)
+            columns[colIndex] = string.Empty;
+        }
         //Get the Options for all good rows
         var otherColumns = new List<ColumnOption>(m_ExpectedColumns);
         for (var col2 = 0; col2 < m_ExpectedColumns; col2++)
           otherColumns.Add(GetColumnOptionAllRows(col2, m_GoodRows));
         var col = 0;
         // Step 1: try combining
-        while (col++ < columns.Count && col < m_ExpectedColumns && columns.Count != m_ExpectedColumns)
+        while (col < columns.Count && col < m_ExpectedColumns && columns.Count != m_ExpectedColumns)
         {
           if (string.IsNullOrEmpty(columns[col]) && !otherColumns[col].HasFlag(ColumnOption.Empty) &&
              GetColumnOption(columns[col + 1].Trim()) == otherColumns[col])
           {
             handleWarning?.Invoke(col, "Empty column has been removed, assuming the data was misaligned.");
             columns.RemoveAt(col);
-            col--;
+            continue;
           }
-          if (otherColumns[col] == ColumnOption.None) continue;
 
-          var thisCol = GetColumnOption(columns[col].Trim());
-          // assume we have to remove this columns
-          if (!thisCol.HasFlag(otherColumns[col]) || (thisCol == ColumnOption.None && thisCol == otherColumns[col - 1]))
+          if (otherColumns[col] != ColumnOption.None && col > 0)
           {
-            var fromRaw = false;
-            if (!string.IsNullOrEmpty(rawText))
+            
+            var thisCol = GetColumnOption(columns[col].Trim());
+            // assume we have to remove this columns
+            if (!thisCol.HasFlag(otherColumns[col]) ||
+                (thisCol == ColumnOption.None && thisCol == otherColumns[col - 1]))
             {
-              var pos1 = rawText.IndexOf(columns[col - 1], StringComparison.Ordinal);
-              if (pos1 != -1)
+              var fromRaw = false;
+              if (!string.IsNullOrEmpty(rawText) && columns[col - 1].Length>0 && columns[col].>0)
               {
-                var pos2 = rawText.IndexOf(columns[col], pos1 + columns[col - 1].Length, StringComparison.Ordinal);
-                if (pos2 != -1)
+                var pos1 = rawText.IndexOf(columns[col - 1], StringComparison.Ordinal);
+                if (pos1 != -1)
                 {
-                  fromRaw = true;
-                  columns[col - 1] = rawText.Substring(pos1, pos2 + columns[col].Length - pos1);
+                  var pos2 = rawText.IndexOf(columns[col], pos1 + columns[col - 1].Length, StringComparison.Ordinal);
+                  if (pos2 != -1)
+                  {
+                    fromRaw = true;
+                    columns[col - 1] = rawText.Substring(pos1, pos2 + columns[col].Length - pos1);
+                  }
                 }
               }
+
+              if (!fromRaw)
+                columns[col - 1] = columns[col - 1] + " " + columns[col];
+              columns.RemoveAt(col);
+              col--;
+              handleWarning?.Invoke(col,
+                "Extra information from in next column has been appended, assuming the data was misaligned.");
             }
-            if (!fromRaw)
-              columns[col - 1] = columns[col - 1] + " " + columns[col];
-            columns.RemoveAt(col);
-            col--;
-            handleWarning?.Invoke(col, "Extra information from in next column has been appended, assuming the data was misaligned.");
           }
+
+          col++;
         }
       }
 
@@ -145,10 +158,10 @@ namespace CsvTools
     private static readonly string[] boolVal = { "True", "False", "yes", "no", "1", "0", "-1", "y", "n", "", "x", "T", "F" };
 
     /// <summary>
-    ///   Looking ate teh text sets ceratin flags
+    ///   Looking ate teh text sets certain flags
     /// </summary>
     /// <param name="text">The column information, best is trimmed</param>
-    /// <returns>The approparte column options</returns>
+    /// <returns>The appropriate column options</returns>
     private static ColumnOption GetColumnOption(string text)
     {
       if (string.IsNullOrEmpty(text))
@@ -169,7 +182,7 @@ namespace CsvTools
       if (text.Length <= 10)
         all |= ColumnOption.VeryShortText;
 
-      // check indivudual character
+      // check individual character
       foreach (var c in text)
       {
         if (all.HasFlag(ColumnOption.NumbersOnly) && "0123456789".IndexOf(c) == -1)
@@ -192,7 +205,7 @@ namespace CsvTools
     ///   Get the combined option over all rows
     /// </summary>
     /// <param name="colNum">The Column Number in the array</param>
-    /// <param name="rows">All rows to llok at</param>
+    /// <param name="rows">All rows to look at</param>
     private static ColumnOption GetColumnOptionAllRows(int colNum, IEnumerable<string[]> rows)
     {
       var overall = ColumnOption.Empty;
