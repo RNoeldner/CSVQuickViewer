@@ -42,21 +42,19 @@ namespace CsvTools
       // Initialize a based on file reader
       {
         var colName = reader.GetName(col);
-        var vf = reader.GetColumn(col).ValueFormat;
-        if (includeErrorField)
-          ReaderColumns.Add(colName);
-        if (colName.Equals(BaseFileReader.cStartLineNumberFieldName, StringComparison.OrdinalIgnoreCase))
-          continue;
-        DataTable.Columns.Add(new DataColumn(colName, vf.DataType.GetNetType()));
+        ReaderColumns.Add(colName);
+        DataTable.Columns.Add(new DataColumn(colName, reader.GetColumn(col).ValueFormat.DataType.GetNetType()));
         Mapping.Add(col, DataTable.Columns[colName].Ordinal);
       }
 
-      // Append Artificial columns This needs to happen in the same order as we have in
-      // CreateTableFromReader otherwise BulkCopy does not work see SqlServerConnector.CreateTable
-      m_StartLine = new DataColumn(BaseFileReader.cStartLineNumberFieldName, typeof(long));
-      DataTable.Columns.Add(m_StartLine);
-
-      DataTable.PrimaryKey = new[] { m_StartLine };
+      if (reader.FileSetting.DisplayStartLineNo && !reader.HasColumnName(BaseFileReader.cRecordNumberFieldName))
+      {
+        // Append Artificial columns This needs to happen in the same order as we have in
+        // CreateTableFromReader otherwise BulkCopy does not work see SqlServerConnector.CreateTable
+        m_StartLine = new DataColumn(BaseFileReader.cStartLineNumberFieldName, typeof(long));
+        DataTable.Columns.Add(m_StartLine);
+        DataTable.PrimaryKey = new[] { m_StartLine };
+      }
 
       if (reader.FileSetting.DisplayRecordNo && !reader.HasColumnName(BaseFileReader.cRecordNumberFieldName))
       {

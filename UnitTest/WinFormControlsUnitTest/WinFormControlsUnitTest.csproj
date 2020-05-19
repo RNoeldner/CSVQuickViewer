@@ -70,6 +70,7 @@
     <Compile Include="FormProcessDisplayTests.cs" />
     <Compile Include="FoundEventArgsTests.cs" />
     <Compile Include="LoggerTextBoxTests.cs" />
+    <Compile Include="PersistentChoiceTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Static.cs" />
     <Compile Include="ToolStripDataGridViewColumnFilterTests.cs" />

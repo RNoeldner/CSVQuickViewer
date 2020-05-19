@@ -36,6 +36,7 @@ namespace CsvTools.Tests
         ID = "ID122",
         FileName = "BasicCSV.txt",
         HasFieldHeader = true,
+        DisplayStartLineNo =  false,
         SqlStatement = "ID122",
         FileFormat = { FieldDelimiter = "," }
       };
