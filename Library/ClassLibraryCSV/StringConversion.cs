@@ -33,7 +33,7 @@ namespace CsvTools
       new DateTimeFormatCollection("DateTimeFormats.txt");
 
     public static readonly HashSet<string> DateSeparators =
-      new HashSet<string>(new[] {CultureInfo.CurrentCulture.DateTimeFormat.DateSeparator, "/", ".", "-"});
+      new HashSet<string>(new[] { CultureInfo.CurrentCulture.DateTimeFormat.DateSeparator, "/", ".", "-" });
 
     public static readonly HashSet<char> DecimalGroupings = new HashSet<char>(new[]
       {'\0', CultureInfo.CurrentCulture.NumberFormat.NumberGroupSeparator[0], '.', ',', ' '});
@@ -55,6 +55,7 @@ namespace CsvTools
     ///   A static value any time only value will have this date
     /// </summary>
     private static readonly DateTime m_FirstDateTime = new DateTime(1899, 12, 30, 0, 0, 0, 0);
+
     private static readonly DateTime m_FirstDateTimeNextDay = new DateTime(1899, 12, 30, 0, 0, 0, 0).AddDays(1);
 
     private static readonly string[] m_TrueValues =
@@ -1037,7 +1038,7 @@ namespace CsvTools
 
       if (!toEnd)
       {
-        var valueParts = value.Split(new[] {splitter}, part + 1, StringSplitOptions.None);
+        var valueParts = value.Split(new[] { splitter }, part + 1, StringSplitOptions.None);
         if (valueParts.Length >= part)
           return valueParts[part - 1];
       }

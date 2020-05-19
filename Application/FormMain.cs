@@ -458,9 +458,9 @@ namespace CsvTools
         return false;
       LoadFinished = false;
       ClearProcess();
-      var sDisplay = FileSystemUtils.GetShortDisplayFileName(m_FileName, 80);
+      var sDisplay = FileSystemUtils.GetShortDisplayFileName(m_FileName, 40);
       Logger.Information("Examining file {filename}", m_FileName);
-      Text = $@"{AssemblyTitle} : {sDisplay}";
+      Text = $@"{sDisplay} {AssemblyTitle}";
 
       Cursor.Current = Cursors.WaitCursor;
       DetachPropertyChanged(m_FileSetting);
@@ -607,8 +607,7 @@ namespace CsvTools
         if (clear)
           ClearProcess();
 
-        Text =
-        $@"{AssemblyTitle} : {FileSystemUtils.GetShortDisplayFileName(m_FileSetting.FileName, 80)}  - {EncodingHelper.GetEncodingName(m_FileSetting.CurrentEncoding.CodePage, true, m_FileSetting.ByteOrderMark)}";
+        Text = $@"{FileSystemUtils.GetShortDisplayFileName(m_FileSetting.FileName, 40)}  - {EncodingHelper.GetEncodingName(m_FileSetting.CurrentEncoding.CodePage, true, m_FileSetting.ByteOrderMark)} {AssemblyTitle}";
 
         using (var processDisplay = m_FileSetting.GetProcessDisplay(this, false, m_CancellationTokenSource.Token))
         {
