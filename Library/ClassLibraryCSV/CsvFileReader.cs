@@ -246,12 +246,12 @@ namespace CsvTools
           ParseColumnName(m_HeaderRow);
         }
 
-        if (m_CsvFile.TryToSolveMoreColumns && m_CsvFile.FileFormat.FieldDelimiterChar != '\0')
-          m_RealignColumns = new ReAlignColumns(FieldCount);
-
         FinishOpen();
 
         await ResetPositionToFirstDataRowAsync();
+
+        if (m_CsvFile.TryToSolveMoreColumns && m_CsvFile.FileFormat.FieldDelimiterChar != '\0')
+          m_RealignColumns = new ReAlignColumns(FieldCount);
       }
       catch (Exception ex)
       {
@@ -460,7 +460,7 @@ namespace CsvTools
     /// <param name="current">The recent character that has been read</param>
     private void MoveNext(char current)
     {
-      if (m_CsvFile.AllowRowCombining && m_RealignColumns != null)
+      if (m_RealignColumns != null)
         m_RecordSource.Append(current);
       m_TextReader.MoveNext();
     }
@@ -792,7 +792,7 @@ namespace CsvTools
 
       // Store the starting Line Number
       StartLineNumber = EndLineNumber;
-      if (m_CsvFile.AllowRowCombining && m_RealignColumns != null)
+      if (m_RealignColumns != null)
         m_RecordSource.Length = 0;
 
       // If already at end of file, return null

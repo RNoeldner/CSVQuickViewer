@@ -138,6 +138,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Numerics" />
     <Reference Include="System.XML" />
   </ItemGroup>
@@ -158,6 +159,7 @@
     <Compile Include="FunctionalDITests.cs" />
     <Compile Include="ImprovedTextReaderPositionStoreTests.cs" />
     <Compile Include="ImprovedTextReaderTests.cs" />
+    <Compile Include="RealignColumnsTest.cs" />
     <Compile Include="SampleAndErrorsInformationTest.cs" />
     <Compile Include="LoggerTest.cs" />
     <Compile Include="ApplicationSettingTest.cs" />
@@ -221,6 +223,9 @@
   <ItemGroup>
     <EmbeddedResource Include="SampleFile.txt" />
     <Content Include="TestFiles\AllFormatsColon.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="TestFiles\RealignColumn.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="TestFiles\AllFormatsPipe.txt">
