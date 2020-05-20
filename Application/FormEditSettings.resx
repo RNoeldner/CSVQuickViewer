@@ -123,12 +123,6 @@
   <metadata name="fileFormatBindingSource.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>202, 17</value>
   </metadata>
-  <metadata name="fileFormatBindingSource.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>202, 17</value>
-  </metadata>
-  <metadata name="fileSettingBindingSource.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>12, 17</value>
-  </metadata>
   <metadata name="fileSettingBindingSource.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>12, 17</value>
   </metadata>
@@ -141,11 +135,17 @@
   <metadata name="tableLayoutPanelBehavior.GenerateMember" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
     <value>False</value>
   </metadata>
+  <data name="checkBoxTryToSolveMoreColumns.ToolTip" xml:space="preserve">
+    <value>Try to realign columns in case the file is not quoted, and an extra delimiter has caused additional columns.
+Re-Aligning works best if columns and their order are easily identifiable, if the columns are very similar e.g. all are text, or all are empty there is a high chance the realignment does fail.
+</value>
+  </data>
+  <data name="checkBoxAllowRowCombining.ToolTip" xml:space="preserve">
+    <value>Try to combine rows, it might happen if the column does contain a linefeed and is not quoted. That column contents is moved into the next line.
+This is a very risky option, in some cases rows might be lost.</value>
+  </data>
   <metadata name="tableLayoutPanelWarnings.GenerateMember" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
     <value>False</value>
-  </metadata>
-  <metadata name="toolTip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>387, 17</value>
   </metadata>
   <metadata name="errorProvider.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>477, 17</value>

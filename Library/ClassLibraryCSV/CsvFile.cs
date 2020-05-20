@@ -77,12 +77,8 @@ namespace CsvTools
     /// <summary>
     ///   Gets a value indicating whether the Xml field is specified.
     /// </summary>
-    /// <value>
-    ///   <c>true</c> if field mapping is specified; otherwise, <c>false</c>.
-    /// </value>
-    /// <remarks>
-    ///   Used for XML Serialization
-    /// </remarks>
+    /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
+    /// <remarks>Used for XML Serialization</remarks>
     [XmlIgnore]
     public static bool UnknowCharaterReplacementSpecified => false;
 
@@ -163,7 +159,8 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets or sets a value indicating whether we have a text that was double encoded and needs a double decoding.
+    ///   Gets or sets a value indicating whether we have a text that was double encoded and needs a
+    ///   double decoding.
     /// </summary>
     /// <value><c>true</c> if while reading double decode the file otherwise <c>false</c>.</value>
     [XmlAttribute]
@@ -183,9 +180,7 @@ namespace CsvTools
     /// <summary>
     ///   Gets or sets a value indicating whether a file is most likely not a delimited file
     /// </summary>
-    /// <value>
-    ///   <c>true</c> if the file is assumed to be a non delimited file; otherwise, <c>false</c>.
-    /// </value>
+    /// <value><c>true</c> if the file is assumed to be a non delimited file; otherwise, <c>false</c>.</value>
     [XmlIgnore]
     public virtual bool NoDelimitedFile
     {
@@ -263,7 +258,7 @@ namespace CsvTools
     ///   Gets or sets a value indicating whether to warn empty tailing columns.
     /// </summary>
     /// <value><c>true</c> if [warn empty tailing columns]; otherwise, <c>false</c>.</value>
-    [XmlAttribute]
+    [XmlAttribute(AttributeName = "WarnEmptyTailingColumns")]
     [DefaultValue(true)]
     public virtual bool WarnEmptyTailingColumns
     {
@@ -281,9 +276,7 @@ namespace CsvTools
     /// <summary>
     ///   Gets or sets a value indicating whether to warn unknown character.
     /// </summary>
-    /// <value>
-    ///   <c>true</c> if unknown character should issue a warning; otherwise, <c>false</c>.
-    /// </value>
+    /// <value><c>true</c> if unknown character should issue a warning; otherwise, <c>false</c>.</value>
     [XmlAttribute]
     [DefaultValue(false)]
     public virtual bool WarnLineFeed
@@ -302,9 +295,7 @@ namespace CsvTools
     /// <summary>
     ///   Gets or sets a value indicating whether to treat a single LF as space
     /// </summary>
-    /// <value>
-    ///   <c>true</c> if LF should be treated as space; otherwise, <c>false</c>.
-    /// </value>
+    /// <value><c>true</c> if LF should be treated as space; otherwise, <c>false</c>.</value>
     [XmlAttribute]
     [DefaultValue(false)]
     public virtual bool TreatLFAsSpace
@@ -416,9 +407,7 @@ namespace CsvTools
     /// <summary>
     ///   Gets or sets a value indicating whether to warn unknown character.
     /// </summary>
-    /// <value>
-    ///   <c>true</c> if unknown character should issue a warning; otherwise, <c>false</c>.
-    /// </value>
+    /// <value><c>true</c> if unknown character should issue a warning; otherwise, <c>false</c>.</value>
     [XmlAttribute]
     [DefaultValue(true)]
     public virtual bool WarnUnknowCharater
@@ -503,10 +492,13 @@ namespace CsvTools
              BaseSettingsEquals(other as BaseSettings);
     }
 
-    /// <summary>Determines whether the specified object is equal to the current object.</summary>
-    /// <param name="obj">The object to compare with the current object. </param>
+    /// <summary>
+    ///   Determines whether the specified object is equal to the current object.
+    /// </summary>
+    /// <param name="obj">The object to compare with the current object.</param>
     /// <returns>
-    ///   <see langword="true" /> if the specified object  is equal to the current object; otherwise, <see langword="false" />.
+    ///   <see langword="true" /> if the specified object is equal to the current object; otherwise,
+    ///   <see langword="false" />.
     /// </returns>
     public override bool Equals(object obj) => Equals(obj as ICsvFile);
   }

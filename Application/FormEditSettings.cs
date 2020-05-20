@@ -281,11 +281,17 @@ namespace CsvTools
       }
     }
 
-    private void cboRecordDelimiter_SelectedIndexChanged(object sender, EventArgs e)
+    private void CboRecordDelimiter_SelectedIndexChanged(object sender, EventArgs e)
 
     {
       if (cboRecordDelimiter.SelectedItem != null)
         m_ViewSettings.FileFormat.NewLine = (RecordDelimiterType)cboRecordDelimiter.SelectedValue;
+    }
+
+    private void CheckBoxColumnsProcess_CheckedChanged(object sender, EventArgs e)
+    {
+      if (m_ViewSettings.TryToSolveMoreColumns || m_ViewSettings.AllowRowCombining)
+        m_ViewSettings.WarnEmptyTailingColumns = true;
     }
   }
 }

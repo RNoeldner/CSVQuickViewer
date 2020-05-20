@@ -786,15 +786,7 @@ namespace CsvTools
       return FieldCount;
     }
 
-    /// <summary>
-    ///   Handles the error.
-    /// </summary>
-    /// <param name="columnNumber">The column number.</param>
-    /// <param name="message">The message.</param>
-    public void HandleError(int columnNumber, string message) =>
-      Warning?.Invoke(
-        this,
-        new WarningEventArgs(
+    protected WarningEventArgs GetWarningEventArgs(int columnNumber, string message) => new WarningEventArgs(
           RecordNumber,
           columnNumber,
           message,
@@ -802,14 +794,23 @@ namespace CsvTools
           EndLineNumber,
           Column != null && columnNumber >= 0 && columnNumber < m_FieldCount && Column[columnNumber] != null
             ? Column[columnNumber].Name
-            : null));
+            : null);
+
+    /// <summary>
+    ///   Handles the error.
+    /// </summary>
+    /// <param name="columnNumber">The column number.</param>
+    /// <param name="message">The message.</param>
+    public void HandleError(int columnNumber, string message) =>
+      Warning?.Invoke(this, GetWarningEventArgs(columnNumber, message));
 
     /// <summary>
     ///   Calls the event handler for warnings
     /// </summary>
     /// <param name="columnNumber">The column.</param>
     /// <param name="message">The message.</param>
-    public void HandleWarning(int columnNumber, string message) => HandleError(columnNumber, message.AddWarningId());
+    public void HandleWarning(int columnNumber, string message) =>
+      Warning?.Invoke(this, GetWarningEventArgs(columnNumber, message.AddWarningId()));
 
     /// <summary>
     ///   Checks if the column should be read
@@ -1611,11 +1612,21 @@ namespace CsvTools
         var dataRow = copyToDataTableInfo.CopyRowToTable(this as IFileReader);
         if (columnErrorDictionary.Count <= 0) continue;
         foreach (var keyValuePair in columnErrorDictionary)
-          if (keyValuePair.Key == -1)
-            dataRow.RowError = keyValuePair.Value;
-          else if (copyToDataTableInfo.Mapping.TryGetValue(keyValuePair.Key, out var dbCol))
+          // Column Error
+          if (keyValuePair.Key >= 0 && copyToDataTableInfo.Mapping.TryGetValue(keyValuePair.Key, out var dbCol))
             dataRow.SetColumnError(dbCol, keyValuePair.Value);
+          // Row Error
+          else if (keyValuePair.Key == -1)
+            dataRow.RowError = keyValuePair.Value;
+
         columnErrorDictionary.Clear();
+      }
+      // A column reported as -2 means that the row was not read, the erro could be stored in the
+      // line before (current last line in datatable)
+      foreach (var keyValuePair in columnErrorDictionary)
+      {
+        if (keyValuePair.Key == -2)
+          copyToDataTableInfo.DataTable.Rows[copyToDataTableInfo.DataTable.Rows.Count - 1].RowError = keyValuePair.Value;
       }
       copyToDataTableInfo.DataTable.EndLoadData();
       return copyToDataTableInfo.DataTable;
