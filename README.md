@@ -21,7 +21,8 @@ The application can:
 * Display Duplicates Values
 * Display Unique Values
 * Filter for rows / Columns with warnings
-* Handle PGP encrypted files
+* Automated re-alignmnet of columns in case a delimiter causes issues with column alignmnet
+* Automated re-alignmnet of column in case a linefeed pushes columns into the next line
 * HTML Copy and Paste for storing cut values in Excel / Word,  retaining value types
 
 This application does use various NuGet libraies:
