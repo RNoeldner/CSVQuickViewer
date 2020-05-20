@@ -118,14 +118,13 @@ namespace CsvTools
 
           if (otherColumns[col] != ColumnOption.None && col > 0)
           {
-            
             var thisCol = GetColumnOption(columns[col].Trim());
             // assume we have to remove this columns
             if (!thisCol.HasFlag(otherColumns[col]) ||
                 (thisCol == ColumnOption.None && thisCol == otherColumns[col - 1]))
             {
               var fromRaw = false;
-              if (!string.IsNullOrEmpty(rawText) && columns[col - 1].Length>0 && columns[col].>0)
+              if (!string.IsNullOrEmpty(rawText) && columns[col - 1].Length > 0 && columns[col].Length > 0)
               {
                 var pos1 = rawText.IndexOf(columns[col - 1], StringComparison.Ordinal);
                 if (pos1 != -1)
