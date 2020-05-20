@@ -93,12 +93,13 @@ namespace CsvTools
           csv.SkipRows = 1;
         // turn off all warnings as they will cause GetSampleValues to ignore the row
         csv.TryToSolveMoreColumns = false;
+        csv.AllowRowCombining = false;
         csv.WarnDelimiterInValue = false;
         csv.WarnLineFeed = false;
         csv.WarnQuotes = false;
         csv.WarnUnknowCharater = false;
         csv.WarnNBSP = false;
-        csv.WarnQuotesInQuotes = false;
+        csv.WarnQuotesInQuotes = false;        
       }
 
       var othersValueFormatDate = CommonDateFormat(present);

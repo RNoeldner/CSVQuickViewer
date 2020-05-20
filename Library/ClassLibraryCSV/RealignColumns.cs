@@ -75,10 +75,13 @@ namespace CsvTools
     {
       if (row == null)
         throw new ArgumentNullException(nameof(row));
-
+      if (handleWarning is null)
+        throw new ArgumentNullException(nameof(handleWarning));
       if (m_GoodRows.Count < 2)
       {
-        handleWarning?.Invoke(0, "Not enough error free rows have been read to allow realigning of columns.");
+        if (handleWarning == null)
+          handleWarning.Invoke(-1, "Not enough error free rows have been read to allow realigning of columns.");
+
         return row;
       }
       // List is easier to handle than an array
@@ -91,7 +94,7 @@ namespace CsvTools
         {
           columns.RemoveAt(m_ExpectedColumns);
         }
-        handleWarning?.Invoke(m_ExpectedColumns - 1, "Information in following columns has been ignored.");
+        handleWarning.Invoke(m_ExpectedColumns - 1, "Information in following columns has been ignored.");
       }
       else
       {
@@ -111,7 +114,7 @@ namespace CsvTools
           if (string.IsNullOrEmpty(columns[col]) && !otherColumns[col].HasFlag(ColumnOption.Empty) &&
              GetColumnOption(columns[col + 1].Trim()) == otherColumns[col])
           {
-            handleWarning?.Invoke(col, "Empty column has been removed, assuming the data was misaligned.");
+            handleWarning.Invoke(col, "Empty column has been removed, assuming the data was misaligned.");
             columns.RemoveAt(col);
             continue;
           }
@@ -142,7 +145,7 @@ namespace CsvTools
                 columns[col - 1] = columns[col - 1] + " " + columns[col];
               columns.RemoveAt(col);
               col--;
-              handleWarning?.Invoke(col,
+              handleWarning.Invoke(col,
                 "Extra information from in next column has been appended, assuming the data was misaligned.");
             }
           }
