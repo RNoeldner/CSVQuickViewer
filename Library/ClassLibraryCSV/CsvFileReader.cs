@@ -683,7 +683,6 @@ namespace CsvTools
             stringBuilder.Append(m_CsvFile.FileFormat.FieldQualifierChar);
             MoveNext(peekNextChar);
 
-            // TODO: decide if we should have this its hard to explain but might make sense special
             // handling for "" that is not only representing a " but also closes the text
             peekNextChar = await PeekAsync();
             if (m_CsvFile.FileFormat.AlternateQuoting && (peekNextChar == m_CsvFile.FileFormat.FieldDelimiterChar

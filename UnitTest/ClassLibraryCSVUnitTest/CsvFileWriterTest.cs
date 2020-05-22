@@ -141,7 +141,11 @@ namespace CsvTools.Tests
         {
           var writer = new CsvFileWriter(writeFile, TimeZoneInfo.Local.Id, processDisplay);
           using (var reader = new DataTableReader(dataTable, "dummy", processDisplay))
+          {
+            await reader.OpenAsync();
             Assert.AreEqual(100, await writer.WriteAsync(reader));
+          }
+            
         }
 
         Assert.IsTrue(File.Exists(writeFile.FullPath));
@@ -173,7 +177,11 @@ namespace CsvTools.Tests
           var writer = new CsvFileWriter(writeFile, TimeZoneInfo.Local.Id, processDisplay);
           writer.Warning += (object sender, WarningEventArgs e) => { count++; };
           using (var reader = new DataTableReader(dataTable, "dummy", processDisplay))
+          {
+            await reader.OpenAsync();
             Assert.AreEqual(100, await writer.WriteAsync(reader), "Records");
+          }
+            
           Assert.AreEqual(100, count, "Warnings");
         }
 
