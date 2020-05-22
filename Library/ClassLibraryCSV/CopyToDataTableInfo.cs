@@ -16,20 +16,25 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
+using System.Linq;
 
 namespace CsvTools
 {
   public sealed class CopyToDataTableInfo : IDisposable
   {
     public readonly DataTable DataTable;
-    public readonly DataColumn Error;
-    public readonly BiDirectionalDictionary<int, int> Mapping = new BiDirectionalDictionary<int, int>();
-    public readonly IList<string> ReaderColumns = new List<string>();
+    private readonly DataColumn m_Error;
+    private readonly BiDirectionalDictionary<int, int> m_Mapping = new BiDirectionalDictionary<int, int>();
+    private readonly IList<string> m_ReaderColumns = new List<string>();
     private readonly DataColumn m_EndLine;
     private readonly DataColumn m_RecordNumber;
     private readonly DataColumn m_StartLine;
+    private readonly bool m_IncludeErrorField;
+    private readonly bool m_StoreWarningsInDataTable;
+    private readonly ColumnErrorDictionary m_ColumnErrorDictionary;
 
-    public CopyToDataTableInfo(IFileReader reader, bool includeErrorField)
+
+    public CopyToDataTableInfo(IFileReader reader, bool includeErrorField, bool storeWarningsInDataTable, bool addStartLine)
     {
       DataTable = new DataTable()
       {
@@ -37,17 +42,21 @@ namespace CsvTools
         Locale = CultureInfo.CurrentCulture,
         CaseSensitive = false
       };
+      m_ColumnErrorDictionary = new ColumnErrorDictionary(reader);
 
+      m_IncludeErrorField = includeErrorField;
+      m_StoreWarningsInDataTable = storeWarningsInDataTable;
       for (var col = 0; col < reader.FieldCount; col++)
-        // Initialize a based on file reader
       {
+        if (reader.IgnoreRead(col)) continue;
+
         var colName = reader.GetName(col);
-        ReaderColumns.Add(colName);
+        m_ReaderColumns.Add(colName);
         DataTable.Columns.Add(new DataColumn(colName, reader.GetColumn(col).ValueFormat.DataType.GetNetType()));
-        Mapping.Add(col, DataTable.Columns[colName].Ordinal);
+        m_Mapping.Add(col, DataTable.Columns[colName].Ordinal);
       }
 
-      if (reader.FileSetting.DisplayStartLineNo && !reader.HasColumnName(BaseFileReader.cStartLineNumberFieldName))
+      if (addStartLine && !reader.HasColumnName(BaseFileReader.cStartLineNumberFieldName))
       {
         // Append Artificial columns This needs to happen in the same order as we have in
         // CreateTableFromReader otherwise BulkCopy does not work see SqlServerConnector.CreateTable
@@ -59,7 +68,7 @@ namespace CsvTools
       {
         m_RecordNumber = new DataColumn(BaseFileReader.cRecordNumberFieldName, typeof(long));
         DataTable.Columns.Add(m_RecordNumber);
-        DataTable.PrimaryKey = new[] {m_RecordNumber};
+        DataTable.PrimaryKey = new[] { m_RecordNumber };
       }
 
       if (reader.FileSetting.DisplayEndLineNo && !reader.HasColumnName(BaseFileReader.cEndLineNumberFieldName))
@@ -70,12 +79,16 @@ namespace CsvTools
 
       if (includeErrorField && !reader.HasColumnName(BaseFileReader.cErrorField))
       {
-        Error = new DataColumn(BaseFileReader.cErrorField, typeof(string));
-        DataTable.Columns.Add(Error);
+        m_Error = new DataColumn(BaseFileReader.cErrorField, typeof(string));
+        DataTable.Columns.Add(m_Error);
       }
     }
-
-    public DataRow CopyRowToTable(IFileReader reader)
+    /// <summary>
+    /// Store the information from teh reader in the data table
+    /// </summary>
+    /// <param name="reader"></param>
+    /// <returns><c>true</c> no warnings, <c>false</c> warnings have been raised</returns>
+    public bool CopyRowToTable(IFileReader reader)
     {
       var dataRow = DataTable.NewRow();
       if (m_RecordNumber != null)
@@ -89,14 +102,43 @@ namespace CsvTools
 
       DataTable.Rows.Add(dataRow);
 
-      foreach (var keyValuePair in Mapping)
+      foreach (var keyValuePair in m_Mapping)
         dataRow[keyValuePair.Value] = reader.GetValue(keyValuePair.Key);
 
-      return dataRow;
+      if (m_ColumnErrorDictionary.Count <= 0) return true;
+
+      if (m_StoreWarningsInDataTable)
+      {
+        foreach (var keyValuePair in m_ColumnErrorDictionary)
+          // Column Error
+          if (keyValuePair.Key >= 0 && m_Mapping.TryGetValue(keyValuePair.Key, out var dbCol))
+            dataRow.SetColumnError(dbCol, keyValuePair.Value);
+          // Row Error
+          else if (keyValuePair.Key == -1)
+            dataRow.RowError = keyValuePair.Value;
+          else if (keyValuePair.Key == -2)
+          {
+            var previousDataRow = DataTable.Rows[DataTable.Rows.Count - 1];
+            previousDataRow.RowError = previousDataRow.RowError.AddMessage(keyValuePair.Value);
+          }
+      }
+
+      if (m_IncludeErrorField)
+      {
+        dataRow[m_Error] = ErrorInformation.ReadErrorInformation(m_ColumnErrorDictionary, m_ReaderColumns);
+        foreach (var prev in m_ColumnErrorDictionary.Where(x => x.Key == -2).Select(x => x.Value))
+        {
+          var previousDataRow = DataTable.Rows[DataTable.Rows.Count - 1];
+          previousDataRow[m_Error] = previousDataRow[m_Error].ToString().AddMessage(prev);
+        }
+      }
+
+      m_ColumnErrorDictionary.Clear();
+      return false;
     }
 
 
-#region IDisposable Support
+    #region IDisposable Support
 
     private bool m_DisposedValue; // To detect redundant calls
 
@@ -112,14 +154,14 @@ namespace CsvTools
       if (m_DisposedValue) return;
       if (disposing)
       {
-        ReaderColumns.Clear();
-        Mapping.Clear();
+        m_ReaderColumns.Clear();
+        m_Mapping.Clear();
         DataTable?.Dispose();
       }
 
       m_DisposedValue = true;
     }
 
-#endregion IDisposable Support
+    #endregion IDisposable Support
   }
 }
