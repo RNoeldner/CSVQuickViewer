@@ -36,7 +36,7 @@ namespace CsvTools.Tests
         ID = "ID122",
         FileName = "BasicCSV.txt",
         HasFieldHeader = true,
-        DisplayStartLineNo =  false,
+        DisplayStartLineNo = false,
         SqlStatement = "ID122",
         FileFormat = { FieldDelimiter = "," }
       };
@@ -99,12 +99,14 @@ namespace CsvTools.Tests
       {
         ID = "DetermineColumnFormatFillGuessColumnFormatWriter",
         FileName = "BasicCSV.txt",
+        DisplayStartLineNo = false,
         HasFieldHeader = true,
         FileFormat = { FieldDelimiter = "," }
       };
 
       using (var reader = new CsvFileReader(setting, null, null))
       {
+        await reader.OpenAsync();
         UnitTestInitialize.MimicSQLReader.AddSetting(setting.ID, await reader.GetDataTableAsync(0, CancellationToken.None));
       }
 
@@ -349,9 +351,7 @@ namespace CsvTools.Tests
       {
         FileName = UnitTestInitialize.GetTestPath("DateAndNumber.csv"),
         HasFieldHeader = true,
-        FileFormat = {
-                                        FieldQualifier = "Quote"
-                                     },
+        FileFormat = { FieldQualifier = "Quote" },
         CodePageId = 1252
       };
       setting.FileFormat.FieldDelimiter = "TAB";

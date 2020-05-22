@@ -39,7 +39,7 @@ namespace CsvTools
       };
 
       for (var col = 0; col < reader.FieldCount; col++)
-      // Initialize a based on file reader
+        // Initialize a based on file reader
       {
         var colName = reader.GetName(col);
         ReaderColumns.Add(colName);
@@ -47,19 +47,19 @@ namespace CsvTools
         Mapping.Add(col, DataTable.Columns[colName].Ordinal);
       }
 
-      if (reader.FileSetting.DisplayStartLineNo && !reader.HasColumnName(BaseFileReader.cRecordNumberFieldName))
+      if (reader.FileSetting.DisplayStartLineNo && !reader.HasColumnName(BaseFileReader.cStartLineNumberFieldName))
       {
         // Append Artificial columns This needs to happen in the same order as we have in
         // CreateTableFromReader otherwise BulkCopy does not work see SqlServerConnector.CreateTable
         m_StartLine = new DataColumn(BaseFileReader.cStartLineNumberFieldName, typeof(long));
         DataTable.Columns.Add(m_StartLine);
-        DataTable.PrimaryKey = new[] { m_StartLine };
       }
 
       if (reader.FileSetting.DisplayRecordNo && !reader.HasColumnName(BaseFileReader.cRecordNumberFieldName))
       {
         m_RecordNumber = new DataColumn(BaseFileReader.cRecordNumberFieldName, typeof(long));
         DataTable.Columns.Add(m_RecordNumber);
+        DataTable.PrimaryKey = new[] {m_RecordNumber};
       }
 
       if (reader.FileSetting.DisplayEndLineNo && !reader.HasColumnName(BaseFileReader.cEndLineNumberFieldName))
@@ -79,7 +79,7 @@ namespace CsvTools
     {
       var dataRow = DataTable.NewRow();
       if (m_RecordNumber != null)
-        dataRow[m_RecordNumber] = m_RecordNumber;
+        dataRow[m_RecordNumber] = reader.RecordNumber;
 
       if (m_EndLine != null)
         dataRow[m_EndLine] = reader.EndLineNumber;
@@ -95,8 +95,8 @@ namespace CsvTools
       return dataRow;
     }
 
- 
-    #region IDisposable Support
+
+#region IDisposable Support
 
     private bool m_DisposedValue; // To detect redundant calls
 
@@ -105,7 +105,6 @@ namespace CsvTools
     {
       // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
       Dispose(true);
-      // TODO: uncomment the following line if the finalizer is overridden above. GC.SuppressFinalize(this);
     }
 
     private void Dispose(bool disposing)
@@ -117,9 +116,10 @@ namespace CsvTools
         Mapping.Clear();
         DataTable?.Dispose();
       }
+
       m_DisposedValue = true;
     }
 
-    #endregion IDisposable Support
+#endregion IDisposable Support
   }
 }

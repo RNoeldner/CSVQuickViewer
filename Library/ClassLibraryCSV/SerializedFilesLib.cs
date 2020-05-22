@@ -62,7 +62,7 @@ namespace CsvTools
     /// <param name="fileName">Name of the file.</param>
     /// <param name="csvFile">The CSV file.</param>
     /// <param name="askOverwrite">The ask overwrite.</param>
-    public static void SaveCsvFile(string fileName, CsvFile csvFile, Func<bool> askOverwrite)
+    public static void SaveCsvFile(string fileName, ICsvFile csvFile, Func<bool> askOverwrite)
     {
       Contract.Requires(fileName != null);
       using (var stringWriter = new StringWriter(CultureInfo.InvariantCulture))

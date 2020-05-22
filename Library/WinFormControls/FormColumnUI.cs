@@ -17,7 +17,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
-using System.Data.Common;
 using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.Globalization;
@@ -296,7 +295,7 @@ namespace CsvTools
                                             && (checkResult.FoundValueFormat == null
                                                 || checkResult.FoundValueFormat.DataType == DataType.String);
                   rtfHelper.AddParagraph();
-                  rtfHelper.AddParagraph($"Determined Format : {checkResult.FoundValueFormat.GetTypeAndFormatDescription()}");
+                  rtfHelper.AddParagraph($"Determined Format : {checkResult.FoundValueFormat?.GetTypeAndFormatDescription()}");
 
                   if (checkResult.PossibleMatch)
                     rtfHelper.AddParagraph(
@@ -694,7 +693,7 @@ namespace CsvTools
         if (groupBoxSplit.Visible)
           SetSamplePart(null, null);
 
-        //TODO: opening on OS and scaling a different value might be needed
+        // Depending on  OS and scaling a different value might be needed
         Height = tableLayoutPanelForm.Height + SystemInformation.CaptionHeight * 175 / 100;
       }
       catch (Exception ex)
@@ -1076,13 +1075,13 @@ namespace CsvTools
 
     private void UpdateColumnList(ICollection<string> allColumns)
     {
-      var columnsConf = allColumns.ToArray();
-      var columnsTp = allColumns.ToArray();
-
+      
       comboBoxColumnName.BeginUpdate();
       // if we have a list of columns add them to fields that show a column name
-      if (columnsConf.Length > 0)
+      if (allColumns.Count> 0)
       {
+        var columnsConf = allColumns.ToArray();
+        var columnsTp = allColumns.ToArray();
         comboBoxColumnName.Items.AddRange(columnsConf);
         comboBoxTimePart.Items.AddRange(columnsTp);
         comboBoxTimeZone.Items.AddRange(columnsTp);

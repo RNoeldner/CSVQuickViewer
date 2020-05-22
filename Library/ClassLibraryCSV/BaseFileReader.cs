@@ -418,7 +418,7 @@ namespace CsvTools
     /// <returns>true if present and not ignored</returns>
     public virtual bool HasColumnName(string columnName)
     {
-      if (!string.IsNullOrEmpty(columnName))
+      if (string.IsNullOrEmpty(columnName))
         return true;
 
       for (var index = 0; index < Column.Length; index++)
@@ -669,9 +669,6 @@ namespace CsvTools
     /// <exception cref="InvalidOperationException">The <see cref="IDataReader" /> is closed.</exception>
     public virtual DataTable GetSchemaTable()
     {
-      if (IsClosed)
-        OpenAsync().WaitToCompleteTask(10);
-
       var dataTable = GetEmptySchemaTable();
       var schemaRow = GetDefaultSchemaRowArray();
 
@@ -1596,6 +1593,8 @@ namespace CsvTools
 
       // This tracks errors and warnings
       cancellationToken.ThrowIfCancellationRequested();
+
+      // ReSharper disable once CollectionNeverUpdated.Local
       var columnErrorDictionary = new ColumnErrorDictionary(this as IFileReader);
 
       // This has a mapping of the columns between reader and data table
@@ -1621,8 +1620,8 @@ namespace CsvTools
 
         columnErrorDictionary.Clear();
       }
-      // A column reported as -2 means that the row was not read, the erro could be stored in the
-      // line before (current last line in datatable)
+      // A column reported as -2 means that the row was not read, the error could be stored in the
+      // line before (current last line in data table)
       foreach (var keyValuePair in columnErrorDictionary)
       {
         if (keyValuePair.Key == -2)

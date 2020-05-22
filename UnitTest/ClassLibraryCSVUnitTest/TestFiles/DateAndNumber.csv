@@ -1,4 +1,4 @@
-"Erstelldatum Rechnung"	"Betrag Brutto (2 Nachkommastellen)"	"Betrag Netto (2 Nachkommastellen)"	"Betrag USt. (2 Nachkommastellen)"	"Steuerschlüssel"	"Steuerkonto"	"Debitorennummer"	"RA Firma"	"Belegtext"	"Belegnummer"	"Buchungstext"	"Bezahlt"	"Zahlungsdatum"	"Zahlungsbetrag (2 Nachkommastellen)"	"SKR03/04 Konto"	
+"Erstelldatum Rechnung"	"Betrag Brutto (2 Nachkommastellen)"	"Betrag Netto (2 Nachkommastellen)"	"Betrag USt. (2 Nachkommastellen)"	"Steuerschlüssel"	"Steuerkonto"	"Debitorennummer"	"RA Firma"	"Belegtext"	"Belegnummer"	"Buchungstext"	"Bezahlt"
 "01.09.2014"	"-130,66"	"-109,80"	"-20,86"	"3"	"4400"	"10001"	"Kunden"	"GA"	"91010244"	"Hanna"	"N"				
 "02.09.2014"	"-7,02"	"-5,90"	"-1,12"	"3"	"4400"	"10001"	"Kunden"	"GA"	"91010245"	"Ian"	"N"				
 "03.09.2014"	"-19,99"	"-16,80"	"-3,19"	"3"	"4400"	"10001"	"Kunden"	"GA"	"91010246"	"Cornelia"	"N"				

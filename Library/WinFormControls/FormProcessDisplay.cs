@@ -69,8 +69,8 @@ namespace CsvTools
         m_LoggerDisplay = new LoggerDisplay { MinLevel = Logger.Level.Debug, Dock = DockStyle.Fill, Multiline = true, TabIndex = 8 };
         m_TableLayoutPanel.Controls.Add(m_LoggerDisplay, 0, 3);
         m_TableLayoutPanel.SetColumnSpan(m_LoggerDisplay, 3);
-        m_TableLayoutPanel.RowStyles[0] = new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 40F);
-        m_TableLayoutPanel.RowStyles[3] = new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 60F);
+        m_TableLayoutPanel.RowStyles[0] = new RowStyle(SizeType.Percent, 40F);
+        m_TableLayoutPanel.RowStyles[3] = new RowStyle(SizeType.Percent, 60F);
       }
 
       // Workaround... On Windows 8 / Windows 2012 sizing is off and controls are way too big...
@@ -118,7 +118,7 @@ namespace CsvTools
 
     public Logger.Level LoggerLevel
     {
-      get => m_LoggerDisplay != null ? m_LoggerDisplay.MinLevel : Logger.Level.Debug;
+      get => m_LoggerDisplay?.MinLevel ?? Logger.Level.Debug;
 
       set
       {
@@ -384,7 +384,7 @@ namespace CsvTools
         CancellationTokenSource.Dispose();
         m_DummyProcessDisplay.Dispose();
         base.Dispose(disposing);
-        m_LoggerDisplay.Dispose();
+        m_LoggerDisplay?.Dispose();
       }
       catch (Exception)
       {

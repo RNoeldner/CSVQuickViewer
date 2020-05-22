@@ -821,8 +821,8 @@ Line "Test"", "22",23,"  24"
 
         Assert.IsTrue(await test.ReadAsync());
 
-        // no further warning
-        Assert.AreEqual(1, warningList.CountRows, "warningList.CountRows");
+        // Row 3 and Row 4 have extra columns
+        Assert.AreEqual(2, warningList.CountRows, "warningList.CountRows");
       }
     }
 
@@ -831,11 +831,10 @@ Line "Test"", "22",23,"  24"
     {
       var setting = new CsvFile
       {
-        HasFieldHeader = false
+        HasFieldHeader = false,
+        FileFormat = {FieldDelimiter = ",", FieldQualifier = string.Empty},
+        FileName = UnitTestInitialize.GetTestPath("TextQualifierDataPastClosingQuote.txt")
       };
-      setting.FileFormat.FieldDelimiter = ",";
-      setting.FileFormat.FieldQualifier = string.Empty;
-      setting.FileName = UnitTestInitialize.GetTestPath("TextQualifierDataPastClosingQuote.txt");
 
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))

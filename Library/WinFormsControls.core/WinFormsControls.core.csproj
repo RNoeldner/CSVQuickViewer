@@ -13,11 +13,11 @@
     <Compile Remove="..\WinFormControls\Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Remove="..\WinFormControls\FolderTree.resx" />
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="WindowsAPICodePack">
       <Version>1.1.1</Version>
     </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ClassLibraryCSV.Standard\ClassLibraryCSV.Standard.csproj" />
   </ItemGroup>
 </Project>

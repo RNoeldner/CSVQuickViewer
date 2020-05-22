@@ -7,7 +7,7 @@ The application has a MSI installer that does not need administrative right.
 
 The application can:
 * Guess the appropriate Code Page
-* Guess the Delimiter, Record Seperator
+* Guess the Delimiter, Record Separator
 * Configurable handling of quotes
 * Guess the Start Row skipping comment lines
 * Use typed values in contracts to text values
@@ -21,11 +21,11 @@ The application can:
 * Display Duplicates Values
 * Display Unique Values
 * Filter for rows / Columns with warnings
-* Automated re-alignmnet of columns in case a delimiter causes issues with column alignmnet
-* Automated re-alignmnet of column in case a linefeed pushes columns into the next line
+* Automated re-alignment of columns in case a delimiter causes issues with column alignment
+* Automated re-alignment of column in case a linefeed pushes columns into the next line
 * HTML Copy and Paste for storing cut values in Excel / Word,  retaining value types
 
-This application does use various NuGet libraies:
+This application does use various NuGet libraries:
 * Pri.LongPath (Support for long file names)
 * Ude.NetStandard  (Mozilla Universal Charset Detector for dotnet)
 * Newtonsoft.Json (Support for Json files)
