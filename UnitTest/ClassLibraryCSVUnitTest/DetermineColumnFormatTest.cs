@@ -42,7 +42,7 @@ namespace CsvTools.Tests
       };
       using (var reader = new CsvFileReader(setting, null, null))
       {
-        UnitTestInitialize.MimicSQLReader.AddSetting(setting.ID, await reader.GetDataTableAsync(0, CancellationToken.None));
+        UnitTestInitialize.MimicSQLReader.AddSetting(setting.ID, await reader.GetDataTableAsync(0, false, false, setting.DisplayStartLineNo, CancellationToken.None));
       }
 
       using (var processDisplay = new DummyProcessDisplay())
@@ -55,13 +55,13 @@ namespace CsvTools.Tests
     [TestMethod()]
     public void GetAllPossibleFormatsTest()
     {
-      var res1 = DetermineColumnFormat.GetAllPossibleFormats("1/1/2020", null);
+      var res1 = DetermineColumnFormat.GetAllPossibleFormats("1/1/2020");
       Assert.AreEqual(2, res1.Count());
 
-      var res2 = DetermineColumnFormat.GetAllPossibleFormats("01/01/2020", null);
+      var res2 = DetermineColumnFormat.GetAllPossibleFormats("01/01/2020");
       Assert.AreEqual(4, res2.Count());
 
-      var res3 = DetermineColumnFormat.GetAllPossibleFormats("30/1/2020", null);
+      var res3 = DetermineColumnFormat.GetAllPossibleFormats("30/1/2020");
       Assert.AreEqual(1, res3.Count());
     }
 
@@ -107,7 +107,7 @@ namespace CsvTools.Tests
       using (var reader = new CsvFileReader(setting, null, null))
       {
         await reader.OpenAsync();
-        UnitTestInitialize.MimicSQLReader.AddSetting(setting.ID, await reader.GetDataTableAsync(0, CancellationToken.None));
+        UnitTestInitialize.MimicSQLReader.AddSetting(setting.ID, await reader.GetDataTableAsync(0, false, false, setting.DisplayStartLineNo, CancellationToken.None));
       }
 
       var writer = new CsvFile { SqlStatement = setting.ID };
@@ -229,7 +229,7 @@ namespace CsvTools.Tests
           {
             try
             {
-              var res = await DetermineColumnFormat.GetSampleValuesAsync(reader, 0, 0, 20, string.Empty, processDisplay.CancellationToken);
+              await DetermineColumnFormat.GetSampleValuesAsync(reader, 0, 0, 20, string.Empty, processDisplay.CancellationToken);
 
               Assert.Fail("Expected Exception not thrown");
             }

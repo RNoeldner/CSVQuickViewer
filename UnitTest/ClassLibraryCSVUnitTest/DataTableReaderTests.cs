@@ -35,7 +35,7 @@ namespace CsvTools.Tests
         using (var test = new DataTableReader(m_DataTable, "id", pd))
         {
           Assert.IsTrue(test.IsClosed);
-          var dt = await test.GetDataTableAsync(200, pd.CancellationToken);
+          var dt = await test.GetDataTableAsync(200, false, false, true, pd.CancellationToken);
           Assert.AreEqual(m_DataTable, dt);
         }
       }

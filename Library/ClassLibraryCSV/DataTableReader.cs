@@ -33,7 +33,7 @@ namespace CsvTools
       new DataTableSetting(id), TimeZoneInfo.Local.Id, processDisplay) =>
       m_DataTable = dt ?? throw new ArgumentNullException(nameof(dt));
 
-    public override async Task<DataTable> GetDataTableAsync(long recordLimit, CancellationToken token) => m_DataTable;
+    public override async Task<DataTable> GetDataTableAsync(long recordLimit, bool ignore, bool ignore2, bool ignore3, CancellationToken token) => m_DataTable;
 
     public override string GetName(int i) => m_DbDataReader.GetName(i);
 
