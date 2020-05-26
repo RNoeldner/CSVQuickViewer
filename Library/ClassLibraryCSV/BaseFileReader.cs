@@ -1584,9 +1584,11 @@ namespace CsvTools
     ///   Asynchronous method to copy rows from a the reader to a data table
     /// </summary>
     /// <param name="recordLimit">Number of maximum records, 0 for all existing</param>
+    /// <param name="includeErrorField">If <c>true</c> store the error information in a special column, otherwise as column and row error</param>
+    /// <param name="storeWarningsInDataTable"></param>
     /// <param name="cancellationToken">Cancellation toke to stop filling the data table</param>
     /// <returns>A Data Table with teh data</returns>
-    public virtual async Task<DataTable> GetDataTableAsync(long recordLimit, CancellationToken cancellationToken)
+    public virtual async Task<DataTable> GetDataTableAsync(long recordLimit, bool includeErrorField, bool storeWarningsInDataTable, bool addStartLine, CancellationToken cancellationToken)
     {
       if (IsClosed)
         await OpenAsync();
@@ -1594,12 +1596,9 @@ namespace CsvTools
       // This tracks errors and warnings
       cancellationToken.ThrowIfCancellationRequested();
 
-      // ReSharper disable once CollectionNeverUpdated.Local
-      var columnErrorDictionary = new ColumnErrorDictionary(this as IFileReader);
-
       // This has a mapping of the columns between reader and data table
       cancellationToken.ThrowIfCancellationRequested();
-      var copyToDataTableInfo = new CopyToDataTableInfo(this as IFileReader, false);
+      var copyToDataTableInfo = new CopyToDataTableInfo(this as IFileReader, includeErrorField, storeWarningsInDataTable, addStartLine);
 
       cancellationToken.ThrowIfCancellationRequested();
       copyToDataTableInfo.DataTable.BeginLoadData();
@@ -1607,26 +1606,7 @@ namespace CsvTools
         recordLimit = FileSetting.RecordLimit < 1 ? long.MaxValue : FileSetting.RecordLimit;
       var rec = 0L;
       while (await ReadAsync() && rec++ < recordLimit && !cancellationToken.IsCancellationRequested)
-      {
-        var dataRow = copyToDataTableInfo.CopyRowToTable(this as IFileReader);
-        if (columnErrorDictionary.Count <= 0) continue;
-        foreach (var keyValuePair in columnErrorDictionary)
-          // Column Error
-          if (keyValuePair.Key >= 0 && copyToDataTableInfo.Mapping.TryGetValue(keyValuePair.Key, out var dbCol))
-            dataRow.SetColumnError(dbCol, keyValuePair.Value);
-          // Row Error
-          else if (keyValuePair.Key == -1)
-            dataRow.RowError = keyValuePair.Value;
-
-        columnErrorDictionary.Clear();
-      }
-      // A column reported as -2 means that the row was not read, the error could be stored in the
-      // line before (current last line in data table)
-      foreach (var keyValuePair in columnErrorDictionary)
-      {
-        if (keyValuePair.Key == -2)
-          copyToDataTableInfo.DataTable.Rows[copyToDataTableInfo.DataTable.Rows.Count - 1].RowError = keyValuePair.Value;
-      }
+        copyToDataTableInfo.CopyRowToTable(this as IFileReader);
       copyToDataTableInfo.DataTable.EndLoadData();
       return copyToDataTableInfo.DataTable;
     }

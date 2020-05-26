@@ -247,6 +247,7 @@ namespace CsvTools
       // where wrong
       foreach (var entry in columnErrors)
       {
+        if (entry.Key<-1) continue;
         var colName = entry.Key >= 0 && columns.Count > entry.Key ? columns[entry.Key] : string.Empty;
         var start = 0;
         while (start < entry.Value.Length)
