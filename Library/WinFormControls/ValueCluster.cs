@@ -15,40 +15,31 @@
 namespace CsvTools
 {
   using System;
-  using System.Diagnostics.Contracts;
-
-#pragma warning disable CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
 
   /// <summary>
   ///   A representation for a group / cluster of records
   /// </summary>
-  public class ValueCluster : IEquatable<ValueCluster>, ICloneable<ValueCluster>
-#pragma warning restore CS0659
+  public class ValueCluster
   {
-    // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
-    private string m_Display = string.Empty;
-
-    private string m_Sort;
-
-    private string m_SQLCondition = string.Empty;
-
     /// <summary>
     ///   Initializes a new instance of the <see cref="ValueCluster" /> class.
     /// </summary>
-    public ValueCluster()
+    /// <param name="display">The text displayed for the value.</param>
+    /// <param name="condition">teh sql condition to be applied</param>
+    /// <param name="sort">A text used for the  order</param>
+    /// <param name="count">Number of records that do have this value</param>
+    /// <param name="active">Flag indicating if teh filter for teh value is active</param>
+    public ValueCluster(string display, string condition, string sort, int count = 0, bool active = false)
     {
-    }
-
-    /// <summary>
-    ///   Initializes a new instance of the <see cref="ValueCluster" /> class.
-    /// </summary>
-    /// <param name="display">The display.</param>
-    /// <param name="count">The count.</param>
-    public ValueCluster(string display, int count)
-    {
+      if (string.IsNullOrEmpty(display)) throw new ArgumentException(@"Value cannot be null or empty.", nameof(display));
+      if (string.IsNullOrEmpty(condition)) throw new ArgumentException(@"Value cannot be null or empty.", nameof(condition));
       Display = display;
+      SQLCondition = condition;
+      Sort = sort ?? string.Empty;
+
+      // These values might change later
       Count = count;
-      Active = false;
+      Active = active;
     }
 
     /// <summary>
@@ -75,17 +66,8 @@ namespace CsvTools
     /// </value>
     public string Display
     {
-      get => m_Display;
-      set => m_Display = value ?? string.Empty;
+      get;
     }
-
-    /// <summary>
-    ///   Gets or sets the parent.
-    /// </summary>
-    /// <value>
-    ///   The parent.
-    /// </value>
-    public ValueCluster Parent { get; set; }
 
     /// <summary>
     ///   Gets or sets the displayed text
@@ -95,8 +77,7 @@ namespace CsvTools
     /// </value>
     public string Sort
     {
-      get => m_Sort ?? Display;
-      set => m_Sort = value ?? string.Empty;
+      get;
     }
 
     /// <summary>
@@ -107,35 +88,7 @@ namespace CsvTools
     /// </value>
     public string SQLCondition
     {
-      get => m_SQLCondition;
-      set => m_SQLCondition = value ?? string.Empty;
-    }
-
-    /// <summary>
-    ///   Clones this instance into a new instance of the same type
-    /// </summary>
-    /// <returns></returns>
-    public ValueCluster Clone()
-    {
-      Contract.Ensures(Contract.Result<ValueCluster>() != null);
-      var other = new ValueCluster();
-      CopyTo(other);
-      return other;
-    }
-
-    /// <summary>
-    ///   Copies all properties to the other instance
-    /// </summary>
-    /// <param name="other">The other instance</param>
-    public void CopyTo(ValueCluster other)
-    {
-      if (other == null)
-        return;
-      other.SQLCondition = SQLCondition;
-      other.Display = Display;
-      other.Count = Count;
-      other.Parent = Parent;
-      other.Active = Active;
+      get;
     }
 
     /// <summary>Indicates whether the current object is equal to another object of the same type.</summary>
@@ -153,7 +106,7 @@ namespace CsvTools
       return string.Equals(Display, other.Display, StringComparison.OrdinalIgnoreCase)
              && string.Equals(Sort, other.Sort, StringComparison.Ordinal)
              && string.Equals(SQLCondition, other.SQLCondition, StringComparison.OrdinalIgnoreCase)
-             && Active == other.Active && Count == other.Count && Equals(Parent, other.Parent);
+             && Active == other.Active && Count == other.Count;
     }
 
     /// <summary>Determines whether the specified object is equal to the current object.</summary>
@@ -167,7 +120,18 @@ namespace CsvTools
         return false;
       if (ReferenceEquals(this, obj))
         return true;
-      return obj is ValueCluster typed && Equals(typed);
+      return obj is ValueCluster typed && GetHashCode() == typed.GetHashCode();
+    }
+
+    public override int GetHashCode()
+    {
+      unchecked
+      {
+        var hashCode = (Display != null ? Display.GetHashCode() : 0);
+        hashCode = (hashCode * 397) ^ (Sort != null ? Sort.GetHashCode() : 0);
+        hashCode = (hashCode * 397) ^ (SQLCondition != null ? SQLCondition.GetHashCode() : 0);
+        return hashCode;
+      }
     }
 
     /// <summary>
@@ -175,22 +139,5 @@ namespace CsvTools
     /// </summary>
     /// <returns></returns>
     public override string ToString() => $"{Display ?? "[empty]"} {Count} {(Count == 1 ? "item" : "items")}";
-
-    /*
-    /// <summary>Serves as the default hash function. </summary>
-    /// <returns>A hash code for the current object.</returns>
-    public override int GetHashCode()
-    {
-      unchecked
-      {
-        var hashCode = m_Display.GetHashCode();
-        hashCode = (hashCode * 397) ^ (m_Sort != null ? m_Sort.GetHashCode() : 0);
-        hashCode = (hashCode * 397) ^ m_SQLCondition.GetHashCode();
-        hashCode = (hashCode * 397) ^ Active.GetHashCode();
-        hashCode = (hashCode * 397) ^ Count;
-        return hashCode;
-      }
-    }
-    */
   }
 }

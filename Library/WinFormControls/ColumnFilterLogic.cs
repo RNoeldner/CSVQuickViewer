@@ -597,8 +597,6 @@ namespace CsvTools
         if (counter > 0)
           sql.Append(" OR ");
 
-        if (string.IsNullOrEmpty(value.SQLCondition))
-          value.SQLCondition = BuildSQLCommand(value.Display);
         counter++;
         sql.Append(value.SQLCondition);
       }
