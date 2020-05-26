@@ -82,6 +82,7 @@
     <Compile Include="FoundEventArgs.cs" />
     <Compile Include="RtfHelper.cs" />
     <Compile Include="SearchEventArgs.cs" />
+    <Compile Include="ViewSetting.cs" />
     <Compile Include="WindowsAPICodePackWrapper.cs" />
     <Compile Include="FillGuessSettingEdit.cs">
       <SubType>UserControl</SubType>

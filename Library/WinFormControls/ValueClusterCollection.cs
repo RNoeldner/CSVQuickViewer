@@ -53,12 +53,12 @@ namespace CsvTools
     ///   Gets the values.
     /// </summary>
     /// <value>The values.</value>
-    public IReadOnlyCollection<ValueCluster> ValueClusters
+    public ICollection<ValueCluster> ValueClusters
     {
       get
       {
         Contract.Ensures(Contract.Result<IEnumerable<ValueCluster>>() != null);
-        return m_ValueClusters.AsReadOnly();
+        return m_ValueClusters;
       }
     }
 
@@ -71,10 +71,10 @@ namespace CsvTools
     /// <param name="maxNumber">The maximum number.</param>
     /// <returns></returns>
     public BuildValueClustersResult BuildValueClusters(
-      DataView dataView,
-      Type columnType,
-      int columnIndex,
-      int maxNumber)
+    DataView dataView,
+    Type columnType,
+    int columnIndex,
+    int maxNumber)
     {
       Contract.Requires(dataView != null);
 
