@@ -22,6 +22,7 @@ namespace CsvTools
   using System.Diagnostics;
   using System.Drawing;
   using System.Globalization;
+  using System.IO;
   using System.Linq;
   using System.Text;
   using System.Threading;
@@ -276,13 +277,14 @@ namespace CsvTools
       var hasChanges = false;
       foreach (DataGridViewColumn col in Columns)
       {
-        var hasData = DataView.Cast<DataRowView>()
-            .Any(dataRow => dataRow[col.DataPropertyName] != DBNull.Value);
-
-        if (!(col.Visible = hasData))
-          continue;
-        col.Visible = true;
-        hasChanges = true;
+        if (col.Visible)
+        {
+          var hasData = DataView.Cast<DataRowView>()
+              .Any(dataRow => dataRow[col.DataPropertyName] != DBNull.Value);
+          if (!hasData && col.Visible)
+            col.Visible = false;
+          hasChanges = true;
+        }
       }
 
       return hasChanges;
@@ -949,6 +951,21 @@ namespace CsvTools
       }
     }
 
+    private ToolStripDataGridViewColumnFilter GetColumnFilter(int columnIndex)
+    {
+      if (m_Filter[columnIndex] == null)
+      {
+        m_Filter[columnIndex] = new ToolStripDataGridViewColumnFilter(Columns[columnIndex]);
+        if (Environment.OSVersion.Version.Major == 6 && Environment.OSVersion.Version.Minor > 1)
+          m_Filter[columnIndex].Control.Font = Font;
+
+        // as the Operator is set the filter becomes active, revoke this
+        m_Filter[columnIndex].ColumnFilterLogic.Active = false;
+        m_Filter[columnIndex].ColumnFilterLogic.ColumnFilterApply += ToolStripMenuItemApply_Click;
+      }
+      return m_Filter[columnIndex];
+    }
+
     private void SetFilterMenu(int columnIndex)
     {
       if (DataView == null)
@@ -957,16 +974,7 @@ namespace CsvTools
       contextMenuStripFilter.SuspendLayout();
 
       if (m_Filter[columnIndex] == null)
-      {
-        m_Filter[columnIndex] = new ToolStripDataGridViewColumnFilter(Columns[columnIndex]);
-
-        if (Environment.OSVersion.Version.Major == 6 && Environment.OSVersion.Version.Minor > 1)
-          m_Filter[columnIndex].Control.Font = Font;
-
-        // as the Operator is set the filter becomes active, revoke this
-        m_Filter[columnIndex].ColumnFilterLogic.Active = false;
-        m_Filter[columnIndex].ColumnFilterLogic.ColumnFilterApply += ToolStripMenuItemApply_Click;
-      }
+        GetColumnFilter(columnIndex);
 
       while (!(contextMenuStripFilter.Items[0] is ToolStripSeparator))
         contextMenuStripFilter.Items.RemoveAt(0);
@@ -1303,5 +1311,86 @@ namespace CsvTools
         Sort(Columns[m_MenuItemColumnIndex], ListSortDirection.Descending);
 
     private void ToolStripMenuItemSortRemove_Click(object sender, EventArgs e) => DataView.Sort = string.Empty;
+
+    private async void toolStripMenuItemLoadCol_Click(object sender, EventArgs e)
+    {
+      try
+      {
+        toolStripMenuItemLoadCol.Enabled = false;
+        var fileName = WindowsAPICodePackWrapper.Open((FileSetting is IFileSettingPhysicalFile phy) ? FileSystemUtils.GetDirectoryName(phy.FullPath) : ".", "Load Column Setting", "Column Config|*.col;*.conf|All files|*.*", DefFileNameColSetting(".col"));
+        if (!string.IsNullOrEmpty(fileName))
+        {
+          var stream = ImprovedStream.OpenRead(fileName);
+          using (var reader = new StreamReader(stream.Stream, Encoding.UTF8, true))
+          {
+            if (ViewSetting.ReStoreViewSetting(await reader.ReadToEndAsync(), Columns, m_Filter, GetColumnFilter))
+              ApplyFilters();
+          }
+        }
+      }
+      catch (Exception ex)
+      {
+        Logger.Warning(ex, "Error Load Column Setting");
+      }
+      finally
+      {
+        toolStripMenuItemLoadCol.Enabled = true;
+      }
+    }
+
+    private string DefFileNameColSetting(string extension)
+    {
+      var defFileName = FileSetting.ID;
+      var index = defFileName.LastIndexOf('.');
+      return (index == -1 ? defFileName : defFileName.Substring(0, index)) + extension;
+    }
+
+    private async void toolStripMenuItemSaveCol_Click(object sender, EventArgs e)
+    {
+      try
+      {
+        toolStripMenuItemSaveCol.Enabled = false;
+
+        // Select Path
+        var fileName = WindowsAPICodePackWrapper.Save((FileSetting is IFileSettingPhysicalFile phy) ? FileSystemUtils.GetDirectoryName(phy.FullPath) : ".", "Save Column Setting", "Column Config|*.col;*.conf|All files|*.*", ".col", DefFileNameColSetting(".col"));
+        if (!string.IsNullOrEmpty(fileName))
+        {
+          using (var stream = ImprovedStream.OpenWrite(fileName))
+          using (var writer = new StreamWriter(stream.Stream, Encoding.UTF8, 1024))
+            await writer.WriteAsync(ViewSetting.StoreViewSetting(Columns, m_Filter));
+        }
+      }
+      catch (Exception ex)
+      {
+        Logger.Warning(ex, "Error Saving Column Setting");
+      }
+      finally
+      {
+        toolStripMenuItemSaveCol.Enabled = true;
+      }
+    }
+
+    private void toolStripMenuItemHideThisColumn_Click(object sender, EventArgs e)
+    {
+      try
+      {
+        var allowHide = false;
+        foreach (DataGridViewColumn col in Columns)
+          if (col.Visible && col.Index != m_MenuItemColumnIndex)
+          {
+            allowHide = true;
+            break;
+          }
+        if (allowHide)
+        {
+          Columns[m_MenuItemColumnIndex].Visible = false;
+          ColumnVisibilityChanged();
+        }
+      }
+      catch
+      {
+        // ignored
+      }
+    }
   }
 }
