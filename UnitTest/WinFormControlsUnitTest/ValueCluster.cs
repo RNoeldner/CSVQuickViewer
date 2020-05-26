@@ -21,51 +21,29 @@ namespace CsvTools.Tests
     [TestMethod]
     public void ValueClusterCtor()
     {
-      var tst1 = new ValueCluster();
-      Assert.AreEqual("", tst1.Display);
+      var tst1 = new ValueCluster("text","SQl","Sort",0);
+      Assert.AreEqual("text", tst1.Display);
       Assert.AreEqual(0, tst1.Count);
 
-      var tst2 = new ValueCluster("dis", 10);
+      var tst2 = new ValueCluster("dis","cond","sort", 10);
       Assert.AreEqual("dis", tst2.Display);
       Assert.AreEqual(10, tst2.Count);
     }
 
-    [TestMethod()]
-    public void CloneTest()
-    {
-      var src = new ValueCluster("dis", 10);
-      var tst = src.Clone();
-
-      Assert.AreEqual(src.Display, tst.Display);
-      Assert.AreEqual(src.Count, tst.Count);
-    }
-
-    [TestMethod()]
-    public void CopyToTest()
-    {
-      var src = new ValueCluster("dis", 10);
-      var dest = new ValueCluster("dis2", 20);
-      src.CopyTo(dest);
-
-      Assert.AreEqual(src.Display, dest.Display);
-      Assert.AreEqual(src.Count, dest.Count);
-    }
 
     [TestMethod()]
     public void EqualsTest()
     {
-      var src = new ValueCluster("dis", 10);
-      var dest = new ValueCluster("dis2", 20);
+      var src = new ValueCluster("dis", "cond", "sort", 10);
+      var dest = new ValueCluster("dis", "cond", "sort", 20);
       Assert.IsFalse(src.Equals(dest));
       Assert.IsTrue(src.Equals(src));
-      src.CopyTo(dest);
-      Assert.IsTrue(src.Equals(dest));
     }
 
     [TestMethod()]
     public void ToStringTest()
     {
-      var disp = new ValueCluster("dis2", 20).ToString();
+      var disp = new ValueCluster("dis2", "cond", "sort", 20).ToString();
       Assert.AreEqual("dis2 20 items", disp);
     }
   }

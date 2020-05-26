@@ -261,3 +261,7 @@ __pycache__/
 *.pyc
 /Setup/FileList.txt.bak
 /Library/ClassLibraryCSV_new
+/CSVQuickViewerUWPBU
+/CSVQuickViewerUWP
+/Library/ClassLibraryCSV.UWP
+/CSVQuickViewer.UWP.sln

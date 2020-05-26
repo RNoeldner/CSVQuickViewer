@@ -214,28 +214,14 @@ namespace CsvTools
           {
             var from = StringConversion.GetTimeFromTicks(dic * c_TicksPerGroup);
             var to = StringConversion.GetTimeFromTicks((dic + 1) * c_TicksPerGroup);
-            m_ValueClusters.Add(
-              new ValueCluster
-              {
-                Display = $"{from:t} - {to:t}",
-                SQLCondition = string.Format(
-                    CultureInfo.InvariantCulture,
-                    @"([{0}] >= #{1:MM\/dd\/yyyy HH:mm}# AND {0} < #{2:MM\/dd\/yyyy HH:mm}#)",
-                    columnName.SqlName(),
-                    from,
-                    to),
-                Sort = GetHourSort(dic)
-              });
+            m_ValueClusters.Add(new ValueCluster($"{@from:t} - {to:t}", string.Format(
+              CultureInfo.InvariantCulture, @"([{0}] >= #{1:MM\/dd\/yyyy HH:mm}# AND {0} < #{2:MM\/dd\/yyyy HH:mm}#)",
+              columnName.SqlName(), @from, to), GetHourSort(dic)));
           }
           else
           {
-            m_ValueClusters.Add(
-              new ValueCluster
-              {
-                Display = ColumnFilterLogic.OperatorIsNull,
-                SQLCondition = string.Format(CultureInfo.InvariantCulture, "([{0}] IS NULL)", columnName.SqlName()),
-                Sort = string.Empty
-              });
+            m_ValueClusters.Add(new ValueCluster(ColumnFilterLogic.OperatorIsNull,
+              string.Format(CultureInfo.InvariantCulture, "([{0}] IS NULL)", columnName.SqlName()), string.Empty));
           }
         }
       }
@@ -247,27 +233,16 @@ namespace CsvTools
           if (dic != DateTime.MinValue)
           {
             m_ValueClusters.Add(
-              new ValueCluster
-              {
-                Display = dic.ToString("d", CultureInfo.CurrentCulture),
-                SQLCondition = string.Format(
-                    CultureInfo.InvariantCulture,
-                    @"([{0}] >= #{1:MM\/dd\/yyyy}# AND {0} < #{2:MM\/dd\/yyyy}#)",
-                    columnName.SqlName(),
-                    dic,
-                    dic.AddDays(1)),
-                Sort = GetDaySort(dic)
-              });
+              new ValueCluster(dic.ToString("d", CultureInfo.CurrentCulture), string.Format(
+                CultureInfo.InvariantCulture,
+                @"([{0}] >= #{1:MM\/dd\/yyyy}# AND {0} < #{2:MM\/dd\/yyyy}#)",
+                columnName.SqlName(),
+                dic,
+                dic.AddDays(1)), GetDaySort(dic)));
           }
           else
           {
-            m_ValueClusters.Add(
-              new ValueCluster
-              {
-                Display = ColumnFilterLogic.OperatorIsNull,
-                SQLCondition = string.Format(CultureInfo.InvariantCulture, c_IsNull, columnName.SqlName()),
-                Sort = string.Empty
-              });
+            m_ValueClusters.Add(new ValueCluster(ColumnFilterLogic.OperatorIsNull, string.Format(CultureInfo.InvariantCulture, c_IsNull, columnName.SqlName()), string.Empty));
           }
         }
       }
@@ -279,27 +254,21 @@ namespace CsvTools
           if (dic != DateTime.MinValue)
           {
             m_ValueClusters.Add(
-              new ValueCluster
-              {
-                Display = dic.ToString("Y", CultureInfo.CurrentCulture), // Year month pattern
-                SQLCondition = string.Format(
-                    CultureInfo.InvariantCulture,
+              new ValueCluster(
+                dic.ToString("Y", CultureInfo.CurrentCulture), // Year month pattern
+               string.Format(CultureInfo.InvariantCulture,
                     @"([{0}] >= #{1:MM\/dd\/yyyy}# AND {0} < #{2:MM\/dd\/yyyy}#)",
                     columnName.SqlName(),
-                    dic,
-                    dic.AddMonths(1)),
-                Sort = GetMonthSort(dic)
-              });
+                    dic, dic.AddMonths(1)),
+               GetMonthSort(dic)));
           }
           else
           {
             m_ValueClusters.Add(
-              new ValueCluster
-              {
-                Display = ColumnFilterLogic.OperatorIsNull,
-                SQLCondition = string.Format(CultureInfo.InvariantCulture, c_IsNull, columnName.SqlName()),
-                Sort = string.Empty
-              });
+              new ValueCluster(
+              ColumnFilterLogic.OperatorIsNull,
+              string.Format(CultureInfo.InvariantCulture, c_IsNull, columnName.SqlName()),
+              string.Empty));
           }
         }
       }
@@ -311,27 +280,22 @@ namespace CsvTools
           if (dic != 0)
           {
             m_ValueClusters.Add(
-              new ValueCluster
-              {
-                Display = dic.ToString("D", CultureInfo.CurrentCulture), // Decimal
-                SQLCondition = string.Format(
+              new ValueCluster(dic.ToString("D", CultureInfo.CurrentCulture), // Decimal
+                string.Format(
                     CultureInfo.InvariantCulture,
                     "([{0}] >= #01/01/{1:d4}# AND {0} < #01/01/{2:d4}#)",
                     columnName.SqlName(),
                     dic,
                     dic + 1),
-                Sort = GetYearSort(dic)
-              });
+                GetYearSort(dic)));
           }
           else
           {
             m_ValueClusters.Add(
-              new ValueCluster
-              {
-                Display = ColumnFilterLogic.OperatorIsNull,
-                SQLCondition = string.Format(CultureInfo.InvariantCulture, c_IsNull, columnName.SqlName()),
-                Sort = string.Empty
-              });
+              new ValueCluster(
+              ColumnFilterLogic.OperatorIsNull,
+              string.Format(CultureInfo.InvariantCulture, c_IsNull, columnName.SqlName()),
+              string.Empty));
           }
         }
       }
@@ -407,28 +371,23 @@ namespace CsvTools
           if (Math.Abs(dic - int.MinValue) > .1)
           {
             m_ValueClusters.Add(
-              new ValueCluster
-              {
-                Display = dic.ToString(CultureInfo.CurrentCulture), // Decimal
-                SQLCondition =
-                    string.Format(
+              new ValueCluster(
+                dic.ToString(CultureInfo.CurrentCulture), // Decimal
+                string.Format(
                       CultureInfo.InvariantCulture,
                       "({0} >= {1} AND {0} < {2})",
                       colNameEsc,
                       dic,
                       dic + .1),
-                Sort = (dic * 10d).ToString("0000000000000000000", CultureInfo.InvariantCulture)
-              });
+                (dic * 10d).ToString("0000000000000000000", CultureInfo.InvariantCulture)
+              ));
           }
           else
           {
             m_ValueClusters.Add(
-              new ValueCluster
-              {
-                Display = ColumnFilterLogic.OperatorIsNull,
-                SQLCondition = string.Format(CultureInfo.InvariantCulture, "({0} IS NULL)", colNameEsc),
-                Sort = string.Empty
-              });
+              new ValueCluster(ColumnFilterLogic.OperatorIsNull,
+                string.Format(CultureInfo.InvariantCulture, "({0} IS NULL)", colNameEsc),
+                 string.Empty));
           }
         }
       }
@@ -440,23 +399,17 @@ namespace CsvTools
           if (dic != int.MinValue)
           {
             m_ValueClusters.Add(
-              new ValueCluster
-              {
-                Display = dic.ToString("D", CultureInfo.CurrentCulture), // Decimal
-                SQLCondition =
-                    string.Format(CultureInfo.InvariantCulture, "({0} >= {1} AND {0} < {2})", colNameEsc, dic, dic + 1),
-                Sort = dic.ToString("0000000000000000000", CultureInfo.InvariantCulture)
-              });
+              new ValueCluster(dic.ToString("D", CultureInfo.CurrentCulture), // Decimal
+                string.Format(CultureInfo.InvariantCulture, "({0} >= {1} AND {0} < {2})", colNameEsc, dic, dic + 1),
+                dic.ToString("0000000000000000000", CultureInfo.InvariantCulture)
+              ));
           }
           else
           {
             m_ValueClusters.Add(
-              new ValueCluster
-              {
-                Display = ColumnFilterLogic.OperatorIsNull,
-                SQLCondition = string.Format(CultureInfo.InvariantCulture, "({0} IS NULL)", colNameEsc),
-                Sort = string.Empty
-              });
+              new ValueCluster(ColumnFilterLogic.OperatorIsNull,
+                string.Format(CultureInfo.InvariantCulture, "({0} IS NULL)", colNameEsc),
+                string.Empty));
           }
         }
       }
@@ -468,28 +421,21 @@ namespace CsvTools
           if (dic != int.MinValue)
           {
             m_ValueClusters.Add(
-              new ValueCluster
-              {
-                Display = $"{dic * 10} - {dic * 10 + 9}", // Decimal
-                SQLCondition =
-                    string.Format(
+              new ValueCluster($"{dic * 10} - {dic * 10 + 9}", // Decimal
+                string.Format(
                       CultureInfo.InvariantCulture,
                       "({0} >= {1} AND {0} < {2})",
                       colNameEsc,
                       dic * 10,
                       (dic + 1) * 10),
-                Sort = dic.ToString("0000000000000000000", CultureInfo.InvariantCulture)
-              });
+                dic.ToString("0000000000000000000", CultureInfo.InvariantCulture)));
           }
           else
           {
             m_ValueClusters.Add(
-              new ValueCluster
-              {
-                Display = ColumnFilterLogic.OperatorIsNull,
-                SQLCondition = string.Format(CultureInfo.InvariantCulture, "({0} IS NULL)", colNameEsc),
-                Sort = string.Empty
-              });
+              new ValueCluster(ColumnFilterLogic.OperatorIsNull,
+                string.Format(CultureInfo.InvariantCulture, "({0} IS NULL)", colNameEsc),
+                string.Empty));
           }
         }
       }
@@ -501,28 +447,21 @@ namespace CsvTools
           if (dic != int.MinValue)
           {
             m_ValueClusters.Add(
-              new ValueCluster
-              {
-                Display = $"{dic * 100} - {dic * 100 + 99}", // Decimal
-                SQLCondition =
-                    string.Format(
+              new ValueCluster($"{dic * 100} - {dic * 100 + 99}", // Decimal
+              string.Format(
                       CultureInfo.InvariantCulture,
                       "({0} >= {1} AND {0} < {2})",
                       colNameEsc,
                       dic * 100,
                       (dic + 1) * 100),
-                Sort = dic.ToString("0000000000000000000", CultureInfo.InvariantCulture)
-              });
+              dic.ToString("0000000000000000000", CultureInfo.InvariantCulture)));
           }
           else
           {
             m_ValueClusters.Add(
-              new ValueCluster
-              {
-                Display = ColumnFilterLogic.OperatorIsNull,
-                SQLCondition = string.Format(CultureInfo.InvariantCulture, "({0} IS NULL)", colNameEsc),
-                Sort = string.Empty
-              });
+              new ValueCluster(ColumnFilterLogic.OperatorIsNull,
+                string.Format(CultureInfo.InvariantCulture, "({0} IS NULL)", colNameEsc),
+                string.Empty));
           }
         }
       }
@@ -534,28 +473,21 @@ namespace CsvTools
           if (dic != int.MinValue)
           {
             m_ValueClusters.Add(
-              new ValueCluster
-              {
-                Display = $"{dic * 1000} - {dic * 1000 + 999}", // Decimal
-                SQLCondition =
-                    string.Format(
+              new ValueCluster($"{dic * 1000} - {dic * 1000 + 999}", // Decimal
+                string.Format(
                       CultureInfo.InvariantCulture,
                       "({0} >= {1} AND {0} < {2})",
                       colNameEsc,
                       dic * 1000,
                       (dic + 1) * 1000),
-                Sort = dic.ToString("0000000000000000000", CultureInfo.InvariantCulture)
-              });
+                dic.ToString("0000000000000000000", CultureInfo.InvariantCulture)));
           }
           else
           {
             m_ValueClusters.Add(
-              new ValueCluster
-              {
-                Display = ColumnFilterLogic.OperatorIsNull,
-                SQLCondition = string.Format(CultureInfo.InvariantCulture, "({0} IS NULL)", colNameEsc),
-                Sort = string.Empty
-              });
+              new ValueCluster(ColumnFilterLogic.OperatorIsNull,
+                string.Format(CultureInfo.InvariantCulture, "({0} IS NULL)", colNameEsc),
+                string.Empty));
           }
         }
       }
@@ -599,8 +531,7 @@ namespace CsvTools
 
       foreach (var text in cluster)
       {
-        m_ValueClusters.Add(
-          new ValueCluster { Display = text, Sort = text == ColumnFilterLogic.OperatorIsNull ? string.Empty : text });
+        m_ValueClusters.Add(new ValueCluster(text, string.Empty, text == ColumnFilterLogic.OperatorIsNull ? string.Empty : text));
       }
 
       return BuildValueClustersResult.ListFilled;
