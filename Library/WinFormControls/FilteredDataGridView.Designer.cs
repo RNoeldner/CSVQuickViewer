@@ -227,7 +227,7 @@ namespace CsvTools
       this.toolStripMenuItemLoadCol.Size = new System.Drawing.Size(178, 22);
       this.toolStripMenuItemLoadCol.Text = "Load Columns and Filter";
       this.toolStripMenuItemLoadCol.ToolTipText = "Load column configuarion from file";
-      this.toolStripMenuItemLoadCol.Click += new System.EventHandler(this.toolStripMenuItemLoadCol_Click);
+      this.toolStripMenuItemLoadCol.Click += new System.EventHandler(this.ToolStripMenuItemLoadCol_Click);
       // 
       // toolStripMenuItemSaveCol
       // 
@@ -235,7 +235,7 @@ namespace CsvTools
       this.toolStripMenuItemSaveCol.Size = new System.Drawing.Size(178, 22);
       this.toolStripMenuItemSaveCol.Text = "Save Columns and Filter";
       this.toolStripMenuItemSaveCol.ToolTipText = "Save column configuarion to file";
-      this.toolStripMenuItemSaveCol.Click += new System.EventHandler(this.toolStripMenuItemSaveCol_Click);
+      this.toolStripMenuItemSaveCol.Click += new System.EventHandler(this.ToolStripMenuItemSaveCol_Click);
       // 
       // toolStripSeparator8
       // 

@@ -14,149 +14,120 @@
 
 using System;
 using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
+using System.ComponentModel;
 using System.Linq;
-using System.Text;
 using System.Windows.Forms;
+using Newtonsoft.Json;
 
 namespace CsvTools
 {
   public static class ViewSetting
   {
-    private static ToolStripDataGridViewColumnFilter GetFilter(string colName,
+    private static ToolStripDataGridViewColumnFilter GetFilter(string dataPropertyName,
       IList<ToolStripDataGridViewColumnFilter> columnFilters, DataGridViewColumnCollection columns,
       Func<int, ToolStripDataGridViewColumnFilter> createFilterColumn)
     {
-      var cleanName = colName.StartsWith("[", StringComparison.Ordinal) &&
-                      colName.EndsWith("]", StringComparison.Ordinal)
-        ? colName.Substring(1, colName.Length - 2).Replace(@"\]", "]").Replace(@"\\", @"\")
-        : colName;
-
-      var sqlName = $"[{cleanName.SqlName()}]";
-
       // look in already existing Filters
       foreach (var columnFilter in columnFilters)
       {
         if (columnFilter == null)
           continue;
-        if (sqlName.Equals(columnFilter.ColumnFilterLogic.DataPropertyName, StringComparison.OrdinalIgnoreCase))
+        if (dataPropertyName.Equals(columnFilter.ColumnFilterLogic.DataPropertyName,
+          StringComparison.OrdinalIgnoreCase))
           return columnFilter;
       }
 
 
       for (var columnIndex = 0; columnIndex < columnFilters.Count; columnIndex++)
         if (columnFilters[columnIndex] == null && columns[columnIndex].DataPropertyName
-          .Equals(cleanName, StringComparison.OrdinalIgnoreCase))
+          .Equals(dataPropertyName, StringComparison.OrdinalIgnoreCase))
           return createFilterColumn?.Invoke(columnIndex);
+
       return null;
     }
 
     public static bool ReStoreViewSetting(string text, DataGridViewColumnCollection columns,
       IList<ToolStripDataGridViewColumnFilter> columnFilters,
-      Func<int, ToolStripDataGridViewColumnFilter> createFilterColumn)
+      Func<int, ToolStripDataGridViewColumnFilter> createFilterColumn, Action<DataGridViewColumn, ListSortDirection> doSort)
     {
-      using (var reader = new StringReader(text))
-      {
-        var colIndex = 0;
-        var showColumns = SplitQuoted(reader.ReadLine());
-        foreach (var colName in showColumns)
-          foreach (DataGridViewColumn col in columns)
-            if (col.Name.Equals(colName, StringComparison.OrdinalIgnoreCase))
-            {
-              if (!col.Visible)
-                col.Visible = true;
-              col.DisplayIndex = colIndex++;
-              break;
-            }
+      var vst = JsonConvert.DeserializeObject<ViewSettingStore>(text);
 
-        var hideColumns = SplitQuoted(reader.ReadLine());
-        foreach (var colName in hideColumns)
-          foreach (DataGridViewColumn col in columns)
-            if (col.Name.Equals(colName, StringComparison.OrdinalIgnoreCase))
+      int displayIndex = 0;
+      foreach (var storedColumn in vst.Columns.OrderBy(x=> x.DisplayIndex))
+        foreach (DataGridViewColumn col in columns)
+          if (col.DataPropertyName.Equals(storedColumn.DataPropertyName, StringComparison.OrdinalIgnoreCase))
+          {
+            try
             {
+              if (col.Visible != storedColumn.Visible)
+                col.Visible = storedColumn.Visible;
+
               if (col.Visible)
-                col.Visible = false;
-              col.DisplayIndex = colIndex++;
+              {
+                col.Width = storedColumn.Width;
+                if (storedColumn.Sort == 1)
+                  doSort?.Invoke(col, ListSortDirection.Ascending);
+                if (storedColumn.Sort == 2)
+                  doSort?.Invoke(col, ListSortDirection.Descending);
+              }
+
+              col.DisplayIndex = displayIndex++;
               break;
             }
-
-        var aLine = reader.ReadLine();
-        var hasFilterSet = false;
-        while (aLine != null)
-        {
-          var filterLineColumns = SplitQuoted(aLine);
-          var columnFilter = GetFilter(filterLineColumns[0], columnFilters, columns, createFilterColumn);
-          if (columnFilter == null)
-            continue;
-          if (filterLineColumns.Count == 4)
-          {
-            columnFilter.ColumnFilterLogic.ValueText = filterLineColumns[2];
-            if (DateTime.TryParseExact(filterLineColumns[3], "yyyyMMdd", CultureInfo.InvariantCulture,
-              DateTimeStyles.AssumeLocal, out var dt))
-              columnFilter.ColumnFilterLogic.ValueDateTime = dt;
-            columnFilter.ColumnFilterLogic.Operator = filterLineColumns[1];
-          }
-          else
-          {
-            foreach (var condition in filterLineColumns[1].Split('|'))
+            catch
             {
-              var cluster = columnFilter.ValueClusterCollection.ValueClusters.FirstOrDefault(x =>
-                condition.Equals(x.SQLCondition, StringComparison.OrdinalIgnoreCase));
-              if (cluster != null)
-              {
-                cluster.Active = true;
-              }
-              else
-              {
-                var ind = condition.IndexOf(" = ", StringComparison.Ordinal);
-                var display = ind == -1 ? condition : condition.Substring(ind + 4, condition.Length - (ind + 5));
-                columnFilter.ValueClusterCollection.ValueClusters.Add(new ValueCluster(display, condition, display, 0, true));
-              }
+              // ignore
             }
           }
 
-          columnFilter.ColumnFilterLogic.Active = true;
-          hasFilterSet = true;
-          aLine = reader.ReadLine();
+      var hasFilterSet = false;
+      foreach (var storedFilterSetting in vst.Filter)
+      {
+        var columnFilter = GetFilter(storedFilterSetting.DataPropertyName, columnFilters, columns, createFilterColumn);
+        if (columnFilter == null)
+          continue;
+        if (storedFilterSetting.ValueFilters.Count == 0)
+        {
+          columnFilter.ColumnFilterLogic.ValueText = storedFilterSetting.ValueText;
+          columnFilter.ColumnFilterLogic.ValueDateTime = storedFilterSetting.ValueDate;
+          columnFilter.ColumnFilterLogic.Operator = storedFilterSetting.Operator;
+        }
+        else
+        {
+          foreach (var valueFilter in storedFilterSetting.ValueFilters)
+          {
+            var cluster = columnFilter.ValueClusterCollection.ValueClusters.FirstOrDefault(x =>
+              valueFilter.SQLCondition.Equals(x.SQLCondition, StringComparison.OrdinalIgnoreCase));
+            if (cluster != null)
+              cluster.Active = true;
+            else
+              columnFilter.ValueClusterCollection.ValueClusters.Add(new ValueCluster(valueFilter.Display,
+                valueFilter.SQLCondition, @"ZZZZ", 0, true));
+          }
         }
 
-        return hasFilterSet;
+        columnFilter.ColumnFilterLogic.Active = true;
+        hasFilterSet = true;
       }
+
+      return hasFilterSet;
+
     }
 
     public static string StoreViewSetting(DataGridViewColumnCollection columns,
-      IEnumerable<ToolStripDataGridViewColumnFilter> columnFilters)
+      ICollection<ToolStripDataGridViewColumnFilter> columnFilters, DataGridViewColumn sortedColumn, SortOrder sortOrder)
     {
-      var columnsInOrder = new SortedDictionary<int, DataGridViewColumn>();
+      if (columnFilters.Count == 0)
+        throw new ArgumentException(@"Value cannot be an empty collection.", nameof(columnFilters));
+
+      var vst = new ViewSettingStore();
+
+
       foreach (DataGridViewColumn col in columns)
-        columnsInOrder.Add(col.DisplayIndex, col);
+      {
+        vst.Columns.Add(new ColumnSetting(col.DataPropertyName, col.Visible, ReferenceEquals(col, sortedColumn) ? (int)sortOrder : 0, col.DisplayIndex, col.Width));
+      }
 
-      var sb = new StringBuilder();
-      var values = false;
-      foreach (var col in columnsInOrder.Values)
-        if (col.Visible)
-        {
-          sb.Append($"\"{col.Name.Replace("\"", "\"\"")}\",");
-          values = true;
-        }
-
-      if (values)
-        sb.Length--;
-
-      sb.AppendLine();
-
-      values = false;
-      foreach (var col in columnsInOrder.Values)
-        if (!col.Visible)
-        {
-          sb.Append($"\"{col.Name.Replace("\"", "\"\"")}\",");
-          values = true;
-        }
-
-      if (values)
-        sb.Length--;
-      sb.AppendLine();
 
       foreach (var columnFilter in columnFilters)
       {
@@ -165,33 +136,20 @@ namespace CsvTools
         var filterLogic = columnFilter.ColumnFilterLogic;
         if (!filterLogic.Active)
           continue;
+
+        var filterSetting = new FilterSetting(filterLogic.DataPropertyName, filterLogic.Operator, filterLogic.ValueText,
+          filterLogic.ValueDateTime);
+
         var singleValues = filterLogic.ValueClusterCollection.ValueClusters
-          .Where(x => !string.IsNullOrEmpty(x.SQLCondition) && x.Active).Select(x => x.SQLCondition).Join("|");
-        sb.AppendLine(
-          string.IsNullOrEmpty(singleValues)
-            ? $"\"{filterLogic.DataPropertyName.Replace("\"", "\"\"")}\",\"{filterLogic.Operator.Replace("\"", "\"\"")}\",\"{filterLogic.ValueText.Replace("\"", "\"\"")}\",\"{filterLogic.ValueDateTime:yyyyMMdd}\""
-            : $"\"{filterLogic.DataPropertyName.Replace("\"", "\"\"")}\",\"{singleValues.Replace("\"", "\"\"")}\"");
+          .Where(x => !string.IsNullOrEmpty(x.SQLCondition) && x.Active).ToList();
+        if (singleValues.Count > 0)
+          foreach (var value in singleValues)
+            filterSetting.ValueFilters.Add(new ValueFilter(value.SQLCondition, value.Display));
+        vst.Filter.Add(filterSetting);
       }
 
-      return sb.ToString();
+      return JsonConvert.SerializeObject(vst, Formatting.Indented);
     }
 
-    private static List<string> SplitQuoted(string line)
-    {
-      var res = new List<string>();
-      while (line.Length > 0)
-      {
-        var nextEnd = line.IndexOf("\",", StringComparison.Ordinal);
-        if (nextEnd == -1)
-          nextEnd = line.Length - 1;
-        var part = line.Substring(1, nextEnd - 1);
-        res.Add(part.Replace("\"\"", "\""));
-        line = line.Substring(nextEnd + 1);
-        while (line.Length > 0 && line[0] != '"')
-          line = line.Substring(1);
-      }
-
-      return res;
-    }
   }
 }
