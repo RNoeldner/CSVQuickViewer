@@ -1312,21 +1312,26 @@ namespace CsvTools
 
     private void ToolStripMenuItemSortRemove_Click(object sender, EventArgs e) => DataView.Sort = string.Empty;
 
+    public async System.Threading.Tasks.Task ReStoreViewSetting(string fileName)
+    {
+      if (!string.IsNullOrEmpty(fileName) && FileSystemUtils.FileExists(fileName))
+      {
+        var stream = ImprovedStream.OpenRead(fileName);
+        using (var reader = new StreamReader(stream.Stream, Encoding.UTF8, true))
+        {
+          if (ViewSetting.ReStoreViewSetting(await reader.ReadToEndAsync(), Columns, m_Filter, GetColumnFilter, Sort))
+            ApplyFilters();
+        }
+      }
+    }
+
     private async void ToolStripMenuItemLoadCol_Click(object sender, EventArgs e)
     {
       try
       {
         toolStripMenuItemLoadCol.Enabled = false;
-        var fileName = WindowsAPICodePackWrapper.Open((FileSetting is IFileSettingPhysicalFile phy) ? FileSystemUtils.GetDirectoryName(phy.FullPath) : ".", "Load Column Setting", "Column Config|*.col;*.conf|All files|*.*", DefFileNameColSetting(".col"));
-        if (!string.IsNullOrEmpty(fileName))
-        {
-          var stream = ImprovedStream.OpenRead(fileName);
-          using (var reader = new StreamReader(stream.Stream, Encoding.UTF8, true))
-          {
-            if (ViewSetting.ReStoreViewSetting(await reader.ReadToEndAsync(), Columns, m_Filter, GetColumnFilter, Sort))
-              ApplyFilters();
-          }
-        }
+        var fileName = WindowsAPICodePackWrapper.Open((FileSetting is IFileSettingPhysicalFile phy) ? FileSystemUtils.GetDirectoryName(phy.FullPath) : ".", "Load Column Setting", "Column Config|*.col;*.conf|All files|*.*", DefFileNameColSetting(FileSetting, ".col"));
+        await ReStoreViewSetting(fileName);
       }
       catch (Exception ex)
       {
@@ -1338,9 +1343,9 @@ namespace CsvTools
       }
     }
 
-    private string DefFileNameColSetting(string extension)
+    private static string DefFileNameColSetting(IFileSetting fileSetting, string extension)
     {
-      var defFileName = FileSetting.ID;
+      var defFileName = fileSetting.ID;
       var index = defFileName.LastIndexOf('.');
       return (index == -1 ? defFileName : defFileName.Substring(0, index)) + extension;
     }
@@ -1352,7 +1357,7 @@ namespace CsvTools
         toolStripMenuItemSaveCol.Enabled = false;
 
         // Select Path
-        var fileName = WindowsAPICodePackWrapper.Save((FileSetting is IFileSettingPhysicalFile phy) ? FileSystemUtils.GetDirectoryName(phy.FullPath) : ".", "Save Column Setting", "Column Config|*.col;*.conf|All files|*.*", ".col", DefFileNameColSetting(".col"));
+        var fileName = WindowsAPICodePackWrapper.Save((FileSetting is IFileSettingPhysicalFile phy) ? FileSystemUtils.GetDirectoryName(phy.FullPath) : ".", "Save Column Setting", "Column Config|*.col;*.conf|All files|*.*", ".col", DefFileNameColSetting(FileSetting, ".col"));
         if (!string.IsNullOrEmpty(fileName))
         {
           using (var stream = ImprovedStream.OpenWrite(fileName))

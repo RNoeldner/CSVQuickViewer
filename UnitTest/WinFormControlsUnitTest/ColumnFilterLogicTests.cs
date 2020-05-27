@@ -29,10 +29,10 @@ namespace CsvTools.Tests
       var columnFilterLogic = new ColumnFilterLogic(typeof(double), "Column1");
       Assert.IsNotNull(columnFilterLogic);
       Assert.AreEqual(typeof(double), columnFilterLogic.ColumnDataType);
-      Assert.AreEqual("[Column1]", columnFilterLogic.DataPropertyName);
+      Assert.AreEqual("Column1", columnFilterLogic.DataPropertyName);
 
       var columnFilterLogic2 = new ColumnFilterLogic(typeof(double), "[Column1]");
-      Assert.AreEqual("[Column1]", columnFilterLogic2.DataPropertyName);
+      Assert.AreEqual("Column1", columnFilterLogic2.DataPropertyName);
     }
 
     [TestMethod]
