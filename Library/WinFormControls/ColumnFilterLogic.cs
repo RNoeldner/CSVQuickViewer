@@ -103,6 +103,7 @@ namespace CsvTools
     /// </summary>
     private bool m_Active;
 
+    private string m_DataPropertyName;
     private string m_DataPropertyNameEscape;
 
     /// <summary>
@@ -176,20 +177,20 @@ namespace CsvTools
 
     public string DataPropertyName
     {
-      get => m_DataPropertyNameEscape;
+      get => m_DataPropertyName;
       private set
       {
-        var dataPropertyName1 = value ?? string.Empty;
+        m_DataPropertyName = value ?? string.Empty;
 
-        // Un-escape the name again
-        if (dataPropertyName1.StartsWith("[", StringComparison.Ordinal)
-            && dataPropertyName1.EndsWith("]", StringComparison.Ordinal))
+        // Un-escape the name in case its escaped
+        if (m_DataPropertyName.StartsWith("[", StringComparison.Ordinal)
+            && m_DataPropertyName.EndsWith("]", StringComparison.Ordinal))
         {
-          dataPropertyName1 = dataPropertyName1.Substring(1, dataPropertyName1.Length - 2).Replace(@"\]", "]")
+          m_DataPropertyName = m_DataPropertyName.Substring(1, m_DataPropertyName.Length - 2).Replace(@"\]", "]")
             .Replace(@"\\", @"\");
         }
 
-        m_DataPropertyNameEscape = $"[{dataPropertyName1.SqlName()}]";
+        m_DataPropertyNameEscape = $"[{m_DataPropertyName.SqlName()}]";
       }
     }
 
@@ -312,11 +313,7 @@ namespace CsvTools
     {
       if (valueText == OperatorIsNull)
         return string.Format(CultureInfo.InvariantCulture, "({0} IS NULL or {0} = '')", m_DataPropertyNameEscape);
-      return string.Format(
-        CultureInfo.InvariantCulture,
-        "{0} = {1}",
-        m_DataPropertyNameEscape,
-        FormatValue(valueText, m_ColumnDataType));
+      return string.Format(CultureInfo.InvariantCulture, "{0} = {1}", m_DataPropertyNameEscape, FormatValue(valueText, m_ColumnDataType));
     }
 
     /// <summary>

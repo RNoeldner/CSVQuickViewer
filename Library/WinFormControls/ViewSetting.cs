@@ -37,7 +37,6 @@ namespace CsvTools
           return columnFilter;
       }
 
-
       for (var columnIndex = 0; columnIndex < columnFilters.Count; columnIndex++)
         if (columnFilters[columnIndex] == null && columns[columnIndex].DataPropertyName
           .Equals(dataPropertyName, StringComparison.OrdinalIgnoreCase))
@@ -53,7 +52,7 @@ namespace CsvTools
       var vst = JsonConvert.DeserializeObject<ViewSettingStore>(text);
 
       int displayIndex = 0;
-      foreach (var storedColumn in vst.Columns.OrderBy(x=> x.DisplayIndex))
+      foreach (var storedColumn in vst.Columns.OrderBy(x => x.DisplayIndex))
         foreach (DataGridViewColumn col in columns)
           if (col.DataPropertyName.Equals(storedColumn.DataPropertyName, StringComparison.OrdinalIgnoreCase))
           {
@@ -111,7 +110,6 @@ namespace CsvTools
       }
 
       return hasFilterSet;
-
     }
 
     public static string StoreViewSetting(DataGridViewColumnCollection columns,
@@ -122,12 +120,10 @@ namespace CsvTools
 
       var vst = new ViewSettingStore();
 
-
       foreach (DataGridViewColumn col in columns)
       {
         vst.Columns.Add(new ColumnSetting(col.DataPropertyName, col.Visible, ReferenceEquals(col, sortedColumn) ? (int)sortOrder : 0, col.DisplayIndex, col.Width));
       }
-
 
       foreach (var columnFilter in columnFilters)
       {
@@ -150,6 +146,5 @@ namespace CsvTools
 
       return JsonConvert.SerializeObject(vst, Formatting.Indented);
     }
-
   }
 }

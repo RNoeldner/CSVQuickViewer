@@ -1328,6 +1328,8 @@ namespace CsvTools
       }
     }
 
+    public async System.Threading.Tasks.Task ReStoreViewSetting(string fileName) => await filteredDataGridView.ReStoreViewSetting(fileName);
+
     private void ToolStripComboBoxFilterType_SelectedIndexChanged(object sender, EventArgs e)
     {
       /*

@@ -701,6 +701,16 @@ namespace CsvTools
         detailControl.FileSetting = m_FileSetting;
         detailControl.FillGuessSettings = m_ViewSettings.FillGuessSettings;
 
+        // Load View Settings
+        var index = m_FileSetting.ID.LastIndexOf('.');
+        var fn = (index == -1 ? m_FileSetting.ID : m_FileSetting.ID.Substring(0, index)) + ".col";
+        var fnView = Path.Combine(FileSystemUtils.GetDirectoryName(m_FileSetting.FileName), fn);
+        if (FileSystemUtils.FileExists(fnView))
+        {
+          Logger.Information("Restoring view and filter setting {filename}...", fn);
+          await detailControl.ReStoreViewSetting(fnView);
+        }
+
         // if (m_FileSetting.NoDelimitedFile) detailControl_ButtonShowSource(this, null);
       }
       catch (ObjectDisposedException)
@@ -708,7 +718,7 @@ namespace CsvTools
       }
       catch (Exception exc)
       {
-        this.ShowError(exc, "Storing Settings");
+        this.ShowError(exc, "Opeing File");
       }
       finally
       {
