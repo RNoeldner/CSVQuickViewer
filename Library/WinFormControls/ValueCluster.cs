@@ -31,8 +31,6 @@ namespace CsvTools
     /// <param name="active">Flag indicating if teh filter for teh value is active</param>
     public ValueCluster(string display, string condition, string sort, int count = 0, bool active = false)
     {
-      if (string.IsNullOrEmpty(display)) throw new ArgumentException(@"Value cannot be null or empty.", nameof(display));
-      if (string.IsNullOrEmpty(condition)) throw new ArgumentException(@"Value cannot be null or empty.", nameof(condition));
       Display = display;
       SQLCondition = condition;
       Sort = sort ?? string.Empty;

@@ -735,14 +735,14 @@ namespace CsvTools
     /// <summary>
     ///   Gets the column format.
     /// </summary>
-    /// <param name="colindex">The column index.</param>
+    /// <param name="colIndex">The column index.</param>
     /// <returns></returns>
-    private Column GetColumnFormat(int colindex)
+    private Column GetColumnFormat(int colIndex)
     {
-      if (FileSetting == null || colindex < 0 || colindex > FileSetting.ColumnCollection.Count)
+      if (FileSetting == null || colIndex < 0 || colIndex > FileSetting.ColumnCollection.Count)
         return null;
 
-      return FileSetting.ColumnCollection.Get(Columns[colindex].DataPropertyName);
+      return FileSetting.ColumnCollection.Get(Columns[colIndex].DataPropertyName);
     }
 
     /// <summary>
@@ -1312,7 +1312,7 @@ namespace CsvTools
 
     private void ToolStripMenuItemSortRemove_Click(object sender, EventArgs e) => DataView.Sort = string.Empty;
 
-    private async void toolStripMenuItemLoadCol_Click(object sender, EventArgs e)
+    private async void ToolStripMenuItemLoadCol_Click(object sender, EventArgs e)
     {
       try
       {
@@ -1323,14 +1323,14 @@ namespace CsvTools
           var stream = ImprovedStream.OpenRead(fileName);
           using (var reader = new StreamReader(stream.Stream, Encoding.UTF8, true))
           {
-            if (ViewSetting.ReStoreViewSetting(await reader.ReadToEndAsync(), Columns, m_Filter, GetColumnFilter))
+            if (ViewSetting.ReStoreViewSetting(await reader.ReadToEndAsync(), Columns, m_Filter, GetColumnFilter, Sort))
               ApplyFilters();
           }
         }
       }
       catch (Exception ex)
       {
-        Logger.Warning(ex, "Error Load Column Setting");
+        FindForm()?.ShowError(ex);
       }
       finally
       {
@@ -1345,7 +1345,7 @@ namespace CsvTools
       return (index == -1 ? defFileName : defFileName.Substring(0, index)) + extension;
     }
 
-    private async void toolStripMenuItemSaveCol_Click(object sender, EventArgs e)
+    private async void ToolStripMenuItemSaveCol_Click(object sender, EventArgs e)
     {
       try
       {
@@ -1357,12 +1357,12 @@ namespace CsvTools
         {
           using (var stream = ImprovedStream.OpenWrite(fileName))
           using (var writer = new StreamWriter(stream.Stream, Encoding.UTF8, 1024))
-            await writer.WriteAsync(ViewSetting.StoreViewSetting(Columns, m_Filter));
+            await writer.WriteAsync(ViewSetting.StoreViewSetting(Columns, m_Filter, SortedColumn, SortOrder));
         }
       }
       catch (Exception ex)
       {
-        Logger.Warning(ex, "Error Saving Column Setting");
+        FindForm()?.ShowError(ex);
       }
       finally
       {

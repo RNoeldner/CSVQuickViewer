@@ -254,8 +254,7 @@ namespace CsvTools
           if (dic != DateTime.MinValue)
           {
             m_ValueClusters.Add(
-              new ValueCluster(
-                dic.ToString("Y", CultureInfo.CurrentCulture), // Year month pattern
+              new ValueCluster(dic.ToString("Y", CultureInfo.CurrentCulture), // Year month pattern
                string.Format(CultureInfo.InvariantCulture,
                     @"([{0}] >= #{1:MM\/dd\/yyyy}# AND {0} < #{2:MM\/dd\/yyyy}#)",
                     columnName.SqlName(),
@@ -265,8 +264,7 @@ namespace CsvTools
           else
           {
             m_ValueClusters.Add(
-              new ValueCluster(
-              ColumnFilterLogic.OperatorIsNull,
+              new ValueCluster(ColumnFilterLogic.OperatorIsNull,
               string.Format(CultureInfo.InvariantCulture, c_IsNull, columnName.SqlName()),
               string.Empty));
           }
@@ -292,8 +290,7 @@ namespace CsvTools
           else
           {
             m_ValueClusters.Add(
-              new ValueCluster(
-              ColumnFilterLogic.OperatorIsNull,
+              new ValueCluster(ColumnFilterLogic.OperatorIsNull,
               string.Format(CultureInfo.InvariantCulture, c_IsNull, columnName.SqlName()),
               string.Empty));
           }
@@ -371,8 +368,7 @@ namespace CsvTools
           if (Math.Abs(dic - int.MinValue) > .1)
           {
             m_ValueClusters.Add(
-              new ValueCluster(
-                dic.ToString(CultureInfo.CurrentCulture), // Decimal
+              new ValueCluster(dic.ToString(CultureInfo.CurrentCulture), // Decimal
                 string.Format(
                       CultureInfo.InvariantCulture,
                       "({0} >= {1} AND {0} < {2})",
@@ -528,10 +524,18 @@ namespace CsvTools
         m_ValueClusters.Clear();
         return BuildValueClustersResult.NoValues;
       }
-
+      var colNameEsc = $"[{dataTable.Columns[columnIndex].ColumnName.SqlName()}]";
       foreach (var text in cluster)
       {
-        m_ValueClusters.Add(new ValueCluster(text, string.Empty, text == ColumnFilterLogic.OperatorIsNull ? string.Empty : text));
+        if (text == ColumnFilterLogic.OperatorIsNull)
+        {
+          m_ValueClusters.Add(new ValueCluster(text, string.Format(CultureInfo.InvariantCulture, c_IsNull, colNameEsc), string.Empty));
+        }
+        else
+        {
+          m_ValueClusters.Add(new ValueCluster(text, $"({colNameEsc} = '{text.SqlQuote()}')", text));
+        }
+
       }
 
       return BuildValueClustersResult.ListFilled;
