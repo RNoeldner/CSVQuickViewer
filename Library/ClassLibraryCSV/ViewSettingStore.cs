@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Newtonsoft.Json;
 
 namespace CsvTools
@@ -15,25 +16,41 @@ namespace CsvTools
       Width = width;
     }
 
-    public string DataPropertyName { get; set;  }
+    public string DataPropertyName { get; set; }
     public bool Visible { get; set; }
     public int Sort { get; set; }
+    public bool ShouldSerializeSort() => Sort != 0;
     public int Width { get; set; }
     public int DisplayIndex { get; set; }
+    public string Operator { get; set; }
+    public bool ShouldSerializeOperator() => !string.IsNullOrEmpty(Operator);
+
+    public string ValueText { get; set; }
+
+    public bool ShouldSerializeValueText() => !string.IsNullOrEmpty(ValueText);
+
+    public DateTime ValueDate { get; set; }
+
+    public bool ShouldSerializeValueDate() => ValueDate.Year > 1;
+
+    public List<ValueFilter> ValueFilters { get; } = new List<ValueFilter>();
+    public bool ShouldSerializeValueFilters() => ValueFilters.Any();
 
     public bool Equals(ColumnSetting other)
     {
       if (ReferenceEquals(null, other)) return false;
       if (ReferenceEquals(this, other)) return true;
       return DataPropertyName == other.DataPropertyName && Visible == other.Visible && Sort == other.Sort &&
-             Width == other.Width && DisplayIndex == other.DisplayIndex;
+             Width == other.Width && DisplayIndex == other.DisplayIndex && Operator == other.Operator &&
+             ValueText == other.ValueText && ValueDate.Equals(other.ValueDate) &&
+             Equals(ValueFilters, other.ValueFilters);
     }
 
     public override bool Equals(object obj)
     {
       if (ReferenceEquals(null, obj)) return false;
       if (ReferenceEquals(this, obj)) return true;
-      if (obj.GetType() != GetType()) return false;
+      if (obj.GetType() != this.GetType()) return false;
       return Equals((ColumnSetting)obj);
     }
 
@@ -41,11 +58,15 @@ namespace CsvTools
     {
       unchecked
       {
-        var hashCode = DataPropertyName != null ? DataPropertyName.GetHashCode() : 0;
+        var hashCode = (DataPropertyName != null ? DataPropertyName.GetHashCode() : 0);
         hashCode = (hashCode * 397) ^ Visible.GetHashCode();
-        hashCode = (hashCode * 397) ^ Sort.GetHashCode();
+        hashCode = (hashCode * 397) ^ Sort;
         hashCode = (hashCode * 397) ^ Width;
         hashCode = (hashCode * 397) ^ DisplayIndex;
+        hashCode = (hashCode * 397) ^ (Operator != null ? Operator.GetHashCode() : 0);
+        hashCode = (hashCode * 397) ^ (ValueText != null ? ValueText.GetHashCode() : 0);
+        hashCode = (hashCode * 397) ^ ValueDate.GetHashCode();
+        hashCode = (hashCode * 397) ^ (ValueFilters != null ? ValueFilters.GetHashCode() : 0);
         return hashCode;
       }
     }
@@ -85,63 +106,5 @@ namespace CsvTools
       }
     }
   }
-  public class FilterSetting : IEquatable<FilterSetting>
-  {
-    public FilterSetting(string dataPropertyName, string condition, string valueText, DateTime valueDate)
-    {
-      DataPropertyName = dataPropertyName;
-      Operator = condition;
-      ValueText = valueText;
-      ValueDate = valueDate;
-    }
 
-    public string DataPropertyName { get; set; }
-    public string Operator { get; set; }
-    public string ValueText { get; set; }
-    public DateTime ValueDate { get; set; }
-
-    public List<ValueFilter> ValueFilters { get; } = new List<ValueFilter>();
-
-    public bool Equals(FilterSetting other)
-    {
-      if (ReferenceEquals(null, other)) return false;
-      if (ReferenceEquals(this, other)) return true;
-      return DataPropertyName == other.DataPropertyName && Operator == other.Operator && ValueText == other.ValueText &&
-             ValueDate.Equals(other.ValueDate) && Equals(ValueFilters, other.ValueFilters);
-    }
-
-    public override bool Equals(object obj)
-    {
-      if (ReferenceEquals(null, obj)) return false;
-      if (ReferenceEquals(this, obj)) return true;
-      if (obj.GetType() != this.GetType()) return false;
-      return Equals((FilterSetting)obj);
-    }
-
-    public override int GetHashCode()
-    {
-      unchecked
-      {
-        var hashCode = (DataPropertyName != null ? DataPropertyName.GetHashCode() : 0);
-        hashCode = (hashCode * 397) ^ (Operator != null ? Operator.GetHashCode() : 0);
-        hashCode = (hashCode * 397) ^ (ValueText != null ? ValueText.GetHashCode() : 0);
-        hashCode = (hashCode * 397) ^ ValueDate.GetHashCode();
-        hashCode = (hashCode * 397) ^ (ValueFilters != null ? ValueFilters.GetHashCode() : 0);
-        return hashCode;
-      }
-    }
-  }
-
-  public class ViewSettingStore
-  {
-    public List<ColumnSetting> Columns
-    {
-      get;
-    } = new List<ColumnSetting>();
-
-    public List<FilterSetting> Filter
-    {
-      get;
-    } = new List<FilterSetting>();
-  }
 }

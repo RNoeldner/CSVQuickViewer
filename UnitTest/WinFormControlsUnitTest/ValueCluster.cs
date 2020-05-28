@@ -21,7 +21,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void ValueClusterCtor()
     {
-      var tst1 = new ValueCluster("text","SQl","Sort",0);
+      var tst1 = new ValueCluster("text","SQl","Sort");
       Assert.AreEqual("text", tst1.Display);
       Assert.AreEqual(0, tst1.Count);
 
@@ -35,7 +35,7 @@ namespace CsvTools.Tests
     public void EqualsTest()
     {
       var src = new ValueCluster("dis", "cond", "sort", 10);
-      var dest = new ValueCluster("dis", "cond", "sort", 20);
+      var dest = new ValueCluster("dis", "cond2", "sort", 10);
       Assert.IsFalse(src.Equals(dest));
       Assert.IsTrue(src.Equals(src));
     }

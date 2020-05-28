@@ -718,7 +718,7 @@ namespace CsvTools
       }
       catch (Exception exc)
       {
-        this.ShowError(exc, "Opeing File");
+        this.ShowError(exc, "Opening File");
       }
       finally
       {

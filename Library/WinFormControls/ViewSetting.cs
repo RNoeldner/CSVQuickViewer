@@ -47,15 +47,15 @@ namespace CsvTools
 
     public static bool ReStoreViewSetting(string text, DataGridViewColumnCollection columns,
       IList<ToolStripDataGridViewColumnFilter> columnFilters,
-      Func<int, ToolStripDataGridViewColumnFilter> createFilterColumn, Action<DataGridViewColumn, ListSortDirection> doSort)
+      Func<int, ToolStripDataGridViewColumnFilter> createFilterColumn,
+      Action<DataGridViewColumn, ListSortDirection> doSort)
     {
-      var vst = JsonConvert.DeserializeObject<ViewSettingStore>(text);
+      var vst = JsonConvert.DeserializeObject<List<ColumnSetting>>(text);
 
-      int displayIndex = 0;
-      foreach (var storedColumn in vst.Columns.OrderBy(x => x.DisplayIndex))
+      var displayIndex = 0;
+      foreach (var storedColumn in vst.OrderBy(x => x.DisplayIndex))
         foreach (DataGridViewColumn col in columns)
           if (col.DataPropertyName.Equals(storedColumn.DataPropertyName, StringComparison.OrdinalIgnoreCase))
-          {
             try
             {
               if (col.Visible != storedColumn.Visible)
@@ -77,22 +77,17 @@ namespace CsvTools
             {
               // ignore
             }
-          }
 
       var hasFilterSet = false;
-      foreach (var storedFilterSetting in vst.Filter)
+      foreach (var storedFilterSetting in vst)
       {
-        var columnFilter = GetFilter(storedFilterSetting.DataPropertyName, columnFilters, columns, createFilterColumn);
-        if (columnFilter == null)
-          continue;
-        if (storedFilterSetting.ValueFilters.Count == 0)
+        ToolStripDataGridViewColumnFilter columnFilter = null;
+
+        if (storedFilterSetting.ValueFilters.Count > 0)
         {
-          columnFilter.ColumnFilterLogic.ValueText = storedFilterSetting.ValueText;
-          columnFilter.ColumnFilterLogic.ValueDateTime = storedFilterSetting.ValueDate;
-          columnFilter.ColumnFilterLogic.Operator = storedFilterSetting.Operator;
-        }
-        else
-        {
+          columnFilter = GetFilter(storedFilterSetting.DataPropertyName, columnFilters, columns, createFilterColumn);
+          if (columnFilter == null)
+            continue;
           foreach (var valueFilter in storedFilterSetting.ValueFilters)
           {
             var cluster = columnFilter.ValueClusterCollection.ValueClusters.FirstOrDefault(x =>
@@ -104,8 +99,20 @@ namespace CsvTools
                 valueFilter.SQLCondition, @"ZZZZ", 0, true));
           }
         }
+        // only restore operator based filter if there is no Value Filter
+        else if (!string.IsNullOrEmpty(storedFilterSetting.Operator))
+        {
+          columnFilter = GetFilter(storedFilterSetting.DataPropertyName, columnFilters, columns, createFilterColumn);
+          if (columnFilter == null)
+            continue;
+          columnFilter.ColumnFilterLogic.ValueText = storedFilterSetting.ValueText;
+          columnFilter.ColumnFilterLogic.ValueDateTime = storedFilterSetting.ValueDate;
+          columnFilter.ColumnFilterLogic.Operator = storedFilterSetting.Operator;
+        }
 
-        columnFilter.ColumnFilterLogic.Active = true;
+        if (columnFilter != null)
+          columnFilter.ColumnFilterLogic.Active = true;
+
         hasFilterSet = true;
       }
 
@@ -113,38 +120,38 @@ namespace CsvTools
     }
 
     public static string StoreViewSetting(DataGridViewColumnCollection columns,
-      ICollection<ToolStripDataGridViewColumnFilter> columnFilters, DataGridViewColumn sortedColumn, SortOrder sortOrder)
+      ICollection<ToolStripDataGridViewColumnFilter> columnFilters, DataGridViewColumn sortedColumn,
+      SortOrder sortOrder)
     {
       if (columnFilters.Count == 0)
         throw new ArgumentException(@"Value cannot be an empty collection.", nameof(columnFilters));
 
-      var vst = new ViewSettingStore();
-
-      foreach (DataGridViewColumn col in columns)
-      {
-        vst.Columns.Add(new ColumnSetting(col.DataPropertyName, col.Visible, ReferenceEquals(col, sortedColumn) ? (int)sortOrder : 0, col.DisplayIndex, col.Width));
-      }
-
+      var vst = (from DataGridViewColumn col in columns
+                 select new ColumnSetting(col.DataPropertyName, col.Visible,
+                   ReferenceEquals(col, sortedColumn) ? (int)sortOrder : 0, col.DisplayIndex, col.Width)).ToList();
+      var colIndex = 0;
       foreach (var columnFilter in columnFilters)
       {
-        if (columnFilter == null)
-          continue;
-        var filterLogic = columnFilter.ColumnFilterLogic;
-        if (!filterLogic.Active)
-          continue;
-
-        var filterSetting = new FilterSetting(filterLogic.DataPropertyName, filterLogic.Operator, filterLogic.ValueText,
-          filterLogic.ValueDateTime);
-
-        var singleValues = filterLogic.ValueClusterCollection.ValueClusters
-          .Where(x => !string.IsNullOrEmpty(x.SQLCondition) && x.Active).ToList();
-        if (singleValues.Count > 0)
-          foreach (var value in singleValues)
-            filterSetting.ValueFilters.Add(new ValueFilter(value.SQLCondition, value.Display));
-        vst.Filter.Add(filterSetting);
+        if (columnFilter != null && columnFilter.ColumnFilterLogic.Active)
+        {
+          var hadValueFiler = false;
+          foreach (var value in columnFilter.ColumnFilterLogic.ValueClusterCollection.ValueClusters.Where(x =>
+            !string.IsNullOrEmpty(x.SQLCondition) && x.Active))
+          {
+            vst[colIndex].ValueFilters.Add(new ValueFilter(value.SQLCondition, value.Display));
+            hadValueFiler = true;
+          }
+          if (!hadValueFiler)
+          {
+            vst[colIndex].Operator = columnFilter.ColumnFilterLogic.Operator;
+            vst[colIndex].ValueText = columnFilter.ColumnFilterLogic.ValueText;
+            vst[colIndex].ValueDate = columnFilter.ColumnFilterLogic.ValueDateTime;
+          }
+        }
+        colIndex++;
       }
 
-      return JsonConvert.SerializeObject(vst, Formatting.Indented);
+      return JsonConvert.SerializeObject(vst, Formatting.None);
     }
   }
 }
