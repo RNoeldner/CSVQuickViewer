@@ -62,6 +62,7 @@
   </Choose>
   <ItemGroup>
     <Compile Include="ColumnFilterLogicTests.cs" />
+    <Compile Include="ColumnSettingTests.cs" />
     <Compile Include="ControlsTests.cs" />
     <Compile Include="DataGridViewCopyPasteTests.cs" />
     <Compile Include="DetailControlTests.cs" />
@@ -77,6 +78,7 @@
     <Compile Include="UnitTestInitialize.cs" />
     <Compile Include="ValueCluster.cs" />
     <Compile Include="ValueClusterCollectionTests.cs" />
+    <Compile Include="ViewSettingTests.cs" />
     <Compile Include="WindowStateTests.cs" />
   </ItemGroup>
   <ItemGroup>
