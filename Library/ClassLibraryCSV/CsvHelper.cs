@@ -201,6 +201,26 @@ namespace CsvTools
     /// <param name="setting"><see cref="ICsvFile" /> with the information</param>
     /// <param name="cancellationToken">A cancellation token</param>
     /// <returns>The NewLine Combination used</returns>
+    public static async Task<string> GuessQualifierAsync(ICsvFile setting,
+      CancellationToken cancellationToken)
+    {
+      Contract.Requires(setting != null);
+      using (var improvedStream = FunctionalDI.OpenRead(setting))
+      using (var streamReader = new ImprovedTextReader(improvedStream, setting.CodePageId, setting.SkipRows))
+      {
+        var qualifier = await GuessQualifierAsync(streamReader, setting.FileFormat.FieldDelimiterChar, cancellationToken);
+        if (qualifier != '\0')
+          return char.ToString(qualifier);
+      }
+      return null;
+    }
+
+    /// <summary>
+    ///   Try to guess the new line sequence
+    /// </summary>
+    /// <param name="setting"><see cref="ICsvFile" /> with the information</param>
+    /// <param name="cancellationToken">A cancellation token</param>
+    /// <returns>The NewLine Combination used</returns>
     public static async Task<RecordDelimiterType> GuessNewlineAsync(ICsvFile setting,
       CancellationToken cancellationToken)
     {
@@ -398,7 +418,8 @@ namespace CsvTools
               if (display.CancellationToken.IsCancellationRequested)
                 return;
               display.SetProcess("Checking Qualifier", -1, true);
-              var qualifier = await GuessQualifierAsync(textReader, setting.FileFormat.FieldDelimiterChar);
+              var qualifier = await GuessQualifierAsync(textReader, setting.FileFormat.FieldDelimiterChar,
+                display.CancellationToken);
               if (qualifier != '\0')
                 setting.FileFormat.FieldQualifier = char.ToString(qualifier);
               display.SetProcess("Qualifier: " + setting.FileFormat.FieldQualifier, -1, true);
@@ -630,7 +651,7 @@ namespace CsvTools
       const int c_RecSep = 4;
       const int c_UnitSep = 5;
 
-      int[] count = {0, 0, 0, 0, 0, 0};
+      int[] count = { 0, 0, 0, 0, 0, 0 };
 
       // \r = CR (Carriage Return) \n = LF (Line Feed)
 
@@ -711,19 +732,19 @@ namespace CsvTools
         : RecordDelimiterType.None;
     }
 
-    private static async Task<char> GuessQualifierAsync(ImprovedTextReader textReader, char delimiter)
+    private static async Task<char> GuessQualifierAsync(ImprovedTextReader textReader, char delimiter, CancellationToken cancellationToken)
     {
       if (textReader == null)
         return '\0';
 
       const int c_MaxLine = 30;
-      var possibleQuotes = new[] {'"', '\''};
+      var possibleQuotes = new[] { '"', '\'' };
       var counter = new int[possibleQuotes.Length];
 
       var textReaderPosition = new ImprovedTextReaderPositionStore(textReader);
       var max = 0;
       // skip the first line it usually a header
-      for (var lineNo = 0; lineNo < c_MaxLine && !textReaderPosition.AllRead; lineNo++)
+      for (var lineNo = 0; lineNo < c_MaxLine && !textReaderPosition.AllRead && !cancellationToken.IsCancellationRequested; lineNo++)
       {
         var line = await textReader.ReadLineAsync();
         // EOF
