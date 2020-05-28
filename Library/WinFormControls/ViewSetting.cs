@@ -96,7 +96,7 @@ namespace CsvTools
               cluster.Active = true;
             else
               columnFilter.ValueClusterCollection.ValueClusters.Add(new ValueCluster(valueFilter.Display,
-                valueFilter.SQLCondition, @"ZZZZ", 0, true));
+                valueFilter.SQLCondition, string.Empty, 0, true));
           }
         }
         // only restore operator based filter if there is no Value Filter
@@ -138,7 +138,7 @@ namespace CsvTools
           foreach (var value in columnFilter.ColumnFilterLogic.ValueClusterCollection.ValueClusters.Where(x =>
             !string.IsNullOrEmpty(x.SQLCondition) && x.Active))
           {
-            vst[colIndex].ValueFilters.Add(new ValueFilter(value.SQLCondition, value.Display));
+            vst[colIndex].ValueFilters.Add(new ColumnSetting.ValueFilter(value.SQLCondition, value.Display));
             hadValueFiler = true;
           }
           if (!hadValueFiler)
