@@ -67,7 +67,7 @@ namespace CsvTools
       var resources = new ComponentResourceManager(typeof(FilteredDataGridView));
       //try
       //{
-      m_ImgFilterIndicator = ((Image)(resources.GetObject("toolStripMenuItem2.Image")));
+      m_ImgFilterIndicator = ((Image) (resources.GetObject("toolStripMenuItem2.Image")));
       // m_ImgNbSp = ((Image)(resources.GetObject("NBSP")));
       //}
       //catch
@@ -102,7 +102,7 @@ namespace CsvTools
         }
 
         e.Cancel = true;
-        ((ToolStripDropDownMenu)sender).Invalidate();
+        ((ToolStripDropDownMenu) sender).Invalidate();
       };
       contextMenuStripFilter.KeyPress += ContextMenuStripFilter_KeyPress;
       SystemEvents.UserPreferenceChanged += SystemEvents_UserPreferenceChanged;
@@ -534,7 +534,7 @@ namespace CsvTools
     {
       // Set the focus to
       if (contextMenuStripFilter.Items[0] is ToolStripDataGridViewColumnFilter op)
-        ((DataGridViewColumnFilterControl)op.Control).FocusInput();
+        ((DataGridViewColumnFilterControl) op.Control).FocusInput();
     }
 
     /// <summary>
@@ -776,7 +776,7 @@ namespace CsvTools
       if (string.IsNullOrEmpty(val))
         return;
 
-      var nbspIndex = val.IndexOf((char)0xA0);
+      var nbspIndex = val.IndexOf((char) 0xA0);
       var linefeedIndex = val.IndexOf('\n');
       var sindx = m_HighlightText.Length > 0
           ? val.IndexOf(m_HighlightText, StringComparison.InvariantCultureIgnoreCase)
@@ -823,7 +823,7 @@ namespace CsvTools
             new Point(hlRect.X + widthSpace, e.CellBounds.Bottom - 5),
             new Point(hlRect.X + widthSpace, e.CellBounds.Bottom - 10)
           });
-          nbspIndex = val.IndexOf((char)0xA0, nbspIndex + 1);
+          nbspIndex = val.IndexOf((char) 0xA0, nbspIndex + 1);
         }
       }
 
@@ -917,7 +917,7 @@ namespace CsvTools
       {
         if (dataSource is BindingSource bs)
         {
-          m_BindingSource = (BindingSource)DataSource;
+          m_BindingSource = (BindingSource) DataSource;
           dataMember = bs.DataMember;
           dataSource = bs.DataSource;
         }
@@ -943,7 +943,7 @@ namespace CsvTools
 
       try
       {
-        DataView = (DataView)dataSource;
+        DataView = (DataView) dataSource;
       }
       catch (Exception ex)
       {

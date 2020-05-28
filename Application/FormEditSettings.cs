@@ -28,6 +28,7 @@ namespace CsvTools
   /// </summary>
   public partial class FormEditSettings : ResizeForm
   {
+    private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
     private readonly ViewSettings m_ViewSettings;
 
     /// <summary>
@@ -83,7 +84,25 @@ namespace CsvTools
       Cursor.Current = Cursors.WaitCursor;
       try
       {
-        m_ViewSettings.FileFormat.FieldDelimiter = await CsvHelper.GuessDelimiterAsync(m_ViewSettings, CancellationToken.None);
+        m_ViewSettings.FileFormat.FieldDelimiter = await CsvHelper.GuessDelimiterAsync(m_ViewSettings, m_CancellationTokenSource.Token);
+      }
+      finally
+      {
+        Cursor.Current = oldCursor;
+      }
+    }
+
+    private async void ButtonGuessTextQualifier_Click(object sender, EventArgs e)
+    {
+      var oldCursor = Cursor.Current == Cursors.WaitCursor ? Cursors.WaitCursor : Cursors.Default;
+      Cursor.Current = Cursors.WaitCursor;
+      try
+      {
+        var qualifier = await CsvHelper.GuessQualifierAsync(m_ViewSettings, m_CancellationTokenSource.Token);
+        if (qualifier != null)
+          m_ViewSettings.FileFormat.FieldQualifier = qualifier;
+        else
+          _MessageBox.Show(this, "No Column Qualifier found", "Qualifier", MessageBoxButtons.OK, MessageBoxIcon.Information);
       }
       finally
       {
@@ -97,7 +116,7 @@ namespace CsvTools
       Cursor.Current = Cursors.WaitCursor;
       try
       {
-        m_ViewSettings.SkipRows = await CsvHelper.GuessStartRowAsync(m_ViewSettings, CancellationToken.None);
+        m_ViewSettings.SkipRows = await CsvHelper.GuessStartRowAsync(m_ViewSettings, m_CancellationTokenSource.Token);
       }
       finally
       {
@@ -108,7 +127,14 @@ namespace CsvTools
     private void CboCodePage_SelectedIndexChanged(object sender, EventArgs e)
     {
       if (cboCodePage.SelectedItem != null)
-        m_ViewSettings.CodePageId = ((DisplayItem<int>)cboCodePage.SelectedItem).ID;
+        m_ViewSettings.CodePageId = ((DisplayItem<int>) cboCodePage.SelectedItem).ID;
+    }
+
+    private void CboRecordDelimiter_SelectedIndexChanged(object sender, EventArgs e)
+
+    {
+      if (cboRecordDelimiter.SelectedItem != null)
+        m_ViewSettings.FileFormat.NewLine = (RecordDelimiterType) cboRecordDelimiter.SelectedValue;
     }
 
     private async Task ChangeFileNameAsync(string newFileName)
@@ -146,7 +172,7 @@ namespace CsvTools
             m_ViewSettings.ColumnCollection.Clear();
           try
           {
-            using (var processDisplay = m_ViewSettings.GetProcessDisplay(this, true, CancellationToken.None))
+            using (var processDisplay = m_ViewSettings.GetProcessDisplay(this, true, m_CancellationTokenSource.Token))
             {
               await m_ViewSettings.FillGuessColumnFormatReaderAsync(
                 false,
@@ -169,12 +195,18 @@ namespace CsvTools
       }
     }
 
+    private void CheckBoxColumnsProcess_CheckedChanged(object sender, EventArgs e)
+    {
+      if (m_ViewSettings.TryToSolveMoreColumns || m_ViewSettings.AllowRowCombining)
+        m_ViewSettings.WarnEmptyTailingColumns = true;
+    }
+
     private void CsvFile_PropertyChanged(object sender, PropertyChangedEventArgs e)
     {
       if (e.PropertyName == nameof(ViewSettings.CodePageId))
       {
         foreach (var ite in cboCodePage.Items)
-          if (((DisplayItem<int>)ite).ID == m_ViewSettings.CodePageId)
+          if (((DisplayItem<int>) ite).ID == m_ViewSettings.CodePageId)
           {
             cboCodePage.SelectedItem = ite;
             break;
@@ -201,10 +233,10 @@ namespace CsvTools
       var descConv = new EnumDescriptionConverter(typeof(RecordDelimiterType));
       foreach (RecordDelimiterType item in Enum.GetValues(typeof(RecordDelimiterType)))
       {
-        di.Add(new DisplayItem<int>((int)item, descConv.ConvertToString(item)));
+        di.Add(new DisplayItem<int>((int) item, descConv.ConvertToString(item)));
       }
 
-      var selValue = (int)m_ViewSettings.FileFormat.NewLine;
+      var selValue = (int) m_ViewSettings.FileFormat.NewLine;
       cboRecordDelimiter.DataSource = di;
       cboRecordDelimiter.DisplayMember = nameof(DisplayItem<int>.Display);
       cboRecordDelimiter.ValueMember = nameof(DisplayItem<int>.ID);
@@ -215,7 +247,25 @@ namespace CsvTools
       CsvFile_PropertyChanged(null, new PropertyChangedEventArgs(nameof(ViewSettings.CodePageId)));
     }
 
-    private void FormEditSettings_FormClosing(object sender, FormClosingEventArgs e) => ValidateChildren();
+    private void FormEditSettings_FormClosing(object sender, FormClosingEventArgs e)
+    {
+      m_CancellationTokenSource.Cancel();
+      ValidateChildren();
+    }
+
+    private async void GuessNewline_Click(object sender, EventArgs e)
+    {
+      var oldCursor = Cursor.Current == Cursors.WaitCursor ? Cursors.WaitCursor : Cursors.Default;
+      Cursor.Current = Cursors.WaitCursor;
+      try
+      {
+        m_ViewSettings.FileFormat.NewLine = await CsvHelper.GuessNewlineAsync(m_ViewSettings, m_CancellationTokenSource.Token);
+      }
+      finally
+      {
+        Cursor.Current = oldCursor;
+      }
+    }
 
     private void PositiveNumberValidating(object sender, CancelEventArgs e)
     {
@@ -265,33 +315,6 @@ namespace CsvTools
       {
         errorProvider.SetError(textBoxFile, string.Empty);
       }
-    }
-
-    private async void GuessNewline_Click(object sender, EventArgs e)
-    {
-      var oldCursor = Cursor.Current == Cursors.WaitCursor ? Cursors.WaitCursor : Cursors.Default;
-      Cursor.Current = Cursors.WaitCursor;
-      try
-      {
-        m_ViewSettings.FileFormat.NewLine = await CsvHelper.GuessNewlineAsync(m_ViewSettings, CancellationToken.None);
-      }
-      finally
-      {
-        Cursor.Current = oldCursor;
-      }
-    }
-
-    private void CboRecordDelimiter_SelectedIndexChanged(object sender, EventArgs e)
-
-    {
-      if (cboRecordDelimiter.SelectedItem != null)
-        m_ViewSettings.FileFormat.NewLine = (RecordDelimiterType)cboRecordDelimiter.SelectedValue;
-    }
-
-    private void CheckBoxColumnsProcess_CheckedChanged(object sender, EventArgs e)
-    {
-      if (m_ViewSettings.TryToSolveMoreColumns || m_ViewSettings.AllowRowCombining)
-        m_ViewSettings.WarnEmptyTailingColumns = true;
     }
   }
 }
