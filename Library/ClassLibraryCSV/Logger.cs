@@ -20,115 +20,9 @@
     public enum Level
     {
       Debug = 30,
-
       Info = 40,
-
       Warn = 50,
-
-      Error = 60,
-
-      None = 100,
-    }
-
-    public static void Configure(string fileNameJson, Level level, string fileNameText = null)
-    {
-      var config = LogManager.Configuration ?? new LoggingConfiguration();
-      if (level != Level.None)
-      {
-        var minLevel = LogLevel.Debug;
-        switch (level)
-        {
-          case Level.Info:
-            minLevel = LogLevel.Info;
-            break;
-
-          case Level.Warn:
-            minLevel = LogLevel.Warn;
-            break;
-
-          case Level.Error:
-            minLevel = LogLevel.Error;
-            break;
-        }
-
-        if (!string.IsNullOrEmpty(fileNameJson))
-        {
-          var existing = config.AllTargets.FirstOrDefault(x => x is FileTarget target && target.Layout is JsonLayout);
-          if (existing == null)
-          {
-            var logfileRoot = new FileTarget("jsonFile")
-            {
-              FileName = fileNameJson,
-              ArchiveAboveSize = 2097152,
-              Layout = new JsonLayout
-              {
-                Attributes =
-                                                 {
-                                                   new JsonAttribute("time", "${longdate}"),
-                                                   new JsonAttribute("level", "${level}"),
-                                                   new JsonAttribute("message", "${message}"),
-
-                                                   // new JsonAttribute("properties", "${all-event-properties}"),
-                                                   new JsonAttribute(
-                                                     "properties",
-                                                     new JsonLayout
-                                                       {
-                                                         IncludeAllProperties = true,
-                                                         MaxRecursionLimit = 1,
-                                                         RenderEmptyObject = false
-                                                       }),
-                                                   new JsonAttribute("type", "${exception:format=Type}"),
-                                                   new JsonAttribute("innerException",
-                                                     new JsonLayout
-                                                       {
-                                                         Attributes =
-                                                           {
-                                                             new JsonAttribute(
-                                                               "type",
-                                                               "${exception:format=:innerFormat=Type:MaxInnerExceptionLevel=2:InnerExceptionSeparator=}"),
-                                                             new JsonAttribute(
-                                                               "message",
-                                                               "${exception:format=:innerFormat=Message:MaxInnerExceptionLevel=2:InnerExceptionSeparator=}")
-                                                           },
-                                                         RenderEmptyObject = false
-                                                       },
-                                                     false),
-                                                 }
-              }
-            };
-            config.AddRule(minLevel, LogLevel.Fatal, logfileRoot);
-          }
-          else
-          {
-            // TODO change the level
-          }
-        }
-
-        // second log file in folder
-        if (!string.IsNullOrEmpty(fileNameText))
-        {
-          var logfileFolder = new FileTarget("logfile2") { FileName = fileNameText, ArchiveAboveSize = 2097152 };
-          var layout = new CsvLayout()
-          {
-            Delimiter = CsvColumnDelimiterMode.Tab,
-            WithHeader = true,
-            Quoting = CsvQuotingMode.Auto
-          };
-          layout.Columns.Add(
-            new CsvColumn { Name = "Time", Layout = "${longdate}", Quoting = CsvQuotingMode.Nothing });
-          layout.Columns.Add(new CsvColumn { Name = "Level", Layout = "${level}", Quoting = CsvQuotingMode.Nothing });
-          layout.Columns.Add(new CsvColumn { Name = "Message", Layout = "${message}" });
-          layout.Columns.Add(new CsvColumn { Name = "Exception", Layout = "${exception:format=toString}" });
-          logfileFolder.Layout = layout;
-          if (config.AllTargets.Any(x => x is FileTarget target && !(target.Layout is JsonLayout)))
-            config.RemoveTarget("logfile2");
-          config.AddRule(minLevel, LogLevel.Fatal, logfileFolder);
-        }
-      }
-
-      // Apply configuration
-      LogManager.Configuration = config;
-      Debug("Logging started");
+      Error = 60
     }
 
     public static void Debug(string message, params object[] args)
@@ -198,13 +92,7 @@
 
       try
       {
-        var logEnvent = new LogEventInfo(
-          level: level,
-          loggerName: "screen",
-          formatProvider: null,
-          message: message,
-          parameters: args,
-          exception: exception);
+        var logEnvent = new LogEventInfo(level, "screen", null, message, args, exception);
         AddLog.Invoke(logEnvent.FormattedMessage, lvl);
       }
       catch (Exception)

@@ -67,10 +67,8 @@ namespace CsvTools
     [STAThread]
     private static void Main(string[] args)
     {
-      Logger.Configure("CSVQuickViewer_Log.json", Logger.Level.Info);
       Application.ThreadException += Application_ThreadException;
       AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
-      Logger.Debug("Application start");
       var fileName = string.Empty;
 
       Application.EnableVisualStyles();

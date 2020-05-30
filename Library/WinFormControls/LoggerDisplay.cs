@@ -107,9 +107,9 @@ namespace CsvTools
                 SelectionLength = 0;
                 SelectionColor = col;
               }
-
-              ScrollToCaret();
               AppendText(text);
+              Select(TextLength, 0);
+              ScrollToCaret();
 
               if (col != ForeColor)
                 SelectionColor = ForeColor;
@@ -119,7 +119,7 @@ namespace CsvTools
               // ignore
             }
           });
-      Extensions.ProcessUIElements();
+      // Extensions.ProcessUIElements();
     }
   }
 }

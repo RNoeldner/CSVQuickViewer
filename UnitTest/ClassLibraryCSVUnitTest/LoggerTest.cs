@@ -20,13 +20,11 @@ namespace CsvTools.Tests
   [TestClass]
   public class LoggerTest
   {
-    private readonly string m_ApplicationDirectory = FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles";
-
     [TestMethod]
-    public void Configure()
+    public void AddLog()
     {
-      var jsonLogFileName = m_ApplicationDirectory + "\\Log.json";
-      Logger.Configure(jsonLogFileName, Logger.Level.Info, m_ApplicationDirectory + "\\text.log");
+      //var jsonLogFileName = m_ApplicationDirectory + "\\Log.json";
+      //Logger.Configure(jsonLogFileName, Logger.Level.Info, m_ApplicationDirectory + "\\text.log");
       var lastMessage = string.Empty;
       Logger.AddLog = (param, level) => { lastMessage = param; };
 
