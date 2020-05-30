@@ -34,6 +34,7 @@
         <Directory Id="PRODUCTDIR" Name="$(var.ApplicationShort)">
           <Component Id="EXECUTABLE" DiskId="1" Guid="DE676698-99E3-45F5-A9C1-E44B240F54C9">
             <File Id="ExecutableID" Name="CsvQuickViewer.exe" Source="$(var.CSVQuickViewer.TargetPath)" />
+            <File Id="config" Name="NLog.config" Source="$(var.CSVQuickViewer.TargetPath)" />
             <!--   
             <File Id="ClassLibraryCSV.DLL" Name="ClassLibraryCSV.dll" Source="$(var.CSVQuickViewer.TargetDir)\ClassLibraryCSV.dll" />
             <File Id="DateTimeFormats.txt" Name="DateTimeFormats.txt" Source="$(var.CSVQuickViewer.TargetDir)\DateTimeFormats.txt" />            
@@ -126,7 +127,7 @@
       <Feature Id="FeatureOpen" Title="File Context Menu" Level="1" Description="Associate the $(var.Application) to .csv,.*.tab,*.txt and add a 'View with ...' to the Windows File Context Menu">
         <ComponentRef Id="OpenWith" />
       </Feature>
-      <Feature Id="FeatureDesktop" Title="Desktop Icon" Level="1" Description="Create a Windwos Desptop item for the $(var.Application).">
+      <Feature Id="FeatureDesktop" Title="Desktop Icon" Level="1" Description="Create a Windows Desktop item for the $(var.Application).">
         <ComponentRef Id="DesktopShortcut" />
       </Feature>
     </Feature>

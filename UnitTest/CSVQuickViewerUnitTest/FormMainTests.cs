@@ -53,7 +53,7 @@ namespace CsvTools.Tests
         }
         Assert.IsNotNull(frm.DataTable);
         // 45 records, one of the lines has a linefeed
-        Assert.AreEqual(45, frm.DataTable.Rows.Count);
+        Assert.AreEqual(46, frm.DataTable.Rows.Count);
       }
     }
   }
