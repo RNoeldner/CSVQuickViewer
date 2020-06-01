@@ -52,7 +52,9 @@ namespace CsvTools
         if (!FileSystemUtils.FileExists(value.FullPath))
         {
           CSVTextBox.DisplaySpace = false;
-          CSVTextBox.Text = $"\n\nThe file {value.FileName} does not exist.";
+          CSVTextBox.Text = $@"
+
+The file {value.FileName} does not exist.";
         }
         else
         {

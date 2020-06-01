@@ -228,7 +228,7 @@ namespace CsvTools
       // In case we have a column name in front we have to look into the middle of the string We
       // only look at the first entry, assuming error would be sorted into the front
       var splitter = errorList.IndexOf(c_ClosingField);
-      return (splitter != -1 && splitter < errorList.Length - 2) ? errorList.Substring(splitter + 2).StartsWith(c_WarningId, StringComparison.Ordinal) : false;
+      return (splitter != -1 && splitter < errorList.Length - 2) && errorList.Substring(splitter + 2).StartsWith(c_WarningId, StringComparison.Ordinal);
     }
 
     /// <summary>
@@ -385,7 +385,7 @@ namespace CsvTools
       Contract.Requires(columnWithError != null);
       var splitter = -2;
       if (columnWithError[0] != '[')
-        return new Tuple<string, string>(splitter <= 1 ? string.Empty : columnWithError.Substring(1, splitter - 1),
+        return new Tuple<string, string>(string.Empty,
           columnWithError.Substring(splitter + 2));
       splitter = columnWithError.IndexOf(c_ClosingField);
       if (splitter == -1)

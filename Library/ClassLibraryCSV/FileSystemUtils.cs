@@ -57,11 +57,11 @@ namespace CsvTools
       {
         if (!FileExists(fileName))
           return;
-        var backupName = (fileName + ".bak");
+        var backupName = fileName + ".bak";
         var backupName2 = string.Empty;
         if (twoBackups)
         {
-          backupName2 = (fileName + "2.bak");
+          backupName2 = fileName + "2.bak";
           FileDelete(backupName2);
         }
 

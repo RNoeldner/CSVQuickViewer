@@ -7,7 +7,7 @@
   {
     private readonly ImprovedTextReader m_ImprovedTextReader;
 
-    // Keep in mind wheer we started, this could be half way through the files
+    // Keep in mind where we started, this could be half way through the files
     private readonly long m_LineStarted;
 
     // not using EndOfStream Property to make sure we do not loop more than once
@@ -26,11 +26,11 @@
     /// <summary>
     ///   True if we have read all data in the reader once
     /// </summary>
-    public bool AllRead => this.m_ImprovedTextReader.EndOfFile && !this.CanStartFromBeginning
-                        || this.m_ArrivedAtEndOnce && this.m_ImprovedTextReader.LineNumber > this.m_LineStarted;
+    public bool AllRead => m_ImprovedTextReader.EndOfFile && !CanStartFromBeginning
+                        || m_ArrivedAtEndOnce && m_ImprovedTextReader.LineNumber > m_LineStarted;
 
     /// <summary>
-    ///   Determines if we could reset the position to allow processing text taht had been read before
+    ///   Determines if we could reset the position to allow processing text that had been read before
     /// </summary>
     public bool CanStartFromBeginning
     {

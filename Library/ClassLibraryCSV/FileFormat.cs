@@ -445,8 +445,8 @@ namespace CsvTools
     {
       if (string.IsNullOrEmpty(value))
         return '\0';
-      var puctuation = value.WrittenPunctuationToChar();
-      return puctuation != '\0' ? puctuation : value[0];
+      var punctuation = value.WrittenPunctuationToChar();
+      return punctuation != '\0' ? punctuation : value[0];
     }
 
     /// <summary>

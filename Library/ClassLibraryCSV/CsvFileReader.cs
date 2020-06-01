@@ -95,7 +95,7 @@ namespace CsvTools
     private ImprovedTextReader m_TextReader;
 
     // This is used to report issues with columns
-    private readonly Action<int, string> handleMessageColumn;
+    private readonly Action<int, string> m_HandleMessageColumn;
 
     /// <summary>
     ///   Create a delimited text reader for teh given settings
@@ -117,12 +117,12 @@ namespace CsvTools
         throw new FileReaderException(
           $"The escape character is invalid, please use something else than the field delimiter character {FileFormat.GetDescription(m_CsvFile.FileFormat.EscapeCharacter)}.");
 
-      // Either we report the issues regularily or at least log it
+      // Either we report the issues regularly or at least log it
       if (fileSetting.WarnEmptyTailingColumns)
-        handleMessageColumn = HandleWarning;
+        m_HandleMessageColumn = HandleWarning;
       else
         // or we add them to the log
-        handleMessageColumn = (i, s) => Logger.Warning(GetWarningEventArgs(i, s).Display(true, true));
+        m_HandleMessageColumn = (i, s) => Logger.Warning(GetWarningEventArgs(i, s).Display(true, true));
 
       m_HasQualifier |= m_CsvFile.FileFormat.FieldQualifierChar != '\0';
 
@@ -945,15 +945,15 @@ namespace CsvTools
           // nonsense like a report footer
           if (rowLength == 1 && EndOfFile && CurrentRowColumnText[0].Length < 10)
           {
-            // As the record is ingnored tis will most likly not be visible
+            // As the record is ignored tis will most likely not be visible
             // -2 to indicate this error could be stored with teh previous line....
-            handleMessageColumn(-2, $"Last line is '{CurrentRowColumnText[0]}'. Assumed to be a EOF marker and ignored.");
+            m_HandleMessageColumn(-2, $"Last line is '{CurrentRowColumnText[0]}'. Assumed to be a EOF marker and ignored.");
             return false;
           }
 
           if (!m_CsvFile.AllowRowCombining)
           {
-            handleMessageColumn(-1, $"Line {cLessColumns} ({rowLength}/{FieldCount}).");
+            m_HandleMessageColumn(-1, $"Line {cLessColumns} ({rowLength}/{FieldCount}).");
           }
           else
           {
@@ -972,7 +972,7 @@ namespace CsvTools
               // the first column belongs to the last column of the previous ignore
               // NumWarningsLinefeed otherwise as this is important information
               m_NumWarningsLinefeed++;
-              handleMessageColumn(rowLength - 1,
+              m_HandleMessageColumn(rowLength - 1,
                 $"Added first column from line {EndLineNumber}, assuming a linefeed has split the rows into an additional line.");
               combined[rowLength - 1] += '\n' + nextLine[0];
 
@@ -981,7 +981,7 @@ namespace CsvTools
 
               if (!hasWarningCombinedWarning)
               {
-                handleMessageColumn(-1,
+                m_HandleMessageColumn(-1,
                   $"Line {cLessColumns}\nLines {StartLineNumber}-{EndLineNumber - 1} have been combined.");
                 hasWarningCombinedWarning = true;
               }
@@ -1000,7 +1000,7 @@ namespace CsvTools
             {
               // return to the old position so reading the next row did not matter
               if (!hasWarningCombinedWarning)
-                handleMessageColumn(-1, $"Line {cLessColumns} ({rowLength}/{FieldCount}).");
+                m_HandleMessageColumn(-1, $"Line {cLessColumns} ({rowLength}/{FieldCount}).");
               m_TextReader.BufferPos = oldPos;
             }
           }
@@ -1009,15 +1009,15 @@ namespace CsvTools
         // If more columns are present
         if (rowLength > FieldCount)
         {
-          string text = $"Line {cMoreColumns} ({rowLength}/{FieldCount}).";
+          var text = $"Line {cMoreColumns} ({rowLength}/{FieldCount}).";
 
           if (m_RealignColumns != null)
           {
-            handleMessageColumn(-1, text + " Trying to realign columns.");
+            m_HandleMessageColumn(-1, text + " Trying to realign columns.");
 
             // determine which column could have caused the issue it could be any column, try to establish
             CurrentRowColumnText =
-              m_RealignColumns.RealignColumn(CurrentRowColumnText, handleMessageColumn, m_RecordSource.ToString());
+              m_RealignColumns.RealignColumn(CurrentRowColumnText, m_HandleMessageColumn, m_RecordSource.ToString());
           }
           else
           {
@@ -1033,11 +1033,11 @@ namespace CsvTools
 
             if (!hasContent)
             {
-              handleMessageColumn(-1, text + " All additional columns where empty. Allow 're-align columns' to handle this.");
+              m_HandleMessageColumn(-1, text + " All additional columns where empty. Allow 're-align columns' to handle this.");
               return true;
             }
 
-            handleMessageColumn(-1, text + " The data in extra columns is not read. Allow 're-align columns' to handle this.");
+            m_HandleMessageColumn(-1, text + " The data in extra columns is not read. Allow 're-align columns' to handle this.");
           }
         }
 

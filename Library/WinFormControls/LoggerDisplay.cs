@@ -32,7 +32,7 @@ namespace CsvTools
     public LoggerDisplay()
     {
       Multiline = true;
-      KeyUp += base.FindForm().CtrlA;
+      KeyUp += FindForm().CtrlA;
       Logger.AddLog = AddLog;
     }
 

@@ -14,6 +14,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace CsvTools
 {
@@ -157,7 +158,7 @@ namespace CsvTools
       return columns.ToArray();
     }
 
-    private static readonly string[] boolVal = { "True", "False", "yes", "no", "1", "0", "-1", "y", "n", "", "x", "T", "F" };
+    private static readonly string[] m_BoolVal = { "True", "False", "yes", "no", "1", "0", "-1", "y", "n", "", "x", "T", "F" };
 
     /// <summary>
     ///   Looking ate teh text sets certain flags
@@ -172,12 +173,10 @@ namespace CsvTools
       var all = ColumnOption.NumbersOnly | ColumnOption.DecimalChars | ColumnOption.DateTimeChars | ColumnOption.NoSpace;
 
       // compare the text as whole
-      foreach (var test in boolVal)
-        if (test.Equals(text, StringComparison.OrdinalIgnoreCase))
-        {
-          all |= ColumnOption.Boolean;
-          break;
-        }
+      if (m_BoolVal.Any(test => test.Equals(text, StringComparison.OrdinalIgnoreCase)))
+      {
+        all |= ColumnOption.Boolean;
+      }
 
       if (text.Length <= 30)
         all |= ColumnOption.ShortText;
@@ -213,17 +212,15 @@ namespace CsvTools
       var overall = ColumnOption.Empty;
       foreach (var row in rows)
       {
-        if (row.Length > colNum && row[colNum] != null)
-        {
-          var oneColOption = GetColumnOption(row[colNum].Trim());
-          if (oneColOption == ColumnOption.Empty)
-            continue;
+        if (row.Length <= colNum || row[colNum] == null) continue;
+        var oneColOption = GetColumnOption(row[colNum].Trim());
+        if (oneColOption == ColumnOption.Empty)
+          continue;
 
-          if (overall == ColumnOption.Empty)
-            overall = oneColOption;
-          else
-            overall &= oneColOption;
-        }
+        if (overall == ColumnOption.Empty)
+          overall = oneColOption;
+        else
+          overall &= oneColOption;
       }
       return overall;
     }

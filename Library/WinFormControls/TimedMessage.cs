@@ -24,7 +24,7 @@
 
     private TableLayoutPanel m_TableLayoutPanel;
     private IContainer components;
-    private Timer timer;
+    private Timer m_Timer;
 
     public TimedMessage() => InitializeComponent();
 
@@ -177,9 +177,6 @@
           case MessageBoxIcon.Question:
             m_PictureBox.Image = m_ImageList.Images[2];
             break;
-
-          default:
-            break;
         }
       }
       if (owner == null)
@@ -210,7 +207,7 @@
     {
       this.components = new System.ComponentModel.Container();
       System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(TimedMessage));
-      this.timer = new System.Windows.Forms.Timer(this.components);
+      this.m_Timer = new System.Windows.Forms.Timer(this.components);
       this.m_ImageList = new System.Windows.Forms.ImageList(this.components);
       this.m_TableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
       this.m_LabelDefault = new System.Windows.Forms.Label();
@@ -225,9 +222,9 @@
       // 
       // timer
       // 
-      this.timer.Enabled = true;
-      this.timer.Interval = 500;
-      this.timer.Tick += new System.EventHandler(this.Timer_Tick);
+      this.m_Timer.Enabled = true;
+      this.m_Timer.Interval = 500;
+      this.m_Timer.Tick += new System.EventHandler(this.Timer_Tick);
       // 
       // m_ImageList
       // 
@@ -380,13 +377,13 @@
 
     private void MouseEnterElement(object sender, EventArgs e)
     {
-      timer.Enabled = false;
+      m_Timer.Enabled = false;
       UpdateLabel();
     }
 
     private void MouseLeaveElement(object sender, EventArgs e)
     {
-      timer.Enabled = true;
+      m_Timer.Enabled = true;
       UpdateLabel();
     }
 
@@ -395,7 +392,7 @@
       m_Counter++;
       UpdateLabel();
 
-      if (Duration > 0 && (m_Counter * timer.Interval) / 1000 > Duration)
+      if (Duration > 0 && (m_Counter * m_Timer.Interval) / 1000 > Duration)
       {
         AcceptButton?.PerformClick();
       }
@@ -403,8 +400,8 @@
 
     private void UpdateLabel()
     {
-      var displ = Convert.ToInt32((Duration - (m_Counter * timer.Interval) / 1000 + .75));
-      if (!timer.Enabled)
+      var displ = Convert.ToInt32((Duration - (m_Counter * m_Timer.Interval) / 1000 + .75));
+      if (!m_Timer.Enabled)
         displ = 0;
       if (displ > 0)
       {

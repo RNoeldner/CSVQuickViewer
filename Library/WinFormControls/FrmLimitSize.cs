@@ -22,9 +22,9 @@ namespace CsvTools
   /// </summary>
   public partial class FrmLimitSize : ResizeForm
   {
-    private const double m_Duration = 5.0;
+    private const double c_Duration = 5.0;
 
-    private static readonly int[] intRecords = new int[] { 10000, 20000, 50000, 100000 };
+    private static readonly int[] m_IntRecords = new int[] { 10000, 20000, 50000, 100000 };
 
     private int m_Counter;
 
@@ -34,17 +34,17 @@ namespace CsvTools
     public FrmLimitSize()
     {
       InitializeComponent();
-      labelCount1.Text = $"{intRecords[0]:N0}";
-      labelCount2.Text = $"{intRecords[1]:N0}";
-      labelCount3.Text = $"{intRecords[2]:N0}";
-      labelCount4.Text = $"{intRecords[3]:N0}";
+      labelCount1.Text = $"{m_IntRecords[0]:N0}";
+      labelCount2.Text = $"{m_IntRecords[1]:N0}";
+      labelCount3.Text = $"{m_IntRecords[2]:N0}";
+      labelCount4.Text = $"{m_IntRecords[3]:N0}";
       UpdateLabel();
     }
 
     /// <summary>
     ///   The selected record limit
     /// </summary>
-    public long RecordLimit { get; set; } = 0;
+    public long RecordLimit { get; set; }
 
     private void ButtonCancel_Click(object sender, EventArgs e)
     {
@@ -55,7 +55,7 @@ namespace CsvTools
     private void ButtonOK_Click(object sender, EventArgs e)
     {
       if (trackBarLimit.Value != 5)
-        RecordLimit = intRecords[4 - trackBarLimit.Value];
+        RecordLimit = m_IntRecords[4 - trackBarLimit.Value];
       Close();
     }
 
@@ -63,7 +63,7 @@ namespace CsvTools
     {
       m_Counter++;
       UpdateLabel();
-      if (m_Duration > 0 && (m_Counter * timer.Interval) / 1000 > m_Duration)
+      if (m_Counter * timer.Interval / 1000 > c_Duration)
       {
         ButtonOK_Click(sender, e);
       }
@@ -71,10 +71,10 @@ namespace CsvTools
 
     private void UpdateLabel()
     {
-      var displ = Convert.ToInt32((m_Duration - (m_Counter * timer.Interval) / 1000 + .75));
+      var displ = Convert.ToInt32((c_Duration - m_Counter * timer.Interval / 1000 + .75));
       if (displ > 0)
       {
-        label.Text = $"Default in {displ:N0} seconds";
+        label.Text = $@"Default in {displ:N0} seconds";
       }
       else
         label.Text = string.Empty;

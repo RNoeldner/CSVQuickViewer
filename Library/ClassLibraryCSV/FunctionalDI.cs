@@ -70,15 +70,13 @@ namespace CsvTools
     /// <summary>
     ///   Open a file for reading, it will take care of things like compression and encryption
     /// </summary>
-    public static Func<IFileSettingPhysicalFile, IImprovedStream> OpenRead = setting =>
-      ImprovedStream.OpenRead(setting);
+    public static Func<IFileSettingPhysicalFile, IImprovedStream> OpenRead = ImprovedStream.OpenRead;
 
     /// <summary>
     ///   General function to open a file for writing, it will take care of things like compression
     ///   and encryption
     /// </summary>
-    public static Func<IFileSettingPhysicalFile, IImprovedStream> OpenWrite = setting =>
-      ImprovedStream.OpenWrite(setting);
+    public static Func<IFileSettingPhysicalFile, IImprovedStream> OpenWrite = ImprovedStream.OpenWrite;
 
     /// <summary>
     ///   Action to be performed while waiting on a background process, do something like handing

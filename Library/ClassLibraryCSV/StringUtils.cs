@@ -389,10 +389,7 @@ namespace CsvTools
     /// <returns>True if the text is null, or empty or in the list of provided texts</returns>
     public static bool ShouldBeTreatedAsNull(string value, string treatAsNull)
     {
-      if (string.IsNullOrEmpty(value))
-        return true;
-
-      return SplitByDelimiter(treatAsNull).Any(part => value.Equals(part, StringComparison.OrdinalIgnoreCase));
+      return string.IsNullOrEmpty(value) || SplitByDelimiter(treatAsNull).Any(part => value.Equals(part, StringComparison.OrdinalIgnoreCase));
     }
 
     /// <summary>

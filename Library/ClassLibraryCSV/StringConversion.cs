@@ -18,6 +18,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics.Contracts;
 using System.Globalization;
+using System.Linq;
 
 namespace CsvTools
 {
@@ -502,10 +503,7 @@ namespace CsvTools
 
       // only allow format that has time values
       const string c_Allowed = " Hhmsf:";
-      var result = string.Empty;
-      foreach (var chr in format.DateFormat)
-        if (c_Allowed.IndexOf(chr) != -1)
-          result += chr;
+      var result = format.DateFormat.Where(chr => c_Allowed.IndexOf(chr) != -1).Aggregate(string.Empty, (current, chr) => current + chr);
       // make them all upper case H lower case does not make sense
       result = result.Trim().RReplace("h", "H");
       for (var length = 5; length > 2; length--)
@@ -727,21 +725,25 @@ namespace CsvTools
       if (string.IsNullOrEmpty(value))
         return null;
 
-      foreach (var test in StringUtils.SplitByDelimiter(trueValue))
-        if (value.Equals(test, StringComparison.OrdinalIgnoreCase))
-          return new Tuple<bool, string>(true, value);
+      if (StringUtils.SplitByDelimiter(trueValue).Any(test => value.Equals(test, StringComparison.OrdinalIgnoreCase)))
+      {
+        return new Tuple<bool, string>(true, value);
+      }
 
-      foreach (var test in StringUtils.SplitByDelimiter(falseValue))
-        if (value.Equals(test, StringComparison.OrdinalIgnoreCase))
-          return new Tuple<bool, string>(false, value);
+      if (StringUtils.SplitByDelimiter(falseValue).Any(test => value.Equals(test, StringComparison.OrdinalIgnoreCase)))
+      {
+        return new Tuple<bool, string>(false, value);
+      }
 
-      foreach (var test in m_TrueValues)
-        if (value.Equals(test, StringComparison.OrdinalIgnoreCase))
-          return new Tuple<bool, string>(true, value);
+      if (m_TrueValues.Any(test => value.Equals(test, StringComparison.OrdinalIgnoreCase)))
+      {
+        return new Tuple<bool, string>(true, value);
+      }
 
-      foreach (var test in m_FalseValues)
-        if (value.Equals(test, StringComparison.OrdinalIgnoreCase))
-          return new Tuple<bool, string>(false, value);
+      if (m_FalseValues.Any(test => value.Equals(test, StringComparison.OrdinalIgnoreCase)))
+      {
+        return new Tuple<bool, string>(false, value);
+      }
 
       return null;
     }
