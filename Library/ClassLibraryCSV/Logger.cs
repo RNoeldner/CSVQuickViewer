@@ -1,12 +1,7 @@
 ﻿namespace CsvTools
 {
   using System;
-  using System.Linq;
-
   using NLog;
-  using NLog.Config;
-  using NLog.Layouts;
-  using NLog.Targets;
 
   /// <summary>
   ///   Abstraction to be able to switch Loggers

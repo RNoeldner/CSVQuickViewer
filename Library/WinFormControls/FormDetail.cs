@@ -26,8 +26,6 @@ namespace CsvTools
   /// </summary>
   public class FormDetail : ResizeForm
   {
-    private readonly DetailControl m_DetailControl;
-
     /// <summary>
     ///   Initializes a new instance of the <see cref="FormDetail" /> class.
     /// </summary>
@@ -61,7 +59,7 @@ namespace CsvTools
         SelectionForeColor = SystemColors.HighlightText,
         WrapMode = DataGridViewTriState.False
       };
-      m_DetailControl = new DetailControl
+      var detailControl = new DetailControl
       {
         CancellationToken = cancellationToken,
         AlternatingRowDefaultCellStyle = dataGridViewCellStyle1,
@@ -78,19 +76,19 @@ namespace CsvTools
 
       ClientSize = new Size(767, 394);
       MinimumSize = new Size(100, 100);
-      Controls.Add(m_DetailControl);
+      Controls.Add(detailControl);
       KeyPreview = true;
       Name = "FormDetail";
       ResumeLayout(false);
 
-      m_DetailControl.DataTable = dataTable;
+      detailControl.DataTable = dataTable;
 
       // Need to set UniqueFieldName last
-      m_DetailControl.UniqueFieldName = uniqueFieldName;
+      detailControl.UniqueFieldName = uniqueFieldName;
       if (frozenColumns > 0)
-        m_DetailControl.FrozenColumns = frozenColumns;
+        detailControl.FrozenColumns = frozenColumns;
       if (onlyErrors)
-        m_DetailControl.OnlyShowErrors();
+        detailControl.OnlyShowErrors();
     }
   }
 }

@@ -121,13 +121,13 @@
       label4 = new System.Windows.Forms.Label();
       tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
       tableLayoutPanel2.SuspendLayout();
-      ((System.ComponentModel.ISupportInitialize)(this.bindingSourceValueFormat)).BeginInit();
-      ((System.ComponentModel.ISupportInitialize)(this.columnBindingSource)).BeginInit();
+      ((System.ComponentModel.ISupportInitialize) (this.bindingSourceValueFormat)).BeginInit();
+      ((System.ComponentModel.ISupportInitialize) (this.columnBindingSource)).BeginInit();
       this.groupBoxDate.SuspendLayout();
       this.groupBoxNumber.SuspendLayout();
       this.groupBoxBoolean.SuspendLayout();
       this.groupBoxSplit.SuspendLayout();
-      ((System.ComponentModel.ISupportInitialize)(this.errorProvider)).BeginInit();
+      ((System.ComponentModel.ISupportInitialize) (this.errorProvider)).BeginInit();
       this.tableLayoutPanelForm.SuspendLayout();
       this.SuspendLayout();
       // 
@@ -230,8 +230,7 @@
       // 
       // labelSepBy
       // 
-      labelSepBy.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+      labelSepBy.Anchor = ((System.Windows.Forms.AnchorStyles) (((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) | System.Windows.Forms.AnchorStyles.Right)));
       labelSepBy.AutoSize = true;
       labelSepBy.Location = new System.Drawing.Point(54, 14);
       labelSepBy.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
@@ -243,8 +242,7 @@
       // 
       // labelPart
       // 
-      labelPart.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+      labelPart.Anchor = ((System.Windows.Forms.AnchorStyles) (((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) | System.Windows.Forms.AnchorStyles.Right)));
       labelPart.AutoSize = true;
       labelPart.Location = new System.Drawing.Point(105, 43);
       labelPart.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
@@ -267,7 +265,7 @@
       // 
       // labelDateOutput
       // 
-      labelDateOutput.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+      labelDateOutput.Anchor = ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
       labelDateOutput.AutoSize = true;
       labelDateOutput.ForeColor = System.Drawing.SystemColors.ControlText;
       labelDateOutput.Location = new System.Drawing.Point(377, 131);
@@ -279,7 +277,7 @@
       // 
       // labelSample
       // 
-      labelSample.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+      labelSample.Anchor = ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
       labelSample.AutoSize = true;
       labelSample.ForeColor = System.Drawing.SystemColors.ControlText;
       labelSample.Location = new System.Drawing.Point(389, 111);
@@ -305,7 +303,7 @@
       // 
       // label4
       // 
-      label4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+      label4.Anchor = ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
       label4.AutoSize = true;
       label4.ForeColor = System.Drawing.SystemColors.ControlText;
       label4.Location = new System.Drawing.Point(384, 91);
@@ -448,8 +446,7 @@
       this.comboBoxTimePart.Name = "comboBoxTimePart";
       this.comboBoxTimePart.Size = new System.Drawing.Size(218, 24);
       this.comboBoxTimePart.TabIndex = 1;
-      this.toolTip.SetToolTip(this.comboBoxTimePart, "Combining a time column will result in a combination of the column and the select" +
-        "ed time column\r\ne.G “17/Aug/2019” & “17:54” will become “17/Aug/2019 17:54”\r\n");
+      this.toolTip.SetToolTip(this.comboBoxTimePart, "Combining a time column will result in a combination of the column and the select" + "ed time column\r\ne.G “17/Aug/2019” & “17:54” will become “17/Aug/2019 17:54”\r\n");
       this.comboBoxTimePart.SelectedIndexChanged += new System.EventHandler(this.ComboBoxTimePart_SelectedIndexChanged);
       this.comboBoxTimePart.TextUpdate += new System.EventHandler(this.DateFormatChanged);
       // 
@@ -733,10 +730,7 @@
       // 
       this.comboBoxNumberFormat.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.bindingSourceValueFormat, "NumberFormat", true));
       this.comboBoxNumberFormat.FormattingEnabled = true;
-      this.comboBoxNumberFormat.Items.AddRange(new object[] {
-            "0.#####",
-            "0.00",
-            "#,##0.##"});
+      this.comboBoxNumberFormat.Items.AddRange(new object[] {"0.#####", "0.00", "#,##0.##"});
       this.comboBoxNumberFormat.Location = new System.Drawing.Point(151, 10);
       this.comboBoxNumberFormat.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
       this.comboBoxNumberFormat.Name = "comboBoxNumberFormat";
@@ -789,7 +783,7 @@
       // 
       // buttonGuess
       // 
-      this.buttonGuess.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+      this.buttonGuess.Anchor = ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
       this.buttonGuess.AutoSize = true;
       this.buttonGuess.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
       this.buttonGuess.Location = new System.Drawing.Point(293, 592);
@@ -798,8 +792,7 @@
       this.buttonGuess.Size = new System.Drawing.Size(156, 28);
       this.buttonGuess.TabIndex = 2;
       this.buttonGuess.Text = "&Examine && Guess";
-      this.toolTip.SetToolTip(this.buttonGuess, "Read the content of the source and try and find a matching format\r\nNote: Any colu" +
-        "mn that has possible alignment issues will be ignored\r\n");
+      this.toolTip.SetToolTip(this.buttonGuess, "Read the content of the source and try and find a matching format\r\nNote: Any colu" + "mn that has possible alignment issues will be ignored\r\n");
       this.buttonGuess.UseVisualStyleBackColor = true;
       this.buttonGuess.Click += new System.EventHandler(this.ButtonGuessClick);
       // 
@@ -865,10 +858,7 @@
       // 
       // textBoxSplit
       // 
-      this.textBoxSplit.AutoCompleteCustomSource.AddRange(new string[] {
-            ":",
-            ";",
-            "|"});
+      this.textBoxSplit.AutoCompleteCustomSource.AddRange(new string[] {":", ";", "|"});
       this.textBoxSplit.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.columnBindingSource, "PartSplitter", true));
       this.textBoxSplit.Location = new System.Drawing.Point(151, 10);
       this.textBoxSplit.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
@@ -936,8 +926,7 @@
       this.textBoxDisplayNullAs.Name = "textBoxDisplayNullAs";
       this.textBoxDisplayNullAs.Size = new System.Drawing.Size(88, 22);
       this.textBoxDisplayNullAs.TabIndex = 9;
-      this.toolTip.SetToolTip(this.textBoxDisplayNullAs, "Wrting data empty field (NULL) can be an empty column or represented by this text" +
-        " \r\ne.G. <NULL>");
+      this.toolTip.SetToolTip(this.textBoxDisplayNullAs, "Wrting data empty field (NULL) can be an empty column or represented by this text" + " \r\ne.G. <NULL>");
       // 
       // errorProvider
       // 
@@ -945,7 +934,7 @@
       // 
       // buttonDisplayValues
       // 
-      this.buttonDisplayValues.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+      this.buttonDisplayValues.Anchor = ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
       this.buttonDisplayValues.AutoSize = true;
       this.buttonDisplayValues.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
       this.buttonDisplayValues.Location = new System.Drawing.Point(110, 592);
@@ -954,8 +943,7 @@
       this.buttonDisplayValues.Size = new System.Drawing.Size(176, 28);
       this.buttonDisplayValues.TabIndex = 1;
       this.buttonDisplayValues.Text = "Display &Values";
-      this.toolTip.SetToolTip(this.buttonDisplayValues, "Read the content of the source and display the read values.\r\nNote: Any column tha" +
-        "t has possible alignment issues will be ignored\r\n");
+      this.toolTip.SetToolTip(this.buttonDisplayValues, "Read the content of the source and display the read values.\r\nNote: Any column tha" + "t has possible alignment issues will be ignored\r\n");
       this.buttonDisplayValues.UseVisualStyleBackColor = true;
       this.buttonDisplayValues.Click += new System.EventHandler(this.ButtonDisplayValues_ClickAsync);
       // 
@@ -1000,7 +988,7 @@
       // 
       // buttonOK
       // 
-      this.buttonOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+      this.buttonOK.Anchor = ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
       this.buttonOK.DialogResult = System.Windows.Forms.DialogResult.OK;
       this.buttonOK.Location = new System.Drawing.Point(478, 592);
       this.buttonOK.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
@@ -1034,8 +1022,8 @@
       this.Load += new System.EventHandler(this.ColumnFormatUI_Load);
       tableLayoutPanel2.ResumeLayout(false);
       tableLayoutPanel2.PerformLayout();
-      ((System.ComponentModel.ISupportInitialize)(this.bindingSourceValueFormat)).EndInit();
-      ((System.ComponentModel.ISupportInitialize)(this.columnBindingSource)).EndInit();
+      ((System.ComponentModel.ISupportInitialize) (this.bindingSourceValueFormat)).EndInit();
+      ((System.ComponentModel.ISupportInitialize) (this.columnBindingSource)).EndInit();
       this.groupBoxDate.ResumeLayout(false);
       this.groupBoxDate.PerformLayout();
       this.groupBoxNumber.ResumeLayout(false);
@@ -1044,66 +1032,66 @@
       this.groupBoxBoolean.PerformLayout();
       this.groupBoxSplit.ResumeLayout(false);
       this.groupBoxSplit.PerformLayout();
-      ((System.ComponentModel.ISupportInitialize)(this.errorProvider)).EndInit();
+      ((System.ComponentModel.ISupportInitialize) (this.errorProvider)).EndInit();
       this.tableLayoutPanelForm.ResumeLayout(false);
       this.tableLayoutPanelForm.PerformLayout();
       this.ResumeLayout(false);
       this.PerformLayout();
-
     }
+
+    private System.Windows.Forms.BindingSource bindingSourceValueFormat;
+    private System.Windows.Forms.Button buttonAddFormat;
+    private System.Windows.Forms.Button buttonCancel;
+    private System.Windows.Forms.Button buttonDisplayValues;
+    private System.Windows.Forms.Button buttonGuess;
+    private System.Windows.Forms.Button buttonOK;
+    private System.Windows.Forms.CheckBox checkBoxIgnore;
+    private System.Windows.Forms.CheckBox checkBoxPartToEnd;
+    private System.Windows.Forms.CheckedListBox checkedListBoxDateFormats;
+    private System.Windows.Forms.BindingSource columnBindingSource;
+    private System.Windows.Forms.ComboBox comboBoxColumnName;
+    private System.Windows.Forms.ComboBox comboBoxDataType;
+    private System.Windows.Forms.ComboBox comboBoxDateFormat;
+    private System.Windows.Forms.ComboBox comboBoxNumberFormat;
+    private System.Windows.Forms.ComboBox comboBoxTimePart;
+    private System.Windows.Forms.ComboBox comboBoxTimeZone;
+    private System.Windows.Forms.ComboBox comboBoxTPFormat;
+    private System.Windows.Forms.ErrorProvider errorProvider;
+    private System.Windows.Forms.GroupBox groupBoxBoolean;
+    private System.Windows.Forms.GroupBox groupBoxDate;
+    private System.Windows.Forms.GroupBox groupBoxNumber;
+    private System.Windows.Forms.GroupBox groupBoxSplit;
+    private System.Windows.Forms.Label label1;
+    private System.Windows.Forms.Label label16;
+    private System.Windows.Forms.Label label2;
+    private System.Windows.Forms.Label label5;
+    private System.Windows.Forms.Label label6;
+    private System.Windows.Forms.Label labelAllowedDateFormats;
+    private System.Windows.Forms.Label labelDateOutputDisplay;
+    private System.Windows.Forms.Label labelDisplayNullAs;
+    private System.Windows.Forms.Label labelInputTZ;
+    private System.Windows.Forms.Label labelNumber;
+    private System.Windows.Forms.Label labelNumberOutput;
+    private System.Windows.Forms.Label labelOutPutTZ;
+    private System.Windows.Forms.Label labelResultPart;
+    private System.Windows.Forms.Label labelSampleDisplay;
+    private System.Windows.Forms.Label labelSamplePart;
+    private System.Windows.Forms.LinkLabel linkLabel2;
+    private System.Windows.Forms.TableLayoutPanel tableLayoutPanelForm;
+    private System.Windows.Forms.TextBox textBoxColumnName;
+    private System.Windows.Forms.TextBox textBoxDateSeparator;
+    private System.Windows.Forms.TextBox textBoxDecimalSeparator;
+    private System.Windows.Forms.TextBox textBoxDisplayNullAs;
+    private System.Windows.Forms.TextBox textBoxFalse;
+    private System.Windows.Forms.TextBox textBoxGroupSeparator;
+    private System.Windows.Forms.TextBox textBoxPart;
+    private System.Windows.Forms.TextBox textBoxSplit;
+    private System.Windows.Forms.TextBox textBoxTimeSeparator;
+    private System.Windows.Forms.TextBox textBoxTrue;
+    private System.Windows.Forms.ToolTip toolTip;
 
 #endregion
 
-    private System.Windows.Forms.TextBox textBoxTrue;
-    private System.Windows.Forms.TextBox textBoxFalse;
-    private System.Windows.Forms.TextBox textBoxGroupSeparator;
-    private System.Windows.Forms.TextBox textBoxDecimalSeparator;
-    private System.Windows.Forms.TextBox textBoxDateSeparator;
-    private System.Windows.Forms.Label label16;
-    private System.Windows.Forms.ComboBox comboBoxDataType;
-    private System.Windows.Forms.Button buttonCancel;
-    private System.Windows.Forms.Label labelNumber;
-    private System.Windows.Forms.Label labelNumberOutput;
-    private System.Windows.Forms.Label label1;
-    private System.Windows.Forms.GroupBox groupBoxDate;
-    private System.Windows.Forms.GroupBox groupBoxNumber;
-    private System.Windows.Forms.GroupBox groupBoxBoolean;
-    private System.Windows.Forms.ComboBox comboBoxDateFormat;
-    private System.Windows.Forms.ComboBox comboBoxNumberFormat;
-    private System.Windows.Forms.ComboBox comboBoxColumnName;
-    private System.Windows.Forms.CheckedListBox checkedListBoxDateFormats;
-    private System.Windows.Forms.Button buttonAddFormat;
-    private System.Windows.Forms.Button buttonGuess;
-    private System.Windows.Forms.CheckBox checkBoxIgnore;
-    private System.Windows.Forms.BindingSource columnBindingSource;
-    private System.Windows.Forms.ComboBox comboBoxTPFormat;
-    private System.Windows.Forms.TextBox textBoxTimeSeparator;
-    private System.Windows.Forms.GroupBox groupBoxSplit;
-    private System.Windows.Forms.TextBox textBoxSplit;
-    private System.Windows.Forms.TextBox textBoxPart;
-    private System.Windows.Forms.CheckBox checkBoxPartToEnd;
-    private System.Windows.Forms.Label labelSamplePart;
-    private System.Windows.Forms.Label labelResultPart;
-    private System.Windows.Forms.Label label2;
-    private System.Windows.Forms.LinkLabel linkLabel2;
-    private System.Windows.Forms.ErrorProvider errorProvider;
-    private System.Windows.Forms.ComboBox comboBoxTimePart;
-    private System.Windows.Forms.ToolTip toolTip;
-    private System.Windows.Forms.TextBox textBoxColumnName;
-    private System.Windows.Forms.Label labelAllowedDateFormats;
-    private System.Windows.Forms.Button buttonDisplayValues;
-    private System.Windows.Forms.ComboBox comboBoxTimeZone;
-    private System.Windows.Forms.Label labelDisplayNullAs;
-    private System.Windows.Forms.TextBox textBoxDisplayNullAs;
-    private System.Windows.Forms.BindingSource bindingSourceValueFormat;
-    private System.Windows.Forms.Button buttonOK;
-    private System.Windows.Forms.Label label5;
-    private System.Windows.Forms.Label labelSampleDisplay;
-    private System.Windows.Forms.Label labelDateOutputDisplay;
-    private System.Windows.Forms.TableLayoutPanel tableLayoutPanelForm;
-    private System.Windows.Forms.Label label6;
-    private System.Windows.Forms.Label labelInputTZ;
-    private System.Windows.Forms.Label labelOutPutTZ;
     private System.Boolean m_DisposedValue;
   }
 }

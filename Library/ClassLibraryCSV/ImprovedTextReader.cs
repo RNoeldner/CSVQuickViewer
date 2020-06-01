@@ -56,14 +56,11 @@ namespace CsvTools
     /// </remarks>
     public ImprovedTextReader(IImprovedStream improvedStream, int codePageId = 65001, int skipLines = 0)
     {
-      if (improvedStream == null)
-        throw new ArgumentNullException(nameof(improvedStream));
-
       //if (improvedStream.Percentage > 0.00001)
       //  throw new ArgumentException(nameof(improvedStream), @"The stream is not on the start position");
 
       m_SkipLines = skipLines;
-      m_ImprovedStream = improvedStream;
+      m_ImprovedStream = improvedStream ?? throw new ArgumentNullException(nameof(improvedStream));
 
       // read the BOM in any case
       var buff = new byte[4];
@@ -241,9 +238,7 @@ namespace CsvTools
         }
       }
 
-      if (sb.Length > 0)
-        return sb.ToString();
-      return null;
+      return sb.Length > 0 ? sb.ToString() : null;
     }
 
     /// <summary>
@@ -277,9 +272,7 @@ namespace CsvTools
         }
       }
 
-      if (sb.Length > 0)
-        return sb.ToString();
-      return null;
+      return sb.Length > 0 ? sb.ToString() : null;
     }
 
     /// <summary>

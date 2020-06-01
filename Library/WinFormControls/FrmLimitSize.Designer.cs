@@ -44,7 +44,7 @@
       this.buttonCancel = new System.Windows.Forms.Button();
       label2 = new System.Windows.Forms.Label();
       label4 = new System.Windows.Forms.Label();
-      ((System.ComponentModel.ISupportInitialize)(this.trackBarLimit)).BeginInit();
+      ((System.ComponentModel.ISupportInitialize) (this.trackBarLimit)).BeginInit();
       this.tableLayoutPanel1.SuspendLayout();
       this.SuspendLayout();
       // 
@@ -188,7 +188,7 @@
       // 
       // buttonOK
       // 
-      this.buttonOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+      this.buttonOK.Anchor = ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
       this.tableLayoutPanel1.SetColumnSpan(this.buttonOK, 2);
       this.buttonOK.DialogResult = System.Windows.Forms.DialogResult.OK;
       this.buttonOK.Location = new System.Drawing.Point(295, 116);
@@ -224,24 +224,24 @@
       this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
       this.Text = "Limit Records";
       this.TopMost = true;
-      ((System.ComponentModel.ISupportInitialize)(this.trackBarLimit)).EndInit();
+      ((System.ComponentModel.ISupportInitialize) (this.trackBarLimit)).EndInit();
       this.tableLayoutPanel1.ResumeLayout(false);
       this.tableLayoutPanel1.PerformLayout();
       this.ResumeLayout(false);
-
     }
 
-#endregion
-    private System.Windows.Forms.TrackBar trackBarLimit;
-    private System.Windows.Forms.Label label5;
-    private System.Windows.Forms.Label labelCount2;
-    private System.Windows.Forms.Label labelCount3;
-    private System.Windows.Forms.Label labelCount1;
-    private System.Windows.Forms.Label labelCount4;
-    private System.Windows.Forms.Timer timer;
-    private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
-    private System.Windows.Forms.Label label;
     private System.Windows.Forms.Button buttonCancel;
     private System.Windows.Forms.Button buttonOK;
+    private System.Windows.Forms.Label label;
+    private System.Windows.Forms.Label label5;
+    private System.Windows.Forms.Label labelCount1;
+    private System.Windows.Forms.Label labelCount2;
+    private System.Windows.Forms.Label labelCount3;
+    private System.Windows.Forms.Label labelCount4;
+    private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
+    private System.Windows.Forms.Timer timer;
+    private System.Windows.Forms.TrackBar trackBarLimit;
+
+#endregion
   }
 }

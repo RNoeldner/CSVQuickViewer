@@ -107,8 +107,8 @@
       tableLayoutPanelBehavior = new System.Windows.Forms.TableLayoutPanel();
       tableLayoutPanelWarnings = new System.Windows.Forms.TableLayoutPanel();
       tableLayoutPanelFile.SuspendLayout();
-      ((System.ComponentModel.ISupportInitialize)(this.fileFormatBindingSource)).BeginInit();
-      ((System.ComponentModel.ISupportInitialize)(this.fileSettingBindingSource)).BeginInit();
+      ((System.ComponentModel.ISupportInitialize) (this.fileFormatBindingSource)).BeginInit();
+      ((System.ComponentModel.ISupportInitialize) (this.fileSettingBindingSource)).BeginInit();
       tableLayoutPanelBehavior.SuspendLayout();
       tableLayoutPanelWarnings.SuspendLayout();
       this.tabPageFormat.SuspendLayout();
@@ -118,7 +118,7 @@
       this.tabPageQuoting.SuspendLayout();
       this.tableLayoutPanel1.SuspendLayout();
       this.tabPageBehaviour.SuspendLayout();
-      ((System.ComponentModel.ISupportInitialize)(this.errorProvider)).BeginInit();
+      ((System.ComponentModel.ISupportInitialize) (this.errorProvider)).BeginInit();
       this.SuspendLayout();
       // 
       // tableLayoutPanelFile
@@ -298,8 +298,7 @@
       // textBoxDelimiter
       // 
       this.textBoxDelimiter.Anchor = System.Windows.Forms.AnchorStyles.Left;
-      this.textBoxDelimiter.AutoCompleteCustomSource.AddRange(new string[] {
-            "TAB"});
+      this.textBoxDelimiter.AutoCompleteCustomSource.AddRange(new string[] {"TAB"});
       this.textBoxDelimiter.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Suggest;
       this.textBoxDelimiter.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.CustomSource;
       this.textBoxDelimiter.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.fileFormatBindingSource, "FieldDelimiter", true));
@@ -433,8 +432,7 @@
       // textBox1
       // 
       this.textBox1.Anchor = System.Windows.Forms.AnchorStyles.Left;
-      this.textBox1.AutoCompleteCustomSource.AddRange(new string[] {
-            "\\"});
+      this.textBox1.AutoCompleteCustomSource.AddRange(new string[] {"\\"});
       this.textBox1.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Suggest;
       this.textBox1.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.CustomSource;
       this.textBox1.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.fileFormatBindingSource, "EscapeCharacter", true));
@@ -444,8 +442,7 @@
       this.textBox1.Name = "textBox1";
       this.textBox1.Size = new System.Drawing.Size(69, 22);
       this.textBox1.TabIndex = 45;
-      this.toolTip.SetToolTip(this.textBox1, "An escape character is used for escaping quotes and delimiters in the regular tex" +
-        "t. ");
+      this.toolTip.SetToolTip(this.textBox1, "An escape character is used for escaping quotes and delimiters in the regular tex" + "t. ");
       this.textBox1.TextChanged += new System.EventHandler(this.TextBoxDelimiter_TextChanged);
       // 
       // button1
@@ -485,8 +482,7 @@
       this.m_LabelInfoQuoting.Name = "m_LabelInfoQuoting";
       this.m_LabelInfoQuoting.Size = new System.Drawing.Size(739, 19);
       this.m_LabelInfoQuoting.TabIndex = 50;
-      this.m_LabelInfoQuoting.Text = "Note: Any combination of CR and LF will be treated properly as record seperator, " +
-    "no matter what specific type is  set";
+      this.m_LabelInfoQuoting.Text = "Note: Any combination of CR and LF will be treated properly as record seperator, " + "no matter what specific type is  set";
       // 
       // label5
       // 
@@ -549,8 +545,7 @@
       // textBox3
       // 
       this.textBox3.Anchor = System.Windows.Forms.AnchorStyles.Left;
-      this.textBox3.AutoCompleteCustomSource.AddRange(new string[] {
-            "{d}"});
+      this.textBox3.AutoCompleteCustomSource.AddRange(new string[] {"{d}"});
       this.textBox3.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
       this.textBox3.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.fileFormatBindingSource, "DelimiterPlaceholder", true));
       this.textBox3.Location = new System.Drawing.Point(152, 227);
@@ -573,10 +568,7 @@
       // 
       // textBoxTextAsNull
       // 
-      this.textBoxTextAsNull.AutoCompleteCustomSource.AddRange(new string[] {
-            "NULL",
-            "n.a.",
-            "n/a"});
+      this.textBoxTextAsNull.AutoCompleteCustomSource.AddRange(new string[] {"NULL", "n.a.", "n/a"});
       this.textBoxTextAsNull.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.fileSettingBindingSource, "TreatTextAsNull", true));
       this.textBoxTextAsNull.Location = new System.Drawing.Point(152, 253);
       this.textBoxTextAsNull.Margin = new System.Windows.Forms.Padding(2);
@@ -599,9 +591,7 @@
       // textBoxNLPlaceholder
       // 
       this.textBoxNLPlaceholder.Anchor = System.Windows.Forms.AnchorStyles.Left;
-      this.textBoxNLPlaceholder.AutoCompleteCustomSource.AddRange(new string[] {
-            "<br>",
-            "{n}"});
+      this.textBoxNLPlaceholder.AutoCompleteCustomSource.AddRange(new string[] {"<br>", "{n}"});
       this.textBoxNLPlaceholder.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
       this.textBoxNLPlaceholder.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.fileFormatBindingSource, "NewLinePlaceholder", true));
       this.textBoxNLPlaceholder.Location = new System.Drawing.Point(366, 227);
@@ -769,8 +759,7 @@
       this.chkUseFileSettings.Size = new System.Drawing.Size(175, 21);
       this.chkUseFileSettings.TabIndex = 2;
       this.chkUseFileSettings.Text = "Persist Settings for File";
-      this.toolTip.SetToolTip(this.chkUseFileSettings, "Store the settings for each individual file, do not use this is structure or form" +
-        "atting of columns does change over time");
+      this.toolTip.SetToolTip(this.chkUseFileSettings, "Store the settings for each individual file, do not use this is structure or form" + "atting of columns does change over time");
       this.chkUseFileSettings.UseVisualStyleBackColor = true;
       // 
       // checkBoxTryToSolveMoreColumns
@@ -782,8 +771,7 @@
       this.checkBoxTryToSolveMoreColumns.Name = "checkBoxTryToSolveMoreColumns";
       this.checkBoxTryToSolveMoreColumns.Size = new System.Drawing.Size(562, 21);
       this.checkBoxTryToSolveMoreColumns.TabIndex = 5;
-      this.checkBoxTryToSolveMoreColumns.Text = "Try to Re-Align columns / Handle records that have more than the expected columns" +
-    "";
+      this.checkBoxTryToSolveMoreColumns.Text = "Try to Re-Align columns / Handle records that have more than the expected columns" + "";
       this.toolTip.SetToolTip(this.checkBoxTryToSolveMoreColumns, resources.GetString("checkBoxTryToSolveMoreColumns.ToolTip"));
       this.checkBoxTryToSolveMoreColumns.UseVisualStyleBackColor = true;
       this.checkBoxTryToSolveMoreColumns.CheckedChanged += new System.EventHandler(this.CheckBoxColumnsProcess_CheckedChanged);
@@ -857,8 +845,7 @@
       this.checkBoxWarnEmptyTailingColumns.Size = new System.Drawing.Size(178, 21);
       this.checkBoxWarnEmptyTailingColumns.TabIndex = 0;
       this.checkBoxWarnEmptyTailingColumns.Text = "Warn Column Mismatch";
-      this.toolTip.SetToolTip(this.checkBoxWarnEmptyTailingColumns, "It is advised to enable warning in case the number of columns does not match teh " +
-        "number of expected columns");
+      this.toolTip.SetToolTip(this.checkBoxWarnEmptyTailingColumns, "It is advised to enable warning in case the number of columns does not match teh " + "number of expected columns");
       this.checkBoxWarnEmptyTailingColumns.UseVisualStyleBackColor = false;
       // 
       // textBoxNumWarnings
@@ -1116,8 +1103,8 @@
       this.Load += new System.EventHandler(this.EditSettings_Load);
       tableLayoutPanelFile.ResumeLayout(false);
       tableLayoutPanelFile.PerformLayout();
-      ((System.ComponentModel.ISupportInitialize)(this.fileFormatBindingSource)).EndInit();
-      ((System.ComponentModel.ISupportInitialize)(this.fileSettingBindingSource)).EndInit();
+      ((System.ComponentModel.ISupportInitialize) (this.fileFormatBindingSource)).EndInit();
+      ((System.ComponentModel.ISupportInitialize) (this.fileSettingBindingSource)).EndInit();
       tableLayoutPanelBehavior.ResumeLayout(false);
       tableLayoutPanelBehavior.PerformLayout();
       tableLayoutPanelWarnings.ResumeLayout(false);
@@ -1133,79 +1120,79 @@
       this.tableLayoutPanel1.PerformLayout();
       this.tabPageBehaviour.ResumeLayout(false);
       this.tabPageBehaviour.PerformLayout();
-      ((System.ComponentModel.ISupportInitialize)(this.errorProvider)).EndInit();
+      ((System.ComponentModel.ISupportInitialize) (this.errorProvider)).EndInit();
       this.ResumeLayout(false);
-
     }
 
-    #endregion
-    private System.Windows.Forms.TabPage tabPageFormat;
-    private FillGuessSettingEdit fillGuessSettingEdit;
-    private System.Windows.Forms.TabPage tabPageWarnings;
-    private System.Windows.Forms.CheckBox checkBoxWarnUnknowCharater;
-    private System.Windows.Forms.CheckBox checkBoxWarnNBSP;
-    private System.Windows.Forms.CheckBox checkBoxWarnDelimiterInValue;
-    private System.Windows.Forms.CheckBox checkBoxWarnQuotes;
-    private System.Windows.Forms.CheckBox checkBoxWarnEmptyTailingColumns;
-    private System.Windows.Forms.TextBox textBoxNumWarnings;
-    private System.Windows.Forms.CheckBox checkBoxWarnLineFeed;
-    private System.Windows.Forms.Label labelWarningLimit;
-    private System.Windows.Forms.TabPage tabPageQuoting;
-    private System.Windows.Forms.Button buttonGuessDelimiter;
-    private System.Windows.Forms.Button buttonGuessCP;
-    private System.Windows.Forms.Label labelDelimiter;
-    private System.Windows.Forms.TextBox textBoxDelimiter;
-    private System.Windows.Forms.Label label2;
-    private System.Windows.Forms.TextBox textBoxComment;
-    private System.Windows.Forms.ComboBox cboCodePage;
-    private System.Windows.Forms.TextBox textBoxFile;
     private System.Windows.Forms.Button btnOpenFile;
-    private System.Windows.Forms.ToolTip toolTip;
-    private System.Windows.Forms.BindingSource fileFormatBindingSource;
-    private System.Windows.Forms.ErrorProvider errorProvider;
-    private System.Windows.Forms.Label labelCodePage;
+    private System.Windows.Forms.Button button1;
+    private System.Windows.Forms.Button button2;
+    private System.Windows.Forms.Button buttonGuessCP;
+    private System.Windows.Forms.Button buttonGuessDelimiter;
+    private System.Windows.Forms.Button buttonGuessTextQualifier;
+    private System.Windows.Forms.ComboBox cboCodePage;
+    private System.Windows.Forms.ComboBox cboRecordDelimiter;
+    private System.Windows.Forms.CheckBox checkBox1;
+    private System.Windows.Forms.CheckBox checkBox2;
+    private System.Windows.Forms.CheckBox checkBoxAllowRowCombining;
     private System.Windows.Forms.CheckBox checkBoxBOM;
-    private System.Windows.Forms.CheckBox checkBoxHeader;
-    private System.Windows.Forms.Label labelDelimitedFile;
-    private System.Windows.Forms.TabPage tabPageBehaviour;
-    private System.Windows.Forms.CheckBox chkUseFileSettings;
+    private System.Windows.Forms.CheckBox checkBoxCheckQuote;
     private System.Windows.Forms.CheckBox checkBoxDetectFileChanges;
-    private System.Windows.Forms.CheckBox checkBoxMenuDown;
-    private System.Windows.Forms.CheckBox checkBoxGuessHasHeader;
-    private System.Windows.Forms.CheckBox checkBoxGuessDelimiter;
+    private System.Windows.Forms.CheckBox checkBoxDisplayStartLineNo;
     private System.Windows.Forms.CheckBox checkBoxGuessCodePage;
+    private System.Windows.Forms.CheckBox checkBoxGuessDelimiter;
+    private System.Windows.Forms.CheckBox checkBoxGuessHasHeader;
+    private System.Windows.Forms.CheckBox checkBoxHeader;
+    private System.Windows.Forms.CheckBox checkBoxMenuDown;
     private System.Windows.Forms.CheckBox checkBoxSkipEmptyLines;
+    private System.Windows.Forms.CheckBox checkBoxTreatLFasSpace;
     private System.Windows.Forms.CheckBox checkBoxTreatNBSPAsSpace;
     private System.Windows.Forms.CheckBox checkBoxTreatUnknowCharaterAsSpace;
-    private System.Windows.Forms.CheckBox checkBoxTreatLFasSpace;
-    private System.Windows.Forms.CheckBox checkBoxAllowRowCombining;
     private System.Windows.Forms.CheckBox checkBoxTryToSolveMoreColumns;
-    internal System.Windows.Forms.TabControl tabControl;
-    internal System.Windows.Forms.TabPage tabPageFile;
-    private System.Windows.Forms.Label label3;
-    private System.Windows.Forms.TextBox textBox1;
+    private System.Windows.Forms.CheckBox checkBoxWarnDelimiterInValue;
+    private System.Windows.Forms.CheckBox checkBoxWarnEmptyTailingColumns;
+    private System.Windows.Forms.CheckBox checkBoxWarnLineFeed;
+    private System.Windows.Forms.CheckBox checkBoxWarnNBSP;
+    private System.Windows.Forms.CheckBox checkBoxWarnQuotes;
+    private System.Windows.Forms.CheckBox checkBoxWarnUnknowCharater;
+    private System.Windows.Forms.CheckBox chkUseFileSettings;
+    private System.Windows.Forms.ErrorProvider errorProvider;
+    private System.Windows.Forms.BindingSource fileFormatBindingSource;
     private System.Windows.Forms.BindingSource fileSettingBindingSource;
-        private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.ComboBox cboRecordDelimiter;
-        private System.Windows.Forms.Label m_LabelInfoQuoting;
-        private System.Windows.Forms.CheckBox checkBoxDisplayStartLineNo;
-        private System.Windows.Forms.CheckBox checkBox1;
-        private System.Windows.Forms.Label label5;
-        private System.Windows.Forms.TextBox textBox2;
-        private System.Windows.Forms.CheckBox checkBox2;
-        private System.Windows.Forms.Button button2;
-        private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.TextBox textBox3;
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.TextBox textBoxTextAsNull;
-        private System.Windows.Forms.Label label7;
-        private System.Windows.Forms.TextBox textBoxNLPlaceholder;
-        private System.Windows.Forms.Label labelRecordLimit;
-        private System.Windows.Forms.TextBox textBoxLimitRows;
-        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
-        private QuotingControl quotingControl;
-        private System.Windows.Forms.CheckBox checkBoxCheckQuote;
-        private System.Windows.Forms.Button buttonGuessTextQualifier;
-    }
+    private CsvTools.FillGuessSettingEdit fillGuessSettingEdit;
+    private System.Windows.Forms.Label label1;
+    private System.Windows.Forms.Label label2;
+    private System.Windows.Forms.Label label3;
+    private System.Windows.Forms.Label label4;
+    private System.Windows.Forms.Label label5;
+    private System.Windows.Forms.Label label6;
+    private System.Windows.Forms.Label label7;
+    private System.Windows.Forms.Label labelCodePage;
+    private System.Windows.Forms.Label labelDelimitedFile;
+    private System.Windows.Forms.Label labelDelimiter;
+    private System.Windows.Forms.Label labelRecordLimit;
+    private System.Windows.Forms.Label labelWarningLimit;
+    private System.Windows.Forms.Label m_LabelInfoQuoting;
+    private CsvTools.QuotingControl quotingControl;
+    internal System.Windows.Forms.TabControl tabControl;
+    private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
+    private System.Windows.Forms.TabPage tabPageBehaviour;
+    internal System.Windows.Forms.TabPage tabPageFile;
+    private System.Windows.Forms.TabPage tabPageFormat;
+    private System.Windows.Forms.TabPage tabPageQuoting;
+    private System.Windows.Forms.TabPage tabPageWarnings;
+    private System.Windows.Forms.TextBox textBox1;
+    private System.Windows.Forms.TextBox textBox2;
+    private System.Windows.Forms.TextBox textBox3;
+    private System.Windows.Forms.TextBox textBoxComment;
+    private System.Windows.Forms.TextBox textBoxDelimiter;
+    private System.Windows.Forms.TextBox textBoxFile;
+    private System.Windows.Forms.TextBox textBoxLimitRows;
+    private System.Windows.Forms.TextBox textBoxNLPlaceholder;
+    private System.Windows.Forms.TextBox textBoxNumWarnings;
+    private System.Windows.Forms.TextBox textBoxTextAsNull;
+    private System.Windows.Forms.ToolTip toolTip;
+
+#endregion
+  }
 }

@@ -36,7 +36,7 @@ namespace CsvTools
 
     public CopyToDataTableInfo(IFileReader reader, bool includeErrorField, bool storeWarningsInDataTable, bool addStartLine)
     {
-      DataTable = new DataTable()
+      DataTable = new DataTable
       {
         TableName = reader.FileSetting.ID,
         Locale = CultureInfo.CurrentCulture,
