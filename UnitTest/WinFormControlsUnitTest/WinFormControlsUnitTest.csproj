@@ -73,10 +73,10 @@
     <Compile Include="LoggerTextBoxTests.cs" />
     <Compile Include="PersistentChoiceTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Static.cs" />
+    <Compile Include="UnitTestStatic.cs" />
     <Compile Include="ToolStripDataGridViewColumnFilterTests.cs" />
     <Compile Include="UnitTestInitialize.cs" />
-    <Compile Include="ValueCluster.cs" />
+    <Compile Include="ValueClusterTests.cs" />
     <Compile Include="ValueClusterCollectionTests.cs" />
     <Compile Include="ViewSettingTests.cs" />
     <Compile Include="WindowStateTests.cs" />

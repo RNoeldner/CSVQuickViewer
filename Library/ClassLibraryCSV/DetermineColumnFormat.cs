@@ -67,10 +67,13 @@ namespace CsvTools
       bool addTextColumns,
       bool checkDoubleToBeInteger, FillGuessSettings fillGuessSettings, IProcessDisplay processDisplay)
     {
-      if (processDisplay == null)
-        throw new ArgumentNullException(nameof(processDisplay));
       if (fileSetting == null)
         throw new ArgumentNullException(nameof(fileSetting));
+      if (fillGuessSettings == null) 
+        throw new ArgumentNullException(nameof(fillGuessSettings));
+      if (processDisplay == null)
+        throw new ArgumentNullException(nameof(processDisplay));
+      
 
       var result = new List<string>();
 
@@ -541,7 +544,21 @@ namespace CsvTools
     {
       if (fileReader.IsClosed)
         await fileReader.OpenAsync();
-      var samples = GetSampleValuesValidate(fileReader, ref maxRecords, columns, ref treatAsNull);
+      if (fileReader == null)
+        throw new ArgumentNullException(nameof(fileReader));
+
+      if (string.IsNullOrEmpty(treatAsNull))
+        treatAsNull = "NULL;n/a";
+
+      if (maxRecords < 1)
+        maxRecords = long.MaxValue;
+
+      var samples = columns.Where(col => col > -1 && col < fileReader.FieldCount)
+        .ToDictionary<int, int, ICollection<string>>(col => col,
+          col => new HashSet<string>(StringComparer.OrdinalIgnoreCase));
+
+      if (samples.Keys.Count == 0)
+        throw new ArgumentOutOfRangeException(nameof(columns), "Column Collection can not be empty");
 
       var hasWarning = false;
       var remainingShows = 10;
@@ -599,7 +616,34 @@ namespace CsvTools
 
           // In case there was a warning reading the line, ignore the line
           if (!hasWarning)
-            GetSampleValuesProcessRecord(fileReader, enoughSamples, treatAsNull, samples, maxSamples, enough);
+          {
+            foreach (var columnIndex in samples.Keys.Where(x => !((ICollection<int>) enough).Contains(x)))
+            {
+              var value = fileReader.GetString(columnIndex);
+
+              // Any non existing value is not of interest
+              if (string.IsNullOrWhiteSpace(value))
+                continue;
+
+              // Always trim
+              value = value.Trim();
+
+              // Always do treat Text "Null" as Null
+              if (StringUtils.ShouldBeTreatedAsNull(value, treatAsNull))
+                continue;
+
+              // cut of after 40 chars
+              if (value.Length > 40)
+                value = value.Substring(0, 40);
+
+              // Have a max of 2000 values
+              if (samples[columnIndex].Count < maxSamples)
+                samples[columnIndex].Add(value);
+
+              if (samples[columnIndex].Count >= enoughSamples)
+                ((ICollection<int>) enough).Add(columnIndex);
+            }
+          }
           else
             hasWarning = false;
 
@@ -618,59 +662,6 @@ namespace CsvTools
       }
 
       return samples.ToDictionary(keyValue => keyValue.Key, keyValue => new SampleResult(keyValue.Value, recordRead));
-    }
-
-    private static void GetSampleValuesProcessRecord(IDataRecord fileReader, int enoughSamples, string treatAsNull,
-      Dictionary<int, ICollection<string>> samples, int maxSamples, ICollection<int> enough)
-    {
-      foreach (var columnIndex in samples.Keys.Where(x => !enough.Contains(x)))
-      {
-        var value = fileReader.GetString(columnIndex);
-
-        // Any non existing value is not of interest
-        if (string.IsNullOrWhiteSpace(value))
-          continue;
-
-        // Always trim
-        value = value.Trim();
-
-        // Always do treat Text "Null" as Null
-        if (StringUtils.ShouldBeTreatedAsNull(value, treatAsNull))
-          continue;
-
-        // cut of after 40 chars
-        if (value.Length > 40)
-          value = value.Substring(0, 40);
-
-        // Have a max of 2000 values
-        if (samples[columnIndex].Count < maxSamples)
-          samples[columnIndex].Add(value);
-
-        if (samples[columnIndex].Count >= enoughSamples)
-          enough.Add(columnIndex);
-      }
-    }
-
-    private static Dictionary<int, ICollection<string>> GetSampleValuesValidate(IFileReader fileReader,
-      ref long maxRecords, IEnumerable<int> columns,
-      ref string treatAsNull)
-    {
-      if (fileReader == null)
-        throw new ArgumentNullException(nameof(fileReader));
-
-      if (string.IsNullOrEmpty(treatAsNull))
-        treatAsNull = "NULL;n/a";
-
-      if (maxRecords < 1)
-        maxRecords = long.MaxValue;
-
-      var samples = columns.Where(col => col > -1 && col < fileReader.FieldCount)
-        .ToDictionary<int, int, ICollection<string>>(col => col,
-          col => new HashSet<string>(StringComparer.OrdinalIgnoreCase));
-
-      if (samples.Keys.Count == 0)
-        throw new ArgumentOutOfRangeException(nameof(columns), "Column Collection can not be empty");
-      return samples;
     }
 
     /// <summary>
@@ -701,10 +692,13 @@ namespace CsvTools
     public static async Task<IEnumerable<ColumnInfo>> GetSourceColumnInformationAsync(IFileSetting fileSettings,
       IProcessDisplay processDisplay)
     {
+      if (fileSettings == null) 
+        throw new ArgumentNullException(nameof(fileSettings));
       Contract.Requires(fileSettings != null);
 
       if (string.IsNullOrEmpty(fileSettings.SqlStatement))
         return new List<ColumnInfo>();
+
       if (FunctionalDI.SQLDataReader == null)
         throw new FileWriterException("No Async SQL Reader set");
       using (var data = await FunctionalDI.SQLDataReader(fileSettings.SqlStatement.NoRecordSQL(), processDisplay,

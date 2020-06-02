@@ -49,6 +49,56 @@ namespace CsvTools.Tests
       {
         var res1 = await DetermineColumnFormat.GetSourceColumnInformationAsync(setting, processDisplay);
         Assert.AreEqual(6, res1.Count());
+        setting.SqlStatement = null;
+
+        var res2 = await DetermineColumnFormat.GetSourceColumnInformationAsync(setting, processDisplay);
+        Assert.AreEqual(0, res2.Count());
+      }
+    }
+    [TestMethod()]
+    public async Task GetSourceColumnInformationTestAsync_Parameter()
+    {
+      using (var dummy = new DummyProcessDisplay())
+      {
+        try
+        {
+          var res1 = await DetermineColumnFormat.GetSourceColumnInformationAsync(null, dummy);
+
+          Assert.Fail("Expected Exception not thrown");
+        }
+        catch (ArgumentNullException)
+        {
+          // add good
+        }
+        catch (Exception ex)
+        {
+          Assert.Fail("Wrong Exception Type: " + ex.GetType());
+        }
+
+        using (var dt = UnitTestStatic.GetDataTable(5))
+        {
+          var reader = new DataTableReader(dt, "dummy", dummy);
+          var backup = FunctionalDI.SQLDataReader;
+          FunctionalDI.SQLDataReader = null;
+          try
+          {
+            var res1 = await DetermineColumnFormat.GetSourceColumnInformationAsync(null, dummy);
+
+            Assert.Fail("Expected Exception not thrown");
+          }
+          catch (ArgumentNullException)
+          {
+            // add good
+          }
+          catch (Exception ex)
+          {
+            Assert.Fail("Wrong Exception Type: " + ex.GetType());
+          }
+          finally
+          {
+            FunctionalDI.SQLDataReader= backup;
+          }
+        }
       }
     }
 
@@ -426,9 +476,7 @@ namespace CsvTools.Tests
         FileName = UnitTestInitialize.GetTestPath("Test.csv"),
         HasFieldHeader = true,
         ByteOrderMark = true,
-        FileFormat = {
-                                        FieldDelimiter = ","
-                                     },
+        FileFormat = { FieldDelimiter = "," },
         SkipRows = 1
       };
       var fillGuessSettings = new FillGuessSettings { IgnoreIdColums = true };
@@ -446,6 +494,88 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    public async Task FillGuessColumnFormatReaderAsync_Parameter()
+    {
+
+      var fillGuessSettings = new FillGuessSettings
+      {
+        DectectNumbers = true,
+        DetectDateTime = true,
+        DectectPercentage = true,
+        DetectBoolean = true,
+        DetectGUID = true,
+        IgnoreIdColums = true
+      };
+      var setting = new CsvFile
+      {
+        FileName = UnitTestInitialize.GetTestPath("Test.csv"),
+        HasFieldHeader = true,
+        ByteOrderMark = true,
+        FileFormat = { FieldDelimiter = "," },
+        SkipRows = 1
+      };
+      using (var dummy = new DummyProcessDisplay())
+      {
+        try
+        {
+          await DetermineColumnFormat.FillGuessColumnFormatReaderAsync(null, true, true, fillGuessSettings, dummy);
+
+        }
+        catch (ArgumentNullException)
+        {
+        }
+        catch (Exception ex)
+        {
+          Assert.Fail("Wrong or exception thrown exception is : " + ex.GetType().Name);
+        }
+
+        try
+        {
+          await DetermineColumnFormat.FillGuessColumnFormatReaderAsync(setting, true, true, null, dummy);
+        }
+        catch (ArgumentNullException)
+        {
+        }
+        catch (Exception ex)
+        {
+          Assert.Fail("Wrong or exception thrown exception is : " + ex.GetType().Name);
+        }
+
+        try
+        {
+          await DetermineColumnFormat.FillGuessColumnFormatReaderAsync(setting, true, true, fillGuessSettings, null);
+        }
+        catch (ArgumentNullException)
+        {
+        }
+        catch (Exception ex)
+        {
+          Assert.Fail("Wrong or exception thrown exception is : " + ex.GetType().Name);
+        }
+      }
+    }
+
+    [TestMethod]
+    public async Task GetSampleValuesAsyncTest()
+    {
+      using (var dt = UnitTestStatic.GetDataTable(1000))
+      {
+        using (var dummy = new DummyProcessDisplay())
+        {
+          var reader = new DataTableReader(dt, "dummy", dummy);
+          foreach (DataColumn col in dt.Columns)
+          {
+            var res = await DetermineColumnFormat.GetSampleValuesAsync(reader, 10, col.Ordinal, 10, "null", dummy.CancellationToken);
+            if (col.ColumnName != "AllEmpty")
+              Assert.IsTrue(res.Values.Count>0, col.ColumnName);
+            else
+              Assert.IsTrue(res.Values.Count==0, col.ColumnName);
+          }
+        }
+      }
+    }
+
+    [TestMethod]
     public async Task FillGuessColumnFormatTrailingColumnsAsync()
     {
       var setting = new CsvFile
@@ -453,9 +583,7 @@ namespace CsvTools.Tests
         FileName = UnitTestInitialize.GetTestPath("Test.csv"),
         HasFieldHeader = true,
         ByteOrderMark = true,
-        FileFormat = {
-                                        FieldDelimiter = ","
-                                     },
+        FileFormat = { FieldDelimiter = "," },
         SkipRows = 1
       };
       setting.ColumnCollection.Clear();

@@ -245,6 +245,27 @@ namespace CsvTools.Tests
     [TestMethod]
     public void FilteredDataGridViewShow() => UnitTestInitialize.ShowControl(new FilteredDataGridView());
 
+
+    [TestMethod]
+    public void FilteredDataGridViewVariousMethods()
+    {
+      var ctrl = new FilteredDataGridView();
+      using (var data = UnitTestStatic.GetDataTable(200))
+      {
+        ctrl.DataSource = data;
+        UnitTestInitialize.ShowControl(new FilteredDataGridView(), 0.5d,
+          () =>
+          {
+            ctrl.FrozenColumns = 1;
+            ctrl.SetFilterMenu(0);
+            ctrl.HighlightText = "HH";
+            ctrl.SetRowHeight();
+            ctrl.SetFilterMenu(1);
+          });
+      }
+
+    }
+
     [TestMethod]
     public void FormColumnUI()
     {

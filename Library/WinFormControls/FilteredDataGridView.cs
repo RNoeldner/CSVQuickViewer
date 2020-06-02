@@ -466,8 +466,14 @@ namespace CsvTools
       for (var i = 0; i < m_Filter.Count; i++)
       {
         if (m_Filter[i] == null) continue;
-        m_Filter[i].Dispose();
-        m_Filter[i] = null;
+        try
+        {
+          m_Filter[i].Dispose();
+        }
+        finally
+        {
+          m_Filter[i] = null;
+        }
       }
     }
 
@@ -966,7 +972,11 @@ namespace CsvTools
       return m_Filter[columnIndex];
     }
 
-    private void SetFilterMenu(int columnIndex)
+    /// <summary>
+    /// Build the Column Filter the given Column
+    /// </summary>
+    /// <param name="columnIndex"></param>
+    public void SetFilterMenu(int columnIndex)
     {
       if (DataView == null)
         return;
@@ -983,11 +993,16 @@ namespace CsvTools
 
       var col = m_Filter[columnIndex].ValueClusterCollection;
 
-      var result = col.BuildValueClusters(DataView, Columns[columnIndex].ValueType, columnIndex, 40);
+      var result = col.BuildValueClusters(DataView, Columns[columnIndex].ValueType, columnIndex);
       {
         var newMenuItem = new ToolStripMenuItem();
         switch (result)
         {
+          case BuildValueClustersResult.Error:
+            newMenuItem.Text = @"Values can not be clustered";
+            newMenuItem.ToolTipText = @"Error has occured while clustering the value";
+            break;
+
           case BuildValueClustersResult.WrongType:
             newMenuItem.Text = @"Type can not be clustered";
             newMenuItem.ToolTipText = @"This type of column can not be filter by value";
