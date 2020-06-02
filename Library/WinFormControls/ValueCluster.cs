@@ -29,14 +29,14 @@ namespace CsvTools
     /// <param name="sort">A text used for the  order</param>
     /// <param name="count">Number of records that do have this value</param>
     /// <param name="active">Flag indicating if teh filter for teh value is active</param>
-    public ValueCluster(string display, string condition, string sort, int count = 0, bool active = false)
+    public ValueCluster(string display, string condition, string sort, int count, bool active = false)
     {
       Display = display;
       SQLCondition = condition;
       Sort = sort ?? string.Empty;
+      Count = count;
 
       // These values might change later
-      Count = count;
       Active = active;
     }
 
@@ -46,7 +46,11 @@ namespace CsvTools
     /// <value>
     ///   <c>true</c> if active; otherwise, <c>false</c>.
     /// </value>
-    public bool Active { get; set; }
+    public bool Active
+    {
+      get;
+      set;
+    }
 
     /// <summary>
     ///   Gets or sets the number of records that this cluster contains.
@@ -54,7 +58,10 @@ namespace CsvTools
     /// <value>
     ///   The count.
     /// </value>
-    public int Count { get; set; }
+    public int Count
+    {
+      get;
+    }
 
     /// <summary>
     ///   Gets or sets the displayed text
@@ -104,7 +111,7 @@ namespace CsvTools
       return string.Equals(Display, other.Display, StringComparison.OrdinalIgnoreCase)
              && string.Equals(Sort, other.Sort, StringComparison.Ordinal)
              && string.Equals(SQLCondition, other.SQLCondition, StringComparison.OrdinalIgnoreCase)
-             && Active == other.Active && Count == other.Count;
+             && Count == other.Count && Active == other.Active;
     }
 
     /// <summary>Determines whether the specified object is equal to the current object.</summary>
@@ -128,6 +135,7 @@ namespace CsvTools
         var hashCode = (Display != null ? Display.GetHashCode() : 0);
         hashCode = (hashCode * 397) ^ (Sort != null ? Sort.GetHashCode() : 0);
         hashCode = (hashCode * 397) ^ (SQLCondition != null ? SQLCondition.GetHashCode() : 0);
+        hashCode = (hashCode * 397) ^ Count.GetHashCode();
         return hashCode;
       }
     }

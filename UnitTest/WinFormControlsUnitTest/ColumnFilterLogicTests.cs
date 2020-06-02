@@ -204,7 +204,7 @@ namespace CsvTools.Tests
       {
         using (var dataView = new DataView(data, null, null, DataViewRowState.CurrentRows))
         {
-          columnFilterLogic.ValueClusterCollection.BuildValueClusters(dataView, typeof(int), 1, 200);
+          columnFilterLogic.ValueClusterCollection.BuildValueClusters(dataView, typeof(int), 1);
           int i = 0;
           foreach (var cluster in columnFilterLogic.ValueClusterCollection.ValueClusters)
           {

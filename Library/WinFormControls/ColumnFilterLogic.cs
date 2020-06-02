@@ -266,7 +266,7 @@ namespace CsvTools
       }
     }
 
-    public ValueClusterCollection ValueClusterCollection { get; } = new ValueClusterCollection();
+    public ValueClusterCollection ValueClusterCollection { get; } = new ValueClusterCollection(50);
 
     public static object[] GetOperators(Type columnDataType)
     {

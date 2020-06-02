@@ -42,6 +42,8 @@ namespace CsvTools
     /// <summary>
     ///   The list is filled
     /// </summary>
-    ListFilled
+    ListFilled,
+
+    Error
   }
 }

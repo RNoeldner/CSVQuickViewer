@@ -1586,6 +1586,7 @@ namespace CsvTools
     /// <param name="recordLimit">Number of maximum records, 0 for all existing</param>
     /// <param name="includeErrorField">If <c>true</c> store the error information in a special column, otherwise as column and row error</param>
     /// <param name="storeWarningsInDataTable"></param>
+    /// <param name="addStartLine"><c>true</c> to add a reference to the line of a text file.</param>
     /// <param name="cancellationToken">Cancellation toke to stop filling the data table</param>
     /// <returns>A Data Table with teh data</returns>
     public virtual async Task<DataTable> GetDataTableAsync(long recordLimit, bool includeErrorField, bool storeWarningsInDataTable, bool addStartLine, CancellationToken cancellationToken)
