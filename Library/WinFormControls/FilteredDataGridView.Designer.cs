@@ -283,7 +283,7 @@ namespace CsvTools
       this.toolStripMenuItemHideThisColumn.Name = "toolStripMenuItemHideThisColumn";
       this.toolStripMenuItemHideThisColumn.Size = new System.Drawing.Size(315, 30);
       this.toolStripMenuItemHideThisColumn.Text = "Hide Column";
-      this.toolStripMenuItemHideThisColumn.Click += new System.EventHandler(this.toolStripMenuItemHideThisColumn_Click);
+      this.toolStripMenuItemHideThisColumn.Click += new System.EventHandler(this.ToolStripMenuItemHideThisColumn_Click);
       // 
       // toolStripMenuItemCF
       // 

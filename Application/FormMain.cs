@@ -704,11 +704,11 @@ namespace CsvTools
         // Load View Settings
         var index = m_FileSetting.ID.LastIndexOf('.');
         var fn = (index == -1 ? m_FileSetting.ID : m_FileSetting.ID.Substring(0, index)) + ".col";
-        var fnView = Path.Combine(FileSystemUtils.GetDirectoryName(m_FileSetting.FileName), fn);
+        var fnView = Path.Combine(m_FileSetting.FileName.GetDirectoryName(), fn);
         if (FileSystemUtils.FileExists(fnView))
         {
           Logger.Information("Restoring view and filter setting {filename}...", fn);
-          await detailControl.ReStoreViewSetting(fnView);
+          detailControl.ReStoreViewSetting(fnView);
         }
 
         // if (m_FileSetting.NoDelimitedFile) detailControl_ButtonShowSource(this, null);

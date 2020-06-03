@@ -29,7 +29,7 @@ namespace CsvTools.Tests
     private readonly CsvFile m_ValidSetting = new CsvFile
     {
       FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt"),
-      FileFormat = {FieldDelimiter = ",", CommentLine = "#"}
+      FileFormat = { FieldDelimiter = ",", CommentLine = "#" }
     };
 
     [TestInitialize]
@@ -49,7 +49,7 @@ namespace CsvTools.Tests
         new CsvFile(UnitTestInitialize.GetTestPath("AllFormatsPipe.txt"))
         {
           HasFieldHeader = true,
-          FileFormat = {FieldDelimiter = "|", FieldQualifier = "\""},
+          FileFormat = { FieldDelimiter = "|", FieldQualifier = "\"" },
           SkipEmptyLines = false
         };
 
@@ -94,7 +94,7 @@ namespace CsvTools.Tests
         TryToSolveMoreColumns = true,
         AllowRowCombining = true,
         FileName = UnitTestInitialize.GetTestPath("BadIssues.csv"),
-        FileFormat = {FieldDelimiter = "TAB", FieldQualifier = string.Empty}
+        FileFormat = { FieldDelimiter = "TAB", FieldQualifier = string.Empty }
       };
       basIssues.ColumnCollection.AddIfNew(new Column("effectiveDate", "yyyy/MM/dd", "-"));
       basIssues.ColumnCollection.AddIfNew(new Column("timestamp", "yyyy/MM/ddTHH:mm:ss", "-"));
@@ -268,7 +268,7 @@ namespace CsvTools.Tests
     {
       var column = new Column
       {
-        ValueFormat = {DataType = DataType.Integer, GroupSeparator = ",", DecimalSeparator = ","}
+        ValueFormat = { DataType = DataType.Integer, GroupSeparator = ",", DecimalSeparator = "," }
       };
 
       using (var processDisplay = new DummyProcessDisplay())
@@ -350,7 +350,7 @@ namespace CsvTools.Tests
       {
         FileName = UnitTestInitialize.GetTestPath("TestFile.txt"),
         CodePageId = 65001,
-        FileFormat = {FieldDelimiter = "tab"}
+        FileFormat = { FieldDelimiter = "tab" }
       };
 
       csvFile.ColumnCollection.AddIfNew(new Column("Title", DataType.DateTime));
@@ -901,7 +901,7 @@ namespace CsvTools.Tests
         FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt"),
         HasFieldHeader = false,
         SkipRows = 1,
-        FileFormat = {FieldDelimiter = "\r"}
+        FileFormat = { FieldDelimiter = "\r" }
       };
       var exception = false;
       try
@@ -936,7 +936,7 @@ namespace CsvTools.Tests
         FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt"),
         HasFieldHeader = false,
         SkipRows = 1,
-        FileFormat = {FieldQualifier = "Carriage return"}
+        FileFormat = { FieldQualifier = "Carriage return" }
       };
       var exception = false;
       try
@@ -971,7 +971,7 @@ namespace CsvTools.Tests
         FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt"),
         HasFieldHeader = false,
         SkipRows = 1,
-        FileFormat = {FieldQualifier = "Line feed"}
+        FileFormat = { FieldQualifier = "Line feed" }
       };
       var exception = false;
       try
@@ -1025,7 +1025,7 @@ namespace CsvTools.Tests
         FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt"),
         HasFieldHeader = false,
         SkipRows = 1,
-        FileFormat = {FieldDelimiter = "\n"}
+        FileFormat = { FieldDelimiter = "\n" }
       };
       var exception = false;
       try
@@ -1060,7 +1060,7 @@ namespace CsvTools.Tests
         FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt"),
         HasFieldHeader = false,
         SkipRows = 1,
-        FileFormat = {FieldDelimiter = " "}
+        FileFormat = { FieldDelimiter = " " }
       };
       var exception = false;
       try
@@ -1095,7 +1095,7 @@ namespace CsvTools.Tests
         FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt"),
         HasFieldHeader = false,
         SkipRows = 1,
-        FileFormat = {FieldQualifier = "\""}
+        FileFormat = { FieldQualifier = "\"" }
       };
       setting.FileFormat.FieldDelimiter = setting.FileFormat.FieldQualifier;
       var exception = false;
@@ -1324,7 +1324,7 @@ namespace CsvTools.Tests
       {
         await test.OpenAsync();
         Assert.IsTrue(await test.ReadAsync());
-        char[] buffer = {'0', '0', '0', '0'};
+        char[] buffer = { '0', '0', '0', '0' };
         test.GetChars(1, 0, buffer, 0, 4);
         Assert.AreEqual('G', buffer[0], "G");
         Assert.AreEqual('e', buffer[1], "E");
@@ -1388,6 +1388,65 @@ namespace CsvTools.Tests
       }
     }
 
+    [TestMethod]
+    public async Task GetDataTableAsync()
+    {
+      using (var processDisplay = new DummyProcessDisplay())
+      {
+        using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
+        {
+          await test.OpenAsync();
+
+          var dt = await test.GetDataTableAsync(5, true, true, true, processDisplay.CancellationToken);
+          Assert.AreEqual(5, dt.Rows.Count);
+        }
+      }
+    }
+
+    [TestMethod]
+    public async Task GetDataTableAsync2()
+    {
+      using (var processDisplay = new DummyProcessDisplay())
+      {
+
+        var test2 = (CsvFile) m_ValidSetting.Clone();
+        test2.RecordLimit = 4;
+        using (var test = new CsvFileReader(test2, TimeZoneInfo.Local.Id, processDisplay))
+        {
+          await test.OpenAsync();
+
+          var dt = await test.GetDataTableAsync(-1, false, false, false, processDisplay.CancellationToken);
+          Assert.AreEqual(test2.RecordLimit, dt.Rows.Count);
+        }
+
+      }
+    }
+
+    [TestMethod]
+    public async Task GetDataTableAsync3()
+    {
+      using (var processDisplay = new DummyProcessDisplay())
+      {
+
+        var test3 = new CsvFile(UnitTestInitialize.GetTestPath("WithEoFChar.txt"))
+        {
+          FileFormat = { FieldDelimiter = "TAB" },
+          DisplayRecordNo = true,
+          DisplayEndLineNo = true
+        };
+        test3.ColumnCollection.Add(new Column("Memo") { Ignore = true });
+        using (var test = new CsvFileReader(test3, TimeZoneInfo.Local.Id, processDisplay))
+        {
+          await test.OpenAsync();
+
+          var dt = await test.GetDataTableAsync(-1, true, true, true, processDisplay.CancellationToken);
+          // 10 columns 1 ignored one added for Start line one for Error Field one for Record No one for Line end
+          Assert.AreEqual(10-1+4, dt.Columns.Count);
+          Assert.AreEqual(19, dt.Rows.Count);
+        }
+      }
+    }
+
     //[TestMethod]
     //public async Task CsvDataReader_OpenDetails()
     //{
@@ -1410,9 +1469,9 @@ namespace CsvTools.Tests
       {
         FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt"),
         HasFieldHeader = false,
-        SkipRows = 1
+        SkipRows = 1,
+        FileFormat = {FieldDelimiter = ","}
       };
-      setting.FileFormat.FieldDelimiter = ",";
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
@@ -1435,7 +1494,7 @@ namespace CsvTools.Tests
         FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt"),
         HasFieldHeader = false,
         SkipRows = 1,
-        FileFormat = {FieldDelimiter = ","}
+        FileFormat = { FieldDelimiter = "," }
       };
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
