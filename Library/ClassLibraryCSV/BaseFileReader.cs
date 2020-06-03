@@ -387,7 +387,7 @@ namespace CsvTools
     public virtual long GetChars(int i, long fieldOffset, char[] buffer, int bufferOffset, int length)
     {
       Debug.Assert(CurrentRowColumnText != null);
-      var offset = (int)fieldOffset;
+      var offset = (int) fieldOffset;
       var maxLen = CurrentRowColumnText[i].Length - offset;
       if (maxLen > length)
         maxLen = length;
@@ -429,6 +429,7 @@ namespace CsvTools
         if (string.Equals(columnName, Column[index].Name, StringComparison.OrdinalIgnoreCase))
           return true;
       }
+
       return false;
     }
 
@@ -784,14 +785,14 @@ namespace CsvTools
     }
 
     protected WarningEventArgs GetWarningEventArgs(int columnNumber, string message) => new WarningEventArgs(
-          RecordNumber,
-          columnNumber,
-          message,
-          StartLineNumber,
-          EndLineNumber,
-          Column != null && columnNumber >= 0 && columnNumber < m_FieldCount && Column[columnNumber] != null
-            ? Column[columnNumber].Name
-            : null);
+      RecordNumber,
+      columnNumber,
+      message,
+      StartLineNumber,
+      EndLineNumber,
+      Column != null && columnNumber >= 0 && columnNumber < m_FieldCount && Column[columnNumber] != null
+        ? Column[columnNumber].Name
+        : null);
 
     /// <summary>
     ///   Handles the error.
@@ -1290,8 +1291,8 @@ namespace CsvTools
       if (string.IsNullOrEmpty(output))
         return null;
 
-      if (FileSetting.TreatNBSPAsSpace && output.IndexOf((char)0xA0) != -1)
-        output = output.Replace((char)0xA0, ' ');
+      if (FileSetting.TreatNBSPAsSpace && output.IndexOf((char) 0xA0) != -1)
+        output = output.Replace((char) 0xA0, ' ');
 
       if (output.Length > 0 && column.Size < output.Length)
         column.Size = output.Length;
@@ -1311,7 +1312,7 @@ namespace CsvTools
         return inputValue;
 
       if (FileSetting.TreatNBSPAsSpace)
-        inputValue = inputValue.Replace((char)0xA0, ' ');
+        inputValue = inputValue.Replace((char) 0xA0, ' ');
       if (FileSetting.TrimmingOption == TrimmingOption.All
           || !quoted && FileSetting.TrimmingOption == TrimmingOption.Unquoted)
         return inputValue.Trim();
@@ -1589,7 +1590,8 @@ namespace CsvTools
     /// <param name="addStartLine"><c>true</c> to add a reference to the line of a text file.</param>
     /// <param name="cancellationToken">Cancellation toke to stop filling the data table</param>
     /// <returns>A Data Table with teh data</returns>
-    public virtual async Task<DataTable> GetDataTableAsync(long recordLimit, bool includeErrorField, bool storeWarningsInDataTable, bool addStartLine, CancellationToken cancellationToken)
+    public virtual async Task<DataTable> GetDataTableAsync(long recordLimit, bool includeErrorField,
+      bool storeWarningsInDataTable, bool addStartLine, CancellationToken cancellationToken)
     {
       if (IsClosed)
         await OpenAsync();
@@ -1598,20 +1600,31 @@ namespace CsvTools
       cancellationToken.ThrowIfCancellationRequested();
 
       // This has a mapping of the columns between reader and data table
-      cancellationToken.ThrowIfCancellationRequested();
-      var copyToDataTableInfo = new CopyToDataTableInfo(this as IFileReader, includeErrorField, storeWarningsInDataTable, addStartLine);
+      var copyToDataTableInfo =
+        new CopyToDataTableInfo(this as IFileReader, includeErrorField, storeWarningsInDataTable, addStartLine);
 
-      cancellationToken.ThrowIfCancellationRequested();
-      copyToDataTableInfo.DataTable.BeginLoadData();
-      if (recordLimit < 1)
-        recordLimit = FileSetting.RecordLimit < 1 ? long.MaxValue : FileSetting.RecordLimit;
-      var rec = 0L;
-      while (await ReadAsync() && rec++ < recordLimit && !cancellationToken.IsCancellationRequested)
-        copyToDataTableInfo.CopyRowToTable(this as IFileReader);
-      copyToDataTableInfo.DataTable.EndLoadData();
-      return copyToDataTableInfo.DataTable;
+      try
+      {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        copyToDataTableInfo.DataTable.BeginLoadData();
+
+        if (recordLimit < 1)
+          recordLimit = FileSetting.RecordLimit < 1 ? long.MaxValue : FileSetting.RecordLimit;
+
+        while (await ReadAsync() && RecordNumber <= recordLimit && !cancellationToken.IsCancellationRequested)
+          copyToDataTableInfo.CopyRowToTable(this as IFileReader);
+
+        copyToDataTableInfo.HandlePreviousRow();
+        copyToDataTableInfo.DataTable.EndLoadData();
+        return copyToDataTableInfo.DataTable;
+      }
+      catch
+      {
+        copyToDataTableInfo.DataTable.Dispose();
+        throw;
+      }
     }
-
     #endregion DataTable
   }
 }

@@ -222,6 +222,9 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="SampleFile.txt" />
+    <Content Include="TestFiles\WithEoFChar.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="TestFiles\AllFormatsColon.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

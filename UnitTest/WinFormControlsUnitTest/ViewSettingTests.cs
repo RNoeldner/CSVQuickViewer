@@ -95,7 +95,7 @@ namespace CsvTools.Tests
           var fn = Path.Combine(FileSystemUtils.ExecutableDirectoryName(), "test.delete");
           FileSystemUtils.FileDelete(fn);
           File.WriteAllText(fn, text);
-          await dc.ReStoreViewSetting(fn);
+          dc.ReStoreViewSetting(fn);
           FileSystemUtils.FileDelete(fn);
         }
       }

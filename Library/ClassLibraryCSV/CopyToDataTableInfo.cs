@@ -12,7 +12,6 @@
  *
  */
 
-using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
@@ -20,7 +19,7 @@ using System.Linq;
 
 namespace CsvTools
 {
-  public sealed class CopyToDataTableInfo : IDisposable
+  public sealed class CopyToDataTableInfo
   {
     public readonly DataTable DataTable;
     private readonly DataColumn m_Error;
@@ -32,7 +31,6 @@ namespace CsvTools
     private readonly bool m_IncludeErrorField;
     private readonly bool m_StoreWarningsInDataTable;
     private readonly ColumnErrorDictionary m_ColumnErrorDictionary;
-
 
     public CopyToDataTableInfo(IFileReader reader, bool includeErrorField, bool storeWarningsInDataTable, bool addStartLine)
     {
@@ -116,52 +114,40 @@ namespace CsvTools
           // Row Error
           else if (keyValuePair.Key == -1)
             dataRow.RowError = keyValuePair.Value;
-          else if (keyValuePair.Key == -2)
-          {
-            var previousDataRow = DataTable.Rows[DataTable.Rows.Count - 1];
-            previousDataRow.RowError = previousDataRow.RowError.AddMessage(keyValuePair.Value);
-          }
       }
 
       if (m_IncludeErrorField)
       {
         dataRow[m_Error] = ErrorInformation.ReadErrorInformation(m_ColumnErrorDictionary, m_ReaderColumns);
-        foreach (var prev in m_ColumnErrorDictionary.Where(x => x.Key == -2).Select(x => x.Value))
-        {
-          var previousDataRow = DataTable.Rows[DataTable.Rows.Count - 1];
-          previousDataRow[m_Error] = previousDataRow[m_Error].ToString().AddMessage(prev);
-        }
       }
+
+      HandlePreviousRow();
 
       m_ColumnErrorDictionary.Clear();
       return false;
     }
 
-
-    #region IDisposable Support
-
-    private bool m_DisposedValue; // To detect redundant calls
-
-    // This code added to correctly implement the disposable pattern.
-    public void Dispose()
+    public void HandlePreviousRow()
     {
-      // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
-      Dispose(true);
-    }
+      if (!m_StoreWarningsInDataTable && !m_IncludeErrorField)
+        return;
+      if (m_ColumnErrorDictionary.Count == 0)
+        return;
+      var allValues = m_ColumnErrorDictionary.Where(x => x.Key == -2).Select(x => x.Value).ToList();
+      if (allValues.Count == 0)
+        return;
 
-    private void Dispose(bool disposing)
-    {
-      if (m_DisposedValue) return;
-      if (disposing)
+      var previousDataRow = DataTable.Rows[DataTable.Rows.Count - 1];
+      if (m_StoreWarningsInDataTable)
       {
-        m_ReaderColumns.Clear();
-        m_Mapping.Clear();
-        DataTable?.Dispose();
+        foreach (var prev in allValues)
+          previousDataRow.RowError = previousDataRow.RowError.AddMessage(prev);
       }
-
-      m_DisposedValue = true;
+      if (m_IncludeErrorField)
+      {
+        foreach (var prev in allValues)
+          previousDataRow[m_Error] = previousDataRow[m_Error].ToString().AddMessage(prev);
+      }
     }
-
-    #endregion IDisposable Support
   }
 }
