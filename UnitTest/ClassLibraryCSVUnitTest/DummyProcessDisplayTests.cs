@@ -12,6 +12,7 @@
  *
  */
 
+using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
@@ -19,6 +20,18 @@ namespace CsvTools.Tests
   [TestClass]
   public class DummyProcessDisplayTests
   {
+
+    [TestMethod]
+    public void CustomProcessDisplayTest()
+    {
+      bool called = false;
+      using (var processDisplay = new CustomProcessDisplay(CancellationToken.None, text => { called = true; }))
+      {
+        processDisplay.SetProcess("Test", -1, true);
+        Assert.IsTrue(called);
+      }
+    }
+
     [TestMethod]
     public void DummyProcessDisplayTest()
     {
