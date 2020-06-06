@@ -12,6 +12,8 @@
  *
  */
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace CsvTools
 {
   using System;
@@ -145,6 +147,10 @@ namespace CsvTools
     ///   Required method for Designer support - do not modify the contents of this method with the
     ///   code editor.
     /// </summary>
+    [SuppressMessage("ReSharper", "ArrangeThisQualifier")]
+    [SuppressMessage("ReSharper", "RedundantNameQualifier")]
+    [SuppressMessage("ReSharper", "RedundantDelegateCreation")]
+    [SuppressMessage("ReSharper", "LocalizableElement")]
     private void InitializeComponent()
     {
       System.Windows.Forms.Label label1;
@@ -306,7 +312,7 @@ namespace CsvTools
       if (m_CurrentResult > 0)
       {
         m_SearchTextBoxText.ForeColor = SystemColors.WindowText;
-        m_LblResults.Text = $"{m_CurrentResult} of {m_Results}";
+        m_LblResults.Text = $@"{m_CurrentResult} of {m_Results}";
       }
       else
       {

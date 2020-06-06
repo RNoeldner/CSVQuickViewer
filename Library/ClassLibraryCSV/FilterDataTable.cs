@@ -241,19 +241,17 @@ namespace CsvTools
 
     public void WaitCompeteFilter(double timeoutInSeconds)
     {
-      if (m_Filtering)
+      if (!m_Filtering) return;
+      var stopwatch = timeoutInSeconds > 0.01 ? new Stopwatch() : null;
+      stopwatch?.Start();
+      while (m_Filtering)
       {
-        var stopwatch = timeoutInSeconds > 0.01 ? new Stopwatch() : null;
-        stopwatch?.Start();
-        while (m_Filtering)
+        FunctionalDI.SignalBackground?.Invoke();
+        if (stopwatch?.Elapsed.TotalSeconds > timeoutInSeconds)
         {
-          FunctionalDI.SignalBackground?.Invoke();
-          if (timeoutInSeconds > 0.01 && stopwatch.Elapsed.TotalSeconds > timeoutInSeconds)
-          {
-            // can not call Cancel as this method is called by cancel
-            m_CurrentFilterCancellationTokenSource.Cancel();
-            break;
-          }
+          // can not call Cancel as this method is called by cancel
+          m_CurrentFilterCancellationTokenSource.Cancel();
+          break;
         }
       }
     }

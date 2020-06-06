@@ -18,10 +18,10 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
-using System.Diagnostics.Contracts;
 using System.Reflection;
 using System.Xml;
 using System.Xml.Serialization;
+using JetBrains.Annotations;
 
 namespace CsvTools
 {
@@ -127,20 +127,20 @@ namespace CsvTools
     ///   {B,C1,C2,D}. B is {C1,C2,D}, C1 is {D} C2 is {D}
     /// </example>
     [XmlIgnore]
+    [CanBeNull]
     public IReadOnlyCollection<IFileSetting> SourceFileSettings
     {
       get => m_SourceFileSettings;
+      [NotifyPropertyChangedInvocator]
       set
       {
         if (m_SourceFileSettings == null && value == null) return;
-        if (value == null || !value.CollectionEqual(m_SourceFileSettings))
-        {
-          // do not notify if we change from null to an empty list
-          var notify = (value?.Count() > 0 || m_SourceFileSettings != null);
-          m_SourceFileSettings = value;
-          if (notify)
-            NotifyPropertyChanged(nameof(SourceFileSettings));
-        }
+        if (value != null && value.CollectionEqual(m_SourceFileSettings)) return;
+        // do not notify if we change from null to an empty list
+        var notify = (value?.Count() > 0 || m_SourceFileSettings != null);
+        m_SourceFileSettings = value;
+        if (notify)
+          NotifyPropertyChanged(nameof(SourceFileSettings));
       }
     }
 
@@ -168,7 +168,10 @@ namespace CsvTools
     [DefaultValue("")]
     public virtual string RemoteFileName
     {
+      [NotNull]
       get => m_RemoteFileName;
+      [CanBeNull]
+      [NotifyPropertyChangedInvocator]
       set
       {
         var newVal = value ?? string.Empty;
@@ -189,6 +192,7 @@ namespace CsvTools
     public virtual bool ThrowErrorIfNotExists
     {
       get => m_ThrowErrorIfNotExists;
+      [NotifyPropertyChangedInvocator]
       set
       {
         if (m_ThrowErrorIfNotExists.Equals(value))
@@ -334,7 +338,7 @@ namespace CsvTools
     public virtual int ConsecutiveEmptyRows
     {
       get => m_ConsecutiveEmptyRows;
-
+      [NotifyPropertyChangedInvocator]
       set
       {
         if (m_ConsecutiveEmptyRows.Equals(value))
@@ -369,7 +373,7 @@ namespace CsvTools
     public virtual bool DisplayEndLineNo
     {
       get => m_DisplayEndLineNo;
-
+      [NotifyPropertyChangedInvocator]
       set
       {
         if (m_DisplayEndLineNo.Equals(value))
@@ -388,7 +392,7 @@ namespace CsvTools
     public virtual bool DisplayRecordNo
     {
       get => m_DisplayRecordNo;
-
+      [NotifyPropertyChangedInvocator]
       set
       {
         if (m_DisplayRecordNo.Equals(value))
@@ -407,7 +411,7 @@ namespace CsvTools
     public virtual bool DisplayStartLineNo
     {
       get => m_DisplayStartLineNo;
-
+      [NotifyPropertyChangedInvocator]
       set
       {
         if (m_DisplayStartLineNo.Equals(value))
@@ -422,7 +426,7 @@ namespace CsvTools
     public virtual bool SetLatestSourceTimeForWrite
     {
       get => m_SetLatestSourceTimeForWrite;
-
+      [NotifyPropertyChangedInvocator]
       set
       {
         if (m_SetLatestSourceTimeForWrite.Equals(value))
@@ -434,7 +438,10 @@ namespace CsvTools
 
     public ObservableCollection<SampleRecordEntry> Errors
     {
+      [NotNull]
       get => m_Errors;
+      [CanBeNull]
+      [NotifyPropertyChangedInvocator]
       set
       {
         var newVal = value ?? new ObservableCollection<SampleRecordEntry>();
@@ -454,7 +461,9 @@ namespace CsvTools
     [XmlElement]
     public virtual FileFormat FileFormat
     {
+      [NotNull]
       get => m_FileFormat;
+      [CanBeNull]
       set => value?.CopyTo(m_FileFormat);
     }
 
@@ -467,7 +476,7 @@ namespace CsvTools
     public virtual DateTime ProcessTimeUtc
     {
       get => m_ProcessTimeUtc;
-
+      [NotifyPropertyChangedInvocator]
       set
       {
         if (m_ProcessTimeUtc.Equals(value))
@@ -483,6 +492,7 @@ namespace CsvTools
     ///   as changes to the configuration
     /// </summary>
     [XmlIgnore]
+
     public DateTime LatestSourceTimeUtc
     {
       get
@@ -491,6 +501,7 @@ namespace CsvTools
           CalculateLatestSourceTime();
         return m_LatestSourceTimeUtc;
       }
+      [NotifyPropertyChangedInvocator]
       set
       {
         if (m_LatestSourceTimeUtc == value)
@@ -522,7 +533,8 @@ namespace CsvTools
         m_LatestSourceTimeUtc = ProcessTimeUtc;
     }
 
-    private static string FileNameFix(string value)
+    [NotNull]
+    private static string FileNameFix([CanBeNull] string value)
     {
       var newVal = value ?? string.Empty;
       if (newVal.StartsWith(".\\", StringComparison.Ordinal))
@@ -538,7 +550,10 @@ namespace CsvTools
     [DefaultValue("")]
     public virtual string FileName
     {
+      [NotNull]
       get => m_FileName;
+      [CanBeNull]
+      [NotifyPropertyChangedInvocator]
       set
       {
         var newVal = FileNameFix(value);
@@ -562,6 +577,7 @@ namespace CsvTools
     public virtual long FileSize
     {
       get => m_FileSize;
+      [NotifyPropertyChangedInvocator]
       set
       {
         if (value == m_FileSize)
@@ -578,8 +594,10 @@ namespace CsvTools
     [DefaultValue("")]
     public virtual string Footer
     {
+      [NotNull]
       get => m_Footer;
-
+      [CanBeNull]
+      [NotifyPropertyChangedInvocator]
       set
       {
         var newVal = StringUtils.HandleCRLFCombinations(value ?? string.Empty, Environment.NewLine);
@@ -595,6 +613,7 @@ namespace CsvTools
     [XmlIgnore]
     public virtual string FullPath
     {
+      [CanBeNull]
       get
       {
         if (m_FullPath == null || !FileSystemUtils.FileExists(m_FullPath))
@@ -623,6 +642,7 @@ namespace CsvTools
     public virtual bool HasFieldHeader
     {
       get => m_HasFieldHeader;
+      [NotifyPropertyChangedInvocator]
       set
       {
         if (m_HasFieldHeader.Equals(value))
@@ -639,8 +659,10 @@ namespace CsvTools
     [DefaultValue("")]
     public virtual string Header
     {
+      [NotNull]
       get => m_Header;
-
+      [CanBeNull]
+      [NotifyPropertyChangedInvocator]
       set
       {
         var newVal = StringUtils.HandleCRLFCombinations(value ?? string.Empty, Environment.NewLine);
@@ -659,8 +681,10 @@ namespace CsvTools
     [DefaultValue("")]
     public virtual string ID
     {
+      [NotNull]
       get => m_Id;
-
+      [CanBeNull]
+      [NotifyPropertyChangedInvocator]
       set
       {
         var newVal = value ?? string.Empty;
@@ -683,7 +707,7 @@ namespace CsvTools
     public virtual bool InOverview
     {
       get => m_InOverview;
-
+      [NotifyPropertyChangedInvocator]
       set
       {
         if (m_InOverview.Equals(value))
@@ -708,7 +732,7 @@ namespace CsvTools
     public virtual bool IsEnabled
     {
       get => m_IsEnabled;
-
+      [NotifyPropertyChangedInvocator]
       set
       {
         if (m_IsEnabled.Equals(value))
@@ -739,6 +763,7 @@ namespace CsvTools
           m_NumErrors = Errors.Count;
         return m_NumErrors;
       }
+      [NotifyPropertyChangedInvocator]
       set
       {
         // can not be smaller than the number of named errors
@@ -760,6 +785,7 @@ namespace CsvTools
     public virtual long NumRecords
     {
       get => m_NumRecords;
+      [NotifyPropertyChangedInvocator]
       set
       {
         if (m_NumRecords == value)
@@ -776,7 +802,9 @@ namespace CsvTools
     [DefaultValue("")]
     public virtual string Passphrase
     {
+      [NotNull]
       get => m_Passphrase;
+      [CanBeNull]
       set => m_Passphrase = (value ?? string.Empty).Trim();
     }
 
@@ -787,7 +815,10 @@ namespace CsvTools
     [DefaultValue("")]
     public virtual string Recipient
     {
+      [NotNull]
       get => m_Recipient;
+      [CanBeNull]
+      [NotifyPropertyChangedInvocator]
       set
       {
         var newVal = (value ?? string.Empty).Trim();
@@ -817,9 +848,13 @@ namespace CsvTools
       }
     }
 
+
     public ObservableCollection<SampleRecordEntry> Samples
     {
+      [NotNull]
       get => m_Samples;
+      [CanBeNull]
+      [NotifyPropertyChangedInvocator]
       set
       {
         var newVal = value ?? new ObservableCollection<SampleRecordEntry>();
@@ -839,7 +874,7 @@ namespace CsvTools
     public virtual bool ShowProgress
     {
       get => m_ShowProgress;
-
+      [NotifyPropertyChangedInvocator]
       set
       {
         if (m_ShowProgress.Equals(value))
@@ -858,6 +893,7 @@ namespace CsvTools
     public virtual bool SkipEmptyLines
     {
       get => m_SkipEmptyLines;
+      [NotifyPropertyChangedInvocator]
       set
       {
         if (m_SkipEmptyLines.Equals(value))
@@ -872,6 +908,7 @@ namespace CsvTools
     public virtual bool SkipDuplicateHeader
     {
       get => m_SkipDuplicateHeader;
+      [NotifyPropertyChangedInvocator]
       set
       {
         if (m_SkipDuplicateHeader.Equals(value))
@@ -890,7 +927,7 @@ namespace CsvTools
     public virtual int SkipRows
     {
       get => m_SkipRows;
-
+      [NotifyPropertyChangedInvocator]
       set
       {
         if (m_SkipRows.Equals(value))
@@ -918,15 +955,12 @@ namespace CsvTools
     [DefaultValue("")]
     public virtual string SqlStatement
     {
-      get
-      {
-        Contract.Ensures(Contract.Result<string>() != null);
-        return m_SqlStatement;
-      }
-
+      get => m_SqlStatement;
+      [CanBeNull]
+      [NotifyPropertyChangedInvocator]
       set
       {
-        var newVal = (value ?? string.Empty).NoControlCharacters();
+        var newVal = (value==null ? string.Empty : value.NoControlCharacters());
         if (newVal.Equals(m_SqlStatement, StringComparison.Ordinal))
           return;
         m_SqlStatement = newVal;
@@ -946,7 +980,7 @@ namespace CsvTools
     public virtual int Timeout
     {
       get => m_Timeout;
-
+      [NotifyPropertyChangedInvocator]
       set
       {
         var newVal = value > 0 ? value : 0;
@@ -965,12 +999,10 @@ namespace CsvTools
     [DefaultValue("")]
     public virtual string TemplateName
     {
-      get
-      {
-        Contract.Ensures(Contract.Result<string>() != null);
-        return m_TemplateName;
-      }
-
+      [NotNull]
+      get => m_TemplateName;
+      [CanBeNull]
+      [NotifyPropertyChangedInvocator]
       set
       {
         var newVal = value ?? string.Empty;
@@ -990,7 +1022,7 @@ namespace CsvTools
     public virtual bool TreatNBSPAsSpace
     {
       get => m_TreatNbspAsSpace;
-
+      [NotifyPropertyChangedInvocator]
       set
       {
         if (m_TreatNbspAsSpace.Equals(value))
@@ -1007,11 +1039,10 @@ namespace CsvTools
     [DefaultValue("NULL")]
     public virtual string TreatTextAsNull
     {
-      get
-      {
-        Contract.Ensures(Contract.Result<string>() != null);
-        return m_TreatTextAsNull;
-      }
+      [NotNull]
+      get => m_TreatTextAsNull;
+      [CanBeNull]
+      [NotifyPropertyChangedInvocator]
       set
       {
         var newVal = value ?? string.Empty;
@@ -1031,6 +1062,7 @@ namespace CsvTools
     public virtual TrimmingOption TrimmingOption
     {
       get => m_TrimmingOption;
+      [NotifyPropertyChangedInvocator]
       set
       {
         if (m_TrimmingOption.Equals(value))
@@ -1053,7 +1085,7 @@ namespace CsvTools
     public virtual bool Validate
     {
       get => m_Validate;
-
+      [NotifyPropertyChangedInvocator]
       set
       {
         if (m_Validate.Equals(value))
@@ -1066,9 +1098,11 @@ namespace CsvTools
     /// <summary>
     ///   Gets or sets the <see cref="ValidationResult" />
     /// </summary>
+    [CanBeNull]
     public ValidationResult ValidationResult
     {
       get => m_ValidationResult;
+      [NotifyPropertyChangedInvocator]
       set
       {
         if (m_ValidationResult != null && m_ValidationResult.Equals(value))

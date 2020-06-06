@@ -34,10 +34,10 @@ namespace CsvTools
     public FrmLimitSize()
     {
       InitializeComponent();
-      labelCount1.Text = $"{m_IntRecords[0]:N0}";
-      labelCount2.Text = $"{m_IntRecords[1]:N0}";
-      labelCount3.Text = $"{m_IntRecords[2]:N0}";
-      labelCount4.Text = $"{m_IntRecords[3]:N0}";
+      labelCount1.Text = $@"{m_IntRecords[0]:N0}";
+      labelCount2.Text = $@"{m_IntRecords[1]:N0}";
+      labelCount3.Text = $@"{m_IntRecords[2]:N0}";
+      labelCount4.Text = $@"{m_IntRecords[3]:N0}";
       UpdateLabel();
     }
 

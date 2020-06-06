@@ -12,6 +12,8 @@
  *
  */
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace CsvTools
 {
   using System;
@@ -149,7 +151,7 @@ namespace CsvTools
       }
     }
 
-    private bool m_IsDisposed = false;
+    private bool m_IsDisposed;
 
     /// <summary>
     ///   Dispose
@@ -175,6 +177,9 @@ namespace CsvTools
     /// <summary>
     ///   Initializes the component.
     /// </summary>
+    [SuppressMessage("ReSharper", "RedundantNameQualifier")]
+    [SuppressMessage("ReSharper", "LocalizableElement")]
+    [SuppressMessage("ReSharper", "RedundantDelegateCreation")]
     private void InitializeComponent()
     {
       this.components = new System.ComponentModel.Container();
@@ -212,8 +217,8 @@ namespace CsvTools
       this.checkBoxQualifyOnlyNeeded = new System.Windows.Forms.CheckBox();
       this.checkBoxQualifyAlways = new System.Windows.Forms.CheckBox();
       m_Label5 = new System.Windows.Forms.Label();
-      ((System.ComponentModel.ISupportInitialize)(this.m_FileFormatBindingSource)).BeginInit();
-      ((System.ComponentModel.ISupportInitialize)(this.m_ErrorProvider)).BeginInit();
+      ((System.ComponentModel.ISupportInitialize) (this.m_FileFormatBindingSource)).BeginInit();
+      ((System.ComponentModel.ISupportInitialize) (this.m_ErrorProvider)).BeginInit();
       this.m_TableLayoutPanel.SuspendLayout();
       this.SuspendLayout();
       // 
@@ -307,6 +312,7 @@ namespace CsvTools
       // 
       // m_TextBoxQuotePlaceHolder
       // 
+      // ReSharper disable once RedundantExplicitArrayCreation
       this.m_TextBoxQuotePlaceHolder.AutoCompleteCustomSource.AddRange(new string[] {
             "{q}",
             "&quot;"});
@@ -696,8 +702,8 @@ namespace CsvTools
       this.MinimumSize = new System.Drawing.Size(664, 0);
       this.Name = "QuotingControl";
       this.Size = new System.Drawing.Size(760, 240);
-      ((System.ComponentModel.ISupportInitialize)(this.m_FileFormatBindingSource)).EndInit();
-      ((System.ComponentModel.ISupportInitialize)(this.m_ErrorProvider)).EndInit();
+      ((System.ComponentModel.ISupportInitialize) (this.m_FileFormatBindingSource)).EndInit();
+      ((System.ComponentModel.ISupportInitialize) (this.m_ErrorProvider)).EndInit();
       this.m_TableLayoutPanel.ResumeLayout(false);
       this.m_TableLayoutPanel.PerformLayout();
       this.ResumeLayout(false);
@@ -717,8 +723,8 @@ namespace CsvTools
           {
             foreach (var ite in comboBoxTrim.Items)
             {
-              var item = (DisplayItem<int>)ite;
-              if (item.ID == (int)trim)
+              var item = (DisplayItem<int>) ite;
+              if (item.ID == (int) trim)
               {
                 comboBoxTrim.SelectedItem = ite;
                 break;
@@ -755,21 +761,23 @@ namespace CsvTools
 
             if (quote == null)
             {
-              m_RichTextBox10.Text = "<Not possible>";
+              m_RichTextBox10.Text = @"<Not possible>";
               m_RichTextBox10.SelectAll();
               m_RichTextBox10.SelectionColor = Color.Red;
 
-              m_RichTextBox12.Text = "<Not possible>";
+              m_RichTextBox12.Text = @"<Not possible>";
               m_RichTextBox12.SelectAll();
               m_RichTextBox12.SelectionColor = Color.Red;
             }
             else
             {
-              m_RichTextBox10.Text = "Column with:" + m_RichTextBoxSrc.Delimiter + " Delimiter";
-              m_RichTextBox12.Text = "Column with \nLinefeed";
+              m_RichTextBox10.Text = $@"Column with:{m_RichTextBoxSrc.Delimiter} Delimiter";
+              m_RichTextBox12.Text = @"Column with 
+Linefeed";
             }
 
-            m_RichTextBox11.Text = "Column with:" + quote + " Quote";
+            m_RichTextBox11.Text = $@"Column with:{quote} Quote";
+
 
             // richTextBox11.Quote = quote[0];
 
@@ -810,6 +818,7 @@ namespace CsvTools
             m_ToolTip.SetToolTip(m_TextBoxQuotePlaceHolder, newToolTip);
           });
 
+    [SuppressMessage("ReSharper", "LocalizableElement")]
     private void SetTrimming(object sender, EventArgs e) =>
       this.SafeInvoke(
         () =>
@@ -823,7 +832,7 @@ namespace CsvTools
             m_RichTextBox00.Clear();
             m_RichTextBox01.Clear();
             m_RichTextBox02.Clear();
-            switch (((DisplayItem<int>)comboBoxTrim.SelectedItem).ID)
+            switch (((DisplayItem<int>) comboBoxTrim.SelectedItem).ID)
             {
               case 1:
                 m_CsvFile.TrimmingOption = TrimmingOption.Unquoted;

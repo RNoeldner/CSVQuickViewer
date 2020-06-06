@@ -21,6 +21,7 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 
 namespace CsvTools
 {
@@ -29,11 +30,17 @@ namespace CsvTools
   /// </summary>
   public class CsvFileWriter : BaseFileWriter, IFileWriter
   {
+    [NotNull]
     private readonly ICsvFile m_CsvFile;
+    [NotNull]
     private readonly string m_FieldDelimiter;
+    [NotNull]
     private readonly string m_FieldDelimiterEscaped;
+    [NotNull]
     private readonly string m_FieldQualifier;
+    [NotNull]
     private readonly string m_FieldQualifierEscaped;
+    [NotNull]
     private readonly char[] m_QualifyCharArray;
 
     /// <summary>
@@ -42,7 +49,7 @@ namespace CsvTools
     /// <param name="file">The file.</param>
     /// <param name="timeZone">The timezone to convert to</param>
     /// <param name="processDisplay">The process display.</param>
-    public CsvFileWriter(ICsvFile file, string timeZone, IProcessDisplay processDisplay)
+    public CsvFileWriter([NotNull] ICsvFile file, [CanBeNull] string timeZone, [CanBeNull] IProcessDisplay processDisplay)
       : base(file, timeZone, processDisplay)
     {
       Contract.Requires(file != null);
@@ -70,7 +77,7 @@ namespace CsvTools
     /// <param name="reader">A Data Reader with the data</param>
     /// <param name="output">The output.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    protected override async Task WriteReaderAsync(IFileReader reader, Stream output,
+    protected override async Task WriteReaderAsync([NotNull] IFileReader reader, [NotNull] Stream output,
       CancellationToken cancellationToken)
     {
       using (var writer = new StreamWriter(output,
@@ -98,8 +105,8 @@ namespace CsvTools
       }
     }
 
-    private bool WriterProcessRecord(IDataReader reader, StringBuilder sb,
-      int numColumns, string recordEnd)
+    private bool WriterProcessRecord([NotNull] IDataReader reader, [NotNull] StringBuilder sb,
+      int numColumns, [CanBeNull] string recordEnd)
     {
       NextRecord();
       var emptyColumns = 0;
@@ -129,7 +136,8 @@ namespace CsvTools
       return false;
     }
 
-    private StringBuilder WriterStart(IDataReader reader, out string recordEnd)
+    [NotNull]
+    private StringBuilder WriterStart([NotNull] IDataReader reader, [NotNull] out string recordEnd)
     {
       Columns.Clear();
       Columns.AddRange(ColumnInfo.GetSourceColumnInformation(m_CsvFile, reader));
@@ -157,7 +165,8 @@ namespace CsvTools
       return sb;
     }
 
-    private string GetHeaderRow(IEnumerable<ColumnInfo> columnInfos)
+    [NotNull]
+    private string GetHeaderRow([NotNull][ItemNotNull] IEnumerable<ColumnInfo> columnInfos)
     {
       Contract.Requires(columnInfos != null);
 
@@ -165,7 +174,7 @@ namespace CsvTools
       foreach (var columnInfo in columnInfos)
       {
         Contract.Assume(columnInfo != null);
-        sb.Append(TextEncodeField(m_CsvFile.FileFormat, columnInfo.Column.Name, columnInfo, true, null, QualifyText));
+        sb.Append(TextEncodeField(m_CsvFile.FileFormat, columnInfo.Column.Name, columnInfo, true, reader: null, QualifyText));
         if (!m_CsvFile.FileFormat.IsFixedLength)
           sb.Append(m_CsvFile.FileFormat.FieldDelimiterChar);
       }
@@ -175,7 +184,8 @@ namespace CsvTools
       return sb.ToString();
     }
 
-    private string QualifyText(string displayAs, DataType dataType, FileFormat fileFormat)
+    [NotNull]
+    private string QualifyText([NotNull] string displayAs, DataType dataType, [NotNull] FileFormat fileFormat)
     {
       var qualifyThis = fileFormat.QualifyAlways;
       if (!qualifyThis)

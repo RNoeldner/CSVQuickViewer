@@ -5,9 +5,9 @@ namespace CsvTools
 {
   public class RtfHelper
   {
-    private readonly StringBuilder m_StringBuilder = new StringBuilder();
+    private readonly StringBuilder m_StringBuilder;
     private int m_CurrentColor = -1;
-    private readonly bool m_DisplaySpace = true;
+    private readonly bool m_DisplaySpace;
 
     public RtfHelper(bool displaySpace = false, int size = 18)
     {

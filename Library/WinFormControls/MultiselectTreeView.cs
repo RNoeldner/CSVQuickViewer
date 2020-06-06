@@ -40,7 +40,7 @@ namespace CsvTools
     public ICollection<TreeNode> SelectedTreeNode { get; } = new HashSet<TreeNode>();
 
     /// <summary>
-    ///   Raises the <see cref="AfterSelect" /> event.
+    ///   Raises Event
     /// </summary>
     /// <param name="e">
     ///   A <see cref="TreeViewEventArgs" /> that contains the event data.
@@ -170,7 +170,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Raises the <see cref="BeforeSelect" /> event.
+    ///   Raises event.
     /// </summary>
     /// <param name="e">
     ///   A <see cref="TreeViewCancelEventArgs" /> that contains the event data.
@@ -200,7 +200,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Raises the <see cref="KeyDown" /> event.
+    ///   Raises event.
     /// </summary>
     /// <param name="e">
     ///   A <see cref="KeyEventArgs" /> that contains the event data.

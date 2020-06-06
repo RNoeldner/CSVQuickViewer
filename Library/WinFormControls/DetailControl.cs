@@ -17,7 +17,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
-using System.Diagnostics.Contracts;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
@@ -528,8 +528,6 @@ namespace CsvTools
 
         foreach (var cell in m_SearchCells)
         {
-          Contract.Assume(cell.Key != null);
-          Contract.Assume(cell.Value != null);
 
           if (processInformation.CancellationTokenSource?.IsCancellationRequested ?? false)
             return;
@@ -562,7 +560,7 @@ namespace CsvTools
       {
         using (var details = new FormShowMaxLength(m_DataTable, m_DataTable.Select(m_FilteredDataGridView.CurrentFilter)))
         {
-          details.Icon = ParentForm.Icon;
+          details.Icon = ParentForm?.Icon;
           details.ShowDialog(ParentForm);
         }
       }
@@ -598,7 +596,7 @@ namespace CsvTools
           m_DataTable.Select(m_FilteredDataGridView.CurrentFilter),
           columnName))
         {
-          details.Icon = ParentForm.Icon;
+          details.Icon = ParentForm?.Icon;
           details.ShowDialog(ParentForm);
         }
       }
@@ -661,7 +659,7 @@ namespace CsvTools
           m_DataTable.Select(m_FilteredDataGridView.CurrentFilter),
           columnName))
         {
-          details.Icon = ParentForm.Icon;
+          details.Icon = ParentForm?.Icon;
           details.ShowDialog(this);
         }
       }
@@ -790,6 +788,11 @@ namespace CsvTools
     ///   Required method for Designer support - do not modify the contents of this method with the
     ///   code editor.
     /// </summary>
+    [SuppressMessage("ReSharper", "ArrangeThisQualifier")]
+    [SuppressMessage("ReSharper", "RedundantNameQualifier")]
+    [SuppressMessage("ReSharper", "RedundantDelegateCreation")]
+    [SuppressMessage("ReSharper", "LocalizableElement")]
+    [SuppressMessage("ReSharper", "RedundantCast")]
     private void InitializeComponent()
     {
       this.components = new System.ComponentModel.Container();
@@ -1179,12 +1182,11 @@ namespace CsvTools
     private void ResultFound(object sender, FoundEventArgs args)
     {
       m_FoundCells.Add(args.Cell);
-      (this).SafeBeginInvoke(
-(Action) (() =>
-         {
-           m_Search.Results = args.Index;
-           this.m_FilteredDataGridView.InvalidateCell(args.Cell);
-         }));
+      (this).SafeBeginInvoke(() =>
+    {
+      m_Search.Results = args.Index;
+      this.m_FilteredDataGridView.InvalidateCell(args.Cell);
+    });
     }
 
     private void SearchComplete(object sender, SearchEventArgs e) =>
@@ -1279,7 +1281,7 @@ namespace CsvTools
 
     private async void ToolStripButtonStoreAsCsvAsync(object sender, EventArgs e)
     {
-      CsvTools.FileSystemUtils.SplitResult split = null;
+      FileSystemUtils.SplitResult split;
       if ((m_FileSetting is IFileSettingPhysicalFile settingPhysicalFile))
         split = FileSystemUtils.SplitPath(settingPhysicalFile.FullPath);
       else

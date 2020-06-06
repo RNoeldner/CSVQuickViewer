@@ -14,6 +14,7 @@
 
 using System;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 
 namespace CsvTools
 {
@@ -39,7 +40,7 @@ namespace CsvTools
     ///   A <see cref="T:System.Collections.Generic.IDictionary`2" />, that will copied to the new class
     /// </param>
     /// <exception cref="ArgumentException">Duplicate key - key or Duplicate value - value</exception>
-    public BiDirectionalDictionary(IDictionary<TKey, TValue> dictionary)
+    public BiDirectionalDictionary([CanBeNull] IDictionary<TKey, TValue> dictionary)
     {
       m_SecondToFirst = new Dictionary<TValue, TKey>(dictionary?.Count ?? 0);
       if (dictionary == null) return;
@@ -53,7 +54,7 @@ namespace CsvTools
     /// <param name="key">The key of the dictionary.</param>
     /// <param name="value">the value for teh key, there can not be two keys with teh same value</param>
     /// <exception cref="ArgumentException">Duplicate key - key or Duplicate value - value</exception>
-    public new void Add(TKey key, TValue value)
+    public new void Add([NotNull] TKey key, [NotNull] TValue value)
     {
       if (ContainsKey(key))
         throw new ArgumentException("Duplicate key", nameof(key));
@@ -70,7 +71,7 @@ namespace CsvTools
     /// <param name="key"></param>
     /// <param name="value"></param>
     /// <returns>true if successfully added, false if either element are already in the dictionary</returns>
-    public new bool TryAdd(TKey key, TValue value)
+    public bool TryAdd([NotNull] TKey key, [NotNull] TValue value)
     {
       if (ContainsKey(key) || m_SecondToFirst.ContainsKey(value))
         return false;
@@ -86,7 +87,8 @@ namespace CsvTools
     /// <param name="value">the key to search for</param>
     /// <param name="key">the corresponding value</param>
     /// <returns>true if value is in the dictionary, false otherwise</returns>
-    public bool TryGetByValue(TValue value, out TKey key) => m_SecondToFirst.TryGetValue(value, out key);
+    public bool TryGetByValue([NotNull] TValue value, out TKey key) => 
+      m_SecondToFirst.TryGetValue(value, out key);
 
     /// <summary>
     ///   Find the TFirst corresponding to the Second value. Throws an exception if value is not in
@@ -94,7 +96,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="value">the key to search for</param>
     /// <returns>the value corresponding to value</returns>
-    public TKey GetByValue(TValue value)
+    public TKey GetByValue([NotNull] TValue value)
     {
       if (!m_SecondToFirst.TryGetValue(value, out var key))
         throw new ArgumentException(nameof(value));

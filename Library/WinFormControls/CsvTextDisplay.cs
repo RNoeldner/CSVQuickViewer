@@ -65,7 +65,7 @@ The file {value.FileName} does not exist.";
           CSVTextBox.Escape = value.FileFormat.EscapeCharacterChar;
 
           ScrollBarVertical.LargeChange = 4096;
-          ScrollBarVertical.Maximum = FileSystemUtils.FileLength(value.FullPath).ToInt();
+          ScrollBarVertical.Maximum = string.IsNullOrEmpty(value.FullPath) ? 0 : FileSystemUtils.FileLength(value.FullPath).ToInt();
           m_CsvFile = value;
 
           // Starting task without error handler

@@ -158,15 +158,16 @@ namespace CsvTools
 
         if (MessageBox.Show(
               this,
-              "Should the value format of the columns be analyzed?",
-              "Value Format",
+              @"Should the value format of the columns be analyzed?",
+              @"Value Format",
               MessageBoxButtons.YesNo,
               MessageBoxIcon.Question) == DialogResult.Yes)
         {
           if (m_ViewSettings.ColumnCollection.Count > 0 && MessageBox.Show(
                 this,
-                "Any already typed value will not be analyzed.\r\n Should the existing formats be removed before doing so?",
-                "Value Format",
+                @"Any already typed value will not be analyzed.
+ Should the existing formats be removed before doing so?",
+                @"Value Format",
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Question) == DialogResult.Yes)
             m_ViewSettings.ColumnCollection.Clear();
@@ -203,16 +204,13 @@ namespace CsvTools
 
     private void CsvFile_PropertyChanged(object sender, PropertyChangedEventArgs e)
     {
-      if (e.PropertyName == nameof(ViewSettings.CodePageId))
-      {
-        foreach (var ite in cboCodePage.Items)
-          if (((DisplayItem<int>) ite).ID == m_ViewSettings.CodePageId)
-          {
-            cboCodePage.SelectedItem = ite;
-            break;
-          }
-        return;
-      }
+      if (e.PropertyName != nameof(ViewSettings.CodePageId)) return;
+      foreach (var ite in cboCodePage.Items)
+        if (((DisplayItem<int>) ite).ID == m_ViewSettings.CodePageId)
+        {
+          cboCodePage.SelectedItem = ite;
+          break;
+        }
     }
 
     /// <summary>

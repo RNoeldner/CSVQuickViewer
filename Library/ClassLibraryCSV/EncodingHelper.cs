@@ -16,6 +16,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics.Contracts;
 using System.Text;
+using JetBrains.Annotations;
 using Ude;
 
 namespace CsvTools
@@ -37,6 +38,7 @@ namespace CsvTools
    10029, 20127, 28597, 50220, 28592, 28595, 28598, 20866, 932, 54936
   });
 
+    // ReSharper disable once InconsistentNaming
     public static byte BOMLength(CodePage codePage)
     {
       switch (codePage)
@@ -210,7 +212,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="buff">The buff.</param>
     /// <returns>The Code page id if, if the code page could not be identified 0</returns>
-    public static int GetCodePageByByteOrderMark(byte[] buff)
+    public static int GetCodePageByByteOrderMark([CanBeNull] byte[] buff)
     {
       if (buff == null)
         return (int)CodePage.None;
@@ -253,9 +255,9 @@ namespace CsvTools
     /// <param name="codePage">The code page ID.</param>
     /// <param name="byteOrderMark">if set to <c>true</c> [byte order mark].</param>
     /// <returns></returns>
+    [NotNull]
     public static Encoding GetEncoding(int codePage, bool byteOrderMark)
     {
-      Contract.Ensures(Contract.Result<Encoding>() != null);
       switch (codePage)
       {
         case (int)CodePage.UTF16Le:
@@ -286,10 +288,9 @@ namespace CsvTools
     /// <param name="hasBom">Flag indicating that byte order mark is present</param>
     /// <param name="showBom">Flag indicating that byte order mark information should be shown</param>
     /// <returns>The name</returns>
+    [NotNull]
     public static string GetEncodingName(int codePage, bool showBom, bool hasBom)
     {
-      Contract.Requires(codePage >= -1);
-      Contract.Ensures(Contract.Result<string>() != null);
 
       const string c_SuffixWithBom = " with BOM";
       string name;
@@ -345,7 +346,7 @@ namespace CsvTools
     /// <param name="buff">The buff containing the characters.</param>
     /// <param name="len">The length of the buffer.</param>
     /// <returns>The windows code page id</returns>
-    public static int GuessCodePageNoBom(byte[] buff, int len)
+    public static int GuessCodePageNoBom([CanBeNull] byte[] buff, int len)
     {
       if (buff == null)
         return (int)CodePage.UTF8;

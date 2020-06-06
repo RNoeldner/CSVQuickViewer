@@ -12,6 +12,8 @@
  *
  */
 
+using JetBrains.Annotations;
+
 namespace CsvTools
 {
   public interface IFileSettingPhysicalFile : IFileSetting
@@ -20,7 +22,7 @@ namespace CsvTools
     ///  Gets or sets the name of the file, this value could be a relative path
     /// </summary>
     /// <value>The name of the file.</value>
-    string FileName { get; set; }
+    string FileName { [NotNull] get; [CanBeNull] set; }
 
     /// <summary>
     ///  The Size of the file in Byte
@@ -33,6 +35,7 @@ namespace CsvTools
     /// <value>
     ///  The full path for <see cref="FileName" />
     /// </value>
+    [CanBeNull]
     string FullPath { get; }
 
     /// <summary>
@@ -43,7 +46,7 @@ namespace CsvTools
     /// <summary>
     ///  Path to the file on sFTP Server
     /// </summary>
-    string RemoteFileName { get; set; }
+    string RemoteFileName { [NotNull] get; [CanBeNull] set; }
 
     /// <summary>
     /// In case of creating a file, should the time of the latest source be used?

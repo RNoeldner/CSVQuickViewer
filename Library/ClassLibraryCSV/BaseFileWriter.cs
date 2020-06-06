@@ -19,6 +19,7 @@ using System.Globalization;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 
 namespace CsvTools
 {
@@ -27,9 +28,13 @@ namespace CsvTools
   /// </summary>
   public abstract class BaseFileWriter
   {
+    [NotNull]
     protected readonly List<ColumnInfo> Columns = new List<ColumnInfo>();
+    [NotNull]
     private readonly IFileSettingPhysicalFile m_FileSetting;
+    [CanBeNull]
     private readonly IProcessDisplay m_ProcessDisplay;
+    [NotNull]
     private readonly string m_SourceTimeZone;
     private DateTime m_LastNotification = DateTime.Now;
 
@@ -41,8 +46,8 @@ namespace CsvTools
     /// <param name="processDisplay">The process display.</param>
     /// <exception cref="ArgumentNullException">fileSetting</exception>
     /// <exception cref="ArgumentException">No SQL Reader set</exception>
-    protected BaseFileWriter(IFileSettingPhysicalFile fileSetting, string sourceTimeZone,
-      IProcessDisplay processDisplay)
+    protected BaseFileWriter([NotNull] IFileSettingPhysicalFile fileSetting, [CanBeNull] string sourceTimeZone,
+      [CanBeNull] IProcessDisplay processDisplay)
     {
       m_ProcessDisplay = processDisplay;
       m_SourceTimeZone = string.IsNullOrEmpty(sourceTimeZone) ? TimeZoneInfo.Local.Id : sourceTimeZone;
@@ -85,6 +90,7 @@ namespace CsvTools
       }
     }
 
+    [NotNull]
     protected string GetRecordEnd() => m_FileSetting.FileFormat.NewLine.NewLineString();
 
     public async Task<long> WriteAsync(IFileReader reader)
@@ -146,7 +152,7 @@ namespace CsvTools
     /// <param name="columnInfo">The column information.</param>
     /// <param name="reader">The reader.</param>
     /// <returns></returns>
-    protected DateTime HandleTimeZone(DateTime dataObject, ColumnInfo columnInfo, IDataRecord reader)
+    protected DateTime HandleTimeZone(DateTime dataObject, [NotNull] ColumnInfo columnInfo, [NotNull] IDataRecord reader)
     {
       if (columnInfo is null)
         throw new ArgumentNullException(nameof(columnInfo));
@@ -183,7 +189,8 @@ namespace CsvTools
       m_FileSetting.ProcessTimeUtc = DateTime.UtcNow;
       if (!(m_FileSetting is IFileSettingPhysicalFile physicalFile) ||
           !physicalFile.SetLatestSourceTimeForWrite) return;
-      FileSystemUtils.SetLastWriteTimeUtc(physicalFile.FullPath, m_FileSetting.LatestSourceTimeUtc);
+      if (physicalFile.FullPath != null)
+        FileSystemUtils.SetLastWriteTimeUtc(physicalFile.FullPath, m_FileSetting.LatestSourceTimeUtc);
 
       Logger.Debug("Finished writing {filesetting} Records: {records}", m_FileSetting.ToString(), Records);
       WriteFinished?.Invoke(this, null);
@@ -214,8 +221,9 @@ namespace CsvTools
     /// <exception cref="FileWriterException">
     ///   For fix length output the length of the columns needs to be specified.
     /// </exception>
-    protected string TextEncodeField(FileFormat fileFormat, object dataObject, ColumnInfo columnInfo, bool isHeader,
-      IDataReader reader, Func<string, DataType, FileFormat, string> handleQualify)
+    [NotNull]
+    protected string TextEncodeField([NotNull] FileFormat fileFormat, object dataObject, [NotNull] ColumnInfo columnInfo, bool isHeader,
+      [CanBeNull] IDataReader reader, [CanBeNull] Func<string, DataType, FileFormat, string> handleQualify)
     {
       if (columnInfo is null)
         throw new ArgumentNullException(nameof(columnInfo));
@@ -242,11 +250,11 @@ namespace CsvTools
               case DataType.Integer:
                 displayAs = dataObject is long l
                   ? l.ToString("0", CultureInfo.InvariantCulture)
-                  : ((int)dataObject).ToString("0", CultureInfo.InvariantCulture);
+                  : ((int) dataObject).ToString("0", CultureInfo.InvariantCulture);
                 break;
 
               case DataType.Boolean:
-                displayAs = (bool)dataObject
+                displayAs = (bool) dataObject
                   ? columnInfo.Column.ValueFormat.True
                   : columnInfo.Column.ValueFormat.False;
                 break;
@@ -266,13 +274,15 @@ namespace CsvTools
                 break;
 
               case DataType.DateTime:
-                displayAs = StringConversion.DateTimeToString(
-                  HandleTimeZone((DateTime)dataObject, columnInfo, reader), columnInfo.Column.ValueFormat);
+                displayAs = reader == null
+                  ? StringConversion.DateTimeToString((DateTime) dataObject, columnInfo.Column.ValueFormat)
+                  : StringConversion.DateTimeToString(HandleTimeZone((DateTime) dataObject, columnInfo, reader),
+                    columnInfo.Column.ValueFormat);
                 break;
 
               case DataType.Guid:
                 // 382c74c3-721d-4f34-80e5-57657b6cbc27
-                displayAs = ((Guid)dataObject).ToString();
+                displayAs = ((Guid) dataObject).ToString();
                 break;
 
               default:
