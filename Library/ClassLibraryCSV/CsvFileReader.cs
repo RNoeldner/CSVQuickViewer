@@ -19,6 +19,7 @@ using System.Diagnostics.Contracts;
 using System.Globalization;
 using System.Text;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 
 namespace CsvTools
 {
@@ -103,7 +104,7 @@ namespace CsvTools
     /// <param name="fileSetting"></param>
     /// <param name="timeZone">Timezone to convert read dates/time value to</param>
     /// <param name="processDisplay">Progress and Cancellation</param>
-    public CsvFileReader(ICsvFile fileSetting, string timeZone, IProcessDisplay processDisplay)
+    public CsvFileReader([NotNull] ICsvFile fileSetting, [CanBeNull] string timeZone, [CanBeNull] IProcessDisplay processDisplay)
       : base(fileSetting, timeZone, processDisplay)
     {
       m_CsvFile = fileSetting;

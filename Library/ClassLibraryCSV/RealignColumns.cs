@@ -15,13 +15,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using JetBrains.Annotations;
 
 namespace CsvTools
 {
   /// <summary>
   ///   Class that is used to condense columns of a row in a sensible way, assuming a delimiter in a
   ///   column lead to more than the expected columns This is archived by looking at known good rows
-  ///   and trying to find a pattern, this is best when identifyiable columns alternate, if all rows
+  ///   and trying to find a pattern, this is best when identify able columns alternate, if all rows
   ///   are long text or all empty there is no way to say which column is not aligned.
   /// </summary>
   public class ReAlignColumns
@@ -54,7 +55,7 @@ namespace CsvTools
     ///   Adds a new row assuming the data is well aligned
     /// </summary>
     /// <param name="newRow">Array with the columns of that row</param>
-    public void AddRow(string[] newRow)
+    public void AddRow([NotNull] string[] newRow)
     {
       if (newRow.Length != m_ExpectedColumns)
         return;
@@ -72,17 +73,14 @@ namespace CsvTools
     /// <param name="handleWarning">Action to be called to store a warning</param>
     /// <param name="rawText">The raw text of the file before splitting it into columns</param>
     /// <returns>A new list of columns</returns>
-    public string[] RealignColumn(string[] row, Action<int, string> handleWarning, string rawText)
+    public string[] RealignColumn([NotNull] string[] row, [NotNull] Action<int, string> handleWarning, [NotNull] string rawText)
     {
-      if (row == null)
-        throw new ArgumentNullException(nameof(row));
-      if (handleWarning is null)
-        throw new ArgumentNullException(nameof(handleWarning));
+      if (row == null)  throw new ArgumentNullException(nameof(row));
+      if (handleWarning == null) throw new ArgumentNullException(nameof(handleWarning));
+      
       if (m_GoodRows.Count < 2)
       {
-        if (handleWarning == null)
-          handleWarning.Invoke(-1, "Not enough error free rows have been read to allow realigning of columns.");
-
+        handleWarning.Invoke(-1, "Not enough error free rows have been read to allow realigning of columns.");
         return row;
       }
       // List is easier to handle than an array
@@ -165,7 +163,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="text">The column information, best is trimmed</param>
     /// <returns>The appropriate column options</returns>
-    private static ColumnOption GetColumnOption(string text)
+    private static ColumnOption GetColumnOption([CanBeNull] string text)
     {
       if (string.IsNullOrEmpty(text))
         return ColumnOption.Empty;
@@ -207,7 +205,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="colNum">The Column Number in the array</param>
     /// <param name="rows">All rows to look at</param>
-    private static ColumnOption GetColumnOptionAllRows(int colNum, IEnumerable<string[]> rows)
+    private static ColumnOption GetColumnOptionAllRows(int colNum, [NotNull] IEnumerable<string[]> rows)
     {
       var overall = ColumnOption.Empty;
       foreach (var row in rows)

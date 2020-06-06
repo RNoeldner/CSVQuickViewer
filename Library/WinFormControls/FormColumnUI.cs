@@ -600,7 +600,7 @@ namespace CsvTools
               if (!m_WriteSetting)
               { // Read Settings  -- open teh source that is a file
                 // if there are ignored columns need to open file and get all columns
-                if (m_FileSetting.ColumnCollection.Any(x => x.Ignore) || FunctionalDI.GetColumnHeader == null)
+                if (m_FileSetting.ColumnCollection.Any(x => x.Ignore))
                 {
                   using (var fileReader = FunctionalDI.GetFileReader(m_FileSetting, null, processDisplay))
                   {

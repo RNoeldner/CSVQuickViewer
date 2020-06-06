@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
+using JetBrains.Annotations;
 
 namespace CsvTools
 {
@@ -34,6 +35,7 @@ namespace CsvTools
     /// Gets or sets the column formats
     /// </summary>
     /// <value>The column format.</value>
+    [NotNull]
     ColumnCollection ColumnCollection { get; }
 
     /// <summary>
@@ -60,12 +62,13 @@ namespace CsvTools
     /// <value><c>true</c> if line no should be displayed; otherwise, <c>false</c>.</value>
     bool DisplayStartLineNo { get; set; }
 
-    ObservableCollection<SampleRecordEntry> Errors { get; set; }
+    ObservableCollection<SampleRecordEntry> Errors { [NotNull] get; [CanBeNull] set; }
 
     /// <summary>
     /// Gets or sets the file format.
     /// </summary>
     /// <value>The file format.</value>
+    [NotNull]
     FileFormat FileFormat { get; }
 
     /// <summary>
@@ -78,7 +81,7 @@ namespace CsvTools
     /// Gets or sets the Footer.
     /// </summary>
     /// <value>The Footer for outbound data.</value>
-    string Footer { get; set; }
+    string Footer { [NotNull] get; [CanBeNull] set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether this instance has field header.
@@ -90,13 +93,14 @@ namespace CsvTools
     /// Gets or sets the Header.
     /// </summary>
     /// <value>The Header for outbound data.</value>
-    string Header { get; set; }
+    string Header { [NotNull] get; [CanBeNull] set; }
 
     /// <summary>
     /// Gets or sets the ID.
     /// </summary>
     /// <value>The ID.</value>
     [SuppressMessage("Microsoft.Naming", "CA1709:IdentifiersShouldBeCasedCorrectly", MessageId = "ID")]
+    [NotNull]
     string ID { get; set; }
 
     /// <summary>
@@ -110,6 +114,7 @@ namespace CsvTools
     /// <summary>
     /// The identified to find this specific instance
     /// </summary>
+    [CanBeNull]
     string InternalID { get; }
 
     /// <summary>
@@ -122,6 +127,7 @@ namespace CsvTools
     /// Gets or sets the field mapping.
     /// </summary>
     /// <value>The field mapping.</value>
+    [NotNull]
     MappingCollection MappingCollection { get; }
 
     /// <summary>
@@ -138,7 +144,7 @@ namespace CsvTools
     /// <summary>
     /// Passphrase for Decryption
     /// </summary>
-    string Passphrase { get; set; }
+    string Passphrase { [NotNull] get; [CanBeNull] set; }
 
     /// <summary>
     /// As the data is loaded and not further validation is done this will be set to true Once
@@ -153,7 +159,7 @@ namespace CsvTools
     /// Gets the root folder of the Tool Setting
     /// </summary>
     /// <value>The root folder.</value>
-    string Recipient { get; set; }
+    string Recipient { [NotNull] get; [CanBeNull] set; }
 
     /// <summary>
     /// Gets or sets the record limit.
@@ -164,7 +170,8 @@ namespace CsvTools
     /// <summary>
     /// SAmple records for validation and reporting
     /// </summary>
-    ObservableCollection<SampleRecordEntry> Samples { get; set; }
+
+    ObservableCollection<SampleRecordEntry> Samples { [NotNull] get; [CanBeNull] set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether to show progress.
@@ -195,13 +202,15 @@ namespace CsvTools
     /// settings but not for file setting pointing to a specif physical file</remarks>
     /// <example>A setting A using setting B that is dependent on C1 and C2 both dependent on D-> A is
     /// {B,C1,C2,D}. B is {C1,C2,D}, C1 is {D} C2 is {D}</example>
+    [CanBeNull]
     IReadOnlyCollection<IFileSetting> SourceFileSettings { get; set; }
 
     /// <summary>
     /// Gets or sets the SQL statement.
     /// </summary>
     /// <value>The SQL statement.</value>
-    string SqlStatement { get; set; }
+
+    string SqlStatement { [NotNull] get; [CanBeNull]set; }
 
     /// <summary>
     /// Gets or sets the timeout value mainly used in Web or SQL Calls.
@@ -224,7 +233,7 @@ namespace CsvTools
     /// <summary>
     /// Gets or sets a value indicating whether this instance should treat any text listed here as Null
     /// </summary>
-    string TreatTextAsNull { get; set; }
+    string TreatTextAsNull { [NotNull] get; [CanBeNull] set; }
 
     /// <summary>
     /// Gets or sets a value indicating of and if training and leading spaces should be trimmed.
@@ -245,6 +254,7 @@ namespace CsvTools
     /// Gets or sets the validation result for this instance
     /// </summary>
     /// <value>The validation result <see cref="ValidationResult"/></value>
+    [CanBeNull]
     ValidationResult ValidationResult { get; set; }
 
     /// <summary>

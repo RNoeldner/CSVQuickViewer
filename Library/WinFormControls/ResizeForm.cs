@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -45,6 +46,8 @@ namespace CsvTools
       InitializeComponent();
     }
 
+    [SuppressMessage("ReSharper", "ArrangeThisQualifier")]
+    [SuppressMessage("ReSharper", "RedundantNameQualifier")]
     private void InitializeComponent()
     {
       System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ResizeForm));
@@ -52,7 +55,6 @@ namespace CsvTools
       // ResizeForm
       this.ClientSize = new System.Drawing.Size(292, 253);
       this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-      this.Name = "ResizeForm";
       this.ResumeLayout(false);
     }
   }

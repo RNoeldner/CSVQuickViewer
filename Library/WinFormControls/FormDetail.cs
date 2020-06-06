@@ -75,6 +75,7 @@ namespace CsvTools
       };
 
       ClientSize = new Size(767, 394);
+      // ReSharper disable once VirtualMemberCallInConstructor
       MinimumSize = new Size(100, 100);
       Controls.Add(detailControl);
       KeyPreview = true;

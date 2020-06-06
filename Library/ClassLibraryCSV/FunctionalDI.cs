@@ -16,6 +16,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 
 namespace CsvTools
 {
@@ -31,6 +32,7 @@ namespace CsvTools
     ///   match the base file readers HandleWarning the validation library will overwrite this is an
     ///   implementation using Noda Time
     /// </summary>
+    [NotNull] 
     public static Func<DateTime?, string, string, int, Action<int, string>, DateTime?> AdjustTZ =
       (input, srcTimeZone, destTimeZone, columnOrdinal, handleWarning) =>
       {
@@ -56,11 +58,13 @@ namespace CsvTools
     /// <summary>
     ///   Function to retrieve the column in a setting file
     /// </summary>
+    [CanBeNull] 
     public static Func<IFileSetting, CancellationToken, Task<ICollection<string>>> GetColumnHeader;
 
     /// <summary>
     ///   Retrieve the passphrase
     /// </summary>
+    [NotNull] 
     public static Func<IFileSetting, string> GetEncryptedPassphrase = fileSetting =>
     {
       if (fileSetting == null) return null;
@@ -70,12 +74,14 @@ namespace CsvTools
     /// <summary>
     ///   Open a file for reading, it will take care of things like compression and encryption
     /// </summary>
+    [NotNull] 
     public static Func<IFileSettingPhysicalFile, IImprovedStream> OpenRead = ImprovedStream.OpenRead;
 
     /// <summary>
     ///   General function to open a file for writing, it will take care of things like compression
     ///   and encryption
     /// </summary>
+    [NotNull] 
     public static Func<IFileSettingPhysicalFile, IImprovedStream> OpenWrite = ImprovedStream.OpenWrite;
 
     /// <summary>
@@ -88,16 +94,19 @@ namespace CsvTools
     /// <summary>
     ///   Action to store the headers of a file in a cache, ignored columns should be excluded
     /// </summary>
+    [CanBeNull] 
     public static Action<IFileSetting, ICollection<Column>> StoreHeader;
 
     /// <summary>
     ///   Return the right reader for a file setting
     /// </summary>
+    [NotNull] 
     public static Func<IFileSetting, string, IProcessDisplay, IFileReader> GetFileReader = DefaultFileReader;
 
     /// <summary>
     ///   Return a right writer for a file setting
     /// </summary>
+    [NotNull] 
     public static Func<IFileSetting, string, IProcessDisplay, IFileWriter> GetFileWriter = DefaultFileWriter;
 
     /// <summary>
@@ -107,7 +116,8 @@ namespace CsvTools
     /// <remarks>Make sure teh returned reader is open when needed</remarks>
     public static Func<string, IProcessDisplay, int, Task<IFileReader>> SQLDataReader;
 
-    private static IFileReader DefaultFileReader(IFileSetting setting, string timeZone, IProcessDisplay processDisplay)
+    [NotNull]
+    private static IFileReader DefaultFileReader([NotNull] IFileSetting setting, [CanBeNull] string timeZone, [CanBeNull] IProcessDisplay processDisplay)
     {
       switch (setting)
       {
@@ -122,7 +132,8 @@ namespace CsvTools
       }
     }
 
-    private static IFileWriter DefaultFileWriter(IFileSetting setting, string timeZone, IProcessDisplay processDisplay)
+    [NotNull]
+    private static IFileWriter DefaultFileWriter([NotNull] IFileSetting setting, [CanBeNull] string timeZone, [CanBeNull] IProcessDisplay processDisplay)
     {
       switch (setting)
       {

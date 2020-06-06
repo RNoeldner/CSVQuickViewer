@@ -103,7 +103,7 @@ namespace CsvTools
       Extensions.ProcessUIElements();
       try
       {
-        this.SafeBeginInvoke(() => Text = $"Unique Values Display - {dataColumnName} ");
+        this.SafeBeginInvoke(() => Text = $@"Unique Values Display - {dataColumnName} ");
 
         var dataColumnID = m_DataTable.Columns[dataColumnName];
         var dictIDToRow = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
@@ -117,20 +117,20 @@ namespace CsvTools
           display.Maximum = m_DataRow.Length;
           display.Show(this);
 
-          for (var rowIdex = 0; rowIdex < m_DataRow.Length; rowIdex++)
+          for (var rowIndex = 0; rowIndex < m_DataRow.Length; rowIndex++)
           {
             if (display.CancellationToken.IsCancellationRequested)
               return;
-            intervalAction.Invoke(delegate { display.SetProcess("Getting Unique values", rowIdex, true); });
-            var id = m_DataRow[rowIdex][dataColumnID.Ordinal].ToString().Trim();
+            intervalAction.Invoke(delegate { display.SetProcess("Getting Unique values", rowIndex, true); });
+            var id = m_DataRow[rowIndex][dataColumnID.Ordinal].ToString().Trim();
             if (ignoreNull && string.IsNullOrEmpty(id))
               continue;
             if (!dictIDToRow.ContainsKey(id))
-              dictIDToRow.Add(id, rowIdex);
+              dictIDToRow.Add(id, rowIndex);
           }
 
           this.SafeInvoke(
-            () => Text = $"Unique Values Display - {dataColumnName} - Rows {dictIDToRow.Count}/{m_DataRow.Length}");
+            () => Text = $@"Unique Values Display - {dataColumnName} - Rows {dictIDToRow.Count}/{m_DataRow.Length}");
 
           m_DataTable.BeginLoadData();
           m_DataTable.Clear();

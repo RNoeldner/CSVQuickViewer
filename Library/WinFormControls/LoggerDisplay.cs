@@ -31,6 +31,7 @@ namespace CsvTools
 
     public LoggerDisplay()
     {
+      // ReSharper disable once VirtualMemberCallInConstructor
       Multiline = true;
       KeyUp += FindForm().CtrlA;
       Logger.AddLog = AddLog;

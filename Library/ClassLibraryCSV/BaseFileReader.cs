@@ -12,6 +12,7 @@
  *
  */
 
+using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -19,6 +20,7 @@ using System.Data.Common;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -111,7 +113,7 @@ namespace CsvTools
     /// </summary>
     private bool m_IsFinished;
 
-    protected BaseFileReader(IFileSetting fileSetting, string destinationTimeZone, IProcessDisplay processDisplay)
+    protected BaseFileReader([NotNull] IFileSetting fileSetting, [CanBeNull] string destinationTimeZone, [CanBeNull] IProcessDisplay processDisplay)
     {
       FileSetting = fileSetting ?? throw new ArgumentNullException(nameof(fileSetting));
       if (FileSetting is IFileSettingPhysicalFile fileSettingPhysical)
@@ -170,6 +172,7 @@ namespace CsvTools
     ///   Gets the file setting used in this reader
     /// </summary>
     /// <value>The file setting.</value>
+    [NotNull]
     public IFileSetting FileSetting
     {
       get;
@@ -191,6 +194,7 @@ namespace CsvTools
     /// <summary>
     ///   A process display to stop long running processes
     /// </summary>
+    [CanBeNull]
     public IProcessDisplay ProcessDisplay { get; }
 
     /// <summary>
@@ -260,10 +264,11 @@ namespace CsvTools
     /// </summary>
     public virtual event EventHandler<WarningEventArgs> Warning;
 
+    [ItemNotNull]
     public static IEnumerable<string> ParseColumnNames(
-      IEnumerable<string> columns,
+      [NotNull] IEnumerable<string> columns,
       int fieldCount,
-      ColumnErrorDictionary warnings)
+      [NotNull] ColumnErrorDictionary warnings)
     {
       var previousColumns = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
       using (var enumerator = columns.GetEnumerator())
@@ -421,16 +426,7 @@ namespace CsvTools
       if (string.IsNullOrEmpty(columnName))
         return true;
 
-      for (var index = 0; index < Column.Length; index++)
-      {
-        if (Column[index].Ignore)
-          continue;
-
-        if (string.Equals(columnName, Column[index].Name, StringComparison.OrdinalIgnoreCase))
-          return true;
-      }
-
-      return false;
+      return Column.Where(t => !t.Ignore).Any(t => string.Equals(columnName, t.Name, StringComparison.OrdinalIgnoreCase));
     }
 
     /// <summary>
@@ -784,7 +780,7 @@ namespace CsvTools
       return FieldCount;
     }
 
-    protected WarningEventArgs GetWarningEventArgs(int columnNumber, string message) => new WarningEventArgs(
+    protected WarningEventArgs GetWarningEventArgs(int columnNumber, [NotNull] string message) => new WarningEventArgs(
       RecordNumber,
       columnNumber,
       message,
@@ -799,7 +795,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="columnNumber">The column number.</param>
     /// <param name="message">The message.</param>
-    public void HandleError(int columnNumber, string message) =>
+    public void HandleError(int columnNumber, [NotNull] string message) =>
       Warning?.Invoke(this, GetWarningEventArgs(columnNumber, message));
 
     /// <summary>
@@ -807,7 +803,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="columnNumber">The column.</param>
     /// <param name="message">The message.</param>
-    public void HandleWarning(int columnNumber, string message) =>
+    public void HandleWarning(int columnNumber, [NotNull] string message) =>
       Warning?.Invoke(this, GetWarningEventArgs(columnNumber, message.AddWarningId()));
 
     /// <summary>
@@ -1024,8 +1020,7 @@ namespace CsvTools
         OverrideColumnFormatFromSetting();
 
       // in case caching is setup store the headers
-      if (FunctionalDI.GetColumnHeader != null)
-        FunctionalDI.StoreHeader?.Invoke(FileSetting, Column);
+      FunctionalDI.StoreHeader?.Invoke(FileSetting, Column);
 
       if (ProcessDisplay != null)
         ProcessDisplay.Maximum = cMaxValue;
@@ -1187,7 +1182,7 @@ namespace CsvTools
         return;
       m_IsFinished = true;
       FileSetting.ProcessTimeUtc = DateTime.UtcNow;
-      if (FileSetting is IFileSettingPhysicalFile physicalFile)
+      if (FileSetting is IFileSettingPhysicalFile physicalFile && !string.IsNullOrEmpty(physicalFile.FullPath))
       {
         physicalFile.FileSize = FileSystemUtils.FileLength(physicalFile.FullPath);
         Logger.Debug(

@@ -26,6 +26,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 
 namespace CsvTools
 {
@@ -51,15 +52,26 @@ namespace CsvTools
       return descConv.ConvertToString(item);
     }
 
+    [NotNull]
     public static string NewLineString(this RecordDelimiterType type)
     {
-      if (type == RecordDelimiterType.LF) return "\n";
-      else if (type == RecordDelimiterType.CR) return "\r";
-      else if (type == RecordDelimiterType.CRLF) return "\r\n";
-      else if (type == RecordDelimiterType.LFCR) return "\n\r";
-      else if (type == RecordDelimiterType.RS) return "▲";
-      else if (type == RecordDelimiterType.US) return "▼";
-      return string.Empty;
+      switch (type)
+      {
+        case RecordDelimiterType.LF:
+          return "\n";
+        case RecordDelimiterType.CR:
+          return "\r";
+        case RecordDelimiterType.CRLF:
+          return "\r\n";
+        case RecordDelimiterType.LFCR:
+          return "\n\r";
+        case RecordDelimiterType.RS:
+          return "▲";
+        case RecordDelimiterType.US:
+          return "▼";
+        default:
+          return string.Empty;
+      }
     }
 
     /// <summary>
@@ -67,7 +79,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="fileName">Name of the file.</param>
     /// <returns></returns>
-    public static bool AssumeGZip(this string fileName) =>
+    public static bool AssumeGZip([NotNull] this string fileName) =>
       fileName.EndsWith(".gz", StringComparison.OrdinalIgnoreCase) ||
       fileName.EndsWith(".gzip", StringComparison.OrdinalIgnoreCase);
 
@@ -76,7 +88,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="fileName">Name of the file.</param>
     /// <returns></returns>
-    public static bool AssumePgp(this string fileName) =>
+    public static bool AssumePgp([NotNull] this string fileName) =>
       fileName.EndsWith(".pgp", StringComparison.OrdinalIgnoreCase) ||
       fileName.EndsWith(".gpg", StringComparison.OrdinalIgnoreCase);
 
@@ -85,7 +97,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="fileName">Name of the file.</param>
     /// <returns></returns>
-    public static bool AssumeZip(this string fileName) => fileName.EndsWith(".zip", StringComparison.OrdinalIgnoreCase);
+    public static bool AssumeZip([NotNull] this string fileName) => fileName.EndsWith(".zip", StringComparison.OrdinalIgnoreCase);
 
     /// <summary>
     ///   Copies all elements from one collection to the other
@@ -94,7 +106,7 @@ namespace CsvTools
     /// <param name="self">The collection.</param>
     /// <param name="other">The other collection.</param>
     [DebuggerStepThrough]
-    public static void CollectionCopy<T>(this IEnumerable<T> self, ICollection<T> other) where T : ICloneable<T>
+    public static void CollectionCopy<T>([NotNull] this IEnumerable<T> self, [CanBeNull] ICollection<T> other) where T : ICloneable<T>
     {
       Contract.Requires(self != null);
       if (other == null) return;
@@ -110,7 +122,7 @@ namespace CsvTools
     /// <param name="self">The collection.</param>
     /// <param name="other">The other collection.</param>
     [DebuggerStepThrough]
-    public static void CollectionCopyStruct<T>(this IEnumerable<T> self, ICollection<T> other) where T : struct
+    public static void CollectionCopyStruct<T>([NotNull] this IEnumerable<T> self, [CanBeNull] ICollection<T> other) where T : struct
     {
       Contract.Requires(self != null);
       if (other == null)
@@ -127,7 +139,7 @@ namespace CsvTools
     /// <param name="items">The items.</param>
     /// <returns></returns>
     [DebuggerStepThrough]
-    public static int Count(this IEnumerable items)
+    public static int Count([CanBeNull] this IEnumerable items)
     {
       switch (items)
       {
@@ -147,6 +159,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="dt">The <see cref="DataType" />.</param>
     /// <returns>A text representing the dataType</returns>
+    [NotNull]
     public static string DataTypeDisplay(this DataType dt)
     {
       Contract.Ensures(Contract.Result<string>() != null);
@@ -195,7 +208,8 @@ namespace CsvTools
     /// <param name="maxDepth">The maximum depth.</param>
     /// <returns>A string with all messages in the error stack</returns>
     [DebuggerStepThrough]
-    public static string ExceptionMessages(this Exception exception, int maxDepth = 3)
+    [NotNull]
+    public static string ExceptionMessages([NotNull] this Exception exception, int maxDepth = 3)
     {
       Contract.Requires(exception != null);
       Contract.Ensures(Contract.Result<string>() != null);
@@ -272,7 +286,8 @@ namespace CsvTools
       }
     }
 
-    public static string NoRecordSQL(this string source)
+    [NotNull]
+    public static string NoRecordSQL([CanBeNull] this string source)
     {
       if (string.IsNullOrEmpty(source))
         return string.Empty;
@@ -294,14 +309,15 @@ namespace CsvTools
       return source;
     }
 
-    public static char GetFirstChar(this string text) => string.IsNullOrEmpty(text) ? '\0' : text[0];
+    public static char GetFirstChar([CanBeNull] this string text) => string.IsNullOrEmpty(text) ? '\0' : text[0];
 
     /// <summary>
     ///   Gets a suitable ID for a filename
     /// </summary>
     /// <param name="path">The complete path to a file</param>
     /// <returns>The filename without special characters</returns>
-    public static string GetIdFromFileName(this string path)
+    [NotNull]
+    public static string GetIdFromFileName([NotNull] this string path)
     {
       Contract.Requires(path != null);
       Contract.Ensures(Contract.Result<string>() != null);
@@ -393,7 +409,8 @@ namespace CsvTools
     /// </summary>
     /// <param name="dataTable">The <see cref="DataTable" /> containing the columns</param>
     /// <returns>A enumeration of ColumnNames</returns>
-    public static IEnumerable<string> GetRealColumns(this DataTable dataTable)
+    [NotNull]
+    public static IEnumerable<string> GetRealColumns([CanBeNull] this DataTable dataTable)
     {
       Contract.Ensures(Contract.Result<IEnumerable<string>>() != null);
       foreach (var x in GetRealDataColumns(dataTable))
@@ -405,7 +422,8 @@ namespace CsvTools
     /// </summary>
     /// <param name="dataTable">The <see cref="DataTable" /> containing the columns</param>
     /// <returns>A enumeration of <see cref="DataColumn" /></returns>
-    public static IEnumerable<DataColumn> GetRealDataColumns(this DataTable dataTable)
+    [NotNull]
+    public static IEnumerable<DataColumn> GetRealDataColumns([CanBeNull] this DataTable dataTable)
     {
       Contract.Ensures(Contract.Result<IEnumerable<DataColumn>>() != null);
 
@@ -424,7 +442,8 @@ namespace CsvTools
     /// <returns>A string with all inner messages of the error stack</returns>
     [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
     [DebuggerStepThrough]
-    public static string InnerExceptionMessages(this Exception exception, int maxDepth = 2)
+    [NotNull]
+    public static string InnerExceptionMessages([CanBeNull] this Exception exception, int maxDepth = 2)
     {
       Contract.Ensures(Contract.Result<string>() != null);
       if (exception == null)
@@ -460,7 +479,8 @@ namespace CsvTools
     /// <param name="input">The input.</param>
     /// <param name="placeholder">The placeholder.</param>
     /// <returns></returns>
-    private static string GetPlaceholderType(this string input, string placeholder)
+    [CanBeNull]
+    private static string GetPlaceholderType([NotNull] this string input, [NotNull] string placeholder)
     {
       var type = "{" + placeholder + "}";
       if (input.IndexOf(type, StringComparison.OrdinalIgnoreCase) != -1)
@@ -485,7 +505,9 @@ namespace CsvTools
     /// <param name="lastExecution">The last execution.</param>
     /// <param name="lastExecutionStart">The last execution start.</param>
     /// <returns></returns>
-    public static string PlaceHolderTimes(this string text, string format, IFileSetting fileSetting,
+    [CanBeNull]
+    [ContractAnnotation("text:null => null")]
+    public static string PlaceHolderTimes([CanBeNull] this string text, [NotNull] string format, [NotNull] IFileSetting fileSetting,
       DateTime lastExecution, DateTime lastExecutionStart)
     {
       if (string.IsNullOrEmpty(text)) return text;
@@ -518,31 +540,29 @@ namespace CsvTools
     /// <param name="placeholder">The placeholder.</param>
     /// <param name="replacement">The replacement.</param>
     /// <returns>The new text based on input</returns>
-    /// [DebuggerStepThrough]
-    public static string PlaceholderReplace(this string input, string placeholder, string replacement)
+    [DebuggerStepThrough]
+    [NotNull]
+    public static string PlaceholderReplace([NotNull] this string input, [NotNull] string placeholder, [CanBeNull] string replacement)
     {
       if (string.IsNullOrEmpty(replacement)) return input;
       var type = input.GetPlaceholderType(placeholder);
-      if (type != null)
+      if (type == null) return input;
+      if (input.IndexOf(" - " + type, StringComparison.OrdinalIgnoreCase) != -1)
       {
-        if (input.IndexOf(" - " + type, StringComparison.OrdinalIgnoreCase) != -1)
-        {
-          type = " - " + type;
-        }
-        else if (input.IndexOf(" " + type, StringComparison.OrdinalIgnoreCase) != -1)
-        {
-          type = " " + type;
-          replacement = " " + replacement;
-        }
-        else if (input.IndexOf(type + " ", StringComparison.OrdinalIgnoreCase) != -1)
-        {
-          replacement += " ";
-        }
-
-        return input.ReplaceCaseInsensitive(type, replacement);
+        type = " - " + type;
+      }
+      else if (input.IndexOf(" " + type, StringComparison.OrdinalIgnoreCase) != -1)
+      {
+        type = " " + type;
+        replacement = " " + replacement;
+      }
+      else if (input.IndexOf(type + " ", StringComparison.OrdinalIgnoreCase) != -1)
+      {
+        replacement += " ";
       }
 
-      return input;
+      return input.ReplaceCaseInsensitive(type, replacement);
+
     }
 
     /// <summary>
@@ -550,8 +570,9 @@ namespace CsvTools
     /// </summary>
     /// <param name="columns">List of columns</param>
     /// <param name="fileSetting">The setting.</param>
-    public static IEnumerable<string> RemoveMappingWithoutSource(this IFileSetting fileSetting,
-      IEnumerable<string> columns)
+    [NotNull]
+    public static IEnumerable<string> RemoveMappingWithoutSource([CanBeNull] this IFileSetting fileSetting,
+      [CanBeNull] IEnumerable<string> columns)
     {
       Contract.Ensures(Contract.Result<IEnumerable<string>>() != null);
       var notFoundColumnNames = new List<string>();
@@ -585,7 +606,8 @@ namespace CsvTools
     /// <param name="replacement">the character to which it should be changed</param>
     /// <returns>The source text with the replacement</returns>
     [DebuggerStepThrough]
-    public static string ReplaceCaseInsensitive(this string original, string pattern, char replacement)
+    [NotNull]
+    public static string ReplaceCaseInsensitive([NotNull] this string original, [CanBeNull] string pattern, char replacement)
     {
       Contract.Requires(original != null);
       Contract.Ensures(Contract.Result<string>() != null);
@@ -626,7 +648,8 @@ namespace CsvTools
     /// <param name="replacement">the text to which it should be changed</param>
     /// <returns>The source text with the replacement</returns>
     [DebuggerStepThrough]
-    public static string ReplaceCaseInsensitive(this string original, string pattern, string replacement)
+    [NotNull]
+    public static string ReplaceCaseInsensitive([NotNull] this string original, [CanBeNull] string pattern, [CanBeNull] string replacement)
     {
       Contract.Requires(original != null);
       Contract.Ensures(Contract.Result<string>() != null);
@@ -677,7 +700,8 @@ namespace CsvTools
     /// <param name="new2">The new2.</param>
     /// <returns></returns>
     [DebuggerStepThrough]
-    public static string ReplaceDefaults(this string inputValue, string old1, string new1, string old2, string new2)
+    [NotNull]
+    public static string ReplaceDefaults([NotNull] this string inputValue, [CanBeNull] string old1, [NotNull] string new1, [CanBeNull] string old2, [NotNull] string new2)
     {
       Contract.Requires(!string.IsNullOrEmpty(old1));
       Contract.Ensures(Contract.Result<string>() != null);
@@ -711,7 +735,8 @@ namespace CsvTools
     /// <param name="obj">The object that is used to look at the properties</param>
     /// <returns>Any found property placeholder is replaced by the property value</returns>
     [DebuggerStepThrough]
-    public static string ReplacePlaceholderWithPropertyValues(this string template, object obj)
+    [NotNull]
+    public static string ReplacePlaceholderWithPropertyValues([NotNull] this string template, object obj)
     {
       if (template.IndexOf('{') == -1)
         return template;
@@ -748,7 +773,8 @@ namespace CsvTools
     /// </param>
     /// <returns>Any found property placeholder is replaced by the provide text</returns>
     [DebuggerStepThrough]
-    public static string ReplacePlaceholderWithText(this string template, params string[] values)
+    [NotNull]
+    public static string ReplacePlaceholderWithText([NotNull] this string template, params string[] values)
     {
       if (template.IndexOf('{') == -1)
         return template;
@@ -772,7 +798,8 @@ namespace CsvTools
       return template.Replace("  ", " ");
     }
 
-    public static string CsvToolsStackTrace(this Exception exception)
+    [CanBeNull]
+    public static string CsvToolsStackTrace([NotNull] this Exception exception)
     {
       if (string.IsNullOrEmpty(exception.StackTrace))
         return null;
@@ -788,7 +815,8 @@ namespace CsvTools
     /// </summary>
     /// <param name="exception">Any exception <see cref="Exception" /></param>
     [DebuggerStepThrough]
-    public static string SourceExceptionMessage(this Exception exception)
+    [NotNull]
+    public static string SourceExceptionMessage([NotNull] this Exception exception)
     {
       var loop = exception;
       while (loop.InnerException != null)
@@ -818,7 +846,7 @@ namespace CsvTools
     ///   can be provided
     /// </param>
     /// <remarks>Will only return the first exception in case of aggregate exceptions.</remarks>
-    public static void WaitToCompleteTask(this Task executeTask, double timeoutSeconds,
+    public static void WaitToCompleteTask([NotNull] this Task executeTask, double timeoutSeconds,
       CancellationToken cancellationToken = default)
     {
       if (executeTask == null)
@@ -888,10 +916,10 @@ namespace CsvTools
     ///   can be provided
     /// </param>
     /// <returns>Task Result if finished successfully, otherwise raises an error</returns>
-    public static T WaitToCompleteTask<T>(this Task<T> executeTask, double timeoutSeconds,
+    public static T WaitToCompleteTask<T>([NotNull] this Task<T> executeTask, double timeoutSeconds,
       CancellationToken cancellationToken = default)
     {
-      WaitToCompleteTask((Task)executeTask, timeoutSeconds, cancellationToken);
+      WaitToCompleteTask((Task) executeTask, timeoutSeconds, cancellationToken);
       return executeTask.Result;
     }
 
@@ -900,7 +928,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="inputString">The source</param>
     /// <returns>return '\0' if the text was not interpreted as punctuation</returns>
-    public static char WrittenPunctuationToChar(this string inputString)
+    public static char WrittenPunctuationToChar([NotNull] this string inputString)
     {
       Contract.Requires(inputString != null);
 
@@ -1065,6 +1093,17 @@ namespace CsvTools
     /// <param name="self">The collection.</param>
     /// <param name="other">The other collection.</param>
     /// <returns></returns>
+    //public static bool CollectionEqual<T>([NotNull] this IReadOnlyCollection<T> self, [CanBeNull] IReadOnlyCollection<T> other) where T : IEquatable<T>
+    //{
+    //  if (self == null)
+    //    throw new ArgumentNullException(nameof(self));
+    //  if (other == null)
+    //    return false;
+    //  if (ReferenceEquals(other, self))
+    //    return true;
+    //  return other.Count() == self.Count() && other.All(ot => ot == null ? self.Any(x => x == null) : self.Any(th => ot.Equals(th)));
+    //  // Check the item, all should be the same, order does not matter though
+    //}
     public static bool CollectionEqual<T>(this IEnumerable<T> self, IEnumerable<T> other) where T : IEquatable<T>
     {
       if (self == null)
@@ -1073,9 +1112,16 @@ namespace CsvTools
         return false;
       if (ReferenceEquals(other, self))
         return true;
-      return other.Count() == self.Count() && other.All(ot => ot == null ? self.Any(x => x == null) : self.Any(th => ot.Equals(th)));
+      // ReSharper disable PossibleMultipleEnumeration
+      // Making sure the passed in IEnumerable is indeed a collection, otherwise make it one
+      if (!(self is ICollection<T> || self is IReadOnlyCollection<T>))
+        self = self.ToList();
+      if (!(other is ICollection<T> || other is IReadOnlyCollection<T>))
+        other = other.ToList();
+      return other.Count() == self.Count() && other.All(ot => ot == null ? self.Any(x => x == null) : self.Any(ot.Equals));
       // Check the item, all should be the same, order does not matter though
     }
+
 
     /// <summary>
     ///   Check if two enumerations are equal, the items need to be in the right order
@@ -1084,7 +1130,7 @@ namespace CsvTools
     /// <param name="self">The collection.</param>
     /// <param name="other">The other collection.</param>
     /// <returns></returns>
-    public static bool CollectionEqualWithOrder<T>(this IEnumerable<T> self, IEnumerable<T> other)
+    public static bool CollectionEqualWithOrder<T>([NotNull] this IEnumerable<T> self, [CanBeNull] IEnumerable<T> other)
       where T : IEquatable<T>
     {
       if (self == null)

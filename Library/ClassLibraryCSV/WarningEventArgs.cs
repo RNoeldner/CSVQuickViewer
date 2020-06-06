@@ -13,6 +13,7 @@
  */
 using System;
 using System.Text;
+using JetBrains.Annotations;
 
 namespace CsvTools
 {
@@ -30,8 +31,8 @@ namespace CsvTools
     /// <param name="lineNumberEnd">Line Number where the record ended</param>
     /// <param name="lineNumberStart">Line Number where the record started</param>
     /// <param name="columnName">Name of the column</param>
-    public WarningEventArgs(long recordNumber, int columnNumber, string warningMessage, long lineNumberStart,
-      long lineNumberEnd, string columnName)
+    public WarningEventArgs(long recordNumber, int columnNumber, [NotNull] string warningMessage, long lineNumberStart,
+      long lineNumberEnd, [CanBeNull] string columnName)
     {
       if (string.IsNullOrEmpty(warningMessage))
       {
@@ -50,6 +51,7 @@ namespace CsvTools
     ///  Gets or sets the name of the column.
     /// </summary>
     /// <value>The name of the column.</value>
+    [CanBeNull]
     public string ColumnName { get; set; }
 
     /// <summary>
@@ -74,6 +76,7 @@ namespace CsvTools
     ///  Gets or sets the Message to be stored for the column.
     /// </summary>
     /// <value>The message.</value>
+    [NotNull]
     public string Message { get; set; }
 
     /// <summary>

@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics.Contracts;
 using System.Text;
+using JetBrains.Annotations;
 
 namespace CsvTools
 {
@@ -54,7 +55,8 @@ namespace CsvTools
     ///   usually messages are appended, unless they are errors and the list contains only warnings
     ///   so far
     /// </returns>
-    public static string AddMessage(this string errorList, string newError)
+    [NotNull]
+    public static string AddMessage([NotNull] this string errorList, [NotNull] string newError)
     {
       Contract.Requires(errorList != null);
       Contract.Ensures(Contract.Result<string>() != null);
@@ -97,7 +99,8 @@ namespace CsvTools
     /// </summary>
     /// <param name="message">The message that should get the ID</param>
     /// <returns>The text with the leading WarningID</returns>
-    public static string AddWarningId(this string message)
+    [NotNull]
+    public static string AddWarningId([NotNull] this string message)
     {
       Contract.Requires(message != null);
       Contract.Ensures(Contract.Result<string>() != null);
@@ -117,7 +120,8 @@ namespace CsvTools
     /// <param name="column">The column.</param>
     /// <param name="errorMessage">The error message.</param>
     /// <returns>An error message to be stored</returns>
-    public static string CombineColumnAndError(string column, string errorMessage)
+    [NotNull]
+    public static string CombineColumnAndError([CanBeNull] string column, [NotNull] string errorMessage)
     {
       if (errorMessage == null)
         throw new ArgumentNullException(nameof(errorMessage));
@@ -131,7 +135,8 @@ namespace CsvTools
     /// </summary>
     /// <param name="row">The DataRow with the error information</param>
     /// <returns>A string with all error information of the DataRow</returns>
-    public static string GetErrorInformation(this DataRow row)
+    [NotNull]
+    public static string GetErrorInformation([NotNull] this DataRow row)
     {
       var list = new List<Tuple<string, string>>();
       if (!string.IsNullOrEmpty(row.RowError))
@@ -150,7 +155,8 @@ namespace CsvTools
     /// </remarks>
     /// <param name="errorList">A text containing different types of messages that are concatenated.</param>
     /// <returns>two strings first error second warnings</returns>
-    public static Tuple<string, string> GetErrorsAndWarnings(this string errorList)
+    [NotNull]
+    public static Tuple<string, string> GetErrorsAndWarnings([NotNull] this string errorList)
     {
       Contract.Requires(errorList != null);
       Contract.Ensures(Contract.Result<Tuple<string, string>>() != null);
@@ -200,7 +206,7 @@ namespace CsvTools
     ///   <c>true</c> if the text should be regarded as a error message, <c>false</c> if its a
     ///   warning message or empty
     /// </returns>
-    public static bool IsErrorMessage(this string errorList)
+    public static bool IsErrorMessage([NotNull] this string errorList)
     {
       Contract.Requires(errorList != null);
       if (errorList.Length == 0)
@@ -216,7 +222,7 @@ namespace CsvTools
     ///   <c>true</c> if the text should be regarded as a warning message, <c>false</c> if its an
     ///   error message or empty
     /// </returns>
-    public static bool IsWarningMessage(this string errorList)
+    public static bool IsWarningMessage([NotNull] this string errorList)
     {
       Contract.Requires(errorList != null);
       if (errorList.Length <= c_WarningId.Length)
@@ -237,7 +243,8 @@ namespace CsvTools
     /// <param name="columnErrors">The column errors.</param>
     /// <param name="columns">The columns.</param>
     /// <returns></returns>
-    public static string ReadErrorInformation(IDictionary<int, string> columnErrors, IList<string> columns)
+    [CanBeNull]
+    public static string ReadErrorInformation([NotNull] IDictionary<int, string> columnErrors, [NotNull] IList<string> columns)
     {
       if (columnErrors.Count == 0)
         return null;
@@ -269,7 +276,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="row">The DataRow that will get the error information</param>
     /// <param name="errorList"></param>
-    public static void SetErrorInformation(this DataRow row, string errorList)
+    public static void SetErrorInformation([NotNull] this DataRow row, [CanBeNull] string errorList)
     {
       Contract.Requires(row != null, "row");
       row.ClearErrors();
@@ -289,7 +296,8 @@ namespace CsvTools
     /// </summary>
     /// <param name="errorList">A text containing different types of messages that are concatenated</param>
     /// <returns>The text without the leading WarningID</returns>
-    public static string WithoutWarningId(this string errorList)
+    [NotNull]
+    public static string WithoutWarningId([NotNull] this string errorList)
     {
       Contract.Requires(errorList != null);
       Contract.Ensures(Contract.Result<string>() != null);
@@ -305,7 +313,8 @@ namespace CsvTools
     /// </summary>
     /// <param name="errorList">The error list.</param>
     /// <returns></returns>
-    private static string BuildList(ICollection<Tuple<string, string>> errorList)
+    [NotNull]
+    private static string BuildList([NotNull][ItemNotNull] ICollection<Tuple<string, string>> errorList)
     {
       Contract.Requires(errorList != null);
       var errors = new StringBuilder();
@@ -336,7 +345,8 @@ namespace CsvTools
     /// </summary>
     /// <param name="errorList">The error list.</param>
     /// <returns></returns>
-    private static IEnumerable<Tuple<string, string>> ParseList(string errorList)
+    [NotNull]
+    private static IEnumerable<Tuple<string, string>> ParseList([NotNull] string errorList)
     {
       var start = 0;
       while (start < errorList.Length)
@@ -354,7 +364,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="row">The row.</param>
     /// <param name="columnErrorInformation">The column error information.</param>
-    private static void SetColumnErrorInformation(DataRow row, Tuple<string, string> columnErrorInformation)
+    private static void SetColumnErrorInformation([NotNull] DataRow row, [NotNull] Tuple<string, string> columnErrorInformation)
     {
       Contract.Requires(columnErrorInformation != null);
       var start = 0;
@@ -380,7 +390,8 @@ namespace CsvTools
     /// </summary>
     /// <param name="columnWithError">The column with error.</param>
     /// <returns></returns>
-    private static Tuple<string, string> SplitColumnAndMessage(string columnWithError)
+    [NotNull]
+    private static Tuple<string, string> SplitColumnAndMessage([NotNull] string columnWithError)
     {
       Contract.Requires(columnWithError != null);
       var splitter = -2;

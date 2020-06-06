@@ -15,9 +15,9 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.Contracts;
 using System.Globalization;
 using System.Text;
+using JetBrains.Annotations;
 
 namespace CsvTools
 {
@@ -50,7 +50,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="columnName">The column name</param>
     /// <returns>The number of charters at the end that did match, 0 if it does not end on ID</returns>
-    public static int AssumeIDColumn(string columnName)
+    public static int AssumeIDColumn([CanBeNull] string columnName)
     {
       if (string.IsNullOrWhiteSpace(columnName))
         return 0;
@@ -82,7 +82,7 @@ namespace CsvTools
     /// <returns>
     ///   <c>true</c> if teh text does contains the check; otherwise, <c>false</c>.
     /// </returns>
-    public static bool Contains(this string text, string toCheck, StringComparison comp) =>
+    public static bool Contains([CanBeNull] this string text, [NotNull] string toCheck, StringComparison comp) =>
       text?.IndexOf(toCheck, comp) >= 0;
 
     /// <summary>
@@ -91,7 +91,7 @@ namespace CsvTools
     /// <param name="text">The text.</param>
     /// <param name="pattern">The pattern.</param>
     /// <returns></returns>
-    public static int CountOccurence(this string text, string pattern)
+    public static int CountOccurence([NotNull] this string text, [CanBeNull] string pattern)
     {
       if (string.IsNullOrEmpty(pattern))
         return 0;
@@ -112,10 +112,9 @@ namespace CsvTools
     /// <param name="text">The text.</param>
     /// <param name="length">The length.</param>
     /// <returns>The text with the maximum length, in case it has been cut off a … is added</returns>
-    public static string GetShortDisplay(string text, int length)
+    [NotNull]
+    public static string GetShortDisplay([CanBeNull] string text, int length)
     {
-      Contract.Ensures(Contract.Result<string>() != null);
-
       var withoutLineFeed = text?.Replace('\r', ' ').Replace('\n', ' ').Replace('\t', ' ').Replace("  ", " ")
         .Replace("  ", " ");
       if (string.IsNullOrWhiteSpace(withoutLineFeed))
@@ -136,9 +135,9 @@ namespace CsvTools
     /// </summary>
     /// <param name="val">The value.</param>
     /// <returns>An upper case version without leading or tailing space, if the input is null it returns an empty string.</returns>
-    public static string GetTrimmedUpperValue(object val)
+    [NotNull]
+    public static string GetTrimmedUpperValue([CanBeNull] object val)
     {
-      Contract.Ensures(Contract.Result<string>() != null);
       if (val == null || val == DBNull.Value)
         return string.Empty;
 
@@ -154,10 +153,9 @@ namespace CsvTools
     /// <returns>
     ///   The text with every combination of line feed replaced with <see cref="replace" />
     /// </returns>
-    public static string HandleCRLFCombinations(string text, string replace = "\n")
+    [NotNull]
+    public static string HandleCRLFCombinations([NotNull] string text, [NotNull] string replace = "\n")
     {
-      Contract.Requires(text != null);
-      Contract.Ensures(Contract.Result<string>() != null);
       // Replace everything Unicode LINE SEPARATOR
       const string c_PlaceholderStr = "\u2028";
       const char c_PlaceholderChar = '\u2028';
@@ -229,7 +227,8 @@ namespace CsvTools
     /// <example>JoinParts(new [] {"My","","Test")=> My, Test</example>
     /// <remarks>Any empty string will be ignored.</remarks>
     /// <returns>A string</returns>
-    public static string Join(this IEnumerable<int> parts, string joinWith = ", ")
+    [NotNull]
+    public static string Join([CanBeNull] this IEnumerable<int> parts, [NotNull] string joinWith = ", ")
     {
       if (parts == null)
         return string.Empty;
@@ -253,11 +252,12 @@ namespace CsvTools
     /// </param>
     /// <param name="nameToAdd">The default name</param>
     /// <returns>The unique name</returns>
-    public static string MakeUniqueInCollection(ICollection<string> previousColumns, string nameToAdd)
+    [NotNull]
+    public static string MakeUniqueInCollection([NotNull] ICollection<string> previousColumns, [NotNull] string nameToAdd)
     {
       if (nameToAdd is null)
         throw new ArgumentNullException(nameof(nameToAdd));
-      Contract.Requires(previousColumns != null);
+      
       if (!previousColumns.Contains(nameToAdd))
         return nameToAdd;
 
@@ -282,11 +282,11 @@ namespace CsvTools
     /// </summary>
     /// <param name="original">The original text.</param>
     /// <returns>The original text without control characters</returns>
-    public static string NoControlCharacters(this string original)
+    [NotNull]
+    public static string NoControlCharacters([NotNull] this string original)
     {
       if (original is null)
         throw new ArgumentNullException(nameof(original));
-      Contract.Ensures(Contract.Result<string>() != null);
 
       var chars = new char[original.Length];
       var count = 0;
@@ -307,9 +307,9 @@ namespace CsvTools
     /// </summary>
     /// <param name="original">The original text.</param>
     /// <returns>The Text without special characters</returns>
-    public static string NoSpecials(this string original)
+    [NotNull]
+    public static string NoSpecials([NotNull] this string original)
     {
-      Contract.Ensures(Contract.Result<string>() != null);
       return ProcessByCategory(original,
         x => x == UnicodeCategory.LowercaseLetter || x == UnicodeCategory.UppercaseLetter ||
              x == UnicodeCategory.DecimalDigitNumber);
@@ -321,9 +321,9 @@ namespace CsvTools
     /// </summary>
     /// <param name="original">The original text.</param>
     /// <returns>The text but Only Letters</returns>
-    public static string OnlyText(this string original)
+    [NotNull]
+    public static string OnlyText([NotNull] this string original)
     {
-      Contract.Ensures(Contract.Result<string>() != null);
       return ProcessByCategory(original,
         x => x == UnicodeCategory.UppercaseLetter || x == UnicodeCategory.LowercaseLetter);
     }
@@ -334,14 +334,13 @@ namespace CsvTools
     /// <param name="original">The original.</param>
     /// <param name="testFunction">The test function called on each individual char</param>
     /// <returns>A test with only allowed characters</returns>
-    public static string ProcessByCategory(string original, Func<UnicodeCategory, bool> testFunction)
+    [NotNull]
+    public static string ProcessByCategory([NotNull] string original, [NotNull] Func<UnicodeCategory, bool> testFunction)
     {
-      Contract.Requires(testFunction != null);
-      Contract.Ensures(Contract.Result<string>() != null);
+
       if (string.IsNullOrEmpty(original))
         return string.Empty;
       var normalizedString = original.Normalize(NormalizationForm.FormD);
-      Contract.Assume(normalizedString != null);
 
       var chars = new char[normalizedString.Length];
       var count = 0;
@@ -367,7 +366,9 @@ namespace CsvTools
     ///   Searching for two spaces and replacing with one space would lead to two spaces with regular replace it will
     ///   end up with one space here
     /// </remarks>
-    public static string RReplace(this string original, string search, string replace)
+    [CanBeNull]
+    [ContractAnnotation("original: null=>null; original:notnull=>notnull")]
+    public static string RReplace([CanBeNull] this string original, [CanBeNull] string search, [NotNull] string replace)
     {
       if (string.IsNullOrEmpty(search) || search.Equals(replace, StringComparison.Ordinal) ||
           string.IsNullOrEmpty(original))
@@ -387,7 +388,7 @@ namespace CsvTools
     ///   A semicolon separated list of texts that should be treated as NULL
     /// </param>
     /// <returns>True if the text is null, or empty or in the list of provided texts</returns>
-    public static bool ShouldBeTreatedAsNull(string value, string treatAsNull)
+    public static bool ShouldBeTreatedAsNull([CanBeNull] string value, [CanBeNull] string treatAsNull)
     {
       return string.IsNullOrEmpty(value) || SplitByDelimiter(treatAsNull).Any(part => value.Equals(part, StringComparison.OrdinalIgnoreCase));
     }
@@ -397,9 +398,10 @@ namespace CsvTools
     /// </summary>
     /// <param name="inputValue">The string to be split.</param>
     /// <returns>String array with substrings, empty elements are removed</returns>
-    public static string[] SplitByDelimiter(string inputValue)
+    [NotNull]
+    [ItemNotNull]
+    public static string[] SplitByDelimiter([CanBeNull] string inputValue)
     {
-      Contract.Ensures(Contract.Result<string[]>() != null);
       return string.IsNullOrEmpty(inputValue)
         ? new string[] { }
         : inputValue.Split(m_DelimiterChar, StringSplitOptions.RemoveEmptyEntries);
@@ -411,7 +413,8 @@ namespace CsvTools
     /// <param name="inputValue">The input value.</param>
     /// <param name="alwaysInclude">This text will always be included in the result.</param>
     /// <returns>A list of distinct value</returns>
-    public static HashSet<string> SplitDistinct(this string inputValue, string alwaysInclude)
+    [NotNull]
+    public static HashSet<string> SplitDistinct([NotNull] this string inputValue, [CanBeNull] string alwaysInclude)
     {
       var keyColumns = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
       if (!string.IsNullOrWhiteSpace(alwaysInclude))
@@ -429,35 +432,32 @@ namespace CsvTools
     /// </summary>
     /// <param name="inputValue">The string to be split.</param>
     /// <returns>String array with substrings, empty elements are removed</returns>
-    public static string[] SplitValidValues(string inputValue)
-    {
-      Contract.Ensures(Contract.Result<string[]>() != null);
-      return string.IsNullOrEmpty(inputValue) ? new string[] { } : inputValue.Split(m_SplitChar, StringSplitOptions.RemoveEmptyEntries);
-    }
+    [NotNull]
+    [ItemNotNull]
+    public static string[] SplitValidValues([CanBeNull] string inputValue) => string.IsNullOrEmpty(inputValue)
+      ? new string[] { }
+      : inputValue.Split(m_SplitChar, StringSplitOptions.RemoveEmptyEntries);
 
     /// <summary>
     ///   Escapes SQL names; does not include the brackets or quotes
     /// </summary>
     /// <param name="contents">The column or table name.</param>
     /// <returns>The names as it can be placed into brackets</returns>
-    public static string SqlName(this string contents)
-    {
-      Contract.Ensures(Contract.Result<string>() != null);
-      return string.IsNullOrEmpty(contents) ? string.Empty : contents.Replace("]", "]]");
-    }
+    [NotNull]
+    public static string SqlName([CanBeNull] this string contents) =>
+      string.IsNullOrEmpty(contents) ? string.Empty : contents.Replace("]", "]]");
 
     /// <summary>
     ///   SQLs the quote, does not include the outer quotes
     /// </summary>
     /// <param name="contents">The contents.</param>
     /// <returns></returns>
-    public static string SqlQuote(this string contents)
-    {
-      Contract.Ensures(Contract.Result<string>() != null);
-      return string.IsNullOrEmpty(contents) ? string.Empty : contents.Replace("'", "''");
-    }
+    [NotNull]
+    public static string SqlQuote([CanBeNull] this string contents) =>
+      string.IsNullOrEmpty(contents) ? string.Empty : contents.Replace("'", "''");
 
-    public static System.Security.SecureString ToSecureString(this string text)
+    [NotNull]
+    public static System.Security.SecureString ToSecureString([NotNull] this string text)
     {
       if (text is null)
         throw new ArgumentNullException(nameof(text));
@@ -478,7 +478,7 @@ namespace CsvTools
     /// <param name="stringComparison"></param>
     /// <Note>In case the filter is empty there is no filter it will always return true</Note>
     /// <returns>True if text matches</returns>
-    public static bool PassesFilter(this string item, string filter, StringComparison stringComparison = StringComparison.OrdinalIgnoreCase)
+    public static bool PassesFilter([CanBeNull] this string item, [CanBeNull] string filter, StringComparison stringComparison = StringComparison.OrdinalIgnoreCase)
     {
       if (string.IsNullOrEmpty(filter))
         return true;
@@ -506,7 +506,8 @@ namespace CsvTools
         .Any(part => item.IndexOf(part, stringComparison) != -1);
     }
 
-    public static Tuple<string, bool> GetPossiblyConstant(this string value)
+    [NotNull]
+    public static Tuple<string, bool> GetPossiblyConstant([CanBeNull] this string value)
     {
       if (string.IsNullOrEmpty(value))
         return new Tuple<string, bool>(string.Empty, false);

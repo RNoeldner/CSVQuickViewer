@@ -1,4 +1,6 @@
-﻿namespace CsvTools
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace CsvTools
 {
   using System;
   using System.ComponentModel;
@@ -16,7 +18,7 @@
 
     private Label m_LabelDefault;
 
-    private int m_Counter = 0;
+    private int m_Counter;
 
     private PictureBox m_PictureBox;
 
@@ -78,44 +80,44 @@
 
       if ((buttons == MessageBoxButtons.OK || buttons == MessageBoxButtons.OKCancel))
       {
-        m_Button1.Text = "&OK";
+        m_Button1.Text = @"&OK";
         m_Button1.DialogResult = DialogResult.OK;
       }
 
       if ((buttons == MessageBoxButtons.YesNo || buttons == MessageBoxButtons.YesNoCancel))
       {
-        m_Button1.Text = "&Yes";
+        m_Button1.Text = @"&Yes";
         m_Button1.DialogResult = DialogResult.Yes;
       }
 
       if ((buttons == MessageBoxButtons.AbortRetryIgnore))
       {
-        m_Button1.Text = "&Abort";
+        m_Button1.Text = @"&Abort";
         m_Button1.DialogResult = DialogResult.Abort;
       }
 
       if ((buttons == MessageBoxButtons.RetryCancel))
       {
-        m_Button1.Text = "&Retry";
+        m_Button1.Text = @"&Retry";
         m_Button1.DialogResult = DialogResult.Retry;
       }
 
       // Button 2
       if ((buttons == MessageBoxButtons.YesNo || buttons == MessageBoxButtons.YesNoCancel))
       {
-        m_Button2.Text = "&No";
+        m_Button2.Text = @"&No";
         m_Button2.DialogResult = DialogResult.No;
       }
 
       if ((buttons == MessageBoxButtons.AbortRetryIgnore))
       {
-        m_Button2.Text = "&Retry";
+        m_Button2.Text = @"&Retry";
         m_Button2.DialogResult = DialogResult.Retry;
       }
 
       if ((buttons == MessageBoxButtons.RetryCancel || buttons == MessageBoxButtons.OKCancel))
       {
-        m_Button2.Text = "&Cancel";
+        m_Button2.Text = @"&Cancel";
         m_Button2.DialogResult = DialogResult.Cancel;
         CancelButton = m_Button2;
       }
@@ -123,13 +125,13 @@
       // Button 3
       if (buttons == MessageBoxButtons.AbortRetryIgnore)
       {
-        m_Button3.Text = "&Ignore";
+        m_Button3.Text = @"&Ignore";
         m_Button3.DialogResult = DialogResult.Ignore;
       }
 
       if (buttons == MessageBoxButtons.YesNoCancel)
       {
-        m_Button3.Text = "&Cancel";
+        m_Button3.Text = @"&Cancel";
         m_Button3.DialogResult = DialogResult.Cancel;
         CancelButton = m_Button3;
       }
@@ -203,6 +205,11 @@
     ///   Required method for Designer support - do not modify the contents of this method with the
     ///   code editor.
     /// </summary>
+    [SuppressMessage("ReSharper", "ArrangeThisQualifier")]
+    [SuppressMessage("ReSharper", "RedundantNameQualifier")]
+    [SuppressMessage("ReSharper", "RedundantDelegateCreation")]
+    [SuppressMessage("ReSharper", "LocalizableElement")]
+    [SuppressMessage("ReSharper", "RedundantCast")]
     private void InitializeComponent()
     {
       this.components = new System.ComponentModel.Container();
@@ -392,7 +399,7 @@
       m_Counter++;
       UpdateLabel();
 
-      if (Duration > 0 && (m_Counter * m_Timer.Interval) / 1000 > Duration)
+      if (Duration > 0 && m_Counter * m_Timer.Interval / 1000 > Duration)
       {
         AcceptButton?.PerformClick();
       }
@@ -400,17 +407,17 @@
 
     private void UpdateLabel()
     {
-      var displ = Convert.ToInt32((Duration - (m_Counter * m_Timer.Interval) / 1000 + .75));
+      var display = Convert.ToInt32((Duration - m_Counter * m_Timer.Interval / 1000 + .75));
       if (!m_Timer.Enabled)
-        displ = 0;
-      if (displ > 0)
+        display = 0;
+      if (display > 0)
       {
         if (AcceptButton == m_Button1)
-          m_LabelDefault.Text = $"{m_Button1.Text.Substring(1)} in {displ:N0} seconds";
+          m_LabelDefault.Text = $@"{m_Button1.Text.Substring(1)} in {display:N0} seconds";
         if (AcceptButton == m_Button2)
-          m_LabelDefault.Text = $"{m_Button2.Text.Substring(1)} in {displ:N0} seconds";
+          m_LabelDefault.Text = $@"{m_Button2.Text.Substring(1)} in {display:N0} seconds";
         if (AcceptButton == m_Button3)
-          m_LabelDefault.Text = $"{m_Button3.Text.Substring(1)} in {displ:N0} seconds";
+          m_LabelDefault.Text = $@"{m_Button3.Text.Substring(1)} in {display:N0} seconds";
       }
       else
         m_LabelDefault.Text = string.Empty;
