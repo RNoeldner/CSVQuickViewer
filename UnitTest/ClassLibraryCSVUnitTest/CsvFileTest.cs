@@ -292,15 +292,15 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void Errors()
+    public void EvidenceNumberOrIssues()
     {
-      Assert.AreEqual(-1, m_CsvFile.NumErrors);
+      Assert.AreEqual(-1, m_CsvFile.EvidenceNumberOrIssues);
       Assert.IsFalse(m_CsvFile.ErrorsSpecified);
       Assert.AreEqual(0, m_CsvFile.Errors.Count);
       m_CsvFile.Errors.Add(new SampleRecordEntry(177, "Error"));
-      Assert.AreEqual(1, m_CsvFile.NumErrors);
-      m_CsvFile.NumErrors = 100;
-      Assert.AreEqual(100, m_CsvFile.NumErrors);
+      Assert.AreEqual(1, m_CsvFile.EvidenceNumberOrIssues);
+      m_CsvFile.EvidenceNumberOrIssues = 100;
+      Assert.AreEqual(100, m_CsvFile.EvidenceNumberOrIssues);
     }
 
     [TestInitialize]

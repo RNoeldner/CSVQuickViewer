@@ -13,6 +13,7 @@
  */
 
 using System;
+using System.ComponentModel;
 using System.Xml.Serialization;
 
 namespace CsvTools
@@ -23,11 +24,11 @@ namespace CsvTools
   [Serializable]
   public class ValidationResult : IValidationResult
   {
-    public ValidationResult() : this(string.Empty, 0)
+    public ValidationResult() : this(string.Empty)
     {
     }
 
-    public ValidationResult(string tableName, long numRecords, long numErrors = -1, long numWarning = -1)
+    public ValidationResult(string tableName, long numRecords = 0, long numErrors = -1, long numWarning = -1)
     {
       TableName = tableName;
       NumberRecords = numRecords;
@@ -49,6 +50,7 @@ namespace CsvTools
     public string TableName
     {
       get;
+      set;
     }
 
 
@@ -59,11 +61,12 @@ namespace CsvTools
     ///   The error count.
     /// </value>
     [XmlAttribute]
+    [DefaultValue(-1)]
     public long ErrorCount
     {
       get;
       set;
-    }
+    } 
 
     /// <summary>
     ///   Gets or sets the number records.
@@ -72,6 +75,7 @@ namespace CsvTools
     ///   The number records.
     /// </value>
     [XmlAttribute]
+    [DefaultValue(0)]
     public long NumberRecords
     {
       get;
@@ -85,10 +89,11 @@ namespace CsvTools
     ///   The warning count.
     /// </value>
     [XmlAttribute]
+    [DefaultValue(-1)]
     public long WarningCount
     {
       get;
       set;
-    }
+    } 
   }
 }
