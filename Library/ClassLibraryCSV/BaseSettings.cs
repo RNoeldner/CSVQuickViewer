@@ -54,8 +54,10 @@ namespace CsvTools
     private string m_Id = string.Empty;
     private bool m_InOverview;
     private bool m_IsEnabled = true;
-    private int m_NumErrors = -1;
+    private int m_EvidenceNumberOrIssues = -1;
     private long m_NumRecords;
+    private long m_WarningCount = -1;
+    private long m_ErrorCount = -1;
     private string m_Passphrase = string.Empty;
     private string m_Recipient = string.Empty;
     private long m_RecordLimit;
@@ -69,7 +71,6 @@ namespace CsvTools
     private bool m_TreatNbspAsSpace;
     private string m_TreatTextAsNull = "NULL";
     private bool m_Validate = true;
-    private ValidationResult m_ValidationResult;
     private bool m_SkipDuplicateHeader;
     private bool m_SkipEmptyLines = true;
     private ObservableCollection<SampleRecordEntry> m_Samples = new ObservableCollection<SampleRecordEntry>();
@@ -265,7 +266,7 @@ namespace CsvTools
                other.FileFormat.Equals(FileFormat) &&
                other.Passphrase.Equals(Passphrase, StringComparison.Ordinal) &&
                other.Recipient.Equals(Recipient, StringComparison.Ordinal) &&
-               other.NumErrors == NumErrors &&
+               other.EvidenceNumberOrIssues == EvidenceNumberOrIssues &&
                other.SkipEmptyLines == SkipEmptyLines &&
                other.SkipDuplicateHeader == SkipDuplicateHeader &&
                other.Timeout == Timeout &&
@@ -304,7 +305,7 @@ namespace CsvTools
              other.FileFormat.Equals(FileFormat) &&
              other.Passphrase.Equals(Passphrase, StringComparison.Ordinal) &&
              other.Recipient.Equals(Recipient, StringComparison.Ordinal) &&
-             other.NumErrors == NumErrors &&
+             other.EvidenceNumberOrIssues == EvidenceNumberOrIssues &&
              other.SkipEmptyLines == SkipEmptyLines &&
              other.SkipDuplicateHeader == SkipDuplicateHeader &&
              other.Timeout == Timeout &&
@@ -449,8 +450,8 @@ namespace CsvTools
           return;
         m_Errors = newVal;
         NotifyPropertyChanged(nameof(Errors));
-        if (m_NumErrors > 0 && Errors.Count > m_NumErrors)
-          NumErrors = Errors.Count;
+        if (m_EvidenceNumberOrIssues > 0 && Errors.Count > m_EvidenceNumberOrIssues)
+          EvidenceNumberOrIssues = Errors.Count;
       }
     }
 
@@ -472,7 +473,7 @@ namespace CsvTools
     ///   <see cref="LatestSourceTimeUtc" />. Changes to this date should not be considered as
     ///   changes to the configuration
     /// </summary>
-    [XmlIgnore]
+    [XmlAttribute]
     public virtual DateTime ProcessTimeUtc
     {
       get => m_ProcessTimeUtc;
@@ -485,6 +486,9 @@ namespace CsvTools
         NotifyPropertyChanged(nameof(ProcessTimeUtc));
       }
     }
+
+    [XmlIgnore] public bool ProcessTimeUtcSpecified => (m_ProcessTimeUtc != ZeroTime);
+
 
     /// <summary>
     ///   The time of the source, either a file time, or in case the setting is dependent on
@@ -753,15 +757,15 @@ namespace CsvTools
     ///   Gets or sets the ID.
     /// </summary>
     /// <value>The ID.</value>
-    [XmlAttribute]
+    [XmlAttribute("NumErrors")]
     [DefaultValue(-1)]
-    public virtual int NumErrors
+    public virtual int EvidenceNumberOrIssues
     {
       get
       {
-        if (m_NumErrors == -1 && Errors.Count > 0)
-          m_NumErrors = Errors.Count;
-        return m_NumErrors;
+        if (m_EvidenceNumberOrIssues == -1 && Errors.Count > 0)
+          m_EvidenceNumberOrIssues = Errors.Count;
+        return m_EvidenceNumberOrIssues;
       }
       [NotifyPropertyChangedInvocator]
       set
@@ -769,10 +773,10 @@ namespace CsvTools
         // can not be smaller than the number of named errors
         if (Errors.Count > 0 && value < Errors.Count)
           value = Errors.Count;
-        if (m_NumErrors == value)
+        if (m_EvidenceNumberOrIssues == value)
           return;
-        m_NumErrors = value;
-        NotifyPropertyChanged(nameof(NumErrors));
+        m_EvidenceNumberOrIssues = value;
+        NotifyPropertyChanged(nameof(EvidenceNumberOrIssues));
       }
     }
 
@@ -780,7 +784,7 @@ namespace CsvTools
     ///   Gets or sets the ID.
     /// </summary>
     /// <value>The ID.</value>
-    [XmlIgnore]
+    [XmlAttribute]
     [DefaultValue(0)]
     public virtual long NumRecords
     {
@@ -795,6 +799,44 @@ namespace CsvTools
       }
     }
 
+    /// <summary>
+    ///   Gets or sets the ID.
+    /// </summary>
+    /// <value>The ID.</value>
+    [XmlAttribute]
+    [DefaultValue(-1)]
+    public virtual long WarningCount
+    {
+      get => m_WarningCount;
+      [NotifyPropertyChangedInvocator]
+      set
+      {
+        if (m_WarningCount == value)
+          return;
+        m_WarningCount = value;
+        NotifyPropertyChanged(nameof(WarningCount));
+      }
+    }
+
+
+    /// <summary>
+    ///   Gets or sets the ID.
+    /// </summary>
+    /// <value>The ID.</value>
+    [XmlAttribute]
+    [DefaultValue(-1)]
+    public virtual long ErrorCount
+    {
+      get => m_ErrorCount;
+      [NotifyPropertyChangedInvocator]
+      set
+      {
+        if (m_ErrorCount == value)
+          return;
+        m_ErrorCount = value;
+        NotifyPropertyChanged(nameof(ErrorCount));
+      }
+    }
     /// <summary>
     ///   Passphrase for Decryption, will not be stored
     /// </summary>
@@ -1096,25 +1138,6 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets or sets the <see cref="ValidationResult" />
-    /// </summary>
-    [CanBeNull]
-    public ValidationResult ValidationResult
-    {
-      get => m_ValidationResult;
-      [NotifyPropertyChangedInvocator]
-      set
-      {
-        if (m_ValidationResult != null && m_ValidationResult.Equals(value))
-          return;
-        m_ValidationResult = value;
-        if (m_ValidationResult?.NumberRecords > NumRecords)
-          NumRecords = m_ValidationResult.NumberRecords;
-        NotifyPropertyChanged(nameof(ValidationResult));
-      }
-    }
-
-    /// <summary>
     ///   Copies all values to other instance
     /// </summary>
     /// <param name="other">The other.</param>
@@ -1155,7 +1178,8 @@ namespace CsvTools
       other.Footer = m_Footer;
       other.Header = m_Header;
       m_Samples.CollectionCopy(other.Samples);
-      other.NumErrors = m_NumErrors;
+
+      other.EvidenceNumberOrIssues = m_EvidenceNumberOrIssues;
       m_Errors.CollectionCopy(other.Errors);
 
       // FileName and ID are set at the end otherwise column collection changes will invalidate the
@@ -1169,6 +1193,8 @@ namespace CsvTools
       }
       other.ID = m_Id;
       other.NumRecords = m_NumRecords;
+      other.WarningCount = m_WarningCount;
+      other.ErrorCount = m_ErrorCount;
     }
 
     /*

@@ -133,13 +133,23 @@ namespace CsvTools
     /// <summary>
     /// Number of records with errors, -1 to indicate not known
     /// </summary>
-    int NumErrors { get; set; }
+    int EvidenceNumberOrIssues { get; set; }
 
     /// <summary>
     /// Gets or sets the number records that have been processed
     /// </summary>
     /// <value>The number of processed records.</value>
     long NumRecords { get; set; }
+
+    /// <summary>
+    /// Gets or sets the number records with warnings
+    /// </summary>
+    long WarningCount { get; set; }
+
+    /// <summary>
+    /// Gets or sets the number records with errors
+    /// </summary>
+    long ErrorCount { get; set; }
 
     /// <summary>
     /// Passphrase for Decryption
@@ -222,7 +232,7 @@ namespace CsvTools
     /// Gets or sets the name of the template.
     /// </summary>
     /// <value>The name of the template.</value>
-    string TemplateName { get; set; }
+    string TemplateName { [NotNull] get; [CanBeNull] set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether to treat NBSP as space.
@@ -250,12 +260,6 @@ namespace CsvTools
     /// <value><c>true</c> if this file is imported; otherwise, <c>false</c>.</value>
     bool Validate { get; set; }
 
-    /// <summary>
-    /// Gets or sets the validation result for this instance
-    /// </summary>
-    /// <value>The validation result <see cref="ValidationResult"/></value>
-    [CanBeNull]
-    ValidationResult ValidationResult { get; set; }
 
     /// <summary>
     /// The latest value of possible sources, e.G. the file time from the sources in a SQL, As
