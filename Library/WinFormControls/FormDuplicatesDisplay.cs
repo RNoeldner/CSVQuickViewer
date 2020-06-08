@@ -111,7 +111,7 @@ namespace CsvTools
         var dictIDToRow = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
         var dictFirstIDStored = new HashSet<int>();
         var dataColumnID = m_DataTable.Columns[dataColumnName];
-        this.SafeInvoke(() => Text = $"Duplicate Display - {dataColumnName}");
+        this.SafeInvoke(() => Text = $@"Duplicate Display - {dataColumnName}");
 
         var intervalAction = new IntervalAction();
         using (var display = new FormProcessDisplay(
@@ -153,7 +153,7 @@ namespace CsvTools
           dictIDToRow.Clear();
 
           this.SafeInvoke(
-            () => Text = $"Duplicate Display - {dataColumnName} - Rows {dupliacteList.Count} / {m_DataRow.Length}");
+            () => Text = $@"Duplicate Display - {dataColumnName} - Rows {dupliacteList.Count} / {m_DataRow.Length}");
 
           m_DataTable.BeginLoadData();
           m_DataTable.Clear();

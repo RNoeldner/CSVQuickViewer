@@ -125,7 +125,9 @@ namespace CsvTools
       return false;
     }
 
+#pragma warning disable 1998
     public new async Task ResetPositionToFirstDataRowAsync() => ResetPositionToStartOrOpen();
+#pragma warning restore 1998
 
     /// <summary>
     ///   Releases unmanaged and - optionally - managed resources

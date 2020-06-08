@@ -15,6 +15,7 @@
 using System;
 using System.IO;
 using System.IO.Compression;
+using JetBrains.Annotations;
 
 
 namespace CsvTools
@@ -26,12 +27,13 @@ namespace CsvTools
   public sealed class ImprovedStream : IImprovedStream
   {
     private readonly bool m_AssumeGZip;
+    [NotNull]
     private readonly string m_BasePath;
     private readonly bool m_IsReading;
 
     private bool m_DisposedValue; // To detect redundant calls
 
-    private ImprovedStream(string path, bool isReading)
+    private ImprovedStream([NotNull] string path, bool isReading)
     {
       m_IsReading = isReading;
       m_BasePath = path;
@@ -99,7 +101,7 @@ namespace CsvTools
     /// </summary>
     /// <returns></returns>
     /// <exception cref="ArgumentException">Path must be set - path</exception>
-    public static IImprovedStream OpenRead(IFileSettingPhysicalFile setting)
+    public static IImprovedStream OpenRead([NotNull] IFileSettingPhysicalFile setting)
     {
       if (setting is null)
         throw new ArgumentNullException(nameof(setting));
@@ -125,7 +127,7 @@ namespace CsvTools
     ///   Opens an file for writing
     /// </summary>
     /// <returns>An improved stream object</returns>
-    public static IImprovedStream OpenWrite(IFileSettingPhysicalFile setting)
+    public static IImprovedStream OpenWrite([NotNull] IFileSettingPhysicalFile setting)
     {
       if (setting is null)
         throw new ArgumentNullException(nameof(setting));
@@ -137,7 +139,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="fileName">The path.</param>
     /// <returns>An improved stream object</returns>
-    public static IImprovedStream OpenWrite(string fileName)
+    public static IImprovedStream OpenWrite([NotNull] string fileName)
     {
       if (string.IsNullOrEmpty(fileName))
         throw new ArgumentException("Path must be provided", nameof(fileName));
@@ -172,7 +174,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="path">The path.</param>
     /// <returns>An improved stream where the base stream is set</returns>
-    private static ImprovedStream OpenBaseStream(string path)
+    private static ImprovedStream OpenBaseStream([NotNull] string path)
     {
       var retVal = new ImprovedStream(path, true);
       try

@@ -164,11 +164,13 @@ namespace CsvTools
         if (string.IsNullOrEmpty(destinationTimeZoneID))
           HandleWarning(columnInfo.Column.Name, "Time zone is empty, value not converted");
         else
+          // ReSharper disable once PossibleInvalidOperationException
           return FunctionalDI.AdjustTZ(dataObject, m_SourceTimeZone, destinationTimeZoneID, Columns.IndexOf(columnInfo),
             (columnNo, msg) => HandleWarning(Columns[columnNo].Column.Name, msg)).Value;
       }
       else if (!string.IsNullOrEmpty(columnInfo.ConstantTimeZone))
       {
+        // ReSharper disable once PossibleInvalidOperationException
         return FunctionalDI.AdjustTZ(dataObject, m_SourceTimeZone, columnInfo.ConstantTimeZone,
           Columns.IndexOf(columnInfo), (columnNo, msg) => HandleWarning(Columns[columnNo].Column.Name, msg)).Value;
       }
@@ -189,8 +191,8 @@ namespace CsvTools
       m_FileSetting.ProcessTimeUtc = DateTime.UtcNow;
       if (!(m_FileSetting is IFileSettingPhysicalFile physicalFile) ||
           !physicalFile.SetLatestSourceTimeForWrite) return;
-      if (physicalFile.FullPath != null)
-        FileSystemUtils.SetLastWriteTimeUtc(physicalFile.FullPath, m_FileSetting.LatestSourceTimeUtc);
+      
+      FileSystemUtils.SetLastWriteTimeUtc(physicalFile.FullPath, m_FileSetting.LatestSourceTimeUtc);
 
       Logger.Debug("Finished writing {filesetting} Records: {records}", m_FileSetting.ToString(), Records);
       WriteFinished?.Invoke(this, null);
