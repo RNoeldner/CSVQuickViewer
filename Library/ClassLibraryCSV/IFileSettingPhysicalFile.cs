@@ -33,9 +33,9 @@ namespace CsvTools
     ///  Gets the full path of the Filename
     /// </summary>
     /// <value>
-    ///  The full path for <see cref="FileName" />
+    ///  The full path of the file <see cref="FileName"/> />
     /// </value>
-    [CanBeNull]
+    [NotNull]
     string FullPath { get; }
 
     /// <summary>

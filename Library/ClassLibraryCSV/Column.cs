@@ -614,7 +614,9 @@ namespace CsvTools
     ///   <see langword="true" /> if the specified object is equal to the current object; otherwise,
     ///   <see langword="false" />.
     /// </returns>
+#pragma warning disable 659
     public override bool Equals(object obj) => Equals(obj as Column);
+#pragma warning restore 659
 
     /// <summary>
     ///   Gets the a description of the Date or Number format

@@ -211,7 +211,7 @@ namespace CsvTools.Tests
           InOverview = false,
           SqlStatement = "dummy"
         };
-        FileSystemUtils.FileDelete(writeFile.FileName);
+        FileSystemUtils.FileDelete(writeFile.FullPath);
         using (var file = new StreamWriter(writeFile.FullPath))
         {
           await file.WriteLineAsync("Hello");

@@ -48,7 +48,8 @@ namespace CsvTools
     private string m_FileName;
     private long m_FileSize;
     private string m_Footer = string.Empty;
-    private string m_FullPath;
+    private bool m_FullPathInitialized;
+    private string m_FullPath = string.Empty;
     private bool m_HasFieldHeader = true;
     private string m_Header = string.Empty;
     private string m_Id = string.Empty;
@@ -527,7 +528,7 @@ namespace CsvTools
     /// </remarks>
     public virtual void CalculateLatestSourceTime()
     {
-      if (this is IFileSettingPhysicalFile settingPhysicalFile && !string.IsNullOrEmpty(settingPhysicalFile.FullPath))
+      if (this is IFileSettingPhysicalFile settingPhysicalFile)
       {
         var fileName = FileSystemUtils.ResolvePattern(settingPhysicalFile.FullPath);
         m_LatestSourceTimeUtc = string.IsNullOrEmpty(fileName) ? ZeroTime : FileSystemUtils.GetLastWriteTimeUtc(fileName);
@@ -612,17 +613,22 @@ namespace CsvTools
       }
     }
 
-    public void ResetFullPath() => m_FullPath = null;
+    public void ResetFullPath() => m_FullPathInitialized = false;
 
     [XmlIgnore]
+    [NotNull]
     public virtual string FullPath
     {
-      [CanBeNull]
       get
       {
-        if (m_FullPath == null || !FileSystemUtils.FileExists(m_FullPath))
+        if (!m_FullPathInitialized)
+        {
           m_FullPath = FileSystemUtils.ResolvePattern(m_FileName.GetAbsolutePath(ApplicationSetting.RootFolder));
-
+          if (m_FullPath == null)
+            m_FullPath = string.Empty;
+          else
+            m_FullPathInitialized = true;
+        }
         return m_FullPath;
       }
     }

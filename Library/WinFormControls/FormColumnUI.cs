@@ -1050,8 +1050,8 @@ namespace CsvTools
         checkBoxPartToEnd.Checked = false;
       var toEnd = checkBoxPartToEnd.Checked;
 
-      labelSamplePart.Text = $"Input: \"{sample}\"";
-      labelResultPart.Text = $"Output: \"{StringConversion.StringToTextPart(sample, split, part.Value, toEnd)}\"";
+      labelSamplePart.Text = $@"Input: ""{sample}""";
+      labelResultPart.Text = $@"Output: ""{StringConversion.StringToTextPart(sample, split, part.Value, toEnd)}""";
     }
 
     private void SystemEvents_UserPreferenceChanged(object sender, UserPreferenceChangedEventArgs e)

@@ -170,7 +170,9 @@ namespace CsvTools
     ///   <see langword="true" /> if the specified object is equal to the current object; otherwise,
     ///   <see langword="false" />.
     /// </returns>
+#pragma warning disable 659
     public override bool Equals(object obj) => Equals(obj as StructuredFile);
+#pragma warning restore 659
 
     public static bool operator ==(StructuredFile file1, StructuredFile file2) =>
       EqualityComparer<StructuredFile>.Default.Equals(file1, file2);

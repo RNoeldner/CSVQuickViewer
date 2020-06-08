@@ -25,6 +25,7 @@ namespace CsvTools
   ///   static delegate function to give the ability to overload the default functionality by
   ///   implementations not know to this library
   /// </summary>
+  // ReSharper disable once InconsistentNaming
   public static class FunctionalDI
   {
     /// <summary>

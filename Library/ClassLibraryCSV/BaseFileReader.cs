@@ -910,7 +910,9 @@ namespace CsvTools
     /// <summary>
     ///   Resets the position and buffer to the header in case the file has a header
     /// </summary>
+#pragma warning disable 1998
     public virtual async Task ResetPositionToFirstDataRowAsync()
+#pragma warning restore 1998
     {
       EndLineNumber = 0;
       RecordNumber = 0;
@@ -1182,7 +1184,7 @@ namespace CsvTools
         return;
       m_IsFinished = true;
       FileSetting.ProcessTimeUtc = DateTime.UtcNow;
-      if (FileSetting is IFileSettingPhysicalFile physicalFile && !string.IsNullOrEmpty(physicalFile.FullPath))
+      if (FileSetting is IFileSettingPhysicalFile physicalFile )
       {
         physicalFile.FileSize = FileSystemUtils.FileLength(physicalFile.FullPath);
         Logger.Debug(

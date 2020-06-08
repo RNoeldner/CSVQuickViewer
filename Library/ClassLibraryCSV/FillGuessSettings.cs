@@ -384,7 +384,9 @@ namespace CsvTools
     /// <returns>
     ///   <see langword="true" /> if the specified object  is equal to the current object; otherwise, <see langword="false" />.
     /// </returns>
+#pragma warning disable 659
     public override bool Equals(object obj) => Equals(obj as FillGuessSettings);
+#pragma warning restore 659
 
     /// <summary>
     ///   Notifies the property changed.
