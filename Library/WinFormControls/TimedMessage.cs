@@ -399,6 +399,7 @@ namespace CsvTools
       m_Counter++;
       UpdateLabel();
 
+      // ReSharper disable once PossibleLossOfFraction
       if (Duration > 0 && m_Counter * m_Timer.Interval / 1000 > Duration)
       {
         AcceptButton?.PerformClick();
@@ -407,6 +408,7 @@ namespace CsvTools
 
     private void UpdateLabel()
     {
+      // ReSharper disable once PossibleLossOfFraction
       var display = Convert.ToInt32((Duration - m_Counter * m_Timer.Interval / 1000 + .75));
       if (!m_Timer.Enabled)
         display = 0;

@@ -121,7 +121,7 @@ namespace CsvTools
           {
             if (display.CancellationToken.IsCancellationRequested)
               return;
-            intervalAction.Invoke(delegate { display.SetProcess("Getting Unique values", rowIndex, true); });
+            intervalAction.Invoke(row => { display.SetProcess("Getting Unique values", row, true); }, rowIndex);
             var id = m_DataRow[rowIndex][dataColumnID.Ordinal].ToString().Trim();
             if (ignoreNull && string.IsNullOrEmpty(id))
               continue;
@@ -143,7 +143,7 @@ namespace CsvTools
               return;
             counter++;
             if (counter % 100 == 0)
-              intervalAction.Invoke(delegate { display.SetProcess("Importing Rows to Grid", counter, true); });
+              intervalAction.Invoke(c => { display.SetProcess("Importing Rows to Grid", c, true); }, counter);
             m_DataTable.ImportRow(m_DataRow[rowIndex]);
           }
 

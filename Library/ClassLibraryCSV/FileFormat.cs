@@ -16,8 +16,8 @@ namespace CsvTools
 {
   using System;
   using System.ComponentModel;
-  using System.Diagnostics.Contracts;
   using System.Xml.Serialization;
+  using JetBrains.Annotations;
 
   /// <summary>
   ///   Setting class for a general file format
@@ -125,12 +125,9 @@ namespace CsvTools
     [DefaultValue(c_CommentLineDefault)]
     public virtual string CommentLine
     {
-      get
-      {
-        Contract.Ensures(Contract.Result<string>() != null);
-        return m_CommentLine;
-      }
-
+      [NotNull]
+      get => m_CommentLine;
+      [CanBeNull]
       set
       {
         var newVal = (value ?? string.Empty).Trim();
@@ -149,11 +146,8 @@ namespace CsvTools
     [DefaultValue(c_DelimiterPlaceholderDefault)]
     public virtual string DelimiterPlaceholder
     {
-      get
-      {
-        Contract.Ensures(Contract.Result<string>() != null);
-        return m_DelimiterPlaceholder;
-      }
+      [NotNull]
+      get => m_DelimiterPlaceholder;
 
       set
       {
@@ -191,11 +185,8 @@ namespace CsvTools
     [DefaultValue(cEscapeCharacterDefault)]
     public virtual string EscapeCharacter
     {
-      get
-      {
-        Contract.Ensures(Contract.Result<string>() != null);
-        return m_EscapeCharacter;
-      }
+      [NotNull]
+      get => m_EscapeCharacter;
 
       set
       {
@@ -223,11 +214,8 @@ namespace CsvTools
     [DefaultValue(c_FieldDelimiterDefault)]
     public virtual string FieldDelimiter
     {
-      get
-      {
-        Contract.Ensures(Contract.Result<string>() != null);
-        return m_FieldDelimiter;
-      }
+      [NotNull]
+      get => m_FieldDelimiter;
 
       set
       {
@@ -255,11 +243,8 @@ namespace CsvTools
     [DefaultValue(c_FieldQualifierDefault)]
     public virtual string FieldQualifier
     {
-      get
-      {
-        Contract.Ensures(Contract.Result<string>() != null);
-        return m_FieldQualifier;
-      }
+      [NotNull]
+      get => m_FieldQualifier;
 
       set
       {
@@ -313,11 +298,8 @@ namespace CsvTools
     [DefaultValue(c_NewLinePlaceholderDefault)]
     public virtual string NewLinePlaceholder
     {
-      get
-      {
-        Contract.Ensures(Contract.Result<string>() != null);
-        return m_NewLinePlaceholder;
-      }
+      [NotNull]
+      get => m_NewLinePlaceholder;
 
       set
       {
@@ -378,11 +360,8 @@ namespace CsvTools
     [DefaultValue(c_QuotePlaceholderDefault)]
     public virtual string QuotePlaceholder
     {
-      get
-      {
-        Contract.Ensures(Contract.Result<string>() != null);
-        return m_QuotePlaceholder;
-      }
+      [NotNull]
+      get => m_QuotePlaceholder;
 
       set
       {
@@ -401,11 +380,8 @@ namespace CsvTools
     [XmlElement]
     public virtual ValueFormat ValueFormat
     {
-      get
-      {
-        Contract.Ensures(Contract.Result<ValueFormat>() != null);
-        return m_ValueFormat;
-      }
+      [NotNull]
+      get => m_ValueFormat;
 
       set
       {
@@ -429,11 +405,7 @@ namespace CsvTools
     [XmlIgnore]
     public virtual bool ValueFormatSpecified
     {
-      get
-      {
-        Contract.Assume(m_ValueFormat != null);
-        return !m_ValueFormat.Equals(new ValueFormat());
-      }
+      get => !m_ValueFormat.Equals(new ValueFormat());
     }
 
     /// <summary>
@@ -454,9 +426,9 @@ namespace CsvTools
     /// </summary>
     /// <param name="inputString">The input string.</param>
     /// <returns></returns>
+    [NotNull]
     public static string GetDescription(string inputString)
     {
-      Contract.Ensures(Contract.Result<string>() != null);
       if (string.IsNullOrEmpty(inputString))
         return string.Empty;
 
@@ -529,7 +501,6 @@ namespace CsvTools
     /// <returns></returns>
     public FileFormat Clone()
     {
-      Contract.Ensures(Contract.Result<FileFormat>() != null);
       var other = new FileFormat();
       CopyTo(other);
       return other;

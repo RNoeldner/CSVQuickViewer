@@ -19,6 +19,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Text;
 using System.Xml.Serialization;
+using JetBrains.Annotations;
 
 namespace CsvTools
 {
@@ -98,7 +99,6 @@ namespace CsvTools
     public virtual DataType DataType
     {
       get => m_DataType;
-
       set
       {
         if (m_DataType.Equals(value))
@@ -117,6 +117,7 @@ namespace CsvTools
     [DefaultValue("")]
     public virtual string DisplayNullAs
     {
+      [NotNull]
       get => m_DisplayNullAs;
 
       set
@@ -137,6 +138,7 @@ namespace CsvTools
     [DefaultValue(cDateFormatDefault)]
     public virtual string DateFormat
     {
+      [NotNull]
       get => m_DateFormat;
       set
       {
@@ -156,8 +158,8 @@ namespace CsvTools
     [DefaultValue(cDateSeparatorDefault)]
     public virtual string DateSeparator
     {
+      [NotNull]
       get => m_DateSeparator;
-
       set
       {
         // Translate written punctuation into a character
@@ -178,6 +180,7 @@ namespace CsvTools
     [DefaultValue(cDecimalSeparatorDefault)]
     public virtual string DecimalSeparator
     {
+      [NotNull]
       get => m_DecimalSeparator;
 
       set
@@ -211,6 +214,7 @@ namespace CsvTools
     [DefaultValue(cFalseDefault)]
     public virtual string False
     {
+      [NotNull]
       get => m_False;
 
       set
@@ -231,6 +235,7 @@ namespace CsvTools
     [DefaultValue(cGroupSeparatorDefault)]
     public virtual string GroupSeparator
     {
+      [NotNull]
       get => m_GroupSeparator;
       set
       {
@@ -262,6 +267,7 @@ namespace CsvTools
     [DefaultValue(cNumberFormatDefault)]
     public virtual string NumberFormat
     {
+      [NotNull]
       get => m_NumberFormat;
       set
       {
@@ -281,6 +287,7 @@ namespace CsvTools
     [DefaultValue(cTimeSeparatorDefault)]
     public virtual string TimeSeparator
     {
+      [NotNull]
       get => m_TimeSeparator;
       set
       {
@@ -302,6 +309,7 @@ namespace CsvTools
     [DefaultValue(cTrueDefault)]
     public virtual string True
     {
+      [NotNull]
       get => m_True;
       set
       {
@@ -319,6 +327,7 @@ namespace CsvTools
     ///   Clones this instance into a new instance of the same type
     /// </summary>
     /// <returns></returns>
+    [NotNull]
     public virtual ValueFormat Clone()
     {
       var other = new ValueFormat();
@@ -432,6 +441,7 @@ namespace CsvTools
     ///   Gets the a description of the Date or Number format
     /// </summary>
     /// <returns></returns>
+    [NotNull]
     public string GetFormatDescription()
     {
       switch (m_DataType)
@@ -456,18 +466,19 @@ namespace CsvTools
     ///   Gets the description.
     /// </summary>
     /// <returns></returns>
+    [NotNull]
     public string GetTypeAndFormatDescription()
     {
-      var sbtext = new StringBuilder(m_DataType.DataTypeDisplay());
+      var sbText = new StringBuilder(m_DataType.DataTypeDisplay());
 
       var shortDesc = GetFormatDescription();
       if (shortDesc.Length <= 0)
-        return sbtext.ToString();
-      sbtext.Append(" (");
-      sbtext.Append(shortDesc);
-      sbtext.Append(")");
+        return sbText.ToString();
+      sbText.Append(" (");
+      sbText.Append(shortDesc);
+      sbText.Append(")");
 
-      return sbtext.ToString();
+      return sbText.ToString();
     }
 
     /// <summary>
@@ -497,7 +508,7 @@ namespace CsvTools
     ///   Is matching only looks at data type and some formats, it is assumed that we do not
     ///   distinguish between numeric formats, it is O.K. to expect a money value but have a integer
     /// </remarks>
-    public bool IsMatching(ValueFormat expected)
+    public bool IsMatching([NotNull] ValueFormat expected)
     {
       if (expected.DataType == m_DataType)
         return true;

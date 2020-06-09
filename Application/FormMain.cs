@@ -539,8 +539,10 @@ namespace CsvTools
               processDisplay.Show();
               if (limitSizeForm != null)
               {
+                // ReSharper disable PossibleNullReferenceException
                 processDisplay.Left = limitSizeForm.Left + limitSizeForm.Width;
                 limitSizeForm.Focus();
+                // ReSharper restore PossibleNullReferenceException
               }
 
               m_FileSetting.HasFieldHeader = true;

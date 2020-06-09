@@ -400,11 +400,9 @@ namespace CsvTools
 
     private char NextChar()
     {
-      if (m_BufferPos >= m_BufferFilled || m_BufferFilled == 0)
-      {
-        ReadIntoBuffer();
-        m_BufferPos = 0;
-      }
+      if (m_BufferPos < m_BufferFilled && m_BufferFilled != 0) return EndOfFile ? c_Lf : m_Buffer[m_BufferPos];
+      ReadIntoBuffer();
+      m_BufferPos = 0;
 
       // If of file its does not matter what to return simply return something
       return EndOfFile ? c_Lf : m_Buffer[m_BufferPos];

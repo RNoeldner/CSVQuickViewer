@@ -13,6 +13,7 @@
  */
 
 using System.Collections.Generic;
+using JetBrains.Annotations;
 
 
 namespace CsvTools
@@ -42,6 +43,7 @@ namespace CsvTools
 
     public IEnumerable<string> Keys => m_DateLengthMinMax.Keys;
 
+    [NotNull] 
     public IEnumerable<string> MatchingForLength(int length, bool checkNamedDates) =>
       (from kvFormatInformation in m_DateLengthMinMax
        where (checkNamedDates || !kvFormatInformation.Value.NamedDate) && length >= kvFormatInformation.Value.MinLength

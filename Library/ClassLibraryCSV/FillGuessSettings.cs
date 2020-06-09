@@ -12,9 +12,9 @@
  *
  */
 
+using JetBrains.Annotations;
 using System;
 using System.ComponentModel;
-using System.Diagnostics.Contracts;
 using System.Xml.Serialization;
 
 namespace CsvTools
@@ -108,7 +108,7 @@ namespace CsvTools
     /// </summary>
     [DefaultValue(true)]
     [XmlElement]
-    public virtual bool DectectNumbers
+    public virtual bool DetectNumbers
     {
       get => m_DetectNumbers;
 
@@ -117,7 +117,7 @@ namespace CsvTools
         if (m_DetectNumbers == value)
           return;
         m_DetectNumbers = value;
-        NotifyPropertyChanged(nameof(DectectNumbers));
+        NotifyPropertyChanged(nameof(DetectNumbers));
       }
     }
 
@@ -200,18 +200,10 @@ namespace CsvTools
     [XmlElement]
     public virtual string FalseValue
     {
-      get
-      {
-        Contract.Ensures(Contract.Result<string>() != null);
-        Contract.Assume(m_FalseValue != null);
-        return m_FalseValue;
-      }
-
+      [NotNull]
+      get => m_FalseValue;
       set
       {
-        Contract.Ensures(m_FalseValue != null);
-        Contract.Assume(m_FalseValue != null);
-
         var newVal = value ?? string.Empty;
         if (m_FalseValue.Equals(newVal, StringComparison.Ordinal))
           return;
@@ -225,7 +217,7 @@ namespace CsvTools
     /// </summary>
     [DefaultValue(true)]
     [XmlElement]
-    public virtual bool IgnoreIdColums
+    public virtual bool IgnoreIdColumns
     {
       get => m_IgnoreIdColumns;
 
@@ -234,7 +226,7 @@ namespace CsvTools
         if (m_IgnoreIdColumns == value)
           return;
         m_IgnoreIdColumns = value;
-        NotifyPropertyChanged(nameof(IgnoreIdColums));
+        NotifyPropertyChanged(nameof(IgnoreIdColumns));
       }
     }
 
@@ -299,18 +291,11 @@ namespace CsvTools
     [XmlElement]
     public virtual string TrueValue
     {
-      get
-      {
-        Contract.Ensures(Contract.Result<string>() != null);
-        Contract.Assume(m_TrueValue != null);
-        return m_TrueValue;
-      }
+      [NotNull]
+      get => m_TrueValue;
 
       set
       {
-        Contract.Ensures(m_TrueValue != null);
-        Contract.Assume(m_TrueValue != null);
-
         var newVal = value ?? string.Empty;
         if (m_TrueValue.Equals(newVal, StringComparison.Ordinal))
           return;
@@ -323,9 +308,9 @@ namespace CsvTools
     ///   Clones this instance into a new instance of the same type
     /// </summary>
     /// <returns></returns>
+    [NotNull]
     public virtual FillGuessSettings Clone()
     {
-      Contract.Ensures(Contract.Result<FillGuessSettings>() != null);
       var other = new FillGuessSettings();
       CopyTo(other);
       return other;
@@ -342,14 +327,14 @@ namespace CsvTools
 
       other.CheckedRecords = CheckedRecords;
       other.CheckNamedDates = CheckNamedDates;
-      other.DectectNumbers = DectectNumbers;
+      other.DetectNumbers = DetectNumbers;
       other.DectectPercentage = DectectPercentage;
       other.DetectBoolean = DetectBoolean;
       other.DateParts = DateParts;
       other.DetectDateTime = DetectDateTime;
       other.DetectGUID = DetectGUID;
       other.FalseValue = FalseValue;
-      other.IgnoreIdColums = IgnoreIdColums;
+      other.IgnoreIdColumns = IgnoreIdColumns;
       other.MinSamples = MinSamples;
       other.SampleValues = SampleValues;
       other.SerialDateTime = SerialDateTime;
@@ -374,7 +359,7 @@ namespace CsvTools
              m_DetectBoolean == other.m_DetectBoolean && m_DetectDateTime == other.DetectDateTime &&
              DetectGUID == other.DetectGUID &&
              string.Equals(FalseValue, other.FalseValue, StringComparison.OrdinalIgnoreCase) &&
-             IgnoreIdColums == other.IgnoreIdColums && MinSamples == other.MinSamples &&
+             IgnoreIdColumns == other.IgnoreIdColumns && MinSamples == other.MinSamples &&
              SampleValues == other.SampleValues && SerialDateTime == other.SerialDateTime &&
              string.Equals(TrueValue, other.TrueValue, StringComparison.OrdinalIgnoreCase);
     }
@@ -394,33 +379,5 @@ namespace CsvTools
     /// <param name="info">The info.</param>
     public virtual void NotifyPropertyChanged(string info) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(info));
 
-    /*
-    /// <summary>Serves as the default hash function. </summary>
-    /// <returns>A hash code for the current object.</returns>
-    public override int GetHashCode()
-    {
-      unchecked
-      {
-        var hashCode = m_CheckedRecords;
-        hashCode = (hashCode * 397) ^ m_CheckNamedDates.GetHashCode();
-        hashCode = (hashCode * 397) ^ m_DateParts.GetHashCode();
-        hashCode = (hashCode * 397) ^ (m_DateTimeValue != null ? m_DateTimeValue.GetHashCode() : 0);
-        hashCode = (hashCode * 397) ^ m_DetectNumbers.GetHashCode();
-        hashCode = (hashCode * 397) ^ m_DectectPercentage.GetHashCode();
-        hashCode = (hashCode * 397) ^ m_DetectBoolean.GetHashCode();
-        hashCode = (hashCode * 397) ^ m_DetectDateTime.GetHashCode();
-        hashCode = (hashCode * 397) ^ m_DetectGuid.GetHashCode();
-        hashCode = (hashCode * 397) ^
-                   (m_FalseValue != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(m_FalseValue) : 0);
-        hashCode = (hashCode * 397) ^ m_IgnoreIdColums.GetHashCode();
-        hashCode = (hashCode * 397) ^ m_MinSamplesForIntDate;
-        hashCode = (hashCode * 397) ^ m_SampleValues;
-        hashCode = (hashCode * 397) ^ m_SerialDateTime.GetHashCode();
-        hashCode = (hashCode * 397) ^
-                   (m_TrueValue != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(m_TrueValue) : 0);
-        return hashCode;
-      }
-    }
-    */
   }
 }

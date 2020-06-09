@@ -12,11 +12,11 @@
  *
  */
 
+using JetBrains.Annotations;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Diagnostics.Contracts;
 using System.Xml.Serialization;
 
 namespace CsvTools
@@ -70,11 +70,8 @@ namespace CsvTools
     [XmlAttribute("Column")]
     public string FileColumn
     {
-      get
-      {
-        Contract.Ensures(Contract.Result<string>() != null);
-        return m_FileColumn;
-      }
+      [NotNull]
+      get => m_FileColumn;
       set => m_FileColumn = value ?? string.Empty;
     }
 
@@ -86,11 +83,8 @@ namespace CsvTools
     [DefaultValue("")]
     public virtual string TemplateField
     {
-      get
-      {
-        Contract.Ensures(Contract.Result<string>() != null);
-        return m_TemplateField;
-      }
+      [NotNull]
+      get => m_TemplateField;
       set => m_TemplateField = value ?? string.Empty;
     }
 
@@ -136,12 +130,6 @@ namespace CsvTools
              string.Equals(m_TemplateField, other.m_TemplateField, StringComparison.OrdinalIgnoreCase);
     }
 
-    [ContractInvariantMethod]
-    private void ObjectInvariant()
-    {
-      Contract.Invariant(m_FileColumn != null);
-      Contract.Invariant(m_TemplateField != null);
-    }
 
     /// <summary>Determines whether the specified object is equal to the current object.</summary>
     /// <param name="obj">The object to compare with the current object. </param>

@@ -485,25 +485,21 @@ namespace CsvTools
       if (string.IsNullOrEmpty(item))
         return false;
 
-      if (filter.IndexOf('+') > -1)
+      if (filter.IndexOf('+') <= -1)
+        return filter.Split(new[] {' ', ',', ';'}, StringSplitOptions.RemoveEmptyEntries)
+          .Any(part => item.IndexOf(part, stringComparison) != -1);
+      var parts = filter.Split(new[] { '+' }, StringSplitOptions.RemoveEmptyEntries);
+
+      // 1st part
+      var all = item.IndexOf(parts[0], stringComparison) > -1;
+
+      // and all other parts
+      for (var index = 1; index < parts.Length && all; index++)
       {
-        var parts = filter.Split(new[] { '+' }, StringSplitOptions.RemoveEmptyEntries);
-
-        // 1st part
-        var all = item.IndexOf(parts[0], stringComparison) > -1;
-
-        // and all other parts
-        for (var index = 1; index < parts.Length && all; index++)
-        {
-          if (item.IndexOf(parts[index], stringComparison) == -1)
-            all = false;
-        }
-        return all;
+        if (item.IndexOf(parts[index], stringComparison) == -1)
+          all = false;
       }
-
-      // any Part will do
-      return filter.Split(new[] { ' ', ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
-        .Any(part => item.IndexOf(part, stringComparison) != -1);
+      return all;
     }
 
     [NotNull]

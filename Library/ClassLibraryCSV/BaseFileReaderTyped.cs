@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Data;
 using System.Diagnostics;
-using System.Diagnostics.Contracts;
 using System.Globalization;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 
 namespace CsvTools
 {
@@ -25,11 +25,9 @@ namespace CsvTools
     /// </summary>
     /// <returns>An array with the found data types</returns>
     /// <remarks>In case of mixed types, string is preferred over everything</remarks>
+    [ItemNotNull]
     protected async Task<DataType[]> GetColumnTypeAsync()
     {
-      Contract.Ensures(Contract.Result<DataType[]>() != null);
-      Contract.Ensures(Contract.Result<DataType[]>().Length == FieldCount);
-
       HandleShowProgress("Reading data to determine type");
       var colType = new DataType[FieldCount];
 
@@ -323,7 +321,6 @@ namespace CsvTools
 
     public override int GetValues(object[] values)
     {
-      Contract.Assume(CurrentValues != null);
       Array.Copy(CurrentValues, values, FieldCount);
       return FieldCount;
     }

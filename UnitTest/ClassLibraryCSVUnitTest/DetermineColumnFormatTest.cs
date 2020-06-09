@@ -68,12 +68,12 @@ namespace CsvTools.Tests
 
             var fillGuessSettings = new FillGuessSettings
             {
-              DectectNumbers = true,
+              DetectNumbers = true,
               DetectDateTime = true,
               DectectPercentage = true,
               DetectBoolean = true,
               DetectGUID = true,
-              IgnoreIdColums = true
+              IgnoreIdColumns = true
             };
 
             var columnCollection = new ColumnCollection();
@@ -164,12 +164,12 @@ namespace CsvTools.Tests
       };
       var fillGuessSettings = new FillGuessSettings
       {
-        DectectNumbers = true,
+        DetectNumbers = true,
         DetectDateTime = true,
         DectectPercentage = true,
         DetectBoolean = true,
         DetectGUID = true,
-        IgnoreIdColums = false
+        IgnoreIdColumns = false
       };
       using (var processDisplay = new DummyProcessDisplay())
       {
@@ -347,12 +347,12 @@ namespace CsvTools.Tests
 
       var fillGuessSettings = new FillGuessSettings
       {
-        DectectNumbers = true,
+        DetectNumbers = true,
         DetectDateTime = true,
         DectectPercentage = true,
         DetectBoolean = true,
         DetectGUID = true,
-        IgnoreIdColums = false
+        IgnoreIdColumns = false
       };
       using (var processDisplay = new DummyProcessDisplay())
       {
@@ -376,13 +376,13 @@ namespace CsvTools.Tests
       };
       var fillGuessSettings = new FillGuessSettings
       {
-        DectectNumbers = true,
+        DetectNumbers = true,
         DetectDateTime = true,
         DectectPercentage = true,
         DetectBoolean = true,
         DetectGUID = true,
         DateParts = true,
-        IgnoreIdColums = true
+        IgnoreIdColumns = true
       };
 
       using (var processDisplay = new DummyProcessDisplay())
@@ -412,12 +412,12 @@ namespace CsvTools.Tests
 
       var fillGuessSettings = new FillGuessSettings
       {
-        DectectNumbers = true,
+        DetectNumbers = true,
         DetectDateTime = true,
         DectectPercentage = true,
         DetectBoolean = true,
         DetectGUID = true,
-        IgnoreIdColums = false
+        IgnoreIdColumns = false
       };
       using (var processDisplay = new DummyProcessDisplay())
       {
@@ -443,12 +443,12 @@ namespace CsvTools.Tests
 
       var fillGuessSettings = new FillGuessSettings
       {
-        DectectNumbers = true,
+        DetectNumbers = true,
         DetectDateTime = true,
         DectectPercentage = true,
         DetectBoolean = true,
         DetectGUID = true,
-        IgnoreIdColums = true
+        IgnoreIdColumns = true
       };
 
       // setting.TreatTextNullAsNull = true;
@@ -486,12 +486,12 @@ namespace CsvTools.Tests
       // setting.TreatTextNullAsNull = true;
       var fillGuessSettings = new FillGuessSettings
       {
-        DectectNumbers = true,
+        DetectNumbers = true,
         DetectDateTime = true,
         DectectPercentage = true,
         DetectBoolean = true,
         DetectGUID = true,
-        IgnoreIdColums = true
+        IgnoreIdColumns = true
       };
       using (var processDisplay = new DummyProcessDisplay())
       {
@@ -514,7 +514,7 @@ namespace CsvTools.Tests
         FileFormat = { FieldDelimiter = "," },
         SkipRows = 1
       };
-      var fillGuessSettings = new FillGuessSettings { IgnoreIdColums = true };
+      var fillGuessSettings = new FillGuessSettings { IgnoreIdColumns = true };
 
       using (var processDisplay = new DummyProcessDisplay())
       {
@@ -534,12 +534,12 @@ namespace CsvTools.Tests
 
       var fillGuessSettings = new FillGuessSettings
       {
-        DectectNumbers = true,
+        DetectNumbers = true,
         DetectDateTime = true,
         DectectPercentage = true,
         DetectBoolean = true,
         DetectGUID = true,
-        IgnoreIdColums = true
+        IgnoreIdColumns = true
       };
       var setting = new CsvFile
       {
@@ -625,12 +625,12 @@ namespace CsvTools.Tests
 
       var fillGuessSettings = new FillGuessSettings
       {
-        DectectNumbers = true,
+        DetectNumbers = true,
         DetectDateTime = true,
         DectectPercentage = true,
         DetectBoolean = true,
         DetectGUID = true,
-        IgnoreIdColums = true
+        IgnoreIdColumns = true
       };
       using (var processDisplay = new DummyProcessDisplay())
       {

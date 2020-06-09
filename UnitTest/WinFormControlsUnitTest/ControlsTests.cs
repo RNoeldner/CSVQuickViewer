@@ -14,6 +14,7 @@
 
 using System;
 using System.Data;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -24,6 +25,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace CsvTools.Tests
 {
   [TestClass]
+  [SuppressMessage("ReSharper", "AccessToDisposedClosure")]
   public class ControlsTests
   {
     private static readonly DataTable m_DataTable = UnitTestStatic.GetDataTable(60);

@@ -29,7 +29,7 @@ namespace CsvTools.Tests
     {
       var executed = false;
 
-      var task = Task.Run<bool>(() => { executed = true; return true; });
+      var task = Task.Run(() => { executed = true; return true; });
       // give it time to finish task
       Thread.Sleep(50);
       Assert.IsTrue(executed);
@@ -43,7 +43,7 @@ namespace CsvTools.Tests
     {
       var executed = false;
       Assert.IsFalse(executed);
-      var task = Task.Run<bool>(() =>
+      var task = Task.Run(() =>
       {
         Thread.Sleep(100);
         executed = true;
@@ -57,7 +57,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void WaitToCompleteTaskTestTimeout()
     {
-      var task = Task.Run<bool>(() =>
+      var task = Task.Run(() =>
       {
         Thread.Sleep(2000);
         return true;
@@ -82,7 +82,7 @@ namespace CsvTools.Tests
     {
       using (var cts = new CancellationTokenSource())
       {
-        var task = Task.Run<bool>(() =>
+        var task = Task.Run(() =>
         {
           Thread.Sleep(5000);
           return true;
@@ -91,7 +91,7 @@ namespace CsvTools.Tests
         try
         {
           // Cancel Token after 200 ms in other thread
-          var task2 = Task.Run(() =>
+          _ = Task.Run(() =>
           {
             Thread.Sleep(200);
             cts.Cancel();
@@ -119,7 +119,7 @@ namespace CsvTools.Tests
       {
         try
         {
-          Task.Run<bool>(() =>
+          Task.Run(() =>
           {
             Thread.Sleep(100);
             var i = 0;

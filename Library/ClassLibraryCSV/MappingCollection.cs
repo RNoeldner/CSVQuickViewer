@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using JetBrains.Annotations;
 
 namespace CsvTools
 {
@@ -65,6 +66,7 @@ namespace CsvTools
         map => map.TemplateField.Equals(templateFieldName, StringComparison.OrdinalIgnoreCase));
     }
 
+    [CanBeNull]
     public string GetColumnName(string templateFieldName) => GetByField(templateFieldName)?.FileColumn;
 
     /// <summary>

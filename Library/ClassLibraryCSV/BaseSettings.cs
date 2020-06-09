@@ -139,7 +139,7 @@ namespace CsvTools
         if (m_SourceFileSettings == null && value == null) return;
         if (value != null && value.CollectionEqual(m_SourceFileSettings)) return;
         // do not notify if we change from null to an empty list
-        var notify = (value?.Count() > 0 || m_SourceFileSettings != null);
+        var notify = value?.Count() > 0 || m_SourceFileSettings != null;
         m_SourceFileSettings = value;
         if (notify)
           NotifyPropertyChanged(nameof(SourceFileSettings));
@@ -488,7 +488,7 @@ namespace CsvTools
       }
     }
 
-    [XmlIgnore] public bool ProcessTimeUtcSpecified => (m_ProcessTimeUtc != ZeroTime);
+    [XmlIgnore] public bool ProcessTimeUtcSpecified => m_ProcessTimeUtc != ZeroTime;
 
 
     /// <summary>
@@ -621,14 +621,12 @@ namespace CsvTools
     {
       get
       {
-        if (!m_FullPathInitialized)
-        {
-          m_FullPath = FileSystemUtils.ResolvePattern(m_FileName.GetAbsolutePath(ApplicationSetting.RootFolder));
-          if (m_FullPath == null)
-            m_FullPath = string.Empty;
-          else
-            m_FullPathInitialized = true;
-        }
+        if (m_FullPathInitialized) return m_FullPath;
+        m_FullPath = FileSystemUtils.ResolvePattern(m_FileName.GetAbsolutePath(ApplicationSetting.RootFolder));
+        if (m_FullPath == null)
+          m_FullPath = string.Empty;
+        else
+          m_FullPathInitialized = true;
         return m_FullPath;
       }
     }
@@ -731,6 +729,7 @@ namespace CsvTools
     ///   The identified to find this specific instance
     /// </summary>
     [XmlIgnore]
+    [NotNull]
     public virtual string InternalID => string.IsNullOrEmpty(ID) ? FileName : ID;
 
     /// <summary>
@@ -1008,7 +1007,7 @@ namespace CsvTools
       [NotifyPropertyChangedInvocator]
       set
       {
-        var newVal = (value==null ? string.Empty : value.NoControlCharacters());
+        var newVal = value==null ? string.Empty : value.NoControlCharacters();
         if (newVal.Equals(m_SqlStatement, StringComparison.Ordinal))
           return;
         m_SqlStatement = newVal;

@@ -23,6 +23,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 
 namespace CsvTools
 {
@@ -31,7 +32,8 @@ namespace CsvTools
   /// </summary>
   public static class DetermineColumnFormat
   {
-    public static ValueFormat CommonDateFormat(IEnumerable<Column> columns)
+    [CanBeNull]
+    public static ValueFormat CommonDateFormat([CanBeNull] IEnumerable<Column> columns)
     {
       ValueFormat best = null;
       if (columns == null) return null;
@@ -63,9 +65,10 @@ namespace CsvTools
     /// <param name="processDisplay">The process display.</param>
     /// <returns>A list of columns with new format that have been changed</returns>
     /// <exception cref="ArgumentNullException">processDisplay</exception>
-    public static async Task<IList<string>> FillGuessColumnFormatReaderAsync(this IFileSetting fileSetting,
+    [ItemNotNull]
+    public static async Task<IList<string>> FillGuessColumnFormatReaderAsync([NotNull] this IFileSetting fileSetting,
       bool addTextColumns,
-      bool checkDoubleToBeInteger, FillGuessSettings fillGuessSettings, IProcessDisplay processDisplay)
+      bool checkDoubleToBeInteger, [NotNull] FillGuessSettings fillGuessSettings, [NotNull] IProcessDisplay processDisplay)
     {
       if (fileSetting == null)
         throw new ArgumentNullException(nameof(fileSetting));
@@ -76,10 +79,10 @@ namespace CsvTools
 
 
       // Check if we are supposed to check something
-      if (!fillGuessSettings.Enabled || (!fillGuessSettings.DectectNumbers && !fillGuessSettings.DetectBoolean &&
-                                         !fillGuessSettings.DetectDateTime && !fillGuessSettings.DetectGUID &&
-                                         !fillGuessSettings.DectectPercentage &&
-                                         !fillGuessSettings.SerialDateTime)) 
+      if (!fillGuessSettings.Enabled || !fillGuessSettings.DetectNumbers && !fillGuessSettings.DetectBoolean &&
+        !fillGuessSettings.DetectDateTime && !fillGuessSettings.DetectGUID &&
+        !fillGuessSettings.DectectPercentage &&
+        !fillGuessSettings.SerialDateTime) 
         return new List<string>();
 
       // Open the filesetting but change a few settings
@@ -125,12 +128,13 @@ namespace CsvTools
     /// <param name="treatTextAsNull">A text that should be regarded as empty</param>
     /// <param name="processDisplay"></param>
     /// <returns>A text with the changes that have been made</returns>
-    public static async Task<IList<string>> FillGuessColumnFormatReaderAsyncReader(IFileReader fileReader,
-      FillGuessSettings fillGuessSettings, ColumnCollection columnCollection,
+    [ItemNotNull]
+    public static async Task<IList<string>> FillGuessColumnFormatReaderAsyncReader([NotNull] IFileReader fileReader,
+      [NotNull] FillGuessSettings fillGuessSettings, [NotNull] ColumnCollection columnCollection,
       bool addTextColumns,
       bool checkDoubleToBeInteger,
       string treatTextAsNull,
-      IProcessDisplay processDisplay)
+      [NotNull] IProcessDisplay processDisplay)
     {
       if (fileReader == null)
         throw new ArgumentNullException(nameof(fileReader));
@@ -170,7 +174,7 @@ namespace CsvTools
           }
 
         }
-        else if (fillGuessSettings.IgnoreIdColums && StringUtils.AssumeIDColumn(newColumn.Name) > 0)
+        else if (fillGuessSettings.IgnoreIdColumns && StringUtils.AssumeIDColumn(newColumn.Name) > 0)
         {
           processDisplay.SetProcess(newColumn.Name + " – ID columns ignored", colIndex, true);
           if (addTextColumns && columnCollection.Get(newColumn.Name) == null)
@@ -231,7 +235,7 @@ namespace CsvTools
             fillGuessSettings.FalseValue,
             fillGuessSettings.DetectBoolean,
             fillGuessSettings.DetectGUID && detect,
-            fillGuessSettings.DectectNumbers && detect,
+            fillGuessSettings.DetectNumbers && detect,
             fillGuessSettings.DetectDateTime && detect,
             fillGuessSettings.DectectPercentage && detect,
             fillGuessSettings.SerialDateTime && detect,
@@ -313,7 +317,7 @@ namespace CsvTools
           processDisplay.CancellationToken.ThrowIfCancellationRequested();
 
           var oldColumn = fileReader.GetColumn(colIndex);
-          var detect = !(fillGuessSettings.IgnoreIdColums &&
+          var detect = !(fillGuessSettings.IgnoreIdColumns &&
                          StringUtils.AssumeIDColumn(oldColumn.Name) > 0);
 
           if (oldColumn == null || oldColumn.ValueFormat.DataType != DataType.Double) continue;
@@ -348,12 +352,10 @@ namespace CsvTools
             newColumn.ValueFormat.DataType = DataType.String;
           }
 
-          if (newColumn != null)
-          {
-            var msg = $"{newColumn.Name} – Overwritten Excel Format : {newColumn.GetTypeAndFormatDescription()}";
-            processDisplay.SetProcess(msg, fileReader.FieldCount * 2 + colIndex, true);
-            result.Add(msg);
-          }
+          if (newColumn == null) continue;
+          var msg = $"{newColumn.Name} – Overwritten Excel Format : {newColumn.GetTypeAndFormatDescription()}";
+          processDisplay.SetProcess(msg, fileReader.FieldCount * 2 + colIndex, true);
+          result.Add(msg);
         }
 
       if (fillGuessSettings.DateParts)
@@ -506,7 +508,6 @@ namespace CsvTools
       columnCollection.Clear();
       if (existing != null)
       {
-
         foreach (var column in existing)
           columnCollection.AddIfNew(column);
       }
@@ -521,7 +522,7 @@ namespace CsvTools
     /// <param name="all">if set to <c>true</c> event string columns are added.</param>
     /// <param name="processDisplay">The process display.</param>
     /// <exception cref="FileWriterException">No SQL Statement given or No SQL Reader set</exception>
-    public static async Task FillGuessColumnFormatWriterAsync(this IFileSetting fileSettings, bool all,
+    public static async Task FillGuessColumnFormatWriterAsync([NotNull] this IFileSetting fileSettings, bool all,
       IProcessDisplay processDisplay)
     {
       if (string.IsNullOrEmpty(fileSettings.SqlStatement))
@@ -555,7 +556,8 @@ namespace CsvTools
     /// <param name="value">The value.</param>
     /// <param name="culture">The culture.</param>
     /// <returns></returns>
-    public static IEnumerable<ValueFormat> GetAllPossibleFormats(string value, CultureInfo culture = null)
+    [NotNull]
+    public static IEnumerable<ValueFormat> GetAllPossibleFormats([NotNull] string value, [CanBeNull] CultureInfo culture = null)
     {
       if (culture == null)
         culture = CultureInfo.CurrentCulture;
@@ -583,9 +585,10 @@ namespace CsvTools
     /// <returns></returns>
     /// <exception cref="ArgumentNullException">dataReader</exception>
     /// <exception cref="ArgumentOutOfRangeException">no valid columns provided</exception>
-    private static async Task<IDictionary<int, SampleResult>> GetSampleValuesAsync(IFileReader fileReader,
+    [ItemNotNull]
+    private static async Task<IDictionary<int, SampleResult>> GetSampleValuesAsync([NotNull] IFileReader fileReader,
       long maxRecords,
-      IEnumerable<int> columns, int enoughSamples, string treatAsNull, CancellationToken cancellationToken)
+      [NotNull] IEnumerable<int> columns, int enoughSamples, string treatAsNull, CancellationToken cancellationToken)
     {
       if (fileReader.IsClosed)
         await fileReader.OpenAsync();
@@ -732,12 +735,12 @@ namespace CsvTools
     /// <param name="fileSettings">The file settings.</param>
     /// <param name="processDisplay">The process display.</param>
     /// <returns></returns>
-    public static async Task<IEnumerable<ColumnInfo>> GetSourceColumnInformationAsync(IFileSetting fileSettings,
+    [ItemNotNull]
+    public static async Task<IEnumerable<ColumnInfo>> GetSourceColumnInformationAsync([NotNull] IFileSetting fileSettings,
       IProcessDisplay processDisplay)
     {
       if (fileSettings == null)
         throw new ArgumentNullException(nameof(fileSettings));
-      Contract.Requires(fileSettings != null);
 
       if (string.IsNullOrEmpty(fileSettings.SqlStatement))
         return new List<ColumnInfo>();
@@ -891,9 +894,10 @@ namespace CsvTools
     ///   columns, we do not need that many samples
     /// </param>
     /// <exception cref="ArgumentNullException">samples is null or empty</exception>
-    public static CheckResult GuessValueFormat(ICollection<string> samples, int minRequiredSamples,
+    [CanBeNull]
+    public static CheckResult GuessValueFormat([NotNull] ICollection<string> samples, int minRequiredSamples,
       string trueValue, string falseValue, bool guessBoolean, bool guessGuid, bool guessNumeric, bool guessDateTime,
-      bool guessPercentage, bool serialDateTime, bool checkNamedDates, ValueFormat othersValueFormatDate,
+      bool guessPercentage, bool serialDateTime, bool checkNamedDates, [CanBeNull] ValueFormat othersValueFormatDate,
       CancellationToken cancellationToken)
     {
       if (samples == null || samples.Count == 0)
@@ -1070,7 +1074,7 @@ namespace CsvTools
     [DebuggerDisplay("SampleResult: {Values.Count} of {RecordsRead}")]
     public class SampleResult
     {
-      public SampleResult(IEnumerable<string> samples, int records)
+      public SampleResult([NotNull] IEnumerable<string> samples, int records)
       {
         var source = new List<string>(samples);
         Values = new HashSet<string>();
@@ -1086,6 +1090,8 @@ namespace CsvTools
       }
 
       public int RecordsRead { get; }
+
+      [NotNull] 
       public ICollection<string> Values { get; }
     }
   }

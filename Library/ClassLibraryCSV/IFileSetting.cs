@@ -114,7 +114,7 @@ namespace CsvTools
     /// <summary>
     /// The identified to find this specific instance
     /// </summary>
-    [CanBeNull]
+    [NotNull]
     string InternalID { get; }
 
     /// <summary>

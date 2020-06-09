@@ -64,7 +64,7 @@ namespace CsvTools
 
     private Label m_LabelQuote;
 
-    private Label m_LabelQuotePlaceholer;
+    private Label m_LabelQuotePlaceholder;
 
     private Label m_LabelTrim;
 
@@ -185,7 +185,7 @@ namespace CsvTools
       this.components = new System.ComponentModel.Container();
       System.Windows.Forms.Label m_Label5;
       this.m_LabelQuote = new System.Windows.Forms.Label();
-      this.m_LabelQuotePlaceholer = new System.Windows.Forms.Label();
+      this.m_LabelQuotePlaceholder = new System.Windows.Forms.Label();
       this.m_TextBoxEscape = new System.Windows.Forms.TextBox();
       this.m_FileFormatBindingSource = new System.Windows.Forms.BindingSource(this.components);
       this.m_LabelEscapeCharacter = new System.Windows.Forms.Label();
@@ -245,17 +245,17 @@ namespace CsvTools
       this.m_LabelQuote.TabIndex = 0;
       this.m_LabelQuote.Text = "Text Qualifier:";
       // 
-      // m_LabelQuotePlaceholer
+      // m_LabelQuotePlaceholder
       // 
-      this.m_LabelQuotePlaceholer.Anchor = System.Windows.Forms.AnchorStyles.Right;
-      this.m_LabelQuotePlaceholer.AutoSize = true;
-      this.m_TableLayoutPanel.SetColumnSpan(this.m_LabelQuotePlaceholer, 2);
-      this.m_LabelQuotePlaceholer.Location = new System.Drawing.Point(42, 56);
-      this.m_LabelQuotePlaceholer.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-      this.m_LabelQuotePlaceholer.Name = "m_LabelQuotePlaceholer";
-      this.m_LabelQuotePlaceholer.Size = new System.Drawing.Size(87, 17);
-      this.m_LabelQuotePlaceholer.TabIndex = 7;
-      this.m_LabelQuotePlaceholer.Text = "Placeholder:";
+      this.m_LabelQuotePlaceholder.Anchor = System.Windows.Forms.AnchorStyles.Right;
+      this.m_LabelQuotePlaceholder.AutoSize = true;
+      this.m_TableLayoutPanel.SetColumnSpan(this.m_LabelQuotePlaceholder, 2);
+      this.m_LabelQuotePlaceholder.Location = new System.Drawing.Point(42, 56);
+      this.m_LabelQuotePlaceholder.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+      this.m_LabelQuotePlaceholder.Name = "m_LabelQuotePlaceholder";
+      this.m_LabelQuotePlaceholder.Size = new System.Drawing.Size(87, 17);
+      this.m_LabelQuotePlaceholder.TabIndex = 7;
+      this.m_LabelQuotePlaceholder.Text = "Placeholder:";
       // 
       // m_TextBoxEscape
       // 
@@ -460,7 +460,7 @@ namespace CsvTools
       this.m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 48.84135F));
       this.m_TableLayoutPanel.Controls.Add(this.m_LabelQuote, 0, 0);
       this.m_TableLayoutPanel.Controls.Add(this.m_LabelEscapeCharacter, 0, 1);
-      this.m_TableLayoutPanel.Controls.Add(this.m_LabelQuotePlaceholer, 0, 2);
+      this.m_TableLayoutPanel.Controls.Add(this.m_LabelQuotePlaceholder, 0, 2);
       this.m_TableLayoutPanel.Controls.Add(m_Label5, 1, 8);
       this.m_TableLayoutPanel.Controls.Add(this.m_Label_3, 0, 6);
       this.m_TableLayoutPanel.Controls.Add(this.m_Label_4, 0, 7);

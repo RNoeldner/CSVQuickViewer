@@ -15,7 +15,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Diagnostics.Contracts;
 using System.Text;
 using JetBrains.Annotations;
 
@@ -58,9 +57,6 @@ namespace CsvTools
     [NotNull]
     public static string AddMessage([NotNull] this string errorList, [NotNull] string newError)
     {
-      Contract.Requires(errorList != null);
-      Contract.Ensures(Contract.Result<string>() != null);
-
       if (string.IsNullOrEmpty(newError))
         throw new ArgumentException("Error can not be empty", nameof(newError));
 
@@ -102,9 +98,6 @@ namespace CsvTools
     [NotNull]
     public static string AddWarningId([NotNull] this string message)
     {
-      Contract.Requires(message != null);
-      Contract.Ensures(Contract.Result<string>() != null);
-
       if (message.Length == 0 || message.StartsWith(c_WarningId, StringComparison.Ordinal))
         return message;
 
@@ -158,8 +151,6 @@ namespace CsvTools
     [NotNull]
     public static Tuple<string, string> GetErrorsAndWarnings([NotNull] this string errorList)
     {
-      Contract.Requires(errorList != null);
-      Contract.Ensures(Contract.Result<Tuple<string, string>>() != null);
       var sbErrors = new StringBuilder();
       var sbWaring = new StringBuilder();
 
@@ -208,7 +199,6 @@ namespace CsvTools
     /// </returns>
     public static bool IsErrorMessage([NotNull] this string errorList)
     {
-      Contract.Requires(errorList != null);
       if (errorList.Length == 0)
         return false;
       return !errorList.IsWarningMessage();
@@ -224,7 +214,6 @@ namespace CsvTools
     /// </returns>
     public static bool IsWarningMessage([NotNull] this string errorList)
     {
-      Contract.Requires(errorList != null);
       if (errorList.Length <= c_WarningId.Length)
         return false;
 
@@ -278,7 +267,6 @@ namespace CsvTools
     /// <param name="errorList"></param>
     public static void SetErrorInformation([NotNull] this DataRow row, [CanBeNull] string errorList)
     {
-      Contract.Requires(row != null, "row");
       row.ClearErrors();
 
       if (string.IsNullOrEmpty(errorList))
@@ -299,11 +287,9 @@ namespace CsvTools
     [NotNull]
     public static string WithoutWarningId([NotNull] this string errorList)
     {
-      Contract.Requires(errorList != null);
-      Contract.Ensures(Contract.Result<string>() != null);
+      
       if (errorList.Length <= c_WarningId.Length)
         return errorList;
-      Contract.Assume(errorList.StartsWith(c_WarningId, StringComparison.Ordinal));
       return errorList.Substring(c_WarningId.Length);
     }
 
@@ -314,9 +300,8 @@ namespace CsvTools
     /// <param name="errorList">The error list.</param>
     /// <returns></returns>
     [NotNull]
-    private static string BuildList([NotNull][ItemNotNull] ICollection<Tuple<string, string>> errorList)
+    private static string BuildList([NotNull] ICollection<Tuple<string, string>> errorList)
     {
-      Contract.Requires(errorList != null);
       var errors = new StringBuilder();
 
       // Errors first
@@ -366,7 +351,6 @@ namespace CsvTools
     /// <param name="columnErrorInformation">The column error information.</param>
     private static void SetColumnErrorInformation([NotNull] DataRow row, [NotNull] Tuple<string, string> columnErrorInformation)
     {
-      Contract.Requires(columnErrorInformation != null);
       var start = 0;
       // If we have combinations of columns, e,G. Combined Keys or Less Than errors store the error
       // in each column
@@ -393,7 +377,6 @@ namespace CsvTools
     [NotNull]
     private static Tuple<string, string> SplitColumnAndMessage([NotNull] string columnWithError)
     {
-      Contract.Requires(columnWithError != null);
       var splitter = -2;
       if (columnWithError[0] != '[')
         return new Tuple<string, string>(string.Empty,

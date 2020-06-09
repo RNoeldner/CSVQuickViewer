@@ -219,22 +219,30 @@ namespace CsvTools
       while (!EndOfFile)
       {
         var character = Read();
-        if (character != -1)
+        switch (character)
         {
-          if (character == c_Cr || character == c_Lf)
+          case -1:
+            continue;
+          case c_Cr:
+          case c_Lf:
           {
             var nextChar = Peek();
-            if (character == c_Cr && nextChar == c_Lf) MoveNext();
-            if (character == c_Lf && nextChar == c_Cr)
+            switch (character)
             {
-              LineNumber++;
-              MoveNext();
+              case c_Cr when nextChar == c_Lf:
+                MoveNext();
+                break;
+              case c_Lf when nextChar == c_Cr:
+                LineNumber++;
+                MoveNext();
+                break;
             }
 
             return sb.ToString();
           }
-
-          sb.Append((char) character);
+          default:
+            sb.Append((char) character);
+            break;
         }
       }
 

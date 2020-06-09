@@ -125,6 +125,7 @@ namespace CsvTools
           {
             if (display.CancellationToken.IsCancellationRequested)
               return;
+            // ReSharper disable once AccessToDisposedClosure
             intervalAction.Invoke(row => display.SetProcess("Getting duplicate values", row, false), rowIndex);
 
             var id = m_DataRow[rowIndex][dataColumnID.Ordinal].ToString().Trim();
@@ -133,12 +134,12 @@ namespace CsvTools
             // id = id.Trim();
             if (ignoreNull && string.IsNullOrEmpty(id))
               continue;
-            if (dictIDToRow.TryGetValue(id, out var dupliacteRowIndex))
+            if (dictIDToRow.TryGetValue(id, out var duplicateRowIndex))
             {
-              if (!dictFirstIDStored.Contains(dupliacteRowIndex))
+              if (!dictFirstIDStored.Contains(duplicateRowIndex))
               {
-                dupliacteList.Add(dupliacteRowIndex);
-                dictFirstIDStored.Add(dupliacteRowIndex);
+                dupliacteList.Add(duplicateRowIndex);
+                dictFirstIDStored.Add(duplicateRowIndex);
               }
 
               dupliacteList.Add(rowIndex);
@@ -161,12 +162,12 @@ namespace CsvTools
 
           display.Maximum = dupliacteList.Count;
 
-          foreach (var rowIdex in dupliacteList)
+          foreach (var rowIndex in dupliacteList)
           {
             if (display.CancellationToken.IsCancellationRequested)
               return;
             intervalAction.Invoke(row => display.SetProcess("Importing Rows to Grid", row, false), counter++);
-            m_DataTable.ImportRow(m_DataRow[rowIdex]);
+            m_DataTable.ImportRow(m_DataRow[rowIndex]);
           }
 
           m_DataTable.EndLoadData();
