@@ -13,10 +13,10 @@
  */
 
 using System;
-using System.Diagnostics.Contracts;
 using System.Globalization;
 using System.IO;
 using System.Xml.Serialization;
+using JetBrains.Annotations;
 
 namespace CsvTools
 {
@@ -46,9 +46,8 @@ namespace CsvTools
     /// </summary>
     /// <param name="fileName">Name of the file.</param>
     /// <returns></returns>
-    public static CsvFile LoadCsvFile(string fileName)
+    public static CsvFile LoadCsvFile([NotNull] string fileName)
     {
-      Contract.Requires(fileName != null);
       var serial = FileSystemUtils.ReadAllText(fileName);
       using (TextReader reader = new StringReader(serial))
       {
@@ -62,9 +61,8 @@ namespace CsvTools
     /// <param name="fileName">Name of the file.</param>
     /// <param name="csvFile">The CSV file.</param>
     /// <param name="askOverwrite">The ask overwrite.</param>
-    public static void SaveCsvFile(string fileName, ICsvFile csvFile, Func<bool> askOverwrite)
+    public static void SaveCsvFile([NotNull] string fileName, [NotNull] ICsvFile csvFile, [NotNull] Func<bool> askOverwrite)
     {
-      Contract.Requires(fileName != null);
       using (var stringWriter = new StringWriter(CultureInfo.InvariantCulture))
       {
         m_SerializerCurrentCsvFile.Value.Serialize(stringWriter, csvFile, EmptyXmlSerializerNamespaces.Value);

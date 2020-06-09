@@ -63,6 +63,7 @@ namespace CsvTools
     {
       m_Counter++;
       UpdateLabel();
+      // ReSharper disable once PossibleLossOfFraction
       if (m_Counter * timer.Interval / 1000 > c_Duration)
       {
         ButtonOK_Click(sender, e);
@@ -71,13 +72,9 @@ namespace CsvTools
 
     private void UpdateLabel()
     {
-      var displ = Convert.ToInt32((c_Duration - m_Counter * timer.Interval / 1000 + .75));
-      if (displ > 0)
-      {
-        label.Text = $@"Default in {displ:N0} seconds";
-      }
-      else
-        label.Text = string.Empty;
+      // ReSharper disable once PossibleLossOfFraction
+      var display = Convert.ToInt32((c_Duration - m_Counter * timer.Interval / 1000 + .75));
+      label.Text = display > 0 ? $@"Default in {display:N0} seconds" : string.Empty;
 
       Application.DoEvents();
     }

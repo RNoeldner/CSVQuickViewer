@@ -36,13 +36,10 @@
     {
       get
       {
-        if (!m_ArrivedAtEndOnce && m_LineStarted > 1)
-        {
-          m_ArrivedAtEndOnce = true;
-          m_ImprovedTextReader.ToBeginning();
-          return true;
-        }
-        return false;
+        if (m_ArrivedAtEndOnce || m_LineStarted <= 1) return false;
+        m_ArrivedAtEndOnce = true;
+        m_ImprovedTextReader.ToBeginning();
+        return true;
       }
     }
   }

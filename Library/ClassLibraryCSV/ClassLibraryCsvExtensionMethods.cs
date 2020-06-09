@@ -108,7 +108,6 @@ namespace CsvTools
     [DebuggerStepThrough]
     public static void CollectionCopy<T>([NotNull] this IEnumerable<T> self, [CanBeNull] ICollection<T> other) where T : ICloneable<T>
     {
-      Contract.Requires(self != null);
       if (other == null) return;
       other.Clear();
       foreach (var item in self)
@@ -124,7 +123,6 @@ namespace CsvTools
     [DebuggerStepThrough]
     public static void CollectionCopyStruct<T>([NotNull] this IEnumerable<T> self, [CanBeNull] ICollection<T> other) where T : struct
     {
-      Contract.Requires(self != null);
       if (other == null)
         return;
 
@@ -162,8 +160,6 @@ namespace CsvTools
     [NotNull]
     public static string DataTypeDisplay(this DataType dt)
     {
-      Contract.Ensures(Contract.Result<string>() != null);
-
       switch (dt)
       {
         case DataType.DateTime:
@@ -211,9 +207,6 @@ namespace CsvTools
     [NotNull]
     public static string ExceptionMessages([NotNull] this Exception exception, int maxDepth = 3)
     {
-      Contract.Requires(exception != null);
-      Contract.Ensures(Contract.Result<string>() != null);
-
       var sb = new StringBuilder();
 
       // Special handling of AggregateException There can be many InnerExceptions
@@ -701,7 +694,7 @@ namespace CsvTools
     /// <returns></returns>
     [DebuggerStepThrough]
     [NotNull]
-    public static string ReplaceDefaults([NotNull] this string inputValue, [CanBeNull] string old1, [NotNull] string new1, [CanBeNull] string old2, [NotNull] string new2)
+    public static string ReplaceDefaults([NotNull] this string inputValue, [CanBeNull] string old1, [CanBeNull] string new1, [CanBeNull] string old2, [CanBeNull] string new2)
     {
       Contract.Requires(!string.IsNullOrEmpty(old1));
       Contract.Ensures(Contract.Result<string>() != null);
@@ -711,7 +704,7 @@ namespace CsvTools
 
       var exchange1 = !string.IsNullOrEmpty(old1) && string.Compare(old1, new1, StringComparison.Ordinal) != 0;
       var exchange2 = !string.IsNullOrEmpty(old2) && string.Compare(old2, new2, StringComparison.Ordinal) != 0;
-      if (exchange1 && exchange2 && new1 == old2)
+      if (exchange1 && exchange2 && string.Equals(new1,old2))
       {
         inputValue = inputValue.Replace(old1, "{\0}");
         inputValue = inputValue.Replace(old2, new2);

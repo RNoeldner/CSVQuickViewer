@@ -12,10 +12,12 @@
  *
  */
 
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
 using System.Linq;
+using JetBrains.Annotations;
 
 namespace CsvTools
 {
@@ -32,8 +34,10 @@ namespace CsvTools
     private readonly bool m_StoreWarningsInDataTable;
     private readonly ColumnErrorDictionary m_ColumnErrorDictionary;
 
-    public CopyToDataTableInfo(IFileReader reader, bool includeErrorField, bool storeWarningsInDataTable, bool addStartLine)
+    public CopyToDataTableInfo([NotNull] IFileReader reader, bool includeErrorField, bool storeWarningsInDataTable, bool addStartLine)
     {
+      if (reader == null) throw new ArgumentNullException(nameof(reader));
+      if (reader.FileSetting == null) throw new ArgumentNullException(nameof(reader));
       DataTable = new DataTable
       {
         TableName = reader.FileSetting.ID,
@@ -75,18 +79,17 @@ namespace CsvTools
         DataTable.Columns.Add(m_EndLine);
       }
 
-      if (includeErrorField && !reader.HasColumnName(BaseFileReader.cErrorField))
-      {
-        m_Error = new DataColumn(BaseFileReader.cErrorField, typeof(string));
-        DataTable.Columns.Add(m_Error);
-      }
+      if (!includeErrorField || reader.HasColumnName(BaseFileReader.cErrorField)) return;
+      m_Error = new DataColumn(BaseFileReader.cErrorField, typeof(string));
+      DataTable.Columns.Add(m_Error);
     }
+
     /// <summary>
     /// Store the information from teh reader in the data table
     /// </summary>
     /// <param name="reader"></param>
     /// <returns><c>true</c> no warnings, <c>false</c> warnings have been raised</returns>
-    public bool CopyRowToTable(IFileReader reader)
+    public bool CopyRowToTable([NotNull] IFileReader reader)
     {
       var dataRow = DataTable.NewRow();
       if (m_RecordNumber != null)

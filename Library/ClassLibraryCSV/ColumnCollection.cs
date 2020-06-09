@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using JetBrains.Annotations;
 
 namespace CsvTools
 {
@@ -12,7 +13,8 @@ namespace CsvTools
     /// </summary>
     /// <remarks>If the column name already exist it does nothing but return the already defined column</remarks>
     /// <param name="columnFormat">The column format.</param>
-    public Column AddIfNew(Column columnFormat)
+    [NotNull]
+    public Column AddIfNew([NotNull] Column columnFormat)
     {
       if (columnFormat is null)
         throw new ArgumentNullException(nameof(columnFormat));
@@ -55,10 +57,9 @@ namespace CsvTools
     /// <param name="fieldName"></param>
     /// <returns></returns>
     /// <value>The column format found by the given name, <c>NULL</c> otherwise</value>
-    public Column Get(string fieldName)
-    {
-      if (string.IsNullOrEmpty(fieldName)) return null;
-      return this.Items.FirstOrDefault(column => column.Name.Equals(fieldName, StringComparison.OrdinalIgnoreCase));
-    }
+    [CanBeNull] 
+    public Column Get([CanBeNull] string fieldName) => string.IsNullOrEmpty(fieldName)
+      ? null
+      : Items.FirstOrDefault(column => column.Name.Equals(fieldName, StringComparison.OrdinalIgnoreCase));
   }
 }

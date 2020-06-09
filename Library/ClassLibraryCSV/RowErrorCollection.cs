@@ -14,7 +14,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
 using System.Text;
 
 namespace CsvTools
@@ -156,8 +155,6 @@ namespace CsvTools
     public bool TryGetValue(long recordNumber, out ColumnErrorDictionary returnValue)
     {
       // if we return true, th dictionary is not null
-      Contract.Ensures(Contract.Result<bool>() == false ||
-                       Contract.ValueAtReturn(out returnValue) != null);
       return m_RowErrorCollection.TryGetValue(recordNumber, out returnValue);
     }
   }

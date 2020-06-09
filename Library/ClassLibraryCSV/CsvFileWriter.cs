@@ -15,7 +15,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Diagnostics.Contracts;
 using System.Globalization;
 using System.IO;
 using System.Text;
@@ -52,7 +51,6 @@ namespace CsvTools
     public CsvFileWriter([NotNull] ICsvFile file, [CanBeNull] string timeZone, [CanBeNull] IProcessDisplay processDisplay)
       : base(file, timeZone, processDisplay)
     {
-      Contract.Requires(file != null);
       m_CsvFile = file;
 
       m_FieldQualifier = m_CsvFile.FileFormat.FieldQualifierChar.ToString(CultureInfo.CurrentCulture);
@@ -166,15 +164,12 @@ namespace CsvTools
     }
 
     [NotNull]
-    private string GetHeaderRow([NotNull][ItemNotNull] IEnumerable<ColumnInfo> columnInfos)
+    private string GetHeaderRow([NotNull] IEnumerable<ColumnInfo> columnInfos)
     {
-      Contract.Requires(columnInfos != null);
-
       var sb = new StringBuilder();
       foreach (var columnInfo in columnInfos)
       {
-        Contract.Assume(columnInfo != null);
-        sb.Append(TextEncodeField(m_CsvFile.FileFormat, columnInfo.Column.Name, columnInfo, true, reader: null, QualifyText));
+        sb.Append(TextEncodeField(m_CsvFile.FileFormat, columnInfo.Column.Name, columnInfo, true, null, QualifyText));
         if (!m_CsvFile.FileFormat.IsFixedLength)
           sb.Append(m_CsvFile.FileFormat.FieldDelimiterChar);
       }

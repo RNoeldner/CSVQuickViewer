@@ -23,6 +23,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void ApplicationSettingStatics()
     {
+      // ReSharper disable once IsExpressionAlwaysTrue
       Assert.IsTrue(ApplicationSetting.HTMLStyle is HTMLStyle);
       Assert.IsNotNull(ApplicationSetting.HTMLStyle);
     }

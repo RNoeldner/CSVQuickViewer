@@ -47,7 +47,7 @@ namespace CsvTools.Tests
       { TimeZonePart = "\"UTC\"" });
 
       var dt = new DataTable();
-      dt.Columns.AddRange(new DataColumn[] { new DataColumn("Test1", typeof(int)), new DataColumn("Test2", typeof(string)), new DataColumn("Test3", typeof(System.DateTime)) });
+      dt.Columns.AddRange(new[] { new DataColumn("Test1", typeof(int)), new DataColumn("Test2", typeof(string)), new DataColumn("Test3", typeof(System.DateTime)) });
       var res = ColumnInfo.GetSourceColumnInformation(writerFileSetting, dt.CreateDataReader()).ToList();
       Assert.AreEqual(3, res.Count());
       // 
@@ -66,7 +66,7 @@ namespace CsvTools.Tests
       });
 
       var dt = new DataTable();
-      dt.Columns.AddRange(new DataColumn[] { new DataColumn("Test1", typeof(int)), new DataColumn("Test2", typeof(string)), new DataColumn("Test3", typeof(System.DateTime)) });
+      dt.Columns.AddRange(new[] { new DataColumn("Test1", typeof(int)), new DataColumn("Test2", typeof(string)), new DataColumn("Test3", typeof(System.DateTime)) });
       var res = ColumnInfo.GetSourceColumnInformation(writerFileSetting, dt.CreateDataReader()).ToList();
       Assert.AreEqual(4, res.Count());
       Assert.AreEqual(DataType.Integer, res[0].Column.ValueFormat.DataType);

@@ -14,8 +14,8 @@
 
 using System;
 using System.ComponentModel;
-using System.Diagnostics.Contracts;
 using System.Globalization;
+using JetBrains.Annotations;
 
 namespace CsvTools
 {
@@ -33,13 +33,9 @@ namespace CsvTools
     ///   A <see cref="T:System.Type" /> that represents the type of enumeration to associate with this
     ///   enumeration converter.
     /// </param>
-    public EnumDescriptionConverter(Type enumType)
+    public EnumDescriptionConverter([NotNull] Type enumType)
       : base(enumType)
     {
-      Contract.Requires(enumType != null);
-      Contract.Requires(enumType.IsEnum);
-      Contract.Ensures(m_EnumType != null);
-
       m_EnumType = enumType;
     }
 

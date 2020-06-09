@@ -15,9 +15,9 @@
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Diagnostics.Contracts;
 using System.Text;
 using System.Xml.Serialization;
+using JetBrains.Annotations;
 
 namespace CsvTools
 {
@@ -125,12 +125,9 @@ namespace CsvTools
     [XmlIgnore]
     public virtual Encoding CurrentEncoding
     {
-      get
-      {
-        Contract.Ensures(Contract.Result<Encoding>() != null);
-        return m_CurrentEncoding;
-      }
-
+      [NotNull]
+      get => m_CurrentEncoding;
+      [CanBeNull]
       set => m_CurrentEncoding = value ?? Encoding.UTF8;
     }
 
@@ -429,7 +426,6 @@ namespace CsvTools
     /// <returns></returns>
     public IFileSetting Clone()
     {
-      Contract.Ensures(Contract.Result<IFileSetting>() != null);
       var other = new CsvFile();
       CopyTo(other);
       return other;

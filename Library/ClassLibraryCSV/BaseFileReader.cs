@@ -421,13 +421,10 @@ namespace CsvTools
     /// </summary>
     /// <param name="columnName"></param>
     /// <returns>true if present and not ignored</returns>
-    public virtual bool HasColumnName(string columnName)
-    {
-      if (string.IsNullOrEmpty(columnName))
-        return true;
-
-      return Column.Where(t => !t.Ignore).Any(t => string.Equals(columnName, t.Name, StringComparison.OrdinalIgnoreCase));
-    }
+    public virtual bool HasColumnName(string columnName) => string.IsNullOrEmpty(columnName) ||
+                                                            Column.Where(t => !t.Ignore).Any(t =>
+                                                              string.Equals(columnName, t.Name,
+                                                                StringComparison.OrdinalIgnoreCase));
 
     /// <summary>
     ///   Gets the date and time data value of the specified field.
@@ -1598,7 +1595,7 @@ namespace CsvTools
 
       // This has a mapping of the columns between reader and data table
       var copyToDataTableInfo =
-        new CopyToDataTableInfo(this as IFileReader, includeErrorField, storeWarningsInDataTable, addStartLine);
+        new CopyToDataTableInfo(this as IFileReader ?? throw new InvalidOperationException(), includeErrorField, storeWarningsInDataTable, addStartLine);
 
       try
       {
@@ -1610,7 +1607,7 @@ namespace CsvTools
           recordLimit = FileSetting.RecordLimit < 1 ? long.MaxValue : FileSetting.RecordLimit;
 
         while (await ReadAsync() && RecordNumber <= recordLimit && !cancellationToken.IsCancellationRequested)
-          copyToDataTableInfo.CopyRowToTable(this as IFileReader);
+          copyToDataTableInfo.CopyRowToTable(this as IFileReader ?? throw new InvalidOperationException());
 
         copyToDataTableInfo.HandlePreviousRow();
         copyToDataTableInfo.DataTable.EndLoadData();

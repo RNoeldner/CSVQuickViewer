@@ -15,8 +15,8 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics.Contracts;
 using System.Xml.Serialization;
+using JetBrains.Annotations;
 
 namespace CsvTools
 {
@@ -131,9 +131,9 @@ namespace CsvTools
     ///   Clones this instance.
     /// </summary>
     /// <returns></returns>
+    [NotNull]
     public IFileSetting Clone()
     {
-      Contract.Ensures(Contract.Result<IFileSetting>() != null);
       var other = new StructuredFile();
       CopyTo(other);
       return other;

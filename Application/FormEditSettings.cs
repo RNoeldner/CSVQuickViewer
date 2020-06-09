@@ -17,7 +17,6 @@ namespace CsvTools
   using System;
   using System.Collections.Generic;
   using System.ComponentModel;
-  using System.Diagnostics;
   using System.Globalization;
   using System.Threading;
   using System.Threading.Tasks;
@@ -267,9 +266,8 @@ namespace CsvTools
 
     private void PositiveNumberValidating(object sender, CancelEventArgs e)
     {
-      var tb = sender as TextBox;
-
-      Debug.Assert(tb != null, nameof(tb) + " != null");
+      if (!(sender is TextBox tb)) return;
+      
       var ok = int.TryParse(tb.Text, out var parse);
       var reformat = parse.ToString(CultureInfo.CurrentCulture);
       ok = ok && parse >= 0 && reformat == tb.Text;

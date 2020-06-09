@@ -22,6 +22,7 @@ using System.Security;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Newtonsoft.Json;
 
 namespace CsvTools
@@ -54,10 +55,9 @@ namespace CsvTools
     /// <param name="file">The file.</param>
     /// <param name="timeZone">The timezone in the source</param>
     /// <param name="processDisplay">The process display.</param>
-    public StructuredFileWriter(StructuredFile file, string timeZone, IProcessDisplay processDisplay)
+    public StructuredFileWriter([NotNull] StructuredFile file, [CanBeNull] string timeZone, [CanBeNull] IProcessDisplay processDisplay)
       : base(file, timeZone, processDisplay)
     {
-      Contract.Requires(file != null);
       m_StructuredWriterFile = file;
     }
 

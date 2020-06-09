@@ -14,10 +14,10 @@
 
 using System;
 using System.ComponentModel;
-using System.Diagnostics.Contracts;
 using System.Globalization;
 using System.Text;
 using System.Xml.Serialization;
+using JetBrains.Annotations;
 
 namespace CsvTools
 {
@@ -214,9 +214,9 @@ namespace CsvTools
     /// </summary>
     /// <param name="text">The text.</param>
     /// <returns></returns>
-    public static string JsonElementName(string text)
+    [NotNull]
+    public static string JsonElementName([NotNull] string text)
     {
-      Contract.Ensures(Contract.Result<string>() != null);
       var allowed = StringUtils.ProcessByCategory(text, x => x == UnicodeCategory.TitlecaseLetter ||
                                                              x == UnicodeCategory.LowercaseLetter ||
                                                              x == UnicodeCategory.UppercaseLetter ||
@@ -245,10 +245,11 @@ namespace CsvTools
     /// </summary>
     /// <param name="text">The text possibly containing HTML codes.</param>
     /// <returns>The same text with HTML Tags for linefeed, tab and quote</returns>
-    public static string TextToHtmlEncode(string text)
+    [NotNull]
+    public static string TextToHtmlEncode([NotNull] string text)
     {
-      if (text == null)
-        return null;
+      if (text == null) throw new ArgumentNullException(nameof(text));
+      
       if (text.StartsWith("<![CDATA[", StringComparison.OrdinalIgnoreCase) &&
           text.EndsWith("]]>", StringComparison.OrdinalIgnoreCase))
         return text.Substring(9, text.Length - 12);
@@ -267,9 +268,9 @@ namespace CsvTools
     ///   start with the letters xml(or XML, or Xml, etc), Element names can contain letters, digits, hyphens, underscores, and
     ///   periods, Element names cannot contain spaces
     /// </remarks>
-    public static string XmlElementName(string text)
+    [NotNull]
+    public static string XmlElementName([NotNull] string text)
     {
-      Contract.Ensures(Contract.Result<string>() != null);
       var allowed = StringUtils.ProcessByCategory(text, x => x == UnicodeCategory.DashPunctuation ||
                                                              x == UnicodeCategory.LowercaseLetter ||
                                                              x == UnicodeCategory.UppercaseLetter ||
@@ -294,11 +295,9 @@ namespace CsvTools
     /// <remarks>
     ///   The HTML format is found here http://msdn2.microsoft.com/en-us/library/aa767917.aspx
     /// </remarks>
-    public string ConvertToHtmlFragment(string fragment)
+    [NotNull]
+    public string ConvertToHtmlFragment([NotNull] string fragment)
     {
-      Contract.Requires(!string.IsNullOrEmpty(fragment), "fragment");
-      Contract.Ensures(Contract.Result<string>() != null);
-
       // Minimal implementation of HTML clipboard format
       const string c_Source = "http://www.csvquickviewer.com/";
 

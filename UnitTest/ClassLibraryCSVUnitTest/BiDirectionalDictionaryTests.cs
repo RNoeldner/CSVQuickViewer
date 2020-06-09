@@ -1,5 +1,4 @@
-﻿using CsvTools;
-/*
+﻿/*
 * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
 *
 * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
@@ -112,7 +111,7 @@ namespace CsvTools.Tests
       var exception = false;
       try
       {
-        var key = bi.GetByValue(13);
+        _ = bi.GetByValue(13);
       }
       catch (ArgumentException)
       {
@@ -185,9 +184,9 @@ namespace CsvTools.Tests
     public void TryGetByValueTest()
     {
       var bi = new BiDirectionalDictionary<int, int> { { 1, 10 }, { 2, 20 }, { 3, 30 } };
-      Assert.IsTrue(bi.TryGetByValue(10, out int key));
+      Assert.IsTrue(bi.TryGetByValue(10, out var key));
       Assert.AreEqual(1, key);
-      Assert.IsFalse(bi.TryGetByValue(100, out int key2));
+      Assert.IsFalse(bi.TryGetByValue(100, out var _));
     }
 
     [TestMethod()]

@@ -14,7 +14,6 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.ComponentModel;
 
 namespace CsvTools.Tests
 {
@@ -98,7 +97,7 @@ namespace CsvTools.Tests
     {
       var numCalled = 0;
       var test = new Column();
-      test.PropertyChanged += delegate (object sender, PropertyChangedEventArgs e)
+      test.PropertyChanged += delegate
       {
         numCalled++;
       };
@@ -144,7 +143,7 @@ namespace CsvTools.Tests
     [TestInitialize]
     public void Init()
     {
-      var m_ValueFormatGerman = new ValueFormat
+      var valueFormatGerman = new ValueFormat
       {
         DataType = DataType.DateTime,
         DateFormat = @"dd/MM/yyyy",
@@ -158,7 +157,7 @@ namespace CsvTools.Tests
       };
 
       var ff = new CsvFile();
-      var col = new Column("StartDate", m_ValueFormatGerman) { Ignore = true };
+      var col = new Column("StartDate", valueFormatGerman) { Ignore = true };
 
       ff.ColumnCollection.AddIfNew(col);
       Assert.AreEqual("StartDate", col.Name, "Name");

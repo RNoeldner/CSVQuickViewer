@@ -247,12 +247,10 @@ namespace CsvTools
       while (m_Filtering)
       {
         FunctionalDI.SignalBackground?.Invoke();
-        if (stopwatch?.Elapsed.TotalSeconds > timeoutInSeconds)
-        {
-          // can not call Cancel as this method is called by cancel
-          m_CurrentFilterCancellationTokenSource.Cancel();
-          break;
-        }
+        if (!(stopwatch?.Elapsed.TotalSeconds > timeoutInSeconds)) continue;
+        // can not call Cancel as this method is called by cancel
+        m_CurrentFilterCancellationTokenSource.Cancel();
+        break;
       }
     }
 

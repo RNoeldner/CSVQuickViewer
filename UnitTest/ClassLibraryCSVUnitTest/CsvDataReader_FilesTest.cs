@@ -31,7 +31,7 @@ namespace CsvTools.Tests
         FileName = UnitTestInitialize.GetTestPath("Sessions.txt"),
         HasFieldHeader = true,
         ByteOrderMark = true,
-        FileFormat = {FieldDelimiter = "\t"}
+        FileFormat = { FieldDelimiter = "\t" }
       };
       setting.ColumnCollection.AddIfNew(new Column("Start Date", "MM/dd/yyyy")
       {
@@ -47,10 +47,10 @@ namespace CsvTools.Tests
         var cultureInfo = new CultureInfo("en-US");
         Assert.AreEqual("01/08/2013 07:00:00", test.GetDateTime(0).ToString("MM/dd/yyyy HH:mm:ss", cultureInfo));
         await test.ReadAsync();
-        ; // 01/19/2010	24:00:00 --> 01/20/2010	00:00:00
+        // 01/19/2010	24:00:00 --> 01/20/2010	00:00:00
         Assert.AreEqual("01/20/2010 00:00:00", test.GetDateTime(0).ToString("MM/dd/yyyy HH:mm:ss", cultureInfo));
         await test.ReadAsync();
-        ; // 01/21/2013	25:00:00 --> 01/22/2013	01:00:00
+        // 01/21/2013	25:00:00 --> 01/22/2013	01:00:00
         Assert.AreEqual("01/22/2013 01:00:00", test.GetDateTime(0).ToString("MM/dd/yyyy HH:mm:ss", cultureInfo));
       }
     }
@@ -290,7 +290,7 @@ Line "Test"", "22",23,"  24"
         await test.OpenAsync();
         ;
         var message = string.Empty;
-        test.Warning += delegate(object sender, WarningEventArgs args) { message = args.Message; };
+        test.Warning += delegate (object sender, WarningEventArgs args) { message = args.Message; };
         await test.ReadAsync();
         ;
         await test.ReadAsync();
@@ -324,7 +324,7 @@ Line "Test"", "22",23,"  24"
         await test.ReadAsync();
         ;
         var message = string.Empty;
-        test.Warning += delegate(object sender, WarningEventArgs args) { message = args.Message; };
+        test.Warning += delegate (object sender, WarningEventArgs args) { message = args.Message; };
         await test.ReadAsync();
         ;
         Assert.IsTrue(message.Contains("occurrence") && message.Contains("?"));
@@ -687,7 +687,7 @@ Line "Test"", "22",23,"  24"
       using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
         var message = string.Empty;
-        test.Warning += delegate(object sender, WarningEventArgs args) { message = args.Message; };
+        test.Warning += delegate (object sender, WarningEventArgs args) { message = args.Message; };
         await test.OpenAsync();
         ;
         Assert.IsTrue(message.Contains("exists more than once"));
@@ -751,7 +751,7 @@ Line "Test"", "22",23,"  24"
       var setting = new CsvFile
       {
         HasFieldHeader = true,
-        FileFormat = {FieldDelimiter = ",", CommentLine = "#"},
+        FileFormat = { FieldDelimiter = ",", CommentLine = "#" },
         FileName = UnitTestInitialize.GetTestPath("LongHeaders.txt")
       };
 
@@ -790,7 +790,7 @@ Line "Test"", "22",23,"  24"
       {
         HasFieldHeader = false,
         WarnEmptyTailingColumns = true,
-        FileFormat = {FieldDelimiter = ","},
+        FileFormat = { FieldDelimiter = "," },
         FileName = UnitTestInitialize.GetTestPath("MoreColumnsThanHeaders.txt")
       };
 
@@ -832,7 +832,7 @@ Line "Test"", "22",23,"  24"
       var setting = new CsvFile
       {
         HasFieldHeader = false,
-        FileFormat = {FieldDelimiter = ",", FieldQualifier = string.Empty},
+        FileFormat = { FieldDelimiter = ",", FieldQualifier = string.Empty },
         FileName = UnitTestInitialize.GetTestPath("TextQualifierDataPastClosingQuote.txt")
       };
 
@@ -1565,7 +1565,7 @@ Line "Test"", "22",23,"  24"
         HasFieldHeader = false,
         CodePageId = 1201,
         ByteOrderMark = true,
-        FileFormat = {FieldDelimiter = ","},
+        FileFormat = { FieldDelimiter = "," },
         FileName = UnitTestInitialize.GetTestPath("UnicodeUTF16BE.txt")
       };
 
@@ -1618,7 +1618,7 @@ Line "Test"", "22",23,"  24"
         HasFieldHeader = false,
         CodePageId = 1200,
         ByteOrderMark = true,
-        FileFormat = {FieldDelimiter = ","},
+        FileFormat = { FieldDelimiter = "," },
         FileName = UnitTestInitialize.GetTestPath("UnicodeUTF16LE.txt")
       };
 
@@ -1666,7 +1666,7 @@ Line "Test"", "22",23,"  24"
       {
         HasFieldHeader = false,
         CodePageId = 65001,
-        FileFormat = {FieldDelimiter = ","},
+        FileFormat = { FieldDelimiter = "," },
         FileName = UnitTestInitialize.GetTestPath("UnicodeUTF8.txt")
       };
 

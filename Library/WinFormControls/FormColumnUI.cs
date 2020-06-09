@@ -105,7 +105,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
-    public void ButtonCancelClick(object sender, EventArgs e) => Close();
+    private void ButtonCancelClick(object sender, EventArgs e) => Close();
 
     /// <summary>
     ///   Handles the Click event of the buttonGuess control.
@@ -611,10 +611,13 @@ namespace CsvTools
                 }
                 else
                 {
-                  var cols = await FunctionalDI.GetColumnHeader.Invoke(m_FileSetting, processDisplay.CancellationToken);
-                  if (cols != null)
-                    foreach (var col in cols)
-                      allColumns.Add(col);
+                  if (FunctionalDI.GetColumnHeader != null)
+                  {
+                    var cols = await FunctionalDI.GetColumnHeader(m_FileSetting, processDisplay.CancellationToken);
+                    if (cols != null)
+                      foreach (var col in cols)
+                        allColumns.Add(col);
+                  }
                 }
               }
               else
@@ -748,6 +751,7 @@ namespace CsvTools
 
           labelInputTZ.Text = srcTz;
           labelOutPutTZ.Text = destTz;
+          // ReSharper disable once PossibleInvalidOperationException
           sourceDate = FunctionalDI.AdjustTZ(sourceDate, srcTz, destTz, -1, null).Value;
         }
         else
@@ -821,7 +825,7 @@ namespace CsvTools
           csv.WarnQuotesInQuotes = false;
         }
 
-      retry:
+        retry:
         using (var fileReader = FunctionalDI.GetFileReader(fileSettingCopy, null, processDisplay))
         {
           await fileReader.OpenAsync();

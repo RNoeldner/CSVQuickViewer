@@ -15,7 +15,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Diagnostics.Contracts;
 using System.Globalization;
 using System.Text;
 using System.Threading.Tasks;
@@ -325,18 +324,16 @@ namespace CsvTools
       // them. This will allow the referenced objects to be garbage collected even if not all
       // references to the "parent" are released. It may be a significant memory consumption win if
       // the referenced objects are large, such as big arrays, collections, etc.
-      if (disposing)
+      if (!disposing) return;
+      m_DisposedValue = true;
+      Close();
+      if (m_TextReader != null)
       {
-        m_DisposedValue = true;
-        Close();
-        if (m_TextReader != null)
-        {
-          m_TextReader.Dispose();
-          m_TextReader = null;
-        }
-
-        base.Dispose(true);
+        m_TextReader.Dispose();
+        m_TextReader = null;
       }
+
+      base.Dispose(true);
     }
 
     /// <summary>
@@ -404,7 +401,6 @@ namespace CsvTools
 
     private async Task<int> ParseFieldCountAsync(IList<string> headerRow)
     {
-      Contract.Ensures(Contract.Result<int>() >= 0);
       if (headerRow == null || headerRow.Count == 0 || string.IsNullOrEmpty(headerRow[0]))
         return 0;
 
