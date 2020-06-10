@@ -50,73 +50,81 @@ namespace CsvTools
       Func<int, ToolStripDataGridViewColumnFilter> createFilterColumn,
       Action<DataGridViewColumn, ListSortDirection> doSort)
     {
-      var vst = JsonConvert.DeserializeObject<List<ColumnSetting>>(text);
+      try
+      {
+        var vst = JsonConvert.DeserializeObject<List<ColumnSetting>>(text);
 
-      var displayIndex = 0;
-      foreach (var storedColumn in vst.OrderBy(x => x.DisplayIndex))
-        foreach (DataGridViewColumn col in columns)
-          if (col.DataPropertyName.Equals(storedColumn.DataPropertyName, StringComparison.OrdinalIgnoreCase))
-            try
-            {
-              if (col.Visible != storedColumn.Visible)
-                col.Visible = storedColumn.Visible;
-
-              if (col.Visible)
+        var displayIndex = 0;
+        foreach (var storedColumn in vst.OrderBy(x => x.DisplayIndex))
+          foreach (DataGridViewColumn col in columns)
+            if (col.DataPropertyName.Equals(storedColumn.DataPropertyName, StringComparison.OrdinalIgnoreCase))
+              try
               {
-                col.Width = storedColumn.Width;
-                if (storedColumn.Sort == 1)
-                  doSort?.Invoke(col, ListSortDirection.Ascending);
-                if (storedColumn.Sort == 2)
-                  doSort?.Invoke(col, ListSortDirection.Descending);
+                if (col.Visible != storedColumn.Visible)
+                  col.Visible = storedColumn.Visible;
+
+                if (col.Visible)
+                {
+                  col.Width = storedColumn.Width;
+                  if (storedColumn.Sort == 1)
+                    doSort?.Invoke(col, ListSortDirection.Ascending);
+                  if (storedColumn.Sort == 2)
+                    doSort?.Invoke(col, ListSortDirection.Descending);
+                }
+
+                col.DisplayIndex = displayIndex++;
+                break;
+              }
+              catch
+              {
+                // ignore
               }
 
-              col.DisplayIndex = displayIndex++;
-              break;
-            }
-            catch
-            {
-              // ignore
-            }
-
-      var hasFilterSet = false;
-      foreach (var storedFilterSetting in vst)
-      {
-        ToolStripDataGridViewColumnFilter columnFilter = null;
-
-        if (storedFilterSetting.ValueFilters.Count > 0)
+        var hasFilterSet = false;
+        foreach (var storedFilterSetting in vst)
         {
-          columnFilter = GetFilter(storedFilterSetting.DataPropertyName, columnFilters, columns, createFilterColumn);
-          if (columnFilter == null)
-            continue;
-          foreach (var valueFilter in storedFilterSetting.ValueFilters)
+          ToolStripDataGridViewColumnFilter columnFilter = null;
+
+          if (storedFilterSetting.ValueFilters.Count > 0)
           {
-            var cluster = columnFilter.ValueClusterCollection.ValueClusters.FirstOrDefault(x =>
-              valueFilter.SQLCondition.Equals(x.SQLCondition, StringComparison.OrdinalIgnoreCase));
-            if (cluster != null)
-              cluster.Active = true;
-            else
-              columnFilter.ValueClusterCollection.ValueClusters.Add(new ValueCluster(valueFilter.Display,
-                valueFilter.SQLCondition, string.Empty, 0, true));
+            columnFilter = GetFilter(storedFilterSetting.DataPropertyName, columnFilters, columns, createFilterColumn);
+            if (columnFilter == null)
+              continue;
+            foreach (var valueFilter in storedFilterSetting.ValueFilters)
+            {
+              var cluster = columnFilter.ValueClusterCollection.ValueClusters.FirstOrDefault(x =>
+                valueFilter.SQLCondition.Equals(x.SQLCondition, StringComparison.OrdinalIgnoreCase));
+              if (cluster != null)
+                cluster.Active = true;
+              else
+                columnFilter.ValueClusterCollection.ValueClusters.Add(new ValueCluster(valueFilter.Display,
+                  valueFilter.SQLCondition, string.Empty, 0, true));
+            }
           }
-        }
-        // only restore operator based filter if there is no Value Filter
-        else if (!string.IsNullOrEmpty(storedFilterSetting.Operator))
-        {
-          columnFilter = GetFilter(storedFilterSetting.DataPropertyName, columnFilters, columns, createFilterColumn);
-          if (columnFilter == null)
-            continue;
-          columnFilter.ColumnFilterLogic.ValueText = storedFilterSetting.ValueText;
-          columnFilter.ColumnFilterLogic.ValueDateTime = storedFilterSetting.ValueDate;
-          columnFilter.ColumnFilterLogic.Operator = storedFilterSetting.Operator;
+          // only restore operator based filter if there is no Value Filter
+          else if (!string.IsNullOrEmpty(storedFilterSetting.Operator))
+          {
+            columnFilter = GetFilter(storedFilterSetting.DataPropertyName, columnFilters, columns, createFilterColumn);
+            if (columnFilter == null)
+              continue;
+            columnFilter.ColumnFilterLogic.ValueText = storedFilterSetting.ValueText;
+            columnFilter.ColumnFilterLogic.ValueDateTime = storedFilterSetting.ValueDate;
+            columnFilter.ColumnFilterLogic.Operator = storedFilterSetting.Operator;
+          }
+
+          if (columnFilter != null)
+            columnFilter.ColumnFilterLogic.Active = true;
+
+          hasFilterSet = true;
         }
 
-        if (columnFilter != null)
-          columnFilter.ColumnFilterLogic.Active = true;
-
-        hasFilterSet = true;
+        return hasFilterSet;
       }
-
-      return hasFilterSet;
+      catch (Exception ex)
+      {
+        Logger.Warning(ex, "Restoring View Setting");
+        return false;
+      }
     }
 
     public static string StoreViewSetting(DataGridViewColumnCollection columns,
@@ -128,7 +136,7 @@ namespace CsvTools
 
       var vst = (from DataGridViewColumn col in columns
                  select new ColumnSetting(col.DataPropertyName, col.Visible,
-                   ReferenceEquals(col, sortedColumn) ? (int)sortOrder : 0, col.DisplayIndex, col.Width)).ToList();
+                   ReferenceEquals(col, sortedColumn) ? (int) sortOrder : 0, col.DisplayIndex, col.Width)).ToList();
       var colIndex = 0;
       foreach (var columnFilter in columnFilters)
       {
