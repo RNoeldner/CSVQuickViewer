@@ -91,7 +91,6 @@ namespace CsvTools.Tests
     [TestMethod]
     public void HtmlEncodeTest()
     {
-      Assert.IsNull(HTMLStyle.HtmlEncode(null));
       Assert.AreEqual("", HTMLStyle.HtmlEncode(""));
       Assert.AreEqual("HTML", HTMLStyle.HtmlEncode("HTML"));
       Assert.AreEqual("K&amp;N", HTMLStyle.HtmlEncode("K&N"));

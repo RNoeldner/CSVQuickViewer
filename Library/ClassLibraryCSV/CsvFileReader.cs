@@ -227,7 +227,7 @@ namespace CsvTools
           && m_CsvFile.FileFormat.FieldDelimiter.WrittenPunctuationToChar() == '\0')
         HandleWarning(-1, $"Only the first character of '{m_CsvFile.FileFormat.FieldDelimiter}' is used as delimiter.");
 
-      BeforeOpen($"Opening delimited file {FileSystemUtils.GetShortDisplayFileName(m_CsvFile.FileName, 80)}");
+      await BeforeOpenAsync($"Opening delimited file {FileSystemUtils.GetShortDisplayFileName(m_CsvFile.FileName, 80)}").ConfigureAwait(false);
     Retry:
       try
       {

@@ -101,8 +101,8 @@ namespace CsvTools
       if (string.IsNullOrEmpty(template))
         return string.Empty;
       for (var i = 0; i < contents.Length; i++)
-        contents[i] = HtmlEncode(contents[i].ToString())
-          .Replace("�", "<span style=\"color:Red; font-size:larger\">&diams;</span>");
+        if (contents[i]!=null)
+          contents[i] = HtmlEncode(contents[i].ToString()).Replace("�", "<span style=\"color:Red; font-size:larger\">&diams;</span>");
 
       return string.Format(CultureInfo.CurrentCulture, template, contents);
     }
@@ -115,11 +115,9 @@ namespace CsvTools
     /// <remarks>
     ///   Taken from http://www.west-wind.com/weblog/posts/2009/Feb/05/Html-and-Uri-String-Encoding-without-SystemWeb
     /// </remarks>
-    public static string HtmlEncode(string text)
+    [NotNull]
+    public static string HtmlEncode([NotNull] string text)
     {
-      if (text == null)
-        return null;
-
       text = StringUtils.HandleCRLFCombinations(text);
 
       var sb = new StringBuilder(text.Length);
@@ -152,7 +150,7 @@ namespace CsvTools
             {
               // decimal numeric entity
               sb.Append("&#");
-              sb.Append(((int)text[i]).ToString(CultureInfo.InvariantCulture));
+              sb.Append(((int) text[i]).ToString(CultureInfo.InvariantCulture));
               sb.Append(";");
             }
             else
@@ -249,12 +247,12 @@ namespace CsvTools
     public static string TextToHtmlEncode([NotNull] string text)
     {
       if (text == null) throw new ArgumentNullException(nameof(text));
-      
+
       if (text.StartsWith("<![CDATA[", StringComparison.OrdinalIgnoreCase) &&
           text.EndsWith("]]>", StringComparison.OrdinalIgnoreCase))
         return text.Substring(9, text.Length - 12);
 
-      return StringUtils.HandleCRLFCombinations(text, "<br>").Replace((char)0xA0, ' ').Replace('\t', ' ')
+      return StringUtils.HandleCRLFCombinations(text, "<br>").Replace((char) 0xA0, ' ').Replace('\t', ' ')
         .Replace("  ", " ").Replace("  ", " ");
     }
 

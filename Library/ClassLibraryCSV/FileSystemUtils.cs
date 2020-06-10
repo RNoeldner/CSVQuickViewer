@@ -20,6 +20,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Path = Pri.LongPath.Path;
 using Directory = Pri.LongPath.Directory;
@@ -103,7 +104,7 @@ namespace CsvTools
     /// <param name="sourceFile">The file to be copied from</param>
     /// <param name="destFile">The file to be created / overwritten</param>
     /// <param name="processDisplay">A process display</param>
-    public static void FileCopy([NotNull] string sourceFile, [NotNull] string destFile, IProcessDisplay processDisplay)
+    public static async Task FileCopy([NotNull] string sourceFile, [NotNull] string destFile, IProcessDisplay processDisplay)
     {
       if (FileExists(sourceFile))
         FileDelete(destFile);
@@ -122,11 +123,11 @@ namespace CsvTools
         }
 
         var intervalAction = processDisplay == null ? null : new IntervalAction();
-        while ((bytesRead = fromStream.Read(bytes, 0, bytes.Length)) > 0)
+        while ((bytesRead = await fromStream.ReadAsync(bytes, 0, bytes.Length).ConfigureAwait(false)) > 0)
         {
           processDisplay?.CancellationToken.ThrowIfCancellationRequested();
           totalReads += bytesRead;
-          toStream.Write(bytes, 0, bytesRead);
+          await toStream.WriteAsync(bytes, 0, bytesRead).ConfigureAwait(false);
           intervalAction?.Invoke(pos => processDisplay.SetProcess("Copy file", pos, false), totalReads);
         }
 
