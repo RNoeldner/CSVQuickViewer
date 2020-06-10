@@ -1,4 +1,5 @@
-﻿using System;
+﻿using JetBrains.Annotations;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -9,13 +10,16 @@ namespace CsvTools
   {
     public class ValueFilter
     {
-      public ValueFilter(string sQlCondition, string display)
+      public ValueFilter([NotNull]  string sQlCondition, [NotNull] string display)
       {
         SQLCondition = sQlCondition;
         Display = display;
       }
 
+      [NotNull]
       public string SQLCondition { get; set; }
+
+      [NotNull]
       public string Display { get; set; }
 
       [SuppressMessage("ReSharper", "NonReadonlyMemberInGetHashCode")]
@@ -29,7 +33,7 @@ namespace CsvTools
       }
     }
 
-    public ColumnSetting(string dataPropertyName, bool visible, int sorted, int displayIndex, int width)
+    public ColumnSetting([NotNull] string dataPropertyName, bool visible, int sorted, int displayIndex, int width)
     {
       DataPropertyName = dataPropertyName;
       Visible = visible;
@@ -38,27 +42,33 @@ namespace CsvTools
       Width = width;
     }
 
+    [NotNull]
     public string DataPropertyName { get; set; }
+
     public bool Visible { get; set; }
     public int Sort { get; set; }
     public int Width { get; set; }
     public int DisplayIndex { get; set; }
-    public string Operator { get; set; }
 
-    public string ValueText { get; set; }
+    [NotNull]
+    public string Operator { get; set; } = string.Empty;
+
+    [NotNull]
+    public string ValueText { get; set; } = string.Empty;
 
     public DateTime ValueDate { get; set; }
 
     public List<ValueFilter> ValueFilters { get; } = new List<ValueFilter>();
 
     public bool ShouldSerializeSort() => Sort != 0;
-    public bool ShouldSerializeOperator() => !string.IsNullOrEmpty(Operator);
+
+    public bool ShouldSerializeOperator() => !string.IsNullOrEmpty(Operator) && (ShouldSerializeValueText() || ShouldSerializeValueDate());
 
     public bool ShouldSerializeValueText() => !string.IsNullOrEmpty(ValueText);
 
     public bool ShouldSerializeValueDate() => ValueDate.Year > 1;
-    public bool ShouldSerializeValueFilters() => ValueFilters.Any();
 
+    public bool ShouldSerializeValueFilters() => ValueFilters.Any();
 
     [SuppressMessage("ReSharper", "NonReadonlyMemberInGetHashCode")]
     public override int GetHashCode()

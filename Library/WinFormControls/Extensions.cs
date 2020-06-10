@@ -115,11 +115,13 @@ namespace CsvTools
       var top = Math.Min(screen.WorkingArea.Bottom - height, Math.Max(windowPosition.Top, screen.WorkingArea.Top));
 
       form.DesktopBounds = new Rectangle(left, top, width, height);
-      form.WindowState = (FormWindowState)windowPosition.State;
+      form.WindowState = (FormWindowState) windowPosition.State;
       if (windowPosition.CustomInt != int.MinValue)
         setCustomValue1?.Invoke(windowPosition.CustomInt);
       if (!string.IsNullOrEmpty(windowPosition.CustomText))
         setCustomValue2?.Invoke(windowPosition.CustomText);
+
+      ProcessUIElements();
     }
 
     /// <summary>
@@ -239,7 +241,7 @@ namespace CsvTools
           Top = windowPosition.Top,
           Height = windowPosition.Height,
           Width = windowPosition.Width,
-          State = (int)windowState,
+          State = (int) windowState,
           CustomInt = customInt,
           CustomText = customText
         };
@@ -261,7 +263,7 @@ namespace CsvTools
         return;
       if (listView.InvokeRequired)
       {
-        listView.Invoke((MethodInvoker)delegate { listView.UpdateListViewColumnFormat(columnFormat); });
+        listView.Invoke((MethodInvoker) delegate { listView.UpdateListViewColumnFormat(columnFormat); });
       }
       else
       {
