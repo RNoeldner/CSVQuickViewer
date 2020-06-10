@@ -134,7 +134,7 @@ namespace CsvTools
       Application.Current.Dispatcher.Invoke(DispatcherPriority.Background,
                                           new Action(delegate { }));
 #else
-      Application.DoEvents();
+      FunctionalDI.SignalBackground?.Invoke();
       if (milliseconds > 10)
         Thread.Sleep(milliseconds);
 #endif

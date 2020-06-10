@@ -114,7 +114,7 @@ namespace CsvTools
     /// <param name="fileName">The path.</param>
     /// <returns></returns>
     /// <exception cref="ArgumentException">Path must be set - path</exception>
-    public static IImprovedStream OpenRead(string fileName)
+    public static IImprovedStream OpenRead([NotNull] string fileName)
     {
       if (string.IsNullOrEmpty(fileName))
         throw new ArgumentException("Path must be provided", nameof(fileName));

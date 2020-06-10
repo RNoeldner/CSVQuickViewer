@@ -224,12 +224,10 @@ namespace CsvTools
       }
     }
 
-    public static void CopyConfiguration(ICsvFile csvSrc, ICsvFile csvDest)
+    public static void CopyConfiguration(ICsvFile csvSrc, ICsvFile csvDest, string fileName)
     {
-      if (csvSrc == null || csvDest == null)
-      {
+      if (csvSrc == null || csvDest == null || ReferenceEquals(csvSrc, csvDest))
         return;
-      }
 
       csvDest.AllowRowCombining = csvSrc.AllowRowCombining;
       csvDest.ByteOrderMark = csvSrc.ByteOrderMark;
@@ -262,6 +260,8 @@ namespace CsvTools
       csvDest.WarnQuotesInQuotes = csvSrc.WarnQuotesInQuotes;
       csvDest.WarnUnknownCharacter = csvSrc.WarnUnknownCharacter;
       csvSrc.FileFormat.CopyTo(csvDest.FileFormat);
+      if (!string.IsNullOrEmpty(fileName))
+        csvDest.FileName = fileName;
     }
   }
 }

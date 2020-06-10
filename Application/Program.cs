@@ -81,7 +81,7 @@ namespace CsvTools
       // in case we have multiple arguments assume the path was split at space
       else if (args.Length > 1)
         fileName = args.Join(" ");
-
+      FunctionalDI.SignalBackground = Application.DoEvents;
       Application.Run(new FormMain(fileName));
       Application.Exit();
     }
