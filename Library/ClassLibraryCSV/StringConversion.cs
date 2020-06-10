@@ -499,7 +499,7 @@ namespace CsvTools
 
       // only allow format that has time values
       const string c_Allowed = " Hhmsf:";
-      
+
       var result = format.DateFormat.Where(chr => c_Allowed.IndexOf(chr) != -1).Aggregate(string.Empty, (current, chr) => current + chr);
       // make them all upper case H lower case does not make sense
       result = result.Trim().RReplace("h", "H");
@@ -609,7 +609,7 @@ namespace CsvTools
     [NotNull]
     public static string DynamicStorageSize(long length)
     {
-      
+
       if (length < 1024L)
         return $"{length:N0} Bytes";
 
@@ -1160,7 +1160,6 @@ namespace CsvTools
     {
       while (true)
       {
-
         var dateTimeFormatInfo = new DateTimeFormatInfo();
 
         dateTimeFormatInfo.SetAllDateTimePatterns(dateTimeFormats, 'd');
@@ -1196,9 +1195,6 @@ namespace CsvTools
         // Only do this if we have at least 6 characters
         if (foundSpace <= 6) return null;
         stringDateValue = stringDateValue.Substring(0, foundSpace);
-        continue;
-
-        return null;
       }
     }
   }

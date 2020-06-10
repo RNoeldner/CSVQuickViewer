@@ -141,9 +141,8 @@
       this.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
       this.MinimumSize = new System.Drawing.Size(599, 137);
       this.Name = "FormMain";
-      this.Activated += new System.EventHandler(this.Display_Activated);
-      this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Display_FormClosing);
-      this.Shown += new System.EventHandler(this.Display_ShownAsync);
+      this.Activated += new System.EventHandler(this.FormMain_Activated);
+      this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormMain_FormClosing);
       this.DragDrop += new System.Windows.Forms.DragEventHandler(this.DataGridView_DragDropAsync);
       this.DragEnter += new System.Windows.Forms.DragEventHandler(this.DataGridView_DragEnter);
       this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.FormMain_KeyUpAsync);
