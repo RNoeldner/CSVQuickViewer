@@ -116,7 +116,6 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GetShortDisplayFileNameNull()
     {
-      Assert.IsNull(FileSystemUtils.GetShortDisplayFileName(null, 100));
       Assert.AreEqual(string.Empty, FileSystemUtils.GetShortDisplayFileName(string.Empty, 100));
     }
 
@@ -306,7 +305,6 @@ namespace CsvTools.Tests
     [TestMethod]
     public void TextToHtmlEncode()
     {
-      Assert.IsNull(HTMLStyle.TextToHtmlEncode(null));
       Assert.AreEqual("", HTMLStyle.TextToHtmlEncode(""));
       Assert.AreEqual("This is a test", HTMLStyle.TextToHtmlEncode("This is a test"));
       Assert.AreEqual("This is a test", HTMLStyle.TextToHtmlEncode("This is a\ttest"));

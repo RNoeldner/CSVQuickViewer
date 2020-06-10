@@ -399,7 +399,6 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CheckGuidTest()
     {
-      Assert.IsFalse(StringConversion.CheckGuid(null));
       Assert.IsFalse(StringConversion.CheckGuid(new string[] { }));
       Assert.IsTrue(StringConversion.CheckGuid(new[] { "{35C1536A-094A-493D-8FED-545A959E167A}" }));
       Assert.IsFalse(StringConversion.CheckGuid(new[] { "{35C1536A-094A-493D-8FED-545A959E167A}", "A Test" }));
@@ -461,7 +460,6 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CheckNumberTest()
     {
-      Assert.IsFalse(StringConversion.CheckNumber(null, '.', '\0', false, false).FoundValueFormat != null);
       Assert.IsFalse(StringConversion.CheckNumber(new string[] { }, '.', '\0', false, false).FoundValueFormat != null);
       Assert.IsTrue(StringConversion.CheckNumber(new[] { "16673" }, '.', '\0', false, false).FoundValueFormat != null);
       Assert.AreEqual(DataType.Integer,

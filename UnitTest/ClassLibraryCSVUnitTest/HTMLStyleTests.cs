@@ -133,7 +133,6 @@ namespace CsvTools.Tests
     [TestMethod]
     public void TextToHtmlEncodeTest()
     {
-      Assert.IsNull(HTMLStyle.TextToHtmlEncode(null));
       Assert.AreEqual("", HTMLStyle.TextToHtmlEncode(""));
       Assert.AreEqual("Raphael Nöldner", HTMLStyle.TextToHtmlEncode("Raphael  Nöldner"));
       Assert.AreEqual("Raphael Nöldner", HTMLStyle.TextToHtmlEncode("Raphael\t Nöldner"));

@@ -133,7 +133,6 @@ namespace CsvTools.Tests
       using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
         await test.OpenAsync();
-        ;
         Assert.IsTrue(await test.ReadAsync());
         Assert.AreEqual("This is a \"Test\" of doubled quoted Text", test.GetString(1),
           " \"\"should be regarded as \"");
