@@ -112,6 +112,7 @@ namespace CsvTools
     /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
     /// <remarks>Used for XML Serialization</remarks>
     [XmlIgnore]
+    // ReSharper disable once UnusedMember.Global
     public bool MappingSpecified => MappingCollection.Count > 0;
 
     [XmlIgnore]
@@ -152,6 +153,7 @@ namespace CsvTools
     /// <value><c>true</c> if specified; otherwise, <c>false</c>.</value>
     /// <remarks>Used for XML Serialization</remarks>
     [XmlIgnore]
+    // ReSharper disable once UnusedMember.Global
     public bool FileFormatSpecified => !FileFormat.Equals(new FileFormat());
 
     /// <summary>
@@ -160,6 +162,7 @@ namespace CsvTools
     /// <value><c>true</c> if specified; otherwise, <c>false</c>.</value>
     /// <remarks>Used for XML Serialization</remarks>
     [XmlIgnore]
+    // ReSharper disable once UnusedMember.Global
     public bool FileLastWriteTimeUtcSpecified => ProcessTimeUtc != ZeroTime;
 
     /// <summary>
@@ -205,6 +208,7 @@ namespace CsvTools
     }
 
     [XmlIgnore]
+    // ReSharper disable once UnusedMember.Global
     public bool SamplesSpecified => Samples.Count > 0;
 
     /// <summary>
@@ -364,6 +368,7 @@ namespace CsvTools
     /// </summary>
     /// <value><c>true</c> if column format specified; otherwise, <c>false</c>.</value>
     [XmlIgnore]
+    // ReSharper disable once UnusedMember.Global
     public bool ColumnSpecified => ColumnCollection.Count > 0;
 
     /// <summary>
@@ -488,6 +493,7 @@ namespace CsvTools
       }
     }
 
+    // ReSharper disable once UnusedMember.Global
     [XmlIgnore] public bool ProcessTimeUtcSpecified => m_ProcessTimeUtc != ZeroTime;
 
 
@@ -515,9 +521,6 @@ namespace CsvTools
         NotifyPropertyChanged(nameof(LatestSourceTimeUtc));
       }
     }
-
-    [XmlIgnore]
-    public bool HasLatestSourceTimeUtc => m_LatestSourceTimeUtc != ZeroTime;
 
     /// <summary>
     ///   As this might be a time consuming process, do this only if the time was not determined before

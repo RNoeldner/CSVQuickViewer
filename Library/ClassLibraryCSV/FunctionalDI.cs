@@ -66,6 +66,7 @@ namespace CsvTools
     ///   Retrieve the passphrase
     /// </summary>
     [NotNull] 
+    // ReSharper disable once FieldCanBeMadeReadOnly.Global
     public static Func<IFileSetting, string> GetEncryptedPassphrase = fileSetting =>
     {
       if (fileSetting == null) return null;
@@ -76,6 +77,7 @@ namespace CsvTools
     ///   Open a file for reading, it will take care of things like compression and encryption
     /// </summary>
     [NotNull] 
+    // ReSharper disable once FieldCanBeMadeReadOnly.Global
     public static Func<IFileSettingPhysicalFile, IImprovedStream> OpenRead = ImprovedStream.OpenRead;
 
     /// <summary>
@@ -83,6 +85,7 @@ namespace CsvTools
     ///   and encryption
     /// </summary>
     [NotNull] 
+    // ReSharper disable once FieldCanBeMadeReadOnly.Global
     public static Func<IFileSettingPhysicalFile, IImprovedStream> OpenWrite = ImprovedStream.OpenWrite;
 
     /// <summary>
@@ -96,18 +99,21 @@ namespace CsvTools
     ///   Action to store the headers of a file in a cache, ignored columns should be excluded
     /// </summary>
     [CanBeNull] 
+    // ReSharper disable once UnassignedField.Global
     public static Action<IFileSetting, ICollection<Column>> StoreHeader;
 
     /// <summary>
     ///   Return the right reader for a file setting
     /// </summary>
     [NotNull] 
+    // ReSharper disable once FieldCanBeMadeReadOnly.Global
     public static Func<IFileSetting, string, IProcessDisplay, IFileReader> GetFileReader = DefaultFileReader;
 
     /// <summary>
     ///   Return a right writer for a file setting
     /// </summary>
     [NotNull] 
+    // ReSharper disable once FieldCanBeMadeReadOnly.Global
     public static Func<IFileSetting, string, IProcessDisplay, IFileWriter> GetFileWriter = DefaultFileWriter;
 
     /// <summary>

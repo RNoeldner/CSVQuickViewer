@@ -220,31 +220,6 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Joins the strings
-    /// </summary>
-    /// <param name="parts">The parts to be joined.</param>
-    /// <param name="joinWith">The join with.</param>
-    /// <example>JoinParts(new [] {"My","","Test")=> My, Test</example>
-    /// <remarks>Any empty string will be ignored.</remarks>
-    /// <returns>A string</returns>
-    [NotNull]
-    public static string Join([CanBeNull] this IEnumerable<int> parts, [NotNull] string joinWith = ", ")
-    {
-      if (parts == null)
-        return string.Empty;
-
-      var sb = new StringBuilder();
-      foreach (var part in parts)
-      {
-        if (sb.Length > 0)
-          sb.Append(joinWith);
-        sb.Append(part);
-      }
-
-      return sb.ToString();
-    }
-
-    /// <summary>
     ///   Adds a counter to the name until the nae is unique ion the collection
     /// </summary>
     /// <param name="previousColumns">

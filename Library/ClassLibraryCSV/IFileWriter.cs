@@ -15,6 +15,7 @@
 using System;
 using System.Data;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 
 namespace CsvTools
 {
@@ -44,6 +45,6 @@ namespace CsvTools
     /// </summary>
     /// <param name="source">The data that should be written in a <see cref="DataTable" /></param>
     /// <returns>Number of records written</returns>
-    Task<long> WriteAsync(IFileReader source);
+    Task<long> WriteAsync([NotNull] IFileReader source);
   }
 }

@@ -75,14 +75,6 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets a value indicating whether the Xml field is specified.
-    /// </summary>
-    /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
-    /// <remarks>Used for XML Serialization</remarks>
-    [XmlIgnore]
-    public static bool UnknowCharaterReplacementSpecified => false;
-
-    /// <summary>
     ///   Gets or sets a value indicating whether the byte order mark should be written in Unicode files.
     /// </summary>
     /// <value><c>true</c> write byte order mark; otherwise, <c>false</c>.</value>
@@ -217,7 +209,7 @@ namespace CsvTools
     /// <value><c>true</c> if unknown character should be replaced; otherwise, <c>false</c>.</value>
     [XmlAttribute]
     [DefaultValue(false)]
-    public virtual bool TreatUnknowCharaterAsSpace
+    public virtual bool TreatUnknownCharacterAsSpace
     {
       get => m_TreatUnknownCharacterAsSpace;
 
@@ -226,7 +218,7 @@ namespace CsvTools
         if (m_TreatUnknownCharacterAsSpace.Equals(value))
           return;
         m_TreatUnknownCharacterAsSpace = value;
-        NotifyPropertyChanged(nameof(TreatUnknowCharaterAsSpace));
+        NotifyPropertyChanged(nameof(TreatUnknownCharacterAsSpace));
       }
     }
 
@@ -407,7 +399,7 @@ namespace CsvTools
     /// <value><c>true</c> if unknown character should issue a warning; otherwise, <c>false</c>.</value>
     [XmlAttribute]
     [DefaultValue(true)]
-    public virtual bool WarnUnknowCharater
+    public virtual bool WarnUnknownCharacter
     {
       get => m_WarnUnknownCharacter;
 
@@ -416,7 +408,7 @@ namespace CsvTools
         if (m_WarnUnknownCharacter.Equals(value))
           return;
         m_WarnUnknownCharacter = value;
-        NotifyPropertyChanged(nameof(WarnUnknowCharater));
+        NotifyPropertyChanged(nameof(WarnUnknownCharacter));
       }
     }
 
@@ -450,14 +442,14 @@ namespace CsvTools
       csv.WarnDelimiterInValue = m_WarnDelimiterInValue;
       csv.WarnEmptyTailingColumns = m_WarnEmptyTailingColumns;
       csv.WarnQuotesInQuotes = m_WarnQuotesInQuotes;
-      csv.WarnUnknowCharater = m_WarnUnknownCharacter;
+      csv.WarnUnknownCharacter = m_WarnUnknownCharacter;
       csv.WarnLineFeed = m_WarnLineFeed;
       csv.WarnNBSP = m_WarnNbsp;
       csv.TreatLFAsSpace = m_TreatLFAsSpace;
       csv.TryToSolveMoreColumns = m_TryToSolveMoreColumns;
       csv.AllowRowCombining = m_AllowRowCombining;
 
-      csv.TreatUnknowCharaterAsSpace = m_TreatUnknownCharacterAsSpace;
+      csv.TreatUnknownCharacterAsSpace = m_TreatUnknownCharacterAsSpace;
       csv.CodePageId = m_CodePageId;
       csv.NumWarnings = m_NumWarnings;
       csv.CurrentEncoding = m_CurrentEncoding;
@@ -476,7 +468,7 @@ namespace CsvTools
              Equals(m_CurrentEncoding, other.CurrentEncoding) && m_DoubleDecode == other.DoubleDecode &&
              m_JsonFormat == other.JsonFormat &&
              m_NoDelimitedFile == other.NoDelimitedFile && m_NumWarnings == other.NumWarnings &&
-             m_TreatUnknownCharacterAsSpace == other.TreatUnknowCharaterAsSpace &&
+             m_TreatUnknownCharacterAsSpace == other.TreatUnknownCharacterAsSpace &&
              m_WarnDelimiterInValue == other.WarnDelimiterInValue &&
              m_WarnEmptyTailingColumns == other.WarnEmptyTailingColumns && m_WarnLineFeed == other.WarnLineFeed &&
              m_TryToSolveMoreColumns == other.TryToSolveMoreColumns &&
@@ -484,7 +476,7 @@ namespace CsvTools
              m_TreatLFAsSpace == other.TreatLFAsSpace &&
              m_WarnNbsp == other.WarnNBSP && m_WarnQuotes == other.WarnQuotes &&
              m_WarnQuotesInQuotes == other.WarnQuotesInQuotes &&
-             m_WarnUnknownCharacter == other.WarnUnknowCharater &&
+             m_WarnUnknownCharacter == other.WarnUnknownCharacter &&
              BaseSettingsEquals(other as BaseSettings);
     }
 

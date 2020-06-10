@@ -69,9 +69,12 @@
       if (AddLog == null)
         return;
 
-      var level = LogLevel.Debug;
+      LogLevel level;
       switch (lvl)
       {
+        case Level.Debug:
+          level = LogLevel.Debug;
+          break;
         case Level.Info:
           level = LogLevel.Info;
           break;
@@ -83,6 +86,9 @@
         case Level.Error:
           level = LogLevel.Error;
           break;
+        
+        default:
+          throw new ArgumentOutOfRangeException(nameof(lvl), lvl, null);
       }
 
       try

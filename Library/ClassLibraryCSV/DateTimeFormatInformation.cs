@@ -87,52 +87,52 @@ namespace CsvTools
     {
       for (var weekday = 0; weekday < 7; weekday++)
       {
-        var cul = string.Format(CultureInfo.CurrentCulture, "{0:dddd}", DateTime.Now.AddDays(weekday));
-        var incul = string.Format(CultureInfo.InvariantCulture, "{0:dddd}", DateTime.Now.AddDays(weekday));
-        if (cul.Length < m_MinDayLong)
-          m_MinDayLong = cul.Length;
-        if (incul.Length < m_MinDayLong)
-          m_MinDayLong = incul.Length;
-        if (cul.Length > m_MaxDayLong)
-          m_MaxDayLong = cul.Length;
-        if (incul.Length > m_MaxDayLong)
-          m_MaxDayLong = incul.Length;
+        var currentCulture = string.Format(CultureInfo.CurrentCulture, "{0:dddd}", DateTime.Now.AddDays(weekday));
+        var invariantCulture = string.Format(CultureInfo.InvariantCulture, "{0:dddd}", DateTime.Now.AddDays(weekday));
+        if (currentCulture.Length < m_MinDayLong)
+          m_MinDayLong = currentCulture.Length;
+        if (invariantCulture.Length < m_MinDayLong)
+          m_MinDayLong = invariantCulture.Length;
+        if (currentCulture.Length > m_MaxDayLong)
+          m_MaxDayLong = currentCulture.Length;
+        if (invariantCulture.Length > m_MaxDayLong)
+          m_MaxDayLong = invariantCulture.Length;
 
-        cul = string.Format(CultureInfo.CurrentCulture, "{0:ddd}", DateTime.Now.AddDays(weekday));
-        incul = string.Format(CultureInfo.InvariantCulture, "{0:ddd}", DateTime.Now.AddDays(weekday));
-        if (cul.Length < m_MinDayMid)
-          m_MinDayMid = cul.Length;
-        if (incul.Length < m_MinDayMid)
-          m_MinDayMid = incul.Length;
-        if (cul.Length > m_MaxDayMid)
-          m_MaxDayMid = cul.Length;
-        if (incul.Length > m_MaxDayMid)
-          m_MaxDayMid = incul.Length;
+        currentCulture = string.Format(CultureInfo.CurrentCulture, "{0:ddd}", DateTime.Now.AddDays(weekday));
+        invariantCulture = string.Format(CultureInfo.InvariantCulture, "{0:ddd}", DateTime.Now.AddDays(weekday));
+        if (currentCulture.Length < m_MinDayMid)
+          m_MinDayMid = currentCulture.Length;
+        if (invariantCulture.Length < m_MinDayMid)
+          m_MinDayMid = invariantCulture.Length;
+        if (currentCulture.Length > m_MaxDayMid)
+          m_MaxDayMid = currentCulture.Length;
+        if (invariantCulture.Length > m_MaxDayMid)
+          m_MaxDayMid = invariantCulture.Length;
       }
 
       for (var month = 0; month < 12; month++)
       {
-        var cul = string.Format(CultureInfo.CurrentCulture, "{0:MMMM}", DateTime.Now.AddMonths(month));
-        var incul = string.Format(CultureInfo.InvariantCulture, "{0:MMMM}", DateTime.Now.AddMonths(month));
-        if (cul.Length < m_MinMonthLong)
-          m_MinMonthLong = cul.Length;
-        if (incul.Length < m_MinMonthLong)
-          m_MinMonthLong = incul.Length;
-        if (cul.Length > m_MaxMonthLong)
-          m_MaxMonthLong = cul.Length;
-        if (incul.Length > m_MaxMonthLong)
-          m_MaxMonthLong = incul.Length;
+        var currentCulture = string.Format(CultureInfo.CurrentCulture, "{0:MMMM}", DateTime.Now.AddMonths(month));
+        var invariantCulture = string.Format(CultureInfo.InvariantCulture, "{0:MMMM}", DateTime.Now.AddMonths(month));
+        if (currentCulture.Length < m_MinMonthLong)
+          m_MinMonthLong = currentCulture.Length;
+        if (invariantCulture.Length < m_MinMonthLong)
+          m_MinMonthLong = invariantCulture.Length;
+        if (currentCulture.Length > m_MaxMonthLong)
+          m_MaxMonthLong = currentCulture.Length;
+        if (invariantCulture.Length > m_MaxMonthLong)
+          m_MaxMonthLong = invariantCulture.Length;
 
-        cul = string.Format(CultureInfo.CurrentCulture, "{0:MMM}", DateTime.Now.AddMonths(month));
-        incul = string.Format(CultureInfo.InvariantCulture, "{0:MMM}", DateTime.Now.AddMonths(month));
-        if (cul.Length < m_MinMonthMid)
-          m_MinMonthMid = cul.Length;
-        if (incul.Length < m_MinMonthMid)
-          m_MinMonthMid = incul.Length;
-        if (cul.Length > m_MaxMonthMid)
-          m_MaxMonthMid = cul.Length;
-        if (incul.Length > m_MaxMonthMid)
-          m_MaxMonthMid = incul.Length;
+        currentCulture = string.Format(CultureInfo.CurrentCulture, "{0:MMM}", DateTime.Now.AddMonths(month));
+        invariantCulture = string.Format(CultureInfo.InvariantCulture, "{0:MMM}", DateTime.Now.AddMonths(month));
+        if (currentCulture.Length < m_MinMonthMid)
+          m_MinMonthMid = currentCulture.Length;
+        if (invariantCulture.Length < m_MinMonthMid)
+          m_MinMonthMid = invariantCulture.Length;
+        if (currentCulture.Length > m_MaxMonthMid)
+          m_MaxMonthMid = currentCulture.Length;
+        if (invariantCulture.Length > m_MaxMonthMid)
+          m_MaxMonthMid = invariantCulture.Length;
       }
 
       {

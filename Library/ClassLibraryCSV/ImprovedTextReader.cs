@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace CsvTools
 {
-  public class ImprovedTextReader : IDisposable
+  public sealed class ImprovedTextReader : IDisposable
   {
     // Buffer size set to 64kB, if set to large the display in percentage will jump
     private const int c_BufferSize = 65536;
@@ -97,7 +97,7 @@ namespace CsvTools
     ///   Gets or sets a value indicating whether the reader is at the end of the file.
     /// </summary>
     /// <value><c>true</c> if at the end of file; otherwise, <c>false</c>.</value>
-    public virtual bool EndOfFile { get; private set; } = true;
+    public bool EndOfFile { get; private set; } = true;
 
     public long LineNumber
     {
@@ -127,7 +127,6 @@ namespace CsvTools
     public void Dispose()
     {
       Dispose(true);
-      GC.SuppressFinalize(this);
     }
 
     /// <summary>
@@ -261,22 +260,30 @@ namespace CsvTools
       while (!EndOfFile)
       {
         var character = await ReadAsync().ConfigureAwait(false);
-        if (character != -1)
+        switch (character)
         {
-          if (character == c_Cr || character == c_Lf)
+          case -1:
+            continue;
+          case c_Cr:
+          case c_Lf:
           {
-            var nextChar = await PeekAsync();
-            if (character == c_Cr && nextChar == c_Lf) MoveNext();
-            if (character == c_Lf && nextChar == c_Cr)
+            var nextChar = await PeekAsync().ConfigureAwait(false);
+            switch (character)
             {
-              LineNumber++;
-              MoveNext();
+              case c_Cr when nextChar == c_Lf:
+                MoveNext();
+                break;
+              case c_Lf when nextChar == c_Cr:
+                LineNumber++;
+                MoveNext();
+                break;
             }
 
             return sb.ToString();
           }
-
-          sb.Append((char) character);
+          default:
+            sb.Append((char) character);
+            break;
         }
       }
 
@@ -343,7 +350,7 @@ namespace CsvTools
         ReadLine();
     }
 
-    protected virtual void Dispose(bool disposing)
+    private void Dispose(bool disposing)
     {
       if (m_DisposedValue) return;
       EndOfFile = true;
@@ -374,7 +381,7 @@ namespace CsvTools
       EndOfFile = TextReader.EndOfStream;
       if (EndOfFile)
         return;
-      BufferFilled = await TextReader.ReadAsync(Buffer, 0, c_BufferSize);
+      BufferFilled = await TextReader.ReadAsync(Buffer, 0, c_BufferSize).ConfigureAwait(false); 
       BufferPos = 0;
     }
   }

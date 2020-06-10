@@ -81,7 +81,7 @@ namespace CsvTools
       // Check if we are supposed to check something
       if (!fillGuessSettings.Enabled || !fillGuessSettings.DetectNumbers && !fillGuessSettings.DetectBoolean &&
         !fillGuessSettings.DetectDateTime && !fillGuessSettings.DetectGUID &&
-        !fillGuessSettings.DectectPercentage &&
+        !fillGuessSettings.DetectPercentage &&
         !fillGuessSettings.SerialDateTime) 
         return new List<string>();
 
@@ -100,7 +100,7 @@ namespace CsvTools
         csv.WarnDelimiterInValue = false;
         csv.WarnLineFeed = false;
         csv.WarnQuotes = false;
-        csv.WarnUnknowCharater = false;
+        csv.WarnUnknownCharacter = false;
         csv.WarnNBSP = false;
         csv.WarnQuotesInQuotes = false;
       }
@@ -110,7 +110,7 @@ namespace CsvTools
       using (var fileReader = FunctionalDI.GetFileReader(fileSettingCopy, null, prc2))
       {
         Contract.Assume(fileReader != null);
-        await fileReader.OpenAsync();
+        await fileReader.OpenAsync().ConfigureAwait(false);
         return await FillGuessColumnFormatReaderAsyncReader(fileReader, fillGuessSettings,
           fileSetting.ColumnCollection,
           addTextColumns, checkDoubleToBeInteger, fileSetting.TreatTextAsNull, processDisplay);
@@ -167,21 +167,17 @@ namespace CsvTools
         {
           processDisplay.SetProcess(newColumn.Name + " – Reserved columns ignored", colIndex, true);
           newColumn.Ignore = true;
-          if (columnCollection.Get(newColumn.Name) == null)
-          {
-            result.Add($"{newColumn.Name} – Reserved columns ignored");
-            columnCollection.AddIfNew(newColumn);
-          }
+          if (columnCollection.Get(newColumn.Name) != null) continue;
+          result.Add($"{newColumn.Name} – Reserved columns ignored");
+          columnCollection.AddIfNew(newColumn);
 
         }
         else if (fillGuessSettings.IgnoreIdColumns && StringUtils.AssumeIDColumn(newColumn.Name) > 0)
         {
           processDisplay.SetProcess(newColumn.Name + " – ID columns ignored", colIndex, true);
-          if (addTextColumns && columnCollection.Get(newColumn.Name) == null)
-          {
-            result.Add($"{newColumn.Name} – ID columns ignored");
-            columnCollection.AddIfNew(newColumn);
-          }
+          if (!addTextColumns || columnCollection.Get(newColumn.Name) != null) continue;
+          result.Add($"{newColumn.Name} – ID columns ignored");
+          columnCollection.AddIfNew(newColumn);
         }
         else
         {
@@ -194,7 +190,7 @@ namespace CsvTools
 
       var sampleList = await GetSampleValuesAsync(fileReader, fillGuessSettings.CheckedRecords,
         getSamples, fillGuessSettings.SampleValues, treatTextAsNull,
-        processDisplay.CancellationToken);
+        processDisplay.CancellationToken).ConfigureAwait(false);
 
       foreach (var colIndex in sampleList.Keys)
       {
@@ -237,7 +233,7 @@ namespace CsvTools
             fillGuessSettings.DetectGUID && detect,
             fillGuessSettings.DetectNumbers && detect,
             fillGuessSettings.DetectDateTime && detect,
-            fillGuessSettings.DectectPercentage && detect,
+            fillGuessSettings.DetectPercentage && detect,
             fillGuessSettings.SerialDateTime && detect,
             fillGuessSettings.CheckNamedDates && detect,
             othersValueFormatDate,
@@ -331,7 +327,7 @@ namespace CsvTools
             else
               samples = await GetSampleValuesAsync(fileReader, fillGuessSettings.CheckedRecords,
                 colIndex, fillGuessSettings.SampleValues, treatTextAsNull,
-                processDisplay.CancellationToken);
+                processDisplay.CancellationToken).ConfigureAwait(false);
 
             if (samples.Values.Count > 0)
             {
@@ -428,7 +424,7 @@ namespace CsvTools
                 var samples = sampleList.Keys.Contains(colIndex + 1)
                   ? sampleList[colIndex + 1]
                   : await GetSampleValuesAsync(fileReader, 1, colIndex + 1, 1, treatTextAsNull,
-                    processDisplay.CancellationToken);
+                    processDisplay.CancellationToken).ConfigureAwait(false);
 
                 foreach (var first in samples.Values)
                 {
@@ -468,7 +464,7 @@ namespace CsvTools
               var samples = sampleList.Keys.Contains(colIndex - 1)
                 ? sampleList[colIndex - 1]
                 : await GetSampleValuesAsync(fileReader, 1, colIndex - 1, 1, treatTextAsNull,
-                  processDisplay.CancellationToken);
+                  processDisplay.CancellationToken).ConfigureAwait(false);
               foreach (var first in samples.Values)
               {
                 if (first.Length == 8 || first.Length == 5)
@@ -506,6 +502,7 @@ namespace CsvTools
           existing.Add(col);
 
       columnCollection.Clear();
+      // ReSharper disable once InvertIf
       if (existing != null)
       {
         foreach (var column in existing)
@@ -531,9 +528,9 @@ namespace CsvTools
         throw new FileWriterException("No Async SQL Reader set");
 
       using (var fileReader =
-        await FunctionalDI.SQLDataReader(fileSettings.SqlStatement, processDisplay, fileSettings.Timeout))
+        await FunctionalDI.SQLDataReader(fileSettings.SqlStatement, processDisplay, fileSettings.Timeout).ConfigureAwait(false))
       {
-        await fileReader.OpenAsync();
+        await fileReader.OpenAsync().ConfigureAwait(false);
         // Put the information into the list
         var dataRowCollection = fileReader.GetSchemaTable()?.Rows;
         if (dataRowCollection == null) return;
@@ -591,7 +588,7 @@ namespace CsvTools
       [NotNull] IEnumerable<int> columns, int enoughSamples, string treatAsNull, CancellationToken cancellationToken)
     {
       if (fileReader.IsClosed)
-        await fileReader.OpenAsync();
+        await fileReader.OpenAsync().ConfigureAwait(false);
       if (fileReader == null)
         throw new ArgumentNullException(nameof(fileReader));
 
@@ -632,7 +629,7 @@ namespace CsvTools
         if (fileReader.EndOfFile && fileReader.SupportsReset)
         {
           Logger.Debug("Resetting read position to the beginning");
-          await fileReader.ResetPositionToFirstDataRowAsync();
+          await fileReader.ResetPositionToFirstDataRowAsync().ConfigureAwait(false);
         }
 
         // Ready to start store the record number we are currently at, we could be in the middle of
@@ -652,13 +649,13 @@ namespace CsvTools
                samples.Keys.Count > enough.Count)
         {
           // if at the end start from the beginning
-          if (!await fileReader.ReadAsync() && fileReader.EndOfFile)
+          if (!await fileReader.ReadAsync().ConfigureAwait(false) && fileReader.EndOfFile)
           {
             if (!fileReader.SupportsReset)
               break;
-            await fileReader.ResetPositionToFirstDataRowAsync();
+            await fileReader.ResetPositionToFirstDataRowAsync().ConfigureAwait(false);
             // If still at the end, we do not have a line
-            if (startRecordNumber == 0 || !await fileReader.ReadAsync())
+            if (startRecordNumber == 0 || !await fileReader.ReadAsync().ConfigureAwait(false))
               break;
           }
 
@@ -748,9 +745,9 @@ namespace CsvTools
       if (FunctionalDI.SQLDataReader == null)
         throw new FileWriterException("No Async SQL Reader set");
       using (var data = await FunctionalDI.SQLDataReader(fileSettings.SqlStatement.NoRecordSQL(), processDisplay,
-        fileSettings.Timeout))
+        fileSettings.Timeout).ConfigureAwait(false))
       {
-        await data.OpenAsync();
+        await data.OpenAsync().ConfigureAwait(false);
         return ColumnInfo.GetSourceColumnInformation(fileSettings, data);
       }
     }
@@ -1060,6 +1057,7 @@ namespace CsvTools
       if (!guessDateTime || !serialDateTime || guessNumeric)
         return checkResult;
 
+      // ReSharper disable once InvertIf
       if (samples.Count >= minRequiredSamples)
       {
         var res = StringConversion.CheckSerialDate(samples, false);

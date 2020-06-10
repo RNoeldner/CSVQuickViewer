@@ -60,10 +60,10 @@ namespace CsvTools
       again:
         ResetPositionToStartOrOpen();
 
-        var line = await GetNextRecordAsync(false);
+        var line = await GetNextRecordAsync(false).ConfigureAwait(false);
         try
         {
-          await GetNextRecordAsync(true);
+          await GetNextRecordAsync(true).ConfigureAwait(false);
         }
         catch (JsonReaderException ex)
         {
@@ -81,7 +81,7 @@ namespace CsvTools
         var col = 0;
         foreach (var colValue in line)
           CurrentValues[col++] = colValue.Value;
-        var colType = await GetColumnTypeAsync();
+        var colType = await GetColumnTypeAsync().ConfigureAwait(false);
 
         // Read the types of the first row
         for (var counter = 0; counter < FieldCount; counter++)
@@ -114,7 +114,7 @@ namespace CsvTools
     {
       if (!CancellationToken.IsCancellationRequested)
       {
-        var couldRead = await GetNextRecordAsync(false) != null;
+        var couldRead = await GetNextRecordAsync(false).ConfigureAwait(false) != null;
         InfoDisplay(couldRead);
 
         if (couldRead && !IsClosed)
@@ -181,7 +181,7 @@ namespace CsvTools
         while (m_JsonTextReader.TokenType != JsonToken.StartObject
                // && m_JsonTextReader.TokenType != JsonToken.PropertyName
                && m_JsonTextReader.TokenType != JsonToken.StartArray)
-          if (!await m_JsonTextReader.ReadAsync())
+          if (!await m_JsonTextReader.ReadAsync().ConfigureAwait(false))
             return null;
 
         // sore the parent Property Name in parentKey
@@ -246,11 +246,23 @@ namespace CsvTools
             case JsonToken.EndArray:
               inArray = false;
               break;
+            case JsonToken.None:
+              break;
+            case JsonToken.StartConstructor:
+              break;
+            case JsonToken.Comment:
+              break;
+            case JsonToken.Undefined:
+              break;
+            case JsonToken.EndConstructor:
+              break;
+            default:
+              throw new ArgumentOutOfRangeException();
           }
 
           CancellationToken.ThrowIfCancellationRequested();
         } while (!(m_JsonTextReader.TokenType == JsonToken.EndObject && startKey == endKey)
-                 && await m_JsonTextReader.ReadAsync());
+                 && await m_JsonTextReader.ReadAsync().ConfigureAwait(false));
 
         EndLineNumber = !m_AssumeLog ? m_JsonTextReader.LineNumber : m_TextReaderLine;
         RecordNumber++;

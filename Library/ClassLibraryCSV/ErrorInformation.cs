@@ -35,7 +35,7 @@ namespace CsvTools
     /// <summary>
     ///   Char to separate two column names
     /// </summary>
-    public const char cFieldSeparator = ',';
+    private const char c_FieldSeparator = ',';
 
     private const char c_ClosingField = ']';
 
@@ -223,7 +223,7 @@ namespace CsvTools
       // In case we have a column name in front we have to look into the middle of the string We
       // only look at the first entry, assuming error would be sorted into the front
       var splitter = errorList.IndexOf(c_ClosingField);
-      return (splitter != -1 && splitter < errorList.Length - 2) && errorList.Substring(splitter + 2).StartsWith(c_WarningId, StringComparison.Ordinal);
+      return splitter != -1 && splitter < errorList.Length - 2 && errorList.Substring(splitter + 2).StartsWith(c_WarningId, StringComparison.Ordinal);
     }
 
     /// <summary>
@@ -285,13 +285,9 @@ namespace CsvTools
     /// <param name="errorList">A text containing different types of messages that are concatenated</param>
     /// <returns>The text without the leading WarningID</returns>
     [NotNull]
-    public static string WithoutWarningId([NotNull] this string errorList)
-    {
-      
-      if (errorList.Length <= c_WarningId.Length)
-        return errorList;
-      return errorList.Substring(c_WarningId.Length);
-    }
+    public static string WithoutWarningId([NotNull] this string errorList) => errorList.Length <= c_WarningId.Length
+      ? errorList
+      : errorList.Substring(c_WarningId.Length);
 
     /// <summary>
     ///   Builds a list from the provided error list, sorting error in front, this will show
@@ -356,7 +352,7 @@ namespace CsvTools
       // in each column
       while (start < columnErrorInformation.Item1.Length)
       {
-        var end = columnErrorInformation.Item1.IndexOf(cFieldSeparator, start + 1);
+        var end = columnErrorInformation.Item1.IndexOf(c_FieldSeparator, start + 1);
         if (end == -1)
           end = columnErrorInformation.Item1.Length;
         var colName = columnErrorInformation.Item1.Substring(start, end - start);

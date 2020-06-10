@@ -820,7 +820,7 @@ namespace CsvTools
           csv.WarnDelimiterInValue = false;
           csv.WarnLineFeed = false;
           csv.WarnQuotes = false;
-          csv.WarnUnknowCharater = false;
+          csv.WarnUnknownCharacter = false;
           csv.WarnNBSP = false;
           csv.WarnQuotesInQuotes = false;
         }

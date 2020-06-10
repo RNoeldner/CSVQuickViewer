@@ -126,7 +126,7 @@ namespace CsvTools
     /// </summary>
     [DefaultValue(true)]
     [XmlElement]
-    public virtual bool DectectPercentage
+    public virtual bool DetectPercentage
     {
       get => m_DetectPercentage;
 
@@ -135,7 +135,7 @@ namespace CsvTools
         if (m_DetectPercentage == value)
           return;
         m_DetectPercentage = value;
-        NotifyPropertyChanged(nameof(DectectPercentage));
+        NotifyPropertyChanged(nameof(DetectPercentage));
       }
     }
 
@@ -328,7 +328,7 @@ namespace CsvTools
       other.CheckedRecords = CheckedRecords;
       other.CheckNamedDates = CheckNamedDates;
       other.DetectNumbers = DetectNumbers;
-      other.DectectPercentage = DectectPercentage;
+      other.DetectPercentage = DetectPercentage;
       other.DetectBoolean = DetectBoolean;
       other.DateParts = DateParts;
       other.DetectDateTime = DetectDateTime;
@@ -355,7 +355,7 @@ namespace CsvTools
         return true;
       return CheckedRecords == other.CheckedRecords && CheckNamedDates == other.CheckNamedDates &&
              DateParts == other.DateParts &&
-             m_DetectNumbers == other.m_DetectNumbers && DectectPercentage == other.DectectPercentage &&
+             m_DetectNumbers == other.m_DetectNumbers && DetectPercentage == other.DetectPercentage &&
              m_DetectBoolean == other.m_DetectBoolean && m_DetectDateTime == other.DetectDateTime &&
              DetectGUID == other.DetectGUID &&
              string.Equals(FalseValue, other.FalseValue, StringComparison.OrdinalIgnoreCase) &&

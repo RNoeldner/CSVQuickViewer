@@ -403,10 +403,7 @@ namespace CsvTools
     ///   Used for XML Serialization
     /// </remarks>
     [XmlIgnore]
-    public virtual bool ValueFormatSpecified
-    {
-      get => !m_ValueFormat.Equals(new ValueFormat());
-    }
+    public virtual bool ValueFormatSpecified => !m_ValueFormat.Equals(new ValueFormat());
 
     /// <summary>
     ///   Gets a char from a text

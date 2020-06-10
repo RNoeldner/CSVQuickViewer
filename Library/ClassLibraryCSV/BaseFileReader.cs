@@ -746,10 +746,15 @@ namespace CsvTools
             ret = GetGuid(columnNumber);
             break;
 
-          default:
+          case DataType.String:
+          case DataType.TextToHtml:
+          case DataType.TextToHtmlFull:
+          case DataType.TextPart:
             /* TextToHTML and TextToHTMLFull have been handled in the Reader for the column as the length of the fields would change */
             ret = GetString(columnNumber);
             break;
+          default:
+            throw new ArgumentOutOfRangeException();
         }
       }
       catch (FormatException)
@@ -1130,6 +1135,7 @@ namespace CsvTools
     ///   The parsed value if conversion is not successful: <c>DBNull.Value</c> is returned and the
     ///   event handler for warnings is called
     /// </returns>
+    [NotNull]
     protected object GetTypedValueFromString(string value, string timeValue, Column column)
     {
       Debug.Assert(column != null);
@@ -1163,10 +1169,15 @@ namespace CsvTools
           ret = GetGuidNull(value, column.ColumnOrdinal);
           break;
 
-        default:
+        case DataType.String:
+        case DataType.TextToHtml:
+        case DataType.TextToHtmlFull:
+        case DataType.TextPart:
           /* TextToHTML and TextToHTMLFull and TextPart have been handled in the CSV Reader as the length of the fields would change */
           ret = value;
           break;
+        default:
+          throw new ArgumentOutOfRangeException();
       }
 
       return ret ?? DBNull.Value;
@@ -1253,33 +1264,30 @@ namespace CsvTools
         return inputString;
 
       var column = GetColumn(columnNumber);
-      var output = inputString;
+      string output;
 
-      switch (column.ValueFormat.DataType)
+      // ReSharper disable once ConvertIfStatementToSwitchStatement
+      if (column.ValueFormat.DataType == DataType.TextToHtml)
       {
-        case DataType.TextToHtml:
-        {
-          output = HTMLStyle.TextToHtmlEncode(inputString);
-          if (!inputString.Equals(output, StringComparison.Ordinal))
-            HandleWarning(columnNumber, $"HTML encoding removed from {inputString}");
-          break;
-        }
-
-        case DataType.TextToHtmlFull:
-        {
-          output = HTMLStyle.HtmlEncodeShort(inputString);
-          if (!inputString.Equals(output, StringComparison.Ordinal))
-            HandleWarning(columnNumber, $"HTML encoding removed from {inputString}");
-          break;
-        }
-
-        case DataType.TextPart:
-        {
-          output = StringConversion.StringToTextPart(inputString, column.PartSplitter, column.Part, column.PartToEnd);
-          if (output == null)
-            HandleWarning(columnNumber, $"Part {column.Part} of text {inputString} is empty.");
-          break;
-        }
+        output = HTMLStyle.TextToHtmlEncode(inputString);
+        if (!inputString.Equals(output, StringComparison.Ordinal))
+          HandleWarning(columnNumber, $"HTML encoding removed from {inputString}");
+      }
+      else if (column.ValueFormat.DataType == DataType.TextToHtmlFull)
+      {
+        output = HTMLStyle.HtmlEncodeShort(inputString);
+        if (!inputString.Equals(output, StringComparison.Ordinal))
+          HandleWarning(columnNumber, $"HTML encoding removed from {inputString}");
+      }
+      else if (column.ValueFormat.DataType == DataType.TextPart)
+      {
+        output = StringConversion.StringToTextPart(inputString, column.PartSplitter, column.Part, column.PartToEnd);
+        if (output == null)
+          HandleWarning(columnNumber, $"Part {column.Part} of text {inputString} is empty.");
+      }
+      else
+      {
+        throw new ArgumentOutOfRangeException();
       }
 
       if (string.IsNullOrEmpty(output))
@@ -1588,7 +1596,7 @@ namespace CsvTools
       bool storeWarningsInDataTable, bool addStartLine, CancellationToken cancellationToken)
     {
       if (IsClosed)
-        await OpenAsync();
+        await OpenAsync().ConfigureAwait(false);
 
       // This tracks errors and warnings
       cancellationToken.ThrowIfCancellationRequested();
@@ -1606,7 +1614,7 @@ namespace CsvTools
         if (recordLimit < 1)
           recordLimit = FileSetting.RecordLimit < 1 ? long.MaxValue : FileSetting.RecordLimit;
 
-        while (await ReadAsync() && RecordNumber <= recordLimit && !cancellationToken.IsCancellationRequested)
+        while (await ReadAsync().ConfigureAwait(false) && RecordNumber <= recordLimit && !cancellationToken.IsCancellationRequested)
           copyToDataTableInfo.CopyRowToTable(this as IFileReader ?? throw new InvalidOperationException());
 
         copyToDataTableInfo.HandlePreviousRow();

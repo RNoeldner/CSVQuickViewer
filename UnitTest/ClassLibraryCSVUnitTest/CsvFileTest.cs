@@ -44,7 +44,7 @@ namespace CsvTools.Tests
       Assert.AreEqual(test.IsEnabled, true, "IsEnabled");
       Assert.AreEqual(test.NumWarnings, 0, "NumWarnings");
       Assert.AreEqual(test.RecordLimit, 0U, "RecordLimit");
-      Assert.AreEqual(test.TreatUnknowCharaterAsSpace, false, "TreatUnknownCharacterAsSpace");
+      Assert.AreEqual(test.TreatUnknownCharacterAsSpace, false, "TreatUnknownCharacterAsSpace");
       Assert.AreEqual(test.SkipRows, 0, "SkipRows");
       Assert.AreEqual(string.Empty, test.SqlStatement, "SqlStatement");
       Assert.IsTrue(test.Timeout > 0, "Timeout");
@@ -328,8 +328,8 @@ namespace CsvTools.Tests
       Assert.AreEqual(5, m_CsvFile.NumWarnings, "NumWarnings");
 
       m_CsvFile.RecordLimit = 5;
-      m_CsvFile.TreatUnknowCharaterAsSpace = true;
-      Assert.AreEqual(true, m_CsvFile.TreatUnknowCharaterAsSpace, "TreatUnknownCharacterAsSpace");
+      m_CsvFile.TreatUnknownCharacterAsSpace = true;
+      Assert.AreEqual(true, m_CsvFile.TreatUnknownCharacterAsSpace, "TreatUnknownCharacterAsSpace");
 
       m_CsvFile.ShowProgress = true;
       m_CsvFile.SkipRows = 1;
@@ -386,8 +386,8 @@ namespace CsvTools.Tests
       Assert.IsTrue(m_CsvFile.WarnQuotesInQuotes, "WarnQuotesInQuotes");
       m_CsvFile.NoDelimitedFile = true;
       Assert.IsTrue(m_CsvFile.NoDelimitedFile, "NoDelimitedFile");
-      m_CsvFile.WarnUnknowCharater = false;
-      Assert.IsFalse(m_CsvFile.WarnUnknowCharater, "WarnUnknowCharater");
+      m_CsvFile.WarnUnknownCharacter = false;
+      Assert.IsFalse(m_CsvFile.WarnUnknownCharacter, "WarnUnknownCharacter");
 
       Assert.IsFalse(m_CsvFile.ByteOrderMark, "ByteOrderMark");
 
@@ -405,7 +405,7 @@ namespace CsvTools.Tests
       Assert.AreEqual(5, m_CsvFile.NumWarnings, "NumWarnings");
 
       Assert.AreEqual(5L, m_CsvFile.RecordLimit, "RecordLimit");
-      Assert.IsTrue(m_CsvFile.TreatUnknowCharaterAsSpace, "ReplaceUnknowCharater");
+      Assert.IsTrue(m_CsvFile.TreatUnknownCharacterAsSpace, "ReplaceUnknowCharater");
       Assert.IsTrue(m_CsvFile.ShowProgress, "ShowProgress");
       Assert.AreEqual(1, m_CsvFile.SkipRows, "SkipRows");
       Assert.AreEqual("SqlStatement", m_CsvFile.SqlStatement, "SqlStatement");
@@ -421,7 +421,7 @@ namespace CsvTools.Tests
       Assert.IsTrue(m_CsvFile.WarnQuotesInQuotes, "WarnQuotesInQuotes");
       Assert.IsFalse(m_CsvFile.WarnQuotes, "WarnQuotes");
 
-      Assert.IsFalse(m_CsvFile.WarnUnknowCharater, "WarnUnknowCharater");
+      Assert.IsFalse(m_CsvFile.WarnUnknownCharacter, "WarnUnknownCharacter");
     }
   }
 }
