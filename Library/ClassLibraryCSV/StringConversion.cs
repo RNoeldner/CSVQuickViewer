@@ -736,12 +736,7 @@ namespace CsvTools
         return new Tuple<bool, string>(true, value);
       }
 
-      if (m_FalseValues.Any(test => value.Equals(test, StringComparison.OrdinalIgnoreCase)))
-      {
-        return new Tuple<bool, string>(false, value);
-      }
-
-      return null;
+      return m_FalseValues.Any(test => value.Equals(test, StringComparison.OrdinalIgnoreCase)) ? new Tuple<bool, string>(false, value) : null;
     }
 
     /// <summary>
@@ -1142,12 +1137,10 @@ namespace CsvTools
         var indexHour = dateTimeFormat.IndexOf("h", StringComparison.OrdinalIgnoreCase);
 
         // assuming there is a text before the hour that has a reasonable size take it as date
-        if (indexHour > 4)
-        {
-          var dateOnly = dateTimeFormat.Substring(0, indexHour - 1).Trim();
-          if (!complete.Contains(dateOnly))
-            complete.Add(dateOnly);
-        }
+        if (indexHour <= 4) continue;
+        var dateOnly = dateTimeFormat.Substring(0, indexHour - 1).Trim();
+        if (!complete.Contains(dateOnly))
+          complete.Add(dateOnly);
       }
 
       return complete.ToArray();
@@ -1201,11 +1194,9 @@ namespace CsvTools
         var foundSpace = stringDateValue.LastIndexOf(' ');
 
         // Only do this if we have at least 6 characters
-        if (foundSpace > 6)
-        {
-          stringDateValue = stringDateValue.Substring(0, foundSpace);
-          continue;
-        }
+        if (foundSpace <= 6) return null;
+        stringDateValue = stringDateValue.Substring(0, foundSpace);
+        continue;
 
         return null;
       }

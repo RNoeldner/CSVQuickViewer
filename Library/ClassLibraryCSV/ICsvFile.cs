@@ -84,7 +84,7 @@ namespace CsvTools
     ///  Gets or sets a value indicating whether to replace unknown character.
     /// </summary>
     /// <value><c>true</c> if unknown character should be replaced; otherwise, <c>false</c>.</value>
-    bool TreatUnknowCharaterAsSpace { get; set; }
+    bool TreatUnknownCharacterAsSpace { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether the reader should try to solve more columns.
@@ -137,6 +137,6 @@ namespace CsvTools
     ///  Gets or sets a value indicating whether to warn unknown character.
     /// </summary>
     /// <value><c>true</c> if unknown character should issue a warning; otherwise, <c>false</c>.</value>
-    bool WarnUnknowCharater { get; set; }
+    bool WarnUnknownCharacter { get; set; }
   }
 }

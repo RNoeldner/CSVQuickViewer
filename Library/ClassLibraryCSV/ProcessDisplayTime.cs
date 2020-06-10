@@ -17,7 +17,7 @@ using System.Threading;
 
 namespace CsvTools
 {
-  public class ProcessDisplayTime : DummyProcessDisplay, IProcessDisplayTime
+  public sealed class ProcessDisplayTime : DummyProcessDisplay, IProcessDisplayTime
   {
     /// <summary>
     ///   Initializes a new instance of the <see cref="DummyProcessDisplay" /> class.
@@ -25,7 +25,7 @@ namespace CsvTools
     /// <param name="cancellationToken">The cancellation token.</param>
     public ProcessDisplayTime(CancellationToken cancellationToken) : base(cancellationToken) => TimeToCompletion = new TimeToCompletion();
 
-    public virtual event EventHandler<long> SetMaximum;
+    public event EventHandler<long> SetMaximum;
 
     /// <summary>
     ///   Gets or sets the maximum value for the Progress

@@ -67,7 +67,7 @@ namespace CsvTools
     /// <param name="reader">A Data Reader with the data</param>
     /// <param name="output">The output.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    protected override async Task WriteReaderAsync(IFileReader reader, Stream output,
+    protected override async Task WriteReaderAsync([NotNull] IFileReader reader, [NotNull] Stream output,
       CancellationToken cancellationToken)
     {
       Contract.Assume(!string.IsNullOrEmpty(m_StructuredWriterFile.FullPath));
@@ -89,7 +89,7 @@ namespace CsvTools
           sbH.Append(ReplacePlaceHolder(m_StructuredWriterFile.Header));
           if (!m_StructuredWriterFile.Header.EndsWith(recordEnd, StringComparison.Ordinal))
             sbH.Append(recordEnd);
-          await writer.WriteAsync(sbH.ToString());
+          await writer.WriteAsync(sbH.ToString()).ConfigureAwait(false);
         }
 
         // Static template for the row, built once
@@ -118,7 +118,7 @@ namespace CsvTools
         var
           sb = new StringBuilder(
             1024); // Assume a capacity of 1024 characters to start, data is flushed every 512 chars
-        while (await reader.ReadAsync() && !cancellationToken.IsCancellationRequested)
+        while (await reader.ReadAsync().ConfigureAwait(false) && !cancellationToken.IsCancellationRequested)
         {
           NextRecord();
 
@@ -141,16 +141,16 @@ namespace CsvTools
           sb.Append(row);
 
           if (sb.Length <= 512) continue;
-          await writer.WriteAsync(sb.ToString());
+          await writer.WriteAsync(sb.ToString()).ConfigureAwait(false);
           sb.Length = 0;
         }
 
         if (sb.Length > 0)
-          await writer.WriteAsync(sb.ToString());
+          await writer.WriteAsync(sb.ToString()).ConfigureAwait(false);
 
         // Footer
         if (!string.IsNullOrEmpty(m_StructuredWriterFile.Footer))
-          await writer.WriteAsync(ReplacePlaceHolder(m_StructuredWriterFile.Footer));
+          await writer.WriteAsync(ReplacePlaceHolder(m_StructuredWriterFile.Footer)).ConfigureAwait(false);
       }
     }
   }

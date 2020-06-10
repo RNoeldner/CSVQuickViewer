@@ -251,7 +251,7 @@ namespace CsvTools
       csvDest.TreatLFAsSpace = csvSrc.TreatLFAsSpace;
       csvDest.TreatNBSPAsSpace = csvSrc.TreatNBSPAsSpace;
       csvDest.TreatTextAsNull = csvSrc.TreatTextAsNull;
-      csvDest.TreatUnknowCharaterAsSpace = csvSrc.TreatUnknowCharaterAsSpace;
+      csvDest.TreatUnknownCharacterAsSpace = csvSrc.TreatUnknownCharacterAsSpace;
       csvDest.TrimmingOption = csvSrc.TrimmingOption;
       csvDest.TryToSolveMoreColumns = csvSrc.TryToSolveMoreColumns;
       csvDest.WarnDelimiterInValue = csvSrc.WarnDelimiterInValue;
@@ -260,7 +260,7 @@ namespace CsvTools
       csvDest.WarnNBSP = csvSrc.WarnNBSP;
       csvDest.WarnQuotes = csvSrc.WarnQuotes;
       csvDest.WarnQuotesInQuotes = csvSrc.WarnQuotesInQuotes;
-      csvDest.WarnUnknowCharater = csvSrc.WarnUnknowCharater;
+      csvDest.WarnUnknownCharacter = csvSrc.WarnUnknownCharacter;
       csvSrc.FileFormat.CopyTo(csvDest.FileFormat);
     }
   }

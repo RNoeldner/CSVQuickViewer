@@ -213,7 +213,6 @@
     <Compile Include="MimicSQLReader.cs" />
     <Compile Include="TimeToCompletionTests.cs" />
     <Compile Include="UnitTestInitialize.cs" />
-    <Compile Include="ValidationResultTests.cs" />
     <Compile Include="ValueFormatTest.cs" />
     <Compile Include="CsvFileTest.cs" />
     <Compile Include="FieldMappingTest.cs" />

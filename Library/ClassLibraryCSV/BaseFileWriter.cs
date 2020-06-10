@@ -83,10 +83,10 @@ namespace CsvTools
         return 0;
       if (FunctionalDI.SQLDataReader == null)
         throw new ArgumentException("No Async SQL Reader set");
-      using (var sqlReader = await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement, m_ProcessDisplay, m_FileSetting.Timeout))
+      using (var sqlReader = await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement, m_ProcessDisplay, m_FileSetting.Timeout).ConfigureAwait(false))
       {
-        await sqlReader.OpenAsync();
-        return await WriteAsync(sqlReader);
+        await sqlReader.OpenAsync().ConfigureAwait(false);
+        return await WriteAsync(sqlReader).ConfigureAwait(false);
       }
     }
 
@@ -108,7 +108,7 @@ namespace CsvTools
           //  await reader.OpenAsync();
 
           await WriteReaderAsync(reader, improvedStream.Stream,
-            m_ProcessDisplay?.CancellationToken ?? CancellationToken.None);
+            m_ProcessDisplay?.CancellationToken ?? CancellationToken.None).ConfigureAwait(false);
         }
       }
       catch (Exception exc)
@@ -125,7 +125,7 @@ namespace CsvTools
       return Records;
     }
 
-    protected virtual string ReplacePlaceHolder(string input) => input.PlaceholderReplace("ID", m_FileSetting.ID)
+    protected string ReplacePlaceHolder(string input) => input.PlaceholderReplace("ID", m_FileSetting.ID)
       .PlaceholderReplace("FileName", m_FileSetting.FileName)
       .PlaceholderReplace("Records", string.Format(new CultureInfo("en-US"), "{0:n0}", Records))
       .PlaceholderReplace("Delim", m_FileSetting.FileFormat.FieldDelimiterChar.ToString(CultureInfo.CurrentCulture))
@@ -137,7 +137,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="columnName">The column name.</param>
     /// <param name="message">The message.</param>
-    protected virtual void HandleError(string columnName, string message) =>
+    protected void HandleError(string columnName, string message) =>
       Warning?.Invoke(this, new WarningEventArgs(Records, 0, message, 0, 0, columnName));
 
     // protected void HandleProgress(string text, int progress) =>
@@ -183,7 +183,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="columnName">The column.</param>
     /// <param name="message">The message.</param>
-    protected virtual void HandleWarning(string columnName, string message) => Warning?.Invoke(this,
+    protected void HandleWarning(string columnName, string message) => Warning?.Invoke(this,
       new WarningEventArgs(Records, 0, message.AddWarningId(), 0, 0, columnName));
 
     private void HandleWriteFinished()
@@ -287,7 +287,10 @@ namespace CsvTools
                 displayAs = ((Guid) dataObject).ToString();
                 break;
 
-              default:
+              case DataType.String:
+              case DataType.TextToHtml:
+              case DataType.TextToHtmlFull:
+              case DataType.TextPart:
                 displayAs = dataObject.ToString();
                 if (columnInfo.Column.ValueFormat.DataType == DataType.TextToHtml)
                   displayAs = HTMLStyle.TextToHtmlEncode(displayAs);
@@ -302,7 +305,9 @@ namespace CsvTools
 
                 if (fileFormat.QuotePlaceholder.Length > 0 && fileFormat.FieldQualifier.Length > 0)
                   displayAs = displayAs.Replace(fileFormat.FieldQualifier, fileFormat.QuotePlaceholder);
-
+                break;
+              default:
+                displayAs = string.Empty;
                 break;
             }
         }

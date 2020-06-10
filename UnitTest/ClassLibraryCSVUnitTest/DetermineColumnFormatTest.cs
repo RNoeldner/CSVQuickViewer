@@ -70,7 +70,7 @@ namespace CsvTools.Tests
             {
               DetectNumbers = true,
               DetectDateTime = true,
-              DectectPercentage = true,
+              DetectPercentage = true,
               DetectBoolean = true,
               DetectGUID = true,
               IgnoreIdColumns = true
@@ -166,7 +166,7 @@ namespace CsvTools.Tests
       {
         DetectNumbers = true,
         DetectDateTime = true,
-        DectectPercentage = true,
+        DetectPercentage = true,
         DetectBoolean = true,
         DetectGUID = true,
         IgnoreIdColumns = false
@@ -349,7 +349,7 @@ namespace CsvTools.Tests
       {
         DetectNumbers = true,
         DetectDateTime = true,
-        DectectPercentage = true,
+        DetectPercentage = true,
         DetectBoolean = true,
         DetectGUID = true,
         IgnoreIdColumns = false
@@ -378,7 +378,7 @@ namespace CsvTools.Tests
       {
         DetectNumbers = true,
         DetectDateTime = true,
-        DectectPercentage = true,
+        DetectPercentage = true,
         DetectBoolean = true,
         DetectGUID = true,
         DateParts = true,
@@ -414,7 +414,7 @@ namespace CsvTools.Tests
       {
         DetectNumbers = true,
         DetectDateTime = true,
-        DectectPercentage = true,
+        DetectPercentage = true,
         DetectBoolean = true,
         DetectGUID = true,
         IgnoreIdColumns = false
@@ -445,7 +445,7 @@ namespace CsvTools.Tests
       {
         DetectNumbers = true,
         DetectDateTime = true,
-        DectectPercentage = true,
+        DetectPercentage = true,
         DetectBoolean = true,
         DetectGUID = true,
         IgnoreIdColumns = true
@@ -488,7 +488,7 @@ namespace CsvTools.Tests
       {
         DetectNumbers = true,
         DetectDateTime = true,
-        DectectPercentage = true,
+        DetectPercentage = true,
         DetectBoolean = true,
         DetectGUID = true,
         IgnoreIdColumns = true
@@ -536,7 +536,7 @@ namespace CsvTools.Tests
       {
         DetectNumbers = true,
         DetectDateTime = true,
-        DectectPercentage = true,
+        DetectPercentage = true,
         DetectBoolean = true,
         DetectGUID = true,
         IgnoreIdColumns = true
@@ -627,7 +627,7 @@ namespace CsvTools.Tests
       {
         DetectNumbers = true,
         DetectDateTime = true,
-        DectectPercentage = true,
+        DetectPercentage = true,
         DetectBoolean = true,
         DetectGUID = true,
         IgnoreIdColumns = true

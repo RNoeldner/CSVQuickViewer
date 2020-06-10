@@ -56,12 +56,10 @@ namespace CsvTools
     private string m_DateSeparator = cDateSeparatorDefault;
 
     private string m_DecimalSeparator = cDecimalSeparatorDefault;
-    private char m_DecimalSeparatorChar = cDecimalSeparatorDefault[0];
 
     private string m_False = cFalseDefault;
 
     private string m_GroupSeparator = cGroupSeparatorDefault;
-    private char m_GroupSeparatorChar = '\0';
 
     private string m_NumberFormat = cNumberFormatDefault;
 
@@ -85,10 +83,10 @@ namespace CsvTools
     public ValueFormat(DataType dataType) => m_DataType = dataType;
 
     [XmlIgnore]
-    public char GroupSeparatorChar => m_GroupSeparatorChar;
+    public char GroupSeparatorChar { get; private set; } = '\0';
 
     [XmlIgnore]
-    public char DecimalSeparatorChar => m_DecimalSeparatorChar;
+    public char DecimalSeparatorChar { get; private set; } = cDecimalSeparatorDefault[0];
 
     /// <summary>
     ///   Gets or sets the type of the data.
@@ -195,12 +193,12 @@ namespace CsvTools
         if (m_GroupSeparator.Equals(newVal, StringComparison.Ordinal))
         {
           m_GroupSeparator = m_DecimalSeparator;
-          m_GroupSeparatorChar = m_GroupSeparator.GetFirstChar();
+          GroupSeparatorChar = m_GroupSeparator.GetFirstChar();
           NotifyPropertyChanged(nameof(GroupSeparator));
         }
 
         m_DecimalSeparator = newVal;
-        m_DecimalSeparatorChar = m_DecimalSeparator.GetFirstChar();
+        DecimalSeparatorChar = m_DecimalSeparator.GetFirstChar();
         NotifyPropertyChanged(nameof(DecimalSeparator));
       }
     }
@@ -249,12 +247,12 @@ namespace CsvTools
         if (m_DecimalSeparator.Equals(newVal, StringComparison.Ordinal))
         {
           m_DecimalSeparator = m_GroupSeparator;
-          m_DecimalSeparatorChar = m_DecimalSeparator.GetFirstChar();
+          DecimalSeparatorChar = m_DecimalSeparator.GetFirstChar();
           NotifyPropertyChanged(nameof(DecimalSeparator));
         }
 
         m_GroupSeparator = newVal;
-        m_GroupSeparatorChar = m_GroupSeparator.GetFirstChar();
+        GroupSeparatorChar = m_GroupSeparator.GetFirstChar();
         NotifyPropertyChanged(nameof(GroupSeparator));
       }
     }
@@ -292,10 +290,10 @@ namespace CsvTools
       set
       {
         var chr = FileFormat.GetChar(value);
-        var newval = chr != '\0' ? chr.ToString(CultureInfo.CurrentCulture) : string.Empty;
-        if (m_TimeSeparator.Equals(newval, StringComparison.Ordinal))
+        var newVal = chr != '\0' ? chr.ToString(CultureInfo.CurrentCulture) : string.Empty;
+        if (m_TimeSeparator.Equals(newVal, StringComparison.Ordinal))
           return;
-        m_TimeSeparator = newval;
+        m_TimeSeparator = newVal;
         NotifyPropertyChanged(nameof(TimeSeparator));
       }
     }
@@ -520,9 +518,10 @@ namespace CsvTools
           && m_DataType == DataType.Integer)
         return true;
 
+      // ReSharper disable once SwitchStatementMissingSomeEnumCasesNoDefault
       switch (expected.DataType)
       {
-        case DataType.Integer when (m_DataType == DataType.Numeric || m_DataType == DataType.Double || m_DataType == DataType.Integer):
+        case DataType.Integer when m_DataType == DataType.Numeric || m_DataType == DataType.Double || m_DataType == DataType.Integer:
           return true;
         // if we have dates, check the formats
         case DataType.DateTime when m_DataType == DataType.DateTime:

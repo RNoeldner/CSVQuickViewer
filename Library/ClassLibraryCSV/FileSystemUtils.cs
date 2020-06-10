@@ -191,7 +191,10 @@ namespace CsvTools
 
     public static long FileLength([NotNull] string fileName) => new FileInfo(fileName).Length;
     public static DateTime GetLastWriteTimeUtc([NotNull] string fileName) => new FileInfo(fileName).LastWriteTimeUtc;
-    public static DateTime SetLastWriteTimeUtc([NotNull] string fileName, DateTime newTime) => new FileInfo(fileName).LastWriteTimeUtc = newTime;
+    public static void SetLastWriteTimeUtc([NotNull] string fileName, DateTime newTime)
+    {
+      new FileInfo(fileName).LastWriteTimeUtc = newTime;
+    }
 
     [NotNull]
     public static string[] GetFiles([NotNull] string folder, [NotNull] string searchPattern)

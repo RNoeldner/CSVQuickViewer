@@ -130,6 +130,16 @@ namespace CsvTools
             case DataType.DateTime:
               fieldLength = valueFormat.DateFormat.Length;
               break;
+            case DataType.Guid:
+              fieldLength = 36;
+              break;
+            case DataType.String:
+            case DataType.TextToHtml:
+            case DataType.TextToHtmlFull:
+            case DataType.TextPart:
+              break;
+            default:
+              throw new ArgumentOutOfRangeException();
           }
 
           var ci = new ColumnInfo(new Column(colName[colNo], valueFormat), fieldLength, false, colNo);
@@ -156,17 +166,16 @@ namespace CsvTools
           result.Add(ci);
 
           // add an extra column for the time, reading columns get combined, writing they get separated
-          if (column != null && !string.IsNullOrEmpty(column.TimePart) && !colName.ContainsValue(column.TimePart))
-          {
-            if (ci.Column.ValueFormat.DateFormat.IndexOfAny(new[] {'h', 'H', 'm', 's'}) != -1)
-              Logger.Warning(
-                $"'{ci.Column.Name}' will create a separate time column '{column.TimePart}' but seems to write time itself '{ci.Column.ValueFormat.DateFormat}'");
-            // In case we have a split column, add the second column (unless the column is also present
-            result.Add(new ColumnInfo(
-              new Column(column.TimePart, column.TimePartFormat)
-                {ValueFormat = {TimeSeparator = column.ValueFormat.TimeSeparator}}, column.TimePartFormat.Length, true,
-              colNo));
-          }
+          if (column == null || string.IsNullOrEmpty(column.TimePart) ||
+              colName.ContainsValue(column.TimePart)) continue;
+          if (ci.Column.ValueFormat.DateFormat.IndexOfAny(new[] {'h', 'H', 'm', 's'}) != -1)
+            Logger.Warning(
+              $"'{ci.Column.Name}' will create a separate time column '{column.TimePart}' but seems to write time itself '{ci.Column.ValueFormat.DateFormat}'");
+          // In case we have a split column, add the second column (unless the column is also present
+          result.Add(new ColumnInfo(
+            new Column(column.TimePart, column.TimePartFormat)
+              {ValueFormat = {TimeSeparator = column.ValueFormat.TimeSeparator}}, column.TimePartFormat.Length, true,
+            colNo));
         }
       }
 

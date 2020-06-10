@@ -2,13 +2,13 @@
 
 namespace CsvTools
 {
-  public class DataTableSetting : BaseSettings, IFileSetting
+  public sealed class DataTableSetting : BaseSettings, IFileSetting
   {
     public DataTableSetting(string tableName)
     {
-      base.FileName = tableName;
-      base.ID = Guid.NewGuid().ToString();
-      base.HasFieldHeader = true;
+      FileName = tableName;
+      ID = Guid.NewGuid().ToString();
+      HasFieldHeader = true;
     }
 
     public IFileSetting Clone()
@@ -18,7 +18,7 @@ namespace CsvTools
       return other;
     }
 
-    public virtual bool Equals(IFileSetting other)
+    public bool Equals(IFileSetting other)
     {
       if (other is null)
         return false;

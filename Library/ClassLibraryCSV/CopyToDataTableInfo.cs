@@ -146,11 +146,11 @@ namespace CsvTools
         foreach (var prev in allValues)
           previousDataRow.RowError = previousDataRow.RowError.AddMessage(prev);
       }
-      if (m_IncludeErrorField)
-      {
-        foreach (var prev in allValues)
-          previousDataRow[m_Error] = previousDataRow[m_Error].ToString().AddMessage(prev);
-      }
+
+      if (!m_IncludeErrorField) return;
+
+      foreach (var prev in allValues)
+        previousDataRow[m_Error] = previousDataRow[m_Error].ToString().AddMessage(prev);
     }
   }
 }

@@ -58,11 +58,13 @@ namespace CsvTools
     ///   Gets the process display.
     /// </summary>
     /// <value>The process display.</value>
+    // ReSharper disable once UnusedMember.Global
     IProcessDisplay ProcessDisplay { get; }
 
     bool SupportsReset { get; }
 
     [Obsolete("Use ReadAsync if possible")]
+    // ReSharper disable once UnusedMemberInSuper.Global
     new bool Read();
 
     /// <summary>
@@ -72,6 +74,7 @@ namespace CsvTools
     ///   <see langword="true" /> if there are more rows; otherwise, <see langword="false" />.
     /// </returns>
     [Obsolete("Not supported")]
+    // ReSharper disable once UnusedMember.Global
     new bool NextResult();
 
     /// <summary>

@@ -21,7 +21,7 @@ namespace CsvTools
   /// <summary>
   ///   Stores all Messages for a reader
   /// </summary>
-  public class RowErrorCollection
+  public sealed class RowErrorCollection
   {
     private readonly int m_MaxRows = int.MaxValue;
 
@@ -45,13 +45,13 @@ namespace CsvTools
     ///   Number of Rows in the warning list
     /// </summary>
     /// <value>The number of warnings</value>
-    public virtual int CountRows => m_RowErrorCollection.Count;
+    public int CountRows => m_RowErrorCollection.Count;
 
     /// <summary>
     ///   Combines all messages in order to display them
     /// </summary>
     /// <value>One string with all messages</value>
-    public virtual string Display
+    public string Display
     {
       get
       {
@@ -70,7 +70,7 @@ namespace CsvTools
       }
     }
 
-    public virtual string DisplayByRecordNumber
+    public string DisplayByRecordNumber
     {
       get
       {
@@ -126,7 +126,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="args"></param>
-    public virtual void Add(object sender, WarningEventArgs args)
+    public void Add(object sender, WarningEventArgs args)
     {
       if (m_IgnoredColumns != null && m_IgnoredColumns.Contains(args.ColumnNumber) || CountRows >= m_MaxRows)
         return;

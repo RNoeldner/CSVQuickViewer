@@ -17,11 +17,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-using System.Diagnostics.Contracts;
 using System.Globalization;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -69,6 +66,8 @@ namespace CsvTools
           return "▲";
         case RecordDelimiterType.US:
           return "▼";
+        case RecordDelimiterType.None:
+          return string.Empty;
         default:
           return string.Empty;
       }
@@ -223,11 +222,9 @@ namespace CsvTools
       }
 
       sb.Append(exception.Message);
-      if (exception.InnerException != null)
-      {
-        sb.Append("\n");
-        sb.Append(exception.InnerExceptionMessages(maxDepth - 1));
-      }
+      if (exception.InnerException == null) return sb.ToString();
+      sb.Append("\n");
+      sb.Append(exception.InnerExceptionMessages(maxDepth - 1));
 
       return sb.ToString();
     }
@@ -237,9 +234,8 @@ namespace CsvTools
     /// </summary>
     /// <param name="type">The type.</param>
     /// <returns>The matching <see cref="DataType" />.</returns>
-    public static DataType GetDataType(this Type type)
+    public static DataType GetDataType([NotNull] this Type type)
     {
-      Contract.Requires(type != null);
       switch (Type.GetTypeCode(type))
       {
         case TypeCode.Boolean:
@@ -271,9 +267,12 @@ namespace CsvTools
         case TypeCode.Object when type.ToString().Equals("System.Guid", StringComparison.Ordinal):
           return DataType.Guid;
 
+        case TypeCode.Char:
+        case TypeCode.String:
         case TypeCode.Object:
+        case TypeCode.Empty:
+        case TypeCode.DBNull:
           return DataType.String;
-
         default:
           return DataType.String;
       }
@@ -312,9 +311,6 @@ namespace CsvTools
     [NotNull]
     public static string GetIdFromFileName([NotNull] this string path)
     {
-      Contract.Requires(path != null);
-      Contract.Ensures(Contract.Result<string>() != null);
-
       var fileName = StringUtils.ProcessByCategory(FileSystemUtils.GetFileName(path), x =>
         x == UnicodeCategory.UppercaseLetter || x == UnicodeCategory.LowercaseLetter ||
         x == UnicodeCategory.OtherLetter ||
@@ -333,9 +329,6 @@ namespace CsvTools
       const string c_Month = @"(0[1-9]|1[012])"; // 01-12
       const string c_Day = @"(0[1-9]|[12]\d|3[01])"; // 01 - 31
 
-      // Replace Dates YYYYMMDDHHMMSS fileName = Regex.Replace(fileName, S + YYYY + S + MM + S + DD
-      // + T + "?" + HH + T + MS + T + "?" + MS + "?" + TT, string.Empty, RegexOptions.IgnoreCase |
-      // RegexOptions.Singleline | RegexOptions.CultureInvariant);
 
       // Replace Dates YYYYMMDD / MMDDYYYY / DDMMYYYY
       fileName = Regex.Replace(fileName,
@@ -347,14 +340,7 @@ namespace CsvTools
       fileName = Regex.Replace(fileName,
         c_DateSep + c_Hour + c_TimeSep + c_MinSec + c_TimeSep + c_MinSec + "?" + c_AmPm, string.Empty,
         RegexOptions.IgnoreCase | RegexOptions.Singleline);
-      /*
-      // Replace Dates YYMMDD
-      fileName = Regex.Replace(fileName, "(" + DateSep + YY + DateSep + MM + DateSep + DD + DateSep + ")", string.Empty, RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.CultureInvariant);
-      // Replace Dates MMDDYY
-      fileName = Regex.Replace(fileName, "(" + DateSep + MM + DateSep + DD + DateSep + YY + DateSep + ")", string.Empty, RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.CultureInvariant);
-      // Replace Dates DDMMYY
-      fileName = Regex.Replace(fileName, "(" + DateSep + DD + DateSep + MM + DateSep + YY + DateSep + ")", string.Empty, RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.CultureInvariant);
-      */
+      
       return fileName.Trim('_', '-', ' ', '\t').Replace("__", "_").Replace("__", "_").Replace("--", "-")
         .Replace("--", "-");
     }
@@ -366,8 +352,6 @@ namespace CsvTools
     /// <returns>The .NET Type</returns>
     public static Type GetNetType(this DataType dt)
     {
-      Contract.Ensures(Contract.Result<Type>() != null);
-
       switch (dt)
       {
         case DataType.DateTime:
@@ -391,6 +375,12 @@ namespace CsvTools
         case DataType.Guid:
           return typeof(Guid);
 
+        case DataType.String:
+        case DataType.TextToHtml:
+        case DataType.TextToHtmlFull:
+        case DataType.TextPart:
+          return typeof(string);
+
         default:
           return typeof(string);
       }
@@ -403,12 +393,7 @@ namespace CsvTools
     /// <param name="dataTable">The <see cref="DataTable" /> containing the columns</param>
     /// <returns>A enumeration of ColumnNames</returns>
     [NotNull]
-    public static IEnumerable<string> GetRealColumns([CanBeNull] this DataTable dataTable)
-    {
-      Contract.Ensures(Contract.Result<IEnumerable<string>>() != null);
-      foreach (var x in GetRealDataColumns(dataTable))
-        yield return x.ColumnName;
-    }
+    public static IEnumerable<string> GetRealColumns([CanBeNull] this DataTable dataTable) => GetRealDataColumns(dataTable).Select(x => x.ColumnName);
 
     /// <summary>
     ///   Get a list of columns that are not artificial
@@ -418,8 +403,6 @@ namespace CsvTools
     [NotNull]
     public static IEnumerable<DataColumn> GetRealDataColumns([CanBeNull] this DataTable dataTable)
     {
-      Contract.Ensures(Contract.Result<IEnumerable<DataColumn>>() != null);
-
       if (dataTable == null)
         yield break;
       foreach (DataColumn col in dataTable.Columns)
@@ -433,12 +416,10 @@ namespace CsvTools
     /// <param name="exception">The exception of type <see cref="Exception" /></param>
     /// <param name="maxDepth">The maximum depth.</param>
     /// <returns>A string with all inner messages of the error stack</returns>
-    [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
     [DebuggerStepThrough]
     [NotNull]
     public static string InnerExceptionMessages([CanBeNull] this Exception exception, int maxDepth = 2)
     {
-      Contract.Ensures(Contract.Result<string>() != null);
       if (exception == null)
         return string.Empty;
       try
@@ -567,7 +548,6 @@ namespace CsvTools
     public static IEnumerable<string> RemoveMappingWithoutSource([CanBeNull] this IFileSetting fileSetting,
       [CanBeNull] IEnumerable<string> columns)
     {
-      Contract.Ensures(Contract.Result<IEnumerable<string>>() != null);
       var notFoundColumnNames = new List<string>();
 
       if (fileSetting == null || columns == null)
@@ -602,9 +582,6 @@ namespace CsvTools
     [NotNull]
     public static string ReplaceCaseInsensitive([NotNull] this string original, [CanBeNull] string pattern, char replacement)
     {
-      Contract.Requires(original != null);
-      Contract.Ensures(Contract.Result<string>() != null);
-
       var count = 0;
       var position0 = 0;
       int position1;
@@ -644,9 +621,6 @@ namespace CsvTools
     [NotNull]
     public static string ReplaceCaseInsensitive([NotNull] this string original, [CanBeNull] string pattern, [CanBeNull] string replacement)
     {
-      Contract.Requires(original != null);
-      Contract.Ensures(Contract.Result<string>() != null);
-
       if (string.IsNullOrEmpty(pattern))
         return original;
 
@@ -696,9 +670,6 @@ namespace CsvTools
     [NotNull]
     public static string ReplaceDefaults([NotNull] this string inputValue, [CanBeNull] string old1, [CanBeNull] string new1, [CanBeNull] string old2, [CanBeNull] string new2)
     {
-      Contract.Requires(!string.IsNullOrEmpty(old1));
-      Contract.Ensures(Contract.Result<string>() != null);
-
       if (string.IsNullOrEmpty(inputValue))
         return string.Empty;
 
@@ -743,7 +714,7 @@ namespace CsvTools
       foreach (Match match in rgx.Matches(template))
         if (!placeholder.ContainsKey(match.Value))
         {
-          PropertyInfo prop = props.FirstOrDefault(
+          var prop = props.FirstOrDefault(
             x => x.Name.Equals(match.Value.Substring(1, match.Value.Length - 2), StringComparison.OrdinalIgnoreCase));
 
           if (prop != null)
@@ -923,8 +894,6 @@ namespace CsvTools
     /// <returns>return '\0' if the text was not interpreted as punctuation</returns>
     public static char WrittenPunctuationToChar([NotNull] this string inputString)
     {
-      Contract.Requires(inputString != null);
-
       if (inputString.Equals("Tab", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("Tabulator", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("Horizontal Tab", StringComparison.OrdinalIgnoreCase) ||

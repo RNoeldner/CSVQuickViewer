@@ -56,7 +56,7 @@ namespace CsvTools
             colType[col] = detected;
         }
         // get the next record
-        if (!await ReadAsync())
+        if (!await ReadAsync().ConfigureAwait(false))
           break;
       }
 

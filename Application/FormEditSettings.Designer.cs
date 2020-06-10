@@ -724,7 +724,7 @@
       // 
       this.checkBoxTreatUnknowCharaterAsSpace.AutoSize = true;
       this.checkBoxTreatUnknowCharaterAsSpace.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
-      this.checkBoxTreatUnknowCharaterAsSpace.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fileSettingBindingSource, "TreatUnknowCharaterAsSpace", true));
+      this.checkBoxTreatUnknowCharaterAsSpace.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fileSettingBindingSource, "TreatUnknownCharacterAsSpace", true));
       this.checkBoxTreatUnknowCharaterAsSpace.Location = new System.Drawing.Point(2, 163);
       this.checkBoxTreatUnknowCharaterAsSpace.Margin = new System.Windows.Forms.Padding(2);
       this.checkBoxTreatUnknowCharaterAsSpace.Name = "checkBoxTreatUnknowCharaterAsSpace";
@@ -901,7 +901,7 @@
       // 
       this.checkBoxWarnUnknowCharater.AutoSize = true;
       tableLayoutPanelWarnings.SetColumnSpan(this.checkBoxWarnUnknowCharater, 2);
-      this.checkBoxWarnUnknowCharater.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fileSettingBindingSource, "WarnUnknowCharater", true));
+      this.checkBoxWarnUnknowCharater.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fileSettingBindingSource, "WarnUnknownCharacter", true));
       this.checkBoxWarnUnknowCharater.Location = new System.Drawing.Point(2, 94);
       this.checkBoxWarnUnknowCharater.Margin = new System.Windows.Forms.Padding(2);
       this.checkBoxWarnUnknowCharater.Name = "checkBoxWarnUnknowCharater";

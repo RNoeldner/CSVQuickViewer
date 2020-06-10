@@ -972,7 +972,7 @@ Line "Test"", "22",23,"  24"
       setting.FileName = UnitTestInitialize.GetTestPath("SimpleDelimiterWithControlCharacters.txt");
       setting.FileFormat.CommentLine = "#";
       setting.WarnNBSP = true;
-      setting.WarnUnknowCharater = true;
+      setting.WarnUnknownCharacter = true;
 
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
@@ -1020,10 +1020,10 @@ Line "Test"", "22",23,"  24"
       var setting = new CsvFile
       {
         HasFieldHeader = true,
-        TreatUnknowCharaterAsSpace = true,
+        TreatUnknownCharacterAsSpace = true,
         TreatNBSPAsSpace = true,
         WarnNBSP = true,
-        WarnUnknowCharater = true,
+        WarnUnknownCharacter = true,
         TrimmingOption = TrimmingOption.None
       };
       setting.FileFormat.FieldDelimiter = ",";

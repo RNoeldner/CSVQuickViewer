@@ -412,7 +412,7 @@ namespace CsvTools
           || e.PropertyName == nameof(ICsvFile.TreatLFAsSpace)
           || e.PropertyName == nameof(ICsvFile.TreatNBSPAsSpace)
           || e.PropertyName == nameof(ICsvFile.TreatTextAsNull)
-          || e.PropertyName == nameof(ICsvFile.TreatUnknowCharaterAsSpace)
+          || e.PropertyName == nameof(ICsvFile.TreatUnknownCharacterAsSpace)
           || e.PropertyName == nameof(ICsvFile.TryToSolveMoreColumns)
           || e.PropertyName == nameof(ICsvFile.WarnDelimiterInValue)
           || e.PropertyName == nameof(ICsvFile.WarnEmptyTailingColumns)
@@ -420,10 +420,10 @@ namespace CsvTools
           || e.PropertyName == nameof(ICsvFile.WarnNBSP)
           || e.PropertyName == nameof(ICsvFile.WarnQuotes)
           || e.PropertyName == nameof(ICsvFile.WarnQuotesInQuotes)
-          || e.PropertyName == nameof(ICsvFile.WarnUnknowCharater)
+          || e.PropertyName == nameof(ICsvFile.WarnUnknownCharacter)
           || e.PropertyName == nameof(ICsvFile.DisplayStartLineNo)
           || e.PropertyName == nameof(ICsvFile.DisplayRecordNo)
-          || e.PropertyName == nameof(ICsvFile.WarnUnknowCharater)
+          || e.PropertyName == nameof(ICsvFile.WarnUnknownCharacter)
           || e.PropertyName == nameof(ICsvFile.FileName))
         m_ConfigChanged = true;
     }

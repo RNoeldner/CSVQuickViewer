@@ -83,11 +83,11 @@ namespace CsvTools
       {
         var sb = WriterStart(reader, out var recordEnd);
 
-        while (await reader.ReadAsync() && !cancellationToken.IsCancellationRequested)
+        while (await reader.ReadAsync().ConfigureAwait(false) && !cancellationToken.IsCancellationRequested)
         {
           if (sb.Length > 32768)
           {
-            await writer.WriteAsync(sb.ToString());
+            await writer.WriteAsync(sb.ToString()).ConfigureAwait(false);
             sb.Length = 0;
           }
 
@@ -99,7 +99,7 @@ namespace CsvTools
         else if (sb.Length > 0)
           sb.Length -= recordEnd.Length;
 
-        await writer.WriteAsync(sb.ToString());
+        await writer.WriteAsync(sb.ToString()).ConfigureAwait(false);
       }
     }
 
@@ -154,6 +154,7 @@ namespace CsvTools
           sb.Append(recordEnd);
       }
 
+      // ReSharper disable once InvertIf
       if (m_CsvFile.HasFieldHeader)
       {
         sb.Append(GetHeaderRow(Columns));

@@ -242,7 +242,7 @@ namespace CsvTools
 
         ResetPositionToStartOrOpen();
 
-        m_HeaderRow = await ReadNextRowAsync(false, false);
+        m_HeaderRow = await ReadNextRowAsync(false, false).ConfigureAwait(false);
         if (m_HeaderRow == null || m_HeaderRow.GetLength(0) == 0)
         {
           InitColumn(0);
@@ -250,7 +250,7 @@ namespace CsvTools
         else
         {
           // Get the column count
-          InitColumn(await ParseFieldCountAsync(m_HeaderRow));
+          InitColumn(await ParseFieldCountAsync(m_HeaderRow).ConfigureAwait(false));
 
           // Get the column names
           ParseColumnName(m_HeaderRow);
@@ -258,7 +258,7 @@ namespace CsvTools
 
         FinishOpen();
 
-        await ResetPositionToFirstDataRowAsync();
+        await ResetPositionToFirstDataRowAsync().ConfigureAwait(false);
 
         if (m_CsvFile.TryToSolveMoreColumns && m_CsvFile.FileFormat.FieldDelimiterChar != '\0')
           m_RealignColumns = new ReAlignColumns(FieldCount);
@@ -286,7 +286,7 @@ namespace CsvTools
     {
       if (!CancellationToken.IsCancellationRequested)
       {
-        var couldRead = await GetNextRecordAsync();
+        var couldRead = await GetNextRecordAsync().ConfigureAwait(false);
 
         InfoDisplay(couldRead);
 
@@ -306,7 +306,7 @@ namespace CsvTools
       ResetPositionToStartOrOpen();
       if (m_CsvFile.HasFieldHeader)
         // Read the header row, this could be more than one line
-        await ReadNextRowAsync(false, false);
+        await ReadNextRowAsync(false, false).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -371,7 +371,7 @@ namespace CsvTools
     {
       EndLineNumber++;
       if (EndOfFile) return;
-      var nextChar = await PeekAsync();
+      var nextChar = await PeekAsync().ConfigureAwait(false);
       if ((character != c_Cr || nextChar != c_Lf) && (character != c_Lf || nextChar != c_Cr)) return;
 
       // New line sequence is either CRLF or LFCR, disregard the character
@@ -413,7 +413,7 @@ namespace CsvTools
       // check if the next lines do have data in the last column
       for (var additional = 0; !EndOfFile && additional < 10; additional++)
       {
-        var nextLine = await ReadNextRowAsync(false, false);
+        var nextLine = await ReadNextRowAsync(false, false).ConfigureAwait(false);
 
         // if we have less columns than in the header exit the loop
         if (nextLine.GetLength(0) < fields)
@@ -435,6 +435,7 @@ namespace CsvTools
           return fields;
       }
 
+      // ReSharper disable once InvertIf
       if (string.IsNullOrEmpty(headerRow[headerRow.Count - 1]))
       {
         HandleWarning(
@@ -453,7 +454,7 @@ namespace CsvTools
     /// <returns>The next char</returns>
     private async Task<char> PeekAsync()
     {
-      var res = await m_TextReader.PeekAsync();
+      var res = await m_TextReader.PeekAsync().ConfigureAwait(false);
       if (res != -1) return (char)res;
       EndOfFile = true;
 
@@ -503,7 +504,7 @@ namespace CsvTools
       while (!EndOfFile)
       {
         // Increase position
-        var character = await PeekAsync();
+        var character = await PeekAsync().ConfigureAwait(false);
         MoveNext(character);
 
         var escaped = character == m_CsvFile.FileFormat.EscapeCharacterChar && !postData;
@@ -511,7 +512,7 @@ namespace CsvTools
         // Handle escaped characters
         if (escaped)
         {
-          var nextChar = await PeekAsync();
+          var nextChar = await PeekAsync().ConfigureAwait(false);
           if (!EndOfFile)
           {
             MoveNext(nextChar);
@@ -553,7 +554,7 @@ namespace CsvTools
           var singleLF = true;
           if (!EndOfFile)
           {
-            var nextChar = await PeekAsync();
+            var nextChar = await PeekAsync().ConfigureAwait(false);
             if (nextChar == c_Cr)
               singleLF = false;
           }
@@ -583,7 +584,7 @@ namespace CsvTools
             if (!postData)
             {
               hadUnknownChar = true;
-              if (m_CsvFile.TreatUnknowCharaterAsSpace)
+              if (m_CsvFile.TreatUnknownCharacterAsSpace)
                 character = ' ';
             }
 
@@ -671,7 +672,7 @@ namespace CsvTools
 
         if (m_HasQualifier && character == m_CsvFile.FileFormat.FieldQualifierChar && quoted && !escaped)
         {
-          var peekNextChar = await PeekAsync();
+          var peekNextChar = await PeekAsync().ConfigureAwait(false);
 
           // a "" should be regarded as " if the text is quoted
           if (m_CsvFile.FileFormat.DuplicateQuotingToEscape && peekNextChar == m_CsvFile.FileFormat.FieldQualifierChar)
@@ -681,7 +682,7 @@ namespace CsvTools
             MoveNext(peekNextChar);
 
             // handling for "" that is not only representing a " but also closes the text
-            peekNextChar = await PeekAsync();
+            peekNextChar = await PeekAsync().ConfigureAwait(false);
             if (m_CsvFile.FileFormat.AlternateQuoting && (peekNextChar == m_CsvFile.FileFormat.FieldDelimiterChar
                                                           || peekNextChar == c_Cr
                                                           || peekNextChar == c_Lf)) postData = true;
@@ -737,7 +738,7 @@ namespace CsvTools
               .AddWarningId());
       }
 
-      if (m_CsvFile.WarnUnknowCharater)
+      if (m_CsvFile.WarnUnknownCharacter)
         if (hadUnknownChar)
         {
           WarnUnknownChar(columnNo, false);
@@ -805,7 +806,7 @@ namespace CsvTools
       if (EndOfFile || m_TextReader == null)
         return null;
 
-      var item = await ReadNextColumnAsync(0, storeWarnings);
+      var item = await ReadNextColumnAsync(0, storeWarnings).ConfigureAwait(false);
 
       // An empty line does not have any data
       if (string.IsNullOrEmpty(item) && m_EndOfLine)
@@ -832,7 +833,7 @@ namespace CsvTools
           // it might happen that the comment line contains a Delimiter
           while (!EndOfFile)
           {
-            var character = await PeekAsync();
+            var character = await PeekAsync().ConfigureAwait(false);
             MoveNext(character);
             if (character != c_Cr && character != c_Lf)
               continue;
@@ -884,7 +885,7 @@ namespace CsvTools
         columns.Add(item);
 
         col++;
-        item = await ReadNextColumnAsync(col, storeWarnings);
+        item = await ReadNextColumnAsync(col, storeWarnings).ConfigureAwait(false);
       }
 
       return columns.ToArray();
@@ -895,8 +896,8 @@ namespace CsvTools
     {
       try
       {
-      Restart:
-        CurrentRowColumnText = await ReadNextRowAsync(true, true);
+        Restart:
+        CurrentRowColumnText = await ReadNextRowAsync(true, true).ConfigureAwait(false);
 
         if (AllEmptyAndCountConsecutiveEmptyRows(CurrentRowColumnText))
         {
@@ -910,7 +911,7 @@ namespace CsvTools
 
         RecordNumber++;
         var hasWarningCombinedWarning = false;
-      Restart2:
+        Restart2:
         var rowLength = CurrentRowColumnText.Length;
         if (rowLength == FieldCount)
         {
@@ -958,7 +959,7 @@ namespace CsvTools
             var startLine = StartLineNumber;
 
             // get the next row
-            var nextLine = await ReadNextRowAsync(true, true);
+            var nextLine = await ReadNextRowAsync(true, true).ConfigureAwait(false);
             StartLineNumber = startLine;
 
             // allow up to two extra columns they can be combined later
@@ -1004,6 +1005,7 @@ namespace CsvTools
         }
 
         // If more columns are present
+        // ReSharper disable once InvertIf
         if (rowLength > FieldCount)
         {
           var text = $"Line {cMoreColumns} ({rowLength}/{FieldCount}).";
@@ -1098,7 +1100,7 @@ namespace CsvTools
 
       HandleWarning(
         column,
-        m_CsvFile.TreatUnknowCharaterAsSpace
+        m_CsvFile.TreatUnknownCharacterAsSpace
           ? "Unknown Character '�' found, this character was replaced with space".AddWarningId()
           : "Unknown Character '�' found in field".AddWarningId());
     }
