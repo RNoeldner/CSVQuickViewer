@@ -98,7 +98,7 @@ namespace CsvTools
 
     public override async Task OpenAsync()
     {
-      BeforeOpen("Opening Data Table");
+      await BeforeOpenAsync("Opening Data Table").ConfigureAwait(false);
       InitColumn(m_DataTable.Columns.Count);
 
       // Initialize the Columns

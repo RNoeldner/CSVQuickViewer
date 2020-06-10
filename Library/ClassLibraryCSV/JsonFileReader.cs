@@ -52,7 +52,7 @@ namespace CsvTools
 
     public override async Task OpenAsync()
     {
-      BeforeOpen($"Opening Json file {FileSystemUtils.GetShortDisplayFileName(m_StructuredFile.FileName, 80)}");
+      await  BeforeOpenAsync($"Opening Json file {FileSystemUtils.GetShortDisplayFileName(m_StructuredFile.FileName, 80)}").ConfigureAwait(false);
     Retry:
       try
       {

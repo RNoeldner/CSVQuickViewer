@@ -16,6 +16,7 @@ using System;
 using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 
 namespace CsvTools
 {
@@ -107,10 +108,10 @@ namespace CsvTools
     event EventHandler<WarningEventArgs> Warning;
 
     /// <summary>
-    ///   Occurs before the initial open. Can be used to prepare teh data like download it from a
-    ///   Remote location
+    ///   Occurs before the initial open. Can be used to prepare the data like download it from a
+    ///   remote location
     /// </summary>
-    event EventHandler OnOpen;
+    Func<IFileSetting, Task<DateTime>> OnOpen { set; }
 
     /// <summary>
     ///   Occurs when an open process failed, allowing the user to change the timeout or provide the

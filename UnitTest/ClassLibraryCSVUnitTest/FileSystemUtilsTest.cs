@@ -17,6 +17,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace CsvTools.Tests
 {
@@ -38,7 +39,7 @@ namespace CsvTools.Tests
 
 
     [TestMethod]
-    public void FileCopy()
+    public async Task FileCopy()
     {
       var dest = UnitTestInitialize.GetTestPath("xyz.txt");
       try
@@ -48,12 +49,12 @@ namespace CsvTools.Tests
           processDisplay.Maximum = -100;
 
           Assert.IsFalse(FileSystemUtils.FileExists(dest));
-          FileSystemUtils.FileCopy(UnitTestInitialize.GetTestPath("AllFormats.txt"), dest, processDisplay);
+          await FileSystemUtils.FileCopy(UnitTestInitialize.GetTestPath("AllFormats.txt"), dest, processDisplay);
           Assert.IsTrue(FileSystemUtils.FileExists(dest));
           Assert.AreEqual(-100, processDisplay.Maximum);
 
           // Copy again, the old file should be overwritten
-          FileSystemUtils.FileCopy(UnitTestInitialize.GetTestPath("AlternateTextQualifiers.txt"), dest, processDisplay);
+          await FileSystemUtils.FileCopy(UnitTestInitialize.GetTestPath("AlternateTextQualifiers.txt"), dest, processDisplay);
           Assert.IsTrue(FileSystemUtils.FileExists(dest));
           Assert.AreEqual((new FileInfo(UnitTestInitialize.GetTestPath("AlternateTextQualifiers.txt"))).Length, new FileInfo(dest).Length);
         }

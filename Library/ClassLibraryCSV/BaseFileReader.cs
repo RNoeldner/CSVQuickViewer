@@ -252,7 +252,7 @@ namespace CsvTools
     /// <summary>
     ///   Occurs before the file is opened
     /// </summary>
-    public event EventHandler OnOpen;
+    public Func<IFileSetting, Task<DateTime>> OnOpen { get; set; }
 
     /// <summary>
     ///   Event to be raised if reading the files is completed
@@ -994,18 +994,30 @@ namespace CsvTools
       return dataTable;
     }
 
-    protected void BeforeOpen(string message)
+    protected async Task BeforeOpenAsync(string message)
     {
       HandleShowProgress(message);
 
-      OnOpen?.Invoke(this, new EventArgs());
+      if (FileSetting is IFileSettingPhysicalFile fileSettingPhysical)
+      {
+        if (OnOpen != null)
+        {
+          var destTime = await OnOpen(fileSettingPhysical).ConfigureAwait(false);
+          if (destTime != BaseSettings.ZeroTime)
+            fileSettingPhysical.LatestSourceTimeUtc = destTime;
+        }
 
-      // now a physical file must exist
-      if (FileSetting is IFileSettingPhysicalFile fileSettingPhysical &&
-          !FileSystemUtils.FileExists(fileSettingPhysical.FullPath))
-        throw new FileNotFoundException(
-          $"The file '{FileSystemUtils.GetShortDisplayFileName(fileSettingPhysical.FileName, 80)}' does not exist or is not accessible.",
-          fileSettingPhysical.FileName);
+        // now a physical file must exist
+        if (!FileSystemUtils.FileExists(fileSettingPhysical.FullPath))
+          throw new FileNotFoundException(
+            $"The file '{FileSystemUtils.GetShortDisplayFileName(fileSettingPhysical.FileName, 80)}' does not exist or is not accessible.",
+            fileSettingPhysical.FileName);
+      }
+      else
+      {
+        if (OnOpen != null)
+          await OnOpen(FileSetting).ConfigureAwait(false);
+      }
     }
 
     protected virtual void Dispose(bool disposing)
