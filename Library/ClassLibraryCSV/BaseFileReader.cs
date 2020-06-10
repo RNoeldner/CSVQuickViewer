@@ -1192,7 +1192,7 @@ namespace CsvTools
         return;
       m_IsFinished = true;
       FileSetting.ProcessTimeUtc = DateTime.UtcNow;
-      if (FileSetting is IFileSettingPhysicalFile physicalFile )
+      if (FileSetting is IFileSettingPhysicalFile physicalFile)
       {
         physicalFile.FileSize = FileSystemUtils.FileLength(physicalFile.FullPath);
         Logger.Debug(
@@ -1248,7 +1248,8 @@ namespace CsvTools
     /// <param name="columnNumber">The column number</param>
     /// <param name="handleNullText">if set to <c>true</c> [handle null text].</param>
     /// <returns>The proper encoded or cut text as returned for the column</returns>
-    protected string HandleTextAndSetSize(string inputString, int columnNumber, bool handleNullText)
+    [CanBeNull]
+    protected string HandleTextAndSetSize([CanBeNull] string inputString, int columnNumber, bool handleNullText)
     {
       // in case its not a string
       if (string.IsNullOrEmpty(inputString))
@@ -1266,28 +1267,33 @@ namespace CsvTools
       var column = GetColumn(columnNumber);
       string output;
 
-      // ReSharper disable once ConvertIfStatementToSwitchStatement
-      if (column.ValueFormat.DataType == DataType.TextToHtml)
+      // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
+      switch (column.ValueFormat.DataType)
       {
-        output = HTMLStyle.TextToHtmlEncode(inputString);
-        if (!inputString.Equals(output, StringComparison.Ordinal))
-          HandleWarning(columnNumber, $"HTML encoding removed from {inputString}");
-      }
-      else if (column.ValueFormat.DataType == DataType.TextToHtmlFull)
-      {
-        output = HTMLStyle.HtmlEncodeShort(inputString);
-        if (!inputString.Equals(output, StringComparison.Ordinal))
-          HandleWarning(columnNumber, $"HTML encoding removed from {inputString}");
-      }
-      else if (column.ValueFormat.DataType == DataType.TextPart)
-      {
-        output = StringConversion.StringToTextPart(inputString, column.PartSplitter, column.Part, column.PartToEnd);
-        if (output == null)
-          HandleWarning(columnNumber, $"Part {column.Part} of text {inputString} is empty.");
-      }
-      else
-      {
-        throw new ArgumentOutOfRangeException();
+        case DataType.TextToHtml:
+        {
+          output = HTMLStyle.TextToHtmlEncode(inputString);
+          if (!inputString.Equals(output, StringComparison.Ordinal))
+            HandleWarning(columnNumber, $"HTML encoding removed from {inputString}");
+          break;
+        }
+        case DataType.TextToHtmlFull:
+        {
+          output = HTMLStyle.HtmlEncodeShort(inputString);
+          if (!inputString.Equals(output, StringComparison.Ordinal))
+            HandleWarning(columnNumber, $"HTML encoding removed from {inputString}");
+          break;
+        }
+        case DataType.TextPart:
+        {
+          output = StringConversion.StringToTextPart(inputString, column.PartSplitter, column.Part, column.PartToEnd);
+          if (output == null)
+            HandleWarning(columnNumber, $"Part {column.Part} of text {inputString} is empty.");
+          break;
+        }
+        default:
+          output = inputString;
+          break;
       }
 
       if (string.IsNullOrEmpty(output))
