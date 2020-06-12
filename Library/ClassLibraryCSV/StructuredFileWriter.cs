@@ -151,6 +151,8 @@ namespace CsvTools
         // Footer
         if (!string.IsNullOrEmpty(m_StructuredWriterFile.Footer))
           await writer.WriteAsync(ReplacePlaceHolder(m_StructuredWriterFile.Footer)).ConfigureAwait(false);
+
+        await writer.FlushAsync();
       }
     }
   }

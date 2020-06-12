@@ -58,8 +58,6 @@ namespace CsvTools
 
     private bool m_PartToEnd = c_PartToEnd;
 
-    private int m_Size;
-
     private string m_TimePart = string.Empty;
 
     private string m_TimePartFormat = cDefaultTimePartFormat;
@@ -410,16 +408,6 @@ namespace CsvTools
     [XmlIgnore]
     public virtual bool PartToEndSpecified => ValueFormat.DataType == DataType.TextPart;
 
-    /// <summary>
-    ///   Gets or sets the number consecutive empty rows that should finish a read
-    /// </summary>
-    /// <value>The consecutive empty rows.</value>
-    [XmlIgnore]
-    public virtual int Size
-    {
-      get => m_Size;
-      set => m_Size = value;
-    }
 
     /// <summary>
     ///   Gets or sets the name.
@@ -576,7 +564,6 @@ namespace CsvTools
       other.TimePart = m_TimePart;
       other.TimeZonePart = m_TimeZonePart;
       other.ColumnOrdinal = m_ColumnOrdinal;
-      other.Size = m_Size;
       other.Name = m_Name;
       other.Ignore = m_Ignore;
       if (m_Convert.HasValue)
@@ -602,7 +589,7 @@ namespace CsvTools
              && string.Equals(m_Name, other.m_Name, StringComparison.OrdinalIgnoreCase)
              && string.Equals(m_DestinationName, other.m_DestinationName, StringComparison.OrdinalIgnoreCase)
              && m_Ignore == other.m_Ignore && m_Part == other.m_Part && m_PartSplitter == other.m_PartSplitter
-             && m_PartToEnd == other.m_PartToEnd && m_Size == other.m_Size
+             && m_PartToEnd == other.m_PartToEnd 
              && string.Equals(m_TimePart, other.m_TimePart, StringComparison.OrdinalIgnoreCase)
              && string.Equals(m_TimePartFormat, other.m_TimePartFormat, StringComparison.Ordinal)
              && string.Equals(m_TimeZonePart, other.m_TimeZonePart, StringComparison.OrdinalIgnoreCase)

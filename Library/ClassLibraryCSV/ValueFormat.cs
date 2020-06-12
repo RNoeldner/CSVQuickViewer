@@ -28,7 +28,7 @@ namespace CsvTools
   /// </summary>
   [Serializable]
   [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
-  public class ValueFormat : ICloneable<ValueFormat>, IEquatable<ValueFormat>, INotifyPropertyChanged
+  public class ValueFormat : IValueFormat, ICloneable<ValueFormat>, IEquatable<ValueFormat>, INotifyPropertyChanged
   {
     /// <summary>
     ///   The default date format
@@ -138,6 +138,7 @@ namespace CsvTools
     {
       [NotNull]
       get => m_DateFormat;
+      [CanBeNull]
       set
       {
         var newVal = value ?? string.Empty;
@@ -214,7 +215,7 @@ namespace CsvTools
     {
       [NotNull]
       get => m_False;
-
+      [CanBeNull]
       set
       {
         var newVal = value ?? string.Empty;
@@ -267,6 +268,7 @@ namespace CsvTools
     {
       [NotNull]
       get => m_NumberFormat;
+      [CanBeNull]
       set
       {
         var newVal = value ?? string.Empty;
@@ -309,6 +311,7 @@ namespace CsvTools
     {
       [NotNull]
       get => m_True;
+      [CanBeNull]
       set
       {
         var newVal = value ?? string.Empty;

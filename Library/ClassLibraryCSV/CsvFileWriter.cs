@@ -100,6 +100,8 @@ namespace CsvTools
           sb.Length -= recordEnd.Length;
 
         await writer.WriteAsync(sb.ToString()).ConfigureAwait(false);
+
+        await writer.FlushAsync();
       }
     }
 

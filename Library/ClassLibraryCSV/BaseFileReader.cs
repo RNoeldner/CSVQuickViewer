@@ -673,7 +673,6 @@ namespace CsvTools
         schemaRow[1] = column.Name; // Column name
         schemaRow[4] = column.Name; // Column name
         schemaRow[5] = col; // Column ordinal
-        schemaRow[6] = column.Size;
 
         // If there is a conversion get the information
         if (column.Convert && column.ValueFormat.DataType != DataType.String)
@@ -1313,9 +1312,6 @@ namespace CsvTools
 
       if (FileSetting.TreatNBSPAsSpace && output.IndexOf((char) 0xA0) != -1)
         output = output.Replace((char) 0xA0, ' ');
-
-      if (output.Length > 0 && column.Size < output.Length)
-        column.Size = output.Length;
 
       return output;
     }

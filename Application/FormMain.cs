@@ -90,7 +90,9 @@ namespace CsvTools
       }
 
       // Just starting the task of loading the file 
+#pragma warning disable 4014
       LoadCsvFile(fileName);
+#pragma warning restore 4014
 
       this.LoadWindowState(m_ViewSettings.WindowPosition);
 

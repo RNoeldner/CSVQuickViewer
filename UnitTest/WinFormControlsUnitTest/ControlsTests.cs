@@ -53,13 +53,12 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void APICodePackWrapperOpen()
+    public async Task APICodePackWrapperOpen()
     {
       try
       {
         // Used to cancel after .2 seconds
-        Task.Run(() => WindowsAPICodePackWrapper.Open(FileSystemUtils.ExecutableDirectoryName(), "Test", "*.cs", null))
-          .WaitToCompleteTask(.2);
+        await Task.Run(() => WindowsAPICodePackWrapper.Open(FileSystemUtils.ExecutableDirectoryName(), "Test", "*.cs", null)).TimeoutAfter(new TimeSpan(TimeSpan.TicksPerSecond/4));
       }
       catch (COMException)
       {
@@ -78,13 +77,12 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void WindowsAPICodePackWrapperFolder()
+    public async Task WindowsAPICodePackWrapperFolder()
     {
       try
       {
         // Used to cancel after .2 seconds
-        Task.Run(() => { WindowsAPICodePackWrapper.Folder(FileSystemUtils.ExecutableDirectoryName(), "Test"); })
-          .WaitToCompleteTask(.2);
+        await Task.Run(() => { WindowsAPICodePackWrapper.Folder(FileSystemUtils.ExecutableDirectoryName(), "Test"); }).TimeoutAfter(new TimeSpan(TimeSpan.TicksPerSecond/4));
       }
       catch (COMException)
       {
@@ -100,16 +98,15 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void WindowsAPICodePackWrapperSave()
+    public async Task WindowsAPICodePackWrapperSave()
     {
       try
       {
         // Used to cancel after .2 seconds
-        Task.Run(() =>
-        {
+        await Task.Run(() => {
           WindowsAPICodePackWrapper.Save(FileSystemUtils.ExecutableDirectoryName(), "Test", "*.pdf", "*.pdf",
             "test.pdf");
-        }).WaitToCompleteTask(.2);
+        }).TimeoutAfter(new TimeSpan(TimeSpan.TicksPerSecond/4));
       }
       catch (COMException)
       {

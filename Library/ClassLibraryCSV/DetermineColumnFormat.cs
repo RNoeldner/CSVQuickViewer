@@ -33,7 +33,7 @@ namespace CsvTools
   public static class DetermineColumnFormat
   {
     [CanBeNull]
-    public static ValueFormat CommonDateFormat([CanBeNull] IEnumerable<Column> columns)
+    public static IValueFormat CommonDateFormat([CanBeNull] IEnumerable<Column> columns)
     {
       ValueFormat best = null;
       if (columns == null) return null;
@@ -554,7 +554,7 @@ namespace CsvTools
     /// <param name="culture">The culture.</param>
     /// <returns></returns>
     [NotNull]
-    public static IEnumerable<ValueFormat> GetAllPossibleFormats([NotNull] string value, [CanBeNull] CultureInfo culture = null)
+    public static IEnumerable<IValueFormat> GetAllPossibleFormats([NotNull] string value, [CanBeNull] CultureInfo culture = null)
     {
       if (culture == null)
         culture = CultureInfo.CurrentCulture;
@@ -894,7 +894,7 @@ namespace CsvTools
     [CanBeNull]
     public static CheckResult GuessValueFormat([NotNull] ICollection<string> samples, int minRequiredSamples,
       string trueValue, string falseValue, bool guessBoolean, bool guessGuid, bool guessNumeric, bool guessDateTime,
-      bool guessPercentage, bool serialDateTime, bool checkNamedDates, [CanBeNull] ValueFormat othersValueFormatDate,
+      bool guessPercentage, bool serialDateTime, bool checkNamedDates, [CanBeNull] IValueFormat othersValueFormatDate,
       CancellationToken cancellationToken)
     {
       if (samples == null || samples.Count == 0)

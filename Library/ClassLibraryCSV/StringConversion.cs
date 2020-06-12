@@ -360,7 +360,7 @@ namespace CsvTools
     /// <returns>A combined date from a date and a time column</returns>
     /// <remarks>This does not have time zone adjustments yet</remarks>
     public static DateTime? CombineObjectsToDateTime(object dateColumn, string dateColumnText, object timeColumn,
-      string timeColumnText, bool serialDateTime, ValueFormat valueFormat, out bool timeColumnIssues)
+      string timeColumnText, bool serialDateTime, IValueFormat valueFormat, out bool timeColumnIssues)
     {
       var dateValue = m_FirstDateTime;
       // We do have an associated column, with a proper date format
@@ -482,15 +482,11 @@ namespace CsvTools
     ///   Converts a dates to string.
     /// </summary>
     /// <param name="dateTime">The date time.</param>
-    /// <param name="format">The <see cref="ValueFormat" />.</param>
+    /// <param name="format">The <see cref="IValueFormat" />.</param>
     /// <returns>Formatted value</returns>
     [NotNull]
-    public static string DateTimeToString(DateTime dateTime, ValueFormat format)
+    public static string DateTimeToString(DateTime dateTime, [NotNull] IValueFormat format)
     {
-      if (string.IsNullOrEmpty(format?.DateFormat))
-        // Get the default format
-        format = new ValueFormat();
-
       if (!format.DateFormat.Contains("HHH"))
         return dateTime.ToString(format.DateFormat, CultureInfo.InvariantCulture)
           .ReplaceDefaults("/", format.DateSeparator, ":", format.TimeSeparator);
@@ -547,15 +543,15 @@ namespace CsvTools
     /// <param name="format">The <see cref="ValueFormat" />.</param>
     /// <returns>Formatted value</returns>
     [NotNull]
-    public static string DecimalToString(decimal value, ValueFormat format)
+    public static string DecimalToString(decimal value, [NotNull] IValueFormat format)
     {
       if (string.IsNullOrEmpty(format?.NumberFormat))
         // Get the default format
         format = new ValueFormat();
 
       return value.ToString(format.NumberFormat, CultureInfo.InvariantCulture).ReplaceDefaults(
-        CultureInfo.InvariantCulture.NumberFormat.NumberDecimalSeparator, format.DecimalSeparator,
-        CultureInfo.InvariantCulture.NumberFormat.NumberGroupSeparator, format.GroupSeparator);
+        CultureInfo.InvariantCulture.NumberFormat.NumberDecimalSeparator, format.DecimalSeparatorChar.ToString(),
+        CultureInfo.InvariantCulture.NumberFormat.NumberGroupSeparator, format.GroupSeparatorChar.ToString());
     }
 
     /// <summary>
@@ -589,15 +585,11 @@ namespace CsvTools
     /// <param name="format">The <see cref="ValueFormat" />.</param>
     /// <returns>Formatted value</returns>
     [NotNull]
-    public static string DoubleToString(double value, [CanBeNull] ValueFormat format)
+    public static string DoubleToString(double value, [NotNull] IValueFormat format)
     {
-      if (string.IsNullOrEmpty(format?.NumberFormat))
-        // Get the default format
-        format = new ValueFormat();
-
       return value.ToString(format.NumberFormat, CultureInfo.InvariantCulture).ReplaceDefaults(
-        CultureInfo.InvariantCulture.NumberFormat.NumberDecimalSeparator, format.DecimalSeparator,
-        CultureInfo.InvariantCulture.NumberFormat.NumberGroupSeparator, format.GroupSeparator);
+        CultureInfo.InvariantCulture.NumberFormat.NumberDecimalSeparator, format.DecimalSeparatorChar.ToString(),
+        CultureInfo.InvariantCulture.NumberFormat.NumberGroupSeparator, format.DecimalSeparatorChar.ToString());
     }
 
     /// <summary>

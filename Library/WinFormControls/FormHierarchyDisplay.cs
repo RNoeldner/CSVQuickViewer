@@ -697,6 +697,7 @@ namespace CsvTools
       m_TimerDisplay.Start();
     }
 
+    //TODO: Make this async
     private void TimerDisplayElapsed(object sender, ElapsedEventArgs e) =>
       Task.Run(() =>
       {

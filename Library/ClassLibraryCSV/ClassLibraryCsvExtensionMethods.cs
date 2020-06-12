@@ -340,7 +340,7 @@ namespace CsvTools
       fileName = Regex.Replace(fileName,
         c_DateSep + c_Hour + c_TimeSep + c_MinSec + c_TimeSep + c_MinSec + "?" + c_AmPm, string.Empty,
         RegexOptions.IgnoreCase | RegexOptions.Singleline);
-      
+
       return fileName.Trim('_', '-', ' ', '\t').Replace("__", "_").Replace("__", "_").Replace("--", "-")
         .Replace("--", "-");
     }
@@ -675,7 +675,7 @@ namespace CsvTools
 
       var exchange1 = !string.IsNullOrEmpty(old1) && string.Compare(old1, new1, StringComparison.Ordinal) != 0;
       var exchange2 = !string.IsNullOrEmpty(old2) && string.Compare(old2, new2, StringComparison.Ordinal) != 0;
-      if (exchange1 && exchange2 && string.Equals(new1,old2))
+      if (exchange1 && exchange2 && string.Equals(new1, old2))
       {
         inputValue = inputValue.Replace(old1, "{\0}");
         inputValue = inputValue.Replace(old2, new2);
@@ -796,95 +796,34 @@ namespace CsvTools
       return value < int.MinValue ? int.MinValue : Convert.ToInt32(value);
     }
 
-    /// <summary>
-    ///   Run a task to completion with timeout You should you expose synchronous wrappers for
-    ///   asynchronous methods, still here it is be very careful
-    /// </summary>
-    /// <param name="executeTask">The started <see cref="System.Threading.Tasks.Task" /></param>
-    /// <param name="timeoutSeconds">
-    ///   Timeout for the completion of the task, if more time is spent running / waiting the wait
-    ///   is finished
-    /// </param>
-    /// <param name="cancellationToken">
-    ///   Best is to start tasks with the cancellation token but some async methods do not do, so it
-    ///   can be provided
-    /// </param>
-    /// <remarks>Will only return the first exception in case of aggregate exceptions.</remarks>
-    public static void WaitToCompleteTask([NotNull] this Task executeTask, double timeoutSeconds,
-      CancellationToken cancellationToken = default)
+    public static async Task<T> TimeoutAfter<T>([NotNull] this Task<T> task, TimeSpan timeout)
     {
-      if (executeTask == null)
-        throw new ArgumentNullException(nameof(executeTask));
-
-      if (executeTask.IsCompleted)
+      using (var cts = new CancellationTokenSource())
       {
-        if (executeTask.Exception != null)
-          throw executeTask.Exception.Flatten().InnerExceptions[0];
-        return;
-      }
+        var delayTask = Task.Delay(timeout, cts.Token);
 
-      cancellationToken.ThrowIfCancellationRequested();
-
-      var stopwatch = timeoutSeconds > 0.01 ? new Stopwatch() : null;
-      stopwatch?.Start();
-
-      try
-      {
-        // IsCompleted := RanToCompletion || Canceled || Faulted
-        while (!executeTask.IsCompleted)
-        {
-          cancellationToken.ThrowIfCancellationRequested();
-          if (stopwatch != null)
-            // Raise an exception when not activated
-            //if (executeTask.Status == TaskStatus.WaitingForActivation && stopwatch.Elapsed.TotalSeconds > timeoutSeconds)
-            //  throw new TimeoutException($"Waited longer than {stopwatch.Elapsed.TotalSeconds:N1} seconds for task activation");
-
-            // Raise an exception when waiting too long
-            if (timeoutSeconds > 0 && stopwatch.Elapsed.TotalSeconds > timeoutSeconds)
-              throw new TimeoutException($"Timeout after {stopwatch.Elapsed.TotalSeconds:N1} seconds");
-
-          // Invoke action every 1/4 second FunctionalDI.SignalBackground?.Invoke();
-          FunctionalDI.SignalBackground?.Invoke();
-
-          // wait will raise an AggregateException if the task throws an exception
-          executeTask.Wait(250, cancellationToken);
-        }
-
-        if (executeTask.IsFaulted && executeTask.Exception != null)
-          throw executeTask.Exception;
-      }
-      catch (Exception ex)
-      {
-        Logger.Warning(ex, "{exception}", ex.ExceptionMessages());
-
-        // return only the first exception if there are many
-        if (ex is AggregateException ae)
-          throw ae.Flatten().InnerExceptions[0];
-        throw;
+        var resultTask = await Task.WhenAny(task, delayTask);
+        if (resultTask == delayTask)
+          throw new TimeoutException($"Timeout after {timeout.TotalSeconds:N1} seconds");
+        // Cancel the timer task so that it does not fire
+        cts.Cancel();
+        return await task;
       }
     }
 
-    /// <summary>
-    ///   Run a task to completion with timeout You should you expose synchronous wrappers for
-    ///   asynchronous methods, still here it is be very careful
-    /// </summary>
-    /// <param name="executeTask">
-    ///   The started <see cref="System.Threading.Tasks.Task" /> with a return value
-    /// </param>
-    /// <param name="timeoutSeconds">
-    ///   Timeout for the completion of the task, if more time is spent running / waiting the wait
-    ///   is finished
-    /// </param>
-    /// <param name="cancellationToken">
-    ///   Best is to start tasks with the cancellation token but some async methods do not do, so it
-    ///   can be provided
-    /// </param>
-    /// <returns>Task Result if finished successfully, otherwise raises an error</returns>
-    public static T WaitToCompleteTask<T>([NotNull] this Task<T> executeTask, double timeoutSeconds,
-      CancellationToken cancellationToken = default)
+    public static async Task TimeoutAfter([NotNull] this Task task, TimeSpan timeout)
     {
-      WaitToCompleteTask((Task) executeTask, timeoutSeconds, cancellationToken);
-      return executeTask.Result;
+      using (var cts = new CancellationTokenSource())
+      {
+        var delayTask = Task.Delay(timeout, cts.Token);
+
+        var resultTask = await Task.WhenAny(task, delayTask);
+        if (resultTask == delayTask)
+          throw new TimeoutException($"Timeout after {timeout.TotalSeconds:N1} seconds");
+        // Cancel the timer task so that it does not fire
+        cts.Cancel();
+        await task;
+      }
     }
 
     /// <summary>

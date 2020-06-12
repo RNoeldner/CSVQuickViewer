@@ -382,7 +382,7 @@ namespace CsvTools
     {
       [NotNull]
       get => m_ValueFormat;
-
+      [CanBeNull]
       set
       {
         var newVal = value ?? new ValueFormat();
