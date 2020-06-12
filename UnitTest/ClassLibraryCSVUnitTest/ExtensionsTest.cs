@@ -421,7 +421,7 @@ namespace CsvTools.Tests
 
       try
       {
-        Task.Run(() => Routine()).WaitToCompleteTask(1);
+        Task.Run(() => Routine()).RunSynchronously();
       }
       catch (Exception e)
       {

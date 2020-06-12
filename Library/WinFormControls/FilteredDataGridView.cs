@@ -1352,6 +1352,7 @@ namespace CsvTools
           using (var writer = new StreamWriter(stream.Stream, Encoding.UTF8, 1024))
           {
             await writer.WriteAsync(ViewSetting.StoreViewSetting(Columns, m_Filter, SortedColumn, SortOrder));
+            await writer.FlushAsync();
           }
       }
       catch (Exception ex)

@@ -25,125 +25,6 @@ namespace CsvTools.Tests
   public class ExtensionsTests
   {
     [TestMethod]
-    public void WaitToCompleteTaskTestCompletedAlready()
-    {
-      var executed = false;
-
-      var task = Task.Run(() => { executed = true; return true; });
-      // give it time to finish task
-      Thread.Sleep(50);
-      Assert.IsTrue(executed);
-
-      task.WaitToCompleteTask(1);
-      Assert.IsTrue(executed);
-    }
-
-    [TestMethod]
-    public void WaitToCompleteTaskTestCompleteInTime()
-    {
-      var executed = false;
-      Assert.IsFalse(executed);
-      var task = Task.Run(() =>
-      {
-        Thread.Sleep(100);
-        executed = true;
-        return true;
-      });
-      Assert.IsFalse(executed);
-      task.WaitToCompleteTask(1);
-      Assert.IsTrue(executed);
-    }
-
-    [TestMethod]
-    public void WaitToCompleteTaskTestTimeout()
-    {
-      var task = Task.Run(() =>
-      {
-        Thread.Sleep(2000);
-        return true;
-      });
-
-      try
-      {
-        task.WaitToCompleteTask(1);
-        Assert.Fail("Timeout did not occur");
-      }
-      catch (TimeoutException)
-      {
-      }
-      catch (Exception ex)
-      {
-        Assert.Fail($"Wrong exception got {ex.GetType().Name} expected TimeoutException");
-      }
-    }
-
-    [TestMethod]
-    public void WaitToCompleteTaskCancel()
-    {
-      using (var cts = new CancellationTokenSource())
-      {
-        var task = Task.Run(() =>
-        {
-          Thread.Sleep(5000);
-          return true;
-        }, cts.Token);
-
-        try
-        {
-          // Cancel Token after 200 ms in other thread
-          _ = Task.Run(() =>
-          {
-            Thread.Sleep(200);
-            cts.Cancel();
-          }, cts.Token);
-          task.WaitToCompleteTask(2d, cts.Token);
-          Assert.Fail("Timeout did not occur");
-        }
-        catch (AssertFailedException)
-        {
-          throw;
-        }
-        catch (OperationCanceledException)
-        { }
-        catch (Exception ex)
-        {
-          Assert.Fail($"Wrong exception got {ex.GetType().Name} expected OperationCanceledException : {ex.ExceptionMessages()}");
-        }
-      }
-    }
-
-    [TestMethod]
-    public void WaitToCompleteWithException()
-    {
-      using (var cts = new CancellationTokenSource())
-      {
-        try
-        {
-          Task.Run(() =>
-          {
-            Thread.Sleep(100);
-            var i = 0;
-            if (i == 0)
-              throw new ApplicationException("This is an error");
-            else
-              // Testing WaitToCompleteTask<T> I need a task that returns something
-              return true;
-          }, cts.Token).WaitToCompleteTask(1.5d);
-
-          Assert.Fail("no Exception did not occur");
-        }
-        catch (ApplicationException)
-        {
-          // all good
-        }
-        catch (Exception ex)
-        {
-          Assert.Fail($"Wrong exception got {ex.GetType().Name} expected ApplicationException");
-        }
-      }
-    }
-
-    [TestMethod]
     public void UpdateListViewColumnFormatTest()
     {
       using (var lv = new ListView())
@@ -163,7 +44,7 @@ namespace CsvTools.Tests
           item.Selected = true;
         }
 
-        colFmt.Add(new Column { Name = "Test" });
+        colFmt.Add(new Column {Name = "Test"});
         lv.UpdateListViewColumnFormat(colFmt);
       }
     }
@@ -201,6 +82,7 @@ namespace CsvTools.Tests
       {
         Assert.IsTrue(prc is IProcessDisplay, "GetProcessDisplay With Logger");
       }
+
       using (var prc = setting.GetProcessDisplay(null, false, System.Threading.CancellationToken.None))
       {
         Assert.IsTrue(prc is IProcessDisplay, "GetProcessDisplay Without Logger");
@@ -258,7 +140,8 @@ namespace CsvTools.Tests
       using (var value = new FormProcessDisplay())
       {
         value.Show();
-        var state1 = new WindowState(new System.Drawing.Rectangle(10, 10, value.Width, value.Height), FormWindowState.Normal)
+        var state1 = new WindowState(new System.Drawing.Rectangle(10, 10, value.Width, value.Height),
+          FormWindowState.Normal)
         {
           CustomInt = 27,
           CustomText = "Test"

@@ -1447,44 +1447,6 @@ namespace CsvTools.Tests
       }
     }
 
-    //[TestMethod]
-    //public async Task CsvDataReader_OpenDetails()
-    //{
-    //  using (CsvFileReader test = new CsvFileReader())
-    //  {
-    //    test.Open(true);
-    //    Assert.AreEqual(1, m_ValidSetting.Column[0].Size);
-    //    Assert.AreEqual(7, m_ValidSetting.Column[1].Size, "LangCodeID");
-    //    Assert.AreEqual(10, m_ValidSetting.Column[2].Size, "ExamDate");
-    //    Assert.AreEqual(3, m_ValidSetting.Column[3].Size, "Score");
-    //    Assert.AreEqual(5, m_ValidSetting.Column[4].Size, "Proficiency");
-    //    Assert.AreEqual(1, m_ValidSetting.Column[5].Size, "IsNativeLang");
-    //  }
-    //}
-
-    [TestMethod]
-    public async Task CsvDataReaderOpenDetailSkipRowsAsync()
-    {
-      var setting = new CsvFile
-      {
-        FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt"),
-        HasFieldHeader = false,
-        SkipRows = 1,
-        FileFormat = {FieldDelimiter = ","}
-      };
-      using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
-      {
-        await test.OpenAsync();
-        await test.ReadAsync();
-        Assert.AreEqual(1, test.GetColumn(0).Size, "ID: 1");
-        Assert.AreEqual(6, test.GetColumn(1).Size, "LangCodeID: German");
-        Assert.AreEqual(10, test.GetColumn(2).Size, "ExamDate");
-        Assert.AreEqual(3, test.GetColumn(3).Size, "Score");
-        Assert.AreEqual(4, test.GetColumn(4).Size, "Proficiency: 0.94");
-        Assert.AreEqual(1, test.GetColumn(5).Size, "IsNativeLang ");
-      }
-    }
 
     [TestMethod]
     public async Task CsvDataReaderNoHeader()

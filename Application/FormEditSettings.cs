@@ -12,6 +12,8 @@
  *
  */
 
+using System.Linq;
+
 namespace CsvTools
 {
   using System;
@@ -201,17 +203,6 @@ namespace CsvTools
         m_ViewSettings.WarnEmptyTailingColumns = true;
     }
 
-    private void CsvFile_PropertyChanged(object sender, PropertyChangedEventArgs e)
-    {
-      if (e.PropertyName != nameof(ViewSettings.CodePageId)) return;
-      foreach (var ite in cboCodePage.Items)
-        if (((DisplayItem<int>) ite).ID == m_ViewSettings.CodePageId)
-        {
-          cboCodePage.SelectedItem = ite;
-          break;
-        }
-    }
-
     /// <summary>
     ///   Handles the Load event of the EditSettings control.
     /// </summary>
@@ -223,25 +214,27 @@ namespace CsvTools
       fileFormatBindingSource.DataSource = m_ViewSettings.FileFormat;
 
       // Fill Drop down
-      foreach (var cp in EncodingHelper.CommonCodePages)
-        cboCodePage.Items.Add(new DisplayItem<int>(cp, EncodingHelper.GetEncodingName(cp, false, false)));
+      cboCodePage.SuspendLayout();
 
-      var di = new List<DisplayItem<int>>();
+      cboCodePage.DataSource = EncodingHelper.CommonCodePages.Select(cp =>
+        new DisplayItem<int>(cp, EncodingHelper.GetEncodingName(cp, false, false))).ToList();
+      cboRecordDelimiter.DisplayMember = nameof(DisplayItem<int>.Display);
+      cboRecordDelimiter.ValueMember = nameof(DisplayItem<int>.ID);
+      cboRecordDelimiter.SelectedValue = m_ViewSettings.CodePageId;
+      cboCodePage.ResumeLayout(true);
+
       var descConv = new EnumDescriptionConverter(typeof(RecordDelimiterType));
-      foreach (RecordDelimiterType item in Enum.GetValues(typeof(RecordDelimiterType)))
-      {
-        di.Add(new DisplayItem<int>((int) item, descConv.ConvertToString(item)));
-      }
+      var di = (from RecordDelimiterType item in Enum.GetValues(typeof(RecordDelimiterType)) select new DisplayItem<int>((int) item, descConv.ConvertToString(item))).ToList();
 
       var selValue = (int) m_ViewSettings.FileFormat.NewLine;
+      cboRecordDelimiter.SuspendLayout();
       cboRecordDelimiter.DataSource = di;
       cboRecordDelimiter.DisplayMember = nameof(DisplayItem<int>.Display);
       cboRecordDelimiter.ValueMember = nameof(DisplayItem<int>.ID);
       cboRecordDelimiter.SelectedValue = selValue;
+      cboRecordDelimiter.ResumeLayout(true);
 
       quotingControl.CsvFile = m_ViewSettings;
-
-      CsvFile_PropertyChanged(null, new PropertyChangedEventArgs(nameof(ViewSettings.CodePageId)));
     }
 
     private void FormEditSettings_FormClosing(object sender, FormClosingEventArgs e)
@@ -267,7 +260,7 @@ namespace CsvTools
     private void PositiveNumberValidating(object sender, CancelEventArgs e)
     {
       if (!(sender is TextBox tb)) return;
-      
+
       var ok = int.TryParse(tb.Text, out var parse);
       var reformat = parse.ToString(CultureInfo.CurrentCulture);
       ok = ok && parse >= 0 && reformat == tb.Text;

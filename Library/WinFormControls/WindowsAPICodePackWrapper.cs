@@ -1,4 +1,6 @@
-﻿namespace CsvTools
+﻿using JetBrains.Annotations;
+
+namespace CsvTools
 {
   using Microsoft.WindowsAPICodePack.Dialogs;
   using Microsoft.WindowsAPICodePack.Taskbar;
@@ -11,7 +13,7 @@
 
     private static bool m_TaskbarManagerSupported = TaskbarManager.IsPlatformSupported;
 
-    public static void AttachTaskbarProgress(this IProcessDisplayTime mainProcess)
+    public static void AttachTaskbarProgress([NotNull] this IProcessDisplayTime mainProcess)
     {
       // Handle the TaskBarProcess as well
       mainProcess.Progress += (sender, args) =>
@@ -46,7 +48,7 @@
         };
     }
 
-    public static string Folder(string initialDirectory, string title)
+    public static string Folder([NotNull] string initialDirectory, [NotNull] string title)
     {
       if (m_CommonFileDialogSupported)
       {
@@ -73,7 +75,7 @@
       return null;
     }
 
-    public static string Open(string initialDirectory, string title, string filter, string preselectFileName)
+    public static string Open([NotNull] string initialDirectory, [NotNull] string title, [NotNull] string filter, [CanBeNull] string preselectFileName)
     {
       if (m_CommonFileDialogSupported)
       {
@@ -112,11 +114,11 @@
     }
 
     public static string Save(
-      string initialDirectory,
-      string title,
-      string filter,
+      [NotNull] string initialDirectory,
+      [NotNull] string title,
+      [NotNull] string filter,
       string defaultExt,
-      string preselectFileName)
+      [CanBeNull] string preselectFileName)
     {
       if (m_CommonFileDialogSupported)
       {
