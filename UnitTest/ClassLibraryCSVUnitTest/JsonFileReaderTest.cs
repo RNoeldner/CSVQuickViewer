@@ -22,6 +22,26 @@ namespace CsvTools.Tests
   public class JsonFileReaderTest
   {
     [TestMethod]
+    public async Task OpenJsonArray()
+    {
+      var setting = new CsvFile(UnitTestInitialize.GetTestPath("ces_qa01-ar-rtdw_data_v6100816_training_core.json"))
+      {
+        JsonFormat = true
+      };
+      using (var dpd = new DummyProcessDisplay())
+      using (var jfr = new JsonFileReader(setting, TimeZoneInfo.Local.Id, dpd))
+      {
+        await jfr.OpenAsync();
+        Assert.AreEqual("object_id", jfr.GetName(0));
+        Assert.AreEqual("_last_touched_dt_utc", jfr.GetName(1));
+
+        await jfr.ReadAsync();
+        Assert.AreEqual("ef21069c-3d93-4e07-878d-00e820727f65", jfr.GetString(0));
+        Assert.IsTrue((new DateTime(2020, 04, 03, 20, 45, 29, DateTimeKind.Local) - ((DateTime) jfr.GetValue(1))).TotalSeconds < 1f);
+      }
+    }
+
+    [TestMethod]
     public async Task OpenLogAsync()
     {
       var setting = new CsvFile(UnitTestInitialize.GetTestPath("LogFile.json"))
@@ -174,7 +194,7 @@ namespace CsvTools.Tests
         Assert.AreEqual("T454898", jfr.GetValue(1));
         Assert.AreEqual(new DateTime(2012, 02, 06), jfr.GetValue(jfr.GetOrdinal("LastHireDate")));
         Assert.IsTrue(jfr.IsDBNull(jfr.GetOrdinal("ASSIGN_2ND_DEPT")));
-        Assert.AreEqual((short)0, jfr.GetInt16(jfr.GetOrdinal("Approvals")));
+        Assert.AreEqual((short) 0, jfr.GetInt16(jfr.GetOrdinal("Approvals")));
         Assert.AreEqual(0, jfr.GetInt32(jfr.GetOrdinal("Approvals")));
         Assert.AreEqual(0L, jfr.GetInt64(jfr.GetOrdinal("Approvals")));
         Assert.AreEqual(0f, jfr.GetFloat(jfr.GetOrdinal("Approvals")));

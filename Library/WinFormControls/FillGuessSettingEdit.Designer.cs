@@ -123,7 +123,7 @@ namespace CsvTools
       this.checkBoxDectectNumbers.AutoSize = true;
       this.tableLayoutPanel1.SetColumnSpan(this.checkBoxDectectNumbers, 3);
       this.checkBoxDectectNumbers.DataBindings.Add(new System.Windows.Forms.Binding("Enabled", this.fillGuessSettingsBindingSource, "Enabled", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-      this.checkBoxDectectNumbers.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fillGuessSettingsBindingSource, "DectectNumbers", true));
+      this.checkBoxDectectNumbers.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fillGuessSettingsBindingSource, "DetectNumbers", true));
       this.checkBoxDectectNumbers.Location = new System.Drawing.Point(3, 95);
       this.checkBoxDectectNumbers.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
       this.checkBoxDectectNumbers.Name = "checkBoxDectectNumbers";
@@ -159,8 +159,8 @@ namespace CsvTools
       // 
       this.checkBoxDectectPercentage.AutoSize = true;
       this.tableLayoutPanel1.SetColumnSpan(this.checkBoxDectectPercentage, 3);
-      this.checkBoxDectectPercentage.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fillGuessSettingsBindingSource, "DectectPercentage", true));
       this.checkBoxDectectPercentage.DataBindings.Add(new System.Windows.Forms.Binding("Enabled", this.fillGuessSettingsBindingSource, "Enabled", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+      this.checkBoxDectectPercentage.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fillGuessSettingsBindingSource, "DetectPercentage", true));
       this.checkBoxDectectPercentage.Location = new System.Drawing.Point(3, 233);
       this.checkBoxDectectPercentage.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
       this.checkBoxDectectPercentage.Name = "checkBoxDectectPercentage";
@@ -174,8 +174,8 @@ namespace CsvTools
       // 
       this.checkBoxDetectDateTime.AutoSize = true;
       this.tableLayoutPanel1.SetColumnSpan(this.checkBoxDetectDateTime, 3);
-      this.checkBoxDetectDateTime.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fillGuessSettingsBindingSource, "DetectDateTime", true));
       this.checkBoxDetectDateTime.DataBindings.Add(new System.Windows.Forms.Binding("Enabled", this.fillGuessSettingsBindingSource, "Enabled", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+      this.checkBoxDetectDateTime.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fillGuessSettingsBindingSource, "DetectDateTime", true));
       this.checkBoxDetectDateTime.Location = new System.Drawing.Point(3, 120);
       this.checkBoxDetectDateTime.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
       this.checkBoxDetectDateTime.Name = "checkBoxDetectDateTime";
@@ -289,8 +289,8 @@ namespace CsvTools
       // 
       this.checkBox1.AutoSize = true;
       this.tableLayoutPanel1.SetColumnSpan(this.checkBox1, 3);
-      this.checkBox1.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fillGuessSettingsBindingSource, "IgnoreIdColums", true));
       this.checkBox1.DataBindings.Add(new System.Windows.Forms.Binding("Enabled", this.fillGuessSettingsBindingSource, "Enabled", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+      this.checkBox1.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fillGuessSettingsBindingSource, "IgnoreIdColumns", true));
       this.checkBox1.Location = new System.Drawing.Point(3, 321);
       this.checkBox1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
       this.checkBox1.Name = "checkBox1";
