@@ -28,11 +28,11 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task TestJson()
     {
-      var setting = new CsvFile(UnitTestInitialize.GetTestPath("Emp.json"))
+      var setting = new CsvFile(UnitTestInitialize.GetTestPath("ces_qa01-ar-rtdw_data_v6100816_training_core.json"))
       {
         JsonFormat = true
       };
-     
+
       using (var dpd = new DummyProcessDisplay())
       {
         var columnCollection = new ColumnCollection();
@@ -46,9 +46,10 @@ namespace CsvTools.Tests
           IgnoreIdColumns = true
         };
         var res1 = await DetermineColumnFormat.FillGuessColumnFormatReaderAsync(setting, false, true, fillGuessSettings, dpd);
+        Assert.AreEqual(DataType.Guid, setting.ColumnCollection[0].ValueFormat.DataType);
+        Assert.AreEqual(DataType.DateTime, setting.ColumnCollection[1].ValueFormat.DataType);
       }
     }
-
 
     [TestMethod]
     public async Task GetSourceColumnInformationTestAsync()
@@ -108,7 +109,7 @@ namespace CsvTools.Tests
             var res2 = await DetermineColumnFormat.FillGuessColumnFormatReaderAsyncReader(reader, fillGuessSettings,
               columnCollection, true, true, "<NULL>", processDisplay);
             Assert.AreEqual(10, columnCollection.Count);
-            // Added 4 text columns, 
+            // Added 4 text columns,
             Assert.AreEqual(4, res2.Count);
           }
         }
