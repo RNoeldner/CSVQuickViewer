@@ -3,9 +3,10 @@ using JetBrains.Annotations;
 
 namespace CsvTools
 {
-  public class ValueFormatReadOnly : IValueFormat, IEquatable<IValueFormat>
+  public class ValueFormatReadOnly : IValueFormat
   {
-    public ValueFormatReadOnly(DataType dataType = DataType.String, string dateFormat = ValueFormatExtension.cDateFormatDefault,
+    public ValueFormatReadOnly(DataType dataType = DataType.String,
+      string dateFormat = ValueFormatExtension.cDateFormatDefault,
       string dateSeparator = ValueFormatExtension.cDateSeparatorDefault, char decimalSeparatorChar = '.',
       string displayNullAs = "", [NotNull] string asFalse = ValueFormatExtension.cFalseDefault,
       char groupSeparatorChar = '\0', string numberFormat = ValueFormatExtension.cNumberFormatDefault,
@@ -51,59 +52,60 @@ namespace CsvTools
     public string TimeSeparator { get; }
     public string True { get; }
 
-    public override bool Equals(object obj)
-    {
-      if (ReferenceEquals(null, obj)) return false;
-      if (ReferenceEquals(this, obj)) return true;
-      if (obj.GetType() != GetType()) return false;
-      return Equals((ValueFormatReadOnly) obj);
-    }
+    //public override bool Equals(object obj)
+    //{
+    //  if (ReferenceEquals(null, obj)) return false;
+    //  if (ReferenceEquals(this, obj)) return true;
+    //  if (obj.GetType() != GetType()) return false;
+    //  return Equals((ValueFormatReadOnly) obj);
+    //}
 
-    public override int GetHashCode()
-    {
-      unchecked
-      {
-        var hashCode = (int) DataType;
-        hashCode = (hashCode * 397) ^ StringComparer.Ordinal.GetHashCode(DisplayNullAs);
-        switch (DataType)
-        {
-          case DataType.Integer:
-            hashCode = (hashCode * 397) ^ StringComparer.Ordinal.GetHashCode(NumberFormat);
-            break;
+    //public override int GetHashCode()
+    //{
+    //  unchecked
+    //  {
+    //    var hashCode = (int) DataType;
+    //    hashCode = (hashCode * 397) ^ StringComparer.Ordinal.GetHashCode(DisplayNullAs);
+    //    switch (DataType)
+    //    {
+    //      case DataType.Integer:
+    //        hashCode = (hashCode * 397) ^ StringComparer.Ordinal.GetHashCode(NumberFormat);
+    //        break;
 
-          case DataType.Numeric:
-          case DataType.Double:
-            hashCode = (hashCode * 397) ^ GroupSeparatorChar.GetHashCode();
-            hashCode = (hashCode * 397) ^ DecimalSeparatorChar.GetHashCode();
-            hashCode = (hashCode * 397) ^ NumberFormat.GetHashCode();
-            break;
+    //      case DataType.Numeric:
+    //      case DataType.Double:
+    //        hashCode = (hashCode * 397) ^ GroupSeparatorChar.GetHashCode();
+    //        hashCode = (hashCode * 397) ^ DecimalSeparatorChar.GetHashCode();
+    //        hashCode = (hashCode * 397) ^ NumberFormat.GetHashCode();
+    //        break;
 
-          case DataType.DateTime:
-            hashCode = (hashCode * 397) ^ DateFormat.GetHashCode();
-            hashCode = (hashCode * 397) ^ DateSeparator.GetHashCode();
-            hashCode = (hashCode * 397) ^ TimeSeparator.GetHashCode();
-            break;
+    //      case DataType.DateTime:
+    //        hashCode = (hashCode * 397) ^ DateFormat.GetHashCode();
+    //        hashCode = (hashCode * 397) ^ DateSeparator.GetHashCode();
+    //        hashCode = (hashCode * 397) ^ TimeSeparator.GetHashCode();
+    //        break;
 
-          case DataType.Boolean:
-            hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(False);
-            hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(True);
-            break;
+    //      case DataType.Boolean:
+    //        hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(False);
+    //        hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(True);
+    //        break;
 
-          default:
-            hashCode = (hashCode * 397) ^ DateFormat.GetHashCode();
-            hashCode = (hashCode * 397) ^ DateSeparator.GetHashCode();
-            hashCode = (hashCode * 397) ^ DecimalSeparatorChar.GetHashCode();
-            hashCode = (hashCode * 397) ^ DisplayNullAs.GetHashCode();
-            hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(False);
-            hashCode = (hashCode * 397) ^ GroupSeparatorChar.GetHashCode();
-            hashCode = (hashCode * 397) ^ NumberFormat.GetHashCode();
-            hashCode = (hashCode * 397) ^ TimeSeparator.GetHashCode();
-            hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(True);
-            break;
-        }
+    //      default:
+    //        hashCode = (hashCode * 397) ^ DateFormat.GetHashCode();
+    //        hashCode = (hashCode * 397) ^ DateSeparator.GetHashCode();
+    //        hashCode = (hashCode * 397) ^ DecimalSeparatorChar.GetHashCode();
+    //        hashCode = (hashCode * 397) ^ DisplayNullAs.GetHashCode();
+    //        hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(False);
+    //        hashCode = (hashCode * 397) ^ GroupSeparatorChar.GetHashCode();
+    //        hashCode = (hashCode * 397) ^ NumberFormat.GetHashCode();
+    //        hashCode = (hashCode * 397) ^ TimeSeparator.GetHashCode();
+    //        hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(True);
+    //        break;
+    //    }
 
-        return hashCode;
-      }
-    }
+    //    return hashCode;
+    //  }
+    // }
   }
+
 }
