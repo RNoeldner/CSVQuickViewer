@@ -287,6 +287,9 @@
     <Content Include="TestFiles\TrimmingHeaders.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <None Include="TestFiles\ces_qa01-ar-rtdw_data_v6100816_training_core.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="TestFiles\Jason4.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
