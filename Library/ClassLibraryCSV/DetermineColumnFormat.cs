@@ -341,25 +341,22 @@ namespace CsvTools
                 colIndex, fillGuessSettings.SampleValues, treatTextAsNull,
                 processDisplay.CancellationToken).ConfigureAwait(false);
 
-            if (samples.Values.Count > 0)
+            if (samples.Values.Count <= 0) continue;
+            var checkResult = GuessNumeric(samples.Values, false, true, processDisplay.CancellationToken);
+            if (checkResult.FoundValueFormat != null && checkResult.FoundValueFormat.DataType != DataType.Double)
             {
-              var checkResult = GuessNumeric(samples.Values, false, true, processDisplay.CancellationToken);
-              if (checkResult != null && checkResult.FoundValueFormat.DataType != DataType.Double)
+              var newColumn = columnCollection.Get(readerColumn.Name);
+              if (newColumn != null)
               {
-                var newColumn = columnCollection.Get(readerColumn.Name);
-                if (newColumn != null)
-                {
-                  newColumn.ValueFormatMutable.CopyFrom(checkResult.FoundValueFormat);
-                  var msg =
-                    $"{newColumn.Name} – Overwritten Format : {checkResult.FoundValueFormat.GetTypeAndFormatDescription()}";
-                  processDisplay.SetProcess(msg, fileReader.FieldCount * 2 + colIndex, true);
-                  result.Add(msg);
-                }
-
-                else
-                {
-                  columnCollection.AddIfNew(new Column(readerColumn, checkResult.FoundValueFormat));
-                }
+                newColumn.ValueFormatMutable.CopyFrom(checkResult.FoundValueFormat);
+                var msg =
+                  $"{newColumn.Name} – Overwritten Format : {checkResult.FoundValueFormat.GetTypeAndFormatDescription()}";
+                processDisplay.SetProcess(msg, fileReader.FieldCount * 2 + colIndex, true);
+                result.Add(msg);
+              }
+              else
+              {
+                columnCollection.AddIfNew(new Column(readerColumn, checkResult.FoundValueFormat));
               }
             }
           }

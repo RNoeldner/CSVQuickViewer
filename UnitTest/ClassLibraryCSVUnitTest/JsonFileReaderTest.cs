@@ -186,8 +186,13 @@ namespace CsvTools.Tests
         Assert.AreEqual("43357196", jfr.GetValue(0));
         _ = await jfr.ReadAsync();
         Assert.AreEqual("43357477", jfr.GetValue(0));
+        // read each column in each row
         while (await jfr.ReadAsync())
         {
+          for (int i = 0; i < jfr.FieldCount; i++)
+          {
+            jfr.GetValue(i);
+          }
         }
         Assert.AreEqual(2782, jfr.RecordNumber);
       }

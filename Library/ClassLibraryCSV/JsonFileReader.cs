@@ -23,7 +23,7 @@ using Newtonsoft.Json;
 namespace CsvTools
 {
   /// <summary>
-  /// Json text file reader
+  ///   Json text file reader
   /// </summary>
   public class JsonFileReader : BaseFileReaderTyped, IFileReader
   {
@@ -89,7 +89,8 @@ namespace CsvTools
         }
 
         InitColumn(line.Count);
-        ParseColumnName(line.Select(colValue => colValue.Key), line.Select(colValue => colValue.Value.GetType().GetDataType()));
+        ParseColumnName(line.Select(colValue => colValue.Key),
+          line.Select(colValue => colValue.Value?.GetType().GetDataType() ?? DataType.String));
 
         base.FinishOpen();
 
@@ -332,7 +333,7 @@ namespace CsvTools
       if (m_ImprovedStream == null)
         m_ImprovedStream = FunctionalDI.OpenRead(m_StructuredFile);
 
-      m_ImprovedStream.ResetToStart(delegate (Stream str)
+      m_ImprovedStream.ResetToStart(delegate(Stream str)
       {
         // in case we can not seek need to reopen the stream reader
         if (!str.CanSeek || m_TextReader == null)
@@ -365,7 +366,7 @@ namespace CsvTools
       };
     }
 
-    #region TextReader
+#region TextReader
 
     // Buffer size set to 64kB, if set to large the display in percentage will jump
     private const int c_BufferSize = 65536;
@@ -490,6 +491,6 @@ namespace CsvTools
       m_JsonTextReader = new JsonTextReader(new StringReader(sb.ToString()));
     }
 
-    #endregion TextReader
+#endregion TextReader
   }
 }
