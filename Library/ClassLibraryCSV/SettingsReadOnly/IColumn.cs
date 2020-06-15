@@ -20,15 +20,15 @@ namespace CsvTools
   {
     int ColumnOrdinal { get; }
     bool Convert { get; }
-    [NotNull] string DestinationName { get; }
+    string DestinationName { [NotNull] get; }
     bool Ignore { get; }
-    [NotNull] string Name { get; }
+    string Name { [NotNull] get; }
     int Part { get; }
     char PartSplitter { get; }
     bool PartToEnd { get; }
-    [NotNull] string TimePart { get; }
-    [NotNull] string TimePartFormat { get; }
-    [NotNull] string TimeZonePart { get; }
-    [NotNull] IValueFormat ValueFormat { get; }
+    string TimePart { [NotNull] get; }
+    string TimePartFormat { [NotNull] get; }
+    string TimeZonePart { [NotNull] get; }
+    IValueFormat ValueFormat { [NotNull] get; }
   }
 }

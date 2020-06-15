@@ -55,7 +55,7 @@ namespace CsvTools.Tests
 
       var numericFld = readFile.ColumnCollection.Get("Numeric");
       Debug.Assert(numericFld != null);
-      numericFld.ValueFormat.DecimalSeparator = ".";
+      numericFld.ValueFormatMutable.DecimalSeparator = ".";
 
       var doubleFld = readFile.ColumnCollection.AddIfNew(new Column("Double", new ValueFormat(DataType.Double) { DecimalSeparator = "." }));
       Debug.Assert(doubleFld != null);
@@ -81,7 +81,7 @@ namespace CsvTools.Tests
       var examDateFld = readFile.ColumnCollection.AddIfNew(new Column("ExamDate", DataType.DateTime));
 
       Debug.Assert(examDateFld != null);
-      examDateFld.ValueFormat.DateFormat = @"dd/MM/yyyy";
+      examDateFld.ValueFormatMutable.DateFormat = @"dd/MM/yyyy";
 
       readFile.ColumnCollection.AddIfNew(new Column("Score", DataType.Integer));
 

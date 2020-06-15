@@ -14,7 +14,6 @@
 
 using System;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Text;
@@ -23,49 +22,139 @@ using JetBrains.Annotations;
 
 namespace CsvTools
 {
+
+  public static class ValueFormatExtension
+  {
+    public const string cDateFormatDefault = "MM/dd/yyyy";
+    public const string cDateSeparatorDefault = "/";
+    public const string cDecimalSeparatorDefault = ".";
+    public const string cFalseDefault = "False";
+    public const string cGroupSeparatorDefault = "";
+    public const string cNumberFormatDefault = "0.#####";
+    public const string cTimeSeparatorDefault = ":";
+    public const string cTrueDefault = "True";
+
+    /// <summary>
+    ///   Determines whether the specified expected column is matching this column.
+    /// </summary>
+    /// <param name="one"></param>
+    /// <param name="other">The expected column format.</param>
+    /// <returns>
+    ///   <c>true</c> if the current format would be acceptable for the expected data type.
+    /// </returns>
+    /// <remarks>
+    ///   Is matching only looks at data type and some formats, it is assumed that we do not
+    ///   distinguish between numeric formats, it is O.K. to expect a money value but have a integer
+    /// </remarks>
+    public static bool IsMatching([NotNull] this IValueFormat one, [NotNull] IValueFormat other)
+    {
+      if (other.DataType == one.DataType)
+        return true;
+
+      // if one is integer but we expect numeric or vice versa, assume its OK, one of the sides does
+      // not have a decimal separator
+      if ((other.DataType == DataType.Numeric || other.DataType == DataType.Double ||
+           other.DataType == DataType.Integer)
+          && one.DataType == DataType.Integer)
+        return true;
+
+      // ReSharper disable once SwitchStatementMissingSomeEnumCasesNoDefault
+      switch (other.DataType)
+      {
+        case DataType.Integer when one.DataType == DataType.Numeric || one.DataType == DataType.Double || one.DataType == DataType.Integer:
+          return true;
+        // if we have dates, check the formats
+        case DataType.DateTime when one.DataType == DataType.DateTime:
+          return other.DateFormat.Equals(one.DateFormat, StringComparison.Ordinal) &&
+                 (one.DateFormat.IndexOf('/') == -1 ||
+                  other.DateSeparator.Equals(one.DateSeparator, StringComparison.Ordinal)) &&
+                 (one.DateFormat.IndexOf(':') == -1 ||
+                  other.TimeSeparator.Equals(one.TimeSeparator, StringComparison.Ordinal));
+      }
+
+      // if we have decimals, check the formats
+      if ((other.DataType == DataType.Numeric || other.DataType == DataType.Double) &&
+          (one.DataType == DataType.Numeric || one.DataType == DataType.Double))
+        return other.NumberFormat.Equals(one.NumberFormat, StringComparison.Ordinal) &&
+               other.DecimalSeparatorChar.Equals(one.DecimalSeparatorChar) &&
+               other.GroupSeparatorChar.Equals(one.GroupSeparatorChar);
+      // For everything else assume its wrong
+      return false;
+    }
+
+    /// <summary>
+    ///   Gets the a description of the Date or Number format
+    /// </summary>
+    /// <returns></returns>
+    [NotNull]
+    public static string GetFormatDescription([NotNull] this IValueFormat one)
+    {
+      switch (one.DataType)
+      {
+        case DataType.Integer:
+          return one.NumberFormat.Replace(CultureInfo.InvariantCulture.NumberFormat.NumberGroupSeparator, one.GroupSeparatorChar.ToString());
+
+        case DataType.DateTime:
+          return one.DateFormat.ReplaceDefaults(CultureInfo.InvariantCulture.DateTimeFormat.DateSeparator,
+            one.DateSeparator,
+            CultureInfo.InvariantCulture.DateTimeFormat.TimeSeparator, one.TimeSeparator);
+
+        case DataType.Numeric:
+        case DataType.Double:
+          return one.NumberFormat.ReplaceDefaults(CultureInfo.InvariantCulture.NumberFormat.NumberDecimalSeparator,
+            one.DecimalSeparatorChar.ToString(),
+            CultureInfo.InvariantCulture.NumberFormat.NumberGroupSeparator, one.GroupSeparatorChar.ToString());
+
+        default:
+          return string.Empty;
+      }
+    }
+
+
+
+    /// <summary>
+    ///   Gets the description.
+    /// </summary>
+    /// <returns></returns>
+    [NotNull]
+    public static string GetTypeAndFormatDescription([NotNull] this IValueFormat one)
+    {
+      var sbText = new StringBuilder(one.DataType.DataTypeDisplay());
+
+      var shortDesc = one.GetFormatDescription();
+      if (shortDesc.Length <= 0)
+        return sbText.ToString();
+      sbText.Append(" (");
+      sbText.Append(shortDesc);
+      sbText.Append(")");
+
+      return sbText.ToString();
+    }
+  }
+
   /// <summary>
   ///   Setting for a value format
   /// </summary>
   [Serializable]
-  [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
   public class ValueFormat : IValueFormat, ICloneable<ValueFormat>, IEquatable<ValueFormat>, INotifyPropertyChanged
   {
-    /// <summary>
-    ///   The default date format
-    /// </summary>
-    public const string cDateFormatDefault = "MM/dd/yyyy";
-
-    public const string cDateSeparatorDefault = "/";
-
-    public const string cDecimalSeparatorDefault = ".";
-
-    public const string cFalseDefault = "False";
-
-    public const string cGroupSeparatorDefault = "";
-
-    public const string cNumberFormatDefault = "0.#####";
-
-    public const string cTimeSeparatorDefault = ":";
-
-    public const string cTrueDefault = "True";
-
     private DataType m_DataType = DataType.String;
 
-    private string m_DateFormat = cDateFormatDefault;
+    private string m_DateFormat = ValueFormatExtension.cDateFormatDefault;
 
-    private string m_DateSeparator = cDateSeparatorDefault;
+    private string m_DateSeparator = ValueFormatExtension.cDateSeparatorDefault;
 
-    private string m_DecimalSeparator = cDecimalSeparatorDefault;
+    private string m_DecimalSeparator = ValueFormatExtension.cDecimalSeparatorDefault;
 
-    private string m_False = cFalseDefault;
+    private string m_False = ValueFormatExtension.cFalseDefault;
 
-    private string m_GroupSeparator = cGroupSeparatorDefault;
+    private string m_GroupSeparator = ValueFormatExtension.cGroupSeparatorDefault;
 
-    private string m_NumberFormat = cNumberFormatDefault;
+    private string m_NumberFormat = ValueFormatExtension.cNumberFormatDefault;
 
-    private string m_TimeSeparator = cTimeSeparatorDefault;
+    private string m_TimeSeparator = ValueFormatExtension.cTimeSeparatorDefault;
 
-    private string m_True = cTrueDefault;
+    private string m_True = ValueFormatExtension.cTrueDefault;
 
     private string m_DisplayNullAs = string.Empty;
 
@@ -76,6 +165,25 @@ namespace CsvTools
     {
     }
 
+    public ValueFormat([NotNull] IValueFormat other)
+    {
+      m_DataType = other.DataType;
+      m_DateFormat=other.DateFormat;
+      m_DateSeparator=other.DateSeparator;
+      DecimalSeparatorChar = other.DecimalSeparatorChar;
+      m_DisplayNullAs=other.DisplayNullAs;
+      m_False=other.False;
+      GroupSeparatorChar = other.GroupSeparatorChar;
+      m_NumberFormat = other.NumberFormat;
+      m_TimeSeparator = other.TimeSeparator;
+      m_True = other.True;
+
+      // ReSharper disable VirtualMemberCallInConstructor
+      DecimalSeparator =other.DecimalSeparatorChar.ToString();
+      GroupSeparator=other.GroupSeparatorChar.ToString();
+      // ReSharper restore VirtualMemberCallInConstructor
+    }
+
     /// <summary>
     ///   Initializes a new instance of the <see cref="ValueFormat" /> class.
     /// </summary>
@@ -83,10 +191,10 @@ namespace CsvTools
     public ValueFormat(DataType dataType) => m_DataType = dataType;
 
     [XmlIgnore]
-    public char GroupSeparatorChar { get; private set; } = '\0';
+    public virtual char GroupSeparatorChar { get; private set; } = '\0';
 
     [XmlIgnore]
-    public char DecimalSeparatorChar { get; private set; } = cDecimalSeparatorDefault[0];
+    public virtual char DecimalSeparatorChar { get; private set; } = ValueFormatExtension.cDecimalSeparatorDefault[0];
 
     /// <summary>
     ///   Gets or sets the type of the data.
@@ -133,7 +241,7 @@ namespace CsvTools
     /// </summary>
     /// <value>The date format.</value>
     [XmlElement]
-    [DefaultValue(cDateFormatDefault)]
+    [DefaultValue(ValueFormatExtension.cDateFormatDefault)]
     public virtual string DateFormat
     {
       [NotNull]
@@ -154,11 +262,12 @@ namespace CsvTools
     /// </summary>
     /// <value>The date separator.</value>
     [XmlElement]
-    [DefaultValue(cDateSeparatorDefault)]
+    [DefaultValue(ValueFormatExtension.cDateSeparatorDefault)]
     public virtual string DateSeparator
     {
       [NotNull]
       get => m_DateSeparator;
+      [CanBeNull]
       set
       {
         // Translate written punctuation into a character
@@ -176,7 +285,7 @@ namespace CsvTools
     /// </summary>
     /// <value>The decimal separator.</value>
     [XmlElement]
-    [DefaultValue(cDecimalSeparatorDefault)]
+    [DefaultValue(ValueFormatExtension.cDecimalSeparatorDefault)]
     public virtual string DecimalSeparator
     {
       [NotNull]
@@ -210,7 +319,7 @@ namespace CsvTools
     /// <value>The false.</value>
     [SuppressMessage("Microsoft.Naming", "CA1716:IdentifiersShouldNotMatchKeywords", MessageId = "False")]
     [XmlElement]
-    [DefaultValue(cFalseDefault)]
+    [DefaultValue(ValueFormatExtension.cFalseDefault)]
     public virtual string False
     {
       [NotNull]
@@ -231,7 +340,7 @@ namespace CsvTools
     /// </summary>
     /// <value>The group separator.</value>
     [XmlElement]
-    [DefaultValue(cGroupSeparatorDefault)]
+    [DefaultValue(ValueFormatExtension.cGroupSeparatorDefault)]
     public virtual string GroupSeparator
     {
       [NotNull]
@@ -263,7 +372,7 @@ namespace CsvTools
     /// </summary>
     /// <value>The number format.</value>
     [XmlElement]
-    [DefaultValue(cNumberFormatDefault)]
+    [DefaultValue(ValueFormatExtension.cNumberFormatDefault)]
     public virtual string NumberFormat
     {
       [NotNull]
@@ -284,7 +393,7 @@ namespace CsvTools
     /// </summary>
     /// <value>The time separator.</value>
     [XmlElement]
-    [DefaultValue(cTimeSeparatorDefault)]
+    [DefaultValue(ValueFormatExtension.cTimeSeparatorDefault)]
     public virtual string TimeSeparator
     {
       [NotNull]
@@ -306,7 +415,7 @@ namespace CsvTools
     /// <value>The true.</value>
     [SuppressMessage("Microsoft.Naming", "CA1716:IdentifiersShouldNotMatchKeywords", MessageId = "True")]
     [XmlElement]
-    [DefaultValue(cTrueDefault)]
+    [DefaultValue(ValueFormatExtension.cTrueDefault)]
     public virtual string True
     {
       [NotNull]
@@ -322,8 +431,6 @@ namespace CsvTools
       }
     }
 
-    private string DebuggerDisplay => GetTypeAndFormatDescription();
-
     /// <summary>
     ///   Clones this instance into a new instance of the same type
     /// </summary>
@@ -335,7 +442,51 @@ namespace CsvTools
       CopyTo(other);
       return other;
     }
+    public virtual void CopyFrom(IValueFormat other)
+    {
+      if (other == null)
+        return;
+      m_DataType = other.DataType;
+      DisplayNullAs = other.DisplayNullAs;
+      switch (m_DataType)
+      {
+        case DataType.Integer:
+          NumberFormat = other.NumberFormat;
+          break;
 
+        case DataType.Numeric:
+        case DataType.Double:
+          GroupSeparatorChar = other.GroupSeparatorChar;
+          DecimalSeparatorChar = other.DecimalSeparatorChar;
+
+          m_GroupSeparator = FileFormat.GetDescription(other.GroupSeparatorChar.ToString());
+          DecimalSeparator = FileFormat.GetDescription(other.DecimalSeparatorChar.ToString());
+          NumberFormat = other.NumberFormat;
+          break;
+
+        case DataType.DateTime:
+          DateFormat = other.DateFormat;
+          DateSeparator = other.DateSeparator;
+          TimeSeparator = other.TimeSeparator;
+          break;
+
+        case DataType.Boolean:
+          False = other.False;
+          True = other.True;
+          break;
+
+        case DataType.Guid:
+          break;
+        case DataType.String:
+          break;
+        case DataType.TextToHtml:
+          break;
+        case DataType.TextToHtmlFull:
+          break;
+        case DataType.TextPart:
+          break;
+      }
+    }
     /// <summary>
     ///   Copies to.
     /// </summary>
@@ -438,49 +589,8 @@ namespace CsvTools
     /// </summary>
     public event PropertyChangedEventHandler PropertyChanged;
 
-    /// <summary>
-    ///   Gets the a description of the Date or Number format
-    /// </summary>
-    /// <returns></returns>
-    [NotNull]
-    public string GetFormatDescription()
-    {
-      switch (m_DataType)
-      {
-        case DataType.DateTime:
-          return m_DateFormat.ReplaceDefaults(CultureInfo.InvariantCulture.DateTimeFormat.DateSeparator,
-            m_DateSeparator,
-            CultureInfo.InvariantCulture.DateTimeFormat.TimeSeparator, m_TimeSeparator);
 
-        case DataType.Numeric:
-        case DataType.Double:
-          return m_NumberFormat.ReplaceDefaults(CultureInfo.InvariantCulture.NumberFormat.NumberDecimalSeparator,
-            m_DecimalSeparator,
-            CultureInfo.InvariantCulture.NumberFormat.NumberGroupSeparator, m_GroupSeparator);
 
-        default:
-          return string.Empty;
-      }
-    }
-
-    /// <summary>
-    ///   Gets the description.
-    /// </summary>
-    /// <returns></returns>
-    [NotNull]
-    public string GetTypeAndFormatDescription()
-    {
-      var sbText = new StringBuilder(m_DataType.DataTypeDisplay());
-
-      var shortDesc = GetFormatDescription();
-      if (shortDesc.Length <= 0)
-        return sbText.ToString();
-      sbText.Append(" (");
-      sbText.Append(shortDesc);
-      sbText.Append(")");
-
-      return sbText.ToString();
-    }
 
     /// <summary>
     ///   Notifies the property changed.
@@ -498,52 +608,7 @@ namespace CsvTools
     /// </returns>
     public override bool Equals(object obj) => Equals(obj as ValueFormat);
 
-    /// <summary>
-    ///   Determines whether the specified expected column is matching this column.
-    /// </summary>
-    /// <param name="expected">The expected column format.</param>
-    /// <returns>
-    ///   <c>true</c> if the current format would be acceptable for the expected data type.
-    /// </returns>
-    /// <remarks>
-    ///   Is matching only looks at data type and some formats, it is assumed that we do not
-    ///   distinguish between numeric formats, it is O.K. to expect a money value but have a integer
-    /// </remarks>
-    public bool IsMatching([NotNull] ValueFormat expected)
-    {
-      if (expected.DataType == m_DataType)
-        return true;
 
-      // if one is integer but we expect numeric or vice versa, assume its OK, one of the sides does
-      // not have a decimal separator
-      if ((expected.DataType == DataType.Numeric || expected.DataType == DataType.Double ||
-           expected.DataType == DataType.Integer)
-          && m_DataType == DataType.Integer)
-        return true;
-
-      // ReSharper disable once SwitchStatementMissingSomeEnumCasesNoDefault
-      switch (expected.DataType)
-      {
-        case DataType.Integer when m_DataType == DataType.Numeric || m_DataType == DataType.Double || m_DataType == DataType.Integer:
-          return true;
-        // if we have dates, check the formats
-        case DataType.DateTime when m_DataType == DataType.DateTime:
-          return expected.DateFormat.Equals(m_DateFormat, StringComparison.Ordinal) &&
-                 (m_DateFormat.IndexOf('/') == -1 ||
-                  expected.DateSeparator.Equals(DateSeparator, StringComparison.Ordinal)) &&
-                 (m_DateFormat.IndexOf(':') == -1 ||
-                  expected.TimeSeparator.Equals(TimeSeparator, StringComparison.Ordinal));
-      }
-
-      // if we have decimals, check the formats
-      if ((expected.DataType == DataType.Numeric || expected.DataType == DataType.Double) &&
-          (m_DataType == DataType.Numeric || m_DataType == DataType.Double))
-        return expected.NumberFormat.Equals(m_NumberFormat, StringComparison.Ordinal) &&
-               expected.DecimalSeparator.Equals(m_DecimalSeparator, StringComparison.Ordinal) &&
-               expected.GroupSeparator.Equals(m_GroupSeparator, StringComparison.Ordinal);
-      // For everything else assume its wrong
-      return false;
-    }
 
     /// <summary>
     ///   Serves as the default hash function.
@@ -554,7 +619,7 @@ namespace CsvTools
     {
       unchecked
       {
-        var hashCode = (int)m_DataType;
+        var hashCode = (int) m_DataType;
         hashCode = (hashCode * 397) ^ StringComparer.Ordinal.GetHashCode(m_DisplayNullAs);
         switch (m_DataType)
         {

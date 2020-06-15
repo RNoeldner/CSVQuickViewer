@@ -39,7 +39,7 @@ namespace CsvTools.Tests
       m_ValidSetting.ColumnCollection.AddIfNew(new Column("Proficiency", DataType.Numeric));
       m_ValidSetting.ColumnCollection.AddIfNew(new Column("IsNativeLang", DataType.Boolean));
       var cf = m_ValidSetting.ColumnCollection.AddIfNew(new Column("ExamDate", DataType.DateTime));
-      cf.ValueFormat.DateFormat = @"dd/MM/yyyy";
+      cf.ValueFormatMutable.DateFormat = @"dd/MM/yyyy";
     }
 
     [TestMethod]
@@ -268,7 +268,7 @@ namespace CsvTools.Tests
     {
       var column = new Column
       {
-        ValueFormat = { DataType = DataType.Integer, GroupSeparator = ",", DecimalSeparator = "," }
+        ValueFormatMutable = { DataType = DataType.Integer, GroupSeparator = ",", DecimalSeparator = "," }
       };
 
       using (var processDisplay = new DummyProcessDisplay())

@@ -100,7 +100,7 @@ namespace CsvTools
     /// </summary>
     [CanBeNull] 
     // ReSharper disable once UnassignedField.Global
-    public static Action<IFileSetting, ICollection<Column>> StoreHeader;
+    public static Action<IFileSetting, ICollection<IColumn>> StoreHeader;
 
     /// <summary>
     ///   Return the right reader for a file setting

@@ -12,7 +12,6 @@
  *
  */
 
-using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -23,6 +22,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 
 namespace CsvTools
 {
@@ -85,7 +85,7 @@ namespace CsvTools
     /// <summary>
     ///   An array of column
     /// </summary>
-    protected Column[] Column;
+    protected ColumnReadOnly[] Column;
 
     /// <summary>
     ///   An array of current row column text
@@ -113,7 +113,8 @@ namespace CsvTools
     /// </summary>
     private bool m_IsFinished;
 
-    protected BaseFileReader([NotNull] IFileSetting fileSetting, [CanBeNull] string destinationTimeZone, [CanBeNull] IProcessDisplay processDisplay)
+    protected BaseFileReader([NotNull] IFileSetting fileSetting, [CanBeNull] string destinationTimeZone,
+      [CanBeNull] IProcessDisplay processDisplay)
     {
       FileSetting = fileSetting ?? throw new ArgumentNullException(nameof(fileSetting));
       if (FileSetting is IFileSettingPhysicalFile fileSettingPhysical)
@@ -238,6 +239,11 @@ namespace CsvTools
     public object this[int columnNumber] => GetValue(columnNumber);
 
     /// <summary>
+    ///   Occurs before the file is opened
+    /// </summary>
+    public Func<IFileSetting, Task<DateTime>> OnOpen { get; set; }
+
+    /// <summary>
     ///   Performs application-defined tasks associated with freeing, releasing, or resetting
     ///   unmanaged resources.
     /// </summary>
@@ -250,11 +256,6 @@ namespace CsvTools
     public virtual event EventHandler<RetryEventArgs> OnAskRetry;
 
     /// <summary>
-    ///   Occurs before the file is opened
-    /// </summary>
-    public Func<IFileSetting, Task<DateTime>> OnOpen { get; set; }
-
-    /// <summary>
     ///   Event to be raised if reading the files is completed
     /// </summary>
     public event EventHandler ReadFinished;
@@ -264,12 +265,13 @@ namespace CsvTools
     /// </summary>
     public virtual event EventHandler<WarningEventArgs> Warning;
 
-    [ItemNotNull]
-    public static IEnumerable<string> ParseColumnNames(
+    [NotNull]
+    public static Tuple<IEnumerable<string>, int> AdjustColumnName(
       [NotNull] IEnumerable<string> columns,
       int fieldCount,
-      [NotNull] ColumnErrorDictionary warnings)
+      [CanBeNull] ColumnErrorDictionary warnings)
     {
+      var issuesCounter = 0;
       var previousColumns = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
       using (var enumerator = columns.GetEnumerator())
       {
@@ -280,20 +282,23 @@ namespace CsvTools
           if (string.IsNullOrEmpty(columnName))
           {
             resultingName = GetDefaultName(counter);
-            warnings.Add(counter, $"Column title was empty, set to {resultingName}.".AddWarningId());
+            issuesCounter++;
+            warnings?.Add(counter, $"Column title was empty, set to {resultingName}.".AddWarningId());
           }
           else
           {
             resultingName = columnName.Trim();
+
             if (columnName.Length != resultingName.Length)
-              warnings.Add(
+              warnings?.Add(
                 counter,
                 $"Column title '{columnName}' had leading or tailing spaces, these have been removed.".AddWarningId());
 
             if (resultingName.Length > 128)
             {
               resultingName = resultingName.Substring(0, 128);
-              warnings.Add(
+              issuesCounter++;
+              warnings?.Add(
                 counter,
                 $"Column title '{resultingName.Substring(0, 20)}…' too long, cut off after 128 characters."
                   .AddWarningId());
@@ -301,13 +306,17 @@ namespace CsvTools
 
             var newName = StringUtils.MakeUniqueInCollection(previousColumns, resultingName);
             if (newName != resultingName)
-              warnings.Add(counter, $"Column title '{resultingName}' exists more than once replaced with {newName}");
+            {
+              warnings?.Add(counter, $"Column title '{resultingName}' exists more than once replaced with {newName}");
+              issuesCounter++;
+            }
           }
 
-          yield return resultingName;
           previousColumns.Add(resultingName);
         }
       }
+
+      return new Tuple<IEnumerable<string>, int>(previousColumns, issuesCounter);
     }
 
     /// <summary>
@@ -409,7 +418,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="columnNumber">The column.</param>
     /// <returns></returns>
-    public virtual Column GetColumn(int columnNumber)
+    public virtual ColumnReadOnly GetColumn(int columnNumber)
     {
       Debug.Assert(Column != null);
       Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount && columnNumber < Column.Length);
@@ -570,7 +579,7 @@ namespace CsvTools
     /// <param name="inputValue">The input.</param>
     /// <param name="column">The column.</param>
     /// <returns></returns>
-    public int? GetInt32Null(string inputValue, Column column)
+    public int? GetInt32Null(string inputValue, [NotNull] IColumn column)
     {
       Debug.Assert(column != null);
       var ret = StringConversion.StringToInt32(
@@ -609,7 +618,7 @@ namespace CsvTools
     /// <param name="inputValue">The input.</param>
     /// <param name="column">The column.</param>
     /// <returns></returns>
-    public long? GetInt64Null(string inputValue, Column column)
+    public long? GetInt64Null(string inputValue, IColumn column)
     {
       Debug.Assert(column != null);
       var ret = StringConversion.StringToInt64(
@@ -656,8 +665,10 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Returns a <see cref="DataTable" /> that describes the column meta data of the <see
-    ///   cref="IDataReader" /> .
+    ///   Returns a <see cref="DataTable" /> that describes the column meta data of the
+    ///   <see
+    ///     cref="IDataReader" />
+    ///   .
     /// </summary>
     /// <returns>A <see cref="DataTable" /> that describes the column meta data.</returns>
     /// <exception cref="InvalidOperationException">The <see cref="IDataReader" /> is closed.</exception>
@@ -857,53 +868,6 @@ namespace CsvTools
     /// <summary>
     ///   Overrides the column format from setting.
     /// </summary>
-    public virtual void OverrideColumnFormatFromSetting()
-    {
-      Debug.Assert(AssociatedTimeCol != null);
-
-      for (var colIndex = 0; colIndex < FieldCount; colIndex++)
-      {
-        var setting = FileSetting.ColumnCollection.Get(Column[colIndex].Name);
-        if (setting != null)
-        {
-          setting.CopyTo(Column[colIndex]);
-
-          // Copy to has replaced he column Ordinal but this should be kept
-          Column[colIndex].ColumnOrdinal = colIndex;
-        }
-
-        if (Column[colIndex].ValueFormat.DataType != DataType.DateTime || setting == null || !setting.Convert
-            || setting.Ignore)
-          continue;
-
-        AssociatedTimeCol[colIndex] = GetOrdinal(Column[colIndex].TimePart);
-        m_AssociatedTimeZoneCol[colIndex] = GetOrdinal(Column[colIndex].TimeZonePart);
-      }
-
-      // Any defined column not present in file is removed this can happen if the file is changed or
-      // changing the encoding the name might show different W�hrung <> Währung
-      var remove = new List<Column>();
-      foreach (var setting in FileSetting.ColumnCollection)
-      {
-        var found = false;
-        for (var colIndex = 0; colIndex < FieldCount; colIndex++)
-          if (Column[colIndex].Name.Equals(setting.Name, StringComparison.OrdinalIgnoreCase))
-          {
-            found = true;
-            break;
-          }
-
-        if (!found)
-          remove.Add(setting);
-      }
-
-      foreach (var col in remove)
-
-        // HandleWarning(-1, $"Column \"{col.Name}\" not found in file, this can happen if column
-        // name is changed");
-        FileSetting.ColumnCollection.Remove(col);
-    }
-
     public virtual bool Read() => ReadAsync().Result;
 
     public abstract Task<bool> ReadAsync();
@@ -1029,10 +993,6 @@ namespace CsvTools
     protected virtual void FinishOpen()
     {
       m_IsFinished = false;
-      if (FieldCount > 0)
-
-        // Override the column settings and store the columns for later reference
-        OverrideColumnFormatFromSetting();
 
       // in case caching is setup store the headers
       FunctionalDI.StoreHeader?.Invoke(FileSetting, Column);
@@ -1057,7 +1017,7 @@ namespace CsvTools
       string strInputDate,
       object inputTime,
       string strInputTime,
-      Column column,
+      IColumn column,
       bool serialDateTime)
     {
       var dateTime = StringConversion.CombineObjectsToDateTime(
@@ -1147,10 +1107,8 @@ namespace CsvTools
     ///   event handler for warnings is called
     /// </returns>
     [NotNull]
-    protected object GetTypedValueFromString(string value, string timeValue, Column column)
+    protected object GetTypedValueFromString(string value, string timeValue, [NotNull] IColumn column)
     {
-      Debug.Assert(column != null);
-
       object ret;
 
       // Get Column Format for Column
@@ -1348,53 +1306,81 @@ namespace CsvTools
         HandleShowProgressPeriodic("Reading", RecordNumber);
     }
 
-    /// <summary>
-    ///   Initializes the column array to a give count.
-    /// </summary>
-    /// <param name="fieldCount">The field count.</param>
     protected virtual void InitColumn(int fieldCount)
     {
-      Debug.Assert(fieldCount >= 0);
       m_FieldCount = fieldCount;
-      Column = new Column[fieldCount];
       CurrentRowColumnText = new string[fieldCount];
+
+      Column = new ColumnReadOnly[fieldCount];
       AssociatedTimeCol = new int[fieldCount];
       m_AssociatedTimeZoneCol = new int[fieldCount];
       for (var counter = 0; counter < fieldCount; counter++)
       {
-        Column[counter] = new Column { ColumnOrdinal = counter };
+        Column[counter] = new ColumnReadOnly(GetDefaultName(counter), new ValueFormatReadOnly(), counter);
         AssociatedTimeCol[counter] = -1;
         m_AssociatedTimeZoneCol[counter] = -1;
       }
     }
 
-    /// <summary>
-    ///   Gets the field headers and Initialized the columns
-    /// </summary>
-    protected void ParseColumnName(IList<string> headerRow)
+    protected void ParseColumnName([NotNull] IEnumerable<string> headerRow,
+      [CanBeNull] IEnumerable<DataType> dataType = null)
     {
-      Debug.Assert(FieldCount >= 0);
-      Debug.Assert(headerRow != null);
+      if (dataType == null)
+        dataType = new List<DataType>();
 
-      if (headerRow.Count == 0)
-        return;
-      InitColumn(FieldCount);
-
-      if (!FileSetting.HasFieldHeader)
+      IEnumerable<string> adjusted;
+      if (FileSetting.HasFieldHeader)
       {
-        for (var i = 0; i < FieldCount; i++)
-          GetColumn(i).Name = GetDefaultName(i);
-        return;
+        var warnings = new ColumnErrorDictionary();
+        adjusted = AdjustColumnName(headerRow, m_FieldCount, warnings).Item1;
+        foreach (var warning in warnings)
+          HandleWarning(warning.Key, warning.Value);
+      }
+      else
+      {
+        adjusted = Column.Select(x => x.Name);
       }
 
-      var warnings = new ColumnErrorDictionary();
-      var counter = 0;
-      foreach (var columnName in ParseColumnNames(headerRow, FieldCount, warnings))
-        GetColumn(counter++).Name = columnName;
 
-      foreach (var warning in warnings)
-        HandleWarning(warning.Key, warning.Value);
+      var colIndex = 0;
+      using (var enumeratorType = dataType.GetEnumerator())
+      using (var enumeratorNames = adjusted.GetEnumerator())
+      {
+        while (enumeratorNames.MoveNext())
+        {
+          var type = enumeratorType.MoveNext() ? enumeratorType.Current : Column[colIndex].ValueFormat.DataType;
+          var name = enumeratorNames.Current;
+          var setting = FileSetting.ColumnCollection.Get(name);
+          if (setting != null)
+            Column[colIndex] = new ColumnReadOnly(setting, colIndex);
+          else
+            Column[colIndex] =
+              new ColumnReadOnly(name, new ValueFormatReadOnly(type), colIndex, type != DataType.String);
+          colIndex++;
+        }
+      }
+
+
+      for (var index = 0; index < m_FieldCount; index++)
+      {
+        if (!string.IsNullOrEmpty(Column[index].TimePart))
+        {
+          var otherCol = Column.FirstOrDefault(x =>
+            x.Name.Equals(Column[index].TimePart, StringComparison.OrdinalIgnoreCase));
+          if (otherCol != null)
+            AssociatedTimeCol[index] = otherCol.ColumnOrdinal;
+        }
+
+        if (!string.IsNullOrEmpty(Column[index].TimeZonePart))
+        {
+          var otherCol = Column.FirstOrDefault(x =>
+            x.Name.Equals(Column[index].TimeZonePart, StringComparison.OrdinalIgnoreCase));
+          if (otherCol != null)
+            m_AssociatedTimeZoneCol[index] = otherCol.ColumnOrdinal;
+        }
+      }
     }
+
 
     protected bool ShouldRetry(Exception ex)
     {
@@ -1416,25 +1402,22 @@ namespace CsvTools
       return new FormatException(message);
     }
 
-    private DateTime? AdjustTz(DateTime? input, Column column)
+    private DateTime? AdjustTz(DateTime? input, IColumn column)
     {
       if (!input.HasValue)
         return null;
       string timeZone = null;
-      var res = column.TimeZonePart.GetPossiblyConstant();
 
-      // Constant value
-      if (res.Item2)
+      if (m_AssociatedTimeZoneCol[column.ColumnOrdinal] > -1)
       {
-        timeZone = res.Item1;
+        timeZone = GetString(m_AssociatedTimeZoneCol[column.ColumnOrdinal]);
       }
-
-      // lookup in other column
       else
       {
-        var colTimeZone = m_AssociatedTimeZoneCol[column.ColumnOrdinal];
-        if (colTimeZone > -1 && colTimeZone < FieldCount)
-          timeZone = GetString(colTimeZone);
+        var res = column.TimeZonePart.GetPossiblyConstant();
+        // Constant value
+        if (res.Item2)
+          timeZone = res.Item1;
       }
 
       return FunctionalDI.AdjustTZ(input, timeZone, DestinationTimeZone, column.ColumnOrdinal, HandleWarning);
@@ -1475,7 +1458,7 @@ namespace CsvTools
     ///   The decimal value if conversion is not successful: <c>NULL</c> the event handler for
     ///   warnings is called
     /// </returns>
-    private decimal? GetDecimalNull(string inputValue, Column column)
+    private decimal? GetDecimalNull(string inputValue, IColumn column)
     {
       Debug.Assert(column != null);
       var decimalValue = StringConversion.StringToDecimal(
@@ -1514,7 +1497,7 @@ namespace CsvTools
     ///   The parsed value if conversion is not successful: <c>NULL</c> is returned and the event
     ///   handler for warnings is called
     /// </returns>
-    private double? GetDoubleNull(string inputValue, Column column)
+    private double? GetDoubleNull(string inputValue, IColumn column)
     {
       Debug.Assert(column != null);
       var decimalValue = GetDecimalNull(inputValue, column);
@@ -1595,13 +1578,16 @@ namespace CsvTools
           : $"'{inputDate}' is not a date of the format {display}");
     }
 
-    #region DataTable
+#region DataTable
 
     /// <summary>
     ///   Asynchronous method to copy rows from a the reader to a data table
     /// </summary>
     /// <param name="recordLimit">Number of maximum records, 0 for all existing</param>
-    /// <param name="includeErrorField">If <c>true</c> store the error information in a special column, otherwise as column and row error</param>
+    /// <param name="includeErrorField">
+    ///   If <c>true</c> store the error information in a special column, otherwise as column and
+    ///   row error
+    /// </param>
     /// <param name="storeWarningsInDataTable"></param>
     /// <param name="addStartLine"><c>true</c> to add a reference to the line of a text file.</param>
     /// <param name="cancellationToken">Cancellation toke to stop filling the data table</param>
@@ -1617,7 +1603,8 @@ namespace CsvTools
 
       // This has a mapping of the columns between reader and data table
       var copyToDataTableInfo =
-        new CopyToDataTableInfo(this as IFileReader ?? throw new InvalidOperationException(), includeErrorField, storeWarningsInDataTable, addStartLine);
+        new CopyToDataTableInfo(this as IFileReader ?? throw new InvalidOperationException(), includeErrorField,
+          storeWarningsInDataTable, addStartLine);
 
       try
       {
@@ -1628,7 +1615,8 @@ namespace CsvTools
         if (recordLimit < 1)
           recordLimit = FileSetting.RecordLimit < 1 ? long.MaxValue : FileSetting.RecordLimit;
 
-        while (await ReadAsync().ConfigureAwait(false) && RecordNumber <= recordLimit && !cancellationToken.IsCancellationRequested)
+        while (await ReadAsync().ConfigureAwait(false) && RecordNumber <= recordLimit &&
+               !cancellationToken.IsCancellationRequested)
           copyToDataTableInfo.CopyRowToTable(this as IFileReader ?? throw new InvalidOperationException());
 
         copyToDataTableInfo.HandlePreviousRow();
@@ -1641,6 +1629,7 @@ namespace CsvTools
         throw;
       }
     }
-    #endregion DataTable
+
+#endregion DataTable
   }
 }

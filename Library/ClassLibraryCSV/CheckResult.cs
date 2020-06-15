@@ -14,6 +14,7 @@
 
 using System;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 
 namespace CsvTools
 {
@@ -22,12 +23,14 @@ namespace CsvTools
   /// </summary>
   public class CheckResult
   {
+    [NotNull] 
     public ICollection<string> ExampleNonMatch { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
     ///  The found value format
     /// </summary>
-    public ValueFormat FoundValueFormat { get; set; }
+    [CanBeNull]
+    public IValueFormat FoundValueFormat { get; set; }
 
     /// <summary>
     ///  The positive matches before an invalid value was found
@@ -37,7 +40,8 @@ namespace CsvTools
     /// <summary>
     ///  The value format for a possible match
     /// </summary>
-    public ValueFormat ValueFormatPossibleMatch { get; set; }
+    [CanBeNull]
+    public ValueFormatReadOnly ValueFormatPossibleMatch { get; set; }
 
     /// <summary>
     ///  Combines a Sub check to an overall check

@@ -23,10 +23,10 @@ namespace CsvTools
   /// <summary>
   ///   ColumnInfo
   /// </summary>
-  [DebuggerDisplay("ColumnInfo( {Column.Name}  - {Column.ValueFormat.GetFormatDescription()})")]
+  [DebuggerDisplay("ColumnInfo( {Column.Name}  - {Column.ValueFormat})")]
   public sealed class ColumnInfo
   {
-    public ColumnInfo(Column column, int fieldLength, bool isTimePart, int columnOrdinalReader = -1,
+    public ColumnInfo(IColumn column, int fieldLength, bool isTimePart, int columnOrdinalReader = -1,
       string constantTimeZone = null, int columnOrdinalTimeZoneReader = -1)
     {
       Column = column;
@@ -41,7 +41,7 @@ namespace CsvTools
     ///   Gets or sets the column format.
     /// </summary>
     /// <value>The column format.</value>
-    public Column Column { get; }
+    public IColumn Column { get; }
 
     /// <summary>
     ///   Gets or sets the reader column ordinal
@@ -105,7 +105,7 @@ namespace CsvTools
           {
             if (column.Ignore)
               continue;
-            valueFormat = column.ValueFormat;
+            valueFormat = column.ValueFormatMutable;
           }
 
           var fieldLength = Math.Max((int) schemaRow[SchemaTableColumn.ColumnSize], 0);
@@ -168,13 +168,12 @@ namespace CsvTools
           // add an extra column for the time, reading columns get combined, writing they get separated
           if (column == null || string.IsNullOrEmpty(column.TimePart) ||
               colName.ContainsValue(column.TimePart)) continue;
-          if (ci.Column.ValueFormat.DateFormat.IndexOfAny(new[] {'h', 'H', 'm', 's'}) != -1)
+          if (ci.Column.ValueFormat.DateFormat.IndexOfAny(new[] { 'h', 'H', 'm', 's' }) != -1)
             Logger.Warning(
               $"'{ci.Column.Name}' will create a separate time column '{column.TimePart}' but seems to write time itself '{ci.Column.ValueFormat.DateFormat}'");
           // In case we have a split column, add the second column (unless the column is also present
-          result.Add(new ColumnInfo(
-            new Column(column.TimePart, column.TimePartFormat)
-              {ValueFormat = {TimeSeparator = column.ValueFormat.TimeSeparator}}, column.TimePartFormat.Length, true,
+
+          result.Add(new ColumnInfo(new Column(column.TimePart, column.TimePartFormat), column.TimePartFormat.Length, true,
             colNo));
         }
       }

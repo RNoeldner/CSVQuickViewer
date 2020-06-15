@@ -75,7 +75,7 @@ namespace CsvTools
       // needed for TimeZon, Name or TimePart
       columnBindingSource.DataSource = m_ColumnEdit;
       // needed for Formats
-      bindingSourceValueFormat.DataSource = m_ColumnEdit.ValueFormat;
+      bindingSourceValueFormat.DataSource = m_ColumnEdit.ValueFormatMutable;
 
       comboBoxColumnName.Enabled = showIgnore;
 
@@ -132,7 +132,7 @@ namespace CsvTools
           if (m_WriteSetting)
           {
             var hasRetried = false;
-          retry:
+            retry:
             using (var sqlReader = await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement, processDisplay, m_FileSetting.Timeout))
             {
               var data = await sqlReader.GetDataTableAsync(m_FileSetting.RecordLimit, false, false, m_FileSetting.DisplayStartLineNo, processDisplay.CancellationToken);
@@ -148,10 +148,10 @@ namespace CsvTools
                 goto retry;
               }
 
-              found.ValueFormat.DataType = column.DataType.GetDataType();
-              if (found.ValueFormat.DataType == DataType.String)
+              found.ValueFormatMutable.DataType = column.DataType.GetDataType();
+              if (found.ValueFormatMutable.DataType == DataType.String)
                 return;
-              m_ColumnEdit.ValueFormat.DataType = found.ValueFormat.DataType;
+              m_ColumnEdit.ValueFormatMutable.DataType = found.ValueFormatMutable.DataType;
               processDisplay.Hide();
 
               RefreshData();
@@ -186,7 +186,7 @@ namespace CsvTools
               var detectDateTime = true;
               if (comboBoxDataType.SelectedValue != null)
               {
-                var selectedType = (DataType)comboBoxDataType.SelectedValue;
+                var selectedType = (DataType) comboBoxDataType.SelectedValue;
                 if (selectedType != DataType.String && selectedType != DataType.TextToHtml
                                                     && selectedType != DataType.TextToHtmlFull
                                                     && selectedType != DataType.TextPart)
@@ -247,7 +247,7 @@ namespace CsvTools
                 DetermineColumnFormat.CommonDateFormat(m_FileSetting.ColumnCollection),
                 processDisplay.CancellationToken);
               processDisplay.Hide();
-              if (checkResult == null)
+              if (checkResult.FoundValueFormat == null)
               {
                 var rtfHelper = new RtfHelper();
                 rtfHelper.AddParagraph(
@@ -268,7 +268,7 @@ namespace CsvTools
                 {
                   if (checkResult.FoundValueFormat != null)
                   {
-                    checkResult.FoundValueFormat.CopyTo(m_ColumnEdit.ValueFormat);
+                    m_ColumnEdit.ValueFormatMutable.CopyFrom(checkResult.FoundValueFormat);
                     if (checkResult.FoundValueFormat.DataType == DataType.DateTime)
                       AddFormatToComboBoxDateFormat(checkResult.FoundValueFormat.DateFormat);
 
@@ -277,7 +277,7 @@ namespace CsvTools
                     if (checkResult.FoundValueFormat.Equals(checkResult.ValueFormatPossibleMatch))
                       checkResult.PossibleMatch = false;
                   }
-                  else if (checkResult.PossibleMatch)
+                  else if (checkResult.PossibleMatch && checkResult.ValueFormatPossibleMatch!=null)
                   {
                     if (checkResult.ValueFormatPossibleMatch.DataType == DataType.DateTime)
                       AddFormatToComboBoxDateFormat(checkResult.ValueFormatPossibleMatch.DateFormat);
@@ -313,7 +313,7 @@ namespace CsvTools
                         MessageBoxIcon.Question) == DialogResult.Yes)
                       // use the closest match instead of Text can not use ValueFormat.CopyTo,.
                       // Column is quite specific and need it to be set,
-                      checkResult.ValueFormatPossibleMatch.CopyTo(m_ColumnEdit.ValueFormat);
+                      m_ColumnEdit.ValueFormatMutable.CopyFrom(checkResult.ValueFormatPossibleMatch);
                   }
                   else
                   {
@@ -344,7 +344,7 @@ namespace CsvTools
                   }
                   else
                   {
-                    if (m_ColumnEdit.ValueFormat.DataType == DataType.String)
+                    if (m_ColumnEdit.ValueFormatMutable.DataType == DataType.String)
                     {
                       _MessageBox.ShowBig(
                         this,
@@ -361,7 +361,7 @@ namespace CsvTools
                         $"Column: {columnName}",
                         MessageBoxButtons.YesNo,
                         MessageBoxIcon.Question) == DialogResult.Yes)
-                        m_ColumnEdit.ValueFormat.DataType = DataType.String;
+                        m_ColumnEdit.ValueFormatMutable.DataType = DataType.String;
                     }
                   }
                 }
@@ -526,23 +526,23 @@ namespace CsvTools
         foreach (var ind in uncheck)
           checkedListBoxDateFormats.SetItemCheckState(ind, CheckState.Unchecked);
 
-        m_ColumnEdit.ValueFormat.DateFormat = format;
+        m_ColumnEdit.ValueFormatMutable.DateFormat = format;
       }
       else
       {
-        var parts = new List<string>(StringUtils.SplitByDelimiter(m_ColumnEdit.ValueFormat.DateFormat));
+        var parts = new List<string>(StringUtils.SplitByDelimiter(m_ColumnEdit.ValueFormatMutable.DateFormat));
         var isInList = parts.Contains(format);
 
         if (e.NewValue == CheckState.Checked && !isInList)
         {
           parts.Add(format);
-          m_ColumnEdit.ValueFormat.DateFormat = parts.Join(";");
+          m_ColumnEdit.ValueFormatMutable.DateFormat = parts.Join(";");
         }
 
         if (e.NewValue == CheckState.Checked || !isInList)
           return;
         parts.Remove(format);
-        m_ColumnEdit.ValueFormat.DateFormat = parts.Join(";");
+        m_ColumnEdit.ValueFormatMutable.DateFormat = parts.Join(";");
       }
     }
 
@@ -679,8 +679,8 @@ namespace CsvTools
       {
         if (comboBoxDataType.SelectedValue == null)
           return;
-        var selType = (DataType)comboBoxDataType.SelectedValue;
-        m_ColumnEdit.ValueFormat.DataType = selType;
+        var selType = (DataType) comboBoxDataType.SelectedValue;
+        m_ColumnEdit.ValueFormatMutable.DataType = selType;
 
         groupBoxNumber.Visible = selType == DataType.Numeric || selType == DataType.Double;
         if (groupBoxNumber.Visible)
@@ -925,8 +925,8 @@ namespace CsvTools
       SetDateFormat();
       var di = new List<DisplayItem<int>>();
       foreach (DataType item in Enum.GetValues(typeof(DataType)))
-        di.Add(new DisplayItem<int>((int)item, item.DataTypeDisplay()));
-      var selValue = (int)m_ColumnEdit.ValueFormat.DataType;
+        di.Add(new DisplayItem<int>((int) item, item.DataTypeDisplay()));
+      var selValue = (int) m_ColumnEdit.ValueFormatMutable.DataType;
       comboBoxDataType.DataSource = di;
       comboBoxDataType.SelectedValue = selValue;
       ComboBoxColumnName_TextUpdate(null, null);
@@ -996,7 +996,7 @@ namespace CsvTools
       AddNotExisting(formatsReg, "MM/dd/yyyy HH:mm:ss");
       AddNotExisting(formatsReg, "dd/MM/yyyy");
       AddNotExisting(formatsReg, "yyyy/MM/dd");
-      var parts = StringUtils.SplitByDelimiter(m_ColumnEdit.ValueFormat.DateFormat);
+      var parts = StringUtils.SplitByDelimiter(m_ColumnEdit.ValueFormatMutable.DateFormat);
       foreach (var format in parts)
         AddNotExisting(formatsReg, format);
 
@@ -1079,7 +1079,7 @@ namespace CsvTools
 
     private void UpdateColumnList(ICollection<string> allColumns)
     {
-      
+
       comboBoxColumnName.BeginUpdate();
       // if we have a list of columns add them to fields that show a column name
       if (allColumns.Count> 0)

@@ -256,7 +256,7 @@ namespace CsvTools.Tests
         while (await jfr.ReadAsync())
         {
         }
-        Assert.AreEqual(3, jfr.RecordNumber);
+        Assert.AreEqual(5, jfr.RecordNumber);
       }
     }
 

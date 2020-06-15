@@ -14,15 +14,26 @@ namespace CsvTools
     /// <remarks>If the column name already exist it does nothing but return the already defined column</remarks>
     /// <param name="columnFormat">The column format.</param>
     [NotNull]
-    public Column AddIfNew([NotNull] Column columnFormat)
+    public Column AddIfNew([NotNull] IColumn columnFormat)
     {
       if (columnFormat is null)
         throw new ArgumentNullException(nameof(columnFormat));
       var found = Get(columnFormat.Name);
       if (found != null)
         return found;
-      Add(columnFormat);
-      return columnFormat;
+      Column toAdd = null;
+      switch (columnFormat)
+      {
+        case ColumnReadOnly cro:
+          toAdd = cro.ToMutable();
+          break;
+        case Column col:
+          toAdd = col;
+          break;
+      }
+      if (toAdd!=null)
+        Add(toAdd);
+      return toAdd;
     }
 
     /// <summary>
@@ -58,8 +69,6 @@ namespace CsvTools
     /// <returns></returns>
     /// <value>The column format found by the given name, <c>NULL</c> otherwise</value>
     [CanBeNull] 
-    public Column Get([CanBeNull] string fieldName) => string.IsNullOrEmpty(fieldName)
-      ? null
-      : Items.FirstOrDefault(column => column.Name.Equals(fieldName, StringComparison.OrdinalIgnoreCase));
+    public Column Get([CanBeNull] string fieldName) => Items.FirstOrDefault(column => column.Name.Equals(fieldName, StringComparison.OrdinalIgnoreCase));
   }
 }

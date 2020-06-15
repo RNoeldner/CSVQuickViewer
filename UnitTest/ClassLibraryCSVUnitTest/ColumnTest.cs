@@ -35,13 +35,13 @@ namespace CsvTools.Tests
       var col = new Column();
       Assert.AreEqual(string.Empty, col.GetFormatDescription());
 
-      col.ValueFormat.DataType = DataType.TextPart;
+      col.ValueFormatMutable.DataType = DataType.TextPart;
       Assert.AreNotEqual(string.Empty, col.GetFormatDescription());
 
-      col.ValueFormat.DataType = DataType.DateTime;
+      col.ValueFormatMutable.DataType = DataType.DateTime;
       Assert.AreNotEqual(string.Empty, col.GetFormatDescription());
 
-      col.ValueFormat.DataType = DataType.Numeric;
+      col.ValueFormatMutable.DataType = DataType.Numeric;
       Assert.AreNotEqual(string.Empty, col.GetFormatDescription());
     }
   }

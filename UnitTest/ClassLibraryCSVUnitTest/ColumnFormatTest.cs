@@ -101,8 +101,8 @@ namespace CsvTools.Tests
       {
         numCalled++;
       };
-      test.ValueFormat.DataType = DataType.DateTime;
-      Assert.AreEqual(DataType.DateTime, test.ValueFormat.DataType);
+      test.ValueFormatMutable.DataType = DataType.DateTime;
+      Assert.AreEqual(DataType.DateTime, test.ValueFormatMutable.DataType);
       Assert.IsTrue(test.Convert);
 
       Assert.AreEqual(0, numCalled);
@@ -161,7 +161,7 @@ namespace CsvTools.Tests
 
       ff.ColumnCollection.AddIfNew(col);
       Assert.AreEqual("StartDate", col.Name, "Name");
-      Assert.AreEqual(DataType.DateTime, col.ValueFormat.DataType, "DataType");
+      Assert.AreEqual(DataType.DateTime, col.ValueFormatMutable.DataType, "DataType");
       Assert.IsTrue(col.Convert, "Convert");
       Assert.IsTrue(col.Ignore, "Ignore");
     }

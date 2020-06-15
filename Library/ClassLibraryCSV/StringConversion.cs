@@ -81,6 +81,7 @@ namespace CsvTools
     /// <param name="timeSeparator">The time separator.</param>
     /// <param name="culture">the culture to check (important for named Days or month)</param>
     /// <returns><c>true</c> if all values can be interpreted as date, <c>false</c> otherwise.</returns>
+    [NotNull]
     public static CheckResult CheckDate([NotNull] ICollection<string> samples, [CanBeNull] string shortDateFormat, [NotNull] string dateSeparator,
       [NotNull] string timeSeparator, CultureInfo culture)
     {
@@ -113,25 +114,14 @@ namespace CsvTools
           // possible match
           if (positiveMatches < threshHoldPossible || checkResult.PossibleMatch) continue;
           checkResult.PossibleMatch = true;
-          checkResult.ValueFormatPossibleMatch = new ValueFormat
-          {
-            DataType = DataType.DateTime,
-            DateFormat = shortDateFormat,
-            DateSeparator = dateSeparator,
-            TimeSeparator = timeSeparator
-          };
+          checkResult.ValueFormatPossibleMatch = new ValueFormatReadOnly(DataType.DateTime, shortDateFormat,
+            dateSeparator, timeSeparator: timeSeparator);
         }
       }
 
-      if (!allParsed)
-        return checkResult;
-      checkResult.FoundValueFormat = new ValueFormat
-      {
-        DataType = DataType.DateTime,
-        DateFormat = shortDateFormat,
-        DateSeparator = dateSeparator,
-        TimeSeparator = timeSeparator
-      };
+      if (allParsed)
+        checkResult.FoundValueFormat = new ValueFormatReadOnly(DataType.DateTime, shortDateFormat,
+        dateSeparator, timeSeparator: timeSeparator);
 
       return checkResult;
     }
@@ -195,12 +185,7 @@ namespace CsvTools
           if (positiveMatches > 5 && !checkResult.PossibleMatch)
           {
             checkResult.PossibleMatch = true;
-            checkResult.ValueFormatPossibleMatch = new ValueFormat
-            {
-              DataType = assumeInteger ? DataType.Integer : DataType.Numeric,
-              DecimalSeparator = decimalSeparator.ToString(CultureInfo.CurrentCulture),
-              GroupSeparator = thousandSeparator.ToString(CultureInfo.CurrentCulture)
-            };
+            checkResult.ValueFormatPossibleMatch = new ValueFormatReadOnly(assumeInteger ? DataType.Integer : DataType.Numeric, decimalSeparatorChar: decimalSeparator, groupSeparatorChar: thousandSeparator);
           }
 
           // if the value contains the decimal separator or is too large to be an integer, its not
@@ -214,13 +199,7 @@ namespace CsvTools
       }
 
       if (allParsed && counter > 0)
-        checkResult.FoundValueFormat = new ValueFormat
-        {
-          DataType = assumeInteger ? DataType.Integer : DataType.Numeric,
-          DecimalSeparator = decimalSeparator.ToString(CultureInfo.CurrentCulture),
-          GroupSeparator = thousandSeparator.ToString(CultureInfo.CurrentCulture)
-        };
-
+        checkResult.FoundValueFormat = new ValueFormatReadOnly(assumeInteger ? DataType.Integer : DataType.Numeric, decimalSeparatorChar: decimalSeparator, groupSeparatorChar: thousandSeparator);
       return checkResult;
     }
 
@@ -268,21 +247,13 @@ namespace CsvTools
             positiveMatches++;
             if (positiveMatches <= 5 || checkResult.PossibleMatch) continue;
             checkResult.PossibleMatch = true;
-            checkResult.ValueFormatPossibleMatch = new ValueFormat
-            {
-              DataType = DataType.DateTime,
-              DateFormat = "SerialDate"
-            };
+            checkResult.ValueFormatPossibleMatch = new ValueFormatReadOnly(DataType.DateTime, "SerialDate");
           }
         }
       }
 
       if (allParsed && counter > 0)
-        checkResult.FoundValueFormat = new ValueFormat
-        {
-          DataType = DataType.DateTime,
-          DateFormat = "SerialDate"
-        };
+        checkResult.FoundValueFormat = new ValueFormatReadOnly(DataType.DateTime, "SerialDate");
 
       return checkResult;
     }
@@ -589,7 +560,7 @@ namespace CsvTools
     {
       return value.ToString(format.NumberFormat, CultureInfo.InvariantCulture).ReplaceDefaults(
         CultureInfo.InvariantCulture.NumberFormat.NumberDecimalSeparator, format.DecimalSeparatorChar.ToString(),
-        CultureInfo.InvariantCulture.NumberFormat.NumberGroupSeparator, format.DecimalSeparatorChar.ToString());
+        CultureInfo.InvariantCulture.NumberFormat.NumberGroupSeparator, format.GroupSeparatorChar.ToString());
     }
 
     /// <summary>
