@@ -81,15 +81,18 @@ namespace CsvTools
       // in case there is no filename open a dialog
       if (string.IsNullOrEmpty(fileName) || !FileSystemUtils.FileExists(fileName))
       {
-        var strFilter = m_ViewSettings.StoreSettingsByFile
-          ? "Delimited files (*.csv;*.txt;*.tab;*.tsv;*.dat)|*.csv;*.txt;*.tab;*.tsv;*.dat|Setting files (*"
-            + CsvFile.cCsvSettingExtension + ")|*" + CsvFile.cCsvSettingExtension
-            + "|All files (*.*)|*.*"
-          : "Delimited files (*.csv;*.txt;*.tab;*.tsv;*.dat)|*.csv;*.txt;*.tab;*.tsv;*.dat|All files (*.*)|*.*";
+        var strFilter = "Supported files|*.csv;*.txt;*.tab;*.tsv;*.dat;*.json;*.gz|"
+                      + "Delimited files (*.csv;*.txt;*.tab;*.tsv;*.dat)|*.csv;*.txt;*.tab;*.tsv;*.dat|"
+                      + "Json files (*.json)|*.json|"
+                      + "All files (*.*)|*.*";
+
+        if (m_ViewSettings.StoreSettingsByFile)
+          strFilter += "|Setting files (*" + CsvFile.cCsvSettingExtension + ")|*" + CsvFile.cCsvSettingExtension;
+
         fileName = WindowsAPICodePackWrapper.Open(".", "Setting File", strFilter, null);
       }
 
-      // Just starting the task of loading the file 
+      // Just starting the task of loading the file
 #pragma warning disable 4014
       LoadCsvFile(fileName);
 #pragma warning restore 4014
@@ -105,7 +108,6 @@ namespace CsvTools
       m_SettingsChangedTimerChange.Elapsed += async (sender, args) => await OpenDataReaderAsync(true);
       m_SettingsChangedTimerChange.Stop();
     }
-
 
     // used in Unit Tests to check loaded data
     public DataTable DataTable
@@ -355,7 +357,6 @@ namespace CsvTools
       SaveIndividualFileSetting();
     }
 
-
     /// <summary>
     ///   Handles the PropertyChanged event of the FileSetting control.
     /// </summary>
@@ -442,7 +443,6 @@ namespace CsvTools
 
           m_FileSetting = new CsvFile();
           ViewSettings.CopyConfiguration(m_ViewSettings, m_FileSetting, fileName);
-
 
           m_FileSetting.ID = fileName.GetIdFromFileName();
           var fileInfo = new FileInfo(fileName);
@@ -616,7 +616,7 @@ namespace CsvTools
 
             foreach (var columnName in DataTable.GetRealColumns())
               if (m_FileSetting.ColumnCollection.Get(columnName) == null)
-                m_FileSetting.ColumnCollection.AddIfNew(new Column {Name = columnName});
+                m_FileSetting.ColumnCollection.AddIfNew(new Column { Name = columnName });
             if (processDisplay.CancellationToken.IsCancellationRequested)
             {
               Logger.Information("Cancellation was requested.");
@@ -758,8 +758,7 @@ namespace CsvTools
           SaveViewSettings();
           ApplicationSetting.MenuDown = m_ViewSettings.MenuDown;
           ViewSettings.CopyConfiguration(m_ViewSettings, m_FileSetting, null);
-          
-          
+
           await CheckPossibleChange();
         }
       }
