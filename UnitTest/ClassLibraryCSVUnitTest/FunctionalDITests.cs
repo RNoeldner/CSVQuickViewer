@@ -16,16 +16,21 @@
     }
 
     [TestMethod()]
-    public void GetFileReaderTest()
+    public async System.Threading.Tasks.Task GetFileReaderTestAsync()
     {
 
       var setting = new CsvFile {  FileName = UnitTestInitialize.GetTestPath("AlternateTextQualifiers.txt") };
-      var test = FunctionalDI.GetFileReader(setting, null, new DummyProcessDisplay());
-      Assert.IsInstanceOfType(test, typeof(CsvFileReader));
+      using (var test = FunctionalDI.GetFileReader(setting, null, new DummyProcessDisplay()))
+        Assert.IsInstanceOfType(test, typeof(CsvFileReader));
+      
+      using (var test3 = await FunctionalDI.ExecuteReaderAsync(setting, null, new DummyProcessDisplay()).ConfigureAwait(false))
+        Assert.IsInstanceOfType(test3, typeof(JsonFileReader));
 
       setting.JsonFormat = true;
-      var test2 = FunctionalDI.GetFileReader(setting, null, new DummyProcessDisplay());
-      Assert.IsInstanceOfType(test2, typeof(JsonFileReader));
+      using (var test2 = FunctionalDI.GetFileReader(setting, null, new DummyProcessDisplay()))
+        Assert.IsInstanceOfType(test2, typeof(JsonFileReader));
+
+  
     }
 
     [TestMethod()]

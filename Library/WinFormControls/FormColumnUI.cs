@@ -602,9 +602,8 @@ namespace CsvTools
                 // if there are ignored columns need to open file and get all columns
                 if (m_FileSetting.ColumnCollection.Any(x => x.Ignore))
                 {
-                  using (var fileReader = FunctionalDI.GetFileReader(m_FileSetting, null, processDisplay))
+                  using (var fileReader = await FunctionalDI.ExecuteReaderAsync(m_FileSetting, null, processDisplay))
                   {
-                    await fileReader.OpenAsync();
                     for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
                       allColumns.Add(fileReader.GetColumn(colIndex).Name);
                   }
@@ -826,9 +825,8 @@ namespace CsvTools
         }
 
         retry:
-        using (var fileReader = FunctionalDI.GetFileReader(fileSettingCopy, null, processDisplay))
+        using (var fileReader = await FunctionalDI.ExecuteReaderAsync(fileSettingCopy, null, processDisplay))
         {
-          await fileReader.OpenAsync();
           var colIndex = fileReader.GetOrdinal(columnName);
           if (colIndex < 0)
           {

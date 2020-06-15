@@ -16,6 +16,7 @@
   <ItemGroup>
     <Compile Remove="CsvFileReaderAsync.cs" />
     <Compile Remove="DataTableReaderAsync.cs" />
+    <Compile Remove="SettingsReadOnly\SettingReadOnly.cs" />
   </ItemGroup>
 
   <ItemGroup>

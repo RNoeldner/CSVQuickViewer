@@ -56,7 +56,7 @@ namespace CsvTools.Tests
         : m_ReadSetting.First();
 
       var reader = setting.Value != null ? new DataTableReader(setting.Value, settingName, processDisplay) : FunctionalDI.GetFileReader(setting.Key, null, processDisplay);
-      await reader.OpenAsync();
+      await reader.OpenAsync().ConfigureAwait(false);
       return reader;
     }
   }

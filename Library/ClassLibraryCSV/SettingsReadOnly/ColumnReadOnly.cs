@@ -19,7 +19,7 @@ namespace CsvTools
   /// <summary>
   ///   Column information like name, Type, Format etc.
   /// </summary>
-  public class ColumnReadOnly : IColumn, IEquatable<IColumn>
+  public class ColumnReadOnly : IColumn
   {
     public ColumnReadOnly(string name,
       IValueFormat valueFormat, int columnOrdinal, bool convert = false, string destinationName = "", bool ignore = false, int part = 0,
@@ -60,19 +60,19 @@ namespace CsvTools
     public string TimeZonePart { get; }
     public IValueFormat ValueFormat { get; }
 
-    public bool Equals(IColumn other)
-    {
-      if (ReferenceEquals(null, other)) return false;
-      if (ReferenceEquals(this, other)) return true;
-      return // ColumnOrdinal == other.ColumnOrdinal && 
-        Convert == other.Convert &&
-        DestinationName == other.DestinationName && Ignore == other.Ignore &&
-        Name == other.Name && Part == other.Part &&
-        PartSplitter == other.PartSplitter && PartToEnd == other.PartToEnd &&
-        TimePart == other.TimePart && TimePartFormat == other.TimePartFormat &&
-        TimeZonePart == other.TimeZonePart &&
-        Equals(ValueFormat, other.ValueFormat);
-    }
+    //public bool Equals(IColumn other)
+    //{
+    //  if (ReferenceEquals(null, other)) return false;
+    //  if (ReferenceEquals(this, other)) return true;
+    //  return // ColumnOrdinal == other.ColumnOrdinal && 
+    //    Convert == other.Convert &&
+    //    DestinationName == other.DestinationName && Ignore == other.Ignore &&
+    //    Name == other.Name && Part == other.Part &&
+    //    PartSplitter == other.PartSplitter && PartToEnd == other.PartToEnd &&
+    //    TimePart == other.TimePart && TimePartFormat == other.TimePartFormat &&
+    //    TimeZonePart == other.TimeZonePart &&
+    //    Equals(ValueFormat, other.ValueFormat);
+    //}
 
     public Column ToMutable() => new Column(Name, new ValueFormat
     {
@@ -101,32 +101,32 @@ namespace CsvTools
     };
     public override string ToString() => $"{Name} ({this.GetTypeAndFormatDescription()})";
 
-    public override bool Equals(object obj)
-    {
-      if (ReferenceEquals(null, obj)) return false;
-      if (ReferenceEquals(this, obj)) return true;
-      if (obj.GetType() != GetType()) return false;
-      return Equals((ColumnReadOnly) obj);
-    }
+  //  public override bool Equals(object obj)
+  //  {
+  //    if (ReferenceEquals(null, obj)) return false;
+  //    if (ReferenceEquals(this, obj)) return true;
+  //    if (obj.GetType() != GetType()) return false;
+  //    return Equals((ColumnReadOnly) obj);
+  //  }
 
-    public override int GetHashCode()
-    {
-      unchecked
-      {
-        var hashCode = ColumnOrdinal;
-        hashCode = (hashCode * 397) ^ Convert.GetHashCode();
-        hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(DestinationName);
-        hashCode = (hashCode * 397) ^ Ignore.GetHashCode();
-        hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(Name);
-        hashCode = (hashCode * 397) ^ Part;
-        hashCode = (hashCode * 397) ^ PartSplitter.GetHashCode();
-        hashCode = (hashCode * 397) ^ PartToEnd.GetHashCode();
-        hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(TimePart);
-        hashCode = (hashCode * 397) ^ TimePartFormat.GetHashCode();
-        hashCode = (hashCode * 397) ^ TimeZonePart.GetHashCode();
-        hashCode = (hashCode * 397) ^ ValueFormat.GetHashCode();
-        return hashCode;
-      }
-    }
+  //  public override int GetHashCode()
+  //  {
+  //    unchecked
+  //    {
+  //      var hashCode = ColumnOrdinal;
+  //      hashCode = (hashCode * 397) ^ Convert.GetHashCode();
+  //      hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(DestinationName);
+  //      hashCode = (hashCode * 397) ^ Ignore.GetHashCode();
+  //      hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(Name);
+  //      hashCode = (hashCode * 397) ^ Part;
+  //      hashCode = (hashCode * 397) ^ PartSplitter.GetHashCode();
+  //      hashCode = (hashCode * 397) ^ PartToEnd.GetHashCode();
+  //      hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(TimePart);
+  //      hashCode = (hashCode * 397) ^ TimePartFormat.GetHashCode();
+  //      hashCode = (hashCode * 397) ^ TimeZonePart.GetHashCode();
+  //      hashCode = (hashCode * 397) ^ ValueFormat.GetHashCode();
+  //      return hashCode;
+  //    }
+  //  }
   }
 }

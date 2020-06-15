@@ -61,8 +61,8 @@ namespace CsvTools.Tests
     {
       try
       {
-        FunctionalDI.GetFileReader(m_StructuredFile, TimeZoneInfo.Local.Id, null);
-        Assert.Fail("Should throw error");
+        using (var dummy = FunctionalDI.GetFileReader(m_StructuredFile, TimeZoneInfo.Local.Id, null))
+          Assert.Fail("Should throw error");
       }
       catch (NotImplementedException)
       {

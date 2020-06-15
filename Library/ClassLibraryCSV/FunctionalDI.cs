@@ -109,6 +109,16 @@ namespace CsvTools
     // ReSharper disable once FieldCanBeMadeReadOnly.Global
     public static Func<IFileSetting, string, IProcessDisplay, IFileReader> GetFileReader = DefaultFileReader;
 
+    [ItemNotNull]
+    // ReSharper disable once FieldCanBeMadeReadOnly.Global
+    public static readonly Func<IFileSetting, string, IProcessDisplay, Task<IFileReader>> ExecuteReaderAsync =
+      (async (setting, timeZone, processDisplay) =>
+      {
+        var reader = GetFileReader(setting, timeZone, processDisplay);
+        await reader.OpenAsync().ConfigureAwait(false); 
+        return reader;
+      });
+
     /// <summary>
     ///   Return a right writer for a file setting
     /// </summary>
