@@ -133,7 +133,7 @@ namespace CsvTools.Tests
     public void GetLatestFileOfPattern()
     {
       var root = FileSystemUtils.ExecutableDirectoryName();
-      var res = FileSystemUtils.GetLatestFileOfPattern(root, "ClassLibraryCSV*.dll");
+      var res = FileSystemUtils.GetLatestFileOfPattern(root, "ClassLibraryCSVU*.dll");
       Assert.IsTrue(res == root + "\\ClassLibraryCSVUnitTest.dll");
     }
 

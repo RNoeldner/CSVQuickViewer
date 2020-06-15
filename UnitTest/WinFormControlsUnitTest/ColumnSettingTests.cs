@@ -20,7 +20,8 @@ namespace CsvTools.Tests
     {
       var co1 = new ColumnSetting("proName", true, 0, 10, 100);
       Assert.AreEqual(false, co1.ShouldSerializeOperator());
-      co1.Operator = "hello";
+      co1.Operator = "=";
+      co1.ValueText = "hello";
       Assert.AreEqual(true, co1.ShouldSerializeOperator());
     }
 

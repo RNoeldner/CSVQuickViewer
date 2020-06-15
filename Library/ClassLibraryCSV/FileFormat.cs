@@ -410,7 +410,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="value">The input string.</param>
     /// <returns></returns>
-    public static char GetChar(string value)
+    public static char GetChar([CanBeNull] string value)
     {
       if (string.IsNullOrEmpty(value))
         return '\0';

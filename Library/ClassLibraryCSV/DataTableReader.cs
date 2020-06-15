@@ -15,6 +15,7 @@
 using System;
 using System.Data;
 using System.Data.Common;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -24,7 +25,7 @@ namespace CsvTools
   ///   IFileReader implementation based on a data table
   /// </summary>
   /// <remarks>Some functionality for progress report are not implemented</remarks>
-  public class DataTableReader : BaseFileReader, IFileReader
+  public class DataTableReader : BaseFileReaderTyped, IFileReader
   {
     private readonly DataTable m_DataTable;
     private DbDataReader m_DbDataReader;
@@ -99,16 +100,13 @@ namespace CsvTools
     public override async Task OpenAsync()
     {
       await BeforeOpenAsync("Opening Data Table").ConfigureAwait(false);
+      var listCol = m_DataTable.Columns.OfType<DataColumn>().ToList();
       InitColumn(m_DataTable.Columns.Count);
-
-      // Initialize the Columns
-      foreach (DataColumn col in m_DataTable.Columns)
-      {
-        var column = Column[col.Ordinal];
-        column.ValueFormat.DataType = col.DataType.GetDataType();
-        column.Name = col.ColumnName;
-      }
-
+      ParseColumnName(listCol.Select(x => x.ColumnName));
+      if (m_DbDataReader == null)
+        m_DbDataReader = m_DataTable.CreateDataReader();
+      await GetColumnTypeAsync(1).ConfigureAwait(false);
+      
       await ResetPositionToFirstDataRowAsync().ConfigureAwait(false);
     }
 
@@ -144,7 +142,7 @@ namespace CsvTools
       m_DbDataReader = m_DataTable.CreateDataReader();
     }
 
-    protected override int GetRelativePosition() => (int)((double)RecordNumber / m_DataTable.Rows.Count * cMaxValue);
+    protected override int GetRelativePosition() => (int) ((double) RecordNumber / m_DataTable.Rows.Count * cMaxValue);
 
     protected override void Dispose(bool disposing)
     {

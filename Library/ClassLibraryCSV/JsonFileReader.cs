@@ -22,6 +22,9 @@ using Newtonsoft.Json;
 
 namespace CsvTools
 {
+  /// <summary>
+  /// Json text file reader
+  /// </summary>
   public class JsonFileReader : BaseFileReaderTyped, IFileReader
   {
     private readonly ICsvFile m_StructuredFile;
@@ -52,12 +55,14 @@ namespace CsvTools
 
     public override async Task OpenAsync()
     {
-      await  BeforeOpenAsync($"Opening Json file {FileSystemUtils.GetShortDisplayFileName(m_StructuredFile.FileName, 80)}").ConfigureAwait(false);
-    Retry:
+      await BeforeOpenAsync(
+          $"Opening Json file {FileSystemUtils.GetShortDisplayFileName(m_StructuredFile.FileName, 80)}")
+        .ConfigureAwait(false);
+      Retry:
       try
       {
         m_AssumeLog = false;
-      again:
+        again:
         ResetPositionToStartOrOpen();
 
         var line = await GetNextRecordAsync(false).ConfigureAwait(false);
@@ -72,20 +77,19 @@ namespace CsvTools
           goto again;
         }
 
-        // need to call InitColumn to set the Field Count and initialize all array
-        base.InitColumn(line.Count);
-        var header = line.Select(colValue => colValue.Key).ToList();
-        ParseColumnName(header);
 
-        // Set CurrentValues as it has been created now
-        var col = 0;
-        foreach (var colValue in line)
-          CurrentValues[col++] = colValue.Value;
-        var colType = await GetColumnTypeAsync().ConfigureAwait(false);
+        // read additional 50 rows to see if we have some extra columns
+        for (var row = 1; row < 50; row++)
+        {
+          var line2 = await GetNextRecordAsync(false).ConfigureAwait(false);
+          if (line2 == null)
+            break;
+          if (line2.Count > line.Count)
+            line = line2;
+        }
 
-        // Read the types of the first row
-        for (var counter = 0; counter < FieldCount; counter++)
-          GetColumn(counter).ValueFormat.DataType = colType[counter];
+        InitColumn(line.Count);
+        ParseColumnName(line.Select(colValue => colValue.Key), line.Select(colValue => colValue.Value.GetType().GetDataType()));
 
         base.FinishOpen();
 
@@ -125,9 +129,9 @@ namespace CsvTools
       return false;
     }
 
-#pragma warning disable 1998
-    public new async Task ResetPositionToFirstDataRowAsync() => ResetPositionToStartOrOpen();
-#pragma warning restore 1998
+
+    public override async Task ResetPositionToFirstDataRowAsync() => await Task.Run(ResetPositionToStartOrOpen);
+
 
     /// <summary>
     ///   Releases unmanaged and - optionally - managed resources
@@ -310,9 +314,9 @@ namespace CsvTools
     {
       // if we know how many records to read, use that
       if (m_StructuredFile.RecordLimit > 0)
-        return (int)(RecordNumber / m_StructuredFile.RecordLimit * cMaxValue);
+        return (int) (RecordNumber / m_StructuredFile.RecordLimit * cMaxValue);
 
-      return (int)(m_ImprovedStream.Percentage * cMaxValue);
+      return (int) (m_ImprovedStream.Percentage * cMaxValue);
     }
 
     /// <summary>
@@ -384,12 +388,12 @@ namespace CsvTools
     /// <summary>
     ///   The line-feed character. Escape code is <c>\n</c>.
     /// </summary>
-    private const char c_Lf = (char)0x0a;
+    private const char c_Lf = (char) 0x0a;
 
     /// <summary>
     ///   The carriage return character. Escape code is <c>\r</c>.
     /// </summary>
-    private const char c_Cr = (char)0x0d;
+    private const char c_Cr = (char) 0x0d;
 
     /// <summary>
     ///   Fills the buffer with data from the reader.

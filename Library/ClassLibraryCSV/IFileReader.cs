@@ -124,7 +124,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="column">The column.</param>
     /// <returns>A <see cref="Column" /> with all information on the column</returns>
-    Column GetColumn(int column);
+    ColumnReadOnly GetColumn(int column);
 
     /// <summary>
     ///   Checks if the column should be read
@@ -132,11 +132,6 @@ namespace CsvTools
     /// <param name="column">The column number.</param>
     /// <returns><c>true</c> if this column should not be read</returns>
     bool IgnoreRead(int column);
-
-    /// <summary>
-    ///   Overrides the column format with values from settings
-    /// </summary>
-    void OverrideColumnFormatFromSetting();
 
     /// <summary>
     ///   Opens the text file and begins to read the meta data, like columns

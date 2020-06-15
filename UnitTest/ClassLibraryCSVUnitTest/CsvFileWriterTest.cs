@@ -110,7 +110,7 @@ namespace CsvTools.Tests
       writeFile.SqlStatement = setting.ID;
       writeFile.FileFormat.FieldDelimiter = "|";
       var cf = writeFile.ColumnCollection.AddIfNew(new Column("DateTime", DataType.DateTime));
-      cf.ValueFormat.DateFormat = "yyyyMMdd";
+      cf.ValueFormatMutable.DateFormat = "yyyyMMdd";
       cf.TimePartFormat = @"hh:mm";
       cf.TimePart = "Time";
       cf.TimeZonePart = "\"UTC\"";

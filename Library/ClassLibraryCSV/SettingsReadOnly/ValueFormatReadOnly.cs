@@ -5,10 +5,12 @@ namespace CsvTools
 {
   public class ValueFormatReadOnly : IValueFormat, IEquatable<IValueFormat>
   {
-    public ValueFormatReadOnly(DataType dataType, string dateFormat, string dateSeparator, char decimalSeparatorChar,
-      string displayNullAs, [NotNull] string asFalse, char groupSeparatorChar, string numberFormat,
-      string timeSeparator,
-      [NotNull] string asTrue)
+    public ValueFormatReadOnly(DataType dataType = DataType.String, string dateFormat = ValueFormatExtension.cDateFormatDefault,
+      string dateSeparator = ValueFormatExtension.cDateSeparatorDefault, char decimalSeparatorChar = '.',
+      string displayNullAs = "", [NotNull] string asFalse = ValueFormatExtension.cFalseDefault,
+      char groupSeparatorChar = '\0', string numberFormat = ValueFormatExtension.cNumberFormatDefault,
+      string timeSeparator = ValueFormatExtension.cTimeSeparatorDefault,
+      [NotNull] string asTrue = ValueFormatExtension.cTrueDefault)
     {
       DataType = dataType;
       DateFormat = dateFormat;
@@ -20,6 +22,12 @@ namespace CsvTools
       NumberFormat = numberFormat;
       TimeSeparator = timeSeparator;
       True = asTrue;
+    }
+
+    public ValueFormatReadOnly(IValueFormat other) : this(other.DataType, other.DateFormat, other.DateSeparator,
+      other.DecimalSeparatorChar, other.DisplayNullAs, other.False, other.GroupSeparatorChar, other.NumberFormat,
+      other.TimeSeparator, other.True)
+    {
     }
 
     public bool Equals(IValueFormat other)
@@ -42,24 +50,6 @@ namespace CsvTools
     public string NumberFormat { get; }
     public string TimeSeparator { get; }
     public string True { get; }
-
-    public static IValueFormat ReadOnly(IValueFormat rw) => new ValueFormatReadOnly(rw.DataType,
-      rw.DateFormat, rw.DateSeparator, rw.DecimalSeparatorChar, rw.DisplayNullAs, rw.False, rw.GroupSeparatorChar,
-      rw.NumberFormat, rw.TimeSeparator, rw.True
-    );
-
-    public IValueFormat ReadWrite() => new ValueFormat(DataType)
-    {
-      DateFormat = DateFormat,
-      DateSeparator = DateSeparator,
-      DecimalSeparator = DecimalSeparatorChar.ToString(),
-      DisplayNullAs = DisplayNullAs,
-      False = False,
-      GroupSeparator = GroupSeparatorChar.ToString(),
-      NumberFormat = NumberFormat,
-      TimeSeparator = TimeSeparator,
-      True = True
-    };
 
     public override bool Equals(object obj)
     {

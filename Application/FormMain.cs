@@ -194,7 +194,7 @@ namespace CsvTools
       foreach (var col in fileSetting.ColumnCollection)
       {
         col.PropertyChanged += AnyPropertyChangedReload;
-        col.ValueFormat.PropertyChanged += AnyPropertyChangedReload;
+        col.ValueFormatMutable.PropertyChanged += AnyPropertyChangedReload;
       }
     }
 
@@ -252,7 +252,7 @@ namespace CsvTools
         foreach (var col in fileSetting.ColumnCollection)
         {
           col.PropertyChanged -= AnyPropertyChangedReload;
-          col.ValueFormat.PropertyChanged -= AnyPropertyChangedReload;
+          col.ValueFormatMutable.PropertyChanged -= AnyPropertyChangedReload;
         }
       }
     }

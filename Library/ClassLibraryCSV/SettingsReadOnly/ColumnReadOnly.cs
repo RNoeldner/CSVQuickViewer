@@ -13,7 +13,6 @@
  */
 
 using System;
-using System.Runtime.Remoting.Messaging;
 
 namespace CsvTools
 {
@@ -22,6 +21,32 @@ namespace CsvTools
   /// </summary>
   public class ColumnReadOnly : IColumn, IEquatable<IColumn>
   {
+    public ColumnReadOnly(string name,
+      IValueFormat valueFormat, int columnOrdinal, bool convert = false, string destinationName = "", bool ignore = false, int part = 0,
+      char partSplitter = '\0', bool partToEnd = true, string timePart = "", string timePartFormat = "", string timeZonePart = "")
+    {
+      ColumnOrdinal = columnOrdinal;
+      Convert = convert;
+      DestinationName = destinationName;
+      Ignore = ignore;
+      Name = name;
+      Part = part;
+      PartSplitter = partSplitter;
+      PartToEnd = partToEnd;
+      TimePart = timePart;
+      TimePartFormat = timePartFormat;
+      TimeZonePart = timeZonePart;
+      ValueFormat = valueFormat;
+    }
+
+    public ColumnReadOnly(IColumn other, int ordinal) : this(other.Name, new ValueFormatReadOnly(other.ValueFormat), ordinal, other.Convert, other.DestinationName, other.Ignore, other.Part, other.PartSplitter, other.PartToEnd, other.TimePart, other.TimePartFormat, other.TimeZonePart)
+    {
+    }
+
+    public ColumnReadOnly(IColumn other, IValueFormat newValueFormat) : this(other.Name, newValueFormat, other.ColumnOrdinal, other.Convert, other.DestinationName, other.Ignore, other.Part, other.PartSplitter, other.PartToEnd, other.TimePart, other.TimePartFormat, other.TimeZonePart)
+    {
+    }
+
     public int ColumnOrdinal { get; }
     public bool Convert { get; }
     public string DestinationName { get; }
@@ -35,31 +60,12 @@ namespace CsvTools
     public string TimeZonePart { get; }
     public IValueFormat ValueFormat { get; }
 
-    public ColumnReadOnly(int columnOrdinal, bool convert, string destinationName, bool ignore, string name, int part, char partSplitter, bool partToEnd, string timePart, string timePartFormat, string timeZonePart, IValueFormat valueFormat)
-    {
-      ColumnOrdinal =columnOrdinal;
-      Convert =convert;
-      DestinationName =destinationName;
-      Ignore =ignore;
-      Name =name;
-      Part =part;
-      PartSplitter =partSplitter;
-      PartToEnd =partToEnd;
-      TimePart =timePart;
-      TimePartFormat =timePartFormat;
-      TimeZonePart =timeZonePart;
-      ValueFormat = valueFormat;
-    }
-
-    public static ColumnReadOnly From(Column rw) => new ColumnReadOnly(rw.ColumnOrdinal, rw.Convert, rw.DestinationName,
-      rw.Ignore, rw.Name, rw.Part, rw.PartSplitter, rw.PartToEnd, rw.TimePart, rw.TimePartFormat, rw.TimeZonePart,
-      ValueFormatReadOnly.ReadOnly(rw.ValueFormat));
-
     public bool Equals(IColumn other)
     {
       if (ReferenceEquals(null, other)) return false;
       if (ReferenceEquals(this, other)) return true;
-      return ColumnOrdinal == other.ColumnOrdinal && Convert == other.Convert &&
+      return // ColumnOrdinal == other.ColumnOrdinal && 
+        Convert == other.Convert &&
         DestinationName == other.DestinationName && Ignore == other.Ignore &&
         Name == other.Name && Part == other.Part &&
         PartSplitter == other.PartSplitter && PartToEnd == other.PartToEnd &&
@@ -68,11 +74,38 @@ namespace CsvTools
         Equals(ValueFormat, other.ValueFormat);
     }
 
+    public Column ToMutable() => new Column(Name, new ValueFormat
+    {
+      DataType = ValueFormat.DataType,
+      DateFormat = ValueFormat.DateFormat,
+      DateSeparator = ValueFormat.DateSeparator,
+      DecimalSeparator = ValueFormat.DecimalSeparatorChar.ToString(),
+      DisplayNullAs = ValueFormat.DisplayNullAs,
+      False = ValueFormat.False,
+      GroupSeparator = ValueFormat.GroupSeparatorChar.ToString(),
+      NumberFormat = ValueFormat.NumberFormat,
+      TimeSeparator = ValueFormat.TimeSeparator,
+      True = ValueFormat.True
+    })
+    {
+      ColumnOrdinal = ColumnOrdinal,
+      Convert = Convert,
+      DestinationName = DestinationName,
+      Ignore = Ignore,
+      Part = Part,
+      PartSplitter = PartSplitter,
+      PartToEnd = PartToEnd,
+      TimePart = TimePart,
+      TimePartFormat = TimePartFormat,
+      TimeZonePart = TimeZonePart
+    };
+    public override string ToString() => $"{Name} ({this.GetTypeAndFormatDescription()})";
+
     public override bool Equals(object obj)
     {
       if (ReferenceEquals(null, obj)) return false;
       if (ReferenceEquals(this, obj)) return true;
-      if (obj.GetType() != this.GetType()) return false;
+      if (obj.GetType() != GetType()) return false;
       return Equals((ColumnReadOnly) obj);
     }
 
@@ -82,7 +115,7 @@ namespace CsvTools
       {
         var hashCode = ColumnOrdinal;
         hashCode = (hashCode * 397) ^ Convert.GetHashCode();
-        hashCode = (hashCode * 397) ^ (StringComparer.OrdinalIgnoreCase.GetHashCode(DestinationName));
+        hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(DestinationName);
         hashCode = (hashCode * 397) ^ Ignore.GetHashCode();
         hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(Name);
         hashCode = (hashCode * 397) ^ Part;

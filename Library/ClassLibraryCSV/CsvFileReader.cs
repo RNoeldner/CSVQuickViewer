@@ -243,18 +243,8 @@ namespace CsvTools
         ResetPositionToStartOrOpen();
 
         m_HeaderRow = await ReadNextRowAsync(false, false).ConfigureAwait(false);
-        if (m_HeaderRow == null || m_HeaderRow.GetLength(0) == 0)
-        {
-          InitColumn(0);
-        }
-        else
-        {
-          // Get the column count
-          InitColumn(await ParseFieldCountAsync(m_HeaderRow).ConfigureAwait(false));
-
-          // Get the column names
-          ParseColumnName(m_HeaderRow);
-        }
+        InitColumn(await ParseFieldCountAsync(m_HeaderRow).ConfigureAwait(false));
+        ParseColumnName(m_HeaderRow);
 
         FinishOpen();
 

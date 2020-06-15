@@ -153,20 +153,17 @@ namespace CsvTools
       var halfTheColumns = (int) Math.Ceiling(avgFieldCount / 2.0);
 
       // use the same routine that is used in readers to determine the names of the columns
-      var warning = new ColumnErrorDictionary();
-      var columns = BaseFileReader.ParseColumnNames(headerRow, (int) avgFieldCount, warning).ToList();
+      var columnsAndIssues = BaseFileReader.AdjustColumnName(headerRow, (int) avgFieldCount, null);
 
       // looking at the warnings raised
-      if (warning.Any(x => x.Value.Contains("exists more than once"))
-          || warning.Any(x => x.Value.Contains("too long"))
-          || warning.Count(x => x.Value.Contains("title was empty")) >= halfTheColumns)
+      if (columnsAndIssues.Item2 >= halfTheColumns)
       {
         Logger.Information("Without Header Row");
         return false;
       }
 
       // Columns are only one or two char, that does not look descriptive
-      if (columns.Count(x => x.Length < 3) > halfTheColumns)
+      if (columnsAndIssues.Item1.Count(x => x.Length < 3) > halfTheColumns)
       {
         Logger.Information("Without Header Row");
         return false;
@@ -223,7 +220,7 @@ namespace CsvTools
     public static async Task<RecordDelimiterType> GuessNewlineAsync([NotNull] ICsvFile setting,
       CancellationToken cancellationToken)
     {
-      
+
       using (var improvedStream = FunctionalDI.OpenRead(setting))
       using (var streamReader = new ImprovedTextReader(improvedStream, setting.CodePageId, setting.SkipRows))
       {

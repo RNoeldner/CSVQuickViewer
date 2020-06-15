@@ -12,23 +12,83 @@
  *
  */
 
-using System.Diagnostics.CodeAnalysis;
+
 
 namespace CsvTools
 {
   using System;
   using System.ComponentModel;
-  using System.Globalization;
   using System.Text;
   using System.Xml.Serialization;
+  using System.Diagnostics.CodeAnalysis;
+  using JetBrains.Annotations;
 
+  public static class ColumnExtension
+  {
+    /// <summary>
+    ///   Gets the a description of the Date or Number format
+    /// </summary>
+    /// <returns></returns>
+    [NotNull]
+    public static string GetFormatDescription([NotNull] this IColumn column)
+    {
+      if (column.ValueFormat.DataType == DataType.TextPart)
+        return column.Part + (column.PartToEnd ? " To End" : string.Empty);
+
+      return column.ValueFormat.GetFormatDescription();
+    }
+
+    /// <summary>
+    ///   Gets the description.
+    /// </summary>
+    /// <returns></returns>
+    [NotNull]
+    public static string GetTypeAndFormatDescription([NotNull] this IColumn column, bool addTime = true)
+    {
+      var stringBuilder = new StringBuilder(column.ValueFormat.DataType.DataTypeDisplay());
+
+      var shortDesc = column.GetFormatDescription();
+      if (shortDesc.Length > 0)
+      {
+        stringBuilder.Append(" (");
+        stringBuilder.Append(shortDesc);
+        stringBuilder.Append(")");
+      }
+
+      if (addTime && column.ValueFormat.DataType == DataType.DateTime)
+      {
+        if (column.TimePart.Length > 0)
+        {
+          stringBuilder.Append(" + ");
+          stringBuilder.Append(column.TimePart);
+          if (column.TimePartFormat.Length > 0)
+          {
+            stringBuilder.Append(" (");
+            stringBuilder.Append(column.TimePartFormat);
+            stringBuilder.Append(")");
+          }
+        }
+
+        if (column.TimeZonePart.Length > 0)
+        {
+          stringBuilder.Append(" - ");
+          stringBuilder.Append(column.TimeZonePart);
+        }
+      }
+
+      if (column.Ignore)
+        stringBuilder.Append(" (Ignore)");
+
+      return stringBuilder.ToString();
+    }
+  }
   /// <summary>
   ///   Column information like name, Type, Format etc.
   /// </summary>
   [Serializable]
   [SuppressMessage("ReSharper", "UnusedMember.Global")]
 #pragma warning disable CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
-  public class Column : INotifyPropertyChanged, IEquatable<Column>, ICloneable<Column>
+  public class Column : IColumn, INotifyPropertyChanged, IEquatable<Column>, ICloneable<Column>
 #pragma warning restore CS0659
   {
     // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
@@ -69,22 +129,38 @@ namespace CsvTools
     {
     }
 
+    public Column(IColumn source, IValueFormat format)
+    {
+      m_ColumnOrdinal = source.ColumnOrdinal;
+      m_Convert = source.Convert;
+      m_DestinationName = source.DestinationName;
+      m_Ignore = source.Ignore;
+      m_Name = source.Name;
+      m_Part = source.Part;
+      m_PartSplitter = source.PartSplitter;
+      m_PartToEnd = source.PartToEnd;
+      m_TimePart = source.TimePart;
+      m_TimePartFormat = source.TimePartFormat;
+      m_TimeZonePart = source.TimeZonePart;
+      m_ValueFormatMutable = new ValueFormat(format);
+    }
+
     public Column(string name, ValueFormat valueFormat)
     {
       m_Name = name;
-      ValueFormat = valueFormat.Clone();
+      m_ValueFormatMutable = valueFormat.Clone();
     }
 
     public Column(string name, DataType dataType = DataType.String)
     {
       m_Name = name;
-      ValueFormat = new ValueFormat(dataType);
+      m_ValueFormatMutable = new ValueFormat(dataType);
     }
 
-    public Column(string name, string dateFormat, string dateSeparator = ValueFormat.cDateSeparatorDefault)
+    public Column(string name, string dateFormat, string dateSeparator = ValueFormatExtension.cDateSeparatorDefault)
     {
       m_Name = name;
-      ValueFormat = new ValueFormat(DataType.DateTime) { DateFormat = dateFormat, DateSeparator = dateSeparator };
+      m_ValueFormatMutable = new ValueFormat(DataType.DateTime) { DateFormat = dateFormat, DateSeparator = dateSeparator };
     }
 
     /// <summary>
@@ -111,7 +187,7 @@ namespace CsvTools
     [DefaultValue(false)]
     public virtual bool Convert
     {
-      get => m_Convert ?? ValueFormat.DataType != DataType.String;
+      get => m_Convert ?? m_ValueFormatMutable.DataType != DataType.String;
       set
       {
         if (m_Convert.HasValue && m_Convert.Equals(value))
@@ -137,8 +213,8 @@ namespace CsvTools
     [DefaultValue(DataType.String)]
     public virtual DataType DataType
     {
-      get => ValueFormat.DataType;
-      set => ValueFormat.DataType = value;
+      get => m_ValueFormatMutable.DataType;
+      set => m_ValueFormatMutable.DataType = value;
     }
 
     /// <summary>
@@ -146,11 +222,11 @@ namespace CsvTools
     /// </summary>
     /// <value>The date format.</value>
     [XmlAttribute]
-    [DefaultValue(ValueFormat.cDateFormatDefault)]
+    [DefaultValue(ValueFormatExtension.cDateFormatDefault)]
     public virtual string DateFormat
     {
-      get => ValueFormat.DateFormat;
-      set => ValueFormat.DateFormat = value;
+      get => m_ValueFormatMutable.DateFormat;
+      set => m_ValueFormatMutable.DateFormat = value;
     }
 
     /// <summary>
@@ -159,18 +235,19 @@ namespace CsvTools
     /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
     /// <remarks>Used for XML Serialization</remarks>
     [XmlIgnore]
-    public virtual bool DateFormatSpecified => ValueFormat.DataType == DataType.DateTime;
+    public virtual bool DateFormatSpecified => m_ValueFormatMutable.DataType == DataType.DateTime;
 
     /// <summary>
     ///   Gets or sets the date separator.
     /// </summary>
     /// <value>The date separator.</value>
     [XmlAttribute]
-    [DefaultValue(ValueFormat.cDateSeparatorDefault)]
+    [DefaultValue(ValueFormatExtension.cDateSeparatorDefault)]
     public virtual string DateSeparator
     {
-      get => ValueFormat.DateSeparator;
-      set => ValueFormat.DateSeparator = value;
+      [NotNull]
+      get => m_ValueFormatMutable.DateSeparator;
+      set => m_ValueFormatMutable.DateSeparator = value;
     }
 
     /// <summary>
@@ -179,18 +256,19 @@ namespace CsvTools
     /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
     /// <remarks>Used for XML Serialization</remarks>
     [XmlIgnore]
-    public virtual bool DateSeparatorSpecified => ValueFormat.DataType == DataType.DateTime;
+    public virtual bool DateSeparatorSpecified => m_ValueFormatMutable.DataType == DataType.DateTime;
 
     /// <summary>
     ///   Gets or sets the decimal separator.
     /// </summary>
     /// <value>The decimal separator.</value>
     [XmlAttribute]
-    [DefaultValue(ValueFormat.cDecimalSeparatorDefault)]
+    [DefaultValue(ValueFormatExtension.cDecimalSeparatorDefault)]
     public virtual string DecimalSeparator
     {
-      get => ValueFormat.DecimalSeparator;
-      set => ValueFormat.DecimalSeparator = value;
+      [NotNull]
+      get => m_ValueFormatMutable.DecimalSeparator;
+      set => m_ValueFormatMutable.DecimalSeparator = value;
     }
 
     /// <summary>
@@ -200,7 +278,7 @@ namespace CsvTools
     /// <remarks>Used for XML Serialization</remarks>
     [XmlIgnore]
     public virtual bool DecimalSeparatorSpecified =>
-      ValueFormat.DataType == DataType.Double || ValueFormat.DataType == DataType.Numeric;
+      m_ValueFormatMutable.DataType == DataType.Double || m_ValueFormatMutable.DataType == DataType.Numeric;
 
     /// <summary>
     ///   Gets or sets the name in a destination. This is only used for writing
@@ -210,6 +288,7 @@ namespace CsvTools
     public virtual string DestinationName
     {
       get => m_DestinationName;
+      [CanBeNull]
       set
       {
         var newVal = value ?? string.Empty;
@@ -229,14 +308,14 @@ namespace CsvTools
     /// </summary>
     /// <value>The false.</value>
     [XmlAttribute]
-    [DefaultValue(ValueFormat.cFalseDefault)]
+    [DefaultValue(ValueFormatExtension.cFalseDefault)]
 #pragma warning disable CA1716 // Identifiers should not match keywords
     public virtual string False
 #pragma warning restore CA1716
     {
       // Identifiers should not match keywords
-      get => ValueFormat.False;
-      set => ValueFormat.False = value;
+      get => m_ValueFormatMutable.False;
+      set => m_ValueFormatMutable.False = value;
     }
 
     /// <summary>
@@ -245,18 +324,18 @@ namespace CsvTools
     /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
     /// <remarks>Used for XML Serialization</remarks>
     [XmlIgnore]
-    public virtual bool FalseSpecified => ValueFormat.DataType == DataType.Boolean;
+    public virtual bool FalseSpecified => m_ValueFormatMutable.DataType == DataType.Boolean;
 
     /// <summary>
     ///   Gets or sets the group separator.
     /// </summary>
     /// <value>The group separator.</value>
     [XmlAttribute]
-    [DefaultValue(ValueFormat.cGroupSeparatorDefault)]
+    [DefaultValue(ValueFormatExtension.cGroupSeparatorDefault)]
     public virtual string GroupSeparator
     {
-      get => ValueFormat.GroupSeparator;
-      set => ValueFormat.GroupSeparator = value;
+      get => m_ValueFormatMutable.GroupSeparator;
+      set => m_ValueFormatMutable.GroupSeparator = value;
     }
 
     /// <summary>
@@ -266,8 +345,8 @@ namespace CsvTools
     /// <remarks>Used for XML Serialization</remarks>
     [XmlIgnore]
     public virtual bool GroupSeparatorSpecified =>
-      ValueFormat.DataType == DataType.Double || ValueFormat.DataType == DataType.Numeric
-                                                || ValueFormat.DataType == DataType.Integer;
+      m_ValueFormatMutable.DataType == DataType.Double || m_ValueFormatMutable.DataType == DataType.Numeric
+                                                || m_ValueFormatMutable.DataType == DataType.Integer;
 
     /// <summary>
     ///   Gets or sets a value indicating whether the column should be ignore reading a file
@@ -311,11 +390,11 @@ namespace CsvTools
     /// </summary>
     /// <value>The number format.</value>
     [XmlAttribute]
-    [DefaultValue(ValueFormat.cNumberFormatDefault)]
+    [DefaultValue(ValueFormatExtension.cNumberFormatDefault)]
     public virtual string NumberFormat
     {
-      get => ValueFormat.NumberFormat;
-      set => ValueFormat.NumberFormat = value;
+      get => m_ValueFormatMutable.NumberFormat;
+      set => m_ValueFormatMutable.NumberFormat = value;
     }
 
     /// <summary>
@@ -325,7 +404,7 @@ namespace CsvTools
     /// <remarks>Used for XML Serialization</remarks>
     [XmlIgnore]
     public virtual bool NumberFormatSpecified =>
-      ValueFormat.DataType == DataType.Double || ValueFormat.DataType == DataType.Numeric;
+      m_ValueFormatMutable.DataType == DataType.Double || m_ValueFormatMutable.DataType == DataType.Numeric;
 
     /// <summary>
     ///   Gets or sets the part for splitting.
@@ -352,7 +431,7 @@ namespace CsvTools
     /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
     /// <remarks>Used for XML Serialization</remarks>
     [XmlIgnore]
-    public virtual bool PartSpecified => ValueFormat.DataType == DataType.TextPart;
+    public virtual bool PartSpecified => m_ValueFormatMutable.DataType == DataType.TextPart;
 
     /// <summary>
     ///   Gets or sets the splitter.
@@ -379,7 +458,7 @@ namespace CsvTools
     /// <remarks>Used for XML Serialization</remarks>
     [XmlIgnore]
     public virtual bool PartSplitterSpecified =>
-      ValueFormat.DataType == DataType.TextPart && !m_PartSplitter.Equals(c_PartSplitterDefault);
+      m_ValueFormatMutable.DataType == DataType.TextPart && !m_PartSplitter.Equals(c_PartSplitterDefault);
 
     /// <summary>
     ///   Gets or sets the part for splitting.
@@ -406,7 +485,7 @@ namespace CsvTools
     /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
     /// <remarks>Used for XML Serialization</remarks>
     [XmlIgnore]
-    public virtual bool PartToEndSpecified => ValueFormat.DataType == DataType.TextPart;
+    public virtual bool PartToEndSpecified => m_ValueFormatMutable.DataType == DataType.TextPart;
 
 
     /// <summary>
@@ -454,7 +533,7 @@ namespace CsvTools
     /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
     /// <remarks>Used for XML Serialization</remarks>
     [XmlIgnore]
-    public virtual bool TimePartFormatSpecified => ValueFormat.DataType == DataType.DateTime;
+    public virtual bool TimePartFormatSpecified => m_ValueFormatMutable.DataType == DataType.DateTime;
 
     /// <summary>
     ///   Gets a value indicating whether the Xml field is specified.
@@ -462,18 +541,18 @@ namespace CsvTools
     /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
     /// <remarks>Used for XML Serialization</remarks>
     [XmlIgnore]
-    public virtual bool TimePartSpecified => ValueFormat.DataType == DataType.DateTime;
+    public virtual bool TimePartSpecified => m_ValueFormatMutable.DataType == DataType.DateTime;
 
     /// <summary>
     ///   Gets or sets the time separator.
     /// </summary>
     /// <value>The time separator.</value>
     [XmlAttribute]
-    [DefaultValue(ValueFormat.cTimeSeparatorDefault)]
+    [DefaultValue(ValueFormatExtension.cTimeSeparatorDefault)]
     public virtual string TimeSeparator
     {
-      get => ValueFormat.TimeSeparator;
-      set => ValueFormat.TimeSeparator = value;
+      get => m_ValueFormatMutable.TimeSeparator;
+      set => m_ValueFormatMutable.TimeSeparator = value;
     }
 
     /// <summary>
@@ -482,7 +561,7 @@ namespace CsvTools
     /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
     /// <remarks>Used for XML Serialization</remarks>
     [XmlIgnore]
-    public virtual bool TimeSeparatorSpecified => ValueFormat.DataType == DataType.DateTime;
+    public virtual bool TimeSeparatorSpecified => m_ValueFormatMutable.DataType == DataType.DateTime;
 
     /// <summary>
     ///   Gets or sets the name.
@@ -509,15 +588,15 @@ namespace CsvTools
     /// </summary>
     /// <value>The true.</value>
     [XmlAttribute]
-    [DefaultValue(ValueFormat.cTrueDefault)]
+    [DefaultValue(ValueFormatExtension.cTrueDefault)]
 #pragma warning disable CA1716 // Identifiers should not match keywords
     public virtual string True
 #pragma warning restore CA1716
     {
       // Identifiers should not match keywords
-      get => ValueFormat.True;
+      get => m_ValueFormatMutable.True;
 
-      set => ValueFormat.True = value;
+      set => m_ValueFormatMutable.True = value;
     }
 
     /// <summary>
@@ -526,14 +605,16 @@ namespace CsvTools
     /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
     /// <remarks>Used for XML Serialization</remarks>
     [XmlIgnore]
-    public virtual bool TrueSpecified => ValueFormat.DataType == DataType.Boolean;
+    public virtual bool TrueSpecified => m_ValueFormatMutable.DataType == DataType.Boolean;
 
     /// <summary>
     ///   Mimics to get or sets the value format.
     /// </summary>
     /// <value>The value format.</value>
-    [XmlIgnore]
-    public ValueFormat ValueFormat { get; private set; }
+    [XmlIgnore] private ValueFormat m_ValueFormatMutable;
+
+    public ValueFormat ValueFormatMutable => m_ValueFormatMutable;
+    public IValueFormat ValueFormat => new ValueFormatReadOnly(m_ValueFormatMutable);
 
     /// <summary>
     ///   Clones this instance into a new instance of the same type
@@ -554,7 +635,7 @@ namespace CsvTools
     {
       if (other == null)
         return;
-      ValueFormat.CopyTo(other.ValueFormat);
+      m_ValueFormatMutable.CopyTo(other.m_ValueFormatMutable);
 
       // other.ValueFormat = m_ValueFormat;
       other.PartSplitter = m_PartSplitter;
@@ -589,11 +670,11 @@ namespace CsvTools
              && string.Equals(m_Name, other.m_Name, StringComparison.OrdinalIgnoreCase)
              && string.Equals(m_DestinationName, other.m_DestinationName, StringComparison.OrdinalIgnoreCase)
              && m_Ignore == other.m_Ignore && m_Part == other.m_Part && m_PartSplitter == other.m_PartSplitter
-             && m_PartToEnd == other.m_PartToEnd 
+             && m_PartToEnd == other.m_PartToEnd
              && string.Equals(m_TimePart, other.m_TimePart, StringComparison.OrdinalIgnoreCase)
              && string.Equals(m_TimePartFormat, other.m_TimePartFormat, StringComparison.Ordinal)
              && string.Equals(m_TimeZonePart, other.m_TimeZonePart, StringComparison.OrdinalIgnoreCase)
-             && Convert == other.Convert && ValueFormat.Equals(other.ValueFormat);
+             && Convert == other.Convert && m_ValueFormatMutable.Equals(other.m_ValueFormatMutable);
     }
 
     /// <summary>
@@ -608,87 +689,7 @@ namespace CsvTools
     public override bool Equals(object obj) => Equals(obj as Column);
 #pragma warning restore 659
 
-    /// <summary>
-    ///   Gets the a description of the Date or Number format
-    /// </summary>
-    /// <returns></returns>
-    public string GetFormatDescription()
-    {
-      switch (ValueFormat.DataType)
-      {
-        case DataType.TextPart:
-          return Part + (PartToEnd ? " To End" : string.Empty);
 
-        case DataType.DateTime:
-          return ValueFormat.DateFormat.ReplaceDefaults(
-            CultureInfo.InvariantCulture.DateTimeFormat.DateSeparator,
-            ValueFormat.DateSeparator,
-            CultureInfo.InvariantCulture.DateTimeFormat.TimeSeparator,
-            ValueFormat.TimeSeparator);
-
-        case DataType.Numeric:
-        case DataType.Double:
-          return ValueFormat.NumberFormat.ReplaceDefaults(
-            CultureInfo.InvariantCulture.NumberFormat.NumberDecimalSeparator,
-            ValueFormat.DecimalSeparator,
-            CultureInfo.InvariantCulture.NumberFormat.NumberGroupSeparator,
-            ValueFormat.GroupSeparator);
-
-        case DataType.Integer:
-          return ValueFormat.NumberFormat.Replace(CultureInfo.InvariantCulture.NumberFormat.NumberGroupSeparator, ValueFormat.GroupSeparator);
-        case DataType.Boolean:
-        case DataType.Guid:
-        case DataType.String:
-        case DataType.TextToHtml:
-        case DataType.TextToHtmlFull:
-          return string.Empty;
-        default:
-          return string.Empty;
-      }
-    }
-
-    /// <summary>
-    ///   Gets the description.
-    /// </summary>
-    /// <returns></returns>
-    public string GetTypeAndFormatDescription(bool addTime = true)
-    {
-      var stringBuilder = new StringBuilder(ValueFormat.DataType.DataTypeDisplay());
-
-      var shortDesc = GetFormatDescription();
-      if (shortDesc.Length > 0)
-      {
-        stringBuilder.Append(" (");
-        stringBuilder.Append(shortDesc);
-        stringBuilder.Append(")");
-      }
-
-      if (addTime && ValueFormat.DataType == DataType.DateTime)
-      {
-        if (TimePart.Length > 0)
-        {
-          stringBuilder.Append(" + ");
-          stringBuilder.Append(TimePart);
-          if (TimePartFormat.Length > 0)
-          {
-            stringBuilder.Append(" (");
-            stringBuilder.Append(TimePartFormat);
-            stringBuilder.Append(")");
-          }
-        }
-
-        if (TimeZonePart.Length > 0)
-        {
-          stringBuilder.Append(" - ");
-          stringBuilder.Append(TimeZonePart);
-        }
-      }
-
-      if (Ignore)
-        stringBuilder.Append(" (Ignore)");
-
-      return stringBuilder.ToString();
-    }
 
     /// <summary>
     ///   Notifies the property changed.
@@ -701,7 +702,7 @@ namespace CsvTools
     ///   Returns a <see cref="string" /> that represents this instance.
     /// </summary>
     /// <returns>A <see cref="string" /> that represents this instance.</returns>
-    public override string ToString() => $"{Name} ({GetTypeAndFormatDescription()})";
+    public override string ToString() => $"{Name} ({this.GetTypeAndFormatDescription()})";
 
     /*
     /// <summary>

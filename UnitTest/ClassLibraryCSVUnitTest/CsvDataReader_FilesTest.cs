@@ -62,9 +62,9 @@ namespace CsvTools.Tests
       {
         FileName = UnitTestInitialize.GetTestPath("Sessions.txt"),
         HasFieldHeader = true,
-        ByteOrderMark = true
+        ByteOrderMark = true,
+        FileFormat = {FieldDelimiter = "\t"}
       };
-      setting.FileFormat.FieldDelimiter = "\t";
       setting.ColumnCollection.AddIfNew(new Column("Start Date", "MM/dd/yyyy")
       {
         TimePart = "Start Time",
@@ -78,7 +78,6 @@ namespace CsvTools.Tests
       {
         await test.OpenAsync();
         await test.ReadAsync();
-        ;
         var cultureInfo = new CultureInfo("en-US");
         // 01/08/2013 07:00:00 IST --> 01/08/2013 01:30:00 UTC
         Assert.AreEqual("01/08/2013 01:30:00",

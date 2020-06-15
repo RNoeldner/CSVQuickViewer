@@ -34,7 +34,7 @@ namespace CsvTools.Tests
       ci.IsTimePart = true;
       Assert.AreEqual(true, ci.IsTimePart);
 
-      Assert.AreEqual(vf, ci.Column.ValueFormat);
+      Assert.AreEqual(vf.DataType, ci.Column.ValueFormat.DataType);
     }
 
     [TestMethod]

@@ -666,7 +666,6 @@ namespace CsvTools
     /// <param name="old2">The old2.</param>
     /// <param name="new2">The new2.</param>
     /// <returns></returns>
-    [DebuggerStepThrough]
     [NotNull]
     public static string ReplaceDefaults([NotNull] this string inputValue, [CanBeNull] string old1, [CanBeNull] string new1, [CanBeNull] string old2, [CanBeNull] string new2)
     {
@@ -679,7 +678,7 @@ namespace CsvTools
       {
         inputValue = inputValue.Replace(old1, "{\0}");
         inputValue = inputValue.Replace(old2, new2);
-        inputValue = inputValue.Replace("{\0}", new1);
+        return inputValue.Replace("{\0}", new1);
       }
       else
       {
