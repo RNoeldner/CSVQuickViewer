@@ -51,24 +51,6 @@ namespace CsvTools
       }
     }
 
-    private static async Task<Tuple<int, bool>> GuessCodePageAsync([NotNull] IImprovedStream stream)
-    {
-      // Read 256 kBytes
-      var buff = new byte[262144];
-
-      var length = await stream.Stream.ReadAsync(buff, 0, buff.Length).ConfigureAwait(false);
-      if (length >= 2)
-      {
-        var byBom = EncodingHelper.GetCodePageByByteOrderMark(buff);
-        if (byBom != 0) return new Tuple<int, bool>(byBom, true);
-      }
-
-      var detected = EncodingHelper.GuessCodePageNoBom(buff, length);
-      if (detected == 20127)
-        detected = 65001;
-      return new Tuple<int, bool>(detected, false);
-    }
-
     /// <summary>
     ///   Guesses the code page ID of a file
     /// </summary>
@@ -76,8 +58,6 @@ namespace CsvTools
     /// <remarks>No Error will be thrown, the CodePage and the BOM will bet set</remarks>
     public static async Task GuessCodePageAsync([NotNull] ICsvFile setting)
     {
-
-
       using (var improvedStream = FunctionalDI.OpenRead(setting))
       {
         var result = await GuessCodePageAsync(improvedStream).ConfigureAwait(false);
@@ -100,7 +80,6 @@ namespace CsvTools
     [NotNull]
     public static async Task<string> GuessDelimiterAsync([NotNull] ICsvFile setting, CancellationToken cancellationToken)
     {
-
       using (var improvedStream = FunctionalDI.OpenRead(setting))
       using (var textReader =
         new ImprovedTextReader(improvedStream, (await setting.GetEncodingAsync()).CodePage, setting.SkipRows))
@@ -156,7 +135,7 @@ namespace CsvTools
       var columnsAndIssues = BaseFileReader.AdjustColumnName(headerRow, (int) avgFieldCount, null);
 
       // looking at the warnings raised
-      if (columnsAndIssues.Item2 >= halfTheColumns)
+      if (columnsAndIssues.Item2 > 4 || columnsAndIssues.Item2 >= halfTheColumns)
       {
         Logger.Information("Without Header Row");
         return false;
@@ -197,6 +176,23 @@ namespace CsvTools
     /// <param name="cancellationToken">A cancellation token</param>
     /// <returns>The NewLine Combination used</returns>
     [NotNull]
+    public static async Task<RecordDelimiterType> GuessNewlineAsync([NotNull] ICsvFile setting,
+      CancellationToken cancellationToken)
+    {
+      using (var improvedStream = FunctionalDI.OpenRead(setting))
+      using (var streamReader = new ImprovedTextReader(improvedStream, setting.CodePageId, setting.SkipRows))
+      {
+        return await GuessNewlineAsync(streamReader, setting.FileFormat.FieldQualifierChar, cancellationToken).ConfigureAwait(false);
+      }
+    }
+
+    /// <summary>
+    ///   Try to guess the new line sequence
+    /// </summary>
+    /// <param name="setting"><see cref="ICsvFile" /> with the information</param>
+    /// <param name="cancellationToken">A cancellation token</param>
+    /// <returns>The NewLine Combination used</returns>
+    [NotNull]
     public static async Task<string> GuessQualifierAsync([NotNull] ICsvFile setting,
       CancellationToken cancellationToken)
     {
@@ -208,24 +204,6 @@ namespace CsvTools
           return char.ToString(qualifier);
       }
       return null;
-    }
-
-    /// <summary>
-    ///   Try to guess the new line sequence
-    /// </summary>
-    /// <param name="setting"><see cref="ICsvFile" /> with the information</param>
-    /// <param name="cancellationToken">A cancellation token</param>
-    /// <returns>The NewLine Combination used</returns>
-    [NotNull]
-    public static async Task<RecordDelimiterType> GuessNewlineAsync([NotNull] ICsvFile setting,
-      CancellationToken cancellationToken)
-    {
-
-      using (var improvedStream = FunctionalDI.OpenRead(setting))
-      using (var streamReader = new ImprovedTextReader(improvedStream, setting.CodePageId, setting.SkipRows))
-      {
-        return await GuessNewlineAsync(streamReader, setting.FileFormat.FieldQualifierChar, cancellationToken).ConfigureAwait(false);
-      }
     }
 
     /// <summary>
@@ -511,6 +489,24 @@ namespace CsvTools
       return dc;
     }
 
+    private static async Task<Tuple<int, bool>> GuessCodePageAsync([NotNull] IImprovedStream stream)
+    {
+      // Read 256 kBytes
+      var buff = new byte[262144];
+
+      var length = await stream.Stream.ReadAsync(buff, 0, buff.Length).ConfigureAwait(false);
+      if (length >= 2)
+      {
+        var byBom = EncodingHelper.GetCodePageByByteOrderMark(buff);
+        if (byBom != 0) return new Tuple<int, bool>(byBom, true);
+      }
+
+      var detected = EncodingHelper.GuessCodePageNoBom(buff, length);
+      if (detected == 20127)
+        detected = 65001;
+      return new Tuple<int, bool>(detected, false);
+    }
+
     /// <summary>
     ///   Guesses the delimiter for a files. Done with a rather simple csv parsing, and trying to
     ///   find the delimiter that has the least variance in the read rows, if that is not possible
@@ -733,7 +729,6 @@ namespace CsvTools
     private static async Task<char> GuessQualifierAsync([NotNull] ImprovedTextReader textReader, char delimiter, CancellationToken cancellationToken)
     {
       if (textReader == null) throw new ArgumentNullException(nameof(textReader));
-
 
       const int c_MaxLine = 30;
       var possibleQuotes = new[] { '"', '\'' };

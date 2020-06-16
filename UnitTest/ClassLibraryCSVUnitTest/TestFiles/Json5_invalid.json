@@ -1,0 +1,17 @@
+﻿Arreglo = ListaUsuarios : {
+  "usuarios": [
+    {
+      "nombre": "Mario",
+      "status": “online”
+    },
+    {
+      "nombre": "Jesús",
+      "status": “offline”
+    }
+    {
+      "nombre": "Octavio",
+      "status": “offline”
+    },
+    { "nombre": "Cesar”, "status": “online” },
+  ]
+}
