@@ -26,49 +26,6 @@ namespace CsvTools
     /// <returns>An array with the found data types</returns>
     /// <remarks>In case of mixed types, string is preferred over everything</remarks>
 
-    protected async Task GetColumnTypeAsync(int maxRows = 50)
-    {
-      HandleShowProgress("Reading data to determine type");
-      var isSet = new bool[FieldCount];
-      var startRow = RecordNumber;
-      var restarted = false;
-      for (var row = 0; row < maxRows; row++)
-      {
-        for (var col = 0; col < FieldCount; col++)
-        {
-          // if a column was detected as string, keep it that way
-          if (CurrentValues[col] == null || isSet[col])
-            continue;
-          
-          var detected = CurrentValues[col].GetType().GetDataType();
-          if (detected == Column[col].ValueFormat.DataType) continue;
-
-          Column[col] = new ColumnReadOnly(Column[col], new ValueFormatReadOnly(detected));
-          isSet[col] = true;
-        }
-        // if we have defined types for all exit
-        if (isSet.All(x=>x))
-          break;
-
-        // get the next record
-        if (await ReadAsync().ConfigureAwait(false)) continue;
-
-        if (startRow > 1)
-        {
-          if (restarted)
-            break;
-          restarted = true;
-          await ResetPositionToFirstDataRowAsync().ConfigureAwait(false);
-          if (!await ReadAsync().ConfigureAwait(false))
-            break;
-        }
-        else
-        {
-          break;
-        }
-      }
-    }
-
     /// <summary>
     ///   Gets the boolean.
     /// </summary>
@@ -81,12 +38,6 @@ namespace CsvTools
       if (CurrentValues[columnNumber] is bool b)
         return b;
       return base.GetBoolean(columnNumber);
-    }
-
-    protected override void InitColumn(int fieldCount)
-    {
-      CurrentValues = new object[fieldCount];
-      base.InitColumn(fieldCount);
     }
 
     /// <summary>
@@ -348,6 +299,55 @@ namespace CsvTools
         return string.IsNullOrEmpty(str);
 
       return false;
+    }
+
+    protected async Task GetColumnTypeAsync(int maxRows = 50)
+    {
+      HandleShowProgress("Reading data to determine type");
+      var isSet = new bool[FieldCount];
+      var startRow = RecordNumber;
+      var restarted = false;
+      for (var row = 0; row < maxRows; row++)
+      {
+        for (var col = 0; col < FieldCount; col++)
+        {
+          // if a column was detected as string, keep it that way
+          if (CurrentValues[col] == null || isSet[col])
+            continue;
+
+          var detected = CurrentValues[col].GetType().GetDataType();
+          if (detected == Column[col].ValueFormat.DataType) continue;
+
+          Column[col] = new ColumnReadOnly(Column[col], new ValueFormatReadOnly(detected));
+          isSet[col] = true;
+        }
+        // if we have defined types for all exit
+        if (isSet.All(x => x))
+          break;
+
+        // get the next record
+        if (await ReadAsync().ConfigureAwait(false)) continue;
+
+        if (startRow > 1)
+        {
+          if (restarted)
+            break;
+          restarted = true;
+          await ResetPositionToFirstDataRowAsync().ConfigureAwait(false);
+          if (!await ReadAsync().ConfigureAwait(false))
+            break;
+        }
+        else
+        {
+          break;
+        }
+      }
+    }
+
+    protected override void InitColumn(int fieldCount)
+    {
+      CurrentValues = new object[fieldCount];
+      base.InitColumn(fieldCount);
     }
   }
 }

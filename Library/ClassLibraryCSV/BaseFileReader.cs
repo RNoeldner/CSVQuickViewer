@@ -57,11 +57,6 @@ namespace CsvTools
     public const string cStartLineNumberFieldName = "#Line";
 
     /// <summary>
-    ///   The maximum value
-    /// </summary>
-    protected const int cMaxValue = 10000;
-
-    /// <summary>
     ///   Collection of the artificial field names
     /// </summary>
     public static readonly ICollection<string> ArtificialFields = new HashSet<string>
@@ -73,9 +68,12 @@ namespace CsvTools
       cPartitionField
     };
 
-    protected readonly string DestinationTimeZone;
+    /// <summary>
+    ///   The maximum value
+    /// </summary>
+    protected const int cMaxValue = 10000;
 
-    private readonly IntervalAction m_IntervalAction = new IntervalAction();
+    protected readonly string DestinationTimeZone;
 
     /// <summary>
     ///   An array of associated col
@@ -91,6 +89,8 @@ namespace CsvTools
     ///   An array of current row column text
     /// </summary>
     protected string[] CurrentRowColumnText;
+
+    private readonly IntervalAction m_IntervalAction = new IntervalAction();
 
     /// <summary>
     ///   An array of associated col
@@ -145,6 +145,22 @@ namespace CsvTools
     }
 
     /// <summary>
+    ///   Occurs when something went wrong during opening of the setting, this might be the file
+    ///   does not exist or a query ran into a timeout
+    /// </summary>
+    public virtual event EventHandler<RetryEventArgs> OnAskRetry;
+
+    /// <summary>
+    ///   Event to be raised if reading the files is completed
+    /// </summary>
+    public event EventHandler ReadFinished;
+
+    /// <summary>
+    ///   Event handler called if a warning or error occurred
+    /// </summary>
+    public virtual event EventHandler<WarningEventArgs> Warning;
+
+    /// <summary>
     ///   Gets a value indicating the depth of nesting for the current row.
     /// </summary>
     /// <value></value>
@@ -193,6 +209,11 @@ namespace CsvTools
     }
 
     /// <summary>
+    ///   Occurs before the file is opened
+    /// </summary>
+    public Func<IFileSetting, Task<DateTime>> OnOpen { get; set; }
+
+    /// <summary>
     ///   A process display to stop long running processes
     /// </summary>
     [CanBeNull]
@@ -238,38 +259,11 @@ namespace CsvTools
     /// <value></value>
     public object this[int columnNumber] => GetValue(columnNumber);
 
-    /// <summary>
-    ///   Occurs before the file is opened
-    /// </summary>
-    public Func<IFileSetting, Task<DateTime>> OnOpen { get; set; }
-
-    /// <summary>
-    ///   Performs application-defined tasks associated with freeing, releasing, or resetting
-    ///   unmanaged resources.
-    /// </summary>
-    public virtual void Dispose() => Dispose(true);
-
-    /// <summary>
-    ///   Occurs when something went wrong during opening of the setting, this might be the file
-    ///   does not exist or a query ran into a timeout
-    /// </summary>
-    public virtual event EventHandler<RetryEventArgs> OnAskRetry;
-
-    /// <summary>
-    ///   Event to be raised if reading the files is completed
-    /// </summary>
-    public event EventHandler ReadFinished;
-
-    /// <summary>
-    ///   Event handler called if a warning or error occurred
-    /// </summary>
-    public virtual event EventHandler<WarningEventArgs> Warning;
-
     [NotNull]
     public static Tuple<IEnumerable<string>, int> AdjustColumnName(
-      [NotNull] IEnumerable<string> columns,
-      int fieldCount,
-      [CanBeNull] ColumnErrorDictionary warnings)
+          [NotNull] IEnumerable<string> columns,
+          int fieldCount,
+          [CanBeNull] ColumnErrorDictionary warnings)
     {
       var issuesCounter = 0;
       var previousColumns = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -323,6 +317,12 @@ namespace CsvTools
     ///   Closes the <see cref="IDataReader" /> Object.
     /// </summary>
     public virtual void Close() => EndOfFile = true;
+
+    /// <summary>
+    ///   Performs application-defined tasks associated with freeing, releasing, or resetting
+    ///   unmanaged resources.
+    /// </summary>
+    public virtual void Dispose() => Dispose(true);
 
     // To detect redundant calls
     /// <summary>
@@ -424,16 +424,6 @@ namespace CsvTools
       Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount && columnNumber < Column.Length);
       return Column[columnNumber];
     }
-
-    /// <summary>
-    ///   Determines if the reader has a certain columns, any ignored columns will be treated as not existing
-    /// </summary>
-    /// <param name="columnName"></param>
-    /// <returns>true if present and not ignored</returns>
-    public virtual bool HasColumnName(string columnName) => string.IsNullOrEmpty(columnName) ||
-                                                            Column.Where(t => !t.Ignore).Any(t =>
-                                                              string.Equals(columnName, t.Name,
-                                                                StringComparison.OrdinalIgnoreCase));
 
     /// <summary>
     ///   Gets the date and time data value of the specified field.
@@ -665,10 +655,8 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Returns a <see cref="DataTable" /> that describes the column meta data of the
-    ///   <see
-    ///     cref="IDataReader" />
-    ///   .
+    ///   Returns a <see cref="DataTable" /> that describes the column meta data of the <see
+    ///   cref="IDataReader" /> .
     /// </summary>
     /// <returns>A <see cref="DataTable" /> that describes the column meta data.</returns>
     /// <exception cref="InvalidOperationException">The <see cref="IDataReader" /> is closed.</exception>
@@ -763,6 +751,7 @@ namespace CsvTools
             /* TextToHTML and TextToHTMLFull have been handled in the Reader for the column as the length of the fields would change */
             ret = GetString(columnNumber);
             break;
+
           default:
             throw new ArgumentOutOfRangeException();
         }
@@ -792,16 +781,6 @@ namespace CsvTools
       return FieldCount;
     }
 
-    protected WarningEventArgs GetWarningEventArgs(int columnNumber, [NotNull] string message) => new WarningEventArgs(
-      RecordNumber,
-      columnNumber,
-      message,
-      StartLineNumber,
-      EndLineNumber,
-      Column != null && columnNumber >= 0 && columnNumber < m_FieldCount && Column[columnNumber] != null
-        ? Column[columnNumber].Name
-        : null);
-
     /// <summary>
     ///   Handles the error.
     /// </summary>
@@ -817,6 +796,16 @@ namespace CsvTools
     /// <param name="message">The message.</param>
     public void HandleWarning(int columnNumber, [NotNull] string message) =>
       Warning?.Invoke(this, GetWarningEventArgs(columnNumber, message.AddWarningId()));
+
+    /// <summary>
+    ///   Determines if the reader has a certain columns, any ignored columns will be treated as not existing
+    /// </summary>
+    /// <param name="columnName"></param>
+    /// <returns>true if present and not ignored</returns>
+    public virtual bool HasColumnName(string columnName) => string.IsNullOrEmpty(columnName) ||
+                                                            Column.Where(t => !t.Ignore).Any(t =>
+                                                              string.Equals(columnName, t.Name,
+                                                                StringComparison.OrdinalIgnoreCase));
 
     /// <summary>
     ///   Checks if the column should be read
@@ -872,10 +861,6 @@ namespace CsvTools
 
     public abstract Task<bool> ReadAsync();
 
-    /// <summary>
-    ///   Resets the position and buffer to the header in case the file has a header
-    /// </summary>
-#pragma warning disable 1998
     public virtual async Task ResetPositionToFirstDataRowAsync()
 #pragma warning restore 1998
     {
@@ -883,8 +868,6 @@ namespace CsvTools
       RecordNumber = 0;
       EndOfFile = false;
     }
-
-    private static string GetDefaultName(int i) => $"Column{i + 1}";
 
     /// <summary>
     ///   Gets the default schema row array.
@@ -1145,12 +1128,28 @@ namespace CsvTools
           /* TextToHTML and TextToHTMLFull and TextPart have been handled in the CSV Reader as the length of the fields would change */
           ret = value;
           break;
+
         default:
           throw new ArgumentOutOfRangeException();
       }
 
       return ret ?? DBNull.Value;
     }
+
+    protected WarningEventArgs GetWarningEventArgs(int columnNumber, [NotNull] string message) => new WarningEventArgs(
+                                                                      RecordNumber,
+      columnNumber,
+      message,
+      StartLineNumber,
+      EndLineNumber,
+      Column != null && columnNumber >= 0 && columnNumber < m_FieldCount && Column[columnNumber] != null
+        ? Column[columnNumber].Name
+        : null);
+
+    /// <summary>
+    ///   Resets the position and buffer to the header in case the file has a header
+    /// </summary>
+#pragma warning disable 1998
 
     /// <summary>
     ///   Handles the Event if reading the file is completed
@@ -1344,7 +1343,6 @@ namespace CsvTools
         adjusted = Column.Select(x => x.Name);
       }
 
-
       var colIndex = 0;
       using (var enumeratorType = dataType.GetEnumerator())
       using (var enumeratorNames = adjusted.GetEnumerator())
@@ -1362,7 +1360,6 @@ namespace CsvTools
           colIndex++;
         }
       }
-
 
       for (var index = 0; index < m_FieldCount; index++)
       {
@@ -1384,7 +1381,6 @@ namespace CsvTools
       }
     }
 
-
     protected bool ShouldRetry(Exception ex)
     {
       if (CancellationToken.IsCancellationRequested) return false;
@@ -1404,6 +1400,8 @@ namespace CsvTools
       HandleError(columnNumber, message);
       return new FormatException(message);
     }
+
+    private static string GetDefaultName(int i) => $"Column{i + 1}";
 
     private DateTime? AdjustTz(DateTime? input, IColumn column)
     {
@@ -1581,7 +1579,7 @@ namespace CsvTools
           : $"'{inputDate}' is not a date of the format {display}");
     }
 
-#region DataTable
+    #region DataTable
 
     /// <summary>
     ///   Asynchronous method to copy rows from a the reader to a data table
@@ -1633,6 +1631,6 @@ namespace CsvTools
       }
     }
 
-#endregion DataTable
+    #endregion DataTable
   }
 }
