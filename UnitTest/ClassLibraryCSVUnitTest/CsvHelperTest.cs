@@ -39,17 +39,20 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task GuessCodePageAsync()
     {
-      var setting = new CsvFile { FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt") };
-      await CsvHelper.GuessCodePageAsync(setting);
-      Assert.AreEqual(1200, setting.CodePageId);
+      using (var processDisplay = new DummyProcessDisplay())
+      {
+        var setting = new CsvFile { FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt") };
+        await CsvHelper.GuessCodePageAsync(setting, processDisplay.CancellationToken);
+        Assert.AreEqual(1200, setting.CodePageId);
 
-      var setting2 = new CsvFile { FileName = UnitTestInitialize.GetTestPath("UnicodeUTF16BE.txt") };
-      await CsvHelper.GuessCodePageAsync(setting2);
-      Assert.AreEqual(1201, setting2.CodePageId);
+        var setting2 = new CsvFile { FileName = UnitTestInitialize.GetTestPath("UnicodeUTF16BE.txt") };
+        await CsvHelper.GuessCodePageAsync(setting2, processDisplay.CancellationToken);
+        Assert.AreEqual(1201, setting2.CodePageId);
 
-      var setting3 = new CsvFile { FileName = UnitTestInitialize.GetTestPath("Test.csv") };
-      await CsvHelper.GuessCodePageAsync(setting3);
-      Assert.AreEqual(65001, setting3.CodePageId);
+        var setting3 = new CsvFile { FileName = UnitTestInitialize.GetTestPath("Test.csv") };
+        await CsvHelper.GuessCodePageAsync(setting3, processDisplay.CancellationToken);
+        Assert.AreEqual(65001, setting3.CodePageId);
+      }
     }
 
     [TestMethod]

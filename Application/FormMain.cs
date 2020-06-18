@@ -566,8 +566,7 @@ namespace CsvTools
         if (clear)
           ClearProcess();
 
-        Text =
-          $@"{FileSystemUtils.GetShortDisplayFileName(m_FileSetting.FileName, 40)}  - {EncodingHelper.GetEncoding(m_FileSetting.FullPath, m_FileSetting.CodePageId)} {AssemblyTitle}";
+        Text = $"{FileSystemUtils.GetShortDisplayFileName(m_FileSetting.FileName, 40)} - {await EncodingHelper.DetectedEncodingName(m_FileSetting.FullPath, m_CancellationTokenSource.Token)} - {AssemblyTitle}";
 
         using (var processDisplay = m_FileSetting.GetProcessDisplay(this, false, m_CancellationTokenSource.Token))
         {
