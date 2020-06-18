@@ -100,7 +100,7 @@ namespace CsvTools.Tests
             };
 
             var columnCollection = new ColumnCollection();
-            await reader.OpenAsync();
+            await reader.OpenAsync(processDisplay.CancellationToken);
             var res1 = await DetermineColumnFormat.FillGuessColumnFormatReaderAsyncReader(reader, fillGuessSettings,
               columnCollection, false, true, "<NULL>", processDisplay);
             Assert.AreEqual(6, columnCollection.Count);
@@ -216,10 +216,10 @@ namespace CsvTools.Tests
         HasFieldHeader = true,
         FileFormat = { FieldDelimiter = "," }
       };
-
+      using (var processDisplay= new DummyProcessDisplay())
       using (var reader = new CsvFileReader(setting, null, null))
       {
-        await reader.OpenAsync();
+        await reader.OpenAsync(processDisplay.CancellationToken);
         UnitTestInitialize.MimicSQLReader.AddSetting(setting.ID,
           await reader.GetDataTableAsync(0, false, false, setting.DisplayStartLineNo, CancellationToken.None));
       }
@@ -253,11 +253,11 @@ namespace CsvTools.Tests
         {
           using (var reader = new DataTableReader(dt, "empty", processDisplay))
           {
-            await reader.OpenAsync();
+            await reader.OpenAsync(processDisplay.CancellationToken);
 
             // Move teh reader to a late record
             for (var i = 0; i < dt.Rows.Count / 2; i++)
-              await reader.ReadAsync();
+              await reader.ReadAsync(processDisplay.CancellationToken);
             var res = await DetermineColumnFormat.GetSampleValuesAsync(
               reader,
               0,
@@ -744,7 +744,7 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        await test.OpenAsync();
+        await test.OpenAsync(processDisplay.CancellationToken);
         var samples =
           await DetermineColumnFormat.GetSampleValuesAsync(test, 1000, 0, 20, "NULL", CancellationToken.None);
         Assert.AreEqual(7, samples.Values.Count());
@@ -765,7 +765,7 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        await test.OpenAsync();
+        await test.OpenAsync(processDisplay.CancellationToken);
         try
         {
           await DetermineColumnFormat.GetSampleValuesAsync(test, 100, 0, 20, "NULL", CancellationToken.None);

@@ -22,7 +22,7 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay())
       using (var reader = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        await reader.OpenAsync();
+        await reader.OpenAsync(processDisplay.CancellationToken);
         var test1 = new ColumnErrorDictionary(reader);
         Assert.IsNotNull(test1);
 

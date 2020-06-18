@@ -103,7 +103,7 @@ The file {value.FileName} does not exist.";
       try
       {
         using (new ProcessDisplayTime(CancellationToken.None))
-        using (var iStream = FunctionalDI.OpenRead(m_CsvFile))
+        using (var iStream = FunctionalDI.OpenRead(m_CsvFile.FullPath))
         using (var sr = new ImprovedTextReader(iStream, (await m_CsvFile.GetEncodingAsync()).CodePage))
         {
           // Some stream do not support seek...

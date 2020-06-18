@@ -30,6 +30,13 @@ namespace CsvTools
     /// </summary>
     public const string cSuffixWithoutBom = " without BOM";
 
+    public static Encoding GetEncoding(string fileName, int codePage)
+    {
+      using (var improvedStream = FunctionalDI.OpenRead(fileName))
+      using (var textReader = new ImprovedTextReader(improvedStream, codePage)) 
+        return textReader.CurrentEncoding;
+    }
+
     private static readonly Lazy<int[]> m_CommonCodePages = new Lazy<int[]>(() => new[]
     {
    -1, (int) CodePage.UTF8, (int) CodePage.UTF16Le, (int) CodePage.UTF16Be, (int) CodePage.UTF32Le,

@@ -57,7 +57,7 @@ namespace CsvTools
         var withoutErrors = ColumnsWithoutErrors;
 
         return (from DataColumn col in FilterTable.Columns
-          where !col.ColumnName.Equals(BaseFileReader.cErrorField, StringComparison.OrdinalIgnoreCase)
+          where !col.ColumnName.Equals(ReaderConstants.cErrorField, StringComparison.OrdinalIgnoreCase)
           where !withoutErrors.Contains(col.ColumnName)
           select col.ColumnName).ToList();
       }
@@ -82,8 +82,8 @@ namespace CsvTools
         foreach (DataColumn col in FilterTable.Columns)
         {
           // Always keep the line number, error field and any uniques
-          if (col.ColumnName.Equals(BaseFileReader.cStartLineNumberFieldName, StringComparison.OrdinalIgnoreCase)
-              || col.ColumnName.Equals(BaseFileReader.cErrorField, StringComparison.OrdinalIgnoreCase)
+          if (col.ColumnName.Equals(ReaderConstants.cStartLineNumberFieldName, StringComparison.OrdinalIgnoreCase)
+              || col.ColumnName.Equals(ReaderConstants.cErrorField, StringComparison.OrdinalIgnoreCase)
               || m_UniqueFieldName.Contains(col.ColumnName))
             continue;
 

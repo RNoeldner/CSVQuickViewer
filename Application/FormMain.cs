@@ -567,7 +567,7 @@ namespace CsvTools
           ClearProcess();
 
         Text =
-          $@"{FileSystemUtils.GetShortDisplayFileName(m_FileSetting.FileName, 40)}  - {EncodingHelper.GetEncodingName(m_FileSetting.CurrentEncoding.CodePage, true, m_FileSetting.ByteOrderMark)} {AssemblyTitle}";
+          $@"{FileSystemUtils.GetShortDisplayFileName(m_FileSetting.FileName, 40)}  - {EncodingHelper.GetEncoding(m_FileSetting.FullPath, m_FileSetting.CodePageId)} {AssemblyTitle}";
 
         using (var processDisplay = m_FileSetting.GetProcessDisplay(this, false, m_CancellationTokenSource.Token))
         {
@@ -578,7 +578,7 @@ namespace CsvTools
           using (var fileReader = FunctionalDI.GetFileReader(m_FileSetting, TimeZoneInfo.Local.Id, processDisplay))
           {
             var warningList = new RowErrorCollection(fileReader);
-            await fileReader.OpenAsync();
+            await fileReader.OpenAsync(processDisplay.CancellationToken);
             warningList.HandleIgnoredColumns(fileReader);
             warningList.PassWarning += AddWarning;
 
@@ -641,10 +641,10 @@ namespace CsvTools
         }
 
         // The reader is used when data ist stored through the detailControl
-        FunctionalDI.SQLDataReader = async (settingName, processDisplay, timeout) =>
+        FunctionalDI.SQLDataReader = async (settingName, message, timeout, token) =>
         {
           var dt = new DataTableReader(detailControl.DataTable, detailControl.DataTable.TableName, null);
-          await dt.OpenAsync();
+          await dt.OpenAsync(token);
           return dt;
         };
 

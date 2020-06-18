@@ -14,6 +14,7 @@
 
 using System;
 using System.Data;
+using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 
@@ -37,14 +38,16 @@ namespace CsvTools
     /// <summary>
     ///   Writes the specified file.
     /// </summary>
+    /// <param name="token">A cancellation toke to stop a long running process</param>
     /// <returns>Number of records written</returns>
-    Task<long> WriteAsync();
+    Task<long> WriteAsync(CancellationToken token);
 
     /// <summary>
     ///   Writes the specified file reading from the a data table
     /// </summary>
     /// <param name="source">The data that should be written in a <see cref="DataTable" /></param>
+    /// <param name="token">A cancellation toke to stop a long running process</param>
     /// <returns>Number of records written</returns>
-    Task<long> WriteAsync([NotNull] IFileReader source);
+    Task<long> WriteAsync([NotNull] IFileReader source, CancellationToken token);
   }
 }

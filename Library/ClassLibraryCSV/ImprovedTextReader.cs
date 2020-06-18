@@ -1,7 +1,9 @@
 ﻿using System;
 using System.IO;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 
 namespace CsvTools
 {
@@ -54,7 +56,7 @@ namespace CsvTools
     ///   first few bytes of teh source stream to look at a possible existing BOM if found, it will
     ///   overwrite the provided data
     /// </remarks>
-    public ImprovedTextReader(IImprovedStream improvedStream, int codePageId = 65001, int skipLines = 0)
+    public ImprovedTextReader([NotNull] IImprovedStream improvedStream, int codePageId = 65001, int skipLines = 0)
     {
       //if (improvedStream.Percentage > 0.00001)
       //  throw new ArgumentException(nameof(improvedStream), @"The stream is not on the start position");

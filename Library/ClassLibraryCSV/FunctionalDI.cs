@@ -63,22 +63,21 @@ namespace CsvTools
     public static Func<IFileSetting, CancellationToken, Task<ICollection<string>>> GetColumnHeader;
 
     /// <summary>
-    ///   Retrieve the passphrase
+    ///   Retrieve the passphrase for a files
     /// </summary>
-    [NotNull] 
-    // ReSharper disable once FieldCanBeMadeReadOnly.Global
-    public static Func<IFileSetting, string> GetEncryptedPassphrase = fileSetting =>
-    {
-      if (fileSetting == null) return null;
-      return !string.IsNullOrEmpty(fileSetting.Passphrase) ? fileSetting.Passphrase : null;
-    };
+    public static Func<string, string> GetEncryptedPassphraseForFile = s =>  string.Empty;
+
+    /// <summary>
+    ///   Retrieve the passphrase for a setting
+    /// </summary>
+    public static Func<IFileSetting, string> GetEncryptedPassphrase = s => s.Passphrase;
 
     /// <summary>
     ///   Open a file for reading, it will take care of things like compression and encryption
     /// </summary>
     [NotNull] 
     // ReSharper disable once FieldCanBeMadeReadOnly.Global
-    public static Func<IFileSettingPhysicalFile, IImprovedStream> OpenRead = ImprovedStream.OpenRead;
+    public static Func<string, IImprovedStream> OpenRead = ImprovedStream.OpenRead;
 
     /// <summary>
     ///   General function to open a file for writing, it will take care of things like compression
@@ -100,7 +99,7 @@ namespace CsvTools
     /// </summary>
     [CanBeNull] 
     // ReSharper disable once UnassignedField.Global
-    public static Action<IFileSetting, ICollection<IColumn>> StoreHeader;
+    public static Action<string, ICollection<IColumn>> StoreHeader;
 
     /// <summary>
     ///   Return the right reader for a file setting
@@ -115,7 +114,7 @@ namespace CsvTools
       (async (setting, timeZone, processDisplay) =>
       {
         var reader = GetFileReader(setting, timeZone, processDisplay);
-        await reader.OpenAsync().ConfigureAwait(false); 
+        await reader.OpenAsync(processDisplay.CancellationToken).ConfigureAwait(false); 
         return reader;
       });
 
@@ -131,7 +130,7 @@ namespace CsvTools
     /// </summary>
     /// <value>The statement for reader the data.</value>
     /// <remarks>Make sure teh returned reader is open when needed</remarks>
-    public static Func<string, IProcessDisplay, int, Task<IFileReader>> SQLDataReader;
+    public static Func<string, EventHandler<string>, int, CancellationToken, Task<IFileReader>> SQLDataReader;
 
     [NotNull]
     private static IFileReader DefaultFileReader([NotNull] IFileSetting setting, [CanBeNull] string timeZone, [CanBeNull] IProcessDisplay processDisplay)

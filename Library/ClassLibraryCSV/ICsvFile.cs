@@ -44,11 +44,6 @@ namespace CsvTools
     /// <value>The code page.</value>
     int CodePageId { get; set; }
 
-    /// <summary>
-    ///  Gets current encoding.
-    /// </summary>
-    /// <value>The current encoding.</value>
-    Encoding CurrentEncoding { get; set; }
 
     /// <summary>
     ///  Gets or sets a value indicating whether the file is double encoded and need to be double decoded.

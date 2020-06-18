@@ -77,8 +77,7 @@ namespace CsvTools
     public static async Task GuessCodePageAsync([NotNull] ICsvFile setting)
     {
 
-
-      using (var improvedStream = FunctionalDI.OpenRead(setting))
+      using (var improvedStream = FunctionalDI.OpenRead(setting.FullPath))
       {
         var result = await GuessCodePageAsync(improvedStream).ConfigureAwait(false);
         setting.CodePageId = result.Item1;
@@ -101,7 +100,7 @@ namespace CsvTools
     public static async Task<string> GuessDelimiterAsync([NotNull] ICsvFile setting, CancellationToken cancellationToken)
     {
 
-      using (var improvedStream = FunctionalDI.OpenRead(setting))
+      using (var improvedStream = FunctionalDI.OpenRead(setting.FullPath))
       using (var textReader =
         new ImprovedTextReader(improvedStream, (await setting.GetEncodingAsync()).CodePage, setting.SkipRows))
       {
@@ -184,7 +183,7 @@ namespace CsvTools
     public static async Task<bool> GuessJsonFileAsync([NotNull] IFileSettingPhysicalFile setting,
       CancellationToken cancellationToken)
     {
-      using (var improvedStream = FunctionalDI.OpenRead(setting))
+      using (var improvedStream = FunctionalDI.OpenRead(setting.FullPath))
       {
         return await IsJsonReadableAsync(improvedStream, cancellationToken).ConfigureAwait(false);
       }
@@ -200,7 +199,7 @@ namespace CsvTools
     public static async Task<string> GuessQualifierAsync([NotNull] ICsvFile setting,
       CancellationToken cancellationToken)
     {
-      using (var improvedStream = FunctionalDI.OpenRead(setting))
+      using (var improvedStream = FunctionalDI.OpenRead(setting.FullPath))
       using (var streamReader = new ImprovedTextReader(improvedStream, setting.CodePageId, setting.SkipRows))
       {
         var qualifier = await GuessQualifierAsync(streamReader, setting.FileFormat.FieldDelimiterChar, cancellationToken).ConfigureAwait(false);
@@ -221,7 +220,7 @@ namespace CsvTools
       CancellationToken cancellationToken)
     {
 
-      using (var improvedStream = FunctionalDI.OpenRead(setting))
+      using (var improvedStream = FunctionalDI.OpenRead(setting.FullPath))
       using (var streamReader = new ImprovedTextReader(improvedStream, setting.CodePageId, setting.SkipRows))
       {
         return await GuessNewlineAsync(streamReader, setting.FileFormat.FieldQualifierChar, cancellationToken).ConfigureAwait(false);
@@ -237,7 +236,7 @@ namespace CsvTools
     [NotNull]
     public static async Task<int> GuessStartRowAsync([NotNull] ICsvFile setting, CancellationToken cancellationToken)
     {
-      using (var improvedStream = FunctionalDI.OpenRead(setting))
+      using (var improvedStream = FunctionalDI.OpenRead(setting.FullPath))
       using (var streamReader = new ImprovedTextReader(improvedStream, (await setting.GetEncodingAsync()).CodePage))
       {
         return await GuessStartRowAsync(streamReader, setting.FileFormat.FieldDelimiterChar,
@@ -259,7 +258,7 @@ namespace CsvTools
       if (string.IsNullOrEmpty(setting.FileFormat.FieldQualifier) || cancellationToken.IsCancellationRequested)
         return false;
 
-      using (var improvedStream = FunctionalDI.OpenRead(setting))
+      using (var improvedStream = FunctionalDI.OpenRead(setting.FullPath))
       using (var streamReader =
         new ImprovedTextReader(improvedStream, (await setting.GetEncodingAsync().ConfigureAwait(false)).CodePage, setting.SkipRows))
       {
@@ -326,7 +325,7 @@ namespace CsvTools
             guessNewLine))
         return;
       display.SetProcess("Checking delimited file", -1, true);
-      using (var improvedStream = FunctionalDI.OpenRead(setting))
+      using (var improvedStream = FunctionalDI.OpenRead(setting.FullPath))
       {
         setting.JsonFormat = false;
         if (guessJson)

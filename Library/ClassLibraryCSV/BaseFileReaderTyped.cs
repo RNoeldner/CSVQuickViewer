@@ -3,6 +3,7 @@ using System.Data;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace CsvTools
@@ -26,7 +27,7 @@ namespace CsvTools
     /// <returns>An array with the found data types</returns>
     /// <remarks>In case of mixed types, string is preferred over everything</remarks>
 
-    protected async Task GetColumnTypeAsync(int maxRows = 50)
+    protected async Task GetColumnTypeAsync(int maxRows, CancellationToken token)
     {
       HandleShowProgress("Reading data to determine type");
       var isSet = new bool[FieldCount];
@@ -51,15 +52,15 @@ namespace CsvTools
           break;
 
         // get the next record
-        if (await ReadAsync().ConfigureAwait(false)) continue;
+        if (await ReadAsync(token).ConfigureAwait(false)) continue;
 
         if (startRow > 1)
         {
           if (restarted)
             break;
           restarted = true;
-          await ResetPositionToFirstDataRowAsync().ConfigureAwait(false);
-          if (!await ReadAsync().ConfigureAwait(false))
+          await ResetPositionToFirstDataRowAsync(token).ConfigureAwait(false);
+          if (!await ReadAsync(token).ConfigureAwait(false))
             break;
         }
         else
