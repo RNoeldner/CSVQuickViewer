@@ -889,7 +889,7 @@ namespace CsvTools
       {
         return new Guid(originalValue);
       }
-      catch (Exception)
+      catch (FormatException)
       {
         return null;
       }
