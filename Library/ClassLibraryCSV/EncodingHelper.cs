@@ -15,6 +15,8 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Ude;
 
@@ -30,11 +32,13 @@ namespace CsvTools
     /// </summary>
     public const string cSuffixWithoutBom = " without BOM";
 
-    public static Encoding GetEncoding(string fileName, int codePage)
+    public static async Task<string> DetectedEncodingName(string fileName, CancellationToken token)
     {
       using (var improvedStream = FunctionalDI.OpenRead(fileName))
-      using (var textReader = new ImprovedTextReader(improvedStream, codePage)) 
-        return textReader.CurrentEncoding;
+      {
+        var result = await CsvHelper.GuessCodePageAsync(improvedStream, token).ConfigureAwait(false);
+        return GetEncodingName(result.Item1, true, result.Item2);
+      }
     }
 
     private static readonly Lazy<int[]> m_CommonCodePages = new Lazy<int[]>(() => new[]
@@ -55,7 +59,7 @@ namespace CsvTools
         return 4;
       if (codePage == CodePage.UTF16Le || codePage == CodePage.UTF16Be)
         return 2;
-    
+
       return 0;
     }
 
@@ -216,38 +220,38 @@ namespace CsvTools
     public static int GetCodePageByByteOrderMark([CanBeNull] byte[] buff)
     {
       if (buff == null)
-        return (int)CodePage.None;
+        return (int) CodePage.None;
 
       if (buff.Length >= 4)
       {
         // Start with longer chains, as UTF16_LE looks like UTF32_LE for the first 2 chars
         if (buff[0] == 0x00 && buff[1] == 0x00 && buff[2] == 0xFE && buff[3] == 0xFF)
-          return (int)CodePage.UTF32Be;
+          return (int) CodePage.UTF32Be;
         if (buff[0] == 0xFF && buff[1] == 0xFE && buff[2] == 0x00 && buff[3] == 0x00)
-          return (int)CodePage.UTF32Le;
+          return (int) CodePage.UTF32Le;
         if (buff[0] == 0x84 && buff[1] == 0x31 && buff[2] == 0x95 && buff[3] == 0x33)
-          return (int)CodePage.GB18030;
+          return (int) CodePage.GB18030;
         if (buff[0] == 0x2B && buff[1] == 0x2F && buff[2] == 0x76 &&
           (buff[3] == 0x38 || buff[3] == 0x39 || buff[3] == 0x2B || buff[3] == 0x2f))
         {
-          return (int)CodePage.UTF7;
+          return (int) CodePage.UTF7;
         }
       }
 
       if (buff.Length >= 3)
       {
         if (buff[0] == 0xEF && buff[1] == 0xBB && buff[2] == 0xBF)
-          return (int)CodePage.UTF8;
+          return (int) CodePage.UTF8;
       }
 
       if (buff.Length < 2)
-        return (int)CodePage.None;
+        return (int) CodePage.None;
       if (buff[0] == 0xFE && buff[1] == 0xFF)
-        return (int)CodePage.UTF16Be;
+        return (int) CodePage.UTF16Be;
       if (buff[0] == 0xFF && buff[1] == 0xFE)
-        return (int)CodePage.UTF16Le;
+        return (int) CodePage.UTF16Le;
 
-      return (int)CodePage.None;
+      return (int) CodePage.None;
     }
 
     /// <summary>
@@ -261,20 +265,20 @@ namespace CsvTools
     {
       switch (codePage)
       {
-        case (int)CodePage.UTF16Le:
+        case (int) CodePage.UTF16Le:
           return new UnicodeEncoding(false, byteOrderMark);
 
-        case (int)CodePage.UTF16Be:
+        case (int) CodePage.UTF16Be:
           return new UnicodeEncoding(true, byteOrderMark);
 
-        case (int)CodePage.UTF8:
+        case (int) CodePage.UTF8:
         case -1: // Treat Guess Code page as (UTF-8)
           return new UTF8Encoding(byteOrderMark);
 
-        case (int)CodePage.UTF32Le:
+        case (int) CodePage.UTF32Le:
           return new UTF32Encoding(false, byteOrderMark);
 
-        case (int)CodePage.UTF32Be:
+        case (int) CodePage.UTF32Be:
           return new UTF32Encoding(true, byteOrderMark);
 
         default:
@@ -292,7 +296,6 @@ namespace CsvTools
     [NotNull]
     public static string GetEncodingName(int codePage, bool showBom, bool hasBom)
     {
-
       const string c_SuffixWithBom = " with BOM";
       string name;
       var suffixBom = hasBom ? c_SuffixWithBom :
@@ -304,27 +307,27 @@ namespace CsvTools
           case -1:
             return "<Determine code page>";
 
-          case (int)CodePage.UTF16Le:
+          case (int) CodePage.UTF16Le:
             name = "Unicode (UTF-16) / ISO 10646 / UCS-2 Little-Endian" + suffixBom;
             break;
 
-          case (int)CodePage.UTF16Be:
+          case (int) CodePage.UTF16Be:
             name = "Unicode (UTF-16 Big-Endian) / UCS-2 Big-Endian" + suffixBom;
             break;
 
-          case (int)CodePage.WIN1252:
+          case (int) CodePage.WIN1252:
             name = Encoding.GetEncoding(codePage).EncodingName + " / Latin I";
             break;
 
-          case (int)CodePage.MSLatin:
+          case (int) CodePage.MSLatin:
             name = "Western European (DOS) / MS-DOS Latin 1";
             break;
 
-          case (int)CodePage.OEMLatin:
+          case (int) CodePage.OEMLatin:
             name = "Central European (DOS) / OEM Latin 2";
             break;
 
-          case (int)CodePage.MSDos:
+          case (int) CodePage.MSDos:
             name = "OEM United States / IBM PC:default / MS-DOS";
             break;
 
@@ -350,7 +353,7 @@ namespace CsvTools
     public static int GuessCodePageNoBom([CanBeNull] byte[] buff, int len)
     {
       if (buff == null)
-        return (int)CodePage.UTF8;
+        return (int) CodePage.UTF8;
 
       var detectedCodePage = CodePage.UTF8;
 
@@ -359,7 +362,7 @@ namespace CsvTools
       charsetDetector.DataEnd();
 
       if (charsetDetector.Charset == null)
-        return (int)detectedCodePage;
+        return (int) detectedCodePage;
 #pragma warning disable CA1308 // Normalize strings to uppercase
       switch (charsetDetector.Charset.ToLowerInvariant())
       {
@@ -456,7 +459,7 @@ namespace CsvTools
           break;
       }
 #pragma warning restore CA1308 // Normalize strings to uppercase
-      return (int)detectedCodePage;
+      return (int) detectedCodePage;
     }
   }
 }

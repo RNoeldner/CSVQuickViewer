@@ -110,7 +110,7 @@ namespace CsvTools
     /// <summary>
     ///   Indicates if we did indeed find a Byte Order Mark
     /// </summary>
-    private bool ByteOrderMark
+    public bool ByteOrderMark
     {
       get;
     }
@@ -132,10 +132,9 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Increase the position in the text, this is used in case a character that has been looked at
-    ///   with <see cref="PeekAsync" /> does not need to be read teh next call of
-    ///   <see
-    ///     cref="ReadAsync" />
+    ///   Increase the position in the text, this is used in case a character that has been looked
+    ///   at with <see cref="PeekAsync" /> does not need to be read teh next call of <see
+    ///   cref="ReadAsync" />
     /// </summary>
     public void MoveNext() => BufferPos++;
 
@@ -171,10 +170,8 @@ namespace CsvTools
     /// </summary>
     /// <remarks>
     ///   In case the character is a cr or Lf it will increase the lineNumber, to prevent a CR LF
-    ///   combination to count as two lines Make sure you "eat" the possible next char using
-    ///   <see
-    ///     cref="PeekAsync" />
-    ///   and <see cref="MoveNext" />
+    ///   combination to count as two lines Make sure you "eat" the possible next char using <see
+    ///   cref="PeekAsync" /> and <see cref="MoveNext" />
     /// </remarks>
     /// <returns></returns>
     private int Read()
@@ -195,10 +192,8 @@ namespace CsvTools
     /// </summary>
     /// <remarks>
     ///   In case the character is a cr or Lf it will increase the lineNumber, to prevent a CR LF
-    ///   combination to count as two lines Make sure you "eat" the possible next char using
-    ///   <see
-    ///     cref="PeekAsync" />
-    ///   and <see cref="MoveNext" />
+    ///   combination to count as two lines Make sure you "eat" the possible next char using <see
+    ///   cref="PeekAsync" /> and <see cref="MoveNext" />
     /// </remarks>
     /// <returns></returns>
     public async Task<int> ReadAsync()
@@ -233,6 +228,7 @@ namespace CsvTools
               case c_Cr when nextChar == c_Lf:
                 MoveNext();
                 break;
+
               case c_Lf when nextChar == c_Cr:
                 LineNumber++;
                 MoveNext();
@@ -275,6 +271,7 @@ namespace CsvTools
               case c_Cr when nextChar == c_Lf:
                 MoveNext();
                 break;
+
               case c_Lf when nextChar == c_Cr:
                 LineNumber++;
                 MoveNext();
@@ -322,7 +319,7 @@ namespace CsvTools
       {
         BufferFilled = 0;
         // Some improved stream might need to reopen the streams
-        m_ImprovedStream.ResetToStart(delegate(Stream stream)
+        m_ImprovedStream.ResetToStart(delegate (Stream stream)
         {
           // eat the bom
           if (addBom > 0)
@@ -383,7 +380,7 @@ namespace CsvTools
       EndOfFile = TextReader.EndOfStream;
       if (EndOfFile)
         return;
-      BufferFilled = await TextReader.ReadAsync(Buffer, 0, c_BufferSize).ConfigureAwait(false); 
+      BufferFilled = await TextReader.ReadAsync(Buffer, 0, c_BufferSize).ConfigureAwait(false);
       BufferPos = 0;
     }
   }

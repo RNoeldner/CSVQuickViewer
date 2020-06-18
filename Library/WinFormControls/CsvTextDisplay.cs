@@ -102,9 +102,9 @@ The file {value.FileName} does not exist.";
         return;
       try
       {
-        using (new ProcessDisplayTime(CancellationToken.None))
+        using (var processDisplay = new ProcessDisplayTime(CancellationToken.None))
         using (var iStream = FunctionalDI.OpenRead(m_CsvFile.FullPath))
-        using (var sr = new ImprovedTextReader(iStream, (await m_CsvFile.GetEncodingAsync()).CodePage))
+        using (var sr = new ImprovedTextReader(iStream, (await CsvHelper.GuessCodePageAsync(iStream, processDisplay.CancellationToken)).Item1))
         {
           // Some stream do not support seek...
           if (iStream.Stream.CanSeek)

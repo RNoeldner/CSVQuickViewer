@@ -71,7 +71,7 @@ namespace CsvTools
       Cursor.Current = Cursors.WaitCursor;
       try
       {
-        await CsvHelper.GuessCodePageAsync(m_ViewSettings);
+        await CsvHelper.GuessCodePageAsync(m_ViewSettings, m_CancellationTokenSource.Token);
       }
       finally
       {
