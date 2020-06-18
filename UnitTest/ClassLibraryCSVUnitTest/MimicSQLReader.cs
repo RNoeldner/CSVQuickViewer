@@ -16,6 +16,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace CsvTools.Tests
@@ -49,15 +50,19 @@ namespace CsvTools.Tests
         m_ReadSetting.Add(new CsvFile(name) { ID = name }, dt);
     }
 
-    public async Task<IFileReader> ReadDataAsync(string settingName, IProcessDisplay processDisplay, int timeout)
+    public async Task<IFileReader> ReadDataAsync(string settingName, EventHandler<string> message, int timeout, CancellationToken token)
     {
       var setting = m_ReadSetting.Any(x => x.Key.ID == settingName)
         ? m_ReadSetting.First(x => x.Key.ID == settingName)
         : m_ReadSetting.First();
-
-      var reader = setting.Value != null ? new DataTableReader(setting.Value, settingName, processDisplay) : FunctionalDI.GetFileReader(setting.Key, null, processDisplay);
-      await reader.OpenAsync().ConfigureAwait(false);
-      return reader;
+      using (var dummy = new CustomProcessDisplay(token, null))
+      {
+        var reader = setting.Value != null
+          ? new DataTableReader(setting.Value, settingName, dummy)
+          : FunctionalDI.GetFileReader(setting.Key, null, dummy);
+        await reader.OpenAsync(token).ConfigureAwait(false);
+        return reader;
+      }
     }
   }
 }

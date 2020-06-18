@@ -78,8 +78,8 @@ namespace CsvTools.Tests
       dataTable.Columns.Add("AllEmpty", typeof(string));
       dataTable.Columns.Add("PartEmpty", typeof(string));
       dataTable.Columns.Add("ID", typeof(int));
-      dataTable.Columns.Add(BaseFileReader.cStartLineNumberFieldName, typeof(long));
-      dataTable.Columns.Add(BaseFileReader.cErrorField, typeof(string));
+      dataTable.Columns.Add(ReaderConstants.cStartLineNumberFieldName, typeof(long));
+      dataTable.Columns.Add(ReaderConstants.cErrorField, typeof(string));
       var minDate = DateTime.Now.AddYears(-20).Ticks;
       var maxDate = DateTime.Now.AddYears(5).Ticks;
       dataTable.BeginLoadData();

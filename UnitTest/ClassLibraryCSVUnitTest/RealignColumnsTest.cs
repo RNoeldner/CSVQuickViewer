@@ -25,33 +25,33 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        await test.OpenAsync();
+        await test.OpenAsync(processDisplay.CancellationToken);
 
         // first five rows are good.
-        await test.ReadAsync(); // Line 2
-        await test.ReadAsync(); // Line 3
-        await test.ReadAsync(); // Line 4
-        await test.ReadAsync(); // Line 5
-        await test.ReadAsync(); // Line 6
+        await test.ReadAsync(processDisplay.CancellationToken); // Line 2
+        await test.ReadAsync(processDisplay.CancellationToken); // Line 3
+        await test.ReadAsync(processDisplay.CancellationToken); // Line 4
+        await test.ReadAsync(processDisplay.CancellationToken); // Line 5
+        await test.ReadAsync(processDisplay.CancellationToken); // Line 6
 
         // Issue row Column 3 = Text|6
-        await test.ReadAsync(); // Line 6
+        await test.ReadAsync(processDisplay.CancellationToken); // Line 6
         Assert.AreEqual("Text\tF", test.GetValue(3));
 
-        await test.ReadAsync(); // Line 7
-        await test.ReadAsync(); // Line 8
-        await test.ReadAsync(); // Line 9
-        await test.ReadAsync(); // Line 10
+        await test.ReadAsync(processDisplay.CancellationToken); // Line 7
+        await test.ReadAsync(processDisplay.CancellationToken); // Line 8
+        await test.ReadAsync(processDisplay.CancellationToken); // Line 9
+        await test.ReadAsync(processDisplay.CancellationToken); // Line 10
 
-        await test.ReadAsync(); // Line 11
+        await test.ReadAsync(processDisplay.CancellationToken); // Line 11
         Assert.AreEqual("Memo: A long text, \t multiple words 11", test.GetValue(5));
-        await test.ReadAsync(); // Line 12
+        await test.ReadAsync(processDisplay.CancellationToken); // Line 12
 
-        await test.ReadAsync(); // Line 13
-        await test.ReadAsync(); // Line 14
-        await test.ReadAsync(); // Line 15
-        await test.ReadAsync(); // Line 16
-        await test.ReadAsync(); // Line 17
+        await test.ReadAsync(processDisplay.CancellationToken); // Line 13
+        await test.ReadAsync(processDisplay.CancellationToken); // Line 14
+        await test.ReadAsync(processDisplay.CancellationToken); // Line 15
+        await test.ReadAsync(processDisplay.CancellationToken); // Line 16
+        await test.ReadAsync(processDisplay.CancellationToken); // Line 17
         Assert.AreEqual("Memo: A long text\nmultiple words 17", test.GetValue(5));
       }
     }

@@ -83,7 +83,7 @@ namespace CsvTools
       {
         var sb = WriterStart(reader, out var recordEnd);
 
-        while (await reader.ReadAsync().ConfigureAwait(false) && !cancellationToken.IsCancellationRequested)
+        while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false) && !cancellationToken.IsCancellationRequested)
         {
           if (sb.Length > 32768)
           {

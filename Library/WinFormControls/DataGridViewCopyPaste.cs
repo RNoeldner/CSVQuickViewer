@@ -174,7 +174,7 @@ namespace CsvTools
       foreach (DataGridViewColumn c in columns)
 
         // Do not include the error field it will be retrieved from the error collection with nice coloring
-        if (c.Visible && c.HeaderText != BaseFileReader.cErrorField)
+        if (c.Visible && c.HeaderText != ReaderConstants.cErrorField)
           visibleColumns.Add(c.DisplayIndex, c);
       var hasRowError = HasRowErrors(0, rows.Count, rows);
 
@@ -308,7 +308,7 @@ namespace CsvTools
       sbHtml.Append(m_HtmlStyle.TROpenAlt);
       for (var col = leftCol; col <= rightCol; col++)
         foreach (DataGridViewColumn diplayCol in columns)
-          if (diplayCol.DisplayIndex == col && diplayCol.Visible && diplayCol.HeaderText != BaseFileReader.cErrorField)
+          if (diplayCol.DisplayIndex == col && diplayCol.Visible && diplayCol.HeaderText != ReaderConstants.cErrorField)
           {
             visibleColumns.Add(col);
             sbHtml.Append(HTMLStyle.AddTd(m_HtmlStyle.TH, diplayCol.HeaderText));

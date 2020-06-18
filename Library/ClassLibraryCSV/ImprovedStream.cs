@@ -96,17 +96,6 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   Opens a file for reading
-    /// </summary>
-    /// <returns></returns>
-    /// <exception cref="ArgumentException">Path must be set - path</exception>
-    public static IImprovedStream OpenRead([NotNull] IFileSettingPhysicalFile setting)
-    {
-      if (setting is null)
-        throw new ArgumentNullException(nameof(setting));
-      return OpenRead(setting.FullPath);
-    }
 
     /// <summary>
     ///   Opens a file for reading

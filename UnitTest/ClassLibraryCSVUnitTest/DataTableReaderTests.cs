@@ -16,12 +16,12 @@ namespace CsvTools.Tests
     [TestMethod()]
     public async Task DataTableReaderTestAsync()
     {
-      using (var pd = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay())
       {
-        using (var test = new DataTableReader(m_DataTable, "id", pd))
+        using (var test = new DataTableReader(m_DataTable, "id", processDisplay))
         {
           Assert.IsTrue(test.IsClosed);
-          await test.OpenAsync();
+          await test.OpenAsync(processDisplay.CancellationToken);
           Assert.IsFalse(test.IsClosed);
         }
       }
@@ -65,11 +65,11 @@ namespace CsvTools.Tests
     [TestMethod()]
     public async Task GetDataTypeNameTestAsync()
     {
-      using (var pd = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay())
       {
-        using (var test = new DataTableReader(m_DataTable, "id", pd))
+        using (var test = new DataTableReader(m_DataTable, "id", processDisplay))
         {
-          await test.OpenAsync();
+          await test.OpenAsync(processDisplay.CancellationToken);
           var typeName = test.GetDataTypeName(0);
           Assert.IsTrue(typeName.Equals("int") || typeName.Equals("Int32") || typeName.Equals("Int64") || typeName.Equals("long"));
         }
@@ -79,11 +79,11 @@ namespace CsvTools.Tests
     [TestMethod()]
     public async Task GetFieldTypeTestAsync()
     {
-      using (var pd = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay())
       {
-        using (var test = new DataTableReader(m_DataTable, "id", pd))
+        using (var test = new DataTableReader(m_DataTable, "id", processDisplay))
         {
-          await test.OpenAsync();
+          await test.OpenAsync(processDisplay.CancellationToken);
           Assert.AreEqual(typeof(int), test.GetFieldType(0));
         }
       }
@@ -92,11 +92,11 @@ namespace CsvTools.Tests
     [TestMethod()]
     public async Task GetNameTestAsync()
     {
-      using (var pd = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay())
       {
-        using (var test = new DataTableReader(m_DataTable, "id", pd))
+        using (var test = new DataTableReader(m_DataTable, "id", processDisplay))
         {
-          await test.OpenAsync();
+          await test.OpenAsync(processDisplay.CancellationToken);
           Assert.AreEqual("ID", test.GetName(0));
         }
       }
@@ -105,11 +105,11 @@ namespace CsvTools.Tests
     [TestMethod()]
     public async Task GetOrdinalTestAsync()
     {
-      using (var pd = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay())
       {
-        using (var test = new DataTableReader(m_DataTable, "id", pd))
+        using (var test = new DataTableReader(m_DataTable, "id", processDisplay))
         {
-          await test.OpenAsync();
+          await test.OpenAsync(processDisplay.CancellationToken);
           Assert.AreEqual(2, test.GetOrdinal("ColText1"));
         }
       }
@@ -118,12 +118,12 @@ namespace CsvTools.Tests
     [TestMethod()]
     public async Task ReadAsyncTest()
     {
-      using (var pd = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay())
       {
-        using (var test = new DataTableReader(m_DataTable, "id", pd))
+        using (var test = new DataTableReader(m_DataTable, "id", processDisplay))
         {
-          await test.OpenAsync();
-          Assert.IsTrue(await test.ReadAsync());
+          await test.OpenAsync(processDisplay.CancellationToken);
+          Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
         }
       }
     }
@@ -131,12 +131,12 @@ namespace CsvTools.Tests
     [TestMethod()]
     public async Task ReadTestAsync()
     {
-      using (var pd = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay())
       {
-        using (var test = new DataTableReader(m_DataTable, "id", pd))
+        using (var test = new DataTableReader(m_DataTable, "id", processDisplay))
         {
-          await test.OpenAsync();
-          Assert.IsTrue(await test.ReadAsync());
+          await test.OpenAsync(processDisplay.CancellationToken);
+          Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
         }
       }
     }

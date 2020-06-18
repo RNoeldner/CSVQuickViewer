@@ -1317,14 +1317,14 @@ namespace CsvTools
           m_FilteredDataGridView.DataView.ToTable(false,
           // Restrict to shown data
           m_FilteredDataGridView.Columns.Cast<DataGridViewColumn>()
-          .Where(col => col.Visible && !BaseFileReader.ArtificialFields.Contains(col.DataPropertyName))
+          .Where(col => col.Visible && !ReaderConstants.ArtificialFields.Contains(col.DataPropertyName))
           .OrderBy(col => col.DisplayIndex)
           .Select(col => col.DataPropertyName).ToArray()), "Export",
           processDisplay))
         {
-          await dt.OpenAsync();
+          await dt.OpenAsync(processDisplay.CancellationToken);
           // can not use filteredDataGridView.Columns directly
-          await writer.WriteAsync(dt);
+          await writer.WriteAsync(dt, processDisplay.CancellationToken);
         }
       }
     }

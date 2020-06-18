@@ -65,7 +65,7 @@ namespace CsvTools.Tests
         sb.AppendLine("},");
         writeFile.Row = sb.ToString();
         var writer = new StructuredFileWriter(writeFile, TimeZoneInfo.Local.Id, processDisplay);
-        await writer.WriteAsync();
+        await writer.WriteAsync(processDisplay.CancellationToken);
       }
     }
 
@@ -100,7 +100,7 @@ namespace CsvTools.Tests
         writeFile.Footer = "</rowset>";
 
         var writer = new StructuredFileWriter(writeFile, TimeZoneInfo.Local.Id, processDisplay);
-        await writer.WriteAsync();
+        await writer.WriteAsync(processDisplay.CancellationToken);
       }
     }
   }

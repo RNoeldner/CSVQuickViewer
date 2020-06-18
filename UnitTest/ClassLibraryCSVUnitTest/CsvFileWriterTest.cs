@@ -72,7 +72,7 @@ namespace CsvTools.Tests
       cf.TimeZonePart = "TZ";
       var writer = new CsvFileWriter(writeFile, TimeZoneInfo.Local.Id, pd);
 
-      var res = await writer.WriteAsync();
+      var res = await writer.WriteAsync(pd.CancellationToken);
       Assert.IsTrue(FileSystemUtils.FileExists(writeFile.FullPath));
       Assert.AreEqual(1065, res, "Records");
     }
@@ -90,7 +90,7 @@ namespace CsvTools.Tests
       var writer = new CsvFileWriter(writeFile, TimeZoneInfo.Local.Id, pd);
       Assert.IsTrue(string.IsNullOrEmpty(writer.ErrorMessage));
 
-      var res = await writer.WriteAsync();
+      var res = await writer.WriteAsync(pd.CancellationToken);
       Assert.IsTrue(FileSystemUtils.FileExists(writeFile.FullPath));
       Assert.AreEqual(7, res);
     }
@@ -116,7 +116,7 @@ namespace CsvTools.Tests
       cf.TimeZonePart = "\"UTC\"";
       var writer = new CsvFileWriter(writeFile, TimeZoneInfo.Local.Id, pd);
 
-      var res = await writer.WriteAsync();
+      var res = await writer.WriteAsync(pd.CancellationToken);
       Assert.IsTrue(FileSystemUtils.FileExists(writeFile.FullPath));
       Assert.AreEqual(1065, res, "Records");
     }
@@ -142,8 +142,8 @@ namespace CsvTools.Tests
           var writer = new CsvFileWriter(writeFile, TimeZoneInfo.Local.Id, processDisplay);
           using (var reader = new DataTableReader(dataTable, "dummy", processDisplay))
           {
-            await reader.OpenAsync();
-            Assert.AreEqual(100, await writer.WriteAsync(reader));
+            await reader.OpenAsync(processDisplay.CancellationToken);
+            Assert.AreEqual(100, await writer.WriteAsync(reader, processDisplay.CancellationToken));
           }
             
         }
@@ -178,8 +178,8 @@ namespace CsvTools.Tests
           writer.Warning += (object sender, WarningEventArgs e) => { count++; };
           using (var reader = new DataTableReader(dataTable, "dummy", processDisplay))
           {
-            await reader.OpenAsync();
-            Assert.AreEqual(100, await writer.WriteAsync(reader), "Records");
+            await reader.OpenAsync(processDisplay.CancellationToken);
+            Assert.AreEqual(100, await writer.WriteAsync(reader, processDisplay.CancellationToken), "Records");
           }
             
           Assert.AreEqual(100, count, "Warnings");
@@ -219,7 +219,7 @@ namespace CsvTools.Tests
           {
             var writer = new CsvFileWriter(writeFile, TimeZoneInfo.Local.Id, processDisplay);
             using (var reader = new DataTableReader(dataTable, "dummy", processDisplay))
-              await writer.WriteAsync(reader);
+              await writer.WriteAsync(reader, processDisplay.CancellationToken);
 
             Assert.IsTrue(!string.IsNullOrEmpty(writer.ErrorMessage));
           }
@@ -244,7 +244,7 @@ namespace CsvTools.Tests
       var writer = new CsvFileWriter(writeFile, TimeZoneInfo.Local.Id, pd);
       Assert.IsTrue(string.IsNullOrEmpty(writer.ErrorMessage));
 
-      var res = await writer.WriteAsync();
+      var res = await writer.WriteAsync(pd.CancellationToken);
       Assert.IsTrue(FileSystemUtils.FileExists(writeFile.FullPath));
       Assert.AreEqual(7, res);
     }

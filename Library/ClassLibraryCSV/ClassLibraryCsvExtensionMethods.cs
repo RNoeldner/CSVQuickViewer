@@ -406,7 +406,7 @@ namespace CsvTools
       if (dataTable == null)
         yield break;
       foreach (DataColumn col in dataTable.Columns)
-        if (!BaseFileReader.ArtificialFields.Contains(col.ColumnName))
+        if (!ReaderConstants.ArtificialFields.Contains(col.ColumnName))
           yield return col;
     }
 
@@ -470,24 +470,15 @@ namespace CsvTools
       return null;
     }
 
-    /// <summary>
-    ///   Places the holder times.
-    /// </summary>
-    /// <param name="text">The text.</param>
-    /// <param name="format">The format.</param>
-    /// <param name="fileSetting">The file setting.</param>
-    /// <param name="lastExecution">The last execution.</param>
-    /// <param name="lastExecutionStart">The last execution start.</param>
-    /// <returns></returns>
-    [CanBeNull]
-    [ContractAnnotation("text:null => null")]
-    public static string PlaceHolderTimes([CanBeNull] this string text, [NotNull] string format, [NotNull] IFileSetting fileSetting,
+    [NotNull]
+    public static string PlaceHolderTimes([NotNull] this string text, [NotNull] string format, DateTime processTimeUtc,
       DateTime lastExecution, DateTime lastExecutionStart)
     {
-      if (string.IsNullOrEmpty(text)) return text;
-      if (fileSetting.ProcessTimeUtc != BaseSettings.ZeroTime)
+      if (text == null) throw new ArgumentNullException(nameof(text));
+
+      if (processTimeUtc != BaseSettings.ZeroTime)
       {
-        var value = fileSetting.ProcessTimeUtc.ToString(format);
+        var value = processTimeUtc.ToString(format);
         text = text.PlaceholderReplace("LastRunUTC", value);
       }
 

@@ -19,12 +19,10 @@ namespace CsvTools.Tests
 {
   public class MockProcessDisplay : IProcessDisplay
   {
-    private bool m_Disposed = false;
-    public bool Shown = false;
+    private bool m_Disposed;
     public string Text;
     private bool m_Visible = true;
     public virtual string Title { get; set; }
-    public TimeToCompletion TimeToCompletion => new TimeToCompletion();
 
     public CancellationToken CancellationToken => CancellationToken.None;
     public bool LogAsDebug { get; set; } = false;

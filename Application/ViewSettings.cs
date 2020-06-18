@@ -233,7 +233,6 @@ namespace CsvTools
       csvDest.ByteOrderMark = csvSrc.ByteOrderMark;
       csvDest.CodePageId = csvSrc.CodePageId;
       csvDest.ConsecutiveEmptyRows = csvSrc.ConsecutiveEmptyRows;
-      csvDest.CurrentEncoding = csvSrc.CurrentEncoding;
       csvDest.DisplayEndLineNo = csvSrc.DisplayEndLineNo;
       csvDest.DisplayRecordNo = csvSrc.DisplayRecordNo;
       csvDest.DisplayStartLineNo = csvSrc.DisplayStartLineNo;

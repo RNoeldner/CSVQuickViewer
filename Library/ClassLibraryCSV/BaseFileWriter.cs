@@ -77,23 +77,23 @@ namespace CsvTools
     ///   Writes the specified file.
     /// </summary>
     /// <returns>Number of records written</returns>
-    public virtual async Task<long> WriteAsync()
+    public virtual async Task<long> WriteAsync(CancellationToken token)
     {
       if (string.IsNullOrEmpty(m_FileSetting.SqlStatement))
         return 0;
       if (FunctionalDI.SQLDataReader == null)
         throw new ArgumentException("No Async SQL Reader set");
-      using (var sqlReader = await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement, m_ProcessDisplay, m_FileSetting.Timeout).ConfigureAwait(false))
+      using (var sqlReader = await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement, (sender, s) => m_ProcessDisplay?.SetProcess(s, 0, true), m_FileSetting.Timeout, token).ConfigureAwait(false))
       {
-        await sqlReader.OpenAsync().ConfigureAwait(false);
-        return await WriteAsync(sqlReader).ConfigureAwait(false);
+        await sqlReader.OpenAsync(token).ConfigureAwait(false);
+        return await WriteAsync(sqlReader, token).ConfigureAwait(false);
       }
     }
 
     [NotNull]
     protected string GetRecordEnd() => m_FileSetting.FileFormat.NewLine.NewLineString();
 
-    public async Task<long> WriteAsync(IFileReader reader)
+    public async Task<long> WriteAsync(IFileReader reader, CancellationToken token)
     {
       if (reader == null)
         return -1;
@@ -105,10 +105,9 @@ namespace CsvTools
         using (var improvedStream = FunctionalDI.OpenWrite(m_FileSetting))
         {
           //if (reader.IsClosed)
-          //  await reader.OpenAsync();
+          //  await reader.OpenAsync(processDisplay.CancellationToken);
 
-          await WriteReaderAsync(reader, improvedStream.Stream,
-            m_ProcessDisplay?.CancellationToken ?? CancellationToken.None).ConfigureAwait(false);
+          await WriteReaderAsync(reader, improvedStream.Stream, token).ConfigureAwait(false);
         }
       }
       catch (Exception exc)
@@ -191,7 +190,7 @@ namespace CsvTools
       m_FileSetting.ProcessTimeUtc = DateTime.UtcNow;
       if (!(m_FileSetting is IFileSettingPhysicalFile physicalFile) ||
           !physicalFile.SetLatestSourceTimeForWrite) return;
-      
+
       FileSystemUtils.SetLastWriteTimeUtc(physicalFile.FullPath, m_FileSetting.LatestSourceTimeUtc);
 
       Logger.Debug("Finished writing {filesetting} Records: {records}", m_FileSetting.ToString(), Records);

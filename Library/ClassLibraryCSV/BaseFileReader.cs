@@ -26,11 +26,21 @@ using JetBrains.Annotations;
 
 namespace CsvTools
 {
-  /// <summary>
-  ///   Abstract class as base for all DataReaders
-  /// </summary>
-  public abstract class BaseFileReader : IDisposable
+
+  public static class ReaderConstants
   {
+    /// <summary>
+    ///   Collection of the artificial field names
+    /// </summary>
+    public static readonly ICollection<string> ArtificialFields = new HashSet<string>
+    {
+      cRecordNumberFieldName,
+      cStartLineNumberFieldName,
+      cEndLineNumberFieldName,
+      cErrorField,
+      cPartitionField
+    };
+
     /// <summary>
     ///   Field name of the LineNumber Field
     /// </summary>
@@ -55,27 +65,41 @@ namespace CsvTools
     ///   Field name of the LineNumber Start Field
     /// </summary>
     public const string cStartLineNumberFieldName = "#Line";
+  }
+
+  /// <summary>
+  ///   Abstract class as base for all DataReaders
+  /// </summary>
+  public abstract class BaseFileReader : IDisposable
+  {
+    #region Stting for Reading former FileSetting
+
+    protected readonly TrimmingOption TrimmingOption;
+    protected readonly string FileSettingDisplay;
+    protected readonly bool TreatNBSPAsSpace;
+    protected readonly bool HasFieldHeader;
+    protected readonly string TreatTextAsNull;
+    protected readonly long RecordLimit;
+    private readonly bool m_DisplayRecordNo;
+    private readonly bool m_DisplayEndLineNo;
+    protected readonly bool SkipEmptyLines;
+    protected readonly int ConsecutiveEmptyRowsMax;
+    private readonly ICollection<ColumnReadOnly> m_ColumnDefinition;
+    private readonly string m_InternalID;
+    protected string FullPath { get; }
+    protected string FileName { get; }
+#endregion
 
     /// <summary>
     ///   The maximum value
     /// </summary>
     protected const int cMaxValue = 10000;
 
-    /// <summary>
-    ///   Collection of the artificial field names
-    /// </summary>
-    public static readonly ICollection<string> ArtificialFields = new HashSet<string>
-    {
-      cRecordNumberFieldName,
-      cStartLineNumberFieldName,
-      cEndLineNumberFieldName,
-      cErrorField,
-      cPartitionField
-    };
-
     protected readonly string DestinationTimeZone;
 
     private readonly IntervalAction m_IntervalAction = new IntervalAction();
+    protected Action<string, long, bool> ReportProgress;
+    protected Action<long> SetMaxProcess;
 
     /// <summary>
     ///   An array of associated col
@@ -116,32 +140,45 @@ namespace CsvTools
     protected BaseFileReader([NotNull] IFileSetting fileSetting, [CanBeNull] string destinationTimeZone,
       [CanBeNull] IProcessDisplay processDisplay)
     {
-      FileSetting = fileSetting ?? throw new ArgumentNullException(nameof(fileSetting));
-      if (FileSetting is IFileSettingPhysicalFile fileSettingPhysical)
+      if (fileSetting == null) 
+        throw new ArgumentNullException(nameof(fileSetting));
+      
+      
+      if (fileSetting is IFileSettingPhysicalFile fileSettingPhysical)
       {
+
         if (string.IsNullOrEmpty(fileSettingPhysical.FileName))
           throw new FileReaderException("FileName must be set");
+        FileName= fileSettingPhysical.FileName;
+        FullPath = fileSettingPhysical.FullPath;
 
-        if (OnOpen == null)
-          if (!FileSystemUtils.FileExists(fileSettingPhysical.FullPath))
-            throw new FileNotFoundException(
-              $"The file '{FileSystemUtils.GetShortDisplayFileName(fileSettingPhysical.FileName, 80)}' does not exist or is not accessible.",
-              fileSettingPhysical.FileName);
       }
+
+      
+      m_InternalID = fileSetting.InternalID;
+      TrimmingOption = fileSetting.TrimmingOption;
+      TreatNBSPAsSpace = fileSetting.TreatNBSPAsSpace;
+      TreatTextAsNull = fileSetting.TreatTextAsNull;
+      HasFieldHeader = fileSetting.HasFieldHeader;
+      RecordLimit = fileSetting.RecordLimit < 1 ? long.MaxValue : fileSetting.RecordLimit;
+      m_DisplayRecordNo = fileSetting.DisplayRecordNo;
+      m_DisplayEndLineNo = fileSetting.DisplayEndLineNo;
+      SkipEmptyLines = fileSetting.SkipEmptyLines;
+      ConsecutiveEmptyRowsMax = fileSetting.ConsecutiveEmptyRows;
+      FileSettingDisplay = fileSetting.ToString();
+      m_ColumnDefinition = new List<ColumnReadOnly>();
+      foreach (var col in fileSetting.ColumnCollection)
+        m_ColumnDefinition.Add(new ColumnReadOnly(col, 0));
 
       DestinationTimeZone = string.IsNullOrEmpty(destinationTimeZone) ? TimeZoneInfo.Local.Id : destinationTimeZone;
       if (processDisplay != null)
       {
         processDisplay.Maximum = 0;
-        CancellationToken = processDisplay.CancellationToken;
+        ReportProgress = processDisplay.SetProcess;
+        SetMaxProcess = l => processDisplay.Maximum = l;
       }
-      else
-      {
-        CancellationToken = CancellationToken.None;
-      }
-
-      ProcessDisplay = processDisplay;
-      Logger.Debug("Created Reader for {filesetting}", fileSetting.ToString());
+      
+      Logger.Debug("Created Reader for {filesetting}", FileSettingDisplay);
     }
 
     /// <summary>
@@ -169,16 +206,6 @@ namespace CsvTools
     /// <value>Number of field in the file.</value>
     public virtual int FieldCount => m_FieldCount;
 
-    /// <summary>
-    ///   Gets the file setting used in this reader
-    /// </summary>
-    /// <value>The file setting.</value>
-    [NotNull]
-    public IFileSetting FileSetting
-    {
-      get;
-    }
-
     public abstract bool IsClosed
     {
       get;
@@ -192,11 +219,6 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   A process display to stop long running processes
-    /// </summary>
-    [CanBeNull]
-    public IProcessDisplay ProcessDisplay { get; }
 
     /// <summary>
     ///   Gets the record number.
@@ -222,11 +244,6 @@ namespace CsvTools
     public virtual bool SupportsReset => true;
 
     /// <summary>
-    ///   A cancellation token, to stop long running processes
-    /// </summary>
-    protected CancellationToken CancellationToken { get; }
-
-    /// <summary>
     ///   Gets the <see cref="object" /> with the specified name.
     /// </summary>
     /// <value></value>
@@ -241,7 +258,7 @@ namespace CsvTools
     /// <summary>
     ///   Occurs before the file is opened
     /// </summary>
-    public Func<IFileSetting, Task<DateTime>> OnOpen { get; set; }
+    public Func<Task> OnOpen { private get; set; }
 
     /// <summary>
     ///   Performs application-defined tasks associated with freeing, releasing, or resetting
@@ -850,7 +867,7 @@ namespace CsvTools
       if (string.IsNullOrEmpty(CurrentRowColumnText[columnNumber]))
         return true;
 
-      if (FileSetting.TrimmingOption == TrimmingOption.All
+      if (TrimmingOption == TrimmingOption.All
           && Column[columnNumber].ValueFormat.DataType >= DataType.String)
         return CurrentRowColumnText[columnNumber].Trim().Length == 0;
 
@@ -863,20 +880,22 @@ namespace CsvTools
     /// <returns>true if there are more rows; otherwise, false.</returns>
     public virtual bool NextResult() => false;
 
-    public abstract Task OpenAsync();
-
+    public abstract Task OpenAsync(CancellationToken token);
+    
     /// <summary>
     ///   Overrides the column format from setting.
     /// </summary>
-    public virtual bool Read() => ReadAsync().Result;
+    public virtual bool Read(CancellationToken token) => ReadAsync(token).Wait(2000);
+    public virtual bool Read() => ReadAsync(CancellationToken.None).Wait(2000);
 
-    public abstract Task<bool> ReadAsync();
+    public abstract Task<bool> ReadAsync(CancellationToken token);
 
     /// <summary>
     ///   Resets the position and buffer to the header in case the file has a header
     /// </summary>
+    /// <param name="token"></param>
 #pragma warning disable 1998
-    public virtual async Task ResetPositionToFirstDataRowAsync()
+    public virtual async Task ResetPositionToFirstDataRowAsync(CancellationToken token)
 #pragma warning restore 1998
     {
       EndLineNumber = 0;
@@ -959,27 +978,20 @@ namespace CsvTools
 
     protected async Task BeforeOpenAsync(string message)
     {
+      SetMaxProcess?.Invoke(0);
+
       HandleShowProgress(message);
 
-      if (FileSetting is IFileSettingPhysicalFile fileSettingPhysical)
-      {
-        if (OnOpen != null)
-        {
-          var destTime = await OnOpen(fileSettingPhysical).ConfigureAwait(false);
-          if (destTime != BaseSettings.ZeroTime)
-            fileSettingPhysical.LatestSourceTimeUtc = destTime;
-        }
+      if (OnOpen != null)
+        await OnOpen().ConfigureAwait(false);
 
-        // now a physical file must exist
-        if (!FileSystemUtils.FileExists(fileSettingPhysical.FullPath))
-          throw new FileNotFoundException(
-            $"The file '{FileSystemUtils.GetShortDisplayFileName(fileSettingPhysical.FileName, 80)}' does not exist or is not accessible.",
-            fileSettingPhysical.FileName);
-      }
-      else
+      if (!string.IsNullOrEmpty(FullPath))
       {
-        if (OnOpen != null)
-          await OnOpen(FileSetting).ConfigureAwait(false);
+        // as of now a physical file must exist
+        if (!FileSystemUtils.FileExists(FullPath))
+          throw new FileNotFoundException(
+            $"The file '{FileSystemUtils.GetShortDisplayFileName(FileName, 80)}' does not exist or is not accessible.",
+            FullPath);
       }
     }
 
@@ -995,10 +1007,8 @@ namespace CsvTools
       m_IsFinished = false;
 
       // in case caching is setup store the headers
-      FunctionalDI.StoreHeader?.Invoke(FileSetting, Column);
-
-      if (ProcessDisplay != null)
-        ProcessDisplay.Maximum = cMaxValue;
+      FunctionalDI.StoreHeader?.Invoke(m_InternalID, Column);
+      SetMaxProcess?.Invoke(cMaxValue);
     }
 
     /// <summary>
@@ -1160,24 +1170,6 @@ namespace CsvTools
       if (m_IsFinished)
         return;
       m_IsFinished = true;
-      FileSetting.ProcessTimeUtc = DateTime.UtcNow;
-      if (FileSetting is IFileSettingPhysicalFile physicalFile)
-      {
-        if (!string.IsNullOrEmpty(physicalFile.FullPath))
-        {
-          physicalFile.FileSize = FileSystemUtils.FileLength(physicalFile.FullPath);
-          Logger.Debug(
-            "Finished reading {filesetting} Records: {records} in {filesize} Byte",
-            FileSetting.ToString(),
-            RecordNumber,
-            physicalFile.FileSize);
-        }
-      }
-      else
-      {
-        Logger.Debug("Finished reading {filesetting} Records: {records}", FileSetting.ToString(), RecordNumber);
-      }
-
       HandleShowProgress("Finished Reading from source", RecordNumber, cMaxValue);
       ReadFinished?.Invoke(this, null);
     }
@@ -1191,14 +1183,14 @@ namespace CsvTools
     protected virtual void HandleShowProgress(string text, long recordNumber, int progress)
     {
       var rec = recordNumber > 1 ? $"\nRecord {recordNumber:N0}" : string.Empty;
-      ProcessDisplay?.SetProcess($"{text}{rec}", progress, false);
+      ReportProgress?.Invoke($"{text}{rec}", progress, false);
     }
 
     /// <summary>
     ///   Shows the process.
     /// </summary>
     /// <param name="text">The text.</param>
-    protected void HandleShowProgress(string text) => ProcessDisplay?.SetProcess(text, -1, true);
+    protected void HandleShowProgress(string text) => ReportProgress?.Invoke(text, -1, true);
 
     /// <summary>
     ///   Shows the process twice a second
@@ -1207,7 +1199,7 @@ namespace CsvTools
     /// <param name="recordNumber">The record number.</param>
     protected void HandleShowProgressPeriodic(string text, long recordNumber)
     {
-      if (ProcessDisplay != null)
+      if (ReportProgress != null)
         m_IntervalAction.Invoke(delegate { HandleShowProgress(text, recordNumber, GetRelativePosition()); });
     }
 
@@ -1227,10 +1219,10 @@ namespace CsvTools
       if (string.IsNullOrEmpty(inputString))
         return inputString;
 
-      if (handleNullText && StringUtils.ShouldBeTreatedAsNull(inputString, FileSetting.TreatTextAsNull))
+      if (handleNullText && StringUtils.ShouldBeTreatedAsNull(inputString, TreatTextAsNull))
         return null;
 
-      if (FileSetting.TrimmingOption == TrimmingOption.All)
+      if (TrimmingOption == TrimmingOption.All)
         inputString = inputString.Trim();
 
       if (columnNumber >= FieldCount)
@@ -1271,7 +1263,7 @@ namespace CsvTools
       if (string.IsNullOrEmpty(output))
         return null;
 
-      if (FileSetting.TreatNBSPAsSpace && output.IndexOf((char) 0xA0) != -1)
+      if (TreatNBSPAsSpace && output.IndexOf((char) 0xA0) != -1)
         output = output.Replace((char) 0xA0, ' ');
 
       return output;
@@ -1288,10 +1280,10 @@ namespace CsvTools
       if (string.IsNullOrEmpty(inputValue))
         return inputValue;
 
-      if (FileSetting.TreatNBSPAsSpace)
+      if (TreatNBSPAsSpace)
         inputValue = inputValue.Replace((char) 0xA0, ' ');
-      if (FileSetting.TrimmingOption == TrimmingOption.All
-          || !quoted && FileSetting.TrimmingOption == TrimmingOption.Unquoted)
+      if (TrimmingOption == TrimmingOption.All
+          || !quoted && TrimmingOption == TrimmingOption.Unquoted)
         return inputValue.Trim();
 
       return inputValue;
@@ -1332,7 +1324,7 @@ namespace CsvTools
         dataType = new List<DataType>();
 
       IEnumerable<string> adjusted;
-      if (FileSetting.HasFieldHeader)
+      if (HasFieldHeader)
       {
         var warnings = new ColumnErrorDictionary();
         adjusted = AdjustColumnName(headerRow, m_FieldCount, warnings).Item1;
@@ -1353,7 +1345,8 @@ namespace CsvTools
         {
           var type = enumeratorType.MoveNext() ? enumeratorType.Current : Column[colIndex].ValueFormat.DataType;
           var name = enumeratorNames.Current;
-          var setting = FileSetting.ColumnCollection.Get(name);
+
+          var setting = m_ColumnDefinition.FirstOrDefault(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
           if (setting != null)
             Column[colIndex] = new ColumnReadOnly(setting, colIndex);
           else
@@ -1385,9 +1378,9 @@ namespace CsvTools
     }
 
 
-    protected bool ShouldRetry(Exception ex)
+    protected bool ShouldRetry(Exception ex, CancellationToken token)
     {
-      if (CancellationToken.IsCancellationRequested) return false;
+      if (token.IsCancellationRequested) return false;
 
       var eventArgs = new RetryEventArgs(ex);
       OnAskRetry?.Invoke(this, eventArgs);
@@ -1581,7 +1574,7 @@ namespace CsvTools
           : $"'{inputDate}' is not a date of the format {display}");
     }
 
-#region DataTable
+    #region DataTable
 
     /// <summary>
     ///   Asynchronous method to copy rows from a the reader to a data table
@@ -1599,15 +1592,15 @@ namespace CsvTools
       bool storeWarningsInDataTable, bool addStartLine, CancellationToken cancellationToken)
     {
       if (IsClosed)
-        await OpenAsync().ConfigureAwait(false);
+        await OpenAsync(cancellationToken).ConfigureAwait(false);
 
       // This tracks errors and warnings
       cancellationToken.ThrowIfCancellationRequested();
 
       // This has a mapping of the columns between reader and data table
       var copyToDataTableInfo =
-        new CopyToDataTableInfo(this as IFileReader ?? throw new InvalidOperationException(), includeErrorField,
-          storeWarningsInDataTable, addStartLine);
+        new CopyToDataTableInfo(this as IFileReader ?? throw new InvalidOperationException(),m_InternalID, includeErrorField, m_DisplayRecordNo, addStartLine, m_DisplayEndLineNo,
+          storeWarningsInDataTable);
 
       try
       {
@@ -1616,9 +1609,9 @@ namespace CsvTools
         copyToDataTableInfo.DataTable.BeginLoadData();
 
         if (recordLimit < 1)
-          recordLimit = FileSetting.RecordLimit < 1 ? long.MaxValue : FileSetting.RecordLimit;
+          recordLimit = RecordLimit;
 
-        while (await ReadAsync().ConfigureAwait(false) && RecordNumber <= recordLimit &&
+        while (await ReadAsync(cancellationToken).ConfigureAwait(false) && RecordNumber <= recordLimit &&
                !cancellationToken.IsCancellationRequested)
           copyToDataTableInfo.CopyRowToTable(this as IFileReader ?? throw new InvalidOperationException());
 
@@ -1633,6 +1626,6 @@ namespace CsvTools
       }
     }
 
-#endregion DataTable
+    #endregion DataTable
   }
 }

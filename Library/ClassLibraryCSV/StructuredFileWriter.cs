@@ -118,7 +118,7 @@ namespace CsvTools
         var
           sb = new StringBuilder(
             1024); // Assume a capacity of 1024 characters to start, data is flushed every 512 chars
-        while (await reader.ReadAsync().ConfigureAwait(false) && !cancellationToken.IsCancellationRequested)
+        while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false) && !cancellationToken.IsCancellationRequested)
         {
           NextRecord();
 

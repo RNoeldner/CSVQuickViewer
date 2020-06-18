@@ -164,8 +164,8 @@ namespace CsvTools
         var readerColumn = fileReader.GetColumn(colIndex);
         columnNamesInFile.Add(readerColumn.Name);
 
-        if (BaseFileReader.cStartLineNumberFieldName.Equals(readerColumn.Name, StringComparison.OrdinalIgnoreCase) ||
-            BaseFileReader.cErrorField.Equals(readerColumn.Name, StringComparison.OrdinalIgnoreCase))
+        if (ReaderConstants.cStartLineNumberFieldName.Equals(readerColumn.Name, StringComparison.OrdinalIgnoreCase) ||
+            ReaderConstants.cErrorField.Equals(readerColumn.Name, StringComparison.OrdinalIgnoreCase))
         {
           processDisplay.SetProcess(readerColumn.Name + " – Reserved columns ignored", colIndex, true);
 
@@ -542,7 +542,7 @@ namespace CsvTools
     /// <param name="processDisplay">The process display.</param>
     /// <exception cref="FileWriterException">No SQL Statement given or No SQL Reader set</exception>
     public static async Task FillGuessColumnFormatWriterAsync([NotNull] this IFileSetting fileSettings, bool all,
-      IProcessDisplay processDisplay)
+      [NotNull] IProcessDisplay processDisplay)
     {
       if (string.IsNullOrEmpty(fileSettings.SqlStatement))
         throw new FileWriterException("No SQL Statement given");
@@ -550,10 +550,10 @@ namespace CsvTools
         throw new FileWriterException("No Async SQL Reader set");
 
       using (var fileReader =
-        await FunctionalDI.SQLDataReader(fileSettings.SqlStatement, processDisplay, fileSettings.Timeout)
+        await FunctionalDI.SQLDataReader(fileSettings.SqlStatement, (sender, s) => processDisplay.SetProcess(s, 0, true), fileSettings.Timeout, processDisplay.CancellationToken)
           .ConfigureAwait(false))
       {
-        await fileReader.OpenAsync().ConfigureAwait(false);
+        await fileReader.OpenAsync(processDisplay.CancellationToken).ConfigureAwait(false);
         // Put the information into the list
         var dataRowCollection = fileReader.GetSchemaTable()?.Rows;
         if (dataRowCollection == null) return;
@@ -612,7 +612,7 @@ namespace CsvTools
       [NotNull] IEnumerable<int> columns, int enoughSamples, string treatAsNull, CancellationToken cancellationToken)
     {
       if (fileReader.IsClosed)
-        await fileReader.OpenAsync().ConfigureAwait(false);
+        await fileReader.OpenAsync(cancellationToken).ConfigureAwait(false);
       if (fileReader == null)
         throw new ArgumentNullException(nameof(fileReader));
 
@@ -653,7 +653,7 @@ namespace CsvTools
         if (fileReader.EndOfFile && fileReader.SupportsReset)
         {
           Logger.Debug("Resetting read position to the beginning");
-          await fileReader.ResetPositionToFirstDataRowAsync().ConfigureAwait(false);
+          await fileReader.ResetPositionToFirstDataRowAsync(cancellationToken).ConfigureAwait(false);
         }
 
         // Ready to start store the record number we are currently at, we could be in the middle of
@@ -673,13 +673,13 @@ namespace CsvTools
                samples.Keys.Count > enough.Count)
         {
           // if at the end start from the beginning
-          if (!await fileReader.ReadAsync().ConfigureAwait(false) && fileReader.EndOfFile)
+          if (!await fileReader.ReadAsync(cancellationToken).ConfigureAwait(false) && fileReader.EndOfFile)
           {
             if (!fileReader.SupportsReset)
               break;
-            await fileReader.ResetPositionToFirstDataRowAsync().ConfigureAwait(false);
+            await fileReader.ResetPositionToFirstDataRowAsync(cancellationToken).ConfigureAwait(false);
             // If still at the end, we do not have a line
-            if (startRecordNumber == 0 || !await fileReader.ReadAsync().ConfigureAwait(false))
+            if (startRecordNumber == 0 || !await fileReader.ReadAsync(cancellationToken).ConfigureAwait(false))
               break;
           }
 
@@ -760,7 +760,7 @@ namespace CsvTools
     [ItemNotNull]
     public static async Task<IEnumerable<ColumnInfo>> GetSourceColumnInformationAsync(
       [NotNull] IFileSetting fileSettings,
-      IProcessDisplay processDisplay)
+      [NotNull] IProcessDisplay processDisplay)
     {
       if (fileSettings == null)
         throw new ArgumentNullException(nameof(fileSettings));
@@ -770,10 +770,10 @@ namespace CsvTools
 
       if (FunctionalDI.SQLDataReader == null)
         throw new FileWriterException("No Async SQL Reader set");
-      using (var data = await FunctionalDI.SQLDataReader(fileSettings.SqlStatement.NoRecordSQL(), processDisplay,
-        fileSettings.Timeout).ConfigureAwait(false))
+      using (var data = await FunctionalDI.SQLDataReader(fileSettings.SqlStatement.NoRecordSQL(), (sender, s) => processDisplay.SetProcess(s, 0, true),
+        fileSettings.Timeout, processDisplay.CancellationToken).ConfigureAwait(false))
       {
-        await data.OpenAsync().ConfigureAwait(false);
+        await data.OpenAsync(processDisplay.CancellationToken).ConfigureAwait(false);
         return ColumnInfo.GetSourceColumnInformation(fileSettings, data);
       }
     }

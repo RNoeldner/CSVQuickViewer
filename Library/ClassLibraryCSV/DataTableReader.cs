@@ -30,8 +30,11 @@ namespace CsvTools
     private readonly DataTable m_DataTable;
     private DbDataReader m_DbDataReader;
 
-    public DataTableReader(DataTable dt, string id, IProcessDisplay processDisplay) : base(
-      new DataTableSetting(id), TimeZoneInfo.Local.Id, processDisplay) =>
+    public DataTableReader(DataTable dt, string id, IProcessDisplay processDisplay) : this(new DataTableSetting(id), dt,
+      processDisplay)
+    { }
+
+    public DataTableReader(IFileSetting setting, DataTable dt, IProcessDisplay processDisplay) : base(setting, TimeZoneInfo.Local.Id, processDisplay) =>
       m_DataTable = dt ?? throw new ArgumentNullException(nameof(dt));
 
     public override async Task<DataTable> GetDataTableAsync(long recordLimit, bool ignore, bool ignore2, bool ignore3, CancellationToken token) => await Task.FromResult(m_DataTable).ConfigureAwait(false);
@@ -97,7 +100,7 @@ namespace CsvTools
 
     public override bool NextResult() => m_DbDataReader.NextResult();
 
-    public override async Task OpenAsync()
+    public override async Task OpenAsync(CancellationToken token)
     {
       await BeforeOpenAsync("Opening Data Table").ConfigureAwait(false);
       var listCol = m_DataTable.Columns.OfType<DataColumn>().ToList();
@@ -105,9 +108,9 @@ namespace CsvTools
       ParseColumnName(listCol.Select(x => x.ColumnName));
       if (m_DbDataReader == null)
         m_DbDataReader = m_DataTable.CreateDataReader();
-      await GetColumnTypeAsync(1).ConfigureAwait(false);
-      
-      await ResetPositionToFirstDataRowAsync().ConfigureAwait(false);
+      await GetColumnTypeAsync(1, token).ConfigureAwait(false);
+
+      await ResetPositionToFirstDataRowAsync(token).ConfigureAwait(false);
     }
 
     public override void Close()
@@ -119,11 +122,11 @@ namespace CsvTools
     public override long StartLineNumber => RecordNumber;
     public override long EndLineNumber => RecordNumber;
 
-    public override async Task<bool> ReadAsync()
+    public override async Task<bool> ReadAsync(CancellationToken token)
     {
-      if (!CancellationToken.IsCancellationRequested)
+      if (!token.IsCancellationRequested)
       {
-        EndOfFile = !await m_DbDataReader.ReadAsync().ConfigureAwait(false);
+        EndOfFile = !await m_DbDataReader.ReadAsync(token).ConfigureAwait(false);
         if (!EndOfFile) RecordNumber++;
 
         InfoDisplay(!EndOfFile);
@@ -135,9 +138,9 @@ namespace CsvTools
       return false;
     }
 
-    public new async Task ResetPositionToFirstDataRowAsync()
+    public new async Task ResetPositionToFirstDataRowAsync(CancellationToken token)
     {
-      await base.ResetPositionToFirstDataRowAsync().ConfigureAwait(false);
+      await base.ResetPositionToFirstDataRowAsync(token).ConfigureAwait(false);
       m_DbDataReader?.Dispose();
       m_DbDataReader = m_DataTable.CreateDataReader();
     }

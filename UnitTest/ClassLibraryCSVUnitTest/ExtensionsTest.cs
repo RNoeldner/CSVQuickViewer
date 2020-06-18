@@ -379,7 +379,7 @@ namespace CsvTools.Tests
       Assert.AreEqual(0, dt.GetRealColumns().Count());
       Assert.AreEqual(0, dt.GetRealDataColumns().Count());
 
-      dt.Columns.Add(new DataColumn() { ColumnName = BaseFileReader.cEndLineNumberFieldName });
+      dt.Columns.Add(new DataColumn() { ColumnName = ReaderConstants.cEndLineNumberFieldName });
       Assert.AreEqual(0, dt.GetRealColumns().Count());
       Assert.AreEqual(0, dt.GetRealDataColumns().Count());
 

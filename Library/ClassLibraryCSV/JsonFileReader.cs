@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
@@ -27,7 +28,7 @@ namespace CsvTools
   /// </summary>
   public class JsonFileReader : BaseFileReaderTyped, IFileReader
   {
-    private readonly ICsvFile m_StructuredFile;
+
     private bool m_AssumeLog;
     private bool m_DisposedValue;
     private IImprovedStream m_ImprovedStream;
@@ -36,7 +37,10 @@ namespace CsvTools
     private long m_TextReaderLine;
 
     public JsonFileReader(ICsvFile fileSetting, string timeZone, IProcessDisplay processDisplay)
-      : base(fileSetting, timeZone, processDisplay) => m_StructuredFile = fileSetting;
+      : base(fileSetting, timeZone, processDisplay)
+    {
+    }
+
 
     /// <summary>
     ///   Gets a value indicating whether this instance is closed.
@@ -53,10 +57,10 @@ namespace CsvTools
       base.Close();
     }
 
-    public override async Task OpenAsync()
+    public override async Task OpenAsync(CancellationToken token)
     {
       await BeforeOpenAsync(
-          $"Opening Json file {FileSystemUtils.GetShortDisplayFileName(m_StructuredFile.FileName, 80)}")
+          $"Opening Json file {FileSystemUtils.GetShortDisplayFileName(FileName, 80)}")
         .ConfigureAwait(false);
       Retry:
       try
@@ -65,10 +69,10 @@ namespace CsvTools
         again:
         ResetPositionToStartOrOpen();
 
-        var line = await GetNextRecordAsync(false).ConfigureAwait(false);
+        var line = await GetNextRecordAsync(false, token).ConfigureAwait(false);
         try
         {
-          await GetNextRecordAsync(true).ConfigureAwait(false);
+          await GetNextRecordAsync(true, token).ConfigureAwait(false);
         }
         catch (JsonReaderException ex)
         {
@@ -81,7 +85,7 @@ namespace CsvTools
         // read additional 50 rows to see if we have some extra columns
         for (var row = 1; row < 50; row++)
         {
-          var line2 = await GetNextRecordAsync(false).ConfigureAwait(false);
+          var line2 = await GetNextRecordAsync(false, token).ConfigureAwait(false);
           if (line2 == null)
             break;
           if (line2.Count > line.Count)
@@ -98,7 +102,7 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        if (ShouldRetry(ex))
+        if (ShouldRetry(ex, token))
           goto Retry;
 
         Close();
@@ -115,11 +119,11 @@ namespace CsvTools
       }
     }
 
-    public override async Task<bool> ReadAsync()
+    public override async Task<bool> ReadAsync(CancellationToken token)
     {
-      if (!CancellationToken.IsCancellationRequested)
+      if (!token.IsCancellationRequested)
       {
-        var couldRead = await GetNextRecordAsync(false).ConfigureAwait(false) != null;
+        var couldRead = await GetNextRecordAsync(false, token).ConfigureAwait(false) != null;
         InfoDisplay(couldRead);
 
         if (couldRead && !IsClosed)
@@ -131,7 +135,7 @@ namespace CsvTools
     }
 
 
-    public override async Task ResetPositionToFirstDataRowAsync() => await Task.Run(ResetPositionToStartOrOpen);
+    public override async Task ResetPositionToFirstDataRowAsync(CancellationToken token) => await Task.Run(ResetPositionToStartOrOpen);
 
 
     /// <summary>
@@ -171,7 +175,7 @@ namespace CsvTools
     ///   the structure of the Json file
     /// </summary>
     /// <returns>A collection with name and value of the properties</returns>
-    private async Task<ICollection<KeyValuePair<string, object>>> GetNextRecordAsync(bool throwError)
+    private async Task<ICollection<KeyValuePair<string, object>>> GetNextRecordAsync(bool throwError, CancellationToken token)
     {
       try
       {
@@ -265,7 +269,7 @@ namespace CsvTools
               throw new ArgumentOutOfRangeException();
           }
 
-          CancellationToken.ThrowIfCancellationRequested();
+          token.ThrowIfCancellationRequested();
         } while (!(m_JsonTextReader.TokenType == JsonToken.EndObject && startKey == endKey)
                  && await m_JsonTextReader.ReadAsync().ConfigureAwait(false));
 
@@ -314,8 +318,8 @@ namespace CsvTools
     protected override int GetRelativePosition()
     {
       // if we know how many records to read, use that
-      if (m_StructuredFile.RecordLimit > 0)
-        return (int) (RecordNumber / m_StructuredFile.RecordLimit * cMaxValue);
+      if (RecordLimit > 0)
+        return (int) (RecordNumber / RecordLimit * cMaxValue);
 
       return (int) (m_ImprovedStream.Percentage * cMaxValue);
     }
@@ -331,9 +335,9 @@ namespace CsvTools
       m_TextReader = null;
 
       if (m_ImprovedStream == null)
-        m_ImprovedStream = FunctionalDI.OpenRead(m_StructuredFile);
+        m_ImprovedStream = FunctionalDI.OpenRead(FullPath);
 
-      m_ImprovedStream.ResetToStart(delegate(Stream str)
+      m_ImprovedStream.ResetToStart(delegate (Stream str)
       {
         // in case we can not seek need to reopen the stream reader
         if (!str.CanSeek || m_TextReader == null)
@@ -366,7 +370,7 @@ namespace CsvTools
       };
     }
 
-#region TextReader
+    #region TextReader
 
     // Buffer size set to 64kB, if set to large the display in percentage will jump
     private const int c_BufferSize = 65536;
@@ -491,6 +495,6 @@ namespace CsvTools
       m_JsonTextReader = new JsonTextReader(new StringReader(sb.ToString()));
     }
 
-#endregion TextReader
+    #endregion TextReader
   }
 }

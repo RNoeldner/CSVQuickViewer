@@ -16,7 +16,6 @@ using System;
 using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 
 namespace CsvTools
 {
@@ -48,19 +47,6 @@ namespace CsvTools
     /// </summary>
     /// <value>The line number in which the record started.</value>
     long StartLineNumber { get; }
-
-    /// <summary>
-    ///   Gets the file setting.
-    /// </summary>
-    /// <value>The file setting.</value>
-    IFileSetting FileSetting { get; }
-
-    /// <summary>
-    ///   Gets the process display.
-    /// </summary>
-    /// <value>The process display.</value>
-    // ReSharper disable once UnusedMember.Global
-    IProcessDisplay ProcessDisplay { get; }
 
     bool SupportsReset { get; }
 
@@ -100,7 +86,7 @@ namespace CsvTools
     ///   Reads the next record of the current result set
     /// </summary>
     /// <returns>Awaitable bool, if true a record was read</returns>
-    Task<bool> ReadAsync();
+    Task<bool> ReadAsync(CancellationToken token);
 
     /// <summary>
     ///   Event handler called if a warning or error occurred
@@ -111,7 +97,12 @@ namespace CsvTools
     ///   Occurs before the initial open. Can be used to prepare the data like download it from a
     ///   remote location
     /// </summary>
-    Func<IFileSetting, Task<DateTime>> OnOpen { set; }
+    Func<Task> OnOpen { set; }
+
+    /// <summary>
+    /// Event to be raised once the reader is finished reading the file
+    /// </summary>
+    event EventHandler ReadFinished;
 
     /// <summary>
     ///   Occurs when an open process failed, allowing the user to change the timeout or provide the
@@ -137,11 +128,12 @@ namespace CsvTools
     ///   Opens the text file and begins to read the meta data, like columns
     /// </summary>
     /// <returns>Number of records in the file if known (use determineColumnSize), -1 otherwise</returns>
-    Task OpenAsync();
+    Task OpenAsync(CancellationToken token);
 
     /// <summary>
     ///   Resets the position and buffer to the header in case the file has a header
     /// </summary>
-    Task ResetPositionToFirstDataRowAsync();
+    /// <param name="token"></param>
+    Task ResetPositionToFirstDataRowAsync(CancellationToken token);
   }
 }

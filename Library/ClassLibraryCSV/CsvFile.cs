@@ -452,7 +452,6 @@ namespace CsvTools
       csv.TreatUnknownCharacterAsSpace = m_TreatUnknownCharacterAsSpace;
       csv.CodePageId = m_CodePageId;
       csv.NumWarnings = m_NumWarnings;
-      csv.CurrentEncoding = m_CurrentEncoding;
       csv.NoDelimitedFile = m_NoDelimitedFile;
     }
 
@@ -465,7 +464,7 @@ namespace CsvTools
       if (ReferenceEquals(this, other))
         return true;
       return m_ByteOrderMark == other.ByteOrderMark && m_CodePageId == other.CodePageId &&
-             Equals(m_CurrentEncoding, other.CurrentEncoding) && m_DoubleDecode == other.DoubleDecode &&
+             m_DoubleDecode == other.DoubleDecode &&
              m_JsonFormat == other.JsonFormat &&
              m_NoDelimitedFile == other.NoDelimitedFile && m_NumWarnings == other.NumWarnings &&
              m_TreatUnknownCharacterAsSpace == other.TreatUnknownCharacterAsSpace &&

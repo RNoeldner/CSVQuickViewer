@@ -25,6 +25,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using JetBrains.Annotations;
 
 namespace CsvTools
 {
@@ -133,7 +134,7 @@ namespace CsvTools
           {
             var hasRetried = false;
             retry:
-            using (var sqlReader = await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement, processDisplay, m_FileSetting.Timeout))
+            using (var sqlReader = await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement, (o, s) => processDisplay.SetProcess(s), m_FileSetting.Timeout, processDisplay.CancellationToken))
             {
               var data = await sqlReader.GetDataTableAsync(m_FileSetting.RecordLimit, false, false, m_FileSetting.DisplayStartLineNo, processDisplay.CancellationToken);
               var found = new Column();
@@ -622,9 +623,9 @@ namespace CsvTools
               else
               { // Write Setting ----- open the source that is SQL
                 using (var fileReader = await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement.NoRecordSQL(),
-                  processDisplay, m_FileSetting.Timeout))
+                  (o, s) => processDisplay.SetProcess(s), m_FileSetting.Timeout, processDisplay.CancellationToken))
                 {
-                  await fileReader.OpenAsync();
+                  await fileReader.OpenAsync(processDisplay.CancellationToken);
                   for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
                     allColumns.Add(fileReader.GetColumn(colIndex).Name);
                 }
@@ -777,11 +778,10 @@ namespace CsvTools
     /// <exception cref="FileException">
     ///   Column {columnName} not found. or Column {columnName} not found.
     /// </exception>
-    private async Task<DetermineColumnFormat.SampleResult> GetSampleValuesAsync(string columnName,
-      IProcessDisplay processDisplay)
+    [ItemNotNull]
+    private async Task<DetermineColumnFormat.SampleResult> GetSampleValuesAsync([NotNull] string columnName,
+      [NotNull] IProcessDisplay processDisplay)
     {
-      Contract.Requires(!string.IsNullOrEmpty(columnName));
-      Contract.Ensures(Contract.Result<IEnumerable<string>>() != null);
       if (m_FileSetting == null)
         throw new ConfigurationException("FileSetting not set");
 
@@ -789,9 +789,9 @@ namespace CsvTools
       {
         if (m_WriteSetting)
           using (var sqlReader =
-            await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement, processDisplay, m_FileSetting.Timeout))
+            await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement, (o, s) => processDisplay.SetProcess(s, 0, true), m_FileSetting.Timeout, processDisplay.CancellationToken))
           {
-            await sqlReader.OpenAsync();
+            await sqlReader.OpenAsync(processDisplay.CancellationToken);
             var colIndex = sqlReader.GetOrdinal(columnName);
             if (colIndex < 0)
               throw new FileException($"Column {columnName} not found.");

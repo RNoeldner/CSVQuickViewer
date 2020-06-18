@@ -56,20 +56,20 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        await test.OpenAsync();
+        await test.OpenAsync(processDisplay.CancellationToken);
         Assert.AreEqual(10, test.FieldCount);
-        await test.ReadAsync();
+        await test.ReadAsync(processDisplay.CancellationToken);
         Assert.AreEqual(2, test.StartLineNumber);
         Assert.AreEqual(3, test.EndLineNumber);
         Assert.AreEqual(1, test.RecordNumber);
         Assert.AreEqual("-22477", test.GetString(1));
-        await test.ReadAsync();
+        await test.ReadAsync(processDisplay.CancellationToken);
         Assert.AreEqual(3, test.StartLineNumber);
         Assert.AreEqual(4, test.EndLineNumber);
         Assert.AreEqual(2, test.RecordNumber);
         Assert.AreEqual("22435", test.GetString(1));
         for (var line = 3; line < 25; line++)
-          await test.ReadAsync();
+          await test.ReadAsync(processDisplay.CancellationToken);
         Assert.AreEqual("-21928", test.GetString(1));
         Assert.IsTrue(test.GetString(4).EndsWith("twpapulfffy"));
         Assert.AreEqual(25, test.StartLineNumber);
@@ -77,7 +77,7 @@ namespace CsvTools.Tests
         Assert.AreEqual(24, test.RecordNumber);
 
         for (var line = 25; line < 47; line++)
-          await test.ReadAsync();
+          await test.ReadAsync(processDisplay.CancellationToken);
         Assert.AreEqual(49, test.EndLineNumber);
         Assert.AreEqual("4390", test.GetString(1));
 
@@ -109,84 +109,84 @@ namespace CsvTools.Tests
       using (var test = new CsvFileReader(basIssues, TimeZoneInfo.Local.Id, processDisplay))
       {
         var warningList = new RowErrorCollection(test);
-        await test.OpenAsync();
+        await test.OpenAsync(processDisplay.CancellationToken);
         warningList.HandleIgnoredColumns(test);
         // need 22 columns
         Assert.AreEqual(22, test.GetSchemaTable().Rows.Count());
 
         // This should work
-        await test.ReadAsync();
+        await test.ReadAsync(processDisplay.CancellationToken);
         Assert.AreEqual(0, warningList.CountRows);
 
         Assert.AreEqual("Eagle_sop020517", test.GetValue(0));
         Assert.AreEqual("de-DE", test.GetValue(2));
 
         // There are more columns
-        await test.ReadAsync();
+        await test.ReadAsync(processDisplay.CancellationToken);
         Assert.AreEqual(1, warningList.CountRows);
         Assert.AreEqual("Eagle_SRD-0137699", test.GetValue(0));
         Assert.AreEqual("de-DE", test.GetValue(2));
         Assert.AreEqual(3, test.StartLineNumber);
 
-        await test.ReadAsync();
+        await test.ReadAsync(processDisplay.CancellationToken);
         Assert.AreEqual("Eagle_600.364", test.GetValue(0));
         Assert.AreEqual(4, test.StartLineNumber);
 
-        await test.ReadAsync();
+        await test.ReadAsync(processDisplay.CancellationToken);
         Assert.AreEqual("Eagle_spt029698", test.GetValue(0));
         Assert.AreEqual(5, test.StartLineNumber);
 
-        await test.ReadAsync();
+        await test.ReadAsync(processDisplay.CancellationToken);
         Assert.AreEqual("Eagle_SRD-0137698", test.GetValue(0));
         Assert.AreEqual(2, warningList.CountRows);
         Assert.AreEqual(6, test.StartLineNumber);
 
-        await test.ReadAsync();
+        await test.ReadAsync(processDisplay.CancellationToken);
         Assert.AreEqual("Eagle_SRD-0138074", test.GetValue(0));
         Assert.AreEqual(7, test.StartLineNumber);
 
-        await test.ReadAsync();
+        await test.ReadAsync(processDisplay.CancellationToken);
         Assert.AreEqual("Eagle_SRD-0125563", test.GetValue(0));
         Assert.AreEqual(8, test.StartLineNumber);
 
-        await test.ReadAsync();
+        await test.ReadAsync(processDisplay.CancellationToken);
         Assert.AreEqual("doc_1004040002982", test.GetValue(0));
         Assert.AreEqual(3, warningList.CountRows);
         Assert.AreEqual(9, test.StartLineNumber);
 
-        await test.ReadAsync();
+        await test.ReadAsync(processDisplay.CancellationToken);
         Assert.AreEqual("doc_1004040002913", test.GetValue(0));
         Assert.AreEqual(10, test.StartLineNumber, "StartLineNumber");
         Assert.AreEqual(5, warningList.CountRows);
 
-        await test.ReadAsync();
+        await test.ReadAsync(processDisplay.CancellationToken);
         Assert.AreEqual("doc_1003001000427", test.GetValue(0));
         Assert.AreEqual(12, test.StartLineNumber);
 
-        await test.ReadAsync();
+        await test.ReadAsync(processDisplay.CancellationToken);
         Assert.AreEqual("doc_1008017000611", test.GetValue(0));
 
-        await test.ReadAsync();
+        await test.ReadAsync(processDisplay.CancellationToken);
         Assert.AreEqual("doc_1004040000268", test.GetValue(0));
 
-        await test.ReadAsync();
+        await test.ReadAsync(processDisplay.CancellationToken);
         Assert.AreEqual("doc_1008011000554", test.GetValue(0));
-        await test.ReadAsync();
+        await test.ReadAsync(processDisplay.CancellationToken);
         Assert.AreEqual("doc_1003001000936", test.GetValue(0));
 
-        await test.ReadAsync();
+        await test.ReadAsync(processDisplay.CancellationToken);
         Assert.AreEqual("doc_1200000124471", test.GetValue(0));
 
-        await test.ReadAsync();
+        await test.ReadAsync(processDisplay.CancellationToken);
         Assert.AreEqual("doc_1200000134529", test.GetValue(0));
 
-        await test.ReadAsync();
+        await test.ReadAsync(processDisplay.CancellationToken);
         Assert.AreEqual("doc_1004040003504", test.GetValue(0));
 
-        await test.ReadAsync();
+        await test.ReadAsync(processDisplay.CancellationToken);
         Assert.AreEqual("doc_1200000016068", test.GetValue(0));
 
-        await test.ReadAsync();
+        await test.ReadAsync(processDisplay.CancellationToken);
       }
     }
 
@@ -196,7 +196,7 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        await test.OpenAsync();
+        await test.OpenAsync(processDisplay.CancellationToken);
         Assert.AreEqual("String", test.GetDataTypeName(0));
       }
     }
@@ -207,7 +207,7 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        await test.OpenAsync();
+        await test.OpenAsync(processDisplay.CancellationToken);
         var dataTable = new DataTable
         {
           TableName = "DataTable",
@@ -216,14 +216,14 @@ namespace CsvTools.Tests
 
         dataTable.Columns.Add(test.GetName(0), test.GetFieldType(0));
 
-        var recordNumberColumn = dataTable.Columns.Add(BaseFileReader.cRecordNumberFieldName, typeof(int));
+        var recordNumberColumn = dataTable.Columns.Add(ReaderConstants.cRecordNumberFieldName, typeof(int));
         recordNumberColumn.AllowDBNull = true;
 
-        var lineNumberColumn = dataTable.Columns.Add(BaseFileReader.cEndLineNumberFieldName, typeof(int));
+        var lineNumberColumn = dataTable.Columns.Add(ReaderConstants.cEndLineNumberFieldName, typeof(int));
         lineNumberColumn.AllowDBNull = true;
 
         _ = dataTable.NewRow();
-        await test.ReadAsync();
+        await test.ReadAsync(processDisplay.CancellationToken);
         _ = new Dictionary<int, string>
         {
           {-1, "Test1"},
@@ -300,9 +300,9 @@ namespace CsvTools.Tests
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.ReadFinished += delegate { finished = true; };
-        await test.OpenAsync();
+        await test.OpenAsync(processDisplay.CancellationToken);
 
-        while (await test.ReadAsync())
+        while (await test.ReadAsync(processDisplay.CancellationToken))
         {
         }
       }
@@ -318,8 +318,8 @@ namespace CsvTools.Tests
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         test.ReadFinished += delegate { finished = true; };
-        await test.OpenAsync();
-        while (await test.ReadAsync())
+        await test.OpenAsync(processDisplay.CancellationToken);
+        while (await test.ReadAsync(processDisplay.CancellationToken))
         {
         }
       }
@@ -358,14 +358,14 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(csvFile, TimeZoneInfo.Local.Id, processDisplay))
       {
-        await test.OpenAsync();
-        await test.ReadAsync();
+        await test.OpenAsync(processDisplay.CancellationToken);
+        await test.ReadAsync(processDisplay.CancellationToken);
         test.GetDateTime(1);
       }
     }
 
     [TestMethod]
-    public void CsvDataReaderImportFileEmptyNullNotExisting()
+    public async Task CsvDataReaderImportFileEmptyNullNotExisting()
     {
       var setting = new CsvFile();
 
@@ -392,8 +392,10 @@ namespace CsvTools.Tests
       try
       {
         setting.FileName = @"b;dslkfg;sldfkgjs;ldfkgj;sldfkg.sdfgsfd";
-        using (new CsvFileReader(setting, TimeZoneInfo.Local.Id, null))
+        using(var processDisplay = new DummyProcessDisplay())
+        using (var reader = new CsvFileReader(setting, TimeZoneInfo.Local.Id, null))
         {
+          await reader.OpenAsync(processDisplay.CancellationToken);
         }
 
         Assert.Fail("Exception expected");
@@ -422,9 +424,9 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        await test.OpenAsync();
+        await test.OpenAsync(processDisplay.CancellationToken);
         var row = 0;
-        while (await test.ReadAsync())
+        while (await test.ReadAsync(processDisplay.CancellationToken))
           row++;
         Assert.AreEqual(row, test.RecordNumber);
         Assert.AreEqual(2, row);
@@ -458,9 +460,9 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        await test.OpenAsync();
+        await test.OpenAsync(processDisplay.CancellationToken);
         var row = 0;
-        while (await test.ReadAsync())
+        while (await test.ReadAsync(processDisplay.CancellationToken))
           row++;
         Assert.AreEqual(row, test.RecordNumber, "Compare with RecordNumber");
         Assert.AreEqual(7, row, "Read");
@@ -473,7 +475,7 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        await test.OpenAsync();
+        await test.OpenAsync(processDisplay.CancellationToken);
 
         Assert.AreEqual(0, test.Depth, "Depth");
         Assert.AreEqual(6, test.FieldCount, "FieldCount");
@@ -491,7 +493,7 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        await test.OpenAsync();
+        await test.OpenAsync(processDisplay.CancellationToken);
         Assert.AreEqual("ID", test.GetName(0));
         Assert.AreEqual("LangCodeID", test.GetName(1));
         Assert.AreEqual("ExamDate", test.GetName(2));
@@ -507,7 +509,7 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        await test.OpenAsync();
+        await test.OpenAsync(processDisplay.CancellationToken);
         Assert.AreEqual(0, test.GetOrdinal("ID"));
         Assert.AreEqual(1, test.GetOrdinal("LangCodeID"));
         Assert.AreEqual(2, test.GetOrdinal("ExamDate"));
@@ -524,12 +526,12 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        await test.OpenAsync();
-        Assert.IsTrue(await test.ReadAsync());
+        await test.OpenAsync(processDisplay.CancellationToken);
+        Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
         Assert.AreEqual("1", test["ID"]);
         Assert.AreEqual("German", test[1]);
         Assert.AreEqual(new DateTime(2010, 01, 20), test["ExamDate"]);
-        Assert.IsTrue(await test.ReadAsync());
+        Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
         Assert.AreEqual(DBNull.Value, test["Proficiency"]);
       }
     }
@@ -540,9 +542,9 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        await test.OpenAsync();
-        Assert.IsTrue(await test.ReadAsync());
-        Assert.IsTrue(await test.ReadAsync());
+        await test.OpenAsync(processDisplay.CancellationToken);
+        Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
+        Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
         Assert.AreEqual(DBNull.Value, test.GetValue(4));
       }
     }
@@ -554,8 +556,8 @@ namespace CsvTools.Tests
       using (CsvFileReader test = new CsvFileReader())
       {
         test.Open(false);
-        Assert.IsTrue(await test.ReadAsync());
-        Assert.IsTrue(await test.ReadAsync());
+        Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
+        Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
         Assert.AreEqual(DBNull.Value, test.GetValueADO(4));
       }
     }
@@ -577,7 +579,7 @@ namespace CsvTools.Tests
       using (CsvFileReader test = new CsvFileReader())
       {
         test.Open(false);
-        Assert.IsTrue(await test.ReadAsync());
+        Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
         Assert.AreEqual("1", test.GetValueADO(0));
         Assert.AreEqual("German", test.GetValueADO(1));
         Assert.AreEqual(new DateTime(2010, 01, 20), test.GetValueADO(2));
@@ -592,10 +594,10 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        await test.OpenAsync();
-        Assert.IsTrue(await test.ReadAsync());
+        await test.OpenAsync(processDisplay.CancellationToken);
+        Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
         Assert.IsTrue(test.GetBoolean(5));
-        Assert.IsTrue(await test.ReadAsync());
+        Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
         Assert.IsFalse(test.GetBoolean(5));
       }
     }
@@ -607,8 +609,8 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        await test.OpenAsync();
-        Assert.IsTrue(await test.ReadAsync());
+        await test.OpenAsync(processDisplay.CancellationToken);
+        Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
         test.GetBoolean(1);
       }
     }
@@ -619,8 +621,8 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        await test.OpenAsync();
-        Assert.IsTrue(await test.ReadAsync());
+        await test.OpenAsync(processDisplay.CancellationToken);
+        Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
         // 20/01/2010
         Assert.AreEqual(new DateTime(2010, 01, 20), test.GetDateTime(2));
       }
@@ -633,8 +635,8 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        await test.OpenAsync();
-        Assert.IsTrue(await test.ReadAsync());
+        await test.OpenAsync(processDisplay.CancellationToken);
+        Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
         test.GetDateTime(1);
       }
     }
@@ -645,8 +647,8 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        await test.OpenAsync();
-        Assert.IsTrue(await test.ReadAsync());
+        await test.OpenAsync(processDisplay.CancellationToken);
+        Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
         Assert.AreEqual(276, test.GetInt32(3));
       }
     }
@@ -658,8 +660,8 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        await test.OpenAsync();
-        Assert.IsTrue(await test.ReadAsync());
+        await test.OpenAsync(processDisplay.CancellationToken);
+        Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
         test.GetInt32(1);
       }
     }
@@ -670,8 +672,8 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        await test.OpenAsync();
-        Assert.IsTrue(await test.ReadAsync());
+        await test.OpenAsync(processDisplay.CancellationToken);
+        Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
         Assert.AreEqual(0.94m, test.GetDecimal(4));
       }
     }
@@ -683,8 +685,8 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        await test.OpenAsync();
-        Assert.IsTrue(await test.ReadAsync());
+        await test.OpenAsync(processDisplay.CancellationToken);
+        Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
         test.GetDecimal(1);
       }
     }
@@ -696,9 +698,9 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        await test.OpenAsync();
-        Assert.IsTrue(await test.ReadAsync());
-        Assert.IsTrue(await test.ReadAsync());
+        await test.OpenAsync(processDisplay.CancellationToken);
+        Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
+        Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
         test.GetInt32(4);
       }
     }
@@ -710,7 +712,7 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        await test.OpenAsync();
+        await test.OpenAsync(processDisplay.CancellationToken);
         test.GetBytes(0, 0, null, 0, 0);
       }
     }
@@ -722,7 +724,7 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        await test.OpenAsync();
+        await test.OpenAsync(processDisplay.CancellationToken);
         test.GetData(0);
       }
     }
@@ -733,8 +735,8 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        await test.OpenAsync();
-        Assert.IsTrue(await test.ReadAsync());
+        await test.OpenAsync(processDisplay.CancellationToken);
+        Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
         Assert.AreEqual(Convert.ToSingle(0.94), test.GetFloat(4));
       }
     }
@@ -746,8 +748,8 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        await test.OpenAsync();
-        Assert.IsTrue(await test.ReadAsync());
+        await test.OpenAsync(processDisplay.CancellationToken);
+        Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
         test.GetFloat(1);
       }
     }
@@ -759,8 +761,8 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        await test.OpenAsync();
-        Assert.IsTrue(await test.ReadAsync());
+        await test.OpenAsync(processDisplay.CancellationToken);
+        Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
         test.GetGuid(1);
       }
     }
@@ -772,10 +774,10 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        await test.OpenAsync();
-        Assert.IsTrue(await test.ReadAsync());
-        Assert.IsTrue(await test.ReadAsync());
-        Assert.IsTrue(await test.ReadAsync());
+        await test.OpenAsync(processDisplay.CancellationToken);
+        Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
+        Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
+        Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
         test.GetDateTime(2);
       }
     }
@@ -787,8 +789,8 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        await test.OpenAsync();
-        Assert.IsTrue(await test.ReadAsync());
+        await test.OpenAsync(processDisplay.CancellationToken);
+        Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
         test.GetDateTime(1);
       }
     }
@@ -800,9 +802,9 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        await test.OpenAsync();
-        Assert.IsTrue(await test.ReadAsync());
-        Assert.IsTrue(await test.ReadAsync());
+        await test.OpenAsync(processDisplay.CancellationToken);
+        Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
+        Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
         test.GetDecimal(4);
       }
     }
@@ -813,8 +815,8 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        await test.OpenAsync();
-        Assert.IsTrue(await test.ReadAsync());
+        await test.OpenAsync(processDisplay.CancellationToken);
+        Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
         Assert.AreEqual(1, test.GetByte(0));
       }
     }
@@ -826,8 +828,8 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        await test.OpenAsync();
-        Assert.IsTrue(await test.ReadAsync());
+        await test.OpenAsync(processDisplay.CancellationToken);
+        Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
         Assert.AreEqual(1, test.GetByte(1));
       }
     }
@@ -838,8 +840,8 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        await test.OpenAsync();
-        Assert.IsTrue(await test.ReadAsync());
+        await test.OpenAsync(processDisplay.CancellationToken);
+        Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
         Assert.AreEqual(1, test.GetDouble(0));
       }
     }
@@ -851,8 +853,8 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        await test.OpenAsync();
-        Assert.IsTrue(await test.ReadAsync());
+        await test.OpenAsync(processDisplay.CancellationToken);
+        Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
         Assert.AreEqual(1, test.GetDouble(1));
       }
     }
@@ -863,8 +865,8 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        await test.OpenAsync();
-        Assert.IsTrue(await test.ReadAsync());
+        await test.OpenAsync(processDisplay.CancellationToken);
+        Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
         Assert.AreEqual(1, test.GetInt16(0));
       }
     }
@@ -885,7 +887,7 @@ namespace CsvTools.Tests
       using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
         var warningList = new RowErrorCollection(test);
-        await test.OpenAsync();
+        await test.OpenAsync(processDisplay.CancellationToken);
         warningList.HandleIgnoredColumns(test);
 
         Assert.IsTrue(warningList.Display.Contains("Only the first character of 'XX' is be used for quoting."));
@@ -909,7 +911,7 @@ namespace CsvTools.Tests
         using (var processDisplay = new DummyProcessDisplay())
         using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
         {
-          await test.OpenAsync();
+          await test.OpenAsync(processDisplay.CancellationToken);
         }
       }
       catch (ArgumentException)
@@ -944,7 +946,7 @@ namespace CsvTools.Tests
         using (var processDisplay = new DummyProcessDisplay())
         using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
         {
-          await test.OpenAsync();
+          await test.OpenAsync(processDisplay.CancellationToken);
         }
       }
       catch (ArgumentException)
@@ -979,7 +981,7 @@ namespace CsvTools.Tests
         using (var processDisplay = new DummyProcessDisplay())
         using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
         {
-          await test.OpenAsync();
+          await test.OpenAsync(processDisplay.CancellationToken);
         }
       }
       catch (ArgumentException)
@@ -1011,7 +1013,7 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        await test.OpenAsync();
+        await test.OpenAsync(processDisplay.CancellationToken);
       }
 
       Assert.AreEqual(1200, setting.CurrentEncoding.WindowsCodePage); // UTF-16 little endian
@@ -1033,7 +1035,7 @@ namespace CsvTools.Tests
         using (var processDisplay = new DummyProcessDisplay())
         using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
         {
-          await test.OpenAsync();
+          await test.OpenAsync(processDisplay.CancellationToken);
         }
       }
       catch (ArgumentException)
@@ -1068,7 +1070,7 @@ namespace CsvTools.Tests
         using (var processDisplay = new DummyProcessDisplay())
         using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
         {
-          await test.OpenAsync();
+          await test.OpenAsync(processDisplay.CancellationToken);
         }
       }
       catch (ArgumentException)
@@ -1104,7 +1106,7 @@ namespace CsvTools.Tests
         using (var processDisplay = new DummyProcessDisplay())
         using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
         {
-          await test.OpenAsync();
+          await test.OpenAsync(processDisplay.CancellationToken);
         }
       }
       catch (ArgumentException)
@@ -1132,8 +1134,8 @@ namespace CsvTools.Tests
         using (var processDisplay = new DummyProcessDisplay())
         using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
         {
-          await test.OpenAsync();
-          Assert.IsTrue(await test.ReadAsync());
+          await test.OpenAsync(processDisplay.CancellationToken);
+          Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
           Assert.AreEqual(1, test.GetInt16(1));
         }
       }
@@ -1155,8 +1157,8 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        await test.OpenAsync();
-        Assert.IsTrue(await test.ReadAsync());
+        await test.OpenAsync(processDisplay.CancellationToken);
+        Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
         Assert.AreEqual(1, test.GetInt64(0));
       }
     }
@@ -1170,8 +1172,8 @@ namespace CsvTools.Tests
         using (var processDisplay = new DummyProcessDisplay())
         using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
         {
-          await test.OpenAsync();
-          Assert.IsTrue(await test.ReadAsync());
+          await test.OpenAsync(processDisplay.CancellationToken);
+          Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
           Assert.AreEqual(1, test.GetInt64(1));
         }
       }
@@ -1193,8 +1195,8 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        await test.OpenAsync();
-        Assert.IsTrue(await test.ReadAsync());
+        await test.OpenAsync(processDisplay.CancellationToken);
+        Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
         Assert.AreEqual('G', test.GetChar(1));
       }
     }
@@ -1206,8 +1208,8 @@ namespace CsvTools.Tests
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
         var exception = false;
-        await test.OpenAsync();
-        await test.ReadAsync();
+        await test.OpenAsync(processDisplay.CancellationToken);
+        await test.ReadAsync(processDisplay.CancellationToken);
         try
         {
           test.GetString(666);
@@ -1235,8 +1237,8 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        await test.OpenAsync();
-        Assert.IsTrue(await test.ReadAsync());
+        await test.OpenAsync(processDisplay.CancellationToken);
+        Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
         Assert.AreEqual("German", test.GetString(1));
         Assert.AreEqual("German", test.GetValue(1));
       }
@@ -1247,7 +1249,7 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        await test.ResetPositionToFirstDataRowAsync();
+        await test.ResetPositionToFirstDataRowAsync(processDisplay.CancellationToken);
       }
     }
 
@@ -1258,10 +1260,10 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        await test.OpenAsync();
-        Assert.IsTrue(await test.ReadAsync());
+        await test.OpenAsync(processDisplay.CancellationToken);
+        Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
         Assert.IsFalse(test.IsDBNull(4));
-        Assert.IsTrue(await test.ReadAsync());
+        Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
         Assert.IsTrue(test.IsDBNull(4));
         test.Close();
       }
@@ -1274,12 +1276,12 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        await test.OpenAsync();
-        Assert.IsTrue(await test.ReadAsync());
-        Assert.IsTrue(await test.ReadAsync());
-        Assert.IsTrue(await test.ReadAsync());
-        Assert.IsTrue(await test.ReadAsync());
-        Assert.IsTrue(await test.ReadAsync());
+        await test.OpenAsync(processDisplay.CancellationToken);
+        Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
+        Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
+        Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
+        Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
+        Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
 
         Assert.AreEqual(DBNull.Value, test["LangCodeID"]);
       }
@@ -1292,12 +1294,12 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        await test.OpenAsync();
-        Assert.IsTrue(await test.ReadAsync());
-        Assert.IsTrue(await test.ReadAsync());
-        Assert.IsTrue(await test.ReadAsync());
-        Assert.IsTrue(await test.ReadAsync());
-        Assert.IsTrue(await test.ReadAsync());
+        await test.OpenAsync(processDisplay.CancellationToken);
+        Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
+        Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
+        Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
+        Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
+        Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
 
         Assert.AreEqual("NULL", test["LangCodeID"]);
       }
@@ -1309,8 +1311,8 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        await test.OpenAsync();
-        Assert.IsTrue(await test.ReadAsync());
+        await test.OpenAsync(processDisplay.CancellationToken);
+        Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
         var values = new object[test.FieldCount];
         Assert.AreEqual(6, test.GetValues(values));
       }
@@ -1322,8 +1324,8 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        await test.OpenAsync();
-        Assert.IsTrue(await test.ReadAsync());
+        await test.OpenAsync(processDisplay.CancellationToken);
+        Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
         char[] buffer = { '0', '0', '0', '0' };
         test.GetChars(1, 0, buffer, 0, 4);
         Assert.AreEqual('G', buffer[0], "G");
@@ -1339,7 +1341,7 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        await test.OpenAsync();
+        await test.OpenAsync(processDisplay.CancellationToken);
         var dt = test.GetSchemaTable();
         Assert.IsInstanceOfType(dt, typeof(DataTable));
         Assert.AreEqual(6, dt.Rows.Count);
@@ -1352,7 +1354,7 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        await test.OpenAsync();
+        await test.OpenAsync(processDisplay.CancellationToken);
         /*
 1,German,20/01/2010,276,0.94,Y
 2,English,22/01/2012,190,,N
@@ -1362,15 +1364,15 @@ namespace CsvTools.Tests
 6,French,13/12/2000,399,0.67,N
 7,Dutch,01/11/2001,234,0.89,n
          */
-        Assert.IsTrue(await test.ReadAsync());
-        Assert.IsTrue(await test.ReadAsync());
-        Assert.IsTrue(await test.ReadAsync());
-        Assert.IsTrue(await test.ReadAsync());
-        Assert.IsTrue(await test.ReadAsync());
-        Assert.IsTrue(await test.ReadAsync());
-        Assert.IsTrue(await test.ReadAsync());
-        Assert.IsFalse(await test.ReadAsync());
-        Assert.IsFalse(await test.ReadAsync());
+        Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
+        Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
+        Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
+        Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
+        Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
+        Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
+        Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
+        Assert.IsFalse(await test.ReadAsync(processDisplay.CancellationToken));
+        Assert.IsFalse(await test.ReadAsync(processDisplay.CancellationToken));
       }
     }
 
@@ -1381,10 +1383,10 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        await test.OpenAsync();
-        Assert.IsTrue(await test.ReadAsync());
+        await test.OpenAsync(processDisplay.CancellationToken);
+        Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
         test.Close();
-        Assert.IsFalse(await test.ReadAsync());
+        Assert.IsFalse(await test.ReadAsync(processDisplay.CancellationToken));
       }
     }
 
@@ -1395,7 +1397,7 @@ namespace CsvTools.Tests
       {
         using (var test = new CsvFileReader(m_ValidSetting, TimeZoneInfo.Local.Id, processDisplay))
         {
-          await test.OpenAsync();
+          await test.OpenAsync(processDisplay.CancellationToken);
 
           var dt = await test.GetDataTableAsync(5, true, true, true, processDisplay.CancellationToken);
           Assert.AreEqual(5, dt.Rows.Count);
@@ -1413,7 +1415,7 @@ namespace CsvTools.Tests
         test2.RecordLimit = 4;
         using (var test = new CsvFileReader(test2, TimeZoneInfo.Local.Id, processDisplay))
         {
-          await test.OpenAsync();
+          await test.OpenAsync(processDisplay.CancellationToken);
 
           var dt = await test.GetDataTableAsync(-1, false, false, false, processDisplay.CancellationToken);
           Assert.AreEqual(test2.RecordLimit, dt.Rows.Count);
@@ -1437,7 +1439,7 @@ namespace CsvTools.Tests
         test3.ColumnCollection.Add(new Column("Memo") { Ignore = true });
         using (var test = new CsvFileReader(test3, TimeZoneInfo.Local.Id, processDisplay))
         {
-          await test.OpenAsync();
+          await test.OpenAsync(processDisplay.CancellationToken);
 
           var dt = await test.GetDataTableAsync(-1, true, true, true, processDisplay.CancellationToken);
           // 10 columns 1 ignored one added for Start line one for Error Field one for Record No one for Line end
@@ -1461,7 +1463,7 @@ namespace CsvTools.Tests
       using (var processDisplay = new DummyProcessDisplay())
       using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
       {
-        await test.OpenAsync();
+        await test.OpenAsync(processDisplay.CancellationToken);
         Assert.AreEqual("Column1", test.GetName(0));
         Assert.AreEqual("Column2", test.GetName(1));
         Assert.AreEqual("Column3", test.GetName(2));

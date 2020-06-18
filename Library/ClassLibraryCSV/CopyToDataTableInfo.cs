@@ -34,19 +34,21 @@ namespace CsvTools
     private readonly bool m_StoreWarningsInDataTable;
     private readonly ColumnErrorDictionary m_ColumnErrorDictionary;
 
-    public CopyToDataTableInfo([NotNull] IFileReader reader, bool includeErrorField, bool storeWarningsInDataTable, bool addStartLine)
+    public CopyToDataTableInfo([NotNull] IFileReader reader, string tableName, bool addErrorField, bool addRecordNo,
+      bool addStartLine, bool addEndLineNo, bool storeWarningsInDataTable)
     {
       if (reader == null) throw new ArgumentNullException(nameof(reader));
-      if (reader.FileSetting == null) throw new ArgumentNullException(nameof(reader));
+
       DataTable = new DataTable
       {
-        TableName = reader.FileSetting.ID,
+        TableName = tableName,
         Locale = CultureInfo.CurrentCulture,
         CaseSensitive = false
       };
       m_ColumnErrorDictionary = new ColumnErrorDictionary(reader);
+      //TODO open if need and make sure warning from this are captured
 
-      m_IncludeErrorField = includeErrorField;
+      m_IncludeErrorField = addErrorField;
       m_StoreWarningsInDataTable = storeWarningsInDataTable;
       for (var col = 0; col < reader.FieldCount; col++)
       {
@@ -58,29 +60,29 @@ namespace CsvTools
         m_Mapping.Add(col, DataTable.Columns[colName].Ordinal);
       }
 
-      if (addStartLine && !reader.HasColumnName(BaseFileReader.cStartLineNumberFieldName))
+      if (addStartLine && !reader.HasColumnName(ReaderConstants.cStartLineNumberFieldName))
       {
         // Append Artificial columns This needs to happen in the same order as we have in
         // CreateTableFromReader otherwise BulkCopy does not work see SqlServerConnector.CreateTable
-        m_StartLine = new DataColumn(BaseFileReader.cStartLineNumberFieldName, typeof(long));
+        m_StartLine = new DataColumn(ReaderConstants.cStartLineNumberFieldName, typeof(long));
         DataTable.Columns.Add(m_StartLine);
       }
 
-      if (reader.FileSetting.DisplayRecordNo && !reader.HasColumnName(BaseFileReader.cRecordNumberFieldName))
+      if (addRecordNo && !reader.HasColumnName(ReaderConstants.cRecordNumberFieldName))
       {
-        m_RecordNumber = new DataColumn(BaseFileReader.cRecordNumberFieldName, typeof(long));
+        m_RecordNumber = new DataColumn(ReaderConstants.cRecordNumberFieldName, typeof(long));
         DataTable.Columns.Add(m_RecordNumber);
         DataTable.PrimaryKey = new[] { m_RecordNumber };
       }
 
-      if (reader.FileSetting.DisplayEndLineNo && !reader.HasColumnName(BaseFileReader.cEndLineNumberFieldName))
+      if (addEndLineNo && !reader.HasColumnName(ReaderConstants.cEndLineNumberFieldName))
       {
-        m_EndLine = new DataColumn(BaseFileReader.cEndLineNumberFieldName, typeof(long));
+        m_EndLine = new DataColumn(ReaderConstants.cEndLineNumberFieldName, typeof(long));
         DataTable.Columns.Add(m_EndLine);
       }
 
-      if (!includeErrorField || reader.HasColumnName(BaseFileReader.cErrorField)) return;
-      m_Error = new DataColumn(BaseFileReader.cErrorField, typeof(string));
+      if (!addErrorField || reader.HasColumnName(ReaderConstants.cErrorField)) return;
+      m_Error = new DataColumn(ReaderConstants.cErrorField, typeof(string));
       DataTable.Columns.Add(m_Error);
     }
 

@@ -321,12 +321,12 @@ namespace CsvTools.Tests
       test.FileFormat.FieldQualifier = "\"";
       test.SkipRows = await CsvHelper.GuessStartRowAsync(test, CancellationToken.None);
 
-      using (var display = new DummyProcessDisplay())
-      using (var reader = new CsvFileReader(test, TimeZoneInfo.Local.Id, display))
+      using (var processDisplay = new DummyProcessDisplay())
+      using (var reader = new CsvFileReader(test, TimeZoneInfo.Local.Id, processDisplay))
       {
-        await reader.OpenAsync();
+        await reader.OpenAsync(processDisplay.CancellationToken);
         Assert.AreEqual("RecordNumber", reader.GetName(0));
-        await reader.ReadAsync();
+        await reader.ReadAsync(processDisplay.CancellationToken);
         Assert.AreEqual("0F8C40DB-EE2C-4C7C-A226-3C43E72584B0", reader.GetString(1));
       }
 
