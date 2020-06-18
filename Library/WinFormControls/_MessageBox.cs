@@ -12,10 +12,13 @@
  *
  */
 
+
+
 namespace CsvTools
 {
   using System.Drawing;
   using System.Windows.Forms;
+  using JetBrains.Annotations;
 
 #pragma warning disable IDE1006 // Naming Styles
 
@@ -23,7 +26,7 @@ namespace CsvTools
 #pragma warning restore IDE1006 // Naming Styles
   {
     public static DialogResult Show(
-      Form owner,
+      [CanBeNull] Form owner,
       string message,
       string title,
       MessageBoxButtons buttons = MessageBoxButtons.OKCancel,
@@ -51,10 +54,10 @@ namespace CsvTools
     /// <param name="button2Text">By Default "No"</param>
     /// <returns>DialogResult.Yes or DialogResult.No</returns>
     public static DialogResult PersistentChoice(
-      Form owner,
+      [CanBeNull] Form owner,
       string message,
       string title,
-      PersistentChoice massChoice,
+      [NotNull] PersistentChoice massChoice,
       string button1Text = "Yes",
       string button2Text = "No")
     {
@@ -87,7 +90,7 @@ namespace CsvTools
     }
 
     public static DialogResult ShowBigRtf(
-      Form owner,
+      [CanBeNull] Form owner,
       string messageRtf,
       string title,
       MessageBoxButtons buttons = MessageBoxButtons.OKCancel,
@@ -104,7 +107,7 @@ namespace CsvTools
     }
 
     public static DialogResult ShowBig(
-      Form owner,
+      [CanBeNull] Form owner,
       string message,
       string title,
       MessageBoxButtons buttons = MessageBoxButtons.OKCancel,
