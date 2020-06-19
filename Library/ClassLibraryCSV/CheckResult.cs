@@ -41,7 +41,7 @@ namespace CsvTools
     ///  The value format for a possible match
     /// </summary>
     [CanBeNull]
-    public ValueFormatReadOnly ValueFormatPossibleMatch { get; set; }
+    public ImmutableValueFormat ValueFormatPossibleMatch { get; set; }
 
     /// <summary>
     ///  Combines a Sub check to an overall check

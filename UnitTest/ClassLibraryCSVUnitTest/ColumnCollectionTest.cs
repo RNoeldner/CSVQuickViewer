@@ -11,9 +11,11 @@ namespace CsvTools.Tests
     {
       var test = new ColumnCollection();
       Assert.AreEqual(0, test.Count);
-      var item1 = test.AddIfNew(new Column("Test"));
+      var item1 = new Column("Test");
+      test.AddIfNew(item1);
       Assert.AreEqual(1, test.Count);
-      var item2 = test.AddIfNew(new Column("Test"));
+      var item2 = new Column("Test");
+      test.AddIfNew(item2);
       Assert.AreEqual(1, test.Count);
       Assert.AreEqual(item1, item2);
 
@@ -40,8 +42,11 @@ namespace CsvTools.Tests
     public void Get()
     {
       var test = new ColumnCollection();
-      var item1 = test.AddIfNew(new Column("Test"));
-      var item2 = test.AddIfNew(new Column("Test2"));
+      var item1 = new Column("Test");
+      test.AddIfNew(item1);
+      Assert.AreEqual(1, test.Count);
+      var item2 = new Column("Test2");
+      test.AddIfNew(item2);
       Assert.AreEqual(item1, test.Get("Test"));
       Assert.AreEqual(item1, test.Get("TEST"));
       Assert.AreEqual(item2, test.Get("tEst2"));

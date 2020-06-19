@@ -11,20 +11,35 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using JetBrains.Annotations;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
-  public static class CopyToTest
+
+  [TestClass]
+  public class TestCopyTo
   {
-    public static void RunCopyTo(IEnumerable<Type> list)
+    private static IEnumerable<Type> GetAllICloneable(string startsWith) =>
+      AppDomain.CurrentDomain.GetAssemblies()
+        .Where(a => a.FullName.StartsWith(startsWith, StringComparison.Ordinal))
+        .SelectMany(a => a.GetExportedTypes(), (a, t) => new { a, t })
+        .Where(t1 => t1.t.IsClass && !t1.t.IsAbstract)
+        .SelectMany(t1 => t1.t.GetInterfaces(), (t1, i) => new { t1, i })
+        .Where(t1 => t1.i.IsGenericType && t1.i.GetGenericTypeDefinition() == typeof(ICloneable<>))
+        .Select(t1 => t1.t1.t);
+
+
+    public static void RunCopyTo([NotNull] IEnumerable<Type> list)
     {
-      foreach (var type in list)
+      if (list == null) throw new ArgumentNullException(nameof(list));
+      foreach (var type in GetAllICloneable("ClassLibraryCSV"))
         try
         {
           var obj1 = Activator.CreateInstance(type);
@@ -35,36 +50,51 @@ namespace CsvTools.Tests
                                            && (prop.PropertyType == typeof(int) || prop.PropertyType == typeof(string)
                                                                                 || prop.PropertyType == typeof(bool)
                                                                                 || prop.PropertyType == typeof(DateTime)
-                                              )).ToArray();
+                                           )).ToArray();
           if (properties.Length == 0)
             continue;
-          // Set some properties that should not match the default
-          foreach (var prop in properties)
+
+          foreach (var prop1 in properties)
           {
-            if (prop.PropertyType == typeof(int))
-              prop.SetValue(obj1, 17);
+            if (prop1.PropertyType == typeof(int))
+              prop1.SetValue(obj1, 17);
 
-            if (prop.PropertyType == typeof(bool))
-              prop.SetValue(obj1, !(bool)prop.GetValue(obj1));
+            if (prop1.PropertyType == typeof(bool))
+              prop1.SetValue(obj1, !(bool) prop1.GetValue(obj1));
 
-            if (prop.PropertyType == typeof(string))
-              prop.SetValue(obj1, "Raphael");
+            if (prop1.PropertyType == typeof(string))
+              prop1.SetValue(obj1, "Raphael");
 
-            if (prop.PropertyType == typeof(DateTime))
-              prop.SetValue(obj1, new DateTime(2014, 12, 24));
+            if (prop1.PropertyType == typeof(DateTime))
+              prop1.SetValue(obj1, new DateTime(2014, 12, 24));
+          }
+
+          var methodClone = type.GetMethod("Clone", BindingFlags.Public | BindingFlags.Instance);
+          Assert.IsNotNull(methodClone, $"{type.FullName}.Clone()");
+          try
+          {
+            var obj3 = methodClone.Invoke(obj1, null);
+            Assert.IsInstanceOfType(obj3, type);
+            foreach (var prop in properties)
+              Assert.AreEqual(prop.GetValue(obj1), prop.GetValue(obj3), $"Type: {type.FullName} Property:{prop.Name}");
+          }
+          catch (Exception ex)
+          {
+            // Ignore all NotImplementedException these are cause by compatibility setting or mocks
+            Debug.Write(ex.ExceptionMessages());
           }
 
           var methodCopyTo = type.GetMethod("CopyTo", BindingFlags.Public | BindingFlags.Instance);
-          Assert.IsNotNull(methodCopyTo, $"Type: {type.FullName}");
+          // Cloneable does mean you have to have CopyTo
+          if (methodCopyTo==null) continue;
 
           try
           {
             methodCopyTo.Invoke(obj1, new object[] { null });
             methodCopyTo.Invoke(obj1, new[] { obj2 });
+
             foreach (var prop in properties)
-            {
               Assert.AreEqual(prop.GetValue(obj1), prop.GetValue(obj2), $"Type: {type.FullName} Property:{prop.Name}");
-            }
 
             methodCopyTo.Invoke(obj1, new[] { obj1 });
           }
@@ -74,59 +104,24 @@ namespace CsvTools.Tests
             Debug.Write(ex.ExceptionMessages());
           }
 
-          var methodClone = type.GetMethod("Clone", BindingFlags.Public | BindingFlags.Instance);
-          Assert.IsNotNull(methodClone, $"Type: {type.FullName}");
-          try
-          {
-            var obj3 = methodCopyTo.Invoke(obj1, null);
-            Assert.IsInstanceOfType(obj3, type);
-            foreach (var prop in properties)
-            {
-              Assert.AreEqual(prop.GetValue(obj1), prop.GetValue(obj3), $"Type: {type.FullName} Property:{prop.Name}");
-            }
-          }
-          catch (Exception ex)
-          {
-            // Ignore all NotImplementedException these are cause by compatibility setting or mocks
-            Debug.Write(ex.ExceptionMessages());
-          }
         }
         catch (MissingMethodException)
         {
           // Ignore, there is no constructor without parameter
+        }
+        catch (AssertFailedException)
+        {
+          throw;
         }
         catch (Exception e)
         {
           Assert.Fail($"Issue with {type.FullName} {e.Message}");
         }
     }
-
-public static IEnumerable<Type> GetAllIColoneable(string startsWith)
-{
-  foreach (var a in AppDomain.CurrentDomain.GetAssemblies())
-  {
-    if (a.FullName.StartsWith(startsWith, StringComparison.Ordinal))
+    [TestMethod]
+    public void RunCopyTo()
     {
-      foreach (var t in a.GetExportedTypes())
-      {
-        if (t.IsClass && !t.IsAbstract)
-        {
-          foreach (var i in t.GetInterfaces())
-          {
-            if (i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICloneable<>))
-              yield return t;
-          }
-        }
-      }
+      RunCopyTo(GetAllICloneable("ClassLibraryCSV"));
     }
   }
-}
-  }
-
-  [TestClass]
-public class TestCopyTo
-{
-  [TestMethod]
-  public void RunCopyTo() => CopyToTest.RunCopyTo(CopyToTest.GetAllIColoneable("ClassLibraryCSV"));
-}
 }

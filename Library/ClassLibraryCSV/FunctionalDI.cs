@@ -33,7 +33,7 @@ namespace CsvTools
     ///   match the base file readers HandleWarning the validation library will overwrite this is an
     ///   implementation using Noda Time
     /// </summary>
-    [NotNull] 
+    [NotNull]
     public static Func<DateTime?, string, string, int, Action<int, string>, DateTime?> AdjustTZ =
       (input, srcTimeZone, destTimeZone, columnOrdinal, handleWarning) =>
       {
@@ -59,13 +59,13 @@ namespace CsvTools
     /// <summary>
     ///   Function to retrieve the column in a setting file
     /// </summary>
-    [CanBeNull] 
+    [CanBeNull]
     public static Func<IFileSetting, CancellationToken, Task<ICollection<string>>> GetColumnHeader;
 
     /// <summary>
     ///   Retrieve the passphrase for a files
     /// </summary>
-    public static Func<string, string> GetEncryptedPassphraseForFile = s =>  string.Empty;
+    public static Func<string, string> GetEncryptedPassphraseForFile = s => string.Empty;
 
     /// <summary>
     ///   Retrieve the passphrase for a setting
@@ -75,7 +75,7 @@ namespace CsvTools
     /// <summary>
     ///   Open a file for reading, it will take care of things like compression and encryption
     /// </summary>
-    [NotNull] 
+    [NotNull]
     // ReSharper disable once FieldCanBeMadeReadOnly.Global
     public static Func<string, IImprovedStream> OpenRead = ImprovedStream.OpenRead;
 
@@ -83,9 +83,9 @@ namespace CsvTools
     ///   General function to open a file for writing, it will take care of things like compression
     ///   and encryption
     /// </summary>
-    [NotNull] 
+    [NotNull]
     // ReSharper disable once FieldCanBeMadeReadOnly.Global
-    public static Func<IFileSettingPhysicalFile, IImprovedStream> OpenWrite = ImprovedStream.OpenWrite;
+    public static Func<string, string, IImprovedStream> OpenWrite = ImprovedStream.OpenWrite;
 
     /// <summary>
     ///   Action to be performed while waiting on a background process, do something like handing
@@ -97,14 +97,14 @@ namespace CsvTools
     /// <summary>
     ///   Action to store the headers of a file in a cache, ignored columns should be excluded
     /// </summary>
-    [CanBeNull] 
+    [CanBeNull]
     // ReSharper disable once UnassignedField.Global
     public static Action<string, ICollection<IColumn>> StoreHeader;
 
     /// <summary>
     ///   Return the right reader for a file setting
     /// </summary>
-    [NotNull] 
+    [NotNull]
     // ReSharper disable once FieldCanBeMadeReadOnly.Global
     public static Func<IFileSetting, string, IProcessDisplay, IFileReader> GetFileReader = DefaultFileReader;
 
@@ -114,14 +114,14 @@ namespace CsvTools
       (async (setting, timeZone, processDisplay) =>
       {
         var reader = GetFileReader(setting, timeZone, processDisplay);
-        await reader.OpenAsync(processDisplay.CancellationToken).ConfigureAwait(false); 
+        await reader.OpenAsync(processDisplay.CancellationToken).ConfigureAwait(false);
         return reader;
       });
 
     /// <summary>
     ///   Return a right writer for a file setting
     /// </summary>
-    [NotNull] 
+    [NotNull]
     // ReSharper disable once FieldCanBeMadeReadOnly.Global
     public static Func<IFileSetting, string, IProcessDisplay, IFileWriter> GetFileWriter = DefaultFileWriter;
 
@@ -151,17 +151,30 @@ namespace CsvTools
     [NotNull]
     private static IFileWriter DefaultFileWriter([NotNull] IFileSetting setting, [CanBeNull] string timeZone, [CanBeNull] IProcessDisplay processDisplay)
     {
+      IFileWriter writer = null;
       switch (setting)
       {
         case ICsvFile csv when !csv.JsonFormat:
-          return new CsvFileWriter(csv, timeZone, processDisplay);
+          writer= new CsvFileWriter(csv, timeZone, BaseSettings.ZeroTime, BaseSettings.ZeroTime, processDisplay);
+          break;
 
         case StructuredFile structuredFile:
-          return new StructuredFileWriter(structuredFile, timeZone, processDisplay);
-
-        default:
-          throw new NotImplementedException($"Writer for {setting} not found");
+          writer= new StructuredFileWriter(structuredFile, timeZone, BaseSettings.ZeroTime, BaseSettings.ZeroTime, processDisplay);
+          break;
       }
+
+      if (writer==null)
+        throw new NotImplementedException($"Writer for {setting} not found");
+
+      writer.WriteFinished += (sender, args) =>
+      {
+        setting.ProcessTimeUtc = DateTime.UtcNow;
+        if (!(setting is IFileSettingPhysicalFile physicalFile) ||
+            !physicalFile.SetLatestSourceTimeForWrite) return;
+
+        FileSystemUtils.SetLastWriteTimeUtc(physicalFile.FullPath, setting.LatestSourceTimeUtc);
+      };
+      return writer;
     }
   }
 }

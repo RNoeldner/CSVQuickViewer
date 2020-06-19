@@ -12,28 +12,36 @@
  *
  */
 
-using JetBrains.Annotations;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Xml.Serialization;
+using JetBrains.Annotations;
 
 namespace CsvTools
 {
   /// <summary>
   ///   Setting to store a Field Mapping
   /// </summary>
-  [DebuggerDisplay("Mapping(File/Source: {m_FileColumn} -> Template/Destination {m_TemplateField})")]
+  [DebuggerDisplay("Mapping(File/Source: {FileColumn} -> Template/Destination {TemplateField})")]
   [Serializable]
 #pragma warning disable CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
-  public class Mapping : IEquatable<Mapping>, ICloneable<Mapping>
+  public sealed class Mapping : IEquatable<Mapping>, ICloneable<Mapping>
 #pragma warning restore CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
   {
-    private bool m_Attention;
-    private string m_FileColumn = string.Empty;
-    private string m_TemplateField = string.Empty;
-    private bool m_Update;
+    public Mapping() : this(string.Empty, string.Empty)
+    {
+    }
+
+    public Mapping([NotNull] string fileColumn, [NotNull] string templateField, bool update = false,
+      bool attention = false)
+    {
+      FileColumn = fileColumn;
+      TemplateField = templateField;
+      Update = update;
+      Attention = attention;
+    }
 
     /// <summary>
     ///   Gets or sets a value indicating whether this <see cref="Mapping" /> should be used for update
@@ -43,10 +51,10 @@ namespace CsvTools
     /// </value>
     [XmlAttribute]
     [DefaultValue(false)]
-    public virtual bool Update
+    public bool Update
     {
-      get => m_Update;
-      set => m_Update = value;
+      get;
+      set;
     }
 
     /// <summary>
@@ -57,61 +65,35 @@ namespace CsvTools
     /// </value>
     [XmlAttribute]
     [DefaultValue(false)]
-    public virtual bool Attention
+    public bool Attention
     {
-      get => m_Attention;
-      set => m_Attention = value;
+      get;
+      set;
     }
 
     /// <summary>
     ///   Gets or sets the Source := File Column.
     /// </summary>
     /// <value>The source.</value>
+    /// <remarks>The set operator is only present to allow serialization</remarks>
     [XmlAttribute("Column")]
-    public string FileColumn
-    {
-      [NotNull]
-      get => m_FileColumn;
-      set => m_FileColumn = value ?? string.Empty;
-    }
+    [NotNull]
+    public string FileColumn { get; set; }
 
     /// <summary>
     ///   Gets or sets the := Template Column.
     /// </summary>
     /// <value>The destination.</value>
+    /// <remarks>The set operator is only present to allow serialization</remarks>
     [XmlAttribute("Field")]
-    [DefaultValue("")]
-    public virtual string TemplateField
-    {
-      [NotNull]
-      get => m_TemplateField;
-      set => m_TemplateField = value ?? string.Empty;
-    }
+    [NotNull]
+    public string TemplateField { get; set; }
 
     /// <summary>
     ///   Clones this instance.
     /// </summary>
     /// <returns>A new FieldMapping that is a copy </returns>
-    public Mapping Clone()
-    {
-      var c = new Mapping();
-      CopyTo(c);
-      return c;
-    }
-
-    /// <summary>
-    ///   Copies all properties to the other instance
-    /// </summary>
-    /// <param name="other">The other instance</param>
-    public void CopyTo(Mapping other)
-    {
-      if (other == null)
-        return;
-      other.Attention = m_Attention;
-      other.Update = m_Update;
-      other.TemplateField = m_TemplateField;
-      other.FileColumn = m_FileColumn;
-    }
+    public Mapping Clone() => new Mapping(FileColumn, TemplateField, Update, Attention);
 
     /// <summary>Indicates whether the current object is equal to another object of the same type.</summary>
     /// <param name="other">An object to compare with this object.</param>
@@ -125,11 +107,10 @@ namespace CsvTools
         return false;
       if (ReferenceEquals(this, other))
         return true;
-      return m_Attention == other.m_Attention && m_Update == other.m_Update &&
-             string.Equals(m_FileColumn, other.m_FileColumn, StringComparison.OrdinalIgnoreCase) &&
-             string.Equals(m_TemplateField, other.m_TemplateField, StringComparison.OrdinalIgnoreCase);
+      return Attention == other.Attention && Update == other.Update &&
+             string.Equals(FileColumn, other.FileColumn, StringComparison.OrdinalIgnoreCase) &&
+             string.Equals(TemplateField, other.TemplateField, StringComparison.OrdinalIgnoreCase);
     }
-
 
     /// <summary>Determines whether the specified object is equal to the current object.</summary>
     /// <param name="obj">The object to compare with the current object. </param>
@@ -145,12 +126,10 @@ namespace CsvTools
     {
       unchecked
       {
-        var hashCode = m_Attention.GetHashCode();
-        hashCode = (hashCode * 397) ^ m_Update.GetHashCode();
-        hashCode = (hashCode * 397) ^
-                   (m_FileColumn != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(m_FileColumn) : 0);
-        hashCode = (hashCode * 397) ^
-                   (m_TemplateField != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(m_TemplateField) : 0);
+        var hashCode = StringComparer.OrdinalIgnoreCase.GetHashCode(FileColumn);
+        hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(TemplateField);
+        hashCode = (hashCode * 397) ^ Update.GetHashCode();
+        hashCode = (hashCode * 397) ^ Attention.GetHashCode();
         return hashCode;
       }
     }

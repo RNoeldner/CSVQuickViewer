@@ -45,7 +45,8 @@ namespace CsvTools.Tests
         FileFormat = { FieldDelimiter = "TAB" }
       };
 
-      var timeFld = readFile.ColumnCollection.AddIfNew(new Column("DateTime", new ValueFormat(DataType.DateTime) { DateFormat = @"dd/MM/yyyy" }));
+      var timeFld = new Column("DateTime", new ValueFormat(DataType.DateTime) {DateFormat = @"dd/MM/yyyy"});
+      readFile.ColumnCollection.AddIfNew(timeFld);
 
       timeFld.TimePart = "Time";
       timeFld.TimePartFormat = "HH:mm:ss";
@@ -57,15 +58,15 @@ namespace CsvTools.Tests
       Debug.Assert(numericFld != null);
       numericFld.ValueFormatMutable.DecimalSeparator = ".";
 
-      var doubleFld = readFile.ColumnCollection.AddIfNew(new Column("Double", new ValueFormat(DataType.Double) { DecimalSeparator = "." }));
+      var doubleFld = new Column("Double", new ValueFormat(DataType.Double) {DecimalSeparator = "."});
+      readFile.ColumnCollection.AddIfNew(doubleFld);
       Debug.Assert(doubleFld != null);
       readFile.ColumnCollection.AddIfNew(new Column("Boolean", DataType.Boolean));
       readFile.ColumnCollection.AddIfNew(new Column("GUID", DataType.Guid));
 
-      var timeFld2 =
-        readFile.ColumnCollection.AddIfNew(new Column("Time",
-          new ValueFormat(DataType.DateTime) {DateFormat = "HH:mm:ss"}));      
-      timeFld2.Ignore = true;
+      var timeFld2 = new Column("Time",
+        new ValueFormat(DataType.DateTime) {DateFormat = "HH:mm:ss"}) {Ignore = true};
+      readFile.ColumnCollection.AddIfNew(timeFld2);
 
       return readFile;
     }
@@ -78,7 +79,8 @@ namespace CsvTools.Tests
         FileFormat = { CommentLine = "#" },
         FileName = Path.Combine(UnitTestInitialize.GetTestPath("BasicCSV.txt"))
       };
-      var examDateFld = readFile.ColumnCollection.AddIfNew(new Column("ExamDate", DataType.DateTime));
+      var examDateFld = new Column("ExamDate", DataType.DateTime);
+      readFile.ColumnCollection.AddIfNew(examDateFld);
 
       Debug.Assert(examDateFld != null);
       examDateFld.ValueFormatMutable.DateFormat = @"dd/MM/yyyy";

@@ -115,7 +115,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="column">The column.</param>
     /// <returns>A <see cref="Column" /> with all information on the column</returns>
-    ColumnReadOnly GetColumn(int column);
+    ImmutableColumn GetColumn(int column);
 
     /// <summary>
     ///   Checks if the column should be read

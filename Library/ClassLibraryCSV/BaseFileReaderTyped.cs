@@ -44,7 +44,7 @@ namespace CsvTools
           var detected = CurrentValues[col].GetType().GetDataType();
           if (detected == Column[col].ValueFormat.DataType) continue;
 
-          Column[col] = new ColumnReadOnly(Column[col], new ValueFormatReadOnly(detected));
+          Column[col] = new ImmutableColumn(Column[col], new ImmutableValueFormat(detected));
           isSet[col] = true;
         }
         // if we have defined types for all exit

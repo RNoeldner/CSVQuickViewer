@@ -16,127 +16,16 @@ using System;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
-using System.Text;
 using System.Xml.Serialization;
 using JetBrains.Annotations;
 
 namespace CsvTools
 {
-
-  public static class ValueFormatExtension
-  {
-    public const string cDateFormatDefault = "MM/dd/yyyy";
-    public const string cDateSeparatorDefault = "/";
-    public const string cDecimalSeparatorDefault = ".";
-    public const string cFalseDefault = "False";
-    public const string cGroupSeparatorDefault = "";
-    public const string cNumberFormatDefault = "0.#####";
-    public const string cTimeSeparatorDefault = ":";
-    public const string cTrueDefault = "True";
-
-    /// <summary>
-    ///   Determines whether the specified expected column is matching this column.
-    /// </summary>
-    /// <param name="one"></param>
-    /// <param name="other">The expected column format.</param>
-    /// <returns>
-    ///   <c>true</c> if the current format would be acceptable for the expected data type.
-    /// </returns>
-    /// <remarks>
-    ///   Is matching only looks at data type and some formats, it is assumed that we do not
-    ///   distinguish between numeric formats, it is O.K. to expect a money value but have a integer
-    /// </remarks>
-    public static bool IsMatching([NotNull] this IValueFormat one, [NotNull] IValueFormat other)
-    {
-      if (other.DataType == one.DataType)
-        return true;
-
-      // if one is integer but we expect numeric or vice versa, assume its OK, one of the sides does
-      // not have a decimal separator
-      if ((other.DataType == DataType.Numeric || other.DataType == DataType.Double ||
-           other.DataType == DataType.Integer)
-          && one.DataType == DataType.Integer)
-        return true;
-
-      // ReSharper disable once SwitchStatementMissingSomeEnumCasesNoDefault
-      switch (other.DataType)
-      {
-        case DataType.Integer when one.DataType == DataType.Numeric || one.DataType == DataType.Double || one.DataType == DataType.Integer:
-          return true;
-        // if we have dates, check the formats
-        case DataType.DateTime when one.DataType == DataType.DateTime:
-          return other.DateFormat.Equals(one.DateFormat, StringComparison.Ordinal) &&
-                 (one.DateFormat.IndexOf('/') == -1 ||
-                  other.DateSeparator.Equals(one.DateSeparator, StringComparison.Ordinal)) &&
-                 (one.DateFormat.IndexOf(':') == -1 ||
-                  other.TimeSeparator.Equals(one.TimeSeparator, StringComparison.Ordinal));
-      }
-
-      // if we have decimals, check the formats
-      if ((other.DataType == DataType.Numeric || other.DataType == DataType.Double) &&
-          (one.DataType == DataType.Numeric || one.DataType == DataType.Double))
-        return other.NumberFormat.Equals(one.NumberFormat, StringComparison.Ordinal) &&
-               other.DecimalSeparatorChar.Equals(one.DecimalSeparatorChar) &&
-               other.GroupSeparatorChar.Equals(one.GroupSeparatorChar);
-      // For everything else assume its wrong
-      return false;
-    }
-
-    /// <summary>
-    ///   Gets the a description of the Date or Number format
-    /// </summary>
-    /// <returns></returns>
-    [NotNull]
-    public static string GetFormatDescription([NotNull] this IValueFormat one)
-    {
-      switch (one.DataType)
-      {
-        case DataType.Integer:
-          return one.NumberFormat.Replace(CultureInfo.InvariantCulture.NumberFormat.NumberGroupSeparator, one.GroupSeparatorChar.ToString());
-
-        case DataType.DateTime:
-          return one.DateFormat.ReplaceDefaults(CultureInfo.InvariantCulture.DateTimeFormat.DateSeparator,
-            one.DateSeparator,
-            CultureInfo.InvariantCulture.DateTimeFormat.TimeSeparator, one.TimeSeparator);
-
-        case DataType.Numeric:
-        case DataType.Double:
-          return one.NumberFormat.ReplaceDefaults(CultureInfo.InvariantCulture.NumberFormat.NumberDecimalSeparator,
-            one.DecimalSeparatorChar.ToString(),
-            CultureInfo.InvariantCulture.NumberFormat.NumberGroupSeparator, one.GroupSeparatorChar.ToString());
-
-        default:
-          return string.Empty;
-      }
-    }
-
-
-
-    /// <summary>
-    ///   Gets the description.
-    /// </summary>
-    /// <returns></returns>
-    [NotNull]
-    public static string GetTypeAndFormatDescription([NotNull] this IValueFormat one)
-    {
-      var sbText = new StringBuilder(one.DataType.DataTypeDisplay());
-
-      var shortDesc = one.GetFormatDescription();
-      if (shortDesc.Length <= 0)
-        return sbText.ToString();
-      sbText.Append(" (");
-      sbText.Append(shortDesc);
-      sbText.Append(")");
-
-      return sbText.ToString();
-    }
-  }
-
   /// <summary>
   ///   Setting for a value format
   /// </summary>
   [Serializable]
-  public class ValueFormat : IValueFormat, ICloneable<ValueFormat>, IEquatable<ValueFormat>, INotifyPropertyChanged
+  public sealed class ValueFormat : IValueFormat, IEquatable<ValueFormat>, INotifyPropertyChanged
   {
     private DataType m_DataType = DataType.String;
 
@@ -145,6 +34,8 @@ namespace CsvTools
     private string m_DateSeparator = ValueFormatExtension.cDateSeparatorDefault;
 
     private string m_DecimalSeparator = ValueFormatExtension.cDecimalSeparatorDefault;
+
+    private string m_DisplayNullAs = string.Empty;
 
     private string m_False = ValueFormatExtension.cFalseDefault;
 
@@ -156,8 +47,6 @@ namespace CsvTools
 
     private string m_True = ValueFormatExtension.cTrueDefault;
 
-    private string m_DisplayNullAs = string.Empty;
-
     /// <summary>
     ///   Initializes a new instance of the <see cref="ValueFormat" /> class.
     /// </summary>
@@ -168,20 +57,18 @@ namespace CsvTools
     public ValueFormat([NotNull] IValueFormat other)
     {
       m_DataType = other.DataType;
-      m_DateFormat=other.DateFormat;
-      m_DateSeparator=other.DateSeparator;
+      m_DateFormat = other.DateFormat;
+      m_DateSeparator = other.DateSeparator;
       DecimalSeparatorChar = other.DecimalSeparatorChar;
-      m_DisplayNullAs=other.DisplayNullAs;
-      m_False=other.False;
+      m_DisplayNullAs = other.DisplayNullAs;
+      m_False = other.False;
       GroupSeparatorChar = other.GroupSeparatorChar;
       m_NumberFormat = other.NumberFormat;
       m_TimeSeparator = other.TimeSeparator;
       m_True = other.True;
 
-      // ReSharper disable VirtualMemberCallInConstructor
-      DecimalSeparator =other.DecimalSeparatorChar.ToString();
-      GroupSeparator=other.GroupSeparatorChar.ToString();
-      // ReSharper restore VirtualMemberCallInConstructor
+      DecimalSeparator = other.DecimalSeparatorChar.ToString();
+      GroupSeparator = other.GroupSeparatorChar.ToString();
     }
 
     /// <summary>
@@ -190,59 +77,13 @@ namespace CsvTools
     /// <param name="dataType">Type of the data.</param>
     public ValueFormat(DataType dataType) => m_DataType = dataType;
 
-    [XmlIgnore]
-    public virtual char GroupSeparatorChar { get; private set; } = '\0';
-
-    [XmlIgnore]
-    public virtual char DecimalSeparatorChar { get; private set; } = ValueFormatExtension.cDecimalSeparatorDefault[0];
-
-    /// <summary>
-    ///   Gets or sets the type of the data.
-    /// </summary>
-    /// <value>The type of the data.</value>
-    [XmlAttribute]
-    [DefaultValue(DataType.String)]
-    public virtual DataType DataType
-    {
-      get => m_DataType;
-      set
-      {
-        if (m_DataType.Equals(value))
-          return;
-        m_DataType = value;
-        NotifyPropertyChanged(nameof(DataType));
-      }
-    }
-
-    /// <summary>
-    ///   Writing data you can specify how a NULL value should be written, commonly its empty, in
-    ///   some circumstances you might want to have n/a etc.
-    /// </summary>
-    /// <value>Text used if the value is NULL</value>
-    [XmlAttribute]
-    [DefaultValue("")]
-    public virtual string DisplayNullAs
-    {
-      [NotNull]
-      get => m_DisplayNullAs;
-
-      set
-      {
-        var newVal = value ?? string.Empty;
-        if (m_DisplayNullAs.Equals(newVal))
-          return;
-        m_DisplayNullAs = newVal;
-        NotifyPropertyChanged(nameof(DisplayNullAs));
-      }
-    }
-
     /// <summary>
     ///   Gets or sets the date format.
     /// </summary>
     /// <value>The date format.</value>
     [XmlElement]
     [DefaultValue(ValueFormatExtension.cDateFormatDefault)]
-    public virtual string DateFormat
+    public string DateFormat
     {
       [NotNull]
       get => m_DateFormat;
@@ -263,7 +104,7 @@ namespace CsvTools
     /// <value>The date separator.</value>
     [XmlElement]
     [DefaultValue(ValueFormatExtension.cDateSeparatorDefault)]
-    public virtual string DateSeparator
+    public string DateSeparator
     {
       [NotNull]
       get => m_DateSeparator;
@@ -286,7 +127,7 @@ namespace CsvTools
     /// <value>The decimal separator.</value>
     [XmlElement]
     [DefaultValue(ValueFormatExtension.cDecimalSeparatorDefault)]
-    public virtual string DecimalSeparator
+    public string DecimalSeparator
     {
       [NotNull]
       get => m_DecimalSeparator;
@@ -320,7 +161,7 @@ namespace CsvTools
     [SuppressMessage("Microsoft.Naming", "CA1716:IdentifiersShouldNotMatchKeywords", MessageId = "False")]
     [XmlElement]
     [DefaultValue(ValueFormatExtension.cFalseDefault)]
-    public virtual string False
+    public string False
     {
       [NotNull]
       get => m_False;
@@ -341,7 +182,7 @@ namespace CsvTools
     /// <value>The group separator.</value>
     [XmlElement]
     [DefaultValue(ValueFormatExtension.cGroupSeparatorDefault)]
-    public virtual string GroupSeparator
+    public string GroupSeparator
     {
       [NotNull]
       get => m_GroupSeparator;
@@ -368,12 +209,138 @@ namespace CsvTools
     }
 
     /// <summary>
+    ///   Clones this instance into a new instance of the same type
+    /// </summary>
+    /// <returns></returns>
+    [NotNull]
+    public ValueFormat Clone()
+    {
+      var other = new ValueFormat();
+      CopyTo(other);
+      return other;
+    }
+
+    public override bool Equals(object other)
+    {
+      if (other is null)
+        return false;
+      if (ReferenceEquals(this, other))
+        return true;
+
+      return (other is ValueFormat valueFormat) ? Equals(valueFormat) : false;
+    }
+
+    /// <summary>
+    ///   Indicates whether the current object is equal to another object of the same type.
+    /// </summary>
+    /// <param name="other">An object to compare with this object.</param>
+    /// <returns>
+    ///   <see langword="true" /> if the current object is equal to the <paramref name="other" />
+    ///   parameter; otherwise, <see langword="false" />.
+    /// </returns>
+    public bool Equals(ValueFormat other)
+    {
+      if (other is null)
+        return false;
+      if (ReferenceEquals(this, other))
+        return true;
+
+      if (other.DataType != DataType || !other.DisplayNullAs.Equals(DisplayNullAs, StringComparison.Ordinal))
+        return false;
+
+      switch (DataType)
+      {
+        case DataType.Integer:
+          return string.Equals(other.NumberFormat, NumberFormat, StringComparison.Ordinal);
+
+        case DataType.Numeric:
+        case DataType.Double:
+          return other.GroupSeparatorChar == GroupSeparatorChar &&
+                 other.DecimalSeparatorChar == DecimalSeparatorChar &&
+                 string.Equals(other.NumberFormat, NumberFormat, StringComparison.Ordinal);
+
+        case DataType.DateTime:
+          return string.Equals(other.DateFormat, DateFormat, StringComparison.Ordinal) &&
+                 string.Equals(other.DateSeparator, DateSeparator, StringComparison.Ordinal) &&
+                 string.Equals(other.TimeSeparator, TimeSeparator, StringComparison.Ordinal);
+
+        case DataType.Boolean:
+          return string.Equals(other.False, False, StringComparison.OrdinalIgnoreCase) &&
+                 string.Equals(other.True, True, StringComparison.OrdinalIgnoreCase);
+
+        default:
+          // compare everything
+          return string.Equals(other.DateFormat, DateFormat, StringComparison.Ordinal) &&
+                 string.Equals(other.DateSeparator, DateSeparator, StringComparison.Ordinal) &&
+                 string.Equals(other.TimeSeparator, TimeSeparator, StringComparison.Ordinal) &&
+                 string.Equals(other.False, False, StringComparison.OrdinalIgnoreCase) &&
+                 string.Equals(other.True, True, StringComparison.OrdinalIgnoreCase) &&
+                 other.GroupSeparatorChar == GroupSeparatorChar &&
+                 other.DecimalSeparatorChar == DecimalSeparatorChar &&
+                 string.Equals(other.NumberFormat, NumberFormat, StringComparison.Ordinal);
+      }
+    }
+
+    /// <summary>
+    ///   Occurs when a property value changes.
+    /// </summary>
+    public event PropertyChangedEventHandler PropertyChanged;
+
+
+    [XmlIgnore]
+    public char GroupSeparatorChar { get; private set; } = '\0';
+
+    [XmlIgnore]
+    public char DecimalSeparatorChar { get; private set; } = ValueFormatExtension.cDecimalSeparatorDefault[0];
+
+    /// <summary>
+    ///   Gets or sets the type of the data.
+    /// </summary>
+    /// <value>The type of the data.</value>
+    [XmlAttribute]
+    [DefaultValue(DataType.String)]
+    public DataType DataType
+    {
+      get => m_DataType;
+      set
+      {
+        if (m_DataType.Equals(value))
+          return;
+        m_DataType = value;
+        NotifyPropertyChanged(nameof(DataType));
+      }
+    }
+
+    /// <summary>
+    ///   Writing data you can specify how a NULL value should be written, commonly its empty, in
+    ///   some circumstances you might want to have n/a etc.
+    /// </summary>
+    /// <value>Text used if the value is NULL</value>
+    [XmlAttribute]
+    [DefaultValue("")]
+    public string DisplayNullAs
+    {
+      [NotNull]
+      get => m_DisplayNullAs;
+
+      set
+      {
+        var newVal = value ?? string.Empty;
+        if (m_DisplayNullAs.Equals(newVal))
+          return;
+        m_DisplayNullAs = newVal;
+        NotifyPropertyChanged(nameof(DisplayNullAs));
+      }
+    }
+
+
+    /// <summary>
     ///   Gets or sets the number format.
     /// </summary>
     /// <value>The number format.</value>
     [XmlElement]
     [DefaultValue(ValueFormatExtension.cNumberFormatDefault)]
-    public virtual string NumberFormat
+    public string NumberFormat
     {
       [NotNull]
       get => m_NumberFormat;
@@ -394,7 +361,7 @@ namespace CsvTools
     /// <value>The time separator.</value>
     [XmlElement]
     [DefaultValue(ValueFormatExtension.cTimeSeparatorDefault)]
-    public virtual string TimeSeparator
+    public string TimeSeparator
     {
       [NotNull]
       get => m_TimeSeparator;
@@ -416,7 +383,7 @@ namespace CsvTools
     [SuppressMessage("Microsoft.Naming", "CA1716:IdentifiersShouldNotMatchKeywords", MessageId = "True")]
     [XmlElement]
     [DefaultValue(ValueFormatExtension.cTrueDefault)]
-    public virtual string True
+    public string True
     {
       [NotNull]
       get => m_True;
@@ -431,18 +398,7 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   Clones this instance into a new instance of the same type
-    /// </summary>
-    /// <returns></returns>
-    [NotNull]
-    public virtual ValueFormat Clone()
-    {
-      var other = new ValueFormat();
-      CopyTo(other);
-      return other;
-    }
-    public virtual void CopyFrom(IValueFormat other)
+    public void CopyFrom(IValueFormat other)
     {
       if (other == null)
         return;
@@ -487,11 +443,12 @@ namespace CsvTools
           break;
       }
     }
+
     /// <summary>
     ///   Copies to.
     /// </summary>
     /// <param name="other">The other.</param>
-    public virtual void CopyTo(ValueFormat other)
+    public void CopyTo(ValueFormat other)
     {
       if (other == null)
         return;
@@ -533,81 +490,13 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   Indicates whether the current object is equal to another object of the same type.
-    /// </summary>
-    /// <param name="other">An object to compare with this object.</param>
-    /// <returns>
-    ///   <see langword="true" /> if the current object is equal to the <paramref name="other" />
-    ///   parameter; otherwise, <see langword="false" />.
-    /// </returns>
-    public bool Equals(ValueFormat other)
-    {
-      if (other is null)
-        return false;
-      if (ReferenceEquals(this, other))
-        return true;
-
-      if (other.DataType != m_DataType || !other.DisplayNullAs.Equals(m_DisplayNullAs, StringComparison.Ordinal))
-        return false;
-
-      switch (m_DataType)
-      {
-        case DataType.Integer:
-          return string.Equals(other.NumberFormat, m_NumberFormat, StringComparison.Ordinal);
-
-        case DataType.Numeric:
-        case DataType.Double:
-          return string.Equals(other.GroupSeparator, m_GroupSeparator, StringComparison.Ordinal) &&
-                 string.Equals(other.DecimalSeparator, m_DecimalSeparator, StringComparison.Ordinal) &&
-                 string.Equals(other.NumberFormat, m_NumberFormat, StringComparison.Ordinal);
-
-        case DataType.DateTime:
-          return string.Equals(other.DateFormat, m_DateFormat, StringComparison.Ordinal) &&
-                 string.Equals(other.DateSeparator, m_DateSeparator, StringComparison.Ordinal) &&
-                 string.Equals(other.TimeSeparator, m_TimeSeparator, StringComparison.Ordinal);
-
-        case DataType.Boolean:
-          return string.Equals(other.False, m_False, StringComparison.OrdinalIgnoreCase) &&
-                 string.Equals(other.True, m_True, StringComparison.OrdinalIgnoreCase);
-
-        default:
-          // compare everything
-          return string.Equals(other.DateFormat, m_DateFormat, StringComparison.Ordinal) &&
-                 string.Equals(other.DateSeparator, m_DateSeparator, StringComparison.Ordinal) &&
-                 string.Equals(other.TimeSeparator, m_TimeSeparator, StringComparison.Ordinal) &&
-                 string.Equals(other.False, m_False, StringComparison.OrdinalIgnoreCase) &&
-                 string.Equals(other.True, m_True, StringComparison.OrdinalIgnoreCase) &&
-                 string.Equals(other.GroupSeparator, m_GroupSeparator, StringComparison.Ordinal) &&
-                 string.Equals(other.DecimalSeparator, m_DecimalSeparator, StringComparison.Ordinal) &&
-                 string.Equals(other.NumberFormat, m_NumberFormat, StringComparison.Ordinal);
-      }
-    }
-
-    /// <summary>
-    ///   Occurs when a property value changes.
-    /// </summary>
-    public event PropertyChangedEventHandler PropertyChanged;
-
-
-
 
     /// <summary>
     ///   Notifies the property changed.
     /// </summary>
     /// <param name="info">The info.</param>
-    public virtual void NotifyPropertyChanged(string info) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(info));
-
-    /// <summary>
-    ///   Determines whether the specified object is equal to the current object.
-    /// </summary>
-    /// <param name="obj">The object to compare with the current object.</param>
-    /// <returns>
-    ///   <see langword="true" /> if the specified object is equal to the current object; otherwise,
-    ///   <see langword="false" />.
-    /// </returns>
-    public override bool Equals(object obj) => Equals(obj as ValueFormat);
-
+    public void NotifyPropertyChanged(string info) =>
+      PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(info));
 
 
     /// <summary>
@@ -658,6 +547,7 @@ namespace CsvTools
             hashCode = (hashCode * 397) ^ StringComparer.Ordinal.GetHashCode(m_NumberFormat);
             break;
         }
+
         return hashCode;
       }
     }
