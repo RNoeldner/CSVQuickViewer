@@ -84,7 +84,7 @@ namespace CsvTools
     private readonly bool m_DisplayEndLineNo;
     protected readonly bool SkipEmptyLines;
     protected readonly int ConsecutiveEmptyRowsMax;
-    private readonly ICollection<ColumnReadOnly> m_ColumnDefinition;
+    private readonly ICollection<IColumn> m_ColumnDefinition;
     private readonly string m_InternalID;
     protected string FullPath { get; }
     protected string FileName { get; }
@@ -98,8 +98,8 @@ namespace CsvTools
     protected readonly string DestinationTimeZone;
 
     private readonly IntervalAction m_IntervalAction = new IntervalAction();
-    protected Action<string, long, bool> ReportProgress;
-    protected Action<long> SetMaxProcess;
+    protected readonly Action<string, long, bool> ReportProgress;
+    private readonly Action<long> m_SetMaxProcess;
 
     /// <summary>
     ///   An array of associated col
@@ -109,7 +109,7 @@ namespace CsvTools
     /// <summary>
     ///   An array of column
     /// </summary>
-    protected ColumnReadOnly[] Column;
+    protected ImmutableColumn[] Column;
 
     /// <summary>
     ///   An array of current row column text
@@ -146,7 +146,6 @@ namespace CsvTools
       
       if (fileSetting is IFileSettingPhysicalFile fileSettingPhysical)
       {
-
         if (string.IsNullOrEmpty(fileSettingPhysical.FileName))
           throw new FileReaderException("FileName must be set");
         FileName= fileSettingPhysical.FileName;
@@ -154,7 +153,6 @@ namespace CsvTools
 
       }
 
-      
       m_InternalID = fileSetting.InternalID;
       TrimmingOption = fileSetting.TrimmingOption;
       TreatNBSPAsSpace = fileSetting.TreatNBSPAsSpace;
@@ -166,16 +164,15 @@ namespace CsvTools
       SkipEmptyLines = fileSetting.SkipEmptyLines;
       ConsecutiveEmptyRowsMax = fileSetting.ConsecutiveEmptyRows;
       FileSettingDisplay = fileSetting.ToString();
-      m_ColumnDefinition = new List<ColumnReadOnly>();
-      foreach (var col in fileSetting.ColumnCollection)
-        m_ColumnDefinition.Add(new ColumnReadOnly(col, 0));
+
+      m_ColumnDefinition = fileSetting.ColumnCollection.ReadonlyCopy();
 
       DestinationTimeZone = string.IsNullOrEmpty(destinationTimeZone) ? TimeZoneInfo.Local.Id : destinationTimeZone;
       if (processDisplay != null)
       {
         processDisplay.Maximum = 0;
         ReportProgress = processDisplay.SetProcess;
-        SetMaxProcess = l => processDisplay.Maximum = l;
+        m_SetMaxProcess = l => processDisplay.Maximum = l;
       }
       
       Logger.Debug("Created Reader for {filesetting}", FileSettingDisplay);
@@ -435,7 +432,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="columnNumber">The column.</param>
     /// <returns></returns>
-    public virtual ColumnReadOnly GetColumn(int columnNumber)
+    public virtual ImmutableColumn GetColumn(int columnNumber)
     {
       Debug.Assert(Column != null);
       Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount && columnNumber < Column.Length);
@@ -978,7 +975,7 @@ namespace CsvTools
 
     protected async Task BeforeOpenAsync(string message)
     {
-      SetMaxProcess?.Invoke(0);
+      m_SetMaxProcess?.Invoke(0);
 
       HandleShowProgress(message);
 
@@ -1008,7 +1005,7 @@ namespace CsvTools
 
       // in case caching is setup store the headers
       FunctionalDI.StoreHeader?.Invoke(m_InternalID, Column);
-      SetMaxProcess?.Invoke(cMaxValue);
+      m_SetMaxProcess?.Invoke(cMaxValue);
     }
 
     /// <summary>
@@ -1306,12 +1303,12 @@ namespace CsvTools
       m_FieldCount = fieldCount;
       CurrentRowColumnText = new string[fieldCount];
 
-      Column = new ColumnReadOnly[fieldCount];
+      Column = new ImmutableColumn[fieldCount];
       AssociatedTimeCol = new int[fieldCount];
       m_AssociatedTimeZoneCol = new int[fieldCount];
       for (var counter = 0; counter < fieldCount; counter++)
       {
-        Column[counter] = new ColumnReadOnly(GetDefaultName(counter), new ValueFormatReadOnly(), counter);
+        Column[counter] = new ImmutableColumn(GetDefaultName(counter), new ImmutableValueFormat(), counter);
         AssociatedTimeCol[counter] = -1;
         m_AssociatedTimeZoneCol[counter] = -1;
       }
@@ -1348,10 +1345,10 @@ namespace CsvTools
 
           var setting = m_ColumnDefinition.FirstOrDefault(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
           if (setting != null)
-            Column[colIndex] = new ColumnReadOnly(setting, colIndex);
+            Column[colIndex] = new ImmutableColumn(setting, colIndex);
           else
             Column[colIndex] =
-              new ColumnReadOnly(name, new ValueFormatReadOnly(type), colIndex, type != DataType.String);
+              new ImmutableColumn(name, new ImmutableValueFormat(type), colIndex);
           colIndex++;
         }
       }

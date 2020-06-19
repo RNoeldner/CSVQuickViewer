@@ -38,8 +38,9 @@ namespace CsvTools.Tests
       m_ValidSetting.ColumnCollection.AddIfNew(new Column("Score", DataType.Integer));
       m_ValidSetting.ColumnCollection.AddIfNew(new Column("Proficiency", DataType.Numeric));
       m_ValidSetting.ColumnCollection.AddIfNew(new Column("IsNativeLang", DataType.Boolean));
-      var cf = m_ValidSetting.ColumnCollection.AddIfNew(new Column("ExamDate", DataType.DateTime));
+      var cf = new Column("ExamDate", DataType.DateTime);
       cf.ValueFormatMutable.DateFormat = @"dd/MM/yyyy";
+      m_ValidSetting.ColumnCollection.AddIfNew(cf);
     }
 
     [TestMethod]

@@ -62,9 +62,9 @@ namespace CsvTools.Tests
       var encoding = EncodingHelper.GetEncoding(65001, true);
       const string Line1 = "This is a test of compressed data written to a file";
       const string Line2 = "Yet another line to be written";
-      const string Line3 = "A text with non ASCII chacarters: Raphael Nöldner";
+      const string Line3 = "A text with non ASCII characters: Raphael Nöldner";
 
-      using (var improvedStream = ImprovedStream.OpenWrite(fullname))
+      using (var improvedStream = ImprovedStream.OpenWrite(fullname, null))
       {
         using (var writer = new StreamWriter(improvedStream.Stream, encoding, 8192))
         {

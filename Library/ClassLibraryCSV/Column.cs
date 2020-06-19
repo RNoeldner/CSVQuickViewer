@@ -12,76 +12,14 @@
  *
  */
 
-
-
 namespace CsvTools
 {
   using System;
   using System.ComponentModel;
-  using System.Text;
   using System.Xml.Serialization;
   using System.Diagnostics.CodeAnalysis;
   using JetBrains.Annotations;
 
-  public static class ColumnExtension
-  {
-    /// <summary>
-    ///   Gets the a description of the Date or Number format
-    /// </summary>
-    /// <returns></returns>
-    [NotNull]
-    public static string GetFormatDescription([NotNull] this IColumn column)
-    {
-      if (column.ValueFormat.DataType == DataType.TextPart)
-        return column.Part + (column.PartToEnd ? " To End" : string.Empty);
-
-      return column.ValueFormat.GetFormatDescription();
-    }
-
-    /// <summary>
-    ///   Gets the description.
-    /// </summary>
-    /// <returns></returns>
-    [NotNull]
-    public static string GetTypeAndFormatDescription([NotNull] this IColumn column, bool addTime = true)
-    {
-      var stringBuilder = new StringBuilder(column.ValueFormat.DataType.DataTypeDisplay());
-
-      var shortDesc = column.GetFormatDescription();
-      if (shortDesc.Length > 0)
-      {
-        stringBuilder.Append(" (");
-        stringBuilder.Append(shortDesc);
-        stringBuilder.Append(")");
-      }
-
-      if (addTime && column.ValueFormat.DataType == DataType.DateTime)
-      {
-        if (column.TimePart.Length > 0)
-        {
-          stringBuilder.Append(" + ");
-          stringBuilder.Append(column.TimePart);
-          if (column.TimePartFormat.Length > 0)
-          {
-            stringBuilder.Append(" (");
-            stringBuilder.Append(column.TimePartFormat);
-            stringBuilder.Append(")");
-          }
-        }
-
-        if (column.TimeZonePart.Length > 0)
-        {
-          stringBuilder.Append(" - ");
-          stringBuilder.Append(column.TimeZonePart);
-        }
-      }
-
-      if (column.Ignore)
-        stringBuilder.Append(" (Ignore)");
-
-      return stringBuilder.ToString();
-    }
-  }
   /// <summary>
   ///   Column information like name, Type, Format etc.
   /// </summary>
@@ -148,7 +86,7 @@ namespace CsvTools
     public Column(string name, ValueFormat valueFormat)
     {
       m_Name = name;
-      m_ValueFormatMutable = valueFormat.Clone();
+      m_ValueFormatMutable = valueFormat.Clone() as ValueFormat;
     }
 
     public Column(string name, DataType dataType = DataType.String)
@@ -614,7 +552,7 @@ namespace CsvTools
     [XmlIgnore] private ValueFormat m_ValueFormatMutable;
 
     public ValueFormat ValueFormatMutable => m_ValueFormatMutable;
-    public IValueFormat ValueFormat => new ValueFormatReadOnly(m_ValueFormatMutable);
+    public IValueFormat ValueFormat => new ImmutableValueFormat(m_ValueFormatMutable);
 
     /// <summary>
     ///   Clones this instance into a new instance of the same type
@@ -651,14 +589,7 @@ namespace CsvTools
         other.Convert = m_Convert.Value;
     }
 
-    /// <summary>
-    ///   Indicates whether the current object is equal to another object of the same type.
-    /// </summary>
-    /// <param name="other">An object to compare with this object.</param>
-    /// <returns>
-    ///   <see langword="true" /> if the current object is equal to the <paramref name="other" />
-    ///   parameter; otherwise, <see langword="false" />.
-    /// </returns>
+
     public bool Equals(Column other)
     {
       if (other is null)
@@ -666,14 +597,14 @@ namespace CsvTools
       if (ReferenceEquals(this, other))
         return true;
 
-      return m_ColumnOrdinal == other.m_ColumnOrdinal
-             && string.Equals(m_Name, other.m_Name, StringComparison.OrdinalIgnoreCase)
-             && string.Equals(m_DestinationName, other.m_DestinationName, StringComparison.OrdinalIgnoreCase)
-             && m_Ignore == other.m_Ignore && m_Part == other.m_Part && m_PartSplitter == other.m_PartSplitter
-             && m_PartToEnd == other.m_PartToEnd
-             && string.Equals(m_TimePart, other.m_TimePart, StringComparison.OrdinalIgnoreCase)
-             && string.Equals(m_TimePartFormat, other.m_TimePartFormat, StringComparison.Ordinal)
-             && string.Equals(m_TimeZonePart, other.m_TimeZonePart, StringComparison.OrdinalIgnoreCase)
+      return ColumnOrdinal == other.ColumnOrdinal
+             && string.Equals(Name, other.Name, StringComparison.OrdinalIgnoreCase)
+             && string.Equals(DestinationName, other.DestinationName, StringComparison.OrdinalIgnoreCase)
+             && Ignore == other.Ignore && Part == other.Part && PartSplitter == other.PartSplitter
+             && PartToEnd == other.PartToEnd
+             && string.Equals(TimePart, other.TimePart, StringComparison.OrdinalIgnoreCase)
+             && string.Equals(TimePartFormat, other.TimePartFormat, StringComparison.Ordinal)
+             && string.Equals(TimeZonePart, other.TimeZonePart, StringComparison.OrdinalIgnoreCase)
              && Convert == other.Convert && m_ValueFormatMutable.Equals(other.m_ValueFormatMutable);
     }
 
@@ -685,10 +616,15 @@ namespace CsvTools
     ///   <see langword="true" /> if the specified object is equal to the current object; otherwise,
     ///   <see langword="false" />.
     /// </returns>
-#pragma warning disable 659
-    public override bool Equals(object obj) => Equals(obj as Column);
-#pragma warning restore 659
 
+    public override bool Equals(object obj)
+    {
+      if (obj is null)
+        return false;
+      if (ReferenceEquals(this, obj))
+        return true;
+      return (obj is Column column) ? Equals(column) : false;
+    }
 
 
     /// <summary>
@@ -698,53 +634,11 @@ namespace CsvTools
     public virtual void NotifyPropertyChanged(string info) =>
       PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(info));
 
+
     /// <summary>
     ///   Returns a <see cref="string" /> that represents this instance.
     /// </summary>
     /// <returns>A <see cref="string" /> that represents this instance.</returns>
     public override string ToString() => $"{Name} ({this.GetTypeAndFormatDescription()})";
-
-    /*
-    /// <summary>
-    ///   Returns a hash code for this instance.
-    /// </summary>
-    /// <returns>
-    ///   A hash code for this instance, suitable for use in hashing algorithms and data structures
-    ///   like a hash table.
-    /// </returns>
-    public override int GetHashCode()
-    {
-      unchecked
-      {
-        var hashCode = m_ColumnOrdinal;
-        hashCode = (hashCode * 397) ^ m_Convert.GetHashCode();
-        hashCode = (hashCode * 397) ^ (int)m_DataType;
-        hashCode = (hashCode * 397) ^ (m_DateFormat != null ? m_DateFormat.GetHashCode() : 0);
-        hashCode = (hashCode * 397) ^ (m_DateSeparator != null ? m_DateSeparator.GetHashCode() : 0);
-        hashCode = (hashCode * 397) ^ (m_DecimalSeparator != null ? m_DecimalSeparator.GetHashCode() : 0);
-        hashCode = (hashCode * 397) ^ m_DecimalSeparatorChar.GetHashCode();
-        hashCode = (hashCode * 397) ^ (m_DestinationName != null
-                     ? StringComparer.OrdinalIgnoreCase.GetHashCode(m_DestinationName)
-                     : 0);
-        hashCode = (hashCode * 397) ^ (m_False != null ? m_False.GetHashCode() : 0);
-        hashCode = (hashCode * 397) ^ (m_GroupSeparator != null ? m_GroupSeparator.GetHashCode() : 0);
-        hashCode = (hashCode * 397) ^ m_Ignore.GetHashCode();
-        hashCode = (hashCode * 397) ^ (m_Name != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(m_Name) : 0);
-        hashCode = (hashCode * 397) ^ (m_NumberFormat != null ? m_NumberFormat.GetHashCode() : 0);
-        hashCode = (hashCode * 397) ^ m_Part;
-        hashCode = (hashCode * 397) ^ m_PartSplitter.GetHashCode();
-        hashCode = (hashCode * 397) ^ m_PartToEnd.GetHashCode();
-        hashCode = (hashCode * 397) ^ m_Size;
-        hashCode = (hashCode * 397) ^ (m_TimePart != null ? m_TimePart.GetHashCode() : 0);
-        hashCode = (hashCode * 397) ^ (m_TimePartFormat != null ? m_TimePartFormat.GetHashCode() : 0);
-        hashCode = (hashCode * 397) ^ (m_TimeSeparator != null ? m_TimeSeparator.GetHashCode() : 0);
-        hashCode = (hashCode * 397) ^
-                   (m_TimeZonePart != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(m_TimeZonePart) : 0);
-        hashCode = (hashCode * 397) ^ (m_True != null ? m_True.GetHashCode() : 0);
-        hashCode = (hashCode * 397) ^ GroupSeparatorChar.GetHashCode();
-        return hashCode;
-      }
-    }
-    */
   }
 }

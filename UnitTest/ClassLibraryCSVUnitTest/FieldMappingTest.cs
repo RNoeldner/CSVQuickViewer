@@ -18,22 +18,13 @@ namespace CsvTools.Tests
   [TestClass]
   public class FieldMappingTest
   {
-    private readonly Mapping m_FieldMapping = new Mapping();
+    private readonly Mapping m_FieldMapping = new Mapping("A","B");
 
     [TestMethod]
     public void Equals()
     {
-      var notEqual = new Mapping
-      {
-        FileColumn = m_FieldMapping.FileColumn + "a",
-        TemplateField = m_FieldMapping.TemplateField
-      };
-
-      var equal = new Mapping
-      {
-        FileColumn = m_FieldMapping.FileColumn,
-        TemplateField = m_FieldMapping.TemplateField
-      };
+      var notEqual = new Mapping(m_FieldMapping.FileColumn + "a", m_FieldMapping.TemplateField);
+      var equal = new Mapping(m_FieldMapping.FileColumn, m_FieldMapping.TemplateField);
 
       Assert.IsTrue(m_FieldMapping.Equals(equal));
       Assert.IsFalse(m_FieldMapping.Equals(notEqual));
@@ -42,11 +33,5 @@ namespace CsvTools.Tests
     [TestMethod]
     public void EqualsNull() => Assert.IsFalse(m_FieldMapping.Equals(null));
 
-    [TestInitialize]
-    public void Init()
-    {
-      m_FieldMapping.FileColumn = "A";
-      m_FieldMapping.TemplateField = "B";
-    }
   }
 }

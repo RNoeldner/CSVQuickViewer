@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using JetBrains.Annotations;
 
@@ -6,35 +7,36 @@ namespace CsvTools
 {
   using System.Linq;
 
-  public sealed class ColumnCollection : ObservableCollection<Column>, ICloneable<ColumnCollection>, IEquatable<ColumnCollection>
+  public sealed class ColumnCollection : ObservableCollection<Column>
   {
     /// <summary>
     ///  Adds the <see cref="Column" /> format to the column list if it does not exist yet
     /// </summary>
     /// <remarks>If the column name already exist it does nothing but return the already defined column</remarks>
     /// <param name="columnFormat">The column format.</param>
-    [NotNull]
-    public Column AddIfNew([NotNull] IColumn columnFormat)
+    public void AddIfNew([NotNull] IColumn columnFormat)
     {
       if (columnFormat is null)
         throw new ArgumentNullException(nameof(columnFormat));
-      var found = Get(columnFormat.Name);
-      if (found != null)
-        return found;
-      Column toAdd = null;
-      switch (columnFormat)
+
+      if (!Items.Any(column => column.Name.Equals(columnFormat.Name, StringComparison.OrdinalIgnoreCase)))
       {
-        case ColumnReadOnly cro:
-          toAdd = cro.ToMutable();
-          break;
-        case Column col:
-          toAdd = col;
-          break;
+        Column toAdd = null;
+        switch (columnFormat)
+        {
+          case ImmutableColumn cro:
+            toAdd = cro.ToMutable();
+            break;
+          case Column col:
+            toAdd = col;
+            break;
+        }
+        if (toAdd!=null)
+          Add(toAdd);
       }
-      if (toAdd!=null)
-        Add(toAdd);
-      return toAdd;
     }
+
+    public ICollection<IColumn> ReadonlyCopy() => Items.Select(col => new ImmutableColumn(col, col.ColumnOrdinal)).Cast<IColumn>().ToList();
 
     /// <summary>
     ///   Clones this instance into a new instance of the same type
@@ -68,7 +70,7 @@ namespace CsvTools
     /// <param name="fieldName"></param>
     /// <returns></returns>
     /// <value>The column format found by the given name, <c>NULL</c> otherwise</value>
-    [CanBeNull] 
+    [CanBeNull]
     public Column Get([CanBeNull] string fieldName) => Items.FirstOrDefault(column => column.Name.Equals(fieldName, StringComparison.OrdinalIgnoreCase));
   }
 }
