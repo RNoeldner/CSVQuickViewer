@@ -82,13 +82,14 @@ namespace CsvTools
     protected readonly long RecordLimit;
     private readonly bool m_DisplayRecordNo;
     private readonly bool m_DisplayEndLineNo;
+    private readonly bool m_DisplayStartLineNo;
     protected readonly bool SkipEmptyLines;
     protected readonly int ConsecutiveEmptyRowsMax;
     private readonly ICollection<IColumn> m_ColumnDefinition;
     private readonly string m_InternalID;
     protected string FullPath { get; }
     protected string FileName { get; }
-#endregion
+    #endregion
 
     /// <summary>
     ///   The maximum value
@@ -137,20 +138,23 @@ namespace CsvTools
     /// </summary>
     private bool m_IsFinished;
 
+    private ImmutableColumn m_RecordNumberField;
+    private ImmutableColumn m_LineStartNumberField;
+    private ImmutableColumn m_LineEndNumberField;
+
     protected BaseFileReader([NotNull] IFileSetting fileSetting, [CanBeNull] string destinationTimeZone,
       [CanBeNull] IProcessDisplay processDisplay)
     {
-      if (fileSetting == null) 
+      if (fileSetting == null)
         throw new ArgumentNullException(nameof(fileSetting));
-      
-      
+
+
       if (fileSetting is IFileSettingPhysicalFile fileSettingPhysical)
       {
         if (string.IsNullOrEmpty(fileSettingPhysical.FileName))
           throw new FileReaderException("FileName must be set");
         FileName= fileSettingPhysical.FileName;
         FullPath = fileSettingPhysical.FullPath;
-
       }
 
       m_InternalID = fileSetting.InternalID;
@@ -159,8 +163,11 @@ namespace CsvTools
       TreatTextAsNull = fileSetting.TreatTextAsNull;
       HasFieldHeader = fileSetting.HasFieldHeader;
       RecordLimit = fileSetting.RecordLimit < 1 ? long.MaxValue : fileSetting.RecordLimit;
+
       m_DisplayRecordNo = fileSetting.DisplayRecordNo;
       m_DisplayEndLineNo = fileSetting.DisplayEndLineNo;
+      m_DisplayStartLineNo = fileSetting.DisplayStartLineNo;
+
       SkipEmptyLines = fileSetting.SkipEmptyLines;
       ConsecutiveEmptyRowsMax = fileSetting.ConsecutiveEmptyRows;
       FileSettingDisplay = fileSetting.ToString();
@@ -174,7 +181,7 @@ namespace CsvTools
         ReportProgress = processDisplay.SetProcess;
         m_SetMaxProcess = l => processDisplay.Maximum = l;
       }
-      
+
       Logger.Debug("Created Reader for {filesetting}", FileSettingDisplay);
     }
 
@@ -434,6 +441,12 @@ namespace CsvTools
     /// <returns></returns>
     public virtual ImmutableColumn GetColumn(int columnNumber)
     {
+      if (m_RecordNumberField !=null && m_RecordNumberField.ColumnOrdinal==columnNumber)
+        return m_RecordNumberField;
+      if (m_LineEndNumberField !=null && m_LineEndNumberField.ColumnOrdinal==columnNumber)
+        return m_LineEndNumberField;
+      if (m_LineStartNumberField !=null && m_LineStartNumberField.ColumnOrdinal==columnNumber)
+        return m_LineStartNumberField;
       Debug.Assert(Column != null);
       Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount && columnNumber < Column.Length);
       return Column[columnNumber];
@@ -878,7 +891,7 @@ namespace CsvTools
     public virtual bool NextResult() => false;
 
     public abstract Task OpenAsync(CancellationToken token);
-    
+
     /// <summary>
     ///   Overrides the column format from setting.
     /// </summary>
@@ -1002,6 +1015,15 @@ namespace CsvTools
     protected virtual void FinishOpen()
     {
       m_IsFinished = false;
+      var nextColOrdinal = FieldCount;
+      if (m_DisplayStartLineNo)
+        m_LineStartNumberField = new ImmutableColumn(ReaderConstants.cStartLineNumberFieldName, new ImmutableValueFormat(DataType.Integer), nextColOrdinal++);
+      if (m_DisplayEndLineNo)
+        m_LineEndNumberField = new ImmutableColumn(ReaderConstants.cEndLineNumberFieldName, new ImmutableValueFormat(DataType.Integer), nextColOrdinal++);
+      if (m_DisplayRecordNo)
+        m_RecordNumberField = new ImmutableColumn(ReaderConstants.cRecordNumberFieldName, new ImmutableValueFormat(DataType.Integer), nextColOrdinal++);
+      if (m_DisplayRecordNo)
+        m_RecordNumberField = new ImmutableColumn(ReaderConstants.cRecordNumberFieldName, new ImmutableValueFormat(DataType.Integer), nextColOrdinal++);
 
       // in case caching is setup store the headers
       FunctionalDI.StoreHeader?.Invoke(m_InternalID, Column);
@@ -1596,7 +1618,7 @@ namespace CsvTools
 
       // This has a mapping of the columns between reader and data table
       var copyToDataTableInfo =
-        new CopyToDataTableInfo(this as IFileReader ?? throw new InvalidOperationException(),m_InternalID, includeErrorField, m_DisplayRecordNo, addStartLine, m_DisplayEndLineNo,
+        new CopyToDataTableInfo(this as IFileReader ?? throw new InvalidOperationException(), m_InternalID, includeErrorField, m_DisplayRecordNo, addStartLine, m_DisplayEndLineNo,
           storeWarningsInDataTable);
 
       try
