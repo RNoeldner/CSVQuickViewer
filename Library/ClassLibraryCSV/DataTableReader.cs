@@ -32,12 +32,25 @@ namespace CsvTools
 
     public DataTableReader(DataTable dt, string id, IProcessDisplay processDisplay) : this(new DataTableSetting(id), dt,
       processDisplay)
-    { }
+    {
+    }
 
-    public DataTableReader(IFileSetting setting, DataTable dt, IProcessDisplay processDisplay) : base(setting, TimeZoneInfo.Local.Id, processDisplay) =>
+    public DataTableReader(IFileSetting fileSetting, DataTable dt, IProcessDisplay processDisplay) : base(
+      fileSetting.InternalID, fileSetting.ToString(),
+      null, fileSetting.ColumnCollection, fileSetting.HasFieldHeader, fileSetting.RecordLimit,
+      fileSetting.TrimmingOption, fileSetting.TreatTextAsNull, fileSetting.DisplayRecordNo,
+      fileSetting.DisplayEndLineNo, fileSetting.DisplayStartLineNo, fileSetting.TreatNBSPAsSpace,
+      fileSetting.SkipEmptyLines, fileSetting.ConsecutiveEmptyRows)
+    {
       m_DataTable = dt ?? throw new ArgumentNullException(nameof(dt));
+      if (processDisplay == null) return;
+      ReportProgress = processDisplay.SetProcess;
+      SetMaxProcess = l => processDisplay.Maximum = l;
+      SetMaxProcess(0);
+    }
 
-    public override async Task<DataTable> GetDataTableAsync(long recordLimit, bool ignore, bool ignore2, bool ignore3, CancellationToken token) => await Task.FromResult(m_DataTable).ConfigureAwait(false);
+    public override async Task<DataTable> GetDataTableAsync(long recordLimit, bool ignore, bool ignore2, bool ignore3,
+      CancellationToken token) => await Task.FromResult(m_DataTable).ConfigureAwait(false);
 
     public override string GetName(int i) => m_DbDataReader.GetName(i);
 

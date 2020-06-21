@@ -26,71 +26,11 @@ using JetBrains.Annotations;
 
 namespace CsvTools
 {
-
-  public static class ReaderConstants
-  {
-    /// <summary>
-    ///   Collection of the artificial field names
-    /// </summary>
-    public static readonly ICollection<string> ArtificialFields = new HashSet<string>
-    {
-      cRecordNumberFieldName,
-      cStartLineNumberFieldName,
-      cEndLineNumberFieldName,
-      cErrorField,
-      cPartitionField
-    };
-
-    /// <summary>
-    ///   Field name of the LineNumber Field
-    /// </summary>
-    public const string cEndLineNumberFieldName = "#LineEnd";
-
-    /// <summary>
-    ///   Field name of the Error Field
-    /// </summary>
-    public const string cErrorField = "#Error";
-
-    /// <summary>
-    ///   Field name of the LineNumber Start Field
-    /// </summary>
-    public const string cPartitionField = "#Partition";
-
-    /// <summary>
-    ///   Field Name of the record number
-    /// </summary>
-    public const string cRecordNumberFieldName = "#Record";
-
-    /// <summary>
-    ///   Field name of the LineNumber Start Field
-    /// </summary>
-    public const string cStartLineNumberFieldName = "#Line";
-  }
-
   /// <summary>
   ///   Abstract class as base for all DataReaders
   /// </summary>
   public abstract class BaseFileReader : IDisposable
   {
-    #region Stting for Reading former FileSetting
-
-    protected readonly TrimmingOption TrimmingOption;
-    protected readonly string FileSettingDisplay;
-    protected readonly bool TreatNBSPAsSpace;
-    protected readonly bool HasFieldHeader;
-    protected readonly string TreatTextAsNull;
-    protected readonly long RecordLimit;
-    private readonly bool m_DisplayRecordNo;
-    private readonly bool m_DisplayEndLineNo;
-    private readonly bool m_DisplayStartLineNo;
-    protected readonly bool SkipEmptyLines;
-    protected readonly int ConsecutiveEmptyRowsMax;
-    private readonly ICollection<IColumn> m_ColumnDefinition;
-    private readonly string m_InternalID;
-    protected string FullPath { get; }
-    protected string FileName { get; }
-    #endregion
-
     /// <summary>
     ///   The maximum value
     /// </summary>
@@ -99,8 +39,6 @@ namespace CsvTools
     protected readonly string DestinationTimeZone;
 
     private readonly IntervalAction m_IntervalAction = new IntervalAction();
-    protected readonly Action<string, long, bool> ReportProgress;
-    private readonly Action<long> m_SetMaxProcess;
 
     /// <summary>
     ///   An array of associated col
@@ -138,52 +76,46 @@ namespace CsvTools
     /// </summary>
     private bool m_IsFinished;
 
-    private ImmutableColumn m_RecordNumberField;
-    private ImmutableColumn m_LineStartNumberField;
     private ImmutableColumn m_LineEndNumberField;
+    private ImmutableColumn m_LineStartNumberField;
+    private ImmutableColumn m_RecordNumberField;
 
-    protected BaseFileReader([NotNull] IFileSetting fileSetting, [CanBeNull] string destinationTimeZone,
-      [CanBeNull] IProcessDisplay processDisplay)
+
+    protected BaseFileReader([NotNull] string internalID, [CanBeNull] string readerDescription = null,
+      [CanBeNull] string destinationTimeZone = null, [CanBeNull] IEnumerable<IColumn> columnDefinition = null,
+      bool hasFieldHeader = true, long recordLimit = 0, TrimmingOption trimmingOption = TrimmingOption.Unquoted,
+      string treatTextAsNull = "<null>", bool displayRecordNo = false, bool displayEndLineNo = false,
+      bool displayStartLineNo = true, bool treatNBSPAsSpace = false, bool skipEmptyLines = true,
+      int consecutiveEmptyRowsMax = 4, [CanBeNull] string fullPath = null, [CanBeNull] string fileName = null)
     {
-      if (fileSetting == null)
-        throw new ArgumentNullException(nameof(fileSetting));
-
-
-      if (fileSetting is IFileSettingPhysicalFile fileSettingPhysical)
-      {
-        if (string.IsNullOrEmpty(fileSettingPhysical.FileName))
-          throw new FileReaderException("FileName must be set");
-        FileName= fileSettingPhysical.FileName;
-        FullPath = fileSettingPhysical.FullPath;
-      }
-
-      m_InternalID = fileSetting.InternalID;
-      TrimmingOption = fileSetting.TrimmingOption;
-      TreatNBSPAsSpace = fileSetting.TreatNBSPAsSpace;
-      TreatTextAsNull = fileSetting.TreatTextAsNull;
-      HasFieldHeader = fileSetting.HasFieldHeader;
-      RecordLimit = fileSetting.RecordLimit < 1 ? long.MaxValue : fileSetting.RecordLimit;
-
-      m_DisplayRecordNo = fileSetting.DisplayRecordNo;
-      m_DisplayEndLineNo = fileSetting.DisplayEndLineNo;
-      m_DisplayStartLineNo = fileSetting.DisplayStartLineNo;
-
-      SkipEmptyLines = fileSetting.SkipEmptyLines;
-      ConsecutiveEmptyRowsMax = fileSetting.ConsecutiveEmptyRows;
-      FileSettingDisplay = fileSetting.ToString();
-
-      m_ColumnDefinition = fileSetting.ColumnCollection.ReadonlyCopy();
-
+      if (internalID == null) throw new ArgumentNullException(nameof(internalID));
+      ReaderDescription = readerDescription ?? internalID;
       DestinationTimeZone = string.IsNullOrEmpty(destinationTimeZone) ? TimeZoneInfo.Local.Id : destinationTimeZone;
-      if (processDisplay != null)
-      {
-        processDisplay.Maximum = 0;
-        ReportProgress = processDisplay.SetProcess;
-        m_SetMaxProcess = l => processDisplay.Maximum = l;
-      }
+      m_ColumnDefinition = columnDefinition?.Select(col => new ImmutableColumn(col, col.ColumnOrdinal)).Cast<IColumn>()
+                             .ToList() ??
+                           new List<IColumn>();
+      HasFieldHeader = hasFieldHeader;
+      RecordLimit = recordLimit < 1 ? long.MaxValue : recordLimit;
+      TrimmingOption = trimmingOption;
 
-      Logger.Debug("Created Reader for {filesetting}", FileSettingDisplay);
+      FileName = fileName;
+      FullPath = fullPath;
+
+      m_InternalID = internalID;
+
+      TreatNBSPAsSpace = treatNBSPAsSpace;
+      TreatTextAsNull = treatTextAsNull;
+
+      m_DisplayRecordNo = displayRecordNo;
+      m_DisplayEndLineNo = displayEndLineNo;
+      m_DisplayStartLineNo = displayStartLineNo;
+
+      SkipEmptyLines = skipEmptyLines;
+      ConsecutiveEmptyRowsMax = consecutiveEmptyRowsMax;
     }
+
+    public Action<string, long, bool> ReportProgress { get; set; }
+    public Action<long> SetMaxProcess { get; set; }
 
     /// <summary>
     ///   Gets a value indicating the depth of nesting for the current row.
@@ -441,11 +373,11 @@ namespace CsvTools
     /// <returns></returns>
     public virtual ImmutableColumn GetColumn(int columnNumber)
     {
-      if (m_RecordNumberField !=null && m_RecordNumberField.ColumnOrdinal==columnNumber)
+      if (m_RecordNumberField != null && m_RecordNumberField.ColumnOrdinal == columnNumber)
         return m_RecordNumberField;
-      if (m_LineEndNumberField !=null && m_LineEndNumberField.ColumnOrdinal==columnNumber)
+      if (m_LineEndNumberField != null && m_LineEndNumberField.ColumnOrdinal == columnNumber)
         return m_LineEndNumberField;
-      if (m_LineStartNumberField !=null && m_LineStartNumberField.ColumnOrdinal==columnNumber)
+      if (m_LineStartNumberField != null && m_LineStartNumberField.ColumnOrdinal == columnNumber)
         return m_LineStartNumberField;
       Debug.Assert(Column != null);
       Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount && columnNumber < Column.Length);
@@ -896,6 +828,7 @@ namespace CsvTools
     ///   Overrides the column format from setting.
     /// </summary>
     public virtual bool Read(CancellationToken token) => ReadAsync(token).Wait(2000);
+
     public virtual bool Read() => ReadAsync(CancellationToken.None).Wait(2000);
 
     public abstract Task<bool> ReadAsync(CancellationToken token);
@@ -988,7 +921,7 @@ namespace CsvTools
 
     protected async Task BeforeOpenAsync(string message)
     {
-      m_SetMaxProcess?.Invoke(0);
+      SetMaxProcess?.Invoke(0);
 
       HandleShowProgress(message);
 
@@ -996,13 +929,11 @@ namespace CsvTools
         await OnOpen().ConfigureAwait(false);
 
       if (!string.IsNullOrEmpty(FullPath))
-      {
         // as of now a physical file must exist
         if (!FileSystemUtils.FileExists(FullPath))
           throw new FileNotFoundException(
             $"The file '{FileSystemUtils.GetShortDisplayFileName(FileName, 80)}' does not exist or is not accessible.",
             FullPath);
-      }
     }
 
     protected virtual void Dispose(bool disposing)
@@ -1017,17 +948,21 @@ namespace CsvTools
       m_IsFinished = false;
       var nextColOrdinal = FieldCount;
       if (m_DisplayStartLineNo)
-        m_LineStartNumberField = new ImmutableColumn(ReaderConstants.cStartLineNumberFieldName, new ImmutableValueFormat(DataType.Integer), nextColOrdinal++);
+        m_LineStartNumberField = new ImmutableColumn(ReaderConstants.cStartLineNumberFieldName,
+          new ImmutableValueFormat(DataType.Integer), nextColOrdinal++);
       if (m_DisplayEndLineNo)
-        m_LineEndNumberField = new ImmutableColumn(ReaderConstants.cEndLineNumberFieldName, new ImmutableValueFormat(DataType.Integer), nextColOrdinal++);
+        m_LineEndNumberField = new ImmutableColumn(ReaderConstants.cEndLineNumberFieldName,
+          new ImmutableValueFormat(DataType.Integer), nextColOrdinal++);
       if (m_DisplayRecordNo)
-        m_RecordNumberField = new ImmutableColumn(ReaderConstants.cRecordNumberFieldName, new ImmutableValueFormat(DataType.Integer), nextColOrdinal++);
+        m_RecordNumberField = new ImmutableColumn(ReaderConstants.cRecordNumberFieldName,
+          new ImmutableValueFormat(DataType.Integer), nextColOrdinal++);
       if (m_DisplayRecordNo)
-        m_RecordNumberField = new ImmutableColumn(ReaderConstants.cRecordNumberFieldName, new ImmutableValueFormat(DataType.Integer), nextColOrdinal++);
+        m_RecordNumberField = new ImmutableColumn(ReaderConstants.cRecordNumberFieldName,
+          new ImmutableValueFormat(DataType.Integer), nextColOrdinal++);
 
       // in case caching is setup store the headers
       FunctionalDI.StoreHeader?.Invoke(m_InternalID, Column);
-      m_SetMaxProcess?.Invoke(cMaxValue);
+      SetMaxProcess?.Invoke(cMaxValue);
     }
 
     /// <summary>
@@ -1593,7 +1528,7 @@ namespace CsvTools
           : $"'{inputDate}' is not a date of the format {display}");
     }
 
-    #region DataTable
+#region DataTable
 
     /// <summary>
     ///   Asynchronous method to copy rows from a the reader to a data table
@@ -1606,7 +1541,7 @@ namespace CsvTools
     /// <param name="storeWarningsInDataTable"></param>
     /// <param name="addStartLine"><c>true</c> to add a reference to the line of a text file.</param>
     /// <param name="cancellationToken">Cancellation toke to stop filling the data table</param>
-    /// <returns>A Data Table with teh data</returns>
+    /// <returns>A Data Table with the data</returns>
     public virtual async Task<DataTable> GetDataTableAsync(long recordLimit, bool includeErrorField,
       bool storeWarningsInDataTable, bool addStartLine, CancellationToken cancellationToken)
     {
@@ -1618,7 +1553,8 @@ namespace CsvTools
 
       // This has a mapping of the columns between reader and data table
       var copyToDataTableInfo =
-        new CopyToDataTableInfo(this as IFileReader ?? throw new InvalidOperationException(), m_InternalID, includeErrorField, m_DisplayRecordNo, addStartLine, m_DisplayEndLineNo,
+        new CopyToDataTableInfo(this as IFileReader ?? throw new InvalidOperationException(), m_InternalID,
+          includeErrorField, m_DisplayRecordNo, addStartLine, m_DisplayEndLineNo,
           storeWarningsInDataTable);
 
       try
@@ -1645,6 +1581,26 @@ namespace CsvTools
       }
     }
 
-    #endregion DataTable
+#endregion DataTable
+
+#region Stting for Reading former FileSetting
+
+    protected readonly TrimmingOption TrimmingOption;
+    [NotNull] protected readonly string ReaderDescription;
+    protected readonly bool TreatNBSPAsSpace;
+    protected readonly bool HasFieldHeader;
+    protected readonly string TreatTextAsNull;
+    protected readonly long RecordLimit;
+    private readonly bool m_DisplayRecordNo;
+    private readonly bool m_DisplayEndLineNo;
+    private readonly bool m_DisplayStartLineNo;
+    protected readonly bool SkipEmptyLines;
+    protected readonly int ConsecutiveEmptyRowsMax;
+    [NotNull] private readonly ICollection<IColumn> m_ColumnDefinition;
+    [NotNull] private readonly string m_InternalID;
+    protected string FullPath { get; }
+    protected string FileName { get; }
+
+#endregion
   }
 }

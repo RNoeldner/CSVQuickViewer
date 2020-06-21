@@ -28,7 +28,6 @@ namespace CsvTools
   /// </summary>
   public class JsonFileReader : BaseFileReaderTyped, IFileReader
   {
-
     private bool m_AssumeLog;
     private bool m_DisposedValue;
     private IImprovedStream m_ImprovedStream;
@@ -36,9 +35,18 @@ namespace CsvTools
     private StreamReader m_TextReader;
     private long m_TextReaderLine;
 
-    public JsonFileReader(ICsvFile fileSetting, string timeZone, IProcessDisplay processDisplay)
-      : base(fileSetting, timeZone, processDisplay)
+    public JsonFileReader(IFileSettingPhysicalFile fileSetting, string timeZone, IProcessDisplay processDisplay)
+      : base(fileSetting.InternalID, fileSetting.ToString(),
+        timeZone, fileSetting.ColumnCollection, fileSetting.HasFieldHeader, fileSetting.RecordLimit,
+        fileSetting.TrimmingOption, fileSetting.TreatTextAsNull, fileSetting.DisplayRecordNo,
+        fileSetting.DisplayEndLineNo, fileSetting.DisplayStartLineNo, fileSetting.TreatNBSPAsSpace,
+        fileSetting.SkipEmptyLines, fileSetting.ConsecutiveEmptyRows, fileSetting.FullPath,
+        fileSetting.FileName)
     {
+      if (processDisplay == null) return;
+      ReportProgress = processDisplay.SetProcess;
+      SetMaxProcess = l => processDisplay.Maximum = l;
+      SetMaxProcess(0);
     }
 
 
@@ -135,7 +143,8 @@ namespace CsvTools
     }
 
 
-    public override async Task ResetPositionToFirstDataRowAsync(CancellationToken token) => await Task.Run(ResetPositionToStartOrOpen);
+    public override async Task ResetPositionToFirstDataRowAsync(CancellationToken token) =>
+      await Task.Run(ResetPositionToStartOrOpen);
 
 
     /// <summary>
@@ -175,7 +184,8 @@ namespace CsvTools
     ///   the structure of the Json file
     /// </summary>
     /// <returns>A collection with name and value of the properties</returns>
-    private async Task<ICollection<KeyValuePair<string, object>>> GetNextRecordAsync(bool throwError, CancellationToken token)
+    private async Task<ICollection<KeyValuePair<string, object>>> GetNextRecordAsync(bool throwError,
+      CancellationToken token)
     {
       try
       {
@@ -337,7 +347,7 @@ namespace CsvTools
       if (m_ImprovedStream == null)
         m_ImprovedStream = FunctionalDI.OpenRead(FullPath);
 
-      m_ImprovedStream.ResetToStart(delegate (Stream str)
+      m_ImprovedStream.ResetToStart(delegate(Stream str)
       {
         // in case we can not seek need to reopen the stream reader
         if (!str.CanSeek || m_TextReader == null)
@@ -370,7 +380,7 @@ namespace CsvTools
       };
     }
 
-    #region TextReader
+#region TextReader
 
     // Buffer size set to 64kB, if set to large the display in percentage will jump
     private const int c_BufferSize = 65536;
@@ -495,6 +505,6 @@ namespace CsvTools
       m_JsonTextReader = new JsonTextReader(new StringReader(sb.ToString()));
     }
 
-    #endregion TextReader
+#endregion TextReader
   }
 }

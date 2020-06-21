@@ -54,10 +54,40 @@ namespace CsvTools
     private const char c_Nbsp = (char) 0xA0;
 
     private const char c_UnknownChar = (char) 0xFFFD;
+    private readonly bool m_AllowRowCombining;
+    private readonly bool m_AlternateQuoting;
+    private readonly int m_CodePageId;
+    private readonly string m_CommentLine;
+    private readonly string m_DelimiterPlaceholder;
+    private readonly bool m_DuplicateQuotingToEscape;
+    private readonly char m_EscapeCharacterChar;
+    private readonly string m_FieldDelimiter;
+
+    private readonly char m_FieldDelimiterChar;
+    private readonly string m_FieldQualifier;
+    private readonly char m_FieldQualifierChar;
+
+    // This is used to report issues with columns
+    private readonly Action<int, string> m_HandleMessageColumn;
+    private readonly string m_NewLinePlaceholder;
+    private readonly int m_NumWarning;
+    private readonly string m_QuotePlaceholder;
 
 
     // Store teh raw text of the record, before split into columns and trimming of the columns
     private readonly StringBuilder m_RecordSource = new StringBuilder();
+    private readonly bool m_SkipDuplicateHeader;
+    private readonly int m_SkipRows;
+
+    private readonly bool m_TreatLFAsSpace;
+    private readonly bool m_TreatUnknownCharacterAsSpace;
+    private readonly bool m_TryToSolveMoreColumns;
+    private readonly bool m_WarnDelimiterInValue;
+    private readonly bool m_WarnLineFeed;
+
+    private readonly bool m_WarnNBSP;
+    private readonly bool m_WarnQuotes;
+    private readonly bool m_WarnUnknownCharacter;
 
     private int m_ConsecutiveEmptyRows;
 
@@ -94,43 +124,20 @@ namespace CsvTools
     /// </summary>
     private ImprovedTextReader m_TextReader;
 
-    // This is used to report issues with columns
-    private readonly Action<int, string> m_HandleMessageColumn;
-
-    private readonly char m_FieldDelimiterChar;
-    private readonly char m_EscapeCharacterChar;
-    private readonly char m_FieldQualifierChar;
-    private readonly bool m_SkipDuplicateHeader;
-    private readonly bool m_AllowRowCombining;
-    private readonly bool m_TryToSolveMoreColumns;
-    private readonly bool m_TreatUnknownCharacterAsSpace;
-    private readonly int m_SkipRows;
-    private readonly int m_NumWarning;
-    private readonly string m_FieldQualifier;
-    private readonly string m_FieldDelimiter;
-    private readonly string m_CommentLine;
-    private readonly string m_NewLinePlaceholder;
-    private readonly string m_DelimiterPlaceholder;
-    private readonly string m_QuotePlaceholder;
-    private readonly int m_CodePageId;
-    
-    private readonly bool m_TreatLFAsSpace;
-    private readonly bool m_WarnLineFeed;
-    private readonly bool m_WarnQuotes;
-    private readonly bool m_DuplicateQuotingToEscape;
-    private readonly bool m_AlternateQuoting;
-    
-    private readonly bool m_WarnNBSP;
-    private readonly bool m_WarnDelimiterInValue;
-    private readonly bool m_WarnUnknownCharacter;
     /// <summary>
     ///   Create a delimited text reader for teh given settings
     /// </summary>
     /// <param name="fileSetting"></param>
     /// <param name="timeZone">Timezone to convert read dates/time value to</param>
     /// <param name="processDisplay">Progress and Cancellation</param>
-    public CsvFileReader([NotNull] ICsvFile fileSetting, [CanBeNull] string timeZone, [CanBeNull] IProcessDisplay processDisplay)
-      : base(fileSetting, timeZone, processDisplay)
+    public CsvFileReader([NotNull] ICsvFile fileSetting, [CanBeNull] string timeZone,
+      [CanBeNull] IProcessDisplay processDisplay)
+      : base(fileSetting.InternalID, fileSetting.ToString(),
+        timeZone, fileSetting.ColumnCollection, fileSetting.HasFieldHeader, fileSetting.RecordLimit,
+        fileSetting.TrimmingOption, fileSetting.TreatTextAsNull, fileSetting.DisplayRecordNo,
+        fileSetting.DisplayEndLineNo, fileSetting.DisplayStartLineNo, fileSetting.TreatNBSPAsSpace,
+        fileSetting.SkipEmptyLines, fileSetting.ConsecutiveEmptyRows, fileSetting.FullPath,
+        fileSetting.FileName)
     {
       m_FieldDelimiterChar = fileSetting.FileFormat.FieldDelimiterChar;
       m_EscapeCharacterChar = fileSetting.FileFormat.EscapeCharacterChar;
@@ -141,7 +148,7 @@ namespace CsvTools
       m_NumWarning = fileSetting.NumWarnings;
       m_TreatUnknownCharacterAsSpace = fileSetting.TreatUnknownCharacterAsSpace;
       m_FieldQualifier = fileSetting.FileFormat.FieldQualifier;
-      m_FieldDelimiter= fileSetting.FileFormat.FieldDelimiter;
+      m_FieldDelimiter = fileSetting.FileFormat.FieldDelimiter;
       m_CodePageId = fileSetting.CodePageId;
       m_TryToSolveMoreColumns = fileSetting.TryToSolveMoreColumns;
       m_TreatLFAsSpace = fileSetting.TreatLFAsSpace;
@@ -158,8 +165,8 @@ namespace CsvTools
       m_WarnUnknownCharacter = fileSetting.WarnUnknownCharacter;
 
       if (m_FieldDelimiterChar == c_Cr || m_FieldDelimiterChar == c_Lf
-                                     || m_FieldDelimiterChar == ' '
-                                     || m_FieldDelimiterChar == '\0')
+                                       || m_FieldDelimiterChar == ' '
+                                       || m_FieldDelimiterChar == '\0')
         throw new FileReaderException(
           "The field delimiter character is invalid, please use something else than CR, LF or Space");
 
@@ -184,6 +191,11 @@ namespace CsvTools
       if (m_FieldQualifierChar == c_Cr || m_FieldQualifierChar == c_Lf)
         throw new FileReaderException(
           "The text quoting characters is invalid, please use something else than CR or LF");
+
+      if (processDisplay == null) return;
+      ReportProgress = processDisplay.SetProcess;
+      SetMaxProcess = l => processDisplay.Maximum = l;
+      SetMaxProcess(0);
     }
 
     /// <summary>
@@ -277,7 +289,8 @@ namespace CsvTools
           && m_FieldDelimiter.WrittenPunctuationToChar() == '\0')
         HandleWarning(-1, $"Only the first character of '{m_FieldDelimiter}' is used as delimiter.");
 
-      await BeforeOpenAsync($"Opening delimited file {FileSystemUtils.GetShortDisplayFileName(FileName, 80)}").ConfigureAwait(false);
+      await BeforeOpenAsync($"Opening delimited file {FileSystemUtils.GetShortDisplayFileName(FileName, 80)}")
+        .ConfigureAwait(false);
       Retry:
       try
       {
@@ -724,14 +737,14 @@ namespace CsvTools
             // handling for "" that is not only representing a " but also closes the text
             peekNextChar = await PeekAsync().ConfigureAwait(false);
             if (m_AlternateQuoting && (peekNextChar == m_FieldDelimiterChar
-                                                          || peekNextChar == c_Cr
-                                                          || peekNextChar == c_Lf)) postData = true;
+                                       || peekNextChar == c_Cr
+                                       || peekNextChar == c_Lf)) postData = true;
             continue;
           }
 
           // a single " should be regarded as closing when its followed by the delimiter
           if (m_AlternateQuoting && (peekNextChar == m_FieldDelimiterChar
-                                                        || peekNextChar == c_Cr || peekNextChar == c_Lf))
+                                     || peekNextChar == c_Cr || peekNextChar == c_Lf))
           {
             postData = true;
             continue;
@@ -862,7 +875,8 @@ namespace CsvTools
       }
 
       // Skip commented lines
-      if (m_CommentLine.Length > 0 && !string.IsNullOrEmpty(item) && item.StartsWith(m_CommentLine, StringComparison.Ordinal))
+      if (m_CommentLine.Length > 0 && !string.IsNullOrEmpty(item) &&
+          item.StartsWith(m_CommentLine, StringComparison.Ordinal))
       {
         // A commented line does start with the comment
         if (m_EndOfLine)
@@ -981,7 +995,8 @@ namespace CsvTools
           {
             // As the record is ignored tis will most likely not be visible
             // -2 to indicate this error could be stored with teh previous line....
-            m_HandleMessageColumn(-2, $"Last line is '{CurrentRowColumnText[0]}'. Assumed to be a EOF marker and ignored.");
+            m_HandleMessageColumn(-2,
+              $"Last line is '{CurrentRowColumnText[0]}'. Assumed to be a EOF marker and ignored.");
             return false;
           }
 
@@ -1028,7 +1043,8 @@ namespace CsvTools
             if (m_TextReader.BufferPos < oldPos)
             {
               HandleError(
-                -1, $"Line {cLessColumns}\nAttempting to combined lines some line have been read that is now lost, please turn off Row Combination");
+                -1,
+                $"Line {cLessColumns}\nAttempting to combined lines some line have been read that is now lost, please turn off Row Combination");
             }
             else
             {
@@ -1068,11 +1084,13 @@ namespace CsvTools
 
             if (!hasContent)
             {
-              m_HandleMessageColumn(-1, text + " All additional columns where empty. Allow 're-align columns' to handle this.");
+              m_HandleMessageColumn(-1,
+                text + " All additional columns where empty. Allow 're-align columns' to handle this.");
               return true;
             }
 
-            m_HandleMessageColumn(-1, text + " The data in extra columns is not read. Allow 're-align columns' to handle this.");
+            m_HandleMessageColumn(-1,
+              text + " The data in extra columns is not read. Allow 're-align columns' to handle this.");
           }
         }
 

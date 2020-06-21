@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 
 namespace CsvTools
 {
@@ -17,7 +19,15 @@ namespace CsvTools
     protected object[] CurrentValues;
 #pragma warning restore CA1051 // Do not declare visible instance fields
 
-    protected BaseFileReaderTyped(IFileSetting fileSetting, string timeZone, IProcessDisplay processDisplay) : base(fileSetting, timeZone, processDisplay)
+    protected BaseFileReaderTyped([NotNull] string internalID, [CanBeNull] string readerDescription = null,
+      [CanBeNull] string destinationTimeZone = null, [CanBeNull] IEnumerable<IColumn> columnDefinition = null,
+      bool hasFieldHeader = true, long recordLimit = 0, TrimmingOption trimmingOption = TrimmingOption.Unquoted,
+      string treatTextAsNull = "<null>", bool displayRecordNo = false, bool displayEndLineNo = false,
+      bool displayStartLineNo = true, bool treatNBSPAsSpace = false, bool skipEmptyLines = true,
+      int consecutiveEmptyRowsMax = 4, [CanBeNull] string fullPath = null, [CanBeNull] string fileName = null) :
+      base(internalID, readerDescription, destinationTimeZone, columnDefinition, hasFieldHeader, recordLimit,
+        trimmingOption, treatTextAsNull, displayRecordNo, displayEndLineNo, displayStartLineNo, treatNBSPAsSpace,
+        skipEmptyLines, consecutiveEmptyRowsMax, fullPath, fileName)
     {
     }
 
@@ -26,7 +36,6 @@ namespace CsvTools
     /// </summary>
     /// <returns>An array with the found data types</returns>
     /// <remarks>In case of mixed types, string is preferred over everything</remarks>
-
     protected async Task GetColumnTypeAsync(int maxRows, CancellationToken token)
     {
       HandleShowProgress("Reading data to determine type");
@@ -40,15 +49,16 @@ namespace CsvTools
           // if a column was detected as string, keep it that way
           if (CurrentValues[col] == null || isSet[col])
             continue;
-          
+
           var detected = CurrentValues[col].GetType().GetDataType();
           if (detected == Column[col].ValueFormat.DataType) continue;
 
           Column[col] = new ImmutableColumn(Column[col], new ImmutableValueFormat(detected));
           isSet[col] = true;
         }
+
         // if we have defined types for all exit
-        if (isSet.All(x=>x))
+        if (isSet.All(x => x))
           break;
 
         // get the next record
