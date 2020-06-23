@@ -26,47 +26,6 @@ using JetBrains.Annotations;
 
 namespace CsvTools
 {
-
-  public static class ReaderConstants
-  {
-    /// <summary>
-    ///   Collection of the artificial field names
-    /// </summary>
-    public static readonly ICollection<string> ArtificialFields = new HashSet<string>
-    {
-      cRecordNumberFieldName,
-      cStartLineNumberFieldName,
-      cEndLineNumberFieldName,
-      cErrorField,
-      cPartitionField
-    };
-
-    /// <summary>
-    ///   Field name of the LineNumber Field
-    /// </summary>
-    public const string cEndLineNumberFieldName = "#LineEnd";
-
-    /// <summary>
-    ///   Field name of the Error Field
-    /// </summary>
-    public const string cErrorField = "#Error";
-
-    /// <summary>
-    ///   Field name of the LineNumber Start Field
-    /// </summary>
-    public const string cPartitionField = "#Partition";
-
-    /// <summary>
-    ///   Field Name of the record number
-    /// </summary>
-    public const string cRecordNumberFieldName = "#Record";
-
-    /// <summary>
-    ///   Field name of the LineNumber Start Field
-    /// </summary>
-    public const string cStartLineNumberFieldName = "#Line";
-  }
-
   /// <summary>
   ///   Abstract class as base for all DataReaders
   /// </summary>
@@ -75,20 +34,18 @@ namespace CsvTools
     #region Stting for Reading former FileSetting
 
     protected readonly TrimmingOption TrimmingOption;
-    protected readonly string FileSettingDisplay;
-    protected readonly bool TreatNBSPAsSpace;
-    protected readonly bool HasFieldHeader;
+    protected readonly string ReaderDescription;
+    protected readonly bool TreatNBSPAsSpace;    
     protected readonly string TreatTextAsNull;
     protected readonly long RecordLimit;
-    private readonly bool m_DisplayRecordNo;
-    private readonly bool m_DisplayEndLineNo;
     protected readonly bool SkipEmptyLines;
     protected readonly int ConsecutiveEmptyRowsMax;
-    private readonly ICollection<ColumnReadOnly> m_ColumnDefinition;
+    [NotNull] private readonly ICollection<IColumn> m_ColumnDefinition;
     private readonly string m_InternalID;
     protected string FullPath { get; }
     protected string FileName { get; }
-#endregion
+
+    #endregion Stting for Reading former FileSetting
 
     /// <summary>
     ///   The maximum value
@@ -109,7 +66,7 @@ namespace CsvTools
     /// <summary>
     ///   An array of column
     /// </summary>
-    protected ColumnReadOnly[] Column;
+    protected ImmutableColumn[] Column;
 
     /// <summary>
     ///   An array of current row column text
@@ -137,48 +94,33 @@ namespace CsvTools
     /// </summary>
     private bool m_IsFinished;
 
-    protected BaseFileReader([NotNull] IFileSetting fileSetting, [CanBeNull] string destinationTimeZone,
-      [CanBeNull] IProcessDisplay processDisplay)
+    protected BaseFileReader([CanBeNull] string fileName = null,
+    [CanBeNull] IEnumerable<IColumn> columnDefinition = null,
+    [CanBeNull] string internalID = null, [CanBeNull] string readerDescription = null,
+    [CanBeNull] string destinationTimeZone = null, long recordLimit = 0,
+    string treatTextAsNull = "", TrimmingOption trimmingOption = TrimmingOption.Unquoted,
+    bool treatNBSPAsSpace = false, bool skipEmptyLines = true,
+    int consecutiveEmptyRowsMax = 4)
     {
-      if (fileSetting == null) 
-        throw new ArgumentNullException(nameof(fileSetting));
-      
-      
-      if (fileSetting is IFileSettingPhysicalFile fileSettingPhysical)
-      {
-
-        if (string.IsNullOrEmpty(fileSettingPhysical.FileName))
-          throw new FileReaderException("FileName must be set");
-        FileName= fileSettingPhysical.FileName;
-        FullPath = fileSettingPhysical.FullPath;
-
-      }
-
-      
-      m_InternalID = fileSetting.InternalID;
-      TrimmingOption = fileSetting.TrimmingOption;
-      TreatNBSPAsSpace = fileSetting.TreatNBSPAsSpace;
-      TreatTextAsNull = fileSetting.TreatTextAsNull;
-      HasFieldHeader = fileSetting.HasFieldHeader;
-      RecordLimit = fileSetting.RecordLimit < 1 ? long.MaxValue : fileSetting.RecordLimit;
-      m_DisplayRecordNo = fileSetting.DisplayRecordNo;
-      m_DisplayEndLineNo = fileSetting.DisplayEndLineNo;
-      SkipEmptyLines = fileSetting.SkipEmptyLines;
-      ConsecutiveEmptyRowsMax = fileSetting.ConsecutiveEmptyRows;
-      FileSettingDisplay = fileSetting.ToString();
-      m_ColumnDefinition = new List<ColumnReadOnly>();
-      foreach (var col in fileSetting.ColumnCollection)
-        m_ColumnDefinition.Add(new ColumnReadOnly(col, 0));
-
       DestinationTimeZone = string.IsNullOrEmpty(destinationTimeZone) ? TimeZoneInfo.Local.Id : destinationTimeZone;
-      if (processDisplay != null)
-      {
-        processDisplay.Maximum = 0;
-        ReportProgress = processDisplay.SetProcess;
-        SetMaxProcess = l => processDisplay.Maximum = l;
-      }
-      
-      Logger.Debug("Created Reader for {filesetting}", FileSettingDisplay);
+      m_ColumnDefinition = columnDefinition?.Select(col => new ImmutableColumn(col, col.ColumnOrdinal)).Cast<IColumn>()
+                             .ToList() ??
+                           new List<IColumn>();
+
+      RecordLimit = recordLimit < 1 ? long.MaxValue : recordLimit;
+      TrimmingOption = trimmingOption;
+
+      FullPath = fileName;
+      FileName = FileSystemUtils.GetFileName(fileName);
+
+      m_InternalID = internalID;
+      ReaderDescription = (readerDescription ?? internalID) ?? FileName;
+
+      TreatNBSPAsSpace = treatNBSPAsSpace;
+      TreatTextAsNull = treatTextAsNull;
+
+      SkipEmptyLines = skipEmptyLines;
+      ConsecutiveEmptyRowsMax = consecutiveEmptyRowsMax;
     }
 
     /// <summary>
@@ -218,7 +160,6 @@ namespace CsvTools
         if (m_IntervalAction != null) m_IntervalAction.NotifyAfterSeconds = value;
       }
     }
-
 
     /// <summary>
     ///   Gets the record number.
@@ -435,7 +376,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="columnNumber">The column.</param>
     /// <returns></returns>
-    public virtual ColumnReadOnly GetColumn(int columnNumber)
+    public virtual ImmutableColumn GetColumn(int columnNumber)
     {
       Debug.Assert(Column != null);
       Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount && columnNumber < Column.Length);
@@ -682,10 +623,8 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Returns a <see cref="DataTable" /> that describes the column meta data of the
-    ///   <see
-    ///     cref="IDataReader" />
-    ///   .
+    ///   Returns a <see cref="DataTable" /> that describes the column meta data of the <see
+    ///   cref="IDataReader" /> .
     /// </summary>
     /// <returns>A <see cref="DataTable" /> that describes the column meta data.</returns>
     /// <exception cref="InvalidOperationException">The <see cref="IDataReader" /> is closed.</exception>
@@ -780,6 +719,7 @@ namespace CsvTools
             /* TextToHTML and TextToHTMLFull have been handled in the Reader for the column as the length of the fields would change */
             ret = GetString(columnNumber);
             break;
+
           default:
             throw new ArgumentOutOfRangeException();
         }
@@ -881,11 +821,12 @@ namespace CsvTools
     public virtual bool NextResult() => false;
 
     public abstract Task OpenAsync(CancellationToken token);
-    
+
     /// <summary>
     ///   Overrides the column format from setting.
     /// </summary>
     public virtual bool Read(CancellationToken token) => ReadAsync(token).Wait(2000);
+
     public virtual bool Read() => ReadAsync(CancellationToken.None).Wait(2000);
 
     public abstract Task<bool> ReadAsync(CancellationToken token);
@@ -895,6 +836,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="token"></param>
 #pragma warning disable 1998
+
     public virtual async Task ResetPositionToFirstDataRowAsync(CancellationToken token)
 #pragma warning restore 1998
     {
@@ -1155,6 +1097,7 @@ namespace CsvTools
           /* TextToHTML and TextToHTMLFull and TextPart have been handled in the CSV Reader as the length of the fields would change */
           ret = value;
           break;
+
         default:
           throw new ArgumentOutOfRangeException();
       }
@@ -1306,77 +1249,84 @@ namespace CsvTools
       m_FieldCount = fieldCount;
       CurrentRowColumnText = new string[fieldCount];
 
-      Column = new ColumnReadOnly[fieldCount];
+      Column = new ImmutableColumn[fieldCount];
       AssociatedTimeCol = new int[fieldCount];
       m_AssociatedTimeZoneCol = new int[fieldCount];
       for (var counter = 0; counter < fieldCount; counter++)
       {
-        Column[counter] = new ColumnReadOnly(GetDefaultName(counter), new ValueFormatReadOnly(), counter);
+        Column[counter] = new ImmutableColumn(GetDefaultName(counter), new ImmutableValueFormat(), counter);
         AssociatedTimeCol[counter] = -1;
         m_AssociatedTimeZoneCol[counter] = -1;
       }
     }
 
     protected void ParseColumnName([NotNull] IEnumerable<string> headerRow,
-      [CanBeNull] IEnumerable<DataType> dataType = null)
+      [CanBeNull] IEnumerable<DataType> dataType = null, bool hasFieldHeader = true)
     {
       if (dataType == null)
         dataType = new List<DataType>();
 
-      IEnumerable<string> adjusted;
-      if (HasFieldHeader)
-      {
-        var warnings = new ColumnErrorDictionary();
-        adjusted = AdjustColumnName(headerRow, m_FieldCount, warnings).Item1;
-        foreach (var warning in warnings)
-          HandleWarning(warning.Key, warning.Value);
-      }
-      else
-      {
-        adjusted = Column.Select(x => x.Name);
-      }
+      var issues = new ColumnErrorDictionary();
+      var adjusted = hasFieldHeader ? AdjustColumnName(headerRow, Column.Length, issues).Item1 : Column.Select(x => x.Name);
 
-
-      var colIndex = 0;
       using (var enumeratorType = dataType.GetEnumerator())
       using (var enumeratorNames = adjusted.GetEnumerator())
       {
+        var colIndex = 0;
         while (enumeratorNames.MoveNext())
         {
           var type = enumeratorType.MoveNext() ? enumeratorType.Current : Column[colIndex].ValueFormat.DataType;
           var name = enumeratorNames.Current;
-
-          var setting = m_ColumnDefinition.FirstOrDefault(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
-          if (setting != null)
-            Column[colIndex] = new ColumnReadOnly(setting, colIndex);
-          else
-            Column[colIndex] =
-              new ColumnReadOnly(name, new ValueFormatReadOnly(type), colIndex, type != DataType.String);
+          if (name != null)
+          {
+            var setting =
+              m_ColumnDefinition.FirstOrDefault(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+            if (setting != null)
+              Column[colIndex] = new ImmutableColumn(setting, colIndex);
+            else
+              Column[colIndex] = new ImmutableColumn(name, new ImmutableValueFormat(type), colIndex);
+          }
           colIndex++;
         }
       }
 
-
-      for (var index = 0; index < m_FieldCount; index++)
+      // Initialize the references for TimePart and TimeZone
+      for (var index = 0; index < Column.Length; index++)
       {
-        if (!string.IsNullOrEmpty(Column[index].TimePart))
+        // if the original column that reference other columns is ignored, skip it
+        if (Column[index].Ignore) continue;
+
+        var searchedTimePart = Column[index].TimePart;
+        var searchedTimeZonePart = Column[index].TimeZonePart;
+
+        if (!string.IsNullOrEmpty(searchedTimePart))
         {
-          var otherCol = Column.FirstOrDefault(x =>
-            x.Name.Equals(Column[index].TimePart, StringComparison.OrdinalIgnoreCase));
-          if (otherCol != null)
-            AssociatedTimeCol[index] = otherCol.ColumnOrdinal;
+          for (var indexPoint = 0; indexPoint < Column.Length; indexPoint++)
+          {
+            if (indexPoint==index) continue;
+            if (!Column[indexPoint].Name.Equals(searchedTimePart, StringComparison.OrdinalIgnoreCase)) continue;
+            AssociatedTimeCol[index] = indexPoint;
+            break;
+          }
         }
 
-        if (!string.IsNullOrEmpty(Column[index].TimeZonePart))
+        if (!string.IsNullOrEmpty(searchedTimeZonePart))
         {
-          var otherCol = Column.FirstOrDefault(x =>
-            x.Name.Equals(Column[index].TimeZonePart, StringComparison.OrdinalIgnoreCase));
-          if (otherCol != null)
-            m_AssociatedTimeZoneCol[index] = otherCol.ColumnOrdinal;
+          for (var indexPoint = 0; indexPoint < Column.Length; indexPoint++)
+          {
+            if (indexPoint == index) continue;
+
+            if (!Column[indexPoint].Name.Equals(searchedTimeZonePart, StringComparison.OrdinalIgnoreCase)) continue;
+            m_AssociatedTimeZoneCol[index] = indexPoint;
+            break;
+          }
         }
       }
-    }
 
+      // Now can handle possible warning that have been raised adjusting the names
+      foreach (var warning in issues.Where(warning => !Column[warning.Key].Ignore))
+        HandleWarning(warning.Key, warning.Value);
+    }
 
     protected bool ShouldRetry(Exception ex, CancellationToken token)
     {
@@ -1589,7 +1539,7 @@ namespace CsvTools
     /// <param name="cancellationToken">Cancellation toke to stop filling the data table</param>
     /// <returns>A Data Table with teh data</returns>
     public virtual async Task<DataTable> GetDataTableAsync(long recordLimit, bool includeErrorField,
-      bool storeWarningsInDataTable, bool addStartLine, CancellationToken cancellationToken)
+      bool storeWarningsInDataTable, bool addStartLine, bool addEndLine, bool addRecNum, CancellationToken cancellationToken)
     {
       if (IsClosed)
         await OpenAsync(cancellationToken).ConfigureAwait(false);
@@ -1599,7 +1549,7 @@ namespace CsvTools
 
       // This has a mapping of the columns between reader and data table
       var copyToDataTableInfo =
-        new CopyToDataTableInfo(this as IFileReader ?? throw new InvalidOperationException(),m_InternalID, includeErrorField, m_DisplayRecordNo, addStartLine, m_DisplayEndLineNo,
+        new CopyToDataTableInfo(this as IFileReader ?? throw new InvalidOperationException(), m_InternalID, includeErrorField, addRecNum, addStartLine, addEndLine,
           storeWarningsInDataTable);
 
       try

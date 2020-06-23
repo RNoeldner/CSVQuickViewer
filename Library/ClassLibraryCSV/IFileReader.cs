@@ -68,12 +68,16 @@ namespace CsvTools
     ///   Asynchronous method to copy rows from a the reader to a data table
     /// </summary>
     /// <param name="recordLimit">Number of maximum records, 0 for all existing</param>
-    /// <param name="includeErrorField">If <c>true</c> store the error information in a special column</param>
-    /// <param name="storeWarningsInDataTable">If <c>true</c> store the error information as row and column errors of the dataTable</param>
+    /// <param name="includeErrorField">
+    ///   If <c>true</c> store the error information in a special column
+    /// </param>
+    /// <param name="storeWarningsInDataTable">
+    ///   If <c>true</c> store the error information as row and column errors of the dataTable
+    /// </param>
     /// <param name="addStartLine">Add a column for the line as reference for a text file</param>
     /// <param name="cancellationToken">Cancellation toke to stop filling the data table</param>
     /// <returns>A Data Table with teh data</returns>
-    Task<DataTable> GetDataTableAsync(long recordLimit, bool includeErrorField, bool storeWarningsInDataTable, bool addStartLine, CancellationToken cancellationToken);
+    Task<DataTable> GetDataTableAsync(long recordLimit, bool includeErrorField, bool storeWarningsInDataTable, bool addStartLine, bool addEndLine, bool addRecNum, CancellationToken cancellationToken);
 
     /// <summary>
     ///   Determines if the reader has a certain columns, any ignored columns will be treated as not existing
@@ -100,7 +104,7 @@ namespace CsvTools
     Func<Task> OnOpen { set; }
 
     /// <summary>
-    /// Event to be raised once the reader is finished reading the file
+    ///   Event to be raised once the reader is finished reading the file
     /// </summary>
     event EventHandler ReadFinished;
 
@@ -115,7 +119,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="column">The column.</param>
     /// <returns>A <see cref="Column" /> with all information on the column</returns>
-    ColumnReadOnly GetColumn(int column);
+    ImmutableColumn GetColumn(int column);
 
     /// <summary>
     ///   Checks if the column should be read

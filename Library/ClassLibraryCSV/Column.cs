@@ -12,8 +12,6 @@
  *
  */
 
-
-
 namespace CsvTools
 {
   using System;
@@ -23,65 +21,6 @@ namespace CsvTools
   using System.Diagnostics.CodeAnalysis;
   using JetBrains.Annotations;
 
-  public static class ColumnExtension
-  {
-    /// <summary>
-    ///   Gets the a description of the Date or Number format
-    /// </summary>
-    /// <returns></returns>
-    [NotNull]
-    public static string GetFormatDescription([NotNull] this IColumn column)
-    {
-      if (column.ValueFormat.DataType == DataType.TextPart)
-        return column.Part + (column.PartToEnd ? " To End" : string.Empty);
-
-      return column.ValueFormat.GetFormatDescription();
-    }
-
-    /// <summary>
-    ///   Gets the description.
-    /// </summary>
-    /// <returns></returns>
-    [NotNull]
-    public static string GetTypeAndFormatDescription([NotNull] this IColumn column, bool addTime = true)
-    {
-      var stringBuilder = new StringBuilder(column.ValueFormat.DataType.DataTypeDisplay());
-
-      var shortDesc = column.GetFormatDescription();
-      if (shortDesc.Length > 0)
-      {
-        stringBuilder.Append(" (");
-        stringBuilder.Append(shortDesc);
-        stringBuilder.Append(")");
-      }
-
-      if (addTime && column.ValueFormat.DataType == DataType.DateTime)
-      {
-        if (column.TimePart.Length > 0)
-        {
-          stringBuilder.Append(" + ");
-          stringBuilder.Append(column.TimePart);
-          if (column.TimePartFormat.Length > 0)
-          {
-            stringBuilder.Append(" (");
-            stringBuilder.Append(column.TimePartFormat);
-            stringBuilder.Append(")");
-          }
-        }
-
-        if (column.TimeZonePart.Length > 0)
-        {
-          stringBuilder.Append(" - ");
-          stringBuilder.Append(column.TimeZonePart);
-        }
-      }
-
-      if (column.Ignore)
-        stringBuilder.Append(" (Ignore)");
-
-      return stringBuilder.ToString();
-    }
-  }
   /// <summary>
   ///   Column information like name, Type, Format etc.
   /// </summary>
@@ -487,7 +426,6 @@ namespace CsvTools
     [XmlIgnore]
     public virtual bool PartToEndSpecified => m_ValueFormatMutable.DataType == DataType.TextPart;
 
-
     /// <summary>
     ///   Gets or sets the name.
     /// </summary>
@@ -614,7 +552,7 @@ namespace CsvTools
     [XmlIgnore] private ValueFormat m_ValueFormatMutable;
 
     public ValueFormat ValueFormatMutable => m_ValueFormatMutable;
-    public IValueFormat ValueFormat => new ValueFormatReadOnly(m_ValueFormatMutable);
+    public IValueFormat ValueFormat => new ImmutableValueFormat(m_ValueFormatMutable);
 
     /// <summary>
     ///   Clones this instance into a new instance of the same type
@@ -686,10 +624,10 @@ namespace CsvTools
     ///   <see langword="false" />.
     /// </returns>
 #pragma warning disable 659
+
     public override bool Equals(object obj) => Equals(obj as Column);
+
 #pragma warning restore 659
-
-
 
     /// <summary>
     ///   Notifies the property changed.

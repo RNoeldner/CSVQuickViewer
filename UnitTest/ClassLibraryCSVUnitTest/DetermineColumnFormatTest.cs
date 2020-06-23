@@ -66,7 +66,7 @@ namespace CsvTools.Tests
       using (var reader = new CsvFileReader(setting, null, null))
       {
         UnitTestInitialize.MimicSQLReader.AddSetting(setting.ID,
-          await reader.GetDataTableAsync(0, false, false, setting.DisplayStartLineNo, CancellationToken.None));
+          await reader.GetDataTableAsync(0, false, false, setting.DisplayStartLineNo, setting.DisplayEndLineNo, setting.DisplayRecordNo, CancellationToken.None));
       }
 
       using (var processDisplay = new DummyProcessDisplay())
@@ -216,12 +216,12 @@ namespace CsvTools.Tests
         HasFieldHeader = true,
         FileFormat = { FieldDelimiter = "," }
       };
-      using (var processDisplay= new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay())
       using (var reader = new CsvFileReader(setting, null, null))
       {
         await reader.OpenAsync(processDisplay.CancellationToken);
         UnitTestInitialize.MimicSQLReader.AddSetting(setting.ID,
-          await reader.GetDataTableAsync(0, false, false, setting.DisplayStartLineNo, CancellationToken.None));
+          await reader.GetDataTableAsync(0, false, false, setting.DisplayStartLineNo, setting.DisplayEndLineNo, setting.DisplayRecordNo, CancellationToken.None));
       }
 
       var writer = new CsvFile { SqlStatement = setting.ID };

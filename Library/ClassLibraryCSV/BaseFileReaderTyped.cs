@@ -1,4 +1,6 @@
-﻿using System;
+﻿using JetBrains.Annotations;
+using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.Globalization;
@@ -17,7 +19,16 @@ namespace CsvTools
     protected object[] CurrentValues;
 #pragma warning restore CA1051 // Do not declare visible instance fields
 
-    protected BaseFileReaderTyped(IFileSetting fileSetting, string timeZone, IProcessDisplay processDisplay) : base(fileSetting, timeZone, processDisplay)
+    protected BaseFileReaderTyped([CanBeNull] string fullPath = null,
+      [CanBeNull] IEnumerable<IColumn> columnDefinition = null,
+      [CanBeNull] string internalID = null,
+      [CanBeNull] string readerDescription = null,
+      [CanBeNull] string destinationTimeZone = null, long recordLimit = 0,
+      TrimmingOption trimmingOption = TrimmingOption.Unquoted,
+      string treatTextAsNull = "<null>", bool treatNBSPAsSpace = false, bool skipEmptyLines = true,
+      int consecutiveEmptyRowsMax = 4) :
+      base(fullPath, columnDefinition, internalID, readerDescription, destinationTimeZone, recordLimit, treatTextAsNull, trimmingOption, treatNBSPAsSpace, skipEmptyLines,
+        consecutiveEmptyRowsMax)
     {
     }
 
@@ -40,15 +51,15 @@ namespace CsvTools
           // if a column was detected as string, keep it that way
           if (CurrentValues[col] == null || isSet[col])
             continue;
-          
+
           var detected = CurrentValues[col].GetType().GetDataType();
           if (detected == Column[col].ValueFormat.DataType) continue;
 
-          Column[col] = new ColumnReadOnly(Column[col], new ValueFormatReadOnly(detected));
+          Column[col] = new ImmutableColumn(Column[col], new ImmutableValueFormat(detected));
           isSet[col] = true;
         }
         // if we have defined types for all exit
-        if (isSet.All(x=>x))
+        if (isSet.All(x => x))
           break;
 
         // get the next record

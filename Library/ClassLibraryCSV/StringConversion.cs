@@ -114,13 +114,13 @@ namespace CsvTools
           // possible match
           if (positiveMatches < threshHoldPossible || checkResult.PossibleMatch) continue;
           checkResult.PossibleMatch = true;
-          checkResult.ValueFormatPossibleMatch = new ValueFormatReadOnly(DataType.DateTime, shortDateFormat,
+          checkResult.ValueFormatPossibleMatch = new ImmutableValueFormat(DataType.DateTime, shortDateFormat,
             dateSeparator, timeSeparator: timeSeparator);
         }
       }
 
       if (allParsed)
-        checkResult.FoundValueFormat = new ValueFormatReadOnly(DataType.DateTime, shortDateFormat,
+        checkResult.FoundValueFormat = new ImmutableValueFormat(DataType.DateTime, shortDateFormat,
         dateSeparator, timeSeparator: timeSeparator);
 
       return checkResult;
@@ -185,7 +185,7 @@ namespace CsvTools
           if (positiveMatches > 5 && !checkResult.PossibleMatch)
           {
             checkResult.PossibleMatch = true;
-            checkResult.ValueFormatPossibleMatch = new ValueFormatReadOnly(assumeInteger ? DataType.Integer : DataType.Numeric, decimalSeparatorChar: decimalSeparator, groupSeparatorChar: thousandSeparator);
+            checkResult.ValueFormatPossibleMatch = new ImmutableValueFormat(assumeInteger ? DataType.Integer : DataType.Numeric, decimalSeparatorChar: decimalSeparator, groupSeparatorChar: thousandSeparator);
           }
 
           // if the value contains the decimal separator or is too large to be an integer, its not
@@ -199,7 +199,7 @@ namespace CsvTools
       }
 
       if (allParsed && counter > 0)
-        checkResult.FoundValueFormat = new ValueFormatReadOnly(assumeInteger ? DataType.Integer : DataType.Numeric, decimalSeparatorChar: decimalSeparator, groupSeparatorChar: thousandSeparator);
+        checkResult.FoundValueFormat = new ImmutableValueFormat(assumeInteger ? DataType.Integer : DataType.Numeric, decimalSeparatorChar: decimalSeparator, groupSeparatorChar: thousandSeparator);
       return checkResult;
     }
 
@@ -247,13 +247,13 @@ namespace CsvTools
             positiveMatches++;
             if (positiveMatches <= 5 || checkResult.PossibleMatch) continue;
             checkResult.PossibleMatch = true;
-            checkResult.ValueFormatPossibleMatch = new ValueFormatReadOnly(DataType.DateTime, "SerialDate");
+            checkResult.ValueFormatPossibleMatch = new ImmutableValueFormat(DataType.DateTime, "SerialDate");
           }
         }
       }
 
       if (allParsed && counter > 0)
-        checkResult.FoundValueFormat = new ValueFormatReadOnly(DataType.DateTime, "SerialDate");
+        checkResult.FoundValueFormat = new ImmutableValueFormat(DataType.DateTime, "SerialDate");
 
       return checkResult;
     }

@@ -136,7 +136,7 @@ namespace CsvTools
             retry:
             using (var sqlReader = await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement, (o, s) => processDisplay.SetProcess(s), m_FileSetting.Timeout, processDisplay.CancellationToken))
             {
-              var data = await sqlReader.GetDataTableAsync(m_FileSetting.RecordLimit, false, false, m_FileSetting.DisplayStartLineNo, processDisplay.CancellationToken);
+              var data = await sqlReader.GetDataTableAsync(m_FileSetting.RecordLimit, false, false, m_FileSetting.DisplayStartLineNo, m_FileSetting.DisplayEndLineNo, m_FileSetting.DisplayRecordNo, processDisplay.CancellationToken);
               var found = new Column();
               var column = data.Columns[columnName];
               if (column == null)
@@ -696,7 +696,7 @@ namespace CsvTools
         if (groupBoxSplit.Visible)
           SetSamplePart(null, null);
 
-        // Depending on  OS and scaling a different value might be needed
+        // Depending on OS and scaling a different value might be needed
         Height = tableLayoutPanelForm.Height + SystemInformation.CaptionHeight * 175 / 100;
       }
       catch (Exception ex)
@@ -1077,7 +1077,6 @@ namespace CsvTools
 
     private void UpdateColumnList(ICollection<string> allColumns)
     {
-
       comboBoxColumnName.BeginUpdate();
       // if we have a list of columns add them to fields that show a column name
       if (allColumns.Count> 0)

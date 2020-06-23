@@ -19,6 +19,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Newtonsoft.Json;
 
 namespace CsvTools
@@ -28,7 +29,6 @@ namespace CsvTools
   /// </summary>
   public class JsonFileReader : BaseFileReaderTyped, IFileReader
   {
-
     private bool m_AssumeLog;
     private bool m_DisposedValue;
     private IImprovedStream m_ImprovedStream;
@@ -36,11 +36,29 @@ namespace CsvTools
     private StreamReader m_TextReader;
     private long m_TextReaderLine;
 
-    public JsonFileReader(ICsvFile fileSetting, string timeZone, IProcessDisplay processDisplay)
-      : base(fileSetting, timeZone, processDisplay)
+    public JsonFileReader([NotNull] string fullPath, [NotNull] string internalID,
+         [CanBeNull] string readerDescription = null,
+         [CanBeNull] string destinationTimeZone = null, [CanBeNull] IEnumerable<IColumn> columnDefinition = null, long recordLimit = 0,
+         bool treatNBSPAsSpace = false, bool skipEmptyLines = true, int consecutiveEmptyRowsMax = 4) :
+         base(fullPath: fullPath, columnDefinition: columnDefinition, internalID: internalID, readerDescription: readerDescription, destinationTimeZone: destinationTimeZone, recordLimit: recordLimit,
+           trimmingOption: TrimmingOption.None, treatTextAsNull: "", treatNBSPAsSpace: treatNBSPAsSpace,
+           skipEmptyLines: skipEmptyLines, consecutiveEmptyRowsMax: consecutiveEmptyRowsMax)
     {
+      if (fullPath == null) throw new ArgumentNullException(nameof(fullPath));
     }
 
+    public JsonFileReader(IFileSettingPhysicalFile fileSetting, string destinationTimeZone,
+      IProcessDisplay processDisplay)
+      : this(fileSetting.FullPath, fileSetting.InternalID, fileSetting.ToString(), destinationTimeZone,
+        fileSetting.ColumnCollection, fileSetting.RecordLimit,
+        fileSetting.TreatNBSPAsSpace, fileSetting.SkipEmptyLines,
+        fileSetting.ConsecutiveEmptyRows)
+    {
+      if (processDisplay == null) return;
+      ReportProgress = processDisplay.SetProcess;
+      SetMaxProcess = l => processDisplay.Maximum = l;
+      SetMaxProcess(0);
+    }
 
     /// <summary>
     ///   Gets a value indicating whether this instance is closed.
@@ -80,7 +98,6 @@ namespace CsvTools
           m_AssumeLog = true;
           goto again;
         }
-
 
         // read additional 50 rows to see if we have some extra columns
         for (var row = 1; row < 50; row++)
@@ -134,9 +151,7 @@ namespace CsvTools
       return false;
     }
 
-
     public override async Task ResetPositionToFirstDataRowAsync(CancellationToken token) => await Task.Run(ResetPositionToStartOrOpen);
-
 
     /// <summary>
     ///   Releases unmanaged and - optionally - managed resources
@@ -255,16 +270,22 @@ namespace CsvTools
             case JsonToken.EndArray:
               inArray = false;
               break;
+
             case JsonToken.None:
               break;
+
             case JsonToken.StartConstructor:
               break;
+
             case JsonToken.Comment:
               break;
+
             case JsonToken.Undefined:
               break;
+
             case JsonToken.EndConstructor:
               break;
+
             default:
               throw new ArgumentOutOfRangeException();
           }
