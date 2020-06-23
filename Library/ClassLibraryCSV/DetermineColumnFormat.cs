@@ -296,7 +296,7 @@ namespace CsvTools
             var format = (checkResult.FoundValueFormat == null && checkResult.PossibleMatch
                            ? checkResult.ValueFormatPossibleMatch
                            : checkResult.FoundValueFormat) ??
-                         new ValueFormatReadOnly();
+                         new ImmutableValueFormat();
 
             if (addTextColumns || format.DataType != DataType.String)
             {
@@ -369,7 +369,7 @@ namespace CsvTools
             }
             else
             {
-              columnCollection.AddIfNew(new Column(readerColumn, new ValueFormatReadOnly()));
+              columnCollection.AddIfNew(new Column(readerColumn, new ImmutableValueFormat()));
             }
           }
         }
@@ -952,7 +952,7 @@ namespace CsvTools
         if (allParsed)
         {
           checkResult.FoundValueFormat =
-            new ValueFormatReadOnly(DataType.Boolean, asTrue: usedTrueValue, asFalse: usedFalseValue);
+            new ImmutableValueFormat(DataType.Boolean, asTrue: usedTrueValue, asFalse: usedFalseValue);
           return checkResult;
         }
       }
@@ -962,7 +962,7 @@ namespace CsvTools
       // ---------------- GUID --------------------------
       if (guessGuid && StringConversion.CheckGuid(samples))
       {
-        checkResult.FoundValueFormat = new ValueFormatReadOnly(DataType.Guid);
+        checkResult.FoundValueFormat = new ImmutableValueFormat(DataType.Guid);
         return checkResult;
       }
 
@@ -984,7 +984,7 @@ namespace CsvTools
           // Only do so if more then half of the samples are string
           if (valuesWithChars < samples.Count / 2 && valuesWithChars < 10)
             continue;
-          checkResult.FoundValueFormat = new ValueFormatReadOnly();
+          checkResult.FoundValueFormat = new ImmutableValueFormat();
           return checkResult;
         }
       }

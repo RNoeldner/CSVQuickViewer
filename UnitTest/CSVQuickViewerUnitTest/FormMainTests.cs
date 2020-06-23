@@ -12,6 +12,7 @@
  *
  */
 
+using System;
 using System.IO;
 using System.Threading;
 using System.Windows.Forms;
@@ -32,7 +33,14 @@ namespace CsvTools.Tests
         frm.Show();
         while (!frm.LoadFinished)
         {
-          Application.DoEvents();
+          try
+          {
+            Application.DoEvents();
+          }
+          catch (ObjectDisposedException e)
+          {
+            Console.Write(e);
+          }
           Thread.Sleep(200);
         }
         Assert.IsNotNull(frm.DataTable);
@@ -48,7 +56,14 @@ namespace CsvTools.Tests
         frm.Show();
         while (!frm.LoadFinished)
         {
-          Application.DoEvents();
+          try
+          {
+            Application.DoEvents();
+          }
+          catch (ObjectDisposedException e)
+          {
+            Console.WriteLine(e);
+          }
           Thread.Sleep(200);
         }
         Assert.IsNotNull(frm.DataTable);

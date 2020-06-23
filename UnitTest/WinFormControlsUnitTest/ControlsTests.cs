@@ -103,7 +103,8 @@ namespace CsvTools.Tests
       try
       {
         // Used to cancel after .2 seconds
-        await Task.Run(() => {
+        await Task.Run(() =>
+        {
           WindowsAPICodePackWrapper.Save(FileSystemUtils.ExecutableDirectoryName(), "Test", "*.pdf", "*.pdf",
             "test.pdf");
         }).TimeoutAfter(new TimeSpan(TimeSpan.TicksPerSecond/4));
@@ -128,10 +129,10 @@ namespace CsvTools.Tests
       {
         Assert.AreEqual(0, treeView.SelectedTreeNode.Count);
 
-        var treeNode = new TreeNode("Test") {Tag = "test"};
+        var treeNode = new TreeNode("Test") { Tag = "test" };
         treeView.Nodes.Add(treeNode);
 
-        var treeNode2 = new TreeNode("Test2") {Tag = "test2"};
+        var treeNode2 = new TreeNode("Test2") { Tag = "test2" };
         treeNode.Nodes.Add(treeNode2);
 
         var firedAfter = false;
@@ -244,7 +245,6 @@ namespace CsvTools.Tests
     [TestMethod]
     public void FilteredDataGridViewShow() => UnitTestInitialize.ShowControl(new FilteredDataGridView());
 
-
     [TestMethod]
     public void FilteredDataGridViewVariousMethods()
     {
@@ -262,7 +262,6 @@ namespace CsvTools.Tests
             ctrl.SetFilterMenu(1);
           });
       }
-
     }
 
     [TestMethod]
@@ -336,10 +335,10 @@ namespace CsvTools.Tests
         processDisplay.Show();
         var cvsSetting = new CsvFile(Path.Combine(FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles",
             "FileWithHierarchy_WithCyle.txt"))
-          {FileFormat = {FieldDelimiter = "\t"}};
+        { FileFormat = { FieldDelimiter = "\t" } };
         using (var csvDataReader = new CsvFileReader(cvsSetting, null, processDisplay))
         {
-          dt = await csvDataReader.GetDataTableAsync(0, false, false, true, processDisplay.CancellationToken);
+          dt = await csvDataReader.GetDataTableAsync(0, false, false, true, false, false, processDisplay.CancellationToken);
         }
       }
 

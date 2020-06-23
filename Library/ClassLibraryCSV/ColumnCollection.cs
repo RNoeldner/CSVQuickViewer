@@ -24,7 +24,7 @@ namespace CsvTools
       Column toAdd = null;
       switch (columnFormat)
       {
-        case ColumnReadOnly cro:
+        case ImmutableColumn cro:
           toAdd = cro.ToMutable();
           break;
         case Column col:

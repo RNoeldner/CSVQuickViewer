@@ -392,7 +392,7 @@ namespace CsvTools.Tests
       try
       {
         setting.FileName = @"b;dslkfg;sldfkgjs;ldfkgj;sldfkg.sdfgsfd";
-        using(var processDisplay = new DummyProcessDisplay())
+        using (var processDisplay = new DummyProcessDisplay())
         using (var reader = new CsvFileReader(setting, TimeZoneInfo.Local.Id, null))
         {
           await reader.OpenAsync(processDisplay.CancellationToken);
@@ -889,9 +889,10 @@ namespace CsvTools.Tests
         var warningList = new RowErrorCollection(test);
         await test.OpenAsync(processDisplay.CancellationToken);
         warningList.HandleIgnoredColumns(test);
-
-        Assert.IsTrue(warningList.Display.Contains("Only the first character of 'XX' is be used for quoting."));
-        Assert.IsTrue(warningList.Display.Contains("Only the first character of ',,' is used as delimiter."));
+        // This is now check in teh constructr, butr the constructor does not habe the error
+        // handling set Assert.IsTrue(warningList.Display.Contains("Only the first character of 'XX'
+        // is be used for quoting.")); Assert.IsTrue(warningList.Display.Contains("Only the first
+        // character of ',,' is used as delimiter."));
       }
     }
 
@@ -1399,7 +1400,7 @@ namespace CsvTools.Tests
         {
           await test.OpenAsync(processDisplay.CancellationToken);
 
-          var dt = await test.GetDataTableAsync(5, true, true, true, processDisplay.CancellationToken);
+          var dt = await test.GetDataTableAsync(5, true, true, true, false, false, processDisplay.CancellationToken);
           Assert.AreEqual(5, dt.Rows.Count);
         }
       }
@@ -1410,17 +1411,15 @@ namespace CsvTools.Tests
     {
       using (var processDisplay = new DummyProcessDisplay())
       {
-
         var test2 = (CsvFile) m_ValidSetting.Clone();
         test2.RecordLimit = 4;
         using (var test = new CsvFileReader(test2, TimeZoneInfo.Local.Id, processDisplay))
         {
           await test.OpenAsync(processDisplay.CancellationToken);
 
-          var dt = await test.GetDataTableAsync(-1, false, false, false, processDisplay.CancellationToken);
+          var dt = await test.GetDataTableAsync(-1, false, false, false, false, false, processDisplay.CancellationToken);
           Assert.AreEqual(test2.RecordLimit, dt.Rows.Count);
         }
-
       }
     }
 
@@ -1429,26 +1428,23 @@ namespace CsvTools.Tests
     {
       using (var processDisplay = new DummyProcessDisplay())
       {
-
         var test3 = new CsvFile(UnitTestInitialize.GetTestPath("WithEoFChar.txt"))
         {
-          FileFormat = { FieldDelimiter = "TAB" },
-          DisplayRecordNo = true,
-          DisplayEndLineNo = true
+          FileFormat = { FieldDelimiter = "TAB" }
         };
         test3.ColumnCollection.Add(new Column("Memo") { Ignore = true });
         using (var test = new CsvFileReader(test3, TimeZoneInfo.Local.Id, processDisplay))
         {
           await test.OpenAsync(processDisplay.CancellationToken);
 
-          var dt = await test.GetDataTableAsync(-1, true, true, true, processDisplay.CancellationToken);
-          // 10 columns 1 ignored one added for Start line one for Error Field one for Record No one for Line end
+          var dt = await test.GetDataTableAsync(-1, true, true, true, true, true, processDisplay.CancellationToken);
+          // 10 columns 1 ignored one added for Start line one for Error Field one for Record No one
+          // for Line end
           Assert.AreEqual(10-1+4, dt.Columns.Count);
           Assert.AreEqual(19, dt.Rows.Count);
         }
       }
     }
-
 
     [TestMethod]
     public async Task CsvDataReaderNoHeader()

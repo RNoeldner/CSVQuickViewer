@@ -55,7 +55,6 @@ namespace CsvTools
 
     private const char c_UnknownChar = (char) 0xFFFD;
 
-
     // Store teh raw text of the record, before split into columns and trimming of the columns
     private readonly StringBuilder m_RecordSource = new StringBuilder();
 
@@ -68,7 +67,7 @@ namespace CsvTools
     /// </summary>
     private bool m_EndOfLine;
 
-    private bool m_HasQualifier;
+    private readonly bool m_HasQualifier;
 
     private string[] m_HeaderRow;
 
@@ -106,84 +105,143 @@ namespace CsvTools
     private readonly bool m_TreatUnknownCharacterAsSpace;
     private readonly int m_SkipRows;
     private readonly int m_NumWarning;
-    private readonly string m_FieldQualifier;
-    private readonly string m_FieldDelimiter;
     private readonly string m_CommentLine;
     private readonly string m_NewLinePlaceholder;
     private readonly string m_DelimiterPlaceholder;
     private readonly string m_QuotePlaceholder;
     private readonly int m_CodePageId;
-    
+
     private readonly bool m_TreatLFAsSpace;
     private readonly bool m_WarnLineFeed;
     private readonly bool m_WarnQuotes;
     private readonly bool m_DuplicateQuotingToEscape;
     private readonly bool m_AlternateQuoting;
-    
+
     private readonly bool m_WarnNBSP;
     private readonly bool m_WarnDelimiterInValue;
     private readonly bool m_WarnUnknownCharacter;
+    private readonly bool m_HasFieldHeader;
+
+    public CsvFileReader([NotNull] string fileName,
+     [NotNull] string internalID,
+     int codePageId = 650001,
+     int skipRows = 0,
+     bool hasFieldHeader = true,
+     [CanBeNull] IEnumerable<IColumn> columnDefinition = null,
+     TrimmingOption trimmingOption = TrimmingOption.Unquoted,
+     string fieldDelimiter = "\t", string fieldQualifier = "\"", char escapeCharacterChar = '\0',
+     long recordLimit = 0,
+     bool allowRowCombining = false, bool alternateQuoting = false,
+     [NotNull] string commentLine = "", int numWarning = 0, bool duplicateQuotingToEscape = true,
+     string newLinePlaceholder = "", string delimiterPlaceholder = "", string quotePlaceholder = "",
+     bool skipDuplicateHeader = true,
+     bool treatLFAsSpace = false, bool treatUnknownCharacterAsSpace = false, bool tryToSolveMoreColumns = true,
+     bool warnDelimiterInValue = true,
+     bool warnLineFeed = false, bool warnNBSP = true, bool warnQuotes = true, bool warnUnknownCharacter = true,
+     bool warnEmptyTailingColumns = true,
+     [CanBeNull] string readerDescription = null,
+     [CanBeNull] string destinationTimeZone = null,
+     bool treatNBSPAsSpace = false,
+     string treatTextAsNull = "<null>", bool skipEmptyLines = true,
+     int consecutiveEmptyRowsMax = 4)
+     : base(fileName, columnDefinition, internalID, readerDescription, destinationTimeZone, recordLimit, treatTextAsNull, trimmingOption, treatNBSPAsSpace, skipEmptyLines,
+       consecutiveEmptyRowsMax)
+    {
+      if (string.IsNullOrEmpty(fileName)) throw new ArgumentException("Path can nozt be null or empty", nameof(fileName));
+
+      m_EscapeCharacterChar = escapeCharacterChar;
+      m_FieldDelimiterChar = fieldDelimiter.WrittenPunctuationToChar();
+      if (fieldDelimiter.Length > 1 && m_FieldDelimiterChar == '\0')
+      {
+        Logger.Warning($"Only the first character of {fieldDelimiter} is used as delimiter.", fieldDelimiter);
+        m_FieldDelimiterChar = fieldDelimiter[0];
+      }
+      m_FieldQualifierChar = fieldQualifier.WrittenPunctuationToChar();
+      if (fieldQualifier.Length > 1 && m_FieldQualifierChar == '\0')
+      {
+        Logger.Warning($"Only the first character of {fieldQualifier} is be used for quoting.", fieldQualifier);
+        m_FieldQualifierChar = fieldQualifier[0];
+      }
+
+      if (m_FieldQualifierChar == c_Cr || m_FieldQualifierChar == c_Lf)
+        throw new FileReaderException("The text quoting characters is invalid, please use something else than CR or LF");
+
+      if (m_FieldDelimiterChar == c_Cr || m_FieldDelimiterChar == c_Lf
+                                      || m_FieldDelimiterChar == ' '
+                                      || m_FieldDelimiterChar == '\0')
+        throw new FileReaderException("The field delimiter character is invalid, please use something else than CR, LF or Space");
+
+      if (m_FieldDelimiterChar == m_EscapeCharacterChar)
+        throw new FileReaderException($"The escape character is invalid, please use something else than the field delimiter character {FileFormat.GetDescription(m_EscapeCharacterChar.ToString())}.");
+
+      m_HasQualifier = m_FieldQualifierChar != '\0';
+
+      if (m_HasQualifier && m_FieldQualifierChar == m_FieldDelimiterChar)
+        throw new ArgumentOutOfRangeException(
+          $"The text quoting and the field delimiter characters of a delimited file cannot be the same. {m_FieldDelimiterChar}");
+
+      m_AllowRowCombining = allowRowCombining;
+      m_AlternateQuoting = alternateQuoting;
+      m_CodePageId = codePageId;
+      m_CommentLine = commentLine ?? string.Empty;
+      m_DelimiterPlaceholder = delimiterPlaceholder;
+      m_DuplicateQuotingToEscape = duplicateQuotingToEscape;
+      m_NewLinePlaceholder = newLinePlaceholder;
+      m_NumWarning = numWarning;
+      m_QuotePlaceholder = quotePlaceholder;
+      m_SkipDuplicateHeader = skipDuplicateHeader;
+      m_SkipRows = skipRows;
+      m_TreatLFAsSpace = treatLFAsSpace;
+      m_TreatUnknownCharacterAsSpace = treatUnknownCharacterAsSpace;
+      m_TryToSolveMoreColumns = tryToSolveMoreColumns;
+      m_WarnDelimiterInValue = warnDelimiterInValue;
+      m_WarnLineFeed = warnLineFeed;
+      m_WarnNBSP = warnNBSP;
+      m_WarnQuotes = warnQuotes;
+      m_WarnUnknownCharacter = warnUnknownCharacter;
+      m_HasFieldHeader = hasFieldHeader;
+
+      // Either we report the issues regularly or at least log it
+      if (warnEmptyTailingColumns)
+        m_HandleMessageColumn = HandleWarning;
+      else
+        // or we add them to the log
+        m_HandleMessageColumn = (i, s) => Logger.Warning(GetWarningEventArgs(i, s).Display(true, true));
+    }
+
     /// <summary>
     ///   Create a delimited text reader for teh given settings
     /// </summary>
     /// <param name="fileSetting"></param>
     /// <param name="timeZone">Timezone to convert read dates/time value to</param>
+    /// <param name="addErrorField"></param>
     /// <param name="processDisplay">Progress and Cancellation</param>
     public CsvFileReader([NotNull] ICsvFile fileSetting, [CanBeNull] string timeZone, [CanBeNull] IProcessDisplay processDisplay)
-      : base(fileSetting, timeZone, processDisplay)
+      : this(fileSetting.FullPath, fileSetting.InternalID, fileSetting.CodePageId,
+        fileSetting.SkipRows, fileSetting.HasFieldHeader,
+        fileSetting.ColumnCollection, fileSetting.TrimmingOption, fileSetting.FileFormat.FieldDelimiter,
+        fileSetting.FileFormat.FieldQualifier,
+        fileSetting.FileFormat.EscapeCharacterChar, fileSetting.RecordLimit, fileSetting.AllowRowCombining,
+        fileSetting.FileFormat.AlternateQuoting, fileSetting.FileFormat.CommentLine, fileSetting.NumWarnings,
+        fileSetting.FileFormat.DuplicateQuotingToEscape,
+        fileSetting.FileFormat.NewLinePlaceholder,
+        fileSetting.FileFormat.DelimiterPlaceholder,
+        fileSetting.FileFormat.QuotePlaceholder, fileSetting.SkipDuplicateHeader,
+        fileSetting.TreatLFAsSpace,
+        fileSetting.TreatUnknownCharacterAsSpace,
+        fileSetting.TryToSolveMoreColumns,
+        fileSetting.WarnDelimiterInValue, fileSetting.WarnLineFeed,
+        fileSetting.WarnNBSP, fileSetting.WarnQuotes,
+        fileSetting.WarnUnknownCharacter,
+        fileSetting.WarnEmptyTailingColumns, fileSetting.ToString(),
+        timeZone, fileSetting.TreatNBSPAsSpace,
+        fileSetting.TreatTextAsNull, fileSetting.SkipEmptyLines,
+        fileSetting.ConsecutiveEmptyRows)
     {
-      m_FieldDelimiterChar = fileSetting.FileFormat.FieldDelimiterChar;
-      m_EscapeCharacterChar = fileSetting.FileFormat.EscapeCharacterChar;
-      m_FieldQualifierChar = fileSetting.FileFormat.FieldQualifierChar;
-      m_SkipDuplicateHeader = fileSetting.SkipDuplicateHeader;
-      m_AllowRowCombining = fileSetting.AllowRowCombining;
-      m_SkipRows = fileSetting.SkipRows;
-      m_NumWarning = fileSetting.NumWarnings;
-      m_TreatUnknownCharacterAsSpace = fileSetting.TreatUnknownCharacterAsSpace;
-      m_FieldQualifier = fileSetting.FileFormat.FieldQualifier;
-      m_FieldDelimiter= fileSetting.FileFormat.FieldDelimiter;
-      m_CodePageId = fileSetting.CodePageId;
-      m_TryToSolveMoreColumns = fileSetting.TryToSolveMoreColumns;
-      m_TreatLFAsSpace = fileSetting.TreatLFAsSpace;
-      m_WarnLineFeed = fileSetting.WarnLineFeed;
-      m_WarnQuotes = fileSetting.WarnQuotes;
-      m_DuplicateQuotingToEscape = fileSetting.FileFormat.DuplicateQuotingToEscape;
-      m_AlternateQuoting = fileSetting.FileFormat.AlternateQuoting;
-      m_CommentLine = fileSetting.FileFormat.CommentLine;
-      m_NewLinePlaceholder = fileSetting.FileFormat.NewLinePlaceholder;
-      m_DelimiterPlaceholder = fileSetting.FileFormat.DelimiterPlaceholder;
-      m_QuotePlaceholder = fileSetting.FileFormat.QuotePlaceholder;
-      m_WarnNBSP = fileSetting.WarnNBSP;
-      m_WarnDelimiterInValue = fileSetting.WarnDelimiterInValue;
-      m_WarnUnknownCharacter = fileSetting.WarnUnknownCharacter;
-
-      if (m_FieldDelimiterChar == c_Cr || m_FieldDelimiterChar == c_Lf
-                                     || m_FieldDelimiterChar == ' '
-                                     || m_FieldDelimiterChar == '\0')
-        throw new FileReaderException(
-          "The field delimiter character is invalid, please use something else than CR, LF or Space");
-
-      if (m_FieldDelimiterChar == m_EscapeCharacterChar)
-        throw new FileReaderException(
-          $"The escape character is invalid, please use something else than the field delimiter character {FileFormat.GetDescription(fileSetting.FileFormat.EscapeCharacter)}.");
-
-      // Either we report the issues regularly or at least log it
-      if (fileSetting.WarnEmptyTailingColumns)
-        m_HandleMessageColumn = HandleWarning;
-      else
-        // or we add them to the log
-        m_HandleMessageColumn = (i, s) => Logger.Warning(GetWarningEventArgs(i, s).Display(true, true));
-
-      m_HasQualifier |= m_FieldQualifierChar != '\0';
-
-      if (!m_HasQualifier)
-        return;
-      if (m_FieldQualifierChar == m_FieldDelimiterChar)
-        throw new ArgumentOutOfRangeException(
-          $"The text quoting and the field delimiter characters of a delimited file cannot be the same. {m_FieldDelimiterChar}");
-      if (m_FieldQualifierChar == c_Cr || m_FieldQualifierChar == c_Lf)
-        throw new FileReaderException(
-          "The text quoting characters is invalid, please use something else than CR or LF");
+      if (processDisplay == null) return;
+      ReportProgress = processDisplay.SetProcess;
+      SetMaxProcess = l => processDisplay.Maximum = l;
+      SetMaxProcess(0);
     }
 
     /// <summary>
@@ -266,23 +324,20 @@ namespace CsvTools
     /// </summary>
     public override async Task OpenAsync(CancellationToken token)
     {
-      m_HasQualifier |= m_FieldQualifierChar != '\0';
-
-      if (m_FieldQualifier.Length > 1
-          && m_FieldQualifier.WrittenPunctuationToChar() == '\0')
-        HandleWarning(
-          -1,
-          $"Only the first character of '{m_FieldQualifier}' is be used for quoting.");
-      if (m_FieldDelimiter.Length > 1
-          && m_FieldDelimiter.WrittenPunctuationToChar() == '\0')
-        HandleWarning(-1, $"Only the first character of '{m_FieldDelimiter}' is used as delimiter.");
+      //if (m_FieldQualifier.Length > 1
+      //    && m_FieldQualifier.WrittenPunctuationToChar() == '\0')
+      //  HandleWarning(
+      //    -1,
+      //    $"Only the first character of '{m_FieldQualifier}' is be used for quoting.");
+      //if (m_FieldDelimiter.Length > 1
+      //    && m_FieldDelimiter.WrittenPunctuationToChar() == '\0')
+      //  HandleWarning(-1, $"Only the first character of '{m_FieldDelimiter}' is used as delimiter.");
 
       await BeforeOpenAsync($"Opening delimited file {FileSystemUtils.GetShortDisplayFileName(FileName, 80)}").ConfigureAwait(false);
       Retry:
       try
       {
-        var fn = FileSystemUtils.GetFileName(FullPath);
-        HandleShowProgress($"Opening text file {fn}");
+        HandleShowProgress($"Opening text file {FileName}");
 
         m_ImprovedStream?.Dispose();
         m_ImprovedStream = FunctionalDI.OpenRead(FullPath);
@@ -293,7 +348,7 @@ namespace CsvTools
 
         m_HeaderRow = await ReadNextRowAsync(false, false).ConfigureAwait(false);
         InitColumn(await ParseFieldCountAsync(m_HeaderRow).ConfigureAwait(false));
-        ParseColumnName(m_HeaderRow);
+        ParseColumnName(m_HeaderRow, null, m_HasFieldHeader);
 
         FinishOpen();
 
@@ -344,7 +399,7 @@ namespace CsvTools
     public new async Task ResetPositionToFirstDataRowAsync(CancellationToken token)
     {
       ResetPositionToStartOrOpen();
-      if (HasFieldHeader)
+      if (m_HasFieldHeader)
         // Read the header row, this could be more than one line
         await ReadNextRowAsync(false, false).ConfigureAwait(false);
     }
@@ -764,7 +819,7 @@ namespace CsvTools
         if (m_NumWarning < 1 || m_NumWarningsQuote <= m_NumWarning)
           HandleWarning(
             columnNo,
-            $"Field qualifier '{FileFormat.GetDescription(m_FieldQualifier)}' found in field"
+            $"Field qualifier '{FileFormat.GetDescription(m_FieldQualifierChar.ToString())}' found in field"
               .AddWarningId());
       }
 
@@ -774,7 +829,7 @@ namespace CsvTools
         if (m_NumWarning < 1 || m_NumWarningsDelimiter <= m_NumWarning)
           HandleWarning(
             columnNo,
-            $"Field delimiter '{FileFormat.GetDescription(m_FieldDelimiter)}' found in field"
+            $"Field delimiter '{FileFormat.GetDescription(m_FieldDelimiterChar.ToString())}' found in field"
               .AddWarningId());
       }
 
@@ -952,7 +1007,7 @@ namespace CsvTools
         if (rowLength == FieldCount)
         {
           // Check if we have row that matches the header row
-          if (m_HeaderRow != null && HasFieldHeader && !hasWarningCombinedWarning)
+          if (m_HeaderRow != null && m_HasFieldHeader && !hasWarningCombinedWarning)
           {
             var isRepeatedHeader = true;
             for (var col = 0; col < FieldCount; col++)
