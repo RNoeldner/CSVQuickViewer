@@ -12,13 +12,13 @@
 *
 */
 
-using JetBrains.Annotations;
 using System;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 
 namespace CsvTools
 {
@@ -36,13 +36,13 @@ namespace CsvTools
     {
     }
 
-    public DataTableReader(IFileSetting fileSetting, [NotNull] DataTable dt, IProcessDisplay processDisplay) : base(fullPath: null,
-      columnDefinition: fileSetting.ColumnCollection,
-      internalID: fileSetting.InternalID,
-      readerDescription: fileSetting.ToString(), destinationTimeZone: null, recordLimit: fileSetting.RecordLimit,
-      trimmingOption: fileSetting.TrimmingOption, treatTextAsNull: fileSetting.TreatTextAsNull,
-      treatNBSPAsSpace: fileSetting.TreatNBSPAsSpace, skipEmptyLines: fileSetting.SkipEmptyLines,
-      consecutiveEmptyRowsMax: fileSetting.ConsecutiveEmptyRows)
+    public DataTableReader(IFileSetting fileSetting, [NotNull] DataTable dt, IProcessDisplay processDisplay) : base(
+      null,
+      fileSetting.ColumnCollection,
+      fileSetting.InternalID,
+      fileSetting.ToString(), null, fileSetting.RecordLimit,
+      fileSetting.TrimmingOption, fileSetting.TreatTextAsNull,
+      fileSetting.TreatNBSPAsSpace)
     {
       m_DataTable = dt ?? throw new ArgumentNullException(nameof(dt));
       if (processDisplay == null) return;
@@ -51,7 +51,8 @@ namespace CsvTools
       SetMaxProcess(0);
     }
 
-    public override async Task<DataTable> GetDataTableAsync(long recordLimit, bool ignore, bool ignore2, bool ignore3, bool ignore4, bool ignore5, CancellationToken token) => await Task.FromResult(m_DataTable).ConfigureAwait(false);
+    public override async Task<DataTable> GetDataTableAsync(long recordLimit, bool ignore, bool ignore2, bool ignore3,
+      bool ignore4, bool ignore5, CancellationToken token) => await Task.FromResult(m_DataTable).ConfigureAwait(false);
 
     public override string GetName(int i) => m_DbDataReader.GetName(i);
 

@@ -36,7 +36,7 @@ namespace CsvTools
 #pragma warning restore CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
   {
     public static readonly DateTime ZeroTime = new DateTime(0, DateTimeKind.Utc);
-
+    public const string cTreatTextAsNull = "NULL";
     private readonly FileFormat m_FileFormat = new FileFormat();
     private int m_ConsecutiveEmptyRows = 5;
     private bool m_DisplayEndLineNo;
@@ -70,7 +70,7 @@ namespace CsvTools
     private int m_Timeout = 90;
     private string m_TemplateName = string.Empty;
     private bool m_TreatNbspAsSpace;
-    private string m_TreatTextAsNull = "NULL";
+    private string m_TreatTextAsNull = cTreatTextAsNull;
     private bool m_Validate = true;
     private bool m_SkipDuplicateHeader;
     private bool m_SkipEmptyLines = true;
@@ -1086,7 +1086,7 @@ namespace CsvTools
     ///   Gets or sets a value indicating whether this instance should treat any text listed here as Null
     /// </summary>
     [XmlAttribute]
-    [DefaultValue("NULL")]
+    [DefaultValue(cTreatTextAsNull)]
     public virtual string TreatTextAsNull
     {
       [NotNull]

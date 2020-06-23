@@ -37,12 +37,12 @@ namespace CsvTools
     private long m_TextReaderLine;
 
     public JsonFileReader([NotNull] string fullPath, [NotNull] string internalID,
-         [CanBeNull] string readerDescription = null,
-         [CanBeNull] string destinationTimeZone = null, [CanBeNull] IEnumerable<IColumn> columnDefinition = null, long recordLimit = 0,
-         bool treatNBSPAsSpace = false, bool skipEmptyLines = true, int consecutiveEmptyRowsMax = 4) :
-         base(fullPath: fullPath, columnDefinition: columnDefinition, internalID: internalID, readerDescription: readerDescription, destinationTimeZone: destinationTimeZone, recordLimit: recordLimit,
-           trimmingOption: TrimmingOption.None, treatTextAsNull: "", treatNBSPAsSpace: treatNBSPAsSpace,
-           skipEmptyLines: skipEmptyLines, consecutiveEmptyRowsMax: consecutiveEmptyRowsMax)
+      [CanBeNull] string readerDescription = null,
+      [CanBeNull] string destinationTimeZone = null, [CanBeNull] IEnumerable<IColumn> columnDefinition = null,
+      long recordLimit = 0,
+      bool treatNBSPAsSpace = false) :
+      base(fullPath, columnDefinition, internalID, readerDescription, destinationTimeZone, recordLimit,
+        TrimmingOption.None, "", treatNBSPAsSpace)
     {
       if (fullPath == null) throw new ArgumentNullException(nameof(fullPath));
     }
@@ -51,8 +51,7 @@ namespace CsvTools
       IProcessDisplay processDisplay)
       : this(fileSetting.FullPath, fileSetting.InternalID, fileSetting.ToString(), destinationTimeZone,
         fileSetting.ColumnCollection, fileSetting.RecordLimit,
-        fileSetting.TreatNBSPAsSpace, fileSetting.SkipEmptyLines,
-        fileSetting.ConsecutiveEmptyRows)
+        fileSetting.TreatNBSPAsSpace)
     {
       if (processDisplay == null) return;
       ReportProgress = processDisplay.SetProcess;
@@ -151,7 +150,8 @@ namespace CsvTools
       return false;
     }
 
-    public override async Task ResetPositionToFirstDataRowAsync(CancellationToken token) => await Task.Run(ResetPositionToStartOrOpen);
+    public override async Task ResetPositionToFirstDataRowAsync(CancellationToken token) =>
+      await Task.Run(ResetPositionToStartOrOpen, token);
 
     /// <summary>
     ///   Releases unmanaged and - optionally - managed resources
@@ -190,7 +190,8 @@ namespace CsvTools
     ///   the structure of the Json file
     /// </summary>
     /// <returns>A collection with name and value of the properties</returns>
-    private async Task<ICollection<KeyValuePair<string, object>>> GetNextRecordAsync(bool throwError, CancellationToken token)
+    private async Task<ICollection<KeyValuePair<string, object>>> GetNextRecordAsync(bool throwError,
+      CancellationToken token)
     {
       try
       {
@@ -205,7 +206,7 @@ namespace CsvTools
         while (m_JsonTextReader.TokenType != JsonToken.StartObject
                // && m_JsonTextReader.TokenType != JsonToken.PropertyName
                && m_JsonTextReader.TokenType != JsonToken.StartArray)
-          if (!await m_JsonTextReader.ReadAsync().ConfigureAwait(false))
+          if (!await m_JsonTextReader.ReadAsync(token).ConfigureAwait(false))
             return null;
 
         // sore the parent Property Name in parentKey
@@ -292,7 +293,7 @@ namespace CsvTools
 
           token.ThrowIfCancellationRequested();
         } while (!(m_JsonTextReader.TokenType == JsonToken.EndObject && startKey == endKey)
-                 && await m_JsonTextReader.ReadAsync().ConfigureAwait(false));
+                 && await m_JsonTextReader.ReadAsync(token).ConfigureAwait(false));
 
         EndLineNumber = !m_AssumeLog ? m_JsonTextReader.LineNumber : m_TextReaderLine;
         RecordNumber++;
@@ -303,13 +304,13 @@ namespace CsvTools
         // store the information into our fixed structure, even if the tokens in Json change order
         // they will aligned
         if (Column == null || Column.Length == 0) return keyValuePairs;
-        var colNum = 0;
+        var columnNumber = 0;
         foreach (var col in Column)
         {
-          if (keyValuePairs.TryGetValue(col.Name, out CurrentValues[colNum]))
-            if (CurrentValues[colNum] != null)
-              CurrentRowColumnText[colNum] = CurrentValues[colNum].ToString();
-          colNum++;
+          if (keyValuePairs.TryGetValue(col.Name, out CurrentValues[columnNumber]))
+            if (CurrentValues[columnNumber] != null)
+              CurrentRowColumnText[columnNumber] = HandleText(CurrentValues[columnNumber].ToString(), columnNumber);
+          columnNumber++;
         }
 
         if (keyValuePairs.Count < FieldCount)
@@ -358,7 +359,7 @@ namespace CsvTools
       if (m_ImprovedStream == null)
         m_ImprovedStream = FunctionalDI.OpenRead(FullPath);
 
-      m_ImprovedStream.ResetToStart(delegate (Stream str)
+      m_ImprovedStream.ResetToStart(delegate(Stream str)
       {
         // in case we can not seek need to reopen the stream reader
         if (!str.CanSeek || m_TextReader == null)
@@ -391,7 +392,7 @@ namespace CsvTools
       };
     }
 
-    #region TextReader
+#region TextReader
 
     // Buffer size set to 64kB, if set to large the display in percentage will jump
     private const int c_BufferSize = 65536;
@@ -516,6 +517,6 @@ namespace CsvTools
       m_JsonTextReader = new JsonTextReader(new StringReader(sb.ToString()));
     }
 
-    #endregion TextReader
+#endregion TextReader
   }
 }
