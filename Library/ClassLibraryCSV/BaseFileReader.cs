@@ -38,8 +38,7 @@ namespace CsvTools
     protected readonly bool TreatNBSPAsSpace;    
     protected readonly string TreatTextAsNull;
     protected readonly long RecordLimit;
-    protected readonly bool SkipEmptyLines;
-    protected readonly int ConsecutiveEmptyRowsMax;
+    
     [NotNull] private readonly ICollection<IColumn> m_ColumnDefinition;
     private readonly string m_InternalID;
     protected string FullPath { get; }
@@ -95,12 +94,11 @@ namespace CsvTools
     private bool m_IsFinished;
 
     protected BaseFileReader([CanBeNull] string fileName = null,
-    [CanBeNull] IEnumerable<IColumn> columnDefinition = null,
-    [CanBeNull] string internalID = null, [CanBeNull] string readerDescription = null,
-    [CanBeNull] string destinationTimeZone = null, long recordLimit = 0,
-    string treatTextAsNull = "", TrimmingOption trimmingOption = TrimmingOption.Unquoted,
-    bool treatNBSPAsSpace = false, bool skipEmptyLines = true,
-    int consecutiveEmptyRowsMax = 4)
+      [CanBeNull] IEnumerable<IColumn> columnDefinition = null,
+      [CanBeNull] string internalID = null, [CanBeNull] string readerDescription = null,
+      [CanBeNull] string destinationTimeZone = null, long recordLimit = 0,
+      string treatTextAsNull = BaseSettings.cTreatTextAsNull, TrimmingOption trimmingOption = TrimmingOption.Unquoted,
+      bool treatNBSPAsSpace = false)
     {
       DestinationTimeZone = string.IsNullOrEmpty(destinationTimeZone) ? TimeZoneInfo.Local.Id : destinationTimeZone;
       m_ColumnDefinition = columnDefinition?.Select(col => new ImmutableColumn(col, col.ColumnOrdinal)).Cast<IColumn>()
@@ -118,9 +116,6 @@ namespace CsvTools
 
       TreatNBSPAsSpace = treatNBSPAsSpace;
       TreatTextAsNull = treatTextAsNull;
-
-      SkipEmptyLines = skipEmptyLines;
-      ConsecutiveEmptyRowsMax = consecutiveEmptyRowsMax;
     }
 
     /// <summary>
@@ -792,7 +787,6 @@ namespace CsvTools
     /// </exception>
     public virtual bool IsDBNull(int columnNumber)
     {
-      Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount);
       if (CurrentRowColumnText == null || CurrentRowColumnText.Length <= columnNumber)
         return true;
       if (Column[columnNumber].ValueFormat.DataType == DataType.DateTime)
@@ -1156,7 +1150,7 @@ namespace CsvTools
     /// <param name="handleNullText">if set to <c>true</c> [handle null text].</param>
     /// <returns>The proper encoded or cut text as returned for the column</returns>
     [CanBeNull]
-    protected string HandleTextAndSetSize([CanBeNull] string inputString, int columnNumber, bool handleNullText)
+    protected string HandleText([CanBeNull] string inputString, int columnNumber, bool handleNullText = true)
     {
       // in case its not a string
       if (string.IsNullOrEmpty(inputString))

@@ -121,6 +121,8 @@ namespace CsvTools
     private readonly bool m_WarnDelimiterInValue;
     private readonly bool m_WarnUnknownCharacter;
     private readonly bool m_HasFieldHeader;
+    private readonly bool m_SkipEmptyLines;
+    private readonly int m_ConsecutiveEmptyRowsMax;
 
     public CsvFileReader([NotNull] string fileName,
      [NotNull] string internalID,
@@ -142,12 +144,11 @@ namespace CsvTools
      [CanBeNull] string readerDescription = null,
      [CanBeNull] string destinationTimeZone = null,
      bool treatNBSPAsSpace = false,
-     string treatTextAsNull = "<null>", bool skipEmptyLines = true,
+     string treatTextAsNull = BaseSettings.cTreatTextAsNull, bool skipEmptyLines = true,
      int consecutiveEmptyRowsMax = 4)
-     : base(fileName, columnDefinition, internalID, readerDescription, destinationTimeZone, recordLimit, treatTextAsNull, trimmingOption, treatNBSPAsSpace, skipEmptyLines,
-       consecutiveEmptyRowsMax)
+     : base(fileName, columnDefinition, internalID, readerDescription, destinationTimeZone, recordLimit, treatTextAsNull, trimmingOption, treatNBSPAsSpace)
     {
-      if (string.IsNullOrEmpty(fileName)) throw new ArgumentException("Path can nozt be null or empty", nameof(fileName));
+      if (string.IsNullOrEmpty(fileName)) throw new ArgumentException("Path can not be null or empty", nameof(fileName));
 
       m_EscapeCharacterChar = escapeCharacterChar;
       m_FieldDelimiterChar = fieldDelimiter.WrittenPunctuationToChar();
@@ -183,7 +184,7 @@ namespace CsvTools
       m_AllowRowCombining = allowRowCombining;
       m_AlternateQuoting = alternateQuoting;
       m_CodePageId = codePageId;
-      m_CommentLine = commentLine ?? string.Empty;
+      m_CommentLine = commentLine;
       m_DelimiterPlaceholder = delimiterPlaceholder;
       m_DuplicateQuotingToEscape = duplicateQuotingToEscape;
       m_NewLinePlaceholder = newLinePlaceholder;
@@ -200,6 +201,8 @@ namespace CsvTools
       m_WarnQuotes = warnQuotes;
       m_WarnUnknownCharacter = warnUnknownCharacter;
       m_HasFieldHeader = hasFieldHeader;
+      m_SkipEmptyLines = skipEmptyLines;
+      m_ConsecutiveEmptyRowsMax = consecutiveEmptyRowsMax;
 
       // Either we report the issues regularly or at least log it
       if (warnEmptyTailingColumns)
@@ -214,7 +217,6 @@ namespace CsvTools
     /// </summary>
     /// <param name="fileSetting"></param>
     /// <param name="timeZone">Timezone to convert read dates/time value to</param>
-    /// <param name="addErrorField"></param>
     /// <param name="processDisplay">Progress and Cancellation</param>
     public CsvFileReader([NotNull] ICsvFile fileSetting, [CanBeNull] string timeZone, [CanBeNull] IProcessDisplay processDisplay)
       : this(fileSetting.FullPath, fileSetting.InternalID, fileSetting.CodePageId,
@@ -458,7 +460,7 @@ namespace CsvTools
       }
 
       m_ConsecutiveEmptyRows++;
-      EndOfFile |= m_ConsecutiveEmptyRows >= ConsecutiveEmptyRowsMax;
+      EndOfFile |= m_ConsecutiveEmptyRows >= m_ConsecutiveEmptyRowsMax;
       return true;
     }
 
@@ -907,7 +909,7 @@ namespace CsvTools
       if (string.IsNullOrEmpty(item) && m_EndOfLine)
       {
         m_EndOfLine = false;
-        if (SkipEmptyLines || !regularDataRow)
+        if (m_SkipEmptyLines || !regularDataRow)
 
           // go to the next line
           goto Restart;
@@ -969,7 +971,7 @@ namespace CsvTools
               .ReplaceCaseInsensitive(m_QuotePlaceholder, m_FieldQualifierChar);
 
             if (regularDataRow && col < FieldCount)
-              item = HandleTextAndSetSize(item, col, false);
+              item = HandleText(item, col, false);
           }
         }
 
@@ -996,7 +998,7 @@ namespace CsvTools
             return false;
 
           // an empty line
-          if (SkipEmptyLines)
+          if (m_SkipEmptyLines)
             goto Restart;
         }
 

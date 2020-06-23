@@ -25,10 +25,8 @@ namespace CsvTools
       [CanBeNull] string readerDescription = null,
       [CanBeNull] string destinationTimeZone = null, long recordLimit = 0,
       TrimmingOption trimmingOption = TrimmingOption.Unquoted,
-      string treatTextAsNull = "<null>", bool treatNBSPAsSpace = false, bool skipEmptyLines = true,
-      int consecutiveEmptyRowsMax = 4) :
-      base(fullPath, columnDefinition, internalID, readerDescription, destinationTimeZone, recordLimit, treatTextAsNull, trimmingOption, treatNBSPAsSpace, skipEmptyLines,
-        consecutiveEmptyRowsMax)
+      string treatTextAsNull = BaseSettings.cTreatTextAsNull, bool treatNBSPAsSpace = false) :
+      base(fullPath, columnDefinition, internalID, readerDescription, destinationTimeZone, recordLimit, treatTextAsNull, trimmingOption, treatNBSPAsSpace)
     {
     }
 
