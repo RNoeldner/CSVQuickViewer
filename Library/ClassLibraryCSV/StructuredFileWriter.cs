@@ -47,7 +47,9 @@ namespace CsvTools
     /// </summary>
     private const string c_HeaderPlaceholder = "[column{0}]";
 
-    private readonly StructuredFile m_StructuredWriterFile;
+    private readonly bool m_JSONEncode;
+    private readonly string m_Row;
+    private readonly bool m_XMLEncode;
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="StructuredFileWriter" /> class.
@@ -55,10 +57,13 @@ namespace CsvTools
     /// <param name="file">The file.</param>
     /// <param name="timeZone">The timezone in the source</param>
     /// <param name="processDisplay">The process display.</param>
-    public StructuredFileWriter([NotNull] StructuredFile file, [CanBeNull] string timeZone, [CanBeNull] IProcessDisplay processDisplay)
-      : base(file, timeZone, processDisplay)
+    public StructuredFileWriter([NotNull] StructuredFile file, [CanBeNull] string timeZone, DateTime lastExecution, DateTime lastExecutionStart,
+      [CanBeNull] IProcessDisplay processDisplay)
+      : base(file, timeZone, lastExecution, lastExecutionStart, processDisplay)
     {
-      m_StructuredWriterFile = file;
+      m_Row = file.Row;
+      m_XMLEncode = file.XMLEncode;
+      m_JSONEncode = file.JSONEncode;
     }
 
     /// <summary>
@@ -70,12 +75,12 @@ namespace CsvTools
     protected override async Task WriteReaderAsync([NotNull] IFileReader reader, [NotNull] Stream output,
       CancellationToken cancellationToken)
     {
-      Contract.Assume(!string.IsNullOrEmpty(m_StructuredWriterFile.FullPath));
+      Contract.Assume(!string.IsNullOrEmpty(FullPath));
 
       using (var writer = new StreamWriter(output, new UTF8Encoding(true), 4096))
       {
         Columns.Clear();
-        Columns.AddRange(ColumnInfo.GetSourceColumnInformation(m_StructuredWriterFile, reader));
+        Columns.AddRange(ColumnInfo.GetWriterColumnInformation(ValueFormatGeneral, ColumnDefinition, reader));
         var numColumns = Columns.Count();
         if (numColumns == 0)
           throw new FileWriterException("No columns defined to be written.");
@@ -83,17 +88,17 @@ namespace CsvTools
         HandleWriteStart();
 
         // Header
-        if (!string.IsNullOrEmpty(m_StructuredWriterFile.Header))
+        if (!string.IsNullOrEmpty(Header))
         {
           var sbH = new StringBuilder();
-          sbH.Append(ReplacePlaceHolder(m_StructuredWriterFile.Header));
-          if (!m_StructuredWriterFile.Header.EndsWith(recordEnd, StringComparison.Ordinal))
+          sbH.Append(ReplacePlaceHolder(Header));
+          if (!Header.EndsWith(recordEnd, StringComparison.Ordinal))
             sbH.Append(recordEnd);
           await writer.WriteAsync(sbH.ToString()).ConfigureAwait(false);
         }
 
         // Static template for the row, built once
-        var withHeader = m_StructuredWriterFile.Row;
+        var withHeader = m_Row;
         var colNum = 0;
         var placeHolderLookup1 = new Dictionary<int, string>();
         var placeHolderLookup2 = new Dictionary<int, string>();
@@ -101,9 +106,9 @@ namespace CsvTools
         foreach (var columnInfo in Columns)
         {
           var placeHolder = string.Format(CultureInfo.CurrentCulture, c_HeaderPlaceholder, colNum);
-          if (m_StructuredWriterFile.XMLEncode)
+          if (m_XMLEncode)
             withHeader = withHeader.Replace(placeHolder, HTMLStyle.XmlElementName(columnInfo.Column.Name));
-          else if (m_StructuredWriterFile.JSONEncode)
+          else if (m_JSONEncode)
             withHeader = withHeader.Replace(placeHolder, HTMLStyle.JsonElementName(columnInfo.Column.Name));
           else
             withHeader = withHeader.Replace(placeHolder, columnInfo.Column.Name);
@@ -118,7 +123,8 @@ namespace CsvTools
         var
           sb = new StringBuilder(
             1024); // Assume a capacity of 1024 characters to start, data is flushed every 512 chars
-        while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false) && !cancellationToken.IsCancellationRequested)
+        while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false) &&
+               !cancellationToken.IsCancellationRequested)
         {
           NextRecord();
 
@@ -128,8 +134,8 @@ namespace CsvTools
           colNum = 0;
           foreach (var value in from columnInfo in Columns
             let col = reader.GetValue(columnInfo.ColumnOrdinalReader)
-            select m_StructuredWriterFile.XMLEncode
-              ? SecurityElement.Escape(TextEncodeField(m_StructuredWriterFile.FileFormat, col, columnInfo, false,
+            select m_XMLEncode
+              ? SecurityElement.Escape(TextEncodeField(FileFormat, col, columnInfo, false,
                 reader,
                 null))
               : JsonConvert.ToString(col))
@@ -149,8 +155,8 @@ namespace CsvTools
           await writer.WriteAsync(sb.ToString()).ConfigureAwait(false);
 
         // Footer
-        if (!string.IsNullOrEmpty(m_StructuredWriterFile.Footer))
-          await writer.WriteAsync(ReplacePlaceHolder(m_StructuredWriterFile.Footer)).ConfigureAwait(false);
+        if (!string.IsNullOrEmpty(Footer))
+          await writer.WriteAsync(ReplacePlaceHolder(Footer)).ConfigureAwait(false);
 
         await writer.FlushAsync();
       }

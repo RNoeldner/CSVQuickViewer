@@ -50,21 +50,21 @@ namespace CsvTools.Tests
       var sb = new StringBuilder("{");
       using (var processDisplay = new DummyProcessDisplay())
       {
-        var cols = await DetermineColumnFormat.GetSourceColumnInformationAsync(writeFile, processDisplay);
+        var cols = await DetermineColumnFormat.GetSqlColumnNamesAsync(writeFile.SqlStatement, writeFile.Timeout, processDisplay.CancellationToken);
         writeFile.Header = "{\"rowset\":[\n";
 
         // { "firstName":"John", "lastName":"Doe"},
         foreach (var col in cols)
         {
-          sb.AppendFormat("\"{0}\":\"{1}\", ", HTMLStyle.JsonElementName(col.Column.Name),
-            string.Format(System.Globalization.CultureInfo.InvariantCulture, StructuredFileWriter.cFieldPlaceholderByName, col.Column.Name));
+          sb.AppendFormat("\"{0}\":\"{1}\", ", HTMLStyle.JsonElementName(col),
+            string.Format(System.Globalization.CultureInfo.InvariantCulture, StructuredFileWriter.cFieldPlaceholderByName, col));
         }
 
         if (sb.Length > 1)
           sb.Length -= 2;
         sb.AppendLine("},");
         writeFile.Row = sb.ToString();
-        var writer = new StructuredFileWriter(writeFile, TimeZoneInfo.Local.Id, processDisplay);
+        var writer = new StructuredFileWriter(writeFile, TimeZoneInfo.Local.Id, BaseSettings.ZeroTime, BaseSettings.ZeroTime, processDisplay);
         await writer.WriteAsync(processDisplay.CancellationToken);
       }
     }
@@ -83,7 +83,7 @@ namespace CsvTools.Tests
       var sb = new StringBuilder();
       using (var processDisplay = new DummyProcessDisplay())
       {
-        var cols = await DetermineColumnFormat.GetSourceColumnInformationAsync(writeFile, processDisplay);
+        var cols = await DetermineColumnFormat.GetSqlColumnNamesAsync(writeFile.SqlStatement, writeFile.Timeout, processDisplay.CancellationToken);
         sb.AppendLine("<?xml version=\"1.0\"?>\n");
         sb.AppendLine("<rowset>");
         writeFile.Header = sb.ToString();
@@ -91,15 +91,15 @@ namespace CsvTools.Tests
         sb.AppendLine("  <row>");
         foreach (var col in cols)
         {
-          sb.AppendFormat("    <{0}>{1}</{0}>\n", HTMLStyle.XmlElementName(col.Column.Name),
-            string.Format(System.Globalization.CultureInfo.InvariantCulture, StructuredFileWriter.cFieldPlaceholderByName, col.Column.Name));
+          sb.AppendFormat("    <{0}>{1}</{0}>\n", HTMLStyle.XmlElementName(col),
+            string.Format(System.Globalization.CultureInfo.InvariantCulture, StructuredFileWriter.cFieldPlaceholderByName, col));
         }
 
         sb.AppendLine("  </row>");
         writeFile.Row = sb.ToString();
         writeFile.Footer = "</rowset>";
 
-        var writer = new StructuredFileWriter(writeFile, TimeZoneInfo.Local.Id, processDisplay);
+        var writer = new StructuredFileWriter(writeFile, TimeZoneInfo.Local.Id, BaseSettings.ZeroTime, BaseSettings.ZeroTime, processDisplay);
         await writer.WriteAsync(processDisplay.CancellationToken);
       }
     }

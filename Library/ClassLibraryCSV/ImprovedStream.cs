@@ -115,20 +115,9 @@ namespace CsvTools
     /// <summary>
     ///   Opens an file for writing
     /// </summary>
-    /// <returns>An improved stream object</returns>
-    public static IImprovedStream OpenWrite([NotNull] IFileSettingPhysicalFile setting)
-    {
-      if (setting is null)
-        throw new ArgumentNullException(nameof(setting));
-      return OpenWrite(setting.FullPath);
-    }
-
-    /// <summary>
-    ///   Opens an file for writing
-    /// </summary>
     /// <param name="fileName">The path.</param>
     /// <returns>An improved stream object</returns>
-    public static IImprovedStream OpenWrite([NotNull] string fileName)
+    public static IImprovedStream OpenWrite([NotNull] string fileName, [CanBeNull] string parameter)
     {
       if (string.IsNullOrEmpty(fileName))
         throw new ArgumentException("Path must be provided", nameof(fileName));

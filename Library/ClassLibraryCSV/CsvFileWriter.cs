@@ -29,18 +29,19 @@ namespace CsvTools
   /// </summary>
   public class CsvFileWriter : BaseFileWriter, IFileWriter
   {
-    [NotNull]
-    private readonly ICsvFile m_CsvFile;
-    [NotNull]
-    private readonly string m_FieldDelimiter;
-    [NotNull]
-    private readonly string m_FieldDelimiterEscaped;
-    [NotNull]
-    private readonly string m_FieldQualifier;
-    [NotNull]
-    private readonly string m_FieldQualifierEscaped;
-    [NotNull]
-    private readonly char[] m_QualifyCharArray;
+    private readonly bool m_ByteOrderMark;
+
+    private readonly int m_CodePageId;
+
+    [NotNull] private readonly string m_FieldDelimiter;
+
+    [NotNull] private readonly string m_FieldDelimiterEscaped;
+
+    [NotNull] private readonly string m_FieldQualifier;
+
+    [NotNull] private readonly string m_FieldQualifierEscaped;
+
+    [NotNull] private readonly char[] m_QualifyCharArray;
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="CsvFileWriter" /> class.
@@ -48,13 +49,15 @@ namespace CsvTools
     /// <param name="file">The file.</param>
     /// <param name="timeZone">The timezone to convert to</param>
     /// <param name="processDisplay">The process display.</param>
-    public CsvFileWriter([NotNull] ICsvFile file, [CanBeNull] string timeZone, [CanBeNull] IProcessDisplay processDisplay)
-      : base(file, timeZone, processDisplay)
+    public CsvFileWriter([NotNull] ICsvFile file, [CanBeNull] string timeZone, DateTime lastExecution, DateTime lastExecutionStart,
+      [CanBeNull] IProcessDisplay processDisplay)
+      : base(file, timeZone, lastExecution, lastExecutionStart, processDisplay)
     {
-      m_CsvFile = file;
+      m_CodePageId = file.CodePageId;
+      m_ByteOrderMark = file.ByteOrderMark;
 
-      m_FieldQualifier = m_CsvFile.FileFormat.FieldQualifierChar.ToString(CultureInfo.CurrentCulture);
-      m_FieldDelimiter = m_CsvFile.FileFormat.FieldDelimiterChar.ToString(CultureInfo.CurrentCulture);
+      m_FieldQualifier = file.FileFormat.FieldQualifierChar.ToString(CultureInfo.CurrentCulture);
+      m_FieldDelimiter = file.FileFormat.FieldDelimiterChar.ToString(CultureInfo.CurrentCulture);
       if (!string.IsNullOrEmpty(file.FileFormat.EscapeCharacter))
       {
         m_QualifyCharArray = new[] {(char) 0x0a, (char) 0x0d};
@@ -63,9 +66,9 @@ namespace CsvTools
       }
       else
       {
-        m_QualifyCharArray = new[] {(char) 0x0a, (char) 0x0d, m_CsvFile.FileFormat.FieldDelimiterChar};
-        m_FieldQualifierEscaped = new string(m_CsvFile.FileFormat.FieldQualifierChar, 2);
-        m_FieldDelimiterEscaped = new string(m_CsvFile.FileFormat.FieldDelimiterChar, 1);
+        m_QualifyCharArray = new[] {(char) 0x0a, (char) 0x0d, file.FileFormat.FieldDelimiterChar};
+        m_FieldQualifierEscaped = new string(file.FileFormat.FieldQualifierChar, 2);
+        m_FieldDelimiterEscaped = new string(file.FileFormat.FieldDelimiterChar, 1);
       }
     }
 
@@ -79,11 +82,12 @@ namespace CsvTools
       CancellationToken cancellationToken)
     {
       using (var writer = new StreamWriter(output,
-        EncodingHelper.GetEncoding(m_CsvFile.CodePageId, m_CsvFile.ByteOrderMark), 8192))
+        EncodingHelper.GetEncoding(m_CodePageId, m_ByteOrderMark), 8192))
       {
         var sb = WriterStart(reader, out var recordEnd);
 
-        while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false) && !cancellationToken.IsCancellationRequested)
+        while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false) &&
+               !cancellationToken.IsCancellationRequested)
         {
           if (sb.Length > 32768)
           {
@@ -94,8 +98,8 @@ namespace CsvTools
           if (WriterProcessRecord(reader, sb, Columns.Count(), recordEnd)) break;
         }
 
-        if (!string.IsNullOrEmpty(m_CsvFile.Footer))
-          sb.Append(ReplacePlaceHolder(StringUtils.HandleCRLFCombinations(m_CsvFile.Footer, recordEnd)));
+        if (!string.IsNullOrEmpty(Footer))
+          sb.Append(ReplacePlaceHolder(StringUtils.HandleCRLFCombinations(Footer, recordEnd)));
         else if (sb.Length > 0)
           sb.Length -= recordEnd.Length;
 
@@ -112,22 +116,23 @@ namespace CsvTools
       var emptyColumns = 0;
       foreach (var columnInfo in Columns)
       {
+        // Number of columns might be higher than number of reader columns
         var col = reader.GetValue(columnInfo.ColumnOrdinalReader);
         if (col == DBNull.Value)
           emptyColumns++;
 
-        sb.Append(TextEncodeField(m_CsvFile.FileFormat, col, columnInfo, false, reader, QualifyText));
+        sb.Append(TextEncodeField(FileFormat, col, columnInfo, false, reader, QualifyText));
 
-        if (!m_CsvFile.FileFormat.IsFixedLength)
-          sb.Append(m_CsvFile.FileFormat.FieldDelimiterChar);
+        if (!FileFormat.IsFixedLength)
+          sb.Append(FileFormat.FieldDelimiterChar);
       }
 
-      if (!m_CsvFile.FileFormat.IsFixedLength)
+      if (!FileFormat.IsFixedLength)
         sb.Length--;
       if (emptyColumns == numColumns)
       {
         // Remove the delimiters again
-        if (!m_CsvFile.FileFormat.IsFixedLength)
+        if (!FileFormat.IsFixedLength)
           sb.Length -= numColumns;
         return true;
       }
@@ -140,7 +145,7 @@ namespace CsvTools
     private StringBuilder WriterStart([NotNull] IDataReader reader, [NotNull] out string recordEnd)
     {
       Columns.Clear();
-      Columns.AddRange(ColumnInfo.GetSourceColumnInformation(m_CsvFile, reader));
+      Columns.AddRange(ColumnInfo.GetWriterColumnInformation(ValueFormatGeneral, ColumnDefinition, reader));
 
       if (Columns.Count == 0)
         throw new FileWriterException("No columns defined to be written.");
@@ -149,15 +154,15 @@ namespace CsvTools
       HandleWriteStart();
 
       var sb = new StringBuilder();
-      if (!string.IsNullOrEmpty(m_CsvFile.Header))
+      if (!string.IsNullOrEmpty(Header))
       {
-        sb.Append(ReplacePlaceHolder(StringUtils.HandleCRLFCombinations(m_CsvFile.Header, recordEnd)));
-        if (!m_CsvFile.Header.EndsWith(recordEnd, StringComparison.Ordinal))
+        sb.Append(ReplacePlaceHolder(StringUtils.HandleCRLFCombinations(Header, recordEnd)));
+        if (!Header.EndsWith(recordEnd, StringComparison.Ordinal))
           sb.Append(recordEnd);
       }
 
       // ReSharper disable once InvertIf
-      if (m_CsvFile.HasFieldHeader)
+      if (HasFieldHeader)
       {
         sb.Append(GetHeaderRow(Columns));
         sb.Append(recordEnd);
@@ -172,18 +177,18 @@ namespace CsvTools
       var sb = new StringBuilder();
       foreach (var columnInfo in columnInfos)
       {
-        sb.Append(TextEncodeField(m_CsvFile.FileFormat, columnInfo.Column.Name, columnInfo, true, null, QualifyText));
-        if (!m_CsvFile.FileFormat.IsFixedLength)
-          sb.Append(m_CsvFile.FileFormat.FieldDelimiterChar);
+        sb.Append(TextEncodeField(FileFormat, columnInfo.Column.Name, columnInfo, true, null, QualifyText));
+        if (!FileFormat.IsFixedLength)
+          sb.Append(FileFormat.FieldDelimiterChar);
       }
 
-      if (!m_CsvFile.FileFormat.IsFixedLength)
+      if (!FileFormat.IsFixedLength)
         sb.Length--;
       return sb.ToString();
     }
 
     [NotNull]
-    private string QualifyText([NotNull] string displayAs, DataType dataType, [NotNull] FileFormat fileFormat)
+    private string QualifyText([NotNull] string displayAs, DataType dataType, [NotNull] IFileFormat fileFormat)
     {
       var qualifyThis = fileFormat.QualifyAlways;
       if (!qualifyThis)

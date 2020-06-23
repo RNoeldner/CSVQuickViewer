@@ -12,6 +12,8 @@
  *
  */
 
+using JetBrains.Annotations;
+
 namespace CsvTools
 {
   /// <summary>
@@ -23,6 +25,7 @@ namespace CsvTools
     /// <summary>
     ///   The Application wide HTMLStyle
     /// </summary>
+    [NotNull]
     public static HTMLStyle HTMLStyle { get; } = new HTMLStyle();
 
     /// <summary>
@@ -30,9 +33,9 @@ namespace CsvTools
     /// </summary>
     public static bool MenuDown { get; set; }
 
-    // public static Func<string, string, string, IProcessDisplay, bool, DateTime> RemoteFileHandler
-    // { get; set; }
 
+    //TODO: Get rid of this, its used in get Full Path, it should be stored only once in ToolSetting
+    [NotNull] 
     public static string RootFolder { get; set; } = ".";
   }
 }

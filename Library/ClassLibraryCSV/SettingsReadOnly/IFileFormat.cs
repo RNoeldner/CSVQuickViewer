@@ -16,25 +16,18 @@ using JetBrains.Annotations;
 
 namespace CsvTools
 {
-  public interface IValueFormat
+  public interface IFileFormat
   {
-    DataType DataType { get; }
+    bool IsFixedLength { get; }
+    bool QualifyAlways { get; }
+    bool QualifyOnlyIfNeeded { get; }
+    string NewLinePlaceholder { [NotNull] get; }
+    string DelimiterPlaceholder { [NotNull] get; }
 
-    string DateFormat { [NotNull] get; }
+    char FieldDelimiterChar { get; }
 
-    string DateSeparator { [NotNull] get; }
+    char FieldQualifierChar { get; }
 
-    char DecimalSeparatorChar { get; }
-
-    string DisplayNullAs { [NotNull] get; }
-
-    string False { [NotNull] get; }
-    char GroupSeparatorChar { get; }
-
-    string NumberFormat { [NotNull] get; }
-
-    string TimeSeparator { [NotNull] get; }
-
-    string True { [NotNull] get; }
+    string QuotePlaceholder { [NotNull] get; }
   }
 }

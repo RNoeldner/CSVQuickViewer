@@ -436,7 +436,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Costura.Fody">
-      <Version>4.1.0</Version>
+      <Version>3.3.3</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>

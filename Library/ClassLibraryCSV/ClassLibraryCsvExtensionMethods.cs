@@ -15,6 +15,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Data;
 using System.Diagnostics;
 using System.Globalization;
@@ -984,17 +985,7 @@ namespace CsvTools
     /// <param name="self">The collection.</param>
     /// <param name="other">The other collection.</param>
     /// <returns></returns>
-    //public static bool CollectionEqual<T>([NotNull] this IReadOnlyCollection<T> self, [CanBeNull] IReadOnlyCollection<T> other) where T : IEquatable<T>
-    //{
-    //  if (self == null)
-    //    throw new ArgumentNullException(nameof(self));
-    //  if (other == null)
-    //    return false;
-    //  if (ReferenceEquals(other, self))
-    //    return true;
-    //  return other.Count() == self.Count() && other.All(ot => ot == null ? self.Any(x => x == null) : self.Any(th => ot.Equals(th)));
-    //  // Check the item, all should be the same, order does not matter though
-    //}
+    ///<remarks>Parameter is IEnumerable to make it work with ICollections, IReadOnlyCollection, Arrays and ObservableCollection</remarks>
     public static bool CollectionEqual<T>(this IEnumerable<T> self, IEnumerable<T> other) where T : IEquatable<T>
     {
       if (self == null)
@@ -1005,14 +996,20 @@ namespace CsvTools
         return true;
       // ReSharper disable PossibleMultipleEnumeration
       // Making sure the passed in IEnumerable is indeed a collection, otherwise make it one
-      if (!(self is ICollection<T> || self is IReadOnlyCollection<T>))
+      if (!(self is Collection<T> || self is ICollection<T> || self is IReadOnlyCollection<T>))
         self = self.ToList();
-      if (!(other is ICollection<T> || other is IReadOnlyCollection<T>))
+      if (!(other is Collection<T> || other is ICollection<T> || other is IReadOnlyCollection<T>))
         other = other.ToList();
-      return other.Count() == self.Count() && other.All(ot => ot == null ? self.Any(x => x == null) : self.Any(ot.Equals));
-      // Check the item, all should be the same, order does not matter though
+      if (other.Count() != self.Count())
+        return false;
+      if (other.Count() == 0) // both are empty
+        return true;
+      var ret =  other.All(ot => ot == null ?
+        self.Any(x => x == null) :
+        self.Any(ot.Equals)); 
+      // Check all items, all should be the same, order does not matter though
+      return ret;
     }
-
 
     /// <summary>
     ///   Check if two enumerations are equal, the items need to be in the right order

@@ -13,6 +13,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
 using System.Linq;
@@ -71,11 +72,11 @@ namespace CsvTools.Tests
 
       using (var processDisplay = new DummyProcessDisplay())
       {
-        var res1 = await DetermineColumnFormat.GetSourceColumnInformationAsync(setting, processDisplay);
+        var res1 = await DetermineColumnFormat.GetWriterColumnInformationAsync(setting.SqlStatement, setting.Timeout, setting.FileFormat.ValueFormat, setting.ColumnCollection.ReadonlyCopy(), processDisplay.CancellationToken);
         Assert.AreEqual(6, res1.Count());
         setting.SqlStatement = null;
 
-        var res2 = await DetermineColumnFormat.GetSourceColumnInformationAsync(setting, processDisplay);
+        var res2 = await DetermineColumnFormat.GetSqlColumnNamesAsync(setting.SqlStatement, setting.Timeout, processDisplay.CancellationToken);
         Assert.AreEqual(0, res2.Count());
       }
     }
@@ -123,7 +124,7 @@ namespace CsvTools.Tests
       {
         try
         {
-          var res1 = await DetermineColumnFormat.GetSourceColumnInformationAsync(null, dummy);
+          await DetermineColumnFormat.GetWriterColumnInformationAsync("Nonsense SQL", 60, null, new List<IColumn>(), dummy.CancellationToken);
 
           Assert.Fail("Expected Exception not thrown");
         }
@@ -135,30 +136,32 @@ namespace CsvTools.Tests
         {
           Assert.Fail("Wrong Exception Type: " + ex.GetType());
         }
-
-        using (var dt = UnitTestStatic.GetDataTable(5))
+      }
+    }
+    [TestMethod]
+    public async Task GetSqlColumnNamesAsyncParameter()
+    {
+      using (var dummy = new DummyProcessDisplay())
+      {
+        var backup = FunctionalDI.SQLDataReader;
+        try
         {
-          var reader = new DataTableReader(dt, "dummy", dummy);
-          var backup = FunctionalDI.SQLDataReader;
           FunctionalDI.SQLDataReader = null;
-          try
-          {
-            var res1 = await DetermineColumnFormat.GetSourceColumnInformationAsync(null, dummy);
+          await DetermineColumnFormat.GetSqlColumnNamesAsync("Nonsense SQL", 60, dummy.CancellationToken);
 
-            Assert.Fail("Expected Exception not thrown");
-          }
-          catch (ArgumentNullException)
-          {
-            // add good
-          }
-          catch (Exception ex)
-          {
-            Assert.Fail("Wrong Exception Type: " + ex.GetType());
-          }
-          finally
-          {
-            FunctionalDI.SQLDataReader = backup;
-          }
+          Assert.Fail("Expected Exception not thrown");
+        }
+        catch (FileWriterException)
+        {
+          // add good
+        }
+        catch (Exception ex)
+        {
+          Assert.Fail("Wrong Exception Type: " + ex.GetType());
+        }
+        finally
+        {
+          FunctionalDI.SQLDataReader = backup;
         }
       }
     }

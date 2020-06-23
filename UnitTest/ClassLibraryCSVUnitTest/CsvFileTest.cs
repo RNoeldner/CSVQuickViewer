@@ -135,11 +135,7 @@ namespace CsvTools.Tests
     public void CsvFileFieldFieldMappingRemove()
     {
       var test = new CsvFile();
-      var fm1 = new Mapping
-      {
-        FileColumn = "Source1",
-        TemplateField = "Destination1"
-      };
+      var fm1 = new Mapping("Source1", "Destination1");
       Assert.IsFalse(test.MappingCollection.AddIfNew(null));
 
       Assert.IsTrue(test.MappingCollection.AddIfNew(fm1));
@@ -180,16 +176,8 @@ namespace CsvTools.Tests
     public void CsvFileFieldMappingAddUpdate()
     {
       var test = new CsvFile();
-      var fm1 = new Mapping
-      {
-        FileColumn = "Source",
-        TemplateField = "Destination1"
-      };
-      var fm2 = new Mapping
-      {
-        FileColumn = "Source",
-        TemplateField = "Destination2"
-      };
+      var fm1 = new Mapping("Source", "Destination1");
+      var fm2 = new Mapping("Source", "Destination2");
       test.MappingCollection.AddIfNew(fm1);
       test.MappingCollection.AddIfNew(fm2);
 
@@ -201,11 +189,7 @@ namespace CsvTools.Tests
     public void CsvFileFieldMappingAddUpdateAdd()
     {
       var test = new CsvFile();
-      var fm1 = new Mapping
-      {
-        FileColumn = "Source",
-        TemplateField = "Destination1"
-      };
+      var fm1 = new Mapping("Source", "Destination1");
       test.MappingCollection.AddIfNew(fm1);
       Assert.AreEqual(fm1, test.MappingCollection.First());
     }
@@ -214,16 +198,8 @@ namespace CsvTools.Tests
     public void CsvFileFieldMappingAddUpdateAdd2()
     {
       var test = new CsvFile();
-      var fm1 = new Mapping
-      {
-        FileColumn = "Source1",
-        TemplateField = "Destination1"
-      };
-      var fm2 = new Mapping
-      {
-        FileColumn = "Source2",
-        TemplateField = "Destination2"
-      };
+      var fm1 = new Mapping("Source", "Destination1");
+      var fm2 = new Mapping("Source2", "Destination2");
       test.MappingCollection.AddIfNew(fm1);
       Assert.AreEqual(fm1, test.MappingCollection.First());
       test.MappingCollection.AddIfNew(fm2);
@@ -360,8 +336,8 @@ namespace CsvTools.Tests
       Assert.IsTrue(m_CsvFile.WarnDelimiterInValue, "WarnDelimiterInValue");
 
       m_CsvFile.MappingCollection.Clear();
-      m_CsvFile.MappingCollection.Add(new Mapping { FileColumn = "Fld1", TemplateField = "FldA", Attention = true, Update = true });
-      m_CsvFile.MappingCollection.Add(new Mapping { FileColumn = "Fld2", TemplateField = "FldB", Attention = true });
+      m_CsvFile.MappingCollection.Add(new Mapping( "Fld1", "FldA", true, true ));
+      m_CsvFile.MappingCollection.Add(new Mapping( "Fld2", "FldB",false, true ));
       Assert.AreEqual(2, m_CsvFile.MappingCollection.Count, "FieldMapping");
 
       m_CsvFile.ColumnCollection.Clear();
