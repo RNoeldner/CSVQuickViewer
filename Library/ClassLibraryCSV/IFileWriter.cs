@@ -36,6 +36,11 @@ namespace CsvTools
     event EventHandler<WarningEventArgs> Warning;
 
     /// <summary>
+    /// Event handler called once writing of teh file is completed
+    /// </summary>
+    event EventHandler WriteFinished;
+
+    /// <summary>
     ///   Writes the specified file.
     /// </summary>
     /// <param name="token">A cancellation toke to stop a long running process</param>

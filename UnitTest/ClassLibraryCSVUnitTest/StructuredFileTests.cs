@@ -103,8 +103,8 @@ namespace CsvTools.Tests
       Assert.AreEqual(string.Empty, m_StructuredFile.Footer);
 
       m_StructuredFile.MappingCollection.Clear();
-      m_StructuredFile.MappingCollection.Add(new Mapping { FileColumn = "Fld1", TemplateField = "FldA", Attention = true });
-      m_StructuredFile.MappingCollection.Add(new Mapping { FileColumn = "Fld2", TemplateField = "FldB", Attention = true });
+      m_StructuredFile.MappingCollection.Add(new Mapping("Fld1", "FldA", false, true));
+      m_StructuredFile.MappingCollection.Add(new Mapping("Fld2", "FldB", false, true));
       Assert.AreEqual(2, m_StructuredFile.MappingCollection.Count, "FieldMapping");
 
       m_StructuredFile.ColumnCollection.Clear();

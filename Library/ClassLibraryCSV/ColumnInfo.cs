@@ -17,6 +17,8 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
+using System.Linq;
+using JetBrains.Annotations;
 
 namespace CsvTools
 {
@@ -26,22 +28,18 @@ namespace CsvTools
   [DebuggerDisplay("ColumnInfo( {Column.Name}  - {Column.ValueFormat})")]
   public sealed class ColumnInfo
   {
-    public ColumnInfo(IColumn column, int fieldLength, bool isTimePart, int columnOrdinalReader = -1,
-      string constantTimeZone = null, int columnOrdinalTimeZoneReader = -1)
+    private ColumnInfo([NotNull] IColumn column, int fieldLength, int columnOrdinalReader)
     {
       Column = column;
       FieldLength = fieldLength;
-      IsTimePart = isTimePart;
       ColumnOrdinalReader = columnOrdinalReader;
-      ConstantTimeZone = constantTimeZone;
-      ColumnOrdinalTimeZoneReader = columnOrdinalTimeZoneReader;
     }
 
     /// <summary>
     ///   Gets or sets the column format.
     /// </summary>
     /// <value>The column format.</value>
-    public IColumn Column { get; }
+    public IColumn Column { [NotNull] get; }
 
     /// <summary>
     ///   Gets or sets the reader column ordinal
@@ -49,9 +47,9 @@ namespace CsvTools
     /// <value>The column ordinal.</value>
     public int ColumnOrdinalReader { get; }
 
-    public int ColumnOrdinalTimeZoneReader { get; private set; }
+    public int ColumnOrdinalTimeZoneReader { get; private set; } = -1;
 
-    public string ConstantTimeZone { get; private set; }
+    public string ConstantTimeZone { [CanBeNull] get; private set; }
 
     /// <summary>
     ///   Gets or sets the length of the field.
@@ -60,20 +58,14 @@ namespace CsvTools
     public int FieldLength { get; }
 
     /// <summary>
-    ///   Gets or sets a value indicating whether is a time part
-    /// </summary>
-    /// <value><c>true</c> if is a time part of another field; otherwise, <c>false</c>.</value>
-    public bool IsTimePart { get; set; }
-
-    /// <summary>
     ///   Gets the column information based on the SQL Source, but overwritten with the definitions
     /// </summary>
-    /// <param name="writerFileSetting">The file settings with definitions</param>
+    /// <param name="generalFormat">general value format for not explicitly specified columns format</param>
+    /// <param name="columnDefinitions"></param>
     /// <param name="sourceSchemaDataReader">The reader for the source.</param>
     /// <returns></returns>
     /// <exception cref="ArgumentNullException">reader</exception>
-    public static IEnumerable<ColumnInfo> GetSourceColumnInformation(IFileSetting writerFileSetting,
-      IDataReader sourceSchemaDataReader)
+    public static IEnumerable<ColumnInfo> GetWriterColumnInformation(IValueFormat generalFormat, ICollection<IColumn> columnDefinitions, IDataReader sourceSchemaDataReader)
     {
       if (sourceSchemaDataReader == null)
         throw new ArgumentNullException(nameof(sourceSchemaDataReader));
@@ -98,15 +90,15 @@ namespace CsvTools
         foreach (DataRow schemaRow in dataTable.Rows)
         {
           var colNo = (int) schemaRow[SchemaTableColumn.ColumnOrdinal];
-          var valueFormat = writerFileSetting.FileFormat.ValueFormat;
-          valueFormat.DataType = ((Type) schemaRow[SchemaTableColumn.DataType]).GetDataType();
-          var column = writerFileSetting.ColumnCollection.Get(colName[colNo]);
-          if (column != null)
-          {
-            if (column.Ignore)
-              continue;
-            valueFormat = column.ValueFormatMutable;
-          }
+          var column = columnDefinitions.FirstOrDefault(x => x.Name.Equals(colName[colNo], StringComparison.OrdinalIgnoreCase));
+
+          if (column != null && column.Ignore)
+            continue;
+
+          // Based on the data Type in the reader defined and the general format create the  value format
+          var valueFormat = column?.ValueFormat ??  new ImmutableValueFormat(((Type) schemaRow[SchemaTableColumn.DataType]).GetDataType(), generalFormat.DateFormat, generalFormat.DateSeparator,
+              generalFormat.DecimalSeparatorChar, generalFormat.DisplayNullAs, generalFormat.False, generalFormat.GroupSeparatorChar, generalFormat.NumberFormat,
+              generalFormat.TimeSeparator, generalFormat.True);
 
           var fieldLength = Math.Max((int) schemaRow[SchemaTableColumn.ColumnSize], 0);
           switch (valueFormat.DataType)
@@ -142,7 +134,7 @@ namespace CsvTools
               throw new ArgumentOutOfRangeException();
           }
 
-          var ci = new ColumnInfo(new Column(colName[colNo], valueFormat), fieldLength, false, colNo);
+          var ci = new ColumnInfo(new ImmutableColumn(colName[colNo], valueFormat, colNo), fieldLength, colNo);
 
           // the timezone information
           if (column != null)
@@ -165,16 +157,16 @@ namespace CsvTools
 
           result.Add(ci);
 
-          // add an extra column for the time, reading columns get combined, writing they get separated
-          if (column == null || string.IsNullOrEmpty(column.TimePart) ||
-              colName.ContainsValue(column.TimePart)) continue;
-          if (ci.Column.ValueFormat.DateFormat.IndexOfAny(new[] { 'h', 'H', 'm', 's' }) != -1)
-            Logger.Warning(
-              $"'{ci.Column.Name}' will create a separate time column '{column.TimePart}' but seems to write time itself '{ci.Column.ValueFormat.DateFormat}'");
-          // In case we have a split column, add the second column (unless the column is also present
+          // add an extra column for the time, reading columns they get combined, writing them they get separated again
 
-          result.Add(new ColumnInfo(new Column(column.TimePart, column.TimePartFormat), column.TimePartFormat.Length, true,
-            colNo));
+          if (column == null || string.IsNullOrEmpty(column.TimePart) ||  colName.ContainsValue(column.TimePart))
+            continue;
+
+          if (ci.Column.ValueFormat.DateFormat.IndexOfAny(new[] { 'h', 'H', 'm', 's' }) != -1)
+            Logger.Warning($"'{ci.Column.Name}' will create a separate time column '{column.TimePart}' but seems to write time itself '{ci.Column.ValueFormat.DateFormat}'");
+
+          // In case we have a split column, add the second column (unless the column is also present
+          result.Add(new ColumnInfo(new ImmutableColumn(column.TimePart, new ImmutableValueFormat(DataType.DateTime, column.TimePartFormat, timeSeparator: column.ValueFormat.TimeSeparator), colNo, true), column.TimePartFormat.Length, colNo));
         }
       }
 

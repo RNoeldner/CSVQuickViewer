@@ -28,14 +28,31 @@ namespace CsvTools
   /// </summary>
   public abstract class BaseFileWriter
   {
-    [NotNull]
-    protected readonly List<ColumnInfo> Columns = new List<ColumnInfo>();
-    [NotNull]
-    private readonly IFileSettingPhysicalFile m_FileSetting;
-    [CanBeNull]
-    private readonly IProcessDisplay m_ProcessDisplay;
-    [NotNull]
-    private readonly string m_SourceTimeZone;
+    [NotNull] protected readonly ICollection<IColumn> ColumnDefinition;
+    [NotNull] protected readonly List<ColumnInfo> Columns = new List<ColumnInfo>();
+    [NotNull] protected readonly IFileFormat FileFormat;
+    protected readonly string Footer;
+    protected readonly string FullPath;
+    protected readonly bool HasFieldHeader;
+    protected readonly string Header;
+    protected readonly string ID;
+    private readonly char m_FieldDelimiterChar;
+    private readonly string m_FileName;
+    private readonly string m_FileSettingDisplay;
+    private readonly bool m_InOverview;
+    private readonly string m_NewLine;
+
+    private readonly string m_Recipient;
+
+    // [CanBeNull] private readonly IProcessDisplay m_ProcessDisplay;
+    private readonly Action<string> m_ReportProgress;
+    private readonly Action<long> m_SetMaxProcess;
+
+    [NotNull] private readonly string m_SourceTimeZone;
+
+    private readonly string m_SqlStatement;
+    private readonly int m_Timeout;
+    [NotNull] protected readonly IValueFormat ValueFormatGeneral;
     private DateTime m_LastNotification = DateTime.Now;
 
     /// <summary>
@@ -46,13 +63,36 @@ namespace CsvTools
     /// <param name="processDisplay">The process display.</param>
     /// <exception cref="ArgumentNullException">fileSetting</exception>
     /// <exception cref="ArgumentException">No SQL Reader set</exception>
-    protected BaseFileWriter([NotNull] IFileSettingPhysicalFile fileSetting, [CanBeNull] string sourceTimeZone,
+    protected BaseFileWriter([NotNull] IFileSettingPhysicalFile fileSetting, [CanBeNull] string sourceTimeZone, DateTime lastExecution, DateTime lastExecutionStart,
       [CanBeNull] IProcessDisplay processDisplay)
     {
-      m_ProcessDisplay = processDisplay;
+      ID = fileSetting.ID;
+      FullPath = fileSetting.FullPath;
+      Footer = fileSetting.Footer;
+      Header = fileSetting.Header;
+      HasFieldHeader = fileSetting.HasFieldHeader;
+      ValueFormatGeneral = new ImmutableValueFormat(fileSetting.FileFormat.ValueFormat);
+      FileFormat = new ImmutableFileFormat(fileSetting.FileFormat);
+      ColumnDefinition = fileSetting.ColumnCollection.ReadonlyCopy();
+
       m_SourceTimeZone = string.IsNullOrEmpty(sourceTimeZone) ? TimeZoneInfo.Local.Id : sourceTimeZone;
-      m_FileSetting = fileSetting ?? throw new ArgumentNullException(nameof(fileSetting));
-      Logger.Debug("Created Writer for {filesetting}", fileSetting.ToString());
+      if (processDisplay != null)
+      {
+        processDisplay.Maximum = 0;
+        m_ReportProgress = t => processDisplay.SetProcess(t, 0, true);
+        m_SetMaxProcess = l => processDisplay.Maximum = l;
+      }
+
+      m_SqlStatement = fileSetting.SqlStatement.PlaceHolderTimes("\'yyyyMMddHHmmss\'", fileSetting.ProcessTimeUtc, lastExecution, lastExecutionStart); 
+      m_Timeout = fileSetting.Timeout;
+      m_NewLine = fileSetting.FileFormat.NewLine.NewLineString();
+      m_FieldDelimiterChar = fileSetting.FileFormat.FieldDelimiterChar;
+      m_InOverview = fileSetting.InOverview;
+      m_FileSettingDisplay = fileSetting.ToString();
+      m_Recipient = fileSetting.Recipient;
+      m_FileName = fileSetting.FileName;
+
+      Logger.Debug("Created Writer for {filesetting}", m_FileSettingDisplay);
     }
 
     private long Records { get; set; }
@@ -79,11 +119,13 @@ namespace CsvTools
     /// <returns>Number of records written</returns>
     public virtual async Task<long> WriteAsync(CancellationToken token)
     {
-      if (string.IsNullOrEmpty(m_FileSetting.SqlStatement))
+      if (string.IsNullOrEmpty(m_SqlStatement))
         return 0;
       if (FunctionalDI.SQLDataReader == null)
         throw new ArgumentException("No Async SQL Reader set");
-      using (var sqlReader = await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement, (sender, s) => m_ProcessDisplay?.SetProcess(s, 0, true), m_FileSetting.Timeout, token).ConfigureAwait(false))
+      using (var sqlReader = await FunctionalDI
+        .SQLDataReader(m_SqlStatement, (sender, s) => m_ReportProgress?.Invoke(s), m_Timeout, token)
+        .ConfigureAwait(false))
       {
         await sqlReader.OpenAsync(token).ConfigureAwait(false);
         return await WriteAsync(sqlReader, token).ConfigureAwait(false);
@@ -91,18 +133,18 @@ namespace CsvTools
     }
 
     [NotNull]
-    protected string GetRecordEnd() => m_FileSetting.FileFormat.NewLine.NewLineString();
+    protected string GetRecordEnd() => m_NewLine;
 
     public async Task<long> WriteAsync(IFileReader reader, CancellationToken token)
     {
       if (reader == null)
         return -1;
       HandleWriteStart();
-      if (m_ProcessDisplay != null)
-        m_ProcessDisplay.Maximum = -1;
+      m_SetMaxProcess?.Invoke(-1);
+
       try
       {
-        using (var improvedStream = FunctionalDI.OpenWrite(m_FileSetting))
+        using (var improvedStream = FunctionalDI.OpenWrite(FullPath, m_Recipient))
         {
           //if (reader.IsClosed)
           //  await reader.OpenAsync(processDisplay.CancellationToken);
@@ -112,8 +154,8 @@ namespace CsvTools
       }
       catch (Exception exc)
       {
-        ErrorMessage = $"Could not write file '{m_FileSetting.FileName}'.\r\n{exc.ExceptionMessages()}";
-        if (m_FileSetting.InOverview)
+        ErrorMessage = $"Could not write file '{m_FileName}'.\r\n{exc.ExceptionMessages()}";
+        if (m_InOverview)
           throw;
       }
       finally
@@ -124,10 +166,10 @@ namespace CsvTools
       return Records;
     }
 
-    protected string ReplacePlaceHolder(string input) => input.PlaceholderReplace("ID", m_FileSetting.ID)
-      .PlaceholderReplace("FileName", m_FileSetting.FileName)
+    protected string ReplacePlaceHolder(string input) => input.PlaceholderReplace("ID", ID)
+      .PlaceholderReplace("FileName", m_FileName)
       .PlaceholderReplace("Records", string.Format(new CultureInfo("en-US"), "{0:n0}", Records))
-      .PlaceholderReplace("Delim", m_FileSetting.FileFormat.FieldDelimiterChar.ToString(CultureInfo.CurrentCulture))
+      .PlaceholderReplace("Delim", m_FieldDelimiterChar.ToString(CultureInfo.CurrentCulture))
       .PlaceholderReplace("CDate", string.Format(new CultureInfo("en-US"), "{0:dd-MMM-yyyy}", DateTime.Now))
       .PlaceholderReplace("CDateLong", string.Format(new CultureInfo("en-US"), "{0:MMMM dd\\, yyyy}", DateTime.Now));
 
@@ -139,10 +181,8 @@ namespace CsvTools
     protected void HandleError(string columnName, string message) =>
       Warning?.Invoke(this, new WarningEventArgs(Records, 0, message, 0, 0, columnName));
 
-    // protected void HandleProgress(string text, int progress) =>
-    // m_ProcessDisplay?.SetProcess(text, progress);
 
-    private void HandleProgress(string text) => m_ProcessDisplay?.SetProcess(text, -1, true);
+    private void HandleProgress(string text) => m_ReportProgress?.Invoke(text);
 
     /// <summary>
     ///   Handles the time zone for a date time column
@@ -151,7 +191,8 @@ namespace CsvTools
     /// <param name="columnInfo">The column information.</param>
     /// <param name="reader">The reader.</param>
     /// <returns></returns>
-    protected DateTime HandleTimeZone(DateTime dataObject, [NotNull] ColumnInfo columnInfo, [NotNull] IDataRecord reader)
+    protected DateTime HandleTimeZone(DateTime dataObject, [NotNull] ColumnInfo columnInfo,
+      [NotNull] IDataRecord reader)
     {
       if (columnInfo is null)
         throw new ArgumentNullException(nameof(columnInfo));
@@ -182,18 +223,12 @@ namespace CsvTools
     /// </summary>
     /// <param name="columnName">The column.</param>
     /// <param name="message">The message.</param>
-    protected void HandleWarning(string columnName, string message) => Warning?.Invoke(this,
+    private void HandleWarning(string columnName, string message) => Warning?.Invoke(this,
       new WarningEventArgs(Records, 0, message.AddWarningId(), 0, 0, columnName));
 
     private void HandleWriteFinished()
     {
-      m_FileSetting.ProcessTimeUtc = DateTime.UtcNow;
-      if (!(m_FileSetting is IFileSettingPhysicalFile physicalFile) ||
-          !physicalFile.SetLatestSourceTimeForWrite) return;
-
-      FileSystemUtils.SetLastWriteTimeUtc(physicalFile.FullPath, m_FileSetting.LatestSourceTimeUtc);
-
-      Logger.Debug("Finished writing {filesetting} Records: {records}", m_FileSetting.ToString(), Records);
+      Logger.Debug("Finished writing {filesetting} Records: {records}", m_FileSettingDisplay, Records);
       WriteFinished?.Invoke(this, null);
     }
 
@@ -223,8 +258,9 @@ namespace CsvTools
     ///   For fix length output the length of the columns needs to be specified.
     /// </exception>
     [NotNull]
-    protected string TextEncodeField([NotNull] FileFormat fileFormat, object dataObject, [NotNull] ColumnInfo columnInfo, bool isHeader,
-      [CanBeNull] IDataReader reader, [CanBeNull] Func<string, DataType, FileFormat, string> handleQualify)
+    protected string TextEncodeField([NotNull] IFileFormat fileFormat, object dataObject,
+      [NotNull] ColumnInfo columnInfo, bool isHeader,
+      [CanBeNull] IDataReader reader, [CanBeNull] Func<string, DataType, IFileFormat, string> handleQualify)
     {
       if (columnInfo is null)
         throw new ArgumentNullException(nameof(columnInfo));
@@ -302,8 +338,8 @@ namespace CsvTools
                   displayAs = displayAs.Replace(fileFormat.FieldDelimiterChar.ToString(CultureInfo.CurrentCulture),
                     fileFormat.DelimiterPlaceholder);
 
-                if (fileFormat.QuotePlaceholder.Length > 0 && fileFormat.FieldQualifier.Length > 0)
-                  displayAs = displayAs.Replace(fileFormat.FieldQualifier, fileFormat.QuotePlaceholder);
+                if (fileFormat.QuotePlaceholder.Length > 0 && fileFormat.FieldQualifierChar != '\0')
+                  displayAs = displayAs.Replace(fileFormat.FieldQualifierChar.ToString(), fileFormat.QuotePlaceholder);
                 break;
               default:
                 displayAs = string.Empty;
@@ -333,7 +369,7 @@ namespace CsvTools
       }
 
       // Qualify text if required
-      if (!string.IsNullOrEmpty(fileFormat.FieldQualifier) && handleQualify != null)
+      if (fileFormat.FieldQualifierChar != '\0' && handleQualify != null)
         return handleQualify(displayAs, columnInfo.Column.ValueFormat.DataType, fileFormat);
 
       return displayAs;

@@ -23,8 +23,6 @@ namespace CsvTools.Tests
     [TestMethod]
     public void ApplicationSettingStatics()
     {
-      // ReSharper disable once IsExpressionAlwaysTrue
-      Assert.IsTrue(ApplicationSetting.HTMLStyle is HTMLStyle);
       Assert.IsNotNull(ApplicationSetting.HTMLStyle);
     }
 
@@ -61,11 +59,7 @@ namespace CsvTools.Tests
       Assert.IsNull(csv.MappingCollection.GetByField(""));
       Assert.IsNull(csv.MappingCollection.GetByField("Hello"));
 
-      var map = new Mapping
-      {
-        FileColumn = "Column",
-        TemplateField = "Field"
-      };
+      var map = new Mapping("Column","Field");
       csv.MappingCollection.Add(map);
       Assert.AreEqual(map, csv.MappingCollection.GetByField("Field"));
     }

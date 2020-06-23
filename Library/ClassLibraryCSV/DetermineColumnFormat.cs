@@ -245,8 +245,8 @@ namespace CsvTools
             othersValueFormatDate,
             processDisplay.CancellationToken);
 
-          // if nothing is found take what was configured befoere, as the reader could possibly
-          // provde typed data (Json, Excel...)
+          // if nothing is found take what was configured before, as the reader could possibly
+          // provide typed data (Json, Excel...)
           if (checkResult.FoundValueFormat == null)
             checkResult.FoundValueFormat = readerColumn.ValueFormat;
 
@@ -510,7 +510,7 @@ namespace CsvTools
         }
       }
 
-      var existing = new Collection<Column>();
+      var existing = new Collection<IColumn>();
       foreach (var colName in columnNamesInFile)
         foreach (var col in columnCollection)
         {
@@ -754,27 +754,51 @@ namespace CsvTools
     /// <summary>
     ///   Gets the writer source columns.
     /// </summary>
-    /// <param name="fileSettings">The file settings.</param>
-    /// <param name="processDisplay">The process display.</param>
+    /// <param name="sqlStatement"></param>
+    /// <param name="timeout"></param>    
+    /// <param name="valueFormatGeneral">The general format for the output</param>
+    /// <param name="columnDefinitions">Definition for individual columns</param>
+    /// <param name="token"></param>
     /// <returns></returns>
     [ItemNotNull]
-    public static async Task<IEnumerable<ColumnInfo>> GetSourceColumnInformationAsync(
-      [NotNull] IFileSetting fileSettings,
-      [NotNull] IProcessDisplay processDisplay)
+    public static async Task<IEnumerable<ColumnInfo>> GetWriterColumnInformationAsync(
+      [CanBeNull] string sqlStatement, int timeout,
+      [NotNull] IValueFormat valueFormatGeneral, [NotNull] ICollection<IColumn> columnDefinitions,
+      CancellationToken token)
     {
-      if (fileSettings == null)
-        throw new ArgumentNullException(nameof(fileSettings));
-
-      if (string.IsNullOrEmpty(fileSettings.SqlStatement))
+      if (valueFormatGeneral == null) throw new ArgumentNullException(nameof(valueFormatGeneral));
+      if (columnDefinitions == null) throw new ArgumentNullException(nameof(columnDefinitions));
+      if (string.IsNullOrEmpty(sqlStatement))
         return new List<ColumnInfo>();
 
       if (FunctionalDI.SQLDataReader == null)
         throw new FileWriterException("No Async SQL Reader set");
-      using (var data = await FunctionalDI.SQLDataReader(fileSettings.SqlStatement.NoRecordSQL(), (sender, s) => processDisplay.SetProcess(s, 0, true),
-        fileSettings.Timeout, processDisplay.CancellationToken).ConfigureAwait(false))
+      
+      using (var data = await FunctionalDI.SQLDataReader(sqlStatement.NoRecordSQL(), (sender, s) => Logger.Debug(s),
+        timeout, token).ConfigureAwait(false))
       {
-        await data.OpenAsync(processDisplay.CancellationToken).ConfigureAwait(false);
-        return ColumnInfo.GetSourceColumnInformation(fileSettings, data);
+        await data.OpenAsync(token).ConfigureAwait(false);
+        return ColumnInfo.GetWriterColumnInformation(valueFormatGeneral, columnDefinitions, data);
+      }
+    }
+
+    [ItemNotNull]
+    public static async Task<IEnumerable<string>> GetSqlColumnNamesAsync(
+      [CanBeNull] string sqlStatement, int timeout, CancellationToken token)
+    {
+      if (string.IsNullOrEmpty(sqlStatement))
+        return new List<string>();
+
+      if (FunctionalDI.SQLDataReader == null)
+        throw new FileWriterException("No Async SQL Reader set");
+    
+      using (var data = await FunctionalDI.SQLDataReader(sqlStatement.NoRecordSQL(), null,  timeout, token).ConfigureAwait(false))
+      {
+        await data.OpenAsync(token).ConfigureAwait(false);
+        var list = new List<string>();
+        for (var index = 0; index<data.FieldCount; index++)
+          list.Add(data.GetColumn(index).Name);
+        return list;
       }
     }
 
