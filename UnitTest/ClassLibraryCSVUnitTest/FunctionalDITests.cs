@@ -61,15 +61,21 @@ namespace CsvTools.Tests
     public void AdjustTZTest()
     {
       var srcTime = new DateTime(2020, 02, 20);
-      //  (input, srcTimeZone, destTimeZone, columnOrdinal, handleWarning) 
-      var test1 = FunctionalDI.AdjustTZImport(srcTime, "PST",  1, null);
-      Assert.AreEqual(srcTime, test1);
-
-      var test2 = FunctionalDI.AdjustTZImport(srcTime, TimeZoneInfo.Local.Id, 1, null);
+      // time zone we convert to can not be changed... 
+      var test1 = FunctionalDI.AdjustTZImport(srcTime, "Hawaiian Standard Time",  1, null);
+      // as the time of the system is not know, we do not know what we are converting to, people in Hawaiian would need no difference
+      Assert.IsNotNull(test1);
+      // Convert back should give us teh original value though
+      var test2 = FunctionalDI.AdjustTZExport(test1, "Hawaiian Standard Time", 1, null);
       Assert.AreEqual(srcTime, test2);
+
+      
 
       var test3 = FunctionalDI.AdjustTZImport(srcTime, null, 1, null);
       Assert.AreEqual(srcTime, test3);
+
+      var test4 = FunctionalDI.AdjustTZImport(srcTime, TimeZoneInfo.Local.Id, 1, null);
+      Assert.AreEqual(srcTime, test4);
 
     }
   }
