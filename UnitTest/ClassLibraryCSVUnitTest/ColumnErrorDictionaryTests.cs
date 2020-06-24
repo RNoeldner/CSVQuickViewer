@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
@@ -20,7 +19,7 @@ namespace CsvTools.Tests
       setting.ColumnCollection.AddIfNew(new Column("Start Date") {Ignore = true});
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var reader = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
+      using (var reader = new CsvFileReader(setting, processDisplay))
       {
         await reader.OpenAsync(processDisplay.CancellationToken);
         var test1 = new ColumnErrorDictionary(reader);

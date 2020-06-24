@@ -30,28 +30,32 @@ namespace CsvTools
   public class JsonFileReader : BaseFileReaderTyped, IFileReader
   {
     private bool m_AssumeLog;
-    private bool m_DisposedValue;
     private IImprovedStream m_ImprovedStream;
     private JsonTextReader m_JsonTextReader;
     private StreamReader m_TextReader;
     private long m_TextReaderLine;
+    private readonly bool m_TreatNBSPAsSpace;
+    private readonly TrimmingOption m_TrimmingOption;
+    private readonly string m_TreatTextAsNull;
 
-    public JsonFileReader([NotNull] string fullPath, [NotNull] string internalID,
-      [CanBeNull] string readerDescription = null,
-      [CanBeNull] string destinationTimeZone = null, [CanBeNull] IEnumerable<IColumn> columnDefinition = null,
+
+    public JsonFileReader([NotNull] string fullPath,
+      [CanBeNull] IEnumerable<IColumn> columnDefinition = null,
       long recordLimit = 0,
-      bool treatNBSPAsSpace = false) :
-      base(fullPath, columnDefinition, internalID, readerDescription, destinationTimeZone, recordLimit,
-        TrimmingOption.None, "", treatNBSPAsSpace)
+      bool treatNBSPAsSpace = false, TrimmingOption trimmingOption = TrimmingOption.None, string treatTextAsNull = null) :
+      base(fileName: fullPath, columnDefinition: columnDefinition, recordLimit: recordLimit)
     {
       if (fullPath == null) throw new ArgumentNullException(nameof(fullPath));
+      m_TreatNBSPAsSpace = treatNBSPAsSpace;
+      m_TrimmingOption = trimmingOption;
+      m_TreatTextAsNull = treatTextAsNull;
     }
 
-    public JsonFileReader(IFileSettingPhysicalFile fileSetting, string destinationTimeZone,
+    public JsonFileReader(IFileSettingPhysicalFile fileSetting,
       IProcessDisplay processDisplay)
-      : this(fileSetting.FullPath, fileSetting.InternalID, fileSetting.ToString(), destinationTimeZone,
-        fileSetting.ColumnCollection, fileSetting.RecordLimit,
-        fileSetting.TreatNBSPAsSpace)
+      : this(fileSetting.FullPath,
+        columnDefinition: fileSetting.ColumnCollection, recordLimit: fileSetting.RecordLimit,
+        treatNBSPAsSpace: fileSetting.TreatNBSPAsSpace)
     {
       if (processDisplay == null) return;
       ReportProgress = processDisplay.SetProcess;
@@ -63,15 +67,22 @@ namespace CsvTools
     ///   Gets a value indicating whether this instance is closed.
     /// </summary>
     /// <value><c>true</c> if this instance is closed; otherwise, <c>false</c>.</value>
-    public override bool IsClosed => m_TextReader == null;
+    public virtual bool IsClosed => m_TextReader == null;
 
     public override void Close()
     {
+      base.Close();
+
       m_JsonTextReader?.Close();
+      ((IDisposable) m_JsonTextReader)?.Dispose();
       m_TextReader?.Dispose();
       m_ImprovedStream?.Dispose();
 
-      base.Close();
+      m_JsonTextReader = null;
+      m_TextReader = null;
+      m_TextReader = null;
+
+      
     }
 
     public override async Task OpenAsync(CancellationToken token)
@@ -137,53 +148,23 @@ namespace CsvTools
 
     public override async Task<bool> ReadAsync(CancellationToken token)
     {
-      if (!token.IsCancellationRequested)
+      if (!EndOfFile && !token.IsCancellationRequested)
       {
         var couldRead = await GetNextRecordAsync(false, token).ConfigureAwait(false) != null;
+        if (couldRead) RecordNumber++;
         InfoDisplay(couldRead);
 
-        if (couldRead && !IsClosed)
+        if (couldRead && !IsClosed && RecordNumber <= RecordLimit)
           return true;
       }
 
+      EndOfFile = true;
       HandleReadFinished();
       return false;
     }
 
     public override async Task ResetPositionToFirstDataRowAsync(CancellationToken token) =>
       await Task.Run(ResetPositionToStartOrOpen, token);
-
-    /// <summary>
-    ///   Releases unmanaged and - optionally - managed resources
-    /// </summary>
-    /// <param name="disposing">
-    ///   <c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only
-    ///   unmanaged resources.
-    /// </param>
-    protected override void Dispose(bool disposing)
-    {
-      if (m_DisposedValue) return;
-      // Dispose-time code should also set references of all owned objects to null, after disposing
-      // them. This will allow the referenced objects to be garbage collected even if not all
-      // references to the "parent" are released. It may be a significant memory consumption win if
-      // the referenced objects are large, such as big arrays, collections, etc.
-      if (!disposing) return;
-      m_DisposedValue = true;
-      Close();
-      if (m_TextReader != null)
-      {
-        m_TextReader.Dispose();
-        m_TextReader = null;
-      }
-
-      if (m_JsonTextReader != null)
-      {
-        m_JsonTextReader.Close();
-        m_JsonTextReader = null;
-      }
-
-      base.Dispose(true);
-    }
 
     /// <summary>
     ///   Reads a data row from the JsonTextReader and stores the values and text, this will flatten
@@ -296,7 +277,6 @@ namespace CsvTools
                  && await m_JsonTextReader.ReadAsync(token).ConfigureAwait(false));
 
         EndLineNumber = !m_AssumeLog ? m_JsonTextReader.LineNumber : m_TextReaderLine;
-        RecordNumber++;
 
         foreach (var kv in headers.Where(kv => !kv.Value))
           keyValuePairs.Remove(kv.Key);
@@ -309,10 +289,10 @@ namespace CsvTools
         {
           if (keyValuePairs.TryGetValue(col.Name, out CurrentValues[columnNumber]))
             if (CurrentValues[columnNumber] != null)
-              CurrentRowColumnText[columnNumber] = HandleText(CurrentValues[columnNumber].ToString(), columnNumber);
+              CurrentRowColumnText[columnNumber] = HandleText(CurrentValues[columnNumber].ToString(), columnNumber, m_TreatNBSPAsSpace, m_TreatTextAsNull, m_TrimmingOption);
           columnNumber++;
         }
-
+    
         if (keyValuePairs.Count < FieldCount)
           HandleWarning(-1,
             $"Line {StartLineNumber} has fewer columns than expected ({keyValuePairs.Count}/{FieldCount}).");
@@ -341,7 +321,7 @@ namespace CsvTools
     {
       // if we know how many records to read, use that
       if (RecordLimit > 0)
-        return (int) (RecordNumber / RecordLimit * cMaxValue);
+        return base.GetRelativePosition();
 
       return (int) (m_ImprovedStream.Percentage * cMaxValue);
     }
@@ -359,7 +339,7 @@ namespace CsvTools
       if (m_ImprovedStream == null)
         m_ImprovedStream = FunctionalDI.OpenRead(FullPath);
 
-      m_ImprovedStream.ResetToStart(delegate(Stream str)
+      m_ImprovedStream.ResetToStart(delegate (Stream str)
       {
         // in case we can not seek need to reopen the stream reader
         if (!str.CanSeek || m_TextReader == null)
@@ -392,7 +372,7 @@ namespace CsvTools
       };
     }
 
-#region TextReader
+    #region TextReader
 
     // Buffer size set to 64kB, if set to large the display in percentage will jump
     private const int c_BufferSize = 65536;
@@ -517,6 +497,8 @@ namespace CsvTools
       m_JsonTextReader = new JsonTextReader(new StringReader(sb.ToString()));
     }
 
-#endregion TextReader
+    #endregion TextReader
+
+    public void Dispose() => Close();
   }
 }

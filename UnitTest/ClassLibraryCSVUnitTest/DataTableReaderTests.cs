@@ -6,7 +6,6 @@ namespace CsvTools.Tests
 {
   using System.Data;
   using System.Globalization;
-  using DataTableReader = CsvTools.DataTableReader;
 
   [TestClass()]
   public class DataTableReaderTests
@@ -18,7 +17,7 @@ namespace CsvTools.Tests
     {
       using (var processDisplay = new DummyProcessDisplay())
       {
-        using (var test = new DataTableReader(m_DataTable, "id", processDisplay))
+        using (var test = new DataTableWrapper(m_DataTable))
         {
           Assert.IsTrue(test.IsClosed);
           await test.OpenAsync(processDisplay.CancellationToken);
@@ -32,10 +31,10 @@ namespace CsvTools.Tests
     {
       using (var pd = new DummyProcessDisplay())
       {
-        using (var test = new DataTableReader(m_DataTable, "id", pd))
+        using (var test = new DataTableWrapper(m_DataTable))
         {
           Assert.IsTrue(test.IsClosed);
-          var dt = await test.GetDataTableAsync(200, false, false, true, false, false, pd.CancellationToken);
+          var dt = await test.GetDataTableAsync(200, false, true, false, false, false, pd.CancellationToken);
           Assert.AreEqual(m_DataTable, dt);
         }
       }
@@ -44,22 +43,22 @@ namespace CsvTools.Tests
     [TestMethod()]
     public void GetDataTableTest()
     {
-      using (var pd = new DummyProcessDisplay())
+
+      try
       {
-        try
+        // ReSharper disable once AssignNullToNotNullAttribute
+        using (new DataTableWrapper(null))
         {
-          using (var test = new DataTableReader(null, "id", pd))
-          {
-          }
-        }
-        catch (ArgumentNullException)
-        {
-        }
-        catch (Exception ex)
-        {
-          Assert.Fail("Wrong Exception Type: " + ex.GetType());
         }
       }
+      catch (ArgumentNullException)
+      {
+      }
+      catch (Exception ex)
+      {
+        Assert.Fail("Wrong Exception Type: " + ex.GetType());
+      }
+
     }
 
     [TestMethod()]
@@ -67,7 +66,7 @@ namespace CsvTools.Tests
     {
       using (var processDisplay = new DummyProcessDisplay())
       {
-        using (var test = new DataTableReader(m_DataTable, "id", processDisplay))
+        using (var test = new DataTableWrapper(m_DataTable))
         {
           await test.OpenAsync(processDisplay.CancellationToken);
           var typeName = test.GetDataTypeName(0);
@@ -81,7 +80,7 @@ namespace CsvTools.Tests
     {
       using (var processDisplay = new DummyProcessDisplay())
       {
-        using (var test = new DataTableReader(m_DataTable, "id", processDisplay))
+        using (var test = new DataTableWrapper(m_DataTable))
         {
           await test.OpenAsync(processDisplay.CancellationToken);
           Assert.AreEqual(typeof(int), test.GetFieldType(0));
@@ -94,7 +93,7 @@ namespace CsvTools.Tests
     {
       using (var processDisplay = new DummyProcessDisplay())
       {
-        using (var test = new DataTableReader(m_DataTable, "id", processDisplay))
+        using (var test = new DataTableWrapper(m_DataTable))
         {
           await test.OpenAsync(processDisplay.CancellationToken);
           Assert.AreEqual("ID", test.GetName(0));
@@ -107,7 +106,7 @@ namespace CsvTools.Tests
     {
       using (var processDisplay = new DummyProcessDisplay())
       {
-        using (var test = new DataTableReader(m_DataTable, "id", processDisplay))
+        using (var test = new DataTableWrapper(m_DataTable))
         {
           await test.OpenAsync(processDisplay.CancellationToken);
           Assert.AreEqual(2, test.GetOrdinal("ColText1"));
@@ -120,7 +119,7 @@ namespace CsvTools.Tests
     {
       using (var processDisplay = new DummyProcessDisplay())
       {
-        using (var test = new DataTableReader(m_DataTable, "id", processDisplay))
+        using (var test = new DataTableWrapper(m_DataTable))
         {
           await test.OpenAsync(processDisplay.CancellationToken);
           Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
@@ -133,7 +132,7 @@ namespace CsvTools.Tests
     {
       using (var processDisplay = new DummyProcessDisplay())
       {
-        using (var test = new DataTableReader(m_DataTable, "id", processDisplay))
+        using (var test = new DataTableWrapper(m_DataTable))
         {
           await test.OpenAsync(processDisplay.CancellationToken);
           Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
@@ -141,7 +140,7 @@ namespace CsvTools.Tests
       }
     }
 
-    private static DataTable RandomDataTable(int recs)
+    private static DataTable RandomDataTable(int records)
     {
       var dataTable = new DataTable { TableName = "DataTable", Locale = CultureInfo.InvariantCulture };
 
@@ -151,7 +150,7 @@ namespace CsvTools.Tests
       dataTable.Columns.Add("ColText2", typeof(string));
       dataTable.Columns.Add("ColTextDT", typeof(DateTime));
       var random = new Random(new Guid().GetHashCode());
-      for (var i = 0; i < recs; i++)
+      for (var i = 0; i < records; i++)
       {
         var row = dataTable.NewRow();
         row["ID"] = i;

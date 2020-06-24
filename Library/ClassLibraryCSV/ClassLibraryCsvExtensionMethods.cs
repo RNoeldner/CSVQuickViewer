@@ -38,11 +38,12 @@ namespace CsvTools
     /// </summary>
     /// <param name="process">The process display.</param>
     /// <returns></returns>
-    public static EventHandler<string> GetLogInfoMessage(this IProcessDisplay process) => delegate (object sender, string message)
-    {
-      Logger.Information("SQL Information: {message}", message);
-      process?.SetProcess(message, -1, true);
-    };
+    public static EventHandler<string> GetLogInfoMessage(this IProcessDisplay process) =>
+      delegate (object sender, string message)
+      {
+        Logger.Information("SQL Information: {message}", message);
+        process?.SetProcess(message, -1, true);
+      };
 
     public static string Description(this RecordDelimiterType item)
     {
@@ -97,7 +98,8 @@ namespace CsvTools
     /// </summary>
     /// <param name="fileName">Name of the file.</param>
     /// <returns></returns>
-    public static bool AssumeZip([NotNull] this string fileName) => fileName.EndsWith(".zip", StringComparison.OrdinalIgnoreCase);
+    public static bool AssumeZip([NotNull] this string fileName) =>
+      fileName.EndsWith(".zip", StringComparison.OrdinalIgnoreCase);
 
     /// <summary>
     ///   Copies all elements from one collection to the other
@@ -106,7 +108,8 @@ namespace CsvTools
     /// <param name="self">The collection.</param>
     /// <param name="other">The other collection.</param>
     [DebuggerStepThrough]
-    public static void CollectionCopy<T>([NotNull] this IEnumerable<T> self, [CanBeNull] ICollection<T> other) where T : ICloneable<T>
+    public static void CollectionCopy<T>([NotNull] this IEnumerable<T> self, [CanBeNull] ICollection<T> other)
+      where T : ICloneable<T>
     {
       if (other == null) return;
       other.Clear();
@@ -121,7 +124,8 @@ namespace CsvTools
     /// <param name="self">The collection.</param>
     /// <param name="other">The other collection.</param>
     [DebuggerStepThrough]
-    public static void CollectionCopyStruct<T>([NotNull] this IEnumerable<T> self, [CanBeNull] ICollection<T> other) where T : struct
+    public static void CollectionCopyStruct<T>([NotNull] this IEnumerable<T> self, [CanBeNull] ICollection<T> other)
+      where T : struct
     {
       if (other == null)
         return;
@@ -394,7 +398,8 @@ namespace CsvTools
     /// <param name="dataTable">The <see cref="DataTable" /> containing the columns</param>
     /// <returns>A enumeration of ColumnNames</returns>
     [NotNull]
-    public static IEnumerable<string> GetRealColumns([CanBeNull] this DataTable dataTable) => GetRealDataColumns(dataTable).Select(x => x.ColumnName);
+    public static IEnumerable<string> GetRealColumns([CanBeNull] this DataTable dataTable) =>
+      GetRealDataColumns(dataTable).Select(x => x.ColumnName);
 
     /// <summary>
     ///   Get a list of columns that are not artificial
@@ -471,6 +476,8 @@ namespace CsvTools
       return null;
     }
 
+    
+
     [NotNull]
     public static string PlaceHolderTimes([NotNull] this string text, [NotNull] string format, DateTime processTimeUtc,
       DateTime lastExecution, DateTime lastExecutionStart)
@@ -508,7 +515,8 @@ namespace CsvTools
     /// <returns>The new text based on input</returns>
     [DebuggerStepThrough]
     [NotNull]
-    public static string PlaceholderReplace([NotNull] this string input, [NotNull] string placeholder, [CanBeNull] string replacement)
+    public static string PlaceholderReplace([NotNull] this string input, [NotNull] string placeholder,
+      [CanBeNull] string replacement)
     {
       if (string.IsNullOrEmpty(replacement)) return input;
       var type = input.GetPlaceholderType(placeholder);
@@ -528,7 +536,6 @@ namespace CsvTools
       }
 
       return input.ReplaceCaseInsensitive(type, replacement);
-
     }
 
     /// <summary>
@@ -572,7 +579,8 @@ namespace CsvTools
     /// <returns>The source text with the replacement</returns>
     [DebuggerStepThrough]
     [NotNull]
-    public static string ReplaceCaseInsensitive([NotNull] this string original, [CanBeNull] string pattern, char replacement)
+    public static string ReplaceCaseInsensitive([NotNull] this string original, [CanBeNull] string pattern,
+      char replacement)
     {
       var count = 0;
       var position0 = 0;
@@ -611,7 +619,8 @@ namespace CsvTools
     /// <returns>The source text with the replacement</returns>
     [DebuggerStepThrough]
     [NotNull]
-    public static string ReplaceCaseInsensitive([NotNull] this string original, [CanBeNull] string pattern, [CanBeNull] string replacement)
+    public static string ReplaceCaseInsensitive([NotNull] this string original, [CanBeNull] string pattern,
+      [CanBeNull] string replacement)
     {
       if (string.IsNullOrEmpty(pattern))
         return original;
@@ -659,7 +668,8 @@ namespace CsvTools
     /// <param name="new2">The new2.</param>
     /// <returns></returns>
     [NotNull]
-    public static string ReplaceDefaults([NotNull] this string inputValue, [CanBeNull] string old1, [CanBeNull] string new1, [CanBeNull] string old2, [CanBeNull] string new2)
+    public static string ReplaceDefaults([NotNull] this string inputValue, [CanBeNull] string old1,
+      [CanBeNull] string new1, [CanBeNull] string old2, [CanBeNull] string new2)
     {
       if (string.IsNullOrEmpty(inputValue))
         return string.Empty;
@@ -672,13 +682,11 @@ namespace CsvTools
         inputValue = inputValue.Replace(old2, new2);
         return inputValue.Replace("{\0}", new1);
       }
-      else
-      {
-        if (exchange1)
-          inputValue = inputValue.Replace(old1, new1);
-        if (exchange2)
-          inputValue = inputValue.Replace(old2, new2);
-      }
+
+      if (exchange1)
+        inputValue = inputValue.Replace(old1, new1);
+      if (exchange2)
+        inputValue = inputValue.Replace(old2, new2);
 
       return inputValue;
     }
@@ -985,7 +993,10 @@ namespace CsvTools
     /// <param name="self">The collection.</param>
     /// <param name="other">The other collection.</param>
     /// <returns></returns>
-    ///<remarks>Parameter is IEnumerable to make it work with ICollections, IReadOnlyCollection, Arrays and ObservableCollection</remarks>
+    /// <remarks>
+    ///   Parameter is IEnumerable to make it work with ICollections, IReadOnlyCollection, Arrays and
+    ///   ObservableCollection
+    /// </remarks>
     public static bool CollectionEqual<T>(this IEnumerable<T> self, IEnumerable<T> other) where T : IEquatable<T>
     {
       if (self == null)
@@ -1002,11 +1013,9 @@ namespace CsvTools
         other = other.ToList();
       if (other.Count() != self.Count())
         return false;
-      if (other.Count() == 0) // both are empty
+      if (!other.Any()) // both are empty
         return true;
-      var ret =  other.All(ot => ot == null ?
-        self.Any(x => x == null) :
-        self.Any(ot.Equals)); 
+      var ret = other.All(ot => ot == null ? self.Any(x => x == null) : self.Any(ot.Equals));
       // Check all items, all should be the same, order does not matter though
       return ret;
     }
@@ -1064,7 +1073,8 @@ namespace CsvTools
       unchecked
       {
         var order = 0;
-        return collection.Cast<object>().Aggregate(731, (current, item) => (current * 397) ^ (item.GetHashCode() + order++));
+        return collection.Cast<object>()
+          .Aggregate(731, (current, item) => (current * 397) ^ (item.GetHashCode() + order++));
       }
     }
 

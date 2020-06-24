@@ -148,7 +148,11 @@ namespace CsvTools
         throw new ArgumentNullException(nameof(processDisplay));
 
       var result = new List<string>();
-      if (fileReader.FieldCount == 0 || fileReader.EndOfFile)
+      if (fileReader.FieldCount == 0)
+        return result;
+      if (fileReader.EndOfFile)
+        await fileReader.ResetPositionToFirstDataRowAsync(processDisplay.CancellationToken);
+      if (fileReader.EndOfFile) // still end of file
         return result;
 
       var othersValueFormatDate = CommonDateFormat(columnCollection);
@@ -164,31 +168,32 @@ namespace CsvTools
         var readerColumn = fileReader.GetColumn(colIndex);
         columnNamesInFile.Add(readerColumn.Name);
 
-        if (ReaderConstants.cStartLineNumberFieldName.Equals(readerColumn.Name, StringComparison.OrdinalIgnoreCase) ||
-            ReaderConstants.cErrorField.Equals(readerColumn.Name, StringComparison.OrdinalIgnoreCase))
-        {
-          processDisplay.SetProcess(readerColumn.Name + " – Reserved columns ignored", colIndex, true);
+        // TODO: check if it does make sense to have it in again
+        //if (ReaderConstants.ArtificialFields.Contains(readerColumn.Name))
+        //{
+        //  processDisplay.SetProcess(readerColumn.Name + " – Reserved columns ignored", colIndex, true);
 
-          if (columnCollection.Get(readerColumn.Name) != null) continue;
-          result.Add($"{readerColumn.Name} – Reserved columns ignored");
-          if (columnCollection.Get(readerColumn.Name) == null)
-          {
-            var mutable = readerColumn.ToMutable();
-            mutable.Ignore = true;
-            columnCollection.Add(mutable);
-          }
-        }
-        else if (fillGuessSettings.IgnoreIdColumns && StringUtils.AssumeIDColumn(readerColumn.Name) > 0)
+        //  if (columnCollection.Get(readerColumn.Name) != null) continue;
+        //  result.Add($"{readerColumn.Name} – Reserved columns ignored");
+        //  if (columnCollection.Get(readerColumn.Name) == null)
+        //  {
+        //    var mutable = readerColumn.ToMutable();
+        //    mutable.Ignore = true;
+        //    columnCollection.Add(mutable);
+        //  }
+        //  continue;
+        //}
+
+        if (fillGuessSettings.IgnoreIdColumns && StringUtils.AssumeIDColumn(readerColumn.Name) > 0)
         {
           processDisplay.SetProcess(readerColumn.Name + " – ID columns ignored", colIndex, true);
           if (!addTextColumns || columnCollection.Get(readerColumn.Name) != null) continue;
           result.Add($"{readerColumn.Name} – ID columns ignored");
           columnCollection.AddIfNew(readerColumn);
+          continue;
         }
-        else
-        {
-          getSamples.Add(colIndex);
-        }
+
+        getSamples.Add(colIndex);
       }
 
       processDisplay.SetProcess($"Getting sample values for all {getSamples.Count} columns",
@@ -343,11 +348,12 @@ namespace CsvTools
             if (checkResult.FoundValueFormat != null && checkResult.FoundValueFormat.DataType != DataType.Double)
             {
               var newColumn = columnCollection.Get(readerColumn.Name);
-              if (newColumn != null)
+              if (newColumn != null && !newColumn.ValueFormatMutable.Equals(checkResult.FoundValueFormat))
               {
-                newColumn.ValueFormatMutable.CopyFrom(checkResult.FoundValueFormat);
                 var msg =
-                  $"{newColumn.Name} – Overwritten Format : {checkResult.FoundValueFormat.GetTypeAndFormatDescription()}";
+                  $"{newColumn.Name} – Changed Format {newColumn.ValueFormatMutable.GetTypeAndFormatDescription()} to {checkResult.FoundValueFormat.GetTypeAndFormatDescription()}";
+                newColumn.ValueFormatMutable.CopyFrom(checkResult.FoundValueFormat);
+                
                 processDisplay.SetProcess(msg, fileReader.FieldCount * 2 + colIndex, true);
                 result.Add(msg);
               }
@@ -773,7 +779,7 @@ namespace CsvTools
 
       if (FunctionalDI.SQLDataReader == null)
         throw new FileWriterException("No Async SQL Reader set");
-      
+
       using (var data = await FunctionalDI.SQLDataReader(sqlStatement.NoRecordSQL(), (sender, s) => Logger.Debug(s),
         timeout, token).ConfigureAwait(false))
       {
@@ -791,8 +797,8 @@ namespace CsvTools
 
       if (FunctionalDI.SQLDataReader == null)
         throw new FileWriterException("No Async SQL Reader set");
-    
-      using (var data = await FunctionalDI.SQLDataReader(sqlStatement.NoRecordSQL(), null,  timeout, token).ConfigureAwait(false))
+
+      using (var data = await FunctionalDI.SQLDataReader(sqlStatement.NoRecordSQL(), null, timeout, token).ConfigureAwait(false))
       {
         await data.OpenAsync(token).ConfigureAwait(false);
         var list = new List<string>();

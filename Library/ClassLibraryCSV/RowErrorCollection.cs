@@ -111,12 +111,12 @@ namespace CsvTools
         throw new InvalidOperationException("Reader has not been opened.");
 
       for (var col = 0; col < reader.FieldCount; col++)
-        if (reader.IgnoreRead(col))
-        {
-          if (m_IgnoredColumns == null)
-            m_IgnoredColumns = new HashSet<int>();
-          m_IgnoredColumns.Add(col);
-        }
+      {
+        if (!reader.GetColumn(col).Ignore) continue;
+        if (m_IgnoredColumns == null)
+          m_IgnoredColumns = new HashSet<int>();
+        m_IgnoredColumns.Add(col);
+      }
     }
 
     public event EventHandler<WarningEventArgs> PassWarning;
@@ -152,10 +152,8 @@ namespace CsvTools
     /// <param name="recordNumber">The record number.</param>
     /// <param name="returnValue">The return value.</param>
     /// <returns></returns>
-    public bool TryGetValue(long recordNumber, out ColumnErrorDictionary returnValue)
-    {
+    public bool TryGetValue(long recordNumber, out ColumnErrorDictionary returnValue) =>
       // if we return true, th dictionary is not null
-      return m_RowErrorCollection.TryGetValue(recordNumber, out returnValue);
-    }
+      m_RowErrorCollection.TryGetValue(recordNumber, out returnValue);
   }
 }

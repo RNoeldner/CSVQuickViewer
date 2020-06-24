@@ -40,7 +40,7 @@ namespace CsvTools.Tests
       });
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
+      using (var test = new CsvFileReader(setting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
         await test.ReadAsync(processDisplay.CancellationToken);
@@ -74,7 +74,7 @@ namespace CsvTools.Tests
 
       // all will be converted to TimeZoneInfo.Local, but we concert then to UTC
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
+      using (var test = new CsvFileReader(setting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
         await test.ReadAsync(processDisplay.CancellationToken);
@@ -106,10 +106,9 @@ namespace CsvTools.Tests
 
       using (var processDisplay = new DummyProcessDisplay())
       {
-        using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
+        using (var test = new CsvFileReader(setting, processDisplay))
         {
           await test.OpenAsync(processDisplay.CancellationToken);
-          ;
           processDisplay.Cancel();
           Assert.IsFalse(await test.ReadAsync(processDisplay.CancellationToken));
         }
@@ -129,7 +128,7 @@ namespace CsvTools.Tests
       setting.FileFormat.DuplicateQuotingToEscape = true;
       setting.FileName = UnitTestInitialize.GetTestPath("AlternateTextQualifiersDoubleQuote.txt");
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
+      using (var test = new CsvFileReader(setting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
         Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
@@ -156,7 +155,7 @@ namespace CsvTools.Tests
       setting.TrimmingOption = TrimmingOption.All;
       setting.FileName = UnitTestInitialize.GetTestPath("AlternateTextQualifiers.txt");
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
+      using (var test = new CsvFileReader(setting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
         ;
@@ -196,7 +195,7 @@ namespace CsvTools.Tests
       setting.FileName = UnitTestInitialize.GetTestPath("AlternateTextQualifiers.txt");
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
+      using (var test = new CsvFileReader(setting, processDisplay))
       {
         var warningList = new RowErrorCollection(test);
         await test.OpenAsync(processDisplay.CancellationToken);
@@ -242,7 +241,7 @@ Line "Test"", "22",23,"  24"
       setting.FileName = UnitTestInitialize.GetTestPath("BasicEscapedCharacters.txt");
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
+      using (var test = new CsvFileReader(setting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
         ;
@@ -283,7 +282,7 @@ Line "Test"", "22",23,"  24"
       setting.FileName = UnitTestInitialize.GetTestPath("ComplexDataDelimiter.txt");
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
+      using (var test = new CsvFileReader(setting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
         ;
@@ -313,7 +312,7 @@ Line "Test"", "22",23,"  24"
       setting.FileName = UnitTestInitialize.GetTestPath("ComplexDataDelimiter.txt");
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
+      using (var test = new CsvFileReader(setting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
         ;
@@ -345,7 +344,7 @@ Line "Test"", "22",23,"  24"
       setting.FileName = UnitTestInitialize.GetTestPath("ComplexDataDelimiter.txt");
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
+      using (var test = new CsvFileReader(setting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
         ;
@@ -407,7 +406,7 @@ Line "Test"", "22",23,"  24"
       setting.FileName = UnitTestInitialize.GetTestPath("QuoteInText.txt");
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
+      using (var test = new CsvFileReader(setting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
         ;
@@ -443,7 +442,7 @@ Line "Test"", "22",23,"  24"
       setting.FileName = UnitTestInitialize.GetTestPath("ComplexDataDelimiter.txt");
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
+      using (var test = new CsvFileReader(setting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
         ;
@@ -505,7 +504,7 @@ Line "Test"", "22",23,"  24"
       setting.FileName = UnitTestInitialize.GetTestPath("CSVTestEmpty.txt");
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
+      using (var test = new CsvFileReader(setting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
         ;
@@ -525,7 +524,7 @@ Line "Test"", "22",23,"  24"
       setting.FileName = UnitTestInitialize.GetTestPath("DifferentColumnDelimiter.txt");
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
+      using (var test = new CsvFileReader(setting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
         ;
@@ -560,7 +559,7 @@ Line "Test"", "22",23,"  24"
       setting.FileName = UnitTestInitialize.GetTestPath("EscapedCharacterAtEndOfFile.txt");
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
+      using (var test = new CsvFileReader(setting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
         ;
@@ -594,7 +593,7 @@ Line "Test"", "22",23,"  24"
       setting.FileName = UnitTestInitialize.GetTestPath("EscapedCharacterAtEndOfRowDelimiter.txt");
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
+      using (var test = new CsvFileReader(setting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
         ;
@@ -622,7 +621,7 @@ Line "Test"", "22",23,"  24"
       setting.FileName = UnitTestInitialize.GetTestPath("EscapedCharacterAtEndOfRowDelimiter.txt");
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
+      using (var test = new CsvFileReader(setting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
         ;
@@ -651,7 +650,7 @@ Line "Test"", "22",23,"  24"
       setting.FileName = UnitTestInitialize.GetTestPath("EscapeWithoutTextQualifier.txt");
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
+      using (var test = new CsvFileReader(setting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
         ;
@@ -682,7 +681,7 @@ Line "Test"", "22",23,"  24"
       setting.FileName = UnitTestInitialize.GetTestPath("HandlingDuplicateColumnNames.txt");
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
+      using (var test = new CsvFileReader(setting, processDisplay))
       {
         var message = string.Empty;
         test.Warning += delegate (object sender, WarningEventArgs args) { message = args.Message; };
@@ -703,7 +702,7 @@ Line "Test"", "22",23,"  24"
       setting.FileName = UnitTestInitialize.GetTestPath("LastRowWithRowDelimiter.txt");
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
+      using (var test = new CsvFileReader(setting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
         ;
@@ -730,7 +729,7 @@ Line "Test"", "22",23,"  24"
       setting.FileName = UnitTestInitialize.GetTestPath("LastRowWithRowDelimiter.txt");
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
+      using (var test = new CsvFileReader(setting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
         ;
@@ -754,7 +753,7 @@ Line "Test"", "22",23,"  24"
       };
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
+      using (var test = new CsvFileReader(setting, processDisplay))
       {
         var warningsList = new RowErrorCollection(test);
         await test.OpenAsync(processDisplay.CancellationToken);
@@ -793,7 +792,7 @@ Line "Test"", "22",23,"  24"
       };
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
+      using (var test = new CsvFileReader(setting, processDisplay))
       {
         var warningList = new RowErrorCollection(test);
         await test.OpenAsync(processDisplay.CancellationToken);
@@ -835,7 +834,7 @@ Line "Test"", "22",23,"  24"
       };
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
+      using (var test = new CsvFileReader(setting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
         ;
@@ -874,7 +873,7 @@ Line "Test"", "22",23,"  24"
       setting.FileFormat.NewLinePlaceholder = @"<\r>";
       setting.FileName = UnitTestInitialize.GetTestPath("Placeholder.txt");
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
+      using (var test = new CsvFileReader(setting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
         ;
@@ -897,7 +896,7 @@ Line "Test"", "22",23,"  24"
       var stopped = false;
       processDisplay.ProgressStopEvent += delegate { stopped = true; };
       Assert.AreEqual(null, processDisplay.Text);
-      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
+      using (var test = new CsvFileReader(setting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
         ;
@@ -921,7 +920,7 @@ Line "Test"", "22",23,"  24"
       setting.FileName = UnitTestInitialize.GetTestPath("ReadingInHeaderAfterComments.txt");
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
+      using (var test = new CsvFileReader(setting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
         ;
@@ -945,7 +944,7 @@ Line "Test"", "22",23,"  24"
       setting.FileName = UnitTestInitialize.GetTestPath("RowWithoutColumnDelimiter.txt");
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
+      using (var test = new CsvFileReader(setting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
         ;
@@ -973,7 +972,7 @@ Line "Test"", "22",23,"  24"
       setting.WarnUnknownCharacter = true;
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
+      using (var test = new CsvFileReader(setting, processDisplay))
       {
         var warningList = new RowErrorCollection(test);
         await test.OpenAsync(processDisplay.CancellationToken);
@@ -1029,7 +1028,7 @@ Line "Test"", "22",23,"  24"
       setting.FileFormat.CommentLine = "#";
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
+      using (var test = new CsvFileReader(setting, processDisplay))
       {
         var warningList = new RowErrorCollection(test);
         await test.OpenAsync(processDisplay.CancellationToken);
@@ -1076,7 +1075,7 @@ Line "Test"", "22",23,"  24"
       setting.FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt");
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
+      using (var test = new CsvFileReader(setting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
         ;
@@ -1095,7 +1094,7 @@ Line "Test"", "22",23,"  24"
       setting.FileName = UnitTestInitialize.GetTestPath("SkippingComments.txt");
       setting.FileFormat.CommentLine = "#";
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
+      using (var test = new CsvFileReader(setting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
         ;
@@ -1149,7 +1148,7 @@ Line "Test"", "22",23,"  24"
       setting.FileName = UnitTestInitialize.GetTestPath("SkippingEmptyRowsWithDelimiter.txt");
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
+      using (var test = new CsvFileReader(setting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
         ;
@@ -1188,7 +1187,7 @@ Line "Test"", "22",23,"  24"
       setting.ColumnCollection.AddIfNew(new Column("IsNativeLang", DataType.Boolean));
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
+      using (var test = new CsvFileReader(setting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
         ;
@@ -1218,7 +1217,7 @@ Line "Test"", "22",23,"  24"
       setting.FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt");
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
+      using (var test = new CsvFileReader(setting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
         ;
@@ -1256,7 +1255,7 @@ Line "Test"", "22",23,"  24"
       setting.FileFormat.FieldDelimiter = ",";
       setting.FileName = UnitTestInitialize.GetTestPath("BasicCSVEmptyLine.txt");
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
+      using (var test = new CsvFileReader(setting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
         ;
@@ -1284,7 +1283,7 @@ Line "Test"", "22",23,"  24"
       setting.FileFormat.FieldDelimiter = ",";
       setting.FileName = UnitTestInitialize.GetTestPath("BasicCSVEmptyLine.txt");
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
+      using (var test = new CsvFileReader(setting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
         ;
@@ -1315,7 +1314,7 @@ Line "Test"", "22",23,"  24"
       setting.FileName = UnitTestInitialize.GetTestPath("TextQualifierBeginningAndEnd.txt");
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
+      using (var test = new CsvFileReader(setting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
         ;
@@ -1354,7 +1353,7 @@ Line "Test"", "22",23,"  24"
       setting.FileName = UnitTestInitialize.GetTestPath("TextQualifierDataPastClosingQuote.txt");
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
+      using (var test = new CsvFileReader(setting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
         ;
@@ -1391,7 +1390,7 @@ Line "Test"", "22",23,"  24"
       setting.FileName = UnitTestInitialize.GetTestPath("TextQualifierNotClosedAtEnd.txt");
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
+      using (var test = new CsvFileReader(setting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
         ;
@@ -1445,7 +1444,7 @@ Line "Test"", "22",23,"  24"
       setting.FileName = UnitTestInitialize.GetTestPath("TextQualifiers.txt");
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
+      using (var test = new CsvFileReader(setting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
         ;
@@ -1481,7 +1480,7 @@ Line "Test"", "22",23,"  24"
       setting.FileName = UnitTestInitialize.GetTestPath("TextQualifiersWithDelimiters.txt");
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
+      using (var test = new CsvFileReader(setting, processDisplay))
       {
         var warningList = new RowErrorCollection(test);
         await test.OpenAsync(processDisplay.CancellationToken);
@@ -1538,7 +1537,7 @@ Line "Test"", "22",23,"  24"
       setting.FileName = UnitTestInitialize.GetTestPath("TrimmingHeaders.txt");
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
+      using (var test = new CsvFileReader(setting, processDisplay))
       {
         var warningList = new RowErrorCollection(test);
         await test.OpenAsync(processDisplay.CancellationToken);
@@ -1568,7 +1567,7 @@ Line "Test"", "22",23,"  24"
       };
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
+      using (var test = new CsvFileReader(setting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
         
@@ -1620,7 +1619,7 @@ Line "Test"", "22",23,"  24"
       };
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
+      using (var test = new CsvFileReader(setting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
         ;
@@ -1668,7 +1667,7 @@ Line "Test"", "22",23,"  24"
       };
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
+      using (var test = new CsvFileReader(setting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
         ;

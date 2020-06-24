@@ -29,7 +29,7 @@ namespace CsvTools.Tests
         JsonFormat = true
       };
       using (var dpd = new DummyProcessDisplay())
-      using (var jfr = new JsonFileReader(setting, TimeZoneInfo.Local.Id, dpd))
+      using (var jfr = new JsonFileReader(setting, dpd))
       {
         await jfr.OpenAsync(dpd.CancellationToken);
         Assert.AreEqual("object_id", jfr.GetName(0));
@@ -49,7 +49,7 @@ namespace CsvTools.Tests
         JsonFormat = true
       };
       using (var dpd = new DummyProcessDisplay())
-      using (var jfr = new JsonFileReader(setting, TimeZoneInfo.Local.Id, dpd))
+      using (var jfr = new JsonFileReader(setting, dpd))
       {
         await jfr.OpenAsync(dpd.CancellationToken);
         await jfr.ReadAsync(dpd.CancellationToken);
@@ -73,7 +73,7 @@ namespace CsvTools.Tests
       };
 
       using (var dpd = new DummyProcessDisplay())
-      using (var jfr = new JsonFileReader(setting, TimeZoneInfo.Local.Id, dpd))
+      using (var jfr = new JsonFileReader(setting, dpd))
       {
         await jfr.OpenAsync(dpd.CancellationToken);
         await jfr.ReadAsync(dpd.CancellationToken);
@@ -184,7 +184,7 @@ namespace CsvTools.Tests
       };
 
       using (var dpd = new DummyProcessDisplay())
-      using (var jfr = new JsonFileReader(setting, TimeZoneInfo.Local.Id, dpd))
+      using (var jfr = new JsonFileReader(setting, dpd))
       {
         await jfr.OpenAsync(dpd.CancellationToken);
         Assert.AreEqual(110, jfr.FieldCount);
@@ -227,7 +227,7 @@ namespace CsvTools.Tests
       };
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var jfr = new JsonFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
+      using (var jfr = new JsonFileReader(setting, processDisplay))
       {
         await jfr.OpenAsync(processDisplay.CancellationToken);
         Assert.AreEqual(20, jfr.FieldCount);
@@ -247,7 +247,7 @@ namespace CsvTools.Tests
         JsonFormat = true
       };
       using (var dpd = new DummyProcessDisplay())
-      using (var jfr = new JsonFileReader(setting, TimeZoneInfo.Local.Id, dpd))
+      using (var jfr = new JsonFileReader(setting, dpd))
       {
         await jfr.OpenAsync(dpd.CancellationToken);
         Assert.AreEqual(7, jfr.FieldCount);
@@ -270,7 +270,7 @@ namespace CsvTools.Tests
       };
 
       using (var dpd = new DummyProcessDisplay())
-      using (var jfr = new JsonFileReader(setting, TimeZoneInfo.Local.Id, dpd))
+      using (var jfr = new JsonFileReader(setting, dpd))
       {
         await jfr.OpenAsync(dpd.CancellationToken);
         Assert.AreEqual(2, jfr.FieldCount);
@@ -294,7 +294,7 @@ namespace CsvTools.Tests
       };
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var jfr = new JsonFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
+      using (var jfr = new JsonFileReader(setting, processDisplay))
       {
         await jfr.OpenAsync(processDisplay.CancellationToken);
         Assert.AreEqual(3, jfr.FieldCount);

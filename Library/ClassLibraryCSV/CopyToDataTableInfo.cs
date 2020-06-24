@@ -52,15 +52,16 @@ namespace CsvTools
       m_StoreWarningsInDataTable = storeWarningsInDataTable;
       for (var col = 0; col < reader.FieldCount; col++)
       {
-        if (reader.IgnoreRead(col)) continue;
+        // Store ignored columns, so reference from index to name is maintained
+        var column = reader.GetColumn(col);
+        m_ReaderColumns.Add(column.Name);
 
-        var colName = reader.GetName(col);
-        m_ReaderColumns.Add(colName);
-        DataTable.Columns.Add(new DataColumn(colName, reader.GetColumn(col).ValueFormat.DataType.GetNetType()));
-        m_Mapping.Add(col, DataTable.Columns[colName].Ordinal);
+        if (column.Ignore) continue;
+        DataTable.Columns.Add(new DataColumn(column.Name, column.ValueFormat.DataType.GetNetType()));
+        m_Mapping.Add(col, DataTable.Columns[column.Name].Ordinal);
       }
 
-      if (addStartLine && !reader.HasColumnName(ReaderConstants.cStartLineNumberFieldName))
+      if (addStartLine && !m_ReaderColumns.Contains(ReaderConstants.cStartLineNumberFieldName, StringComparer.OrdinalIgnoreCase))
       {
         // Append Artificial columns This needs to happen in the same order as we have in
         // CreateTableFromReader otherwise BulkCopy does not work see SqlServerConnector.CreateTable
@@ -68,20 +69,20 @@ namespace CsvTools
         DataTable.Columns.Add(m_StartLine);
       }
 
-      if (addRecordNo && !reader.HasColumnName(ReaderConstants.cRecordNumberFieldName))
+      if (addRecordNo && !m_ReaderColumns.Contains(ReaderConstants.cRecordNumberFieldName, StringComparer.OrdinalIgnoreCase))
       {
         m_RecordNumber = new DataColumn(ReaderConstants.cRecordNumberFieldName, typeof(long));
         DataTable.Columns.Add(m_RecordNumber);
         DataTable.PrimaryKey = new[] { m_RecordNumber };
       }
 
-      if (addEndLineNo && !reader.HasColumnName(ReaderConstants.cEndLineNumberFieldName))
+      if (addEndLineNo && !m_ReaderColumns.Contains(ReaderConstants.cEndLineNumberFieldName ,StringComparer.OrdinalIgnoreCase))
       {
         m_EndLine = new DataColumn(ReaderConstants.cEndLineNumberFieldName, typeof(long));
         DataTable.Columns.Add(m_EndLine);
       }
 
-      if (!addErrorField || reader.HasColumnName(ReaderConstants.cErrorField)) return;
+      if (!addErrorField || m_ReaderColumns.Contains(ReaderConstants.cErrorField, StringComparer.OrdinalIgnoreCase)) return;
       m_Error = new DataColumn(ReaderConstants.cErrorField, typeof(string));
       DataTable.Columns.Add(m_Error);
     }

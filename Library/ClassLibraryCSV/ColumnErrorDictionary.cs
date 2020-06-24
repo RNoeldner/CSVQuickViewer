@@ -35,7 +35,8 @@ namespace CsvTools
 
       for (var col = 0; col < reader.FieldCount; col++)
       {
-        if (!reader.IgnoreRead(col)) continue;
+        var column = reader.GetColumn(col);
+        if (!column.Ignore) continue;
         if (m_IgnoredColumns == null)
           m_IgnoredColumns = new HashSet<int>();
         m_IgnoredColumns.Add(col);
