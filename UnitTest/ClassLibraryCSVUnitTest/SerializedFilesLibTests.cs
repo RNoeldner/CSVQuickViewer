@@ -1,16 +1,16 @@
 ﻿/*
- * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
- *
- * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
- * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
- * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
- *
- * You should have received a copy of the GNU Lesser Public License along with this program.
- * If not, see http://www.gnu.org/licenses/ .
- *
- */
+* Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
+*
+* This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
+* License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+* of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
+*
+* You should have received a copy of the GNU Lesser Public License along with this program.
+* If not, see http://www.gnu.org/licenses/ .
+*
+*/
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -75,7 +75,8 @@ namespace CsvTools.Tests
       Assert.IsTrue(FileSystemUtils.FileExists(fileName));
       SerializedFilesLib.SaveCsvFile(fileName, file, () =>
       {
-        asked = true; return true;
+        asked = true;
+        return true;
       });
       Assert.IsTrue(asked);
     }
@@ -88,10 +89,10 @@ namespace CsvTools.Tests
         FileName = "Test.csv"
       };
 
-      file.MappingCollection.Add(new Mapping ("Fld1", "FldA" ));
-      file.MappingCollection.Add(new Mapping ("Fld2", "FldB" ));
-      file.ColumnCollection.AddIfNew(new Column("ID", DataType.Integer) { ColumnOrdinal = 1, Ignore = false });
-      file.ColumnCollection.AddIfNew(new Column("Name", DataType.String) { ColumnOrdinal = 2, Part = 2 });
+      file.MappingCollection.Add(new Mapping("Fld1", "FldA"));
+      file.MappingCollection.Add(new Mapping("Fld2", "FldB"));
+      file.ColumnCollection.AddIfNew(new Column("ID", DataType.Integer) {ColumnOrdinal = 1, Ignore = false});
+      file.ColumnCollection.AddIfNew(new Column("Name") {ColumnOrdinal = 2, Part = 2});
       return file;
     }
   }
