@@ -336,9 +336,9 @@ namespace CsvTools.Tests
         var cvsSetting = new CsvFile(Path.Combine(FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles",
             "FileWithHierarchy_WithCyle.txt"))
         { FileFormat = { FieldDelimiter = "\t" } };
-        using (var csvDataReader = new CsvFileReader(cvsSetting, null, processDisplay))
+        using (var csvDataReader = new CsvFileReader(cvsSetting, processDisplay))
         {
-          dt = await csvDataReader.GetDataTableAsync(0, false, false, true, false, false, processDisplay.CancellationToken);
+          dt = await csvDataReader.GetDataTableAsync(0, false, true, false, false, false, processDisplay.CancellationToken);
         }
       }
 

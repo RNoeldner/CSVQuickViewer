@@ -610,8 +610,8 @@ namespace CsvTools
 
             processDisplay.SetProcess("Reading data...", -1, true);
 
-            DataTable = await fileReader.GetDataTableAsync(m_FileSetting.RecordLimit, false, true,
-              m_FileSetting.DisplayStartLineNo, m_FileSetting.DisplayEndLineNo, m_FileSetting.DisplayRecordNo, processDisplay.CancellationToken);
+            DataTable = await fileReader.GetDataTableAsync(m_FileSetting.RecordLimit, true,
+              m_FileSetting.DisplayStartLineNo, m_FileSetting.DisplayRecordNo, m_FileSetting.DisplayEndLineNo, false, processDisplay.CancellationToken);
 
             foreach (var columnName in DataTable.GetRealColumns())
               if (m_FileSetting.ColumnCollection.Get(columnName) == null)
@@ -642,7 +642,7 @@ namespace CsvTools
         // The reader is used when data ist stored through the detailControl
         FunctionalDI.SQLDataReader = async (settingName, message, timeout, token) =>
         {
-          var dt = new DataTableReader(detailControl.DataTable, detailControl.DataTable.TableName, null);
+          var dt = new DataTableWrapper(detailControl.DataTable);
           await dt.OpenAsync(token);
           return dt;
         };

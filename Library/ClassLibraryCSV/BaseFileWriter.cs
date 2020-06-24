@@ -205,13 +205,13 @@ namespace CsvTools
           HandleWarning(columnInfo.Column.Name, "Time zone is empty, value not converted");
         else
           // ReSharper disable once PossibleInvalidOperationException
-          return FunctionalDI.AdjustTZ(dataObject, m_SourceTimeZone, destinationTimeZoneID, Columns.IndexOf(columnInfo),
+          return FunctionalDI.AdjustTZExport(dataObject, destinationTimeZoneID, Columns.IndexOf(columnInfo),
             (columnNo, msg) => HandleWarning(Columns[columnNo].Column.Name, msg)).Value;
       }
       else if (!string.IsNullOrEmpty(columnInfo.ConstantTimeZone))
       {
         // ReSharper disable once PossibleInvalidOperationException
-        return FunctionalDI.AdjustTZ(dataObject, m_SourceTimeZone, columnInfo.ConstantTimeZone,
+        return FunctionalDI.AdjustTZExport(dataObject, columnInfo.ConstantTimeZone,
           Columns.IndexOf(columnInfo), (columnNo, msg) => HandleWarning(Columns[columnNo].Column.Name, msg)).Value;
       }
 

@@ -142,7 +142,8 @@ namespace CsvTools.Tests
     {
       var root = FileSystemUtils.ExecutableDirectoryName();
       var res = FileSystemUtils.ResolvePattern(root + "\\ClassLibraryCSV*.dll");
-      Assert.IsTrue(res == root + "\\ClassLibraryCSVUnitTest.dll");
+      Assert.IsTrue(res == root + "\\ClassLibraryCSVUnitTest.dll" ||
+                    res == root + "\\ClassLibraryCSV.dll");
     }
 
     [TestMethod]

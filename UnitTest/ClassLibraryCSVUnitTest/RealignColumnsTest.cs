@@ -23,7 +23,7 @@ namespace CsvTools.Tests
       };
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var test = new CsvFileReader(setting, TimeZoneInfo.Local.Id, processDisplay))
+      using (var test = new CsvFileReader(setting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
 

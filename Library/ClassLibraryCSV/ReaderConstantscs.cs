@@ -14,6 +14,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.Common;
+using System.Globalization;
 
 namespace CsvTools
 {
@@ -55,5 +58,76 @@ namespace CsvTools
       cErrorField,
       cPartitionField
     };
+
+    /// <summary>
+    ///   Gets the default schema row array.
+    /// </summary>
+    /// <returns>an Array of objects for a new row in a Schema Table</returns>
+    public static object[] GetDefaultSchemaRowArray() =>
+      new object[]
+      {
+        true, // 00- AllowDBNull
+        null, // 01- BaseColumnName
+        string.Empty, // 02- BaseSchemaName
+        string.Empty, // 03- BaseTableName
+        null, // 04- ColumnName
+        null, // 05- ColumnOrdinal
+        int.MaxValue, // 06- ColumnSize
+        typeof(string), // 07- DataType
+        false, // 08- IsAliased
+        false, // 09- IsExpression
+        false, // 10- IsKey
+        false, // 11- IsLong
+        false, // 12- IsUnique
+        DBNull.Value, // 13- NumericPrecision
+        DBNull.Value, // 14- NumericScale
+        (int) DbType.String, // 15- ProviderType
+        string.Empty, // 16- BaseCatalogName
+        string.Empty, // 17- BaseServerName
+        false, // 18- IsAutoIncrement
+        false, // 19- IsHidden
+        true, // 20- IsReadOnly
+        false // 21- IsRowVersion
+      };
+
+    /// <summary>
+    ///   Gets the empty schema table.
+    /// </summary>
+    /// <returns>A Data Table with the columns for a Schema Table</returns>
+    public static DataTable GetEmptySchemaTable()
+    {
+      var dataTable = new DataTable
+      {
+        TableName = "SchemaTable",
+        Locale = CultureInfo.InvariantCulture,
+        MinimumCapacity = 10
+      };
+
+      dataTable.Columns.Add(SchemaTableColumn.AllowDBNull, typeof(bool)).ReadOnly = true;
+      dataTable.Columns.Add(SchemaTableColumn.BaseColumnName, typeof(string)).ReadOnly = true;
+      dataTable.Columns.Add(SchemaTableColumn.BaseSchemaName, typeof(string)).ReadOnly = true;
+      dataTable.Columns.Add(SchemaTableColumn.BaseTableName, typeof(string)).ReadOnly = true;
+      dataTable.Columns.Add(SchemaTableColumn.ColumnName, typeof(string)).ReadOnly = true;
+      dataTable.Columns.Add(SchemaTableColumn.ColumnOrdinal, typeof(int)).ReadOnly = true;
+      dataTable.Columns.Add(SchemaTableColumn.ColumnSize, typeof(int)).ReadOnly = true;
+      dataTable.Columns.Add(SchemaTableColumn.DataType, typeof(object)).ReadOnly = true;
+      dataTable.Columns.Add(SchemaTableColumn.IsAliased, typeof(bool)).ReadOnly = true;
+      dataTable.Columns.Add(SchemaTableColumn.IsExpression, typeof(bool)).ReadOnly = true;
+      dataTable.Columns.Add(SchemaTableColumn.IsKey, typeof(bool)).ReadOnly = true;
+      dataTable.Columns.Add(SchemaTableColumn.IsLong, typeof(bool)).ReadOnly = true;
+      dataTable.Columns.Add(SchemaTableColumn.IsUnique, typeof(bool)).ReadOnly = true;
+      dataTable.Columns.Add(SchemaTableColumn.NumericPrecision, typeof(short)).ReadOnly = true;
+      dataTable.Columns.Add(SchemaTableColumn.NumericScale, typeof(short)).ReadOnly = true;
+      dataTable.Columns.Add(SchemaTableColumn.ProviderType, typeof(int)).ReadOnly = true;
+
+      dataTable.Columns.Add(SchemaTableOptionalColumn.BaseCatalogName, typeof(string)).ReadOnly = true;
+      dataTable.Columns.Add(SchemaTableOptionalColumn.BaseServerName, typeof(string)).ReadOnly = true;
+      dataTable.Columns.Add(SchemaTableOptionalColumn.IsAutoIncrement, typeof(bool)).ReadOnly = true;
+      dataTable.Columns.Add(SchemaTableOptionalColumn.IsHidden, typeof(bool)).ReadOnly = true;
+      dataTable.Columns.Add(SchemaTableOptionalColumn.IsReadOnly, typeof(bool)).ReadOnly = true;
+      dataTable.Columns.Add(SchemaTableOptionalColumn.IsRowVersion, typeof(bool)).ReadOnly = true;
+
+      return dataTable;
+    }
   }
 }

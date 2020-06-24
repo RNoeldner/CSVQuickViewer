@@ -12,7 +12,6 @@
  *
  */
 
-using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -26,6 +25,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using JetBrains.Annotations;
+using Microsoft.Win32;
 
 namespace CsvTools
 {
@@ -134,9 +134,12 @@ namespace CsvTools
           {
             var hasRetried = false;
             retry:
-            using (var sqlReader = await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement, (o, s) => processDisplay.SetProcess(s), m_FileSetting.Timeout, processDisplay.CancellationToken))
+            using (var sqlReader = await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement,
+              (o, s) => processDisplay.SetProcess(s), m_FileSetting.Timeout, processDisplay.CancellationToken))
             {
-              var data = await sqlReader.GetDataTableAsync(m_FileSetting.RecordLimit, false, false, m_FileSetting.DisplayStartLineNo, m_FileSetting.DisplayEndLineNo, m_FileSetting.DisplayRecordNo, processDisplay.CancellationToken);
+              var data = await sqlReader.GetDataTableAsync(m_FileSetting.RecordLimit, false,
+                m_FileSetting.DisplayStartLineNo, m_FileSetting.DisplayRecordNo, m_FileSetting.DisplayEndLineNo, false,
+                processDisplay.CancellationToken);
               var found = new Column();
               var column = data.Columns[columnName];
               if (column == null)
@@ -278,7 +281,7 @@ namespace CsvTools
                     if (checkResult.FoundValueFormat.Equals(checkResult.ValueFormatPossibleMatch))
                       checkResult.PossibleMatch = false;
                   }
-                  else if (checkResult.PossibleMatch && checkResult.ValueFormatPossibleMatch!=null)
+                  else if (checkResult.PossibleMatch && checkResult.ValueFormatPossibleMatch != null)
                   {
                     if (checkResult.ValueFormatPossibleMatch.DataType == DataType.DateTime)
                       AddFormatToComboBoxDateFormat(checkResult.ValueFormatPossibleMatch.DateFormat);
@@ -286,9 +289,7 @@ namespace CsvTools
 
                   var rtfHelper = new RtfHelper();
                   if (checkResult.ExampleNonMatch.Count > 0)
-                  {
                     AddSamples(checkResult.ExampleNonMatch, rtfHelper, "Not matching:", 2);
-                  }
 
                   AddSamples(samples.Values, rtfHelper, "Samples:", 4);
 
@@ -296,7 +297,8 @@ namespace CsvTools
                                             && (checkResult.FoundValueFormat == null
                                                 || checkResult.FoundValueFormat.DataType == DataType.String);
                   rtfHelper.AddParagraph();
-                  rtfHelper.AddParagraph($"Determined Format : {checkResult.FoundValueFormat?.GetTypeAndFormatDescription()}");
+                  rtfHelper.AddParagraph(
+                    $"Determined Format : {checkResult.FoundValueFormat?.GetTypeAndFormatDescription()}");
 
                   if (checkResult.PossibleMatch)
                     rtfHelper.AddParagraph(
@@ -599,7 +601,8 @@ namespace CsvTools
             try
             {
               if (!m_WriteSetting)
-              { // Read Settings  -- open teh source that is a file
+              {
+                // Read Settings  -- open teh source that is a file
                 // if there are ignored columns need to open file and get all columns
                 if (m_FileSetting.ColumnCollection.Any(x => x.Ignore))
                 {
@@ -621,7 +624,8 @@ namespace CsvTools
                 }
               }
               else
-              { // Write Setting ----- open the source that is SQL
+              {
+                // Write Setting ----- open the source that is SQL
                 using (var fileReader = await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement.NoRecordSQL(),
                   (o, s) => processDisplay.SetProcess(s), m_FileSetting.Timeout, processDisplay.CancellationToken))
                 {
@@ -734,7 +738,7 @@ namespace CsvTools
 
         var sourceDate = new DateTime(2013, 4, 7, 15, 45, 50, 345, DateTimeKind.Local);
 
-        if (hasTimePart && vf.DateFormat.IndexOfAny(new[] { 'h', 'H', 'm', 'S', 's' }) == -1)
+        if (hasTimePart && vf.DateFormat.IndexOfAny(new[] {'h', 'H', 'm', 'S', 's'}) == -1)
           vf.DateFormat += " " + comboBoxTPFormat.Text;
 
         labelSampleDisplay.Text = StringConversion.DateTimeToString(sourceDate, vf);
@@ -742,17 +746,10 @@ namespace CsvTools
         var res = comboBoxTimeZone.Text.GetPossiblyConstant();
         if (res.Item2)
         {
-          var destTz = TimeZoneInfo.Local.Id;
-          var srcTz = TimeZoneInfo.Local.Id;
-          if (m_WriteSetting)
-            destTz = res.Item1;
-          else
-            srcTz = res.Item1;
-
-          labelInputTZ.Text = srcTz;
-          labelOutPutTZ.Text = destTz;
           // ReSharper disable once PossibleInvalidOperationException
-          sourceDate = FunctionalDI.AdjustTZ(sourceDate, srcTz, destTz, -1, null).Value;
+          sourceDate = m_WriteSetting
+            ? FunctionalDI.AdjustTZExport(sourceDate, res.Item1, -1, null).Value
+            : FunctionalDI.AdjustTZImport(sourceDate, res.Item1, -1, null).Value;
         }
         else
         {
@@ -789,7 +786,8 @@ namespace CsvTools
       {
         if (m_WriteSetting)
           using (var sqlReader =
-            await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement, (o, s) => processDisplay.SetProcess(s, 0, true), m_FileSetting.Timeout, processDisplay.CancellationToken))
+            await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement,
+              (o, s) => processDisplay.SetProcess(s, 0, true), m_FileSetting.Timeout, processDisplay.CancellationToken))
           {
             await sqlReader.OpenAsync(processDisplay.CancellationToken);
             var colIndex = sqlReader.GetOrdinal(columnName);
@@ -1079,7 +1077,7 @@ namespace CsvTools
     {
       comboBoxColumnName.BeginUpdate();
       // if we have a list of columns add them to fields that show a column name
-      if (allColumns.Count> 0)
+      if (allColumns.Count > 0)
       {
         var columnsConf = allColumns.ToArray();
         var columnsTp = allColumns.ToArray();

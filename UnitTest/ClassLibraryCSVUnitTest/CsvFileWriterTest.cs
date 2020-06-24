@@ -22,8 +22,6 @@ namespace CsvTools.Tests
 
   using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-  using DataTableReader = CsvTools.DataTableReader;
-
   [TestClass]
   public class CsvFileWriterTest
   {
@@ -143,7 +141,7 @@ namespace CsvTools.Tests
         using (var processDisplay = new DummyProcessDisplay())
         {
           var writer = new CsvFileWriter(writeFile, TimeZoneInfo.Local.Id, BaseSettings.ZeroTime, BaseSettings.ZeroTime, processDisplay);
-          using (var reader = new DataTableReader(dataTable, "dummy", processDisplay))
+          using (var reader = new DataTableWrapper(dataTable))
           {
             await reader.OpenAsync(processDisplay.CancellationToken);
             Assert.AreEqual(100, await writer.WriteAsync(reader, processDisplay.CancellationToken));
@@ -179,7 +177,7 @@ namespace CsvTools.Tests
         {
           var writer = new CsvFileWriter(writeFile, TimeZoneInfo.Local.Id, BaseSettings.ZeroTime, BaseSettings.ZeroTime, processDisplay);
           writer.Warning += (object sender, WarningEventArgs e) => { count++; };
-          using (var reader = new DataTableReader(dataTable, "dummy", processDisplay))
+          using (var reader = new DataTableWrapper(dataTable))
           {
             await reader.OpenAsync(processDisplay.CancellationToken);
             Assert.AreEqual(100, await writer.WriteAsync(reader, processDisplay.CancellationToken), "Records");
@@ -221,7 +219,7 @@ namespace CsvTools.Tests
           using (var processDisplay = new DummyProcessDisplay())
           {
             var writer = new CsvFileWriter(writeFile, TimeZoneInfo.Local.Id, BaseSettings.ZeroTime, BaseSettings.ZeroTime, processDisplay);
-            using (var reader = new DataTableReader(dataTable, "dummy", processDisplay))
+            using (var reader = new DataTableWrapper(dataTable))
               await writer.WriteAsync(reader, processDisplay.CancellationToken);
 
             Assert.IsTrue(!string.IsNullOrEmpty(writer.ErrorMessage));

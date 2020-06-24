@@ -15,7 +15,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.Common;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -29,33 +28,16 @@ namespace CsvTools
   /// <summary>
   ///   Abstract class as base for all DataReaders
   /// </summary>
-  public abstract class BaseFileReader : IDisposable
+  public abstract class BaseFileReader
   {
-    #region Stting for Reading former FileSetting
-
-    protected readonly TrimmingOption TrimmingOption;
-    protected readonly string ReaderDescription;
-    protected readonly bool TreatNBSPAsSpace;    
-    protected readonly string TreatTextAsNull;
-    protected readonly long RecordLimit;
-    
-    [NotNull] private readonly ICollection<IColumn> m_ColumnDefinition;
-    private readonly string m_InternalID;
-    protected string FullPath { get; }
-    protected string FileName { get; }
-
-    #endregion Stting for Reading former FileSetting
-
     /// <summary>
     ///   The maximum value
     /// </summary>
     protected const int cMaxValue = 10000;
 
-    protected readonly string DestinationTimeZone;
-
+    [NotNull] private readonly ICollection<IColumn> m_ColumnDefinition;
     private readonly IntervalAction m_IntervalAction = new IntervalAction();
-    protected Action<string, long, bool> ReportProgress;
-    protected Action<long> SetMaxProcess;
+    protected readonly long RecordLimit;
 
     /// <summary>
     ///   An array of associated col
@@ -78,11 +60,6 @@ namespace CsvTools
     private int[] m_AssociatedTimeZoneCol;
 
     /// <summary>
-    ///   Used to avoid duplicate disposal
-    /// </summary>
-    private bool m_DisposedValue;
-
-    /// <summary>
     ///   Number of Columns in the reader
     /// </summary>
     private int m_FieldCount;
@@ -93,30 +70,30 @@ namespace CsvTools
     /// </summary>
     private bool m_IsFinished;
 
-    protected BaseFileReader([CanBeNull] string fileName = null,
-      [CanBeNull] IEnumerable<IColumn> columnDefinition = null,
-      [CanBeNull] string internalID = null, [CanBeNull] string readerDescription = null,
-      [CanBeNull] string destinationTimeZone = null, long recordLimit = 0,
-      string treatTextAsNull = BaseSettings.cTreatTextAsNull, TrimmingOption trimmingOption = TrimmingOption.Unquoted,
-      bool treatNBSPAsSpace = false)
+    protected Action<string, long, bool> ReportProgress;
+    protected Action<long> SetMaxProcess;
+
+
+    /// <summary>
+    ///   Constructor for abstract base call for <see cref="IFileReader" />
+    /// </summary>
+    /// <param name="fileName">Path to to a physical file (if used)</param>
+    /// <param name="columnDefinition">List of column definitions</param>
+    /// <param name="recordLimit">Number of records that should be read</param>
+    protected BaseFileReader([CanBeNull] string fileName, [CanBeNull] IEnumerable<IColumn> columnDefinition,
+      long recordLimit)
     {
-      DestinationTimeZone = string.IsNullOrEmpty(destinationTimeZone) ? TimeZoneInfo.Local.Id : destinationTimeZone;
       m_ColumnDefinition = columnDefinition?.Select(col => new ImmutableColumn(col, col.ColumnOrdinal)).Cast<IColumn>()
                              .ToList() ??
                            new List<IColumn>();
 
       RecordLimit = recordLimit < 1 ? long.MaxValue : recordLimit;
-      TrimmingOption = trimmingOption;
-
       FullPath = fileName;
       FileName = FileSystemUtils.GetFileName(fileName);
-
-      m_InternalID = internalID;
-      ReaderDescription = (readerDescription ?? internalID) ?? FileName;
-
-      TreatNBSPAsSpace = treatNBSPAsSpace;
-      TreatTextAsNull = treatTextAsNull;
     }
+
+    protected string FullPath { get; }
+    protected string FileName { get; }
 
     /// <summary>
     ///   Gets a value indicating the depth of nesting for the current row.
@@ -142,11 +119,6 @@ namespace CsvTools
     /// </summary>
     /// <value>Number of field in the file.</value>
     public virtual int FieldCount => m_FieldCount;
-
-    public abstract bool IsClosed
-    {
-      get;
-    }
 
     public double NotifyAfterSeconds
     {
@@ -196,11 +168,6 @@ namespace CsvTools
     /// </summary>
     public Func<Task> OnOpen { private get; set; }
 
-    /// <summary>
-    ///   Performs application-defined tasks associated with freeing, releasing, or resetting
-    ///   unmanaged resources.
-    /// </summary>
-    public virtual void Dispose() => Dispose(true);
 
     /// <summary>
     ///   Occurs when something went wrong during opening of the setting, this might be the file
@@ -212,6 +179,9 @@ namespace CsvTools
     ///   Event to be raised if reading the files is completed
     /// </summary>
     public event EventHandler ReadFinished;
+
+
+    public virtual event EventHandler<ICollection<IColumn>> OpenFinished;
 
     /// <summary>
     ///   Event handler called if a warning or error occurred
@@ -377,16 +347,6 @@ namespace CsvTools
       Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount && columnNumber < Column.Length);
       return Column[columnNumber];
     }
-
-    /// <summary>
-    ///   Determines if the reader has a certain columns, any ignored columns will be treated as not existing
-    /// </summary>
-    /// <param name="columnName"></param>
-    /// <returns>true if present and not ignored</returns>
-    public virtual bool HasColumnName(string columnName) => string.IsNullOrEmpty(columnName) ||
-                                                            Column.Where(t => !t.Ignore).Any(t =>
-                                                              string.Equals(columnName, t.Name,
-                                                                StringComparison.OrdinalIgnoreCase));
 
     /// <summary>
     ///   Gets the date and time data value of the specified field.
@@ -618,15 +578,17 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Returns a <see cref="DataTable" /> that describes the column meta data of the <see
-    ///   cref="IDataReader" /> .
+    ///   Returns a <see cref="DataTable" /> that describes the column meta data of the
+    ///   <see
+    ///     cref="IDataReader" />
+    ///   .
     /// </summary>
     /// <returns>A <see cref="DataTable" /> that describes the column meta data.</returns>
     /// <exception cref="InvalidOperationException">The <see cref="IDataReader" /> is closed.</exception>
     public virtual DataTable GetSchemaTable()
     {
-      var dataTable = GetEmptySchemaTable();
-      var schemaRow = GetDefaultSchemaRowArray();
+      var dataTable = ReaderConstants.GetEmptySchemaTable();
+      var schemaRow = ReaderConstants.GetDefaultSchemaRowArray();
 
       for (var col = 0; col < FieldCount; col++)
       {
@@ -770,12 +732,6 @@ namespace CsvTools
     public void HandleWarning(int columnNumber, [NotNull] string message) =>
       Warning?.Invoke(this, GetWarningEventArgs(columnNumber, message.AddWarningId()));
 
-    /// <summary>
-    ///   Checks if the column should be read
-    /// </summary>
-    /// <param name="columnNumber">The column number.</param>
-    /// <returns><c>true</c> if this column should not be read</returns>
-    public virtual bool IgnoreRead(int columnNumber) => GetColumn(columnNumber).Ignore;
 
     /// <summary>
     ///   Return whether the specified field is set to null.
@@ -798,14 +754,7 @@ namespace CsvTools
                && string.IsNullOrEmpty(CurrentRowColumnText[AssociatedTimeCol[columnNumber]]);
       }
 
-      if (string.IsNullOrEmpty(CurrentRowColumnText[columnNumber]))
-        return true;
-
-      if (TrimmingOption == TrimmingOption.All
-          && Column[columnNumber].ValueFormat.DataType >= DataType.String)
-        return CurrentRowColumnText[columnNumber].Trim().Length == 0;
-
-      return false;
+      return string.IsNullOrWhiteSpace(CurrentRowColumnText[columnNumber]);
     }
 
     /// <summary>
@@ -814,11 +763,19 @@ namespace CsvTools
     /// <returns>true if there are more rows; otherwise, false.</returns>
     public virtual bool NextResult() => false;
 
+    /// <summary>
+    ///   Routine to open the reader, each implementation should call  BeforeOpenAsync, InitColumns,  ParseColumnName and last
+    ///   FinishOpen;
+    /// </summary>
+    /// <param name="token"></param>
+    /// <returns></returns>
+    [UsedImplicitly]
     public abstract Task OpenAsync(CancellationToken token);
 
     /// <summary>
     ///   Overrides the column format from setting.
     /// </summary>
+    [UsedImplicitly]
     public virtual bool Read(CancellationToken token) => ReadAsync(token).Wait(2000);
 
     public virtual bool Read() => ReadAsync(CancellationToken.None).Wait(2000);
@@ -830,7 +787,6 @@ namespace CsvTools
     /// </summary>
     /// <param name="token"></param>
 #pragma warning disable 1998
-
     public virtual async Task ResetPositionToFirstDataRowAsync(CancellationToken token)
 #pragma warning restore 1998
     {
@@ -841,77 +797,10 @@ namespace CsvTools
 
     private static string GetDefaultName(int i) => $"Column{i + 1}";
 
-    /// <summary>
-    ///   Gets the default schema row array.
-    /// </summary>
-    /// <returns>an Array of objects for a new row in a Schema Table</returns>
-    protected static object[] GetDefaultSchemaRowArray() =>
-      new object[]
-      {
-        true, // 00- AllowDBNull
-        null, // 01- BaseColumnName
-        string.Empty, // 02- BaseSchemaName
-        string.Empty, // 03- BaseTableName
-        null, // 04- ColumnName
-        null, // 05- ColumnOrdinal
-        int.MaxValue, // 06- ColumnSize
-        typeof(string), // 07- DataType
-        false, // 08- IsAliased
-        false, // 09- IsExpression
-        false, // 10- IsKey
-        false, // 11- IsLong
-        false, // 12- IsUnique
-        DBNull.Value, // 13- NumericPrecision
-        DBNull.Value, // 14- NumericScale
-        (int) DbType.String, // 15- ProviderType
-        string.Empty, // 16- BaseCatalogName
-        string.Empty, // 17- BaseServerName
-        false, // 18- IsAutoIncrement
-        false, // 19- IsHidden
-        true, // 20- IsReadOnly
-        false // 21- IsRowVersion
-      };
 
     /// <summary>
-    ///   Gets the empty schema table.
+    ///   Sets the Progress to marquee, calls OnOpen Event, check if teh file does exist if its a physical file
     /// </summary>
-    /// <returns>A Data Table with the columns for a Schema Table</returns>
-    protected static DataTable GetEmptySchemaTable()
-    {
-      var dataTable = new DataTable
-      {
-        TableName = "SchemaTable",
-        Locale = CultureInfo.InvariantCulture,
-        MinimumCapacity = 10
-      };
-
-      dataTable.Columns.Add(SchemaTableColumn.AllowDBNull, typeof(bool)).ReadOnly = true;
-      dataTable.Columns.Add(SchemaTableColumn.BaseColumnName, typeof(string)).ReadOnly = true;
-      dataTable.Columns.Add(SchemaTableColumn.BaseSchemaName, typeof(string)).ReadOnly = true;
-      dataTable.Columns.Add(SchemaTableColumn.BaseTableName, typeof(string)).ReadOnly = true;
-      dataTable.Columns.Add(SchemaTableColumn.ColumnName, typeof(string)).ReadOnly = true;
-      dataTable.Columns.Add(SchemaTableColumn.ColumnOrdinal, typeof(int)).ReadOnly = true;
-      dataTable.Columns.Add(SchemaTableColumn.ColumnSize, typeof(int)).ReadOnly = true;
-      dataTable.Columns.Add(SchemaTableColumn.DataType, typeof(object)).ReadOnly = true;
-      dataTable.Columns.Add(SchemaTableColumn.IsAliased, typeof(bool)).ReadOnly = true;
-      dataTable.Columns.Add(SchemaTableColumn.IsExpression, typeof(bool)).ReadOnly = true;
-      dataTable.Columns.Add(SchemaTableColumn.IsKey, typeof(bool)).ReadOnly = true;
-      dataTable.Columns.Add(SchemaTableColumn.IsLong, typeof(bool)).ReadOnly = true;
-      dataTable.Columns.Add(SchemaTableColumn.IsUnique, typeof(bool)).ReadOnly = true;
-      dataTable.Columns.Add(SchemaTableColumn.NumericPrecision, typeof(short)).ReadOnly = true;
-      dataTable.Columns.Add(SchemaTableColumn.NumericScale, typeof(short)).ReadOnly = true;
-      dataTable.Columns.Add(SchemaTableColumn.ProviderType, typeof(int)).ReadOnly = true;
-
-      dataTable.Columns.Add(SchemaTableOptionalColumn.BaseCatalogName, typeof(string)).ReadOnly = true;
-      dataTable.Columns.Add(SchemaTableOptionalColumn.BaseServerName, typeof(string)).ReadOnly = true;
-      dataTable.Columns.Add(SchemaTableOptionalColumn.IsAutoIncrement, typeof(bool)).ReadOnly = true;
-      dataTable.Columns.Add(SchemaTableOptionalColumn.IsHidden, typeof(bool)).ReadOnly = true;
-      dataTable.Columns.Add(SchemaTableOptionalColumn.IsReadOnly, typeof(bool)).ReadOnly = true;
-      dataTable.Columns.Add(SchemaTableOptionalColumn.IsRowVersion, typeof(bool)).ReadOnly = true;
-
-      return dataTable;
-    }
-
     protected async Task BeforeOpenAsync(string message)
     {
       SetMaxProcess?.Invoke(0);
@@ -922,28 +811,23 @@ namespace CsvTools
         await OnOpen().ConfigureAwait(false);
 
       if (!string.IsNullOrEmpty(FullPath))
-      {
         // as of now a physical file must exist
         if (!FileSystemUtils.FileExists(FullPath))
           throw new FileNotFoundException(
             $"The file '{FileSystemUtils.GetShortDisplayFileName(FileName, 80)}' does not exist or is not accessible.",
             FullPath);
-      }
     }
 
-    protected virtual void Dispose(bool disposing)
-    {
-      if (m_DisposedValue) return;
-      Close();
-      m_DisposedValue = true;
-    }
-
-    protected virtual void FinishOpen()
+    /// <summary>
+    ///   Does set EndOfFile sets the maxvalue for Progress and stores the now know reader columns
+    /// </summary>
+    protected void FinishOpen()
     {
       m_IsFinished = false;
+      EndOfFile = false;
 
-      // in case caching is setup store the headers
-      FunctionalDI.StoreHeader?.Invoke(m_InternalID, Column);
+      OpenFinished?.Invoke(this, Column);
+
       SetMaxProcess?.Invoke(cMaxValue);
     }
 
@@ -1022,7 +906,11 @@ namespace CsvTools
     ///   Gets the relative position.
     /// </summary>
     /// <returns>A value between 0 and MaxValue</returns>
-    protected abstract int GetRelativePosition();
+    /// <summary>
+    ///   Gets the relative position.
+    /// </summary>
+    /// <returns>A value between 0 and MaxValue</returns>
+    protected virtual int GetRelativePosition() => (int) (RecordNumber / RecordLimit * cMaxValue);
 
     /// <summary>
     ///   Gets the associated value.
@@ -1031,11 +919,6 @@ namespace CsvTools
     /// <returns></returns>
     protected string GetTimeValue(int i)
     {
-      Debug.Assert(i >= 0);
-      Debug.Assert(i < FieldCount);
-      Debug.Assert(CurrentRowColumnText != null);
-      Debug.Assert(AssociatedTimeCol != null);
-
       var colTime = AssociatedTimeCol[i];
       if (colTime == -1 || AssociatedTimeCol[i] >= CurrentRowColumnText.Length)
         return null;
@@ -1147,19 +1030,22 @@ namespace CsvTools
     /// </summary>
     /// <param name="inputString">The input string.</param>
     /// <param name="columnNumber">The column number</param>
-    /// <param name="handleNullText">if set to <c>true</c> [handle null text].</param>
+    /// <param name="treatNBSPAsSpace"></param>
+    /// <param name="treatTextAsNull"></param>
+    /// <param name="trimmingOption"></param>
     /// <returns>The proper encoded or cut text as returned for the column</returns>
     [CanBeNull]
-    protected string HandleText([CanBeNull] string inputString, int columnNumber, bool handleNullText = true)
+    protected string HandleText([CanBeNull] string inputString, int columnNumber, bool treatNBSPAsSpace,
+      string treatTextAsNull, TrimmingOption trimmingOption)
     {
       // in case its not a string
       if (string.IsNullOrEmpty(inputString))
         return inputString;
 
-      if (handleNullText && StringUtils.ShouldBeTreatedAsNull(inputString, TreatTextAsNull))
+      if (StringUtils.ShouldBeTreatedAsNull(inputString, treatTextAsNull))
         return null;
 
-      if (TrimmingOption == TrimmingOption.All)
+      if (trimmingOption == TrimmingOption.All)
         inputString = inputString.Trim();
 
       if (columnNumber >= FieldCount)
@@ -1200,30 +1086,10 @@ namespace CsvTools
       if (string.IsNullOrEmpty(output))
         return null;
 
-      if (TreatNBSPAsSpace && output.IndexOf((char) 0xA0) != -1)
+      if (treatNBSPAsSpace && output.IndexOf((char) 0xA0) != -1)
         output = output.Replace((char) 0xA0, ' ');
 
       return output;
-    }
-
-    /// <summary>
-    ///   Trims the value text based on the File Setting
-    /// </summary>
-    /// <param name="inputValue">The not trimmed raw value</param>
-    /// <param name="quoted">Set to <c>true</c> if the read text was quoted</param>
-    /// <returns>The correctly trimmed and Null replaced value</returns>
-    protected string HandleTrimAndNBSP(string inputValue, bool quoted = false)
-    {
-      if (string.IsNullOrEmpty(inputValue))
-        return inputValue;
-
-      if (TreatNBSPAsSpace)
-        inputValue = inputValue.Replace((char) 0xA0, ' ');
-      if (TrimmingOption == TrimmingOption.All
-          || !quoted && TrimmingOption == TrimmingOption.Unquoted)
-        return inputValue.Trim();
-
-      return inputValue;
     }
 
     /// <summary>
@@ -1261,7 +1127,9 @@ namespace CsvTools
         dataType = new List<DataType>();
 
       var issues = new ColumnErrorDictionary();
-      var adjusted = hasFieldHeader ? AdjustColumnName(headerRow, Column.Length, issues).Item1 : Column.Select(x => x.Name);
+      var adjusted = hasFieldHeader
+        ? AdjustColumnName(headerRow, Column.Length, issues).Item1
+        : Column.Select(x => x.Name);
 
       using (var enumeratorType = dataType.GetEnumerator())
       using (var enumeratorNames = adjusted.GetEnumerator())
@@ -1280,6 +1148,7 @@ namespace CsvTools
             else
               Column[colIndex] = new ImmutableColumn(name, new ImmutableValueFormat(type), colIndex);
           }
+
           colIndex++;
         }
       }
@@ -1294,18 +1163,15 @@ namespace CsvTools
         var searchedTimeZonePart = Column[index].TimeZonePart;
 
         if (!string.IsNullOrEmpty(searchedTimePart))
-        {
           for (var indexPoint = 0; indexPoint < Column.Length; indexPoint++)
           {
-            if (indexPoint==index) continue;
+            if (indexPoint == index) continue;
             if (!Column[indexPoint].Name.Equals(searchedTimePart, StringComparison.OrdinalIgnoreCase)) continue;
             AssociatedTimeCol[index] = indexPoint;
             break;
           }
-        }
 
         if (!string.IsNullOrEmpty(searchedTimeZonePart))
-        {
           for (var indexPoint = 0; indexPoint < Column.Length; indexPoint++)
           {
             if (indexPoint == index) continue;
@@ -1314,7 +1180,6 @@ namespace CsvTools
             m_AssociatedTimeZoneCol[index] = indexPoint;
             break;
           }
-        }
       }
 
       // Now can handle possible warning that have been raised adjusting the names
@@ -1360,7 +1225,7 @@ namespace CsvTools
           timeZone = res.Item1;
       }
 
-      return FunctionalDI.AdjustTZ(input, timeZone, DestinationTimeZone, column.ColumnOrdinal, HandleWarning);
+      return FunctionalDI.AdjustTZImport(input, timeZone, column.ColumnOrdinal, HandleWarning);
     }
 
     /// <summary>
@@ -1517,59 +1382,5 @@ namespace CsvTools
           ? $"'{inputDate} {inputTime}' is not a date of the format {display} {column.TimePartFormat}"
           : $"'{inputDate}' is not a date of the format {display}");
     }
-
-    #region DataTable
-
-    /// <summary>
-    ///   Asynchronous method to copy rows from a the reader to a data table
-    /// </summary>
-    /// <param name="recordLimit">Number of maximum records, 0 for all existing</param>
-    /// <param name="includeErrorField">
-    ///   If <c>true</c> store the error information in a special column, otherwise as column and
-    ///   row error
-    /// </param>
-    /// <param name="storeWarningsInDataTable"></param>
-    /// <param name="addStartLine"><c>true</c> to add a reference to the line of a text file.</param>
-    /// <param name="cancellationToken">Cancellation toke to stop filling the data table</param>
-    /// <returns>A Data Table with teh data</returns>
-    public virtual async Task<DataTable> GetDataTableAsync(long recordLimit, bool includeErrorField,
-      bool storeWarningsInDataTable, bool addStartLine, bool addEndLine, bool addRecNum, CancellationToken cancellationToken)
-    {
-      if (IsClosed)
-        await OpenAsync(cancellationToken).ConfigureAwait(false);
-
-      // This tracks errors and warnings
-      cancellationToken.ThrowIfCancellationRequested();
-
-      // This has a mapping of the columns between reader and data table
-      var copyToDataTableInfo =
-        new CopyToDataTableInfo(this as IFileReader ?? throw new InvalidOperationException(), m_InternalID, includeErrorField, addRecNum, addStartLine, addEndLine,
-          storeWarningsInDataTable);
-
-      try
-      {
-        cancellationToken.ThrowIfCancellationRequested();
-
-        copyToDataTableInfo.DataTable.BeginLoadData();
-
-        if (recordLimit < 1)
-          recordLimit = RecordLimit;
-
-        while (await ReadAsync(cancellationToken).ConfigureAwait(false) && RecordNumber <= recordLimit &&
-               !cancellationToken.IsCancellationRequested)
-          copyToDataTableInfo.CopyRowToTable(this as IFileReader ?? throw new InvalidOperationException());
-
-        copyToDataTableInfo.HandlePreviousRow();
-        copyToDataTableInfo.DataTable.EndLoadData();
-        return copyToDataTableInfo.DataTable;
-      }
-      catch
-      {
-        copyToDataTableInfo.DataTable.Dispose();
-        throw;
-      }
-    }
-
-    #endregion DataTable
   }
 }

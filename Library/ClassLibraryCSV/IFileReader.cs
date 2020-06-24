@@ -13,9 +13,11 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 
 namespace CsvTools
 {
@@ -50,6 +52,12 @@ namespace CsvTools
 
     bool SupportsReset { get; }
 
+    /// <summary>
+    ///   Occurs before the initial open. Can be used to prepare the data like download it from a
+    ///   remote location
+    /// </summary>
+    Func<Task> OnOpen { set; }
+
     [Obsolete("Use ReadAsync if possible")]
     // ReSharper disable once UnusedMemberInSuper.Global
     new bool Read();
@@ -65,28 +73,6 @@ namespace CsvTools
     new bool NextResult();
 
     /// <summary>
-    ///   Asynchronous method to copy rows from a the reader to a data table
-    /// </summary>
-    /// <param name="recordLimit">Number of maximum records, 0 for all existing</param>
-    /// <param name="includeErrorField">
-    ///   If <c>true</c> store the error information in a special column
-    /// </param>
-    /// <param name="storeWarningsInDataTable">
-    ///   If <c>true</c> store the error information as row and column errors of the dataTable
-    /// </param>
-    /// <param name="addStartLine">Add a column for the line as reference for a text file</param>
-    /// <param name="cancellationToken">Cancellation toke to stop filling the data table</param>
-    /// <returns>A Data Table with teh data</returns>
-    Task<DataTable> GetDataTableAsync(long recordLimit, bool includeErrorField, bool storeWarningsInDataTable, bool addStartLine, bool addEndLine, bool addRecNum, CancellationToken cancellationToken);
-
-    /// <summary>
-    ///   Determines if the reader has a certain columns, any ignored columns will be treated as not existing
-    /// </summary>
-    /// <param name="columnName"></param>
-    /// <returns>true if present and not ignored</returns>
-    bool HasColumnName(string columnName);
-
-    /// <summary>
     ///   Reads the next record of the current result set
     /// </summary>
     /// <returns>Awaitable bool, if true a record was read</returns>
@@ -95,13 +81,8 @@ namespace CsvTools
     /// <summary>
     ///   Event handler called if a warning or error occurred
     /// </summary>
+    [UsedImplicitly]
     event EventHandler<WarningEventArgs> Warning;
-
-    /// <summary>
-    ///   Occurs before the initial open. Can be used to prepare the data like download it from a
-    ///   remote location
-    /// </summary>
-    Func<Task> OnOpen { set; }
 
     /// <summary>
     ///   Event to be raised once the reader is finished reading the file
@@ -109,9 +90,15 @@ namespace CsvTools
     event EventHandler ReadFinished;
 
     /// <summary>
+    ///   Event to be raised once the reader opened, the column information is now known
+    /// </summary>
+    event EventHandler<ICollection<IColumn>> OpenFinished;
+
+    /// <summary>
     ///   Occurs when an open process failed, allowing the user to change the timeout or provide the
     ///   needed file etc.
     /// </summary>
+    [UsedImplicitly]
     event EventHandler<RetryEventArgs> OnAskRetry;
 
     /// <summary>
@@ -120,13 +107,6 @@ namespace CsvTools
     /// <param name="column">The column.</param>
     /// <returns>A <see cref="Column" /> with all information on the column</returns>
     ImmutableColumn GetColumn(int column);
-
-    /// <summary>
-    ///   Checks if the column should be read
-    /// </summary>
-    /// <param name="column">The column number.</param>
-    /// <returns><c>true</c> if this column should not be read</returns>
-    bool IgnoreRead(int column);
 
     /// <summary>
     ///   Opens the text file and begins to read the meta data, like columns

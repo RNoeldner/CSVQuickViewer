@@ -58,7 +58,7 @@ namespace CsvTools.Tests
       using (var dummy = new CustomProcessDisplay(token, null))
       {
         var reader = setting.Value != null
-          ? new DataTableReader(setting.Value, settingName, dummy)
+          ? new DataTableWrapper(setting.Value)
           : FunctionalDI.GetFileReader(setting.Key, null, dummy);
         await reader.OpenAsync(token).ConfigureAwait(false);
         return reader;

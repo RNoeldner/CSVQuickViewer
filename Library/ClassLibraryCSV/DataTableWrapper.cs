@@ -1,4 +1,4 @@
-﻿/*
+﻿/*s
 * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
 *
 * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
@@ -13,9 +13,10 @@
 */
 
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -23,40 +24,22 @@ using JetBrains.Annotations;
 namespace CsvTools
 {
   /// <summary>
-  ///   IFileReader implementation based on a data table
+  ///   IFileReader implementation based on a data table, this is used to pass on a data table to a writer
   /// </summary>
-  /// <remarks>Some functionality for progress report are not implemented</remarks>
-  public class DataTableReader : BaseFileReaderTyped, IFileReader
+  /// <remarks>Some functionality for progress reporting are not implemented</remarks>
+  public class DataTableWrapper : DbDataReader, IFileReader
   {
-    private readonly DataTable m_DataTable;
-    private DbDataReader m_DbDataReader;
+    [NotNull] private DbDataReader m_DbDataReader;
 
-    public DataTableReader(DataTable dt, string id, IProcessDisplay processDisplay) : this(new DataTableSetting(id), dt,
-      processDisplay)
-    {
-    }
+    // ReSharper disable once NotNullMemberIsNotInitialized
+    public DataTableWrapper([NotNull] DataTable dt) => DataTable = dt ?? throw new ArgumentNullException(nameof(dt));
+    [NotNull] public DataTable DataTable { get; }
 
-    public DataTableReader(IFileSetting fileSetting, [NotNull] DataTable dt, IProcessDisplay processDisplay) : base(
-      null,
-      fileSetting.ColumnCollection,
-      fileSetting.InternalID,
-      fileSetting.ToString(), null, fileSetting.RecordLimit,
-      fileSetting.TrimmingOption, fileSetting.TreatTextAsNull,
-      fileSetting.TreatNBSPAsSpace)
-    {
-      m_DataTable = dt ?? throw new ArgumentNullException(nameof(dt));
-      if (processDisplay == null) return;
-      ReportProgress = processDisplay.SetProcess;
-      SetMaxProcess = l => processDisplay.Maximum = l;
-      SetMaxProcess(0);
-    }
-
-    public override async Task<DataTable> GetDataTableAsync(long recordLimit, bool ignore, bool ignore2, bool ignore3,
-      bool ignore4, bool ignore5, CancellationToken token) => await Task.FromResult(m_DataTable).ConfigureAwait(false);
+    public override bool HasRows => m_DbDataReader.HasRows;
 
     public override string GetName(int i) => m_DbDataReader.GetName(i);
 
-    public string GetDataTypeName(int i) => m_DbDataReader.GetDataTypeName(i);
+    public override string GetDataTypeName(int i) => m_DbDataReader.GetDataTypeName(i);
 
     public override Type GetFieldType(int i) => m_DbDataReader.GetFieldType(i);
 
@@ -70,7 +53,7 @@ namespace CsvTools
 
     public override byte GetByte(int i) => m_DbDataReader.GetByte(i);
 
-    public long GetBytes(int i, long fieldOffset, byte[] buffer, int bufferoffset, int length) =>
+    public override long GetBytes(int i, long fieldOffset, byte[] buffer, int bufferoffset, int length) =>
       m_DbDataReader.GetBytes(i, fieldOffset, buffer, bufferoffset, length);
 
     public override char GetChar(int i) => m_DbDataReader.GetChar(i);
@@ -96,77 +79,96 @@ namespace CsvTools
 
     public override DateTime GetDateTime(int i) => m_DbDataReader.GetDateTime(i);
 
-    public IDataReader GetData(int i) => m_DbDataReader.GetData(i);
+    public new IDataReader GetData(int i) => m_DbDataReader.GetData(i);
 
     public override bool IsDBNull(int i) => m_DbDataReader.IsDBNull(i);
 
     public override int FieldCount => m_DbDataReader.FieldCount;
 
-    public new object this[int i] => m_DbDataReader[i];
+    public override object this[int i] => m_DbDataReader[i];
 
-    public new object this[string name] => m_DbDataReader[name];
+    public override object this[string name] => m_DbDataReader[name];
 
     public override int RecordsAffected => m_DbDataReader.RecordsAffected;
+    public bool SupportsReset => true;
+
+    public override bool Read() => ReadAsync(CancellationToken.None).Wait(2000);
+
     public override int Depth => m_DbDataReader.Depth;
 
-    public override bool IsClosed => m_DbDataReader?.IsClosed ?? true;
+    // ReSharper disable once ConditionIsAlwaysTrueOrFalse
+    public override bool IsClosed => m_DbDataReader == null || m_DbDataReader.IsClosed;
 
     public override DataTable GetSchemaTable() => m_DbDataReader.GetSchemaTable();
 
-    public override bool NextResult() => m_DbDataReader.NextResult();
+    public override bool NextResult() => false;
 
-    public override async Task OpenAsync(CancellationToken token)
+    public ImmutableColumn GetColumn(int column) => new ImmutableColumn(m_DbDataReader.GetName(column),
+      new ImmutableValueFormat(m_DbDataReader.GetType().GetDataType()), column);
+
+    public async Task OpenAsync(CancellationToken token)
     {
-      await BeforeOpenAsync("Opening Data Table").ConfigureAwait(false);
-      var listCol = m_DataTable.Columns.OfType<DataColumn>().ToList();
-      InitColumn(m_DataTable.Columns.Count);
-      ParseColumnName(listCol.Select(x => x.ColumnName));
-      if (m_DbDataReader == null)
-        m_DbDataReader = m_DataTable.CreateDataReader();
-      await GetColumnTypeAsync(1, token).ConfigureAwait(false);
-
-      await ResetPositionToFirstDataRowAsync(token).ConfigureAwait(false);
+      if (OnOpen != null) await OnOpen.Invoke();
+      await ResetPositionToFirstDataRowAsync(token);
     }
 
     public override void Close()
     {
       EndOfFile = true;
+      // ReSharper disable ConstantConditionalAccessQualifier
+      m_DbDataReader?.Close();
       m_DbDataReader?.Dispose();
+      // ReSharper restore ConstantConditionalAccessQualifier
+      // ReSharper disable once AssignNullToNotNullAttribute
+      m_DbDataReader = null;
     }
 
-    public override long StartLineNumber => RecordNumber;
-    public override long EndLineNumber => RecordNumber;
+    public long RecordNumber { get; private set; }
+
+    public long StartLineNumber => RecordNumber;
+    public long EndLineNumber => RecordNumber;
+
+    public bool EndOfFile { get; private set; }
 
     public override async Task<bool> ReadAsync(CancellationToken token)
     {
-      if (!token.IsCancellationRequested)
+      if (!token.IsCancellationRequested && !EndOfFile)
       {
-        EndOfFile = !await m_DbDataReader.ReadAsync(token).ConfigureAwait(false);
-        if (!EndOfFile) RecordNumber++;
+        var couldRead = await m_DbDataReader.ReadAsync(token).ConfigureAwait(false);
+        if (couldRead) RecordNumber++;
 
-        InfoDisplay(!EndOfFile);
-        if (!EndOfFile && !IsClosed)
+        if (couldRead && !IsClosed)
           return true;
       }
 
-      HandleReadFinished();
+      EndOfFile = true;
+      ReadFinished?.Invoke(this, new EventArgs());
       return false;
     }
 
-    public new async Task ResetPositionToFirstDataRowAsync(CancellationToken token)
+    public event EventHandler<WarningEventArgs> Warning;
+    public Func<Task> OnOpen { get; set; }
+    public event EventHandler ReadFinished;
+    public event EventHandler<ICollection<IColumn>> OpenFinished;
+    public event EventHandler<RetryEventArgs> OnAskRetry;
+
+
+#pragma warning disable 1998
+    public async Task ResetPositionToFirstDataRowAsync(CancellationToken token)
+#pragma warning restore 1998
     {
-      await base.ResetPositionToFirstDataRowAsync(token).ConfigureAwait(false);
-      m_DbDataReader?.Dispose();
-      m_DbDataReader = m_DataTable.CreateDataReader();
+      Close();
+      m_DbDataReader = DataTable.CreateDataReader();
+      EndOfFile = false;
+      RecordNumber = 0;
     }
 
-    protected override int GetRelativePosition() => (int) ((double) RecordNumber / m_DataTable.Rows.Count * cMaxValue);
+    public override IEnumerator GetEnumerator() => m_DbDataReader.GetEnumerator();
 
     protected override void Dispose(bool disposing)
     {
-      base.Dispose(disposing);
       if (disposing)
-        m_DataTable.Dispose();
+        DataTable.Dispose();
     }
   }
 }

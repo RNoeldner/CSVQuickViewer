@@ -44,8 +44,6 @@ namespace CsvTools
     {
     }
 
-    
-
     public DataType DataType { get; }
     public string DateFormat { get; }
     public string DateSeparator { get; }

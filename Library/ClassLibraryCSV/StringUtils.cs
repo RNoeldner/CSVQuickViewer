@@ -16,13 +16,13 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+using System.Linq;
+using System.Security;
 using System.Text;
 using JetBrains.Annotations;
 
 namespace CsvTools
 {
-  using System.Linq;
-
   /// <summary>
   ///   Collection of static functions for string
   /// </summary>
@@ -38,12 +38,12 @@ namespace CsvTools
     /// <summary>
     ///   ; | CR LF Tab
     /// </summary>
-    private static readonly char[] m_DelimiterChar = { ';', '|', '\r', '\n', '\t' };
+    private static readonly char[] m_DelimiterChar = {';', '|', '\r', '\n', '\t'};
 
     /// <summary>
     ///   ; CR LF
     /// </summary>
-    private static readonly char[] m_SplitChar = { ';', '\r', '\n' };
+    private static readonly char[] m_SplitChar = {';', '\r', '\n'};
 
     /// <summary>
     ///   Checks whether a column name text ends on the text ID or Ref
@@ -228,11 +228,12 @@ namespace CsvTools
     /// <param name="nameToAdd">The default name</param>
     /// <returns>The unique name</returns>
     [NotNull]
-    public static string MakeUniqueInCollection([NotNull] ICollection<string> previousColumns, [NotNull] string nameToAdd)
+    public static string MakeUniqueInCollection([NotNull] ICollection<string> previousColumns,
+      [NotNull] string nameToAdd)
     {
       if (nameToAdd is null)
         throw new ArgumentNullException(nameof(nameToAdd));
-      
+
       if (!previousColumns.Contains(nameToAdd))
         return nameToAdd;
 
@@ -266,12 +267,10 @@ namespace CsvTools
       var chars = new char[original.Length];
       var count = 0;
       foreach (var c in from c in original
-                        let oc = CharUnicodeInfo.GetUnicodeCategory(c)
-                        where UnicodeCategory.Control != oc || c == '\r' || c == '\n'
-                        select c)
-      {
+        let oc = CharUnicodeInfo.GetUnicodeCategory(c)
+        where UnicodeCategory.Control != oc || c == '\r' || c == '\n'
+        select c)
         chars[count++] = c;
-      }
 
       return new string(chars, 0, count);
     }
@@ -310,9 +309,9 @@ namespace CsvTools
     /// <param name="testFunction">The test function called on each individual char</param>
     /// <returns>A test with only allowed characters</returns>
     [NotNull]
-    public static string ProcessByCategory([NotNull] string original, [NotNull] Func<UnicodeCategory, bool> testFunction)
+    public static string ProcessByCategory([NotNull] string original,
+      [NotNull] Func<UnicodeCategory, bool> testFunction)
     {
-
       if (string.IsNullOrEmpty(original))
         return string.Empty;
       var normalizedString = original.Normalize(NormalizationForm.FormD);
@@ -320,12 +319,10 @@ namespace CsvTools
       var chars = new char[normalizedString.Length];
       var count = 0;
       foreach (var c in from c in normalizedString
-                        let oc = CharUnicodeInfo.GetUnicodeCategory(c)
-                        where testFunction(oc)
-                        select c)
-      {
+        let oc = CharUnicodeInfo.GetUnicodeCategory(c)
+        where testFunction(oc)
+        select c)
         chars[count++] = c;
-      }
 
       return new string(chars, 0, count);
     }
@@ -365,7 +362,10 @@ namespace CsvTools
     /// <returns>True if the text is null, or empty or in the list of provided texts</returns>
     public static bool ShouldBeTreatedAsNull([CanBeNull] string value, [CanBeNull] string treatAsNull)
     {
-      return string.IsNullOrEmpty(value) || SplitByDelimiter(treatAsNull).Any(part => value.Equals(part, StringComparison.OrdinalIgnoreCase));
+      if (string.IsNullOrEmpty(treatAsNull))
+        return false;
+      return string.IsNullOrEmpty(value) || SplitByDelimiter(treatAsNull)
+        .Any(part => value.Equals(part, StringComparison.OrdinalIgnoreCase));
     }
 
     /// <summary>
@@ -383,7 +383,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Splits the text into distinct texts, always adding the alwaysInclude Value.
+    ///   Splits the text into distinct texts, always adding the alwaysInclude Value.
     /// </summary>
     /// <param name="inputValue">The input value.</param>
     /// <param name="alwaysInclude">This text will always be included in the result.</param>
@@ -432,11 +432,11 @@ namespace CsvTools
       string.IsNullOrEmpty(contents) ? string.Empty : contents.Replace("'", "''");
 
     [NotNull]
-    public static System.Security.SecureString ToSecureString([NotNull] this string text)
+    public static SecureString ToSecureString([NotNull] this string text)
     {
       if (text is null)
         throw new ArgumentNullException(nameof(text));
-      var securePassword = new System.Security.SecureString();
+      var securePassword = new SecureString();
 
       foreach (var c in text)
         securePassword.AppendChar(c);
@@ -446,14 +446,15 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Check if a text would match a filter value, 
+    ///   Check if a text would match a filter value,
     /// </summary>
     /// <param name="item">The item of a list that should be checked</param>
     /// <param name="filter">Filter value, for OR separate words by space for AND separate words by +</param>
     /// <param name="stringComparison"></param>
     /// <Note>In case the filter is empty there is no filter it will always return true</Note>
     /// <returns>True if text matches</returns>
-    public static bool PassesFilter([CanBeNull] this string item, [CanBeNull] string filter, StringComparison stringComparison = StringComparison.OrdinalIgnoreCase)
+    public static bool PassesFilter([CanBeNull] this string item, [CanBeNull] string filter,
+      StringComparison stringComparison = StringComparison.OrdinalIgnoreCase)
     {
       if (string.IsNullOrEmpty(filter))
         return true;
@@ -463,17 +464,15 @@ namespace CsvTools
       if (filter.IndexOf('+') <= -1)
         return filter.Split(new[] {' ', ',', ';'}, StringSplitOptions.RemoveEmptyEntries)
           .Any(part => item.IndexOf(part, stringComparison) != -1);
-      var parts = filter.Split(new[] { '+' }, StringSplitOptions.RemoveEmptyEntries);
+      var parts = filter.Split(new[] {'+'}, StringSplitOptions.RemoveEmptyEntries);
 
       // 1st part
       var all = item.IndexOf(parts[0], stringComparison) > -1;
 
       // and all other parts
       for (var index = 1; index < parts.Length && all; index++)
-      {
         if (item.IndexOf(parts[index], stringComparison) == -1)
           all = false;
-      }
       return all;
     }
 
@@ -484,9 +483,7 @@ namespace CsvTools
         return new Tuple<string, bool>(string.Empty, false);
       if (value.Length > 2 && value.StartsWith("\"", StringComparison.Ordinal) &&
           value.EndsWith("\"", StringComparison.Ordinal))
-      {
         return new Tuple<string, bool>(value.Substring(1, value.Length - 2), true);
-      }
       return new Tuple<string, bool>(value, false);
     }
   }

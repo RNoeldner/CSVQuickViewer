@@ -1,15 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net461</TargetFrameworks>
-    <RootNamespace>CsvTools</RootNamespace>
-    <PackageId>ClassLibraryCSV</PackageId>
     <Authors>Raphael Nöldner</Authors>
-    <Company></Company>
-    <Product>CSVTools</Product>
-    <AssemblyVersion>1.6.5.448</AssemblyVersion>
-    <FileVersion>1.6.4.448</FileVersion>
+    <RootNamespace>CsvTools</RootNamespace>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <Copyright>Copyright © 2017</Copyright>
+    <ProductName>CsvTools</ProductName>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net472</TargetFramework>
+    <ApplicationIcon />
+    <StartupObject />
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <AssemblyVersion>1.6.5.408</AssemblyVersion>
+    <FileVersion>1.6.5.408</FileVersion>
     <Version>1.6.5.448</Version>
   </PropertyGroup>
 

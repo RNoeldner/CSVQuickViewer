@@ -62,20 +62,15 @@ namespace CsvTools.Tests
     {
       var srcTime = new DateTime(2020, 02, 20);
       //  (input, srcTimeZone, destTimeZone, columnOrdinal, handleWarning) 
-      var test1 = FunctionalDI.AdjustTZ(srcTime, "PST", "PST", 1, null);
+      var test1 = FunctionalDI.AdjustTZImport(srcTime, "PST",  1, null);
       Assert.AreEqual(srcTime, test1);
 
-      var test2 = FunctionalDI.AdjustTZ(srcTime, "PST", null, 1, null);
+      var test2 = FunctionalDI.AdjustTZImport(srcTime, TimeZoneInfo.Local.Id, 1, null);
       Assert.AreEqual(srcTime, test2);
 
-      var test3 = FunctionalDI.AdjustTZ(srcTime, null, "PST", 1, null);
+      var test3 = FunctionalDI.AdjustTZImport(srcTime, null, 1, null);
       Assert.AreEqual(srcTime, test3);
 
-      var test4 = FunctionalDI.AdjustTZ(srcTime, "W. Europe Standard Time", "Russian Standard Time", 1, null);
-      Assert.AreEqual(srcTime.AddHours(2), test4);
-
-      var test5 = FunctionalDI.AdjustTZ(srcTime, "W. Europe Standard Time", "India Standard Time", 1, null);
-      Assert.AreEqual(srcTime.AddHours(4.5), test5);
     }
   }
 }

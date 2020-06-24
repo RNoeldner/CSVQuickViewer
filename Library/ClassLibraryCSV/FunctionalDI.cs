@@ -34,27 +34,30 @@ namespace CsvTools
     ///   implementation using Noda Time
     /// </summary>
     [NotNull]
-    public static Func<DateTime?, string, string, int, Action<int, string>, DateTime?> AdjustTZ =
-      (input, srcTimeZone, destTimeZone, columnOrdinal, handleWarning) =>
+    public static Func<DateTime?, string, int, Action<int, string>, DateTime?> AdjustTZImport =
+      (input, srcTimeZone, columnOrdinal, handleWarning) => ChangeTimeZone(input, srcTimeZone, TimeZoneInfo.Local.Id, columnOrdinal, handleWarning);
+
+
+    [NotNull] 
+    public static Func<DateTime?, string, int, Action<int, string>, DateTime?> AdjustTZExport =
+      (input, destTimeZone, columnOrdinal, handleWarning) =>  ChangeTimeZone(input, TimeZoneInfo.Local.Id, destTimeZone, columnOrdinal, handleWarning);
+
+    private static DateTime? ChangeTimeZone(DateTime? input, string srcTimeZone, string destTimeZone, int columnOrdinal, Action<int, string> handleWarning)
+    {
+      if (!input.HasValue || string.IsNullOrEmpty(srcTimeZone)|| string.IsNullOrEmpty(destTimeZone)  || destTimeZone.Equals(srcTimeZone))
+        return input;
+      try
       {
-        if (!input.HasValue || string.IsNullOrEmpty(srcTimeZone) || string.IsNullOrEmpty(destTimeZone)
-            || srcTimeZone.Equals(destTimeZone))
-          return input;
-        try
-        {
-          // default implementation will convert using the .NET library
-          return TimeZoneInfo.ConvertTime(
-            input.Value,
-            TimeZoneInfo.FindSystemTimeZoneById(srcTimeZone),
-            TimeZoneInfo.FindSystemTimeZoneById(destTimeZone));
-        }
-        catch (Exception ex)
-        {
-          if (handleWarning == null) throw;
-          handleWarning.Invoke(columnOrdinal, ex.Message);
-          return null;
-        }
-      };
+        // default implementation will convert using the .NET library
+        return TimeZoneInfo.ConvertTime(input.Value, TimeZoneInfo.FindSystemTimeZoneById(srcTimeZone), TimeZoneInfo.FindSystemTimeZoneById(destTimeZone));
+      }
+      catch (Exception ex)
+      {
+        if (handleWarning == null) throw;
+        handleWarning.Invoke(columnOrdinal, ex.Message);
+        return null;
+      }
+    }
 
     /// <summary>
     ///   Function to retrieve the column in a setting file
@@ -95,13 +98,6 @@ namespace CsvTools
     public static Action SignalBackground = null;
 
     /// <summary>
-    ///   Action to store the headers of a file in a cache, ignored columns should be excluded
-    /// </summary>
-    [CanBeNull]
-    // ReSharper disable once UnassignedField.Global
-    public static Action<string, ICollection<IColumn>> StoreHeader;
-
-    /// <summary>
     ///   Return the right reader for a file setting
     /// </summary>
     [NotNull]
@@ -138,10 +134,10 @@ namespace CsvTools
       switch (setting)
       {
         case ICsvFile csv when csv.JsonFormat:
-          return new JsonFileReader(csv, timeZone, processDisplay);
+          return new JsonFileReader(csv, processDisplay);
 
         case ICsvFile csv:
-          return new CsvFileReader(csv, timeZone, processDisplay);
+          return new CsvFileReader(csv, processDisplay);
 
         default:
           throw new NotImplementedException($"Reader for {setting} not found");

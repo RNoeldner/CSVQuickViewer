@@ -1,5 +1,4 @@
-﻿using JetBrains.Annotations;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
@@ -7,6 +6,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 
 namespace CsvTools
 {
@@ -19,14 +19,16 @@ namespace CsvTools
     protected object[] CurrentValues;
 #pragma warning restore CA1051 // Do not declare visible instance fields
 
-    protected BaseFileReaderTyped([CanBeNull] string fullPath = null,
-      [CanBeNull] IEnumerable<IColumn> columnDefinition = null,
-      [CanBeNull] string internalID = null,
-      [CanBeNull] string readerDescription = null,
-      [CanBeNull] string destinationTimeZone = null, long recordLimit = 0,
-      TrimmingOption trimmingOption = TrimmingOption.Unquoted,
-      string treatTextAsNull = BaseSettings.cTreatTextAsNull, bool treatNBSPAsSpace = false) :
-      base(fullPath, columnDefinition, internalID, readerDescription, destinationTimeZone, recordLimit, treatTextAsNull, trimmingOption, treatNBSPAsSpace)
+    /// <summary>
+    ///   Constructor for abstract base call for <see cref="IFileReader" /> that does read typed values like Excel, SQl
+    /// </summary>
+    /// <param name="fileName">Path to to a physical file (if used)</param>
+    /// <param name="columnDefinition">List of column definitions</param>
+    /// <param name="recordLimit">Number of records that should be read</param>
+    protected BaseFileReaderTyped([CanBeNull] string fileName,
+      [CanBeNull] IEnumerable<IColumn> columnDefinition,
+      long recordLimit) :
+      base(fileName, columnDefinition, recordLimit)
     {
     }
 
@@ -35,9 +37,9 @@ namespace CsvTools
     /// </summary>
     /// <returns>An array with the found data types</returns>
     /// <remarks>In case of mixed types, string is preferred over everything</remarks>
-
     protected async Task GetColumnTypeAsync(int maxRows, CancellationToken token)
     {
+      // TODO: Check if GetValue and IsDBNull can be used instead of relying on CurrentValues
       HandleShowProgress("Reading data to determine type");
       var isSet = new bool[FieldCount];
       var startRow = RecordNumber;
@@ -47,7 +49,7 @@ namespace CsvTools
         for (var col = 0; col < FieldCount; col++)
         {
           // if a column was detected as string, keep it that way
-          if (CurrentValues[col] == null || isSet[col])
+          if (isSet[col] || CurrentValues[col] == null)
             continue;
 
           var detected = CurrentValues[col].GetType().GetDataType();
@@ -56,6 +58,7 @@ namespace CsvTools
           Column[col] = new ImmutableColumn(Column[col], new ImmutableValueFormat(detected));
           isSet[col] = true;
         }
+
         // if we have defined types for all exit
         if (isSet.All(x => x))
           break;

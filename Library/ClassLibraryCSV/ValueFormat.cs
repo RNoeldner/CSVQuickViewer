@@ -85,8 +85,7 @@ namespace CsvTools
     [DefaultValue(ValueFormatExtension.cDateFormatDefault)]
     public string DateFormat
     {
-      [NotNull]
-      get => m_DateFormat;
+      [NotNull] get => m_DateFormat;
       [CanBeNull]
       set
       {
@@ -106,8 +105,7 @@ namespace CsvTools
     [DefaultValue(ValueFormatExtension.cDateSeparatorDefault)]
     public string DateSeparator
     {
-      [NotNull]
-      get => m_DateSeparator;
+      [NotNull] get => m_DateSeparator;
       [CanBeNull]
       set
       {
@@ -129,8 +127,7 @@ namespace CsvTools
     [DefaultValue(ValueFormatExtension.cDecimalSeparatorDefault)]
     public string DecimalSeparator
     {
-      [NotNull]
-      get => m_DecimalSeparator;
+      [NotNull] get => m_DecimalSeparator;
 
       set
       {
@@ -163,8 +160,7 @@ namespace CsvTools
     [DefaultValue(ValueFormatExtension.cFalseDefault)]
     public string False
     {
-      [NotNull]
-      get => m_False;
+      [NotNull] get => m_False;
       [CanBeNull]
       set
       {
@@ -184,8 +180,7 @@ namespace CsvTools
     [DefaultValue(ValueFormatExtension.cGroupSeparatorDefault)]
     public string GroupSeparator
     {
-      [NotNull]
-      get => m_GroupSeparator;
+      [NotNull] get => m_GroupSeparator;
       set
       {
         var chr = FileFormat.GetChar(value);
@@ -209,6 +204,128 @@ namespace CsvTools
     }
 
     /// <summary>
+    ///   Indicates whether the current object is equal to another object of the same type.
+    /// </summary>
+    /// <param name="other">An object to compare with this object.</param>
+    /// <returns>
+    ///   <see langword="true" /> if the current object is equal to the <paramref name="other" />
+    ///   parameter; otherwise, <see langword="false" />.
+    /// </returns>
+    public bool Equals(ValueFormat other) => EqualsByInterface(other);
+
+    /// <summary>
+    ///   Occurs when a property value changes.
+    /// </summary>
+    public event PropertyChangedEventHandler PropertyChanged;
+
+
+    [XmlIgnore] public char GroupSeparatorChar { get; private set; } = '\0';
+
+    [XmlIgnore]
+    public char DecimalSeparatorChar { get; private set; } = ValueFormatExtension.cDecimalSeparatorDefault[0];
+
+    /// <summary>
+    ///   Gets or sets the type of the data.
+    /// </summary>
+    /// <value>The type of the data.</value>
+    [XmlAttribute]
+    [DefaultValue(DataType.String)]
+    public DataType DataType
+    {
+      get => m_DataType;
+      set
+      {
+        if (m_DataType.Equals(value))
+          return;
+        m_DataType = value;
+        NotifyPropertyChanged(nameof(DataType));
+      }
+    }
+
+    /// <summary>
+    ///   Writing data you can specify how a NULL value should be written, commonly its empty, in
+    ///   some circumstances you might want to have n/a etc.
+    /// </summary>
+    /// <value>Text used if the value is NULL</value>
+    [XmlAttribute]
+    [DefaultValue("")]
+    public string DisplayNullAs
+    {
+      [NotNull] get => m_DisplayNullAs;
+
+      set
+      {
+        var newVal = value ?? string.Empty;
+        if (m_DisplayNullAs.Equals(newVal))
+          return;
+        m_DisplayNullAs = newVal;
+        NotifyPropertyChanged(nameof(DisplayNullAs));
+      }
+    }
+
+
+    /// <summary>
+    ///   Gets or sets the number format.
+    /// </summary>
+    /// <value>The number format.</value>
+    [XmlElement]
+    [DefaultValue(ValueFormatExtension.cNumberFormatDefault)]
+    public string NumberFormat
+    {
+      [NotNull] get => m_NumberFormat;
+      [CanBeNull]
+      set
+      {
+        var newVal = value ?? string.Empty;
+        if (m_NumberFormat.Equals(newVal, StringComparison.Ordinal))
+          return;
+        m_NumberFormat = newVal;
+        NotifyPropertyChanged(nameof(NumberFormat));
+      }
+    }
+
+    /// <summary>
+    ///   Gets or sets the time separator.
+    /// </summary>
+    /// <value>The time separator.</value>
+    [XmlElement]
+    [DefaultValue(ValueFormatExtension.cTimeSeparatorDefault)]
+    public string TimeSeparator
+    {
+      [NotNull] get => m_TimeSeparator;
+      set
+      {
+        var chr = FileFormat.GetChar(value);
+        var newVal = chr != '\0' ? chr.ToString(CultureInfo.CurrentCulture) : string.Empty;
+        if (m_TimeSeparator.Equals(newVal, StringComparison.Ordinal))
+          return;
+        m_TimeSeparator = newVal;
+        NotifyPropertyChanged(nameof(TimeSeparator));
+      }
+    }
+
+    /// <summary>
+    ///   Gets or sets the representation for true.
+    /// </summary>
+    /// <value>The true.</value>
+    [SuppressMessage("Microsoft.Naming", "CA1716:IdentifiersShouldNotMatchKeywords", MessageId = "True")]
+    [XmlElement]
+    [DefaultValue(ValueFormatExtension.cTrueDefault)]
+    public string True
+    {
+      [NotNull] get => m_True;
+      [CanBeNull]
+      set
+      {
+        var newVal = value ?? string.Empty;
+        if (m_True.Equals(newVal, StringComparison.Ordinal))
+          return;
+        m_True = newVal;
+        NotifyPropertyChanged(nameof(True));
+      }
+    }
+
+    /// <summary>
     ///   Clones this instance into a new instance of the same type
     /// </summary>
     /// <returns></returns>
@@ -227,18 +344,10 @@ namespace CsvTools
       if (ReferenceEquals(this, other))
         return true;
 
-      return (other is ValueFormat valueFormat) ? Equals(valueFormat) : false;
+      return other is IValueFormat valueFormat && EqualsByInterface(valueFormat);
     }
 
-    /// <summary>
-    ///   Indicates whether the current object is equal to another object of the same type.
-    /// </summary>
-    /// <param name="other">An object to compare with this object.</param>
-    /// <returns>
-    ///   <see langword="true" /> if the current object is equal to the <paramref name="other" />
-    ///   parameter; otherwise, <see langword="false" />.
-    /// </returns>
-    public bool Equals(ValueFormat other)
+    private bool EqualsByInterface(IValueFormat other)
     {
       if (other is null)
         return false;
@@ -278,123 +387,6 @@ namespace CsvTools
                  other.GroupSeparatorChar == GroupSeparatorChar &&
                  other.DecimalSeparatorChar == DecimalSeparatorChar &&
                  string.Equals(other.NumberFormat, NumberFormat, StringComparison.Ordinal);
-      }
-    }
-
-    /// <summary>
-    ///   Occurs when a property value changes.
-    /// </summary>
-    public event PropertyChangedEventHandler PropertyChanged;
-
-
-    [XmlIgnore]
-    public char GroupSeparatorChar { get; private set; } = '\0';
-
-    [XmlIgnore]
-    public char DecimalSeparatorChar { get; private set; } = ValueFormatExtension.cDecimalSeparatorDefault[0];
-
-    /// <summary>
-    ///   Gets or sets the type of the data.
-    /// </summary>
-    /// <value>The type of the data.</value>
-    [XmlAttribute]
-    [DefaultValue(DataType.String)]
-    public DataType DataType
-    {
-      get => m_DataType;
-      set
-      {
-        if (m_DataType.Equals(value))
-          return;
-        m_DataType = value;
-        NotifyPropertyChanged(nameof(DataType));
-      }
-    }
-
-    /// <summary>
-    ///   Writing data you can specify how a NULL value should be written, commonly its empty, in
-    ///   some circumstances you might want to have n/a etc.
-    /// </summary>
-    /// <value>Text used if the value is NULL</value>
-    [XmlAttribute]
-    [DefaultValue("")]
-    public string DisplayNullAs
-    {
-      [NotNull]
-      get => m_DisplayNullAs;
-
-      set
-      {
-        var newVal = value ?? string.Empty;
-        if (m_DisplayNullAs.Equals(newVal))
-          return;
-        m_DisplayNullAs = newVal;
-        NotifyPropertyChanged(nameof(DisplayNullAs));
-      }
-    }
-
-
-    /// <summary>
-    ///   Gets or sets the number format.
-    /// </summary>
-    /// <value>The number format.</value>
-    [XmlElement]
-    [DefaultValue(ValueFormatExtension.cNumberFormatDefault)]
-    public string NumberFormat
-    {
-      [NotNull]
-      get => m_NumberFormat;
-      [CanBeNull]
-      set
-      {
-        var newVal = value ?? string.Empty;
-        if (m_NumberFormat.Equals(newVal, StringComparison.Ordinal))
-          return;
-        m_NumberFormat = newVal;
-        NotifyPropertyChanged(nameof(NumberFormat));
-      }
-    }
-
-    /// <summary>
-    ///   Gets or sets the time separator.
-    /// </summary>
-    /// <value>The time separator.</value>
-    [XmlElement]
-    [DefaultValue(ValueFormatExtension.cTimeSeparatorDefault)]
-    public string TimeSeparator
-    {
-      [NotNull]
-      get => m_TimeSeparator;
-      set
-      {
-        var chr = FileFormat.GetChar(value);
-        var newVal = chr != '\0' ? chr.ToString(CultureInfo.CurrentCulture) : string.Empty;
-        if (m_TimeSeparator.Equals(newVal, StringComparison.Ordinal))
-          return;
-        m_TimeSeparator = newVal;
-        NotifyPropertyChanged(nameof(TimeSeparator));
-      }
-    }
-
-    /// <summary>
-    ///   Gets or sets the representation for true.
-    /// </summary>
-    /// <value>The true.</value>
-    [SuppressMessage("Microsoft.Naming", "CA1716:IdentifiersShouldNotMatchKeywords", MessageId = "True")]
-    [XmlElement]
-    [DefaultValue(ValueFormatExtension.cTrueDefault)]
-    public string True
-    {
-      [NotNull]
-      get => m_True;
-      [CanBeNull]
-      set
-      {
-        var newVal = value ?? string.Empty;
-        if (m_True.Equals(newVal, StringComparison.Ordinal))
-          return;
-        m_True = newVal;
-        NotifyPropertyChanged(nameof(True));
       }
     }
 

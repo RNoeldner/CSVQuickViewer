@@ -18,7 +18,7 @@ namespace CsvTools
 {
   public interface IValueFormat
   {
-    DataType DataType { get; }
+    DataType DataType { [NotNull] get; }
 
     string DateFormat { [NotNull] get; }
 

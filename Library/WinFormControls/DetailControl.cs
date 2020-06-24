@@ -1313,14 +1313,13 @@ namespace CsvTools
         processDisplay.Show(ParentForm);
         var writer = new CsvFileWriter(writeFile, TimeZoneInfo.Local.Id, BaseSettings.ZeroTime, BaseSettings.ZeroTime, processDisplay);
 
-        using (var dt = new DataTableReader(
+        using (var dt = new DataTableWrapper(
           m_FilteredDataGridView.DataView.ToTable(false,
           // Restrict to shown data
           m_FilteredDataGridView.Columns.Cast<DataGridViewColumn>()
           .Where(col => col.Visible && !ReaderConstants.ArtificialFields.Contains(col.DataPropertyName))
           .OrderBy(col => col.DisplayIndex)
-          .Select(col => col.DataPropertyName).ToArray()), "Export",
-          processDisplay))
+          .Select(col => col.DataPropertyName).ToArray())))
         {
           await dt.OpenAsync(processDisplay.CancellationToken);
           // can not use filteredDataGridView.Columns directly

@@ -129,7 +129,6 @@ namespace CsvTools.Tests
 
 
         if (rand > 80) dr.RowError = rand > 90 ? @"Row Error" : @"Row Warning".AddWarningId();
-
         dr[10] = dr.GetErrorInformation();
 
         dataTable.Rows.Add(dr);

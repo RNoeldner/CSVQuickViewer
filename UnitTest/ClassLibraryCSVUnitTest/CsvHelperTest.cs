@@ -325,7 +325,7 @@ namespace CsvTools.Tests
       test.SkipRows = await CsvHelper.GuessStartRowAsync(test, CancellationToken.None);
 
       using (var processDisplay = new DummyProcessDisplay())
-      using (var reader = new CsvFileReader(test, TimeZoneInfo.Local.Id, processDisplay))
+      using (var reader = new CsvFileReader(test, processDisplay))
       {
         await reader.OpenAsync(processDisplay.CancellationToken);
         Assert.AreEqual("RecordNumber", reader.GetName(0));
