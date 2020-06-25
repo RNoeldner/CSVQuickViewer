@@ -11,9 +11,11 @@
     <ApplicationIcon />
     <StartupObject />
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <AssemblyVersion>1.6.5.408</AssemblyVersion>
-    <FileVersion>1.6.5.408</FileVersion>
-    <Version>1.6.5.448</Version>
+    <AssemblyVersion>1.6.6.458</AssemblyVersion>
+    <FileVersion>1.6.6.458</FileVersion>
+    <Version>1.6.6.458</Version>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <NeutralLanguage>en-US</NeutralLanguage>
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,6 +26,10 @@
 
   <ItemGroup>
     <None Remove="DateTimeFormats.txt" />
+    <None Include="LICENSE">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
