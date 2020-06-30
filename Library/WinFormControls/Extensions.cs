@@ -16,6 +16,7 @@ using System.Linq;
 
 namespace CsvTools
 {
+  using JetBrains.Annotations;
   using System;
   using System.Collections.Generic;
   using System.Drawing;
@@ -69,8 +70,8 @@ namespace CsvTools
     /// <param name="cancellationToken">A Cancellation token</param>
     /// <returns>A process display, if the stetting want a process</returns>
     public static IProcessDisplay GetProcessDisplay(
-      this IFileSetting fileSetting,
-      Form owner,
+      [NotNull] this IFileSetting fileSetting,
+      [CanBeNull] Form owner,
       bool withLogger,
       CancellationToken cancellationToken)
     {
@@ -88,10 +89,10 @@ namespace CsvTools
     }
 
     public static void LoadWindowState(
-      this Form form,
-      WindowState windowPosition,
-      Action<int> setCustomValue1 = null,
-      Action<string> setCustomValue2 = null)
+      [NotNull] this Form form,
+      [CanBeNull] WindowState windowPosition,
+      [CanBeNull] Action<int> setCustomValue1 = null,
+      [CanBeNull] Action<string> setCustomValue2 = null)
     {
       if (windowPosition == null || windowPosition.Width == 0 || windowPosition.Height == 0)
         return;
@@ -130,14 +131,21 @@ namespace CsvTools
     /// <param name="milliseconds">number of milliseconds to not process the calling thread</param>
     public static void ProcessUIElements(int milliseconds = 0)
     {
+      try
+      {
 #if wpf
       Application.Current.Dispatcher.Invoke(DispatcherPriority.Background,
                                           new Action(delegate { }));
 #else
-      FunctionalDI.SignalBackground?.Invoke();
-      if (milliseconds > 10)
-        Thread.Sleep(milliseconds);
+        FunctionalDI.SignalBackground?.Invoke();
+        if (milliseconds > 10)
+          Thread.Sleep(milliseconds);
 #endif
+      }
+      catch (Exception)
+      {
+        // ignore
+      }
     }
 
     /// <summary>
@@ -290,7 +298,7 @@ namespace CsvTools
     /// <param name="cancellationToken">Cancellation Token</param>
     /// <returns><c>True</c> if children where validated, <c>false</c> otherwise</returns>
     public static async Task<bool> ValidateChildren(this ContainerControl container, CancellationToken cancellationToken) =>
-      await Task.Run(container.ValidateChildren, cancellationToken).TimeoutAfter(new TimeSpan(0,0,1));
+      await Task.Run(container.ValidateChildren, cancellationToken).TimeoutAfter(new TimeSpan(0, 0, 1));
 
     /// <summary>
     ///   Store a bound value
