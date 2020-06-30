@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 
@@ -90,7 +89,7 @@ namespace CsvTools
         }
       }
 
-      ToBeginning();
+      ToBeginningAsync().Wait();
     }
 
     public Encoding CurrentEncoding => TextReader.CurrentEncoding;
@@ -133,8 +132,9 @@ namespace CsvTools
 
     /// <summary>
     ///   Increase the position in the text, this is used in case a character that has been looked
-    ///   at with <see cref="PeekAsync" /> does not need to be read teh next call of <see
-    ///   cref="ReadAsync" />
+    ///   at with <see cref="PeekAsync" /> does not need to be read teh next call of
+    ///   <see
+    ///     cref="ReadAsync" />
     /// </summary>
     public void MoveNext() => BufferPos++;
 
@@ -155,45 +155,15 @@ namespace CsvTools
       return Buffer[BufferPos];
     }
 
-    private int Peek()
-    {
-      if (BufferPos >= BufferFilled)
-        ReadIntoBuffer();
-      if (EndOfFile)
-        return -1;
-
-      return Buffer[BufferPos];
-    }
-
     /// <summary>
     ///   Reads the next character and progresses one further, and tracks the line number
     /// </summary>
     /// <remarks>
     ///   In case the character is a cr or Lf it will increase the lineNumber, to prevent a CR LF
-    ///   combination to count as two lines Make sure you "eat" the possible next char using <see
-    ///   cref="PeekAsync" /> and <see cref="MoveNext" />
-    /// </remarks>
-    /// <returns></returns>
-    private int Read()
-    {
-      var character = Peek();
-
-      if (character == c_Lf || character == c_Cr)
-        LineNumber++;
-
-      if (EndOfFile)
-        return -1;
-      MoveNext();
-      return character;
-    }
-
-    /// <summary>
-    ///   Reads the next character and progresses one further, and tracks the line number
-    /// </summary>
-    /// <remarks>
-    ///   In case the character is a cr or Lf it will increase the lineNumber, to prevent a CR LF
-    ///   combination to count as two lines Make sure you "eat" the possible next char using <see
-    ///   cref="PeekAsync" /> and <see cref="MoveNext" />
+    ///   combination to count as two lines Make sure you "eat" the possible next char using
+    ///   <see
+    ///     cref="PeekAsync" />
+    ///   and <see cref="MoveNext" />
     /// </remarks>
     /// <returns></returns>
     public async Task<int> ReadAsync()
@@ -207,43 +177,6 @@ namespace CsvTools
         return -1;
       MoveNext();
       return character;
-    }
-
-    public string ReadLine()
-    {
-      var sb = new StringBuilder();
-      while (!EndOfFile)
-      {
-        var character = Read();
-        switch (character)
-        {
-          case -1:
-            continue;
-          case c_Cr:
-          case c_Lf:
-          {
-            var nextChar = Peek();
-            switch (character)
-            {
-              case c_Cr when nextChar == c_Lf:
-                MoveNext();
-                break;
-
-              case c_Lf when nextChar == c_Cr:
-                LineNumber++;
-                MoveNext();
-                break;
-            }
-
-            return sb.ToString();
-          }
-          default:
-            sb.Append((char) character);
-            break;
-        }
-      }
-
-      return sb.Length > 0 ? sb.ToString() : null;
     }
 
     /// <summary>
@@ -294,7 +227,7 @@ namespace CsvTools
     ///   scratch This is fast in case teh text fitted into the buffer or the underlying stream
     ///   supports seeking. In case this is not that cae it does reopen the text reader
     /// </summary>
-    public void ToBeginning()
+    public async Task ToBeginningAsync()
     {
       BufferPos = 0;
       LineNumber = 1;
@@ -319,7 +252,7 @@ namespace CsvTools
       {
         BufferFilled = 0;
         // Some improved stream might need to reopen the streams
-        m_ImprovedStream.ResetToStart(delegate (Stream stream)
+        m_ImprovedStream.ResetToStart(delegate(Stream stream)
         {
           // eat the bom
           if (addBom > 0)
@@ -346,8 +279,9 @@ namespace CsvTools
       }
 
       for (var i = 0; i < m_SkipLines && !EndOfFile; i++)
-        ReadLine();
+        await ReadLineAsync().ConfigureAwait(false);
     }
+
 
     private void Dispose(bool disposing)
     {
@@ -358,18 +292,6 @@ namespace CsvTools
       m_DisposedValue = true;
     }
 
-    /// <summary>
-    ///   Read the data from teh text reader into the buffer
-    /// </summary>
-    /// <returns></returns>
-    private void ReadIntoBuffer()
-    {
-      EndOfFile = TextReader.EndOfStream;
-      if (EndOfFile)
-        return;
-      BufferFilled = TextReader.Read(Buffer, 0, c_BufferSize);
-      BufferPos = 0;
-    }
 
     /// <summary>
     ///   Read the data from the text reader into the buffer

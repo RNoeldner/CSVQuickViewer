@@ -41,22 +41,22 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task FileCopy()
     {
-      var dest = UnitTestInitialize.GetTestPath("xyz.txt");
+      var dest = UnitTestInitializeCsv.GetTestPath("xyz.txt");
       try
       {
-        using (var processDisplay = new CustomProcessDisplay(CancellationToken.None, null))
+        using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token, null))
         {
           processDisplay.Maximum = -100;
 
           Assert.IsFalse(FileSystemUtils.FileExists(dest));
-          await FileSystemUtils.FileCopy(UnitTestInitialize.GetTestPath("AllFormats.txt"), dest, processDisplay);
+          await FileSystemUtils.FileCopy(UnitTestInitializeCsv.GetTestPath("AllFormats.txt"), dest, processDisplay);
           Assert.IsTrue(FileSystemUtils.FileExists(dest));
           Assert.AreEqual(-100, processDisplay.Maximum);
 
           // Copy again, the old file should be overwritten
-          await FileSystemUtils.FileCopy(UnitTestInitialize.GetTestPath("AlternateTextQualifiers.txt"), dest, processDisplay);
+          await FileSystemUtils.FileCopy(UnitTestInitializeCsv.GetTestPath("AlternateTextQualifiers.txt"), dest, processDisplay);
           Assert.IsTrue(FileSystemUtils.FileExists(dest));
-          Assert.AreEqual((new FileInfo(UnitTestInitialize.GetTestPath("AlternateTextQualifiers.txt"))).Length, new FileInfo(dest).Length);
+          Assert.AreEqual((new FileInfo(UnitTestInitializeCsv.GetTestPath("AlternateTextQualifiers.txt"))).Length, new FileInfo(dest).Length);
         }
       }
       finally
@@ -172,9 +172,9 @@ namespace CsvTools.Tests
     [TestMethod]
     public void TestMethodsOnLongPath()
     {
-      Directory.SetCurrentDirectory(UnitTestInitialize.ApplicationDirectory);
+      Directory.SetCurrentDirectory(UnitTestInitializeCsv.ApplicationDirectory);
       var relPath = ".";
-      var directory = UnitTestInitialize.ApplicationDirectory;
+      var directory = UnitTestInitializeCsv.ApplicationDirectory;
       while (directory.Length < 260)
       {
         relPath += "\\This is a subfolder";

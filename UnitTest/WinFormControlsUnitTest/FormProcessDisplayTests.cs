@@ -25,7 +25,7 @@ namespace CsvTools.Tests
     public void FormProcessDisplay()
     {
       // Log
-      using (var frm = new FormProcessDisplay("Test Logger", true, CancellationToken.None))
+      using (var frm = new FormProcessDisplay("Test Logger", true, UnitTestInitializeCsv.Token))
       {
         frm.ShowInTaskbar = false;
         frm.Show();
@@ -33,14 +33,14 @@ namespace CsvTools.Tests
         for (var c = 0; c < 70 && !frm.CancellationToken.IsCancellationRequested; c += 5)
         {
           frm.SetProcess($"This is a text\nLine {c}", c, true);
-          UnitTestInitialize.WaitSomeTime(.1);
+          UnitTestWinFormHelper.WaitSomeTime(.1);
           frm.SetFonts(frm);
         }
         frm.Close();
       }
 
       // marquee
-      using (var frm = new FormProcessDisplay("Test Marquee", false, CancellationToken.None))
+      using (var frm = new FormProcessDisplay("Test Marquee", false, UnitTestInitializeCsv.Token))
       {
         frm.ShowInTaskbar = false;
         frm.Show();
@@ -48,13 +48,13 @@ namespace CsvTools.Tests
         for (var c = 0; c < 100 && !frm.CancellationToken.IsCancellationRequested; c += 5)
         {
           frm.SetProcess($"This is a text\nLine {c}", c, true);
-          UnitTestInitialize.WaitSomeTime(.1);
+          UnitTestWinFormHelper.WaitSomeTime(.1);
         }
         frm.Close();
       }
 
       // NoLog
-      using (var frm = new FormProcessDisplay("Test", false, CancellationToken.None))
+      using (var frm = new FormProcessDisplay("Test", false, UnitTestInitializeCsv.Token))
       {
         frm.ShowInTaskbar = false;
         frm.Show();
@@ -62,7 +62,7 @@ namespace CsvTools.Tests
         for (var c = 0; c < 102 && !frm.CancellationToken.IsCancellationRequested; c += 4)
         {
           frm.SetProcess($"This is a text\nLine {c}", c, true);
-          UnitTestInitialize.WaitSomeTime(.1);
+          UnitTestWinFormHelper.WaitSomeTime(.1);
         }
         frm.Close();
       }

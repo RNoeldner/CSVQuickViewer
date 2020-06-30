@@ -73,9 +73,8 @@
     <Compile Include="LoggerTextBoxTests.cs" />
     <Compile Include="PersistentChoiceTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="UnitTestStatic.cs" />
     <Compile Include="ToolStripDataGridViewColumnFilterTests.cs" />
-    <Compile Include="UnitTestInitialize.cs" />
+    <Compile Include="UnitTestWinFormHelper.cs" />
     <Compile Include="ValueClusterTests.cs" />
     <Compile Include="ValueClusterCollectionTests.cs" />
     <Compile Include="ViewSettingTests.cs" />
@@ -98,6 +97,10 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\UnitTest\ClassLibraryValidatorUnitTest\ClassLibraryValidatorUnitTest.csproj">
+      <Project>{0c6b59ff-c05c-4aab-857b-57dbeee27a39}</Project>
+      <Name>ClassLibraryValidatorUnitTest</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Library\ClassLibraryCSV\ClassLibraryCSV.csproj">
       <Project>{0b6aee5a-8005-4b1d-987f-5790d34a2d52}</Project>
       <Name>ClassLibraryCSV</Name>
@@ -105,6 +108,10 @@
     <ProjectReference Include="..\..\Library\WinFormControls\WinFormControls.csproj">
       <Project>{55ad0a98-c175-4b38-a3d0-321740820d41}</Project>
       <Name>WinFormControls</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ClassLibraryCSVUnitTest\ClassLibraryCSVUnitTest.csproj">
+      <Project>{ddfec05c-94f0-4329-9cb2-96d2b4b57050}</Project>
+      <Name>ClassLibraryCSVUnitTest</Name>
     </ProjectReference>
   </ItemGroup>
   <Choose>

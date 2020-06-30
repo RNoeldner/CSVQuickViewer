@@ -47,7 +47,7 @@ namespace CsvTools.Tests
         // all good
       }
 
-      FunctionalDI.SQLDataReader = UnitTestInitialize.MimicSQLReader.ReadDataAsync;
+      FunctionalDI.SQLDataReader = UnitTestInitializeCsv.MimicSQLReader.ReadDataAsync;
       var readerAsync = FunctionalDI.SQLDataReader;
       Assert.IsNotNull(readerAsync);
     }

@@ -12,21 +12,20 @@
  *
  */
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
-using System.Linq;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
-  [TestClass()]
+  [TestClass]
   public class ImprovedStreamTests
   {
-    [TestMethod()]
+    [TestMethod]
     public void OpenReadTestSetting()
     {
       var setting = new CsvFile
       {
-        FileName = UnitTestInitialize.GetTestPath("BasicCsV.txt")
+        FileName = UnitTestInitializeCsv.GetTestPath("BasicCsV.txt")
       };
       using (var res = ImprovedStream.OpenRead(setting.FullPath))
       {
@@ -35,20 +34,20 @@ namespace CsvTools.Tests
       }
     }
 
-    [TestMethod()]
+    [TestMethod]
     public void OpenReadTestgZip()
     {
-      using (var res = ImprovedStream.OpenRead(UnitTestInitialize.GetTestPath("BasicCsV.txt.gz")))
+      using (var res = ImprovedStream.OpenRead(UnitTestInitializeCsv.GetTestPath("BasicCsV.txt.gz")))
       {
         Assert.IsNotNull(res);
         Assert.IsNotNull(res.Stream);
       }
     }
 
-    [TestMethod()]
+    [TestMethod]
     public void OpenReadTestRegular()
     {
-      using (var res = ImprovedStream.OpenRead(UnitTestInitialize.GetTestPath("BasicCsV.txt")))
+      using (var res = ImprovedStream.OpenRead(UnitTestInitializeCsv.GetTestPath("BasicCsV.txt")))
       {
         Assert.IsNotNull(res);
         Assert.IsNotNull(res.Stream);
@@ -57,7 +56,7 @@ namespace CsvTools.Tests
 
     private void WriteFile(string fileName)
     {
-      var fullname = UnitTestInitialize.GetTestPath(fileName);
+      var fullname = UnitTestInitializeCsv.GetTestPath(fileName);
 
       var encoding = EncodingHelper.GetEncoding(65001, true);
       const string Line1 = "This is a test of compressed data written to a file";
@@ -74,8 +73,10 @@ namespace CsvTools.Tests
           writer.WriteLine();
           writer.WriteLine(Line1);
         }
+
         improvedStream.Close();
       }
+
       Assert.IsTrue(FileSystemUtils.FileExists(fullname), "Check if File is created" + fileName);
 
       using (var improvedStream = ImprovedStream.OpenRead(fullname))
@@ -88,27 +89,28 @@ namespace CsvTools.Tests
           Assert.AreEqual(string.Empty, textReader.ReadLine(), "Line 4 : " + fileName);
           Assert.AreEqual(Line1, textReader.ReadLine(), "Line 5 : " + fileName);
         }
+
         improvedStream.Close();
       }
     }
 
-    [TestMethod()]
+    [TestMethod]
     public void OpenWriteTestgZip() => WriteFile("WriteText.gz");
 
-    [TestMethod()]
+    [TestMethod]
     public void OpenWriteTestRegular() => WriteFile("WriteText.txt");
 
-    [TestMethod()]
+    [TestMethod]
     public void CloseTest()
     {
-      var res = ImprovedStream.OpenRead(UnitTestInitialize.GetTestPath("BasicCsV.txt"));
+      var res = ImprovedStream.OpenRead(UnitTestInitializeCsv.GetTestPath("BasicCsV.txt"));
       res.Close();
     }
 
-    [TestMethod()]
+    [TestMethod]
     public void DisposeTest()
     {
-      var res = ImprovedStream.OpenRead(UnitTestInitialize.GetTestPath("BasicCsV.txt"));
+      var res = ImprovedStream.OpenRead(UnitTestInitializeCsv.GetTestPath("BasicCsV.txt"));
       res.Dispose();
     }
   }

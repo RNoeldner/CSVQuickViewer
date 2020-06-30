@@ -186,7 +186,7 @@
     <Compile Include="FileFormatTest.cs" />
     <Compile Include="FileSystemUtilsTest.cs" />
     <Compile Include="FillGuessSettingsTests.cs" />
-    <Compile Include="Helper.cs" />
+    <Compile Include="UnitTestHelper.cs" />
     <Compile Include="HTMLStyleTests.cs" />
     <Compile Include="ImprovedStreamTests.cs" />
     <Compile Include="IntervalActionTests.cs" />
@@ -214,7 +214,7 @@
     <Compile Include="ColumnInfoTest.cs" />
     <Compile Include="MimicSQLReader.cs" />
     <Compile Include="TimeToCompletionTests.cs" />
-    <Compile Include="UnitTestInitialize.cs" />
+    <Compile Include="UnitTestInitializeCsv.cs" />
     <Compile Include="ValueFormatTest.cs" />
     <Compile Include="CsvFileTest.cs" />
     <Compile Include="FieldMappingTest.cs" />

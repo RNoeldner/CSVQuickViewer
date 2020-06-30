@@ -73,13 +73,13 @@ namespace CsvTools.Tests
     [TestMethod]
     public void TestBasicCSV()
     {
-      ImportCOM(Helper.ReaderGetBasicCSV());
+      ImportCOM(UnitTestHelper.ReaderGetBasicCSV());
     }
 
     [TestMethod]
     public void TestAllFormats()
     {
-      ImportCOM(Helper.ReaderGetAllFormats());
+      ImportCOM(UnitTestHelper.ReaderGetAllFormats());
     }
   }
 

@@ -11,14 +11,14 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile
       {
-        FileName = UnitTestInitialize.GetTestPath("Sessions.txt"),
+        FileName = UnitTestInitializeCsv.GetTestPath("Sessions.txt"),
         HasFieldHeader = true,
         ByteOrderMark = true,
         FileFormat = {FieldDelimiter = "\t"}
       };
       setting.ColumnCollection.AddIfNew(new Column("Start Date") {Ignore = true});
 
-      using (var processDisplay = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
       using (var reader = new CsvFileReader(setting, processDisplay))
       {
         await reader.OpenAsync(processDisplay.CancellationToken);

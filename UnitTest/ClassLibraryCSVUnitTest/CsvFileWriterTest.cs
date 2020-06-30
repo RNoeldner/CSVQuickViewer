@@ -33,14 +33,14 @@ namespace CsvTools.Tests
     public void Init()
     {
       m_ReadFile =
-        new CsvFile("BasicCSV.txt") { ID = "Read", FileFormat = { FieldDelimiter = ",", CommentLine = "#" } };
+        new CsvFile(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt")) { ID = "Read", FileFormat = { FieldDelimiter = ",", CommentLine = "#" } };
 
       m_ReadFile.ColumnCollection.AddIfNew(new Column("ExamDate", new ValueFormat(DataType.DateTime) { DateFormat = @"dd/MM/yyyy" }));
       m_ReadFile.ColumnCollection.AddIfNew(new Column("Score", DataType.Integer));
       m_ReadFile.ColumnCollection.AddIfNew(new Column("Proficiency", DataType.Numeric));
       m_ReadFile.ColumnCollection.AddIfNew(new Column("IsNativeLang", DataType.Boolean) { Ignore = true });
 
-      UnitTestInitialize.MimicSQLReader.AddSetting(m_ReadFile);
+      UnitTestInitializeCsv.MimicSQLReader.AddSetting(m_ReadFile);
 
       m_WriteFile = new CsvFile { ID = "Write", SqlStatement = m_ReadFile.ID };
 
@@ -57,9 +57,9 @@ namespace CsvTools.Tests
       writeFile.FileName = "BasicCSVOut2tzc.txt";
 
       FileSystemUtils.FileDelete(writeFile.FullPath);
-      var setting = Helper.ReaderGetAllFormats();
+      var setting = UnitTestHelper.ReaderGetAllFormats();
 
-      UnitTestInitialize.MimicSQLReader.AddSetting(setting);
+      UnitTestInitializeCsv.MimicSQLReader.AddSetting(setting);
       writeFile.SqlStatement = setting.ID;
       writeFile.FileFormat.FieldDelimiter = "|";
       writeFile.ColumnCollection.AddIfNew(
@@ -82,7 +82,7 @@ namespace CsvTools.Tests
       var pd = new MockProcessDisplay();
 
       var writeFile = (CsvFile)m_WriteFile.Clone();
-      writeFile.FileName = "BasicCSVOut.txt";
+      writeFile.FileName = UnitTestInitializeCsv.GetTestPath("BasicCSVOut.txt");
       FileSystemUtils.FileDelete(writeFile.FullPath);
       writeFile.FileFormat.FieldDelimiter = "|";
 
@@ -100,12 +100,12 @@ namespace CsvTools.Tests
       var pd = new MockProcessDisplay();
 
       var writeFile = (CsvFile)m_WriteFile.Clone();
-      writeFile.FileName = "BasicCSVOut2.txt";
+      writeFile.FileName = UnitTestInitializeCsv.GetTestPath("BasicCSVOut2.txt");
 
       FileSystemUtils.FileDelete(writeFile.FullPath);
-      var setting = Helper.ReaderGetAllFormats();
+      var setting = UnitTestHelper.ReaderGetAllFormats();
 
-      UnitTestInitialize.MimicSQLReader.AddSetting(setting);
+      UnitTestInitializeCsv.MimicSQLReader.AddSetting(setting);
       writeFile.SqlStatement = setting.ID;
       writeFile.FileFormat.FieldDelimiter = "|";
 
@@ -138,7 +138,7 @@ namespace CsvTools.Tests
         }
 
         var writeFile = new CsvFile { ID = "Test.txt", FileName = "Test.txt", SqlStatement = "Hello" };
-        using (var processDisplay = new DummyProcessDisplay())
+        using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
         {
           var writer = new CsvFileWriter(writeFile, TimeZoneInfo.Local.Id, BaseSettings.ZeroTime, BaseSettings.ZeroTime, processDisplay);
           using (var reader = new DataTableWrapper(dataTable))
@@ -173,7 +173,7 @@ namespace CsvTools.Tests
         writeFile.Header = "##This is a header for {FileName}";
         writeFile.Footer = "##This is a Footer\r\n{Records} in file";
         var count = 0;
-        using (var processDisplay = new DummyProcessDisplay())
+        using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
         {
           var writer = new CsvFileWriter(writeFile, TimeZoneInfo.Local.Id, BaseSettings.ZeroTime, BaseSettings.ZeroTime, processDisplay);
           writer.Warning += (object sender, WarningEventArgs e) => { count++; };
@@ -216,7 +216,7 @@ namespace CsvTools.Tests
         using (var file = new StreamWriter(writeFile.FullPath))
         {
           await file.WriteLineAsync("Hello");
-          using (var processDisplay = new DummyProcessDisplay())
+          using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
           {
             var writer = new CsvFileWriter(writeFile, TimeZoneInfo.Local.Id, BaseSettings.ZeroTime, BaseSettings.ZeroTime, processDisplay);
             using (var reader = new DataTableWrapper(dataTable))

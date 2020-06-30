@@ -13,7 +13,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task AllFormatsPipeReaderAsync()
     {
-      var setting = new CsvFile(UnitTestInitialize.GetTestPath("RealignColumn.txt"))
+      var setting = new CsvFile(UnitTestInitializeCsv.GetTestPath("RealignColumn.txt"))
       {
         HasFieldHeader = true,
         FileFormat = { FieldDelimiter = "\t" },
@@ -22,7 +22,7 @@ namespace CsvTools.Tests
         SkipEmptyLines = false
       };
 
-      using (var processDisplay = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
       using (var test = new CsvFileReader(setting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);

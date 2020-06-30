@@ -353,7 +353,7 @@ namespace CsvTools
         m_TextReader?.Dispose();
         m_TextReader = new ImprovedTextReader(m_ImprovedStream, m_CodePageId, m_SkipRows);
 
-        ResetPositionToStartOrOpen();
+        await ResetPositionToStartOrOpen();
 
         m_HeaderRow = await ReadNextRowAsync(false, false).ConfigureAwait(false);
         InitColumn(await ParseFieldCountAsync(m_HeaderRow).ConfigureAwait(false));
@@ -408,7 +408,7 @@ namespace CsvTools
     /// <param name="token"></param>
     public new async Task ResetPositionToFirstDataRowAsync(CancellationToken token)
     {
-      ResetPositionToStartOrOpen();
+      await ResetPositionToStartOrOpen();
       if (m_HasFieldHeader)
         // Read the header row, this could be more than one line
         await ReadNextRowAsync(false, false).ConfigureAwait(false);
@@ -1144,12 +1144,12 @@ namespace CsvTools
     ///   Resets the position and buffer to the first line, excluding headers, use
     ///   ResetPositionToStart if you want to go to first data line
     /// </summary>
-    private void ResetPositionToStartOrOpen()
+    private async Task ResetPositionToStartOrOpen()
     {
-      m_TextReader.ToBeginning();
+      await m_TextReader.ToBeginningAsync();
 
-      StartLineNumber = 1 + m_SkipRows;
       EndLineNumber = 1 + m_SkipRows;
+      StartLineNumber = EndLineNumber;
       RecordNumber = 0;
       m_EndOfLine = false;
       EndOfFile = false;

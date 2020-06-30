@@ -11,7 +11,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void Properties()
     {
-      var test = new ProcessDisplayTime(CancellationToken.None)
+      var test = new ProcessDisplayTime(UnitTestInitializeCsv.Token)
       {
         LogAsDebug = true
       };
@@ -56,7 +56,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void MeasureTimeToCompletion()
     {
-      var test = new ProcessDisplayTime(CancellationToken.None) {Maximum = 100};
+      var test = new ProcessDisplayTime(UnitTestInitializeCsv.Token) {Maximum = 100};
       
       for (long counter = 1; counter <= 20; counter++)
       {
