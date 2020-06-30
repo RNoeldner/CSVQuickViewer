@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Diagnostics.Contracts;
 using System.Drawing;
-using System.IO;
-using System.Net;
 using System.Threading;
 using System.Windows.Forms;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -11,10 +8,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace CsvTools.Tests
 {
   [TestClass]
-  public static class UnitTestInitialize
+  public static class UnitTestWinFormHelper
   {
-    private static readonly string m_ApplicationDirectory = FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles";
-    
     public static void WaitSomeTime(double seconds)
     {
       var sw = new Stopwatch();
@@ -33,13 +28,13 @@ namespace CsvTools.Tests
       frm.Show();
       frm.Focus();
       if (time > 0)
-        UnitTestInitialize.WaitSomeTime(time);
+        WaitSomeTime(time);
 
       if (toDo != null)
       {
         toDo.Invoke();
         if (time > 0)
-          UnitTestInitialize.WaitSomeTime(time);
+          WaitSomeTime(time);
       }
 
       frm.Close();
@@ -67,22 +62,5 @@ namespace CsvTools.Tests
         ShowFormAndClose(frm, time, toDo);
       }
     }
-
-    public static string GetTestPath(string fileName) =>
-      Path.Combine(m_ApplicationDirectory, fileName.TrimStart(' ', '\\', '/'));
-
-    [AssemblyInitialize]
-    public static void AssemblyInitialize(TestContext context)
-    {
-      ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls12;
-
-      FunctionalDI.SignalBackground = Application.DoEvents;
-
-
-      Contract.ContractFailed += Contract_ContractFailed;
-    }
-
-
-    private static void Contract_ContractFailed(object sender, ContractFailedEventArgs e) => e.SetHandled();
   }
 }

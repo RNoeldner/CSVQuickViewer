@@ -2,6 +2,7 @@
 using System;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace CsvTools.Tests
 {
@@ -9,49 +10,49 @@ namespace CsvTools.Tests
   public class ImprovedTextReaderTests
   {
     [TestMethod()]
-    public void ImprovedTextReaderTestBOM()
+    public async Task ImprovedTextReaderTestBOM()
     {
-      using (var impStream = ImprovedStream.OpenRead(UnitTestInitialize.GetTestPath("BasicCsV.txt")))
+      using (var impStream = ImprovedStream.OpenRead(UnitTestInitializeCsv.GetTestPath("BasicCsV.txt")))
       {
         using (var test = new ImprovedTextReader(impStream, 65001))
         {
           Assert.AreEqual(1, test.LineNumber);
-          Assert.AreEqual("ID,LangCodeID,ExamDate,Score,Proficiency,IsNativeLang", test.ReadLine());
-          Assert.AreEqual("1,German,20/01/2010,276,0.94,Y", test.ReadLine());
+          Assert.AreEqual("ID,LangCodeID,ExamDate,Score,Proficiency,IsNativeLang", await test.ReadLineAsync());
+          Assert.AreEqual("1,German,20/01/2010,276,0.94,Y", await test.ReadLineAsync());
         }
       }
     }
 
     [TestMethod()]
-    public void ImprovedTextReaderTestCodePage()
+    public async Task ImprovedTextReaderTestCodePage()
     {
-      using (var impStream = ImprovedStream.OpenRead(UnitTestInitialize.GetTestPath("BasicCsV.txt")))
+      using (var impStream = ImprovedStream.OpenRead(UnitTestInitializeCsv.GetTestPath("BasicCsV.txt")))
       {
         using (var test = new ImprovedTextReader(impStream, 12000))
         {
           Assert.AreEqual(1, test.LineNumber);
-          Assert.AreEqual("ID,LangCodeID,ExamDate,Score,Proficiency,IsNativeLang", test.ReadLine());
-          Assert.AreEqual("1,German,20/01/2010,276,0.94,Y", test.ReadLine());
+          Assert.AreEqual("ID,LangCodeID,ExamDate,Score,Proficiency,IsNativeLang", await test.ReadLineAsync());
+          Assert.AreEqual("1,German,20/01/2010,276,0.94,Y", await test.ReadLineAsync());
         }
       }
     }
 
     [TestMethod()]
-    public void ImprovedTextReaderTestGz()
+    public async Task ImprovedTextReaderTestGz()
     {
-      using (var impStream = ImprovedStream.OpenRead(UnitTestInitialize.GetTestPath("BasicCsV.txt.gz")))
+      using (var impStream = ImprovedStream.OpenRead(UnitTestInitializeCsv.GetTestPath("BasicCsV.txt.gz")))
       {
         using (var test = new ImprovedTextReader(impStream, 12000))
         {
           Assert.AreEqual(1, test.LineNumber);
-          Assert.AreEqual("ID,LangCodeID,ExamDate,Score,Proficiency,IsNativeLang", test.ReadLine());
-          Assert.AreEqual("1,German,20/01/2010,276,0.94,Y", test.ReadLine());
+          Assert.AreEqual("ID,LangCodeID,ExamDate,Score,Proficiency,IsNativeLang", await test.ReadLineAsync());
+          Assert.AreEqual("1,German,20/01/2010,276,0.94,Y", await test.ReadLineAsync());
         }
       }
     }
 
     [TestMethod()]
-    public void BOMTest()
+    public async Task BOMTest()
     {
       // create files
       var fn = new[] {
@@ -73,7 +74,7 @@ namespace CsvTools.Tests
 
       foreach (var type in fn)
       {
-        var fileName = UnitTestInitialize.GetTestPath("Test_" + type.Item1 + ".txt");
+        var fileName = UnitTestInitializeCsv.GetTestPath("Test_" + type.Item1 + ".txt");
         using (var fs = new FileStream(fileName, FileMode.Create, FileAccess.Write))
         {
           // write the BOM
@@ -81,8 +82,8 @@ namespace CsvTools.Tests
 
           using (var fs2 = new StreamWriter(fs, Encoding.GetEncoding(type.Item2)))
           {
-            fs2.WriteLine(line1);
-            fs2.Write(line2);
+            await fs2.WriteLineAsync(line1);
+            await fs2.WriteAsync(line2);
           }
         }
         using (var impStream = ImprovedStream.OpenRead(fileName))
@@ -90,14 +91,14 @@ namespace CsvTools.Tests
           using (var test = new ImprovedTextReader(impStream, type.Item2, 0))
           {
             Assert.AreEqual(1, test.LineNumber);
-            Assert.AreEqual(line1, test.ReadLine(), $"Issue reading Line1 {type.Item1}");
+            Assert.AreEqual(line1, await test.ReadLineAsync(), $"Issue reading Line1 {type.Item1}");
             Assert.AreEqual(2, test.LineNumber);
-            Assert.AreEqual(line2, test.ReadLine(), $"Issue reading Line2 {type.Item1}");
+            Assert.AreEqual(line2, await test.ReadLineAsync(), $"Issue reading Line2 {type.Item1}");
 
-            test.ToBeginning();
+            await test.ToBeginningAsync();
 
             Assert.AreEqual(1, test.LineNumber);
-            Assert.AreEqual(line1, test.ReadLine(), $"Issue reading after reset {type.Item1}");
+            Assert.AreEqual(line1, await test.ReadLineAsync(), $"Issue reading after reset {type.Item1}");
           }
         }
 
@@ -106,29 +107,29 @@ namespace CsvTools.Tests
     }
 
     [TestMethod()]
-    public void ToBeginningTest()
+    public async Task ToBeginningTest()
     {
       // use a file with a BOM
-      using (var impStream = ImprovedStream.OpenRead(UnitTestInitialize.GetTestPath("txTranscripts.txt")))
+      using (var impStream = ImprovedStream.OpenRead(UnitTestInitializeCsv.GetTestPath("txTranscripts.txt")))
       {
         using (var test = new ImprovedTextReader(impStream))
         {
           Assert.AreEqual(1, test.LineNumber);
-          Assert.AreEqual("#UserID	CurriculumID	TranscriptStatus	RequestDateTime	RegistrationDateTime	CompletionDateTime", test.ReadLine());
+          Assert.AreEqual("#UserID	CurriculumID	TranscriptStatus	RequestDateTime	RegistrationDateTime	CompletionDateTime", await test.ReadLineAsync());
           for (var i = 0; i < 200; i++)
-            _ = test.ReadLine();
+            _ = await test.ReadLineAsync();
 
-          test.ToBeginning();
+          await test.ToBeginningAsync();
 
           Assert.AreEqual(1, test.LineNumber);
-          Assert.AreEqual("#UserID	CurriculumID	TranscriptStatus	RequestDateTime	RegistrationDateTime	CompletionDateTime", test.ReadLine());
+          Assert.AreEqual("#UserID	CurriculumID	TranscriptStatus	RequestDateTime	RegistrationDateTime	CompletionDateTime", await test.ReadLineAsync());
           for (var i = 0; i < 300; i++)
-            test.ReadLine();
+            await test.ReadLineAsync();
 
-          test.ToBeginning();
+          await test.ToBeginningAsync();
 
           Assert.AreEqual(1, test.LineNumber);
-          Assert.AreEqual("#UserID	CurriculumID	TranscriptStatus	RequestDateTime	RegistrationDateTime	CompletionDateTime", test.ReadLine());
+          Assert.AreEqual("#UserID	CurriculumID	TranscriptStatus	RequestDateTime	RegistrationDateTime	CompletionDateTime", await test.ReadLineAsync());
         }
       }
     }

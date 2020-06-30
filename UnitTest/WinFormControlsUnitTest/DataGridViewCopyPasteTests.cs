@@ -38,7 +38,7 @@ namespace CsvTools.Tests
             frm.Controls.Add(dgv);
             frm.Show();
             dgv.SelectAll();
-            dgv.SelectedDataIntoClipboard(true, false, CancellationToken.None);
+            dgv.SelectedDataIntoClipboard(true, false, UnitTestInitializeCsv.Token);
           }
         }
       }
@@ -62,7 +62,7 @@ namespace CsvTools.Tests
             dgv.Rows[3].Selected = true;
 
             Clipboard.Clear();
-            dgv.SelectedDataIntoClipboard(false, true, CancellationToken.None);
+            dgv.SelectedDataIntoClipboard(false, true, UnitTestInitializeCsv.Token);
 
             var dataObject = Clipboard.GetDataObject();
             Assert.IsNotNull(dataObject);
@@ -91,7 +91,7 @@ namespace CsvTools.Tests
             try
             {
               Clipboard.Clear();
-              dgv.SelectedDataIntoClipboard(true, false, CancellationToken.None);
+              dgv.SelectedDataIntoClipboard(true, false, UnitTestInitializeCsv.Token);
               var dataObject = Clipboard.GetDataObject();
               Assert.IsNotNull(dataObject);
               Assert.IsNotNull(dataObject.GetData(DataFormats.Text));
@@ -122,7 +122,7 @@ namespace CsvTools.Tests
             try
             {
               Clipboard.Clear();
-              dgv.SelectedDataIntoClipboard(true, false, CancellationToken.None);
+              dgv.SelectedDataIntoClipboard(true, false, UnitTestInitializeCsv.Token);
               var dataObject = Clipboard.GetDataObject();
               Assert.IsNotNull(dataObject);
               Assert.IsNotNull(dataObject.GetData(DataFormats.Text));

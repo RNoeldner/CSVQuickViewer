@@ -12,30 +12,44 @@
  *
  */
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Diagnostics.Contracts;
+using System.IO;
+using System.Net;
+using System.Threading;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
   [TestClass]
-  public static class UnitTestInitialize
+  public static class UnitTestInitializeCsv
   {
-    internal static readonly string ApplicationDirectory = FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles";
+    public static CancellationToken Token;
 
-    public static string GetTestPath(string fileName) => System.IO.Path.Combine(ApplicationDirectory, fileName.TrimStart(new[] { ' ', '\\', '/' }));
+    public static string ApplicationDirectory =  ApplicationSetting.RootFolder + @"\TestFiles";
 
     public static MimicSQLReader MimicSQLReader { get; } = new MimicSQLReader();
+
+    public static string GetTestPath(string fileName) =>
+      Path.Combine(ApplicationDirectory, fileName.TrimStart(' ', '\\', '/'));
+
+    public static void MimicSql()
+    {
+      FunctionalDI.SQLDataReader = MimicSQLReader.ReadDataAsync;
+    }
+
+    [ClassInitialize]
+    public static void ClassInit(TestContext context)
+    {
+      Token = context.CancellationTokenSource.Token;
+    }
 
     [AssemblyInitialize]
     public static void AssemblyInitialize(TestContext context)
     {
-      ApplicationSetting.RootFolder = FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles";
-      FunctionalDI.SQLDataReader = MimicSQLReader.ReadDataAsync;
-
-      // avoid contract violation kill the process
-      Contract.ContractFailed += Contract_ContractFailed;
+      MimicSql();
+      Contract.ContractFailed += (sender, e) => e.SetHandled();
+      Logger.AddLog += (s, level) => context.WriteLine($"{level} - {s}");
+      ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls12;
     }
-
-    private static void Contract_ContractFailed(object sender, ContractFailedEventArgs e) => e.SetHandled();
   }
 }

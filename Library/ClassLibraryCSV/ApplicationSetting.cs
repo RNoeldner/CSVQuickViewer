@@ -34,8 +34,7 @@ namespace CsvTools
     public static bool MenuDown { get; set; }
 
 
-    //TODO: Get rid of this, its used in get Full Path, it should be stored only once in ToolSetting
     [NotNull] 
-    public static string RootFolder { get; set; } = ".";
+    public static string RootFolder { get; set; } = FileSystemUtils.ExecutableDirectoryName();
   }
 }

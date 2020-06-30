@@ -405,7 +405,7 @@ namespace CsvTools
               if (display.CancellationToken.IsCancellationRequested)
                 return;
               display.SetProcess("Checking for Header", -1, true);
-              textReader.ToBeginning();
+              await textReader.ToBeginningAsync();
               setting.HasFieldHeader = await GuessHasHeaderAsync(textReader, setting.FileFormat.CommentLine,
                 setting.FileFormat.FieldDelimiterChar, display.CancellationToken).ConfigureAwait(false);
               display.SetProcess("Column Header: " + setting.HasFieldHeader, -1, true);
@@ -429,7 +429,7 @@ namespace CsvTools
       var contends = new StringBuilder();
       var textReaderPosition = new ImprovedTextReaderPositionStore(textReader);
 
-      while (dc.LastRow < dc.NumRows && !textReaderPosition.AllRead && !cancellationToken.IsCancellationRequested)
+      while (dc.LastRow < dc.NumRows && !await textReaderPosition.AllReadAsync() && !cancellationToken.IsCancellationRequested)
       {
         var lastChar = readChar;
         readChar = await textReader.ReadAsync().ConfigureAwait(false);
@@ -649,7 +649,7 @@ namespace CsvTools
       // \r = CR (Carriage Return) \n = LF (Line Feed)
 
       var textReaderPosition = new ImprovedTextReaderPositionStore(textReader);
-      while (currentChar < c_NumChars && !textReaderPosition.AllRead && !token.IsCancellationRequested)
+      while (currentChar < c_NumChars && !await textReaderPosition.AllReadAsync() && !token.IsCancellationRequested)
       {
         var readChar = await textReader.ReadAsync().ConfigureAwait(false);
         if (readChar == fieldQualifier)
@@ -737,13 +737,13 @@ namespace CsvTools
       var textReaderPosition = new ImprovedTextReaderPositionStore(textReader);
       var max = 0;
       // skip the first line it usually a header
-      for (var lineNo = 0; lineNo < c_MaxLine && !textReaderPosition.AllRead && !cancellationToken.IsCancellationRequested; lineNo++)
+      for (var lineNo = 0; lineNo < c_MaxLine && !await textReaderPosition.AllReadAsync() && !cancellationToken.IsCancellationRequested; lineNo++)
       {
         var line = await textReader.ReadLineAsync().ConfigureAwait(false);
         // EOF
         if (line == null)
         {
-          if (textReaderPosition.CanStartFromBeginning)
+          if (await textReaderPosition.CanStartFromBeginningAsync())
             continue;
           break;
         }
@@ -791,7 +791,7 @@ namespace CsvTools
         throw new ArgumentNullException(nameof(commentLine));
       const int c_MaxRows = 50;
 
-      textReader.ToBeginning();
+      await textReader.ToBeginningAsync();
       var columnCount = new List<int>(c_MaxRows);
       var rowMapping = new Dictionary<int, int>(c_MaxRows);
       var colCount = new int[c_MaxRows];

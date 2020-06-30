@@ -1,4 +1,7 @@
-﻿namespace CsvTools
+﻿using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
+
+namespace CsvTools
 {
   /// <summary>
   /// This class will make sure we go back to the beginning when starting in the middle of a stream and we reach the end.
@@ -26,21 +29,19 @@
     /// <summary>
     ///   True if we have read all data in the reader once
     /// </summary>
-    public bool AllRead => m_ImprovedTextReader.EndOfFile && !CanStartFromBeginning
-                        || m_ArrivedAtEndOnce && m_ImprovedTextReader.LineNumber > m_LineStarted;
+    public async Task<bool> AllReadAsync()  => m_ImprovedTextReader.EndOfFile && !(await CanStartFromBeginningAsync())
+                                               || m_ArrivedAtEndOnce && m_ImprovedTextReader.LineNumber > m_LineStarted;
 
     /// <summary>
     ///   Determines if we could reset the position to allow processing text that had been read before
     /// </summary>
-    public bool CanStartFromBeginning
+    public async Task<bool> CanStartFromBeginningAsync()
     {
-      get
-      {
         if (m_ArrivedAtEndOnce || m_LineStarted <= 1) return false;
         m_ArrivedAtEndOnce = true;
-        m_ImprovedTextReader.ToBeginning();
+        await m_ImprovedTextReader.ToBeginningAsync();
         return true;
-      }
+      
     }
   }
 }

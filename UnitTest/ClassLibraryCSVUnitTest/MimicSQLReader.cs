@@ -27,30 +27,23 @@ namespace CsvTools.Tests
 
     public void AddSetting(IFileSetting setting)
     {
-      if (setting == null || string.IsNullOrEmpty(setting.ID))
-      {
-        throw new ArgumentNullException(nameof(setting));
-      }
+      if (setting == null || string.IsNullOrEmpty(setting.ID)) throw new ArgumentNullException(nameof(setting));
 
       if (!m_ReadSetting.Any(x => x.Key.ID.Equals(setting.ID, StringComparison.OrdinalIgnoreCase)))
-      {
         m_ReadSetting.Add(setting, null);
-      }
     }
 
     public void AddSetting(string name, DataTable dt)
     {
       if (dt == null) throw new ArgumentNullException(nameof(dt));
-      if (string.IsNullOrEmpty(name))
-      {
-        throw new ArgumentNullException(nameof(name));
-      }
+      if (string.IsNullOrEmpty(name)) throw new ArgumentNullException(nameof(name));
 
       if (!m_ReadSetting.Any(x => x.Key.ID.Equals(name, StringComparison.OrdinalIgnoreCase)))
-        m_ReadSetting.Add(new CsvFile(name) { ID = name }, dt);
+        m_ReadSetting.Add(new CsvFile(name) {ID = name}, dt);
     }
 
-    public async Task<IFileReader> ReadDataAsync(string settingName, EventHandler<string> message, int timeout, CancellationToken token)
+    public async Task<IFileReader> ReadDataAsync(string settingName, EventHandler<string> message, int timeout,
+      CancellationToken token)
     {
       var setting = m_ReadSetting.Any(x => x.Key.ID == settingName)
         ? m_ReadSetting.First(x => x.Key.ID == settingName)

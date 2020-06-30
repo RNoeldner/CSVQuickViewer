@@ -20,11 +20,12 @@ namespace CsvTools.Tests
   public class MockProcessDisplay : IProcessDisplay
   {
     private bool m_Disposed;
-    public string Text;
     private bool m_Visible = true;
+    public string Text;
     public virtual string Title { get; set; }
 
-    public CancellationToken CancellationToken => CancellationToken.None;
+
+    public CancellationToken CancellationToken => UnitTestInitializeCsv.Token;
     public bool LogAsDebug { get; set; } = false;
 
     public long Maximum { get; set; }

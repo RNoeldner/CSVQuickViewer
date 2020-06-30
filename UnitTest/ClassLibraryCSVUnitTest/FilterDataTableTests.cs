@@ -65,7 +65,7 @@ namespace CsvTools.Tests
     {
       var dt = GetDataTable(2000);
       var test = new FilterDataTable(dt.Item1);
-      await test.StartFilter(0, FilterType.ErrorsAndWarning, CancellationToken.None);
+      await test.StartFilter(0, FilterType.ErrorsAndWarning, UnitTestInitializeCsv.Token);
       Assert.IsTrue(test.FilterTable.Rows.Count > 0);
 
       Assert.AreEqual(4, test.ColumnsWithErrors.Count);
@@ -78,7 +78,7 @@ namespace CsvTools.Tests
       var test = new FilterDataTable(dt.Item1);
       test.Cancel();
       // No effect but no error either
-      _ = test.StartFilter(0, FilterType.ShowErrors, CancellationToken.None);
+      _ = test.StartFilter(0, FilterType.ShowErrors, UnitTestInitializeCsv.Token);
       // Assert.IsTrue(test.Filtering);
       test.Cancel();
       // Assert.IsFalse(test.Filtering);
@@ -89,7 +89,7 @@ namespace CsvTools.Tests
     {
       var dt = GetDataTable(2000);
       var test = new FilterDataTable(dt.Item1);
-      await test.StartFilter(0, FilterType.ErrorsAndWarning, CancellationToken.None);
+      await test.StartFilter(0, FilterType.ErrorsAndWarning, UnitTestInitializeCsv.Token);
       // not a good test, but its known how many columns will have errors
       Assert.AreEqual(dt.Item2, test.ColumnsWithoutErrors.Count);
     }

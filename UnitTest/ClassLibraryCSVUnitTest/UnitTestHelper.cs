@@ -12,15 +12,15 @@
  *
  */
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
-  internal static class Helper
+  public static class UnitTestHelper
   {
     internal static void AllPropertiesEqual(this object a, object b)
     {
@@ -35,14 +35,14 @@ namespace CsvTools.Tests
           $"Type: {a.GetType().FullName}  Property:{prop.Name}");
     }
 
-    internal static CsvFile ReaderGetAllFormats(string id = "AllFormats")
+    public static CsvFile ReaderGetAllFormats(string id = "AllFormats")
     {
       var readFile = new CsvFile
       {
         ID = id,
-        FileName = Path.Combine(UnitTestInitialize.GetTestPath("AllFormats.txt")),
+        FileName = Path.Combine(UnitTestInitializeCsv.GetTestPath("AllFormats.txt")),
         HasFieldHeader = true,
-        FileFormat = { FieldDelimiter = "TAB" }
+        FileFormat = {FieldDelimiter = "TAB"}
       };
 
       var timeFld = new Column("DateTime", new ValueFormat(DataType.DateTime) {DateFormat = @"dd/MM/yyyy"});
@@ -71,13 +71,13 @@ namespace CsvTools.Tests
       return readFile;
     }
 
-    internal static CsvFile ReaderGetBasicCSV(string id = "BasicCSV")
+    public static CsvFile ReaderGetBasicCSV(string id = "BasicCSV")
     {
       var readFile = new CsvFile
       {
         ID = id,
-        FileFormat = { CommentLine = "#" },
-        FileName = Path.Combine(UnitTestInitialize.GetTestPath("BasicCSV.txt"))
+        FileFormat = {CommentLine = "#"},
+        FileName = Path.Combine(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"))
       };
       var examDateFld = new Column("ExamDate", DataType.DateTime);
       readFile.ColumnCollection.AddIfNew(examDateFld);

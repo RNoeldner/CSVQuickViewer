@@ -1,16 +1,17 @@
-﻿/*
- * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
- *
- * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
- * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
- * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
- *
- * You should have received a copy of the GNU Lesser Public License along with this program.
- * If not, see http://www.gnu.org/licenses/ .
- *
- */
+﻿using CsvTools;
+/*
+* Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
+*
+* This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
+* License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+* of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
+*
+* You should have received a copy of the GNU Lesser Public License along with this program.
+* If not, see http://www.gnu.org/licenses/ .
+*
+*/
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
@@ -27,12 +28,12 @@ namespace CsvTools.Tests
     [TestInitialize]
     public void Init()
     {
-      var readFile = new CsvFile { ID = c_ReadID, FileName = "BasicCSV.txt", FileFormat = { CommentLine = "#" } };
+      var readFile = new CsvFile { ID = c_ReadID, FileName = UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"), FileFormat = { CommentLine = "#" } };
       readFile.ColumnCollection.AddIfNew(new Column("ExamDate", @"dd/MM/yyyy"));
       readFile.ColumnCollection.AddIfNew(new Column("Score", DataType.Integer));
       readFile.ColumnCollection.AddIfNew(new Column("Proficiency", DataType.Numeric));
       readFile.ColumnCollection.AddIfNew(new Column("IsNativeLang", DataType.Boolean) { Ignore = true });
-      UnitTestInitialize.MimicSQLReader.AddSetting(readFile);
+      UnitTestInitializeCsv.MimicSQLReader.AddSetting(readFile);
     }
 
     [TestMethod]
@@ -48,7 +49,7 @@ namespace CsvTools.Tests
       };
 
       var sb = new StringBuilder("{");
-      using (var processDisplay = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
       {
         var cols = await DetermineColumnFormat.GetSqlColumnNamesAsync(writeFile.SqlStatement, writeFile.Timeout, processDisplay.CancellationToken);
         writeFile.Header = "{\"rowset\":[\n";
@@ -65,7 +66,8 @@ namespace CsvTools.Tests
         sb.AppendLine("},");
         writeFile.Row = sb.ToString();
         var writer = new StructuredFileWriter(writeFile, TimeZoneInfo.Local.Id, BaseSettings.ZeroTime, BaseSettings.ZeroTime, processDisplay);
-        await writer.WriteAsync(processDisplay.CancellationToken);
+        var result = await writer.WriteAsync(processDisplay.CancellationToken);
+        Assert.AreEqual(7L, result);
       }
     }
 
@@ -81,7 +83,7 @@ namespace CsvTools.Tests
         JSONEncode = false
       };
       var sb = new StringBuilder();
-      using (var processDisplay = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
       {
         var cols = await DetermineColumnFormat.GetSqlColumnNamesAsync(writeFile.SqlStatement, writeFile.Timeout, processDisplay.CancellationToken);
         sb.AppendLine("<?xml version=\"1.0\"?>\n");

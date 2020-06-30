@@ -28,7 +28,7 @@ namespace CsvTools.Tests
   {
     private readonly CsvFile m_ValidSetting = new CsvFile
     {
-      FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt"),
+      FileName = UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"),
       FileFormat = { FieldDelimiter = ",", CommentLine = "#" }
     };
 
@@ -47,14 +47,14 @@ namespace CsvTools.Tests
     public async Task AllFormatsPipeReaderAsync()
     {
       var setting =
-        new CsvFile(UnitTestInitialize.GetTestPath("AllFormatsPipe.txt"))
+        new CsvFile(UnitTestInitializeCsv.GetTestPath("AllFormatsPipe.txt"))
         {
           HasFieldHeader = true,
           FileFormat = { FieldDelimiter = "|", FieldQualifier = "\"" },
           SkipEmptyLines = false
         };
 
-      using (var processDisplay = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
       using (var test = new CsvFileReader(setting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
@@ -94,7 +94,7 @@ namespace CsvTools.Tests
         TreatLFAsSpace = true,
         TryToSolveMoreColumns = true,
         AllowRowCombining = true,
-        FileName = UnitTestInitialize.GetTestPath("BadIssues.csv"),
+        FileName = UnitTestInitializeCsv.GetTestPath("BadIssues.csv"),
         FileFormat = { FieldDelimiter = "TAB", FieldQualifier = string.Empty }
       };
       basIssues.ColumnCollection.AddIfNew(new Column("effectiveDate", "yyyy/MM/dd", "-"));
@@ -106,7 +106,7 @@ namespace CsvTools.Tests
       basIssues.ColumnCollection.AddIfNew(new Column("classroomTraining", DataType.Boolean));
       basIssues.ColumnCollection.AddIfNew(new Column("webLink", DataType.TextToHtml));
 
-      using (var processDisplay = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
       using (var test = new CsvFileReader(basIssues, processDisplay))
       {
         var warningList = new RowErrorCollection(test);
@@ -194,7 +194,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task TestGetDataTypeNameAsync()
     {
-      using (var processDisplay = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
       using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
@@ -205,7 +205,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task TestWarningsRecordNoMappingAsync()
     {
-      using (var processDisplay = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
       using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
@@ -272,7 +272,7 @@ namespace CsvTools.Tests
         ValueFormatMutable = { DataType = DataType.Integer, GroupSeparator = ",", DecimalSeparator = "," }
       };
 
-      using (var processDisplay = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
       using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
         var inputValue = "17";
@@ -297,7 +297,7 @@ namespace CsvTools.Tests
     public async Task TestBatchFinishedNotifcationAsync()
     {
       var finished = false;
-      using (var processDisplay = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
       using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
         test.ReadFinished += delegate { finished = true; };
@@ -315,7 +315,7 @@ namespace CsvTools.Tests
     public async Task TestReadFinishedNotificationAsync()
     {
       var finished = false;
-      using (var processDisplay = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
       using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
         test.ReadFinished += delegate { finished = true; };
@@ -349,14 +349,14 @@ namespace CsvTools.Tests
     {
       var csvFile = new CsvFile
       {
-        FileName = UnitTestInitialize.GetTestPath("TestFile.txt"),
+        FileName = UnitTestInitializeCsv.GetTestPath("TestFile.txt"),
         CodePageId = 65001,
         FileFormat = { FieldDelimiter = "tab" }
       };
 
       csvFile.ColumnCollection.AddIfNew(new Column("Title", DataType.DateTime));
 
-      using (var processDisplay = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
       using (var test = new CsvFileReader(csvFile, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
@@ -393,7 +393,7 @@ namespace CsvTools.Tests
       try
       {
         setting.FileName = @"b;dslkfg;sldfkgjs;ldfkgj;sldfkg.sdfgsfd";
-        using (var processDisplay = new DummyProcessDisplay())
+        using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
         using (var reader = new CsvFileReader(setting, null))
         {
           await reader.OpenAsync(processDisplay.CancellationToken);
@@ -418,11 +418,11 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile
       {
-        FileName = UnitTestInitialize.GetTestPath("BasicCSVEmptyLine.txt"),
+        FileName = UnitTestInitializeCsv.GetTestPath("BasicCSVEmptyLine.txt"),
         HasFieldHeader = true
       };
 
-      using (var processDisplay = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
       using (var test = new CsvFileReader(setting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
@@ -439,7 +439,7 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile
       {
-        FileName = UnitTestInitialize.GetTestPath("BasicCSVEmptyLine.txt"),
+        FileName = UnitTestInitializeCsv.GetTestPath("BasicCSVEmptyLine.txt"),
         HasFieldHeader = true,
         SkipEmptyLines = false,
         ConsecutiveEmptyRows = 3
@@ -458,7 +458,7 @@ namespace CsvTools.Tests
 10
 */
 
-      using (var processDisplay = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
       using (var test = new CsvFileReader(setting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
@@ -473,7 +473,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderPropertiesAsync()
     {
-      using (var processDisplay = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
       using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
@@ -491,7 +491,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderGetNameAsync()
     {
-      using (var processDisplay = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
       using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
@@ -507,7 +507,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderGetOrdinalAsync()
     {
-      using (var processDisplay = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
       using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
@@ -524,7 +524,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderUseIndexerAsync()
     {
-      using (var processDisplay = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
       using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
@@ -540,7 +540,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderGetValueNullAsync()
     {
-      using (var processDisplay = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
       using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
@@ -592,7 +592,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderGetBooleanAsync()
     {
-      using (var processDisplay = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
       using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
@@ -607,7 +607,7 @@ namespace CsvTools.Tests
     [ExpectedException(typeof(FormatException))]
     public async Task CsvDataReaderGetBooleanErrorAsync()
     {
-      using (var processDisplay = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
       using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
@@ -619,7 +619,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderGetDateTimeAsync()
     {
-      using (var processDisplay = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
       using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
@@ -633,7 +633,7 @@ namespace CsvTools.Tests
     [ExpectedException(typeof(FormatException))]
     public async Task CsvDataReaderGetDateTimeErrorAsync()
     {
-      using (var processDisplay = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
       using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
@@ -645,7 +645,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderGetInt32Async()
     {
-      using (var processDisplay = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
       using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
@@ -658,7 +658,7 @@ namespace CsvTools.Tests
     [ExpectedException(typeof(FormatException))]
     public async Task CsvDataReaderGetInt32ErrorAsync()
     {
-      using (var processDisplay = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
       using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
@@ -670,7 +670,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderGetDecimalAsync()
     {
-      using (var processDisplay = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
       using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
@@ -683,7 +683,7 @@ namespace CsvTools.Tests
     [ExpectedException(typeof(FormatException))]
     public async Task CsvDataReaderGetDecimalErrorAsync()
     {
-      using (var processDisplay = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
       using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
@@ -696,7 +696,7 @@ namespace CsvTools.Tests
     [ExpectedException(typeof(FormatException))]
     public async Task CsvDataReaderGetInt32NullAsync()
     {
-      using (var processDisplay = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
       using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
@@ -710,7 +710,7 @@ namespace CsvTools.Tests
     [ExpectedException(typeof(NotImplementedException))]
     public async Task CsvDataReaderGetBytesAsync()
     {
-      using (var processDisplay = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
       using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
@@ -722,7 +722,7 @@ namespace CsvTools.Tests
     [ExpectedException(typeof(NotImplementedException))]
     public async Task CsvDataReaderGetDataAsync()
     {
-      using (var processDisplay = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
       using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
@@ -733,7 +733,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderGetFloatAsync()
     {
-      using (var processDisplay = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
       using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
@@ -746,7 +746,7 @@ namespace CsvTools.Tests
     [ExpectedException(typeof(FormatException))]
     public async Task CsvDataReaderGetFloatErrorAsync()
     {
-      using (var processDisplay = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
       using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
@@ -759,7 +759,7 @@ namespace CsvTools.Tests
     [ExpectedException(typeof(FormatException))]
     public async Task CsvDataReaderGetGuidAsync()
     {
-      using (var processDisplay = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
       using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
@@ -772,7 +772,7 @@ namespace CsvTools.Tests
     [ExpectedException(typeof(FormatException))]
     public async Task CsvDataReaderGetDateTimeNullAsync()
     {
-      using (var processDisplay = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
       using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
@@ -787,7 +787,7 @@ namespace CsvTools.Tests
     [ExpectedException(typeof(FormatException))]
     public async Task CsvDataReaderGetDateTimeWrongTypeAsync()
     {
-      using (var processDisplay = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
       using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
@@ -800,7 +800,7 @@ namespace CsvTools.Tests
     [ExpectedException(typeof(FormatException))]
     public async Task CsvDataReaderGetDecimalFormatException()
     {
-      using (var processDisplay = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
       using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
@@ -813,7 +813,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderGetByte()
     {
-      using (var processDisplay = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
       using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
@@ -826,7 +826,7 @@ namespace CsvTools.Tests
     [ExpectedException(typeof(FormatException))]
     public async Task CsvDataReaderGetByteFrormat()
     {
-      using (var processDisplay = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
       using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
@@ -838,7 +838,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderGetDouble()
     {
-      using (var processDisplay = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
       using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
@@ -851,7 +851,7 @@ namespace CsvTools.Tests
     [ExpectedException(typeof(FormatException))]
     public async Task CsvDataReaderGetDoubleFrormat()
     {
-      using (var processDisplay = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
       using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
@@ -863,7 +863,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderGetInt16()
     {
-      using (var processDisplay = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
       using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
@@ -877,14 +877,14 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile
       {
-        FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt"),
+        FileName = UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"),
         HasFieldHeader = false,
         SkipRows = 1
       };
       setting.FileFormat.FieldQualifier = "XX";
       setting.FileFormat.FieldDelimiter = ",,";
 
-      using (var processDisplay = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
       using (var test = new CsvFileReader(setting, processDisplay))
       {
         var warningList = new RowErrorCollection(test);
@@ -902,7 +902,7 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile
       {
-        FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt"),
+        FileName = UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"),
         HasFieldHeader = false,
         SkipRows = 1,
         FileFormat = { FieldDelimiter = "\r" }
@@ -910,7 +910,7 @@ namespace CsvTools.Tests
       var exception = false;
       try
       {
-        using (var processDisplay = new DummyProcessDisplay())
+        using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
         using (var test = new CsvFileReader(setting, processDisplay))
         {
           await test.OpenAsync(processDisplay.CancellationToken);
@@ -937,7 +937,7 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile
       {
-        FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt"),
+        FileName = UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"),
         HasFieldHeader = false,
         SkipRows = 1,
         FileFormat = { FieldQualifier = "Carriage return" }
@@ -945,7 +945,7 @@ namespace CsvTools.Tests
       var exception = false;
       try
       {
-        using (var processDisplay = new DummyProcessDisplay())
+        using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
         using (var test = new CsvFileReader(setting, processDisplay))
         {
           await test.OpenAsync(processDisplay.CancellationToken);
@@ -972,7 +972,7 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile
       {
-        FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt"),
+        FileName = UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"),
         HasFieldHeader = false,
         SkipRows = 1,
         FileFormat = { FieldQualifier = "Line feed" }
@@ -980,7 +980,7 @@ namespace CsvTools.Tests
       var exception = false;
       try
       {
-        using (var processDisplay = new DummyProcessDisplay())
+        using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
         using (var test = new CsvFileReader(setting, processDisplay))
         {
           await test.OpenAsync(processDisplay.CancellationToken);
@@ -1007,12 +1007,12 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile
       {
-        FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt"),
+        FileName = UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"),
         HasFieldHeader = true,
         CodePageId = 0
       };
       setting.FileFormat.FieldDelimiter = ",";
-      using (var processDisplay = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
       using (var test = new CsvFileReader(setting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
@@ -1026,7 +1026,7 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile
       {
-        FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt"),
+        FileName = UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"),
         HasFieldHeader = false,
         SkipRows = 1,
         FileFormat = { FieldDelimiter = "\n" }
@@ -1034,7 +1034,7 @@ namespace CsvTools.Tests
       var exception = false;
       try
       {
-        using (var processDisplay = new DummyProcessDisplay())
+        using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
         using (var test = new CsvFileReader(setting, processDisplay))
         {
           await test.OpenAsync(processDisplay.CancellationToken);
@@ -1061,7 +1061,7 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile
       {
-        FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt"),
+        FileName = UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"),
         HasFieldHeader = false,
         SkipRows = 1,
         FileFormat = { FieldDelimiter = " " }
@@ -1069,7 +1069,7 @@ namespace CsvTools.Tests
       var exception = false;
       try
       {
-        using (var processDisplay = new DummyProcessDisplay())
+        using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
         using (var test = new CsvFileReader(setting, processDisplay))
         {
           await test.OpenAsync(processDisplay.CancellationToken);
@@ -1096,7 +1096,7 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile
       {
-        FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt"),
+        FileName = UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"),
         HasFieldHeader = false,
         SkipRows = 1,
         FileFormat = { FieldQualifier = "\"" }
@@ -1105,7 +1105,7 @@ namespace CsvTools.Tests
       var exception = false;
       try
       {
-        using (var processDisplay = new DummyProcessDisplay())
+        using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
         using (var test = new CsvFileReader(setting, processDisplay))
         {
           await test.OpenAsync(processDisplay.CancellationToken);
@@ -1133,7 +1133,7 @@ namespace CsvTools.Tests
       var exception = false;
       try
       {
-        using (var processDisplay = new DummyProcessDisplay())
+        using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
         using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
         {
           await test.OpenAsync(processDisplay.CancellationToken);
@@ -1156,7 +1156,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderGetInt64()
     {
-      using (var processDisplay = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
       using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
@@ -1171,7 +1171,7 @@ namespace CsvTools.Tests
       var exception = false;
       try
       {
-        using (var processDisplay = new DummyProcessDisplay())
+        using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
         using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
         {
           await test.OpenAsync(processDisplay.CancellationToken);
@@ -1194,7 +1194,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderGetChar()
     {
-      using (var processDisplay = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
       using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
@@ -1206,7 +1206,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderGetStringColumnNotExisting()
     {
-      using (var processDisplay = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
       using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
         var exception = false;
@@ -1236,7 +1236,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderGetString()
     {
-      using (var processDisplay = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
       using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
@@ -1248,7 +1248,7 @@ namespace CsvTools.Tests
 
     public async Task DataReaderResetPositionToFirstDataRow()
     {
-      using (var processDisplay = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
       using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
         await test.ResetPositionToFirstDataRowAsync(processDisplay.CancellationToken);
@@ -1259,7 +1259,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderIsDBNull()
     {
-      using (var processDisplay = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
       using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
@@ -1275,7 +1275,7 @@ namespace CsvTools.Tests
     public async Task CsvDataReaderTreatNullTextTrue()
     {
       //m_ValidSetting.TreatTextNullAsNull = true;
-      using (var processDisplay = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
       using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
@@ -1293,7 +1293,7 @@ namespace CsvTools.Tests
     public async Task CsvDataReaderTreatNullTextFalse()
     {
       m_ValidSetting.TreatTextAsNull = null;
-      using (var processDisplay = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
       using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
@@ -1310,7 +1310,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderGetValues()
     {
-      using (var processDisplay = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
       using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
@@ -1323,7 +1323,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderGetChars()
     {
-      using (var processDisplay = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
       using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
@@ -1340,7 +1340,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderGetSchemaTable()
     {
-      using (var processDisplay = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
       using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
@@ -1353,7 +1353,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderReadAfterEndAsync()
     {
-      using (var processDisplay = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
       using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
@@ -1382,7 +1382,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderReadAfterCloseAsync()
     {
-      using (var processDisplay = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
       using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
@@ -1395,7 +1395,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task GetDataTableAsync_LimitTrack1()
     {
-      using (var processDisplay = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
       {
         using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
         {
@@ -1410,7 +1410,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task GetDataTableAsync_LimitTrack2()
     {
-      using (var processDisplay = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
       {
         using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
         {
@@ -1425,7 +1425,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task GetDataTableAsync2()
     {
-      using (var processDisplay = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
       {
         var test2 = (CsvFile) m_ValidSetting.Clone();
         test2.RecordLimit = 4;
@@ -1442,9 +1442,9 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task GetDataTableAsync3()
     {
-      using (var processDisplay = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
       {
-        var test3 = new CsvFile(UnitTestInitialize.GetTestPath("WithEoFChar.txt"))
+        var test3 = new CsvFile(UnitTestInitializeCsv.GetTestPath("WithEoFChar.txt"))
         {
           FileFormat = { FieldDelimiter = "TAB" }
         };
@@ -1467,12 +1467,12 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile
       {
-        FileName = UnitTestInitialize.GetTestPath("BasicCSV.txt"),
+        FileName = UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"),
         HasFieldHeader = false,
         SkipRows = 1,
         FileFormat = { FieldDelimiter = "," }
       };
-      using (var processDisplay = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
       using (var test = new CsvFileReader(setting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);

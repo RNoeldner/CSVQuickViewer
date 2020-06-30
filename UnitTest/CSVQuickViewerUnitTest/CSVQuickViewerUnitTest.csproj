@@ -85,6 +85,10 @@
       <Project>{55ad0a98-c175-4b38-a3d0-321740820d41}</Project>
       <Name>WinFormControls</Name>
     </ProjectReference>
+    <ProjectReference Include="..\WinFormControlsUnitTest\WinFormControlsUnitTest.csproj">
+      <Project>{ce5f0052-f13f-4f51-aa08-4d691ec59d93}</Project>
+      <Name>WinFormControlsUnitTest</Name>
+    </ProjectReference>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

@@ -78,12 +78,12 @@ namespace CsvTools.Tests
         FileName = "Folder\\This is a long file name that should be cut and fit into 80 chars.txt",
         ShowProgress = true
       };
-      using (var prc = setting.GetProcessDisplay(null, true, System.Threading.CancellationToken.None))
+      using (var prc = setting.GetProcessDisplay(null, true, UnitTestInitializeCsv.Token))
       {
         Assert.IsTrue(prc is IProcessDisplay, "GetProcessDisplay With Logger");
       }
 
-      using (var prc = setting.GetProcessDisplay(null, false, System.Threading.CancellationToken.None))
+      using (var prc = setting.GetProcessDisplay(null, false, UnitTestInitializeCsv.Token))
       {
         Assert.IsTrue(prc is IProcessDisplay, "GetProcessDisplay Without Logger");
       }
@@ -94,7 +94,7 @@ namespace CsvTools.Tests
         ShowProgress = false
       };
 
-      using (var prc = setting2.GetProcessDisplay(null, false, System.Threading.CancellationToken.None))
+      using (var prc = setting2.GetProcessDisplay(null, false, UnitTestInitializeCsv.Token))
       {
         Assert.IsTrue(prc is IProcessDisplay, "GetProcessDisplay without UI");
       }

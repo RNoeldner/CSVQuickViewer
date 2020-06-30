@@ -72,7 +72,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GetFileWriter()
     {
-      using (var processDisplay = new DummyProcessDisplay())
+      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
       {
         m_StructuredFile.SqlStatement = "dummy";
         var res = FunctionalDI.GetFileWriter(m_StructuredFile, TimeZoneInfo.Local.Id, processDisplay);
