@@ -110,10 +110,10 @@ namespace CsvTools
           var notIgnored = reader.GetColumnsOfReader().ToList();
           foreach (var column in notIgnored)
             dataTable.Columns.Add(new DataColumn(column.Name, column.ValueFormat.DataType.GetNetType()));
-          
+
 
           var record = 0;
-          while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false) && record++<recordLimit)
+          while (record++<recordLimit && await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
           {
             var dataRow = dataTable.NewRow();
             dataTable.Rows.Add(dataRow);
