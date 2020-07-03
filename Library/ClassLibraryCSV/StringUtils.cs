@@ -81,7 +81,7 @@ namespace CsvTools
     /// <param name="text">The text to be checked</param>
     /// <param name="toCheck">To text find.</param>
     /// <param name="comp">The comparison.</param>
-    /// <returns><c>true</c> if teh text does contains the check; otherwise, <c>false</c>.</returns>
+    /// <returns><c>true</c> if the text does contains the check; otherwise, <c>false</c>.</returns>
     public static bool Contains([CanBeNull] this string text, [NotNull] string toCheck, StringComparison comp) =>
       text?.IndexOf(toCheck, comp) >= 0;
 

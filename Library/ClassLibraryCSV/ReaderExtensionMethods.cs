@@ -57,28 +57,33 @@ namespace CsvTools
     ///   Stores all rows from te reader into a DataTable, form the current position of the reader onwards.
     /// </summary>
     /// <param name="reader">
-    ///   Any type of <see cref="IFileReader" />, if teh source is a DataTableWrapper though the original
-    ///   passed in data table is returned, no artificial columns are added
+    ///   Any type of <see cref="IFileReader" />, if the source is a DataTableWrapper though the
+    ///   original passed in data table is returned, no artificial columns are added
     /// </param>
-    /// <param name="recordLimit">Number of records to return, the reader might already have a limit</param>
-    /// <param name="storeWarningsInDataTable">if <c>true</c> Row and Column errors are created in the data table</param>
+    /// <param name="recordLimit">
+    ///   Number of records to return, the reader might already have a limit
+    /// </param>
+    /// <param name="storeWarningsInDataTable">
+    ///   if <c>true</c> Row and Column errors are created in the data table
+    /// </param>
     /// <param name="addStartLine">
-    ///   if <c>true</c> add a column for the start line:
-    ///   <see cref="ReaderConstants.cStartLineNumberFieldName" /> useful for line based reader like delimited text
+    ///   if <c>true</c> add a column for the start line: <see
+    ///   cref="ReaderConstants.cStartLineNumberFieldName" /> useful for line based reader like
+    ///   delimited text
     /// </param>
     /// <param name="includeRecordNo">
-    ///   if <c>true</c> add a column for the records number:
-    ///   <see cref="ReaderConstants.cRecordNumberFieldName" /> (if the reader was not at the beginning it will it will not
-    ///   start with 1)
+    ///   if <c>true</c> add a column for the records number: <see
+    ///   cref="ReaderConstants.cRecordNumberFieldName" /> (if the reader was not at the beginning
+    ///   it will it will not start with 1)
     /// </param>
     /// <param name="includeEndLineNo">
-    ///   if <c>true</c> add a column for the end line:
-    ///   <see cref="ReaderConstants.cEndLineNumberFieldName" /> useful for line based reader like delimited text where a
-    ///   record can span multiple lines
+    ///   if <c>true</c> add a column for the end line: <see
+    ///   cref="ReaderConstants.cEndLineNumberFieldName" /> useful for line based reader like
+    ///   delimited text where a record can span multiple lines
     /// </param>
     /// <param name="includeErrorField">
-    ///   if <c>true</c> add a column with error information:
-    ///   <see cref="ReaderConstants.cErrorField" />
+    ///   if <c>true</c> add a column with error information: <see
+    ///   cref="ReaderConstants.cErrorField" />
     /// </param>
     /// <param name="cancellationToken">Token to cancel the long running async method</param>
     /// <returns></returns>
@@ -86,7 +91,7 @@ namespace CsvTools
       bool storeWarningsInDataTable, bool addStartLine,
       bool includeRecordNo, bool includeEndLineNo, bool includeErrorField, CancellationToken cancellationToken)
     {
-      // Special handling for DataTableWrapper, no need to build something 
+      // Special handling for DataTableWrapper, no need to build something
       if (reader is DataTableWrapper dtWrapper)
         return await Task.FromResult(dtWrapper.DataTable);
 
@@ -101,7 +106,7 @@ namespace CsvTools
       dataTable.BeginLoadData();
       try
       {
-        // Check if we need the wrapper, in case of new additional columns and not storing errors 
+        // Check if we need the wrapper, in case of new additional columns and not storing errors
         if (!storeWarningsInDataTable && !addStartLine && !includeRecordNo && !includeEndLineNo && !includeErrorField)
         {
           if (reader.IsClosed)
@@ -110,7 +115,6 @@ namespace CsvTools
           var notIgnored = reader.GetColumnsOfReader().ToList();
           foreach (var column in notIgnored)
             dataTable.Columns.Add(new DataColumn(column.Name, column.ValueFormat.DataType.GetNetType()));
-          
 
           var record = 0;
           while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false) && record++<recordLimit)
@@ -161,6 +165,5 @@ namespace CsvTools
         throw;
       }
     }
-
   }
 }

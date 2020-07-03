@@ -52,7 +52,7 @@ namespace CsvTools
     /// </param>
     /// <remarks>
     ///   This routine uses a TextReader to allow character decoding, it will always read they teh
-    ///   first few bytes of teh source stream to look at a possible existing BOM if found, it will
+    ///   first few bytes of the source stream to look at a possible existing BOM if found, it will
     ///   overwrite the provided data
     /// </remarks>
     public ImprovedTextReader([NotNull] IImprovedStream improvedStream, int codePageId = 65001, int skipLines = 0)
@@ -132,7 +132,7 @@ namespace CsvTools
 
     /// <summary>
     ///   Increase the position in the text, this is used in case a character that has been looked
-    ///   at with <see cref="PeekAsync" /> does not need to be read teh next call of
+    ///   at with <see cref="PeekAsync" /> does not need to be read the next call of
     ///   <see
     ///     cref="ReadAsync" />
     /// </summary>
@@ -223,8 +223,8 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Resets teh position of teh stream to the beginning, without opening teh stream from
-    ///   scratch This is fast in case teh text fitted into the buffer or the underlying stream
+    ///   Resets the position of the stream to the beginning, without opening the stream from
+    ///   scratch This is fast in case the text fitted into the buffer or the underlying stream
     ///   supports seeking. In case this is not that cae it does reopen the text reader
     /// </summary>
     public async Task ToBeginningAsync()

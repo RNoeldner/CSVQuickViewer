@@ -277,10 +277,10 @@ namespace CsvTools
     /// <param name="setting"></param>
     /// <param name="display">The display.</param>
     /// <param name="guessJson">if true trying to determine if file is a JSOn file</param>
-    /// <param name="guessCodePage">if true, try to determine teh codepage</param>
+    /// <param name="guessCodePage">if true, try to determine the codepage</param>
     /// <param name="guessDelimiter">if true, try to determine the delimiter</param>
-    /// <param name="guessQualifier">if true, try to determine teh qualifier for text</param>
-    /// <param name="guessStartRow">if true, try to determine teh number of skipped rows</param>
+    /// <param name="guessQualifier">if true, try to determine the qualifier for text</param>
+    /// <param name="guessStartRow">if true, try to determine the number of skipped rows</param>
     /// <param name="guessHasHeader">
     ///   if true, try to determine if the file does have a header row
     /// </param>
@@ -760,7 +760,7 @@ namespace CsvTools
             if (test[0] != possibleQuotes[testChar]) continue;
             counter[testChar]++;
             // Ideally column need to start and end with the same characters (but end quote could be
-            // on another line) if the start and end are indeed teh same give it extra credit
+            // on another line) if the start and end are indeed the same give it extra credit
             if (test.Length > 1 && test[0] == test[test.Length - 1])
               counter[testChar]++;
             if (counter[testChar] > max)

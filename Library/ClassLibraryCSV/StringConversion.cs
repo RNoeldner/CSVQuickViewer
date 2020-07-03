@@ -264,7 +264,7 @@ namespace CsvTools
     /// <param name="samples">The sample values to be checked.</param>
     /// <param name="timeSeparator">The time separator.</param>
     /// <returns>
-    ///   <c>true</c> if all values can be interpreted as time and teh list is not empty,
+    ///   <c>true</c> if all values can be interpreted as time and the list is not empty,
     ///   <c>false</c> otherwise.
     /// </returns>
     public static bool CheckTime(IEnumerable<string> samples, string timeSeparator)

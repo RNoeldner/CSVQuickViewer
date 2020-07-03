@@ -75,7 +75,7 @@ namespace CsvTools
     private readonly int m_NumWarning;
     private readonly string m_QuotePlaceholder;
 
-    // Store teh raw text of the record, before split into columns and trimming of the columns
+    // Store the raw text of the record, before split into columns and trimming of the columns
     private readonly StringBuilder m_RecordSource = new StringBuilder();
     private readonly bool m_SkipDuplicateHeader;
     private readonly bool m_SkipEmptyLines;
@@ -219,7 +219,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Create a delimited text reader for teh given settings
+    ///   Create a delimited text reader for the given settings
     /// </summary>
     /// <param name="fileSetting"></param>
     /// <param name="processDisplay">Progress and Cancellation</param>
@@ -1029,7 +1029,7 @@ namespace CsvTools
           if (rowLength == 1 && EndOfFile && CurrentRowColumnText[0].Length < 10)
           {
             // As the record is ignored tis will most likely not be visible
-            // -2 to indicate this error could be stored with teh previous line....
+            // -2 to indicate this error could be stored with the previous line....
             m_HandleMessageColumn(-2,
               $"Last line is '{CurrentRowColumnText[0]}'. Assumed to be a EOF marker and ignored.");
             return false;

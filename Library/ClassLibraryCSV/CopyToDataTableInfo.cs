@@ -88,7 +88,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Store the information from teh reader in the data table
+    /// Store the information from the reader in the data table
     /// </summary>
     /// <param name="reader"></param>
     /// <returns><c>true</c> no warnings, <c>false</c> warnings have been raised</returns>
