@@ -260,7 +260,7 @@ namespace CsvTools.Tests
           {
             await reader.OpenAsync(processDisplay.CancellationToken);
 
-            // Move teh reader to a late record
+            // Move the reader to a late record
             for (var i = 0; i < dt.Rows.Count / 2; i++)
               await reader.ReadAsync(processDisplay.CancellationToken);
             var res = await DetermineColumnFormat.GetSampleValuesAsync(

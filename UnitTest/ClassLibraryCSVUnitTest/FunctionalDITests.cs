@@ -65,7 +65,7 @@ namespace CsvTools.Tests
       var test1 = FunctionalDI.AdjustTZImport(srcTime, "Hawaiian Standard Time",  1, null);
       // as the time of the system is not know, we do not know what we are converting to, people in Hawaiian would need no difference
       Assert.IsNotNull(test1);
-      // Convert back should give us teh original value though
+      // Convert back should give us the original value though
       var test2 = FunctionalDI.AdjustTZExport(test1, "Hawaiian Standard Time", 1, null);
       Assert.AreEqual(srcTime, test2);
 

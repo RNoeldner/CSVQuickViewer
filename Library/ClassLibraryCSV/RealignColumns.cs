@@ -75,9 +75,9 @@ namespace CsvTools
     /// <returns>A new list of columns</returns>
     public string[] RealignColumn([NotNull] string[] row, [NotNull] Action<int, string> handleWarning, [NotNull] string rawText)
     {
-      if (row == null)  throw new ArgumentNullException(nameof(row));
+      if (row == null) throw new ArgumentNullException(nameof(row));
       if (handleWarning == null) throw new ArgumentNullException(nameof(handleWarning));
-      
+
       if (m_GoodRows.Count < 2)
       {
         handleWarning.Invoke(-1, "Not enough error free rows have been read to allow realigning of columns.");
@@ -159,7 +159,7 @@ namespace CsvTools
     private static readonly string[] m_BoolVal = { "True", "False", "yes", "no", "1", "0", "-1", "y", "n", "", "x", "T", "F" };
 
     /// <summary>
-    ///   Looking ate teh text sets certain flags
+    ///   Looking ate the text sets certain flags
     /// </summary>
     /// <param name="text">The column information, best is trimmed</param>
     /// <returns>The appropriate column options</returns>
