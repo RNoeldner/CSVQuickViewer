@@ -358,11 +358,13 @@ namespace CsvTools
 
     private void ProcessDisplay_FormClosing(object sender, FormClosingEventArgs e)
     {
+      e.Cancel=false;
       try
       {
         // if the form is closed by the user (UI) signal a cancellation
         if (CancellationTokenSource != null && m_ClosedByUI)
           CancellationTokenSource.Cancel();
+        
       }
       catch (ObjectDisposedException)
       {

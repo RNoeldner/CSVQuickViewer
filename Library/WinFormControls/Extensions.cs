@@ -108,14 +108,14 @@ namespace CsvTools
       */
       form.StartPosition = FormStartPosition.Manual;
 
-      var screen = Screen.FromRectangle(
-        new Rectangle(windowPosition.Left, windowPosition.Top, windowPosition.Width, windowPosition.Height));
-      var width = Math.Min(windowPosition.Width, screen.WorkingArea.Width);
-      var height = Math.Min(windowPosition.Height, screen.WorkingArea.Height);
-      var left = Math.Min(screen.WorkingArea.Right - width, Math.Max(windowPosition.Left, screen.WorkingArea.Left));
-      var top = Math.Min(screen.WorkingArea.Bottom - height, Math.Max(windowPosition.Top, screen.WorkingArea.Top));
+      //var screen = Screen.FromRectangle(
+      //  new Rectangle(windowPosition.Left, windowPosition.Top, windowPosition.Width, windowPosition.Height));
+      //var width = Math.Min(windowPosition.Width, screen.WorkingArea.Width);
+      //var height = Math.Min(windowPosition.Height, screen.WorkingArea.Height);
+      //var left = Math.Min(screen.WorkingArea.Right - width, Math.Max(windowPosition.Left, screen.WorkingArea.Left));
+      //var top = Math.Min(screen.WorkingArea.Bottom - height, Math.Max(windowPosition.Top, screen.WorkingArea.Top));
 
-      form.DesktopBounds = new Rectangle(left, top, width, height);
+      //form.DesktopBounds = new Rectangle(left, top, width, height);
       form.WindowState = (FormWindowState) windowPosition.State;
       if (windowPosition.CustomInt != int.MinValue)
         setCustomValue1?.Invoke(windowPosition.CustomInt);
