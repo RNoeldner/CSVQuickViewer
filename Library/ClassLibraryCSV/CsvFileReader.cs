@@ -247,7 +247,7 @@ namespace CsvTools
     {
       if (processDisplay == null) return;
       ReportProgress = processDisplay.SetProcess;
-      SetMaxProcess = l => processDisplay.Maximum = l;
+      SetMaxProcess = value => processDisplay.Maximum = value;
       SetMaxProcess(0);
     }
 
@@ -423,7 +423,7 @@ namespace CsvTools
     protected override int GetRelativePosition()
     {
       // if we know how many records to read, use that
-      if (RecordLimit > 0)
+      if (RecordLimit > 0 && RecordLimit<long.MaxValue)
         return base.GetRelativePosition();
 
       return (int) ((m_ImprovedStream?.Percentage ?? 0) * cMaxValue);

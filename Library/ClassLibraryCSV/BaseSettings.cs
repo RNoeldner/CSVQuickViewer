@@ -57,8 +57,8 @@ namespace CsvTools
     private bool m_IsEnabled = true;
     private int m_EvidenceNumberOrIssues = -1;
     private long m_NumRecords;
-    private long m_WarningCount = -1;
-    private long m_ErrorCount = -1;
+    private long m_WarningCount = 0;
+    private long m_ErrorCount = 0;
     private string m_Passphrase = string.Empty;
     private string m_Recipient = string.Empty;
     private long m_RecordLimit;
@@ -810,7 +810,7 @@ namespace CsvTools
     /// </summary>
     /// <value>The ID.</value>
     [XmlAttribute]
-    [DefaultValue(-1)]
+    [DefaultValue(0)]
     public virtual long WarningCount
     {
       get => m_WarningCount;
@@ -829,7 +829,7 @@ namespace CsvTools
     /// </summary>
     /// <value>The ID.</value>
     [XmlAttribute]
-    [DefaultValue(-1)]
+    [DefaultValue(0)]
     public virtual long ErrorCount
     {
       get => m_ErrorCount;

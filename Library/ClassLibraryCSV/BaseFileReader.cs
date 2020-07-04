@@ -827,7 +827,6 @@ namespace CsvTools
       EndOfFile = false;
 
       OpenFinished?.Invoke(this, Column);
-
       SetMaxProcess?.Invoke(cMaxValue);
     }
 
