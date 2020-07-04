@@ -50,7 +50,7 @@ namespace CsvTools
 
     /// <summary>
     /// In case of creating a file, should the time of the latest source be used?
-    /// Default: <c>false</c> - Use the current datetime for the file, otherwise use the time of teh latest source
+    /// Default: <c>false</c> - Use the current datetime for the file, otherwise use the time of the latest source
     /// </summary>
     bool SetLatestSourceTimeForWrite { get; }
 

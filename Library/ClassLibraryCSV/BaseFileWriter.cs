@@ -354,7 +354,7 @@ namespace CsvTools
           if (string.IsNullOrEmpty(displayAs))
             HandleError(columnInfo.Column.Name, ex.Message);
           else
-            HandleWarning(columnInfo.Column.Name, "Value stored as: " + displayAs + "\n" + ex.Message);
+            HandleWarning(columnInfo.Column.Name, "Value stored as: " + displayAs + $"\nExpected {columnInfo.Column.ValueFormat.DataType} but was {dataObject.GetType()}"  + ex.Message);
         }
       }
 

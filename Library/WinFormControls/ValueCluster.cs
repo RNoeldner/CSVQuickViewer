@@ -28,7 +28,7 @@ namespace CsvTools
     /// <param name="condition">teh sql condition to be applied</param>
     /// <param name="sort">A text used for the  order</param>
     /// <param name="count">Number of records that do have this value</param>
-    /// <param name="active">Flag indicating if teh filter for teh value is active</param>
+    /// <param name="active">Flag indicating if the filter for the value is active</param>
     public ValueCluster(string display, string condition, string sort, int count, bool active = false)
     {
       Display = display;

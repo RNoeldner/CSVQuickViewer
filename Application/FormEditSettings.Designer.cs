@@ -847,7 +847,7 @@
       this.checkBoxWarnEmptyTailingColumns.Size = new System.Drawing.Size(178, 21);
       this.checkBoxWarnEmptyTailingColumns.TabIndex = 0;
       this.checkBoxWarnEmptyTailingColumns.Text = "Warn Column Mismatch";
-      this.toolTip.SetToolTip(this.checkBoxWarnEmptyTailingColumns, "It is advised to enable warning in case the number of columns does not match teh " +
+      this.toolTip.SetToolTip(this.checkBoxWarnEmptyTailingColumns, "It is advised to enable warning in case the number of columns does not match the " +
         "number of expected columns");
       this.checkBoxWarnEmptyTailingColumns.UseVisualStyleBackColor = false;
       // 
