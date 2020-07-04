@@ -17,28 +17,17 @@ using System;
 namespace CsvTools
 {
   /// <summary>
-  ///  Argument for a ProgressEvent
+  ///   Argument for a ProgressEvent
   /// </summary>
   public class ProgressEventArgs : EventArgs
   {
     /// <summary>
-    ///  Initializes a new instance of the <see cref="ProgressEventArgs" /> class.
-    /// </summary>
-    /// <param name="text">The text.</param>
-    /// <param name="value">The value.</param>
-    public ProgressEventArgs(string text, long value = -1)
-    {
-      Text = text;
-      Value = value;
-    }
-
-    /// <summary>
-    ///  Initializes a new instance of the <see cref="ProgressEventArgs" /> class.
+    ///   Initializes a new instance of the <see cref="ProgressEventArgs" /> class.
     /// </summary>
     /// <param name="text">The text.</param>
     /// <param name="value">The progress value.</param>
     /// <param name="log"><c>True</c> if progress should be logged, <c>false</c> otherwise.</param>
-    public ProgressEventArgs(string text, long value, bool log)
+    public ProgressEventArgs(string text, long value = -1, bool log = true)
     {
       Text = text;
       Value = value;
@@ -46,22 +35,35 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Indicating if a progress should be logged or not
+    ///   Indicating if a progress should be logged or not
     /// </summary>
-    public bool Log { get; } = true;
+    public bool Log { get; }
 
     /// <summary>
-    ///  Gets or sets the text.
+    ///   Gets or sets the text.
     /// </summary>
     /// <value>The text.</value>
     public string Text { get; }
 
     /// <summary>
-    ///  Gets or sets the value.
+    ///   Gets or sets the value.
     /// </summary>
     /// <value>
-    ///  The value.
+    ///   The value.
     /// </value>
     public long Value { get; }
+  }
+
+  public class ProgressEventArgsTime : ProgressEventArgs
+  {
+    public ProgressEventArgsTime(string text, long value, TimeSpan estimatedTimeRemaining, double percent) : base(text,
+      value)
+    {
+      EstimatedTimeRemaining = estimatedTimeRemaining;
+      Percent = percent;
+    }
+
+    public TimeSpan EstimatedTimeRemaining { get; }
+    public double Percent { get; }
   }
 }

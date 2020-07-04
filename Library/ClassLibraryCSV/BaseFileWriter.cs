@@ -124,7 +124,7 @@ namespace CsvTools
       if (FunctionalDI.SQLDataReader == null)
         throw new ArgumentException("No Async SQL Reader set");
       using (var sqlReader = await FunctionalDI
-        .SQLDataReader(m_SqlStatement, (sender, s) => m_ReportProgress?.Invoke(s), m_Timeout, token)
+        .SQLDataReader(m_SqlStatement, (sender, s) => m_ReportProgress?.Invoke(s.Text), m_Timeout, token)
         .ConfigureAwait(false))
       {
         await sqlReader.OpenAsync(token).ConfigureAwait(false);

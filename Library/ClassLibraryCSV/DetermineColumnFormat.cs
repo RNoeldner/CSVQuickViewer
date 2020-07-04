@@ -556,7 +556,7 @@ namespace CsvTools
         throw new FileWriterException("No Async SQL Reader set");
 
       using (var fileReader =
-        await FunctionalDI.SQLDataReader(fileSettings.SqlStatement, (sender, s) => processDisplay.SetProcess(s, 0, true), fileSettings.Timeout, processDisplay.CancellationToken)
+        await FunctionalDI.SQLDataReader(fileSettings.SqlStatement, processDisplay.SetProcess, fileSettings.Timeout, processDisplay.CancellationToken)
           .ConfigureAwait(false))
       {
         await fileReader.OpenAsync(processDisplay.CancellationToken).ConfigureAwait(false);
@@ -780,8 +780,8 @@ namespace CsvTools
       if (FunctionalDI.SQLDataReader == null)
         throw new FileWriterException("No Async SQL Reader set");
 
-      using (var data = await FunctionalDI.SQLDataReader(sqlStatement.NoRecordSQL(), (sender, s) => Logger.Debug(s),
-        timeout, token).ConfigureAwait(false))
+      using (var data = await FunctionalDI.SQLDataReader(sqlStatement.NoRecordSQL(), (sender, s) =>
+        { if (s.Log) Logger.Debug(s.Text); }, timeout, token).ConfigureAwait(false))
       {
         await data.OpenAsync(token).ConfigureAwait(false);
         return ColumnInfo.GetWriterColumnInformation(valueFormatGeneral, columnDefinitions, data);

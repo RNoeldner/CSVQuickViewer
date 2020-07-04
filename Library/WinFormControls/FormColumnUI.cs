@@ -134,8 +134,7 @@ namespace CsvTools
           {
             var hasRetried = false;
             retry:
-            using (var sqlReader = await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement,
-              (o, s) => processDisplay.SetProcess(s), m_FileSetting.Timeout, processDisplay.CancellationToken))
+            using (var sqlReader = await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement, processDisplay.SetProcess, m_FileSetting.Timeout, processDisplay.CancellationToken))
             {
               var data = await sqlReader.GetDataTableAsync(m_FileSetting.RecordLimit, false,
                 m_FileSetting.DisplayStartLineNo, m_FileSetting.DisplayRecordNo, m_FileSetting.DisplayEndLineNo, false,
@@ -626,8 +625,7 @@ namespace CsvTools
               else
               {
                 // Write Setting ----- open the source that is SQL
-                using (var fileReader = await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement.NoRecordSQL(),
-                  (o, s) => processDisplay.SetProcess(s), m_FileSetting.Timeout, processDisplay.CancellationToken))
+                using (var fileReader = await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement.NoRecordSQL(),processDisplay.SetProcess, m_FileSetting.Timeout, processDisplay.CancellationToken))
                 {
                   await fileReader.OpenAsync(processDisplay.CancellationToken);
                   for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
@@ -787,7 +785,7 @@ namespace CsvTools
         if (m_WriteSetting)
           using (var sqlReader =
             await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement,
-              (o, s) => processDisplay.SetProcess(s, 0, true), m_FileSetting.Timeout, processDisplay.CancellationToken))
+              processDisplay.SetProcess, m_FileSetting.Timeout, processDisplay.CancellationToken))
           {
             await sqlReader.OpenAsync(processDisplay.CancellationToken);
             var colIndex = sqlReader.GetOrdinal(columnName);

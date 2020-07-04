@@ -12,20 +12,19 @@
  *
  */
 
+
 using System;
+using System.Diagnostics;
 using System.Threading;
 
 namespace CsvTools
 {
-  public sealed class ProcessDisplayTime : DummyProcessDisplay, IProcessDisplayTime
+  [DebuggerStepThrough]
+  public class ProcessDisplayTime : IProcessDisplayTime
   {
-    /// <summary>
-    ///   Initializes a new instance of the <see cref="DummyProcessDisplay" /> class.
-    /// </summary>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    public ProcessDisplayTime(CancellationToken cancellationToken) : base(cancellationToken) => TimeToCompletion = new TimeToCompletion();
+    public ProcessDisplayTime(CancellationToken token) => CancellationToken = token;
 
-    public event EventHandler<long> SetMaximum;
+    public CancellationToken CancellationToken { get; }
 
     /// <summary>
     ///   Gets or sets the maximum value for the Progress
@@ -33,28 +32,49 @@ namespace CsvTools
     /// <value>
     ///   The maximum value.
     /// </value>
-    public override long Maximum
+    public long Maximum
     {
       get => TimeToCompletion.TargetValue;
       set
       {
-        TimeToCompletion.TargetValue = value > 1 ? value : -1;
+        TimeToCompletion.TargetValue = value > 1 ? value : 1;
         SetMaximum?.Invoke(this, TimeToCompletion.TargetValue);
       }
     }
 
-    public TimeToCompletion TimeToCompletion { get; }
+    public void Dispose()
+    {
+    }
 
-    /// <summary>
-    /// Sets the process.
-    /// </summary>
-    /// <param name="text">The text.</param>
-    /// <param name="value">The value.</param>
-    /// <param name="log"><c>True</c> if progress should be logged, <c>false</c> otherwise.</param>
-    public override void SetProcess(string text, long value, bool log)
+    public event EventHandler<ProgressEventArgs> Progress;
+    public event EventHandler<ProgressEventArgsTime> ProgressTime;
+
+    public bool LogAsDebug { get; set; }
+
+    public void Cancel()
+    {
+    }
+
+    public void SetProcess(object sender, ProgressEventArgs e)
+    {
+      if (e == null)
+        return;
+      Handle(sender, e.Text, e.Value, e.Log);
+    }
+
+    public string Title { get; set; }
+
+    public void SetProcess(string text, long value, bool log) => Handle(this, text, value, log);
+
+    public TimeToCompletion TimeToCompletion { get; } = new TimeToCompletion();
+    public event EventHandler<long> SetMaximum;
+
+    private void Handle(object sender, string text, long value, bool log)
     {
       TimeToCompletion.Value = value;
-      base.SetProcess(text, value, log);
+      Progress?.Invoke(sender, new ProgressEventArgs(text, value, log));
+      ProgressTime?.Invoke(sender,
+        new ProgressEventArgsTime(text, value, TimeToCompletion.EstimatedTimeRemaining, TimeToCompletion.Percent));
     }
   }
 }

@@ -37,7 +37,8 @@ namespace CsvTools
     public event EventHandler<ProgressEventArgs> Progress;
     public bool LogAsDebug { get; set; }
     public CancellationToken CancellationToken { get; }
-    public long Maximum { get; set; }
+
+    public virtual long Maximum { get; set; }
 
     public void Cancel()
     {

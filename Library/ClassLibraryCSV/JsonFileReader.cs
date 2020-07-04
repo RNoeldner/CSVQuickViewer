@@ -320,7 +320,7 @@ namespace CsvTools
     protected override int GetRelativePosition()
     {
       // if we know how many records to read, use that
-      if (RecordLimit > 0)
+      if (RecordLimit > 0 && RecordLimit<long.MaxValue)
         return base.GetRelativePosition();
 
       return (int) (m_ImprovedStream.Percentage * cMaxValue);

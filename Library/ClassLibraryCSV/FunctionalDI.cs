@@ -126,7 +126,7 @@ namespace CsvTools
     /// </summary>
     /// <value>The statement for reader the data.</value>
     /// <remarks>Make sure the returned reader is open when needed</remarks>
-    public static Func<string, EventHandler<string>, int, CancellationToken, Task<IFileReader>> SQLDataReader;
+    public static Func<string, EventHandler<ProgressEventArgs>, int, CancellationToken, Task<IFileReader>> SQLDataReader;
 
     [NotNull]
     private static IFileReader DefaultFileReader([NotNull] IFileSetting setting, [CanBeNull] string timeZone, [CanBeNull] IProcessDisplay processDisplay)
