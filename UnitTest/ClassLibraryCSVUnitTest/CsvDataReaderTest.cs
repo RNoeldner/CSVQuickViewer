@@ -890,7 +890,7 @@ namespace CsvTools.Tests
         var warningList = new RowErrorCollection(test);
         await test.OpenAsync(processDisplay.CancellationToken);
         warningList.HandleIgnoredColumns(test);
-        // This is now check in teh constructr, butr the constructor does not habe the error
+        // This is now check in the constructr, butr the constructor does not habe the error
         // handling set Assert.IsTrue(warningList.Display.Contains("Only the first character of 'XX'
         // is be used for quoting.")); Assert.IsTrue(warningList.Display.Contains("Only the first
         // character of ',,' is used as delimiter."));

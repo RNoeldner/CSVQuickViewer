@@ -38,18 +38,20 @@ namespace CsvTools
     /// <summary>
     ///   ; | CR LF Tab
     /// </summary>
-    private static readonly char[] m_DelimiterChar = {';', '|', '\r', '\n', '\t'};
+    private static readonly char[] m_DelimiterChar = { ';', '|', '\r', '\n', '\t' };
 
     /// <summary>
     ///   ; CR LF
     /// </summary>
-    private static readonly char[] m_SplitChar = {';', '\r', '\n'};
+    private static readonly char[] m_SplitChars = { ';', '\r', '\n' };
 
     /// <summary>
     ///   Checks whether a column name text ends on the text ID or Ref
     /// </summary>
     /// <param name="columnName">The column name</param>
-    /// <returns>The number of charters at the end that did match, 0 if it does not end on ID</returns>
+    /// <returns>
+    ///   The number of charters at the end that did match, 0 if it does not end on ID
+    /// </returns>
     public static int AssumeIDColumn([CanBeNull] string columnName)
     {
       if (string.IsNullOrWhiteSpace(columnName))
@@ -76,12 +78,10 @@ namespace CsvTools
     /// <summary>
     ///   Determines whether this text contains the another text
     /// </summary>
-    /// <param name="text">The text to be checked </param>
+    /// <param name="text">The text to be checked</param>
     /// <param name="toCheck">To text find.</param>
     /// <param name="comp">The comparison.</param>
-    /// <returns>
-    ///   <c>true</c> if teh text does contains the check; otherwise, <c>false</c>.
-    /// </returns>
+    /// <returns><c>true</c> if the text does contains the check; otherwise, <c>false</c>.</returns>
     public static bool Contains([CanBeNull] this string text, [NotNull] string toCheck, StringComparison comp) =>
       text?.IndexOf(toCheck, comp) >= 0;
 
@@ -134,7 +134,10 @@ namespace CsvTools
     ///   Gets the trimmed value.
     /// </summary>
     /// <param name="val">The value.</param>
-    /// <returns>An upper case version without leading or tailing space, if the input is null it returns an empty string.</returns>
+    /// <returns>
+    ///   An upper case version without leading or tailing space, if the input is null it returns an
+    ///   empty string.
+    /// </returns>
     [NotNull]
     public static string GetTrimmedUpperValue([CanBeNull] object val)
     {
@@ -172,7 +175,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="parts">The parts to be joined.</param>
     /// <param name="joinWith">The join with.</param>
-    /// <example>JoinParts(new [] {"My","","Test")=> My, Test</example>
+    /// <example>JoinParts(new [] {"My","","Test")=&gt; My, Test</example>
     /// <remarks>Any empty string will be ignored.</remarks>
     /// <returns>A string</returns>
     public static string Join(this IEnumerable<string> parts, string joinWith = ", ")
@@ -198,7 +201,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="parts">The parts to be joined.</param>
     /// <param name="joinWith">The join with.</param>
-    /// <example>JoinParts(new [] {"My","","Test")=> My, Test</example>
+    /// <example>JoinParts(new [] {"My","","Test")=&gt; My, Test</example>
     /// <remarks>Any empty string will be ignored.</remarks>
     /// <returns>A string</returns>
     public static string JoinChar(this IEnumerable<string> parts, char joinWith = ',')
@@ -222,9 +225,7 @@ namespace CsvTools
     /// <summary>
     ///   Adds a counter to the name until the nae is unique ion the collection
     /// </summary>
-    /// <param name="previousColumns">
-    ///   A collection of already used names, these will not be changed
-    /// </param>
+    /// <param name="previousColumns">A collection of already used names, these will not be changed</param>
     /// <param name="nameToAdd">The default name</param>
     /// <returns>The unique name</returns>
     [NotNull]
@@ -267,9 +268,9 @@ namespace CsvTools
       var chars = new char[original.Length];
       var count = 0;
       foreach (var c in from c in original
-        let oc = CharUnicodeInfo.GetUnicodeCategory(c)
-        where UnicodeCategory.Control != oc || c == '\r' || c == '\n'
-        select c)
+                        let oc = CharUnicodeInfo.GetUnicodeCategory(c)
+                        where UnicodeCategory.Control != oc || c == '\r' || c == '\n'
+                        select c)
         chars[count++] = c;
 
       return new string(chars, 0, count);
@@ -303,7 +304,8 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Processes the each charter of the string by category, if the test function return false, the charter is omitted
+    ///   Processes the each charter of the string by category, if the test function return false,
+    ///   the charter is omitted
     /// </summary>
     /// <param name="original">The original.</param>
     /// <param name="testFunction">The test function called on each individual char</param>
@@ -319,9 +321,9 @@ namespace CsvTools
       var chars = new char[normalizedString.Length];
       var count = 0;
       foreach (var c in from c in normalizedString
-        let oc = CharUnicodeInfo.GetUnicodeCategory(c)
-        where testFunction(oc)
-        select c)
+                        let oc = CharUnicodeInfo.GetUnicodeCategory(c)
+                        where testFunction(oc)
+                        select c)
         chars[count++] = c;
 
       return new string(chars, 0, count);
@@ -335,8 +337,8 @@ namespace CsvTools
     /// <param name="replace"></param>
     /// <returns>the text where all occurrences are replaced with the replace value</returns>
     /// <remarks>
-    ///   Searching for two spaces and replacing with one space would lead to two spaces with regular replace it will
-    ///   end up with one space here
+    ///   Searching for two spaces and replacing with one space would lead to two spaces with
+    ///   regular replace it will end up with one space here
     /// </remarks>
     [CanBeNull]
     [ContractAnnotation("original: null=>null; original:notnull=>notnull")]
@@ -411,7 +413,7 @@ namespace CsvTools
     [ItemNotNull]
     public static string[] SplitValidValues([CanBeNull] string inputValue) => string.IsNullOrEmpty(inputValue)
       ? new string[] { }
-      : inputValue.Split(m_SplitChar, StringSplitOptions.RemoveEmptyEntries);
+      : inputValue.Split(m_SplitChars, StringSplitOptions.RemoveEmptyEntries);
 
     /// <summary>
     ///   Escapes SQL names; does not include the brackets or quotes
@@ -449,7 +451,9 @@ namespace CsvTools
     ///   Check if a text would match a filter value,
     /// </summary>
     /// <param name="item">The item of a list that should be checked</param>
-    /// <param name="filter">Filter value, for OR separate words by space for AND separate words by +</param>
+    /// <param name="filter">
+    ///   Filter value, for OR separate words by space for AND separate words by +
+    /// </param>
     /// <param name="stringComparison"></param>
     /// <Note>In case the filter is empty there is no filter it will always return true</Note>
     /// <returns>True if text matches</returns>
@@ -462,9 +466,9 @@ namespace CsvTools
         return false;
 
       if (filter.IndexOf('+') <= -1)
-        return filter.Split(new[] {' ', ',', ';'}, StringSplitOptions.RemoveEmptyEntries)
+        return filter.Split(new[] { ' ', ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
           .Any(part => item.IndexOf(part, stringComparison) != -1);
-      var parts = filter.Split(new[] {'+'}, StringSplitOptions.RemoveEmptyEntries);
+      var parts = filter.Split(new[] { '+' }, StringSplitOptions.RemoveEmptyEntries);
 
       // 1st part
       var all = item.IndexOf(parts[0], stringComparison) > -1;

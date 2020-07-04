@@ -496,14 +496,12 @@ namespace CsvTools
     // ReSharper disable once UnusedMember.Global
     [XmlIgnore] public bool ProcessTimeUtcSpecified => m_ProcessTimeUtc != ZeroTime;
 
-
     /// <summary>
     ///   The time of the source, either a file time, or in case the setting is dependent on
     ///   multiple sources the time of the last source Changes to this date should not be considered
     ///   as changes to the configuration
     /// </summary>
     [XmlIgnore]
-
     public DateTime LatestSourceTimeUtc
     {
       get
@@ -526,7 +524,7 @@ namespace CsvTools
     ///   As this might be a time consuming process, do this only if the time was not determined before
     /// </summary>
     /// <remarks>
-    ///   For a physical file ist possibly easiest as it teh file time, overwritten for more complex
+    ///   For a physical file ist possibly easiest as it the file time, overwritten for more complex
     ///   things like a Query
     /// </remarks>
     public virtual void CalculateLatestSourceTime()
@@ -624,7 +622,7 @@ namespace CsvTools
     {
       get
       {
-        if (m_FullPathInitialized) return m_FullPath;
+        if (m_FullPathInitialized) return m_FullPath ?? m_FileName;
         m_FullPath = FileSystemUtils.ResolvePattern(m_FileName.GetAbsolutePath(ApplicationSetting.RootFolder));
         if (m_FullPath == null)
           m_FullPath = string.Empty;
@@ -826,7 +824,6 @@ namespace CsvTools
       }
     }
 
-
     /// <summary>
     ///   Gets or sets the ID.
     /// </summary>
@@ -845,6 +842,7 @@ namespace CsvTools
         NotifyPropertyChanged(nameof(ErrorCount));
       }
     }
+
     /// <summary>
     ///   Passphrase for Decryption, will not be stored
     /// </summary>
@@ -897,7 +895,6 @@ namespace CsvTools
         NotifyPropertyChanged(nameof(RecordLimit));
       }
     }
-
 
     public ObservableCollection<SampleRecordEntry> Samples
     {

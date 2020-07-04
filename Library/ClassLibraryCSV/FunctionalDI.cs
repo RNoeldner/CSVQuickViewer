@@ -125,7 +125,7 @@ namespace CsvTools
     ///   Gets or sets a data reader
     /// </summary>
     /// <value>The statement for reader the data.</value>
-    /// <remarks>Make sure teh returned reader is open when needed</remarks>
+    /// <remarks>Make sure the returned reader is open when needed</remarks>
     public static Func<string, EventHandler<string>, int, CancellationToken, Task<IFileReader>> SQLDataReader;
 
     [NotNull]

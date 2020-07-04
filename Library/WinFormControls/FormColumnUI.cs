@@ -602,7 +602,7 @@ namespace CsvTools
             {
               if (!m_WriteSetting)
               {
-                // Read Settings  -- open teh source that is a file
+                // Read Settings  -- open the source that is a file
                 // if there are ignored columns need to open file and get all columns
                 if (m_FileSetting.ColumnCollection.Any(x => x.Ignore))
                 {

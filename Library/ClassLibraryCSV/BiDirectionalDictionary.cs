@@ -49,10 +49,10 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Adds a key / value to teh dictionary
+    ///   Adds a key / value to the dictionary
     /// </summary>
     /// <param name="key">The key of the dictionary.</param>
-    /// <param name="value">the value for teh key, there can not be two keys with teh same value</param>
+    /// <param name="value">the value for the key, there can not be two keys with the same value</param>
     /// <exception cref="ArgumentException">Duplicate key - key or Duplicate value - value</exception>
     public new void Add([NotNull] TKey key, [NotNull] TValue value)
     {

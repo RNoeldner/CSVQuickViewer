@@ -799,7 +799,7 @@ namespace CsvTools
 
 
     /// <summary>
-    ///   Sets the Progress to marquee, calls OnOpen Event, check if teh file does exist if its a physical file
+    ///   Sets the Progress to marquee, calls OnOpen Event, check if the file does exist if its a physical file
     /// </summary>
     protected async Task BeforeOpenAsync(string message)
     {
