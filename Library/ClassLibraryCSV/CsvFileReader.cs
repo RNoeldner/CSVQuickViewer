@@ -247,8 +247,11 @@ namespace CsvTools
     {
       if (processDisplay == null) return;
       ReportProgress = processDisplay.SetProcess;
-      SetMaxProcess = value => processDisplay.Maximum = value;
-      SetMaxProcess(0);
+      if (processDisplay is IProcessDisplayTime processDisplayTime)
+      {
+        SetMaxProcess = value => processDisplayTime.Maximum = value;
+        SetMaxProcess(0);
+      }
     }
 
     /// <summary>

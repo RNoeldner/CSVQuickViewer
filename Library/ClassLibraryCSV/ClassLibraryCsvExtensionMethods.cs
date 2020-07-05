@@ -788,6 +788,12 @@ namespace CsvTools
       return loop.Message;
     }
 
+    public static void SetMaximum([CanBeNull] this IProcessDisplay processDisplay, long maximum)
+    {
+      if (processDisplay is IProcessDisplayTime processDisplayTime)
+        processDisplayTime.Maximum = maximum;
+    }
+
     public static int ToInt(this long value)
     {
       if (value > int.MaxValue)

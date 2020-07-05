@@ -15,7 +15,7 @@ namespace CsvTools.Tests
     [TestMethod()]
     public async Task DataTableReaderTestAsync()
     {
-      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
+      using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       {
         using (var test = new DataTableWrapper(m_DataTable))
         {
@@ -29,7 +29,7 @@ namespace CsvTools.Tests
     [TestMethod()]
     public async Task GetDataTableAsyncTest1Async()
     {
-      using (var pd = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
+      using (var pd = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       {
         using (var test = new DataTableWrapper(m_DataTable))
         {
@@ -64,7 +64,7 @@ namespace CsvTools.Tests
     [TestMethod()]
     public async Task GetDataTypeNameTestAsync()
     {
-      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
+      using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       {
         using (var test = new DataTableWrapper(m_DataTable))
         {
@@ -78,7 +78,7 @@ namespace CsvTools.Tests
     [TestMethod()]
     public async Task GetFieldTypeTestAsync()
     {
-      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
+      using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       {
         using (var test = new DataTableWrapper(m_DataTable))
         {
@@ -91,7 +91,7 @@ namespace CsvTools.Tests
     [TestMethod()]
     public async Task GetNameTestAsync()
     {
-      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
+      using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       {
         using (var test = new DataTableWrapper(m_DataTable))
         {
@@ -104,7 +104,7 @@ namespace CsvTools.Tests
     [TestMethod()]
     public async Task GetOrdinalTestAsync()
     {
-      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
+      using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       {
         using (var test = new DataTableWrapper(m_DataTable))
         {
@@ -117,7 +117,7 @@ namespace CsvTools.Tests
     [TestMethod()]
     public async Task ReadAsyncTest()
     {
-      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
+      using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       {
         using (var test = new DataTableWrapper(m_DataTable))
         {
@@ -130,7 +130,7 @@ namespace CsvTools.Tests
     [TestMethod()]
     public async Task ReadTestAsync()
     {
-      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
+      using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       {
         using (var test = new DataTableWrapper(m_DataTable))
         {

@@ -28,11 +28,6 @@ namespace CsvTools
     event EventHandler<ProgressEventArgs> Progress;
 
     /// <summary>
-    /// Indicating if messages should be logged as debug or information
-    /// </summary>
-    bool LogAsDebug { get; set; }
-
-    /// <summary>
     ///  Gets or sets the cancellation token.
     /// </summary>
     /// <value>
@@ -40,18 +35,6 @@ namespace CsvTools
     /// </value>
     CancellationToken CancellationToken { get; }
 
-    /// <summary>
-    ///  Gets or sets the maximum value for the Progress
-    /// </summary>
-    /// <value>
-    ///  The maximum value.
-    /// </value>
-    long Maximum { get; set; }
-
-    /// <summary>
-    ///  To be called if the display should be closed, this will cancel any processing
-    /// </summary>
-    void Cancel();
 
     /// <summary>
     ///  Event to be called if the display should be updated

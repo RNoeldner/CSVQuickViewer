@@ -106,7 +106,7 @@ namespace CsvTools
       }
 
       // need a dummy process display to have pass in Cancellation token to reader
-      using (var prc2 = new CustomProcessDisplay(processDisplay.CancellationToken, null))
+      using (var prc2 = new CustomProcessDisplay(processDisplay.CancellationToken))
       using (var fileReader = await FunctionalDI.ExecuteReaderAsync(fileSettingCopy, null, prc2).ConfigureAwait(false))
       {
         return await FillGuessColumnFormatReaderAsyncReader(fileReader, fillGuessSettings,
@@ -158,7 +158,7 @@ namespace CsvTools
       var othersValueFormatDate = CommonDateFormat(columnCollection);
 
       processDisplay.SetProcess("Getting column headers", 0, true);
-      processDisplay.Maximum = fileReader.FieldCount * 3;
+      processDisplay.SetMaximum(fileReader.FieldCount * 3);
 
       // build a list of columns to check
       var getSamples = new List<int>();

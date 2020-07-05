@@ -64,6 +64,7 @@ namespace CsvTools
     }
 
     public TimeSpan EstimatedTimeRemaining { get; }
+
     public double Percent { get; }
   }
 }

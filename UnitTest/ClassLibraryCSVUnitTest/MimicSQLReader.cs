@@ -48,7 +48,7 @@ namespace CsvTools.Tests
       var setting = m_ReadSetting.Any(x => x.Key.ID == settingName)
         ? m_ReadSetting.First(x => x.Key.ID == settingName)
         : m_ReadSetting.First();
-      using (var dummy = new CustomProcessDisplay(token, null))
+      using (var dummy = new CustomProcessDisplay(token))
       {
         var reader = setting.Value != null
           ? new DataTableWrapper(setting.Value)

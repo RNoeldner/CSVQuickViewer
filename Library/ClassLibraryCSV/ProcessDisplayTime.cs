@@ -20,11 +20,9 @@ using System.Threading;
 namespace CsvTools
 {
   [DebuggerStepThrough]
-  public class ProcessDisplayTime : IProcessDisplayTime
+  public class ProcessDisplayTime : CustomProcessDisplay, IProcessDisplayTime
   {
-    public ProcessDisplayTime(CancellationToken token) => CancellationToken = token;
-
-    public CancellationToken CancellationToken { get; }
+    public ProcessDisplayTime(CancellationToken token) : base(token) => TimeToCompletion = new TimeToCompletion();
 
     /// <summary>
     ///   Gets or sets the maximum value for the Progress
@@ -32,7 +30,7 @@ namespace CsvTools
     /// <value>
     ///   The maximum value.
     /// </value>
-    public long Maximum
+    public override long Maximum
     {
       get => TimeToCompletion.TargetValue;
       set
@@ -42,39 +40,17 @@ namespace CsvTools
       }
     }
 
-    public void Dispose()
-    {
-    }
-
-    public event EventHandler<ProgressEventArgs> Progress;
     public event EventHandler<ProgressEventArgsTime> ProgressTime;
 
-    public bool LogAsDebug { get; set; }
-
-    public void Cancel()
-    {
-    }
-
-    public void SetProcess(object sender, ProgressEventArgs e)
-    {
-      if (e == null)
-        return;
-      Handle(sender, e.Text, e.Value, e.Log);
-    }
-
-    public string Title { get; set; }
-
-    public void SetProcess(string text, long value, bool log) => Handle(this, text, value, log);
-
-    public TimeToCompletion TimeToCompletion { get; } = new TimeToCompletion();
+    public TimeToCompletion TimeToCompletion { get; }
     public event EventHandler<long> SetMaximum;
 
-    private void Handle(object sender, string text, long value, bool log)
+    protected override void Handle(object sender, string text, long value, bool log)
     {
-      TimeToCompletion.Value = value;
-      Progress?.Invoke(sender, new ProgressEventArgs(text, value, log));
+      base.Handle(sender, text, value, log);
       ProgressTime?.Invoke(sender,
         new ProgressEventArgsTime(text, value, TimeToCompletion.EstimatedTimeRemaining, TimeToCompletion.Percent));
+      TimeToCompletion.Value = value;
     }
   }
 }

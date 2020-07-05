@@ -104,7 +104,7 @@ namespace CsvTools
     /// <param name="sourceFile">The file to be copied from</param>
     /// <param name="destFile">The file to be created / overwritten</param>
     /// <param name="processDisplay">A process display</param>
-    public static async Task FileCopy([NotNull] string sourceFile, [NotNull] string destFile, IProcessDisplay processDisplay)
+    public static async Task FileCopy([NotNull] string sourceFile, [NotNull] string destFile, [CanBeNull] IProcessDisplay processDisplay)
     {
       if (FileExists(sourceFile))
         FileDelete(destFile);
@@ -116,10 +116,10 @@ namespace CsvTools
         long totalReads = 0;
 
         long oldMax = 0;
-        if (processDisplay != null)
+        if (processDisplay is IProcessDisplayTime processDisplayTime)
         {
-          oldMax = processDisplay.Maximum;
-          processDisplay.Maximum = fromStream.Length;
+          oldMax = processDisplayTime.Maximum;
+          processDisplayTime.Maximum = fromStream.Length;
         }
 
         var intervalAction = processDisplay == null ? null : new IntervalAction();
@@ -131,10 +131,7 @@ namespace CsvTools
           intervalAction?.Invoke(pos => processDisplay.SetProcess("Copy file", pos, false), totalReads);
         }
 
-        if (processDisplay != null)
-        {
-          processDisplay.Maximum = oldMax;
-        }
+          processDisplay?.SetMaximum(oldMax);
       }
     }
 

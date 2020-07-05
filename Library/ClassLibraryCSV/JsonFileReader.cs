@@ -29,21 +29,22 @@ namespace CsvTools
   /// </summary>
   public class JsonFileReader : BaseFileReaderTyped, IFileReader
   {
+    private readonly bool m_TreatNBSPAsSpace;
+    private readonly string m_TreatTextAsNull;
+    private readonly TrimmingOption m_TrimmingOption;
     private bool m_AssumeLog;
     private IImprovedStream m_ImprovedStream;
     private JsonTextReader m_JsonTextReader;
     private StreamReader m_TextReader;
     private long m_TextReaderLine;
-    private readonly bool m_TreatNBSPAsSpace;
-    private readonly TrimmingOption m_TrimmingOption;
-    private readonly string m_TreatTextAsNull;
 
 
     public JsonFileReader([NotNull] string fullPath,
       [CanBeNull] IEnumerable<IColumn> columnDefinition = null,
       long recordLimit = 0,
-      bool treatNBSPAsSpace = false, TrimmingOption trimmingOption = TrimmingOption.None, string treatTextAsNull = null) :
-      base(fileName: fullPath, columnDefinition: columnDefinition, recordLimit: recordLimit)
+      bool treatNBSPAsSpace = false, TrimmingOption trimmingOption = TrimmingOption.None,
+      string treatTextAsNull = null) :
+      base(fullPath, columnDefinition, recordLimit)
     {
       if (fullPath == null) throw new ArgumentNullException(nameof(fullPath));
       m_TreatNBSPAsSpace = treatNBSPAsSpace;
@@ -54,13 +55,16 @@ namespace CsvTools
     public JsonFileReader(IFileSettingPhysicalFile fileSetting,
       IProcessDisplay processDisplay)
       : this(fileSetting.FullPath,
-        columnDefinition: fileSetting.ColumnCollection, recordLimit: fileSetting.RecordLimit,
-        treatNBSPAsSpace: fileSetting.TreatNBSPAsSpace)
+        fileSetting.ColumnCollection, fileSetting.RecordLimit,
+        fileSetting.TreatNBSPAsSpace)
     {
       if (processDisplay == null) return;
       ReportProgress = processDisplay.SetProcess;
-      SetMaxProcess = l => processDisplay.Maximum = l;
-      SetMaxProcess(0);
+      if (processDisplay is IProcessDisplayTime processDisplayTime)
+      {
+        SetMaxProcess = l => processDisplayTime.Maximum = l;
+        SetMaxProcess(0);
+      }
     }
 
     /// <summary>
@@ -81,8 +85,6 @@ namespace CsvTools
       m_JsonTextReader = null;
       m_TextReader = null;
       m_TextReader = null;
-
-      
     }
 
     public override async Task OpenAsync(CancellationToken token)
@@ -123,7 +125,7 @@ namespace CsvTools
         ParseColumnName(line.Select(colValue => colValue.Key),
           line.Select(colValue => colValue.Value?.GetType().GetDataType() ?? DataType.String));
 
-        base.FinishOpen();
+        FinishOpen();
 
         ResetPositionToStartOrOpen();
       }
@@ -165,6 +167,8 @@ namespace CsvTools
 
     public override async Task ResetPositionToFirstDataRowAsync(CancellationToken token) =>
       await Task.Run(ResetPositionToStartOrOpen, token);
+
+    public void Dispose() => Close();
 
     /// <summary>
     ///   Reads a data row from the JsonTextReader and stores the values and text, this will flatten
@@ -289,10 +293,11 @@ namespace CsvTools
         {
           if (keyValuePairs.TryGetValue(col.Name, out CurrentValues[columnNumber]))
             if (CurrentValues[columnNumber] != null)
-              CurrentRowColumnText[columnNumber] = HandleText(CurrentValues[columnNumber].ToString(), columnNumber, m_TreatNBSPAsSpace, m_TreatTextAsNull, m_TrimmingOption);
+              CurrentRowColumnText[columnNumber] = HandleText(CurrentValues[columnNumber].ToString(), columnNumber,
+                m_TreatNBSPAsSpace, m_TreatTextAsNull, m_TrimmingOption);
           columnNumber++;
         }
-    
+
         if (keyValuePairs.Count < FieldCount)
           HandleWarning(-1,
             $"Line {StartLineNumber} has fewer columns than expected ({keyValuePairs.Count}/{FieldCount}).");
@@ -320,7 +325,7 @@ namespace CsvTools
     protected override int GetRelativePosition()
     {
       // if we know how many records to read, use that
-      if (RecordLimit > 0 && RecordLimit<long.MaxValue)
+      if (RecordLimit > 0 && RecordLimit < long.MaxValue)
         return base.GetRelativePosition();
 
       return (int) (m_ImprovedStream.Percentage * cMaxValue);
@@ -339,7 +344,7 @@ namespace CsvTools
       if (m_ImprovedStream == null)
         m_ImprovedStream = FunctionalDI.OpenRead(FullPath);
 
-      m_ImprovedStream.ResetToStart(delegate (Stream str)
+      m_ImprovedStream.ResetToStart(delegate(Stream str)
       {
         // in case we can not seek need to reopen the stream reader
         if (!str.CanSeek || m_TextReader == null)
@@ -372,7 +377,7 @@ namespace CsvTools
       };
     }
 
-    #region TextReader
+#region TextReader
 
     // Buffer size set to 64kB, if set to large the display in percentage will jump
     private const int c_BufferSize = 65536;
@@ -497,8 +502,6 @@ namespace CsvTools
       m_JsonTextReader = new JsonTextReader(new StringReader(sb.ToString()));
     }
 
-    #endregion TextReader
-
-    public void Dispose() => Close();
+#endregion TextReader
   }
 }

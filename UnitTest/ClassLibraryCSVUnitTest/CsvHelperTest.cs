@@ -28,7 +28,7 @@ namespace CsvTools.Tests
     public async Task NewCsvFileGuessAllSmallFile()
     {
       var setting = new CsvFile { FileName = UnitTestInitializeCsv.GetTestPath("employee.txt") };
-      using (var display = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
+      using (var display = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       {
         await setting.RefreshCsvFileAsync(display, true);
       }
@@ -39,7 +39,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task GuessCodePageAsync()
     {
-      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
+      using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       {
         var setting = new CsvFile { FileName = UnitTestInitializeCsv.GetTestPath("BasicCSV.txt") };
         await CsvHelper.GuessCodePageAsync(setting, processDisplay.CancellationToken);
@@ -272,7 +272,7 @@ namespace CsvTools.Tests
     public async Task NewCsvFileGuessAllHeadingsAsync()
     {
       var setting = new CsvFile { FileName = UnitTestInitializeCsv.GetTestPath("BasicCSV.txt") };
-      using (var display = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
+      using (var display = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       {
         await setting.RefreshCsvFileAsync(display);
       }
@@ -286,7 +286,7 @@ namespace CsvTools.Tests
     public async Task NewCsvFileGuessAllTestEmptyAsync()
     {
       var setting = new CsvFile { FileName = UnitTestInitializeCsv.GetTestPath("CSVTestEmpty.txt") };
-      using (var display = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
+      using (var display = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       {
         await setting.RefreshCsvFileAsync(display);
       }
@@ -298,7 +298,7 @@ namespace CsvTools.Tests
     public async Task RefreshCsvFileAsync()
     {
       var setting = new CsvFile { FileName = UnitTestInitializeCsv.GetTestPath("BasicCSV.txt") };
-      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
+      using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       {
         await CsvHelper.RefreshCsvFileAsync(setting, processDisplay);
       }
@@ -309,7 +309,7 @@ namespace CsvTools.Tests
       foreach (var fileName in FileSystemUtils.GetFiles(UnitTestInitializeCsv.ApplicationDirectory, "AllFor*.txt"))
       {
         var testSetting = new CsvFile(fileName);
-        using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
+        using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
         {
           await CsvHelper.RefreshCsvFileAsync(testSetting, processDisplay);
         }
@@ -324,7 +324,7 @@ namespace CsvTools.Tests
       test.FileFormat.FieldQualifier = "\"";
       test.SkipRows = await CsvHelper.GuessStartRowAsync(test, UnitTestInitializeCsv.Token);
 
-      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
+      using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       using (var reader = new CsvFileReader(test, processDisplay))
       {
         await reader.OpenAsync(processDisplay.CancellationToken);

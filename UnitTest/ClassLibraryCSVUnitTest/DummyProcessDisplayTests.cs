@@ -12,7 +12,6 @@
  *
  */
 
-using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
@@ -20,13 +19,13 @@ namespace CsvTools.Tests
   [TestClass]
   public class DummyProcessDisplayTests
   {
-
     [TestMethod]
     public void CustomProcessDisplayTest()
     {
-      bool called = false;
-      using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token, text => { called = true; }))
+      var called = false;
+      using (var processDisplay = new DummyProcessDisplay())
       {
+        processDisplay.Progress += (sender, args) => { called = true; };
         processDisplay.SetProcess("Test", -1, true);
         Assert.IsTrue(called);
       }
@@ -35,7 +34,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void DummyProcessDisplayTest()
     {
-      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
+      using (var processDisplay = new DummyProcessDisplay())
       {
         processDisplay.SetProcess("Test", -1, true);
       }
@@ -44,7 +43,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CancelTest()
     {
-      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
+      using (var processDisplay = new DummyProcessDisplay())
       {
         processDisplay.Cancel();
         Assert.IsTrue(processDisplay.CancellationToken.IsCancellationRequested);

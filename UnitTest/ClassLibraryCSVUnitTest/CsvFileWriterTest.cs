@@ -138,7 +138,7 @@ namespace CsvTools.Tests
         }
 
         var writeFile = new CsvFile { ID = "Test.txt", FileName = "Test.txt", SqlStatement = "Hello" };
-        using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
+        using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
         {
           var writer = new CsvFileWriter(writeFile, TimeZoneInfo.Local.Id, BaseSettings.ZeroTime, BaseSettings.ZeroTime, processDisplay);
           using (var reader = new DataTableWrapper(dataTable))
@@ -173,7 +173,7 @@ namespace CsvTools.Tests
         writeFile.Header = "##This is a header for {FileName}";
         writeFile.Footer = "##This is a Footer\r\n{Records} in file";
         var count = 0;
-        using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
+        using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
         {
           var writer = new CsvFileWriter(writeFile, TimeZoneInfo.Local.Id, BaseSettings.ZeroTime, BaseSettings.ZeroTime, processDisplay);
           writer.Warning += (object sender, WarningEventArgs e) => { count++; };
@@ -216,7 +216,7 @@ namespace CsvTools.Tests
         using (var file = new StreamWriter(writeFile.FullPath))
         {
           await file.WriteLineAsync("Hello");
-          using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
+          using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
           {
             var writer = new CsvFileWriter(writeFile, TimeZoneInfo.Local.Id, BaseSettings.ZeroTime, BaseSettings.ZeroTime, processDisplay);
             using (var reader = new DataTableWrapper(dataTable))

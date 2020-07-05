@@ -11,14 +11,8 @@ namespace CsvTools.Tests
     [TestMethod]
     public void Properties()
     {
-      var test = new ProcessDisplayTime(UnitTestInitializeCsv.Token)
-      {
-        LogAsDebug = true
-      };
-      Assert.IsTrue( test.LogAsDebug);
-      test.LogAsDebug = false;
-      Assert.IsFalse(test.LogAsDebug);
-
+      var test = new ProcessDisplayTime(UnitTestInitializeCsv.Token);
+      
       test.Maximum = 5;
       Assert.AreEqual(5, test.Maximum);
       test.Maximum = 100;

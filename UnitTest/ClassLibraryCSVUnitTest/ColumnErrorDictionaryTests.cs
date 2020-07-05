@@ -18,7 +18,7 @@ namespace CsvTools.Tests
       };
       setting.ColumnCollection.AddIfNew(new Column("Start Date") {Ignore = true});
 
-      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
+      using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       using (var reader = new CsvFileReader(setting, processDisplay))
       {
         await reader.OpenAsync(processDisplay.CancellationToken);
