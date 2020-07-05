@@ -217,12 +217,15 @@ namespace CsvTools
 
       treeDataDictionary.Add(rootDataParentFound.ID, rootDataParentFound);
 
+      var max = 0L;
+      if (process is IProcessDisplayTime processDisplayTime)
+        max = processDisplayTime.Maximum;
       var counter = 0;
       foreach (var dataRow in m_DataRow)
       {
         process.CancellationToken.ThrowIfCancellationRequested();
         intervalAction.Invoke(
-          count => process.SetProcess($"Parent found {count}/{process.Maximum} ", count, false),
+          count => process.SetProcess($"Parent found {count}/{max} ", count, false),
           counter++);
         var id = dataRow[dataColumnID.Ordinal].ToString();
         if (string.IsNullOrEmpty(id))
@@ -258,14 +261,15 @@ namespace CsvTools
       {
         treeDataDictionary.Add(rootDataParentNotFound.ID, rootDataParentNotFound);
         counter = 0;
-        process.Maximum = additionalRootNodes.Count;
+        max = additionalRootNodes.Count;
+        process.SetMaximum (max);
 
         // Create new entries
         foreach (var parentID in additionalRootNodes)
         {
           process.CancellationToken.ThrowIfCancellationRequested();
           intervalAction.Invoke(
-            count => process.SetProcess($"Parent not found (Step 1) {count}/{process.Maximum} ", count, false),
+            count => process.SetProcess($"Parent not found (Step 1) {count}/{max} ", count, false),
             counter++);
           var childData = new TreeData
           {
@@ -277,20 +281,22 @@ namespace CsvTools
         }
       }
 
-      process.Maximum = treeDataDictionary.Values.Count;
+      max= treeDataDictionary.Values.Count;
+      process.SetMaximum(max);
       counter = 0;
       foreach (var child in treeDataDictionary.Values)
       {
         process.CancellationToken.ThrowIfCancellationRequested();
         intervalAction.Invoke(
-          count => process.SetProcess($"Parent not found (Step 2) {count}/{process.Maximum} ", count, false),
+          count => process.SetProcess($"Parent not found (Step 2) {count}/{max} ", count, false),
           counter++);
         if (string.IsNullOrEmpty(child.ParentID) && child.ID != rootDataParentFound.ID
                                                  && child.ID != rootDataParentNotFound.ID)
           child.ParentID = rootDataParentFound.ID;
       }
 
-      process.Maximum = treeDataDictionary.Values.Count;
+      max=  treeDataDictionary.Values.Count;
+      process.SetMaximum(max);
       counter = 0;
 
       // Fill m_Children for the new nodes
@@ -298,7 +304,7 @@ namespace CsvTools
       {
         process.CancellationToken.ThrowIfCancellationRequested();
         intervalAction.Invoke(
-          count => process.SetProcess($"Set children {count}/{process.Maximum} ", count, false),
+          count => process.SetProcess($"Set children {count}/{max} ", count, false),
           counter++);
         if (!string.IsNullOrEmpty(child.ParentID))
           treeDataDictionary[child.ParentID].Children.Add(child);

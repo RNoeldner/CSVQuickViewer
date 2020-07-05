@@ -26,8 +26,8 @@ namespace CsvTools
   /// </summary>
   public class FormProcessDisplay : ResizeForm, IProcessDisplayTime
   {
-    private readonly DummyProcessDisplay m_DummyProcessDisplay;
     private readonly LoggerDisplay m_LoggerDisplay;
+    private readonly ProcessDisplayTime m_ProcessDisplay;
     private bool m_ClosedByUI = true;
 
     private Label m_LabelEtl;
@@ -52,13 +52,13 @@ namespace CsvTools
     /// <param name="cancellationToken">The cancellation token.</param>
     public FormProcessDisplay(string windowTitle, bool withLoggerDisplay, CancellationToken cancellationToken)
     {
-      m_DummyProcessDisplay = new DummyProcessDisplay(cancellationToken);
+      CancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+      m_ProcessDisplay = new ProcessDisplayTime(CancellationTokenSource.Token);
       InitializeComponent();
 
       m_Title = windowTitle;
       base.Text = windowTitle;
 
-      TimeToCompletion = new TimeToCompletion();
       Maximum = 0;
       SuspendLayout();
       m_TableLayoutPanel.SuspendLayout();
@@ -98,7 +98,7 @@ namespace CsvTools
     ///   Gets or sets the cancellation token.
     /// </summary>
     /// <value>The cancellation token.</value>
-    public CancellationTokenSource CancellationTokenSource => m_DummyProcessDisplay.CancellationTokenSource;
+    public CancellationTokenSource CancellationTokenSource { get; }
 
     public Logger.Level LoggerLevel
     {
@@ -126,25 +126,31 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   Event handler called as progress should be displayed
-    /// </summary>
-    public event EventHandler<ProgressEventArgs> Progress;
+    public TimeToCompletion TimeToCompletion => m_ProcessDisplay.TimeToCompletion;
 
-    public virtual event EventHandler<long> SetMaximum;
-    public event EventHandler<ProgressEventArgsTime> ProgressTime;
+    public event EventHandler<ProgressEventArgsTime> ProgressTime
+    {
+      add => m_ProcessDisplay.ProgressTime += value;
+      remove => m_ProcessDisplay.ProgressTime -= value;
+    }
+
+    public event EventHandler<long> SetMaximum
+    {
+      add => m_ProcessDisplay.SetMaximum += value;
+      remove => m_ProcessDisplay.SetMaximum -= value;
+    }
+
+    public event EventHandler<ProgressEventArgs> Progress
+    {
+      add => m_ProcessDisplay.Progress += value;
+      remove => m_ProcessDisplay.Progress -= value;
+    }
 
     /// <summary>
     ///   Gets or sets the cancellation token.
     /// </summary>
     /// <value>The cancellation token.</value>
-    public CancellationToken CancellationToken => m_DummyProcessDisplay.CancellationToken;
-
-    public bool LogAsDebug
-    {
-      get => m_DummyProcessDisplay.LogAsDebug;
-      set => m_DummyProcessDisplay.LogAsDebug = value;
-    }
+    public CancellationToken CancellationToken => CancellationTokenSource.Token;
 
     /// <summary>
     ///   Gets or sets the maximum value for the Progress
@@ -152,12 +158,12 @@ namespace CsvTools
     /// <value>The maximum value.</value>
     public long Maximum
     {
-      get => TimeToCompletion.TargetValue;
+      get => m_ProcessDisplay.Maximum;
       set
       {
+        m_ProcessDisplay.Maximum = value;
         if (value > 1)
         {
-          TimeToCompletion.TargetValue = value;
           m_ProgressBar.SafeInvoke(
             () =>
             {
@@ -167,8 +173,6 @@ namespace CsvTools
         }
         else
         {
-          TimeToCompletion.TargetValue = 1;
-
           m_ProgressBar.SafeInvoke(() =>
           {
             m_ProgressBar.Maximum = 0;
@@ -176,12 +180,8 @@ namespace CsvTools
             m_ProgressBar.Style = ProgressBarStyle.Marquee;
           });
         }
-
-        SetMaximum?.Invoke(this, TimeToCompletion.TargetValue);
       }
     }
-
-    public TimeToCompletion TimeToCompletion { get; }
 
     public string Title
     {
@@ -217,9 +217,8 @@ namespace CsvTools
       // if cancellation is requested do nothing
       if (CancellationToken.IsCancellationRequested)
         return;
-      TimeToCompletion.Value = value;
 
-      m_DummyProcessDisplay.SetProcess(text, value, log);
+      m_ProcessDisplay.SetProcess(text, value, log);
 
       // This might cause an issue
       m_LabelText.SafeInvoke(
@@ -235,12 +234,12 @@ namespace CsvTools
           }
           else
           {
-            m_ProgressBar.Value = TimeToCompletion.Value > m_ProgressBar.Maximum
+            m_ProgressBar.Value = m_ProcessDisplay.TimeToCompletion.Value > m_ProgressBar.Maximum
               ? m_ProgressBar.Maximum
-              : TimeToCompletion.Value.ToInt();
-            var sb = new StringBuilder(TimeToCompletion.PercentDisplay.PadLeft(10));
+              : m_ProcessDisplay.TimeToCompletion.Value.ToInt();
+            var sb = new StringBuilder(m_ProcessDisplay.TimeToCompletion.PercentDisplay.PadLeft(10));
 
-            var t1 = TimeToCompletion.EstimatedTimeRemainingDisplay;
+            var t1 = m_ProcessDisplay.TimeToCompletion.EstimatedTimeRemainingDisplay;
             if (t1.Length > 0)
             {
               sb.Append("   Estimated time remaining: ");
@@ -253,9 +252,6 @@ namespace CsvTools
           m_LabelEtl.Refresh();
           m_LabelText.Refresh();
         });
-
-      Progress?.Invoke(this, new ProgressEventArgs(text, value));
-      ProgressTime?.Invoke(this, new ProgressEventArgsTime(text, value, TimeToCompletion.EstimatedTimeRemaining, TimeToCompletion.Percent));
     }
 
     /// <summary>
@@ -263,12 +259,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
-    public void SetProcess(object sender, ProgressEventArgs e)
-    {
-      if (e == null)
-        return;
-      SetProcess(e.Text, e.Value, e.Log);
-    }
+    public void SetProcess(object sender, ProgressEventArgs e) => m_ProcessDisplay.SetProcess(sender, e);
 
     /// <summary>
     ///   Hides the form used by Events
@@ -393,7 +384,6 @@ namespace CsvTools
         if (!CancellationTokenSource.IsCancellationRequested)
           CancellationTokenSource.Cancel();
         CancellationTokenSource.Dispose();
-        m_DummyProcessDisplay.Dispose();
         base.Dispose(disposing);
         m_LoggerDisplay?.Dispose();
       }

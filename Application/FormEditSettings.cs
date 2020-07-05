@@ -146,7 +146,7 @@ namespace CsvTools
       try
       {
         var csvFile = new CsvFile(newFileName);
-        using (var processDisplay = new DummyProcessDisplay())
+        using (var processDisplay = new CustomProcessDisplay(m_CancellationTokenSource.Token))
         {
           await csvFile.RefreshCsvFileAsync(processDisplay);
         }

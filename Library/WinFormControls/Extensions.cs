@@ -76,7 +76,7 @@ namespace CsvTools
       CancellationToken cancellationToken)
     {
       if (!fileSetting.ShowProgress)
-        return new CustomProcessDisplay(cancellationToken, null);
+        return new CustomProcessDisplay(cancellationToken);
 
       var processDisplay = new FormProcessDisplay(fileSetting.ToString(), withLogger, cancellationToken);
       processDisplay.Show(owner);

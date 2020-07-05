@@ -28,7 +28,7 @@ namespace CsvTools.Tests
       {
         JsonFormat = true
       };
-      using (var dpd = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
+      using (var dpd = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       using (var jfr = new JsonFileReader(setting, dpd))
       {
         await jfr.OpenAsync(dpd.CancellationToken);
@@ -48,7 +48,7 @@ namespace CsvTools.Tests
       {
         JsonFormat = true
       };
-      using (var dpd = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
+      using (var dpd = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       using (var jfr = new JsonFileReader(setting, dpd))
       {
         await jfr.OpenAsync(dpd.CancellationToken);
@@ -72,7 +72,7 @@ namespace CsvTools.Tests
         JsonFormat = true
       };
 
-      using (var dpd = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
+      using (var dpd = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       using (var jfr = new JsonFileReader(setting, dpd))
       {
         await jfr.OpenAsync(dpd.CancellationToken);
@@ -183,7 +183,7 @@ namespace CsvTools.Tests
         JsonFormat = true
       };
 
-      using (var dpd = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
+      using (var dpd = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       using (var jfr = new JsonFileReader(setting, dpd))
       {
         await jfr.OpenAsync(dpd.CancellationToken);
@@ -226,7 +226,7 @@ namespace CsvTools.Tests
         JsonFormat = true
       };
 
-      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
+      using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       using (var jfr = new JsonFileReader(setting, processDisplay))
       {
         await jfr.OpenAsync(processDisplay.CancellationToken);
@@ -246,7 +246,7 @@ namespace CsvTools.Tests
       {
         JsonFormat = true
       };
-      using (var dpd = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
+      using (var dpd = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       using (var jfr = new JsonFileReader(setting, dpd))
       {
         await jfr.OpenAsync(dpd.CancellationToken);
@@ -269,7 +269,7 @@ namespace CsvTools.Tests
         JsonFormat = true
       };
 
-      using (var dpd = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
+      using (var dpd = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       using (var jfr = new JsonFileReader(setting, dpd))
       {
         await jfr.OpenAsync(dpd.CancellationToken);
@@ -293,7 +293,7 @@ namespace CsvTools.Tests
         JsonFormat = true
       };
 
-      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
+      using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       using (var jfr = new JsonFileReader(setting, processDisplay))
       {
         await jfr.OpenAsync(processDisplay.CancellationToken);

@@ -26,7 +26,6 @@ namespace CsvTools.Tests
 
 
     public CancellationToken CancellationToken => UnitTestInitializeCsv.Token;
-    public bool LogAsDebug { get; set; } = false;
 
     public long Maximum { get; set; }
 

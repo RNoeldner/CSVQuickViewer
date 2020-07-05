@@ -105,7 +105,7 @@ namespace CsvTools.Tests
         // Used to cancel after .2 seconds
         await Task.Run(() =>
         {
-          WindowsAPICodePackWrapper.Save(FileSystemUtils.ExecutableDirectoryName(), "Test", "*.pdf", "*.pdf",
+          WindowsAPICodePackWrapper.Save(FileSystemUtils.ExecutableDirectoryName(), "Test", "*.pdf", "*.pdf", false,
             "test.pdf");
         }).TimeoutAfter(new TimeSpan(TimeSpan.TicksPerSecond/4));
       }
@@ -379,7 +379,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void FormDetail()
     {
-      using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token, null))
+      using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       using (var form = new FormDetail(m_DataTable, null, null, true, false, 0, new FillGuessSettings(),
         processDisplay.CancellationToken))
       {

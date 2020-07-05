@@ -34,7 +34,7 @@ namespace CsvTools.Tests
         JsonFormat = true
       };
 
-      using (var dpd = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
+      using (var dpd = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       {
         var columnCollection = new ColumnCollection();
         var fillGuessSettings = new FillGuessSettings
@@ -70,7 +70,7 @@ namespace CsvTools.Tests
           await reader.GetDataTableAsync(0, false, setting.DisplayStartLineNo, setting.DisplayRecordNo, setting.DisplayEndLineNo, false, UnitTestInitializeCsv.Token));
       }
 
-      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
+      using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       {
         var res1 = await DetermineColumnFormat.GetWriterColumnInformationAsync(setting.SqlStatement, setting.Timeout, setting.FileFormat.ValueFormat, setting.ColumnCollection.ReadonlyCopy(), processDisplay.CancellationToken);
         Assert.AreEqual(6, res1.Count());
@@ -86,7 +86,7 @@ namespace CsvTools.Tests
     {
       using (var dt = UnitTestStatic.GetDataTable())
       {
-        using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
+        using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
         {
           using (var reader = new DataTableWrapper(dt))
           {
@@ -122,7 +122,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task GetSourceColumnInformationTestAsync_Parameter()
     {
-      using (var dummy = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
+      using (var dummy = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       {
         try
         {
@@ -143,7 +143,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task GetSqlColumnNamesAsyncParameter()
     {
-      using (var dummy = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
+      using (var dummy = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       {
         var backup = FunctionalDI.SQLDataReader;
         try
@@ -200,7 +200,7 @@ namespace CsvTools.Tests
         DetectGUID = true,
         IgnoreIdColumns = false
       };
-      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
+      using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       {
         var result1 = await setting.FillGuessColumnFormatReaderAsync(false, true, fillGuessSettings, processDisplay);
         Assert.AreEqual(5, result1.Count);
@@ -221,7 +221,7 @@ namespace CsvTools.Tests
         HasFieldHeader = true,
         FileFormat = { FieldDelimiter = "," }
       };
-      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
+      using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       using (var reader = new CsvFileReader(setting, null))
       {
         await reader.OpenAsync(processDisplay.CancellationToken);
@@ -231,7 +231,7 @@ namespace CsvTools.Tests
 
       var writer = new CsvFile { SqlStatement = setting.ID };
 
-      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
+      using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       {
         await writer.FillGuessColumnFormatWriterAsync(true, processDisplay);
         Assert.AreEqual(6, writer.ColumnCollection.Count);
@@ -254,7 +254,7 @@ namespace CsvTools.Tests
           dt.Rows.Add(row);
         }
 
-        using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
+        using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
         {
           using (var reader = new DataTableWrapper(dt))
           {
@@ -292,7 +292,7 @@ namespace CsvTools.Tests
           dt.Rows.Add(row);
         }
 
-        using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
+        using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
         {
           using (var reader = new DataTableWrapper(dt))
           {
@@ -325,7 +325,7 @@ namespace CsvTools.Tests
           dt.Rows.Add(row);
         }
 
-        using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
+        using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
         {
           using (var reader = new DataTableWrapper(dt))
           {
@@ -343,7 +343,7 @@ namespace CsvTools.Tests
     {
       using (var dt = new DataTable())
       {
-        using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
+        using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
         {
           using (var reader = new DataTableWrapper(dt))
           {
@@ -386,7 +386,7 @@ namespace CsvTools.Tests
         DetectGUID = true,
         IgnoreIdColumns = false
       };
-      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
+      using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       {
         await setting.FillGuessColumnFormatReaderAsync(true, false, fillGuessSettings, processDisplay);
       }
@@ -417,7 +417,7 @@ namespace CsvTools.Tests
         IgnoreIdColumns = true
       };
 
-      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
+      using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       {
         await setting.FillGuessColumnFormatReaderAsync(false, true, fillGuessSettings, processDisplay);
       }
@@ -452,7 +452,7 @@ namespace CsvTools.Tests
         DetectGUID = true,
         IgnoreIdColumns = false
       };
-      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
+      using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       {
         await setting.FillGuessColumnFormatReaderAsync(false, false, fillGuessSettings, processDisplay);
       }
@@ -483,7 +483,7 @@ namespace CsvTools.Tests
       };
 
       // setting.TreatTextNullAsNull = true;
-      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
+      using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       {
         await setting.FillGuessColumnFormatReaderAsync(false, false, fillGuessSettings, processDisplay);
       }
@@ -526,7 +526,7 @@ namespace CsvTools.Tests
         DetectGUID = true,
         IgnoreIdColumns = true
       };
-      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
+      using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       {
         await setting.FillGuessColumnFormatReaderAsync(false, false, fillGuessSettings, processDisplay);
       }
@@ -549,7 +549,7 @@ namespace CsvTools.Tests
       };
       var fillGuessSettings = new FillGuessSettings { IgnoreIdColumns = true };
 
-      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
+      using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       {
         await setting.FillGuessColumnFormatReaderAsync(true, true, fillGuessSettings, processDisplay);
       }
@@ -581,7 +581,7 @@ namespace CsvTools.Tests
         FileFormat = { FieldDelimiter = "," },
         SkipRows = 1
       };
-      using (var dummy = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
+      using (var dummy = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       {
         try
         {
@@ -626,7 +626,7 @@ namespace CsvTools.Tests
     {
       using (var dt = UnitTestStatic.GetDataTable(1000))
       {
-        using (var dummy = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
+        using (var dummy = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
         {
           var reader = new DataTableWrapper(dt);
           foreach (DataColumn col in dt.Columns)
@@ -664,7 +664,7 @@ namespace CsvTools.Tests
         DetectGUID = true,
         IgnoreIdColumns = true
       };
-      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
+      using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       {
         await setting.FillGuessColumnFormatReaderAsync(false, true, fillGuessSettings, processDisplay);
       }
@@ -746,7 +746,7 @@ namespace CsvTools.Tests
     public async Task GetSampleValuesByColIndexAsync()
     {
       var setting = new CsvFile { FileName = UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"), HasFieldHeader = true };
-      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
+      using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       using (var test = new CsvFileReader(setting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
@@ -767,7 +767,7 @@ namespace CsvTools.Tests
         FileName = UnitTestInitializeCsv.GetTestPath("CSVTestEmpty.txt"),
         HasFieldHeader = true
       };
-      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
+      using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       using (var test = new CsvFileReader(setting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);

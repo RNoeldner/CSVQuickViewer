@@ -12,18 +12,15 @@
  *
  */
 
-using System;
 using System.Diagnostics;
 using System.Threading;
 
 namespace CsvTools
 {
-
-
   [DebuggerStepThrough]
-  public class DummyProcessDisplay : IProcessDisplay
+  public class DummyProcessDisplay : CustomProcessDisplay
   {
-    public DummyProcessDisplay() : this(CancellationToken.None)
+    public DummyProcessDisplay() : base(CancellationToken.None)
     {
     }
 
@@ -31,77 +28,28 @@ namespace CsvTools
     ///   Initializes a new instance of the <see cref="DummyProcessDisplay" /> class.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
-    public DummyProcessDisplay(CancellationToken cancellationToken)
-    {
-      if (cancellationToken == CancellationToken.None || cancellationToken.IsCancellationRequested)
-        CancellationTokenSource = new CancellationTokenSource();
-      else
-        CancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-    }
+    public DummyProcessDisplay(CancellationToken cancellationToken) : base(cancellationToken) =>
+      CancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
 
-    /// <summary>
-    ///   Event handler called as progress should be displayed
-    /// </summary>
-    public virtual event EventHandler<ProgressEventArgs> Progress;
-
-    /// <summary>
-    ///   Gets or sets the cancellation token.
-    /// </summary>
-    /// <value>The cancellation token.</value>
-    public CancellationToken CancellationToken => CancellationTokenSource.Token;
-
-    public bool LogAsDebug { get; set; } = true;
-
-    /// <summary>
-    ///   Gets or sets the maximum value for the Progress
-    /// </summary>
-    /// <value>The maximum value.</value>
-    public virtual long Maximum { get; set; }
-
-    public virtual string Title { get; set; }
 
     public CancellationTokenSource CancellationTokenSource { get; }
 
     /// <summary>
     ///   To be called if the process should be closed, this will cancel any processing
     /// </summary>
-    public virtual void Cancel()
+    public override void Cancel()
     {
       if (!CancellationTokenSource.IsCancellationRequested)
         CancellationTokenSource.Cancel();
     }
 
-    /// <summary>
-    ///   Sets the process.
-    /// </summary>
-    /// <param name="text">The text.</param>
-    /// <param name="value">The value.</param>
-    /// <param name="log"><c>True</c> if progress should be logged, <c>false</c> otherwise.</param>
-    public virtual void SetProcess(string text, long value, bool log)
-    {
-      //if (LogAsDebug && log)
-      //  Logger.Debug("{message} {value}", text, value);
-      Progress?.Invoke(this, new ProgressEventArgs(text, value, log));
-    }
 
-    /// <summary>
-    ///   Set the progress used by Events
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    public void SetProcess(object sender, ProgressEventArgs e)
-    {
-      if (e == null)
-        return;
-      SetProcess(e.Text ?? string.Empty, e.Value, e.Log);
-    }
-
-    #region IDisposable Support
+#region IDisposable Support
 
     private bool m_DisposedValue; // To detect redundant calls
 
     // This code added to correctly implement the disposable pattern.
-    public void Dispose() =>
+    public new void Dispose() =>
       // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
       Dispose(true);
 
@@ -114,6 +62,6 @@ namespace CsvTools
       CancellationTokenSource.Dispose();
     }
 
-    #endregion IDisposable Support
+#endregion IDisposable Support
   }
 }

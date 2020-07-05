@@ -22,38 +22,39 @@ namespace CsvTools
   [DebuggerStepThrough]
   public class CustomProcessDisplay : IProcessDisplay
   {
-    private readonly Action<string> m_ProcessAction;
-
-    public CustomProcessDisplay(CancellationToken token, Action<string> process)
-    {
-      CancellationToken = token;
-      m_ProcessAction = process;
-    }
+    public CustomProcessDisplay(CancellationToken token) => CancellationToken = token;
 
     public void Dispose()
     {
     }
 
     public event EventHandler<ProgressEventArgs> Progress;
-    public bool LogAsDebug { get; set; }
+
     public CancellationToken CancellationToken { get; }
 
-    public virtual long Maximum { get; set; }
+    public virtual long Maximum { get; set; } = -1;
 
-    public void Cancel()
+    public virtual void Cancel()
     {
     }
 
     public void SetProcess(object sender, ProgressEventArgs e)
     {
-      m_ProcessAction?.Invoke(e.Text);
+      if (e == null)
+        return;
+      Handle(sender, e.Text, e.Value, e.Log);
     }
 
     public string Title { get; set; }
 
-    public void SetProcess(string text, long value, bool log)
+    public void SetProcess(string text, long value, bool log) => Handle(this, text, value, log);
+
+
+    protected virtual void Handle(object sender, string text, long value, bool log)
     {
-      m_ProcessAction?.Invoke(text);
+      if (log)
+        Logger.Information("{message}", text);
+      Progress?.Invoke(sender, new ProgressEventArgs(text, value, log));
     }
   }
 }

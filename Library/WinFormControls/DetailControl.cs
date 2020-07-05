@@ -1298,6 +1298,7 @@ namespace CsvTools
         "Delimited File",
         "Text file (*.txt)|*.txt|Comma delimited (*.csv)|*.csv|Tab delimited (*.tab;*.tsv)|*.tab;*.tsv|All files (*.*)|*.*",
         null,
+        true,
         split.FileName);
       if (string.IsNullOrEmpty(fileName))
         return;

@@ -49,7 +49,7 @@ namespace CsvTools.Tests
       };
 
       var sb = new StringBuilder("{");
-      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
+      using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       {
         var cols = await DetermineColumnFormat.GetSqlColumnNamesAsync(writeFile.SqlStatement, writeFile.Timeout, processDisplay.CancellationToken);
         writeFile.Header = "{\"rowset\":[\n";
@@ -83,7 +83,7 @@ namespace CsvTools.Tests
         JSONEncode = false
       };
       var sb = new StringBuilder();
-      using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))
+      using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       {
         var cols = await DetermineColumnFormat.GetSqlColumnNamesAsync(writeFile.SqlStatement, writeFile.Timeout, processDisplay.CancellationToken);
         sb.AppendLine("<?xml version=\"1.0\"?>\n");

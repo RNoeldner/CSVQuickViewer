@@ -78,9 +78,13 @@ namespace CsvTools
       m_SourceTimeZone = string.IsNullOrEmpty(sourceTimeZone) ? TimeZoneInfo.Local.Id : sourceTimeZone;
       if (processDisplay != null)
       {
-        processDisplay.Maximum = 0;
+        
         m_ReportProgress = t => processDisplay.SetProcess(t, 0, true);
-        m_SetMaxProcess = l => processDisplay.Maximum = l;
+        if (processDisplay is IProcessDisplayTime processDisplayTime)
+        {
+          processDisplayTime.Maximum = 0;
+          m_SetMaxProcess = l => processDisplayTime.Maximum = l;
+        }
       }
 
       m_SqlStatement = fileSetting.SqlStatement.PlaceHolderTimes("\'yyyyMMddHHmmss\'", fileSetting.ProcessTimeUtc, lastExecution, lastExecutionStart); 
