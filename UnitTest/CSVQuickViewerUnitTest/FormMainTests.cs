@@ -13,6 +13,7 @@
  */
 
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Windows.Forms;
@@ -30,16 +31,19 @@ namespace CsvTools.Tests
     {
       using (var frm = new FormMain(Path.Combine(m_ApplicationDirectory, "BasicCSV.txt.gz")))
       {
+        frm.TopMost = true;
+        frm.ShowInTaskbar = false;
         frm.Show();
-        while (!frm.LoadFinished)
+        var sw = new Stopwatch();
+        sw.Start();
+        while (!frm.LoadFinished && !UnitTestInitializeCsv.Token.IsCancellationRequested && sw.Elapsed.TotalSeconds<60)
         {
           try
           {
             Application.DoEvents();
           }
-          catch (ObjectDisposedException e)
+          catch (ObjectDisposedException)
           {
-            Console.Write(e);
           }
           Thread.Sleep(200);
         }
@@ -53,16 +57,19 @@ namespace CsvTools.Tests
     {
       using (var frm = new FormMain(Path.Combine(m_ApplicationDirectory, "AllFormatsPipe.txt")))
       {
+        frm.TopMost = true;
+        frm.ShowInTaskbar = false;
         frm.Show();
-        while (!frm.LoadFinished)
+        var sw = new Stopwatch();
+        sw.Start();
+        while (!frm.LoadFinished && !UnitTestInitializeCsv.Token.IsCancellationRequested && sw.Elapsed.TotalSeconds<60)
         {
           try
           {
             Application.DoEvents();
           }
-          catch (ObjectDisposedException e)
+          catch (ObjectDisposedException)
           {
-            Console.WriteLine(e);
           }
           Thread.Sleep(200);
         }

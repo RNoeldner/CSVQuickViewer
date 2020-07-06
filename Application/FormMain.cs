@@ -60,6 +60,8 @@ namespace CsvTools
 
     private int m_WarningCount;
 
+    private Tuple<int, bool> m_CodePage;
+
     /// <summary>
     ///   Initializes a new instance of the <see cref="FormMain" /> class.
     /// </summary>
@@ -82,9 +84,9 @@ namespace CsvTools
       if (string.IsNullOrEmpty(fileName) || !FileSystemUtils.FileExists(fileName))
       {
         var strFilter = "Supported files|*.csv;*.txt;*.tab;*.tsv;*.dat;*.json;*.gz|"
-                      + "Delimited files (*.csv;*.txt;*.tab;*.tsv;*.dat)|*.csv;*.txt;*.tab;*.tsv;*.dat|"
-                      + "Json files (*.json)|*.json|"
-                      + "All files (*.*)|*.*";
+                        + "Delimited files (*.csv;*.txt;*.tab;*.tsv;*.dat)|*.csv;*.txt;*.tab;*.tsv;*.dat|"
+                        + "Json files (*.json)|*.json|"
+                        + "All files (*.*)|*.*";
 
         if (m_ViewSettings.StoreSettingsByFile)
           strFilter += "|Setting files (*" + CsvFile.cCsvSettingExtension + ")|*" + CsvFile.cCsvSettingExtension;
@@ -284,7 +286,12 @@ namespace CsvTools
       textBoxProgress.Visible = false;
       Logger.AddLog = null;
       csvTextDisplay.Visible = true;
-      await csvTextDisplay.SetCsvFile(m_FileSetting);
+
+      await csvTextDisplay.SetCsvFile(m_FileSetting.FullPath, m_FileSetting.FileFormat.FieldQualifierChar,
+          m_FileSetting.FileFormat.FieldDelimiterChar, m_FileSetting.FileFormat.EscapeCharacterChar,
+          m_CodePage.Item1);
+      
+
       ShowTextPanel(true);
       buttonCloseText.Visible = true;
     }
@@ -340,10 +347,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
-    private async void FormMain_Activated(object sender, EventArgs e)
-    {
-      await CheckPossibleChange();
-    }
+    private async void FormMain_Activated(object sender, EventArgs e) => await CheckPossibleChange();
 
     private void FormMain_FormClosing(object sender, FormClosingEventArgs e)
     {
@@ -566,7 +570,13 @@ namespace CsvTools
         if (clear)
           ClearProcess();
 
-        Text = $"{FileSystemUtils.GetShortDisplayFileName(m_FileSetting.FileName, 40)} - {await EncodingHelper.DetectedEncodingName(m_FileSetting.FullPath, m_CancellationTokenSource.Token)} - {AssemblyTitle}";
+        using (var improvedStream = FunctionalDI.OpenRead(m_FileSetting.FullPath))
+        {
+          m_CodePage = await CsvHelper.GuessCodePageAsync(improvedStream, m_CancellationTokenSource.Token);
+        }
+
+        Text =
+          $"{FileSystemUtils.GetShortDisplayFileName(m_FileSetting.FileName, 40)} - {EncodingHelper.GetEncodingName(m_CodePage.Item1, true, m_CodePage.Item2)} - {AssemblyTitle}";
 
         using (var processDisplay = m_FileSetting.GetProcessDisplay(this, false, m_CancellationTokenSource.Token))
         {
@@ -611,7 +621,8 @@ namespace CsvTools
             processDisplay.SetProcess("Reading data...", -1, true);
 
             DataTable = await fileReader.GetDataTableAsync(m_FileSetting.RecordLimit, true,
-              m_FileSetting.DisplayStartLineNo, m_FileSetting.DisplayRecordNo, m_FileSetting.DisplayEndLineNo, false, processDisplay.CancellationToken);
+              m_FileSetting.DisplayStartLineNo, m_FileSetting.DisplayRecordNo, m_FileSetting.DisplayEndLineNo, false,
+              processDisplay.CancellationToken);
 
             foreach (var columnName in DataTable.GetRealColumns())
               if (m_FileSetting.ColumnCollection.Get(columnName) == null)

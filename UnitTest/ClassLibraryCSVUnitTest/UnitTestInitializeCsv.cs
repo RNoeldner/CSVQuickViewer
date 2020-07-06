@@ -12,6 +12,7 @@
  *
  */
 
+using System;
 using System.Diagnostics.Contracts;
 using System.IO;
 using System.Net;
@@ -50,6 +51,8 @@ namespace CsvTools.Tests
       Contract.ContractFailed += (sender, e) => e.SetHandled();
       Logger.AddLog += (s, level) => context.WriteLine($"{level} - {s}");
       ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls12;
+      AppDomain.CurrentDomain.UnhandledException+= delegate(object sender, UnhandledExceptionEventArgs args) { context.Write(args.ExceptionObject.ToString()); };
     }
+
   }
 }

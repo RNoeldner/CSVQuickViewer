@@ -99,23 +99,23 @@ namespace CsvTools
       if (form.IsDisposed)
         return;
 
-      /*
+
       if (!form.Visible)
         form.Show();
 
       if (!form.Focused)
         form.Focus();
-      */
+
       form.StartPosition = FormStartPosition.Manual;
 
-      //var screen = Screen.FromRectangle(
-      //  new Rectangle(windowPosition.Left, windowPosition.Top, windowPosition.Width, windowPosition.Height));
-      //var width = Math.Min(windowPosition.Width, screen.WorkingArea.Width);
-      //var height = Math.Min(windowPosition.Height, screen.WorkingArea.Height);
-      //var left = Math.Min(screen.WorkingArea.Right - width, Math.Max(windowPosition.Left, screen.WorkingArea.Left));
-      //var top = Math.Min(screen.WorkingArea.Bottom - height, Math.Max(windowPosition.Top, screen.WorkingArea.Top));
+      var screen = Screen.FromRectangle(
+        new Rectangle(windowPosition.Left, windowPosition.Top, windowPosition.Width, windowPosition.Height));
+      var width = Math.Min(windowPosition.Width, screen.WorkingArea.Width);
+      var height = Math.Min(windowPosition.Height, screen.WorkingArea.Height);
+      var left = Math.Min(screen.WorkingArea.Right - width, Math.Max(windowPosition.Left, screen.WorkingArea.Left));
+      var top = Math.Min(screen.WorkingArea.Bottom - height, Math.Max(windowPosition.Top, screen.WorkingArea.Top));
 
-      //form.DesktopBounds = new Rectangle(left, top, width, height);
+      form.DesktopBounds = new Rectangle(left, top, width, height);
       form.WindowState = (FormWindowState) windowPosition.State;
       if (windowPosition.CustomInt != int.MinValue)
         setCustomValue1?.Invoke(windowPosition.CustomInt);
@@ -170,24 +170,11 @@ namespace CsvTools
     /// <param name="action">A delegate for the action</param>
     public static void SafeInvoke(this Control uiElement, Action action)
     {
-      if (uiElement == null || uiElement.IsDisposed || action == null || !uiElement.IsHandleCreated)
+      if (!uiElement.IsHandleCreated)
         return;
-      UiElementInvoke(uiElement, action, TimeSpan.TicksPerSecond / 10);
+      SafeInvokeNoHandleNeeded(uiElement, action);
 
       ProcessUIElements();
-    }
-
-    private static void UiElementInvoke(Control uiElement, Action action, long timeoutTicks)
-    {
-      if (uiElement.InvokeRequired)
-      {
-        var result = uiElement.BeginInvoke(action);
-        result.AsyncWaitHandle.WaitOne(new TimeSpan(timeoutTicks));
-        result.AsyncWaitHandle.Close();
-        // uiElement.EndInvoke(result);
-      }
-      else
-        action();
     }
 
     /// <summary>
@@ -195,11 +182,22 @@ namespace CsvTools
     /// </summary>
     /// <param name="uiElement">Type of the Object that will get the extension</param>
     /// <param name="action">A delegate for the action</param>
-    public static void SafeInvokeNoHandleNeeded(this Control uiElement, Action action)
+    /// <param name="timeoutTicks">Timeout to finish action, default is 1/10 of a second</param>
+    public static void SafeInvokeNoHandleNeeded(this Control uiElement, Action action, long timeoutTicks = TimeSpan.TicksPerSecond / 10)
     {
       if (uiElement == null || uiElement.IsDisposed || action == null)
         return;
-      UiElementInvoke(uiElement, action, TimeSpan.TicksPerSecond / 10);
+      if (uiElement.InvokeRequired)
+      {
+        var result = uiElement.BeginInvoke(action);
+        result.AsyncWaitHandle.WaitOne(new TimeSpan(timeoutTicks));
+        result.AsyncWaitHandle.Close();
+        //TODO: Check if this would be ok, it was commented out
+        if (result.IsCompleted)
+          uiElement.EndInvoke(result);
+      }
+      else
+        action();
     }
 
     /// <summary>

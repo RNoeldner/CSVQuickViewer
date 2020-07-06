@@ -12,22 +12,23 @@
  *
  */
 
+using System;
+using System.IO;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using JetBrains.Annotations;
+
 namespace CsvTools
 {
-  using System;
-  using System.IO;
-  using System.Threading;
-  using System.Threading.Tasks;
-  using System.Windows.Forms;
-
   /// <summary>
   ///   UserControl: CsvTextDisplay
   /// </summary>
   public partial class CsvTextDisplay : UserControl
   {
-    private ICsvFile m_CsvFile;
+    private int m_CodePage;
 
     private int m_DisplayedAt;
+    [NotNull] private string m_FullPath = string.Empty;
 
     /// <summary>
     ///   CTOR CsvTextDisplay
@@ -41,32 +42,32 @@ namespace CsvTools
     /// <summary>
     ///   CSV File to display
     /// </summary>
-    public async Task SetCsvFile(ICsvFile value)
+    public async Task SetCsvFile(string fullPath, char qualifierChar, char delimiterChar, char escapeChar, int codePage)
     {
-      if (value == null)
+      if (string.IsNullOrEmpty(fullPath))
       {
         CSVTextBox.Text = null;
       }
       else
       {
-        if (!FileSystemUtils.FileExists(value.FullPath))
+        if (!FileSystemUtils.FileExists(fullPath))
         {
           CSVTextBox.DisplaySpace = false;
           CSVTextBox.Text = $@"
-
-The file {value.FileName} does not exist.";
+The file {fullPath} does not exist.";
         }
         else
         {
           CSVTextBox.Text = null;
           CSVTextBox.DisplaySpace = true;
-          CSVTextBox.Quote = value.FileFormat.FieldQualifierChar;
-          CSVTextBox.Delimiter = value.FileFormat.FieldDelimiterChar;
-          CSVTextBox.Escape = value.FileFormat.EscapeCharacterChar;
+          CSVTextBox.Quote = qualifierChar;
+          CSVTextBox.Delimiter = delimiterChar;
+          CSVTextBox.Escape = escapeChar;
 
           ScrollBarVertical.LargeChange = 4096;
-          ScrollBarVertical.Maximum = string.IsNullOrEmpty(value.FullPath) ? 0 : FileSystemUtils.FileLength(value.FullPath).ToInt();
-          m_CsvFile = value;
+          ScrollBarVertical.Maximum = string.IsNullOrEmpty(fullPath) ? 0 : FileSystemUtils.FileLength(fullPath).ToInt();
+          m_FullPath = fullPath;
+          m_CodePage = codePage;
 
           // Starting task without error handler
           await UpdateViewAsync();
@@ -98,50 +99,50 @@ The file {value.FileName} does not exist.";
     private async Task UpdateViewAsync()
     {
       m_DisplayedAt = ScrollBarVertical.Value;
-      if (string.IsNullOrEmpty(m_CsvFile.FileName))
+      if (string.IsNullOrEmpty(m_FullPath))
         return;
+      var display = string.Empty;
       try
       {
-        using (var processDisplay = new ProcessDisplayTime(CancellationToken.None))
-        using (var iStream = FunctionalDI.OpenRead(m_CsvFile.FullPath))
-        using (var sr = new ImprovedTextReader(iStream, (await CsvHelper.GuessCodePageAsync(iStream, processDisplay.CancellationToken)).Item1))
+        using (var iStream = FunctionalDI.OpenRead(m_FullPath))
         {
-          // Some stream do not support seek...
-          if (iStream.Stream.CanSeek)
+          using (var sr = new ImprovedTextReader(iStream, m_CodePage))
           {
-            iStream.Stream.Seek(m_DisplayedAt, SeekOrigin.Begin);
-            if (m_DisplayedAt != 0)
+            // Some stream do not support seek...
+            if (iStream.Stream.CanSeek)
             {
-              // find the line start
-              var read = await sr.ReadAsync();
-
-              while (read != 13 && read != 10 && !sr.EndOfFile)
+              iStream.Stream.Seek(m_DisplayedAt, SeekOrigin.Begin);
+              if (m_DisplayedAt != 0)
               {
-                await sr.ReadAsync();
-              }
+                // find the line start
+                var read = await sr.ReadAsync().ConfigureAwait(false);
 
-              var next = await sr.PeekAsync();
-              if (read == 13 && next == 10 || read == 10 && next == 13)
-                await sr.ReadAsync();
+                while (read != 13 && read != 10 && !sr.EndOfFile) await sr.ReadAsync();
+
+                var next = await sr.PeekAsync().ConfigureAwait(false);
+                if ((read == 13 && next == 10) || (read == 10 && next == 13))
+                  await sr.ReadAsync().ConfigureAwait(false);
+              }
+              else
+              {
+                // Fill the buffer
+                await sr.PeekAsync().ConfigureAwait(false);
+              }
             }
             else
             {
-              // Fill the buffer
-              await sr.PeekAsync();
+              ScrollBarVertical.Enabled = false;
             }
+            display = new string(sr.Buffer, 0, sr.BufferFilled);
           }
-          else
-          {
-            ScrollBarVertical.Enabled = false;
-          }
-
-          CSVTextBox.Text = new string(sr.Buffer, 0, sr.BufferFilled);
         }
       }
       catch (Exception exc)
       {
-        CSVTextBox.Text = exc.ExceptionMessages();
+        display = exc.ExceptionMessages();
       }
+
+      CSVTextBox.SafeInvokeNoHandleNeeded(() => CSVTextBox.Text = display, 1);
     }
 
     private async void ValueChangedEvent(object sender, EventArgs e)
