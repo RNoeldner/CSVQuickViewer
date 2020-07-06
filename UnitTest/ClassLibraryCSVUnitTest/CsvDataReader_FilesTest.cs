@@ -15,6 +15,7 @@
 using System;
 using System.Globalization;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -47,10 +48,10 @@ namespace CsvTools.Tests
         var cultureInfo = new CultureInfo("en-US");
         Assert.AreEqual("01/08/2013 07:00:00", test.GetDateTime(0).ToString("MM/dd/yyyy HH:mm:ss", cultureInfo));
         await test.ReadAsync(processDisplay.CancellationToken);
-        // 01/19/2010	24:00:00 --> 01/20/2010	00:00:00
+        // 01/19/2010 24:00:00 --> 01/20/2010 00:00:00
         Assert.AreEqual("01/20/2010 00:00:00", test.GetDateTime(0).ToString("MM/dd/yyyy HH:mm:ss", cultureInfo));
         await test.ReadAsync(processDisplay.CancellationToken);
-        // 01/21/2013	25:00:00 --> 01/22/2013	01:00:00
+        // 01/21/2013 25:00:00 --> 01/22/2013 01:00:00
         Assert.AreEqual("01/22/2013 01:00:00", test.GetDateTime(0).ToString("MM/dd/yyyy HH:mm:ss", cultureInfo));
       }
     }
@@ -63,7 +64,7 @@ namespace CsvTools.Tests
         FileName = UnitTestInitializeCsv.GetTestPath("Sessions.txt"),
         HasFieldHeader = true,
         ByteOrderMark = true,
-        FileFormat = {FieldDelimiter = "\t"}
+        FileFormat = { FieldDelimiter = "\t" }
       };
       setting.ColumnCollection.AddIfNew(new Column("Start Date", "MM/dd/yyyy")
       {
@@ -103,13 +104,13 @@ namespace CsvTools.Tests
       setting.FileFormat.AlternateQuoting = true;
       setting.TrimmingOption = TrimmingOption.All;
       setting.FileName = UnitTestInitializeCsv.GetTestPath("AlternateTextQualifiers.txt");
-
-      using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
+      using (var cts = CancellationTokenSource.CreateLinkedTokenSource(UnitTestInitializeCsv.Token))
+      using (var processDisplay = new CustomProcessDisplay(cts.Token))
       {
         using (var test = new CsvFileReader(setting, processDisplay))
         {
           await test.OpenAsync(processDisplay.CancellationToken);
-          processDisplay.Cancel();
+          cts.Cancel();
           Assert.IsFalse(await test.ReadAsync(processDisplay.CancellationToken));
         }
       }
@@ -1570,7 +1571,7 @@ Line "Test"", "22",23,"  24"
       using (var test = new CsvFileReader(setting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
-        
+
         Assert.AreEqual(4, test.FieldCount);
         Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
         Assert.AreEqual(1U, test.StartLineNumber, "LineNumber");

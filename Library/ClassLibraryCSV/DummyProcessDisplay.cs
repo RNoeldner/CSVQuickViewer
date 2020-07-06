@@ -31,20 +31,9 @@ namespace CsvTools
     public DummyProcessDisplay(CancellationToken cancellationToken) : base(cancellationToken) =>
       CancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
 
-
     public CancellationTokenSource CancellationTokenSource { get; }
 
-    /// <summary>
-    ///   To be called if the process should be closed, this will cancel any processing
-    /// </summary>
-    public override void Cancel()
-    {
-      if (!CancellationTokenSource.IsCancellationRequested)
-        CancellationTokenSource.Cancel();
-    }
-
-
-#region IDisposable Support
+    #region IDisposable Support
 
     private bool m_DisposedValue; // To detect redundant calls
 
@@ -55,13 +44,14 @@ namespace CsvTools
 
     private void Dispose(bool disposing)
     {
-      Cancel();
+      if (!CancellationTokenSource.IsCancellationRequested)
+        CancellationTokenSource.Cancel();
       if (m_DisposedValue) return;
       if (!disposing) return;
       m_DisposedValue = true;
       CancellationTokenSource.Dispose();
     }
 
-#endregion IDisposable Support
+    #endregion IDisposable Support
   }
 }
