@@ -41,16 +41,6 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void CancelTest()
-    {
-      using (var processDisplay = new DummyProcessDisplay())
-      {
-        processDisplay.Cancel();
-        Assert.IsTrue(processDisplay.CancellationToken.IsCancellationRequested);
-      }
-    }
-
-    [TestMethod]
     public void SetMaximum()
     {
       using (var processDisplay = new DummyProcessDisplay(UnitTestInitializeCsv.Token))

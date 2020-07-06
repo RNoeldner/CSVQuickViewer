@@ -12,7 +12,6 @@
  *
  */
 
-
 using System;
 using System.Diagnostics;
 using System.Threading;
@@ -34,10 +33,6 @@ namespace CsvTools
 
     public virtual long Maximum { get; set; } = -1;
 
-    public virtual void Cancel()
-    {
-    }
-
     public void SetProcess(object sender, ProgressEventArgs e)
     {
       if (e == null)
@@ -48,7 +43,6 @@ namespace CsvTools
     public string Title { get; set; }
 
     public void SetProcess(string text, long value, bool log) => Handle(this, text, value, log);
-
 
     protected virtual void Handle(object sender, string text, long value, bool log)
     {
