@@ -73,7 +73,14 @@
     <Compile Include="LoggerTextBoxTests.cs" />
     <Compile Include="PersistentChoiceTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="TestForm.Designer.cs">
+      <DependentUpon>TestForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="ToolStripDataGridViewColumnFilterTests.cs" />
+    <Compile Include="UnitTestInitializeWin.cs" />
     <Compile Include="UnitTestWinFormHelper.cs" />
     <Compile Include="ValueClusterTests.cs" />
     <Compile Include="ValueClusterCollectionTests.cs" />
@@ -113,6 +120,11 @@
       <Project>{ddfec05c-94f0-4329-9cb2-96d2b4b57050}</Project>
       <Name>ClassLibraryCSVUnitTest</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="TestForm.resx">
+      <DependentUpon>TestForm.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

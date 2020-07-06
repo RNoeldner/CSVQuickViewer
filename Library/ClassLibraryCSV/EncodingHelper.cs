@@ -15,8 +15,6 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Ude;
 
@@ -27,42 +25,6 @@ namespace CsvTools
   /// </summary>
   public static class EncodingHelper
   {
-    /// <summary>
-    ///   The suffix of an encoding that does not have a BOM
-    /// </summary>
-    public const string cSuffixWithoutBom = " without BOM";
-
-    public static async Task<string> DetectedEncodingName(string fileName, CancellationToken token)
-    {
-      using (var improvedStream = FunctionalDI.OpenRead(fileName))
-      {
-        var result = await CsvHelper.GuessCodePageAsync(improvedStream, token).ConfigureAwait(false);
-        return GetEncodingName(result.Item1, true, result.Item2);
-      }
-    }
-
-    private static readonly Lazy<int[]> m_CommonCodePages = new Lazy<int[]>(() => new[]
-    {
-   -1, (int) CodePage.UTF8, (int) CodePage.UTF16Le, (int) CodePage.UTF16Be, (int) CodePage.UTF32Le,
-   (int) CodePage.UTF32Be, 1250, (int) CodePage.WIN1252, 1253, 1255, (int) CodePage.UTF7, 850, 852, 437, 28591,
-   10029, 20127, 28597, 50220, 28592, 28595, 28598, 20866, 932, 54936
-  });
-
-    // ReSharper disable once InconsistentNaming
-    public static byte BOMLength(CodePage codePage)
-    {
-      // ReSharper disable once ConvertIfStatementToSwitchStatement
-      if (codePage == CodePage.UTF8)
-        return 3;
-      if (codePage == CodePage.UTF7 || codePage == CodePage.UTF32Le || codePage == CodePage.UTF32Be ||
-          codePage == CodePage.GB18030)
-        return 4;
-      if (codePage == CodePage.UTF16Le || codePage == CodePage.UTF16Be)
-        return 2;
-
-      return 0;
-    }
-
     /// <summary>
     ///   A code page is a table of values that describes the character set for encoding a
     ///   particular language.
@@ -206,11 +168,38 @@ namespace CsvTools
     }
 
     /// <summary>
+    ///   The suffix of an encoding that does not have a BOM
+    /// </summary>
+    public const string cSuffixWithoutBom = " without BOM";
+
+    private static readonly Lazy<int[]> m_CommonCodePages = new Lazy<int[]>(() => new[]
+    {
+      -1, (int) CodePage.UTF8, (int) CodePage.UTF16Le, (int) CodePage.UTF16Be, (int) CodePage.UTF32Le,
+      (int) CodePage.UTF32Be, 1250, (int) CodePage.WIN1252, 1253, 1255, (int) CodePage.UTF7, 850, 852, 437, 28591,
+      10029, 20127, 28597, 50220, 28592, 28595, 28598, 20866, 932, 54936
+    });
+
+    /// <summary>
     ///   Gets a collection of the most common code pages.
     /// </summary>
     /// <value>An array of common code pages.</value>
     [SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays")]
     public static int[] CommonCodePages => m_CommonCodePages.Value;
+
+    // ReSharper disable once InconsistentNaming
+    public static byte BOMLength(CodePage codePage)
+    {
+      // ReSharper disable once ConvertIfStatementToSwitchStatement
+      if (codePage == CodePage.UTF8)
+        return 3;
+      if (codePage == CodePage.UTF7 || codePage == CodePage.UTF32Le || codePage == CodePage.UTF32Be ||
+          codePage == CodePage.GB18030)
+        return 4;
+      if (codePage == CodePage.UTF16Le || codePage == CodePage.UTF16Be)
+        return 2;
+
+      return 0;
+    }
 
     /// <summary>
     ///   Gets the code page by byte order mark.
@@ -232,17 +221,13 @@ namespace CsvTools
         if (buff[0] == 0x84 && buff[1] == 0x31 && buff[2] == 0x95 && buff[3] == 0x33)
           return (int) CodePage.GB18030;
         if (buff[0] == 0x2B && buff[1] == 0x2F && buff[2] == 0x76 &&
-          (buff[3] == 0x38 || buff[3] == 0x39 || buff[3] == 0x2B || buff[3] == 0x2f))
-        {
+            (buff[3] == 0x38 || buff[3] == 0x39 || buff[3] == 0x2B || buff[3] == 0x2f))
           return (int) CodePage.UTF7;
-        }
       }
 
       if (buff.Length >= 3)
-      {
         if (buff[0] == 0xEF && buff[1] == 0xBB && buff[2] == 0xBF)
           return (int) CodePage.UTF8;
-      }
 
       if (buff.Length < 2)
         return (int) CodePage.None;
@@ -299,7 +284,7 @@ namespace CsvTools
       const string c_SuffixWithBom = " with BOM";
       string name;
       var suffixBom = hasBom ? c_SuffixWithBom :
-       showBom ? cSuffixWithoutBom : string.Empty;
+        showBom ? cSuffixWithoutBom : string.Empty;
       try
       {
         switch (codePage)

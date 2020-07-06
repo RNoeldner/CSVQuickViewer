@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -40,25 +39,12 @@ namespace CsvTools.Tests
       frm.Close();
     }
 
+
     public static void ShowControl(Control ctrl, double time = .2, Action toDo = null)
     {
-      using (var frm = new Form())
+      using (var frm = new TestForm())
       {
-        frm.SuspendLayout();
-        frm.Text = ctrl.GetType().FullName;
-        frm.BackColor = SystemColors.Control;
-        frm.ClientSize = new Size(800, 800);
-
-        frm.FormBorderStyle = FormBorderStyle.SizableToolWindow;
-        frm.StartPosition = FormStartPosition.CenterScreen;
-
-        ctrl.Dock = DockStyle.Fill;
-        ctrl.Location = new Point(0, 0);
-        ctrl.Size = new Size(600, 600);
-        frm.Controls.Add(ctrl);
-
-        frm.ResumeLayout(false);
-
+        frm.AddOneControl(ctrl);
         ShowFormAndClose(frm, time, toDo);
       }
     }

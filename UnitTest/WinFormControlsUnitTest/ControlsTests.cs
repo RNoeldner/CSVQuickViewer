@@ -13,11 +13,8 @@
  */
 
 using System;
-using System.Data;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Runtime.InteropServices;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -25,13 +22,10 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace CsvTools.Tests
 {
   [TestClass]
-  [SuppressMessage("ReSharper", "AccessToDisposedClosure")]
   public class ControlsTests
   {
-    private static readonly DataTable m_DataTable = UnitTestStatic.GetDataTable(60);
-
-    private readonly CsvFile m_CSVFile =
-      new CsvFile(Path.Combine(FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles", "BasicCSV.txt"));
+    [ClassInitialize]
+    public static async Task ClassInitialize(TestContext testContext) => await UnitTestInitialize.SetDBHelper();
 
     [TestMethod]
     public void TimeZoneSelector()
@@ -58,7 +52,9 @@ namespace CsvTools.Tests
       try
       {
         // Used to cancel after .2 seconds
-        await Task.Run(() => WindowsAPICodePackWrapper.Open(FileSystemUtils.ExecutableDirectoryName(), "Test", "*.cs", null)).TimeoutAfter(new TimeSpan(TimeSpan.TicksPerSecond/4));
+        await Task.Run(() =>
+            WindowsAPICodePackWrapper.Open(FileSystemUtils.ExecutableDirectoryName(), "Test", "*.cs", null))
+          .TimeoutAfter(new TimeSpan(TimeSpan.TicksPerSecond / 4));
       }
       catch (COMException)
       {
@@ -82,7 +78,8 @@ namespace CsvTools.Tests
       try
       {
         // Used to cancel after .2 seconds
-        await Task.Run(() => { WindowsAPICodePackWrapper.Folder(FileSystemUtils.ExecutableDirectoryName(), "Test"); }).TimeoutAfter(new TimeSpan(TimeSpan.TicksPerSecond/4));
+        await Task.Run(() => { WindowsAPICodePackWrapper.Folder(FileSystemUtils.ExecutableDirectoryName(), "Test"); })
+          .TimeoutAfter(new TimeSpan(TimeSpan.TicksPerSecond / 4));
       }
       catch (COMException)
       {
@@ -107,7 +104,7 @@ namespace CsvTools.Tests
         {
           WindowsAPICodePackWrapper.Save(FileSystemUtils.ExecutableDirectoryName(), "Test", "*.pdf", "*.pdf", false,
             "test.pdf");
-        }).TimeoutAfter(new TimeSpan(TimeSpan.TicksPerSecond/4));
+        }).TimeoutAfter(new TimeSpan(TimeSpan.TicksPerSecond / 4));
       }
       catch (COMException)
       {
@@ -129,10 +126,10 @@ namespace CsvTools.Tests
       {
         Assert.AreEqual(0, treeView.SelectedTreeNode.Count);
 
-        var treeNode = new TreeNode("Test") { Tag = "test" };
+        var treeNode = new TreeNode("Test") {Tag = "test"};
         treeView.Nodes.Add(treeNode);
 
-        var treeNode2 = new TreeNode("Test2") { Tag = "test2" };
+        var treeNode2 = new TreeNode("Test2") {Tag = "test2"};
         treeNode.Nodes.Add(treeNode2);
 
         var firedAfter = false;
@@ -142,6 +139,7 @@ namespace CsvTools.Tests
 
         UnitTestWinFormHelper.ShowControl(treeView, .2, () =>
         {
+          // ReSharper disable once AccessToDisposedClosure
           treeView.SelectedNode = treeNode2;
           treeNode.ExpandAll();
         });
@@ -179,7 +177,9 @@ namespace CsvTools.Tests
       var rtfHelper = new RtfHelper();
       rtfHelper.AddParagraph("RTF \\ Table {Nice}");
       rtfHelper.AddTable(new[]
-        {"Hello", "World", "", null, "A", "Table", "Test", null, "Another", "Row", "Long Column Text"});
+      {
+        "Hello", "World", "", null, "A", "Table", "Test", null, "Another", "Row", "Long Column Text"
+      });
       _MessageBox.ShowBigRtf(null, rtfHelper.Rtf, "RTF Text", MessageBoxButtons.OK, MessageBoxIcon.Information,
         MessageBoxDefaultButton.Button1, 2);
     }
@@ -200,8 +200,6 @@ namespace CsvTools.Tests
       }
     }
 
-    [ClassCleanup]
-    public static void TearDown() => m_DataTable.Dispose();
 
     [TestMethod]
     public void CsvRichTextBox()
@@ -230,10 +228,19 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void CsvTextDisplayShow()
+    public async Task CsvTextDisplayShow()
     {
       var ctrl = new CsvTextDisplay();
-      UnitTestWinFormHelper.ShowControl(ctrl, .1, async () => await ctrl.SetCsvFile(m_CSVFile));
+
+      using (var frm = new TestForm())
+      {
+        frm.AddOneControl(ctrl);
+        frm.Show();
+        await ctrl.SetCsvFile(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"), '"', '\t','\0', 65001);
+
+        Extensions.ProcessUIElements(500);
+        frm.SafeInvoke(()=> frm.Close());
+      }
     }
 
     [TestMethod]
@@ -267,9 +274,10 @@ namespace CsvTools.Tests
     [TestMethod]
     public void FormColumnUI()
     {
+      var csvFile = new CsvFile(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"));
       var col = new Column("ExamDate", DataType.DateTime);
-      m_CSVFile.ColumnCollection.AddIfNew(col);
-      using (var frm = new FormColumnUI(col, false, m_CSVFile, new FillGuessSettings(), false))
+      csvFile.ColumnCollection.AddIfNew(col);
+      using (var frm = new FormColumnUI(col, false, csvFile, new FillGuessSettings(), false))
       {
         UnitTestWinFormHelper.ShowFormAndClose(frm);
       }
@@ -278,9 +286,10 @@ namespace CsvTools.Tests
     [TestMethod]
     public void FormColumnUI_Opt1()
     {
+      var csvFile = new CsvFile(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"));
       var col = new Column("ExamDate", DataType.DateTime);
-      m_CSVFile.ColumnCollection.AddIfNew(col);
-      using (var form = new FormColumnUI(col, false, m_CSVFile, new FillGuessSettings(), true))
+      csvFile.ColumnCollection.AddIfNew(col);
+      using (var form = new FormColumnUI(col, false, csvFile, new FillGuessSettings(), true))
       {
         form.ShowGuess = false;
         UnitTestWinFormHelper.ShowFormAndClose(form);
@@ -290,9 +299,10 @@ namespace CsvTools.Tests
     [TestMethod]
     public void FormColumnUI_Opt2()
     {
+      var csvFile = new CsvFile(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"));
       var col = new Column("ExamDate", DataType.DateTime);
-      m_CSVFile.ColumnCollection.AddIfNew(col);
-      using (var form = new FormColumnUI(col, false, m_CSVFile, new FillGuessSettings(), false))
+      csvFile.ColumnCollection.AddIfNew(col);
+      using (var form = new FormColumnUI(col, false, csvFile, new FillGuessSettings(), false))
       {
         UnitTestWinFormHelper.ShowFormAndClose(form);
       }
@@ -301,25 +311,21 @@ namespace CsvTools.Tests
     [TestMethod]
     public void FormColumnUI_ButtonGuessClick()
     {
+      var csvFile = new CsvFile(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"));
       var col = new Column("ExamDate", DataType.DateTime);
-      m_CSVFile.ColumnCollection.AddIfNew(col);
+      csvFile.ColumnCollection.AddIfNew(col);
 
-      using (var form = new FormColumnUI(col, false, m_CSVFile, new FillGuessSettings(), true))
+      using (var form = new FormColumnUI(col, false, csvFile, new FillGuessSettings(), true))
       {
         UnitTestWinFormHelper.ShowFormAndClose(form, .2, () => form.ButtonGuessClick(null, null));
-
-        // open the reader file
-        form.ButtonGuessClick(null, null);
-        UnitTestWinFormHelper.WaitSomeTime(.2);
-
-        form.Close();
       }
     }
 
     [TestMethod]
     public void FormHierarchyDisplay()
     {
-      using (var form = new FormHierarchyDisplay(m_DataTable, m_DataTable.Select()))
+      using (var dataTable = UnitTestStatic.GetDataTable(60))
+      using (var form = new FormHierarchyDisplay(dataTable, dataTable.Select()))
       {
         UnitTestWinFormHelper.ShowFormAndClose(form, 0.1, () => form.BuildTree("int", "ID"));
       }
@@ -328,31 +334,34 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task FormHierarchyDisplay_DataWithCycleAsync()
     {
-      DataTable dt;
-      // load the csvFile FileWithHierarchy
-      using (var processDisplay = new FormProcessDisplay("FileWithHierarchy"))
+      using (var dataTable = UnitTestStatic.GetDataTable(60))
       {
-        processDisplay.Show();
-        var cvsSetting = new CsvFile(Path.Combine(FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles",
-            "FileWithHierarchy_WithCyle.txt"))
-        { FileFormat = { FieldDelimiter = "\t" } };
-        using (var csvDataReader = new CsvFileReader(cvsSetting, processDisplay))
+        // load the csvFile FileWithHierarchy
+        using (var processDisplay = new FormProcessDisplay("FileWithHierarchy"))
         {
-          dt = await csvDataReader.GetDataTableAsync(0, false, true, false, false, false, processDisplay.CancellationToken);
-        }
-      }
+          processDisplay.Show();
+          var cvsSetting = new CsvFile(Path.Combine(FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles",
+            "FileWithHierarchy_WithCyle.txt")) {FileFormat = {FieldDelimiter = "\t"}};
+          using (var csvDataReader = new CsvFileReader(cvsSetting, processDisplay))
+          {
+            var dt = await csvDataReader.GetDataTableAsync(0, false, true, false, false, false,
+              processDisplay.CancellationToken);
 
-      using (var form = new FormHierarchyDisplay(dt, m_DataTable.Select()))
-      {
-        UnitTestWinFormHelper.ShowFormAndClose(form, .1, () => form.BuildTree("ReferenceID1", "ID"));
-        form.Close();
+            using (var form = new FormHierarchyDisplay(dt, dataTable.Select()))
+            {
+              UnitTestWinFormHelper.ShowFormAndClose(form, .1, () => form.BuildTree("ReferenceID1", "ID"));
+              form.Close();
+            }
+          }
+        }
       }
     }
 
     [TestMethod]
     public void FormDuplicatesDisplay()
     {
-      using (var form = new FormDuplicatesDisplay(m_DataTable, m_DataTable.Select(), m_DataTable.Columns[0].ColumnName))
+      using (var dataTable = UnitTestStatic.GetDataTable(60))
+      using (var form = new FormDuplicatesDisplay(dataTable, dataTable.Select(), dataTable.Columns[0].ColumnName))
       {
         UnitTestWinFormHelper.ShowFormAndClose(form);
       }
@@ -361,7 +370,8 @@ namespace CsvTools.Tests
     [TestMethod]
     public void FormUniqueDisplay()
     {
-      using (var form = new FormUniqueDisplay(m_DataTable, m_DataTable.Select(), m_DataTable.Columns[0].ColumnName))
+      using (var dataTable = UnitTestStatic.GetDataTable(60))
+      using (var form = new FormUniqueDisplay(dataTable, dataTable.Select(), dataTable.Columns[0].ColumnName))
       {
         UnitTestWinFormHelper.ShowFormAndClose(form);
       }
@@ -370,7 +380,8 @@ namespace CsvTools.Tests
     [TestMethod]
     public void FormShowMaxLength()
     {
-      using (var form = new FormShowMaxLength(m_DataTable, m_DataTable.Select()))
+      using (var dataTable = UnitTestStatic.GetDataTable(60))
+      using (var form = new FormShowMaxLength(dataTable, dataTable.Select()))
       {
         UnitTestWinFormHelper.ShowFormAndClose(form);
       }
@@ -379,8 +390,9 @@ namespace CsvTools.Tests
     [TestMethod]
     public void FormDetail()
     {
+      using (var dataTable = UnitTestStatic.GetDataTable(60))
       using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
-      using (var form = new FormDetail(m_DataTable, null, null, true, false, 0, new FillGuessSettings(),
+      using (var form = new FormDetail(dataTable, null, null, true, false, 0, new FillGuessSettings(),
         processDisplay.CancellationToken))
       {
         UnitTestWinFormHelper.ShowFormAndClose(form);
@@ -390,14 +402,17 @@ namespace CsvTools.Tests
     [TestMethod]
     public void DataGridViewColumnFilterControl()
     {
-      var col = new DataGridViewTextBoxColumn
+      using (var dataTable = UnitTestStatic.GetDataTable(60))
       {
-        ValueType = m_DataTable.Columns[0].DataType,
-        Name = m_DataTable.Columns[0].ColumnName,
-        DataPropertyName = m_DataTable.Columns[0].ColumnName
-      };
+        var col = new DataGridViewTextBoxColumn
+        {
+          ValueType = dataTable.Columns[0].DataType,
+          Name = dataTable.Columns[0].ColumnName,
+          DataPropertyName = dataTable.Columns[0].ColumnName
+        };
 
-      UnitTestWinFormHelper.ShowControl(new DataGridViewColumnFilterControl(col));
+        UnitTestWinFormHelper.ShowControl(new DataGridViewColumnFilterControl(col));
+      }
     }
   }
 }

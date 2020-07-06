@@ -37,14 +37,14 @@ namespace CsvTools
           }
         }
 
-        FunctionalDI.SignalBackground();
+        FunctionalDI.SignalBackground?.Invoke();
       };
 
       mainProcess.SetMaximum += delegate(object sender, long max)
       {
         if (max < 1)
           SetProgressState(true);
-        FunctionalDI.SignalBackground();
+        FunctionalDI.SignalBackground?.Invoke();
       };
     }
 
