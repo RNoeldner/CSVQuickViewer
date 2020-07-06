@@ -27,6 +27,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinFormControlsUnitTest", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSVQuickViewerUnitTest", "UnitTest\CSVQuickViewerUnitTest\CSVQuickViewerUnitTest.csproj", "{FCF1A2B6-3C1D-4FA8-883E-41AED0DB846F}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{767DB0D5-4CC7-40B1-B877-237D9BFE9207}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
