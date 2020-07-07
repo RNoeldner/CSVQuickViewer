@@ -59,7 +59,7 @@ namespace CsvTools
     ///   The <see cref="UnhandledExceptionEventArgs" /> instance containing the event data.
     /// </param>
     private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e) =>
-      UnhandledException((Exception)e.ExceptionObject);
+      UnhandledException((Exception) e.ExceptionObject);
 
     /// <summary>
     ///   The main entry point for the application.
@@ -70,7 +70,9 @@ namespace CsvTools
       Application.ThreadException += Application_ThreadException;
       AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
       var fileName = string.Empty;
-
+#if NETCOREAPP3_1
+      Application.SetHighDpiMode(HighDpiMode.SystemAware);
+#endif
       Application.EnableVisualStyles();
       Application.SetCompatibleTextRenderingDefault(false);
 

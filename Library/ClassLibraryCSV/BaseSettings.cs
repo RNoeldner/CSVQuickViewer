@@ -17,7 +17,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Xml;
 using System.Xml.Serialization;
@@ -214,9 +213,6 @@ namespace CsvTools
     /// <summary>
     ///   Utility calls to get or set the SQL Statement as CDataSection
     /// </summary>
-    [SuppressMessage("Microsoft.Design", "CA1059:MembersShouldNotExposeCertainConcreteTypes", MessageId =
-     "System.Xml.XmlNode")]
-    [SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public virtual methods", MessageId = "0")]
     [DefaultValue("")]
     public XmlCDataSection SqlStatementCData
     {

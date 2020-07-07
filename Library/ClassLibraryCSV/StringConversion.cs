@@ -15,8 +15,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-
 using System.Globalization;
 using System.Linq;
 using JetBrains.Annotations;
@@ -442,7 +440,6 @@ namespace CsvTools
     /// </returns>
     public static bool DateLengthMatches(int length, [NotNull] string dateFormat)
     {
-
       // Either the format is known then use the determined length restrictions
       if (StandardDateTimeFormats.TryGetValue(dateFormat, out var lengthMinMax))
         return length >= lengthMinMax.MinLength && length <= lengthMinMax.MaxLength;
@@ -572,7 +569,6 @@ namespace CsvTools
     [NotNull]
     public static string DynamicStorageSize(long length)
     {
-
       if (length < 1024L)
         return $"{length:N0} Bytes";
 
@@ -879,7 +875,6 @@ namespace CsvTools
     /// </summary>
     /// <param name="originalValue">The original value.</param>
     /// <returns>An <see cref="Guid" /> if the value could be interpreted, <c>null</c> otherwise</returns>
-    [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
     public static Guid? StringToGuid([CanBeNull] string originalValue)
     {
       // only try to do this if we have the right length
@@ -1021,10 +1016,6 @@ namespace CsvTools
     /// <param name="timeSeparator">The time separator.</param>
     /// <param name="serialDateTime">Allow Date Time values in serial format</param>
     /// <returns></returns>
-    [SuppressMessage("Microsoft.Usage", "CA1806:DoNotIgnoreMethodResults", MessageId =
-      "System.Int32.TryParse(System.String,System.Int32@)")]
-    [SuppressMessage("Microsoft.Usage", "CA1806:DoNotIgnoreMethodResults", MessageId =
-      "System.Int32.TryParse(string,System.Int32@)")]
     public static TimeSpan? StringToTimeSpan([CanBeNull] string originalValue, [CanBeNull] string timeSeparator, bool serialDateTime)
     {
       var stringTimeValue = originalValue?.Trim();
