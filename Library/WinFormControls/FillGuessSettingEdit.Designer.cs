@@ -35,7 +35,6 @@ namespace CsvTools
     {
       this.components = new System.ComponentModel.Container();
       this.trackBarCheckedRecords = new System.Windows.Forms.TrackBar();
-      this.fillGuessSettingsBindingSource = new System.Windows.Forms.BindingSource(this.components);
       this.textBoxCheckedRecords = new System.Windows.Forms.TextBox();
       this.textBoxSampleValues = new System.Windows.Forms.TextBox();
       this.checkBoxDectectNumbers = new System.Windows.Forms.CheckBox();
@@ -66,10 +65,11 @@ namespace CsvTools
       this.radioButtonEnabled = new System.Windows.Forms.RadioButton();
       this.radioButtonDisabled = new System.Windows.Forms.RadioButton();
       this.errorProvider = new System.Windows.Forms.ErrorProvider(this.components);
+      this.fillGuessSettingsBindingSource = new System.Windows.Forms.BindingSource(this.components);
       ((System.ComponentModel.ISupportInitialize)(this.trackBarCheckedRecords)).BeginInit();
-      ((System.ComponentModel.ISupportInitialize)(this.fillGuessSettingsBindingSource)).BeginInit();
       this.tableLayoutPanel1.SuspendLayout();
       ((System.ComponentModel.ISupportInitialize)(this.errorProvider)).BeginInit();
+      ((System.ComponentModel.ISupportInitialize)(this.fillGuessSettingsBindingSource)).BeginInit();
       this.SuspendLayout();
       // 
       // trackBarCheckedRecords
@@ -87,11 +87,6 @@ namespace CsvTools
       this.trackBarCheckedRecords.TabIndex = 3;
       this.trackBarCheckedRecords.TickFrequency = 2000;
       this.trackBarCheckedRecords.Value = 250;
-      // 
-      // fillGuessSettingsBindingSource
-      // 
-      this.fillGuessSettingsBindingSource.AllowNew = false;
-      this.fillGuessSettingsBindingSource.DataSource = typeof(CsvTools.FillGuessSettings);
       // 
       // textBoxCheckedRecords
       // 
@@ -496,6 +491,11 @@ namespace CsvTools
       // 
       this.errorProvider.ContainerControl = this;
       // 
+      // fillGuessSettingsBindingSource
+      // 
+      this.fillGuessSettingsBindingSource.AllowNew = false;
+      this.fillGuessSettingsBindingSource.DataSource = typeof(CsvTools.FillGuessSettings);
+      // 
       // FillGuessSettingEdit
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -506,10 +506,10 @@ namespace CsvTools
       this.Name = "FillGuessSettingEdit";
       this.Size = new System.Drawing.Size(632, 299);
       ((System.ComponentModel.ISupportInitialize)(this.trackBarCheckedRecords)).EndInit();
-      ((System.ComponentModel.ISupportInitialize)(this.fillGuessSettingsBindingSource)).EndInit();
       this.tableLayoutPanel1.ResumeLayout(false);
       this.tableLayoutPanel1.PerformLayout();
       ((System.ComponentModel.ISupportInitialize)(this.errorProvider)).EndInit();
+      ((System.ComponentModel.ISupportInitialize)(this.fillGuessSettingsBindingSource)).EndInit();
       this.ResumeLayout(false);
       this.PerformLayout();
 
