@@ -13,7 +13,6 @@
  */
 
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using JetBrains.Annotations;
 using Ude;
@@ -183,7 +182,6 @@ namespace CsvTools
     ///   Gets a collection of the most common code pages.
     /// </summary>
     /// <value>An array of common code pages.</value>
-    [SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays")]
     public static int[] CommonCodePages => m_CommonCodePages.Value;
 
     // ReSharper disable once InconsistentNaming

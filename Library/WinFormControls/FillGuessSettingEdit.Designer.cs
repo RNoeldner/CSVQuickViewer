@@ -78,11 +78,11 @@ namespace CsvTools
       this.trackBarCheckedRecords.DataBindings.Add(new System.Windows.Forms.Binding("Value", this.fillGuessSettingsBindingSource, "CheckedRecords", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
       this.trackBarCheckedRecords.DataBindings.Add(new System.Windows.Forms.Binding("Enabled", this.fillGuessSettingsBindingSource, "Enabled", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
       this.trackBarCheckedRecords.LargeChange = 2000;
-      this.trackBarCheckedRecords.Location = new System.Drawing.Point(3, 65);
-      this.trackBarCheckedRecords.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.trackBarCheckedRecords.Location = new System.Drawing.Point(2, 53);
+      this.trackBarCheckedRecords.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
       this.trackBarCheckedRecords.Maximum = 50000;
       this.trackBarCheckedRecords.Name = "trackBarCheckedRecords";
-      this.trackBarCheckedRecords.Size = new System.Drawing.Size(181, 26);
+      this.trackBarCheckedRecords.Size = new System.Drawing.Size(136, 20);
       this.trackBarCheckedRecords.SmallChange = 100;
       this.trackBarCheckedRecords.TabIndex = 3;
       this.trackBarCheckedRecords.TickFrequency = 2000;
@@ -98,10 +98,10 @@ namespace CsvTools
       this.textBoxCheckedRecords.Anchor = System.Windows.Forms.AnchorStyles.Left;
       this.textBoxCheckedRecords.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.fillGuessSettingsBindingSource, "CheckedRecords", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
       this.textBoxCheckedRecords.DataBindings.Add(new System.Windows.Forms.Binding("Enabled", this.fillGuessSettingsBindingSource, "Enabled", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-      this.textBoxCheckedRecords.Location = new System.Drawing.Point(190, 67);
-      this.textBoxCheckedRecords.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.textBoxCheckedRecords.Location = new System.Drawing.Point(142, 53);
+      this.textBoxCheckedRecords.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
       this.textBoxCheckedRecords.Name = "textBoxCheckedRecords";
-      this.textBoxCheckedRecords.Size = new System.Drawing.Size(57, 22);
+      this.textBoxCheckedRecords.Size = new System.Drawing.Size(44, 20);
       this.textBoxCheckedRecords.TabIndex = 4;
       this.toolTip.SetToolTip(this.textBoxCheckedRecords, "The more records are read the higher is the chance to get a good variety of sampl" +
         "e values, especially for sparsely populated columns");
@@ -110,10 +110,10 @@ namespace CsvTools
       // 
       this.textBoxSampleValues.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.fillGuessSettingsBindingSource, "SampleValues", true));
       this.textBoxSampleValues.DataBindings.Add(new System.Windows.Forms.Binding("Enabled", this.fillGuessSettingsBindingSource, "Enabled", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-      this.textBoxSampleValues.Location = new System.Drawing.Point(190, 27);
-      this.textBoxSampleValues.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.textBoxSampleValues.Location = new System.Drawing.Point(142, 23);
+      this.textBoxSampleValues.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
       this.textBoxSampleValues.Name = "textBoxSampleValues";
-      this.textBoxSampleValues.Size = new System.Drawing.Size(57, 22);
+      this.textBoxSampleValues.Size = new System.Drawing.Size(44, 20);
       this.textBoxSampleValues.TabIndex = 1;
       this.toolTip.SetToolTip(this.textBoxSampleValues, "As the amount of sample is found the detection process will start");
       this.textBoxSampleValues.Validating += new System.ComponentModel.CancelEventHandler(this.TextBoxSampleValues_Validating);
@@ -124,10 +124,10 @@ namespace CsvTools
       this.tableLayoutPanel1.SetColumnSpan(this.checkBoxDectectNumbers, 3);
       this.checkBoxDectectNumbers.DataBindings.Add(new System.Windows.Forms.Binding("Enabled", this.fillGuessSettingsBindingSource, "Enabled", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
       this.checkBoxDectectNumbers.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fillGuessSettingsBindingSource, "DetectNumbers", true));
-      this.checkBoxDectectNumbers.Location = new System.Drawing.Point(3, 95);
-      this.checkBoxDectectNumbers.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.checkBoxDectectNumbers.Location = new System.Drawing.Point(2, 77);
+      this.checkBoxDectectNumbers.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
       this.checkBoxDectectNumbers.Name = "checkBoxDectectNumbers";
-      this.checkBoxDectectNumbers.Size = new System.Drawing.Size(82, 21);
+      this.checkBoxDectectNumbers.Size = new System.Drawing.Size(65, 17);
       this.checkBoxDectectNumbers.TabIndex = 6;
       this.checkBoxDectectNumbers.Text = "Numeric";
       this.toolTip.SetToolTip(this.checkBoxDectectNumbers, "Numbers with leading 0 will not be regarded as numbers to prevent information los" +
@@ -137,10 +137,10 @@ namespace CsvTools
       // label21
       // 
       this.label21.AutoSize = true;
-      this.label21.Location = new System.Drawing.Point(253, 258);
-      this.label21.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.label21.Location = new System.Drawing.Point(190, 212);
+      this.label21.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
       this.label21.Name = "label21";
-      this.label21.Size = new System.Drawing.Size(578, 34);
+      this.label21.Size = new System.Drawing.Size(439, 26);
       this.label21.TabIndex = 22;
       this.label21.Text = "Detect Boolean values like: Yes/No, True/False, 1/0.  You may add your own values" +
     " to the text boxes\r\n";
@@ -149,9 +149,10 @@ namespace CsvTools
       // 
       this.label22.Anchor = System.Windows.Forms.AnchorStyles.Left;
       this.label22.AutoSize = true;
-      this.label22.Location = new System.Drawing.Point(253, 97);
+      this.label22.Location = new System.Drawing.Point(190, 79);
+      this.label22.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
       this.label22.Name = "label22";
-      this.label22.Size = new System.Drawing.Size(279, 17);
+      this.label22.Size = new System.Drawing.Size(210, 13);
       this.label22.TabIndex = 7;
       this.label22.Text = "Detect Numeric (Integer or Decimal) values";
       // 
@@ -161,10 +162,10 @@ namespace CsvTools
       this.tableLayoutPanel1.SetColumnSpan(this.checkBoxDectectPercentage, 3);
       this.checkBoxDectectPercentage.DataBindings.Add(new System.Windows.Forms.Binding("Enabled", this.fillGuessSettingsBindingSource, "Enabled", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
       this.checkBoxDectectPercentage.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fillGuessSettingsBindingSource, "DetectPercentage", true));
-      this.checkBoxDectectPercentage.Location = new System.Drawing.Point(3, 233);
-      this.checkBoxDectectPercentage.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.checkBoxDectectPercentage.Location = new System.Drawing.Point(2, 191);
+      this.checkBoxDectectPercentage.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
       this.checkBoxDectectPercentage.Name = "checkBoxDectectPercentage";
-      this.checkBoxDectectPercentage.Size = new System.Drawing.Size(103, 21);
+      this.checkBoxDectectPercentage.Size = new System.Drawing.Size(81, 17);
       this.checkBoxDectectPercentage.TabIndex = 17;
       this.checkBoxDectectPercentage.Text = "Percentage";
       this.toolTip.SetToolTip(this.checkBoxDectectPercentage, "Detect Percentage and ");
@@ -176,10 +177,10 @@ namespace CsvTools
       this.tableLayoutPanel1.SetColumnSpan(this.checkBoxDetectDateTime, 3);
       this.checkBoxDetectDateTime.DataBindings.Add(new System.Windows.Forms.Binding("Enabled", this.fillGuessSettingsBindingSource, "Enabled", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
       this.checkBoxDetectDateTime.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fillGuessSettingsBindingSource, "DetectDateTime", true));
-      this.checkBoxDetectDateTime.Location = new System.Drawing.Point(3, 120);
-      this.checkBoxDetectDateTime.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.checkBoxDetectDateTime.Location = new System.Drawing.Point(2, 98);
+      this.checkBoxDetectDateTime.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
       this.checkBoxDetectDateTime.Name = "checkBoxDetectDateTime";
-      this.checkBoxDetectDateTime.Size = new System.Drawing.Size(103, 21);
+      this.checkBoxDetectDateTime.Size = new System.Drawing.Size(83, 17);
       this.checkBoxDetectDateTime.TabIndex = 8;
       this.checkBoxDetectDateTime.Text = "Date / Time";
       this.toolTip.SetToolTip(this.checkBoxDetectDateTime, "Detect dates and times on a variety of formats, to make sure the order of day and" +
@@ -189,20 +190,20 @@ namespace CsvTools
       // label23
       // 
       this.label23.AutoSize = true;
-      this.label23.Location = new System.Drawing.Point(253, 120);
-      this.label23.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.label23.Location = new System.Drawing.Point(190, 98);
+      this.label23.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
       this.label23.Name = "label23";
-      this.label23.Size = new System.Drawing.Size(283, 17);
+      this.label23.Size = new System.Drawing.Size(215, 13);
       this.label23.TabIndex = 10;
       this.label23.Text = "Detect Date/Time values. in various formats";
       // 
       // label30
       // 
       this.label30.AutoSize = true;
-      this.label30.Location = new System.Drawing.Point(253, 233);
-      this.label30.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.label30.Location = new System.Drawing.Point(190, 191);
+      this.label30.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
       this.label30.Name = "label30";
-      this.label30.Size = new System.Drawing.Size(396, 17);
+      this.label30.Size = new System.Drawing.Size(297, 13);
       this.label30.TabIndex = 18;
       this.label30.Text = "Detect Percentages, stored as decimal value (divided by 100)";
       // 
@@ -211,10 +212,10 @@ namespace CsvTools
       this.checkBoxDetectBoolean.AutoSize = true;
       this.checkBoxDetectBoolean.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fillGuessSettingsBindingSource, "DetectBoolean", true));
       this.checkBoxDetectBoolean.DataBindings.Add(new System.Windows.Forms.Binding("Enabled", this.fillGuessSettingsBindingSource, "Enabled", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-      this.checkBoxDetectBoolean.Location = new System.Drawing.Point(3, 258);
-      this.checkBoxDetectBoolean.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.checkBoxDetectBoolean.Location = new System.Drawing.Point(2, 212);
+      this.checkBoxDetectBoolean.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
       this.checkBoxDetectBoolean.Name = "checkBoxDetectBoolean";
-      this.checkBoxDetectBoolean.Size = new System.Drawing.Size(82, 21);
+      this.checkBoxDetectBoolean.Size = new System.Drawing.Size(65, 17);
       this.checkBoxDetectBoolean.TabIndex = 19;
       this.checkBoxDetectBoolean.Text = "Boolean";
       this.toolTip.SetToolTip(this.checkBoxDetectBoolean, "Detect Boolean values, the minimum number of samples does not need to be checked " +
@@ -225,10 +226,10 @@ namespace CsvTools
       // 
       this.textBoxTrue.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.fillGuessSettingsBindingSource, "TrueValue", true));
       this.textBoxTrue.DataBindings.Add(new System.Windows.Forms.Binding("Enabled", this.fillGuessSettingsBindingSource, "Enabled", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-      this.textBoxTrue.Location = new System.Drawing.Point(91, 258);
-      this.textBoxTrue.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.textBoxTrue.Location = new System.Drawing.Point(71, 212);
+      this.textBoxTrue.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
       this.textBoxTrue.Name = "textBoxTrue";
-      this.textBoxTrue.Size = new System.Drawing.Size(57, 22);
+      this.textBoxTrue.Size = new System.Drawing.Size(44, 20);
       this.textBoxTrue.TabIndex = 20;
       this.toolTip.SetToolTip(this.textBoxTrue, "Value(s) that should be regarded as TRUE, separated by ;");
       // 
@@ -236,10 +237,10 @@ namespace CsvTools
       // 
       this.textBoxFalse.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.fillGuessSettingsBindingSource, "FalseValue", true));
       this.textBoxFalse.DataBindings.Add(new System.Windows.Forms.Binding("Enabled", this.fillGuessSettingsBindingSource, "Enabled", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-      this.textBoxFalse.Location = new System.Drawing.Point(190, 258);
-      this.textBoxFalse.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.textBoxFalse.Location = new System.Drawing.Point(142, 212);
+      this.textBoxFalse.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
       this.textBoxFalse.Name = "textBoxFalse";
-      this.textBoxFalse.Size = new System.Drawing.Size(57, 22);
+      this.textBoxFalse.Size = new System.Drawing.Size(44, 20);
       this.textBoxFalse.TabIndex = 21;
       this.toolTip.SetToolTip(this.textBoxFalse, "Value(s) that should be regarded as FALSE, separated by ;");
       // 
@@ -249,10 +250,10 @@ namespace CsvTools
       this.tableLayoutPanel1.SetColumnSpan(this.checkBoxSerialDateTime, 3);
       this.checkBoxSerialDateTime.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fillGuessSettingsBindingSource, "SerialDateTime", true));
       this.checkBoxSerialDateTime.DataBindings.Add(new System.Windows.Forms.Binding("Enabled", this.fillGuessSettingsBindingSource, "Enabled", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-      this.checkBoxSerialDateTime.Location = new System.Drawing.Point(3, 170);
-      this.checkBoxSerialDateTime.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.checkBoxSerialDateTime.Location = new System.Drawing.Point(2, 140);
+      this.checkBoxSerialDateTime.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
       this.checkBoxSerialDateTime.Name = "checkBoxSerialDateTime";
-      this.checkBoxSerialDateTime.Size = new System.Drawing.Size(167, 21);
+      this.checkBoxSerialDateTime.Size = new System.Drawing.Size(129, 17);
       this.checkBoxSerialDateTime.TabIndex = 13;
       this.checkBoxSerialDateTime.Text = "Allow Serial DateTime";
       this.toolTip.SetToolTip(this.checkBoxSerialDateTime, "Excel stores dates as number of days after the December 31, 1899: \r\nJanuary 1, 19" +
@@ -262,10 +263,10 @@ namespace CsvTools
       // label32
       // 
       this.label32.AutoSize = true;
-      this.label32.Location = new System.Drawing.Point(253, 170);
-      this.label32.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.label32.Location = new System.Drawing.Point(190, 140);
+      this.label32.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
       this.label32.Name = "label32";
-      this.label32.Size = new System.Drawing.Size(424, 17);
+      this.label32.Size = new System.Drawing.Size(318, 13);
       this.label32.TabIndex = 14;
       this.label32.Text = "Allow serial Date Time formats, used in Excel and OLE Automation";
       // 
@@ -275,10 +276,10 @@ namespace CsvTools
       this.tableLayoutPanel1.SetColumnSpan(this.checkBoxDetectGUID, 2);
       this.checkBoxDetectGUID.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fillGuessSettingsBindingSource, "DetectGUID", true));
       this.checkBoxDetectGUID.DataBindings.Add(new System.Windows.Forms.Binding("Enabled", this.fillGuessSettingsBindingSource, "Enabled", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-      this.checkBoxDetectGUID.Location = new System.Drawing.Point(3, 296);
-      this.checkBoxDetectGUID.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.checkBoxDetectGUID.Location = new System.Drawing.Point(2, 242);
+      this.checkBoxDetectGUID.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
       this.checkBoxDetectGUID.Name = "checkBoxDetectGUID";
-      this.checkBoxDetectGUID.Size = new System.Drawing.Size(64, 21);
+      this.checkBoxDetectGUID.Size = new System.Drawing.Size(53, 17);
       this.checkBoxDetectGUID.TabIndex = 23;
       this.checkBoxDetectGUID.Text = "GUID";
       this.toolTip.SetToolTip(this.checkBoxDetectGUID, "Detect Globally Unique Identifiers sometimes named UUID or universally unique ide" +
@@ -291,10 +292,10 @@ namespace CsvTools
       this.tableLayoutPanel1.SetColumnSpan(this.checkBox1, 3);
       this.checkBox1.DataBindings.Add(new System.Windows.Forms.Binding("Enabled", this.fillGuessSettingsBindingSource, "Enabled", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
       this.checkBox1.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fillGuessSettingsBindingSource, "IgnoreIdColumns", true));
-      this.checkBox1.Location = new System.Drawing.Point(3, 321);
-      this.checkBox1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.checkBox1.Location = new System.Drawing.Point(2, 263);
+      this.checkBox1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
       this.checkBox1.Name = "checkBox1";
-      this.checkBox1.Size = new System.Drawing.Size(143, 21);
+      this.checkBox1.Size = new System.Drawing.Size(112, 17);
       this.checkBox1.TabIndex = 25;
       this.checkBox1.Text = "Ignore ID columns";
       this.toolTip.SetToolTip(this.checkBox1, "Ignore columns format detection based on the name of the column");
@@ -303,10 +304,10 @@ namespace CsvTools
       // label1
       // 
       this.label1.AutoSize = true;
-      this.label1.Location = new System.Drawing.Point(253, 321);
-      this.label1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.label1.Location = new System.Drawing.Point(190, 263);
+      this.label1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
       this.label1.Name = "label1";
-      this.label1.Size = new System.Drawing.Size(571, 34);
+      this.label1.Size = new System.Drawing.Size(431, 26);
       this.label1.TabIndex = 26;
       this.label1.Text = "Columns names that end with Id, Ref or Text will be read as text even if seem to " +
     "contain a number";
@@ -314,10 +315,10 @@ namespace CsvTools
       // label2
       // 
       this.label2.AutoSize = true;
-      this.label2.Location = new System.Drawing.Point(253, 296);
-      this.label2.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.label2.Location = new System.Drawing.Point(190, 242);
+      this.label2.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
       this.label2.Name = "label2";
-      this.label2.Size = new System.Drawing.Size(346, 17);
+      this.label2.Size = new System.Drawing.Size(265, 13);
       this.label2.TabIndex = 24;
       this.label2.Text = "Detect GUIDs, GUID values cannot be filtered like text";
       // 
@@ -325,20 +326,20 @@ namespace CsvTools
       // 
       this.label19.Anchor = System.Windows.Forms.AnchorStyles.Left;
       this.label19.AutoSize = true;
-      this.label19.Location = new System.Drawing.Point(253, 69);
-      this.label19.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.label19.Location = new System.Drawing.Point(190, 56);
+      this.label19.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
       this.label19.Name = "label19";
-      this.label19.Size = new System.Drawing.Size(418, 17);
+      this.label19.Size = new System.Drawing.Size(312, 13);
       this.label19.TabIndex = 5;
       this.label19.Text = "Number of records to check in order to get differnt sample values";
       // 
       // label20
       // 
       this.label20.AutoSize = true;
-      this.label20.Location = new System.Drawing.Point(253, 27);
-      this.label20.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.label20.Location = new System.Drawing.Point(190, 23);
+      this.label20.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
       this.label20.Name = "label20";
-      this.label20.Size = new System.Drawing.Size(569, 34);
+      this.label20.Size = new System.Drawing.Size(420, 26);
       this.label20.TabIndex = 2;
       this.label20.Text = "Minimum and maximum number of samples to read before trying to determine the form" +
     "at. \r\nThe more values are read the better the detection but the slower the proce" +
@@ -348,10 +349,10 @@ namespace CsvTools
       // 
       this.textBoxMinSamples.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.fillGuessSettingsBindingSource, "MinSamples", true));
       this.textBoxMinSamples.DataBindings.Add(new System.Windows.Forms.Binding("Enabled", this.fillGuessSettingsBindingSource, "Enabled", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-      this.textBoxMinSamples.Location = new System.Drawing.Point(91, 27);
-      this.textBoxMinSamples.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.textBoxMinSamples.Location = new System.Drawing.Point(71, 23);
+      this.textBoxMinSamples.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
       this.textBoxMinSamples.Name = "textBoxMinSamples";
-      this.textBoxMinSamples.Size = new System.Drawing.Size(57, 22);
+      this.textBoxMinSamples.Size = new System.Drawing.Size(44, 20);
       this.textBoxMinSamples.TabIndex = 9;
       this.toolTip.SetToolTip(this.textBoxMinSamples, "A higher the number of samples ensures the guessed format is correct, columns tha" +
         "t not contain a variety of values might not provide may samples\r\n");
@@ -363,10 +364,10 @@ namespace CsvTools
       this.tableLayoutPanel1.SetColumnSpan(this.checkBoxNamedDates, 3);
       this.checkBoxNamedDates.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fillGuessSettingsBindingSource, "CheckNamedDates", true));
       this.checkBoxNamedDates.DataBindings.Add(new System.Windows.Forms.Binding("Enabled", this.fillGuessSettingsBindingSource, "Enabled", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-      this.checkBoxNamedDates.Location = new System.Drawing.Point(3, 145);
-      this.checkBoxNamedDates.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.checkBoxNamedDates.Location = new System.Drawing.Point(2, 119);
+      this.checkBoxNamedDates.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
       this.checkBoxNamedDates.Name = "checkBoxNamedDates";
-      this.checkBoxNamedDates.Size = new System.Drawing.Size(182, 21);
+      this.checkBoxNamedDates.Size = new System.Drawing.Size(141, 17);
       this.checkBoxNamedDates.TabIndex = 11;
       this.checkBoxNamedDates.Text = "Named Month and Days";
       this.toolTip.SetToolTip(this.checkBoxNamedDates, "Detect dates with names days or month, e.G. Monday, 3. May 2017");
@@ -378,10 +379,10 @@ namespace CsvTools
       this.tableLayoutPanel1.SetColumnSpan(this.checkBoxDateParts, 3);
       this.checkBoxDateParts.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fillGuessSettingsBindingSource, "DateParts", true));
       this.checkBoxDateParts.DataBindings.Add(new System.Windows.Forms.Binding("Enabled", this.fillGuessSettingsBindingSource, "Enabled", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-      this.checkBoxDateParts.Location = new System.Drawing.Point(3, 195);
-      this.checkBoxDateParts.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.checkBoxDateParts.Location = new System.Drawing.Point(2, 161);
+      this.checkBoxDateParts.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
       this.checkBoxDateParts.Name = "checkBoxDateParts";
-      this.checkBoxDateParts.Size = new System.Drawing.Size(204, 21);
+      this.checkBoxDateParts.Size = new System.Drawing.Size(157, 17);
       this.checkBoxDateParts.TabIndex = 15;
       this.checkBoxDateParts.Text = "Include Time and Timezone";
       this.toolTip.SetToolTip(this.checkBoxDateParts, "Find columns that possible correspond to a date colum to combine date and time");
@@ -390,20 +391,20 @@ namespace CsvTools
       // label4
       // 
       this.label4.AutoSize = true;
-      this.label4.Location = new System.Drawing.Point(253, 145);
-      this.label4.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.label4.Location = new System.Drawing.Point(190, 119);
+      this.label4.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
       this.label4.Name = "label4";
-      this.label4.Size = new System.Drawing.Size(360, 17);
+      this.label4.Size = new System.Drawing.Size(268, 13);
       this.label4.TabIndex = 12;
       this.label4.Text = "Check for named month or days  (this is a slow process)";
       // 
       // label5
       // 
       this.label5.AutoSize = true;
-      this.label5.Location = new System.Drawing.Point(253, 195);
-      this.label5.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.label5.Location = new System.Drawing.Point(190, 161);
+      this.label5.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
       this.label5.Name = "label5";
-      this.label5.Size = new System.Drawing.Size(566, 34);
+      this.label5.Size = new System.Drawing.Size(423, 26);
       this.label5.TabIndex = 16;
       this.label5.Text = "Find associated Time and Time Zone for date columns and combine the information t" +
     "o a date with time\r\n";
@@ -446,12 +447,12 @@ namespace CsvTools
       this.tableLayoutPanel1.Controls.Add(this.radioButtonDisabled, 2, 0);
       this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Top;
       this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
-      this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
       this.tableLayoutPanel1.Name = "tableLayoutPanel1";
       this.tableLayoutPanel1.RowCount = 12;
       this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
+      this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 24F));
       this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
@@ -461,7 +462,7 @@ namespace CsvTools
       this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.tableLayoutPanel1.Size = new System.Drawing.Size(842, 357);
+      this.tableLayoutPanel1.Size = new System.Drawing.Size(632, 291);
       this.tableLayoutPanel1.TabIndex = 0;
       // 
       // radioButtonEnabled
@@ -469,10 +470,10 @@ namespace CsvTools
       this.radioButtonEnabled.AutoSize = true;
       this.tableLayoutPanel1.SetColumnSpan(this.radioButtonEnabled, 2);
       this.radioButtonEnabled.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fillGuessSettingsBindingSource, "Enabled", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-      this.radioButtonEnabled.Location = new System.Drawing.Point(3, 2);
-      this.radioButtonEnabled.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.radioButtonEnabled.Location = new System.Drawing.Point(2, 2);
+      this.radioButtonEnabled.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
       this.radioButtonEnabled.Name = "radioButtonEnabled";
-      this.radioButtonEnabled.Size = new System.Drawing.Size(137, 21);
+      this.radioButtonEnabled.Size = new System.Drawing.Size(107, 17);
       this.radioButtonEnabled.TabIndex = 27;
       this.radioButtonEnabled.TabStop = true;
       this.radioButtonEnabled.Text = "Enable Detection";
@@ -482,10 +483,10 @@ namespace CsvTools
       // 
       this.radioButtonDisabled.AutoSize = true;
       this.tableLayoutPanel1.SetColumnSpan(this.radioButtonDisabled, 2);
-      this.radioButtonDisabled.Location = new System.Drawing.Point(190, 2);
-      this.radioButtonDisabled.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.radioButtonDisabled.Location = new System.Drawing.Point(142, 2);
+      this.radioButtonDisabled.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
       this.radioButtonDisabled.Name = "radioButtonDisabled";
-      this.radioButtonDisabled.Size = new System.Drawing.Size(140, 21);
+      this.radioButtonDisabled.Size = new System.Drawing.Size(109, 17);
       this.radioButtonDisabled.TabIndex = 27;
       this.radioButtonDisabled.TabStop = true;
       this.radioButtonDisabled.Text = "Disbale Detection";
@@ -497,13 +498,13 @@ namespace CsvTools
       // 
       // FillGuessSettingEdit
       // 
-      this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+      this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.Controls.Add(this.tableLayoutPanel1);
-      this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-      this.MinimumSize = new System.Drawing.Size(842, 296);
+      this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+      this.MinimumSize = new System.Drawing.Size(632, 240);
       this.Name = "FillGuessSettingEdit";
-      this.Size = new System.Drawing.Size(842, 362);
+      this.Size = new System.Drawing.Size(632, 299);
       ((System.ComponentModel.ISupportInitialize)(this.trackBarCheckedRecords)).EndInit();
       ((System.ComponentModel.ISupportInitialize)(this.fillGuessSettingsBindingSource)).EndInit();
       this.tableLayoutPanel1.ResumeLayout(false);
