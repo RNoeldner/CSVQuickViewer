@@ -72,7 +72,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod()]
-    public async Task ReStoreViewSettingDetailControl()
+    public void ReStoreViewSettingDetailControl()
     {
       using (var dt = UnitTestStatic.GetDataTable())
       {

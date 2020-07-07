@@ -60,7 +60,9 @@ namespace CsvTools
     /// </summary>
     /// <param name="fileSetting">the file setting with the definition for the file</param>
     /// <param name="sourceTimeZone">Timezone of the source</param>
+    /// <param name="lastExecutionStart"></param>
     /// <param name="processDisplay">The process display.</param>
+    /// <param name="lastExecution"></param>
     /// <exception cref="ArgumentNullException">fileSetting</exception>
     /// <exception cref="ArgumentException">No SQL Reader set</exception>
     protected BaseFileWriter([NotNull] IFileSettingPhysicalFile fileSetting, [CanBeNull] string sourceTimeZone, DateTime lastExecution, DateTime lastExecutionStart,
@@ -74,7 +76,7 @@ namespace CsvTools
       ValueFormatGeneral = new ImmutableValueFormat(fileSetting.FileFormat.ValueFormat);
       FileFormat = new ImmutableFileFormat(fileSetting.FileFormat);
       ColumnDefinition = fileSetting.ColumnCollection.ReadonlyCopy();
-
+      // TODO: where is it used?
       m_SourceTimeZone = string.IsNullOrEmpty(sourceTimeZone) ? TimeZoneInfo.Local.Id : sourceTimeZone;
       if (processDisplay != null)
       {
@@ -186,7 +188,7 @@ namespace CsvTools
       Warning?.Invoke(this, new WarningEventArgs(Records, 0, message, 0, 0, columnName));
 
 
-    private void HandleProgress(string text) => m_ReportProgress?.Invoke(text);
+    protected void HandleProgress(string text) => m_ReportProgress?.Invoke(text);
 
     /// <summary>
     ///   Handles the time zone for a date time column

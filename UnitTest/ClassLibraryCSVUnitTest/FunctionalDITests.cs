@@ -16,9 +16,9 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public async Task GetFileReaderTestAsync()
+    public void GetFileReaderTest()
     {
-      var setting = new CsvFile {FileName = UnitTestInitializeCsv.GetTestPath("AlternateTextQualifiers.txt")};
+      var setting = new CsvFile { FileName = UnitTestInitializeCsv.GetTestPath("AlternateTextQualifiers.txt") };
       using (var test = FunctionalDI.GetFileReader(setting, null, new CustomProcessDisplay(UnitTestInitializeCsv.Token)))
       {
         Assert.IsInstanceOfType(test, typeof(CsvFileReader));
