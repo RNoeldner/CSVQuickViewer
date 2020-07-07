@@ -132,9 +132,8 @@ namespace CsvTools
 
     /// <summary>
     ///   Increase the position in the text, this is used in case a character that has been looked
-    ///   at with <see cref="PeekAsync" /> does not need to be read the next call of
-    ///   <see
-    ///     cref="ReadAsync" />
+    ///   at with <see cref="PeekAsync" /> does not need to be read the next call of <see
+    ///   cref="ReadAsync" />
     /// </summary>
     public void MoveNext() => BufferPos++;
 
@@ -160,10 +159,8 @@ namespace CsvTools
     /// </summary>
     /// <remarks>
     ///   In case the character is a cr or Lf it will increase the lineNumber, to prevent a CR LF
-    ///   combination to count as two lines Make sure you "eat" the possible next char using
-    ///   <see
-    ///     cref="PeekAsync" />
-    ///   and <see cref="MoveNext" />
+    ///   combination to count as two lines Make sure you "eat" the possible next char using <see
+    ///   cref="PeekAsync" /> and <see cref="MoveNext" />
     /// </remarks>
     /// <returns></returns>
     public async Task<int> ReadAsync()
@@ -252,7 +249,7 @@ namespace CsvTools
       {
         BufferFilled = 0;
         // Some improved stream might need to reopen the streams
-        m_ImprovedStream.ResetToStart(delegate(Stream stream)
+        m_ImprovedStream.ResetToStart(delegate (Stream stream)
         {
           // eat the bom
           if (addBom > 0)
@@ -282,7 +279,6 @@ namespace CsvTools
         await ReadLineAsync().ConfigureAwait(false);
     }
 
-
     private void Dispose(bool disposing)
     {
       if (m_DisposedValue) return;
@@ -292,18 +288,24 @@ namespace CsvTools
       m_DisposedValue = true;
     }
 
-
     /// <summary>
     ///   Read the data from the text reader into the buffer
     /// </summary>
     /// <returns></returns>
     private async Task ReadIntoBufferAsync()
     {
-      EndOfFile = TextReader.EndOfStream;
-      if (EndOfFile)
-        return;
-      BufferFilled = await TextReader.ReadAsync(Buffer, 0, c_BufferSize).ConfigureAwait(false);
-      BufferPos = 0;
+      try
+      {
+        EndOfFile = TextReader.EndOfStream;
+        if (EndOfFile)
+          return;
+        BufferFilled = await TextReader.ReadAsync(Buffer, 0, c_BufferSize).ConfigureAwait(false);
+        BufferPos = 0;
+      }
+      catch (Exception)
+      {
+        EndOfFile = true;
+      }
     }
   }
 }

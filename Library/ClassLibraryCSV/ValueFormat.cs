@@ -14,7 +14,6 @@
 
 using System;
 using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Xml.Serialization;
 using JetBrains.Annotations;
@@ -85,7 +84,8 @@ namespace CsvTools
     [DefaultValue(ValueFormatExtension.cDateFormatDefault)]
     public string DateFormat
     {
-      [NotNull] get => m_DateFormat;
+      [NotNull]
+      get => m_DateFormat;
       [CanBeNull]
       set
       {
@@ -105,7 +105,8 @@ namespace CsvTools
     [DefaultValue(ValueFormatExtension.cDateSeparatorDefault)]
     public string DateSeparator
     {
-      [NotNull] get => m_DateSeparator;
+      [NotNull]
+      get => m_DateSeparator;
       [CanBeNull]
       set
       {
@@ -127,7 +128,8 @@ namespace CsvTools
     [DefaultValue(ValueFormatExtension.cDecimalSeparatorDefault)]
     public string DecimalSeparator
     {
-      [NotNull] get => m_DecimalSeparator;
+      [NotNull]
+      get => m_DecimalSeparator;
 
       set
       {
@@ -155,12 +157,12 @@ namespace CsvTools
     ///   Gets or sets the representation for false.
     /// </summary>
     /// <value>The false.</value>
-    [SuppressMessage("Microsoft.Naming", "CA1716:IdentifiersShouldNotMatchKeywords", MessageId = "False")]
     [XmlElement]
     [DefaultValue(ValueFormatExtension.cFalseDefault)]
     public string False
     {
-      [NotNull] get => m_False;
+      [NotNull]
+      get => m_False;
       [CanBeNull]
       set
       {
@@ -180,7 +182,8 @@ namespace CsvTools
     [DefaultValue(ValueFormatExtension.cGroupSeparatorDefault)]
     public string GroupSeparator
     {
-      [NotNull] get => m_GroupSeparator;
+      [NotNull]
+      get => m_GroupSeparator;
       set
       {
         var chr = FileFormat.GetChar(value);
@@ -218,7 +221,6 @@ namespace CsvTools
     /// </summary>
     public event PropertyChangedEventHandler PropertyChanged;
 
-
     [XmlIgnore] public char GroupSeparatorChar { get; private set; } = '\0';
 
     [XmlIgnore]
@@ -251,7 +253,8 @@ namespace CsvTools
     [DefaultValue("")]
     public string DisplayNullAs
     {
-      [NotNull] get => m_DisplayNullAs;
+      [NotNull]
+      get => m_DisplayNullAs;
 
       set
       {
@@ -263,7 +266,6 @@ namespace CsvTools
       }
     }
 
-
     /// <summary>
     ///   Gets or sets the number format.
     /// </summary>
@@ -272,7 +274,8 @@ namespace CsvTools
     [DefaultValue(ValueFormatExtension.cNumberFormatDefault)]
     public string NumberFormat
     {
-      [NotNull] get => m_NumberFormat;
+      [NotNull]
+      get => m_NumberFormat;
       [CanBeNull]
       set
       {
@@ -292,7 +295,8 @@ namespace CsvTools
     [DefaultValue(ValueFormatExtension.cTimeSeparatorDefault)]
     public string TimeSeparator
     {
-      [NotNull] get => m_TimeSeparator;
+      [NotNull]
+      get => m_TimeSeparator;
       set
       {
         var chr = FileFormat.GetChar(value);
@@ -308,12 +312,12 @@ namespace CsvTools
     ///   Gets or sets the representation for true.
     /// </summary>
     /// <value>The true.</value>
-    [SuppressMessage("Microsoft.Naming", "CA1716:IdentifiersShouldNotMatchKeywords", MessageId = "True")]
     [XmlElement]
     [DefaultValue(ValueFormatExtension.cTrueDefault)]
     public string True
     {
-      [NotNull] get => m_True;
+      [NotNull]
+      get => m_True;
       [CanBeNull]
       set
       {
@@ -425,12 +429,16 @@ namespace CsvTools
 
         case DataType.Guid:
           break;
+
         case DataType.String:
           break;
+
         case DataType.TextToHtml:
           break;
+
         case DataType.TextToHtmlFull:
           break;
+
         case DataType.TextPart:
           break;
       }
@@ -482,7 +490,6 @@ namespace CsvTools
       }
     }
 
-
     /// <summary>
     ///   Notifies the property changed.
     /// </summary>
@@ -490,12 +497,10 @@ namespace CsvTools
     public void NotifyPropertyChanged(string info) =>
       PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(info));
 
-
     /// <summary>
     ///   Serves as the default hash function.
     /// </summary>
     /// <returns>A hash code for the current object.</returns>
-    [SuppressMessage("ReSharper", "NonReadonlyMemberInGetHashCode")]
     public override int GetHashCode()
     {
       unchecked
