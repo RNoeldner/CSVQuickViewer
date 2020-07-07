@@ -36,8 +36,8 @@ namespace CsvTools
     ///   An array of column
     /// </summary>
     private readonly List<ImmutableColumn> m_Column = new List<ImmutableColumn>();
-    private int m_FieldCount;
 
+    private int m_FieldCount;
 
     public DataReaderWrapper([NotNull] IFileReader reader, long recordLimit = 0, bool includeErrorField = false,
       bool addStartLine = false,
@@ -219,7 +219,7 @@ namespace CsvTools
         if (m_AddStartLine && !m_ReaderColumns.Contains(ReaderConstants.cStartLineNumberFieldName))
         {
           m_ColStartLine = m_FieldCount++;
-          m_Column.Add(new ImmutableColumn(ReaderConstants.cStartLineNumberFieldName,new ImmutableValueFormat(DataType.Integer), m_ColStartLine));
+          m_Column.Add(new ImmutableColumn(ReaderConstants.cStartLineNumberFieldName, new ImmutableValueFormat(DataType.Integer), m_ColStartLine));
         }
 
         if (m_AddRecNum && !m_ReaderColumns.Contains(ReaderConstants.cRecordNumberFieldName))
@@ -258,6 +258,5 @@ namespace CsvTools
       }
       return false;
     }
-
   }
 }

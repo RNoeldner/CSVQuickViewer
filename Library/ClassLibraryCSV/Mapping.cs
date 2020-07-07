@@ -15,7 +15,6 @@
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Xml.Serialization;
 using JetBrains.Annotations;
 
@@ -46,9 +45,7 @@ namespace CsvTools
     /// <summary>
     ///   Gets or sets a value indicating whether this <see cref="Mapping" /> should be used for update
     /// </summary>
-    /// <value>
-    ///   <c>true</c> if it should be regarded for updates; otherwise, <c>false</c>.
-    /// </value>
+    /// <value><c>true</c> if it should be regarded for updates; otherwise, <c>false</c>.</value>
     [XmlAttribute]
     [DefaultValue(false)]
     public bool Update
@@ -60,9 +57,7 @@ namespace CsvTools
     /// <summary>
     ///   Gets or sets a value indicating whether this <see cref="Mapping" /> required additional attention
     /// </summary>
-    /// <value>
-    ///   <c>true</c> if attention; otherwise, <c>false</c>.
-    /// </value>
+    /// <value><c>true</c> if attention; otherwise, <c>false</c>.</value>
     [XmlAttribute]
     [DefaultValue(false)]
     public bool Attention
@@ -92,14 +87,16 @@ namespace CsvTools
     /// <summary>
     ///   Clones this instance.
     /// </summary>
-    /// <returns>A new FieldMapping that is a copy </returns>
+    /// <returns>A new FieldMapping that is a copy</returns>
     public Mapping Clone() => new Mapping(FileColumn, TemplateField, Update, Attention);
 
-    /// <summary>Indicates whether the current object is equal to another object of the same type.</summary>
+    /// <summary>
+    ///   Indicates whether the current object is equal to another object of the same type.
+    /// </summary>
     /// <param name="other">An object to compare with this object.</param>
     /// <returns>
-    ///   <see langword="true" /> if the current object is equal to the <paramref name="other" /> parameter; otherwise,
-    ///   <see langword="false" />.
+    ///   <see langword="true" /> if the current object is equal to the <paramref name="other" />
+    ///   parameter; otherwise, <see langword="false" />.
     /// </returns>
     public bool Equals(Mapping other)
     {
@@ -112,16 +109,20 @@ namespace CsvTools
              string.Equals(TemplateField, other.TemplateField, StringComparison.OrdinalIgnoreCase);
     }
 
-    /// <summary>Determines whether the specified object is equal to the current object.</summary>
-    /// <param name="obj">The object to compare with the current object. </param>
+    /// <summary>
+    ///   Determines whether the specified object is equal to the current object.
+    /// </summary>
+    /// <param name="obj">The object to compare with the current object.</param>
     /// <returns>
-    ///   <see langword="true" /> if the specified object  is equal to the current object; otherwise, <see langword="false" />.
+    ///   <see langword="true" /> if the specified object is equal to the current object; otherwise,
+    ///   <see langword="false" />.
     /// </returns>
     public override bool Equals(object obj) => Equals(obj as Mapping);
 
-    /// <summary>Serves as the default hash function. </summary>
+    /// <summary>
+    ///   Serves as the default hash function.
+    /// </summary>
     /// <returns>A hash code for the current object.</returns>
-    [SuppressMessage("ReSharper", "NonReadonlyMemberInGetHashCode")]
     public override int GetHashCode()
     {
       unchecked

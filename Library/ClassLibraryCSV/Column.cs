@@ -16,16 +16,13 @@ namespace CsvTools
 {
   using System;
   using System.ComponentModel;
-  using System.Text;
   using System.Xml.Serialization;
-  using System.Diagnostics.CodeAnalysis;
   using JetBrains.Annotations;
 
   /// <summary>
   ///   Column information like name, Type, Format etc.
   /// </summary>
   [Serializable]
-  [SuppressMessage("ReSharper", "UnusedMember.Global")]
 #pragma warning disable CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
   public class Column : IColumn, INotifyPropertyChanged, IEquatable<Column>, ICloneable<Column>
 #pragma warning restore CS0659

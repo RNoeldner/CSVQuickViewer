@@ -40,11 +40,11 @@ namespace CsvTools
     {
       try
       {
-        //#if !NETCOREAPP3_1
+#if !NETCOREAPP3_1
         // 6.2 and 6.3 is Windows 8 / Windows Server 2012
         if (Environment.OSVersion.Version.Major == 6 && Environment.OSVersion.Version.Minor > 1)
           SetFonts(this);
-        //#endif
+#endif
         InitializeComponent();
       }
       catch (Exception)

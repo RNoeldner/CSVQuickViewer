@@ -1,7 +1,6 @@
 ﻿using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace CsvTools
@@ -22,7 +21,6 @@ namespace CsvTools
       [NotNull]
       public string Display { get; set; }
 
-      [SuppressMessage("ReSharper", "NonReadonlyMemberInGetHashCode")]
       public override int GetHashCode()
       {
         unchecked
@@ -70,7 +68,6 @@ namespace CsvTools
 
     public bool ShouldSerializeValueFilters() => ValueFilters.Any();
 
-    [SuppressMessage("ReSharper", "NonReadonlyMemberInGetHashCode")]
     public override int GetHashCode()
     {
       unchecked
