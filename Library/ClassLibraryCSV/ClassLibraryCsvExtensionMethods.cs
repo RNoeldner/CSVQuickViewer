@@ -476,7 +476,7 @@ namespace CsvTools
       return null;
     }
 
-    
+
 
     [NotNull]
     public static string PlaceHolderTimes([NotNull] this string text, [NotNull] string format, DateTime processTimeUtc,
@@ -793,7 +793,12 @@ namespace CsvTools
       if (processDisplay is IProcessDisplayTime processDisplayTime)
         processDisplayTime.Maximum = maximum;
     }
-
+    public static int ToInt(this ulong value)
+    {
+      if (value > int.MaxValue)
+        return int.MaxValue;
+      return Convert.ToInt32(value);
+    }
     public static int ToInt(this long value)
     {
       if (value > int.MaxValue)

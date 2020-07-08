@@ -49,12 +49,12 @@ namespace CsvTools.Tests
           processDisplay.Maximum = -100;
 
           Assert.IsFalse(FileSystemUtils.FileExists(dest));
-          await FileSystemUtils.FileCopy(UnitTestInitializeCsv.GetTestPath("AllFormats.txt"), dest, processDisplay);
+          await FileSystemUtils.FileCopy(UnitTestInitializeCsv.GetTestPath("AllFormats.txt"), dest, false, processDisplay);
           Assert.IsTrue(FileSystemUtils.FileExists(dest));
           Assert.AreEqual(-100, processDisplay.Maximum);
 
           // Copy again, the old file should be overwritten
-          await FileSystemUtils.FileCopy(UnitTestInitializeCsv.GetTestPath("AlternateTextQualifiers.txt"), dest, processDisplay);
+          await FileSystemUtils.FileCopy(UnitTestInitializeCsv.GetTestPath("AlternateTextQualifiers.txt"), dest, true, processDisplay);
           Assert.IsTrue(FileSystemUtils.FileExists(dest));
           Assert.AreEqual((new FileInfo(UnitTestInitializeCsv.GetTestPath("AlternateTextQualifiers.txt"))).Length, new FileInfo(dest).Length);
         }
