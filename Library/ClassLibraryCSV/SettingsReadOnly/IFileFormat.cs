@@ -18,16 +18,52 @@ namespace CsvTools
 {
   public interface IFileFormat
   {
+    /// <summary>
+    ///   Gets a value indicating whether this it is a fixed length file
+    /// </summary>
+    /// <value><c>true</c> if this instance is fixed length; otherwise, <c>false</c>.</value>
     bool IsFixedLength { get; }
+
+    /// <summary>
+    ///   Gets a value indicating whether to qualify every text even if number or empty.
+    /// </summary>
+    /// <value><c>true</c> if qualify only if needed; otherwise, <c>false</c>.</value>
     bool QualifyAlways { get; }
+
+    /// <summary>
+    ///   Gets or sets a value indicating whether to qualify only if needed.
+    /// </summary>
+    /// <value><c>true</c> if qualify only if needed; otherwise, <c>false</c>.</value>
     bool QualifyOnlyIfNeeded { get; }
+
+    /// <summary>
+    ///   Gets or sets the new line placeholder, the placeholder substitutes a linefeed
+    /// </summary>
+    /// <value>The new line placeholder.</value>
     string NewLinePlaceholder { [NotNull] get; }
+
+    /// <summary>
+    ///   Gets or sets the new delimiter placeholder, the placeholder substitutes a delimiter 
+    /// </summary>
+    /// <value>The new line placeholder.</value>
     string DelimiterPlaceholder { [NotNull] get; }
 
+    /// <summary>
+    ///   Gets the field delimiter character, this delimiter separates two columns.
+    /// </summary>
+    /// <value>The field delimiter char.</value>
     char FieldDelimiterChar { get; }
 
+    /// <summary>
+    ///   Gets the field qualifier character also called quoting character, this surrounds a column text so it may contain the delimiter or a linefeed without breaking teh structure
+    /// </summary>
+    /// <value>The field delimiter char.</value>
     char FieldQualifierChar { get; }
 
+    /// <summary>
+    ///   Gets or sets the quote placeholder, the placeholder substitutes a field qualifier
+    /// </summary>
+    /// <value>The quote placeholder.</value>
     string QuotePlaceholder { [NotNull] get; }
   }
 }
