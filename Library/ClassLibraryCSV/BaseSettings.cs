@@ -528,7 +528,8 @@ namespace CsvTools
       if (this is IFileSettingPhysicalFile settingPhysicalFile)
       {
         var fileName = FileSystemUtils.ResolvePattern(settingPhysicalFile.FullPath);
-        m_LatestSourceTimeUtc = string.IsNullOrEmpty(fileName) ? ZeroTime : FileSystemUtils.GetLastWriteTimeUtc(fileName);
+        var fi = new FileSystemUtils.FileInfo(fileName);
+        m_LatestSourceTimeUtc = fi.LastWriteTimeUtc;
       }
       else
         // in case the source is not a physical file, assume it's the processing time

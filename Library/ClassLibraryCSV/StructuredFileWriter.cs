@@ -56,7 +56,9 @@ namespace CsvTools
     /// </summary>
     /// <param name="file">The file.</param>
     /// <param name="timeZone">The timezone in the source</param>
+    /// <param name="lastExecutionStart"></param>
     /// <param name="processDisplay">The process display.</param>
+    /// <param name="lastExecution"></param>
     public StructuredFileWriter([NotNull] StructuredFile file, [CanBeNull] string timeZone, DateTime lastExecution, DateTime lastExecutionStart,
       [CanBeNull] IProcessDisplay processDisplay)
       : base(file, timeZone, lastExecution, lastExecutionStart, processDisplay)

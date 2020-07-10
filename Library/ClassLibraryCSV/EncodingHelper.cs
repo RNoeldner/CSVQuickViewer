@@ -204,37 +204,37 @@ namespace CsvTools
     /// </summary>
     /// <param name="buff">The buff.</param>
     /// <returns>The Code page id if, if the code page could not be identified 0</returns>
-    public static int GetCodePageByByteOrderMark([CanBeNull] byte[] buff)
+    public static CodePage GetCodePageByByteOrderMark([CanBeNull] byte[] buff)
     {
       if (buff == null)
-        return (int) CodePage.None;
+        return CodePage.None;
 
       if (buff.Length >= 4)
       {
         // Start with longer chains, as UTF16_LE looks like UTF32_LE for the first 2 chars
         if (buff[0] == 0x00 && buff[1] == 0x00 && buff[2] == 0xFE && buff[3] == 0xFF)
-          return (int) CodePage.UTF32Be;
+          return CodePage.UTF32Be;
         if (buff[0] == 0xFF && buff[1] == 0xFE && buff[2] == 0x00 && buff[3] == 0x00)
-          return (int) CodePage.UTF32Le;
+          return CodePage.UTF32Le;
         if (buff[0] == 0x84 && buff[1] == 0x31 && buff[2] == 0x95 && buff[3] == 0x33)
-          return (int) CodePage.GB18030;
+          return CodePage.GB18030;
         if (buff[0] == 0x2B && buff[1] == 0x2F && buff[2] == 0x76 &&
             (buff[3] == 0x38 || buff[3] == 0x39 || buff[3] == 0x2B || buff[3] == 0x2f))
-          return (int) CodePage.UTF7;
+          return CodePage.UTF7;
       }
 
       if (buff.Length >= 3)
         if (buff[0] == 0xEF && buff[1] == 0xBB && buff[2] == 0xBF)
-          return (int) CodePage.UTF8;
+          return CodePage.UTF8;
 
       if (buff.Length < 2)
-        return (int) CodePage.None;
+        return CodePage.None;
       if (buff[0] == 0xFE && buff[1] == 0xFF)
-        return (int) CodePage.UTF16Be;
+        return CodePage.UTF16Be;
       if (buff[0] == 0xFF && buff[1] == 0xFE)
-        return (int) CodePage.UTF16Le;
+        return CodePage.UTF16Le;
 
-      return (int) CodePage.None;
+      return CodePage.None;
     }
 
     /// <summary>
@@ -268,6 +268,9 @@ namespace CsvTools
           return Encoding.GetEncoding(codePage);
       }
     }
+
+    public static string GetEncodingName(CodePage codePage, bool showBom, bool hasBom) =>
+      GetEncodingName((int) codePage, showBom, hasBom);
 
     /// <summary>
     ///   Gets the name of the encoding.
@@ -333,10 +336,10 @@ namespace CsvTools
     /// <param name="buff">The buff containing the characters.</param>
     /// <param name="len">The length of the buffer.</param>
     /// <returns>The windows code page id</returns>
-    public static int GuessCodePageNoBom([CanBeNull] byte[] buff, int len)
+    public static CodePage GuessCodePageNoBom([CanBeNull] byte[] buff, int len)
     {
       if (buff == null)
-        return (int) CodePage.UTF8;
+        return CodePage.UTF8;
 
       var detectedCodePage = CodePage.UTF8;
 
@@ -345,7 +348,7 @@ namespace CsvTools
       charsetDetector.DataEnd();
 
       if (charsetDetector.Charset == null)
-        return (int) detectedCodePage;
+        return detectedCodePage;
 #pragma warning disable CA1308 // Normalize strings to uppercase
       switch (charsetDetector.Charset.ToLowerInvariant())
       {
@@ -442,7 +445,7 @@ namespace CsvTools
           break;
       }
 #pragma warning restore CA1308 // Normalize strings to uppercase
-      return (int) detectedCodePage;
+      return detectedCodePage;
     }
   }
 }

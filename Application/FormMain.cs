@@ -60,7 +60,7 @@ namespace CsvTools
 
     private int m_WarningCount;
 
-    private Tuple<int, bool> m_CodePage;
+    private Tuple<EncodingHelper.CodePage, bool> m_CodePage;
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="FormMain" /> class.
@@ -289,8 +289,8 @@ namespace CsvTools
 
       await csvTextDisplay.SetCsvFile(m_FileSetting.FullPath, m_FileSetting.FileFormat.FieldQualifierChar,
           m_FileSetting.FileFormat.FieldDelimiterChar, m_FileSetting.FileFormat.EscapeCharacterChar,
-          m_CodePage.Item1);
-      
+          (int) m_CodePage.Item1);
+
 
       ShowTextPanel(true);
       buttonCloseText.Visible = true;

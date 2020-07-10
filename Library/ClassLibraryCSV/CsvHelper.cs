@@ -55,16 +55,16 @@ namespace CsvTools
     ///   Guesses the code page ID of a file
     /// </summary>
     /// <param name="setting">The CSVFile fileSetting</param>
+    /// <param name="cancellationToken"></param>
     /// <remarks>No Error will be thrown, the CodePage and the BOM will bet set</remarks>
-    public static async Task GuessCodePageAsync([NotNull] ICsvFile setting, CancellationToken token)
+    public static async Task GuessCodePageAsync([NotNull] ICsvFile setting, CancellationToken cancellationToken)
     {
       using (var improvedStream = FunctionalDI.OpenRead(setting.FullPath))
       {
-        var result = await GuessCodePageAsync(improvedStream, token).ConfigureAwait(false);
-        setting.CodePageId = result.Item1;
+        var result = await GuessCodePageAsync(improvedStream, cancellationToken).ConfigureAwait(false);
+        setting.CodePageId = (int) result.Item1;
         setting.ByteOrderMark = result.Item2;
-        Logger.Information("Detected Code Page: {codepage}",
-        EncodingHelper.GetEncodingName(result.Item1, true, result.Item2));
+        Logger.Information("Detected Code Page: {codepage}",  EncodingHelper.GetEncodingName(result.Item1, true, result.Item2));
       }
     }
 
@@ -327,7 +327,7 @@ namespace CsvTools
           display.SetProcess("Checking Code Page", -1, true);
           improvedStream.ResetToStart(null);
           var result = await GuessCodePageAsync(improvedStream, display.CancellationToken).ConfigureAwait(false);
-          setting.CodePageId = result.Item1;
+          setting.CodePageId = (int) result.Item1;
           setting.ByteOrderMark = result.Item2;
 
           display.SetProcess($"Code Page: {EncodingHelper.GetEncodingName(result.Item1, true, result.Item2)}", -1,
@@ -489,7 +489,7 @@ namespace CsvTools
       return dc;
     }
 
-    public static async Task<Tuple<int, bool>> GuessCodePageAsync([NotNull] IImprovedStream stream, CancellationToken token)
+    public static async Task<Tuple<EncodingHelper.CodePage, bool>> GuessCodePageAsync([NotNull] IImprovedStream stream, CancellationToken token)
     {
       // Read 256 kBytes
       var buff = new byte[262144];
@@ -498,13 +498,13 @@ namespace CsvTools
       if (length >= 2)
       {
         var byBom = EncodingHelper.GetCodePageByByteOrderMark(buff);
-        if (byBom != 0) return new Tuple<int, bool>(byBom, true);
+        if (byBom != 0) return new Tuple<EncodingHelper.CodePage, bool>(byBom, true);
       }
 
       var detected = EncodingHelper.GuessCodePageNoBom(buff, length);
-      if (detected == 20127)
-        detected = 65001;
-      return new Tuple<int, bool>(detected, false);
+      if (detected == EncodingHelper.CodePage.ASCII)
+        detected = EncodingHelper.CodePage.UTF8;
+      return new Tuple<EncodingHelper.CodePage, bool>(detected, false);
     }
 
     /// <summary>
