@@ -157,6 +157,7 @@
     <Compile Include="ColumnErrorDictionaryTests.cs" />
     <Compile Include="DataTableReaderTests.cs" />
     <Compile Include="EnumDescriptionConverterTests.cs" />
+    <Compile Include="FileSystemUtilsTest.cs" />
     <Compile Include="FilterDataTableTests.cs" />
     <Compile Include="FunctionalDITests.cs" />
     <Compile Include="ImprovedTextReaderPositionStoreTests.cs" />
@@ -184,7 +185,7 @@
     <Compile Include="EncodingHelperTest.cs" />
     <Compile Include="ExtensionsTest.cs" />
     <Compile Include="FileFormatTest.cs" />
-    <Compile Include="FileSystemUtilsTest.cs" />
+    <Compile Include="FileSystemUtilsLongPathTest.cs" />
     <Compile Include="FillGuessSettingsTests.cs" />
     <Compile Include="UnitTestHelper.cs" />
     <Compile Include="HTMLStyleTests.cs" />

@@ -28,7 +28,7 @@ namespace CsvTools
   {
     private readonly bool m_AssumeGZip;
     [NotNull]
-    private readonly string m_BasePath;
+    private readonly string m_BasePathWithPrefix;
     private readonly bool m_IsReading;
 
     private bool m_DisposedValue; // To detect redundant calls
@@ -36,7 +36,7 @@ namespace CsvTools
     private ImprovedStream([NotNull] string path, bool isReading)
     {
       m_IsReading = isReading;
-      m_BasePath = path;
+      m_BasePathWithPrefix = path.LongPathPrefix();
       m_AssumeGZip = path.AssumeGZip();
     }
 
@@ -76,12 +76,12 @@ namespace CsvTools
             Stream.Close();
 
             // need to reopen the base stream
-            BaseStream = FileSystemUtils.OpenRead(m_BasePath);
+            BaseStream = File.OpenRead(m_BasePathWithPrefix);
           }
 
           if (m_AssumeGZip)
           {
-            Logger.Debug("Decompressing GZip Stream {filename}", m_BasePath);
+            Logger.Debug("Decompressing GZip Stream {filename}", m_BasePathWithPrefix.RemovePrefix());
             Stream = new GZipStream(BaseStream, CompressionMode.Decompress);
           }
           else
@@ -116,25 +116,24 @@ namespace CsvTools
     ///   Opens an file for writing
     /// </summary>
     /// <param name="fileName">The path.</param>
+    /// <param name="parameter"></param>
     /// <returns>An improved stream object</returns>
     public static IImprovedStream OpenWrite([NotNull] string fileName, [CanBeNull] string parameter)
     {
       if (string.IsNullOrEmpty(fileName))
         throw new ArgumentException("Path must be provided", nameof(fileName));
-      FileSystemUtils.FileDelete(fileName);
 
       var retVal = new ImprovedStream(fileName, false);
-      if (retVal.m_AssumeGZip)
-      {
-        retVal.BaseStream = FileSystemUtils.OpenWrite(retVal.m_BasePath);
-        retVal.Stream = new GZipStream(retVal.BaseStream, CompressionMode.Compress);
-        return retVal;
-      }
+      if (File.Exists(retVal.m_BasePathWithPrefix))
+        File.Delete(retVal.m_BasePathWithPrefix);
 
-      FileSystemUtils.FileDelete(retVal.m_BasePath);
-      retVal.BaseStream = File.Create(retVal.m_BasePath);
-      retVal.Stream = retVal.BaseStream;
+      retVal.BaseStream = File.Create(retVal.m_BasePathWithPrefix);
+      retVal.Stream = retVal.m_AssumeGZip
+        ? (Stream) new GZipStream(retVal.BaseStream, CompressionMode.Compress)
+        : retVal.BaseStream;
+
       return retVal;
+
     }
 
     private void Dispose(bool disposing)
@@ -157,7 +156,7 @@ namespace CsvTools
       var retVal = new ImprovedStream(path, true);
       try
       {
-        retVal.BaseStream = FileSystemUtils.OpenRead(retVal.m_BasePath);
+        retVal.BaseStream =  File.OpenRead(retVal.m_BasePathWithPrefix);
         return retVal;
       }
       catch (Exception)

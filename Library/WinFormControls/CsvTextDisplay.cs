@@ -50,7 +50,8 @@ namespace CsvTools
       }
       else
       {
-        if (!FileSystemUtils.FileExists(fullPath))
+        var info = new FileSystemUtils.FileInfo(fullPath);
+        if (!info.Exists)
         {
           CSVTextBox.DisplaySpace = false;
           CSVTextBox.Text = $@"
@@ -65,7 +66,7 @@ The file {fullPath} does not exist.";
           CSVTextBox.Escape = escapeChar;
 
           ScrollBarVertical.LargeChange = 4096;
-          ScrollBarVertical.Maximum = string.IsNullOrEmpty(fullPath) ? 0 : FileSystemUtils.FileLength(fullPath).ToInt();
+          ScrollBarVertical.Maximum = info.Length.ToInt();
           m_FullPath = fullPath;
           m_CodePage = codePage;
 
@@ -101,7 +102,7 @@ The file {fullPath} does not exist.";
       m_DisplayedAt = ScrollBarVertical.Value;
       if (string.IsNullOrEmpty(m_FullPath))
         return;
-      var display = string.Empty;
+      string display;
       try
       {
         using (var iStream = FunctionalDI.OpenRead(m_FullPath))

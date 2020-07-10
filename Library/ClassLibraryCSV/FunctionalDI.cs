@@ -167,8 +167,7 @@ namespace CsvTools
         setting.ProcessTimeUtc = DateTime.UtcNow;
         if (!(setting is IFileSettingPhysicalFile physicalFile) ||
             !physicalFile.SetLatestSourceTimeForWrite) return;
-
-        FileSystemUtils.SetLastWriteTimeUtc(physicalFile.FullPath, setting.LatestSourceTimeUtc);
+        new FileSystemUtils.FileInfo(physicalFile.FullPath).LastWriteTimeUtc = setting.LatestSourceTimeUtc;
       };
       return writer;
     }

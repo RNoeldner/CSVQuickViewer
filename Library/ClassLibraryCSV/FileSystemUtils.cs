@@ -24,7 +24,6 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Directory = Pri.LongPath.Directory;
 using File = Pri.LongPath.File;
-using FileInfo = Pri.LongPath.FileInfo;
 using Path = Pri.LongPath.Path;
 
 namespace CsvTools
@@ -103,16 +102,17 @@ namespace CsvTools
     /// </summary>
     /// <param name="sourceFile">The file to be copied from</param>
     /// <param name="destFile">The file to be created / overwritten</param>
+    /// <param name="onlyChanged">Checks if the source file is newer or has a different length, if not file will not be copied,</param>
     /// <param name="processDisplay">A process display</param>
-    public static async Task FileCopy([NotNull] string sourceFile, [NotNull] string destFile, bool onlyChanaged,
+    public static async Task FileCopy([NotNull] string sourceFile, [NotNull] string destFile, bool onlyChanged,
       [CanBeNull] IProcessDisplay processDisplay)
     {
-      if (onlyChanaged)
+      if (onlyChanged)
       {
-        var fiSource = new FileInfo(sourceFile);
-        var fiDestInfo = new FileInfo(destFile);
+        var fiSource = new Pri.LongPath.FileInfo(sourceFile);
+        var fiDestInfo = new Pri.LongPath.FileInfo(destFile);
         if (fiDestInfo.Exists && fiSource.LastWriteTimeUtc <= fiDestInfo.LastWriteTimeUtc &&
-                                  fiSource.Length == fiDestInfo.Length)
+            fiSource.Length == fiDestInfo.Length)
           return;
       }
 
@@ -195,21 +195,9 @@ namespace CsvTools
       return lastIndex > 0 ? fileOrDirectory.Substring(0, lastIndex).RemovePrefix() : null;
     }
 
-    public static long FileLength([NotNull] string fileName) => new FileInfo(fileName).Length;
-    public static DateTime GetLastWriteTimeUtc([NotNull] string fileName) => new FileInfo(fileName).LastWriteTimeUtc;
-
-    public static Tuple<bool, DateTime, long> GetWriteTimeAndLength([NotNull] string fileName)
-    {
-      var fi = new FileInfo(fileName);
-      return new Tuple<bool, DateTime, long>(fi.Exists, fi.LastWriteTimeUtc, fi.Length);
-    }
-
-    public static void SetLastWriteTimeUtc([NotNull] string fileName, DateTime newTime) =>
-      new FileInfo(fileName).LastWriteTimeUtc = newTime;
-
     [NotNull]
     public static string[] GetFiles([NotNull] string folder, [NotNull] string searchPattern) =>
-      folder.IndexOfAny(new[] { '*', '?', '[', ']' }) == -1
+      folder.IndexOfAny(new[] {'*', '?', '[', ']'}) == -1
         ? Directory.GetFiles(folder, searchPattern, SearchOption.TopDirectoryOnly)
         : new string[] { };
 
@@ -234,7 +222,7 @@ namespace CsvTools
       string lastFile = null;
       foreach (var fileName in files)
       {
-        var fileTime = GetLastWriteTimeUtc(fileName);
+        var fileTime = new FileInfo(fileName).LastWriteTimeUtc;
         if (fileTime <= newSet)
           continue;
         newSet = fileTime;
@@ -313,7 +301,7 @@ namespace CsvTools
       var ret = fileName.RemovePrefix();
       if (length <= 0 || string.IsNullOrEmpty(fileName) || fileName.Length <= length)
         return ret;
-      var parts = fileName.Split(new[] { '\\' }, StringSplitOptions.RemoveEmptyEntries);
+      var parts = fileName.Split(new[] {'\\'}, StringSplitOptions.RemoveEmptyEntries);
       var fileNameOnly = parts[parts.Length - 1];
 
       // try to cut out directories
@@ -428,7 +416,7 @@ namespace CsvTools
     {
       if (string.IsNullOrEmpty(fileName))
         return string.Empty;
-      if (fileName.IndexOfAny(new[] { '*', '?', '[', ']' }) == -1)
+      if (fileName.IndexOfAny(new[] {'*', '?', '[', ']'}) == -1)
         return fileName;
 
       var split = SplitPath(fileName);
@@ -484,7 +472,7 @@ namespace CsvTools
       if (string.IsNullOrEmpty(longPath))
         return longPath;
 
-      var fi = new FileInfo(longPath);
+      var fi = new Pri.LongPath.FileInfo(longPath);
 
       const uint c_BufferSize = 512;
       var shortNameBuffer = new StringBuilder((int) c_BufferSize);
@@ -549,6 +537,60 @@ namespace CsvTools
       var longNameBuffer = new StringBuilder(4000);
       var length = GetLongPathName(shortPath.LongPathPrefix(), longNameBuffer, longNameBuffer.Capacity);
       return length > 0 ? longNameBuffer.ToString(0, length) : shortPath;
+    }
+
+    /// <summary>
+    ///   In general a wrapper for for <see cref="System.IO.FileInfo" />, but it does allow to store information from other
+    ///   sources (sFTP, Zip etc)
+    ///   Provides properties for a files, it has a reduced property set. Allows the update of  LastWriteTimeUtc
+    /// </summary>
+    public class FileInfo
+    {
+      private readonly Pri.LongPath.FileInfo m_Info;
+      private DateTime m_LastWriteTimeUtc;
+
+      public FileInfo([CanBeNull] string fileName)
+      {
+        Name = fileName;
+        Length = 0;
+        m_LastWriteTimeUtc = BaseSettings.ZeroTime;
+        if (string.IsNullOrEmpty(fileName))
+        {
+          Exists = false;
+        }
+        else
+        {
+          m_Info = new Pri.LongPath.FileInfo(fileName);
+          Exists = m_Info.Exists;
+
+          if (!m_Info.Exists) return;
+          m_LastWriteTimeUtc = m_Info.LastWriteTimeUtc;
+          Length = m_Info.Length;
+        }
+      }
+
+      public FileInfo([CanBeNull] string fileName, long length, DateTime lastWriteTimeUtc)
+      {
+        Name = fileName;
+        Length = length;
+        m_LastWriteTimeUtc = lastWriteTimeUtc;
+      }
+
+      public bool Exists { get; }
+      public string Name { get; }
+
+      public DateTime LastWriteTimeUtc
+      {
+        get => m_LastWriteTimeUtc;
+        set
+        {
+          m_LastWriteTimeUtc = value;
+          if (m_Info != null)
+            m_Info.LastWriteTimeUtc = value;
+        }
+      }
+
+      public long Length { get; }
     }
 
 #pragma warning disable CA1034 // Nested types should not be visible

@@ -41,6 +41,7 @@ namespace CsvTools
     public int BufferPos;
 
     private bool m_DisposedValue;
+    private readonly bool m_ByteOrderMark;
 
     /// <summary>
     ///   Creates an instance of the TextReader
@@ -57,9 +58,6 @@ namespace CsvTools
     /// </remarks>
     public ImprovedTextReader([NotNull] IImprovedStream improvedStream, int codePageId = 65001, int skipLines = 0)
     {
-      //if (improvedStream.Percentage > 0.00001)
-      //  throw new ArgumentException(nameof(improvedStream), @"The stream is not on the start position");
-
       m_SkipLines = skipLines;
       m_ImprovedStream = improvedStream ?? throw new ArgumentNullException(nameof(improvedStream));
 
@@ -69,30 +67,28 @@ namespace CsvTools
       var intCodePageByBom = EncodingHelper.GetCodePageByByteOrderMark(buff);
       improvedStream.ResetToStart(null);
 
-      if (intCodePageByBom != 0)
+      if (intCodePageByBom != EncodingHelper.CodePage.None)
       {
-        ByteOrderMark = true;
-        CodePage = (EncodingHelper.CodePage) intCodePageByBom;
+        m_ByteOrderMark = true;
+        m_CodePage = intCodePageByBom;
       }
       else
       {
-        ByteOrderMark = false;
+        m_ByteOrderMark = false;
 
         try
         {
-          CodePage = (EncodingHelper.CodePage) codePageId;
+          m_CodePage = (EncodingHelper.CodePage) codePageId;
         }
         catch (Exception)
         {
           Logger.Warning("Codepage {0} not supported, using UTF8", codePageId);
-          CodePage = EncodingHelper.CodePage.UTF8;
+          m_CodePage = EncodingHelper.CodePage.UTF8;
         }
       }
 
       ToBeginningAsync().Wait();
     }
-
-    public Encoding CurrentEncoding => TextReader.CurrentEncoding;
 
     /// <summary>
     ///   Gets or sets a value indicating whether the reader is at the end of the file.
@@ -106,22 +102,12 @@ namespace CsvTools
       private set;
     }
 
-    /// <summary>
-    ///   Indicates if we did indeed find a Byte Order Mark
-    /// </summary>
-    public bool ByteOrderMark
-    {
-      get;
-    }
 
     /// <summary>
     ///   CodePage
     /// </summary>
-    private EncodingHelper.CodePage CodePage
-    {
-      get;
-    }
-
+    private readonly EncodingHelper.CodePage m_CodePage;
+    
     private StreamReader TextReader { get; set; }
 
     // This code added to correctly implement the disposable pattern.
@@ -229,23 +215,11 @@ namespace CsvTools
       BufferPos = 0;
       LineNumber = 1;
 
-      var addBom = ByteOrderMark ? EncodingHelper.BOMLength(CodePage) : 0;
-
-      var streamLengthNotOk = true;
-      // if we have something in the buffer
-      if (BufferFilled > 0)
-        // using try catch as some streams do not support length, if so need to open from scratch
-        try
-        {
-          streamLengthNotOk = m_ImprovedStream.Stream.Length - addBom > BufferFilled;
-        }
-        catch (Exception)
-        {
-          // ignored
-        }
+      var addBom = m_ByteOrderMark ? EncodingHelper.BOMLength(m_CodePage) : 0;
 
       // In case the buffer is bigger than the stream, we do not need to rest
-      if (streamLengthNotOk)
+      if (BufferFilled <= 0 || !m_ImprovedStream.Stream.CanSeek ||
+          m_ImprovedStream.Stream.Length - addBom > BufferFilled)
       {
         BufferFilled = 0;
         // Some improved stream might need to reopen the streams
@@ -259,7 +233,7 @@ namespace CsvTools
           if (!stream.CanSeek || TextReader == null)
           {
             TextReader?.Dispose();
-            TextReader = new StreamReader(stream, Encoding.GetEncoding((int) CodePage), false);
+            TextReader = new StreamReader(stream, Encoding.GetEncoding((int) m_CodePage), false);
           }
           else
           {
