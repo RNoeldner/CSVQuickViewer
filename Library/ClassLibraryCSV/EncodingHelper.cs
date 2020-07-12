@@ -335,7 +335,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="buff">The buff containing the characters.</param>
     /// <param name="len">The length of the buffer.</param>
-    /// <returns>The windows code page id</returns>
+    /// <returns><see cref="CodePage"/> its integer is the same a the windows code page id</returns>
     public static CodePage GuessCodePageNoBom([CanBeNull] byte[] buff, int len)
     {
       if (buff == null)

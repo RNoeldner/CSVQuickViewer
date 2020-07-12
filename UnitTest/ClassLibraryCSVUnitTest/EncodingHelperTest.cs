@@ -34,9 +34,9 @@ namespace CsvTools.Tests
       var utf8 = Encoding.UTF8.GetBytes("Raphael Nöldner Chinese 中文 & Thai ภาษาไทย Tailandia idioma ภาษาไทย");
       var aSCII = Encoding.ASCII.GetBytes("This is a Test");
 
-      Assert.AreEqual(65001, EncodingHelper.GuessCodePageNoBom(null, 20));
-      Assert.AreEqual(20127, EncodingHelper.GuessCodePageNoBom(aSCII, aSCII.GetUpperBound(0)));
-      Assert.AreEqual(65001, EncodingHelper.GuessCodePageNoBom(utf8, utf8.GetUpperBound(0)));
+      Assert.AreEqual(EncodingHelper.CodePage.UTF8, EncodingHelper.GuessCodePageNoBom(null, 20));
+      Assert.AreEqual(EncodingHelper.CodePage.ASCII, EncodingHelper.GuessCodePageNoBom(aSCII, aSCII.GetUpperBound(0)));
+      Assert.AreEqual(EncodingHelper.CodePage.UTF8, EncodingHelper.GuessCodePageNoBom(utf8, utf8.GetUpperBound(0)));
     }
 
     [TestMethod]
