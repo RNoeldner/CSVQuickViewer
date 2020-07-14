@@ -12,13 +12,13 @@
  *
  */
 
+using System;
+using System.ComponentModel;
+using System.Xml.Serialization;
+using JetBrains.Annotations;
+
 namespace CsvTools
 {
-  using System;
-  using System.ComponentModel;
-  using System.Xml.Serialization;
-  using JetBrains.Annotations;
-
   /// <summary>
   ///   Column information like name, Type, Format etc.
   /// </summary>
@@ -27,37 +27,23 @@ namespace CsvTools
   public class Column : IColumn, INotifyPropertyChanged, IEquatable<Column>, ICloneable<Column>
 #pragma warning restore CS0659
   {
-    // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
     /// <summary>
     ///   The default time part format
     /// </summary>
     public const string cDefaultTimePartFormat = "HH:mm:ss";
-
     private const int c_PartDefault = 2;
-
     private const char c_PartSplitterDefault = ':';
-
     private const bool c_PartToEnd = true;
     private int m_ColumnOrdinal;
-
     private bool? m_Convert;
-
     private string m_DestinationName = string.Empty;
-
     private bool m_Ignore;
-
     private string m_Name;
-
     private int m_Part = c_PartDefault;
-
     private char m_PartSplitter = c_PartSplitterDefault;
-
     private bool m_PartToEnd = c_PartToEnd;
-
     private string m_TimePart = string.Empty;
-
     private string m_TimePartFormat = cDefaultTimePartFormat;
-
     private string m_TimeZonePart = string.Empty;
 
     public Column()
@@ -78,31 +64,284 @@ namespace CsvTools
       m_TimePart = source.TimePart;
       m_TimePartFormat = source.TimePartFormat;
       m_TimeZonePart = source.TimeZonePart;
-      m_ValueFormatMutable = new ValueFormat(format);
+      ValueFormatMutable = new ValueFormatMutable(format);
     }
 
-    public Column(string name, ValueFormat valueFormat)
+    public Column(string name, IValueFormat valueFormat)
     {
       m_Name = name;
-      m_ValueFormatMutable = valueFormat.Clone();
+      ValueFormatMutable = new ValueFormatMutable(valueFormat);
     }
 
     public Column(string name, DataType dataType = DataType.String)
     {
       m_Name = name;
-      m_ValueFormatMutable = new ValueFormat(dataType);
+      ValueFormatMutable = new ValueFormatMutable(dataType);
     }
 
     public Column(string name, string dateFormat, string dateSeparator = ValueFormatExtension.cDateSeparatorDefault)
     {
       m_Name = name;
-      m_ValueFormatMutable = new ValueFormat(DataType.DateTime) { DateFormat = dateFormat, DateSeparator = dateSeparator };
+      ValueFormatMutable =
+        new ValueFormatMutable(DataType.DateTime) { DateFormat = dateFormat, DateSeparator = dateSeparator };
     }
 
     /// <summary>
-    ///   Occurs when a property value changes.
+    ///   Gets a value indicating whether the Xml field is specified.
     /// </summary>
-    public virtual event PropertyChangedEventHandler PropertyChanged;
+    /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
+    /// <remarks>Used for XML Serialization</remarks>
+    [UsedImplicitly]
+    public bool ConvertSpecified => m_Convert.HasValue;
+
+    /// <summary>
+    ///   Gets or sets the type of the data.
+    /// </summary>
+    /// <value>The type of the data.</value>
+    [XmlAttribute("Type")]
+    [DefaultValue(DataType.String)]
+    public virtual DataType DataType
+    {
+      get => ValueFormatMutable.DataType;
+      set => ValueFormatMutable.DataType = value;
+    }
+
+    /// <summary>
+    ///   Gets or sets the date format.
+    /// </summary>
+    /// <value>The date format.</value>
+    [XmlAttribute]
+    [DefaultValue(ValueFormatExtension.cDateFormatDefault)]
+    public virtual string DateFormat
+    {
+      get => ValueFormatMutable.DateFormat;
+      set => ValueFormatMutable.DateFormat = value;
+    }
+
+    /// <summary>
+    ///   Gets a value indicating whether the Xml field is specified.
+    /// </summary>
+    /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
+    /// <remarks>Used for XML Serialization</remarks>
+    [UsedImplicitly]
+    public bool DateFormatSpecified => ValueFormatMutable.DataType == DataType.DateTime;
+
+    /// <summary>
+    ///   Gets or sets the date separator.
+    /// </summary>
+    /// <value>The date separator.</value>
+    [XmlAttribute]
+    [DefaultValue(ValueFormatExtension.cDateSeparatorDefault)]
+    public virtual string DateSeparator
+    {
+      [NotNull]
+      get => ValueFormatMutable.DateSeparator;
+      set => ValueFormatMutable.DateSeparator = value;
+    }
+
+    /// <summary>
+    ///   Gets a value indicating whether the Xml field is specified.
+    /// </summary>
+    /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
+    /// <remarks>Used for XML Serialization</remarks>
+    [UsedImplicitly]
+    public bool DateSeparatorSpecified => ValueFormatMutable.DataType == DataType.DateTime;
+
+    /// <summary>
+    ///   Gets or sets the decimal separator.
+    /// </summary>
+    /// <value>The decimal separator.</value>
+    [XmlAttribute]
+    [DefaultValue(ValueFormatExtension.cDecimalSeparatorDefault)]
+    public virtual string DecimalSeparator
+    {
+      [NotNull]
+      get => ValueFormatMutable.DecimalSeparator;
+      set => ValueFormatMutable.DecimalSeparator = value;
+    }
+
+    /// <summary>
+    ///   Gets a value indicating whether the Xml field is specified.
+    /// </summary>
+    /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
+    /// <remarks>Used for XML Serialization</remarks>
+    [UsedImplicitly]
+    public bool DecimalSeparatorSpecified =>
+      ValueFormatMutable.DataType == DataType.Double || ValueFormatMutable.DataType == DataType.Numeric;
+
+    [UsedImplicitly]
+    public bool DestinationNameSpecified =>
+      !m_DestinationName.Equals(m_Name, StringComparison.OrdinalIgnoreCase);
+
+    /// <summary>
+    ///   Gets or sets the representation for false.
+    /// </summary>
+    /// <value>The false.</value>
+    [XmlAttribute]
+    [DefaultValue(ValueFormatExtension.cFalseDefault)]
+#pragma warning disable CA1716 // Identifiers should not match keywords
+    public virtual string False
+#pragma warning restore CA1716
+    {
+      // Identifiers should not match keywords
+      get => ValueFormatMutable.False;
+      set => ValueFormatMutable.False = value;
+    }
+
+    /// <summary>
+    ///   Gets a value indicating whether the Xml field is specified.
+    /// </summary>
+    /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
+    /// <remarks>Used for XML Serialization</remarks>
+    [UsedImplicitly]
+    public bool FalseSpecified => ValueFormatMutable.DataType == DataType.Boolean;
+
+    /// <summary>
+    ///   Gets or sets the group separator.
+    /// </summary>
+    /// <value>The group separator.</value>
+    [XmlAttribute]
+    [DefaultValue(ValueFormatExtension.cGroupSeparatorDefault)]
+    public virtual string GroupSeparator
+    {
+      get => ValueFormatMutable.GroupSeparator;
+      set => ValueFormatMutable.GroupSeparator = value;
+    }
+
+    /// <summary>
+    ///   Gets a value indicating whether the Xml field is specified.
+    /// </summary>
+    /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
+    /// <remarks>Used for XML Serialization</remarks>
+    [UsedImplicitly]
+    public bool GroupSeparatorSpecified =>
+      ValueFormatMutable.DataType == DataType.Double || ValueFormatMutable.DataType == DataType.Numeric
+                                                     || ValueFormatMutable.DataType == DataType.Integer;
+
+    /// <summary>
+    ///   Gets or sets the number format.
+    /// </summary>
+    /// <value>The number format.</value>
+    [XmlAttribute]
+    [DefaultValue(ValueFormatExtension.cNumberFormatDefault)]
+    public virtual string NumberFormat
+    {
+      get => ValueFormatMutable.NumberFormat;
+      set => ValueFormatMutable.NumberFormat = value;
+    }
+
+    /// <summary>
+    ///   Gets a value indicating whether the Xml field is specified.
+    /// </summary>
+    /// <value><c>true</c> if number format is specified; otherwise, <c>false</c>.</value>
+    /// <remarks>Used for XML Serialization</remarks>
+    [UsedImplicitly]
+    public bool NumberFormatSpecified =>
+      ValueFormatMutable.DataType == DataType.Double || ValueFormatMutable.DataType == DataType.Numeric;
+
+    /// <summary>
+    ///   Gets a value indicating whether the Xml field is specified.
+    /// </summary>
+    /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
+    /// <remarks>Used for XML Serialization</remarks>
+    [UsedImplicitly]
+    public bool PartSpecified => ValueFormatMutable.DataType == DataType.TextPart;
+
+    /// <summary>
+    ///   Gets a value indicating whether the Xml field is specified.
+    /// </summary>
+    /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
+    /// <remarks>Used for XML Serialization</remarks>
+    [UsedImplicitly]
+    public bool PartSplitterSpecified =>
+      ValueFormatMutable.DataType == DataType.TextPart && !m_PartSplitter.Equals(c_PartSplitterDefault);
+
+    /// <summary>
+    ///   Gets a value indicating whether the Xml field is specified.
+    /// </summary>
+    /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
+    /// <remarks>Used for XML Serialization</remarks>
+    [UsedImplicitly]
+    public bool PartToEndSpecified => ValueFormatMutable.DataType == DataType.TextPart;
+
+    /// <summary>
+    ///   Gets a value indicating whether the Xml field is specified.
+    /// </summary>
+    /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
+    /// <remarks>Used for XML Serialization</remarks>
+    [UsedImplicitly]
+    public bool TimePartFormatSpecified => ValueFormatMutable.DataType == DataType.DateTime;
+
+    /// <summary>
+    ///   Gets a value indicating whether the Xml field is specified.
+    /// </summary>
+    /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
+    /// <remarks>Used for XML Serialization</remarks>
+    [UsedImplicitly]
+    public bool TimePartSpecified => ValueFormatMutable.DataType == DataType.DateTime;
+
+    /// <summary>
+    ///   Gets or sets the time separator.
+    /// </summary>
+    /// <value>The time separator.</value>
+    [XmlAttribute]
+    [DefaultValue(ValueFormatExtension.cTimeSeparatorDefault)]
+    public virtual string TimeSeparator
+    {
+      get => ValueFormatMutable.TimeSeparator;
+      set => ValueFormatMutable.TimeSeparator = value;
+    }
+
+    /// <summary>
+    ///   Gets a value indicating whether the Xml field is specified.
+    /// </summary>
+    /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
+    /// <remarks>Used for XML Serialization</remarks>
+    [UsedImplicitly]
+    public bool TimeSeparatorSpecified => ValueFormatMutable.DataType == DataType.DateTime;
+
+    /// <summary>
+    ///   Gets or sets the representation for true.
+    /// </summary>
+    /// <value>The true.</value>
+    [XmlAttribute]
+    [DefaultValue(ValueFormatExtension.cTrueDefault)]
+#pragma warning disable CA1716 // Identifiers should not match keywords
+    public virtual string True
+#pragma warning restore CA1716
+    {
+      // Identifiers should not match keywords
+      get => ValueFormatMutable.True;
+
+      set => ValueFormatMutable.True = value;
+    }
+
+    /// <summary>
+    ///   Gets a value indicating whether the Xml field is specified.
+    /// </summary>
+    /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
+    /// <remarks>Used for XML Serialization</remarks>
+    [UsedImplicitly]
+    public bool TrueSpecified => ValueFormatMutable.DataType == DataType.Boolean;
+
+    /// <summary>
+    ///   Mimics to get or sets the value format.
+    /// </summary>
+    /// <value>The value format.</value>
+
+
+    public ValueFormatMutable ValueFormatMutable { get; }
+
+    /// <summary>
+    ///   Clones this instance into a new instance of the same type
+    /// </summary>
+    /// <returns></returns>
+    public virtual Column Clone()
+    {
+      var other = new Column();
+      CopyTo(other);
+      return other;
+    }
 
     /// <summary>
     ///   The Ordinal Position of the column
@@ -123,7 +362,7 @@ namespace CsvTools
     [DefaultValue(false)]
     public virtual bool Convert
     {
-      get => m_Convert ?? m_ValueFormatMutable.DataType != DataType.String;
+      get => m_Convert ?? ValueFormatMutable.DataType != DataType.String;
       set
       {
         if (m_Convert.HasValue && m_Convert.Equals(value))
@@ -132,89 +371,6 @@ namespace CsvTools
         NotifyPropertyChanged(nameof(Convert));
       }
     }
-
-    /// <summary>
-    ///   Gets a value indicating whether the Xml field is specified.
-    /// </summary>
-    /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
-    /// <remarks>Used for XML Serialization</remarks>
-    [XmlIgnore]
-    public virtual bool ConvertSpecified => m_Convert.HasValue;
-
-    /// <summary>
-    ///   Gets or sets the type of the data.
-    /// </summary>
-    /// <value>The type of the data.</value>
-    [XmlAttribute("Type")]
-    [DefaultValue(DataType.String)]
-    public virtual DataType DataType
-    {
-      get => m_ValueFormatMutable.DataType;
-      set => m_ValueFormatMutable.DataType = value;
-    }
-
-    /// <summary>
-    ///   Gets or sets the date format.
-    /// </summary>
-    /// <value>The date format.</value>
-    [XmlAttribute]
-    [DefaultValue(ValueFormatExtension.cDateFormatDefault)]
-    public virtual string DateFormat
-    {
-      get => m_ValueFormatMutable.DateFormat;
-      set => m_ValueFormatMutable.DateFormat = value;
-    }
-
-    /// <summary>
-    ///   Gets a value indicating whether the Xml field is specified.
-    /// </summary>
-    /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
-    /// <remarks>Used for XML Serialization</remarks>
-    [XmlIgnore]
-    public virtual bool DateFormatSpecified => m_ValueFormatMutable.DataType == DataType.DateTime;
-
-    /// <summary>
-    ///   Gets or sets the date separator.
-    /// </summary>
-    /// <value>The date separator.</value>
-    [XmlAttribute]
-    [DefaultValue(ValueFormatExtension.cDateSeparatorDefault)]
-    public virtual string DateSeparator
-    {
-      [NotNull]
-      get => m_ValueFormatMutable.DateSeparator;
-      set => m_ValueFormatMutable.DateSeparator = value;
-    }
-
-    /// <summary>
-    ///   Gets a value indicating whether the Xml field is specified.
-    /// </summary>
-    /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
-    /// <remarks>Used for XML Serialization</remarks>
-    [XmlIgnore]
-    public virtual bool DateSeparatorSpecified => m_ValueFormatMutable.DataType == DataType.DateTime;
-
-    /// <summary>
-    ///   Gets or sets the decimal separator.
-    /// </summary>
-    /// <value>The decimal separator.</value>
-    [XmlAttribute]
-    [DefaultValue(ValueFormatExtension.cDecimalSeparatorDefault)]
-    public virtual string DecimalSeparator
-    {
-      [NotNull]
-      get => m_ValueFormatMutable.DecimalSeparator;
-      set => m_ValueFormatMutable.DecimalSeparator = value;
-    }
-
-    /// <summary>
-    ///   Gets a value indicating whether the Xml field is specified.
-    /// </summary>
-    /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
-    /// <remarks>Used for XML Serialization</remarks>
-    [XmlIgnore]
-    public virtual bool DecimalSeparatorSpecified =>
-      m_ValueFormatMutable.DataType == DataType.Double || m_ValueFormatMutable.DataType == DataType.Numeric;
 
     /// <summary>
     ///   Gets or sets the name in a destination. This is only used for writing
@@ -234,55 +390,6 @@ namespace CsvTools
         NotifyPropertyChanged(nameof(DestinationName));
       }
     }
-
-    [XmlIgnore]
-    public virtual bool DestinationNameSpecified =>
-      !m_DestinationName.Equals(m_Name, StringComparison.OrdinalIgnoreCase);
-
-    /// <summary>
-    ///   Gets or sets the representation for false.
-    /// </summary>
-    /// <value>The false.</value>
-    [XmlAttribute]
-    [DefaultValue(ValueFormatExtension.cFalseDefault)]
-#pragma warning disable CA1716 // Identifiers should not match keywords
-    public virtual string False
-#pragma warning restore CA1716
-    {
-      // Identifiers should not match keywords
-      get => m_ValueFormatMutable.False;
-      set => m_ValueFormatMutable.False = value;
-    }
-
-    /// <summary>
-    ///   Gets a value indicating whether the Xml field is specified.
-    /// </summary>
-    /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
-    /// <remarks>Used for XML Serialization</remarks>
-    [XmlIgnore]
-    public virtual bool FalseSpecified => m_ValueFormatMutable.DataType == DataType.Boolean;
-
-    /// <summary>
-    ///   Gets or sets the group separator.
-    /// </summary>
-    /// <value>The group separator.</value>
-    [XmlAttribute]
-    [DefaultValue(ValueFormatExtension.cGroupSeparatorDefault)]
-    public virtual string GroupSeparator
-    {
-      get => m_ValueFormatMutable.GroupSeparator;
-      set => m_ValueFormatMutable.GroupSeparator = value;
-    }
-
-    /// <summary>
-    ///   Gets a value indicating whether the Xml field is specified.
-    /// </summary>
-    /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
-    /// <remarks>Used for XML Serialization</remarks>
-    [XmlIgnore]
-    public virtual bool GroupSeparatorSpecified =>
-      m_ValueFormatMutable.DataType == DataType.Double || m_ValueFormatMutable.DataType == DataType.Numeric
-                                                || m_ValueFormatMutable.DataType == DataType.Integer;
 
     /// <summary>
     ///   Gets or sets a value indicating whether the column should be ignore reading a file
@@ -322,27 +429,6 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets or sets the number format.
-    /// </summary>
-    /// <value>The number format.</value>
-    [XmlAttribute]
-    [DefaultValue(ValueFormatExtension.cNumberFormatDefault)]
-    public virtual string NumberFormat
-    {
-      get => m_ValueFormatMutable.NumberFormat;
-      set => m_ValueFormatMutable.NumberFormat = value;
-    }
-
-    /// <summary>
-    ///   Gets a value indicating whether the Xml field is specified.
-    /// </summary>
-    /// <value><c>true</c> if number format is specified; otherwise, <c>false</c>.</value>
-    /// <remarks>Used for XML Serialization</remarks>
-    [XmlIgnore]
-    public virtual bool NumberFormatSpecified =>
-      m_ValueFormatMutable.DataType == DataType.Double || m_ValueFormatMutable.DataType == DataType.Numeric;
-
-    /// <summary>
     ///   Gets or sets the part for splitting.
     /// </summary>
     /// <value>The part starting with 1</value>
@@ -360,14 +446,6 @@ namespace CsvTools
         NotifyPropertyChanged(nameof(Part));
       }
     }
-
-    /// <summary>
-    ///   Gets a value indicating whether the Xml field is specified.
-    /// </summary>
-    /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
-    /// <remarks>Used for XML Serialization</remarks>
-    [XmlIgnore]
-    public virtual bool PartSpecified => m_ValueFormatMutable.DataType == DataType.TextPart;
 
     /// <summary>
     ///   Gets or sets the splitter.
@@ -388,15 +466,6 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets a value indicating whether the Xml field is specified.
-    /// </summary>
-    /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
-    /// <remarks>Used for XML Serialization</remarks>
-    [XmlIgnore]
-    public virtual bool PartSplitterSpecified =>
-      m_ValueFormatMutable.DataType == DataType.TextPart && !m_PartSplitter.Equals(c_PartSplitterDefault);
-
-    /// <summary>
     ///   Gets or sets the part for splitting.
     /// </summary>
     /// <value>The part starting with 1</value>
@@ -414,14 +483,6 @@ namespace CsvTools
         NotifyPropertyChanged(nameof(PartToEnd));
       }
     }
-
-    /// <summary>
-    ///   Gets a value indicating whether the Xml field is specified.
-    /// </summary>
-    /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
-    /// <remarks>Used for XML Serialization</remarks>
-    [XmlIgnore]
-    public virtual bool PartToEndSpecified => m_ValueFormatMutable.DataType == DataType.TextPart;
 
     /// <summary>
     ///   Gets or sets the name.
@@ -463,42 +524,6 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets a value indicating whether the Xml field is specified.
-    /// </summary>
-    /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
-    /// <remarks>Used for XML Serialization</remarks>
-    [XmlIgnore]
-    public virtual bool TimePartFormatSpecified => m_ValueFormatMutable.DataType == DataType.DateTime;
-
-    /// <summary>
-    ///   Gets a value indicating whether the Xml field is specified.
-    /// </summary>
-    /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
-    /// <remarks>Used for XML Serialization</remarks>
-    [XmlIgnore]
-    public virtual bool TimePartSpecified => m_ValueFormatMutable.DataType == DataType.DateTime;
-
-    /// <summary>
-    ///   Gets or sets the time separator.
-    /// </summary>
-    /// <value>The time separator.</value>
-    [XmlAttribute]
-    [DefaultValue(ValueFormatExtension.cTimeSeparatorDefault)]
-    public virtual string TimeSeparator
-    {
-      get => m_ValueFormatMutable.TimeSeparator;
-      set => m_ValueFormatMutable.TimeSeparator = value;
-    }
-
-    /// <summary>
-    ///   Gets a value indicating whether the Xml field is specified.
-    /// </summary>
-    /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
-    /// <remarks>Used for XML Serialization</remarks>
-    [XmlIgnore]
-    public virtual bool TimeSeparatorSpecified => m_ValueFormatMutable.DataType == DataType.DateTime;
-
-    /// <summary>
     ///   Gets or sets the name.
     /// </summary>
     /// <value>The name.</value>
@@ -518,73 +543,7 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   Gets or sets the representation for true.
-    /// </summary>
-    /// <value>The true.</value>
-    [XmlAttribute]
-    [DefaultValue(ValueFormatExtension.cTrueDefault)]
-#pragma warning disable CA1716 // Identifiers should not match keywords
-    public virtual string True
-#pragma warning restore CA1716
-    {
-      // Identifiers should not match keywords
-      get => m_ValueFormatMutable.True;
-
-      set => m_ValueFormatMutable.True = value;
-    }
-
-    /// <summary>
-    ///   Gets a value indicating whether the Xml field is specified.
-    /// </summary>
-    /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
-    /// <remarks>Used for XML Serialization</remarks>
-    [XmlIgnore]
-    public virtual bool TrueSpecified => m_ValueFormatMutable.DataType == DataType.Boolean;
-
-    /// <summary>
-    ///   Mimics to get or sets the value format.
-    /// </summary>
-    /// <value>The value format.</value>
-    [XmlIgnore] private ValueFormat m_ValueFormatMutable;
-
-    public ValueFormat ValueFormatMutable => m_ValueFormatMutable;
-    public IValueFormat ValueFormat => new ImmutableValueFormat(m_ValueFormatMutable);
-
-    /// <summary>
-    ///   Clones this instance into a new instance of the same type
-    /// </summary>
-    /// <returns></returns>
-    public virtual Column Clone()
-    {
-      var other = new Column();
-      CopyTo(other);
-      return other;
-    }
-
-    /// <summary>
-    ///   Copies to.
-    /// </summary>
-    /// <param name="other">The other.</param>
-    public virtual void CopyTo(Column other)
-    {
-      if (other == null)
-        return;
-      m_ValueFormatMutable.CopyTo(other.m_ValueFormatMutable);
-
-      // other.ValueFormat = m_ValueFormat;
-      other.PartSplitter = m_PartSplitter;
-      other.Part = m_Part;
-      other.PartToEnd = m_PartToEnd;
-      other.TimePartFormat = m_TimePartFormat;
-      other.TimePart = m_TimePart;
-      other.TimeZonePart = m_TimeZonePart;
-      other.ColumnOrdinal = m_ColumnOrdinal;
-      other.Name = m_Name;
-      other.Ignore = m_Ignore;
-      if (m_Convert.HasValue)
-        other.Convert = m_Convert.Value;
-    }
+    public IValueFormat ValueFormat => ValueFormatMutable;
 
     /// <summary>
     ///   Indicates whether the current object is equal to another object of the same type.
@@ -609,7 +568,36 @@ namespace CsvTools
              && string.Equals(m_TimePart, other.m_TimePart, StringComparison.OrdinalIgnoreCase)
              && string.Equals(m_TimePartFormat, other.m_TimePartFormat, StringComparison.Ordinal)
              && string.Equals(m_TimeZonePart, other.m_TimeZonePart, StringComparison.OrdinalIgnoreCase)
-             && Convert == other.Convert && m_ValueFormatMutable.Equals(other.m_ValueFormatMutable);
+             && Convert == other.Convert && ValueFormatMutable.Equals(other.ValueFormatMutable);
+    }
+
+    /// <summary>
+    ///   Occurs when a property value changes.
+    /// </summary>
+    public virtual event PropertyChangedEventHandler PropertyChanged;
+
+    /// <summary>
+    ///   Copies to.
+    /// </summary>
+    /// <param name="other">The other.</param>
+    public virtual void CopyTo(Column other)
+    {
+      if (other == null)
+        return;
+      ValueFormatMutable.CopyTo(other.ValueFormatMutable);
+
+      // other.ValueFormatMutable = m_ValueFormatMutable;
+      other.PartSplitter = m_PartSplitter;
+      other.Part = m_Part;
+      other.PartToEnd = m_PartToEnd;
+      other.TimePartFormat = m_TimePartFormat;
+      other.TimePart = m_TimePart;
+      other.TimeZonePart = m_TimeZonePart;
+      other.ColumnOrdinal = m_ColumnOrdinal;
+      other.Name = m_Name;
+      other.Ignore = m_Ignore;
+      if (m_Convert.HasValue)
+        other.Convert = m_Convert.Value;
     }
 
     /// <summary>
@@ -621,7 +609,6 @@ namespace CsvTools
     ///   <see langword="false" />.
     /// </returns>
 #pragma warning disable 659
-
     public override bool Equals(object obj) => Equals(obj as Column);
 
 #pragma warning restore 659

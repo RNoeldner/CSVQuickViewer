@@ -380,7 +380,7 @@
       // bindingSourceValueFormat
       // 
       this.bindingSourceValueFormat.AllowNew = false;
-      this.bindingSourceValueFormat.DataSource = typeof(CsvTools.ValueFormat);
+      this.bindingSourceValueFormat.DataSource = typeof(CsvTools.ValueFormatMutable);
       // 
       // comboBoxDateFormat
       // 

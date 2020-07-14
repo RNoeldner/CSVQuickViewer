@@ -24,7 +24,7 @@ namespace CsvTools
   ///   Setting for a value format
   /// </summary>
   [Serializable]
-  public sealed class ValueFormat : IValueFormat, IEquatable<ValueFormat>, INotifyPropertyChanged
+  public sealed class ValueFormatMutable : IValueFormat, IEquatable<ValueFormatMutable>, INotifyPropertyChanged
   {
     private DataType m_DataType = DataType.String;
 
@@ -47,13 +47,27 @@ namespace CsvTools
     private string m_True = ValueFormatExtension.cTrueDefault;
 
     /// <summary>
-    ///   Initializes a new instance of the <see cref="ValueFormat" /> class.
+    ///   Initializes a new instance of the <see cref="ValueFormatMutable" /> class.
     /// </summary>
-    public ValueFormat()
+    public ValueFormatMutable()
     {
     }
 
-    public ValueFormat([NotNull] IValueFormat other)
+    /// <summary>
+    /// Used in Serialization to determine if something needs to be stored
+    /// </summary>
+    public bool IsDefault =>
+      m_DataType == DataType.String &&
+      m_DateFormat == ValueFormatExtension.cDateFormatDefault &&
+      m_True == ValueFormatExtension.cTrueDefault &&
+      m_False == ValueFormatExtension.cFalseDefault &&
+      m_TimeSeparator == ValueFormatExtension.cTimeSeparatorDefault &&
+      m_NumberFormat == ValueFormatExtension.cNumberFormatDefault &&
+      m_DisplayNullAs == string.Empty &&
+      m_DecimalSeparator == ValueFormatExtension.cDecimalSeparatorDefault &&
+      m_DateSeparator == ValueFormatExtension.cDateSeparatorDefault;
+
+    public ValueFormatMutable([NotNull] IValueFormat other)
     {
       m_DataType = other.DataType;
       m_DateFormat = other.DateFormat;
@@ -71,10 +85,10 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Initializes a new instance of the <see cref="ValueFormat" /> class.
+    ///   Initializes a new instance of the <see cref="ValueFormatMutable" /> class.
     /// </summary>
     /// <param name="dataType">Type of the data.</param>
-    public ValueFormat(DataType dataType) => m_DataType = dataType;
+    public ValueFormatMutable(DataType dataType) => m_DataType = dataType;
 
     /// <summary>
     ///   Gets or sets the date format.
@@ -96,6 +110,9 @@ namespace CsvTools
         NotifyPropertyChanged(nameof(DateFormat));
       }
     }
+
+    [UsedImplicitly]
+    public  bool DateFormatSpecified => DataType == DataType.DateTime;
 
     /// <summary>
     ///   Gets or sets the date separator.
@@ -119,6 +136,9 @@ namespace CsvTools
         NotifyPropertyChanged(nameof(DateSeparator));
       }
     }
+
+    [UsedImplicitly]
+    public bool DateSeparatorSpecified => m_DataType == DataType.DateTime;
 
     /// <summary>
     ///   Gets or sets the decimal separator.
@@ -153,6 +173,10 @@ namespace CsvTools
       }
     }
 
+    [UsedImplicitly]
+    public bool DecimalSeparatorSpecified => DataType == DataType.Double || DataType == DataType.Numeric;
+
+
     /// <summary>
     ///   Gets or sets the representation for false.
     /// </summary>
@@ -173,6 +197,9 @@ namespace CsvTools
         NotifyPropertyChanged(nameof(False));
       }
     }
+    
+    [UsedImplicitly] 
+    public bool FalseSpecified => m_DataType == DataType.Boolean;
 
     /// <summary>
     ///   Gets or sets the group separator.
@@ -206,6 +233,9 @@ namespace CsvTools
       }
     }
 
+    [UsedImplicitly]
+    public bool GroupSeparatorSpecified => DataType == DataType.Double || DataType == DataType.Numeric || DataType == DataType.Integer;
+
     /// <summary>
     ///   Indicates whether the current object is equal to another object of the same type.
     /// </summary>
@@ -214,7 +244,7 @@ namespace CsvTools
     ///   <see langword="true" /> if the current object is equal to the <paramref name="other" />
     ///   parameter; otherwise, <see langword="false" />.
     /// </returns>
-    public bool Equals(ValueFormat other) => EqualsByInterface(other);
+    public bool Equals(ValueFormatMutable other) => EqualsByInterface(other);
 
     /// <summary>
     ///   Occurs when a property value changes.
@@ -287,6 +317,9 @@ namespace CsvTools
       }
     }
 
+    [UsedImplicitly]
+    public bool NumberFormatSpecified =>  DataType == DataType.Double || DataType == DataType.Numeric;
+
     /// <summary>
     ///   Gets or sets the time separator.
     /// </summary>
@@ -307,6 +340,9 @@ namespace CsvTools
         NotifyPropertyChanged(nameof(TimeSeparator));
       }
     }
+
+    [UsedImplicitly]
+    public bool TimeSeparatorSpecified => m_DataType == DataType.DateTime;
 
     /// <summary>
     ///   Gets or sets the representation for true.
@@ -329,14 +365,17 @@ namespace CsvTools
       }
     }
 
+    [UsedImplicitly]
+    public bool TrueSpecified => m_DataType == DataType.Boolean;
+
     /// <summary>
     ///   Clones this instance into a new instance of the same type
     /// </summary>
     /// <returns></returns>
     [NotNull]
-    public ValueFormat Clone()
+    public ValueFormatMutable Clone()
     {
-      var other = new ValueFormat();
+      var other = new ValueFormatMutable();
       CopyTo(other);
       return other;
     }
@@ -448,7 +487,7 @@ namespace CsvTools
     ///   Copies to.
     /// </summary>
     /// <param name="other">The other.</param>
-    public void CopyTo(ValueFormat other)
+    public void CopyTo(ValueFormatMutable other)
     {
       if (other == null)
         return;

@@ -723,7 +723,7 @@ namespace CsvTools
         var dateFormat = sender == comboBoxDateFormat ? comboBoxDateFormat.Text : checkedListBoxDateFormats.Text;
         if (string.IsNullOrEmpty(dateFormat)) return;
 
-        var vf = new ValueFormat(DataType.DateTime)
+        var vf = new ValueFormatMutable(DataType.DateTime)
         {
           DateFormat = dateFormat,
           DateSeparator = textBoxDateSeparator.Text,
@@ -867,7 +867,7 @@ namespace CsvTools
       {
         if (string.IsNullOrEmpty(textBoxDecimalSeparator.Text))
           return;
-        var vf = new ValueFormat
+        var vf = new ValueFormatMutable
         {
           NumberFormat = comboBoxNumberFormat.Text,
           GroupSeparator = textBoxGroupSeparator.Text,

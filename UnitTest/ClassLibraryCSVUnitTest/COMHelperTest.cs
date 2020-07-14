@@ -78,7 +78,7 @@ namespace CsvTools.Tests
         DataType = DataType.DateTime,
         Convert = true
       });
-      readFile.GetColumnFormat("ExamDate").ValueFormat.DateFormat = "dd/MM/yyyy";
+      readFile.GetColumnFormat("ExamDate").ValueFormatMutable.DateFormat = "dd/MM/yyyy";
       readFile.FileFormat.CommentLine = "#";
       readFile.ColumnFormatAdd(new ColumnFormat
       {
@@ -114,7 +114,7 @@ namespace CsvTools.Tests
         DataType = DataType.DateTime,
         TimePart = "ExamTime"
       });
-      writeFile.GetColumnFormat("ExamDate").ValueFormat.DateFormat = "MM/dd/yyyy";
+      writeFile.GetColumnFormat("ExamDate").ValueFormatMutable.DateFormat = "MM/dd/yyyy";
       writeFile.FileName = System.IO.UnitTestInitialize.GetTestPath("BasicCSVOut.txt");
 
       m_ComHelper.WriteFile(writeFile, false);
