@@ -73,7 +73,7 @@ namespace CsvTools
       Footer = fileSetting.Footer;
       Header = fileSetting.Header;
       HasFieldHeader = fileSetting.HasFieldHeader;
-      ValueFormatGeneral = new ImmutableValueFormat(fileSetting.FileFormat.ValueFormat);
+      ValueFormatGeneral = new ImmutableValueFormat(fileSetting.FileFormat.ValueFormatMutable);
       FileFormat = new ImmutableFileFormat(fileSetting.FileFormat);
       ColumnDefinition = fileSetting.ColumnCollection.ReadonlyCopy();
       // TODO: where is it used?

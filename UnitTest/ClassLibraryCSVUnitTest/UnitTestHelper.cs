@@ -45,7 +45,7 @@ namespace CsvTools.Tests
         FileFormat = {FieldDelimiter = "TAB"}
       };
 
-      var timeFld = new Column("DateTime", new ValueFormat(DataType.DateTime) {DateFormat = @"dd/MM/yyyy"});
+      var timeFld = new Column("DateTime", new ValueFormatMutable(DataType.DateTime) {DateFormat = @"dd/MM/yyyy"});
       readFile.ColumnCollection.AddIfNew(timeFld);
 
       timeFld.TimePart = "Time";
@@ -58,14 +58,14 @@ namespace CsvTools.Tests
       Debug.Assert(numericFld != null);
       numericFld.ValueFormatMutable.DecimalSeparator = ".";
 
-      var doubleFld = new Column("Double", new ValueFormat(DataType.Double) {DecimalSeparator = "."});
+      var doubleFld = new Column("Double", new ValueFormatMutable(DataType.Double) {DecimalSeparator = "."});
       readFile.ColumnCollection.AddIfNew(doubleFld);
       Debug.Assert(doubleFld != null);
       readFile.ColumnCollection.AddIfNew(new Column("Boolean", DataType.Boolean));
       readFile.ColumnCollection.AddIfNew(new Column("GUID", DataType.Guid));
 
       var timeFld2 = new Column("Time",
-        new ValueFormat(DataType.DateTime) {DateFormat = "HH:mm:ss"}) {Ignore = true};
+        new ValueFormatMutable(DataType.DateTime) {DateFormat = "HH:mm:ss"}) {Ignore = true};
       readFile.ColumnCollection.AddIfNew(timeFld2);
 
       return readFile;

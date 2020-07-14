@@ -466,7 +466,7 @@ namespace CsvTools
                 {
                   if (first.Length == 8 || first.Length == 5)
                   {
-                    var settingColumnTime = new Column(columnTime, new ValueFormat(DataType.DateTime)
+                    var settingColumnTime = new Column(columnTime, new ValueFormatMutable(DataType.DateTime)
                     {
                       DateFormat = first.Length == 8 ? "HH:mm:ss" : "HH:mm"
                     });
@@ -594,7 +594,7 @@ namespace CsvTools
         foreach (var sep in StringConversion.DateSeparators.Where(sep => StringConversion
           .StringToDateTimeExact(value, fmt, sep, culture.DateTimeFormat.TimeSeparator, culture)
           .HasValue))
-          yield return new ValueFormat(DataType.DateTime) { DateFormat = fmt, DateSeparator = sep };
+          yield return new ValueFormatMutable(DataType.DateTime) { DateFormat = fmt, DateSeparator = sep };
     }
 
     /// <summary>

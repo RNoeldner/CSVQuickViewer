@@ -496,7 +496,7 @@ namespace CsvTools
     [NotNull]
     public static string DateTimeToString(DateTime dateTime, string format, string dateSeparator, string timeSeparator)
     {
-      return DateTimeToString(dateTime, new ValueFormat
+      return DateTimeToString(dateTime, new ValueFormatMutable
       {
         DateFormat = format,
         DateSeparator = dateSeparator,
@@ -508,14 +508,14 @@ namespace CsvTools
     ///   Converts a decimals to string.
     /// </summary>
     /// <param name="value">The value.</param>
-    /// <param name="format">The <see cref="ValueFormat" />.</param>
+    /// <param name="format">The <see cref="ValueFormatMutable" />.</param>
     /// <returns>Formatted value</returns>
     [NotNull]
     public static string DecimalToString(decimal value, [NotNull] IValueFormat format)
     {
       if (string.IsNullOrEmpty(format?.NumberFormat))
         // Get the default format
-        format = new ValueFormat();
+        format = new ValueFormatMutable();
 
       return value.ToString(format.NumberFormat, CultureInfo.InvariantCulture).ReplaceDefaults(
         CultureInfo.InvariantCulture.NumberFormat.NumberDecimalSeparator, format.DecimalSeparatorChar.ToString(),
@@ -550,7 +550,7 @@ namespace CsvTools
     ///   Converts a doubles to string.
     /// </summary>
     /// <param name="value">The value.</param>
-    /// <param name="format">The <see cref="ValueFormat" />.</param>
+    /// <param name="format">The <see cref="ValueFormatMutable" />.</param>
     /// <returns>Formatted value</returns>
     [NotNull]
     public static string DoubleToString(double value, [NotNull] IValueFormat format)

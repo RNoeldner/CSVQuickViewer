@@ -76,7 +76,7 @@ namespace CsvTools
 
     private string m_QuotePlaceholder = c_QuotePlaceholderDefault;
 
-    private ValueFormat m_ValueFormat = new ValueFormat();
+    private ValueFormatMutable m_ValueFormatMutable = new ValueFormatMutable();
 
     /// <summary>
     ///   Occurs when a property value changes.
@@ -378,18 +378,18 @@ namespace CsvTools
     /// </summary>
     /// <value>The value format.</value>
     [XmlElement]
-    public virtual ValueFormat ValueFormat
+    public virtual ValueFormatMutable ValueFormatMutable
     {
       [NotNull]
-      get => m_ValueFormat;
+      get => m_ValueFormatMutable;
       [CanBeNull]
       set
       {
-        var newVal = value ?? new ValueFormat();
-        if (m_ValueFormat.Equals(newVal))
+        var newVal = value ?? new ValueFormatMutable();
+        if (m_ValueFormatMutable.Equals(newVal))
           return;
-        m_ValueFormat = newVal;
-        NotifyPropertyChanged(nameof(ValueFormat));
+        m_ValueFormatMutable = newVal;
+        NotifyPropertyChanged(nameof(ValueFormatMutable));
       }
     }
 
@@ -403,7 +403,7 @@ namespace CsvTools
     ///   Used for XML Serialization
     /// </remarks>
     [XmlIgnore]
-    public virtual bool ValueFormatSpecified => !m_ValueFormat.Equals(new ValueFormat());
+    public virtual bool ValueFormatSpecified => !m_ValueFormatMutable.Equals(new ValueFormatMutable());
 
     /// <summary>
     ///   Gets a char from a text
@@ -524,7 +524,7 @@ namespace CsvTools
       other.QualifyOnlyIfNeeded = m_QualifyOnlyIfNeeded;
       other.QualifyAlways = m_QualifyAlways;
       other.QuotePlaceholder = m_QuotePlaceholder;
-      ValueFormat.CopyTo(other.ValueFormat);
+      ValueFormatMutable.CopyTo(other.ValueFormatMutable);
     }
 
     /// <summary>Indicates whether the current object is equal to another object of the same type.</summary>
@@ -553,7 +553,7 @@ namespace CsvTools
              && string.Equals(m_NewLinePlaceholder, other.m_NewLinePlaceholder, StringComparison.Ordinal)
              && m_QualifyAlways == other.m_QualifyAlways && m_QualifyOnlyIfNeeded == other.m_QualifyOnlyIfNeeded
              && string.Equals(m_QuotePlaceholder, other.m_QuotePlaceholder, StringComparison.Ordinal)
-             && Equals(m_ValueFormat, other.m_ValueFormat);
+             && Equals(m_ValueFormatMutable, other.m_ValueFormatMutable);
     }
 
     /// <summary>Determines whether the specified object is equal to the current object.</summary>
@@ -603,7 +603,7 @@ namespace CsvTools
         hashCode = (hashCode * 397) ^ m_QualifyAlways.GetHashCode();
         hashCode = (hashCode * 397) ^ m_QualifyOnlyIfNeeded.GetHashCode();
         hashCode = (hashCode * 397) ^ (m_QuotePlaceholder != null ? m_QuotePlaceholder.GetHashCode() : 0);
-        hashCode = (hashCode * 397) ^ (m_ValueFormat != null ? m_ValueFormat.GetHashCode() : 0);
+        hashCode = (hashCode * 397) ^ (m_ValueFormatMutable != null ? m_ValueFormatMutable.GetHashCode() : 0);
         return hashCode;
       }
     }

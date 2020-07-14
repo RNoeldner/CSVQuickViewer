@@ -11,8 +11,9 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using System.ComponentModel;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
@@ -53,7 +54,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void FileFormatCopyToNUll() => m_FileFormat.CopyTo(null);// NO ERror !
+    public void FileFormatCopyToNUll() => m_FileFormat.CopyTo(null); // NO ERror !
 
     [TestMethod]
     public void FileFormatCopyToEquals()
@@ -74,10 +75,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void FileFormatEscapeCharacter()
     {
-      var target = new FileFormat
-      {
-        EscapeCharacter = "Tab"
-      };
+      var target = new FileFormat {EscapeCharacter = "Tab"};
       Assert.AreEqual("tab", target.EscapeCharacter, true);
 
       Assert.AreEqual('\t', target.EscapeCharacterChar);
@@ -94,10 +92,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void FileFormatFieldDelimiter()
     {
-      var target = new FileFormat
-      {
-        FieldDelimiter = "Tab"
-      };
+      var target = new FileFormat {FieldDelimiter = "Tab"};
       Assert.AreEqual(target.FieldDelimiter, "tab", true);
       Assert.AreEqual(target.FieldDelimiterChar, '\t');
 
@@ -113,10 +108,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void FileFormatFieldQualifier()
     {
-      var target = new FileFormat
-      {
-        FieldQualifier = "Tab"
-      };
+      var target = new FileFormat {FieldQualifier = "Tab"};
       Assert.AreEqual(target.FieldQualifier, "tab", true);
       Assert.AreEqual(target.FieldQualifierChar, '\t');
 
@@ -144,7 +136,7 @@ namespace CsvTools.Tests
       m_FileFormat.QualifyOnlyIfNeeded = false;
       m_FileFormat.QualifyAlways = true;
       m_FileFormat.QuotePlaceholder = "{q}";
-      m_FileFormat.ValueFormat = null;
+      m_FileFormat.ValueFormatMutable = null;
 
       Assert.IsFalse(m_FileFormat.QualifyOnlyIfNeeded, "QualifyOnlyIfNeeded");
       Assert.IsTrue(m_FileFormat.QualifyAlways, "QualifyAlways");
@@ -185,7 +177,7 @@ namespace CsvTools.Tests
     {
       var numCalled = 0;
       var test = new FileFormat();
-      test.PropertyChanged += delegate (object sender, PropertyChangedEventArgs e)
+      test.PropertyChanged += delegate(object sender, PropertyChangedEventArgs e)
       {
         Assert.AreEqual("QuotePlaceholder", e.PropertyName, true);
         numCalled++;
@@ -200,10 +192,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void FileFormatToString2()
     {
-      var target = new FileFormat
-      {
-        FieldDelimiter = ""
-      };
+      var target = new FileFormat {FieldDelimiter = ""};
       Assert.AreEqual("FixedLength", target.ToString(), true);
     }
 
@@ -234,20 +223,14 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CommentLine()
     {
-      var test = new FileFormat
-      {
-        CommentLine = "a comment Line"
-      };
+      var test = new FileFormat {CommentLine = "a comment Line"};
       Assert.AreEqual("a comment Line", test.CommentLine);
     }
 
     [TestMethod]
     public void FieldDelimiter()
     {
-      var test = new FileFormat
-      {
-        FieldDelimiter = "Tabulator"
-      };
+      var test = new FileFormat {FieldDelimiter = "Tabulator"};
       Assert.AreEqual("Tabulator", test.FieldDelimiter);
       Assert.AreEqual('\t', test.FieldDelimiterChar);
 

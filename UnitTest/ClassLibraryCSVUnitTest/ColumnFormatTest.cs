@@ -12,8 +12,8 @@
  *
  */
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
@@ -58,7 +58,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void ColumnGetDataType()
     {
-      var test = new ValueFormat();
+      var test = new ValueFormatMutable();
 
       Assert.IsInstanceOfType(string.Empty, test.DataType.GetNetType());
       test.DataType = DataType.DateTime;
@@ -124,7 +124,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GetDataTypeDescriptionDouble()
     {
-      var target = new Column("Test", new ValueFormat(DataType.Numeric) { NumberFormat = "00.000" });
+      var target = new Column("Test", new ValueFormatMutable(DataType.Numeric) {NumberFormat = "00.000"});
 
       Assert.AreEqual("Money (High Precision) (00.000)", target.GetTypeAndFormatDescription());
     }
@@ -132,10 +132,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GetDataTypeDescriptionIgnore()
     {
-      var target = new Column("Test", DataType.String)
-      {
-        Ignore = true
-      };
+      var target = new Column("Test") {Ignore = true};
 
       Assert.AreEqual("Text (Ignore)", target.GetTypeAndFormatDescription());
     }
@@ -143,7 +140,7 @@ namespace CsvTools.Tests
     [TestInitialize]
     public void Init()
     {
-      var valueFormatGerman = new ValueFormat
+      var valueFormatGerman = new ValueFormatMutable
       {
         DataType = DataType.DateTime,
         DateFormat = @"dd/MM/yyyy",
@@ -157,7 +154,7 @@ namespace CsvTools.Tests
       };
 
       var ff = new CsvFile();
-      var col = new Column("StartDate", valueFormatGerman) { Ignore = true };
+      var col = new Column("StartDate", valueFormatGerman) {Ignore = true};
 
       ff.ColumnCollection.AddIfNew(col);
       Assert.AreEqual("StartDate", col.Name, "Name");

@@ -18,6 +18,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Reflection;
+using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
 using JetBrains.Annotations;
@@ -26,57 +27,58 @@ namespace CsvTools
 {
   // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
   /// <summary>
-  ///   Abstract calls containing the basic setting for an IFileSetting if contains <see
-  ///   cref="ColumnCollection" />, <see cref="MappingCollection" /> and <see cref="FileFormat" />
+  ///   Abstract calls containing the basic setting for an IFileSetting if contains
+  ///   <see
+  ///     cref="ColumnCollection" />
+  ///   , <see cref="MappingCollection" /> and <see cref="FileFormat" />
   /// </summary>
 #pragma warning disable CS0659
-
   public abstract class BaseSettings
 #pragma warning restore CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
   {
-    public static readonly DateTime ZeroTime = new DateTime(0, DateTimeKind.Utc);
     public const string cTreatTextAsNull = "NULL";
+    public static readonly DateTime ZeroTime = new DateTime(0, DateTimeKind.Utc);
     private readonly FileFormat m_FileFormat = new FileFormat();
     private int m_ConsecutiveEmptyRows = 5;
     private bool m_DisplayEndLineNo;
     private bool m_DisplayRecordNo;
     private bool m_DisplayStartLineNo = true;
-    private bool m_SetLatestSourceTimeForWrite;
-    private DateTime m_ProcessTimeUtc = ZeroTime;
-    private DateTime m_LatestSourceTimeUtc = ZeroTime;
+    private long m_ErrorCount;
+    private ObservableCollection<SampleRecordEntry> m_Errors = new ObservableCollection<SampleRecordEntry>();
+    private int m_EvidenceNumberOrIssues = -1;
     private string m_FileName;
     private long m_FileSize;
     private string m_Footer = string.Empty;
-    private bool m_FullPathInitialized;
     private string m_FullPath = string.Empty;
+    private bool m_FullPathInitialized;
     private bool m_HasFieldHeader = true;
     private string m_Header = string.Empty;
     private string m_Id = string.Empty;
     private bool m_InOverview;
     private bool m_IsEnabled = true;
-    private int m_EvidenceNumberOrIssues = -1;
+    private DateTime m_LatestSourceTimeUtc = ZeroTime;
     private long m_NumRecords;
-    private long m_WarningCount = 0;
-    private long m_ErrorCount = 0;
     private string m_Passphrase = string.Empty;
+    private DateTime m_ProcessTimeUtc = ZeroTime;
     private string m_Recipient = string.Empty;
     private long m_RecordLimit;
     private string m_RemoteFileName = string.Empty;
-    private bool m_ThrowErrorIfNotExists = true;
+    private ObservableCollection<SampleRecordEntry> m_Samples = new ObservableCollection<SampleRecordEntry>();
+    private bool m_SetLatestSourceTimeForWrite;
     private bool m_ShowProgress = true;
-    private int m_SkipRows;
-    private string m_SqlStatement = string.Empty;
-    private int m_Timeout = 90;
-    private string m_TemplateName = string.Empty;
-    private bool m_TreatNbspAsSpace;
-    private string m_TreatTextAsNull = cTreatTextAsNull;
-    private bool m_Validate = true;
     private bool m_SkipDuplicateHeader;
     private bool m_SkipEmptyLines = true;
-    private ObservableCollection<SampleRecordEntry> m_Samples = new ObservableCollection<SampleRecordEntry>();
-    private ObservableCollection<SampleRecordEntry> m_Errors = new ObservableCollection<SampleRecordEntry>();
-    private TrimmingOption m_TrimmingOption = TrimmingOption.Unquoted;
+    private int m_SkipRows;
     private IReadOnlyCollection<IFileSetting> m_SourceFileSettings;
+    private string m_SqlStatement = string.Empty;
+    private string m_TemplateName = string.Empty;
+    private bool m_ThrowErrorIfNotExists = true;
+    private int m_Timeout = 90;
+    private bool m_TreatNbspAsSpace;
+    private string m_TreatTextAsNull = cTreatTextAsNull;
+    private TrimmingOption m_TrimmingOption = TrimmingOption.Unquoted;
+    private bool m_Validate = true;
+    private long m_WarningCount;
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="BaseSettings" /> class.
@@ -110,12 +112,9 @@ namespace CsvTools
     /// </summary>
     /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
     /// <remarks>Used for XML Serialization</remarks>
-    [XmlIgnore]
-    // ReSharper disable once UnusedMember.Global
-    public bool MappingSpecified => MappingCollection.Count > 0;
+    [UsedImplicitly] public bool MappingSpecified => MappingCollection.Count > 0;
 
-    [XmlIgnore]
-    public bool ErrorsSpecified => Errors.Count > 0;
+    [UsedImplicitly] public bool ErrorsSpecified => Errors.Count > 0;
 
     /// <summary>
     ///   Storage for the settings used as direct or indirect sources.
@@ -133,7 +132,6 @@ namespace CsvTools
     public IReadOnlyCollection<IFileSetting> SourceFileSettings
     {
       get => m_SourceFileSettings;
-      [NotifyPropertyChangedInvocator]
       set
       {
         if (m_SourceFileSettings == null && value == null) return;
@@ -151,8 +149,7 @@ namespace CsvTools
     /// </summary>
     /// <value><c>true</c> if specified; otherwise, <c>false</c>.</value>
     /// <remarks>Used for XML Serialization</remarks>
-    [XmlIgnore]
-    // ReSharper disable once UnusedMember.Global
+    [UsedImplicitly]
     public bool FileFormatSpecified => !FileFormat.Equals(new FileFormat());
 
     /// <summary>
@@ -160,8 +157,7 @@ namespace CsvTools
     /// </summary>
     /// <value><c>true</c> if specified; otherwise, <c>false</c>.</value>
     /// <remarks>Used for XML Serialization</remarks>
-    [XmlIgnore]
-    // ReSharper disable once UnusedMember.Global
+    [UsedImplicitly]
     public bool FileLastWriteTimeUtcSpecified => ProcessTimeUtc != ZeroTime;
 
     /// <summary>
@@ -172,10 +168,8 @@ namespace CsvTools
     [DefaultValue("")]
     public virtual string RemoteFileName
     {
-      [NotNull]
-      get => m_RemoteFileName;
+      [NotNull] get => m_RemoteFileName;
       [CanBeNull]
-      [NotifyPropertyChangedInvocator]
       set
       {
         var newVal = value ?? string.Empty;
@@ -196,7 +190,7 @@ namespace CsvTools
     public virtual bool ThrowErrorIfNotExists
     {
       get => m_ThrowErrorIfNotExists;
-      [NotifyPropertyChangedInvocator]
+
       set
       {
         if (m_ThrowErrorIfNotExists.Equals(value))
@@ -206,8 +200,7 @@ namespace CsvTools
       }
     }
 
-    [XmlIgnore]
-    // ReSharper disable once UnusedMember.Global
+    [UsedImplicitly]
     public bool SamplesSpecified => Samples.Count > 0;
 
     /// <summary>
@@ -229,8 +222,750 @@ namespace CsvTools
     /// </summary>
     /// <value><c>true</c> if specified; otherwise, <c>false</c>.</value>
     /// <remarks>Used for XML Serialization</remarks>
-    [XmlIgnore]
+    [UsedImplicitly]
     public bool SqlStatementCDataSpecified => !string.IsNullOrEmpty(SqlStatement);
+
+    /// <summary>
+    ///   Gets or sets the number consecutive empty rows that should finish a read
+    /// </summary>
+    /// <value>The consecutive empty rows.</value>
+    [XmlAttribute]
+    [DefaultValue(5)]
+    public virtual int ConsecutiveEmptyRows
+    {
+      get => m_ConsecutiveEmptyRows;
+
+      set
+      {
+        if (m_ConsecutiveEmptyRows.Equals(value))
+          return;
+        if (value < 0)
+          value = 0;
+        m_ConsecutiveEmptyRows = value;
+        NotifyPropertyChanged(nameof(ConsecutiveEmptyRows));
+      }
+    }
+
+    /// <summary>
+    ///   Gets or sets the options for a column
+    /// </summary>
+    /// <value>The column options</value>
+    [XmlElement("Format")]
+    public ColumnCollection ColumnCollection { get; } = new ColumnCollection();
+
+    /// <summary>
+    ///   Gets a value indicating whether column format specified.
+    /// </summary>
+    /// <value><c>true</c> if column format specified; otherwise, <c>false</c>.</value>
+    [UsedImplicitly]
+    public bool ColumnSpecified => ColumnCollection.Count > 0;
+
+    /// <summary>
+    ///   Gets or sets a value indicating whether to display end line numbers.
+    /// </summary>
+    /// <value><c>true</c> if end line no should be displayed; otherwise, <c>false</c>.</value>
+    [XmlElement]
+    [DefaultValue(false)]
+    public virtual bool DisplayEndLineNo
+    {
+      get => m_DisplayEndLineNo;
+
+      set
+      {
+        if (m_DisplayEndLineNo.Equals(value))
+          return;
+        m_DisplayEndLineNo = value;
+        NotifyPropertyChanged(nameof(DisplayEndLineNo));
+      }
+    }
+
+    /// <summary>
+    ///   Gets or sets a value indicating whether to display record no.
+    /// </summary>
+    /// <value><c>true</c> if record number should be displayed; otherwise, <c>false</c>.</value>
+    [XmlElement]
+    [DefaultValue(false)]
+    public virtual bool DisplayRecordNo
+    {
+      get => m_DisplayRecordNo;
+
+      set
+      {
+        if (m_DisplayRecordNo.Equals(value))
+          return;
+        m_DisplayRecordNo = value;
+        NotifyPropertyChanged(nameof(DisplayRecordNo));
+      }
+    }
+
+    /// <summary>
+    ///   Gets or sets a value indicating whether to display start line numbers
+    /// </summary>
+    /// <value><c>true</c> if start line no should be displayed; otherwise, <c>false</c>.</value>
+    [XmlElement]
+    [DefaultValue(true)]
+    public virtual bool DisplayStartLineNo
+    {
+      get => m_DisplayStartLineNo;
+
+      set
+      {
+        if (m_DisplayStartLineNo.Equals(value))
+          return;
+        m_DisplayStartLineNo = value;
+        NotifyPropertyChanged(nameof(DisplayStartLineNo));
+      }
+    }
+
+    [XmlElement]
+    [DefaultValue(false)]
+    public virtual bool SetLatestSourceTimeForWrite
+    {
+      get => m_SetLatestSourceTimeForWrite;
+
+      set
+      {
+        if (m_SetLatestSourceTimeForWrite.Equals(value))
+          return;
+        m_SetLatestSourceTimeForWrite = value;
+        NotifyPropertyChanged(nameof(SetLatestSourceTimeForWrite));
+      }
+    }
+
+    public ObservableCollection<SampleRecordEntry> Errors
+    {
+      [NotNull] get => m_Errors;
+      [CanBeNull]
+      set
+      {
+        var newVal = value ?? new ObservableCollection<SampleRecordEntry>();
+        if (m_Errors.CollectionEqualWithOrder(newVal))
+          return;
+        m_Errors = newVal;
+        NotifyPropertyChanged(nameof(Errors));
+        if (m_EvidenceNumberOrIssues > 0 && Errors.Count > m_EvidenceNumberOrIssues)
+          EvidenceNumberOrIssues = Errors.Count;
+      }
+    }
+
+    /// <summary>
+    ///   Gets or sets the file format.
+    /// </summary>
+    /// <value>The file format.</value>
+    [XmlElement]
+    public virtual FileFormat FileFormat
+    {
+      [NotNull] get => m_FileFormat;
+      [CanBeNull] set => value?.CopyTo(m_FileFormat);
+    }
+
+    /// <summary>
+    ///   The UTC time the file was last written to, or when it was last read, this is different to
+    ///   <see cref="LatestSourceTimeUtc" />. Changes to this date should not be considered as
+    ///   changes to the configuration
+    /// </summary>
+    [XmlAttribute]
+    public virtual DateTime ProcessTimeUtc
+    {
+      get => m_ProcessTimeUtc;
+
+      set
+      {
+        if (m_ProcessTimeUtc.Equals(value))
+          return;
+        m_ProcessTimeUtc = value;
+        NotifyPropertyChanged(nameof(ProcessTimeUtc));
+      }
+    }
+
+    [UsedImplicitly] public bool ProcessTimeUtcSpecified => m_ProcessTimeUtc != ZeroTime;
+
+    /// <summary>
+    ///   The time of the source, either a file time, or in case the setting is dependent on
+    ///   multiple sources the time of the last source Changes to this date should not be considered
+    ///   as changes to the configuration
+    /// </summary>
+    [XmlIgnore]
+    public DateTime LatestSourceTimeUtc
+    {
+      get
+      {
+        if (m_LatestSourceTimeUtc == ZeroTime)
+          CalculateLatestSourceTime();
+        return m_LatestSourceTimeUtc;
+      }
+
+      set
+      {
+        if (m_LatestSourceTimeUtc == value)
+          return;
+        m_LatestSourceTimeUtc = value;
+        NotifyPropertyChanged(nameof(LatestSourceTimeUtc));
+      }
+    }
+
+    /// <summary>
+    ///   Gets or sets the name of the file.
+    /// </summary>
+    /// <value>The name of the file.</value>
+    [XmlAttribute]
+    [DefaultValue("")]
+    public virtual string FileName
+    {
+      [NotNull] get => m_FileName;
+      [CanBeNull]
+      set
+      {
+        var newVal = FileNameFix(value);
+
+        if (m_FileName.Equals(newVal, StringComparison.Ordinal))
+          return;
+        var oldValue = m_FileName;
+        m_FileName = newVal;
+        m_FullPath = null;
+        NotifyPropertyChanged(nameof(FileName));
+        PropertyChangedString?.Invoke(this, new PropertyChangedEventArgs<string>(nameof(FileName), oldValue, newVal));
+      }
+    }
+
+    /// <summary>
+    ///   Gets or sets the date the file when it was read
+    /// </summary>
+    /// <value>The consecutive empty rows.</value>
+    [XmlAttribute]
+    [DefaultValue(0)]
+    public virtual long FileSize
+    {
+      get => m_FileSize;
+
+      set
+      {
+        if (value == m_FileSize)
+          return;
+        m_FileSize = value;
+        NotifyPropertyChanged(nameof(FileSize));
+      }
+    }
+
+    /// <summary>
+    ///   Gets or sets the Footer.
+    /// </summary>
+    /// <value>The Footer for outbound data.</value>
+    [DefaultValue("")]
+    public virtual string Footer
+    {
+      [NotNull] get => m_Footer;
+      [CanBeNull]
+      set
+      {
+        var newVal = StringUtils.HandleCRLFCombinations(value ?? string.Empty, Environment.NewLine);
+        if (m_Footer.Equals(newVal, StringComparison.Ordinal))
+          return;
+        m_Footer = newVal;
+        NotifyPropertyChanged(nameof(Footer));
+      }
+    }
+
+    [XmlIgnore]
+    [NotNull]
+    public virtual string FullPath
+    {
+      get
+      {
+        if (m_FullPathInitialized) return m_FullPath ?? m_FileName;
+        m_FullPath = FileSystemUtils.ResolvePattern(m_FileName.GetAbsolutePath(ApplicationSetting.RootFolder));
+        if (m_FullPath == null)
+          m_FullPath = string.Empty;
+        else
+          m_FullPathInitialized = true;
+        return m_FullPath;
+      }
+    }
+
+    /// <summary>
+    ///   As the data is loaded and not further validation is done this will be set to true Once
+    ///   validation is happening and validation errors are stored this is false again. This is
+    ///   stored on FileSetting level even as it actually is used for determine th freshness of a
+    ///   loaded data in the validator, but there is not suitable data structure
+    /// </summary>
+    [XmlIgnore]
+    [DefaultValue(false)]
+    public virtual bool RecentlyLoaded { get; set; }
+
+    /// <summary>
+    ///   Gets or sets a value indicating whether this instance has field header.
+    /// </summary>
+    /// <value><c>true</c> if this instance has field header; otherwise, <c>false</c>.</value>
+    [XmlAttribute]
+    [DefaultValue(true)]
+    public virtual bool HasFieldHeader
+    {
+      get => m_HasFieldHeader;
+
+      set
+      {
+        if (m_HasFieldHeader.Equals(value))
+          return;
+        m_HasFieldHeader = value;
+        NotifyPropertyChanged(nameof(HasFieldHeader));
+      }
+    }
+
+    /// <summary>
+    ///   Gets or sets the Footer.
+    /// </summary>
+    /// <value>The Footer for outbound data.</value>
+    [DefaultValue("")]
+    public virtual string Header
+    {
+      [NotNull] get => m_Header;
+      [CanBeNull]
+      set
+      {
+        var newVal = StringUtils.HandleCRLFCombinations(value ?? string.Empty, Environment.NewLine);
+        if (m_Header.Equals(newVal, StringComparison.Ordinal))
+          return;
+        m_Header = newVal;
+        NotifyPropertyChanged(nameof(Header));
+      }
+    }
+
+    /// <summary>
+    ///   Gets or sets the ID.
+    /// </summary>
+    /// <value>The ID.</value>
+    [XmlAttribute]
+    [DefaultValue("")]
+    public virtual string ID
+    {
+      [NotNull] get => m_Id;
+      [CanBeNull]
+      set
+      {
+        var newVal = value ?? string.Empty;
+        if (m_Id.Equals(newVal, StringComparison.Ordinal))
+          return;
+
+        var oldValue = m_Id;
+        m_Id = newVal;
+        NotifyPropertyChanged(nameof(ID));
+        PropertyChangedString?.Invoke(this, new PropertyChangedEventArgs<string>(nameof(ID), oldValue, newVal));
+      }
+    }
+
+    /// <summary>
+    ///   Gets or sets a value indicating whether this instance is critical.
+    /// </summary>
+    /// <value><c>true</c> if this file is critical for the export; otherwise, <c>false</c>.</value>
+    [XmlAttribute(AttributeName = "IsCritical")]
+    [DefaultValue(false)]
+    public virtual bool InOverview
+    {
+      get => m_InOverview;
+
+      set
+      {
+        if (m_InOverview.Equals(value))
+          return;
+        m_InOverview = value;
+        NotifyPropertyChanged(nameof(InOverview));
+      }
+    }
+
+    /// <summary>
+    ///   The identified to find this specific instance
+    /// </summary>
+    [XmlIgnore]
+    [NotNull]
+    public virtual string InternalID => string.IsNullOrEmpty(ID) ? FileName : ID;
+
+    /// <summary>
+    ///   Gets or sets a value indicating whether this instance is enabled.
+    /// </summary>
+    /// <value><c>true</c> if this file is enabled; otherwise, <c>false</c>.</value>
+    [XmlAttribute]
+    [DefaultValue(true)]
+    public virtual bool IsEnabled
+    {
+      get => m_IsEnabled;
+
+      set
+      {
+        if (m_IsEnabled.Equals(value))
+          return;
+        m_IsEnabled = value;
+        NotifyPropertyChanged(nameof(IsEnabled));
+      }
+    }
+
+    /// <summary>
+    ///   Gets or sets the field mapping.
+    /// </summary>
+    /// <value>The field mapping.</value>
+    [XmlElement("Mapping")]
+    public MappingCollection MappingCollection { get; } = new MappingCollection();
+
+    /// <summary>
+    ///   Gets or sets the ID.
+    /// </summary>
+    /// <value>The ID.</value>
+    [XmlAttribute("NumErrors")]
+    [DefaultValue(-1)]
+    public virtual int EvidenceNumberOrIssues
+    {
+      get
+      {
+        if (m_EvidenceNumberOrIssues == -1 && Errors.Count > 0)
+          m_EvidenceNumberOrIssues = Errors.Count;
+        return m_EvidenceNumberOrIssues;
+      }
+
+      set
+      {
+        // can not be smaller than the number of named errors
+        if (Errors.Count > 0 && value < Errors.Count)
+          value = Errors.Count;
+        if (m_EvidenceNumberOrIssues == value)
+          return;
+        m_EvidenceNumberOrIssues = value;
+        NotifyPropertyChanged(nameof(EvidenceNumberOrIssues));
+      }
+    }
+
+    /// <summary>
+    ///   Gets or sets the ID.
+    /// </summary>
+    /// <value>The ID.</value>
+    [XmlAttribute]
+    [DefaultValue(0)]
+    public virtual long NumRecords
+    {
+      get => m_NumRecords;
+
+      set
+      {
+        if (m_NumRecords == value)
+          return;
+        m_NumRecords = value;
+        NotifyPropertyChanged(nameof(NumRecords));
+      }
+    }
+
+    /// <summary>
+    ///   Gets or sets the ID.
+    /// </summary>
+    /// <value>The ID.</value>
+    [XmlAttribute]
+    [DefaultValue(0)]
+    public virtual long WarningCount
+    {
+      get => m_WarningCount;
+
+      set
+      {
+        if (m_WarningCount == value)
+          return;
+        m_WarningCount = value;
+        NotifyPropertyChanged(nameof(WarningCount));
+      }
+    }
+
+    /// <summary>
+    ///   Gets or sets the ID.
+    /// </summary>
+    /// <value>The ID.</value>
+    [XmlAttribute]
+    [DefaultValue(0)]
+    public virtual long ErrorCount
+    {
+      get => m_ErrorCount;
+
+      set
+      {
+        if (m_ErrorCount == value)
+          return;
+        m_ErrorCount = value;
+        NotifyPropertyChanged(nameof(ErrorCount));
+      }
+    }
+
+    /// <summary>
+    ///   Passphrase for Decryption, will not be stored
+    /// </summary>
+    [XmlIgnore]
+    [DefaultValue("")]
+    public virtual string Passphrase
+    {
+      [NotNull] get => m_Passphrase;
+      [CanBeNull] set => m_Passphrase = (value ?? string.Empty).Trim();
+    }
+
+    /// <summary>
+    ///   Recipient for a outbound PGP encryption
+    /// </summary>
+    [XmlAttribute]
+    [DefaultValue("")]
+    public virtual string Recipient
+    {
+      [NotNull] get => m_Recipient;
+      [CanBeNull]
+      set
+      {
+        var newVal = (value ?? string.Empty).Trim();
+        if (m_Recipient.Equals(newVal, StringComparison.Ordinal))
+          return;
+        m_Recipient = newVal;
+        NotifyPropertyChanged(nameof(Recipient));
+      }
+    }
+
+    /// <summary>
+    ///   Gets or sets the record limit.
+    /// </summary>
+    /// <value>The record limit.</value>
+    [XmlElement]
+    [DefaultValue(0)]
+    public virtual long RecordLimit
+    {
+      get => m_RecordLimit;
+
+      set
+      {
+        if (m_RecordLimit.Equals(value))
+          return;
+        m_RecordLimit = value;
+        NotifyPropertyChanged(nameof(RecordLimit));
+      }
+    }
+
+    public ObservableCollection<SampleRecordEntry> Samples
+    {
+      [NotNull] get => m_Samples;
+      [CanBeNull]
+      set
+      {
+        var newVal = value ?? new ObservableCollection<SampleRecordEntry>();
+        if (m_Samples.CollectionEqualWithOrder(newVal))
+          return;
+        m_Samples = newVal;
+        NotifyPropertyChanged(nameof(Samples));
+      }
+    }
+
+    /// <summary>
+    ///   Gets or sets a value indicating whether to show progress.
+    /// </summary>
+    /// <value><c>true</c> if progress should be shown; otherwise, <c>false</c>.</value>
+    [XmlAttribute]
+    [DefaultValue(true)]
+    public virtual bool ShowProgress
+    {
+      get => m_ShowProgress;
+
+      set
+      {
+        if (m_ShowProgress.Equals(value))
+          return;
+        m_ShowProgress = value;
+        NotifyPropertyChanged(nameof(ShowProgress));
+      }
+    }
+
+    /// <summary>
+    ///   Gets or sets a value indicating if the reader will skip empty lines.
+    /// </summary>
+    /// <value>if <c>true</c> the reader will skip empty lines.</value>
+    [XmlAttribute]
+    [DefaultValue(true)]
+    public virtual bool SkipEmptyLines
+    {
+      get => m_SkipEmptyLines;
+
+      set
+      {
+        if (m_SkipEmptyLines.Equals(value))
+          return;
+        m_SkipEmptyLines = value;
+        NotifyPropertyChanged(nameof(SkipEmptyLines));
+      }
+    }
+
+    [XmlAttribute]
+    [DefaultValue(false)]
+    public virtual bool SkipDuplicateHeader
+    {
+      get => m_SkipDuplicateHeader;
+
+      set
+      {
+        if (m_SkipDuplicateHeader.Equals(value))
+          return;
+        m_SkipDuplicateHeader = value;
+        NotifyPropertyChanged(nameof(SkipDuplicateHeader));
+      }
+    }
+
+    /// <summary>
+    ///   Gets or sets the number of rows that should be skipped at the start of the file
+    /// </summary>
+    /// <value>The skip rows.</value>
+    [XmlAttribute]
+    [DefaultValue(0)]
+    public virtual int SkipRows
+    {
+      get => m_SkipRows;
+
+      set
+      {
+        if (m_SkipRows.Equals(value))
+          return;
+        m_SkipRows = value;
+        NotifyPropertyChanged(nameof(SkipRows));
+      }
+    }
+
+    /// <summary>
+    ///   Gets or sets the SQL statement.
+    /// </summary>
+    /// <value>The SQL statement.</value>
+    [XmlIgnore]
+    [DefaultValue("")]
+    public virtual string SqlStatement
+    {
+      get => m_SqlStatement;
+      [CanBeNull]
+      set
+      {
+        var newVal = value == null ? string.Empty : value.NoControlCharacters();
+        if (newVal.Equals(m_SqlStatement, StringComparison.Ordinal))
+          return;
+        m_SqlStatement = newVal;
+
+        LatestSourceTimeUtc = ZeroTime;
+        SourceFileSettings = null;
+        NotifyPropertyChanged(nameof(SqlStatement));
+      }
+    }
+
+    /// <summary>
+    ///   Gets or sets the Timeout of a call.
+    /// </summary>
+    /// <value>The timeout in seconds.</value>
+    [XmlAttribute]
+    [DefaultValue(90)]
+    public virtual int Timeout
+    {
+      get => m_Timeout;
+
+      set
+      {
+        var newVal = value > 0 ? value : 0;
+        if (m_Timeout.Equals(newVal))
+          return;
+        m_Timeout = newVal;
+        NotifyPropertyChanged(nameof(Timeout));
+      }
+    }
+
+    /// <summary>
+    ///   Gets or sets the template used for the file
+    /// </summary>
+    /// <value>The connection string.</value>
+    [XmlElement]
+    [DefaultValue("")]
+    public virtual string TemplateName
+    {
+      [NotNull] get => m_TemplateName;
+      [CanBeNull]
+      set
+      {
+        var newVal = value ?? string.Empty;
+        if (m_TemplateName.Equals(newVal, StringComparison.Ordinal))
+          return;
+        m_TemplateName = newVal;
+        NotifyPropertyChanged(nameof(TemplateName));
+      }
+    }
+
+    /// <summary>
+    ///   Gets or sets a value indicating whether to treat NBSP as space.
+    /// </summary>
+    /// <value><c>true</c> if NBSP should be treated as space; otherwise, <c>false</c>.</value>
+    [XmlAttribute]
+    [DefaultValue(false)]
+    public virtual bool TreatNBSPAsSpace
+    {
+      get => m_TreatNbspAsSpace;
+
+      set
+      {
+        if (m_TreatNbspAsSpace.Equals(value))
+          return;
+        m_TreatNbspAsSpace = value;
+        NotifyPropertyChanged(nameof(TreatNBSPAsSpace));
+      }
+    }
+
+    /// <summary>
+    ///   Gets or sets a value indicating whether this instance should treat any text listed here as Null
+    /// </summary>
+    [XmlAttribute]
+    [DefaultValue(cTreatTextAsNull)]
+    public virtual string TreatTextAsNull
+    {
+      [NotNull] get => m_TreatTextAsNull;
+      [CanBeNull]
+      set
+      {
+        var newVal = value ?? string.Empty;
+        if (m_TreatTextAsNull.Equals(newVal, StringComparison.Ordinal))
+          return;
+        m_TreatTextAsNull = newVal;
+        NotifyPropertyChanged(nameof(TreatTextAsNull));
+      }
+    }
+
+    /// <summary>
+    ///   Gets or sets a value indicating of and if training and leading spaces should be trimmed.
+    /// </summary>
+    /// <value><c>true</c> ; otherwise, <c>false</c>.</value>
+    [XmlAttribute]
+    [DefaultValue(TrimmingOption.Unquoted)]
+    public virtual TrimmingOption TrimmingOption
+    {
+      get => m_TrimmingOption;
+
+      set
+      {
+        if (m_TrimmingOption.Equals(value))
+          return;
+        m_TrimmingOption = value;
+        NotifyPropertyChanged(nameof(TrimmingOption));
+      }
+    }
+
+    /// <summary>
+    ///   Gets or sets a value indicating whether this instance is imported
+    /// </summary>
+    /// <remarks>
+    ///   Only used in CSV Validator to distinguish between imported files and extracts for
+    ///   reference checks
+    /// </remarks>
+    /// <value><c>true</c> if this file is imported; otherwise, <c>false</c>.</value>
+    [XmlAttribute(AttributeName = "IsImported")]
+    [DefaultValue(true)]
+    public virtual bool Validate
+    {
+      get => m_Validate;
+
+      set
+      {
+        if (m_Validate.Equals(value))
+          return;
+        m_Validate = value;
+        NotifyPropertyChanged(nameof(Validate));
+      }
+    }
 
     /// <summary>
     ///   Indicates whether the current object is equal to another object of the same type.
@@ -287,7 +1022,6 @@ namespace CsvTools
         return false;
 
       return string.Equals(other.TemplateName, TemplateName, StringComparison.OrdinalIgnoreCase) &&
-
              other.SkipRows == SkipRows &&
              other.IsEnabled == IsEnabled &&
              other.TreatNBSPAsSpace == TreatNBSPAsSpace &&
@@ -332,191 +1066,6 @@ namespace CsvTools
     public virtual event EventHandler<PropertyChangedEventArgs<string>> PropertyChangedString;
 
     /// <summary>
-    ///   Gets or sets the number consecutive empty rows that should finish a read
-    /// </summary>
-    /// <value>The consecutive empty rows.</value>
-    [XmlAttribute]
-    [DefaultValue(5)]
-    public virtual int ConsecutiveEmptyRows
-    {
-      get => m_ConsecutiveEmptyRows;
-      [NotifyPropertyChangedInvocator]
-      set
-      {
-        if (m_ConsecutiveEmptyRows.Equals(value))
-          return;
-        if (value < 0)
-          value = 0;
-        m_ConsecutiveEmptyRows = value;
-        NotifyPropertyChanged(nameof(ConsecutiveEmptyRows));
-      }
-    }
-
-    /// <summary>
-    ///   Gets or sets the options for a column
-    /// </summary>
-    /// <value>The column options</value>
-    [XmlElement("Format")]
-    public ColumnCollection ColumnCollection { get; } = new ColumnCollection();
-
-    /// <summary>
-    ///   Gets a value indicating whether column format specified.
-    /// </summary>
-    /// <value><c>true</c> if column format specified; otherwise, <c>false</c>.</value>
-    [XmlIgnore]
-    // ReSharper disable once UnusedMember.Global
-    public bool ColumnSpecified => ColumnCollection.Count > 0;
-
-    /// <summary>
-    ///   Gets or sets a value indicating whether to display end line numbers.
-    /// </summary>
-    /// <value><c>true</c> if end line no should be displayed; otherwise, <c>false</c>.</value>
-    [XmlElement]
-    [DefaultValue(false)]
-    public virtual bool DisplayEndLineNo
-    {
-      get => m_DisplayEndLineNo;
-      [NotifyPropertyChangedInvocator]
-      set
-      {
-        if (m_DisplayEndLineNo.Equals(value))
-          return;
-        m_DisplayEndLineNo = value;
-        NotifyPropertyChanged(nameof(DisplayEndLineNo));
-      }
-    }
-
-    /// <summary>
-    ///   Gets or sets a value indicating whether to display record no.
-    /// </summary>
-    /// <value><c>true</c> if record number should be displayed; otherwise, <c>false</c>.</value>
-    [XmlElement]
-    [DefaultValue(false)]
-    public virtual bool DisplayRecordNo
-    {
-      get => m_DisplayRecordNo;
-      [NotifyPropertyChangedInvocator]
-      set
-      {
-        if (m_DisplayRecordNo.Equals(value))
-          return;
-        m_DisplayRecordNo = value;
-        NotifyPropertyChanged(nameof(DisplayRecordNo));
-      }
-    }
-
-    /// <summary>
-    ///   Gets or sets a value indicating whether to display start line numbers
-    /// </summary>
-    /// <value><c>true</c> if start line no should be displayed; otherwise, <c>false</c>.</value>
-    [XmlElement]
-    [DefaultValue(true)]
-    public virtual bool DisplayStartLineNo
-    {
-      get => m_DisplayStartLineNo;
-      [NotifyPropertyChangedInvocator]
-      set
-      {
-        if (m_DisplayStartLineNo.Equals(value))
-          return;
-        m_DisplayStartLineNo = value;
-        NotifyPropertyChanged(nameof(DisplayStartLineNo));
-      }
-    }
-
-    [XmlElement]
-    [DefaultValue(false)]
-    public virtual bool SetLatestSourceTimeForWrite
-    {
-      get => m_SetLatestSourceTimeForWrite;
-      [NotifyPropertyChangedInvocator]
-      set
-      {
-        if (m_SetLatestSourceTimeForWrite.Equals(value))
-          return;
-        m_SetLatestSourceTimeForWrite = value;
-        NotifyPropertyChanged(nameof(SetLatestSourceTimeForWrite));
-      }
-    }
-
-    public ObservableCollection<SampleRecordEntry> Errors
-    {
-      [NotNull]
-      get => m_Errors;
-      [CanBeNull]
-      [NotifyPropertyChangedInvocator]
-      set
-      {
-        var newVal = value ?? new ObservableCollection<SampleRecordEntry>();
-        if (m_Errors.CollectionEqualWithOrder(newVal))
-          return;
-        m_Errors = newVal;
-        NotifyPropertyChanged(nameof(Errors));
-        if (m_EvidenceNumberOrIssues > 0 && Errors.Count > m_EvidenceNumberOrIssues)
-          EvidenceNumberOrIssues = Errors.Count;
-      }
-    }
-
-    /// <summary>
-    ///   Gets or sets the file format.
-    /// </summary>
-    /// <value>The file format.</value>
-    [XmlElement]
-    public virtual FileFormat FileFormat
-    {
-      [NotNull]
-      get => m_FileFormat;
-      [CanBeNull]
-      set => value?.CopyTo(m_FileFormat);
-    }
-
-    /// <summary>
-    ///   The UTC time the file was last written to, or when it was last read, this is different to
-    ///   <see cref="LatestSourceTimeUtc" />. Changes to this date should not be considered as
-    ///   changes to the configuration
-    /// </summary>
-    [XmlAttribute]
-    public virtual DateTime ProcessTimeUtc
-    {
-      get => m_ProcessTimeUtc;
-      [NotifyPropertyChangedInvocator]
-      set
-      {
-        if (m_ProcessTimeUtc.Equals(value))
-          return;
-        m_ProcessTimeUtc = value;
-        NotifyPropertyChanged(nameof(ProcessTimeUtc));
-      }
-    }
-
-    // ReSharper disable once UnusedMember.Global
-    [XmlIgnore] public bool ProcessTimeUtcSpecified => m_ProcessTimeUtc != ZeroTime;
-
-    /// <summary>
-    ///   The time of the source, either a file time, or in case the setting is dependent on
-    ///   multiple sources the time of the last source Changes to this date should not be considered
-    ///   as changes to the configuration
-    /// </summary>
-    [XmlIgnore]
-    public DateTime LatestSourceTimeUtc
-    {
-      get
-      {
-        if (m_LatestSourceTimeUtc == ZeroTime)
-          CalculateLatestSourceTime();
-        return m_LatestSourceTimeUtc;
-      }
-      [NotifyPropertyChangedInvocator]
-      set
-      {
-        if (m_LatestSourceTimeUtc == value)
-          return;
-        m_LatestSourceTimeUtc = value;
-        NotifyPropertyChanged(nameof(LatestSourceTimeUtc));
-      }
-    }
-
-    /// <summary>
     ///   As this might be a time consuming process, do this only if the time was not determined before
     /// </summary>
     /// <remarks>
@@ -533,7 +1082,9 @@ namespace CsvTools
       }
       else
         // in case the source is not a physical file, assume it's the processing time
+      {
         m_LatestSourceTimeUtc = ProcessTimeUtc;
+      }
     }
 
     [NotNull]
@@ -545,441 +1096,7 @@ namespace CsvTools
       return newVal;
     }
 
-    /// <summary>
-    ///   Gets or sets the name of the file.
-    /// </summary>
-    /// <value>The name of the file.</value>
-    [XmlAttribute]
-    [DefaultValue("")]
-    public virtual string FileName
-    {
-      [NotNull]
-      get => m_FileName;
-      [CanBeNull]
-      [NotifyPropertyChangedInvocator]
-      set
-      {
-        var newVal = FileNameFix(value);
-
-        if (m_FileName.Equals(newVal, StringComparison.Ordinal))
-          return;
-        var oldValue = m_FileName;
-        m_FileName = newVal;
-        m_FullPath = null;
-        NotifyPropertyChanged(nameof(FileName));
-        PropertyChangedString?.Invoke(this, new PropertyChangedEventArgs<string>(nameof(FileName), oldValue, newVal));
-      }
-    }
-
-    /// <summary>
-    ///   Gets or sets the date the file when it was read
-    /// </summary>
-    /// <value>The consecutive empty rows.</value>
-    [XmlAttribute]
-    [DefaultValue(0)]
-    public virtual long FileSize
-    {
-      get => m_FileSize;
-      [NotifyPropertyChangedInvocator]
-      set
-      {
-        if (value == m_FileSize)
-          return;
-        m_FileSize = value;
-        NotifyPropertyChanged(nameof(FileSize));
-      }
-    }
-
-    /// <summary>
-    ///   Gets or sets the Footer.
-    /// </summary>
-    /// <value>The Footer for outbound data.</value>
-    [DefaultValue("")]
-    public virtual string Footer
-    {
-      [NotNull]
-      get => m_Footer;
-      [CanBeNull]
-      [NotifyPropertyChangedInvocator]
-      set
-      {
-        var newVal = StringUtils.HandleCRLFCombinations(value ?? string.Empty, Environment.NewLine);
-        if (m_Footer.Equals(newVal, StringComparison.Ordinal))
-          return;
-        m_Footer = newVal;
-        NotifyPropertyChanged(nameof(Footer));
-      }
-    }
-
     public void ResetFullPath() => m_FullPathInitialized = false;
-
-    [XmlIgnore]
-    [NotNull]
-    public virtual string FullPath
-    {
-      get
-      {
-        if (m_FullPathInitialized) return m_FullPath ?? m_FileName;
-        m_FullPath = FileSystemUtils.ResolvePattern(m_FileName.GetAbsolutePath(ApplicationSetting.RootFolder));
-        if (m_FullPath == null)
-          m_FullPath = string.Empty;
-        else
-          m_FullPathInitialized = true;
-        return m_FullPath;
-      }
-    }
-
-    /// <summary>
-    ///   As the data is loaded and not further validation is done this will be set to true Once
-    ///   validation is happening and validation errors are stored this is false again. This is
-    ///   stored on FileSetting level even as it actually is used for determine th freshness of a
-    ///   loaded data in the validator, but there is not suitable data structure
-    /// </summary>
-    [XmlIgnore]
-    [DefaultValue(false)]
-    public virtual bool RecentlyLoaded { get; set; }
-
-    /// <summary>
-    ///   Gets or sets a value indicating whether this instance has field header.
-    /// </summary>
-    /// <value><c>true</c> if this instance has field header; otherwise, <c>false</c>.</value>
-    [XmlAttribute]
-    [DefaultValue(true)]
-    public virtual bool HasFieldHeader
-    {
-      get => m_HasFieldHeader;
-      [NotifyPropertyChangedInvocator]
-      set
-      {
-        if (m_HasFieldHeader.Equals(value))
-          return;
-        m_HasFieldHeader = value;
-        NotifyPropertyChanged(nameof(HasFieldHeader));
-      }
-    }
-
-    /// <summary>
-    ///   Gets or sets the Footer.
-    /// </summary>
-    /// <value>The Footer for outbound data.</value>
-    [DefaultValue("")]
-    public virtual string Header
-    {
-      [NotNull]
-      get => m_Header;
-      [CanBeNull]
-      [NotifyPropertyChangedInvocator]
-      set
-      {
-        var newVal = StringUtils.HandleCRLFCombinations(value ?? string.Empty, Environment.NewLine);
-        if (m_Header.Equals(newVal, StringComparison.Ordinal))
-          return;
-        m_Header = newVal;
-        NotifyPropertyChanged(nameof(Header));
-      }
-    }
-
-    /// <summary>
-    ///   Gets or sets the ID.
-    /// </summary>
-    /// <value>The ID.</value>
-    [XmlAttribute]
-    [DefaultValue("")]
-    public virtual string ID
-    {
-      [NotNull]
-      get => m_Id;
-      [CanBeNull]
-      [NotifyPropertyChangedInvocator]
-      set
-      {
-        var newVal = value ?? string.Empty;
-        if (m_Id.Equals(newVal, StringComparison.Ordinal))
-          return;
-
-        var oldValue = m_Id;
-        m_Id = newVal;
-        NotifyPropertyChanged(nameof(ID));
-        PropertyChangedString?.Invoke(this, new PropertyChangedEventArgs<string>(nameof(ID), oldValue, newVal));
-      }
-    }
-
-    /// <summary>
-    ///   Gets or sets a value indicating whether this instance is critical.
-    /// </summary>
-    /// <value><c>true</c> if this file is critical for the export; otherwise, <c>false</c>.</value>
-    [XmlAttribute(AttributeName = "IsCritical")]
-    [DefaultValue(false)]
-    public virtual bool InOverview
-    {
-      get => m_InOverview;
-      [NotifyPropertyChangedInvocator]
-      set
-      {
-        if (m_InOverview.Equals(value))
-          return;
-        m_InOverview = value;
-        NotifyPropertyChanged(nameof(InOverview));
-      }
-    }
-
-    /// <summary>
-    ///   The identified to find this specific instance
-    /// </summary>
-    [XmlIgnore]
-    [NotNull]
-    public virtual string InternalID => string.IsNullOrEmpty(ID) ? FileName : ID;
-
-    /// <summary>
-    ///   Gets or sets a value indicating whether this instance is enabled.
-    /// </summary>
-    /// <value><c>true</c> if this file is enabled; otherwise, <c>false</c>.</value>
-    [XmlAttribute]
-    [DefaultValue(true)]
-    public virtual bool IsEnabled
-    {
-      get => m_IsEnabled;
-      [NotifyPropertyChangedInvocator]
-      set
-      {
-        if (m_IsEnabled.Equals(value))
-          return;
-        m_IsEnabled = value;
-        NotifyPropertyChanged(nameof(IsEnabled));
-      }
-    }
-
-    /// <summary>
-    ///   Gets or sets the field mapping.
-    /// </summary>
-    /// <value>The field mapping.</value>
-    [XmlElement("Mapping")]
-    public MappingCollection MappingCollection { get; } = new MappingCollection();
-
-    /// <summary>
-    ///   Gets or sets the ID.
-    /// </summary>
-    /// <value>The ID.</value>
-    [XmlAttribute("NumErrors")]
-    [DefaultValue(-1)]
-    public virtual int EvidenceNumberOrIssues
-    {
-      get
-      {
-        if (m_EvidenceNumberOrIssues == -1 && Errors.Count > 0)
-          m_EvidenceNumberOrIssues = Errors.Count;
-        return m_EvidenceNumberOrIssues;
-      }
-      [NotifyPropertyChangedInvocator]
-      set
-      {
-        // can not be smaller than the number of named errors
-        if (Errors.Count > 0 && value < Errors.Count)
-          value = Errors.Count;
-        if (m_EvidenceNumberOrIssues == value)
-          return;
-        m_EvidenceNumberOrIssues = value;
-        NotifyPropertyChanged(nameof(EvidenceNumberOrIssues));
-      }
-    }
-
-    /// <summary>
-    ///   Gets or sets the ID.
-    /// </summary>
-    /// <value>The ID.</value>
-    [XmlAttribute]
-    [DefaultValue(0)]
-    public virtual long NumRecords
-    {
-      get => m_NumRecords;
-      [NotifyPropertyChangedInvocator]
-      set
-      {
-        if (m_NumRecords == value)
-          return;
-        m_NumRecords = value;
-        NotifyPropertyChanged(nameof(NumRecords));
-      }
-    }
-
-    /// <summary>
-    ///   Gets or sets the ID.
-    /// </summary>
-    /// <value>The ID.</value>
-    [XmlAttribute]
-    [DefaultValue(0)]
-    public virtual long WarningCount
-    {
-      get => m_WarningCount;
-      [NotifyPropertyChangedInvocator]
-      set
-      {
-        if (m_WarningCount == value)
-          return;
-        m_WarningCount = value;
-        NotifyPropertyChanged(nameof(WarningCount));
-      }
-    }
-
-    /// <summary>
-    ///   Gets or sets the ID.
-    /// </summary>
-    /// <value>The ID.</value>
-    [XmlAttribute]
-    [DefaultValue(0)]
-    public virtual long ErrorCount
-    {
-      get => m_ErrorCount;
-      [NotifyPropertyChangedInvocator]
-      set
-      {
-        if (m_ErrorCount == value)
-          return;
-        m_ErrorCount = value;
-        NotifyPropertyChanged(nameof(ErrorCount));
-      }
-    }
-
-    /// <summary>
-    ///   Passphrase for Decryption, will not be stored
-    /// </summary>
-    [XmlIgnore]
-    [DefaultValue("")]
-    public virtual string Passphrase
-    {
-      [NotNull]
-      get => m_Passphrase;
-      [CanBeNull]
-      set => m_Passphrase = (value ?? string.Empty).Trim();
-    }
-
-    /// <summary>
-    ///   Recipient for a outbound PGP encryption
-    /// </summary>
-    [XmlAttribute]
-    [DefaultValue("")]
-    public virtual string Recipient
-    {
-      [NotNull]
-      get => m_Recipient;
-      [CanBeNull]
-      [NotifyPropertyChangedInvocator]
-      set
-      {
-        var newVal = (value ?? string.Empty).Trim();
-        if (m_Recipient.Equals(newVal, StringComparison.Ordinal))
-          return;
-        m_Recipient = newVal;
-        NotifyPropertyChanged(nameof(Recipient));
-      }
-    }
-
-    /// <summary>
-    ///   Gets or sets the record limit.
-    /// </summary>
-    /// <value>The record limit.</value>
-    [XmlElement]
-    [DefaultValue(0)]
-    public virtual long RecordLimit
-    {
-      get => m_RecordLimit;
-
-      set
-      {
-        if (m_RecordLimit.Equals(value))
-          return;
-        m_RecordLimit = value;
-        NotifyPropertyChanged(nameof(RecordLimit));
-      }
-    }
-
-    public ObservableCollection<SampleRecordEntry> Samples
-    {
-      [NotNull]
-      get => m_Samples;
-      [CanBeNull]
-      [NotifyPropertyChangedInvocator]
-      set
-      {
-        var newVal = value ?? new ObservableCollection<SampleRecordEntry>();
-        if (m_Samples.CollectionEqualWithOrder(newVal))
-          return;
-        m_Samples = newVal;
-        NotifyPropertyChanged(nameof(Samples));
-      }
-    }
-
-    /// <summary>
-    ///   Gets or sets a value indicating whether to show progress.
-    /// </summary>
-    /// <value><c>true</c> if progress should be shown; otherwise, <c>false</c>.</value>
-    [XmlAttribute]
-    [DefaultValue(true)]
-    public virtual bool ShowProgress
-    {
-      get => m_ShowProgress;
-      [NotifyPropertyChangedInvocator]
-      set
-      {
-        if (m_ShowProgress.Equals(value))
-          return;
-        m_ShowProgress = value;
-        NotifyPropertyChanged(nameof(ShowProgress));
-      }
-    }
-
-    /// <summary>
-    ///   Gets or sets a value indicating if the reader will skip empty lines.
-    /// </summary>
-    /// <value>if <c>true</c> the reader will skip empty lines.</value>
-    [XmlAttribute]
-    [DefaultValue(true)]
-    public virtual bool SkipEmptyLines
-    {
-      get => m_SkipEmptyLines;
-      [NotifyPropertyChangedInvocator]
-      set
-      {
-        if (m_SkipEmptyLines.Equals(value))
-          return;
-        m_SkipEmptyLines = value;
-        NotifyPropertyChanged(nameof(SkipEmptyLines));
-      }
-    }
-
-    [XmlAttribute]
-    [DefaultValue(false)]
-    public virtual bool SkipDuplicateHeader
-    {
-      get => m_SkipDuplicateHeader;
-      [NotifyPropertyChangedInvocator]
-      set
-      {
-        if (m_SkipDuplicateHeader.Equals(value))
-          return;
-        m_SkipDuplicateHeader = value;
-        NotifyPropertyChanged(nameof(SkipDuplicateHeader));
-      }
-    }
-
-    /// <summary>
-    ///   Gets or sets the number of rows that should be skipped at the start of the file
-    /// </summary>
-    /// <value>The skip rows.</value>
-    [XmlAttribute]
-    [DefaultValue(0)]
-    public virtual int SkipRows
-    {
-      get => m_SkipRows;
-      [NotifyPropertyChangedInvocator]
-      set
-      {
-        if (m_SkipRows.Equals(value))
-          return;
-        m_SkipRows = value;
-        NotifyPropertyChanged(nameof(SkipRows));
-      }
-    }
 
     /// <summary>
     ///   Sets the SQL statement rename.
@@ -992,154 +1109,6 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets or sets the SQL statement.
-    /// </summary>
-    /// <value>The SQL statement.</value>
-    [XmlIgnore]
-    [DefaultValue("")]
-    public virtual string SqlStatement
-    {
-      get => m_SqlStatement;
-      [CanBeNull]
-      [NotifyPropertyChangedInvocator]
-      set
-      {
-        var newVal = value==null ? string.Empty : value.NoControlCharacters();
-        if (newVal.Equals(m_SqlStatement, StringComparison.Ordinal))
-          return;
-        m_SqlStatement = newVal;
-
-        LatestSourceTimeUtc = ZeroTime;
-        SourceFileSettings = null;
-        NotifyPropertyChanged(nameof(SqlStatement));
-      }
-    }
-
-    /// <summary>
-    ///   Gets or sets the Timeout of a call.
-    /// </summary>
-    /// <value>The timeout in seconds.</value>
-    [XmlAttribute]
-    [DefaultValue(90)]
-    public virtual int Timeout
-    {
-      get => m_Timeout;
-      [NotifyPropertyChangedInvocator]
-      set
-      {
-        var newVal = value > 0 ? value : 0;
-        if (m_Timeout.Equals(newVal))
-          return;
-        m_Timeout = newVal;
-        NotifyPropertyChanged(nameof(Timeout));
-      }
-    }
-
-    /// <summary>
-    ///   Gets or sets the template used for the file
-    /// </summary>
-    /// <value>The connection string.</value>
-    [XmlElement]
-    [DefaultValue("")]
-    public virtual string TemplateName
-    {
-      [NotNull]
-      get => m_TemplateName;
-      [CanBeNull]
-      [NotifyPropertyChangedInvocator]
-      set
-      {
-        var newVal = value ?? string.Empty;
-        if (m_TemplateName.Equals(newVal, StringComparison.Ordinal))
-          return;
-        m_TemplateName = newVal;
-        NotifyPropertyChanged(nameof(TemplateName));
-      }
-    }
-
-    /// <summary>
-    ///   Gets or sets a value indicating whether to treat NBSP as space.
-    /// </summary>
-    /// <value><c>true</c> if NBSP should be treated as space; otherwise, <c>false</c>.</value>
-    [XmlAttribute]
-    [DefaultValue(false)]
-    public virtual bool TreatNBSPAsSpace
-    {
-      get => m_TreatNbspAsSpace;
-      [NotifyPropertyChangedInvocator]
-      set
-      {
-        if (m_TreatNbspAsSpace.Equals(value))
-          return;
-        m_TreatNbspAsSpace = value;
-        NotifyPropertyChanged(nameof(TreatNBSPAsSpace));
-      }
-    }
-
-    /// <summary>
-    ///   Gets or sets a value indicating whether this instance should treat any text listed here as Null
-    /// </summary>
-    [XmlAttribute]
-    [DefaultValue(cTreatTextAsNull)]
-    public virtual string TreatTextAsNull
-    {
-      [NotNull]
-      get => m_TreatTextAsNull;
-      [CanBeNull]
-      [NotifyPropertyChangedInvocator]
-      set
-      {
-        var newVal = value ?? string.Empty;
-        if (m_TreatTextAsNull.Equals(newVal, StringComparison.Ordinal))
-          return;
-        m_TreatTextAsNull = newVal;
-        NotifyPropertyChanged(nameof(TreatTextAsNull));
-      }
-    }
-
-    /// <summary>
-    ///   Gets or sets a value indicating of and if training and leading spaces should be trimmed.
-    /// </summary>
-    /// <value><c>true</c> ; otherwise, <c>false</c>.</value>
-    [XmlAttribute]
-    [DefaultValue(TrimmingOption.Unquoted)]
-    public virtual TrimmingOption TrimmingOption
-    {
-      get => m_TrimmingOption;
-      [NotifyPropertyChangedInvocator]
-      set
-      {
-        if (m_TrimmingOption.Equals(value))
-          return;
-        m_TrimmingOption = value;
-        NotifyPropertyChanged(nameof(TrimmingOption));
-      }
-    }
-
-    /// <summary>
-    ///   Gets or sets a value indicating whether this instance is imported
-    /// </summary>
-    /// <remarks>
-    ///   Only used in CSV Validator to distinguish between imported files and extracts for
-    ///   reference checks
-    /// </remarks>
-    /// <value><c>true</c> if this file is imported; otherwise, <c>false</c>.</value>
-    [XmlAttribute(AttributeName = "IsImported")]
-    [DefaultValue(true)]
-    public virtual bool Validate
-    {
-      get => m_Validate;
-      [NotifyPropertyChangedInvocator]
-      set
-      {
-        if (m_Validate.Equals(value))
-          return;
-        m_Validate = value;
-        NotifyPropertyChanged(nameof(Validate));
-      }
-    }
-
-    /// <summary>
     ///   Copies all values to other instance
     /// </summary>
     /// <param name="other">The other.</param>
@@ -1147,114 +1116,65 @@ namespace CsvTools
     {
       if (other == null)
         return;
-      m_FileFormat.CopyTo(other.FileFormat);
+      FileFormat.CopyTo(other.FileFormat);
       MappingCollection.CopyTo(other.MappingCollection);
-      other.ConsecutiveEmptyRows = m_ConsecutiveEmptyRows;
-      other.TrimmingOption = m_TrimmingOption;
-      other.TemplateName = m_TemplateName;
-      other.IsEnabled = m_IsEnabled;
-      other.DisplayStartLineNo = m_DisplayStartLineNo;
-      other.SetLatestSourceTimeForWrite = m_SetLatestSourceTimeForWrite;
-      other.DisplayEndLineNo = m_DisplayEndLineNo;
-      other.DisplayRecordNo = m_DisplayRecordNo;
-      other.HasFieldHeader = m_HasFieldHeader;
+      other.ConsecutiveEmptyRows = ConsecutiveEmptyRows;
+      other.TrimmingOption = TrimmingOption;
+      other.TemplateName = TemplateName;
       other.IsEnabled = IsEnabled;
-      other.ShowProgress = m_ShowProgress;
-      other.TreatTextAsNull = m_TreatTextAsNull;
-      other.Validate = m_Validate;
-      other.RecordLimit = m_RecordLimit;
-      other.SkipRows = m_SkipRows;
-      other.SkipEmptyLines = m_SkipEmptyLines;
-      other.SkipDuplicateHeader = m_SkipDuplicateHeader;
+      other.DisplayStartLineNo = DisplayStartLineNo;
+      other.SetLatestSourceTimeForWrite = SetLatestSourceTimeForWrite;
+      other.DisplayEndLineNo = DisplayEndLineNo;
+      other.DisplayRecordNo = DisplayRecordNo;
+      other.HasFieldHeader = HasFieldHeader;
+      other.IsEnabled = IsEnabled;
+      other.ShowProgress = ShowProgress;
+      other.TreatTextAsNull = TreatTextAsNull;
+      other.Validate = Validate;
+      other.RecordLimit = RecordLimit;
+      other.SkipRows = SkipRows;
+      other.SkipEmptyLines = SkipEmptyLines;
+      other.SkipDuplicateHeader = SkipDuplicateHeader;
 
-      other.Passphrase = m_Passphrase;
-      other.Recipient = m_Recipient;
-      other.TreatNBSPAsSpace = m_TreatNbspAsSpace;
+      other.Passphrase = Passphrase;
+      other.Recipient = Recipient;
+      other.TreatNBSPAsSpace = TreatNBSPAsSpace;
       ColumnCollection.CopyTo(other.ColumnCollection);
-      other.SqlStatement = m_SqlStatement;
-      other.InOverview = m_InOverview;
-      other.Timeout = m_Timeout;
-      other.ProcessTimeUtc = m_ProcessTimeUtc;
-      other.LatestSourceTimeUtc = m_LatestSourceTimeUtc;
+      other.SqlStatement = SqlStatement;
+      other.InOverview = InOverview;
+      other.Timeout = Timeout;
+      other.ProcessTimeUtc = ProcessTimeUtc;
+      other.LatestSourceTimeUtc = LatestSourceTimeUtc;
 
-      other.Footer = m_Footer;
-      other.Header = m_Header;
-      m_Samples.CollectionCopy(other.Samples);
+      other.Footer = Footer;
+      other.Header = Header;
+      Samples.CollectionCopy(other.Samples);
 
-      other.EvidenceNumberOrIssues = m_EvidenceNumberOrIssues;
-      m_Errors.CollectionCopy(other.Errors);
+      other.EvidenceNumberOrIssues = EvidenceNumberOrIssues;
+      Errors.CollectionCopy(other.Errors);
 
       // FileName and ID are set at the end otherwise column collection changes will invalidate the
       // column header cache of the source
       if (other is IFileSettingPhysicalFile fileSettingPhysicalFile)
       {
-        fileSettingPhysicalFile.FileSize = m_FileSize;
-        fileSettingPhysicalFile.FileName = m_FileName;
-        fileSettingPhysicalFile.RemoteFileName = m_RemoteFileName;
-        fileSettingPhysicalFile.ThrowErrorIfNotExists = m_ThrowErrorIfNotExists;
+        fileSettingPhysicalFile.FileSize = FileSize;
+        fileSettingPhysicalFile.FileName = FileName;
+        fileSettingPhysicalFile.RemoteFileName = RemoteFileName;
+        fileSettingPhysicalFile.ThrowErrorIfNotExists = ThrowErrorIfNotExists;
       }
-      other.ID = m_Id;
-      other.NumRecords = m_NumRecords;
-      other.WarningCount = m_WarningCount;
-      other.ErrorCount = m_ErrorCount;
-    }
 
-    /*
-    /// <summary>
-    ///   Serves as the default hash function.
-    /// </summary>
-    /// <returns>A hash code for the current object.</returns>
-    protected virtual int GetBaseHashCode()
-    {
-      unchecked
-      {
-        var hashCode = m_ConsecutiveEmptyRows;
-        hashCode = (hashCode * 397) ^ ColumnCollection.CollectionHashCode();
-        hashCode = (hashCode * 397) ^ MappingCollection.CollectionHashCode();
-        hashCode = (hashCode * 397) ^ m_FileFormat.GetHashCode();
-        hashCode = (hashCode * 397) ^ m_DisplayEndLineNo.GetHashCode();
-        hashCode = (hashCode * 397) ^ m_DisplayRecordNo.GetHashCode();
-        hashCode = (hashCode * 397) ^ m_SetLatestSourceTimeForWrite.GetHashCode();
-        hashCode = (hashCode * 397) ^ m_DisplayStartLineNo.GetHashCode();
-        hashCode = (hashCode * 397) ^ m_ProcessTimeUtc.GetHashCode();
-        hashCode = (hashCode * 397) ^ m_LatestSourceTimeUtc.GetHashCode();
-        hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(m_FileName);
-        hashCode = (hashCode * 397) ^ m_FileSize.GetHashCode();
-        hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(m_Footer);
-        hashCode = (hashCode * 397) ^ m_HasFieldHeader.GetHashCode();
-        hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(m_Header);
-        hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(m_Id);
-        hashCode = (hashCode * 397) ^ m_InOverview.GetHashCode();
-        hashCode = (hashCode * 397) ^ m_IsEnabled.GetHashCode();
-        hashCode = (hashCode * 397) ^ m_NumErrors;
-        hashCode = (hashCode * 397) ^ m_Passphrase.GetHashCode();
-        hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(m_Recipient);
-        hashCode = (hashCode * 397) ^ (int)m_RecordLimit;
-        hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(m_RemoteFileName);
-        hashCode = (hashCode * 397) ^ m_ShowProgress.GetHashCode();
-        hashCode = (hashCode * 397) ^ m_SkipRows;
-        hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(m_SqlStatement);
-        hashCode = (hashCode * 397) ^ m_SqlTimeout;
-        hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(m_TemplateName);
-        hashCode = (hashCode * 397) ^ m_TreatNbspAsSpace.GetHashCode();
-        hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(m_TreatTextAsNull);
-        hashCode = (hashCode * 397) ^ m_Validate.GetHashCode();
-        hashCode = (hashCode * 397) ^ (m_ValidationResult?.GetHashCode() ?? 0);
-        hashCode = (hashCode * 397) ^ m_Errors.CollectionHashCode();
-        hashCode = (hashCode * 397) ^ ReadToEndOfFile.GetHashCode();
-        hashCode = (hashCode * 397) ^ m_Samples.CollectionHashCode();
-        hashCode = (hashCode * 397) ^ m_SkipEmptyLines.GetHashCode();
-        hashCode = (hashCode * 397) ^ (int)m_TrimmingOption;
-        return hashCode;
-      }
+      other.ID = ID;
+      other.NumRecords = NumRecords;
+      other.WarningCount = WarningCount;
+      other.ErrorCount = ErrorCount;
     }
-      */
 
     /// <summary>
     ///   Notifies the completed property changed.
     /// </summary>
     /// <param name="info">The info.</param>
-    protected void NotifyPropertyChanged(string info)
+    [NotifyPropertyChangedInvocator]
+    protected void NotifyPropertyChanged([NotNull] string info)
     {
       if (PropertyChanged == null)
         return;
@@ -1270,7 +1190,7 @@ namespace CsvTools
 
     public override string ToString()
     {
-      var stringBuilder = new System.Text.StringBuilder();
+      var stringBuilder = new StringBuilder();
       stringBuilder.Append(GetType().Name);
       if (!string.IsNullOrEmpty(ID))
         stringBuilder.Append(" ");

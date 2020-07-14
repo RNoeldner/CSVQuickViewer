@@ -76,7 +76,7 @@ namespace CsvTools
       return stringBuilder.ToString();
     }
 
-    public static Column ToMutable(this IColumn other) => new Column(other.Name, new ValueFormat
+    public static Column ToMutable(this IColumn other) => new Column(other.Name, new ValueFormatMutable
     {
       DataType = other.ValueFormat.DataType,
       DateFormat = other.ValueFormat.DateFormat,
