@@ -19,7 +19,7 @@ namespace CsvTools
   using System.Windows.Forms;
 
   /// <summary>
-  ///   Only the most recently created  Logger Display will get the log messages
+  ///   Only the most recently created Logger Display will get the log messages
   /// </summary>
   public class LoggerDisplay : RichTextBox
   {
@@ -84,7 +84,6 @@ namespace CsvTools
       {
         Logger.AddLog = m_PreviousLog;
         base.Dispose(disposing);
-        GC.SuppressFinalize(this);
       }
       catch (Exception e)
       {

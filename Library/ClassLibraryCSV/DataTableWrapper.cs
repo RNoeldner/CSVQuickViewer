@@ -33,6 +33,7 @@ namespace CsvTools
 
     // ReSharper disable once NotNullMemberIsNotInitialized
     public DataTableWrapper([NotNull] DataTable dt) => DataTable = dt ?? throw new ArgumentNullException(nameof(dt));
+
     [NotNull] public DataTable DataTable { get; }
 
     public override bool HasRows => m_DbDataReader.HasRows;
@@ -147,13 +148,17 @@ namespace CsvTools
     }
 
     public event EventHandler<WarningEventArgs> Warning;
+
     public Func<Task> OnOpen { get; set; }
+
     public event EventHandler ReadFinished;
+
     public event EventHandler<ICollection<IColumn>> OpenFinished;
+
     public event EventHandler<RetryEventArgs> OnAskRetry;
 
-
 #pragma warning disable 1998
+
     public async Task ResetPositionToFirstDataRowAsync(CancellationToken token)
 #pragma warning restore 1998
     {
@@ -165,13 +170,17 @@ namespace CsvTools
 
     public override IEnumerator GetEnumerator() => m_DbDataReader.GetEnumerator();
 
+    private bool m_DisposedValue;
+
     protected override void Dispose(bool disposing)
     {
+      if (m_DisposedValue) return;
       if (disposing)
       {
+        m_DisposedValue =true;
         DataTable.Dispose();
-        GC.SuppressFinalize(this);
       }
+      base.Dispose(disposing);
     }
   }
 }
