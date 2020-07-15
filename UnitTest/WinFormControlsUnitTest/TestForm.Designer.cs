@@ -1,4 +1,6 @@
-﻿namespace CsvTools.Tests
+﻿using System;
+
+namespace CsvTools.Tests
 {
   partial class TestForm
   {
@@ -18,6 +20,7 @@
         components.Dispose();
       }
       base.Dispose(disposing);
+      GC.SuppressFinalize(this);
     }
 
     #region Windows Form Designer generated code

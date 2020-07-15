@@ -15,8 +15,9 @@ namespace CsvTools.Tests
       sw.Start();
       while (sw.Elapsed.TotalSeconds < seconds)
       {
+        Application.DoEvents();
         FunctionalDI.SignalBackground?.Invoke();
-        Thread.Sleep(50);
+        Thread.Sleep(10);
       }
     }
 

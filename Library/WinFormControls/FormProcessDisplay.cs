@@ -384,8 +384,8 @@ namespace CsvTools
         if (!CancellationTokenSource.IsCancellationRequested)
           CancellationTokenSource.Cancel();
         CancellationTokenSource.Dispose();
-        base.Dispose(disposing);
         m_LoggerDisplay?.Dispose();
+        GC.SuppressFinalize(this);
       }
       catch (Exception)
       {
