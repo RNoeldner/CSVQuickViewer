@@ -378,15 +378,23 @@ namespace CsvTools
     protected override void Dispose(bool disposing)
     {
       if (m_DisposedValue) return;
-      if (disposing)
+
+      try
       {
-        m_DisposedValue = true;
-        if (!CancellationTokenSource.IsCancellationRequested)
-          CancellationTokenSource.Cancel();
-        CancellationTokenSource.Dispose();
-        m_LoggerDisplay?.Dispose();
+        if (disposing)
+        {
+          m_DisposedValue = true;
+          if (!CancellationTokenSource.IsCancellationRequested)
+            CancellationTokenSource.Cancel();
+          CancellationTokenSource.Dispose();
+          m_LoggerDisplay?.Dispose();
+        }
+        base.Dispose(disposing);
       }
-      base.Dispose(disposing);
+      catch
+      {
+        //Ignore
+      }
     }
 
     #endregion IDisposable Support

@@ -120,14 +120,6 @@ namespace CsvTools.Tests
     [TestMethod]
     public void SafePath() => Assert.AreEqual("Test$Files\\Basic$CSV.txt", FileSystemUtils.SafePath("Test|Files\\Basic<CSV.txt", "$"));
 
-    [TestMethod]
-    public void GetFiles()
-    {
-      var root = FileSystemUtils.ExecutableDirectoryName();
-      var res = FileSystemUtils.GetFiles(root, "*.dll");
-      Assert.IsTrue(res.Any(x => x == root + "\\ClassLibraryCSV.dll"));
-      Assert.IsTrue(res.Any(x => x == root + "\\ClassLibraryCSVUnitTest.dll"));
-    }
 
     [TestMethod]
     public void GetLatestFileOfPattern()
