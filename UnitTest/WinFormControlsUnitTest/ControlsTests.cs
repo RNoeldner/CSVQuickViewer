@@ -24,9 +24,6 @@ namespace CsvTools.Tests
   [TestClass]
   public class ControlsTests
   {
-    [ClassInitialize]
-    public static async Task ClassInitialize(TestContext testContext) => await UnitTestInitialize.SetDBHelper();
-
     [TestMethod]
     public void TimeZoneSelector()
     {
@@ -236,10 +233,10 @@ namespace CsvTools.Tests
       {
         frm.AddOneControl(ctrl);
         frm.Show();
-        await ctrl.SetCsvFile(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"), '"', '\t','\0', 65001);
+        await ctrl.SetCsvFile(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"), '"', '\t', '\0', 65001);
 
         Extensions.ProcessUIElements(500);
-        frm.SafeInvoke(()=> frm.Close());
+        frm.SafeInvoke(() => frm.Close());
       }
     }
 

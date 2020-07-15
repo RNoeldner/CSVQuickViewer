@@ -9,7 +9,7 @@ namespace CsvTools.Tests
     [AssemblyInitialize]
     public static void AssemblyInitialize(TestContext context)
     {
-      UnitTestInitialize.AssemblyInitialize(context);
+      UnitTestInitializeCsv.AssemblyInitialize(context);
       FunctionalDI.SignalBackground = Application.DoEvents;
     }
   }

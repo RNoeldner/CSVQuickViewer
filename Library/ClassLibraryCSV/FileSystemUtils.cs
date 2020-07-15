@@ -195,32 +195,16 @@ namespace CsvTools
       return lastIndex > 0 ? fileOrDirectory.Substring(0, lastIndex).RemovePrefix() : null;
     }
 
-    [NotNull]
-    public static string[] GetFiles([NotNull] string folder, [NotNull] string searchPattern) =>
-      folder.IndexOfAny(new[] {'*', '?', '[', ']'}) == -1
-        ? Directory.GetFiles(folder, searchPattern, SearchOption.TopDirectoryOnly)
-        : new string[] { };
-
     [CanBeNull]
     public static string GetLatestFileOfPattern([NotNull] string folder, [NotNull] string searchPattern)
     {
       if (!Directory.Exists(folder))
         return null;
-      var files = GetFiles(folder, searchPattern);
-
-      switch (files.Length)
-      {
-        case 0:
-          // no file found
-          return null;
-        case 1:
-          return files[0];
-      }
 
       // If a pattern is present in the folder this is not going to work
       var newSet = new DateTime(0);
       string lastFile = null;
-      foreach (var fileName in files)
+      foreach (var fileName in Directory.EnumerateFiles(folder, searchPattern, SearchOption.TopDirectoryOnly))
       {
         var fileTime = new FileInfo(fileName).LastWriteTimeUtc;
         if (fileTime <= newSet)

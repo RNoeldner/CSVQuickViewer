@@ -306,7 +306,7 @@ namespace CsvTools.Tests
       Assert.AreEqual(1200, setting.CodePageId);
       Assert.AreEqual(",", setting.FileFormat.FieldDelimiter);
 
-      foreach (var fileName in FileSystemUtils.GetFiles(UnitTestInitializeCsv.ApplicationDirectory, "AllFor*.txt"))
+      foreach (var fileName in Directory.EnumerateFiles(UnitTestInitializeCsv.ApplicationDirectory.LongPathPrefix(), "AllFor*.txt", SearchOption.TopDirectoryOnly))
       {
         var testSetting = new CsvFile(fileName);
         using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
