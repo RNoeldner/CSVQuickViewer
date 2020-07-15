@@ -80,8 +80,16 @@ namespace CsvTools
 
     protected override void Dispose(bool disposing)
     {
-      Logger.AddLog = m_PreviousLog;
-      base.Dispose(disposing);
+      try
+      {
+        Logger.AddLog = m_PreviousLog;
+        base.Dispose(disposing);
+        GC.SuppressFinalize(this);
+      }
+      catch (Exception e)
+      {
+        // ignore
+      }
     }
 
     private void AppendText(string text, Logger.Level level)

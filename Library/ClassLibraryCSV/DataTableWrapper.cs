@@ -168,7 +168,10 @@ namespace CsvTools
     protected override void Dispose(bool disposing)
     {
       if (disposing)
+      {
         DataTable.Dispose();
+        GC.SuppressFinalize(this);
+      }
     }
   }
 }

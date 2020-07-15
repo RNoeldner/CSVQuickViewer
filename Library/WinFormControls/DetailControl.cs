@@ -473,18 +473,27 @@ namespace CsvTools
     protected override void Dispose(bool disposing)
     {
       if (m_DisposedValue) return;
-      if (disposing)
+      try
       {
-        m_DisposedValue = true;
-        components?.Dispose();
-        m_CurrentSearch?.Dispose();
-        m_DataTable?.Dispose();
-        m_FilterDataTable?.Dispose();
-        m_HierarchyDisplay?.Dispose();
-        m_CancellationTokenSource?.Dispose();
+        base.Dispose(disposing);
+        if (disposing)
+        {
+          m_DisposedValue = true;
+          components?.Dispose();
+          m_CurrentSearch?.Dispose();
+          m_DataTable?.Dispose();
+          m_FilterDataTable?.Dispose();
+          m_HierarchyDisplay?.Dispose();
+          m_CancellationTokenSource?.Dispose();
+          GC.SuppressFinalize(this);
+        }
       }
+      catch (Exception e)
+      {
+        // ignore
+      }
+      
 
-      base.Dispose(disposing);
     }
 
     /// <summary>

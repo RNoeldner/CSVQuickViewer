@@ -363,13 +363,14 @@ namespace CsvTools
       CloseFilter();
       if (m_DisposedValue)
         return;
+      
       if (disposing)
       {
         m_DisposedValue = true;
         components?.Dispose();
         m_CancellationTokenSource?.Dispose();
+        GC.SuppressFinalize(this);
       }
-
       base.Dispose(disposing);
     }
 

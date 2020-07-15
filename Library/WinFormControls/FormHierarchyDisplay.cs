@@ -107,6 +107,7 @@ namespace CsvTools
         m_TimerSearch?.Dispose();
         m_BuildProcess?.Dispose();
         m_CancellationTokenSource?.Dispose();
+        GC.SuppressFinalize(this);
       }
 
       base.Dispose(disposing);
