@@ -93,7 +93,7 @@ namespace CsvTools
       DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
 
       contextMenuStripFilter.Opened += ContextMenuStripFilter_Opened;
-      contextMenuStripFilter.Closing += delegate(object sender, ToolStripDropDownClosingEventArgs e)
+      contextMenuStripFilter.Closing += delegate (object sender, ToolStripDropDownClosingEventArgs e)
       {
         if (e.CloseReason != ToolStripDropDownCloseReason.AppClicked
             && e.CloseReason != ToolStripDropDownCloseReason.ItemClicked
@@ -126,10 +126,8 @@ namespace CsvTools
     /// </summary>
     /// <returns>The object that contains data for the <see cref="DataGridView" /> to display.</returns>
     /// <exception cref="Exception">
-    ///   An error occurred in the data source and either there is no handler for the
-    ///   <see
-    ///     cref="DataError" />
-    ///   event or the handler has set the <see cref="Exception" /> property to
+    ///   An error occurred in the data source and either there is no handler for the <see
+    ///   cref="DataError" /> event or the handler has set the <see cref="Exception" /> property to
     ///   true. The exception object can typically be cast to type <see cref="FormatException" />.
     /// </exception>
     public new object DataSource
@@ -363,13 +361,12 @@ namespace CsvTools
       CloseFilter();
       if (m_DisposedValue)
         return;
-      
+
       if (disposing)
       {
         m_DisposedValue = true;
         components?.Dispose();
         m_CancellationTokenSource?.Dispose();
-        GC.SuppressFinalize(this);
       }
       base.Dispose(disposing);
     }
@@ -1018,7 +1015,7 @@ namespace CsvTools
           Checked = item.Active,
           CheckOnClick = true
         };
-        newMenuItem.CheckStateChanged += delegate(object menuItem, EventArgs args)
+        newMenuItem.CheckStateChanged += delegate (object menuItem, EventArgs args)
         {
           if (!(menuItem is ToolStripMenuItem sendItem))
             return;
@@ -1234,8 +1231,8 @@ namespace CsvTools
       {
         var colFirstNoFrozen =
           (from col in Columns.OfType<DataGridViewColumn>().OrderBy(x => x.DisplayIndex)
-            where !col.Frozen
-            select col.DisplayIndex).FirstOrDefault();
+           where !col.Frozen
+           select col.DisplayIndex).FirstOrDefault();
         Columns[m_MenuItemColumnIndex].DisplayIndex = colFirstNoFrozen;
       }
 

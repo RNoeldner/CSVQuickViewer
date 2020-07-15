@@ -107,7 +107,6 @@ namespace CsvTools
         m_TimerSearch?.Dispose();
         m_BuildProcess?.Dispose();
         m_CancellationTokenSource?.Dispose();
-        GC.SuppressFinalize(this);
       }
 
       base.Dispose(disposing);
@@ -263,7 +262,7 @@ namespace CsvTools
         treeDataDictionary.Add(rootDataParentNotFound.ID, rootDataParentNotFound);
         counter = 0;
         max = additionalRootNodes.Count;
-        process.SetMaximum (max);
+        process.SetMaximum(max);
 
         // Create new entries
         foreach (var parentID in additionalRootNodes)
@@ -359,21 +358,21 @@ namespace CsvTools
 
       // go to UI Main thread
       m_TextBoxValue.Invoke(
-        (MethodInvoker)delegate
-       {
-         try
-         {
-           using (var proc = new FormProcessDisplay("Searching", false, m_CancellationTokenSource.Token))
-           {
-             proc.Show(this);
-             Search(m_TextBoxValue.Text, m_TreeView.Nodes, proc.CancellationToken);
-           }
-         }
-         catch (Exception ex)
-         {
-           this.ShowError(ex);
-         }
-       });
+        (MethodInvoker) delegate
+        {
+          try
+          {
+            using (var proc = new FormProcessDisplay("Searching", false, m_CancellationTokenSource.Token))
+            {
+              proc.Show(this);
+              Search(m_TextBoxValue.Text, m_TreeView.Nodes, proc.CancellationToken);
+            }
+          }
+          catch (Exception ex)
+          {
+            this.ShowError(ex);
+          }
+        });
 
     /// <summary>
     ///   Handles the Load event of the HierarchyDisplay control.

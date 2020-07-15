@@ -19,8 +19,7 @@ namespace CsvTools.Tests
       {
         components.Dispose();
       }
-      base.Dispose(disposing);
-      GC.SuppressFinalize(this);
+      base.Dispose(disposing);     
     }
 
     #region Windows Form Designer generated code

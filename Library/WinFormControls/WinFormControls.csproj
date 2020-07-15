@@ -174,6 +174,9 @@
     <EmbeddedResource Include="DataGridViewColumnFilterControl.resx">
       <DependentUpon>DataGridViewColumnFilterControl.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="FormProcessDisplay.resx">
+      <DependentUpon>FormProcessDisplay.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="FrmLimitSize.resx">
       <DependentUpon>FrmLimitSize.cs</DependentUpon>
     </EmbeddedResource>

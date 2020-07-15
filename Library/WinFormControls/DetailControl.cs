@@ -485,15 +485,13 @@ namespace CsvTools
           m_FilterDataTable?.Dispose();
           m_HierarchyDisplay?.Dispose();
           m_CancellationTokenSource?.Dispose();
-          GC.SuppressFinalize(this);
         }
+        base.Dispose(disposing);
       }
       catch (Exception e)
       {
         // ignore
       }
-      
-
     }
 
     /// <summary>
@@ -537,7 +535,6 @@ namespace CsvTools
 
         foreach (var cell in m_SearchCells)
         {
-
           if (processInformation.CancellationTokenSource?.IsCancellationRequested ?? false)
             return;
 
