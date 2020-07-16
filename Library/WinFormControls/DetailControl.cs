@@ -466,32 +466,23 @@ namespace CsvTools
         }
     }
 
-    /// <summary>
-    ///   Clean up any resources being used.
-    /// </summary>
-    /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+    /// <inheritdoc />
     protected override void Dispose(bool disposing)
     {
       if (m_DisposedValue) return;
-      try
+
+      if (disposing)
       {
-        base.Dispose(disposing);
-        if (disposing)
-        {
-          m_DisposedValue = true;
-          components?.Dispose();
-          m_CurrentSearch?.Dispose();
-          m_DataTable?.Dispose();
-          m_FilterDataTable?.Dispose();
-          m_HierarchyDisplay?.Dispose();
-          m_CancellationTokenSource?.Dispose();
-        }
-        base.Dispose(disposing);
+        m_DisposedValue = true;
+        components?.Dispose();
+        m_CurrentSearch?.Dispose();
+        m_DataTable?.Dispose();
+        m_FilterDataTable?.Dispose();
+        m_HierarchyDisplay?.Dispose();
+        m_CancellationTokenSource?.Dispose();
       }
-      catch (Exception e)
-      {
-        // ignore
-      }
+      
+      base.Dispose(disposing);
     }
 
     /// <summary>

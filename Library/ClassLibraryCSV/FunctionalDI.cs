@@ -42,7 +42,7 @@ namespace CsvTools
     public static Func<DateTime?, string, int, Action<int, string>, DateTime?> AdjustTZExport =
       (input, destTimeZone, columnOrdinal, handleWarning) =>  ChangeTimeZone(input, TimeZoneInfo.Local.Id, destTimeZone, columnOrdinal, handleWarning);
 
-    private static DateTime? ChangeTimeZone(DateTime? input, string srcTimeZone, string destTimeZone, int columnOrdinal, Action<int, string> handleWarning)
+    private static DateTime? ChangeTimeZone(DateTime? input, [CanBeNull] string srcTimeZone, [CanBeNull] string destTimeZone, int columnOrdinal, [CanBeNull] Action<int, string> handleWarning)
     {
       if (!input.HasValue || string.IsNullOrEmpty(srcTimeZone)|| string.IsNullOrEmpty(destTimeZone)  || destTimeZone.Equals(srcTimeZone))
         return input;

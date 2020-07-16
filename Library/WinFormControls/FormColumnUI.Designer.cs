@@ -10,10 +10,8 @@
     /// </summary>
     private System.ComponentModel.IContainer components = null;
 
-    /// <summary>
-    /// Clean up any resources being used.
-    /// </summary>
-    /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+
+    /// <inheritdoc />
     protected override void Dispose(bool disposing)
     {
       if (m_DisposedValue) return;
@@ -24,6 +22,7 @@
         components?.Dispose();
         m_CancellationTokenSource?.Dispose();
       }
+      
       base.Dispose(disposing);
     }
 
