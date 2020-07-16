@@ -403,7 +403,6 @@ namespace CsvTools
     [SuppressMessage("ReSharper", "LocalizableElement")]
     private void InitializeComponent()
     {
-      this.components = new System.ComponentModel.Container();
       System.Windows.Forms.Label labelID;
       System.Windows.Forms.Label labelDisplay;
       System.Windows.Forms.Label labelParent;
@@ -421,7 +420,7 @@ namespace CsvTools
       labelID = new System.Windows.Forms.Label();
       labelDisplay = new System.Windows.Forms.Label();
       labelParent = new System.Windows.Forms.Label();
-      contextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
+      contextMenuStrip = new System.Windows.Forms.ContextMenuStrip();
       expandAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       closeAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       labelFind = new System.Windows.Forms.Label();
