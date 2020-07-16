@@ -14,7 +14,13 @@ namespace CsvTools
       {
         var resources = new ComponentResourceManager(typeof(ResizeForm));
         Icon = (Icon) resources.GetObject("$this.Icon");
-        SetFonts(this, SystemFonts.DialogFont);
+
+#if !NETCOREAPP3_1
+        // 6.2 and 6.3 is Windows 8 / Windows Server 2012
+        if (Environment.OSVersion.Version.Major == 6 && Environment.OSVersion.Version.Minor > 1)
+          SetFonts(this, SystemFonts.DialogFont);
+#endif
+
         MouseWheel += FormMouseWheel;
       }
       catch (Exception)
@@ -37,8 +43,6 @@ namespace CsvTools
         else
           Console.Beep();
     }
-
-    // new Font(SystemFonts.IconTitleFont.FontFamily, SystemFonts.IconTitleFont.Size - 2, SystemFonts.IconTitleFont.Style);
 
     /// <summary>
     ///   Recursively change the font of all controls, needed on Windows 8 / 2012

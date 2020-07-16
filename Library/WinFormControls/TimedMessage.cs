@@ -252,7 +252,7 @@ namespace CsvTools
       this.m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
       this.m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
       this.m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-      this.m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+      this.m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 27F));
       this.m_TableLayoutPanel.Controls.Add(this.m_LabelDefault, 0, 1);
       this.m_TableLayoutPanel.Controls.Add(this.m_Button3, 4, 1);
       this.m_TableLayoutPanel.Controls.Add(this.m_Button2, 3, 1);
@@ -261,13 +261,13 @@ namespace CsvTools
       this.m_TableLayoutPanel.Controls.Add(this.m_PictureBox, 0, 0);
       this.m_TableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
       this.m_TableLayoutPanel.Location = new System.Drawing.Point(0, 0);
-      this.m_TableLayoutPanel.Margin = new System.Windows.Forms.Padding(2);
+      this.m_TableLayoutPanel.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
       this.m_TableLayoutPanel.Name = "m_TableLayoutPanel";
-      this.m_TableLayoutPanel.Padding = new System.Windows.Forms.Padding(4, 0, 10, 3);
+      this.m_TableLayoutPanel.Padding = new System.Windows.Forms.Padding(5, 0, 13, 4);
       this.m_TableLayoutPanel.RowCount = 2;
       this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
       this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.m_TableLayoutPanel.Size = new System.Drawing.Size(496, 133);
+      this.m_TableLayoutPanel.Size = new System.Drawing.Size(661, 164);
       this.m_TableLayoutPanel.TabIndex = 5;
       // 
       // m_LabelDefault
@@ -276,10 +276,9 @@ namespace CsvTools
       this.m_TableLayoutPanel.SetColumnSpan(this.m_LabelDefault, 2);
       this.m_LabelDefault.Dock = System.Windows.Forms.DockStyle.Fill;
       this.m_LabelDefault.ForeColor = System.Drawing.SystemColors.InfoText;
-      this.m_LabelDefault.Location = new System.Drawing.Point(6, 101);
-      this.m_LabelDefault.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+      this.m_LabelDefault.Location = new System.Drawing.Point(8, 124);
       this.m_LabelDefault.Name = "m_LabelDefault";
-      this.m_LabelDefault.Size = new System.Drawing.Size(217, 29);
+      this.m_LabelDefault.Size = new System.Drawing.Size(286, 36);
       this.m_LabelDefault.TabIndex = 2;
       this.m_LabelDefault.Text = "Default in 5 seconds";
       this.m_LabelDefault.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -288,10 +287,10 @@ namespace CsvTools
       // 
       this.m_Button3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
       this.m_Button3.BackColor = System.Drawing.SystemColors.ButtonFace;
-      this.m_Button3.Location = new System.Drawing.Point(401, 103);
-      this.m_Button3.Margin = new System.Windows.Forms.Padding(2);
+      this.m_Button3.Location = new System.Drawing.Point(534, 128);
+      this.m_Button3.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
       this.m_Button3.Name = "m_Button3";
-      this.m_Button3.Size = new System.Drawing.Size(83, 25);
+      this.m_Button3.Size = new System.Drawing.Size(111, 30);
       this.m_Button3.TabIndex = 2;
       this.m_Button3.Text = "button3";
       this.m_Button3.UseVisualStyleBackColor = false;
@@ -303,10 +302,10 @@ namespace CsvTools
       this.m_Button2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
       this.m_Button2.BackColor = System.Drawing.SystemColors.ButtonFace;
       this.m_Button2.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-      this.m_Button2.Location = new System.Drawing.Point(314, 103);
-      this.m_Button2.Margin = new System.Windows.Forms.Padding(2);
+      this.m_Button2.Location = new System.Drawing.Point(417, 128);
+      this.m_Button2.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
       this.m_Button2.Name = "m_Button2";
-      this.m_Button2.Size = new System.Drawing.Size(83, 25);
+      this.m_Button2.Size = new System.Drawing.Size(111, 30);
       this.m_Button2.TabIndex = 1;
       this.m_Button2.Text = "button2";
       this.m_Button2.UseVisualStyleBackColor = false;
@@ -319,11 +318,11 @@ namespace CsvTools
       this.m_RichTextBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
       this.m_TableLayoutPanel.SetColumnSpan(this.m_RichTextBox, 4);
       this.m_RichTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.m_RichTextBox.Location = new System.Drawing.Point(58, 3);
-      this.m_RichTextBox.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+      this.m_RichTextBox.Location = new System.Drawing.Point(62, 4);
+      this.m_RichTextBox.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
       this.m_RichTextBox.Name = "m_RichTextBox";
       this.m_RichTextBox.ReadOnly = true;
-      this.m_RichTextBox.Size = new System.Drawing.Size(426, 95);
+      this.m_RichTextBox.Size = new System.Drawing.Size(583, 116);
       this.m_RichTextBox.TabIndex = 3;
       this.m_RichTextBox.Text = "";
       this.m_RichTextBox.MouseEnter += new System.EventHandler(this.MouseEnterElement);
@@ -333,10 +332,10 @@ namespace CsvTools
       // 
       this.m_Button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
       this.m_Button1.BackColor = System.Drawing.SystemColors.ButtonFace;
-      this.m_Button1.Location = new System.Drawing.Point(227, 103);
-      this.m_Button1.Margin = new System.Windows.Forms.Padding(2);
+      this.m_Button1.Location = new System.Drawing.Point(300, 128);
+      this.m_Button1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
       this.m_Button1.Name = "m_Button1";
-      this.m_Button1.Size = new System.Drawing.Size(83, 25);
+      this.m_Button1.Size = new System.Drawing.Size(111, 30);
       this.m_Button1.TabIndex = 0;
       this.m_Button1.Text = "button1";
       this.m_Button1.UseVisualStyleBackColor = false;
@@ -347,8 +346,8 @@ namespace CsvTools
       // 
       this.m_PictureBox.ErrorImage = null;
       this.m_PictureBox.InitialImage = null;
-      this.m_PictureBox.Location = new System.Drawing.Point(6, 2);
-      this.m_PictureBox.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+      this.m_PictureBox.Location = new System.Drawing.Point(8, 2);
+      this.m_PictureBox.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
       this.m_PictureBox.Name = "m_PictureBox";
       this.m_PictureBox.Size = new System.Drawing.Size(48, 48);
       this.m_PictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
@@ -357,17 +356,17 @@ namespace CsvTools
       // 
       // TimedMessage
       // 
-      this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+      this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.AutoSize = true;
       this.BackColor = System.Drawing.SystemColors.Control;
-      this.ClientSize = new System.Drawing.Size(496, 133);
+      this.ClientSize = new System.Drawing.Size(661, 164);
       this.Controls.Add(this.m_TableLayoutPanel);
       this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
-      this.Margin = new System.Windows.Forms.Padding(2);
+      this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
       this.MaximizeBox = false;
       this.MinimizeBox = false;
-      this.MinimumSize = new System.Drawing.Size(258, 67);
+      this.MinimumSize = new System.Drawing.Size(338, 72);
       this.Name = "TimedMessage";
       this.ShowIcon = false;
       this.ShowInTaskbar = false;

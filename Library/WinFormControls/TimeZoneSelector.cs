@@ -8,7 +8,21 @@
 
   public partial class TimeZoneSelector : UserControl
   {
-    public TimeZoneSelector() => InitializeComponent();
+    public TimeZoneSelector()
+    {
+      InitializeComponent();
+
+      var display = new List<DisplayItem<string>>
+                      {
+                        new DisplayItem<string>(
+                          TimeZoneInfo.Local.Id,
+                          $"{TimeZoneInfo.Local.DisplayName} *[Local System]")
+                      };
+      display.AddRange(
+        TimeZoneInfo.GetSystemTimeZones().Select(wintz => new DisplayItem<string>(wintz.Id, wintz.DisplayName)));
+
+      comboBoxTimeZoneID.DataSource = display;
+    }
 
     [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     [EditorBrowsable(EditorBrowsableState.Never)]
@@ -16,7 +30,7 @@
     [Browsable(true)]
     public string TimeZoneID
     {
-      get => (string)comboBoxTimeZoneID.SelectedValue;
+      get => (string) comboBoxTimeZoneID.SelectedValue;
       set => comboBoxTimeZoneID.SelectedValue = value;
     }
 
@@ -38,19 +52,7 @@
 
     private void TimeZoneSelector_Load(object sender, EventArgs e)
     {
-      comboBoxTimeZoneID.ValueMember = "ID";
-      comboBoxTimeZoneID.DisplayMember = "Display";
-
-      var display = new List<DisplayItem<string>>
-                      {
-                        new DisplayItem<string>(
-                          TimeZoneInfo.Local.Id,
-                          $"{TimeZoneInfo.Local.DisplayName} *[Local System]")
-                      };
-      display.AddRange(
-        TimeZoneInfo.GetSystemTimeZones().Select(wintz => new DisplayItem<string>(wintz.Id, wintz.DisplayName)));
-      comboBoxTimeZoneID.DataSource = display;
-      comboBoxTimeZoneID.SelectedIndex = 0;
+      comboBoxTimeZoneID.SelectedValue = TimeZoneInfo.Local.Id;
     }
   }
 }
