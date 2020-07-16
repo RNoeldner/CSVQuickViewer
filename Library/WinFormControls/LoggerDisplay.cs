@@ -12,18 +12,19 @@
  *
  */
 
+using System;
+using System.Drawing;
+using System.Windows.Forms;
+
 namespace CsvTools
 {
-  using System;
-  using System.Drawing;
-  using System.Windows.Forms;
-
   /// <summary>
   ///   Only the most recently created Logger Display will get the log messages
   /// </summary>
   public class LoggerDisplay : RichTextBox
   {
     private readonly Action<string, Logger.Level> m_PreviousLog = Logger.AddLog;
+    private bool m_Disposed;
 
     private bool m_Initial = true;
 
@@ -42,29 +43,29 @@ namespace CsvTools
     public void AddLog(string text, Logger.Level level)
     {
       if (string.IsNullOrWhiteSpace(text) || m_LastMessage.Equals(text, StringComparison.Ordinal)
-                                          || level < this.MinLevel) return;
+                                          || level < MinLevel) return;
       try
       {
         var appended = false;
         var posSlash = text.IndexOf('–', 0);
-        if (posSlash != -1 && this.m_LastMessage.StartsWith(
-              text.Substring(0, posSlash - 1).Trim(),
-              StringComparison.Ordinal))
+        if (posSlash != -1 && m_LastMessage.StartsWith(
+          text.Substring(0, posSlash - 1).Trim(),
+          StringComparison.Ordinal))
         {
           // add to previous item,
-          this.AppendText(text.Substring(posSlash - 1), level);
+          AppendText(text.Substring(posSlash - 1), level);
           appended = true;
         }
 
-        this.m_LastMessage = text;
+        m_LastMessage = text;
         if (!appended)
         {
           if (level < Logger.Level.Warn)
             text = StringUtils.GetShortDisplay(StringUtils.HandleCRLFCombinations(text, " "), 120);
-          this.AppendText($"{(this.m_Initial ? string.Empty : "\n")}{DateTime.Now:HH:mm:ss}  {text}", level);
+          AppendText($"{(m_Initial ? string.Empty : "\n")}{DateTime.Now:HH:mm:ss}  {text}", level);
         }
 
-        this.m_Initial = false;
+        m_Initial = false;
       }
       catch (Exception)
       {
@@ -81,7 +82,13 @@ namespace CsvTools
     /// <inheritdoc />
     protected override void Dispose(bool disposing)
     {
-      Logger.AddLog = m_PreviousLog;
+      if (m_Disposed) return;
+      if (disposing)
+      {
+        m_Disposed = true;
+        Logger.AddLog = m_PreviousLog;
+      }
+
       base.Dispose(disposing);
     }
 
@@ -92,35 +99,36 @@ namespace CsvTools
 
       this.SafeBeginInvoke(
         () =>
+        {
+          try
           {
-            try
-            {
-              var col = ForeColor;
-              if (level < Logger.Level.Info)
-                col = Color.Gray;
-              if (level >= Logger.Level.Warn)
-                col = Color.Blue;
-              if (level >= Logger.Level.Error)
-                col = Color.Red;
+            var col = ForeColor;
+            if (level < Logger.Level.Info)
+              col = Color.Gray;
+            if (level >= Logger.Level.Warn)
+              col = Color.Blue;
+            if (level >= Logger.Level.Error)
+              col = Color.Red;
 
-              SelectionStart = TextLength;
-              if (col != ForeColor)
-              {
-                SelectionLength = 0;
-                SelectionColor = col;
-              }
-              AppendText(text);
-              Select(TextLength, 0);
-              ScrollToCaret();
-
-              if (col != ForeColor)
-                SelectionColor = ForeColor;
-            }
-            catch
+            SelectionStart = TextLength;
+            if (col != ForeColor)
             {
-              // ignore
+              SelectionLength = 0;
+              SelectionColor = col;
             }
-          });
+
+            AppendText(text);
+            Select(TextLength, 0);
+            ScrollToCaret();
+
+            if (col != ForeColor)
+              SelectionColor = ForeColor;
+          }
+          catch
+          {
+            // ignore
+          }
+        });
     }
   }
 }

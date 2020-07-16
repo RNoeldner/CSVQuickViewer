@@ -12,11 +12,7 @@
  *
  */
 
-using System;
-using System.Diagnostics;
 using System.IO;
-using System.Threading;
-using System.Windows.Forms;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
@@ -24,29 +20,16 @@ namespace CsvTools.Tests
   [TestClass]
   public class FormMainTests
   {
-    private readonly string m_ApplicationDirectory = FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles";
-
     [TestMethod]
     public void FormMain_BasicCSV()
     {
-      using (var frm = new FormMain(Path.Combine(m_ApplicationDirectory, "BasicCSV.txt.gz")))
+      using (var frm = new FormMain(Path.Combine(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt.gz"))))
       {
-        frm.TopMost = true;
-        frm.ShowInTaskbar = false;
-        frm.Show();
-        var sw = new Stopwatch();
-        sw.Start();
-        while (!frm.LoadFinished && !UnitTestInitializeCsv.Token.IsCancellationRequested && sw.Elapsed.TotalSeconds<60)
+        UnitTestWinFormHelper.ShowFormAndClose(frm, 1, () =>
         {
-          try
-          {
-            Application.DoEvents();
-          }
-          catch (ObjectDisposedException)
-          {
-          }
-          Thread.Sleep(200);
-        }
+          while (!frm.LoadFinished && !UnitTestInitializeCsv.Token.IsCancellationRequested)
+            UnitTestWinFormHelper.WaitSomeTime(.2);
+        });
         Assert.IsNotNull(frm.DataTable);
         Assert.AreEqual(7, frm.DataTable.Rows.Count);
       }
@@ -55,24 +38,13 @@ namespace CsvTools.Tests
     [TestMethod]
     public void FormMain_AllFormatsPipe()
     {
-      using (var frm = new FormMain(Path.Combine(m_ApplicationDirectory, "AllFormatsPipe.txt")))
+      using (var frm = new FormMain(UnitTestInitializeCsv.GetTestPath("AllFormatsPipe.txt")))
       {
-        frm.TopMost = true;
-        frm.ShowInTaskbar = false;
-        frm.Show();
-        var sw = new Stopwatch();
-        sw.Start();
-        while (!frm.LoadFinished && !UnitTestInitializeCsv.Token.IsCancellationRequested && sw.Elapsed.TotalSeconds<60)
+        UnitTestWinFormHelper.ShowFormAndClose(frm, 1, () =>
         {
-          try
-          {
-            Application.DoEvents();
-          }
-          catch (ObjectDisposedException)
-          {
-          }
-          Thread.Sleep(200);
-        }
+          while (!frm.LoadFinished && !UnitTestInitializeCsv.Token.IsCancellationRequested)
+            UnitTestWinFormHelper.WaitSomeTime(.2);
+        });
         Assert.IsNotNull(frm.DataTable);
         // 45 records, one of the lines has a linefeed
         Assert.AreEqual(46, frm.DataTable.Rows.Count);

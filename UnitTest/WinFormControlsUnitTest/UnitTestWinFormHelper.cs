@@ -9,6 +9,7 @@ namespace CsvTools.Tests
   [TestClass]
   public static class UnitTestWinFormHelper
   {
+    [DebuggerStepThrough]
     public static void WaitSomeTime(double seconds)
     {
       var sw = new Stopwatch();

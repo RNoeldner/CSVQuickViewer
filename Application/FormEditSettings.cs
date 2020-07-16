@@ -12,18 +12,16 @@
  *
  */
 
+using System;
+using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace CsvTools
 {
-  using System;
-  using System.Collections.Generic;
-  using System.ComponentModel;
-  using System.Globalization;
-  using System.Threading;
-  using System.Threading.Tasks;
-  using System.Windows.Forms;
-
   /// <summary>
   ///   Form to edit the Settings
   /// </summary>
@@ -31,6 +29,7 @@ namespace CsvTools
   {
     private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
     private readonly ViewSettings m_ViewSettings;
+    private bool m_IsDisposed;
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="FormEditSettings" /> class.
@@ -65,6 +64,21 @@ namespace CsvTools
       }
     }
 
+    /// <inheritdoc />
+    protected override void Dispose(bool disposing)
+    {
+      if (m_IsDisposed) return;
+      if (disposing)
+      {
+        m_IsDisposed = true;
+        components?.Dispose();
+        m_CancellationTokenSource?.Cancel();
+        m_CancellationTokenSource?.Dispose();
+      }
+
+      base.Dispose(disposing);
+    }
+
     private async void ButtonGuessCP_ClickAsync(object sender, EventArgs e)
     {
       var oldCursor = Cursor.Current == Cursors.WaitCursor ? Cursors.WaitCursor : Cursors.Default;
@@ -85,7 +99,8 @@ namespace CsvTools
       Cursor.Current = Cursors.WaitCursor;
       try
       {
-        m_ViewSettings.FileFormat.FieldDelimiter = await CsvHelper.GuessDelimiterAsync(m_ViewSettings, m_CancellationTokenSource.Token);
+        m_ViewSettings.FileFormat.FieldDelimiter =
+          await CsvHelper.GuessDelimiterAsync(m_ViewSettings, m_CancellationTokenSource.Token);
       }
       finally
       {
@@ -103,7 +118,8 @@ namespace CsvTools
         if (qualifier != null)
           m_ViewSettings.FileFormat.FieldQualifier = qualifier;
         else
-          _MessageBox.Show(this, "No Column Qualifier found", "Qualifier", MessageBoxButtons.OK, MessageBoxIcon.Information);
+          _MessageBox.Show(this, "No Column Qualifier found", "Qualifier", MessageBoxButtons.OK,
+            MessageBoxIcon.Information);
       }
       finally
       {
@@ -158,19 +174,19 @@ namespace CsvTools
         m_ViewSettings.HasFieldHeader = csvFile.HasFieldHeader;
 
         if (MessageBox.Show(
-              this,
-              @"Should the value format of the columns be analyzed?",
-              @"Value Format",
-              MessageBoxButtons.YesNo,
-              MessageBoxIcon.Question) == DialogResult.Yes)
+          this,
+          @"Should the value format of the columns be analyzed?",
+          @"Value Format",
+          MessageBoxButtons.YesNo,
+          MessageBoxIcon.Question) == DialogResult.Yes)
         {
           if (m_ViewSettings.ColumnCollection.Count > 0 && MessageBox.Show(
-                this,
-                @"Any already typed value will not be analyzed.
+            this,
+            @"Any already typed value will not be analyzed.
  Should the existing formats be removed before doing so?",
-                @"Value Format",
-                MessageBoxButtons.YesNo,
-                MessageBoxIcon.Question) == DialogResult.Yes)
+            @"Value Format",
+            MessageBoxButtons.YesNo,
+            MessageBoxIcon.Question) == DialogResult.Yes)
             m_ViewSettings.ColumnCollection.Clear();
           try
           {
@@ -224,7 +240,8 @@ namespace CsvTools
       cboCodePage.ResumeLayout(true);
 
       var descConv = new EnumDescriptionConverter(typeof(RecordDelimiterType));
-      var di = (from RecordDelimiterType item in Enum.GetValues(typeof(RecordDelimiterType)) select new DisplayItem<int>((int) item, descConv.ConvertToString(item))).ToList();
+      var di = (from RecordDelimiterType item in Enum.GetValues(typeof(RecordDelimiterType))
+        select new DisplayItem<int>((int) item, descConv.ConvertToString(item))).ToList();
 
       var selValue = (int) m_ViewSettings.FileFormat.NewLine;
       cboRecordDelimiter.SuspendLayout();
@@ -249,7 +266,8 @@ namespace CsvTools
       Cursor.Current = Cursors.WaitCursor;
       try
       {
-        m_ViewSettings.FileFormat.NewLine = await CsvHelper.GuessNewlineAsync(m_ViewSettings, m_CancellationTokenSource.Token);
+        m_ViewSettings.FileFormat.NewLine =
+          await CsvHelper.GuessNewlineAsync(m_ViewSettings, m_CancellationTokenSource.Token);
       }
       finally
       {

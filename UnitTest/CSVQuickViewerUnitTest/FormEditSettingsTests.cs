@@ -17,22 +17,14 @@ namespace CsvTools.Tests
     public void FormEditSettings()
     {
       using (var frm = new FormEditSettings(new ViewSettings()))
-      {
-        frm.Show();
-        Application.DoEvents();
-        System.Threading.Thread.Sleep(200);
-      }
+        UnitTestWinFormHelper.ShowFormAndClose(frm);
     }
 
     [TestMethod()]
     public void FormEditSettingsTest1()
     {
       using (var frm = new FormEditSettings())
-      {
-        frm.Show();
-        Application.DoEvents();
-        System.Threading.Thread.Sleep(200);
-      }
+        UnitTestWinFormHelper.ShowFormAndClose(frm);
     }
   }
 }

@@ -12,18 +12,18 @@
  *
  */
 
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics.Contracts;
+using System.Drawing;
+using System.Globalization;
+using System.Linq;
+using System.Text;
+using System.Windows.Forms;
+
 namespace CsvTools
 {
-  using System;
-  using System.Collections.Generic;
-  using System.ComponentModel;
-  using System.Diagnostics.Contracts;
-  using System.Drawing;
-  using System.Globalization;
-  using System.Linq;
-  using System.Text;
-  using System.Windows.Forms;
-
   /// <summary>
   ///   An extension of the regular TreeView
   /// </summary>
@@ -111,8 +111,8 @@ namespace CsvTools
           // case 2 : nor the begin nor the end node are descendant one another
           else
           {
-            if (uppernode.Parent == null && bottomnode.Parent == null
-                || uppernode.Parent != null && uppernode.Parent.Nodes.Contains(bottomnode))
+            if ((uppernode.Parent == null && bottomnode.Parent == null)
+                || (uppernode.Parent != null && uppernode.Parent.Nodes.Contains(bottomnode)))
             {
               // are they siblings ?
               var nIndexUpper = uppernode.Index;
@@ -137,6 +137,7 @@ namespace CsvTools
 
                 nIndexUpper++;
               }
+
               // end while
             }
             else
@@ -199,6 +200,8 @@ namespace CsvTools
         m_FirstNode = e.Node; // store begin of shift sequence
     }
 
+    public void PressKey(Keys keyData) => OnKeyDown(new KeyEventArgs(keyData));
+
     /// <summary>
     ///   Raises event.
     /// </summary>
@@ -217,80 +220,74 @@ namespace CsvTools
           AddNodeWithSubnodes(item);
 
         PaintSelectedNodes();
-
-        // SelectedTreeNode = this.Nodes;
       }
 
       // Handle CRTL -C
-      if (!e.Control || e.KeyCode != Keys.C)
+      if (!e.Control || e.KeyCode != Keys.C || SelectedTreeNode.Count == 0)
         return;
+
+      var minLevel = int.MaxValue;
+      var maxLevel = int.MinValue;
+      foreach (var item in SelectedTreeNode)
       {
-        if (SelectedTreeNode.Count == 0)
-          return;
+        if (minLevel > item.Level)
+          minLevel = item.Level;
 
-        var minLevel = int.MaxValue;
-        var maxLevel = int.MinValue;
-        foreach (var item in SelectedTreeNode)
-        {
-          if (minLevel > item.Level)
-            minLevel = item.Level;
-
-          if (maxLevel < item.Level)
-            maxLevel = item.Level;
-        }
-
-        var buffer = new StringBuilder();
-        var sbHtml = new StringBuilder();
-        var style = ApplicationSetting.HTMLStyle;
-
-        sbHtml.AppendLine(style.TableOpen);
-        foreach (var item in SelectedTreeNode.OrderBy(x => x.FullPath))
-        {
-          var text = item.Text;
-          sbHtml.Append(style.TROpen);
-          if (item.Tag is FormHierarchyDisplay.TreeData data)
-          {
-            text = data.Title;
-            if (!string.IsNullOrEmpty(data.Tag))
-            {
-              sbHtml.Append(HTMLStyle.AddTd("<td>{0}</td>", data.Tag));
-              if (text.StartsWith(data.Tag, StringComparison.Ordinal))
-                text = text.Substring(data.Tag.Length).TrimStart(' ', '-');
-            }
-            else
-            {
-              sbHtml.Append(style.TDEmpty);
-            }
-          }
-
-          for (var level = minLevel; level <= maxLevel; level++)
-          {
-            buffer.Append("\t");
-            if (level < item.Level)
-              sbHtml.Append(style.TDEmpty);
-            if (level != item.Level)
-              continue;
-            sbHtml.Append(
-              HTMLStyle.AddTd(
-                "<td colspan='{0}'>{1}</td>",
-                (maxLevel - level + 1).ToString(CultureInfo.InvariantCulture),
-                text));
-            buffer.Append(item.Text);
-          }
-
-          sbHtml.AppendLine(style.TRClose);
-          buffer.AppendLine();
-        }
-
-        sbHtml.AppendLine(style.TableClose);
-
-        var dataObject = new DataObject();
-        dataObject.SetData(DataFormats.Html, true, style.ConvertToHtmlFragment(sbHtml.ToString()));
-        dataObject.SetData(DataFormats.Text, true, buffer.ToString());
-
-        Clipboard.Clear();
-        Clipboard.SetDataObject(dataObject, false, 5, 200);
+        if (maxLevel < item.Level)
+          maxLevel = item.Level;
       }
+
+      var buffer = new StringBuilder();
+      var sbHtml = new StringBuilder();
+      var style = ApplicationSetting.HTMLStyle;
+
+      sbHtml.AppendLine(style.TableOpen);
+      foreach (var item in SelectedTreeNode.OrderBy(x => x.FullPath))
+      {
+        var text = item.Text;
+        sbHtml.Append(style.TROpen);
+        if (item.Tag is FormHierarchyDisplay.TreeData data)
+        {
+          text = data.Title;
+          if (!string.IsNullOrEmpty(data.Tag))
+          {
+            sbHtml.Append(HTMLStyle.AddTd("<td>{0}</td>", data.Tag));
+            if (text.StartsWith(data.Tag, StringComparison.Ordinal))
+              text = text.Substring(data.Tag.Length).TrimStart(' ', '-');
+          }
+          else
+          {
+            sbHtml.Append(style.TDEmpty);
+          }
+        }
+
+        for (var level = minLevel; level <= maxLevel; level++)
+        {
+          buffer.Append("\t");
+          if (level < item.Level)
+            sbHtml.Append(style.TDEmpty);
+          if (level != item.Level)
+            continue;
+          sbHtml.Append(
+            HTMLStyle.AddTd(
+              "<td colspan='{0}'>{1}</td>",
+              ((maxLevel - level) + 1).ToString(CultureInfo.InvariantCulture),
+              text));
+          buffer.Append(item.Text);
+        }
+
+        sbHtml.AppendLine(style.TRClose);
+        buffer.AppendLine();
+      }
+
+      sbHtml.AppendLine(style.TableClose);
+
+      var dataObject = new DataObject();
+      dataObject.SetData(DataFormats.Html, true, style.ConvertToHtmlFragment(sbHtml.ToString()));
+      dataObject.SetData(DataFormats.Text, true, buffer.ToString());
+
+      Clipboard.Clear();
+      Clipboard.SetDataObject(dataObject, false, 5, 200);
     }
 
     /// <summary>
