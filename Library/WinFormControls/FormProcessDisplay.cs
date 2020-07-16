@@ -28,14 +28,9 @@ namespace CsvTools
   {
     private readonly LoggerDisplay m_LoggerDisplay;
     private readonly ProcessDisplayTime m_ProcessDisplay;
-    private bool m_ClosedByUI = true;
-
     private Label m_LabelEtl;
-
     private Label m_LabelText;
-
     private ProgressBar m_ProgressBar;
-
     private TableLayoutPanel m_TableLayoutPanel;
     private string m_Title;
 
@@ -64,24 +59,20 @@ namespace CsvTools
       m_TableLayoutPanel.SuspendLayout();
       if (withLoggerDisplay)
       {
-        Width = 400;
-        Height = 280;
+        Height += 100;
 
-        m_LoggerDisplay = new LoggerDisplay
-        { MinLevel = Logger.Level.Debug, Dock = DockStyle.Fill, Multiline = true, TabIndex = 8 };
+        m_LoggerDisplay = new LoggerDisplay { MinLevel = Logger.Level.Debug, Dock = DockStyle.Fill, Multiline = true, TabIndex = 8 };
         m_TableLayoutPanel.Controls.Add(m_LoggerDisplay, 0, 3);
-        m_TableLayoutPanel.SetColumnSpan(m_LoggerDisplay, 3);
-        m_TableLayoutPanel.RowStyles[0] = new RowStyle(SizeType.Percent, 40F);
-        m_TableLayoutPanel.RowStyles[3] = new RowStyle(SizeType.Percent, 60F);
+        m_LoggerDisplay.Dock = DockStyle.Fill;
       }
 
       // Workaround... On Windows 8 / Windows 2012 sizing is off and controls are way too big...
-      if (Environment.OSVersion.Version.Major == 6 && Environment.OSVersion.Version.Minor > 1)
-      {
-        m_LabelText.Height = (int) (m_LabelText.Font.SizeInPoints * 8);
-        m_ProgressBar.Height = (int) (m_LabelText.Font.SizeInPoints * 3.3);
-        m_LabelEtl.Height = (int) (m_LabelEtl.Font.SizeInPoints * 3.3);
-      }
+      //if (Environment.OSVersion.Version.Major == 6 && Environment.OSVersion.Version.Minor > 1)
+      //{
+      //  m_LabelText.Height = (int) (m_LabelText.Font.SizeInPoints * 8);
+      //  m_ProgressBar.Height = (int) (m_LabelText.Font.SizeInPoints * 3.3);
+      //  m_LabelEtl.Height = (int) (m_LabelEtl.Font.SizeInPoints * 3.3);
+      //}
 
       m_TableLayoutPanel.ResumeLayout(false);
       m_TableLayoutPanel.PerformLayout();
@@ -196,14 +187,10 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   Closes the form used by Events
-    /// </summary>
-    public void Cancel()
+    public new void Close()
     {
-      m_ClosedByUI = false;
       CancellationTokenSource.Cancel();
-      Close();
+      base.Close();
     }
 
     /// <summary>
@@ -289,33 +276,42 @@ namespace CsvTools
       this.m_TableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
       this.m_TableLayoutPanel.SuspendLayout();
       this.SuspendLayout();
+      // 
       // m_ProgressBar
-      this.m_ProgressBar.Location = new System.Drawing.Point(3, 48);
-      this.m_ProgressBar.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      // 
+      this.m_ProgressBar.Dock = System.Windows.Forms.DockStyle.Top;
+      this.m_ProgressBar.Location = new System.Drawing.Point(4, 46);
+      this.m_ProgressBar.Margin = new System.Windows.Forms.Padding(4);
       this.m_ProgressBar.Name = "m_ProgressBar";
-      this.m_ProgressBar.Size = new System.Drawing.Size(471, 25);
+      this.m_ProgressBar.Size = new System.Drawing.Size(413, 20);
       this.m_ProgressBar.Style = System.Windows.Forms.ProgressBarStyle.Marquee;
       this.m_ProgressBar.TabIndex = 0;
+      // 
       // m_LabelText
+      // 
+      this.m_LabelText.AutoSize = true;
       this.m_LabelText.BackColor = System.Drawing.SystemColors.Control;
-      this.m_LabelText.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.m_LabelText.Location = new System.Drawing.Point(5, 6);
-      this.m_LabelText.Margin = new System.Windows.Forms.Padding(5, 6, 5, 6);
-      this.m_LabelText.MaximumSize = new System.Drawing.Size(468, 267);
+      this.m_LabelText.Location = new System.Drawing.Point(4, 4);
+      this.m_LabelText.Margin = new System.Windows.Forms.Padding(4);
       this.m_LabelText.Name = "m_LabelText";
-      this.m_LabelText.Size = new System.Drawing.Size(468, 34);
+      this.m_LabelText.Size = new System.Drawing.Size(44, 34);
       this.m_LabelText.TabIndex = 1;
       this.m_LabelText.Text = "Text\r\nLine 2";
-      this.m_LabelText.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+      // 
       // m_LabelEtl
-      this.m_LabelEtl.Dock = System.Windows.Forms.DockStyle.Top;
-      this.m_LabelEtl.Location = new System.Drawing.Point(3, 78);
-      this.m_LabelEtl.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      // 
+      this.m_LabelEtl.AutoSize = true;
+      this.m_LabelEtl.BackColor = System.Drawing.SystemColors.Control;
+      this.m_LabelEtl.Location = new System.Drawing.Point(4, 74);
+      this.m_LabelEtl.Margin = new System.Windows.Forms.Padding(4);
       this.m_LabelEtl.Name = "m_LabelEtl";
-      this.m_LabelEtl.Size = new System.Drawing.Size(473, 18);
-      this.m_LabelEtl.TabIndex = 6;
+      this.m_LabelEtl.Size = new System.Drawing.Size(166, 17);
+      this.m_LabelEtl.TabIndex = 2;
       this.m_LabelEtl.Text = "Estimated time remaining:";
+      // 
       // m_TableLayoutPanel
+      // 
+      this.m_TableLayoutPanel.BackColor = System.Drawing.Color.Transparent;
       this.m_TableLayoutPanel.ColumnCount = 1;
       this.m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
       this.m_TableLayoutPanel.Controls.Add(this.m_ProgressBar, 0, 1);
@@ -323,25 +319,26 @@ namespace CsvTools
       this.m_TableLayoutPanel.Controls.Add(this.m_LabelText, 0, 0);
       this.m_TableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
       this.m_TableLayoutPanel.Location = new System.Drawing.Point(0, 0);
-      this.m_TableLayoutPanel.Margin = new System.Windows.Forms.Padding(4);
+      this.m_TableLayoutPanel.Margin = new System.Windows.Forms.Padding(2);
       this.m_TableLayoutPanel.Name = "m_TableLayoutPanel";
       this.m_TableLayoutPanel.RowCount = 4;
-      this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-      this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
-      this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 24F));
       this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.m_TableLayoutPanel.Size = new System.Drawing.Size(477, 100);
+      this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+      this.m_TableLayoutPanel.Size = new System.Drawing.Size(421, 99);
       this.m_TableLayoutPanel.TabIndex = 8;
+      // 
       // FormProcessDisplay
-      this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+      // 
+      this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 16F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-      this.ClientSize = new System.Drawing.Size(477, 100);
+      this.BackColor = System.Drawing.SystemColors.Control;
+      this.ClientSize = new System.Drawing.Size(421, 99);
       this.Controls.Add(this.m_TableLayoutPanel);
-      this.DoubleBuffered = true;
       this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
-      this.Margin = new System.Windows.Forms.Padding(4);
-      this.MaximumSize = new System.Drawing.Size(495, 354);
-      this.MinimumSize = new System.Drawing.Size(495, 133);
+      this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+      this.MinimumSize = new System.Drawing.Size(439, 0);
       this.Name = "FormProcessDisplay";
       this.ShowIcon = false;
       this.ShowInTaskbar = false;
@@ -349,7 +346,9 @@ namespace CsvTools
       this.TopMost = true;
       this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.ProcessDisplay_FormClosing);
       this.m_TableLayoutPanel.ResumeLayout(false);
+      this.m_TableLayoutPanel.PerformLayout();
       this.ResumeLayout(false);
+
     }
 
     private void ProcessDisplay_FormClosing(object sender, FormClosingEventArgs e)
@@ -358,11 +357,22 @@ namespace CsvTools
       try
       {
         // if the form is closed by the user (UI) signal a cancellation
-        if (CancellationTokenSource != null && m_ClosedByUI)
-          CancellationTokenSource.Cancel();
+        if (e.CloseReason== CloseReason.UserClosing && !CancellationTokenSource.IsCancellationRequested)
+        {
+          if (_MessageBox.Show(this, "Cancel running process?", "Cancel", MessageBoxButtons.YesNo,
+            MessageBoxIcon.Question) == DialogResult.Yes)
+          {
+            CancellationTokenSource.Cancel();
+            // Give it time to stop
+            Thread.Sleep(200);
+          }
+          else
+            e.Cancel = true;
+        }
       }
       catch (ObjectDisposedException)
       {
+        //Ignore
       }
     }
 
@@ -370,33 +380,39 @@ namespace CsvTools
 
     private bool m_DisposedValue; // To detect redundant calls
 
-    // This code added to correctly implement the disposable pattern.
-    public new void Dispose() =>
-      // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+    /// <inheritdoc />
+    public new void Dispose()
+    {
       Dispose(true);
+      GC.SuppressFinalize(this);
+    }
 
+    /// <inheritdoc />
     protected override void Dispose(bool disposing)
     {
       if (m_DisposedValue) return;
-
       try
       {
         if (disposing)
         {
           m_DisposedValue = true;
           if (!CancellationTokenSource.IsCancellationRequested)
+          {
             CancellationTokenSource.Cancel();
+            // Give teh possibly running threads some time to exit
+            Thread.Sleep(100);
+          }
+
           CancellationTokenSource.Dispose();
           m_LoggerDisplay?.Dispose();
         }
         base.Dispose(disposing);
       }
-      catch
+      catch (ObjectDisposedException)
       {
         //Ignore
       }
     }
-
     #endregion IDisposable Support
   }
 }

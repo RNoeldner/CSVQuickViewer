@@ -11,9 +11,7 @@ namespace CsvTools
     private System.ComponentModel.IContainer components = null;
 
 
-    /// <summary>
-    /// </summary>
-    /// <param name="disposing">true to release both managed and unmanaged resources; false to release only unmanaged resources.</param>
+    /// <inheritdoc />
     protected override void Dispose(bool disposing)
     {
       if (disposing && (components != null))

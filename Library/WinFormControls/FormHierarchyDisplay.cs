@@ -91,10 +91,7 @@ namespace CsvTools
       m_TimerDisplay.AutoReset = false;
     }
 
-    /// <summary>
-    ///   Clean up any resources being used.
-    /// </summary>
-    /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+    /// <inheritdoc />
     protected override void Dispose(bool disposing)
     {
       if (m_DisposedValue)
@@ -431,62 +428,74 @@ namespace CsvTools
       contextMenuStrip.SuspendLayout();
       this.m_TableLayoutPanel1.SuspendLayout();
       this.SuspendLayout();
+      // 
       // labelID
+      // 
       labelID.Anchor = System.Windows.Forms.AnchorStyles.Right;
       labelID.AutoSize = true;
-      labelID.Location = new System.Drawing.Point(62, 9);
-      labelID.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+      labelID.Location = new System.Drawing.Point(52, 6);
       labelID.Name = "labelID";
-      labelID.Size = new System.Drawing.Size(26, 20);
+      labelID.Size = new System.Drawing.Size(19, 15);
       labelID.TabIndex = 3;
       labelID.Text = "ID";
+      // 
       // labelDisplay
+      // 
       labelDisplay.Anchor = System.Windows.Forms.AnchorStyles.Right;
       labelDisplay.AutoSize = true;
-      labelDisplay.Location = new System.Drawing.Point(28, 47);
-      labelDisplay.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+      labelDisplay.Location = new System.Drawing.Point(24, 33);
       labelDisplay.Name = "labelDisplay";
-      labelDisplay.Size = new System.Drawing.Size(60, 20);
+      labelDisplay.Size = new System.Drawing.Size(47, 15);
       labelDisplay.TabIndex = 5;
       labelDisplay.Text = "Display";
+      // 
       // labelParent
+      // 
       labelParent.Anchor = System.Windows.Forms.AnchorStyles.Right;
       labelParent.AutoSize = true;
-      labelParent.Location = new System.Drawing.Point(11, 85);
-      labelParent.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+      labelParent.Location = new System.Drawing.Point(13, 60);
       labelParent.Name = "labelParent";
-      labelParent.Size = new System.Drawing.Size(77, 20);
+      labelParent.Size = new System.Drawing.Size(58, 15);
       labelParent.TabIndex = 7;
       labelParent.Text = "Parent ID";
+      // 
       // contextMenuStrip
+      // 
       contextMenuStrip.ImageScalingSize = new System.Drawing.Size(20, 20);
       contextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             expandAllToolStripMenuItem,
             closeAllToolStripMenuItem});
       contextMenuStrip.Name = "contextMenuStrip";
-      contextMenuStrip.Size = new System.Drawing.Size(168, 68);
+      contextMenuStrip.Size = new System.Drawing.Size(150, 52);
+      // 
       // expandAllToolStripMenuItem
+      // 
       expandAllToolStripMenuItem.Name = "expandAllToolStripMenuItem";
-      expandAllToolStripMenuItem.Size = new System.Drawing.Size(167, 32);
+      expandAllToolStripMenuItem.Size = new System.Drawing.Size(149, 24);
       expandAllToolStripMenuItem.Text = "Expand All";
       expandAllToolStripMenuItem.Click += new System.EventHandler(this.ExpandAllToolStripMenuItem_Click);
+      // 
       // closeAllToolStripMenuItem
+      // 
       closeAllToolStripMenuItem.Name = "closeAllToolStripMenuItem";
-      closeAllToolStripMenuItem.Size = new System.Drawing.Size(167, 32);
+      closeAllToolStripMenuItem.Size = new System.Drawing.Size(149, 24);
       closeAllToolStripMenuItem.Text = "Close All";
       closeAllToolStripMenuItem.Click += new System.EventHandler(this.CloseAllToolStripMenuItem_Click);
+      // 
       // labelFind
+      // 
       labelFind.Anchor = System.Windows.Forms.AnchorStyles.Right;
       labelFind.AutoSize = true;
-      labelFind.Location = new System.Drawing.Point(48, 122);
-      labelFind.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+      labelFind.Location = new System.Drawing.Point(40, 86);
       labelFind.Name = "labelFind";
-      labelFind.Size = new System.Drawing.Size(40, 20);
+      labelFind.Size = new System.Drawing.Size(31, 15);
       labelFind.TabIndex = 5;
       labelFind.Text = "Find";
+      // 
       // m_TableLayoutPanel1
+      // 
       this.m_TableLayoutPanel1.ColumnCount = 3;
-      this.m_TableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 92F));
+      this.m_TableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 74F));
       this.m_TableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
       this.m_TableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
       this.m_TableLayoutPanel1.Controls.Add(labelID, 0, 0);
@@ -501,7 +510,6 @@ namespace CsvTools
       this.m_TableLayoutPanel1.Controls.Add(this.m_ComboBoxDisplay1, 1, 1);
       this.m_TableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
       this.m_TableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
-      this.m_TableLayoutPanel1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
       this.m_TableLayoutPanel1.Name = "m_TableLayoutPanel1";
       this.m_TableLayoutPanel1.RowCount = 5;
       this.m_TableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
@@ -509,75 +517,82 @@ namespace CsvTools
       this.m_TableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.m_TableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.m_TableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-      this.m_TableLayoutPanel1.Size = new System.Drawing.Size(684, 562);
+      this.m_TableLayoutPanel1.Size = new System.Drawing.Size(502, 368);
       this.m_TableLayoutPanel1.TabIndex = 10;
+      // 
       // m_ComboBoxID
+      // 
       this.m_TableLayoutPanel1.SetColumnSpan(this.m_ComboBoxID, 2);
       this.m_ComboBoxID.Dock = System.Windows.Forms.DockStyle.Top;
       this.m_ComboBoxID.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
       this.m_ComboBoxID.FormattingEnabled = true;
-      this.m_ComboBoxID.Location = new System.Drawing.Point(96, 5);
-      this.m_ComboBoxID.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+      this.m_ComboBoxID.Location = new System.Drawing.Point(77, 3);
       this.m_ComboBoxID.Name = "m_ComboBoxID";
-      this.m_ComboBoxID.Size = new System.Drawing.Size(584, 28);
+      this.m_ComboBoxID.Size = new System.Drawing.Size(422, 21);
       this.m_ComboBoxID.TabIndex = 0;
       this.m_ComboBoxID.SelectedIndexChanged += new System.EventHandler(this.TimeDisplayRestart);
       this.m_ComboBoxID.SelectionChangeCommitted += new System.EventHandler(this.ComboBox_SelectionChangeCommitted);
+      // 
       // m_ComboBoxParentID
+      // 
       this.m_TableLayoutPanel1.SetColumnSpan(this.m_ComboBoxParentID, 2);
       this.m_ComboBoxParentID.Dock = System.Windows.Forms.DockStyle.Top;
       this.m_ComboBoxParentID.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
       this.m_ComboBoxParentID.FormattingEnabled = true;
-      this.m_ComboBoxParentID.Location = new System.Drawing.Point(96, 81);
-      this.m_ComboBoxParentID.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+      this.m_ComboBoxParentID.Location = new System.Drawing.Point(77, 57);
       this.m_ComboBoxParentID.Name = "m_ComboBoxParentID";
-      this.m_ComboBoxParentID.Size = new System.Drawing.Size(584, 28);
+      this.m_ComboBoxParentID.Size = new System.Drawing.Size(422, 21);
       this.m_ComboBoxParentID.TabIndex = 1;
       this.m_ComboBoxParentID.SelectedIndexChanged += new System.EventHandler(this.TimeDisplayRestart);
       this.m_ComboBoxParentID.SelectionChangeCommitted += new System.EventHandler(this.ComboBox_SelectionChangeCommitted);
+      // 
       // m_TreeView
+      // 
       this.m_TableLayoutPanel1.SetColumnSpan(this.m_TreeView, 3);
       this.m_TreeView.ContextMenuStrip = contextMenuStrip;
       this.m_TreeView.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.m_TreeView.Location = new System.Drawing.Point(4, 155);
-      this.m_TreeView.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+      this.m_TreeView.Location = new System.Drawing.Point(3, 110);
       this.m_TreeView.Name = "m_TreeView";
-      this.m_TreeView.Size = new System.Drawing.Size(676, 402);
+      this.m_TreeView.Size = new System.Drawing.Size(496, 255);
       this.m_TreeView.TabIndex = 9;
+      // 
       // m_TextBoxValue
+      // 
       this.m_TextBoxValue.Dock = System.Windows.Forms.DockStyle.Top;
-      this.m_TextBoxValue.Location = new System.Drawing.Point(96, 119);
-      this.m_TextBoxValue.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+      this.m_TextBoxValue.Location = new System.Drawing.Point(77, 84);
       this.m_TextBoxValue.Name = "m_TextBoxValue";
-      this.m_TextBoxValue.Size = new System.Drawing.Size(288, 26);
+      this.m_TextBoxValue.Size = new System.Drawing.Size(208, 20);
       this.m_TextBoxValue.TabIndex = 2;
       this.m_TextBoxValue.TextChanged += new System.EventHandler(this.TimerSearchRestart);
+      // 
       // m_ComboBoxDisplay2
+      // 
       this.m_ComboBoxDisplay2.Dock = System.Windows.Forms.DockStyle.Top;
       this.m_ComboBoxDisplay2.FormattingEnabled = true;
-      this.m_ComboBoxDisplay2.Location = new System.Drawing.Point(392, 43);
-      this.m_ComboBoxDisplay2.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+      this.m_ComboBoxDisplay2.Location = new System.Drawing.Point(291, 30);
       this.m_ComboBoxDisplay2.Name = "m_ComboBoxDisplay2";
-      this.m_ComboBoxDisplay2.Size = new System.Drawing.Size(288, 28);
+      this.m_ComboBoxDisplay2.Size = new System.Drawing.Size(208, 21);
       this.m_ComboBoxDisplay2.TabIndex = 15;
       this.m_ComboBoxDisplay2.SelectedIndexChanged += new System.EventHandler(this.TimeDisplayRestart);
+      // 
       // m_ComboBoxDisplay1
+      // 
       this.m_ComboBoxDisplay1.Dock = System.Windows.Forms.DockStyle.Top;
       this.m_ComboBoxDisplay1.FormattingEnabled = true;
-      this.m_ComboBoxDisplay1.Location = new System.Drawing.Point(96, 43);
-      this.m_ComboBoxDisplay1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+      this.m_ComboBoxDisplay1.Location = new System.Drawing.Point(77, 30);
       this.m_ComboBoxDisplay1.Name = "m_ComboBoxDisplay1";
-      this.m_ComboBoxDisplay1.Size = new System.Drawing.Size(288, 28);
+      this.m_ComboBoxDisplay1.Size = new System.Drawing.Size(208, 21);
       this.m_ComboBoxDisplay1.TabIndex = 16;
       this.m_ComboBoxDisplay1.SelectedIndexChanged += new System.EventHandler(this.TimeDisplayRestart);
+      // 
       // FormHierarchyDisplay
-      this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
+      // 
+      this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-      this.ClientSize = new System.Drawing.Size(684, 562);
+      this.ClientSize = new System.Drawing.Size(502, 368);
       this.Controls.Add(this.m_TableLayoutPanel1);
       this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
-      this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-      this.MinimumSize = new System.Drawing.Size(500, 277);
+      this.MinimumSize = new System.Drawing.Size(339, 196);
       this.Name = "FormHierarchyDisplay";
       this.Text = "Hierarchy";
       this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormHierarchyDisplay_FormClosing);
@@ -586,6 +601,7 @@ namespace CsvTools
       this.m_TableLayoutPanel1.ResumeLayout(false);
       this.m_TableLayoutPanel1.PerformLayout();
       this.ResumeLayout(false);
+
     }
 
     private bool MarkInCycle(TreeData treeData, ICollection<TreeData> visitedEntries)
@@ -699,7 +715,7 @@ namespace CsvTools
     {
       m_TimerDisplay.Stop();
       if (m_BuildProcess != null && !m_BuildProcess.CancellationToken.IsCancellationRequested)
-        m_BuildProcess.Cancel();
+        m_BuildProcess.Close();
       m_TimerDisplay.Start();
     }
 

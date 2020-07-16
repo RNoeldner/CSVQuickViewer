@@ -6,11 +6,10 @@
     /// Required designer variable.
     /// </summary>
     private System.ComponentModel.IContainer components = null;
+    
     private bool m_DisposedValue; // To detect redundant calls
-    /// <summary>
-    /// Clean up any resources being used.
-    /// </summary>
-    /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+
+    /// <inheritdoc />
     protected override void Dispose(bool disposing)
     {
       if (m_DisposedValue) return;

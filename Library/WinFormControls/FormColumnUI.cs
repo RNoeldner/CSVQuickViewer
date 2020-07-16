@@ -589,24 +589,19 @@ namespace CsvTools
         }
         else
         {
-          using (var processDisplay = new FormProcessDisplay(
-            "Retrieving Information",
-            true,
-            m_CancellationTokenSource.Token))
-          {
-            processDisplay.Show(this);
-            ICollection<string> allColumns = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+          ICollection<string> allColumns = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-            try
-            {
+          try
+          {
               if (!m_WriteSetting)
               {
                 // Read Settings  -- open the source that is a file
                 // if there are ignored columns need to open file and get all columns
                 if (m_FileSetting.ColumnCollection.Any(x => x.Ignore))
                 {
-                  using (var fileReader = await FunctionalDI.ExecuteReaderAsync(m_FileSetting, null, processDisplay))
+                  using (var fileReader = FunctionalDI.GetFileReader(m_FileSetting, null, new CustomProcessDisplay(m_CancellationTokenSource.Token)))
                   {
+                    await fileReader.OpenAsync(m_CancellationTokenSource.Token);
                     for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
                       allColumns.Add(fileReader.GetColumn(colIndex).Name);
                   }
@@ -615,7 +610,8 @@ namespace CsvTools
                 {
                   if (FunctionalDI.GetColumnHeader != null)
                   {
-                    var cols = await FunctionalDI.GetColumnHeader(m_FileSetting, processDisplay.CancellationToken);
+
+                    var cols = await FunctionalDI.GetColumnHeader(m_FileSetting, m_CancellationTokenSource.Token);
                     if (cols != null)
                       foreach (var col in cols)
                         allColumns.Add(col);
@@ -625,22 +621,22 @@ namespace CsvTools
               else
               {
                 // Write Setting ----- open the source that is SQL
-                using (var fileReader = await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement.NoRecordSQL(),processDisplay.SetProcess, m_FileSetting.Timeout, processDisplay.CancellationToken))
+                using (var fileReader = await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement.NoRecordSQL(), null, m_FileSetting.Timeout, m_CancellationTokenSource.Token))
                 {
-                  await fileReader.OpenAsync(processDisplay.CancellationToken);
+                  await fileReader.OpenAsync(m_CancellationTokenSource.Token);
                   for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
                     allColumns.Add(fileReader.GetColumn(colIndex).Name);
                 }
               }
-            }
-            catch (Exception ex)
-            {
-              this.ShowError(ex, "Could not determine columns");
-              return;
-            }
-
-            UpdateColumnList(allColumns);
+            
           }
+          catch (Exception ex)
+          {
+            this.ShowError(ex, "Could not determine columns");
+            return;
+          }
+
+          UpdateColumnList(allColumns);
         }
       }
       catch (Exception ex)
@@ -736,7 +732,7 @@ namespace CsvTools
 
         var sourceDate = new DateTime(2013, 4, 7, 15, 45, 50, 345, DateTimeKind.Local);
 
-        if (hasTimePart && vf.DateFormat.IndexOfAny(new[] {'h', 'H', 'm', 'S', 's'}) == -1)
+        if (hasTimePart && vf.DateFormat.IndexOfAny(new[] { 'h', 'H', 'm', 'S', 's' }) == -1)
           vf.DateFormat += " " + comboBoxTPFormat.Text;
 
         labelSampleDisplay.Text = StringConversion.DateTimeToString(sourceDate, vf);

@@ -237,7 +237,7 @@ namespace CsvTools
         if (m_IncludeErrorField && !m_ReaderColumns.Contains(ReaderConstants.cErrorField))
         {
           m_ColErrorField = m_FieldCount++;
-          m_Column.Add(new ImmutableColumn(ReaderConstants.cErrorField, new ImmutableValueFormat(DataType.String), m_ColErrorField));
+          m_Column.Add(new ImmutableColumn(ReaderConstants.cErrorField, new ImmutableValueFormat(), m_ColErrorField));
         }
       }
       catch (Exception)

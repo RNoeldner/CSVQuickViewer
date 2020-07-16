@@ -78,17 +78,11 @@ namespace CsvTools
       Extensions.ProcessUIElements();
     }
 
+    /// <inheritdoc />
     protected override void Dispose(bool disposing)
     {
-      try
-      {
-        Logger.AddLog = m_PreviousLog;
-        base.Dispose(disposing);
-      }
-      catch (Exception e)
-      {
-        // ignore
-      }
+      Logger.AddLog = m_PreviousLog;
+      base.Dispose(disposing);
     }
 
     private void AppendText(string text, Logger.Level level)
@@ -127,7 +121,6 @@ namespace CsvTools
               // ignore
             }
           });
-      // Extensions.ProcessUIElements();
     }
   }
 }

@@ -22,6 +22,18 @@ namespace CsvTools.Tests
   public class FormProcessDisplayTests
   {
     [TestMethod]
+    public void FormProcessCancel()
+    {
+      using (var frm = new FormProcessDisplay("Test Logger", true, UnitTestInitializeCsv.Token))
+      {
+        frm.ShowInTaskbar = true;
+        frm.Show();
+        UnitTestWinFormHelper.WaitSomeTime(.2);
+        frm.Close();
+      }
+    }
+
+    [TestMethod]
     public void FormProcessDisplay()
     {
       // Log
@@ -34,7 +46,6 @@ namespace CsvTools.Tests
         {
           frm.SetProcess($"This is a text\nLine {c}", c, true);
           UnitTestWinFormHelper.WaitSomeTime(.1);
-          frm.SetFonts(frm);
         }
         frm.Close();
       }
@@ -100,7 +111,7 @@ namespace CsvTools.Tests
         using (var frm = new FormProcessDisplay("Title", true, tokenSrc.Token))
         {
           Assert.AreEqual(false, frm.CancellationTokenSource.IsCancellationRequested);
-          frm.Cancel();
+          frm.Close();
           Assert.AreEqual(true, frm.CancellationTokenSource.IsCancellationRequested);
           Assert.AreEqual(false, tokenSrc.IsCancellationRequested);
         }
