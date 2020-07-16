@@ -424,7 +424,8 @@ namespace CsvTools
     {
       if (string.IsNullOrEmpty(fileName) || !FileSystemUtils.FileExists(fileName))
         return;
-
+      if (fileName.IndexOf('~')!=-1)
+        fileName = FileSystemUtils.LongFileName(fileName);
       try
       {
         if (fileName.EndsWith(CsvFile.cCsvSettingExtension, StringComparison.OrdinalIgnoreCase))
@@ -449,7 +450,7 @@ namespace CsvTools
           ViewSettings.CopyConfiguration(m_ViewSettings, m_FileSetting, fileName);
 
           m_FileSetting.ID = fileName.GetIdFromFileName();
-          var fileInfo = new FileInfo(fileName);
+          var fileInfo = new FileSystemUtils.FileInfo(fileName);
 
           Logger.Information($"Size of file: {StringConversion.DynamicStorageSize(fileInfo.Length)}");
 
