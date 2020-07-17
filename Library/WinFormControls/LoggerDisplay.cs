@@ -62,7 +62,8 @@ namespace CsvTools
         {
           if (level < Logger.Level.Warn)
             text = StringUtils.GetShortDisplay(StringUtils.HandleCRLFCombinations(text, " "), 120);
-          AppendText($"{(m_Initial ? string.Empty : "\n")}{DateTime.Now:HH:mm:ss}  {text}", level);
+          if (!string.IsNullOrEmpty(text) && text != "\"\"")
+            AppendText($"{(m_Initial ? string.Empty : "\n")}{DateTime.Now:HH:mm:ss}  {text}", level);
         }
 
         m_Initial = false;
@@ -94,9 +95,6 @@ namespace CsvTools
 
     private void AppendText(string text, Logger.Level level)
     {
-      if (string.IsNullOrEmpty(text))
-        return;
-
       this.SafeBeginInvoke(
         () =>
         {
