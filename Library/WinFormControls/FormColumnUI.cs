@@ -817,8 +817,9 @@ namespace CsvTools
         }
 
         retry:
-        using (var fileReader = await FunctionalDI.ExecuteReaderAsync(fileSettingCopy, null, processDisplay))
+        using (var fileReader = FunctionalDI.GetFileReader(fileSettingCopy, null, processDisplay))
         {
+          await fileReader.OpenAsync(processDisplay.CancellationToken);
           var colIndex = fileReader.GetOrdinal(columnName);
           if (colIndex < 0)
           {

@@ -107,8 +107,9 @@ namespace CsvTools
 
       // need a dummy process display to have pass in Cancellation token to reader
       using (var prc2 = new CustomProcessDisplay(processDisplay.CancellationToken))
-      using (var fileReader = await FunctionalDI.ExecuteReaderAsync(fileSettingCopy, null, prc2).ConfigureAwait(false))
+      using (var fileReader = FunctionalDI.GetFileReader(fileSettingCopy, null, prc2))
       {
+        await fileReader.OpenAsync(processDisplay.CancellationToken).ConfigureAwait(false);
         return await FillGuessColumnFormatReaderAsyncReader(fileReader, fillGuessSettings,
           fileSetting.ColumnCollection,
           addTextColumns, checkDoubleToBeInteger, fileSetting.TreatTextAsNull, processDisplay);

@@ -58,13 +58,7 @@ namespace CsvTools
         fileSetting.ColumnCollection, fileSetting.RecordLimit,
         fileSetting.TreatNBSPAsSpace)
     {
-      if (processDisplay == null) return;
-      ReportProgress = processDisplay.SetProcess;
-      if (processDisplay is IProcessDisplayTime processDisplayTime)
-      {
-        SetMaxProcess = l => processDisplayTime.Maximum = l;
-        SetMaxProcess(0);
-      }
+      SetProgressActions(processDisplay);
     }
 
     /// <summary>

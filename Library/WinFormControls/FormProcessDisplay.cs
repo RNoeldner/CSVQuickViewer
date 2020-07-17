@@ -89,7 +89,7 @@ namespace CsvTools
     ///   Gets or sets the cancellation token.
     /// </summary>
     /// <value>The cancellation token.</value>
-    public CancellationTokenSource CancellationTokenSource { get; }
+    private CancellationTokenSource CancellationTokenSource { get; }
 
     public Logger.Level LoggerLevel
     {
@@ -280,10 +280,10 @@ namespace CsvTools
       // m_ProgressBar
       // 
       this.m_ProgressBar.Dock = System.Windows.Forms.DockStyle.Top;
-      this.m_ProgressBar.Location = new System.Drawing.Point(4, 46);
-      this.m_ProgressBar.Margin = new System.Windows.Forms.Padding(4);
+      this.m_ProgressBar.Location = new System.Drawing.Point(5, 46);
+      this.m_ProgressBar.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
       this.m_ProgressBar.Name = "m_ProgressBar";
-      this.m_ProgressBar.Size = new System.Drawing.Size(413, 20);
+      this.m_ProgressBar.Size = new System.Drawing.Size(472, 20);
       this.m_ProgressBar.Style = System.Windows.Forms.ProgressBarStyle.Marquee;
       this.m_ProgressBar.TabIndex = 0;
       // 
@@ -291,10 +291,10 @@ namespace CsvTools
       // 
       this.m_LabelText.AutoSize = true;
       this.m_LabelText.BackColor = System.Drawing.SystemColors.Control;
-      this.m_LabelText.Location = new System.Drawing.Point(4, 4);
-      this.m_LabelText.Margin = new System.Windows.Forms.Padding(4);
+      this.m_LabelText.Location = new System.Drawing.Point(5, 4);
+      this.m_LabelText.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
       this.m_LabelText.Name = "m_LabelText";
-      this.m_LabelText.Size = new System.Drawing.Size(44, 34);
+      this.m_LabelText.Size = new System.Drawing.Size(47, 34);
       this.m_LabelText.TabIndex = 1;
       this.m_LabelText.Text = "Text\r\nLine 2";
       // 
@@ -302,10 +302,10 @@ namespace CsvTools
       // 
       this.m_LabelEtl.AutoSize = true;
       this.m_LabelEtl.BackColor = System.Drawing.SystemColors.Control;
-      this.m_LabelEtl.Location = new System.Drawing.Point(4, 74);
-      this.m_LabelEtl.Margin = new System.Windows.Forms.Padding(4);
+      this.m_LabelEtl.Location = new System.Drawing.Point(5, 74);
+      this.m_LabelEtl.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
       this.m_LabelEtl.Name = "m_LabelEtl";
-      this.m_LabelEtl.Size = new System.Drawing.Size(166, 17);
+      this.m_LabelEtl.Size = new System.Drawing.Size(170, 17);
       this.m_LabelEtl.TabIndex = 2;
       this.m_LabelEtl.Text = "Estimated time remaining:";
       // 
@@ -326,19 +326,19 @@ namespace CsvTools
       this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-      this.m_TableLayoutPanel.Size = new System.Drawing.Size(421, 99);
+      this.m_TableLayoutPanel.Size = new System.Drawing.Size(481, 106);
       this.m_TableLayoutPanel.TabIndex = 8;
       // 
       // FormProcessDisplay
       // 
-      this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 16F);
+      this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.BackColor = System.Drawing.SystemColors.Control;
-      this.ClientSize = new System.Drawing.Size(421, 99);
+      this.ClientSize = new System.Drawing.Size(481, 106);
       this.Controls.Add(this.m_TableLayoutPanel);
       this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
       this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-      this.MinimumSize = new System.Drawing.Size(439, 0);
+      this.MinimumSize = new System.Drawing.Size(499, 47);
       this.Name = "FormProcessDisplay";
       this.ShowIcon = false;
       this.ShowInTaskbar = false;

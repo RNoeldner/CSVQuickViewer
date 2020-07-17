@@ -357,7 +357,7 @@
       tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
       tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
       tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-      tableLayoutPanel2.Size = new System.Drawing.Size(721, 196);
+      tableLayoutPanel2.Size = new System.Drawing.Size(721, 195);
       tableLayoutPanel2.TabIndex = 17;
       // 
       // textBoxDateSeparator
@@ -396,7 +396,7 @@
       this.buttonAddFormat.Location = new System.Drawing.Point(373, 164);
       this.buttonAddFormat.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
       this.buttonAddFormat.Name = "buttonAddFormat";
-      this.buttonAddFormat.Size = new System.Drawing.Size(109, 30);
+      this.buttonAddFormat.Size = new System.Drawing.Size(109, 29);
       this.buttonAddFormat.TabIndex = 7;
       this.buttonAddFormat.Text = "Add to List";
       this.toolTip.SetToolTip(this.buttonAddFormat, "Add the selected uncommon date/time format to the checked list box");
@@ -629,10 +629,10 @@
       // buttonCancel
       // 
       this.buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-      this.buttonCancel.Location = new System.Drawing.Point(594, 559);
+      this.buttonCancel.Location = new System.Drawing.Point(594, 558);
       this.buttonCancel.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
       this.buttonCancel.Name = "buttonCancel";
-      this.buttonCancel.Size = new System.Drawing.Size(139, 30);
+      this.buttonCancel.Size = new System.Drawing.Size(139, 29);
       this.buttonCancel.TabIndex = 4;
       this.buttonCancel.Text = "&Cancel";
       this.buttonCancel.UseVisualStyleBackColor = true;
@@ -681,7 +681,7 @@
       this.groupBoxDate.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
       this.groupBoxDate.Name = "groupBoxDate";
       this.groupBoxDate.Padding = new System.Windows.Forms.Padding(4, 2, 4, 2);
-      this.groupBoxDate.Size = new System.Drawing.Size(729, 215);
+      this.groupBoxDate.Size = new System.Drawing.Size(729, 214);
       this.groupBoxDate.TabIndex = 5;
       this.groupBoxDate.TabStop = false;
       this.groupBoxDate.Text = "Date";
@@ -701,7 +701,7 @@
       this.groupBoxNumber.Controls.Add(this.textBoxGroupSeparator);
       this.groupBoxNumber.Controls.Add(this.labelNumber);
       this.groupBoxNumber.Dock = System.Windows.Forms.DockStyle.Top;
-      this.groupBoxNumber.Location = new System.Drawing.Point(4, 278);
+      this.groupBoxNumber.Location = new System.Drawing.Point(4, 277);
       this.groupBoxNumber.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
       this.groupBoxNumber.Name = "groupBoxNumber";
       this.groupBoxNumber.Padding = new System.Windows.Forms.Padding(4, 2, 4, 2);
@@ -757,7 +757,7 @@
       this.groupBoxBoolean.Controls.Add(this.textBoxTrue);
       this.groupBoxBoolean.Controls.Add(this.textBoxFalse);
       this.groupBoxBoolean.Dock = System.Windows.Forms.DockStyle.Top;
-      this.groupBoxBoolean.Location = new System.Drawing.Point(4, 385);
+      this.groupBoxBoolean.Location = new System.Drawing.Point(4, 384);
       this.groupBoxBoolean.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
       this.groupBoxBoolean.Name = "groupBoxBoolean";
       this.groupBoxBoolean.Padding = new System.Windows.Forms.Padding(4, 2, 4, 2);
@@ -785,10 +785,10 @@
       this.buttonGuess.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
       this.buttonGuess.AutoSize = true;
       this.buttonGuess.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-      this.buttonGuess.Location = new System.Drawing.Point(308, 559);
+      this.buttonGuess.Location = new System.Drawing.Point(308, 558);
       this.buttonGuess.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
       this.buttonGuess.Name = "buttonGuess";
-      this.buttonGuess.Size = new System.Drawing.Size(140, 30);
+      this.buttonGuess.Size = new System.Drawing.Size(140, 29);
       this.buttonGuess.TabIndex = 2;
       this.buttonGuess.Text = "&Examine && Guess";
       this.toolTip.SetToolTip(this.buttonGuess, "Read the content of the source and try and find a matching format\r\nNote: Any colu" +
@@ -822,7 +822,7 @@
       this.groupBoxSplit.Controls.Add(this.textBoxPart);
       this.groupBoxSplit.Controls.Add(this.labelResultPart);
       this.groupBoxSplit.Dock = System.Windows.Forms.DockStyle.Top;
-      this.groupBoxSplit.Location = new System.Drawing.Point(4, 472);
+      this.groupBoxSplit.Location = new System.Drawing.Point(4, 471);
       this.groupBoxSplit.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
       this.groupBoxSplit.Name = "groupBoxSplit";
       this.groupBoxSplit.Padding = new System.Windows.Forms.Padding(4, 2, 4, 2);
@@ -941,10 +941,10 @@
       this.buttonDisplayValues.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
       this.buttonDisplayValues.AutoSize = true;
       this.buttonDisplayValues.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-      this.buttonDisplayValues.Location = new System.Drawing.Point(111, 559);
+      this.buttonDisplayValues.Location = new System.Drawing.Point(111, 558);
       this.buttonDisplayValues.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
       this.buttonDisplayValues.Name = "buttonDisplayValues";
-      this.buttonDisplayValues.Size = new System.Drawing.Size(176, 30);
+      this.buttonDisplayValues.Size = new System.Drawing.Size(176, 29);
       this.buttonDisplayValues.TabIndex = 1;
       this.buttonDisplayValues.Text = "Display &Values";
       this.toolTip.SetToolTip(this.buttonDisplayValues, "Read the content of the source and display the read values.\r\nNote: Any column tha" +
@@ -988,17 +988,17 @@
       this.tableLayoutPanelForm.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.tableLayoutPanelForm.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.tableLayoutPanelForm.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 36F));
-      this.tableLayoutPanelForm.Size = new System.Drawing.Size(737, 593);
+      this.tableLayoutPanelForm.Size = new System.Drawing.Size(737, 592);
       this.tableLayoutPanelForm.TabIndex = 5;
       // 
       // buttonOK
       // 
       this.buttonOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
       this.buttonOK.DialogResult = System.Windows.Forms.DialogResult.OK;
-      this.buttonOK.Location = new System.Drawing.Point(473, 559);
+      this.buttonOK.Location = new System.Drawing.Point(473, 558);
       this.buttonOK.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
       this.buttonOK.Name = "buttonOK";
-      this.buttonOK.Size = new System.Drawing.Size(115, 30);
+      this.buttonOK.Size = new System.Drawing.Size(115, 29);
       this.buttonOK.TabIndex = 3;
       this.buttonOK.Text = "&Ok";
       this.buttonOK.UseVisualStyleBackColor = true;

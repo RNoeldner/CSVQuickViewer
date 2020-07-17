@@ -245,13 +245,7 @@ namespace CsvTools
         fileSetting.TreatTextAsNull, fileSetting.SkipEmptyLines,
         fileSetting.ConsecutiveEmptyRows)
     {
-      if (processDisplay == null) return;
-      ReportProgress = processDisplay.SetProcess;
-      if (processDisplay is IProcessDisplayTime processDisplayTime)
-      {
-        SetMaxProcess = value => processDisplayTime.Maximum = value;
-        SetMaxProcess(0);
-      }
+      SetProgressActions(processDisplay);
     }
 
     /// <summary>

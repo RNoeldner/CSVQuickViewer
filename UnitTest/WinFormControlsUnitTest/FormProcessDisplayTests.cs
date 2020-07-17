@@ -42,11 +42,18 @@ namespace CsvTools.Tests
         frm.ShowInTaskbar = false;
         frm.Show();
         frm.Maximum = 100;
-        for (var c = 0; c < 70 && !frm.CancellationToken.IsCancellationRequested; c += 5)
+        TimeSpan sentTime = new TimeSpan(0);
+        frm.ProgressTime += (sender, time) => { sentTime = time.EstimatedTimeRemaining; };
+        var end = 50;
+        var step = 5;
+        var wait = .1;
+        for (var c = 0; c < end && !frm.CancellationToken.IsCancellationRequested; c += step)
         {
           frm.SetProcess($"This is a text\nLine {c}", c, true);
-          UnitTestWinFormHelper.WaitSomeTime(.1);
+          UnitTestWinFormHelper.WaitSomeTime(wait);
         }
+        // Left should be roughly .1 * 50 = 5 seconds  
+        Assert.IsTrue(wait*(end/step) -.5 < sentTime.TotalSeconds && sentTime.TotalSeconds < wait*(end/step) +.5, $"Estimated time should be roughly {wait*(end/step)}s but is {sentTime.TotalSeconds}");
         frm.Close();
       }
 
@@ -96,9 +103,9 @@ namespace CsvTools.Tests
         using (var frm = new FormProcessDisplay("Title", false, tokenSrc.Token))
         {
           Assert.AreEqual("Title", frm.Title);
-          Assert.AreEqual(false, frm.CancellationTokenSource.IsCancellationRequested);
+          Assert.AreEqual(false, frm.CancellationToken.IsCancellationRequested);
           tokenSrc.Cancel();
-          Assert.AreEqual(true, frm.CancellationTokenSource.IsCancellationRequested);
+          Assert.AreEqual(true, frm.CancellationToken.IsCancellationRequested);
         }
       }
     }
@@ -110,9 +117,9 @@ namespace CsvTools.Tests
       {
         using (var frm = new FormProcessDisplay("Title", true, tokenSrc.Token))
         {
-          Assert.AreEqual(false, frm.CancellationTokenSource.IsCancellationRequested);
+          Assert.AreEqual(false, frm.CancellationToken.IsCancellationRequested);
           frm.Close();
-          Assert.AreEqual(true, frm.CancellationTokenSource.IsCancellationRequested);
+          Assert.AreEqual(true, frm.CancellationToken.IsCancellationRequested);
           Assert.AreEqual(false, tokenSrc.IsCancellationRequested);
         }
       }
@@ -139,6 +146,8 @@ namespace CsvTools.Tests
       }
     }
 
+
+
     [TestMethod]
     public void DoHideTest()
     {
@@ -158,7 +167,9 @@ namespace CsvTools.Tests
 
         frm.Show();
         long called = 10;
+
         frm.Progress += delegate (object sender, ProgressEventArgs e) { called = e.Value; };
+
         frm.SetProcess("Help", 20, true);
 
         Assert.AreEqual(20, called);
