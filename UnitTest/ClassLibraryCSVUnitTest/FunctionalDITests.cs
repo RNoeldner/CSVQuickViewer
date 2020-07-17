@@ -32,19 +32,6 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public async Task ExecuteReaderAsync()
-    {
-      var setting = new CsvFile {FileName = UnitTestInitializeCsv.GetTestPath("AlternateTextQualifiers.txt")};
-
-      using (var test3 = await FunctionalDI.ExecuteReaderAsync(setting, null, new CustomProcessDisplay(UnitTestInitializeCsv.Token))
-        .ConfigureAwait(false))
-      {
-        Assert.IsInstanceOfType(test3, typeof(CsvFileReader));
-      }
-    }
-
-
-    [TestMethod]
     public void GetFileWriterTest()
     {
       var setting = new CsvFile {FileName = UnitTestInitializeCsv.GetTestPath("AlternateTextQualifiers.txt")};

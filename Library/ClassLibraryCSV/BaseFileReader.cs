@@ -70,8 +70,8 @@ namespace CsvTools
     /// </summary>
     private bool m_IsFinished;
 
-    protected Action<string, long, bool> ReportProgress;
-    protected Action<long> SetMaxProcess;
+    protected EventHandler<ProgressEventArgs> ReportProgress;
+    protected EventHandler<long> SetMaxProcess;
 
 
     /// <summary>
@@ -797,13 +797,21 @@ namespace CsvTools
 
     private static string GetDefaultName(int i) => $"Column{i + 1}";
 
+    protected void SetProgressActions([CanBeNull] IProcessDisplay processDisplay)
+    {
+      if (processDisplay == null) return;
+      ReportProgress = processDisplay.SetProcess;
+      if (!(processDisplay is IProcessDisplayTime processDisplayTime)) return;
+      SetMaxProcess = (sender, l) => processDisplayTime.Maximum = l;
+      SetMaxProcess(this, 0);
+    }
 
     /// <summary>
     ///   Sets the Progress to marquee, calls OnOpen Event, check if the file does exist if its a physical file
     /// </summary>
     protected async Task BeforeOpenAsync(string message)
     {
-      SetMaxProcess?.Invoke(0);
+      SetMaxProcess?.Invoke(this, 0);
 
       HandleShowProgress(message);
 
@@ -827,7 +835,7 @@ namespace CsvTools
       EndOfFile = false;
 
       OpenFinished?.Invoke(this, Column);
-      SetMaxProcess?.Invoke(cMaxValue);
+      SetMaxProcess?.Invoke(this, cMaxValue);
     }
 
     /// <summary>
@@ -909,7 +917,7 @@ namespace CsvTools
     ///   Gets the relative position.
     /// </summary>
     /// <returns>A value between 0 and MaxValue</returns>
-    protected virtual int GetRelativePosition() => (int) (RecordNumber / RecordLimit * cMaxValue);
+    protected virtual int GetRelativePosition() => (int) ((RecordNumber / RecordLimit) * cMaxValue);
 
     /// <summary>
     ///   Gets the associated value.
@@ -1002,14 +1010,14 @@ namespace CsvTools
     protected virtual void HandleShowProgress(string text, long recordNumber, int progress)
     {
       var rec = recordNumber > 1 ? $"\nRecord {recordNumber:N0}" : string.Empty;
-      ReportProgress?.Invoke($"{text}{rec}", progress, false);
+      ReportProgress?.Invoke(this, new ProgressEventArgs($"{text}{rec}", progress, false));
     }
 
     /// <summary>
     ///   Shows the process.
     /// </summary>
     /// <param name="text">The text.</param>
-    protected void HandleShowProgress(string text) => ReportProgress?.Invoke(text, -1, true);
+    protected void HandleShowProgress(string text) => ReportProgress?.Invoke(this, new ProgressEventArgs(text));
 
     /// <summary>
     ///   Shows the process twice a second
