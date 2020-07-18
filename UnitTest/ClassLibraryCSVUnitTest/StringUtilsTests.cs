@@ -71,13 +71,6 @@ namespace CsvTools.Tests
     }
 
 
-    [TestMethod]
-    public void CountOccurence()
-    {
-      Assert.AreEqual(0, "".CountOccurence("."));
-      Assert.AreEqual(1, ",.,".CountOccurence("."));
-      Assert.AreEqual(2, ",.,".CountOccurence(","));
-    }
 
 
     [TestMethod]

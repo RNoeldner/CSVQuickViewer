@@ -85,27 +85,7 @@ namespace CsvTools
     public static bool Contains([CanBeNull] this string text, [NotNull] string toCheck, StringComparison comp) =>
       text?.IndexOf(toCheck, comp) >= 0;
 
-    /// <summary>
-    ///   Counts the number of occurence of a pattern in a text.
-    /// </summary>
-    /// <param name="text">The text.</param>
-    /// <param name="pattern">The pattern.</param>
-    /// <returns></returns>
-    public static int CountOccurence([NotNull] this string text, [CanBeNull] string pattern)
-    {
-      if (string.IsNullOrEmpty(pattern))
-        return 0;
-      var count = 0;
-      var i = 0;
-      while ((i = text.IndexOf(pattern, i, StringComparison.OrdinalIgnoreCase)) != -1)
-      {
-        i += pattern.Length;
-        count++;
-      }
-
-      return count;
-    }
-
+   
     /// <summary>
     ///   Gets the a short representation of the text.
     /// </summary>
@@ -327,31 +307,6 @@ namespace CsvTools
         chars[count++] = c;
 
       return new string(chars, 0, count);
-    }
-
-    /// <summary>
-    ///   Replace a search text with a replacement repeatedly,
-    /// </summary>
-    /// <param name="original"></param>
-    /// <param name="search"></param>
-    /// <param name="replace"></param>
-    /// <returns>the text where all occurrences are replaced with the replace value</returns>
-    /// <remarks>
-    ///   Searching for two spaces and replacing with one space would lead to two spaces with
-    ///   regular replace it will end up with one space here
-    /// </remarks>
-    [CanBeNull]
-    [ContractAnnotation("original: null=>null; original:notnull=>notnull")]
-    public static string RReplace([CanBeNull] this string original, [CanBeNull] string search, [NotNull] string replace)
-    {
-      if (string.IsNullOrEmpty(search) || search.Equals(replace, StringComparison.Ordinal) ||
-          string.IsNullOrEmpty(original))
-        return original;
-      var ret = original;
-      while (ret.Contains(search))
-        ret = ret.Replace(search, replace);
-
-      return ret;
     }
 
     /// <summary>
