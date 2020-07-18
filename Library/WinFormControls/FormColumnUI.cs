@@ -137,7 +137,7 @@ namespace CsvTools
             using (var sqlReader = await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement, processDisplay.SetProcess, m_FileSetting.Timeout, processDisplay.CancellationToken))
             {
               var data = await sqlReader.GetDataTableAsync(m_FileSetting.RecordLimit, false,
-                m_FileSetting.DisplayStartLineNo, m_FileSetting.DisplayRecordNo, m_FileSetting.DisplayEndLineNo, false,
+                m_FileSetting.DisplayStartLineNo, m_FileSetting.DisplayRecordNo, m_FileSetting.DisplayEndLineNo, false, null, null,
                 processDisplay.CancellationToken);
               var found = new Column();
               var column = data.Columns[columnName];

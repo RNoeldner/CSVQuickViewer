@@ -168,15 +168,18 @@ namespace CsvTools
 
         if (value == null)
           return;
-        m_Columns = m_DataTable.Columns;
 
         m_FilterDataTable = new FilterDataTable(m_DataTable);
         m_FilterDataTable.StartFilter(int.MaxValue, FilterType.ErrorsAndWarning, m_CancellationTokenSource.Token)
           .ContinueWith(task => { ShowFilter = (m_FilterDataTable.FilterTable.Rows.Count > 0); });
+
+        m_Columns = m_DataTable.Columns;
+
         m_FilteredDataGridView.FileSetting = m_FileSetting;
         m_FilteredDataGridView.FillGuessSettings = m_FillGuessSettings;
         this.SafeInvoke(() => { m_ToolStripComboBoxFilterType.SelectedIndex = 0; });
         SetDataSource(FilterType.All);
+
       }
     }
 
@@ -481,7 +484,7 @@ namespace CsvTools
         m_HierarchyDisplay?.Dispose();
         m_CancellationTokenSource?.Dispose();
       }
-      
+
       base.Dispose(disposing);
     }
 

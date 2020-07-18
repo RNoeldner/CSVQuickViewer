@@ -73,6 +73,10 @@ namespace CsvTools
     protected EventHandler<ProgressEventArgs> ReportProgress;
     protected EventHandler<long> SetMaxProcess;
 
+    private int m_Percentage;
+
+    public int Percent => m_Percentage/ 100;
+
 
     /// <summary>
     ///   Constructor for abstract base call for <see cref="IFileReader" />
@@ -917,7 +921,8 @@ namespace CsvTools
     ///   Gets the relative position.
     /// </summary>
     /// <returns>A value between 0 and MaxValue</returns>
-    protected virtual int GetRelativePosition() => (int) ((RecordNumber / RecordLimit) * cMaxValue);
+    protected virtual int GetRelativePosition() => (int) (RecordNumber / RecordLimit * cMaxValue);
+
 
     /// <summary>
     ///   Gets the associated value.
@@ -1010,6 +1015,7 @@ namespace CsvTools
     protected virtual void HandleShowProgress(string text, long recordNumber, int progress)
     {
       var rec = recordNumber > 1 ? $"\nRecord {recordNumber:N0}" : string.Empty;
+      m_Percentage = cMaxValue / progress;
       ReportProgress?.Invoke(this, new ProgressEventArgs($"{text}{rec}", progress, false));
     }
 
@@ -1026,8 +1032,9 @@ namespace CsvTools
     /// <param name="recordNumber">The record number.</param>
     protected void HandleShowProgressPeriodic(string text, long recordNumber)
     {
+      m_Percentage = GetRelativePosition();
       if (ReportProgress != null)
-        m_IntervalAction.Invoke(delegate { HandleShowProgress(text, recordNumber, GetRelativePosition()); });
+        m_IntervalAction.Invoke(delegate { HandleShowProgress(text, recordNumber, m_Percentage); });
     }
 
     /// <summary>

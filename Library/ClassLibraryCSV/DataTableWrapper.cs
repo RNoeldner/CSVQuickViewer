@@ -36,6 +36,7 @@ namespace CsvTools
 
     [NotNull] public DataTable DataTable { get; }
 
+    public int Percent => 50; 
     public override bool HasRows => m_DbDataReader.HasRows;
 
     public override string GetName(int i) => m_DbDataReader.GetName(i);
@@ -141,7 +142,6 @@ namespace CsvTools
         if (couldRead && !IsClosed)
           return true;
       }
-
       EndOfFile = true;
       ReadFinished?.Invoke(this, new EventArgs());
       return false;

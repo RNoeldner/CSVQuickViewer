@@ -1401,7 +1401,7 @@ namespace CsvTools.Tests
         {
           await test.OpenAsync(processDisplay.CancellationToken);
 
-          using (var dt = await test.GetDataTableAsync(5, false, false, false, false, false, processDisplay.CancellationToken))
+          using (var dt = await test.GetDataTableAsync(5, false, false, false, false, false, null, null, processDisplay.CancellationToken))
             Assert.AreEqual(5, dt.Rows.Count);
         }
       }
@@ -1416,7 +1416,7 @@ namespace CsvTools.Tests
         {
           await test.OpenAsync(processDisplay.CancellationToken);
 
-          using (var dt = await test.GetDataTableAsync(5, true, true, false, false, true, processDisplay.CancellationToken))
+          using (var dt = await test.GetDataTableAsync(5, true, true, false, false, true, null, null, processDisplay.CancellationToken))
             Assert.AreEqual(5, dt.Rows.Count);
         }
       }
@@ -1433,7 +1433,7 @@ namespace CsvTools.Tests
         {
           await test.OpenAsync(processDisplay.CancellationToken);
 
-          var dt = await test.GetDataTableAsync(-1, false, false, false, false, false, processDisplay.CancellationToken);
+          var dt = await test.GetDataTableAsync(-1, false, false, false, false, false, null, null, processDisplay.CancellationToken);
           Assert.AreEqual(test2.RecordLimit, dt.Rows.Count);
         }
       }
@@ -1453,7 +1453,7 @@ namespace CsvTools.Tests
         {
           await test.OpenAsync(processDisplay.CancellationToken);
 
-          var dt = await test.GetDataTableAsync(-1, true, true, true, true, true, processDisplay.CancellationToken);
+          var dt = await test.GetDataTableAsync(-1, true, true, true, true, true, null, null, processDisplay.CancellationToken);
           // 10 columns 1 ignored one added for Start line one for Error Field one for Record No one
           // for Line end
           Assert.AreEqual(10-1+4, dt.Columns.Count);

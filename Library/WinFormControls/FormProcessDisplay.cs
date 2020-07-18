@@ -141,7 +141,17 @@ namespace CsvTools
     ///   Gets or sets the cancellation token.
     /// </summary>
     /// <value>The cancellation token.</value>
-    public CancellationToken CancellationToken => CancellationTokenSource.Token;
+    public CancellationToken CancellationToken
+    {
+      get
+      {
+        try
+        { return CancellationTokenSource.Token; }
+        catch
+        { return CancellationToken.None; }
+      }
+    }
+
 
     /// <summary>
     ///   Gets or sets the maximum value for the Progress
@@ -293,6 +303,7 @@ namespace CsvTools
       this.m_LabelText.BackColor = System.Drawing.SystemColors.Control;
       this.m_LabelText.Location = new System.Drawing.Point(5, 4);
       this.m_LabelText.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
+      this.m_LabelText.MinimumSize = new System.Drawing.Size(0, 34);
       this.m_LabelText.Name = "m_LabelText";
       this.m_LabelText.Size = new System.Drawing.Size(47, 34);
       this.m_LabelText.TabIndex = 1;
@@ -404,6 +415,7 @@ namespace CsvTools
           }
 
           CancellationTokenSource.Dispose();
+
           m_LoggerDisplay?.Dispose();
         }
         base.Dispose(disposing);
