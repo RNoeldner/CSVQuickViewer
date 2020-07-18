@@ -69,22 +69,22 @@ namespace CsvTools
     /// </param>
     /// <param name="addStartLine">
     ///   if <c>true</c> add a column for the start line: <see
-    ///                                                     cref="ReaderConstants.cStartLineNumberFieldName" /> useful for line based reader like
+    ///   cref="ReaderConstants.cStartLineNumberFieldName" /> useful for line based reader like
     ///   delimited text
     /// </param>
     /// <param name="includeRecordNo">
     ///   if <c>true</c> add a column for the records number: <see
-    ///                                                         cref="ReaderConstants.cRecordNumberFieldName" /> (if the reader was not at the beginning
+    ///   cref="ReaderConstants.cRecordNumberFieldName" /> (if the reader was not at the beginning
     ///   it will it will not start with 1)
     /// </param>
     /// <param name="includeEndLineNo">
     ///   if <c>true</c> add a column for the end line: <see
-    ///                                                   cref="ReaderConstants.cEndLineNumberFieldName" /> useful for line based reader like
+    ///   cref="ReaderConstants.cEndLineNumberFieldName" /> useful for line based reader like
     ///   delimited text where a record can span multiple lines
     /// </param>
     /// <param name="includeErrorField">
     ///   if <c>true</c> add a column with error information: <see
-    ///                                                         cref="ReaderConstants.cErrorField" />
+    ///   cref="ReaderConstants.cErrorField" />
     /// </param>
     /// <param name="previewAction"></param>
     /// <param name="progress"></param>
@@ -111,8 +111,7 @@ namespace CsvTools
       dataTable.BeginLoadData();
       try
       {
-        
-        IntervalAction intervalAction = progress!=null? new IntervalAction():null;
+        IntervalAction intervalAction = progress!=null ? new IntervalAction() : null;
         // Check if we need the wrapper, in case of new additional columns and not storing errors
         if (!storeWarningsInDataTable && !addStartLine && !includeRecordNo && !includeEndLineNo && !includeErrorField)
         {
@@ -122,7 +121,7 @@ namespace CsvTools
           var notIgnored = reader.GetColumnsOfReader().ToList();
           foreach (var column in notIgnored)
             dataTable.Columns.Add(new DataColumn(column.Name, column.ValueFormat.DataType.GetNetType()));
-          
+
           var record = 0;
           while (record++<recordLimit && await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
           {
@@ -163,9 +162,8 @@ namespace CsvTools
                 var copy = dataTable.Copy();
                 Task.Run(() => previewAction(copy), cancellationToken);
               }
-                
 
-              if (!storeWarningsInDataTable || wrapper.ColumnErrorDictionary.Count <= 0)
+              if (!storeWarningsInDataTable || wrapper.ColumnErrorDictionary.Count <= 0 || cancellationToken.IsCancellationRequested)
                 continue;
 
               foreach (var keyValuePair in wrapper.ColumnErrorDictionary)
