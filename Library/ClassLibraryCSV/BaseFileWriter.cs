@@ -48,8 +48,6 @@ namespace CsvTools
     private readonly Action<string> m_ReportProgress;
     private readonly Action<long> m_SetMaxProcess;
 
-    [NotNull] private readonly string m_SourceTimeZone;
-
     private readonly string m_SqlStatement;
     private readonly int m_Timeout;
     [NotNull] protected readonly IValueFormat ValueFormatGeneral;
@@ -59,13 +57,13 @@ namespace CsvTools
     ///   Initializes a new instance of the <see cref="BaseFileWriter" /> class.
     /// </summary>
     /// <param name="fileSetting">the file setting with the definition for the file</param>
-    /// <param name="sourceTimeZone">Timezone of the source</param>
+    /// <param name="lastExecution"></param>
     /// <param name="lastExecutionStart"></param>
     /// <param name="processDisplay">The process display.</param>
-    /// <param name="lastExecution"></param>
     /// <exception cref="ArgumentNullException">fileSetting</exception>
     /// <exception cref="ArgumentException">No SQL Reader set</exception>
-    protected BaseFileWriter([NotNull] IFileSettingPhysicalFile fileSetting, [CanBeNull] string sourceTimeZone, DateTime lastExecution, DateTime lastExecutionStart,
+    protected BaseFileWriter([NotNull] IFileSettingPhysicalFile fileSetting, DateTime lastExecution,
+      DateTime lastExecutionStart,
       [CanBeNull] IProcessDisplay processDisplay)
     {
       ID = fileSetting.ID;
@@ -76,8 +74,6 @@ namespace CsvTools
       ValueFormatGeneral = new ImmutableValueFormat(fileSetting.FileFormat.ValueFormatMutable);
       FileFormat = new ImmutableFileFormat(fileSetting.FileFormat);
       ColumnDefinition = fileSetting.ColumnCollection.ReadonlyCopy();
-      // TODO: where is it used?
-      m_SourceTimeZone = string.IsNullOrEmpty(sourceTimeZone) ? TimeZoneInfo.Local.Id : sourceTimeZone;
       if (processDisplay != null)
       {
         

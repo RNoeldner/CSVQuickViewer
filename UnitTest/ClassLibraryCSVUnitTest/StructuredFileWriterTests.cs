@@ -65,7 +65,7 @@ namespace CsvTools.Tests
           sb.Length -= 2;
         sb.AppendLine("},");
         writeFile.Row = sb.ToString();
-        var writer = new StructuredFileWriter(writeFile, TimeZoneInfo.Local.Id, BaseSettings.ZeroTime, BaseSettings.ZeroTime, processDisplay);
+        var writer = new StructuredFileWriter(writeFile, BaseSettings.ZeroTime, BaseSettings.ZeroTime, processDisplay);
         var result = await writer.WriteAsync(processDisplay.CancellationToken);
         Assert.AreEqual(7L, result);
       }
@@ -101,7 +101,7 @@ namespace CsvTools.Tests
         writeFile.Row = sb.ToString();
         writeFile.Footer = "</rowset>";
 
-        var writer = new StructuredFileWriter(writeFile, TimeZoneInfo.Local.Id, BaseSettings.ZeroTime, BaseSettings.ZeroTime, processDisplay);
+        var writer = new StructuredFileWriter(writeFile, BaseSettings.ZeroTime, BaseSettings.ZeroTime, processDisplay);
         await writer.WriteAsync(processDisplay.CancellationToken);
       }
     }

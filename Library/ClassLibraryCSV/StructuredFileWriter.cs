@@ -55,13 +55,12 @@ namespace CsvTools
     ///   Initializes a new instance of the <see cref="StructuredFileWriter" /> class.
     /// </summary>
     /// <param name="file">The file.</param>
-    /// <param name="timeZone">The timezone in the source</param>
+    /// <param name="lastExecution"></param>
     /// <param name="lastExecutionStart"></param>
     /// <param name="processDisplay">The process display.</param>
-    /// <param name="lastExecution"></param>
-    public StructuredFileWriter([NotNull] StructuredFile file, [CanBeNull] string timeZone, DateTime lastExecution, DateTime lastExecutionStart,
+    public StructuredFileWriter([NotNull] StructuredFile file, DateTime lastExecution, DateTime lastExecutionStart,
       [CanBeNull] IProcessDisplay processDisplay)
-      : base(file, timeZone, lastExecution, lastExecutionStart, processDisplay)
+      : base(file, lastExecution, lastExecutionStart, processDisplay)
     {
       m_Row = file.Row;
       m_XMLEncode = file.XMLEncode;
