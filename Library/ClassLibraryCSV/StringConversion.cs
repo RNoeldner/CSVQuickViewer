@@ -80,7 +80,7 @@ namespace CsvTools
     /// <param name="culture">the culture to check (important for named Days or month)</param>
     /// <returns><c>true</c> if all values can be interpreted as date, <c>false</c> otherwise.</returns>
     [NotNull]
-    public static CheckResult CheckDate([NotNull] ICollection<string> samples, [CanBeNull] string shortDateFormat, [NotNull] string dateSeparator,
+    public static CheckResult CheckDate([NotNull] ICollection<string> samples, [NotNull] string shortDateFormat, [NotNull] string dateSeparator,
       [NotNull] string timeSeparator, CultureInfo culture)
     {
       var checkResult = new CheckResult();
@@ -464,9 +464,11 @@ namespace CsvTools
       // only allow format that has time values
       const string c_Allowed = " Hhmsf:";
 
-      var result = format.DateFormat.Where(chr => c_Allowed.IndexOf(chr) != -1).Aggregate(string.Empty, (current, chr) => current + chr);
+      var result = format.DateFormat.Where(chr => c_Allowed.IndexOf(chr) != -1).Aggregate(string.Empty, (current, chr) => current + chr).Trim();
       // make them all upper case H lower case does not make sense
-      result = result.Trim().RReplace("h", "H");
+      while (result.Contains("h"))
+        result = result.Replace("h", "H");
+
       for (var length = 5; length > 2; length--)
       {
         var search = new string('H', length);
@@ -513,7 +515,7 @@ namespace CsvTools
     [NotNull]
     public static string DecimalToString(decimal value, [NotNull] IValueFormat format)
     {
-      if (string.IsNullOrEmpty(format?.NumberFormat))
+      if (string.IsNullOrEmpty(format.NumberFormat))
         // Get the default format
         format = new ValueFormatMutable();
 
@@ -753,7 +755,7 @@ namespace CsvTools
     ///   Similar to <see cref="StringToDateTimeByCulture" /> but checks if we have a format that
     ///   would fit the length of the value.
     /// </remarks>
-    public static DateTime? StringToDateTimeExact([CanBeNull] string originalValue, [CanBeNull] string dateFormats, [NotNull] string dateSeparator,
+    public static DateTime? StringToDateTimeExact([CanBeNull] string originalValue, [NotNull] string dateFormats, [NotNull] string dateSeparator,
       [NotNull] string timeSeparator, [NotNull] CultureInfo culture)
     {
       var stringDateValue = originalValue?.Trim() ?? string.Empty;
@@ -1080,7 +1082,7 @@ namespace CsvTools
     /// <param name="dateFormat">The date format, possibly separated by delimiter</param>
     /// <returns>An array of formats</returns>
     [NotNull]
-    private static IEnumerable<string> GetDateFormats([CanBeNull] string dateFormat)
+    private static IEnumerable<string> GetDateFormats([NotNull] string dateFormat)
     {
       var dateTimeFormats = StringUtils.SplitByDelimiter(dateFormat);
 

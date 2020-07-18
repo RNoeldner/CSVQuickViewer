@@ -1015,7 +1015,7 @@ namespace CsvTools
     protected virtual void HandleShowProgress(string text, long recordNumber, int progress)
     {
       var rec = recordNumber > 1 ? $"\nRecord {recordNumber:N0}" : string.Empty;
-      m_Percentage = cMaxValue / progress;
+      m_Percentage = (progress>0) ? cMaxValue / progress : 0;
       ReportProgress?.Invoke(this, new ProgressEventArgs($"{text}{rec}", progress, false));
     }
 
