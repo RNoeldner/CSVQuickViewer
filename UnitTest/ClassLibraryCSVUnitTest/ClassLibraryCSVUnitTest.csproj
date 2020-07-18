@@ -162,6 +162,7 @@
     <Compile Include="FunctionalDITests.cs" />
     <Compile Include="ImprovedTextReaderPositionStoreTests.cs" />
     <Compile Include="ImprovedTextReaderTests.cs" />
+    <Compile Include="ProgressEventArgsTimeTests.cs" />
     <Compile Include="RealignColumnsTest.cs" />
     <Compile Include="SampleAndErrorsInformationTest.cs" />
     <Compile Include="LoggerTest.cs" />
