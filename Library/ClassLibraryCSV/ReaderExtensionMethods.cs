@@ -131,7 +131,7 @@ namespace CsvTools
             foreach (var column in notIgnored)
               dataRow[i++] = reader.GetValue(column.ColumnOrdinal);
             intervalAction?.Invoke(() => progress(reader.RecordNumber, reader.Percent));
-            if (previewAction != null && dataTable.Rows.Count == 500)
+            if (previewAction != null && dataTable.Rows.Count == 250)
             {
               var copy = dataTable.Copy();
               Task.Run(() => previewAction(copy), cancellationToken);
@@ -157,7 +157,7 @@ namespace CsvTools
                 dataRow[i] = wrapper.GetValue(i);
 
               intervalAction?.Invoke(() => progress(reader.RecordNumber, reader.Percent));
-              if (previewAction != null && dataTable.Rows.Count == 500)
+              if (previewAction != null && dataTable.Rows.Count == 250)
               {
                 var copy = dataTable.Copy();
                 Task.Run(() => previewAction(copy), cancellationToken);
