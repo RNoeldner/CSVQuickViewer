@@ -149,6 +149,8 @@ namespace CsvTools
       }
     }
 
+ 
+
     /// <summary>
     ///   Sets the file setting.
     /// </summary>
@@ -197,7 +199,7 @@ namespace CsvTools
     /// <summary>
     ///   The current DataView
     /// </summary>
-    internal DataView DataView { get; private set; }
+    internal DataView DataView { get; set; }
 
     private void FilteredDataGridView_Paint(object sender, PaintEventArgs e) => m_DefRowHeight =
       TextRenderer.MeasureText(e.Graphics, "My Text", base.Font).Height * 120 / 100;

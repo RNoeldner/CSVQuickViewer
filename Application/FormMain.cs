@@ -356,9 +356,9 @@ namespace CsvTools
       var res = this.StoreWindowState();
       if (res != null)
         m_ViewSettings.WindowPosition = res;
-
       SaveViewSettings();
       SaveIndividualFileSetting();
+      Thread.Sleep(200);
     }
 
     /// <summary>
@@ -455,18 +455,18 @@ namespace CsvTools
           Logger.Information($"Size of file: {StringConversion.DynamicStorageSize(fileInfo.Length)}");
 
           FrmLimitSize limitSizeForm = null;
-          if (fileInfo.Length > 1048576 * 20)
-          {
-            limitSizeForm = new FrmLimitSize();
-            limitSizeForm.Show();
+          //if (fileInfo.Length > 1048576 * 20)
+          //{
+          //  limitSizeForm = new FrmLimitSize();
+          //  limitSizeForm.Show();
 
-            // As the form closes it will store the information
-            limitSizeForm.FormClosing += (sender, args) =>
-            {
-              m_FileSetting.RecordLimit = limitSizeForm.RecordLimit;
-              limitSizeForm = null;
-            };
-          }
+          //  // As the form closes it will store the information
+          //  limitSizeForm.FormClosing += (sender, args) =>
+          //  {
+          //    m_FileSetting.RecordLimit = limitSizeForm.RecordLimit;
+          //    limitSizeForm = null;
+          //  };
+          //}
 
           if (FileSystemUtils.FileExists(fileName + CsvFile.cCsvSettingExtension))
           {
@@ -488,13 +488,13 @@ namespace CsvTools
                 m_CancellationTokenSource.Token))
               {
                 processDisplay.Show();
-                if (limitSizeForm != null)
-                {
-                  // ReSharper disable PossibleNullReferenceException
-                  processDisplay.Left = limitSizeForm.Left + limitSizeForm.Width;
-                  limitSizeForm.Focus();
-                  // ReSharper restore PossibleNullReferenceException
-                }
+                //if (limitSizeForm != null)
+                //{
+                //  // ReSharper disable PossibleNullReferenceException
+                //  processDisplay.Left = limitSizeForm.Left + limitSizeForm.Width;
+                //  limitSizeForm.Focus();
+                //  // ReSharper restore PossibleNullReferenceException
+                //}
 
                 m_FileSetting.HasFieldHeader = true;
 
@@ -527,8 +527,8 @@ namespace CsvTools
             }
 
             // wait for the size from to close (it closes automatically)
-            while (limitSizeForm != null)
-              Extensions.ProcessUIElements(125);
+            //while (limitSizeForm != null)
+            //  Extensions.ProcessUIElements(125);
           }
         }
 
@@ -621,24 +621,14 @@ namespace CsvTools
 
             processDisplay.SetProcess("Reading data...", -1, true);
 
+            processDisplay.SetMaximum(100);
             DataTable = await fileReader.GetDataTableAsync(m_FileSetting.RecordLimit, true,
               m_FileSetting.DisplayStartLineNo, m_FileSetting.DisplayRecordNo, m_FileSetting.DisplayEndLineNo, false,
-              processDisplay.CancellationToken);
+              ShowDataTable, (l, i) => processDisplay.SetProcess($"Reading data...\nRecord :{l:N0}", i, false), processDisplay.CancellationToken);
 
             foreach (var columnName in DataTable.GetRealColumns())
               if (m_FileSetting.ColumnCollection.Get(columnName) == null)
                 m_FileSetting.ColumnCollection.AddIfNew(new Column { Name = columnName });
-            if (processDisplay.CancellationToken.IsCancellationRequested)
-            {
-              Logger.Information("Cancellation was requested.");
-              if (_MessageBox.Show(
-                this,
-                "The load was not completed, cancellation was requested.\rDo you want to display the already loaded data?",
-                "Cancellation Requested",
-                MessageBoxButtons.YesNo,
-                MessageBoxIcon.Question) == DialogResult.No)
-                Close();
-            }
           }
         }
 
@@ -646,9 +636,7 @@ namespace CsvTools
 
         if (DataTable != null)
         {
-          // Show the data
-          Logger.Information("Showing loaded data...");
-          detailControl.DataTable = DataTable;
+          ShowDataTable(DataTable);
         }
 
         // The reader is used when data ist stored through the detailControl
@@ -699,6 +687,17 @@ namespace CsvTools
 
         LoadFinished = true;
       }
+    }
+
+    private void ShowDataTable(DataTable dataTable)
+    {
+      Logger.Information("Showing loaded data...");
+      this.SafeBeginInvoke(() =>
+      {
+        ShowTextPanel(false);
+        detailControl.DataTable = dataTable;
+      });
+      FunctionalDI.SignalBackground();
     }
 
     private void SaveViewSettings()
@@ -781,6 +780,7 @@ namespace CsvTools
 
     private void ShowTextPanel(bool visible)
     {
+
       textPanel.Visible = visible;
       detailControl.Visible = !visible;
     }

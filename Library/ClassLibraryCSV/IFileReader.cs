@@ -31,6 +31,7 @@ namespace CsvTools
     /// </summary>
     /// <value>The line number in which the record ended</value>
     long EndLineNumber { get; }
+    int Percent{ get; }
 
     /// <summary>
     ///   Determine if the data Reader is at the end of the file

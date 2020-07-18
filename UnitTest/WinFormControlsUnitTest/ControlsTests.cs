@@ -359,7 +359,7 @@ namespace CsvTools.Tests
           { FileFormat = { FieldDelimiter = "\t" } };
           using (var csvDataReader = new CsvFileReader(cvsSetting, processDisplay))
           {
-            var dt = await csvDataReader.GetDataTableAsync(0, false, true, false, false, false,
+            var dt = await csvDataReader.GetDataTableAsync(0, false, true, false, false, false, null, null,
               processDisplay.CancellationToken);
 
             using (var form = new FormHierarchyDisplay(dt, dataTable.Select()))
