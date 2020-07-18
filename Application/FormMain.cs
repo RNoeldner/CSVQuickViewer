@@ -291,7 +291,6 @@ namespace CsvTools
           m_FileSetting.FileFormat.FieldDelimiterChar, m_FileSetting.FileFormat.EscapeCharacterChar,
           (int) m_CodePage.Item1);
 
-
       ShowTextPanel(true);
       buttonCloseText.Visible = true;
     }
@@ -351,14 +350,20 @@ namespace CsvTools
 
     private void FormMain_FormClosing(object sender, FormClosingEventArgs e)
     {
-      Logger.Debug("Closing Form");
-      m_CancellationTokenSource.Cancel();
-      var res = this.StoreWindowState();
-      if (res != null)
-        m_ViewSettings.WindowPosition = res;
-      SaveViewSettings();
-      SaveIndividualFileSetting();
-      Thread.Sleep(200);
+      if (!m_CancellationTokenSource.IsCancellationRequested)
+        m_CancellationTokenSource.Cancel();
+      if (e.CloseReason== CloseReason.UserClosing)
+      {
+        Logger.Debug("Closing Form");
+
+        var res = this.StoreWindowState();
+        if (res != null)
+          m_ViewSettings.WindowPosition = res;
+        SaveViewSettings();
+        SaveIndividualFileSetting();
+
+        Thread.Sleep(200);
+      }
     }
 
     /// <summary>
@@ -454,20 +459,6 @@ namespace CsvTools
 
           Logger.Information($"Size of file: {StringConversion.DynamicStorageSize(fileInfo.Length)}");
 
-          FrmLimitSize limitSizeForm = null;
-          //if (fileInfo.Length > 1048576 * 20)
-          //{
-          //  limitSizeForm = new FrmLimitSize();
-          //  limitSizeForm.Show();
-
-          //  // As the form closes it will store the information
-          //  limitSizeForm.FormClosing += (sender, args) =>
-          //  {
-          //    m_FileSetting.RecordLimit = limitSizeForm.RecordLimit;
-          //    limitSizeForm = null;
-          //  };
-          //}
-
           if (FileSystemUtils.FileExists(fileName + CsvFile.cCsvSettingExtension))
           {
             m_FileSetting = SerializedFilesLib.LoadCsvFile(fileName + CsvFile.cCsvSettingExtension);
@@ -525,10 +516,6 @@ namespace CsvTools
               detailControl.ButtonShowSource += DetailControl_ButtonShowSource;
               detailControl.ButtonAsText += DetailControl_ButtonAsText;
             }
-
-            // wait for the size from to close (it closes automatically)
-            //while (limitSizeForm != null)
-            //  Extensions.ProcessUIElements(125);
           }
         }
 
@@ -626,18 +613,21 @@ namespace CsvTools
               m_FileSetting.DisplayStartLineNo, m_FileSetting.DisplayRecordNo, m_FileSetting.DisplayEndLineNo, false,
               ShowDataTable, (l, i) => processDisplay.SetProcess($"Reading data...\nRecord :{l:N0}", i, false), processDisplay.CancellationToken);
 
+            // if the form was closed during the laod cancellation was send but the
+            // m_CancellationTokenSource was possibl yalready disposed, if so m_DisposedValue would
+            // be true tough
+            if (m_DisposedValue)
+              return;
+
             foreach (var columnName in DataTable.GetRealColumns())
               if (m_FileSetting.ColumnCollection.Get(columnName) == null)
                 m_FileSetting.ColumnCollection.AddIfNew(new Column { Name = columnName });
           }
         }
-
         detailControl.CancellationToken = m_CancellationTokenSource.Token;
 
         if (DataTable != null)
-        {
           ShowDataTable(DataTable);
-        }
 
         // The reader is used when data ist stored through the detailControl
         FunctionalDI.SQLDataReader = async (settingName, message, timeout, token) =>
@@ -662,30 +652,31 @@ namespace CsvTools
 
         // if (m_FileSetting.NoDelimitedFile) detailControl_ButtonShowSource(this, null);
       }
-      catch (ObjectDisposedException)
-      {
-      }
       catch (Exception exc)
       {
-        this.ShowError(exc, "Opening File");
+        if (!m_DisposedValue)
+          this.ShowError(exc, "Opening File");
       }
       finally
       {
-        if (DataTable == null)
-          Logger.Information("No data...");
-        else
+        if (!m_DisposedValue)
+        {
+          if (DataTable == null)
+            Logger.Information("No data...");
+          else
+            // if (!m_FileSetting.NoDelimitedFile)
+            ShowTextPanel(false);
 
-          // if (!m_FileSetting.NoDelimitedFile)
-          ShowTextPanel(false);
-        Cursor.Current = oldCursor;
+          Cursor.Current = oldCursor;
 
-        m_ConfigChanged = false;
-        m_FileChanged = false;
+          m_ConfigChanged = false;
+          m_FileChanged = false;
 
-        // Re enable event watching
-        AttachPropertyChanged(m_FileSetting);
+          // Re enable event watching
+          AttachPropertyChanged(m_FileSetting);
 
-        LoadFinished = true;
+          LoadFinished = true;
+        }
       }
     }
 
@@ -780,7 +771,6 @@ namespace CsvTools
 
     private void ShowTextPanel(bool visible)
     {
-
       textPanel.Visible = visible;
       detailControl.Visible = !visible;
     }
