@@ -141,17 +141,8 @@ namespace CsvTools
     ///   Gets or sets the cancellation token.
     /// </summary>
     /// <value>The cancellation token.</value>
-    public CancellationToken CancellationToken
-    {
-      get
-      {
-        try
-        { return CancellationTokenSource.Token; }
-        catch
-        { return CancellationToken.None; }
-      }
-    }
-
+    public CancellationToken CancellationToken =>
+      (!m_DisposedValue) ? CancellationTokenSource.Token : new CancellationToken(true);
 
     /// <summary>
     ///   Gets or sets the maximum value for the Progress
@@ -286,9 +277,7 @@ namespace CsvTools
       this.m_TableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
       this.m_TableLayoutPanel.SuspendLayout();
       this.SuspendLayout();
-      // 
       // m_ProgressBar
-      // 
       this.m_ProgressBar.Dock = System.Windows.Forms.DockStyle.Top;
       this.m_ProgressBar.Location = new System.Drawing.Point(5, 46);
       this.m_ProgressBar.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
@@ -296,9 +285,7 @@ namespace CsvTools
       this.m_ProgressBar.Size = new System.Drawing.Size(472, 20);
       this.m_ProgressBar.Style = System.Windows.Forms.ProgressBarStyle.Marquee;
       this.m_ProgressBar.TabIndex = 0;
-      // 
       // m_LabelText
-      // 
       this.m_LabelText.AutoSize = true;
       this.m_LabelText.BackColor = System.Drawing.SystemColors.Control;
       this.m_LabelText.Location = new System.Drawing.Point(5, 4);
@@ -308,9 +295,7 @@ namespace CsvTools
       this.m_LabelText.Size = new System.Drawing.Size(47, 34);
       this.m_LabelText.TabIndex = 1;
       this.m_LabelText.Text = "Text\r\nLine 2";
-      // 
       // m_LabelEtl
-      // 
       this.m_LabelEtl.AutoSize = true;
       this.m_LabelEtl.BackColor = System.Drawing.SystemColors.Control;
       this.m_LabelEtl.Location = new System.Drawing.Point(5, 74);
@@ -319,9 +304,7 @@ namespace CsvTools
       this.m_LabelEtl.Size = new System.Drawing.Size(170, 17);
       this.m_LabelEtl.TabIndex = 2;
       this.m_LabelEtl.Text = "Estimated time remaining:";
-      // 
       // m_TableLayoutPanel
-      // 
       this.m_TableLayoutPanel.BackColor = System.Drawing.Color.Transparent;
       this.m_TableLayoutPanel.ColumnCount = 1;
       this.m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
@@ -339,9 +322,7 @@ namespace CsvTools
       this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
       this.m_TableLayoutPanel.Size = new System.Drawing.Size(481, 106);
       this.m_TableLayoutPanel.TabIndex = 8;
-      // 
       // FormProcessDisplay
-      // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.BackColor = System.Drawing.SystemColors.Control;
@@ -359,7 +340,6 @@ namespace CsvTools
       this.m_TableLayoutPanel.ResumeLayout(false);
       this.m_TableLayoutPanel.PerformLayout();
       this.ResumeLayout(false);
-
     }
 
     private void ProcessDisplay_FormClosing(object sender, FormClosingEventArgs e)
@@ -410,7 +390,7 @@ namespace CsvTools
           if (!CancellationTokenSource.IsCancellationRequested)
           {
             CancellationTokenSource.Cancel();
-            // Give teh possibly running threads some time to exit
+            // Give the possibly running threads some time to exit
             Thread.Sleep(100);
           }
 
@@ -425,6 +405,7 @@ namespace CsvTools
         //Ignore
       }
     }
+
     #endregion IDisposable Support
   }
 }

@@ -351,7 +351,11 @@ namespace CsvTools
     private void FormMain_FormClosing(object sender, FormClosingEventArgs e)
     {
       if (!m_CancellationTokenSource.IsCancellationRequested)
+      {
         m_CancellationTokenSource.Cancel();
+        // Give the possibly running threads some time to exit
+        Thread.Sleep(100);
+      }
       if (e.CloseReason== CloseReason.UserClosing)
       {
         Logger.Debug("Closing Form");
@@ -361,8 +365,6 @@ namespace CsvTools
           m_ViewSettings.WindowPosition = res;
         SaveViewSettings();
         SaveIndividualFileSetting();
-
-        Thread.Sleep(200);
       }
     }
 
@@ -613,9 +615,6 @@ namespace CsvTools
               m_FileSetting.DisplayStartLineNo, m_FileSetting.DisplayRecordNo, m_FileSetting.DisplayEndLineNo, false,
               ShowDataTable, (l, i) => processDisplay.SetProcess($"Reading data...\nRecord :{l:N0}", i, false), processDisplay.CancellationToken);
 
-            // if the form was closed during the laod cancellation was send but the
-            // m_CancellationTokenSource was possibl yalready disposed, if so m_DisposedValue would
-            // be true tough
             if (m_DisposedValue)
               return;
 
