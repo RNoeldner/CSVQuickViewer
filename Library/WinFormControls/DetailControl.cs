@@ -1312,7 +1312,7 @@ namespace CsvTools
       using (var processDisplay = new FormProcessDisplay(writeFile.ToString(), true, m_CancellationTokenSource.Token))
       {
         processDisplay.Show(ParentForm);
-        var writer = new CsvFileWriter(writeFile, TimeZoneInfo.Local.Id, BaseSettings.ZeroTime, BaseSettings.ZeroTime, processDisplay);
+        var writer = new CsvFileWriter(writeFile, BaseSettings.ZeroTime, BaseSettings.ZeroTime, processDisplay);
 
         using (var dt = new DataTableWrapper(
           m_FilteredDataGridView.DataView.ToTable(false,

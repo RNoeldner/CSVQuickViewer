@@ -47,11 +47,12 @@ namespace CsvTools
     ///   Initializes a new instance of the <see cref="CsvFileWriter" /> class.
     /// </summary>
     /// <param name="file">The file.</param>
-    /// <param name="timeZone">The timezone to convert to</param>
+    /// <param name="lastExecution"></param>
+    /// <param name="lastExecutionStart"></param>
     /// <param name="processDisplay">The process display.</param>
-    public CsvFileWriter([NotNull] ICsvFile file, [CanBeNull] string timeZone, DateTime lastExecution, DateTime lastExecutionStart,
+    public CsvFileWriter([NotNull] ICsvFile file, DateTime lastExecution, DateTime lastExecutionStart,
       [CanBeNull] IProcessDisplay processDisplay)
-      : base(file, timeZone, lastExecution, lastExecutionStart, processDisplay)
+      : base(file, lastExecution, lastExecutionStart, processDisplay)
     {
       m_CodePageId = file.CodePageId;
       m_ByteOrderMark = file.ByteOrderMark;

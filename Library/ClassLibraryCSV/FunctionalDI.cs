@@ -141,11 +141,11 @@ namespace CsvTools
       switch (setting)
       {
         case ICsvFile csv when !csv.JsonFormat:
-          writer= new CsvFileWriter(csv, timeZone, BaseSettings.ZeroTime, BaseSettings.ZeroTime, processDisplay);
+          writer= new CsvFileWriter(csv, BaseSettings.ZeroTime, BaseSettings.ZeroTime, processDisplay);
           break;
 
         case StructuredFile structuredFile:
-          writer= new StructuredFileWriter(structuredFile, timeZone, BaseSettings.ZeroTime, BaseSettings.ZeroTime, processDisplay);
+          writer= new StructuredFileWriter(structuredFile, BaseSettings.ZeroTime, BaseSettings.ZeroTime, processDisplay);
           break;
       }
 

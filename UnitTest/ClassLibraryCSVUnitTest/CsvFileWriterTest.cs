@@ -70,7 +70,7 @@ namespace CsvTools.Tests
         {
           TimePartFormat = @"hh:mm", TimePart = "Time", TimeZonePart = "TZ"
         });
-      var writer = new CsvFileWriter(writeFile, TimeZoneInfo.Local.Id, BaseSettings.ZeroTime, BaseSettings.ZeroTime,
+      var writer = new CsvFileWriter(writeFile, BaseSettings.ZeroTime, BaseSettings.ZeroTime,
         pd);
 
       var res = await writer.WriteAsync(pd.CancellationToken);
@@ -88,7 +88,7 @@ namespace CsvTools.Tests
       FileSystemUtils.FileDelete(writeFile.FullPath);
       writeFile.FileFormat.FieldDelimiter = "|";
 
-      var writer = new CsvFileWriter(writeFile, TimeZoneInfo.Local.Id, BaseSettings.ZeroTime, BaseSettings.ZeroTime,
+      var writer = new CsvFileWriter(writeFile, BaseSettings.ZeroTime, BaseSettings.ZeroTime,
         pd);
       Assert.IsTrue(string.IsNullOrEmpty(writer.ErrorMessage));
 
@@ -118,7 +118,7 @@ namespace CsvTools.Tests
       };
       cf.ValueFormatMutable.DateFormat = "yyyyMMdd";
       writeFile.ColumnCollection.AddIfNew(cf);
-      var writer = new CsvFileWriter(writeFile, TimeZoneInfo.Local.Id, BaseSettings.ZeroTime, BaseSettings.ZeroTime,
+      var writer = new CsvFileWriter(writeFile, BaseSettings.ZeroTime, BaseSettings.ZeroTime,
         pd);
 
       var res = await writer.WriteAsync(pd.CancellationToken);
@@ -144,7 +144,7 @@ namespace CsvTools.Tests
         var writeFile = new CsvFile {ID = "Test.txt", FileName = "Test.txt", SqlStatement = "Hello"};
         using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
         {
-          var writer = new CsvFileWriter(writeFile, TimeZoneInfo.Local.Id, BaseSettings.ZeroTime, BaseSettings.ZeroTime,
+          var writer = new CsvFileWriter(writeFile, BaseSettings.ZeroTime, BaseSettings.ZeroTime,
             processDisplay);
           using (var reader = new DataTableWrapper(dataTable))
           {
@@ -179,7 +179,7 @@ namespace CsvTools.Tests
         var count = 0;
         using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
         {
-          var writer = new CsvFileWriter(writeFile, TimeZoneInfo.Local.Id, BaseSettings.ZeroTime, BaseSettings.ZeroTime,
+          var writer = new CsvFileWriter(writeFile, BaseSettings.ZeroTime, BaseSettings.ZeroTime,
             processDisplay);
           writer.Warning += (sender, e) => { count++; };
           using (var reader = new DataTableWrapper(dataTable))
@@ -220,7 +220,7 @@ namespace CsvTools.Tests
           await file.WriteLineAsync("Hello");
           using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
           {
-            var writer = new CsvFileWriter(writeFile, TimeZoneInfo.Local.Id, BaseSettings.ZeroTime,
+            var writer = new CsvFileWriter(writeFile, BaseSettings.ZeroTime,
               BaseSettings.ZeroTime, processDisplay);
             using (var reader = new DataTableWrapper(dataTable))
             {
@@ -247,7 +247,7 @@ namespace CsvTools.Tests
       FileSystemUtils.FileDelete(writeFile.FullPath);
       writeFile.FileFormat.FieldDelimiter = "|";
 
-      var writer = new CsvFileWriter(writeFile, TimeZoneInfo.Local.Id, BaseSettings.ZeroTime, BaseSettings.ZeroTime,
+      var writer = new CsvFileWriter(writeFile, BaseSettings.ZeroTime, BaseSettings.ZeroTime,
         pd);
       Assert.IsTrue(string.IsNullOrEmpty(writer.ErrorMessage));
 
