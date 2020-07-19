@@ -49,7 +49,7 @@ namespace CsvTools
     ///   The <see cref="ThreadExceptionEventArgs" /> instance containing the event data.
     /// </param>
     private static void Application_ThreadException(object sender, ThreadExceptionEventArgs e) =>
-  UnhandledException(e.Exception);
+      UnhandledException(e.Exception);
 
     /// <summary>
     ///   Handles the UnhandledException event of the CurrentDomain control.
@@ -95,6 +95,12 @@ namespace CsvTools
     [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
     private static void UnhandledException(Exception ex)
     {
+      if (ex is ObjectDisposedException)
+      {
+        Logger.Warning(ex, "ObjectDisposedException is ignored");
+        return;
+      }
+
       Logger.Error(ex, "Not handled Exception");
       var message = $"{ex.GetType()}\n\n{ex.ExceptionMessages()}\nStack Trace:\n{ex.CsvToolsStackTrace()}";
 #if DEBUG

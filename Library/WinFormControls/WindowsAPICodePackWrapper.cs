@@ -14,37 +14,33 @@ namespace CsvTools
 
     public static void AttachTaskbarProgress([NotNull] this IProcessDisplayTime mainProcess)
     {
+      if (!m_TaskbarManagerSupported) return;
+
       // Handle the TaskBarProcess 
       mainProcess.ProgressTime += (sender, args) =>
       {
-        if (string.IsNullOrEmpty(args.Text) && args.Value < 0)
-        {
-          SetProgressState(true);
-        }
-        else
-        {
-          if (args.Percent >= 1d)
+        if (m_TaskbarManagerSupported)
+          try
           {
-            SetProgressState(true);
-          }
-          else
-          {
-            if (args.Value > -1 && args.Percent < 1d)
+            if ((string.IsNullOrEmpty(args.Text) && args.Value < 0) || args.Percent >= 1d)
+              TaskbarManager.Instance.SetProgressState(TaskbarProgressBarState.NoProgress);
+            else if (args.Value > -1)
             {
-              SetProgressState(false);
-              SetProgressValue(Convert.ToInt32(args.Percent * 1000d), 1000);
+              TaskbarManager.Instance.SetProgressState(TaskbarProgressBarState.Normal);
+              TaskbarManager.Instance.SetProgressValue(Convert.ToInt32(args.Percent * 1000d), 1000);
             }
           }
-        }
-
-        FunctionalDI.SignalBackground?.Invoke();
+          catch (Exception)
+          {
+            // ignore
+            m_TaskbarManagerSupported = false;
+          }
       };
 
       mainProcess.SetMaximum += delegate(object sender, long max)
       {
-        if (max < 1)
-          SetProgressState(true);
-        FunctionalDI.SignalBackground?.Invoke();
+        if (m_TaskbarManagerSupported && max < 1)
+          TaskbarManager.Instance.SetProgressState(TaskbarProgressBarState.NoProgress);
       };
     }
 
@@ -62,12 +58,11 @@ namespace CsvTools
             return commonOpenFileDialog.FileName;
         }
       else
-        using (var openFileDialogReference = new OpenFileDialog())
+        using (var openFolderBrowserDialog = new FolderBrowserDialog())
         {
-          openFileDialogReference.AddExtension = false;
-          openFileDialogReference.InitialDirectory = initialDirectory.RemovePrefix();
-          if (openFileDialogReference.ShowDialog() == DialogResult.OK)
-            return openFileDialogReference.FileName.GetDirectoryName();
+          openFolderBrowserDialog.SelectedPath = initialDirectory.RemovePrefix();
+          if (openFolderBrowserDialog.ShowDialog() == DialogResult.OK)
+            return openFolderBrowserDialog.SelectedPath;
         }
 
       return null;
@@ -153,38 +148,6 @@ namespace CsvTools
         }
 
       return null;
-    }
-
-    private static void SetProgressState(bool noProgress)
-    {
-      if (!m_TaskbarManagerSupported)
-        return;
-      try
-      {
-        TaskbarManager.Instance.SetProgressState(!noProgress
-          ? TaskbarProgressBarState.Normal
-          : TaskbarProgressBarState.NoProgress);
-      }
-      catch (Exception)
-      {
-        // ignore
-        m_TaskbarManagerSupported = false;
-      }
-    }
-
-    private static void SetProgressValue(int currentValue, int maximumValue)
-    {
-      if (!m_TaskbarManagerSupported)
-        return;
-      try
-      {
-        TaskbarManager.Instance.SetProgressValue(currentValue, maximumValue);
-      }
-      catch (Exception)
-      {
-        // ignore
-        m_TaskbarManagerSupported = false;
-      }
     }
   }
 }
