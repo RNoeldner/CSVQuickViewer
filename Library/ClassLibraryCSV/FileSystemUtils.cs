@@ -89,15 +89,11 @@ namespace CsvTools
     [NotNull]
     public static string ExecutableDirectoryName()
     {
-      var directory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-
+      var directory = Assembly.GetExecutingAssembly().Location;
       if (string.IsNullOrEmpty(directory))
-        directory = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location);
+        directory = Assembly.GetEntryAssembly()?.Location;
 
-      if (string.IsNullOrEmpty(directory))
-        directory = Path.GetFullPath(".");
-
-      return directory;
+      return string.IsNullOrEmpty(directory) ? Path.GetFullPath(".") : Path.GetDirectoryName(directory);
     }
 
     /// <summary>
