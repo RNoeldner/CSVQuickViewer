@@ -68,10 +68,10 @@ namespace CsvTools.Tests
     public void GetActiveValueClusterTest()
     {
       using (var data = UnitTestStatic.GetDataTable(200))
-      using (var dataview = new DataView(data, null, null, DataViewRowState.CurrentRows))
+      using (var dataView = new DataView(data, null, null, DataViewRowState.CurrentRows))
       {
         var test0a = new ValueClusterCollection(200);
-        Assert.AreEqual(BuildValueClustersResult.ListFilled, test0a.BuildValueClusters(dataview, typeof(string), 0));
+        Assert.AreEqual(BuildValueClustersResult.ListFilled, test0a.BuildValueClusters(dataView, typeof(string), 0));
         Assert.AreEqual(0, test0a.GetActiveValueCluster().Count());
         foreach (var iten in test0a.ValueClusters)
           iten.Active = true;
