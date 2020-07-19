@@ -30,7 +30,6 @@ namespace CsvTools.Tests
       var ex2 = new EncryptionException("MyMessage2", ex1);
       Assert.AreEqual(ex1, ex2.InnerException);
       Assert.AreEqual("MyMessage2", ex2.Message);
-
     }
 
     [TestMethod]

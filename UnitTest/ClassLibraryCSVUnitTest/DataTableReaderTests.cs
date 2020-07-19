@@ -1,18 +1,17 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+﻿using System;
+using System.Data;
+using System.Globalization;
 using System.Threading.Tasks;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
-  using System.Data;
-  using System.Globalization;
-
-  [TestClass()]
+  [TestClass]
   public class DataTableReaderTests
   {
     private readonly DataTable m_DataTable = RandomDataTable(100);
 
-    [TestMethod()]
+    [TestMethod]
     public async Task DataTableReaderTestAsync()
     {
       using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
@@ -26,7 +25,7 @@ namespace CsvTools.Tests
       }
     }
 
-    [TestMethod()]
+    [TestMethod]
     public async Task GetDataTableAsyncTest1Async()
     {
       using (var pd = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
@@ -34,16 +33,16 @@ namespace CsvTools.Tests
         using (var test = new DataTableWrapper(m_DataTable))
         {
           Assert.IsTrue(test.IsClosed);
-          var dt = await test.GetDataTableAsync(200, false, true, false, false, false, null, null, pd.CancellationToken);
+          var dt = await test.GetDataTableAsync(200, false, true, false, false, false, null, null,
+            pd.CancellationToken);
           Assert.AreEqual(m_DataTable, dt);
         }
       }
     }
 
-    [TestMethod()]
+    [TestMethod]
     public void GetDataTableTest()
     {
-
       try
       {
         // ReSharper disable once AssignNullToNotNullAttribute
@@ -58,10 +57,9 @@ namespace CsvTools.Tests
       {
         Assert.Fail("Wrong Exception Type: " + ex.GetType());
       }
-
     }
 
-    [TestMethod()]
+    [TestMethod]
     public async Task GetDataTypeNameTestAsync()
     {
       using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
@@ -70,12 +68,13 @@ namespace CsvTools.Tests
         {
           await test.OpenAsync(processDisplay.CancellationToken);
           var typeName = test.GetDataTypeName(0);
-          Assert.IsTrue(typeName.Equals("int") || typeName.Equals("Int32") || typeName.Equals("Int64") || typeName.Equals("long"));
+          Assert.IsTrue(typeName.Equals("int") || typeName.Equals("Int32") || typeName.Equals("Int64") ||
+                        typeName.Equals("long"));
         }
       }
     }
 
-    [TestMethod()]
+    [TestMethod]
     public async Task GetFieldTypeTestAsync()
     {
       using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
@@ -88,7 +87,7 @@ namespace CsvTools.Tests
       }
     }
 
-    [TestMethod()]
+    [TestMethod]
     public async Task GetNameTestAsync()
     {
       using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
@@ -101,7 +100,7 @@ namespace CsvTools.Tests
       }
     }
 
-    [TestMethod()]
+    [TestMethod]
     public async Task GetOrdinalTestAsync()
     {
       using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
@@ -114,7 +113,7 @@ namespace CsvTools.Tests
       }
     }
 
-    [TestMethod()]
+    [TestMethod]
     public async Task ReadAsyncTest()
     {
       using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
@@ -127,7 +126,7 @@ namespace CsvTools.Tests
       }
     }
 
-    [TestMethod()]
+    [TestMethod]
     public async Task ReadTestAsync()
     {
       using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
@@ -142,7 +141,7 @@ namespace CsvTools.Tests
 
     private static DataTable RandomDataTable(int records)
     {
-      var dataTable = new DataTable { TableName = "DataTable", Locale = CultureInfo.InvariantCulture };
+      var dataTable = new DataTable {TableName = "DataTable", Locale = CultureInfo.InvariantCulture};
 
       dataTable.Columns.Add("ID", typeof(int));
       dataTable.Columns.Add("Text", typeof(string));

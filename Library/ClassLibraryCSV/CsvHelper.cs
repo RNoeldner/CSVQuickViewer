@@ -34,6 +34,7 @@ namespace CsvTools
     ///   Gets the <see cref="Encoding" /> of the textFile
     /// </summary>
     /// <param name="setting">The setting.</param>
+    /// <param name="token"></param>
     /// <returns></returns>
     public static async Task<Encoding> GetEncodingAsync([NotNull] this ICsvFile setting, CancellationToken token)
     {

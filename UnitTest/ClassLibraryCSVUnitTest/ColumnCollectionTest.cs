@@ -51,7 +51,7 @@ namespace CsvTools.Tests
       Assert.AreEqual(item1, test.Get("TEST"));
       Assert.AreEqual(item2, test.Get("tEst2"));
 
-      Assert.IsNull(test.Get("")); 
+      Assert.IsNull(test.Get(""));
       Assert.IsNull(test.Get(null));
     }
 

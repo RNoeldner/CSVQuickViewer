@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 using System;
 using System.Data;
 using System.Globalization;
@@ -22,20 +23,18 @@ namespace CsvTools.Tests
 {
   internal static class UnitTestStatic
   {
+    private static readonly Random m_Random = new Random(Guid.NewGuid().GetHashCode());
+
     public static T ExecuteWithCulture<T>(Func<T> methodFunc, string cultureName)
     {
       var result = default(T);
 
-      var thread = new Thread(() => { result = methodFunc(); })
-      {
-        CurrentCulture = new CultureInfo(cultureName)
-      };
+      var thread = new Thread(() => { result = methodFunc(); }) {CurrentCulture = new CultureInfo(cultureName)};
       thread.Start();
       thread.Join();
 
       return result;
     }
-    private static readonly Random m_Random = new Random(Guid.NewGuid().GetHashCode());
 
 
     private static string GetRandomText(int length)
@@ -59,11 +58,7 @@ namespace CsvTools.Tests
 
     public static DataTable GetDataTable(int numRecords = 100)
     {
-      var dataTable = new DataTable
-      {
-        TableName = "ArtificialTable",
-        Locale = new CultureInfo("en-gb")
-      };
+      var dataTable = new DataTable {TableName = "ArtificialTable", Locale = new CultureInfo("en-gb")};
       dataTable.Columns.Add("string", typeof(string));
       dataTable.Columns.Add("int", typeof(int));
       dataTable.Columns.Add("DateTime", typeof(DateTime));
@@ -74,7 +69,7 @@ namespace CsvTools.Tests
       dataTable.Columns.Add("PartEmpty", typeof(string));
       dataTable.Columns.Add("ID", typeof(int));
       dataTable.Columns.Add(ReaderConstants.cStartLineNumberFieldName, typeof(long));
-      
+
       var minDate = DateTime.Now.AddYears(-20).Ticks;
       var maxDate = DateTime.Now.AddYears(5).Ticks;
       dataTable.BeginLoadData();
@@ -90,7 +85,7 @@ namespace CsvTools.Tests
 
         if (m_Random.NextDouble() > .2)
         {
-          var dtm = Convert.ToInt64((maxDate - minDate) * m_Random.NextDouble() + minDate);
+          var dtm = Convert.ToInt64(((maxDate - minDate) * m_Random.NextDouble()) + minDate);
           dr[2] = new DateTime(dtm);
         }
 

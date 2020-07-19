@@ -12,8 +12,8 @@
  *
  */
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
@@ -51,7 +51,8 @@ namespace CsvTools.Tests
       Assert.AreEqual(m_StructuredFile.MappingCollection.Count, test.MappingCollection.Count, "FieldMapping");
       Assert.AreEqual(TrimmingOption.Unquoted, test.TrimmingOption, "TrimmingOption");
       Assert.IsTrue(m_StructuredFile.MappingCollection.CollectionEqualWithOrder(test.MappingCollection), "Mapping");
-      Assert.IsTrue(m_StructuredFile.ColumnCollection.CollectionEqualWithOrder(test.ColumnCollection), "ColumnCollection");
+      Assert.IsTrue(m_StructuredFile.ColumnCollection.CollectionEqualWithOrder(test.ColumnCollection),
+        "ColumnCollection");
       Assert.IsTrue(m_StructuredFile.FileFormat.Equals(test.FileFormat), "FileFormat");
       Assert.IsTrue(test.Equals(m_StructuredFile), "Equals");
     }
@@ -62,7 +63,9 @@ namespace CsvTools.Tests
       try
       {
         using (var dummy = FunctionalDI.GetFileReader(m_StructuredFile, TimeZoneInfo.Local.Id, null))
+        {
           Assert.Fail("Should throw error");
+        }
       }
       catch (NotImplementedException)
       {
@@ -75,7 +78,7 @@ namespace CsvTools.Tests
       using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       {
         m_StructuredFile.SqlStatement = "dummy";
-        var res = FunctionalDI.GetFileWriter(m_StructuredFile, TimeZoneInfo.Local.Id, processDisplay);
+        var res = FunctionalDI.GetFileWriter(m_StructuredFile, processDisplay);
         Assert.IsInstanceOfType(res, typeof(IFileWriter));
       }
     }
@@ -110,11 +113,9 @@ namespace CsvTools.Tests
       m_StructuredFile.ColumnCollection.Clear();
       m_StructuredFile.ColumnCollection.AddIfNew(new Column("ID", DataType.Integer)
       {
-        ColumnOrdinal = 1,
-        Ignore = false,
-        Convert = true
+        ColumnOrdinal = 1, Ignore = false, Convert = true
       });
-      m_StructuredFile.ColumnCollection.AddIfNew(new Column { ColumnOrdinal = 2, Name = "Name" });
+      m_StructuredFile.ColumnCollection.AddIfNew(new Column {ColumnOrdinal = 2, Name = "Name"});
     }
 
     [TestMethod]

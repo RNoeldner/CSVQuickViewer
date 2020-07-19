@@ -12,12 +12,10 @@
  *
  */
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
+using System.Drawing;
 using System.Windows.Forms;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
@@ -49,14 +47,11 @@ namespace CsvTools.Tests
       }
     }
 
-    [TestMethod()]
+    [TestMethod]
     public void WriteBindingTest()
     {
       var obj = new DisplayItem<string>("15", "Text");
-      using (var bindingSource = new BindingSource
-      {
-        DataSource = obj
-      })
+      using (var bindingSource = new BindingSource {DataSource = obj})
       {
         var bind = new Binding("Text", bindingSource, "ID", true);
         using (var textBoxBox = new TextBox())
@@ -70,10 +65,10 @@ namespace CsvTools.Tests
       }
     }
 
-    [TestMethod()]
+    [TestMethod]
     public void GetProcessDisplayTest()
     {
-      var setting = new CsvFile()
+      var setting = new CsvFile
       {
         FileName = "Folder\\This is a long file name that should be cut and fit into 80 chars.txt",
         ShowProgress = true
@@ -88,7 +83,7 @@ namespace CsvTools.Tests
         Assert.IsTrue(prc is IProcessDisplay, "GetProcessDisplay Without Logger");
       }
 
-      var setting2 = new CsvFile()
+      var setting2 = new CsvFile
       {
         FileName = "Folder\\This is a long file name that should be cut and fit into 80 chars.txt",
         ShowProgress = false
@@ -100,55 +95,50 @@ namespace CsvTools.Tests
       }
     }
 
-    [TestMethod()]
+    [TestMethod]
     public void LoadWindowStateTest()
     {
       using (var value = new FormProcessDisplay())
       {
         value.Show();
-        var state = new WindowState(new System.Drawing.Rectangle(10, 10, 200, 200), FormWindowState.Normal)
+        var state = new WindowState(new Rectangle(10, 10, 200, 200), FormWindowState.Normal)
         {
-          CustomInt = 27,
-          CustomText = "Test"
+          CustomInt = 27, CustomText = "Test"
         };
         var result1 = -1;
         var result2 = "Hello";
-        value.LoadWindowState(state, (val) => { result1 = val; }, (val) => { result2 = val; });
+        value.LoadWindowState(state, val => { result1 = val; }, val => { result2 = val; });
         Assert.AreEqual(state.CustomInt, result1);
         Assert.AreEqual(state.CustomText, result2);
       }
     }
 
-    [TestMethod()]
+    [TestMethod]
     public void SafeBeginInvokeTest()
     {
     }
 
-    [TestMethod()]
+    [TestMethod]
     public void SafeInvokeTest()
     {
     }
 
-    [TestMethod()]
+    [TestMethod]
     public void SafeInvokeNoHandleNeededTest()
     {
     }
 
-    [TestMethod()]
+    [TestMethod]
     public void StoreWindowStateTest()
     {
       using (var value = new FormProcessDisplay())
       {
         value.Show();
-        var state1 = new WindowState(new System.Drawing.Rectangle(10, 10, value.Width, value.Height),
-          FormWindowState.Normal)
-        {
-          CustomInt = 27,
-          CustomText = "Test"
-        };
+        var state1 = new WindowState(new Rectangle(10, 10, value.Width, value.Height),
+          FormWindowState.Normal) {CustomInt = 27, CustomText = "Test"};
         var result1 = -1;
         var result2 = "Hello";
-        value.LoadWindowState(state1, (val) => { result1 = val; }, (val) => { result2 = val; });
+        value.LoadWindowState(state1, val => { result1 = val; }, val => { result2 = val; });
 
         var state2 = value.StoreWindowState(result1, "World");
         Assert.AreEqual(state1.CustomInt, state2.CustomInt);
@@ -158,12 +148,12 @@ namespace CsvTools.Tests
       }
     }
 
-    [TestMethod()]
+    [TestMethod]
     public void UpdateListViewColumnFormatTest1()
     {
     }
 
-    [TestMethod()]
+    [TestMethod]
     public void WriteFileWithInfoTest()
     {
     }

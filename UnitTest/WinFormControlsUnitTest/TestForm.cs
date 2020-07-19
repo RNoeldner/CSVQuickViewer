@@ -1,21 +1,23 @@
 ﻿using System;
-using System.Diagnostics;
-using System.Threading;
 using System.Drawing;
+using System.Threading;
 using System.Windows.Forms;
+using Timer = System.Timers.Timer;
 
 namespace CsvTools.Tests
 {
   public partial class TestForm : Form
   {
     private readonly CancellationTokenSource m_CancellationTokenSource;
-    private readonly System.Timers.Timer m_Timer = new System.Timers.Timer();
+    private readonly Timer m_Timer = new Timer();
 
     public TestForm()
     {
       m_CancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(UnitTestInitializeCsv.Token);
       InitializeComponent();
     }
+
+    public CancellationToken CancellationToken => m_CancellationTokenSource.Token;
 
     public void AddOneControl(Control ctrl)
     {
@@ -29,20 +31,18 @@ namespace CsvTools.Tests
       Controls.Add(ctrl);
       ResumeLayout(false);
 
-      m_Timer.Interval = new TimeSpan(0,0,0,10).TotalMilliseconds; // 10 Seconds max
+      m_Timer.Interval = new TimeSpan(0, 0, 0, 10).TotalMilliseconds; // 10 Seconds max
       m_Timer.Enabled = true;
       m_Timer.Start();
       m_Timer.Elapsed += (sender, args) => Close();
       Show();
     }
 
-    public CancellationToken CancellationToken => m_CancellationTokenSource.Token;
-
     private void TestForm_FormClosing(object sender, FormClosingEventArgs e)
     {
       m_CancellationTokenSource.Cancel();
       m_Timer.Stop();
       m_Timer.Enabled = false;
-    } 
+    }
   }
 }

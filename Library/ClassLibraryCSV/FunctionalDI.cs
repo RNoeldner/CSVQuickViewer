@@ -109,7 +109,7 @@ namespace CsvTools
     /// </summary>
     [NotNull]
     // ReSharper disable once FieldCanBeMadeReadOnly.Global
-    public static Func<IFileSetting, string, IProcessDisplay, IFileWriter> GetFileWriter = DefaultFileWriter;
+    public static Func<IFileSetting, IProcessDisplay, IFileWriter> GetFileWriter = DefaultFileWriter;
 
     /// <summary>
     ///   Gets or sets a data reader
@@ -135,7 +135,7 @@ namespace CsvTools
     }
 
     [NotNull]
-    private static IFileWriter DefaultFileWriter([NotNull] IFileSetting setting, [CanBeNull] string timeZone, [CanBeNull] IProcessDisplay processDisplay)
+    private static IFileWriter DefaultFileWriter([NotNull] IFileSetting setting, [CanBeNull] IProcessDisplay processDisplay)
     {
       IFileWriter writer = null;
       switch (setting)

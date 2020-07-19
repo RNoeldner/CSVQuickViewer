@@ -11,15 +11,16 @@
 * If not, see http://www.gnu.org/licenses/ .
 *
 */
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using System.Windows.Forms;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
-  [TestClass()]
+  [TestClass]
   public class FoundEventArgsTests
   {
-    [TestMethod()]
+    [TestMethod]
     public void FoundEventArgs()
     {
       var cell = new DataGridViewTextBoxCell();
@@ -28,7 +29,7 @@ namespace CsvTools.Tests
       Assert.AreEqual(cell, test.Cell);
     }
 
-    [TestMethod()]
+    [TestMethod]
     public void SearchEventArgs()
     {
       var test = new SearchEventArgs("test", 2);
@@ -39,6 +40,5 @@ namespace CsvTools.Tests
       Assert.AreEqual(1, test2.Result);
       Assert.AreEqual("test2", test2.SearchText);
     }
-
   }
 }

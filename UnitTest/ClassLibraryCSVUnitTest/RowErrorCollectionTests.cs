@@ -16,13 +16,13 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
-  [TestClass()]
+  [TestClass]
   public class RowErrorCollectionTests
   {
-    [TestMethod()]
+    [TestMethod]
     public void RowErrorCollection() => Assert.IsNotNull(new RowErrorCollection(100));
 
-    [TestMethod()]
+    [TestMethod]
     public void Add()
     {
       var coll = new RowErrorCollection(5);
@@ -42,7 +42,7 @@ namespace CsvTools.Tests
       Assert.AreEqual(5, coll.CountRows);
     }
 
-    [TestMethod()]
+    [TestMethod]
     public void Clear()
     {
       var coll = new RowErrorCollection(5);
@@ -52,7 +52,7 @@ namespace CsvTools.Tests
       Assert.AreEqual(0, coll.CountRows);
     }
 
-    [TestMethod()]
+    [TestMethod]
     public void TryGetValue()
     {
       var coll = new RowErrorCollection(5);
@@ -60,7 +60,7 @@ namespace CsvTools.Tests
       Assert.IsTrue(coll.TryGetValue(1, out _));
     }
 
-    [TestMethod()]
+    [TestMethod]
     public void DisplayByRecordNumber()
     {
       var coll = new RowErrorCollection(5);

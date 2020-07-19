@@ -12,9 +12,9 @@
  *
  */
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Text;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
@@ -24,10 +24,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void Properties()
     {
-      var style = new HTMLStyle
-      {
-        Warning = "TestWar"
-      };
+      var style = new HTMLStyle {Warning = "TestWar"};
       Assert.AreEqual("TestWar", style.Warning);
 
       style.BR = "TestBR";
@@ -165,9 +162,9 @@ namespace CsvTools.Tests
     {
       var sb = new StringBuilder();
       HTMLStyle.AddHtmlCell(sb, "<{0}>", "Test", "Issue".AddWarningId(), true);
-      Assert.IsTrue((sb.ToString().StartsWith("<Test")));
-      Assert.IsTrue((sb.ToString().Contains("Issue")));
-      Assert.IsTrue((sb.ToString().EndsWith(">")));
+      Assert.IsTrue(sb.ToString().StartsWith("<Test"));
+      Assert.IsTrue(sb.ToString().Contains("Issue"));
+      Assert.IsTrue(sb.ToString().EndsWith(">"));
     }
 
     [TestMethod]
@@ -176,10 +173,10 @@ namespace CsvTools.Tests
       var errWar = "Some Error".AddMessage("Issue".AddWarningId());
       var sb = new StringBuilder();
       HTMLStyle.AddHtmlCell(sb, "<{0}>", "Test", errWar, true);
-      Assert.IsTrue((sb.ToString().StartsWith("<Test")));
-      Assert.IsTrue((sb.ToString().EndsWith(">")));
-      Assert.IsTrue((sb.ToString().Contains("Issue")));
-      Assert.IsTrue((sb.ToString().Contains("Some Error")));
+      Assert.IsTrue(sb.ToString().StartsWith("<Test"));
+      Assert.IsTrue(sb.ToString().EndsWith(">"));
+      Assert.IsTrue(sb.ToString().Contains("Issue"));
+      Assert.IsTrue(sb.ToString().Contains("Some Error"));
     }
 
     [TestMethod]
@@ -187,9 +184,9 @@ namespace CsvTools.Tests
     {
       var sb = new StringBuilder();
       HTMLStyle.AddHtmlCell(sb, "<{0}>", "Test", "Some Error", true);
-      Assert.IsTrue((sb.ToString().StartsWith("<Test")));
-      Assert.IsTrue((sb.ToString().Contains("Some Error")));
-      Assert.IsTrue((sb.ToString().EndsWith(">")));
+      Assert.IsTrue(sb.ToString().StartsWith("<Test"));
+      Assert.IsTrue(sb.ToString().Contains("Some Error"));
+      Assert.IsTrue(sb.ToString().EndsWith(">"));
     }
 
     [TestMethod]

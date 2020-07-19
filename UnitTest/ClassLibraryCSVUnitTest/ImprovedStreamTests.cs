@@ -23,10 +23,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void OpenReadTestSetting()
     {
-      var setting = new CsvFile
-      {
-        FileName = UnitTestInitializeCsv.GetTestPath("BasicCsV.txt")
-      };
+      var setting = new CsvFile {FileName = UnitTestInitializeCsv.GetTestPath("BasicCsV.txt")};
       using (var res = ImprovedStream.OpenRead(setting.FullPath))
       {
         Assert.IsNotNull(res);

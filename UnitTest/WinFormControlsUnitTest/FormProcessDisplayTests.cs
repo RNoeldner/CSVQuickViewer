@@ -42,7 +42,7 @@ namespace CsvTools.Tests
         frm.ShowInTaskbar = false;
         frm.Show();
         frm.Maximum = 100;
-        TimeSpan sentTime = new TimeSpan(0);
+        var sentTime = new TimeSpan(0);
         frm.ProgressTime += (sender, time) => { sentTime = time.EstimatedTimeRemaining; };
         var end = 50;
         var step = 5;
@@ -52,8 +52,11 @@ namespace CsvTools.Tests
           frm.SetProcess($"This is a text\nLine {c}", c, true);
           UnitTestWinFormHelper.WaitSomeTime(wait);
         }
+
         // Left should be roughly .1 * 50 = 5 seconds  
-        Assert.IsTrue(wait*(end/step) -.5 < sentTime.TotalSeconds && sentTime.TotalSeconds < wait*(end/step) +.5, $"Estimated time should be roughly {wait*(end/step)}s but is {sentTime.TotalSeconds}");
+        Assert.IsTrue(
+          (wait * (end / step)) - .5 < sentTime.TotalSeconds && sentTime.TotalSeconds < (wait * (end / step)) + .5,
+          $"Estimated time should be roughly {wait * (end / step)}s but is {sentTime.TotalSeconds}");
         frm.Close();
       }
 
@@ -68,6 +71,7 @@ namespace CsvTools.Tests
           frm.SetProcess($"This is a text\nLine {c}", c, true);
           UnitTestWinFormHelper.WaitSomeTime(.1);
         }
+
         frm.Close();
       }
 
@@ -82,6 +86,7 @@ namespace CsvTools.Tests
           frm.SetProcess($"This is a text\nLine {c}", c, true);
           UnitTestWinFormHelper.WaitSomeTime(.1);
         }
+
         frm.Close();
       }
     }
@@ -147,7 +152,6 @@ namespace CsvTools.Tests
     }
 
 
-
     [TestMethod]
     public void DoHideTest()
     {
@@ -168,7 +172,7 @@ namespace CsvTools.Tests
         frm.Show();
         long called = 10;
 
-        frm.Progress += delegate (object sender, ProgressEventArgs e) { called = e.Value; };
+        frm.Progress += delegate(object sender, ProgressEventArgs e) { called = e.Value; };
 
         frm.SetProcess("Help", 20, true);
 

@@ -11,9 +11,10 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using System;
 using System.Globalization;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
@@ -95,13 +96,16 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void ParseStringToDateTimeFormatNotMatchingseparatorOK() => TestDate(new DateTime(1999, 01, 02), @"yyyyMMdd", ".");
+    public void ParseStringToDateTimeFormatNotMatchingseparatorOK() =>
+      TestDate(new DateTime(1999, 01, 02), @"yyyyMMdd", ".");
 
     [TestMethod]
-    public void ParseStringToDateTimeFormatNotMatchingseparatorOK2() => Assert.IsNull(StringConversion.StringToDateTime("01-02-1999", @"MM/dd/yyyy", "", "", false));
+    public void ParseStringToDateTimeFormatNotMatchingseparatorOK2() =>
+      Assert.IsNull(StringConversion.StringToDateTime("01-02-1999", @"MM/dd/yyyy", "", "", false));
 
     [TestMethod]
-    public void ParseStringToDateTimeFormatNotMatchingseparatorOK3() => Assert.IsNull(StringConversion.StringToDateTime("01-02-1999", @"MM/dd/yyyy", ".", "", false));
+    public void ParseStringToDateTimeFormatNotMatchingseparatorOK3() =>
+      Assert.IsNull(StringConversion.StringToDateTime("01-02-1999", @"MM/dd/yyyy", ".", "", false));
 
     [TestMethod]
     public void ParseStringToDateTimeFormatNotMatchingseparatorOK4()
@@ -230,9 +234,9 @@ namespace CsvTools.Tests
         var actual = StringConversion.StringToDateTime(dtString, @"dd/MM/yyyy", "/", ":", false);
 
         // if this passes we would expect the month and day to be swapped
-        Assert.AreEqual(expected.Year, ((DateTime)actual).Year);
-        Assert.AreEqual(expected.Month, ((DateTime)actual).Day);
-        Assert.AreEqual(expected.Day, ((DateTime)actual).Month);
+        Assert.AreEqual(expected.Year, ((DateTime) actual).Year);
+        Assert.AreEqual(expected.Month, ((DateTime) actual).Day);
+        Assert.AreEqual(expected.Day, ((DateTime) actual).Month);
       }
     }
 
@@ -259,9 +263,7 @@ namespace CsvTools.Tests
       var stringDateValue = originalValue == null ? string.Empty : originalValue.Trim();
       if (string.IsNullOrEmpty(stringDateValue) || stringDateValue == "00000000" ||
           stringDateValue == "99999999")
-      {
         return null;
-      }
 
       DateTime? dateFieldValue = null;
       try
@@ -308,7 +310,7 @@ namespace CsvTools.Tests
             var dateTimeFormatInfoSlash = new DateTimeFormatInfo();
 
             // Build a new formatter with / but otherwise the same settings
-            dateTimeFormatInfoSlash = (DateTimeFormatInfo)dateTimeFormatInfo.Clone();
+            dateTimeFormatInfoSlash = (DateTimeFormatInfo) dateTimeFormatInfo.Clone();
             dateTimeFormatInfoSlash.DateSeparator = "/";
 
             // try with date separator of /

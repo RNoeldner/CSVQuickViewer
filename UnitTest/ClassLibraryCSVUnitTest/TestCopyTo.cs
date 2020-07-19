@@ -118,9 +118,6 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void RunCopyTo()
-    {
-      RunCopyTo(GetAllICloneable("ClassLibraryCSV"));
-    }
+    public void RunCopyTo() => RunCopyTo(GetAllICloneable("ClassLibraryCSV"));
   }
 }

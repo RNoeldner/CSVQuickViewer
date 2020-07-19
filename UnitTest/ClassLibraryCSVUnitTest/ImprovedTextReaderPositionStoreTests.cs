@@ -1,12 +1,11 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
   [TestClass]
   public class ImprovedTextReaderPositionStoreTests
   {
-
     [TestMethod]
     public async Task ImprovedTextReaderPositionStoreTestAsyncStartAsync()
     {
@@ -18,7 +17,7 @@ namespace CsvTools.Tests
           Assert.AreEqual(1, test.LineNumber);
           Assert.AreEqual(
             "#UserID	CurriculumID	TranscriptStatus	RequestDateTime	RegistrationDateTime	CompletionDateTime",
-           await test.ReadLineAsync().ConfigureAwait(false));
+            await test.ReadLineAsync().ConfigureAwait(false));
           var lastLine = string.Empty;
           while (!await store.AllReadAsync()) lastLine = await test.ReadLineAsync();
           Assert.AreEqual(

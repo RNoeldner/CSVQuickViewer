@@ -1,5 +1,4 @@
-﻿using CsvTools;
-/*
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting; /*
 * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
 *
 * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
@@ -12,11 +11,10 @@
 * If not, see http://www.gnu.org/licenses/ .
 *
 */
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
-  [TestClass()]
+  [TestClass]
   public class ValueClusterTests
   {
     [TestMethod]
@@ -38,7 +36,7 @@ namespace CsvTools.Tests
     }
 
 
-    [TestMethod()]
+    [TestMethod]
     public void EqualsTest()
     {
       var src = new ValueCluster("dis", "cond", "sort", 10);
@@ -48,22 +46,20 @@ namespace CsvTools.Tests
       Assert.IsTrue(src.Equals((object) src));
     }
 
-    [TestMethod()]
+    [TestMethod]
     public void ToStringTest()
     {
       var disp = new ValueCluster("dis2", "cond", "sort", 20).ToString();
       Assert.AreEqual("dis2 20 items", disp);
     }
 
-    
-    [TestMethod()]
+
+    [TestMethod]
     public void GetHashCodeTest()
     {
       var disp1 = new ValueCluster("dis2", "cond", "sort", 20, true);
-      var disp2 = new ValueCluster("dis2", "cond", "sort", 20, false);
+      var disp2 = new ValueCluster("dis2", "cond", "sort", 20);
       Assert.AreEqual(disp1.GetHashCode(), disp2.GetHashCode());
     }
-
-    
   }
 }

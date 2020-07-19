@@ -42,7 +42,8 @@ namespace CsvTools.Tests
         m_ReadSetting.Add(new CsvFile(name) {ID = name}, dt);
     }
 
-    public async Task<IFileReader> ReadDataAsync(string settingName, EventHandler<ProgressEventArgs> message, int timeout,
+    public async Task<IFileReader> ReadDataAsync(string settingName, EventHandler<ProgressEventArgs> message,
+      int timeout,
       CancellationToken token)
     {
       var setting = m_ReadSetting.Any(x => x.Key.ID == settingName)

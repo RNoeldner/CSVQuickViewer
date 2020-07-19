@@ -12,9 +12,9 @@
  *
  */
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
@@ -52,6 +52,7 @@ namespace CsvTools.Tests
         if (text.Length > maxLength)
           maxLength = text.Length;
       }
+
       Assert.IsTrue(dtm.MinLength <= minLength, $"Minium is {minLength} for {format}");
       Assert.IsTrue(dtm.MaxLength >= maxLength, $"Minium is {maxLength} for {format}");
       return dtm;

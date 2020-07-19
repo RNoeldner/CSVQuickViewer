@@ -1,60 +1,47 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using CsvTools;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using System.Windows.Forms;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Pri.LongPath;
 
 namespace CsvTools.Tests
 {
-  [TestClass()]
+  [TestClass]
   public class ViewSettingTests
   {
-
-    [TestMethod()]
+    [TestMethod]
     public void StoreViewSettingTest1()
     {
       using (var dgv = new DataGridView())
       {
         var dgvc = new DataGridViewColumn(new DataGridViewTextBoxCell())
         {
-          DataPropertyName = "test",
-          ValueType = typeof(string)
+          DataPropertyName = "test", ValueType = typeof(string)
         };
         dgv.Columns.Add(dgvc);
-        var columnFilters = new List<ToolStripDataGridViewColumnFilter>
-        {
-          new ToolStripDataGridViewColumnFilter(dgvc)
-        };
+        var columnFilters = new List<ToolStripDataGridViewColumnFilter> {new ToolStripDataGridViewColumnFilter(dgvc)};
         var text = ViewSetting.StoreViewSetting(dgv.Columns, columnFilters, null, SortOrder.Ascending);
         Assert.IsTrue(!string.IsNullOrEmpty(text));
       }
     }
 
-    [TestMethod()]
+    [TestMethod]
     public void StoreViewSettingTest2()
     {
       using (var dgv = new DataGridView())
       {
         var dgvc = new DataGridViewColumn(new DataGridViewTextBoxCell())
         {
-          DataPropertyName = "test",
-          ValueType = typeof(string)
+          DataPropertyName = "test", ValueType = typeof(string)
         };
         dgv.Columns.Add(dgvc);
         var dgvc2 = new DataGridViewColumn(new DataGridViewTextBoxCell())
         {
-          DataPropertyName = "test2",
-          ValueType = typeof(string)
+          DataPropertyName = "test2", ValueType = typeof(string)
         };
         dgv.Columns.Add(dgvc2);
         var columnFilters = new List<ToolStripDataGridViewColumnFilter>
         {
-          new ToolStripDataGridViewColumnFilter(dgvc),
-          new ToolStripDataGridViewColumnFilter(dgvc2),
+          new ToolStripDataGridViewColumnFilter(dgvc), new ToolStripDataGridViewColumnFilter(dgvc2)
         };
 
         columnFilters[0].ColumnFilterLogic.ValueClusterCollection.ValueClusters
@@ -71,7 +58,7 @@ namespace CsvTools.Tests
       }
     }
 
-    [TestMethod()]
+    [TestMethod]
     public void ReStoreViewSettingDetailControl()
     {
       using (var dt = UnitTestStatic.GetDataTable())

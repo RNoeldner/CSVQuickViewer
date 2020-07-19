@@ -12,28 +12,31 @@
  *
  */
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
   [TestClass]
-  public class ErrorInformationTests : System.IDisposable
+  public class ErrorInformationTests : IDisposable
   {
     private readonly DataTable m_DataTable = new DataTable();
+
+    public void Dispose() => m_DataTable.Dispose();
 
     [TestInitialize]
     public void Init()
     {
       m_DataTable.Clear();
       m_DataTable.Columns.Clear();
-      m_DataTable.Columns.Add(new DataColumn { ColumnName = "ID", AutoIncrement = true });
-      m_DataTable.Columns.Add(new DataColumn { ColumnName = "Fld1" });
-      m_DataTable.Columns.Add(new DataColumn { ColumnName = "Fld2" });
-      m_DataTable.Columns.Add(new DataColumn { ColumnName = "Fld3" });
-      m_DataTable.Columns.Add(new DataColumn { ColumnName = "Fld4" });
+      m_DataTable.Columns.Add(new DataColumn {ColumnName = "ID", AutoIncrement = true});
+      m_DataTable.Columns.Add(new DataColumn {ColumnName = "Fld1"});
+      m_DataTable.Columns.Add(new DataColumn {ColumnName = "Fld2"});
+      m_DataTable.Columns.Add(new DataColumn {ColumnName = "Fld3"});
+      m_DataTable.Columns.Add(new DataColumn {ColumnName = "Fld4"});
     }
 
     [TestMethod]
@@ -82,7 +85,8 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void CombineColumnAndErrorTest() => Assert.AreEqual("[Col1] Error", ErrorInformation.CombineColumnAndError("Col1", "Error"));
+    public void CombineColumnAndErrorTest() =>
+      Assert.AreEqual("[Col1] Error", ErrorInformation.CombineColumnAndError("Col1", "Error"));
 
     [TestMethod]
     public void ReadErrorInformationFromDataRow()
@@ -156,7 +160,5 @@ namespace CsvTools.Tests
       Assert.AreEqual(dr.GetColumnError(1), dr2.GetColumnError(1));
       Assert.AreEqual(dr.GetColumnError(2), dr2.GetColumnError(2));
     }
-
-    public void Dispose() => m_DataTable.Dispose();
   }
 }
