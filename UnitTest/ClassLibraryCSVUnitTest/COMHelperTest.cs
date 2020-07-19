@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 #if COMInterface
 namespace CsvTools.Tests
 {

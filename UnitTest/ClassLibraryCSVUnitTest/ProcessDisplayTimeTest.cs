@@ -20,13 +20,14 @@ namespace CsvTools.Tests
     [TestMethod]
     public void MeasureTimeToCompletion()
     {
-      var test = new ProcessDisplayTime(UnitTestInitializeCsv.Token) { Maximum = 100 };
+      var test = new ProcessDisplayTime(UnitTestInitializeCsv.Token) {Maximum = 100};
 
       for (long counter = 1; counter <= 20; counter++)
       {
         test.SetProcess(counter.ToString(), counter, true);
         Thread.Sleep(100);
       }
+
       Assert.AreEqual(20, test.TimeToCompletion.Percent);
       // 20 * 100ms = 2s for 100 we need 10s as 2s are passed it should be 8s
       var est = test.TimeToCompletion.EstimatedTimeRemaining.TotalSeconds;

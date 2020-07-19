@@ -1,20 +1,15 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using CsvTools;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
-  [TestClass()]
+  [TestClass]
   public class ProgressEventArgsTimeTests
   {
-    [TestMethod()]
+    [TestMethod]
     public void ProgressEventArgsTimeTest()
     {
-      var evt = new ProgressEventArgsTime("text",123,new TimeSpan(0,0,0,2,20), .3d );
+      var evt = new ProgressEventArgsTime("text", 123, new TimeSpan(0, 0, 0, 2, 20), .3d);
       Assert.AreEqual("text", evt.Text);
       Assert.AreEqual(123, evt.Value);
       Assert.AreEqual(new TimeSpan(0, 0, 0, 2, 20), evt.EstimatedTimeRemaining);

@@ -11,9 +11,10 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using System;
 using System.Collections.Generic;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
@@ -30,13 +31,13 @@ namespace CsvTools.Tests
 
       var set = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
       for (var counter = 0; counter < 100; counter++)
-        for (var word = 0; word < words.Length; word++)
-          set.Add(words[word] + counter);
+      for (var word = 0; word < words.Length; word++)
+        set.Add(words[word] + counter);
       var ok = 0;
       for (var counter = 0; counter < 100; counter++)
-        for (var word = 0; word < words.Length; word++)
-          if (set.Contains(words[word] + counter))
-            ok++;
+      for (var word = 0; word < words.Length; word++)
+        if (set.Contains(words[word] + counter))
+          ok++;
       Assert.AreEqual(29400, ok);
     }
 
@@ -47,13 +48,13 @@ namespace CsvTools.Tests
 
       var set = new HashSet<string>(StringComparer.Ordinal);
       for (var counter = 0; counter < 100; counter++)
-        for (var word = 0; word < words.Length; word++)
-          set.Add(words[word].ToUpperInvariant() + counter);
+      for (var word = 0; word < words.Length; word++)
+        set.Add(words[word].ToUpperInvariant() + counter);
       var ok = 0;
       for (var counter = 0; counter < 100; counter++)
-        for (var word = 0; word < words.Length; word++)
-          if (set.Contains(words[word].ToUpperInvariant() + counter))
-            ok++;
+      for (var word = 0; word < words.Length; word++)
+        if (set.Contains(words[word].ToUpperInvariant() + counter))
+          ok++;
       Assert.AreEqual(29400, ok);
     }
   }

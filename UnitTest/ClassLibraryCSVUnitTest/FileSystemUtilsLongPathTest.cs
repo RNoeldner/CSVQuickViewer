@@ -12,29 +12,29 @@
  *
  */
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
 using System.Text;
-
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
-
   [TestClass]
   public class FileSystemUtilsLongPathTest
   {
+    private const string pre = @"\\?\";
+
+    private const string line1 = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit.";
+
     // root folder 
     private static string m_Folder0;
 
     // directory with a total length of  259,  still valid but with a filename failing
     private static string m_Folder1;
-    
+
     // directory with a total long of more than 260,  
     private static string m_Folder2;
 
     private static string root;
-    private const string pre = @"\\?\";
-    private const string line1 = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit.";
 
     private static string m_FileName1;
     private static string m_FileName2;
@@ -48,30 +48,29 @@ namespace CsvTools.Tests
       m_Folder0 = Path.Combine(root, "TestLongPath");
       Directory.CreateDirectory(m_Folder0);
 
-      m_Folder1 =Path.Combine(m_Folder0, new string('1', 246 - m_Folder0.Length));
+      m_Folder1 = Path.Combine(m_Folder0, new string('1', 246 - m_Folder0.Length));
       Directory.CreateDirectory(m_Folder1);
-      
+
 
       m_FileName1 = Path.Combine(m_Folder1, "TestFile.txt");
-      var contens = line1 + "\r\nAenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem.\r\nNulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede";
-      File.WriteAllText(pre +m_FileName1, contens);
+      var contens =
+        line1 +
+        "\r\nAenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem.\r\nNulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede";
+      File.WriteAllText(pre + m_FileName1, contens);
 
       m_Folder2 = Path.Combine(m_Folder0, new string('2', 265 - m_Folder0.Length));
       Directory.CreateDirectory(pre + m_Folder2);
       m_FileName2 = Path.Combine(m_Folder2, "TestFile.txt");
-      File.WriteAllText(pre +m_FileName2, contens);
+      File.WriteAllText(pre + m_FileName2, contens);
     }
 
     private static void EmptyFolder(string folderName)
     {
       foreach (var file in Directory.EnumerateFiles(folderName))
-      {
         if (file.StartsWith(pre))
           File.Delete(file);
         else
-          File.Delete(pre+file);
-      }
-
+          File.Delete(pre + file);
     }
 
     [ClassCleanup]
@@ -94,6 +93,7 @@ namespace CsvTools.Tests
       {
         sw.WriteLine("This is a test");
       }
+
       Assert.IsTrue(FileSystemUtils.FileExists(fn1));
 
       var fn2 = Path.Combine(m_Folder2, "Test1.txt");
@@ -102,6 +102,7 @@ namespace CsvTools.Tests
       {
         sw.WriteLine("This is a test");
       }
+
       Assert.IsTrue(FileSystemUtils.FileExists(fn2));
     }
 
@@ -127,20 +128,18 @@ namespace CsvTools.Tests
       Assert.AreEqual(m_FileName1, FileSystemUtils.GetFullPath(m_FileName1), "GetFullPath1");
       Assert.AreEqual(m_FileName2, FileSystemUtils.GetFullPath(m_FileName2), "GetFullPath2");
 
-      Assert.AreEqual(m_FileName1, FileSystemUtils.GetFullPath(m_FileName1.Substring(root.Length+1)), "GetFullPath3");
-      Assert.AreEqual(m_FileName2, FileSystemUtils.GetFullPath("." + m_FileName2.Substring(root.Length)), "GetFullPath4");
-
+      Assert.AreEqual(m_FileName1, FileSystemUtils.GetFullPath(m_FileName1.Substring(root.Length + 1)), "GetFullPath3");
+      Assert.AreEqual(m_FileName2, FileSystemUtils.GetFullPath("." + m_FileName2.Substring(root.Length)),
+        "GetFullPath4");
     }
 
     [TestMethod]
     public void GetShortestPath()
     {
+      Assert.AreEqual(m_FileName2, m_FileName2.Substring(root.Length + 1).GetAbsolutePath(root), "GetAbsolutePath1");
+      Assert.AreEqual(m_FileName2, m_FileName2.GetAbsolutePath(root), "GetAbsolutePath2");
 
-      Assert.AreEqual(m_FileName2, FileSystemUtils.GetAbsolutePath(m_FileName2.Substring(root.Length+1), root), "GetAbsolutePath1");
-      Assert.AreEqual(m_FileName2, FileSystemUtils.GetAbsolutePath(m_FileName2, root), "GetAbsolutePath2");
-
-      Assert.AreEqual(m_FileName1.Substring(root.Length+1), FileSystemUtils.GetShortestPath(m_FileName1, root), "GetShortestPath");
+      Assert.AreEqual(m_FileName1.Substring(root.Length + 1), m_FileName1.GetShortestPath(root), "GetShortestPath");
     }
-    
   }
 }

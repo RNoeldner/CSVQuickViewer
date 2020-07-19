@@ -22,12 +22,12 @@ namespace CsvTools.Tests
     private bool m_Disposed;
     private bool m_Visible = true;
     public string Text;
+
+    public long Maximum { get; set; }
     public virtual string Title { get; set; }
 
 
     public CancellationToken CancellationToken => UnitTestInitializeCsv.Token;
-
-    public long Maximum { get; set; }
 
     public event EventHandler<ProgressEventArgs> Progress;
 
@@ -40,10 +40,6 @@ namespace CsvTools.Tests
       }
     }
 
-    public void Cancel()
-    {
-    }
-
     public void SetProcess(string text, long value = -1, bool log = false)
     {
       Text = text;
@@ -54,6 +50,10 @@ namespace CsvTools.Tests
     {
       Text = e.Text;
       Progress?.Invoke(sender, e);
+    }
+
+    public void Cancel()
+    {
     }
 
     public event EventHandler ProgressStopEvent;

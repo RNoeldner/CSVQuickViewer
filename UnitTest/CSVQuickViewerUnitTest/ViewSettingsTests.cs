@@ -1,17 +1,11 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using CsvTools;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CsvTools.Tests
 {
-  [TestClass()]
+  [TestClass]
   public class ViewSettingsTests
   {
-    [TestMethod()]
+    [TestMethod]
     public void CopyConfigurationTest()
     {
       var test1 = new ViewSettings();
@@ -30,7 +24,7 @@ namespace CsvTools.Tests
       Assert.AreEqual("test", test2.FileName);
     }
 
-    [TestMethod()]
+    [TestMethod]
     public void PropertiesTest()
     {
       var test1 = new ViewSettings();
@@ -39,15 +33,10 @@ namespace CsvTools.Tests
       test1.StoreSettingsByFile = true;
       Assert.IsTrue(test1.StoreSettingsByFile);
 
-      var test1FillGuessSettings = new FillGuessSettings
-      {
-        CheckNamedDates = true
-      };
+      var test1FillGuessSettings = new FillGuessSettings {CheckNamedDates = true};
       test1.FillGuessSettings = test1FillGuessSettings;
 
       Assert.AreEqual(test1FillGuessSettings, test1.FillGuessSettings);
     }
-
-
   }
 }

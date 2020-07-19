@@ -12,22 +12,19 @@
  *
  */
 
+using System.IO;
+using System.Threading.Tasks;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 namespace CsvTools.Tests
 {
-  using System;
-  using System.IO;
-  using System.Threading;
-  using System.Threading.Tasks;
-
-  using Microsoft.VisualStudio.TestTools.UnitTesting;
-
   [TestClass]
   public class CsvHelperTest
   {
     [TestMethod]
     public async Task NewCsvFileGuessAllSmallFile()
     {
-      var setting = new CsvFile { FileName = UnitTestInitializeCsv.GetTestPath("employee.txt") };
+      var setting = new CsvFile {FileName = UnitTestInitializeCsv.GetTestPath("employee.txt")};
       using (var display = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       {
         await setting.RefreshCsvFileAsync(display, true);
@@ -41,15 +38,15 @@ namespace CsvTools.Tests
     {
       using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       {
-        var setting = new CsvFile { FileName = UnitTestInitializeCsv.GetTestPath("BasicCSV.txt") };
+        var setting = new CsvFile {FileName = UnitTestInitializeCsv.GetTestPath("BasicCSV.txt")};
         await CsvHelper.GuessCodePageAsync(setting, processDisplay.CancellationToken);
         Assert.AreEqual(1200, setting.CodePageId);
 
-        var setting2 = new CsvFile { FileName = UnitTestInitializeCsv.GetTestPath("UnicodeUTF16BE.txt") };
+        var setting2 = new CsvFile {FileName = UnitTestInitializeCsv.GetTestPath("UnicodeUTF16BE.txt")};
         await CsvHelper.GuessCodePageAsync(setting2, processDisplay.CancellationToken);
         Assert.AreEqual(1201, setting2.CodePageId);
 
-        var setting3 = new CsvFile { FileName = UnitTestInitializeCsv.GetTestPath("Test.csv") };
+        var setting3 = new CsvFile {FileName = UnitTestInitializeCsv.GetTestPath("Test.csv")};
         await CsvHelper.GuessCodePageAsync(setting3, processDisplay.CancellationToken);
         Assert.AreEqual(65001, setting3.CodePageId);
       }
@@ -71,8 +68,7 @@ namespace CsvTools.Tests
 
       ICsvFile test = new CsvFile(UnitTestInitializeCsv.GetTestPath("LateStartRow.txt"))
       {
-        SkipRows = 10,
-        CodePageId = 20127
+        SkipRows = 10, CodePageId = 20127
       };
       test.FileFormat.FieldQualifier = "\"";
       Assert.AreEqual("|", await CsvHelper.GuessDelimiterAsync(test, UnitTestInitializeCsv.Token));
@@ -81,7 +77,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task GuessDelimiterCommaAsync()
     {
-      ICsvFile test = new CsvFile(UnitTestInitializeCsv.GetTestPath("AlternateTextQualifiers.txt")) { CodePageId = -1 };
+      ICsvFile test = new CsvFile(UnitTestInitializeCsv.GetTestPath("AlternateTextQualifiers.txt")) {CodePageId = -1};
       test.FileFormat.EscapeCharacter = "\\";
 
       Assert.AreEqual(",", await CsvHelper.GuessDelimiterAsync(test, UnitTestInitializeCsv.Token));
@@ -90,7 +86,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task GuessDelimiterPipeAsync()
     {
-      ICsvFile test = new CsvFile(UnitTestInitializeCsv.GetTestPath("DifferentColumnDelimiter.txt")) { CodePageId = -1 };
+      ICsvFile test = new CsvFile(UnitTestInitializeCsv.GetTestPath("DifferentColumnDelimiter.txt")) {CodePageId = -1};
       test.FileFormat.EscapeCharacter = string.Empty;
       Assert.AreEqual("|", await CsvHelper.GuessDelimiterAsync(test, UnitTestInitializeCsv.Token));
     }
@@ -98,7 +94,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task GuessDelimiterQualifierAsync()
     {
-      ICsvFile test = new CsvFile(UnitTestInitializeCsv.GetTestPath("TextQualifiers.txt")) { CodePageId = -1 };
+      ICsvFile test = new CsvFile(UnitTestInitializeCsv.GetTestPath("TextQualifiers.txt")) {CodePageId = -1};
       test.FileFormat.EscapeCharacter = string.Empty;
       Assert.AreEqual(",", await CsvHelper.GuessDelimiterAsync(test, UnitTestInitializeCsv.Token));
     }
@@ -106,7 +102,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task GuessDelimiterTabAsync()
     {
-      ICsvFile test = new CsvFile(UnitTestInitializeCsv.GetTestPath("txTranscripts.txt")) { CodePageId = -1 };
+      ICsvFile test = new CsvFile(UnitTestInitializeCsv.GetTestPath("txTranscripts.txt")) {CodePageId = -1};
       test.FileFormat.EscapeCharacter = "\\";
       Assert.AreEqual("TAB", await CsvHelper.GuessDelimiterAsync(test, UnitTestInitializeCsv.Token));
     }
@@ -115,18 +111,23 @@ namespace CsvTools.Tests
     public async Task GuessHasHeaderAsync()
     {
       using (var stream = ImprovedStream.OpenRead(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt")))
-      using (var reader = new ImprovedTextReader(stream, 65001, 0))
+      using (var reader = new ImprovedTextReader(stream))
+      {
         Assert.IsTrue(await CsvHelper.GuessHasHeaderAsync(reader, "#", ',', UnitTestInitializeCsv.Token));
+      }
 
-      using (var stream = ImprovedStream.OpenRead(UnitTestInitializeCsv.GetTestPath("HandlingDuplicateColumnNames.txt")))
-      using (var reader = new ImprovedTextReader(stream, 65001, 0))
+      using (var stream =
+        ImprovedStream.OpenRead(UnitTestInitializeCsv.GetTestPath("HandlingDuplicateColumnNames.txt")))
+      using (var reader = new ImprovedTextReader(stream))
+      {
         Assert.IsFalse(await CsvHelper.GuessHasHeaderAsync(reader, "#", ',', UnitTestInitializeCsv.Token));
+      }
     }
 
     [TestMethod]
     public async Task GuessJsonFileAsync()
     {
-      var setting = new CsvFile { JsonFormat = true, FileName = UnitTestInitializeCsv.GetTestPath("Jason1.json"), };
+      var setting = new CsvFile {JsonFormat = true, FileName = UnitTestInitializeCsv.GetTestPath("Jason1.json")};
 
       Assert.IsTrue(await CsvHelper.GuessJsonFileAsync(setting, UnitTestInitializeCsv.Token));
     }
@@ -153,7 +154,7 @@ namespace CsvTools.Tests
           file.Write("#Hello\t7th Heaven\t1d5b894b-95e6-4026-9ffe-64197e79c3d1\n");
         }
 
-        var test = new CsvFile(path) { CodePageId = 65001, FileFormat = { FieldQualifier = "\"" } };
+        var test = new CsvFile(path) {CodePageId = 65001, FileFormat = {FieldQualifier = "\""}};
 
         Assert.AreEqual(RecordDelimiterType.LF, await CsvHelper.GuessNewlineAsync(test, UnitTestInitializeCsv.Token));
 
@@ -216,14 +217,14 @@ namespace CsvTools.Tests
       Assert.AreEqual(
         0,
         await CsvHelper.GuessStartRowAsync(
-          new CsvFile { FileName = UnitTestInitializeCsv.GetTestPath("BasicCSV.txt") },
+          new CsvFile {FileName = UnitTestInitializeCsv.GetTestPath("BasicCSV.txt")},
           UnitTestInitializeCsv.Token),
         "BasicCSV.txt");
 
     [TestMethod]
     public async Task GuessStartRow0Async()
     {
-      ICsvFile test = new CsvFile(UnitTestInitializeCsv.GetTestPath("TextQualifiers.txt")) { CodePageId = -1 };
+      ICsvFile test = new CsvFile(UnitTestInitializeCsv.GetTestPath("TextQualifiers.txt")) {CodePageId = -1};
       test.FileFormat.FieldDelimiter = ",";
       test.FileFormat.FieldQualifier = "\"";
       Assert.AreEqual(0, await CsvHelper.GuessStartRowAsync(test, UnitTestInitializeCsv.Token));
@@ -233,7 +234,7 @@ namespace CsvTools.Tests
     public async Task GuessStartRow12Async()
     {
       ICsvFile test =
-        new CsvFile(UnitTestInitializeCsv.GetTestPath("SkippingEmptyRowsWithDelimiter.txt")) { CodePageId = -1 };
+        new CsvFile(UnitTestInitializeCsv.GetTestPath("SkippingEmptyRowsWithDelimiter.txt")) {CodePageId = -1};
       test.FileFormat.FieldDelimiter = ",";
       test.FileFormat.FieldQualifier = "\"";
       Assert.AreEqual(12, await CsvHelper.GuessStartRowAsync(test, UnitTestInitializeCsv.Token));
@@ -244,8 +245,7 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile
       {
-        FileName = UnitTestInitializeCsv.GetTestPath("LongHeaders.txt"),
-        FileFormat = { CommentLine = "#" }
+        FileName = UnitTestInitializeCsv.GetTestPath("LongHeaders.txt"), FileFormat = {CommentLine = "#"}
       };
       Assert.AreEqual(
         0,
@@ -256,7 +256,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task HasUsedQualifierFalseAsync()
     {
-      var setting = new CsvFile { FileName = UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"), HasFieldHeader = true };
+      var setting = new CsvFile {FileName = UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"), HasFieldHeader = true};
 
       Assert.IsFalse(await CsvHelper.HasUsedQualifierAsync(setting, UnitTestInitializeCsv.Token));
     }
@@ -264,14 +264,14 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task HasUsedQualifierTrueAsync()
     {
-      var setting = new CsvFile { FileName = UnitTestInitializeCsv.GetTestPath("AlternateTextQualifiers.txt") };
+      var setting = new CsvFile {FileName = UnitTestInitializeCsv.GetTestPath("AlternateTextQualifiers.txt")};
       Assert.IsTrue(await CsvHelper.HasUsedQualifierAsync(setting, UnitTestInitializeCsv.Token));
     }
 
     [TestMethod]
     public async Task NewCsvFileGuessAllHeadingsAsync()
     {
-      var setting = new CsvFile { FileName = UnitTestInitializeCsv.GetTestPath("BasicCSV.txt") };
+      var setting = new CsvFile {FileName = UnitTestInitializeCsv.GetTestPath("BasicCSV.txt")};
       using (var display = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       {
         await setting.RefreshCsvFileAsync(display);
@@ -285,7 +285,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task NewCsvFileGuessAllTestEmptyAsync()
     {
-      var setting = new CsvFile { FileName = UnitTestInitializeCsv.GetTestPath("CSVTestEmpty.txt") };
+      var setting = new CsvFile {FileName = UnitTestInitializeCsv.GetTestPath("CSVTestEmpty.txt")};
       using (var display = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       {
         await setting.RefreshCsvFileAsync(display);
@@ -297,21 +297,22 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task RefreshCsvFileAsync()
     {
-      var setting = new CsvFile { FileName = UnitTestInitializeCsv.GetTestPath("BasicCSV.txt") };
+      var setting = new CsvFile {FileName = UnitTestInitializeCsv.GetTestPath("BasicCSV.txt")};
       using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       {
-        await CsvHelper.RefreshCsvFileAsync(setting, processDisplay);
+        await setting.RefreshCsvFileAsync(processDisplay);
       }
 
       Assert.AreEqual(1200, setting.CodePageId);
       Assert.AreEqual(",", setting.FileFormat.FieldDelimiter);
 
-      foreach (var fileName in Directory.EnumerateFiles(UnitTestInitializeCsv.ApplicationDirectory.LongPathPrefix(), "AllFor*.txt", SearchOption.TopDirectoryOnly))
+      foreach (var fileName in Directory.EnumerateFiles(UnitTestInitializeCsv.ApplicationDirectory.LongPathPrefix(),
+        "AllFor*.txt", SearchOption.TopDirectoryOnly))
       {
         var testSetting = new CsvFile(fileName);
         using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
         {
-          await CsvHelper.RefreshCsvFileAsync(testSetting, processDisplay);
+          await testSetting.RefreshCsvFileAsync(processDisplay);
         }
       }
     }
@@ -319,7 +320,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task TestGuessStartRowAsync()
     {
-      ICsvFile test = new CsvFile(UnitTestInitializeCsv.GetTestPath("LateStartRow.txt")) { CodePageId = 20127 };
+      ICsvFile test = new CsvFile(UnitTestInitializeCsv.GetTestPath("LateStartRow.txt")) {CodePageId = 20127};
       test.FileFormat.FieldDelimiter = "|";
       test.FileFormat.FieldQualifier = "\"";
       test.SkipRows = await CsvHelper.GuessStartRowAsync(test, UnitTestInitializeCsv.Token);

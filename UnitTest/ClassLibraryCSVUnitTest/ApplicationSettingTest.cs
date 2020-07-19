@@ -21,10 +21,7 @@ namespace CsvTools.Tests
   public class ApplicationSettingTest
   {
     [TestMethod]
-    public void ApplicationSettingStatics()
-    {
-      Assert.IsNotNull(ApplicationSetting.HTMLStyle);
-    }
+    public void ApplicationSettingStatics() => Assert.IsNotNull(ApplicationSetting.HTMLStyle);
 
     [TestMethod]
     public void ApplicationSettingMenuDown()
@@ -59,7 +56,7 @@ namespace CsvTools.Tests
       Assert.IsNull(csv.MappingCollection.GetByField(""));
       Assert.IsNull(csv.MappingCollection.GetByField("Hello"));
 
-      var map = new Mapping("Column","Field");
+      var map = new Mapping("Column", "Field");
       csv.MappingCollection.Add(map);
       Assert.AreEqual(map, csv.MappingCollection.GetByField("Field"));
     }

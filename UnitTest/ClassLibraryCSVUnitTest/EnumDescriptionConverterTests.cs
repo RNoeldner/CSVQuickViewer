@@ -1,45 +1,40 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using CsvTools;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
-  [TestClass()]
+  [TestClass]
   public class EnumDescriptionConverterTests
   {
-    [TestMethod()]
+    [TestMethod]
     public void EnumDescriptionConverterTest()
     {
       var test = new EnumDescriptionConverter(typeof(RecordDelimiterType));
       Assert.IsNotNull(test);
     }
 
-    [TestMethod()]
+    [TestMethod]
     public void CanConvertFromTest()
     {
       var test = new EnumDescriptionConverter(typeof(RecordDelimiterType));
       Assert.IsTrue(test.CanConvertFrom(typeof(string)));
     }
 
-    [TestMethod()]
+    [TestMethod]
     public void CanConvertToTest()
     {
       var test = new EnumDescriptionConverter(typeof(RecordDelimiterType));
       Assert.IsTrue(test.CanConvertTo(typeof(string)));
     }
 
-    [TestMethod()]
+    [TestMethod]
     public void ConvertFromTest()
     {
       var test = new EnumDescriptionConverter(typeof(RecordDelimiterType));
       Assert.AreEqual(RecordDelimiterType.LF, test.ConvertFrom("Line feed"));
     }
 
-    [TestMethod()]
+    [TestMethod]
     public void ConvertToTest()
     {
       var test = new EnumDescriptionConverter(typeof(RecordDelimiterType));

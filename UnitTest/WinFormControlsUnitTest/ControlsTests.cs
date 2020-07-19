@@ -33,6 +33,7 @@ namespace CsvTools.Tests
         UnitTestWinFormHelper.ShowControl(ctrl);
       }
     }
+
     [TestMethod]
     public void ResizeForm()
     {
@@ -136,10 +137,10 @@ namespace CsvTools.Tests
       {
         Assert.AreEqual(0, treeView.SelectedTreeNode.Count);
 
-        var treeNode = new TreeNode("Test") { Tag = "test" };
+        var treeNode = new TreeNode("Test") {Tag = "test"};
         treeView.Nodes.Add(treeNode);
 
-        var treeNode2 = new TreeNode("Test2") { Tag = "test2" };
+        var treeNode2 = new TreeNode("Test2") {Tag = "test2"};
         treeNode.Nodes.Add(treeNode2);
 
         var firedAfter = false;
@@ -355,8 +356,7 @@ namespace CsvTools.Tests
         {
           processDisplay.Show();
           var cvsSetting = new CsvFile(Path.Combine(FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles",
-            "FileWithHierarchy_WithCyle.txt"))
-          { FileFormat = { FieldDelimiter = "\t" } };
+            "FileWithHierarchy_WithCyle.txt")) {FileFormat = {FieldDelimiter = "\t"}};
           using (var csvDataReader = new CsvFileReader(cvsSetting, processDisplay))
           {
             var dt = await csvDataReader.GetDataTableAsync(0, false, true, false, false, false, null, null,

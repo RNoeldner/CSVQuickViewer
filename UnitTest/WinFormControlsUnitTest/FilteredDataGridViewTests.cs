@@ -1,5 +1,6 @@
-﻿using CsvTools;
-/*
+﻿using System.Drawing;
+using System.Windows.Forms;
+using Microsoft.VisualStudio.TestTools.UnitTesting; /*
 * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
 *
 * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
@@ -12,10 +13,6 @@
 * If not, see http://www.gnu.org/licenses/ .
 *
 */
-
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Drawing;
-using System.Windows.Forms;
 
 namespace CsvTools.Tests
 {
@@ -111,8 +108,7 @@ namespace CsvTools.Tests
     }
 
 
-
-    [TestMethod()]
+    [TestMethod]
     public void FrozenColumns()
     {
       using (var dt = UnitTestStatic.GetDataTable())
@@ -124,7 +120,7 @@ namespace CsvTools.Tests
       }
     }
 
-    [TestMethod()]
+    [TestMethod]
     public void HighlightText()
     {
       using (var dt = UnitTestStatic.GetDataTable())
@@ -133,7 +129,7 @@ namespace CsvTools.Tests
         filteredDataGridView.DataSource = dt;
         filteredDataGridView.HighlightText = "ag";
         UnitTestWinFormHelper.WaitSomeTime(.2);
-        Assert.AreEqual("",filteredDataGridView.CurrentFilter);
+        Assert.AreEqual("", filteredDataGridView.CurrentFilter);
       }
     }
   }

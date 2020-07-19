@@ -1,13 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
-using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
-  using System.Collections.Generic;
-  using System.Threading.Tasks;
-
   [TestClass]
   public class FilterDataTableTests
   {
@@ -17,10 +15,8 @@ namespace CsvTools.Tests
 
       var withoutErrors = new List<DataColumn>(new[]
       {
-        new DataColumn("ColID", typeof(int)),
-        new DataColumn("ColText1", typeof(string)),
-        new DataColumn("ColText2", typeof(string)),
-        new DataColumn("ColTextDT", typeof(DateTime))
+        new DataColumn("ColID", typeof(int)), new DataColumn("ColText1", typeof(string)),
+        new DataColumn("ColText2", typeof(string)), new DataColumn("ColTextDT", typeof(DateTime))
       });
       dt.Columns.AddRange(withoutErrors.ToArray());
 
@@ -39,7 +35,7 @@ namespace CsvTools.Tests
         if (errType == 1)
         {
           var asWarning = random.Next(1, 3) == 1;
-          isError = (!asWarning);
+          isError = !asWarning;
 
           row.RowError = asWarning ? "Row Warning".AddWarningId() : "Row Error";
         }
@@ -47,7 +43,7 @@ namespace CsvTools.Tests
         if (errType == 2)
         {
           var asWarning = random.Next(1, 3) == 1;
-          isError = (!asWarning);
+          isError = !asWarning;
 
           var colNum = random.Next(0, dt.Columns.Count);
           if (isError)

@@ -12,11 +12,11 @@
 *
 */
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.ComponentModel;
 using System.Data;
 using System.Linq;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
@@ -42,7 +42,9 @@ namespace CsvTools.Tests
 
       var called = false;
       columnFilterLogic.ColumnFilterApply += delegate
-      { called = true; };
+      {
+        called = true;
+      };
       columnFilterLogic.ApplyFilter();
       Assert.IsTrue(called);
     }
@@ -72,8 +74,10 @@ namespace CsvTools.Tests
     {
       var columnFilterLogic = new ColumnFilterLogic(typeof(double), "Column1");
       string prop = null;
-      columnFilterLogic.PropertyChanged += delegate (object sender, PropertyChangedEventArgs e)
-      { prop = e.PropertyName; };
+      columnFilterLogic.PropertyChanged += delegate(object sender, PropertyChangedEventArgs e)
+      {
+        prop = e.PropertyName;
+      };
       columnFilterLogic.ValueText = "2";
       Assert.AreEqual("ValueText", prop);
       Assert.AreEqual("[Column1] = 2", columnFilterLogic.BuildSQLCommand(columnFilterLogic.ValueText));
@@ -97,10 +101,11 @@ namespace CsvTools.Tests
       Assert.AreEqual("[Column1] = 2", control.BuildSQLCommand(control.ValueText));
     }
 
-    [TestMethod()]
-    public void IsNullCompareTest() => Assert.IsFalse(ColumnFilterLogic.IsNotNullCompare(ColumnFilterLogic.OperatorIsNull));
+    [TestMethod]
+    public void IsNullCompareTest() =>
+      Assert.IsFalse(ColumnFilterLogic.IsNotNullCompare(ColumnFilterLogic.OperatorIsNull));
 
-    [TestMethod()]
+    [TestMethod]
     public void GetOperatorsTest()
     {
       var stringType = ColumnFilterLogic.GetOperators(typeof(string));
@@ -113,7 +118,7 @@ namespace CsvTools.Tests
       Assert.AreEqual(4, boolType.Length);
     }
 
-    [TestMethod()]
+    [TestMethod]
     public void FilterExpressionDate()
     {
       var columnFilterLogic = new ColumnFilterLogic(typeof(DateTime), "Column1");
@@ -123,9 +128,12 @@ namespace CsvTools.Tests
       Assert.IsTrue(test.Contains("[COLUMN1]<#02/21/2020#"));
     }
 
-    private void TestFilterExpression(string expected, ColumnFilterLogic columnFilterLogic) => Assert.AreEqual(expected.ToUpperInvariant().Replace(" ", ""), columnFilterLogic.FilterExpression.ToUpperInvariant().Replace(" ", ""), $"Ignoring case and space, Expected: {expected} Actual: {columnFilterLogic.FilterExpression}");
+    private void TestFilterExpression(string expected, ColumnFilterLogic columnFilterLogic) => Assert.AreEqual(
+      expected.ToUpperInvariant().Replace(" ", ""),
+      columnFilterLogic.FilterExpression.ToUpperInvariant().Replace(" ", ""),
+      $"Ignoring case and space, Expected: {expected} Actual: {columnFilterLogic.FilterExpression}");
 
-    [TestMethod()]
+    [TestMethod]
     public void FilterExpressionNumber()
     {
       var columnFilterLogic = new ColumnFilterLogic(typeof(float), "Column1");
@@ -133,7 +141,7 @@ namespace CsvTools.Tests
       TestFilterExpression("[Column1] = 5", columnFilterLogic);
     }
 
-    [TestMethod()]
+    [TestMethod]
     public void FilterExpressionBool()
     {
       var columnFilterLogic = new ColumnFilterLogic(typeof(bool), "Column1");
@@ -143,7 +151,7 @@ namespace CsvTools.Tests
       TestFilterExpression("[COLUMN1] = 0", columnFilterLogic);
     }
 
-    [TestMethod()]
+    [TestMethod]
     public void FilterExpressionText()
     {
       var columnFilterLogic = new ColumnFilterLogic(typeof(string), "Column1");
@@ -158,7 +166,7 @@ namespace CsvTools.Tests
       TestFilterExpression("Len([Column1]) > 10", columnFilterLogic);
     }
 
-    [TestMethod()]
+    [TestMethod]
     public void Contains()
     {
       var columnFilterLogic = new ColumnFilterLogic(typeof(string), "strCol");
@@ -167,10 +175,10 @@ namespace CsvTools.Tests
       TestFilterExpression("[strCol] like '%Hello%'", columnFilterLogic);
     }
 
-    [TestMethod()]
+    [TestMethod]
     public void AllFilterString()
     {
-      var columnFilterLogic = new ColumnFilterLogic(typeof(string), "strCol") { ValueText = "Hello" };
+      var columnFilterLogic = new ColumnFilterLogic(typeof(string), "strCol") {ValueText = "Hello"};
 
       foreach (var op in ColumnFilterLogic.GetOperators(columnFilterLogic.ColumnDataType))
       {
@@ -180,11 +188,11 @@ namespace CsvTools.Tests
       }
     }
 
-    [TestMethod()]
+    [TestMethod]
     public void AllFilterDateTime()
     {
       var dtm = DateTime.Now;
-      var columnFilterLogic = new ColumnFilterLogic(typeof(DateTime), "dtmCol") { ValueDateTime = dtm };
+      var columnFilterLogic = new ColumnFilterLogic(typeof(DateTime), "dtmCol") {ValueDateTime = dtm};
       Assert.AreEqual(dtm, columnFilterLogic.ValueDateTime);
 
       foreach (var op in ColumnFilterLogic.GetOperators(columnFilterLogic.ColumnDataType))
@@ -195,7 +203,7 @@ namespace CsvTools.Tests
       }
     }
 
-    [TestMethod()]
+    [TestMethod]
     public void ValueClusterCollection()
     {
       var columnFilterLogic = new ColumnFilterLogic(typeof(int), "intCol");
@@ -205,7 +213,7 @@ namespace CsvTools.Tests
         using (var dataView = new DataView(data, null, null, DataViewRowState.CurrentRows))
         {
           columnFilterLogic.ValueClusterCollection.BuildValueClusters(dataView, typeof(int), 1);
-          int i = 0;
+          var i = 0;
           foreach (var cluster in columnFilterLogic.ValueClusterCollection.ValueClusters)
           {
             cluster.Active = true;
@@ -218,10 +226,10 @@ namespace CsvTools.Tests
       }
     }
 
-    [TestMethod()]
+    [TestMethod]
     public void AllFilterInt()
     {
-      var columnFilterLogic = new ColumnFilterLogic(typeof(int), "intCol") { ValueText = "-10" };
+      var columnFilterLogic = new ColumnFilterLogic(typeof(int), "intCol") {ValueText = "-10"};
       Assert.AreEqual("-10", columnFilterLogic.ValueText);
       foreach (var op in ColumnFilterLogic.GetOperators(columnFilterLogic.ColumnDataType))
       {
@@ -231,7 +239,7 @@ namespace CsvTools.Tests
       }
     }
 
-    [TestMethod()]
+    [TestMethod]
     public void AllFilterBool()
     {
       var columnFilterLogic = new ColumnFilterLogic(typeof(bool), "strCol");

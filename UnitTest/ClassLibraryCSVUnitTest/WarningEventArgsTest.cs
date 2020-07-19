@@ -11,8 +11,9 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
@@ -22,7 +23,6 @@ namespace CsvTools.Tests
     [TestMethod]
     public void WarningEventArgsPropertySetGet()
     {
-
       var test1 = new WarningEventArgs(100, 200, "Warning", 201, 202, "ColName");
       Assert.AreEqual(100, test1.RecordNumber);
       Assert.AreEqual(200, test1.ColumnNumber);
@@ -30,7 +30,6 @@ namespace CsvTools.Tests
       Assert.AreEqual(201, test1.LineNumberStart);
       Assert.AreEqual(202, test1.LineNumberEnd);
       Assert.AreEqual("ColName", test1.ColumnName);
-
     }
 
     [TestMethod]

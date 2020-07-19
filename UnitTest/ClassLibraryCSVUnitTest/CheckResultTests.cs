@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
@@ -30,10 +31,7 @@ namespace CsvTools.Tests
       test2.ExampleNonMatch.Add("Test3");
       test2.PossibleMatch = true;
 
-      var test3 = new CheckResult
-      {
-        PossibleMatch = true
-      };
+      var test3 = new CheckResult {PossibleMatch = true};
 
       test1.KeepBestPossibleMatch(test1);
       Assert.AreEqual(2, test1.ExampleNonMatch.Count());

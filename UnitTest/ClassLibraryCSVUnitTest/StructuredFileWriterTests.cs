@@ -1,5 +1,7 @@
-﻿using CsvTools;
-/*
+﻿using System.Globalization;
+using System.Text;
+using System.Threading.Tasks;
+using Microsoft.VisualStudio.TestTools.UnitTesting; /*
 * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
 *
 * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
@@ -13,11 +15,6 @@
 *
 */
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace CsvTools.Tests
 {
   [TestClass]
@@ -28,11 +25,14 @@ namespace CsvTools.Tests
     [TestInitialize]
     public void Init()
     {
-      var readFile = new CsvFile { ID = c_ReadID, FileName = UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"), FileFormat = { CommentLine = "#" } };
+      var readFile = new CsvFile
+      {
+        ID = c_ReadID, FileName = UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"), FileFormat = {CommentLine = "#"}
+      };
       readFile.ColumnCollection.AddIfNew(new Column("ExamDate", @"dd/MM/yyyy"));
       readFile.ColumnCollection.AddIfNew(new Column("Score", DataType.Integer));
       readFile.ColumnCollection.AddIfNew(new Column("Proficiency", DataType.Numeric));
-      readFile.ColumnCollection.AddIfNew(new Column("IsNativeLang", DataType.Boolean) { Ignore = true });
+      readFile.ColumnCollection.AddIfNew(new Column("IsNativeLang", DataType.Boolean) {Ignore = true});
       UnitTestInitializeCsv.MimicSQLReader.AddSetting(readFile);
     }
 
@@ -51,15 +51,14 @@ namespace CsvTools.Tests
       var sb = new StringBuilder("{");
       using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       {
-        var cols = await DetermineColumnFormat.GetSqlColumnNamesAsync(writeFile.SqlStatement, writeFile.Timeout, processDisplay.CancellationToken);
+        var cols = await DetermineColumnFormat.GetSqlColumnNamesAsync(writeFile.SqlStatement, writeFile.Timeout,
+          processDisplay.CancellationToken);
         writeFile.Header = "{\"rowset\":[\n";
 
         // { "firstName":"John", "lastName":"Doe"},
         foreach (var col in cols)
-        {
           sb.AppendFormat("\"{0}\":\"{1}\", ", HTMLStyle.JsonElementName(col),
-            string.Format(System.Globalization.CultureInfo.InvariantCulture, StructuredFileWriter.cFieldPlaceholderByName, col));
-        }
+            string.Format(CultureInfo.InvariantCulture, StructuredFileWriter.cFieldPlaceholderByName, col));
 
         if (sb.Length > 1)
           sb.Length -= 2;
@@ -85,17 +84,16 @@ namespace CsvTools.Tests
       var sb = new StringBuilder();
       using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       {
-        var cols = await DetermineColumnFormat.GetSqlColumnNamesAsync(writeFile.SqlStatement, writeFile.Timeout, processDisplay.CancellationToken);
+        var cols = await DetermineColumnFormat.GetSqlColumnNamesAsync(writeFile.SqlStatement, writeFile.Timeout,
+          processDisplay.CancellationToken);
         sb.AppendLine("<?xml version=\"1.0\"?>\n");
         sb.AppendLine("<rowset>");
         writeFile.Header = sb.ToString();
         sb.Clear();
         sb.AppendLine("  <row>");
         foreach (var col in cols)
-        {
           sb.AppendFormat("    <{0}>{1}</{0}>\n", HTMLStyle.XmlElementName(col),
-            string.Format(System.Globalization.CultureInfo.InvariantCulture, StructuredFileWriter.cFieldPlaceholderByName, col));
-        }
+            string.Format(CultureInfo.InvariantCulture, StructuredFileWriter.cFieldPlaceholderByName, col));
 
         sb.AppendLine("  </row>");
         writeFile.Row = sb.ToString();

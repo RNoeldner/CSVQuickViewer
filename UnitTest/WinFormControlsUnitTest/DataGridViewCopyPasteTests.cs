@@ -12,15 +12,13 @@
  *
  */
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Threading;
+using System;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
-  using System;
-  using System.Runtime.InteropServices;
-
   [TestClass]
   public class DataGridViewCopyPasteTests
   {
@@ -30,7 +28,7 @@ namespace CsvTools.Tests
       using (var dgv = new DataGridView())
       {
         dgv.AutoGenerateColumns = true;
-        using (var dt = UnitTestStatic.GetDataTable(100))
+        using (var dt = UnitTestStatic.GetDataTable())
         {
           dgv.DataSource = dt;
           using (var frm = new Form())
@@ -50,7 +48,7 @@ namespace CsvTools.Tests
       using (var dgv = new DataGridView())
       {
         dgv.AutoGenerateColumns = true;
-        using (var dt = UnitTestStatic.GetDataTable(100))
+        using (var dt = UnitTestStatic.GetDataTable())
         {
           dgv.DataSource = dt;
           using (var frm = new Form())
@@ -79,7 +77,7 @@ namespace CsvTools.Tests
       using (var dgv = new DataGridView())
       {
         dgv.AutoGenerateColumns = true;
-        using (var dt = UnitTestStatic.GetDataTable(100))
+        using (var dt = UnitTestStatic.GetDataTable())
         {
           dgv.DataSource = dt;
           using (var frm = new Form())
@@ -112,7 +110,7 @@ namespace CsvTools.Tests
       using (var dgv = new DataGridView())
       {
         dgv.AutoGenerateColumns = true;
-        using (var dt = UnitTestStatic.GetDataTable(100))
+        using (var dt = UnitTestStatic.GetDataTable())
         {
           dgv.DataSource = dt;
           using (var frm = new Form())

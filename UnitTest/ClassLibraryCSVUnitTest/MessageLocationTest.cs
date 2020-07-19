@@ -12,6 +12,7 @@
  *
  */
 
+using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
@@ -42,15 +43,16 @@ namespace CsvTools.Tests
         messageList.Add(null, new WarningEventArgs(1, 2, null, 0, 0, null));
         Assert.Fail("Exception not thrown");
       }
-      catch (System.ArgumentException)
+      catch (ArgumentException)
       {
       }
+
       try
       {
         messageList.Add(null, new WarningEventArgs(1, 2, string.Empty, 0, 0, null));
         Assert.Fail("Exception not thrown");
       }
-      catch (System.ArgumentException)
+      catch (ArgumentException)
       {
       }
     }

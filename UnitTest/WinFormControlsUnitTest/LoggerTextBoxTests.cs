@@ -16,10 +16,10 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
-  [TestClass()]
+  [TestClass]
   public class LoggerTextBoxTests
   {
-    [TestMethod()]
+    [TestMethod]
     public void ClearTest()
     {
       using (var test = new LoggerDisplay())
@@ -28,7 +28,7 @@ namespace CsvTools.Tests
       }
     }
 
-    [TestMethod()]
+    [TestMethod]
     public void LoggerTextBoxTest()
     {
       using (var loggerDisplay = new LoggerDisplay())

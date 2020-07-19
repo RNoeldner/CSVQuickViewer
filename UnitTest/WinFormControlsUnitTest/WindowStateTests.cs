@@ -1,13 +1,13 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Drawing;
+﻿using System.Drawing;
 using System.Windows.Forms;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
-  [TestClass()]
+  [TestClass]
   public class WindowStateTests
   {
-    [TestMethod()]
+    [TestMethod]
     public void WindowStateTest()
     {
       var test = new WindowState();
@@ -17,7 +17,7 @@ namespace CsvTools.Tests
       Assert.AreEqual(0, test.Height);
     }
 
-    [TestMethod()]
+    [TestMethod]
     public void WindowStateTest1()
     {
       var rect = new Rectangle(10, 12, 14, 16);

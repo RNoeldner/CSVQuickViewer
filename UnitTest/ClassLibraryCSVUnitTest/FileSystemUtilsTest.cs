@@ -12,19 +12,16 @@
  *
  */
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
-using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
   [TestClass]
   public class FileSystemUtilsTest
   {
-
     [TestMethod]
     public void GetStreamReaderForFileOrResource()
     {
@@ -49,14 +46,17 @@ namespace CsvTools.Tests
           processDisplay.Maximum = -100;
 
           Assert.IsFalse(FileSystemUtils.FileExists(dest));
-          await FileSystemUtils.FileCopy(UnitTestInitializeCsv.GetTestPath("AllFormats.txt"), dest, false, processDisplay);
+          await FileSystemUtils.FileCopy(UnitTestInitializeCsv.GetTestPath("AllFormats.txt"), dest, false,
+            processDisplay);
           Assert.IsTrue(FileSystemUtils.FileExists(dest));
           Assert.AreEqual(-100, processDisplay.Maximum);
 
           // Copy again, the old file should be overwritten
-          await FileSystemUtils.FileCopy(UnitTestInitializeCsv.GetTestPath("AlternateTextQualifiers.txt"), dest, true, processDisplay);
+          await FileSystemUtils.FileCopy(UnitTestInitializeCsv.GetTestPath("AlternateTextQualifiers.txt"), dest, true,
+            processDisplay);
           Assert.IsTrue(FileSystemUtils.FileExists(dest));
-          Assert.AreEqual((new FileInfo(UnitTestInitializeCsv.GetTestPath("AlternateTextQualifiers.txt"))).Length, new FileInfo(dest).Length);
+          Assert.AreEqual(new FileInfo(UnitTestInitializeCsv.GetTestPath("AlternateTextQualifiers.txt")).Length,
+            new FileInfo(dest).Length);
         }
       }
       finally
@@ -82,12 +82,13 @@ namespace CsvTools.Tests
         FileSystemUtils.CreateDirectory(".\\Test\\");
       Assert.AreEqual(Path.GetFullPath(".\\Test"), ".\\Test".GetDirectoryName());
     }
+
     [TestMethod]
     public void ShortFileName_LongFileName()
     {
-      Assert.AreEqual("", FileSystemUtils.ShortFileName(""));
-      Assert.AreEqual("", FileSystemUtils.LongFileName(""));
-      Assert.AreEqual("C:\\CsvHelperTest.cs", FileSystemUtils.ShortFileName("C:\\CsvHelperTest.cs"));
+      Assert.AreEqual("", "".ShortFileName());
+      Assert.AreEqual("", "".LongFileName());
+      Assert.AreEqual("C:\\CsvHelperTest.cs", "C:\\CsvHelperTest.cs".ShortFileName());
       var root = FileSystemUtils.ExecutableDirectoryName();
       var fn = root + "\\VeryLongNameForAFile.txt";
       using (var sw = File.CreateText(fn))
@@ -97,28 +98,28 @@ namespace CsvTools.Tests
         sw.WriteLine("Welcome");
       }
 
-      var sfn = FileSystemUtils.ShortFileName(fn);
+      var sfn = fn.ShortFileName();
       Assert.IsTrue(sfn.EndsWith("VeryLo~1.txt", StringComparison.OrdinalIgnoreCase), sfn);
-      Assert.AreEqual(fn, FileSystemUtils.LongFileName(sfn));
+      Assert.AreEqual(fn, sfn.LongFileName());
       FileSystemUtils.FileDelete(fn);
     }
 
     [TestMethod]
     public void GetShortestPath()
     {
-      Assert.AreEqual("C:\\CsvHelperTest.cs", FileSystemUtils.GetShortestPath("C:\\CsvHelperTest.cs", "."));
-      Assert.AreEqual("..\\CsvHelperTest.cs", FileSystemUtils.GetShortestPath("..\\CsvHelperTest.cs", "."));
+      Assert.AreEqual("C:\\CsvHelperTest.cs", "C:\\CsvHelperTest.cs".GetShortestPath("."));
+      Assert.AreEqual("..\\CsvHelperTest.cs", "..\\CsvHelperTest.cs".GetShortestPath("."));
     }
 
     [TestMethod]
     public void GetRelativePath()
     {
       var root = FileSystemUtils.ExecutableDirectoryName();
-      Assert.AreEqual("TestFiles\\BasicCSV.txt", FileSystemUtils.GetRelativePath(root + "\\TestFiles\\BasicCSV.txt", root));
+      Assert.AreEqual("TestFiles\\BasicCSV.txt", (root + "\\TestFiles\\BasicCSV.txt").GetRelativePath(root));
     }
 
     [TestMethod]
-    public void SafePath() => Assert.AreEqual("Test$Files\\Basic$CSV.txt", FileSystemUtils.SafePath("Test|Files\\Basic<CSV.txt", "$"));
+    public void SafePath() => Assert.AreEqual("Test$Files\\Basic$CSV.txt", "Test|Files\\Basic<CSV.txt".SafePath("$"));
 
 
     [TestMethod]
@@ -175,24 +176,19 @@ namespace CsvTools.Tests
       }
 
       for (var counter = 0; counter < 10; counter++)
-      {
         using (var stream = FileSystemUtils.CreateText(directory + $"\\File{counter:000}.txt"))
         {
           stream.WriteLine($"Small Test {counter:000}");
         }
-      }
 
-      var fn1 = FileSystemUtils.ResolvePattern(directory + $"\\File*.txt");
+      var fn1 = FileSystemUtils.ResolvePattern(directory + "\\File*.txt");
       Assert.IsNotNull(fn1);
 
-      var fn2 = FileSystemUtils.ResolvePattern(relPath + $"\\File*.txt");
+      var fn2 = FileSystemUtils.ResolvePattern(relPath + "\\File*.txt");
       Assert.AreEqual(fn1, fn2);
 
       // cleanup
-      for (var counter = 0; counter < 10; counter++)
-      {
-        FileSystemUtils.FileDelete(directory + $"\\File{counter:000}.txt");
-      }
+      for (var counter = 0; counter < 10; counter++) FileSystemUtils.FileDelete(directory + $"\\File{counter:000}.txt");
     }
   }
 }

@@ -11,14 +11,15 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
-  [TestClass()]
+  [TestClass]
   public class SampleRecordEntryTests
   {
-    [TestMethod()]
+    [TestMethod]
     public void SampleRecordEntry()
     {
       var entry = new SampleRecordEntry();
@@ -38,7 +39,7 @@ namespace CsvTools.Tests
     }
 
 
-    [TestMethod()]
+    [TestMethod]
     public void Clone()
     {
       var entry1 = new SampleRecordEntry(100, "Error1");
@@ -48,7 +49,7 @@ namespace CsvTools.Tests
       Assert.IsTrue(entry2.ProvideEvidence);
     }
 
-    [TestMethod()]
+    [TestMethod]
     public void Equals()
     {
       var entry1 = new SampleRecordEntry(100, "Error1");
@@ -61,7 +62,7 @@ namespace CsvTools.Tests
       Assert.IsFalse(entry1.Equals(entry2));
     }
 
-    [TestMethod()]
+    [TestMethod]
     public void GetHashCodeTest()
     {
       var entry1 = new SampleRecordEntry(100, "Error1");
@@ -70,8 +71,6 @@ namespace CsvTools.Tests
 
       entry2 = new SampleRecordEntry(10, "Error1");
       Assert.AreNotEqual(entry1.GetHashCode(), entry2.GetHashCode());
-
     }
-
   }
 }

@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
@@ -18,7 +19,7 @@ namespace CsvTools.Tests
   [TestClass]
   public class FieldMappingTest
   {
-    private readonly Mapping m_FieldMapping = new Mapping("A","B");
+    private readonly Mapping m_FieldMapping = new Mapping("A", "B");
 
     [TestMethod]
     public void Equals()
@@ -32,6 +33,5 @@ namespace CsvTools.Tests
 
     [TestMethod]
     public void EqualsNull() => Assert.IsFalse(m_FieldMapping.Equals(null));
-
   }
 }

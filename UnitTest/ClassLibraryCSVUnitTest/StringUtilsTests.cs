@@ -45,19 +45,19 @@ namespace CsvTools.Tests
     [TestMethod]
     public void Join()
     {
-      var test = StringUtils.Join(new[] {"this", "is", "a"});
+      var test = new[] {"this", "is", "a"}.Join();
       Assert.AreEqual("this, is, a", test);
 
-      var test2 = StringUtils.Join(new[] {"Hello", "World"}, "|");
+      var test2 = new[] {"Hello", "World"}.Join("|");
       Assert.AreEqual("Hello|World", test2);
 
       var test3 = new List<string>().Join("*");
       Assert.AreEqual("", test3);
 
       Assert.AreEqual("", new string[] { }.Join(","));
-      Assert.AreEqual("2", new[] { "2" }.Join(","));
-      Assert.AreEqual("2,3", new[] { "2", "3" }.Join(","));
-      Assert.AreEqual("2; 3", new[] { "2", "3" }.Join("; "));
+      Assert.AreEqual("2", new[] {"2"}.Join(","));
+      Assert.AreEqual("2,3", new[] {"2", "3"}.Join(","));
+      Assert.AreEqual("2; 3", new[] {"2", "3"}.Join("; "));
     }
 
     [TestMethod]
@@ -69,8 +69,6 @@ namespace CsvTools.Tests
       Assert.AreEqual(true, "This is a test".PassesFilter("This +test"));
       Assert.AreEqual(false, "This is a test".PassesFilter("The+test"));
     }
-
-
 
 
     [TestMethod]
@@ -107,10 +105,8 @@ namespace CsvTools.Tests
       FileSystemUtils.GetShortDisplayFileName("ThisIsALongFileNameThatNeedsToBeShorter.txt", 20).Length);
 
     [TestMethod]
-    public void GetShortDisplayFileNameNull()
-    {
+    public void GetShortDisplayFileNameNull() =>
       Assert.AreEqual(string.Empty, FileSystemUtils.GetShortDisplayFileName(string.Empty, 100));
-    }
 
     [TestMethod]
     public void GetShortDisplayOk()
@@ -158,11 +154,9 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void HtmlEncodeNull()
-    {
-//      Assert.IsNull(HTMLStyle.HtmlEncode(null));
+    public void HtmlEncodeNull() =>
+      //      Assert.IsNull(HTMLStyle.HtmlEncode(null));
       Assert.AreEqual(string.Empty, HTMLStyle.HtmlEncode(string.Empty));
-    }
 
     [TestMethod]
     public void HtmlEncodeOK()
@@ -208,12 +202,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void MakeUniqueInCollectionTest()
     {
-      var lst = new List<string>
-      {
-        "Value",
-        null,
-        ""
-      };
+      var lst = new List<string> {"Value", null, ""};
       Assert.AreEqual("Value1", StringUtils.MakeUniqueInCollection(lst, "Value"));
       Assert.AreEqual("New", StringUtils.MakeUniqueInCollection(lst, "New"));
     }

@@ -12,19 +12,18 @@
  *
  */
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Data;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
-  [TestClass()]
+  [TestClass]
   public class ValueClusterCollectionTests
   {
-    [TestMethod()]
+    [TestMethod]
     public void BuildValueClustersTest()
     {
-
       using (var data = UnitTestStatic.GetDataTable(200))
       using (var dataView = new DataView(data, null, null, DataViewRowState.CurrentRows))
       {
@@ -51,8 +50,8 @@ namespace CsvTools.Tests
         string oldSort = null;
         foreach (var cluster in test4.ValueClusters)
         {
-          if (oldSort!=null)
-            Assert.AreEqual(1, cluster.Sort.CompareTo(oldSort));
+          if (oldSort != null)
+            Assert.AreEqual(1, String.Compare(cluster.Sort, oldSort, StringComparison.Ordinal));
           oldSort = cluster.Sort;
         }
 
@@ -65,7 +64,7 @@ namespace CsvTools.Tests
       }
     }
 
-    [TestMethod()]
+    [TestMethod]
     public void GetActiveValueClusterTest()
     {
       using (var data = UnitTestStatic.GetDataTable(200))
@@ -80,5 +79,4 @@ namespace CsvTools.Tests
       }
     }
   }
-
 }

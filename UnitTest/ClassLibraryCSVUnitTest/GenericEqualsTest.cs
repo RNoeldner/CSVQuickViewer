@@ -11,12 +11,14 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
@@ -27,7 +29,6 @@ namespace CsvTools.Tests
     public void RunEquals()
     {
       foreach (var type in GetAllIEquatable())
-      {
         try
         {
           var obj1 = Activator.CreateInstance(type);
@@ -39,7 +40,7 @@ namespace CsvTools.Tests
                                                                                 || prop.PropertyType == typeof(string)
                                                                                 || prop.PropertyType == typeof(bool)
                                                                                 || prop.PropertyType == typeof(DateTime)
-                                              )).ToArray();
+                                           )).ToArray();
           if (properties.Length == 0)
             continue;
           // Set some properties that should not match the default
@@ -53,7 +54,7 @@ namespace CsvTools.Tests
 
             if (prop.PropertyType == typeof(bool))
             {
-              prop.SetValue(obj1, !(bool)prop.GetValue(obj1));
+              prop.SetValue(obj1, !(bool) prop.GetValue(obj1));
               prop.SetValue(obj3, prop.GetValue(obj1));
             }
 
@@ -79,18 +80,18 @@ namespace CsvTools.Tests
             BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly,
             null,
             CallingConventions.Any,
-            new[] { type },
+            new[] {type},
             null);
           if (methodEquals != null)
             try
             {
-              var isEqual = (bool)methodEquals.Invoke(obj1, new[] { obj3 });
+              var isEqual = (bool) methodEquals.Invoke(obj1, new[] {obj3});
               Assert.IsTrue(isEqual, $"Type: {type.FullName}");
 
-              isEqual = (bool)methodEquals.Invoke(obj1, new[] { obj1 });
+              isEqual = (bool) methodEquals.Invoke(obj1, new[] {obj1});
               Assert.IsTrue(isEqual, $"Type: {type.FullName}");
 
-              isEqual = (bool)methodEquals.Invoke(obj1, new object[] { null });
+              isEqual = (bool) methodEquals.Invoke(obj1, new object[] {null});
               Assert.IsFalse(isEqual, $"Type: {type.FullName}");
 
               // Chane only one Attribute at a time
@@ -111,7 +112,7 @@ namespace CsvTools.Tests
                     if (prop.PropertyType == typeof(int) || prop.PropertyType == typeof(long))
                       prop.SetValue(obj2, 18);
                     else if (prop.PropertyType == typeof(bool))
-                      prop.SetValue(obj2, !(bool)prop.GetValue(obj1));
+                      prop.SetValue(obj2, !(bool) prop.GetValue(obj1));
                     else if (prop.PropertyType == typeof(string))
                       prop.SetValue(obj2, "Nöldner");
                     else if (prop.PropertyType == typeof(DateTime))
@@ -121,11 +122,11 @@ namespace CsvTools.Tests
                   d++;
                 }
 
-                isEqual = (bool)methodEquals.Invoke(obj1, new[] { obj2 });
+                isEqual = (bool) methodEquals.Invoke(obj1, new[] {obj2});
                 Assert.IsFalse(
                   isEqual,
                   string.Format(
-                    System.Globalization.CultureInfo.InvariantCulture,
+                    CultureInfo.InvariantCulture,
                     "Type: {0}  Property:{1}",
                     type.FullName,
                     currentTest.Name));
@@ -145,7 +146,6 @@ namespace CsvTools.Tests
         {
           Assert.Fail($"Issue with {type.FullName} {e.Message}");
         }
-      }
     }
 
     private IEnumerable<Type> GetAllIEquatable()
