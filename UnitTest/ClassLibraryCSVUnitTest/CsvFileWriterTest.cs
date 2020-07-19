@@ -12,7 +12,6 @@
  *
  */
 
-using System;
 using System.Data;
 using System.Globalization;
 using System.IO;
@@ -255,9 +254,5 @@ namespace CsvTools.Tests
       Assert.IsTrue(FileSystemUtils.FileExists(writeFile.FullPath));
       Assert.AreEqual(7, res);
     }
-
-    private void Prc_Progress(object sender, ProgressEventArgs e) => throw new NotImplementedException();
-
-    private void Writer_Warning(object sender, WarningEventArgs e) => throw new NotImplementedException();
   }
 }
