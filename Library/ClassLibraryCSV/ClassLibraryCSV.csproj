@@ -7,7 +7,6 @@
     <Copyright>Copyright © 2017</Copyright>
     <ProductName>CsvTools</ProductName>
     <OutputType>Library</OutputType>
-    <TargetFramework>net472</TargetFramework>
     <ApplicationIcon />
     <StartupObject />
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -16,6 +15,7 @@
     <Version>1.6.6.458</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <NeutralLanguage>en-US</NeutralLanguage>
+    <TargetFramework>net48</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>

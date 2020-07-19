@@ -45,11 +45,6 @@ namespace CsvTools
 
     private readonly Timer m_TimerSearch = new Timer();
 
-    /// <summary>
-    ///   Required designer variable.
-    /// </summary>
-    private IContainer components;
-
     private FormProcessDisplay m_BuildProcess;
 
     private ComboBox m_ComboBoxDisplay1;
@@ -99,7 +94,6 @@ namespace CsvTools
       if (disposing)
       {
         m_DisposedValue = true;
-        components?.Dispose();
         m_TimerDisplay?.Dispose();
         m_TimerSearch?.Dispose();
         m_BuildProcess?.Dispose();
