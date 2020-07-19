@@ -58,14 +58,12 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public async Task APICodePackWrapperOpen()
+    public void APICodePackWrapperOpen()
     {
       try
       {
-        // Used to cancel after .2 seconds
-        await Task.Run(() =>
-            WindowsAPICodePackWrapper.Open(FileSystemUtils.ExecutableDirectoryName(), "Test", "*.cs", null))
-          .TimeoutAfter(new TimeSpan(TimeSpan.TicksPerSecond / 4));
+        UnitTestWinFormHelper.RunTaskTimeout(token => Task.Run(() =>
+          WindowsAPICodePackWrapper.Open(FileSystemUtils.ExecutableDirectoryName(), "Test", "*.cs", null), token), 1);
       }
       catch (COMException)
       {
@@ -84,13 +82,14 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public async Task WindowsAPICodePackWrapperFolder()
+    public void WindowsAPICodePackWrapperFolder()
     {
       try
       {
         // Used to cancel after .2 seconds
-        await Task.Run(() => { WindowsAPICodePackWrapper.Folder(FileSystemUtils.ExecutableDirectoryName(), "Test"); })
-          .TimeoutAfter(new TimeSpan(TimeSpan.TicksPerSecond / 4));
+        UnitTestWinFormHelper.RunTaskTimeout(
+          token => Task.Run(
+            () => { WindowsAPICodePackWrapper.Folder(FileSystemUtils.ExecutableDirectoryName(), "Test"); }, token), 1);
       }
       catch (COMException)
       {
@@ -106,16 +105,17 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public async Task WindowsAPICodePackWrapperSave()
+    public void WindowsAPICodePackWrapperSave()
     {
       try
       {
         // Used to cancel after .2 seconds
-        await Task.Run(() =>
-        {
-          WindowsAPICodePackWrapper.Save(FileSystemUtils.ExecutableDirectoryName(), "Test", "*.pdf", "*.pdf", false,
-            "test.pdf");
-        }).TimeoutAfter(new TimeSpan(TimeSpan.TicksPerSecond / 4));
+        UnitTestWinFormHelper.RunTaskTimeout(
+          token => Task.Run(() =>
+          {
+            WindowsAPICodePackWrapper.Save(FileSystemUtils.ExecutableDirectoryName(), "Test", "*.pdf", "*.pdf", false,
+              "test.pdf");
+          }, token), 1);
       }
       catch (COMException)
       {

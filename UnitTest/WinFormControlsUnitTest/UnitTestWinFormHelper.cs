@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
+using JetBrains.Annotations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
@@ -20,6 +23,26 @@ namespace CsvTools.Tests
         FunctionalDI.SignalBackground?.Invoke();
         Thread.Sleep(10);
       }
+    }
+
+    public static void RunTaskTimeout(Func<CancellationToken, Task> toDo, double timeout = 1)
+    {
+      using (var source = CancellationTokenSource.CreateLinkedTokenSource(UnitTestInitializeCsv.Token))
+      {
+        Task.WhenAny(toDo.Invoke(source.Token), Task.Delay(TimeSpan.FromSeconds(timeout), source.Token));
+        source.Cancel();
+      }
+    }
+
+    public static void ShowFormAndClose(Form frm, double timeout, [NotNull] Func<CancellationToken, Task> toDo)
+    {
+      frm.TopMost = true;
+      frm.ShowInTaskbar = false;
+      frm.Show();
+      frm.Focus();
+      WaitSomeTime(.3);
+      RunTaskTimeout(toDo, timeout);
+      frm.Close();
     }
 
     public static void ShowFormAndClose(Form frm, double time = .2, Action toDo = null)
