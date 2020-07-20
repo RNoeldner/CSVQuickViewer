@@ -46,14 +46,14 @@
       this.buttonCloseText = new System.Windows.Forms.Button();
       this.csvTextDisplay = new CsvTools.CsvTextDisplay();
       this.detailControl = new CsvTools.DetailControl();
-      ((System.ComponentModel.ISupportInitialize) (this.fileSystemWatcher)).BeginInit();
+      ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher)).BeginInit();
       this.textPanel.SuspendLayout();
       this.SuspendLayout();
       // 
       // fileSystemWatcher
       // 
       this.fileSystemWatcher.EnableRaisingEvents = true;
-      this.fileSystemWatcher.NotifyFilter = ((System.IO.NotifyFilters) ((System.IO.NotifyFilters.Size | System.IO.NotifyFilters.LastWrite)));
+      this.fileSystemWatcher.NotifyFilter = ((System.IO.NotifyFilters)((System.IO.NotifyFilters.Size | System.IO.NotifyFilters.LastWrite)));
       this.fileSystemWatcher.SynchronizingObject = this;
       this.fileSystemWatcher.Changed += new System.IO.FileSystemEventHandler(this.FileSystemWatcher_Changed);
       // 
@@ -84,7 +84,7 @@
       // 
       // buttonCloseText
       // 
-      this.buttonCloseText.Anchor = ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+      this.buttonCloseText.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
       this.buttonCloseText.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
       this.buttonCloseText.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
       this.buttonCloseText.Location = new System.Drawing.Point(335, 139);
@@ -112,15 +112,16 @@
       this.detailControl.DataTable = null;
       dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
       dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
-      dataGridViewCellStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte) (0)));
+      dataGridViewCellStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
       dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.ControlText;
       dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
       dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
       dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
       this.detailControl.DefaultCellStyle = dataGridViewCellStyle2;
       this.detailControl.Dock = System.Windows.Forms.DockStyle.Fill;
+      this.detailControl.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
       this.detailControl.Location = new System.Drawing.Point(0, 0);
-      this.detailControl.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+      this.detailControl.Margin = new System.Windows.Forms.Padding(4);
       this.detailControl.Name = "detailControl";
       this.detailControl.Size = new System.Drawing.Size(1004, 539);
       this.detailControl.TabIndex = 1;
@@ -136,7 +137,7 @@
       this.Controls.Add(this.detailControl);
       this.Controls.Add(this.textPanel);
       this.HelpButton = true;
-      this.Icon = ((System.Drawing.Icon) (resources.GetObject("$this.Icon")));
+      this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
       this.KeyPreview = true;
       this.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
       this.MinimumSize = new System.Drawing.Size(599, 137);
@@ -146,9 +147,10 @@
       this.DragDrop += new System.Windows.Forms.DragEventHandler(this.DataGridView_DragDropAsync);
       this.DragEnter += new System.Windows.Forms.DragEventHandler(this.DataGridView_DragEnter);
       this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.FormMain_KeyUpAsync);
-      ((System.ComponentModel.ISupportInitialize) (this.fileSystemWatcher)).EndInit();
+      ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher)).EndInit();
       this.textPanel.ResumeLayout(false);
       this.ResumeLayout(false);
+
     }
 
     private System.Windows.Forms.Button buttonCloseText;

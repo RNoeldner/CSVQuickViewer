@@ -632,7 +632,7 @@
       this.buttonCancel.Location = new System.Drawing.Point(594, 558);
       this.buttonCancel.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
       this.buttonCancel.Name = "buttonCancel";
-      this.buttonCancel.Size = new System.Drawing.Size(139, 29);
+      this.buttonCancel.Size = new System.Drawing.Size(139, 27);
       this.buttonCancel.TabIndex = 4;
       this.buttonCancel.Text = "&Cancel";
       this.buttonCancel.UseVisualStyleBackColor = true;
@@ -788,7 +788,7 @@
       this.buttonGuess.Location = new System.Drawing.Point(308, 558);
       this.buttonGuess.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
       this.buttonGuess.Name = "buttonGuess";
-      this.buttonGuess.Size = new System.Drawing.Size(140, 29);
+      this.buttonGuess.Size = new System.Drawing.Size(140, 27);
       this.buttonGuess.TabIndex = 2;
       this.buttonGuess.Text = "&Examine && Guess";
       this.toolTip.SetToolTip(this.buttonGuess, "Read the content of the source and try and find a matching format\r\nNote: Any colu" +
@@ -944,7 +944,7 @@
       this.buttonDisplayValues.Location = new System.Drawing.Point(111, 558);
       this.buttonDisplayValues.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
       this.buttonDisplayValues.Name = "buttonDisplayValues";
-      this.buttonDisplayValues.Size = new System.Drawing.Size(176, 29);
+      this.buttonDisplayValues.Size = new System.Drawing.Size(176, 27);
       this.buttonDisplayValues.TabIndex = 1;
       this.buttonDisplayValues.Text = "Display &Values";
       this.toolTip.SetToolTip(this.buttonDisplayValues, "Read the content of the source and display the read values.\r\nNote: Any column tha" +
@@ -998,7 +998,7 @@
       this.buttonOK.Location = new System.Drawing.Point(473, 558);
       this.buttonOK.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
       this.buttonOK.Name = "buttonOK";
-      this.buttonOK.Size = new System.Drawing.Size(115, 29);
+      this.buttonOK.Size = new System.Drawing.Size(115, 27);
       this.buttonOK.TabIndex = 3;
       this.buttonOK.Text = "&Ok";
       this.buttonOK.UseVisualStyleBackColor = true;
@@ -1006,7 +1006,6 @@
       // 
       // FormColumnUI
       // 
-      this.AcceptButton = this.buttonOK;
       this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.CancelButton = this.buttonCancel;
