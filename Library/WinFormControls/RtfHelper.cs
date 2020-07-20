@@ -83,6 +83,6 @@ namespace CsvTools
       m_StringBuilder.AppendLine($"{EscapeText(text)}\\par");
     }
 
-    public string Rtf => this.m_StringBuilder + @"\pard}";
+    public string Rtf => m_StringBuilder.ToString() + @"\pard}";
   }
 }

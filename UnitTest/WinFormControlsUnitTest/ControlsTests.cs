@@ -46,7 +46,6 @@ namespace CsvTools.Tests
       }
     }
 
-
     [TestMethod]
     public void QuotingControl()
     {
@@ -137,10 +136,10 @@ namespace CsvTools.Tests
       {
         Assert.AreEqual(0, treeView.SelectedTreeNode.Count);
 
-        var treeNode = new TreeNode("Test") {Tag = "test"};
+        var treeNode = new TreeNode("Test") { Tag = "test" };
         treeView.Nodes.Add(treeNode);
 
-        var treeNode2 = new TreeNode("Test2") {Tag = "test2"};
+        var treeNode2 = new TreeNode("Test2") { Tag = "test2" };
         treeNode.Nodes.Add(treeNode2);
 
         var firedAfter = false;
@@ -173,20 +172,6 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void FormLimitSize()
-    {
-      using (var frm = new FrmLimitSize())
-      {
-        frm.RecordLimit = 1000;
-
-        UnitTestWinFormHelper.ShowFormAndClose(frm, 0.2, () =>
-        {
-          frm.RecordLimit = 20;
-        });
-      }
-    }
-
-    [TestMethod]
     public void MessageBox_ShowBigRtf()
     {
       var rtfHelper = new RtfHelper();
@@ -214,7 +199,6 @@ namespace CsvTools.Tests
           MessageBoxIcon.Error, MessageBoxDefaultButton.Button2, 2, null, null, null);
       }
     }
-
 
     [TestMethod]
     public void CsvRichTextBox()
@@ -356,7 +340,8 @@ namespace CsvTools.Tests
         {
           processDisplay.Show();
           var cvsSetting = new CsvFile(Path.Combine(FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles",
-            "FileWithHierarchy_WithCyle.txt")) {FileFormat = {FieldDelimiter = "\t"}};
+            "FileWithHierarchy_WithCyle.txt"))
+          { FileFormat = { FieldDelimiter = "\t" } };
           using (var csvDataReader = new CsvFileReader(cvsSetting, processDisplay))
           {
             var dt = await csvDataReader.GetDataTableAsync(0, false, true, false, false, false, null, null,

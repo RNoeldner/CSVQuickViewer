@@ -77,12 +77,6 @@
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Extensions.cs" />
-    <Compile Include="FrmLimitSize.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="FrmLimitSize.Designer.cs">
-      <DependentUpon>FrmLimitSize.cs</DependentUpon>
-    </Compile>
     <Compile Include="FoundEventArgs.cs" />
     <Compile Include="RtfHelper.cs" />
     <Compile Include="SearchEventArgs.cs" />
@@ -176,9 +170,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="FormProcessDisplay.resx">
       <DependentUpon>FormProcessDisplay.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="FrmLimitSize.resx">
-      <DependentUpon>FrmLimitSize.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="ResizeForm.resx">
       <DependentUpon>ResizeForm.cs</DependentUpon>
