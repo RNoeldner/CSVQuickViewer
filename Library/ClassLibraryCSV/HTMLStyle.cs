@@ -14,6 +14,7 @@
 
 using System;
 using System.ComponentModel;
+using System.Drawing;
 using System.Globalization;
 using System.Text;
 using System.Xml.Serialization;
@@ -112,9 +113,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="text">The text string to encode.</param>
     /// <returns>The HTML-encoded text.</returns>
-    /// <remarks>
-    ///   Taken from http://www.west-wind.com/weblog/posts/2009/Feb/05/Html-and-Uri-String-Encoding-without-SystemWeb
-    /// </remarks>
+    /// <remarks>Taken from http://www.west-wind.com/weblog/posts/2009/Feb/05/Html-and-Uri-String-Encoding-without-SystemWeb</remarks>
     [NotNull]
     public static string HtmlEncode([NotNull] string text)
     {
@@ -165,7 +164,8 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Does a basic HTML Encoding, handling some special charters like linefeed, &lt;, &gt;, " and &amp;
+    ///   Does a basic HTML Encoding, handling some special charters like linefeed, &lt;, &gt;, "
+    ///   and &amp;
     /// </summary>
     /// <param name="text">The text.</param>
     /// <returns></returns>
@@ -262,9 +262,9 @@ namespace CsvTools
     /// <param name="text">The text.</param>
     /// <returns>A valid XML Element Name</returns>
     /// <remarks>
-    ///   Element names are case-sensitive, Element names must start with a letter or underscore, Element names cannot
-    ///   start with the letters xml(or XML, or Xml, etc), Element names can contain letters, digits, hyphens, underscores, and
-    ///   periods, Element names cannot contain spaces
+    ///   Element names are case-sensitive, Element names must start with a letter or underscore,
+    ///   Element names cannot start with the letters xml(or XML, or Xml, etc), Element names can
+    ///   contain letters, digits, hyphens, underscores, and periods, Element names cannot contain spaces
     /// </remarks>
     [NotNull]
     public static string XmlElementName([NotNull] string text)
@@ -284,15 +284,25 @@ namespace CsvTools
       return "_" + allowed;
     }
 
+    public StringBuilder StartHTMLDoc(Color back)
+    {
+      var text = new StringBuilder(500);
+      text.AppendLine("<!DOCTYPE HTML public virtual \"-//W3C//DTD HTML 4.0 Transitional//EN\">");
+      text.AppendLine($"<HTML style=\"background-color: #{back.R:X2}{back.G:X2}{back.B:X2}\">");
+      text.AppendLine("<HEAD>");
+      text.AppendLine(m_Style);
+      text.AppendLine("</HEAD>");
+      text.AppendLine($"<BODY>");
+      return text;
+    }
+
     /// <summary>
     ///   Convert the fragment of HTML into the Clipboards HTML format.
     /// </summary>
     /// <param name="fragment">The HTML to put onto the clipboard. It must be valid HTML!</param>
     /// <returns>A string that can be put onto the clipboard and will be recognized as HTML</returns>
     /// <exception cref="ArgumentException">Parameter can not be empty;fragment</exception>
-    /// <remarks>
-    ///   The HTML format is found here http://msdn2.microsoft.com/en-us/library/aa767917.aspx
-    /// </remarks>
+    /// <remarks>The HTML format is found here http://msdn2.microsoft.com/en-us/library/aa767917.aspx</remarks>
     [NotNull]
     public string ConvertToHtmlFragment([NotNull] string fragment)
     {

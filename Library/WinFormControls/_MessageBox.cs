@@ -12,8 +12,6 @@
  *
  */
 
-
-
 namespace CsvTools
 {
   using System.Drawing;
@@ -89,18 +87,20 @@ namespace CsvTools
       }
     }
 
-    public static DialogResult ShowBigRtf(
+    public static DialogResult ShowBigHtml(
       [CanBeNull] Form owner,
-      string messageRtf,
+      string html,
       string title,
       MessageBoxButtons buttons = MessageBoxButtons.OKCancel,
       MessageBoxIcon icon = MessageBoxIcon.None,
       MessageBoxDefaultButton defaultButton = MessageBoxDefaultButton.Button1,
       double timeout = 4.0)
     {
+      if (html is null)
+        throw new System.ArgumentNullException(nameof(html));
       using (var tm = new TimedMessage())
       {
-        tm.MessageRtf = messageRtf;
+        tm.Html = html;
         tm.Size = new Size(600, 450);
         return tm.Show(owner, null, title, buttons, icon, defaultButton, timeout, null, null, null);
       }

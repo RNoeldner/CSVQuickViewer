@@ -26,6 +26,50 @@ namespace CsvTools.Tests
   public class ControlsTests
   {
     [TestMethod]
+    public void HTMLDisplay()
+    {
+      using (var tm = new TimedMessage())
+      {
+        var stringBuidler = ApplicationSetting.HTMLStyle.StartHTMLDoc(SystemColors.Control);
+        stringBuidler.Append(string.Format(ApplicationSetting.HTMLStyle.H2, HTMLStyle.TextToHtmlEncode("Sample")));
+        stringBuidler.Append(string.Format(ApplicationSetting.HTMLStyle.H2, HTMLStyle.TextToHtmlEncode("Sample2")));
+
+        stringBuidler.AppendLine(ApplicationSetting.HTMLStyle.TableOpen);
+        stringBuidler.AppendLine(ApplicationSetting.HTMLStyle.TROpen);
+        for (var index = 1; index <= 10; index++)
+        {
+          stringBuidler.AppendLine(string.Format(ApplicationSetting.HTMLStyle.TD, HTMLStyle.TextToHtmlEncode("Test " + index.ToString())));
+          if (index%4==0)
+          {
+            stringBuidler.AppendLine(ApplicationSetting.HTMLStyle.TRClose);
+          }
+        }
+        stringBuidler.AppendLine(ApplicationSetting.HTMLStyle.TRClose);
+        stringBuidler.AppendLine(ApplicationSetting.HTMLStyle.TableClose);
+        stringBuidler.AppendLine(ApplicationSetting.HTMLStyle.TableClose);
+        stringBuidler.AppendLine(ApplicationSetting.HTMLStyle.TRClose);
+        stringBuidler.AppendLine(ApplicationSetting.HTMLStyle.TableClose);
+        tm.Html= stringBuidler.ToString();
+
+        tm.Size = new Size(600, 450);
+        UnitTestWinFormHelper.ShowFormAndClose(tm, 2);
+      }
+    }
+
+    [TestMethod]
+    public void TextDisplay()
+    {
+      using (var tm = new TimedMessage())
+      {
+        tm.Message ="Found values\n\nDMS_Test_RN_Mat\tDMS_Test_RN_Mat\tDMS_Test_RN_Mat\tDMS_Test_RN_Mat\n"+
+          "DMS_Test_RN_Mat\tDMS_Test_RN_Mat\tDMS_Test_RN_Mat\tDMS_Test_RN_Mat\n\nNote: Text has been cut off after 15 characters";
+
+        tm.Size = new Size(600, 450);
+        UnitTestWinFormHelper.ShowFormAndClose(tm, 2);
+      }
+    }
+
+    [TestMethod]
     public void TimeZoneSelector()
     {
       using (var ctrl = new TimeZoneSelector())
@@ -169,19 +213,6 @@ namespace CsvTools.Tests
         frm.DestTimeZoneID = TimeZoneInfo.Local.Id;
         UnitTestWinFormHelper.ShowFormAndClose(frm);
       }
-    }
-
-    [TestMethod]
-    public void MessageBox_ShowBigRtf()
-    {
-      var rtfHelper = new RtfHelper();
-      rtfHelper.AddParagraph("RTF \\ Table {Nice}");
-      rtfHelper.AddTable(new[]
-      {
-        "Hello", "World", "", null, "A", "Table", "Test", null, "Another", "Row", "Long Column Text"
-      });
-      _MessageBox.ShowBigRtf(null, rtfHelper.Rtf, "RTF Text", MessageBoxButtons.OK, MessageBoxIcon.Information,
-        MessageBoxDefaultButton.Button1, 2);
     }
 
     [TestMethod]

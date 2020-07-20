@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Text;
+﻿using System.Text;
 
 namespace CsvTools
 {
@@ -13,7 +12,7 @@ namespace CsvTools
     {
       m_DisplaySpace = displaySpace;
       m_StringBuilder = new StringBuilder(@"{\rtf1\ansi\ansicpg1252\deff0\deflang1033{\fonttbl{\f0\fnil\fcharset0 Microsoft Sans Serif;}}{\colortbl ;\red0\green0\blue0;\red255\green0\blue0;\red0\green0\blue255;\red255\green168\blue0;}");
-      m_StringBuilder.AppendLine($"\\viewkind4\\uc1\\pard\\f0\\fs{size}");
+      m_StringBuilder.AppendLine($"\\viewkind4\\uc1\n\\pard\\f0\\fs{size}");
     }
 
     public void AddChar(int color, char character)
@@ -51,26 +50,6 @@ namespace CsvTools
       m_CurrentColor = color;
     }
 
-    public void AddTable(IEnumerable<string> data, int columns = 4)
-    {
-      var item = 0;
-      var tableData = new List<string>(data);
-      var lastRow = tableData.Count / columns + (tableData.Count % columns == 0 ? 0 : 1);
-      for (var row = 0; row < lastRow; row++)
-      {
-        m_StringBuilder.AppendLine(@"\trowd");
-        for (var cell = 1; cell <= columns; cell++)
-        {
-          // tableRtf.Append(@"\cell"); All columns are 1600 wide
-          m_StringBuilder.Append($"\\cellx{cell * 1600} ");
-          if (item >= tableData.Count) continue;
-          m_StringBuilder.Append(EscapeText(tableData[item++]));
-          m_StringBuilder.Append(@" \intbl\cell");
-        }
-        m_StringBuilder.AppendLine(@"\row");
-      }
-    }
-
     private string EscapeText(string input)
     {
       return string.IsNullOrEmpty(input) ? string.Empty : input.Replace(@"\", @"\'5c").Replace("{", @"\'7b").Replace("}", @"\'7d");
@@ -83,6 +62,6 @@ namespace CsvTools
       m_StringBuilder.AppendLine($"{EscapeText(text)}\\par");
     }
 
-    public string Rtf => m_StringBuilder.ToString() + @"\pard}";
+    public string Rtf => m_StringBuilder.ToString() + "}";
   }
 }

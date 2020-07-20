@@ -182,7 +182,7 @@ namespace CsvTools
             else
 
               // others need to be passed on with their decimal code
-              rtfHelper.AddRtf(1, $"\\u{(int)curChar}?");
+              rtfHelper.AddRtf(1, $"\\u{(int) curChar}?");
           }
         }
 
