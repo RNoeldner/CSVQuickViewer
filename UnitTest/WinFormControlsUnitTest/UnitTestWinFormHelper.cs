@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -24,7 +23,7 @@ namespace CsvTools.Tests
         Thread.Sleep(10);
       }
     }
-
+     
     public static void RunTaskTimeout(Func<CancellationToken, Task> toDo, double timeout = 1)
     {
       using (var source = CancellationTokenSource.CreateLinkedTokenSource(UnitTestInitializeCsv.Token))
