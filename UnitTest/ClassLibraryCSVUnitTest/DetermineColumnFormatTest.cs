@@ -15,6 +15,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
@@ -36,7 +37,6 @@ namespace CsvTools.Tests
 
       using (var dpd = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       {
-        var columnCollection = new ColumnCollection();
         var fillGuessSettings = new FillGuessSettings
         {
           DetectNumbers = true,
@@ -46,7 +46,7 @@ namespace CsvTools.Tests
           DetectGUID = true,
           IgnoreIdColumns = true
         };
-        var res1 = await setting.FillGuessColumnFormatReaderAsync(false, true, fillGuessSettings, dpd);
+        await setting.FillGuessColumnFormatReaderAsync(false, true, fillGuessSettings, dpd);
         Assert.AreEqual(DataType.Guid, setting.ColumnCollection[0].ValueFormat.DataType);
         Assert.AreEqual(DataType.DateTime, setting.ColumnCollection[1].ValueFormat.DataType);
       }
@@ -130,8 +130,9 @@ namespace CsvTools.Tests
       {
         try
         {
+          // ReSharper disable once AssignNullToNotNullAttribute
           await DetermineColumnFormat.GetWriterColumnInformationAsync("Nonsense SQL", 60, null, new List<IColumn>(),
-            dummy.CancellationToken);
+            token: dummy.CancellationToken);
 
           Assert.Fail("Expected Exception not thrown");
         }

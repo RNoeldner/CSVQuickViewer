@@ -30,12 +30,10 @@ namespace CsvTools.Tests
         row[3] = new DateTime(random.Next(1900, 2030), random.Next(1, 12), 1).AddDays(random.Next(1, 31));
         dt.Rows.Add(row);
         var errType = random.Next(1, 6);
-        var isError = false;
 
         if (errType == 1)
         {
           var asWarning = random.Next(1, 3) == 1;
-          isError = !asWarning;
 
           row.RowError = asWarning ? "Row Warning".AddWarningId() : "Row Error";
         }
@@ -43,10 +41,8 @@ namespace CsvTools.Tests
         if (errType == 2)
         {
           var asWarning = random.Next(1, 3) == 1;
-          isError = !asWarning;
-
           var colNum = random.Next(0, dt.Columns.Count);
-          if (isError)
+          if (!asWarning)
             if (withoutErrors.Contains(dt.Columns[colNum]))
               withoutErrors.Remove(dt.Columns[colNum]);
           row.SetColumnError(colNum, asWarning ? "Col Warning".AddWarningId() : "Col Error");

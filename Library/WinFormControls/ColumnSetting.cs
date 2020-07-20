@@ -1,6 +1,7 @@
 ﻿using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace CsvTools
@@ -21,6 +22,8 @@ namespace CsvTools
       [NotNull]
       public string Display { get; set; }
 
+      [SuppressMessage("ReSharper", "NonReadonlyMemberInGetHashCode")]
+      [SuppressMessage("ReSharper", "ConditionIsAlwaysTrueOrFalse")]
       public override int GetHashCode()
       {
         unchecked
@@ -68,17 +71,18 @@ namespace CsvTools
 
     public bool ShouldSerializeValueFilters() => ValueFilters.Any();
 
+    [SuppressMessage("ReSharper", "NonReadonlyMemberInGetHashCode")]
     public override int GetHashCode()
     {
       unchecked
       {
-        var hashCode = DataPropertyName != null ? DataPropertyName.GetHashCode() : 0;
+        var hashCode = DataPropertyName.GetHashCode();
         hashCode = (hashCode * 397) ^ Visible.GetHashCode();
         hashCode = (hashCode * 397) ^ Sort;
         hashCode = (hashCode * 397) ^ Width;
         hashCode = (hashCode * 397) ^ DisplayIndex;
-        hashCode = (hashCode * 397) ^ (Operator != null ? Operator.GetHashCode() : 0);
-        hashCode = (hashCode * 397) ^ (ValueText != null ? ValueText.GetHashCode() : 0);
+        hashCode = (hashCode * 397) ^ (Operator.GetHashCode());
+        hashCode = (hashCode * 397) ^ (ValueText.GetHashCode());
         hashCode = (hashCode * 397) ^ ValueDate.GetHashCode();
         hashCode = (hashCode * 397) ^ (ValueFilters != null ? ValueFilters.GetHashCode() : 0);
         return hashCode;

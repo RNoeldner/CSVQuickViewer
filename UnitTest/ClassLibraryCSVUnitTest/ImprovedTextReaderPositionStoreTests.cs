@@ -39,7 +39,7 @@ namespace CsvTools.Tests
             @"GCS_004805_Osipova	023c25d3-3420-449c-a75b-0d74d29ddc38	Completed	04/02/2008 00:00:00	04/02/2008 00:00:00	04/02/2008 00:00:00",
             await test.ReadLineAsync());
           var lastLine1 = string.Empty;
-          var lastLine2 = string.Empty;
+          string lastLine2;
           for (var i = 0; i < 5; i++)
             lastLine1 = await test.ReadLineAsync();
           var store = new ImprovedTextReaderPositionStore(test);

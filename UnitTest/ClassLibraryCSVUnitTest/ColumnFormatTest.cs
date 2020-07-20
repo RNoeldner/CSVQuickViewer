@@ -25,7 +25,6 @@ namespace CsvTools.Tests
     [TestMethod]
     public void ColumnDetermineDataTypeFromType()
     {
-      var b = true;
       var s = "Test";
       var dt = DateTime.Now;
       decimal dec = 0;
@@ -43,7 +42,7 @@ namespace CsvTools.Tests
       Assert.AreEqual(DataType.Numeric, dec.GetType().GetDataType());
       Assert.AreEqual(DataType.DateTime, dt.GetType().GetDataType());
       Assert.AreEqual(DataType.String, s.GetType().GetDataType());
-      Assert.AreEqual(DataType.Boolean, b.GetType().GetDataType());
+      Assert.AreEqual(DataType.Boolean, true.GetType().GetDataType());
       Assert.AreEqual(DataType.Guid, g.GetType().GetDataType());
     }
 

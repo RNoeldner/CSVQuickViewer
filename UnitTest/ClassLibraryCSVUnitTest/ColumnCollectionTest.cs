@@ -24,7 +24,7 @@ namespace CsvTools.Tests
       var exception = false;
       try
       {
-        test.AddIfNew(null);
+        test.AddIfNew(columnFormat: null);
       }
       catch (ArgumentException)
       {
