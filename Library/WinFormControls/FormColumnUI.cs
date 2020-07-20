@@ -21,6 +21,7 @@ using System.Diagnostics.Contracts;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -252,15 +253,9 @@ namespace CsvTools
               processDisplay.Hide();
               if (checkResult.FoundValueFormat == null)
               {
-                var rtfHelper = new RtfHelper();
-                rtfHelper.AddParagraph(
-                  $"No format could be determined in {samples.Values.Count():N0} sample values of {samples.RecordsRead:N0} records.");
-                rtfHelper.AddParagraph();
-                AddSamples(samples.Values, rtfHelper, "Examples", 4);
-
-                _MessageBox.ShowBigRtf(
+                _MessageBox.ShowBigHtml(
                   this,
-                  rtfHelper.Rtf,
+                  BuildHTMLText($"No format could be determined in {samples.Values.Count():N0} sample values of {samples.RecordsRead:N0} records.", null, 4, "Examples", samples.Values, 4),
                   $"Column: {columnName}",
                   MessageBoxButtons.OK,
                   MessageBoxIcon.Information);
@@ -286,30 +281,20 @@ namespace CsvTools
                       AddFormatToComboBoxDateFormat(checkResult.ValueFormatPossibleMatch.DateFormat);
                   }
 
-                  var rtfHelper = new RtfHelper();
-                  if (checkResult.ExampleNonMatch.Count > 0)
-                    AddSamples(checkResult.ExampleNonMatch, rtfHelper, "Not matching:", 2);
-
-                  AddSamples(samples.Values, rtfHelper, "Samples:", 4);
-
+                  var header1 = string.Empty;
                   var suggestClosestMatch = checkResult.PossibleMatch
                                             && (checkResult.FoundValueFormat == null
                                                 || checkResult.FoundValueFormat.DataType == DataType.String);
-                  rtfHelper.AddParagraph();
-                  rtfHelper.AddParagraph(
-                    $"Determined Format : {checkResult.FoundValueFormat?.GetTypeAndFormatDescription()}");
+                  header1 += $"Determined Format : {checkResult.FoundValueFormat?.GetTypeAndFormatDescription()}";
 
                   if (checkResult.PossibleMatch)
-                    rtfHelper.AddParagraph(
-                      $"Closest match is : {checkResult.ValueFormatPossibleMatch.GetTypeAndFormatDescription()}");
+                    header1 += $"Closest match is : {checkResult.ValueFormatPossibleMatch.GetTypeAndFormatDescription()}";
 
                   if (suggestClosestMatch)
                   {
-                    rtfHelper.AddParagraph();
-                    rtfHelper.AddParagraph("Should the closest match be used?");
-                    if (_MessageBox.ShowBigRtf(
+                    if (_MessageBox.ShowBigHtml(
                         this,
-                        rtfHelper.Rtf,
+                        BuildHTMLText(header1, "Should the closest match be used?", 4, "Samples:", samples.Values, 4, "Not matching:", checkResult.ExampleNonMatch, 2),
                         $"Column: {columnName}",
                         MessageBoxButtons.YesNo,
                         MessageBoxIcon.Question) == DialogResult.Yes)
@@ -319,9 +304,9 @@ namespace CsvTools
                   }
                   else
                   {
-                    _MessageBox.ShowBigRtf(
+                    _MessageBox.ShowBigHtml(
                       this,
-                      rtfHelper.Rtf,
+                      BuildHTMLText(header1, null, 4, "Samples:", samples.Values, 4, "Not matching:", checkResult.ExampleNonMatch, 2),
                       $"Column: {columnName}",
                       MessageBoxButtons.OK,
                       MessageBoxIcon.Information);
@@ -442,11 +427,8 @@ namespace CsvTools
           }
           else
           {
-            var rtfHelper = new RtfHelper();
-            AddSamples(values.Values, rtfHelper, "Found values", 4);
-
-            _MessageBox.ShowBigRtf(this,
-              rtfHelper.Rtf,
+            _MessageBox.ShowBigHtml(this,
+              BuildHTMLText(null, null, 4, "Found values:", values.Values, 4),
               comboBoxColumnName.Text,
               MessageBoxButtons.OK,
               MessageBoxIcon.Information);
@@ -464,23 +446,47 @@ namespace CsvTools
       }
     }
 
-    private static void AddSamples(IEnumerable<string> values, RtfHelper rtfHelper, string header, int rows)
+    private static string BuildHTMLText(string header, string footer, int rows, string headerList1, IEnumerable<string> values1, int col1, string headerList2 = null, IEnumerable<string> values2 = null, int col2 = 2)
     {
-      rtfHelper.AddParagraph(header);
-      rtfHelper.AddParagraph();
-      var texts = values.Take(4 * rows).ToArray();
-      var hasCutoff = false;
-      for (var index = 0; index < texts.Length; index++)
-      {
-        if (texts[index].Length <= 15) continue;
-        hasCutoff = true;
-        texts[index] = texts[index].Substring(0, 15);
-      }
+      var stringBuidler = ApplicationSetting.HTMLStyle.StartHTMLDoc(System.Drawing.SystemColors.Control);
 
-      rtfHelper.AddTable(texts);
-      if (!hasCutoff) return;
-      rtfHelper.AddParagraph();
-      rtfHelper.AddParagraph("Note: Text has been cut off after 15 characters");
+      if (!string.IsNullOrEmpty(header))
+        stringBuidler.Append(string.Format(ApplicationSetting.HTMLStyle.H2, HTMLStyle.TextToHtmlEncode(header)));
+
+      ListSamples(stringBuidler, headerList1, values1, col1, rows);
+      ListSamples(stringBuidler, headerList2, values2, col2, rows);
+
+      if (!string.IsNullOrEmpty(footer))
+        stringBuidler.Append(string.Format(ApplicationSetting.HTMLStyle.H2, HTMLStyle.TextToHtmlEncode(footer)));
+
+      stringBuidler.AppendLine("</BODY>");
+      stringBuidler.AppendLine("</HTML>");
+      return stringBuidler.ToString();
+    }
+
+    private static void ListSamples(StringBuilder stringBuidler, string headerList, IEnumerable<string> values, int col, int rows)
+    {
+      if (values!=null)
+      {
+        if (!string.IsNullOrEmpty(headerList))
+          stringBuidler.Append(string.Format(ApplicationSetting.HTMLStyle.H2, HTMLStyle.TextToHtmlEncode(headerList)));
+
+        stringBuidler.AppendLine(ApplicationSetting.HTMLStyle.TableOpen);
+        var texts = values.Take(col * rows).ToArray();
+        stringBuidler.AppendLine(ApplicationSetting.HTMLStyle.TROpen);
+        for (var index = 1; index <= texts.Length; index++)
+        {
+          if (string.IsNullOrEmpty(texts[index-1]))
+            stringBuidler.AppendLine(ApplicationSetting.HTMLStyle.TDEmpty);
+          else
+            stringBuidler.AppendLine(string.Format(ApplicationSetting.HTMLStyle.TD, HTMLStyle.TextToHtmlEncode(texts[index-1])));
+          if (index%col==0)
+            stringBuidler.AppendLine(ApplicationSetting.HTMLStyle.TRClose);
+        }
+        if (texts.Length%col != 0)
+          stringBuidler.AppendLine(ApplicationSetting.HTMLStyle.TRClose);
+        stringBuidler.AppendLine(ApplicationSetting.HTMLStyle.TableClose);
+      }
     }
 
     /// <summary>
@@ -593,42 +599,40 @@ namespace CsvTools
 
           try
           {
-              if (!m_WriteSetting)
+            if (!m_WriteSetting)
+            {
+              // Read Settings -- open the source that is a file if there are ignored columns need
+              // to open file and get all columns
+              if (m_FileSetting.ColumnCollection.Any(x => x.Ignore))
               {
-                // Read Settings  -- open the source that is a file
-                // if there are ignored columns need to open file and get all columns
-                if (m_FileSetting.ColumnCollection.Any(x => x.Ignore))
-                {
-                  using (var fileReader = FunctionalDI.GetFileReader(m_FileSetting, null, new CustomProcessDisplay(m_CancellationTokenSource.Token)))
-                  {
-                    await fileReader.OpenAsync(m_CancellationTokenSource.Token);
-                    for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
-                      allColumns.Add(fileReader.GetColumn(colIndex).Name);
-                  }
-                }
-                else
-                {
-                  if (FunctionalDI.GetColumnHeader != null)
-                  {
-
-                    var cols = await FunctionalDI.GetColumnHeader(m_FileSetting, m_CancellationTokenSource.Token);
-                    if (cols != null)
-                      foreach (var col in cols)
-                        allColumns.Add(col);
-                  }
-                }
-              }
-              else
-              {
-                // Write Setting ----- open the source that is SQL
-                using (var fileReader = await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement.NoRecordSQL(), null, m_FileSetting.Timeout, m_CancellationTokenSource.Token))
+                using (var fileReader = FunctionalDI.GetFileReader(m_FileSetting, null, new CustomProcessDisplay(m_CancellationTokenSource.Token)))
                 {
                   await fileReader.OpenAsync(m_CancellationTokenSource.Token);
                   for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
                     allColumns.Add(fileReader.GetColumn(colIndex).Name);
                 }
               }
-            
+              else
+              {
+                if (FunctionalDI.GetColumnHeader != null)
+                {
+                  var cols = await FunctionalDI.GetColumnHeader(m_FileSetting, m_CancellationTokenSource.Token);
+                  if (cols != null)
+                    foreach (var col in cols)
+                      allColumns.Add(col);
+                }
+              }
+            }
+            else
+            {
+              // Write Setting ----- open the source that is SQL
+              using (var fileReader = await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement.NoRecordSQL(), null, m_FileSetting.Timeout, m_CancellationTokenSource.Token))
+              {
+                await fileReader.OpenAsync(m_CancellationTokenSource.Token);
+                for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
+                  allColumns.Add(fileReader.GetColumn(colIndex).Name);
+              }
+            }
           }
           catch (Exception ex)
           {
