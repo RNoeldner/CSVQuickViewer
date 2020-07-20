@@ -294,7 +294,7 @@ namespace CsvTools
                   {
                     if (_MessageBox.ShowBigHtml(
                         this,
-                        BuildHTMLText(header1, "Should the closest match be used?", 4, "Samples:", samples.Values, 4, "Not matching:", checkResult.ExampleNonMatch, 2),
+                        BuildHTMLText(header1, "Should the closest match be used?", 4, "Samples:", samples.Values, 4, "Not matching:", checkResult.ExampleNonMatch),
                         $"Column: {columnName}",
                         MessageBoxButtons.YesNo,
                         MessageBoxIcon.Question) == DialogResult.Yes)
@@ -306,7 +306,7 @@ namespace CsvTools
                   {
                     _MessageBox.ShowBigHtml(
                       this,
-                      BuildHTMLText(header1, null, 4, "Samples:", samples.Values, 4, "Not matching:", checkResult.ExampleNonMatch, 2),
+                      BuildHTMLText(header1, null, 4, "Samples:", samples.Values, 4, "Not matching:", checkResult.ExampleNonMatch),
                       $"Column: {columnName}",
                       MessageBoxButtons.OK,
                       MessageBoxIcon.Information);

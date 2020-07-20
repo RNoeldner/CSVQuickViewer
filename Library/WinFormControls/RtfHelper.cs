@@ -62,6 +62,6 @@ namespace CsvTools
       m_StringBuilder.AppendLine($"{EscapeText(text)}\\par");
     }
 
-    public string Rtf => m_StringBuilder.ToString() + "}";
+    public string Rtf => m_StringBuilder + "}";
   }
 }

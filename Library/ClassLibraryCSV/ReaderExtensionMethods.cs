@@ -133,7 +133,9 @@ namespace CsvTools
             if (previewAction != null && dataTable.Rows.Count == 250)
             {
               var copy = dataTable.Copy();
+#pragma warning disable 4014
               Task.Run(() => previewAction(copy), cancellationToken);
+#pragma warning restore 4014
             }
           }
         }
@@ -159,7 +161,9 @@ namespace CsvTools
               if (previewAction != null && dataTable.Rows.Count == 250)
               {
                 var copy = dataTable.Copy();
+#pragma warning disable 4014
                 Task.Run(() => previewAction(copy), cancellationToken);
+#pragma warning restore 4014
               }
 
               if (!storeWarningsInDataTable || wrapper.ColumnErrorDictionary.Count <= 0 || cancellationToken.IsCancellationRequested)

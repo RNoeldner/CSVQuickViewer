@@ -125,11 +125,9 @@ namespace CsvTools.Tests
       foreach (var line in goodLines)
         test.AddRow(line.Split('|'));
       var col = -1;
-      var message = string.Empty;
       Action<int, string> handle = (i, s) =>
       {
         col = i;
-        message = s;
       };
 
       var result1 = test.RealignColumn(badLines[0].Split('|'), handle, badLines[0]);
