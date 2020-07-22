@@ -8,19 +8,24 @@ namespace CsvTools.Tests
     [TestMethod]
     public void FormEditSettings()
     {
+      UnitTestWinFormHelper.RunSTAThread(()=>{
       using (var frm = new FormEditSettings(new ViewSettings()))
       {
         UnitTestWinFormHelper.ShowFormAndClose(frm);
       }
+      });
     }
 
     [TestMethod]
     public void FormEditSettingsTest1()
     {
-      using (var frm = new FormEditSettings())
+      UnitTestWinFormHelper.RunSTAThread(() =>
       {
-        UnitTestWinFormHelper.ShowFormAndClose(frm);
-      }
+        using (var frm = new FormEditSettings())
+        {
+          UnitTestWinFormHelper.ShowFormAndClose(frm);
+        }
+      });
     }
   }
 }
