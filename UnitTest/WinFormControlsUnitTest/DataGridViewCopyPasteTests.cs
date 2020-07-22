@@ -25,117 +25,129 @@ namespace CsvTools.Tests
     [TestMethod]
     public void SelectedDataIntoClipboardAllTest()
     {
-      using (var dgv = new DataGridView())
-      {
-        dgv.AutoGenerateColumns = true;
-        using (var dt = UnitTestStatic.GetDataTable())
+      UnitTestWinFormHelper.RunSTAThread(() =>
         {
-          dgv.DataSource = dt;
-          using (var frm = new Form())
+          using (var dgv = new DataGridView())
           {
-            frm.Controls.Add(dgv);
-            frm.Show();
-            dgv.SelectAll();
-            dgv.SelectedDataIntoClipboard(true, false, UnitTestInitializeCsv.Token);
+            dgv.AutoGenerateColumns = true;
+            using (var dt = UnitTestStatic.GetDataTable())
+            {
+              dgv.DataSource = dt;
+              using (var frm = new Form())
+              {
+                frm.Controls.Add(dgv);
+                frm.Show();
+                dgv.SelectAll();
+                dgv.SelectedDataIntoClipboard(true, false, UnitTestInitializeCsv.Token);
+              }
+            }
           }
-        }
-      }
+        });
     }
 
     [TestMethod]
     public void CopySelectedRowsIntoClipboard()
     {
-      using (var dgv = new DataGridView())
+      UnitTestWinFormHelper.RunSTAThread(() =>
       {
-        dgv.AutoGenerateColumns = true;
-        using (var dt = UnitTestStatic.GetDataTable())
+        using (var dgv = new DataGridView())
         {
-          dgv.DataSource = dt;
-          using (var frm = new Form())
+          dgv.AutoGenerateColumns = true;
+          using (var dt = UnitTestStatic.GetDataTable())
           {
-            frm.Controls.Add(dgv);
-            frm.Show();
-            dgv.Rows[1].Selected = true;
-            dgv.Rows[2].Selected = true;
-            dgv.Rows[3].Selected = true;
+            dgv.DataSource = dt;
+            using (var frm = new Form())
+            {
+              frm.Controls.Add(dgv);
+              frm.Show();
+              dgv.Rows[1].Selected = true;
+              dgv.Rows[2].Selected = true;
+              dgv.Rows[3].Selected = true;
 
-            Clipboard.Clear();
-            dgv.SelectedDataIntoClipboard(false, true, UnitTestInitializeCsv.Token);
+              Clipboard.Clear();
+              dgv.SelectedDataIntoClipboard(false, true, UnitTestInitializeCsv.Token);
 
-            var dataObject = Clipboard.GetDataObject();
-            Assert.IsNotNull(dataObject);
-            Assert.IsNotNull(dataObject.GetData(DataFormats.Html));
-            Assert.IsNotNull(dataObject.GetData(DataFormats.Text));
+              var dataObject = Clipboard.GetDataObject();
+              Assert.IsNotNull(dataObject);
+              Assert.IsNotNull(dataObject.GetData(DataFormats.Html));
+              Assert.IsNotNull(dataObject.GetData(DataFormats.Text));
+            }
           }
         }
-      }
+      });
     }
 
     [TestMethod]
     public void CopySelectedColumnsIntoClipboard()
     {
-      using (var dgv = new DataGridView())
+      UnitTestWinFormHelper.RunSTAThread(() =>
       {
-        dgv.AutoGenerateColumns = true;
-        using (var dt = UnitTestStatic.GetDataTable())
+        using (var dgv = new DataGridView())
         {
-          dgv.DataSource = dt;
-          using (var frm = new Form())
+          dgv.AutoGenerateColumns = true;
+          using (var dt = UnitTestStatic.GetDataTable())
           {
-            frm.Controls.Add(dgv);
-            frm.Show();
-            dgv.Columns[1].Selected = true;
-            dgv.Columns[2].Selected = true;
-            try
+            dgv.DataSource = dt;
+            using (var frm = new Form())
             {
-              Clipboard.Clear();
-              dgv.SelectedDataIntoClipboard(true, false, UnitTestInitializeCsv.Token);
-              var dataObject = Clipboard.GetDataObject();
-              Assert.IsNotNull(dataObject);
-              Assert.IsNotNull(dataObject.GetData(DataFormats.Text));
-            }
-            catch (ExternalException e)
-            {
-              Console.WriteLine(e);
-              Assert.Inconclusive(e.Message);
+              frm.Controls.Add(dgv);
+              frm.Show();
+              dgv.Columns[1].Selected = true;
+              dgv.Columns[2].Selected = true;
+              try
+              {
+                Clipboard.Clear();
+                dgv.SelectedDataIntoClipboard(true, false, UnitTestInitializeCsv.Token);
+                var dataObject = Clipboard.GetDataObject();
+                Assert.IsNotNull(dataObject);
+                Assert.IsNotNull(dataObject.GetData(DataFormats.Text));
+              }
+              catch (ExternalException e)
+              {
+                Console.WriteLine(e);
+                Assert.Inconclusive(e.Message);
+              }
             }
           }
         }
-      }
+      });
     }
 
     [TestMethod]
     public void SelectedDataIntoClipboardTest()
     {
-      using (var dgv = new DataGridView())
+      UnitTestWinFormHelper.RunSTAThread(() =>
       {
-        dgv.AutoGenerateColumns = true;
-        using (var dt = UnitTestStatic.GetDataTable())
+        using (var dgv = new DataGridView())
         {
-          dgv.DataSource = dt;
-          using (var frm = new Form())
+          dgv.AutoGenerateColumns = true;
+          using (var dt = UnitTestStatic.GetDataTable())
           {
-            frm.Controls.Add(dgv);
-            frm.Show();
-            try
+            dgv.DataSource = dt;
+            using (var frm = new Form())
             {
-              Clipboard.Clear();
-              dgv.SelectedDataIntoClipboard(true, false, UnitTestInitializeCsv.Token);
-              var dataObject = Clipboard.GetDataObject();
-              Assert.IsNotNull(dataObject);
-              Assert.IsNotNull(dataObject.GetData(DataFormats.Text));
-            }
-            catch (ExternalException)
-            {
-              Assert.Inconclusive("Exception thrown but this can happen");
-            }
-            catch (Exception ex)
-            {
-              Assert.Fail($"Wrong exception {ex.Message}");
+              frm.Controls.Add(dgv);
+              frm.Show();
+              try
+              {
+                Clipboard.Clear();
+                dgv.SelectedDataIntoClipboard(true, false, UnitTestInitializeCsv.Token);
+                var dataObject = Clipboard.GetDataObject();
+                Assert.IsNotNull(dataObject);
+                Assert.IsNotNull(dataObject.GetData(DataFormats.Text));
+              }
+              catch (ExternalException)
+              {
+                Assert.Inconclusive("Exception thrown but this can happen");
+              }
+              catch (Exception ex)
+              {
+                Assert.Fail($"Wrong exception {ex.Message}");
+              }
             }
           }
         }
-      }
+      });
     }
   }
 }

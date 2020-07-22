@@ -353,7 +353,7 @@ namespace CsvTools
         return false;
       if (ReferenceEquals(this, other))
         return true;
-      return CheckedRecords == other.CheckedRecords && CheckNamedDates == other.CheckNamedDates &&
+      return Enabled == other.Enabled && CheckedRecords == other.CheckedRecords && CheckNamedDates == other.CheckNamedDates &&
              DateParts == other.DateParts &&
              m_DetectNumbers == other.m_DetectNumbers && DetectPercentage == other.DetectPercentage &&
              m_DetectBoolean == other.m_DetectBoolean && m_DetectDateTime == other.DetectDateTime &&

@@ -68,6 +68,7 @@
     <Compile Include="DetailControlTests.cs" />
     <Compile Include="ExtensionsTests.cs" />
     <Compile Include="FilteredDataGridViewTests.cs" />
+    <Compile Include="FormColumnUITest.cs" />
     <Compile Include="FormProcessDisplayTests.cs" />
     <Compile Include="FoundEventArgsTests.cs" />
     <Compile Include="LoggerTextBoxTests.cs" />
@@ -105,10 +106,6 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\UnitTest\ClassLibraryValidatorUnitTest\ClassLibraryValidatorUnitTest.csproj">
-      <Project>{0c6b59ff-c05c-4aab-857b-57dbeee27a39}</Project>
-      <Name>ClassLibraryValidatorUnitTest</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\Library\ClassLibraryCSV\ClassLibraryCSV.csproj">
       <Project>{0b6aee5a-8005-4b1d-987f-5790d34a2d52}</Project>
       <Name>ClassLibraryCSV</Name>

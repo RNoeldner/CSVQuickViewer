@@ -115,9 +115,9 @@ namespace CsvTools.Tests
 
             var res2 = await DetermineColumnFormat.FillGuessColumnFormatReaderAsyncReader(reader, fillGuessSettings,
               columnCollection, true, true, "<NULL>", processDisplay);
-            Assert.AreEqual(10, columnCollection.Count);
+            Assert.AreEqual(11, columnCollection.Count);
             // Added 4 text columns,
-            Assert.AreEqual(4, res2.Count);
+            Assert.AreEqual(5, res2.Count);
           }
         }
       }

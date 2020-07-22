@@ -25,8 +25,7 @@ namespace CsvTools.Tests
   public static class UnitTestInitializeCsv
   {
     public static CancellationToken Token;
-
-    public static string ApplicationDirectory = ApplicationSetting.RootFolder + @"\TestFiles";
+    public static string ApplicationDirectory;
 
     public static MimicSQLReader MimicSQLReader { get; } = new MimicSQLReader();
 
@@ -35,17 +34,20 @@ namespace CsvTools.Tests
 
     public static void MimicSql() => FunctionalDI.SQLDataReader = MimicSQLReader.ReadDataAsync;
 
-    [ClassInitialize]
-    public static void ClassInit(TestContext context) => Token = context.CancellationTokenSource.Token;
-
     [AssemblyInitialize]
     public static void AssemblyInitialize(TestContext context)
     {
       MimicSql();
+      Token = context.CancellationTokenSource.Token;
       Contract.ContractFailed += (sender, e) => e.SetHandled();
+
+      ApplicationDirectory = ApplicationSetting.RootFolder + @"\TestFiles";
+
       Logger.AddLog += (s, level) => context.WriteLine($"{level} - {s}");
+      
       ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls12;
-      AppDomain.CurrentDomain.UnhandledException += delegate(object sender, UnhandledExceptionEventArgs args)
+
+      AppDomain.CurrentDomain.UnhandledException += delegate (object sender, UnhandledExceptionEventArgs args)
       {
         context.Write(args.ExceptionObject.ToString());
       };

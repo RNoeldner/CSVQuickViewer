@@ -12,5 +12,13 @@ namespace CsvTools.Tests
       UnitTestInitializeCsv.AssemblyInitialize(context);
       FunctionalDI.SignalBackground = Application.DoEvents;
     }
+
+    [TestMethod]
+    public void AllSetup()
+    {
+      Assert.AreEqual(Application.DoEvents, FunctionalDI.SignalBackground);
+      Assert.IsNotNull(UnitTestInitializeCsv.Token);
+      Assert.IsNotNull(UnitTestInitializeCsv.ApplicationDirectory);
+    }
   }
 }

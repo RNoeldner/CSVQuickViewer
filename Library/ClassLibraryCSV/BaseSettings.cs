@@ -841,7 +841,7 @@ namespace CsvTools
           return;
         m_SqlStatement = newVal;
 
-        LatestSourceTimeUtc = ZeroTime;
+        m_LatestSourceTimeUtc = ZeroTime;
         SourceFileSettings = null;
         NotifyPropertyChanged(nameof(SqlStatement));
       }
@@ -982,47 +982,19 @@ namespace CsvTools
       if (ReferenceEquals(this, other))
         return true;
 
-      if (!(other is IFileSettingPhysicalFile otherRemote))
-        return string.Equals(other.TemplateName, TemplateName, StringComparison.OrdinalIgnoreCase) &&
-               other.SkipRows == SkipRows &&
-               other.IsEnabled == IsEnabled &&
-               other.TreatNBSPAsSpace == TreatNBSPAsSpace &&
-               other.DisplayStartLineNo == DisplayStartLineNo &&
-               other.DisplayEndLineNo == DisplayEndLineNo &&
-               other.HasFieldHeader == HasFieldHeader &&
-               other.InOverview == InOverview &&
-               other.Validate == Validate &&
-               other.TrimmingOption == TrimmingOption &&
-               other.ConsecutiveEmptyRows == m_ConsecutiveEmptyRows &&
-               string.Equals(other.TreatTextAsNull, TreatTextAsNull, StringComparison.OrdinalIgnoreCase) &&
-               other.DisplayRecordNo == DisplayRecordNo &&
-               other.RecordLimit == RecordLimit &&
-               other.ShowProgress == ShowProgress &&
-               string.Equals(other.ID, ID, StringComparison.OrdinalIgnoreCase) &&
-               other.FileFormat.Equals(FileFormat) &&
-               other.Passphrase.Equals(Passphrase, StringComparison.Ordinal) &&
-               other.Recipient.Equals(Recipient, StringComparison.Ordinal) &&
-               other.EvidenceNumberOrIssues == EvidenceNumberOrIssues &&
-               other.SkipEmptyLines == SkipEmptyLines &&
-               other.SkipDuplicateHeader == SkipDuplicateHeader &&
-               other.Timeout == Timeout &&
-               other.ProcessTimeUtc == ProcessTimeUtc &&
-               other.SetLatestSourceTimeForWrite == SetLatestSourceTimeForWrite &&
-               string.Equals(other.SqlStatement, SqlStatement, StringComparison.OrdinalIgnoreCase) &&
-               string.Equals(other.Footer, Footer, StringComparison.OrdinalIgnoreCase) &&
-               string.Equals(other.Header, Header, StringComparison.OrdinalIgnoreCase) &&
-               MappingCollection.Equals(other.MappingCollection) && Samples.CollectionEqual(other.Samples) &&
-               Errors.CollectionEqual(other.Errors) &&
-               ColumnCollection.Equals(other.ColumnCollection);
-      if (otherRemote.RemoteFileName != RemoteFileName ||
-          otherRemote.ThrowErrorIfNotExists != ThrowErrorIfNotExists ||
-          otherRemote.FileSize != FileSize ||
-          !string.Equals(otherRemote.FileName, FileName, StringComparison.OrdinalIgnoreCase)
-      )
-        return false;
+      if (other is IFileSettingPhysicalFile otherRemote)
+      {
+        if (otherRemote.RemoteFileName != RemoteFileName ||
+            otherRemote.ThrowErrorIfNotExists != ThrowErrorIfNotExists ||
+            otherRemote.FileSize != FileSize ||
+            !string.Equals(otherRemote.FileName, FileName, StringComparison.OrdinalIgnoreCase)
+        )
+          return false;
+      }
 
       return string.Equals(other.TemplateName, TemplateName, StringComparison.OrdinalIgnoreCase) &&
-             other.SkipRows == SkipRows &&
+             other.SkipRows == SkipRows && m_LatestSourceTimeUtc == other.m_LatestSourceTimeUtc && RecentlyLoaded == other.RecentlyLoaded &&
+             NumRecords == other.NumRecords && WarningCount == other.WarningCount && ErrorCount == other.ErrorCount && 
              other.IsEnabled == IsEnabled &&
              other.TreatNBSPAsSpace == TreatNBSPAsSpace &&
              other.DisplayStartLineNo == DisplayStartLineNo &&
@@ -1045,7 +1017,6 @@ namespace CsvTools
              other.SkipDuplicateHeader == SkipDuplicateHeader &&
              other.Timeout == Timeout &&
              other.ProcessTimeUtc == ProcessTimeUtc &&
-             other.LatestSourceTimeUtc == LatestSourceTimeUtc &&
              other.SetLatestSourceTimeForWrite == SetLatestSourceTimeForWrite &&
              string.Equals(other.SqlStatement, SqlStatement, StringComparison.OrdinalIgnoreCase) &&
              string.Equals(other.Footer, Footer, StringComparison.OrdinalIgnoreCase) &&
@@ -1053,6 +1024,7 @@ namespace CsvTools
              MappingCollection.Equals(other.MappingCollection) && Samples.CollectionEqual(other.Samples) &&
              Errors.CollectionEqual(other.Errors) &&
              ColumnCollection.Equals(other.ColumnCollection);
+     
     }
 
     /// <summary>
@@ -1144,7 +1116,7 @@ namespace CsvTools
       other.InOverview = InOverview;
       other.Timeout = Timeout;
       other.ProcessTimeUtc = ProcessTimeUtc;
-      other.LatestSourceTimeUtc = LatestSourceTimeUtc;
+      other.m_LatestSourceTimeUtc = m_LatestSourceTimeUtc;
 
       other.Footer = Footer;
       other.Header = Header;
