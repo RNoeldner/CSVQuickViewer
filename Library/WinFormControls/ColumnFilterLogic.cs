@@ -336,7 +336,7 @@ namespace CsvTools
       else
       {
         if (m_ColumnDataType == typeof(DateTime))
-          ValueDateTime = (DateTime)value;
+          ValueDateTime = (DateTime) value;
         else
           ValueText = value.ToString();
         Operator = c_OperatorEquals;

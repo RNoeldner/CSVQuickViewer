@@ -12,6 +12,7 @@
  *
  */
 
+using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -20,7 +21,6 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 
 namespace CsvTools
 {
@@ -61,13 +61,13 @@ namespace CsvTools
       m_FieldDelimiter = file.FileFormat.FieldDelimiterChar.ToString(CultureInfo.CurrentCulture);
       if (!string.IsNullOrEmpty(file.FileFormat.EscapeCharacter))
       {
-        m_QualifyCharArray = new[] {(char) 0x0a, (char) 0x0d};
+        m_QualifyCharArray = new[] { (char) 0x0a, (char) 0x0d };
         m_FieldQualifierEscaped = file.FileFormat.EscapeCharacterChar + m_FieldQualifier;
         m_FieldDelimiterEscaped = file.FileFormat.EscapeCharacterChar + m_FieldDelimiter;
       }
       else
       {
-        m_QualifyCharArray = new[] {(char) 0x0a, (char) 0x0d, file.FileFormat.FieldDelimiterChar};
+        m_QualifyCharArray = new[] { (char) 0x0a, (char) 0x0d, file.FileFormat.FieldDelimiterChar };
         m_FieldQualifierEscaped = new string(file.FileFormat.FieldQualifierChar, 2);
         m_FieldDelimiterEscaped = new string(file.FileFormat.FieldDelimiterChar, 1);
       }

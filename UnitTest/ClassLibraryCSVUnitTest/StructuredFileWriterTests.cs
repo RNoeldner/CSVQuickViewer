@@ -1,7 +1,4 @@
-﻿using System.Globalization;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestTools.UnitTesting; /*
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting; /*
 * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
 *
 * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
@@ -14,6 +11,9 @@ using Microsoft.VisualStudio.TestTools.UnitTesting; /*
 * If not, see http://www.gnu.org/licenses/ .
 *
 */
+using System.Globalization;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace CsvTools.Tests
 {
@@ -27,12 +27,14 @@ namespace CsvTools.Tests
     {
       var readFile = new CsvFile
       {
-        ID = c_ReadID, FileName = UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"), FileFormat = {CommentLine = "#"}
+        ID = c_ReadID,
+        FileName = UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"),
+        FileFormat = { CommentLine = "#" }
       };
       readFile.ColumnCollection.AddIfNew(new Column("ExamDate", @"dd/MM/yyyy"));
       readFile.ColumnCollection.AddIfNew(new Column("Score", DataType.Integer));
       readFile.ColumnCollection.AddIfNew(new Column("Proficiency", DataType.Numeric));
-      readFile.ColumnCollection.AddIfNew(new Column("IsNativeLang", DataType.Boolean) {Ignore = true});
+      readFile.ColumnCollection.AddIfNew(new Column("IsNativeLang", DataType.Boolean) { Ignore = true });
       UnitTestInitializeCsv.MimicSQLReader.AddSetting(readFile);
     }
 

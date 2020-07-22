@@ -12,6 +12,7 @@
  *
  */
 
+using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -22,7 +23,6 @@ using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 
 namespace CsvTools
 {
@@ -353,7 +353,7 @@ namespace CsvTools
                 var msg =
                   $"{newColumn.Name} – Changed Format {newColumn.ValueFormatMutable.GetTypeAndFormatDescription()} to {checkResult.FoundValueFormat.GetTypeAndFormatDescription()}";
                 newColumn.ValueFormatMutable.CopyFrom(checkResult.FoundValueFormat);
-                
+
                 processDisplay.SetProcess(msg, fileReader.FieldCount * 2 + colIndex, true);
                 result.Add(msg);
               }

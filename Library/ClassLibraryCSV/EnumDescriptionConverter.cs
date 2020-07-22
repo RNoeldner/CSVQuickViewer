@@ -12,10 +12,10 @@
  *
  */
 
+using JetBrains.Annotations;
 using System;
 using System.ComponentModel;
 using System.Globalization;
-using JetBrains.Annotations;
 
 namespace CsvTools
 {
@@ -34,10 +34,7 @@ namespace CsvTools
     ///   enumeration converter.
     /// </param>
     public EnumDescriptionConverter([NotNull] Type enumType)
-      : base(enumType)
-    {
-      m_EnumType = enumType;
-    }
+      : base(enumType) => m_EnumType = enumType;
 
     /// <summary>
     ///   Determines whether this instance [can convert from] the specified context.
@@ -74,9 +71,9 @@ namespace CsvTools
         throw new ArgumentNullException(nameof(value));
       foreach (var fi in m_EnumType.GetFields())
       {
-        var dna = (DescriptionAttribute)Attribute.GetCustomAttribute(fi, typeof(DescriptionAttribute));
+        var dna = (DescriptionAttribute) Attribute.GetCustomAttribute(fi, typeof(DescriptionAttribute));
 
-        if (dna != null && (string)value == dna.Description)
+        if (dna != null && (string) value == dna.Description)
           return Enum.Parse(m_EnumType, fi.Name);
       }
 
@@ -98,7 +95,7 @@ namespace CsvTools
       if (value == null)
         throw new ArgumentNullException(nameof(value));
       var fi = m_EnumType.GetField(Enum.GetName(m_EnumType, value));
-      var dna = (DescriptionAttribute)Attribute.GetCustomAttribute(fi, typeof(DescriptionAttribute));
+      var dna = (DescriptionAttribute) Attribute.GetCustomAttribute(fi, typeof(DescriptionAttribute));
 
       if (dna != null)
         return dna.Description;

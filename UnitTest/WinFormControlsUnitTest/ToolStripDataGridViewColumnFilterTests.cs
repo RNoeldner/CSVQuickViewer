@@ -12,9 +12,9 @@
  *
  */
 
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Data;
 using System.Windows.Forms;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
@@ -27,7 +27,7 @@ namespace CsvTools.Tests
       using (var data = UnitTestStatic.GetDataTable(200))
       using (new DataView(data, null, null, DataViewRowState.CurrentRows))
       {
-        var col = new DataGridViewTextBoxColumn {ValueType = typeof(int), Name = "int", DataPropertyName = "int"};
+        var col = new DataGridViewTextBoxColumn { ValueType = typeof(int), Name = "int", DataPropertyName = "int" };
         var test = new ToolStripDataGridViewColumnFilter(col);
         Assert.AreEqual(false, test.ColumnFilterLogic.Active);
         test.ColumnFilterLogic.Active = true;

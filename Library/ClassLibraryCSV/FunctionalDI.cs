@@ -12,11 +12,11 @@
  *
  */
 
+using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 
 namespace CsvTools
 {
@@ -38,9 +38,9 @@ namespace CsvTools
       (input, srcTimeZone, columnOrdinal, handleWarning) => ChangeTimeZone(input, srcTimeZone, TimeZoneInfo.Local.Id, columnOrdinal, handleWarning);
 
 
-    [NotNull] 
+    [NotNull]
     public static Func<DateTime?, string, int, Action<int, string>, DateTime?> AdjustTZExport =
-      (input, destTimeZone, columnOrdinal, handleWarning) =>  ChangeTimeZone(input, TimeZoneInfo.Local.Id, destTimeZone, columnOrdinal, handleWarning);
+      (input, destTimeZone, columnOrdinal, handleWarning) => ChangeTimeZone(input, TimeZoneInfo.Local.Id, destTimeZone, columnOrdinal, handleWarning);
 
     private static DateTime? ChangeTimeZone(DateTime? input, [CanBeNull] string srcTimeZone, [CanBeNull] string destTimeZone, int columnOrdinal, [CanBeNull] Action<int, string> handleWarning)
     {

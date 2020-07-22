@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Windows.Forms;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Pri.LongPath;
+using System.Collections.Generic;
+using System.Windows.Forms;
 
 namespace CsvTools.Tests
 {
@@ -15,10 +15,11 @@ namespace CsvTools.Tests
       {
         var dgvc = new DataGridViewColumn(new DataGridViewTextBoxCell())
         {
-          DataPropertyName = "test", ValueType = typeof(string)
+          DataPropertyName = "test",
+          ValueType = typeof(string)
         };
         dgv.Columns.Add(dgvc);
-        var columnFilters = new List<ToolStripDataGridViewColumnFilter> {new ToolStripDataGridViewColumnFilter(dgvc)};
+        var columnFilters = new List<ToolStripDataGridViewColumnFilter> { new ToolStripDataGridViewColumnFilter(dgvc) };
         var text = ViewSetting.StoreViewSetting(dgv.Columns, columnFilters, null, SortOrder.Ascending);
         Assert.IsTrue(!string.IsNullOrEmpty(text));
       }
@@ -31,12 +32,14 @@ namespace CsvTools.Tests
       {
         var dgvc = new DataGridViewColumn(new DataGridViewTextBoxCell())
         {
-          DataPropertyName = "test", ValueType = typeof(string)
+          DataPropertyName = "test",
+          ValueType = typeof(string)
         };
         dgv.Columns.Add(dgvc);
         var dgvc2 = new DataGridViewColumn(new DataGridViewTextBoxCell())
         {
-          DataPropertyName = "test2", ValueType = typeof(string)
+          DataPropertyName = "test2",
+          ValueType = typeof(string)
         };
         dgv.Columns.Add(dgvc2);
         var columnFilters = new List<ToolStripDataGridViewColumnFilter>

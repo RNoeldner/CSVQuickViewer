@@ -29,6 +29,19 @@ namespace CsvTools
   /// </summary>
   public static class Extensions
   {
+    public static void RunSTAThread(this Action action)
+    {
+      if (Thread.CurrentThread.GetApartmentState() == ApartmentState.STA)
+        action.Invoke();
+      else
+      {
+        var runThread = new Thread(action.Invoke);
+        runThread.SetApartmentState(ApartmentState.STA);
+        runThread.Start();
+        runThread.Join(20000);
+      }
+    }
+
     /// <summary>
     ///   Handles a CTRL-A select all in the form.
     /// </summary>
@@ -83,10 +96,7 @@ namespace CsvTools
       return processDisplay;
     }
 
-    public static Binding GetTextBinding(this Control ctrl)
-    {
-      return ctrl.DataBindings.Cast<Binding>().FirstOrDefault(bind => bind.PropertyName == "Text" || bind.PropertyName == "Value");
-    }
+    public static Binding GetTextBinding(this Control ctrl) => ctrl.DataBindings.Cast<Binding>().FirstOrDefault(bind => bind.PropertyName == "Text" || bind.PropertyName == "Value");
 
     public static void LoadWindowState(
       [NotNull] this Form form,
@@ -98,7 +108,6 @@ namespace CsvTools
         return;
       if (form.IsDisposed)
         return;
-
 
       if (!form.Visible)
         form.Show();

@@ -314,7 +314,7 @@ namespace CsvTools
       // 
       // m_TextBoxQuotePlaceHolder
       // 
-      m_TextBoxQuotePlaceHolder.AutoCompleteCustomSource.AddRange(new[] {"{q}", "&quot;"});
+      m_TextBoxQuotePlaceHolder.AutoCompleteCustomSource.AddRange(new[] { "{q}", "&quot;" });
       m_TextBoxQuotePlaceHolder.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
       m_TextBoxQuotePlaceHolder.DataBindings.Add(new System.Windows.Forms.Binding("Text", m_FileFormatBindingSource,
         "QuotePlaceholder", true));

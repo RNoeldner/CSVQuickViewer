@@ -12,8 +12,8 @@
  *
  */
 
-using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Threading;
 
 namespace CsvTools.Tests
 {
@@ -73,9 +73,9 @@ namespace CsvTools.Tests
     {
       var test = new IntervalAction();
       long called = -1;
-      test.Invoke(delegate(long l) { called = l; }, 666);
+      test.Invoke(delegate (long l) { called = l; }, 666);
       Assert.AreEqual(666L, called);
-      test.Invoke(delegate(long l) { called = l; }, 669);
+      test.Invoke(delegate (long l) { called = l; }, 669);
       Assert.AreNotEqual(669L, called);
     }
 

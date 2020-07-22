@@ -12,6 +12,7 @@
  *
  */
 
+using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -19,7 +20,6 @@ using System.Globalization;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 
 namespace CsvTools
 {
@@ -243,10 +243,7 @@ namespace CsvTools
         fileSetting.WarnUnknownCharacter,
         fileSetting.WarnEmptyTailingColumns, fileSetting.TreatNBSPAsSpace,
         fileSetting.TreatTextAsNull, fileSetting.SkipEmptyLines,
-        fileSetting.ConsecutiveEmptyRows)
-    {
-      SetProgressActions(processDisplay);
-    }
+        fileSetting.ConsecutiveEmptyRows) => SetProgressActions(processDisplay);
 
     /// <summary>
     ///   Gets a value indicating whether this instance is closed.

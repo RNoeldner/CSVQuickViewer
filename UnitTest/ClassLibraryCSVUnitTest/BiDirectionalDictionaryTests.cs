@@ -12,9 +12,9 @@
 *
 */
 
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
@@ -51,7 +51,7 @@ namespace CsvTools.Tests
     public void BiDirectionalDictionaryCount2()
 
     {
-      var bi = new BiDirectionalDictionary<int, int> {{1, 1}, {2, 2}};
+      var bi = new BiDirectionalDictionary<int, int> { { 1, 1 }, { 2, 2 } };
       Assert.AreEqual(2, bi.Count);
     }
 
@@ -59,7 +59,7 @@ namespace CsvTools.Tests
     public void BiDirectionalDictionaryCtorDirectory()
 
     {
-      var init = new Dictionary<int, int> {{1, 1}, {2, 2}};
+      var init = new Dictionary<int, int> { { 1, 1 }, { 2, 2 } };
       var bi = new BiDirectionalDictionary<int, int>(init);
       Assert.AreEqual(2, bi.Count);
     }
@@ -68,7 +68,7 @@ namespace CsvTools.Tests
     public void BiDirectionalDictionaryTryAdd()
 
     {
-      var bi = new BiDirectionalDictionary<int, int> {{1, 1}, {2, 2}};
+      var bi = new BiDirectionalDictionary<int, int> { { 1, 1 }, { 2, 2 } };
       Assert.AreEqual(2, bi.Count);
       Assert.IsTrue(bi.TryAdd(3, 3));
       Assert.AreEqual(3, bi.Count);
@@ -80,7 +80,7 @@ namespace CsvTools.Tests
     public void BiDirectionalDictionaryTryGetByValue()
 
     {
-      var bi = new BiDirectionalDictionary<int, int> {{1, 1}, {2, 12}};
+      var bi = new BiDirectionalDictionary<int, int> { { 1, 1 }, { 2, 12 } };
       Assert.AreEqual(2, bi.Count);
       var found = bi.TryGetByValue(12, out var key);
       Assert.IsTrue(found);
@@ -91,7 +91,7 @@ namespace CsvTools.Tests
     public void BiDirectionalDictionaryGetByValue()
 
     {
-      var bi = new BiDirectionalDictionary<int, int> {{1, 1}, {2, 12}};
+      var bi = new BiDirectionalDictionary<int, int> { { 1, 1 }, { 2, 12 } };
       Assert.AreEqual(2, bi.Count);
       var key = bi.GetByValue(12);
       Assert.AreEqual(2, key);
@@ -101,7 +101,7 @@ namespace CsvTools.Tests
     public void BiDirectionalDictionaryGetByValueException()
 
     {
-      var bi = new BiDirectionalDictionary<int, int> {{1, 1}, {2, 12}};
+      var bi = new BiDirectionalDictionary<int, int> { { 1, 1 }, { 2, 12 } };
       Assert.AreEqual(2, bi.Count);
       var exception = false;
       try
@@ -124,7 +124,7 @@ namespace CsvTools.Tests
     public void BiDirectionalDictionaryAddException1()
 
     {
-      var bi = new BiDirectionalDictionary<int, int> {{1, 1}, {2, 2}};
+      var bi = new BiDirectionalDictionary<int, int> { { 1, 1 }, { 2, 2 } };
       Assert.AreEqual(2, bi.Count);
       var exception = false;
       try
@@ -147,7 +147,7 @@ namespace CsvTools.Tests
     public void BiDirectionalDictionaryAddException2()
 
     {
-      var bi = new BiDirectionalDictionary<int, int> {{1, 1}, {2, 2}};
+      var bi = new BiDirectionalDictionary<int, int> { { 1, 1 }, { 2, 2 } };
       Assert.AreEqual(2, bi.Count);
       var exception = false;
       try
@@ -170,7 +170,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void TryAddTest()
     {
-      var bi = new BiDirectionalDictionary<int, int> {{1, 10}, {2, 20}, {3, 30}};
+      var bi = new BiDirectionalDictionary<int, int> { { 1, 10 }, { 2, 20 }, { 3, 30 } };
       Assert.IsTrue(bi.TryAdd(100, 1000));
       Assert.IsFalse(bi.TryAdd(1, 15));
     }
@@ -178,7 +178,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void TryGetByValueTest()
     {
-      var bi = new BiDirectionalDictionary<int, int> {{1, 10}, {2, 20}, {3, 30}};
+      var bi = new BiDirectionalDictionary<int, int> { { 1, 10 }, { 2, 20 }, { 3, 30 } };
       Assert.IsTrue(bi.TryGetByValue(10, out var key));
       Assert.AreEqual(1, key);
       Assert.IsFalse(bi.TryGetByValue(100, out _));
@@ -187,7 +187,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GetByValueTest()
     {
-      var bi = new BiDirectionalDictionary<int, int> {{1, 10}, {2, 20}, {3, 30}};
+      var bi = new BiDirectionalDictionary<int, int> { { 1, 10 }, { 2, 20 }, { 3, 30 } };
       Assert.AreEqual(1, bi.GetByValue(10));
       Assert.AreEqual(2, bi.GetByValue(20));
     }
@@ -195,7 +195,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void ClearTest()
     {
-      var bi = new BiDirectionalDictionary<int, int> {{1, 1}, {2, 2}};
+      var bi = new BiDirectionalDictionary<int, int> { { 1, 1 }, { 2, 2 } };
       bi.Clear();
       Assert.AreEqual(0, bi.Count);
     }

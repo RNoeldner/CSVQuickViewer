@@ -19,7 +19,7 @@
       Top = rect.Top;
       Width = rect.Width;
       Height = rect.Height;
-      State = (int)state;
+      State = (int) state;
     }
 
     [XmlAttribute]

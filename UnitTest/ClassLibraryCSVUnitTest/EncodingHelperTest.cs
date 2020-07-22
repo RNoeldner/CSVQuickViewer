@@ -12,8 +12,8 @@
  *
  */
 
-using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Text;
 
 namespace CsvTools.Tests
 {
@@ -50,63 +50,63 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GuessCodePageBOMGB18030()
     {
-      byte[] test = {132, 49, 149, 51};
+      byte[] test = { 132, 49, 149, 51 };
       Assert.AreEqual(EncodingHelper.CodePage.GB18030, EncodingHelper.GetCodePageByByteOrderMark(test));
     }
 
     [TestMethod]
     public void GuessCodePageBOMUTF16BE()
     {
-      byte[] test = {254, 255, 65, 65};
+      byte[] test = { 254, 255, 65, 65 };
       Assert.AreEqual(EncodingHelper.CodePage.UTF16Be, EncodingHelper.GetCodePageByByteOrderMark(test));
     }
 
     [TestMethod]
     public void GuessCodePageBOMUTF16LE()
     {
-      byte[] test = {255, 254, 65, 65};
+      byte[] test = { 255, 254, 65, 65 };
       Assert.AreEqual(EncodingHelper.CodePage.UTF16Le, EncodingHelper.GetCodePageByByteOrderMark(test));
     }
 
     [TestMethod]
     public void GuessCodePageBOMUTF32BE()
     {
-      byte[] test = {0, 0, 254, 255};
+      byte[] test = { 0, 0, 254, 255 };
       Assert.AreEqual(EncodingHelper.CodePage.UTF32Be, EncodingHelper.GetCodePageByByteOrderMark(test));
     }
 
     [TestMethod]
     public void GuessCodePageBOMUTF32LE()
     {
-      byte[] test = {255, 254, 0, 0};
+      byte[] test = { 255, 254, 0, 0 };
       Assert.AreEqual(EncodingHelper.CodePage.UTF32Le, EncodingHelper.GetCodePageByByteOrderMark(test));
     }
 
     [TestMethod]
     public void GuessCodePageBOMUTF7a()
     {
-      byte[] test = {43, 47, 118, 57};
+      byte[] test = { 43, 47, 118, 57 };
       Assert.AreEqual(EncodingHelper.CodePage.UTF7, EncodingHelper.GetCodePageByByteOrderMark(test));
     }
 
     [TestMethod]
     public void GuessCodePageBOMUTF7b()
     {
-      byte[] test = {43, 47, 118, 43};
+      byte[] test = { 43, 47, 118, 43 };
       Assert.AreEqual(EncodingHelper.CodePage.UTF7, EncodingHelper.GetCodePageByByteOrderMark(test));
     }
 
     [TestMethod]
     public void GuessCodePageBOMUTF7c()
     {
-      byte[] test = {43, 47, 118, 56, 45};
+      byte[] test = { 43, 47, 118, 56, 45 };
       Assert.AreEqual(EncodingHelper.CodePage.UTF7, EncodingHelper.GetCodePageByByteOrderMark(test));
     }
 
     [TestMethod]
     public void GuessCodePageBOMUTF8()
     {
-      byte[] test = {239, 187, 191, 65};
+      byte[] test = { 239, 187, 191, 65 };
       Assert.AreEqual(EncodingHelper.CodePage.UTF8, EncodingHelper.GetCodePageByByteOrderMark(test));
     }
   }

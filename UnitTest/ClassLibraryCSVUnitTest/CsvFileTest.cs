@@ -12,12 +12,12 @@
  *
  */
 
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Xml;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
@@ -60,7 +60,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void ToStringTest()
     {
-      var setting = new CsvFile {ID = "TestID", FileName = "MyTest.txt"};
+      var setting = new CsvFile { ID = "TestID", FileName = "MyTest.txt" };
       var result = setting.ToString();
       Assert.IsTrue(result.Contains(setting.GetType().Name));
       Assert.IsTrue(result.Contains(setting.ID));
@@ -223,7 +223,7 @@ namespace CsvTools.Tests
     {
       var numCalled = 0;
       var test = new CsvFile();
-      test.PropertyChanged += delegate(object sender, PropertyChangedEventArgs e)
+      test.PropertyChanged += delegate (object sender, PropertyChangedEventArgs e)
       {
         Assert.AreEqual("FileName", e.PropertyName);
         numCalled++;
@@ -245,9 +245,9 @@ namespace CsvTools.Tests
     {
       var csv = m_CsvFile.Clone() as CsvFile;
       if (csv == null) throw new ArgumentNullException(nameof(csv));
-      csv.FileFormat = new FileFormat {QualifyAlways = true};
+      csv.FileFormat = new FileFormat { QualifyAlways = true };
       Assert.IsTrue(csv.FileFormat.QualifyAlways);
-      csv.FileFormat = new FileFormat {QualifyAlways = false};
+      csv.FileFormat = new FileFormat { QualifyAlways = false };
       Assert.IsFalse(csv.FileFormat.QualifyAlways);
     }
 
@@ -335,9 +335,11 @@ namespace CsvTools.Tests
       m_CsvFile.ColumnCollection.Clear();
       m_CsvFile.ColumnCollection.AddIfNew(new Column("ID", DataType.Integer)
       {
-        ColumnOrdinal = 1, Ignore = false, Convert = true
+        ColumnOrdinal = 1,
+        Ignore = false,
+        Convert = true
       });
-      m_CsvFile.ColumnCollection.AddIfNew(new Column {ColumnOrdinal = 2, Name = "Name"});
+      m_CsvFile.ColumnCollection.AddIfNew(new Column { ColumnOrdinal = 2, Name = "Name" });
 
       m_CsvFile.WarnEmptyTailingColumns = false;
       Assert.IsFalse(m_CsvFile.WarnEmptyTailingColumns, "WarnEmptyTailingColumns");

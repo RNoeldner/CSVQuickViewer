@@ -12,11 +12,11 @@
  *
  */
 
+using JetBrains.Annotations;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Xml.Serialization;
-using JetBrains.Annotations;
 
 namespace CsvTools
 {

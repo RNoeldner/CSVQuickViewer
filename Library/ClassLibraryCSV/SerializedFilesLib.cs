@@ -12,11 +12,11 @@
  *
  */
 
+using JetBrains.Annotations;
 using System;
 using System.Globalization;
 using System.IO;
 using System.Xml.Serialization;
-using JetBrains.Annotations;
 
 namespace CsvTools
 {
@@ -51,7 +51,7 @@ namespace CsvTools
       var serial = FileSystemUtils.ReadAllText(fileName);
       using (TextReader reader = new StringReader(serial))
       {
-        return (CsvFile)m_SerializerCurrentCsvFile.Value.Deserialize(reader);
+        return (CsvFile) m_SerializerCurrentCsvFile.Value.Deserialize(reader);
       }
     }
 

@@ -1,8 +1,8 @@
-﻿using System;
+﻿using JetBrains.Annotations;
+using System;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 
 namespace CsvTools
 {
@@ -107,14 +107,11 @@ namespace CsvTools
     ///   CodePage
     /// </summary>
     private readonly EncodingHelper.CodePage m_CodePage;
-    
+
     private StreamReader TextReader { get; set; }
 
     // This code added to correctly implement the disposable pattern.
-    public void Dispose()
-    {
-      Dispose(true);
-    }
+    public void Dispose() => Dispose(true);
 
     /// <summary>
     ///   Increase the position in the text, this is used in case a character that has been looked

@@ -33,7 +33,7 @@ namespace CsvTools.Tests
       test1.StoreSettingsByFile = true;
       Assert.IsTrue(test1.StoreSettingsByFile);
 
-      var test1FillGuessSettings = new FillGuessSettings {CheckNamedDates = true};
+      var test1FillGuessSettings = new FillGuessSettings { CheckNamedDates = true };
       test1.FillGuessSettings = test1FillGuessSettings;
 
       Assert.AreEqual(test1FillGuessSettings, test1.FillGuessSettings);

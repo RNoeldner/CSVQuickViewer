@@ -8,11 +8,12 @@ namespace CsvTools.Tests
     [TestMethod]
     public void FormEditSettings()
     {
-      UnitTestWinFormHelper.RunSTAThread(()=>{
-      using (var frm = new FormEditSettings(new ViewSettings()))
+      UnitTestWinFormHelper.RunSTAThread(() =>
       {
-        UnitTestWinFormHelper.ShowFormAndClose(frm);
-      }
+        using (var frm = new FormEditSettings(new ViewSettings()))
+        {
+          UnitTestWinFormHelper.ShowFormAndClose(frm);
+        }
       });
     }
 

@@ -12,6 +12,7 @@
  *
  */
 
+using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -19,7 +20,6 @@ using System.Globalization;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 
 namespace CsvTools
 {
@@ -76,7 +76,7 @@ namespace CsvTools
       ColumnDefinition = fileSetting.ColumnCollection.ReadonlyCopy();
       if (processDisplay != null)
       {
-        
+
         m_ReportProgress = t => processDisplay.SetProcess(t, 0, true);
         if (processDisplay is IProcessDisplayTime processDisplayTime)
         {
@@ -85,7 +85,7 @@ namespace CsvTools
         }
       }
 
-      m_SqlStatement = fileSetting.SqlStatement.PlaceHolderTimes("\'yyyyMMddHHmmss\'", fileSetting.ProcessTimeUtc, lastExecution, lastExecutionStart); 
+      m_SqlStatement = fileSetting.SqlStatement.PlaceHolderTimes("\'yyyyMMddHHmmss\'", fileSetting.ProcessTimeUtc, lastExecution, lastExecutionStart);
       m_Timeout = fileSetting.Timeout;
       m_NewLine = fileSetting.FileFormat.NewLine.NewLineString();
       m_FieldDelimiterChar = fileSetting.FileFormat.FieldDelimiterChar;

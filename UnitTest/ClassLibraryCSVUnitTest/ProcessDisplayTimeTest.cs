@@ -1,5 +1,5 @@
-﻿using System.Threading;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Threading;
 
 namespace CsvTools.Tests
 {
@@ -20,7 +20,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void MeasureTimeToCompletion()
     {
-      var test = new ProcessDisplayTime(UnitTestInitializeCsv.Token) {Maximum = 100};
+      var test = new ProcessDisplayTime(UnitTestInitializeCsv.Token) { Maximum = 100 };
 
       for (long counter = 1; counter <= 20; counter++)
       {
@@ -37,9 +37,10 @@ namespace CsvTools.Tests
     [TestMethod]
     public void Properties()
     {
-      var test = new ProcessDisplayTime(UnitTestInitializeCsv.Token);
-
-      test.Maximum = 5;
+      var test = new ProcessDisplayTime(UnitTestInitializeCsv.Token)
+      {
+        Maximum = 5
+      };
       Assert.AreEqual(5, test.Maximum);
       test.Maximum = 100;
       Assert.AreEqual(100, test.Maximum);

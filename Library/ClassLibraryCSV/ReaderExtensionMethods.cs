@@ -1,11 +1,11 @@
-﻿using System;
+﻿using JetBrains.Annotations;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 
 namespace CsvTools
 {
@@ -110,7 +110,7 @@ namespace CsvTools
       dataTable.BeginLoadData();
       try
       {
-        IntervalAction intervalAction = progress!=null ? new IntervalAction() : null;
+        var intervalAction = progress!=null ? new IntervalAction() : null;
         // Check if we need the wrapper, in case of new additional columns and not storing errors
         if (!storeWarningsInDataTable && !addStartLine && !includeRecordNo && !includeEndLineNo && !includeErrorField)
         {

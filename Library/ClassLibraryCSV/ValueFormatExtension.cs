@@ -12,10 +12,10 @@
 //  *
 //  */
 
+using JetBrains.Annotations;
 using System;
 using System.Globalization;
 using System.Text;
-using JetBrains.Annotations;
 
 namespace CsvTools
 {

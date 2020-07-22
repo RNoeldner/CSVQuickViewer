@@ -12,12 +12,12 @@
  *
  */
 
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Diagnostics.Contracts;
 using System.IO;
 using System.Net;
 using System.Threading;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
@@ -44,7 +44,7 @@ namespace CsvTools.Tests
       ApplicationDirectory = ApplicationSetting.RootFolder + @"\TestFiles";
 
       Logger.AddLog += (s, level) => context.WriteLine($"{level} - {s}");
-      
+
       ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls12;
 
       AppDomain.CurrentDomain.UnhandledException += delegate (object sender, UnhandledExceptionEventArgs args)

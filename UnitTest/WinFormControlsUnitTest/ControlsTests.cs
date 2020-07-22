@@ -12,13 +12,13 @@
  *
  */
 
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Drawing;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
@@ -190,10 +190,10 @@ namespace CsvTools.Tests
         {
           Assert.AreEqual(0, treeView.SelectedTreeNode.Count);
 
-          var treeNode = new TreeNode("Test") {Tag = "test"};
+          var treeNode = new TreeNode("Test") { Tag = "test" };
           treeView.Nodes.Add(treeNode);
 
-          var treeNode2 = new TreeNode("Test2") {Tag = "test2"};
+          var treeNode2 = new TreeNode("Test2") { Tag = "test2" };
           treeNode.Nodes.Add(treeNode2);
 
           var firedAfter = false;
@@ -315,7 +315,7 @@ namespace CsvTools.Tests
       }
     }
 
-   
+
 
     [TestMethod]
     public void FormHierarchyDisplay()

@@ -12,6 +12,8 @@
  *
  */
 
+using JetBrains.Annotations;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -19,8 +21,6 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
-using Newtonsoft.Json;
 
 namespace CsvTools
 {
@@ -56,10 +56,7 @@ namespace CsvTools
       IProcessDisplay processDisplay)
       : this(fileSetting.FullPath,
         fileSetting.ColumnCollection, fileSetting.RecordLimit,
-        fileSetting.TreatNBSPAsSpace)
-    {
-      SetProgressActions(processDisplay);
-    }
+        fileSetting.TreatNBSPAsSpace) => SetProgressActions(processDisplay);
 
     /// <summary>
     ///   Gets a value indicating whether this instance is closed.
@@ -338,7 +335,7 @@ namespace CsvTools
       if (m_ImprovedStream == null)
         m_ImprovedStream = FunctionalDI.OpenRead(FullPath);
 
-      m_ImprovedStream.ResetToStart(delegate(Stream str)
+      m_ImprovedStream.ResetToStart(delegate (Stream str)
       {
         // in case we can not seek need to reopen the stream reader
         if (!str.CanSeek || m_TextReader == null)
@@ -371,7 +368,7 @@ namespace CsvTools
       };
     }
 
-#region TextReader
+    #region TextReader
 
     // Buffer size set to 64kB, if set to large the display in percentage will jump
     private const int c_BufferSize = 65536;
@@ -496,6 +493,6 @@ namespace CsvTools
       m_JsonTextReader = new JsonTextReader(new StringReader(sb.ToString()));
     }
 
-#endregion TextReader
+    #endregion TextReader
   }
 }

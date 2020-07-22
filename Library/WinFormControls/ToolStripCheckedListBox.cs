@@ -75,7 +75,7 @@ namespace CsvTools
     {
       base.OnSubscribeControlEvents(control);
 
-      var checkedListBoxControl = (CheckedListBox)control;
+      var checkedListBoxControl = (CheckedListBox) control;
       checkedListBoxControl.ItemCheck += OnItemCheck;
     }
 
@@ -87,7 +87,7 @@ namespace CsvTools
     {
       base.OnUnsubscribeControlEvents(control);
 
-      var checkedListBoxControl = (CheckedListBox)control;
+      var checkedListBoxControl = (CheckedListBox) control;
       checkedListBoxControl.ItemCheck -= OnItemCheck;
     }
 

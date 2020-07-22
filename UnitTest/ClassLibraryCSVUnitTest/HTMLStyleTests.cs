@@ -12,9 +12,9 @@
  *
  */
 
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Text;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
@@ -24,7 +24,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void Properties()
     {
-      var style = new HTMLStyle {Warning = "TestWar"};
+      var style = new HTMLStyle { Warning = "TestWar" };
       Assert.AreEqual("TestWar", style.Warning);
 
       style.BR = "TestBR";

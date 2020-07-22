@@ -1,8 +1,8 @@
-﻿using System;
-using System.Windows.Forms;
-using JetBrains.Annotations;
+﻿using JetBrains.Annotations;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using Microsoft.WindowsAPICodePack.Taskbar;
+using System;
+using System.Windows.Forms;
 
 namespace CsvTools
 {
@@ -37,7 +37,7 @@ namespace CsvTools
           }
       };
 
-      mainProcess.SetMaximum += delegate(object sender, long max)
+      mainProcess.SetMaximum += delegate (object sender, long max)
       {
         if (m_TaskbarManagerSupported && max < 1)
           TaskbarManager.Instance.SetProgressState(TaskbarProgressBarState.NoProgress);

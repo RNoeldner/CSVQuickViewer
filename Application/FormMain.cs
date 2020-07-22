@@ -12,6 +12,7 @@
  *
  */
 
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -25,7 +26,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml.Serialization;
-using Microsoft.Win32;
 using Timer = System.Timers.Timer;
 
 namespace CsvTools

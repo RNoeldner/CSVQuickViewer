@@ -12,13 +12,13 @@
  *
  */
 
+using JetBrains.Annotations;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using JetBrains.Annotations;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
@@ -28,9 +28,9 @@ namespace CsvTools.Tests
     private static IEnumerable<Type> GetAllICloneable(string startsWith) =>
       AppDomain.CurrentDomain.GetAssemblies()
         .Where(a => a.FullName.StartsWith(startsWith, StringComparison.Ordinal))
-        .SelectMany(a => a.GetExportedTypes(), (a, t) => new {a, t})
+        .SelectMany(a => a.GetExportedTypes(), (a, t) => new { a, t })
         .Where(t1 => t1.t.IsClass && !t1.t.IsAbstract)
-        .SelectMany(t1 => t1.t.GetInterfaces(), (t1, i) => new {t1, i})
+        .SelectMany(t1 => t1.t.GetInterfaces(), (t1, i) => new { t1, i })
         .Where(t1 => t1.i.IsGenericType && t1.i.GetGenericTypeDefinition() == typeof(ICloneable<>))
         .Select(t1 => t1.t1.t);
 
@@ -89,13 +89,13 @@ namespace CsvTools.Tests
 
           try
           {
-            methodCopyTo.Invoke(obj1, new object[] {null});
-            methodCopyTo.Invoke(obj1, new[] {obj2});
+            methodCopyTo.Invoke(obj1, new object[] { null });
+            methodCopyTo.Invoke(obj1, new[] { obj2 });
 
             foreach (var prop in properties)
               Assert.AreEqual(prop.GetValue(obj1), prop.GetValue(obj2), $"Type: {type.FullName} Property:{prop.Name}");
 
-            methodCopyTo.Invoke(obj1, new[] {obj1});
+            methodCopyTo.Invoke(obj1, new[] { obj1 });
           }
           catch (Exception ex)
           {

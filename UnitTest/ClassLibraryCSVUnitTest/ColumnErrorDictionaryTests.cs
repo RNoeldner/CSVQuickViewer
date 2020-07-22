@@ -1,5 +1,5 @@
-﻿using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Threading.Tasks;
 
 namespace CsvTools.Tests
 {
@@ -14,9 +14,9 @@ namespace CsvTools.Tests
         FileName = UnitTestInitializeCsv.GetTestPath("Sessions.txt"),
         HasFieldHeader = true,
         ByteOrderMark = true,
-        FileFormat = {FieldDelimiter = "\t"}
+        FileFormat = { FieldDelimiter = "\t" }
       };
-      setting.ColumnCollection.AddIfNew(new Column("Start Date") {Ignore = true});
+      setting.ColumnCollection.AddIfNew(new Column("Start Date") { Ignore = true });
 
       using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       using (var reader = new CsvFileReader(setting, processDisplay))

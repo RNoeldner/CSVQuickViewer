@@ -12,12 +12,12 @@
  *
  */
 
+using JetBrains.Annotations;
 using System;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Xml.Serialization;
-using JetBrains.Annotations;
 
 namespace CsvTools
 {
@@ -113,7 +113,7 @@ namespace CsvTools
     }
 
     [UsedImplicitly]
-    public  bool DateFormatSpecified => DataType == DataType.DateTime;
+    public bool DateFormatSpecified => DataType == DataType.DateTime;
 
     /// <summary>
     ///   Gets or sets the date separator.
@@ -198,8 +198,8 @@ namespace CsvTools
         NotifyPropertyChanged(nameof(False));
       }
     }
-    
-    [UsedImplicitly] 
+
+    [UsedImplicitly]
     public bool FalseSpecified => m_DataType == DataType.Boolean;
 
     /// <summary>
@@ -319,7 +319,7 @@ namespace CsvTools
     }
 
     [UsedImplicitly]
-    public bool NumberFormatSpecified =>  DataType == DataType.Double || DataType == DataType.Numeric;
+    public bool NumberFormatSpecified => DataType == DataType.Double || DataType == DataType.Numeric;
 
     /// <summary>
     ///   Gets or sets the time separator.

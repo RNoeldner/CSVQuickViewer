@@ -33,12 +33,9 @@ namespace CsvTools
 
     private BuildValueClustersResult m_Result = BuildValueClustersResult.NotRun;
 
-     
+
     /// <param name="maxNumber">The maximum number.</param>
-    public ValueClusterCollection(int maxNumber)
-    {
-      m_MaxNumber = maxNumber < 1 ? int.MaxValue : maxNumber;
-    }
+    public ValueClusterCollection(int maxNumber) => m_MaxNumber = maxNumber < 1 ? int.MaxValue : maxNumber;
     /// <summary>
     ///   Gets the values.
     /// </summary>
@@ -94,10 +91,7 @@ namespace CsvTools
     ///   Gets the active value cluster.
     /// </summary>
     /// <returns></returns>
-    public IEnumerable<ValueCluster> GetActiveValueCluster()
-    {
-      return m_ValueClusters.Where(value => !string.IsNullOrEmpty(value.Display) && value.Active);
-    }
+    public IEnumerable<ValueCluster> GetActiveValueCluster() => m_ValueClusters.Where(value => !string.IsNullOrEmpty(value.Display) && value.Active);
 
     /// <summary>
     ///   Builds the value clusters date.
@@ -335,7 +329,7 @@ namespace CsvTools
 
       // Get the distinct values and their counts
       var cluster = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-      bool hasNull = false;
+      var hasNull = false;
       foreach (DataRow dataRow in dataTable.Rows)
       {
         if (dataRow[columnIndex] == DBNull.Value)

@@ -12,10 +12,10 @@
  *
  */
 
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
@@ -42,7 +42,7 @@ namespace CsvTools.Tests
           item.Selected = true;
         }
 
-        colFmt.Add(new Column {Name = "Test"});
+        colFmt.Add(new Column { Name = "Test" });
         lv.UpdateListViewColumnFormat(colFmt);
       }
     }
@@ -51,7 +51,7 @@ namespace CsvTools.Tests
     public void WriteBindingTest()
     {
       var obj = new DisplayItem<string>("15", "Text");
-      using (var bindingSource = new BindingSource {DataSource = obj})
+      using (var bindingSource = new BindingSource { DataSource = obj })
       {
         var bind = new Binding("Text", bindingSource, "ID", true);
         using (var textBoxBox = new TextBox())
@@ -103,7 +103,8 @@ namespace CsvTools.Tests
         value.Show();
         var state = new WindowState(new Rectangle(10, 10, 200, 200), FormWindowState.Normal)
         {
-          CustomInt = 27, CustomText = "Test"
+          CustomInt = 27,
+          CustomText = "Test"
         };
         var result1 = -1;
         var result2 = "Hello";
@@ -135,7 +136,8 @@ namespace CsvTools.Tests
       {
         value.Show();
         var state1 = new WindowState(new Rectangle(10, 10, value.Width, value.Height),
-          FormWindowState.Normal) {CustomInt = 27, CustomText = "Test"};
+          FormWindowState.Normal)
+        { CustomInt = 27, CustomText = "Test" };
         var result1 = -1;
         var result2 = "Hello";
         value.LoadWindowState(state1, val => { result1 = val; }, val => { result2 = val; });

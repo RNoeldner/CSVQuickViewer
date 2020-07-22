@@ -12,12 +12,12 @@
  *
  */
 
+using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 
 namespace CsvTools
 {
@@ -31,7 +31,7 @@ namespace CsvTools
     /// </summary>
     /// <value>The line number in which the record ended</value>
     long EndLineNumber { get; }
-    int Percent{ get; }
+    int Percent { get; }
 
     /// <summary>
     ///   Determine if the data Reader is at the end of the file

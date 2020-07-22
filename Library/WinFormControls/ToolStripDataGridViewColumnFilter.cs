@@ -51,7 +51,7 @@ namespace CsvTools
       {
         Contract.Requires(Control != null);
         Contract.Ensures(Contract.Result<ColumnFilterLogic>() != null);
-        return ((DataGridViewColumnFilterControl)Control).ColumnFilterLogic;
+        return ((DataGridViewColumnFilterControl) Control).ColumnFilterLogic;
       }
     }
 
@@ -67,7 +67,7 @@ namespace CsvTools
       {
         Contract.Requires(Control != null);
         Contract.Ensures(Contract.Result<ValueClusterCollection>() != null);
-        return ((DataGridViewColumnFilterControl)Control).ColumnFilterLogic.ValueClusterCollection;
+        return ((DataGridViewColumnFilterControl) Control).ColumnFilterLogic.ValueClusterCollection;
       }
     }
   }

@@ -12,14 +12,12 @@
  *
  */
 
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
@@ -81,24 +79,24 @@ namespace CsvTools.Tests
 
             prop.SetValue(obj3, prop.GetValue(obj1));
           }
-          
+
           var methodEquals = type.GetMethod(
             "Equals",
             BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly,
             null,
             CallingConventions.Any,
-            new[] {type},
+            new[] { type },
             null);
           if (methodEquals != null)
             try
             {
-              var isEqual = (bool) methodEquals.Invoke(obj1, new[] {obj3});
+              var isEqual = (bool) methodEquals.Invoke(obj1, new[] { obj3 });
               Assert.IsTrue(isEqual, $"Type: {type.FullName}");
 
-              isEqual = (bool) methodEquals.Invoke(obj1, new[] {obj1});
+              isEqual = (bool) methodEquals.Invoke(obj1, new[] { obj1 });
               Assert.IsTrue(isEqual, $"Type: {type.FullName}");
 
-              isEqual = (bool) methodEquals.Invoke(obj1, new object[] {null});
+              isEqual = (bool) methodEquals.Invoke(obj1, new object[] { null });
               Assert.IsFalse(isEqual, $"Type: {type.FullName}");
 
               // Change only one Attribute at a time
@@ -173,6 +171,6 @@ namespace CsvTools.Tests
         .Where(@t1 => @t1.i.IsGenericType && @t1.i.GetGenericTypeDefinition() == typeof(IEquatable<>))
         .Select(@t1 => @t1.@t1.t);
     }
-      
+
   }
 }

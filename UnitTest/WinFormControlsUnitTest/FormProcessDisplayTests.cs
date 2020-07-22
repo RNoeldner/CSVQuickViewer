@@ -12,9 +12,9 @@
  *
  */
 
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Threading;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
@@ -172,7 +172,7 @@ namespace CsvTools.Tests
         frm.Show();
         long called = 10;
 
-        frm.Progress += delegate(object sender, ProgressEventArgs e) { called = e.Value; };
+        frm.Progress += delegate (object sender, ProgressEventArgs e) { called = e.Value; };
 
         frm.SetProcess("Help", 20, true);
 

@@ -12,10 +12,10 @@
  *
  */
 
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.ComponentModel;
 using System.Data;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
@@ -29,10 +29,10 @@ namespace CsvTools.Tests
     {
       using (var dt = new DataTable())
       {
-        dt.Columns.Add(new DataColumn {ColumnName = "ID", DataType = typeof(int)});
-        dt.Columns.Add(new DataColumn {ColumnName = "Text", DataType = typeof(string)});
-        dt.Columns.Add(new DataColumn {ColumnName = "Date", DataType = typeof(DateTime)});
-        dt.Columns.Add(new DataColumn {ColumnName = "Bool", DataType = typeof(bool)});
+        dt.Columns.Add(new DataColumn { ColumnName = "ID", DataType = typeof(int) });
+        dt.Columns.Add(new DataColumn { ColumnName = "Text", DataType = typeof(string) });
+        dt.Columns.Add(new DataColumn { ColumnName = "Date", DataType = typeof(DateTime) });
+        dt.Columns.Add(new DataColumn { ColumnName = "Bool", DataType = typeof(bool) });
         for (var line = 1; line < 5000; line++)
         {
           var row = dt.NewRow();
@@ -62,10 +62,10 @@ namespace CsvTools.Tests
     {
       using (var dt = new DataTable())
       {
-        dt.Columns.Add(new DataColumn {ColumnName = "ID", DataType = typeof(int)});
-        dt.Columns.Add(new DataColumn {ColumnName = "Text", DataType = typeof(string)});
-        dt.Columns.Add(new DataColumn {ColumnName = "Date", DataType = typeof(DateTime)});
-        dt.Columns.Add(new DataColumn {ColumnName = "Bool", DataType = typeof(bool)});
+        dt.Columns.Add(new DataColumn { ColumnName = "ID", DataType = typeof(int) });
+        dt.Columns.Add(new DataColumn { ColumnName = "Text", DataType = typeof(string) });
+        dt.Columns.Add(new DataColumn { ColumnName = "Date", DataType = typeof(DateTime) });
+        dt.Columns.Add(new DataColumn { ColumnName = "Bool", DataType = typeof(bool) });
         for (var line = 1; line < 5000; line++)
         {
           var row = dt.NewRow();
