@@ -30,8 +30,6 @@ namespace CsvTools
 #pragma warning restore CS0661 // Type defines operator == or operator != but does not override Object.GetHashCode()
 #pragma warning restore CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
   {
-    private readonly string m_Footer = string.Empty;
-    private readonly string m_Header = string.Empty;
     private bool m_JSONEncode = true;
     private string m_Row = string.Empty;
     private bool m_XMLEncode;
@@ -119,9 +117,7 @@ namespace CsvTools
         return false;
       if (ReferenceEquals(this, other))
         return true;
-      return string.Equals(m_Footer, other.Footer, StringComparison.OrdinalIgnoreCase) &&
-             string.Equals(m_Header, other.Header, StringComparison.OrdinalIgnoreCase) &&
-             m_JSONEncode == other.JSONEncode &&
+      return m_JSONEncode == other.JSONEncode &&
              string.Equals(m_Row, other.Row, StringComparison.Ordinal) &&
              m_XMLEncode == other.XMLEncode &&
              BaseSettingsEquals(other);
@@ -153,8 +149,6 @@ namespace CsvTools
       if (!(other is StructuredFile otherSwf))
         return;
 
-      otherSwf.Header = m_Header;
-      otherSwf.Footer = m_Footer;
       otherSwf.Row = m_Row;
       otherSwf.XMLEncode = m_XMLEncode;
       otherSwf.JSONEncode = m_JSONEncode;

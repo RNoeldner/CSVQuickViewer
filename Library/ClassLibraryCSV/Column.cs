@@ -560,14 +560,15 @@ namespace CsvTools
       if (ReferenceEquals(this, other))
         return true;
 
-      return m_ColumnOrdinal == other.m_ColumnOrdinal
-             && string.Equals(m_Name, other.m_Name, StringComparison.OrdinalIgnoreCase)
-             && string.Equals(m_DestinationName, other.m_DestinationName, StringComparison.OrdinalIgnoreCase)
-             && m_Ignore == other.m_Ignore && m_Part == other.m_Part && m_PartSplitter == other.m_PartSplitter
-             && m_PartToEnd == other.m_PartToEnd
-             && string.Equals(m_TimePart, other.m_TimePart, StringComparison.OrdinalIgnoreCase)
-             && string.Equals(m_TimePartFormat, other.m_TimePartFormat, StringComparison.Ordinal)
-             && string.Equals(m_TimeZonePart, other.m_TimeZonePart, StringComparison.OrdinalIgnoreCase)
+      return ColumnOrdinal == other.ColumnOrdinal
+             && False == other.False && NumberFormat == other.NumberFormat && True == other.True   && DateFormat == other.DateFormat
+             && string.Equals(Name, other.Name, StringComparison.OrdinalIgnoreCase)
+             && string.Equals(DestinationName, other.DestinationName, StringComparison.OrdinalIgnoreCase)
+             && Ignore == other.Ignore && Part == other.Part && PartSplitter == other.PartSplitter
+             && PartToEnd == other.PartToEnd
+             && string.Equals(TimePart, other.TimePart, StringComparison.OrdinalIgnoreCase)
+             && string.Equals(TimePartFormat, other.TimePartFormat, StringComparison.Ordinal)
+             && string.Equals(TimeZonePart, other.TimeZonePart, StringComparison.OrdinalIgnoreCase)
              && Convert == other.Convert && ValueFormatMutable.Equals(other.ValueFormatMutable);
     }
 

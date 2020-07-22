@@ -288,7 +288,7 @@ namespace CsvTools
                   header1 += $"Determined Format : {checkResult.FoundValueFormat?.GetTypeAndFormatDescription()}";
 
                   if (checkResult.PossibleMatch)
-                    header1 += $"Closest match is : {checkResult.ValueFormatPossibleMatch.GetTypeAndFormatDescription()}";
+                    header1 += $"\r\nClosest match is : {checkResult.ValueFormatPossibleMatch?.GetTypeAndFormatDescription()}";
 
                   if (suggestClosestMatch)
                   {
@@ -446,46 +446,51 @@ namespace CsvTools
       }
     }
 
-    private static string BuildHTMLText(string header, string footer, int rows, string headerList1, IEnumerable<string> values1, int col1, string headerList2 = null, IEnumerable<string> values2 = null, int col2 = 2)
+    private static string BuildHTMLText(string header, string footer, int rows, string headerList1, ICollection<string> values1, int col1, string headerList2 = null, ICollection<string> values2 = null, int col2 = 2)
     {
-      var stringBuidler = ApplicationSetting.HTMLStyle.StartHTMLDoc(System.Drawing.SystemColors.Control);
+      var stringBuilder = HTMLStyle.StartHTMLDoc(System.Drawing.SystemColors.Control,  "<STYLE type=\"text/css\">\r\n" +
+        "  html * { font-family:'Calibri','Trebuchet MS', Arial, Helvetica, sans-serif; }\r\n" +
+        "  h2 { color:DarkBlue; font-size : 12px; }\r\n" +
+        "  table { border-collapse:collapse; font-size : 11px; }\r\n" +
+        "  td { border: 2px solid lightgrey; padding:3px; }\r\n" +
+        "</STYLE>");
 
       if (!string.IsNullOrEmpty(header))
-        stringBuidler.Append(string.Format(ApplicationSetting.HTMLStyle.H2, HTMLStyle.TextToHtmlEncode(header)));
+        stringBuilder.Append(string.Format(ApplicationSetting.HTMLStyle.H2, HTMLStyle.TextToHtmlEncode(header)));
 
-      ListSamples(stringBuidler, headerList1, values1, col1, rows);
-      ListSamples(stringBuidler, headerList2, values2, col2, rows);
+      ListSamples(stringBuilder, headerList1, values1, col1, rows);
+      ListSamples(stringBuilder, headerList2, values2, col2, rows);
 
       if (!string.IsNullOrEmpty(footer))
-        stringBuidler.Append(string.Format(ApplicationSetting.HTMLStyle.H2, HTMLStyle.TextToHtmlEncode(footer)));
+        stringBuilder.Append(string.Format(ApplicationSetting.HTMLStyle.H2, HTMLStyle.TextToHtmlEncode(footer)));
 
-      stringBuidler.AppendLine("</BODY>");
-      stringBuidler.AppendLine("</HTML>");
-      return stringBuidler.ToString();
+      stringBuilder.AppendLine("</BODY>");
+      stringBuilder.AppendLine("</HTML>");
+      return stringBuilder.ToString();
     }
 
-    private static void ListSamples(StringBuilder stringBuidler, string headerList, IEnumerable<string> values, int col, int rows)
+    private static void ListSamples(StringBuilder stringBuilder, string headerList, ICollection<string> values, int col, int rows)
     {
-      if (values!=null)
+      if (values!=null && values.Count>0)
       {
         if (!string.IsNullOrEmpty(headerList))
-          stringBuidler.Append(string.Format(ApplicationSetting.HTMLStyle.H2, HTMLStyle.TextToHtmlEncode(headerList)));
+          stringBuilder.Append(string.Format(ApplicationSetting.HTMLStyle.H2, HTMLStyle.TextToHtmlEncode(headerList)));
 
-        stringBuidler.AppendLine(ApplicationSetting.HTMLStyle.TableOpen);
+        stringBuilder.AppendLine(ApplicationSetting.HTMLStyle.TableOpen);
         var texts = values.Take(col * rows).ToArray();
-        stringBuidler.AppendLine(ApplicationSetting.HTMLStyle.TROpen);
+        stringBuilder.AppendLine(ApplicationSetting.HTMLStyle.TROpen);
         for (var index = 1; index <= texts.Length; index++)
         {
           if (string.IsNullOrEmpty(texts[index-1]))
-            stringBuidler.AppendLine(ApplicationSetting.HTMLStyle.TDEmpty);
+            stringBuilder.AppendLine(ApplicationSetting.HTMLStyle.TDEmpty);
           else
-            stringBuidler.AppendLine(string.Format(ApplicationSetting.HTMLStyle.TD, HTMLStyle.TextToHtmlEncode(texts[index-1])));
+            stringBuilder.AppendLine(string.Format(ApplicationSetting.HTMLStyle.TD, HTMLStyle.TextToHtmlEncode(texts[index-1])));
           if (index%col==0)
-            stringBuidler.AppendLine(ApplicationSetting.HTMLStyle.TRClose);
+            stringBuilder.AppendLine(ApplicationSetting.HTMLStyle.TRClose);
         }
         if (texts.Length%col != 0)
-          stringBuidler.AppendLine(ApplicationSetting.HTMLStyle.TRClose);
-        stringBuidler.AppendLine(ApplicationSetting.HTMLStyle.TableClose);
+          stringBuilder.AppendLine(ApplicationSetting.HTMLStyle.TRClose);
+        stringBuilder.AppendLine(ApplicationSetting.HTMLStyle.TableClose);
       }
     }
 

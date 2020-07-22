@@ -23,32 +23,38 @@ namespace CsvTools.Tests
     [TestMethod]
     public void FormMain_BasicCSV()
     {
-      using (var frm = new FormMain(Path.Combine(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt.gz"))))
+      UnitTestWinFormHelper.RunSTAThread(() =>
       {
-        UnitTestWinFormHelper.ShowFormAndClose(frm, 1, () =>
+        using (var frm = new FormMain(Path.Combine(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt.gz"))))
         {
-          while (!frm.LoadFinished && !UnitTestInitializeCsv.Token.IsCancellationRequested)
-            UnitTestWinFormHelper.WaitSomeTime(.2);
-        });
-        Assert.IsNotNull(frm.DataTable);
-        Assert.AreEqual(7, frm.DataTable.Rows.Count);
-      }
+          UnitTestWinFormHelper.ShowFormAndClose(frm, 1, () =>
+          {
+            while (!frm.LoadFinished && !UnitTestInitializeCsv.Token.IsCancellationRequested)
+              UnitTestWinFormHelper.WaitSomeTime(.2);
+          });
+          Assert.IsNotNull(frm.DataTable);
+          Assert.AreEqual(7, frm.DataTable.Rows.Count);
+        }
+      });
     }
 
     [TestMethod]
     public void FormMain_AllFormatsPipe()
     {
-      using (var frm = new FormMain(UnitTestInitializeCsv.GetTestPath("AllFormatsPipe.txt")))
+      UnitTestWinFormHelper.RunSTAThread(() =>
       {
-        UnitTestWinFormHelper.ShowFormAndClose(frm, 1, () =>
+        using (var frm = new FormMain(UnitTestInitializeCsv.GetTestPath("AllFormatsPipe.txt")))
         {
-          while (!frm.LoadFinished && !UnitTestInitializeCsv.Token.IsCancellationRequested)
-            UnitTestWinFormHelper.WaitSomeTime(.2);
-        });
-        Assert.IsNotNull(frm.DataTable);
-        // 45 records, one of the lines has a linefeed
-        Assert.AreEqual(46, frm.DataTable.Rows.Count);
-      }
+          UnitTestWinFormHelper.ShowFormAndClose(frm, 1, () =>
+          {
+            while (!frm.LoadFinished && !UnitTestInitializeCsv.Token.IsCancellationRequested)
+              UnitTestWinFormHelper.WaitSomeTime(.2);
+          });
+          Assert.IsNotNull(frm.DataTable);
+          // 45 records, one of the lines has a linefeed
+          Assert.AreEqual(46, frm.DataTable.Rows.Count);
+        }
+      });
     }
   }
 }
