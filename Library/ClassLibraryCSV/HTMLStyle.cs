@@ -284,15 +284,15 @@ namespace CsvTools
       return "_" + allowed;
     }
 
-    public StringBuilder StartHTMLDoc(Color back)
+    public static StringBuilder StartHTMLDoc(Color back, string stile = c_Style)
     {
       var text = new StringBuilder(500);
       text.AppendLine("<!DOCTYPE HTML public virtual \"-//W3C//DTD HTML 4.0 Transitional//EN\">");
       text.AppendLine($"<HTML style=\"background-color: #{back.R:X2}{back.G:X2}{back.B:X2}\">");
       text.AppendLine("<HEAD>");
-      text.AppendLine(m_Style);
+      text.AppendLine(stile);
       text.AppendLine("</HEAD>");
-      text.AppendLine($"<BODY>");
+      text.AppendLine("<BODY>");
       return text;
     }
 
@@ -340,14 +340,16 @@ namespace CsvTools
 
     private const string c_ErrorWarning = "<span class='err'>{0}<br></span><span class='war'>{1}</span>";
 
-    private const string c_H1 =
-      "<h1 style=\"color:DarkBlue; font-family:'Calibri','Trebuchet MS', Arial, Helvetica, sans-serif; font-size : 14px;\">{0}</h1>";
+    private const string c_H1 = "<h1>{0}</h1>";
 
-    private const string c_H2 =
-      "<h2 style=\"color:DarkBlue; font-family:'Calibri','Trebuchet MS', Arial, Helvetica, sans-serif; font-size : 13px;\">{0}</h2>";
+    private const string c_H2 = "<h2>{0}</h2>";
 
-    private const string c_Style = "<STYLE type=\"text/css\">\r\n" +
-                                   "  td { border: 1px solid lightgrey; padding:1px; }\r\n" +
+    public const string c_Style = "<STYLE type=\"text/css\">\r\n" +
+                                   "  html * { font-family:'Calibri','Trebuchet MS', Arial, Helvetica, sans-serif; }\r\n" +
+                                   "  h1 { style=\"color:DarkBlue; font-size : 14px; }\r\n" +
+                                   "  h2 { style=\"color:DarkBlue; font-size : 13px; }\r\n" +
+                                   "  table { border-collapse:collapse; font-size : 11px; }\r\n" +
+                                   "  td { border: 1px solid lightgrey; padding:2px; }\r\n" +
                                    "  td.info { mso-number-format:\\@; background: #f0f8ff; font-weight:bold;}\r\n" +
                                    "  td.inforight { mso-number-format:\\@; text-align:right; background: #f0f8ff; font-weight:bold;}\r\n" +
                                    "  td.value { text-align:right; color:DarkBlue; }\r\n" +
@@ -359,10 +361,10 @@ namespace CsvTools
                                    "  span.war { color:#2E64FE; }\r\n" +
                                    "</STYLE>";
 
-    private const string c_TableClose = "</table>";
+   
 
-    private const string c_TableOpen =
-      "<table style=\"border-collapse:collapse; padding:2px; font-family:'Calibri','Trebuchet MS', Arial, Helvetica, sans-serif; font-size : 11px;\">\r\n";
+    private const string c_TableClose = "</table>";
+    private const string c_TableOpen = "<table>\r\n";
 
     private const string c_Td = "<td class='text'>{0}</td>";
     private const string c_TdEmpty = "<td/>";

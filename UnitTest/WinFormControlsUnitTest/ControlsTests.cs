@@ -28,45 +28,53 @@ namespace CsvTools.Tests
     [TestMethod]
     public void HTMLDisplay()
     {
-      using (var tm = new TimedMessage())
+      UnitTestWinFormHelper.RunSTAThread(() =>
       {
-        var stringBuidler = ApplicationSetting.HTMLStyle.StartHTMLDoc(SystemColors.Control);
-        stringBuidler.Append(string.Format(ApplicationSetting.HTMLStyle.H2, HTMLStyle.TextToHtmlEncode("Sample")));
-        stringBuidler.Append(string.Format(ApplicationSetting.HTMLStyle.H2, HTMLStyle.TextToHtmlEncode("Sample2")));
-
-        stringBuidler.AppendLine(ApplicationSetting.HTMLStyle.TableOpen);
-        stringBuidler.AppendLine(ApplicationSetting.HTMLStyle.TROpen);
-        for (var index = 1; index <= 10; index++)
+        using (var tm = new TimedMessage())
         {
-          stringBuidler.AppendLine(string.Format(ApplicationSetting.HTMLStyle.TD, HTMLStyle.TextToHtmlEncode("Test " + index.ToString())));
-          if (index%4==0)
-          {
-            stringBuidler.AppendLine(ApplicationSetting.HTMLStyle.TRClose);
-          }
-        }
-        stringBuidler.AppendLine(ApplicationSetting.HTMLStyle.TRClose);
-        stringBuidler.AppendLine(ApplicationSetting.HTMLStyle.TableClose);
-        stringBuidler.AppendLine(ApplicationSetting.HTMLStyle.TableClose);
-        stringBuidler.AppendLine(ApplicationSetting.HTMLStyle.TRClose);
-        stringBuidler.AppendLine(ApplicationSetting.HTMLStyle.TableClose);
-        tm.Html= stringBuidler.ToString();
+          var stringBuilder = HTMLStyle.StartHTMLDoc(SystemColors.Control);
+          stringBuilder.Append(string.Format(ApplicationSetting.HTMLStyle.H2, HTMLStyle.TextToHtmlEncode("Sample")));
+          stringBuilder.Append(string.Format(ApplicationSetting.HTMLStyle.H2, HTMLStyle.TextToHtmlEncode("Sample2")));
 
-        tm.Size = new Size(600, 450);
-        UnitTestWinFormHelper.ShowFormAndClose(tm, 2);
-      }
+          stringBuilder.AppendLine(ApplicationSetting.HTMLStyle.TableOpen);
+          stringBuilder.AppendLine(ApplicationSetting.HTMLStyle.TROpen);
+          for (var index = 1; index <= 10; index++)
+          {
+            stringBuilder.AppendLine(string.Format(ApplicationSetting.HTMLStyle.TD,
+              HTMLStyle.TextToHtmlEncode("Test " + index.ToString())));
+            if (index % 4 == 0)
+            {
+              stringBuilder.AppendLine(ApplicationSetting.HTMLStyle.TRClose);
+            }
+          }
+
+          stringBuilder.AppendLine(ApplicationSetting.HTMLStyle.TRClose);
+          stringBuilder.AppendLine(ApplicationSetting.HTMLStyle.TableClose);
+          stringBuilder.AppendLine(ApplicationSetting.HTMLStyle.TableClose);
+          stringBuilder.AppendLine(ApplicationSetting.HTMLStyle.TRClose);
+          stringBuilder.AppendLine(ApplicationSetting.HTMLStyle.TableClose);
+          tm.Html = stringBuilder.ToString();
+
+          tm.Size = new Size(600, 450);
+          UnitTestWinFormHelper.ShowFormAndClose(tm, 2);
+        }
+      });
     }
 
     [TestMethod]
     public void TextDisplay()
     {
-      using (var tm = new TimedMessage())
+      UnitTestWinFormHelper.RunSTAThread(() =>
       {
-        tm.Message ="Found values\n\nDMS_Test_RN_Mat\tDMS_Test_RN_Mat\tDMS_Test_RN_Mat\tDMS_Test_RN_Mat\n"+
-          "DMS_Test_RN_Mat\tDMS_Test_RN_Mat\tDMS_Test_RN_Mat\tDMS_Test_RN_Mat\n\nNote: Text has been cut off after 15 characters";
+        using (var tm = new TimedMessage())
+        {
+          tm.Message = "Found values\n\nDMS_Test_RN_Mat\tDMS_Test_RN_Mat\tDMS_Test_RN_Mat\tDMS_Test_RN_Mat\n" +
+                       "DMS_Test_RN_Mat\tDMS_Test_RN_Mat\tDMS_Test_RN_Mat\tDMS_Test_RN_Mat\n\nNote: Text has been cut off after 15 characters";
 
-        tm.Size = new Size(600, 450);
-        UnitTestWinFormHelper.ShowFormAndClose(tm, 2);
-      }
+          tm.Size = new Size(600, 450);
+          UnitTestWinFormHelper.ShowFormAndClose(tm, 2);
+        }
+      });
     }
 
     [TestMethod]
@@ -176,32 +184,35 @@ namespace CsvTools.Tests
     [TestMethod]
     public void MultiselectTreeView()
     {
-      using (var treeView = new MultiselectTreeView())
+      UnitTestWinFormHelper.RunSTAThread(() =>
       {
-        Assert.AreEqual(0, treeView.SelectedTreeNode.Count);
-
-        var treeNode = new TreeNode("Test") { Tag = "test" };
-        treeView.Nodes.Add(treeNode);
-
-        var treeNode2 = new TreeNode("Test2") { Tag = "test2" };
-        treeNode.Nodes.Add(treeNode2);
-
-        var firedAfter = false;
-        var firedBefore = false;
-        treeView.AfterSelect += (s, args) => { firedAfter = true; };
-        treeView.BeforeSelect += (s, args) => { firedBefore = true; };
-
-        UnitTestWinFormHelper.ShowControl(treeView, .2, () =>
+        using (var treeView = new MultiselectTreeView())
         {
-          treeView.PressKey(Keys.Control | Keys.A);
-          treeView.PressKey(Keys.Control | Keys.C);
-          // ReSharper disable once AccessToDisposedClosure
-          treeView.SelectedNode = treeNode2;
-          treeNode.ExpandAll();
-        });
-        Assert.IsTrue(firedAfter);
-        Assert.IsTrue(firedBefore);
-      }
+          Assert.AreEqual(0, treeView.SelectedTreeNode.Count);
+
+          var treeNode = new TreeNode("Test") {Tag = "test"};
+          treeView.Nodes.Add(treeNode);
+
+          var treeNode2 = new TreeNode("Test2") {Tag = "test2"};
+          treeNode.Nodes.Add(treeNode2);
+
+          var firedAfter = false;
+          var firedBefore = false;
+          treeView.AfterSelect += (s, args) => { firedAfter = true; };
+          treeView.BeforeSelect += (s, args) => { firedBefore = true; };
+
+          UnitTestWinFormHelper.ShowControl(treeView, .2, () =>
+          {
+            treeView.PressKey(Keys.Control | Keys.A);
+            treeView.PressKey(Keys.Control | Keys.C);
+            // ReSharper disable once AccessToDisposedClosure
+            treeView.SelectedNode = treeNode2;
+            treeNode.ExpandAll();
+          });
+          Assert.IsTrue(firedAfter);
+          Assert.IsTrue(firedBefore);
+        }
+      });
     }
 
     [TestMethod]
@@ -218,17 +229,20 @@ namespace CsvTools.Tests
     [TestMethod]
     public void TimedMessage()
     {
-      using (var tm = new TimedMessage())
+      UnitTestWinFormHelper.RunSTAThread(() =>
       {
-        tm.Show(null, "This is my message", "Title1", MessageBoxButtons.OK, MessageBoxIcon.Asterisk,
-          MessageBoxDefaultButton.Button1, 2, null, null, null);
-      }
+        using (var tm = new TimedMessage())
+        {
+          tm.Show(null, "This is my message", "Title1", MessageBoxButtons.OK, MessageBoxIcon.Asterisk,
+            MessageBoxDefaultButton.Button1, 2, null, null, null);
+        }
 
-      using (var tm = new TimedMessage())
-      {
-        tm.Show(null, "This is another message\n with a linefeed", "Title12", MessageBoxButtons.YesNo,
-          MessageBoxIcon.Error, MessageBoxDefaultButton.Button2, 2, null, null, null);
-      }
+        using (var tm = new TimedMessage())
+        {
+          tm.Show(null, "This is another message\n with a linefeed", "Title12", MessageBoxButtons.YesNo,
+            MessageBoxIcon.Error, MessageBoxDefaultButton.Button2, 2, null, null, null);
+        }
+      });
     }
 
     [TestMethod]
@@ -301,55 +315,7 @@ namespace CsvTools.Tests
       }
     }
 
-    [TestMethod]
-    public void FormColumnUI()
-    {
-      var csvFile = new CsvFile(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"));
-      var col = new Column("ExamDate", DataType.DateTime);
-      csvFile.ColumnCollection.AddIfNew(col);
-      using (var frm = new FormColumnUI(col, false, csvFile, new FillGuessSettings(), false))
-      {
-        UnitTestWinFormHelper.ShowFormAndClose(frm);
-      }
-    }
-
-    [TestMethod]
-    public void FormColumnUI_Opt1()
-    {
-      var csvFile = new CsvFile(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"));
-      var col = new Column("ExamDate", DataType.DateTime);
-      csvFile.ColumnCollection.AddIfNew(col);
-      using (var form = new FormColumnUI(col, false, csvFile, new FillGuessSettings(), true))
-      {
-        form.ShowGuess = false;
-        UnitTestWinFormHelper.ShowFormAndClose(form);
-      }
-    }
-
-    [TestMethod]
-    public void FormColumnUI_Opt2()
-    {
-      var csvFile = new CsvFile(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"));
-      var col = new Column("ExamDate", DataType.DateTime);
-      csvFile.ColumnCollection.AddIfNew(col);
-      using (var form = new FormColumnUI(col, false, csvFile, new FillGuessSettings(), false))
-      {
-        UnitTestWinFormHelper.ShowFormAndClose(form);
-      }
-    }
-
-    [TestMethod]
-    public void FormColumnUI_ButtonGuessClick()
-    {
-      var csvFile = new CsvFile(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"));
-      var col = new Column("ExamDate", DataType.DateTime);
-      csvFile.ColumnCollection.AddIfNew(col);
-
-      using (var form = new FormColumnUI(col, false, csvFile, new FillGuessSettings(), true))
-      {
-        UnitTestWinFormHelper.ShowFormAndClose(form, .2, () => form.ButtonGuessClick(null, null));
-      }
-    }
+   
 
     [TestMethod]
     public void FormHierarchyDisplay()

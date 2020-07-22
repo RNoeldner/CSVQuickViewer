@@ -1,21 +1,106 @@
-﻿// /*
-//  * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
-//  *
-//  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
-//  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
-//  *
-//  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-//  * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
-//  *
-//  * You should have received a copy of the GNU Lesser Public License along with this program.
-//  * If not, see http://www.gnu.org/licenses/ .
-//  *
-//  */
+﻿using System.Threading.Tasks;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
+  [TestClass]
   public class FormColumnUITest
   {
+    [TestMethod]
+    public void FormColumnUI()
+    {
+      var csvFile = new CsvFile(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"));
+      var col = new Column("ExamDate", DataType.DateTime);
+      csvFile.ColumnCollection.AddIfNew(col);
+      UnitTestWinFormHelper.RunSTAThread(() =>
+      {
+        using (var frm = new FormColumnUI(col, false, csvFile, new FillGuessSettings(), false))
+        {
+          UnitTestWinFormHelper.ShowFormAndClose(frm);
+        }
+      });
+    }
+    [TestMethod]
+    public void FormColumnUIGetColumnHeader2()
+    {
+      var csvFile = new CsvFile { ID = "Csv", FileName = UnitTestInitializeCsv.GetTestPath("BasicCSV.txt") };
+      var col = new Column("Score", DataType.Double);
+      csvFile.ColumnCollection.AddIfNew(col);
+
+      UnitTestWinFormHelper.RunSTAThread(() =>
+      {
+        using (var form = new FormColumnUI(col, false, csvFile, new FillGuessSettings(), true))
+
+        {
+          UnitTestWinFormHelper.ShowFormAndClose(form);
+        }
+      });
+    }
     
+    
+    [TestMethod]
+    public void FormColumnUIGetColumnHeaderAsync()
+    {
+      var csvFile = new CsvFile(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt")) { ID = "Csv" };
+
+      csvFile.ColumnCollection.AddIfNew(new Column("ID", DataType.Integer));
+      csvFile.ColumnCollection.AddIfNew(new Column("ExamDate", DataType.DateTime));
+      csvFile.ColumnCollection.AddIfNew(new Column("Score", DataType.Double));
+
+      UnitTestWinFormHelper.RunSTAThread(() =>
+      {
+        using (var form = new FormColumnUI(csvFile.ColumnCollection.Get("ExamDate"), false, csvFile,
+          new FillGuessSettings(), true))
+        {
+          UnitTestWinFormHelper.ShowFormAndClose(form);
+        }
+      });
+    }
+    
+    [TestMethod]
+    public void FormColumnUI_Opt1()
+    {
+      var csvFile = new CsvFile(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"));
+      var col = new Column("ExamDate", DataType.DateTime);
+      csvFile.ColumnCollection.AddIfNew(col);
+      UnitTestWinFormHelper.RunSTAThread(() =>
+      {
+        using (var form = new FormColumnUI(col, false, csvFile, new FillGuessSettings(), true))
+        {
+          form.ShowGuess = false;
+          UnitTestWinFormHelper.ShowFormAndClose(form);
+        }
+      });
+    }
+
+    [TestMethod]
+    public void FormColumnUI_Opt2()
+    {
+      var csvFile = new CsvFile(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"));
+      var col = new Column("ID", DataType.Integer);
+      csvFile.ColumnCollection.AddIfNew(col);
+      UnitTestWinFormHelper.RunSTAThread(() =>
+      {
+        using (var form = new FormColumnUI(col, false, csvFile, new FillGuessSettings(), false))
+        {
+          UnitTestWinFormHelper.ShowFormAndClose(form);
+        }
+      });
+    }
+
+    [TestMethod]
+    public void FormColumnUI_ButtonGuessClick()
+    {
+      var csvFile = new CsvFile(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"));
+      var col = new Column("ExamDate", DataType.DateTime);
+      csvFile.ColumnCollection.AddIfNew(col);
+      UnitTestWinFormHelper.RunSTAThread(() =>
+      {
+        using (var form = new FormColumnUI(col, false, csvFile, new FillGuessSettings(), true))
+        {
+          UnitTestWinFormHelper.ShowFormAndClose(form, .2, () => form.ButtonGuessClick(null, null));
+        }
+      });
+    }
   }
 }

@@ -539,21 +539,21 @@ namespace CsvTools
         return false;
       if (ReferenceEquals(this, other))
         return true;
-      return m_AlternateQuoting == other.AlternateQuoting
-             && m_DuplicateQuotingToEscape == other.DuplicateQuotingToEscape
-             && string.Equals(m_CommentLine, other.m_CommentLine, StringComparison.Ordinal)
-             && string.Equals(m_DelimiterPlaceholder, other.m_DelimiterPlaceholder, StringComparison.Ordinal)
-             && string.Equals(m_EscapeCharacter, other.m_EscapeCharacter, StringComparison.Ordinal)
-             && m_EscapeCharacterChar == other.m_EscapeCharacterChar
-             && string.Equals(m_FieldDelimiter, other.m_FieldDelimiter, StringComparison.Ordinal)
-             && m_FieldDelimiterChar == other.m_FieldDelimiterChar
-             && string.Equals(m_FieldQualifier, other.m_FieldQualifier, StringComparison.Ordinal)
-             && m_FieldQualifierChar == other.m_FieldQualifierChar
-             && m_NewLine.Equals(other.m_NewLine)
-             && string.Equals(m_NewLinePlaceholder, other.m_NewLinePlaceholder, StringComparison.Ordinal)
-             && m_QualifyAlways == other.m_QualifyAlways && m_QualifyOnlyIfNeeded == other.m_QualifyOnlyIfNeeded
-             && string.Equals(m_QuotePlaceholder, other.m_QuotePlaceholder, StringComparison.Ordinal)
-             && Equals(m_ValueFormatMutable, other.m_ValueFormatMutable);
+      return AlternateQuoting == other.AlternateQuoting
+             && DuplicateQuotingToEscape == other.DuplicateQuotingToEscape
+             && string.Equals(CommentLine, other.CommentLine, StringComparison.Ordinal)
+             && string.Equals(DelimiterPlaceholder, other.DelimiterPlaceholder, StringComparison.Ordinal)
+             && string.Equals(EscapeCharacter, other.EscapeCharacter, StringComparison.Ordinal)
+             && EscapeCharacterChar == other.EscapeCharacterChar
+             && string.Equals(FieldDelimiter, other.FieldDelimiter, StringComparison.Ordinal)
+             && FieldDelimiterChar == other.FieldDelimiterChar
+             && string.Equals(FieldQualifier, other.FieldQualifier, StringComparison.Ordinal)
+             && FieldQualifierChar == other.FieldQualifierChar
+             && NewLine.Equals(other.NewLine)
+             && string.Equals(NewLinePlaceholder, other.NewLinePlaceholder, StringComparison.Ordinal)
+             && QualifyAlways == other.QualifyAlways && QualifyOnlyIfNeeded == other.QualifyOnlyIfNeeded
+             && string.Equals(QuotePlaceholder, other.QuotePlaceholder, StringComparison.Ordinal)
+             && Equals(ValueFormatMutable, other.ValueFormatMutable);
     }
 
     /// <summary>Determines whether the specified object is equal to the current object.</summary>

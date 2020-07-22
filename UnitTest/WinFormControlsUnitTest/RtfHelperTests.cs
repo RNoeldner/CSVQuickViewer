@@ -4,10 +4,10 @@ using System.Windows.Forms;
 
 namespace CsvTools.Tests
 {
-  [TestClass()]
+  [TestClass]
   public class RtfHelperTests
   {
-    [TestMethod()]
+    [TestMethod]
     public void AddCharTest()
     {
       var rtfHelper = new RtfHelper();
@@ -25,7 +25,7 @@ namespace CsvTools.Tests
       rtfHelper.AddChar(2, '{');
     }
 
-    [TestMethod()]
+    [TestMethod]
     public void AddParagraphTest()
     {
       var rtfHelper = new RtfHelper();

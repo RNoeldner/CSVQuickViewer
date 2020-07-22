@@ -18,6 +18,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
@@ -28,6 +29,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void RunEquals()
     {
+      var sb = new StringBuilder();
       foreach (var type in GetAllIEquatable())
         try
         {
@@ -37,44 +39,49 @@ namespace CsvTools.Tests
           var properties = type.GetProperties().Where(
             prop => prop.GetMethod != null && prop.SetMethod != null
                                            && (prop.PropertyType == typeof(int) || prop.PropertyType == typeof(long)
-                                                                                || prop.PropertyType == typeof(string)
-                                                                                || prop.PropertyType == typeof(bool)
-                                                                                || prop.PropertyType == typeof(DateTime)
+                                             || prop.PropertyType == typeof(string)
+                                             || prop.PropertyType == typeof(bool)
+                                             || prop.PropertyType == typeof(DateTime)
                                            )).ToArray();
           if (properties.Length == 0)
             continue;
+          var ignore = new List<PropertyInfo>();
           // Set some properties that should not match the default
           foreach (var prop in properties)
           {
             if (prop.PropertyType == typeof(int) || prop.PropertyType == typeof(long))
             {
               prop.SetValue(obj1, 13);
-              prop.SetValue(obj3, 13);
+              if (Convert.ToInt32(prop.GetValue(obj1)) != 13)
+                ignore.Add(prop);
             }
 
             if (prop.PropertyType == typeof(bool))
             {
-              prop.SetValue(obj1, !(bool) prop.GetValue(obj1));
-              prop.SetValue(obj3, prop.GetValue(obj1));
+              var newVal = !(bool) prop.GetValue(obj1);
+              prop.SetValue(obj1, newVal);
+              if ((bool) prop.GetValue(obj1) != newVal)
+                ignore.Add(prop);
             }
 
             if (prop.PropertyType == typeof(string))
             {
               prop.SetValue(obj1, "Raphael");
-              prop.SetValue(obj3, prop.GetValue(obj1));
+              if ((string) prop.GetValue(obj1) != "Raphael")
+                ignore.Add(prop);
             }
 
             if (prop.PropertyType == typeof(DateTime))
             {
-              prop.SetValue(obj1, new DateTime(2014, 12, 24));
-              Assert.AreEqual(
-                new DateTime(2014, 12, 24),
-                prop.GetValue(obj1),
-                $"The set value is stored for Type: {type.FullName}  Property:{prop.Name}");
-              prop.SetValue(obj3, prop.GetValue(obj1));
+              var newVal = new DateTime(2014, 12, 24);
+              prop.SetValue(obj1, newVal);
+              if ((DateTime) prop.GetValue(obj1) != newVal)
+                ignore.Add(prop);
             }
-          }
 
+            prop.SetValue(obj3, prop.GetValue(obj1));
+          }
+          
           var methodEquals = type.GetMethod(
             "Equals",
             BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly,
@@ -94,21 +101,25 @@ namespace CsvTools.Tests
               isEqual = (bool) methodEquals.Invoke(obj1, new object[] {null});
               Assert.IsFalse(isEqual, $"Type: {type.FullName}");
 
-              // Chane only one Attribute at a time
+              // Change only one Attribute at a time
               for (var c = 0; c < properties.Count(); c++)
               {
                 var d = 0;
-                PropertyInfo currentTest = null;
                 var obj2 = Activator.CreateInstance(type);
+                // make a copy
                 foreach (var prop in properties)
                 {
                   if (c != d)
-                  {
                     prop.SetValue(obj2, prop.GetValue(obj1));
-                  }
-                  else
+                  d++;
+                }
+                // change the one setting this is done to prevent other settings to reset teh property
+                foreach (var prop in properties)
+                {
+                  if (ignore.Contains(prop))
+                    continue;
+                  if (c == d)
                   {
-                    currentTest = prop;
                     if (prop.PropertyType == typeof(int) || prop.PropertyType == typeof(long))
                       prop.SetValue(obj2, 18);
                     else if (prop.PropertyType == typeof(bool))
@@ -117,25 +128,24 @@ namespace CsvTools.Tests
                       prop.SetValue(obj2, "Nöldner");
                     else if (prop.PropertyType == typeof(DateTime))
                       prop.SetValue(obj2, new DateTime(2015, 12, 24));
-                  }
+                    if ((bool) methodEquals.Invoke(obj1, new[] { obj2 }))
+                    {
+                      sb.AppendLine(
+                        $"Changing Property:{prop.Name} in Type: {type.FullName} was not seen as difference {prop.GetValue(obj1)}=>{prop.GetValue(obj2)} ");
+                      Logger.Error("Type: {0}  Property:{1}", type.FullName, prop.Name);
+                    }
 
+                    break;
+                  }
                   d++;
                 }
 
-                isEqual = (bool) methodEquals.Invoke(obj1, new[] {obj2});
-                Assert.IsFalse(
-                  isEqual,
-                  string.Format(
-                    CultureInfo.InvariantCulture,
-                    "Type: {0}  Property:{1}",
-                    type.FullName,
-                    currentTest.Name));
               }
             }
             catch (Exception ex)
             {
               // Ignore all NotImplementedException these are cause by compatibility setting or mocks
-              Debug.Write(ex.ExceptionMessages());
+              Logger.Error(ex.ExceptionMessages());
             }
         }
         catch (MissingMethodException)
@@ -146,17 +156,23 @@ namespace CsvTools.Tests
         {
           Assert.Fail($"Issue with {type.FullName} {e.Message}");
         }
+
+      if (sb.Length > 0)
+      {
+        Assert.Fail(sb.ToString());
+      }
     }
 
     private IEnumerable<Type> GetAllIEquatable()
     {
-      foreach (var a in AppDomain.CurrentDomain.GetAssemblies())
-        if (a.FullName.StartsWith("ClassLibraryCSV", StringComparison.Ordinal))
-          foreach (var t in a.GetExportedTypes())
-            if (t.IsClass && !t.IsAbstract)
-              foreach (var i in t.GetInterfaces())
-                if (i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEquatable<>))
-                  yield return t;
+      return AppDomain.CurrentDomain.GetAssemblies()
+        .Where(a => a.FullName.StartsWith("ClassLibraryCSV", StringComparison.Ordinal))
+        .SelectMany(a => a.GetExportedTypes(), (a, t) => new { a, t })
+        .Where(@t1 => @t1.t.IsClass && !@t1.t.IsAbstract)
+        .SelectMany(@t1 => @t1.t.GetInterfaces(), (@t1, i) => new { @t1, i })
+        .Where(@t1 => @t1.i.IsGenericType && @t1.i.GetGenericTypeDefinition() == typeof(IEquatable<>))
+        .Select(@t1 => @t1.@t1.t);
     }
+      
   }
 }
