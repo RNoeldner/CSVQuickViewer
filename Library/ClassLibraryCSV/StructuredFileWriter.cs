@@ -12,6 +12,8 @@
  *
  */
 
+using JetBrains.Annotations;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
@@ -22,8 +24,6 @@ using System.Security;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
-using Newtonsoft.Json;
 
 namespace CsvTools
 {
@@ -134,12 +134,12 @@ namespace CsvTools
           var row = withHeader;
           colNum = 0;
           foreach (var value in from columnInfo in Columns
-            let col = reader.GetValue(columnInfo.ColumnOrdinalReader)
-            select m_XMLEncode
-              ? SecurityElement.Escape(TextEncodeField(FileFormat, col, columnInfo, false,
-                reader,
-                null))
-              : JsonConvert.ToString(col))
+                                let col = reader.GetValue(columnInfo.ColumnOrdinalReader)
+                                select m_XMLEncode
+                                  ? SecurityElement.Escape(TextEncodeField(FileFormat, col, columnInfo, false,
+                                    reader,
+                                    null))
+                                  : JsonConvert.ToString(col))
           {
             row = row.Replace(placeHolderLookup1[colNum], value).Replace(placeHolderLookup2[colNum], value);
             colNum++;

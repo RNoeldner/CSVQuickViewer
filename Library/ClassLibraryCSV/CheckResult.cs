@@ -12,9 +12,9 @@
  *
  */
 
+using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 
 namespace CsvTools
 {
@@ -23,7 +23,7 @@ namespace CsvTools
   /// </summary>
   public class CheckResult
   {
-    [NotNull] 
+    [NotNull]
     public ICollection<string> ExampleNonMatch { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>

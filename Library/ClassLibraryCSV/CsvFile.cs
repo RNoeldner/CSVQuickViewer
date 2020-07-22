@@ -12,12 +12,12 @@
  *
  */
 
+using JetBrains.Annotations;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Text;
 using System.Xml.Serialization;
-using JetBrains.Annotations;
 
 namespace CsvTools
 {
@@ -431,7 +431,7 @@ namespace CsvTools
     {
       if (other == null)
         return;
-      BaseSettingsCopyTo((BaseSettings)other);
+      BaseSettingsCopyTo((BaseSettings) other);
 
       if (!(other is ICsvFile csv))
         return;

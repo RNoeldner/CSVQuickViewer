@@ -12,11 +12,11 @@
  *
  */
 
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
@@ -42,10 +42,10 @@ namespace CsvTools.Tests
         ID = id,
         FileName = Path.Combine(UnitTestInitializeCsv.GetTestPath("AllFormats.txt")),
         HasFieldHeader = true,
-        FileFormat = {FieldDelimiter = "TAB"}
+        FileFormat = { FieldDelimiter = "TAB" }
       };
 
-      var timeFld = new Column("DateTime", new ValueFormatMutable(DataType.DateTime) {DateFormat = @"dd/MM/yyyy"});
+      var timeFld = new Column("DateTime", new ValueFormatMutable(DataType.DateTime) { DateFormat = @"dd/MM/yyyy" });
       readFile.ColumnCollection.AddIfNew(timeFld);
 
       timeFld.TimePart = "Time";
@@ -58,14 +58,15 @@ namespace CsvTools.Tests
       Debug.Assert(numericFld != null);
       numericFld.ValueFormatMutable.DecimalSeparator = ".";
 
-      var doubleFld = new Column("Double", new ValueFormatMutable(DataType.Double) {DecimalSeparator = "."});
+      var doubleFld = new Column("Double", new ValueFormatMutable(DataType.Double) { DecimalSeparator = "." });
       readFile.ColumnCollection.AddIfNew(doubleFld);
       Debug.Assert(doubleFld != null);
       readFile.ColumnCollection.AddIfNew(new Column("Boolean", DataType.Boolean));
       readFile.ColumnCollection.AddIfNew(new Column("GUID", DataType.Guid));
 
       var timeFld2 = new Column("Time",
-        new ValueFormatMutable(DataType.DateTime) {DateFormat = "HH:mm:ss"}) {Ignore = true};
+        new ValueFormatMutable(DataType.DateTime) { DateFormat = "HH:mm:ss" })
+      { Ignore = true };
       readFile.ColumnCollection.AddIfNew(timeFld2);
 
       return readFile;
@@ -76,7 +77,7 @@ namespace CsvTools.Tests
       var readFile = new CsvFile
       {
         ID = id,
-        FileFormat = {CommentLine = "#"},
+        FileFormat = { CommentLine = "#" },
         FileName = Path.Combine(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"))
       };
       var examDateFld = new Column("ExamDate", DataType.DateTime);

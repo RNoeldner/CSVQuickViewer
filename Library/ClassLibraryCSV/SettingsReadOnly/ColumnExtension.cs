@@ -12,8 +12,8 @@
 // * If not, see http://www.gnu.org/licenses/ . *
 // */
 
-using System.Text;
 using JetBrains.Annotations;
+using System.Text;
 
 namespace CsvTools
 {

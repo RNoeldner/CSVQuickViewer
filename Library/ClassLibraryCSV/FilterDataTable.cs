@@ -57,9 +57,9 @@ namespace CsvTools
         var withoutErrors = ColumnsWithoutErrors;
 
         return (from DataColumn col in FilterTable.Columns
-          where !col.ColumnName.Equals(ReaderConstants.cErrorField, StringComparison.OrdinalIgnoreCase)
-          where !withoutErrors.Contains(col.ColumnName)
-          select col.ColumnName).ToList();
+                where !col.ColumnName.Equals(ReaderConstants.cErrorField, StringComparison.OrdinalIgnoreCase)
+                where !withoutErrors.Contains(col.ColumnName)
+                select col.ColumnName).ToList();
       }
     }
 

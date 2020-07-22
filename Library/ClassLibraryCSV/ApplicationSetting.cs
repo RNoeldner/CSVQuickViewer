@@ -34,7 +34,7 @@ namespace CsvTools
     public static bool MenuDown { get; set; }
 
 
-    [NotNull] 
+    [NotNull]
     public static string RootFolder { get; set; } = FileSystemUtils.ExecutableDirectoryName();
   }
 }

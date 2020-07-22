@@ -83,12 +83,12 @@ namespace CsvTools.Tests
 
     private CsvFile GetCsvFile()
     {
-      var file = new CsvFile {ID = "TestFile", FileName = "Test.csv"};
+      var file = new CsvFile { ID = "TestFile", FileName = "Test.csv" };
 
       file.MappingCollection.Add(new Mapping("Fld1", "FldA"));
       file.MappingCollection.Add(new Mapping("Fld2", "FldB"));
-      file.ColumnCollection.AddIfNew(new Column("ID", DataType.Integer) {ColumnOrdinal = 1, Ignore = false});
-      file.ColumnCollection.AddIfNew(new Column("Name") {ColumnOrdinal = 2, Part = 2});
+      file.ColumnCollection.AddIfNew(new Column("ID", DataType.Integer) { ColumnOrdinal = 1, Ignore = false });
+      file.ColumnCollection.AddIfNew(new Column("Name") { ColumnOrdinal = 2, Part = 2 });
       return file;
     }
   }

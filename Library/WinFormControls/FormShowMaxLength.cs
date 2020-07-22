@@ -52,7 +52,7 @@ namespace CsvTools
       var dataGridViewCellStyle1 = new DataGridViewCellStyle();
       var dataGridViewCellStyle2 = new DataGridViewCellStyle();
       m_DataGridView = new FilteredDataGridView();
-      ((ISupportInitialize)m_DataGridView).BeginInit();
+      ((ISupportInitialize) m_DataGridView).BeginInit();
       SuspendLayout();
       // m_DataGridView
       m_DataGridView.AllowUserToAddRows = false;
@@ -83,7 +83,7 @@ namespace CsvTools
       Name = "FormShowMaxLength";
       Text = @"Column Length";
       Load += ShowMaxLength_Load;
-      ((ISupportInitialize)m_DataGridView).EndInit();
+      ((ISupportInitialize) m_DataGridView).EndInit();
       ResumeLayout(false);
     }
 

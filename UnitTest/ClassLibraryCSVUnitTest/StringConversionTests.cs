@@ -12,11 +12,11 @@
  *
  */
 
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
@@ -41,11 +41,11 @@ namespace CsvTools.Tests
     {
       Assert.AreEqual("53.336,24",
         StringConversion.DecimalToString((decimal) 53336.2373,
-          new ValueFormatMutable {GroupSeparator = ".", DecimalSeparator = ",", NumberFormat = "#,####.00"}));
+          new ValueFormatMutable { GroupSeparator = ".", DecimalSeparator = ",", NumberFormat = "#,####.00" }));
 
       Assert.AreEqual("20-000-000-000",
         StringConversion.DecimalToString((decimal) 2E10,
-          new ValueFormatMutable {GroupSeparator = "-", NumberFormat = "#,####"}));
+          new ValueFormatMutable { GroupSeparator = "-", NumberFormat = "#,####" }));
     }
 
     [TestMethod]
@@ -53,17 +53,17 @@ namespace CsvTools.Tests
     {
       Assert.AreEqual("1.237,6",
         StringConversion.DoubleToString(1237.6,
-          new ValueFormatMutable {GroupSeparator = ".", DecimalSeparator = ",", NumberFormat = "#,####.0"}));
+          new ValueFormatMutable { GroupSeparator = ".", DecimalSeparator = ",", NumberFormat = "#,####.0" }));
       Assert.AreEqual("1.237,6",
         StringConversion.DecimalToString(1237.6m,
-          new ValueFormatMutable {GroupSeparator = ".", DecimalSeparator = ",", NumberFormat = "#,####.0"}));
+          new ValueFormatMutable { GroupSeparator = ".", DecimalSeparator = ",", NumberFormat = "#,####.0" }));
 
       Assert.AreEqual("17,6",
         StringConversion.DoubleToString(17.6,
-          new ValueFormatMutable {GroupSeparator = ".", DecimalSeparator = ",", NumberFormat = "#,####.0"}));
+          new ValueFormatMutable { GroupSeparator = ".", DecimalSeparator = ",", NumberFormat = "#,####.0" }));
       Assert.AreEqual("17,6",
         StringConversion.DecimalToString(17.6m,
-          new ValueFormatMutable {GroupSeparator = ".", DecimalSeparator = ",", NumberFormat = "#,####.0"}));
+          new ValueFormatMutable { GroupSeparator = ".", DecimalSeparator = ",", NumberFormat = "#,####.0" }));
     }
 
     [TestMethod]
@@ -122,12 +122,12 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CheckSerialDateFail() =>
       // last value is not a date
-      Assert.IsNull(StringConversion.CheckSerialDate(new[] {"239324", "239324.344", "4358784"}, false)
+      Assert.IsNull(StringConversion.CheckSerialDate(new[] { "239324", "239324.344", "4358784" }, false)
         .FoundValueFormat);
 
     [TestMethod]
     public void CheckSerialDateOK() =>
-      Assert.IsNotNull(StringConversion.CheckSerialDate(new[] {"239324", "239324.344", "235324"}, false)
+      Assert.IsNotNull(StringConversion.CheckSerialDate(new[] { "239324", "239324.344", "235324" }, false)
         .FoundValueFormat);
 
     [TestMethod]
@@ -181,30 +181,30 @@ namespace CsvTools.Tests
 
     [TestMethod]
     public void CheckTimeDefault() =>
-      Assert.IsTrue(StringConversion.CheckTime(new[] {"10:00:00", "10:00", "1:00"}, ""));
+      Assert.IsTrue(StringConversion.CheckTime(new[] { "10:00:00", "10:00", "1:00" }, ""));
 
     [TestMethod]
-    public void CheckTimeNotOK() => Assert.IsFalse(StringConversion.CheckTime(new[] {"10:00:00", "Test", "1:00"}, ":"));
+    public void CheckTimeNotOK() => Assert.IsFalse(StringConversion.CheckTime(new[] { "10:00:00", "Test", "1:00" }, ":"));
 
     [TestMethod]
     public void CheckTimeNull() => Assert.IsFalse(StringConversion.CheckTime(null, ""));
 
     [TestMethod]
-    public void CheckTimeOK() => Assert.IsTrue(StringConversion.CheckTime(new[] {"10:00:00", "10:00", "1:00"}, ":"));
+    public void CheckTimeOK() => Assert.IsTrue(StringConversion.CheckTime(new[] { "10:00:00", "10:00", "1:00" }, ":"));
 
     [TestMethod]
     public void DateTimeToStringOK()
     {
-//      Assert.AreEqual("01/01/2010", StringConversion.DateTimeToString(new DateTime(2010, 01, 1), null));
+      //      Assert.AreEqual("01/01/2010", StringConversion.DateTimeToString(new DateTime(2010, 01, 1), null));
       Assert.AreEqual("13/01/2010 10:11", StringConversion.DateTimeToString(new DateTime(2010, 1, 13, 10, 11, 14, 0),
-        new ValueFormatMutable {DateFormat = @"dd/MM/yyyy HH:mm"}));
+        new ValueFormatMutable { DateFormat = @"dd/MM/yyyy HH:mm" }));
       // Make sure exchanging the default separators do not mess with the result
       Assert.AreEqual("13:01:2010 10/11", StringConversion.DateTimeToString(new DateTime(2010, 1, 13, 10, 11, 14, 0),
-        new ValueFormatMutable {DateFormat = @"dd/MM/yyyy HH:mm", TimeSeparator = "/", DateSeparator = ":"}));
+        new ValueFormatMutable { DateFormat = @"dd/MM/yyyy HH:mm", TimeSeparator = "/", DateSeparator = ":" }));
       // 24 + 24 + 7 = 55 hrs
       Assert.AreEqual("055:11", StringConversion.DateTimeToString(
         StringConversion.GetTimeFromTicks(new TimeSpan(2, 7, 11, 0).Ticks),
-        new ValueFormatMutable {DateFormat = @"HHH:mm", TimeSeparator = ":", DateSeparator = "."}));
+        new ValueFormatMutable { DateFormat = @"HHH:mm", TimeSeparator = ":", DateSeparator = "." }));
     }
 
     [TestMethod]
@@ -219,10 +219,10 @@ namespace CsvTools.Tests
         // Fill Samples
         var samples = new HashSet<string>();
         for (var month = 9; month < 10; month++)
-        for (var day = 10; day < 15; day++)
-        for (var hrs = 11; hrs < 13; hrs++)
-        for (var min = 24; min < 26; min++)
-          samples.Add(new DateTime(2010, month, day, hrs, min, 10, 876, DateTimeKind.Local).ToString(fmt, culture));
+          for (var day = 10; day < 15; day++)
+            for (var hrs = 11; hrs < 13; hrs++)
+              for (var min = 24; min < 26; min++)
+                samples.Add(new DateTime(2010, month, day, hrs, min, 10, 876, DateTimeKind.Local).ToString(fmt, culture));
 
         Assert.IsNotNull(
           StringConversion.CheckDate(samples, fmt, dateSep, ":", CultureInfo.CurrentCulture).FoundValueFormat,
@@ -377,8 +377,8 @@ namespace CsvTools.Tests
     public void CheckGuidTest()
     {
       Assert.IsFalse(StringConversion.CheckGuid(new string[] { }));
-      Assert.IsTrue(StringConversion.CheckGuid(new[] {"{35C1536A-094A-493D-8FED-545A959E167A}"}));
-      Assert.IsFalse(StringConversion.CheckGuid(new[] {"{35C1536A-094A-493D-8FED-545A959E167A}", "A Test"}));
+      Assert.IsTrue(StringConversion.CheckGuid(new[] { "{35C1536A-094A-493D-8FED-545A959E167A}" }));
+      Assert.IsFalse(StringConversion.CheckGuid(new[] { "{35C1536A-094A-493D-8FED-545A959E167A}", "A Test" }));
       Assert.IsTrue(StringConversion.CheckGuid(new[]
       {
         "{35C1536A-094A-493D-8FED-545A959E167A}", "9B6E2B50-5400-4871-820C-591844B4F0D6"
@@ -389,7 +389,7 @@ namespace CsvTools.Tests
     public void CombineStringsToDateTimeExcelTest()
     {
       Assert.IsFalse(StringConversion.CombineObjectsToDateTime(null, null, null, null, true,
-        new ValueFormatMutable {DateFormat = "yyyyMMdd", DateSeparator = "", TimeSeparator = ":"}, out _).HasValue);
+        new ValueFormatMutable { DateFormat = "yyyyMMdd", DateSeparator = "", TimeSeparator = ":" }, out _).HasValue);
 
       Assert.AreEqual(new DateTime(2010, 10, 10),
         StringConversion.CombineObjectsToDateTime(new DateTime(2010, 10, 10),
@@ -404,7 +404,7 @@ namespace CsvTools.Tests
         StringConversion.CombineObjectsToDateTime(null,
           "2010/10/13",
           null, null, false,
-          new ValueFormatMutable {DateFormat = "yyyy/MM/dd", DateSeparator = "/", TimeSeparator = ":"}, out _).Value);
+          new ValueFormatMutable { DateFormat = "yyyy/MM/dd", DateSeparator = "/", TimeSeparator = ":" }, out _).Value);
 
       Assert.AreEqual(new DateTime(2010, 10, 10, 8, 12, 54),
         StringConversion.CombineObjectsToDateTime(new DateTime(2010, 10, 10),
@@ -414,25 +414,25 @@ namespace CsvTools.Tests
       Assert.AreEqual(new DateTime(2010, 10, 10, 8, 12, 54),
         StringConversion.CombineObjectsToDateTime(null, "20101010",
           new DateTime(new TimeSpan(8, 12, 54).Ticks), null, true,
-          new ValueFormatMutable {DateFormat = "yyyyMMdd", DateSeparator = "", TimeSeparator = ":"}, out _).Value);
+          new ValueFormatMutable { DateFormat = "yyyyMMdd", DateSeparator = "", TimeSeparator = ":" }, out _).Value);
 
       Assert.AreEqual(new DateTime(2010, 10, 13, 8, 12, 54),
         StringConversion.CombineObjectsToDateTime(null, "2010/10/13",
           new DateTime(new TimeSpan(8, 12, 54).Ticks).ToOADate(), null, true,
-          new ValueFormatMutable {DateFormat = "yyyy/MM/dd", DateSeparator = "/", TimeSeparator = ":"}, out _).Value);
+          new ValueFormatMutable { DateFormat = "yyyy/MM/dd", DateSeparator = "/", TimeSeparator = ":" }, out _).Value);
 
       Assert.AreEqual(new DateTime(2010, 10, 13, 8, 12, 54),
         StringConversion.CombineObjectsToDateTime(new DateTime(2010, 10, 13).ToOADate(),
           null,
           new DateTime(new TimeSpan(8, 12, 54).Ticks).ToOADate(), null, true,
-          new ValueFormatMutable {DateFormat = "yyyy/MM/dd", DateSeparator = "/", TimeSeparator = ":"}, out _).Value);
+          new ValueFormatMutable { DateFormat = "yyyy/MM/dd", DateSeparator = "/", TimeSeparator = ":" }, out _).Value);
 
       // Pass in a time that is >23:59 to adjust date part
       Assert.AreEqual(new DateTime(2010, 10, 15, 5, 10, 00),
         StringConversion.CombineObjectsToDateTime(null,
             "2010/10/14",
             null, "29:10:00", false,
-            new ValueFormatMutable {DateFormat = "yyyy/MM/dd", DateSeparator = "/", TimeSeparator = ":"},
+            new ValueFormatMutable { DateFormat = "yyyy/MM/dd", DateSeparator = "/", TimeSeparator = ":" },
             out var issues)
           .Value);
       // should issue a warning
@@ -443,23 +443,23 @@ namespace CsvTools.Tests
     public void CheckNumberTest()
     {
       Assert.IsFalse(StringConversion.CheckNumber(new string[] { }, '.', '\0', false, false).FoundValueFormat != null);
-      Assert.IsTrue(StringConversion.CheckNumber(new[] {"16673"}, '.', '\0', false, false).FoundValueFormat != null);
+      Assert.IsTrue(StringConversion.CheckNumber(new[] { "16673" }, '.', '\0', false, false).FoundValueFormat != null);
       Assert.AreEqual(DataType.Integer,
-        StringConversion.CheckNumber(new[] {"16673"}, '.', '\0', false, false).FoundValueFormat.DataType);
+        StringConversion.CheckNumber(new[] { "16673" }, '.', '\0', false, false).FoundValueFormat.DataType);
       Assert.IsFalse(
-        StringConversion.CheckNumber(new[] {"16673", "A Test"}, '.', '\0', false, false).FoundValueFormat != null);
+        StringConversion.CheckNumber(new[] { "16673", "A Test" }, '.', '\0', false, false).FoundValueFormat != null);
       Assert.AreEqual(DataType.Numeric,
-        StringConversion.CheckNumber(new[] {"16673", "-23", "1.4"}, '.', '\0', false, false).FoundValueFormat.DataType);
+        StringConversion.CheckNumber(new[] { "16673", "-23", "1.4" }, '.', '\0', false, false).FoundValueFormat.DataType);
     }
 
     [TestMethod]
     public void CheckTimeSpanTest()
     {
-      Assert.IsTrue(StringConversion.CheckTimeSpan(new[] {"8:20", "10:10", "2:20 pm", "17:30"}, ":", false));
-      Assert.IsTrue(StringConversion.CheckTimeSpan(new[] {".2", ".3", "0.25", "17:30"}, ":", true));
+      Assert.IsTrue(StringConversion.CheckTimeSpan(new[] { "8:20", "10:10", "2:20 pm", "17:30" }, ":", false));
+      Assert.IsTrue(StringConversion.CheckTimeSpan(new[] { ".2", ".3", "0.25", "17:30" }, ":", true));
       // 24 hours
-      Assert.IsFalse(StringConversion.CheckTimeSpan(new[] {"0.2", "26:20", "0.25", "19:30"}, ":", true));
-      Assert.IsFalse(StringConversion.CheckTimeSpan(new[] {"0.2", "2.3", "0.25", "19:30"}, ":", true));
+      Assert.IsFalse(StringConversion.CheckTimeSpan(new[] { "0.2", "26:20", "0.25", "19:30" }, ":", true));
+      Assert.IsFalse(StringConversion.CheckTimeSpan(new[] { "0.2", "2.3", "0.25", "19:30" }, ":", true));
     }
 
     [TestMethod]

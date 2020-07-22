@@ -1,5 +1,5 @@
-﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 
 namespace CsvTools.Tests
 {
@@ -9,7 +9,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GetEncryptedPassphraseTest()
     {
-      var setting = new CsvFile {Passphrase = "Hello World"};
+      var setting = new CsvFile { Passphrase = "Hello World" };
       var test = FunctionalDI.GetEncryptedPassphrase(setting);
       Assert.AreEqual(setting.Passphrase, test);
     }
@@ -17,7 +17,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GetFileReaderTest()
     {
-      var setting = new CsvFile {FileName = UnitTestInitializeCsv.GetTestPath("AlternateTextQualifiers.txt")};
+      var setting = new CsvFile { FileName = UnitTestInitializeCsv.GetTestPath("AlternateTextQualifiers.txt") };
       using (var test =
         FunctionalDI.GetFileReader(setting, null, new CustomProcessDisplay(UnitTestInitializeCsv.Token)))
       {
@@ -35,11 +35,11 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GetFileWriterTest()
     {
-      var setting = new CsvFile {FileName = UnitTestInitializeCsv.GetTestPath("AlternateTextQualifiers.txt")};
+      var setting = new CsvFile { FileName = UnitTestInitializeCsv.GetTestPath("AlternateTextQualifiers.txt") };
       var test = FunctionalDI.GetFileWriter(setting, new CustomProcessDisplay(UnitTestInitializeCsv.Token));
       Assert.IsInstanceOfType(test, typeof(CsvFileWriter));
 
-      var setting2 = new StructuredFile {FileName = UnitTestInitializeCsv.GetTestPath("AlternateTextQualifiers.txt")};
+      var setting2 = new StructuredFile { FileName = UnitTestInitializeCsv.GetTestPath("AlternateTextQualifiers.txt") };
       var test2 = FunctionalDI.GetFileWriter(setting2, new CustomProcessDisplay(UnitTestInitializeCsv.Token));
       Assert.IsInstanceOfType(test2, typeof(StructuredFileWriter));
     }

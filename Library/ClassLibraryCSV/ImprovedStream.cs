@@ -12,10 +12,10 @@
  *
  */
 
+using JetBrains.Annotations;
 using System;
 using System.IO;
 using System.IO.Compression;
-using JetBrains.Annotations;
 
 
 namespace CsvTools
@@ -42,7 +42,7 @@ namespace CsvTools
 
     private FileStream BaseStream { get; set; }
 
-    public double Percentage => (double)BaseStream.Position / BaseStream.Length;
+    public double Percentage => (double) BaseStream.Position / BaseStream.Length;
 
     public Stream Stream { get; private set; }
 

@@ -113,7 +113,7 @@ namespace CsvTools
       if (process == null) throw new ArgumentNullException(nameof(process));
       Contract.Requires(root != null);
       root.Visited = true;
-      var treeNode = new TreeNode(root.NodeTitle) {Tag = root};
+      var treeNode = new TreeNode(root.NodeTitle) { Tag = root };
       if (rootNode == null)
         m_TreeView.Nodes.Add(treeNode);
       else
@@ -139,13 +139,13 @@ namespace CsvTools
         Extensions.ProcessUIElements();
         if (child.Visited)
         {
-          var treeNode = new TreeNode("Cycle -> " + child.Title) {Tag = child};
+          var treeNode = new TreeNode("Cycle -> " + child.Title) { Tag = child };
           treeNodes.Add(treeNode);
         }
         else
         {
           child.Visited = true;
-          var treeNode = new TreeNode(child.NodeTitle, BuildSubNodes(child, process)) {Tag = child};
+          var treeNode = new TreeNode(child.NodeTitle, BuildSubNodes(child, process)) { Tag = child };
           treeNodes.Add(treeNode);
         }
       }
@@ -204,7 +204,7 @@ namespace CsvTools
 
       // Using a dictionary here to speed up lookups
       var treeDataDictionary = new Dictionary<string, TreeData>();
-      var rootDataParentFound = new TreeData {ID = "{R}", Title = "Parent found / No Parent"};
+      var rootDataParentFound = new TreeData { ID = "{R}", Title = "Parent found / No Parent" };
 
       treeDataDictionary.Add(rootDataParentFound.ID, rootDataParentFound);
 
@@ -246,7 +246,7 @@ namespace CsvTools
         if (!string.IsNullOrEmpty(child.ParentID) && !treeDataDictionary.ContainsKey(child.ParentID))
           additionalRootNodes.Add(child.ParentID);
 
-      var rootDataParentNotFound = new TreeData {ID = "{M}", Title = "Parent not found"};
+      var rootDataParentNotFound = new TreeData { ID = "{M}", Title = "Parent not found" };
 
       if (additionalRootNodes.Count > 0)
       {
@@ -264,7 +264,9 @@ namespace CsvTools
             counter++);
           var childData = new TreeData
           {
-            ParentID = rootDataParentNotFound.ID, ID = parentID, Title = $"{m_ComboBoxID.SelectedItem} - {parentID}"
+            ParentID = rootDataParentNotFound.ID,
+            ID = parentID,
+            Title = $"{m_ComboBoxID.SelectedItem} - {parentID}"
           };
           treeDataDictionary.Add(parentID, childData);
         }
@@ -454,7 +456,7 @@ namespace CsvTools
       // 
       contextMenuStrip.ImageScalingSize = new Size(20, 20);
       contextMenuStrip.Items.AddRange(
-        new System.Windows.Forms.ToolStripItem[] {expandAllToolStripMenuItem, closeAllToolStripMenuItem});
+        new System.Windows.Forms.ToolStripItem[] { expandAllToolStripMenuItem, closeAllToolStripMenuItem });
       contextMenuStrip.Name = "contextMenuStrip";
       contextMenuStrip.Size = new Size(150, 52);
       // 

@@ -12,11 +12,11 @@
 *
 */
 
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.ComponentModel;
 using System.Data;
 using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
@@ -74,7 +74,7 @@ namespace CsvTools.Tests
     {
       var columnFilterLogic = new ColumnFilterLogic(typeof(double), "Column1");
       string prop = null;
-      columnFilterLogic.PropertyChanged += delegate(object sender, PropertyChangedEventArgs e)
+      columnFilterLogic.PropertyChanged += delegate (object sender, PropertyChangedEventArgs e)
       {
         prop = e.PropertyName;
       };
@@ -178,7 +178,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void AllFilterString()
     {
-      var columnFilterLogic = new ColumnFilterLogic(typeof(string), "strCol") {ValueText = "Hello"};
+      var columnFilterLogic = new ColumnFilterLogic(typeof(string), "strCol") { ValueText = "Hello" };
 
       foreach (var op in ColumnFilterLogic.GetOperators(columnFilterLogic.ColumnDataType))
       {
@@ -192,7 +192,7 @@ namespace CsvTools.Tests
     public void AllFilterDateTime()
     {
       var dtm = DateTime.Now;
-      var columnFilterLogic = new ColumnFilterLogic(typeof(DateTime), "dtmCol") {ValueDateTime = dtm};
+      var columnFilterLogic = new ColumnFilterLogic(typeof(DateTime), "dtmCol") { ValueDateTime = dtm };
       Assert.AreEqual(dtm, columnFilterLogic.ValueDateTime);
 
       foreach (var op in ColumnFilterLogic.GetOperators(columnFilterLogic.ColumnDataType))
@@ -229,7 +229,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void AllFilterInt()
     {
-      var columnFilterLogic = new ColumnFilterLogic(typeof(int), "intCol") {ValueText = "-10"};
+      var columnFilterLogic = new ColumnFilterLogic(typeof(int), "intCol") { ValueText = "-10" };
       Assert.AreEqual("-10", columnFilterLogic.ValueText);
       foreach (var op in ColumnFilterLogic.GetOperators(columnFilterLogic.ColumnDataType))
       {

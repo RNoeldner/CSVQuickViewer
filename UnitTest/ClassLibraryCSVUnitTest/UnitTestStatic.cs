@@ -29,7 +29,7 @@ namespace CsvTools.Tests
     {
       var result = default(T);
 
-      var thread = new Thread(() => { result = methodFunc(); }) {CurrentCulture = new CultureInfo(cultureName)};
+      var thread = new Thread(() => { result = methodFunc(); }) { CurrentCulture = new CultureInfo(cultureName) };
       thread.Start();
       thread.Join();
 

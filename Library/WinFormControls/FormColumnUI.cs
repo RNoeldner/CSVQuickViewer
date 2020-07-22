@@ -12,6 +12,8 @@
  *
  */
 
+using JetBrains.Annotations;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -25,8 +27,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using JetBrains.Annotations;
-using Microsoft.Win32;
 
 namespace CsvTools
 {
@@ -448,7 +448,7 @@ namespace CsvTools
 
     private static string BuildHTMLText(string header, string footer, int rows, string headerList1, ICollection<string> values1, int col1, string headerList2 = null, ICollection<string> values2 = null, int col2 = 2)
     {
-      var stringBuilder = HTMLStyle.StartHTMLDoc(System.Drawing.SystemColors.Control,  "<STYLE type=\"text/css\">\r\n" +
+      var stringBuilder = HTMLStyle.StartHTMLDoc(System.Drawing.SystemColors.Control, "<STYLE type=\"text/css\">\r\n" +
         "  html * { font-family:'Calibri','Trebuchet MS', Arial, Helvetica, sans-serif; }\r\n" +
         "  h2 { color:DarkBlue; font-size : 12px; }\r\n" +
         "  table { border-collapse:collapse; font-size : 11px; }\r\n" +

@@ -12,8 +12,8 @@
  *
  */
 
-using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 
 namespace CsvTools.Tests
 {
@@ -67,7 +67,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GroupSeparator()
     {
-      var a = new ValueFormatMutable {DataType = DataType.Numeric};
+      var a = new ValueFormatMutable { DataType = DataType.Numeric };
       a.GroupSeparator = ",";
       a.DecimalSeparator = ".";
       Assert.AreEqual(",", a.GroupSeparator);
@@ -79,7 +79,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void DecimalSeparator()
     {
-      var a = new ValueFormatMutable {DataType = DataType.Numeric};
+      var a = new ValueFormatMutable { DataType = DataType.Numeric };
       a.GroupSeparator = ".";
       a.DecimalSeparator = ",";
       Assert.AreEqual(",", a.DecimalSeparator);
@@ -91,18 +91,18 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GetFormatDescriptionTest()
     {
-      var a = new ValueFormatMutable {DataType = DataType.String};
+      var a = new ValueFormatMutable { DataType = DataType.String };
       Assert.IsTrue(string.IsNullOrEmpty(a.GetFormatDescription()));
-      var b = new ValueFormatMutable {DataType = DataType.DateTime};
+      var b = new ValueFormatMutable { DataType = DataType.DateTime };
       Assert.IsTrue(b.GetFormatDescription().Contains("MM/dd/yyyy"));
     }
 
     [TestMethod]
     public void GetTypeAndFormatDescriptionTest()
     {
-      var a = new ValueFormatMutable {DataType = DataType.String};
+      var a = new ValueFormatMutable { DataType = DataType.String };
       Assert.AreEqual("Text", a.GetTypeAndFormatDescription());
-      var b = new ValueFormatMutable {DataType = DataType.DateTime};
+      var b = new ValueFormatMutable { DataType = DataType.DateTime };
       Assert.IsTrue(b.GetTypeAndFormatDescription().Contains("Date Time"));
       Assert.IsTrue(b.GetTypeAndFormatDescription().Contains("MM/dd/yyyy"));
     }
@@ -110,7 +110,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void NotifyPropertyChangedTest()
     {
-      var a = new ValueFormatMutable {DataType = DataType.DateTime};
+      var a = new ValueFormatMutable { DataType = DataType.DateTime };
 
       var fired = false;
       a.PropertyChanged += delegate { fired = true; };

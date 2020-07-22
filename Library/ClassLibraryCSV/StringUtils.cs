@@ -12,6 +12,7 @@
  *
  */
 
+using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -19,7 +20,6 @@ using System.Globalization;
 using System.Linq;
 using System.Security;
 using System.Text;
-using JetBrains.Annotations;
 
 namespace CsvTools
 {
@@ -85,7 +85,7 @@ namespace CsvTools
     public static bool Contains([CanBeNull] this string text, [NotNull] string toCheck, StringComparison comp) =>
       text?.IndexOf(toCheck, comp) >= 0;
 
-   
+
     /// <summary>
     ///   Gets the a short representation of the text.
     /// </summary>

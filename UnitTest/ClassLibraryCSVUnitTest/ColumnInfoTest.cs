@@ -12,10 +12,10 @@
  *
  */
 
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Data;
 using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
@@ -28,14 +28,15 @@ namespace CsvTools.Tests
       var cc = new ColumnCollection();
       cc.AddIfNew(new Column("Test1", DataType.Double));
       cc.AddIfNew(
-        new Column("Test2", new ValueFormatMutable(DataType.DateTime) {DateFormat = "dd/MM/yyyy HH:mm"})
+        new Column("Test2", new ValueFormatMutable(DataType.DateTime) { DateFormat = "dd/MM/yyyy HH:mm" })
         {
           TimeZonePart = "\"UTC\""
         });
       cc.AddIfNew(
-        new Column("Test3", new ValueFormatMutable(DataType.DateTime) {DateFormat = "dd/MM/yyyy HH:mm"})
+        new Column("Test3", new ValueFormatMutable(DataType.DateTime) { DateFormat = "dd/MM/yyyy HH:mm" })
         {
-          TimePart = "Test4", TimePartFormat = "HH:mm"
+          TimePart = "Test4",
+          TimePartFormat = "HH:mm"
         });
 
       var dt = new DataTable();
@@ -61,9 +62,10 @@ namespace CsvTools.Tests
     public void GetSourceColumnInformation_AddedTime()
     {
       var cc = new ColumnCollection();
-      cc.AddIfNew(new Column("Test3", new ValueFormatMutable(DataType.DateTime) {DateFormat = "dd/MM/yyyy HH:mm"})
+      cc.AddIfNew(new Column("Test3", new ValueFormatMutable(DataType.DateTime) { DateFormat = "dd/MM/yyyy HH:mm" })
       {
-        TimeZonePart = "\"UTC\"", TimePart = "Col2"
+        TimeZonePart = "\"UTC\"",
+        TimePart = "Col2"
       });
 
       var dt = new DataTable();

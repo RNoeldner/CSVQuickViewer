@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
@@ -36,8 +35,8 @@ namespace CsvTools.Tests
         }
       });
     }
-    
-    
+
+
     [TestMethod]
     public void FormColumnUIGetColumnHeaderAsync()
     {
@@ -56,7 +55,7 @@ namespace CsvTools.Tests
         }
       });
     }
-    
+
     [TestMethod]
     public void FormColumnUI_Opt1()
     {

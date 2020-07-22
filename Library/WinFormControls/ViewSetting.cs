@@ -12,12 +12,12 @@
  *
  */
 
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Windows.Forms;
-using Newtonsoft.Json;
 
 namespace CsvTools
 {

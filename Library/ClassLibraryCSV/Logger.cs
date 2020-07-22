@@ -1,7 +1,7 @@
 ﻿namespace CsvTools
 {
-  using System;
   using NLog;
+  using System;
 
   /// <summary>
   ///   Abstraction to be able to switch Loggers

@@ -12,8 +12,8 @@
  *
  */
 
-using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Threading;
 
 namespace CsvTools.Tests
 {

@@ -1,6 +1,4 @@
-﻿using System.Drawing;
-using System.Windows.Forms;
-using Microsoft.VisualStudio.TestTools.UnitTesting; /*
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting; /*
 * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
 *
 * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
@@ -13,6 +11,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting; /*
 * If not, see http://www.gnu.org/licenses/ .
 *
 */
+using System.Drawing;
+using System.Windows.Forms;
 
 namespace CsvTools.Tests
 {

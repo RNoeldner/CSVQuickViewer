@@ -12,9 +12,9 @@
  *
  */
 
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Data;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
@@ -51,7 +51,7 @@ namespace CsvTools.Tests
         foreach (var cluster in test4.ValueClusters)
         {
           if (oldSort != null)
-            Assert.IsTrue(String.Compare(cluster.Sort, oldSort, StringComparison.Ordinal) > 0,
+            Assert.IsTrue(string.Compare(cluster.Sort, oldSort, StringComparison.Ordinal) > 0,
               $"{cluster.Sort} {oldSort}");
           oldSort = cluster.Sort;
         }

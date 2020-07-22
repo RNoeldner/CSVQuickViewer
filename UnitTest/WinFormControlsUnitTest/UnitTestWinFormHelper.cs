@@ -1,10 +1,10 @@
-﻿using System;
+﻿using JetBrains.Annotations;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using JetBrains.Annotations;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
@@ -23,7 +23,7 @@ namespace CsvTools.Tests
         Thread.Sleep(10);
       }
     }
-     
+
     public static void RunTaskTimeout(Func<CancellationToken, Task> toDo, double timeout = 1)
     {
       using (var source = CancellationTokenSource.CreateLinkedTokenSource(UnitTestInitializeCsv.Token))

@@ -50,9 +50,6 @@
       ctrl.Focus();
     }
 
-    private void TimeZoneSelector_Load(object sender, EventArgs e)
-    {
-      comboBoxTimeZoneID.SelectedValue = TimeZoneInfo.Local.Id;
-    }
+    private void TimeZoneSelector_Load(object sender, EventArgs e) => comboBoxTimeZoneID.SelectedValue = TimeZoneInfo.Local.Id;
   }
 }

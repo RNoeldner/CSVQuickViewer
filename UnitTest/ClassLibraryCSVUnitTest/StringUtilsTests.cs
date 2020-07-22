@@ -12,9 +12,9 @@
  *
  */
 
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
@@ -45,19 +45,19 @@ namespace CsvTools.Tests
     [TestMethod]
     public void Join()
     {
-      var test = new[] {"this", "is", "a"}.Join();
+      var test = new[] { "this", "is", "a" }.Join();
       Assert.AreEqual("this, is, a", test);
 
-      var test2 = new[] {"Hello", "World"}.Join("|");
+      var test2 = new[] { "Hello", "World" }.Join("|");
       Assert.AreEqual("Hello|World", test2);
 
       var test3 = new List<string>().Join("*");
       Assert.AreEqual("", test3);
 
       Assert.AreEqual("", new string[] { }.Join(","));
-      Assert.AreEqual("2", new[] {"2"}.Join(","));
-      Assert.AreEqual("2,3", new[] {"2", "3"}.Join(","));
-      Assert.AreEqual("2; 3", new[] {"2", "3"}.Join("; "));
+      Assert.AreEqual("2", new[] { "2" }.Join(","));
+      Assert.AreEqual("2,3", new[] { "2", "3" }.Join(","));
+      Assert.AreEqual("2; 3", new[] { "2", "3" }.Join("; "));
     }
 
     [TestMethod]
@@ -202,7 +202,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void MakeUniqueInCollectionTest()
     {
-      var lst = new List<string> {"Value", null, ""};
+      var lst = new List<string> { "Value", null, "" };
       Assert.AreEqual("Value1", StringUtils.MakeUniqueInCollection(lst, "Value"));
       Assert.AreEqual("New", StringUtils.MakeUniqueInCollection(lst, "New"));
     }

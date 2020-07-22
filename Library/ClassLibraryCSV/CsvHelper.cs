@@ -12,6 +12,8 @@
  *
  */
 
+using JetBrains.Annotations;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -20,8 +22,6 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
-using Newtonsoft.Json;
 
 namespace CsvTools
 {
@@ -65,7 +65,7 @@ namespace CsvTools
         var result = await GuessCodePageAsync(improvedStream, cancellationToken).ConfigureAwait(false);
         setting.CodePageId = (int) result.Item1;
         setting.ByteOrderMark = result.Item2;
-        Logger.Information("Detected Code Page: {codepage}",  EncodingHelper.GetEncodingName(result.Item1, true, result.Item2));
+        Logger.Information("Detected Code Page: {codepage}", EncodingHelper.GetEncodingName(result.Item1, true, result.Item2));
       }
     }
 

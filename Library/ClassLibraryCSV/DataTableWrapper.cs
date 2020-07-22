@@ -12,6 +12,7 @@
 *
 */
 
+using JetBrains.Annotations;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -19,7 +20,6 @@ using System.Data;
 using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 
 namespace CsvTools
 {
@@ -36,7 +36,7 @@ namespace CsvTools
 
     [NotNull] public DataTable DataTable { get; }
 
-    public int Percent => 50; 
+    public int Percent => 50;
     public override bool HasRows => m_DbDataReader.HasRows;
 
     public override string GetName(int i) => m_DbDataReader.GetName(i);

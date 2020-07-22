@@ -39,7 +39,7 @@ namespace CsvTools.Tests
       if (string.IsNullOrEmpty(name)) throw new ArgumentNullException(nameof(name));
 
       if (!m_ReadSetting.Any(x => x.Key.ID.Equals(name, StringComparison.OrdinalIgnoreCase)))
-        m_ReadSetting.Add(new CsvFile(name) {ID = name}, dt);
+        m_ReadSetting.Add(new CsvFile(name) { ID = name }, dt);
     }
 
     public async Task<IFileReader> ReadDataAsync(string settingName, EventHandler<ProgressEventArgs> message,

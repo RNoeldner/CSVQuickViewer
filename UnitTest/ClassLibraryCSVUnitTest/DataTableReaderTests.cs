@@ -1,8 +1,8 @@
-﻿using System;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Data;
 using System.Globalization;
 using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
@@ -141,7 +141,7 @@ namespace CsvTools.Tests
 
     private static DataTable RandomDataTable(int records)
     {
-      var dataTable = new DataTable {TableName = "DataTable", Locale = CultureInfo.InvariantCulture};
+      var dataTable = new DataTable { TableName = "DataTable", Locale = CultureInfo.InvariantCulture };
 
       dataTable.Columns.Add("ID", typeof(int));
       dataTable.Columns.Add("Text", typeof(string));

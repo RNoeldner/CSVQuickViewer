@@ -12,6 +12,7 @@
  *
  */
 
+using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -21,7 +22,6 @@ using System.Reflection;
 using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
-using JetBrains.Annotations;
 
 namespace CsvTools
 {
@@ -168,7 +168,8 @@ namespace CsvTools
     [DefaultValue("")]
     public virtual string RemoteFileName
     {
-      [NotNull] get => m_RemoteFileName;
+      [NotNull]
+      get => m_RemoteFileName;
       [CanBeNull]
       set
       {
@@ -334,7 +335,8 @@ namespace CsvTools
 
     public ObservableCollection<SampleRecordEntry> Errors
     {
-      [NotNull] get => m_Errors;
+      [NotNull]
+      get => m_Errors;
       [CanBeNull]
       set
       {
@@ -355,8 +357,10 @@ namespace CsvTools
     [XmlElement]
     public virtual FileFormat FileFormat
     {
-      [NotNull] get => m_FileFormat;
-      [CanBeNull] set => value?.CopyTo(m_FileFormat);
+      [NotNull]
+      get => m_FileFormat;
+      [CanBeNull]
+      set => value?.CopyTo(m_FileFormat);
     }
 
     /// <summary>
@@ -412,7 +416,8 @@ namespace CsvTools
     [DefaultValue("")]
     public virtual string FileName
     {
-      [NotNull] get => m_FileName;
+      [NotNull]
+      get => m_FileName;
       [CanBeNull]
       set
       {
@@ -454,7 +459,8 @@ namespace CsvTools
     [DefaultValue("")]
     public virtual string Footer
     {
-      [NotNull] get => m_Footer;
+      [NotNull]
+      get => m_Footer;
       [CanBeNull]
       set
       {
@@ -518,7 +524,8 @@ namespace CsvTools
     [DefaultValue("")]
     public virtual string Header
     {
-      [NotNull] get => m_Header;
+      [NotNull]
+      get => m_Header;
       [CanBeNull]
       set
       {
@@ -538,7 +545,8 @@ namespace CsvTools
     [DefaultValue("")]
     public virtual string ID
     {
-      [NotNull] get => m_Id;
+      [NotNull]
+      get => m_Id;
       [CanBeNull]
       set
       {
@@ -696,8 +704,10 @@ namespace CsvTools
     [DefaultValue("")]
     public virtual string Passphrase
     {
-      [NotNull] get => m_Passphrase;
-      [CanBeNull] set => m_Passphrase = (value ?? string.Empty).Trim();
+      [NotNull]
+      get => m_Passphrase;
+      [CanBeNull]
+      set => m_Passphrase = (value ?? string.Empty).Trim();
     }
 
     /// <summary>
@@ -707,7 +717,8 @@ namespace CsvTools
     [DefaultValue("")]
     public virtual string Recipient
     {
-      [NotNull] get => m_Recipient;
+      [NotNull]
+      get => m_Recipient;
       [CanBeNull]
       set
       {
@@ -740,7 +751,8 @@ namespace CsvTools
 
     public ObservableCollection<SampleRecordEntry> Samples
     {
-      [NotNull] get => m_Samples;
+      [NotNull]
+      get => m_Samples;
       [CanBeNull]
       set
       {
@@ -875,7 +887,8 @@ namespace CsvTools
     [DefaultValue("")]
     public virtual string TemplateName
     {
-      [NotNull] get => m_TemplateName;
+      [NotNull]
+      get => m_TemplateName;
       [CanBeNull]
       set
       {
@@ -913,7 +926,8 @@ namespace CsvTools
     [DefaultValue(cTreatTextAsNull)]
     public virtual string TreatTextAsNull
     {
-      [NotNull] get => m_TreatTextAsNull;
+      [NotNull]
+      get => m_TreatTextAsNull;
       [CanBeNull]
       set
       {
@@ -994,7 +1008,7 @@ namespace CsvTools
 
       return string.Equals(other.TemplateName, TemplateName, StringComparison.OrdinalIgnoreCase) &&
              other.SkipRows == SkipRows && m_LatestSourceTimeUtc == other.m_LatestSourceTimeUtc && RecentlyLoaded == other.RecentlyLoaded &&
-             NumRecords == other.NumRecords && WarningCount == other.WarningCount && ErrorCount == other.ErrorCount && 
+             NumRecords == other.NumRecords && WarningCount == other.WarningCount && ErrorCount == other.ErrorCount &&
              other.IsEnabled == IsEnabled &&
              other.TreatNBSPAsSpace == TreatNBSPAsSpace &&
              other.DisplayStartLineNo == DisplayStartLineNo &&
@@ -1024,7 +1038,7 @@ namespace CsvTools
              MappingCollection.Equals(other.MappingCollection) && Samples.CollectionEqual(other.Samples) &&
              Errors.CollectionEqual(other.Errors) &&
              ColumnCollection.Equals(other.ColumnCollection);
-     
+
     }
 
     /// <summary>
@@ -1053,7 +1067,7 @@ namespace CsvTools
         m_LatestSourceTimeUtc = fi.LastWriteTimeUtc;
       }
       else
-        // in case the source is not a physical file, assume it's the processing time
+      // in case the source is not a physical file, assume it's the processing time
       {
         m_LatestSourceTimeUtc = ProcessTimeUtc;
       }

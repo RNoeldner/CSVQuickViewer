@@ -42,7 +42,7 @@ namespace CsvTools
     public TimeToCompletion(long targetValue = -1, byte minimumData = 4, double storedSeconds = 60.0)
     {
       m_MinimumData = minimumData;
-      m_MaximumTicks = (long)(storedSeconds * Stopwatch.Frequency);
+      m_MaximumTicks = (long) (storedSeconds * Stopwatch.Frequency);
       m_Queue = new Queue<ProgressOverTime>(minimumData * 2);
 
       m_LastItem.Value = 0;
@@ -137,7 +137,7 @@ namespace CsvTools
         if (m_Queue.Count == 1)
           m_FirstItem = m_LastItem;
 
-        Percent = Math.Round((double)value / m_TargetValue * 100.0, 1, MidpointRounding.AwayFromZero);
+        Percent = Math.Round((double) value / m_TargetValue * 100.0, 1, MidpointRounding.AwayFromZero);
 
         // Make sure we have enough items to estimate
 
@@ -147,7 +147,7 @@ namespace CsvTools
         }
         else
         {
-          var finishedInTicks = (m_TargetValue - m_LastItem.Value) * (double)(m_LastItem.Tick - m_FirstItem.Tick) /
+          var finishedInTicks = (m_TargetValue - m_LastItem.Value) * (double) (m_LastItem.Tick - m_FirstItem.Tick) /
                                 (m_LastItem.Value - m_FirstItem.Value);
           // Calculate the estimated finished time but add 5%
           EstimatedTimeRemaining = finishedInTicks / Stopwatch.Frequency > .9
@@ -172,7 +172,7 @@ namespace CsvTools
         return $"{Math.Round(value.TotalSeconds, 0, MidpointRounding.AwayFromZero):0} sec";
       if (value.TotalHours < 1)
         return $"{value.Minutes:D2}:{value.Seconds:D2}";
-      return value.TotalHours<24 ? $"{(int)value.TotalHours}:{value.Minutes:D2}" : $"{value.Days:N0} days {value.Hours:N0} hrs";
+      return value.TotalHours<24 ? $"{(int) value.TotalHours}:{value.Minutes:D2}" : $"{value.Days:N0} days {value.Hours:N0} hrs";
     }
 
     private struct ProgressOverTime

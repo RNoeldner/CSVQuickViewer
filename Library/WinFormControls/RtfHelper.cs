@@ -50,17 +50,11 @@ namespace CsvTools
       m_CurrentColor = color;
     }
 
-    private string EscapeText(string input)
-    {
-      return string.IsNullOrEmpty(input) ? string.Empty : input.Replace(@"\", @"\'5c").Replace("{", @"\'7b").Replace("}", @"\'7d");
-    }
+    private string EscapeText(string input) => string.IsNullOrEmpty(input) ? string.Empty : input.Replace(@"\", @"\'5c").Replace("{", @"\'7b").Replace("}", @"\'7d");
 
     public void AddParagraph() => AddParagraph(null);
 
-    public void AddParagraph(string text)
-    {
-      m_StringBuilder.AppendLine($"{EscapeText(text)}\\par");
-    }
+    public void AddParagraph(string text) => m_StringBuilder.AppendLine($"{EscapeText(text)}\\par");
 
     public string Rtf => m_StringBuilder + "}";
   }

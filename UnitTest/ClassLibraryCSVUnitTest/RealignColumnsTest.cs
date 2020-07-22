@@ -1,7 +1,7 @@
-﻿using System;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
@@ -14,7 +14,7 @@ namespace CsvTools.Tests
       var setting = new CsvFile(UnitTestInitializeCsv.GetTestPath("RealignColumn.txt"))
       {
         HasFieldHeader = true,
-        FileFormat = {FieldDelimiter = "\t"},
+        FileFormat = { FieldDelimiter = "\t" },
         TryToSolveMoreColumns = true,
         AllowRowCombining = true,
         SkipEmptyLines = false

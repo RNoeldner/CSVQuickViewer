@@ -14,10 +14,10 @@
 
 namespace CsvTools
 {
+  using JetBrains.Annotations;
   using System;
   using System.ComponentModel;
   using System.Xml.Serialization;
-  using JetBrains.Annotations;
 
   /// <summary>
   ///   Setting class for a general file format
@@ -437,7 +437,7 @@ namespace CsvTools
         case ' ':
           return "Space";
 
-        case (char)0xA0:
+        case (char) 0xA0:
           return "Non-breaking space";
 
         case '\\':

@@ -1,6 +1,6 @@
-﻿using System.Drawing;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Drawing;
 using System.Windows.Forms;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {

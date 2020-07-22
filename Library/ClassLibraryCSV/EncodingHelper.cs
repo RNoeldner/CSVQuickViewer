@@ -12,9 +12,9 @@
  *
  */
 
+using JetBrains.Annotations;
 using System;
 using System.Text;
-using JetBrains.Annotations;
 using Ude;
 
 namespace CsvTools

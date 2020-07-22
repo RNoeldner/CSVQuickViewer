@@ -12,13 +12,13 @@
  *
  */
 
+using JetBrains.Annotations;
 using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Globalization;
 using System.Text;
 using System.Xml.Serialization;
-using JetBrains.Annotations;
 
 namespace CsvTools
 {
@@ -361,7 +361,7 @@ namespace CsvTools
                                    "  span.war { color:#2E64FE; }\r\n" +
                                    "</STYLE>";
 
-   
+
 
     private const string c_TableClose = "</table>";
     private const string c_TableOpen = "<table>\r\n";

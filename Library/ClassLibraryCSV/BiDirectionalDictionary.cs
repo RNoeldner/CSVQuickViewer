@@ -12,9 +12,9 @@
  *
  */
 
+using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 
 namespace CsvTools
 {
@@ -87,7 +87,7 @@ namespace CsvTools
     /// <param name="value">the key to search for</param>
     /// <param name="key">the corresponding value</param>
     /// <returns>true if value is in the dictionary, false otherwise</returns>
-    public bool TryGetByValue([NotNull] TValue value, out TKey key) => 
+    public bool TryGetByValue([NotNull] TValue value, out TKey key) =>
       m_SecondToFirst.TryGetValue(value, out key);
 
     /// <summary>

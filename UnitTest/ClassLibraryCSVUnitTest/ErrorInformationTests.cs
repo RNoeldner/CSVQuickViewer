@@ -12,11 +12,11 @@
  *
  */
 
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
@@ -32,11 +32,11 @@ namespace CsvTools.Tests
     {
       m_DataTable.Clear();
       m_DataTable.Columns.Clear();
-      m_DataTable.Columns.Add(new DataColumn {ColumnName = "ID", AutoIncrement = true});
-      m_DataTable.Columns.Add(new DataColumn {ColumnName = "Fld1"});
-      m_DataTable.Columns.Add(new DataColumn {ColumnName = "Fld2"});
-      m_DataTable.Columns.Add(new DataColumn {ColumnName = "Fld3"});
-      m_DataTable.Columns.Add(new DataColumn {ColumnName = "Fld4"});
+      m_DataTable.Columns.Add(new DataColumn { ColumnName = "ID", AutoIncrement = true });
+      m_DataTable.Columns.Add(new DataColumn { ColumnName = "Fld1" });
+      m_DataTable.Columns.Add(new DataColumn { ColumnName = "Fld2" });
+      m_DataTable.Columns.Add(new DataColumn { ColumnName = "Fld3" });
+      m_DataTable.Columns.Add(new DataColumn { ColumnName = "Fld4" });
     }
 
     [TestMethod]
