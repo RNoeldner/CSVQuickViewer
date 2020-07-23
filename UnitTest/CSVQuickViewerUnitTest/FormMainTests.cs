@@ -23,7 +23,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void FormMain_BasicCSV()
     {
-      UnitTestWinFormHelper.RunSTAThread(() =>
+      Extensions.RunSTAThread(() =>
       {
         using (var frm = new FormMain(Path.Combine(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt.gz"))))
         {
@@ -41,7 +41,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void FormMain_AllFormatsPipe()
     {
-      UnitTestWinFormHelper.RunSTAThread(() =>
+      Extensions.RunSTAThread(() =>
       {
         using (var frm = new FormMain(UnitTestInitializeCsv.GetTestPath("AllFormatsPipe.txt")))
         {

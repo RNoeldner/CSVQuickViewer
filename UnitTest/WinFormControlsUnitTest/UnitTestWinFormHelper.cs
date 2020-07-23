@@ -44,19 +44,6 @@ namespace CsvTools.Tests
       frm.Close();
     }
 
-    public static void RunSTAThread(Action action)
-    {
-      if (Thread.CurrentThread.GetApartmentState() == ApartmentState.STA)
-        action.Invoke();
-      else
-      {
-        var runThread = new Thread(action.Invoke);
-        runThread.SetApartmentState(ApartmentState.STA);
-        runThread.Start();
-        runThread.Join(20000);
-      }
-    }
-
     public static void ShowFormAndClose(Form frm, double time = .2, Action toDo = null)
     {
       frm.TopMost = true;
@@ -75,7 +62,6 @@ namespace CsvTools.Tests
 
       frm.Close();
     }
-
 
     public static void ShowControl(Control ctrl, double time = .2, Action toDo = null)
     {

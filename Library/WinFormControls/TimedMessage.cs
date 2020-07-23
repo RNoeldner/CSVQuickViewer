@@ -212,7 +212,7 @@ namespace CsvTools
             break;
         }
       }
-      if (owner == null)
+      if (owner == null || owner.InvokeRequired)
         return ShowDialog();
       else
         return ShowDialog(owner);

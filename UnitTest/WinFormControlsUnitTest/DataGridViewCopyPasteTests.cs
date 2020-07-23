@@ -25,7 +25,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void SelectedDataIntoClipboardAllTest()
     {
-      UnitTestWinFormHelper.RunSTAThread(() =>
+      Extensions.RunSTAThread(() =>
         {
           using (var dgv = new DataGridView())
           {
@@ -48,7 +48,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CopySelectedRowsIntoClipboard()
     {
-      UnitTestWinFormHelper.RunSTAThread(() =>
+      Extensions.RunSTAThread(() =>
       {
         using (var dgv = new DataGridView())
         {
@@ -80,7 +80,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CopySelectedColumnsIntoClipboard()
     {
-      UnitTestWinFormHelper.RunSTAThread(() =>
+      Extensions.RunSTAThread(() =>
       {
         using (var dgv = new DataGridView())
         {
@@ -116,7 +116,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void SelectedDataIntoClipboardTest()
     {
-      UnitTestWinFormHelper.RunSTAThread(() =>
+      Extensions.RunSTAThread(() =>
       {
         using (var dgv = new DataGridView())
         {
