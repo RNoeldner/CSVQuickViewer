@@ -85,6 +85,25 @@ namespace CsvTools
         return new List<string>();
 
       // Open the filesetting but change a few settings
+      var fileSettingCopy = GetSettingForRead(fileSetting);
+
+      // need a dummy process display to have pass in Cancellation token to reader
+      using (var prc2 = new CustomProcessDisplay(processDisplay.CancellationToken))
+      using (var fileReader = FunctionalDI.GetFileReader(fileSettingCopy, null, prc2))
+      {
+        await fileReader.OpenAsync(processDisplay.CancellationToken).ConfigureAwait(false);
+        return await FillGuessColumnFormatReaderAsyncReader(fileReader, fillGuessSettings,
+          fileSetting.ColumnCollection,
+          addTextColumns, checkDoubleToBeInteger, fileSetting.TreatTextAsNull, processDisplay);
+      }
+    }
+
+    public static IFileSetting GetSettingForRead([NotNull] this IFileSetting fileSetting)
+    {
+      if (fileSetting == null)
+        throw new ArgumentNullException(nameof(fileSetting));
+
+      // Open the filesetting but change a few settings
       var fileSettingCopy = fileSetting.Clone();
 
       // Make sure that if we do have a CSV file without header that we will skip the first row that
@@ -103,16 +122,7 @@ namespace CsvTools
         csv.WarnNBSP = false;
         csv.WarnQuotesInQuotes = false;
       }
-
-      // need a dummy process display to have pass in Cancellation token to reader
-      using (var prc2 = new CustomProcessDisplay(processDisplay.CancellationToken))
-      using (var fileReader = FunctionalDI.GetFileReader(fileSettingCopy, null, prc2))
-      {
-        await fileReader.OpenAsync(processDisplay.CancellationToken).ConfigureAwait(false);
-        return await FillGuessColumnFormatReaderAsyncReader(fileReader, fillGuessSettings,
-          fileSetting.ColumnCollection,
-          addTextColumns, checkDoubleToBeInteger, fileSetting.TreatTextAsNull, processDisplay);
-      }
+      return fileSettingCopy;
     }
 
     /// <summary>
@@ -131,7 +141,7 @@ namespace CsvTools
     /// <param name="processDisplay"></param>
     /// <returns>A text with the changes that have been made</returns>
     [ItemNotNull]
-    public static async Task<IList<string>> FillGuessColumnFormatReaderAsyncReader([NotNull] IFileReader fileReader,
+    public static async Task<IList<string>> FillGuessColumnFormatReaderAsyncReader([NotNull] this IFileReader fileReader,
       [NotNull] FillGuessSettings fillGuessSettings, [NotNull] ColumnCollection columnCollection,
       bool addTextColumns,
       bool checkDoubleToBeInteger,
@@ -148,6 +158,12 @@ namespace CsvTools
         throw new ArgumentNullException(nameof(processDisplay));
 
       var result = new List<string>();
+      if (!fillGuessSettings.Enabled || !fillGuessSettings.DetectNumbers && !fillGuessSettings.DetectBoolean &&
+          !fillGuessSettings.DetectDateTime && !fillGuessSettings.DetectGUID &&
+          !fillGuessSettings.DetectPercentage &&
+          !fillGuessSettings.SerialDateTime)
+        return result;
+
       if (fileReader.FieldCount == 0)
         return result;
       if (fileReader.EndOfFile)
@@ -761,7 +777,7 @@ namespace CsvTools
     ///   Gets the writer source columns.
     /// </summary>
     /// <param name="sqlStatement"></param>
-    /// <param name="timeout"></param>    
+    /// <param name="timeout"></param>
     /// <param name="valueFormatGeneral">The general format for the output</param>
     /// <param name="columnDefinitions">Definition for individual columns</param>
     /// <param name="token"></param>

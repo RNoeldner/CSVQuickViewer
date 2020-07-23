@@ -8,7 +8,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void FormEditSettings()
     {
-      UnitTestWinFormHelper.RunSTAThread(() =>
+      Extensions.RunSTAThread(() =>
       {
         using (var frm = new FormEditSettings(new ViewSettings()))
         {
@@ -20,7 +20,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void FormEditSettingsTest1()
     {
-      UnitTestWinFormHelper.RunSTAThread(() =>
+      Extensions.RunSTAThread(() =>
       {
         using (var frm = new FormEditSettings())
         {

@@ -28,7 +28,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void HTMLDisplay()
     {
-      UnitTestWinFormHelper.RunSTAThread(() =>
+      Extensions.RunSTAThread(() =>
       {
         using (var tm = new TimedMessage())
         {
@@ -64,7 +64,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void TextDisplay()
     {
-      UnitTestWinFormHelper.RunSTAThread(() =>
+      Extensions.RunSTAThread(() =>
       {
         using (var tm = new TimedMessage())
         {
@@ -184,7 +184,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void MultiselectTreeView()
     {
-      UnitTestWinFormHelper.RunSTAThread(() =>
+      Extensions.RunSTAThread(() =>
       {
         using (var treeView = new MultiselectTreeView())
         {
@@ -229,7 +229,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void TimedMessage()
     {
-      UnitTestWinFormHelper.RunSTAThread(() =>
+      Extensions.RunSTAThread(() =>
       {
         using (var tm = new TimedMessage())
         {
@@ -314,8 +314,6 @@ namespace CsvTools.Tests
           });
       }
     }
-
-
 
     [TestMethod]
     public void FormHierarchyDisplay()

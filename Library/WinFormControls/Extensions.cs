@@ -29,7 +29,7 @@ namespace CsvTools
   /// </summary>
   public static class Extensions
   {
-    public static void RunSTAThread(this Action action)
+    public static void RunSTAThread(this Action action, int timeoutMilliseconds = 20000)
     {
       if (Thread.CurrentThread.GetApartmentState() == ApartmentState.STA)
         action.Invoke();
@@ -38,7 +38,10 @@ namespace CsvTools
         var runThread = new Thread(action.Invoke);
         runThread.SetApartmentState(ApartmentState.STA);
         runThread.Start();
-        runThread.Join(20000);
+        if (timeoutMilliseconds>0)
+          runThread.Join(timeoutMilliseconds);
+        else
+          runThread.Join();
       }
     }
 
