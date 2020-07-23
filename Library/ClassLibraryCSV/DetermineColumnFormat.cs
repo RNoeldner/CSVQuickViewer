@@ -212,6 +212,9 @@ namespace CsvTools
         getSamples.Add(colIndex);
       }
 
+      if (getSamples.Count ==0)
+        return result;
+
       processDisplay.SetProcess($"Getting sample values for all {getSamples.Count} columns",
         fileReader.FieldCount * 2, true);
 
