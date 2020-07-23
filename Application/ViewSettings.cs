@@ -19,7 +19,7 @@ namespace CsvTools
   using System.Xml.Serialization;
 
   /// <summary>
-  /// Class containing the all configuration, used in serialization to store the settings
+  ///   Class containing the all configuration, used in serialization to store the settings
   /// </summary>
   [Serializable]
   public class ViewSettings : CsvFile
@@ -86,7 +86,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Gets or sets the fill guess settings.
+    ///   Gets or sets the fill guess settings.
     /// </summary>
     /// <value>The fill guess settings.</value>
     [XmlElement]
@@ -104,7 +104,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Gets a value indicating whether fill guess settings as specified
+    ///   Gets a value indicating whether fill guess settings as specified
     /// </summary>
     /// <value><c>true</c> if [fill guess settings specified]; otherwise, <c>false</c>.</value>
     [XmlIgnore]
@@ -224,14 +224,13 @@ namespace CsvTools
       }
     }
 
-    public static void CopyConfiguration(ICsvFile csvSrc, ICsvFile csvDest, string fileName)
+    public static void CopyConfiguration(ICsvFile csvSrc, ICsvFile csvDest)
     {
       if (csvSrc == null || csvDest == null || ReferenceEquals(csvSrc, csvDest))
         return;
 
       csvDest.AllowRowCombining = csvSrc.AllowRowCombining;
       csvDest.ByteOrderMark = csvSrc.ByteOrderMark;
-      csvDest.CodePageId = csvSrc.CodePageId;
       csvDest.ConsecutiveEmptyRows = csvSrc.ConsecutiveEmptyRows;
       csvDest.DisplayEndLineNo = csvSrc.DisplayEndLineNo;
       csvDest.DisplayRecordNo = csvSrc.DisplayRecordNo;
@@ -259,8 +258,6 @@ namespace CsvTools
       csvDest.WarnQuotesInQuotes = csvSrc.WarnQuotesInQuotes;
       csvDest.WarnUnknownCharacter = csvSrc.WarnUnknownCharacter;
       csvSrc.FileFormat.CopyTo(csvDest.FileFormat);
-      if (!string.IsNullOrEmpty(fileName))
-        csvDest.FileName = fileName;
     }
   }
 }

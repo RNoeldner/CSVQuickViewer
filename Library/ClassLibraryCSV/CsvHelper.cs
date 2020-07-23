@@ -20,6 +20,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -115,6 +116,12 @@ namespace CsvTools
       var headerRow = headerLine.Split(delimiter);
       // get the average field count looking at the header and 12 additional valid lines
       var fieldCount = headerRow.Length;
+
+      // if there is only one column the header be number of letter and might be followed by a
+      // single number
+      if (fieldCount < 2)
+        return (headerLine.Length>2 && Regex.IsMatch(headerLine, @"^[a-zA-Z]+\d?$"));
+
       var counter = 1;
       while (counter < 12 && !cancellationToken.IsCancellationRequested && !reader.EndOfFile)
       {

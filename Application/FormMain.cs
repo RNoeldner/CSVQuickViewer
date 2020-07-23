@@ -454,8 +454,8 @@ namespace CsvTools
           DetachPropertyChanged(m_FileSetting);
 
           m_FileSetting = new CsvFile();
-          ViewSettings.CopyConfiguration(m_ViewSettings, m_FileSetting, fileName);
-
+          ViewSettings.CopyConfiguration(m_ViewSettings, m_FileSetting);
+          m_FileSetting.FileName = fileName;
           m_FileSetting.ID = fileName.GetIdFromFileName();
           var fileInfo = new FileSystemUtils.FileInfo(fileName);
 
@@ -690,6 +690,9 @@ namespace CsvTools
       FunctionalDI.SignalBackground();
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
     private void SaveViewSettings()
     {
       try
@@ -702,12 +705,17 @@ namespace CsvTools
         FileSystemUtils.DeleteWithBackup(m_SettingPath, false);
         using (var stringWriter = new StringWriter(CultureInfo.InvariantCulture))
         {
+          // Remove and Restore FileName
+          var oldFN = m_ViewSettings.FileName;
           m_ViewSettings.FileName = string.Empty;
+
           m_SerializerViewSettings.Serialize(
             stringWriter,
             m_ViewSettings,
             SerializedFilesLib.EmptyXmlSerializerNamespaces.Value);
           File.WriteAllText(m_SettingPath, stringWriter.ToString());
+
+          m_ViewSettings.FileName = oldFN;
         }
       }
       catch (Exception ex)
@@ -751,13 +759,13 @@ namespace CsvTools
     {
       try
       {
-        ViewSettings.CopyConfiguration(m_FileSetting, m_ViewSettings, null);
+        ViewSettings.CopyConfiguration(m_FileSetting, m_ViewSettings);
         using (var frm = new FormEditSettings(m_ViewSettings))
         {
           frm.ShowDialog(MdiParent);
           SaveViewSettings();
           ApplicationSetting.MenuDown = m_ViewSettings.MenuDown;
-          ViewSettings.CopyConfiguration(m_ViewSettings, m_FileSetting, null);
+          ViewSettings.CopyConfiguration(m_ViewSettings, m_FileSetting);
 
           await CheckPossibleChange();
         }
