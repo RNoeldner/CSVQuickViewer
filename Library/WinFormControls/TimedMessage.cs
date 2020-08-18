@@ -255,20 +255,26 @@ namespace CsvTools
       this.m_Button1 = new System.Windows.Forms.Button();
       this.m_PictureBox = new System.Windows.Forms.PictureBox();
       this.m_TableLayoutPanel.SuspendLayout();
-      ((System.ComponentModel.ISupportInitialize) (this.m_PictureBox)).BeginInit();
+      ((System.ComponentModel.ISupportInitialize)(this.m_PictureBox)).BeginInit();
       this.SuspendLayout();
+      // 
       // m_Timer
+      // 
       this.m_Timer.Enabled = true;
       this.m_Timer.Interval = 500;
       this.m_Timer.Tick += new System.EventHandler(this.Timer_Tick);
+      // 
       // m_ImageList
-      this.m_ImageList.ImageStream = ((System.Windows.Forms.ImageListStreamer) (resources.GetObject("m_ImageList.ImageStream")));
+      // 
+      this.m_ImageList.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("m_ImageList.ImageStream")));
       this.m_ImageList.TransparentColor = System.Drawing.Color.Transparent;
       this.m_ImageList.Images.SetKeyName(0, "Info-icon.bmp");
       this.m_ImageList.Images.SetKeyName(1, "icon-warning.bmp");
       this.m_ImageList.Images.SetKeyName(2, "icon-question.bmp");
       this.m_ImageList.Images.SetKeyName(3, "error-icon.bmp");
+      // 
       // m_TableLayoutPanel
+      // 
       this.m_TableLayoutPanel.AutoSize = true;
       this.m_TableLayoutPanel.BackColor = System.Drawing.Color.Transparent;
       this.m_TableLayoutPanel.ColumnCount = 5;
@@ -285,7 +291,7 @@ namespace CsvTools
       this.m_TableLayoutPanel.Controls.Add(this.m_PictureBox, 0, 0);
       this.m_TableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
       this.m_TableLayoutPanel.Location = new System.Drawing.Point(0, 0);
-      this.m_TableLayoutPanel.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+      this.m_TableLayoutPanel.Margin = new System.Windows.Forms.Padding(2);
       this.m_TableLayoutPanel.Name = "m_TableLayoutPanel";
       this.m_TableLayoutPanel.Padding = new System.Windows.Forms.Padding(4, 0, 10, 3);
       this.m_TableLayoutPanel.RowCount = 2;
@@ -293,7 +299,9 @@ namespace CsvTools
       this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.m_TableLayoutPanel.Size = new System.Drawing.Size(446, 217);
       this.m_TableLayoutPanel.TabIndex = 5;
+      // 
       // m_LabelDefault
+      // 
       this.m_LabelDefault.BackColor = System.Drawing.Color.Transparent;
       this.m_TableLayoutPanel.SetColumnSpan(this.m_LabelDefault, 2);
       this.m_LabelDefault.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -305,11 +313,13 @@ namespace CsvTools
       this.m_LabelDefault.TabIndex = 2;
       this.m_LabelDefault.Text = "Default in 5 seconds";
       this.m_LabelDefault.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+      // 
       // m_Button3
-      this.m_Button3.Anchor = ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+      // 
+      this.m_Button3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
       this.m_Button3.BackColor = System.Drawing.SystemColors.ButtonFace;
       this.m_Button3.Location = new System.Drawing.Point(351, 190);
-      this.m_Button3.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+      this.m_Button3.Margin = new System.Windows.Forms.Padding(2);
       this.m_Button3.Name = "m_Button3";
       this.m_Button3.Size = new System.Drawing.Size(83, 22);
       this.m_Button3.TabIndex = 2;
@@ -317,12 +327,14 @@ namespace CsvTools
       this.m_Button3.UseVisualStyleBackColor = false;
       this.m_Button3.MouseEnter += new System.EventHandler(this.MouseEnterElement);
       this.m_Button3.MouseLeave += new System.EventHandler(this.MouseLeaveElement);
+      // 
       // m_Button2
-      this.m_Button2.Anchor = ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+      // 
+      this.m_Button2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
       this.m_Button2.BackColor = System.Drawing.SystemColors.ButtonFace;
       this.m_Button2.DialogResult = System.Windows.Forms.DialogResult.Cancel;
       this.m_Button2.Location = new System.Drawing.Point(264, 190);
-      this.m_Button2.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+      this.m_Button2.Margin = new System.Windows.Forms.Padding(2);
       this.m_Button2.Name = "m_Button2";
       this.m_Button2.Size = new System.Drawing.Size(83, 22);
       this.m_Button2.TabIndex = 1;
@@ -330,7 +342,11 @@ namespace CsvTools
       this.m_Button2.UseVisualStyleBackColor = false;
       this.m_Button2.MouseEnter += new System.EventHandler(this.MouseEnterElement);
       this.m_Button2.MouseLeave += new System.EventHandler(this.MouseLeaveElement);
+      // 
       // m_RichTextBox
+      // 
+      this.m_RichTextBox.AcceptsReturn = true;
+      this.m_RichTextBox.AcceptsTab = true;
       this.m_RichTextBox.BackColor = System.Drawing.SystemColors.Control;
       this.m_RichTextBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
       this.m_TableLayoutPanel.SetColumnSpan(this.m_RichTextBox, 4);
@@ -344,11 +360,13 @@ namespace CsvTools
       this.m_RichTextBox.TabIndex = 3;
       this.m_RichTextBox.MouseEnter += new System.EventHandler(this.MouseEnterElement);
       this.m_RichTextBox.MouseLeave += new System.EventHandler(this.MouseLeaveElement);
+      // 
       // m_Button1
-      this.m_Button1.Anchor = ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+      // 
+      this.m_Button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
       this.m_Button1.BackColor = System.Drawing.SystemColors.ButtonFace;
       this.m_Button1.Location = new System.Drawing.Point(177, 190);
-      this.m_Button1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+      this.m_Button1.Margin = new System.Windows.Forms.Padding(2);
       this.m_Button1.Name = "m_Button1";
       this.m_Button1.Size = new System.Drawing.Size(83, 22);
       this.m_Button1.TabIndex = 0;
@@ -356,17 +374,21 @@ namespace CsvTools
       this.m_Button1.UseVisualStyleBackColor = false;
       this.m_Button1.MouseEnter += new System.EventHandler(this.MouseEnterElement);
       this.m_Button1.MouseLeave += new System.EventHandler(this.MouseLeaveElement);
+      // 
       // m_PictureBox
+      // 
       this.m_PictureBox.ErrorImage = null;
       this.m_PictureBox.InitialImage = null;
       this.m_PictureBox.Location = new System.Drawing.Point(6, 2);
-      this.m_PictureBox.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+      this.m_PictureBox.Margin = new System.Windows.Forms.Padding(2);
       this.m_PictureBox.Name = "m_PictureBox";
       this.m_PictureBox.Size = new System.Drawing.Size(60, 60);
       this.m_PictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
       this.m_PictureBox.TabIndex = 4;
       this.m_PictureBox.TabStop = false;
+      // 
       // TimedMessage
+      // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.AutoSize = true;
@@ -374,7 +396,7 @@ namespace CsvTools
       this.ClientSize = new System.Drawing.Size(446, 217);
       this.Controls.Add(this.m_TableLayoutPanel);
       this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
-      this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+      this.Margin = new System.Windows.Forms.Padding(2);
       this.MaximizeBox = false;
       this.MinimizeBox = false;
       this.MinimumSize = new System.Drawing.Size(258, 66);
@@ -387,9 +409,10 @@ namespace CsvTools
       this.TopMost = true;
       this.m_TableLayoutPanel.ResumeLayout(false);
       this.m_TableLayoutPanel.PerformLayout();
-      ((System.ComponentModel.ISupportInitialize) (this.m_PictureBox)).EndInit();
+      ((System.ComponentModel.ISupportInitialize)(this.m_PictureBox)).EndInit();
       this.ResumeLayout(false);
       this.PerformLayout();
+
     }
 
     private void MouseEnterElement(object sender, EventArgs e)

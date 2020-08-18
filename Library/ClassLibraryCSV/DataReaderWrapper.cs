@@ -135,18 +135,19 @@ namespace CsvTools
 
     public override IEnumerator GetEnumerator() => throw new NotImplementedException();
 
-    public override object GetValue(int columnNumber) =>
-      columnNumber == m_ColStartLine
-        ? m_FileReader.StartLineNumber
-        : columnNumber == m_ColEndLine
-          ? m_FileReader.EndLineNumber
-          : columnNumber == m_ColRecNum
-            ? m_FileReader.RecordNumber
-            : columnNumber == m_ColErrorField
-              ? ColumnErrorDictionary.Count == 0
-                ? null
-                : ErrorInformation.ReadErrorInformation(ColumnErrorDictionary, m_ReaderColumns)
-              : m_FileReader.GetValue(m_Mapping.GetByValue(columnNumber));
+    public override object GetValue(int columnNumber)
+    {
+      if (columnNumber == m_ColStartLine)
+        return m_FileReader.StartLineNumber;
+      if (columnNumber == m_ColEndLine)
+        return m_FileReader.EndLineNumber;
+      if (columnNumber == m_ColRecNum)
+        return m_FileReader.RecordNumber;
+      if (columnNumber == m_ColErrorField)
+        return ColumnErrorDictionary.Count == 0 ? null : ErrorInformation.ReadErrorInformation(ColumnErrorDictionary, m_ReaderColumns);
+
+      return m_FileReader.GetValue(m_Mapping.GetByValue(columnNumber));
+    }
 
     public override bool IsDBNull(int columnNumber) =>
       columnNumber != m_ColStartLine && columnNumber != m_ColEndLine && columnNumber != m_ColRecNum &&
@@ -251,6 +252,7 @@ namespace CsvTools
     {
       if (!token.IsCancellationRequested && !IsClosed)
       {
+        ColumnErrorDictionary.Clear();
         var couldRead = await m_FileReader.ReadAsync(token).ConfigureAwait(false);
         if (couldRead) RecordNumber++;
         if (RecordNumber<=m_RecordLimit)

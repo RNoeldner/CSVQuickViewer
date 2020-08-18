@@ -77,7 +77,6 @@ namespace CsvTools
 
     public int Percent => m_Percentage/ 100;
 
-
     /// <summary>
     ///   Constructor for abstract base call for <see cref="IFileReader" />
     /// </summary>
@@ -172,7 +171,6 @@ namespace CsvTools
     /// </summary>
     public Func<Task> OnOpen { private get; set; }
 
-
     /// <summary>
     ///   Occurs when something went wrong during opening of the setting, this might be the file
     ///   does not exist or a query ran into a timeout
@@ -183,7 +181,6 @@ namespace CsvTools
     ///   Event to be raised if reading the files is completed
     /// </summary>
     public event EventHandler ReadFinished;
-
 
     public virtual event EventHandler<ICollection<IColumn>> OpenFinished;
 
@@ -582,10 +579,8 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Returns a <see cref="DataTable" /> that describes the column meta data of the
-    ///   <see
-    ///     cref="IDataReader" />
-    ///   .
+    ///   Returns a <see cref="DataTable" /> that describes the column meta data of the <see
+    ///   cref="IDataReader" /> .
     /// </summary>
     /// <returns>A <see cref="DataTable" /> that describes the column meta data.</returns>
     /// <exception cref="InvalidOperationException">The <see cref="IDataReader" /> is closed.</exception>
@@ -736,7 +731,6 @@ namespace CsvTools
     public void HandleWarning(int columnNumber, [NotNull] string message) =>
       Warning?.Invoke(this, GetWarningEventArgs(columnNumber, message.AddWarningId()));
 
-
     /// <summary>
     ///   Return whether the specified field is set to null.
     /// </summary>
@@ -768,8 +762,8 @@ namespace CsvTools
     public virtual bool NextResult() => false;
 
     /// <summary>
-    ///   Routine to open the reader, each implementation should call  BeforeOpenAsync, InitColumns,  ParseColumnName and last
-    ///   FinishOpen;
+    ///   Routine to open the reader, each implementation should call BeforeOpenAsync, InitColumns,
+    ///   ParseColumnName and last FinishOpen;
     /// </summary>
     /// <param name="token"></param>
     /// <returns></returns>
@@ -791,6 +785,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="token"></param>
 #pragma warning disable 1998
+
     public virtual async Task ResetPositionToFirstDataRowAsync(CancellationToken token)
 #pragma warning restore 1998
     {
@@ -811,7 +806,8 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Sets the Progress to marquee, calls OnOpen Event, check if the file does exist if its a physical file
+    ///   Sets the Progress to marquee, calls OnOpen Event, check if the file does exist if its a
+    ///   physical file
     /// </summary>
     protected async Task BeforeOpenAsync(string message)
     {
@@ -922,7 +918,6 @@ namespace CsvTools
     /// </summary>
     /// <returns>A value between 0 and MaxValue</returns>
     protected virtual int GetRelativePosition() => (int) (RecordNumber / RecordLimit * cMaxValue);
-
 
     /// <summary>
     ///   Gets the associated value.

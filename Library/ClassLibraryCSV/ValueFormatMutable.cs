@@ -55,7 +55,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Used in Serialization to determine if something needs to be stored
+    ///   Used in Serialization to determine if something needs to be stored
     /// </summary>
     public bool IsDefault =>
       m_DataType == DataType.String &&
@@ -150,7 +150,7 @@ namespace CsvTools
     public string DecimalSeparator
     {
       [NotNull]
-      get => m_DecimalSeparator;
+      get => (DecimalSeparatorChar=='\0') ? string.Empty : m_DecimalSeparator;
 
       set
       {
@@ -176,7 +176,6 @@ namespace CsvTools
 
     [UsedImplicitly]
     public bool DecimalSeparatorSpecified => DataType == DataType.Double || DataType == DataType.Numeric;
-
 
     /// <summary>
     ///   Gets or sets the representation for false.
@@ -211,7 +210,7 @@ namespace CsvTools
     public string GroupSeparator
     {
       [NotNull]
-      get => m_GroupSeparator;
+      get => (GroupSeparatorChar=='\0') ? string.Empty : m_GroupSeparator;
       set
       {
         var chr = FileFormat.GetChar(value);
@@ -225,6 +224,7 @@ namespace CsvTools
         {
           m_DecimalSeparator = m_GroupSeparator;
           DecimalSeparatorChar = m_DecimalSeparator.GetFirstChar();
+
           NotifyPropertyChanged(nameof(DecimalSeparator));
         }
 
