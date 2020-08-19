@@ -106,13 +106,13 @@ namespace CsvTools.Tests
             var columnCollection = new ColumnCollection();
             await reader.OpenAsync(processDisplay.CancellationToken);
 
-            var res1 = await DetermineColumnFormat.FillGuessColumnFormatReaderAsyncReader(reader, fillGuessSettings,
+            var res1 = await reader.FillGuessColumnFormatReaderAsyncReader(fillGuessSettings,
               columnCollection, false, true, "<NULL>", processDisplay);
 
             Assert.AreEqual(6, columnCollection.Count, "Recognized columns");
             Assert.AreEqual(6, res1.Count, "Information Lines");
 
-            var res2 = await DetermineColumnFormat.FillGuessColumnFormatReaderAsyncReader(reader, fillGuessSettings,
+            var res2 = await reader.FillGuessColumnFormatReaderAsyncReader(fillGuessSettings,
               columnCollection, true, true, "<NULL>", processDisplay);
             Assert.AreEqual(11, columnCollection.Count);
             // Added 4 text columns,
