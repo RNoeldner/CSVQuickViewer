@@ -31,7 +31,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void LoggerTextBoxTest()
     {
-      using (var loggerDisplay = new LoggerDisplay())
+      using (var unused = new LoggerDisplay())
       {
         Logger.Debug("Debug");
         Logger.Debug("Debug – NewInformation");

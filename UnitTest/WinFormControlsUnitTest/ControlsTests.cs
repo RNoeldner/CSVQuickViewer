@@ -114,7 +114,7 @@ namespace CsvTools.Tests
       try
       {
         UnitTestWinFormHelper.RunTaskTimeout(token => Task.Run(() =>
-          WindowsAPICodePackWrapper.Open(FileSystemUtils.ExecutableDirectoryName(), "Test", "*.cs", null), token), 1);
+          WindowsAPICodePackWrapper.Open(FileSystemUtils.ExecutableDirectoryName(), "Test", "*.cs", null), token));
       }
       catch (COMException)
       {
@@ -140,7 +140,7 @@ namespace CsvTools.Tests
         // Used to cancel after .2 seconds
         UnitTestWinFormHelper.RunTaskTimeout(
           token => Task.Run(
-            () => { WindowsAPICodePackWrapper.Folder(FileSystemUtils.ExecutableDirectoryName(), "Test"); }, token), 1);
+            () => { WindowsAPICodePackWrapper.Folder(FileSystemUtils.ExecutableDirectoryName(), "Test"); }, token));
       }
       catch (COMException)
       {
@@ -166,7 +166,7 @@ namespace CsvTools.Tests
           {
             WindowsAPICodePackWrapper.Save(FileSystemUtils.ExecutableDirectoryName(), "Test", "*.pdf", "*.pdf", false,
               "test.pdf");
-          }, token), 1);
+          }, token));
       }
       catch (COMException)
       {
@@ -190,10 +190,10 @@ namespace CsvTools.Tests
         {
           Assert.AreEqual(0, treeView.SelectedTreeNode.Count);
 
-          var treeNode = new TreeNode("Test") { Tag = "test" };
+          var treeNode = new TreeNode("Test") {Tag = "test"};
           treeView.Nodes.Add(treeNode);
 
-          var treeNode2 = new TreeNode("Test2") { Tag = "test2" };
+          var treeNode2 = new TreeNode("Test2") {Tag = "test2"};
           treeNode.Nodes.Add(treeNode2);
 
           var firedAfter = false;
@@ -335,8 +335,7 @@ namespace CsvTools.Tests
         {
           processDisplay.Show();
           var cvsSetting = new CsvFile(Path.Combine(FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles",
-            "FileWithHierarchy_WithCyle.txt"))
-          { FileFormat = { FieldDelimiter = "\t" } };
+            "FileWithHierarchy_WithCyle.txt")) {FileFormat = {FieldDelimiter = "\t"}};
           using (var csvDataReader = new CsvFileReader(cvsSetting, processDisplay))
           {
             var dt = await csvDataReader.GetDataTableAsync(0, false, true, false, false, false, null, null,

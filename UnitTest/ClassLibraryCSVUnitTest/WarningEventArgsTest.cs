@@ -49,7 +49,7 @@ namespace CsvTools.Tests
       var exception = false;
       try
       {
-        var test1 = new WarningEventArgs(100, 200, "", 201, 202, "ColName");
+        var unused = new WarningEventArgs(100, 200, "", 201, 202, "ColName");
       }
       catch (ArgumentException)
       {

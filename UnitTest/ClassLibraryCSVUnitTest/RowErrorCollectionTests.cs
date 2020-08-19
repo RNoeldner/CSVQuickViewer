@@ -37,7 +37,7 @@ namespace CsvTools.Tests
       coll.Add(this, new WarningEventArgs(5, 1, "Message1", 104, 104, "ColName"));
       Assert.AreEqual(5, coll.CountRows);
 
-      /// This should be cut off
+      // This should be cut off
       coll.Add(this, new WarningEventArgs(6, 1, "Message1", 105, 105, "ColName"));
       Assert.AreEqual(5, coll.CountRows);
     }
