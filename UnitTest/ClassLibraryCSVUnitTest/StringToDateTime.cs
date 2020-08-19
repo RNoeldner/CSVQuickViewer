@@ -330,14 +330,14 @@ namespace CsvTools.Tests
     /// <summary>
     ///   Gets the formatted date.
     /// </summary>
-    /// <param name="dateTimeValue">The date.</param>
+    /// <param name="dateValue">A Date Time</param>
     /// <param name="shortDateFormat">The short date format.</param>
     /// <returns>The supplied dateTimeValue formatted properly</returns>
     /// <remarks>
     ///   This is a very crude implementation that will ignore errors in
     ///   the shortDateFormat, this is how it should be this way mis formatted strings can be build
     /// </remarks>
-    private string GetFormattedDate(DateTime dateValue, string shortDateFormat)
+    private static string GetFormattedDate(DateTime dateValue, string shortDateFormat)
     {
       var strYear = string.Format(CultureInfo.InvariantCulture, "{0:0000}", dateValue.Year);
       var strMonth = string.Format(CultureInfo.InvariantCulture, "{0:00}", dateValue.Month);
@@ -364,7 +364,8 @@ namespace CsvTools.Tests
     /// <param name="expected">The date.</param>
     /// <param name="shortDate">The short date format.</param>
     /// <param name="dateSep">The date separator.</param>
-    private void TestDate(DateTime expected, string shortDate, string dateSep, string format = null)
+    /// <param name="format"></param>
+    private static void TestDate(DateTime expected, string shortDate, string dateSep, string format = null)
     {
       var dtString = GetFormattedDate(expected, shortDate);
       if (format == null)

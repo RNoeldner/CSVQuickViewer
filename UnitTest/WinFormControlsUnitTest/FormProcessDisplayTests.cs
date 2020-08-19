@@ -14,6 +14,7 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 
 namespace CsvTools.Tests
@@ -34,6 +35,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    [SuppressMessage("ReSharper", "PossibleLossOfFraction")]
     public void FormProcessDisplay()
     {
       // Log
@@ -172,7 +174,7 @@ namespace CsvTools.Tests
         frm.Show();
         long called = 10;
 
-        frm.Progress += delegate (object sender, ProgressEventArgs e) { called = e.Value; };
+        frm.Progress += delegate(object sender, ProgressEventArgs e) { called = e.Value; };
 
         frm.SetProcess("Help", 20, true);
 

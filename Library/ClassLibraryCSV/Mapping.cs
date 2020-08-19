@@ -16,6 +16,7 @@ using JetBrains.Annotations;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Xml.Serialization;
 
 namespace CsvTools
@@ -123,6 +124,7 @@ namespace CsvTools
     ///   Serves as the default hash function.
     /// </summary>
     /// <returns>A hash code for the current object.</returns>
+    [SuppressMessage("ReSharper", "NonReadonlyMemberInGetHashCode")]
     public override int GetHashCode()
     {
       unchecked
