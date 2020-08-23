@@ -140,7 +140,7 @@ namespace CsvTools.Tests
         value.LoadWindowState(state1, val => { result1 = val; }, val => { });
 
         var state2 = value.StoreWindowState(result1, "World");
-        Assert.AreEqual(state1.CustomText, state2.CustomText);
+        // Assert.AreEqual(state1.CustomText, state2.CustomText);
         Assert.AreEqual(state1.CustomInt, state2.CustomInt);
         Assert.AreEqual("World", state2.CustomText);
         Assert.AreEqual(state1.Left, state2.Left);
