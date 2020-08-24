@@ -353,10 +353,10 @@ namespace CsvTools
         {
           try
           {
-            using (var proc = new FormProcessDisplay("Searching", false, m_CancellationTokenSource.Token))
+            using (var processDisplay = new FormProcessDisplay("Searching", false, m_CancellationTokenSource.Token))
             {
-              proc.Show(this);
-              Search(m_TextBoxValue.Text, m_TreeView.Nodes, proc.CancellationToken);
+              processDisplay.Show(this);
+              Search(m_TextBoxValue.Text, m_TreeView.Nodes, processDisplay.CancellationToken);
             }
           }
           catch (Exception ex)
@@ -421,9 +421,7 @@ namespace CsvTools
       contextMenuStrip.SuspendLayout();
       m_TableLayoutPanel1.SuspendLayout();
       SuspendLayout();
-      // 
       // labelID
-      // 
       labelID.Anchor = AnchorStyles.Right;
       labelID.AutoSize = true;
       labelID.Location = new Point(52, 6);
@@ -431,9 +429,7 @@ namespace CsvTools
       labelID.Size = new Size(19, 15);
       labelID.TabIndex = 3;
       labelID.Text = "ID";
-      // 
       // labelDisplay
-      // 
       labelDisplay.Anchor = AnchorStyles.Right;
       labelDisplay.AutoSize = true;
       labelDisplay.Location = new Point(24, 33);
@@ -441,9 +437,7 @@ namespace CsvTools
       labelDisplay.Size = new Size(47, 15);
       labelDisplay.TabIndex = 5;
       labelDisplay.Text = "Display";
-      // 
       // labelParent
-      // 
       labelParent.Anchor = AnchorStyles.Right;
       labelParent.AutoSize = true;
       labelParent.Location = new Point(13, 60);
@@ -451,31 +445,23 @@ namespace CsvTools
       labelParent.Size = new Size(58, 15);
       labelParent.TabIndex = 7;
       labelParent.Text = "Parent ID";
-      // 
       // contextMenuStrip
-      // 
       contextMenuStrip.ImageScalingSize = new Size(20, 20);
       contextMenuStrip.Items.AddRange(
         new System.Windows.Forms.ToolStripItem[] { expandAllToolStripMenuItem, closeAllToolStripMenuItem });
       contextMenuStrip.Name = "contextMenuStrip";
       contextMenuStrip.Size = new Size(150, 52);
-      // 
       // expandAllToolStripMenuItem
-      // 
       expandAllToolStripMenuItem.Name = "expandAllToolStripMenuItem";
       expandAllToolStripMenuItem.Size = new Size(149, 24);
       expandAllToolStripMenuItem.Text = "Expand All";
       expandAllToolStripMenuItem.Click += new System.EventHandler(ExpandAllToolStripMenuItem_Click);
-      // 
       // closeAllToolStripMenuItem
-      // 
       closeAllToolStripMenuItem.Name = "closeAllToolStripMenuItem";
       closeAllToolStripMenuItem.Size = new Size(149, 24);
       closeAllToolStripMenuItem.Text = "Close All";
       closeAllToolStripMenuItem.Click += new System.EventHandler(CloseAllToolStripMenuItem_Click);
-      // 
       // labelFind
-      // 
       labelFind.Anchor = AnchorStyles.Right;
       labelFind.AutoSize = true;
       labelFind.Location = new Point(40, 86);
@@ -483,9 +469,7 @@ namespace CsvTools
       labelFind.Size = new Size(31, 15);
       labelFind.TabIndex = 5;
       labelFind.Text = "Find";
-      // 
       // m_TableLayoutPanel1
-      // 
       m_TableLayoutPanel1.ColumnCount = 3;
       m_TableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(SizeType.Absolute, 74F));
       m_TableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(SizeType.Percent, 50F));
@@ -511,9 +495,7 @@ namespace CsvTools
       m_TableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(SizeType.Percent, 100F));
       m_TableLayoutPanel1.Size = new Size(502, 368);
       m_TableLayoutPanel1.TabIndex = 10;
-      // 
       // m_ComboBoxID
-      // 
       m_TableLayoutPanel1.SetColumnSpan(m_ComboBoxID, 2);
       m_ComboBoxID.Dock = DockStyle.Top;
       m_ComboBoxID.DropDownStyle = ComboBoxStyle.DropDownList;
@@ -524,9 +506,7 @@ namespace CsvTools
       m_ComboBoxID.TabIndex = 0;
       m_ComboBoxID.SelectedIndexChanged += new System.EventHandler(TimeDisplayRestart);
       m_ComboBoxID.SelectionChangeCommitted += new System.EventHandler(ComboBox_SelectionChangeCommitted);
-      // 
       // m_ComboBoxParentID
-      // 
       m_TableLayoutPanel1.SetColumnSpan(m_ComboBoxParentID, 2);
       m_ComboBoxParentID.Dock = DockStyle.Top;
       m_ComboBoxParentID.DropDownStyle = ComboBoxStyle.DropDownList;
@@ -537,9 +517,7 @@ namespace CsvTools
       m_ComboBoxParentID.TabIndex = 1;
       m_ComboBoxParentID.SelectedIndexChanged += new System.EventHandler(TimeDisplayRestart);
       m_ComboBoxParentID.SelectionChangeCommitted += new System.EventHandler(ComboBox_SelectionChangeCommitted);
-      // 
       // m_TreeView
-      // 
       m_TableLayoutPanel1.SetColumnSpan(m_TreeView, 3);
       m_TreeView.ContextMenuStrip = contextMenuStrip;
       m_TreeView.Dock = DockStyle.Fill;
@@ -547,18 +525,14 @@ namespace CsvTools
       m_TreeView.Name = "m_TreeView";
       m_TreeView.Size = new Size(496, 255);
       m_TreeView.TabIndex = 9;
-      // 
       // m_TextBoxValue
-      // 
       m_TextBoxValue.Dock = DockStyle.Top;
       m_TextBoxValue.Location = new Point(77, 84);
       m_TextBoxValue.Name = "m_TextBoxValue";
       m_TextBoxValue.Size = new Size(208, 20);
       m_TextBoxValue.TabIndex = 2;
       m_TextBoxValue.TextChanged += new System.EventHandler(TimerSearchRestart);
-      // 
       // m_ComboBoxDisplay2
-      // 
       m_ComboBoxDisplay2.Dock = DockStyle.Top;
       m_ComboBoxDisplay2.FormattingEnabled = true;
       m_ComboBoxDisplay2.Location = new Point(291, 30);
@@ -566,9 +540,7 @@ namespace CsvTools
       m_ComboBoxDisplay2.Size = new Size(208, 21);
       m_ComboBoxDisplay2.TabIndex = 15;
       m_ComboBoxDisplay2.SelectedIndexChanged += new System.EventHandler(TimeDisplayRestart);
-      // 
       // m_ComboBoxDisplay1
-      // 
       m_ComboBoxDisplay1.Dock = DockStyle.Top;
       m_ComboBoxDisplay1.FormattingEnabled = true;
       m_ComboBoxDisplay1.Location = new Point(77, 30);
@@ -576,9 +548,7 @@ namespace CsvTools
       m_ComboBoxDisplay1.Size = new Size(208, 21);
       m_ComboBoxDisplay1.TabIndex = 16;
       m_ComboBoxDisplay1.SelectedIndexChanged += new System.EventHandler(TimeDisplayRestart);
-      // 
       // FormHierarchyDisplay
-      // 
       AutoScaleDimensions = new SizeF(6F, 13F);
       AutoScaleMode = AutoScaleMode.Font;
       ClientSize = new Size(502, 368);

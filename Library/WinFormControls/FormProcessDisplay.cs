@@ -394,13 +394,12 @@ namespace CsvTools
             Thread.Sleep(100);
           }
 
-          CancellationTokenSource.Dispose();
-
+          CancellationTokenSource?.Dispose();
           m_LoggerDisplay?.Dispose();
         }
         base.Dispose(disposing);
       }
-      catch (ObjectDisposedException)
+      catch (Exception)
       {
         //Ignore
       }
