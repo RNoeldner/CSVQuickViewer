@@ -39,7 +39,7 @@ namespace CsvTools
     /// <param name="targetValue">The target value / maximum that would match 100%</param>
     /// <param name="minimumData">The number of entries before a estimation is done.</param>
     /// <param name="storedSeconds">The number of seconds to remember for estimation.</param>
-    public TimeToCompletion(long targetValue = -1, byte minimumData = 4, double storedSeconds = 60.0)
+    public TimeToCompletion(long targetValue = -1, byte minimumData = 5, double storedSeconds = 60.0)
     {
       m_MinimumData = minimumData;
       m_MaximumTicks = (long) (storedSeconds * Stopwatch.Frequency);
@@ -141,7 +141,7 @@ namespace CsvTools
 
         // Make sure we have enough items to estimate
 
-        if (m_Queue.Count < m_MinimumData || m_FirstItem.Value == m_LastItem.Value)
+        if (m_Queue.Count < 2 || m_FirstItem.Value == m_LastItem.Value)
         {
           EstimatedTimeRemaining = TimeSpan.MaxValue;
         }

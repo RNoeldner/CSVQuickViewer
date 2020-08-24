@@ -68,7 +68,7 @@ namespace CsvTools.Tests
       {
         using (var tm = new TimedMessage())
         {
-          tm.Message = "Found values\n\nDMS_Test_RN_Mat\tDMS_Test_RN_Mat\tDMS_Test_RN_Mat\tDMS_Test_RN_Mat\n" +
+          tm.Message = "Found values\rLine2\nDMS_Test_RN_Mat\tDMS_Test_RN_Mat\tDMS_Test_RN_Mat\tDMS_Test_RN_Mat\n" +
                        "DMS_Test_RN_Mat\tDMS_Test_RN_Mat\tDMS_Test_RN_Mat\tDMS_Test_RN_Mat\n\nNote: Text has been cut off after 15 characters";
 
           tm.Size = new Size(600, 450);
@@ -190,10 +190,10 @@ namespace CsvTools.Tests
         {
           Assert.AreEqual(0, treeView.SelectedTreeNode.Count);
 
-          var treeNode = new TreeNode("Test") {Tag = "test"};
+          var treeNode = new TreeNode("Test") { Tag = "test" };
           treeView.Nodes.Add(treeNode);
 
-          var treeNode2 = new TreeNode("Test2") {Tag = "test2"};
+          var treeNode2 = new TreeNode("Test2") { Tag = "test2" };
           treeNode.Nodes.Add(treeNode2);
 
           var firedAfter = false;
@@ -335,7 +335,8 @@ namespace CsvTools.Tests
         {
           processDisplay.Show();
           var cvsSetting = new CsvFile(Path.Combine(FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles",
-            "FileWithHierarchy_WithCyle.txt")) {FileFormat = {FieldDelimiter = "\t"}};
+            "FileWithHierarchy_WithCyle.txt"))
+          { FileFormat = { FieldDelimiter = "\t" } };
           using (var csvDataReader = new CsvFileReader(cvsSetting, processDisplay))
           {
             var dt = await csvDataReader.GetDataTableAsync(0, false, true, false, false, false, null, null,

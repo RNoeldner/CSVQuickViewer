@@ -47,7 +47,7 @@ namespace CsvTools
     protected virtual void Handle(object sender, string text, long value, bool log)
     {
       if (log)
-        Logger.Information("{message}", text);
+        Logger.Information(text);
       Progress?.Invoke(sender, new ProgressEventArgs(text, value, log));
     }
   }

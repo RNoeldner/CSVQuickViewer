@@ -90,7 +90,14 @@ namespace CsvTools
         Logger.AddLog = m_PreviousLog;
       }
 
-      base.Dispose(disposing);
+      try
+      {
+        base.Dispose(disposing);
+      }
+      catch (Exception)
+      {
+        // ignore, sometimes a cross thread exception is thrown
+      }
     }
 
     private void AppendText(string text, Logger.Level level)
