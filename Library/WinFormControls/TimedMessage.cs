@@ -8,26 +8,26 @@ namespace CsvTools
 
   public class TimedMessage : ResizeForm
   {
+    private IContainer components;
     private Button m_Button1;
 
     private Button m_Button2;
 
     private Button m_Button3;
 
+    private int m_Counter;
+
     private ImageList m_ImageList;
 
     private Label m_LabelDefault;
 
-    private int m_Counter;
-
     private PictureBox m_PictureBox;
 
-    private TextBox m_TextBox;
-
     private TableLayoutPanel m_TableLayoutPanel;
-    private IContainer components;
-    private WebBrowser m_WebBrowser;
+
+    private TextBox m_TextBox;
     private Timer m_Timer;
+    private WebBrowser m_WebBrowser;
 
     public TimedMessage() => InitializeComponent();
 
@@ -37,7 +37,29 @@ namespace CsvTools
     {
       set
       {
-        m_TextBox.Text =  StringUtils.HandleCRLFCombinations(value, Environment.NewLine);
+        m_TextBox.Text = StringUtils.HandleCRLFCombinations(value, Environment.NewLine);
+      }
+    }
+
+    public string Html
+    {
+      set
+      {
+        m_TableLayoutPanel.Controls.Remove(m_TextBox);
+        // this need to happen herer
+        Extensions.RunSTAThread(() =>
+        {
+          m_WebBrowser = new WebBrowser();
+          m_WebBrowser.Navigate("about:blank");
+          m_WebBrowser.Document?.OpenNew(false)?.Write(value);
+          m_TableLayoutPanel.Controls.Add(m_WebBrowser, 1, 0);
+          m_TableLayoutPanel.SetColumnSpan(m_WebBrowser, 4);
+          m_WebBrowser.AllowNavigation = false;
+          m_WebBrowser.AllowWebBrowserDrop = false;
+          m_WebBrowser.IsWebBrowserContextMenuEnabled = false;
+          m_WebBrowser.ScriptErrorsSuppressed = true;
+          m_WebBrowser.Dock = DockStyle.Fill;
+        });
       }
     }
 
@@ -51,28 +73,6 @@ namespace CsvTools
       }
 
       base.Dispose(disposing);
-    }
-
-    public string Html
-    {
-      set
-      {
-        m_TableLayoutPanel.Controls.Remove(m_TextBox);
-        // this need to happen herer
-        Extensions.RunSTAThread(() =>
-        {
-          m_WebBrowser = new WebBrowser();
-          m_WebBrowser.Navigate("about:blank");
-          m_WebBrowser.Document.OpenNew(false).Write(value);
-          m_TableLayoutPanel.Controls.Add(m_WebBrowser, 1, 0);
-          m_TableLayoutPanel.SetColumnSpan(m_WebBrowser, 4);
-          m_WebBrowser.AllowNavigation = false;
-          m_WebBrowser.AllowWebBrowserDrop = false;
-          m_WebBrowser.IsWebBrowserContextMenuEnabled = false;
-          m_WebBrowser.ScriptErrorsSuppressed = true;
-          m_WebBrowser.Dock= DockStyle.Fill;
-        });
-      }
     }
 
     public DialogResult Show(
@@ -212,6 +212,7 @@ namespace CsvTools
             break;
         }
       }
+
       if (owner == null || owner.InvokeRequired)
         return ShowDialog();
       else
@@ -244,7 +245,8 @@ namespace CsvTools
     private void InitializeComponent()
     {
       this.components = new System.ComponentModel.Container();
-      System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(TimedMessage));
+      System.ComponentModel.ComponentResourceManager resources =
+        new System.ComponentModel.ComponentResourceManager(typeof(TimedMessage));
       this.m_Timer = new System.Windows.Forms.Timer(this.components);
       this.m_ImageList = new System.Windows.Forms.ImageList(this.components);
       this.m_TableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
@@ -257,23 +259,31 @@ namespace CsvTools
       this.m_TableLayoutPanel.SuspendLayout();
       ((System.ComponentModel.ISupportInitialize) (this.m_PictureBox)).BeginInit();
       this.SuspendLayout();
+      // 
       // m_Timer
+      // 
       this.m_Timer.Enabled = true;
       this.m_Timer.Interval = 500;
       this.m_Timer.Tick += new System.EventHandler(this.Timer_Tick);
+      // 
       // m_ImageList
-      this.m_ImageList.ImageStream = ((System.Windows.Forms.ImageListStreamer) (resources.GetObject("m_ImageList.ImageStream")));
+      // 
+      this.m_ImageList.ImageStream =
+        ((System.Windows.Forms.ImageListStreamer) (resources.GetObject("m_ImageList.ImageStream")));
       this.m_ImageList.TransparentColor = System.Drawing.Color.Transparent;
       this.m_ImageList.Images.SetKeyName(0, "Info-icon.bmp");
       this.m_ImageList.Images.SetKeyName(1, "icon-warning.bmp");
       this.m_ImageList.Images.SetKeyName(2, "icon-question.bmp");
       this.m_ImageList.Images.SetKeyName(3, "error-icon.bmp");
+      // 
       // m_TableLayoutPanel
+      // 
       this.m_TableLayoutPanel.AutoSize = true;
       this.m_TableLayoutPanel.BackColor = System.Drawing.Color.Transparent;
       this.m_TableLayoutPanel.ColumnCount = 5;
       this.m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-      this.m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+      this.m_TableLayoutPanel.ColumnStyles.Add(
+        new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
       this.m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
       this.m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
       this.m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
@@ -289,48 +299,61 @@ namespace CsvTools
       this.m_TableLayoutPanel.Name = "m_TableLayoutPanel";
       this.m_TableLayoutPanel.Padding = new System.Windows.Forms.Padding(4, 0, 10, 3);
       this.m_TableLayoutPanel.RowCount = 2;
-      this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+      this.m_TableLayoutPanel.RowStyles.Add(
+        new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
       this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.m_TableLayoutPanel.Size = new System.Drawing.Size(446, 217);
       this.m_TableLayoutPanel.TabIndex = 5;
+      // 
       // m_LabelDefault
+      // 
       this.m_LabelDefault.BackColor = System.Drawing.Color.Transparent;
       this.m_TableLayoutPanel.SetColumnSpan(this.m_LabelDefault, 2);
       this.m_LabelDefault.Dock = System.Windows.Forms.DockStyle.Fill;
       this.m_LabelDefault.ForeColor = System.Drawing.SystemColors.InfoText;
-      this.m_LabelDefault.Location = new System.Drawing.Point(6, 188);
+      this.m_LabelDefault.Location = new System.Drawing.Point(6, 184);
       this.m_LabelDefault.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
       this.m_LabelDefault.Name = "m_LabelDefault";
-      this.m_LabelDefault.Size = new System.Drawing.Size(167, 26);
+      this.m_LabelDefault.Size = new System.Drawing.Size(167, 30);
       this.m_LabelDefault.TabIndex = 2;
       this.m_LabelDefault.Text = "Default in 5 seconds";
       this.m_LabelDefault.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+      // 
       // m_Button3
-      this.m_Button3.Anchor = ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+      // 
+      this.m_Button3.Anchor =
+        ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Bottom |
+                                               System.Windows.Forms.AnchorStyles.Right)));
       this.m_Button3.BackColor = System.Drawing.SystemColors.ButtonFace;
-      this.m_Button3.Location = new System.Drawing.Point(351, 190);
+      this.m_Button3.Location = new System.Drawing.Point(351, 186);
       this.m_Button3.Margin = new System.Windows.Forms.Padding(2);
       this.m_Button3.Name = "m_Button3";
-      this.m_Button3.Size = new System.Drawing.Size(83, 22);
+      this.m_Button3.Size = new System.Drawing.Size(83, 26);
       this.m_Button3.TabIndex = 2;
       this.m_Button3.Text = "button3";
       this.m_Button3.UseVisualStyleBackColor = false;
       this.m_Button3.MouseEnter += new System.EventHandler(this.MouseEnterElement);
       this.m_Button3.MouseLeave += new System.EventHandler(this.MouseLeaveElement);
+      // 
       // m_Button2
-      this.m_Button2.Anchor = ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+      // 
+      this.m_Button2.Anchor =
+        ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Bottom |
+                                               System.Windows.Forms.AnchorStyles.Right)));
       this.m_Button2.BackColor = System.Drawing.SystemColors.ButtonFace;
       this.m_Button2.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-      this.m_Button2.Location = new System.Drawing.Point(264, 190);
+      this.m_Button2.Location = new System.Drawing.Point(264, 186);
       this.m_Button2.Margin = new System.Windows.Forms.Padding(2);
       this.m_Button2.Name = "m_Button2";
-      this.m_Button2.Size = new System.Drawing.Size(83, 22);
+      this.m_Button2.Size = new System.Drawing.Size(83, 26);
       this.m_Button2.TabIndex = 1;
       this.m_Button2.Text = "button2";
       this.m_Button2.UseVisualStyleBackColor = false;
       this.m_Button2.MouseEnter += new System.EventHandler(this.MouseEnterElement);
       this.m_Button2.MouseLeave += new System.EventHandler(this.MouseLeaveElement);
-      // m_RichTextBox
+      // 
+      // m_TextBox
+      // 
       this.m_TextBox.AcceptsReturn = true;
       this.m_TextBox.AcceptsTab = true;
       this.m_TextBox.BackColor = System.Drawing.SystemColors.Control;
@@ -340,25 +363,31 @@ namespace CsvTools
       this.m_TextBox.Location = new System.Drawing.Point(70, 3);
       this.m_TextBox.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
       this.m_TextBox.Multiline = true;
-      this.m_TextBox.Name = "m_RichTextBox";
+      this.m_TextBox.Name = "m_TextBox";
       this.m_TextBox.ReadOnly = true;
-      this.m_TextBox.Size = new System.Drawing.Size(364, 182);
+      this.m_TextBox.Size = new System.Drawing.Size(364, 178);
       this.m_TextBox.TabIndex = 3;
       this.m_TextBox.MouseEnter += new System.EventHandler(this.MouseEnterElement);
       this.m_TextBox.MouseLeave += new System.EventHandler(this.MouseLeaveElement);
+      // 
       // m_Button1
-      this.m_Button1.Anchor = ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+      // 
+      this.m_Button1.Anchor =
+        ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Bottom |
+                                               System.Windows.Forms.AnchorStyles.Right)));
       this.m_Button1.BackColor = System.Drawing.SystemColors.ButtonFace;
-      this.m_Button1.Location = new System.Drawing.Point(177, 190);
+      this.m_Button1.Location = new System.Drawing.Point(177, 186);
       this.m_Button1.Margin = new System.Windows.Forms.Padding(2);
       this.m_Button1.Name = "m_Button1";
-      this.m_Button1.Size = new System.Drawing.Size(83, 22);
+      this.m_Button1.Size = new System.Drawing.Size(83, 26);
       this.m_Button1.TabIndex = 0;
       this.m_Button1.Text = "button1";
       this.m_Button1.UseVisualStyleBackColor = false;
       this.m_Button1.MouseEnter += new System.EventHandler(this.MouseEnterElement);
       this.m_Button1.MouseLeave += new System.EventHandler(this.MouseLeaveElement);
+      // 
       // m_PictureBox
+      // 
       this.m_PictureBox.ErrorImage = null;
       this.m_PictureBox.InitialImage = null;
       this.m_PictureBox.Location = new System.Drawing.Point(6, 2);
@@ -368,7 +397,9 @@ namespace CsvTools
       this.m_PictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
       this.m_PictureBox.TabIndex = 4;
       this.m_PictureBox.TabStop = false;
+      // 
       // TimedMessage
+      // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.AutoSize = true;

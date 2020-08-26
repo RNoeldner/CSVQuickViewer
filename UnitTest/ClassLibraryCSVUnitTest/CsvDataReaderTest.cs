@@ -29,7 +29,7 @@ namespace CsvTools.Tests
     private readonly CsvFile m_ValidSetting = new CsvFile
     {
       FileName = UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"),
-      FileFormat = { FieldDelimiter = ",", CommentLine = "#" }
+      FileFormat = {FieldDelimiter = ",", CommentLine = "#"}
     };
 
     [TestInitialize]
@@ -49,9 +49,7 @@ namespace CsvTools.Tests
       var setting =
         new CsvFile(UnitTestInitializeCsv.GetTestPath("AllFormatsPipe.txt"))
         {
-          HasFieldHeader = true,
-          FileFormat = { FieldDelimiter = "|", FieldQualifier = "\"" },
-          SkipEmptyLines = false
+          HasFieldHeader = true, FileFormat = {FieldDelimiter = "|", FieldQualifier = "\""}, SkipEmptyLines = false
         };
 
       using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
@@ -95,7 +93,7 @@ namespace CsvTools.Tests
         TryToSolveMoreColumns = true,
         AllowRowCombining = true,
         FileName = UnitTestInitializeCsv.GetTestPath("BadIssues.csv"),
-        FileFormat = { FieldDelimiter = "TAB", FieldQualifier = string.Empty }
+        FileFormat = {FieldDelimiter = "TAB", FieldQualifier = string.Empty}
       };
       basIssues.ColumnCollection.AddIfNew(new Column("effectiveDate", "yyyy/MM/dd", "-"));
       basIssues.ColumnCollection.AddIfNew(new Column("timestamp", "yyyy/MM/ddTHH:mm:ss", "-"));
@@ -209,7 +207,7 @@ namespace CsvTools.Tests
       using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
-        var dataTable = new DataTable { TableName = "DataTable", Locale = CultureInfo.InvariantCulture };
+        var dataTable = new DataTable {TableName = "DataTable", Locale = CultureInfo.InvariantCulture};
 
         dataTable.Columns.Add(test.GetName(0), test.GetFieldType(0));
 
@@ -221,7 +219,7 @@ namespace CsvTools.Tests
 
         _ = dataTable.NewRow();
         await test.ReadAsync(processDisplay.CancellationToken);
-        _ = new Dictionary<int, string> { { -1, "Test1" }, { 0, "Test2" } };
+        _ = new Dictionary<int, string> {{-1, "Test1"}, {0, "Test2"}};
 
         //test.AssignNumbersAndWarnings(dataRow, null, recordNumberColumn, lineNumberColumn, null, warningsList);
         //Assert.AreEqual("Test1", dataRow.RowError);
@@ -261,7 +259,7 @@ namespace CsvTools.Tests
     {
       var column = new Column
       {
-        ValueFormatMutable = { DataType = DataType.Integer, GroupSeparator = ",", DecimalSeparator = "," }
+        ValueFormatMutable = {DataType = DataType.Integer, GroupSeparator = ",", DecimalSeparator = ","}
       };
 
       using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
@@ -328,7 +326,7 @@ namespace CsvTools.Tests
 
       Assert.IsNotNull(target.ColumnCollection.Get("Score"));
       var cf = target.ColumnCollection.Get("Score");
-      Assert.AreEqual(cf.Name, "Score");
+      Assert.AreEqual(cf?.Name, "Score");
 
       // Remove the one filed
       target.ColumnCollection.Remove(target.ColumnCollection.Get("Score"));
@@ -343,7 +341,7 @@ namespace CsvTools.Tests
       {
         FileName = UnitTestInitializeCsv.GetTestPath("TestFile.txt"),
         CodePageId = 65001,
-        FileFormat = { FieldDelimiter = "tab" }
+        FileFormat = {FieldDelimiter = "tab"}
       };
 
       csvFile.ColumnCollection.AddIfNew(new Column("Title", DataType.DateTime));
@@ -410,8 +408,7 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile
       {
-        FileName = UnitTestInitializeCsv.GetTestPath("BasicCSVEmptyLine.txt"),
-        HasFieldHeader = true
+        FileName = UnitTestInitializeCsv.GetTestPath("BasicCSVEmptyLine.txt"), HasFieldHeader = true
       };
 
       using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
@@ -869,9 +866,7 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile
       {
-        FileName = UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"),
-        HasFieldHeader = false,
-        SkipRows = 1
+        FileName = UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"), HasFieldHeader = false, SkipRows = 1
       };
       setting.FileFormat.FieldQualifier = "XX";
       setting.FileFormat.FieldDelimiter = ",,";
@@ -897,7 +892,7 @@ namespace CsvTools.Tests
         FileName = UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"),
         HasFieldHeader = false,
         SkipRows = 1,
-        FileFormat = { FieldDelimiter = "\r" }
+        FileFormat = {FieldDelimiter = "\r"}
       };
       var exception = false;
       try
@@ -932,7 +927,7 @@ namespace CsvTools.Tests
         FileName = UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"),
         HasFieldHeader = false,
         SkipRows = 1,
-        FileFormat = { FieldQualifier = "Carriage return" }
+        FileFormat = {FieldQualifier = "Carriage return"}
       };
       var exception = false;
       try
@@ -967,7 +962,7 @@ namespace CsvTools.Tests
         FileName = UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"),
         HasFieldHeader = false,
         SkipRows = 1,
-        FileFormat = { FieldQualifier = "Line feed" }
+        FileFormat = {FieldQualifier = "Line feed"}
       };
       var exception = false;
       try
@@ -999,9 +994,7 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile
       {
-        FileName = UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"),
-        HasFieldHeader = true,
-        CodePageId = 0
+        FileName = UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"), HasFieldHeader = true, CodePageId = 0
       };
       setting.FileFormat.FieldDelimiter = ",";
       using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
@@ -1021,7 +1014,7 @@ namespace CsvTools.Tests
         FileName = UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"),
         HasFieldHeader = false,
         SkipRows = 1,
-        FileFormat = { FieldDelimiter = "\n" }
+        FileFormat = {FieldDelimiter = "\n"}
       };
       var exception = false;
       try
@@ -1056,7 +1049,7 @@ namespace CsvTools.Tests
         FileName = UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"),
         HasFieldHeader = false,
         SkipRows = 1,
-        FileFormat = { FieldDelimiter = " " }
+        FileFormat = {FieldDelimiter = " "}
       };
       var exception = false;
       try
@@ -1091,7 +1084,7 @@ namespace CsvTools.Tests
         FileName = UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"),
         HasFieldHeader = false,
         SkipRows = 1,
-        FileFormat = { FieldQualifier = "\"" }
+        FileFormat = {FieldQualifier = "\""}
       };
       setting.FileFormat.FieldDelimiter = setting.FileFormat.FieldQualifier;
       var exception = false;
@@ -1320,7 +1313,7 @@ namespace CsvTools.Tests
       {
         await test.OpenAsync(processDisplay.CancellationToken);
         Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
-        char[] buffer = { '0', '0', '0', '0' };
+        char[] buffer = {'0', '0', '0', '0'};
         test.GetChars(1, 0, buffer, 0, 4);
         Assert.AreEqual('G', buffer[0], "G");
         Assert.AreEqual('e', buffer[1], "E");
@@ -1445,9 +1438,9 @@ namespace CsvTools.Tests
       {
         var test3 = new CsvFile(UnitTestInitializeCsv.GetTestPath("WithEoFChar.txt"))
         {
-          FileFormat = { FieldDelimiter = "TAB" }
+          FileFormat = {FieldDelimiter = "TAB"}
         };
-        test3.ColumnCollection.Add(new Column("Memo") { Ignore = true });
+        test3.ColumnCollection.Add(new Column("Memo") {Ignore = true});
         using (var test = new CsvFileReader(test3, processDisplay))
         {
           await test.OpenAsync(processDisplay.CancellationToken);
@@ -1470,7 +1463,7 @@ namespace CsvTools.Tests
         FileName = UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"),
         HasFieldHeader = false,
         SkipRows = 1,
-        FileFormat = { FieldDelimiter = "," }
+        FileFormat = {FieldDelimiter = ","}
       };
       using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       using (var test = new CsvFileReader(setting, processDisplay))
