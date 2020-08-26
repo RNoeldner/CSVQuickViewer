@@ -41,6 +41,7 @@ namespace CsvTools.Tests
       Assert.AreEqual("Line feed", test.ConvertTo(RecordDelimiterType.LF, typeof(string)));
       try
       {
+        // ReSharper disable once AssignNullToNotNullAttribute
         test.ConvertTo(null, typeof(string));
       }
       catch (ArgumentNullException)

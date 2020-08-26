@@ -24,6 +24,7 @@ namespace CsvTools.Tests
       var exception = false;
       try
       {
+        // ReSharper disable once AssignNullToNotNullAttribute
         test.AddIfNew(columnFormat: null);
       }
       catch (ArgumentException)

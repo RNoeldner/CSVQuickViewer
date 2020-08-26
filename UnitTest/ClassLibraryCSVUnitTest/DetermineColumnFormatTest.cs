@@ -586,6 +586,7 @@ namespace CsvTools.Tests
       {
         try
         {
+          // ReSharper disable once AssignNullToNotNullAttribute
           await DetermineColumnFormat.FillGuessColumnFormatReaderAsync(null, true, true, fillGuessSettings, dummy);
         }
         catch (ArgumentNullException)
@@ -598,6 +599,7 @@ namespace CsvTools.Tests
 
         try
         {
+          // ReSharper disable once AssignNullToNotNullAttribute
           await setting.FillGuessColumnFormatReaderAsync(true, true, null, dummy);
         }
         catch (ArgumentNullException)
@@ -610,6 +612,7 @@ namespace CsvTools.Tests
 
         try
         {
+          // ReSharper disable once AssignNullToNotNullAttribute
           await setting.FillGuessColumnFormatReaderAsync(true, true, fillGuessSettings, null);
         }
         catch (ArgumentNullException)

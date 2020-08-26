@@ -40,6 +40,7 @@ namespace CsvTools.Tests
 
       try
       {
+        // ReSharper disable once AssignNullToNotNullAttribute
         messageList.Add(null, new WarningEventArgs(1, 2, null, 0, 0, null));
         Assert.Fail("Exception not thrown");
       }
