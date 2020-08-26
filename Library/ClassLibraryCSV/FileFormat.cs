@@ -117,8 +117,8 @@ namespace CsvTools
     public virtual bool ColumnFormatSpecified => false;
 
     /// <summary>
-    ///   Gets or sets the text to indicate that the line is comment line and not contain  data.
-    ///   If a line starts with the given text, it is ignored in the data grid.
+    ///   Gets or sets the text to indicate that the line is comment line and not contain data. If a
+    ///   line starts with the given text, it is ignored in the data grid.
     /// </summary>
     /// <value>The startup comment line.</value>
     [XmlAttribute]
@@ -396,14 +396,10 @@ namespace CsvTools
     /// <summary>
     ///   Gets a value indicating whether the Xml field is specified.
     /// </summary>
-    /// <value>
-    ///   <c>true</c> if field mapping is specified; otherwise, <c>false</c>.
-    /// </value>
-    /// <remarks>
-    ///   Used for XML Serialization
-    /// </remarks>
+    /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
+    /// <remarks>Used for XML Serialization</remarks>
     [XmlIgnore]
-    public virtual bool ValueFormatSpecified => !m_ValueFormatMutable.Equals(new ValueFormatMutable());
+    public virtual bool ValueFormatMutableSpecified => !m_ValueFormatMutable.Equals(new ValueFormatMutable());
 
     /// <summary>
     ///   Gets a char from a text
@@ -527,11 +523,13 @@ namespace CsvTools
       ValueFormatMutable.CopyTo(other.ValueFormatMutable);
     }
 
-    /// <summary>Indicates whether the current object is equal to another object of the same type.</summary>
+    /// <summary>
+    ///   Indicates whether the current object is equal to another object of the same type.
+    /// </summary>
     /// <param name="other">An object to compare with this object.</param>
     /// <returns>
-    ///   <see langword="true" /> if the current object is equal to the <paramref name="other" /> parameter; otherwise,
-    ///   <see langword="false" />.
+    ///   <see langword="true" /> if the current object is equal to the <paramref name="other" />
+    ///   parameter; otherwise, <see langword="false" />.
     /// </returns>
     public bool Equals(FileFormat other)
     {
@@ -556,13 +554,18 @@ namespace CsvTools
              && Equals(ValueFormatMutable, other.ValueFormatMutable);
     }
 
-    /// <summary>Determines whether the specified object is equal to the current object.</summary>
-    /// <param name="obj">The object to compare with the current object. </param>
+    /// <summary>
+    ///   Determines whether the specified object is equal to the current object.
+    /// </summary>
+    /// <param name="obj">The object to compare with the current object.</param>
     /// <returns>
-    ///   <see langword="true" /> if the specified object  is equal to the current object; otherwise, <see langword="false" />.
+    ///   <see langword="true" /> if the specified object is equal to the current object; otherwise,
+    ///   <see langword="false" />.
     /// </returns>
 #pragma warning disable 659
+
     public override bool Equals(object obj) => Equals(obj as FileFormat);
+
 #pragma warning restore 659
 
     /// <summary>
@@ -584,7 +587,9 @@ namespace CsvTools
     }
 
     /*
-    /// <summary>Serves as the default hash function. </summary>
+    /// <summary>
+    ///   Serves as the default hash function.
+    /// </summary>
     /// <returns>A hash code for the current object.</returns>
     public override int GetHashCode()
     {

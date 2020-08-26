@@ -31,6 +31,7 @@ namespace CsvTools
     ///   The default time part format
     /// </summary>
     public const string cDefaultTimePartFormat = "HH:mm:ss";
+
     private const int c_PartDefault = 2;
     private const char c_PartSplitterDefault = ':';
     private const bool c_PartToEnd = true;
@@ -329,7 +330,6 @@ namespace CsvTools
     /// </summary>
     /// <value>The value format.</value>
 
-
     public ValueFormatMutable ValueFormatMutable { get; }
 
     /// <summary>
@@ -377,6 +377,7 @@ namespace CsvTools
     /// </summary>
     /// <value>The name of the column in the destination.</value>
     [XmlAttribute]
+    [DefaultValue("")]
     public virtual string DestinationName
     {
       get => m_DestinationName;
@@ -610,6 +611,7 @@ namespace CsvTools
     ///   <see langword="false" />.
     /// </returns>
 #pragma warning disable 659
+
     public override bool Equals(object obj) => Equals(obj as Column);
 
 #pragma warning restore 659

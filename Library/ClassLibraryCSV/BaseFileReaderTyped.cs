@@ -20,7 +20,8 @@ namespace CsvTools
 #pragma warning restore CA1051 // Do not declare visible instance fields
 
     /// <summary>
-    ///   Constructor for abstract base call for <see cref="IFileReader" /> that does read typed values like Excel, SQl
+    ///   Constructor for abstract base call for <see cref="IFileReader" /> that does read typed
+    ///   values like Excel, SQl
     /// </summary>
     /// <param name="fileName">Path to to a physical file (if used)</param>
     /// <param name="columnDefinition">List of column definitions</param>
@@ -93,6 +94,8 @@ namespace CsvTools
       Debug.Assert(CurrentValues != null && columnNumber < CurrentValues.Length);
       if (CurrentValues[columnNumber] is bool b)
         return b;
+      if (CurrentValues[columnNumber] is string s)
+        CurrentRowColumnText[columnNumber] = s;
       return base.GetBoolean(columnNumber);
     }
 
@@ -208,7 +211,8 @@ namespace CsvTools
           CurrentValues[columnNumber] is short || CurrentValues[columnNumber] is int ||
           CurrentValues[columnNumber] is long)
         return Convert.ToDecimal(CurrentValues[columnNumber], CultureInfo.CurrentCulture);
-
+      if (CurrentValues[columnNumber] is string s)
+        CurrentRowColumnText[columnNumber] = s;
       return base.GetDecimal(columnNumber);
     }
 
@@ -227,7 +231,8 @@ namespace CsvTools
           CurrentValues[columnNumber] is short || CurrentValues[columnNumber] is int ||
           CurrentValues[columnNumber] is long)
         return Convert.ToDouble(CurrentValues[columnNumber], CultureInfo.CurrentCulture);
-
+      if (CurrentValues[columnNumber] is string s)
+        CurrentRowColumnText[columnNumber] = s;
       return base.GetDouble(columnNumber);
     }
 
@@ -246,7 +251,8 @@ namespace CsvTools
           CurrentValues[columnNumber] is short || CurrentValues[columnNumber] is int ||
           CurrentValues[columnNumber] is long)
         return Convert.ToSingle(CurrentValues[columnNumber], CultureInfo.CurrentCulture);
-
+      if (CurrentValues[columnNumber] is string s)
+        CurrentRowColumnText[columnNumber] = s;
       return base.GetFloat(columnNumber);
     }
 
@@ -262,7 +268,8 @@ namespace CsvTools
 
       if (CurrentValues[columnNumber] is Guid val)
         return val;
-
+      if (CurrentValues[columnNumber] is string s)
+        CurrentRowColumnText[columnNumber] = s;
       return base.GetGuid(columnNumber);
     }
 
@@ -281,7 +288,8 @@ namespace CsvTools
           CurrentValues[columnNumber] is short || CurrentValues[columnNumber] is int ||
           CurrentValues[columnNumber] is long)
         return Convert.ToInt16(CurrentValues[columnNumber], CultureInfo.CurrentCulture);
-
+      if (CurrentValues[columnNumber] is string s)
+        CurrentRowColumnText[columnNumber] = s;
       return base.GetInt16(columnNumber);
     }
 
@@ -300,7 +308,8 @@ namespace CsvTools
           CurrentValues[columnNumber] is short || CurrentValues[columnNumber] is int ||
           CurrentValues[columnNumber] is long)
         return Convert.ToInt32(CurrentValues[columnNumber], CultureInfo.CurrentCulture);
-
+      if (CurrentValues[columnNumber] is string s)
+        CurrentRowColumnText[columnNumber] = s;
       return base.GetInt32(columnNumber);
     }
 
@@ -319,7 +328,8 @@ namespace CsvTools
           CurrentValues[columnNumber] is short || CurrentValues[columnNumber] is int ||
           CurrentValues[columnNumber] is long)
         return Convert.ToInt64(CurrentValues[columnNumber], CultureInfo.CurrentCulture);
-
+      if (CurrentValues[columnNumber] is string s)
+        CurrentRowColumnText[columnNumber] = s;
       return base.GetInt64(columnNumber);
     }
 
@@ -327,10 +337,8 @@ namespace CsvTools
     {
       Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount);
       Debug.Assert(CurrentValues != null && columnNumber < CurrentValues.Length);
-      if (CurrentValues[columnNumber] is string val)
-        return val;
 
-      return base.GetString(columnNumber);
+      return CurrentValues[columnNumber].ToString();
     }
 
     public override int GetValues(object[] values)

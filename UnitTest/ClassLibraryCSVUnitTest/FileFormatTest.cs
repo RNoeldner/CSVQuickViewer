@@ -39,7 +39,7 @@ namespace CsvTools.Tests
       //Assert.AreEqual("#", test.CommentLine, "CommentLine");
       Assert.AreEqual(string.Empty, test.DelimiterPlaceholder, "DelimiterPlaceholder");
       Assert.IsFalse(test.ColumnFormatSpecified, "ColumnFormatSpecified");
-      Assert.IsFalse(test.ValueFormatSpecified, "ValueFormatSpecified");
+      Assert.IsFalse(test.ValueFormatMutableSpecified, "ValueFormatSpecified");
       Assert.AreEqual(",", test.FieldDelimiter, "FieldDelimiter");
       Assert.AreEqual("\"", test.FieldQualifier, "FieldQualifier");
     }
