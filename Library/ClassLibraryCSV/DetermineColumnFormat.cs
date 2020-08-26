@@ -176,6 +176,25 @@ namespace CsvTools
       processDisplay.SetProcess("Getting column headers", 0, true);
       processDisplay.SetMaximum(fileReader.FieldCount * 3);
 
+      // Remove all columns formats for columns that do not exist
+      var rem = new List<Column>();
+      foreach (var col in columnCollection)
+      {
+        bool found = false;
+        for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
+        {
+          if (col.Name.Equals(fileReader.GetName(colIndex), StringComparison.OrdinalIgnoreCase))
+          {
+            found = true;
+            break;
+          }
+        }
+        if (!found)
+          rem.Add(col);
+      }
+      foreach (var col in rem)
+        columnCollection.Remove(col);
+
       // build a list of columns to check
       var getSamples = new List<int>();
       var columnNamesInFile = new List<string>();
@@ -753,7 +772,7 @@ namespace CsvTools
         fileReader.Warning -= WarningEvent;
       }
 
-      return samples.ToDictionary(keyValue => keyValue.Key, keyValue => new SampleResult(keyValue.Value, recordRead));
+      return samples.ToDictionary(keyValue => keyValue.Key, keyValue => new SampleResult(keyValue.Value, recordRead-1));
     }
 
     /// <summary>
