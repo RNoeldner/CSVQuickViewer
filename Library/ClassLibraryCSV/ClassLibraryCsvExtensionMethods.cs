@@ -39,11 +39,29 @@ namespace CsvTools
     /// <param name="process">The process display.</param>
     /// <returns></returns>
     public static EventHandler<string> GetLogInfoMessage(this IProcessDisplay process) =>
-      delegate (object sender, string message)
+      delegate(object sender, string message)
       {
         Logger.Information("SQL Information: {message}", message);
         process?.SetProcess(message, -1, true);
       };
+
+
+    public static async Task<long> WriteAsync([NotNull] this IFileWriter writer, [NotNull] string sqlStatement,
+      int timeout, Action<string> reportProgress, CancellationToken cancellationToken)
+    {
+      if (string.IsNullOrEmpty(sqlStatement))
+        return 0;
+
+      if (FunctionalDI.SQLDataReader == null)
+        throw new ArgumentException("No Async SQL Reader set");
+      using (var sqlReader = await FunctionalDI
+        .SQLDataReader(sqlStatement, (sender, s) => reportProgress?.Invoke(s.Text), timeout, cancellationToken)
+        .ConfigureAwait(false))
+      {
+        await sqlReader.OpenAsync(cancellationToken).ConfigureAwait(false);
+        return await writer.WriteAsync(sqlReader, cancellationToken).ConfigureAwait(false);
+      }
+    }
 
     public static string Description(this RecordDelimiterType item)
     {
@@ -477,7 +495,6 @@ namespace CsvTools
     }
 
 
-
     [NotNull]
     public static string PlaceHolderTimes([NotNull] this string text, [NotNull] string format, DateTime processTimeUtc,
       DateTime lastExecution, DateTime lastExecutionStart)
@@ -793,12 +810,14 @@ namespace CsvTools
       if (processDisplay is IProcessDisplayTime processDisplayTime)
         processDisplayTime.Maximum = maximum;
     }
+
     public static int ToInt(this ulong value)
     {
       if (value > int.MaxValue)
         return int.MaxValue;
       return Convert.ToInt32(value);
     }
+
     public static int ToInt(this long value)
     {
       if (value > int.MaxValue)

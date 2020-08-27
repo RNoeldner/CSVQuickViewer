@@ -81,7 +81,7 @@ namespace CsvTools
     public override async Task OpenAsync(CancellationToken token)
     {
       await BeforeOpenAsync(
-          $"Opening Json file {FileSystemUtils.GetShortDisplayFileName(FileName, 80)}")
+          $"Opening Json file {FileSystemUtils.GetShortDisplayFileName(FileName)}")
         .ConfigureAwait(false);
       Retry:
       try
@@ -335,7 +335,7 @@ namespace CsvTools
       if (m_ImprovedStream == null)
         m_ImprovedStream = FunctionalDI.OpenRead(FullPath);
 
-      m_ImprovedStream.ResetToStart(delegate (Stream str)
+      m_ImprovedStream.ResetToStart(delegate(Stream str)
       {
         // in case we can not seek need to reopen the stream reader
         if (!str.CanSeek || m_TextReader == null)
@@ -362,13 +362,10 @@ namespace CsvTools
       m_BufferPos = 0;
 
       EndOfFile = m_TextReader.EndOfStream;
-      m_JsonTextReader = new JsonTextReader(m_TextReader)
-      {
-        CloseInput = false
-      };
+      m_JsonTextReader = new JsonTextReader(m_TextReader) {CloseInput = false};
     }
 
-    #region TextReader
+#region TextReader
 
     // Buffer size set to 64kB, if set to large the display in percentage will jump
     private const int c_BufferSize = 65536;
@@ -493,6 +490,6 @@ namespace CsvTools
       m_JsonTextReader = new JsonTextReader(new StringReader(sb.ToString()));
     }
 
-    #endregion TextReader
+#endregion TextReader
   }
 }

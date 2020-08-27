@@ -66,7 +66,8 @@ namespace CsvTools.Tests
         writeFile.Row = sb.ToString();
         var writer = new StructuredFileWriter(writeFile, processDisplay);
         var result =
-          await writer.WriteAsync(writeFile.SqlStatement, writeFile.Timeout, processDisplay.CancellationToken);
+          await writer.WriteAsync(writeFile.SqlStatement, writeFile.Timeout, t => processDisplay.SetProcess(t, 0, true),
+            processDisplay.CancellationToken);
         Assert.AreEqual(7L, result);
       }
     }
@@ -101,7 +102,7 @@ namespace CsvTools.Tests
         writeFile.Footer = "</rowset>";
 
         var writer = new StructuredFileWriter(writeFile, processDisplay);
-        await writer.WriteAsync(writeFile.SqlStatement, writeFile.Timeout, processDisplay.CancellationToken);
+        await writer.WriteAsync(writeFile.SqlStatement, writeFile.Timeout, null, processDisplay.CancellationToken);
       }
     }
   }

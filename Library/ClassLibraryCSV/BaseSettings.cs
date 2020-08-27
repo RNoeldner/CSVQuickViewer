@@ -112,7 +112,8 @@ namespace CsvTools
     /// </summary>
     /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
     /// <remarks>Used for XML Serialization</remarks>
-    [UsedImplicitly] public bool MappingSpecified => MappingCollection.Count > 0;
+    [UsedImplicitly]
+    public bool MappingSpecified => MappingCollection.Count > 0;
 
     [UsedImplicitly] public bool ErrorsSpecified => Errors.Count > 0;
 
@@ -168,8 +169,7 @@ namespace CsvTools
     [DefaultValue("")]
     public virtual string RemoteFileName
     {
-      [NotNull]
-      get => m_RemoteFileName;
+      [NotNull] get => m_RemoteFileName;
       [CanBeNull]
       set
       {
@@ -201,8 +201,7 @@ namespace CsvTools
       }
     }
 
-    [UsedImplicitly]
-    public bool SamplesSpecified => Samples.Count > 0;
+    [UsedImplicitly] public bool SamplesSpecified => Samples.Count > 0;
 
     /// <summary>
     ///   Utility calls to get or set the SQL Statement as CDataSection
@@ -335,8 +334,7 @@ namespace CsvTools
 
     public ObservableCollection<SampleRecordEntry> Errors
     {
-      [NotNull]
-      get => m_Errors;
+      [NotNull] get => m_Errors;
       [CanBeNull]
       set
       {
@@ -357,10 +355,8 @@ namespace CsvTools
     [XmlElement]
     public virtual FileFormat FileFormat
     {
-      [NotNull]
-      get => m_FileFormat;
-      [CanBeNull]
-      set => value?.CopyTo(m_FileFormat);
+      [NotNull] get => m_FileFormat;
+      [CanBeNull] set => value?.CopyTo(m_FileFormat);
     }
 
     /// <summary>
@@ -416,8 +412,7 @@ namespace CsvTools
     [DefaultValue("")]
     public virtual string FileName
     {
-      [NotNull]
-      get => m_FileName;
+      [NotNull] get => m_FileName;
       [CanBeNull]
       set
       {
@@ -459,8 +454,7 @@ namespace CsvTools
     [DefaultValue("")]
     public virtual string Footer
     {
-      [NotNull]
-      get => m_Footer;
+      [NotNull] get => m_Footer;
       [CanBeNull]
       set
       {
@@ -524,8 +518,7 @@ namespace CsvTools
     [DefaultValue("")]
     public virtual string Header
     {
-      [NotNull]
-      get => m_Header;
+      [NotNull] get => m_Header;
       [CanBeNull]
       set
       {
@@ -545,8 +538,7 @@ namespace CsvTools
     [DefaultValue("")]
     public virtual string ID
     {
-      [NotNull]
-      get => m_Id;
+      [NotNull] get => m_Id;
       [CanBeNull]
       set
       {
@@ -704,10 +696,8 @@ namespace CsvTools
     [DefaultValue("")]
     public virtual string Passphrase
     {
-      [NotNull]
-      get => m_Passphrase;
-      [CanBeNull]
-      set => m_Passphrase = (value ?? string.Empty).Trim();
+      [NotNull] get => m_Passphrase;
+      [CanBeNull] set => m_Passphrase = (value ?? string.Empty).Trim();
     }
 
     /// <summary>
@@ -717,8 +707,7 @@ namespace CsvTools
     [DefaultValue("")]
     public virtual string Recipient
     {
-      [NotNull]
-      get => m_Recipient;
+      [NotNull] get => m_Recipient;
       [CanBeNull]
       set
       {
@@ -751,8 +740,7 @@ namespace CsvTools
 
     public ObservableCollection<SampleRecordEntry> Samples
     {
-      [NotNull]
-      get => m_Samples;
+      [NotNull] get => m_Samples;
       [CanBeNull]
       set
       {
@@ -887,8 +875,7 @@ namespace CsvTools
     [DefaultValue("")]
     public virtual string TemplateName
     {
-      [NotNull]
-      get => m_TemplateName;
+      [NotNull] get => m_TemplateName;
       [CanBeNull]
       set
       {
@@ -926,8 +913,7 @@ namespace CsvTools
     [DefaultValue(cTreatTextAsNull)]
     public virtual string TreatTextAsNull
     {
-      [NotNull]
-      get => m_TreatTextAsNull;
+      [NotNull] get => m_TreatTextAsNull;
       [CanBeNull]
       set
       {
@@ -1007,7 +993,8 @@ namespace CsvTools
       }
 
       return string.Equals(other.TemplateName, TemplateName, StringComparison.OrdinalIgnoreCase) &&
-             other.SkipRows == SkipRows && m_LatestSourceTimeUtc == other.m_LatestSourceTimeUtc && RecentlyLoaded == other.RecentlyLoaded &&
+             other.SkipRows == SkipRows && m_LatestSourceTimeUtc == other.m_LatestSourceTimeUtc &&
+             RecentlyLoaded == other.RecentlyLoaded &&
              NumRecords == other.NumRecords && WarningCount == other.WarningCount && ErrorCount == other.ErrorCount &&
              other.IsEnabled == IsEnabled &&
              other.TreatNBSPAsSpace == TreatNBSPAsSpace &&
@@ -1038,7 +1025,6 @@ namespace CsvTools
              MappingCollection.Equals(other.MappingCollection) && Samples.CollectionEqual(other.Samples) &&
              Errors.CollectionEqual(other.Errors) &&
              ColumnCollection.Equals(other.ColumnCollection);
-
     }
 
     /// <summary>
@@ -1067,7 +1053,7 @@ namespace CsvTools
         m_LatestSourceTimeUtc = fi.LastWriteTimeUtc;
       }
       else
-      // in case the source is not a physical file, assume it's the processing time
+        // in case the source is not a physical file, assume it's the processing time
       {
         m_LatestSourceTimeUtc = ProcessTimeUtc;
       }
@@ -1184,7 +1170,7 @@ namespace CsvTools
 
       if (!(this is IFileSettingPhysicalFile settingPhysicalFile)) return stringBuilder.ToString();
       stringBuilder.Append(" - ");
-      stringBuilder.Append(FileSystemUtils.GetShortDisplayFileName(settingPhysicalFile.FileName, 80));
+      stringBuilder.Append(FileSystemUtils.GetShortDisplayFileName(settingPhysicalFile.FileName));
       return stringBuilder.ToString();
     }
   }

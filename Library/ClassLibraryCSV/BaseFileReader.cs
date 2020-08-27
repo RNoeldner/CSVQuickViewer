@@ -70,12 +70,10 @@ namespace CsvTools
     /// </summary>
     private bool m_IsFinished;
 
-    protected EventHandler<ProgressEventArgs> ReportProgress;
-    protected EventHandler<long> SetMaxProcess;
-
     private int m_Percentage;
 
-    public int Percent => m_Percentage/ 100;
+    protected EventHandler<ProgressEventArgs> ReportProgress;
+    protected EventHandler<long> SetMaxProcess;
 
     /// <summary>
     ///   Constructor for abstract base call for <see cref="IFileReader" />
@@ -94,6 +92,8 @@ namespace CsvTools
       FullPath = fileName;
       FileName = FileSystemUtils.GetFileName(fileName);
     }
+
+    public int Percent => m_Percentage / 100;
 
     protected string FullPath { get; }
     protected string FileName { get; }
@@ -785,7 +785,6 @@ namespace CsvTools
     /// </summary>
     /// <param name="token"></param>
 #pragma warning disable 1998
-
     public virtual async Task ResetPositionToFirstDataRowAsync(CancellationToken token)
 #pragma warning restore 1998
     {
@@ -822,7 +821,7 @@ namespace CsvTools
         // as of now a physical file must exist
         if (!FileSystemUtils.FileExists(FullPath))
           throw new FileNotFoundException(
-            $"The file '{FileSystemUtils.GetShortDisplayFileName(FileName, 80)}' does not exist or is not accessible.",
+            $"The file '{FileSystemUtils.GetShortDisplayFileName(FileName)}' does not exist or is not accessible.",
             FullPath);
     }
 
@@ -1010,7 +1009,7 @@ namespace CsvTools
     protected virtual void HandleShowProgress(string text, long recordNumber, int progress)
     {
       var rec = recordNumber > 1 ? $"\nRecord {recordNumber:N0}" : string.Empty;
-      m_Percentage = (progress>0) ? cMaxValue / progress : 0;
+      m_Percentage = (progress > 0) ? cMaxValue / progress : 0;
       ReportProgress?.Invoke(this, new ProgressEventArgs($"{text}{rec}", progress, false));
     }
 

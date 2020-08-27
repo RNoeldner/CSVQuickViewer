@@ -71,7 +71,7 @@ namespace CsvTools.Tests
         });
       var writer = new CsvFileWriter(writeFile, pd);
 
-      var res = await writer.WriteAsync(writeFile.SqlStatement, 360, pd.CancellationToken);
+      var res = await writer.WriteAsync(writeFile.SqlStatement, 360, null, pd.CancellationToken);
       Assert.IsTrue(FileSystemUtils.FileExists(writeFile.FullPath));
       Assert.AreEqual(1065, res, "Records");
     }
@@ -87,9 +87,8 @@ namespace CsvTools.Tests
       writeFile.FileFormat.FieldDelimiter = "|";
 
       var writer = new CsvFileWriter(writeFile, pd);
-      Assert.IsTrue(string.IsNullOrEmpty(writer.ErrorMessage));
 
-      var res = await writer.WriteAsync(writeFile.SqlStatement, 360, pd.CancellationToken);
+      var res = await writer.WriteAsync(writeFile.SqlStatement, 360, null, pd.CancellationToken);
       Assert.IsTrue(FileSystemUtils.FileExists(writeFile.FullPath));
       Assert.AreEqual(7, res);
     }
@@ -117,7 +116,7 @@ namespace CsvTools.Tests
       writeFile.ColumnCollection.AddIfNew(cf);
       var writer = new CsvFileWriter(writeFile, pd);
 
-      var res = await writer.WriteAsync(writeFile.SqlStatement, 360, pd.CancellationToken);
+      var res = await writer.WriteAsync(writeFile.SqlStatement, 360, null, pd.CancellationToken);
       Assert.IsTrue(FileSystemUtils.FileExists(writeFile.FullPath));
       Assert.AreEqual(1065, res, "Records");
     }
@@ -219,8 +218,6 @@ namespace CsvTools.Tests
             {
               await writer.WriteAsync(reader, processDisplay.CancellationToken);
             }
-
-            Assert.IsTrue(!string.IsNullOrEmpty(writer.ErrorMessage));
           }
 
           await file.WriteLineAsync("World");
@@ -241,9 +238,8 @@ namespace CsvTools.Tests
       writeFile.FileFormat.FieldDelimiter = "|";
 
       var writer = new CsvFileWriter(writeFile, pd);
-      Assert.IsTrue(string.IsNullOrEmpty(writer.ErrorMessage));
 
-      var res = await writer.WriteAsync(m_WriteFile.SqlStatement, 360, pd.CancellationToken);
+      var res = await writer.WriteAsync(m_WriteFile.SqlStatement, 360, null, pd.CancellationToken);
       Assert.IsTrue(FileSystemUtils.FileExists(writeFile.FullPath));
       Assert.AreEqual(7, res);
     }
