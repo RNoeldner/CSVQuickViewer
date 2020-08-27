@@ -28,31 +28,55 @@ namespace CsvTools
   /// </summary>
   public abstract class BaseFileWriter
   {
-    [NotNull] protected readonly ICollection<IColumn> ColumnDefinition;
+    [NotNull] protected readonly IReadOnlyCollection<IColumn> ColumnDefinition;
+    protected readonly bool ColumnHeader;
     [NotNull] protected readonly List<ColumnInfo> Columns = new List<ColumnInfo>();
     [NotNull] protected readonly IFileFormat FileFormat;
-    protected readonly string Footer;
-    protected readonly string FullPath;
-    protected readonly bool HasFieldHeader;
     protected readonly string Header;
-    protected readonly string ID;
-    private readonly char m_FieldDelimiterChar;
-    private readonly string m_FileName;
+    [NotNull] private readonly string m_FileName;
     private readonly string m_FileSettingDisplay;
+    private readonly string m_Footer;
+    [NotNull] private readonly string m_FullPath;
     private readonly bool m_InOverview;
-    private readonly string m_NewLine;
-
     private readonly string m_Recipient;
-
-    // [CanBeNull] private readonly IProcessDisplay m_ProcessDisplay;
     private readonly Action<string> m_ReportProgress;
-
     private readonly Action<long> m_SetMaxProcess;
-
-    private readonly string m_SqlStatement;
-    private readonly int m_Timeout;
+    protected readonly string NewLine;
     [NotNull] protected readonly IValueFormat ValueFormatGeneral;
     private DateTime m_LastNotification = DateTime.Now;
+
+    protected BaseFileWriter([NotNull] string id, [NotNull] string fullPath, [NotNull] string footer,
+      [NotNull] string header, bool hasFieldHeader,
+      IValueFormat valueFormat, IFileFormat fileFormat, IReadOnlyCollection<IColumn> columns, string sql, int timeout,
+      bool overview, string fileSettingDisplay, string recipient, string fileName,
+      [CanBeNull] IProcessDisplay processDisplay)
+    {
+      m_FullPath = fullPath;
+      ColumnHeader = hasFieldHeader;
+      ValueFormatGeneral = new ImmutableValueFormat(valueFormat);
+      FileFormat = new ImmutableFileFormat(fileFormat);
+      ColumnDefinition = columns;
+      NewLine = fileFormat.NewLine.NewLineString();
+      Header = ReplacePlaceHolder(StringUtils.HandleCRLFCombinations(header, NewLine), fileFormat.FieldDelimiterChar,
+        fileName, id);
+      m_Footer = ReplacePlaceHolder(StringUtils.HandleCRLFCombinations(footer, NewLine), fileFormat.FieldDelimiterChar,
+        fileName, id);
+      m_InOverview = overview;
+      m_FileSettingDisplay = fileSettingDisplay;
+      m_Recipient = recipient;
+      m_FileName = fileName;
+
+      Logger.Debug("Created Writer for {filesetting}", m_FileSettingDisplay);
+      if (processDisplay != null)
+      {
+        m_ReportProgress = t => processDisplay.SetProcess(t, 0, true);
+        if (processDisplay is IProcessDisplayTime processDisplayTime)
+        {
+          processDisplayTime.Maximum = 0;
+          m_SetMaxProcess = l => processDisplayTime.Maximum = l;
+        }
+      }
+    }
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="BaseFileWriter" /> class.
@@ -63,39 +87,15 @@ namespace CsvTools
     /// <param name="processDisplay">The process display.</param>
     /// <exception cref="ArgumentNullException">fileSetting</exception>
     /// <exception cref="ArgumentException">No SQL Reader set</exception>
-    protected BaseFileWriter([NotNull] IFileSettingPhysicalFile fileSetting, DateTime lastExecution,
-      DateTime lastExecutionStart,
-      [CanBeNull] IProcessDisplay processDisplay)
+    protected BaseFileWriter([NotNull] IFileSettingPhysicalFile fileSetting, [CanBeNull] IProcessDisplay processDisplay)
+      : this(fileSetting.ID, fileSetting.FullPath, fileSetting.Footer,
+        fileSetting.Header, fileSetting.HasFieldHeader, fileSetting.FileFormat.ValueFormatMutable,
+        fileSetting.FileFormat,
+        fileSetting.ColumnCollection.ReadonlyCopy(), fileSetting.SqlStatement, fileSetting.Timeout,
+        fileSetting.InOverview, fileSetting.ToString(), fileSetting.Recipient, fileSetting.FileName, processDisplay)
     {
-      ID = fileSetting.ID;
-      FullPath = fileSetting.FullPath;
-      Footer = fileSetting.Footer;
-      Header = fileSetting.Header;
-      HasFieldHeader = fileSetting.HasFieldHeader;
-      ValueFormatGeneral = new ImmutableValueFormat(fileSetting.FileFormat.ValueFormatMutable);
-      FileFormat = new ImmutableFileFormat(fileSetting.FileFormat);
-      ColumnDefinition = fileSetting.ColumnCollection.ReadonlyCopy();
-      if (processDisplay != null)
-      {
-        m_ReportProgress = t => processDisplay.SetProcess(t, 0, true);
-        if (processDisplay is IProcessDisplayTime processDisplayTime)
-        {
-          processDisplayTime.Maximum = 0;
-          m_SetMaxProcess = l => processDisplayTime.Maximum = l;
-        }
-      }
-
-      m_SqlStatement = fileSetting.SqlStatement.PlaceHolderTimes("\'yyyyMMddHHmmss\'", fileSetting.ProcessTimeUtc, lastExecution, lastExecutionStart);
-      m_Timeout = fileSetting.Timeout;
-      m_NewLine = fileSetting.FileFormat.NewLine.NewLineString();
-      m_FieldDelimiterChar = fileSetting.FileFormat.FieldDelimiterChar;
-      m_InOverview = fileSetting.InOverview;
-      m_FileSettingDisplay = fileSetting.ToString();
-      m_Recipient = fileSetting.Recipient;
-      m_FileName = fileSetting.FileName;
-
-      Logger.Debug("Created Writer for {filesetting}", m_FileSettingDisplay);
     }
+
 
     private long Records { get; set; }
 
@@ -104,6 +104,9 @@ namespace CsvTools
     /// </summary>
     /// <value>The error message.</value>
     public virtual string ErrorMessage { get; protected set; }
+
+    protected string Footer() =>
+      m_Footer.PlaceholderReplace("Records", string.Format(new CultureInfo("en-US"), "{0:n0}", Records));
 
     /// <summary>
     ///   Event handler called if a warning or error occurred
@@ -119,23 +122,21 @@ namespace CsvTools
     ///   Writes the specified file.
     /// </summary>
     /// <returns>Number of records written</returns>
-    public virtual async Task<long> WriteAsync(CancellationToken token)
+    public async Task<long> WriteAsync([NotNull] string sqlStatement, int timeout, CancellationToken token)
     {
-      if (string.IsNullOrEmpty(m_SqlStatement))
+      if (string.IsNullOrEmpty(sqlStatement))
         return 0;
+
       if (FunctionalDI.SQLDataReader == null)
         throw new ArgumentException("No Async SQL Reader set");
       using (var sqlReader = await FunctionalDI
-        .SQLDataReader(m_SqlStatement, (sender, s) => m_ReportProgress?.Invoke(s.Text), m_Timeout, token)
+        .SQLDataReader(sqlStatement, (sender, s) => m_ReportProgress?.Invoke(s.Text), timeout, token)
         .ConfigureAwait(false))
       {
         await sqlReader.OpenAsync(token).ConfigureAwait(false);
         return await WriteAsync(sqlReader, token).ConfigureAwait(false);
       }
     }
-
-    [NotNull]
-    protected string GetRecordEnd() => m_NewLine;
 
     public async Task<long> WriteAsync(IFileReader reader, CancellationToken token)
     {
@@ -146,13 +147,8 @@ namespace CsvTools
 
       try
       {
-        using (var improvedStream = FunctionalDI.OpenWrite(FullPath, m_Recipient))
-        {
-          //if (reader.IsClosed)
-          //  await reader.OpenAsync(processDisplay.CancellationToken);
-
+        using (var improvedStream = FunctionalDI.OpenWrite(m_FullPath, m_Recipient))
           await WriteReaderAsync(reader, improvedStream.Stream, token).ConfigureAwait(false);
-        }
       }
       catch (Exception exc)
       {
@@ -168,10 +164,10 @@ namespace CsvTools
       return Records;
     }
 
-    protected string ReplacePlaceHolder(string input) => input.PlaceholderReplace("ID", ID)
-      .PlaceholderReplace("FileName", m_FileName)
-      .PlaceholderReplace("Records", string.Format(new CultureInfo("en-US"), "{0:n0}", Records))
-      .PlaceholderReplace("Delim", m_FieldDelimiterChar.ToString(CultureInfo.CurrentCulture))
+    private static string ReplacePlaceHolder([NotNull] string input, char fieldDelimiterChar, string fileName,
+      string replacement) => input.PlaceholderReplace("ID", replacement)
+      .PlaceholderReplace("FileName", fileName)
+      .PlaceholderReplace("Delim", fieldDelimiterChar.ToString(CultureInfo.CurrentCulture))
       .PlaceholderReplace("CDate", string.Format(new CultureInfo("en-US"), "{0:dd-MMM-yyyy}", DateTime.Now))
       .PlaceholderReplace("CDateLong", string.Format(new CultureInfo("en-US"), "{0:MMMM dd\\, yyyy}", DateTime.Now));
 
@@ -356,7 +352,9 @@ namespace CsvTools
           if (string.IsNullOrEmpty(displayAs))
             HandleError(columnInfo.Column.Name, ex.Message);
           else
-            HandleWarning(columnInfo.Column.Name, "Value stored as: " + displayAs + $"\nExpected {columnInfo.Column.ValueFormat.DataType} but was {dataObject?.GetType()}"  + ex.Message);
+            HandleWarning(columnInfo.Column.Name,
+              "Value stored as: " + displayAs +
+              $"\nExpected {columnInfo.Column.ValueFormat.DataType} but was {dataObject?.GetType()}" + ex.Message);
         }
       }
 

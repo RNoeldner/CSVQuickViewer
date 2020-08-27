@@ -27,14 +27,12 @@ namespace CsvTools.Tests
     {
       var readFile = new CsvFile
       {
-        ID = c_ReadID,
-        FileName = UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"),
-        FileFormat = { CommentLine = "#" }
+        ID = c_ReadID, FileName = UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"), FileFormat = {CommentLine = "#"}
       };
       readFile.ColumnCollection.AddIfNew(new Column("ExamDate", @"dd/MM/yyyy"));
       readFile.ColumnCollection.AddIfNew(new Column("Score", DataType.Integer));
       readFile.ColumnCollection.AddIfNew(new Column("Proficiency", DataType.Numeric));
-      readFile.ColumnCollection.AddIfNew(new Column("IsNativeLang", DataType.Boolean) { Ignore = true });
+      readFile.ColumnCollection.AddIfNew(new Column("IsNativeLang", DataType.Boolean) {Ignore = true});
       UnitTestInitializeCsv.MimicSQLReader.AddSetting(readFile);
     }
 
@@ -66,8 +64,9 @@ namespace CsvTools.Tests
           sb.Length -= 2;
         sb.AppendLine("},");
         writeFile.Row = sb.ToString();
-        var writer = new StructuredFileWriter(writeFile, BaseSettings.ZeroTime, BaseSettings.ZeroTime, processDisplay);
-        var result = await writer.WriteAsync(processDisplay.CancellationToken);
+        var writer = new StructuredFileWriter(writeFile, processDisplay);
+        var result =
+          await writer.WriteAsync(writeFile.SqlStatement, writeFile.Timeout, processDisplay.CancellationToken);
         Assert.AreEqual(7L, result);
       }
     }
@@ -101,8 +100,8 @@ namespace CsvTools.Tests
         writeFile.Row = sb.ToString();
         writeFile.Footer = "</rowset>";
 
-        var writer = new StructuredFileWriter(writeFile, BaseSettings.ZeroTime, BaseSettings.ZeroTime, processDisplay);
-        await writer.WriteAsync(processDisplay.CancellationToken);
+        var writer = new StructuredFileWriter(writeFile, processDisplay);
+        await writer.WriteAsync(writeFile.SqlStatement, writeFile.Timeout, processDisplay.CancellationToken);
       }
     }
   }

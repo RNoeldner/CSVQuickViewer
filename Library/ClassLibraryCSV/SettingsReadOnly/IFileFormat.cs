@@ -36,6 +36,8 @@ namespace CsvTools
     /// <value><c>true</c> if qualify only if needed; otherwise, <c>false</c>.</value>
     bool QualifyOnlyIfNeeded { get; }
 
+    RecordDelimiterType NewLine { get; }
+
     /// <summary>
     ///   Gets or sets the new line placeholder, the placeholder substitutes a linefeed
     /// </summary>

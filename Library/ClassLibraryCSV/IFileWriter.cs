@@ -43,9 +43,11 @@ namespace CsvTools
     /// <summary>
     ///   Writes the specified file.
     /// </summary>
+    /// <param name="sql">SQL Statement to retrieve the data</param>
+    /// <param name="timeout">Timeout in seconds</param>
     /// <param name="token">A cancellation toke to stop a long running process</param>
     /// <returns>Number of records written</returns>
-    Task<long> WriteAsync(CancellationToken token);
+    Task<long> WriteAsync(string sql, int timeout, CancellationToken token);
 
     /// <summary>
     ///   Writes the specified file reading from the a data table

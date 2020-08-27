@@ -33,37 +33,19 @@ namespace CsvTools
     ///   match the base file readers HandleWarning the validation library will overwrite this is an
     ///   implementation using Noda Time
     /// </summary>
-    [NotNull]
-    public static Func<DateTime?, string, int, Action<int, string>, DateTime?> AdjustTZImport =
-      (input, srcTimeZone, columnOrdinal, handleWarning) => ChangeTimeZone(input, srcTimeZone, TimeZoneInfo.Local.Id, columnOrdinal, handleWarning);
+    [NotNull] public static Func<DateTime?, string, int, Action<int, string>, DateTime?> AdjustTZImport =
+      (input, srcTimeZone, columnOrdinal, handleWarning) =>
+        ChangeTimeZone(input, srcTimeZone, TimeZoneInfo.Local.Id, columnOrdinal, handleWarning);
 
 
-    [NotNull]
-    public static Func<DateTime?, string, int, Action<int, string>, DateTime?> AdjustTZExport =
-      (input, destTimeZone, columnOrdinal, handleWarning) => ChangeTimeZone(input, TimeZoneInfo.Local.Id, destTimeZone, columnOrdinal, handleWarning);
-
-    private static DateTime? ChangeTimeZone(DateTime? input, [CanBeNull] string srcTimeZone, [CanBeNull] string destTimeZone, int columnOrdinal, [CanBeNull] Action<int, string> handleWarning)
-    {
-      if (!input.HasValue || string.IsNullOrEmpty(srcTimeZone)|| string.IsNullOrEmpty(destTimeZone)  || destTimeZone.Equals(srcTimeZone))
-        return input;
-      try
-      {
-        // default implementation will convert using the .NET library
-        return TimeZoneInfo.ConvertTime(input.Value, TimeZoneInfo.FindSystemTimeZoneById(srcTimeZone), TimeZoneInfo.FindSystemTimeZoneById(destTimeZone));
-      }
-      catch (Exception ex)
-      {
-        if (handleWarning == null) throw;
-        handleWarning.Invoke(columnOrdinal, ex.Message);
-        return null;
-      }
-    }
+    [NotNull] public static Func<DateTime?, string, int, Action<int, string>, DateTime?> AdjustTZExport =
+      (input, destTimeZone, columnOrdinal, handleWarning) =>
+        ChangeTimeZone(input, TimeZoneInfo.Local.Id, destTimeZone, columnOrdinal, handleWarning);
 
     /// <summary>
     ///   Function to retrieve the column in a setting file
     /// </summary>
-    [CanBeNull]
-    public static Func<IFileSetting, CancellationToken, Task<ICollection<string>>> GetColumnHeader;
+    [CanBeNull] public static Func<IFileSetting, CancellationToken, Task<ICollection<string>>> GetColumnHeader;
 
     /// <summary>
     ///   Retrieve the passphrase for a files
@@ -116,10 +98,32 @@ namespace CsvTools
     /// </summary>
     /// <value>The statement for reader the data.</value>
     /// <remarks>Make sure the returned reader is open when needed</remarks>
-    public static Func<string, EventHandler<ProgressEventArgs>, int, CancellationToken, Task<IFileReader>> SQLDataReader;
+    public static Func<string, EventHandler<ProgressEventArgs>, int, CancellationToken, Task<IFileReader>>
+      SQLDataReader;
+
+    private static DateTime? ChangeTimeZone(DateTime? input, [CanBeNull] string srcTimeZone,
+      [CanBeNull] string destTimeZone, int columnOrdinal, [CanBeNull] Action<int, string> handleWarning)
+    {
+      if (!input.HasValue || string.IsNullOrEmpty(srcTimeZone) || string.IsNullOrEmpty(destTimeZone) ||
+          destTimeZone.Equals(srcTimeZone))
+        return input;
+      try
+      {
+        // default implementation will convert using the .NET library
+        return TimeZoneInfo.ConvertTime(input.Value, TimeZoneInfo.FindSystemTimeZoneById(srcTimeZone),
+          TimeZoneInfo.FindSystemTimeZoneById(destTimeZone));
+      }
+      catch (Exception ex)
+      {
+        if (handleWarning == null) throw;
+        handleWarning.Invoke(columnOrdinal, ex.Message);
+        return null;
+      }
+    }
 
     [NotNull]
-    private static IFileReader DefaultFileReader([NotNull] IFileSetting setting, [CanBeNull] string timeZone, [CanBeNull] IProcessDisplay processDisplay)
+    private static IFileReader DefaultFileReader([NotNull] IFileSetting setting, [CanBeNull] string timeZone,
+      [CanBeNull] IProcessDisplay processDisplay)
     {
       switch (setting)
       {
@@ -135,21 +139,22 @@ namespace CsvTools
     }
 
     [NotNull]
-    private static IFileWriter DefaultFileWriter([NotNull] IFileSetting setting, [CanBeNull] IProcessDisplay processDisplay)
+    private static IFileWriter DefaultFileWriter([NotNull] IFileSetting setting,
+      [CanBeNull] IProcessDisplay processDisplay)
     {
       IFileWriter writer = null;
       switch (setting)
       {
         case ICsvFile csv when !csv.JsonFormat:
-          writer= new CsvFileWriter(csv, BaseSettings.ZeroTime, BaseSettings.ZeroTime, processDisplay);
+          writer = new CsvFileWriter(csv, processDisplay);
           break;
 
         case StructuredFile structuredFile:
-          writer= new StructuredFileWriter(structuredFile, BaseSettings.ZeroTime, BaseSettings.ZeroTime, processDisplay);
+          writer = new StructuredFileWriter(structuredFile, processDisplay);
           break;
       }
 
-      if (writer==null)
+      if (writer == null)
         throw new NotImplementedException($"Writer for {setting} not found");
 
       writer.WriteFinished += (sender, args) =>
