@@ -33,11 +33,9 @@ namespace CsvTools
     [NotNull] protected readonly List<ColumnInfo> Columns = new List<ColumnInfo>();
     [NotNull] protected readonly IFileFormat FileFormat;
     protected readonly string Header;
-    [NotNull] private readonly string m_FileName;
     private readonly string m_FileSettingDisplay;
     private readonly string m_Footer;
     [NotNull] private readonly string m_FullPath;
-    private readonly bool m_InOverview;
     private readonly string m_Recipient;
     private readonly Action<string> m_ReportProgress;
     private readonly Action<long> m_SetMaxProcess;
@@ -45,13 +43,17 @@ namespace CsvTools
     [NotNull] protected readonly IValueFormat ValueFormatGeneral;
     private DateTime m_LastNotification = DateTime.Now;
 
-    protected BaseFileWriter([NotNull] string id, [NotNull] string fullPath, [NotNull] string footer,
-      [NotNull] string header, bool hasFieldHeader,
-      IValueFormat valueFormat, IFileFormat fileFormat, IReadOnlyCollection<IColumn> columns, string sql, int timeout,
-      bool overview, string fileSettingDisplay, string recipient, string fileName,
+    protected BaseFileWriter([NotNull] string id,
+      [NotNull] string fullPath, string recipient, bool hasFieldHeader,
+      [NotNull] string footer,
+      [NotNull] string header,
+      [NotNull] IValueFormat valueFormat, [NotNull] IFileFormat fileFormat,
+      [NotNull] IReadOnlyCollection<IColumn> columns,
+      [NotNull] string fileSettingDisplay,
       [CanBeNull] IProcessDisplay processDisplay)
     {
       m_FullPath = fullPath;
+      var fileName = FileSystemUtils.GetFileName(fullPath);
       ColumnHeader = hasFieldHeader;
       ValueFormatGeneral = new ImmutableValueFormat(valueFormat);
       FileFormat = new ImmutableFileFormat(fileFormat);
@@ -61,49 +63,32 @@ namespace CsvTools
         fileName, id);
       m_Footer = ReplacePlaceHolder(StringUtils.HandleCRLFCombinations(footer, NewLine), fileFormat.FieldDelimiterChar,
         fileName, id);
-      m_InOverview = overview;
       m_FileSettingDisplay = fileSettingDisplay;
       m_Recipient = recipient;
-      m_FileName = fileName;
 
       Logger.Debug("Created Writer for {filesetting}", m_FileSettingDisplay);
-      if (processDisplay != null)
-      {
-        m_ReportProgress = t => processDisplay.SetProcess(t, 0, true);
-        if (processDisplay is IProcessDisplayTime processDisplayTime)
-        {
-          processDisplayTime.Maximum = 0;
-          m_SetMaxProcess = l => processDisplayTime.Maximum = l;
-        }
-      }
+      if (processDisplay == null) return;
+      m_ReportProgress = t => processDisplay.SetProcess(t, 0, true);
+      if (!(processDisplay is IProcessDisplayTime processDisplayTime)) return;
+      processDisplayTime.Maximum = 0;
+      m_SetMaxProcess = l => processDisplayTime.Maximum = l;
     }
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="BaseFileWriter" /> class.
     /// </summary>
     /// <param name="fileSetting">the file setting with the definition for the file</param>
-    /// <param name="lastExecution"></param>
-    /// <param name="lastExecutionStart"></param>
     /// <param name="processDisplay">The process display.</param>
     /// <exception cref="ArgumentNullException">fileSetting</exception>
     /// <exception cref="ArgumentException">No SQL Reader set</exception>
     protected BaseFileWriter([NotNull] IFileSettingPhysicalFile fileSetting, [CanBeNull] IProcessDisplay processDisplay)
-      : this(fileSetting.ID, fileSetting.FullPath, fileSetting.Footer,
-        fileSetting.Header, fileSetting.HasFieldHeader, fileSetting.FileFormat.ValueFormatMutable,
-        fileSetting.FileFormat,
-        fileSetting.ColumnCollection.ReadonlyCopy(), fileSetting.SqlStatement, fileSetting.Timeout,
-        fileSetting.InOverview, fileSetting.ToString(), fileSetting.Recipient, fileSetting.FileName, processDisplay)
+      : this(fileSetting.ID, fileSetting.FullPath, fileSetting.Recipient, fileSetting.HasFieldHeader,
+        fileSetting.Footer, fileSetting.Header, fileSetting.FileFormat.ValueFormatMutable, fileSetting.FileFormat,
+        fileSetting.ColumnCollection.ReadonlyCopy(), fileSetting.ToString(), processDisplay)
     {
     }
 
-
     private long Records { get; set; }
-
-    /// <summary>
-    ///   Gets or sets the error message.
-    /// </summary>
-    /// <value>The error message.</value>
-    public virtual string ErrorMessage { get; protected set; }
 
     protected string Footer() =>
       m_Footer.PlaceholderReplace("Records", string.Format(new CultureInfo("en-US"), "{0:n0}", Records));
@@ -118,27 +103,7 @@ namespace CsvTools
     /// </summary>
     public event EventHandler WriteFinished;
 
-    /// <summary>
-    ///   Writes the specified file.
-    /// </summary>
-    /// <returns>Number of records written</returns>
-    public async Task<long> WriteAsync([NotNull] string sqlStatement, int timeout, CancellationToken token)
-    {
-      if (string.IsNullOrEmpty(sqlStatement))
-        return 0;
-
-      if (FunctionalDI.SQLDataReader == null)
-        throw new ArgumentException("No Async SQL Reader set");
-      using (var sqlReader = await FunctionalDI
-        .SQLDataReader(sqlStatement, (sender, s) => m_ReportProgress?.Invoke(s.Text), timeout, token)
-        .ConfigureAwait(false))
-      {
-        await sqlReader.OpenAsync(token).ConfigureAwait(false);
-        return await WriteAsync(sqlReader, token).ConfigureAwait(false);
-      }
-    }
-
-    public async Task<long> WriteAsync(IFileReader reader, CancellationToken token)
+    public async Task<long> WriteAsync([CanBeNull] IFileReader reader, CancellationToken token)
     {
       if (reader == null)
         return -1;
@@ -152,13 +117,14 @@ namespace CsvTools
       }
       catch (Exception exc)
       {
-        ErrorMessage = $"Could not write file '{m_FileName}'.\r\n{exc.ExceptionMessages()}";
-        if (m_InOverview)
-          throw;
+        Logger.Error(exc, "Could not write file {filename}", FileSystemUtils.GetShortDisplayFileName(m_FullPath));
+        throw new FileWriterException($"Could not write file '{FileSystemUtils.GetShortDisplayFileName(m_FullPath)}'",
+          exc);
       }
       finally
       {
-        HandleWriteFinished();
+        Logger.Debug("Finished writing {filesetting} Records: {records}", m_FileSettingDisplay, Records);
+        WriteFinished?.Invoke(this, null);
       }
 
       return Records;
@@ -197,12 +163,12 @@ namespace CsvTools
         throw new ArgumentNullException(nameof(reader));
       if (columnInfo.ColumnOrdinalTimeZoneReader > -1)
       {
-        var destinationTimeZoneID = reader.GetString(columnInfo.ColumnOrdinalTimeZoneReader);
-        if (string.IsNullOrEmpty(destinationTimeZoneID))
+        var destinationTimeZoneId = reader.GetString(columnInfo.ColumnOrdinalTimeZoneReader);
+        if (string.IsNullOrEmpty(destinationTimeZoneId))
           HandleWarning(columnInfo.Column.Name, "Time zone is empty, value not converted");
         else
           // ReSharper disable once PossibleInvalidOperationException
-          return FunctionalDI.AdjustTZExport(dataObject, destinationTimeZoneID, Columns.IndexOf(columnInfo),
+          return FunctionalDI.AdjustTZExport(dataObject, destinationTimeZoneId, Columns.IndexOf(columnInfo),
             (columnNo, msg) => HandleWarning(Columns[columnNo].Column.Name, msg)).Value;
       }
       else if (!string.IsNullOrEmpty(columnInfo.ConstantTimeZone))
@@ -223,19 +189,12 @@ namespace CsvTools
     private void HandleWarning(string columnName, string message) => Warning?.Invoke(this,
       new WarningEventArgs(Records, 0, message.AddWarningId(), 0, 0, columnName));
 
-    private void HandleWriteFinished()
-    {
-      Logger.Debug("Finished writing {filesetting} Records: {records}", m_FileSettingDisplay, Records);
-      WriteFinished?.Invoke(this, null);
-    }
-
     protected void HandleWriteStart() => Records = 0;
 
     protected void NextRecord()
     {
       Records++;
-      if (!((DateTime.Now - m_LastNotification).TotalSeconds > .15))
-        return;
+      if (!((DateTime.Now - m_LastNotification).TotalSeconds > .15)) return;
       m_LastNotification = DateTime.Now;
       HandleProgress($"Record {Records:N0}");
     }

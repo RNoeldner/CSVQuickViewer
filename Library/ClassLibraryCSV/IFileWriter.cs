@@ -26,11 +26,6 @@ namespace CsvTools
   public interface IFileWriter
   {
     /// <summary>
-    ///   Gets the error message.
-    /// </summary>
-    string ErrorMessage { get; }
-
-    /// <summary>
     ///   Event handler called if a warning or error occurred
     /// </summary>
     event EventHandler<WarningEventArgs> Warning;
@@ -41,20 +36,11 @@ namespace CsvTools
     event EventHandler WriteFinished;
 
     /// <summary>
-    ///   Writes the specified file.
-    /// </summary>
-    /// <param name="sql">SQL Statement to retrieve the data</param>
-    /// <param name="timeout">Timeout in seconds</param>
-    /// <param name="token">A cancellation toke to stop a long running process</param>
-    /// <returns>Number of records written</returns>
-    Task<long> WriteAsync(string sql, int timeout, CancellationToken token);
-
-    /// <summary>
     ///   Writes the specified file reading from the a data table
     /// </summary>
     /// <param name="source">The data that should be written in a <see cref="DataTable" /></param>
     /// <param name="token">A cancellation toke to stop a long running process</param>
     /// <returns>Number of records written</returns>
-    Task<long> WriteAsync([NotNull] IFileReader source, CancellationToken token);
+    Task<long> WriteAsync([CanBeNull] IFileReader source, CancellationToken token);
   }
 }
