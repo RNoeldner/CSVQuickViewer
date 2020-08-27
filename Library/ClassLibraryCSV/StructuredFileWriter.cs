@@ -16,7 +16,6 @@ using JetBrains.Annotations;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
 using System.Globalization;
 using System.IO;
 using System.Linq;
