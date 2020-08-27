@@ -65,7 +65,8 @@ namespace CsvTools
     /// <param name="sourceSchemaDataReader">The reader for the source.</param>
     /// <returns></returns>
     /// <exception cref="ArgumentNullException">reader</exception>
-    public static IEnumerable<ColumnInfo> GetWriterColumnInformation(IValueFormat generalFormat, ICollection<IColumn> columnDefinitions, IDataReader sourceSchemaDataReader)
+    public static IEnumerable<ColumnInfo> GetWriterColumnInformation(IValueFormat generalFormat,
+      IReadOnlyCollection<IColumn> columnDefinitions, IDataReader sourceSchemaDataReader)
     {
       if (sourceSchemaDataReader == null)
         throw new ArgumentNullException(nameof(sourceSchemaDataReader));
@@ -90,15 +91,19 @@ namespace CsvTools
         foreach (DataRow schemaRow in dataTable.Rows)
         {
           var colNo = (int) schemaRow[SchemaTableColumn.ColumnOrdinal];
-          var column = columnDefinitions.FirstOrDefault(x => x.Name.Equals(colName[colNo], StringComparison.OrdinalIgnoreCase));
+          var column =
+            columnDefinitions.FirstOrDefault(x => x.Name.Equals(colName[colNo], StringComparison.OrdinalIgnoreCase));
 
           if (column != null && column.Ignore)
             continue;
 
           // Based on the data Type in the reader defined and the general format create the  value format
-          var valueFormat = column?.ValueFormat ??  new ImmutableValueFormat(((Type) schemaRow[SchemaTableColumn.DataType]).GetDataType(), generalFormat.DateFormat, generalFormat.DateSeparator,
-              generalFormat.DecimalSeparatorChar, generalFormat.DisplayNullAs, generalFormat.False, generalFormat.GroupSeparatorChar, generalFormat.NumberFormat,
-              generalFormat.TimeSeparator, generalFormat.True);
+          var valueFormat = column?.ValueFormat ?? new ImmutableValueFormat(
+            ((Type) schemaRow[SchemaTableColumn.DataType]).GetDataType(), generalFormat.DateFormat,
+            generalFormat.DateSeparator,
+            generalFormat.DecimalSeparatorChar, generalFormat.DisplayNullAs, generalFormat.False,
+            generalFormat.GroupSeparatorChar, generalFormat.NumberFormat,
+            generalFormat.TimeSeparator, generalFormat.True);
 
           var fieldLength = Math.Max((int) schemaRow[SchemaTableColumn.ColumnSize], 0);
           switch (valueFormat.DataType)
@@ -159,14 +164,18 @@ namespace CsvTools
 
           // add an extra column for the time, reading columns they get combined, writing them they get separated again
 
-          if (column == null || string.IsNullOrEmpty(column.TimePart) ||  colName.ContainsValue(column.TimePart))
+          if (column == null || string.IsNullOrEmpty(column.TimePart) || colName.ContainsValue(column.TimePart))
             continue;
 
-          if (ci.Column.ValueFormat.DateFormat.IndexOfAny(new[] { 'h', 'H', 'm', 's' }) != -1)
-            Logger.Warning($"'{ci.Column.Name}' will create a separate time column '{column.TimePart}' but seems to write time itself '{ci.Column.ValueFormat.DateFormat}'");
+          if (ci.Column.ValueFormat.DateFormat.IndexOfAny(new[] {'h', 'H', 'm', 's'}) != -1)
+            Logger.Warning(
+              $"'{ci.Column.Name}' will create a separate time column '{column.TimePart}' but seems to write time itself '{ci.Column.ValueFormat.DateFormat}'");
 
           // In case we have a split column, add the second column (unless the column is also present
-          result.Add(new ColumnInfo(new ImmutableColumn(column.TimePart, new ImmutableValueFormat(DataType.DateTime, column.TimePartFormat, timeSeparator: column.ValueFormat.TimeSeparator), colNo, true), column.TimePartFormat.Length, colNo));
+          result.Add(new ColumnInfo(
+            new ImmutableColumn(column.TimePart,
+              new ImmutableValueFormat(DataType.DateTime, column.TimePartFormat,
+                timeSeparator: column.ValueFormat.TimeSeparator), colNo, true), column.TimePartFormat.Length, colNo));
         }
       }
 

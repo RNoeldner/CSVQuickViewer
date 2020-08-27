@@ -18,7 +18,9 @@ namespace CsvTools
 {
   public class ImmutableFileFormat : IFileFormat
   {
-    public ImmutableFileFormat(bool isFixedLength, bool qualifyAlways, bool qualifyOnlyIfNeeded, [NotNull] string newLinePlaceholder, [NotNull] string delimiterPlaceholder, char fieldDelimiterChar, char fieldQualifierChar, [NotNull] string quotePlaceholder)
+    public ImmutableFileFormat(bool isFixedLength, bool qualifyAlways, bool qualifyOnlyIfNeeded,
+      [NotNull] string newLinePlaceholder, [NotNull] string delimiterPlaceholder, char fieldDelimiterChar,
+      char fieldQualifierChar, [NotNull] string quotePlaceholder, RecordDelimiterType newLine)
     {
       IsFixedLength = isFixedLength;
       QualifyAlways = qualifyAlways;
@@ -28,14 +30,16 @@ namespace CsvTools
       FieldDelimiterChar = fieldDelimiterChar;
       FieldQualifierChar = fieldQualifierChar;
       QuotePlaceholder = quotePlaceholder;
+      NewLine = newLine;
     }
 
     public ImmutableFileFormat([NotNull] IFileFormat other) : this(other.IsFixedLength, other.QualifyAlways,
       other.QualifyOnlyIfNeeded, other.NewLinePlaceholder, other.DelimiterPlaceholder, other.FieldDelimiterChar,
-      other.FieldQualifierChar, other.QuotePlaceholder)
+      other.FieldQualifierChar, other.QuotePlaceholder, other.NewLine)
     {
     }
 
+    public RecordDelimiterType NewLine { get; }
     public bool IsFixedLength { get; }
     public bool QualifyAlways { get; }
     public bool QualifyOnlyIfNeeded { get; }

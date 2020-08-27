@@ -79,7 +79,7 @@ namespace CsvTools
     public Column Get([CanBeNull] string fieldName) =>
       Items.FirstOrDefault(column => column.Name.Equals(fieldName, StringComparison.OrdinalIgnoreCase));
 
-    public ICollection<IColumn> ReadonlyCopy() =>
+    public IReadOnlyCollection<IColumn> ReadonlyCopy() =>
       Items.Select(col => new ImmutableColumn(col, col.ColumnOrdinal)).Cast<IColumn>().ToList();
   }
 }

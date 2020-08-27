@@ -14,8 +14,6 @@
 
 using JetBrains.Annotations;
 using System;
-using System.Collections.Generic;
-using System.Data;
 using System.Globalization;
 using System.IO;
 using System.Text;
@@ -30,29 +28,20 @@ namespace CsvTools
   public class CsvFileWriter : BaseFileWriter, IFileWriter
   {
     private readonly bool m_ByteOrderMark;
-
     private readonly int m_CodePageId;
-
     [NotNull] private readonly string m_FieldDelimiter;
-
     [NotNull] private readonly string m_FieldDelimiterEscaped;
-
     [NotNull] private readonly string m_FieldQualifier;
-
     [NotNull] private readonly string m_FieldQualifierEscaped;
-
     [NotNull] private readonly char[] m_QualifyCharArray;
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="CsvFileWriter" /> class.
     /// </summary>
     /// <param name="file">The file.</param>
-    /// <param name="lastExecution"></param>
-    /// <param name="lastExecutionStart"></param>
     /// <param name="processDisplay">The process display.</param>
-    public CsvFileWriter([NotNull] ICsvFile file, DateTime lastExecution, DateTime lastExecutionStart,
-      [CanBeNull] IProcessDisplay processDisplay)
-      : base(file, lastExecution, lastExecutionStart, processDisplay)
+    public CsvFileWriter([NotNull] ICsvFile file, [CanBeNull] IProcessDisplay processDisplay)
+      : base(file, processDisplay)
     {
       m_CodePageId = file.CodePageId;
       m_ByteOrderMark = file.ByteOrderMark;
@@ -61,13 +50,13 @@ namespace CsvTools
       m_FieldDelimiter = file.FileFormat.FieldDelimiterChar.ToString(CultureInfo.CurrentCulture);
       if (!string.IsNullOrEmpty(file.FileFormat.EscapeCharacter))
       {
-        m_QualifyCharArray = new[] { (char) 0x0a, (char) 0x0d };
+        m_QualifyCharArray = new[] {(char) 0x0a, (char) 0x0d};
         m_FieldQualifierEscaped = file.FileFormat.EscapeCharacterChar + m_FieldQualifier;
         m_FieldDelimiterEscaped = file.FileFormat.EscapeCharacterChar + m_FieldDelimiter;
       }
       else
       {
-        m_QualifyCharArray = new[] { (char) 0x0a, (char) 0x0d, file.FileFormat.FieldDelimiterChar };
+        m_QualifyCharArray = new[] {(char) 0x0a, (char) 0x0d, file.FileFormat.FieldDelimiterChar};
         m_FieldQualifierEscaped = new string(file.FileFormat.FieldQualifierChar, 2);
         m_FieldDelimiterEscaped = new string(file.FileFormat.FieldDelimiterChar, 1);
       }
@@ -85,7 +74,35 @@ namespace CsvTools
       using (var writer = new StreamWriter(output,
         EncodingHelper.GetEncoding(m_CodePageId, m_ByteOrderMark), 8192))
       {
-        var sb = WriterStart(reader, out var recordEnd);
+        Columns.Clear();
+        Columns.AddRange(ColumnInfo.GetWriterColumnInformation(ValueFormatGeneral, ColumnDefinition, reader));
+
+        if (Columns.Count == 0)
+          throw new FileWriterException("No columns defined to be written.");
+
+        HandleWriteStart();
+
+        var sb = new StringBuilder();
+        if (!string.IsNullOrEmpty(Header))
+        {
+          sb.Append(Header);
+          if (!Header.EndsWith(NewLine, StringComparison.Ordinal))
+            sb.Append(NewLine);
+        }
+
+        var lastCol = Columns[Columns.Count - 1];
+
+        if (ColumnHeader)
+        {
+          foreach (var columnInfo in Columns)
+          {
+            sb.Append(TextEncodeField(FileFormat, columnInfo.Column.Name, columnInfo, true, null, QualifyText));
+            if (!FileFormat.IsFixedLength && !ReferenceEquals(columnInfo, lastCol))
+              sb.Append(FileFormat.FieldDelimiterChar);
+          }
+
+          sb.Append(NewLine);
+        }
 
         while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false) &&
                !cancellationToken.IsCancellationRequested)
@@ -95,89 +112,47 @@ namespace CsvTools
             await writer.WriteAsync(sb.ToString()).ConfigureAwait(false);
             sb.Length = 0;
           }
-          NextRecord();
-          var rowResult = GetRowFromReader(reader);
 
-          if (rowResult.Item1 == Columns.Count()) break;
-          sb.Append(rowResult.Item2);
-          sb.Append(recordEnd);
+          var emptyColumns = 0;
+
+          var row = new StringBuilder();
+          foreach (var columnInfo in Columns)
+          {
+            // Number of columns might be higher than number of reader columns
+            var col = reader.GetValue(columnInfo.ColumnOrdinalReader);
+            if (col == DBNull.Value || (col is string text && string.IsNullOrEmpty(text)))
+              emptyColumns++;
+            else
+              row.Append(TextEncodeField(FileFormat, col, columnInfo, false, reader, QualifyText));
+
+            if (!FileFormat.IsFixedLength && !ReferenceEquals(columnInfo, lastCol))
+              row.Append(FileFormat.FieldDelimiterChar);
+          }
+
+          if (emptyColumns == Columns.Count()) break;
+          NextRecord();
+          sb.Append(row);
+          sb.Append(NewLine);
         }
 
-        if (!string.IsNullOrEmpty(Footer))
-          sb.Append(ReplacePlaceHolder(StringUtils.HandleCRLFCombinations(Footer, recordEnd)));
-        else if (sb.Length > 0)
-          sb.Length -= recordEnd.Length;
+        var footer = Footer();
+        if (!string.IsNullOrEmpty(footer))
+        {
+          sb.Append(footer);
+          if (!footer.EndsWith(NewLine, StringComparison.Ordinal))
+            sb.Append(NewLine);
+        }
 
-        await writer.WriteAsync(sb.ToString()).ConfigureAwait(false);
+        // remove the very last newline
+        if (sb.Length > NewLine.Length)
+        {
+          sb.Length -= NewLine.Length;
+          // and store teh possibly remaining data
+          await writer.WriteAsync(sb.ToString()).ConfigureAwait(false);
+        }
 
         await writer.FlushAsync();
       }
-    }
-
-    private Tuple<int, string> GetRowFromReader([NotNull] IDataReader reader)
-    {
-      var emptyColumns = 0;
-      var lastCol = Columns[Columns.Count-1];
-      var row = new StringBuilder();
-      foreach (var columnInfo in Columns)
-      {
-        // Number of columns might be higher than number of reader columns
-        var col = reader.GetValue(columnInfo.ColumnOrdinalReader);
-        if (col == DBNull.Value || (col is string stri && string.IsNullOrEmpty(stri)))
-          emptyColumns++;
-        else
-          row.Append(TextEncodeField(FileFormat, col, columnInfo, false, reader, QualifyText));
-
-        if (!FileFormat.IsFixedLength && !ReferenceEquals(columnInfo, lastCol))
-          row.Append(FileFormat.FieldDelimiterChar);
-      }
-      return new Tuple<int, string>(emptyColumns, row.ToString());
-    }
-
-    [NotNull]
-    private StringBuilder WriterStart([NotNull] IDataReader reader, [NotNull] out string recordEnd)
-    {
-      Columns.Clear();
-      Columns.AddRange(ColumnInfo.GetWriterColumnInformation(ValueFormatGeneral, ColumnDefinition, reader));
-
-      if (Columns.Count == 0)
-        throw new FileWriterException("No columns defined to be written.");
-
-      recordEnd = GetRecordEnd();
-      HandleWriteStart();
-
-      var sb = new StringBuilder();
-      if (!string.IsNullOrEmpty(Header))
-      {
-        sb.Append(ReplacePlaceHolder(StringUtils.HandleCRLFCombinations(Header, recordEnd)));
-        if (!Header.EndsWith(recordEnd, StringComparison.Ordinal))
-          sb.Append(recordEnd);
-      }
-
-      // ReSharper disable once InvertIf
-      if (HasFieldHeader)
-      {
-        sb.Append(GetHeaderRow(Columns));
-        sb.Append(recordEnd);
-      }
-
-      return sb;
-    }
-
-    [NotNull]
-    private string GetHeaderRow([NotNull] IEnumerable<ColumnInfo> columnInfos)
-    {
-      var sb = new StringBuilder();
-      foreach (var columnInfo in columnInfos)
-      {
-        sb.Append(TextEncodeField(FileFormat, columnInfo.Column.Name, columnInfo, true, null, QualifyText));
-        if (!FileFormat.IsFixedLength)
-          sb.Append(FileFormat.FieldDelimiterChar);
-      }
-
-      if (!FileFormat.IsFixedLength)
-        sb.Length--;
-      return sb.ToString();
     }
 
     [NotNull]

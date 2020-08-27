@@ -55,12 +55,10 @@ namespace CsvTools
     ///   Initializes a new instance of the <see cref="StructuredFileWriter" /> class.
     /// </summary>
     /// <param name="file">The file.</param>
-    /// <param name="lastExecution"></param>
-    /// <param name="lastExecutionStart"></param>
     /// <param name="processDisplay">The process display.</param>
-    public StructuredFileWriter([NotNull] StructuredFile file, DateTime lastExecution, DateTime lastExecutionStart,
+    public StructuredFileWriter([NotNull] StructuredFile file,
       [CanBeNull] IProcessDisplay processDisplay)
-      : base(file, lastExecution, lastExecutionStart, processDisplay)
+      : base(file, processDisplay)
     {
       m_Row = file.Row;
       m_XMLEncode = file.XMLEncode;
@@ -76,8 +74,6 @@ namespace CsvTools
     protected override async Task WriteReaderAsync([NotNull] IFileReader reader, [NotNull] Stream output,
       CancellationToken cancellationToken)
     {
-      Contract.Assume(!string.IsNullOrEmpty(FullPath));
-
       using (var writer = new StreamWriter(output, new UTF8Encoding(true), 4096))
       {
         Columns.Clear();
@@ -85,14 +81,14 @@ namespace CsvTools
         var numColumns = Columns.Count();
         if (numColumns == 0)
           throw new FileWriterException("No columns defined to be written.");
-        var recordEnd = GetRecordEnd();
+        var recordEnd = NewLine;
         HandleWriteStart();
 
         // Header
         if (!string.IsNullOrEmpty(Header))
         {
           var sbH = new StringBuilder();
-          sbH.Append(ReplacePlaceHolder(Header));
+          sbH.Append(Header);
           if (!Header.EndsWith(recordEnd, StringComparison.Ordinal))
             sbH.Append(recordEnd);
           await writer.WriteAsync(sbH.ToString()).ConfigureAwait(false);
@@ -134,12 +130,12 @@ namespace CsvTools
           var row = withHeader;
           colNum = 0;
           foreach (var value in from columnInfo in Columns
-                                let col = reader.GetValue(columnInfo.ColumnOrdinalReader)
-                                select m_XMLEncode
-                                  ? SecurityElement.Escape(TextEncodeField(FileFormat, col, columnInfo, false,
-                                    reader,
-                                    null))
-                                  : JsonConvert.ToString(col))
+            let col = reader.GetValue(columnInfo.ColumnOrdinalReader)
+            select m_XMLEncode
+              ? SecurityElement.Escape(TextEncodeField(FileFormat, col, columnInfo, false,
+                reader,
+                null))
+              : JsonConvert.ToString(col))
           {
             row = row.Replace(placeHolderLookup1[colNum], value).Replace(placeHolderLookup2[colNum], value);
             colNum++;
@@ -156,8 +152,8 @@ namespace CsvTools
           await writer.WriteAsync(sb.ToString()).ConfigureAwait(false);
 
         // Footer
-        if (!string.IsNullOrEmpty(Footer))
-          await writer.WriteAsync(ReplacePlaceHolder(Footer)).ConfigureAwait(false);
+        if (!string.IsNullOrEmpty(Footer()))
+          await writer.WriteAsync(Footer()).ConfigureAwait(false);
 
         await writer.FlushAsync();
       }
