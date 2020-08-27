@@ -95,8 +95,12 @@ namespace CsvTools
             await writer.WriteAsync(sb.ToString()).ConfigureAwait(false);
             sb.Length = 0;
           }
+          NextRecord();
+          var rowResult = GetRowFromReader(reader);
 
-          if (WriterProcessRecord(reader, sb, Columns.Count(), recordEnd)) break;
+          if (rowResult.Item1 == Columns.Count()) break;
+          sb.Append(rowResult.Item2);
+          sb.Append(recordEnd);
         }
 
         if (!string.IsNullOrEmpty(Footer))
@@ -110,36 +114,24 @@ namespace CsvTools
       }
     }
 
-    private bool WriterProcessRecord([NotNull] IDataReader reader, [NotNull] StringBuilder sb,
-      int numColumns, [CanBeNull] string recordEnd)
+    private Tuple<int, string> GetRowFromReader([NotNull] IDataReader reader)
     {
-      NextRecord();
       var emptyColumns = 0;
+      var lastCol = Columns[Columns.Count-1];
+      var row = new StringBuilder();
       foreach (var columnInfo in Columns)
       {
         // Number of columns might be higher than number of reader columns
         var col = reader.GetValue(columnInfo.ColumnOrdinalReader);
-        if (col == DBNull.Value)
+        if (col == DBNull.Value || (col is string stri && string.IsNullOrEmpty(stri)))
           emptyColumns++;
+        else
+          row.Append(TextEncodeField(FileFormat, col, columnInfo, false, reader, QualifyText));
 
-        sb.Append(TextEncodeField(FileFormat, col, columnInfo, false, reader, QualifyText));
-
-        if (!FileFormat.IsFixedLength)
-          sb.Append(FileFormat.FieldDelimiterChar);
+        if (!FileFormat.IsFixedLength && !ReferenceEquals(columnInfo, lastCol))
+          row.Append(FileFormat.FieldDelimiterChar);
       }
-
-      if (!FileFormat.IsFixedLength)
-        sb.Length--;
-      if (emptyColumns == numColumns)
-      {
-        // Remove the delimiters again
-        if (!FileFormat.IsFixedLength)
-          sb.Length -= numColumns;
-        return true;
-      }
-
-      sb.Append(recordEnd);
-      return false;
+      return new Tuple<int, string>(emptyColumns, row.ToString());
     }
 
     [NotNull]

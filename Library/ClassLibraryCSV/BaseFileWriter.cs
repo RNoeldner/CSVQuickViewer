@@ -46,6 +46,7 @@ namespace CsvTools
 
     // [CanBeNull] private readonly IProcessDisplay m_ProcessDisplay;
     private readonly Action<string> m_ReportProgress;
+
     private readonly Action<long> m_SetMaxProcess;
 
     private readonly string m_SqlStatement;
@@ -76,7 +77,6 @@ namespace CsvTools
       ColumnDefinition = fileSetting.ColumnCollection.ReadonlyCopy();
       if (processDisplay != null)
       {
-
         m_ReportProgress = t => processDisplay.SetProcess(t, 0, true);
         if (processDisplay is IProcessDisplayTime processDisplayTime)
         {
@@ -182,7 +182,6 @@ namespace CsvTools
     /// <param name="message">The message.</param>
     protected void HandleError(string columnName, string message) =>
       Warning?.Invoke(this, new WarningEventArgs(Records, 0, message, 0, 0, columnName));
-
 
     protected void HandleProgress(string text) => m_ReportProgress?.Invoke(text);
 
@@ -343,6 +342,7 @@ namespace CsvTools
                 if (fileFormat.QuotePlaceholder.Length > 0 && fileFormat.FieldQualifierChar != '\0')
                   displayAs = displayAs.Replace(fileFormat.FieldQualifierChar.ToString(), fileFormat.QuotePlaceholder);
                 break;
+
               default:
                 displayAs = string.Empty;
                 break;
