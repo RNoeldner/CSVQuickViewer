@@ -324,6 +324,7 @@ namespace CsvTools
       this.m_Button3.Anchor =
         ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Bottom |
                                                System.Windows.Forms.AnchorStyles.Right)));
+      this.m_Button3.AutoSize = true;
       this.m_Button3.BackColor = System.Drawing.SystemColors.ButtonFace;
       this.m_Button3.Location = new System.Drawing.Point(351, 186);
       this.m_Button3.Margin = new System.Windows.Forms.Padding(2);
@@ -340,6 +341,7 @@ namespace CsvTools
       this.m_Button2.Anchor =
         ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Bottom |
                                                System.Windows.Forms.AnchorStyles.Right)));
+      this.m_Button2.AutoSize = true;
       this.m_Button2.BackColor = System.Drawing.SystemColors.ButtonFace;
       this.m_Button2.DialogResult = System.Windows.Forms.DialogResult.Cancel;
       this.m_Button2.Location = new System.Drawing.Point(264, 186);
@@ -375,6 +377,7 @@ namespace CsvTools
       this.m_Button1.Anchor =
         ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Bottom |
                                                System.Windows.Forms.AnchorStyles.Right)));
+      this.m_Button1.AutoSize = true;
       this.m_Button1.BackColor = System.Drawing.SystemColors.ButtonFace;
       this.m_Button1.Location = new System.Drawing.Point(177, 186);
       this.m_Button1.Margin = new System.Windows.Forms.Padding(2);

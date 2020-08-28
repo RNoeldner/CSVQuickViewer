@@ -144,7 +144,7 @@
       // labelFalse
       // 
       labelFalse.AutoSize = true;
-      labelFalse.Location = new System.Drawing.Point(74, 37);
+      labelFalse.Location = new System.Drawing.Point(72, 37);
       labelFalse.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
       labelFalse.Name = "labelFalse";
       labelFalse.Size = new System.Drawing.Size(40, 15);
@@ -155,7 +155,7 @@
       // labelPoint
       // 
       labelPoint.AutoSize = true;
-      labelPoint.Location = new System.Drawing.Point(34, 54);
+      labelPoint.Location = new System.Drawing.Point(37, 63);
       labelPoint.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
       labelPoint.Name = "labelPoint";
       labelPoint.Size = new System.Drawing.Size(87, 15);
@@ -176,7 +176,7 @@
       // labelGroup
       // 
       labelGroup.AutoSize = true;
-      labelGroup.Location = new System.Drawing.Point(2, 34);
+      labelGroup.Location = new System.Drawing.Point(2, 43);
       labelGroup.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
       labelGroup.Name = "labelGroup";
       labelGroup.Size = new System.Drawing.Size(122, 15);
@@ -188,7 +188,7 @@
       labelTimeSep.Anchor = System.Windows.Forms.AnchorStyles.Right;
       labelTimeSep.AutoSize = true;
       labelTimeSep.Location = new System.Drawing.Point(166, 4);
-      labelTimeSep.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+      labelTimeSep.Margin = new System.Windows.Forms.Padding(2);
       labelTimeSep.Name = "labelTimeSep";
       labelTimeSep.Size = new System.Drawing.Size(95, 15);
       labelTimeSep.TabIndex = 5;
@@ -232,7 +232,7 @@
       labelSepBy.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
       labelSepBy.AutoSize = true;
-      labelSepBy.Location = new System.Drawing.Point(40, 11);
+      labelSepBy.Location = new System.Drawing.Point(35, 17);
       labelSepBy.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
       labelSepBy.Name = "labelSepBy";
       labelSepBy.Size = new System.Drawing.Size(76, 15);
@@ -245,7 +245,7 @@
       labelPart.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
       labelPart.AutoSize = true;
-      labelPart.Location = new System.Drawing.Point(79, 35);
+      labelPart.Location = new System.Drawing.Point(79, 41);
       labelPart.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
       labelPart.Name = "labelPart";
       labelPart.Size = new System.Drawing.Size(32, 15);
@@ -397,6 +397,7 @@
       // 
       // buttonAddFormat
       // 
+      this.buttonAddFormat.AutoSize = true;
       tableLayoutPanel2.SetColumnSpan(this.buttonAddFormat, 2);
       this.buttonAddFormat.Location = new System.Drawing.Point(300, 163);
       this.buttonAddFormat.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -582,7 +583,7 @@
       // textBoxGroupSeparator
       // 
       this.textBoxGroupSeparator.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.bindingSourceValueFormat, "GroupSeparator", true));
-      this.textBoxGroupSeparator.Location = new System.Drawing.Point(113, 30);
+      this.textBoxGroupSeparator.Location = new System.Drawing.Point(127, 39);
       this.textBoxGroupSeparator.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
       this.textBoxGroupSeparator.Name = "textBoxGroupSeparator";
       this.textBoxGroupSeparator.Size = new System.Drawing.Size(25, 20);
@@ -594,7 +595,7 @@
       // textBoxDecimalSeparator
       // 
       this.textBoxDecimalSeparator.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.bindingSourceValueFormat, "DecimalSeparator", true));
-      this.textBoxDecimalSeparator.Location = new System.Drawing.Point(113, 50);
+      this.textBoxDecimalSeparator.Location = new System.Drawing.Point(127, 59);
       this.textBoxDecimalSeparator.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
       this.textBoxDecimalSeparator.Name = "textBoxDecimalSeparator";
       this.textBoxDecimalSeparator.Size = new System.Drawing.Size(25, 20);
@@ -607,7 +608,7 @@
       // label16
       // 
       this.label16.AutoSize = true;
-      this.label16.Location = new System.Drawing.Point(27, 11);
+      this.label16.Location = new System.Drawing.Point(27, 20);
       this.label16.Name = "label16";
       this.label16.Size = new System.Drawing.Size(97, 15);
       this.label16.TabIndex = 0;
@@ -630,9 +631,10 @@
       // 
       // buttonCancel
       // 
+      this.buttonCancel.AutoSize = true;
       this.buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-      this.buttonCancel.Location = new System.Drawing.Point(446, 486);
-      this.buttonCancel.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+      this.buttonCancel.Location = new System.Drawing.Point(446, 501);
+      this.buttonCancel.Margin = new System.Windows.Forms.Padding(2);
       this.buttonCancel.Name = "buttonCancel";
       this.buttonCancel.Size = new System.Drawing.Size(104, 25);
       this.buttonCancel.TabIndex = 4;
@@ -644,7 +646,7 @@
       // 
       this.labelNumber.AutoSize = true;
       this.labelNumber.ForeColor = System.Drawing.SystemColors.Highlight;
-      this.labelNumber.Location = new System.Drawing.Point(302, 22);
+      this.labelNumber.Location = new System.Drawing.Point(303, 30);
       this.labelNumber.Name = "labelNumber";
       this.labelNumber.Size = new System.Drawing.Size(48, 15);
       this.labelNumber.TabIndex = 6;
@@ -654,7 +656,7 @@
       // 
       this.labelNumberOutput.AutoSize = true;
       this.labelNumberOutput.ForeColor = System.Drawing.SystemColors.Highlight;
-      this.labelNumberOutput.Location = new System.Drawing.Point(297, 35);
+      this.labelNumberOutput.Location = new System.Drawing.Point(297, 45);
       this.labelNumberOutput.Name = "labelNumberOutput";
       this.labelNumberOutput.Size = new System.Drawing.Size(57, 15);
       this.labelNumberOutput.TabIndex = 7;
@@ -705,7 +707,7 @@
       this.groupBoxNumber.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
       this.groupBoxNumber.Name = "groupBoxNumber";
       this.groupBoxNumber.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
-      this.groupBoxNumber.Size = new System.Drawing.Size(547, 87);
+      this.groupBoxNumber.Size = new System.Drawing.Size(547, 96);
       this.groupBoxNumber.TabIndex = 6;
       this.groupBoxNumber.TabStop = false;
       this.groupBoxNumber.Text = "Number";
@@ -713,7 +715,7 @@
       // linkLabel2
       // 
       this.linkLabel2.AutoSize = true;
-      this.linkLabel2.Location = new System.Drawing.Point(303, 54);
+      this.linkLabel2.Location = new System.Drawing.Point(303, 63);
       this.linkLabel2.Name = "linkLabel2";
       this.linkLabel2.Size = new System.Drawing.Size(117, 15);
       this.linkLabel2.TabIndex = 3;
@@ -729,7 +731,7 @@
             "0.#####",
             "0.00",
             "#,##0.##"});
-      this.comboBoxNumberFormat.Location = new System.Drawing.Point(113, 8);
+      this.comboBoxNumberFormat.Location = new System.Drawing.Point(127, 17);
       this.comboBoxNumberFormat.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
       this.comboBoxNumberFormat.Name = "comboBoxNumberFormat";
       this.comboBoxNumberFormat.Size = new System.Drawing.Size(106, 21);
@@ -740,7 +742,7 @@
       // 
       this.label2.AutoSize = true;
       this.label2.ForeColor = System.Drawing.SystemColors.Highlight;
-      this.label2.Location = new System.Drawing.Point(302, 9);
+      this.label2.Location = new System.Drawing.Point(302, 18);
       this.label2.Name = "label2";
       this.label2.Size = new System.Drawing.Size(104, 15);
       this.label2.TabIndex = 2;
@@ -755,7 +757,7 @@
       this.groupBoxBoolean.Controls.Add(this.textBoxTrue);
       this.groupBoxBoolean.Controls.Add(this.textBoxFalse);
       this.groupBoxBoolean.Dock = System.Windows.Forms.DockStyle.Top;
-      this.groupBoxBoolean.Location = new System.Drawing.Point(3, 338);
+      this.groupBoxBoolean.Location = new System.Drawing.Point(3, 347);
       this.groupBoxBoolean.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
       this.groupBoxBoolean.Name = "groupBoxBoolean";
       this.groupBoxBoolean.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -783,8 +785,8 @@
       this.buttonGuess.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
       this.buttonGuess.AutoSize = true;
       this.buttonGuess.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-      this.buttonGuess.Location = new System.Drawing.Point(234, 486);
-      this.buttonGuess.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+      this.buttonGuess.Location = new System.Drawing.Point(234, 501);
+      this.buttonGuess.Margin = new System.Windows.Forms.Padding(2);
       this.buttonGuess.Name = "buttonGuess";
       this.buttonGuess.Size = new System.Drawing.Size(109, 25);
       this.buttonGuess.TabIndex = 2;
@@ -820,11 +822,11 @@
       this.groupBoxSplit.Controls.Add(this.textBoxPart);
       this.groupBoxSplit.Controls.Add(this.labelResultPart);
       this.groupBoxSplit.Dock = System.Windows.Forms.DockStyle.Top;
-      this.groupBoxSplit.Location = new System.Drawing.Point(3, 413);
+      this.groupBoxSplit.Location = new System.Drawing.Point(3, 422);
       this.groupBoxSplit.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
       this.groupBoxSplit.Name = "groupBoxSplit";
       this.groupBoxSplit.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
-      this.groupBoxSplit.Size = new System.Drawing.Size(547, 69);
+      this.groupBoxSplit.Size = new System.Drawing.Size(547, 75);
       this.groupBoxSplit.TabIndex = 8;
       this.groupBoxSplit.TabStop = false;
       this.groupBoxSplit.Text = "Text Part";
@@ -833,7 +835,7 @@
       // 
       this.labelSamplePart.AutoSize = true;
       this.labelSamplePart.ForeColor = System.Drawing.SystemColors.Highlight;
-      this.labelSamplePart.Location = new System.Drawing.Point(303, 11);
+      this.labelSamplePart.Location = new System.Drawing.Point(303, 17);
       this.labelSamplePart.Name = "labelSamplePart";
       this.labelSamplePart.Size = new System.Drawing.Size(48, 15);
       this.labelSamplePart.TabIndex = 2;
@@ -842,7 +844,7 @@
       // checkBoxPartToEnd
       // 
       this.checkBoxPartToEnd.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.columnBindingSource, "PartToEnd", true));
-      this.checkBoxPartToEnd.Location = new System.Drawing.Point(153, 31);
+      this.checkBoxPartToEnd.Location = new System.Drawing.Point(157, 37);
       this.checkBoxPartToEnd.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
       this.checkBoxPartToEnd.Name = "checkBoxPartToEnd";
       this.checkBoxPartToEnd.Size = new System.Drawing.Size(72, 21);
@@ -860,7 +862,7 @@
             ";",
             "|"});
       this.textBoxSplit.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.columnBindingSource, "PartSplitter", true));
-      this.textBoxSplit.Location = new System.Drawing.Point(113, 8);
+      this.textBoxSplit.Location = new System.Drawing.Point(117, 14);
       this.textBoxSplit.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
       this.textBoxSplit.MaxLength = 1;
       this.textBoxSplit.Name = "textBoxSplit";
@@ -874,7 +876,7 @@
       // textBoxPart
       // 
       this.textBoxPart.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.columnBindingSource, "Part", true));
-      this.textBoxPart.Location = new System.Drawing.Point(113, 31);
+      this.textBoxPart.Location = new System.Drawing.Point(117, 37);
       this.textBoxPart.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
       this.textBoxPart.MaxLength = 2;
       this.textBoxPart.Name = "textBoxPart";
@@ -889,7 +891,7 @@
       // 
       this.labelResultPart.AutoSize = true;
       this.labelResultPart.ForeColor = System.Drawing.SystemColors.Highlight;
-      this.labelResultPart.Location = new System.Drawing.Point(297, 28);
+      this.labelResultPart.Location = new System.Drawing.Point(297, 34);
       this.labelResultPart.Name = "labelResultPart";
       this.labelResultPart.Size = new System.Drawing.Size(57, 15);
       this.labelResultPart.TabIndex = 6;
@@ -937,8 +939,8 @@
       this.buttonDisplayValues.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
       this.buttonDisplayValues.AutoSize = true;
       this.buttonDisplayValues.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-      this.buttonDisplayValues.Location = new System.Drawing.Point(98, 486);
-      this.buttonDisplayValues.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+      this.buttonDisplayValues.Location = new System.Drawing.Point(98, 501);
+      this.buttonDisplayValues.Margin = new System.Windows.Forms.Padding(2);
       this.buttonDisplayValues.Name = "buttonDisplayValues";
       this.buttonDisplayValues.Size = new System.Drawing.Size(132, 25);
       this.buttonDisplayValues.TabIndex = 1;
@@ -984,15 +986,16 @@
       this.tableLayoutPanelForm.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.tableLayoutPanelForm.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.tableLayoutPanelForm.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 29F));
-      this.tableLayoutPanelForm.Size = new System.Drawing.Size(553, 513);
+      this.tableLayoutPanelForm.Size = new System.Drawing.Size(553, 528);
       this.tableLayoutPanelForm.TabIndex = 5;
       // 
       // buttonOK
       // 
       this.buttonOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+      this.buttonOK.AutoSize = true;
       this.buttonOK.DialogResult = System.Windows.Forms.DialogResult.OK;
-      this.buttonOK.Location = new System.Drawing.Point(356, 486);
-      this.buttonOK.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+      this.buttonOK.Location = new System.Drawing.Point(356, 501);
+      this.buttonOK.Margin = new System.Windows.Forms.Padding(2);
       this.buttonOK.Name = "buttonOK";
       this.buttonOK.Size = new System.Drawing.Size(86, 25);
       this.buttonOK.TabIndex = 3;
@@ -1005,7 +1008,7 @@
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.CancelButton = this.buttonCancel;
-      this.ClientSize = new System.Drawing.Size(553, 529);
+      this.ClientSize = new System.Drawing.Size(553, 541);
       this.Controls.Add(this.tableLayoutPanelForm);
       this.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.columnBindingSource, "Name", true));
       this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;

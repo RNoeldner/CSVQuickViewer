@@ -107,7 +107,7 @@ namespace CsvTools
       this.m_BtnOk.AutoSize = true;
       this.m_BtnOk.DialogResult = System.Windows.Forms.DialogResult.OK;
       this.m_BtnOk.Location = new System.Drawing.Point(391, 80);
-      this.m_BtnOk.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+      this.m_BtnOk.Margin = new System.Windows.Forms.Padding(2);
       this.m_BtnOk.Name = "m_BtnOk";
       this.m_BtnOk.Size = new System.Drawing.Size(62, 25);
       this.m_BtnOk.TabIndex = 4;
@@ -118,7 +118,7 @@ namespace CsvTools
       this.m_BtnCancel.AutoSize = true;
       this.m_BtnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
       this.m_BtnCancel.Location = new System.Drawing.Point(457, 80);
-      this.m_BtnCancel.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+      this.m_BtnCancel.Margin = new System.Windows.Forms.Padding(2);
       this.m_BtnCancel.Name = "m_BtnCancel";
       this.m_BtnCancel.Size = new System.Drawing.Size(62, 25);
       this.m_BtnCancel.TabIndex = 5;
@@ -130,7 +130,7 @@ namespace CsvTools
       this.m_TableLayoutPanel.SetColumnSpan(this.m_LabelExplain, 3);
       this.m_LabelExplain.Dock = System.Windows.Forms.DockStyle.Top;
       this.m_LabelExplain.Location = new System.Drawing.Point(2, 2);
-      this.m_LabelExplain.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+      this.m_LabelExplain.Margin = new System.Windows.Forms.Padding(2);
       this.m_LabelExplain.Name = "m_LabelExplain";
       this.m_LabelExplain.Size = new System.Drawing.Size(517, 45);
       this.m_LabelExplain.TabIndex = 0;
@@ -161,12 +161,12 @@ namespace CsvTools
       this.m_TableLayoutPanel.Controls.Add(this.m_ButtonLocalTZ, 2, 1);
       this.m_TableLayoutPanel.Controls.Add(this.m_BtnCancel, 2, 2);
       this.m_TableLayoutPanel.Controls.Add(this.m_Label, 0, 2);
-      this.m_TableLayoutPanel.Controls.Add(this.m_BtnOk, 1, 2);
       this.m_TableLayoutPanel.Controls.Add(this.m_LabelExplain, 0, 0);
       this.m_TableLayoutPanel.Controls.Add(this.m_ComboBoxTimeZoneID, 0, 1);
+      this.m_TableLayoutPanel.Controls.Add(this.m_BtnOk, 1, 2);
       this.m_TableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
       this.m_TableLayoutPanel.Location = new System.Drawing.Point(0, 0);
-      this.m_TableLayoutPanel.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+      this.m_TableLayoutPanel.Margin = new System.Windows.Forms.Padding(2);
       this.m_TableLayoutPanel.Name = "m_TableLayoutPanel";
       this.m_TableLayoutPanel.RowCount = 3;
       this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
@@ -179,7 +179,7 @@ namespace CsvTools
       // 
       this.m_ButtonLocalTZ.AutoSize = true;
       this.m_ButtonLocalTZ.Location = new System.Drawing.Point(457, 51);
-      this.m_ButtonLocalTZ.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+      this.m_ButtonLocalTZ.Margin = new System.Windows.Forms.Padding(2);
       this.m_ButtonLocalTZ.Name = "m_ButtonLocalTZ";
       this.m_ButtonLocalTZ.Size = new System.Drawing.Size(62, 25);
       this.m_ButtonLocalTZ.TabIndex = 2;
@@ -193,7 +193,7 @@ namespace CsvTools
       this.m_ComboBoxTimeZoneID.Dock = System.Windows.Forms.DockStyle.Top;
       this.m_ComboBoxTimeZoneID.FormattingEnabled = true;
       this.m_ComboBoxTimeZoneID.Location = new System.Drawing.Point(2, 51);
-      this.m_ComboBoxTimeZoneID.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+      this.m_ComboBoxTimeZoneID.Margin = new System.Windows.Forms.Padding(2);
       this.m_ComboBoxTimeZoneID.Name = "m_ComboBoxTimeZoneID";
       this.m_ComboBoxTimeZoneID.Size = new System.Drawing.Size(451, 21);
       this.m_ComboBoxTimeZoneID.TabIndex = 1;
@@ -213,7 +213,7 @@ namespace CsvTools
       this.ClientSize = new System.Drawing.Size(521, 108);
       this.Controls.Add(this.m_TableLayoutPanel);
       this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
-      this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+      this.Margin = new System.Windows.Forms.Padding(2);
       this.MaximizeBox = false;
       this.MinimizeBox = false;
       this.MinimumSize = new System.Drawing.Size(504, 128);

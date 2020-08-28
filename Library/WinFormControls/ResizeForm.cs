@@ -64,5 +64,16 @@ namespace CsvTools
           ctrl.Font = font;
         }
     }
+
+    private void InitializeComponent()
+    {
+      this.SuspendLayout();
+      // 
+      // ResizeForm
+      // 
+      this.ClientSize = new System.Drawing.Size(282, 253);
+      this.Name = "ResizeForm";
+      this.ResumeLayout(false);
+    }
   }
 }
