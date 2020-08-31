@@ -60,12 +60,16 @@ The file {fullPath} does not exist.";
         }
         else
         {
+          m_FullPath = fullPath;
+          m_CodePage = codePage;
           if (info.Length<cBlockSize*3)
           {
             try
             {
-              var display = GetText(0, cBlockSize);
+              var display = GetText(0, cBlockSize*3);
               CSVTextBox.Text = display;
+              CSVTextBox.ScrollBars = RichTextBoxScrollBars.Both;
+              ScrollBarVertical.Visible = false;
             }
             catch (Exception ex)
             {
@@ -83,8 +87,6 @@ The file {fullPath} does not exist.";
             ScrollBarVertical.Visible=true;
             ScrollBarVertical.LargeChange = 8192;
             ScrollBarVertical.Maximum = info.Length.ToInt();
-            m_FullPath = fullPath;
-            m_CodePage = codePage;
 
             // Starting task without error handler
             var display = GetText(0, cBlockSize);
