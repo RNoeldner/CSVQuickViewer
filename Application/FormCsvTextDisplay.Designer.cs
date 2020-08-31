@@ -2,7 +2,7 @@
 
 namespace CsvTools
 {
-  partial class CsvTextDisplay
+  partial class FormCsvTextDisplay
   {
 
     /// <summary>
@@ -36,11 +36,11 @@ namespace CsvTools
       // ScrollBarVertical
       // 
       this.ScrollBarVertical.Dock = System.Windows.Forms.DockStyle.Right;
-      this.ScrollBarVertical.Location = new System.Drawing.Point(380, 0);
+      this.ScrollBarVertical.Location = new System.Drawing.Point(778, 0);
       this.ScrollBarVertical.Name = "ScrollBarVertical";
-      this.ScrollBarVertical.Size = new System.Drawing.Size(21, 210);
+      this.ScrollBarVertical.Size = new System.Drawing.Size(21, 532);
       this.ScrollBarVertical.TabIndex = 0;
-      this.ScrollBarVertical.Scroll += new System.Windows.Forms.ScrollEventHandler(this.ScrollEvent);
+      //this.ScrollBarVertical.Scroll += new System.Windows.Forms.ScrollEventHandler(this.ScrollEvent);
       this.ScrollBarVertical.ValueChanged += new System.EventHandler(this.ValueChangedEvent);
       // 
       // CSVTextBox
@@ -48,31 +48,35 @@ namespace CsvTools
       this.CSVTextBox.AcceptsTab = true;
       this.CSVTextBox.AutoWordSelection = true;
       this.CSVTextBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
-      this.CSVTextBox.Dock = System.Windows.Forms.DockStyle.Left;
+      this.CSVTextBox.DetectUrls = false;
+      this.CSVTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
       this.CSVTextBox.Location = new System.Drawing.Point(0, 0);
-      this.CSVTextBox.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.CSVTextBox.Margin = new System.Windows.Forms.Padding(2);
       this.CSVTextBox.Name = "CSVTextBox";
       this.CSVTextBox.ReadOnly = true;
       this.CSVTextBox.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Horizontal;
-      this.CSVTextBox.Size = new System.Drawing.Size(380, 210);
+      this.CSVTextBox.Size = new System.Drawing.Size(778, 532);
       this.CSVTextBox.TabIndex = 1;
+      this.CSVTextBox.WordWrap = false;
       // 
-      // CsvTextDisplay
+      // FormCsvTextDisplay
       // 
-      this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+      this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+      this.BackColor = System.Drawing.SystemColors.ControlLightLight;
+      this.ClientSize = new System.Drawing.Size(799, 532);
       this.Controls.Add(this.CSVTextBox);
       this.Controls.Add(this.ScrollBarVertical);
-      this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-      this.Name = "CsvTextDisplay";
-      this.Size = new System.Drawing.Size(401, 210);
-      this.SizeChanged += new System.EventHandler(this.SizeChangedEvent);
+      this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
+      this.Margin = new System.Windows.Forms.Padding(2);
+      this.Name = "FormCsvTextDisplay";
       this.ResumeLayout(false);
+
     }
 
     private CsvTools.CSVRichTextBox CSVTextBox;
     private System.Windows.Forms.VScrollBar ScrollBarVertical;
 
-#endregion
+    #endregion
   }
 }

@@ -272,22 +272,6 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public async Task CsvTextDisplayShow()
-    {
-      var ctrl = new CsvTextDisplay();
-
-      using (var frm = new TestForm())
-      {
-        frm.AddOneControl(ctrl);
-        frm.Show();
-        await ctrl.SetCsvFile(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"), '"', '\t', '\0', 65001);
-
-        Extensions.ProcessUIElements(500);
-        frm.SafeInvoke(() => frm.Close());
-      }
-    }
-
-    [TestMethod]
     public void SearchShow() => UnitTestWinFormHelper.ShowControl(new Search());
 
     [TestMethod]
