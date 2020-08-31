@@ -37,7 +37,6 @@ namespace CsvTools
 
     private const string c_UncLongPathPrefix = @"\\?\UNC\";
 
-
     public static void CreateDirectory([CanBeNull] string directoryName)
     {
       if (string.IsNullOrEmpty(directoryName))
@@ -101,7 +100,9 @@ namespace CsvTools
     /// </summary>
     /// <param name="sourceFile">The file to be copied from</param>
     /// <param name="destFile">The file to be created / overwritten</param>
-    /// <param name="onlyChanged">Checks if the source file is newer or has a different length, if not file will not be copied,</param>
+    /// <param name="onlyChanged">
+    ///   Checks if the source file is newer or has a different length, if not file will not be copied,
+    /// </param>
     /// <param name="processDisplay">A process display</param>
     public static async Task FileCopy([NotNull] string sourceFile, [NotNull] string destFile, bool onlyChanged,
       [CanBeNull] IProcessDisplay processDisplay)
@@ -114,7 +115,6 @@ namespace CsvTools
             fiSource.Length == fiDestInfo.Length)
           return;
       }
-
 
       if (FileExists(sourceFile))
         FileDelete(destFile);
@@ -133,11 +133,11 @@ namespace CsvTools
         }
 
         var intervalAction = processDisplay == null ? null : new IntervalAction();
-        while ((bytesRead = await fromStream.ReadAsync(bytes, 0, bytes.Length).ConfigureAwait(false)) > 0)
+        while ((bytesRead = await fromStream.ReadAsync(bytes, 0, bytes.Length, processDisplay.CancellationToken).ConfigureAwait(false)) > 0)
         {
           processDisplay?.CancellationToken.ThrowIfCancellationRequested();
           totalReads += bytesRead;
-          await toStream.WriteAsync(bytes, 0, bytesRead).ConfigureAwait(false);
+          await toStream.WriteAsync(bytes, 0, bytesRead, processDisplay.CancellationToken).ConfigureAwait(false);
           intervalAction?.Invoke(pos => processDisplay.SetProcess("Copy file", pos, false), totalReads);
         }
 
@@ -171,8 +171,8 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets the name of the directory, unlike Path.GetDirectoryName is return the input in case the input was a directory
-    ///   already
+    ///   Gets the name of the directory, unlike Path.GetDirectoryName is return the input in case
+    ///   the input was a directory already
     /// </summary>
     /// <param name="fileOrDirectory">Name of the file or directory.</param>
     /// <returns>The folder / directory of the given file or directory</returns>
@@ -220,9 +220,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="fileName">Name of the file.</param>
     /// <param name="basePath">The base path.</param>
-    /// <returns>
-    ///   A relative path if possible
-    /// </returns>
+    /// <returns>A relative path if possible</returns>
     [NotNull]
     public static string GetRelativePath([CanBeNull] this string fileName, [CanBeNull] string basePath)
     {
@@ -284,7 +282,7 @@ namespace CsvTools
       var ret = fileName.RemovePrefix();
       if (length <= 0 || string.IsNullOrEmpty(fileName) || fileName.Length <= length)
         return ret;
-      var parts = fileName.Split(new[] {'\\'}, StringSplitOptions.RemoveEmptyEntries);
+      var parts = fileName.Split(new[] { '\\' }, StringSplitOptions.RemoveEmptyEntries);
       var fileNameOnly = parts[parts.Length - 1];
 
       // try to cut out directories
@@ -319,9 +317,13 @@ namespace CsvTools
     }
 
     public static string GetFileNameWithoutExtension([NotNull] string path) => Path.GetFileNameWithoutExtension(path);
+
     public static string PathCombine([NotNull] string path1, [NotNull] string path2) => Path.Combine(path1, path2);
+
     public static string GetFullPath([NotNull] string path) => Path.GetFullPath(path);
+
     public static FileStream OpenRead([NotNull] string fileName) => File.OpenRead(fileName);
+
     public static FileStream OpenWrite([NotNull] string fileName) => File.OpenWrite(fileName);
 
     public static FileStream Create([NotNull] string fileName, int bufferSize, FileOptions options) =>
@@ -399,7 +401,7 @@ namespace CsvTools
     {
       if (string.IsNullOrEmpty(fileName))
         return string.Empty;
-      if (fileName.IndexOfAny(new[] {'*', '?', '[', ']'}) == -1)
+      if (fileName.IndexOfAny(new[] { '*', '?', '[', ']' }) == -1)
         return fileName;
 
       var split = SplitPath(fileName);
@@ -410,13 +412,11 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets  filename that is usable in the file system.
+    ///   Gets filename that is usable in the file system.
     /// </summary>
     /// <param name="original">The original text.</param>
     /// <param name="replaceInvalid">The replace invalid.</param>
-    /// <returns>
-    ///   A text that is allowed in the file system as filename
-    /// </returns>
+    /// <returns>A text that is allowed in the file system as filename</returns>
     [NotNull]
     public static string SafePath([CanBeNull] this string original, [NotNull] string replaceInvalid = "")
     {
@@ -523,9 +523,9 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   In general a wrapper for for <see cref="System.IO.FileInfo" />, but it does allow to store information from other
-    ///   sources (sFTP, Zip etc)
-    ///   Provides properties for a files, it has a reduced property set. Allows the update of  LastWriteTimeUtc
+    ///   In general a wrapper for for <see cref="System.IO.FileInfo" />, but it does allow to store
+    ///   information from other sources (sFTP, Zip etc) Provides properties for a files, it has a
+    ///   reduced property set. Allows the update of LastWriteTimeUtc
     /// </summary>
     public class FileInfo
     {
@@ -591,7 +591,7 @@ namespace CsvTools
       /// <summary>
       ///   Get the extension with the dot
       /// </summary>
-      /// <example>Test.docx  -> .docx</example>
+      /// <example>Test.docx -&gt; .docx</example>
       public string Extension
       {
         get
@@ -604,7 +604,7 @@ namespace CsvTools
       /// <summary>
       ///   Get the filename without the extension or the dot
       /// </summary>
-      /// <example>Test.docx -> Test</example>
+      /// <example>Test.docx -&gt; Test</example>
       public string FileNameWithoutExtension
       {
         get
@@ -613,6 +613,7 @@ namespace CsvTools
           return index == -1 ? FileName : FileName.Substring(0, index);
         }
       }
+
 #pragma warning disable CA1051 // Do not declare visible instance fields
       public readonly string DirectoryName;
 

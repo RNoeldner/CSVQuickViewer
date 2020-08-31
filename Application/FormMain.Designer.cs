@@ -42,9 +42,7 @@
       System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormMain));
       this.fileSystemWatcher = new System.IO.FileSystemWatcher();
       this.textBoxProgress = new CsvTools.LoggerDisplay();
-      this.textPanel = new System.Windows.Forms.Panel();
-      this.buttonCloseText = new System.Windows.Forms.Button();
-      this.csvTextDisplay = new CsvTools.CsvTextDisplay();
+      this.textPanel = new System.Windows.Forms.Panel();          
       this.detailControl = new CsvTools.DetailControl();
       ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher)).BeginInit();
       this.textPanel.SuspendLayout();
@@ -72,9 +70,7 @@
       // 
       // textPanel
       // 
-      this.textPanel.Controls.Add(this.buttonCloseText);
-      this.textPanel.Controls.Add(this.textBoxProgress);
-      this.textPanel.Controls.Add(this.csvTextDisplay);
+      this.textPanel.Controls.Add(this.textBoxProgress);      
       this.textPanel.Location = new System.Drawing.Point(9, 40);
       this.textPanel.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
       this.textPanel.Name = "textPanel";
@@ -84,26 +80,8 @@
       // 
       // buttonCloseText
       // 
-      this.buttonCloseText.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-      this.buttonCloseText.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-      this.buttonCloseText.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
-      this.buttonCloseText.Location = new System.Drawing.Point(335, 139);
-      this.buttonCloseText.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
-      this.buttonCloseText.Name = "buttonCloseText";
-      this.buttonCloseText.Size = new System.Drawing.Size(58, 37);
-      this.buttonCloseText.TabIndex = 4;
-      this.buttonCloseText.Text = "&Close";
-      this.buttonCloseText.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-      this.buttonCloseText.UseVisualStyleBackColor = true;
-      this.buttonCloseText.Click += new System.EventHandler(this.ShowGrid);
-      // 
-      // csvTextDisplay
-      // 
-      this.csvTextDisplay.Location = new System.Drawing.Point(142, 3);
-      this.csvTextDisplay.Margin = new System.Windows.Forms.Padding(2);
-      this.csvTextDisplay.Name = "csvTextDisplay";
-      this.csvTextDisplay.Size = new System.Drawing.Size(198, 177);
-      this.csvTextDisplay.TabIndex = 5;
+
+
       // 
       // detailControl
       // 
@@ -152,9 +130,7 @@
       this.ResumeLayout(false);
 
     }
-
-    private System.Windows.Forms.Button buttonCloseText;
-    private CsvTools.CsvTextDisplay csvTextDisplay;
+    
     private CsvTools.DetailControl detailControl;
     private System.IO.FileSystemWatcher fileSystemWatcher;
     private CsvTools.LoggerDisplay textBoxProgress;

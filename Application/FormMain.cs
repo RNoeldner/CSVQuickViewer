@@ -72,8 +72,6 @@ namespace CsvTools
       Text = AssemblyTitle;
       m_ViewSettings = LoadViewSettings();
 
-      csvTextDisplay.Dock = DockStyle.Fill;
-
       textPanel.SuspendLayout();
       textPanel.Dock = DockStyle.Fill;
       ClearProcess();
@@ -281,18 +279,27 @@ namespace CsvTools
       await OpenDataReaderAsync(true);
     }
 
-    private async void DetailControl_ButtonShowSource(object sender, EventArgs e)
+    private void DetailControl_ButtonShowSource(object sender, EventArgs e)
     {
-      textBoxProgress.Visible = false;
-      Logger.AddLog = null;
-      csvTextDisplay.Visible = true;
-
-      await csvTextDisplay.SetCsvFile(m_FileSetting.FullPath, m_FileSetting.FileFormat.FieldQualifierChar,
-          m_FileSetting.FileFormat.FieldDelimiterChar, m_FileSetting.FileFormat.EscapeCharacterChar,
-          (int) m_CodePage.Item1);
-
-      ShowTextPanel(true);
-      buttonCloseText.Visible = true;
+      try
+      {
+        using (var proc = new FormProcessDisplay("Display Source", false, m_CancellationTokenSource.Token))
+        using (var frmCsv = new FormCsvTextDisplay())
+        {
+          proc.Show();
+          proc.Maximum=0;
+          proc.SetProcess("Reading source and applying color coding ", 0, false);
+          frmCsv.SetCsvFile(m_FileSetting.FullPath, m_FileSetting.FileFormat.FieldQualifierChar,
+              m_FileSetting.FileFormat.FieldDelimiterChar, m_FileSetting.FileFormat.EscapeCharacterChar,
+              (int) m_CodePage.Item1);
+          proc.Close();
+          frmCsv.ShowDialog();
+        }
+      }
+      catch (Exception ex)
+      {
+        this.ShowError(ex);
+      }
     }
 
     private void DisableIgnoreRead()
@@ -515,7 +522,6 @@ namespace CsvTools
 
             if (m_FileSetting.ColumnCollection.Any(x => x.ValueFormat.DataType != DataType.String))
             {
-              detailControl.ButtonShowSource += DetailControl_ButtonShowSource;
               detailControl.ButtonAsText += DetailControl_ButtonAsText;
             }
           }
@@ -691,7 +697,6 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// 
     /// </summary>
     private void SaveViewSettings()
     {

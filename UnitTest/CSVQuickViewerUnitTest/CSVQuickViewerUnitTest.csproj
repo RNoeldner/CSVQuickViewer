@@ -49,6 +49,7 @@
     <Otherwise />
   </Choose>
   <ItemGroup>
+    <Compile Include="ControlsTest.cs" />
     <Compile Include="FormEditSettingsTests.cs" />
     <Compile Include="FormMainTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

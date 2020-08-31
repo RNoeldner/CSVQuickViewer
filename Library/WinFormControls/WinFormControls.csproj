@@ -59,12 +59,6 @@
     <Compile Include="CsvRichTextBox.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="CsvTextDisplay.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="CsvTextDisplay.Designer.cs">
-      <DependentUpon>CsvTextDisplay.cs</DependentUpon>
-    </Compile>
     <Compile Include="ColumnFilterLogic.cs" />
     <Compile Include="DataGridViewColumnFilterControl.cs">
       <SubType>UserControl</SubType>
@@ -162,9 +156,6 @@
     <Service Include="{94E38DFF-614B-4cbd-B67C-F211BB35CE8B}" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="CsvTextDisplay.resx">
-      <DependentUpon>CsvTextDisplay.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="DataGridViewColumnFilterControl.resx">
       <DependentUpon>DataGridViewColumnFilterControl.cs</DependentUpon>
     </EmbeddedResource>
