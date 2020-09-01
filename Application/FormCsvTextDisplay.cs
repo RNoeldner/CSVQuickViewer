@@ -14,6 +14,8 @@
 
 using JetBrains.Annotations;
 using System;
+using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
@@ -27,9 +29,12 @@ namespace CsvTools
   public partial class FormCsvTextDisplay : ResizeForm
   {
     private int m_CodePage;
-    private int m_DisplayedAt;
+    private int m_DisplayedAt = -1;
     [NotNull] private string m_FullPath = string.Empty;
     private const int cBlockSize = 32768;
+    private bool m_UseLines = false;
+    private List<string> m_Lines = new List<string>();
+    private int NumberLinesShown = 10;
 
     /// <summary>
     ///   CTOR CsvTextDisplay
@@ -45,6 +50,7 @@ namespace CsvTools
     public async Task SetCsvFileAsync(string fullPath, char qualifierChar, char delimiterChar, char escapeChar, int codePage)
     {
       Text = fullPath;
+
       if (string.IsNullOrEmpty(fullPath))
       {
         ScrollBarVertical.Visible = false;
@@ -63,11 +69,17 @@ The file {fullPath} does not exist.";
         {
           m_FullPath = fullPath;
           m_CodePage = codePage;
-          if (info.Length<cBlockSize*3)
+          CSVTextBox.DisplaySpace = true;
+          CSVTextBox.Quote = qualifierChar;
+          CSVTextBox.Delimiter = delimiterChar;
+          CSVTextBox.Escape = escapeChar;
+
+          // read all and display all
+          if (info.Length < cBlockSize * 3)
           {
             try
             {
-              var display = await GetTextAsync(0, cBlockSize*3);
+              var display = await GetTextAsync(0, cBlockSize * 3);
               CSVTextBox.Text = display;
               CSVTextBox.ScrollBars = RichTextBoxScrollBars.Both;
               ScrollBarVertical.Visible = false;
@@ -77,21 +89,38 @@ The file {fullPath} does not exist.";
               CSVTextBox.Text = ex.Message;
             }
           }
-          else
+          // Medium size, too big to ahndle all at once in rtf but samll enough to have all in memory
+          else if (info.Length < cBlockSize * 40)
           {
-            CSVTextBox.Text = null;
-            CSVTextBox.DisplaySpace = true;
-            CSVTextBox.Quote = qualifierChar;
-            CSVTextBox.Delimiter = delimiterChar;
-            CSVTextBox.Escape = escapeChar;
+            using (var iStream = FunctionalDI.OpenRead(m_FullPath))
+            {
+              using (var stream = new StreamReader(iStream.Stream, Encoding.GetEncoding(m_CodePage), false))
+              {
+                while (!stream.EndOfStream)
+                  m_Lines.Add(await stream.ReadLineAsync());
+              }
+              m_UseLines =true;
+              CSVTextBox_Resize(this, null);
+            }
             CSVTextBox.MouseWheel += MouseWheelScroll;
             ScrollBarVertical.Visible=true;
+            ScrollBarVertical.SmallChange=1;
+            ScrollBarVertical.LargeChange=5;
+            ScrollBarVertical.Maximum = m_Lines.Count;
+            splitContainer.Panel1Collapsed=false;
+            ValueChangedEvent(this, null);
+          }
+          // file is too big, read whats dispalyed at time of dispaly
+          else
+          {
+            textBox.Visible=false;
+            splitContainer.Panel1Collapsed=true;
+            CSVTextBox.MouseWheel += MouseWheelScroll;
+            ScrollBarVertical.Visible=true;
+            ScrollBarVertical.SmallChange = 1024;
             ScrollBarVertical.LargeChange = 8192;
             ScrollBarVertical.Maximum = info.Length.ToInt();
-
-            // Starting task without error handler
-            var display = await GetTextAsync(0, cBlockSize);
-            CSVTextBox.Text = display;
+            ValueChangedEvent(this, null);
           }
         }
       }
@@ -99,7 +128,7 @@ The file {fullPath} does not exist.";
 
     private void MouseWheelScroll(object sender, MouseEventArgs e)
     {
-      var newValue = ScrollBarVertical.Value - e.Delta;
+      var newValue = ScrollBarVertical.Value - (m_UseLines ? (int) e.Delta / 25 : e.Delta);
 
       if (newValue < ScrollBarVertical.Minimum)
         newValue = ScrollBarVertical.Minimum;
@@ -184,8 +213,25 @@ The file {fullPath} does not exist.";
 
         try
         {
+          string display = null;
           // reading the data is usually pretty fast (unless its encrypted)
-          var display = await GetTextAsync(ScrollBarVertical.Value, cBlockSize);
+          if (m_UseLines)
+          {
+            var sb = new StringBuilder();
+            var sb2 = new StringBuilder();
+            for (var line = ScrollBarVertical.Value; line <ScrollBarVertical.Maximum && line <ScrollBarVertical.Value+NumberLinesShown-1; line++)
+            {
+              sb2.AppendLine($"{line+1:N0}");
+              sb.AppendLine(m_Lines[line]);
+            }
+            textBox.Rtf =  RtfHelper.RtfFromText(sb2.ToString(), false, '\0', '\0', '\0', false, 24);
+            display = sb.ToString();
+          }
+          else
+          {
+            display = await GetTextAsync(ScrollBarVertical.Value, cBlockSize);
+          }
+
           // Display of teh text is teh most time consuming part
           CSVTextBox.Text = display;
           m_DisplayedAt = ScrollBarVertical.Value;
@@ -196,6 +242,29 @@ The file {fullPath} does not exist.";
         }
         Stopp= false;
       }
+    }
+
+    private void CSVTextBox_KeyUp(object sender, KeyEventArgs e)
+    {
+      if (e.KeyCode== Keys.End && e.Modifiers == Keys.Control)
+      {
+        if (m_UseLines)
+          ScrollBarVertical.Value= ScrollBarVertical.Maximum - NumberLinesShown /2;
+        else
+        {
+          // This is not really exact as the length of the
+          ScrollBarVertical.Value= ScrollBarVertical.Maximum- 1000;
+        }
+        e.Handled=true;
+      }
+    }
+
+    private void CSVTextBox_Resize(object sender, EventArgs e)
+    {
+      if (!m_UseLines) return;
+      var g = Graphics.FromHwnd(CSVTextBox.Handle);
+      var textHeight = g.MeasureString("A Text\r\n2nd Line\r\n3rd Line", CSVTextBox.Font);
+      NumberLinesShown = (int) ((CSVTextBox.Height / (textHeight.Height/3)));
     }
   }
 }

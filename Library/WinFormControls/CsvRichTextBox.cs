@@ -114,79 +114,9 @@ namespace CsvTools
 
     private void SetRtfFromText()
     {
-      var rtfHelper = new RtfHelper(m_DisplaySpace, 24);
       try
       {
-        if (!string.IsNullOrEmpty(m_Text))
-        {
-          var curChar = '\0';
-          m_InQuote = false;
-
-          for (var pos = 0; pos < m_Text.Length; pos++)
-          {
-            // get the charters and the surroundings
-            var lastChar = curChar;
-            curChar = m_Text[pos];
-            var nextChar = pos < m_Text.Length - 1 ? m_Text[pos + 1] : '\0';
-
-            if (curChar == '\r' || curChar == '\n')
-            {
-              rtfHelper.AddChar(4, curChar);
-              rtfHelper.AddRtf(1, "\\par\n");
-              if (curChar == '\r' && nextChar == '\n' || curChar == '\n' && nextChar == '\r')
-                pos++;
-              continue;
-            }
-
-            if (m_DisplaySpace && curChar == ' ')
-            {
-              rtfHelper.AddRtf(4, "\\bullet");
-              continue;
-            }
-
-            if (curChar == m_Delimiter && !m_InQuote)
-            {
-              rtfHelper.AddChar(2, curChar);
-              continue;
-            }
-
-            if (curChar == m_Quote)
-            {
-              // Start m_InQuote
-              if (!m_InQuote)
-              {
-                rtfHelper.AddChar(3, curChar);
-                m_InQuote = true;
-                continue;
-              }
-
-              // Stop quote but skip internal Quotes
-              if (!(lastChar == m_Escape || nextChar == m_Quote))
-              {
-                rtfHelper.AddChar(3, curChar);
-                m_InQuote = false;
-                continue;
-              }
-
-              if (nextChar == m_Quote)
-              {
-                rtfHelper.AddChar(1, curChar);
-                rtfHelper.AddChar(1, nextChar);
-                pos++;
-                continue;
-              }
-            }
-
-            if (curChar >= 32 && curChar <= 127 || curChar == '\t')
-              rtfHelper.AddChar(1, curChar);
-            else
-
-              // others need to be passed on with their decimal code
-              rtfHelper.AddRtf(1, $"\\u{(int) curChar}?");
-          }
-        }
-
-        Rtf = rtfHelper.Rtf;
+        Rtf = RtfHelper.RtfFromText(m_Text, m_DisplaySpace, m_Delimiter, m_Quote, m_Escape, true, 24);
       }
       catch (Exception ex)
       {
