@@ -15,7 +15,6 @@
 using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
@@ -50,7 +49,6 @@ namespace CsvTools
     public async Task SetCsvFileAsync(string fullPath, char qualifierChar, char delimiterChar, char escapeChar, int codePage)
     {
       Text = fullPath;
-
       if (string.IsNullOrEmpty(fullPath))
       {
         ScrollBarVertical.Visible = false;
@@ -262,9 +260,7 @@ The file {fullPath} does not exist.";
     private void CSVTextBox_Resize(object sender, EventArgs e)
     {
       if (!m_UseLines) return;
-      var g = Graphics.FromHwnd(CSVTextBox.Handle);
-      var textHeight = g.MeasureString("A Text\r\n2nd Line\r\n3rd Line", CSVTextBox.Font);
-      NumberLinesShown = (int) ((CSVTextBox.Height / (textHeight.Height/3)));
+      NumberLinesShown = (int) ((CSVTextBox.Height / 20))+1;
     }
   }
 }
