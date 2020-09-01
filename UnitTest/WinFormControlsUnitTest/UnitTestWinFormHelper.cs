@@ -39,8 +39,20 @@ namespace CsvTools.Tests
       frm.ShowInTaskbar = false;
       frm.Show();
       frm.Focus();
-      WaitSomeTime(.3);
+      WaitSomeTime(.5);
       RunTaskTimeout(toDo, timeout);
+      WaitSomeTime(.5);
+      frm.Close();
+    }
+    public static async Task ShowFormAndCloseAsync(Form frm, double time, [NotNull] Task toDo)
+    {
+      frm.TopMost = true;
+      frm.ShowInTaskbar = false;
+      frm.Show();
+      frm.Focus();
+      WaitSomeTime(time);
+      await toDo;
+      WaitSomeTime(time);
       frm.Close();
     }
 

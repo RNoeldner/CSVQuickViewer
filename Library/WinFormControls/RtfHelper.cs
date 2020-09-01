@@ -18,74 +18,72 @@ namespace CsvTools
     public static string RtfFromText(string text, bool displaySpace = false, char delimiter = ',', char quote = '"', char escape = '"', bool addPar = true, int size = 18)
     {
       var rtfHelper = new RtfHelper(displaySpace, size);
-      if (!string.IsNullOrEmpty(text))
+      if (string.IsNullOrEmpty(text)) return rtfHelper.Rtf;
+      var curChar = '\0';
+      var inQuote = false;
+
+      for (var pos = 0; pos < text.Length; pos++)
       {
-        var curChar = '\0';
-        var m_InQuote = false;
+        // get the charters and the surroundings
+        var lastChar = curChar;
+        curChar = text[pos];
+        var nextChar = pos < text.Length - 1 ? text[pos + 1] : '\0';
 
-        for (var pos = 0; pos < text.Length; pos++)
+        if (curChar == '\r' || curChar == '\n')
         {
-          // get the charters and the surroundings
-          var lastChar = curChar;
-          curChar = text[pos];
-          var nextChar = pos < text.Length - 1 ? text[pos + 1] : '\0';
-
-          if (curChar == '\r' || curChar == '\n')
-          {
-            if (addPar)
-              rtfHelper.AddChar(4, curChar);
-            rtfHelper.AddRtf(1, "\\par\n");
-            if (curChar == '\r' && nextChar == '\n' || curChar == '\n' && nextChar == '\r')
-              pos++;
-            continue;
-          }
-
-          if (displaySpace && curChar == ' ')
-          {
-            rtfHelper.AddRtf(4, "\\bullet");
-            continue;
-          }
-
-          if (curChar == delimiter && !m_InQuote)
-          {
-            rtfHelper.AddChar(2, curChar);
-            continue;
-          }
-
-          if (curChar == quote)
-          {
-            // Start m_InQuote
-            if (!m_InQuote)
-            {
-              rtfHelper.AddChar(3, curChar);
-              m_InQuote = true;
-              continue;
-            }
-
-            // Stop quote but skip internal Quotes
-            if (!(lastChar == escape || nextChar == quote))
-            {
-              rtfHelper.AddChar(3, curChar);
-              m_InQuote = false;
-              continue;
-            }
-
-            if (nextChar == quote)
-            {
-              rtfHelper.AddChar(1, curChar);
-              rtfHelper.AddChar(1, nextChar);
-              pos++;
-              continue;
-            }
-          }
-
-          if (curChar >= 32 && curChar <= 127 || curChar == '\t')
-            rtfHelper.AddChar(1, curChar);
-          else
-
-            // others need to be passed on with their decimal code
-            rtfHelper.AddRtf(1, $"\\u{(int) curChar}?");
+          if (addPar)
+            rtfHelper.AddChar(4, curChar);
+          rtfHelper.AddRtf(1, "\\par\n");
+          if (curChar == '\r' && nextChar == '\n' || curChar == '\n' && nextChar == '\r')
+            pos++;
+          continue;
         }
+
+        if (displaySpace && curChar == ' ')
+        {
+          rtfHelper.AddRtf(4, "\\bullet");
+          continue;
+        }
+
+        if (curChar == delimiter && !inQuote)
+        {
+          rtfHelper.AddChar(2, curChar);
+          continue;
+        }
+
+        if (curChar == quote)
+        {
+          // Start m_InQuote
+          if (!inQuote)
+          {
+            rtfHelper.AddChar(3, curChar);
+            inQuote = true;
+            continue;
+          }
+
+          // Stop quote but skip internal Quotes
+          if (!(lastChar == escape || nextChar == quote))
+          {
+            rtfHelper.AddChar(3, curChar);
+            inQuote = false;
+            continue;
+          }
+
+          if (nextChar == quote)
+          {
+            rtfHelper.AddChar(1, curChar);
+            rtfHelper.AddChar(1, nextChar);
+            pos++;
+            continue;
+          }
+        }
+
+        if (curChar >= 32 && curChar <= 127 || curChar == '\t')
+          rtfHelper.AddChar(1, curChar);
+        else
+
+          // others need to be passed on with their decimal code
+          rtfHelper.AddRtf(1, $"\\u{(int) curChar}?");
       }
 
       return rtfHelper.Rtf;
