@@ -111,13 +111,23 @@ The file {fullPath} does not exist.";
 
     private void ChangePosition(int newPos)
     {
-      if (m_DisplayedAt != newPos && ScrollBarVertical.Enabled)
+      if (m_DisplayedAt != newPos)
       {
-        ScrollBarVertical.Enabled=false;
-        var display = GetText(newPos, cBlockSize);
-        CSVTextBox.Text = display;
-        m_DisplayedAt = newPos;
-        ScrollBarVertical.Enabled=true;
+        if (IsScrolling)
+          Stopp=true;
+        try
+        {
+          // reading the data is usually pretty fast (unless its encrypted)
+          var display = GetText(newPos, cBlockSize);
+          // Display of teh text is teh most time consuming part
+          CSVTextBox.Text = display;
+          m_DisplayedAt = newPos;
+        }
+        catch
+        {
+          // ignore
+        }
+        Stopp= false;
       }
     }
 
@@ -128,6 +138,9 @@ The file {fullPath} does not exist.";
         sr.Read();
     }
 
+    private bool IsScrolling = false;
+    private bool Stopp = false;
+
     private string GetText(int newPos, int maxChar)
     {
       try
@@ -135,8 +148,12 @@ The file {fullPath} does not exist.";
         var sb = new StringBuilder();
         using (var iStream = FunctionalDI.OpenRead(m_FullPath))
         {
+          if (Stopp) throw new OperationCanceledException();
+
           if (iStream.Stream.CanSeek && newPos != 0)
             iStream.Stream.Seek(newPos, SeekOrigin.Begin);
+
+          if (Stopp) throw new OperationCanceledException();
           using (var stream = new StreamReader(iStream.Stream, Encoding.GetEncoding((int) m_CodePage), false))
           {
             // get the line end the position might be in teh mniddle of the line
@@ -151,14 +168,25 @@ The file {fullPath} does not exist.";
             }
 
             while (!stream.EndOfStream && sb.Length<maxChar)
+            {
+              if (Stopp) throw new OperationCanceledException();
               sb.Append((char) stream.Read());
+            }
           }
         }
         return sb.ToString();
       }
+      catch (OperationCanceledException)
+      {
+        throw;
+      }
       catch (Exception exc)
       {
         return exc.ExceptionMessages();
+      }
+      finally
+      {
+        IsScrolling = false;
       }
     }
 
