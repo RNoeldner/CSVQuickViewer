@@ -220,7 +220,11 @@ namespace CsvTools
     /// <param name="additionalTitle">Title Bar information</param>
     public static void ShowError(this Form from, Exception ex, string additionalTitle = "")
     {
-      Logger.Warning(ex, "Error in {form} : {message}", from.GetType().Name, ex.SourceExceptionMessage());
+
+      if (from!=null)
+        Logger.Warning(ex, "Error in {form} : {message}", from.GetType().Name, ex.SourceExceptionMessage());
+      else
+        Logger.Warning(ex, ex.SourceExceptionMessage());
       Cursor.Current = Cursors.Default;
 #if DEBUG
       _MessageBox.ShowBig(from, ex.ExceptionMessages() + "\n\nMethod:\n" + ex.StackTrace, string.IsNullOrEmpty(additionalTitle) ? "Error" : $"Error {additionalTitle}", MessageBoxButtons.OK, MessageBoxIcon.Warning, timeout: 20);

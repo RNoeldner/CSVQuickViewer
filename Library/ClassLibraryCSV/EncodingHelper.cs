@@ -282,9 +282,9 @@ namespace CsvTools
     [NotNull]
     public static string GetEncodingName(int codePage, bool showBom, bool hasBom)
     {
-      const string c_SuffixWithBom = " with BOM";
+      const string suffixWithBom = " with BOM";
       string name;
-      var suffixBom = hasBom ? c_SuffixWithBom :
+      var suffixBom = hasBom ? suffixWithBom :
         showBom ? cSuffixWithoutBom : string.Empty;
       try
       {

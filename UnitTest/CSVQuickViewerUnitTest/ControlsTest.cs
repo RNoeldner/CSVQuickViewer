@@ -9,15 +9,9 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvTextDisplayShow()
     {
-      var ctrl = new FormCsvTextDisplay();
-
-      using (var frm = new TestForm())
+      using (var frm = new FormCsvTextDisplay())
       {
-        frm.AddOneControl(ctrl);
-        frm.Show();
-        await ctrl.SetCsvFileAsync(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"), '"', '\t', '\0', 65001);
-
-        frm.SafeInvoke(() => frm.Close());
+        await UnitTestWinFormHelper.ShowFormAndCloseAsync(frm,.2, frm.SetCsvFileAsync(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"), '"', '\t', '\0', 1200));
       }
     }
   }
