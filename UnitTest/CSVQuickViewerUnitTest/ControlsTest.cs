@@ -15,9 +15,8 @@ namespace CsvTools.Tests
       {
         frm.AddOneControl(ctrl);
         frm.Show();
-        ctrl.SetCsvFile(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"), '"', '\t', '\0', 65001);
+        await ctrl.SetCsvFileAsync(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"), '"', '\t', '\0', 65001);
 
-        Extensions.ProcessUIElements(500);
         frm.SafeInvoke(() => frm.Close());
       }
     }

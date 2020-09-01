@@ -62,6 +62,8 @@ namespace CsvTools
 
     private Tuple<EncodingHelper.CodePage, bool> m_CodePage;
 
+    private FormCsvTextDisplay m_SourceDisplay = null;
+
     /// <summary>
     ///   Initializes a new instance of the <see cref="FormMain" /> class.
     /// </summary>
@@ -279,27 +281,40 @@ namespace CsvTools
       await OpenDataReaderAsync(true);
     }
 
-    private void DetailControl_ButtonShowSource(object sender, EventArgs e)
+    private async void DetailControl_ButtonShowSource(object sender, EventArgs e)
     {
       try
       {
-        using (var proc = new FormProcessDisplay("Display Source", false, m_CancellationTokenSource.Token))
-        using (var frmCsv = new FormCsvTextDisplay())
+        if (m_SourceDisplay==null)
         {
-          proc.Show();
-          proc.Maximum=0;
-          proc.SetProcess("Reading source and applying color coding ", 0, false);
-          frmCsv.SetCsvFile(m_FileSetting.FullPath, m_FileSetting.FileFormat.FieldQualifierChar,
-              m_FileSetting.FileFormat.FieldDelimiterChar, m_FileSetting.FileFormat.EscapeCharacterChar,
-              (int) m_CodePage.Item1);
-          proc.Close();
-          frmCsv.ShowDialog();
+          m_SourceDisplay = new FormCsvTextDisplay();
+          using (var proc = new FormProcessDisplay("Display Source", false, m_CancellationTokenSource.Token))
+          {
+            m_SourceDisplay.Show();
+            proc.Show(this);
+
+            proc.Maximum=0;
+            proc.SetProcess("Reading source and applying color coding ", 0, false);
+
+            await m_SourceDisplay.SetCsvFileAsync(m_FileSetting.FullPath, m_FileSetting.FileFormat.FieldQualifierChar,
+                m_FileSetting.FileFormat.FieldDelimiterChar, m_FileSetting.FileFormat.EscapeCharacterChar,
+                (int) m_CodePage.Item1);
+            proc.Close();
+
+            m_SourceDisplay.FormClosed += SourceDisplayClosed;
+          }
         }
       }
       catch (Exception ex)
       {
         this.ShowError(ex);
       }
+    }
+
+    private void SourceDisplayClosed(object sender, FormClosedEventArgs e)
+    {
+      m_SourceDisplay?.Dispose();
+      m_SourceDisplay = null;
     }
 
     private void DisableIgnoreRead()
