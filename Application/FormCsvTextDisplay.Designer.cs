@@ -29,7 +29,6 @@ namespace CsvTools
     /// </summary>
     private void InitializeComponent()
     {
-      System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormCsvTextDisplay));
       this.ScrollBarVertical = new System.Windows.Forms.VScrollBar();
       this.CSVTextBox = new CsvTools.CSVRichTextBox2();
       this.SuspendLayout();
@@ -59,9 +58,9 @@ namespace CsvTools
       this.CSVTextBox.ScrollWidth = 3501;
       this.CSVTextBox.ShowLineNumber = true;
       this.CSVTextBox.Size = new System.Drawing.Size(942, 491);
+      this.CSVTextBox.SkipLines = 0;
       this.CSVTextBox.TabIndex = 2;
       this.CSVTextBox.Technology = ScintillaNET.Technology.DirectWrite;
-      this.CSVTextBox.Text = resources.GetString("CSVTextBox.Text");
       this.CSVTextBox.ViewEol = true;
       this.CSVTextBox.ViewWhitespace = ScintillaNET.WhitespaceMode.VisibleAlways;
       this.CSVTextBox.WhitespaceSize = 2;
