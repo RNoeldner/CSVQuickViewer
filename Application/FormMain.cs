@@ -298,7 +298,7 @@ namespace CsvTools
 
             await m_SourceDisplay.SetCsvFileAsync(m_FileSetting.FullPath, m_FileSetting.FileFormat.FieldQualifierChar,
                 m_FileSetting.FileFormat.FieldDelimiterChar, m_FileSetting.FileFormat.EscapeCharacterChar,
-                (int) m_CodePage.Item1);
+                (int) m_CodePage.Item1, m_FileSetting.SkipRows);
             proc.Close();
 
             m_SourceDisplay.FormClosed += SourceDisplayClosed;
