@@ -45,9 +45,26 @@ namespace CsvTools.Tests
           DetectGUID = true,
           IgnoreIdColumns = true
         };
+        Assert.AreEqual(0, setting.ColumnCollection.Count);
+
         await setting.FillGuessColumnFormatReaderAsync(false, true, fillGuessSettings, dpd);
-        Assert.AreEqual(DataType.Guid, setting.ColumnCollection[0].ValueFormat.DataType);
-        Assert.AreEqual(DataType.DateTime, setting.ColumnCollection[1].ValueFormat.DataType);
+
+        var expected =
+          new Dictionary<string, DataType>
+          {
+            {"object_id", DataType.Guid},
+            {"_last_touched_dt_utc", DataType.DateTime},
+            {"classification_id", DataType.Guid},
+            {"email_option_id", DataType.Integer}
+          };
+
+        foreach (var keyValue in expected)
+        {
+          var indexCol = setting.ColumnCollection.FirstOrDefault(x =>
+            x.Name.Equals(keyValue.Key, StringComparison.InvariantCultureIgnoreCase));
+          Assert.IsNotNull(indexCol, $"Column {keyValue.Key} not recognized");
+          Assert.AreEqual(keyValue.Value, indexCol.ValueFormat.DataType);
+        }
       }
     }
 
@@ -277,7 +294,7 @@ namespace CsvTools.Tests
               100,
               string.Empty,
               processDisplay.CancellationToken);
-            Assert.AreEqual(dt.Rows.Count, res.RecordsRead);
+            Assert.AreEqual(dt.Rows.Count, res.RecordsRead, "RecordsRead");
             Assert.AreEqual(dt.Rows.Count - (dt.Rows.Count / 5), res.Values.Count());
           }
         }
