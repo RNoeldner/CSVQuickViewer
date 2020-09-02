@@ -338,7 +338,7 @@ namespace CsvTools
       Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount);
       Debug.Assert(CurrentValues != null && columnNumber < CurrentValues.Length);
 
-      return CurrentValues[columnNumber].ToString();
+      return CurrentValues[columnNumber]?.ToString() ?? null;
     }
 
     public override int GetValues(object[] values)
