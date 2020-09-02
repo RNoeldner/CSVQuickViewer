@@ -11,7 +11,7 @@ namespace CsvTools.Tests
     {
       using (var frm = new FormCsvTextDisplay())
       {
-        await UnitTestWinFormHelper.ShowFormAndCloseAsync(frm,.2, frm.SetCsvFileAsync(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"), '"', '\t', '\0', 1200));
+        await UnitTestWinFormHelper.ShowFormAndCloseAsync(frm, .2, frm.SetCsvFileAsync(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"), '"', '\t', '\0', 1200, 1));
       }
     }
   }

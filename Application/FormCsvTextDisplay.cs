@@ -13,7 +13,6 @@
  */
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
@@ -27,16 +26,12 @@ namespace CsvTools
   /// </summary>
   public partial class FormCsvTextDisplay : ResizeForm
   {
-    private const int cBlockSize = 32768;
-
-    private readonly List<string> m_Lines = new List<string>();
     private int m_CodePage;
     private int m_DisplayedAt = -1;
     [NotNull] private string m_FullPath = string.Empty;
     private bool m_IsReading;
-    private int m_NumberLinesShown = 10;
     private bool m_StopReading;
-    private bool m_UseLines;
+    private int m_SkipLines;
 
     /// <summary>
     ///   CTOR CsvTextDisplay
@@ -47,7 +42,7 @@ namespace CsvTools
     ///   CSV File to display
     /// </summary>
     public async Task SetCsvFileAsync(string fullPath, char qualifierChar, char delimiterChar, char escapeChar,
-      int codePage)
+      int codePage, int skipLines)
     {
       Text = fullPath;
       if (string.IsNullOrEmpty(fullPath))
@@ -72,15 +67,16 @@ The file {fullPath} does not exist.";
           CSVTextBox.Quote = qualifierChar;
           CSVTextBox.Delimiter = delimiterChar;
           CSVTextBox.Escape = escapeChar;
+          CSVTextBox.SkipLines = skipLines;
+          m_SkipLines = skipLines;
 
           // read all and display all
-          if (info.Length < cBlockSize * 3)
+          if (info.Length < 64000)
           {
             try
             {
-              var display = await GetTextAsync(0, cBlockSize * 3);
+              var display = await GetTextAsync(0, 64000);
               CSVTextBox.Text = display;
-              CSVTextBox.ScrollBars = RichTextBoxScrollBars.Both;
               ScrollBarVertical.Visible = false;
             }
             catch (Exception ex)
@@ -88,31 +84,10 @@ The file {fullPath} does not exist.";
               CSVTextBox.Text = ex.Message;
             }
           }
-          // Medium size, too big to handle all at once in rtf but small enough to have all in memory
-          else if (info.Length < cBlockSize * 40)
-          {
-            using (var iStream = FunctionalDI.OpenRead(m_FullPath))
-            using (var stream = new StreamReader(iStream.Stream, Encoding.GetEncoding(m_CodePage), true))
-            {
-              while (!stream.EndOfStream)
-                m_Lines.Add(await stream.ReadLineAsync());
-            }
-
-            m_UseLines = true;
-            CSVTextBox_Resize(this, null);
-            CSVTextBox.MouseWheel += MouseWheelScroll;
-            ScrollBarVertical.Visible = true;
-            ScrollBarVertical.SmallChange = 1;
-            ScrollBarVertical.LargeChange = 5;
-            ScrollBarVertical.Maximum = m_Lines.Count;
-            splitContainer.Panel1Collapsed = false;
-            ValueChangedEvent(this, null);
-          }
           // file is too big, read whats displayed at time of display
           else
           {
-            textBox.Visible = false;
-            splitContainer.Panel1Collapsed = true;
+            CSVTextBox.ShowLineNumber= false;
             CSVTextBox.MouseWheel += MouseWheelScroll;
             ScrollBarVertical.Visible = true;
             ScrollBarVertical.SmallChange = 1024;
@@ -126,7 +101,7 @@ The file {fullPath} does not exist.";
 
     private void MouseWheelScroll(object sender, MouseEventArgs e)
     {
-      var newValue = ScrollBarVertical.Value - (m_UseLines ? e.Delta / 25 : e.Delta);
+      var newValue = ScrollBarVertical.Value - e.Delta;
 
       if (newValue < ScrollBarVertical.Minimum)
         newValue = ScrollBarVertical.Minimum;
@@ -156,6 +131,7 @@ The file {fullPath} does not exist.";
             var pos = 0;
             var readChars = await stream.ReadAsync(buffer, 0, maxChar);
             if (newPos != 0)
+            {
               // get to the line start, position might be in the middle of a line
               while (pos < readChars)
               {
@@ -167,10 +143,10 @@ The file {fullPath} does not exist.";
                   if ((chr == '\r' && nextChar == '\n') || (chr == '\n' && nextChar == '\r'))
                     pos++;
                 }
-
                 break;
               }
-
+              pos++;
+            }
             if (m_StopReading) throw new OperationCanceledException();
 
             return new string(buffer, pos, readChars - pos);
@@ -203,30 +179,8 @@ The file {fullPath} does not exist.";
 
       try
       {
-        string display;
-        // reading the data is usually pretty fast (unless its encrypted)
-        if (m_UseLines)
-        {
-          var sb = new StringBuilder();
-          var sb2 = new StringBuilder();
-          for (var line = ScrollBarVertical.Value;
-            line < ScrollBarVertical.Maximum && line < (ScrollBarVertical.Value + m_NumberLinesShown) - 1;
-            line++)
-          {
-            sb2.AppendLine($"{line + 1:N0}");
-            sb.AppendLine(m_Lines[line]);
-          }
-
-          textBox.Rtf = RtfHelper.RtfFromText(sb2.ToString(), false, '\0', '\0', '\0', false, 24);
-          display = sb.ToString();
-        }
-        else
-        {
-          display = await GetTextAsync(ScrollBarVertical.Value, cBlockSize);
-        }
-
-        // Display of teh text is teh most time consuming part
-        CSVTextBox.Text = display;
+        CSVTextBox.SkipLines=(ScrollBarVertical.Value==0) ? m_SkipLines : 0;
+        CSVTextBox.Text = await GetTextAsync(ScrollBarVertical.Value, 32000);
         m_DisplayedAt = ScrollBarVertical.Value;
       }
       catch
@@ -240,18 +194,9 @@ The file {fullPath} does not exist.";
     private void CSVTextBox_KeyUp(object sender, KeyEventArgs e)
     {
       if (e.KeyCode != Keys.End || e.Modifiers != Keys.Control) return;
-      if (m_UseLines)
-        ScrollBarVertical.Value = ScrollBarVertical.Maximum - (m_NumberLinesShown / 2);
-      else
-        // This is not really exact as the length of the
-        ScrollBarVertical.Value = ScrollBarVertical.Maximum - 1000;
+      // This is not really exact as the length of the
+      ScrollBarVertical.Value = ScrollBarVertical.Maximum - 1000;
       e.Handled = true;
-    }
-
-    private void CSVTextBox_Resize(object sender, EventArgs e)
-    {
-      if (!m_UseLines) return;
-      m_NumberLinesShown = (CSVTextBox.Height / 20) + 1;
     }
   }
 }

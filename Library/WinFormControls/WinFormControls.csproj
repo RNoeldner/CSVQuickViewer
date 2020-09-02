@@ -222,6 +222,9 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="jacobslusser.ScintillaNET">
+      <Version>3.6.3</Version>
+    </PackageReference>
     <PackageReference Include="WindowsAPICodePack">
       <Version>1.1.1</Version>
     </PackageReference>
