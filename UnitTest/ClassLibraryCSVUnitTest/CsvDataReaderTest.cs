@@ -1413,47 +1413,6 @@ namespace CsvTools.Tests
       }
     }
 
-    [TestMethod]
-    public async Task GetDataTableAsync2()
-    {
-      using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
-      {
-        var test2 = (CsvFile) m_ValidSetting.Clone();
-        test2.RecordLimit = 4;
-        using (var test = new CsvFileReader(test2, processDisplay))
-        {
-          await test.OpenAsync(processDisplay.CancellationToken);
-
-          var dt = await test.GetDataTableAsync(-1, false, false, false, false, false, null, null,
-            processDisplay.CancellationToken);
-          Assert.AreEqual(test2.RecordLimit, dt.Rows.Count);
-        }
-      }
-    }
-
-    [TestMethod]
-    public async Task GetDataTableAsync3()
-    {
-      using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
-      {
-        var test3 = new CsvFile(UnitTestInitializeCsv.GetTestPath("WithEoFChar.txt"))
-        {
-          FileFormat = {FieldDelimiter = "TAB"}
-        };
-        test3.ColumnCollection.Add(new Column("Memo") {Ignore = true});
-        using (var test = new CsvFileReader(test3, processDisplay))
-        {
-          await test.OpenAsync(processDisplay.CancellationToken);
-
-          var dt = await test.GetDataTableAsync(-1, true, true, true, true, true, null, null,
-            processDisplay.CancellationToken);
-          // 10 columns 1 ignored one added for Start line one for Error Field one for Record No one
-          // for Line end
-          Assert.AreEqual((10 - 1) + 4, dt.Columns.Count);
-          Assert.AreEqual(19, dt.Rows.Count);
-        }
-      }
-    }
 
     [TestMethod]
     public async Task CsvDataReaderNoHeader()

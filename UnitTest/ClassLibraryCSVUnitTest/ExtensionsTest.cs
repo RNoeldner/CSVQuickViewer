@@ -35,6 +35,11 @@ namespace CsvTools.Tests
       Assert.AreEqual("lo_data.csv", "lo_data_20191007_11:03 pm.csv".GetIdFromFileName());
     }
 
+    [TestMethod()]
+    public void WriteAsyncTest()
+    {
+    }
+
     [TestMethod]
     public void ReplacePlaceholder()
     {
@@ -248,6 +253,25 @@ namespace CsvTools.Tests
     public void ReplaceCaseInsensitiveShorter() =>
       Assert.AreEqual("Text1|Text2", "Text1{0}Text2".ReplaceCaseInsensitive("{0}", "|"));
 
+    [TestMethod()]
+    public void GetLogInfoMessageTest()
+    {
+      var testValue = string.Empty;
+      var testValue2 = string.Empty;
+
+      using (var customProcess = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
+      {
+        customProcess.Progress += (sender, args) => testValue = args.Text;
+        Logger.AddLog += (s, level) => testValue2 = s;
+
+        var test = customProcess.GetLogInfoMessage();
+        test.Invoke(null, "Test");
+        // can not check if log was sent
+        Assert.AreEqual("Test", testValue);
+        Assert.AreEqual("Test", testValue2);
+      }
+    }
+
     [TestMethod]
     public void GetRealDataColumnsTest()
     {
@@ -269,6 +293,46 @@ namespace CsvTools.Tests
       Assert.IsTrue("Test.gz".AssumeGZip());
       Assert.IsFalse("Test.gz".AssumeZip());
       Assert.IsFalse("Test.gz".AssumePgp());
+    }
+
+    [TestMethod()]
+    public void DescriptionTest()
+    {
+      var recType = RecordDelimiterType.CR;
+      Assert.AreEqual("Carriage Return", recType.Description());
+    }
+
+    [TestMethod()]
+    public void NewLineStringTest()
+    {
+      var recType = RecordDelimiterType.CR;
+      Assert.AreEqual("\r", recType.NewLineString());
+    }
+
+    [TestMethod()]
+    public void AssumeGZipTest()
+    {
+      Assert.IsTrue("MyFile.gz".AssumeGZip());
+      Assert.IsFalse("MyFile.pgp".AssumeGZip());
+      Assert.IsFalse("MyFile.gpg".AssumeGZip());
+      Assert.IsFalse("MyFile.txt".AssumeGZip());
+    }
+
+    [TestMethod()]
+    public void AssumePgpTest()
+    {
+      Assert.IsFalse("MyFile.gz".AssumePgp());
+      Assert.IsTrue("MyFile.pgp".AssumePgp());
+      Assert.IsTrue("MyFile.gpg".AssumePgp());
+      Assert.IsFalse("MyFile.txt".AssumePgp());
+    }
+
+    [TestMethod()]
+    public void AssumeZipTest()
+    {
+      Assert.IsFalse("MyFile.gz".AssumeZip());
+      Assert.IsTrue("MyFile.zip".AssumeZip());
+      Assert.IsFalse("MyFile.txt".AssumeZip());
     }
 
     [TestMethod]
@@ -297,6 +361,31 @@ namespace CsvTools.Tests
       l1.CollectionCopyStruct(l2);
       foreach (var i in l1)
         Assert.AreEqual(i, l2[l1.IndexOf(i)]);
+    }
+
+    [TestMethod()]
+    public void CountTest()
+    {
+      var l1 = new[] {1, 2, 13, 5, 17};
+      Assert.AreEqual(5, ClassLibraryCsvExtensionMethods.Count(l1));
+    }
+
+    [TestMethod()]
+    public void DataTypeDisplayTest()
+    {
+      Assert.IsNotNull(ClassLibraryCsvExtensionMethods.DataTypeDisplay(DataType.Double));
+      Assert.IsNotNull(ClassLibraryCsvExtensionMethods.DataTypeDisplay(DataType.Integer));
+      Assert.AreEqual("Boolean", ClassLibraryCsvExtensionMethods.DataTypeDisplay(DataType.Boolean));
+      Assert.AreEqual("Guid", ClassLibraryCsvExtensionMethods.DataTypeDisplay(DataType.Guid));
+    }
+
+    [TestMethod()]
+    public void ExceptionMessagesTest()
+    {
+      var ex1 = new ApplicationException("AppEx1");
+      var ex2 = new ApplicationException("AppEx2", ex1);
+      Assert.AreEqual("AppEx1", ex1.ExceptionMessages());
+      Assert.AreEqual("AppEx2\nAppEx1", ex2.ExceptionMessages());
     }
 
     [TestMethod]
@@ -342,6 +431,18 @@ namespace CsvTools.Tests
       Assert.IsTrue(l1.CollectionEqualWithOrder(l2));
       l2.Remove(3);
       Assert.IsFalse(l1.CollectionEqualWithOrder(l2));
+    }
+
+    [TestMethod()]
+    public void ToIntTest()
+    {
+      Assert.AreEqual(int.MaxValue, long.MaxValue.ToInt());
+    }
+
+    [TestMethod()]
+    public void ToIntTest1()
+    {
+      Assert.AreEqual(int.MaxValue, ulong.MaxValue.ToInt());
     }
 
     [TestMethod]

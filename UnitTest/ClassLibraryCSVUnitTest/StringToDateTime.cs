@@ -155,7 +155,7 @@ namespace CsvTools.Tests
       TestDate(new DateTime(1999, 01, 7), @"yyyyddmm", "", @"yyyy/dd/MM");
     }
 
-    [TestMethod]
+    /*[TestMethod]
     [Ignore]
     public void PerformanceTestNew()
     {
@@ -178,7 +178,7 @@ namespace CsvTools.Tests
 
       for (var count = 0; count < 100000; count++)
         Assert.IsNull(OldStringToDateTime("Quatsch", @"MM/dd/yyyy", "/", ":"));
-    }
+    }*/
 
     [TestMethod]
     public void TestConvertDateToString()

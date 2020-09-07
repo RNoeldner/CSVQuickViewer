@@ -29,11 +29,30 @@ namespace CsvTools.Tests
       var test1 = FileSystemUtils.GetStreamReaderForFileOrResource("DateTimeFormats.txt");
       Assert.IsNotNull(test1);
 
-      // load a known resource from this DLL
-      var test2 = FileSystemUtils.GetStreamReaderForFileOrResource("SampleFile.txt");
-      Assert.IsNotNull(test2);
+
+      // load a unknown resource from this DLL
+      var test2 = FileSystemUtils.GetStreamReaderForFileOrResource("SampleFile2.txt");
+      Assert.IsNull(test2);
     }
 
+    [TestMethod]
+    public void FileInfo()
+    {
+      var testFile = GetLongFileName("FileInfoTest.txt", false);
+
+      var test = new FileSystemUtils.FileInfo(testFile);
+      Assert.AreEqual(testFile, test.Name);
+
+      var testFile2 = GetLongFileName("FileInfoTest2.txt", true);
+      var test2 = new FileSystemUtils.FileInfo(testFile2);
+      Assert.IsTrue(test2.Exists);
+
+
+      var date = new DateTime(2020, 10, 17, 17, 23, 44);
+      var test3 = new FileSystemUtils.FileInfo(testFile, 643788L, date);
+      Assert.AreEqual(643788L, test3.Length);
+      Assert.AreEqual(date, test3.LastWriteTimeUtc);
+    }
 
     [TestMethod]
     public async Task FileCopy()
@@ -66,6 +85,17 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    public void RemovePrefix()
+    {
+      Assert.AreEqual("Test", "Test".RemovePrefix());
+      Assert.AreEqual("", "".RemovePrefix());
+
+      var fn = GetLongFileName("CsvDataReaderUnitTestReadFiles.txt", false);
+      Assert.AreEqual(fn, fn.LongPathPrefix().RemovePrefix());
+    }
+
+
+    [TestMethod]
     public void CreateDirectory()
     {
       if (FileSystemUtils.DirectoryExists(".\\Test\\"))
@@ -73,6 +103,10 @@ namespace CsvTools.Tests
       Assert.IsFalse(FileSystemUtils.DirectoryExists(".\\Test\\"));
       FileSystemUtils.CreateDirectory(".\\Test\\");
       Assert.IsTrue(FileSystemUtils.DirectoryExists(".\\Test\\"));
+
+      // nothing bad happens
+      FileSystemUtils.CreateDirectory("");
+      FileSystemUtils.CreateDirectory(null);
     }
 
     [TestMethod]
@@ -119,6 +153,17 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    public void GetRelativeFolder()
+    {
+      var root = FileSystemUtils.ExecutableDirectoryName();
+      Assert.AreEqual("TestFiles\\SubFolder\\", (root + "\\TestFiles\\SubFolder").GetRelativeFolder(root));
+      Assert.AreEqual("TestFiles\\SubFolder\\", (root + "\\TestFiles\\SubFolder\\").GetRelativeFolder(root));
+      // Assert.AreEqual("Debug\\TestFiles\\SubFolder\\", (root + "\\TestFiles\\SubFolder").GetRelativeFolder(root +"\\.."));
+      Assert.AreEqual("..\\Debug\\TestFiles\\SubFolder\\",
+        (root + "\\..\\Debug\\TestFiles\\SubFolder").GetRelativeFolder(root));
+    }
+
+    [TestMethod]
     public void SafePath() => Assert.AreEqual("Test$Files\\Basic$CSV.txt", "Test|Files\\Basic<CSV.txt".SafePath("$"));
 
 
@@ -160,6 +205,66 @@ namespace CsvTools.Tests
       Assert.AreEqual("Test.dat", split.FileName);
       Assert.AreEqual("Test", split.FileNameWithoutExtension);
       Assert.AreEqual(".dat", split.Extension);
+    }
+
+    [TestMethod]
+    public void GetFileNameWithoutExtension()
+    {
+      var split = FileSystemUtils.GetFileNameWithoutExtension("C:\\MyTest\\Test.dat");
+      Assert.AreEqual("Test", split);
+    }
+
+    [TestMethod]
+    public void Create()
+    {
+      var fn = UnitTestInitializeCsv.GetTestPath("Test2.dat");
+      if (File.Exists(fn))
+        File.Delete(fn);
+
+
+      using (var stream = FileSystemUtils.Create(fn, 32000, FileOptions.Asynchronous))
+      {
+        Assert.AreEqual(true, stream.CanWrite);
+        stream.WriteByte(10);
+        stream.Close();
+      }
+
+      Assert.IsTrue(File.Exists(fn));
+      File.Delete(fn);
+    }
+
+    [TestMethod]
+    public void WriteAllText()
+    {
+      var fn = UnitTestInitializeCsv.GetTestPath("Test3.txt");
+      if (File.Exists(fn))
+        File.Delete(fn);
+      FileSystemUtils.WriteAllText(fn, "Hello World\n");
+      Assert.IsTrue(File.Exists(fn));
+      File.Delete(fn);
+    }
+
+    private string GetLongFileName(string fn, bool create)
+    {
+      Directory.SetCurrentDirectory(UnitTestInitializeCsv.ApplicationDirectory);
+      var directory = UnitTestInitializeCsv.ApplicationDirectory;
+      while (directory.Length < 260)
+      {
+        directory += "\\This is a subfolder";
+        if (create && !FileSystemUtils.DirectoryExists(directory))
+          FileSystemUtils.CreateDirectory(directory);
+      }
+
+      if (directory[directory.Length - 1] != Path.DirectorySeparatorChar)
+        directory += Path.DirectorySeparatorChar;
+
+      if (create)
+      {
+        using (var stream = FileSystemUtils.CreateText(directory + fn))
+          stream.WriteLine($"Small Test {fn}");
+      }
+
+      return directory + fn;
     }
 
     [TestMethod]

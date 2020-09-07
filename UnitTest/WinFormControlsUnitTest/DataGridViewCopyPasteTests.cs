@@ -26,23 +26,23 @@ namespace CsvTools.Tests
     public void SelectedDataIntoClipboardAllTest()
     {
       Extensions.RunSTAThread(() =>
+      {
+        using (var dgv = new DataGridView())
         {
-          using (var dgv = new DataGridView())
+          dgv.AutoGenerateColumns = true;
+          using (var dt = UnitTestStatic.GetDataTable())
           {
-            dgv.AutoGenerateColumns = true;
-            using (var dt = UnitTestStatic.GetDataTable())
+            dgv.DataSource = dt;
+            using (var frm = new Form())
             {
-              dgv.DataSource = dt;
-              using (var frm = new Form())
-              {
-                frm.Controls.Add(dgv);
-                frm.Show();
-                dgv.SelectAll();
-                dgv.SelectedDataIntoClipboard(true, false, UnitTestInitializeCsv.Token);
-              }
+              frm.Controls.Add(dgv);
+              frm.Show();
+              dgv.SelectAll();
+              dgv.SelectedDataIntoClipboard(true, false, UnitTestInitializeCsv.Token);
             }
           }
-        });
+        }
+      });
     }
 
     [TestMethod]
@@ -63,14 +63,20 @@ namespace CsvTools.Tests
               dgv.Rows[1].Selected = true;
               dgv.Rows[2].Selected = true;
               dgv.Rows[3].Selected = true;
-
               Clipboard.Clear();
-              dgv.SelectedDataIntoClipboard(false, true, UnitTestInitializeCsv.Token);
+              try
+              {
+                dgv.SelectedDataIntoClipboard(false, true, UnitTestInitializeCsv.Token);
 
-              var dataObject = Clipboard.GetDataObject();
-              Assert.IsNotNull(dataObject);
-              Assert.IsNotNull(dataObject.GetData(DataFormats.Html));
-              Assert.IsNotNull(dataObject.GetData(DataFormats.Text));
+                var dataObject = Clipboard.GetDataObject();
+                Assert.IsNotNull(dataObject);
+                Assert.IsNotNull(dataObject.GetData(DataFormats.Html));
+                Assert.IsNotNull(dataObject.GetData(DataFormats.Text));
+              }
+              catch (ExternalException e)
+              {
+                Assert.Inconclusive("ExternalException while copying data to Clipboard");
+              }
             }
           }
         }

@@ -30,8 +30,8 @@ namespace CsvTools
     private int m_DisplayedAt = -1;
     [NotNull] private string m_FullPath = string.Empty;
     private bool m_IsReading;
-    private bool m_StopReading;
     private int m_SkipLines;
+    private bool m_StopReading;
 
     /// <summary>
     ///   CTOR CsvTextDisplay
@@ -87,7 +87,7 @@ The file {fullPath} does not exist.";
           // file is too big, read whats displayed at time of display
           else
           {
-            CSVTextBox.ShowLineNumber= false;
+            CSVTextBox.ShowLineNumber = false;
             CSVTextBox.MouseWheel += MouseWheelScroll;
             ScrollBarVertical.Visible = true;
             ScrollBarVertical.SmallChange = 1024;
@@ -143,10 +143,13 @@ The file {fullPath} does not exist.";
                   if ((chr == '\r' && nextChar == '\n') || (chr == '\n' && nextChar == '\r'))
                     pos++;
                 }
+
                 break;
               }
+
               pos++;
             }
+
             if (m_StopReading) throw new OperationCanceledException();
 
             return new string(buffer, pos, readChars - pos);
@@ -179,7 +182,7 @@ The file {fullPath} does not exist.";
 
       try
       {
-        CSVTextBox.SkipLines=(ScrollBarVertical.Value==0) ? m_SkipLines : 0;
+        CSVTextBox.SkipLines = (ScrollBarVertical.Value == 0) ? m_SkipLines : 0;
         CSVTextBox.Text = await GetTextAsync(ScrollBarVertical.Value, 32000);
         m_DisplayedAt = ScrollBarVertical.Value;
       }
@@ -189,14 +192,6 @@ The file {fullPath} does not exist.";
       }
 
       m_StopReading = false;
-    }
-
-    private void CSVTextBox_KeyUp(object sender, KeyEventArgs e)
-    {
-      if (e.KeyCode != Keys.End || e.Modifiers != Keys.Control) return;
-      // This is not really exact as the length of the
-      ScrollBarVertical.Value = ScrollBarVertical.Maximum - 1000;
-      e.Handled = true;
     }
   }
 }
