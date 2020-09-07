@@ -155,6 +155,7 @@
   </Choose>
   <ItemGroup>
     <Compile Include="ColumnErrorDictionaryTests.cs" />
+    <Compile Include="DataReaderWrapperTests.cs"/>
     <Compile Include="DataTableReaderTests.cs" />
     <Compile Include="EnumDescriptionConverterTests.cs" />
     <Compile Include="FileSystemUtilsTest.cs" />
@@ -163,6 +164,7 @@
     <Compile Include="ImprovedTextReaderPositionStoreTests.cs" />
     <Compile Include="ImprovedTextReaderTests.cs" />
     <Compile Include="ProgressEventArgsTimeTests.cs" />
+      <Compile Include="ReaderExtensionMethodsTest.cs"/>
     <Compile Include="RealignColumnsTest.cs" />
     <Compile Include="SampleAndErrorsInformationTest.cs" />
     <Compile Include="LoggerTest.cs" />

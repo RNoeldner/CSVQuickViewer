@@ -38,7 +38,7 @@ namespace CsvTools
         var runThread = new Thread(action.Invoke);
         runThread.SetApartmentState(ApartmentState.STA);
         runThread.Start();
-        if (timeoutMilliseconds>0)
+        if (timeoutMilliseconds > 0)
           runThread.Join(timeoutMilliseconds);
         else
           runThread.Join();
@@ -99,7 +99,8 @@ namespace CsvTools
       return processDisplay;
     }
 
-    public static Binding GetTextBinding(this Control ctrl) => ctrl.DataBindings.Cast<Binding>().FirstOrDefault(bind => bind.PropertyName == "Text" || bind.PropertyName == "Value");
+    public static Binding GetTextBinding(this Control ctrl) => ctrl.DataBindings.Cast<Binding>()
+      .FirstOrDefault(bind => bind.PropertyName == "Text" || bind.PropertyName == "Value");
 
     public static void LoadWindowState(
       [NotNull] this Form form,
@@ -195,7 +196,8 @@ namespace CsvTools
     /// <param name="uiElement">Type of the Object that will get the extension</param>
     /// <param name="action">A delegate for the action</param>
     /// <param name="timeoutTicks">Timeout to finish action, default is 1/10 of a second</param>
-    public static void SafeInvokeNoHandleNeeded(this Control uiElement, Action action, long timeoutTicks = TimeSpan.TicksPerSecond / 10)
+    public static void SafeInvokeNoHandleNeeded(this Control uiElement, Action action,
+      long timeoutTicks = TimeSpan.TicksPerSecond / 10)
     {
       if (uiElement == null || uiElement.IsDisposed || action == null)
         return;
@@ -220,14 +222,15 @@ namespace CsvTools
     /// <param name="additionalTitle">Title Bar information</param>
     public static void ShowError(this Form from, Exception ex, string additionalTitle = "")
     {
-
-      if (from!=null)
+      if (from != null)
         Logger.Warning(ex, "Error in {form} : {message}", from.GetType().Name, ex.SourceExceptionMessage());
       else
         Logger.Warning(ex, ex.SourceExceptionMessage());
       Cursor.Current = Cursors.Default;
 #if DEBUG
-      _MessageBox.ShowBig(from, ex.ExceptionMessages() + "\n\nMethod:\n" + ex.StackTrace, string.IsNullOrEmpty(additionalTitle) ? "Error" : $"Error {additionalTitle}", MessageBoxButtons.OK, MessageBoxIcon.Warning, timeout: 20);
+      _MessageBox.ShowBig(from, ex.ExceptionMessages() + "\n\nMethod:\n" + ex.StackTrace,
+        string.IsNullOrEmpty(additionalTitle) ? "Error" : $"Error {additionalTitle}", MessageBoxButtons.OK,
+        MessageBoxIcon.Warning, timeout: 20);
 #else
       _MessageBox.Show(
         from,
@@ -311,8 +314,20 @@ namespace CsvTools
     /// <param name="container">Control with validate able children</param>
     /// <param name="cancellationToken">Cancellation Token</param>
     /// <returns><c>True</c> if children where validated, <c>false</c> otherwise</returns>
-    public static async Task<bool> ValidateChildren(this ContainerControl container, CancellationToken cancellationToken) =>
-      await Task.Run(container.ValidateChildren, cancellationToken).TimeoutAfter(new TimeSpan(0, 0, 1));
+    public static async Task<bool> ValidateChildren(this ContainerControl container,
+      CancellationToken cancellationToken)
+    {
+      using (var cts = new CancellationTokenSource())
+      {
+        var task = Task.Run(container.ValidateChildren, cts.Token);
+        var resultTask = await Task.WhenAny(task, Task.Delay(TimeSpan.FromSeconds(1), cts.Token));
+        if (resultTask != task)
+          return false;
+        cts.Cancel();
+        return await task;
+      }
+    }
+
 
     /// <summary>
     ///   Store a bound value

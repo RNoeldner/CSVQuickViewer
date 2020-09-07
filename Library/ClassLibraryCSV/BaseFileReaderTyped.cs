@@ -4,9 +4,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.Globalization;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace CsvTools
 {
@@ -31,56 +28,6 @@ namespace CsvTools
       long recordLimit) :
       base(fileName, columnDefinition, recordLimit)
     {
-    }
-
-    /// <summary>
-    ///   Gets the type of the column by looking at the first 50 rows
-    /// </summary>
-    /// <returns>An array with the found data types</returns>
-    /// <remarks>In case of mixed types, string is preferred over everything</remarks>
-    protected async Task GetColumnTypeAsync(int maxRows, CancellationToken token)
-    {
-      // TODO: Check if GetValue and IsDBNull can be used instead of relying on CurrentValues
-      HandleShowProgress("Reading data to determine type");
-      var isSet = new bool[FieldCount];
-      var startRow = RecordNumber;
-      var restarted = false;
-      for (var row = 0; row < maxRows; row++)
-      {
-        for (var col = 0; col < FieldCount; col++)
-        {
-          // if a column was detected as string, keep it that way
-          if (isSet[col] || CurrentValues[col] == null)
-            continue;
-
-          var detected = CurrentValues[col].GetType().GetDataType();
-          if (detected == Column[col].ValueFormat.DataType) continue;
-
-          Column[col] = new ImmutableColumn(Column[col], new ImmutableValueFormat(detected));
-          isSet[col] = true;
-        }
-
-        // if we have defined types for all exit
-        if (isSet.All(x => x))
-          break;
-
-        // get the next record
-        if (await ReadAsync(token).ConfigureAwait(false)) continue;
-
-        if (startRow > 1)
-        {
-          if (restarted)
-            break;
-          restarted = true;
-          await ResetPositionToFirstDataRowAsync(token).ConfigureAwait(false);
-          if (!await ReadAsync(token).ConfigureAwait(false))
-            break;
-        }
-        else
-        {
-          break;
-        }
-      }
     }
 
     /// <summary>
@@ -268,7 +215,8 @@ namespace CsvTools
 
       if (CurrentValues[columnNumber] is Guid val)
         return val;
-      if (CurrentValues[columnNumber] is string s)
+      if (CurrentValues[columnNumber] is string s
+      ) // TODO: maybe not needed if all typed readers do fill CurrentRowColumnText  
         CurrentRowColumnText[columnNumber] = s;
       return base.GetGuid(columnNumber);
     }
@@ -338,7 +286,7 @@ namespace CsvTools
       Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount);
       Debug.Assert(CurrentValues != null && columnNumber < CurrentValues.Length);
 
-      return CurrentValues[columnNumber]?.ToString() ?? null;
+      return CurrentValues[columnNumber]?.ToString();
     }
 
     public override int GetValues(object[] values)

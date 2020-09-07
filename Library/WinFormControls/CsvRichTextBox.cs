@@ -126,7 +126,7 @@ namespace CsvTools
     }
   }
 
-  public class CSVRichTextBox2 : ScintillaNET.Scintilla
+  public class CSVRichTextBox2 : Scintilla
   {
     private char m_Delimiter = ',';
     private bool m_DisplaySpace = true;
@@ -140,20 +140,14 @@ namespace CsvTools
       Styles[2].ForeColor = Color.Blue;
       Styles[2].BackColor = Color.Orange;
       Styles[3].ForeColor = Color.Blue;
-      Styles[4].BackColor= Color.LightGray;
+      Styles[4].BackColor = Color.LightGray;
       Margins[0].Width = 16;
       WhitespaceSize = 2;
-      WrapMode = ScintillaNET.WrapMode.Char;
-      WrapVisualFlags = ScintillaNET.WrapVisualFlags.End;
-      UpdateUI +=CSVRichTextBox2_UpdateUI;
-      ViewWhitespace= WhitespaceMode.VisibleAlways;
-      ViewEol= true;
-    }
-
-    private void CSVRichTextBox2_UpdateUI(object sender, UpdateUIEventArgs e)
-    {
-      if (TextLength > 64000)
-        UpdateStyle(Lines[FirstVisibleLine].Position, Lines[LinesOnScreen+ FirstVisibleLine].Position + Lines[LinesOnScreen + FirstVisibleLine].Text.Length);
+      WrapMode = WrapMode.Char;
+      WrapVisualFlags = WrapVisualFlags.End;
+      UpdateUI += CSVRichTextBox2_UpdateUI;
+      ViewWhitespace = WhitespaceMode.VisibleAlways;
+      ViewEol = true;
     }
 
     public bool ShowLineNumber
@@ -165,18 +159,19 @@ namespace CsvTools
           margin.Width = 0;
         if (value)
           Margins[0].Width = 32;
-        VScrollBar= value;
+        VScrollBar = value;
       }
     }
 
     public int SkipLines
     {
-      get; set;
+      get;
+      set;
     }
 
     public bool WordWrap
     {
-      get => WrapMode == ScintillaNET.WrapMode.Char;
+      get => WrapMode == WrapMode.Char;
       set => WrapMode = value ? WrapMode.Char : WrapMode.None;
     }
 
@@ -263,24 +258,31 @@ namespace CsvTools
       }
     }
 
+    private void CSVRichTextBox2_UpdateUI(object sender, UpdateUIEventArgs e)
+    {
+      if (TextLength > 64000)
+        UpdateStyle(Lines[FirstVisibleLine].Position,
+          Lines[LinesOnScreen + FirstVisibleLine].Position + Lines[LinesOnScreen + FirstVisibleLine].Text.Length);
+    }
+
     private void UpdateStyle(int startPos, int endPos)
     {
-      if (startPos>=endPos)
+      if (startPos >= endPos)
         return;
       try
       {
         // Skipped lines are grey
-        var endSkipPos = (SkipLines>0) ? Lines[SkipLines].Position : TextLength;
-        if (startPos < endSkipPos &&  SkipLines>0)
+        var endSkipPos = (SkipLines > 0) ? Lines[SkipLines].Position : TextLength;
+        if (startPos < endSkipPos && SkipLines > 0)
         {
           StartStyling(0);
           SetStyling(endSkipPos, 4);
-          if (startPos<endSkipPos)
-            startPos=endSkipPos;
+          if (startPos < endSkipPos)
+            startPos = endSkipPos;
         }
 
-        if (endPos>TextLength)
-          endPos= TextLength;
+        if (endPos > TextLength)
+          endPos = TextLength;
 
         // Highlight delimiter and quotes and linefeed
         char last = '\0';

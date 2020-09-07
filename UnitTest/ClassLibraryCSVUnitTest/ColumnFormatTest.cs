@@ -120,6 +120,20 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    public void GetDataTypeDescriptionDateTime()
+    {
+      var target =
+        new Column("Test", DataType.DateTime) {TimePart = "TPart", TimePartFormat = "YYYYMMDD", TimeZonePart = "'UTC'"};
+      Assert.IsTrue(target.GetTypeAndFormatDescription().Contains("TPart", StringComparison.InvariantCultureIgnoreCase),
+        "TimePart");
+      Assert.IsTrue(
+        target.GetTypeAndFormatDescription().Contains("YYYYMMDD", StringComparison.InvariantCultureIgnoreCase),
+        "TimePartFormat");
+      Assert.IsTrue(target.GetTypeAndFormatDescription().Contains("'UTC'", StringComparison.InvariantCultureIgnoreCase),
+        "TimeZonePart");
+    }
+
+    [TestMethod]
     public void GetDataTypeDescriptionDouble()
     {
       var target = new Column("Test", new ValueFormatMutable(DataType.Numeric) {NumberFormat = "00.000"});

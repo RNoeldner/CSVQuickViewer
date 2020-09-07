@@ -105,7 +105,7 @@ namespace CsvTools
     /// </param>
     /// <param name="processDisplay">A process display</param>
     public static async Task FileCopy([NotNull] string sourceFile, [NotNull] string destFile, bool onlyChanged,
-      [CanBeNull] IProcessDisplay processDisplay)
+      [NotNull] IProcessDisplay processDisplay)
     {
       if (onlyChanged)
       {
@@ -132,16 +132,17 @@ namespace CsvTools
           processDisplayTime.Maximum = fromStream.Length;
         }
 
-        var intervalAction = processDisplay == null ? null : new IntervalAction();
-        while ((bytesRead = await fromStream.ReadAsync(bytes, 0, bytes.Length, processDisplay.CancellationToken).ConfigureAwait(false)) > 0)
+        var intervalAction = new IntervalAction();
+        while ((bytesRead = await fromStream.ReadAsync(bytes, 0, bytes.Length, processDisplay.CancellationToken)
+          .ConfigureAwait(false)) > 0)
         {
-          processDisplay?.CancellationToken.ThrowIfCancellationRequested();
+          processDisplay.CancellationToken.ThrowIfCancellationRequested();
           totalReads += bytesRead;
           await toStream.WriteAsync(bytes, 0, bytesRead, processDisplay.CancellationToken).ConfigureAwait(false);
-          intervalAction?.Invoke(pos => processDisplay.SetProcess("Copy file", pos, false), totalReads);
+          intervalAction.Invoke(pos => processDisplay.SetProcess("Copy file", pos, false), totalReads);
         }
 
-        processDisplay?.SetMaximum(oldMax);
+        processDisplay.SetMaximum(oldMax);
       }
     }
 
@@ -237,16 +238,22 @@ namespace CsvTools
         return fileName.Substring(basePath.Length + 1);
       var otherDir = Path.GetFullPath(fileName);
 
-      return GetRelativePathQuick(otherDir, basePath);
+      return GetRelativeFolder(otherDir, basePath);
     }
 
     [NotNull]
-    public static string GetRelativePathQuick([NotNull] this string otherDir, [NotNull] string basePath)
+    public static string GetRelativeFolder([NotNull] this string otherDir, [NotNull] string basePath)
     {
       if (otherDir.Equals(basePath, StringComparison.OrdinalIgnoreCase))
-        return ".";
+        return ".\\";
+
+      if (basePath[basePath.Length - 1] != Path.DirectorySeparatorChar)
+        basePath += Path.DirectorySeparatorChar;
+      if (otherDir[otherDir.Length - 1] != Path.DirectorySeparatorChar)
+        otherDir += Path.DirectorySeparatorChar;
+
       if (otherDir.StartsWith(basePath, StringComparison.OrdinalIgnoreCase))
-        return otherDir.Substring(basePath.Length + 1);
+        return otherDir.Substring(basePath.Length);
 
       var startPathParts = basePath.Split(Path.DirectorySeparatorChar);
       var destinationPathParts = otherDir.Split(Path.DirectorySeparatorChar);
@@ -267,7 +274,14 @@ namespace CsvTools
         sBuilder.Append(destinationPathParts[i] + Path.DirectorySeparatorChar);
       sBuilder.Length--;
 
-      return sBuilder.ToString();
+      var result = sBuilder.ToString();
+      if (result[result.Length - 1] != Path.DirectorySeparatorChar)
+      {
+        sBuilder.Append(Path.DirectorySeparatorChar);
+        return sBuilder.ToString();
+      }
+
+      return result;
     }
 
     /// <summary>
@@ -282,7 +296,7 @@ namespace CsvTools
       var ret = fileName.RemovePrefix();
       if (length <= 0 || string.IsNullOrEmpty(fileName) || fileName.Length <= length)
         return ret;
-      var parts = fileName.Split(new[] { '\\' }, StringSplitOptions.RemoveEmptyEntries);
+      var parts = fileName.Split(new[] {'\\'}, StringSplitOptions.RemoveEmptyEntries);
       var fileNameOnly = parts[parts.Length - 1];
 
       // try to cut out directories
@@ -401,7 +415,7 @@ namespace CsvTools
     {
       if (string.IsNullOrEmpty(fileName))
         return string.Empty;
-      if (fileName.IndexOfAny(new[] { '*', '?', '[', ']' }) == -1)
+      if (fileName.IndexOfAny(new[] {'*', '?', '[', ']'}) == -1)
         return fileName;
 
       var split = SplitPath(fileName);

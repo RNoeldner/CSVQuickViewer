@@ -19,6 +19,12 @@ namespace CsvTools
     private readonly bool m_AddEndLine;
     private readonly bool m_AddRecNum;
     private readonly bool m_AddStartLine;
+
+    /// <summary>
+    ///   An array of column
+    /// </summary>
+    private readonly List<ImmutableColumn> m_Column = new List<ImmutableColumn>();
+
     private readonly IFileReader m_FileReader;
     private readonly bool m_IncludeErrorField;
     private readonly BiDirectionalDictionary<int, int> m_Mapping = new BiDirectionalDictionary<int, int>();
@@ -29,13 +35,6 @@ namespace CsvTools
     private int m_ColErrorField = -1;
     private int m_ColRecNum = -1;
     private int m_ColStartLine = -1;
-
-    public int GetColumnIndexFromErrorColumn(int errorCol) => m_Mapping[errorCol];
-
-    /// <summary>
-    ///   An array of column
-    /// </summary>
-    private readonly List<ImmutableColumn> m_Column = new List<ImmutableColumn>();
 
     private int m_FieldCount;
 
@@ -49,10 +48,10 @@ namespace CsvTools
       m_AddEndLine = addEndLine;
       m_AddRecNum = addRecNum;
       m_IncludeErrorField = includeErrorField;
-      m_RecordLimit = recordLimit<1 ? long.MaxValue : recordLimit;
+      m_RecordLimit = recordLimit < 1 ? long.MaxValue : recordLimit;
     }
 
-    public override bool HasRows => m_FileReader.EndOfFile;
+    public override bool HasRows => !m_FileReader.EndOfFile;
     public override bool IsClosed => m_FileReader.IsClosed;
     public long RecordNumber { get; private set; }
 
@@ -64,6 +63,8 @@ namespace CsvTools
     public override object this[string name] => GetValue(GetOrdinal(name));
 
     public override int Depth => FieldCount;
+
+    public int GetColumnIndexFromErrorColumn(int errorCol) => m_Mapping[errorCol];
 
     public override short GetInt16(int ordinal) => m_FileReader.GetInt16(m_Mapping.GetByValue(ordinal));
 
@@ -129,9 +130,11 @@ namespace CsvTools
     public override long GetChars(int ordinal, long dataOffset, char[] buffer, int bufferOffset, int length) =>
       m_FileReader.GetChars(m_Mapping.GetByValue(ordinal), dataOffset, buffer, bufferOffset, length);
 
-    [NotNull] public override string GetDataTypeName(int ordinal) => GetFieldType(ordinal).Name;
+    [NotNull]
+    public override string GetDataTypeName(int ordinal) => GetFieldType(ordinal).Name;
 
-    [NotNull] public override Type GetFieldType(int ordinal) => m_Column[ordinal].ValueFormat.DataType.GetNetType();
+    [NotNull]
+    public override Type GetFieldType(int ordinal) => m_Column[ordinal].ValueFormat.DataType.GetNetType();
 
     public override IEnumerator GetEnumerator() => throw new NotImplementedException();
 
@@ -144,7 +147,9 @@ namespace CsvTools
       if (columnNumber == m_ColRecNum)
         return m_FileReader.RecordNumber;
       if (columnNumber == m_ColErrorField)
-        return ColumnErrorDictionary.Count == 0 ? null : ErrorInformation.ReadErrorInformation(ColumnErrorDictionary, m_ReaderColumns);
+        return ColumnErrorDictionary.Count == 0
+          ? null
+          : ErrorInformation.ReadErrorInformation(ColumnErrorDictionary, m_ReaderColumns);
 
       return m_FileReader.GetValue(m_Mapping.GetByValue(columnNumber));
     }
@@ -220,19 +225,22 @@ namespace CsvTools
         if (m_AddStartLine && !m_ReaderColumns.Contains(ReaderConstants.cStartLineNumberFieldName))
         {
           m_ColStartLine = m_FieldCount++;
-          m_Column.Add(new ImmutableColumn(ReaderConstants.cStartLineNumberFieldName, new ImmutableValueFormat(DataType.Integer), m_ColStartLine));
+          m_Column.Add(new ImmutableColumn(ReaderConstants.cStartLineNumberFieldName,
+            new ImmutableValueFormat(DataType.Integer), m_ColStartLine));
         }
 
         if (m_AddRecNum && !m_ReaderColumns.Contains(ReaderConstants.cRecordNumberFieldName))
         {
           m_ColRecNum = m_FieldCount++;
-          m_Column.Add(new ImmutableColumn(ReaderConstants.cRecordNumberFieldName, new ImmutableValueFormat(DataType.Integer), m_ColRecNum));
+          m_Column.Add(new ImmutableColumn(ReaderConstants.cRecordNumberFieldName,
+            new ImmutableValueFormat(DataType.Integer), m_ColRecNum));
         }
 
         if (m_AddEndLine && !m_ReaderColumns.Contains(ReaderConstants.cEndLineNumberFieldName))
         {
           m_ColEndLine = m_FieldCount++;
-          m_Column.Add(new ImmutableColumn(ReaderConstants.cEndLineNumberFieldName, new ImmutableValueFormat(DataType.Integer), m_ColEndLine));
+          m_Column.Add(new ImmutableColumn(ReaderConstants.cEndLineNumberFieldName,
+            new ImmutableValueFormat(DataType.Integer), m_ColEndLine));
         }
 
         if (m_IncludeErrorField && !m_ReaderColumns.Contains(ReaderConstants.cErrorField))
@@ -255,9 +263,10 @@ namespace CsvTools
         ColumnErrorDictionary.Clear();
         var couldRead = await m_FileReader.ReadAsync(token).ConfigureAwait(false);
         if (couldRead) RecordNumber++;
-        if (RecordNumber<=m_RecordLimit)
+        if (RecordNumber <= m_RecordLimit)
           return couldRead;
       }
+
       return false;
     }
   }

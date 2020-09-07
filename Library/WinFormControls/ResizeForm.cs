@@ -10,11 +10,9 @@ namespace CsvTools
   {
     public ResizeForm()
     {
+      InitializeComponent();
       try
       {
-        var resources = new ComponentResourceManager(typeof(ResizeForm));
-        Icon = (Icon) resources.GetObject("$this.Icon");
-
 #if !NETCOREAPP3_1
         // 6.2 and 6.3 is Windows 8 / Windows Server 2012
         if (Environment.OSVersion.Version.Major == 6 && Environment.OSVersion.Version.Minor > 1)
@@ -37,11 +35,11 @@ namespace CsvTools
         else
           Console.Beep();
 
-      if (e.Delta < 0)
-        if (Font.Size > 4)
-          SetFonts(this, new Font(Font.FontFamily, Font.Size - 1, Font.Style));
-        else
-          Console.Beep();
+      if (e.Delta >= 0) return;
+      if (Font.Size > 4)
+        SetFonts(this, new Font(Font.FontFamily, Font.Size - 1, Font.Style));
+      else
+        Console.Beep();
     }
 
     /// <summary>
@@ -67,12 +65,11 @@ namespace CsvTools
 
     private void InitializeComponent()
     {
-      System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ResizeForm));
+      ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ResizeForm));
       this.SuspendLayout();
       // ResizeForm
       this.ClientSize = new System.Drawing.Size(282, 253);
       this.Icon = ((System.Drawing.Icon) (resources.GetObject("$this.Icon")));
-      this.Name = "ResizeForm";
       this.ResumeLayout(false);
     }
   }

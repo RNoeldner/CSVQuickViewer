@@ -102,6 +102,62 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    public async Task GetSampleValuesAsync()
+    {
+      using (var dataTable = UnitTestStatic.GetDataTable(150, false))
+      {
+        using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
+        {
+          using (var reader = new DataTableWrapper(dataTable))
+          {
+            var fillGuessSettings = new FillGuessSettings
+            {
+              DetectNumbers = true,
+              DetectDateTime = true,
+              DetectPercentage = true,
+              DetectBoolean = true,
+              DetectGUID = true,
+              IgnoreIdColumns = true
+            };
+
+            var columnCollection = new ColumnCollection();
+            await reader.OpenAsync(processDisplay.CancellationToken);
+            var res = await DetermineColumnFormat.GetSampleValuesAsync(reader, 100, 0, 20, null,
+              processDisplay.CancellationToken);
+            Assert.AreEqual(20, res.Values.Count);
+          }
+        }
+      }
+    }
+
+    [TestMethod]
+    public void GetAllPossibleFormats()
+    {
+      var res = DetermineColumnFormat.GetAllPossibleFormats("17-12-2012");
+      Assert.IsTrue(res.Any(x => x.DateFormat.Equals("dd/MM/yyyy") && x.DateSeparator.Equals("-")));
+    }
+
+    [TestMethod]
+    public async Task GetSourceColumnInformationTest2Async()
+    {
+      var setting = new CsvFile {ID = "ID122", FileFormat = {FieldDelimiter = ","}};
+      try
+      {
+        using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
+          await DetermineColumnFormat.GetWriterColumnInformationAsync("setting.SqlStatement", 60,
+            setting.FileFormat.ValueFormatMutable, setting.ColumnCollection.ReadonlyCopy(),
+            processDisplay.CancellationToken);
+
+        Assert.Fail("Invalid SQL should have caused error ");
+      }
+      catch (Exception e)
+      {
+        // good
+      }
+    }
+
+
+    [TestMethod]
     public async Task GetSourceColumnInformationTestAsync2()
     {
       using (var dt = UnitTestStatic.GetDataTable())

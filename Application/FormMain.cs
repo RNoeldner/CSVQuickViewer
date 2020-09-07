@@ -50,6 +50,8 @@ namespace CsvTools
 
     private readonly ViewSettings m_ViewSettings;
 
+    private Tuple<EncodingHelper.CodePage, bool> m_CodePage;
+
     private bool m_ConfigChanged;
 
     private bool m_FileChanged;
@@ -58,11 +60,9 @@ namespace CsvTools
 
     private ICollection<string> m_Headers;
 
+    private FormCsvTextDisplay m_SourceDisplay;
+
     private int m_WarningCount;
-
-    private Tuple<EncodingHelper.CodePage, bool> m_CodePage;
-
-    private FormCsvTextDisplay m_SourceDisplay = null;
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="FormMain" /> class.
@@ -285,7 +285,7 @@ namespace CsvTools
     {
       try
       {
-        if (m_SourceDisplay==null)
+        if (m_SourceDisplay == null)
         {
           m_SourceDisplay = new FormCsvTextDisplay();
           using (var proc = new FormProcessDisplay("Display Source", false, m_CancellationTokenSource.Token))
@@ -293,12 +293,12 @@ namespace CsvTools
             m_SourceDisplay.Show();
             proc.Show(this);
 
-            proc.Maximum=0;
+            proc.Maximum = 0;
             proc.SetProcess("Reading source and applying color coding ", 0, false);
 
             await m_SourceDisplay.SetCsvFileAsync(m_FileSetting.FullPath, m_FileSetting.FileFormat.FieldQualifierChar,
-                m_FileSetting.FileFormat.FieldDelimiterChar, m_FileSetting.FileFormat.EscapeCharacterChar,
-                (int) m_CodePage.Item1, m_FileSetting.SkipRows);
+              m_FileSetting.FileFormat.FieldDelimiterChar, m_FileSetting.FileFormat.EscapeCharacterChar,
+              (int) m_CodePage.Item1, m_FileSetting.SkipRows);
             proc.Close();
 
             m_SourceDisplay.FormClosed += SourceDisplayClosed;
@@ -378,7 +378,8 @@ namespace CsvTools
         // Give the possibly running threads some time to exit
         Thread.Sleep(100);
       }
-      if (e.CloseReason== CloseReason.UserClosing)
+
+      if (e.CloseReason == CloseReason.UserClosing)
       {
         Logger.Debug("Closing Form");
 
@@ -453,7 +454,7 @@ namespace CsvTools
     {
       if (string.IsNullOrEmpty(fileName) || !FileSystemUtils.FileExists(fileName))
         return;
-      if (fileName.IndexOf('~')!=-1)
+      if (fileName.IndexOf('~') != -1)
         fileName = FileSystemUtils.LongFileName(fileName);
       try
       {
@@ -634,16 +635,18 @@ namespace CsvTools
             processDisplay.SetMaximum(100);
             DataTable = await fileReader.GetDataTableAsync(m_FileSetting.RecordLimit, true,
               m_FileSetting.DisplayStartLineNo, m_FileSetting.DisplayRecordNo, m_FileSetting.DisplayEndLineNo, false,
-              ShowDataTable, (l, i) => processDisplay.SetProcess($"Reading data...\nRecord :{l:N0}", i, false), processDisplay.CancellationToken);
+              ShowDataTable, (l, i) => processDisplay.SetProcess($"Reading data...\nRecord :{l:N0}", i, false),
+              processDisplay.CancellationToken);
 
             if (m_DisposedValue)
               return;
 
             foreach (var columnName in DataTable.GetRealColumns())
               if (m_FileSetting.ColumnCollection.Get(columnName) == null)
-                m_FileSetting.ColumnCollection.AddIfNew(new Column { Name = columnName });
+                m_FileSetting.ColumnCollection.AddIfNew(new Column {Name = columnName});
           }
         }
+
         detailControl.CancellationToken = m_CancellationTokenSource.Token;
 
         if (DataTable != null)
@@ -773,7 +776,6 @@ namespace CsvTools
       }
     }
 
-    private void ShowGrid(object sender, EventArgs e) => ShowTextPanel(false);
 
     private async void ShowSettings(object sender, EventArgs e)
     {

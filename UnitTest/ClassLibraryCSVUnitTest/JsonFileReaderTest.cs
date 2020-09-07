@@ -46,7 +46,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task OpenLogAsync()
     {
-      var setting = new CsvFile(UnitTestInitializeCsv.GetTestPath("LogFile.json")) { JsonFormat = true };
+      var setting = new CsvFile(UnitTestInitializeCsv.GetTestPath("LogFile.json")) {JsonFormat = true};
       using (var dpd = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       using (var jfr = new JsonFileReader(setting, dpd))
       {
@@ -66,7 +66,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task NotSupportedAsync()
     {
-      var setting = new CsvFile(UnitTestInitializeCsv.GetTestPath("Emp.json")) { JsonFormat = true };
+      var setting = new CsvFile(UnitTestInitializeCsv.GetTestPath("Emp.json")) {JsonFormat = true};
 
       using (var dpd = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       using (var jfr = new JsonFileReader(setting, dpd))
@@ -174,7 +174,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task ReadJSonEmpAsync()
     {
-      var setting = new CsvFile(UnitTestInitializeCsv.GetTestPath("Emp.json")) { JsonFormat = true };
+      var setting = new CsvFile(UnitTestInitializeCsv.GetTestPath("Emp.json")) {JsonFormat = true};
 
       using (var dpd = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       using (var jfr = new JsonFileReader(setting, dpd))
@@ -210,7 +210,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task ReadJSon1Async()
     {
-      var setting = new CsvFile(UnitTestInitializeCsv.GetTestPath("Jason1.json")) { JsonFormat = true };
+      var setting = new CsvFile(UnitTestInitializeCsv.GetTestPath("Jason1.json")) {JsonFormat = true};
 
       using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       using (var jfr = new JsonFileReader(setting, processDisplay))
@@ -226,9 +226,37 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    public async Task ReadJSon1TypedAsync()
+    {
+      var setting =
+        new CsvFile(UnitTestInitializeCsv.GetTestPath("ces_qa01-ar-rtdw_data_v6100816_training_core.json"))
+        {
+          JsonFormat = true
+        };
+
+      using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
+      {
+        using (var jfr = new JsonFileReader(setting, processDisplay))
+        {
+          await jfr.OpenAsync(processDisplay.CancellationToken);
+          await jfr.ReadAsync(processDisplay.CancellationToken);
+          Assert.AreEqual(new Guid("ef21069c-3d93-4e07-878d-00e820727f65"), jfr.GetGuid(0));
+          Assert.IsTrue((new DateTime(2020, 04, 03, 18, 45, 29, 573, DateTimeKind.Utc) -
+                         jfr.GetDateTime(1).ToUniversalTime()).TotalSeconds < 2);
+          Assert.AreEqual((short) 0, jfr.GetInt16(5));
+          Assert.AreEqual((int) 0, jfr.GetInt32(5));
+          Assert.AreEqual((long) 0, jfr.GetInt64(5));
+          var val = new object[jfr.FieldCount];
+          jfr.GetValues(val);
+          Assert.IsNull(val[2]);
+        }
+      }
+    }
+
+    [TestMethod]
     public async Task ReadJSon2Async()
     {
-      var setting = new CsvFile(UnitTestInitializeCsv.GetTestPath("Jason2.json")) { JsonFormat = true };
+      var setting = new CsvFile(UnitTestInitializeCsv.GetTestPath("Jason2.json")) {JsonFormat = true};
       using (var dpd = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       using (var jfr = new JsonFileReader(setting, dpd))
       {
@@ -249,7 +277,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task ReadJSon3Async()
     {
-      var setting = new CsvFile(UnitTestInitializeCsv.GetTestPath("Jason3.json")) { JsonFormat = true };
+      var setting = new CsvFile(UnitTestInitializeCsv.GetTestPath("Jason3.json")) {JsonFormat = true};
 
       using (var dpd = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       using (var jfr = new JsonFileReader(setting, dpd))
@@ -271,7 +299,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task ReadJSon4Async()
     {
-      var setting = new CsvFile(UnitTestInitializeCsv.GetTestPath("Jason4.json")) { JsonFormat = true };
+      var setting = new CsvFile(UnitTestInitializeCsv.GetTestPath("Jason4.json")) {JsonFormat = true};
 
       using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       using (var jfr = new JsonFileReader(setting, processDisplay))

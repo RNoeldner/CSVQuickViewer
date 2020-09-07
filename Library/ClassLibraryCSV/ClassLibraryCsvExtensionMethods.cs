@@ -33,19 +33,6 @@ namespace CsvTools
   /// </summary>
   public static class ClassLibraryCsvExtensionMethods
   {
-    /// <summary>
-    ///   Gets the SQl Info messages and logs them
-    /// </summary>
-    /// <param name="process">The process display.</param>
-    /// <returns></returns>
-    public static EventHandler<string> GetLogInfoMessage(this IProcessDisplay process) =>
-      delegate(object sender, string message)
-      {
-        Logger.Information("SQL Information: {message}", message);
-        process?.SetProcess(message, -1, true);
-      };
-
-
     public static async Task<long> WriteAsync([NotNull] this IFileWriter writer, [NotNull] string sqlStatement,
       int timeout, Action<string> reportProgress, CancellationToken cancellationToken)
     {
@@ -409,6 +396,18 @@ namespace CsvTools
       }
     }
 
+    /// <summary>
+    ///   Gets the SQl Info messages and logs them
+    /// </summary>
+    /// <param name="process">The process display.</param>
+    /// <returns></returns>
+    public static EventHandler<string> GetLogInfoMessage(this IProcessDisplay process) =>
+      delegate(object sender, string message)
+      {
+        Logger.Information("SQL Information: {message}", message);
+        process?.SetProcess(message, -1, true);
+      };
+
 
     /// <summary>
     ///   Get a list of column names that are not artificial
@@ -472,57 +471,6 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets the type of the placeholder.
-    /// </summary>
-    /// <param name="input">The input.</param>
-    /// <param name="placeholder">The placeholder.</param>
-    /// <returns></returns>
-    [CanBeNull]
-    private static string GetPlaceholderType([NotNull] this string input, [NotNull] string placeholder)
-    {
-      var type = "{" + placeholder + "}";
-      if (input.IndexOf(type, StringComparison.OrdinalIgnoreCase) != -1)
-        return type;
-      type = "#" + placeholder + "#";
-      if (input.IndexOf(type, StringComparison.OrdinalIgnoreCase) != -1)
-        return type;
-
-      type = "#" + placeholder;
-      if (input.EndsWith(type, StringComparison.OrdinalIgnoreCase) ||
-          input.IndexOf(type + " ", StringComparison.OrdinalIgnoreCase) != -1)
-        return type;
-      return null;
-    }
-
-
-    [NotNull]
-    public static string PlaceHolderTimes([NotNull] this string text, [NotNull] string format, DateTime processTimeUtc,
-      DateTime lastExecution, DateTime lastExecutionStart)
-    {
-      if (text == null) throw new ArgumentNullException(nameof(text));
-
-      if (processTimeUtc != BaseSettings.ZeroTime)
-      {
-        var value = processTimeUtc.ToString(format);
-        text = text.PlaceholderReplace("LastRunUTC", value);
-      }
-
-      if (lastExecutionStart != BaseSettings.ZeroTime)
-      {
-        var value = lastExecutionStart.ToString(format);
-        text = text.PlaceholderReplace("ScriptStartUTC", value);
-      }
-
-      if (lastExecution == BaseSettings.ZeroTime) return text;
-      {
-        var value = lastExecution.ToString(format);
-        text = text.PlaceholderReplace("LastScriptEndUTC", value);
-      }
-
-      return text;
-    }
-
-    /// <summary>
     ///   Replaces a placeholders with a text. The placeholder are identified surrounding { or a
     ///   leading #
     /// </summary>
@@ -536,8 +484,20 @@ namespace CsvTools
       [CanBeNull] string replacement)
     {
       if (string.IsNullOrEmpty(replacement)) return input;
-      var type = input.GetPlaceholderType(placeholder);
-      if (type == null) return input;
+
+      var type = "{" + placeholder + "}";
+      if (input.IndexOf(type, StringComparison.OrdinalIgnoreCase) == -1)
+      {
+        type = "#" + placeholder + "#";
+        if (input.IndexOf(type, StringComparison.OrdinalIgnoreCase) == -1)
+        {
+          type = "#" + placeholder;
+          if (!input.EndsWith(type, StringComparison.OrdinalIgnoreCase) &&
+              input.IndexOf(type + " ", StringComparison.OrdinalIgnoreCase) == -1)
+            return input;
+        }
+      }
+
       if (input.IndexOf(" - " + type, StringComparison.OrdinalIgnoreCase) != -1)
       {
         type = " - " + type;
@@ -825,36 +785,6 @@ namespace CsvTools
       return value < int.MinValue ? int.MinValue : Convert.ToInt32(value);
     }
 
-    public static async Task<T> TimeoutAfter<T>([NotNull] this Task<T> task, TimeSpan timeout)
-    {
-      using (var cts = new CancellationTokenSource())
-      {
-        var delayTask = Task.Delay(timeout, cts.Token);
-
-        var resultTask = await Task.WhenAny(task, delayTask);
-        if (resultTask == delayTask)
-          throw new TimeoutException($"Timeout after {timeout.TotalSeconds:N1} seconds");
-        // Cancel the timer task so that it does not fire
-        cts.Cancel();
-        return await task;
-      }
-    }
-
-    public static async Task TimeoutAfter([NotNull] this Task task, TimeSpan timeout)
-    {
-      using (var cts = new CancellationTokenSource())
-      {
-        var delayTask = Task.Delay(timeout, cts.Token);
-
-        var resultTask = await Task.WhenAny(task, delayTask);
-        if (resultTask == delayTask)
-          throw new TimeoutException($"Timeout after {timeout.TotalSeconds:N1} seconds");
-        // Cancel the timer task so that it does not fire
-        cts.Cancel();
-        await task;
-      }
-    }
-
     /// <summary>
     ///   Replaces a written English punctuation to the punctuation character
     /// </summary>
@@ -891,6 +821,7 @@ namespace CsvTools
         return '_';
 
       if (inputString.Equals("Comma", StringComparison.OrdinalIgnoreCase) ||
+          inputString.Equals("Comma: ,", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals(",", StringComparison.Ordinal))
         return ',';
 
@@ -902,12 +833,14 @@ namespace CsvTools
 
       if (inputString.Equals("amper", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("ampersand", StringComparison.OrdinalIgnoreCase) ||
+          inputString.Equals("Ampersand: &", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("&", StringComparison.Ordinal))
         return '&';
 
       if (inputString.Equals("Pipe", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("Vertical bar", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("VerticalBar", StringComparison.OrdinalIgnoreCase) ||
+          inputString.Equals("Pipe: |", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("|", StringComparison.Ordinal))
         return '|';
 
@@ -922,10 +855,12 @@ namespace CsvTools
         return '￤';
 
       if (inputString.Equals("Semicolon", StringComparison.OrdinalIgnoreCase) ||
+          inputString.Equals("Semicolon: ;", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals(";", StringComparison.Ordinal))
         return ';';
 
       if (inputString.Equals("Colon", StringComparison.OrdinalIgnoreCase) ||
+          inputString.Equals("Colon: :", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals(":", StringComparison.Ordinal))
         return ':';
 
@@ -933,23 +868,27 @@ namespace CsvTools
           inputString.Equals("Doublequotes", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("Quote", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("Quotation marks", StringComparison.OrdinalIgnoreCase) ||
+          inputString.Equals("Quotation marks: \"", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("\"", StringComparison.Ordinal))
         return '"';
 
       if (inputString.Equals("Apostrophe", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("Singlequote", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("tick", StringComparison.OrdinalIgnoreCase) ||
+          inputString.Equals("Apostrophe: \'", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("'", StringComparison.Ordinal))
         return '\'';
 
       if (inputString.Equals("Slash", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("Stroke", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("forward slash", StringComparison.OrdinalIgnoreCase) ||
+          inputString.Equals("Slash: /", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("/", StringComparison.Ordinal))
         return '/';
 
       if (inputString.Equals("backslash", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("backslant", StringComparison.OrdinalIgnoreCase) ||
+          inputString.Equals("Backslash: \\", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("\\", StringComparison.Ordinal))
         return '\\';
 
@@ -960,6 +899,7 @@ namespace CsvTools
 
       if (inputString.Equals("Star", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("Asterisk", StringComparison.OrdinalIgnoreCase) ||
+          inputString.Equals("Asterisk: *", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("*", StringComparison.Ordinal))
         return '*';
 

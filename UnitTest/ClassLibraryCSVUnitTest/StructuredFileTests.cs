@@ -62,7 +62,8 @@ namespace CsvTools.Tests
     {
       try
       {
-        using (var dummy = FunctionalDI.GetFileReader(m_StructuredFile, TimeZoneInfo.Local.Id, null))
+        using (var dummy = FunctionalDI.GetFileReader(m_StructuredFile, TimeZoneInfo.Local.Id,
+          new CustomProcessDisplay(UnitTestInitializeCsv.Token)))
         {
           Assert.Fail("Should throw error");
         }
@@ -113,11 +114,9 @@ namespace CsvTools.Tests
       m_StructuredFile.ColumnCollection.Clear();
       m_StructuredFile.ColumnCollection.AddIfNew(new Column("ID", DataType.Integer)
       {
-        ColumnOrdinal = 1,
-        Ignore = false,
-        Convert = true
+        ColumnOrdinal = 1, Ignore = false, Convert = true
       });
-      m_StructuredFile.ColumnCollection.AddIfNew(new Column { ColumnOrdinal = 2, Name = "Name" });
+      m_StructuredFile.ColumnCollection.AddIfNew(new Column {ColumnOrdinal = 2, Name = "Name"});
     }
 
     [TestMethod]
