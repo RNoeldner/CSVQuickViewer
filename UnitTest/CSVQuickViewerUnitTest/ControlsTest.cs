@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System.Collections.Generic;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Threading.Tasks;
 
 namespace CsvTools.Tests
@@ -7,12 +8,13 @@ namespace CsvTools.Tests
   public class ControlsTests
   {
     [TestMethod]
-    public async Task CsvTextDisplayShow()
+    public void CsvTextDisplayShow()
     {
       using (var frm = new FormCsvTextDisplay())
       {
-        await UnitTestWinFormHelper.ShowFormAndCloseAsync(frm, .2, frm.SetCsvFileAsync(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"), '"', '\t', '\0', 1200, 1));
+        UnitTestWinFormHelper.ShowFormAndClose(frm, .2, () => frm.OpenFile(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"), false, '"', '\t', '\0', 1200, 1));
       }
     }
+
   }
 }

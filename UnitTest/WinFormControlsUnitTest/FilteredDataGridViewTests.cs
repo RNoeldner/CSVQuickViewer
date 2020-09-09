@@ -116,7 +116,7 @@ namespace CsvTools.Tests
       {
         filteredDataGridView.DataSource = dt;
         filteredDataGridView.FrozenColumns = 2;
-        UnitTestWinFormHelper.WaitSomeTime(.2);
+        UnitTestWinFormHelper.WaitSomeTime(.2, UnitTestInitializeCsv.Token);
       }
     }
 
@@ -128,7 +128,7 @@ namespace CsvTools.Tests
       {
         filteredDataGridView.DataSource = dt;
         filteredDataGridView.HighlightText = "ag";
-        UnitTestWinFormHelper.WaitSomeTime(.2);
+        UnitTestWinFormHelper.WaitSomeTime(.2, UnitTestInitializeCsv.Token);
         Assert.AreEqual("", filteredDataGridView.CurrentFilter);
       }
     }

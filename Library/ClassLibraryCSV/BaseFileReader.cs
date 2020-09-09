@@ -33,7 +33,7 @@ namespace CsvTools
     /// <summary>
     ///   The maximum value
     /// </summary>
-    protected const int cMaxValue = 10000;
+    protected const int c_MaxValue = 10000;
 
     [NotNull] private readonly ICollection<IColumn> m_ColumnDefinition;
     private readonly IntervalAction m_IntervalAction = new IntervalAction();
@@ -743,16 +743,14 @@ namespace CsvTools
     {
       if (CurrentRowColumnText == null || CurrentRowColumnText.Length <= columnNumber)
         return true;
-      if (Column[columnNumber].ValueFormat.DataType == DataType.DateTime)
-      {
-        if (AssociatedTimeCol[columnNumber] == -1 || AssociatedTimeCol[columnNumber] >= CurrentRowColumnText.Length)
-          return string.IsNullOrEmpty(CurrentRowColumnText[columnNumber]);
+      if (Column[columnNumber].ValueFormat.DataType != DataType.DateTime)
+        return string.IsNullOrWhiteSpace(CurrentRowColumnText[columnNumber]);
+      if (AssociatedTimeCol[columnNumber] == -1 || AssociatedTimeCol[columnNumber] >= CurrentRowColumnText.Length)
+        return string.IsNullOrEmpty(CurrentRowColumnText[columnNumber]);
 
-        return string.IsNullOrEmpty(CurrentRowColumnText[columnNumber])
-               && string.IsNullOrEmpty(CurrentRowColumnText[AssociatedTimeCol[columnNumber]]);
-      }
+      return string.IsNullOrEmpty(CurrentRowColumnText[columnNumber])
+             && string.IsNullOrEmpty(CurrentRowColumnText[AssociatedTimeCol[columnNumber]]);
 
-      return string.IsNullOrWhiteSpace(CurrentRowColumnText[columnNumber]);
     }
 
     /// <summary>
@@ -834,7 +832,7 @@ namespace CsvTools
       EndOfFile = false;
 
       OpenFinished?.Invoke(this, Column);
-      SetMaxProcess?.Invoke(this, cMaxValue);
+      SetMaxProcess?.Invoke(this, c_MaxValue);
     }
 
     /// <summary>
@@ -916,7 +914,7 @@ namespace CsvTools
     ///   Gets the relative position.
     /// </summary>
     /// <returns>A value between 0 and MaxValue</returns>
-    protected virtual int GetRelativePosition() => (int) (RecordNumber / RecordLimit * cMaxValue);
+    protected virtual int GetRelativePosition() => (int) (RecordNumber / RecordLimit * c_MaxValue);
 
     /// <summary>
     ///   Gets the associated value.
@@ -996,7 +994,7 @@ namespace CsvTools
       if (m_IsFinished)
         return;
       m_IsFinished = true;
-      HandleShowProgress("Finished Reading from source", RecordNumber, cMaxValue);
+      HandleShowProgress("Finished Reading from source", RecordNumber, c_MaxValue);
       ReadFinished?.Invoke(this, null);
     }
 
@@ -1009,7 +1007,7 @@ namespace CsvTools
     protected virtual void HandleShowProgress(string text, long recordNumber, int progress)
     {
       var rec = recordNumber > 1 ? $"\nRecord {recordNumber:N0}" : string.Empty;
-      m_Percentage = (progress > 0) ? cMaxValue / progress : 0;
+      m_Percentage = (progress > 0) ? c_MaxValue / progress : 0;
       ReportProgress?.Invoke(this, new ProgressEventArgs($"{text}{rec}", progress, false));
     }
 

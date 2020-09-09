@@ -30,7 +30,7 @@ namespace CsvTools.Tests
           UnitTestWinFormHelper.ShowFormAndClose(frm, 1, () =>
           {
             while (!frm.LoadFinished && !UnitTestInitializeCsv.Token.IsCancellationRequested)
-              UnitTestWinFormHelper.WaitSomeTime(.2);
+              UnitTestWinFormHelper.WaitSomeTime(.2, UnitTestInitializeCsv.Token);
           });
           Assert.IsNotNull(frm.DataTable);
           Assert.AreEqual(7, frm.DataTable.Rows.Count);
@@ -48,7 +48,7 @@ namespace CsvTools.Tests
           UnitTestWinFormHelper.ShowFormAndClose(frm, 1, () =>
           {
             while (!frm.LoadFinished && !UnitTestInitializeCsv.Token.IsCancellationRequested)
-              UnitTestWinFormHelper.WaitSomeTime(.2);
+              UnitTestWinFormHelper.WaitSomeTime(.2, UnitTestInitializeCsv.Token);
           });
           Assert.IsNotNull(frm.DataTable);
           // 45 records, one of the lines has a linefeed

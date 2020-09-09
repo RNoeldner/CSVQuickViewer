@@ -281,7 +281,7 @@ namespace CsvTools
       await OpenDataReaderAsync(true);
     }
 
-    private async void DetailControl_ButtonShowSource(object sender, EventArgs e)
+    private void DetailControl_ButtonShowSource(object sender, EventArgs e)
     {
       try
       {
@@ -296,7 +296,7 @@ namespace CsvTools
             proc.Maximum = 0;
             proc.SetProcess("Reading source and applying color coding ", 0, false);
 
-            await m_SourceDisplay.SetCsvFileAsync(m_FileSetting.FullPath, m_FileSetting.FileFormat.FieldQualifierChar,
+            m_SourceDisplay.OpenFile(m_FileSetting.FullPath,m_FileSetting.JsonFormat, m_FileSetting.FileFormat.FieldQualifierChar,
               m_FileSetting.FileFormat.FieldDelimiterChar, m_FileSetting.FileFormat.EscapeCharacterChar,
               (int) m_CodePage.Item1, m_FileSetting.SkipRows);
             proc.Close();

@@ -13,10 +13,10 @@
  */
 
 using System;
-using System.IO;
+using System.Drawing;
 using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
+using System.Text.RegularExpressions;
+using FastColoredTextBoxNS;
 using JetBrains.Annotations;
 
 namespace CsvTools
@@ -26,172 +26,199 @@ namespace CsvTools
   /// </summary>
   public partial class FormCsvTextDisplay : ResizeForm
   {
-    private int m_CodePage;
-    private int m_DisplayedAt = -1;
-    [NotNull] private string m_FullPath = string.Empty;
-    private bool m_IsReading;
+    private readonly Style m_Space;
+    private readonly Style m_Tab;
+    private readonly Style m_BrownStyle = new TextStyle(Brushes.Brown, null, FontStyle.Italic);
+    private readonly Style m_BlueStyle = new TextStyle(Brushes.Blue, null, FontStyle.Regular);
+    private readonly Style m_GrayStyle = new TextStyle(Brushes.AntiqueWhite, Brushes.LightGray, FontStyle.Regular);
+    private readonly Style m_MagentaStyle = new TextStyle(Brushes.Magenta, null, FontStyle.Regular);
+
+
+    private readonly Regex m_JsonStringRegex = new Regex(@"""([^\\""]|\\"")*""", RegexOptions.Compiled);
+    private readonly Regex m_JsonNumberRegex = new Regex(@"\b(\d+[\.]?\d*|true|false|null)\b", RegexOptions.Compiled);
+    private readonly Regex m_JsonKeywordRegex = new Regex(@"(?<range>""([^\\""]|\\"")*"")\s*:", RegexOptions.Compiled);
     private int m_SkipLines;
-    private bool m_StopReading;
+    private bool m_Json;
+    private char m_Delimiter = ',';
+    private bool m_DisplaySpace = true;
+    private char m_Escape = '\\';
+    private char m_Quote = '"';
+
+    class SpaceStyle : Style
+    {
+      private readonly FastColoredTextBox m_TextBox;
+      public SpaceStyle(FastColoredTextBox textBox)
+      {
+        m_TextBox = textBox;
+      }
+      public override void Draw(Graphics gr, Point position, Range range)
+      {
+        //get size of rectangle
+        var size = GetSizeOfRange(range);
+        var rect = new Rectangle(position, size);
+        // background
+        rect.Inflate(-1, -1);
+        gr.FillRectangle(Brushes.AntiqueWhite, rect);
+
+        var sizeChar = size.Width / (range.End.iChar - range.Start.iChar);
+        var dotSize = new Size(Math.Min(Math.Max(sizeChar, 8), 3), Math.Min(Math.Max(size.Height, 8), 3));
+
+        var posDot = new Point(position.X + sizeChar/2 - dotSize.Width/2, position.Y + size.Height / 2 - dotSize.Height / 2);
+        for (var pos = range.Start.iChar; pos < range.End.iChar; pos++)
+        {
+          // draw a dot
+          gr.FillEllipse(Brushes.Blue, new Rectangle(posDot, dotSize));
+          posDot.X += sizeChar;
+        }
+      }
+    }
+    class TabType : Style
+    {
+      private readonly FastColoredTextBox m_TextBox;
+
+      public TabType(FastColoredTextBox textBox)
+      {
+        m_TextBox = textBox;
+      }
+
+      public override void Draw(Graphics gr, Point position, Range range)
+      {
+        //get size of rectangle
+        var size = GetSizeOfRange(range);
+        var rect = new Rectangle(position, size);
+        rect.Inflate(-1, -1);
+        gr.FillRectangle(Brushes.AntiqueWhite, rect);
+        var sizeChar = size.Width / (range.End.iChar - range.Start.iChar);
+        var height = size.Height;
+
+        for (var pos = range.Start.iChar; pos < range.End.iChar; pos++)
+        {
+          var rect2 = new Rectangle(position, new Size(sizeChar, height));
+
+          // draw an arrow
+          var point2 = new Point(rect2.X + sizeChar -2, rect2.Y +height / 2);
+
+          gr.DrawLine(Pens.Blue, new Point(rect2.X + 1, point2.Y), point2);
+          gr.DrawLine(Pens.Blue, new Point(rect2.X + sizeChar /2, rect2.Y +height/4), point2);
+          gr.DrawLine(Pens.Blue, new Point(rect2.X + sizeChar /2, rect2.Y + (rect2.Height*3)/4), point2);
+          
+          // double line in case its larger
+          if (height>6)
+            gr.DrawLine(Pens.Blue, rect2.X + 1 , point2.Y+1, point2.X, point2.Y+1);
+
+          if (sizeChar > 6)
+          {
+            gr.DrawLine(Pens.Blue, rect2.X + sizeChar / 2 + 1, rect2.Y + height / 4, point2.X + 1, point2.Y);
+            gr.DrawLine(Pens.Blue, rect2.X + sizeChar / 2 + 1, rect2.Y + (rect2.Height * 3) / 4, point2.X + 1,
+              point2.Y);
+          }
+          position.X += sizeChar;
+        }
+      }
+    }
+    private void DelimiterHighlight(Range range)
+    {
+      range.ClearStyle(StyleIndex.All);
+      range.SetStyle(m_BlueStyle, $"(?<!\\{ m_Escape})\\{m_Delimiter}");
+      range.SetStyle(m_MagentaStyle, $"(?<!(\\{ m_Escape}|\\{m_Quote}))\\{m_Quote}");
+
+      if (m_DisplaySpace)
+      {
+        range.SetStyle(m_Space, " ");
+        range.SetStyle(m_Tab, "\\t");
+      }
+    }
+
+    private void JSONSyntaxHighlight(Range range)
+    {
+      range.tb.LeftBracket = '[';
+      range.tb.RightBracket = ']';
+      range.tb.LeftBracket2 = '{';
+      range.tb.RightBracket2 = '}';
+      range.tb.BracketsHighlightStrategy = BracketsHighlightStrategy.Strategy2;
+
+      range.tb.AutoIndentCharsPatterns = @"
+^\s*[\w\.]+(\s\w+)?\s*(?<range>=)\s*(?<range>[^;]+);
+";
+
+      //clear style of changed range
+      range.ClearStyle(StyleIndex.All);
+
+      //keyword highlighting
+      range.SetStyle(m_BlueStyle, m_JsonKeywordRegex);
+      //string highlighting
+      range.SetStyle(m_BrownStyle, m_JsonStringRegex);
+      //number highlighting
+      range.SetStyle(m_MagentaStyle, m_JsonNumberRegex);
+      //clear folding markers
+      range.ClearFoldingMarkers();
+      //set folding markers
+      range.SetFoldingMarkers("{", "}"); //allow to collapse brackets block
+      range.SetFoldingMarkers(@"\[", @"\]"); //allow to collapse comment block
+    }
+
+    private void HighlightVisibleRange()
+    {
+      //expand visible range (+- margin)
+      var startLine = Math.Max(m_SkipLines, textBox.VisibleRange.Start.iLine - 20);
+      var endLine = Math.Min(textBox.LinesCount - 1, textBox.VisibleRange.End.iLine + 100);
+      var range = new Range(textBox, 0, startLine, 0, endLine);
+      if (m_Json)
+        JSONSyntaxHighlight(range);
+      else
+        DelimiterHighlight(range);
+
+      if (m_SkipLines <= 0) return;
+      range = new Range(textBox, 0, 0, 0, m_SkipLines);
+      range.ClearStyle(m_BlueStyle, m_BrownStyle, m_MagentaStyle);
+      range.SetStyle(m_GrayStyle);
+    }
+
 
     /// <summary>
     ///   CTOR CsvTextDisplay
     /// </summary>
-    public FormCsvTextDisplay() => InitializeComponent();
+    public FormCsvTextDisplay()
+    {
+      InitializeComponent();
+      m_Space = new SpaceStyle(textBox);
+      m_Tab = new TabType(textBox);
+    }
 
     /// <summary>
     ///   CSV File to display
     /// </summary>
-    public async Task SetCsvFileAsync(string fullPath, char qualifierChar, char delimiterChar, char escapeChar,
+    public void OpenFile([NotNull] string fullPath, bool json, char qualifierChar, char delimiterChar,
+      char escapeChar,
       int codePage, int skipLines)
     {
-      Text = fullPath;
-      if (string.IsNullOrEmpty(fullPath))
+      Text = fullPath ?? throw new ArgumentNullException(nameof(fullPath));
+      var info = new FileSystemUtils.FileInfo(fullPath);
+      if (!info.Exists)
       {
-        ScrollBarVertical.Visible = false;
-        CSVTextBox.Text = null;
+        textBox.Text = $@"
+The file {fullPath} does not exist.";
       }
       else
       {
-        var info = new FileSystemUtils.FileInfo(fullPath);
-        if (!info.Exists)
-        {
-          ScrollBarVertical.Visible = false;
-          CSVTextBox.Text = $@"
-The file {fullPath} does not exist.";
-        }
-        else
-        {
-          m_FullPath = fullPath;
-          m_CodePage = codePage;
-          CSVTextBox.DisplaySpace = true;
-          CSVTextBox.Quote = qualifierChar;
-          CSVTextBox.Delimiter = delimiterChar;
-          CSVTextBox.Escape = escapeChar;
-          CSVTextBox.SkipLines = skipLines;
-          m_SkipLines = skipLines;
-
-          // read all and display all
-          if (info.Length < 64000)
-          {
-            try
-            {
-              var display = await GetTextAsync(0, 64000);
-              CSVTextBox.Text = display;
-              ScrollBarVertical.Visible = false;
-            }
-            catch (Exception ex)
-            {
-              CSVTextBox.Text = ex.Message;
-            }
-          }
-          // file is too big, read whats displayed at time of display
-          else
-          {
-            CSVTextBox.ShowLineNumber = false;
-            CSVTextBox.MouseWheel += MouseWheelScroll;
-            ScrollBarVertical.Visible = true;
-            ScrollBarVertical.SmallChange = 1024;
-            ScrollBarVertical.LargeChange = 8192;
-            ScrollBarVertical.Maximum = info.Length.ToInt();
-            ValueChangedEvent(this, null);
-          }
-        }
+        m_Json = json;
+        m_DisplaySpace = true;
+        m_Quote = qualifierChar;
+        m_Delimiter = delimiterChar;
+        m_Escape = escapeChar;
+        m_SkipLines = skipLines;
+        textBox.OpenBindingFile(fullPath, Encoding.GetEncoding(codePage));
       }
     }
 
-    private void MouseWheelScroll(object sender, MouseEventArgs e)
+    private void textBox_TextChangedDelayed(object sender, TextChangedEventArgs e)
     {
-      var newValue = ScrollBarVertical.Value - e.Delta;
-
-      if (newValue < ScrollBarVertical.Minimum)
-        newValue = ScrollBarVertical.Minimum;
-
-      if (newValue > ScrollBarVertical.Maximum)
-        newValue = ScrollBarVertical.Maximum;
-
-      ScrollBarVertical.Value = newValue;
+      HighlightVisibleRange();
     }
 
-    private async Task<string> GetTextAsync(int newPos, int maxChar)
+    private void textBox_VisibleRangeChangedDelayed(object sender, EventArgs e)
     {
-      try
-      {
-        using (var iStream = FunctionalDI.OpenRead(m_FullPath))
-        {
-          if (m_StopReading) throw new OperationCanceledException();
-
-          if (newPos != 0)
-            iStream.Stream.Seek(newPos, SeekOrigin.Begin);
-
-          if (m_StopReading) throw new OperationCanceledException();
-
-          using (var stream = new StreamReader(iStream.Stream, Encoding.GetEncoding(m_CodePage), false))
-          {
-            var buffer = new char[maxChar];
-            var pos = 0;
-            var readChars = await stream.ReadAsync(buffer, 0, maxChar);
-            if (newPos != 0)
-            {
-              // get to the line start, position might be in the middle of a line
-              while (pos < readChars)
-              {
-                var chr = buffer[pos++];
-                if (chr != '\r' && chr != '\n') continue;
-                if (pos + 1 < readChars)
-                {
-                  var nextChar = buffer[pos + 1];
-                  if ((chr == '\r' && nextChar == '\n') || (chr == '\n' && nextChar == '\r'))
-                    pos++;
-                }
-
-                break;
-              }
-
-              pos++;
-            }
-
-            if (m_StopReading) throw new OperationCanceledException();
-
-            return new string(buffer, pos, readChars - pos);
-          }
-        }
-      }
-      catch (OperationCanceledException)
-      {
-        throw;
-      }
-      catch (Exception exc)
-      {
-        return exc.ExceptionMessages();
-      }
-      finally
-      {
-        m_IsReading = false;
-      }
-    }
-
-    private async void ValueChangedEvent(object sender, EventArgs e)
-    {
-      if (m_DisplayedAt == ScrollBarVertical.Value) return;
-      if (m_IsReading)
-      {
-        m_StopReading = true;
-        // wait for it to finish
-        await Task.Delay(200);
-      }
-
-      try
-      {
-        CSVTextBox.SkipLines = (ScrollBarVertical.Value == 0) ? m_SkipLines : 0;
-        CSVTextBox.Text = await GetTextAsync(ScrollBarVertical.Value, 32000);
-        m_DisplayedAt = ScrollBarVertical.Value;
-      }
-      catch
-      {
-        // ignore
-      }
-
-      m_StopReading = false;
+      HighlightVisibleRange();
     }
   }
 }

@@ -9,22 +9,22 @@ namespace CsvTools
   public sealed class ImprovedTextReader : IDisposable
   {
     // Buffer size set to 64kB, if set to large the display in percentage will jump
-    private const int c_BufferSize = 65536;
+    private const int cBufferSize = 65536;
 
     /// <summary>
     ///   The carriage return character. Escape code is <c>\r</c>.
     /// </summary>
-    private const char c_Cr = (char) 0x0d;
+    private const char cCr = (char) 0x0d;
 
     /// <summary>
     ///   The line-feed character. Escape code is <c>\n</c>.
     /// </summary>
-    private const char c_Lf = (char) 0x0a;
+    private const char cLf = (char) 0x0a;
 
     /// <summary>
     ///   Buffer of the file data
     /// </summary>
-    public readonly char[] Buffer = new char[c_BufferSize];
+    private readonly char[] m_Buffer = new char[cBufferSize];
 
     private readonly IImprovedStream m_ImprovedStream;
 
@@ -33,7 +33,7 @@ namespace CsvTools
     /// <summary>
     ///   Length of the buffer (can be smaller then buffer size at end of file)
     /// </summary>
-    public int BufferFilled;
+    private int m_BufferFilled;
 
     /// <summary>
     ///   Position in the buffer
@@ -127,14 +127,14 @@ namespace CsvTools
     /// <returns></returns>
     public async Task<int> PeekAsync()
     {
-      if (BufferPos >= BufferFilled)
+      if (BufferPos >= m_BufferFilled)
         // Prevent marshalling the continuation back to the original context. This is good for
         // performance and to avoid deadlocks
         await ReadIntoBufferAsync().ConfigureAwait(false);
       if (EndOfFile)
         return -1;
 
-      return Buffer[BufferPos];
+      return m_Buffer[BufferPos];
     }
 
     /// <summary>
@@ -150,7 +150,7 @@ namespace CsvTools
     {
       var character = await PeekAsync().ConfigureAwait(false);
 
-      if (character == c_Lf || character == c_Cr)
+      if (character == cLf || character == cCr)
         LineNumber++;
 
       if (EndOfFile)
@@ -175,17 +175,17 @@ namespace CsvTools
         {
           case -1:
             continue;
-          case c_Cr:
-          case c_Lf:
+          case cCr:
+          case cLf:
           {
             var nextChar = await PeekAsync().ConfigureAwait(false);
             switch (character)
             {
-              case c_Cr when nextChar == c_Lf:
+              case cCr when nextChar == cLf:
                 MoveNext();
                 break;
 
-              case c_Lf when nextChar == c_Cr:
+              case cLf when nextChar == cCr:
                 LineNumber++;
                 MoveNext();
                 break;
@@ -215,10 +215,10 @@ namespace CsvTools
       var addBom = m_ByteOrderMark ? EncodingHelper.BOMLength(m_CodePage) : 0;
 
       // In case the buffer is bigger than the stream, we do not need to rest
-      if (BufferFilled <= 0 || !m_ImprovedStream.Stream.CanSeek ||
-          m_ImprovedStream.Stream.Length - addBom > BufferFilled)
+      if (m_BufferFilled <= 0 || !m_ImprovedStream.Stream.CanSeek ||
+          m_ImprovedStream.Stream.Length - addBom > m_BufferFilled)
       {
-        BufferFilled = 0;
+        m_BufferFilled = 0;
         // Some improved stream might need to reopen the streams
         m_ImprovedStream.ResetToStart(delegate (Stream stream)
         {
@@ -270,7 +270,7 @@ namespace CsvTools
         EndOfFile = TextReader.EndOfStream;
         if (EndOfFile)
           return;
-        BufferFilled = await TextReader.ReadAsync(Buffer, 0, c_BufferSize).ConfigureAwait(false);
+        m_BufferFilled = await TextReader.ReadAsync(m_Buffer, 0, cBufferSize).ConfigureAwait(false);
         BufferPos = 0;
       }
       catch (Exception)

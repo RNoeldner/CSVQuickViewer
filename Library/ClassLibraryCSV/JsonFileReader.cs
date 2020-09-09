@@ -319,7 +319,7 @@ namespace CsvTools
       if (RecordLimit > 0 && RecordLimit < long.MaxValue)
         return base.GetRelativePosition();
 
-      return (int) (m_ImprovedStream.Percentage * cMaxValue);
+      return (int) (m_ImprovedStream.Percentage * c_MaxValue);
     }
 
     /// <summary>
