@@ -26,107 +26,50 @@ namespace CsvTools
   /// </summary>
   public partial class FormCsvTextDisplay : ResizeForm
   {
-    private readonly Style m_Space;
-    private readonly Style m_Tab;
-    private readonly Style m_BrownStyle = new TextStyle(Brushes.Brown, null, FontStyle.Italic);
     private readonly Style m_BlueStyle = new TextStyle(Brushes.Blue, null, FontStyle.Regular);
+    private readonly Style m_BrownStyle = new TextStyle(Brushes.Brown, null, FontStyle.Italic);
     private readonly Style m_GrayStyle = new TextStyle(Brushes.AntiqueWhite, Brushes.LightGray, FontStyle.Regular);
+
+    private readonly Regex m_JsonKeywordRegex = new Regex(@"(?<range>""([^\\""]|\\"")*"")\s*:",
+      RegexOptions.Singleline | RegexOptions.Compiled);
+
+    private readonly Regex m_JsonNumberRegex = new Regex(@"\b(\d+[\.]?\d*|true|false|null)\b",
+      RegexOptions.Singleline | RegexOptions.Compiled);
+
+    private readonly Regex m_JsonStringRegex =
+      new Regex(@"""([^\\""]|\\"")*""", RegexOptions.Singleline | RegexOptions.Compiled);
+
     private readonly Style m_MagentaStyle = new TextStyle(Brushes.Magenta, null, FontStyle.Regular);
+    private readonly Style m_Space = new SpaceStyle(Brushes.Blue, Brushes.AntiqueWhite);
+    private readonly Regex m_SpaceRegex = new Regex(" ", RegexOptions.Singleline | RegexOptions.Compiled);
+    private readonly Style m_Tab = new TabStyle(Pens.Blue, Brushes.AntiqueWhite);
+    private readonly Regex m_TabRegex = new Regex("\\t", RegexOptions.Singleline | RegexOptions.Compiled);
+    private Regex m_CommentRegex = null;
 
 
-    private readonly Regex m_JsonStringRegex = new Regex(@"""([^\\""]|\\"")*""", RegexOptions.Compiled);
-    private readonly Regex m_JsonNumberRegex = new Regex(@"\b(\d+[\.]?\d*|true|false|null)\b", RegexOptions.Compiled);
-    private readonly Regex m_JsonKeywordRegex = new Regex(@"(?<range>""([^\\""]|\\"")*"")\s*:", RegexOptions.Compiled);
-    private int m_SkipLines;
+    private Regex m_DelimiterRegex;
     private bool m_Json;
-    private char m_Delimiter = ',';
-    private bool m_DisplaySpace = true;
-    private char m_Escape = '\\';
-    private char m_Quote = '"';
+    private Regex m_QuoteRegex;
+    private int m_SkipLines;
 
-    class SpaceStyle : Style
+
+    /// <summary>
+    ///   CTOR CsvTextDisplay
+    /// </summary>
+    public FormCsvTextDisplay()
     {
-      private readonly FastColoredTextBox m_TextBox;
-      public SpaceStyle(FastColoredTextBox textBox)
-      {
-        m_TextBox = textBox;
-      }
-      public override void Draw(Graphics gr, Point position, Range range)
-      {
-        //get size of rectangle
-        var size = GetSizeOfRange(range);
-        var rect = new Rectangle(position, size);
-        // background
-        rect.Inflate(-1, -1);
-        gr.FillRectangle(Brushes.AntiqueWhite, rect);
-
-        var sizeChar = size.Width / (range.End.iChar - range.Start.iChar);
-        var dotSize = new Size(Math.Min(Math.Max(sizeChar, 8), 3), Math.Min(Math.Max(size.Height, 8), 3));
-
-        var posDot = new Point(position.X + sizeChar/2 - dotSize.Width/2, position.Y + size.Height / 2 - dotSize.Height / 2);
-        for (var pos = range.Start.iChar; pos < range.End.iChar; pos++)
-        {
-          // draw a dot
-          gr.FillEllipse(Brushes.Blue, new Rectangle(posDot, dotSize));
-          posDot.X += sizeChar;
-        }
-      }
+      InitializeComponent();
     }
-    class TabType : Style
-    {
-      private readonly FastColoredTextBox m_TextBox;
 
-      public TabType(FastColoredTextBox textBox)
-      {
-        m_TextBox = textBox;
-      }
-
-      public override void Draw(Graphics gr, Point position, Range range)
-      {
-        //get size of rectangle
-        var size = GetSizeOfRange(range);
-        var rect = new Rectangle(position, size);
-        rect.Inflate(-1, -1);
-        gr.FillRectangle(Brushes.AntiqueWhite, rect);
-        var sizeChar = size.Width / (range.End.iChar - range.Start.iChar);
-        var height = size.Height;
-
-        for (var pos = range.Start.iChar; pos < range.End.iChar; pos++)
-        {
-          var rect2 = new Rectangle(position, new Size(sizeChar, height));
-
-          // draw an arrow
-          var point2 = new Point(rect2.X + sizeChar -2, rect2.Y +height / 2);
-
-          gr.DrawLine(Pens.Blue, new Point(rect2.X + 1, point2.Y), point2);
-          gr.DrawLine(Pens.Blue, new Point(rect2.X + sizeChar /2, rect2.Y +height/4), point2);
-          gr.DrawLine(Pens.Blue, new Point(rect2.X + sizeChar /2, rect2.Y + (rect2.Height*3)/4), point2);
-          
-          // double line in case its larger
-          if (height>6)
-            gr.DrawLine(Pens.Blue, rect2.X + 1 , point2.Y+1, point2.X, point2.Y+1);
-
-          if (sizeChar > 6)
-          {
-            gr.DrawLine(Pens.Blue, rect2.X + sizeChar / 2 + 1, rect2.Y + height / 4, point2.X + 1, point2.Y);
-            gr.DrawLine(Pens.Blue, rect2.X + sizeChar / 2 + 1, rect2.Y + (rect2.Height * 3) / 4, point2.X + 1,
-              point2.Y);
-          }
-          position.X += sizeChar;
-        }
-      }
-    }
     private void DelimiterHighlight(Range range)
     {
       range.ClearStyle(StyleIndex.All);
-      range.SetStyle(m_BlueStyle, $"(?<!\\{ m_Escape})\\{m_Delimiter}");
-      range.SetStyle(m_MagentaStyle, $"(?<!(\\{ m_Escape}|\\{m_Quote}))\\{m_Quote}");
-
-      if (m_DisplaySpace)
-      {
-        range.SetStyle(m_Space, " ");
-        range.SetStyle(m_Tab, "\\t");
-      }
+      range.SetStyle(m_BlueStyle, m_DelimiterRegex);
+      range.SetStyle(m_MagentaStyle, m_QuoteRegex);
+      if (m_CommentRegex != null)
+        range.SetStyle(m_GrayStyle, m_CommentRegex);
+      range.SetStyle(m_Space, m_SpaceRegex);
+      range.SetStyle(m_Tab, m_TabRegex);
     }
 
     private void JSONSyntaxHighlight(Range range)
@@ -174,23 +117,12 @@ namespace CsvTools
       range.SetStyle(m_GrayStyle);
     }
 
-
-    /// <summary>
-    ///   CTOR CsvTextDisplay
-    /// </summary>
-    public FormCsvTextDisplay()
-    {
-      InitializeComponent();
-      m_Space = new SpaceStyle(textBox);
-      m_Tab = new TabType(textBox);
-    }
-
     /// <summary>
     ///   CSV File to display
     /// </summary>
     public void OpenFile([NotNull] string fullPath, bool json, char qualifierChar, char delimiterChar,
       char escapeChar,
-      int codePage, int skipLines)
+      int codePage, int skipLines, string commemt)
     {
       Text = fullPath ?? throw new ArgumentNullException(nameof(fullPath));
       var info = new FileSystemUtils.FileInfo(fullPath);
@@ -202,11 +134,17 @@ The file {fullPath} does not exist.";
       else
       {
         m_Json = json;
-        m_DisplaySpace = true;
-        m_Quote = qualifierChar;
-        m_Delimiter = delimiterChar;
-        m_Escape = escapeChar;
         m_SkipLines = skipLines;
+        m_DelimiterRegex = new Regex(
+          (escapeChar != '\0') ? $"\\{delimiterChar}" : $"(?<!\\{escapeChar})\\{delimiterChar}",
+          RegexOptions.Singleline | RegexOptions.Compiled);
+        m_QuoteRegex = new Regex(
+          (escapeChar != '\0')
+            ? $"(?<!|\\{qualifierChar})\\{qualifierChar}"
+            : $"(?<!(\\{escapeChar}|\\{qualifierChar}))\\{qualifierChar}",
+          RegexOptions.Singleline | RegexOptions.Compiled);
+        if (!string.IsNullOrEmpty(commemt))
+          m_CommentRegex = new Regex($"\\s*{commemt}.*$", RegexOptions.Multiline | RegexOptions.Compiled);
         textBox.OpenBindingFile(fullPath, Encoding.GetEncoding(codePage));
       }
     }
@@ -219,6 +157,89 @@ The file {fullPath} does not exist.";
     private void textBox_VisibleRangeChangedDelayed(object sender, EventArgs e)
     {
       HighlightVisibleRange();
+    }
+
+    class SpaceStyle : Style
+    {
+      private readonly Brush m_BackGround;
+      private readonly Brush m_ForeGround;
+
+      public SpaceStyle(Brush foreGround, Brush backGround)
+      {
+        m_ForeGround = foreGround;
+        m_BackGround = backGround;
+      }
+
+      public override void Draw(Graphics gr, Point position, Range range)
+      {
+        //get size of rectangle
+        var size = GetSizeOfRange(range);
+        var rect = new Rectangle(position, size);
+        // background
+        rect.Inflate(-1, -1);
+        gr.FillRectangle(m_BackGround, rect);
+
+        var sizeChar = size.Width / (range.End.iChar - range.Start.iChar);
+        var dotSize = new Size(Math.Min(Math.Max(sizeChar, 8), 3), Math.Min(Math.Max(size.Height, 8), 3));
+
+        var posDot = new Point(position.X + sizeChar / 2 - dotSize.Width / 2,
+          position.Y + size.Height / 2 - dotSize.Height / 2);
+        for (var pos = range.Start.iChar; pos < range.End.iChar; pos++)
+        {
+          // draw a dot
+          gr.FillEllipse(m_ForeGround, new Rectangle(posDot, dotSize));
+          posDot.X += sizeChar;
+        }
+      }
+    }
+
+    class TabStyle : Style
+    {
+      private readonly Brush m_BackGround;
+      private readonly Pen m_ForeGround;
+
+      public TabStyle(Pen foreGround, Brush backGround)
+      {
+        m_ForeGround = foreGround;
+        m_BackGround = backGround;
+      }
+
+      public override void Draw(Graphics gr, Point position, Range range)
+      {
+        //get size of rectangle
+        var size = GetSizeOfRange(range);
+        var rect = new Rectangle(position, size);
+        rect.Inflate(-1, -1);
+        gr.FillRectangle(m_BackGround, rect);
+
+        var sizeChar = size.Width / (range.End.iChar - range.Start.iChar);
+        var height = size.Height;
+
+        for (var pos = range.Start.iChar; pos < range.End.iChar; pos++)
+        {
+          var rect2 = new Rectangle(position, new Size(sizeChar, height));
+
+          // draw an arrow
+          var point2 = new Point(rect2.X + sizeChar - 2, rect2.Y + height / 2);
+
+          gr.DrawLine(m_ForeGround, new Point(rect2.X + 1, point2.Y), point2);
+          gr.DrawLine(m_ForeGround, new Point(rect2.X + sizeChar / 2, rect2.Y + height / 4), point2);
+          gr.DrawLine(m_ForeGround, new Point(rect2.X + sizeChar / 2, rect2.Y + (rect2.Height * 3) / 4), point2);
+
+          // double line in case its larger
+          if (height > 6)
+            gr.DrawLine(m_ForeGround, rect2.X + 1, point2.Y + 1, point2.X, point2.Y + 1);
+
+          if (sizeChar > 6)
+          {
+            gr.DrawLine(m_ForeGround, rect2.X + sizeChar / 2 + 1, rect2.Y + height / 4, point2.X + 1, point2.Y);
+            gr.DrawLine(m_ForeGround, rect2.X + sizeChar / 2 + 1, rect2.Y + (rect2.Height * 3) / 4, point2.X + 1,
+              point2.Y);
+          }
+
+          position.X += sizeChar;
+        }
+      }
     }
   }
 }

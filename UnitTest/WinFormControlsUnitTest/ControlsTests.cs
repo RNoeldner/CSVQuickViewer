@@ -26,6 +26,13 @@ namespace CsvTools.Tests
   public class ControlsTests
   {
     [TestMethod]
+    public void PersistentChoice()
+    {
+      var pc = new PersistentChoice(DialogResult.Yes);
+      _MessageBox.PersistentChoice(null, "message", "Title", pc, "Yes", "no");
+    }
+
+    [TestMethod]
     public void HTMLDisplay()
     {
       Extensions.RunSTAThread(() =>
@@ -109,12 +116,60 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    public void APICodePackWrapperFolder()
+    {
+      try
+      {
+        UnitTestWinFormHelper.RunTaskTimeout(token => Task.Run(() =>
+          WindowsAPICodePackWrapper.Folder(FileSystemUtils.ExecutableDirectoryName(), "Test"), token));
+      }
+      catch (COMException)
+      {
+      }
+      catch (TimeoutException)
+      {
+      }
+      catch (OperationCanceledException)
+      {
+      }
+      catch (Exception ex)
+      {
+        Assert.Fail(
+          $"Wrong exception got {ex.GetType().Name} expected OperationCanceledException : {ex.ExceptionMessages()}");
+      }
+    }
+
+    [TestMethod]
     public void APICodePackWrapperOpen()
     {
       try
       {
         UnitTestWinFormHelper.RunTaskTimeout(token => Task.Run(() =>
           WindowsAPICodePackWrapper.Open(FileSystemUtils.ExecutableDirectoryName(), "Test", "*.cs", null), token));
+      }
+      catch (COMException)
+      {
+      }
+      catch (TimeoutException)
+      {
+      }
+      catch (OperationCanceledException)
+      {
+      }
+      catch (Exception ex)
+      {
+        Assert.Fail(
+          $"Wrong exception got {ex.GetType().Name} expected OperationCanceledException : {ex.ExceptionMessages()}");
+      }
+    }
+
+    [TestMethod]
+    public void APICodePackWrapperSave()
+    {
+      try
+      {
+        UnitTestWinFormHelper.RunTaskTimeout(token => Task.Run(() =>
+          WindowsAPICodePackWrapper.Save(FileSystemUtils.ExecutableDirectoryName(), "Test", "*.cs", null), token));
       }
       catch (COMException)
       {
@@ -190,10 +245,10 @@ namespace CsvTools.Tests
         {
           Assert.AreEqual(0, treeView.SelectedTreeNode.Count);
 
-          var treeNode = new TreeNode("Test") { Tag = "test" };
+          var treeNode = new TreeNode("Test") {Tag = "test"};
           treeView.Nodes.Add(treeNode);
 
-          var treeNode2 = new TreeNode("Test2") { Tag = "test2" };
+          var treeNode2 = new TreeNode("Test2") {Tag = "test2"};
           treeNode.Nodes.Add(treeNode2);
 
           var firedAfter = false;
@@ -319,8 +374,7 @@ namespace CsvTools.Tests
         {
           processDisplay.Show();
           var cvsSetting = new CsvFile(Path.Combine(FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles",
-            "FileWithHierarchy_WithCyle.txt"))
-          { FileFormat = { FieldDelimiter = "\t" } };
+            "FileWithHierarchy_WithCyle.txt")) {FileFormat = {FieldDelimiter = "\t"}};
           using (var csvDataReader = new CsvFileReader(cvsSetting, processDisplay))
           {
             var dt = await csvDataReader.GetDataTableAsync(0, false, true, false, false, false, null, null,
