@@ -29,63 +29,69 @@ namespace CsvTools
     /// </summary>
     private void InitializeComponent()
     {
-      this.ScrollBarVertical = new System.Windows.Forms.VScrollBar();
-      this.CSVTextBox = new CsvTools.CSVRichTextBox2();
+      this.components = new System.ComponentModel.Container();
+      System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormCsvTextDisplay));
+      this.textBox = new FastColoredTextBoxNS.FastColoredTextBox();
+      ((System.ComponentModel.ISupportInitialize)(this.textBox)).BeginInit();
       this.SuspendLayout();
       // 
-      // ScrollBarVertical
+      // textBox
       // 
-      this.ScrollBarVertical.Dock = System.Windows.Forms.DockStyle.Right;
-      this.ScrollBarVertical.Location = new System.Drawing.Point(942, 0);
-      this.ScrollBarVertical.Name = "ScrollBarVertical";
-      this.ScrollBarVertical.Size = new System.Drawing.Size(21, 491);
-      this.ScrollBarVertical.TabIndex = 0;
-      this.ScrollBarVertical.ValueChanged += new System.EventHandler(this.ValueChangedEvent);
-      // 
-      // CSVTextBox
-      // 
-      this.CSVTextBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-      this.CSVTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.CSVTextBox.EdgeMode = ScintillaNET.EdgeMode.Line;
-      this.CSVTextBox.EolMode = ScintillaNET.Eol.Lf;
-      this.CSVTextBox.IdleStyling = ScintillaNET.IdleStyling.ToVisible;
-      this.CSVTextBox.Location = new System.Drawing.Point(0, 0);
-      this.CSVTextBox.Margin = new System.Windows.Forms.Padding(2);
-      this.CSVTextBox.Margins.Left = 3;
-      this.CSVTextBox.Margins.Right = 3;
-      this.CSVTextBox.Name = "CSVTextBox";
-      this.CSVTextBox.ReadOnly = true;
-      this.CSVTextBox.ScrollWidth = 3501;
-      this.CSVTextBox.ShowLineNumber = true;
-      this.CSVTextBox.Size = new System.Drawing.Size(942, 491);
-      this.CSVTextBox.SkipLines = 0;
-      this.CSVTextBox.TabIndex = 2;
-      this.CSVTextBox.Technology = ScintillaNET.Technology.DirectWrite;
-      this.CSVTextBox.ViewEol = true;
-      this.CSVTextBox.ViewWhitespace = ScintillaNET.WhitespaceMode.VisibleAlways;
-      this.CSVTextBox.WhitespaceSize = 2;
-      this.CSVTextBox.WordWrap = true;
-      this.CSVTextBox.WrapMode = ScintillaNET.WrapMode.Char;
-      this.CSVTextBox.WrapVisualFlags = ScintillaNET.WrapVisualFlags.End;
+      this.textBox.AutoCompleteBracketsList = new char[] {
+        '(',
+        ')',
+        '{',
+        '}',
+        '[',
+        ']',
+        '\"',
+        '\"',
+        '\'',
+        '\''};
+      this.textBox.AutoIndentCharsPatterns = "\r\n^\\s*[\\w\\.]+(\\s\\w+)?\\s*(?<range>=)\\s*(?<range>.+)\r\n";
+      this.textBox.AutoScrollMinSize = new System.Drawing.Size(0, 16);
+      this.textBox.BackBrush = null;
+      this.textBox.CaretColor = System.Drawing.Color.Silver;
+      this.textBox.CharHeight = 16;
+      this.textBox.CharWidth = 9;
+      this.textBox.CommentPrefix = "--";
+      this.textBox.Cursor = System.Windows.Forms.Cursors.IBeam;
+      this.textBox.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
+      this.textBox.Dock = System.Windows.Forms.DockStyle.Fill;
+      this.textBox.Font = new System.Drawing.Font("Courier New", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+      this.textBox.IsReplaceMode = false;
+      this.textBox.Location = new System.Drawing.Point(0, 0);
+      this.textBox.Name = "textBox";
+      this.textBox.Paddings = new System.Windows.Forms.Padding(0);
+      this.textBox.ReadOnly = true;
+      this.textBox.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
+      this.textBox.ServiceColors = ((FastColoredTextBoxNS.ServiceColors)(resources.GetObject("textBox.ServiceColors")));
+      this.textBox.ShowFoldingLines = true;
+      this.textBox.Size = new System.Drawing.Size(957, 446);
+      this.textBox.TabIndex = 1;
+      this.textBox.WordWrap = true;
+      this.textBox.Zoom = 100;
+      this.textBox.TextChangedDelayed += new System.EventHandler<FastColoredTextBoxNS.TextChangedEventArgs>(this.textBox_TextChangedDelayed);
+      this.textBox.VisibleRangeChangedDelayed += new System.EventHandler(this.textBox_VisibleRangeChangedDelayed);
       // 
       // FormCsvTextDisplay
       // 
-      this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+      this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.BackColor = System.Drawing.SystemColors.ControlLightLight;
-      this.ClientSize = new System.Drawing.Size(963, 491);
-      this.Controls.Add(this.CSVTextBox);
-      this.Controls.Add(this.ScrollBarVertical);
+      this.ClientSize = new System.Drawing.Size(957, 446);
+      this.Controls.Add(this.textBox);
       this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
-      this.Margin = new System.Windows.Forms.Padding(2);
+      this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
       this.Name = "FormCsvTextDisplay";
+      ((System.ComponentModel.ISupportInitialize)(this.textBox)).EndInit();
       this.ResumeLayout(false);
 
     }
-    private System.Windows.Forms.VScrollBar ScrollBarVertical;
+
 
     #endregion
 
-    private CSVRichTextBox2 CSVTextBox;
+    private FastColoredTextBoxNS.FastColoredTextBox textBox;
   }
 }

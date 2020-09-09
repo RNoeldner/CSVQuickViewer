@@ -295,6 +295,12 @@ namespace CsvTools.Tests
 
       Assert.AreEqual(0, setting.SkipRows);
     }
+    [TestMethod]
+    public async Task GuessQualifierAsync()
+    {
+      Assert.AreEqual("\"", await CsvHelper.GuessQualifierAsync(new CsvFile { FileName = UnitTestInitializeCsv.GetTestPath("TextQualifiers.txt") }, UnitTestInitializeCsv.Token));
+    }
+
 
     [TestMethod]
     public async Task RefreshCsvFileAsync()
@@ -320,13 +326,13 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public async Task TestGuessStartRowAsync()
+    public async Task TestGuessStartRow1Async()
     {
       ICsvFile test = new CsvFile(UnitTestInitializeCsv.GetTestPath("LateStartRow.txt")) { CodePageId = 20127 };
       test.FileFormat.FieldDelimiter = "|";
       test.FileFormat.FieldQualifier = "\"";
       test.SkipRows = await CsvHelper.GuessStartRowAsync(test, UnitTestInitializeCsv.Token);
-
+      Assert.AreEqual(10, test.SkipRows);
       using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       using (var reader = new CsvFileReader(test, processDisplay))
       {
@@ -336,7 +342,14 @@ namespace CsvTools.Tests
         Assert.AreEqual("0F8C40DB-EE2C-4C7C-A226-3C43E72584B0", reader.GetString(1));
       }
 
-      Assert.AreEqual(10, test.SkipRows);
+
+    }
+    [TestMethod]
+    public async Task TestGuessStartRow2Async()
+    {
+      ICsvFile test = new CsvFile(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"));
+      test.SkipRows = await CsvHelper.GuessStartRowAsync(test, UnitTestInitializeCsv.Token);
+      Assert.AreEqual(0, test.SkipRows);
     }
   }
 }

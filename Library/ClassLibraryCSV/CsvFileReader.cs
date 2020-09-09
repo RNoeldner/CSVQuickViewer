@@ -31,29 +31,29 @@ namespace CsvTools
     /// <summary>
     ///   Constant: Line has fewer columns than expected
     /// </summary>
-    public const string cLessColumns = " has fewer columns than expected";
+    public const string c_LessColumns = " has fewer columns than expected";
 
     /// <summary>
     ///   Constant: Line has more columns than expected
     /// </summary>
-    public const string cMoreColumns = " has more columns than expected";
+    public const string c_MoreColumns = " has more columns than expected";
 
     /// <summary>
     ///   The carriage return character. Escape code is <c>\r</c>.
     /// </summary>
-    private const char c_Cr = (char) 0x0d;
+    private const char cCr = (char) 0x0d;
 
     /// <summary>
     ///   The line-feed character. Escape code is <c>\n</c>.
     /// </summary>
-    private const char c_Lf = (char) 0x0a;
+    private const char cLf = (char) 0x0a;
 
     /// <summary>
     ///   A non-breaking space..
     /// </summary>
-    private const char c_Nbsp = (char) 0xA0;
+    private const char cNbsp = (char) 0xA0;
 
-    private const char c_UnknownChar = (char) 0xFFFD;
+    private const char cUnknownChar = (char) 0xFFFD;
     private readonly bool m_AllowRowCombining;
     private readonly bool m_AlternateQuoting;
     private readonly int m_CodePageId;
@@ -81,8 +81,8 @@ namespace CsvTools
     private readonly bool m_SkipEmptyLines;
     private readonly int m_SkipRows;
 
-    private readonly bool m_TreatLFAsSpace;
-    private readonly bool m_TreatNBSPAsSpace;
+    private readonly bool m_TreatLfAsSpace;
+    private readonly bool m_TreatNbspAsSpace;
     private readonly string m_TreatTextAsNull;
     private readonly bool m_TreatUnknownCharacterAsSpace;
     private readonly TrimmingOption m_TrimmingOption;
@@ -90,7 +90,7 @@ namespace CsvTools
     private readonly bool m_WarnDelimiterInValue;
     private readonly bool m_WarnLineFeed;
 
-    private readonly bool m_WarnNBSP;
+    private readonly bool m_WarnNbsp;
     private readonly bool m_WarnQuotes;
     private readonly bool m_WarnUnknownCharacter;
 
@@ -137,11 +137,11 @@ namespace CsvTools
       [NotNull] string commentLine = "", int numWarning = 0, bool duplicateQuotingToEscape = true,
       string newLinePlaceholder = "", string delimiterPlaceholder = "", string quotePlaceholder = "",
       bool skipDuplicateHeader = true,
-      bool treatLFAsSpace = false, bool treatUnknownCharacterAsSpace = false, bool tryToSolveMoreColumns = true,
+      bool treatLfAsSpace = false, bool treatUnknownCharacterAsSpace = false, bool tryToSolveMoreColumns = true,
       bool warnDelimiterInValue = true,
-      bool warnLineFeed = false, bool warnNBSP = true, bool warnQuotes = true, bool warnUnknownCharacter = true,
+      bool warnLineFeed = false, bool warnNbsp = true, bool warnQuotes = true, bool warnUnknownCharacter = true,
       bool warnEmptyTailingColumns = true,
-      bool treatNBSPAsSpace = false,
+      bool treatNbspAsSpace = false,
       string treatTextAsNull = BaseSettings.cTreatTextAsNull, bool skipEmptyLines = true,
       int consecutiveEmptyRowsMax = 4)
       : base(fileName, columnDefinition, recordLimit)
@@ -164,11 +164,11 @@ namespace CsvTools
         m_FieldQualifierChar = fieldQualifier[0];
       }
 
-      if (m_FieldQualifierChar == c_Cr || m_FieldQualifierChar == c_Lf)
+      if (m_FieldQualifierChar == cCr || m_FieldQualifierChar == cLf)
         throw new FileReaderException(
           "The text quoting characters is invalid, please use something else than CR or LF");
 
-      if (m_FieldDelimiterChar == c_Cr || m_FieldDelimiterChar == c_Lf
+      if (m_FieldDelimiterChar == cCr || m_FieldDelimiterChar == cLf
                                        || m_FieldDelimiterChar == ' '
                                        || m_FieldDelimiterChar == '\0')
         throw new FileReaderException(
@@ -195,18 +195,18 @@ namespace CsvTools
       m_QuotePlaceholder = quotePlaceholder;
       m_SkipDuplicateHeader = skipDuplicateHeader;
       m_SkipRows = skipRows;
-      m_TreatLFAsSpace = treatLFAsSpace;
+      m_TreatLfAsSpace = treatLfAsSpace;
       m_TreatUnknownCharacterAsSpace = treatUnknownCharacterAsSpace;
       m_TryToSolveMoreColumns = tryToSolveMoreColumns;
       m_WarnDelimiterInValue = warnDelimiterInValue;
       m_WarnLineFeed = warnLineFeed;
-      m_WarnNBSP = warnNBSP;
+      m_WarnNbsp = warnNbsp;
       m_WarnQuotes = warnQuotes;
       m_WarnUnknownCharacter = warnUnknownCharacter;
       m_HasFieldHeader = hasFieldHeader;
       m_SkipEmptyLines = skipEmptyLines;
       m_ConsecutiveEmptyRowsMax = consecutiveEmptyRowsMax;
-      m_TreatNBSPAsSpace = treatNBSPAsSpace;
+      m_TreatNbspAsSpace = treatNbspAsSpace;
       m_TrimmingOption = trimmingOption;
       m_TreatTextAsNull = treatTextAsNull;
 
@@ -420,7 +420,7 @@ namespace CsvTools
       if (RecordLimit > 0 && RecordLimit < long.MaxValue)
         return base.GetRelativePosition();
 
-      return (int) ((m_ImprovedStream?.Percentage ?? 0) * cMaxValue);
+      return (int) ((m_ImprovedStream?.Percentage ?? 0) * c_MaxValue);
     }
 
     private bool AllEmptyAndCountConsecutiveEmptyRows(IReadOnlyList<string> columns)
@@ -446,12 +446,12 @@ namespace CsvTools
       EndLineNumber++;
       if (EndOfFile) return;
       var nextChar = await PeekAsync().ConfigureAwait(false);
-      if ((character != c_Cr || nextChar != c_Lf) && (character != c_Lf || nextChar != c_Cr)) return;
+      if ((character != cCr || nextChar != cLf) && (character != cLf || nextChar != cCr)) return;
 
       // New line sequence is either CRLF or LFCR, disregard the character
       MoveNext(nextChar);
 
-      if (character == c_Lf && nextChar == c_Cr)
+      if (character == cLf && nextChar == cCr)
         EndLineNumber++;
     }
 
@@ -533,7 +533,7 @@ namespace CsvTools
       EndOfFile = true;
 
       // return a lf to determine the end of quoting easily
-      return c_Lf;
+      return cLf;
     }
 
     /// <summary>
@@ -623,17 +623,17 @@ namespace CsvTools
         }
 
         // in case we have a single LF
-        if (!postData && m_TreatLFAsSpace && character == c_Lf && quoted)
+        if (!postData && m_TreatLfAsSpace && character == cLf && quoted)
         {
-          var singleLF = true;
+          var singleLf = true;
           if (!EndOfFile)
           {
             var nextChar = await PeekAsync().ConfigureAwait(false);
-            if (nextChar == c_Cr)
-              singleLF = false;
+            if (nextChar == cCr)
+              singleLf = false;
           }
 
-          if (singleLF)
+          if (singleLf)
           {
             character = ' ';
             EndLineNumber++;
@@ -644,17 +644,17 @@ namespace CsvTools
 
         switch (character)
         {
-          case c_Nbsp:
+          case cNbsp:
             if (!postData)
             {
               hadNbsp = true;
-              if (m_TreatNBSPAsSpace)
+              if (m_TreatNbspAsSpace)
                 character = ' ';
             }
 
             break;
 
-          case c_UnknownChar:
+          case cUnknownChar:
             if (!postData)
             {
               hadUnknownChar = true;
@@ -664,15 +664,15 @@ namespace CsvTools
 
             break;
 
-          case c_Cr:
-          case c_Lf:
+          case cCr:
+          case cLf:
             EndLineNumber++;
 
             var nextChar = '\0';
             if (!EndOfFile)
             {
               nextChar = await PeekAsync();
-              if ((character != c_Cr || nextChar != c_Lf) && (character != c_Lf || nextChar != c_Cr))
+              if ((character != cCr || nextChar != cLf) && (character != cLf || nextChar != cCr))
               {
                 nextChar = '\0';
               }
@@ -680,12 +680,12 @@ namespace CsvTools
               {
                 MoveNext(nextChar);
 
-                if (character == c_Lf && nextChar == c_Cr)
+                if (character == cLf && nextChar == cCr)
                   EndLineNumber++;
               }
             }
 
-            if (character == c_Cr && nextChar == c_Lf || character == c_Lf && nextChar == c_Cr)
+            if (character == cCr && nextChar == cLf || character == cLf && nextChar == cCr)
               if (quoted && !postData)
               {
                 stringBuilder.Append(character);
@@ -701,7 +701,7 @@ namespace CsvTools
           break;
 
         // Finished with reading the column by Linefeed
-        if ((character == c_Cr || character == c_Lf) && (preData || postData || !quoted))
+        if ((character == cCr || character == cLf) && (preData || postData || !quoted))
         {
           m_EndOfLine = true;
           break;
@@ -758,14 +758,14 @@ namespace CsvTools
             // handling for "" that is not only representing a " but also closes the text
             peekNextChar = await PeekAsync().ConfigureAwait(false);
             if (m_AlternateQuoting && (peekNextChar == m_FieldDelimiterChar
-                                       || peekNextChar == c_Cr
-                                       || peekNextChar == c_Lf)) postData = true;
+                                       || peekNextChar == cCr
+                                       || peekNextChar == cLf)) postData = true;
             continue;
           }
 
           // a single " should be regarded as closing when its followed by the delimiter
           if (m_AlternateQuoting && (peekNextChar == m_FieldDelimiterChar
-                                     || peekNextChar == c_Cr || peekNextChar == c_Lf))
+                                     || peekNextChar == cCr || peekNextChar == cLf))
           {
             postData = true;
             continue;
@@ -788,7 +788,7 @@ namespace CsvTools
       var returnValue = stringBuilder.ToString();
       if (stringBuilder.Length > 0)
       {
-        if (m_TreatNBSPAsSpace)
+        if (m_TreatNbspAsSpace)
           returnValue = returnValue.Replace((char) 0xA0, ' ');
 
         if (m_TrimmingOption == TrimmingOption.All || !quoted && m_TrimmingOption == TrimmingOption.Unquoted)
@@ -848,13 +848,13 @@ namespace CsvTools
           }
         }
 
-      if (m_WarnNBSP && hadNbsp)
+      if (m_WarnNbsp && hadNbsp)
       {
         m_NumWarningsNbspChar++;
         if (m_NumWarning < 1 || m_NumWarningsNbspChar <= m_NumWarning)
           HandleWarning(
             columnNo,
-            m_TreatNBSPAsSpace
+            m_TreatNbspAsSpace
               ? "Character Non Breaking Space found, this character was treated as space".AddWarningId()
               : "Character Non Breaking Space found in field".AddWarningId());
       }
@@ -916,7 +916,7 @@ namespace CsvTools
           {
             var character = await PeekAsync().ConfigureAwait(false);
             MoveNext(character);
-            if (character != c_Cr && character != c_Lf)
+            if (character != cCr && character != cLf)
               continue;
             await EatNextCRLFAsync(character);
             break;
@@ -957,7 +957,7 @@ namespace CsvTools
               .ReplaceCaseInsensitive(m_QuotePlaceholder, m_FieldQualifierChar);
 
             if (regularDataRow && col < FieldCount)
-              item = HandleText(item, col, m_TreatNBSPAsSpace, m_TreatTextAsNull, m_TrimmingOption);
+              item = HandleText(item, col, m_TreatNbspAsSpace, m_TreatTextAsNull, m_TrimmingOption);
           }
         }
 
@@ -1031,7 +1031,7 @@ namespace CsvTools
 
           if (!m_AllowRowCombining)
           {
-            m_HandleMessageColumn(-1, $"Line {cLessColumns} ({rowLength}/{FieldCount}).");
+            m_HandleMessageColumn(-1, $"Line {c_LessColumns} ({rowLength}/{FieldCount}).");
           }
           else
           {
@@ -1060,7 +1060,7 @@ namespace CsvTools
               if (!hasWarningCombinedWarning)
               {
                 m_HandleMessageColumn(-1,
-                  $"Line {cLessColumns}\nLines {StartLineNumber}-{EndLineNumber - 1} have been combined.");
+                  $"Line {c_LessColumns}\nLines {StartLineNumber}-{EndLineNumber - 1} have been combined.");
                 hasWarningCombinedWarning = true;
               }
 
@@ -1073,13 +1073,13 @@ namespace CsvTools
             {
               HandleError(
                 -1,
-                $"Line {cLessColumns}\nAttempting to combined lines some line have been read that is now lost, please turn off Row Combination");
+                $"Line {c_LessColumns}\nAttempting to combined lines some line have been read that is now lost, please turn off Row Combination");
             }
             else
             {
               // return to the old position so reading the next row did not matter
               if (!hasWarningCombinedWarning)
-                m_HandleMessageColumn(-1, $"Line {cLessColumns} ({rowLength}/{FieldCount}).");
+                m_HandleMessageColumn(-1, $"Line {c_LessColumns} ({rowLength}/{FieldCount}).");
               m_TextReader.BufferPos = oldPos;
             }
           }
@@ -1089,7 +1089,7 @@ namespace CsvTools
         // ReSharper disable once InvertIf
         if (rowLength > FieldCount)
         {
-          var text = $"Line {cMoreColumns} ({rowLength}/{FieldCount}).";
+          var text = $"Line {c_MoreColumns} ({rowLength}/{FieldCount}).";
 
           if (m_RealignColumns != null)
           {

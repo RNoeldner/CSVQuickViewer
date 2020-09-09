@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Control = System.Windows.Forms.Control;
 
 namespace CsvTools.Tests
 {
@@ -12,11 +13,11 @@ namespace CsvTools.Tests
   public static class UnitTestWinFormHelper
   {
     [DebuggerStepThrough]
-    public static void WaitSomeTime(double seconds)
+    public static void WaitSomeTime(double seconds, CancellationToken token)
     {
       var sw = new Stopwatch();
       sw.Start();
-      while (sw.Elapsed.TotalSeconds < seconds)
+      while (sw.Elapsed.TotalSeconds < seconds && !token.IsCancellationRequested)
       {
         Application.DoEvents();
         FunctionalDI.SignalBackground?.Invoke();
@@ -39,48 +40,56 @@ namespace CsvTools.Tests
       frm.ShowInTaskbar = false;
       frm.Show();
       frm.Focus();
-      WaitSomeTime(.5);
+      WaitSomeTime(.5, UnitTestInitializeCsv.Token);
       RunTaskTimeout(toDo, timeout);
-      WaitSomeTime(.5);
+      WaitSomeTime(.5, UnitTestInitializeCsv.Token);
       frm.Close();
     }
+
     public static async Task ShowFormAndCloseAsync(Form frm, double time, [NotNull] Task toDo)
     {
       frm.TopMost = true;
       frm.ShowInTaskbar = false;
       frm.Show();
       frm.Focus();
-      WaitSomeTime(time);
+      WaitSomeTime(time, UnitTestInitializeCsv.Token);
       await toDo;
-      WaitSomeTime(time);
+      WaitSomeTime(time, UnitTestInitializeCsv.Token);
       frm.Close();
     }
 
-    public static void ShowFormAndClose(Form frm, double time = .2, Action toDo = null)
+    public static void ShowFormAndClose(Form frm, double before = .2, Action toDo = null)
+    => ShowFormAndClose(frm, before, toDo, before, UnitTestInitializeCsv.Token);
+
+    private static void ShowFormAndClose(Form frm, double before, Action toDo, double after, CancellationToken token)
     {
       frm.TopMost = true;
       frm.ShowInTaskbar = false;
       frm.Show();
       frm.Focus();
-      if (time > 0)
-        WaitSomeTime(time);
+      if (before > 0)
+        WaitSomeTime(before, token);
 
       if (toDo != null)
       {
         toDo.Invoke();
-        if (time > 0)
-          WaitSomeTime(time);
+        if (after > 0)
+          WaitSomeTime(after, token);
       }
 
       frm.Close();
     }
 
-    public static void ShowControl(Control ctrl, double time = .2, Action toDo = null)
+    public static void ShowControl(Control ctrl, double before = .2, Action toDo = null, double after = .2)
     {
-      using (var frm = new TestForm())
+      using (var cts = CancellationTokenSource.CreateLinkedTokenSource(UnitTestInitializeCsv.Token))
       {
-        frm.AddOneControl(ctrl);
-        ShowFormAndClose(frm, time, toDo);
+        using (var frm = new TestForm())
+        {
+          frm.Closing += (s, e) => cts.Cancel();
+          frm.AddOneControl(ctrl);
+          ShowFormAndClose(frm, before, toDo, after, cts.Token);
+        }
       }
     }
   }

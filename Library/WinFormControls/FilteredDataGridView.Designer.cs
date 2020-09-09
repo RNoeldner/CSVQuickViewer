@@ -29,6 +29,7 @@ namespace CsvTools
       this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripMenuItem();
       this.contextMenuStripFilter = new System.Windows.Forms.ContextMenuStrip(this.components);
       this.toolStripMenuItemApplyFilter = new System.Windows.Forms.ToolStripMenuItem();
+      this.toolStripMenuItemFilterAdd = new System.Windows.Forms.ToolStripMenuItem();
       this.toolStripMenuItemFilterThisValue = new System.Windows.Forms.ToolStripMenuItem();
       this.toolStripMenuItemFilterRemove = new System.Windows.Forms.ToolStripMenuItem();
       this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
@@ -41,7 +42,6 @@ namespace CsvTools
       this.toolStripMenuItemSaveCol = new System.Windows.Forms.ToolStripMenuItem();
       this.toolStripSeparator8 = new System.Windows.Forms.ToolStripSeparator();
       this.toolStripMenuItemColumnVisibility = new CsvTools.ToolStripCheckedListBox();
-      this.toolStripMenuItemFilterAdd = new System.Windows.Forms.ToolStripMenuItem();
       this.toolStripMenuItemColumns = new System.Windows.Forms.ToolStripMenuItem();
       this.contextMenuStripHeader = new System.Windows.Forms.ContextMenuStrip(this.components);
       this.toolStripMenuItemHideThisColumn = new System.Windows.Forms.ToolStripMenuItem();
@@ -138,7 +138,7 @@ namespace CsvTools
             this.toolStripSeparator4,
             this.toolStripMenuItemApplyFilter});
       this.contextMenuStripFilter.Name = "contextMenuStripFilter";
-      this.contextMenuStripFilter.OwnerItem = this.toolStripMenuItemFilterAdd;
+      this.contextMenuStripFilter.OwnerItem = this.toolStripMenuItem2;
       this.contextMenuStripFilter.Size = new System.Drawing.Size(126, 40);
       this.contextMenuStripFilter.Text = "contextMenuStripFilter";
       // 
@@ -149,6 +149,14 @@ namespace CsvTools
       this.toolStripMenuItemApplyFilter.Size = new System.Drawing.Size(125, 30);
       this.toolStripMenuItemApplyFilter.Text = "&Apply";
       this.toolStripMenuItemApplyFilter.Click += new System.EventHandler(this.ToolStripMenuItemApply_Click);
+      // 
+      // toolStripMenuItemFilterAdd
+      // 
+      this.toolStripMenuItemFilterAdd.DropDown = this.contextMenuStripFilter;
+      this.toolStripMenuItemFilterAdd.Image = ((System.Drawing.Image)(resources.GetObject("toolStripMenuItemFilterAdd.Image")));
+      this.toolStripMenuItemFilterAdd.Name = "toolStripMenuItemFilterAdd";
+      this.toolStripMenuItemFilterAdd.Size = new System.Drawing.Size(315, 30);
+      this.toolStripMenuItemFilterAdd.Text = "Filter";
       // 
       // toolStripMenuItemFilterThisValue
       // 
@@ -186,9 +194,9 @@ namespace CsvTools
             this.toolStripSeparator8,
             this.toolStripMenuItemColumnVisibility});
       this.contextMenuStripColumns.Name = "contextMenuStripColumns";
-      this.contextMenuStripColumns.OwnerItem = this.toolStripMenuItemColumns;
+      this.contextMenuStripColumns.OwnerItem = this.toolStripMenuItem1;
       this.contextMenuStripColumns.ShowImageMargin = false;
-      this.contextMenuStripColumns.Size = new System.Drawing.Size(214, 235);
+      this.contextMenuStripColumns.Size = new System.Drawing.Size(214, 168);
       // 
       // toolStripMenuItemShowAllColumns
       // 
@@ -242,15 +250,7 @@ namespace CsvTools
       this.toolStripMenuItemColumnVisibility.BackColor = System.Drawing.SystemColors.Window;
       this.toolStripMenuItemColumnVisibility.Name = "toolStripMenuItemColumnVisibility";
       this.toolStripMenuItemColumnVisibility.Overflow = System.Windows.Forms.ToolStripItemOverflow.Always;
-      this.toolStripMenuItemColumnVisibility.Size = new System.Drawing.Size(120, 96);
-      // 
-      // toolStripMenuItemFilterAdd
-      // 
-      this.toolStripMenuItemFilterAdd.DropDown = this.contextMenuStripFilter;
-      this.toolStripMenuItemFilterAdd.Image = ((System.Drawing.Image)(resources.GetObject("toolStripMenuItemFilterAdd.Image")));
-      this.toolStripMenuItemFilterAdd.Name = "toolStripMenuItemFilterAdd";
-      this.toolStripMenuItemFilterAdd.Size = new System.Drawing.Size(315, 30);
-      this.toolStripMenuItemFilterAdd.Text = "Filter";
+      this.toolStripMenuItemColumnVisibility.Size = new System.Drawing.Size(44, 29);
       // 
       // toolStripMenuItemColumns
       // 

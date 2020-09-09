@@ -24,6 +24,18 @@ namespace CsvTools.Tests
   [TestClass]
   public class CsvDataReaderUnitTestReadFiles
   {
+
+    [TestMethod]
+    public async Task NextResult()
+    {
+      using (var test = new CsvFileReader(UnitTestInitializeCsv.GetTestPath("Sessions.txt"), columnDefinition: new IColumn[] { new Column("Start Date", "MM/dd/yyyy") { TimePart = "Start Time", TimePartFormat = "HH:mm:ss" } }, fieldDelimiter: "\t"))
+      {
+        Assert.IsFalse(test.NextResult());
+        await test.OpenAsync(UnitTestInitializeCsv.Token);
+        Assert.IsTrue(test.Read(UnitTestInitializeCsv.Token));
+      }
+    }
+
     [TestMethod]
     public async Task ReadDateWithTimeAsync()
     {
@@ -733,7 +745,7 @@ Line "Test"", "22",23,"  24"
         Assert.AreEqual(6, test.FieldCount);
 
         Assert.AreEqual(1, warningList.CountRows, "warningList.CountRows");
-        Assert.IsTrue(warningList.Display.Contains(CsvFileReader.cMoreColumns));
+        Assert.IsTrue(warningList.Display.Contains(CsvFileReader.c_MoreColumns));
         // Assert.IsTrue(warningList.Display.Contains("The existing data in these extra columns is
         // not read"));
 
