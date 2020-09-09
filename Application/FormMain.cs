@@ -296,9 +296,10 @@ namespace CsvTools
             proc.Maximum = 0;
             proc.SetProcess("Reading source and applying color coding ", 0, false);
 
-            m_SourceDisplay.OpenFile(m_FileSetting.FullPath,m_FileSetting.JsonFormat, m_FileSetting.FileFormat.FieldQualifierChar,
+            m_SourceDisplay.OpenFile(m_FileSetting.FullPath, m_FileSetting.JsonFormat,
+              m_FileSetting.FileFormat.FieldQualifierChar,
               m_FileSetting.FileFormat.FieldDelimiterChar, m_FileSetting.FileFormat.EscapeCharacterChar,
-              (int) m_CodePage.Item1, m_FileSetting.SkipRows);
+              (int) m_CodePage.Item1, m_FileSetting.SkipRows, m_FileSetting.FileFormat.CommentLine);
             proc.Close();
 
             m_SourceDisplay.FormClosed += SourceDisplayClosed;

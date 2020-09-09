@@ -12,9 +12,9 @@ namespace CsvTools.Tests
     {
       using (var frm = new FormCsvTextDisplay())
       {
-        UnitTestWinFormHelper.ShowFormAndClose(frm, .2, () => frm.OpenFile(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"), false, '"', '\t', '\0', 1200, 1));
+        UnitTestWinFormHelper.ShowFormAndClose(frm, .2,
+          () => frm.OpenFile(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"), false, '"', '\t', '\0', 1200, 1, "##"));
       }
     }
-
   }
 }
