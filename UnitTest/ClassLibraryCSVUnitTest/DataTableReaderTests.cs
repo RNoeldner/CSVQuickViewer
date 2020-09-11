@@ -9,7 +9,7 @@ namespace CsvTools.Tests
   [TestClass]
   public class DataTableReaderTests
   {
-    private readonly DataTable m_DataTable = RandomDataTable(100);
+    private readonly DataTable m_DataTable = UnitTestHelper.RandomDataTable(100);
 
     [TestMethod]
     public async Task DataTableReaderTestAsync()
@@ -137,30 +137,6 @@ namespace CsvTools.Tests
           Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
         }
       }
-    }
-
-    private static DataTable RandomDataTable(int records)
-    {
-      var dataTable = new DataTable { TableName = "DataTable", Locale = CultureInfo.InvariantCulture };
-
-      dataTable.Columns.Add("ID", typeof(int));
-      dataTable.Columns.Add("Text", typeof(string));
-      dataTable.Columns.Add("ColText1", typeof(string));
-      dataTable.Columns.Add("ColText2", typeof(string));
-      dataTable.Columns.Add("ColTextDT", typeof(DateTime));
-      var random = new Random(new Guid().GetHashCode());
-      for (var i = 0; i < records; i++)
-      {
-        var row = dataTable.NewRow();
-        row["ID"] = i;
-        row["Text"] = i.ToString(CultureInfo.CurrentCulture);
-        row["ColText1"] = $"Test{i + 1}";
-        row["ColText2"] = $"Text {i * 2} !";
-        row["ColTextDT"] = new DateTime(random.Next(1900, 2030), random.Next(1, 12), 1).AddDays(random.Next(1, 31));
-        dataTable.Rows.Add(row);
-      }
-
-      return dataTable;
     }
   }
 }

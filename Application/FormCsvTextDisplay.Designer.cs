@@ -71,8 +71,8 @@ namespace CsvTools
       this.textBox.TabIndex = 1;
       this.textBox.WordWrap = true;
       this.textBox.Zoom = 100;
-      this.textBox.TextChangedDelayed += new System.EventHandler<FastColoredTextBoxNS.TextChangedEventArgs>(this.textBox_TextChangedDelayed);
-      this.textBox.VisibleRangeChangedDelayed += new System.EventHandler(this.textBox_VisibleRangeChangedDelayed);
+      this.textBox.TextChangedDelayed += new System.EventHandler<FastColoredTextBoxNS.TextChangedEventArgs>(this.TextBox_TextChangedDelayed);
+      this.textBox.VisibleRangeChangedDelayed += new System.EventHandler(this.TextBox_VisibleRangeChangedDelayed);
       // 
       // FormCsvTextDisplay
       // 
