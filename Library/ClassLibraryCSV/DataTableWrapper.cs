@@ -44,7 +44,7 @@ namespace CsvTools
     [NotNull] public DataTable DataTable { get; }
     public override bool HasRows => m_DbDataReader.HasRows;
 
-    public int Percent => RecordNumber > 0 ? (int) ((double) RecordNumber / (double) m_Rows * 100d) : 0;
+    public int Percent => RecordNumber > 0 ? (int) (RecordNumber / (double) m_Rows * 100d) : 0;
 
     public override string GetName(int i) => m_DbDataReader.GetName(i);
 

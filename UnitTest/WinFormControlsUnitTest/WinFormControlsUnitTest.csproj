@@ -75,6 +75,7 @@
     <Compile Include="PersistentChoiceTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RtfHelperTests.cs" />
+    <Compile Include="SyntaxHighlighterDelimitedTextTests.cs"/>
     <Compile Include="TestForm.cs">
       <SubType>Form</SubType>
     </Compile>

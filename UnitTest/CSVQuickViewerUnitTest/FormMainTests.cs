@@ -27,9 +27,9 @@ namespace CsvTools.Tests
       {
         using (var frm = new FormMain(Path.Combine(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt.gz"))))
         {
-          UnitTestWinFormHelper.ShowFormAndClose(frm, 1, () =>
+          UnitTestWinFormHelper.ShowFormAndClose(frm, 1, (f) =>
           {
-            while (!frm.LoadFinished && !UnitTestInitializeCsv.Token.IsCancellationRequested)
+            while (!f.LoadFinished && !UnitTestInitializeCsv.Token.IsCancellationRequested)
               UnitTestWinFormHelper.WaitSomeTime(.2, UnitTestInitializeCsv.Token);
           });
           Assert.IsNotNull(frm.DataTable);
@@ -45,9 +45,9 @@ namespace CsvTools.Tests
       {
         using (var frm = new FormMain(UnitTestInitializeCsv.GetTestPath("AllFormatsPipe.txt")))
         {
-          UnitTestWinFormHelper.ShowFormAndClose(frm, 1, () =>
+          UnitTestWinFormHelper.ShowFormAndClose(frm, 1, (f) =>
           {
-            while (!frm.LoadFinished && !UnitTestInitializeCsv.Token.IsCancellationRequested)
+            while (!f.LoadFinished && !UnitTestInitializeCsv.Token.IsCancellationRequested)
               UnitTestWinFormHelper.WaitSomeTime(.2, UnitTestInitializeCsv.Token);
           });
           Assert.IsNotNull(frm.DataTable);

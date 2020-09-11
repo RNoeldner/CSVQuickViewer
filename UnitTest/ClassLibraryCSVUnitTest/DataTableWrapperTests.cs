@@ -281,7 +281,7 @@ namespace CsvTools.Tests
       {
         await test.OpenAsync(UnitTestInitializeCsv.Token);
         await test.ReadAsync(UnitTestInitializeCsv.Token);
-        Assert.IsInstanceOfType(test.GetInt32(1), typeof(string));
+        Assert.IsInstanceOfType(test.GetString(1), typeof(string));
       }
     }
 
@@ -298,7 +298,7 @@ namespace CsvTools.Tests
         {
           await test.OpenAsync(UnitTestInitializeCsv.Token);
           await test.ReadAsync(UnitTestInitializeCsv.Token);
-          Assert.AreEqual(223311.37334, test.GetDecimal(5));
+          Assert.AreEqual((decimal) 223311.37334, test.GetDecimal(5));
         }
       }
     }
@@ -313,12 +313,6 @@ namespace CsvTools.Tests
         Assert.IsInstanceOfType(test.GetDateTime(4), typeof(DateTime));
       }
     }
-
-    [TestMethod]
-    public void GetDataTest() => Assert.Fail();
-
-    [TestMethod]
-    public void IsDBNullTest() => Assert.Fail();
 
     [TestMethod]
     public void NextResultTest()

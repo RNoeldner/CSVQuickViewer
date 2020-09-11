@@ -1,7 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Data;
-using System.Globalization;
 using System.Threading.Tasks;
 
 namespace CsvTools.Tests

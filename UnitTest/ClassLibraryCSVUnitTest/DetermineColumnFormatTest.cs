@@ -110,17 +110,6 @@ namespace CsvTools.Tests
         {
           using (var reader = new DataTableWrapper(dataTable))
           {
-            var fillGuessSettings = new FillGuessSettings
-            {
-              DetectNumbers = true,
-              DetectDateTime = true,
-              DetectPercentage = true,
-              DetectBoolean = true,
-              DetectGUID = true,
-              IgnoreIdColumns = true
-            };
-
-            var columnCollection = new ColumnCollection();
             await reader.OpenAsync(processDisplay.CancellationToken);
             var res = await DetermineColumnFormat.GetSampleValuesAsync(reader, 100, 0, 20, null,
               processDisplay.CancellationToken);
@@ -150,7 +139,7 @@ namespace CsvTools.Tests
 
         Assert.Fail("Invalid SQL should have caused error ");
       }
-      catch (Exception e)
+      catch (Exception)
       {
         // good
       }
@@ -1112,7 +1101,7 @@ namespace CsvTools.Tests
         false,
         null,
         UnitTestInitializeCsv.Token);
-      Assert.IsFalse(res?.PossibleMatch ?? false);
+      Assert.IsFalse(res.PossibleMatch);
     }
 
     [TestMethod]

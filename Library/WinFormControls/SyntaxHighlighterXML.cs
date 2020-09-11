@@ -18,6 +18,11 @@ namespace CsvTools
 {
   public class SyntaxHighlighterXML : SyntaxHighlighterBase
   {
+    public SyntaxHighlighterXML()
+    {
+      InitXMLRegex();
+    }
+
     public override void SyntaxHighlight(Range range)
     {
       base.XMLSyntaxHighlight(range);
