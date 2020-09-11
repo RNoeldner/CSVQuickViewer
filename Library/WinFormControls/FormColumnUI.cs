@@ -35,7 +35,7 @@ namespace CsvTools
   /// </summary>
   public partial class FormColumnUI : ResizeForm
   {
-    private const string c_NoSampleDate =
+    private const string cNoSampleDate =
       "The source does not contain any sample data without warnings in the {0:N0} records read";
 
     private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
@@ -135,10 +135,12 @@ namespace CsvTools
           {
             var hasRetried = false;
             retry:
-            using (var sqlReader = await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement, processDisplay.SetProcess, m_FileSetting.Timeout, processDisplay.CancellationToken))
+            using (var sqlReader = await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement,
+              processDisplay.SetProcess, m_FileSetting.Timeout, processDisplay.CancellationToken))
             {
               var data = await sqlReader.GetDataTableAsync(m_FileSetting.RecordLimit, false,
-                m_FileSetting.DisplayStartLineNo, m_FileSetting.DisplayRecordNo, m_FileSetting.DisplayEndLineNo, false, null, null,
+                m_FileSetting.DisplayStartLineNo, m_FileSetting.DisplayRecordNo, m_FileSetting.DisplayEndLineNo, false,
+                null, null,
                 processDisplay.CancellationToken);
               var found = new Column();
               var column = data.Columns[columnName];
@@ -177,7 +179,7 @@ namespace CsvTools
             {
               _MessageBox.Show(
                 this,
-                string.Format(CultureInfo.CurrentCulture, c_NoSampleDate, samples.RecordsRead),
+                string.Format(CultureInfo.CurrentCulture, cNoSampleDate, samples.RecordsRead),
                 "Information",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Information);
@@ -255,7 +257,9 @@ namespace CsvTools
               {
                 _MessageBox.ShowBigHtml(
                   this,
-                  BuildHTMLText($"No format could be determined in {samples.Values.Count():N0} sample values of {samples.RecordsRead:N0} records.", null, 4, "Examples", samples.Values, 4),
+                  BuildHTMLText(
+                    $"No format could be determined in {samples.Values.Count():N0} sample values of {samples.RecordsRead:N0} records.",
+                    null, 4, "Examples", samples.Values, 4),
                   $"Column: {columnName}",
                   MessageBoxButtons.OK,
                   MessageBoxIcon.Information);
@@ -288,13 +292,15 @@ namespace CsvTools
                   header1 += $"Determined Format : {checkResult.FoundValueFormat?.GetTypeAndFormatDescription()}";
 
                   if (checkResult.PossibleMatch)
-                    header1 += $"\r\nClosest match is : {checkResult.ValueFormatPossibleMatch?.GetTypeAndFormatDescription()}";
+                    header1 +=
+                      $"\r\nClosest match is : {checkResult.ValueFormatPossibleMatch?.GetTypeAndFormatDescription()}";
 
                   if (suggestClosestMatch)
                   {
                     if (_MessageBox.ShowBigHtml(
                         this,
-                        BuildHTMLText(header1, "Should the closest match be used?", 4, "Samples:", samples.Values, 4, "Not matching:", checkResult.ExampleNonMatch),
+                        BuildHTMLText(header1, "Should the closest match be used?", 4, "Samples:", samples.Values, 4,
+                          "Not matching:", checkResult.ExampleNonMatch),
                         $"Column: {columnName}",
                         MessageBoxButtons.YesNo,
                         MessageBoxIcon.Question) == DialogResult.Yes)
@@ -306,7 +312,8 @@ namespace CsvTools
                   {
                     _MessageBox.ShowBigHtml(
                       this,
-                      BuildHTMLText(header1, null, 4, "Samples:", samples.Values, 4, "Not matching:", checkResult.ExampleNonMatch),
+                      BuildHTMLText(header1, null, 4, "Samples:", samples.Values, 4, "Not matching:",
+                        checkResult.ExampleNonMatch),
                       $"Column: {columnName}",
                       MessageBoxButtons.OK,
                       MessageBoxIcon.Information);
@@ -420,7 +427,7 @@ namespace CsvTools
           {
             _MessageBox.Show(
               this,
-              string.Format(CultureInfo.CurrentCulture, c_NoSampleDate, values.RecordsRead),
+              string.Format(CultureInfo.CurrentCulture, cNoSampleDate, values.RecordsRead),
               comboBoxColumnName.Text,
               MessageBoxButtons.OK,
               MessageBoxIcon.Information);
@@ -446,7 +453,9 @@ namespace CsvTools
       }
     }
 
-    private static string BuildHTMLText(string header, string footer, int rows, string headerList1, ICollection<string> values1, int col1, string headerList2 = null, ICollection<string> values2 = null, int col2 = 2)
+    private static string BuildHTMLText(string header, string footer, int rows, string headerList1,
+      ICollection<string> values1, int col1, string headerList2 = null, ICollection<string> values2 = null,
+      int col2 = 2)
     {
       var stringBuilder = HTMLStyle.StartHTMLDoc(System.Drawing.SystemColors.Control, "<STYLE type=\"text/css\">\r\n" +
         "  html * { font-family:'Calibri','Trebuchet MS', Arial, Helvetica, sans-serif; }\r\n" +
@@ -469,9 +478,10 @@ namespace CsvTools
       return stringBuilder.ToString();
     }
 
-    private static void ListSamples(StringBuilder stringBuilder, string headerList, ICollection<string> values, int col, int rows)
+    private static void ListSamples(StringBuilder stringBuilder, string headerList, ICollection<string> values, int col,
+      int rows)
     {
-      if (values!=null && values.Count>0)
+      if (values != null && values.Count > 0)
       {
         if (!string.IsNullOrEmpty(headerList))
           stringBuilder.Append(string.Format(ApplicationSetting.HTMLStyle.H2, HTMLStyle.TextToHtmlEncode(headerList)));
@@ -481,14 +491,16 @@ namespace CsvTools
         stringBuilder.AppendLine(ApplicationSetting.HTMLStyle.TROpen);
         for (var index = 1; index <= texts.Length; index++)
         {
-          if (string.IsNullOrEmpty(texts[index-1]))
+          if (string.IsNullOrEmpty(texts[index - 1]))
             stringBuilder.AppendLine(ApplicationSetting.HTMLStyle.TDEmpty);
           else
-            stringBuilder.AppendLine(string.Format(ApplicationSetting.HTMLStyle.TD, HTMLStyle.TextToHtmlEncode(texts[index-1])));
-          if (index%col==0)
+            stringBuilder.AppendLine(string.Format(ApplicationSetting.HTMLStyle.TD,
+              HTMLStyle.TextToHtmlEncode(texts[index - 1])));
+          if (index % col == 0)
             stringBuilder.AppendLine(ApplicationSetting.HTMLStyle.TRClose);
         }
-        if (texts.Length%col != 0)
+
+        if (texts.Length % col != 0)
           stringBuilder.AppendLine(ApplicationSetting.HTMLStyle.TRClose);
         stringBuilder.AppendLine(ApplicationSetting.HTMLStyle.TableClose);
       }
@@ -610,7 +622,8 @@ namespace CsvTools
               // to open file and get all columns
               if (m_FileSetting.ColumnCollection.Any(x => x.Ignore))
               {
-                using (var fileReader = FunctionalDI.GetFileReader(m_FileSetting, null, new CustomProcessDisplay(m_CancellationTokenSource.Token)))
+                using (var fileReader = FunctionalDI.GetFileReader(m_FileSetting, null,
+                  new CustomProcessDisplay(m_CancellationTokenSource.Token)))
                 {
                   await fileReader.OpenAsync(m_CancellationTokenSource.Token);
                   for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
@@ -631,7 +644,8 @@ namespace CsvTools
             else
             {
               // Write Setting ----- open the source that is SQL
-              using (var fileReader = await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement.NoRecordSQL(), null, m_FileSetting.Timeout, m_CancellationTokenSource.Token))
+              using (var fileReader = await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement.NoRecordSQL(), null,
+                m_FileSetting.Timeout, m_CancellationTokenSource.Token))
               {
                 await fileReader.OpenAsync(m_CancellationTokenSource.Token);
                 for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
@@ -741,7 +755,7 @@ namespace CsvTools
 
         var sourceDate = new DateTime(2013, 4, 7, 15, 45, 50, 345, DateTimeKind.Local);
 
-        if (hasTimePart && vf.DateFormat.IndexOfAny(new[] { 'h', 'H', 'm', 'S', 's' }) == -1)
+        if (hasTimePart && vf.DateFormat.IndexOfAny(new[] {'h', 'H', 'm', 'S', 's'}) == -1)
           vf.DateFormat += " " + comboBoxTPFormat.Text;
 
         labelSampleDisplay.Text = StringConversion.DateTimeToString(sourceDate, vf);

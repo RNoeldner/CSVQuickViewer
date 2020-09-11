@@ -22,7 +22,7 @@ namespace CsvTools
 
     public void Comment(Range range)
     {
-      range.ClearStyle(BlueStyle, BrownStyle, MagentaStyle);
+      range.ClearStyle(StyleIndex.All);
       range.SetStyle(GrayStyle);
     }
   }

@@ -45,8 +45,8 @@ namespace CsvTools.Tests
         await wrapper.OpenAsync(process.CancellationToken);
         await wrapper.ReadAsync(process.CancellationToken);
         Assert.AreEqual((short) -22477, wrapper.GetInt16(1));
-        Assert.AreEqual((int) -22477, wrapper.GetInt32(1));
-        Assert.AreEqual((long) -22477, wrapper.GetInt64(1));
+        Assert.AreEqual(-22477, wrapper.GetInt32(1));
+        Assert.AreEqual(-22477L, wrapper.GetInt64(1));
       }
     }
 
@@ -61,7 +61,7 @@ namespace CsvTools.Tests
         await wrapper.ReadAsync(process.CancellationToken);
 
         Assert.AreEqual((float) -12086.66, wrapper.GetFloat(2));
-        Assert.AreEqual((double) -12086.66, wrapper.GetDouble(2));
+        Assert.AreEqual(-12086.66, wrapper.GetDouble(2));
         Assert.AreEqual((decimal) -12086.66, wrapper.GetDecimal(2));
         Assert.AreEqual("-12086.66", wrapper.GetString(2));
       }
@@ -93,7 +93,7 @@ namespace CsvTools.Tests
         await wrapper.OpenAsync(process.CancellationToken);
         await wrapper.ReadAsync(process.CancellationToken);
         await wrapper.ReadAsync(process.CancellationToken);
-        Assert.IsTrue((new DateTime(2014, 05, 23) - wrapper.GetDateTime(0)).TotalSeconds<.5);
+        Assert.IsTrue((new DateTime(2014, 05, 23) - wrapper.GetDateTime(0)).TotalSeconds < .5);
       }
     }
 
@@ -180,6 +180,7 @@ namespace CsvTools.Tests
         {
           // ignore
         }
+
         try
         {
           wrapper.GetValues(new object[10]);
@@ -202,7 +203,7 @@ namespace CsvTools.Tests
         await wrapper.ReadAsync(process.CancellationToken);
 
         Assert.AreEqual("-22477", wrapper.GetValue(1).ToString());
-        Assert.AreEqual((double) -12086.66, wrapper.GetValue(2));
+        Assert.AreEqual(-12086.66, wrapper.GetValue(2));
       }
     }
 
@@ -236,7 +237,7 @@ namespace CsvTools.Tests
         var wrapper = new DataReaderWrapper(reader);
         await wrapper.OpenAsync(process.CancellationToken);
 
-        Assert.AreEqual(10-1, wrapper.GetSchemaTable().Rows.Count);
+        Assert.AreEqual(10 - 1, wrapper.GetSchemaTable().Rows.Count);
       }
     }
   }

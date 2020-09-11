@@ -210,7 +210,6 @@ namespace CsvTools.Tests
     [TestMethod]
     public void NoSpecials()
     {
-      Assert.AreEqual(string.Empty, StringUtils.NoSpecials(null));
       Assert.AreEqual(string.Empty, " ".NoSpecials());
       Assert.AreEqual("aabb", "aabb".NoSpecials());
       Assert.AreEqual("12", "12_&§$".NoSpecials());
@@ -223,7 +222,6 @@ namespace CsvTools.Tests
     [TestMethod]
     public void OnlyTextNull()
     {
-      Assert.AreEqual(string.Empty, StringUtils.OnlyText(null));
       Assert.AreEqual(string.Empty, string.Empty.OnlyText());
     }
 

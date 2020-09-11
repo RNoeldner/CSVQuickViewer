@@ -33,10 +33,10 @@ namespace CsvTools
       char escapeChar, string comment)
     {
       m_DelimiterRegex = new Regex(
-        (escapeChar != '\0') ? $"\\{delimiterChar}" : $"(?<!\\{escapeChar})\\{delimiterChar}",
+        escapeChar != '\0' ? $"\\{delimiterChar}" : $"(?<!\\{escapeChar})\\{delimiterChar}",
         RegexOptions.Singleline | RegexOptions.Compiled);
       m_QuoteRegex = new Regex(
-        (escapeChar != '\0')
+        escapeChar != '\0'
           ? $"(?<!|\\{qualifierChar})\\{qualifierChar}"
           : $"(?<!(\\{escapeChar}|\\{qualifierChar}))\\{qualifierChar}",
         RegexOptions.Singleline | RegexOptions.Compiled);
@@ -78,8 +78,8 @@ namespace CsvTools
         var sizeChar = size.Width / (range.End.iChar - range.Start.iChar);
         var dotSize = new Size(Math.Min(Math.Max(sizeChar, 8), 3), Math.Min(Math.Max(size.Height, 8), 3));
 
-        var posDot = new Point(position.X + sizeChar / 2 - dotSize.Width / 2,
-          position.Y + size.Height / 2 - dotSize.Height / 2);
+        var posDot = new Point((position.X + (sizeChar / 2)) - (dotSize.Width / 2),
+          (position.Y + (size.Height / 2)) - (dotSize.Height / 2));
         for (var pos = range.Start.iChar; pos < range.End.iChar; pos++)
         {
           // draw a dot
@@ -116,11 +116,11 @@ namespace CsvTools
           var rect2 = new Rectangle(position, new Size(sizeChar, height));
 
           // draw an arrow
-          var point2 = new Point(rect2.X + sizeChar - 2, rect2.Y + height / 2);
+          var point2 = new Point((rect2.X + sizeChar) - 2, rect2.Y + (height / 2));
 
           gr.DrawLine(m_ForeGround, new Point(rect2.X + 1, point2.Y), point2);
-          gr.DrawLine(m_ForeGround, new Point(rect2.X + sizeChar / 2, rect2.Y + height / 4), point2);
-          gr.DrawLine(m_ForeGround, new Point(rect2.X + sizeChar / 2, rect2.Y + (rect2.Height * 3) / 4), point2);
+          gr.DrawLine(m_ForeGround, new Point(rect2.X + (sizeChar / 2), rect2.Y + (height / 4)), point2);
+          gr.DrawLine(m_ForeGround, new Point(rect2.X + (sizeChar / 2), rect2.Y + ((rect2.Height * 3) / 4)), point2);
 
           // double line in case its larger
           if (height > 6)
@@ -128,8 +128,8 @@ namespace CsvTools
 
           if (sizeChar > 6)
           {
-            gr.DrawLine(m_ForeGround, rect2.X + sizeChar / 2 + 1, rect2.Y + height / 4, point2.X + 1, point2.Y);
-            gr.DrawLine(m_ForeGround, rect2.X + sizeChar / 2 + 1, rect2.Y + (rect2.Height * 3) / 4, point2.X + 1,
+            gr.DrawLine(m_ForeGround, rect2.X + (sizeChar / 2) + 1, rect2.Y + (height / 4), point2.X + 1, point2.Y);
+            gr.DrawLine(m_ForeGround, rect2.X + (sizeChar / 2) + 1, rect2.Y + ((rect2.Height * 3) / 4), point2.X + 1,
               point2.Y);
           }
 

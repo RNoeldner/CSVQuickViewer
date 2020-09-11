@@ -98,9 +98,9 @@ namespace CsvTools.Tests
     {
       using (var frm = new ResizeForm())
       {
-        UnitTestWinFormHelper.ShowFormAndClose(frm, .2, () =>
+        UnitTestWinFormHelper.ShowFormAndClose(frm, .2, (from) =>
         {
-          CsvTools.ResizeForm.SetFonts(frm, SystemFonts.DialogFont);
+          CsvTools.ResizeForm.SetFonts(from, SystemFonts.DialogFont);
         });
       }
     }
@@ -256,10 +256,12 @@ namespace CsvTools.Tests
           treeView.AfterSelect += (s, args) => { firedAfter = true; };
           treeView.BeforeSelect += (s, args) => { firedBefore = true; };
 
-          UnitTestWinFormHelper.ShowControl(treeView, .2, () =>
+          UnitTestWinFormHelper.ShowControl(treeView, .2, (control, form) =>
           {
-            treeView.PressKey(Keys.Control | Keys.A);
-            treeView.PressKey(Keys.Control | Keys.C);
+            if (!(control is MultiselectTreeView text))
+              return;
+            text.PressKey(Keys.Control | Keys.A);
+            text.PressKey(Keys.Control | Keys.C);
             // ReSharper disable once AccessToDisposedClosure
             treeView.SelectedNode = treeNode2;
             treeNode.ExpandAll();
@@ -343,13 +345,15 @@ namespace CsvTools.Tests
       {
         ctrl.DataSource = data;
         UnitTestWinFormHelper.ShowControl(new FilteredDataGridView(), 0.5d,
-          () =>
+          (control, form) =>
           {
-            ctrl.FrozenColumns = 1;
-            ctrl.SetFilterMenu(0);
-            ctrl.HighlightText = "HH";
-            ctrl.SetRowHeight();
-            ctrl.SetFilterMenu(1);
+            if (!(control is FilteredDataGridView ctrl2))
+              return;
+            ctrl2.FrozenColumns = 1;
+            ctrl2.SetFilterMenu(0);
+            ctrl2.HighlightText = "HH";
+            ctrl2.SetRowHeight();
+            ctrl2.SetFilterMenu(1);
           });
       }
     }
@@ -360,7 +364,12 @@ namespace CsvTools.Tests
       using (var dataTable = UnitTestStatic.GetDataTable(60))
       using (var form = new FormHierarchyDisplay(dataTable, dataTable.Select()))
       {
-        UnitTestWinFormHelper.ShowFormAndClose(form, 0.1, () => form.BuildTree("int", "ID"));
+        UnitTestWinFormHelper.ShowFormAndClose(form, 0.1, (frm) =>
+        {
+          if (!(frm is FormHierarchyDisplay hd))
+            return;
+          hd.BuildTree("int", "ID");
+        });
       }
     }
 
@@ -382,7 +391,12 @@ namespace CsvTools.Tests
 
             using (var form = new FormHierarchyDisplay(dt, dataTable.Select()))
             {
-              UnitTestWinFormHelper.ShowFormAndClose(form, .1, () => form.BuildTree("ReferenceID1", "ID"));
+              UnitTestWinFormHelper.ShowFormAndClose(form, .1, (frm) =>
+              {
+                if (!(frm is FormHierarchyDisplay hd))
+                  return;
+                hd.BuildTree("ReferenceID1", "ID");
+              });
               form.Close();
             }
           }

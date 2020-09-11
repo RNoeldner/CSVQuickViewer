@@ -19,10 +19,11 @@ namespace CsvTools.Tests
         }
       });
     }
+
     [TestMethod]
     public void FormColumnUIGetColumnHeader2()
     {
-      var csvFile = new CsvFile { ID = "Csv", FileName = UnitTestInitializeCsv.GetTestPath("BasicCSV.txt") };
+      var csvFile = new CsvFile {ID = "Csv", FileName = UnitTestInitializeCsv.GetTestPath("BasicCSV.txt")};
       var col = new Column("Score", DataType.Double);
       csvFile.ColumnCollection.AddIfNew(col);
 
@@ -40,7 +41,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void FormColumnUIGetColumnHeaderAsync()
     {
-      var csvFile = new CsvFile(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt")) { ID = "Csv" };
+      var csvFile = new CsvFile(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt")) {ID = "Csv"};
 
       csvFile.ColumnCollection.AddIfNew(new Column("ID", DataType.Integer));
       csvFile.ColumnCollection.AddIfNew(new Column("ExamDate", DataType.DateTime));
@@ -97,7 +98,7 @@ namespace CsvTools.Tests
       {
         using (var form = new FormColumnUI(col, false, csvFile, new FillGuessSettings(), true))
         {
-          UnitTestWinFormHelper.ShowFormAndClose(form, .2, () => form.ButtonGuessClick(null, null));
+          UnitTestWinFormHelper.ShowFormAndClose(form, .2, (frm) => frm.ButtonGuessClick(null, null));
         }
       });
     }

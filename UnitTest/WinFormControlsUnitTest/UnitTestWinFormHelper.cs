@@ -58,11 +58,13 @@ namespace CsvTools.Tests
       frm.Close();
     }
 
-    public static void ShowFormAndClose(Form frm, double before = .2, Action toDo = null)
-    => ShowFormAndClose(frm, before, toDo, before, UnitTestInitializeCsv.Token);
+    public static void ShowFormAndClose<T>(T frm, double before = .2, Action<T> toDo = null) where T : Form
+      => ShowFormAndClose(frm, before, toDo, before, UnitTestInitializeCsv.Token);
 
-    private static void ShowFormAndClose(Form frm, double before, Action toDo, double after, CancellationToken token)
+    private static void ShowFormAndClose<T>(T typed, double before, Action<T> toDo, double after,
+      CancellationToken token) where T : Form
     {
+      var frm = typed as Form;
       frm.TopMost = true;
       frm.ShowInTaskbar = false;
       frm.Show();
@@ -72,7 +74,7 @@ namespace CsvTools.Tests
 
       if (toDo != null)
       {
-        toDo.Invoke();
+        toDo.Invoke(typed);
         if (after > 0)
           WaitSomeTime(after, token);
       }
@@ -80,15 +82,16 @@ namespace CsvTools.Tests
       frm.Close();
     }
 
-    public static void ShowControl(Control ctrl, double before = .2, Action toDo = null, double after = .2)
+    public static void ShowControl<T>(T ctrl, double before = .2, Action<T, Form> toDo = null, double after = .2)
+      where T : Control
     {
       using (var cts = CancellationTokenSource.CreateLinkedTokenSource(UnitTestInitializeCsv.Token))
       {
         using (var frm = new TestForm())
         {
-          frm.Closing += (s, e) => cts.Cancel();
+          frm.Closing += (s, e) => cts?.Cancel();
           frm.AddOneControl(ctrl);
-          ShowFormAndClose(frm, before, toDo, after, cts.Token);
+          ShowFormAndClose(frm, before, f => toDo?.Invoke(ctrl, f), after, cts.Token);
         }
       }
     }
