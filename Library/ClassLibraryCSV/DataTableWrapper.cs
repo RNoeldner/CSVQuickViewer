@@ -29,15 +29,22 @@ namespace CsvTools
   /// <remarks>Some functionality for progress reporting are not implemented</remarks>
   public class DataTableWrapper : DbDataReader, IFileReader
   {
+    private readonly int m_Rows;
     [NotNull] private DbDataReader m_DbDataReader;
 
+    private bool m_DisposedValue;
+
     // ReSharper disable once NotNullMemberIsNotInitialized
-    public DataTableWrapper([NotNull] DataTable dt) => DataTable = dt ?? throw new ArgumentNullException(nameof(dt));
+    public DataTableWrapper([NotNull] DataTable dt)
+    {
+      DataTable = dt ?? throw new ArgumentNullException(nameof(dt));
+      m_Rows = dt.Rows.Count;
+    }
 
     [NotNull] public DataTable DataTable { get; }
-
-    public int Percent => 50;
     public override bool HasRows => m_DbDataReader.HasRows;
+
+    public int Percent => RecordNumber > 0 ? (int) ((double) RecordNumber / (double) m_Rows * 100d) : 0;
 
     public override string GetName(int i) => m_DbDataReader.GetName(i);
 
@@ -142,6 +149,7 @@ namespace CsvTools
         if (couldRead && !IsClosed)
           return true;
       }
+
       EndOfFile = true;
       ReadFinished?.Invoke(this, new EventArgs());
       return false;
@@ -170,16 +178,15 @@ namespace CsvTools
 
     public override IEnumerator GetEnumerator() => m_DbDataReader.GetEnumerator();
 
-    private bool m_DisposedValue;
-
     protected override void Dispose(bool disposing)
     {
       if (m_DisposedValue) return;
       if (disposing)
       {
-        m_DisposedValue =true;
+        m_DisposedValue = true;
         DataTable.Dispose();
       }
+
       base.Dispose(disposing);
     }
   }
