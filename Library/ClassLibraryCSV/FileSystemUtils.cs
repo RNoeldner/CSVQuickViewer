@@ -267,21 +267,17 @@ namespace CsvTools
         return otherDir;
 
       var sBuilder = new StringBuilder();
-      for (var i = sameCounter; i < startPathParts.Length; i++)
+      for (var i = sameCounter; i < startPathParts.Length - 1; i++)
         sBuilder.Append(".." + Path.DirectorySeparatorChar);
 
-      for (var i = sameCounter; i < destinationPathParts.Length; i++)
+      for (var i = sameCounter; i < destinationPathParts.Length - 1; i++)
         sBuilder.Append(destinationPathParts[i] + Path.DirectorySeparatorChar);
       sBuilder.Length--;
 
       var result = sBuilder.ToString();
-      if (result[result.Length - 1] != Path.DirectorySeparatorChar)
-      {
-        sBuilder.Append(Path.DirectorySeparatorChar);
-        return sBuilder.ToString();
-      }
-
-      return result;
+      if (result[result.Length - 1] == Path.DirectorySeparatorChar) return result;
+      sBuilder.Append(Path.DirectorySeparatorChar);
+      return sBuilder.ToString();
     }
 
     /// <summary>
