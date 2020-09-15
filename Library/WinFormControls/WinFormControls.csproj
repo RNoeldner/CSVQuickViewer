@@ -77,6 +77,7 @@
     <Compile Include="SearchEventArgs.cs" />
     <Compile Include="SyntaxHighlighterBase.cs" />
     <Compile Include="SyntaxHighlighterDelimitedText.cs" />
+    <Compile Include="SyntaxHighlighterOData.cs"/>
     <Compile Include="SyntaxHighlighterXML.cs" />
     <Compile Include="SyntaxHighligtherJson.cs" />
     <Compile Include="ViewSetting.cs" />
