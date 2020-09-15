@@ -14,7 +14,11 @@ namespace CsvTools
     private readonly Regex m_JsonStringRegex =
       new Regex(@"""([^\\""]|\\"")*""", RegexOptions.Singleline | RegexCompiledOption);
 
-    public override void SyntaxHighlight(Range range)
+    public SyntaxHighlighterJson(FastColoredTextBox fastColoredTextBox) : base(fastColoredTextBox)
+    {
+    }
+
+    public override void Highlight(Range range)
     {
       range.tb.LeftBracket = '[';
       range.tb.RightBracket = ']';

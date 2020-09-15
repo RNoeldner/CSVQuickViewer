@@ -9,14 +9,14 @@ namespace CsvTools.Tests
     [TestMethod()]
     public void SyntaxHighlighterDelimitedTextTest()
     {
-      var highlighter = new SyntaxHighlighterDelimitedText('"', ',', '\\', "##");
       using (var textBox = new FastColoredTextBox())
       {
+        var highlighter = new SyntaxHighlighterDelimitedText(textBox, '"', ',', '\\', "##");
         textBox.TextChangedDelayed += (sender, e) =>
         {
           if (!(sender is FastColoredTextBox text))
             return;
-          highlighter.SyntaxHighlight(text.Range);
+          highlighter.Highlight(text.Range);
         };
         UnitTestWinFormHelper.ShowControl(textBox, .2, (tb, frm) =>
         {
@@ -32,14 +32,14 @@ namespace CsvTools.Tests
     [TestMethod()]
     public void SyntaxHighlighterDelimitedJsonTest()
     {
-      var highlighter = new SyntaxHighlighterJson();
       using (var textBox = new FastColoredTextBox())
       {
+        var highlighter = new SyntaxHighlighterJson(textBox);
         textBox.TextChangedDelayed += (sender, e) =>
         {
           if (!(sender is FastColoredTextBox text))
             return;
-          highlighter.SyntaxHighlight(text.Range);
+          highlighter.Highlight(text.Range);
         };
         ;
         UnitTestWinFormHelper.ShowControl(textBox, .2, (text, frm) =>
@@ -54,14 +54,14 @@ namespace CsvTools.Tests
     [TestMethod()]
     public void SyntaxHighlighterDelimitedXmlTest()
     {
-      var highlighter = new SyntaxHighlighterXML();
       using (var textBox = new FastColoredTextBox())
       {
+        var highlighter = new SyntaxHighlighterXML(textBox);
         textBox.TextChangedDelayed += (sender, e) =>
         {
           if (!(sender is FastColoredTextBox text))
             return;
-          highlighter.SyntaxHighlight(text.Range);
+          highlighter.Highlight(text.Range);
         };
         ;
         UnitTestWinFormHelper.ShowControl(textBox, .2, (text, frm) =>

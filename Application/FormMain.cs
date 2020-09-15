@@ -644,7 +644,7 @@ namespace CsvTools
 
             foreach (var columnName in DataTable.GetRealColumns())
               if (m_FileSetting.ColumnCollection.Get(columnName) == null)
-                m_FileSetting.ColumnCollection.AddIfNew(new Column {Name = columnName});
+                m_FileSetting.ColumnCollection.AddIfNew(new Column { Name = columnName });
           }
         }
 
@@ -776,7 +776,6 @@ namespace CsvTools
         this.ShowError(ex, "Storing Settings");
       }
     }
-
 
     private async void ShowSettings(object sender, EventArgs e)
     {
