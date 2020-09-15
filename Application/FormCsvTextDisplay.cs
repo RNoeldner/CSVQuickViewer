@@ -41,7 +41,7 @@ namespace CsvTools
       var startLine = Math.Max(m_SkipLines, textBox.VisibleRange.Start.iLine - 20);
       var endLine = Math.Min(textBox.LinesCount - 1, textBox.VisibleRange.End.iLine + 100);
       var range = new Range(textBox, 0, startLine, 0, endLine);
-      m_HighLighter.SyntaxHighlight(range);
+      m_HighLighter.Highlight(range);
 
       if (m_SkipLines <= 0) return;
       range = new Range(textBox, 0, 0, 0, m_SkipLines);
@@ -65,9 +65,9 @@ The file {fullPath} does not exist.";
       else
       {
         if (json)
-          m_HighLighter = new SyntaxHighlighterJson();
+          m_HighLighter = new SyntaxHighlighterJson(textBox);
         else
-          m_HighLighter = new SyntaxHighlighterDelimitedText(qualifierChar, delimiterChar, escapeChar, commemt);
+          m_HighLighter = new SyntaxHighlighterDelimitedText(textBox, qualifierChar, delimiterChar, escapeChar, commemt);
 
         m_SkipLines = skipLines;
         textBox.OpenBindingFile(fullPath, Encoding.GetEncoding(codePage));

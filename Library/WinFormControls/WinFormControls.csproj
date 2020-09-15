@@ -52,7 +52,7 @@
     </Compile>
     <Compile Include="BuildValueClustersResult.cs" />
     <Compile Include="ColumnSetting.cs" />
-    <Compile Include="ISyntaxHighlighter.cs"/>
+    <Compile Include="ISyntaxHighlighter.cs" />
     <Compile Include="PersistentChoice.cs" />
     <Compile Include="ResizeForm.cs">
       <SubType>Form</SubType>
@@ -67,20 +67,20 @@
     <Compile Include="DataGridViewColumnFilterControl.Designer.cs">
       <DependentUpon>DataGridViewColumnFilterControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="DataGridViewCopyPaste.cs"/>
+    <Compile Include="DataGridViewCopyPaste.cs" />
     <Compile Include="DetailControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Extensions.cs"/>
-    <Compile Include="FoundEventArgs.cs"/>
-    <Compile Include="RtfHelper.cs"/>
-    <Compile Include="SearchEventArgs.cs"/>
-    <Compile Include="SyntaxHighlighterBase.cs"/>
-    <Compile Include="SyntaxHighlighterDelimitedText.cs"/>
-    <Compile Include="SyntaxHighlighterXML.cs"/>
-    <Compile Include="SyntaxHighligtherJson.cs"/>
-    <Compile Include="ViewSetting.cs"/>
-    <Compile Include="WindowsAPICodePackWrapper.cs"/>
+    <Compile Include="Extensions.cs" />
+    <Compile Include="FoundEventArgs.cs" />
+    <Compile Include="RtfHelper.cs" />
+    <Compile Include="SearchEventArgs.cs" />
+    <Compile Include="SyntaxHighlighterBase.cs" />
+    <Compile Include="SyntaxHighlighterDelimitedText.cs" />
+    <Compile Include="SyntaxHighlighterXML.cs" />
+    <Compile Include="SyntaxHighligtherJson.cs" />
+    <Compile Include="ViewSetting.cs" />
+    <Compile Include="WindowsAPICodePackWrapper.cs" />
     <Compile Include="FillGuessSettingEdit.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -228,7 +228,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="FCTB">
-      <Version>2.16.21</Version>
+      <Version>2.16.24</Version>
     </PackageReference>
     <PackageReference Include="WindowsAPICodePack">
       <Version>1.1.1</Version>
