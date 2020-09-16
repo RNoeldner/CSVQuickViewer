@@ -29,6 +29,55 @@ namespace CsvTools
   /// </summary>
   public static class Extensions
   {
+    public static void RunWithHourglass(this Control control, [NotNull] Action action)
+    {
+      var oldCursor = Cursor.Current == Cursors.WaitCursor ? Cursors.WaitCursor : Cursors.Default;
+      Cursor.Current = Cursors.WaitCursor;
+      try
+      {
+        control.Enabled=false;
+
+        action.Invoke();
+      }
+      catch (Exception ex)
+      {
+        if (control!=null)
+        {
+          var frm = control.FindForm();
+          if (frm!=null)
+            frm.ShowError(ex);
+        }
+      }
+      finally
+      {
+        control.Enabled=true;
+        Cursor.Current = oldCursor;
+      }
+    }
+
+    public static async Task RunWithHourglassAsync(this Control control, [NotNull] Func<Task> action)
+    {
+      var oldCursor = Cursor.Current == Cursors.WaitCursor ? Cursors.WaitCursor : Cursors.Default;
+      Cursor.Current = Cursors.WaitCursor;
+      try
+      {
+        control.Enabled=false;
+        await action.Invoke();
+      }
+      catch (Exception ex)
+      {
+        var frm = control.FindForm();
+        if (frm!=null)
+          frm.ShowError(ex);
+      }
+      finally
+      {
+        if (control!=null)
+          control.Enabled=true;
+        Cursor.Current = oldCursor;
+      }
+    }
+
     public static void RunSTAThread(this Action action, int timeoutMilliseconds = 20000)
     {
       if (Thread.CurrentThread.GetApartmentState() == ApartmentState.STA)
@@ -327,7 +376,6 @@ namespace CsvTools
         return await task;
       }
     }
-
 
     /// <summary>
     ///   Store a bound value

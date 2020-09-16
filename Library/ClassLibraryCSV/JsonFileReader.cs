@@ -314,11 +314,11 @@ namespace CsvTools
     /// <returns>A value between 0 and MaxValue</returns>
     protected override double GetRelativePosition()
     {
-      // if we know how many records to read, use that
+      var byFile = m_ImprovedStream?.Percentage ?? 0;
       if (RecordLimit > 0 && RecordLimit < long.MaxValue)
-        return base.GetRelativePosition();
-
-      return m_ImprovedStream.Percentage;
+        // you can either reach the record limit or the end of the stream, whatever is faster
+        return Math.Max(((double) RecordNumber) / RecordLimit, byFile);
+      return byFile;
     }
 
     /// <summary>
