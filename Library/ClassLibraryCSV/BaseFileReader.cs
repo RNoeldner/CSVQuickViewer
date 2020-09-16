@@ -912,7 +912,7 @@ namespace CsvTools
     ///   Gets the relative position.
     /// </summary>
     /// <returns>A value between 0 and MaxValue</returns>
-    protected virtual double GetRelativePosition() => (RecordNumber / RecordLimit);
+    protected abstract double GetRelativePosition();
 
     /// <summary>
     ///   Gets the associated value.
