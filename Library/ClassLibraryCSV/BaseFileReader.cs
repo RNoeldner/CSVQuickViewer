@@ -70,8 +70,6 @@ namespace CsvTools
     /// </summary>
     private bool m_IsFinished;
 
-    private int m_Percentage;
-
     protected EventHandler<ProgressEventArgs> ReportProgress;
     protected EventHandler<long> SetMaxProcess;
 
@@ -93,7 +91,7 @@ namespace CsvTools
       FileName = FileSystemUtils.GetFileName(fileName);
     }
 
-    public int Percent => m_Percentage / 100;
+    public int Percent => Convert.ToInt32(GetRelativePosition() * 100);
 
     protected string FullPath { get; }
     protected string FileName { get; }
@@ -750,7 +748,6 @@ namespace CsvTools
 
       return string.IsNullOrEmpty(CurrentRowColumnText[columnNumber])
              && string.IsNullOrEmpty(CurrentRowColumnText[AssociatedTimeCol[columnNumber]]);
-
     }
 
     /// <summary>
@@ -783,6 +780,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="token"></param>
 #pragma warning disable 1998
+
     public virtual async Task ResetPositionToFirstDataRowAsync(CancellationToken token)
 #pragma warning restore 1998
     {
@@ -914,7 +912,7 @@ namespace CsvTools
     ///   Gets the relative position.
     /// </summary>
     /// <returns>A value between 0 and MaxValue</returns>
-    protected virtual int GetRelativePosition() => (int) (RecordNumber / RecordLimit * c_MaxValue);
+    protected virtual double GetRelativePosition() => (RecordNumber / RecordLimit);
 
     /// <summary>
     ///   Gets the associated value.
@@ -964,7 +962,7 @@ namespace CsvTools
           break;
 
         case DataType.Boolean:
-          ret = StringConversion.StringToBoolean(value, column.ValueFormat.True, column.ValueFormat.False);
+          ret = GetBooleanNull(value, column);
           break;
 
         case DataType.Guid:
@@ -1004,11 +1002,10 @@ namespace CsvTools
     /// <param name="text">Leading Text</param>
     /// <param name="recordNumber">The record number.</param>
     /// <param name="progress">The progress (a value between 0 and MaxValue)</param>
-    protected virtual void HandleShowProgress(string text, long recordNumber, int progress)
+    protected virtual void HandleShowProgress(string text, long recordNumber, double progress)
     {
       var rec = recordNumber > 1 ? $"\nRecord {recordNumber:N0}" : string.Empty;
-      m_Percentage = (progress > 0) ? c_MaxValue / progress : 0;
-      ReportProgress?.Invoke(this, new ProgressEventArgs($"{text}{rec}", progress, false));
+      ReportProgress?.Invoke(this, new ProgressEventArgs($"{text}{rec}", Convert.ToInt64(progress*c_MaxValue), false));
     }
 
     /// <summary>
@@ -1024,9 +1021,8 @@ namespace CsvTools
     /// <param name="recordNumber">The record number.</param>
     protected void HandleShowProgressPeriodic(string text, long recordNumber)
     {
-      m_Percentage = GetRelativePosition();
       if (ReportProgress != null)
-        m_IntervalAction.Invoke(delegate { HandleShowProgress(text, recordNumber, m_Percentage); });
+        m_IntervalAction.Invoke(() => HandleShowProgress(text, recordNumber, GetRelativePosition()));
     }
 
     /// <summary>
@@ -1284,6 +1280,19 @@ namespace CsvTools
       return null;
     }
 
+    private bool? GetBooleanNull(string inputValue, [NotNull] IColumn column)
+    {
+      var boolValue = StringConversion.StringToBoolean(
+        inputValue,
+        column.ValueFormat.True,
+        column.ValueFormat.False);
+      if (boolValue.HasValue)
+        return boolValue.Value;
+
+      HandleError(column.ColumnOrdinal, $"'{inputValue}' is not a boolean value");
+      return null;
+    }
+
     /// <summary>
     ///   Gets the decimal value or null.
     /// </summary>
@@ -1335,7 +1344,8 @@ namespace CsvTools
       }
       catch
       {
-        throw WarnAddFormatException(columnNumber, $"'{inputValue}' is not a Guid");
+        HandleError(columnNumber, $"'{inputValue}' is not a GUID");
+        return null;
       }
     }
 

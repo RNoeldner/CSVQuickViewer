@@ -309,6 +309,8 @@ namespace CsvTools
       catch (Exception ex)
       {
         this.ShowError(ex);
+        m_SourceDisplay?.Close();
+        m_SourceDisplay=null;
       }
     }
 
@@ -505,13 +507,6 @@ namespace CsvTools
                 m_CancellationTokenSource.Token))
               {
                 processDisplay.Show();
-                //if (limitSizeForm != null)
-                //{
-                //  // ReSharper disable PossibleNullReferenceException
-                //  processDisplay.Left = limitSizeForm.Left + limitSizeForm.Width;
-                //  limitSizeForm.Focus();
-                //  // ReSharper restore PossibleNullReferenceException
-                //}
 
                 m_FileSetting.HasFieldHeader = true;
 
@@ -596,7 +591,7 @@ namespace CsvTools
           if (processDisplay is IProcessDisplayTime pdt)
             pdt.AttachTaskbarProgress();
           processDisplay.SetProcess("Opening File...", -1, true);
-
+          detailControl.FileSetting = m_FileSetting;
           using (var fileReader = FunctionalDI.GetFileReader(m_FileSetting, TimeZoneInfo.Local.Id, processDisplay))
           {
             var warningList = new RowErrorCollection(fileReader);
@@ -631,12 +626,14 @@ namespace CsvTools
             fileReader.Warning -= warningList.Add;
             fileReader.Warning += AddWarning;
 
+            processDisplay.SetMaximum(0);
             processDisplay.SetProcess("Reading data...", -1, true);
-
             processDisplay.SetMaximum(100);
+            detailControl.ShowInfoButtons = false;
             DataTable = await fileReader.GetDataTableAsync(m_FileSetting.RecordLimit, true,
               m_FileSetting.DisplayStartLineNo, m_FileSetting.DisplayRecordNo, m_FileSetting.DisplayEndLineNo, false,
-              ShowDataTable, (l, i) => processDisplay.SetProcess($"Reading data...\nRecord :{l:N0}", i, false),
+              ShowDataTable, (l, i) =>
+              processDisplay.SetProcess($"Reading data...\nRecord: {l:N0}", i, false),
               processDisplay.CancellationToken);
 
             if (m_DisposedValue)
@@ -673,8 +670,6 @@ namespace CsvTools
           Logger.Information("Restoring view and filter setting {filename}...", fn);
           detailControl.ReStoreViewSetting(fnView);
         }
-
-        // if (m_FileSetting.NoDelimitedFile) detailControl_ButtonShowSource(this, null);
       }
       catch (Exception exc)
       {
@@ -691,6 +686,7 @@ namespace CsvTools
             // if (!m_FileSetting.NoDelimitedFile)
             ShowTextPanel(false);
 
+          detailControl.ShowInfoButtons = true;
           Cursor.Current = oldCursor;
 
           m_ConfigChanged = false;

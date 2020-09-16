@@ -85,8 +85,10 @@ namespace CsvTools
     ///   if <c>true</c> add a column with error information: <see
     ///   cref="ReaderConstants.cErrorField" />
     /// </param>
-    /// <param name="previewAction"></param>
-    /// <param name="progress"></param>
+    /// <param name="previewAction">Called after 500 records beeing read</param>
+    /// <param name="progress">
+    ///   Used to pass on progress information with number of records and percentage
+    /// </param>
     /// <param name="cancellationToken">Token to cancel the long running async method</param>
     /// <returns></returns>
     public static async Task<DataTable> GetDataTableAsync([NotNull] this IFileReader reader, long recordLimit,
@@ -130,9 +132,10 @@ namespace CsvTools
             foreach (var column in notIgnored)
               dataRow[i++] = reader.GetValue(column.ColumnOrdinal);
             intervalAction?.Invoke(() => progress(reader.RecordNumber, reader.Percent));
-            if (previewAction != null && dataTable.Rows.Count == 250)
+            if (previewAction != null && dataTable.Rows.Count == 500)
             {
               var copy = dataTable.Copy();
+              progress?.Invoke(reader.RecordNumber, reader.Percent);
 #pragma warning disable 4014
               Task.Run(() => previewAction(copy), cancellationToken);
 #pragma warning restore 4014
@@ -155,12 +158,22 @@ namespace CsvTools
               var dataRow = dataTable.NewRow();
               dataTable.Rows.Add(dataRow);
               for (var i = 0; i < wrapper.FieldCount; i++)
-                dataRow[i] = wrapper.GetValue(i);
+                try
+                {
+                  dataRow[i] = wrapper.GetValue(i);
+                }
+                catch (Exception ex)
+                {
+                  dataRow.SetColumnError(i, ex.Message);
+                }
+
+
 
               intervalAction?.Invoke(() => progress(reader.RecordNumber, reader.Percent));
-              if (previewAction != null && dataTable.Rows.Count == 250)
+              if (previewAction != null && dataTable.Rows.Count == 500)
               {
                 var copy = dataTable.Copy();
+                progress?.Invoke(reader.RecordNumber, reader.Percent);
 #pragma warning disable 4014
                 Task.Run(() => previewAction(copy), cancellationToken);
 #pragma warning restore 4014

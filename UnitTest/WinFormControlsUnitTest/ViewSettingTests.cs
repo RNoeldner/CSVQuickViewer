@@ -72,14 +72,14 @@ namespace CsvTools.Tests
 
           var columnFilters = new List<ToolStripDataGridViewColumnFilter>
           {
-            new ToolStripDataGridViewColumnFilter(dc.DataGridView.Columns[0])
+            new ToolStripDataGridViewColumnFilter(dc.FilteredDataGridView.Columns[0])
           };
 
           columnFilters[0].ColumnFilterLogic.Operator = "=";
           columnFilters[0].ColumnFilterLogic.ValueText = "Halloween";
           columnFilters[0].ColumnFilterLogic.Active = true;
 
-          var text = ViewSetting.StoreViewSetting(dc.DataGridView.Columns, columnFilters, dc.DataGridView.Columns[0],
+          var text = ViewSetting.StoreViewSetting(dc.FilteredDataGridView.Columns, columnFilters, dc.FilteredDataGridView.Columns[0],
             SortOrder.Descending);
 
           var fn = Path.Combine(FileSystemUtils.ExecutableDirectoryName(), "test.delete");

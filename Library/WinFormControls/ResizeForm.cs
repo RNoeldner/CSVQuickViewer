@@ -2,6 +2,7 @@
 using System;
 using System.ComponentModel;
 using System.Drawing;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace CsvTools
@@ -24,6 +25,51 @@ namespace CsvTools
       catch (Exception)
       {
         //ignore
+      }
+    }
+
+    protected void RunWithHourglass([NotNull] Action action, [CanBeNull] Control control = null)
+    {
+      var oldCursor = Cursor.Current == Cursors.WaitCursor ? Cursors.WaitCursor : Cursors.Default;
+      Cursor.Current = Cursors.WaitCursor;
+      try
+      {
+        if (control!=null)
+          control.Enabled=false;
+
+        action.Invoke();
+      }
+      catch (Exception ex)
+      {
+        this.ShowError(ex);
+      }
+      finally
+      {
+        if (control!=null)
+          control.Enabled=true;
+        Cursor.Current = oldCursor;
+      }
+    }
+
+    protected async Task RunWithHourglassAsync([NotNull] Func<Task> action, [CanBeNull] Control control = null)
+    {
+      var oldCursor = Cursor.Current == Cursors.WaitCursor ? Cursors.WaitCursor : Cursors.Default;
+      Cursor.Current = Cursors.WaitCursor;
+      try
+      {
+        if (control!=null)
+          control.Enabled=false;
+        await action.Invoke();
+      }
+      catch (Exception ex)
+      {
+        this.ShowError(ex);
+      }
+      finally
+      {
+        if (control!=null)
+          control.Enabled=true;
+        Cursor.Current = oldCursor;
       }
     }
 

@@ -179,10 +179,10 @@ namespace CsvTools
               {
                 try
                 {
-                  foreach (DataGridViewColumn col in detailControl.DataGridView.Columns)
+                  foreach (DataGridViewColumn col in detailControl.FilteredDataGridView.Columns)
                     if (col.DataPropertyName == dataColumnName)
                     {
-                      detailControl.DataGridView.Sort(col, ListSortDirection.Ascending);
+                      detailControl.FilteredDataGridView.Sort(col, ListSortDirection.Ascending);
                       break;
                     }
                 }

@@ -68,6 +68,7 @@ namespace CsvTools
 
     // This is used to report issues with columns
     private readonly Action<int, string> m_HandleMessageColumn;
+
     private readonly bool m_HasFieldHeader;
 
     private readonly bool m_HasQualifier;
@@ -77,6 +78,7 @@ namespace CsvTools
 
     // Store the raw text of the record, before split into columns and trimming of the columns
     private readonly StringBuilder m_RecordSource = new StringBuilder();
+
     private readonly bool m_SkipDuplicateHeader;
     private readonly bool m_SkipEmptyLines;
     private readonly int m_SkipRows;
@@ -414,13 +416,13 @@ namespace CsvTools
     ///   Gets the relative position.
     /// </summary>
     /// <returns>A value between 0 and MaxValue</returns>
-    protected override int GetRelativePosition()
+    protected override double GetRelativePosition()
     {
       // if we know how many records to read, use that
       if (RecordLimit > 0 && RecordLimit < long.MaxValue)
         return base.GetRelativePosition();
 
-      return (int) ((m_ImprovedStream?.Percentage ?? 0) * c_MaxValue);
+      return m_ImprovedStream?.Percentage ?? 0;
     }
 
     private bool AllEmptyAndCountConsecutiveEmptyRows(IReadOnlyList<string> columns)

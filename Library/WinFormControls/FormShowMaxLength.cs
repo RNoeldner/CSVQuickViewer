@@ -29,6 +29,7 @@ namespace CsvTools
   {
     private readonly DataRow[] m_DataRow;
     private readonly DataTable m_DataTable;
+    private readonly IList<string> m_VisibleColumns;
     private FilteredDataGridView m_DataGridView;
 
     /// <summary>
@@ -36,10 +37,11 @@ namespace CsvTools
     /// </summary>
     /// <param name="dataTable">The data table.</param>
     /// <param name="dataRows">The data rows.</param>
-    public FormShowMaxLength(DataTable dataTable, DataRow[] dataRows)
+    public FormShowMaxLength(DataTable dataTable, DataRow[] dataRows, IList<string> visibleColums)
     {
       m_DataTable = dataTable ?? throw new ArgumentNullException(nameof(dataTable));
       m_DataRow = dataRows ?? throw new ArgumentNullException(nameof(dataRows));
+      m_VisibleColumns = visibleColums ?? throw new ArgumentNullException(nameof(visibleColums));
       InitializeComponent();
     }
 
@@ -109,6 +111,9 @@ namespace CsvTools
         var dataColumnNo = dataTable.Columns.Add("ColumnNo", typeof(int));
         dataColumnNo.AllowDBNull = false;
 
+        var dataColumnOrder = dataTable.Columns.Add("Order", typeof(int));
+        dataColumnNo.AllowDBNull = true;
+
         var maxLength = new Dictionary<string, int>();
         var colIndex = new Dictionary<string, int>();
         var checkCols = new Dictionary<string, int>();
@@ -140,6 +145,9 @@ namespace CsvTools
             lastRow[dataColumnLength] = m_DataTable.Columns[len.Key].DataType.Name;
 
           lastRow[dataColumnNo] = colNo++;
+          var index = m_VisibleColumns.IndexOf(len.Key);
+          if (index!=-1)
+            lastRow[dataColumnOrder] = index+1;
           dataTable.Rows.Add(lastRow);
         }
 
