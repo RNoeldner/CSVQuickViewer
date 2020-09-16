@@ -85,7 +85,6 @@ namespace CsvTools
     public static bool Contains([CanBeNull] this string text, [NotNull] string toCheck, StringComparison comp) =>
       text?.IndexOf(toCheck, comp) >= 0;
 
-
     /// <summary>
     ///   Gets the a short representation of the text.
     /// </summary>
@@ -423,7 +422,9 @@ namespace CsvTools
       if (filter.IndexOf('+') <= -1)
         return filter.Split(new[] { ' ', ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
           .Any(part => item.IndexOf(part, stringComparison) != -1);
-      var parts = filter.Split(new[] { '+' }, StringSplitOptions.RemoveEmptyEntries);
+      var parts = filter.Split(new[] { '+', ' ', ',', ';' }, StringSplitOptions.RemoveEmptyEntries);
+      if (parts.Length==0)
+        return true;
 
       // 1st part
       var all = item.IndexOf(parts[0], stringComparison) > -1;
