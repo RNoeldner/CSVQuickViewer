@@ -238,7 +238,8 @@ namespace CsvTools
         return fileName.Substring(basePath.Length + 1);
       var otherDir = Path.GetFullPath(fileName);
 
-      return GetRelativeFolder(otherDir, basePath);
+      var folder = GetRelativeFolder(otherDir, basePath);
+      return folder.Substring(0, folder.Length-1);
     }
 
     [NotNull]

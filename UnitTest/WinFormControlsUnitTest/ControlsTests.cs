@@ -14,6 +14,7 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -245,10 +246,10 @@ namespace CsvTools.Tests
         {
           Assert.AreEqual(0, treeView.SelectedTreeNode.Count);
 
-          var treeNode = new TreeNode("Test") {Tag = "test"};
+          var treeNode = new TreeNode("Test") { Tag = "test" };
           treeView.Nodes.Add(treeNode);
 
-          var treeNode2 = new TreeNode("Test2") {Tag = "test2"};
+          var treeNode2 = new TreeNode("Test2") { Tag = "test2" };
           treeNode.Nodes.Add(treeNode2);
 
           var firedAfter = false;
@@ -383,7 +384,8 @@ namespace CsvTools.Tests
         {
           processDisplay.Show();
           var cvsSetting = new CsvFile(Path.Combine(FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles",
-            "FileWithHierarchy_WithCyle.txt")) {FileFormat = {FieldDelimiter = "\t"}};
+            "FileWithHierarchy_WithCyle.txt"))
+          { FileFormat = { FieldDelimiter = "\t" } };
           using (var csvDataReader = new CsvFileReader(cvsSetting, processDisplay))
           {
             var dt = await csvDataReader.GetDataTableAsync(0, false, true, false, false, false, null, null,
@@ -428,7 +430,7 @@ namespace CsvTools.Tests
     public void FormShowMaxLength()
     {
       using (var dataTable = UnitTestStatic.GetDataTable(60))
-      using (var form = new FormShowMaxLength(dataTable, dataTable.Select()))
+      using (var form = new FormShowMaxLength(dataTable, dataTable.Select(), new List<string>()))
       {
         UnitTestWinFormHelper.ShowFormAndClose(form);
       }

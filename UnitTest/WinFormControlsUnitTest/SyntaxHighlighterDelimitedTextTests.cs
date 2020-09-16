@@ -50,27 +50,5 @@ namespace CsvTools.Tests
         }, 2);
       }
     }
-
-    [TestMethod()]
-    public void SyntaxHighlighterDelimitedXmlTest()
-    {
-      using (var textBox = new FastColoredTextBox())
-      {
-        var highlighter = new SyntaxHighlighterXML(textBox);
-        textBox.TextChangedDelayed += (sender, e) =>
-        {
-          if (!(sender is FastColoredTextBox text))
-            return;
-          highlighter.Highlight(text.Range);
-        };
-        ;
-        UnitTestWinFormHelper.ShowControl(textBox, .2, (text, frm) =>
-        {
-          text.Text =
-            "<menu id=\"file\" value=\"File\">\r\n  <popup>\r\n    <menuitem value=\"New\" onclick=\"CreateNewDoc()\" />\r\n    <menuitem value=\"Open\" onclick=\"OpenDoc()\" />\r\n    <menuitem value=\"Close\" onclick=\"CloseDoc()\" />\r\n  </popup>\r\n</menu>";
-          highlighter.Comment(new Range(text, 0, 0, 0, 1));
-        }, 2);
-      }
-    }
   }
 }

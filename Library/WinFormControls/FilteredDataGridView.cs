@@ -54,6 +54,7 @@ namespace CsvTools
     private string m_HighlightText = string.Empty;
 
     private int m_MenuItemColumnIndex;
+    private IFileSetting m_FileSetting;
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="FilteredDataGridView" /> class.
@@ -149,16 +150,19 @@ namespace CsvTools
       }
     }
 
-
-
     /// <summary>
     ///   Sets the file setting.
     /// </summary>
     /// <value>The file setting.</value>
     public IFileSetting FileSetting
     {
-      private get;
-      set;
+      get => m_FileSetting;
+      set
+      {
+        m_FileSetting=value;
+        toolStripMenuItemSaveCol.Enabled=(m_FileSetting !=null);
+        toolStripMenuItemCF.Enabled=(m_FileSetting !=null);
+      }
     }
 
     public FillGuessSettings FillGuessSettings
@@ -729,10 +733,10 @@ namespace CsvTools
     /// <returns></returns>
     private Column GetColumnFormat(int colIndex)
     {
-      if (FileSetting == null || colIndex < 0 || colIndex > FileSetting.ColumnCollection.Count)
+      if (m_FileSetting == null || colIndex < 0 || colIndex > m_FileSetting.ColumnCollection.Count)
         return null;
 
-      return FileSetting.ColumnCollection.Get(Columns[colIndex].DataPropertyName);
+      return m_FileSetting.ColumnCollection.Get(Columns[colIndex].DataPropertyName);
     }
 
     /// <summary>
@@ -1111,9 +1115,10 @@ namespace CsvTools
       var columnFormat = GetColumnFormat(m_MenuItemColumnIndex);
       if (columnFormat == null)
         return;
-      using (var form = new FormColumnUI(columnFormat, false, FileSetting, FillGuessSettings, false))
+      using (var form = new FormColumnUI(columnFormat, false, m_FileSetting, FillGuessSettings, false))
       {
-        if (form.ShowDialog() == DialogResult.Yes)
+        var result = form.ShowDialog(this);
+        if (result == DialogResult.OK || result==DialogResult.Yes)
           Refresh();
       }
     }
@@ -1312,8 +1317,8 @@ namespace CsvTools
       {
         toolStripMenuItemLoadCol.Enabled = false;
         var fileName = WindowsAPICodePackWrapper.Open(
-          FileSetting is IFileSettingPhysicalFile phy ? phy.FullPath.GetDirectoryName() : ".", "Load Column Setting",
-          "Column Config|*.col;*.conf|All files|*.*", DefFileNameColSetting(FileSetting, ".col"));
+          m_FileSetting is IFileSettingPhysicalFile phy ? phy.FullPath.GetDirectoryName() : ".", "Load Column Setting",
+          "Column Config|*.col;*.conf|All files|*.*", DefFileNameColSetting(m_FileSetting, ".col"));
         ReStoreViewSetting(fileName);
       }
       catch (Exception ex)
@@ -1335,14 +1340,15 @@ namespace CsvTools
 
     private async void ToolStripMenuItemSaveCol_Click(object sender, EventArgs e)
     {
+      if (m_FileSetting==null)
+        return;
       try
       {
         toolStripMenuItemSaveCol.Enabled = false;
-
         // Select Path
         var fileName = WindowsAPICodePackWrapper.Save(
-          FileSetting is IFileSettingPhysicalFile phy ? phy.FullPath.GetDirectoryName() : ".", "Save Column Setting",
-          "Column Config|*.col;*.conf|All files|*.*", ".col", false, DefFileNameColSetting(FileSetting, ".col"));
+          m_FileSetting is IFileSettingPhysicalFile phy ? phy.FullPath.GetDirectoryName() : ".", "Save Column Setting",
+          "Column Config|*.col;*.conf|All files|*.*", ".col", false, DefFileNameColSetting(m_FileSetting, ".col"));
         if (!string.IsNullOrEmpty(fileName))
           using (var stream = ImprovedStream.OpenWrite(fileName, null))
           using (var writer = new StreamWriter(stream.Stream, Encoding.UTF8, 1024))
