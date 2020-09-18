@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <ApplicationIcon>..\Application\csv_text.ico</ApplicationIcon>
@@ -11,6 +10,7 @@
     <PackageIcon>csv_text.ico</PackageIcon>
     <PackageIconUrl />
     <SignAssembly>false</SignAssembly>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -45,7 +45,7 @@
     <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.7.0" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.7.1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Library\ClassLibraryCSV.Standard\ClassLibraryCSV.Standard.csproj" />
