@@ -27,12 +27,11 @@ namespace CsvTools
 {
   // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
   /// <summary>
-  ///   Abstract calls containing the basic setting for an IFileSetting if contains
-  ///   <see
-  ///     cref="ColumnCollection" />
-  ///   , <see cref="MappingCollection" /> and <see cref="FileFormat" />
+  ///   Abstract calls containing the basic setting for an IFileSetting if contains <see
+  ///   cref="ColumnCollection" /> , <see cref="MappingCollection" /> and <see cref="FileFormat" />
   /// </summary>
 #pragma warning disable CS0659
+
   public abstract class BaseSettings
 #pragma warning restore CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
   {
@@ -169,7 +168,8 @@ namespace CsvTools
     [DefaultValue("")]
     public virtual string RemoteFileName
     {
-      [NotNull] get => m_RemoteFileName;
+      [NotNull]
+      get => m_RemoteFileName;
       [CanBeNull]
       set
       {
@@ -334,7 +334,8 @@ namespace CsvTools
 
     public ObservableCollection<SampleRecordEntry> Errors
     {
-      [NotNull] get => m_Errors;
+      [NotNull]
+      get => m_Errors;
       [CanBeNull]
       set
       {
@@ -355,8 +356,10 @@ namespace CsvTools
     [XmlElement]
     public virtual FileFormat FileFormat
     {
-      [NotNull] get => m_FileFormat;
-      [CanBeNull] set => value?.CopyTo(m_FileFormat);
+      [NotNull]
+      get => m_FileFormat;
+      [CanBeNull]
+      set => value?.CopyTo(m_FileFormat);
     }
 
     /// <summary>
@@ -412,7 +415,8 @@ namespace CsvTools
     [DefaultValue("")]
     public virtual string FileName
     {
-      [NotNull] get => m_FileName;
+      [NotNull]
+      get => m_FileName;
       [CanBeNull]
       set
       {
@@ -454,7 +458,8 @@ namespace CsvTools
     [DefaultValue("")]
     public virtual string Footer
     {
-      [NotNull] get => m_Footer;
+      [NotNull]
+      get => m_Footer;
       [CanBeNull]
       set
       {
@@ -518,7 +523,8 @@ namespace CsvTools
     [DefaultValue("")]
     public virtual string Header
     {
-      [NotNull] get => m_Header;
+      [NotNull]
+      get => m_Header;
       [CanBeNull]
       set
       {
@@ -538,7 +544,8 @@ namespace CsvTools
     [DefaultValue("")]
     public virtual string ID
     {
-      [NotNull] get => m_Id;
+      [NotNull]
+      get => m_Id;
       [CanBeNull]
       set
       {
@@ -696,8 +703,10 @@ namespace CsvTools
     [DefaultValue("")]
     public virtual string Passphrase
     {
-      [NotNull] get => m_Passphrase;
-      [CanBeNull] set => m_Passphrase = (value ?? string.Empty).Trim();
+      [NotNull]
+      get => m_Passphrase;
+      [CanBeNull]
+      set => m_Passphrase = (value ?? string.Empty).Trim();
     }
 
     /// <summary>
@@ -707,7 +716,8 @@ namespace CsvTools
     [DefaultValue("")]
     public virtual string Recipient
     {
-      [NotNull] get => m_Recipient;
+      [NotNull]
+      get => m_Recipient;
       [CanBeNull]
       set
       {
@@ -740,7 +750,8 @@ namespace CsvTools
 
     public ObservableCollection<SampleRecordEntry> Samples
     {
-      [NotNull] get => m_Samples;
+      [NotNull]
+      get => m_Samples;
       [CanBeNull]
       set
       {
@@ -836,7 +847,7 @@ namespace CsvTools
       [CanBeNull]
       set
       {
-        var newVal = value == null ? string.Empty : value.NoControlCharacters();
+        var newVal = value == null ? string.Empty : value.NoControlCharacters().HandleCRLFCombinations();
         if (newVal.Equals(m_SqlStatement, StringComparison.Ordinal))
           return;
         m_SqlStatement = newVal;
@@ -875,7 +886,8 @@ namespace CsvTools
     [DefaultValue("")]
     public virtual string TemplateName
     {
-      [NotNull] get => m_TemplateName;
+      [NotNull]
+      get => m_TemplateName;
       [CanBeNull]
       set
       {
@@ -913,7 +925,8 @@ namespace CsvTools
     [DefaultValue(cTreatTextAsNull)]
     public virtual string TreatTextAsNull
     {
-      [NotNull] get => m_TreatTextAsNull;
+      [NotNull]
+      get => m_TreatTextAsNull;
       [CanBeNull]
       set
       {
@@ -992,39 +1005,45 @@ namespace CsvTools
           return false;
       }
 
-      return string.Equals(other.TemplateName, TemplateName, StringComparison.OrdinalIgnoreCase) &&
-             other.SkipRows == SkipRows && m_LatestSourceTimeUtc == other.m_LatestSourceTimeUtc &&
-             RecentlyLoaded == other.RecentlyLoaded &&
-             NumRecords == other.NumRecords && WarningCount == other.WarningCount && ErrorCount == other.ErrorCount &&
-             other.IsEnabled == IsEnabled &&
-             other.TreatNBSPAsSpace == TreatNBSPAsSpace &&
-             other.DisplayStartLineNo == DisplayStartLineNo &&
-             other.DisplayEndLineNo == DisplayEndLineNo &&
-             other.HasFieldHeader == HasFieldHeader &&
-             other.InOverview == InOverview &&
-             other.Validate == Validate &&
-             other.TrimmingOption == TrimmingOption &&
-             other.ConsecutiveEmptyRows == m_ConsecutiveEmptyRows &&
-             string.Equals(other.TreatTextAsNull, TreatTextAsNull, StringComparison.OrdinalIgnoreCase) &&
-             other.DisplayRecordNo == DisplayRecordNo &&
-             other.RecordLimit == RecordLimit &&
-             other.ShowProgress == ShowProgress &&
-             string.Equals(other.ID, ID, StringComparison.OrdinalIgnoreCase) &&
+      if (!(other.SkipRows == SkipRows &&
+            other.RecentlyLoaded == RecentlyLoaded &&
+            other.NumRecords == NumRecords &&
+            other.WarningCount == WarningCount &&
+            other.ErrorCount == ErrorCount &&
+            other.IsEnabled == IsEnabled &&
+            other.TreatNBSPAsSpace == TreatNBSPAsSpace &&
+            other.DisplayStartLineNo == DisplayStartLineNo &&
+            other.DisplayEndLineNo == DisplayEndLineNo &&
+            other.HasFieldHeader == HasFieldHeader &&
+            other.InOverview == InOverview &&
+            other.Validate == Validate &&
+            other.ConsecutiveEmptyRows == m_ConsecutiveEmptyRows &&
+            other.DisplayRecordNo == DisplayRecordNo &&
+            other.RecordLimit == RecordLimit &&
+            other.ShowProgress == ShowProgress &&
+            other.EvidenceNumberOrIssues == EvidenceNumberOrIssues &&
+            other.SkipEmptyLines == SkipEmptyLines &&
+            other.SkipDuplicateHeader == SkipDuplicateHeader &&
+            other.Timeout == Timeout &&
+            other.SetLatestSourceTimeForWrite == SetLatestSourceTimeForWrite &&
+            (other.ProcessTimeUtc - ProcessTimeUtc).TotalSeconds < 1  &&
+            (other.LatestSourceTimeUtc - LatestSourceTimeUtc).TotalSeconds < 1 &&
+            other.TreatTextAsNull.Equals(TreatTextAsNull, StringComparison.OrdinalIgnoreCase) &&
+            other.ID.Equals(ID, StringComparison.OrdinalIgnoreCase) &&
+            other.Passphrase.Equals(Passphrase, StringComparison.Ordinal) &&
+            other.Recipient.Equals(Recipient, StringComparison.OrdinalIgnoreCase) &&
+            other.TemplateName.Equals(TemplateName, StringComparison.OrdinalIgnoreCase) &&
+            other.SqlStatement.Equals(SqlStatement, StringComparison.OrdinalIgnoreCase) &&
+            other.Footer.Equals(Footer, StringComparison.OrdinalIgnoreCase) &&
+            other.Header.Equals(Header, StringComparison.OrdinalIgnoreCase)
+            ))
+        return false;
+
+      return other.TrimmingOption == TrimmingOption &&
              other.FileFormat.Equals(FileFormat) &&
-             other.Passphrase.Equals(Passphrase, StringComparison.Ordinal) &&
-             other.Recipient.Equals(Recipient, StringComparison.Ordinal) &&
-             other.EvidenceNumberOrIssues == EvidenceNumberOrIssues &&
-             other.SkipEmptyLines == SkipEmptyLines &&
-             other.SkipDuplicateHeader == SkipDuplicateHeader &&
-             other.Timeout == Timeout &&
-             other.ProcessTimeUtc == ProcessTimeUtc &&
-             other.SetLatestSourceTimeForWrite == SetLatestSourceTimeForWrite &&
-             string.Equals(other.SqlStatement, SqlStatement, StringComparison.OrdinalIgnoreCase) &&
-             string.Equals(other.Footer, Footer, StringComparison.OrdinalIgnoreCase) &&
-             string.Equals(other.Header, Header, StringComparison.OrdinalIgnoreCase) &&
-             MappingCollection.Equals(other.MappingCollection) && Samples.CollectionEqual(other.Samples) &&
-             Errors.CollectionEqual(other.Errors) &&
-             ColumnCollection.Equals(other.ColumnCollection);
+             other.MappingCollection.Equals(MappingCollection) && Samples.CollectionEqual(other.Samples) &&
+             other.Errors.CollectionEqual(Errors) &&
+             other.ColumnCollection.Equals(ColumnCollection);
     }
 
     /// <summary>
@@ -1053,7 +1072,7 @@ namespace CsvTools
         m_LatestSourceTimeUtc = fi.LastWriteTimeUtc;
       }
       else
-        // in case the source is not a physical file, assume it's the processing time
+      // in case the source is not a physical file, assume it's the processing time
       {
         m_LatestSourceTimeUtc = ProcessTimeUtc;
       }
@@ -1116,7 +1135,7 @@ namespace CsvTools
       other.InOverview = InOverview;
       other.Timeout = Timeout;
       other.ProcessTimeUtc = ProcessTimeUtc;
-      other.m_LatestSourceTimeUtc = m_LatestSourceTimeUtc;
+      other.LatestSourceTimeUtc = LatestSourceTimeUtc;
 
       other.Footer = Footer;
       other.Header = Header;

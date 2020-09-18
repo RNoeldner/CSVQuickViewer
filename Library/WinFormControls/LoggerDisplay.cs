@@ -12,17 +12,23 @@
  *
  */
 
+using FastColoredTextBoxNS;
 using System;
 using System.Drawing;
-using System.Windows.Forms;
 
 namespace CsvTools
 {
   /// <summary>
   ///   Only the most recently created Logger Display will get the log messages
   /// </summary>
-  public class LoggerDisplay : RichTextBox
+  public class LoggerDisplay : FastColoredTextBox
   {
+    private readonly TextStyle timestampStyle = new TextStyle(Brushes.Black, Brushes.LightSteelBlue, FontStyle.Regular);
+    private readonly TextStyle infoStyle = new TextStyle(Brushes.Gray, null, FontStyle.Regular);
+    private readonly TextStyle regStyle = new TextStyle(Brushes.Black, null, FontStyle.Regular);
+    private readonly TextStyle warningStyle = new TextStyle(Brushes.Blue, null, FontStyle.Regular);
+    private readonly TextStyle errorStyle = new TextStyle(Brushes.Red, null, FontStyle.Regular);
+
     private readonly Action<string, Logger.Level> m_PreviousLog = Logger.AddLog;
     private bool m_Disposed;
 
@@ -34,7 +40,8 @@ namespace CsvTools
     {
       // ReSharper disable once VirtualMemberCallInConstructor
       Multiline = true;
-      KeyUp += FindForm().CtrlA;
+      ReadOnly = true;
+      ShowLineNumbers = false;
       Logger.AddLog = AddLog;
     }
 
@@ -53,7 +60,7 @@ namespace CsvTools
           StringComparison.Ordinal))
         {
           // add to previous item,
-          AppendText(text.Substring(posSlash - 1), level);
+          AppendText(text.Substring(posSlash - 1), false, level);
           appended = true;
         }
 
@@ -63,7 +70,7 @@ namespace CsvTools
           if (level < Logger.Level.Warn)
             text = StringUtils.GetShortDisplay(StringUtils.HandleCRLFCombinations(text, " "), 120);
           if (!string.IsNullOrEmpty(text) && text != "\"\"")
-            AppendText($"{(m_Initial ? string.Empty : "\n")}{DateTime.Now:HH:mm:ss}  {text}", level);
+            AppendText(text, true, level);
         }
 
         m_Initial = false;
@@ -100,40 +107,54 @@ namespace CsvTools
       }
     }
 
-    private void AppendText(string text, Logger.Level level)
+    private void AppendText(string text, bool timestamp, Logger.Level level)
     {
-      this.SafeBeginInvoke(
-        () =>
+      this.SafeBeginInvoke(() =>
+      {
+        try
         {
-          try
+          //some stuffs for best performance
+          BeginUpdate();
+          Selection.BeginUpdate();
+          //remember user selection
+          var userSelection = Selection.Clone();
+          //add text with predefined style
+          TextSource.CurrentTB = this;
+
+          var style = regStyle;
+          if (level < Logger.Level.Info)
+            style = infoStyle;
+          else if (level >= Logger.Level.Error)
+            style = errorStyle;
+          else if (level >= Logger.Level.Warn)
+            style = warningStyle;
+
+          if (timestamp)
           {
-            var col = ForeColor;
-            if (level < Logger.Level.Info)
-              col = Color.Gray;
-            if (level >= Logger.Level.Warn)
-              col = Color.Blue;
-            if (level >= Logger.Level.Error)
-              col = Color.Red;
-
-            SelectionStart = TextLength;
-            if (col != ForeColor)
-            {
-              SelectionLength = 0;
-              SelectionColor = col;
-            }
-
-            AppendText(text);
-            Select(TextLength, 0);
-            ScrollToCaret();
-
-            if (col != ForeColor)
-              SelectionColor = ForeColor;
+            if (m_Initial)
+              AppendText($"{DateTime.Now:HH:mm:ss}  ", timestampStyle);
+            else
+              AppendText($"\n{DateTime.Now:HH:mm:ss}  ", timestampStyle);
           }
-          catch
+          AppendText(text, style);
+
+          //restore user selection
+          if (!userSelection.IsEmpty || userSelection.Start.iLine < LinesCount - 2)
           {
-            // ignore
+            Selection.Start = userSelection.Start;
+            Selection.End = userSelection.End;
           }
-        });
+          else
+            GoEnd();//scroll to end of the text
+
+          Selection.EndUpdate();
+          EndUpdate();
+        }
+        catch
+        {
+          // ignore
+        }
+      });
     }
   }
 }

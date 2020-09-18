@@ -126,7 +126,7 @@
       <DependentUpon>FormUniqueDisplay.cs</DependentUpon>
     </Compile>
     <Compile Include="LoggerDisplay.cs">
-      <SubType>Component</SubType>
+      <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="MultiselectTreeView.cs">
       <SubType>Component</SubType>
@@ -165,6 +165,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="FormProcessDisplay.resx">
       <DependentUpon>FormProcessDisplay.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="LoggerDisplay.resx">
+      <DependentUpon>LoggerDisplay.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="ResizeForm.resx">
       <DependentUpon>ResizeForm.cs</DependentUpon>
