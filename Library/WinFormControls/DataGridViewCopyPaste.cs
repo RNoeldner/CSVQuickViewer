@@ -14,6 +14,7 @@
 
 namespace CsvTools
 {
+  using JetBrains.Annotations;
   using System;
   using System.Collections.Generic;
   using System.Diagnostics.Contracts;
@@ -44,15 +45,12 @@ namespace CsvTools
     /// <param name="cutLength">if set to <c>true</c> cut off long text.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     public static void SelectedDataIntoClipboard(
-      this DataGridView dataGridView,
+      [NotNull] this DataGridView dataGridView,
       bool addErrorInfo,
       bool cutLength,
       CancellationToken cancellationToken)
     {
-      var oldCursor = Cursor.Current == Cursors.WaitCursor ? Cursors.WaitCursor : Cursors.Default;
-      Cursor.Current = Cursors.WaitCursor;
-
-      try
+      dataGridView.RunWithHourglass(() =>
       {
         if (dataGridView.GetCellCount(DataGridViewElementStates.Selected) == 1)
           CopyOneCellIntoClipboard(dataGridView.SelectedCells[0]);
@@ -73,36 +71,28 @@ namespace CsvTools
             dataGridView.Rows,
             dataGridView.SelectedCells,
             cancellationToken);
-      }
-      catch (Exception exc)
-      {
-        dataGridView.FindForm().ShowError(exc, "Error filling clipboard");
-      }
-      finally
-      {
-        Cursor.Current = oldCursor;
-      }
+      });      
     }
 
     /// <summary>
     ///   Adds a cell value to the HTML and Text
     /// </summary>
     /// <param name="cell">The cell.</param>
-    /// <param name="buffer">The buffer.</param>
+    /// <param name="stringBuilder">The buffer.</param>
     /// <param name="sbHtml">The StringBuilder for HTML.</param>
     /// <param name="appendTab">if set to <c>true</c> [append tab].</param>
     /// <param name="addErrorInfo">if set to <c>true</c> [add error info].</param>
     /// <param name="cutLength">Maximum length of the resulting text</param>
     private static void AddCell(
-      DataGridViewCell cell,
-      StringBuilder buffer,
-      StringBuilder sbHtml,
+      [NotNull] DataGridViewCell cell,
+      [NotNull] StringBuilder stringBuilder,
+      [NotNull] StringBuilder sbHtml,
       bool appendTab,
       bool addErrorInfo,
       bool cutLength)
     {
       Contract.Requires(cell != null);
-      Contract.Requires(buffer != null);
+      Contract.Requires(stringBuilder != null);
       Contract.Requires(sbHtml != null);
 
       if (cell == null)
@@ -112,8 +102,8 @@ namespace CsvTools
         cellValue = cellValue.Substring(0, 80) + " […] " + cellValue.Substring(cellValue.Length - 20, 20);
 
       if (appendTab)
-        buffer.Append('\t');
-      buffer.Append(EscapeTab(cellValue));
+        stringBuilder.Append('\t');
+      stringBuilder.Append(EscapeTab(cellValue));
 
       HTMLStyle.AddHtmlCell(
         sbHtml,
@@ -126,13 +116,13 @@ namespace CsvTools
     /// <summary>
     ///   Appends a row error to the HTML Buffer
     /// </summary>
-    /// <param name="buffer">The buffer.</param>
+    /// <param name="stringBuilder">The buffer.</param>
     /// <param name="sbHtml">The StringBuilder for HTML.</param>
     /// <param name="errorText">The error Text</param>
     /// <param name="addErrorInfo">if set to <c>true</c> [add error info].</param>
-    private static void AppendRowError(StringBuilder buffer, StringBuilder sbHtml, string errorText, bool addErrorInfo)
+    private static void AppendRowError([NotNull] StringBuilder stringBuilder, [NotNull]  StringBuilder sbHtml, [CanBeNull] string errorText, bool addErrorInfo)
     {
-      Contract.Requires(buffer != null);
+      Contract.Requires(stringBuilder != null);
       Contract.Requires(sbHtml != null);
       if (!addErrorInfo)
         return;
@@ -140,8 +130,8 @@ namespace CsvTools
         sbHtml.Append(m_HtmlStyle.TDEmpty);
       else
         HTMLStyle.AddHtmlCell(sbHtml, m_HtmlStyle.TD, string.Empty, errorText, true);
-      buffer.Append('\t');
-      buffer.Append(EscapeTab(errorText));
+      stringBuilder.Append('\t');
+      stringBuilder.Append(EscapeTab(errorText));
     }
 
     /// <summary>
@@ -157,8 +147,8 @@ namespace CsvTools
       bool addErrorInfo,
       bool cutLength,
       bool alternatingRows,
-      DataGridViewColumnCollection columns,
-      DataGridViewRowCollection rows,
+      [NotNull] DataGridViewColumnCollection columns,
+      [NotNull] DataGridViewRowCollection rows,
       CancellationToken cancellationToken)
     {
       Contract.Requires(columns != null);
@@ -243,7 +233,7 @@ namespace CsvTools
     /// <summary>
     ///   Copies the one cell to the clipboard
     /// </summary>
-    private static void CopyOneCellIntoClipboard(DataGridViewCell cell)
+    private static void CopyOneCellIntoClipboard([NotNull] DataGridViewCell cell)
     {
       Contract.Requires(cell != null);
       Contract.Requires(cell.Value != null);
@@ -268,9 +258,9 @@ namespace CsvTools
       bool addErrorInfo,
       bool cutLength,
       bool alternatingRows,
-      DataGridViewColumnCollection columns,
-      DataGridViewRowCollection rows,
-      DataGridViewSelectedCellCollection selectedCells,
+      [NotNull] DataGridViewColumnCollection columns,
+      [NotNull] DataGridViewRowCollection rows,
+      [NotNull] DataGridViewSelectedCellCollection selectedCells,
       CancellationToken cancellationToken)
     {
       Contract.Requires(columns != null);
@@ -387,7 +377,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="contents">The contents.</param>
     /// <returns></returns>
-    private static string EscapeTab(string contents)
+    private static string EscapeTab([CanBeNull] string contents)
     {
       if (string.IsNullOrEmpty(contents))
         return string.Empty;
@@ -405,7 +395,7 @@ namespace CsvTools
     /// <returns>
     ///   <c>true</c> if it has row errors; otherwise, <c>false</c>.
     /// </returns>
-    private static bool HasRowErrors(int topRow, int bottomRow, DataGridViewRowCollection rows)
+    private static bool HasRowErrors(int topRow, int bottomRow, [NotNull] DataGridViewRowCollection rows)
     {
       Contract.Requires(rows != null);
 
