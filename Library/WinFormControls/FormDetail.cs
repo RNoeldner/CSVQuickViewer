@@ -14,9 +14,9 @@
 
 namespace CsvTools
 {
+  using JetBrains.Annotations;
   using System.Collections.Generic;
   using System.Data;
-  using System.Diagnostics.Contracts;
   using System.Drawing;
   using System.Threading;
   using System.Windows.Forms;
@@ -37,12 +37,9 @@ namespace CsvTools
     /// <param name="frozenColumns">The frozen columns.</param>
     /// <param name="fillGuessSettings"></param>
     /// <param name="cancellationToken">The cancellation token</param>
-    /// 
-    public FormDetail(DataTable dataTable, IEnumerable<string> uniqueFieldName, IFileSetting setting, bool readOnly,
+    public FormDetail([NotNull] DataTable dataTable, IEnumerable<string> uniqueFieldName, IFileSetting setting, bool readOnly,
       bool onlyErrors, int frozenColumns, FillGuessSettings fillGuessSettings, CancellationToken cancellationToken)
     {
-      Contract.Requires(dataTable != null);
-
       SuspendLayout();
 
       var dataGridViewCellStyle1 = new DataGridViewCellStyle

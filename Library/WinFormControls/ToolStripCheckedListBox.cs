@@ -14,7 +14,7 @@
 
 namespace CsvTools
 {
-  using System.Diagnostics.Contracts;
+  using JetBrains.Annotations;
   using System.Drawing;
   using System.Windows.Forms;
 
@@ -50,14 +50,12 @@ namespace CsvTools
     /// <summary>
     ///   Gets the checked ListBox.
     /// </summary>
-    /// <value>
-    ///   The checked ListBox.
-    /// </value>
+    /// <value>The checked ListBox.</value>
+    [NotNull]
     public CheckedListBox CheckedListBoxControl
     {
       get
       {
-        Contract.Ensures(Contract.Result<CheckedListBox>() != null);
         return Control as CheckedListBox;
       }
     }

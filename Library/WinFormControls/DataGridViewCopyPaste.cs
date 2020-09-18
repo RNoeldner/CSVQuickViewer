@@ -17,7 +17,6 @@ namespace CsvTools
   using JetBrains.Annotations;
   using System;
   using System.Collections.Generic;
-  using System.Diagnostics.Contracts;
   using System.Text;
   using System.Threading;
   using System.Windows.Forms;
@@ -71,7 +70,7 @@ namespace CsvTools
             dataGridView.Rows,
             dataGridView.SelectedCells,
             cancellationToken);
-      });      
+      });
     }
 
     /// <summary>
@@ -91,10 +90,6 @@ namespace CsvTools
       bool addErrorInfo,
       bool cutLength)
     {
-      Contract.Requires(cell != null);
-      Contract.Requires(stringBuilder != null);
-      Contract.Requires(sbHtml != null);
-
       if (cell == null)
         return;
       var cellValue = cell.FormattedValue?.ToString() ?? string.Empty;
@@ -122,8 +117,6 @@ namespace CsvTools
     /// <param name="addErrorInfo">if set to <c>true</c> [add error info].</param>
     private static void AppendRowError([NotNull] StringBuilder stringBuilder, [NotNull]  StringBuilder sbHtml, [CanBeNull] string errorText, bool addErrorInfo)
     {
-      Contract.Requires(stringBuilder != null);
-      Contract.Requires(sbHtml != null);
       if (!addErrorInfo)
         return;
       if (string.IsNullOrEmpty(errorText))
@@ -151,9 +144,6 @@ namespace CsvTools
       [NotNull] DataGridViewRowCollection rows,
       CancellationToken cancellationToken)
     {
-      Contract.Requires(columns != null);
-      Contract.Requires(rows != null);
-
       var buffer = new StringBuilder();
       var sbHtml = new StringBuilder(m_HtmlStyle.TableOpen);
 
@@ -170,7 +160,6 @@ namespace CsvTools
 
       foreach (var col in visibleColumns.Values)
       {
-        Contract.Assume(col != null);
         var headerText = col.HeaderText;
         sbHtml.Append(HTMLStyle.AddTd(m_HtmlStyle.TH, headerText));
         if (!first)
@@ -203,7 +192,6 @@ namespace CsvTools
         first = true;
         foreach (var col in visibleColumns.Values)
         {
-          Contract.Assume(col != null);
           if (cancellationToken.IsCancellationRequested)
             return;
           var cell = rows[row].Cells[col.Index];
@@ -235,9 +223,6 @@ namespace CsvTools
     /// </summary>
     private static void CopyOneCellIntoClipboard([NotNull] DataGridViewCell cell)
     {
-      Contract.Requires(cell != null);
-      Contract.Requires(cell.Value != null);
-
       var dataObject = new DataObject();
       dataObject.SetData(DataFormats.Text, true, cell.Value.ToString());
       Clipboard.Clear();
@@ -263,10 +248,6 @@ namespace CsvTools
       [NotNull] DataGridViewSelectedCellCollection selectedCells,
       CancellationToken cancellationToken)
     {
-      Contract.Requires(columns != null);
-      Contract.Requires(rows != null);
-      Contract.Requires(selectedCells != null);
-
       var buffer = new StringBuilder();
       var dataObject = new DataObject();
 
@@ -280,8 +261,6 @@ namespace CsvTools
 
       foreach (DataGridViewCell cell in selectedCells)
       {
-        Contract.Assume(cell.OwningColumn != null);
-
         if (cell.OwningColumn.DisplayIndex < leftCol)
           leftCol = cell.OwningColumn.DisplayIndex;
         if (cell.OwningColumn.DisplayIndex > rightCol)
@@ -392,13 +371,9 @@ namespace CsvTools
     /// <param name="topRow">The top row.</param>
     /// <param name="bottomRow">The bottom row.</param>
     /// <param name="rows">The rows.</param>
-    /// <returns>
-    ///   <c>true</c> if it has row errors; otherwise, <c>false</c>.
-    /// </returns>
+    /// <returns><c>true</c> if it has row errors; otherwise, <c>false</c>.</returns>
     private static bool HasRowErrors(int topRow, int bottomRow, [NotNull] DataGridViewRowCollection rows)
     {
-      Contract.Requires(rows != null);
-
       var hasRowErrors = false;
       for (var row = topRow; row < bottomRow; row++)
         if (!string.IsNullOrEmpty(rows[row].ErrorText))

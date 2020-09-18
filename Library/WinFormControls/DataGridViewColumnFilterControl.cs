@@ -14,9 +14,9 @@
 
 namespace CsvTools
 {
+  using JetBrains.Annotations;
   using System;
   using System.ComponentModel;
-  using System.Diagnostics.Contracts;
   using System.Globalization;
   using System.Windows.Forms;
 
@@ -25,6 +25,7 @@ namespace CsvTools
   /// </summary>
   public partial class DataGridViewColumnFilterControl : UserControl
   {
+    [NotNull]
     private readonly ColumnFilterLogic m_DataGridViewColumnFilter;
 
     /// <summary>
@@ -39,9 +40,6 @@ namespace CsvTools
       m_DataGridViewColumnFilter.PropertyChanged += FilterLogic_PropertyChanged;
       InitializeComponent();
       lblCondition.Text = dataGridViewColumn.HeaderText;
-      Contract.Assume(dateTimePickerValue != null);
-      Contract.Assume(comboBoxOperator != null);
-      Contract.Assume(textBoxValue != null);
 
       var isDate = m_DataGridViewColumnFilter.ColumnDataType == typeof(DateTime);
 
@@ -59,14 +57,8 @@ namespace CsvTools
     ///   Gets the filter logic.
     /// </summary>
     /// <value>The filter logic.</value>
-    public ColumnFilterLogic ColumnFilterLogic
-    {
-      get
-      {
-        Contract.Ensures(Contract.Result<ColumnFilterLogic>() != null);
-        return m_DataGridViewColumnFilter;
-      }
-    }
+    [NotNull]
+    public ColumnFilterLogic ColumnFilterLogic => m_DataGridViewColumnFilter;
 
     /// <summary>
     ///   Focuses the input.

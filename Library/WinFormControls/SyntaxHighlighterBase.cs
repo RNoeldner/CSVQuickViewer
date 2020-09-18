@@ -13,18 +13,19 @@
 // */
 
 using FastColoredTextBoxNS;
+using JetBrains.Annotations;
 
 namespace CsvTools
 {
   public abstract class SyntaxHighlighterBase : SyntaxHighlighter, ISyntaxHighlighter
   {
-    public SyntaxHighlighterBase(FastColoredTextBox currentTb) : base(currentTb)
+    public SyntaxHighlighterBase([NotNull] FastColoredTextBox currentTb) : base(currentTb)
     {
     }
 
-    public abstract void Highlight(Range range);
+    public abstract void Highlight([NotNull] Range range);
 
-    public void Comment(Range range)
+    public void Comment([NotNull] Range range)
     {
       range.ClearStyle(StyleIndex.All);
       range.SetStyle(GrayStyle);

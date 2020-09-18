@@ -12,6 +12,7 @@
  *
  */
 
+using JetBrains.Annotations;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -23,9 +24,9 @@ namespace CsvTools
 {
   public static class ViewSetting
   {
-    private static ToolStripDataGridViewColumnFilter GetFilter(string dataPropertyName,
-      IList<ToolStripDataGridViewColumnFilter> columnFilters, DataGridViewColumnCollection columns,
-      Func<int, ToolStripDataGridViewColumnFilter> createFilterColumn)
+    private static ToolStripDataGridViewColumnFilter GetFilter([NotNull] string dataPropertyName,
+      [NotNull] IList<ToolStripDataGridViewColumnFilter> columnFilters, [NotNull] DataGridViewColumnCollection columns,
+      [CanBeNull] Func<int, ToolStripDataGridViewColumnFilter> createFilterColumn)
     {
       // look in already existing Filters
       foreach (var columnFilter in columnFilters)
@@ -45,10 +46,10 @@ namespace CsvTools
       return null;
     }
 
-    public static bool ReStoreViewSetting(string text, DataGridViewColumnCollection columns,
-      IList<ToolStripDataGridViewColumnFilter> columnFilters,
-      Func<int, ToolStripDataGridViewColumnFilter> createFilterColumn,
-      Action<DataGridViewColumn, ListSortDirection> doSort)
+    public static bool ReStoreViewSetting([NotNull] string text, [NotNull] DataGridViewColumnCollection columns,
+      [NotNull] IList<ToolStripDataGridViewColumnFilter> columnFilters,
+      [CanBeNull] Func<int, ToolStripDataGridViewColumnFilter> createFilterColumn,
+      [CanBeNull] Action<DataGridViewColumn, ListSortDirection> doSort)
     {
       try
       {
@@ -127,8 +128,8 @@ namespace CsvTools
       }
     }
 
-    public static string StoreViewSetting(DataGridViewColumnCollection columns,
-      ICollection<ToolStripDataGridViewColumnFilter> columnFilters, DataGridViewColumn sortedColumn,
+    public static string StoreViewSetting([NotNull] DataGridViewColumnCollection columns,
+      [NotNull] ICollection<ToolStripDataGridViewColumnFilter> columnFilters, [CanBeNull] DataGridViewColumn sortedColumn,
       SortOrder sortOrder)
     {
       if (columnFilters.Count == 0)

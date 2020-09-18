@@ -78,7 +78,7 @@ namespace CsvTools
       }
     }
 
-    public static void RunSTAThread(this Action action, int timeoutMilliseconds = 20000)
+    public static void RunSTAThread([NotNull] this Action action, int timeoutMilliseconds = 20000)
     {
       if (Thread.CurrentThread.GetApartmentState() == ApartmentState.STA)
         action.Invoke();
@@ -216,7 +216,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="uiElement">Type of the Object that will get the extension</param>
     /// <param name="action">A delegate for the action</param>
-    public static void SafeBeginInvoke(this Control uiElement, Action action)
+    public static void SafeBeginInvoke([NotNull] this Control uiElement, [NotNull] Action action)
     {
       if (uiElement == null || uiElement.IsDisposed || action == null)
         return;
@@ -231,7 +231,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="uiElement">Type of the Object that will get the extension</param>
     /// <param name="action">A delegate for the action</param>
-    public static void SafeInvoke(this Control uiElement, Action action)
+    public static void SafeInvoke([NotNull] this Control uiElement, [NotNull] Action action)
     {
       if (!uiElement.IsHandleCreated)
         return;
@@ -246,7 +246,7 @@ namespace CsvTools
     /// <param name="uiElement">Type of the Object that will get the extension</param>
     /// <param name="action">A delegate for the action</param>
     /// <param name="timeoutTicks">Timeout to finish action, default is 1/10 of a second</param>
-    public static void SafeInvokeNoHandleNeeded(this Control uiElement, Action action,
+    public static void SafeInvokeNoHandleNeeded([NotNull]this Control uiElement, [NotNull] Action action,
       long timeoutTicks = TimeSpan.TicksPerSecond / 10)
     {
       if (uiElement == null || uiElement.IsDisposed || action == null)
@@ -270,7 +270,7 @@ namespace CsvTools
     /// <param name="from">The current Form</param>
     /// <param name="ex">the Exception</param>
     /// <param name="additionalTitle">Title Bar information</param>
-    public static void ShowError(this Form from, Exception ex, string additionalTitle = "")
+    public static void ShowError([CanBeNull] this Form from, [NotNull] Exception ex, string additionalTitle = "")
     {
       if (from != null)
         Logger.Warning(ex, "Error in {form} : {message}", from.GetType().Name, ex.SourceExceptionMessage());
@@ -292,7 +292,7 @@ namespace CsvTools
 #endif
     }
 
-    public static WindowState StoreWindowState(this Form form, int customInt = int.MinValue, string customText = "")
+    public static WindowState StoreWindowState([NotNull] this Form form, int customInt = int.MinValue, string customText = "")
     {
       try
       {
@@ -332,7 +332,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="columnFormat">The column format.</param>
     /// <param name="listView">The list view.</param>
-    public static void UpdateListViewColumnFormat(this ListView listView, ICollection<Column> columnFormat)
+    public static void UpdateListViewColumnFormat(this ListView listView, [NotNull] ICollection<Column> columnFormat)
     {
       if (listView == null || listView.IsDisposed)
         return;
@@ -364,7 +364,7 @@ namespace CsvTools
     /// <param name="container">Control with validate able children</param>
     /// <param name="cancellationToken">Cancellation Token</param>
     /// <returns><c>True</c> if children where validated, <c>false</c> otherwise</returns>
-    public static async Task<bool> ValidateChildren(this ContainerControl container,
+    public static async Task<bool> ValidateChildren([NotNull] this ContainerControl container,
       CancellationToken cancellationToken)
     {
       using (var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
