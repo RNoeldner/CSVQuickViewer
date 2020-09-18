@@ -136,7 +136,7 @@ namespace CsvTools
     ///   The text with every combination of line feed replaced with <see cref="replace" />
     /// </returns>
     [NotNull]
-    public static string HandleCRLFCombinations([NotNull] string text, [NotNull] string replace = "\n")
+    public static string HandleCRLFCombinations([NotNull] this string text, [NotNull] string replace = "\n")
     {
       // Replace everything Unicode LINE SEPARATOR
       const string c_PlaceholderStr = "\u2028";
