@@ -15,7 +15,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics.Contracts;
 using System.Drawing;
 using System.Globalization;
 using System.Linq;
@@ -42,9 +41,7 @@ namespace CsvTools
     /// <summary>
     ///   Raises Event
     /// </summary>
-    /// <param name="e">
-    ///   A <see cref="TreeViewEventArgs" /> that contains the event data.
-    /// </param>
+    /// <param name="e">A <see cref="TreeViewEventArgs" /> that contains the event data.</param>
     protected override void OnAfterSelect(TreeViewEventArgs e)
     {
       if (e.Node == null)
@@ -78,7 +75,6 @@ namespace CsvTools
           var myQueue = new List<TreeNode>();
 
           var uppernode = m_FirstNode;
-          Contract.Assume(m_FirstNode != null);
 
           var bottomnode = e.Node;
 
@@ -173,9 +169,7 @@ namespace CsvTools
     /// <summary>
     ///   Raises event.
     /// </summary>
-    /// <param name="e">
-    ///   A <see cref="TreeViewCancelEventArgs" /> that contains the event data.
-    /// </param>
+    /// <param name="e">A <see cref="TreeViewCancelEventArgs" /> that contains the event data.</param>
     protected override void OnBeforeSelect(TreeViewCancelEventArgs e)
     {
       base.OnBeforeSelect(e);
@@ -205,9 +199,7 @@ namespace CsvTools
     /// <summary>
     ///   Raises event.
     /// </summary>
-    /// <param name="e">
-    ///   A <see cref="KeyEventArgs" /> that contains the event data.
-    /// </param>
+    /// <param name="e">A <see cref="KeyEventArgs" /> that contains the event data.</param>
     protected override void OnKeyDown(KeyEventArgs e)
     {
       base.OnKeyDown(e);

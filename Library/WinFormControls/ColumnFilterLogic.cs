@@ -14,11 +14,11 @@
 
 namespace CsvTools
 {
+  using JetBrains.Annotations;
   using System;
   using System.Collections.Generic;
   using System.ComponentModel;
   using System.Diagnostics;
-  using System.Diagnostics.Contracts;
   using System.Globalization;
   using System.Text;
 
@@ -103,20 +103,26 @@ namespace CsvTools
     /// </summary>
     private bool m_Active;
 
+    [NotNull]
     private string m_DataPropertyName;
+
+    [NotNull]
     private string m_DataPropertyNameEscape;
 
     /// <summary>
     ///   The m_ filter expression
     /// </summary>
+    [NotNull]
     private string m_FilterExpressionOperator = string.Empty;
 
+    [NotNull]
     private string m_FilterExpressionValue = string.Empty;
 
     private string m_Operator = c_OperatorEquals;
 
     private DateTime m_ValueDateTime;
 
+    [NotNull]
     private string m_ValueText = string.Empty;
 
     /// <summary>
@@ -166,15 +172,9 @@ namespace CsvTools
     ///   Gets the type of the column data.
     /// </summary>
     /// <value>The type of the column data.</value>
-    public virtual Type ColumnDataType
-    {
-      get
-      {
-        Contract.Ensures(Contract.Result<Type>() != null);
-        return m_ColumnDataType;
-      }
-    }
+    public virtual Type ColumnDataType => m_ColumnDataType;
 
+    [NotNull]
     public string DataPropertyName
     {
       get => m_DataPropertyName;
@@ -202,7 +202,6 @@ namespace CsvTools
     {
       get
       {
-        Contract.Ensures(Contract.Result<string>() != null);
         if (m_FilterExpressionOperator.Length > 0 && m_Operator != c_OperatorIsNotNull
                                                   && m_FilterExpressionValue.Length > 0)
           return $"{m_FilterExpressionOperator} AND {m_FilterExpressionValue}";
@@ -214,14 +213,12 @@ namespace CsvTools
     ///   Gets or sets the operator, setting the operator will build the filter
     /// </summary>
     /// <value>The operator.</value>
+    [NotNull]
     public virtual string Operator
     {
       get => m_Operator;
       set
       {
-        Contract.Ensures(m_Operator != null);
-        Contract.Assume(m_Operator != null);
-
         var newVal = value ?? string.Empty;
         if (m_Operator.Equals(newVal, StringComparison.Ordinal)) return;
         m_Operator = newVal;
@@ -250,14 +247,12 @@ namespace CsvTools
     ///   Gets or sets the value text.
     /// </summary>
     /// <value>The value text.</value>
+    [NotNull]
     public virtual string ValueText
     {
       get => m_ValueText;
       set
       {
-        Contract.Ensures(m_ValueText != null);
-        Contract.Assume(m_ValueText != null);
-
         var newVal = (value ?? string.Empty).Trim();
         if (m_ValueText.Equals(newVal, StringComparison.Ordinal))
           return;
@@ -351,6 +346,7 @@ namespace CsvTools
     /// <param name="value">The value.</param>
     /// <param name="targetType">Type of the target.</param>
     /// <returns>A string with the formatted value</returns>
+    [NotNull]
     private static string FormatValue(string value, Type targetType)
     {
       if (string.IsNullOrEmpty(value))
@@ -413,9 +409,9 @@ namespace CsvTools
     /// </summary>
     /// <param name="inputValue">The input.</param>
     /// <returns></returns>
+    [NotNull]
     private static string StringEscapeLike(string inputValue)
     {
-      Contract.Ensures(Contract.Result<string>() != null);
       if (string.IsNullOrEmpty(inputValue))
         return string.Empty;
       var returnVal = new StringBuilder(inputValue.Length);
@@ -459,9 +455,9 @@ namespace CsvTools
     ///   Builds the filter expression for this column for Operator based filter
     /// </summary>
     /// <returns>a sql statement</returns>
+    [NotNull]
     private string BuildFilterExpressionOperator()
     {
-      Contract.Ensures(Contract.Result<string>() != null);
       switch (m_Operator)
       {
         case c_OperatorIsNull:
@@ -584,9 +580,9 @@ namespace CsvTools
     ///   Builds the filter expression for this column for value based filter
     /// </summary>
     /// <returns>a sql statement</returns>
+    [NotNull]
     private string BuildFilterExpressionValues()
     {
-      Contract.Ensures(Contract.Result<string>() != null);
       var sql = new StringBuilder();
       var counter = 0;
       foreach (var value in ValueClusterCollection.GetActiveValueCluster())

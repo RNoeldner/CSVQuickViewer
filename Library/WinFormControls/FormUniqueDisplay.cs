@@ -14,11 +14,11 @@
 
 namespace CsvTools
 {
+  using JetBrains.Annotations;
   using System;
   using System.Collections.Generic;
   using System.ComponentModel;
   using System.Data;
-  using System.Diagnostics.Contracts;
   using System.Threading;
   using System.Windows.Forms;
 
@@ -42,10 +42,8 @@ namespace CsvTools
     /// <param name="dataTable">The empty data table.</param>
     /// <param name="dataRows">The filtered rows.</param>
     /// <param name="initialColumn">The initial column to use</param>
-    public FormUniqueDisplay(DataTable dataTable, DataRow[] dataRows, string initialColumn)
+    public FormUniqueDisplay([NotNull] DataTable dataTable, [NotNull]DataRow[] dataRows, string initialColumn)
     {
-      Contract.Requires(dataTable != null);
-      Contract.Requires(dataRows != null);
       m_DataTable = dataTable;
       m_DataRow = dataRows;
       InitializeComponent();

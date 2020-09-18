@@ -14,6 +14,7 @@
 
 namespace CsvTools
 {
+  using JetBrains.Annotations;
   using System;
 
   /// <summary>
@@ -26,10 +27,10 @@ namespace CsvTools
     /// </summary>
     /// <param name="display">The text displayed for the value.</param>
     /// <param name="condition">teh sql condition to be applied</param>
-    /// <param name="sort">A text used for the  order</param>
+    /// <param name="sort">A text used for the order</param>
     /// <param name="count">Number of records that do have this value</param>
     /// <param name="active">Flag indicating if the filter for the value is active</param>
-    public ValueCluster(string display, string condition, string sort, int count, bool active = false)
+    public ValueCluster([NotNull] string display, [NotNull] string condition, [CanBeNull] string sort, int count, bool active = false)
     {
       Display = display;
       SQLCondition = condition;
@@ -43,9 +44,7 @@ namespace CsvTools
     /// <summary>
     ///   Gets or sets a value indicating whether this <see cref="ValueCluster" /> is active.
     /// </summary>
-    /// <value>
-    ///   <c>true</c> if active; otherwise, <c>false</c>.
-    /// </value>
+    /// <value><c>true</c> if active; otherwise, <c>false</c>.</value>
     public bool Active
     {
       get;
@@ -55,9 +54,7 @@ namespace CsvTools
     /// <summary>
     ///   Gets or sets the number of records that this cluster contains.
     /// </summary>
-    /// <value>
-    ///   The count.
-    /// </value>
+    /// <value>The count.</value>
     public int Count
     {
       get;
@@ -66,9 +63,8 @@ namespace CsvTools
     /// <summary>
     ///   Gets or sets the displayed text
     /// </summary>
-    /// <value>
-    ///   The display.
-    /// </value>
+    /// <value>The display.</value>
+    [NotNull]
     public string Display
     {
       get;
@@ -77,9 +73,8 @@ namespace CsvTools
     /// <summary>
     ///   Gets or sets the displayed text
     /// </summary>
-    /// <value>
-    ///   The display.
-    /// </value>
+    /// <value>The display.</value>
+    [NotNull]
     public string Sort
     {
       get;
@@ -88,19 +83,20 @@ namespace CsvTools
     /// <summary>
     ///   Gets or sets the SQL condition to get a list of the records
     /// </summary>
-    /// <value>
-    ///   The SQL condition.
-    /// </value>
+    /// <value>The SQL condition.</value>
+    [NotNull]
     public string SQLCondition
     {
       get;
     }
 
-    /// <summary>Indicates whether the current object is equal to another object of the same type.</summary>
+    /// <summary>
+    ///   Indicates whether the current object is equal to another object of the same type.
+    /// </summary>
     /// <param name="other">An object to compare with this object.</param>
     /// <returns>
-    ///   <see langword="true" /> if the current object is equal to the <paramref name="other" /> parameter; otherwise,
-    ///   <see langword="false" />.
+    ///   <see langword="true" /> if the current object is equal to the <paramref name="other" />
+    ///   parameter; otherwise, <see langword="false" />.
     /// </returns>
     public bool Equals(ValueCluster other)
     {
@@ -114,10 +110,13 @@ namespace CsvTools
              && Count == other.Count && Active == other.Active;
     }
 
-    /// <summary>Determines whether the specified object is equal to the current object.</summary>
-    /// <param name="obj">The object to compare with the current object. </param>
+    /// <summary>
+    ///   Determines whether the specified object is equal to the current object.
+    /// </summary>
+    /// <param name="obj">The object to compare with the current object.</param>
     /// <returns>
-    ///   <see langword="true" /> if the specified object  is equal to the current object; otherwise, <see langword="false" />.
+    ///   <see langword="true" /> if the specified object is equal to the current object; otherwise,
+    ///   <see langword="false" />.
     /// </returns>
     public override bool Equals(object obj)
     {

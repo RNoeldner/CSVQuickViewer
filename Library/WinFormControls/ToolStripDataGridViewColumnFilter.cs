@@ -14,7 +14,7 @@
 
 namespace CsvTools
 {
-  using System.Diagnostics.Contracts;
+  using JetBrains.Annotations;
   using System.Windows.Forms;
 
   /// <summary>
@@ -30,6 +30,7 @@ namespace CsvTools
     })
     {
     }
+
     /// <summary>
     ///   Initializes a new instance of the <see cref="ToolStripDataGridViewColumnFilter" /> class.
     /// </summary>
@@ -42,33 +43,15 @@ namespace CsvTools
     /// <summary>
     ///   Gets the data grid view column filter.
     /// </summary>
-    /// <value>
-    ///   The data grid view column filter.
-    /// </value>
-    public ColumnFilterLogic ColumnFilterLogic
-    {
-      get
-      {
-        Contract.Requires(Control != null);
-        Contract.Ensures(Contract.Result<ColumnFilterLogic>() != null);
-        return ((DataGridViewColumnFilterControl) Control).ColumnFilterLogic;
-      }
-    }
+    /// <value>The data grid view column filter.</value>
+    [NotNull]
+    public ColumnFilterLogic ColumnFilterLogic => ((DataGridViewColumnFilterControl) Control).ColumnFilterLogic;
 
     /// <summary>
     ///   Gets the value cluster collection.
     /// </summary>
-    /// <value>
-    ///   The value cluster collection.
-    /// </value>
-    public ValueClusterCollection ValueClusterCollection
-    {
-      get
-      {
-        Contract.Requires(Control != null);
-        Contract.Ensures(Contract.Result<ValueClusterCollection>() != null);
-        return ((DataGridViewColumnFilterControl) Control).ColumnFilterLogic.ValueClusterCollection;
-      }
-    }
+    /// <value>The value cluster collection.</value>
+    [NotNull]
+    public ValueClusterCollection ValueClusterCollection => ((DataGridViewColumnFilterControl) Control).ColumnFilterLogic.ValueClusterCollection;
   }
 }

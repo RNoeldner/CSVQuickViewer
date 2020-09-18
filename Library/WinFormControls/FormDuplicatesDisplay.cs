@@ -14,11 +14,11 @@
 
 namespace CsvTools
 {
+  using JetBrains.Annotations;
   using System;
   using System.Collections.Generic;
   using System.ComponentModel;
   using System.Data;
-  using System.Diagnostics.Contracts;
   using System.Threading;
   using System.Windows.Forms;
 
@@ -45,10 +45,8 @@ namespace CsvTools
     /// <param name="dataTable">The data table.</param>
     /// <param name="dataRows">The filtered rows.</param>
     /// <param name="initialColumn">The starting column</param>
-    public FormDuplicatesDisplay(DataTable dataTable, DataRow[] dataRows, string initialColumn)
+    public FormDuplicatesDisplay([NotNull] DataTable dataTable, [NotNull] DataRow[] dataRows, string initialColumn)
     {
-      Contract.Requires(dataTable != null);
-      Contract.Requires(dataRows != null);
       m_DataTable = dataTable;
       m_DataRow = dataRows;
       m_InitialColumn = initialColumn;
@@ -130,8 +128,7 @@ namespace CsvTools
 
             var id = m_DataRow[rowIndex][dataColumnID.Ordinal].ToString().Trim();
 
-            // if (id != null)
-            // id = id.Trim();
+            // if (id != null) id = id.Trim();
             if (ignoreNull && string.IsNullOrEmpty(id))
               continue;
             if (dictIDToRow.TryGetValue(id, out var duplicateRowIndex))

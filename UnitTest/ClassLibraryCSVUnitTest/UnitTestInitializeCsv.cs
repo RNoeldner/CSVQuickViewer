@@ -14,7 +14,6 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Diagnostics.Contracts;
 using System.IO;
 using System.Net;
 using System.Threading;
@@ -39,7 +38,6 @@ namespace CsvTools.Tests
     {
       MimicSql();
       Token = context.CancellationTokenSource.Token;
-      Contract.ContractFailed += (sender, e) => e.SetHandled();
 
       ApplicationDirectory = ApplicationSetting.RootFolder + @"\TestFiles";
 
