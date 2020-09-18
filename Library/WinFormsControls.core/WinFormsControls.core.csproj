@@ -3,6 +3,7 @@
   <PropertyGroup>
     <UseWindowsForms>true</UseWindowsForms>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\WinFormControls\**\*.cs" />
