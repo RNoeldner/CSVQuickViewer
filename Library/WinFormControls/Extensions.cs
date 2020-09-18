@@ -29,7 +29,7 @@ namespace CsvTools
   /// </summary>
   public static class Extensions
   {
-    public static void RunWithHourglass(this Control control, [NotNull] Action action)
+    public static void RunWithHourglass([NotNull] this Control control, [NotNull] Action action)
     {
       var oldCursor = Cursor.Current == Cursors.WaitCursor ? Cursors.WaitCursor : Cursors.Default;
       Cursor.Current = Cursors.WaitCursor;
@@ -55,7 +55,7 @@ namespace CsvTools
       }
     }
 
-    public static async Task RunWithHourglassAsync(this Control control, [NotNull] Func<Task> action)
+    public static async Task RunWithHourglassAsync([NotNull] this Control control, [NotNull] Func<Task> action)
     {
       var oldCursor = Cursor.Current == Cursors.WaitCursor ? Cursors.WaitCursor : Cursors.Default;
       Cursor.Current = Cursors.WaitCursor;
@@ -100,7 +100,7 @@ namespace CsvTools
     /// <param name="frm">The calling form</param>
     /// <param name="sender">The sender.</param>
     /// <param name="e">The <see cref="KeyEventArgs" /> instance containing the event data.</param>
-    public static void CtrlA(this Form frm, object sender, KeyEventArgs e)
+    public static void CtrlA([NotNull] this Form frm, [NotNull] object sender, [CanBeNull] KeyEventArgs e)
     {
       if (e == null || !e.Control || e.KeyCode.ToString() != "A")
         return;
@@ -134,6 +134,7 @@ namespace CsvTools
     /// <param name="withLogger">if set to <c>true</c> [with logger].</param>
     /// <param name="cancellationToken">A Cancellation token</param>
     /// <returns>A process display, if the stetting want a process</returns>
+    [NotNull]
     public static IProcessDisplay GetProcessDisplay(
       [NotNull] this IFileSetting fileSetting,
       [CanBeNull] Form owner,
@@ -366,7 +367,7 @@ namespace CsvTools
     public static async Task<bool> ValidateChildren(this ContainerControl container,
       CancellationToken cancellationToken)
     {
-      using (var cts = new CancellationTokenSource())
+      using (var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
       {
         var task = Task.Run(container.ValidateChildren, cts.Token);
         var resultTask = await Task.WhenAny(task, Task.Delay(TimeSpan.FromSeconds(1), cts.Token));
