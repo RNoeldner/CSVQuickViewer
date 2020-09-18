@@ -251,7 +251,7 @@ namespace CsvTools
       }
       catch (Exception)
       {
-        await CloseAsync();
+        Close();
         throw;
       }
     }
