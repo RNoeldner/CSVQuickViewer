@@ -44,7 +44,7 @@ namespace CsvTools
         m_CommentRegex = new Regex($"\\s*{comment}.*$", RegexOptions.Multiline | RegexOptions.Compiled);
     }
 
-    public override void Highlight(Range range)
+    public override void Highlight(FastColoredTextBoxNS.Range range)
     {
       range.ClearStyle(StyleIndex.All);
       range.SetStyle(BlueStyle, m_DelimiterRegex);
@@ -66,7 +66,7 @@ namespace CsvTools
         m_BackGround = backGround;
       }
 
-      public override void Draw(Graphics gr, Point position, Range range)
+      public override void Draw(Graphics gr, Point position, FastColoredTextBoxNS.Range range)
       {
         //get size of rectangle
         var size = GetSizeOfRange(range);
@@ -100,7 +100,7 @@ namespace CsvTools
         m_BackGround = backGround;
       }
 
-      public override void Draw(Graphics gr, Point position, Range range)
+      public override void Draw(Graphics gr, Point position, FastColoredTextBoxNS.Range range)
       {
         //get size of rectangle
         var size = GetSizeOfRange(range);
