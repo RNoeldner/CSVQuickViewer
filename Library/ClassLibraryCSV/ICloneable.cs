@@ -18,7 +18,7 @@ namespace CsvTools
   ///   A generic interface allowing to do copies of an instance
   /// </summary>
   /// <typeparam name="T">Type</typeparam>
-  public interface ICloneable<T>
+  public interface ICloneable<out T>
   {
     /// <summary>
     ///   Clones this instance into a new instance of the same type

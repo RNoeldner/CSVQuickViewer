@@ -71,7 +71,7 @@ namespace CsvTools
     /// <param name="key"></param>
     /// <param name="value"></param>
     /// <returns>true if successfully added, false if either element are already in the dictionary</returns>
-    public bool TryAdd([NotNull] TKey key, [NotNull] TValue value)
+    public new bool TryAdd([NotNull] TKey key, [NotNull] TValue value)
     {
       if (ContainsKey(key) || m_SecondToFirst.ContainsKey(value))
         return false;
