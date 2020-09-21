@@ -304,32 +304,6 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void CsvRichTextBox()
-    {
-      using (var ctrl = new CSVRichTextBox())
-      {
-        ctrl.Text = @"This is a Test";
-        Assert.AreEqual("This is a Test", ctrl.Text);
-
-        ctrl.Delimiter = ';';
-        Assert.AreEqual(';', ctrl.Delimiter);
-
-        ctrl.DisplaySpace = true;
-        Assert.IsTrue(ctrl.DisplaySpace);
-        ctrl.DisplaySpace = false;
-        Assert.IsFalse(ctrl.DisplaySpace);
-
-        ctrl.Escape = '#';
-        Assert.AreEqual('#', ctrl.Escape);
-
-        ctrl.Quote = '?';
-        Assert.AreEqual('?', ctrl.Quote);
-
-        UnitTestWinFormHelper.ShowControl(ctrl);
-      }
-    }
-
-    [TestMethod]
     public void SearchShow() => UnitTestWinFormHelper.ShowControl(new Search());
 
     [TestMethod]

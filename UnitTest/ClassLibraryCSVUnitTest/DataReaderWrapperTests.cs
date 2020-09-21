@@ -34,7 +34,6 @@ namespace CsvTools.Tests
       }
     }
 
-
     [TestMethod()]
     public async Task GetIntegerTest()
     {
@@ -82,7 +81,6 @@ namespace CsvTools.Tests
       }
     }
 
-
     [TestMethod()]
     public async Task GetDateTimeTest()
     {
@@ -106,13 +104,12 @@ namespace CsvTools.Tests
         var wrapper = new DataReaderWrapper(reader);
         await wrapper.OpenAsync(process.CancellationToken);
         await wrapper.ReadAsync(process.CancellationToken);
-        // DateTime	Integer	Double	Numeric	String	
+        // DateTime Integer Double Numeric String
         Assert.AreEqual("DateTime", wrapper.GetName(0));
         Assert.AreEqual("String", wrapper.GetName(4));
         Assert.AreEqual("TZ", wrapper.GetName(8));
       }
     }
-
 
     [TestMethod()]
     public async Task GetOrdinalTest()
@@ -123,7 +120,7 @@ namespace CsvTools.Tests
         var wrapper = new DataReaderWrapper(reader);
         await wrapper.OpenAsync(process.CancellationToken);
         await wrapper.ReadAsync(process.CancellationToken);
-        // DateTime	Integer	Double	Numeric	String	
+        // DateTime Integer Double Numeric String
         Assert.AreEqual(0, wrapper.GetOrdinal("DateTime"));
         Assert.AreEqual(4, wrapper.GetOrdinal("String"));
         Assert.AreEqual(8, wrapper.GetOrdinal("TZ"));
@@ -157,9 +154,8 @@ namespace CsvTools.Tests
         var wrapper = new DataReaderWrapper(reader);
         await wrapper.OpenAsync(process.CancellationToken);
         await wrapper.ReadAsync(process.CancellationToken);
-
-        Assert.IsInstanceOfType(1L, wrapper.GetFieldType(1));
-        Assert.AreEqual(nameof(Int64), wrapper.GetDataTypeName(1));
+        // depending on type this might be int32 or int64
+        Assert.IsTrue(nameof(Int64)== wrapper.GetDataTypeName(1) || nameof(Int32)== wrapper.GetDataTypeName(1));
       }
     }
 

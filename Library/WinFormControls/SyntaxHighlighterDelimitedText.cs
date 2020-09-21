@@ -55,7 +55,7 @@ namespace CsvTools
       range.SetStyle(m_Tab, m_TabRegex);
     }
 
-    private class SyntaxHighlightStyleStyleSpace : Style
+    internal class SyntaxHighlightStyleStyleSpace : Style
     {
       private readonly Brush m_BackGround;
       private readonly Brush m_ForeGround;
@@ -89,7 +89,7 @@ namespace CsvTools
       }
     }
 
-    private class SyntaxHighlightStyleTab : Style
+    internal class SyntaxHighlightStyleTab : Style
     {
       private readonly Brush m_BackGround;
       private readonly Pen m_ForeGround;
@@ -116,7 +116,7 @@ namespace CsvTools
           var rect2 = new Rectangle(position, new Size(sizeChar, height));
 
           // draw an arrow
-          var point2 = new Point((rect2.X + sizeChar) - 2, rect2.Y + (height / 2));
+          var point2 = new Point((rect2.X + sizeChar) - 2, rect2.Y + (height / 2)-1);
 
           gr.DrawLine(m_ForeGround, new Point(rect2.X + 1, point2.Y), point2);
           gr.DrawLine(m_ForeGround, new Point(rect2.X + (sizeChar / 2), rect2.Y + (height / 4)), point2);

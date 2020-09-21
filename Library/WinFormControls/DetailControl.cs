@@ -14,6 +14,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
@@ -55,9 +56,6 @@ namespace CsvTools
     private FillGuessSettings m_FillGuessSettings;
 
     private FilterDataTable m_FilterDataTable;
-    private bool m_HasButtonAsText;
-
-    private bool m_HasButtonShowSource;
 
     private FormHierarchyDisplay m_HierarchyDisplay;
 
@@ -70,10 +68,6 @@ namespace CsvTools
     private bool m_ShowButtons = true;
 
     private bool m_ShowFilter = true;
-
-    private bool m_ShowSettingsButtons;
-
-    private ToolStripButton m_ToolStripButtonAsText;
 
     private ToolStripButton m_ToolStripButtonColumnLength;
 
@@ -88,10 +82,6 @@ namespace CsvTools
     private ToolStripButton m_ToolStripButtonMoveNextItem;
 
     private ToolStripButton m_ToolStripButtonMovePreviousItem;
-
-    private ToolStripButton m_ToolStripButtonSettings;
-
-    private ToolStripButton m_ToolStripButtonSource;
 
     private ToolStripButton m_ToolStripButtonStore;
 
@@ -108,14 +98,31 @@ namespace CsvTools
     // private ToolStripTextBox m_ToolStripTextBoxRecSize;
     private ToolStrip m_ToolStripTop;
 
+    private readonly ObservableCollection<ToolStripItem> m_ToolStripItems = new ObservableCollection<ToolStripItem>();
+
+    public void AddToolStripItem(int index, ToolStripItem item)
+    {
+      if (index>=m_ToolStripItems.Count)
+        m_ToolStripItems.Add(item);
+      else
+        m_ToolStripItems.Insert(index, item);
+    }
+
     /// <summary>
     ///   Initializes a new instance of the <see cref="DetailControl" /> class.
     /// </summary>
     public DetailControl()
     {
       InitializeComponent();
+      m_ToolStripItems.Add(m_ToolStripComboBoxFilterType);
+      m_ToolStripItems.Add(m_ToolStripButtonUniqueValues);
+      m_ToolStripItems.Add(m_ToolStripButtonDuplicates);
+      m_ToolStripItems.Add(m_ToolStripButtonHierarchy);
+      m_ToolStripItems.Add(m_ToolStripButtonColumnLength);
+      m_ToolStripItems.Add(m_ToolStripButtonStore);
+
       FilteredDataGridView.DataViewChanged += DataViewChanged;
-      SetButtonVisibility();
+      m_ToolStripItems.CollectionChanged += (sender, e) => MoveMenu();
       MoveMenu();
     }
 
@@ -131,10 +138,10 @@ namespace CsvTools
       set => FilteredDataGridView.AlternatingRowsDefaultCellStyle = value;
     }
 
-    public string ButtonAsTextCaption
-    {
-      set => m_ToolStripButtonAsText.Text = value;
-    }
+    //public string ButtonAsTextCaption
+    //{
+    //  set => m_ToolStripButtonAsText.Text = value;
+    //}
 
     public CancellationToken CancellationToken
     {
@@ -296,73 +303,9 @@ namespace CsvTools
         // in case we do not have unique names and the table is not loaded do nothing
         if ((value == null || !value.Any()) && m_FilterDataTable == null)
           return;
-
         if (m_FilterDataTable == null) return;
         m_FilterDataTable.WaitCompeteFilter(5);
         m_FilterDataTable.UniqueFieldName = value;
-      }
-    }
-
-    public event EventHandler ButtonAsText
-    {
-      add
-      {
-        m_ToolStripButtonAsText.Click += value;
-        m_HasButtonAsText = true;
-        SetButtonVisibility();
-      }
-
-      remove
-      {
-        m_ToolStripButtonAsText.Click -= value;
-        m_HasButtonAsText = false;
-        SetButtonVisibility();
-      }
-    }
-
-    /// <summary>
-    ///   Handled the click of the ShowSource Button
-    /// </summary>
-    public event EventHandler ButtonShowSource
-    {
-      add
-      {
-        m_ToolStripButtonSource.Click += value;
-        m_HasButtonShowSource = true;
-        SetButtonVisibility();
-      }
-
-      remove
-      {
-        m_ToolStripButtonSource.Click -= value;
-        m_HasButtonShowSource = false;
-        SetButtonVisibility();
-      }
-    }
-
-    /// <summary>
-    ///   Event handler called as the used clicks on settings
-    /// </summary>
-    public event EventHandler OnSettingsClick
-    {
-#pragma warning disable CA1030 // Use events where appropriate
-      add
-#pragma warning restore CA1030
-      {
-        // Use events where appropriate
-        m_ToolStripButtonSettings.Click += value;
-        m_ShowSettingsButtons = true;
-        SetButtonVisibility();
-      }
-
-#pragma warning disable CA1030 // Use events where appropriate
-      remove
-#pragma warning restore CA1030
-      {
-        // Use events where appropriate
-        m_ToolStripButtonSettings.Click -= value;
-        m_ShowSettingsButtons = false;
-        SetButtonVisibility();
       }
     }
 
@@ -371,72 +314,27 @@ namespace CsvTools
     /// </summary>
     public void MoveMenu()
     {
-      // Move everything down to bindingNavigator
-      if (ApplicationSetting.MenuDown && m_ToolStripTop.Items.Contains(m_ToolStripButtonSettings))
+      var source = (ApplicationSetting.MenuDown) ? m_ToolStripTop : m_BindingNavigator;
+      var taget = (ApplicationSetting.MenuDown) ? m_BindingNavigator : m_ToolStripTop;
+      taget.SuspendLayout();
+      source.SuspendLayout();
+      foreach (var item in m_ToolStripItems)
       {
-        m_ToolStripTop.Items.Remove(m_ToolStripButtonSettings);
-        m_BindingNavigator.Items.Add(m_ToolStripButtonSettings);
-        m_ToolStripButtonSettings.DisplayStyle = ToolStripItemDisplayStyle.Image;
-        m_ToolStripTop.Items.Remove(m_ToolStripComboBoxFilterType);
-        m_BindingNavigator.Items.Add(m_ToolStripComboBoxFilterType);
-        m_ToolStripTop.Items.Remove(m_ToolStripButtonUniqueValues);
-        m_BindingNavigator.Items.Add(m_ToolStripButtonUniqueValues);
-        m_ToolStripButtonUniqueValues.DisplayStyle = ToolStripItemDisplayStyle.Image;
-        m_ToolStripTop.Items.Remove(m_ToolStripButtonDuplicates);
-        m_BindingNavigator.Items.Add(m_ToolStripButtonDuplicates);
-        m_ToolStripButtonDuplicates.DisplayStyle = ToolStripItemDisplayStyle.Image;
-        m_ToolStripTop.Items.Remove(m_ToolStripButtonHierarchy);
-        m_BindingNavigator.Items.Add(m_ToolStripButtonHierarchy);
-        m_ToolStripButtonHierarchy.DisplayStyle = ToolStripItemDisplayStyle.Image;
-        m_ToolStripTop.Items.Remove(m_ToolStripButtonColumnLength);
-        m_BindingNavigator.Items.Add(m_ToolStripButtonColumnLength);
-        m_ToolStripButtonColumnLength.DisplayStyle = ToolStripItemDisplayStyle.Image;
-        m_ToolStripTop.Items.Remove(m_ToolStripButtonSource);
-        m_BindingNavigator.Items.Add(m_ToolStripButtonSource);
-        m_ToolStripButtonSource.DisplayStyle = ToolStripItemDisplayStyle.Image;
-        m_ToolStripTop.Items.Remove(m_ToolStripButtonAsText);
-        m_BindingNavigator.Items.Add(m_ToolStripButtonAsText);
-        m_ToolStripButtonAsText.DisplayStyle = ToolStripItemDisplayStyle.Image;
-        m_ToolStripTop.Items.Remove(m_ToolStripButtonStore);
-        m_BindingNavigator.Items.Add(m_ToolStripButtonStore);
-        m_ToolStripButtonStore.DisplayStyle = ToolStripItemDisplayStyle.Image;
-        m_ToolStripContainer.TopToolStripPanelVisible = false;
+        item.DisplayStyle = (ApplicationSetting.MenuDown) ? ToolStripItemDisplayStyle.Image : ToolStripItemDisplayStyle.ImageAndText;
+        if (source.Items.Contains(item))
+          source.Items.Remove(item);
+        if (taget.Items.Contains(item))
+          taget.Items.Remove(item);
       }
-
-      if (!ApplicationSetting.MenuDown && m_BindingNavigator.Items.Contains(m_ToolStripButtonSettings))
+      foreach (var item in m_ToolStripItems)
       {
-        m_BindingNavigator.Items.Remove(m_ToolStripButtonSettings);
-        m_ToolStripTop.Items.Add(m_ToolStripButtonSettings);
-        m_ToolStripButtonSettings.DisplayStyle = ToolStripItemDisplayStyle.ImageAndText;
-        m_BindingNavigator.Items.Remove(m_ToolStripComboBoxFilterType);
-        m_ToolStripTop.Items.Add(m_ToolStripComboBoxFilterType);
-        m_BindingNavigator.Items.Remove(m_ToolStripButtonUniqueValues);
-        m_ToolStripTop.Items.Add(m_ToolStripButtonUniqueValues);
-        m_ToolStripButtonUniqueValues.DisplayStyle = ToolStripItemDisplayStyle.ImageAndText;
-        m_BindingNavigator.Items.Remove(m_ToolStripButtonDuplicates);
-        m_ToolStripTop.Items.Add(m_ToolStripButtonDuplicates);
-        m_ToolStripButtonDuplicates.DisplayStyle = ToolStripItemDisplayStyle.ImageAndText;
-        m_BindingNavigator.Items.Remove(m_ToolStripButtonHierarchy);
-        m_ToolStripTop.Items.Add(m_ToolStripButtonHierarchy);
-        m_ToolStripButtonHierarchy.DisplayStyle = ToolStripItemDisplayStyle.ImageAndText;
-        m_BindingNavigator.Items.Remove(m_ToolStripButtonColumnLength);
-        m_ToolStripTop.Items.Add(m_ToolStripButtonColumnLength);
-        m_ToolStripButtonColumnLength.DisplayStyle = ToolStripItemDisplayStyle.ImageAndText;
-        m_BindingNavigator.Items.Remove(m_ToolStripButtonSource);
-        m_ToolStripTop.Items.Add(m_ToolStripButtonSource);
-        m_ToolStripButtonSource.DisplayStyle = ToolStripItemDisplayStyle.ImageAndText;
-        m_BindingNavigator.Items.Remove(m_ToolStripButtonAsText);
-        m_ToolStripTop.Items.Add(m_ToolStripButtonAsText);
-        m_ToolStripButtonAsText.DisplayStyle = ToolStripItemDisplayStyle.ImageAndText;
-        m_BindingNavigator.Items.Remove(m_ToolStripButtonStore);
-        m_ToolStripTop.Items.Add(m_ToolStripButtonStore);
-        m_ToolStripButtonStore.DisplayStyle = ToolStripItemDisplayStyle.ImageAndText;
-        m_ToolStripContainer.TopToolStripPanelVisible = true;
+        item.DisplayStyle = (ApplicationSetting.MenuDown) ? ToolStripItemDisplayStyle.Image : ToolStripItemDisplayStyle.ImageAndText;
+        taget.Items.Add(item);
       }
-
+      source.ResumeLayout(true);
+      taget.ResumeLayout(true);
+      m_ToolStripContainer.TopToolStripPanelVisible = !ApplicationSetting.MenuDown;
       SetButtonVisibility();
-
-      // toolStripContainer.TopToolStripPanel.Visible = !ApplicationSetting.MenuDown;
     }
 
     /// <summary>
@@ -805,13 +703,12 @@ namespace CsvTools
         new System.Windows.Forms.DataGridViewCellStyle();
       this.m_ToolStripTop = new System.Windows.Forms.ToolStrip();
       this.m_ToolStripComboBoxFilterType = new System.Windows.Forms.ToolStripComboBox();
-      this.m_ToolStripButtonSettings = new System.Windows.Forms.ToolStripButton();
+
       this.m_ToolStripButtonUniqueValues = new System.Windows.Forms.ToolStripButton();
       this.m_ToolStripButtonColumnLength = new System.Windows.Forms.ToolStripButton();
       this.m_ToolStripButtonDuplicates = new System.Windows.Forms.ToolStripButton();
       this.m_ToolStripButtonHierarchy = new System.Windows.Forms.ToolStripButton();
-      this.m_ToolStripButtonSource = new System.Windows.Forms.ToolStripButton();
-      this.m_ToolStripButtonAsText = new System.Windows.Forms.ToolStripButton();
+      //this.m_ToolStripButtonAsText = new System.Windows.Forms.ToolStripButton();
       this.m_ToolStripButtonStore = new System.Windows.Forms.ToolStripButton();
       this.m_ToolStripContainer = new System.Windows.Forms.ToolStripContainer();
       this.m_BindingNavigator = new System.Windows.Forms.BindingNavigator(this.components);
@@ -840,9 +737,8 @@ namespace CsvTools
       this.m_ToolStripTop.ImageScalingSize = new System.Drawing.Size(20, 20);
       this.m_ToolStripTop.Items.AddRange(new System.Windows.Forms.ToolStripItem[]
       {
-        this.m_ToolStripComboBoxFilterType, this.m_ToolStripButtonSettings, this.m_ToolStripButtonUniqueValues,
-        this.m_ToolStripButtonColumnLength, this.m_ToolStripButtonDuplicates, this.m_ToolStripButtonHierarchy,
-        this.m_ToolStripButtonSource, this.m_ToolStripButtonAsText, this.m_ToolStripButtonStore
+        this.m_ToolStripComboBoxFilterType, this.m_ToolStripButtonUniqueValues,
+        this.m_ToolStripButtonColumnLength, this.m_ToolStripButtonDuplicates, this.m_ToolStripButtonHierarchy,  this.m_ToolStripButtonStore
       });
       this.m_ToolStripTop.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.HorizontalStackWithOverflow;
       this.m_ToolStripTop.Location = new System.Drawing.Point(4, 0);
@@ -862,14 +758,6 @@ namespace CsvTools
       this.m_ToolStripComboBoxFilterType.Size = new System.Drawing.Size(175, 28);
       this.m_ToolStripComboBoxFilterType.SelectedIndexChanged +=
         new System.EventHandler(this.ToolStripComboBoxFilterType_SelectedIndexChanged);
-      // m_ToolStripButtonSettings
-      this.m_ToolStripButtonSettings.Image =
-        ((System.Drawing.Image) (resources.GetObject("m_ToolStripButtonSettings.Image")));
-      this.m_ToolStripButtonSettings.Name = "m_ToolStripButtonSettings";
-      this.m_ToolStripButtonSettings.Size = new System.Drawing.Size(86, 25);
-      this.m_ToolStripButtonSettings.Text = "Settings";
-      this.m_ToolStripButtonSettings.ToolTipText = "Show CSV Settings";
-      this.m_ToolStripButtonSettings.Visible = false;
       // m_ToolStripButtonUniqueValues
       this.m_ToolStripButtonUniqueValues.Image =
         ((System.Drawing.Image) (resources.GetObject("m_ToolStripButtonUniqueValues.Image")));
@@ -902,21 +790,7 @@ namespace CsvTools
       this.m_ToolStripButtonHierarchy.Text = "Hierarchy";
       this.m_ToolStripButtonHierarchy.ToolTipText = "Display a Hierarchy Structure";
       this.m_ToolStripButtonHierarchy.Click += new System.EventHandler(this.ButtonHierarchy_Click);
-      // m_ToolStripButtonSource
-      this.m_ToolStripButtonSource.Image =
-        ((System.Drawing.Image) (resources.GetObject("m_ToolStripButtonSource.Image")));
-      this.m_ToolStripButtonSource.Name = "m_ToolStripButtonSource";
-      this.m_ToolStripButtonSource.Size = new System.Drawing.Size(114, 25);
-      this.m_ToolStripButtonSource.Text = "View Source";
-      this.m_ToolStripButtonSource.Visible = false;
-      // m_ToolStripButtonAsText
-      this.m_ToolStripButtonAsText.Image =
-        ((System.Drawing.Image) (resources.GetObject("m_ToolStripButtonAsText.Image")));
-      this.m_ToolStripButtonAsText.ImageTransparentColor = System.Drawing.Color.Magenta;
-      this.m_ToolStripButtonAsText.Name = "m_ToolStripButtonAsText";
-      this.m_ToolStripButtonAsText.Size = new System.Drawing.Size(60, 25);
-      this.m_ToolStripButtonAsText.Text = "Text";
-      this.m_ToolStripButtonAsText.Visible = false;
+
       // m_ToolStripButtonStore
       this.m_ToolStripButtonStore.Image =
         ((System.Drawing.Image) (resources.GetObject("m_ToolStripButtonStore.Image")));
@@ -1212,15 +1086,10 @@ namespace CsvTools
           m_ToolStripButtonColumnLength.Visible = m_ShowButtons;
           m_ToolStripButtonDuplicates.Visible = m_ShowButtons;
           m_ToolStripButtonUniqueValues.Visible = m_ShowButtons;
-          m_ToolStripButtonAsText.Visible = m_ShowButtons && m_HasButtonAsText;
 
           // Extended
           m_ToolStripButtonHierarchy.Visible = m_ShowButtons;
           m_ToolStripButtonStore.Visible = m_ShowButtons && (FileSetting!=null);
-          m_ToolStripButtonSource.Visible = m_ShowButtons && m_HasButtonShowSource;
-
-          // Settings
-          m_ToolStripButtonSettings.Visible = m_ShowButtons && m_ShowSettingsButtons;
           try
           {
             m_ToolStripTop.Visible = m_ShowButtons;
