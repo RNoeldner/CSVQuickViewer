@@ -212,7 +212,6 @@
     <Compile Include="..\Library\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="FCTB_File.cs" />
     <Compile Include="FormCsvTextDisplay.cs">
       <SubType>Form</SubType>
     </Compile>
