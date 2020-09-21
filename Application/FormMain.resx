@@ -290,4 +290,36 @@
         AAA=
 </value>
   </data>
+  <data name="m_ToolStripButtonAsText.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
+        YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAADcSURBVDhPvdOxCwFhGMfxd5FiIYNEWQxGJVEmjMooZgOD
+        sqEMBhshg/wTLP4G/4D/yPe5907n6t67d/GrTz333vXE89wpQ8Y4u+pyYJsnihhhKgc26WOrS9WDVYMO
+        7kg4V7rBAW205MCUOS5IOlc6eSxcL2QRmhtMD0TdV1fIQ/6pl+Ft440MQpPGEP6hyQyWKED+TmSCU+/C
+        agvBBrKV/zaQnzzTpRMZqPdSxUoFR11+Ixt4QLaQkoOoyJtY1eVPJhjo0pwcpMkOTZRQwx4rxE4Da5yw
+        gXwPvij1AZUYHoH8imF4AAAAAElFTkSuQmCC
+</value>
+  </data>
+  <data name="m_ToolStripButtonSettings.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
+        vgAADr4B6kKxwAAAABp0RVh0U29mdHdhcmUAUGFpbnQuTkVUIHYzLjUuMTFH80I3AAABBUlEQVQ4T82Q
+        sU7CQACG+yKGaGAiRtwwrG7E1c138FUcNIiJC4SYAIuJLo5sJo1D6TUkQDlsaa/iteW04vTbNuJ8Zxz8
+        klsu9335c9qf47oM87mHIHjF95UaUSRA6SINcMxmjnzE919+HjuOD85jTKeufMC2HRAyyednImM8XeKl
+        oUguslyGMM1JLmcipT4sy8Zi9Ci/IpN1ncAwxhgOxwjpE/htHeLhRD6ygRoD8O4hvPZBfsTdsVrkMyBY
+        dWpI2hW8typgV7sQ/SPFCCMQ1/tImkW8NXYgzguIb+qqEROiUYZolvDRqyI821L/j7VnILrcw+piG/H9
+        qXpgw/NI/738X9G0LyjVw5a+7gn6AAAAAElFTkSuQmCC
+</value>
+  </data>
+  <data name="m_ToolStripButtonSource.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
+        wQAADsEBuJFr7QAAABp0RVh0U29mdHdhcmUAUGFpbnQuTkVUIHYzLjUuMTFH80I3AAABFklEQVQ4T7WT
+        vQrCMBDH8wCdCgEha1+iUOjg4GQRF/E1BCHgOwiOdfAdCn2AQqeuhW4OdnVwdFDkzJ1J/Gj9QvzB0eP+
+        /7umacL+QhzH4Ps+cM4pMMealp9TVRV4nofG1kANPSpvUhQFOI5DxjAMIUkSa8QcayolD3ovyg1CCDJI
+        KZuiRmugvVeiKCJBv8UihjWI4Q5my62tB0FAXt3DWJqmVMDI89waid4BTMj5ZdlZllk/9eIOm4IKgvc3
+        ttEEH9RWV5CfelsHjI4PA/bAu3eruw5o+wS5Oj0MOMB0sSat8QlI2yZOlifojI8UmOtycxMNeOLU46Pf
+        qL33/HyQkLIs3x5l9Kj8NeYyua5LgflHl+l7GDsDxOD6t+Q3xLsAAAAASUVORK5CYII=
+</value>
+  </data>
 </root>

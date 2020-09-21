@@ -12,12 +12,13 @@
  *
  */
 
+using FastColoredTextBoxNS;
 using System;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics.Contracts;
 using System.Drawing;
-using System.Globalization;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
 namespace CsvTools
@@ -27,17 +28,33 @@ namespace CsvTools
   /// </summary>
   public class QuotingControl : UserControl
   {
+    private readonly Style m_Delimiter = new TextStyle(Brushes.Blue, null, FontStyle.Regular);
+    private readonly Style m_DelimiterTab = new SyntaxHighlighterDelimitedText.SyntaxHighlightStyleTab(Pens.Blue, Brushes.AntiqueWhite);
+    private readonly Style m_Pilcrow = new TextStyle(Brushes.Orange, null, FontStyle.Bold);
+    private readonly Style m_Quote = new TextStyle(Brushes.Magenta, null, FontStyle.Regular);
+    private readonly Style m_EscapedQuote = new TextStyle(Brushes.Black, Brushes.LightSteelBlue, FontStyle.Regular);
+    private readonly Style m_Space = new SyntaxHighlighterDelimitedText.SyntaxHighlightStyleStyleSpace(Brushes.Blue, Brushes.AntiqueWhite);
+    private readonly Regex m_SpaceRegex = new Regex(" ", RegexOptions.Singleline | RegexOptions.Compiled);
     private CheckBox checkBoxAlternateQuoting;
     private CheckBox checkBoxDuplicateQuotingToEscape;
-
     private CheckBox checkBoxQualifyAlways;
-
     private CheckBox checkBoxQualifyOnlyNeeded;
-
     private ComboBox comboBoxTrim;
     private IContainer components;
-    private Label labelNoQuotes;
 
+    private FastColoredTextBox fastColoredTextBox;
+    private FastColoredTextBox fastColoredTextBox00;
+    private FastColoredTextBox fastColoredTextBox01;
+    private FastColoredTextBox fastColoredTextBox02;
+    private FastColoredTextBox fastColoredTextBox10;
+    private FastColoredTextBox fastColoredTextBox11;
+    private FastColoredTextBox fastColoredTextBox12;
+    private Label label1;
+    private Label label2;
+    private Label label3;
+    private Label label4;
+    private Label label5;
+    private Label labelNoQuotes;
     private ICsvFile m_CsvFile;
 
     private ErrorProvider m_ErrorProvider;
@@ -47,52 +64,15 @@ namespace CsvTools
     private bool m_IsDisposed;
 
     private bool m_IsWriteSetting;
-
-    private Label m_Label_1;
-
-    private Label m_Label_2;
-
-    private Label m_Label_3;
-
-    private Label m_Label_4;
-
-    private Label m_Label1;
-
-    private Label m_Label2;
-
-    private Label m_Label3;
-
     private Label m_LabelEscapeCharacter;
-
     private Label m_LabelInfoQuoting;
-
     private Label m_LabelQuote;
-
     private Label m_LabelQuotePlaceholder;
-
     private Label m_LabelTrim;
-
-    private CSVRichTextBox m_RichTextBox00;
-
-    private CSVRichTextBox m_RichTextBox01;
-
-    private CSVRichTextBox m_RichTextBox02;
-
-    private CSVRichTextBox m_RichTextBox10;
-
-    private CSVRichTextBox m_RichTextBox11;
-
-    private CSVRichTextBox m_RichTextBox12;
-
-    private CSVRichTextBox m_RichTextBoxSrc;
     private TableLayoutPanel m_TableLayoutPanel;
-
     private TextBox m_TextBoxEscape;
-
     private TextBox m_TextBoxQuote;
-
     private TextBox m_TextBoxQuotePlaceHolder;
-
     private ToolTip m_ToolTip;
 
     /// <summary>
@@ -105,7 +85,7 @@ namespace CsvTools
       comboBoxTrim.Items.Add(new DisplayItem<int>(1, "Unquoted"));
       comboBoxTrim.Items.Add(new DisplayItem<int>(3, "All"));
       UpdateUI();
-      SetToolTipPlaceholder();
+      QuoteOrDelimiterChnage();
     }
 
     [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -170,7 +150,7 @@ namespace CsvTools
     {
       if (e.PropertyName == nameof(FileFormat.FieldDelimiter) ||
           e.PropertyName == nameof(FileFormat.DuplicateQuotingToEscape))
-        SetToolTipPlaceholder();
+        QuoteOrDelimiterChnage();
     }
 
     /// <summary>
@@ -181,554 +161,668 @@ namespace CsvTools
     [SuppressMessage("ReSharper", "RedundantDelegateCreation")]
     private void InitializeComponent()
     {
-      components = new System.ComponentModel.Container();
-      System.Windows.Forms.Label m_Label5;
-      m_LabelQuote = new System.Windows.Forms.Label();
-      m_LabelQuotePlaceholder = new System.Windows.Forms.Label();
-      m_TextBoxEscape = new System.Windows.Forms.TextBox();
-      m_FileFormatBindingSource = new System.Windows.Forms.BindingSource(components);
-      m_LabelEscapeCharacter = new System.Windows.Forms.Label();
-      m_LabelTrim = new System.Windows.Forms.Label();
-      m_TextBoxQuote = new System.Windows.Forms.TextBox();
-      m_TextBoxQuotePlaceHolder = new System.Windows.Forms.TextBox();
-      checkBoxAlternateQuoting = new System.Windows.Forms.CheckBox();
-      m_ToolTip = new System.Windows.Forms.ToolTip(components);
-      comboBoxTrim = new System.Windows.Forms.ComboBox();
-      checkBoxDuplicateQuotingToEscape = new System.Windows.Forms.CheckBox();
-      labelNoQuotes = new System.Windows.Forms.Label();
-      m_Label2 = new System.Windows.Forms.Label();
-      m_Label1 = new System.Windows.Forms.Label();
-      m_Label3 = new System.Windows.Forms.Label();
-      m_LabelInfoQuoting = new System.Windows.Forms.Label();
-      m_ErrorProvider = new System.Windows.Forms.ErrorProvider(components);
-      m_TableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
-      m_Label_3 = new System.Windows.Forms.Label();
-      m_Label_4 = new System.Windows.Forms.Label();
-      m_Label_2 = new System.Windows.Forms.Label();
-      m_Label_1 = new System.Windows.Forms.Label();
-      m_RichTextBoxSrc = new CsvTools.CSVRichTextBox();
-      m_RichTextBox10 = new CsvTools.CSVRichTextBox();
-      m_RichTextBox11 = new CsvTools.CSVRichTextBox();
-      m_RichTextBox12 = new CsvTools.CSVRichTextBox();
-      m_RichTextBox00 = new CsvTools.CSVRichTextBox();
-      m_RichTextBox01 = new CsvTools.CSVRichTextBox();
-      m_RichTextBox02 = new CsvTools.CSVRichTextBox();
-      checkBoxQualifyOnlyNeeded = new System.Windows.Forms.CheckBox();
-      checkBoxQualifyAlways = new System.Windows.Forms.CheckBox();
-      m_Label5 = new System.Windows.Forms.Label();
-      ((System.ComponentModel.ISupportInitialize) m_FileFormatBindingSource).BeginInit();
-      ((System.ComponentModel.ISupportInitialize) m_ErrorProvider).BeginInit();
-      m_TableLayoutPanel.SuspendLayout();
-      SuspendLayout();
-      // 
-      // m_Label5
-      // 
-      m_Label5.AutoSize = true;
-      m_TableLayoutPanel.SetColumnSpan(m_Label5, 5);
-      m_Label5.Location = new System.Drawing.Point(26, 208);
-      m_Label5.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-      m_Label5.Name = "m_Label5";
-      m_Label5.Size = new System.Drawing.Size(447, 17);
-      m_Label5.TabIndex = 26;
-      m_Label5.Text = "Tab visualized as »   Linefeed visualized as ¶    Space visualized as ●";
-      // 
-      // m_LabelQuote
-      // 
-      m_LabelQuote.Anchor = AnchorStyles.Right;
-      m_LabelQuote.AutoSize = true;
-      m_TableLayoutPanel.SetColumnSpan(m_LabelQuote, 2);
-      m_LabelQuote.Location = new System.Drawing.Point(72, 4);
-      m_LabelQuote.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-      m_LabelQuote.Name = "m_LabelQuote";
-      m_LabelQuote.Size = new System.Drawing.Size(96, 17);
-      m_LabelQuote.TabIndex = 0;
-      m_LabelQuote.Text = "Text Qualifier:";
-      // 
-      // m_LabelQuotePlaceholder
-      // 
-      m_LabelQuotePlaceholder.Anchor = AnchorStyles.Right;
-      m_LabelQuotePlaceholder.AutoSize = true;
-      m_TableLayoutPanel.SetColumnSpan(m_LabelQuotePlaceholder, 2);
-      m_LabelQuotePlaceholder.Location = new System.Drawing.Point(81, 56);
-      m_LabelQuotePlaceholder.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-      m_LabelQuotePlaceholder.Name = "m_LabelQuotePlaceholder";
-      m_LabelQuotePlaceholder.Size = new System.Drawing.Size(87, 17);
-      m_LabelQuotePlaceholder.TabIndex = 7;
-      m_LabelQuotePlaceholder.Text = "Placeholder:";
-      // 
-      // m_TextBoxEscape
-      // 
-      m_TextBoxEscape.Anchor = AnchorStyles.Left;
-      m_TextBoxEscape.DataBindings.Add(new System.Windows.Forms.Binding("Text", m_FileFormatBindingSource,
-        "EscapeCharacter", true));
-      m_TextBoxEscape.Location = new System.Drawing.Point(176, 28);
-      m_TextBoxEscape.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
-      m_TextBoxEscape.Name = "m_TextBoxEscape";
-      m_TextBoxEscape.Size = new System.Drawing.Size(127, 22);
-      m_TextBoxEscape.TabIndex = 6;
-      m_TextBoxEscape.TextChanged += new System.EventHandler(QuoteChanged);
-      // 
+      this.components = new System.ComponentModel.Container();
+      System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(QuotingControl));
+      this.m_FileFormatBindingSource = new System.Windows.Forms.BindingSource(this.components);
+      this.m_ToolTip = new System.Windows.Forms.ToolTip(this.components);
+      this.checkBoxDuplicateQuotingToEscape = new System.Windows.Forms.CheckBox();
+      this.labelNoQuotes = new System.Windows.Forms.Label();
+      this.checkBoxAlternateQuoting = new System.Windows.Forms.CheckBox();
+      this.comboBoxTrim = new System.Windows.Forms.ComboBox();
+      this.m_TextBoxQuotePlaceHolder = new System.Windows.Forms.TextBox();
+      this.m_TextBoxQuote = new System.Windows.Forms.TextBox();
+      this.m_ErrorProvider = new System.Windows.Forms.ErrorProvider(this.components);
+      this.fastColoredTextBox00 = new FastColoredTextBoxNS.FastColoredTextBox();
+      this.label1 = new System.Windows.Forms.Label();
+      this.fastColoredTextBox12 = new FastColoredTextBoxNS.FastColoredTextBox();
+      this.fastColoredTextBox02 = new FastColoredTextBoxNS.FastColoredTextBox();
+      this.fastColoredTextBox11 = new FastColoredTextBoxNS.FastColoredTextBox();
+      this.fastColoredTextBox01 = new FastColoredTextBoxNS.FastColoredTextBox();
+      this.fastColoredTextBox10 = new FastColoredTextBoxNS.FastColoredTextBox();
+      this.fastColoredTextBox = new FastColoredTextBoxNS.FastColoredTextBox();
+      this.checkBoxQualifyAlways = new System.Windows.Forms.CheckBox();
+      this.checkBoxQualifyOnlyNeeded = new System.Windows.Forms.CheckBox();
+      this.m_LabelInfoQuoting = new System.Windows.Forms.Label();
+      this.m_LabelTrim = new System.Windows.Forms.Label();
+      this.m_TextBoxEscape = new System.Windows.Forms.TextBox();
+      this.m_LabelQuotePlaceholder = new System.Windows.Forms.Label();
+      this.m_LabelEscapeCharacter = new System.Windows.Forms.Label();
+      this.m_LabelQuote = new System.Windows.Forms.Label();
+      this.label2 = new System.Windows.Forms.Label();
+      this.label3 = new System.Windows.Forms.Label();
+      this.m_TableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
+      this.label5 = new System.Windows.Forms.Label();
+      this.label4 = new System.Windows.Forms.Label();
+      ((System.ComponentModel.ISupportInitialize) (this.m_FileFormatBindingSource)).BeginInit();
+      ((System.ComponentModel.ISupportInitialize) (this.m_ErrorProvider)).BeginInit();
+      ((System.ComponentModel.ISupportInitialize) (this.fastColoredTextBox00)).BeginInit();
+      ((System.ComponentModel.ISupportInitialize) (this.fastColoredTextBox12)).BeginInit();
+      ((System.ComponentModel.ISupportInitialize) (this.fastColoredTextBox02)).BeginInit();
+      ((System.ComponentModel.ISupportInitialize) (this.fastColoredTextBox11)).BeginInit();
+      ((System.ComponentModel.ISupportInitialize) (this.fastColoredTextBox01)).BeginInit();
+      ((System.ComponentModel.ISupportInitialize) (this.fastColoredTextBox10)).BeginInit();
+      ((System.ComponentModel.ISupportInitialize) (this.fastColoredTextBox)).BeginInit();
+      this.m_TableLayoutPanel.SuspendLayout();
+      this.SuspendLayout();
       // m_FileFormatBindingSource
-      // 
-      m_FileFormatBindingSource.AllowNew = false;
-      m_FileFormatBindingSource.DataSource = typeof(CsvTools.FileFormat);
-      // 
-      // m_LabelEscapeCharacter
-      // 
-      m_LabelEscapeCharacter.Anchor = AnchorStyles.Right;
-      m_LabelEscapeCharacter.AutoSize = true;
-      m_TableLayoutPanel.SetColumnSpan(m_LabelEscapeCharacter, 2);
-      m_LabelEscapeCharacter.Location = new System.Drawing.Point(43, 30);
-      m_LabelEscapeCharacter.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-      m_LabelEscapeCharacter.Name = "m_LabelEscapeCharacter";
-      m_LabelEscapeCharacter.Size = new System.Drawing.Size(125, 17);
-      m_LabelEscapeCharacter.TabIndex = 5;
-      m_LabelEscapeCharacter.Text = "Escape Character:";
-      // 
-      // m_LabelTrim
-      // 
-      m_LabelTrim.Anchor = AnchorStyles.Right;
-      m_LabelTrim.AutoSize = true;
-      m_TableLayoutPanel.SetColumnSpan(m_LabelTrim, 2);
-      m_LabelTrim.Location = new System.Drawing.Point(52, 84);
-      m_LabelTrim.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-      m_LabelTrim.Name = "m_LabelTrim";
-      m_LabelTrim.Size = new System.Drawing.Size(116, 17);
-      m_LabelTrim.TabIndex = 9;
-      m_LabelTrim.Text = "Trimming Option:";
-      // 
-      // m_TextBoxQuote
-      // 
-      m_TextBoxQuote.DataBindings.Add(new System.Windows.Forms.Binding("Text", m_FileFormatBindingSource,
-        "FieldQualifier", true));
-      m_TextBoxQuote.Dock = DockStyle.Top;
-      m_TextBoxQuote.Location = new System.Drawing.Point(176, 2);
-      m_TextBoxQuote.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
-      m_TextBoxQuote.Name = "m_TextBoxQuote";
-      m_TextBoxQuote.Size = new System.Drawing.Size(203, 22);
-      m_TextBoxQuote.TabIndex = 1;
-      m_ToolTip.SetToolTip(m_TextBoxQuote,
-        "Columns may be qualified with a character; usually these are \" the quotes are rem" +
-        "oved by the reading applications.");
-      m_TextBoxQuote.TextChanged += new System.EventHandler(QuoteChanged);
-      // 
-      // m_TextBoxQuotePlaceHolder
-      // 
-      m_TextBoxQuotePlaceHolder.AutoCompleteCustomSource.AddRange(new[] { "{q}", "&quot;" });
-      m_TextBoxQuotePlaceHolder.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
-      m_TextBoxQuotePlaceHolder.DataBindings.Add(new System.Windows.Forms.Binding("Text", m_FileFormatBindingSource,
-        "QuotePlaceholder", true));
-      m_TextBoxQuotePlaceHolder.Dock = DockStyle.Top;
-      m_TextBoxQuotePlaceHolder.Location = new System.Drawing.Point(176, 54);
-      m_TextBoxQuotePlaceHolder.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
-      m_TextBoxQuotePlaceHolder.Name = "m_TextBoxQuotePlaceHolder";
-      m_TextBoxQuotePlaceHolder.Size = new System.Drawing.Size(203, 22);
-      m_TextBoxQuotePlaceHolder.TabIndex = 8;
-      m_ToolTip.SetToolTip(m_TextBoxQuotePlaceHolder,
-        "If this placeholder is part of the text it will be replaced with the quoting char" +
-        "acter");
-      m_TextBoxQuotePlaceHolder.TextChanged += new System.EventHandler(QuoteChanged);
-      // 
-      // checkBoxAlternateQuoting
-      // 
-      checkBoxAlternateQuoting.Anchor = AnchorStyles.Left;
-      checkBoxAlternateQuoting.AutoSize = true;
-      m_TableLayoutPanel.SetColumnSpan(checkBoxAlternateQuoting, 2);
-      checkBoxAlternateQuoting.DataBindings.Add(new System.Windows.Forms.Binding("Checked", m_FileFormatBindingSource,
-        "AlternateQuoting", true, DataSourceUpdateMode.OnPropertyChanged));
-      checkBoxAlternateQuoting.Location = new System.Drawing.Point(387, 2);
-      checkBoxAlternateQuoting.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
-      checkBoxAlternateQuoting.Name = "checkBoxAlternateQuoting";
-      checkBoxAlternateQuoting.Size = new System.Drawing.Size(192, 21);
-      checkBoxAlternateQuoting.TabIndex = 2;
-      checkBoxAlternateQuoting.Text = "Context Sensitive Quoting";
-      m_ToolTip.SetToolTip(checkBoxAlternateQuoting,
-        "A quote is only regarded as closing quote if it is followed by linefeed or delimi" +
-        "ter");
-      checkBoxAlternateQuoting.UseVisualStyleBackColor = true;
-      checkBoxAlternateQuoting.Visible = false;
-      // 
-      // comboBoxTrim
-      // 
-      comboBoxTrim.DisplayMember = "Display";
-      comboBoxTrim.Dock = DockStyle.Top;
-      comboBoxTrim.DropDownStyle = ComboBoxStyle.DropDownList;
-      comboBoxTrim.Location = new System.Drawing.Point(176, 80);
-      comboBoxTrim.Margin = new System.Windows.Forms.Padding(4, 2, 4, 4);
-      comboBoxTrim.Name = "comboBoxTrim";
-      comboBoxTrim.Size = new System.Drawing.Size(203, 24);
-      comboBoxTrim.TabIndex = 10;
-      m_ToolTip.SetToolTip(comboBoxTrim,
-        "None will not remove whitespace; Unquoted will remove white spaces if the column " +
-        "was not quoted; All will remove white spaces even if the column was quoted");
-      comboBoxTrim.ValueMember = "ID";
-      comboBoxTrim.SelectedIndexChanged += new System.EventHandler(SetTrimming);
-      // 
+      this.m_FileFormatBindingSource.AllowNew = false;
+      this.m_FileFormatBindingSource.DataSource = typeof(CsvTools.FileFormat);
       // checkBoxDuplicateQuotingToEscape
-      // 
-      checkBoxDuplicateQuotingToEscape.AutoSize = true;
-      m_TableLayoutPanel.SetColumnSpan(checkBoxDuplicateQuotingToEscape, 2);
-      checkBoxDuplicateQuotingToEscape.DataBindings.Add(new System.Windows.Forms.Binding("Checked",
-        m_FileFormatBindingSource, "DuplicateQuotingToEscape", true, DataSourceUpdateMode.OnPropertyChanged));
-      checkBoxDuplicateQuotingToEscape.Location = new System.Drawing.Point(386, 28);
-      checkBoxDuplicateQuotingToEscape.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-      checkBoxDuplicateQuotingToEscape.Name = "checkBoxDuplicateQuotingToEscape";
-      checkBoxDuplicateQuotingToEscape.Size = new System.Drawing.Size(146, 21);
-      checkBoxDuplicateQuotingToEscape.TabIndex = 27;
-      checkBoxDuplicateQuotingToEscape.Text = "Repeated Quoting";
-      m_ToolTip.SetToolTip(checkBoxDuplicateQuotingToEscape,
-        "Assume a repeated quote in a qualified text represent a quote that does not end t" +
+      this.checkBoxDuplicateQuotingToEscape.AutoSize = true;
+      this.m_TableLayoutPanel.SetColumnSpan(this.checkBoxDuplicateQuotingToEscape, 2);
+      this.checkBoxDuplicateQuotingToEscape.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.m_FileFormatBindingSource, "DuplicateQuotingToEscape", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+      this.checkBoxDuplicateQuotingToEscape.Location = new System.Drawing.Point(362, 26);
+      this.checkBoxDuplicateQuotingToEscape.Margin = new System.Windows.Forms.Padding(2);
+      this.checkBoxDuplicateQuotingToEscape.Name = "checkBoxDuplicateQuotingToEscape";
+      this.checkBoxDuplicateQuotingToEscape.Size = new System.Drawing.Size(113, 17);
+      this.checkBoxDuplicateQuotingToEscape.TabIndex = 27;
+      this.checkBoxDuplicateQuotingToEscape.Text = "Repeated Quoting";
+      this.m_ToolTip.SetToolTip(this.checkBoxDuplicateQuotingToEscape, "Assume a repeated quote in a qualified text represent a quote that does not end t" +
         "ext qualification");
-      checkBoxDuplicateQuotingToEscape.UseVisualStyleBackColor = true;
-      // 
+      this.checkBoxDuplicateQuotingToEscape.UseVisualStyleBackColor = true;
       // labelNoQuotes
-      // 
-      labelNoQuotes.Anchor = AnchorStyles.Left;
-      labelNoQuotes.AutoSize = true;
-      labelNoQuotes.BackColor = SystemColors.Info;
-      labelNoQuotes.BorderStyle = BorderStyle.FixedSingle;
-      labelNoQuotes.ForeColor = SystemColors.InfoText;
-      labelNoQuotes.Location = new System.Drawing.Point(646, 16);
-      labelNoQuotes.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-      labelNoQuotes.Name = "labelNoQuotes";
-      m_TableLayoutPanel.SetRowSpan(labelNoQuotes, 2);
-      labelNoQuotes.Size = new System.Drawing.Size(187, 19);
-      labelNoQuotes.TabIndex = 28;
-      labelNoQuotes.Text = "Text can not contain Qalifier";
-      m_ToolTip.SetToolTip(labelNoQuotes,
-        "Either “Context Sensitive Quoting”, “Repeated Quotes” or an “Escape Character” ne" +
+      this.labelNoQuotes.Anchor = System.Windows.Forms.AnchorStyles.Left;
+      this.labelNoQuotes.AutoSize = true;
+      this.labelNoQuotes.BackColor = System.Drawing.SystemColors.Info;
+      this.labelNoQuotes.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+      this.labelNoQuotes.ForeColor = System.Drawing.SystemColors.InfoText;
+      this.labelNoQuotes.Location = new System.Drawing.Point(592, 16);
+      this.labelNoQuotes.Name = "labelNoQuotes";
+      this.m_TableLayoutPanel.SetRowSpan(this.labelNoQuotes, 2);
+      this.labelNoQuotes.Size = new System.Drawing.Size(142, 15);
+      this.labelNoQuotes.TabIndex = 28;
+      this.labelNoQuotes.Text = "Text can not contain Qalifier";
+      this.m_ToolTip.SetToolTip(this.labelNoQuotes, "Either “Context Sensitive Quoting”, “Repeated Quotes” or an “Escape Character” ne" +
         "ed to be defined to allow a quote to be part of the text");
-      // 
-      // m_Label2
-      // 
-      m_Label2.Anchor = AnchorStyles.Right;
-      m_Label2.AutoSize = true;
-      m_Label2.ForeColor = Color.Teal;
-      m_Label2.Location = new System.Drawing.Point(386, 112);
-      m_Label2.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-      m_Label2.Name = "m_Label2";
-      m_Label2.Size = new System.Drawing.Size(16, 17);
-      m_Label2.TabIndex = 14;
-      m_Label2.Text = "1\r\n";
-      // 
-      // m_Label1
-      // 
-      m_Label1.Anchor = AnchorStyles.Right;
-      m_Label1.AutoSize = true;
-      m_Label1.ForeColor = Color.Teal;
-      m_Label1.Location = new System.Drawing.Point(386, 138);
-      m_Label1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-      m_Label1.Name = "m_Label1";
-      m_Label1.Size = new System.Drawing.Size(16, 17);
-      m_Label1.TabIndex = 18;
-      m_Label1.Text = "2";
-      // 
-      // m_Label3
-      // 
-      m_Label3.Anchor = AnchorStyles.Right;
-      m_Label3.AutoSize = true;
-      m_Label3.ForeColor = Color.Teal;
-      m_Label3.Location = new System.Drawing.Point(386, 175);
-      m_Label3.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-      m_Label3.Name = "m_Label3";
-      m_TableLayoutPanel.SetRowSpan(m_Label3, 2);
-      m_Label3.Size = new System.Drawing.Size(16, 17);
-      m_Label3.TabIndex = 22;
-      m_Label3.Text = "3";
-      // 
-      // m_LabelInfoQuoting
-      // 
-      m_LabelInfoQuoting.Anchor = AnchorStyles.Left;
-      m_LabelInfoQuoting.AutoSize = true;
-      m_LabelInfoQuoting.BackColor = SystemColors.Info;
-      m_LabelInfoQuoting.BorderStyle = BorderStyle.FixedSingle;
-      m_TableLayoutPanel.SetColumnSpan(m_LabelInfoQuoting, 3);
-      m_LabelInfoQuoting.ForeColor = SystemColors.InfoText;
-      m_LabelInfoQuoting.Location = new System.Drawing.Point(387, 83);
-      m_LabelInfoQuoting.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-      m_LabelInfoQuoting.Name = "m_LabelInfoQuoting";
-      m_LabelInfoQuoting.Size = new System.Drawing.Size(301, 19);
-      m_LabelInfoQuoting.TabIndex = 11;
-      m_LabelInfoQuoting.Text = "Not possible to have leading or trailing spaces";
-      // 
+      // checkBoxAlternateQuoting
+      this.checkBoxAlternateQuoting.Anchor = System.Windows.Forms.AnchorStyles.Left;
+      this.checkBoxAlternateQuoting.AutoSize = true;
+      this.m_TableLayoutPanel.SetColumnSpan(this.checkBoxAlternateQuoting, 2);
+      this.checkBoxAlternateQuoting.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.m_FileFormatBindingSource, "AlternateQuoting", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+      this.checkBoxAlternateQuoting.Location = new System.Drawing.Point(363, 3);
+      this.checkBoxAlternateQuoting.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.checkBoxAlternateQuoting.Name = "checkBoxAlternateQuoting";
+      this.checkBoxAlternateQuoting.Size = new System.Drawing.Size(148, 17);
+      this.checkBoxAlternateQuoting.TabIndex = 2;
+      this.checkBoxAlternateQuoting.Text = "Context Sensitive Quoting";
+      this.m_ToolTip.SetToolTip(this.checkBoxAlternateQuoting, "A quote is only regarded as closing quote if it is followed by linefeed or delimi" +
+        "ter");
+      this.checkBoxAlternateQuoting.UseVisualStyleBackColor = true;
+      this.checkBoxAlternateQuoting.Visible = false;
+      // comboBoxTrim
+      this.comboBoxTrim.DisplayMember = "Display";
+      this.comboBoxTrim.Dock = System.Windows.Forms.DockStyle.Top;
+      this.comboBoxTrim.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+      this.comboBoxTrim.Location = new System.Drawing.Point(104, 74);
+      this.comboBoxTrim.Margin = new System.Windows.Forms.Padding(3, 2, 3, 3);
+      this.comboBoxTrim.Name = "comboBoxTrim";
+      this.comboBoxTrim.Size = new System.Drawing.Size(253, 21);
+      this.comboBoxTrim.TabIndex = 10;
+      this.m_ToolTip.SetToolTip(this.comboBoxTrim, "None will not remove whitespace; Unquoted will remove white spaces if the column " +
+        "was not quoted; All will remove white spaces even if the column was quoted");
+      this.comboBoxTrim.ValueMember = "ID";
+      this.comboBoxTrim.SelectedIndexChanged += new System.EventHandler(this.SetTrimming);
+      // m_TextBoxQuotePlaceHolder
+      this.m_TextBoxQuotePlaceHolder.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
+      this.m_TextBoxQuotePlaceHolder.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.m_FileFormatBindingSource, "QuotePlaceholder", true));
+      this.m_TextBoxQuotePlaceHolder.Dock = System.Windows.Forms.DockStyle.Top;
+      this.m_TextBoxQuotePlaceHolder.Location = new System.Drawing.Point(104, 50);
+      this.m_TextBoxQuotePlaceHolder.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.m_TextBoxQuotePlaceHolder.Name = "m_TextBoxQuotePlaceHolder";
+      this.m_TextBoxQuotePlaceHolder.Size = new System.Drawing.Size(253, 20);
+      this.m_TextBoxQuotePlaceHolder.TabIndex = 8;
+      this.m_ToolTip.SetToolTip(this.m_TextBoxQuotePlaceHolder, "If this placeholder is part of the text it will be replaced with the quoting char" +
+        "acter");
+      this.m_TextBoxQuotePlaceHolder.TextChanged += new System.EventHandler(this.QuoteChanged);
+      // m_TextBoxQuote
+      this.m_TextBoxQuote.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.m_FileFormatBindingSource, "FieldQualifier", true));
+      this.m_TextBoxQuote.Dock = System.Windows.Forms.DockStyle.Top;
+      this.m_TextBoxQuote.Location = new System.Drawing.Point(104, 2);
+      this.m_TextBoxQuote.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.m_TextBoxQuote.Name = "m_TextBoxQuote";
+      this.m_TextBoxQuote.Size = new System.Drawing.Size(253, 20);
+      this.m_TextBoxQuote.TabIndex = 1;
+      this.m_ToolTip.SetToolTip(this.m_TextBoxQuote, "Columns may be qualified with a character; usually these are \" the quotes are rem" +
+        "oved by the reading applications.");
+      this.m_TextBoxQuote.TextChanged += new System.EventHandler(this.QuoteChanged);
       // m_ErrorProvider
-      // 
-      m_ErrorProvider.ContainerControl = this;
-      // 
-      // m_TableLayoutPanel
-      // 
-      m_TableLayoutPanel.AutoSize = true;
-      m_TableLayoutPanel.ColumnCount = 6;
-      m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-      m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-      m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(SizeType.Percent, 51.15865F));
-      m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-      m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-      m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(SizeType.Percent, 48.84135F));
-      m_TableLayoutPanel.Controls.Add(m_LabelQuote, 0, 0);
-      m_TableLayoutPanel.Controls.Add(m_LabelEscapeCharacter, 0, 1);
-      m_TableLayoutPanel.Controls.Add(m_LabelQuotePlaceholder, 0, 2);
-      m_TableLayoutPanel.Controls.Add(m_Label5, 1, 8);
-      m_TableLayoutPanel.Controls.Add(m_Label_3, 0, 6);
-      m_TableLayoutPanel.Controls.Add(m_Label_4, 0, 7);
-      m_TableLayoutPanel.Controls.Add(m_Label_2, 0, 5);
-      m_TableLayoutPanel.Controls.Add(m_Label_1, 0, 4);
-      m_TableLayoutPanel.Controls.Add(m_RichTextBoxSrc, 1, 4);
-      m_TableLayoutPanel.Controls.Add(m_RichTextBox10, 5, 4);
-      m_TableLayoutPanel.Controls.Add(m_RichTextBox11, 5, 5);
-      m_TableLayoutPanel.Controls.Add(m_RichTextBox12, 5, 6);
-      m_TableLayoutPanel.Controls.Add(m_TextBoxQuote, 2, 0);
-      m_TableLayoutPanel.Controls.Add(m_TextBoxEscape, 2, 1);
-      m_TableLayoutPanel.Controls.Add(m_TextBoxQuotePlaceHolder, 2, 2);
-      m_TableLayoutPanel.Controls.Add(comboBoxTrim, 2, 3);
-      m_TableLayoutPanel.Controls.Add(m_LabelTrim, 0, 3);
-      m_TableLayoutPanel.Controls.Add(m_RichTextBox00, 4, 4);
-      m_TableLayoutPanel.Controls.Add(m_RichTextBox01, 4, 5);
-      m_TableLayoutPanel.Controls.Add(m_RichTextBox02, 4, 6);
-      m_TableLayoutPanel.Controls.Add(m_Label2, 3, 4);
-      m_TableLayoutPanel.Controls.Add(m_Label1, 3, 5);
-      m_TableLayoutPanel.Controls.Add(m_Label3, 3, 6);
-      m_TableLayoutPanel.Controls.Add(m_LabelInfoQuoting, 3, 3);
-      m_TableLayoutPanel.Controls.Add(checkBoxQualifyOnlyNeeded, 3, 2);
-      m_TableLayoutPanel.Controls.Add(checkBoxAlternateQuoting, 3, 0);
-      m_TableLayoutPanel.Controls.Add(labelNoQuotes, 5, 0);
-      m_TableLayoutPanel.Controls.Add(checkBoxQualifyAlways, 5, 2);
-      m_TableLayoutPanel.Controls.Add(checkBoxDuplicateQuotingToEscape, 3, 1);
-      m_TableLayoutPanel.Dock = DockStyle.Top;
-      m_TableLayoutPanel.Location = new System.Drawing.Point(0, 0);
-      m_TableLayoutPanel.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
-      m_TableLayoutPanel.Name = "m_TableLayoutPanel";
-      m_TableLayoutPanel.RowCount = 9;
-      m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(SizeType.Percent, 100F));
-      m_TableLayoutPanel.Size = new System.Drawing.Size(844, 225);
-      m_TableLayoutPanel.TabIndex = 0;
-      // 
-      // m_Label_3
-      // 
-      m_Label_3.Anchor = AnchorStyles.Right;
-      m_Label_3.AutoSize = true;
-      m_Label_3.ForeColor = Color.Teal;
-      m_Label_3.Location = new System.Drawing.Point(3, 162);
-      m_Label_3.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-      m_Label_3.Name = "m_Label_3";
-      m_Label_3.Size = new System.Drawing.Size(16, 17);
-      m_Label_3.TabIndex = 21;
-      m_Label_3.Text = "3";
-      // 
-      // m_Label_4
-      // 
-      m_Label_4.Anchor = AnchorStyles.Right;
-      m_Label_4.AutoSize = true;
-      m_Label_4.ForeColor = Color.Teal;
-      m_Label_4.Location = new System.Drawing.Point(3, 186);
-      m_Label_4.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-      m_Label_4.Name = "m_Label_4";
-      m_Label_4.Size = new System.Drawing.Size(16, 17);
-      m_Label_4.TabIndex = 25;
-      m_Label_4.Text = "4";
-      // 
-      // m_Label_2
-      // 
-      m_Label_2.Anchor = AnchorStyles.Right;
-      m_Label_2.AutoSize = true;
-      m_Label_2.ForeColor = Color.Teal;
-      m_Label_2.Location = new System.Drawing.Point(3, 138);
-      m_Label_2.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-      m_Label_2.Name = "m_Label_2";
-      m_Label_2.Size = new System.Drawing.Size(16, 17);
-      m_Label_2.TabIndex = 17;
-      m_Label_2.Text = "2";
-      // 
-      // m_Label_1
-      // 
-      m_Label_1.Anchor = AnchorStyles.Right;
-      m_Label_1.AutoSize = true;
-      m_Label_1.ForeColor = Color.Teal;
-      m_Label_1.Location = new System.Drawing.Point(3, 112);
-      m_Label_1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-      m_Label_1.Name = "m_Label_1";
-      m_Label_1.Size = new System.Drawing.Size(16, 17);
-      m_Label_1.TabIndex = 12;
-      m_Label_1.Text = "1\r\n";
-      // 
-      // m_RichTextBoxSrc
-      // 
-      m_RichTextBoxSrc.BackColor = SystemColors.Window;
-      m_RichTextBoxSrc.BorderStyle = BorderStyle.None;
-      m_TableLayoutPanel.SetColumnSpan(m_RichTextBoxSrc, 2);
-      m_RichTextBoxSrc.DataBindings.Add(new System.Windows.Forms.Binding("Delimiter", m_FileFormatBindingSource,
-        "FieldDelimiterChar", true, DataSourceUpdateMode.OnPropertyChanged));
-      m_RichTextBoxSrc.Delimiter = ';';
-      m_RichTextBoxSrc.Dock = DockStyle.Top;
-      m_RichTextBoxSrc.Escape = '>';
-      m_RichTextBoxSrc.Location = new System.Drawing.Point(22, 108);
-      m_RichTextBoxSrc.Margin = new System.Windows.Forms.Padding(0);
-      m_RichTextBoxSrc.Name = "m_RichTextBoxSrc";
-      m_RichTextBoxSrc.ReadOnly = true;
-      m_TableLayoutPanel.SetRowSpan(m_RichTextBoxSrc, 4);
-      m_RichTextBoxSrc.ScrollBars = RichTextBoxScrollBars.None;
-      m_RichTextBoxSrc.Size = new System.Drawing.Size(361, 100);
-      m_RichTextBoxSrc.TabIndex = 13;
-      m_RichTextBoxSrc.Text =
-        "\"This is \";Column with:, Delimiter\n a Trimming ;Column with \"\" Quote\nExample ;\"Co" +
-        "lumn with \nLinefeed\"";
-      // 
-      // m_RichTextBox10
-      // 
-      m_RichTextBox10.BackColor = SystemColors.Window;
-      m_RichTextBox10.BorderStyle = BorderStyle.None;
-      m_RichTextBox10.Dock = DockStyle.Top;
-      m_RichTextBox10.Location = new System.Drawing.Point(642, 108);
-      m_RichTextBox10.Margin = new System.Windows.Forms.Padding(0);
-      m_RichTextBox10.Name = "m_RichTextBox10";
-      m_RichTextBox10.ReadOnly = true;
-      m_RichTextBox10.ScrollBars = RichTextBoxScrollBars.None;
-      m_RichTextBox10.Size = new System.Drawing.Size(202, 26);
-      m_RichTextBox10.TabIndex = 16;
-      m_RichTextBox10.Text = "Column with:, Delimiter";
-      m_RichTextBox10.WordWrap = false;
-      // 
-      // m_RichTextBox11
-      // 
-      m_RichTextBox11.BackColor = SystemColors.Window;
-      m_RichTextBox11.BorderStyle = BorderStyle.None;
-      m_RichTextBox11.Dock = DockStyle.Top;
-      m_RichTextBox11.Location = new System.Drawing.Point(642, 134);
-      m_RichTextBox11.Margin = new System.Windows.Forms.Padding(0);
-      m_RichTextBox11.Name = "m_RichTextBox11";
-      m_RichTextBox11.ReadOnly = true;
-      m_RichTextBox11.ScrollBars = RichTextBoxScrollBars.None;
-      m_RichTextBox11.Size = new System.Drawing.Size(202, 26);
-      m_RichTextBox11.TabIndex = 20;
-      m_RichTextBox11.Text = "Column with \" Quote";
-      m_RichTextBox11.WordWrap = false;
-      // 
-      // m_RichTextBox12
-      // 
-      m_RichTextBox12.BackColor = SystemColors.Window;
-      m_RichTextBox12.BorderStyle = BorderStyle.None;
-      m_RichTextBox12.Dock = DockStyle.Top;
-      m_RichTextBox12.Location = new System.Drawing.Point(642, 160);
-      m_RichTextBox12.Margin = new System.Windows.Forms.Padding(0);
-      m_RichTextBox12.Name = "m_RichTextBox12";
-      m_RichTextBox12.ReadOnly = true;
-      m_TableLayoutPanel.SetRowSpan(m_RichTextBox12, 2);
-      m_RichTextBox12.ScrollBars = RichTextBoxScrollBars.None;
-      m_RichTextBox12.Size = new System.Drawing.Size(202, 48);
-      m_RichTextBox12.TabIndex = 24;
-      m_RichTextBox12.Text = "Column with \nLinefeed";
-      m_RichTextBox12.WordWrap = false;
-      // 
-      // m_RichTextBox00
-      // 
-      m_RichTextBox00.BackColor = SystemColors.Window;
-      m_RichTextBox00.BorderStyle = BorderStyle.None;
-      m_RichTextBox00.Dock = DockStyle.Top;
-      m_RichTextBox00.Location = new System.Drawing.Point(405, 108);
-      m_RichTextBox00.Margin = new System.Windows.Forms.Padding(0);
-      m_RichTextBox00.Name = "m_RichTextBox00";
-      m_RichTextBox00.ReadOnly = true;
-      m_RichTextBox00.ScrollBars = RichTextBoxScrollBars.None;
-      m_RichTextBox00.Size = new System.Drawing.Size(237, 26);
-      m_RichTextBox00.TabIndex = 15;
-      m_RichTextBox00.Text = "This is ";
-      m_RichTextBox00.WordWrap = false;
-      // 
-      // m_RichTextBox01
-      // 
-      m_RichTextBox01.BackColor = SystemColors.Window;
-      m_RichTextBox01.BorderStyle = BorderStyle.None;
-      m_RichTextBox01.Dock = DockStyle.Top;
-      m_RichTextBox01.Location = new System.Drawing.Point(405, 134);
-      m_RichTextBox01.Margin = new System.Windows.Forms.Padding(0);
-      m_RichTextBox01.Name = "m_RichTextBox01";
-      m_RichTextBox01.ReadOnly = true;
-      m_RichTextBox01.ScrollBars = RichTextBoxScrollBars.None;
-      m_RichTextBox01.Size = new System.Drawing.Size(237, 26);
-      m_RichTextBox01.TabIndex = 19;
-      m_RichTextBox01.Text = " a Trimming ";
-      m_RichTextBox01.WordWrap = false;
-      // 
-      // m_RichTextBox02
-      // 
-      m_RichTextBox02.BackColor = SystemColors.Window;
-      m_RichTextBox02.BorderStyle = BorderStyle.None;
-      m_RichTextBox02.Dock = DockStyle.Top;
-      m_RichTextBox02.Location = new System.Drawing.Point(405, 160);
-      m_RichTextBox02.Margin = new System.Windows.Forms.Padding(0);
-      m_RichTextBox02.Name = "m_RichTextBox02";
-      m_RichTextBox02.ReadOnly = true;
-      m_TableLayoutPanel.SetRowSpan(m_RichTextBox02, 2);
-      m_RichTextBox02.ScrollBars = RichTextBoxScrollBars.None;
-      m_RichTextBox02.Size = new System.Drawing.Size(237, 48);
-      m_RichTextBox02.TabIndex = 23;
-      m_RichTextBox02.Text = "Example ";
-      m_RichTextBox02.WordWrap = false;
-      // 
-      // checkBoxQualifyOnlyNeeded
-      // 
-      checkBoxQualifyOnlyNeeded.Anchor = AnchorStyles.Left;
-      checkBoxQualifyOnlyNeeded.AutoSize = true;
-      m_TableLayoutPanel.SetColumnSpan(checkBoxQualifyOnlyNeeded, 2);
-      checkBoxQualifyOnlyNeeded.DataBindings.Add(new System.Windows.Forms.Binding("Checked", m_FileFormatBindingSource,
-        "QualifyOnlyIfNeeded", true));
-      checkBoxQualifyOnlyNeeded.Location = new System.Drawing.Point(387, 54);
-      checkBoxQualifyOnlyNeeded.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
-      checkBoxQualifyOnlyNeeded.Name = "checkBoxQualifyOnlyNeeded";
-      checkBoxQualifyOnlyNeeded.Size = new System.Drawing.Size(172, 21);
-      checkBoxQualifyOnlyNeeded.TabIndex = 4;
-      checkBoxQualifyOnlyNeeded.Text = "Qualify Only If Needed";
-      checkBoxQualifyOnlyNeeded.UseVisualStyleBackColor = true;
-      checkBoxQualifyOnlyNeeded.Visible = false;
-      // 
+      this.m_ErrorProvider.ContainerControl = this;
+      // fastColoredTextBox00
+      this.fastColoredTextBox00.AutoCompleteBracketsList = new char[] {
+        '(',
+        ')',
+        '{',
+        '}',
+        '[',
+        ']',
+        '\"',
+        '\"',
+        '\'',
+        '\''};
+      this.fastColoredTextBox00.AutoScrollMinSize = new System.Drawing.Size(66, 14);
+      this.fastColoredTextBox00.BackBrush = null;
+      this.fastColoredTextBox00.CharHeight = 14;
+      this.fastColoredTextBox00.CharWidth = 8;
+      this.fastColoredTextBox00.Cursor = System.Windows.Forms.Cursors.IBeam;
+      this.fastColoredTextBox00.DisabledColor = System.Drawing.Color.FromArgb(((int) (((byte) (100)))), ((int) (((byte) (180)))), ((int) (((byte) (180)))), ((int) (((byte) (180)))));
+      this.fastColoredTextBox00.IsReplaceMode = false;
+      this.fastColoredTextBox00.Location = new System.Drawing.Point(405, 121);
+      this.fastColoredTextBox00.Multiline = false;
+      this.fastColoredTextBox00.Name = "fastColoredTextBox00";
+      this.fastColoredTextBox00.Paddings = new System.Windows.Forms.Padding(0);
+      this.fastColoredTextBox00.ReadOnly = true;
+      this.fastColoredTextBox00.SelectionColor = System.Drawing.Color.FromArgb(((int) (((byte) (60)))), ((int) (((byte) (0)))), ((int) (((byte) (0)))), ((int) (((byte) (255)))));
+      this.fastColoredTextBox00.ShowLineNumbers = false;
+      this.fastColoredTextBox00.ShowScrollBars = false;
+      this.fastColoredTextBox00.Size = new System.Drawing.Size(181, 18);
+      this.fastColoredTextBox00.TabIndex = 29;
+      this.fastColoredTextBox00.Text = "This is ";
+      this.fastColoredTextBox00.Zoom = 100;
+      // label1
+      this.label1.Anchor = ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+      this.label1.AutoSize = true;
+      this.label1.ForeColor = System.Drawing.Color.Teal;
+      this.label1.Location = new System.Drawing.Point(363, 118);
+      this.label1.Name = "label1";
+      this.label1.Padding = new System.Windows.Forms.Padding(0, 3, 0, 0);
+      this.label1.Size = new System.Drawing.Size(36, 16);
+      this.label1.TabIndex = 35;
+      this.label1.Text = "Rec 1";
+      // fastColoredTextBox12
+      this.fastColoredTextBox12.AutoCompleteBracketsList = new char[] {
+        '(',
+        ')',
+        '{',
+        '}',
+        '[',
+        ']',
+        '\"',
+        '\"',
+        '\'',
+        '\''};
+      this.fastColoredTextBox12.AutoScrollMinSize = new System.Drawing.Size(106, 28);
+      this.fastColoredTextBox12.BackBrush = null;
+      this.fastColoredTextBox12.CharHeight = 14;
+      this.fastColoredTextBox12.CharWidth = 8;
+      this.fastColoredTextBox12.Cursor = System.Windows.Forms.Cursors.IBeam;
+      this.fastColoredTextBox12.DisabledColor = System.Drawing.Color.FromArgb(((int) (((byte) (100)))), ((int) (((byte) (180)))), ((int) (((byte) (180)))), ((int) (((byte) (180)))));
+      this.fastColoredTextBox12.IsReplaceMode = false;
+      this.fastColoredTextBox12.Location = new System.Drawing.Point(592, 169);
+      this.fastColoredTextBox12.Name = "fastColoredTextBox12";
+      this.fastColoredTextBox12.Paddings = new System.Windows.Forms.Padding(0);
+      this.fastColoredTextBox12.ReadOnly = true;
+      this.fastColoredTextBox12.SelectionColor = System.Drawing.Color.FromArgb(((int) (((byte) (60)))), ((int) (((byte) (0)))), ((int) (((byte) (0)))), ((int) (((byte) (255)))));
+      this.fastColoredTextBox12.ShowLineNumbers = false;
+      this.fastColoredTextBox12.Size = new System.Drawing.Size(191, 31);
+      this.fastColoredTextBox12.TabIndex = 34;
+      this.fastColoredTextBox12.Text = "Column with ¶\r\nLinefeed";
+      this.fastColoredTextBox12.Zoom = 100;
+      // fastColoredTextBox02
+      this.fastColoredTextBox02.AutoCompleteBracketsList = new char[] {
+        '(',
+        ')',
+        '{',
+        '}',
+        '[',
+        ']',
+        '\"',
+        '\"',
+        '\'',
+        '\''};
+      this.fastColoredTextBox02.AutoScrollMinSize = new System.Drawing.Size(66, 14);
+      this.fastColoredTextBox02.BackBrush = null;
+      this.fastColoredTextBox02.CharHeight = 14;
+      this.fastColoredTextBox02.CharWidth = 8;
+      this.fastColoredTextBox02.Cursor = System.Windows.Forms.Cursors.IBeam;
+      this.fastColoredTextBox02.DisabledColor = System.Drawing.Color.FromArgb(((int) (((byte) (100)))), ((int) (((byte) (180)))), ((int) (((byte) (180)))), ((int) (((byte) (180)))));
+      this.fastColoredTextBox02.IsReplaceMode = false;
+      this.fastColoredTextBox02.Location = new System.Drawing.Point(405, 169);
+      this.fastColoredTextBox02.Multiline = false;
+      this.fastColoredTextBox02.Name = "fastColoredTextBox02";
+      this.fastColoredTextBox02.Paddings = new System.Windows.Forms.Padding(0);
+      this.fastColoredTextBox02.ReadOnly = true;
+      this.fastColoredTextBox02.SelectionColor = System.Drawing.Color.FromArgb(((int) (((byte) (60)))), ((int) (((byte) (0)))), ((int) (((byte) (0)))), ((int) (((byte) (255)))));
+      this.fastColoredTextBox02.ShowLineNumbers = false;
+      this.fastColoredTextBox02.ShowScrollBars = false;
+      this.fastColoredTextBox02.Size = new System.Drawing.Size(181, 18);
+      this.fastColoredTextBox02.TabIndex = 33;
+      this.fastColoredTextBox02.Text = "Example ";
+      this.fastColoredTextBox02.Zoom = 100;
+      // fastColoredTextBox11
+      this.fastColoredTextBox11.AutoCompleteBracketsList = new char[] {
+        '(',
+        ')',
+        '{',
+        '}',
+        '[',
+        ']',
+        '\"',
+        '\"',
+        '\'',
+        '\''};
+      this.fastColoredTextBox11.AutoScrollMinSize = new System.Drawing.Size(154, 14);
+      this.fastColoredTextBox11.BackBrush = null;
+      this.fastColoredTextBox11.CharHeight = 14;
+      this.fastColoredTextBox11.CharWidth = 8;
+      this.fastColoredTextBox11.Cursor = System.Windows.Forms.Cursors.IBeam;
+      this.fastColoredTextBox11.DisabledColor = System.Drawing.Color.FromArgb(((int) (((byte) (100)))), ((int) (((byte) (180)))), ((int) (((byte) (180)))), ((int) (((byte) (180)))));
+      this.fastColoredTextBox11.IsReplaceMode = false;
+      this.fastColoredTextBox11.Location = new System.Drawing.Point(592, 145);
+      this.fastColoredTextBox11.Multiline = false;
+      this.fastColoredTextBox11.Name = "fastColoredTextBox11";
+      this.fastColoredTextBox11.Paddings = new System.Windows.Forms.Padding(0);
+      this.fastColoredTextBox11.ReadOnly = true;
+      this.fastColoredTextBox11.SelectionColor = System.Drawing.Color.FromArgb(((int) (((byte) (60)))), ((int) (((byte) (0)))), ((int) (((byte) (0)))), ((int) (((byte) (255)))));
+      this.fastColoredTextBox11.ShowLineNumbers = false;
+      this.fastColoredTextBox11.ShowScrollBars = false;
+      this.fastColoredTextBox11.Size = new System.Drawing.Size(191, 18);
+      this.fastColoredTextBox11.TabIndex = 32;
+      this.fastColoredTextBox11.Text = "Column with \" Quote";
+      this.fastColoredTextBox11.Zoom = 100;
+      // fastColoredTextBox01
+      this.fastColoredTextBox01.AutoCompleteBracketsList = new char[] {
+        '(',
+        ')',
+        '{',
+        '}',
+        '[',
+        ']',
+        '\"',
+        '\"',
+        '\'',
+        '\''};
+      this.fastColoredTextBox01.AutoScrollMinSize = new System.Drawing.Size(98, 14);
+      this.fastColoredTextBox01.BackBrush = null;
+      this.fastColoredTextBox01.CharHeight = 14;
+      this.fastColoredTextBox01.CharWidth = 8;
+      this.fastColoredTextBox01.Cursor = System.Windows.Forms.Cursors.IBeam;
+      this.fastColoredTextBox01.DisabledColor = System.Drawing.Color.FromArgb(((int) (((byte) (100)))), ((int) (((byte) (180)))), ((int) (((byte) (180)))), ((int) (((byte) (180)))));
+      this.fastColoredTextBox01.IsReplaceMode = false;
+      this.fastColoredTextBox01.Location = new System.Drawing.Point(405, 145);
+      this.fastColoredTextBox01.Multiline = false;
+      this.fastColoredTextBox01.Name = "fastColoredTextBox01";
+      this.fastColoredTextBox01.Paddings = new System.Windows.Forms.Padding(0);
+      this.fastColoredTextBox01.ReadOnly = true;
+      this.fastColoredTextBox01.SelectionColor = System.Drawing.Color.FromArgb(((int) (((byte) (60)))), ((int) (((byte) (0)))), ((int) (((byte) (0)))), ((int) (((byte) (255)))));
+      this.fastColoredTextBox01.ShowLineNumbers = false;
+      this.fastColoredTextBox01.ShowScrollBars = false;
+      this.fastColoredTextBox01.Size = new System.Drawing.Size(181, 18);
+      this.fastColoredTextBox01.TabIndex = 31;
+      this.fastColoredTextBox01.Text = " a Trimming ";
+      this.fastColoredTextBox01.Zoom = 100;
+      // fastColoredTextBox10
+      this.fastColoredTextBox10.AutoCompleteBracketsList = new char[] {
+        '(',
+        ')',
+        '{',
+        '}',
+        '[',
+        ']',
+        '\"',
+        '\"',
+        '\'',
+        '\''};
+      this.fastColoredTextBox10.AutoScrollMinSize = new System.Drawing.Size(186, 14);
+      this.fastColoredTextBox10.BackBrush = null;
+      this.fastColoredTextBox10.CharHeight = 14;
+      this.fastColoredTextBox10.CharWidth = 8;
+      this.fastColoredTextBox10.Cursor = System.Windows.Forms.Cursors.IBeam;
+      this.fastColoredTextBox10.DisabledColor = System.Drawing.Color.FromArgb(((int) (((byte) (100)))), ((int) (((byte) (180)))), ((int) (((byte) (180)))), ((int) (((byte) (180)))));
+      this.fastColoredTextBox10.IsReplaceMode = false;
+      this.fastColoredTextBox10.Location = new System.Drawing.Point(592, 121);
+      this.fastColoredTextBox10.Multiline = false;
+      this.fastColoredTextBox10.Name = "fastColoredTextBox10";
+      this.fastColoredTextBox10.Paddings = new System.Windows.Forms.Padding(0);
+      this.fastColoredTextBox10.ReadOnly = true;
+      this.fastColoredTextBox10.SelectionColor = System.Drawing.Color.FromArgb(((int) (((byte) (60)))), ((int) (((byte) (0)))), ((int) (((byte) (0)))), ((int) (((byte) (255)))));
+      this.fastColoredTextBox10.ShowLineNumbers = false;
+      this.fastColoredTextBox10.ShowScrollBars = false;
+      this.fastColoredTextBox10.Size = new System.Drawing.Size(191, 18);
+      this.fastColoredTextBox10.TabIndex = 30;
+      this.fastColoredTextBox10.TabLength = 1;
+      this.fastColoredTextBox10.TabStop = false;
+      this.fastColoredTextBox10.Text = "Column with:, Delimiter";
+      this.fastColoredTextBox10.Zoom = 100;
+      // fastColoredTextBox
+      this.fastColoredTextBox.AutoCompleteBracketsList = new char[] {
+        '(',
+        ')',
+        '{',
+        '}',
+        '[',
+        ']',
+        '\"',
+        '\"',
+        '\'',
+        '\''};
+      this.fastColoredTextBox.AutoScrollMinSize = new System.Drawing.Size(307, 56);
+      this.fastColoredTextBox.BackBrush = null;
+      this.fastColoredTextBox.CharHeight = 14;
+      this.fastColoredTextBox.CharWidth = 8;
+      this.m_TableLayoutPanel.SetColumnSpan(this.fastColoredTextBox, 2);
+      this.fastColoredTextBox.Cursor = System.Windows.Forms.Cursors.IBeam;
+      this.fastColoredTextBox.DisabledColor = System.Drawing.Color.FromArgb(((int) (((byte) (100)))), ((int) (((byte) (180)))), ((int) (((byte) (180)))), ((int) (((byte) (180)))));
+      this.fastColoredTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
+      this.fastColoredTextBox.IsReplaceMode = false;
+      this.fastColoredTextBox.Location = new System.Drawing.Point(3, 121);
+      this.fastColoredTextBox.Name = "fastColoredTextBox";
+      this.fastColoredTextBox.Paddings = new System.Windows.Forms.Padding(0);
+      this.fastColoredTextBox.ReadOnly = true;
+      this.m_TableLayoutPanel.SetRowSpan(this.fastColoredTextBox, 3);
+      this.fastColoredTextBox.SelectionColor = System.Drawing.Color.FromArgb(((int) (((byte) (60)))), ((int) (((byte) (0)))), ((int) (((byte) (0)))), ((int) (((byte) (255)))));
+      this.fastColoredTextBox.Size = new System.Drawing.Size(354, 87);
+      this.fastColoredTextBox.TabIndex = 1;
+      this.fastColoredTextBox.TabLength = 1;
+      this.fastColoredTextBox.TabStop = false;
+      this.fastColoredTextBox.Text = "\"This is \";Column with:, Delimiter¶\r\n a Trimming ;Column with \"\" Quote¶\r\nExample " +
+    ";\"Column with ¶\r\nLinefeed\"";
+      this.fastColoredTextBox.Zoom = 100;
       // checkBoxQualifyAlways
-      // 
-      checkBoxQualifyAlways.Anchor = AnchorStyles.Left;
-      checkBoxQualifyAlways.AutoSize = true;
-      checkBoxQualifyAlways.DataBindings.Add(new System.Windows.Forms.Binding("Checked", m_FileFormatBindingSource,
-        "QualifyAlways", true));
-      checkBoxQualifyAlways.Location = new System.Drawing.Point(646, 54);
-      checkBoxQualifyAlways.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
-      checkBoxQualifyAlways.Name = "checkBoxQualifyAlways";
-      checkBoxQualifyAlways.Size = new System.Drawing.Size(121, 21);
-      checkBoxQualifyAlways.TabIndex = 3;
-      checkBoxQualifyAlways.Text = "Qualify Always";
-      checkBoxQualifyAlways.UseVisualStyleBackColor = true;
-      checkBoxQualifyAlways.Visible = false;
-      // 
+      this.checkBoxQualifyAlways.Anchor = System.Windows.Forms.AnchorStyles.Left;
+      this.checkBoxQualifyAlways.AutoSize = true;
+      this.checkBoxQualifyAlways.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.m_FileFormatBindingSource, "QualifyAlways", true));
+      this.checkBoxQualifyAlways.Location = new System.Drawing.Point(592, 51);
+      this.checkBoxQualifyAlways.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.checkBoxQualifyAlways.Name = "checkBoxQualifyAlways";
+      this.checkBoxQualifyAlways.Size = new System.Drawing.Size(94, 17);
+      this.checkBoxQualifyAlways.TabIndex = 3;
+      this.checkBoxQualifyAlways.Text = "Qualify Always";
+      this.checkBoxQualifyAlways.UseVisualStyleBackColor = true;
+      this.checkBoxQualifyAlways.Visible = false;
+      // checkBoxQualifyOnlyNeeded
+      this.checkBoxQualifyOnlyNeeded.Anchor = System.Windows.Forms.AnchorStyles.Left;
+      this.checkBoxQualifyOnlyNeeded.AutoSize = true;
+      this.m_TableLayoutPanel.SetColumnSpan(this.checkBoxQualifyOnlyNeeded, 2);
+      this.checkBoxQualifyOnlyNeeded.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.m_FileFormatBindingSource, "QualifyOnlyIfNeeded", true));
+      this.checkBoxQualifyOnlyNeeded.Location = new System.Drawing.Point(363, 51);
+      this.checkBoxQualifyOnlyNeeded.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.checkBoxQualifyOnlyNeeded.Name = "checkBoxQualifyOnlyNeeded";
+      this.checkBoxQualifyOnlyNeeded.Size = new System.Drawing.Size(132, 17);
+      this.checkBoxQualifyOnlyNeeded.TabIndex = 4;
+      this.checkBoxQualifyOnlyNeeded.Text = "Qualify Only If Needed";
+      this.checkBoxQualifyOnlyNeeded.UseVisualStyleBackColor = true;
+      this.checkBoxQualifyOnlyNeeded.Visible = false;
+      // m_LabelInfoQuoting
+      this.m_LabelInfoQuoting.Anchor = System.Windows.Forms.AnchorStyles.Left;
+      this.m_LabelInfoQuoting.AutoSize = true;
+      this.m_LabelInfoQuoting.BackColor = System.Drawing.SystemColors.Info;
+      this.m_LabelInfoQuoting.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+      this.m_TableLayoutPanel.SetColumnSpan(this.m_LabelInfoQuoting, 3);
+      this.m_LabelInfoQuoting.ForeColor = System.Drawing.SystemColors.InfoText;
+      this.m_LabelInfoQuoting.Location = new System.Drawing.Point(363, 77);
+      this.m_LabelInfoQuoting.Name = "m_LabelInfoQuoting";
+      this.m_LabelInfoQuoting.Size = new System.Drawing.Size(225, 15);
+      this.m_LabelInfoQuoting.TabIndex = 11;
+      this.m_LabelInfoQuoting.Text = "Not possible to have leading or trailing spaces";
+      // m_LabelTrim
+      this.m_LabelTrim.Anchor = System.Windows.Forms.AnchorStyles.Right;
+      this.m_LabelTrim.AutoSize = true;
+      this.m_LabelTrim.Location = new System.Drawing.Point(12, 78);
+      this.m_LabelTrim.Name = "m_LabelTrim";
+      this.m_LabelTrim.Size = new System.Drawing.Size(86, 13);
+      this.m_LabelTrim.TabIndex = 9;
+      this.m_LabelTrim.Text = "Trimming Option:";
+      // m_TextBoxEscape
+      this.m_TextBoxEscape.Anchor = System.Windows.Forms.AnchorStyles.Left;
+      this.m_TextBoxEscape.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.m_FileFormatBindingSource, "EscapeCharacter", true));
+      this.m_TextBoxEscape.Location = new System.Drawing.Point(104, 26);
+      this.m_TextBoxEscape.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.m_TextBoxEscape.Name = "m_TextBoxEscape";
+      this.m_TextBoxEscape.Size = new System.Drawing.Size(96, 20);
+      this.m_TextBoxEscape.TabIndex = 6;
+      this.m_TextBoxEscape.TextChanged += new System.EventHandler(this.QuoteChanged);
+      // m_LabelQuotePlaceholder
+      this.m_LabelQuotePlaceholder.Anchor = System.Windows.Forms.AnchorStyles.Right;
+      this.m_LabelQuotePlaceholder.AutoSize = true;
+      this.m_LabelQuotePlaceholder.Location = new System.Drawing.Point(32, 53);
+      this.m_LabelQuotePlaceholder.Name = "m_LabelQuotePlaceholder";
+      this.m_LabelQuotePlaceholder.Size = new System.Drawing.Size(66, 13);
+      this.m_LabelQuotePlaceholder.TabIndex = 7;
+      this.m_LabelQuotePlaceholder.Text = "Placeholder:";
+      // m_LabelEscapeCharacter
+      this.m_LabelEscapeCharacter.Anchor = System.Windows.Forms.AnchorStyles.Right;
+      this.m_LabelEscapeCharacter.AutoSize = true;
+      this.m_LabelEscapeCharacter.Location = new System.Drawing.Point(3, 29);
+      this.m_LabelEscapeCharacter.Name = "m_LabelEscapeCharacter";
+      this.m_LabelEscapeCharacter.Size = new System.Drawing.Size(95, 13);
+      this.m_LabelEscapeCharacter.TabIndex = 5;
+      this.m_LabelEscapeCharacter.Text = "Escape Character:";
+      // m_LabelQuote
+      this.m_LabelQuote.Anchor = System.Windows.Forms.AnchorStyles.Right;
+      this.m_LabelQuote.AutoSize = true;
+      this.m_LabelQuote.Location = new System.Drawing.Point(26, 5);
+      this.m_LabelQuote.Name = "m_LabelQuote";
+      this.m_LabelQuote.Size = new System.Drawing.Size(72, 13);
+      this.m_LabelQuote.TabIndex = 0;
+      this.m_LabelQuote.Text = "Text Qualifier:";
+      // label2
+      this.label2.Anchor = ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+      this.label2.AutoSize = true;
+      this.label2.ForeColor = System.Drawing.Color.Teal;
+      this.label2.Location = new System.Drawing.Point(363, 142);
+      this.label2.Name = "label2";
+      this.label2.Padding = new System.Windows.Forms.Padding(0, 3, 0, 0);
+      this.label2.Size = new System.Drawing.Size(36, 16);
+      this.label2.TabIndex = 36;
+      this.label2.Text = "Rec 2";
+      // label3
+      this.label3.Anchor = ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+      this.label3.AutoSize = true;
+      this.label3.ForeColor = System.Drawing.Color.Teal;
+      this.label3.Location = new System.Drawing.Point(363, 166);
+      this.label3.Name = "label3";
+      this.label3.Padding = new System.Windows.Forms.Padding(0, 3, 0, 0);
+      this.label3.Size = new System.Drawing.Size(36, 16);
+      this.label3.TabIndex = 37;
+      this.label3.Text = "Rec 3";
+      // m_TableLayoutPanel
+      this.m_TableLayoutPanel.AutoSize = true;
+      this.m_TableLayoutPanel.ColumnCount = 7;
+      this.m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+      this.m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+      this.m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+      this.m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+      this.m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+      this.m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+      this.m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 16F));
+      this.m_TableLayoutPanel.Controls.Add(this.label3, 3, 7);
+      this.m_TableLayoutPanel.Controls.Add(this.label2, 3, 6);
+      this.m_TableLayoutPanel.Controls.Add(this.m_LabelQuote, 0, 0);
+      this.m_TableLayoutPanel.Controls.Add(this.m_LabelEscapeCharacter, 0, 1);
+      this.m_TableLayoutPanel.Controls.Add(this.m_LabelQuotePlaceholder, 0, 2);
+      this.m_TableLayoutPanel.Controls.Add(this.m_TextBoxQuote, 1, 0);
+      this.m_TableLayoutPanel.Controls.Add(this.m_TextBoxEscape, 1, 1);
+      this.m_TableLayoutPanel.Controls.Add(this.m_TextBoxQuotePlaceHolder, 1, 2);
+      this.m_TableLayoutPanel.Controls.Add(this.comboBoxTrim, 1, 3);
+      this.m_TableLayoutPanel.Controls.Add(this.m_LabelTrim, 0, 3);
+      this.m_TableLayoutPanel.Controls.Add(this.m_LabelInfoQuoting, 3, 3);
+      this.m_TableLayoutPanel.Controls.Add(this.checkBoxQualifyOnlyNeeded, 3, 2);
+      this.m_TableLayoutPanel.Controls.Add(this.checkBoxAlternateQuoting, 3, 0);
+      this.m_TableLayoutPanel.Controls.Add(this.labelNoQuotes, 5, 0);
+      this.m_TableLayoutPanel.Controls.Add(this.checkBoxQualifyAlways, 5, 2);
+      this.m_TableLayoutPanel.Controls.Add(this.checkBoxDuplicateQuotingToEscape, 3, 1);
+      this.m_TableLayoutPanel.Controls.Add(this.fastColoredTextBox, 0, 5);
+      this.m_TableLayoutPanel.Controls.Add(this.fastColoredTextBox10, 5, 5);
+      this.m_TableLayoutPanel.Controls.Add(this.fastColoredTextBox01, 4, 6);
+      this.m_TableLayoutPanel.Controls.Add(this.fastColoredTextBox11, 5, 6);
+      this.m_TableLayoutPanel.Controls.Add(this.fastColoredTextBox02, 4, 7);
+      this.m_TableLayoutPanel.Controls.Add(this.fastColoredTextBox12, 5, 7);
+      this.m_TableLayoutPanel.Controls.Add(this.label1, 3, 5);
+      this.m_TableLayoutPanel.Controls.Add(this.fastColoredTextBox00, 4, 5);
+      this.m_TableLayoutPanel.Controls.Add(this.label5, 4, 4);
+      this.m_TableLayoutPanel.Controls.Add(this.label4, 5, 4);
+      this.m_TableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+      this.m_TableLayoutPanel.Location = new System.Drawing.Point(0, 0);
+      this.m_TableLayoutPanel.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.m_TableLayoutPanel.Name = "m_TableLayoutPanel";
+      this.m_TableLayoutPanel.RowCount = 9;
+      this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+      this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      this.m_TableLayoutPanel.Size = new System.Drawing.Size(802, 317);
+      this.m_TableLayoutPanel.TabIndex = 0;
+      // label5
+      this.label5.Anchor = System.Windows.Forms.AnchorStyles.None;
+      this.label5.AutoSize = true;
+      this.label5.ForeColor = System.Drawing.Color.Teal;
+      this.label5.Location = new System.Drawing.Point(470, 101);
+      this.label5.Name = "label5";
+      this.label5.Size = new System.Drawing.Size(51, 13);
+      this.label5.TabIndex = 35;
+      this.label5.Text = "Column 1";
+      // label4
+      this.label4.Anchor = System.Windows.Forms.AnchorStyles.None;
+      this.label4.AutoSize = true;
+      this.label4.ForeColor = System.Drawing.Color.Teal;
+      this.label4.Location = new System.Drawing.Point(662, 101);
+      this.label4.Name = "label4";
+      this.label4.Size = new System.Drawing.Size(51, 13);
+      this.label4.TabIndex = 35;
+      this.label4.Text = "Column 2";
       // QuotingControl
-      // 
-      AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
-      AutoScaleMode = AutoScaleMode.Font;
-      Controls.Add(m_TableLayoutPanel);
-      Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
-      MinimumSize = new System.Drawing.Size(664, 0);
-      Name = "QuotingControl";
-      Size = new System.Drawing.Size(844, 254);
-      ((System.ComponentModel.ISupportInitialize) m_FileFormatBindingSource).EndInit();
-      ((System.ComponentModel.ISupportInitialize) m_ErrorProvider).EndInit();
-      m_TableLayoutPanel.ResumeLayout(false);
-      m_TableLayoutPanel.PerformLayout();
-      ResumeLayout(false);
-      PerformLayout();
+      this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+      this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+      this.Controls.Add(this.m_TableLayoutPanel);
+      this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.MinimumSize = new System.Drawing.Size(498, 0);
+      this.Name = "QuotingControl";
+      this.Size = new System.Drawing.Size(802, 317);
+      ((System.ComponentModel.ISupportInitialize) (this.m_FileFormatBindingSource)).EndInit();
+      ((System.ComponentModel.ISupportInitialize) (this.m_ErrorProvider)).EndInit();
+      ((System.ComponentModel.ISupportInitialize) (this.fastColoredTextBox00)).EndInit();
+      ((System.ComponentModel.ISupportInitialize) (this.fastColoredTextBox12)).EndInit();
+      ((System.ComponentModel.ISupportInitialize) (this.fastColoredTextBox02)).EndInit();
+      ((System.ComponentModel.ISupportInitialize) (this.fastColoredTextBox11)).EndInit();
+      ((System.ComponentModel.ISupportInitialize) (this.fastColoredTextBox01)).EndInit();
+      ((System.ComponentModel.ISupportInitialize) (this.fastColoredTextBox10)).EndInit();
+      ((System.ComponentModel.ISupportInitialize) (this.fastColoredTextBox)).EndInit();
+      this.m_TableLayoutPanel.ResumeLayout(false);
+      this.m_TableLayoutPanel.PerformLayout();
+      this.ResumeLayout(false);
+      this.PerformLayout();
     }
 
     private void QuoteChanged(object sender, EventArgs e)
     {
       SetTrimming(sender, e);
-      SetToolTipPlaceholder();
+      QuoteOrDelimiterChnage();
     }
 
+    private void QuoteOrDelimiterChnage() =>
+      this.SafeInvoke(
+        () =>
+        {
+          labelNoQuotes.Visible = !(m_CsvFile.FileFormat.AlternateQuoting
+                                    || m_CsvFile.FileFormat.DuplicateQuotingToEscape
+                                    || m_CsvFile.FileFormat.EscapeCharacterChar != '\0');
+
+          m_ErrorProvider.SetError(m_TextBoxQuote, "");
+
+          var quote = FileFormat.GetChar(m_TextBoxQuote.Text);
+          var delimiter = m_CsvFile?.FileFormat?.FieldDelimiterChar ?? ',';
+
+          if (quote != '\0' && quote != '\''&& quote != '\"')
+            m_ErrorProvider.SetError(m_TextBoxQuote, "Unusual Quoting character");
+
+          if (delimiter == quote)
+            m_ErrorProvider.SetError(m_TextBoxQuote, "Delimiter and Quote have to be different");
+
+          var delim = (delimiter=='\t') ? m_DelimiterTab : m_Delimiter;
+          if (quote == '\0')
+          {
+            m_ErrorProvider.SetError(fastColoredTextBox10, "Without quoting a delimiter can not be part of a column");
+            m_ErrorProvider.SetError(fastColoredTextBox12, "Without quoting a linefeed can not be part of a column");
+          }
+          else
+          {
+            m_ErrorProvider.SetError(fastColoredTextBox10, null);
+            m_ErrorProvider.SetError(fastColoredTextBox12, null);
+          }
+          fastColoredTextBox10.Text = $"Column with:";
+          fastColoredTextBox10.AppendText(delimiter.ToString(), delim);
+          fastColoredTextBox10.AppendText(" Delimiter");
+
+          fastColoredTextBox12.Text = "Column with ";
+          fastColoredTextBox12.AppendText("¶", m_Pilcrow);
+          fastColoredTextBox12.AppendText("\r\nLinefeed");
+
+          fastColoredTextBox11.Text = "Column with: ";
+          fastColoredTextBox11.AppendText(quote.ToString(), m_Quote);
+          fastColoredTextBox11.AppendText(" Quote");
+
+          fastColoredTextBox.Clear();
+          var newToolTip = m_IsWriteSetting
+            ? "Start the column with a quote, if a quote is part of the text the quote is replaced with a placeholder."
+            : "If the placeholder is part of the text it will be replaced with the quoting character.";
+
+          fastColoredTextBox.AppendText(quote.ToString(), m_Quote);
+          fastColoredTextBox.AppendText("This is ");
+          fastColoredTextBox.AppendText(quote.ToString(), m_Quote);
+          fastColoredTextBox.AppendText(delimiter.ToString(), delim);
+          fastColoredTextBox.AppendText(quote.ToString(), m_Quote);
+          fastColoredTextBox.AppendText("Column with:");
+          fastColoredTextBox.AppendText(delimiter.ToString(), delim);
+          fastColoredTextBox.AppendText(" Delimiter");
+          fastColoredTextBox.AppendText(quote.ToString(), m_Quote);
+          fastColoredTextBox.AppendText("¶", m_Pilcrow);
+          fastColoredTextBox.AppendText("\r\n");
+          fastColoredTextBox.AppendText(quote.ToString(), m_Quote);
+          fastColoredTextBox.AppendText(" a Trimming ");
+          fastColoredTextBox.AppendText(quote.ToString(), m_Quote);
+          fastColoredTextBox.AppendText(delimiter.ToString(), delim);
+          fastColoredTextBox.AppendText(quote.ToString(), m_Quote);
+          fastColoredTextBox.AppendText("Column with: ");
+
+          if (string.IsNullOrEmpty(m_TextBoxQuotePlaceHolder.Text) && !m_CsvFile.FileFormat.DuplicateQuotingToEscape && string.IsNullOrEmpty(m_TextBoxEscape.Text))
+            m_ErrorProvider.SetError(fastColoredTextBox11, "The contained quote would lead to closing of the column unless placeholder, repeated quotes or context sensitive quoting is used.");
+          else
+            m_ErrorProvider.SetError(fastColoredTextBox11, null);
+
+          if (!string.IsNullOrEmpty(m_TextBoxQuotePlaceHolder.Text) && quote != '\0')
+          {
+            newToolTip += m_IsWriteSetting
+              ? $"\r\nhello {quote} world ->{quote}hello {m_TextBoxQuotePlaceHolder.Text} world{quote}"
+              : $"\r\n{quote}hello {m_TextBoxQuotePlaceHolder.Text} world{quote} -> hello {quote} world";
+            fastColoredTextBox.AppendText(m_TextBoxQuotePlaceHolder.Text, m_EscapedQuote);
+          }
+          else
+          {
+            if (m_CsvFile.FileFormat.DuplicateQuotingToEscape)
+              fastColoredTextBox.AppendText(new string(quote, 2), m_EscapedQuote);
+            else
+            if (m_CsvFile.FileFormat.AlternateQuoting || string.IsNullOrEmpty(m_TextBoxEscape.Text))
+              fastColoredTextBox.AppendText(new string(quote, 1), m_EscapedQuote);
+            else
+              fastColoredTextBox.AppendText(m_TextBoxEscape.Text + quote, m_EscapedQuote);
+          }
+
+          fastColoredTextBox.AppendText(" Quote");
+          fastColoredTextBox.AppendText(quote.ToString(), m_Quote);
+          fastColoredTextBox.AppendText("¶", m_Pilcrow);
+          fastColoredTextBox.AppendText("\r\nExample ");
+          fastColoredTextBox.AppendText(delimiter.ToString(), delim);
+          fastColoredTextBox.AppendText(quote.ToString(), m_Quote);
+          fastColoredTextBox.AppendText("Column with ");
+          fastColoredTextBox.AppendText("¶", m_Pilcrow);
+          fastColoredTextBox.AppendText("\r\nLinefeed");
+          fastColoredTextBox.AppendText(quote.ToString(), m_Quote);
+
+          fastColoredTextBox.Range.SetStyle(m_Space, m_SpaceRegex);
+          fastColoredTextBox10.Range.SetStyle(m_Space, m_SpaceRegex);
+          fastColoredTextBox11.Range.SetStyle(m_Space, m_SpaceRegex);
+          fastColoredTextBox12.Range.SetStyle(m_Space, m_SpaceRegex);
+
+          m_ToolTip.SetToolTip(m_TextBoxQuotePlaceHolder, newToolTip);
+        });
+
     private void SetCboTrim(TrimmingOption trim) =>
-      comboBoxTrim.SafeInvokeNoHandleNeeded(
+          comboBoxTrim.SafeInvokeNoHandleNeeded(
         () =>
         {
           foreach (var ite in comboBoxTrim.Items)
@@ -748,82 +842,6 @@ namespace CsvTools
         SetCboTrim(m_CsvFile.TrimmingOption);
     }
 
-    private void SetToolTipPlaceholder() =>
-      this.SafeInvoke(
-        () =>
-        {
-          labelNoQuotes.Visible = !(m_CsvFile.FileFormat.AlternateQuoting
-                                    || m_CsvFile.FileFormat.DuplicateQuotingToEscape
-                                    || m_CsvFile.FileFormat.EscapeCharacterChar != '\0');
-
-          m_ErrorProvider.SetError(m_TextBoxQuote, "");
-
-          var quote = FileFormat.GetChar(m_TextBoxQuote.Text).ToString(CultureInfo.CurrentCulture);
-
-          if (quote != "\0" && quote != "'" && quote != "\"")
-            m_ErrorProvider.SetError(m_TextBoxQuote, "Unusual Quoting character");
-
-          if (m_RichTextBoxSrc.Delimiter == quote[0])
-            m_ErrorProvider.SetError(m_TextBoxQuote, "Delimiter and Quote have to be different");
-
-          if (quote == "\0")
-            quote = null;
-
-          if (quote == null)
-          {
-            m_RichTextBox10.Text = @"<Not possible>";
-            m_RichTextBox10.SelectAll();
-            m_RichTextBox10.SelectionColor = Color.Red;
-
-            m_RichTextBox12.Text = @"<Not possible>";
-            m_RichTextBox12.SelectAll();
-            m_RichTextBox12.SelectionColor = Color.Red;
-          }
-          else
-          {
-            m_RichTextBox10.Text = $@"Column with:{m_RichTextBoxSrc.Delimiter} Delimiter";
-            m_RichTextBox12.Text = @"Column with 
-Linefeed";
-          }
-
-          m_RichTextBox11.Text = $@"Column with:{quote} Quote";
-
-
-          // richTextBox11.Quote = quote[0];
-
-          var newToolTip = m_IsWriteSetting
-            ? "Start the column with a quote, if a quote is part of the text the quote is replaced with a placeholder."
-            : "If the placeholder is part of the text it will be replaced with the quoting character.";
-
-          var sampleText = quote + "This is " + quote + m_RichTextBoxSrc.Delimiter + quote + "Column with:"
-                           + m_RichTextBoxSrc.Delimiter + " Delimiter" + quote + "\r\n" + quote + " a Trimming "
-                           + quote + m_RichTextBoxSrc.Delimiter + quote + "Column with:{*} Quote" + quote + "\r\n"
-                           + "Example " + m_RichTextBoxSrc.Delimiter + quote + "Column with \r\nLinefeed" + quote;
-
-          if (!string.IsNullOrEmpty(m_TextBoxQuotePlaceHolder.Text) && !string.IsNullOrEmpty(quote))
-          {
-            newToolTip += m_IsWriteSetting
-              ? $"\r\nhello {quote} world ->{quote}hello {m_TextBoxQuotePlaceHolder.Text} world{quote}"
-              : $"\r\n{quote}hello {m_TextBoxQuotePlaceHolder.Text} world{quote} -> hello {quote} world";
-
-            sampleText = sampleText.Replace("{*}", m_TextBoxQuotePlaceHolder.Text);
-          }
-
-          if (m_CsvFile.FileFormat.AlternateQuoting)
-            sampleText = !m_CsvFile.FileFormat.DuplicateQuotingToEscape
-              ? sampleText.Replace("{*}", quote)
-              : sampleText.Replace("{*}", quote + quote);
-          else
-            sampleText = string.IsNullOrEmpty(m_TextBoxEscape.Text)
-              ? sampleText.Replace("{*}", quote + quote)
-              : sampleText.Replace("{*}", m_TextBoxEscape.Text + quote);
-
-          m_RichTextBoxSrc.Text = sampleText;
-          m_RichTextBoxSrc.Quote = quote?[0] ?? '\0';
-
-          m_ToolTip.SetToolTip(m_TextBoxQuotePlaceHolder, newToolTip);
-        });
-
     [SuppressMessage("ReSharper", "LocalizableElement")]
     private void SetTrimming(object sender, EventArgs e) =>
       this.SafeInvoke(
@@ -835,67 +853,49 @@ Linefeed";
 
           checkBoxAlternateQuoting.Enabled = !string.IsNullOrEmpty(m_TextBoxQuote.Text);
 
-          m_RichTextBox00.Clear();
-          m_RichTextBox01.Clear();
-          m_RichTextBox02.Clear();
           switch (((DisplayItem<int>) comboBoxTrim.SelectedItem).ID)
           {
             case 1:
               m_CsvFile.TrimmingOption = TrimmingOption.Unquoted;
-
-              m_RichTextBox00.SelectionColor = Color.Black;
-              m_RichTextBox00.Text = "This is ";
-              m_RichTextBox00.Select(m_RichTextBox00.TextLength - 1, 1);
-              m_RichTextBox00.SelectionBackColor = Color.Yellow;
-
-              m_RichTextBox01.Text = " a Trimming ";
-              m_RichTextBox01.Select(0, 1);
-              m_RichTextBox01.SelectionBackColor = Color.Yellow;
-              m_RichTextBox01.SelectionColor = Color.Orange;
-              m_RichTextBox01.Select(m_RichTextBox01.TextLength - 1, 1);
-              m_RichTextBox01.SelectionBackColor = Color.Yellow;
-              m_RichTextBox02.Text = "Example";
               m_LabelInfoQuoting.Text =
                 "Import of leading or training spaces possible, but the field has to be quoted";
               break;
 
             case 3:
               m_CsvFile.TrimmingOption = TrimmingOption.All;
-
-              m_RichTextBox00.Text = "This is";
-              m_RichTextBox01.Text = "a Trimming";
-              m_RichTextBox02.Text = "Example";
-              m_LabelInfoQuoting.Text = "Not possible to have leading nor trailing spaces";
               break;
 
             default:
               m_CsvFile.TrimmingOption = TrimmingOption.None;
-
-              m_RichTextBox00.Text = "This is ";
-              m_RichTextBox00.Select(m_RichTextBox00.TextLength - 1, 1);
-              m_RichTextBox00.SelectionBackColor = Color.Yellow;
-
-              m_RichTextBox01.Text = " a Trimming ";
-              m_RichTextBox01.Select(0, 1);
-              m_RichTextBox01.SelectionBackColor = Color.Yellow;
-              m_RichTextBox01.SelectionColor = Color.Orange;
-              m_RichTextBox01.Select(m_RichTextBox01.TextLength - 1, 1);
-              m_RichTextBox01.SelectionBackColor = Color.Yellow;
-
-              m_RichTextBox02.Text = "Example ";
-              m_RichTextBox02.Select(m_RichTextBox02.TextLength - 1, 1);
-              m_RichTextBox02.SelectionBackColor = Color.Yellow;
-
               m_LabelInfoQuoting.Text = "Leading or training spaces will stay as they are";
               break;
           }
+
+          fastColoredTextBox00.Text = "This is";
+          if (m_CsvFile.TrimmingOption == TrimmingOption.Unquoted || m_CsvFile.TrimmingOption == TrimmingOption.None)
+            fastColoredTextBox00.AppendText(" ");
+
+          fastColoredTextBox01.Clear();
+          if (m_CsvFile.TrimmingOption == TrimmingOption.Unquoted || m_CsvFile.TrimmingOption == TrimmingOption.None)
+            fastColoredTextBox01.AppendText(" ");
+          fastColoredTextBox01.AppendText("a Trimming");
+          if (m_CsvFile.TrimmingOption == TrimmingOption.Unquoted || m_CsvFile.TrimmingOption == TrimmingOption.None)
+            fastColoredTextBox01.AppendText(" ");
+
+          fastColoredTextBox02.Text = "Example";
+          if (m_CsvFile.TrimmingOption == TrimmingOption.None)
+            fastColoredTextBox02.AppendText(" ");
+
+          fastColoredTextBox00.Range.SetStyle(m_Space, m_SpaceRegex);
+          fastColoredTextBox01.Range.SetStyle(m_Space, m_SpaceRegex);
+          fastColoredTextBox02.Range.SetStyle(m_Space, m_SpaceRegex);
         });
 
     private void UpdateUI()
     {
       SetCboTrim(m_CsvFile?.TrimmingOption ?? TrimmingOption.Unquoted);
-      SetToolTipPlaceholder();
-      QuoteChanged(this, null);
+      QuoteOrDelimiterChnage();
+      SetTrimming(null, new EventArgs());
     }
   }
 }

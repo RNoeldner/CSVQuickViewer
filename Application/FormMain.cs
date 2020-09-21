@@ -59,7 +59,9 @@ namespace CsvTools
     private ICsvFile m_FileSetting;
 
     private ICollection<string> m_Headers;
-
+    private ToolStripButton m_ToolStripButtonAsText;
+    private ToolStripButton m_ToolStripButtonSettings;
+    private ToolStripButton m_ToolStripButtonSource;
     private FormCsvTextDisplay m_SourceDisplay;
 
     private int m_WarningCount;
@@ -71,6 +73,9 @@ namespace CsvTools
     public FormMain(string fileName)
     {
       InitializeComponent();
+      detailControl.AddToolStripItem(1, m_ToolStripButtonSettings);
+      detailControl.AddToolStripItem(int.MaxValue, m_ToolStripButtonSource);
+      detailControl.AddToolStripItem(int.MaxValue, m_ToolStripButtonAsText);
       Text = AssemblyTitle;
       m_ViewSettings = LoadViewSettings();
 
@@ -269,12 +274,12 @@ namespace CsvTools
         Logger.Debug("Showing columns as text");
         m_FileSetting.ColumnCollection.CollectionCopy(m_StoreColumns);
         m_FileSetting.ColumnCollection.Clear();
-        detailControl.ButtonAsTextCaption = "Values";
+        m_ToolStripButtonAsText.Text = "Values";
       }
       else
       {
         Logger.Debug("Showing columns as values");
-        detailControl.ButtonAsTextCaption = "Text";
+        m_ToolStripButtonAsText.Text = "Text";
         m_StoreColumns.CollectionCopy(m_FileSetting.ColumnCollection);
       }
 
@@ -294,7 +299,7 @@ namespace CsvTools
             proc.Show(this);
 
             proc.Maximum = 0;
-            proc.SetProcess("Reading source and applying color coding ", 0, false);
+            proc.SetProcess("Reading source and applying color coding", 0, false);
 
             m_SourceDisplay.OpenFile(m_FileSetting.FullPath, m_FileSetting.JsonFormat,
               m_FileSetting.FileFormat.FieldQualifierChar,
@@ -532,10 +537,7 @@ namespace CsvTools
               this.ShowError(ex, "Inspecting file");
             }
 
-            if (m_FileSetting.ColumnCollection.Any(x => x.ValueFormat.DataType != DataType.String))
-            {
-              detailControl.ButtonAsText += DetailControl_ButtonAsText;
-            }
+            m_ToolStripButtonAsText.Visible= m_FileSetting.ColumnCollection.Any(x => x.ValueFormat.DataType != DataType.String);
           }
         }
 
@@ -592,9 +594,16 @@ namespace CsvTools
             pdt.AttachTaskbarProgress();
           processDisplay.SetProcess("Opening File...", -1, true);
           detailControl.FileSetting = m_FileSetting;
+          detailControl.FillGuessSettings = m_ViewSettings.FillGuessSettings;
+          detailControl.CancellationToken = m_CancellationTokenSource.Token;
+
           using (var fileReader = FunctionalDI.GetFileReader(m_FileSetting, TimeZoneInfo.Local.Id, processDisplay))
           {
+            if (!textPanel.Visible)
+              ShowTextPanel(true);
+            fileReader.Warning += AddWarning;
             var warningList = new RowErrorCollection(fileReader);
+            fileReader.Warning -= warningList.Add;
             await fileReader.OpenAsync(processDisplay.CancellationToken);
             warningList.HandleIgnoredColumns(fileReader);
             warningList.PassWarning += AddWarning;
@@ -609,22 +618,6 @@ namespace CsvTools
             }
 
             FunctionalDI.GetColumnHeader = (dummy1, dummy3) => Task.FromResult(m_Headers);
-
-            if (warningList.CountRows > 0)
-            {
-              processDisplay.SetProcess("Warning opening the file", -1, true);
-              _MessageBox.Show(
-                this,
-                warningList.Display,
-                "Opening CSV File",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Warning);
-            }
-
-            if (!textPanel.Visible)
-              ShowTextPanel(true);
-            fileReader.Warning -= warningList.Add;
-            fileReader.Warning += AddWarning;
 
             processDisplay.SetMaximum(0);
             processDisplay.SetProcess("Reading data...", -1, true);
@@ -645,11 +638,6 @@ namespace CsvTools
           }
         }
 
-        detailControl.CancellationToken = m_CancellationTokenSource.Token;
-
-        if (DataTable != null)
-          ShowDataTable(DataTable);
-
         // The reader is used when data ist stored through the detailControl
         FunctionalDI.SQLDataReader = async (settingName, message, timeout, token) =>
         {
@@ -658,8 +646,8 @@ namespace CsvTools
           return dt;
         };
 
-        detailControl.FileSetting = m_FileSetting;
-        detailControl.FillGuessSettings = m_ViewSettings.FillGuessSettings;
+        if (DataTable != null)
+          ShowDataTable(DataTable);
 
         // Load View Settings
         var index = m_FileSetting.ID.LastIndexOf('.');

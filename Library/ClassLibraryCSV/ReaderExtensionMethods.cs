@@ -167,8 +167,6 @@ namespace CsvTools
                   dataRow.SetColumnError(i, ex.Message);
                 }
 
-
-
               intervalAction?.Invoke(() => progress(reader.RecordNumber, reader.Percent));
               if (previewAction != null && dataTable.Rows.Count == 500)
               {
