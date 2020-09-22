@@ -39,18 +39,23 @@
     private void InitializeComponent()
     {
       this.components = new System.ComponentModel.Container();
-      System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormMain));
       System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
       System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+      System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormMain));
       this.fileSystemWatcher = new System.IO.FileSystemWatcher();
       this.textBoxProgress = new CsvTools.LoggerDisplay();
-      this.textPanel = new System.Windows.Forms.Panel();
       this.detailControl = new CsvTools.DetailControl();
+      this.toolStrip = new System.Windows.Forms.ToolStrip();
       this.m_ToolStripButtonAsText = new System.Windows.Forms.ToolStripButton();
+      this.m_ToolStripButtonShowLog = new System.Windows.Forms.ToolStripButton();
       this.m_ToolStripButtonSettings = new System.Windows.Forms.ToolStripButton();
       this.m_ToolStripButtonSource = new System.Windows.Forms.ToolStripButton();
+      this.textPanel = new System.Windows.Forms.ToolStripContainer();
       ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher)).BeginInit();
       ((System.ComponentModel.ISupportInitialize)(this.textBoxProgress)).BeginInit();
+      this.toolStrip.SuspendLayout();
+      this.textPanel.BottomToolStripPanel.SuspendLayout();
+      this.textPanel.ContentPanel.SuspendLayout();
       this.textPanel.SuspendLayout();
       this.SuspendLayout();
       // 
@@ -74,6 +79,8 @@
         '\"',
         '\'',
         '\''};
+      this.textBoxProgress.AutoIndentCharsPatterns = "^\\s*[\\w\\.]+(\\s\\w+)?\\s*(?<range>=)\\s*(?<range>[^;=]+);\n^\\s*(case|default)\\s*[^:]*(" +
+    "?<range>:)\\s*(?<range>[^;]+);";
       this.textBoxProgress.AutoScrollMinSize = new System.Drawing.Size(2, 14);
       this.textBoxProgress.BackBrush = null;
       this.textBoxProgress.BackColor = System.Drawing.SystemColors.Window;
@@ -82,29 +89,21 @@
       this.textBoxProgress.CharWidth = 8;
       this.textBoxProgress.Cursor = System.Windows.Forms.Cursors.IBeam;
       this.textBoxProgress.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
+      this.textBoxProgress.Dock = System.Windows.Forms.DockStyle.Fill;
+      this.textBoxProgress.Font = new System.Drawing.Font("Courier New", 9.75F);
       this.textBoxProgress.IsReplaceMode = false;
-      this.textBoxProgress.Location = new System.Drawing.Point(2, 2);
+      this.textBoxProgress.Location = new System.Drawing.Point(0, 0);
       this.textBoxProgress.Margin = new System.Windows.Forms.Padding(2);
       this.textBoxProgress.MinLevel = CsvTools.Logger.Level.Debug;
       this.textBoxProgress.Name = "textBoxProgress";
       this.textBoxProgress.Paddings = new System.Windows.Forms.Padding(0);
       this.textBoxProgress.ReadOnly = true;
       this.textBoxProgress.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
-      this.textBoxProgress.ServiceColors = ((FastColoredTextBoxNS.ServiceColors)(resources.GetObject("textBoxProgress.ServiceColors")));
+      this.textBoxProgress.ServiceColors = null;
       this.textBoxProgress.ShowLineNumbers = false;
-      this.textBoxProgress.Size = new System.Drawing.Size(100, 130);
+      this.textBoxProgress.Size = new System.Drawing.Size(971, 503);
       this.textBoxProgress.TabIndex = 2;
       this.textBoxProgress.Zoom = 100;
-      // 
-      // textPanel
-      // 
-      this.textPanel.Controls.Add(this.textBoxProgress);
-      this.textPanel.Location = new System.Drawing.Point(7, 32);
-      this.textPanel.Margin = new System.Windows.Forms.Padding(2);
-      this.textPanel.Name = "textPanel";
-      this.textPanel.Size = new System.Drawing.Size(311, 146);
-      this.textPanel.TabIndex = 4;
-      this.textPanel.Visible = false;
       // 
       // detailControl
       // 
@@ -124,43 +123,93 @@
       this.detailControl.Location = new System.Drawing.Point(0, 0);
       this.detailControl.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
       this.detailControl.Name = "detailControl";
-      this.detailControl.Size = new System.Drawing.Size(753, 438);
+      this.detailControl.Size = new System.Drawing.Size(971, 528);
       this.detailControl.TabIndex = 1;
+      // 
+      // toolStrip
+      // 
+      this.toolStrip.Dock = System.Windows.Forms.DockStyle.None;
+      this.toolStrip.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
+      this.toolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.m_ToolStripButtonAsText,
+            this.m_ToolStripButtonShowLog,
+            this.m_ToolStripButtonSettings,
+            this.m_ToolStripButtonSource});
+      this.toolStrip.Location = new System.Drawing.Point(4, 0);
+      this.toolStrip.Name = "toolStrip";
+      this.toolStrip.Size = new System.Drawing.Size(126, 25);
+      this.toolStrip.TabIndex = 5;
+      this.toolStrip.Text = "toolStrip";
       // 
       // m_ToolStripButtonAsText
       // 
+      this.m_ToolStripButtonAsText.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
       this.m_ToolStripButtonAsText.Image = ((System.Drawing.Image)(resources.GetObject("m_ToolStripButtonAsText.Image")));
       this.m_ToolStripButtonAsText.ImageTransparentColor = System.Drawing.Color.Magenta;
       this.m_ToolStripButtonAsText.Name = "m_ToolStripButtonAsText";
-      this.m_ToolStripButtonAsText.Size = new System.Drawing.Size(60, 25);
+      this.m_ToolStripButtonAsText.Size = new System.Drawing.Size(23, 22);
       this.m_ToolStripButtonAsText.Text = "Text";
-      this.m_ToolStripButtonAsText.Click += new System.EventHandler(this.DetailControl_ButtonAsText);
+      this.m_ToolStripButtonAsText.Click += new System.EventHandler(this.ToggelDisplayAsText);
+      // 
+      // m_ToolStripButtonShowLog
+      // 
+      this.m_ToolStripButtonShowLog.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+      this.m_ToolStripButtonShowLog.Image = ((System.Drawing.Image)(resources.GetObject("m_ToolStripButtonShowLog.Image")));
+      this.m_ToolStripButtonShowLog.ImageTransparentColor = System.Drawing.Color.Magenta;
+      this.m_ToolStripButtonShowLog.Name = "m_ToolStripButtonShowLog";
+      this.m_ToolStripButtonShowLog.Size = new System.Drawing.Size(23, 22);
+      this.m_ToolStripButtonShowLog.Text = "Log";
+      this.m_ToolStripButtonShowLog.Click += new System.EventHandler(this.ToggelShowLog);
       // 
       // m_ToolStripButtonSettings
       // 
+      this.m_ToolStripButtonSettings.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
       this.m_ToolStripButtonSettings.Image = ((System.Drawing.Image)(resources.GetObject("m_ToolStripButtonSettings.Image")));
+      this.m_ToolStripButtonSettings.ImageTransparentColor = System.Drawing.Color.Magenta;
       this.m_ToolStripButtonSettings.Name = "m_ToolStripButtonSettings";
-      this.m_ToolStripButtonSettings.Size = new System.Drawing.Size(86, 25);
-      this.m_ToolStripButtonSettings.Text = "Settings";
-      this.m_ToolStripButtonSettings.ToolTipText = "Show CSV Settings";
+      this.m_ToolStripButtonSettings.Size = new System.Drawing.Size(23, 22);
+      this.m_ToolStripButtonSettings.Text = "Setting";
       this.m_ToolStripButtonSettings.Click += new System.EventHandler(this.ShowSettings);
       // 
       // m_ToolStripButtonSource
       // 
+      this.m_ToolStripButtonSource.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
       this.m_ToolStripButtonSource.Image = ((System.Drawing.Image)(resources.GetObject("m_ToolStripButtonSource.Image")));
+      this.m_ToolStripButtonSource.ImageTransparentColor = System.Drawing.Color.Magenta;
       this.m_ToolStripButtonSource.Name = "m_ToolStripButtonSource";
-      this.m_ToolStripButtonSource.Size = new System.Drawing.Size(114, 25);
-      this.m_ToolStripButtonSource.Text = "View Source";
-      this.m_ToolStripButtonSource.Click += new System.EventHandler(this.DetailControl_ButtonShowSource);
+      this.m_ToolStripButtonSource.Size = new System.Drawing.Size(23, 22);
+      this.m_ToolStripButtonSource.Text = "Source";
+      this.m_ToolStripButtonSource.Click += new System.EventHandler(this.ShowSourceFile);
+      // 
+      // textPanel
+      // 
+      // 
+      // textPanel.BottomToolStripPanel
+      // 
+      this.textPanel.BottomToolStripPanel.Controls.Add(this.toolStrip);
+      // 
+      // textPanel.ContentPanel
+      // 
+      this.textPanel.ContentPanel.Controls.Add(this.textBoxProgress);
+      this.textPanel.ContentPanel.Size = new System.Drawing.Size(971, 503);
+      this.textPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+      this.textPanel.LeftToolStripPanelVisible = false;
+      this.textPanel.Location = new System.Drawing.Point(0, 0);
+      this.textPanel.Name = "textPanel";
+      this.textPanel.RightToolStripPanelVisible = false;
+      this.textPanel.Size = new System.Drawing.Size(971, 528);
+      this.textPanel.TabIndex = 6;
+      this.textPanel.Text = "toolStripContainer2";
+      this.textPanel.TopToolStripPanelVisible = false;
       // 
       // FormMain
       // 
       this.AllowDrop = true;
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-      this.ClientSize = new System.Drawing.Size(753, 438);
-      this.Controls.Add(this.detailControl);
+      this.ClientSize = new System.Drawing.Size(971, 528);
       this.Controls.Add(this.textPanel);
+      this.Controls.Add(this.detailControl);
       this.HelpButton = true;
       this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
       this.KeyPreview = true;
@@ -174,7 +223,13 @@
       this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.FormMain_KeyUpAsync);
       ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher)).EndInit();
       ((System.ComponentModel.ISupportInitialize)(this.textBoxProgress)).EndInit();
+      this.toolStrip.ResumeLayout(false);
+      this.toolStrip.PerformLayout();
+      this.textPanel.BottomToolStripPanel.ResumeLayout(false);
+      this.textPanel.BottomToolStripPanel.PerformLayout();
+      this.textPanel.ContentPanel.ResumeLayout(false);
       this.textPanel.ResumeLayout(false);
+      this.textPanel.PerformLayout();
       this.ResumeLayout(false);
 
     }
@@ -182,11 +237,16 @@
     private CsvTools.DetailControl detailControl;
     private System.IO.FileSystemWatcher fileSystemWatcher;
     private CsvTools.LoggerDisplay textBoxProgress;
-    private System.Windows.Forms.Panel textPanel;
 
     #endregion
 
     private System.Boolean m_DisposedValue;
+    private System.Windows.Forms.ToolStrip toolStrip;
+    private System.Windows.Forms.ToolStripButton m_ToolStripButtonAsText;
+    private System.Windows.Forms.ToolStripButton m_ToolStripButtonShowLog;
+    private System.Windows.Forms.ToolStripButton m_ToolStripButtonSettings;
+    private System.Windows.Forms.ToolStripButton m_ToolStripButtonSource;
+    private System.Windows.Forms.ToolStripContainer textPanel;
   }
 }
 

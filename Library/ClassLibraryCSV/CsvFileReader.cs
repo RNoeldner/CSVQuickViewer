@@ -337,12 +337,12 @@ namespace CsvTools
       //    && m_FieldDelimiter.WrittenPunctuationToChar() == '\0')
       //  HandleWarning(-1, $"Only the first character of '{m_FieldDelimiter}' is used as delimiter.");
 
-      await BeforeOpenAsync($"Opening delimited file {FileSystemUtils.GetShortDisplayFileName(FileName)}")
+      await BeforeOpenAsync($"Opening delimited file \"{FileSystemUtils.GetShortDisplayFileName(FileName)}\"")
         .ConfigureAwait(false);
       Retry:
       try
       {
-        HandleShowProgress($"Opening text file {FileName}");
+        // HandleShowProgress($"Opening text file {FileName}");
 
         m_ImprovedStream?.Dispose();
         m_ImprovedStream = FunctionalDI.OpenRead(FullPath);

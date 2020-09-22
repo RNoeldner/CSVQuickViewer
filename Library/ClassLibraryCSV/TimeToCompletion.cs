@@ -20,8 +20,7 @@ using System.Globalization;
 namespace CsvTools
 {
   /// <summary>
-  ///   Calculates the "Estimated Time of Completion"
-  ///   based on a rolling average of progress over time.
+  ///   Calculates the "Estimated Time of Completion" based on a rolling average of progress over time.
   /// </summary>
   public class TimeToCompletion
   {
@@ -34,7 +33,7 @@ namespace CsvTools
     private long m_TargetValue;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="TimeToCompletion"/> class.
+    ///   Initializes a new instance of the <see cref="TimeToCompletion" /> class.
     /// </summary>
     /// <param name="targetValue">The target value / maximum that would match 100%</param>
     /// <param name="minimumData">The number of entries before a estimation is done.</param>
@@ -50,21 +49,17 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Gets the estimated time remaining to complete
+    ///   Gets the estimated time remaining to complete
     /// </summary>
-    /// <value>
-    /// The estimated time remaining.
-    /// </value>
+    /// <value>The estimated time remaining.</value>
     public TimeSpan EstimatedTimeRemaining { get; private set; } = TimeSpan.MaxValue;
 
     public string EstimatedTimeRemainingDisplay => DisplayTimespan(EstimatedTimeRemaining);
 
     /// <summary>
-    /// Gets the estimated time remaining display with a leading separator (if needed).
+    ///   Gets the estimated time remaining display with a leading separator (if needed).
     /// </summary>
-    /// <value>
-    /// The estimated time remaining display separator.
-    /// </value>
+    /// <value>The estimated time remaining display separator.</value>
     public string EstimatedTimeRemainingDisplaySeparator
     {
       get
@@ -76,21 +71,17 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Gets the current percentage
+    ///   Gets the current percentage
     /// </summary>
-    /// <value>
-    /// Percent (usually between 0 and 1)
-    /// </value>
+    /// <value>Percent (usually between 0 and 1)</value>
     public double Percent { get; private set; }
 
     public string PercentDisplay => string.Format(CultureInfo.CurrentCulture, Percent < 10 ? "{0:F1}%" : "{0:F0}%", Percent);
 
     /// <summary>
-    /// Gets or sets the target value / maximum that would match 100%.
+    ///   Gets or sets the target value / maximum that would match 100%.
     /// </summary>
-    /// <value>
-    /// The target value.
-    /// </value>
+    /// <value>The target value.</value>
     public long TargetValue
     {
       get => m_TargetValue;
@@ -109,11 +100,9 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Gets or sets the current value in the process
+    ///   Gets or sets the current value in the process
     /// </summary>
-    /// <value>
-    /// The value.
-    /// </value>
+    /// <value>The value.</value>
     public long Value
     {
       set
@@ -121,7 +110,8 @@ namespace CsvTools
         if (value < 0 || m_LastItem.Value == value || value > m_TargetValue)
           return;
 
-        // Something strange happening we are going backwards, assume we are counting from the beginning again (possibly reuse of the object)
+        // Something strange happening we are going backwards, assume we are counting from the
+        // beginning again (possibly reuse of the object)
         if (value < m_LastItem.Value)
           m_Queue.Clear();
 
@@ -159,7 +149,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Displays the timespan in a human readable format
+    ///   Displays the timespan in a human readable format
     /// </summary>
     /// <param name="value">The value.</param>
     /// <param name="cut2Sec">If true any value shorter than 2 seconds will be empty</param>
@@ -168,6 +158,19 @@ namespace CsvTools
     {
       if (value == TimeSpan.MaxValue || cut2Sec && value.TotalSeconds < 2)
         return string.Empty;
+      if (value.TotalMinutes < 1)
+        return $"{Math.Round(value.TotalSeconds, 0, MidpointRounding.AwayFromZero):0} sec";
+      if (value.TotalHours < 1)
+        return $"{value.Minutes:D2}:{value.Seconds:D2}";
+      return value.TotalHours<24 ? $"{(int) value.TotalHours}:{value.Minutes:D2}" : $"{value.Days:N0} days {value.Hours:N0} hrs";
+    }
+
+    public static string DisplayTimespanPrecise(TimeSpan value, bool cut2Sec = true)
+    {
+      if (value == TimeSpan.MaxValue || cut2Sec && value.TotalSeconds < 2)
+        return string.Empty;
+      if (value.TotalSeconds < 2)
+        return $"{Math.Round(value.TotalSeconds, 2, MidpointRounding.AwayFromZero):0.00} sec";
       if (value.TotalMinutes < 1)
         return $"{Math.Round(value.TotalSeconds, 0, MidpointRounding.AwayFromZero):0} sec";
       if (value.TotalHours < 1)

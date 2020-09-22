@@ -66,7 +66,6 @@ namespace CsvTools
         var result = await GuessCodePageAsync(improvedStream, cancellationToken).ConfigureAwait(false);
         setting.CodePageId = (int) result.Item1;
         setting.ByteOrderMark = result.Item2;
-        Logger.Information("Detected Code Page: {codepage}", EncodingHelper.GetEncodingName(result.Item1, true, result.Item2));
       }
     }
 
@@ -157,7 +156,6 @@ namespace CsvTools
       }
 
       Logger.Information("With Header Row");
-      // if there is only one line assume its does not have a header
       return true;
     }
 
@@ -187,6 +185,9 @@ namespace CsvTools
     public static async Task<RecordDelimiterType> GuessNewlineAsync([NotNull] ICsvFile setting,
       CancellationToken cancellationToken)
     {
+      if (setting.CodePageId < 0)
+        setting.CodePageId=(await setting.GetEncodingAsync(cancellationToken).ConfigureAwait(false)).CodePage;
+
       using (var improvedStream = FunctionalDI.OpenRead(setting.FullPath))
       using (var streamReader = new ImprovedTextReader(improvedStream, setting.CodePageId, setting.SkipRows))
       {
@@ -204,6 +205,9 @@ namespace CsvTools
     public static async Task<string> GuessQualifierAsync([NotNull] ICsvFile setting,
       CancellationToken cancellationToken)
     {
+      if (setting.CodePageId < 0)
+        setting.CodePageId=(await setting.GetEncodingAsync(cancellationToken).ConfigureAwait(false)).CodePage;
+
       using (var improvedStream = FunctionalDI.OpenRead(setting.FullPath))
       using (var streamReader = new ImprovedTextReader(improvedStream, setting.CodePageId, setting.SkipRows))
       {
@@ -223,8 +227,11 @@ namespace CsvTools
     [NotNull]
     public static async Task<int> GuessStartRowAsync([NotNull] ICsvFile setting, CancellationToken cancellationToken)
     {
+      if (setting.CodePageId < 0)
+        setting.CodePageId=(await setting.GetEncodingAsync(cancellationToken).ConfigureAwait(false)).CodePage;
+
       using (var improvedStream = FunctionalDI.OpenRead(setting.FullPath))
-      using (var streamReader = new ImprovedTextReader(improvedStream, (await setting.GetEncodingAsync(cancellationToken)).CodePage))
+      using (var streamReader = new ImprovedTextReader(improvedStream, setting.CodePageId))
       {
         return await GuessStartRowAsync(streamReader, setting.FileFormat.FieldDelimiterChar,
           setting.FileFormat.FieldQualifierChar,
@@ -244,10 +251,12 @@ namespace CsvTools
       // if we do not have a quote defined it does not matter
       if (string.IsNullOrEmpty(setting.FileFormat.FieldQualifier) || cancellationToken.IsCancellationRequested)
         return false;
+      if (setting.CodePageId < 0)
+        setting.CodePageId=(await setting.GetEncodingAsync(cancellationToken).ConfigureAwait(false)).CodePage;
 
       using (var improvedStream = FunctionalDI.OpenRead(setting.FullPath))
       using (var streamReader =
-        new ImprovedTextReader(improvedStream, (await setting.GetEncodingAsync(cancellationToken).ConfigureAwait(false)).CodePage, setting.SkipRows))
+        new ImprovedTextReader(improvedStream, setting.CodePageId, setting.SkipRows))
       {
         var isStartOfColumn = true;
         while (!streamReader.EndOfFile)
@@ -311,35 +320,35 @@ namespace CsvTools
       if (!(guessJson || guessCodePage || guessDelimiter || guessStartRow || guessQualifier || guessHasHeader ||
             guessNewLine))
         return;
-      display.SetProcess("Checking delimited file", -1, true);
+
       using (var improvedStream = FunctionalDI.OpenRead(setting.FullPath))
       {
         setting.JsonFormat = false;
         if (guessJson)
         {
-          display.SetProcess("Checking Json format", -1, true);
+          display.SetProcess("Checking Json format", -1, false);
           if (await IsJsonReadableAsync(improvedStream, display.CancellationToken).ConfigureAwait(false))
             setting.JsonFormat = true;
         }
 
         if (setting.JsonFormat)
         {
-          display.SetProcess("Detected Json file", -1, true);
+          display.SetProcess("Detected Json file", -1, false);
           return;
         }
 
+        display.SetProcess("Checking delimited text file", -1, true);
         if (guessCodePage)
         {
           if (display.CancellationToken.IsCancellationRequested)
             return;
-          display.SetProcess("Checking Code Page", -1, true);
           improvedStream.ResetToStart(null);
+          display.SetProcess("Checking Code Page", -1, true);
           var result = await GuessCodePageAsync(improvedStream, display.CancellationToken).ConfigureAwait(false);
           setting.CodePageId = (int) result.Item1;
           setting.ByteOrderMark = result.Item2;
-
-          display.SetProcess($"Code Page: {EncodingHelper.GetEncodingName(result.Item1, true, result.Item2)}", -1,
-            true);
+          //display.SetProcess($"Code Page: {EncodingHelper.GetEncodingName(result.Item1, true, result.Item2)}", -1,
+          //  false);
         }
 
         // from here on us the encoding to read the stream again
@@ -347,7 +356,7 @@ namespace CsvTools
         {
           if (display.CancellationToken.IsCancellationRequested)
             return;
-          display.SetProcess("Checking Start Row", -1, true);
+          // display.SetProcess("Checking Start Row", -1, true);
           improvedStream.ResetToStart(null);
           using (var textReader = new ImprovedTextReader(improvedStream, setting.CodePageId))
           {
@@ -355,9 +364,6 @@ namespace CsvTools
               setting.FileFormat.FieldQualifierChar,
               setting.FileFormat.CommentLine, display.CancellationToken).ConfigureAwait(false);
           }
-
-          if (setting.SkipRows > 0)
-            display.SetProcess("Start Row: " + setting.SkipRows.ToString(CultureInfo.InvariantCulture), -1, true);
         }
 
         if (guessQualifier || guessDelimiter || guessHasHeader)
@@ -369,30 +375,24 @@ namespace CsvTools
             {
               if (display.CancellationToken.IsCancellationRequested)
                 return;
-              display.SetProcess("Checking Delimiter", -1, true);
+              display.SetProcess("Checking Column Delimiter", -1, false);
               var result = await GuessDelimiterAsync(textReader, setting.FileFormat.EscapeCharacterChar,
                 display.CancellationToken).ConfigureAwait(false);
               setting.NoDelimitedFile = result.Item2;
               setting.FileFormat.FieldDelimiter = result.Item1;
-              display.SetProcess("Delimiter: " + setting.FileFormat.FieldDelimiter, -1, true);
             }
 
             if (guessNewLine)
             {
               if (display.CancellationToken.IsCancellationRequested)
                 return;
-              display.SetProcess("Checking Record Delimiter", -1, true);
+              display.SetProcess("Checking Record Delimiter", -1, false);
               improvedStream.ResetToStart(null);
               var res = await GuessNewlineAsync(textReader, setting.FileFormat.FieldQualifierChar,
                 display.CancellationToken).ConfigureAwait(false);
               if (res != RecordDelimiterType.None)
               {
                 setting.FileFormat.NewLine = res;
-                display.SetProcess("Record Delimiter: " + res.Description(), -1, true);
-              }
-              else
-              {
-                display.SetProcess("Record Delimiter could not be determined", -1, true);
               }
             }
 
@@ -400,23 +400,21 @@ namespace CsvTools
             {
               if (display.CancellationToken.IsCancellationRequested)
                 return;
-              display.SetProcess("Checking Qualifier", -1, true);
+              display.SetProcess("Checking Qualifier", -1, false);
               var qualifier = await GuessQualifierAsync(textReader, setting.FileFormat.FieldDelimiterChar,
                 display.CancellationToken).ConfigureAwait(false);
               if (qualifier != '\0')
                 setting.FileFormat.FieldQualifier = char.ToString(qualifier);
-              display.SetProcess("Qualifier: " + setting.FileFormat.FieldQualifier, -1, true);
             }
 
             if (guessHasHeader)
             {
               if (display.CancellationToken.IsCancellationRequested)
                 return;
-              display.SetProcess("Checking for Header", -1, true);
+              display.SetProcess("Checking for Header Row", -1, false);
               await textReader.ToBeginningAsync();
               setting.HasFieldHeader = await GuessHasHeaderAsync(textReader, setting.FileFormat.CommentLine,
                 setting.FileFormat.FieldDelimiterChar, display.CancellationToken).ConfigureAwait(false);
-              display.SetProcess("Column Header: " + setting.HasFieldHeader, -1, true);
             }
           }
         }
@@ -506,12 +504,17 @@ namespace CsvTools
       if (length >= 2)
       {
         var byBom = EncodingHelper.GetCodePageByByteOrderMark(buff);
-        if (byBom != 0) return new Tuple<EncodingHelper.CodePage, bool>(byBom, true);
+        if (byBom != 0)
+        {
+          Logger.Information("Code Page: {encoding}", EncodingHelper.GetEncodingName(byBom, true, true));
+          return new Tuple<EncodingHelper.CodePage, bool>(byBom, true);
+        }
       }
 
       var detected = EncodingHelper.GuessCodePageNoBom(buff, length);
       if (detected == EncodingHelper.CodePage.ASCII)
         detected = EncodingHelper.CodePage.UTF8;
+      Logger.Information("Code Page: {encoding}", EncodingHelper.GetEncodingName(detected, true, false));
       return new Tuple<EncodingHelper.CodePage, bool>(detected, false);
     }
 
@@ -631,7 +634,7 @@ namespace CsvTools
       }
 
       var result = match == '\t' ? "TAB" : match.ToString(CultureInfo.CurrentCulture);
-      Logger.Information("Delimiter: {delimiter}", result);
+      Logger.Information("Column Delimiter: {delimiter}", result);
       return new Tuple<string, bool>(result, true);
     }
 
@@ -723,14 +726,15 @@ namespace CsvTools
       var maxCount = count.Max();
       if (maxCount == 0)
         return RecordDelimiterType.None;
-
-      return count[c_RecSep] == maxCount ? RecordDelimiterType.RS
+      var res = count[c_RecSep] == maxCount ? RecordDelimiterType.RS
         : count[c_UnitSep] == maxCount ? RecordDelimiterType.US
         : count[c_Cr] == maxCount ? RecordDelimiterType.CR
         : count[c_Lf] == maxCount ? RecordDelimiterType.LF
         : count[c_Lfcr] == maxCount ? RecordDelimiterType.LFCR
         : count[c_CrLf] == maxCount ? RecordDelimiterType.CRLF
         : RecordDelimiterType.None;
+      Logger.Information("Record Delimiter: {recorddelimiter}", res.Description());
+      return res;
     }
 
     [NotNull]
@@ -776,8 +780,10 @@ namespace CsvTools
           }
         }
       }
-
-      return max < 1 ? '\0' : possibleQuotes.Where((t, testChar) => counter[testChar] == max).FirstOrDefault();
+      var res = max < 1 ? '\0' : possibleQuotes.Where((t, testChar) => counter[testChar] == max).FirstOrDefault();
+      if (res!='\0')
+        Logger.Information("Column Qualifier: {qualifier}" + res);
+      return res;
     }
 
     /// <summary>
@@ -961,9 +967,12 @@ namespace CsvTools
         try
         {
           if (await jsonTextReader.ReadAsync(cancellationToken).ConfigureAwait(false))
+          {
+            Logger.Information("Detected Json file");
             return jsonTextReader.TokenType == JsonToken.StartObject ||
                    jsonTextReader.TokenType == JsonToken.StartArray ||
                    jsonTextReader.TokenType == JsonToken.StartConstructor;
+          }
         }
         catch (JsonReaderException)
         {

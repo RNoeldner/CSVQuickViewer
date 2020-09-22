@@ -221,9 +221,6 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="FCTB">
-      <Version>2.16.24</Version>
-    </PackageReference>
     <PackageReference Include="WindowsAPICodePack">
       <Version>1.1.1</Version>
     </PackageReference>
@@ -232,6 +229,10 @@
     <ProjectReference Include="..\ClassLibraryCSV\ClassLibraryCSV.csproj">
       <Project>{0b6aee5a-8005-4b1d-987f-5790d34a2d52}</Project>
       <Name>ClassLibraryCSV</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\FastColoredTextBox\FastColoredTextBox.csproj">
+      <Project>{6dd14a85-ccfc-4774-bd26-0f5772512319}</Project>
+      <Name>FastColoredTextBox</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
