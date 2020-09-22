@@ -59,9 +59,7 @@ namespace CsvTools
     private ICsvFile m_FileSetting;
 
     private ICollection<string> m_Headers;
-    private ToolStripButton m_ToolStripButtonAsText;
-    private ToolStripButton m_ToolStripButtonSettings;
-    private ToolStripButton m_ToolStripButtonSource;
+
     private FormCsvTextDisplay m_SourceDisplay;
 
     private int m_WarningCount;
@@ -76,6 +74,7 @@ namespace CsvTools
       detailControl.AddToolStripItem(1, m_ToolStripButtonSettings);
       detailControl.AddToolStripItem(int.MaxValue, m_ToolStripButtonSource);
       detailControl.AddToolStripItem(int.MaxValue, m_ToolStripButtonAsText);
+      detailControl.AddToolStripItem(int.MaxValue, m_ToolStripButtonShowLog);
       Text = AssemblyTitle;
       m_ViewSettings = LoadViewSettings();
 
@@ -266,7 +265,7 @@ namespace CsvTools
       }
     }
 
-    private async void DetailControl_ButtonAsText(object sender, EventArgs e)
+    private async void ToggelDisplayAsText(object sender, EventArgs e)
     {
       // Assume data type is not recognize
       if (m_FileSetting.ColumnCollection.Any(x => x.ValueFormat.DataType != DataType.String))
@@ -286,7 +285,7 @@ namespace CsvTools
       await OpenDataReaderAsync(true);
     }
 
-    private void DetailControl_ButtonShowSource(object sender, EventArgs e)
+    private void ShowSourceFile(object sender, EventArgs e)
     {
       try
       {
@@ -807,6 +806,21 @@ namespace CsvTools
           Logger.Debug("Power Event Resume");
           this.LoadWindowState(m_ViewSettings.WindowPosition);
           break;
+      }
+    }
+
+    private void ToggelShowLog(object sender, EventArgs e)
+    {
+      ShowTextPanel(!textPanel.Visible);
+      if (textPanel.Visible)
+      {
+        textPanel.BottomToolStripPanelVisible=true;
+        if (!toolStrip.Items.Contains(m_ToolStripButtonShowLog))
+          toolStrip.Items.Add(m_ToolStripButtonShowLog);
+      }
+      else
+      {
+        detailControl.AddToolStripItem(int.MaxValue, m_ToolStripButtonShowLog);
       }
     }
   }

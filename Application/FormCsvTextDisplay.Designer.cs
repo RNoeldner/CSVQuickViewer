@@ -49,25 +49,26 @@ namespace CsvTools
         '\'',
         '\''};
       this.textBox.AutoIndentCharsPatterns = "\r\n^\\s*[\\w\\.]+(\\s\\w+)?\\s*(?<range>=)\\s*(?<range>.+)\r\n";
-      this.textBox.AutoScrollMinSize = new System.Drawing.Size(0, 16);
+      this.textBox.AutoScrollMinSize = new System.Drawing.Size(0, 13);
       this.textBox.BackBrush = null;
       this.textBox.CaretColor = System.Drawing.Color.Silver;
-      this.textBox.CharHeight = 16;
-      this.textBox.CharWidth = 9;
+      this.textBox.CharHeight = 13;
+      this.textBox.CharWidth = 7;
       this.textBox.CommentPrefix = "--";
       this.textBox.Cursor = System.Windows.Forms.Cursors.IBeam;
       this.textBox.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
       this.textBox.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.textBox.Font = new System.Drawing.Font("Courier New", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+      this.textBox.Font = new System.Drawing.Font("Courier New", 9F);
       this.textBox.IsReplaceMode = false;
       this.textBox.Location = new System.Drawing.Point(0, 0);
+      this.textBox.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
       this.textBox.Name = "textBox";
       this.textBox.Paddings = new System.Windows.Forms.Padding(0);
       this.textBox.ReadOnly = true;
       this.textBox.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
       this.textBox.ServiceColors = ((FastColoredTextBoxNS.ServiceColors)(resources.GetObject("textBox.ServiceColors")));
       this.textBox.ShowFoldingLines = true;
-      this.textBox.Size = new System.Drawing.Size(957, 446);
+      this.textBox.Size = new System.Drawing.Size(718, 362);
       this.textBox.TabIndex = 1;
       this.textBox.WordWrap = true;
       this.textBox.Zoom = 100;
@@ -76,13 +77,12 @@ namespace CsvTools
       // 
       // FormCsvTextDisplay
       // 
-      this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+      this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.BackColor = System.Drawing.SystemColors.ControlLightLight;
-      this.ClientSize = new System.Drawing.Size(957, 446);
+      this.ClientSize = new System.Drawing.Size(718, 362);
       this.Controls.Add(this.textBox);
-      this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
-      this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
       this.Name = "FormCsvTextDisplay";
       ((System.ComponentModel.ISupportInitialize)(this.textBox)).EndInit();
       this.ResumeLayout(false);

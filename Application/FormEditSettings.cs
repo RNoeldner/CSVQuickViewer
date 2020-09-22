@@ -81,64 +81,36 @@ namespace CsvTools
 
     private async void ButtonGuessCP_ClickAsync(object sender, EventArgs e)
     {
-      var oldCursor = Cursor.Current == Cursors.WaitCursor ? Cursors.WaitCursor : Cursors.Default;
-      Cursor.Current = Cursors.WaitCursor;
-      try
-      {
-        await CsvHelper.GuessCodePageAsync(m_ViewSettings, m_CancellationTokenSource.Token);
-      }
-      finally
-      {
-        Cursor.Current = oldCursor;
-      }
+      await buttonGuessCP.RunWithHourglassAsync(async () => await CsvHelper.GuessCodePageAsync(m_ViewSettings, m_CancellationTokenSource.Token));
+      fileSettingBindingSource.ResetBindings(false);
     }
 
     private async void ButtonGuessDelimiter_ClickAsync(object sender, EventArgs e)
     {
-      var oldCursor = Cursor.Current == Cursors.WaitCursor ? Cursors.WaitCursor : Cursors.Default;
-      Cursor.Current = Cursors.WaitCursor;
-      try
-      {
-        m_ViewSettings.FileFormat.FieldDelimiter =
-          await CsvHelper.GuessDelimiterAsync(m_ViewSettings, m_CancellationTokenSource.Token);
-      }
-      finally
-      {
-        Cursor.Current = oldCursor;
-      }
+      await buttonGuessDelimiter.RunWithHourglassAsync(async () => await CsvHelper.GuessDelimiterAsync(m_ViewSettings, m_CancellationTokenSource.Token));
+      // GuessDelimiterAsync does set the values, refresh them
+      fileFormatBindingSource.ResetBindings(false);
     }
 
     private async void ButtonGuessTextQualifier_Click(object sender, EventArgs e)
     {
-      var oldCursor = Cursor.Current == Cursors.WaitCursor ? Cursors.WaitCursor : Cursors.Default;
-      Cursor.Current = Cursors.WaitCursor;
-      try
+      var qualifier = string.Empty;
+      await buttonGuessTextQualifier.RunWithHourglassAsync(async () =>
       {
-        var qualifier = await CsvHelper.GuessQualifierAsync(m_ViewSettings, m_CancellationTokenSource.Token);
-        if (qualifier != null)
-          m_ViewSettings.FileFormat.FieldQualifier = qualifier;
-        else
-          _MessageBox.Show(this, "No Column Qualifier found", "Qualifier", MessageBoxButtons.OK,
-            MessageBoxIcon.Information);
-      }
-      finally
-      {
-        Cursor.Current = oldCursor;
-      }
+        qualifier = await CsvHelper.GuessQualifierAsync(m_ViewSettings, m_CancellationTokenSource.Token);
+      });
+      if (qualifier != null)
+        m_ViewSettings.FileFormat.FieldQualifier = qualifier;
+      else
+        _MessageBox.Show(this, "No Column Qualifier found", "Qualifier", MessageBoxButtons.OK,
+          MessageBoxIcon.Information);
     }
 
     private async void ButtonSkipLine_ClickAsync(object sender, EventArgs e)
     {
-      var oldCursor = Cursor.Current == Cursors.WaitCursor ? Cursors.WaitCursor : Cursors.Default;
-      Cursor.Current = Cursors.WaitCursor;
-      try
-      {
-        m_ViewSettings.SkipRows = await CsvHelper.GuessStartRowAsync(m_ViewSettings, m_CancellationTokenSource.Token);
-      }
-      finally
-      {
-        Cursor.Current = oldCursor;
-      }
+      int rows = 0;
+      await buttonSkipLine.RunWithHourglassAsync(async () => rows  = await CsvHelper.GuessStartRowAsync(m_ViewSettings, m_CancellationTokenSource.Token));
+      m_ViewSettings.SkipRows =rows;
     }
 
     private void CboCodePage_SelectedIndexChanged(object sender, EventArgs e)
@@ -148,7 +120,6 @@ namespace CsvTools
     }
 
     private void CboRecordDelimiter_SelectedIndexChanged(object sender, EventArgs e)
-
     {
       if (cboRecordDelimiter.SelectedItem != null)
         m_ViewSettings.FileFormat.NewLine = (RecordDelimiterType) cboRecordDelimiter.SelectedValue;
@@ -262,17 +233,10 @@ namespace CsvTools
 
     private async void GuessNewline_Click(object sender, EventArgs e)
     {
-      var oldCursor = Cursor.Current == Cursors.WaitCursor ? Cursors.WaitCursor : Cursors.Default;
-      Cursor.Current = Cursors.WaitCursor;
-      try
-      {
-        m_ViewSettings.FileFormat.NewLine =
-          await CsvHelper.GuessNewlineAsync(m_ViewSettings, m_CancellationTokenSource.Token);
-      }
-      finally
-      {
-        Cursor.Current = oldCursor;
-      }
+      RecordDelimiterType type = RecordDelimiterType.None;
+      await buttonNewLine.RunWithHourglassAsync(async () => type =
+          await CsvHelper.GuessNewlineAsync(m_ViewSettings, m_CancellationTokenSource.Token));
+      cboRecordDelimiter.SelectedValue= (int) type;
     }
 
     private void PositiveNumberValidating(object sender, CancelEventArgs e)

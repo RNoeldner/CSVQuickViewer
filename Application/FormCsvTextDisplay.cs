@@ -26,6 +26,7 @@ namespace CsvTools
   {
     private ISyntaxHighlighter m_HighLighter;
     private int m_SkipLines;
+    private IImprovedStream m_Stream;
 
     /// <summary>
     ///   CTOR CsvTextDisplay
@@ -71,9 +72,10 @@ The file {fullPath} does not exist.";
           m_HighLighter = new SyntaxHighlighterJson(textBox);
         else
           m_HighLighter = new SyntaxHighlighterDelimitedText(textBox, qualifierChar, delimiterChar, escapeChar, commemt);
+        m_Stream = ImprovedStream.OpenRead(fullPath);
 
         m_SkipLines = skipLines;
-        textBox.OpenBindingFile(fullPath, Encoding.GetEncoding(codePage));
+        textBox.OpenBindingStream(m_Stream.Stream, Encoding.GetEncoding(codePage));
       }
     }
 
