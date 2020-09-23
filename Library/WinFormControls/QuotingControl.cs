@@ -73,6 +73,7 @@ namespace CsvTools
     private TextBox m_TextBoxEscape;
     private TextBox m_TextBoxQuote;
     private TextBox m_TextBoxQuotePlaceHolder;
+    private Label label6;
     private ToolTip m_ToolTip;
 
     /// <summary>
@@ -193,6 +194,7 @@ namespace CsvTools
       this.m_TableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
       this.label5 = new System.Windows.Forms.Label();
       this.label4 = new System.Windows.Forms.Label();
+      this.label6 = new System.Windows.Forms.Label();
       ((System.ComponentModel.ISupportInitialize) (this.m_FileFormatBindingSource)).BeginInit();
       ((System.ComponentModel.ISupportInitialize) (this.m_ErrorProvider)).BeginInit();
       ((System.ComponentModel.ISupportInitialize) (this.fastColoredTextBox00)).BeginInit();
@@ -220,6 +222,7 @@ namespace CsvTools
       this.m_ToolTip.SetToolTip(this.checkBoxDuplicateQuotingToEscape, "Assume a repeated quote in a qualified text represent a quote that does not end t" +
         "ext qualification");
       this.checkBoxDuplicateQuotingToEscape.UseVisualStyleBackColor = true;
+      this.checkBoxDuplicateQuotingToEscape.CheckedChanged += new System.EventHandler(this.QuoteChanged);
       // labelNoQuotes
       this.labelNoQuotes.Anchor = System.Windows.Forms.AnchorStyles.Left;
       this.labelNoQuotes.AutoSize = true;
@@ -246,9 +249,11 @@ namespace CsvTools
       this.checkBoxAlternateQuoting.TabIndex = 2;
       this.checkBoxAlternateQuoting.Text = "Context Sensitive Quoting";
       this.m_ToolTip.SetToolTip(this.checkBoxAlternateQuoting, "A quote is only regarded as closing quote if it is followed by linefeed or delimi" +
-        "ter");
+        "ter\r\nThis is a uncommon way of quoting but allows to parse incorrectly quoted fi" +
+        "les");
       this.checkBoxAlternateQuoting.UseVisualStyleBackColor = true;
       this.checkBoxAlternateQuoting.Visible = false;
+      this.checkBoxAlternateQuoting.CheckedChanged += new System.EventHandler(this.QuoteChanged);
       // comboBoxTrim
       this.comboBoxTrim.DisplayMember = "Display";
       this.comboBoxTrim.Dock = System.Windows.Forms.DockStyle.Top;
@@ -258,8 +263,8 @@ namespace CsvTools
       this.comboBoxTrim.Name = "comboBoxTrim";
       this.comboBoxTrim.Size = new System.Drawing.Size(253, 21);
       this.comboBoxTrim.TabIndex = 10;
-      this.m_ToolTip.SetToolTip(this.comboBoxTrim, "None will not remove whitespace; Unquoted will remove white spaces if the column " +
-        "was not quoted; All will remove white spaces even if the column was quoted");
+      this.m_ToolTip.SetToolTip(this.comboBoxTrim, "None will preserve whitespace; Unquoted will remove white spaces if the column wa" +
+        "s not quoted; All will remove white spaces even if the column was quoted");
       this.comboBoxTrim.ValueMember = "ID";
       this.comboBoxTrim.SelectedIndexChanged += new System.EventHandler(this.SetTrimming);
       // m_TextBoxQuotePlaceHolder
@@ -299,6 +304,8 @@ namespace CsvTools
         '\"',
         '\'',
         '\''};
+      this.fastColoredTextBox00.AutoIndentCharsPatterns = "^\\s*[\\w\\.]+(\\s\\w+)?\\s*(?<range>=)\\s*(?<range>[^;=]+);\n^\\s*(case|default)\\s*[^:]*(" +
+    "?<range>:)\\s*(?<range>[^;]+);";
       this.fastColoredTextBox00.AutoScrollMinSize = new System.Drawing.Size(66, 14);
       this.fastColoredTextBox00.BackBrush = null;
       this.fastColoredTextBox00.CharHeight = 14;
@@ -312,6 +319,7 @@ namespace CsvTools
       this.fastColoredTextBox00.Paddings = new System.Windows.Forms.Padding(0);
       this.fastColoredTextBox00.ReadOnly = true;
       this.fastColoredTextBox00.SelectionColor = System.Drawing.Color.FromArgb(((int) (((byte) (60)))), ((int) (((byte) (0)))), ((int) (((byte) (0)))), ((int) (((byte) (255)))));
+      this.fastColoredTextBox00.ServiceColors = null;
       this.fastColoredTextBox00.ShowLineNumbers = false;
       this.fastColoredTextBox00.ShowScrollBars = false;
       this.fastColoredTextBox00.Size = new System.Drawing.Size(181, 18);
@@ -340,6 +348,8 @@ namespace CsvTools
         '\"',
         '\'',
         '\''};
+      this.fastColoredTextBox12.AutoIndentCharsPatterns = "^\\s*[\\w\\.]+(\\s\\w+)?\\s*(?<range>=)\\s*(?<range>[^;=]+);\n^\\s*(case|default)\\s*[^:]*(" +
+    "?<range>:)\\s*(?<range>[^;]+);";
       this.fastColoredTextBox12.AutoScrollMinSize = new System.Drawing.Size(106, 28);
       this.fastColoredTextBox12.BackBrush = null;
       this.fastColoredTextBox12.CharHeight = 14;
@@ -352,6 +362,7 @@ namespace CsvTools
       this.fastColoredTextBox12.Paddings = new System.Windows.Forms.Padding(0);
       this.fastColoredTextBox12.ReadOnly = true;
       this.fastColoredTextBox12.SelectionColor = System.Drawing.Color.FromArgb(((int) (((byte) (60)))), ((int) (((byte) (0)))), ((int) (((byte) (0)))), ((int) (((byte) (255)))));
+      this.fastColoredTextBox12.ServiceColors = null;
       this.fastColoredTextBox12.ShowLineNumbers = false;
       this.fastColoredTextBox12.Size = new System.Drawing.Size(191, 31);
       this.fastColoredTextBox12.TabIndex = 34;
@@ -369,6 +380,8 @@ namespace CsvTools
         '\"',
         '\'',
         '\''};
+      this.fastColoredTextBox02.AutoIndentCharsPatterns = "^\\s*[\\w\\.]+(\\s\\w+)?\\s*(?<range>=)\\s*(?<range>[^;=]+);\n^\\s*(case|default)\\s*[^:]*(" +
+    "?<range>:)\\s*(?<range>[^;]+);";
       this.fastColoredTextBox02.AutoScrollMinSize = new System.Drawing.Size(66, 14);
       this.fastColoredTextBox02.BackBrush = null;
       this.fastColoredTextBox02.CharHeight = 14;
@@ -382,6 +395,7 @@ namespace CsvTools
       this.fastColoredTextBox02.Paddings = new System.Windows.Forms.Padding(0);
       this.fastColoredTextBox02.ReadOnly = true;
       this.fastColoredTextBox02.SelectionColor = System.Drawing.Color.FromArgb(((int) (((byte) (60)))), ((int) (((byte) (0)))), ((int) (((byte) (0)))), ((int) (((byte) (255)))));
+      this.fastColoredTextBox02.ServiceColors = null;
       this.fastColoredTextBox02.ShowLineNumbers = false;
       this.fastColoredTextBox02.ShowScrollBars = false;
       this.fastColoredTextBox02.Size = new System.Drawing.Size(181, 18);
@@ -400,6 +414,8 @@ namespace CsvTools
         '\"',
         '\'',
         '\''};
+      this.fastColoredTextBox11.AutoIndentCharsPatterns = "^\\s*[\\w\\.]+(\\s\\w+)?\\s*(?<range>=)\\s*(?<range>[^;=]+);\n^\\s*(case|default)\\s*[^:]*(" +
+    "?<range>:)\\s*(?<range>[^;]+);";
       this.fastColoredTextBox11.AutoScrollMinSize = new System.Drawing.Size(154, 14);
       this.fastColoredTextBox11.BackBrush = null;
       this.fastColoredTextBox11.CharHeight = 14;
@@ -413,6 +429,7 @@ namespace CsvTools
       this.fastColoredTextBox11.Paddings = new System.Windows.Forms.Padding(0);
       this.fastColoredTextBox11.ReadOnly = true;
       this.fastColoredTextBox11.SelectionColor = System.Drawing.Color.FromArgb(((int) (((byte) (60)))), ((int) (((byte) (0)))), ((int) (((byte) (0)))), ((int) (((byte) (255)))));
+      this.fastColoredTextBox11.ServiceColors = null;
       this.fastColoredTextBox11.ShowLineNumbers = false;
       this.fastColoredTextBox11.ShowScrollBars = false;
       this.fastColoredTextBox11.Size = new System.Drawing.Size(191, 18);
@@ -431,6 +448,8 @@ namespace CsvTools
         '\"',
         '\'',
         '\''};
+      this.fastColoredTextBox01.AutoIndentCharsPatterns = "^\\s*[\\w\\.]+(\\s\\w+)?\\s*(?<range>=)\\s*(?<range>[^;=]+);\n^\\s*(case|default)\\s*[^:]*(" +
+    "?<range>:)\\s*(?<range>[^;]+);";
       this.fastColoredTextBox01.AutoScrollMinSize = new System.Drawing.Size(98, 14);
       this.fastColoredTextBox01.BackBrush = null;
       this.fastColoredTextBox01.CharHeight = 14;
@@ -444,6 +463,7 @@ namespace CsvTools
       this.fastColoredTextBox01.Paddings = new System.Windows.Forms.Padding(0);
       this.fastColoredTextBox01.ReadOnly = true;
       this.fastColoredTextBox01.SelectionColor = System.Drawing.Color.FromArgb(((int) (((byte) (60)))), ((int) (((byte) (0)))), ((int) (((byte) (0)))), ((int) (((byte) (255)))));
+      this.fastColoredTextBox01.ServiceColors = null;
       this.fastColoredTextBox01.ShowLineNumbers = false;
       this.fastColoredTextBox01.ShowScrollBars = false;
       this.fastColoredTextBox01.Size = new System.Drawing.Size(181, 18);
@@ -462,12 +482,15 @@ namespace CsvTools
         '\"',
         '\'',
         '\''};
+      this.fastColoredTextBox10.AutoIndentCharsPatterns = "^\\s*[\\w\\.]+(\\s\\w+)?\\s*(?<range>=)\\s*(?<range>[^;=]+);\n^\\s*(case|default)\\s*[^:]*(" +
+    "?<range>:)\\s*(?<range>[^;]+);";
       this.fastColoredTextBox10.AutoScrollMinSize = new System.Drawing.Size(186, 14);
       this.fastColoredTextBox10.BackBrush = null;
       this.fastColoredTextBox10.CharHeight = 14;
       this.fastColoredTextBox10.CharWidth = 8;
       this.fastColoredTextBox10.Cursor = System.Windows.Forms.Cursors.IBeam;
       this.fastColoredTextBox10.DisabledColor = System.Drawing.Color.FromArgb(((int) (((byte) (100)))), ((int) (((byte) (180)))), ((int) (((byte) (180)))), ((int) (((byte) (180)))));
+      this.fastColoredTextBox10.Font = new System.Drawing.Font("Courier New", 9.75F);
       this.fastColoredTextBox10.IsReplaceMode = false;
       this.fastColoredTextBox10.Location = new System.Drawing.Point(592, 121);
       this.fastColoredTextBox10.Multiline = false;
@@ -475,6 +498,7 @@ namespace CsvTools
       this.fastColoredTextBox10.Paddings = new System.Windows.Forms.Padding(0);
       this.fastColoredTextBox10.ReadOnly = true;
       this.fastColoredTextBox10.SelectionColor = System.Drawing.Color.FromArgb(((int) (((byte) (60)))), ((int) (((byte) (0)))), ((int) (((byte) (0)))), ((int) (((byte) (255)))));
+      this.fastColoredTextBox10.ServiceColors = null;
       this.fastColoredTextBox10.ShowLineNumbers = false;
       this.fastColoredTextBox10.ShowScrollBars = false;
       this.fastColoredTextBox10.Size = new System.Drawing.Size(191, 18);
@@ -495,6 +519,8 @@ namespace CsvTools
         '\"',
         '\'',
         '\''};
+      this.fastColoredTextBox.AutoIndentCharsPatterns = "^\\s*[\\w\\.]+(\\s\\w+)?\\s*(?<range>=)\\s*(?<range>[^;=]+);\n^\\s*(case|default)\\s*[^:]*(" +
+    "?<range>:)\\s*(?<range>[^;]+);";
       this.fastColoredTextBox.AutoScrollMinSize = new System.Drawing.Size(307, 56);
       this.fastColoredTextBox.BackBrush = null;
       this.fastColoredTextBox.CharHeight = 14;
@@ -503,6 +529,7 @@ namespace CsvTools
       this.fastColoredTextBox.Cursor = System.Windows.Forms.Cursors.IBeam;
       this.fastColoredTextBox.DisabledColor = System.Drawing.Color.FromArgb(((int) (((byte) (100)))), ((int) (((byte) (180)))), ((int) (((byte) (180)))), ((int) (((byte) (180)))));
       this.fastColoredTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
+      this.fastColoredTextBox.Font = new System.Drawing.Font("Courier New", 9.75F);
       this.fastColoredTextBox.IsReplaceMode = false;
       this.fastColoredTextBox.Location = new System.Drawing.Point(3, 121);
       this.fastColoredTextBox.Name = "fastColoredTextBox";
@@ -510,6 +537,7 @@ namespace CsvTools
       this.fastColoredTextBox.ReadOnly = true;
       this.m_TableLayoutPanel.SetRowSpan(this.fastColoredTextBox, 3);
       this.fastColoredTextBox.SelectionColor = System.Drawing.Color.FromArgb(((int) (((byte) (60)))), ((int) (((byte) (0)))), ((int) (((byte) (0)))), ((int) (((byte) (255)))));
+      this.fastColoredTextBox.ServiceColors = null;
       this.fastColoredTextBox.Size = new System.Drawing.Size(354, 87);
       this.fastColoredTextBox.TabIndex = 1;
       this.fastColoredTextBox.TabLength = 1;
@@ -651,6 +679,7 @@ namespace CsvTools
       this.m_TableLayoutPanel.Controls.Add(this.fastColoredTextBox00, 4, 5);
       this.m_TableLayoutPanel.Controls.Add(this.label5, 4, 4);
       this.m_TableLayoutPanel.Controls.Add(this.label4, 5, 4);
+      this.m_TableLayoutPanel.Controls.Add(this.label6, 0, 4);
       this.m_TableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
       this.m_TableLayoutPanel.Location = new System.Drawing.Point(0, 0);
       this.m_TableLayoutPanel.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -685,6 +714,16 @@ namespace CsvTools
       this.label4.Size = new System.Drawing.Size(51, 13);
       this.label4.TabIndex = 35;
       this.label4.Text = "Column 2";
+      // label6
+      this.label6.Anchor = System.Windows.Forms.AnchorStyles.None;
+      this.label6.AutoSize = true;
+      this.m_TableLayoutPanel.SetColumnSpan(this.label6, 2);
+      this.label6.ForeColor = System.Drawing.Color.Teal;
+      this.label6.Location = new System.Drawing.Point(143, 101);
+      this.label6.Name = "label6";
+      this.label6.Size = new System.Drawing.Size(74, 13);
+      this.label6.TabIndex = 35;
+      this.label6.Text = "Delimited Text";
       // QuotingControl
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -779,7 +818,7 @@ namespace CsvTools
           fastColoredTextBox.AppendText(quote.ToString(), m_Quote);
           fastColoredTextBox.AppendText("Column with: ");
 
-          if (string.IsNullOrEmpty(m_TextBoxQuotePlaceHolder.Text) && !m_CsvFile.FileFormat.DuplicateQuotingToEscape && string.IsNullOrEmpty(m_TextBoxEscape.Text))
+          if (string.IsNullOrEmpty(m_TextBoxQuotePlaceHolder.Text) && !m_CsvFile.FileFormat.DuplicateQuotingToEscape && string.IsNullOrEmpty(m_TextBoxEscape.Text) && !m_CsvFile.FileFormat.AlternateQuoting)
             m_ErrorProvider.SetError(fastColoredTextBox11, "The contained quote would lead to closing of the column unless placeholder, repeated quotes or context sensitive quoting is used.");
           else
             m_ErrorProvider.SetError(fastColoredTextBox11, null);

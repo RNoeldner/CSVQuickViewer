@@ -80,7 +80,8 @@ namespace CsvTools
 
       textPanel.SuspendLayout();
       textPanel.Dock = DockStyle.Fill;
-      ClearProcess();
+      Logger.AddLog = loggerDisplay.AddLog;
+
       textPanel.ResumeLayout();
       ShowTextPanel(true);
 
@@ -111,7 +112,7 @@ namespace CsvTools
       SystemEvents.DisplaySettingsChanged += SystemEvents_DisplaySettingsChanged;
       SystemEvents.PowerModeChanged += SystemEvents_PowerModeChanged;
       m_SettingsChangedTimerChange.AutoReset = false;
-      m_SettingsChangedTimerChange.Elapsed += async (sender, args) => await OpenDataReaderAsync(true);
+      m_SettingsChangedTimerChange.Elapsed += async (sender, args) => await OpenDataReaderAsync();
       m_SettingsChangedTimerChange.Stop();
     }
 
@@ -206,20 +207,6 @@ namespace CsvTools
       }
     }
 
-    private void ClearProcess()
-    {
-      m_WarningCount = 0;
-      if (IsDisposed)
-        return;
-      if (!textPanel.Visible)
-        ShowTextPanel(true);
-
-      textBoxProgress.Clear();
-      textBoxProgress.Visible = true;
-      textBoxProgress.Dock = DockStyle.Fill;
-      Logger.AddLog = textBoxProgress.AddLog;
-    }
-
     /// <summary>
     ///   Handles the DragDrop event of the dataGridView control.
     /// </summary>
@@ -267,22 +254,35 @@ namespace CsvTools
 
     private async void ToggelDisplayAsText(object sender, EventArgs e)
     {
-      // Assume data type is not recognize
-      if (m_FileSetting.ColumnCollection.Any(x => x.ValueFormat.DataType != DataType.String))
+      try
       {
-        Logger.Debug("Showing columns as text");
-        m_FileSetting.ColumnCollection.CollectionCopy(m_StoreColumns);
-        m_FileSetting.ColumnCollection.Clear();
-        m_ToolStripButtonAsText.Text = "Values";
-      }
-      else
-      {
-        Logger.Debug("Showing columns as values");
-        m_ToolStripButtonAsText.Text = "Text";
-        m_StoreColumns.CollectionCopy(m_FileSetting.ColumnCollection);
-      }
+        m_ToolStripButtonAsText.Enabled = false;
 
-      await OpenDataReaderAsync(true);
+        // Assume data type is not recognize
+        if (m_FileSetting.ColumnCollection.Any(x => x.ValueFormat.DataType != DataType.String))
+        {
+          Logger.Debug("Showing columns as text");
+          m_FileSetting.ColumnCollection.CollectionCopy(m_StoreColumns);
+          m_FileSetting.ColumnCollection.Clear();
+          m_ToolStripButtonAsText.Text = "Values";
+        }
+        else
+        {
+          Logger.Debug("Showing columns as values");
+          m_ToolStripButtonAsText.Text = "Text";
+          m_StoreColumns.CollectionCopy(m_FileSetting.ColumnCollection);
+        }
+
+        await OpenDataReaderAsync();
+      }
+      catch (Exception ex)
+      {
+        this.ShowError(ex);
+      }
+      finally
+      {
+        m_ToolStripButtonAsText.Enabled=true;
+      }
     }
 
     private void ShowSourceFile(object sender, EventArgs e)
@@ -346,7 +346,7 @@ namespace CsvTools
             MessageBoxButtons.YesNo,
             MessageBoxIcon.Question,
             MessageBoxDefaultButton.Button2) == DialogResult.Yes)
-            await OpenDataReaderAsync(true);
+            await OpenDataReaderAsync();
           else
             m_ConfigChanged = false;
         }
@@ -360,7 +360,7 @@ namespace CsvTools
           MessageBoxButtons.YesNo,
           MessageBoxIcon.Question,
           MessageBoxDefaultButton.Button2) == DialogResult.Yes)
-          await OpenDataReaderAsync(true);
+          await OpenDataReaderAsync();
         else
           m_FileChanged = false;
       }
@@ -449,7 +449,7 @@ namespace CsvTools
     {
       if (e.KeyCode != Keys.F5 && (!e.Control || e.KeyCode != Keys.R)) return;
       e.Handled = true;
-      await OpenDataReaderAsync(true);
+      await OpenDataReaderAsync();
     }
 
     /// <summary>
@@ -461,6 +461,12 @@ namespace CsvTools
     {
       if (string.IsNullOrEmpty(fileName) || !FileSystemUtils.FileExists(fileName))
         return;
+
+      if (IsDisposed)
+        return;
+
+      ShowTextPanel(true);
+
       if (fileName.IndexOf('~') != -1)
         fileName = FileSystemUtils.LongFileName(fileName);
       try
@@ -475,7 +481,8 @@ namespace CsvTools
         else
         {
           LoadFinished = false;
-          ClearProcess();
+          m_WarningCount = 0;
+
           var sDisplay = FileSystemUtils.GetShortDisplayFileName(fileName, 40);
           Logger.Information("Examining file {filename}", fileName);
           Text = $@"{sDisplay} {AssemblyTitle}";
@@ -547,7 +554,7 @@ namespace CsvTools
           fileSystemWatcher.Path = fileInfo.FullName.GetDirectoryName();
         }
 
-        await OpenDataReaderAsync(false);
+        await OpenDataReaderAsync();
       }
       catch (Exception ex)
       {
@@ -563,7 +570,7 @@ namespace CsvTools
     /// <summary>
     ///   Opens the data reader.
     /// </summary>
-    private async Task OpenDataReaderAsync(bool clear)
+    private async Task OpenDataReaderAsync()
     {
       if (m_FileSetting == null)
         return;
@@ -576,22 +583,19 @@ namespace CsvTools
 
       try
       {
-        if (clear)
-          ClearProcess();
-
         using (var improvedStream = FunctionalDI.OpenRead(m_FileSetting.FullPath))
         {
           m_CodePage = await CsvHelper.GuessCodePageAsync(improvedStream, m_CancellationTokenSource.Token);
         }
+        var fileNameShort = FileSystemUtils.GetShortDisplayFileName(m_FileSetting.FileName, 40);
+        Text = $"{fileNameShort} - {EncodingHelper.GetEncodingName(m_CodePage.Item1, true, m_CodePage.Item2)} - {AssemblyTitle}";
 
-        Text =
-          $"{FileSystemUtils.GetShortDisplayFileName(m_FileSetting.FileName, 40)} - {EncodingHelper.GetEncodingName(m_CodePage.Item1, true, m_CodePage.Item2)} - {AssemblyTitle}";
-
-        using (var processDisplay = m_FileSetting.GetProcessDisplay(this, false, m_CancellationTokenSource.Token))
+        using (var processDisplay = new FormProcessDisplay(fileNameShort, false, m_CancellationTokenSource.Token))
         {
-          if (processDisplay is IProcessDisplayTime pdt)
-            pdt.AttachTaskbarProgress();
-          processDisplay.SetProcess("Opening File...", -1, true);
+          processDisplay.AttachTaskbarProgress();
+          processDisplay.Show(this);
+          processDisplay.Maximum = 0;
+          processDisplay.SetProcess($"Opening \"{fileNameShort}\"", -1, true);
           detailControl.FileSetting = m_FileSetting;
           detailControl.FillGuessSettings = m_ViewSettings.FillGuessSettings;
           detailControl.CancellationToken = m_CancellationTokenSource.Token;
@@ -618,9 +622,8 @@ namespace CsvTools
 
             FunctionalDI.GetColumnHeader = (dummy1, dummy3) => Task.FromResult(m_Headers);
 
-            processDisplay.SetMaximum(0);
             processDisplay.SetProcess("Reading data...", -1, true);
-            processDisplay.SetMaximum(100);
+            processDisplay.Maximum = 100;
             detailControl.ShowInfoButtons = false;
             DataTable = await fileReader.GetDataTableAsync(m_FileSetting.RecordLimit, true,
               m_FileSetting.DisplayStartLineNo, m_FileSetting.DisplayRecordNo, m_FileSetting.DisplayEndLineNo, false,
@@ -639,14 +642,21 @@ namespace CsvTools
 
         // The reader is used when data ist stored through the detailControl
         FunctionalDI.SQLDataReader = async (settingName, message, timeout, token) =>
-        {
-          var dt = new DataTableWrapper(detailControl.DataTable);
-          await dt.OpenAsync(token);
-          return dt;
-        };
+          {
+            var dt = new DataTableWrapper(detailControl.DataTable);
+            await dt.OpenAsync(token);
+            return dt;
+          };
 
         if (DataTable != null)
+        {
+          Logger.Information("Showing loaded data...");
           ShowDataTable(DataTable);
+        }
+        else
+        {
+          Logger.Information("No data to show");
+        }
 
         // Load View Settings
         var index = m_FileSetting.ID.LastIndexOf('.');
@@ -661,6 +671,7 @@ namespace CsvTools
       catch (Exception exc)
       {
         if (!m_DisposedValue)
+
           this.ShowError(exc, "Opening File");
       }
       finally
@@ -689,7 +700,6 @@ namespace CsvTools
 
     private void ShowDataTable(DataTable dataTable)
     {
-      Logger.Information("Showing loaded data...");
       this.SafeBeginInvoke(() =>
       {
         ShowTextPanel(false);

@@ -13,13 +13,64 @@
  */
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
+using System.Reflection;
+using System.Threading;
+using System.Windows.Forms;
 
 namespace CsvTools.Tests
 {
   [TestClass]
   public class FormMainTests
   {
+    public void GetButtons(Control rootControl, List<Component> btns)
+    {
+      foreach (Control ctrl in rootControl.Controls)
+      {
+        if (ctrl is Button)
+          btns.Add(ctrl);
+        else if (ctrl is ToolStrip ts)
+        {
+          foreach (ToolStripItem i in ts.Items)
+          {
+            if (i is ToolStripButton)
+              btns.Add(i);
+          }
+        }
+        else if (ctrl.HasChildren)
+          GetButtons(ctrl, btns);
+      }
+    }
+
+    //[TestMethod]
+    //public void CheckEvents()
+    //{
+    //  Extensions.RunSTAThread(() =>
+    //  {
+    //    using (var frm = new FormMain(Path.Combine(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt.gz"))))
+    //    {
+    //      Thread.Sleep(500);
+    //      //UnitTestWinFormHelper.WaitSomeTime(2, UnitTestInitializeCsv.Token);
+    //      var btns = new List<Component>();
+    //      GetButtons(frm, btns);
+
+    //      foreach (var btn in btns)
+    //      {
+    //        var events = (EventHandlerList) typeof(Component).GetProperty("Events", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(btn, null);
+    //        // check OnClick Event
+    //        var field = btn.GetType().GetField("EventClick", BindingFlags.NonPublic | BindingFlags.Static);
+    //        if (field != null)
+    //        {
+    //          var clickhandlers = events[field.GetValue(btn)];
+    //          Assert.IsTrue(clickhandlers.GetInvocationList().Count()>0);
+    //        }
+    //      }
+    //    }
+    //  });
+    //}
+
     [TestMethod]
     public void FormMain_BasicCSV()
     {
