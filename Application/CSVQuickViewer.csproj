@@ -448,13 +448,13 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\FCTB\FastColoredTextBox\FastColoredTextBox.csproj">
+      <Project>{6dd14a85-ccfc-4774-bd26-0f5772512319}</Project>
+      <Name>FastColoredTextBox</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Library\ClassLibraryCSV\ClassLibraryCSV.csproj">
       <Project>{0b6aee5a-8005-4b1d-987f-5790d34a2d52}</Project>
       <Name>ClassLibraryCSV</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Library\FastColoredTextBox\FastColoredTextBox.csproj">
-      <Project>{6dd14a85-ccfc-4774-bd26-0f5772512319}</Project>
-      <Name>FastColoredTextBox</Name>
     </ProjectReference>
     <ProjectReference Include="..\Library\WinFormControls\WinFormControls.csproj">
       <Project>{55ad0a98-c175-4b38-a3d0-321740820d41}</Project>
