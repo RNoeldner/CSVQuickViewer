@@ -172,7 +172,7 @@ namespace CsvTools.Tests
         {
           var test = wrapper.GetEnumerator();
         }
-        catch (NotImplementedException e)
+        catch (NotImplementedException)
         {
           // ignore
         }
@@ -181,7 +181,7 @@ namespace CsvTools.Tests
         {
           wrapper.GetValues(new object[10]);
         }
-        catch (NotImplementedException e)
+        catch (NotImplementedException)
         {
           // ignore
         }
