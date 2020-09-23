@@ -23,7 +23,7 @@ namespace CsvTools
   /// </summary>
   public class LoggerDisplay : FastColoredTextBox
   {
-    private readonly TextStyle timestampStyle = new TextStyle(Brushes.Black, Brushes.LightSteelBlue, FontStyle.Regular);
+    private readonly TextStyle timestampStyle = new TextStyle(Brushes.DimGray, Brushes.Lavender, FontStyle.Regular);
     private readonly TextStyle infoStyle = new TextStyle(Brushes.Gray, null, FontStyle.Regular);
     private readonly TextStyle regStyle = new TextStyle(Brushes.Black, null, FontStyle.Regular);
     private readonly TextStyle warningStyle = new TextStyle(Brushes.Blue, null, FontStyle.Regular);
@@ -132,9 +132,10 @@ namespace CsvTools
           if (timestamp)
           {
             if (m_Initial)
-              AppendText($"{DateTime.Now:HH:mm:ss}  ", timestampStyle);
+              AppendText($"{DateTime.Now:HH:mm:ss}", timestampStyle);
             else
-              AppendText($"\n{DateTime.Now:HH:mm:ss}  ", timestampStyle);
+              AppendText($"\n{DateTime.Now:HH:mm:ss}", timestampStyle);
+            AppendText(" ");
           }
           AppendText(text, style);
 

@@ -210,6 +210,7 @@ namespace FastColoredTextBoxNS
 
     private char[] autoCompleteBracketsList = { '(', ')', '{', '}', '[', ']', '"', '"', '\'', '\'' };
 
+    [Bindable(false)]
     public char[] AutoCompleteBracketsList
     {
       get => autoCompleteBracketsList;
@@ -229,6 +230,7 @@ namespace FastColoredTextBoxNS
     [Browsable(true)]
     [Description("Colors of some service visual markers.")]
     [TypeConverter(typeof(ExpandableObjectConverter))]
+    [Bindable(false)]
     public ServiceColors ServiceColors { get; set; }
 
     /// <summary>

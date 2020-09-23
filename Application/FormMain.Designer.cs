@@ -43,7 +43,7 @@
       System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
       System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormMain));
       this.fileSystemWatcher = new System.IO.FileSystemWatcher();
-      this.textBoxProgress = new CsvTools.LoggerDisplay();
+      this.loggerDisplay = new CsvTools.LoggerDisplay();
       this.detailControl = new CsvTools.DetailControl();
       this.toolStrip = new System.Windows.Forms.ToolStrip();
       this.m_ToolStripButtonAsText = new System.Windows.Forms.ToolStripButton();
@@ -52,7 +52,7 @@
       this.m_ToolStripButtonSource = new System.Windows.Forms.ToolStripButton();
       this.textPanel = new System.Windows.Forms.ToolStripContainer();
       ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher)).BeginInit();
-      ((System.ComponentModel.ISupportInitialize)(this.textBoxProgress)).BeginInit();
+      ((System.ComponentModel.ISupportInitialize)(this.loggerDisplay)).BeginInit();
       this.toolStrip.SuspendLayout();
       this.textPanel.BottomToolStripPanel.SuspendLayout();
       this.textPanel.ContentPanel.SuspendLayout();
@@ -66,9 +66,9 @@
       this.fileSystemWatcher.SynchronizingObject = this;
       this.fileSystemWatcher.Changed += new System.IO.FileSystemEventHandler(this.FileSystemWatcher_Changed);
       // 
-      // textBoxProgress
+      // loggerDisplay
       // 
-      this.textBoxProgress.AutoCompleteBracketsList = new char[] {
+      this.loggerDisplay.AutoCompleteBracketsList = new char[] {
         '(',
         ')',
         '{',
@@ -79,31 +79,30 @@
         '\"',
         '\'',
         '\''};
-      this.textBoxProgress.AutoIndentCharsPatterns = "^\\s*[\\w\\.]+(\\s\\w+)?\\s*(?<range>=)\\s*(?<range>[^;=]+);\n^\\s*(case|default)\\s*[^:]*(" +
+      this.loggerDisplay.AutoIndentCharsPatterns = "^\\s*[\\w\\.]+(\\s\\w+)?\\s*(?<range>=)\\s*(?<range>[^;=]+);\n^\\s*(case|default)\\s*[^:]*(" +
     "?<range>:)\\s*(?<range>[^;]+);";
-      this.textBoxProgress.AutoScrollMinSize = new System.Drawing.Size(2, 14);
-      this.textBoxProgress.BackBrush = null;
-      this.textBoxProgress.BackColor = System.Drawing.SystemColors.Window;
-      this.textBoxProgress.CausesValidation = false;
-      this.textBoxProgress.CharHeight = 14;
-      this.textBoxProgress.CharWidth = 8;
-      this.textBoxProgress.Cursor = System.Windows.Forms.Cursors.IBeam;
-      this.textBoxProgress.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
-      this.textBoxProgress.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.textBoxProgress.Font = new System.Drawing.Font("Courier New", 9.75F);
-      this.textBoxProgress.IsReplaceMode = false;
-      this.textBoxProgress.Location = new System.Drawing.Point(0, 0);
-      this.textBoxProgress.Margin = new System.Windows.Forms.Padding(2);
-      this.textBoxProgress.MinLevel = CsvTools.Logger.Level.Debug;
-      this.textBoxProgress.Name = "textBoxProgress";
-      this.textBoxProgress.Paddings = new System.Windows.Forms.Padding(0);
-      this.textBoxProgress.ReadOnly = true;
-      this.textBoxProgress.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
-      this.textBoxProgress.ServiceColors = null;
-      this.textBoxProgress.ShowLineNumbers = false;
-      this.textBoxProgress.Size = new System.Drawing.Size(971, 503);
-      this.textBoxProgress.TabIndex = 2;
-      this.textBoxProgress.Zoom = 100;
+      this.loggerDisplay.AutoScrollMinSize = new System.Drawing.Size(2, 14);
+      this.loggerDisplay.BackBrush = null;
+      this.loggerDisplay.BackColor = System.Drawing.SystemColors.Window;
+      this.loggerDisplay.CausesValidation = false;
+      this.loggerDisplay.CharHeight = 14;
+      this.loggerDisplay.CharWidth = 8;
+      this.loggerDisplay.Cursor = System.Windows.Forms.Cursors.IBeam;
+      this.loggerDisplay.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
+      this.loggerDisplay.Dock = System.Windows.Forms.DockStyle.Fill;
+      this.loggerDisplay.IsReplaceMode = false;
+      this.loggerDisplay.Location = new System.Drawing.Point(0, 0);
+      this.loggerDisplay.Margin = new System.Windows.Forms.Padding(2);
+      this.loggerDisplay.MinLevel = CsvTools.Logger.Level.Debug;
+      this.loggerDisplay.Name = "loggerDisplay";
+      this.loggerDisplay.Paddings = new System.Windows.Forms.Padding(0);
+      this.loggerDisplay.ReadOnly = true;
+      this.loggerDisplay.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
+      this.loggerDisplay.ServiceColors = null;
+      this.loggerDisplay.ShowLineNumbers = false;
+      this.loggerDisplay.Size = new System.Drawing.Size(971, 503);
+      this.loggerDisplay.TabIndex = 2;
+      this.loggerDisplay.Zoom = 100;
       // 
       // detailControl
       // 
@@ -190,7 +189,7 @@
       // 
       // textPanel.ContentPanel
       // 
-      this.textPanel.ContentPanel.Controls.Add(this.textBoxProgress);
+      this.textPanel.ContentPanel.Controls.Add(this.loggerDisplay);
       this.textPanel.ContentPanel.Size = new System.Drawing.Size(971, 503);
       this.textPanel.Dock = System.Windows.Forms.DockStyle.Fill;
       this.textPanel.LeftToolStripPanelVisible = false;
@@ -222,7 +221,7 @@
       this.DragEnter += new System.Windows.Forms.DragEventHandler(this.DataGridView_DragEnter);
       this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.FormMain_KeyUpAsync);
       ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher)).EndInit();
-      ((System.ComponentModel.ISupportInitialize)(this.textBoxProgress)).EndInit();
+      ((System.ComponentModel.ISupportInitialize)(this.loggerDisplay)).EndInit();
       this.toolStrip.ResumeLayout(false);
       this.toolStrip.PerformLayout();
       this.textPanel.BottomToolStripPanel.ResumeLayout(false);
@@ -236,7 +235,7 @@
 
     private CsvTools.DetailControl detailControl;
     private System.IO.FileSystemWatcher fileSystemWatcher;
-    private CsvTools.LoggerDisplay textBoxProgress;
+    private CsvTools.LoggerDisplay loggerDisplay;
 
     #endregion
 
