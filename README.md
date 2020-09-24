@@ -10,12 +10,13 @@ The application can:
 * Guess the Delimiter, Record Separator
 * Configurable handling of quotes
 * Guess the Start Row skipping comment lines
-* Use typed values in contracts to text values
-* Ability to store the filtered data into delimited text file. 
+* Use typed values in contrast to text values (Switiching between typed and text values in UI)
+* Ability to store the filtered data into delimited text file
 * Filtering of Columns
 * Sorting of Columns
 * Hiding/Reordering Columns
-* Incremental Searching for Text
+* Above column configuration can be saved and loaded
+* Incremental Searching and highlighting for Text
 * Determine Column Length
 * Displaying a Hierarchy inside the file
 * Display Duplicates Values
