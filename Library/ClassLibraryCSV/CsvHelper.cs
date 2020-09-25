@@ -782,7 +782,7 @@ namespace CsvTools
       }
       var res = max < 1 ? '\0' : possibleQuotes.Where((t, testChar) => counter[testChar] == max).FirstOrDefault();
       if (res!='\0')
-        Logger.Information("Column Qualifier: {qualifier}" + res);
+        Logger.Information("Column Qualifier: {qualifier}", res);
       return res;
     }
 
