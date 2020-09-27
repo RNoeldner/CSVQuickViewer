@@ -46,7 +46,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task OpenLogAsync()
     {
-      var setting = new CsvFile(UnitTestInitializeCsv.GetTestPath("LogFile.json")) { JsonFormat = true };
+      var setting = new CsvFile(UnitTestInitializeCsv.GetTestPath("LogFile.json")) {JsonFormat = true};
       using (var dpd = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       using (var jfr = new JsonFileReader(setting, dpd))
       {
@@ -64,28 +64,36 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public async Task NotSupportedAsync()
+    public async Task ReadJSonEmp_VariousTypedData()
     {
-      var setting = new CsvFile(UnitTestInitializeCsv.GetTestPath("Emp.json")) { JsonFormat = true };
+      var setting = new CsvFile(UnitTestInitializeCsv.GetTestPath("Emp.json")) {JsonFormat = true};
 
       using (var dpd = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       using (var jfr = new JsonFileReader(setting, dpd))
       {
         await jfr.OpenAsync(dpd.CancellationToken);
         await jfr.ReadAsync(dpd.CancellationToken);
+        Assert.AreEqual(0, jfr.GetByte(21));
+        Assert.AreEqual('T', jfr.GetChar(1));
+        var buffer = new char[200];
+        jfr.GetChars(3, 0, buffer, 0, 100);
+        Assert.AreEqual('M', buffer[0]);
+        Assert.AreEqual('A', buffer[1]);
 
-        try
-        {
-          jfr.GetByte(1);
-          Assert.Fail("GetByte - No Exception");
-        }
-        catch (NotImplementedException)
-        {
-        }
-        catch (Exception ex)
-        {
-          Assert.Fail($"GetByte - Wrong type of exception  {ex.GetType().Name}");
-        }
+        ;
+      }
+    }
+
+    [TestMethod]
+    public async Task NotSupportedAsync()
+    {
+      var setting = new CsvFile(UnitTestInitializeCsv.GetTestPath("Emp.json")) {JsonFormat = true};
+
+      using (var dpd = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
+      using (var jfr = new JsonFileReader(setting, dpd))
+      {
+        await jfr.OpenAsync(dpd.CancellationToken);
+        await jfr.ReadAsync(dpd.CancellationToken);
 
         try
         {
@@ -113,33 +121,6 @@ namespace CsvTools.Tests
         catch (Exception ex)
         {
           Assert.Fail($"Wrong type of exception  {ex.GetType().Name}");
-        }
-
-        try
-        {
-          jfr.GetChar(1);
-          Assert.Fail("GetChar - No Exception");
-        }
-        catch (NotImplementedException)
-        {
-        }
-        catch (Exception ex)
-        {
-          Assert.Fail($"GetChar - Wrong type of exception  {ex.GetType().Name}");
-        }
-
-        try
-        {
-          var buffer = new char[200];
-          jfr.GetChars(1, 0, buffer, 0, 100);
-          Assert.Fail("GetChars - No Exception");
-        }
-        catch (NotImplementedException)
-        {
-        }
-        catch (Exception ex)
-        {
-          Assert.Fail($"GetChars - Wrong type of exception  {ex.GetType().Name}");
         }
 
         try
@@ -174,7 +155,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task ReadJSonEmpAsync()
     {
-      var setting = new CsvFile(UnitTestInitializeCsv.GetTestPath("Emp.json")) { JsonFormat = true };
+      var setting = new CsvFile(UnitTestInitializeCsv.GetTestPath("Emp.json")) {JsonFormat = true};
 
       using (var dpd = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       using (var jfr = new JsonFileReader(setting, dpd))
@@ -210,7 +191,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task ReadJSon1Async()
     {
-      var setting = new CsvFile(UnitTestInitializeCsv.GetTestPath("Jason1.json")) { JsonFormat = true };
+      var setting = new CsvFile(UnitTestInitializeCsv.GetTestPath("Jason1.json")) {JsonFormat = true};
 
       using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       using (var jfr = new JsonFileReader(setting, processDisplay))
@@ -256,7 +237,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task ReadJSon2Async()
     {
-      var setting = new CsvFile(UnitTestInitializeCsv.GetTestPath("Jason2.json")) { JsonFormat = true };
+      var setting = new CsvFile(UnitTestInitializeCsv.GetTestPath("Jason2.json")) {JsonFormat = true};
       using (var dpd = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       using (var jfr = new JsonFileReader(setting, dpd))
       {
@@ -277,7 +258,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task ReadJSon3Async()
     {
-      var setting = new CsvFile(UnitTestInitializeCsv.GetTestPath("Jason3.json")) { JsonFormat = true };
+      var setting = new CsvFile(UnitTestInitializeCsv.GetTestPath("Jason3.json")) {JsonFormat = true};
 
       using (var dpd = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       using (var jfr = new JsonFileReader(setting, dpd))
@@ -299,7 +280,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task ReadJSon4Async()
     {
-      var setting = new CsvFile(UnitTestInitializeCsv.GetTestPath("Jason4.json")) { JsonFormat = true };
+      var setting = new CsvFile(UnitTestInitializeCsv.GetTestPath("Jason4.json")) {JsonFormat = true};
 
       using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       using (var jfr = new JsonFileReader(setting, processDisplay))

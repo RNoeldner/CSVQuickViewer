@@ -72,10 +72,17 @@ The file {fullPath} does not exist.";
         else
           m_HighLighter =
             new SyntaxHighlighterDelimitedText(textBox, qualifierChar, delimiterChar, escapeChar, commemt);
-        m_Stream = ImprovedStream.OpenRead(fullPath);
 
-        m_SkipLines = skipLines;
-        textBox.OpenBindingStream(m_Stream.Stream, Encoding.GetEncoding(codePage));
+        try
+        {
+          m_Stream = ImprovedStream.OpenRead(fullPath);
+          m_SkipLines = skipLines;
+          textBox.OpenBindingStream(m_Stream.Stream, Encoding.GetEncoding(codePage));
+        }
+        catch (Exception e)
+        {
+          textBox.Text = e.Message;
+        }
       }
     }
 
