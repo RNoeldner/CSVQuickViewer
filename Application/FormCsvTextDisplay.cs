@@ -14,7 +14,6 @@
 
 using System;
 using System.Text;
-using FastColoredTextBoxNS;
 using JetBrains.Annotations;
 
 namespace CsvTools
@@ -41,7 +40,7 @@ namespace CsvTools
       //expand visible range (+- margin)
       var startLine = Math.Max(m_SkipLines, textBox.VisibleRange.Start.iLine - 20);
       var endLine = Math.Min(textBox.LinesCount - 1, textBox.VisibleRange.End.iLine + 100);
-      if (startLine<endLine)
+      if (startLine < endLine)
       {
         var range = new FastColoredTextBoxNS.Range(textBox, 0, startLine, 0, endLine);
         m_HighLighter.Highlight(range);
@@ -71,7 +70,8 @@ The file {fullPath} does not exist.";
         if (json)
           m_HighLighter = new SyntaxHighlighterJson(textBox);
         else
-          m_HighLighter = new SyntaxHighlighterDelimitedText(textBox, qualifierChar, delimiterChar, escapeChar, commemt);
+          m_HighLighter =
+            new SyntaxHighlighterDelimitedText(textBox, qualifierChar, delimiterChar, escapeChar, commemt);
         m_Stream = ImprovedStream.OpenRead(fullPath);
 
         m_SkipLines = skipLines;

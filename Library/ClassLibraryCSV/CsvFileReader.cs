@@ -171,8 +171,8 @@ namespace CsvTools
           "The text quoting characters is invalid, please use something else than CR or LF");
 
       if (m_FieldDelimiterChar == cCr || m_FieldDelimiterChar == cLf
-                                       || m_FieldDelimiterChar == ' '
-                                       || m_FieldDelimiterChar == '\0')
+                                      || m_FieldDelimiterChar == ' '
+                                      || m_FieldDelimiterChar == '\0')
         throw new FileReaderException(
           "The field delimiter character is invalid, please use something else than CR, LF or Space");
 
@@ -251,7 +251,7 @@ namespace CsvTools
     ///   Gets a value indicating whether this instance is closed.
     /// </summary>
     /// <value><c>true</c> if this instance is closed; otherwise, <c>false</c>.</value>
-    public bool IsClosed => m_TextReader == null;
+    public override bool IsClosed => m_TextReader == null;
 
     public override void Close()
     {
@@ -283,7 +283,7 @@ namespace CsvTools
     /// <exception cref="IndexOutOfRangeException">
     ///   The index passed was outside the range of 0 through <see cref="IDataRecord.FieldCount" />.
     /// </exception>
-    public long GetBytes(int i, long fieldOffset, byte[] buffer, int bufferOffset, int length) =>
+    public new long GetBytes(int i, long fieldOffset, byte[] buffer, int bufferOffset, int length) =>
       throw new NotImplementedException();
 
     /// <summary>
@@ -295,14 +295,14 @@ namespace CsvTools
     /// <exception cref="IndexOutOfRangeException">
     ///   The index passed was outside the range of 0 through <see cref="IDataRecord.FieldCount" />.
     /// </exception>
-    public IDataReader GetData(int i) => throw new NotImplementedException();
+    public new IDataReader GetData(int i) => throw new NotImplementedException();
 
     /// <summary>
     ///   Gets the data type information for the specified field.
     /// </summary>
     /// <param name="i">The index of the field to find.</param>
     /// <returns>The .NET type name of the column</returns>
-    public string GetDataTypeName(int i) => Column[i].ValueFormat.DataType.GetNetType().Name;
+    public new string GetDataTypeName(int i) => Column[i].ValueFormat.DataType.GetNetType().Name;
 
     /// <summary>
     ///   Return the value of the specified field.
@@ -409,8 +409,6 @@ namespace CsvTools
         // Read the header row, this could be more than one line
         await ReadNextRowAsync(false, false).ConfigureAwait(false);
     }
-
-    public void Dispose() => Close();
 
     /// <summary>
     ///   Gets the relative position.

@@ -14,12 +14,15 @@
 
 using JetBrains.Annotations;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -28,7 +31,7 @@ namespace CsvTools
   /// <summary>
   ///   Abstract class as base for all DataReaders
   /// </summary>
-  public abstract class BaseFileReader
+  public abstract class BaseFileReader : DbDataReader
   {
     /// <summary>
     ///   The maximum value
@@ -91,6 +94,8 @@ namespace CsvTools
       FileName = FileSystemUtils.GetFileName(fileName);
     }
 
+    public override bool HasRows => !EndOfFile;
+
     public int Percent => Convert.ToInt32(GetRelativePosition() * 100);
 
     protected string FullPath { get; }
@@ -101,7 +106,7 @@ namespace CsvTools
     /// </summary>
     /// <value></value>
     /// <returns>The level of nesting.</returns>
-    public virtual int Depth => 0;
+    public override int Depth => 0;
 
     /// <summary>
     ///   Current Line Number in the text file, a record can span multiple lines and lines are
@@ -119,7 +124,12 @@ namespace CsvTools
     ///   Gets the number of fields in the file.
     /// </summary>
     /// <value>Number of field in the file.</value>
-    public virtual int FieldCount => m_FieldCount;
+    public override int FieldCount => m_FieldCount;
+
+    public override int VisibleFieldCount
+    {
+      get => Column.Count(x => !x.Ignore);
+    }
 
     public double NotifyAfterSeconds
     {
@@ -143,7 +153,7 @@ namespace CsvTools
     ///   The number of rows changed, inserted, or deleted; 0 if no rows were affected or the
     ///   statement failed; and -1 for SELECT statements.
     /// </returns>
-    public virtual int RecordsAffected => -1;
+    public override int RecordsAffected => -1;
 
     /// <summary>
     ///   Current Line Number in the text file where the record has started
@@ -156,13 +166,13 @@ namespace CsvTools
     ///   Gets the <see cref="object" /> with the specified name.
     /// </summary>
     /// <value></value>
-    public object this[string columnName] => GetValue(GetOrdinal(columnName));
+    public override object this[string columnName] => GetValue(GetOrdinal(columnName));
 
     /// <summary>
     ///   Gets the <see cref="object" /> with the specified column.
     /// </summary>
     /// <value></value>
-    public object this[int columnNumber] => GetValue(columnNumber);
+    public override object this[int columnNumber] => GetValue(columnNumber);
 
     /// <summary>
     ///   Occurs before the file is opened
@@ -244,7 +254,7 @@ namespace CsvTools
     /// <summary>
     ///   Closes the <see cref="IDataReader" /> Object.
     /// </summary>
-    public virtual void Close() => EndOfFile = true;
+    public override void Close() => EndOfFile = true;
 
     // To detect redundant calls
     /// <summary>
@@ -252,11 +262,8 @@ namespace CsvTools
     /// </summary>
     /// <param name="i">The i.</param>
     /// <returns></returns>
-    public virtual bool GetBoolean(int i)
+    public override bool GetBoolean(int i)
     {
-      Debug.Assert(i >= 0);
-      Debug.Assert(CurrentRowColumnText != null);
-
       var parsed = GetBooleanNull(CurrentRowColumnText[i], i);
       if (parsed.HasValue)
         return parsed.Value;
@@ -275,11 +282,8 @@ namespace CsvTools
     /// <exception cref="IndexOutOfRangeException">
     ///   The index passed was outside the range of 0 through <see cref="IDataRecord.FieldCount" />.
     /// </exception>
-    public virtual byte GetByte(int i)
+    public override byte GetByte(int i)
     {
-      Debug.Assert(i >= 0);
-      Debug.Assert(i < FieldCount);
-      Debug.Assert(CurrentRowColumnText != null);
       try
       {
         return byte.Parse(CurrentRowColumnText[i], CultureInfo.InvariantCulture);
@@ -291,6 +295,22 @@ namespace CsvTools
     }
 
     /// <summary>
+    ///   Reads a stream of bytes from the specified column offset into the buffer as an array,
+    ///   starting at the given buffer offset.
+    /// </summary>
+    /// <param name="i">The zero-based column ordinal.</param>
+    /// <param name="fieldOffset">The index within the field from which to start the read operation.</param>
+    /// <param name="buffer">The buffer into which to read the stream of bytes.</param>
+    /// <param name="bufferoffset">
+    ///   The index for <paramref name="buffer" /> to start the read operation.
+    /// </param>
+    /// <param name="length">The number of bytes to read.</param>
+    /// <returns>The actual number of bytes read.</returns>
+    /// <exception cref="NotImplementedException"></exception>
+    public override long GetBytes(int i, long fieldOffset, byte[] buffer, int bufferoffset, int length) =>
+      throw new NotImplementedException();
+
+    /// <summary>
     ///   Gets the character value of the specified column.
     /// </summary>
     /// <param name="i">The zero-based column ordinal.</param>
@@ -298,12 +318,7 @@ namespace CsvTools
     /// <exception cref="IndexOutOfRangeException">
     ///   The index passed was outside the range of 0 through <see cref="IDataRecord.FieldCount" />.
     /// </exception>
-    public virtual char GetChar(int i)
-    {
-      Debug.Assert(i >= 0);
-      Debug.Assert(CurrentRowColumnText != null);
-      return CurrentRowColumnText[i][0];
-    }
+    public override char GetChar(int i) => CurrentRowColumnText[i][0];
 
     /// <summary>
     ///   Reads a stream of characters from the specified column offset into the buffer as an array,
@@ -320,9 +335,8 @@ namespace CsvTools
     /// <exception cref="IndexOutOfRangeException">
     ///   The index passed was outside the range of 0 through <see cref="IDataRecord.FieldCount" />.
     /// </exception>
-    public virtual long GetChars(int i, long fieldOffset, char[] buffer, int bufferOffset, int length)
+    public override long GetChars(int i, long fieldOffset, char[] buffer, int bufferOffset, int length)
     {
-      Debug.Assert(CurrentRowColumnText != null);
       var offset = (int) fieldOffset;
       var maxLen = CurrentRowColumnText[i].Length - offset;
       if (maxLen > length)
@@ -340,23 +354,15 @@ namespace CsvTools
     /// </summary>
     /// <param name="columnNumber">The column.</param>
     /// <returns></returns>
-    public virtual ImmutableColumn GetColumn(int columnNumber)
-    {
-      Debug.Assert(Column != null);
-      Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount && columnNumber < Column.Length);
-      return Column[columnNumber];
-    }
+    public virtual ImmutableColumn GetColumn(int columnNumber) => Column[columnNumber];
 
     /// <summary>
     ///   Gets the date and time data value of the specified field.
     /// </summary>
     /// <param name="columnNumber">The index of the field to find.</param>
     /// <returns>The date and time data value of the specified field.</returns>
-    public virtual DateTime GetDateTime(int columnNumber)
+    public override DateTime GetDateTime(int columnNumber)
     {
-      Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount);
-      Debug.Assert(CurrentRowColumnText != null && columnNumber < CurrentRowColumnText.Length);
-
       var dt = GetDateTimeNull(
         null,
         CurrentRowColumnText[columnNumber],
@@ -378,11 +384,8 @@ namespace CsvTools
     /// </summary>
     /// <param name="columnNumber">The i.</param>
     /// <returns></returns>
-    public virtual decimal GetDecimal(int columnNumber)
+    public override decimal GetDecimal(int columnNumber)
     {
-      Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount);
-      Debug.Assert(CurrentRowColumnText != null && columnNumber < CurrentRowColumnText.Length);
-
       var decimalValue = GetDecimalNull(CurrentRowColumnText[columnNumber], columnNumber);
       if (decimalValue.HasValue)
         return decimalValue.Value;
@@ -396,11 +399,8 @@ namespace CsvTools
     /// </summary>
     /// <param name="columnNumber">The i.</param>
     /// <returns></returns>
-    public virtual double GetDouble(int columnNumber)
+    public override double GetDouble(int columnNumber)
     {
-      Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount);
-      Debug.Assert(CurrentRowColumnText != null && columnNumber < CurrentRowColumnText.Length);
-
       var decimalValue = GetDecimalNull(CurrentRowColumnText[columnNumber], columnNumber);
       if (decimalValue.HasValue)
         return Convert.ToDouble(decimalValue.Value);
@@ -409,22 +409,30 @@ namespace CsvTools
       throw WarnAddFormatException(columnNumber, $"'{CurrentRowColumnText[columnNumber]}' is not a double");
     }
 
+    public override IEnumerator GetEnumerator() => new DbEnumerator(this, true);
+
+    /// <summary>
+    ///   Gets the data type information for the specified field.
+    /// </summary>
+    /// <param name="i">The index of the field to find.</param>
+    /// <returns>The data type information for the specified field.</returns>
+    /// <exception cref="NotImplementedException"></exception>
+    public override string GetDataTypeName(int i) => GetFieldType(i)?.Name;
+
     /// <summary>
     ///   Gets the type of the field.
     /// </summary>
     /// <param name="columnNumber">The column number.</param>
     /// <returns>The .NET type of the column</returns>
-    public virtual Type GetFieldType(int columnNumber) => GetColumn(columnNumber).ValueFormat.DataType.GetNetType();
+    public override Type GetFieldType(int columnNumber) => GetColumn(columnNumber).ValueFormat.DataType.GetNetType();
 
     /// <summary>
     ///   Gets the single-precision floating point number of the specified field.
     /// </summary>
     /// <param name="columnNumber">The index of the field to find.</param>
     /// <returns>The single-precision floating point number of the specified field.</returns>
-    public virtual float GetFloat(int columnNumber)
+    public override float GetFloat(int columnNumber)
     {
-      Debug.Assert(0 <= columnNumber);
-
       var decimalValue = GetDecimalNull(CurrentRowColumnText[columnNumber], columnNumber);
       if (decimalValue.HasValue)
         return Convert.ToSingle(decimalValue, CultureInfo.InvariantCulture);
@@ -438,11 +446,8 @@ namespace CsvTools
     /// </summary>
     /// <param name="columnNumber">The column number.</param>
     /// <returns></returns>
-    public virtual Guid GetGuid(int columnNumber)
+    public override Guid GetGuid(int columnNumber)
     {
-      Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount);
-      Debug.Assert(CurrentRowColumnText != null && columnNumber < CurrentRowColumnText.Length);
-
       var parsed = GetGuidNull(CurrentRowColumnText[columnNumber], columnNumber);
 
       if (parsed.HasValue)
@@ -456,11 +461,8 @@ namespace CsvTools
     /// </summary>
     /// <param name="columnNumber">The index of the field to find.</param>
     /// <returns>The 16-bit signed integer value of the specified field.</returns>
-    public virtual short GetInt16(int columnNumber)
+    public override short GetInt16(int columnNumber)
     {
-      Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount);
-      Debug.Assert(CurrentRowColumnText != null && columnNumber < CurrentRowColumnText.Length);
-
       return GetInt16(CurrentRowColumnText[columnNumber], columnNumber);
     }
 
@@ -469,9 +471,8 @@ namespace CsvTools
     /// </summary>
     /// <param name="columnNumber">The i.</param>
     /// <returns></returns>
-    public virtual int GetInt32(int columnNumber)
+    public override int GetInt32(int columnNumber)
     {
-      Debug.Assert(CurrentRowColumnText != null && columnNumber < CurrentRowColumnText.Length);
       var column = GetColumn(columnNumber);
 
       var parsed = StringConversion.StringToInt32(
@@ -493,7 +494,6 @@ namespace CsvTools
     /// <returns></returns>
     public int? GetInt32Null(string inputValue, [NotNull] IColumn column)
     {
-      Debug.Assert(column != null);
       var ret = StringConversion.StringToInt32(
         inputValue,
         column.ValueFormat.DecimalSeparatorChar,
@@ -510,7 +510,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="columnNumber">The i.</param>
     /// <returns></returns>
-    public virtual long GetInt64(int columnNumber)
+    public override long GetInt64(int columnNumber)
     {
       var column = GetColumn(columnNumber);
 
@@ -552,17 +552,15 @@ namespace CsvTools
     /// <exception cref="IndexOutOfRangeException">
     ///   The index passed was outside the range of 0 through <see cref="IDataRecord.FieldCount" />.
     /// </exception>
-    public virtual string GetName(int columnNumber) => GetColumn(columnNumber).Name;
+    public override string GetName(int columnNumber) => GetColumn(columnNumber).Name;
 
     /// <summary>
     ///   Return the index of the named field.
     /// </summary>
     /// <param name="columnName">The name of the field to find.</param>
     /// <returns>The index of the named field. If not found -1</returns>
-    public virtual int GetOrdinal(string columnName)
+    public override int GetOrdinal(string columnName)
     {
-      Debug.Assert(columnName != null);
-
       if (string.IsNullOrEmpty(columnName) || Column == null)
         return -1;
       var count = 0;
@@ -576,13 +574,18 @@ namespace CsvTools
       return -1;
     }
 
+    public override Stream GetStream(int columnNumber) =>
+      new MemoryStream(Encoding.UTF8.GetBytes(CurrentRowColumnText[columnNumber] ?? ""));
+
+    public override TextReader GetTextReader(int columnNumber) => new StreamReader(CurrentRowColumnText[columnNumber]);
+
     /// <summary>
     ///   Returns a <see cref="DataTable" /> that describes the column meta data of the <see
     ///   cref="IDataReader" /> .
     /// </summary>
     /// <returns>A <see cref="DataTable" /> that describes the column meta data.</returns>
     /// <exception cref="InvalidOperationException">The <see cref="IDataReader" /> is closed.</exception>
-    public virtual DataTable GetSchemaTable()
+    public override DataTable GetSchemaTable()
     {
       var dataTable = ReaderConstants.GetEmptySchemaTable();
       var schemaRow = ReaderConstants.GetDefaultSchemaRowArray();
@@ -614,7 +617,7 @@ namespace CsvTools
     /// <returns></returns>
     /// <exception cref="InvalidOperationException">Row has not been read</exception>
     /// <exception cref="ArgumentOutOfRangeException">ColumnNumber invalid</exception>
-    public virtual string GetString(int columnNumber)
+    public override string GetString(int columnNumber)
     {
       if (CurrentRowColumnText == null)
         throw new InvalidOperationException("Row has not been read");
@@ -629,7 +632,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="columnNumber">The column number.</param>
     /// <returns>The value of the specific field</returns>
-    public virtual object GetValue(int columnNumber)
+    public override object GetValue(int columnNumber)
     {
       Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount);
 
@@ -691,7 +694,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="values">An array of object to copy the attribute fields into.</param>
     /// <returns>The number of instances of object in the array.</returns>
-    public virtual int GetValues(object[] values)
+    public override int GetValues(object[] values)
     {
       if (values is null)
         throw new ArgumentNullException(nameof(values));
@@ -737,7 +740,7 @@ namespace CsvTools
     /// <exception cref="IndexOutOfRangeException">
     ///   The index passed was outside the range of 0 through <see cref="IDataRecord.FieldCount" />.
     /// </exception>
-    public virtual bool IsDBNull(int columnNumber)
+    public override bool IsDBNull(int columnNumber)
     {
       if (CurrentRowColumnText == null || CurrentRowColumnText.Length <= columnNumber)
         return true;
@@ -750,11 +753,26 @@ namespace CsvTools
              && string.IsNullOrEmpty(CurrentRowColumnText[AssociatedTimeCol[columnNumber]]);
     }
 
+    public override Task<bool> IsDBNullAsync(int columnNumber, CancellationToken cancellationToken)
+    {
+      if (CurrentRowColumnText == null || CurrentRowColumnText.Length <= columnNumber)
+        return Task.FromResult(true);
+      if (Column[columnNumber].ValueFormat.DataType != DataType.DateTime)
+        return Task.FromResult(string.IsNullOrWhiteSpace(CurrentRowColumnText[columnNumber]));
+      if (AssociatedTimeCol[columnNumber] == -1 || AssociatedTimeCol[columnNumber] >= CurrentRowColumnText.Length)
+        return Task.FromResult(string.IsNullOrEmpty(CurrentRowColumnText[columnNumber]));
+
+      return Task.FromResult(string.IsNullOrEmpty(CurrentRowColumnText[columnNumber])
+                             && string.IsNullOrEmpty(CurrentRowColumnText[AssociatedTimeCol[columnNumber]]));
+    }
+
     /// <summary>
     ///   Advances the data reader to the next result, when reading the results of batch SQL statements.
     /// </summary>
     /// <returns>true if there are more rows; otherwise, false.</returns>
-    public virtual bool NextResult() => false;
+    public override bool NextResult() => false;
+
+    public override Task<bool> NextResultAsync(CancellationToken cancellationToken) => Task.FromResult(false);
 
     /// <summary>
     ///   Routine to open the reader, each implementation should call BeforeOpenAsync, InitColumns,
@@ -771,16 +789,14 @@ namespace CsvTools
     [UsedImplicitly]
     public virtual bool Read(CancellationToken token) => ReadAsync(token).Wait(2000);
 
-    public virtual bool Read() => ReadAsync(CancellationToken.None).Wait(2000);
+    public override bool Read() => ReadAsync(CancellationToken.None).Wait(2000);
 
-    public abstract Task<bool> ReadAsync(CancellationToken token);
 
     /// <summary>
     ///   Resets the position and buffer to the header in case the file has a header
     /// </summary>
     /// <param name="token"></param>
 #pragma warning disable 1998
-
     public virtual async Task ResetPositionToFirstDataRowAsync(CancellationToken token)
 #pragma warning restore 1998
     {
@@ -1005,7 +1021,8 @@ namespace CsvTools
     protected virtual void HandleShowProgress(string text, long recordNumber, double progress)
     {
       var rec = recordNumber > 1 ? $"\nRecord {recordNumber:N0}" : string.Empty;
-      ReportProgress?.Invoke(this, new ProgressEventArgs($"{text}{rec}", Convert.ToInt64(progress*c_MaxValue), false));
+      ReportProgress?.Invoke(this,
+        new ProgressEventArgs($"{text}{rec}", Convert.ToInt64(progress * c_MaxValue), false));
     }
 
     /// <summary>
@@ -1032,12 +1049,12 @@ namespace CsvTools
     /// </summary>
     /// <param name="inputString">The input string.</param>
     /// <param name="columnNumber">The column number</param>
-    /// <param name="treatNBSPAsSpace"></param>
+    /// <param name="treatNbspAsSpace"></param>
     /// <param name="treatTextAsNull"></param>
     /// <param name="trimmingOption"></param>
     /// <returns>The proper encoded or cut text as returned for the column</returns>
     [CanBeNull]
-    protected string HandleText([CanBeNull] string inputString, int columnNumber, bool treatNBSPAsSpace,
+    protected string HandleText([CanBeNull] string inputString, int columnNumber, bool treatNbspAsSpace,
       string treatTextAsNull, TrimmingOption trimmingOption)
     {
       // in case its not a string
@@ -1088,7 +1105,7 @@ namespace CsvTools
       if (string.IsNullOrEmpty(output))
         return null;
 
-      if (treatNBSPAsSpace && output.IndexOf((char) 0xA0) != -1)
+      if (treatNbspAsSpace && output.IndexOf((char) 0xA0) != -1)
         output = output.Replace((char) 0xA0, ' ');
 
       return output;

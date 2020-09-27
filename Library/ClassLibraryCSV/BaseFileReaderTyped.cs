@@ -53,68 +53,12 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets the 8-bit unsigned integer value of the specified column.
-    /// </summary>
-    /// <param name="i">The zero-based column ordinal.</param>
-    /// <returns>The 8-bit unsigned integer value of the specified column.</returns>
-    /// <exception cref="NotImplementedException"></exception>
-    public override byte GetByte(int i) => throw new NotImplementedException();
-
-    /// <summary>
-    ///   Reads a stream of bytes from the specified column offset into the buffer as an array,
-    ///   starting at the given buffer offset.
-    /// </summary>
-    /// <param name="i">The zero-based column ordinal.</param>
-    /// <param name="fieldOffset">The index within the field from which to start the read operation.</param>
-    /// <param name="buffer">The buffer into which to read the stream of bytes.</param>
-    /// <param name="bufferoffset">
-    ///   The index for <paramref name="buffer" /> to start the read operation.
-    /// </param>
-    /// <param name="length">The number of bytes to read.</param>
-    /// <returns>The actual number of bytes read.</returns>
-    /// <exception cref="NotImplementedException"></exception>
-    public long GetBytes(int i, long fieldOffset, byte[] buffer, int bufferoffset, int length) =>
-      throw new NotImplementedException();
-
-    /// <summary>
-    ///   Gets the character value of the specified column.
-    /// </summary>
-    /// <param name="i">The zero-based column ordinal.</param>
-    /// <returns>The character value of the specified column.</returns>
-    /// <exception cref="NotImplementedException"></exception>
-    public override char GetChar(int i) => throw new NotImplementedException();
-
-    /// <summary>
-    ///   Reads a stream of characters from the specified column offset into the buffer as an array,
-    ///   starting at the given buffer offset.
-    /// </summary>
-    /// <param name="i">The zero-based column ordinal.</param>
-    /// <param name="fieldoffset">The index within the row from which to start the read operation.</param>
-    /// <param name="buffer">The buffer into which to read the stream of bytes.</param>
-    /// <param name="bufferoffset">
-    ///   The index for <paramref name="buffer" /> to start the read operation.
-    /// </param>
-    /// <param name="length">The number of bytes to read.</param>
-    /// <returns>The actual number of characters read.</returns>
-    /// <exception cref="NotImplementedException"></exception>
-    public override long GetChars(int i, long fieldoffset, char[] buffer, int bufferoffset, int length) =>
-      throw new NotImplementedException();
-
-    /// <summary>
     ///   Returns an <see cref="IDataReader" /> for the specified column ordinal.
     /// </summary>
     /// <param name="i">The index of the field to find.</param>
     /// <returns>The <see cref="IDataReader" /> for the specified column ordinal.</returns>
     /// <exception cref="NotImplementedException"></exception>
-    public IDataReader GetData(int i) => throw new NotImplementedException();
-
-    /// <summary>
-    ///   Gets the data type information for the specified field.
-    /// </summary>
-    /// <param name="i">The index of the field to find.</param>
-    /// <returns>The data type information for the specified field.</returns>
-    /// <exception cref="NotImplementedException"></exception>
-    public string GetDataTypeName(int i) => GetFieldType(i).Name;
+    public new IDataReader GetData(int i) => throw new NotImplementedException();
 
     /// <summary>
     ///   Gets the date and time data value of the specified field.

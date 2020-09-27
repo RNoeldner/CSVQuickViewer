@@ -61,7 +61,7 @@ namespace CsvTools
     ///   Gets a value indicating whether this instance is closed.
     /// </summary>
     /// <value><c>true</c> if this instance is closed; otherwise, <c>false</c>.</value>
-    public virtual bool IsClosed => m_TextReader == null;
+    public override bool IsClosed => m_TextReader == null;
 
     public override void Close()
     {
@@ -158,7 +158,6 @@ namespace CsvTools
     public override async Task ResetPositionToFirstDataRowAsync(CancellationToken token) =>
       await Task.Run(ResetPositionToStartOrOpen, token);
 
-    public void Dispose() => Close();
 
     /// <summary>
     ///   Reads a data row from the JsonTextReader and stores the values and text, this will flatten
@@ -334,7 +333,7 @@ namespace CsvTools
       if (m_ImprovedStream == null)
         m_ImprovedStream = FunctionalDI.OpenRead(FullPath);
 
-      m_ImprovedStream.ResetToStart(delegate (Stream str)
+      m_ImprovedStream.ResetToStart(delegate(Stream str)
       {
         // in case we can not seek need to reopen the stream reader
         if (!str.CanSeek || m_TextReader == null)
@@ -361,10 +360,10 @@ namespace CsvTools
       m_BufferPos = 0;
 
       EndOfFile = m_TextReader.EndOfStream;
-      m_JsonTextReader = new JsonTextReader(m_TextReader) { CloseInput = false };
+      m_JsonTextReader = new JsonTextReader(m_TextReader) {CloseInput = false};
     }
 
-    #region TextReader
+#region TextReader
 
     // Buffer size set to 64kB, if set to large the display in percentage will jump
     private const int c_BufferSize = 65536;
@@ -489,6 +488,6 @@ namespace CsvTools
       m_JsonTextReader = new JsonTextReader(new StringReader(sb.ToString()));
     }
 
-    #endregion TextReader
+#endregion TextReader
   }
 }

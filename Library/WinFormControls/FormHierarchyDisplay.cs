@@ -16,8 +16,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -105,11 +103,12 @@ namespace CsvTools
     /// <param name="root">The root.</param>
     /// <param name="rootNode">The root node.</param>
     /// <param name="process">Progress display</param>
-    private void AddTreeDataNodeWithChild([NotNull] TreeData root, [NotNull] TreeNode rootNode, [NotNull] IProcessDisplay process)
+    private void AddTreeDataNodeWithChild([NotNull] TreeData root, [CanBeNull] TreeNode rootNode,
+      [NotNull] IProcessDisplay process)
     {
       if (process == null) throw new ArgumentNullException(nameof(process));
       root.Visited = true;
-      var treeNode = new TreeNode(root.NodeTitle) { Tag = root };
+      var treeNode = new TreeNode(root.NodeTitle) {Tag = root};
       if (rootNode == null)
         m_TreeView.Nodes.Add(treeNode);
       else
@@ -134,13 +133,13 @@ namespace CsvTools
         Extensions.ProcessUIElements();
         if (child.Visited)
         {
-          var treeNode = new TreeNode("Cycle -> " + child.Title) { Tag = child };
+          var treeNode = new TreeNode("Cycle -> " + child.Title) {Tag = child};
           treeNodes.Add(treeNode);
         }
         else
         {
           child.Visited = true;
-          var treeNode = new TreeNode(child.NodeTitle, BuildSubNodes(child, process)) { Tag = child };
+          var treeNode = new TreeNode(child.NodeTitle, BuildSubNodes(child, process)) {Tag = child};
           treeNodes.Add(treeNode);
         }
       }
@@ -199,7 +198,7 @@ namespace CsvTools
 
       // Using a dictionary here to speed up lookups
       var treeDataDictionary = new Dictionary<string, TreeData>();
-      var rootDataParentFound = new TreeData { ID = "{R}", Title = "Parent found / No Parent" };
+      var rootDataParentFound = new TreeData {ID = "{R}", Title = "Parent found / No Parent"};
 
       treeDataDictionary.Add(rootDataParentFound.ID, rootDataParentFound);
 
@@ -241,7 +240,7 @@ namespace CsvTools
         if (!string.IsNullOrEmpty(child.ParentID) && !treeDataDictionary.ContainsKey(child.ParentID))
           additionalRootNodes.Add(child.ParentID);
 
-      var rootDataParentNotFound = new TreeData { ID = "{M}", Title = "Parent not found" };
+      var rootDataParentNotFound = new TreeData {ID = "{M}", Title = "Parent not found"};
 
       if (additionalRootNodes.Count > 0)
       {
@@ -259,9 +258,7 @@ namespace CsvTools
             counter++);
           var childData = new TreeData
           {
-            ParentID = rootDataParentNotFound.ID,
-            ID = parentID,
-            Title = $"{m_ComboBoxID.SelectedItem} - {parentID}"
+            ParentID = rootDataParentNotFound.ID, ID = parentID, Title = $"{m_ComboBoxID.SelectedItem} - {parentID}"
           };
           treeDataDictionary.Add(parentID, childData);
         }
@@ -387,9 +384,6 @@ namespace CsvTools
     ///   Required method for Designer support - do not modify the contents of this method with the
     ///   code editor.
     /// </summary>
-    [SuppressMessage("ReSharper", "RedundantNameQualifier")]
-    [SuppressMessage("ReSharper", "RedundantDelegateCreation")]
-    [SuppressMessage("ReSharper", "LocalizableElement")]
     private void InitializeComponent()
     {
       this.components = new System.ComponentModel.Container();
@@ -444,7 +438,7 @@ namespace CsvTools
       // contextMenuStrip
       contextMenuStrip.ImageScalingSize = new System.Drawing.Size(20, 20);
       contextMenuStrip.Items.AddRange(
-        new System.Windows.Forms.ToolStripItem[] { expandAllToolStripMenuItem, closeAllToolStripMenuItem });
+        new System.Windows.Forms.ToolStripItem[] {expandAllToolStripMenuItem, closeAllToolStripMenuItem});
       contextMenuStrip.Name = "contextMenuStrip";
       contextMenuStrip.Size = new System.Drawing.Size(150, 52);
       // expandAllToolStripMenuItem
@@ -566,7 +560,7 @@ namespace CsvTools
       this.ResumeLayout(false);
     }
 
-    private bool MarkInCycle([NotNull] TreeData treeData, [NotNull]ICollection<TreeData> visitedEntries)
+    private bool MarkInCycle([NotNull] TreeData treeData, [NotNull] ICollection<TreeData> visitedEntries)
     {
       if (visitedEntries.Contains(treeData))
       {
@@ -704,7 +698,6 @@ namespace CsvTools
     private void FormHierarchyDisplay_FormClosing(object sender, FormClosingEventArgs e) =>
       m_CancellationTokenSource.Cancel();
 
-    [DebuggerDisplay("TreeData {ID} {ParentID} {Visited} Children:{Children.Count}")]
     internal class TreeData
     {
       public readonly ICollection<TreeData> Children = new List<TreeData>();
@@ -753,7 +746,7 @@ namespace CsvTools
           return 0;
 
         return root.Children.Count + root.Children.Where(child => child.Children.Count > 0)
-          .Sum(child => GetInDirectChildren(child));
+          .Sum(GetInDirectChildren);
       }
     }
   }
