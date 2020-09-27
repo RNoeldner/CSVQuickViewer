@@ -14,6 +14,7 @@ namespace CsvTools
     /// <inheritdoc />
     protected override void Dispose(bool disposing)
     {
+      m_Stream?.Dispose();
       if (disposing && (components != null))
       {
         components.Dispose();
