@@ -98,8 +98,7 @@ namespace CsvTools
         .Replace("  ", " ");
       if (string.IsNullOrWhiteSpace(withoutLineFeed))
         return string.Empty;
-
-      if (withoutLineFeed.Length <= length)
+      if (length<1 || withoutLineFeed.Length <= length)
         return withoutLineFeed;
       withoutLineFeed = withoutLineFeed.Substring(0, length - 1);
       var spaceIndex = withoutLineFeed.LastIndexOf(" ", length - 1 - length / 8, StringComparison.Ordinal);

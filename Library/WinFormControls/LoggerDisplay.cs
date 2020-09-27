@@ -14,6 +14,7 @@
 
 using FastColoredTextBoxNS;
 using System;
+using System.ComponentModel;
 using System.Drawing;
 
 namespace CsvTools
@@ -29,19 +30,26 @@ namespace CsvTools
     private readonly TextStyle warningStyle = new TextStyle(Brushes.Blue, null, FontStyle.Regular);
     private readonly TextStyle errorStyle = new TextStyle(Brushes.Red, null, FontStyle.Regular);
 
-    private readonly Action<string, Logger.Level> m_PreviousLog = Logger.AddLog;
+    private readonly Action<string, Logger.Level> m_PreviousLog;
     private bool m_Disposed;
 
     private bool m_Initial = true;
 
     private string m_LastMessage = string.Empty;
 
+    [DefaultValue(120)]
+    public int LimitLength
+    {
+      get;
+      set;
+    } = 120;
+
     public LoggerDisplay()
     {
-      // ReSharper disable once VirtualMemberCallInConstructor
       Multiline = true;
       ReadOnly = true;
       ShowLineNumbers = false;
+      m_PreviousLog = Logger.AddLog;
       Logger.AddLog = AddLog;
     }
 
@@ -68,7 +76,7 @@ namespace CsvTools
         if (!appended)
         {
           if (level < Logger.Level.Warn)
-            text = StringUtils.GetShortDisplay(StringUtils.HandleCRLFCombinations(text, " "), 120);
+            text = StringUtils.GetShortDisplay(StringUtils.HandleCRLFCombinations(text, " "), LimitLength);
           if (!string.IsNullOrEmpty(text) && text != "\"\"")
             AppendText(text, true, level);
         }

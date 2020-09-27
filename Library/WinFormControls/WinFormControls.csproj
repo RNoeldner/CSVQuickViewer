@@ -162,9 +162,6 @@
     <EmbeddedResource Include="FormProcessDisplay.resx">
       <DependentUpon>FormProcessDisplay.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="LoggerDisplay.resx">
-      <DependentUpon>LoggerDisplay.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="ResizeForm.resx">
       <DependentUpon>ResizeForm.cs</DependentUpon>
       <SubType>Designer</SubType>
