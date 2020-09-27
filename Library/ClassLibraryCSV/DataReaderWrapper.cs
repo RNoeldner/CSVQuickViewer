@@ -136,7 +136,8 @@ namespace CsvTools
     [NotNull]
     public override Type GetFieldType(int ordinal) => m_Column[ordinal].ValueFormat.DataType.GetNetType();
 
-    public override IEnumerator GetEnumerator() => throw new NotImplementedException();
+    public override IEnumerator GetEnumerator() =>
+      (m_FileReader as DbDataReader)?.GetEnumerator() ?? throw new NotImplementedException();
 
     public override object GetValue(int columnNumber)
     {
@@ -258,14 +259,12 @@ namespace CsvTools
 
     public override async Task<bool> ReadAsync(CancellationToken token)
     {
-      if (!token.IsCancellationRequested && !IsClosed)
-      {
-        ColumnErrorDictionary.Clear();
-        var couldRead = await m_FileReader.ReadAsync(token).ConfigureAwait(false);
-        if (couldRead) RecordNumber++;
-        if (RecordNumber <= m_RecordLimit)
-          return couldRead;
-      }
+      if (token.IsCancellationRequested || IsClosed) return false;
+      ColumnErrorDictionary.Clear();
+      var couldRead = await m_FileReader.ReadAsync(token).ConfigureAwait(false);
+      if (couldRead) RecordNumber++;
+      if (RecordNumber <= m_RecordLimit)
+        return couldRead;
 
       return false;
     }

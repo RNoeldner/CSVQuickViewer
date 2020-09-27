@@ -31,7 +31,8 @@ namespace CsvTools
     ///   Initializes a new instance of the <see cref="BiDirectionalDictionary{TKey, TValue}" /> class.
     /// </summary>
     /// <param name="capacity">Initial capacity.</param>
-    public BiDirectionalDictionary(int capacity) : base(capacity) => m_SecondToFirst = new Dictionary<TValue, TKey>(capacity);
+    public BiDirectionalDictionary(int capacity) : base(capacity) =>
+      m_SecondToFirst = new Dictionary<TValue, TKey>(capacity);
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="BiDirectionalDictionary{TKey, TValue}" /> class.
@@ -71,7 +72,7 @@ namespace CsvTools
     /// <param name="key"></param>
     /// <param name="value"></param>
     /// <returns>true if successfully added, false if either element are already in the dictionary</returns>
-    public new bool TryAdd([NotNull] TKey key, [NotNull] TValue value)
+    public bool TryAdd([NotNull] TKey key, [NotNull] TValue value)
     {
       if (ContainsKey(key) || m_SecondToFirst.ContainsKey(value))
         return false;
