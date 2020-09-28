@@ -113,7 +113,7 @@ namespace CsvTools
       try
       {
         using (var improvedStream = FunctionalDI.OpenWrite(m_FullPath, m_Recipient))
-          await WriteReaderAsync(reader, improvedStream.Stream, token).ConfigureAwait(false);
+          await WriteReaderAsync(reader, improvedStream as Stream, token).ConfigureAwait(false);
       }
       catch (Exception exc)
       {

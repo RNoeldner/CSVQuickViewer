@@ -1,5 +1,7 @@
 ﻿using System;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace CsvTools
 {
@@ -7,10 +9,27 @@ namespace CsvTools
   {
     double Percentage { get; }
 
-    Stream Stream { get; }
+#region From Stream
 
-    void ResetToStart(Action<Stream> afterInit);
+    long Seek(long offset, SeekOrigin origin);
 
-    void Close();
+    int Read(byte[] buffer, int offset, int count);
+
+    Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken);
+
+    void Write(byte[] buffer, int offset, int count);
+
+    Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken);
+
+    bool CanRead { get; }
+    bool CanSeek { get; }
+
+    bool CanWrite { get; }
+
+    long Length { get; }
+
+    long Position { get; }
+
+#endregion
   }
 }

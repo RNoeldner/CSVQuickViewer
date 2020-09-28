@@ -73,7 +73,7 @@ namespace CsvTools.Tests
                 Assert.IsNotNull(dataObject.GetData(DataFormats.Html));
                 Assert.IsNotNull(dataObject.GetData(DataFormats.Text));
               }
-              catch (ExternalException e)
+              catch (ExternalException)
               {
                 Assert.Inconclusive("ExternalException while copying data to Clipboard");
               }

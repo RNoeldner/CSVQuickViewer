@@ -35,22 +35,22 @@ namespace CsvTools
       Cursor.Current = Cursors.WaitCursor;
       try
       {
-        control.Enabled=false;
+        control.Enabled = false;
 
         action.Invoke();
       }
       catch (Exception ex)
       {
-        if (control!=null)
+        if (control != null)
         {
           var frm = control.FindForm();
-          if (frm!=null)
+          if (frm != null)
             frm.ShowError(ex);
         }
       }
       finally
       {
-        control.Enabled=true;
+        control.Enabled = true;
         Cursor.Current = oldCursor;
       }
     }
@@ -61,36 +61,43 @@ namespace CsvTools
       Cursor.Current = Cursors.WaitCursor;
       try
       {
-        control.Enabled=false;
+        control.Enabled = false;
         await action.Invoke();
       }
       catch (Exception ex)
       {
         var frm = control.FindForm();
-        if (frm!=null)
-          frm.ShowError(ex);
+        frm?.ShowError(ex);
       }
       finally
       {
-        if (control!=null)
-          control.Enabled=true;
+        control.Enabled = true;
         Cursor.Current = oldCursor;
       }
     }
 
     public static void RunSTAThread([NotNull] this Action action, int timeoutMilliseconds = 20000)
     {
-      if (Thread.CurrentThread.GetApartmentState() == ApartmentState.STA)
-        action.Invoke();
-      else
+      try
       {
-        var runThread = new Thread(action.Invoke);
-        runThread.SetApartmentState(ApartmentState.STA);
-        runThread.Start();
-        if (timeoutMilliseconds > 0)
-          runThread.Join(timeoutMilliseconds);
+        if (Thread.CurrentThread.GetApartmentState() == ApartmentState.STA)
+          action.Invoke();
         else
-          runThread.Join();
+        {
+          var runThread = new Thread(action.Invoke);
+
+          runThread.SetApartmentState(ApartmentState.STA);
+
+          runThread.Start();
+          if (timeoutMilliseconds > 0)
+            runThread.Join(timeoutMilliseconds);
+          else
+            runThread.Join();
+        }
+      }
+      catch (Exception e)
+      {
+        Logger.Error(e);
       }
     }
 
@@ -246,7 +253,7 @@ namespace CsvTools
     /// <param name="uiElement">Type of the Object that will get the extension</param>
     /// <param name="action">A delegate for the action</param>
     /// <param name="timeoutTicks">Timeout to finish action, default is 1/10 of a second</param>
-    public static void SafeInvokeNoHandleNeeded([NotNull]this Control uiElement, [NotNull] Action action,
+    public static void SafeInvokeNoHandleNeeded([NotNull] this Control uiElement, [NotNull] Action action,
       long timeoutTicks = TimeSpan.TicksPerSecond / 10)
     {
       if (uiElement == null || uiElement.IsDisposed || action == null)
@@ -292,7 +299,8 @@ namespace CsvTools
 #endif
     }
 
-    public static WindowState StoreWindowState([NotNull] this Form form, int customInt = int.MinValue, string customText = "")
+    public static WindowState StoreWindowState([NotNull] this Form form, int customInt = int.MinValue,
+      string customText = "")
     {
       try
       {

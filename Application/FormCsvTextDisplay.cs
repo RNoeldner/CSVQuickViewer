@@ -13,6 +13,7 @@
  */
 
 using System;
+using System.IO;
 using System.Text;
 using JetBrains.Annotations;
 
@@ -75,9 +76,9 @@ The file {fullPath} does not exist.";
 
         try
         {
-          m_Stream = ImprovedStream.OpenRead(fullPath);
+          m_Stream = new ImprovedStream(fullPath, true);
           m_SkipLines = skipLines;
-          textBox.OpenBindingStream(m_Stream.Stream, Encoding.GetEncoding(codePage));
+          textBox.OpenBindingStream(m_Stream as Stream, Encoding.GetEncoding(codePage));
         }
         catch (Exception e)
         {

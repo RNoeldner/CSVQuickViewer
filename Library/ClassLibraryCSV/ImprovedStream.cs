@@ -16,6 +16,8 @@ using JetBrains.Annotations;
 using System;
 using System.IO;
 using System.IO.Compression;
+using System.Threading;
+using System.Threading.Tasks;
 
 
 namespace CsvTools
@@ -24,145 +26,142 @@ namespace CsvTools
   ///   A wrapper around file streams to handle pre and post processing, needed for sFTP, Encryption
   ///   and Compression
   /// </summary>
-  public sealed class ImprovedStream : IImprovedStream
+  public class ImprovedStream : Stream, IImprovedStream
   {
-    private readonly bool m_AssumeGZip;
-    [NotNull]
-    private readonly string m_BasePathWithPrefix;
+    protected readonly string FileName;
     private readonly bool m_IsReading;
+    private bool m_DisposedValue;
 
-    private bool m_DisposedValue; // To detect redundant calls
-
-    private ImprovedStream([NotNull] string path, bool isReading)
+    public ImprovedStream([NotNull] string path, bool isReading)
     {
+      if (string.IsNullOrEmpty(path))
+        throw new ArgumentException("Path must be provided", nameof(path));
+      FileName = path;
       m_IsReading = isReading;
-      m_BasePathWithPrefix = path.LongPathPrefix();
-      m_AssumeGZip = path.AssumeGZip();
+
+      // ReSharper disable once VirtualMemberCallInConstructor
+      OpenStreams(isReading);
     }
 
-    private FileStream BaseStream { get; set; }
+    [NotNull] protected Stream AccessStream { get; set; }
+
+    [NotNull] protected FileStream BaseStream { get; private set; }
+
 
     public double Percentage => (double) BaseStream.Position / BaseStream.Length;
 
-    public Stream Stream { get; private set; }
+    public new void Dispose() => Dispose(true);
+
+    public override long Seek(long offset, SeekOrigin origin)
+    {
+      if (AccessStream.CanSeek || origin != SeekOrigin.Begin || offset >= 1)
+        return AccessStream.Seek(offset, origin);
+
+      // if the steam can seek go to beginning
+      if (!ReferenceEquals(AccessStream, BaseStream))
+      {
+        // Reopen Completely
+        Close();
+        OpenStreams(m_IsReading);
+      }
+
+      return 0;
+    }
+
+    public override int Read([NotNull] byte[] buffer, int offset, int count) =>
+      AccessStream.Read(buffer, offset, count);
+
+    public override Task<int> ReadAsync([NotNull] byte[] buffer, int offset, int count,
+      CancellationToken cancellationToken) =>
+      AccessStream.ReadAsync(buffer, offset, count, cancellationToken);
+
+    public override void Write([NotNull] byte[] buffer, int offset, int count) =>
+      AccessStream.Write(buffer, offset, count);
+
+    public override Task WriteAsync([NotNull] byte[] buffer, int offset, int count,
+      CancellationToken cancellationToken) =>
+      AccessStream.WriteAsync(buffer, offset, count, cancellationToken);
+
+    public override bool CanRead => AccessStream.CanRead && BaseStream.CanRead;
+
+    public override bool CanSeek => BaseStream.CanSeek;
+
+    public override bool CanWrite => AccessStream.CanWrite && BaseStream.CanWrite;
+
+    public override long Length => BaseStream.Length;
+
+    public override long Position
+    {
+      get => BaseStream.Position;
+      set => BaseStream.Position = value;
+    }
 
     /// <summary>
     ///   Closes the stream in case of a file opened for writing it would be uploaded to the sFTP
     /// </summary>
-    public void Close()
+    public override void Close()
     {
-      Stream?.Close();
-      BaseStream?.Close();
-    }
-
-    public void Dispose() => Dispose(true);
-
-    public void ResetToStart(Action<Stream> afterInit)
-    {
-      if (!m_IsReading)
-        throw new FileException("The stream need to be opened for reading");
-      try
-      {
-        // in case the stream is at the beginning do nothing
-        if (Stream != null && Stream.CanSeek)
-        {
-          if (Stream.Position != 0)
-            Stream.Position = 0;
-        }
-        else
-        {
-          if (Stream != null)
-          {
-            Stream.Close();
-
-            // need to reopen the base stream
-            BaseStream = File.OpenRead(m_BasePathWithPrefix);
-          }
-
-          if (m_AssumeGZip)
-          {
-            Logger.Debug("Decompressing GZip Stream {filename}", m_BasePathWithPrefix.RemovePrefix());
-            Stream = new GZipStream(BaseStream, CompressionMode.Decompress);
-          }
-          else
-          {
-            Stream = BaseStream;
-          }
-        }
-      }
-      finally
-      {
-        afterInit?.Invoke(Stream);
-      }
+      AccessStream.Close();
+      BaseStream.Close();
+      base.Close();
     }
 
 
-    /// <summary>
-    ///   Opens a file for reading
-    /// </summary>
-    /// <param name="fileName">The path.</param>
-    /// <returns></returns>
-    /// <exception cref="ArgumentException">Path must be set - path</exception>
-    public static IImprovedStream OpenRead([NotNull] string fileName)
-    {
-      if (string.IsNullOrEmpty(fileName))
-        throw new ArgumentException("Path must be provided", nameof(fileName));
-      var retVal = OpenBaseStream(fileName);
-      retVal.ResetToStart(null);
-      return retVal;
-    }
-
-    /// <summary>
-    ///   Opens an file for writing
-    /// </summary>
-    /// <param name="fileName">The path.</param>
-    /// <param name="parameter"></param>
-    /// <returns>An improved stream object</returns>
-    public static IImprovedStream OpenWrite([NotNull] string fileName, [CanBeNull] string parameter)
-    {
-      if (string.IsNullOrEmpty(fileName))
-        throw new ArgumentException("Path must be provided", nameof(fileName));
-
-      var retVal = new ImprovedStream(fileName, false);
-      if (File.Exists(retVal.m_BasePathWithPrefix))
-        File.Delete(retVal.m_BasePathWithPrefix);
-
-      retVal.BaseStream = File.Create(retVal.m_BasePathWithPrefix);
-      retVal.Stream = retVal.m_AssumeGZip
-        ? (Stream) new GZipStream(retVal.BaseStream, CompressionMode.Compress)
-        : retVal.BaseStream;
-
-      return retVal;
-
-    }
-
-    private void Dispose(bool disposing)
+    protected override void Dispose(bool disposing)
     {
       if (m_DisposedValue) return;
       if (!disposing) return;
       m_DisposedValue = true;
       Close();
-      Stream?.Dispose();
-      BaseStream?.Dispose();
+      AccessStream.Dispose();
+      BaseStream.Dispose();
     }
 
+    public override void Flush() => AccessStream.Flush();
+
+    public override Task FlushAsync(CancellationToken cancellationToken) =>
+      AccessStream.FlushAsync(cancellationToken);
+
+    public override void SetLength(long value) => AccessStream.SetLength(value);
+
+    public override Task CopyToAsync([NotNull] Stream destination, int bufferSize,
+      CancellationToken cancellationToken) =>
+      AccessStream.CopyToAsync(destination, bufferSize, cancellationToken);
+
+
     /// <summary>
-    ///   Opens the base stream, handling sFTP access
+    /// Initializes Stream that will be used for reading / writing the data (after Encryption or compression)
     /// </summary>
-    /// <param name="path">The path.</param>
-    /// <returns>An improved stream where the base stream is set</returns>
-    private static ImprovedStream OpenBaseStream([NotNull] string path)
+    protected virtual void OpenStreams(bool isReading)
     {
-      var retVal = new ImprovedStream(path, true);
-      try
+      // Some StreamReader will close the stream, in this case reopen
+      if (!(BaseStream?.CanSeek ?? false))
       {
-        retVal.BaseStream =  File.OpenRead(retVal.m_BasePathWithPrefix);
-        return retVal;
+        BaseStream = isReading
+          ? new FileStream(FileName.LongPathPrefix(), FileMode.Open, FileAccess.Read, FileShare.Read)
+          : new FileStream(FileName.LongPathPrefix(), FileMode.Create, FileAccess.ReadWrite, FileShare.Read);
       }
-      catch (Exception)
+      else
       {
-        retVal.Close();
-        throw;
+        if (BaseStream.Position != 0)
+          BaseStream.Seek(0, SeekOrigin.Begin);
+      }
+
+      if (!FileName.AssumeGZip())
+      {
+        AccessStream = BaseStream;
+        return;
+      }
+
+      if (isReading)
+      {
+        Logger.Debug("Decompressing from GZip {filename}", FileName);
+        AccessStream = new GZipStream(BaseStream, CompressionMode.Decompress);
+      }
+      else
+      {
+        Logger.Debug("Compressing to GZip {filename}", FileName);
+        AccessStream = new GZipStream(BaseStream, CompressionMode.Compress);
       }
     }
   }
