@@ -47,6 +47,7 @@ namespace CsvTools
     private BindingSource m_BindingSource;
 
     private bool m_DisposedValue;
+    private IFileSetting m_FileSetting;
 
     /// <summary>
     ///   Any Text entered here will be highlighted Filer
@@ -54,7 +55,6 @@ namespace CsvTools
     private string m_HighlightText = string.Empty;
 
     private int m_MenuItemColumnIndex;
-    private IFileSetting m_FileSetting;
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="FilteredDataGridView" /> class.
@@ -94,7 +94,7 @@ namespace CsvTools
       DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
 
       contextMenuStripFilter.Opened += ContextMenuStripFilter_Opened;
-      contextMenuStripFilter.Closing += delegate (object sender, ToolStripDropDownClosingEventArgs e)
+      contextMenuStripFilter.Closing += delegate(object sender, ToolStripDropDownClosingEventArgs e)
       {
         if (e.CloseReason != ToolStripDropDownCloseReason.AppClicked
             && e.CloseReason != ToolStripDropDownCloseReason.ItemClicked
@@ -159,9 +159,9 @@ namespace CsvTools
       get => m_FileSetting;
       set
       {
-        m_FileSetting=value;
-        toolStripMenuItemSaveCol.Enabled=(m_FileSetting !=null);
-        toolStripMenuItemCF.Enabled=(m_FileSetting !=null);
+        m_FileSetting = value;
+        toolStripMenuItemSaveCol.Enabled = (m_FileSetting != null);
+        toolStripMenuItemCF.Enabled = (m_FileSetting != null);
       }
     }
 
@@ -808,13 +808,13 @@ namespace CsvTools
           // if we are outside the bound stop
           if (hlRect.X > e.CellBounds.X + e.CellBounds.Width)
             break;
-          e.Graphics.DrawLines(new Pen(Brushes.LightSalmon, 2), new[]
-          {
-            new Point(hlRect.X, e.CellBounds.Bottom - 10),
-            new Point(hlRect.X, e.CellBounds.Bottom - 5),
-            new Point(hlRect.X + widthSpace, e.CellBounds.Bottom - 5),
-            new Point(hlRect.X + widthSpace, e.CellBounds.Bottom - 10)
-          });
+          e.Graphics.DrawLines(new Pen(Brushes.LightSalmon, 2),
+            new[]
+            {
+              new Point(hlRect.X, e.CellBounds.Bottom - 10), new Point(hlRect.X, e.CellBounds.Bottom - 5),
+              new Point(hlRect.X + widthSpace, e.CellBounds.Bottom - 5),
+              new Point(hlRect.X + widthSpace, e.CellBounds.Bottom - 10)
+            });
           nbspIndex = val.IndexOf((char) 0xA0, nbspIndex + 1);
         }
       }
@@ -1013,11 +1013,9 @@ namespace CsvTools
       {
         var newMenuItem = new ToolStripMenuItem(StringUtils.GetShortDisplay(item.Display, 40))
         {
-          Tag = item,
-          Checked = item.Active,
-          CheckOnClick = true
+          Tag = item, Checked = item.Active, CheckOnClick = true
         };
-        newMenuItem.CheckStateChanged += delegate (object menuItem, EventArgs args)
+        newMenuItem.CheckStateChanged += delegate(object menuItem, EventArgs args)
         {
           if (!(menuItem is ToolStripMenuItem sendItem))
             return;
@@ -1118,7 +1116,7 @@ namespace CsvTools
       using (var form = new FormColumnUI(columnFormat, false, m_FileSetting, FillGuessSettings, false))
       {
         var result = form.ShowDialog(this);
-        if (result == DialogResult.OK || result==DialogResult.Yes)
+        if (result == DialogResult.OK || result == DialogResult.Yes)
           Refresh();
       }
     }
@@ -1234,8 +1232,8 @@ namespace CsvTools
       {
         var colFirstNoFrozen =
           (from col in Columns.OfType<DataGridViewColumn>().OrderBy(x => x.DisplayIndex)
-           where !col.Frozen
-           select col.DisplayIndex).FirstOrDefault();
+            where !col.Frozen
+            select col.DisplayIndex).FirstOrDefault();
         Columns[m_MenuItemColumnIndex].DisplayIndex = colFirstNoFrozen;
       }
 
@@ -1340,7 +1338,7 @@ namespace CsvTools
 
     private async void ToolStripMenuItemSaveCol_Click(object sender, EventArgs e)
     {
-      if (m_FileSetting==null)
+      if (m_FileSetting == null)
         return;
       try
       {
@@ -1350,8 +1348,8 @@ namespace CsvTools
           m_FileSetting is IFileSettingPhysicalFile phy ? phy.FullPath.GetDirectoryName() : ".", "Save Column Setting",
           "Column Config|*.col;*.conf|All files|*.*", ".col", false, DefFileNameColSetting(m_FileSetting, ".col"));
         if (!string.IsNullOrEmpty(fileName))
-          using (var stream = ImprovedStream.OpenWrite(fileName, null))
-          using (var writer = new StreamWriter(stream.Stream, Encoding.UTF8, 1024))
+          using (var stream = new ImprovedStream(fileName, false))
+          using (var writer = new StreamWriter(stream as Stream, Encoding.UTF8, 1024))
           {
             await writer.WriteAsync(ViewSetting.StoreViewSetting(Columns, m_Filter, SortedColumn, SortOrder));
             await writer.FlushAsync();

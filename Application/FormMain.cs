@@ -281,7 +281,7 @@ namespace CsvTools
       }
       finally
       {
-        m_ToolStripButtonAsText.Enabled=true;
+        m_ToolStripButtonAsText.Enabled = true;
       }
     }
 
@@ -314,7 +314,7 @@ namespace CsvTools
       {
         this.ShowError(ex);
         m_SourceDisplay?.Close();
-        m_SourceDisplay=null;
+        m_SourceDisplay = null;
       }
     }
 
@@ -468,7 +468,7 @@ namespace CsvTools
       ShowTextPanel(true);
 
       if (fileName.IndexOf('~') != -1)
-        fileName = FileSystemUtils.LongFileName(fileName);
+        fileName = fileName.LongFileName();
       try
       {
         if (fileName.EndsWith(CsvFile.cCsvSettingExtension, StringComparison.OrdinalIgnoreCase))
@@ -543,7 +543,8 @@ namespace CsvTools
               this.ShowError(ex, "Inspecting file");
             }
 
-            m_ToolStripButtonAsText.Visible= m_FileSetting.ColumnCollection.Any(x => x.ValueFormat.DataType != DataType.String);
+            m_ToolStripButtonAsText.Visible =
+              m_FileSetting.ColumnCollection.Any(x => x.ValueFormat.DataType != DataType.String);
           }
         }
 
@@ -587,8 +588,10 @@ namespace CsvTools
         {
           m_CodePage = await CsvHelper.GuessCodePageAsync(improvedStream, m_CancellationTokenSource.Token);
         }
+
         var fileNameShort = FileSystemUtils.GetShortDisplayFileName(m_FileSetting.FileName, 40);
-        Text = $"{fileNameShort} - {EncodingHelper.GetEncodingName(m_CodePage.Item1, true, m_CodePage.Item2)} - {AssemblyTitle}";
+        Text =
+          $"{fileNameShort} - {EncodingHelper.GetEncodingName(m_CodePage.Item1, true, m_CodePage.Item2)} - {AssemblyTitle}";
 
         using (var processDisplay = new FormProcessDisplay(fileNameShort, false, m_CancellationTokenSource.Token))
         {
@@ -628,7 +631,7 @@ namespace CsvTools
             DataTable = await fileReader.GetDataTableAsync(m_FileSetting.RecordLimit, true,
               m_FileSetting.DisplayStartLineNo, m_FileSetting.DisplayRecordNo, m_FileSetting.DisplayEndLineNo, false,
               ShowDataTable, (l, i) =>
-              processDisplay.SetProcess($"Reading data...\nRecord: {l:N0}", i, false),
+                processDisplay.SetProcess($"Reading data...\nRecord: {l:N0}", i, false),
               processDisplay.CancellationToken);
 
             if (m_DisposedValue)
@@ -636,17 +639,17 @@ namespace CsvTools
 
             foreach (var columnName in DataTable.GetRealColumns())
               if (m_FileSetting.ColumnCollection.Get(columnName) == null)
-                m_FileSetting.ColumnCollection.AddIfNew(new Column { Name = columnName });
+                m_FileSetting.ColumnCollection.AddIfNew(new Column {Name = columnName});
           }
         }
 
         // The reader is used when data ist stored through the detailControl
         FunctionalDI.SQLDataReader = async (settingName, message, timeout, token) =>
-          {
-            var dt = new DataTableWrapper(detailControl.DataTable);
-            await dt.OpenAsync(token);
-            return dt;
-          };
+        {
+          var dt = new DataTableWrapper(detailControl.DataTable);
+          await dt.OpenAsync(token);
+          return dt;
+        };
 
         if (DataTable != null)
         {
@@ -824,7 +827,7 @@ namespace CsvTools
       ShowTextPanel(!textPanel.Visible);
       if (textPanel.Visible)
       {
-        textPanel.BottomToolStripPanelVisible=true;
+        textPanel.BottomToolStripPanelVisible = true;
         if (!toolStrip.Items.Contains(m_ToolStripButtonShowLog))
           toolStrip.Items.Add(m_ToolStripButtonShowLog);
       }

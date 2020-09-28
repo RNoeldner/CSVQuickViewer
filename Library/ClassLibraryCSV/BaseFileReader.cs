@@ -47,6 +47,7 @@ namespace CsvTools
     /// </summary>
     protected int[] AssociatedTimeCol;
 
+
     /// <summary>
     ///   An array of column
     /// </summary>
@@ -577,7 +578,8 @@ namespace CsvTools
     public override Stream GetStream(int columnNumber) =>
       new MemoryStream(Encoding.UTF8.GetBytes(CurrentRowColumnText[columnNumber] ?? ""));
 
-    public override TextReader GetTextReader(int columnNumber) => new StreamReader(CurrentRowColumnText[columnNumber]);
+
+    public override TextReader GetTextReader(int columnNumber) => throw new NotImplementedException();
 
     /// <summary>
     ///   Returns a <see cref="DataTable" /> that describes the column meta data of the <see

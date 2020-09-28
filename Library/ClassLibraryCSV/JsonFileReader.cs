@@ -29,7 +29,7 @@ namespace CsvTools
   /// </summary>
   public class JsonFileReader : BaseFileReaderTyped, IFileReader
   {
-    private readonly bool m_TreatNBSPAsSpace;
+    private readonly bool m_TreatNbspAsSpace;
     private readonly string m_TreatTextAsNull;
     private readonly TrimmingOption m_TrimmingOption;
     private bool m_AssumeLog;
@@ -41,12 +41,12 @@ namespace CsvTools
     public JsonFileReader([NotNull] string fullPath,
       [CanBeNull] IEnumerable<IColumn> columnDefinition = null,
       long recordLimit = 0,
-      bool treatNBSPAsSpace = false, TrimmingOption trimmingOption = TrimmingOption.None,
+      bool treatNbspAsSpace = false, TrimmingOption trimmingOption = TrimmingOption.None,
       string treatTextAsNull = null) :
       base(fullPath, columnDefinition, recordLimit)
     {
       if (fullPath == null) throw new ArgumentNullException(nameof(fullPath));
-      m_TreatNBSPAsSpace = treatNBSPAsSpace;
+      m_TreatNbspAsSpace = treatNbspAsSpace;
       m_TrimmingOption = trimmingOption;
       m_TreatTextAsNull = treatTextAsNull;
     }
@@ -283,7 +283,7 @@ namespace CsvTools
           if (keyValuePairs.TryGetValue(col.Name, out CurrentValues[columnNumber]))
             if (CurrentValues[columnNumber] != null)
               CurrentRowColumnText[columnNumber] = HandleText(CurrentValues[columnNumber].ToString(), columnNumber,
-                m_TreatNBSPAsSpace, m_TreatTextAsNull, m_TrimmingOption);
+                m_TreatNbspAsSpace, m_TreatTextAsNull, m_TrimmingOption);
           columnNumber++;
         }
 
@@ -327,29 +327,17 @@ namespace CsvTools
     private void ResetPositionToStartOrOpen()
     {
       m_JsonTextReader?.Close();
-      m_TextReader?.Dispose();
-      m_TextReader = null;
 
       if (m_ImprovedStream == null)
         m_ImprovedStream = FunctionalDI.OpenRead(FullPath);
 
-      m_ImprovedStream.ResetToStart(delegate(Stream str)
-      {
-        // in case we can not seek need to reopen the stream reader
-        if (!str.CanSeek || m_TextReader == null)
-        {
-          m_JsonTextReader?.Close();
-          m_TextReader?.Dispose();
-          m_TextReader = new StreamReader(str);
-        }
-        else
-        {
-          m_JsonTextReader?.Close();
-          m_TextReader.BaseStream.Seek(0, SeekOrigin.Begin);
-          // only discard the buffer
-          m_TextReader.DiscardBufferedData();
-        }
-      });
+      m_ImprovedStream.Seek(0, SeekOrigin.Begin);
+
+      // in case we can not seek need to reopen the stream reader
+      if (m_TextReader == null)
+        m_TextReader = new StreamReader(m_ImprovedStream as Stream);
+      else
+        m_TextReader.DiscardBufferedData();
 
       // End Line should be at 1, later on as the line is read the start line s set to this value
       StartLineNumber = 1;
@@ -360,6 +348,7 @@ namespace CsvTools
       m_BufferPos = 0;
 
       EndOfFile = m_TextReader.EndOfStream;
+      m_JsonTextReader?.Close();
       m_JsonTextReader = new JsonTextReader(m_TextReader) {CloseInput = false};
     }
 

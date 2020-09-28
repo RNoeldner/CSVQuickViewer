@@ -12,7 +12,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task ImprovedTextReaderTestBOM()
     {
-      using (var impStream = ImprovedStream.OpenRead(UnitTestInitializeCsv.GetTestPath("BasicCsV.txt")))
+      using (var impStream = new ImprovedStream(UnitTestInitializeCsv.GetTestPath("BasicCsV.txt"), true))
       {
         using (var test = new ImprovedTextReader(impStream))
         {
@@ -26,7 +26,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task ImprovedTextReaderTestCodePage()
     {
-      using (var impStream = ImprovedStream.OpenRead(UnitTestInitializeCsv.GetTestPath("BasicCsV.txt")))
+      using (var impStream = new ImprovedStream(UnitTestInitializeCsv.GetTestPath("BasicCsV.txt"), true))
       {
         using (var test = new ImprovedTextReader(impStream, 12000))
         {
@@ -40,7 +40,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task ImprovedTextReaderTestGz()
     {
-      using (var impStream = ImprovedStream.OpenRead(UnitTestInitializeCsv.GetTestPath("BasicCsV.txt.gz")))
+      using (var impStream = new ImprovedStream(UnitTestInitializeCsv.GetTestPath("BasicCsV.txt.gz"), true))
       {
         using (var test = new ImprovedTextReader(impStream, 12000))
         {
@@ -98,7 +98,7 @@ namespace CsvTools.Tests
           }
         }
 
-        using (var impStream = ImprovedStream.OpenRead(fileName))
+        using (var impStream = new ImprovedStream(fileName, true))
         {
           using (var test = new ImprovedTextReader(impStream, type.Item2))
           {
@@ -122,7 +122,7 @@ namespace CsvTools.Tests
     public async Task ToBeginningTest()
     {
       // use a file with a BOM
-      using (var impStream = ImprovedStream.OpenRead(UnitTestInitializeCsv.GetTestPath("txTranscripts.txt")))
+      using (var impStream = new ImprovedStream(UnitTestInitializeCsv.GetTestPath("txTranscripts.txt"), true))
       {
         using (var test = new ImprovedTextReader(impStream))
         {

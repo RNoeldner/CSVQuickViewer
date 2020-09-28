@@ -23,31 +23,28 @@ namespace CsvTools.Tests
     [TestMethod]
     public void OpenReadTestSetting()
     {
-      var setting = new CsvFile { FileName = UnitTestInitializeCsv.GetTestPath("BasicCsV.txt") };
-      using (var res = ImprovedStream.OpenRead(setting.FullPath))
+      var setting = new CsvFile {FileName = UnitTestInitializeCsv.GetTestPath("BasicCsV.txt")};
+      using (var res = new ImprovedStream(setting.FullPath, true))
       {
         Assert.IsNotNull(res);
-        Assert.IsNotNull(res.Stream);
       }
     }
 
     [TestMethod]
     public void OpenReadTestgZip()
     {
-      using (var res = ImprovedStream.OpenRead(UnitTestInitializeCsv.GetTestPath("BasicCsV.txt.gz")))
+      using (var res = new ImprovedStream(UnitTestInitializeCsv.GetTestPath("BasicCsV.txt.gz"), true))
       {
         Assert.IsNotNull(res);
-        Assert.IsNotNull(res.Stream);
       }
     }
 
     [TestMethod]
     public void OpenReadTestRegular()
     {
-      using (var res = ImprovedStream.OpenRead(UnitTestInitializeCsv.GetTestPath("BasicCsV.txt")))
+      using (var res = new ImprovedStream(UnitTestInitializeCsv.GetTestPath("BasicCsV.txt"), true))
       {
         Assert.IsNotNull(res);
-        Assert.IsNotNull(res.Stream);
       }
     }
 
@@ -60,9 +57,9 @@ namespace CsvTools.Tests
       const string Line2 = "Yet another line to be written";
       const string Line3 = "A text with non ASCII characters: Raphael Nöldner";
 
-      using (var improvedStream = ImprovedStream.OpenWrite(fullname, null))
+      using (var improvedStream = new ImprovedStream(fullname, false))
       {
-        using (var writer = new StreamWriter(improvedStream.Stream, encoding, 8192))
+        using (var writer = new StreamWriter(improvedStream, encoding, 8192))
         {
           writer.WriteLine(Line1);
           writer.WriteLine(Line2);
@@ -76,9 +73,9 @@ namespace CsvTools.Tests
 
       Assert.IsTrue(FileSystemUtils.FileExists(fullname), "Check if File is created" + fileName);
 
-      using (var improvedStream = ImprovedStream.OpenRead(fullname))
+      using (var improvedStream = new ImprovedStream(fullname, true))
       {
-        using (var textReader = new StreamReader(improvedStream.Stream, encoding, true))
+        using (var textReader = new StreamReader(improvedStream, encoding, true))
         {
           Assert.AreEqual(Line1, textReader.ReadLine(), "Line 1 : " + fileName);
           Assert.AreEqual(Line2, textReader.ReadLine(), "Line 2 : " + fileName);
@@ -100,14 +97,14 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CloseTest()
     {
-      var res = ImprovedStream.OpenRead(UnitTestInitializeCsv.GetTestPath("BasicCsV.txt"));
+      var res = new ImprovedStream(UnitTestInitializeCsv.GetTestPath("BasicCsV.txt"), true);
       res.Close();
     }
 
     [TestMethod]
     public void DisposeTest()
     {
-      var res = ImprovedStream.OpenRead(UnitTestInitializeCsv.GetTestPath("BasicCsV.txt"));
+      var res = new ImprovedStream(UnitTestInitializeCsv.GetTestPath("BasicCsV.txt"), true);
       res.Dispose();
     }
   }
