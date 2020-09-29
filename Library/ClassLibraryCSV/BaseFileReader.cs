@@ -581,7 +581,6 @@ namespace CsvTools
     public override Stream GetStream(int columnNumber) =>
       new MemoryStream(Encoding.UTF8.GetBytes(CurrentRowColumnText[columnNumber] ?? ""));
 
-
     public override TextReader GetTextReader(int columnNumber) => throw new NotImplementedException();
 
     /// <summary>
@@ -796,12 +795,12 @@ namespace CsvTools
 
     public override bool Read() => ReadAsync(CancellationToken.None).Wait(2000);
 
-
     /// <summary>
     ///   Resets the position and buffer to the header in case the file has a header
     /// </summary>
     /// <param name="token"></param>
 #pragma warning disable 1998
+
     public virtual async Task ResetPositionToFirstDataRowAsync(CancellationToken token)
 #pragma warning restore 1998
     {
@@ -1045,6 +1044,24 @@ namespace CsvTools
     {
       if (ReportProgress != null)
         m_IntervalAction.Invoke(() => HandleShowProgress(text, recordNumber, GetRelativePosition()));
+    }
+
+    [CanBeNull]
+    protected string TreatNbspTestAsNullTrim([CanBeNull] string inputString, bool treatNbspAsSpace, string treatTextAsNull, bool trim)
+    {
+      if (string.IsNullOrEmpty(inputString))
+        return null;
+
+      if (treatNbspAsSpace && inputString.IndexOf((char) 0xA0) != -1)
+        inputString = inputString.Replace((char) 0xA0, ' ');
+
+      if (trim)
+        inputString = inputString.Trim();
+
+      if (StringUtils.ShouldBeTreatedAsNull(inputString, treatTextAsNull))
+        inputString = null;
+
+      return inputString;
     }
 
     /// <summary>

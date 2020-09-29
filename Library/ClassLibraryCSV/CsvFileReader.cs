@@ -659,6 +659,7 @@ namespace CsvTools
             }
 
             break;
+
           case cCr:
           case cLf:
             EndLineNumber++;

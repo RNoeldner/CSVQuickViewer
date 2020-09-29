@@ -15,6 +15,9 @@ namespace CsvTools
 #pragma warning disable CA1051 // Do not declare visible instance fields
     protected object[] CurrentValues;
 #pragma warning restore CA1051 // Do not declare visible instance fields
+    protected readonly bool m_TreatNbspAsSpace;
+    protected readonly string m_TreatTextAsNull;
+    protected readonly bool m_Trim;
 
     /// <summary>
     ///   Constructor for abstract base call for <see cref="IFileReader" /> that does read typed
@@ -25,9 +28,13 @@ namespace CsvTools
     /// <param name="recordLimit">Number of records that should be read</param>
     protected BaseFileReaderTyped([CanBeNull] string fileName,
       [CanBeNull] IEnumerable<IColumn> columnDefinition,
-      long recordLimit) :
+      long recordLimit, bool trim = false,
+      string treatTextAsNull = BaseSettings.cTreatTextAsNull, bool treatNbspAsSpace = false) :
       base(fileName, columnDefinition, recordLimit)
     {
+      m_TreatNbspAsSpace = treatNbspAsSpace;
+      m_Trim = trim;
+      m_TreatTextAsNull = treatTextAsNull;
     }
 
     /// <summary>
@@ -160,7 +167,7 @@ namespace CsvTools
       if (CurrentValues[columnNumber] is Guid val)
         return val;
       if (CurrentValues[columnNumber] is string s
-      ) // TODO: maybe not needed if all typed readers do fill CurrentRowColumnText  
+      ) // TODO: maybe not needed if all typed readers do fill CurrentRowColumnText
         CurrentRowColumnText[columnNumber] = s;
       return base.GetGuid(columnNumber);
     }
