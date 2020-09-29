@@ -89,8 +89,6 @@ namespace CsvTools
       }
 
       m_BomLength = byteOrderMark ? EncodingHelper.BOMLength(m_CodePage) : 0;
-
-      ToBeginningAsync().Wait();
     }
 
 

@@ -13,6 +13,7 @@ namespace CsvTools.Tests
       {
         using (var test = new ImprovedTextReader(impStream))
         {
+          await test.ToBeginningAsync();
           var store = new ImprovedTextReaderPositionStore(test);
           Assert.AreEqual(1, test.LineNumber);
           Assert.AreEqual(
@@ -34,6 +35,7 @@ namespace CsvTools.Tests
       {
         using (var test = new ImprovedTextReader(impStream, 65001, 1))
         {
+          await test.ToBeginningAsync();
           Assert.AreEqual(2, test.LineNumber);
           Assert.AreEqual(
             @"GCS_004805_Osipova	023c25d3-3420-449c-a75b-0d74d29ddc38	Completed	04/02/2008 00:00:00	04/02/2008 00:00:00	04/02/2008 00:00:00",

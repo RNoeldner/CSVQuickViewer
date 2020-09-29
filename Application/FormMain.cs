@@ -44,6 +44,8 @@ namespace CsvTools
 
     private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
 
+    private readonly DetailControlLoader m_DetailControlLoader;
+
     private readonly Timer m_SettingsChangedTimerChange = new Timer(200);
 
     private readonly Collection<Column> m_StoreColumns = new Collection<Column>();
@@ -71,6 +73,7 @@ namespace CsvTools
     public FormMain(string fileName)
     {
       InitializeComponent();
+      m_DetailControlLoader = new DetailControlLoader(detailControl);
       detailControl.AddToolStripItem(1, m_ToolStripButtonSettings);
       detailControl.AddToolStripItem(int.MaxValue, m_ToolStripButtonSource);
       detailControl.AddToolStripItem(int.MaxValue, m_ToolStripButtonAsText);
@@ -116,12 +119,11 @@ namespace CsvTools
       m_SettingsChangedTimerChange.Stop();
     }
 
-    // used in Unit Tests to check loaded data
     public DataTable DataTable
     {
-      get;
-      private set;
+      get => detailControl.DataTable;
     }
+
 
     // used in Unit Tests to determine when a load process is finished.
     public bool LoadFinished
@@ -603,44 +605,29 @@ namespace CsvTools
           detailControl.FillGuessSettings = m_ViewSettings.FillGuessSettings;
           detailControl.CancellationToken = m_CancellationTokenSource.Token;
 
-          using (var fileReader = FunctionalDI.GetFileReader(m_FileSetting, TimeZoneInfo.Local.Id, processDisplay))
+          if (!textPanel.Visible)
+            ShowTextPanel(true);
+
+          processDisplay.SetProcess("Reading data...", -1, true);
+          processDisplay.Maximum = 100;
+          detailControl.ShowInfoButtons = false;
+
+          await m_DetailControlLoader.Start(m_FileSetting, processDisplay, AddWarning);
+
+          m_Headers = detailControl.DataTable.GetRealColumns().ToArray();
+          foreach (var columnName in m_Headers)
           {
-            if (!textPanel.Visible)
-              ShowTextPanel(true);
-            fileReader.Warning += AddWarning;
-            var warningList = new RowErrorCollection(fileReader);
-            fileReader.Warning -= warningList.Add;
-            await fileReader.OpenAsync(processDisplay.CancellationToken);
-            warningList.HandleIgnoredColumns(fileReader);
-            warningList.PassWarning += AddWarning;
-
-            // Store the header in this might be used later on by FormColumnUI
-            m_Headers = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
-            {
-              var cf = fileReader.GetColumn(colIndex);
-              if (!string.IsNullOrEmpty(cf.Name) && !cf.Ignore)
-                m_Headers.Add(cf.Name);
-            }
-
-            FunctionalDI.GetColumnHeader = (dummy1, dummy3) => Task.FromResult(m_Headers);
-
-            processDisplay.SetProcess("Reading data...", -1, true);
-            processDisplay.Maximum = 100;
-            detailControl.ShowInfoButtons = false;
-            DataTable = await fileReader.GetDataTableAsync(m_FileSetting.RecordLimit, true,
-              m_FileSetting.DisplayStartLineNo, m_FileSetting.DisplayRecordNo, m_FileSetting.DisplayEndLineNo, false,
-              ShowDataTable, (l, i) =>
-                processDisplay.SetProcess($"Reading data...\nRecord: {l:N0}", i, false),
-              processDisplay.CancellationToken);
-
-            if (m_DisposedValue)
-              return;
-
-            foreach (var columnName in DataTable.GetRealColumns())
-              if (m_FileSetting.ColumnCollection.Get(columnName) == null)
-                m_FileSetting.ColumnCollection.AddIfNew(new Column {Name = columnName});
+            if (m_FileSetting.ColumnCollection.Get(columnName) == null)
+              m_FileSetting.ColumnCollection.AddIfNew(new Column {Name = columnName});
           }
+
+          FunctionalDI.GetColumnHeader = (dummy1, dummy3) => Task.FromResult(m_Headers);
+
+          this.SafeBeginInvoke(() => { ShowTextPanel(false); });
+          FunctionalDI.SignalBackground();
+
+          if (m_DisposedValue)
+            return;
         }
 
         // The reader is used when data ist stored through the detailControl
@@ -651,12 +638,7 @@ namespace CsvTools
           return dt;
         };
 
-        if (DataTable != null)
-        {
-          Logger.Information("Showing loaded data...");
-          ShowDataTable(DataTable);
-        }
-        else
+        if (detailControl.DataTable == null)
         {
           Logger.Information("No data to show");
         }
@@ -681,7 +663,7 @@ namespace CsvTools
       {
         if (!m_DisposedValue)
         {
-          if (DataTable == null)
+          if (detailControl.DataTable == null)
             Logger.Information("No data...");
           else
             // if (!m_FileSetting.NoDelimitedFile)
@@ -699,16 +681,6 @@ namespace CsvTools
           LoadFinished = true;
         }
       }
-    }
-
-    private void ShowDataTable(DataTable dataTable)
-    {
-      this.SafeBeginInvoke(() =>
-      {
-        ShowTextPanel(false);
-        detailControl.DataTable = dataTable;
-      });
-      FunctionalDI.SignalBackground();
     }
 
     /// <summary>

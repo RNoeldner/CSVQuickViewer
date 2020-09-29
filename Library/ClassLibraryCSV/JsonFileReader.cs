@@ -31,7 +31,7 @@ namespace CsvTools
   {
     private readonly bool m_TreatNbspAsSpace;
     private readonly string m_TreatTextAsNull;
-    private readonly TrimmingOption m_TrimmingOption;
+    private readonly bool m_Trim;
     private bool m_AssumeLog;
     private IImprovedStream m_ImprovedStream;
     private JsonTextReader m_JsonTextReader;
@@ -41,13 +41,13 @@ namespace CsvTools
     public JsonFileReader([NotNull] string fullPath,
       [CanBeNull] IEnumerable<IColumn> columnDefinition = null,
       long recordLimit = 0,
-      bool treatNbspAsSpace = false, TrimmingOption trimmingOption = TrimmingOption.None,
+      bool treatNbspAsSpace = false, bool trim = false,
       string treatTextAsNull = null) :
       base(fullPath, columnDefinition, recordLimit)
     {
       if (fullPath == null) throw new ArgumentNullException(nameof(fullPath));
       m_TreatNbspAsSpace = treatNbspAsSpace;
-      m_TrimmingOption = trimmingOption;
+      m_Trim = trim;
       m_TreatTextAsNull = treatTextAsNull;
     }
 
@@ -281,9 +281,34 @@ namespace CsvTools
         foreach (var col in Column)
         {
           if (keyValuePairs.TryGetValue(col.Name, out CurrentValues[columnNumber]))
-            if (CurrentValues[columnNumber] != null)
-              CurrentRowColumnText[columnNumber] = HandleText(CurrentValues[columnNumber].ToString(), columnNumber,
-                m_TreatNbspAsSpace, m_TreatTextAsNull, m_TrimmingOption);
+          {
+            if (CurrentValues[columnNumber] == null)
+              CurrentRowColumnText[columnNumber] = null;
+            else
+            {
+              var orgVal = CurrentValues[columnNumber].ToString();
+              CurrentRowColumnText[columnNumber] = orgVal;
+
+              if (!string.IsNullOrEmpty(orgVal) && !col.Ignore && col.ValueFormat.DataType >= DataType.String)
+              {
+                var newVal = HandleTextSpecials(orgVal, columnNumber);
+                if (newVal != null)
+                {
+                  if (m_TreatNbspAsSpace && newVal.IndexOf((char) 0xA0) != -1)
+                    newVal = newVal.Replace((char) 0xA0, ' ');
+
+                  if (m_Trim)
+                    newVal = newVal.Trim();
+
+                  if (StringUtils.ShouldBeTreatedAsNull(newVal, m_TreatTextAsNull))
+                    newVal = null;
+                }
+
+                CurrentRowColumnText[columnNumber] = newVal;
+              }
+            }
+          }
+
           columnNumber++;
         }
 

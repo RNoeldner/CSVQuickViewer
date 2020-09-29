@@ -16,6 +16,7 @@ namespace CsvTools.Tests
       {
         using (var test = new ImprovedTextReader(impStream))
         {
+          await test.ToBeginningAsync();
           Assert.AreEqual(1, test.LineNumber);
           Assert.AreEqual("ID,LangCodeID,ExamDate,Score,Proficiency,IsNativeLang", await test.ReadLineAsync());
           Assert.AreEqual("1,German,20/01/2010,276,0.94,Y", await test.ReadLineAsync());
@@ -30,6 +31,7 @@ namespace CsvTools.Tests
       {
         using (var test = new ImprovedTextReader(impStream, 12000))
         {
+          await test.ToBeginningAsync();
           Assert.AreEqual(1, test.LineNumber);
           Assert.AreEqual("ID,LangCodeID,ExamDate,Score,Proficiency,IsNativeLang", await test.ReadLineAsync());
           Assert.AreEqual("1,German,20/01/2010,276,0.94,Y", await test.ReadLineAsync());
@@ -44,6 +46,7 @@ namespace CsvTools.Tests
       {
         using (var test = new ImprovedTextReader(impStream, 12000))
         {
+          await test.ToBeginningAsync();
           Assert.AreEqual(1, test.LineNumber);
           Assert.AreEqual("ID,LangCodeID,ExamDate,Score,Proficiency,IsNativeLang", await test.ReadLineAsync());
           Assert.AreEqual("1,German,20/01/2010,276,0.94,Y", await test.ReadLineAsync());
@@ -102,6 +105,8 @@ namespace CsvTools.Tests
         {
           using (var test = new ImprovedTextReader(impStream, type.Item2))
           {
+            await test.ToBeginningAsync();
+
             Assert.AreEqual(1, test.LineNumber);
             Assert.AreEqual(line1, await test.ReadLineAsync(), $"Issue reading Line1 {type.Item1}");
             Assert.AreEqual(2, test.LineNumber);
@@ -126,6 +131,7 @@ namespace CsvTools.Tests
       {
         using (var test = new ImprovedTextReader(impStream))
         {
+          await test.ToBeginningAsync();
           Assert.AreEqual(1, test.LineNumber);
           Assert.AreEqual(
             "#UserID	CurriculumID	TranscriptStatus	RequestDateTime	RegistrationDateTime	CompletionDateTime",

@@ -47,7 +47,7 @@ namespace CsvTools
     private bool m_JsonFormat;
     private bool m_NoDelimitedFile;
     private int m_NumWarnings;
-    private bool m_TreatLFAsSpace;
+    private bool m_TreatLfAsSpace;
     private bool m_TreatUnknownCharacterAsSpace;
     private bool m_TryToSolveMoreColumns;
     private bool m_WarnDelimiterInValue;
@@ -72,6 +72,17 @@ namespace CsvTools
     /// </summary>
     public CsvFile()
     {
+    }
+
+    /// <summary>
+    ///   Gets current encoding.
+    /// </summary>
+    /// <value>The current encoding.</value>
+    [XmlIgnore]
+    public virtual Encoding CurrentEncoding
+    {
+      [NotNull] get => m_CurrentEncoding;
+      [CanBeNull] set => m_CurrentEncoding = value ?? Encoding.UTF8;
     }
 
     /// <summary>
@@ -108,19 +119,6 @@ namespace CsvTools
         m_CodePageId = value;
         NotifyPropertyChanged(nameof(CodePageId));
       }
-    }
-
-    /// <summary>
-    ///   Gets current encoding.
-    /// </summary>
-    /// <value>The current encoding.</value>
-    [XmlIgnore]
-    public virtual Encoding CurrentEncoding
-    {
-      [NotNull]
-      get => m_CurrentEncoding;
-      [CanBeNull]
-      set => m_CurrentEncoding = value ?? Encoding.UTF8;
     }
 
     [XmlAttribute]
@@ -289,13 +287,13 @@ namespace CsvTools
     [DefaultValue(false)]
     public virtual bool TreatLFAsSpace
     {
-      get => m_TreatLFAsSpace;
+      get => m_TreatLfAsSpace;
 
       set
       {
-        if (m_TreatLFAsSpace.Equals(value))
+        if (m_TreatLfAsSpace.Equals(value))
           return;
-        m_TreatLFAsSpace = value;
+        m_TreatLfAsSpace = value;
         NotifyPropertyChanged(nameof(TreatLFAsSpace));
       }
     }
@@ -445,7 +443,7 @@ namespace CsvTools
       csv.WarnUnknownCharacter = m_WarnUnknownCharacter;
       csv.WarnLineFeed = m_WarnLineFeed;
       csv.WarnNBSP = m_WarnNbsp;
-      csv.TreatLFAsSpace = m_TreatLFAsSpace;
+      csv.TreatLFAsSpace = m_TreatLfAsSpace;
       csv.TryToSolveMoreColumns = m_TryToSolveMoreColumns;
       csv.AllowRowCombining = m_AllowRowCombining;
 
@@ -472,7 +470,7 @@ namespace CsvTools
              m_WarnEmptyTailingColumns == other.WarnEmptyTailingColumns && m_WarnLineFeed == other.WarnLineFeed &&
              m_TryToSolveMoreColumns == other.TryToSolveMoreColumns &&
              m_AllowRowCombining == other.AllowRowCombining &&
-             m_TreatLFAsSpace == other.TreatLFAsSpace &&
+             m_TreatLfAsSpace == other.TreatLFAsSpace &&
              m_WarnNbsp == other.WarnNBSP && m_WarnQuotes == other.WarnQuotes &&
              m_WarnQuotesInQuotes == other.WarnQuotesInQuotes &&
              m_WarnUnknownCharacter == other.WarnUnknownCharacter &&

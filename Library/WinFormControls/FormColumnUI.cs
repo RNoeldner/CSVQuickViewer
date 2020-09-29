@@ -138,7 +138,7 @@ namespace CsvTools
             {
               var data = await sqlReader.GetDataTableAsync(m_FileSetting.RecordLimit, false,
                 m_FileSetting.DisplayStartLineNo, m_FileSetting.DisplayRecordNo, m_FileSetting.DisplayEndLineNo, false,
-                null, null,
+                null,
                 processDisplay.CancellationToken);
               var found = new Column();
               var column = data.Columns[columnName];
@@ -753,7 +753,7 @@ namespace CsvTools
 
         var sourceDate = new DateTime(2013, 4, 7, 15, 45, 50, 345, DateTimeKind.Local);
 
-        if (hasTimePart && vf.DateFormat.IndexOfAny(new[] { 'h', 'H', 'm', 'S', 's' }) == -1)
+        if (hasTimePart && vf.DateFormat.IndexOfAny(new[] {'h', 'H', 'm', 'S', 's'}) == -1)
           vf.DateFormat += " " + comboBoxTPFormat.Text;
 
         labelSampleDisplay.Text = StringConversion.DateTimeToString(sourceDate, vf);

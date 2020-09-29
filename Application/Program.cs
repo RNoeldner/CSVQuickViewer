@@ -95,9 +95,9 @@ namespace CsvTools
     [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
     private static void UnhandledException(Exception ex)
     {
-      // Most likly disposing something which is still being used by a different thread its very
-      // hard to track down as the stackframe is not usefull, in 99% its updating progress or UI
-      if (ex is ObjectDisposedException && ex.Message=="Safe handle has been closed")
+      // Most likely disposing something which is still being used by a different thread its very
+      // hard to track down as the stackframe is not useful, in 99% its updating progress or UI
+      if (ex is ObjectDisposedException && ex.Message == "Safe handle has been closed")
       {
         // Logger.Warning(ex, "UnhandledException of type ObjectDisposedException is ignored");
         return;
