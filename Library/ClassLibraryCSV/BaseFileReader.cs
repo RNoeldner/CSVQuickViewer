@@ -800,7 +800,6 @@ namespace CsvTools
     /// </summary>
     /// <param name="token"></param>
 #pragma warning disable 1998
-
     public virtual async Task ResetPositionToFirstDataRowAsync(CancellationToken token)
 #pragma warning restore 1998
     {
@@ -1047,7 +1046,8 @@ namespace CsvTools
     }
 
     [CanBeNull]
-    protected string TreatNbspTestAsNullTrim([CanBeNull] string inputString, bool treatNbspAsSpace, string treatTextAsNull, bool trim)
+    protected static string TreatNbspTestAsNullTrim([CanBeNull] string inputString, bool treatNbspAsSpace,
+      string treatTextAsNull, bool trim)
     {
       if (string.IsNullOrEmpty(inputString))
         return null;

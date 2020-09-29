@@ -68,7 +68,7 @@ namespace CsvTools
 
       m_JsonTextReader = null;
       m_TextReader = null;
-      m_TextReader = null;
+      m_ImprovedStream = null;
     }
 
     public override async Task OpenAsync(CancellationToken token)
@@ -284,7 +284,7 @@ namespace CsvTools
 
               if (!string.IsNullOrEmpty(orgVal) && !col.Ignore && col.ValueFormat.DataType >= DataType.String)
               {
-                CurrentRowColumnText[columnNumber] = TreatNbspTestAsNullTrim(HandleTextSpecials(orgVal, columnNumber), m_TreatNbspAsSpace, m_TreatTextAsNull, m_Trim);
+                CurrentRowColumnText[columnNumber] = TreatNbspTestAsNullTrim(HandleTextSpecials(orgVal, columnNumber));
                 CurrentValues[columnNumber] = CurrentRowColumnText[columnNumber];
               }
             }
@@ -332,18 +332,14 @@ namespace CsvTools
     /// </summary>
     private void ResetPositionToStartOrOpen()
     {
-      m_JsonTextReader?.Close();
-
       if (m_ImprovedStream == null)
         m_ImprovedStream = FunctionalDI.OpenRead(FullPath);
-
-      m_ImprovedStream.Seek(0, SeekOrigin.Begin);
+      else
+        m_ImprovedStream.Seek(0, SeekOrigin.Begin);
 
       // in case we can not seek need to reopen the stream reader
-      if (m_TextReader == null)
-        m_TextReader = new StreamReader(m_ImprovedStream as Stream);
-      else
-        m_TextReader.DiscardBufferedData();
+      m_TextReader?.Close();
+      m_TextReader = new StreamReader(m_ImprovedStream as Stream, Encoding.UTF8, true, 4096, true);
 
       // End Line should be at 1, later on as the line is read the start line s set to this value
       StartLineNumber = 1;
@@ -354,11 +350,12 @@ namespace CsvTools
       m_BufferPos = 0;
 
       EndOfFile = m_TextReader.EndOfStream;
+
       m_JsonTextReader?.Close();
-      m_JsonTextReader = new JsonTextReader(m_TextReader) { CloseInput = false };
+      m_JsonTextReader = new JsonTextReader(m_TextReader);
     }
 
-    #region TextReader
+#region TextReader
 
     // Buffer size set to 64kB, if set to large the display in percentage will jump
     private const int c_BufferSize = 65536;
@@ -483,6 +480,6 @@ namespace CsvTools
       m_JsonTextReader = new JsonTextReader(new StringReader(sb.ToString()));
     }
 
-    #endregion TextReader
+#endregion TextReader
   }
 }

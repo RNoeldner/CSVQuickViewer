@@ -12,12 +12,12 @@ namespace CsvTools
   /// </summary>
   public abstract class BaseFileReaderTyped : BaseFileReader
   {
+    private readonly bool m_TreatNbspAsSpace;
+    private readonly string m_TreatTextAsNull;
+    private readonly bool m_Trim;
 #pragma warning disable CA1051 // Do not declare visible instance fields
     protected object[] CurrentValues;
 #pragma warning restore CA1051 // Do not declare visible instance fields
-    protected readonly bool m_TreatNbspAsSpace;
-    protected readonly string m_TreatTextAsNull;
-    protected readonly bool m_Trim;
 
     /// <summary>
     ///   Constructor for abstract base call for <see cref="IFileReader" /> that does read typed
@@ -26,6 +26,9 @@ namespace CsvTools
     /// <param name="fileName">Path to to a physical file (if used)</param>
     /// <param name="columnDefinition">List of column definitions</param>
     /// <param name="recordLimit">Number of records that should be read</param>
+    /// <param name="trim">Trim all read text</param>
+    /// <param name="treatTextAsNull">Value to be replaced with NULL in Text</param>
+    /// <param name="treatNbspAsSpace">nbsp in text will be replaced with Space</param>
     protected BaseFileReaderTyped([CanBeNull] string fileName,
       [CanBeNull] IEnumerable<IColumn> columnDefinition,
       long recordLimit, bool trim = false,
@@ -36,6 +39,9 @@ namespace CsvTools
       m_Trim = trim;
       m_TreatTextAsNull = treatTextAsNull;
     }
+
+    protected string TreatNbspTestAsNullTrim([CanBeNull] string inputString) =>
+      BaseFileReader.TreatNbspTestAsNullTrim(inputString, m_TreatNbspAsSpace, m_TreatTextAsNull, m_Trim);
 
     /// <summary>
     ///   Gets the boolean.
