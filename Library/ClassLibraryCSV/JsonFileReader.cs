@@ -29,9 +29,6 @@ namespace CsvTools
   /// </summary>
   public class JsonFileReader : BaseFileReaderTyped, IFileReader
   {
-    private readonly bool m_TreatNbspAsSpace;
-    private readonly string m_TreatTextAsNull;
-    private readonly bool m_Trim;
     private bool m_AssumeLog;
     private IImprovedStream m_ImprovedStream;
     private JsonTextReader m_JsonTextReader;
@@ -43,12 +40,9 @@ namespace CsvTools
       long recordLimit = 0,
       bool treatNbspAsSpace = false, bool trim = false,
       string treatTextAsNull = null) :
-      base(fullPath, columnDefinition, recordLimit)
+      base(fullPath, columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace)
     {
       if (fullPath == null) throw new ArgumentNullException(nameof(fullPath));
-      m_TreatNbspAsSpace = treatNbspAsSpace;
-      m_Trim = trim;
-      m_TreatTextAsNull = treatTextAsNull;
     }
 
     public JsonFileReader(IFileSettingPhysicalFile fileSetting,
@@ -157,7 +151,6 @@ namespace CsvTools
 
     public override async Task ResetPositionToFirstDataRowAsync(CancellationToken token) =>
       await Task.Run(ResetPositionToStartOrOpen, token);
-
 
     /// <summary>
     ///   Reads a data row from the JsonTextReader and stores the values and text, this will flatten
@@ -291,20 +284,8 @@ namespace CsvTools
 
               if (!string.IsNullOrEmpty(orgVal) && !col.Ignore && col.ValueFormat.DataType >= DataType.String)
               {
-                var newVal = HandleTextSpecials(orgVal, columnNumber);
-                if (newVal != null)
-                {
-                  if (m_TreatNbspAsSpace && newVal.IndexOf((char) 0xA0) != -1)
-                    newVal = newVal.Replace((char) 0xA0, ' ');
-
-                  if (m_Trim)
-                    newVal = newVal.Trim();
-
-                  if (StringUtils.ShouldBeTreatedAsNull(newVal, m_TreatTextAsNull))
-                    newVal = null;
-                }
-
-                CurrentRowColumnText[columnNumber] = newVal;
+                CurrentRowColumnText[columnNumber] = TreatNbspTestAsNullTrim(HandleTextSpecials(orgVal, columnNumber), m_TreatNbspAsSpace, m_TreatTextAsNull, m_Trim);
+                CurrentValues[columnNumber] = CurrentRowColumnText[columnNumber];
               }
             }
           }
@@ -374,10 +355,10 @@ namespace CsvTools
 
       EndOfFile = m_TextReader.EndOfStream;
       m_JsonTextReader?.Close();
-      m_JsonTextReader = new JsonTextReader(m_TextReader) {CloseInput = false};
+      m_JsonTextReader = new JsonTextReader(m_TextReader) { CloseInput = false };
     }
 
-#region TextReader
+    #region TextReader
 
     // Buffer size set to 64kB, if set to large the display in percentage will jump
     private const int c_BufferSize = 65536;
@@ -502,6 +483,6 @@ namespace CsvTools
       m_JsonTextReader = new JsonTextReader(new StringReader(sb.ToString()));
     }
 
-#endregion TextReader
+    #endregion TextReader
   }
 }
