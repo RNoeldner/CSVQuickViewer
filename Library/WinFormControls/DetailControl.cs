@@ -22,7 +22,9 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
+using JetBrains.Annotations;
 
 namespace CsvTools
 {
@@ -36,7 +38,11 @@ namespace CsvTools
     private readonly List<KeyValuePair<string, DataGridViewCell>> m_SearchCells =
       new List<KeyValuePair<string, DataGridViewCell>>();
 
+    private readonly ObservableCollection<ToolStripItem> m_ToolStripItems = new ObservableCollection<ToolStripItem>();
     private IContainer components;
+    [CanBeNull] public Func<bool> EndOfFile;
+
+    [CanBeNull] public Func<IProcessDisplay, Task> LoadNextBatchAsync;
 
     // private EventHandler m_BatchSizeChangedEvent;
     private BindingNavigator m_BindingNavigator;
@@ -97,16 +103,7 @@ namespace CsvTools
 
     // private ToolStripTextBox m_ToolStripTextBoxRecSize;
     private ToolStrip m_ToolStripTop;
-
-    private readonly ObservableCollection<ToolStripItem> m_ToolStripItems = new ObservableCollection<ToolStripItem>();
-
-    public void AddToolStripItem(int index, ToolStripItem item)
-    {
-      if (index>=m_ToolStripItems.Count)
-        m_ToolStripItems.Add(item);
-      else
-        m_ToolStripItems.Insert(index, item);
-    }
+    public ToolStripButton toolStripButtonNext;
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="DetailControl" /> class.
@@ -309,30 +306,44 @@ namespace CsvTools
       }
     }
 
+    public void AddToolStripItem(int index, ToolStripItem item)
+    {
+      if (index >= m_ToolStripItems.Count)
+        m_ToolStripItems.Add(item);
+      else
+        m_ToolStripItems.Insert(index, item);
+    }
+
     /// <summary>
     ///   Moves the menu in the lower or upper tool-bar
     /// </summary>
     public void MoveMenu()
     {
       var source = (ApplicationSetting.MenuDown) ? m_ToolStripTop : m_BindingNavigator;
-      var taget = (ApplicationSetting.MenuDown) ? m_BindingNavigator : m_ToolStripTop;
-      taget.SuspendLayout();
+      var target = (ApplicationSetting.MenuDown) ? m_BindingNavigator : m_ToolStripTop;
+      target.SuspendLayout();
       source.SuspendLayout();
       foreach (var item in m_ToolStripItems)
       {
-        item.DisplayStyle = (ApplicationSetting.MenuDown) ? ToolStripItemDisplayStyle.Image : ToolStripItemDisplayStyle.ImageAndText;
+        item.DisplayStyle = (ApplicationSetting.MenuDown)
+          ? ToolStripItemDisplayStyle.Image
+          : ToolStripItemDisplayStyle.ImageAndText;
         if (source.Items.Contains(item))
           source.Items.Remove(item);
-        if (taget.Items.Contains(item))
-          taget.Items.Remove(item);
+        if (target.Items.Contains(item))
+          target.Items.Remove(item);
       }
+
       foreach (var item in m_ToolStripItems)
       {
-        item.DisplayStyle = (ApplicationSetting.MenuDown) ? ToolStripItemDisplayStyle.Image : ToolStripItemDisplayStyle.ImageAndText;
-        taget.Items.Add(item);
+        item.DisplayStyle = (ApplicationSetting.MenuDown)
+          ? ToolStripItemDisplayStyle.Image
+          : ToolStripItemDisplayStyle.ImageAndText;
+        target.Items.Add(item);
       }
+
       source.ResumeLayout(true);
-      taget.ResumeLayout(true);
+      target.ResumeLayout(true);
       m_ToolStripContainer.TopToolStripPanelVisible = !ApplicationSetting.MenuDown;
       SetButtonVisibility();
     }
@@ -453,7 +464,7 @@ namespace CsvTools
           return;
         var visible = FilteredDataGridView.Columns.Cast<DataGridViewColumn>()
           .Where(col => col.Visible && !string.IsNullOrEmpty(col.DataPropertyName)).OrderBy(col => col.DisplayIndex)
-                .Select(col => col.DataPropertyName).ToList();
+          .Select(col => col.DataPropertyName).ToList();
         using (var details =
           new FormShowMaxLength(m_DataTable, m_DataTable.Select(FilteredDataGridView.CurrentFilter), visible))
         {
@@ -695,20 +706,12 @@ namespace CsvTools
       this.components = new System.ComponentModel.Container();
       System.ComponentModel.ComponentResourceManager resources =
         new System.ComponentModel.ComponentResourceManager(typeof(DetailControl));
-      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 =
-        new System.Windows.Forms.DataGridViewCellStyle();
-      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 =
-        new System.Windows.Forms.DataGridViewCellStyle();
-      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 =
-        new System.Windows.Forms.DataGridViewCellStyle();
       this.m_ToolStripTop = new System.Windows.Forms.ToolStrip();
       this.m_ToolStripComboBoxFilterType = new System.Windows.Forms.ToolStripComboBox();
-
       this.m_ToolStripButtonUniqueValues = new System.Windows.Forms.ToolStripButton();
       this.m_ToolStripButtonColumnLength = new System.Windows.Forms.ToolStripButton();
       this.m_ToolStripButtonDuplicates = new System.Windows.Forms.ToolStripButton();
       this.m_ToolStripButtonHierarchy = new System.Windows.Forms.ToolStripButton();
-      //this.m_ToolStripButtonAsText = new System.Windows.Forms.ToolStripButton();
       this.m_ToolStripButtonStore = new System.Windows.Forms.ToolStripButton();
       this.m_ToolStripContainer = new System.Windows.Forms.ToolStripContainer();
       this.m_BindingNavigator = new System.Windows.Forms.BindingNavigator(this.components);
@@ -719,6 +722,7 @@ namespace CsvTools
       this.m_ToolStripTextBox1 = new System.Windows.Forms.ToolStripTextBox();
       this.m_ToolStripButtonMoveNextItem = new System.Windows.Forms.ToolStripButton();
       this.m_ToolStripButtonMoveLastItem = new System.Windows.Forms.ToolStripButton();
+      this.toolStripButtonNext = new System.Windows.Forms.ToolStripButton();
       this.m_Search = new CsvTools.Search();
       this.FilteredDataGridView = new CsvTools.FilteredDataGridView();
       this.m_ToolStripTop.SuspendLayout();
@@ -731,14 +735,16 @@ namespace CsvTools
       ((System.ComponentModel.ISupportInitialize) (this.m_BindingSource)).BeginInit();
       ((System.ComponentModel.ISupportInitialize) (this.FilteredDataGridView)).BeginInit();
       this.SuspendLayout();
+      // 
       // m_ToolStripTop
+      // 
       this.m_ToolStripTop.Dock = System.Windows.Forms.DockStyle.None;
       this.m_ToolStripTop.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
       this.m_ToolStripTop.ImageScalingSize = new System.Drawing.Size(20, 20);
       this.m_ToolStripTop.Items.AddRange(new System.Windows.Forms.ToolStripItem[]
       {
-        this.m_ToolStripComboBoxFilterType, this.m_ToolStripButtonUniqueValues,
-        this.m_ToolStripButtonColumnLength, this.m_ToolStripButtonDuplicates, this.m_ToolStripButtonHierarchy,  this.m_ToolStripButtonStore
+        this.m_ToolStripComboBoxFilterType, this.m_ToolStripButtonUniqueValues, this.m_ToolStripButtonColumnLength,
+        this.m_ToolStripButtonDuplicates, this.m_ToolStripButtonHierarchy, this.m_ToolStripButtonStore
       });
       this.m_ToolStripTop.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.HorizontalStackWithOverflow;
       this.m_ToolStripTop.Location = new System.Drawing.Point(4, 0);
@@ -746,7 +752,9 @@ namespace CsvTools
       this.m_ToolStripTop.Size = new System.Drawing.Size(734, 28);
       this.m_ToolStripTop.TabIndex = 1;
       this.m_ToolStripTop.Text = "toolStripTop";
+      // 
       // m_ToolStripComboBoxFilterType
+      // 
       this.m_ToolStripComboBoxFilterType.DropDownHeight = 90;
       this.m_ToolStripComboBoxFilterType.DropDownWidth = 130;
       this.m_ToolStripComboBoxFilterType.IntegralHeight = false;
@@ -758,7 +766,9 @@ namespace CsvTools
       this.m_ToolStripComboBoxFilterType.Size = new System.Drawing.Size(175, 28);
       this.m_ToolStripComboBoxFilterType.SelectedIndexChanged +=
         new System.EventHandler(this.ToolStripComboBoxFilterType_SelectedIndexChanged);
+      // 
       // m_ToolStripButtonUniqueValues
+      // 
       this.m_ToolStripButtonUniqueValues.Image =
         ((System.Drawing.Image) (resources.GetObject("m_ToolStripButtonUniqueValues.Image")));
       this.m_ToolStripButtonUniqueValues.Name = "m_ToolStripButtonUniqueValues";
@@ -766,7 +776,9 @@ namespace CsvTools
       this.m_ToolStripButtonUniqueValues.Text = "Unique Values";
       this.m_ToolStripButtonUniqueValues.ToolTipText = "Display Unique Values";
       this.m_ToolStripButtonUniqueValues.Click += new System.EventHandler(this.ButtonUniqueValues_Click);
+      // 
       // m_ToolStripButtonColumnLength
+      // 
       this.m_ToolStripButtonColumnLength.Image =
         ((System.Drawing.Image) (resources.GetObject("m_ToolStripButtonColumnLength.Image")));
       this.m_ToolStripButtonColumnLength.Name = "m_ToolStripButtonColumnLength";
@@ -774,7 +786,9 @@ namespace CsvTools
       this.m_ToolStripButtonColumnLength.Text = "Column Length";
       this.m_ToolStripButtonColumnLength.ToolTipText = "Display Schema information including Length";
       this.m_ToolStripButtonColumnLength.Click += new System.EventHandler(this.ButtonColumnLength_Click);
+      // 
       // m_ToolStripButtonDuplicates
+      // 
       this.m_ToolStripButtonDuplicates.Image =
         ((System.Drawing.Image) (resources.GetObject("m_ToolStripButtonDuplicates.Image")));
       this.m_ToolStripButtonDuplicates.Name = "m_ToolStripButtonDuplicates";
@@ -782,7 +796,9 @@ namespace CsvTools
       this.m_ToolStripButtonDuplicates.Text = "Duplicates";
       this.m_ToolStripButtonDuplicates.ToolTipText = "Display Duplicate Values";
       this.m_ToolStripButtonDuplicates.Click += new System.EventHandler(this.ButtonDuplicates_Click);
+      // 
       // m_ToolStripButtonHierarchy
+      // 
       this.m_ToolStripButtonHierarchy.Image =
         ((System.Drawing.Image) (resources.GetObject("m_ToolStripButtonHierarchy.Image")));
       this.m_ToolStripButtonHierarchy.Name = "m_ToolStripButtonHierarchy";
@@ -790,8 +806,9 @@ namespace CsvTools
       this.m_ToolStripButtonHierarchy.Text = "Hierarchy";
       this.m_ToolStripButtonHierarchy.ToolTipText = "Display a Hierarchy Structure";
       this.m_ToolStripButtonHierarchy.Click += new System.EventHandler(this.ButtonHierarchy_Click);
-
+      // 
       // m_ToolStripButtonStore
+      // 
       this.m_ToolStripButtonStore.Image =
         ((System.Drawing.Image) (resources.GetObject("m_ToolStripButtonStore.Image")));
       this.m_ToolStripButtonStore.ImageTransparentColor = System.Drawing.Color.Magenta;
@@ -800,28 +817,36 @@ namespace CsvTools
       this.m_ToolStripButtonStore.Text = "&Write File";
       this.m_ToolStripButtonStore.ToolTipText = "Store the currently displayed data as delimited text file";
       this.m_ToolStripButtonStore.Click += new System.EventHandler(this.ToolStripButtonStoreAsCsvAsync);
+      // 
       // m_ToolStripContainer
-      //
-      //
+      // 
+      // 
       // m_ToolStripContainer.BottomToolStripPanel
+      // 
       this.m_ToolStripContainer.BottomToolStripPanel.Controls.Add(this.m_BindingNavigator);
+      // 
       // m_ToolStripContainer.ContentPanel
+      // 
       this.m_ToolStripContainer.ContentPanel.Controls.Add(this.m_Search);
       this.m_ToolStripContainer.ContentPanel.Controls.Add(this.FilteredDataGridView);
-      this.m_ToolStripContainer.ContentPanel.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-      this.m_ToolStripContainer.ContentPanel.Size = new System.Drawing.Size(996, 320);
+      this.m_ToolStripContainer.ContentPanel.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
+      this.m_ToolStripContainer.ContentPanel.Size = new System.Drawing.Size(1328, 400);
       this.m_ToolStripContainer.Dock = System.Windows.Forms.DockStyle.Fill;
       this.m_ToolStripContainer.LeftToolStripPanelVisible = false;
       this.m_ToolStripContainer.Location = new System.Drawing.Point(0, 0);
-      this.m_ToolStripContainer.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+      this.m_ToolStripContainer.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
       this.m_ToolStripContainer.Name = "m_ToolStripContainer";
       this.m_ToolStripContainer.RightToolStripPanelVisible = false;
-      this.m_ToolStripContainer.Size = new System.Drawing.Size(996, 375);
+      this.m_ToolStripContainer.Size = new System.Drawing.Size(1328, 462);
       this.m_ToolStripContainer.TabIndex = 13;
       this.m_ToolStripContainer.Text = "toolStripContainer";
+      // 
       // m_ToolStripContainer.TopToolStripPanel
+      // 
       this.m_ToolStripContainer.TopToolStripPanel.Controls.Add(this.m_ToolStripTop);
+      // 
       // m_BindingNavigator
+      // 
       this.m_BindingNavigator.AddNewItem = null;
       this.m_BindingNavigator.BindingSource = this.m_BindingSource;
       this.m_BindingNavigator.CountItem = this.m_ToolStripLabelCount;
@@ -832,7 +857,8 @@ namespace CsvTools
       this.m_BindingNavigator.Items.AddRange(new System.Windows.Forms.ToolStripItem[]
       {
         this.m_ToolStripButtonMoveFirstItem, this.m_ToolStripButtonMovePreviousItem, this.m_ToolStripTextBox1,
-        this.m_ToolStripLabelCount, this.m_ToolStripButtonMoveNextItem, this.m_ToolStripButtonMoveLastItem
+        this.m_ToolStripLabelCount, this.m_ToolStripButtonMoveNextItem, this.m_ToolStripButtonMoveLastItem,
+        this.toolStripButtonNext
       });
       this.m_BindingNavigator.Location = new System.Drawing.Point(4, 0);
       this.m_BindingNavigator.MoveFirstItem = this.m_ToolStripButtonMoveFirstItem;
@@ -841,99 +867,104 @@ namespace CsvTools
       this.m_BindingNavigator.MovePreviousItem = this.m_ToolStripButtonMovePreviousItem;
       this.m_BindingNavigator.Name = "m_BindingNavigator";
       this.m_BindingNavigator.PositionItem = this.m_ToolStripTextBox1;
-      this.m_BindingNavigator.Size = new System.Drawing.Size(216, 27);
+      this.m_BindingNavigator.Size = new System.Drawing.Size(294, 31);
       this.m_BindingNavigator.TabIndex = 0;
+      // 
       // m_ToolStripLabelCount
+      // 
       this.m_ToolStripLabelCount.Name = "m_ToolStripLabelCount";
-      this.m_ToolStripLabelCount.Size = new System.Drawing.Size(45, 24);
+      this.m_ToolStripLabelCount.Size = new System.Drawing.Size(55, 28);
       this.m_ToolStripLabelCount.Text = "of {0}";
       this.m_ToolStripLabelCount.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
       this.m_ToolStripLabelCount.ToolTipText = "Total number of items";
+      // 
       // m_ToolStripButtonMoveFirstItem
+      // 
       this.m_ToolStripButtonMoveFirstItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
       this.m_ToolStripButtonMoveFirstItem.Image =
         ((System.Drawing.Image) (resources.GetObject("m_ToolStripButtonMoveFirstItem.Image")));
       this.m_ToolStripButtonMoveFirstItem.Name = "m_ToolStripButtonMoveFirstItem";
       this.m_ToolStripButtonMoveFirstItem.RightToLeftAutoMirrorImage = true;
-      this.m_ToolStripButtonMoveFirstItem.Size = new System.Drawing.Size(29, 24);
+      this.m_ToolStripButtonMoveFirstItem.Size = new System.Drawing.Size(29, 28);
       this.m_ToolStripButtonMoveFirstItem.Text = "Move first";
+      // 
       // m_ToolStripButtonMovePreviousItem
+      // 
       this.m_ToolStripButtonMovePreviousItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
       this.m_ToolStripButtonMovePreviousItem.Image =
         ((System.Drawing.Image) (resources.GetObject("m_ToolStripButtonMovePreviousItem.Image")));
       this.m_ToolStripButtonMovePreviousItem.Name = "m_ToolStripButtonMovePreviousItem";
       this.m_ToolStripButtonMovePreviousItem.RightToLeftAutoMirrorImage = true;
-      this.m_ToolStripButtonMovePreviousItem.Size = new System.Drawing.Size(29, 24);
+      this.m_ToolStripButtonMovePreviousItem.Size = new System.Drawing.Size(29, 28);
       this.m_ToolStripButtonMovePreviousItem.Text = "Move previous";
+      // 
       // m_ToolStripTextBox1
+      // 
       this.m_ToolStripTextBox1.AccessibleName = "Position";
       this.m_ToolStripTextBox1.Font = new System.Drawing.Font("Segoe UI", 9F);
       this.m_ToolStripTextBox1.Name = "m_ToolStripTextBox1";
-      this.m_ToolStripTextBox1.Size = new System.Drawing.Size(50, 27);
+      this.m_ToolStripTextBox1.Size = new System.Drawing.Size(50, 31);
       this.m_ToolStripTextBox1.Text = "0";
       this.m_ToolStripTextBox1.ToolTipText = "Current position";
+      // 
       // m_ToolStripButtonMoveNextItem
+      // 
       this.m_ToolStripButtonMoveNextItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
       this.m_ToolStripButtonMoveNextItem.Image =
         ((System.Drawing.Image) (resources.GetObject("m_ToolStripButtonMoveNextItem.Image")));
       this.m_ToolStripButtonMoveNextItem.Name = "m_ToolStripButtonMoveNextItem";
       this.m_ToolStripButtonMoveNextItem.RightToLeftAutoMirrorImage = true;
-      this.m_ToolStripButtonMoveNextItem.Size = new System.Drawing.Size(29, 24);
+      this.m_ToolStripButtonMoveNextItem.Size = new System.Drawing.Size(29, 28);
       this.m_ToolStripButtonMoveNextItem.Text = "Move next";
+      // 
       // m_ToolStripButtonMoveLastItem
+      // 
       this.m_ToolStripButtonMoveLastItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
       this.m_ToolStripButtonMoveLastItem.Image =
         ((System.Drawing.Image) (resources.GetObject("m_ToolStripButtonMoveLastItem.Image")));
       this.m_ToolStripButtonMoveLastItem.Name = "m_ToolStripButtonMoveLastItem";
       this.m_ToolStripButtonMoveLastItem.RightToLeftAutoMirrorImage = true;
-      this.m_ToolStripButtonMoveLastItem.Size = new System.Drawing.Size(29, 24);
+      this.m_ToolStripButtonMoveLastItem.Size = new System.Drawing.Size(29, 28);
       this.m_ToolStripButtonMoveLastItem.Text = "Move last";
+      // 
+      // toolStripButtonNext
+      // 
+      this.toolStripButtonNext.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+      this.toolStripButtonNext.Image = ((System.Drawing.Image) (resources.GetObject("toolStripButtonNext.Image")));
+      this.toolStripButtonNext.Name = "toolStripButtonNext";
+      this.toolStripButtonNext.Size = new System.Drawing.Size(29, 28);
+      this.toolStripButtonNext.Text = "Load More";
+      this.toolStripButtonNext.Enabled = false;
+      this.toolStripButtonNext.TextImageRelation = System.Windows.Forms.TextImageRelation.TextBeforeImage;
+      this.toolStripButtonNext.Click += new System.EventHandler(this.ToolStripButtonNext_Click);
+      // 
       // m_Search
+      // 
       this.m_Search.Anchor =
         ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Top |
                                                System.Windows.Forms.AnchorStyles.Right)));
       this.m_Search.AutoSize = true;
       this.m_Search.BackColor = System.Drawing.SystemColors.Info;
       this.m_Search.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-      this.m_Search.Location = new System.Drawing.Point(619, 3);
-      this.m_Search.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+      this.m_Search.Location = new System.Drawing.Point(825, 4);
+      this.m_Search.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
       this.m_Search.Name = "m_Search";
       this.m_Search.Results = 0;
-      this.m_Search.Size = new System.Drawing.Size(378, 36);
+      this.m_Search.Size = new System.Drawing.Size(503, 44);
       this.m_Search.TabIndex = 1;
       this.m_Search.Visible = false;
       this.m_Search.OnResultChanged += new System.EventHandler<CsvTools.SearchEventArgs>(this.OnSearchResultChanged);
       this.m_Search.OnSearchChanged += new System.EventHandler<CsvTools.SearchEventArgs>(this.OnSearchChanged);
       this.m_Search.OnSearchClear += new System.EventHandler(this.ClearSearch);
+
       // m_FilteredDataGridView
       this.FilteredDataGridView.AllowUserToOrderColumns = true;
-      dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-      dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Control;
-      dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.WindowText;
-      dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-      dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-      dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-      this.FilteredDataGridView.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
       this.FilteredDataGridView.ColumnHeadersHeightSizeMode =
         System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-      dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-      dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
-      dataGridViewCellStyle2.ForeColor = System.Drawing.Color.Black;
-      dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-      dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-      dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-      this.FilteredDataGridView.DefaultCellStyle = dataGridViewCellStyle2;
       this.FilteredDataGridView.Dock = System.Windows.Forms.DockStyle.Fill;
       this.FilteredDataGridView.Location = new System.Drawing.Point(0, 0);
       this.FilteredDataGridView.Margin = new System.Windows.Forms.Padding(2);
-      this.FilteredDataGridView.Name = "m_FilteredDataGridView";
-      dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-      dataGridViewCellStyle3.BackColor = System.Drawing.SystemColors.Control;
-      dataGridViewCellStyle3.ForeColor = System.Drawing.SystemColors.WindowText;
-      dataGridViewCellStyle3.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-      dataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-      dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-      this.FilteredDataGridView.RowHeadersDefaultCellStyle = dataGridViewCellStyle3;
+
       this.FilteredDataGridView.RowHeadersWidth = 51;
       this.FilteredDataGridView.RowTemplate.Height = 33;
       this.FilteredDataGridView.Size = new System.Drawing.Size(996, 320);
@@ -941,13 +972,15 @@ namespace CsvTools
       this.FilteredDataGridView.CellFormatting +=
         new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.FilteredDataGridView_CellFormatting);
       this.FilteredDataGridView.KeyDown += new System.Windows.Forms.KeyEventHandler(this.DetailControl_KeyDown);
+      // 
       // DetailControl
-      this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+      // 
+      this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.Controls.Add(this.m_ToolStripContainer);
-      this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+      this.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
       this.Name = "DetailControl";
-      this.Size = new System.Drawing.Size(996, 375);
+      this.Size = new System.Drawing.Size(1328, 462);
       this.m_ToolStripTop.ResumeLayout(false);
       this.m_ToolStripTop.PerformLayout();
       this.m_ToolStripContainer.BottomToolStripPanel.ResumeLayout(false);
@@ -1089,7 +1122,8 @@ namespace CsvTools
 
           // Extended
           m_ToolStripButtonHierarchy.Visible = m_ShowButtons;
-          m_ToolStripButtonStore.Visible = m_ShowButtons && (FileSetting!=null);
+          toolStripButtonNext.Visible = m_ShowButtons && !(EndOfFile?.Invoke() ?? true);
+          m_ToolStripButtonStore.Visible = m_ShowButtons && (FileSetting != null);
           try
           {
             m_ToolStripTop.Visible = m_ShowButtons;
@@ -1136,8 +1170,7 @@ namespace CsvTools
       FilteredDataGridView.SetRowHeight();
 
       if (oldOrder != SortOrder.None && !string.IsNullOrEmpty(oldSortedColumn))
-        Sort(
-          oldSortedColumn,
+        Sort(oldSortedColumn,
           oldOrder == SortOrder.Ascending ? ListSortDirection.Ascending : ListSortDirection.Descending);
     }
 
@@ -1198,6 +1231,7 @@ namespace CsvTools
           using (var iStream = FunctionalDI.OpenRead(src.FullPath))
           using (var sr = new ImprovedTextReader(iStream, src.CodePageId))
           {
+            await sr.ToBeginningAsync();
             for (int i = 0; i < src.SkipRows; i++)
               writeFile.Header += await sr.ReadLineAsync() + '\n';
           }
@@ -1250,6 +1284,34 @@ namespace CsvTools
         SetDataSource(FilterType.ShowWarning);
       if (m_ToolStripComboBoxFilterType.SelectedIndex == 4)
         SetDataSource(FilterType.ShowIssueFree);
+    }
+
+    private async void ToolStripButtonNext_Click(object sender, EventArgs e)
+    {
+      if (LoadNextBatchAsync == null || (EndOfFile?.Invoke() ?? true))
+        return;
+
+      toolStripButtonNext.Enabled = false;
+      var oldCursor = Cursor.Current == Cursors.WaitCursor ? Cursors.WaitCursor : Cursors.Default;
+      Cursor.Current = Cursors.WaitCursor;
+      try
+      {
+        using (var frm = new FormProcessDisplay("Load", false, m_CancellationTokenSource.Token))
+        {
+          frm.Show();
+          frm.Maximum = 100;
+          await LoadNextBatchAsync(frm);
+        }
+      }
+      finally
+      {
+        Cursor.Current = oldCursor;
+
+        var eof = EndOfFile.Invoke();
+        toolStripButtonNext.Enabled = !eof;
+        if (eof)
+          toolStripButtonNext.Text = "All records have been loaded";
+      }
     }
 
     private class ProcessInformation : IDisposable

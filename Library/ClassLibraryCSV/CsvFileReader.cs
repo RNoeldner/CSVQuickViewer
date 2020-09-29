@@ -348,10 +348,9 @@ namespace CsvTools
         m_ImprovedStream = FunctionalDI.OpenRead(FullPath);
         m_TextReader?.Dispose();
         m_TextReader = new ImprovedTextReader(m_ImprovedStream, m_CodePageId, m_SkipRows);
+        await ResetPositionToStartOrOpen().ConfigureAwait(false);
 
-        await ResetPositionToStartOrOpen();
-
-        m_HeaderRow = await ReadNextRowAsync(false, false).ConfigureAwait(false);
+        m_HeaderRow = await ReadNextRowAsync(false).ConfigureAwait(false);
         InitColumn(await ParseFieldCountAsync(m_HeaderRow).ConfigureAwait(false));
         ParseColumnName(m_HeaderRow, null, m_HasFieldHeader);
 
@@ -407,7 +406,7 @@ namespace CsvTools
       await ResetPositionToStartOrOpen();
       if (m_HasFieldHeader)
         // Read the header row, this could be more than one line
-        await ReadNextRowAsync(false, false).ConfigureAwait(false);
+        await ReadNextRowAsync(false).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -487,7 +486,7 @@ namespace CsvTools
       // check if the next lines do have data in the last column
       for (var additional = 0; !EndOfFile && additional < 10; additional++)
       {
-        var nextLine = await ReadNextRowAsync(false, false).ConfigureAwait(false);
+        var nextLine = await ReadNextRowAsync(false).ConfigureAwait(false);
 
         // if we have less columns than in the header exit the loop
         if (nextLine.GetLength(0) < fields)
@@ -551,12 +550,11 @@ namespace CsvTools
     ///   Gets the next column in the buffer.
     /// </summary>
     /// <param name="columnNo">The column number for warnings</param>
-    /// <param name="storeWarnings">If <c>true</c> warnings will be added</param>
     /// <returns>The next column null after the last column</returns>
     /// <remarks>
     ///   If NULL is returned we are at the end of the file, an empty column is read as empty string
     /// </remarks>
-    private async Task<string> ReadNextColumnAsync(int columnNo, bool storeWarnings)
+    private async Task<string> ReadNextColumnAsync(int columnNo)
     {
       if (EndOfFile)
         return null;
@@ -568,9 +566,6 @@ namespace CsvTools
       }
 
       var stringBuilder = new StringBuilder(5);
-      var hadDelimiterInValue = false;
-      var hadUnknownChar = false;
-      var hadNbsp = false;
       var quoted = false;
       var preData = true;
       var postData = false;
@@ -647,23 +642,23 @@ namespace CsvTools
           case cNbsp:
             if (!postData)
             {
-              hadNbsp = true;
+              // TODO: not 100% correct in case we have a misalignment of column that is corrected afterwards
+              // warning for NBP need to be issues before trimming as trimming would remove the char
+              if (m_WarnNbsp && !GetColumn(columnNo).Ignore)
+              {
+                if (m_NumWarning < 1 || m_NumWarningsNbspChar++ < m_NumWarning)
+                  HandleWarning(
+                    columnNo,
+                    m_TreatNbspAsSpace
+                      ? "Character Non Breaking Space found, this character was treated as space".AddWarningId()
+                      : "Character Non Breaking Space found in field".AddWarningId());
+              }
+
               if (m_TreatNbspAsSpace)
                 character = ' ';
             }
 
             break;
-
-          case cUnknownChar:
-            if (!postData)
-            {
-              hadUnknownChar = true;
-              if (m_TreatUnknownCharacterAsSpace)
-                character = ' ';
-            }
-
-            break;
-
           case cCr:
           case cLf:
             EndLineNumber++;
@@ -779,103 +774,24 @@ namespace CsvTools
           }
         }
 
-        hadDelimiterInValue |= character == m_FieldDelimiterChar;
-
         // all cases covered, character must be data
         stringBuilder.Append(character);
       }
 
-      var returnValue = stringBuilder.ToString();
-      if (stringBuilder.Length > 0)
-      {
-        if (m_TreatNbspAsSpace)
-          returnValue = returnValue.Replace((char) 0xA0, ' ');
-
-        if (m_TrimmingOption == TrimmingOption.All || !quoted && m_TrimmingOption == TrimmingOption.Unquoted)
-          returnValue = returnValue.Trim();
-      }
-
-      if (!storeWarnings)
-        return returnValue;
-
-      // if (m_HasQualifier && quoted && m_StructuredWriterFile.WarnQuotesInQuotes &&
-      // returnValue.IndexOf(m_StructuredWriterFile.FileFormat.FieldQualifierChar) != -1) WarnQuoteInQuotes(columnNo);
-      if (m_HasQualifier && m_WarnQuotes && returnValue.IndexOf(m_FieldQualifierChar) > 0)
-      {
-        m_NumWarningsQuote++;
-        if (m_NumWarning < 1 || m_NumWarningsQuote <= m_NumWarning)
-          HandleWarning(
-            columnNo,
-            $"Field qualifier '{FileFormat.GetDescription(m_FieldQualifierChar.ToString())}' found in field"
-              .AddWarningId());
-      }
-
-      if (m_WarnDelimiterInValue && hadDelimiterInValue)
-      {
-        m_NumWarningsDelimiter++;
-        if (m_NumWarning < 1 || m_NumWarningsDelimiter <= m_NumWarning)
-          HandleWarning(
-            columnNo,
-            $"Field delimiter '{FileFormat.GetDescription(m_FieldDelimiterChar.ToString())}' found in field"
-              .AddWarningId());
-      }
-
-      if (m_WarnUnknownCharacter)
-        if (hadUnknownChar)
-        {
-          WarnUnknownChar(columnNo, false);
-        }
-        else
-        {
-          var numberQuestionMark = 0;
-          var lastPos = -1;
-          var length = returnValue.Length;
-          for (var pos = length - 1; pos >= 0; pos--)
-          {
-            if (returnValue[pos] != '?')
-              continue;
-            numberQuestionMark++;
-
-            // If we have at least two and there are two consecutive or more than 3+ in 12
-            // characters, or 4+ in 16 characters
-            if (numberQuestionMark > 2 && (lastPos == pos + 1 || numberQuestionMark > length / 4))
-            {
-              WarnUnknownChar(columnNo, true);
-              break;
-            }
-
-            lastPos = pos;
-          }
-        }
-
-      if (m_WarnNbsp && hadNbsp)
-      {
-        m_NumWarningsNbspChar++;
-        if (m_NumWarning < 1 || m_NumWarningsNbspChar <= m_NumWarning)
-          HandleWarning(
-            columnNo,
-            m_TreatNbspAsSpace
-              ? "Character Non Breaking Space found, this character was treated as space".AddWarningId()
-              : "Character Non Breaking Space found in field".AddWarningId());
-      }
-
-      if (m_WarnLineFeed && (returnValue.IndexOf('\r') != -1 || returnValue.IndexOf('\n') != -1))
-        WarnLinefeed(columnNo);
-      return returnValue;
+      return m_TrimmingOption == TrimmingOption.All || !quoted && m_TrimmingOption == TrimmingOption.Unquoted
+        ? stringBuilder.ToString().Trim()
+        : stringBuilder.ToString();
     }
 
     /// <summary>
     ///   Reads the record of the CSV file, this can span over multiple lines
     /// </summary>
-    /// <param name="regularDataRow">
-    ///   Set to <c>true</c> if its not the header row and the maximum size should be determined.
-    /// </param>
     /// <param name="storeWarnings">Set to <c>true</c> if the warnings should be issued.</param>
     /// <returns>
     ///   <c>NULL</c> if the row can not be read, array of string values representing the columns of
     ///   the row
     /// </returns>
-    private async Task<string[]> ReadNextRowAsync(bool regularDataRow, bool storeWarnings)
+    private async Task<string[]> ReadNextRowAsync(bool storeWarnings)
     {
       Restart:
 
@@ -888,13 +804,13 @@ namespace CsvTools
       if (EndOfFile || m_TextReader == null)
         return null;
 
-      var item = await ReadNextColumnAsync(0, storeWarnings).ConfigureAwait(false);
+      var item = await ReadNextColumnAsync(0).ConfigureAwait(false);
 
       // An empty line does not have any data
       if (string.IsNullOrEmpty(item) && m_EndOfLine)
       {
         m_EndOfLine = false;
-        if (m_SkipEmptyLines || !regularDataRow)
+        if (m_SkipEmptyLines)
 
           // go to the next line
           goto Restart;
@@ -945,26 +861,12 @@ namespace CsvTools
         }
         else
         {
-          if (StringUtils.ShouldBeTreatedAsNull(item, m_TreatTextAsNull))
-          {
-            item = null;
-          }
-          else
-          {
-            item = item
-              .ReplaceCaseInsensitive(m_NewLinePlaceholder, Environment.NewLine)
-              .ReplaceCaseInsensitive(m_DelimiterPlaceholder, m_FieldDelimiterChar)
-              .ReplaceCaseInsensitive(m_QuotePlaceholder, m_FieldQualifierChar);
-
-            if (regularDataRow && col < FieldCount)
-              item = HandleText(item, col, m_TreatNbspAsSpace, m_TreatTextAsNull, m_TrimmingOption);
-          }
         }
 
         columns.Add(item);
 
         col++;
-        item = await ReadNextColumnAsync(col, storeWarnings).ConfigureAwait(false);
+        item = await ReadNextColumnAsync(col).ConfigureAwait(false);
       }
 
       return columns.ToArray();
@@ -976,7 +878,7 @@ namespace CsvTools
       try
       {
         Restart:
-        CurrentRowColumnText = await ReadNextRowAsync(true, true).ConfigureAwait(false);
+        CurrentRowColumnText = await ReadNextRowAsync(true).ConfigureAwait(false);
 
         if (AllEmptyAndCountConsecutiveEmptyRows(CurrentRowColumnText))
         {
@@ -1007,6 +909,7 @@ namespace CsvTools
 
             if (isRepeatedHeader && m_SkipDuplicateHeader)
             {
+              HandleWarning(-1, "Repeated Header row is ignored");
               RecordNumber--;
               goto Restart;
             }
@@ -1039,7 +942,7 @@ namespace CsvTools
             var startLine = StartLineNumber;
 
             // get the next row
-            var nextLine = await ReadNextRowAsync(true, true).ConfigureAwait(false);
+            var nextLine = await ReadNextRowAsync(true).ConfigureAwait(false);
             StartLineNumber = startLine;
 
             // allow up to two extra columns they can be combined later
@@ -1123,6 +1026,94 @@ namespace CsvTools
           }
         }
 
+        for (int columnNo = 0; columnNo < FieldCount && columnNo < CurrentRowColumnText.Length; columnNo++)
+        {
+          if (GetColumn(columnNo).Ignore || CurrentRowColumnText[columnNo] == null)
+            continue;
+
+          // Handle replacements and warnings etc,
+          var adjustedValue = HandleTextSpecials(CurrentRowColumnText[columnNo]
+            .ReplaceCaseInsensitive(m_NewLinePlaceholder, Environment.NewLine)
+            .ReplaceCaseInsensitive(m_DelimiterPlaceholder, m_FieldDelimiterChar)
+            .ReplaceCaseInsensitive(m_QuotePlaceholder, m_FieldQualifierChar), columnNo);
+
+          if (adjustedValue != null)
+          {
+            if (m_WarnQuotes && adjustedValue.IndexOf(m_FieldQualifierChar) != -1)
+            {
+              if (m_NumWarning < 1 || m_NumWarningsQuote++ < m_NumWarning)
+                HandleWarning(
+                  columnNo,
+                  $"Field qualifier '{FileFormat.GetDescription(m_FieldQualifierChar.ToString())}' found in field"
+                    .AddWarningId());
+            }
+
+            if (m_WarnDelimiterInValue && adjustedValue.IndexOf(m_FieldDelimiterChar) != -1)
+            {
+              if (m_NumWarning < 1 || m_NumWarningsDelimiter++ < m_NumWarning)
+                HandleWarning(
+                  columnNo,
+                  $"Field delimiter '{FileFormat.GetDescription(m_FieldDelimiterChar.ToString())}' found in field"
+                    .AddWarningId());
+            }
+
+            if (adjustedValue.IndexOf(cUnknownChar) != -1)
+            {
+              if (m_WarnUnknownCharacter)
+              {
+                if (m_NumWarning < 1 || m_NumWarningsUnknownChar++ < m_NumWarning)
+                  HandleWarning(
+                    columnNo,
+                    m_TreatUnknownCharacterAsSpace
+                      ? "Unknown Character '�' found, this character was replaced with space".AddWarningId()
+                      : "Unknown Character '�' found in field".AddWarningId());
+              }
+
+              if (m_TreatUnknownCharacterAsSpace)
+              {
+                adjustedValue = adjustedValue.Replace(cUnknownChar, ' ');
+
+                // TODO: In order to use Quoted we would need to know if the column was quoted this is not possible right now
+                if (m_TrimmingOption == TrimmingOption.All)
+                  adjustedValue = adjustedValue.Trim();
+              }
+            }
+
+            if (m_WarnUnknownCharacter)
+            {
+              var numberQuestionMark = 0;
+              var lastPos = -1;
+              var length = adjustedValue.Length;
+              for (var pos = length - 1; pos >= 0; pos--)
+              {
+                if (adjustedValue[pos] != '?')
+                  continue;
+                numberQuestionMark++;
+
+                // If we have at least two and there are two consecutive or more than 3+ in 12
+                // characters, or 4+ in 16 characters
+                if (numberQuestionMark > 2 && (lastPos == pos + 1 || numberQuestionMark > length / 4))
+                {
+                  if (m_NumWarning < 1 || m_NumWarningsUnknownChar++ < m_NumWarning)
+                    HandleWarning(columnNo,
+                      "Unusual high occurrence of ? this indicates unmapped characters.".AddWarningId());
+                  break;
+                }
+
+                lastPos = pos;
+              }
+            }
+
+            if (m_WarnLineFeed && (adjustedValue.IndexOf('\r') != -1 || adjustedValue.IndexOf('\n') != -1))
+              WarnLinefeed(columnNo);
+
+            if (StringUtils.ShouldBeTreatedAsNull(adjustedValue, m_TreatTextAsNull))
+              adjustedValue = null;
+          }
+
+          CurrentRowColumnText[columnNo] = adjustedValue;
+        }
+
         return true;
       }
       catch (Exception ex)
@@ -1159,33 +1150,6 @@ namespace CsvTools
       if (m_NumWarning >= 1 && m_NumWarningsLinefeed > m_NumWarning)
         return;
       HandleWarning(column, "Linefeed found in field".AddWarningId());
-    }
-
-    /// <summary>
-    ///   Add warnings for unknown char.
-    /// </summary>
-    /// <param name="column">The column.</param>
-    /// <param name="questionMark"></param>
-    private void WarnUnknownChar(int column, bool questionMark)
-    {
-      // in case the column is ignored do not warn
-      if (Column[column].Ignore)
-        return;
-
-      m_NumWarningsUnknownChar++;
-      if (m_NumWarning >= 1 && m_NumWarningsUnknownChar > m_NumWarning)
-        return;
-      if (questionMark)
-      {
-        HandleWarning(column, "Unusual high occurrence of ? this indicates unmapped characters.".AddWarningId());
-        return;
-      }
-
-      HandleWarning(
-        column,
-        m_TreatUnknownCharacterAsSpace
-          ? "Unknown Character '�' found, this character was replaced with space".AddWarningId()
-          : "Unknown Character '�' found in field".AddWarningId());
     }
   }
 }

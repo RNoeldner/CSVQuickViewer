@@ -50,14 +50,20 @@
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="BuildValueClustersResult.cs" />
-    <Compile Include="ColumnSetting.cs" />
-    <Compile Include="ISyntaxHighlighter.cs" />
-    <Compile Include="PersistentChoice.cs" />
+    <Compile Include="BuildValueClustersResult.cs"/>
+    <Compile Include="ColumnSetting.cs"/>
+    <Compile Include="DetailControlLoader.cs"/>
+    <Compile Include="ISyntaxHighlighter.cs"/>
+    <Compile Include="PersistentChoice.cs"/>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="ResizeForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="ColumnFilterLogic.cs" />
+    <Compile Include="ColumnFilterLogic.cs"/>
     <Compile Include="DataGridViewColumnFilterControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -161,6 +167,10 @@
     </EmbeddedResource>
     <EmbeddedResource Include="FormProcessDisplay.resx">
       <DependentUpon>FormProcessDisplay.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Include="ResizeForm.resx">
       <DependentUpon>ResizeForm.cs</DependentUpon>

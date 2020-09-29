@@ -47,7 +47,6 @@ namespace CsvTools
     /// </summary>
     protected int[] AssociatedTimeCol;
 
-
     /// <summary>
     ///   An array of column
     /// </summary>
@@ -255,7 +254,11 @@ namespace CsvTools
     /// <summary>
     ///   Closes the <see cref="IDataReader" /> Object.
     /// </summary>
-    public override void Close() => EndOfFile = true;
+    public override void Close()
+    {
+      Logger.Debug("Closing {filename}", FileSystemUtils.GetShortDisplayFileName(FileName));
+      EndOfFile = true;
+    }
 
     // To detect redundant calls
     /// <summary>
@@ -1051,66 +1054,40 @@ namespace CsvTools
     /// </summary>
     /// <param name="inputString">The input string.</param>
     /// <param name="columnNumber">The column number</param>
-    /// <param name="treatNbspAsSpace"></param>
-    /// <param name="treatTextAsNull"></param>
-    /// <param name="trimmingOption"></param>
     /// <returns>The proper encoded or cut text as returned for the column</returns>
     [CanBeNull]
-    protected string HandleText([CanBeNull] string inputString, int columnNumber, bool treatNbspAsSpace,
-      string treatTextAsNull, TrimmingOption trimmingOption)
+    protected string HandleTextSpecials([NotNull] string inputString, int columnNumber)
     {
-      // in case its not a string
-      if (string.IsNullOrEmpty(inputString))
-        return inputString;
-
-      if (StringUtils.ShouldBeTreatedAsNull(inputString, treatTextAsNull))
-        return null;
-
-      if (trimmingOption == TrimmingOption.All)
-        inputString = inputString.Trim();
-
-      if (columnNumber >= FieldCount)
-        return inputString;
-
-      var column = GetColumn(columnNumber);
-      string output;
-
-      // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
-      switch (column.ValueFormat.DataType)
+      if (!string.IsNullOrEmpty(inputString) && columnNumber < FieldCount)
       {
-        case DataType.TextToHtml:
+        var column = GetColumn(columnNumber);
+
+        // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
+        if (column.ValueFormat.DataType == DataType.TextToHtml)
         {
-          output = HTMLStyle.TextToHtmlEncode(inputString);
+          var output = HTMLStyle.TextToHtmlEncode(inputString);
           if (!inputString.Equals(output, StringComparison.Ordinal))
             HandleWarning(columnNumber, $"HTML encoding removed from {inputString}");
-          break;
+          return output;
         }
-        case DataType.TextToHtmlFull:
+        else if (column.ValueFormat.DataType == DataType.TextToHtmlFull)
         {
-          output = HTMLStyle.HtmlEncodeShort(inputString);
+          var output = HTMLStyle.HtmlEncodeShort(inputString);
           if (!inputString.Equals(output, StringComparison.Ordinal))
             HandleWarning(columnNumber, $"HTML encoding removed from {inputString}");
-          break;
+          return output;
         }
-        case DataType.TextPart:
+        else if (column.ValueFormat.DataType == DataType.TextPart)
         {
-          output = StringConversion.StringToTextPart(inputString, column.PartSplitter, column.Part, column.PartToEnd);
+          var output =
+            StringConversion.StringToTextPart(inputString, column.PartSplitter, column.Part, column.PartToEnd);
           if (output == null)
             HandleWarning(columnNumber, $"Part {column.Part} of text {inputString} is empty.");
-          break;
+          return output;
         }
-        default:
-          output = inputString;
-          break;
       }
 
-      if (string.IsNullOrEmpty(output))
-        return null;
-
-      if (treatNbspAsSpace && output.IndexOf((char) 0xA0) != -1)
-        output = output.Replace((char) 0xA0, ' ');
-
-      return output;
+      return inputString;
     }
 
     /// <summary>

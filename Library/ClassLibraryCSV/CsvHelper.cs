@@ -87,6 +87,7 @@ namespace CsvTools
         new ImprovedTextReader(improvedStream, (await setting.GetEncodingAsync(cancellationToken)).CodePage,
           setting.SkipRows))
       {
+        await textReader.ToBeginningAsync().ConfigureAwait(false);
         var result = await GuessDelimiterAsync(textReader, setting.FileFormat.EscapeCharacterChar, cancellationToken)
           .ConfigureAwait(false);
         setting.FileFormat.FieldDelimiter = result.Item1;
@@ -195,6 +196,7 @@ namespace CsvTools
       using (var improvedStream = FunctionalDI.OpenRead(setting.FullPath))
       using (var streamReader = new ImprovedTextReader(improvedStream, setting.CodePageId, setting.SkipRows))
       {
+        await streamReader.ToBeginningAsync().ConfigureAwait(false);
         return await GuessNewlineAsync(streamReader, setting.FileFormat.FieldQualifierChar, cancellationToken)
           .ConfigureAwait(false);
       }
@@ -216,6 +218,7 @@ namespace CsvTools
       using (var improvedStream = FunctionalDI.OpenRead(setting.FullPath))
       using (var streamReader = new ImprovedTextReader(improvedStream, setting.CodePageId, setting.SkipRows))
       {
+        await streamReader.ToBeginningAsync().ConfigureAwait(false);
         var qualifier =
           await GuessQualifierAsync(streamReader, setting.FileFormat.FieldDelimiterChar, cancellationToken)
             .ConfigureAwait(false);
@@ -241,6 +244,7 @@ namespace CsvTools
       using (var improvedStream = FunctionalDI.OpenRead(setting.FullPath))
       using (var streamReader = new ImprovedTextReader(improvedStream, setting.CodePageId))
       {
+        await streamReader.ToBeginningAsync().ConfigureAwait(false);
         return await GuessStartRowAsync(streamReader, setting.FileFormat.FieldDelimiterChar,
           setting.FileFormat.FieldQualifierChar,
           setting.FileFormat.CommentLine, cancellationToken).ConfigureAwait(false);
@@ -267,12 +271,13 @@ namespace CsvTools
       using (var streamReader =
         new ImprovedTextReader(improvedStream, setting.CodePageId, setting.SkipRows))
       {
+        await streamReader.ToBeginningAsync().ConfigureAwait(false);
         var isStartOfColumn = true;
         while (!streamReader.EndOfFile)
         {
           if (cancellationToken.IsCancellationRequested)
             return false;
-          var c = (char) await streamReader.ReadAsync();
+          var c = (char) await streamReader.ReadAsync().ConfigureAwait(false);
           if (c == '\r' || c == '\n' || c == setting.FileFormat.FieldDelimiterChar)
           {
             isStartOfColumn = true;
@@ -369,6 +374,7 @@ namespace CsvTools
           // improvedStream.Seek(0, SeekOrigin.Begin);
           using (var textReader = new ImprovedTextReader(improvedStream, setting.CodePageId))
           {
+            await textReader.ToBeginningAsync().ConfigureAwait(false);
             setting.SkipRows = await GuessStartRowAsync(textReader, setting.FileFormat.FieldDelimiterChar,
               setting.FileFormat.FieldQualifierChar,
               setting.FileFormat.CommentLine, display.CancellationToken).ConfigureAwait(false);
@@ -380,6 +386,7 @@ namespace CsvTools
           // improvedStream.Seek(0, SeekOrigin.Begin);
           using (var textReader = new ImprovedTextReader(improvedStream, setting.CodePageId, setting.SkipRows))
           {
+            await textReader.ToBeginningAsync().ConfigureAwait(false);
             if (guessDelimiter)
             {
               if (display.CancellationToken.IsCancellationRequested)

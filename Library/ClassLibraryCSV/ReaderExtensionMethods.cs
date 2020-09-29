@@ -1,11 +1,11 @@
-﻿using JetBrains.Annotations;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 
 namespace CsvTools
 {
@@ -21,7 +21,8 @@ namespace CsvTools
       for (var column = 0; column < fileReader.FieldCount; column++)
         needToCheck.Add(column);
 
-      while (await fileReader.ReadAsync(cancellationToken).ConfigureAwait(false) && !cancellationToken.IsCancellationRequested && needToCheck.Count > 0)
+      while (await fileReader.ReadAsync(cancellationToken).ConfigureAwait(false) &&
+             !cancellationToken.IsCancellationRequested && needToCheck.Count > 0)
       {
         var check = needToCheck.Where(col => !string.IsNullOrEmpty(fileReader.GetString(col))).ToList();
         foreach (var col in check) needToCheck.Remove(col);
@@ -50,7 +51,35 @@ namespace CsvTools
         if (!column.Ignore)
           retList.Add(column);
       }
+
       return retList;
+    }
+
+    public static async Task<DataTable> GetEmptyDataTableAsync([NotNull] this IFileReader reader, bool addStartLine,
+      bool includeRecordNo, bool includeEndLineNo, bool includeErrorField,
+      CancellationToken cancellationToken)
+    {
+      // Special handling for DataTableWrapper, no need to build something
+      if (reader is DataTableWrapper dtWrapper)
+        return dtWrapper.DataTable;
+      var dataTable = new DataTable {Locale = CultureInfo.CurrentCulture, CaseSensitive = false};
+
+      if (reader is DataReaderWrapper drWrapper)
+      {
+        for (var colIndex = 0; colIndex < drWrapper.FieldCount; colIndex++)
+          dataTable.Columns.Add(new DataColumn(drWrapper.GetName(colIndex), drWrapper.GetFieldType(colIndex)));
+        return dataTable;
+      }
+
+      using (var wrapper =
+        new DataReaderWrapper(reader, 0, includeErrorField, addStartLine, includeEndLineNo, includeRecordNo))
+      {
+        await wrapper.OpenAsync(cancellationToken).ConfigureAwait(false);
+        for (var colIndex = 0; colIndex < wrapper.FieldCount; colIndex++)
+          dataTable.Columns.Add(new DataColumn(wrapper.GetName(colIndex), wrapper.GetFieldType(colIndex)));
+      }
+
+      return dataTable;
     }
 
     /// <summary>
@@ -67,25 +96,31 @@ namespace CsvTools
     ///   if <c>true</c> Row and Column errors are created in the data table
     /// </param>
     /// <param name="addStartLine">
-    ///   if <c>true</c> add a column for the start line: <see
-    ///   cref="ReaderConstants.cStartLineNumberFieldName" /> useful for line based reader like
+    ///   if <c>true</c> add a column for the start line:
+    ///   <see
+    ///     cref="ReaderConstants.cStartLineNumberFieldName" />
+    ///   useful for line based reader like
     ///   delimited text
     /// </param>
     /// <param name="includeRecordNo">
-    ///   if <c>true</c> add a column for the records number: <see
-    ///   cref="ReaderConstants.cRecordNumberFieldName" /> (if the reader was not at the beginning
+    ///   if <c>true</c> add a column for the records number:
+    ///   <see
+    ///     cref="ReaderConstants.cRecordNumberFieldName" />
+    ///   (if the reader was not at the beginning
     ///   it will it will not start with 1)
     /// </param>
     /// <param name="includeEndLineNo">
-    ///   if <c>true</c> add a column for the end line: <see
-    ///   cref="ReaderConstants.cEndLineNumberFieldName" /> useful for line based reader like
+    ///   if <c>true</c> add a column for the end line:
+    ///   <see
+    ///     cref="ReaderConstants.cEndLineNumberFieldName" />
+    ///   useful for line based reader like
     ///   delimited text where a record can span multiple lines
     /// </param>
     /// <param name="includeErrorField">
-    ///   if <c>true</c> add a column with error information: <see
-    ///   cref="ReaderConstants.cErrorField" />
+    ///   if <c>true</c> add a column with error information:
+    ///   <see
+    ///     cref="ReaderConstants.cErrorField" />
     /// </param>
-    /// <param name="previewAction">Called after 500 records beeing read</param>
     /// <param name="progress">
     ///   Used to pass on progress information with number of records and percentage
     /// </param>
@@ -93,8 +128,8 @@ namespace CsvTools
     /// <returns></returns>
     public static async Task<DataTable> GetDataTableAsync([NotNull] this IFileReader reader, long recordLimit,
       bool storeWarningsInDataTable, bool addStartLine,
-      bool includeRecordNo, bool includeEndLineNo, bool includeErrorField, Action<DataTable> previewAction,
-      Action<long, int> progress,
+      bool includeRecordNo, bool includeEndLineNo, bool includeErrorField,
+      [CanBeNull] Action<long, int> progress,
       CancellationToken cancellationToken)
     {
       // Special handling for DataTableWrapper, no need to build something
@@ -104,98 +139,81 @@ namespace CsvTools
       if (recordLimit < 1)
         recordLimit = long.MaxValue;
 
-      var dataTable = new DataTable
-      {
-        Locale = CultureInfo.CurrentCulture,
-        CaseSensitive = false
-      };
-      dataTable.BeginLoadData();
+      var dataTable = await GetEmptyDataTableAsync(reader, addStartLine, includeRecordNo, includeEndLineNo,
+        includeErrorField, cancellationToken);
+
       try
       {
-        var intervalAction = progress!=null ? new IntervalAction() : null;
-        // Check if we need the wrapper, in case of new additional columns and not storing errors
-        if (!storeWarningsInDataTable && !addStartLine && !includeRecordNo && !includeEndLineNo && !includeErrorField)
-        {
-          if (reader.IsClosed)
-            await reader.OpenAsync(cancellationToken);
-
-          var notIgnored = reader.GetColumnsOfReader().ToList();
-          foreach (var column in notIgnored)
-            dataTable.Columns.Add(new DataColumn(column.Name, column.ValueFormat.DataType.GetNetType()));
-
-          var record = 0;
-          while (record++<recordLimit && await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
-          {
-            var dataRow = dataTable.NewRow();
-            dataTable.Rows.Add(dataRow);
-            var i = 0;
-            foreach (var column in notIgnored)
-              dataRow[i++] = reader.GetValue(column.ColumnOrdinal);
-            intervalAction?.Invoke(() => progress(reader.RecordNumber, reader.Percent));
-            if (previewAction != null && dataTable.Rows.Count == 500)
-            {
-              var copy = dataTable.Copy();
-              progress?.Invoke(reader.RecordNumber, reader.Percent);
-#pragma warning disable 4014
-              Task.Run(() => previewAction(copy), cancellationToken);
-#pragma warning restore 4014
-            }
-          }
-        }
+        if (reader is DataReaderWrapper readerAsWrapper)
+          await LoadDataTable(readerAsWrapper, dataTable, recordLimit, storeWarningsInDataTable,
+            progress, cancellationToken);
         else
-        {
-          using (var wrapper = new DataReaderWrapper(reader, recordLimit, includeErrorField, addStartLine,
+          using (var newWrapper = new DataReaderWrapper(reader, recordLimit, includeErrorField, addStartLine,
             includeEndLineNo, includeRecordNo))
           {
-            await wrapper.OpenAsync(cancellationToken).ConfigureAwait(false);
-
-            // create fields
-            for (var colIndex = 0; colIndex < wrapper.FieldCount; colIndex++)
-              dataTable.Columns.Add(new DataColumn(wrapper.GetName(colIndex), wrapper.GetFieldType(colIndex)));
-
-            while (await wrapper.ReadAsync(cancellationToken).ConfigureAwait(false))
-            {
-              var dataRow = dataTable.NewRow();
-              dataTable.Rows.Add(dataRow);
-              for (var i = 0; i < wrapper.FieldCount; i++)
-                try
-                {
-                  dataRow[i] = wrapper.GetValue(i);
-                }
-                catch (Exception ex)
-                {
-                  dataRow.SetColumnError(i, ex.Message);
-                }
-
-              intervalAction?.Invoke(() => progress(reader.RecordNumber, reader.Percent));
-              if (previewAction != null && dataTable.Rows.Count == 500)
-              {
-                var copy = dataTable.Copy();
-                progress?.Invoke(reader.RecordNumber, reader.Percent);
-#pragma warning disable 4014
-                Task.Run(() => previewAction(copy), cancellationToken);
-#pragma warning restore 4014
-              }
-
-              if (!storeWarningsInDataTable || wrapper.ColumnErrorDictionary.Count <= 0 || cancellationToken.IsCancellationRequested)
-                continue;
-
-              foreach (var keyValuePair in wrapper.ColumnErrorDictionary)
-                if (keyValuePair.Key == -1)
-                  dataRow.RowError = keyValuePair.Value;
-                else
-                  dataRow.SetColumnError(wrapper.GetColumnIndexFromErrorColumn(keyValuePair.Key), keyValuePair.Value);
-            }
+            await newWrapper.OpenAsync(cancellationToken).ConfigureAwait(false);
+            await LoadDataTable(newWrapper, dataTable, recordLimit, storeWarningsInDataTable,
+              progress, cancellationToken);
           }
-        }
 
-        dataTable.EndLoadData();
         return dataTable;
       }
       catch
       {
         dataTable.Dispose();
         throw;
+      }
+    }
+
+
+    public static async Task LoadDataTable([NotNull] this DataReaderWrapper wrapper,
+      [NotNull] DataTable dataTable, long limit,
+      bool storeWarningsInDataTable,
+      [CanBeNull] Action<long, int> progress, CancellationToken cancellationToken)
+    {
+      if (wrapper.EndOfFile)
+        return;
+      var intervalAction = progress != null ? new IntervalAction() : null;
+      dataTable.BeginLoadData();
+
+      try
+      {
+        while (!cancellationToken.IsCancellationRequested && limit-- > 0 &&
+               await wrapper.ReadAsync(cancellationToken).ConfigureAwait(false))
+        {
+          var dataRow = dataTable.NewRow();
+          dataTable.Rows.Add(dataRow);
+          for (var i = 0; i < wrapper.FieldCount; i++)
+            try
+            {
+              dataRow[i] = wrapper.GetValue(i);
+            }
+            catch (Exception ex)
+            {
+              dataRow.SetColumnError(i, ex.Message);
+            }
+
+          intervalAction?.Invoke(() => progress(wrapper.RecordNumber, wrapper.Percent));
+
+          if (!storeWarningsInDataTable || wrapper.ColumnErrorDictionary.Count <= 0 ||
+              cancellationToken.IsCancellationRequested)
+            continue;
+
+          foreach (var keyValuePair in wrapper.ColumnErrorDictionary)
+            if (keyValuePair.Key == -1)
+              dataRow.RowError = keyValuePair.Value;
+            else
+              dataRow.SetColumnError(wrapper.GetColumnIndexFromErrorColumn(keyValuePair.Key), keyValuePair.Value);
+        }
+      }
+      catch (Exception ex)
+      {
+        Logger.Warning(ex, "Loading data from reader to data table");
+      }
+      finally
+      {
+        dataTable.EndLoadData();
+        intervalAction?.Invoke(() => progress(wrapper.RecordNumber, wrapper.Percent));
       }
     }
   }

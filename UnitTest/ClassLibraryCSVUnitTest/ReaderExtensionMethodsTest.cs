@@ -63,7 +63,7 @@ namespace CsvTools.Tests
         {
           await test.OpenAsync(processDisplay.CancellationToken);
 
-          var dt = await test.GetDataTableAsync(-1, false, false, false, false, false, null, null,
+          var dt = await test.GetDataTableAsync(-1, false, false, false, false, false, null,
             processDisplay.CancellationToken);
           Assert.AreEqual(test2.RecordLimit, dt.Rows.Count);
         }
@@ -84,7 +84,7 @@ namespace CsvTools.Tests
         {
           await test.OpenAsync(processDisplay.CancellationToken);
 
-          var dt = await test.GetDataTableAsync(-1, true, true, true, true, true, null, null,
+          var dt = await test.GetDataTableAsync(-1, true, true, true, true, true, null,
             processDisplay.CancellationToken);
           // 10 columns 1 ignored one added for Start line one for Error Field one for Record No one
           // for Line end

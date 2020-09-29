@@ -13,7 +13,7 @@ namespace CsvTools
   ///   Wrapper around another FileReader adding artificial fields and removing ignored columns
   /// </summary>
   /// <remarks>Introduced to allow a stream into SQLBulkCopy and possibly replace CopyToDataTableInfo</remarks>
-  public class DataReaderWrapper : DbDataReader
+  public class DataReaderWrapper : DbDataReader, IFileReader
   {
     public readonly ColumnErrorDictionary ColumnErrorDictionary;
     private readonly bool m_AddEndLine;
@@ -52,8 +52,28 @@ namespace CsvTools
     }
 
     public override bool HasRows => !m_FileReader.EndOfFile;
+
+    public event EventHandler<WarningEventArgs> Warning;
+    public event EventHandler ReadFinished;
+    public event EventHandler<ICollection<IColumn>> OpenFinished;
+    public event EventHandler<RetryEventArgs> OnAskRetry;
     public override bool IsClosed => m_FileReader.IsClosed;
-    public long RecordNumber { get; private set; }
+    public long EndLineNumber => m_FileReader.EndLineNumber;
+
+    public int Percent => m_FileReader.Percent;
+
+    public bool EndOfFile => RecordNumber > m_RecordLimit || m_FileReader.EndOfFile;
+
+    public long RecordNumber => m_FileReader.RecordNumber;
+    public long StartLineNumber => m_FileReader.StartLineNumber;
+
+    public bool SupportsReset => m_FileReader.SupportsReset;
+
+    public Func<Task> OnOpen
+    {
+      get;
+      set;
+    }
 
     public override int RecordsAffected => RecordNumber.ToInt();
     public override int FieldCount => m_FieldCount;
@@ -63,8 +83,6 @@ namespace CsvTools
     public override object this[string name] => GetValue(GetOrdinal(name));
 
     public override int Depth => FieldCount;
-
-    public int GetColumnIndexFromErrorColumn(int errorCol) => m_Mapping[errorCol];
 
     public override short GetInt16(int ordinal) => m_FileReader.GetInt16(m_Mapping.GetByValue(ordinal));
 
@@ -136,9 +154,6 @@ namespace CsvTools
     [NotNull]
     public override Type GetFieldType(int ordinal) => m_Column[ordinal].ValueFormat.DataType.GetNetType();
 
-    public override IEnumerator GetEnumerator() =>
-      (m_FileReader as DbDataReader)?.GetEnumerator() ?? throw new NotImplementedException();
-
     public override object GetValue(int columnNumber)
     {
       if (columnNumber == m_ColStartLine)
@@ -207,9 +222,10 @@ namespace CsvTools
     {
       try
       {
+        if (OnOpen != null) await OnOpen.Invoke();
+
         if (m_FileReader.IsClosed)
           await m_FileReader.OpenAsync(token).ConfigureAwait(false);
-        RecordNumber = 0;
 
         m_ReaderColumns.Clear();
         m_Mapping.Clear();
@@ -257,16 +273,25 @@ namespace CsvTools
       }
     }
 
+    public Task ResetPositionToFirstDataRowAsync(CancellationToken token) =>
+      m_FileReader.ResetPositionToFirstDataRowAsync(token);
+
     public override async Task<bool> ReadAsync(CancellationToken token)
     {
       if (token.IsCancellationRequested || IsClosed) return false;
       ColumnErrorDictionary.Clear();
       var couldRead = await m_FileReader.ReadAsync(token).ConfigureAwait(false);
-      if (couldRead) RecordNumber++;
-      if (RecordNumber <= m_RecordLimit)
-        return couldRead;
+      if (couldRead && RecordNumber <= m_RecordLimit) return true;
 
+      ReadFinished?.Invoke(this, new EventArgs());
       return false;
     }
+
+    public ImmutableColumn GetColumn(int column) => m_Column[column];
+
+    public int GetColumnIndexFromErrorColumn(int errorCol) => m_Mapping[errorCol];
+
+    public override IEnumerator GetEnumerator() =>
+      (m_FileReader as DbDataReader)?.GetEnumerator() ?? throw new NotImplementedException();
   }
 }
