@@ -55,30 +55,13 @@ namespace CsvTools
       return retList;
     }
 
-    public static async Task<DataTable> GetEmptyDataTableAsync([NotNull] this IFileReader reader, bool addStartLine,
-      bool includeRecordNo, bool includeEndLineNo, bool includeErrorField,
-      CancellationToken cancellationToken)
+    public static DataTable GetEmptyDataTable([NotNull] this DataReaderWrapper reader)
     {
       // Special handling for DataTableWrapper, no need to build something
-      if (reader is DataTableWrapper dtWrapper)
-        return dtWrapper.DataTable;
-      var dataTable = new DataTable {Locale = CultureInfo.CurrentCulture, CaseSensitive = false};
+      var dataTable = new DataTable { Locale = CultureInfo.CurrentCulture, CaseSensitive = false };
 
-      if (reader is DataReaderWrapper drWrapper)
-      {
-        for (var colIndex = 0; colIndex < drWrapper.FieldCount; colIndex++)
-          dataTable.Columns.Add(new DataColumn(drWrapper.GetName(colIndex), drWrapper.GetFieldType(colIndex)));
-        return dataTable;
-      }
-
-      using (var wrapper =
-        new DataReaderWrapper(reader, 0, includeErrorField, addStartLine, includeEndLineNo, includeRecordNo))
-      {
-        await wrapper.OpenAsync(cancellationToken).ConfigureAwait(false);
-        for (var colIndex = 0; colIndex < wrapper.FieldCount; colIndex++)
-          dataTable.Columns.Add(new DataColumn(wrapper.GetName(colIndex), wrapper.GetFieldType(colIndex)));
-      }
-
+      for (var colIndex = 0; colIndex < reader.FieldCount; colIndex++)
+        dataTable.Columns.Add(new DataColumn(reader.GetName(colIndex), reader.GetFieldType(colIndex)));
       return dataTable;
     }
 
@@ -139,47 +122,40 @@ namespace CsvTools
       if (recordLimit < 1)
         recordLimit = long.MaxValue;
 
-      var dataTable = await GetEmptyDataTableAsync(reader, addStartLine, includeRecordNo, includeEndLineNo,
-        includeErrorField, cancellationToken);
-
-      try
+      using (var wrapper = new DataReaderWrapper(reader, recordLimit, includeErrorField, addStartLine, includeEndLineNo, includeRecordNo))
       {
-        if (reader is DataReaderWrapper readerAsWrapper)
-          await LoadDataTable(readerAsWrapper, dataTable, recordLimit, TimeSpan.MaxValue, storeWarningsInDataTable,
-            progress, cancellationToken);
-        else
-          using (var newWrapper = new DataReaderWrapper(reader, recordLimit, includeErrorField, addStartLine,
-            includeEndLineNo, includeRecordNo))
-          {
-            await newWrapper.OpenAsync(cancellationToken).ConfigureAwait(false);
-            await LoadDataTable(newWrapper, dataTable, recordLimit, TimeSpan.MaxValue, storeWarningsInDataTable,
-              progress, cancellationToken);
-          }
-
-        return dataTable;
-      }
-      catch
-      {
-        dataTable.Dispose();
-        throw;
+        await wrapper.OpenAsync(cancellationToken);
+        var dataTable = GetEmptyDataTable(wrapper);
+        try
+        {
+          await LoadDataTable(wrapper, dataTable, TimeSpan.MaxValue, storeWarningsInDataTable, includeErrorField, progress,
+        cancellationToken);
+          return dataTable;
+        }
+        catch (Exception)
+        {
+          dataTable.Dispose();
+          throw;
+        }
       }
     }
 
-
     public static async Task LoadDataTable([NotNull] this DataReaderWrapper wrapper,
-      [NotNull] DataTable dataTable, long limit, TimeSpan maxDuration,
-      bool storeWarningsInDataTable,
-      [CanBeNull] Action<long, int> progress, CancellationToken cancellationToken)
+    [NotNull] DataTable dataTable, TimeSpan maxDuration, bool storeWarningsInDataTable,
+    bool restoreErrorsFromErrorColumn, [CanBeNull] Action<long, int> progress,
+    CancellationToken cancellationToken)
     {
       if (wrapper.EndOfFile)
         return;
       var intervalAction = progress != null ? new IntervalAction() : null;
       dataTable.BeginLoadData();
-      
+
       try
       {
+        var errorColumn = dataTable.Columns[ReaderConstants.cErrorField];
+
         var watch = System.Diagnostics.Stopwatch.StartNew();
-        while (!cancellationToken.IsCancellationRequested && limit-- > 0 && watch.Elapsed<maxDuration &&
+        while (!cancellationToken.IsCancellationRequested && watch.Elapsed<maxDuration &&
                await wrapper.ReadAsync(cancellationToken).ConfigureAwait(false))
         {
           var dataRow = dataTable.NewRow();
@@ -193,6 +169,9 @@ namespace CsvTools
             {
               dataRow.SetColumnError(i, ex.Message);
             }
+          //await Task.Delay(50);
+          if (restoreErrorsFromErrorColumn && errorColumn!=null)
+            dataRow.SetErrorInformation(dataRow[errorColumn].ToString());
 
           intervalAction?.Invoke(() => progress(wrapper.RecordNumber, wrapper.Percent));
 

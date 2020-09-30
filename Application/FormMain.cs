@@ -612,7 +612,7 @@ namespace CsvTools
           processDisplay.Maximum = 100;
           detailControl.ShowInfoButtons = false;
           
-          await m_DetailControlLoader.Start(m_FileSetting, m_ViewSettings.RecordLimit, m_ViewSettings.Duration, processDisplay, AddWarning);
+          await m_DetailControlLoader.StartAsync(m_FileSetting, false, m_ViewSettings.Duration, processDisplay, AddWarning);
 
           m_Headers = detailControl.DataTable.GetRealColumns().ToArray();
           foreach (var columnName in m_Headers)

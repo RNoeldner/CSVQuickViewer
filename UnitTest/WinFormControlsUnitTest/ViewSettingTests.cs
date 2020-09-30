@@ -62,14 +62,14 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void ReStoreViewSettingDetailControl()
+    public async System.Threading.Tasks.Task ReStoreViewSettingDetailControlAsync()
     {
       using (var dt = UnitTestStatic.GetDataTable())
       {
         using (var dc = new DetailControl())
         {
           dc.DataTable = dt;
-
+          await dc.RefreshDisplayAsync(FilterType.All, UnitTestInitializeCsv.Token);
           var columnFilters = new List<ToolStripDataGridViewColumnFilter>
           {
             new ToolStripDataGridViewColumnFilter(dc.FilteredDataGridView.Columns[0])

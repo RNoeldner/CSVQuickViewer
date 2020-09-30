@@ -85,15 +85,7 @@ namespace CsvTools.Tests
       });
     }
 
-    [TestMethod]
-    public void TimeZoneSelector()
-    {
-      using (var ctrl = new TimeZoneSelector())
-      {
-        UnitTestWinFormHelper.ShowControl(ctrl);
-      }
-    }
-
+   
     [TestMethod]
     public void ResizeForm()
     {
@@ -246,10 +238,10 @@ namespace CsvTools.Tests
         {
           Assert.AreEqual(0, treeView.SelectedTreeNode.Count);
 
-          var treeNode = new TreeNode("Test") {Tag = "test"};
+          var treeNode = new TreeNode("Test") { Tag = "test" };
           treeView.Nodes.Add(treeNode);
 
-          var treeNode2 = new TreeNode("Test2") {Tag = "test2"};
+          var treeNode2 = new TreeNode("Test2") { Tag = "test2" };
           treeNode.Nodes.Add(treeNode2);
 
           var firedAfter = false;
@@ -273,17 +265,7 @@ namespace CsvTools.Tests
       });
     }
 
-    [TestMethod]
-    public void FormSelectTimeZone()
-    {
-      using (var frm = new FormSelectTimeZone())
-      {
-        frm.TimeZoneID = TimeZoneInfo.Local.Id;
-        frm.DestTimeZoneID = TimeZoneInfo.Local.Id;
-        UnitTestWinFormHelper.ShowFormAndClose(frm);
-      }
-    }
-
+   
     [TestMethod]
     public void TimedMessage()
     {
@@ -358,7 +340,8 @@ namespace CsvTools.Tests
         {
           processDisplay.Show();
           var cvsSetting = new CsvFile(Path.Combine(FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles",
-            "FileWithHierarchy_WithCyle.txt")) {FileFormat = {FieldDelimiter = "\t"}};
+            "FileWithHierarchy_WithCyle.txt"))
+          { FileFormat = { FieldDelimiter = "\t" } };
           using (var csvDataReader = new CsvFileReader(cvsSetting, processDisplay))
           {
             var dt = await csvDataReader.GetDataTableAsync(0, false, true, false, false, false, null,
@@ -409,17 +392,7 @@ namespace CsvTools.Tests
       }
     }
 
-    [TestMethod]
-    public void FormDetail()
-    {
-      using (var dataTable = UnitTestStatic.GetDataTable(60))
-      using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
-      using (var form = new FormDetail(dataTable, null, null, true, false, 0, new FillGuessSettings(),
-        processDisplay.CancellationToken))
-      {
-        UnitTestWinFormHelper.ShowFormAndClose(form);
-      }
-    }
+   
 
     [TestMethod]
     public void DataGridViewColumnFilterControl()
