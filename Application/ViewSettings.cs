@@ -24,6 +24,24 @@ namespace CsvTools
   [Serializable]
   public class ViewSettings : CsvFile
   {
+    public enum DurationEnum
+    {
+      [Description("unlimited")]
+      Unlimited,
+
+      [Description("1/2 second")]
+      HalfSecond,
+
+      [Description("1 second")]
+      Second,
+
+      [Description("2 seconds")]
+      TwoSecond,
+
+      [Description("10 seconds")]
+      TenSecond,
+    }
+
     [XmlElement]
 #pragma warning disable CA1051 // Do not declare visible instance fields
     public WindowState WindowPosition;
@@ -50,12 +68,42 @@ namespace CsvTools
 
     private bool m_StoreSettingsByFile;
 
-    [DefaultValue(0)]
+    [XmlElement]
+    [DefaultValue(1000)]
     public override long RecordLimit
     {
-      get => 0;
-      set { }
+      get;
+      set;
     }
+    [XmlIgnore]
+    public TimeSpan Duration
+    {
+      get
+      {
+        switch (LimitDuration)
+        {
+          case ViewSettings.DurationEnum.HalfSecond:
+            return TimeSpan.FromSeconds(.5);
+          case ViewSettings.DurationEnum.Second:
+            return TimeSpan.FromSeconds(1);
+
+          case ViewSettings.DurationEnum.TwoSecond:
+            return TimeSpan.FromSeconds(2);
+          case ViewSettings.DurationEnum.TenSecond:
+            return TimeSpan.FromSeconds(10);
+          default:
+            return TimeSpan.MaxValue;
+        }
+      }
+    }
+
+    [XmlElement]
+    [DefaultValue(DurationEnum.Second)]
+    public DurationEnum LimitDuration
+    {
+      get;
+      set;
+    } = DurationEnum.Second;
 
     [XmlAttribute]
     [DefaultValue(true)]
@@ -240,7 +288,7 @@ namespace CsvTools
       csvDest.HasFieldHeader = csvSrc.HasFieldHeader;
       csvDest.NoDelimitedFile = csvSrc.NoDelimitedFile;
       csvDest.NumWarnings = csvSrc.NumWarnings;
-      csvDest.RecordLimit = csvSrc.RecordLimit;
+      // csvDest.RecordLimit = csvSrc.RecordLimit;
       csvDest.SkipDuplicateHeader = csvSrc.SkipDuplicateHeader;
       csvDest.SkipEmptyLines = csvSrc.SkipEmptyLines;
       csvDest.SkipRows = csvSrc.SkipRows;

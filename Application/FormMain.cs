@@ -159,7 +159,7 @@ namespace CsvTools
           var serial = File.ReadAllText(m_SettingPath);
           using (TextReader reader = new StringReader(serial))
           {
-            var vs = (ViewSettings) m_SerializerViewSettings.Deserialize(reader);
+            var vs = (ViewSettings) m_SerializerViewSettings.Deserialize(reader);            
             ApplicationSetting.MenuDown = vs.MenuDown;
             return vs;
           }
@@ -611,14 +611,14 @@ namespace CsvTools
           processDisplay.SetProcess("Reading data...", -1, true);
           processDisplay.Maximum = 100;
           detailControl.ShowInfoButtons = false;
-
-          await m_DetailControlLoader.Start(m_FileSetting, processDisplay, AddWarning);
+          
+          await m_DetailControlLoader.Start(m_FileSetting, m_ViewSettings.RecordLimit, m_ViewSettings.Duration, processDisplay, AddWarning);
 
           m_Headers = detailControl.DataTable.GetRealColumns().ToArray();
           foreach (var columnName in m_Headers)
           {
             if (m_FileSetting.ColumnCollection.Get(columnName) == null)
-              m_FileSetting.ColumnCollection.AddIfNew(new Column {Name = columnName});
+              m_FileSetting.ColumnCollection.AddIfNew(new Column { Name = columnName });
           }
 
           FunctionalDI.GetColumnHeader = (dummy1, dummy3) => Task.FromResult(m_Headers);
@@ -705,6 +705,7 @@ namespace CsvTools
             stringWriter,
             m_ViewSettings,
             SerializedFilesLib.EmptyXmlSerializerNamespaces.Value);
+          Logger.Debug("Saving defaults {path}", m_SettingPath);
           File.WriteAllText(m_SettingPath, stringWriter.ToString());
 
           m_ViewSettings.FileName = oldFN;

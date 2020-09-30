@@ -43,6 +43,17 @@ namespace CsvTools
       InitializeComponent();
       m_ViewSettings = viewSettings;
       fillGuessSettingEdit.FillGuessSettings = viewSettings.FillGuessSettings;
+
+      if (m_ViewSettings.LimitDuration == ViewSettings.DurationEnum.Unlimited)
+        domainUpDownTime.SelectedIndex = 4;
+      else if (m_ViewSettings.LimitDuration == ViewSettings.DurationEnum.TenSecond)
+        domainUpDownTime.SelectedIndex = 3;
+      else if (m_ViewSettings.LimitDuration == ViewSettings.DurationEnum.TwoSecond)
+        domainUpDownTime.SelectedIndex = 2;
+      else if (m_ViewSettings.LimitDuration == ViewSettings.DurationEnum.Second)
+        domainUpDownTime.SelectedIndex = 1;
+      else
+        domainUpDownTime.SelectedIndex = 0;
     }
 
     private async void BtnOpenFile_ClickAsync(object sender, EventArgs e)
@@ -286,6 +297,20 @@ namespace CsvTools
       {
         errorProvider.SetError(textBoxFile, string.Empty);
       }
+    }
+
+    private void domainUpDownTime_SelectedItemChanged(object sender, EventArgs e)
+    {
+      if (domainUpDownTime.SelectedIndex==4)
+        m_ViewSettings.LimitDuration = ViewSettings.DurationEnum.Unlimited;
+      else if (domainUpDownTime.SelectedIndex==3)
+        m_ViewSettings.LimitDuration = ViewSettings.DurationEnum.TenSecond;
+      else if (domainUpDownTime.SelectedIndex==2)
+        m_ViewSettings.LimitDuration = ViewSettings.DurationEnum.TwoSecond;
+      else if (domainUpDownTime.SelectedIndex==1)
+        m_ViewSettings.LimitDuration = ViewSettings.DurationEnum.Second;
+      else if (domainUpDownTime.SelectedIndex==0)
+        m_ViewSettings.LimitDuration = ViewSettings.DurationEnum.HalfSecond;
     }
   }
 }
