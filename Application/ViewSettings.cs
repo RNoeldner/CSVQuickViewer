@@ -67,14 +67,7 @@ namespace CsvTools
     private bool m_MenuDown;
 
     private bool m_StoreSettingsByFile;
-
-    [XmlElement]
-    [DefaultValue(1000)]
-    public override long RecordLimit
-    {
-      get;
-      set;
-    }
+  
     [XmlIgnore]
     public TimeSpan Duration
     {

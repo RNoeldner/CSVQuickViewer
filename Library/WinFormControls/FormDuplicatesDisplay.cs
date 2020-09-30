@@ -50,9 +50,7 @@ namespace CsvTools
       m_DataTable = dataTable;
       m_DataRow = dataRows;
       m_InitialColumn = initialColumn;
-      InitializeComponent();
-      detailControl.CancellationToken = m_CancellationTokenSource.Token;
-      detailControl.DataTable = m_DataTable;
+      InitializeComponent();           
     }
 
     /// <summary>
@@ -71,7 +69,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
-    private void DuplicatesDisplay_Load(object sender, EventArgs e)
+    private async void DuplicatesDisplay_LoadAsync(object sender, EventArgs e)
     {
       var index = 0;
       var current = 0;
@@ -83,8 +81,11 @@ namespace CsvTools
         comboBoxID.Items.Add(columnName);
         current++;
       }
-
       comboBoxID.SelectedIndex = index;
+
+      detailControl.CancellationToken = m_CancellationTokenSource.Token;
+      detailControl.DataTable = m_DataTable;
+      await detailControl.RefreshDisplayAsync(FilterType.All, m_CancellationTokenSource.Token);
     }
 
     private void Work(string dataColumnName, bool ignoreNull)

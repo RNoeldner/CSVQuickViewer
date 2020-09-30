@@ -19,6 +19,8 @@ namespace CsvTools
   [Flags]
   public enum FilterType
   {
+    None = 0,
+
     // Display rows that have no error nor warning
     ShowIssueFree = 1,
 
@@ -35,5 +37,6 @@ namespace CsvTools
 
     // A true error is an error that has proper error information, in some cases only a placeholder text is stored as the real message is not known
     OnlyTrueErrors = 8
+    
   }
 }

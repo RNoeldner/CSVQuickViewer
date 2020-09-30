@@ -9,52 +9,47 @@ namespace CsvTools
   {
     private readonly DetailControl m_DetailControl;
     private DataReaderWrapper m_DataReaderWrapper;
-    private IFileReader m_FileReader;
+    private bool m_RestoreError;
 
     public DetailControlLoader(DetailControl detailControl) => m_DetailControl = detailControl;
 
     public void Dispose()
     {
       m_DataReaderWrapper?.Dispose();
-      m_FileReader?.Close();
-      m_FileReader?.Dispose();
       m_DataReaderWrapper = null;
-      m_FileReader = null;
     }
 
-    public async Task<DataTable> Start(IFileSetting fileSetting, long limit, TimeSpan maxDuration, IProcessDisplay processDisplay,
-      EventHandler<WarningEventArgs> addWarning)
+    public async Task StartAsync(IFileSetting fileSetting, bool includeError, TimeSpan durationInitial, IProcessDisplay processDisplay, [CanBeNull] EventHandler<WarningEventArgs> addWarning)
     {
-      m_FileReader = FunctionalDI.GetFileReader(fileSetting, TimeZoneInfo.Local.Id, processDisplay);
-      m_FileReader.Warning += addWarning;
-      var warningList = new RowErrorCollection(m_FileReader);
-      m_FileReader.Warning -= warningList.Add;
-      await m_FileReader.OpenAsync(processDisplay.CancellationToken);
-      warningList.HandleIgnoredColumns(m_FileReader);
-      warningList.PassWarning += addWarning;
+      using (var fileReader = FunctionalDI.GetFileReader(fileSetting, TimeZoneInfo.Local.Id, processDisplay))
+      {
+        if (addWarning!=null)
+        {
+          fileReader.Warning += addWarning;
+          var warningList = new RowErrorCollection(fileReader);
+          fileReader.Warning -= warningList.Add;
+          await fileReader.OpenAsync(processDisplay.CancellationToken);
+          warningList.HandleIgnoredColumns(fileReader);
+          warningList.PassWarning += addWarning;
+        }
+        m_RestoreError =includeError;
+        m_DataReaderWrapper = new DataReaderWrapper(fileReader, fileSetting.RecordLimit, includeError, fileSetting.DisplayStartLineNo, fileSetting.DisplayRecordNo, fileSetting.DisplayEndLineNo);
+        await m_DataReaderWrapper.OpenAsync(processDisplay.CancellationToken);
+        m_DetailControl.DataTable = m_DataReaderWrapper.GetEmptyDataTable();
 
-      m_DataReaderWrapper = new DataReaderWrapper(m_FileReader, fileSetting.RecordLimit, false,
-        fileSetting.DisplayStartLineNo,
-        fileSetting.DisplayEndLineNo,
-        fileSetting.DisplayRecordNo);
+        m_DetailControl.toolStripButtonNext.Enabled = false;
+        await NextBatch(durationInitial, processDisplay);
 
-      await m_DataReaderWrapper.OpenAsync(processDisplay.CancellationToken);
+        m_DetailControl.LoadNextBatchAsync = process => NextBatch(TimeSpan.MaxValue, process);
+        m_DetailControl.EndOfFile = () =>
+          m_DataReaderWrapper?.EndOfFile ?? true;
 
-      m_DetailControl.DataTable = await m_DataReaderWrapper.GetEmptyDataTableAsync(fileSetting.DisplayStartLineNo,
-        fileSetting.DisplayRecordNo, fileSetting.DisplayEndLineNo, false, processDisplay.CancellationToken);
-
-      m_DetailControl.toolStripButtonNext.Enabled = false;
-      await NextBatch(limit<1 ? long.MaxValue : limit, maxDuration, processDisplay);
-
-      m_DetailControl.LoadNextBatchAsync = process => NextBatch(long.MaxValue, TimeSpan.MaxValue, process);
-      m_DetailControl.EndOfFile = () =>
-        m_DataReaderWrapper?.EndOfFile ?? true;
-
-      m_DetailControl.toolStripButtonNext.Enabled = m_DataReaderWrapper != null;
-      return m_DetailControl.DataTable;
+        m_DetailControl.toolStripButtonNext.Visible = m_DataReaderWrapper != null;
+        m_DetailControl.toolStripButtonNext.Enabled = m_DataReaderWrapper != null;
+      }
     }
 
-    private async Task NextBatch(long limit, TimeSpan maxDuration, [NotNull] IProcessDisplay processDisplay)
+    private async Task NextBatch(TimeSpan maxDuration, [NotNull] IProcessDisplay processDisplay)
     {
       if (m_DataReaderWrapper == null)
         return;
@@ -63,9 +58,10 @@ namespace CsvTools
       try
       {
         processDisplay.SetMaximum(100);
-        await m_DataReaderWrapper.LoadDataTable(m_DetailControl.DataTable, limit, maxDuration, true,
-          (l, i) => processDisplay.SetProcess($"Reading data...\nRecord: {l:N0}", i, false),
-          processDisplay.CancellationToken);
+        await m_DataReaderWrapper.LoadDataTable(m_DetailControl.DataTable, maxDuration, true, m_RestoreError, (l, i) => processDisplay.SetProcess($"Reading data...\nRecord: {l:N0}", i, false),
+      processDisplay.CancellationToken);
+
+        await m_DetailControl.RefreshDisplayAsync(FilterType.All, processDisplay.CancellationToken);
 
         if (m_DataReaderWrapper.EndOfFile)
           Dispose();

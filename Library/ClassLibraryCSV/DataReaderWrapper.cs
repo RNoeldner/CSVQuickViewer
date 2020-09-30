@@ -13,7 +13,7 @@ namespace CsvTools
   ///   Wrapper around another FileReader adding artificial fields and removing ignored columns
   /// </summary>
   /// <remarks>Introduced to allow a stream into SQLBulkCopy and possibly replace CopyToDataTableInfo</remarks>
-  public class DataReaderWrapper : DbDataReader, IFileReader
+  public class DataReaderWrapper : DbDataReader
   {
     public readonly ColumnErrorDictionary ColumnErrorDictionary;
     private readonly bool m_AddEndLine;
@@ -42,7 +42,7 @@ namespace CsvTools
       bool addStartLine = false,
       bool addEndLine = false, bool addRecNum = false)
     {
-      m_FileReader = reader ?? throw new ArgumentNullException(nameof(reader));
+      m_FileReader = reader ?? throw new ArgumentNullException(nameof(reader));      
       ColumnErrorDictionary = new ColumnErrorDictionary(reader);
       m_AddStartLine = addStartLine;
       m_AddEndLine = addEndLine;
@@ -134,6 +134,18 @@ namespace CsvTools
       }
 
       return -1;
+    }
+
+    public new void Dispose()
+    {
+      base.Dispose();
+      m_FileReader.Dispose();
+    }
+
+    public override void Close()
+    {
+      base.Close();
+      m_FileReader.Close();
     }
 
     public override bool GetBoolean(int ordinal) => m_FileReader.GetBoolean(m_Mapping.GetByValue(ordinal));

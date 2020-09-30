@@ -133,7 +133,7 @@
       this.Name = "FormDuplicatesDisplay";
       this.Text = "Duplicates Display";
       this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.DuplicatesDisplay_FormClosing);
-      this.Load += new System.EventHandler(this.DuplicatesDisplay_Load);
+      this.Load += new System.EventHandler(this.DuplicatesDisplay_LoadAsync);
       tableLayoutPanel1.ResumeLayout(false);
       tableLayoutPanel1.PerformLayout();
       this.ResumeLayout(false);

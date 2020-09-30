@@ -35,7 +35,7 @@ namespace CsvTools
     private string m_LastDataColumnName = string.Empty;
 
     private bool m_LastIgnoreNull = true;
-
+    
     /// <summary>
     ///   Initializes a new instance of the <see cref="FormDuplicatesDisplay" /> class.
     /// </summary>
@@ -46,9 +46,8 @@ namespace CsvTools
     {
       m_DataTable = dataTable;
       m_DataRow = dataRows;
-      InitializeComponent();
-      detailControl.DataTable = dataTable;
       m_InitialColumn = initialColumn;
+      InitializeComponent();     
     }
 
     /// <summary>
@@ -66,7 +65,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
-    private void UniqueDisplay_Load(object sender, EventArgs e)
+    private async void UniqueDisplay_Load(object sender, EventArgs e)
     {
       var index = 0;
       var current = 0;
@@ -80,6 +79,9 @@ namespace CsvTools
       }
 
       comboBoxID.SelectedIndex = index;
+      detailControl.CancellationToken = m_CancellationTokenSource.Token;
+      detailControl.DataTable = m_DataTable;
+      await detailControl.RefreshDisplayAsync(FilterType.All, m_CancellationTokenSource.Token);
     }
 
     private void Work(string dataColumnName, bool ignoreNull)

@@ -12,6 +12,7 @@
  *
  */
 
+using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -28,10 +29,11 @@ namespace CsvTools
   /// <seealso cref="System.IDisposable" />
   public sealed class FilterDataTable : IDisposable
   {
+    [NotNull]
     private readonly DataTable m_SourceTable;
 
     private readonly List<string> m_UniqueFieldName = new List<string>();
-
+    [CanBeNull]
     private HashSet<string> m_ColumnWithoutErrors;
 
     private CancellationTokenSource m_CurrentFilterCancellationTokenSource;
@@ -44,7 +46,7 @@ namespace CsvTools
     ///   Initializes a new instance of the <see cref="FilterDataTable" /> class.
     /// </summary>
     /// <param name="init">The initial DataTable</param>
-    public FilterDataTable(DataTable init) => m_SourceTable = init;
+    public FilterDataTable([NotNull] DataTable init) => m_SourceTable = init;
 
     /// <summary>
     ///   Gets the columns without errors.
@@ -67,6 +69,7 @@ namespace CsvTools
     ///   Gets the columns without errors.
     /// </summary>
     /// <value>The columns without errors.</value>
+    [NotNull]
     public ICollection<string> ColumnsWithoutErrors
     {
       get
@@ -130,9 +133,10 @@ namespace CsvTools
     ///   Gets the error table.
     /// </summary>
     /// <value>The error table.</value>
+    [NotNull]
     public DataTable FilterTable { get; private set; }
 
-    public FilterType FilterType { get; private set; }
+    public FilterType FilterType { get; private set; } = FilterType.None;
 
     /// <summary>
     ///   Sets the name of the unique field.
@@ -226,7 +230,7 @@ namespace CsvTools
       }
     }
 
-    public Task StartFilter(int limit, FilterType type, CancellationToken cancellationToken)
+    public async Task FilterAsync(int limit, FilterType type, CancellationToken cancellationToken)
     {
       if (m_Filtering)
         Cancel();
@@ -235,8 +239,8 @@ namespace CsvTools
       FilterTable = m_SourceTable.Clone();
 
       m_CurrentFilterCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-      // the task itself should not cancel as it would not run into finally
-      return Task.Run(() => Filter(limit, type), m_CurrentFilterCancellationTokenSource.Token);
+      
+      await Task.Run(() => Filter(limit, type), m_CurrentFilterCancellationTokenSource.Token);
     }
 
     public void WaitCompeteFilter(double timeoutInSeconds)

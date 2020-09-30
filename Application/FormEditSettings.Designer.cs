@@ -28,6 +28,7 @@
 			this.fileFormatBindingSource = new System.Windows.Forms.BindingSource(this.components);
 			this.label2 = new System.Windows.Forms.Label();
 			this.textBoxFile = new System.Windows.Forms.TextBox();
+			this.fileSettingBindingSource = new System.Windows.Forms.BindingSource(this.components);
 			this.buttonGuessDelimiter = new System.Windows.Forms.Button();
 			this.btnOpenFile = new System.Windows.Forms.Button();
 			this.labelDelimiter = new System.Windows.Forms.Label();
@@ -66,6 +67,8 @@
 			this.checkBoxTryToSolveMoreColumns = new System.Windows.Forms.CheckBox();
 			this.checkBoxAllowRowCombining = new System.Windows.Forms.CheckBox();
 			this.checkBox1 = new System.Windows.Forms.CheckBox();
+			this.label9 = new System.Windows.Forms.Label();
+			this.domainUpDownTime = new System.Windows.Forms.DomainUpDown();
 			this.checkBoxWarnEmptyTailingColumns = new System.Windows.Forms.CheckBox();
 			this.textBoxNumWarnings = new System.Windows.Forms.TextBox();
 			this.labelWarningLimit = new System.Windows.Forms.Label();
@@ -87,16 +90,12 @@
 			this.tabPageBehaviour = new System.Windows.Forms.TabPage();
 			this.toolTip = new System.Windows.Forms.ToolTip(this.components);
 			this.errorProvider = new System.Windows.Forms.ErrorProvider(this.components);
-			this.label8 = new System.Windows.Forms.Label();
-			this.label9 = new System.Windows.Forms.Label();
-			this.numRecordLimit = new System.Windows.Forms.NumericUpDown();
-			this.domainUpDownTime = new System.Windows.Forms.DomainUpDown();
-			this.fileSettingBindingSource = new System.Windows.Forms.BindingSource(this.components);
 			tableLayoutPanelFile = new System.Windows.Forms.TableLayoutPanel();
 			tableLayoutPanelBehavior = new System.Windows.Forms.TableLayoutPanel();
 			tableLayoutPanelWarnings = new System.Windows.Forms.TableLayoutPanel();
 			tableLayoutPanelFile.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.fileFormatBindingSource)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.fileSettingBindingSource)).BeginInit();
 			tableLayoutPanelBehavior.SuspendLayout();
 			tableLayoutPanelWarnings.SuspendLayout();
 			this.tabPageFormat.SuspendLayout();
@@ -107,8 +106,6 @@
 			this.tableLayoutPanel1.SuspendLayout();
 			this.tabPageBehaviour.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.errorProvider)).BeginInit();
-			((System.ComponentModel.ISupportInitialize)(this.numRecordLimit)).BeginInit();
-			((System.ComponentModel.ISupportInitialize)(this.fileSettingBindingSource)).BeginInit();
 			this.SuspendLayout();
 			// 
 			// tableLayoutPanelFile
@@ -242,6 +239,11 @@
 			this.textBoxFile.Size = new System.Drawing.Size(520, 20);
 			this.textBoxFile.TabIndex = 0;
 			this.textBoxFile.Validating += new System.ComponentModel.CancelEventHandler(this.TextBoxFile_Validating);
+			// 
+			// fileSettingBindingSource
+			// 
+			this.fileSettingBindingSource.AllowNew = false;
+			this.fileSettingBindingSource.DataSource = typeof(CsvTools.ViewSettings);
 			// 
 			// buttonGuessDelimiter
 			// 
@@ -601,12 +603,12 @@
 			// tableLayoutPanelBehavior
 			// 
 			tableLayoutPanelBehavior.AutoSize = true;
-			tableLayoutPanelBehavior.ColumnCount = 5;
-			tableLayoutPanelBehavior.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-			tableLayoutPanelBehavior.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+			tableLayoutPanelBehavior.ColumnCount = 3;
 			tableLayoutPanelBehavior.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
 			tableLayoutPanelBehavior.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
 			tableLayoutPanelBehavior.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+			tableLayoutPanelBehavior.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+			tableLayoutPanelBehavior.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
 			tableLayoutPanelBehavior.Controls.Add(this.checkBoxDisplayStartLineNo, 0, 10);
 			tableLayoutPanelBehavior.Controls.Add(this.checkBoxDetectFileChanges, 0, 0);
 			tableLayoutPanelBehavior.Controls.Add(this.checkBoxTreatNBSPAsSpace, 0, 8);
@@ -618,10 +620,8 @@
 			tableLayoutPanelBehavior.Controls.Add(this.checkBoxTryToSolveMoreColumns, 0, 5);
 			tableLayoutPanelBehavior.Controls.Add(this.checkBoxAllowRowCombining, 0, 4);
 			tableLayoutPanelBehavior.Controls.Add(this.checkBox1, 0, 9);
-			tableLayoutPanelBehavior.Controls.Add(this.label8, 0, 11);
-			tableLayoutPanelBehavior.Controls.Add(this.label9, 2, 11);
-			tableLayoutPanelBehavior.Controls.Add(this.numRecordLimit, 1, 11);
-			tableLayoutPanelBehavior.Controls.Add(this.domainUpDownTime, 3, 11);
+			tableLayoutPanelBehavior.Controls.Add(this.label9, 0, 11);
+			tableLayoutPanelBehavior.Controls.Add(this.domainUpDownTime, 1, 11);
 			tableLayoutPanelBehavior.Dock = System.Windows.Forms.DockStyle.Top;
 			tableLayoutPanelBehavior.Location = new System.Drawing.Point(2, 2);
 			tableLayoutPanelBehavior.Margin = new System.Windows.Forms.Padding(2);
@@ -647,7 +647,7 @@
 			this.checkBoxDisplayStartLineNo.Anchor = System.Windows.Forms.AnchorStyles.Left;
 			this.checkBoxDisplayStartLineNo.AutoSize = true;
 			this.checkBoxDisplayStartLineNo.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
-			tableLayoutPanelBehavior.SetColumnSpan(this.checkBoxDisplayStartLineNo, 5);
+			tableLayoutPanelBehavior.SetColumnSpan(this.checkBoxDisplayStartLineNo, 3);
 			this.checkBoxDisplayStartLineNo.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fileSettingBindingSource, "DisplayRecordNo", true));
 			this.checkBoxDisplayStartLineNo.Location = new System.Drawing.Point(2, 212);
 			this.checkBoxDisplayStartLineNo.Margin = new System.Windows.Forms.Padding(2);
@@ -660,7 +660,7 @@
 			// checkBoxDetectFileChanges
 			// 
 			this.checkBoxDetectFileChanges.AutoSize = true;
-			tableLayoutPanelBehavior.SetColumnSpan(this.checkBoxDetectFileChanges, 5);
+			tableLayoutPanelBehavior.SetColumnSpan(this.checkBoxDetectFileChanges, 3);
 			this.checkBoxDetectFileChanges.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fileSettingBindingSource, "DetectFileChanges", true));
 			this.checkBoxDetectFileChanges.Location = new System.Drawing.Point(2, 2);
 			this.checkBoxDetectFileChanges.Margin = new System.Windows.Forms.Padding(2);
@@ -673,7 +673,7 @@
 			// checkBoxTreatNBSPAsSpace
 			// 
 			this.checkBoxTreatNBSPAsSpace.AutoSize = true;
-			tableLayoutPanelBehavior.SetColumnSpan(this.checkBoxTreatNBSPAsSpace, 5);
+			tableLayoutPanelBehavior.SetColumnSpan(this.checkBoxTreatNBSPAsSpace, 3);
 			this.checkBoxTreatNBSPAsSpace.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fileSettingBindingSource, "TreatNBSPAsSpace", true));
 			this.checkBoxTreatNBSPAsSpace.Location = new System.Drawing.Point(2, 170);
 			this.checkBoxTreatNBSPAsSpace.Margin = new System.Windows.Forms.Padding(2);
@@ -687,7 +687,7 @@
 			// checkBoxSkipEmptyLines
 			// 
 			this.checkBoxSkipEmptyLines.AutoSize = true;
-			tableLayoutPanelBehavior.SetColumnSpan(this.checkBoxSkipEmptyLines, 5);
+			tableLayoutPanelBehavior.SetColumnSpan(this.checkBoxSkipEmptyLines, 3);
 			this.checkBoxSkipEmptyLines.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fileSettingBindingSource, "SkipEmptyLines", true));
 			this.checkBoxSkipEmptyLines.Location = new System.Drawing.Point(2, 65);
 			this.checkBoxSkipEmptyLines.Margin = new System.Windows.Forms.Padding(2);
@@ -701,7 +701,7 @@
 			// 
 			this.checkBoxTreatUnknowCharaterAsSpace.AutoSize = true;
 			this.checkBoxTreatUnknowCharaterAsSpace.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
-			tableLayoutPanelBehavior.SetColumnSpan(this.checkBoxTreatUnknowCharaterAsSpace, 5);
+			tableLayoutPanelBehavior.SetColumnSpan(this.checkBoxTreatUnknowCharaterAsSpace, 3);
 			this.checkBoxTreatUnknowCharaterAsSpace.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fileSettingBindingSource, "TreatUnknownCharacterAsSpace", true));
 			this.checkBoxTreatUnknowCharaterAsSpace.Location = new System.Drawing.Point(2, 149);
 			this.checkBoxTreatUnknowCharaterAsSpace.Margin = new System.Windows.Forms.Padding(2);
@@ -715,7 +715,7 @@
 			// checkBoxMenuDown
 			// 
 			this.checkBoxMenuDown.AutoSize = true;
-			tableLayoutPanelBehavior.SetColumnSpan(this.checkBoxMenuDown, 5);
+			tableLayoutPanelBehavior.SetColumnSpan(this.checkBoxMenuDown, 3);
 			this.checkBoxMenuDown.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fileSettingBindingSource, "MenuDown", true));
 			this.checkBoxMenuDown.Location = new System.Drawing.Point(2, 23);
 			this.checkBoxMenuDown.Margin = new System.Windows.Forms.Padding(2);
@@ -728,7 +728,7 @@
 			// checkBoxTreatLFasSpace
 			// 
 			this.checkBoxTreatLFasSpace.AutoSize = true;
-			tableLayoutPanelBehavior.SetColumnSpan(this.checkBoxTreatLFasSpace, 5);
+			tableLayoutPanelBehavior.SetColumnSpan(this.checkBoxTreatLFasSpace, 3);
 			this.checkBoxTreatLFasSpace.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fileSettingBindingSource, "TreatLFAsSpace", true));
 			this.checkBoxTreatLFasSpace.Location = new System.Drawing.Point(2, 128);
 			this.checkBoxTreatLFasSpace.Margin = new System.Windows.Forms.Padding(2);
@@ -742,7 +742,7 @@
 			// chkUseFileSettings
 			// 
 			this.chkUseFileSettings.AutoSize = true;
-			tableLayoutPanelBehavior.SetColumnSpan(this.chkUseFileSettings, 5);
+			tableLayoutPanelBehavior.SetColumnSpan(this.chkUseFileSettings, 3);
 			this.chkUseFileSettings.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fileSettingBindingSource, "StoreSettingsByFile", true));
 			this.chkUseFileSettings.Location = new System.Drawing.Point(2, 44);
 			this.chkUseFileSettings.Margin = new System.Windows.Forms.Padding(2);
@@ -757,7 +757,7 @@
 			// checkBoxTryToSolveMoreColumns
 			// 
 			this.checkBoxTryToSolveMoreColumns.AutoSize = true;
-			tableLayoutPanelBehavior.SetColumnSpan(this.checkBoxTryToSolveMoreColumns, 5);
+			tableLayoutPanelBehavior.SetColumnSpan(this.checkBoxTryToSolveMoreColumns, 3);
 			this.checkBoxTryToSolveMoreColumns.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fileSettingBindingSource, "TryToSolveMoreColumns", true));
 			this.checkBoxTryToSolveMoreColumns.Location = new System.Drawing.Point(2, 107);
 			this.checkBoxTryToSolveMoreColumns.Margin = new System.Windows.Forms.Padding(2);
@@ -773,7 +773,7 @@
 			// checkBoxAllowRowCombining
 			// 
 			this.checkBoxAllowRowCombining.AutoSize = true;
-			tableLayoutPanelBehavior.SetColumnSpan(this.checkBoxAllowRowCombining, 5);
+			tableLayoutPanelBehavior.SetColumnSpan(this.checkBoxAllowRowCombining, 3);
 			this.checkBoxAllowRowCombining.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fileSettingBindingSource, "AllowRowCombining", true));
 			this.checkBoxAllowRowCombining.Location = new System.Drawing.Point(2, 86);
 			this.checkBoxAllowRowCombining.Margin = new System.Windows.Forms.Padding(2);
@@ -790,7 +790,7 @@
 			this.checkBox1.Anchor = System.Windows.Forms.AnchorStyles.Left;
 			this.checkBox1.AutoSize = true;
 			this.checkBox1.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
-			tableLayoutPanelBehavior.SetColumnSpan(this.checkBox1, 5);
+			tableLayoutPanelBehavior.SetColumnSpan(this.checkBox1, 3);
 			this.checkBox1.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fileSettingBindingSource, "DisplayStartLineNo", true));
 			this.checkBox1.Location = new System.Drawing.Point(2, 191);
 			this.checkBox1.Margin = new System.Windows.Forms.Padding(2);
@@ -799,6 +799,30 @@
 			this.checkBox1.TabIndex = 121;
 			this.checkBox1.Text = "Add Column for Line Number";
 			this.checkBox1.UseVisualStyleBackColor = true;
+			// 
+			// label9
+			// 
+			this.label9.Anchor = System.Windows.Forms.AnchorStyles.Left;
+			this.label9.AutoSize = true;
+			this.label9.Location = new System.Drawing.Point(3, 237);
+			this.label9.Name = "label9";
+			this.label9.Size = new System.Drawing.Size(150, 13);
+			this.label9.TabIndex = 124;
+			this.label9.Text = "Limit for processing initail open";
+			// 
+			// domainUpDownTime
+			// 
+			this.domainUpDownTime.Items.Add("unlimited");
+			this.domainUpDownTime.Items.Add("10 seconds");
+			this.domainUpDownTime.Items.Add("2 seconds");
+			this.domainUpDownTime.Items.Add("1 second");
+			this.domainUpDownTime.Items.Add("1/2 second");
+			this.domainUpDownTime.Location = new System.Drawing.Point(159, 234);
+			this.domainUpDownTime.Name = "domainUpDownTime";
+			this.domainUpDownTime.Size = new System.Drawing.Size(101, 20);
+			this.domainUpDownTime.TabIndex = 126;
+			this.domainUpDownTime.Text = "1 second";
+			this.domainUpDownTime.SelectedItemChanged += new System.EventHandler(this.domainUpDownTime_SelectedItemChanged);
 			// 
 			// tableLayoutPanelWarnings
 			// 
@@ -1079,74 +1103,6 @@
 			// 
 			this.errorProvider.ContainerControl = this;
 			// 
-			// label8
-			// 
-			this.label8.Anchor = System.Windows.Forms.AnchorStyles.Left;
-			this.label8.AutoSize = true;
-			this.label8.Location = new System.Drawing.Point(3, 237);
-			this.label8.Name = "label8";
-			this.label8.Size = new System.Drawing.Size(167, 13);
-			this.label8.TabIndex = 123;
-			this.label8.Text = "Number of Records for initial open";
-			// 
-			// label9
-			// 
-			this.label9.Anchor = System.Windows.Forms.AnchorStyles.Left;
-			this.label9.AutoSize = true;
-			this.label9.Location = new System.Drawing.Point(265, 237);
-			this.label9.Name = "label9";
-			this.label9.Size = new System.Drawing.Size(150, 13);
-			this.label9.TabIndex = 124;
-			this.label9.Text = "Limit for processing initail open";
-			// 
-			// numRecordLimit
-			// 
-			this.numRecordLimit.DataBindings.Add(new System.Windows.Forms.Binding("Value", this.fileSettingBindingSource, "RecordLimit", true));
-			this.numRecordLimit.Increment = new decimal(new int[] {
-            100,
-            0,
-            0,
-            0});
-			this.numRecordLimit.Location = new System.Drawing.Point(176, 234);
-			this.numRecordLimit.Maximum = new decimal(new int[] {
-            5000,
-            0,
-            0,
-            0});
-			this.numRecordLimit.Minimum = new decimal(new int[] {
-            100,
-            0,
-            0,
-            0});
-			this.numRecordLimit.Name = "numRecordLimit";
-			this.numRecordLimit.Size = new System.Drawing.Size(83, 20);
-			this.numRecordLimit.TabIndex = 125;
-			this.numRecordLimit.ThousandsSeparator = true;
-			this.numRecordLimit.Value = new decimal(new int[] {
-            1000,
-            0,
-            0,
-            0});
-			// 
-			// domainUpDownTime
-			// 
-			this.domainUpDownTime.Items.Add("unlimited");
-			this.domainUpDownTime.Items.Add("10 seconds");
-			this.domainUpDownTime.Items.Add("2 seconds");
-			this.domainUpDownTime.Items.Add("1 second");
-			this.domainUpDownTime.Items.Add("1/2 second");
-			this.domainUpDownTime.Location = new System.Drawing.Point(421, 234);
-			this.domainUpDownTime.Name = "domainUpDownTime";
-			this.domainUpDownTime.Size = new System.Drawing.Size(101, 20);
-			this.domainUpDownTime.TabIndex = 126;
-			this.domainUpDownTime.Text = "1 second";
-			this.domainUpDownTime.SelectedItemChanged += new System.EventHandler(this.domainUpDownTime_SelectedItemChanged);
-			// 
-			// fileSettingBindingSource
-			// 
-			this.fileSettingBindingSource.AllowNew = false;
-			this.fileSettingBindingSource.DataSource = typeof(CsvTools.ViewSettings);
-			// 
 			// FormEditSettings
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1169,6 +1125,7 @@
 			tableLayoutPanelFile.ResumeLayout(false);
 			tableLayoutPanelFile.PerformLayout();
 			((System.ComponentModel.ISupportInitialize)(this.fileFormatBindingSource)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.fileSettingBindingSource)).EndInit();
 			tableLayoutPanelBehavior.ResumeLayout(false);
 			tableLayoutPanelBehavior.PerformLayout();
 			tableLayoutPanelWarnings.ResumeLayout(false);
@@ -1185,8 +1142,6 @@
 			this.tabPageBehaviour.ResumeLayout(false);
 			this.tabPageBehaviour.PerformLayout();
 			((System.ComponentModel.ISupportInitialize)(this.errorProvider)).EndInit();
-			((System.ComponentModel.ISupportInitialize)(this.numRecordLimit)).EndInit();
-			((System.ComponentModel.ISupportInitialize)(this.fileSettingBindingSource)).EndInit();
 			this.ResumeLayout(false);
 
     }
@@ -1259,10 +1214,7 @@
     private System.Windows.Forms.ToolTip toolTip;
 
     #endregion
-
-    private System.Windows.Forms.Label label8;
     private System.Windows.Forms.Label label9;
-    private System.Windows.Forms.NumericUpDown numRecordLimit;
     private System.Windows.Forms.DomainUpDown domainUpDownTime;
   }
 }

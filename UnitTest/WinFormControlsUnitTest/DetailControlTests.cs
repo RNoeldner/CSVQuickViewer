@@ -25,7 +25,7 @@ namespace CsvTools.Tests
     private readonly Random random = new Random(Guid.NewGuid().GetHashCode());
 
     [TestMethod]
-    public void DetailControlTest()
+    public async System.Threading.Tasks.Task DetailControlTestAsync()
     {
       using (var dt = new DataTable())
       {
@@ -51,14 +51,15 @@ namespace CsvTools.Tests
         {
           dc.Show();
           dc.DataTable = dt;
-          dc.OnlyShowErrors();
+          await dc.RefreshDisplayAsync(FilterType.All, UnitTestInitializeCsv.Token);
+          dc.OnlyShowErrors = true ;
           dc.MoveMenu();
         }
       }
     }
 
     [TestMethod]
-    public void SortTest()
+    public async System.Threading.Tasks.Task SortTestAsync()
     {
       using (var dt = new DataTable())
       {
@@ -80,6 +81,7 @@ namespace CsvTools.Tests
         {
           dc.Show();
           dc.DataTable = dt;
+          await dc.RefreshDisplayAsync(FilterType.All, UnitTestInitializeCsv.Token);
           dc.Sort("ID", ListSortDirection.Ascending);
         }
       }
