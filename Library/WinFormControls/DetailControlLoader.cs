@@ -22,7 +22,7 @@ namespace CsvTools
       m_FileReader = null;
     }
 
-    public async Task<DataTable> Start(IFileSetting fileSetting, IProcessDisplay processDisplay,
+    public async Task<DataTable> Start(IFileSetting fileSetting, long limit, TimeSpan maxDuration, IProcessDisplay processDisplay,
       EventHandler<WarningEventArgs> addWarning)
     {
       m_FileReader = FunctionalDI.GetFileReader(fileSetting, TimeZoneInfo.Local.Id, processDisplay);
@@ -44,9 +44,9 @@ namespace CsvTools
         fileSetting.DisplayRecordNo, fileSetting.DisplayEndLineNo, false, processDisplay.CancellationToken);
 
       m_DetailControl.toolStripButtonNext.Enabled = false;
-      await NextBatch(100, processDisplay);
+      await NextBatch(limit<1 ? long.MaxValue : limit, maxDuration, processDisplay);
 
-      m_DetailControl.LoadNextBatchAsync = process => NextBatch(long.MaxValue, process);
+      m_DetailControl.LoadNextBatchAsync = process => NextBatch(long.MaxValue, TimeSpan.MaxValue, process);
       m_DetailControl.EndOfFile = () =>
         m_DataReaderWrapper?.EndOfFile ?? true;
 
@@ -54,7 +54,7 @@ namespace CsvTools
       return m_DetailControl.DataTable;
     }
 
-    private async Task NextBatch(long limit, [NotNull] IProcessDisplay processDisplay)
+    private async Task NextBatch(long limit, TimeSpan maxDuration, [NotNull] IProcessDisplay processDisplay)
     {
       if (m_DataReaderWrapper == null)
         return;
@@ -63,7 +63,7 @@ namespace CsvTools
       try
       {
         processDisplay.SetMaximum(100);
-        await m_DataReaderWrapper.LoadDataTable(m_DetailControl.DataTable, limit, true,
+        await m_DataReaderWrapper.LoadDataTable(m_DetailControl.DataTable, limit, maxDuration, true,
           (l, i) => processDisplay.SetProcess($"Reading data...\nRecord: {l:N0}", i, false),
           processDisplay.CancellationToken);
 

@@ -145,14 +145,14 @@ namespace CsvTools
       try
       {
         if (reader is DataReaderWrapper readerAsWrapper)
-          await LoadDataTable(readerAsWrapper, dataTable, recordLimit, storeWarningsInDataTable,
+          await LoadDataTable(readerAsWrapper, dataTable, recordLimit, TimeSpan.MaxValue, storeWarningsInDataTable,
             progress, cancellationToken);
         else
           using (var newWrapper = new DataReaderWrapper(reader, recordLimit, includeErrorField, addStartLine,
             includeEndLineNo, includeRecordNo))
           {
             await newWrapper.OpenAsync(cancellationToken).ConfigureAwait(false);
-            await LoadDataTable(newWrapper, dataTable, recordLimit, storeWarningsInDataTable,
+            await LoadDataTable(newWrapper, dataTable, recordLimit, TimeSpan.MaxValue, storeWarningsInDataTable,
               progress, cancellationToken);
           }
 
@@ -167,7 +167,7 @@ namespace CsvTools
 
 
     public static async Task LoadDataTable([NotNull] this DataReaderWrapper wrapper,
-      [NotNull] DataTable dataTable, long limit,
+      [NotNull] DataTable dataTable, long limit, TimeSpan maxDuration,
       bool storeWarningsInDataTable,
       [CanBeNull] Action<long, int> progress, CancellationToken cancellationToken)
     {
@@ -175,10 +175,11 @@ namespace CsvTools
         return;
       var intervalAction = progress != null ? new IntervalAction() : null;
       dataTable.BeginLoadData();
-
+      
       try
       {
-        while (!cancellationToken.IsCancellationRequested && limit-- > 0 &&
+        var watch = System.Diagnostics.Stopwatch.StartNew();
+        while (!cancellationToken.IsCancellationRequested && limit-- > 0 && watch.Elapsed<maxDuration &&
                await wrapper.ReadAsync(cancellationToken).ConfigureAwait(false))
         {
           var dataRow = dataTable.NewRow();
