@@ -53,8 +53,8 @@ namespace CsvTools.Tests
           maxLength = text.Length;
       }
 
-      Assert.IsTrue(dtm.MinLength <= minLength, $"Minium is {minLength} for {format}");
-      Assert.IsTrue(dtm.MaxLength >= maxLength, $"Minium is {maxLength} for {format}");
+      Assert.IsTrue(dtm.MinLength <= minLength, $"Minimum is {minLength} for {format}");
+      Assert.IsTrue(dtm.MaxLength >= maxLength, $"Minimum is {maxLength} for {format}");
       return dtm;
     }
 

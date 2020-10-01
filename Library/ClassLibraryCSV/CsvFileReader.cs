@@ -1132,7 +1132,7 @@ namespace CsvTools
     /// </summary>
     private async Task ResetPositionToStartOrOpen()
     {
-      await m_TextReader.ToBeginningAsync();
+      await m_TextReader.ToBeginningAsync().ConfigureAwait(false);
 
       EndLineNumber = 1 + m_SkipRows;
       StartLineNumber = EndLineNumber;

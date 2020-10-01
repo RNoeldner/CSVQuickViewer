@@ -61,8 +61,7 @@ namespace CsvTools
 
     private FillGuessSettings m_FillGuessSettings;
 
-    [CanBeNull]
-    private FilterDataTable m_FilterDataTable;
+    [CanBeNull] private FilterDataTable m_FilterDataTable;
 
     private FormHierarchyDisplay m_HierarchyDisplay;
 
@@ -122,7 +121,6 @@ namespace CsvTools
       m_ToolStripItems.Add(m_ToolStripButtonStore);
 
       FilteredDataGridView.DataViewChanged += DataViewChanged;
-
       m_ToolStripItems.CollectionChanged += (sender, e) => MoveMenu();
       MoveMenu();
     }
@@ -303,6 +301,25 @@ namespace CsvTools
       }
     }
 
+    /// <summary>
+    ///   Called when [show errors].
+    /// </summary>
+    public bool OnlyShowErrors
+    {
+      set
+      {
+        try
+        {
+          m_ToolStripComboBoxFilterType.SelectedIndex = value ? 1 : 0;
+        }
+        catch
+        {
+        }
+
+        ;
+      }
+    }
+
     public void AddToolStripItem(int index, ToolStripItem item)
     {
       if (index >= m_ToolStripItems.Count)
@@ -343,20 +360,6 @@ namespace CsvTools
       target.ResumeLayout(true);
       m_ToolStripContainer.TopToolStripPanelVisible = !ApplicationSetting.MenuDown;
       SetButtonVisibility();
-    }
-
-    /// <summary>
-    ///   Called when [show errors].
-    /// </summary>
-    public bool OnlyShowErrors
-    {
-      set
-      {
-        if (value)
-          m_ToolStripComboBoxFilterType.SelectedIndex = 1;
-        else
-          m_ToolStripComboBoxFilterType.SelectedIndex = 0;
-      }
     }
 
     /// <summary>
@@ -803,9 +806,8 @@ namespace CsvTools
       m_BindingNavigator.ImageScalingSize = new System.Drawing.Size(20, 20);
       m_BindingNavigator.Items.AddRange(new System.Windows.Forms.ToolStripItem[]
       {
-        m_ToolStripButtonMoveFirstItem, m_ToolStripButtonMovePreviousItem, m_ToolStripTextBox1,
-        m_ToolStripLabelCount, m_ToolStripButtonMoveNextItem, m_ToolStripButtonMoveLastItem,
-        toolStripButtonNext
+        m_ToolStripButtonMoveFirstItem, m_ToolStripButtonMovePreviousItem, m_ToolStripTextBox1, m_ToolStripLabelCount,
+        m_ToolStripButtonMoveNextItem, m_ToolStripButtonMoveLastItem, toolStripButtonNext
       });
       m_BindingNavigator.Location = new System.Drawing.Point(4, 0);
       m_BindingNavigator.MoveFirstItem = m_ToolStripButtonMoveFirstItem;
@@ -872,8 +874,8 @@ namespace CsvTools
       toolStripButtonNext.Click += new System.EventHandler(ToolStripButtonNext_Click);
       // m_Search
       m_Search.Anchor =
-         (System.Windows.Forms.AnchorStyles.Top |
-                                               System.Windows.Forms.AnchorStyles.Right);
+        (System.Windows.Forms.AnchorStyles.Top |
+         System.Windows.Forms.AnchorStyles.Right);
       m_Search.AutoSize = true;
       m_Search.BackColor = System.Drawing.SystemColors.Info;
       m_Search.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
@@ -1072,21 +1074,24 @@ namespace CsvTools
     /// </summary>
     public async Task RefreshDisplayAsync(FilterType type, CancellationToken cancellationToken)
     {
-      this.SafeBeginInvoke(
+      m_BindingNavigator.SafeInvoke(
         () =>
         {
           m_ToolStripComboBoxFilterType.SelectedIndexChanged -= ToolStripComboBoxFilterType_SelectedIndexChanged;
+
           // update the dropdown
           if (type == FilterType.All)
             m_ToolStripComboBoxFilterType.SelectedIndex = 0;
-          if (type == FilterType.ErrorsAndWarning)
+          else if (type == FilterType.ErrorsAndWarning)
             m_ToolStripComboBoxFilterType.SelectedIndex = 1;
-          if (type == FilterType.ShowErrors)
+          else if (type == FilterType.ShowErrors)
             m_ToolStripComboBoxFilterType.SelectedIndex = 2;
-          if (type == FilterType.ShowWarning)
+          else if (type == FilterType.ShowWarning)
             m_ToolStripComboBoxFilterType.SelectedIndex = 3;
-          if (type == FilterType.ShowIssueFree)
+          else if (type == FilterType.ShowIssueFree)
             m_ToolStripComboBoxFilterType.SelectedIndex = 4;
+
+
           m_ToolStripComboBoxFilterType.SelectedIndexChanged += ToolStripComboBoxFilterType_SelectedIndexChanged;
         });
 
@@ -1101,7 +1106,7 @@ namespace CsvTools
       m_Search.Visible = false;
 
       var newDt = m_DataTable;
-      if (m_FilterDataTable == null && m_DataTable!=null)
+      if (m_FilterDataTable == null && m_DataTable != null)
         m_FilterDataTable = new FilterDataTable(m_DataTable);
       if (m_FilterDataTable != null && type != FilterType.All)
       {
@@ -1109,28 +1114,34 @@ namespace CsvTools
           await m_FilterDataTable.FilterAsync(int.MaxValue, type, cancellationToken);
         newDt = m_FilterDataTable.FilterTable;
       }
+
       if (ReferenceEquals(m_BindingSource.DataSource, newDt))
         return;
-      FilteredDataGridView.DataSource = null;
-      m_BindingSource.DataSource = newDt;
-      try
-      {
-        FilteredDataGridView.DataSource = m_BindingSource; // bindingSource;
-        FilterColumns(!type.HasFlag(FilterType.ShowIssueFree));
-        AutoResizeColumns(newDt);
-      }
-      catch (Exception ex)
-      {
-        ParentForm?.ShowError(ex, "Error setting the DataSource of the grid");
-      }
-      ShowFilter = (m_FilterDataTable == null || m_FilterDataTable.FilterTable == null) ? false : m_FilterDataTable.FilterTable.Rows.Count > 0;
 
-      FilteredDataGridView.ColumnVisibilityChanged();
-      FilteredDataGridView.SetRowHeight();
 
-      if (oldOrder != SortOrder.None && !string.IsNullOrEmpty(oldSortedColumn))
-        Sort(oldSortedColumn,
-          oldOrder == SortOrder.Ascending ? ListSortDirection.Ascending : ListSortDirection.Descending);
+      this.SafeInvokeNoHandleNeeded(() =>
+      {
+        FilteredDataGridView.DataSource = null;
+        m_BindingSource.DataSource = newDt;
+        try
+        {
+          FilteredDataGridView.DataSource = m_BindingSource;
+          FilterColumns(!type.HasFlag(FilterType.ShowIssueFree));
+          AutoResizeColumns(newDt);
+        }
+        catch (Exception ex)
+        {
+          ParentForm?.ShowError(ex, "Error setting the DataSource of the grid");
+        }
+
+        FilteredDataGridView.ColumnVisibilityChanged();
+        FilteredDataGridView.SetRowHeight();
+
+        if (oldOrder != SortOrder.None && !string.IsNullOrEmpty(oldSortedColumn))
+          Sort(oldSortedColumn,
+            oldOrder == SortOrder.Ascending ? ListSortDirection.Ascending : ListSortDirection.Descending);
+      });
+      ShowFilter = m_FilterDataTable?.FilterTable != null && m_FilterDataTable.FilterTable.Rows.Count > 0;
     }
 
     private void StartSearch(object sender, SearchEventArgs e)

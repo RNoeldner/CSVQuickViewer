@@ -367,16 +367,16 @@ namespace CsvTools.Tests
     public void CountTest()
     {
       var l1 = new[] {1, 2, 13, 5, 17};
-      Assert.AreEqual(5, ClassLibraryCsvExtensionMethods.Count(l1));
+      Assert.AreEqual(5, l1.Count());
     }
 
     [TestMethod()]
     public void DataTypeDisplayTest()
     {
-      Assert.IsNotNull(ClassLibraryCsvExtensionMethods.DataTypeDisplay(DataType.Double));
-      Assert.IsNotNull(ClassLibraryCsvExtensionMethods.DataTypeDisplay(DataType.Integer));
-      Assert.AreEqual("Boolean", ClassLibraryCsvExtensionMethods.DataTypeDisplay(DataType.Boolean));
-      Assert.AreEqual("Guid", ClassLibraryCsvExtensionMethods.DataTypeDisplay(DataType.Guid));
+      Assert.IsNotNull(DataType.Double.DataTypeDisplay());
+      Assert.IsNotNull(DataType.Integer.DataTypeDisplay());
+      Assert.AreEqual("Boolean", DataType.Boolean.DataTypeDisplay());
+      Assert.AreEqual("Guid", DataType.Guid.DataTypeDisplay());
     }
 
     [TestMethod()]
@@ -499,13 +499,13 @@ namespace CsvTools.Tests
       catch (Exception e)
       {
         // ReSharper disable once PossibleNullReferenceException
-        Assert.IsTrue(condition: e.CsvToolsStackTrace().Contains("ExtensionsTest.CsvToolsStackTraceTest"),
+        Assert.IsTrue(e.CsvToolsStackTrace().Contains("ExtensionsTest.CsvToolsStackTraceTest"),
           $"Expected: 'ExtensionsTest.CsvToolsStackTraceTest' Value: '{e.CsvToolsStackTrace()}'");
       }
 
       try
       {
-        Task.Run(() => Routine()).RunSynchronously();
+        Task.Run(Routine).RunSynchronously();
       }
       catch (Exception e)
       {

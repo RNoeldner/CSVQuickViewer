@@ -67,7 +67,16 @@ namespace CsvTools.Tests
       var frm = typed as Form;
       frm.TopMost = true;
       frm.ShowInTaskbar = false;
-      frm.Show();
+      try
+      {
+        frm.Show();
+      }
+      catch (Exception e)
+      {
+        Console.WriteLine(e);
+        throw;
+      }
+
       frm.Focus();
       if (before > 0)
         WaitSomeTime(before, token);

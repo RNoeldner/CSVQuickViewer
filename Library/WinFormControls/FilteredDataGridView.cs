@@ -116,9 +116,7 @@ namespace CsvTools
     {
       get
       {
-        if (m_BindingSource != null)
-          return m_BindingSource.Filter;
-        return DataView?.RowFilter;
+        return m_BindingSource != null ? m_BindingSource.Filter : DataView?.RowFilter;
       }
     }
 
@@ -882,7 +880,7 @@ namespace CsvTools
       CloseFilter();
       Columns.Clear();
       base.DataSource = null;
-      DataMember = null;
+      this.SafeInvoke(() => DataMember = null);
       DataView = null;
     }
 

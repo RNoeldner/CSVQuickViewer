@@ -13,8 +13,9 @@ namespace CsvTools.Tests
       using (var process = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       using (var reader = new CsvFileReader(UnitTestHelper.ReaderGetAllFormats(), process))
       {
+        await reader.OpenAsync(process.CancellationToken);
         var wrapper = new DataReaderWrapper(reader);
-        await wrapper.OpenAsync(process.CancellationToken);
+
         // await wrapper.ReadAsync(process.CancellationToken);
 
         Assert.AreEqual(0, wrapper.GetColumnIndexFromErrorColumn(0));
@@ -27,9 +28,8 @@ namespace CsvTools.Tests
       using (var process = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       using (var reader = new CsvFileReader(UnitTestHelper.ReaderGetAllFormats(), process))
       {
+        await reader.OpenAsync(process.CancellationToken);
         var wrapper = new DataReaderWrapper(reader);
-        Assert.AreEqual(0, wrapper.Depth);
-        await wrapper.OpenAsync(process.CancellationToken);
         Assert.AreEqual(9, wrapper.Depth);
       }
     }
@@ -40,8 +40,8 @@ namespace CsvTools.Tests
       using (var process = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       using (var reader = new CsvFileReader(UnitTestHelper.ReaderGetAllFormats(), process))
       {
+        await reader.OpenAsync(process.CancellationToken);
         var wrapper = new DataReaderWrapper(reader);
-        await wrapper.OpenAsync(process.CancellationToken);
         await wrapper.ReadAsync(process.CancellationToken);
         Assert.AreEqual((short) -22477, wrapper.GetInt16(1));
         Assert.AreEqual(-22477, wrapper.GetInt32(1));
@@ -55,8 +55,8 @@ namespace CsvTools.Tests
       using (var process = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       using (var reader = new CsvFileReader(UnitTestHelper.ReaderGetAllFormats(), process))
       {
+        await reader.OpenAsync(process.CancellationToken);
         var wrapper = new DataReaderWrapper(reader);
-        await wrapper.OpenAsync(process.CancellationToken);
         await wrapper.ReadAsync(process.CancellationToken);
 
         Assert.AreEqual((float) -12086.66, wrapper.GetFloat(2));
@@ -72,8 +72,8 @@ namespace CsvTools.Tests
       using (var process = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       using (var reader = new CsvFileReader(UnitTestHelper.ReaderGetAllFormats(), process))
       {
+        await reader.OpenAsync(process.CancellationToken);
         var wrapper = new DataReaderWrapper(reader);
-        await wrapper.OpenAsync(process.CancellationToken);
         await wrapper.ReadAsync(process.CancellationToken);
 
         Assert.AreEqual(new Guid("1BD10E34-7D66-481B-A7E3-AE817B5BEE02"), wrapper.GetGuid(7));
@@ -87,8 +87,8 @@ namespace CsvTools.Tests
       using (var process = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       using (var reader = new CsvFileReader(UnitTestHelper.ReaderGetAllFormats(), process))
       {
+        await reader.OpenAsync(process.CancellationToken);
         var wrapper = new DataReaderWrapper(reader);
-        await wrapper.OpenAsync(process.CancellationToken);
         await wrapper.ReadAsync(process.CancellationToken);
         await wrapper.ReadAsync(process.CancellationToken);
         Assert.IsTrue((new DateTime(2014, 05, 23) - wrapper.GetDateTime(0)).TotalSeconds < .5);
@@ -101,8 +101,8 @@ namespace CsvTools.Tests
       using (var process = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       using (var reader = new CsvFileReader(UnitTestHelper.ReaderGetAllFormats(), process))
       {
+        await reader.OpenAsync(process.CancellationToken);
         var wrapper = new DataReaderWrapper(reader);
-        await wrapper.OpenAsync(process.CancellationToken);
         await wrapper.ReadAsync(process.CancellationToken);
         // DateTime Integer Double Numeric String
         Assert.AreEqual("DateTime", wrapper.GetName(0));
@@ -117,8 +117,8 @@ namespace CsvTools.Tests
       using (var process = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       using (var reader = new CsvFileReader(UnitTestHelper.ReaderGetAllFormats(), process))
       {
+        await reader.OpenAsync(process.CancellationToken);
         var wrapper = new DataReaderWrapper(reader);
-        await wrapper.OpenAsync(process.CancellationToken);
         await wrapper.ReadAsync(process.CancellationToken);
         // DateTime Integer Double Numeric String
         Assert.AreEqual(0, wrapper.GetOrdinal("DateTime"));
@@ -133,8 +133,8 @@ namespace CsvTools.Tests
       using (var process = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       using (var reader = new CsvFileReader(UnitTestHelper.ReaderGetAllFormats(), process))
       {
+        await reader.OpenAsync(process.CancellationToken);
         var wrapper = new DataReaderWrapper(reader);
-        await wrapper.OpenAsync(process.CancellationToken);
         await wrapper.ReadAsync(process.CancellationToken);
 
         Assert.IsTrue(wrapper.GetBoolean(6));
@@ -151,11 +151,11 @@ namespace CsvTools.Tests
       using (var process = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       using (var reader = new CsvFileReader(UnitTestHelper.ReaderGetAllFormats(), process))
       {
+        await reader.OpenAsync(process.CancellationToken);
         var wrapper = new DataReaderWrapper(reader);
-        await wrapper.OpenAsync(process.CancellationToken);
         await wrapper.ReadAsync(process.CancellationToken);
         // depending on type this might be int32 or int64
-        Assert.IsTrue(nameof(Int64)== wrapper.GetDataTypeName(1) || nameof(Int32)== wrapper.GetDataTypeName(1));
+        Assert.IsTrue(nameof(Int64) == wrapper.GetDataTypeName(1) || nameof(Int32) == wrapper.GetDataTypeName(1));
       }
     }
 
@@ -165,8 +165,8 @@ namespace CsvTools.Tests
       using (var process = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       using (var reader = new CsvFileReader(UnitTestHelper.ReaderGetAllFormats(), process))
       {
+        await reader.OpenAsync(process.CancellationToken);
         var wrapper = new DataReaderWrapper(reader);
-        await wrapper.OpenAsync(process.CancellationToken);
         Assert.IsTrue(wrapper.HasRows);
         try
         {
@@ -194,8 +194,8 @@ namespace CsvTools.Tests
       using (var process = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       using (var reader = new CsvFileReader(UnitTestHelper.ReaderGetAllFormats(), process))
       {
+        await reader.OpenAsync(process.CancellationToken);
         var wrapper = new DataReaderWrapper(reader);
-        await wrapper.OpenAsync(process.CancellationToken);
         await wrapper.ReadAsync(process.CancellationToken);
 
         Assert.AreEqual("-22477", wrapper.GetValue(1).ToString());
@@ -209,8 +209,8 @@ namespace CsvTools.Tests
       using (var process = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       using (var reader = new CsvFileReader(UnitTestHelper.ReaderGetAllFormats(), process))
       {
+        await reader.OpenAsync(process.CancellationToken);
         var wrapper = new DataReaderWrapper(reader);
-        await wrapper.OpenAsync(process.CancellationToken);
         await wrapper.ReadAsync(process.CancellationToken);
 
         // Date is empty but time column has a value
@@ -230,8 +230,8 @@ namespace CsvTools.Tests
       using (var process = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       using (var reader = new CsvFileReader(UnitTestHelper.ReaderGetAllFormats(), process))
       {
+        await reader.OpenAsync(process.CancellationToken);
         var wrapper = new DataReaderWrapper(reader);
-        await wrapper.OpenAsync(process.CancellationToken);
 
         Assert.AreEqual(10 - 1, wrapper.GetSchemaTable().Rows.Count);
       }

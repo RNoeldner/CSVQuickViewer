@@ -43,6 +43,34 @@ namespace CsvTools.Tests
       m_ValidSetting.ColumnCollection.AddIfNew(cf);
     }
 
+    [TestMethod]
+    public async Task CheckEvents()
+    {
+      bool openFinished = false;
+      bool onOpenCalled = false;
+      bool readFinished = false;
+      using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
+      using (var test = new CsvFileReader(m_ValidSetting, processDisplay))
+      {
+        test.OpenFinished += (sender, columns) => openFinished = true;
+        test.ReadFinished += (sender, args) => readFinished = true;
+        test.OnOpen = () => Task.FromResult(onOpenCalled = true);
+        Assert.IsFalse(openFinished);
+        Assert.IsFalse(readFinished);
+        Assert.IsFalse(onOpenCalled);
+        await test.OpenAsync(processDisplay.CancellationToken);
+        Assert.IsFalse(readFinished);
+        Assert.IsTrue(onOpenCalled);
+        Assert.IsTrue(openFinished);
+        while (await test.ReadAsync(processDisplay.CancellationToken))
+        {
+        }
+
+        Assert.IsTrue(readFinished);
+      }
+    }
+
+    private void Test_ReadFinished(object sender, EventArgs e) => throw new NotImplementedException();
 
     [TestMethod]
     public async Task AllFormatsPipeReaderAsync()
@@ -52,12 +80,12 @@ namespace CsvTools.Tests
         {
           HasFieldHeader = true, FileFormat = {FieldDelimiter = "|", FieldQualifier = "\""}, SkipEmptyLines = false
         };
-
       using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       using (var test = new CsvFileReader(setting, processDisplay))
       {
         test.NotifyAfterSeconds = .01;
         await test.OpenAsync(processDisplay.CancellationToken);
+
         Assert.AreEqual(10, test.FieldCount);
         await test.ReadAsync(processDisplay.CancellationToken);
         Assert.AreEqual(2, test.StartLineNumber);

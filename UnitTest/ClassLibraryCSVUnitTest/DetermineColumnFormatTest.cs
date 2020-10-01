@@ -193,7 +193,7 @@ namespace CsvTools.Tests
         {
           // ReSharper disable once AssignNullToNotNullAttribute
           await DetermineColumnFormat.GetWriterColumnInformationAsync("Nonsense SQL", 60, null, new List<IColumn>(),
-            token: dummy.CancellationToken);
+            dummy.CancellationToken);
 
           Assert.Fail("Expected Exception not thrown");
         }

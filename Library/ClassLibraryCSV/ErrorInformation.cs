@@ -223,27 +223,30 @@ namespace CsvTools
       // In case we have a column name in front we have to look into the middle of the string We
       // only look at the first entry, assuming error would be sorted into the front
       var splitter = errorList.IndexOf(c_ClosingField);
-      return splitter != -1 && splitter < errorList.Length - 2 && errorList.Substring(splitter + 2).StartsWith(c_WarningId, StringComparison.Ordinal);
+      return splitter != -1 && splitter < errorList.Length - 2 &&
+             errorList.Substring(splitter + 2).StartsWith(c_WarningId, StringComparison.Ordinal);
     }
 
     /// <summary>
     ///   Stores the error information in a single string
     /// </summary>
     /// <param name="columnErrors">The column errors.</param>
-    /// <param name="columns">The columns.</param>
+    /// <param name="columns">The column names, for replacing the index to the name</param>
     /// <returns></returns>
     [CanBeNull]
-    public static string ReadErrorInformation([NotNull] IDictionary<int, string> columnErrors, [NotNull] IList<string> columns)
+    public static string ReadErrorInformation([NotNull] IDictionary<int, string> columnErrors,
+      [NotNull] IReadOnlyList<string> columns)
     {
       if (columnErrors.Count == 0)
         return null;
       var list = new List<Tuple<string, string>>();
 
+      //TODO : Should columns not listed here (possibly ignored columns be removed) ?
       // Tried Parallel.Foreach but it was not reliable, with a few million executions some values
       // where wrong
       foreach (var entry in columnErrors)
       {
-        if (entry.Key<-1) continue;
+        if (entry.Key < -1) continue;
         var colName = entry.Key >= 0 && columns.Count > entry.Key ? columns[entry.Key] : string.Empty;
         var start = 0;
         while (start < entry.Value.Length)
@@ -345,7 +348,8 @@ namespace CsvTools
     /// </summary>
     /// <param name="row">The row.</param>
     /// <param name="columnErrorInformation">The column error information.</param>
-    private static void SetColumnErrorInformation([NotNull] DataRow row, [NotNull] Tuple<string, string> columnErrorInformation)
+    private static void SetColumnErrorInformation([NotNull] DataRow row,
+      [NotNull] Tuple<string, string> columnErrorInformation)
     {
       var start = 0;
       // If we have combinations of columns, e,G. Combined Keys or Less Than errors store the error

@@ -15,6 +15,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing;
 using System.IO;
 using System.Reflection;
 using System.Threading;
@@ -78,6 +79,7 @@ namespace CsvTools.Tests
       {
         using (var frm = new FormMain(Path.Combine(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt.gz"))))
         {
+          frm.Size = new Size(50, 50);
           UnitTestWinFormHelper.ShowFormAndClose(frm, 1, (f) =>
           {
             while (!f.LoadFinished && !UnitTestInitializeCsv.Token.IsCancellationRequested)

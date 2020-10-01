@@ -1,11 +1,11 @@
-﻿using System;
+﻿using JetBrains.Annotations;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 
 namespace CsvTools
 {
@@ -58,7 +58,7 @@ namespace CsvTools
     public static DataTable GetEmptyDataTable([NotNull] this DataReaderWrapper reader)
     {
       // Special handling for DataTableWrapper, no need to build something
-      var dataTable = new DataTable { Locale = CultureInfo.CurrentCulture, CaseSensitive = false };
+      var dataTable = new DataTable {Locale = CultureInfo.CurrentCulture, CaseSensitive = false};
 
       for (var colIndex = 0; colIndex < reader.FieldCount; colIndex++)
         dataTable.Columns.Add(new DataColumn(reader.GetName(colIndex), reader.GetFieldType(colIndex)));
@@ -75,9 +75,7 @@ namespace CsvTools
     /// <param name="recordLimit">
     ///   Number of records to return, the reader might already have a limit
     /// </param>
-    /// <param name="storeWarningsInDataTable">
-    ///   if <c>true</c> Row and Column errors are created in the data table
-    /// </param>
+    /// <param name="restoreErrorsFromColumn">if the source is a persisted table, restore the  error information</param>
     /// <param name="addStartLine">
     ///   if <c>true</c> add a column for the start line:
     ///   <see
@@ -110,26 +108,26 @@ namespace CsvTools
     /// <param name="cancellationToken">Token to cancel the long running async method</param>
     /// <returns></returns>
     public static async Task<DataTable> GetDataTableAsync([NotNull] this IFileReader reader, long recordLimit,
-      bool storeWarningsInDataTable, bool addStartLine,
+      bool restoreErrorsFromColumn, bool addStartLine,
       bool includeRecordNo, bool includeEndLineNo, bool includeErrorField,
       [CanBeNull] Action<long, int> progress,
       CancellationToken cancellationToken)
     {
-      // Special handling for DataTableWrapper, no need to build something
-      if (reader is DataTableWrapper dtWrapper)
-        return await Task.FromResult(dtWrapper.DataTable);
-
+      if (reader is DataTableWrapper dtw)
+        return dtw.DataTable;
       if (recordLimit < 1)
         recordLimit = long.MaxValue;
+      if (reader.IsClosed)
+        await reader.OpenAsync(cancellationToken);
 
-      using (var wrapper = new DataReaderWrapper(reader, recordLimit, includeErrorField, addStartLine, includeEndLineNo, includeRecordNo))
+      using (var wrapper = new DataReaderWrapper(reader, recordLimit, includeErrorField, addStartLine, includeEndLineNo,
+        includeRecordNo))
       {
-        await wrapper.OpenAsync(cancellationToken);
         var dataTable = GetEmptyDataTable(wrapper);
         try
         {
-          await LoadDataTable(wrapper, dataTable, TimeSpan.MaxValue, storeWarningsInDataTable, includeErrorField, progress,
-        cancellationToken);
+          await LoadDataTable(wrapper, dataTable, TimeSpan.MaxValue, restoreErrorsFromColumn, progress,
+            cancellationToken);
           return dataTable;
         }
         catch (Exception)
@@ -140,50 +138,51 @@ namespace CsvTools
       }
     }
 
-    public static async Task LoadDataTable([NotNull] this DataReaderWrapper wrapper,
-    [NotNull] DataTable dataTable, TimeSpan maxDuration, bool storeWarningsInDataTable,
-    bool restoreErrorsFromErrorColumn, [CanBeNull] Action<long, int> progress,
-    CancellationToken cancellationToken)
+    public static async Task LoadDataTable([NotNull] this DataReaderWrapper readerWrapper,
+      [NotNull] DataTable dataTable, TimeSpan maxDuration,
+      bool restoreErrorsFromColumn, [CanBeNull] Action<long, int> progress,
+      CancellationToken cancellationToken)
     {
-      if (wrapper.EndOfFile)
+      if (readerWrapper.EndOfFile)
         return;
       var intervalAction = progress != null ? new IntervalAction() : null;
       dataTable.BeginLoadData();
 
       try
       {
-        var errorColumn = dataTable.Columns[ReaderConstants.cErrorField];
+        var errorColumn = restoreErrorsFromColumn ? dataTable.Columns[ReaderConstants.cErrorField] : null;
 
         var watch = System.Diagnostics.Stopwatch.StartNew();
-        while (!cancellationToken.IsCancellationRequested && watch.Elapsed<maxDuration &&
-               await wrapper.ReadAsync(cancellationToken).ConfigureAwait(false))
+        while (!cancellationToken.IsCancellationRequested && watch.Elapsed < maxDuration &&
+               await readerWrapper.ReadAsync(cancellationToken).ConfigureAwait(false))
         {
           var dataRow = dataTable.NewRow();
           dataTable.Rows.Add(dataRow);
-          for (var i = 0; i < wrapper.FieldCount; i++)
+          for (var i = 0; i < readerWrapper.FieldCount; i++)
             try
             {
-              dataRow[i] = wrapper.GetValue(i);
+              dataRow[i] = readerWrapper.GetValue(i);
             }
             catch (Exception ex)
             {
               dataRow.SetColumnError(i, ex.Message);
             }
-          //await Task.Delay(50);
-          if (restoreErrorsFromErrorColumn && errorColumn!=null)
+
+          // This gets the errors from the column #Error that has been filled by the reader
+          if (errorColumn != null)
             dataRow.SetErrorInformation(dataRow[errorColumn].ToString());
+          intervalAction?.Invoke(() => progress(readerWrapper.RecordNumber, readerWrapper.Percent));
 
-          intervalAction?.Invoke(() => progress(wrapper.RecordNumber, wrapper.Percent));
-
-          if (!storeWarningsInDataTable || wrapper.ColumnErrorDictionary.Count <= 0 ||
+          // This gets the errors from the fileReader
+          if (readerWrapper.ReaderMapping.ColumnErrorDictionary.Count <= 0 ||
               cancellationToken.IsCancellationRequested)
             continue;
 
-          foreach (var keyValuePair in wrapper.ColumnErrorDictionary)
+          foreach (var keyValuePair in readerWrapper.ReaderMapping.ColumnErrorDictionary)
             if (keyValuePair.Key == -1)
               dataRow.RowError = keyValuePair.Value;
             else
-              dataRow.SetColumnError(wrapper.GetColumnIndexFromErrorColumn(keyValuePair.Key), keyValuePair.Value);
+              dataRow.SetColumnError(readerWrapper.GetColumnIndexFromErrorColumn(keyValuePair.Key), keyValuePair.Value);
         }
       }
       catch (Exception ex)
@@ -193,7 +192,7 @@ namespace CsvTools
       finally
       {
         dataTable.EndLoadData();
-        intervalAction?.Invoke(() => progress(wrapper.RecordNumber, wrapper.Percent));
+        intervalAction?.Invoke(() => progress(readerWrapper.RecordNumber, readerWrapper.Percent));
       }
     }
   }
