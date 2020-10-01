@@ -220,7 +220,7 @@ namespace CsvTools
 
         // eat the bom
         if (m_BomLength > 0 && m_ImprovedStream.CanRead)
-          await m_ImprovedStream.ReadAsync(new byte[m_BomLength], 0, m_BomLength);
+          await m_ImprovedStream.ReadAsync(new byte[m_BomLength], 0, m_BomLength).ConfigureAwait(false);
 
         // in case we can not seek need to reopen the stream reader
         if (TextReader == null)
