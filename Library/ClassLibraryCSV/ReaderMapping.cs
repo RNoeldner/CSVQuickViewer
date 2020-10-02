@@ -1,9 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using JetBrains.Annotations;
+using System;
+using System.Collections.Generic;
+using System.Data;
 
 namespace CsvTools
 {
+  /// <summary>
+  /// Handles mapping of a data ereader to a resulting data reader
+  /// Columns ignored will be obmitted and atrifival columns for Lne, record and error inormation is added
+  /// </summary>
   public class ReaderMapping
   {
+    [CanBeNull]
     public readonly ColumnErrorDictionary ColumnErrorDictionary;
     public readonly int DataTableEndLine;
     public readonly int DataTableErrorField;
@@ -11,21 +19,26 @@ namespace CsvTools
     public readonly int DataTableStartLine;
     private readonly List<ImmutableColumn> m_DateTableColumns = new List<ImmutableColumn>();
     private readonly BiDirectionalDictionary<int, int> m_Mapping = new BiDirectionalDictionary<int, int>();
-    private readonly List<string> m_ReaderColumns = new List<string>();
     private readonly List<string> m_ReaderColumnsAll = new List<string>();
 
-    public ReaderMapping(IFileReader fileReader, bool addStartLine, bool addRecNum, bool addEndLine,
-      bool includeErrorField)
+    public ReaderMapping(IDataReader dataReader, bool addStartLine, bool addRecNum, bool addEndLine,
+      bool addErrorField)
     {
-      ColumnErrorDictionary = new ColumnErrorDictionary(fileReader);
+      var fileReader = dataReader as IFileReader;
+      if (fileReader != null)
+        ColumnErrorDictionary = new ColumnErrorDictionary(fileReader);
 
+      var m_ReaderColumns = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
       var fieldCount = 0;
-      for (var col = 0; col < fileReader.FieldCount; col++)
+      for (var col = 0; col < dataReader.FieldCount; col++)
       {
-        var column = fileReader.GetColumn(col);
+        var column = (fileReader==null) ?
+          new ImmutableColumn(dataReader.GetName(col), new ImmutableValueFormat(dataReader.GetFieldType(col).GetDataType()), col) :
+          new ImmutableColumn(fileReader.GetColumn(col), col);
+
         m_ReaderColumnsAll.Add(column.Name);
         if (column.Ignore) continue;
-        m_DateTableColumns.Add(new ImmutableColumn(column, fieldCount));
+        m_DateTableColumns.Add(column);
         m_ReaderColumns.Add(column.Name);
         m_Mapping.Add(column.ColumnOrdinal, fieldCount++);
       }
@@ -64,7 +77,7 @@ namespace CsvTools
         DataTableEndLine = -1;
       }
 
-      if (includeErrorField && !m_ReaderColumns.Contains(ReaderConstants.cErrorField))
+      if (addErrorField && !m_ReaderColumns.Contains(ReaderConstants.cErrorField))
       {
         DataTableErrorField = fieldCount;
         m_DateTableColumns.Add(new ImmutableColumn(ReaderConstants.cErrorField, new ImmutableValueFormat(),
@@ -78,13 +91,13 @@ namespace CsvTools
 
 
     public string RowErrorInformation =>
-      ColumnErrorDictionary.Count == 0
+      ColumnErrorDictionary == null  || ColumnErrorDictionary.Count == 0
         ? null
         : ErrorInformation.ReadErrorInformation(ColumnErrorDictionary, m_ReaderColumnsAll);
 
     public IReadOnlyList<ImmutableColumn> Column => m_DateTableColumns;
 
-    public int ReaderColumn(int tableColumn) => m_Mapping.GetByValue(tableColumn);
-    public int DataTableColumn(int readerColumn) => m_Mapping[readerColumn];
+    public int DataTableToReader(int tableColumn) => m_Mapping.GetByValue(tableColumn);
+    public int ReaderToDataTable(int readerColumn) => m_Mapping[readerColumn];
   }
 }

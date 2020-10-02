@@ -458,17 +458,18 @@ namespace CsvTools
       var display = Convert.ToInt32((Duration - m_Counter * m_Timer.Interval / 1000 + .75));
       if (!m_Timer.Enabled)
         display = 0;
+      var text = string.Empty;
       if (display > 0)
       {
         if (AcceptButton == m_Button1)
-          m_LabelDefault.Text = $@"{m_Button1.Text.Substring(1)} in {display:N0} seconds";
+          text = $@"{m_Button1.Text} in {display:N0} seconds";
         if (AcceptButton == m_Button2)
-          m_LabelDefault.Text = $@"{m_Button2.Text.Substring(1)} in {display:N0} seconds";
+          text = $@"{m_Button2.Text} in {display:N0} seconds";
         if (AcceptButton == m_Button3)
-          m_LabelDefault.Text = $@"{m_Button3.Text.Substring(1)} in {display:N0} seconds";
+          text = $@"{m_Button3.Text} in {display:N0} seconds";
       }
-      else
-        m_LabelDefault.Text = string.Empty;
+      // Handle & that is used for shortcuts
+      m_LabelDefault.Text = text.Replace("&&", "￼").Replace("&", "").Replace("￼", "&");
     }
   }
 

@@ -18,7 +18,7 @@ namespace CsvTools.Tests
 
         // await wrapper.ReadAsync(process.CancellationToken);
 
-        Assert.AreEqual(0, wrapper.GetColumnIndexFromErrorColumn(0));
+        Assert.AreEqual(0, wrapper.ReaderToDataTable(0));
       }
     }
 

@@ -93,7 +93,7 @@ namespace CsvTools
     /// <summary>
     ///   Event to be raised once the reader opened, the column information is now known
     /// </summary>
-    event EventHandler<ICollection<IColumn>> OpenFinished;
+    event EventHandler<IReadOnlyCollection<IColumn>> OpenFinished;
 
     /// <summary>
     ///   Occurs when an open process failed, allowing the user to change the timeout or provide the

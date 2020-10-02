@@ -207,23 +207,7 @@ namespace CsvTools
       {
         var readerColumn = fileReader.GetColumn(colIndex);
         columnNamesInFile.Add(readerColumn.Name);
-
-        // TODO: check if it does make sense to have it in again
-        //if (ReaderConstants.ArtificialFields.Contains(readerColumn.Name))
-        //{
-        //  processDisplay.SetProcess(readerColumn.Name + " – Reserved columns ignored", colIndex, true);
-
-        //  if (columnCollection.Get(readerColumn.Name) != null) continue;
-        //  result.Add($"{readerColumn.Name} – Reserved columns ignored");
-        //  if (columnCollection.Get(readerColumn.Name) == null)
-        //  {
-        //    var mutable = readerColumn.ToMutable();
-        //    mutable.Ignore = true;
-        //    columnCollection.Add(mutable);
-        //  }
-        //  continue;
-        //}
-
+        
         if (fillGuessSettings.IgnoreIdColumns && StringUtils.AssumeIDColumn(readerColumn.Name) > 0)
         {
           processDisplay.SetProcess(readerColumn.Name + " – ID columns ignored", colIndex, true);
@@ -233,6 +217,12 @@ namespace CsvTools
           continue;
         }
 
+        // no need to get types that are already found and could noe be smaller (e.G. decimal could be a integer)
+        if (readerColumn.ValueFormat.DataType == DataType.Guid || readerColumn.ValueFormat.DataType == DataType.Integer || readerColumn.ValueFormat.DataType == DataType.Boolean || readerColumn.ValueFormat.DataType == DataType.DateTime)
+        {
+          result.Add($"{readerColumn.Name} – Existing Type : {readerColumn.ValueFormat.DataType.DataTypeDisplay()}");          
+          continue;
+        }
         getSamples.Add(colIndex);
       }
 
@@ -246,6 +236,17 @@ namespace CsvTools
         getSamples, fillGuessSettings.SampleValues, treatTextAsNull,
         processDisplay.CancellationToken).ConfigureAwait(false);
 
+      // add all columns that will not be guessed
+      for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
+      {
+        if (!sampleList.ContainsKey(colIndex))
+        {
+          var readerColumn = fileReader.GetColumn(colIndex);
+          columnCollection.AddIfNew(readerColumn);
+        }
+      }
+
+      // Start Guessing
       foreach (var colIndex in sampleList.Keys)
       {
         processDisplay.CancellationToken.ThrowIfCancellationRequested();
@@ -362,40 +363,32 @@ namespace CsvTools
         }
       }
 
-      processDisplay.CancellationToken.ThrowIfCancellationRequested();
 
+      processDisplay.CancellationToken.ThrowIfCancellationRequested();
+    
       // check all doubles if they could be integer needed for excel files as the typed values do
       // not distinguish between double and integer.
       if (checkDoubleToBeInteger)
         for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
         {
           processDisplay.CancellationToken.ThrowIfCancellationRequested();
-
           var readerColumn = fileReader.GetColumn(colIndex);
-          var detect = !(fillGuessSettings.IgnoreIdColumns && StringUtils.AssumeIDColumn(readerColumn.Name) > 0);
 
-          if (readerColumn == null || readerColumn.ValueFormat.DataType != DataType.Double) continue;
-
-          if (detect)
+          if (readerColumn.ValueFormat.DataType != DataType.Double && readerColumn.ValueFormat.DataType != DataType.Numeric) continue;
+          if (sampleList.Keys.Contains(colIndex + 1))
           {
-            SampleResult samples;
-            if (sampleList.Keys.Contains(colIndex + 1))
-              samples = sampleList[colIndex + 1];
-            else
-              samples = await GetSampleValuesAsync(fileReader, fillGuessSettings.CheckedRecords,
-                colIndex, fillGuessSettings.SampleValues, treatTextAsNull,
-                processDisplay.CancellationToken).ConfigureAwait(false);
+            var samples = sampleList[colIndex + 1];
 
             if (samples.Values.Count <= 0) continue;
             var checkResult = GuessNumeric(samples.Values, false, true, processDisplay.CancellationToken);
             if (checkResult.FoundValueFormat != null && checkResult.FoundValueFormat.DataType != DataType.Double)
             {
-              var newColumn = columnCollection.Get(readerColumn.Name);
-              if (newColumn != null && !newColumn.ValueFormatMutable.Equals(checkResult.FoundValueFormat))
+              var existingColumn = columnCollection.Get(readerColumn.Name);
+              if (existingColumn != null && !existingColumn.ValueFormatMutable.Equals(checkResult.FoundValueFormat))
               {
                 var msg =
-                  $"{newColumn.Name} – Changed Format {newColumn.ValueFormatMutable.GetTypeAndFormatDescription()} to {checkResult.FoundValueFormat.GetTypeAndFormatDescription()}";
-                newColumn.ValueFormatMutable.CopyFrom(checkResult.FoundValueFormat);
+                  $"{existingColumn.Name} – Changed Format {existingColumn.ValueFormatMutable.GetTypeAndFormatDescription()} to {checkResult.FoundValueFormat.GetTypeAndFormatDescription()}";
+                existingColumn.ValueFormatMutable.CopyFrom(checkResult.FoundValueFormat);
 
                 processDisplay.SetProcess(msg, fileReader.FieldCount * 2 + colIndex, true);
                 result.Add(msg);
@@ -404,21 +397,6 @@ namespace CsvTools
               {
                 columnCollection.AddIfNew(new Column(readerColumn, checkResult.FoundValueFormat));
               }
-            }
-          }
-          else
-          {
-            var newColumn = columnCollection.Get(readerColumn.Name);
-            if (newColumn != null)
-            {
-              newColumn.ValueFormatMutable.DataType = DataType.String;
-              var msg = $"{newColumn.Name} – Overwritten Format : {DataType.String.DataTypeDisplay()}";
-              processDisplay.SetProcess(msg, fileReader.FieldCount * 2 + colIndex, true);
-              result.Add(msg);
-            }
-            else
-            {
-              columnCollection.AddIfNew(new Column(readerColumn, new ImmutableValueFormat()));
             }
           }
         }
