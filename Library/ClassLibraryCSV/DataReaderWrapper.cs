@@ -60,7 +60,6 @@ namespace CsvTools
       base.Close();
       m_DataReader.Close();
     }
-
     public override bool GetBoolean(int ordinal) => m_DataReader.GetBoolean(ReaderMapping.DataTableToReader(ordinal));
 
     public override byte GetByte(int ordinal) => m_DataReader.GetByte(ReaderMapping.DataTableToReader(ordinal));
@@ -72,6 +71,8 @@ namespace CsvTools
 
     public override long GetChars(int ordinal, long dataOffset, char[] buffer, int bufferOffset, int length) =>
       m_DataReader.GetChars(ReaderMapping.DataTableToReader(ordinal), dataOffset, buffer, bufferOffset, length);
+
+    public new IDataReader GetData(int i) => m_DataReader.GetData(i);
 
     [NotNull]
     public override string GetDataTypeName(int ordinal) => GetFieldType(ordinal).Name;
