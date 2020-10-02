@@ -808,13 +808,9 @@ namespace CsvTools
             var colIndex = sqlReader.GetOrdinal(columnName);
             if (colIndex < 0)
               throw new FileException($"Column {columnName} not found.");
-
-            return await DetermineColumnFormat.GetSampleValuesAsync(
-              sqlReader, 0,
-              colIndex,
-              m_FillGuessSettings.SampleValues,
-              m_FileSetting.TreatTextAsNull,
-              processDisplay.CancellationToken);
+            return (await DetermineColumnFormat.GetSampleValuesAsync(sqlReader, (long) 0, new[] {colIndex},
+                m_FillGuessSettings.SampleValues, m_FileSetting.TreatTextAsNull, processDisplay.CancellationToken)
+              .ConfigureAwait(false)).First().Value;
           }
 
         // must be file reader if this is reached
@@ -857,13 +853,10 @@ namespace CsvTools
             throw new FileException($"Column {columnName} not found.");
           }
 
-          return await DetermineColumnFormat.GetSampleValuesAsync(
-            fileReader,
-            m_FillGuessSettings.CheckedRecords,
-            colIndex,
-            m_FillGuessSettings.SampleValues,
-            m_FileSetting.TreatTextAsNull,
-            processDisplay.CancellationToken);
+          return (await DetermineColumnFormat.GetSampleValuesAsync(fileReader, m_FillGuessSettings.CheckedRecords,
+              new[] {colIndex},
+              m_FillGuessSettings.SampleValues, m_FileSetting.TreatTextAsNull, processDisplay.CancellationToken)
+            .ConfigureAwait(false)).First().Value;
         }
       }
       catch (Exception ex)

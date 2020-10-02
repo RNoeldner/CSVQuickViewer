@@ -37,7 +37,7 @@ namespace CsvTools
     {
       set
       {
-        m_TextBox.Text = StringUtils.HandleCRLFCombinations(value, Environment.NewLine);
+        m_TextBox.Text = value.HandleCRLFCombinations(Environment.NewLine);
       }
     }
 
@@ -46,7 +46,7 @@ namespace CsvTools
       set
       {
         m_TableLayoutPanel.Controls.Remove(m_TextBox);
-        // this need to happen herer
+        // this need to happen here
         Extensions.RunSTAThread(() =>
         {
           m_WebBrowser = new WebBrowser();
@@ -176,20 +176,21 @@ namespace CsvTools
       if (!string.IsNullOrEmpty(button3Text))
         m_Button3.Text = button3Text;
 
-      if (defaultButton == MessageBoxDefaultButton.Button1)
+      switch (defaultButton)
       {
-        AcceptButton = m_Button1;
+        case MessageBoxDefaultButton.Button1:
+          AcceptButton = m_Button1;
+          break;
+        case MessageBoxDefaultButton.Button2:
+          AcceptButton = m_Button2;
+          break;
+        case MessageBoxDefaultButton.Button3:
+          AcceptButton = m_Button3;
+          break;
+        default:
+          AcceptButton = m_Button1;
+          break;
       }
-      else if (defaultButton == MessageBoxDefaultButton.Button2)
-      {
-        AcceptButton = m_Button2;
-      }
-      else if (defaultButton == MessageBoxDefaultButton.Button3)
-      {
-        AcceptButton = m_Button3;
-      }
-      else
-        AcceptButton = m_Button1;
 
       if (icon != MessageBoxIcon.None)
       {
@@ -215,8 +216,7 @@ namespace CsvTools
 
       if (owner == null || owner.InvokeRequired)
         return ShowDialog();
-      else
-        return ShowDialog(owner);
+      return ShowDialog(owner);
     }
 
     private void HideColumn(int colNumber, bool visible)
@@ -468,6 +468,7 @@ namespace CsvTools
         if (AcceptButton == m_Button3)
           text = $@"{m_Button3.Text} in {display:N0} seconds";
       }
+
       // Handle & that is used for shortcuts
       m_LabelDefault.Text = text.Replace("&&", "￼").Replace("&", "").Replace("￼", "&");
     }
