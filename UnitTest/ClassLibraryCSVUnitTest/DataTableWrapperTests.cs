@@ -14,9 +14,7 @@ namespace CsvTools.Tests
     public async Task DataTableWrapperOpenCloseTest()
     {
       using (var test = new DataTableWrapper(m_DataTable))
-      {
-        Assert.IsTrue(test.IsClosed);
-        await test.OpenAsync(UnitTestInitializeCsv.Token);
+      {                
         test.Read();
         Assert.IsFalse(test.IsClosed);
         test.Close();
@@ -28,16 +26,14 @@ namespace CsvTools.Tests
     public async Task DataTableWrapperProperties()
     {
       using (var test = new DataTableWrapper(m_DataTable))
-      {
-        Assert.IsTrue(test.IsClosed);
-        await test.OpenAsync(UnitTestInitializeCsv.Token);
+      {        
         await test.ReadAsync(UnitTestInitializeCsv.Token);
-        Assert.AreEqual(0, test.RecordsAffected, "RecordsAffected");
+        Assert.AreEqual(m_DataTable.Rows.Count, test.RecordsAffected, "RecordsAffected");
         Assert.AreEqual(1, test.Percent, "Percent");
         Assert.AreEqual(1, test.RecordNumber, "RecordNumber");
         Assert.AreEqual(1, test.StartLineNumber, "StartLineNumber");
         Assert.AreEqual(1, test.EndLineNumber, "EndLineNumber");
-        Assert.AreEqual(0, test.Depth, "Depth");
+        Assert.AreEqual(m_DataTable.Columns.Count, test.Depth, "Depth");
         Assert.AreEqual(true, test.HasRows, "HasRows");
       }
     }
@@ -92,8 +88,7 @@ namespace CsvTools.Tests
     public async Task GetValueTest()
     {
       using (var test = new DataTableWrapper(m_DataTable))
-      {
-        await test.OpenAsync(UnitTestInitializeCsv.Token);
+      {        
         await test.ReadAsync(UnitTestInitializeCsv.Token);
         Assert.IsInstanceOfType(test.GetValue(0), typeof(int));
         Assert.IsInstanceOfType(test.GetValue(1), typeof(string));
@@ -106,7 +101,6 @@ namespace CsvTools.Tests
     {
       using (var test = new DataTableWrapper(m_DataTable))
       {
-        await test.OpenAsync(UnitTestInitializeCsv.Token);
         await test.ReadAsync(UnitTestInitializeCsv.Token);
         var objects = new object[test.FieldCount];
         test.GetValues(objects);
@@ -201,8 +195,7 @@ namespace CsvTools.Tests
           row[5] = 11;
 
         using (var test = new DataTableWrapper(dt2))
-        {
-          await test.OpenAsync(UnitTestInitializeCsv.Token);
+        {          
           await test.ReadAsync(UnitTestInitializeCsv.Token);
           Assert.AreEqual((short) 11, test.GetInt16(5));
         }
@@ -213,8 +206,7 @@ namespace CsvTools.Tests
     public async Task GetInt32Test()
     {
       using (var test = new DataTableWrapper(m_DataTable))
-      {
-        await test.OpenAsync(UnitTestInitializeCsv.Token);
+      {        
         await test.ReadAsync(UnitTestInitializeCsv.Token);
         Assert.IsInstanceOfType(test.GetInt32(0), typeof(Int32));
       }
@@ -231,7 +223,6 @@ namespace CsvTools.Tests
 
         using (var test = new DataTableWrapper(dt2))
         {
-          await test.OpenAsync(UnitTestInitializeCsv.Token);
           await test.ReadAsync(UnitTestInitializeCsv.Token);
           Assert.AreEqual(1123482452, test.GetInt64(5));
         }

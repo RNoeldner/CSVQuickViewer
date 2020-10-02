@@ -190,7 +190,7 @@ namespace CsvTools
     /// </summary>
     public event EventHandler ReadFinished;
 
-    public virtual event EventHandler<ICollection<IColumn>> OpenFinished;
+    public virtual event EventHandler<IReadOnlyCollection<IColumn>> OpenFinished;
 
     /// <summary>
     ///   Event handler called if a warning or error occurred

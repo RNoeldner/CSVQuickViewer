@@ -182,7 +182,7 @@ namespace CsvTools
             if (keyValuePair.Key == -1)
               dataRow.RowError = keyValuePair.Value;
             else
-              dataRow.SetColumnError(readerWrapper.GetColumnIndexFromErrorColumn(keyValuePair.Key), keyValuePair.Value);
+              dataRow.SetColumnError(readerWrapper.ReaderToDataTable(keyValuePair.Key), keyValuePair.Value);
         }
       }
       catch (Exception ex)

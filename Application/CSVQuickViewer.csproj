@@ -181,19 +181,20 @@
     <SignAssembly>false</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyOriginatorKeyFile>CSVQuickViewer_TemporaryKey.pfx</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup>
-      <ManifestCertificateThumbprint>7CE530A89D3C2F1E784C91B37008C54B0370535F</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>7CE530A89D3C2F1E784C91B37008C54B0370535F</ManifestCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup>
-      <ManifestKeyFile>CSVQuickViewer_TemporaryKey.pfx</ManifestKeyFile>
+    <ManifestKeyFile>CSVQuickViewer_TemporaryKey.pfx</ManifestKeyFile>
   </PropertyGroup>
   <PropertyGroup>
     <GenerateManifests>false</GenerateManifests>
   </PropertyGroup>
   <PropertyGroup>
-      <SignManifests>true</SignManifests>
+    <SignManifests>false</SignManifests>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationManifest>app.manifest</ApplicationManifest>
@@ -269,7 +270,6 @@
   <ItemGroup>
     <Content Include="csv_text.ico" />
     <Content Include="FodyWeavers.xml" />
-      <None Include="CSVQuickViewer_TemporaryKey.pfx"/>
     <None Include="LICENSE" />
     <None Include="NLog.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

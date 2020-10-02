@@ -166,19 +166,19 @@ namespace CsvTools.Tests
             };
 
             var columnCollection = new ColumnCollection();
-            await reader.OpenAsync(processDisplay.CancellationToken);
+            //await reader.OpenAsync(processDisplay.CancellationToken);
 
             var res1 = await reader.FillGuessColumnFormatReaderAsyncReader(fillGuessSettings,
               columnCollection, false, true, "<NULL>", processDisplay);
 
-            Assert.AreEqual(6, columnCollection.Count, "Recognized columns");
+            Assert.AreEqual(7, columnCollection.Count, "Recognized columns");
             Assert.AreEqual(6, res1.Count, "Information Lines");
 
             var res2 = await reader.FillGuessColumnFormatReaderAsyncReader(fillGuessSettings,
               columnCollection, true, true, "<NULL>", processDisplay);
             Assert.AreEqual(11, columnCollection.Count);
             // Added 4 text columns,
-            Assert.AreEqual(5, res2.Count);
+            Assert.AreEqual(6+4, res2.Count);
           }
         }
       }
@@ -326,9 +326,7 @@ namespace CsvTools.Tests
         using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
         {
           using (var reader = new DataTableWrapper(dt))
-          {
-            await reader.OpenAsync(processDisplay.CancellationToken);
-
+          {           
             // Move the reader to a late record
             for (var i = 0; i < dt.Rows.Count / 2; i++)
               await reader.ReadAsync(processDisplay.CancellationToken);
