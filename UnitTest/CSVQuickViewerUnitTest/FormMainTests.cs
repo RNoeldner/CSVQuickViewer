@@ -12,38 +12,33 @@
  *
  */
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
 using System.IO;
-using System.Reflection;
-using System.Threading;
-using System.Windows.Forms;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
   [TestClass]
   public class FormMainTests
   {
-    public void GetButtons(Control rootControl, List<Component> btns)
-    {
-      foreach (Control ctrl in rootControl.Controls)
-      {
-        if (ctrl is Button)
-          btns.Add(ctrl);
-        else if (ctrl is ToolStrip ts)
-        {
-          foreach (ToolStripItem i in ts.Items)
-          {
-            if (i is ToolStripButton)
-              btns.Add(i);
-          }
-        }
-        else if (ctrl.HasChildren)
-          GetButtons(ctrl, btns);
-      }
-    }
+    //public void GetButtons(Control rootControl, List<Component> btns)
+    //{
+    //  foreach (Control ctrl in rootControl.Controls)
+    //  {
+    //    if (ctrl is Button)
+    //      btns.Add(ctrl);
+    //    else if (ctrl is ToolStrip ts)
+    //    {
+    //      foreach (ToolStripItem i in ts.Items)
+    //      {
+    //        if (i is ToolStripButton)
+    //          btns.Add(i);
+    //      }
+    //    }
+    //    else if (ctrl.HasChildren)
+    //      GetButtons(ctrl, btns);
+    //  }
+    //}
 
     //[TestMethod]
     //public void CheckEvents()
@@ -73,14 +68,14 @@ namespace CsvTools.Tests
     //}
 
     [TestMethod]
-    public void FormMain_BasicCSV()
-    {
+    [Timeout(20000)]
+    public void FormMain_BasicCSV() =>
       Extensions.RunSTAThread(() =>
       {
         using (var frm = new FormMain(Path.Combine(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt.gz"))))
         {
-          frm.Size = new Size(50, 50);
-          UnitTestWinFormHelper.ShowFormAndClose(frm, 1, (f) =>
+          frm.Size = new Size(800, 600);
+          UnitTestWinFormHelper.ShowFormAndClose(frm, .2, f =>
           {
             while (!f.LoadFinished && !UnitTestInitializeCsv.Token.IsCancellationRequested)
               UnitTestWinFormHelper.WaitSomeTime(.2, UnitTestInitializeCsv.Token);
@@ -89,16 +84,15 @@ namespace CsvTools.Tests
           Assert.AreEqual(7, frm.DataTable.Rows.Count);
         }
       });
-    }
 
     [TestMethod]
-    public void FormMain_AllFormatsPipe()
-    {
+    [Timeout(20000)]
+    public void FormMain_AllFormatsPipe() =>
       Extensions.RunSTAThread(() =>
       {
         using (var frm = new FormMain(UnitTestInitializeCsv.GetTestPath("AllFormatsPipe.txt")))
         {
-          UnitTestWinFormHelper.ShowFormAndClose(frm, 1, (f) =>
+          UnitTestWinFormHelper.ShowFormAndClose(frm, .2, f =>
           {
             while (!f.LoadFinished && !UnitTestInitializeCsv.Token.IsCancellationRequested)
               UnitTestWinFormHelper.WaitSomeTime(.2, UnitTestInitializeCsv.Token);
@@ -108,6 +102,5 @@ namespace CsvTools.Tests
           Assert.AreEqual(46, frm.DataTable.Rows.Count);
         }
       });
-    }
   }
 }

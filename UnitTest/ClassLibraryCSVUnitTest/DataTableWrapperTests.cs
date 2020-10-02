@@ -11,10 +11,10 @@ namespace CsvTools.Tests
     private readonly DataTable m_DataTable = UnitTestHelper.RandomDataTable(100);
 
     [TestMethod]
-    public async Task DataTableWrapperOpenCloseTest()
+    public void DataTableWrapperOpenCloseTest()
     {
       using (var test = new DataTableWrapper(m_DataTable))
-      {                
+      {
         test.Read();
         Assert.IsFalse(test.IsClosed);
         test.Close();
@@ -26,7 +26,7 @@ namespace CsvTools.Tests
     public async Task DataTableWrapperProperties()
     {
       using (var test = new DataTableWrapper(m_DataTable))
-      {        
+      {
         await test.ReadAsync(UnitTestInitializeCsv.Token);
         Assert.AreEqual(m_DataTable.Rows.Count, test.RecordsAffected, "RecordsAffected");
         Assert.AreEqual(1, test.Percent, "Percent");
@@ -39,11 +39,10 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public async Task GetNameTest()
+    public void GetNameTest()
     {
       using (var test = new DataTableWrapper(m_DataTable))
       {
-        await test.OpenAsync(UnitTestInitializeCsv.Token);
         Assert.AreEqual(m_DataTable.Columns[0].ColumnName, test.GetName(0));
         Assert.AreEqual("Text", test.GetName(1));
         Assert.AreEqual("ColText1", test.GetName(2));
@@ -53,12 +52,11 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public async Task GetDataTypeNameTestAsync()
+    public void GetDataTypeNameTestAsync()
     {
       using (var test = new DataTableWrapper(m_DataTable))
       {
-        await test.OpenAsync(UnitTestInitializeCsv.Token);
-        Assert.AreEqual(nameof(Int32), test.GetDataTypeName(0));
+        Assert.AreEqual(DataType.Integer.GetNetType().Name, test.GetDataTypeName(0));
         Assert.AreEqual(nameof(String), test.GetDataTypeName(1));
         Assert.AreEqual(nameof(DateTime), test.GetDataTypeName(4));
         try
@@ -74,12 +72,11 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public async Task GetFieldTypeTest()
+    public void GetFieldTypeTest()
     {
       using (var test = new DataTableWrapper(m_DataTable))
       {
-        await test.OpenAsync(UnitTestInitializeCsv.Token);
-        Assert.AreEqual(typeof(int), test.GetFieldType(0));
+        Assert.AreEqual(DataType.Integer.GetNetType(), test.GetFieldType(0));
         Assert.AreEqual(typeof(string), test.GetFieldType(1));
       }
     }
@@ -88,7 +85,7 @@ namespace CsvTools.Tests
     public async Task GetValueTest()
     {
       using (var test = new DataTableWrapper(m_DataTable))
-      {        
+      {
         await test.ReadAsync(UnitTestInitializeCsv.Token);
         Assert.IsInstanceOfType(test.GetValue(0), typeof(int));
         Assert.IsInstanceOfType(test.GetValue(1), typeof(string));
@@ -195,7 +192,7 @@ namespace CsvTools.Tests
           row[5] = 11;
 
         using (var test = new DataTableWrapper(dt2))
-        {          
+        {
           await test.ReadAsync(UnitTestInitializeCsv.Token);
           Assert.AreEqual((short) 11, test.GetInt16(5));
         }
@@ -206,7 +203,7 @@ namespace CsvTools.Tests
     public async Task GetInt32Test()
     {
       using (var test = new DataTableWrapper(m_DataTable))
-      {        
+      {
         await test.ReadAsync(UnitTestInitializeCsv.Token);
         Assert.IsInstanceOfType(test.GetInt32(0), typeof(Int32));
       }

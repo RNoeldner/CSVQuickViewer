@@ -62,7 +62,7 @@ namespace CsvTools.Tests
         Assert.AreEqual((float) -12086.66, wrapper.GetFloat(2));
         Assert.AreEqual(-12086.66, wrapper.GetDouble(2));
         Assert.AreEqual((decimal) -12086.66, wrapper.GetDecimal(2));
-        Assert.AreEqual("-12086.66", wrapper.GetString(2));
+        Assert.AreEqual((-12086.66).ToString(), wrapper.GetString(2));
       }
     }
 
@@ -77,7 +77,7 @@ namespace CsvTools.Tests
         await wrapper.ReadAsync(process.CancellationToken);
 
         Assert.AreEqual(new Guid("1BD10E34-7D66-481B-A7E3-AE817B5BEE02"), wrapper.GetGuid(7));
-        Assert.AreEqual("1BD10E34-7D66-481B-A7E3-AE817B5BEE02", wrapper.GetString(7));
+        Assert.AreEqual("1BD10E34-7D66-481B-A7E3-AE817B5BEE02", wrapper.GetString(7).ToUpper());
       }
     }
 

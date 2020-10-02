@@ -9,7 +9,7 @@ namespace CsvTools.Tests
   public class DataTableReaderTests
   {
     private readonly DataTable m_DataTable = UnitTestHelper.RandomDataTable(100);
-    
+
 
     [TestMethod]
     public async Task GetDataTableAsyncTest1Async()
@@ -17,7 +17,7 @@ namespace CsvTools.Tests
       using (var pd = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       {
         using (var test = new DataTableWrapper(m_DataTable))
-        {          
+        {
           var dt = await test.GetDataTableAsync(200, false, true, false, false, false, null,
             pd.CancellationToken);
           Assert.AreEqual(m_DataTable, dt);
@@ -67,7 +67,7 @@ namespace CsvTools.Tests
         using (var test = new DataTableWrapper(m_DataTable))
         {
           await test.OpenAsync(processDisplay.CancellationToken);
-          Assert.AreEqual(typeof(int), test.GetFieldType(0));
+          Assert.AreEqual(DataType.Integer.GetNetType(), test.GetFieldType(0));
         }
       }
     }
