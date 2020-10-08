@@ -262,7 +262,7 @@ namespace CsvTools.Tests
       using (var customProcess = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       {
         customProcess.Progress += (sender, args) => testValue = args.Text;
-        Logger.AddLog += (s, level) => testValue2 = s;
+        Logger.AddLog = (s, level) => testValue2 = s;
 
         var test = customProcess.GetLogInfoMessage();
         test.Invoke(null, "Test");

@@ -271,9 +271,6 @@
     <Content Include="csv_text.ico" />
     <Content Include="FodyWeavers.xml" />
     <None Include="LICENSE" />
-    <None Include="NLog.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="README.txt" />
     <None Include="App.config" />
     <None Include="app.manifest" />
