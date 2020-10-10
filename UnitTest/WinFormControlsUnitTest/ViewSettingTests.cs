@@ -1,5 +1,4 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Pri.LongPath;
 using System.Collections.Generic;
 using System.Windows.Forms;
 
@@ -82,9 +81,9 @@ namespace CsvTools.Tests
           var text = ViewSetting.StoreViewSetting(dc.FilteredDataGridView.Columns, columnFilters, dc.FilteredDataGridView.Columns[0],
             SortOrder.Descending);
 
-          var fn = Path.Combine(FileSystemUtils.ExecutableDirectoryName(), "test.delete");
+          var fn = System.IO.Path.Combine(FileSystemUtils.ExecutableDirectoryName(), "test.delete");
           FileSystemUtils.FileDelete(fn);
-          File.WriteAllText(fn, text);
+          FileSystemUtils.WriteAllText(fn, text);
           dc.ReStoreViewSetting(fn);
           FileSystemUtils.FileDelete(fn);
         }
