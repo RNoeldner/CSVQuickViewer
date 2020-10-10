@@ -7,8 +7,7 @@
     <Product>CSVTools</Product>
     <AssemblyVersion>1.6.4.391</AssemblyVersion>
     <FileVersion>1.6.4.391</FileVersion>
-	  <TargetFramework>netstandard2.1</TargetFramework>
-    <Nullable>annotations</Nullable>
+	  <TargetFramework>netstandard2.0</TargetFramework>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
   </PropertyGroup>
 
@@ -26,10 +25,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="JetBrains.Annotations" Version="2020.1.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="NLog" Version="4.7.4" />
-    <PackageReference Include="Pri.LongPath" Version="2.0.53" />
     <PackageReference Include="Ude.NetStandard" Version="1.2.0" />
   </ItemGroup>
 </Project>

@@ -21,6 +21,7 @@ using System.Data;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -314,9 +315,8 @@ namespace CsvTools
         }
         catch
         {
+          // ignored
         }
-
-        ;
       }
     }
 
@@ -1171,7 +1171,7 @@ namespace CsvTools
         if ((FileSetting is IFileSettingPhysicalFile settingPhysicalFile))
           split = FileSystemUtils.SplitPath(settingPhysicalFile.FullPath);
         else
-          split = new FileSystemUtils.SplitResult(Pri.LongPath.Directory.GetCurrentDirectory(),
+          split = new FileSystemUtils.SplitResult(Directory.GetCurrentDirectory(),
             $"{FileSetting.ID}.txt");
 
         // This will always write a delimited text file
@@ -1221,7 +1221,6 @@ namespace CsvTools
                 .OrderBy(col => col.DisplayIndex)
                 .Select(col => col.DataPropertyName).ToArray())))
           {
-            await dt.OpenAsync(processDisplay.CancellationToken);
             // can not use filteredDataGridView.Columns directly
             await writer.WriteAsync(dt, processDisplay.CancellationToken);
           }

@@ -811,7 +811,7 @@ namespace CsvTools.Tests
         await test.OpenAsync(processDisplay.CancellationToken);
         var samples = await DetermineColumnFormat.GetSampleValuesAsync((IFileReader) test, (long) 1000, new[] {0}, 20,
           "NULL", UnitTestInitializeCsv.Token);
-        Assert.AreEqual(7, samples.Values.Count());
+        Assert.AreEqual(7, samples[0].Values.Count());
         Assert.IsTrue(samples[0].RecordsRead >= 7);
         Assert.IsTrue(samples[0].Values.Contains("1"));
         Assert.IsTrue(samples[0].Values.Contains("4"));
@@ -829,10 +829,12 @@ namespace CsvTools.Tests
       using (var test = new CsvFileReader(setting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
+
         var temp = await DetermineColumnFormat
           .GetSampleValuesAsync((IFileReader) test, (long) 100, new[] {0}, 20, "NULL", UnitTestInitializeCsv.Token)
           .ConfigureAwait(false);
-        Assert.IsNull(temp);
+
+        Assert.IsTrue(temp == null || temp.Count==0);
       }
     }
 
