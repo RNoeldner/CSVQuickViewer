@@ -24,6 +24,7 @@ namespace CsvTools
 {
   public static class ViewSetting
   {
+    [CanBeNull]
     private static ToolStripDataGridViewColumnFilter GetFilter([NotNull] string dataPropertyName,
       [NotNull] IList<ToolStripDataGridViewColumnFilter> columnFilters, [NotNull] DataGridViewColumnCollection columns,
       [CanBeNull] Func<int, ToolStripDataGridViewColumnFilter> createFilterColumn)
@@ -128,13 +129,13 @@ namespace CsvTools
       }
     }
 
-    public static string StoreViewSetting([NotNull] DataGridViewColumnCollection columns,
+    public static string StoreViewSetting([NotNull] DataGridView ctrl,
+      [NotNull] ICollection<ToolStripDataGridViewColumnFilter> columnFilters) => StoreViewSetting(ctrl.Columns, columnFilters, ctrl.SortedColumn, ctrl.SortOrder);
+
+    private static string StoreViewSetting([NotNull] DataGridViewColumnCollection columns,
       [NotNull] ICollection<ToolStripDataGridViewColumnFilter> columnFilters, [CanBeNull] DataGridViewColumn sortedColumn,
       SortOrder sortOrder)
     {
-      if (columnFilters.Count == 0)
-        throw new ArgumentException(@"Value cannot be an empty collection.", nameof(columnFilters));
-
       var vst = (from DataGridViewColumn col in columns
                  select new ColumnSetting(col.DataPropertyName, col.Visible,
                    ReferenceEquals(col, sortedColumn) ? (int) sortOrder : 0, col.DisplayIndex, col.Width)).ToList();
