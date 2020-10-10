@@ -53,8 +53,6 @@ namespace CsvTools
 
     private FillGuessSettings m_FillGuessSettings = new FillGuessSettings();
 
-    private bool m_GuessCodePage = true;
-
     private bool m_GuessDelimiter = true;
 
     private bool m_GuessHasHeader = true;
@@ -75,14 +73,14 @@ namespace CsvTools
       {
         switch (LimitDuration)
         {
-          case ViewSettings.DurationEnum.HalfSecond:
+          case DurationEnum.HalfSecond:
             return TimeSpan.FromSeconds(.5);
-          case ViewSettings.DurationEnum.Second:
+          case DurationEnum.Second:
             return TimeSpan.FromSeconds(1);
 
-          case ViewSettings.DurationEnum.TwoSecond:
+          case DurationEnum.TwoSecond:
             return TimeSpan.FromSeconds(2);
-          case ViewSettings.DurationEnum.TenSecond:
+          case DurationEnum.TenSecond:
             return TimeSpan.FromSeconds(10);
           default:
             return TimeSpan.MaxValue;
@@ -151,19 +149,6 @@ namespace CsvTools
     [XmlIgnore]
     public virtual bool FillGuessSettingsSpecified => !m_FillGuessSettings.Equals(new FillGuessSettings());
 
-    [XmlAttribute]
-    [DefaultValue(true)]
-    public bool GuessCodePage
-    {
-      get => m_GuessCodePage;
-      set
-      {
-        if (m_GuessCodePage == value)
-          return;
-        m_GuessCodePage = value;
-        NotifyPropertyChanged(nameof(GuessCodePage));
-      }
-    }
 
     [XmlAttribute]
     [DefaultValue(true)]
@@ -281,7 +266,6 @@ namespace CsvTools
       csvDest.HasFieldHeader = csvSrc.HasFieldHeader;
       csvDest.NoDelimitedFile = csvSrc.NoDelimitedFile;
       csvDest.NumWarnings = csvSrc.NumWarnings;
-      // csvDest.RecordLimit = csvSrc.RecordLimit;
       csvDest.SkipDuplicateHeader = csvSrc.SkipDuplicateHeader;
       csvDest.SkipEmptyLines = csvSrc.SkipEmptyLines;
       csvDest.SkipRows = csvSrc.SkipRows;

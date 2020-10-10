@@ -148,7 +148,7 @@
       this.m_ToolStripButtonAsText.Name = "m_ToolStripButtonAsText";
       this.m_ToolStripButtonAsText.Size = new System.Drawing.Size(23, 22);
       this.m_ToolStripButtonAsText.Text = "Text";
-      this.m_ToolStripButtonAsText.Click += new System.EventHandler(this.ToggelDisplayAsText);
+      this.m_ToolStripButtonAsText.Click += new System.EventHandler(this.ToggleDisplayAsText);
       // 
       // m_ToolStripButtonShowLog
       // 

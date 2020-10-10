@@ -61,22 +61,15 @@ namespace CsvTools
     /// </summary>
     public FilteredDataGridView()
     {
+      InitializeComponent();
+
       //Workaround as Text on Windows 8 is too small
       if (Environment.OSVersion.Version.Major == 6 && Environment.OSVersion.Version.Minor > 1)
         Paint += FilteredDataGridView_Paint;
 
       var resources = new ComponentResourceManager(typeof(FilteredDataGridView));
-      //try
-      //{
       m_ImgFilterIndicator = (Image) resources.GetObject("toolStripMenuItem2.Image");
-      // m_ImgNbSp = ((Image)(resources.GetObject("NBSP")));
-      //}
-      //catch
-      //{
-      //  //ignore
-      //}
-
-      InitializeComponent();
+      
       DataError += FilteredDataGridView_DataError;
       toolStripMenuItemColumnVisibility.ItemCheck += CheckedListBox_ItemCheck;
       if (contextMenuStripHeader.LayoutSettings is TableLayoutSettings tableLayoutSettings)
@@ -296,10 +289,7 @@ namespace CsvTools
     public void SetRowHeight()
     {
       // Determine each column that could contain a text and is not hidden
-      var visible = new List<DataGridViewColumn>();
-      foreach (DataGridViewColumn column in Columns)
-        if (column.Visible && column.ValueType == typeof(string))
-          visible.Add(column);
+      var visible = Columns.Cast<DataGridViewColumn>().Where(column => column.Visible && column.ValueType == typeof(string)).ToList();
 
       // Need to stop after some time, this can take a long time
       var start = DateTime.Now;
@@ -379,18 +369,18 @@ namespace CsvTools
     /// <returns>A number for DataGridViewColumn.With</returns>
     private static int GetColumnWith(DataColumn col, DataRowCollection rowCollection)
     {
-      const int c_WidthInt = 25;
-      const int c_WidthDec = 50;
-      const int c_WidthDate = 110;
-      const int c_WidthTextMed = 225;
-      const int c_WidthTextLong = 350;
+      const int widthInt = 25;
+      const int widthDec = 50;
+      const int widthDate = 110;
+      const int widthTextMed = 225;
+      const int widthTextLong = 350;
 
       if (col.DataType == typeof(int) || col.DataType == typeof(bool) || col.DataType == typeof(long))
-        return c_WidthInt;
+        return widthInt;
       if (col.DataType == typeof(decimal))
-        return c_WidthDec;
+        return widthDec;
       if (col.DataType == typeof(DateTime))
-        return c_WidthDate;
+        return widthDate;
       if (col.DataType == typeof(string))
       {
         var remain = 30;
@@ -399,9 +389,9 @@ namespace CsvTools
           if (dataRow[col] != DBNull.Value)
           {
             if (dataRow[col].ToString().Length > 80)
-              return c_WidthTextLong;
+              return widthTextLong;
             if (dataRow[col].ToString().Length > 15)
-              return c_WidthTextMed;
+              return widthTextMed;
           }
 
           if (remain-- < 0)
@@ -493,7 +483,7 @@ namespace CsvTools
     /// <returns></returns>
     private int ColumnDisplayMenuItemFind(string text)
     {
-      if (toolStripMenuItemColumnVisibility?.CheckedListBoxControl?.Items != null)
+      if (toolStripMenuItemColumnVisibility?.CheckedListBoxControl.Items != null)
         return toolStripMenuItemColumnVisibility.CheckedListBoxControl.Items.IndexOf(text);
       return -1;
     }
@@ -979,7 +969,7 @@ namespace CsvTools
         {
           case BuildValueClustersResult.Error:
             newMenuItem.Text = @"Values can not be clustered";
-            newMenuItem.ToolTipText = @"Error has occured while clustering the value";
+            newMenuItem.ToolTipText = @"Error has occurred while clustering the value";
             break;
 
           case BuildValueClustersResult.WrongType:
@@ -1349,7 +1339,7 @@ namespace CsvTools
           using (var stream = new ImprovedStream(fileName, false))
           using (var writer = new StreamWriter(stream as Stream, Encoding.UTF8, 1024))
           {
-            await writer.WriteAsync(ViewSetting.StoreViewSetting(Columns, m_Filter, SortedColumn, SortOrder));
+            await writer.WriteAsync(ViewSetting.StoreViewSetting(this, m_Filter));
             await writer.FlushAsync();
           }
       }

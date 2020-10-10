@@ -1091,7 +1091,6 @@ namespace CsvTools
           else if (type == FilterType.ShowIssueFree)
             m_ToolStripComboBoxFilterType.SelectedIndex = 4;
 
-
           m_ToolStripComboBoxFilterType.SelectedIndexChanged += ToolStripComboBoxFilterType_SelectedIndexChanged;
         });
 

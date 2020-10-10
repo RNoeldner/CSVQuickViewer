@@ -358,11 +358,9 @@ namespace CsvTools
             return;
           improvedStream.Seek(0, SeekOrigin.Begin);
           display.SetProcess("Checking Code Page", -1, true);
-          var result = await GuessCodePageAsync(improvedStream, display.CancellationToken).ConfigureAwait(false);
-          setting.CodePageId = (int) result.Item1;
-          setting.ByteOrderMark = result.Item2;
-          //display.SetProcess($"Code Page: {EncodingHelper.GetEncodingName(result.Item1, true, result.Item2)}", -1,
-          //  false);
+          var (codePage, bom) = await GuessCodePageAsync(improvedStream, display.CancellationToken).ConfigureAwait(false);
+          setting.CodePageId = (int) codePage;
+          setting.ByteOrderMark = bom;
         }
 
         // from here on us the encoding to read the stream again
@@ -674,7 +672,7 @@ namespace CsvTools
       const int c_RecSep = 4;
       const int c_UnitSep = 5;
 
-      int[] count = {0, 0, 0, 0, 0, 0};
+      int[] count = { 0, 0, 0, 0, 0, 0 };
 
       // \r = CR (Carriage Return) \n = LF (Line Feed)
 
@@ -763,7 +761,7 @@ namespace CsvTools
       if (textReader == null) throw new ArgumentNullException(nameof(textReader));
 
       const int c_MaxLine = 30;
-      var possibleQuotes = new[] {'"', '\''};
+      var possibleQuotes = new[] { '"', '\'' };
       var counter = new int[possibleQuotes.Length];
 
       var textReaderPosition = new ImprovedTextReaderPositionStore(textReader);
@@ -1009,6 +1007,70 @@ namespace CsvTools
       }
 
       return false;
+    }
+
+    public static async Task<ICsvFile> GetCsvFileSetting(string fileName, Action<ICsvFile> initAction, bool guessJson,
+      bool guessDelimiter, bool guessQualifier, bool guessStartRow,
+      bool guessHasHeader, bool guessNewLine,
+      [NotNull] FillGuessSettings fillGuessSettings, [NotNull] IProcessDisplay processDisplay)
+    {
+      if (processDisplay == null) throw new ArgumentNullException(nameof(processDisplay));
+      if (string.IsNullOrEmpty(fileName))
+        return null;
+
+      if (fileName.IndexOf('~') != -1)
+        fileName = fileName.LongFileName();
+
+      var fileInfo = new FileSystemUtils.FileInfo(fileName);
+
+      if (!fileInfo.Exists)
+        return null;
+      Logger.Information("Examining file {filename}", FileSystemUtils.GetShortDisplayFileName(fileName, 40));
+      Logger.Information($"Size of file: {StringConversion.DynamicStorageSize(fileInfo.Length)}");
+
+      // load from Setting file
+      if (fileName.EndsWith(CsvFile.cCsvSettingExtension, StringComparison.OrdinalIgnoreCase) || FileSystemUtils.FileExists(fileName + CsvFile.cCsvSettingExtension))
+      {
+        if (!fileName.EndsWith(CsvFile.cCsvSettingExtension, StringComparison.OrdinalIgnoreCase))
+          fileName += CsvFile.cCsvSettingExtension;
+        // we defiantly have a the extension with the name
+        var fileSettingSer = SerializedFilesLib.LoadCsvFile(fileName);
+        fileSettingSer.FileName = fileName.Substring(0, fileName.Length - CsvFile.cCsvSettingExtension.Length);
+        Logger.Information(
+          "Configuration read from setting file {filename}",
+          FileSystemUtils.GetShortDisplayFileName(fileName, 40));
+
+        // un-ignore all ignored columns
+        foreach (var col in fileSettingSer.ColumnCollection.Where(x => x.Ignore))
+          col.Ignore = false;
+
+        return fileSettingSer;
+      }
+
+      // Determine  from file
+      var fileSetting = new CsvFile();
+      initAction?.Invoke(fileSetting);
+
+      fileSetting.FileName = fileName;
+      fileSetting.ID = fileName;
+      fileSetting.HasFieldHeader = true;
+
+      await fileSetting.RefreshCsvFileAsync(
+        processDisplay,
+        guessJson,
+        true,
+        guessDelimiter,
+        guessQualifier,
+        guessStartRow,
+        guessHasHeader,
+        guessNewLine);
+
+      await fileSetting.FillGuessColumnFormatReaderAsync(
+        true,
+        false,
+        fillGuessSettings,
+        processDisplay);
+      return fileSetting;
     }
   }
 }

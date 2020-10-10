@@ -544,25 +544,25 @@ namespace CsvTools
     public class FileInfo
     {
       private readonly System.IO.FileInfo m_Info;
-      private DateTime m_LastWriteTimeUtc;
+      private DateTime m_LastWriteTimeUtc = BaseSettings.ZeroTime;
 
       public FileInfo([CanBeNull] string fileName)
       {
         Name = fileName?.RemovePrefix();
-        Length = 0;
-        m_LastWriteTimeUtc = BaseSettings.ZeroTime;
-        if (string.IsNullOrEmpty(fileName))
-        {
-          Exists = false;
-        }
-        else
+
+        if (string.IsNullOrEmpty(fileName)) return;
+        try
         {
           m_Info = new System.IO.FileInfo(fileName.LongPathPrefix());
-          Exists = m_Info.Exists;
-
           if (!m_Info.Exists) return;
-          m_LastWriteTimeUtc = m_Info.LastWriteTimeUtc;
+
+          Exists = true;
           Length = m_Info.Length;
+          m_LastWriteTimeUtc = m_Info.LastWriteTimeUtc;
+        }
+        catch
+        {
+          // ignore
         }
       }
 
