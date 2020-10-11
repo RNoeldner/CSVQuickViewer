@@ -88,7 +88,9 @@ namespace CsvTools
       if (string.IsNullOrEmpty(directory))
         directory = Assembly.GetEntryAssembly()?.Location;
 
-      return (string.IsNullOrEmpty(directory) ? Path.GetFullPath(".") : Path.GetDirectoryName(directory.LongPathPrefix())) ?? string.Empty;
+      return (string.IsNullOrEmpty(directory)
+        ? Path.GetFullPath(".")
+        : Path.GetDirectoryName(directory.LongPathPrefix())) ?? string.Empty;
     }
 
     /// <summary>
@@ -165,9 +167,19 @@ namespace CsvTools
       if (string.IsNullOrEmpty(fileName))
         return string.Empty;
 
-      return !Path.IsPathRooted(fileName)
-        ? Path.GetFullPath((string.IsNullOrEmpty(basePath) ? fileName : PathCombine(basePath, fileName)).RemovePrefix())
-        : fileName;
+      if (Path.IsPathRooted(fileName))
+        return fileName;
+
+      if (string.IsNullOrEmpty(basePath))
+        return GetFullPath(fileName).RemovePrefix();
+
+      var split = fileName.LastIndexOf(Path.DirectorySeparatorChar);
+      if (split == -1)
+        return GetFullPath(Path.Combine(basePath, fileName)).RemovePrefix();
+
+      // the filename could contains wildcards, that is not supported when extending relative path
+      return (GetFullPath(Path.Combine(basePath, fileName.Substring(0, split))) + fileName.Substring(split))
+        .RemovePrefix();
     }
 
     /// <summary>
@@ -203,7 +215,8 @@ namespace CsvTools
       // If a pattern is present in the folder this is not going to work
       var newSet = new DateTime(0);
       string lastFile = null;
-      foreach (var fileName in Directory.EnumerateFiles(folder.LongPathPrefix(), searchPattern, SearchOption.TopDirectoryOnly))
+      foreach (var fileName in Directory.EnumerateFiles(folder.LongPathPrefix(), searchPattern,
+        SearchOption.TopDirectoryOnly))
       {
         var fileTime = new System.IO.FileInfo(fileName).LastWriteTimeUtc;
         if (fileTime <= newSet)
@@ -238,7 +251,7 @@ namespace CsvTools
       var otherDir = Path.GetFullPath(fileName);
 
       var folder = GetRelativeFolder(otherDir, basePath);
-      return folder.Substring(0, folder.Length-1);
+      return folder.Substring(0, folder.Length - 1);
     }
 
     [NotNull]
@@ -292,7 +305,7 @@ namespace CsvTools
       var ret = fileName.RemovePrefix();
       if (length <= 0 || string.IsNullOrEmpty(fileName) || fileName.Length <= length)
         return ret;
-      var parts = fileName.Split(new[] { '\\' }, StringSplitOptions.RemoveEmptyEntries);
+      var parts = fileName.Split(new[] {'\\'}, StringSplitOptions.RemoveEmptyEntries);
       var fileNameOnly = parts[parts.Length - 1];
 
       // try to cut out directories
@@ -411,7 +424,7 @@ namespace CsvTools
     {
       if (string.IsNullOrEmpty(fileName))
         return string.Empty;
-      if (fileName.IndexOfAny(new[] { '*', '?', '[', ']' }) == -1)
+      if (fileName.IndexOfAny(new[] {'*', '?', '[', ']'}) == -1)
         return fileName;
 
       var split = SplitPath(fileName);
@@ -516,6 +529,7 @@ namespace CsvTools
           path = Path.GetFullPath(path);
         lastIndex = path.LastIndexOf(Path.DirectorySeparatorChar);
       }
+
       return lastIndex != -1
         ? new SplitResult(path.Substring(0, lastIndex).RemovePrefix(), path.Substring(lastIndex + 1))
         : new SplitResult(path.RemovePrefix(), string.Empty);
