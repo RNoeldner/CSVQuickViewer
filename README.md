@@ -27,10 +27,9 @@ The application can:
 * HTML Copy and Paste for storing cut values in Excel / Word,  retaining value types
 
 This application does use various NuGet libraries:
-* Pri.LongPath (Support for long file names)
 * FastColoredTextBox (Diplsay of source file with highlighting even if file is very large)
 * Ude.NetStandard  (Mozilla Universal Charset Detector for dotnet)
 * Newtonsoft.Json (Support for Json files)
 * Costura.Fody (Embedding dll into executable)
-* NLog (Logging Platform)
+* Serilog (Logging Platform)
 * WindowsAPICodePack (Ability to use new Windows Vista functionality)
