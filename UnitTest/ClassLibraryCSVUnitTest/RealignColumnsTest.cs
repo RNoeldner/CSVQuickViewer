@@ -14,7 +14,7 @@ namespace CsvTools.Tests
       var setting = new CsvFile(UnitTestInitializeCsv.GetTestPath("RealignColumn.txt"))
       {
         HasFieldHeader = true,
-        FileFormat = { FieldDelimiter = "\t" },
+        FileFormat = {FieldDelimiter = "\t"},
         TryToSolveMoreColumns = true,
         AllowRowCombining = true,
         SkipEmptyLines = false
@@ -125,26 +125,27 @@ namespace CsvTools.Tests
       foreach (var line in goodLines)
         test.AddRow(line.Split('|'));
       var col = -1;
-      Action<int, string> handle = (i, s) =>
+
+      void Handle(int i, string s)
       {
         col = i;
-      };
+      }
 
-      var result1 = test.RealignColumn(badLines[0].Split('|'), handle, badLines[0]);
+      var result1 = test.RealignColumn(badLines[0].Split('|'), Handle, badLines[0]);
       Assert.AreEqual("Text|F", result1[3], "Line 1");
       Assert.AreEqual(3, col);
 
-      var result2 = test.RealignColumn(badLines[1].Split('|'), handle, badLines[1]);
+      var result2 = test.RealignColumn(badLines[1].Split('|'), Handle, badLines[1]);
       Assert.AreEqual("Memo: A long text, | multiple words 11", result2[5], "Line 2");
 
-      var result3 = test.RealignColumn(badLines[2].Split('|'), handle, badLines[2]);
+      var result3 = test.RealignColumn(badLines[2].Split('|'), Handle, badLines[2]);
       Assert.AreEqual("Text | R", result3[3], "Line 3");
       Assert.AreEqual("Memo: A long text|\nmultiple words 17", result3[5], "Line 3");
 
-      var result4 = test.RealignColumn(badLines[3].Split('|'), handle, badLines[3]);
+      var result4 = test.RealignColumn(badLines[3].Split('|'), Handle, badLines[3]);
       Assert.AreEqual(numColumns, result4.Length, "Line 4 - Lots of training columns");
 
-      var result5 = test.RealignColumn(badLines[4].Split('|'), handle, badLines[4]);
+      var result5 = test.RealignColumn(badLines[4].Split('|'), Handle, badLines[4]);
       Assert.AreEqual("TRUE", result5[6], "Line 5 - Empty COlumn");
     }
   }

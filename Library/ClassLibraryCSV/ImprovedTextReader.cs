@@ -104,7 +104,6 @@ namespace CsvTools
       private set;
     }
 
-
     private StreamReader TextReader { get; set; }
 
     // This code added to correctly implement the disposable pattern.

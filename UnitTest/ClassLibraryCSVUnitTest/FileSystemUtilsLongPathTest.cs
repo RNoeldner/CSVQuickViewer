@@ -95,6 +95,8 @@ namespace CsvTools.Tests
       }
 
       Assert.IsTrue(FileSystemUtils.FileExists(fn1));
+      FileSystemUtils.FileDelete(fn1);
+
 
       var fn2 = Path.Combine(m_Folder2, "Test1.txt");
       using (var fs = FileSystemUtils.OpenWrite(fn2))
@@ -104,6 +106,8 @@ namespace CsvTools.Tests
       }
 
       Assert.IsTrue(FileSystemUtils.FileExists(fn2));
+
+      FileSystemUtils.FileDelete(fn2);
     }
 
     [TestMethod]
@@ -125,8 +129,8 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GetLatestFileOfPattern()
     {
-     //  var fs1 = FileSystemUtils.GetLatestFileOfPattern(m_Folder1, "*.txt");
-      var fs2 = FileSystemUtils.GetLatestFileOfPattern(m_Folder2, "*.txt"); 
+      //  var fs1 = FileSystemUtils.GetLatestFileOfPattern(m_Folder1, "*.txt");
+      var fs2 = FileSystemUtils.GetLatestFileOfPattern(m_Folder2, "*.txt");
       Assert.AreEqual(m_FileName2, fs2);
     }
 
@@ -139,25 +143,26 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task FileCopy()
     {
-      Assert.IsFalse(FileSystemUtils.FileExists(m_FileName2+ "2"));
-      await FileSystemUtils.FileCopy(m_FileName1, m_FileName2+ "2", true, new CustomProcessDisplay(UnitTestInitializeCsv.Token));
-      Assert.IsTrue(FileSystemUtils.FileExists(m_FileName2+ "2"));
-      FileSystemUtils.FileDelete(m_FileName2+ "2");
+      Assert.IsFalse(FileSystemUtils.FileExists(m_FileName2 + "2"));
+      await FileSystemUtils.FileCopy(m_FileName1, m_FileName2 + "2", true,
+        new CustomProcessDisplay(UnitTestInitializeCsv.Token));
+      Assert.IsTrue(FileSystemUtils.FileExists(m_FileName2 + "2"));
+      FileSystemUtils.FileDelete(m_FileName2 + "2");
     }
 
     [TestMethod]
     public void ResolvePattern()
     {
-      Assert.AreEqual(m_FileName2, FileSystemUtils.ResolvePattern(m_FileName2.Replace("TestFile","*")));
+      Assert.AreEqual(m_FileName2, FileSystemUtils.ResolvePattern(m_FileName2.Replace("TestFile", "TestF*")));
     }
-    
-        [TestMethod]
+
+    [TestMethod]
     public void GetAbsolutePath()
     {
       Assert.AreEqual(m_FileName2, FileSystemUtils.GetAbsolutePath(m_FileName2, null));
     }
-    
-        [TestMethod]
+
+    [TestMethod]
     public void GetFullPath()
     {
       Assert.AreEqual(m_FileName1, FileSystemUtils.GetFullPath(m_FileName1), "GetFullPath1");
@@ -171,12 +176,12 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GetDirectoryName()
     {
-      Assert.AreEqual(m_Folder1, FileSystemUtils.GetDirectoryName(m_FileName1) );
+      Assert.AreEqual(m_Folder1, FileSystemUtils.GetDirectoryName(m_FileName1));
       Assert.AreEqual(m_Folder2, FileSystemUtils.GetDirectoryName(m_FileName2));
     }
-    
 
-        [TestMethod]
+
+    [TestMethod]
     public void GetShortestPath()
     {
       Assert.AreEqual(m_FileName2, m_FileName2.Substring(root.Length + 1).GetAbsolutePath(root), "GetAbsolutePath1");

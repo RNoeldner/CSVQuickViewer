@@ -28,24 +28,49 @@ namespace CsvTools
   /// </summary>
   public class ImprovedStream : Stream, IImprovedStream
   {
-    protected readonly string FileName;
+    private readonly bool m_AssumeGZip;
     private readonly bool m_IsReading;
+    [NotNull] private readonly Func<Stream> m_OpenBaseStream;
     private bool m_DisposedValue;
+    private bool m_IsClosed;
 
+    // ReSharper disable once NotNullMemberIsNotInitialized
     public ImprovedStream([NotNull] string path, bool isReading)
     {
       if (string.IsNullOrEmpty(path))
         throw new ArgumentException("Path must be provided", nameof(path));
-      FileName = path;
       m_IsReading = isReading;
-
+      m_AssumeGZip = path.AssumeGZip();
       // ReSharper disable once VirtualMemberCallInConstructor
-      OpenStreams(isReading);
+      if (isReading)
+        m_OpenBaseStream = () => new FileStream(path.LongPathPrefix(), FileMode.Open, FileAccess.Read, FileShare.Read);
+      else
+        m_OpenBaseStream = () =>
+          new FileStream(path.LongPathPrefix(), FileMode.Create, FileAccess.ReadWrite, FileShare.Read);
+
+      BaseStream = m_OpenBaseStream();
+      if (m_AssumeGZip)
+        OpenZGipOverBase(isReading);
+      else
+        AccessStream = new BufferedStream(BaseStream, 8192);
     }
 
-    [NotNull] protected Stream AccessStream { get; set; }
+    // ReSharper disable once NotNullMemberIsNotInitialized
+    public ImprovedStream([NotNull] Func<Stream> openStream, bool isReading, bool assumeGZip)
+    {
+      m_IsReading = isReading;
+      m_AssumeGZip = assumeGZip;
+      m_OpenBaseStream = openStream ?? throw new ArgumentNullException(nameof(openStream));
+      BaseStream = m_OpenBaseStream();
+      if (m_AssumeGZip)
+        OpenZGipOverBase(isReading);
+      else
+        AccessStream = new BufferedStream(BaseStream, 8192);
+    }
 
-    [NotNull] protected FileStream BaseStream { get; private set; }
+    [NotNull] protected BufferedStream AccessStream { get; set; }
+
+    [NotNull] protected Stream BaseStream { get; private set; }
 
 
     public double Percentage => (double) BaseStream.Position / BaseStream.Length;
@@ -54,28 +79,28 @@ namespace CsvTools
 
     public override long Seek(long offset, SeekOrigin origin)
     {
+      // The stream must support seeking to get or set the position
+      if (AccessStream.CanSeek && (AccessStream.Position == offset && origin == SeekOrigin.Begin))
+        return AccessStream.Position;
+
       if (AccessStream.CanSeek || origin != SeekOrigin.Begin || offset >= 1)
         return AccessStream.Seek(offset, origin);
 
-      // if the steam can seek go to beginning
-      if (!ReferenceEquals(AccessStream, BaseStream))
-      {
-        // Reopen Completely
-        Close();
-        OpenStreams(m_IsReading);
-      }
+      // Reopen Completely
+      Close();
+      ResetStreams(m_IsReading);
 
       return 0;
     }
 
-    public override int Read([NotNull] byte[] buffer, int offset, int count) =>
+    public override int Read(byte[] buffer, int offset, int count) =>
       AccessStream.Read(buffer, offset, count);
 
     public override Task<int> ReadAsync([NotNull] byte[] buffer, int offset, int count,
       CancellationToken cancellationToken) =>
       AccessStream.ReadAsync(buffer, offset, count, cancellationToken);
 
-    public override void Write([NotNull] byte[] buffer, int offset, int count) =>
+    public override void Write(byte[] buffer, int offset, int count) =>
       AccessStream.Write(buffer, offset, count);
 
     public override Task WriteAsync([NotNull] byte[] buffer, int offset, int count,
@@ -90,10 +115,19 @@ namespace CsvTools
 
     public override long Length => BaseStream.Length;
 
+    /// <summary>
+    /// This is the position in the base stream, Access stream (e.G. gZip stream) might not support a position
+    /// </summary>
     public override long Position
     {
-      get => BaseStream.Position;
-      set => BaseStream.Position = value;
+      get => AccessStream.CanSeek ? AccessStream.Position : BaseStream.Position;
+      set
+      {
+        if (AccessStream.CanSeek)
+          AccessStream.Position = value;
+        else
+          BaseStream.Position = value;
+      }
     }
 
     /// <summary>
@@ -103,7 +137,7 @@ namespace CsvTools
     {
       AccessStream.Close();
       BaseStream.Close();
-      base.Close();
+      m_IsClosed = true;
     }
 
 
@@ -128,41 +162,39 @@ namespace CsvTools
       CancellationToken cancellationToken) =>
       AccessStream.CopyToAsync(destination, bufferSize, cancellationToken);
 
+    private void OpenZGipOverBase(bool isReading)
+    {
+      if (isReading)
+      {
+        Logger.Debug("Decompressing from GZip");
+        AccessStream = new BufferedStream(new GZipStream(BaseStream, CompressionMode.Decompress), 8192);
+      }
+      else
+      {
+        Logger.Debug("Compressing to GZip");
+        AccessStream = new BufferedStream(new GZipStream(BaseStream, CompressionMode.Compress), 8192);
+      }
+    }
 
     /// <summary>
     /// Initializes Stream that will be used for reading / writing the data (after Encryption or compression)
     /// </summary>
-    protected virtual void OpenStreams(bool isReading)
+    protected virtual void ResetStreams(bool isReading)
     {
       // Some StreamReader will close the stream, in this case reopen
-      if (!(BaseStream?.CanSeek ?? false))
+      // ReSharper disable once ConditionIsAlwaysTrueOrFalse
+      if (m_IsClosed || !BaseStream.CanSeek)
       {
-        BaseStream = isReading
-          ? new FileStream(FileName.LongPathPrefix(), FileMode.Open, FileAccess.Read, FileShare.Read)
-          : new FileStream(FileName.LongPathPrefix(), FileMode.Create, FileAccess.ReadWrite, FileShare.Read);
+        BaseStream = m_OpenBaseStream();
+        m_IsClosed = false;
       }
-      else
-      {
-        if (BaseStream.Position != 0)
-          BaseStream.Seek(0, SeekOrigin.Begin);
-      }
+      else if (BaseStream.Position != 0)
+        BaseStream.Seek(0, SeekOrigin.Begin);
 
-      if (!FileName.AssumeGZip())
-      {
-        AccessStream = BaseStream;
-        return;
-      }
-
-      if (isReading)
-      {
-        Logger.Debug("Decompressing from GZip {filename}", FileName);
-        AccessStream = new GZipStream(BaseStream, CompressionMode.Decompress);
-      }
+      if (m_AssumeGZip)
+        OpenZGipOverBase(isReading);
       else
-      {
-        Logger.Debug("Compressing to GZip {filename}", FileName);
-        AccessStream = new GZipStream(BaseStream, CompressionMode.Compress);
-      }
+        AccessStream = new BufferedStream(BaseStream, 8192);
     }
   }
 }
