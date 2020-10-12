@@ -28,9 +28,12 @@ namespace CsvTools
   public sealed class DataTableWrapper : DataReaderWrapper, IFileReader
   {
     private bool m_DisposedValue;
-    
-    public DataTableWrapper([NotNull] DataTable dataTable) : base(dataTable?.CreateDataReader() ?? throw new ArgumentNullException(nameof(dataTable)),
-      dataTable.Rows.Count, false, false, false, false) => DataTable = dataTable;
+
+    public DataTableWrapper([NotNull] DataTable dataTable) : base(
+      dataTable?.CreateDataReader() ?? throw new ArgumentNullException(nameof(dataTable)),
+      dataTable.Rows.Count) => DataTable = dataTable;
+
+    [NotNull] public DataTable DataTable { get; }
 
     [Obsolete("Not needed for DataTableWrapper")]
     public event EventHandler<RetryEventArgs> OnAskRetry;
@@ -42,8 +45,6 @@ namespace CsvTools
     [Obsolete("Not needed for DataTableWrapper")]
     public event EventHandler<WarningEventArgs> Warning;
 
-    [NotNull] public DataTable DataTable { get; }
-
     public Func<Task> OnOpen { get; set; }
 
     public bool SupportsReset => true;
@@ -54,7 +55,7 @@ namespace CsvTools
     public async Task OpenAsync(CancellationToken token)
     {
       if (OnOpen != null) await OnOpen.Invoke();
-      if (OpenFinished != null) OpenFinished.Invoke(this, base.ReaderMapping.Column);
+      OpenFinished?.Invoke(this, base.ReaderMapping.Column);
     }
 
     public override async Task<bool> ReadAsync(CancellationToken token)
@@ -70,7 +71,7 @@ namespace CsvTools
       return false;
     }
 
-    public async Task ResetPositionToFirstDataRowAsync(CancellationToken token)
+    public void ResetPositionToFirstDataRow()
     {
       base.m_DataReader.Close();
       base.m_DataReader = DataTable.CreateDataReader();

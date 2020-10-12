@@ -109,10 +109,13 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderCancellationOnOpenAsync()
     {
-      var setting = new CsvFile {HasFieldHeader = false};
-      setting.FileFormat.AlternateQuoting = true;
-      setting.TrimmingOption = TrimmingOption.All;
-      setting.FileName = UnitTestInitializeCsv.GetTestPath("AlternateTextQualifiers.txt");
+      var setting = new CsvFile
+      {
+        HasFieldHeader = false,
+        FileFormat = {AlternateQuoting = true},
+        TrimmingOption = TrimmingOption.All,
+        FileName = UnitTestInitializeCsv.GetTestPath("AlternateTextQualifiers.txt")
+      };
       using (var cts = CancellationTokenSource.CreateLinkedTokenSource(UnitTestInitializeCsv.Token))
       using (var processDisplay = new CustomProcessDisplay(cts.Token))
       {

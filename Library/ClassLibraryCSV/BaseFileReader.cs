@@ -798,9 +798,8 @@ namespace CsvTools
     /// <summary>
     ///   Resets the position and buffer to the header in case the file has a header
     /// </summary>
-    /// <param name="token"></param>
 #pragma warning disable 1998
-    public virtual async Task ResetPositionToFirstDataRowAsync(CancellationToken token)
+    public virtual void ResetPositionToFirstDataRow()
 #pragma warning restore 1998
     {
       EndLineNumber = 0;

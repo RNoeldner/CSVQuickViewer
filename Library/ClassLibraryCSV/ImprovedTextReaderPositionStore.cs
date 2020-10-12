@@ -28,18 +28,17 @@ namespace CsvTools
     /// <summary>
     ///   True if we have read all data in the reader once
     /// </summary>
-    public async Task<bool> AllReadAsync() => (m_ImprovedTextReader.EndOfFile && !await CanStartFromBeginningAsync())
-                                              || (m_ArrivedAtEndOnce &&
-                                                  m_ImprovedTextReader.LineNumber > m_LineStarted);
+    public bool AllRead() => (m_ImprovedTextReader.EndOfStream && !CanStartFromBeginning()) ||
+                             (m_ArrivedAtEndOnce && m_ImprovedTextReader.LineNumber > m_LineStarted);
 
     /// <summary>
     ///   Determines if we could reset the position to allow processing text that had been read before
     /// </summary>
-    public async Task<bool> CanStartFromBeginningAsync()
+    public bool CanStartFromBeginning()
     {
       if (m_ArrivedAtEndOnce || m_LineStarted <= 1) return false;
       m_ArrivedAtEndOnce = true;
-      await m_ImprovedTextReader.ToBeginningAsync();
+      m_ImprovedTextReader.ToBeginning();
       return true;
     }
   }
