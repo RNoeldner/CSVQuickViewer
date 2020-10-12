@@ -149,8 +149,7 @@ namespace CsvTools
       return false;
     }
 
-    public override async Task ResetPositionToFirstDataRowAsync(CancellationToken token) =>
-      await Task.Run(ResetPositionToStartOrOpen, token);
+    public override void ResetPositionToFirstDataRow() => ResetPositionToStartOrOpen();
 
     /// <summary>
     ///   Reads a data row from the JsonTextReader and stores the values and text, this will flatten

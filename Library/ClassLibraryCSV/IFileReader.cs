@@ -31,6 +31,7 @@ namespace CsvTools
     /// </summary>
     /// <value>The line number in which the record ended</value>
     long EndLineNumber { get; }
+
     int Percent { get; }
 
     /// <summary>
@@ -118,7 +119,6 @@ namespace CsvTools
     /// <summary>
     ///   Resets the position and buffer to the header in case the file has a header
     /// </summary>
-    /// <param name="token"></param>
-    Task ResetPositionToFirstDataRowAsync(CancellationToken token);
+    void ResetPositionToFirstDataRow();
   }
 }

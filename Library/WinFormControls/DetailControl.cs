@@ -1200,9 +1200,9 @@ namespace CsvTools
           using (var iStream = FunctionalDI.OpenRead(src.FullPath))
           using (var sr = new ImprovedTextReader(iStream, src.CodePageId))
           {
-            await sr.ToBeginningAsync();
+            sr.ToBeginning();
             for (var i = 0; i < src.SkipRows; i++)
-              writeFile.Header += await sr.ReadLineAsync() + '\n';
+              writeFile.Header += sr.ReadLine() + '\n';
           }
         }
 

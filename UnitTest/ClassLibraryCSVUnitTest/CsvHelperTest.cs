@@ -108,21 +108,21 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public async Task GuessHasHeaderAsync()
+    public void GuessHasHeader()
     {
       using (var stream = new ImprovedStream(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"), true))
       using (var reader = new ImprovedTextReader(stream))
       {
-        await reader.ToBeginningAsync();
-        Assert.IsTrue(await CsvHelper.GuessHasHeaderAsync(reader, "#", ',', UnitTestInitializeCsv.Token));
+        reader.ToBeginning();
+        Assert.IsTrue(CsvHelper.GuessHasHeader(reader, "#", ',', UnitTestInitializeCsv.Token));
       }
 
       using (var stream =
         new ImprovedStream(UnitTestInitializeCsv.GetTestPath("HandlingDuplicateColumnNames.txt"), true))
       using (var reader = new ImprovedTextReader(stream))
       {
-        await reader.ToBeginningAsync();
-        Assert.IsFalse(await CsvHelper.GuessHasHeaderAsync(reader, "#", ',', UnitTestInitializeCsv.Token));
+        reader.ToBeginning();
+        Assert.IsFalse(CsvHelper.GuessHasHeader(reader, "#", ',', UnitTestInitializeCsv.Token));
       }
     }
 

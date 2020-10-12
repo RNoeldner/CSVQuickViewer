@@ -170,7 +170,7 @@ namespace CsvTools
       if (fileReader.FieldCount == 0)
         return result;
       if (fileReader.EndOfFile)
-        await fileReader.ResetPositionToFirstDataRowAsync(processDisplay.CancellationToken);
+        fileReader.ResetPositionToFirstDataRow();
       if (fileReader.EndOfFile) // still end of file
         return result;
 
@@ -361,7 +361,6 @@ namespace CsvTools
           }
         }
       }
-
 
       processDisplay.CancellationToken.ThrowIfCancellationRequested();
 
@@ -683,7 +682,7 @@ namespace CsvTools
         if (fileReader.EndOfFile && fileReader.SupportsReset)
         {
           Logger.Debug("Resetting read position to the beginning");
-          await fileReader.ResetPositionToFirstDataRowAsync(cancellationToken).ConfigureAwait(false);
+          fileReader.ResetPositionToFirstDataRow();
         }
 
         // Ready to start store the record number we are currently at, we could be in the middle of
@@ -707,7 +706,7 @@ namespace CsvTools
           {
             if (!fileReader.SupportsReset)
               break;
-            await fileReader.ResetPositionToFirstDataRowAsync(cancellationToken).ConfigureAwait(false);
+            fileReader.ResetPositionToFirstDataRow();
             // If still at the end, we do not have a line
             if (startRecordNumber == 0 || !await fileReader.ReadAsync(cancellationToken).ConfigureAwait(false))
               break;
