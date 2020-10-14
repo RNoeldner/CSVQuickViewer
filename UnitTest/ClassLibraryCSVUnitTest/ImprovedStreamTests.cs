@@ -31,11 +31,63 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void OpenReadTestgZip()
+    public void OpenReadTestGZipSmallRead()
     {
       using (var res = new ImprovedStream(UnitTestInitializeCsv.GetTestPath("BasicCsV.txt.gz"), true))
       {
         Assert.IsNotNull(res);
+        var result1 = new byte[2048];
+        using (var reader = new BinaryReader(res))
+        {
+          reader.Read(result1, 0, result1.Length);
+        }
+
+        // should return to teh start
+        res.Seek(0, SeekOrigin.Begin);
+        var result2 = new byte[2048];
+        using (var reader = new BinaryReader(res))
+        {
+          reader.Read(result2, 0, result2.Length);
+        }
+
+        Assert.AreEqual(result1[0], result2[0]);
+        Assert.AreEqual(result1[1], result2[1]);
+        Assert.AreEqual(result1[2], result2[2]);
+        Assert.AreEqual(result1[3], result2[3]);
+        Assert.AreEqual(result1[4], result2[4]);
+        Assert.AreEqual(result1[5], result2[5]);
+      }
+    }
+
+    [TestMethod]
+    public void OpenReadTestGZipLargeRead()
+    {
+      using (var res = new ImprovedStream(UnitTestInitializeCsv.GetTestPath("Larger.json.gz"), true))
+      {
+        Assert.IsNotNull(res);
+
+        var result1 = new byte[10000];
+
+        // read a potion that is larger than the buffered stream
+        using (var reader = new BinaryReader(res))
+        {
+          reader.Read(result1, 0, result1.Length);
+        }
+
+        // should return to the start
+        res.Seek(0, SeekOrigin.Begin);
+        var result2 = new byte[10000];
+        using (var reader = new BinaryReader(res))
+        {
+          reader.Read(result2, 0, result2.Length);
+        }
+
+        Assert.AreEqual(result1[0], result2[0]);
+        Assert.AreEqual(result1[1], result2[1]);
+        Assert.AreEqual(result1[2], result2[2]);
+        Assert.AreEqual(result1[3], result2[3]);
+        Assert.AreEqual(result1[4], result2[4]);
+        Assert.AreEqual(result1[5], result2[5]);
       }
     }
 
@@ -53,19 +105,19 @@ namespace CsvTools.Tests
       var fullname = UnitTestInitializeCsv.GetTestPath(fileName);
 
       var encoding = EncodingHelper.GetEncoding(65001, true);
-      const string Line1 = "This is a test of compressed data written to a file";
-      const string Line2 = "Yet another line to be written";
-      const string Line3 = "A text with non ASCII characters: Raphael Nöldner";
+      const string c_Line1 = "This is a test of compressed data written to a file";
+      const string c_Line2 = "Yet another line to be written";
+      const string c_Line3 = "A text with non ASCII characters: Raphael Nöldner";
 
       using (var improvedStream = new ImprovedStream(fullname, false))
       {
         using (var writer = new StreamWriter(improvedStream, encoding, 8192))
         {
-          writer.WriteLine(Line1);
-          writer.WriteLine(Line2);
-          writer.WriteLine(Line3);
+          writer.WriteLine(c_Line1);
+          writer.WriteLine(c_Line2);
+          writer.WriteLine(c_Line3);
           writer.WriteLine();
-          writer.WriteLine(Line1);
+          writer.WriteLine(c_Line1);
         }
 
         improvedStream.Close();
@@ -77,11 +129,11 @@ namespace CsvTools.Tests
       {
         using (var textReader = new StreamReader(improvedStream, encoding, true))
         {
-          Assert.AreEqual(Line1, textReader.ReadLine(), "Line 1 : " + fileName);
-          Assert.AreEqual(Line2, textReader.ReadLine(), "Line 2 : " + fileName);
-          Assert.AreEqual(Line3, textReader.ReadLine(), "Line 3 : " + fileName);
+          Assert.AreEqual(c_Line1, textReader.ReadLine(), "Line 1 : " + fileName);
+          Assert.AreEqual(c_Line2, textReader.ReadLine(), "Line 2 : " + fileName);
+          Assert.AreEqual(c_Line3, textReader.ReadLine(), "Line 3 : " + fileName);
           Assert.AreEqual(string.Empty, textReader.ReadLine(), "Line 4 : " + fileName);
-          Assert.AreEqual(Line1, textReader.ReadLine(), "Line 5 : " + fileName);
+          Assert.AreEqual(c_Line1, textReader.ReadLine(), "Line 5 : " + fileName);
         }
 
         improvedStream.Close();
@@ -89,7 +141,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void OpenWriteTestgZip() => WriteFile("WriteText.gz");
+    public void OpenWriteTestGZip() => WriteFile("WriteText.gz");
 
     [TestMethod]
     public void OpenWriteTestRegular() => WriteFile("WriteText.txt");

@@ -29,10 +29,7 @@ namespace CsvTools.Tests
     public async Task TestJson()
     {
       var setting =
-        new CsvFile(UnitTestInitializeCsv.GetTestPath("ces_qa01-ar-rtdw_data_v6100816_training_core.json"))
-        {
-          JsonFormat = true
-        };
+        new CsvFile(UnitTestInitializeCsv.GetTestPath("Larger.json")) {JsonFormat = true};
 
       using (var dpd = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       {
@@ -111,7 +108,7 @@ namespace CsvTools.Tests
           using (var reader = new DataTableWrapper(dataTable))
           {
             var res = await DetermineColumnFormat
-              .GetSampleValuesAsync(reader, (long) 100, new[] {0, 1}, 20, null, processDisplay.CancellationToken)
+              .GetSampleValuesAsync(reader, 100, new[] {0, 1}, 20, null, processDisplay.CancellationToken)
               .ConfigureAwait(false);
             Assert.AreEqual(20, res[0].Values.Count);
           }
@@ -331,7 +328,7 @@ namespace CsvTools.Tests
             for (var i = 0; i < dt.Rows.Count / 2; i++)
               await reader.ReadAsync(processDisplay.CancellationToken);
             string treatAsNull = string.Empty;
-            var res = await DetermineColumnFormat.GetSampleValuesAsync((IFileReader) reader, (long) 0, new[] {0}, 100,
+            var res = await DetermineColumnFormat.GetSampleValuesAsync(reader, 0, new[] {0}, 100,
               treatAsNull, processDisplay.CancellationToken).ConfigureAwait(false);
             Assert.AreEqual(dt.Rows.Count, res[0].RecordsRead, "RecordsRead");
             Assert.AreEqual(dt.Rows.Count - (dt.Rows.Count / 5), res[0].Values.Count());
@@ -362,7 +359,7 @@ namespace CsvTools.Tests
           using (var reader = new DataTableWrapper(dt))
           {
             string treatAsNull = string.Empty;
-            var res = await DetermineColumnFormat.GetSampleValuesAsync((IFileReader) reader, (long) 0, new[] {0, 1}, 20,
+            var res = await DetermineColumnFormat.GetSampleValuesAsync(reader, 0, new[] {0, 1}, 20,
               treatAsNull, processDisplay.CancellationToken);
 
             Assert.IsTrue(res[0].RecordsRead >= 20);
@@ -394,7 +391,7 @@ namespace CsvTools.Tests
           using (var reader = new DataTableWrapper(dt))
           {
             string treatAsNull = string.Empty;
-            var res = await DetermineColumnFormat.GetSampleValuesAsync((IFileReader) reader, (long) 0, new[] {0}, 20,
+            var res = await DetermineColumnFormat.GetSampleValuesAsync(reader, 0, new[] {0}, 20,
               treatAsNull, processDisplay.CancellationToken);
             Assert.IsTrue(res[0].RecordsRead >= 20);
             Assert.AreEqual(20, res[0].Values.Count());
@@ -413,7 +410,7 @@ namespace CsvTools.Tests
           using (var reader = new DataTableWrapper(dt))
           {
             var temp = await DetermineColumnFormat
-              .GetSampleValuesAsync((IFileReader) reader, (long) 0, new[] {0}, 20, null,
+              .GetSampleValuesAsync(reader, 0, new[] {0}, 20, null,
                 processDisplay.CancellationToken).ConfigureAwait(false);
             Assert.AreEqual(0, temp.Count);
           }
@@ -682,7 +679,7 @@ namespace CsvTools.Tests
           var reader = new DataTableWrapper(dt);
           foreach (DataColumn col in dt.Columns)
           {
-            var res = await DetermineColumnFormat.GetSampleValuesAsync((IFileReader) reader, (long) 10,
+            var res = await DetermineColumnFormat.GetSampleValuesAsync(reader, 10,
               new[] {col.Ordinal}, 10, "null",
               dummy.CancellationToken);
 
@@ -809,7 +806,7 @@ namespace CsvTools.Tests
       using (var test = new CsvFileReader(setting, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
-        var samples = await DetermineColumnFormat.GetSampleValuesAsync((IFileReader) test, (long) 1000, new[] {0}, 20,
+        var samples = await DetermineColumnFormat.GetSampleValuesAsync(test, 1000, new[] {0}, 20,
           "NULL", UnitTestInitializeCsv.Token);
         Assert.AreEqual(7, samples[0].Values.Count());
         Assert.IsTrue(samples[0].RecordsRead >= 7);
@@ -831,10 +828,10 @@ namespace CsvTools.Tests
         await test.OpenAsync(processDisplay.CancellationToken);
 
         var temp = await DetermineColumnFormat
-          .GetSampleValuesAsync((IFileReader) test, (long) 100, new[] {0}, 20, "NULL", UnitTestInitializeCsv.Token)
+          .GetSampleValuesAsync(test, 100, new[] {0}, 20, "NULL", UnitTestInitializeCsv.Token)
           .ConfigureAwait(false);
 
-        Assert.IsTrue(temp == null || temp.Count==0);
+        Assert.IsTrue(temp == null || temp.Count == 0);
       }
     }
 

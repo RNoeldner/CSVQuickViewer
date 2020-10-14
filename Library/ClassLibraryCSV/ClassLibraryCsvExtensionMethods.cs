@@ -90,6 +90,10 @@ namespace CsvTools
       fileName.EndsWith(".gz", StringComparison.OrdinalIgnoreCase) ||
       fileName.EndsWith(".gzip", StringComparison.OrdinalIgnoreCase);
 
+    public static bool AssumeDeflate([NotNull] this string fileName) =>
+      fileName.EndsWith(".cmp", StringComparison.OrdinalIgnoreCase) ||
+      fileName.EndsWith(".dfl", StringComparison.OrdinalIgnoreCase);
+
     /// <summary>
     ///   Check if the application should assume its PGP.
     /// </summary>
