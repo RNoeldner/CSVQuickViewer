@@ -30,8 +30,8 @@ namespace CsvTools
   /// </summary>
   public static class FileSystemUtils
   {
-    private const string cLongPathPrefix = @"\\?\";
-    private const string cUncLongPathPrefix = @"\\?\UNC\";
+    private const string c_LongPathPrefix = @"\\?\";
+    private const string c_UncLongPathPrefix = @"\\?\UNC\";
 
     public static void CreateDirectory([CanBeNull] string directoryName)
     {
@@ -401,21 +401,21 @@ namespace CsvTools
     public static string LongPathPrefix([NotNull] this string path)
     {
       // In case the directory is 248 we need long path as well
-      if (string.IsNullOrEmpty(path) || path.Length < 248 || path.StartsWith(cLongPathPrefix, StringComparison.Ordinal)
-          || path.StartsWith(cUncLongPathPrefix, StringComparison.Ordinal))
+      if (string.IsNullOrEmpty(path) || path.Length < 248 || path.StartsWith(c_LongPathPrefix, StringComparison.Ordinal)
+          || path.StartsWith(c_UncLongPathPrefix, StringComparison.Ordinal))
         return path;
       return path.StartsWith(@"\\", StringComparison.Ordinal)
-        ? cUncLongPathPrefix + path.Substring(2)
-        : cLongPathPrefix + path;
+        ? c_UncLongPathPrefix + path.Substring(2)
+        : c_LongPathPrefix + path;
     }
 
     [NotNull]
     public static string RemovePrefix([NotNull] this string path)
     {
-      if (path.StartsWith(cLongPathPrefix, StringComparison.Ordinal))
-        return path.Substring(cLongPathPrefix.Length);
-      return path.StartsWith(cUncLongPathPrefix, StringComparison.Ordinal)
-        ? path.Substring(cUncLongPathPrefix.Length)
+      if (path.StartsWith(c_LongPathPrefix, StringComparison.Ordinal))
+        return path.Substring(c_LongPathPrefix.Length);
+      return path.StartsWith(c_UncLongPathPrefix, StringComparison.Ordinal)
+        ? path.Substring(c_UncLongPathPrefix.Length)
         : path;
     }
 
@@ -478,20 +478,20 @@ namespace CsvTools
       if (string.IsNullOrEmpty(longPath))
         return longPath;
       var fi = new System.IO.FileInfo(longPath);
-      const uint bufferSize = 512;
-      var shortNameBuffer = new StringBuilder((int) bufferSize);
+      const uint c_BufferSize = 512;
+      var shortNameBuffer = new StringBuilder((int) c_BufferSize);
 
       // we might be asked to build a short path when the file does not exist yet, this would fail
       if (fi.Exists)
       {
-        var length = GetShortPathName(longPath, shortNameBuffer, bufferSize);
+        var length = GetShortPathName(longPath, shortNameBuffer, c_BufferSize);
         if (length > 0) return shortNameBuffer.ToString().RemovePrefix();
       }
 
       // if we have at least the directory shorten this
       if (!(fi.Directory?.Exists ?? false)) throw new Exception($"Could not get a short path for the file ${longPath}");
       {
-        var length = GetShortPathName(fi.Directory.FullName, shortNameBuffer, bufferSize);
+        var length = GetShortPathName(fi.Directory.FullName, shortNameBuffer, c_BufferSize);
         if (length > 0)
           return (shortNameBuffer + (shortNameBuffer[shortNameBuffer.Length - 1] == '\\' ? string.Empty : "\\") +
                   fi.Name)

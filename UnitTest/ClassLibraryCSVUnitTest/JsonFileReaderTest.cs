@@ -25,10 +25,7 @@ namespace CsvTools.Tests
     public async Task OpenJsonArray()
     {
       var setting =
-        new CsvFile(UnitTestInitializeCsv.GetTestPath("ces_qa01-ar-rtdw_data_v6100816_training_core.json"))
-        {
-          JsonFormat = true
-        };
+        new CsvFile(UnitTestInitializeCsv.GetTestPath("Larger.json.gz")) {JsonFormat = true};
       using (var dpd = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       using (var jfr = new JsonFileReader(setting, dpd))
       {
@@ -79,8 +76,6 @@ namespace CsvTools.Tests
         jfr.GetChars(3, 0, buffer, 0, 100);
         Assert.AreEqual('M', buffer[0]);
         Assert.AreEqual('A', buffer[1]);
-
-        ;
       }
     }
 
@@ -210,10 +205,7 @@ namespace CsvTools.Tests
     public async Task ReadJSon1TypedAsync()
     {
       var setting =
-        new CsvFile(UnitTestInitializeCsv.GetTestPath("ces_qa01-ar-rtdw_data_v6100816_training_core.json"))
-        {
-          JsonFormat = true
-        };
+        new CsvFile(UnitTestInitializeCsv.GetTestPath("Larger.json")) {JsonFormat = true};
 
       using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       {

@@ -226,18 +226,21 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WarningEventArgsTests.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="SampleFile.txt" />
-    <Content Include="TestFiles\WithEoFChar.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="TestFiles\AllFormatsColon.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="TestFiles\RealignColumn.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="TestFiles\AllFormatsPipe.txt">
+    <ItemGroup>
+        <EmbeddedResource Include="SampleFile.txt"/>
+        <Content Include="TestFiles\Larger.json.gz">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="TestFiles\WithEoFChar.txt">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="TestFiles\AllFormatsColon.txt">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="TestFiles\RealignColumn.txt">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="TestFiles\AllFormatsPipe.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="TestFiles\AllFormats.txt">
@@ -294,9 +297,9 @@
     <Content Include="TestFiles\TrimmingHeaders.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <None Include="TestFiles\ces_qa01-ar-rtdw_data_v6100816_training_core.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+        <None Include="TestFiles\Larger.json">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
     <None Include="TestFiles\Jason4.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

@@ -28,6 +28,7 @@ namespace CsvTools
   /// </summary>
   public class ImprovedStream : Stream, IImprovedStream
   {
+    private readonly bool m_AssumeDeflate;
     private readonly bool m_AssumeGZip;
     private readonly bool m_IsReading;
     [NotNull] private readonly Func<Stream> m_OpenBaseStream;
@@ -35,40 +36,31 @@ namespace CsvTools
     private bool m_IsClosed;
 
     // ReSharper disable once NotNullMemberIsNotInitialized
-    public ImprovedStream([NotNull] string path, bool isReading)
+    public ImprovedStream([NotNull] string path, bool isReading) : this(
+      () => new FileStream(path.LongPathPrefix(), isReading ? FileMode.Open : FileMode.Create,
+        isReading ? FileAccess.Read : FileAccess.ReadWrite, FileShare.Read),
+      isReading, path.AssumeGZip(), path.AssumeDeflate())
     {
-      if (string.IsNullOrEmpty(path))
-        throw new ArgumentException("Path must be provided", nameof(path));
-      m_IsReading = isReading;
-      m_AssumeGZip = path.AssumeGZip();
-      // ReSharper disable once VirtualMemberCallInConstructor
-      if (isReading)
-        m_OpenBaseStream = () => new FileStream(path.LongPathPrefix(), FileMode.Open, FileAccess.Read, FileShare.Read);
-      else
-        m_OpenBaseStream = () =>
-          new FileStream(path.LongPathPrefix(), FileMode.Create, FileAccess.ReadWrite, FileShare.Read);
-
-      BaseStream = m_OpenBaseStream();
-      if (m_AssumeGZip)
-        OpenZGipOverBase(isReading);
-      else
-        AccessStream = new BufferedStream(BaseStream, 8192);
     }
 
     // ReSharper disable once NotNullMemberIsNotInitialized
-    public ImprovedStream([NotNull] Func<Stream> openStream, bool isReading, bool assumeGZip)
+    public ImprovedStream([NotNull] Func<Stream> openStream, bool isReading, bool assumeGZip, bool assumeDeflate)
     {
       m_IsReading = isReading;
-      m_AssumeGZip = assumeGZip;
       m_OpenBaseStream = openStream ?? throw new ArgumentNullException(nameof(openStream));
+      m_AssumeGZip = assumeGZip;
+      m_AssumeDeflate = assumeDeflate;
+
       BaseStream = m_OpenBaseStream();
       if (m_AssumeGZip)
         OpenZGipOverBase(isReading);
+      else if (m_AssumeDeflate)
+        OpenDeflateOverBase(isReading);
       else
-        AccessStream = new BufferedStream(BaseStream, 8192);
+        AccessStream = BaseStream;
     }
 
-    [NotNull] protected BufferedStream AccessStream { get; set; }
+    [NotNull] protected Stream AccessStream { get; set; }
 
     [NotNull] protected Stream BaseStream { get; private set; }
 
@@ -164,15 +156,35 @@ namespace CsvTools
 
     private void OpenZGipOverBase(bool isReading)
     {
+      const int c_BufferSize = 8192;
       if (isReading)
       {
-        Logger.Debug("Decompressing from GZip");
-        AccessStream = new BufferedStream(new GZipStream(BaseStream, CompressionMode.Decompress), 8192);
+        Logger.Debug("Decompressing from GZip {filename}",
+          (BaseStream is FileStream fs) ? FileSystemUtils.GetFileName(fs.Name) : string.Empty);
+        AccessStream = new BufferedStream(new GZipStream(BaseStream, CompressionMode.Decompress), c_BufferSize);
       }
       else
       {
-        Logger.Debug("Compressing to GZip");
-        AccessStream = new BufferedStream(new GZipStream(BaseStream, CompressionMode.Compress), 8192);
+        Logger.Debug("Compressing to GZip {filename}",
+          (BaseStream is FileStream fs) ? FileSystemUtils.GetFileName(fs.Name) : string.Empty);
+        AccessStream = new BufferedStream(new GZipStream(BaseStream, CompressionMode.Compress), c_BufferSize);
+      }
+    }
+
+    private void OpenDeflateOverBase(bool isReading)
+    {
+      const int c_BufferSize = 8192;
+      if (isReading)
+      {
+        Logger.Debug("Decompressing from GZip {filename}",
+          (BaseStream is FileStream fs) ? FileSystemUtils.GetFileName(fs.Name) : string.Empty);
+        AccessStream = new BufferedStream(new DeflateStream(BaseStream, CompressionMode.Decompress), c_BufferSize);
+      }
+      else
+      {
+        Logger.Debug("Compressing to GZip {filename}",
+          (BaseStream is FileStream fs) ? FileSystemUtils.GetFileName(fs.Name) : string.Empty);
+        AccessStream = new BufferedStream(new DeflateStream(BaseStream, CompressionMode.Compress), c_BufferSize);
       }
     }
 
@@ -193,8 +205,10 @@ namespace CsvTools
 
       if (m_AssumeGZip)
         OpenZGipOverBase(isReading);
+      else if (m_AssumeDeflate)
+        OpenDeflateOverBase(isReading);
       else
-        AccessStream = new BufferedStream(BaseStream, 8192);
+        AccessStream = BaseStream;
     }
   }
 }
