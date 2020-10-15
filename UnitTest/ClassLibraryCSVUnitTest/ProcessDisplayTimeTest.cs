@@ -18,6 +18,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    [Timeout(10000)]
     public void MeasureTimeToCompletion()
     {
       var test = new ProcessDisplayTime(UnitTestInitializeCsv.Token) {Maximum = 100};

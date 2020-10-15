@@ -23,6 +23,7 @@ namespace CsvTools.Tests
   public class ExtensionsTests
   {
     [TestMethod]
+    [Timeout(2000)]
     public void UpdateListViewColumnFormatTest()
     {
       using (var lv = new ListView())
@@ -48,6 +49,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    [Timeout(2000)]
     public void WriteBindingTest()
     {
       var obj = new DisplayItem<string>("15", "Text");
@@ -66,6 +68,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    [Timeout(3000)]
     public void GetProcessDisplayTest()
     {
       var setting = new CsvFile
@@ -96,6 +99,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    [Timeout(2000)]
     public void LoadWindowStateTest()
     {
       using (var value = new FormProcessDisplay())
@@ -114,21 +118,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void SafeBeginInvokeTest()
-    {
-    }
-
-    [TestMethod]
-    public void SafeInvokeTest()
-    {
-    }
-
-    [TestMethod]
-    public void SafeInvokeNoHandleNeededTest()
-    {
-    }
-
-    [TestMethod]
+    [Timeout(2000)]
     public void StoreWindowStateTest()
     {
       using (var value = new FormProcessDisplay())
@@ -146,16 +136,6 @@ namespace CsvTools.Tests
         Assert.AreEqual(state1.Left, state2.Left);
         Assert.AreEqual(state1.Width, state2.Width);
       }
-    }
-
-    [TestMethod]
-    public void UpdateListViewColumnFormatTest1()
-    {
-    }
-
-    [TestMethod]
-    public void WriteFileWithInfoTest()
-    {
-    }
+    }  
   }
 }

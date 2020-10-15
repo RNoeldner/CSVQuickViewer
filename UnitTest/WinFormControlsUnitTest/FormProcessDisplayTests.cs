@@ -23,6 +23,7 @@ namespace CsvTools.Tests
   public class FormProcessDisplayTests
   {
     [TestMethod]
+    [Timeout(3000)]
     public void FormProcessCancel()
     {
       using (var frm = new FormProcessDisplay("Test Logger", true, UnitTestInitializeCsv.Token))
@@ -35,6 +36,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    [Timeout(10000)]
     [SuppressMessage("ReSharper", "PossibleLossOfFraction")]
     public void FormProcessDisplay()
     {
@@ -94,6 +96,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    [Timeout(2000)]
     public void FormProcessDisplayTest()
     {
       using (var value = new FormProcessDisplay())
@@ -103,6 +106,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    [Timeout(5000)]
     public void FormProcessDisplayTest1()
     {
       using (var tokenSrc = new CancellationTokenSource())
@@ -118,6 +122,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    [Timeout(5000)]
     public void CancelTest()
     {
       using (var tokenSrc = new CancellationTokenSource())
@@ -133,6 +138,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    [Timeout(2000)]
     public void SetProcessTest()
     {
       using (var frm = new FormProcessDisplay())
@@ -143,6 +149,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    [Timeout(2000)]
     public void SetProcessTest1()
     {
       using (var frm = new FormProcessDisplay())
@@ -155,6 +162,7 @@ namespace CsvTools.Tests
 
 
     [TestMethod]
+    [Timeout(2000)]
     public void DoHideTest()
     {
       using (var frm = new FormProcessDisplay())
@@ -165,6 +173,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    [Timeout(2000)]
     public void SetProcessTest2()
     {
       using (var frm = new FormProcessDisplay())

@@ -26,6 +26,7 @@ namespace CsvTools.Tests
   public class DetermineColumnFormatTest
   {
     [TestMethod]
+    [Timeout(2000)]
     public async Task TestJson()
     {
       var setting =
@@ -586,24 +587,23 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile
       {
-        FileName = UnitTestInitializeCsv.GetTestPath("Test.csv"),
+        FileName = UnitTestInitializeCsv.GetTestPath("AllFormatsColon.txt"),
         HasFieldHeader = true,
         ByteOrderMark = true,
-        FileFormat = {FieldDelimiter = ","},
-        SkipRows = 1
+        FileFormat = { FieldDelimiter = "," }        
       };
-      var fillGuessSettings = new FillGuessSettings {IgnoreIdColumns = true};
+      var fillGuessSettings = new FillGuessSettings { IgnoreIdColumns = true };
 
       using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       {
         await setting.FillGuessColumnFormatReaderAsync(true, true, fillGuessSettings, processDisplay);
       }
 
-      Assert.AreEqual(11, setting.ColumnCollection.Count);
-      Assert.AreEqual(DataType.DateTime, setting.ColumnCollection[7].ValueFormat.DataType);
-      Assert.AreEqual(DataType.DateTime, setting.ColumnCollection[8].ValueFormat.DataType);
-      Assert.AreEqual(DataType.DateTime, setting.ColumnCollection[9].ValueFormat.DataType);
-      Assert.AreEqual(DataType.String, setting.ColumnCollection[10].ValueFormat.DataType);
+      Assert.AreEqual(10, setting.ColumnCollection.Count);
+      Assert.AreEqual(DataType.DateTime, setting.ColumnCollection[0].ValueFormat.DataType);
+      Assert.AreEqual(DataType.Integer, setting.ColumnCollection[1].ValueFormat.DataType);
+      Assert.AreEqual(DataType.Numeric, setting.ColumnCollection[2].ValueFormat.DataType);
+      Assert.AreEqual(DataType.String, setting.ColumnCollection[4].ValueFormat.DataType);
     }
 
     [TestMethod]
@@ -620,11 +620,10 @@ namespace CsvTools.Tests
       };
       var setting = new CsvFile
       {
-        FileName = UnitTestInitializeCsv.GetTestPath("Test.csv"),
+        FileName = UnitTestInitializeCsv.GetTestPath("AllFormatsColon.txt"),
         HasFieldHeader = true,
         ByteOrderMark = true,
-        FileFormat = {FieldDelimiter = ","},
-        SkipRows = 1
+        FileFormat = {FieldDelimiter = ","},        
       };
       using (var dummy = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       {
@@ -653,7 +652,6 @@ namespace CsvTools.Tests
         {
           Assert.Fail("Wrong or exception thrown exception is : " + ex.GetType().Name);
         }
-
         try
         {
           // ReSharper disable once AssignNullToNotNullAttribute
@@ -693,15 +691,15 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    [Timeout(2000)]
     public async Task FillGuessColumnFormatTrailingColumnsAsync()
     {
       var setting = new CsvFile
       {
-        FileName = UnitTestInitializeCsv.GetTestPath("Test.csv"),
+        FileName = UnitTestInitializeCsv.GetTestPath("AllFormatsColon.txt"),
         HasFieldHeader = true,
         ByteOrderMark = true,
-        FileFormat = {FieldDelimiter = ","},
-        SkipRows = 1
+        FileFormat = {FieldDelimiter = ","}
       };
       setting.ColumnCollection.Clear();
 
@@ -720,25 +718,26 @@ namespace CsvTools.Tests
       }
 
       // need to identify 5 typed column of the 11 existing
-      Assert.AreEqual(6, setting.ColumnCollection.Count, "Number of recognized Columns");
+      Assert.AreEqual(7, setting.ColumnCollection.Count, "Number of recognized Columns");
 
-      var v1 = setting.ColumnCollection.First(x => x.Name == "Contract Date");
-      var v2 = setting.ColumnCollection.First(x => x.Name == "Kickoff Date");
-      var v3 = setting.ColumnCollection.First(x => x.Name == "Target Completion Date");
+      var v1 = setting.ColumnCollection.First(x => x.Name == "DateTime");
+      var v2 = setting.ColumnCollection.First(x => x.Name == "Double");
+      var v3 = setting.ColumnCollection.First(x => x.Name == "Boolean");
       Assert.AreEqual(
         DataType.DateTime,
         v1.ValueFormat.DataType,
-        "Contract Date (Date Time (MM/dd/yyyy))");
+        "DateTime (Date Time (dd/MM/yyyy))");
 
+      // a double will always be read as decimal from Csv
       Assert.AreEqual(
-        DataType.DateTime,
+        DataType.Numeric,
         v2.ValueFormat.DataType,
-        "Kickoff Date (Date Time (MM/dd/yyyy))");
+        "Double (Money (High Precision) (0.#####))");
 
       Assert.AreEqual(
-        DataType.DateTime,
+        DataType.Boolean,
         v3.ValueFormat.DataType,
-        "Target Completion Date (Date Time (MM/dd/yyyy))");
+        "Boolean (Boolean)");
     }
 
     [TestMethod]

@@ -2,10 +2,11 @@
 
 namespace CsvTools.Tests
 {
-  [TestClass]
+  [TestClass]  
   public class FormEditSettingsTests
   {
     [TestMethod]
+    [Timeout(5000)]
     public void FormEditSettings()
     {
       Extensions.RunSTAThread(() =>
@@ -18,6 +19,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    [Timeout(5000)]
     public void FormEditSettingsTest1()
     {
       Extensions.RunSTAThread(() =>

@@ -790,6 +790,34 @@ namespace CsvTools
       return value < int.MinValue ? int.MinValue : Convert.ToInt32(value);
     }
 
+    public static int ToInt(this decimal value)
+    {
+      if (value > int.MaxValue)
+        return int.MaxValue;
+      return value < int.MinValue ? int.MinValue : Convert.ToInt32(value);
+    }
+
+    public static int ToInt(this double value)
+    {
+      if (value > int.MaxValue)
+        return int.MaxValue;
+      return value < int.MinValue ? int.MinValue : Convert.ToInt32(value);
+    }
+
+    public static long ToInt64(this double value)
+    {
+      if (value > long.MaxValue)
+        return long.MaxValue;
+      return value < long.MinValue ? long.MinValue : Convert.ToInt64(value);
+    }
+
+    public static long ToInt64(this decimal value)
+    {
+      if (value > long.MaxValue)
+        return long.MaxValue;
+      return value < long.MinValue ? long.MinValue : Convert.ToInt64(value);
+    }
+
     /// <summary>
     ///   Replaces a written English punctuation to the punctuation character
     /// </summary>

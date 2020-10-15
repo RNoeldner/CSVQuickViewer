@@ -25,6 +25,7 @@ namespace CsvTools.Tests
     private readonly Random random = new Random(Guid.NewGuid().GetHashCode());
 
     [TestMethod]
+    [Timeout(3000)]
     public async System.Threading.Tasks.Task DetailControlTestAsync()
     {
       using (var dt = new DataTable())
@@ -59,6 +60,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    [Timeout(3000)]
     public async System.Threading.Tasks.Task SortTestAsync()
     {
       using (var dt = new DataTable())

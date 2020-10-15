@@ -15,7 +15,7 @@ namespace CsvTools.Tests
       Assert.AreEqual(true, co2.ShouldSerializeSort());
     }
 
-    [TestMethod]
+    [TestMethod]    
     public void ShouldSerializeOperatorTest()
     {
       var co1 = new ColumnSetting("proName", true, 0, 10, 100);
@@ -25,7 +25,7 @@ namespace CsvTools.Tests
       Assert.AreEqual(true, co1.ShouldSerializeOperator());
     }
 
-    [TestMethod]
+    [TestMethod]    
     public void ShouldSerializeValueTextTest()
     {
       var co1 = new ColumnSetting("proName", true, 0, 10, 100);

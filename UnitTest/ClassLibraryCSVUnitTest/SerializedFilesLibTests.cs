@@ -22,6 +22,7 @@ namespace CsvTools.Tests
     private const string fileName = @".\SerializedFilesLibCSV.xml";
 
     [TestMethod]
+    [Timeout(2000)]
     public void DeleteWithBackupTest()
     {
       var file = GetCsvFile();

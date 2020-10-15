@@ -104,7 +104,7 @@ namespace CsvTools.Tests
 
       if (m_Random.NextDouble() > .2)
       {
-        var dtm = Convert.ToInt64(((maxDate - minDate) * m_Random.NextDouble()) + minDate);
+        var dtm = (((maxDate - minDate) * m_Random.NextDouble()) + minDate).ToInt64();
         dr[2] = new DateTime(dtm);
       }
 

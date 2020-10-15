@@ -27,7 +27,7 @@ namespace CsvTools
             else if (args.Value > -1)
             {
               TaskbarManager.Instance.SetProgressState(TaskbarProgressBarState.Normal);
-              TaskbarManager.Instance.SetProgressValue(Convert.ToInt32(args.Percent * 1000d), 1000);
+              TaskbarManager.Instance.SetProgressValue((args.Percent * 1000d).ToInt(), 1000);
             }
           }
           catch (Exception)

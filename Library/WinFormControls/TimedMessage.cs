@@ -455,7 +455,7 @@ namespace CsvTools
     private void UpdateLabel()
     {
       // ReSharper disable once PossibleLossOfFraction
-      var display = Convert.ToInt32((Duration - m_Counter * m_Timer.Interval / 1000 + .75));
+      var display = (Duration - m_Counter * m_Timer.Interval / 1000 + .75).ToInt();
       if (!m_Timer.Enabled)
         display = 0;
       var text = string.Empty;

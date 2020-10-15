@@ -34,6 +34,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    [Timeout(2000)]
     public void InvokeTest2()
     {
       var intervalAction = new IntervalAction(.01);

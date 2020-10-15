@@ -27,6 +27,7 @@ namespace CsvTools.Tests
   public class ControlsTests
   {
     [TestMethod]
+    [Timeout(8000)]
     public void PersistentChoice()
     {
       var pc = new PersistentChoice(DialogResult.Yes);
@@ -34,6 +35,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    [Timeout(10000)]
     public void HTMLDisplay()
     {
       Extensions.RunSTAThread(() =>
@@ -70,6 +72,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    [Timeout(10000)]
     public void TextDisplay()
     {
       Extensions.RunSTAThread(() =>
@@ -87,6 +90,7 @@ namespace CsvTools.Tests
 
    
     [TestMethod]
+    [Timeout(5000)]
     public void ResizeForm()
     {
       using (var frm = new ResizeForm())
@@ -99,6 +103,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    [Timeout(5000)]
     public void QuotingControl()
     {
       using (var ctrl = new QuotingControl())
@@ -133,6 +138,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    [Timeout(2000)]
     public void APICodePackWrapperOpen()
     {
       try
@@ -157,6 +163,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    [Timeout(2000)]
     public void APICodePackWrapperSave()
     {
       try
@@ -181,6 +188,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    [Timeout(2000)]
     public void WindowsAPICodePackWrapperFolder()
     {
       try
@@ -204,6 +212,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    [Timeout(2000)]
     public void WindowsAPICodePackWrapperSave()
     {
       try
@@ -230,6 +239,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    [Timeout(5000)]
     public void MultiselectTreeView()
     {
       Extensions.RunSTAThread(() =>
@@ -267,6 +277,7 @@ namespace CsvTools.Tests
 
    
     [TestMethod]
+    [Timeout(10000)]
     public void TimedMessage()
     {
       Extensions.RunSTAThread(() =>
@@ -286,15 +297,19 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    [Timeout(5000)]
     public void SearchShow() => UnitTestWinFormHelper.ShowControl(new Search());
 
     [TestMethod]
+    [Timeout(5000)]
     public void FillGuessSettingEditShow() => UnitTestWinFormHelper.ShowControl(new FillGuessSettingEdit());
 
     [TestMethod]
+    [Timeout(5000)]
     public void FilteredDataGridViewShow() => UnitTestWinFormHelper.ShowControl(new FilteredDataGridView());
 
     [TestMethod]
+    [Timeout(6000)]
     public void FilteredDataGridViewVariousMethods()
     {
       var ctrl = new FilteredDataGridView();
@@ -316,6 +331,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    [Timeout(5000)]
     public void FormHierarchyDisplay()
     {
       using (var dataTable = UnitTestStatic.GetDataTable(60))
@@ -331,6 +347,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    [Timeout(5000)]
     public async Task FormHierarchyDisplay_DataWithCycleAsync()
     {
       using (var dataTable = UnitTestStatic.GetDataTable(60))
@@ -363,6 +380,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    [Timeout(5000)]
     public void FormDuplicatesDisplay()
     {
       using (var dataTable = UnitTestStatic.GetDataTable(60))
@@ -373,6 +391,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    [Timeout(5000)]
     public void FormUniqueDisplay()
     {
       using (var dataTable = UnitTestStatic.GetDataTable(60))
@@ -383,6 +402,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    [Timeout(3000)]
     public void FormShowMaxLength()
     {
       using (var dataTable = UnitTestStatic.GetDataTable(60))
@@ -395,6 +415,7 @@ namespace CsvTools.Tests
    
 
     [TestMethod]
+    [Timeout(5000)]
     public void DataGridViewColumnFilterControl()
     {
       using (var dataTable = UnitTestStatic.GetDataTable(60))

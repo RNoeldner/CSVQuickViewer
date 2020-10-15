@@ -64,6 +64,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    [Timeout(1000)]
     public void HideEmptyColumnsTest()
     {
       using (var filteredDataGridView = new FilteredDataGridView())
@@ -92,6 +93,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    [Timeout(1000)]
     public void SetRowHeightTest()
     {
       using (var dt = UnitTestStatic.GetDataTable())
@@ -109,6 +111,7 @@ namespace CsvTools.Tests
 
 
     [TestMethod]
+    [Timeout(3000)]
     public void FrozenColumns()
     {
       using (var dt = UnitTestStatic.GetDataTable())
@@ -121,6 +124,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    [Timeout(3000)]
     public void HighlightText()
     {
       using (var dt = UnitTestStatic.GetDataTable())

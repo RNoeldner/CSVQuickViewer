@@ -1,0 +1,230 @@
+{"Timestamp":"2020-10-15T10:36:42.4323555+02:00","Level":"Information","MessageTemplate":"With Header Row"}
+{"Timestamp":"2020-10-15T10:36:42.5038803+02:00","Level":"Information","MessageTemplate":"Determining column format by reading samples"}
+{"Timestamp":"2020-10-15T10:36:42.5118817+02:00","Level":"Information","MessageTemplate":"Opening delimited file \"AllFormats.txt\""}
+{"Timestamp":"2020-10-15T10:36:42.5358818+02:00","Level":"Information","MessageTemplate":"Getting column headers"}
+{"Timestamp":"2020-10-15T10:36:42.5398893+02:00","Level":"Information","MessageTemplate":"GUID – ID columns ignored"}
+{"Timestamp":"2020-10-15T10:36:42.5448876+02:00","Level":"Information","MessageTemplate":"Getting sample values for all 9 columns"}
+{"Timestamp":"2020-10-15T10:36:42.5791187+02:00","Level":"Information","MessageTemplate":"DateTime – 13 values found in 1.065 rows – Examining format"}
+{"Timestamp":"2020-10-15T10:36:42.6039221+02:00","Level":"Information","MessageTemplate":"DateTime – Format : Date Time (dd/MM/yyyy)"}
+{"Timestamp":"2020-10-15T10:36:42.6069358+02:00","Level":"Information","MessageTemplate":"Integer – 14 values found in 1.065 rows – Examining format"}
+{"Timestamp":"2020-10-15T10:36:42.6088899+02:00","Level":"Information","MessageTemplate":"Integer – Format : Integer (0.#####)"}
+{"Timestamp":"2020-10-15T10:36:42.6099055+02:00","Level":"Information","MessageTemplate":"Double – 13 values found in 1.065 rows – Examining format"}
+{"Timestamp":"2020-10-15T10:36:42.6108868+02:00","Level":"Information","MessageTemplate":"Double – Format : Money (High Precision) (0.#####)"}
+{"Timestamp":"2020-10-15T10:36:42.6118865+02:00","Level":"Information","MessageTemplate":"Numeric – 12 values found in 1.065 rows – Examining format"}
+{"Timestamp":"2020-10-15T10:36:42.6128873+02:00","Level":"Information","MessageTemplate":"Numeric – Format : Money (High Precision) (0.#####)"}
+{"Timestamp":"2020-10-15T10:36:42.6143337+02:00","Level":"Information","MessageTemplate":"String – 11 values found in 1.065 rows – Examining format"}
+{"Timestamp":"2020-10-15T10:36:42.6160478+02:00","Level":"Information","MessageTemplate":"String – Format : Text"}
+{"Timestamp":"2020-10-15T10:36:42.6168867+02:00","Level":"Information","MessageTemplate":"Memo – 11 values found in 1.065 rows – Examining format"}
+{"Timestamp":"2020-10-15T10:36:42.6208875+02:00","Level":"Information","MessageTemplate":"Memo – Format : Text"}
+{"Timestamp":"2020-10-15T10:36:42.6218869+02:00","Level":"Information","MessageTemplate":"Boolean – Only 2 values found in 1.065 rows"}
+{"Timestamp":"2020-10-15T10:36:42.6228866+02:00","Level":"Information","MessageTemplate":"Boolean – Format : Boolean"}
+{"Timestamp":"2020-10-15T10:36:42.6238870+02:00","Level":"Information","MessageTemplate":"Time – 13 values found in 1.065 rows – Examining format"}
+{"Timestamp":"2020-10-15T10:36:42.6254970+02:00","Level":"Information","MessageTemplate":"Time – Format : Date Time (HH:mm:ss)"}
+{"Timestamp":"2020-10-15T10:36:42.6260752+02:00","Level":"Information","MessageTemplate":"TZ – Only 4 values found in 1.065 rows"}
+{"Timestamp":"2020-10-15T10:36:42.6268873+02:00","Level":"Information","MessageTemplate":"TZ – Format : Text"}
+{"Timestamp":"2020-10-15T10:36:42.7819383+02:00","Level":"Information","MessageTemplate":"Opening delimited file \"AllFormats.txt\""}
+{"Timestamp":"2020-10-15T10:36:58.9034979+02:00","Level":"Information","MessageTemplate":"Examining file {filename}","Properties":{"filename":"C:\\…\\TestFiles\\AllFormats.txt"}}
+{"Timestamp":"2020-10-15T10:36:58.9484981+02:00","Level":"Information","MessageTemplate":"Size of file: 351,45 kB"}
+{"Timestamp":"2020-10-15T10:36:59.0274383+02:00","Level":"Information","MessageTemplate":"Checking delimited text file"}
+{"Timestamp":"2020-10-15T10:36:59.0284404+02:00","Level":"Information","MessageTemplate":"Checking Code Page"}
+{"Timestamp":"2020-10-15T10:36:59.0314546+02:00","Level":"Information","MessageTemplate":"Code Page: {encoding}","Properties":{"encoding":"CP 65001 - Unicode (UTF-8) with BOM"}}
+{"Timestamp":"2020-10-15T10:36:59.0535108+02:00","Level":"Information","MessageTemplate":"Column Delimiter: {delimiter}","Properties":{"delimiter":"TAB"}}
+{"Timestamp":"2020-10-15T10:36:59.0566610+02:00","Level":"Information","MessageTemplate":"Record Delimiter: {recorddelimiter}","Properties":{"recorddelimiter":"Carriage Return / Line feed"}}
+{"Timestamp":"2020-10-15T10:36:59.0631338+02:00","Level":"Information","MessageTemplate":"With Header Row"}
+{"Timestamp":"2020-10-15T10:36:59.2146761+02:00","Level":"Information","MessageTemplate":"Determining column format by reading samples"}
+{"Timestamp":"2020-10-15T10:36:59.2237157+02:00","Level":"Information","MessageTemplate":"Opening delimited file \"AllFormats.txt\""}
+{"Timestamp":"2020-10-15T10:36:59.2489349+02:00","Level":"Information","MessageTemplate":"Getting column headers"}
+{"Timestamp":"2020-10-15T10:36:59.2502520+02:00","Level":"Information","MessageTemplate":"GUID – ID columns ignored"}
+{"Timestamp":"2020-10-15T10:36:59.2549352+02:00","Level":"Information","MessageTemplate":"Getting sample values for all 9 columns"}
+{"Timestamp":"2020-10-15T10:36:59.2877683+02:00","Level":"Information","MessageTemplate":"DateTime – 13 values found in 1.065 rows – Examining format"}
+{"Timestamp":"2020-10-15T10:36:59.3147692+02:00","Level":"Information","MessageTemplate":"DateTime – Format : Date Time (dd/MM/yyyy)"}
+{"Timestamp":"2020-10-15T10:36:59.3174605+02:00","Level":"Information","MessageTemplate":"Integer – 14 values found in 1.065 rows – Examining format"}
+{"Timestamp":"2020-10-15T10:36:59.3197688+02:00","Level":"Information","MessageTemplate":"Integer – Format : Integer (0.#####)"}
+{"Timestamp":"2020-10-15T10:36:59.3207693+02:00","Level":"Information","MessageTemplate":"Double – 13 values found in 1.065 rows – Examining format"}
+{"Timestamp":"2020-10-15T10:36:59.3207693+02:00","Level":"Information","MessageTemplate":"Double – Format : Money (High Precision) (0.#####)"}
+{"Timestamp":"2020-10-15T10:36:59.3217681+02:00","Level":"Information","MessageTemplate":"Numeric – 12 values found in 1.065 rows – Examining format"}
+{"Timestamp":"2020-10-15T10:36:59.3217681+02:00","Level":"Information","MessageTemplate":"Numeric – Format : Money (High Precision) (0.#####)"}
+{"Timestamp":"2020-10-15T10:36:59.3227693+02:00","Level":"Information","MessageTemplate":"String – 11 values found in 1.065 rows – Examining format"}
+{"Timestamp":"2020-10-15T10:36:59.3248036+02:00","Level":"Information","MessageTemplate":"String – Format : Text"}
+{"Timestamp":"2020-10-15T10:36:59.3258056+02:00","Level":"Information","MessageTemplate":"Memo – 11 values found in 1.065 rows – Examining format"}
+{"Timestamp":"2020-10-15T10:36:59.3298020+02:00","Level":"Information","MessageTemplate":"Memo – Format : Text"}
+{"Timestamp":"2020-10-15T10:36:59.3308005+02:00","Level":"Information","MessageTemplate":"Boolean – Only 2 values found in 1.065 rows"}
+{"Timestamp":"2020-10-15T10:36:59.3318025+02:00","Level":"Information","MessageTemplate":"Boolean – Format : Boolean"}
+{"Timestamp":"2020-10-15T10:36:59.3349028+02:00","Level":"Information","MessageTemplate":"Time – 13 values found in 1.065 rows – Examining format"}
+{"Timestamp":"2020-10-15T10:36:59.3357685+02:00","Level":"Information","MessageTemplate":"Time – Format : Date Time (HH:mm:ss)"}
+{"Timestamp":"2020-10-15T10:36:59.3357685+02:00","Level":"Information","MessageTemplate":"TZ – Only 4 values found in 1.065 rows"}
+{"Timestamp":"2020-10-15T10:36:59.3367677+02:00","Level":"Information","MessageTemplate":"TZ – Format : Text"}
+{"Timestamp":"2020-10-15T10:36:59.4970690+02:00","Level":"Information","MessageTemplate":"Opening delimited file \"AllFormats.txt\""}
+{"Timestamp":"2020-10-15T10:37:06.6886572+02:00","Level":"Information","MessageTemplate":"Examining file {filename}","Properties":{"filename":"C:\\…\\TestFiles\\Larger.json"}}
+{"Timestamp":"2020-10-15T10:37:06.7346407+02:00","Level":"Information","MessageTemplate":"Size of file: 940,24 kB"}
+{"Timestamp":"2020-10-15T10:37:06.8046333+02:00","Level":"Information","MessageTemplate":"Detected Json file"}
+{"Timestamp":"2020-10-15T10:37:07.0465746+02:00","Level":"Information","MessageTemplate":"Determining column format by reading samples"}
+{"Timestamp":"2020-10-15T10:37:07.0555749+02:00","Level":"Information","MessageTemplate":"Opening Json file Larger.json"}
+{"Timestamp":"2020-10-15T10:37:07.1475772+02:00","Level":"Information","MessageTemplate":"Getting column headers"}
+{"Timestamp":"2020-10-15T10:37:07.1486184+02:00","Level":"Information","MessageTemplate":"Getting sample values for all 58 columns"}
+{"Timestamp":"2020-10-15T10:37:07.2416017+02:00","Level":"Information","MessageTemplate":"object_id – 150 values found in 412 rows – Examining format"}
+{"Timestamp":"2020-10-15T10:37:07.2685770+02:00","Level":"Information","MessageTemplate":"object_id – Format : Text"}
+{"Timestamp":"2020-10-15T10:37:07.2685770+02:00","Level":"Information","MessageTemplate":"classification_id – 30 values found in 412 rows – Examining format"}
+{"Timestamp":"2020-10-15T10:37:07.2725755+02:00","Level":"Information","MessageTemplate":"classification_id – Format : Text"}
+{"Timestamp":"2020-10-15T10:37:07.2728228+02:00","Level":"Information","MessageTemplate":"course_code – No values found"}
+{"Timestamp":"2020-10-15T10:37:07.2738374+02:00","Level":"Information","MessageTemplate":"deactivation_dt – Only 1 values found in 412 rows"}
+{"Timestamp":"2020-10-15T10:37:07.2745733+02:00","Level":"Information","MessageTemplate":"deactivation_dt – Format : Text"}
+{"Timestamp":"2020-10-15T10:37:07.2745733+02:00","Level":"Information","MessageTemplate":"event_max_enrollment – 14 values found in 412 rows – Examining format"}
+{"Timestamp":"2020-10-15T10:37:07.2745733+02:00","Level":"Information","MessageTemplate":"event_max_enrollment – Format : Integer (0.#####)"}
+{"Timestamp":"2020-10-15T10:37:07.2755907+02:00","Level":"Information","MessageTemplate":"event_min_enrollment – 6 values found in 412 rows – Examining format"}
+{"Timestamp":"2020-10-15T10:37:07.2755907+02:00","Level":"Information","MessageTemplate":"event_min_enrollment – Format : Integer (0.#####)"}
+{"Timestamp":"2020-10-15T10:37:07.2755907+02:00","Level":"Information","MessageTemplate":"lo_active – Only 2 values found in 412 rows"}
+{"Timestamp":"2020-10-15T10:37:07.2755907+02:00","Level":"Information","MessageTemplate":"lo_active – Format : Boolean"}
+{"Timestamp":"2020-10-15T10:37:07.2755907+02:00","Level":"Information","MessageTemplate":"lo_admin_session_selection_allowed – Only 2 values found in 412 rows"}
+{"Timestamp":"2020-10-15T10:37:07.2755907+02:00","Level":"Information","MessageTemplate":"lo_admin_session_selection_allowed – Format : Boolean"}
+{"Timestamp":"2020-10-15T10:37:07.2765747+02:00","Level":"Information","MessageTemplate":"lo_adv_reg_deadline – 70 values found in 412 rows – Examining format"}
+{"Timestamp":"2020-10-15T10:37:07.2785739+02:00","Level":"Information","MessageTemplate":"lo_adv_reg_deadline – Format : Date Time (dd.MM.yyyy HH:mm:ss)"}
+{"Timestamp":"2020-10-15T10:37:07.2805740+02:00","Level":"Information","MessageTemplate":"lo_billing_entity – No values found"}
+{"Timestamp":"2020-10-15T10:37:07.2805740+02:00","Level":"Information","MessageTemplate":"lo_connect_item_type_id – 5 values found in 412 rows – Examining format"}
+{"Timestamp":"2020-10-15T10:37:07.2805740+02:00","Level":"Information","MessageTemplate":"lo_connect_item_type_id – Format : Integer (0.#####)"}
+{"Timestamp":"2020-10-15T10:37:07.2805740+02:00","Level":"Information","MessageTemplate":"lo_contact – 9 values found in 412 rows – Examining format"}
+{"Timestamp":"2020-10-15T10:37:07.2815738+02:00","Level":"Information","MessageTemplate":"lo_contact – Format : Text"}
+{"Timestamp":"2020-10-15T10:37:07.2815738+02:00","Level":"Information","MessageTemplate":"lo_contact_user_ref – 8 values found in 412 rows – Examining format"}
+{"Timestamp":"2020-10-15T10:37:07.2815738+02:00","Level":"Information","MessageTemplate":"lo_contact_user_ref – Format : Text"}
+{"Timestamp":"2020-10-15T10:37:07.2815738+02:00","Level":"Information","MessageTemplate":"lo_credit – 15 values found in 412 rows – Examining format"}
+{"Timestamp":"2020-10-15T10:37:07.2815738+02:00","Level":"Information","MessageTemplate":"lo_credit – Format : Integer (0.#####)"}
+{"Timestamp":"2020-10-15T10:37:07.2815738+02:00","Level":"Information","MessageTemplate":"lo_end_dt – 117 values found in 412 rows – Examining format"}
+{"Timestamp":"2020-10-15T10:37:07.2845738+02:00","Level":"Information","MessageTemplate":"lo_end_dt – Format : Date Time (dd.MM.yyyy HH:mm:ss)"}
+{"Timestamp":"2020-10-15T10:37:07.2845738+02:00","Level":"Information","MessageTemplate":"lo_end_registration – 90 values found in 412 rows – Examining format"}
+{"Timestamp":"2020-10-15T10:37:07.2868888+02:00","Level":"Information","MessageTemplate":"lo_end_registration – Format : Date Time (dd.MM.yyyy HH:mm:ss)"}
+{"Timestamp":"2020-10-15T10:37:07.2875738+02:00","Level":"Information","MessageTemplate":"lo_eval_01_override – 9 values found in 412 rows – Examining format"}
+{"Timestamp":"2020-10-15T10:37:07.2875738+02:00","Level":"Information","MessageTemplate":"lo_eval_01_override – Format : Integer (0.#####)"}
+{"Timestamp":"2020-10-15T10:37:07.2875738+02:00","Level":"Information","MessageTemplate":"lo_eval_02_override – 10 values found in 412 rows – Examining format"}
+{"Timestamp":"2020-10-15T10:37:07.2875738+02:00","Level":"Information","MessageTemplate":"lo_eval_02_override – Format : Integer (0.#####)"}
+{"Timestamp":"2020-10-15T10:37:07.2875738+02:00","Level":"Information","MessageTemplate":"lo_eval_03_override – 6 values found in 412 rows – Examining format"}
+{"Timestamp":"2020-10-15T10:37:07.2885748+02:00","Level":"Information","MessageTemplate":"lo_eval_03_override – Format : Integer (0.#####)"}
+{"Timestamp":"2020-10-15T10:37:07.2885748+02:00","Level":"Information","MessageTemplate":"lo_instructor_id – Only 3 values found in 412 rows"}
+{"Timestamp":"2020-10-15T10:37:07.2885748+02:00","Level":"Information","MessageTemplate":"lo_instructor_id – Format : Text"}
+{"Timestamp":"2020-10-15T10:37:07.2885748+02:00","Level":"Information","MessageTemplate":"lo_location_id – 9 values found in 412 rows – Examining format"}
+{"Timestamp":"2020-10-15T10:37:07.2885748+02:00","Level":"Information","MessageTemplate":"lo_location_id – Format : Integer (0.#####)"}
+{"Timestamp":"2020-10-15T10:37:07.2895752+02:00","Level":"Information","MessageTemplate":"lo_locator – 96 values found in 412 rows – Examining format"}
+{"Timestamp":"2020-10-15T10:37:07.2895752+02:00","Level":"Information","MessageTemplate":"lo_locator – Format : Integer (0.#####)"}
+{"Timestamp":"2020-10-15T10:37:07.2895752+02:00","Level":"Information","MessageTemplate":"lo_mastery_score – 7 values found in 412 rows – Examining format"}
+{"Timestamp":"2020-10-15T10:37:07.2895752+02:00","Level":"Information","MessageTemplate":"lo_mastery_score – Format : Integer (0.#####)"}
+{"Timestamp":"2020-10-15T10:37:07.2895752+02:00","Level":"Information","MessageTemplate":"lo_material_type_id – Only 3 values found in 412 rows"}
+{"Timestamp":"2020-10-15T10:37:07.2895752+02:00","Level":"Information","MessageTemplate":"lo_material_type_id – Format : Text"}
+{"Timestamp":"2020-10-15T10:37:07.2895752+02:00","Level":"Information","MessageTemplate":"lo_max_score – Only 1 values found in 412 rows"}
+{"Timestamp":"2020-10-15T10:37:07.2895752+02:00","Level":"Information","MessageTemplate":"lo_max_score – Format : Text"}
+{"Timestamp":"2020-10-15T10:37:07.2895752+02:00","Level":"Information","MessageTemplate":"lo_min_parts – Only 2 values found in 412 rows"}
+{"Timestamp":"2020-10-15T10:37:07.2895752+02:00","Level":"Information","MessageTemplate":"lo_min_parts – Format : Text"}
+{"Timestamp":"2020-10-15T10:37:07.2905734+02:00","Level":"Information","MessageTemplate":"lo_object_type – 15 values found in 412 rows – Examining format"}
+{"Timestamp":"2020-10-15T10:37:07.2905734+02:00","Level":"Information","MessageTemplate":"lo_object_type – Format : Text"}
+{"Timestamp":"2020-10-15T10:37:07.2905734+02:00","Level":"Information","MessageTemplate":"lo_owner_names – 9 values found in 412 rows – Examining format"}
+{"Timestamp":"2020-10-15T10:37:07.2915738+02:00","Level":"Information","MessageTemplate":"lo_owner_names – Format : Text"}
+{"Timestamp":"2020-10-15T10:37:07.2915738+02:00","Level":"Information","MessageTemplate":"lo_product_code – 9 values found in 412 rows – Examining format"}
+{"Timestamp":"2020-10-15T10:37:07.2915738+02:00","Level":"Information","MessageTemplate":"lo_product_code – Format : Text"}
+{"Timestamp":"2020-10-15T10:37:07.2915738+02:00","Level":"Information","MessageTemplate":"lo_provider_id – 11 values found in 412 rows – Examining format"}
+{"Timestamp":"2020-10-15T10:37:07.2946607+02:00","Level":"Information","MessageTemplate":"lo_provider_id – Format : Text"}
+{"Timestamp":"2020-10-15T10:37:07.2946607+02:00","Level":"Information","MessageTemplate":"lo_publication_id – 17 values found in 412 rows – Examining format"}
+{"Timestamp":"2020-10-15T10:37:07.2946607+02:00","Level":"Information","MessageTemplate":"lo_publication_id – Format : Integer (0.#####)"}
+{"Timestamp":"2020-10-15T10:37:07.2946607+02:00","Level":"Information","MessageTemplate":"lo_reg_max – 18 values found in 412 rows – Examining format"}
+{"Timestamp":"2020-10-15T10:37:07.2946607+02:00","Level":"Information","MessageTemplate":"lo_reg_max – Format : Integer (0.#####)"}
+{"Timestamp":"2020-10-15T10:37:07.2946607+02:00","Level":"Information","MessageTemplate":"lo_reg_min – 6 values found in 412 rows – Examining format"}
+{"Timestamp":"2020-10-15T10:37:07.2946607+02:00","Level":"Information","MessageTemplate":"lo_reg_min – Format : Integer (0.#####)"}
+{"Timestamp":"2020-10-15T10:37:07.2955748+02:00","Level":"Information","MessageTemplate":"lo_seats_available – 29 values found in 412 rows – Examining format"}
+{"Timestamp":"2020-10-15T10:37:07.2955748+02:00","Level":"Information","MessageTemplate":"lo_seats_available – Format : Integer (0.#####)"}
+{"Timestamp":"2020-10-15T10:37:07.2955748+02:00","Level":"Information","MessageTemplate":"lo_seats_taken – 9 values found in 412 rows – Examining format"}
+{"Timestamp":"2020-10-15T10:37:07.2955748+02:00","Level":"Information","MessageTemplate":"lo_seats_taken – Format : Integer (0.#####)"}
+{"Timestamp":"2020-10-15T10:37:07.2955748+02:00","Level":"Information","MessageTemplate":"lo_seats_total – 18 values found in 412 rows – Examining format"}
+{"Timestamp":"2020-10-15T10:37:07.2965749+02:00","Level":"Information","MessageTemplate":"lo_seats_total – Format : Integer (0.#####)"}
+{"Timestamp":"2020-10-15T10:37:07.2965749+02:00","Level":"Information","MessageTemplate":"lo_secondary_training_provider_id – Only 1 values found in 412 rows"}
+{"Timestamp":"2020-10-15T10:37:07.2965749+02:00","Level":"Information","MessageTemplate":"lo_secondary_training_provider_id – Format : Text"}
+{"Timestamp":"2020-10-15T10:37:07.2965749+02:00","Level":"Information","MessageTemplate":"lo_size – 9 values found in 412 rows – Examining format"}
+{"Timestamp":"2020-10-15T10:37:07.2965749+02:00","Level":"Information","MessageTemplate":"lo_size – Format : Money (High Precision) (0,#####)"}
+{"Timestamp":"2020-10-15T10:37:07.2965749+02:00","Level":"Information","MessageTemplate":"lo_start_dt – 117 values found in 412 rows – Examining format"}
+{"Timestamp":"2020-10-15T10:37:07.2985748+02:00","Level":"Information","MessageTemplate":"lo_start_dt – Format : Date Time (dd.MM.yyyy HH:mm:ss)"}
+{"Timestamp":"2020-10-15T10:37:07.2995747+02:00","Level":"Information","MessageTemplate":"lo_status_type – 7 values found in 412 rows – Examining format"}
+{"Timestamp":"2020-10-15T10:37:07.2995747+02:00","Level":"Information","MessageTemplate":"lo_status_type – Format : Text"}
+{"Timestamp":"2020-10-15T10:37:07.2995747+02:00","Level":"Information","MessageTemplate":"lo_test_attempts_allowed – Only 4 values found in 412 rows"}
+{"Timestamp":"2020-10-15T10:37:07.2995747+02:00","Level":"Information","MessageTemplate":"lo_test_attempts_allowed – Format : Text"}
+{"Timestamp":"2020-10-15T10:37:07.2995747+02:00","Level":"Information","MessageTemplate":"lo_test_graders_ids – 5 values found in 412 rows – Examining format"}
+{"Timestamp":"2020-10-15T10:37:07.3006208+02:00","Level":"Information","MessageTemplate":"lo_test_graders_ids – Format : Text"}
+{"Timestamp":"2020-10-15T10:37:07.3006208+02:00","Level":"Information","MessageTemplate":"lo_test_max_entries – Only 2 values found in 412 rows"}
+{"Timestamp":"2020-10-15T10:37:07.3006208+02:00","Level":"Information","MessageTemplate":"lo_test_max_entries – Format : Text"}
+{"Timestamp":"2020-10-15T10:37:07.3006208+02:00","Level":"Information","MessageTemplate":"lo_timezone_id – Only 3 values found in 412 rows"}
+{"Timestamp":"2020-10-15T10:37:07.3006208+02:00","Level":"Information","MessageTemplate":"lo_timezone_id – Format : Text"}
+{"Timestamp":"2020-10-15T10:37:07.3006208+02:00","Level":"Information","MessageTemplate":"lo_total_cost – Only 2 values found in 412 rows"}
+{"Timestamp":"2020-10-15T10:37:07.3015748+02:00","Level":"Information","MessageTemplate":"lo_total_cost – Format : Text"}
+{"Timestamp":"2020-10-15T10:37:07.3015748+02:00","Level":"Information","MessageTemplate":"lo_total_users_requests – 9 values found in 412 rows – Examining format"}
+{"Timestamp":"2020-10-15T10:37:07.3022461+02:00","Level":"Information","MessageTemplate":"lo_total_users_requests – Format : Integer (0.#####)"}
+{"Timestamp":"2020-10-15T10:37:07.3025946+02:00","Level":"Information","MessageTemplate":"lo_version – 5 values found in 412 rows – Examining format"}
+{"Timestamp":"2020-10-15T10:37:07.3028709+02:00","Level":"Information","MessageTemplate":"lo_version – Format : Money (High Precision) (0.#####)"}
+{"Timestamp":"2020-10-15T10:37:07.3031346+02:00","Level":"Information","MessageTemplate":"lo_withdraw_dt – No values found"}
+{"Timestamp":"2020-10-15T10:37:07.3034272+02:00","Level":"Information","MessageTemplate":"provider_ref – 61 values found in 412 rows – Examining format"}
+{"Timestamp":"2020-10-15T10:37:07.3038757+02:00","Level":"Information","MessageTemplate":"provider_ref – Format : Text"}
+{"Timestamp":"2020-10-15T10:37:07.3040220+02:00","Level":"Information","MessageTemplate":"publication_create_dt – 17 values found in 412 rows – Examining format"}
+{"Timestamp":"2020-10-15T10:37:07.3042469+02:00","Level":"Information","MessageTemplate":"publication_create_dt – Format : Date Time (dd.MM.yyyy HH:mm:ss)"}
+{"Timestamp":"2020-10-15T10:37:07.3042930+02:00","Level":"Information","MessageTemplate":"publication_created_by_user_id – 5 values found in 412 rows – Examining format"}
+{"Timestamp":"2020-10-15T10:37:07.3042930+02:00","Level":"Information","MessageTemplate":"publication_created_by_user_id – Format : Integer (0.#####)"}
+{"Timestamp":"2020-10-15T10:37:07.3045378+02:00","Level":"Information","MessageTemplate":"ref – 150 values found in 412 rows – Examining format"}
+{"Timestamp":"2020-10-15T10:37:07.3060461+02:00","Level":"Information","MessageTemplate":"ref – Format : Text"}
+{"Timestamp":"2020-10-15T10:37:07.3060461+02:00","Level":"Information","MessageTemplate":"related_lo_id – 6 values found in 412 rows – Examining format"}
+{"Timestamp":"2020-10-15T10:37:07.3080458+02:00","Level":"Information","MessageTemplate":"related_lo_id – Format : Text"}
+{"Timestamp":"2020-10-15T10:37:07.3090473+02:00","Level":"Information","MessageTemplate":"source_object_id – 150 values found in 412 rows – Examining format"}
+{"Timestamp":"2020-10-15T10:37:07.3110457+02:00","Level":"Information","MessageTemplate":"source_object_id – Format : Text"}
+{"Timestamp":"2020-10-15T10:37:07.3110457+02:00","Level":"Information","MessageTemplate":"total_sco – Only 1 values found in 412 rows"}
+{"Timestamp":"2020-10-15T10:37:07.3110457+02:00","Level":"Information","MessageTemplate":"total_sco – Format : Text"}
+{"Timestamp":"2020-10-15T10:37:07.3110457+02:00","Level":"Information","MessageTemplate":"training_version_effective_dt – 13 values found in 412 rows – Examining format"}
+{"Timestamp":"2020-10-15T10:37:07.3120477+02:00","Level":"Information","MessageTemplate":"training_version_effective_dt – Format : Date Time (dd.MM.yyyy HH:mm:ss)"}
+{"Timestamp":"2020-10-15T10:37:07.3120477+02:00","Level":"Information","MessageTemplate":"training_version_end_dt – No values found"}
+{"Timestamp":"2020-10-15T10:37:07.3120477+02:00","Level":"Information","MessageTemplate":"training_version_start_dt – Only 1 values found in 412 rows"}
+{"Timestamp":"2020-10-15T10:37:07.3120477+02:00","Level":"Information","MessageTemplate":"training_version_start_dt – Format : Text"}
+{"Timestamp":"2020-10-15T10:37:07.5266473+02:00","Level":"Information","MessageTemplate":"Opening Json file Larger.json"}
+{"Timestamp":"2020-10-15T10:37:16.7781595+02:00","Level":"Information","MessageTemplate":"Examining file {filename}","Properties":{"filename":"C:\\…\\TestFiles\\txTranscripts.txt"}}
+{"Timestamp":"2020-10-15T10:37:16.8241240+02:00","Level":"Information","MessageTemplate":"Size of file: 33,16 kB"}
+{"Timestamp":"2020-10-15T10:37:16.9001645+02:00","Level":"Information","MessageTemplate":"Checking delimited text file"}
+{"Timestamp":"2020-10-15T10:37:16.9010413+02:00","Level":"Information","MessageTemplate":"Checking Code Page"}
+{"Timestamp":"2020-10-15T10:37:16.9050411+02:00","Level":"Information","MessageTemplate":"Code Page: {encoding}","Properties":{"encoding":"CP 65001 - Unicode (UTF-8) with BOM"}}
+{"Timestamp":"2020-10-15T10:37:16.9181321+02:00","Level":"Information","MessageTemplate":"Column Delimiter: {delimiter}","Properties":{"delimiter":"TAB"}}
+{"Timestamp":"2020-10-15T10:37:16.9218461+02:00","Level":"Information","MessageTemplate":"Record Delimiter: {recorddelimiter}","Properties":{"recorddelimiter":"Carriage Return / Line feed"}}
+{"Timestamp":"2020-10-15T10:37:16.9267822+02:00","Level":"Information","MessageTemplate":"With Header Row"}
+{"Timestamp":"2020-10-15T10:37:17.1196999+02:00","Level":"Information","MessageTemplate":"Determining column format by reading samples"}
+{"Timestamp":"2020-10-15T10:37:17.1266995+02:00","Level":"Information","MessageTemplate":"Opening delimited file \"txTranscripts.txt\""}
+{"Timestamp":"2020-10-15T10:37:17.1534424+02:00","Level":"Information","MessageTemplate":"Getting column headers"}
+{"Timestamp":"2020-10-15T10:37:17.1554783+02:00","Level":"Information","MessageTemplate":"Getting sample values for all 6 columns"}
+{"Timestamp":"2020-10-15T10:37:17.1784761+02:00","Level":"Information","MessageTemplate":"GCS_004805_Osipova – 150 values found in 266 rows – Examining format"}
+{"Timestamp":"2020-10-15T10:37:17.2044764+02:00","Level":"Information","MessageTemplate":"GCS_004805_Osipova – Format : Text"}
+{"Timestamp":"2020-10-15T10:37:17.2064760+02:00","Level":"Information","MessageTemplate":"023c25d3-3420-449c-a75b-0d74d29ddc38 – Only 4 values found in 266 rows"}
+{"Timestamp":"2020-10-15T10:37:17.2098055+02:00","Level":"Information","MessageTemplate":"023c25d3-3420-449c-a75b-0d74d29ddc38 – Format : Text"}
+{"Timestamp":"2020-10-15T10:37:17.2114430+02:00","Level":"Information","MessageTemplate":"Completed – Only 1 values found in 266 rows"}
+{"Timestamp":"2020-10-15T10:37:17.2124438+02:00","Level":"Information","MessageTemplate":"Completed – Format : Text"}
+{"Timestamp":"2020-10-15T10:37:17.2134422+02:00","Level":"Information","MessageTemplate":"04/02/2008 00:00:00 – 150 values found in 266 rows – Examining format"}
+{"Timestamp":"2020-10-15T10:37:17.2164763+02:00","Level":"Information","MessageTemplate":"04/02/2008 00:00:00 – Format : Date Time (dd/MM/yyyy HH:mm:ss)"}
+{"Timestamp":"2020-10-15T10:37:17.2174763+02:00","Level":"Information","MessageTemplate":"Column5 – 150 values found in 266 rows – Examining format"}
+{"Timestamp":"2020-10-15T10:37:17.2194875+02:00","Level":"Information","MessageTemplate":"Column5 – Format : Date Time (dd/MM/yyyy HH:mm:ss)"}
+{"Timestamp":"2020-10-15T10:37:17.2204768+02:00","Level":"Information","MessageTemplate":"Column6 – 150 values found in 266 rows – Examining format"}
+{"Timestamp":"2020-10-15T10:37:17.2214770+02:00","Level":"Information","MessageTemplate":"Column6 – Format : Date Time (dd/MM/yyyy HH:mm:ss)"}
+{"Timestamp":"2020-10-15T10:37:17.3774110+02:00","Level":"Information","MessageTemplate":"Opening delimited file \"txTranscripts.txt\""}
+{"Timestamp":"2020-10-15T10:37:26.3489948+02:00","Level":"Information","MessageTemplate":"Examining file {filename}","Properties":{"filename":"C:\\…\\TestFiles\\TextQualifiers.txt"}}
+{"Timestamp":"2020-10-15T10:37:26.3959102+02:00","Level":"Information","MessageTemplate":"Size of file: 149 Bytes"}
+{"Timestamp":"2020-10-15T10:37:26.4880859+02:00","Level":"Information","MessageTemplate":"Detected Json file"}
+{"Timestamp":"2020-10-15T10:37:26.4888744+02:00","Level":"Information","MessageTemplate":"Checking delimited text file"}
+{"Timestamp":"2020-10-15T10:37:26.4892011+02:00","Level":"Information","MessageTemplate":"Checking Code Page"}
+{"Timestamp":"2020-10-15T10:37:26.5350333+02:00","Level":"Information","MessageTemplate":"Code Page: {encoding}","Properties":{"encoding":"CP 65001 - Unicode (UTF-8) without BOM"}}
+{"Timestamp":"2020-10-15T10:37:26.5439981+02:00","Level":"Information","MessageTemplate":"Column Delimiter: {delimiter}","Properties":{"delimiter":","}}
+{"Timestamp":"2020-10-15T10:37:26.5462657+02:00","Level":"Information","MessageTemplate":"Record Delimiter: {recorddelimiter}","Properties":{"recorddelimiter":"Carriage Return / Line feed"}}
+{"Timestamp":"2020-10-15T10:37:26.5497488+02:00","Level":"Information","MessageTemplate":"With Header Row"}
+{"Timestamp":"2020-10-15T10:37:26.5871255+02:00","Level":"Information","MessageTemplate":"Determining column format by reading samples"}
+{"Timestamp":"2020-10-15T10:37:26.5959868+02:00","Level":"Information","MessageTemplate":"Opening delimited file \"TextQualifiers.txt\""}
+{"Timestamp":"2020-10-15T10:37:26.6209869+02:00","Level":"Information","MessageTemplate":"Getting column headers"}
+{"Timestamp":"2020-10-15T10:37:26.6219875+02:00","Level":"Information","MessageTemplate":"Getting sample values for all 6 columns"}
+{"Timestamp":"2020-10-15T10:37:26.6419875+02:00","Level":"Information","MessageTemplate":"a – 7 values found in 7 rows – Examining format"}
+{"Timestamp":"2020-10-15T10:37:26.6599870+02:00","Level":"Information","MessageTemplate":"a – Format : Text"}
+{"Timestamp":"2020-10-15T10:37:26.6619870+02:00","Level":"Information","MessageTemplate":"b \" – 7 values found in 7 rows – Examining format"}
+{"Timestamp":"2020-10-15T10:37:26.6657318+02:00","Level":"Information","MessageTemplate":"b \" – Format : Text"}
+{"Timestamp":"2020-10-15T10:37:26.6659874+02:00","Level":"Information","MessageTemplate":"c – 7 values found in 7 rows – Examining format"}
+{"Timestamp":"2020-10-15T10:37:26.6669873+02:00","Level":"Information","MessageTemplate":"c – Format : Text"}
+{"Timestamp":"2020-10-15T10:37:26.6679868+02:00","Level":"Information","MessageTemplate":"d – 7 values found in 7 rows – Examining format"}
+{"Timestamp":"2020-10-15T10:37:26.6689876+02:00","Level":"Information","MessageTemplate":"d – Format : Text"}
+{"Timestamp":"2020-10-15T10:37:26.6689876+02:00","Level":"Information","MessageTemplate":"e – 7 values found in 7 rows – Examining format"}
+{"Timestamp":"2020-10-15T10:37:26.6699876+02:00","Level":"Information","MessageTemplate":"e – Format : Text"}
+{"Timestamp":"2020-10-15T10:37:26.6699876+02:00","Level":"Information","MessageTemplate":"f – 7 values found in 7 rows – Examining format"}
+{"Timestamp":"2020-10-15T10:37:26.6710103+02:00","Level":"Information","MessageTemplate":"f – Format : Text"}
+{"Timestamp":"2020-10-15T10:37:26.8173001+02:00","Level":"Information","MessageTemplate":"Opening delimited file \"TextQualifiers.txt\""}
+{"Timestamp":"2020-10-15T10:37:32.8597017+02:00","Level":"Information","MessageTemplate":"Examining file {filename}","Properties":{"filename":"C:\\…\\TestFiles\\TestFile.txt"}}
+{"Timestamp":"2020-10-15T10:37:32.9057335+02:00","Level":"Information","MessageTemplate":"Size of file: 458 Bytes"}

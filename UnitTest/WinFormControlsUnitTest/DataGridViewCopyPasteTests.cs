@@ -23,6 +23,7 @@ namespace CsvTools.Tests
   public class DataGridViewCopyPasteTests
   {
     [TestMethod]
+    [Timeout(2000)]
     public void SelectedDataIntoClipboardAllTest()
     {
       Extensions.RunSTAThread(() =>
@@ -46,6 +47,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    [Timeout(3000)]
     public void CopySelectedRowsIntoClipboard()
     {
       Extensions.RunSTAThread(() =>
@@ -84,6 +86,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    [Timeout(2000)]
     public void CopySelectedColumnsIntoClipboard()
     {
       Extensions.RunSTAThread(() =>
@@ -120,6 +123,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    [Timeout(2000)]
     public void SelectedDataIntoClipboardTest()
     {
       Extensions.RunSTAThread(() =>

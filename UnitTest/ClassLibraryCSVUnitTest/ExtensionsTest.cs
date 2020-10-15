@@ -147,6 +147,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    [Timeout(2000)]
     public void ExceptionMessagesAggregate()
     {
       try

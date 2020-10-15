@@ -8,6 +8,7 @@ namespace CsvTools.Tests
   public class ControlsTests
   {
     [TestMethod]
+    [Timeout(6000)]
     public void CsvTextDisplayShow()
     {
       using (var frm = new FormCsvTextDisplay())
