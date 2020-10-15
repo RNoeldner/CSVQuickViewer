@@ -312,5 +312,11 @@ namespace CsvTools
       else if (domainUpDownTime.SelectedIndex==0)
         m_ViewSettings.LimitDuration = ViewSettings.DurationEnum.HalfSecond;
     }
+
+    private void buttonGuessHeader_Click(object sender, EventArgs e)
+    {
+      buttonGuessHeader.RunWithHourglass(() => CsvHelper.GuessHeader(m_ViewSettings, m_CancellationTokenSource.Token));
+      fileSettingBindingSource.ResetBindings(false);
+    }
   }
 }

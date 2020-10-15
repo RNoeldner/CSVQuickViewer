@@ -16,6 +16,7 @@ using System;
 using System.IO;
 using System.Text;
 using JetBrains.Annotations;
+using Newtonsoft.Json;
 
 namespace CsvTools
 {
@@ -26,7 +27,10 @@ namespace CsvTools
   {
     private ISyntaxHighlighter m_HighLighter;
     private int m_SkipLines;
+    private MemoryStream m_MemoryStream;
     private IImprovedStream m_Stream;
+    private string m_FullPath;
+    private int m_CodePage;
 
     /// <summary>
     ///   CTOR CsvTextDisplay
@@ -52,6 +56,39 @@ namespace CsvTools
       }
     }
 
+    private void OriginalStream()
+    {
+      m_MemoryStream?.Dispose();
+      m_MemoryStream=null;
+      prettyPrintJsonToolStripMenuItem.Checked=false;
+      originalFileToolStripMenuItem.Checked=true;
+      m_Stream = new ImprovedStream(m_FullPath, true);
+      textBox.OpenBindingStream(m_Stream as Stream, Encoding.GetEncoding(m_CodePage));
+      HighlightVisibleRange();
+    }
+
+    private void PrettyPrintStream()
+    {
+      m_Stream.Seek(0, SeekOrigin.Begin);
+      m_MemoryStream?.Dispose();
+      m_MemoryStream = new MemoryStream();
+      prettyPrintJsonToolStripMenuItem.Checked=true;
+      originalFileToolStripMenuItem.Checked=false;
+
+      var encoding = Encoding.GetEncoding(m_CodePage);
+      using (var textReader = new StreamReader(m_Stream as Stream, encoding, true, 4096, true))
+      using (var stringWriter = new StreamWriter(m_MemoryStream, encoding, 4096, true))
+      {
+        var jsonReader = new JsonTextReader(textReader);
+        var jsonWriter = new JsonTextWriter(stringWriter) { Formatting = Formatting.Indented };
+        jsonWriter.WriteToken(jsonReader);
+      }
+      m_MemoryStream.Seek(0, SeekOrigin.Begin);
+      textBox.OpenBindingStream(m_MemoryStream as Stream, encoding);
+
+      HighlightVisibleRange();
+    }
+
     /// <summary>
     ///   CSV File to display
     /// </summary>
@@ -68,20 +105,27 @@ The file {fullPath} does not exist.";
       }
       else
       {
-        if (json)
-          m_HighLighter = new SyntaxHighlighterJson(textBox);
-        else
-          m_HighLighter =
-            new SyntaxHighlighterDelimitedText(textBox, qualifierChar, delimiterChar, escapeChar, commemt);
-
+        m_FullPath=fullPath;
+                
         try
         {
+          
+          if (json)
+          {
+            m_HighLighter = new SyntaxHighlighterJson(textBox);
+            textBox.ContextMenuStrip = contextMenuJson;
+          }
+          else
+            m_HighLighter =
+              new SyntaxHighlighterDelimitedText(textBox, qualifierChar, delimiterChar, escapeChar, commemt);
           m_Stream = new ImprovedStream(fullPath, true);
-          m_SkipLines = skipLines;
-          textBox.OpenBindingStream(m_Stream as Stream, Encoding.GetEncoding(codePage));
+          m_SkipLines = !json?skipLines:0;
+          m_CodePage = codePage;
+
+          OriginalStream();       
         }
         catch (Exception e)
-        {
+        {          
           textBox.Text = e.Message;
         }
       }
@@ -95,6 +139,17 @@ The file {fullPath} does not exist.";
     private void TextBox_VisibleRangeChangedDelayed(object sender, EventArgs e)
     {
       HighlightVisibleRange();
+    }
+
+
+    private void PrettyPrintJsonToolStripMenuItem_Click(object sender, EventArgs e)
+    {
+      PrettyPrintStream();
+    }
+
+    private void OriginalFileToolStripMenuItem_Click(object sender, EventArgs e)
+    {
+      OriginalStream();
     }
   }
 }

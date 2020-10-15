@@ -486,8 +486,7 @@ namespace CsvTools
               Text =
                 $"{FileSystemUtils.GetShortDisplayFileName(fileName, 40)} - {EncodingHelper.GetEncodingName(m_CodePage.Item1, true, m_CodePage.Item2)} - {AssemblyTitle}";
 
-              m_ToolStripButtonAsText.Visible =
-                m_FileSetting.ColumnCollection.Any(x => x.ValueFormat.DataType != DataType.String);
+              m_ToolStripButtonAsText.Visible = !m_FileSetting.JsonFormat  && m_FileSetting.ColumnCollection.Any(x => x.ValueFormat.DataType != DataType.String);
 
               if (m_ViewSettings.DetectFileChanges)
               {
