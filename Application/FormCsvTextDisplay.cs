@@ -25,12 +25,12 @@ namespace CsvTools
   /// </summary>
   public partial class FormCsvTextDisplay : ResizeForm
   {
-    private ISyntaxHighlighter m_HighLighter;
-    private int m_SkipLines;
-    private MemoryStream m_MemoryStream;
-    private IImprovedStream m_Stream;
-    private string m_FullPath;
     private int m_CodePage;
+    private string m_FullPath;
+    private ISyntaxHighlighter m_HighLighter;
+    private MemoryStream m_MemoryStream;
+    private int m_SkipLines;
+    private IImprovedStream m_Stream;
 
     /// <summary>
     ///   CTOR CsvTextDisplay
@@ -59,9 +59,9 @@ namespace CsvTools
     private void OriginalStream()
     {
       m_MemoryStream?.Dispose();
-      m_MemoryStream=null;
-      prettyPrintJsonToolStripMenuItem.Checked=false;
-      originalFileToolStripMenuItem.Checked=true;
+      m_MemoryStream = null;
+      prettyPrintJsonToolStripMenuItem.Checked = false;
+      originalFileToolStripMenuItem.Checked = true;
       m_Stream = new ImprovedStream(m_FullPath, true);
       textBox.OpenBindingStream(m_Stream as Stream, Encoding.GetEncoding(m_CodePage));
       HighlightVisibleRange();
@@ -72,19 +72,20 @@ namespace CsvTools
       m_Stream.Seek(0, SeekOrigin.Begin);
       m_MemoryStream?.Dispose();
       m_MemoryStream = new MemoryStream();
-      prettyPrintJsonToolStripMenuItem.Checked=true;
-      originalFileToolStripMenuItem.Checked=false;
+      prettyPrintJsonToolStripMenuItem.Checked = true;
+      originalFileToolStripMenuItem.Checked = false;
 
       var encoding = Encoding.GetEncoding(m_CodePage);
-      using (var textReader = new StreamReader(m_Stream as Stream, encoding, true, 4096, true))
+      using (var textReader = new StreamReader((Stream) m_Stream, encoding, true, 4096, true))
       using (var stringWriter = new StreamWriter(m_MemoryStream, encoding, 4096, true))
       {
         var jsonReader = new JsonTextReader(textReader);
-        var jsonWriter = new JsonTextWriter(stringWriter) { Formatting = Formatting.Indented };
+        var jsonWriter = new JsonTextWriter(stringWriter) {Formatting = Formatting.Indented};
         jsonWriter.WriteToken(jsonReader);
       }
+
       m_MemoryStream.Seek(0, SeekOrigin.Begin);
-      textBox.OpenBindingStream(m_MemoryStream as Stream, encoding);
+      textBox.OpenBindingStream(m_MemoryStream, encoding);
 
       HighlightVisibleRange();
     }
@@ -94,7 +95,7 @@ namespace CsvTools
     /// </summary>
     public void OpenFile([NotNull] string fullPath, bool json, char qualifierChar, char delimiterChar,
       char escapeChar,
-      int codePage, int skipLines, string commemt)
+      int codePage, int skipLines, string comment)
     {
       Text = fullPath ?? throw new ArgumentNullException(nameof(fullPath));
       var info = new FileSystemUtils.FileInfo(fullPath);
@@ -105,11 +106,10 @@ The file {fullPath} does not exist.";
       }
       else
       {
-        m_FullPath=fullPath;
-                
+        m_FullPath = fullPath;
+
         try
         {
-          
           if (json)
           {
             m_HighLighter = new SyntaxHighlighterJson(textBox);
@@ -117,15 +117,16 @@ The file {fullPath} does not exist.";
           }
           else
             m_HighLighter =
-              new SyntaxHighlighterDelimitedText(textBox, qualifierChar, delimiterChar, escapeChar, commemt);
+              new SyntaxHighlighterDelimitedText(textBox, qualifierChar, delimiterChar, escapeChar, comment);
+
           m_Stream = new ImprovedStream(fullPath, true);
-          m_SkipLines = !json?skipLines:0;
+          m_SkipLines = !json ? skipLines : 0;
           m_CodePage = codePage;
 
-          OriginalStream();       
+          OriginalStream();
         }
         catch (Exception e)
-        {          
+        {
           textBox.Text = e.Message;
         }
       }

@@ -14,12 +14,12 @@
     <Compile Remove="..\WinFormControls\Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="FCTB" Version="2.16.24" />
     <PackageReference Include="WindowsAPICodePack">
       <Version>1.1.1</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\FCTB\FastColoredTextBox.Core\FastColoredTextBox.Core.csproj" />
     <ProjectReference Include="..\ClassLibraryCSV.Standard\ClassLibraryCSV.Standard.csproj" />
   </ItemGroup>
 </Project>
