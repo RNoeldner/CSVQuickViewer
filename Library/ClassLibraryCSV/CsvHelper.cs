@@ -69,6 +69,16 @@ namespace CsvTools
       }
     }
 
+
+    public static void GuessHeader([NotNull] ICsvFile setting, CancellationToken cancellationToken)
+    {
+      using (var improvedStream = FunctionalDI.OpenRead(setting.FullPath))
+      using (var reader = new ImprovedTextReader(improvedStream, setting.CodePageId, setting.SkipRows))
+      {
+        setting.HasFieldHeader = GuessHasHeader(reader, setting.FileFormat.CommentLine, setting.FileFormat.FieldDelimiterChar, cancellationToken);
+      }
+    }
+
     /// <summary>
     ///   Guesses the delimiter for a files. Done with a rather simple csv parsing, and trying to
     ///   find the delimiter that has the least variance in the read rows, if that is not possible
@@ -669,7 +679,7 @@ namespace CsvTools
       const int c_RecSep = 4;
       const int c_UnitSep = 5;
 
-      int[] count = {0, 0, 0, 0, 0, 0};
+      int[] count = { 0, 0, 0, 0, 0, 0 };
 
       // \r = CR (Carriage Return) \n = LF (Line Feed)
 
@@ -757,7 +767,7 @@ namespace CsvTools
       if (textReader == null) throw new ArgumentNullException(nameof(textReader));
 
       const int c_MaxLine = 30;
-      var possibleQuotes = new[] {'"', '\''};
+      var possibleQuotes = new[] { '"', '\'' };
       var counter = new int[possibleQuotes.Length];
 
       var textReaderPosition = new ImprovedTextReaderPositionStore(textReader);
@@ -1060,6 +1070,11 @@ namespace CsvTools
         guessStartRow,
         guessHasHeader,
         guessNewLine);
+
+      if (fileSetting.JsonFormat)
+      {
+        fileSetting.SkipRows=0;
+      }
 
       await fileSetting.FillGuessColumnFormatReaderAsync(
         true,

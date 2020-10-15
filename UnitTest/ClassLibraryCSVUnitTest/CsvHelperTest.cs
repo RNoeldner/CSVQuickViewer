@@ -60,7 +60,8 @@ namespace CsvTools.Tests
         await CsvHelper.GuessDelimiterAsync(
           new CsvFile(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt")),
           UnitTestInitializeCsv.Token));
-      Assert.AreEqual(
+      
+     Assert.AreEqual(
         "|",
         await CsvHelper.GuessDelimiterAsync(
           new CsvFile(UnitTestInitializeCsv.GetTestPath("AllFormatsPipe.txt")),
@@ -332,11 +333,14 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task TestGuessStartRow1Async()
     {
-      ICsvFile test = new CsvFile(UnitTestInitializeCsv.GetTestPath("LateStartRow.txt")) {CodePageId = 20127};
+      ICsvFile test = new CsvFile(UnitTestInitializeCsv.GetTestPath("LateStartRow.txt"))
+      {
+        SkipRows = 10,
+        CodePageId = 20127
+      };      
       test.FileFormat.FieldDelimiter = "|";
       test.FileFormat.FieldQualifier = "\"";
-      test.SkipRows = await CsvHelper.GuessStartRowAsync(test, UnitTestInitializeCsv.Token);
-      Assert.AreEqual(10, test.SkipRows);
+      
       using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       using (var reader = new CsvFileReader(test, processDisplay))
       {
@@ -344,6 +348,18 @@ namespace CsvTools.Tests
         Assert.AreEqual("RecordNumber", reader.GetName(0));
         await reader.ReadAsync(processDisplay.CancellationToken);
         Assert.AreEqual("0F8C40DB-EE2C-4C7C-A226-3C43E72584B0", reader.GetString(1));
+
+        await reader.ReadAsync(processDisplay.CancellationToken);
+        Assert.AreEqual("4DCD85E1-64FB-4D33-B33F-4EEB36675666", reader.GetString(1));
+
+        await reader.ReadAsync(processDisplay.CancellationToken);
+        Assert.AreEqual("0F8C40DB-EE2C-4C7C-A226-3C43E72584B0", reader.GetString(1));
+
+        await reader.ReadAsync(processDisplay.CancellationToken);
+        Assert.AreEqual("4DCD85E1-64FB-4D33-B33F-4EEB36675666", reader.GetString(1));
+        // the footer row is ignored with the record number 
+        var next = await reader.ReadAsync(processDisplay.CancellationToken);
+        Assert.IsFalse(next);
       }
     }
 
