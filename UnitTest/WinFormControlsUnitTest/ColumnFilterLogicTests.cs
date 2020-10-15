@@ -84,6 +84,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    [Timeout(1000)]
     public void Active()
     {
       var columnFilterLogic = new ColumnFilterLogic(typeof(DateTime), "Column1");
@@ -204,6 +205,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    [Timeout(1000)]
     public void ValueClusterCollection()
     {
       var columnFilterLogic = new ColumnFilterLogic(typeof(int), "intCol");

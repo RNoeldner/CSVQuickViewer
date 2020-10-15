@@ -21,6 +21,7 @@ namespace CsvTools.Tests
   public class TimeToCompletionTests
   {
     [TestMethod]
+    [Timeout(20000)]
     public void TimeToCompletionTest()
     {
       var test = new TimeToCompletion();

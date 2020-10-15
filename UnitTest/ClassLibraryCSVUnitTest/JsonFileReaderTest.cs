@@ -148,6 +148,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    [Timeout(5000)]
     public async Task ReadJSonEmpAsync()
     {
       var setting = new CsvFile(UnitTestInitializeCsv.GetTestPath("Emp.json")) {JsonFormat = true};

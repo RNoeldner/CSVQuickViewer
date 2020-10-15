@@ -6,6 +6,7 @@ namespace CsvTools.Tests
   public class FormColumnUITest
   {
     [TestMethod]
+    [Timeout(5000)]
     public void FormColumnUI()
     {
       var csvFile = new CsvFile(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"));
@@ -21,6 +22,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    [Timeout(5000)]
     public void FormColumnUIGetColumnHeader2()
     {
       var csvFile = new CsvFile {ID = "Csv", FileName = UnitTestInitializeCsv.GetTestPath("BasicCSV.txt")};
@@ -39,6 +41,7 @@ namespace CsvTools.Tests
 
 
     [TestMethod]
+    [Timeout(5000)]
     public void FormColumnUIGetColumnHeaderAsync()
     {
       var csvFile = new CsvFile(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt")) {ID = "Csv"};
@@ -58,6 +61,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    [Timeout(5000)]
     public void FormColumnUI_Opt1()
     {
       var csvFile = new CsvFile(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"));
@@ -74,6 +78,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    [Timeout(5000)]
     public void FormColumnUI_Opt2()
     {
       var csvFile = new CsvFile(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"));
@@ -89,6 +94,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    [Timeout(15000)]
     public void FormColumnUI_ButtonGuessClick()
     {
       var csvFile = new CsvFile(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"));

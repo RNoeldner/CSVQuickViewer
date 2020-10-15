@@ -52,6 +52,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    [Timeout(2000)]
     public async Task TimeZoneConversionsAsync()
     {
       var pd = new MockProcessDisplay();

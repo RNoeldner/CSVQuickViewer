@@ -7,6 +7,7 @@ namespace CsvTools.Tests
   public class SyntaxHighlighterTests
   {
     [TestMethod()]
+    [Timeout(10000)]
     public void SyntaxHighlighterDelimitedTextTest()
     {
       using (var textBox = new FastColoredTextBox())
@@ -30,6 +31,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod()]
+    [Timeout(10000)]
     public void SyntaxHighlighterDelimitedJsonTest()
     {
       using (var textBox = new FastColoredTextBox())

@@ -46,7 +46,7 @@ namespace CsvTools.Tests
         await CsvHelper.GuessCodePageAsync(setting2, processDisplay.CancellationToken);
         Assert.AreEqual(1201, setting2.CodePageId);
 
-        var setting3 = new CsvFile {FileName = UnitTestInitializeCsv.GetTestPath("Test.csv")};
+        var setting3 = new CsvFile {FileName = UnitTestInitializeCsv.GetTestPath("UnicodeUTF8.txt") };
         await CsvHelper.GuessCodePageAsync(setting3, processDisplay.CancellationToken);
         Assert.AreEqual(65001, setting3.CodePageId);
       }

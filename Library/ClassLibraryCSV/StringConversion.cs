@@ -932,7 +932,7 @@ namespace CsvTools
       {
         var dec = StringToDecimal(value, decimalSeparator, thousandSeparator, false);
         if (dec.HasValue)
-          return Convert.ToInt32(dec.Value, CultureInfo.InvariantCulture);
+          return dec.Value.ToInt();
       }
       catch (OverflowException)
       {
@@ -957,7 +957,7 @@ namespace CsvTools
       {
         var dec = StringToDecimal(value, decimalSeparator, thousandSeparator, false);
         if (dec.HasValue)
-          return Convert.ToInt64(dec.Value, CultureInfo.InvariantCulture);
+          return dec.Value.ToInt64();
       }
       catch (OverflowException)
       {

@@ -265,7 +265,7 @@ namespace CsvTools
           m_ValueClusters.Add(
             new ValueCluster($"{dic:F1} - {dic + .1:F1}", // Fixed Point
               string.Format(CultureInfo.InvariantCulture, "({0} >= {1} AND {0} < {2})", colNameEsc, dic, dic + .1),
-              Convert.ToInt64(dic * 10d).ToString("D18", CultureInfo.InvariantCulture),
+              (dic * 10d).ToInt64().ToString("D18", CultureInfo.InvariantCulture),
               dataTable.Rows.Cast<DataRow>()
                 .Where(dataRow => dataRow[columnIndex] != DBNull.Value)
                 .Take(m_MaxNumber)

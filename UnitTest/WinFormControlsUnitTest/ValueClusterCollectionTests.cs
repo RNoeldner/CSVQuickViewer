@@ -22,6 +22,7 @@ namespace CsvTools.Tests
   public class ValueClusterCollectionTests
   {
     [TestMethod]
+    [Timeout(5000)]
     public void BuildValueClustersTest()
     {
       using (var data = UnitTestStatic.GetDataTable(200))
@@ -66,6 +67,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    [Timeout(5000)]
     public void GetActiveValueClusterTest()
     {
       using (var data = UnitTestStatic.GetDataTable(200))

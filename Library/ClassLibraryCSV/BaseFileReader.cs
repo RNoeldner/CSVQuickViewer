@@ -96,7 +96,7 @@ namespace CsvTools
 
     public override bool HasRows => !EndOfFile;
 
-    public int Percent => Convert.ToInt32(GetRelativePosition() * 100);
+    public int Percent => (GetRelativePosition() * 100).ToInt();
 
     protected string FullPath { get; }
     protected string FileName { get; }
@@ -1024,7 +1024,7 @@ namespace CsvTools
     {
       var rec = recordNumber > 1 ? $"\nRecord {recordNumber:N0}" : string.Empty;
       ReportProgress?.Invoke(this,
-        new ProgressEventArgs($"{text}{rec}", Convert.ToInt64(progress * c_MaxValue), false));
+        new ProgressEventArgs($"{text}{rec}", (progress * c_MaxValue).ToInt64(), false));
     }
 
     /// <summary>
