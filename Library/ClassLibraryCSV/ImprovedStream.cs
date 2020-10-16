@@ -38,7 +38,7 @@ namespace CsvTools
     // ReSharper disable once NotNullMemberIsNotInitialized
     public ImprovedStream([NotNull] string path, bool isReading) : this(
       () => new FileStream(path.LongPathPrefix(), isReading ? FileMode.Open : FileMode.Create,
-        isReading ? FileAccess.Read : FileAccess.ReadWrite, FileShare.Read),
+        isReading ? FileAccess.Read : FileAccess.Write, FileShare.ReadWrite),
       isReading, path.AssumeGZip(), path.AssumeDeflate())
     {
     }

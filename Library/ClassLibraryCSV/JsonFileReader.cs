@@ -16,6 +16,7 @@ using JetBrains.Annotations;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -82,33 +83,40 @@ namespace CsvTools
         again:
         ResetPositionToStartOrOpen();
 
-        var line = await GetNextRecordAsync(false, token).ConfigureAwait(false);
+        var line = GetNextRecord(false, token);
         try
         {
-          await GetNextRecordAsync(true, token).ConfigureAwait(false);
+          var line2 = GetNextRecord(true, token);
+          if (line2!=null && line2.Count==0)
+            throw new JsonReaderException("A second entry should have contents, assuming Log file");
         }
         catch (JsonReaderException ex)
         {
           if (m_AssumeLog)
             throw;
-          Logger.Warning($"Initial try to read the JSON file failed {ex.Message}. Now trying to read it as JSON Log output");
+          Logger.Warning(ex, $"Initial try to read the JSON file failed {ex.Message}. Now trying to read it as JSON Log output");
           m_AssumeLog = true;
           goto again;
         }
 
-        // read additional 50 rows to see if we have some extra columns
-        for (var row = 1; row < 50; row++)
+        // get column names for some time
+        var colNames = new Dictionary<string, DataType>();
+        var stopwatch = new Stopwatch();
+        // read additional rows to see if we have some extra columns        
+        while (line != null)
         {
-          var line2 = await GetNextRecordAsync(false, token).ConfigureAwait(false);
-          if (line2 == null)
+          foreach (var keyValue in line)
+          {
+            if (!colNames.ContainsKey(keyValue.Key))
+              colNames.Add(keyValue.Key, keyValue.Value?.GetType().GetDataType() ?? DataType.String);
+          }
+          if (stopwatch.ElapsedMilliseconds>200)
             break;
-          if (line2.Count > line.Count)
-            line = line2;
+          line = GetNextRecord(false, token);
         }
 
-        InitColumn(line.Count);
-        ParseColumnName(line.Select(colValue => colValue.Key),
-          line.Select(colValue => colValue.Value?.GetType().GetDataType() ?? DataType.String));
+        InitColumn(colNames.Count);
+        ParseColumnName(colNames.Select(colValue => colValue.Key), colNames.Select(colValue => colValue.Value));
 
         FinishOpen();
 
@@ -132,12 +140,13 @@ namespace CsvTools
         HandleShowProgress("");
       }
     }
+    public override Task<bool> ReadAsync(CancellationToken token) => Task.FromResult(Read(token));
 
-    public override async Task<bool> ReadAsync(CancellationToken token)
+    public override bool Read(CancellationToken token)
     {
       if (!EndOfFile && !token.IsCancellationRequested)
       {
-        var couldRead = await GetNextRecordAsync(false, token).ConfigureAwait(false) != null;
+        var couldRead = GetNextRecord(false, token) != null;
         if (couldRead) RecordNumber++;
         InfoDisplay(couldRead);
 
@@ -157,7 +166,7 @@ namespace CsvTools
     ///   the structure of the Json file
     /// </summary>
     /// <returns>A collection with name and value of the properties</returns>
-    private async Task<ICollection<KeyValuePair<string, object>>> GetNextRecordAsync(bool throwError,
+    private ICollection<KeyValuePair<string, object>> GetNextRecord(bool throwError,
       CancellationToken token)
     {
       try
@@ -167,7 +176,7 @@ namespace CsvTools
         while (m_JsonTextReader.TokenType != JsonToken.StartObject
                // && m_JsonTextReader.TokenType != JsonToken.PropertyName
                && m_JsonTextReader.TokenType != JsonToken.StartArray)
-          if (!await m_JsonTextReader.ReadAsync(token).ConfigureAwait(false))
+          if (!m_JsonTextReader.Read())
             return null;
 
         // sore the parent Property Name in parentKey
@@ -253,7 +262,7 @@ namespace CsvTools
 
           token.ThrowIfCancellationRequested();
         } while (!(m_JsonTextReader.TokenType == JsonToken.EndObject && startKey == endKey)
-                 && await m_JsonTextReader.ReadAsync(token).ConfigureAwait(false));
+                 && m_JsonTextReader.Read());
 
         EndLineNumber = m_JsonTextReader.LineNumber;
 
