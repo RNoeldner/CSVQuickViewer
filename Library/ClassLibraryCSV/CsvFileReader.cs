@@ -432,7 +432,7 @@ namespace CsvTools
       return false;
     }
 
-    public override async Task<bool> ReadAsync(CancellationToken token) => await Task.FromResult(Read(token));
+    public override Task<bool> ReadAsync(CancellationToken token) => Task.FromResult(Read(token));
 
     /// <summary>
     ///   Resets the position and buffer to the header in case the file has a header
