@@ -36,7 +36,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    [Timeout(10000)]
+    [Timeout(20000)]
     [SuppressMessage("ReSharper", "PossibleLossOfFraction")]
     public void FormProcessDisplay()
     {

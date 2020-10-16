@@ -42,52 +42,72 @@ namespace CsvTools
 
     private void HighlightVisibleRange()
     {
-      //expand visible range (+- margin)
-      var startLine = Math.Max(m_SkipLines, textBox.VisibleRange.Start.iLine - 20);
-      var endLine = Math.Min(textBox.LinesCount - 1, textBox.VisibleRange.End.iLine + 100);
-      if (startLine < endLine)
+      try
       {
-        var range = new FastColoredTextBoxNS.Range(textBox, 0, startLine, 0, endLine);
-        m_HighLighter.Highlight(range);
+        //expand visible range (+- margin)
+        var startLine = Math.Max(m_SkipLines, textBox.VisibleRange.Start.iLine - 20);
+        var endLine = Math.Min(textBox.LinesCount - 1, textBox.VisibleRange.End.iLine + 100);
+        if (startLine < endLine)
+        {
+          var range = new FastColoredTextBoxNS.Range(textBox, 0, startLine, 0, endLine);
+          m_HighLighter.Highlight(range);
 
-        if (m_SkipLines <= 0) return;
-        range = new FastColoredTextBoxNS.Range(textBox, 0, 0, 0, m_SkipLines);
-        m_HighLighter.Comment(range);
+          if (m_SkipLines <= 0) return;
+          range = new FastColoredTextBoxNS.Range(textBox, 0, 0, 0, m_SkipLines);
+          m_HighLighter.Comment(range);
+        }
+      }
+      catch (Exception ex)
+      {
+        Logger.Warning(ex, "FormCsvTextDisplay.HighlightVisibleRange");
       }
     }
 
     private void OriginalStream()
     {
-      m_MemoryStream?.Dispose();
-      m_MemoryStream = null;
-      prettyPrintJsonToolStripMenuItem.Checked = false;
-      originalFileToolStripMenuItem.Checked = true;
-      m_Stream = new ImprovedStream(m_FullPath, true);
-      textBox.OpenBindingStream(m_Stream as Stream, Encoding.GetEncoding(m_CodePage));
-      HighlightVisibleRange();
+      try
+      {
+        m_MemoryStream?.Dispose();
+        m_MemoryStream = null;
+        m_Stream = new ImprovedStream(m_FullPath, true);
+        textBox.OpenBindingStream(m_Stream as Stream, Encoding.GetEncoding(m_CodePage));
+        HighlightVisibleRange();
+        prettyPrintJsonToolStripMenuItem.Checked = false;
+        originalFileToolStripMenuItem.Checked = true;
+      }
+      catch (Exception ex)
+      {
+        this.ShowError(ex, "Original File");
+      }
     }
 
     private void PrettyPrintStream()
     {
-      m_Stream.Seek(0, SeekOrigin.Begin);
-      m_MemoryStream?.Dispose();
-      m_MemoryStream = new MemoryStream();
-      prettyPrintJsonToolStripMenuItem.Checked = true;
-      originalFileToolStripMenuItem.Checked = false;
-
-      var encoding = Encoding.GetEncoding(m_CodePage);
-      using (var textReader = new StreamReader((Stream) m_Stream, encoding, true, 4096, true))
-      using (var stringWriter = new StreamWriter(m_MemoryStream, encoding, 4096, true))
+      try
       {
-        var jsonReader = new JsonTextReader(textReader);
-        var jsonWriter = new JsonTextWriter(stringWriter) {Formatting = Formatting.Indented};
-        jsonWriter.WriteToken(jsonReader);
+        m_Stream.Seek(0, SeekOrigin.Begin);
+        m_MemoryStream?.Dispose();
+        m_MemoryStream = new MemoryStream();
+
+        var encoding = Encoding.GetEncoding(m_CodePage);
+        using (var textReader = new StreamReader((Stream) m_Stream, encoding, true, 4096, true))
+        using (var stringWriter = new StreamWriter(m_MemoryStream, encoding, 4096, true))
+        {
+          var jsonReader = new JsonTextReader(textReader);
+          var jsonWriter = new JsonTextWriter(stringWriter) { Formatting = Formatting.Indented };
+          jsonWriter.WriteToken(jsonReader);
+        }
+
+        m_MemoryStream.Seek(0, SeekOrigin.Begin);
+        textBox.OpenBindingStream(m_MemoryStream, encoding);
+        HighlightVisibleRange();
+        prettyPrintJsonToolStripMenuItem.Checked = true;
+        originalFileToolStripMenuItem.Checked = false;
       }
-
-      m_MemoryStream.Seek(0, SeekOrigin.Begin);
-      textBox.OpenBindingStream(m_MemoryStream, encoding);
-
-      HighlightVisibleRange();
+      catch (Exception ex)
+      {
+        this.ShowError(ex, "Pretty Print");
+      }
     }
 
     /// <summary>
@@ -97,15 +117,13 @@ namespace CsvTools
       char escapeChar,
       int codePage, int skipLines, string comment)
     {
-      Text = fullPath ?? throw new ArgumentNullException(nameof(fullPath));
-      var info = new FileSystemUtils.FileInfo(fullPath);
-      if (!info.Exists)
+      if (!FileSystemUtils.FileExists(fullPath ?? throw new ArgumentNullException(nameof(fullPath))))
       {
-        textBox.Text = $@"
-The file {fullPath} does not exist.";
+        textBox.Text = $"\nThe file '{fullPath}' does not exist.";
       }
       else
       {
+        Text   = FileSystemUtils.GetShortDisplayFileName(fullPath, 80);
         m_FullPath = fullPath;
 
         try
@@ -132,25 +150,12 @@ The file {fullPath} does not exist.";
       }
     }
 
-    private void TextBox_TextChangedDelayed(object sender, FastColoredTextBoxNS.TextChangedEventArgs e)
-    {
-      HighlightVisibleRange();
-    }
+    private void TextBox_TextChangedDelayed(object sender, FastColoredTextBoxNS.TextChangedEventArgs e) => HighlightVisibleRange();
 
-    private void TextBox_VisibleRangeChangedDelayed(object sender, EventArgs e)
-    {
-      HighlightVisibleRange();
-    }
+    private void TextBox_VisibleRangeChangedDelayed(object sender, EventArgs e) => HighlightVisibleRange();
 
+    private void PrettyPrintJsonToolStripMenuItem_Click(object sender, EventArgs e) => PrettyPrintStream();
 
-    private void PrettyPrintJsonToolStripMenuItem_Click(object sender, EventArgs e)
-    {
-      PrettyPrintStream();
-    }
-
-    private void OriginalFileToolStripMenuItem_Click(object sender, EventArgs e)
-    {
-      OriginalStream();
-    }
+    private void OriginalFileToolStripMenuItem_Click(object sender, EventArgs e) => OriginalStream();
   }
 }

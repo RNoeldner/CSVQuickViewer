@@ -184,7 +184,7 @@ namespace CsvTools.Tests
       }
     }
 
-    [TestMethod]
+    [TestMethod]    
     public async Task ReadJSon1Async()
     {
       var setting = new CsvFile(UnitTestInitializeCsv.GetTestPath("Jason1.json")) {JsonFormat = true};

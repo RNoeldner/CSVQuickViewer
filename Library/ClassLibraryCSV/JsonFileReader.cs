@@ -32,8 +32,7 @@ namespace CsvTools
     private bool m_AssumeLog;
     private IImprovedStream m_ImprovedStream;
     private JsonTextReader m_JsonTextReader;
-    private StreamReader m_TextReader;
-    private long m_TextReaderLine;
+    private StreamReader m_StreamReader;
 
     public JsonFileReader([NotNull] string fullPath,
       [CanBeNull] IEnumerable<IColumn> columnDefinition = null,
@@ -55,7 +54,7 @@ namespace CsvTools
     ///   Gets a value indicating whether this instance is closed.
     /// </summary>
     /// <value><c>true</c> if this instance is closed; otherwise, <c>false</c>.</value>
-    public override bool IsClosed => m_TextReader == null;
+    public override bool IsClosed => m_StreamReader == null;
 
     public override void Close()
     {
@@ -63,18 +62,18 @@ namespace CsvTools
 
       m_JsonTextReader?.Close();
       ((IDisposable) m_JsonTextReader)?.Dispose();
-      m_TextReader?.Dispose();
+      m_StreamReader?.Dispose();
       m_ImprovedStream?.Dispose();
 
       m_JsonTextReader = null;
-      m_TextReader = null;
+      m_StreamReader = null;
       m_ImprovedStream = null;
     }
 
     public override async Task OpenAsync(CancellationToken token)
     {
       await BeforeOpenAsync(
-          $"Opening Json file {FileSystemUtils.GetShortDisplayFileName(FileName)}")
+          $"Opening JSON file {FileSystemUtils.GetShortDisplayFileName(FileName)}")
         .ConfigureAwait(false);
       Retry:
       try
@@ -90,7 +89,9 @@ namespace CsvTools
         }
         catch (JsonReaderException ex)
         {
-          Logger.Warning(ex, "Issue reading the JSon file, trying to read it as JSon Log output");
+          if (m_AssumeLog)
+            throw;
+          Logger.Warning($"Initial try to read the JSON file failed {ex.Message}. Now trying to read it as JSON Log output");
           m_AssumeLog = true;
           goto again;
         }
@@ -161,12 +162,6 @@ namespace CsvTools
     {
       try
       {
-        if (m_AssumeLog)
-        {
-          SetTextReader();
-          StartLineNumber = m_TextReaderLine;
-        }
-
         var headers = new Dictionary<string, bool>();
         var keyValuePairs = new Dictionary<string, object>();
         while (m_JsonTextReader.TokenType != JsonToken.StartObject
@@ -181,8 +176,7 @@ namespace CsvTools
         var key = string.Empty;
 
         // sore the current Property Name in key
-        if (!m_AssumeLog)
-          StartLineNumber = m_JsonTextReader.LineNumber;
+        StartLineNumber = m_JsonTextReader.LineNumber;
         var inArray = false;
         do
         {
@@ -261,7 +255,7 @@ namespace CsvTools
         } while (!(m_JsonTextReader.TokenType == JsonToken.EndObject && startKey == endKey)
                  && await m_JsonTextReader.ReadAsync(token).ConfigureAwait(false));
 
-        EndLineNumber = !m_AssumeLog ? m_JsonTextReader.LineNumber : m_TextReaderLine;
+        EndLineNumber = m_JsonTextReader.LineNumber;
 
         foreach (var kv in headers.Where(kv => !kv.Value))
           keyValuePairs.Remove(kv.Key);
@@ -331,154 +325,25 @@ namespace CsvTools
     /// </summary>
     private void ResetPositionToStartOrOpen()
     {
-      if (m_ImprovedStream == null)
-        m_ImprovedStream = FunctionalDI.OpenRead(FullPath);
-      else
-        m_ImprovedStream.Seek(0, SeekOrigin.Begin);
+      m_ImprovedStream?.Dispose();
+      m_ImprovedStream = FunctionalDI.OpenRead(FullPath);
 
       // in case we can not seek need to reopen the stream reader
-      m_TextReader?.Close();
-      m_TextReader = new StreamReader(m_ImprovedStream as Stream, Encoding.UTF8, true, 4096, true);
+      m_StreamReader?.Close();
+      m_StreamReader = new StreamReader(m_ImprovedStream as Stream, Encoding.UTF8, true, 4096, true);
 
       // End Line should be at 1, later on as the line is read the start line s set to this value
       StartLineNumber = 1;
       EndLineNumber = 1;
       RecordNumber = 0;
 
-      m_TextReaderLine = 1;
-      m_BufferPos = 0;
-
-      EndOfFile = m_TextReader.EndOfStream;
+      EndOfFile = m_StreamReader.EndOfStream;
 
       m_JsonTextReader?.Close();
-      m_JsonTextReader = new JsonTextReader(m_TextReader);
+      if (m_AssumeLog)
+        m_JsonTextReader= new JsonTextReader(new JSONLogStreamReader(m_StreamReader));
+      else
+        m_JsonTextReader= new JsonTextReader(m_StreamReader);
     }
-
-#region TextReader
-
-    // Buffer size set to 64kB, if set to large the display in percentage will jump
-    private const int c_BufferSize = 65536;
-
-    /// <summary>
-    ///   16k Buffer of the file data
-    /// </summary>
-    private readonly char[] m_Buffer = new char[c_BufferSize];
-
-    /// <summary>
-    ///   Length of the buffer (can be smaller then buffer size at end of file)
-    /// </summary>
-    private int m_BufferFilled;
-
-    /// <summary>
-    ///   Position in the buffer
-    /// </summary>
-    private int m_BufferPos = -1;
-
-    /// <summary>
-    ///   The line-feed character. Escape code is <c>\n</c>.
-    /// </summary>
-    private const char c_Lf = (char) 0x0a;
-
-    /// <summary>
-    ///   The carriage return character. Escape code is <c>\r</c>.
-    /// </summary>
-    private const char c_Cr = (char) 0x0d;
-
-    /// <summary>
-    ///   Fills the buffer with data from the reader.
-    /// </summary>
-    /// <returns><c>true</c> if data was successfully read; otherwise, <c>false</c>.</returns>
-    private void ReadIntoBuffer()
-    {
-      if (EndOfFile)
-        return;
-      m_BufferFilled = m_TextReader.Read(m_Buffer, 0, c_BufferSize);
-      EndOfFile |= m_BufferFilled == 0;
-      // Handle double decoding
-      if (m_BufferFilled <= 0)
-        return;
-      var result = Encoding.UTF8.GetChars(Encoding.GetEncoding(28591).GetBytes(m_Buffer, 0, m_BufferFilled));
-      // The twice decode text is smaller
-      m_BufferFilled = result.GetLength(0);
-      result.CopyTo(m_Buffer, 0);
-    }
-
-    private char NextChar()
-    {
-      if (m_BufferPos < m_BufferFilled && m_BufferFilled != 0) return EndOfFile ? c_Lf : m_Buffer[m_BufferPos];
-      ReadIntoBuffer();
-      m_BufferPos = 0;
-
-      // If of file its does not matter what to return simply return something
-      return EndOfFile ? c_Lf : m_Buffer[m_BufferPos];
-    }
-
-    private void EatNextCRLF(char character)
-    {
-      m_TextReaderLine++;
-      if (EndOfFile) return;
-      var nextChar = NextChar();
-      if ((character != c_Cr || nextChar != c_Lf) && (character != c_Lf || nextChar != c_Cr)) return;
-      // New line sequence is either CRLF or LFCR, disregard the character
-      m_BufferPos++;
-      // Very special a LF CR is counted as two lines.
-      if (character == c_Lf && nextChar == c_Cr)
-        m_TextReaderLine++;
-    }
-
-    private void SetTextReader()
-    {
-      // find the beginning
-      while (!EndOfFile)
-      {
-        var peek = NextChar();
-        if (peek == '{' || peek == '[')
-          break;
-        m_BufferPos++;
-        if (peek == c_Cr || peek == c_Lf)
-          EatNextCRLF(peek);
-      }
-
-      // get a Serialized Jason object it starts with { and ends with }
-      var openCurly = 0;
-      var openSquare = 0;
-      var sb = new StringBuilder();
-      while (!EndOfFile)
-      {
-        var chr = NextChar();
-        m_BufferPos++;
-        sb.Append(chr);
-        switch (chr)
-        {
-          case '{':
-            openCurly++;
-            break;
-
-          case '}':
-            openCurly--;
-            break;
-
-          case '[':
-            openSquare++;
-            break;
-
-          case ']':
-            openSquare--;
-            break;
-
-          case c_Cr:
-          case c_Lf:
-            EatNextCRLF(chr);
-            break;
-        }
-
-        if (openCurly == 0 && openSquare == 0)
-          break;
-      }
-
-      m_JsonTextReader = new JsonTextReader(new StringReader(sb.ToString()));
-    }
-
-#endregion TextReader
   }
 }
