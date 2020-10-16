@@ -204,13 +204,14 @@ namespace CsvTools
       for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
       {
         var readerColumn = fileReader.GetColumn(colIndex);
+        var msgBegin = $"{readerColumn.Name} – ";
         columnNamesInFile.Add(readerColumn.Name);
 
         if (fillGuessSettings.IgnoreIdColumns && StringUtils.AssumeIDColumn(readerColumn.Name) > 0)
         {
           processDisplay.SetProcess(readerColumn.Name + " – ID columns ignored", colIndex, true);
           if (!addTextColumns || columnCollection.Get(readerColumn.Name) != null) continue;
-          result.Add($"{readerColumn.Name} – ID columns ignored");
+          result.Add($"{msgBegin}ID columns ignored");
           columnCollection.AddIfNew(readerColumn);
           continue;
         }
@@ -223,7 +224,7 @@ namespace CsvTools
             (readerColumn.ValueFormat.DataType == DataType.Numeric && !checkDoubleToBeInteger) ||
             (readerColumn.ValueFormat.DataType == DataType.Double && !checkDoubleToBeInteger))
         {
-          result.Add($"{readerColumn.Name} – Existing Type : {readerColumn.ValueFormat.DataType.DataTypeDisplay()}");
+          result.Add($"{msgBegin}Existing Type : {readerColumn.ValueFormat.DataType.DataTypeDisplay()}");
           continue;
         }
 
@@ -251,16 +252,17 @@ namespace CsvTools
         processDisplay.CancellationToken.ThrowIfCancellationRequested();
 
         var readerColumn = fileReader.GetColumn(colIndex);
+        var msgBegin = $"{readerColumn.Name} – ";
         var samples = sampleList[colIndex];
 
         processDisplay.CancellationToken.ThrowIfCancellationRequested();
         if (samples.Values.Count == 0)
         {
-          processDisplay.SetProcess(readerColumn.Name + " – No values found", fileReader.FieldCount * 2 + colIndex,
+          processDisplay.SetProcess($"{msgBegin}No values found", fileReader.FieldCount * 2 + colIndex,
             true);
           if (!addTextColumns)
             continue;
-          result.Add($"{readerColumn.Name} – No values found – Format : {readerColumn.GetTypeAndFormatDescription()}");
+          result.Add($"{msgBegin}No values found – Format : {readerColumn.GetTypeAndFormatDescription()}");
           columnCollection.AddIfNew(readerColumn);
         }
         else
@@ -269,14 +271,14 @@ namespace CsvTools
           if (samples.Values.Count() < fillGuessSettings.MinSamples)
           {
             processDisplay.SetProcess(
-              $"{readerColumn.Name} – Only {samples.Values.Count()} values found in {samples.RecordsRead:N0} rows",
+              $"{msgBegin}Only {samples.Values.Count()} values found in {samples.RecordsRead:N0} rows",
               fileReader.FieldCount * 2 + colIndex, true);
             detect = false;
           }
           else
           {
             processDisplay.SetProcess(
-              $"{readerColumn.Name} – {samples.Values.Count()} values found in {samples.RecordsRead:N0} rows – Examining format",
+              $"{msgBegin}{samples.Values.Count()} values found in {samples.RecordsRead:N0} rows – Examining format",
               fileReader.FieldCount * 2 + colIndex, true);
           }
 
@@ -323,7 +325,7 @@ namespace CsvTools
 
             if (checkResult.FoundValueFormat.Equals(settingColumn.ValueFormat))
             {
-              processDisplay.SetProcess($"{readerColumn.Name} – Format : {oldValueFormat} – not changed",
+              processDisplay.SetProcess($"{msgBegin}Format : {oldValueFormat} – not changed",
                 fileReader.FieldCount * 2 + colIndex, true);
             }
             else
@@ -333,7 +335,7 @@ namespace CsvTools
                 continue;
 
               settingColumn.ValueFormatMutable.CopyFrom(checkResult.FoundValueFormat);
-              var msg = $"{readerColumn.Name} – Format : {newValueFormat} – updated from {oldValueFormat}";
+              var msg = $"{msgBegin}Format : {newValueFormat} – updated from {oldValueFormat}";
               result.Add(msg);
               processDisplay.SetProcess(msg, fileReader.FieldCount * 2 + colIndex, true);
             }
@@ -348,7 +350,7 @@ namespace CsvTools
 
             if (addTextColumns || format.DataType != DataType.String)
             {
-              var msg = $"{readerColumn.Name} – Format : {format.GetTypeAndFormatDescription()}";
+              var msg = $"{msgBegin}Format : {format.GetTypeAndFormatDescription()}";
               processDisplay.SetProcess(msg, fileReader.FieldCount * 2 + colIndex, true);
               result.Add(msg);
 
@@ -408,6 +410,7 @@ namespace CsvTools
         {
           processDisplay.CancellationToken.ThrowIfCancellationRequested();
           var readerColumn = fileReader.GetColumn(colIndex);
+          var msgBegin = $"{readerColumn.Name} – ";
           var settingColumn = columnCollection.Get(readerColumn.Name);
           if (settingColumn == null) continue;
           var columnFormat = settingColumn.ValueFormat;
@@ -425,7 +428,7 @@ namespace CsvTools
                 continue;
 
               settingColumn.TimeZonePart = columnTimeZone.Name;
-              result.Add($"{readerColumn.Name} – Added Time Zone : {columnTimeZone.Name}");
+              result.Add($"{msgBegin}Added Time Zone : {columnTimeZone.Name}");
             }
 
           if (columnFormat.DataType != DataType.DateTime || !string.IsNullOrEmpty(readerColumn.TimePart) ||
@@ -449,7 +452,7 @@ namespace CsvTools
 
             settingColumn.TimePart = columnTime.Name;
             settingColumn.TimePartFormat = timeFormat.DateFormat;
-            result.Add($"{readerColumn.Name} – Added Time Part : {columnTime.Name}");
+            result.Add($"{msgBegin}Added Time Part : {columnTime.Name}");
           }
         }
 
@@ -459,6 +462,7 @@ namespace CsvTools
         {
           processDisplay.CancellationToken.ThrowIfCancellationRequested();
           var readerColumn = fileReader.GetColumn(colIndex);
+          var msgBegin = $"{readerColumn.Name} – ";
           var settingColumn = columnCollection.Get(readerColumn.Name);
           if (settingColumn == null) continue;
           var columnFormat = settingColumn.ValueFormat;
@@ -501,7 +505,7 @@ namespace CsvTools
                 }
               }
 
-              result.Add($"{readerColumn.Name} – Added Time Part : {columnTime.Name}");
+              result.Add($"{msgBegin}Added Time Part : {columnTime.Name}");
               continue;
             }
           }
@@ -533,7 +537,7 @@ namespace CsvTools
               break;
             }
 
-            result.Add($"{readerColumn.Name} – Added Time Part : {readerColumnTime.Name}");
+            result.Add($"{msgBegin}Added Time Part : {readerColumnTime.Name}");
           }
         }
       }

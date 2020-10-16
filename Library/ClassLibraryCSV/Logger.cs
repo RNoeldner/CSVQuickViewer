@@ -54,7 +54,7 @@ namespace CsvTools
          // Exceptions
          .WriteTo.Logger(lc => lc.Filter.ByIncludingOnly(le => le.Exception!=null).WriteTo.File("Exceptions.log"))
          //CSV
-         .WriteTo.File("CSVFileValidator.log", fileSizeLimitBytes: 32768, outputTemplate: "{Timestamp:HH:mm:ss}\t{Level:u3}]\t{Message}{NewLine}", rollOnFileSizeLimit: true, retainedFileCountLimit: 5)
+         .WriteTo.File("CSVFileValidator.log", fileSizeLimitBytes: 32768, outputTemplate: "{Timestamp:HH:mm:ss}\t{Level:u3}\t{Message}{NewLine}", rollOnFileSizeLimit: true, retainedFileCountLimit: 5)
          // Json
          .WriteTo.File(formatter: new JsonFormatter(), path: "CSVQuickViewer.json", fileSizeLimitBytes: 32768, rollOnFileSizeLimit: true, retainedFileCountLimit: 5)
         .CreateLogger();
