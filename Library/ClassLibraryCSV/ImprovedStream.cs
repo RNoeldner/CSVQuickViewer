@@ -28,12 +28,12 @@ namespace CsvTools
   /// </summary>
   public class ImprovedStream : Stream, IImprovedStream
   {
+    const int CBufferSize = 8192;
     private readonly bool m_AssumeDeflate;
     private readonly bool m_AssumeGZip;
     private readonly bool m_IsReading;
     [NotNull] private readonly Func<Stream> m_OpenBaseStream;
     private bool m_DisposedValue;
-    private bool m_IsClosed;
 
     // ReSharper disable once NotNullMemberIsNotInitialized
     public ImprovedStream([NotNull] string path, bool isReading) : this(
@@ -50,14 +50,7 @@ namespace CsvTools
       m_OpenBaseStream = openStream ?? throw new ArgumentNullException(nameof(openStream));
       m_AssumeGZip = assumeGZip;
       m_AssumeDeflate = assumeDeflate;
-
-      BaseStream = m_OpenBaseStream();
-      if (m_AssumeGZip)
-        OpenZGipOverBase(isReading);
-      else if (m_AssumeDeflate)
-        OpenDeflateOverBase(isReading);
-      else
-        AccessStream = BaseStream;
+      BaseOpen(isReading);
     }
 
     [NotNull] protected Stream AccessStream { get; set; }
@@ -72,16 +65,15 @@ namespace CsvTools
     public override long Seek(long offset, SeekOrigin origin)
     {
       // The stream must support seeking to get or set the position
-      if (AccessStream.CanSeek && (AccessStream.Position == offset && origin == SeekOrigin.Begin))
-        return AccessStream.Position;
-
-      if (AccessStream.CanSeek || origin != SeekOrigin.Begin || offset >= 1)
+      if (AccessStream.CanSeek)
         return AccessStream.Seek(offset, origin);
+
+      if (origin != SeekOrigin.Begin || offset != 0)
+        throw new NotSupportedException("Seek is only allowed to be beginning of the feed");
 
       // Reopen Completely
       Close();
       ResetStreams(m_IsReading);
-
       return 0;
     }
 
@@ -112,14 +104,8 @@ namespace CsvTools
     /// </summary>
     public override long Position
     {
-      get => AccessStream.CanSeek ? AccessStream.Position : BaseStream.Position;
-      set
-      {
-        if (AccessStream.CanSeek)
-          AccessStream.Position = value;
-        else
-          BaseStream.Position = value;
-      }
+      get => BaseStream.Position;
+      set => BaseStream.Position = value;
     }
 
     /// <summary>
@@ -127,11 +113,10 @@ namespace CsvTools
     /// </summary>
     public override void Close()
     {
-      AccessStream.Close();
+      if (!ReferenceEquals(AccessStream, BaseStream))
+        AccessStream.Close();
       BaseStream.Close();
-      m_IsClosed = true;
     }
-
 
     protected override void Dispose(bool disposing)
     {
@@ -143,7 +128,11 @@ namespace CsvTools
       BaseStream.Dispose();
     }
 
-    public override void Flush() => AccessStream.Flush();
+    public override void Flush()
+    {
+      AccessStream.Flush();
+      BaseStream.Flush();
+    }
 
     public override Task FlushAsync(CancellationToken cancellationToken) =>
       AccessStream.FlushAsync(cancellationToken);
@@ -156,53 +145,39 @@ namespace CsvTools
 
     private void OpenZGipOverBase(bool isReading)
     {
-      const int c_BufferSize = 8192;
       if (isReading)
       {
         Logger.Debug("Decompressing from GZip {filename}",
           (BaseStream is FileStream fs) ? FileSystemUtils.GetFileName(fs.Name) : string.Empty);
-        AccessStream = new BufferedStream(new GZipStream(BaseStream, CompressionMode.Decompress), c_BufferSize);
+        AccessStream = new BufferedStream(new GZipStream(BaseStream, CompressionMode.Decompress), CBufferSize);
       }
       else
       {
         Logger.Debug("Compressing to GZip {filename}",
           (BaseStream is FileStream fs) ? FileSystemUtils.GetFileName(fs.Name) : string.Empty);
-        AccessStream = new BufferedStream(new GZipStream(BaseStream, CompressionMode.Compress), c_BufferSize);
+        AccessStream = new BufferedStream(new GZipStream(BaseStream, CompressionMode.Compress), CBufferSize);
       }
     }
 
     private void OpenDeflateOverBase(bool isReading)
     {
-      const int c_BufferSize = 8192;
       if (isReading)
       {
-        Logger.Debug("Decompressing from GZip {filename}",
+        Logger.Debug("Deflating {filename}",
           (BaseStream is FileStream fs) ? FileSystemUtils.GetFileName(fs.Name) : string.Empty);
-        AccessStream = new BufferedStream(new DeflateStream(BaseStream, CompressionMode.Decompress), c_BufferSize);
+        AccessStream = new BufferedStream(new DeflateStream(BaseStream, CompressionMode.Decompress), CBufferSize);
       }
       else
       {
-        Logger.Debug("Compressing to GZip {filename}",
+        Logger.Debug("Compressing {filename}",
           (BaseStream is FileStream fs) ? FileSystemUtils.GetFileName(fs.Name) : string.Empty);
-        AccessStream = new BufferedStream(new DeflateStream(BaseStream, CompressionMode.Compress), c_BufferSize);
+        AccessStream = new BufferedStream(new DeflateStream(BaseStream, CompressionMode.Compress), CBufferSize);
       }
     }
 
-    /// <summary>
-    /// Initializes Stream that will be used for reading / writing the data (after Encryption or compression)
-    /// </summary>
-    protected virtual void ResetStreams(bool isReading)
+    protected void BaseOpen(bool isReading)
     {
-      // Some StreamReader will close the stream, in this case reopen
-      // ReSharper disable once ConditionIsAlwaysTrueOrFalse
-      if (m_IsClosed || !BaseStream.CanSeek)
-      {
-        BaseStream = m_OpenBaseStream();
-        m_IsClosed = false;
-      }
-      else if (BaseStream.Position != 0)
-        BaseStream.Seek(0, SeekOrigin.Begin);
-
+      BaseStream = m_OpenBaseStream();
       if (m_AssumeGZip)
         OpenZGipOverBase(isReading);
       else if (m_AssumeDeflate)
@@ -210,5 +185,10 @@ namespace CsvTools
       else
         AccessStream = BaseStream;
     }
+
+    /// <summary>
+    /// Initializes Stream that will be used for reading / writing the data (after Encryption or compression)
+    /// </summary>
+    protected virtual void ResetStreams(bool isReading) => BaseOpen(isReading);
   }
 }
