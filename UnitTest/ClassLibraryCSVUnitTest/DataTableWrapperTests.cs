@@ -108,11 +108,11 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public async Task GetOrdinalTest()
+    public void GetOrdinalTest()
     {
       using (var test = new DataTableWrapper(m_DataTable))
       {
-        await test.OpenAsync(UnitTestInitializeCsv.Token);
+        //await test.OpenAsync(UnitTestInitializeCsv.Token);
         Assert.AreEqual(0, test.GetOrdinal(m_DataTable.Columns[0].ColumnName));
         Assert.AreEqual(4, test.GetOrdinal("ColTextDT"));
         try
@@ -138,7 +138,7 @@ namespace CsvTools.Tests
 
         using (var test = new DataTableWrapper(dt2))
         {
-          await test.OpenAsync(UnitTestInitializeCsv.Token);
+          // await test.OpenAsync(UnitTestInitializeCsv.Token);
           await test.ReadAsync(UnitTestInitializeCsv.Token);
           Assert.AreEqual(true, test.GetBoolean(5));
         }
@@ -156,7 +156,7 @@ namespace CsvTools.Tests
 
         using (var test = new DataTableWrapper(dt2))
         {
-          await test.OpenAsync(UnitTestInitializeCsv.Token);
+          //await test.OpenAsync(UnitTestInitializeCsv.Token);
           await test.ReadAsync(UnitTestInitializeCsv.Token);
           Assert.AreEqual(15, test.GetByte(5));
         }
@@ -175,7 +175,7 @@ namespace CsvTools.Tests
 
         using (var test = new DataTableWrapper(dt2))
         {
-          await test.OpenAsync(UnitTestInitializeCsv.Token);
+          //await test.OpenAsync(UnitTestInitializeCsv.Token);
           await test.ReadAsync(UnitTestInitializeCsv.Token);
           Assert.IsInstanceOfType(test.GetGuid(5), typeof(Guid));
         }
@@ -237,7 +237,7 @@ namespace CsvTools.Tests
 
         using (var test = new DataTableWrapper(dt2))
         {
-          await test.OpenAsync(UnitTestInitializeCsv.Token);
+          //await test.OpenAsync(UnitTestInitializeCsv.Token);
           await test.ReadAsync(UnitTestInitializeCsv.Token);
           Assert.AreEqual((float) 11.37, test.GetFloat(5));
         }
@@ -255,7 +255,7 @@ namespace CsvTools.Tests
 
         using (var test = new DataTableWrapper(dt2))
         {
-          await test.OpenAsync(UnitTestInitializeCsv.Token);
+          //await test.OpenAsync(UnitTestInitializeCsv.Token);
           await test.ReadAsync(UnitTestInitializeCsv.Token);
           Assert.AreEqual(11.37334, test.GetDouble(5));
         }
@@ -267,7 +267,7 @@ namespace CsvTools.Tests
     {
       using (var test = new DataTableWrapper(m_DataTable))
       {
-        await test.OpenAsync(UnitTestInitializeCsv.Token);
+        //await test.OpenAsync(UnitTestInitializeCsv.Token);
         await test.ReadAsync(UnitTestInitializeCsv.Token);
         Assert.IsInstanceOfType(test.GetString(1), typeof(string));
       }
@@ -284,7 +284,7 @@ namespace CsvTools.Tests
 
         using (var test = new DataTableWrapper(dt2))
         {
-          await test.OpenAsync(UnitTestInitializeCsv.Token);
+          //await test.OpenAsync(UnitTestInitializeCsv.Token);
           await test.ReadAsync(UnitTestInitializeCsv.Token);
           Assert.AreEqual((decimal) 223311.37334, test.GetDecimal(5));
         }
@@ -296,7 +296,7 @@ namespace CsvTools.Tests
     {
       using (var test = new DataTableWrapper(m_DataTable))
       {
-        await test.OpenAsync(UnitTestInitializeCsv.Token);
+        //await test.OpenAsync(UnitTestInitializeCsv.Token);
         await test.ReadAsync(UnitTestInitializeCsv.Token);
         Assert.IsInstanceOfType(test.GetDateTime(4), typeof(DateTime));
       }
@@ -312,11 +312,11 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public async Task GetColumnTest()
+    public void GetColumnTest()
     {
       using (var test = new DataTableWrapper(m_DataTable))
       {
-        await test.OpenAsync(UnitTestInitializeCsv.Token);
+        //await test.OpenAsync(UnitTestInitializeCsv.Token);
         Assert.AreEqual(m_DataTable.Columns[0].ColumnName, test.GetColumn(0).Name);
       }
     }

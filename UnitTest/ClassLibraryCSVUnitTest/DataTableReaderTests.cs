@@ -45,13 +45,13 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public async Task GetDataTypeNameTestAsync()
+    public void GetDataTypeNameTest()
     {
       using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       {
         using (var test = new DataTableWrapper(m_DataTable))
         {
-          await test.OpenAsync(processDisplay.CancellationToken);
+          // await test.OpenAsync(processDisplay.CancellationToken);
           var typeName = test.GetDataTypeName(0);
           Assert.IsTrue(typeName.Equals("int") || typeName.Equals("Int32") || typeName.Equals("Int64") ||
                         typeName.Equals("long"));
@@ -60,39 +60,39 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public async Task GetFieldTypeTestAsync()
+    public void GetFieldTypeTest()
     {
       using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       {
         using (var test = new DataTableWrapper(m_DataTable))
         {
-          await test.OpenAsync(processDisplay.CancellationToken);
+          //await test.OpenAsync(processDisplay.CancellationToken);
           Assert.AreEqual(DataType.Integer.GetNetType(), test.GetFieldType(0));
         }
       }
     }
 
     [TestMethod]
-    public async Task GetNameTestAsync()
+    public void GetNameTest()
     {
       using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       {
         using (var test = new DataTableWrapper(m_DataTable))
         {
-          await test.OpenAsync(processDisplay.CancellationToken);
+          //await test.OpenAsync(processDisplay.CancellationToken);
           Assert.AreEqual("ID", test.GetName(0));
         }
       }
     }
 
     [TestMethod]
-    public async Task GetOrdinalTestAsync()
+    public void GetOrdinalTest()
     {
       using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       {
         using (var test = new DataTableWrapper(m_DataTable))
         {
-          await test.OpenAsync(processDisplay.CancellationToken);
+          //await test.OpenAsync(processDisplay.CancellationToken);
           Assert.AreEqual(2, test.GetOrdinal("ColText1"));
         }
       }
@@ -105,7 +105,7 @@ namespace CsvTools.Tests
       {
         using (var test = new DataTableWrapper(m_DataTable))
         {
-          await test.OpenAsync(processDisplay.CancellationToken);
+          //await test.OpenAsync(processDisplay.CancellationToken);
           Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
         }
       }
@@ -118,7 +118,7 @@ namespace CsvTools.Tests
       {
         using (var test = new DataTableWrapper(m_DataTable))
         {
-          await test.OpenAsync(processDisplay.CancellationToken);
+          //await test.OpenAsync(processDisplay.CancellationToken);
           Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
         }
       }

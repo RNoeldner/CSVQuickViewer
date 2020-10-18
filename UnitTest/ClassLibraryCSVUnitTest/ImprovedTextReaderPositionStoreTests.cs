@@ -7,7 +7,7 @@ namespace CsvTools.Tests
   public class ImprovedTextReaderPositionStoreTests
   {
     [TestMethod]
-    public async Task ImprovedTextReaderPositionStoreTestAsyncStartAsync()
+    public void ImprovedTextReaderPositionStoreTest()
     {
       using (var impStream = new ImprovedStream(UnitTestInitializeCsv.GetTestPath("txTranscripts.txt"), true))
       {
@@ -29,7 +29,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public async Task ImprovedTextReaderPositionStoreTestFromMiddle()
+    public void ImprovedTextReaderPositionStoreTestFromMiddle()
     {
       using (var impStream = new ImprovedStream(UnitTestInitializeCsv.GetTestPath("txTranscripts.txt"), true))
       {
