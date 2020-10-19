@@ -92,13 +92,15 @@ namespace CsvTools
 
     private async void ButtonGuessCP_ClickAsync(object sender, EventArgs e)
     {
-      await buttonGuessCP.RunWithHourglassAsync(async () => await CsvHelper.GuessCodePageAsync(m_ViewSettings, m_CancellationTokenSource.Token));
+      await buttonGuessCP.RunWithHourglassAsync(async () =>
+        await CsvHelper.GuessCodePageAsync(m_ViewSettings, m_CancellationTokenSource.Token));
       fileSettingBindingSource.ResetBindings(false);
     }
 
     private async void ButtonGuessDelimiter_ClickAsync(object sender, EventArgs e)
     {
-      await buttonGuessDelimiter.RunWithHourglassAsync(async () => await CsvHelper.GuessDelimiterAsync(m_ViewSettings, m_CancellationTokenSource.Token));
+      await buttonGuessDelimiter.RunWithHourglassAsync(async () =>
+        await CsvHelper.GuessDelimiterAsync(m_ViewSettings, m_CancellationTokenSource.Token));
       // GuessDelimiterAsync does set the values, refresh them
       fileFormatBindingSource.ResetBindings(false);
     }
@@ -120,8 +122,9 @@ namespace CsvTools
     private async void ButtonSkipLine_ClickAsync(object sender, EventArgs e)
     {
       int rows = 0;
-      await buttonSkipLine.RunWithHourglassAsync(async () => rows  = await CsvHelper.GuessStartRowAsync(m_ViewSettings, m_CancellationTokenSource.Token));
-      m_ViewSettings.SkipRows =rows;
+      await buttonSkipLine.RunWithHourglassAsync(async () =>
+        rows = await CsvHelper.GuessStartRowAsync(m_ViewSettings, m_CancellationTokenSource.Token));
+      m_ViewSettings.SkipRows = rows;
     }
 
     private void CboCodePage_SelectedIndexChanged(object sender, EventArgs e)
@@ -172,14 +175,13 @@ namespace CsvTools
             m_ViewSettings.ColumnCollection.Clear();
           try
           {
-            using (var processDisplay = m_ViewSettings.GetProcessDisplay(this, true, m_CancellationTokenSource.Token))
-            {
-              await m_ViewSettings.FillGuessColumnFormatReaderAsync(
-                false,
-                false,
-                m_ViewSettings.FillGuessSettings,
-                processDisplay);
-            }
+            Logger.Debug("Determining column format by reading samples");
+
+            await m_ViewSettings.FillGuessColumnFormatReaderAsync(
+              false,
+              false,
+              m_ViewSettings.FillGuessSettings,
+              m_CancellationTokenSource.Token);
           }
           catch (Exception exc)
           {
@@ -223,7 +225,7 @@ namespace CsvTools
 
       var descConv = new EnumDescriptionConverter(typeof(RecordDelimiterType));
       var di = (from RecordDelimiterType item in Enum.GetValues(typeof(RecordDelimiterType))
-                select new DisplayItem<int>((int) item, descConv.ConvertToString(item))).ToList();
+        select new DisplayItem<int>((int) item, descConv.ConvertToString(item))).ToList();
 
       var selValue = (int) m_ViewSettings.FileFormat.NewLine;
       cboRecordDelimiter.SuspendLayout();
@@ -246,8 +248,8 @@ namespace CsvTools
     {
       RecordDelimiterType type = RecordDelimiterType.None;
       await buttonNewLine.RunWithHourglassAsync(async () => type =
-          await CsvHelper.GuessNewlineAsync(m_ViewSettings, m_CancellationTokenSource.Token));
-      cboRecordDelimiter.SelectedValue= (int) type;
+        await CsvHelper.GuessNewlineAsync(m_ViewSettings, m_CancellationTokenSource.Token));
+      cboRecordDelimiter.SelectedValue = (int) type;
     }
 
     private void PositiveNumberValidating(object sender, CancelEventArgs e)
@@ -301,15 +303,15 @@ namespace CsvTools
 
     private void domainUpDownTime_SelectedItemChanged(object sender, EventArgs e)
     {
-      if (domainUpDownTime.SelectedIndex==4)
+      if (domainUpDownTime.SelectedIndex == 4)
         m_ViewSettings.LimitDuration = ViewSettings.DurationEnum.Unlimited;
-      else if (domainUpDownTime.SelectedIndex==3)
+      else if (domainUpDownTime.SelectedIndex == 3)
         m_ViewSettings.LimitDuration = ViewSettings.DurationEnum.TenSecond;
-      else if (domainUpDownTime.SelectedIndex==2)
+      else if (domainUpDownTime.SelectedIndex == 2)
         m_ViewSettings.LimitDuration = ViewSettings.DurationEnum.TwoSecond;
-      else if (domainUpDownTime.SelectedIndex==1)
+      else if (domainUpDownTime.SelectedIndex == 1)
         m_ViewSettings.LimitDuration = ViewSettings.DurationEnum.Second;
-      else if (domainUpDownTime.SelectedIndex==0)
+      else if (domainUpDownTime.SelectedIndex == 0)
         m_ViewSettings.LimitDuration = ViewSettings.DurationEnum.HalfSecond;
     }
 

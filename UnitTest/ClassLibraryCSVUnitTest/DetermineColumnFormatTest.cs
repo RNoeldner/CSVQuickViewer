@@ -32,37 +32,35 @@ namespace CsvTools.Tests
       var setting =
         new CsvFile(UnitTestInitializeCsv.GetTestPath("Larger.json")) {JsonFormat = true};
 
-      using (var dpd = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
+
+      var fillGuessSettings = new FillGuessSettings
       {
-        var fillGuessSettings = new FillGuessSettings
+        DetectNumbers = true,
+        DetectDateTime = true,
+        DetectPercentage = true,
+        DetectBoolean = true,
+        DetectGUID = true,
+        IgnoreIdColumns = true
+      };
+      Assert.AreEqual(0, setting.ColumnCollection.Count);
+
+      await setting.FillGuessColumnFormatReaderAsync(false, true, fillGuessSettings, UnitTestInitializeCsv.Token);
+
+      var expected =
+        new Dictionary<string, DataType>
         {
-          DetectNumbers = true,
-          DetectDateTime = true,
-          DetectPercentage = true,
-          DetectBoolean = true,
-          DetectGUID = true,
-          IgnoreIdColumns = true
+          {"object_id", DataType.Guid},
+          {"_last_touched_dt_utc", DataType.DateTime},
+          {"classification_id", DataType.Guid},
+          {"email_option_id", DataType.Integer}
         };
-        Assert.AreEqual(0, setting.ColumnCollection.Count);
 
-        await setting.FillGuessColumnFormatReaderAsync(false, true, fillGuessSettings, dpd);
-
-        var expected =
-          new Dictionary<string, DataType>
-          {
-            {"object_id", DataType.Guid},
-            {"_last_touched_dt_utc", DataType.DateTime},
-            {"classification_id", DataType.Guid},
-            {"email_option_id", DataType.Integer}
-          };
-
-        foreach (var keyValue in expected)
-        {
-          var indexCol = setting.ColumnCollection.FirstOrDefault(x =>
-            x.Name.Equals(keyValue.Key, StringComparison.InvariantCultureIgnoreCase));
-          Assert.IsNotNull(indexCol, $"Column {keyValue.Key} not recognized");
-          Assert.AreEqual(keyValue.Value, indexCol.ValueFormat.DataType);
-        }
+      foreach (var keyValue in expected)
+      {
+        var indexCol = setting.ColumnCollection.FirstOrDefault(x =>
+          x.Name.Equals(keyValue.Key, StringComparison.InvariantCultureIgnoreCase));
+        Assert.IsNotNull(indexCol, $"Column {keyValue.Key} not recognized");
+        Assert.AreEqual(keyValue.Value, indexCol.ValueFormat.DataType);
       }
     }
 
@@ -149,35 +147,32 @@ namespace CsvTools.Tests
     {
       using (var dt = UnitTestStatic.GetDataTable())
       {
-        using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
+        using (var reader = new DataTableWrapper(dt))
         {
-          using (var reader = new DataTableWrapper(dt))
+          var fillGuessSettings = new FillGuessSettings
           {
-            var fillGuessSettings = new FillGuessSettings
-            {
-              DetectNumbers = true,
-              DetectDateTime = true,
-              DetectPercentage = true,
-              DetectBoolean = true,
-              DetectGUID = true,
-              IgnoreIdColumns = true
-            };
+            DetectNumbers = true,
+            DetectDateTime = true,
+            DetectPercentage = true,
+            DetectBoolean = true,
+            DetectGUID = true,
+            IgnoreIdColumns = true
+          };
 
-            var columnCollection = new ColumnCollection();
-            //await reader.OpenAsync(processDisplay.CancellationToken);
+          var columnCollection = new ColumnCollection();
+          //await reader.OpenAsync(processDisplay.CancellationToken);
 
-            var res1 = await reader.FillGuessColumnFormatReaderAsyncReader(fillGuessSettings,
-              columnCollection, false, true, "<NULL>", processDisplay);
+          var res1 = await reader.FillGuessColumnFormatReaderAsyncReader(fillGuessSettings,
+            columnCollection, false, true, "<NULL>", UnitTestInitializeCsv.Token);
 
-            Assert.AreEqual(7, columnCollection.Count, "Recognized columns");
-            Assert.AreEqual(6, res1.Count, "Information Lines");
+          Assert.AreEqual(7, columnCollection.Count, "Recognized columns");
+          Assert.AreEqual(6, res1.Count, "Information Lines");
 
-            var res2 = await reader.FillGuessColumnFormatReaderAsyncReader(fillGuessSettings,
-              columnCollection, true, true, "<NULL>", processDisplay);
-            Assert.AreEqual(11, columnCollection.Count);
-            // Added 4 text columns,
-            Assert.AreEqual(8, res2.Count);
-          }
+          var res2 = await reader.FillGuessColumnFormatReaderAsyncReader(fillGuessSettings,
+            columnCollection, true, true, "<NULL>", UnitTestInitializeCsv.Token);
+          Assert.AreEqual(11, columnCollection.Count);
+          // Added 4 text columns,
+          Assert.AreEqual(8, res2.Count);
         }
       }
     }
@@ -185,24 +180,21 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task GetSourceColumnInformationTestAsync_Parameter()
     {
-      using (var dummy = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
+      try
       {
-        try
-        {
-          // ReSharper disable once AssignNullToNotNullAttribute
-          await DetermineColumnFormat.GetWriterColumnInformationAsync("Nonsense SQL", 60, null, new List<IColumn>(),
-            dummy.CancellationToken);
+        // ReSharper disable once AssignNullToNotNullAttribute
+        await DetermineColumnFormat.GetWriterColumnInformationAsync("Nonsense SQL", 60, null, new List<IColumn>(),
+          UnitTestInitializeCsv.Token);
 
-          Assert.Fail("Expected Exception not thrown");
-        }
-        catch (ArgumentNullException)
-        {
-          // add good
-        }
-        catch (Exception ex)
-        {
-          Assert.Fail("Wrong Exception Type: " + ex.GetType());
-        }
+        Assert.Fail("Expected Exception not thrown");
+      }
+      catch (ArgumentNullException)
+      {
+        // add good
+      }
+      catch (Exception ex)
+      {
+        Assert.Fail("Wrong Exception Type: " + ex.GetType());
       }
     }
 
@@ -266,14 +258,13 @@ namespace CsvTools.Tests
         DetectGUID = true,
         IgnoreIdColumns = false
       };
-      using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
-      {
-        var result1 = await setting.FillGuessColumnFormatReaderAsync(false, true, fillGuessSettings, processDisplay);
-        Assert.AreEqual(5, result1.Count);
+      var result1 =
+        await setting.FillGuessColumnFormatReaderAsync(false, true, fillGuessSettings, UnitTestInitializeCsv.Token);
+      Assert.AreEqual(5, result1.Count);
 
-        var result2 = await setting.FillGuessColumnFormatReaderAsync(true, false, fillGuessSettings, processDisplay);
-        Assert.AreEqual(6, result2.Count);
-      }
+      var result2 =
+        await setting.FillGuessColumnFormatReaderAsync(true, false, fillGuessSettings, UnitTestInitializeCsv.Token);
+      Assert.AreEqual(6, result2.Count);
     }
 
     [TestMethod]
@@ -438,10 +429,7 @@ namespace CsvTools.Tests
         DetectGUID = true,
         IgnoreIdColumns = false
       };
-      using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
-      {
-        await setting.FillGuessColumnFormatReaderAsync(true, false, fillGuessSettings, processDisplay);
-      }
+      await setting.FillGuessColumnFormatReaderAsync(true, false, fillGuessSettings, UnitTestInitializeCsv.Token);
 
       Assert.AreEqual(DataType.Integer, setting.ColumnCollection.Get("ID").ValueFormat.DataType);
       Assert.AreEqual(DataType.DateTime, setting.ColumnCollection.Get("ExamDate").ValueFormat.DataType);
@@ -469,10 +457,9 @@ namespace CsvTools.Tests
         IgnoreIdColumns = true
       };
 
-      using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
-      {
-        await setting.FillGuessColumnFormatReaderAsync(false, true, fillGuessSettings, processDisplay);
-      }
+
+      await setting.FillGuessColumnFormatReaderAsync(false, true, fillGuessSettings, UnitTestInitializeCsv.Token);
+
 
       Assert.AreEqual("Start Date", setting.ColumnCollection[0].Name, "Column 1 Start date");
       Assert.AreEqual("Start Time", setting.ColumnCollection[1].Name, "Column 2 Start Time");
@@ -501,10 +488,9 @@ namespace CsvTools.Tests
         DetectGUID = true,
         IgnoreIdColumns = false
       };
-      using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
-      {
-        await setting.FillGuessColumnFormatReaderAsync(false, false, fillGuessSettings, processDisplay);
-      }
+
+      await setting.FillGuessColumnFormatReaderAsync(false, false, fillGuessSettings, UnitTestInitializeCsv.Token);
+
 
       Assert.AreEqual(DataType.Integer, setting.ColumnCollection.Get("ID").ValueFormat.DataType);
       Assert.AreEqual(DataType.DateTime, setting.ColumnCollection.Get("ExamDate").ValueFormat.DataType);
@@ -532,10 +518,9 @@ namespace CsvTools.Tests
       };
 
       // setting.TreatTextNullAsNull = true;
-      using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
-      {
-        await setting.FillGuessColumnFormatReaderAsync(false, false, fillGuessSettings, processDisplay);
-      }
+
+      await setting.FillGuessColumnFormatReaderAsync(false, false, fillGuessSettings, UnitTestInitializeCsv.Token);
+
 
       Assert.IsNotNull(setting.ColumnCollection.Get(@"Betrag Brutto (2 Nachkommastellen)"), "Data Type recognized");
 
@@ -572,10 +557,7 @@ namespace CsvTools.Tests
         DetectGUID = true,
         IgnoreIdColumns = true
       };
-      using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
-      {
-        await setting.FillGuessColumnFormatReaderAsync(false, false, fillGuessSettings, processDisplay);
-      }
+      await setting.FillGuessColumnFormatReaderAsync(false, false, fillGuessSettings, UnitTestInitializeCsv.Token);
 
       Assert.IsTrue(setting.ColumnCollection.Get("ID") == null || setting.ColumnCollection.Get("ID").Convert == false);
       Assert.AreEqual(DataType.DateTime, setting.ColumnCollection.Get("ExamDate").ValueFormat.DataType);
@@ -590,14 +572,11 @@ namespace CsvTools.Tests
         FileName = UnitTestInitializeCsv.GetTestPath("AllFormatsColon.txt"),
         HasFieldHeader = true,
         ByteOrderMark = true,
-        FileFormat = { FieldDelimiter = "," }        
+        FileFormat = {FieldDelimiter = ","}
       };
-      var fillGuessSettings = new FillGuessSettings { IgnoreIdColumns = true };
+      var fillGuessSettings = new FillGuessSettings {IgnoreIdColumns = true};
 
-      using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
-      {
-        await setting.FillGuessColumnFormatReaderAsync(true, true, fillGuessSettings, processDisplay);
-      }
+      await setting.FillGuessColumnFormatReaderAsync(true, true, fillGuessSettings, UnitTestInitializeCsv.Token);
 
       Assert.AreEqual(10, setting.ColumnCollection.Count);
       Assert.AreEqual(DataType.DateTime, setting.ColumnCollection[0].ValueFormat.DataType);
@@ -623,47 +602,34 @@ namespace CsvTools.Tests
         FileName = UnitTestInitializeCsv.GetTestPath("AllFormatsColon.txt"),
         HasFieldHeader = true,
         ByteOrderMark = true,
-        FileFormat = {FieldDelimiter = ","},        
+        FileFormat = {FieldDelimiter = ","},
       };
-      using (var dummy = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
-      {
-        try
-        {
-          // ReSharper disable once AssignNullToNotNullAttribute
-          await DetermineColumnFormat.FillGuessColumnFormatReaderAsync(null, true, true, fillGuessSettings, dummy);
-        }
-        catch (ArgumentNullException)
-        {
-        }
-        catch (Exception ex)
-        {
-          Assert.Fail("Wrong or exception thrown exception is : " + ex.GetType().Name);
-        }
 
-        try
-        {
-          // ReSharper disable once AssignNullToNotNullAttribute
-          await setting.FillGuessColumnFormatReaderAsync(true, true, null, dummy);
-        }
-        catch (ArgumentNullException)
-        {
-        }
-        catch (Exception ex)
-        {
-          Assert.Fail("Wrong or exception thrown exception is : " + ex.GetType().Name);
-        }
-        try
-        {
-          // ReSharper disable once AssignNullToNotNullAttribute
-          await setting.FillGuessColumnFormatReaderAsync(true, true, fillGuessSettings, null);
-        }
-        catch (ArgumentNullException)
-        {
-        }
-        catch (Exception ex)
-        {
-          Assert.Fail("Wrong or exception thrown exception is : " + ex.GetType().Name);
-        }
+      try
+      {
+        // ReSharper disable once AssignNullToNotNullAttribute
+        await DetermineColumnFormat.FillGuessColumnFormatReaderAsync(null, true, true, fillGuessSettings,
+          UnitTestInitializeCsv.Token);
+      }
+      catch (ArgumentNullException)
+      {
+      }
+      catch (Exception ex)
+      {
+        Assert.Fail("Wrong or exception thrown exception is : " + ex.GetType().Name);
+      }
+
+      try
+      {
+        // ReSharper disable once AssignNullToNotNullAttribute
+        await setting.FillGuessColumnFormatReaderAsync(true, true, null, UnitTestInitializeCsv.Token);
+      }
+      catch (ArgumentNullException)
+      {
+      }
+      catch (Exception ex)
+      {
+        Assert.Fail("Wrong or exception thrown exception is : " + ex.GetType().Name);
       }
     }
 
@@ -712,10 +678,7 @@ namespace CsvTools.Tests
         DetectGUID = true,
         IgnoreIdColumns = true
       };
-      using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
-      {
-        await setting.FillGuessColumnFormatReaderAsync(false, true, fillGuessSettings, processDisplay);
-      }
+      await setting.FillGuessColumnFormatReaderAsync(false, true, fillGuessSettings, UnitTestInitializeCsv.Token);
 
       // need to identify 5 typed column of the 11 existing
       Assert.AreEqual(7, setting.ColumnCollection.Count, "Number of recognized Columns");

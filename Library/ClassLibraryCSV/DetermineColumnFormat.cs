@@ -61,21 +61,19 @@ namespace CsvTools
     /// <param name="addTextColumns">if set to <c>true</c> event string columns are added.</param>
     /// <param name="checkDoubleToBeInteger">if set to <c>true</c> [check double to be integer].</param>
     /// <param name="fillGuessSettings">The fill guess settings.</param>
-    /// <param name="processDisplay">The process display.</param>
+    /// <param name="cancellationToken"></param>
     /// <returns>A list of columns with new format that have been changed</returns>
     /// <exception cref="ArgumentNullException">processDisplay</exception>
     [ItemNotNull]
     public static async Task<IList<string>> FillGuessColumnFormatReaderAsync([NotNull] this IFileSetting fileSetting,
       bool addTextColumns,
       bool checkDoubleToBeInteger, [NotNull] FillGuessSettings fillGuessSettings,
-      [NotNull] IProcessDisplay processDisplay)
+      CancellationToken cancellationToken)
     {
       if (fileSetting == null)
         throw new ArgumentNullException(nameof(fileSetting));
       if (fillGuessSettings == null)
         throw new ArgumentNullException(nameof(fillGuessSettings));
-      if (processDisplay == null)
-        throw new ArgumentNullException(nameof(processDisplay));
 
       // Check if we are supposed to check something
       if (!fillGuessSettings.Enabled || !fillGuessSettings.DetectNumbers && !fillGuessSettings.DetectBoolean &&
@@ -87,17 +85,15 @@ namespace CsvTools
       // Open the filesetting but change a few settings
       var fileSettingCopy = GetSettingForRead(fileSetting);
 
-      Logger.Information("Determining column format by reading samples");
-
       // need a dummy process display to have pass in Cancellation token to reader
-      using (var prc2 = new CustomProcessDisplay(processDisplay.CancellationToken))
+      using (var prc2 = new CustomProcessDisplay(cancellationToken))
       using (var fileReader = FunctionalDI.GetFileReader(fileSettingCopy, null, prc2))
       {
-        await fileReader.OpenAsync(processDisplay.CancellationToken).ConfigureAwait(false);
+        await fileReader.OpenAsync(prc2.CancellationToken).ConfigureAwait(false);
 
         return await FillGuessColumnFormatReaderAsyncReader(fileReader, fillGuessSettings,
           fileSetting.ColumnCollection,
-          addTextColumns, checkDoubleToBeInteger, fileSetting.TreatTextAsNull, processDisplay);
+          addTextColumns, checkDoubleToBeInteger, fileSetting.TreatTextAsNull, prc2.CancellationToken);
       }
     }
 
@@ -140,7 +136,7 @@ namespace CsvTools
     ///   true to make sure a numeric value gets the lowest possible numeric type
     /// </param>
     /// <param name="treatTextAsNull">A text that should be regarded as empty</param>
-    /// <param name="processDisplay"></param>
+    /// <param name="cancellationToken">Cancellation support</param>
     /// <returns>A text with the changes that have been made</returns>
     [ItemNotNull]
     public static async Task<IList<string>> FillGuessColumnFormatReaderAsyncReader(
@@ -149,7 +145,7 @@ namespace CsvTools
       bool addTextColumns,
       bool checkDoubleToBeInteger,
       string treatTextAsNull,
-      [NotNull] IProcessDisplay processDisplay)
+      CancellationToken cancellationToken)
     {
       if (fileReader == null)
         throw new ArgumentNullException(nameof(fileReader));
@@ -157,8 +153,6 @@ namespace CsvTools
         throw new ArgumentNullException(nameof(fillGuessSettings));
       if (columnCollection == null)
         throw new ArgumentNullException(nameof(columnCollection));
-      if (processDisplay == null)
-        throw new ArgumentNullException(nameof(processDisplay));
 
       var result = new List<string>();
       if (!fillGuessSettings.Enabled || !fillGuessSettings.DetectNumbers && !fillGuessSettings.DetectBoolean &&
@@ -173,187 +167,176 @@ namespace CsvTools
         fileReader.ResetPositionToFirstDataRow();
       if (fileReader.EndOfFile) // still end of file
         return result;
-
-      var othersValueFormatDate = CommonDateFormat(columnCollection);
-
-      processDisplay.SetProcess("Getting column headers", 0, true);
-      processDisplay.SetMaximum(fileReader.FieldCount * 3);
-
-      // Remove all columns formats for columns that do not exist
-      var rem = new List<Column>();
-      foreach (var col in columnCollection)
+      void CustomLog(string s, Logger.Level level) => result.Add(s);
+      Logger.AddLog(CustomLog);
+      try
       {
-        bool found = false;
+        var othersValueFormatDate = CommonDateFormat(columnCollection);
+        Logger.Debug("Getting column headers");
+
+        // Remove all columns formats for columns that do not exist
+        var rem = new List<Column>();
+        foreach (var col in columnCollection)
+        {
+          bool found = false;
+          for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
+          {
+            if (!col.Name.Equals(fileReader.GetName(colIndex), StringComparison.OrdinalIgnoreCase)) continue;
+            found = true;
+            break;
+          }
+
+          if (!found)
+            rem.Add(col);
+        }
+
+        foreach (var col in rem)
+          columnCollection.Remove(col);
+
+        // build a list of columns to check
+        var getSamples = new List<int>();
+        var columnNamesInFile = new List<string>();
         for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
         {
-          if (!col.Name.Equals(fileReader.GetName(colIndex), StringComparison.OrdinalIgnoreCase)) continue;
-          found = true;
-          break;
-        }
+          var readerColumn = fileReader.GetColumn(colIndex);
 
-        if (!found)
-          rem.Add(col);
-      }
+          columnNamesInFile.Add(readerColumn.Name);
 
-      foreach (var col in rem)
-        columnCollection.Remove(col);
-
-      // build a list of columns to check
-      var getSamples = new List<int>();
-      var columnNamesInFile = new List<string>();
-      for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
-      {
-        var readerColumn = fileReader.GetColumn(colIndex);
-        var msgBegin = $"{readerColumn.Name} – ";
-        columnNamesInFile.Add(readerColumn.Name);
-
-        if (fillGuessSettings.IgnoreIdColumns && StringUtils.AssumeIDColumn(readerColumn.Name) > 0)
-        {
-          processDisplay.SetProcess(readerColumn.Name + " – ID columns ignored", colIndex, true);
-          if (!addTextColumns || columnCollection.Get(readerColumn.Name) != null) continue;
-          result.Add($"{msgBegin}ID columns ignored");
-          columnCollection.AddIfNew(readerColumn);
-          continue;
-        }
-
-        // no need to get types that are already found and could noe be smaller (e.G. decimal could be a integer)
-        if (readerColumn.ValueFormat.DataType == DataType.Guid ||
-            readerColumn.ValueFormat.DataType == DataType.Integer ||
-            readerColumn.ValueFormat.DataType == DataType.Boolean ||
-            readerColumn.ValueFormat.DataType == DataType.DateTime ||
-            (readerColumn.ValueFormat.DataType == DataType.Numeric && !checkDoubleToBeInteger) ||
-            (readerColumn.ValueFormat.DataType == DataType.Double && !checkDoubleToBeInteger))
-        {
-          result.Add($"{msgBegin}Existing Type : {readerColumn.ValueFormat.DataType.DataTypeDisplay()}");
-          continue;
-        }
-
-        getSamples.Add(colIndex);
-      }
-
-      processDisplay.SetProcess($"Getting sample values for all {getSamples.Count} columns",
-        fileReader.FieldCount * 2, true);
-
-      var sampleList = await GetSampleValuesAsync(fileReader, fillGuessSettings.CheckedRecords,
-        getSamples, fillGuessSettings.SampleValues, treatTextAsNull,
-        processDisplay.CancellationToken).ConfigureAwait(false);
-
-      // Add all columns that will not be guessed
-      for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
-      {
-        if (sampleList.ContainsKey(colIndex)) continue;
-        var readerColumn = fileReader.GetColumn(colIndex);
-        columnCollection.AddIfNew(readerColumn);
-      }
-
-      // Start Guessing
-      foreach (var colIndex in sampleList.Keys)
-      {
-        processDisplay.CancellationToken.ThrowIfCancellationRequested();
-
-        var readerColumn = fileReader.GetColumn(colIndex);
-        var msgBegin = $"{readerColumn.Name} – ";
-        var samples = sampleList[colIndex];
-
-        processDisplay.CancellationToken.ThrowIfCancellationRequested();
-        if (samples.Values.Count == 0)
-        {
-          processDisplay.SetProcess($"{msgBegin}No values found", fileReader.FieldCount * 2 + colIndex,
-            true);
-          if (!addTextColumns)
-            continue;
-          result.Add($"{msgBegin}No values found – Format : {readerColumn.GetTypeAndFormatDescription()}");
-          columnCollection.AddIfNew(readerColumn);
-        }
-        else
-        {
-          var detect = true;
-          if (samples.Values.Count() < fillGuessSettings.MinSamples)
+          if (fillGuessSettings.IgnoreIdColumns && StringUtils.AssumeIDColumn(readerColumn.Name) > 0)
           {
-            processDisplay.SetProcess(
-              $"{msgBegin}Only {samples.Values.Count()} values found in {samples.RecordsRead:N0} rows",
-              fileReader.FieldCount * 2 + colIndex, true);
-            detect = false;
+            Logger.Debug("{column} – ID columns ignored", readerColumn.Name);
+            if (!addTextColumns || columnCollection.Get(readerColumn.Name) != null) continue;
+            columnCollection.AddIfNew(readerColumn);
+            continue;
+          }
+
+          // no need to get types that are already found and could noe be smaller (e.G. decimal could be a integer)
+          if (readerColumn.ValueFormat.DataType == DataType.Guid ||
+              readerColumn.ValueFormat.DataType == DataType.Integer ||
+              readerColumn.ValueFormat.DataType == DataType.Boolean ||
+              readerColumn.ValueFormat.DataType == DataType.DateTime ||
+              (readerColumn.ValueFormat.DataType == DataType.Numeric && !checkDoubleToBeInteger) ||
+              (readerColumn.ValueFormat.DataType == DataType.Double && !checkDoubleToBeInteger))
+          {
+            Logger.Debug("{column} - Existing Type : {format}", readerColumn.Name,
+              readerColumn.ValueFormat.GetTypeAndFormatDescription());
+            continue;
+          }
+
+          getSamples.Add(colIndex);
+        }
+
+        var sampleList = await GetSampleValuesAsync(fileReader, fillGuessSettings.CheckedRecords,
+          getSamples, fillGuessSettings.SampleValues, treatTextAsNull,
+          cancellationToken).ConfigureAwait(false);
+
+        // Add all columns that will not be guessed
+        for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
+        {
+          if (sampleList.ContainsKey(colIndex)) continue;
+          var readerColumn = fileReader.GetColumn(colIndex);
+          columnCollection.AddIfNew(readerColumn);
+        }
+
+        // Start Guessing
+        foreach (var colIndex in sampleList.Keys)
+        {
+          cancellationToken.ThrowIfCancellationRequested();
+
+          var readerColumn = fileReader.GetColumn(colIndex);
+          var samples = sampleList[colIndex];
+
+          cancellationToken.ThrowIfCancellationRequested();
+          if (samples.Values.Count == 0)
+          {
+            Logger.Debug("{column} – No values found– Format : {format}", readerColumn.Name,
+              readerColumn.GetTypeAndFormatDescription());
+            if (!addTextColumns)
+              continue;
+            columnCollection.AddIfNew(readerColumn);
           }
           else
           {
-            processDisplay.SetProcess(
-              $"{msgBegin}{samples.Values.Count()} values found in {samples.RecordsRead:N0} rows – Examining format",
-              fileReader.FieldCount * 2 + colIndex, true);
-          }
-
-          var checkResult = GuessValueFormat(samples.Values, fillGuessSettings.MinSamples,
-            fillGuessSettings.TrueValue,
-            fillGuessSettings.FalseValue,
-            fillGuessSettings.DetectBoolean,
-            fillGuessSettings.DetectGUID && detect,
-            fillGuessSettings.DetectNumbers && detect,
-            fillGuessSettings.DetectDateTime && detect,
-            fillGuessSettings.DetectPercentage && detect,
-            fillGuessSettings.SerialDateTime && detect,
-            fillGuessSettings.CheckNamedDates && detect,
-            othersValueFormatDate,
-            processDisplay.CancellationToken);
-
-          // if nothing is found take what was configured before, as the reader could possibly
-          // provide typed data (Json, Excel...)
-          if (checkResult.FoundValueFormat == null)
-            checkResult.FoundValueFormat = readerColumn.ValueFormat;
-
-          var settingColumn = columnCollection.Get(readerColumn.Name);
-          // if we have a mapping to a template that expects a integer and we only have integers but
-          // not enough
-          if (settingColumn != null)
-          {
-            if (checkResult.FoundValueFormat.DataType == DataType.DateTime)
+            var detect = true;
+            if (samples.Values.Count() < fillGuessSettings.MinSamples)
             {
-              // if we have a date value format already store this
-              if (othersValueFormatDate == null)
-              {
-                othersValueFormatDate = checkResult.FoundValueFormat;
-              }
-              else
-              {
-                // if he date format does not match the last found date format reset the assumed
-                // correct format
-                if (!othersValueFormatDate.Equals(checkResult.FoundValueFormat))
-                  othersValueFormatDate = null;
-              }
-            }
-
-            var oldValueFormat = settingColumn.GetTypeAndFormatDescription();
-
-            if (checkResult.FoundValueFormat.Equals(settingColumn.ValueFormat))
-            {
-              processDisplay.SetProcess($"{msgBegin}Format : {oldValueFormat} – not changed",
-                fileReader.FieldCount * 2 + colIndex, true);
+              Logger.Debug("{column} – {values} values found in {records} rows. Not enough sample values",
+                readerColumn.Name, samples.Values.Count(), samples.RecordsRead);
+              detect = false;
             }
             else
             {
-              var newValueFormat = checkResult.FoundValueFormat.GetTypeAndFormatDescription();
-              if (oldValueFormat.Equals(newValueFormat, StringComparison.Ordinal))
-                continue;
-
-              settingColumn.ValueFormatMutable.CopyFrom(checkResult.FoundValueFormat);
-              var msg = $"{msgBegin}Format : {newValueFormat} – updated from {oldValueFormat}";
-              result.Add(msg);
-              processDisplay.SetProcess(msg, fileReader.FieldCount * 2 + colIndex, true);
+              Logger.Debug("{column} – {values} values found in {records} row. Examining format", readerColumn.Name,
+                samples.Values.Count(), samples.RecordsRead);
             }
-          }
-          // new Column
-          else
-          {
-            var format = (checkResult.FoundValueFormat == null && checkResult.PossibleMatch
-                           ? checkResult.ValueFormatPossibleMatch
-                           : checkResult.FoundValueFormat) ??
-                         new ImmutableValueFormat();
 
-            if (addTextColumns || format.DataType != DataType.String)
+            var checkResult = GuessValueFormat(samples.Values, fillGuessSettings.MinSamples,
+              fillGuessSettings.TrueValue,
+              fillGuessSettings.FalseValue,
+              fillGuessSettings.DetectBoolean,
+              fillGuessSettings.DetectGUID && detect,
+              fillGuessSettings.DetectNumbers && detect,
+              fillGuessSettings.DetectDateTime && detect,
+              fillGuessSettings.DetectPercentage && detect,
+              fillGuessSettings.SerialDateTime && detect,
+              fillGuessSettings.CheckNamedDates && detect,
+              othersValueFormatDate,
+              cancellationToken);
+
+            // if nothing is found take what was configured before, as the reader could possibly
+            // provide typed data (Json, Excel...)
+            if (checkResult.FoundValueFormat == null)
+              checkResult.FoundValueFormat = readerColumn.ValueFormat;
+
+            var settingColumn = columnCollection.Get(readerColumn.Name);
+            // if we have a mapping to a template that expects a integer and we only have integers but
+            // not enough
+            if (settingColumn != null)
             {
-              var msg = $"{msgBegin}Format : {format.GetTypeAndFormatDescription()}";
-              processDisplay.SetProcess(msg, fileReader.FieldCount * 2 + colIndex, true);
-              result.Add(msg);
+              if (checkResult.FoundValueFormat.DataType == DataType.DateTime)
+              {
+                // if we have a date value format already store this
+                if (othersValueFormatDate == null)
+                {
+                  othersValueFormatDate = checkResult.FoundValueFormat;
+                }
+                else
+                {
+                  // if he date format does not match the last found date format reset the assumed
+                  // correct format
+                  if (!othersValueFormatDate.Equals(checkResult.FoundValueFormat))
+                    othersValueFormatDate = null;
+                }
+              }
 
+              var oldValueFormat = settingColumn.GetTypeAndFormatDescription();
+
+              if (checkResult.FoundValueFormat.Equals(settingColumn.ValueFormat))
+              {
+                Logger.Debug("{column} – Format : {format} – not changed", readerColumn.Name, oldValueFormat);
+              }
+              else
+              {
+                var newValueFormat = checkResult.FoundValueFormat.GetTypeAndFormatDescription();
+                if (oldValueFormat.Equals(newValueFormat, StringComparison.Ordinal))
+                  continue;
+
+                settingColumn.ValueFormatMutable.CopyFrom(checkResult.FoundValueFormat);
+                Logger.Debug("{column} – Format : {format} – updated from {oldformat}", readerColumn.Name,
+                  newValueFormat, oldValueFormat);
+              }
+            }
+            // new Column
+            else
+            {
+              var format = (checkResult.FoundValueFormat == null && checkResult.PossibleMatch
+                             ? checkResult.ValueFormatPossibleMatch
+                             : checkResult.FoundValueFormat) ??
+                           new ImmutableValueFormat();
+
+              if (!addTextColumns && format.DataType == DataType.String) continue;
+
+              Logger.Debug("{column} – Format : {format}", readerColumn.Name, format.GetTypeAndFormatDescription());
               columnCollection.AddIfNew(new Column(readerColumn, format));
 
               // Adjust or Set the common date format
@@ -362,206 +345,208 @@ namespace CsvTools
             }
           }
         }
-      }
 
-      processDisplay.CancellationToken.ThrowIfCancellationRequested();
+        cancellationToken.ThrowIfCancellationRequested();
 
-      // check all doubles if they could be integer needed for excel files as the typed values do
-      // not distinguish between double and integer.
-      if (checkDoubleToBeInteger)
-        for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
-        {
-          processDisplay.CancellationToken.ThrowIfCancellationRequested();
-          var readerColumn = fileReader.GetColumn(colIndex);
-
-          if (readerColumn.ValueFormat.DataType != DataType.Double &&
-              readerColumn.ValueFormat.DataType != DataType.Numeric) continue;
-          if (sampleList.Keys.Contains(colIndex + 1))
+        // check all doubles if they could be integer needed for excel files as the typed values do
+        // not distinguish between double and integer.
+        if (checkDoubleToBeInteger)
+          for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
           {
-            var samples = sampleList[colIndex + 1];
+            cancellationToken.ThrowIfCancellationRequested();
+            var readerColumn = fileReader.GetColumn(colIndex);
 
-            if (samples.Values.Count <= 0) continue;
-            var checkResult = GuessNumeric(samples.Values, false, true, processDisplay.CancellationToken);
-            if (checkResult.FoundValueFormat != null && checkResult.FoundValueFormat.DataType != DataType.Double)
+            if (readerColumn.ValueFormat.DataType != DataType.Double &&
+                readerColumn.ValueFormat.DataType != DataType.Numeric) continue;
+            if (sampleList.Keys.Contains(colIndex + 1))
             {
-              var existingColumn = columnCollection.Get(readerColumn.Name);
-              if (existingColumn != null && !existingColumn.ValueFormatMutable.Equals(checkResult.FoundValueFormat))
+              var samples = sampleList[colIndex + 1];
+
+              if (samples.Values.Count <= 0) continue;
+              var checkResult = GuessNumeric(samples.Values, false, true, cancellationToken);
+              if (checkResult.FoundValueFormat != null && checkResult.FoundValueFormat.DataType != DataType.Double)
               {
-                var msg =
-                  $"{existingColumn.Name} – Changed Format {existingColumn.ValueFormatMutable.GetTypeAndFormatDescription()} to {checkResult.FoundValueFormat.GetTypeAndFormatDescription()}";
-                existingColumn.ValueFormatMutable.CopyFrom(checkResult.FoundValueFormat);
-
-                processDisplay.SetProcess(msg, fileReader.FieldCount * 2 + colIndex, true);
-                result.Add(msg);
-              }
-              else
-              {
-                columnCollection.AddIfNew(new Column(readerColumn, checkResult.FoundValueFormat));
-              }
-            }
-          }
-        }
-
-      if (fillGuessSettings.DateParts)
-      {
-        // Try to find a time for a date if the date does not already have a time Case a) TimeFormat
-        // has already been recognized
-        for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
-        {
-          processDisplay.CancellationToken.ThrowIfCancellationRequested();
-          var readerColumn = fileReader.GetColumn(colIndex);
-          var msgBegin = $"{readerColumn.Name} – ";
-          var settingColumn = columnCollection.Get(readerColumn.Name);
-          if (settingColumn == null) continue;
-          var columnFormat = settingColumn.ValueFormat;
-
-          // Possibly add Time Zone
-          if (columnFormat.DataType == DataType.DateTime && string.IsNullOrEmpty(readerColumn.TimeZonePart))
-            for (var colTimeZone = 0; colTimeZone < fileReader.FieldCount; colTimeZone++)
-            {
-              var columnTimeZone = fileReader.GetColumn(colTimeZone);
-              var colName = columnTimeZone.Name.NoSpecials().ToUpperInvariant();
-              if (columnTimeZone.ValueFormat.DataType != DataType.String &&
-                  columnTimeZone.ValueFormat.DataType != DataType.Integer ||
-                  colName != "TIMEZONE" && colName != "TIMEZONEID" && colName != "TIME ZONE" &&
-                  colName != "TIME ZONE ID")
-                continue;
-
-              settingColumn.TimeZonePart = columnTimeZone.Name;
-              result.Add($"{msgBegin}Added Time Zone : {columnTimeZone.Name}");
-            }
-
-          if (columnFormat.DataType != DataType.DateTime || !string.IsNullOrEmpty(readerColumn.TimePart) ||
-              columnFormat.DateFormat.IndexOfAny(new[] {':', 'h', 'H', 'm', 's', 't'}) != -1)
-            continue;
-          // We have a date column without time
-          for (var colTime = 0; colTime < fileReader.FieldCount; colTime++)
-          {
-            var columnTime = fileReader.GetColumn(colTime);
-            var settingTime = columnCollection.Get(columnTime.Name);
-            if (settingTime == null) continue;
-            var timeFormat = settingTime.ValueFormat;
-            if (timeFormat.DataType != DataType.DateTime || !string.IsNullOrEmpty(readerColumn.TimePart) ||
-                timeFormat.DateFormat.IndexOfAny(new[] {'/', 'y', 'M', 'd'}) != -1)
-              continue;
-            // We now have a time column, checked if the names somehow make sense
-            if (!readerColumn.Name.NoSpecials().ToUpperInvariant().Replace("DATE", string.Empty).Equals(
-              columnTime.Name.NoSpecials().ToUpperInvariant().Replace("TIME", string.Empty),
-              StringComparison.Ordinal))
-              continue;
-
-            settingColumn.TimePart = columnTime.Name;
-            settingColumn.TimePartFormat = timeFormat.DateFormat;
-            result.Add($"{msgBegin}Added Time Part : {columnTime.Name}");
-          }
-        }
-
-        // Case b) TimeFormat has not been recognized (e.G. all values are 08:00) only look in
-        // adjacent fields
-        for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
-        {
-          processDisplay.CancellationToken.ThrowIfCancellationRequested();
-          var readerColumn = fileReader.GetColumn(colIndex);
-          var msgBegin = $"{readerColumn.Name} – ";
-          var settingColumn = columnCollection.Get(readerColumn.Name);
-          if (settingColumn == null) continue;
-          var columnFormat = settingColumn.ValueFormat;
-          if (columnFormat.DataType != DataType.DateTime || !string.IsNullOrEmpty(readerColumn.TimePart) ||
-              columnFormat.DateFormat.IndexOfAny(new[] {':', 'h', 'H', 'm', 's', 't'}) != -1)
-            continue;
-
-          if (colIndex + 1 < fileReader.FieldCount)
-          {
-            var columnTime = fileReader.GetColumn(colIndex + 1);
-
-            if (columnTime.ValueFormat.DataType == DataType.String && readerColumn.Name.NoSpecials().ToUpperInvariant()
-              .Replace("DATE", string.Empty)
-              .Equals(columnTime.Name.NoSpecials().ToUpperInvariant().Replace("TIME", string.Empty),
-                StringComparison.OrdinalIgnoreCase))
-            {
-              settingColumn.TimePart = columnTime.Name;
-              {
-                var samples = sampleList.Keys.Contains(colIndex + 1)
-                  ? sampleList[colIndex + 1]
-                  : (await GetSampleValuesAsync(fileReader, 1, new[] {colIndex + 1}, 1, treatTextAsNull,
-                    processDisplay.CancellationToken).ConfigureAwait(false)).First().Value;
-
-
-                foreach (var first in samples.Values)
+                var existingColumn = columnCollection.Get(readerColumn.Name);
+                if (existingColumn != null && !existingColumn.ValueFormatMutable.Equals(checkResult.FoundValueFormat))
                 {
-                  if (first.Length == 8 || first.Length == 5)
-                  {
-                    var settingColumnTime = new Column(columnTime,
-                      new ValueFormatMutable(DataType.DateTime)
-                      {
-                        DateFormat = first.Length == 8 ? "HH:mm:ss" : "HH:mm"
-                      });
-
-                    columnCollection.AddIfNew(settingColumnTime);
-                    result.Add($"{columnTime.Name} – Format : {columnTime.GetTypeAndFormatDescription()}");
-                  }
-
-                  break;
+                  Logger.Debug("{column} – Format : {format} – updated from {oldformat}", existingColumn.Name,
+                    checkResult.FoundValueFormat.GetTypeAndFormatDescription(),
+                    existingColumn.ValueFormatMutable.GetTypeAndFormatDescription());
+                  existingColumn.ValueFormatMutable.CopyFrom(checkResult.FoundValueFormat);
+                }
+                else
+                {
+                  columnCollection.AddIfNew(new Column(readerColumn, checkResult.FoundValueFormat));
                 }
               }
-
-              result.Add($"{msgBegin}Added Time Part : {columnTime.Name}");
-              continue;
             }
           }
 
-          if (colIndex <= 0)
-            continue;
+        if (fillGuessSettings.DateParts)
+        {
+          // Try to find a time for a date if the date does not already have a time Case a) TimeFormat
+          // has already been recognized
+          for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
           {
-            var readerColumnTime = fileReader.GetColumn(colIndex - 1);
-            if (readerColumnTime.ValueFormat.DataType != DataType.String ||
-                !readerColumn.Name.NoSpecials().ToUpperInvariant().Replace("DATE", string.Empty).Equals(
-                  readerColumnTime.Name.NoSpecials().ToUpperInvariant().Replace("TIME", string.Empty),
-                  StringComparison.Ordinal))
-              continue;
+            cancellationToken.ThrowIfCancellationRequested();
+            var readerColumn = fileReader.GetColumn(colIndex);
+            var settingColumn = columnCollection.Get(readerColumn.Name);
+            if (settingColumn == null) continue;
+            var columnFormat = settingColumn.ValueFormat;
 
-            settingColumn.TimePart = readerColumnTime.Name;
-
-            var samples = sampleList.Keys.Contains(colIndex - 1)
-              ? sampleList[colIndex - 1]
-              : (await GetSampleValuesAsync(fileReader, 1, new[] {colIndex + 1}, 1, treatTextAsNull,
-                processDisplay.CancellationToken).ConfigureAwait(false)).First().Value;
-            foreach (var first in samples.Values)
-            {
-              if (first.Length == 8 || first.Length == 5)
+            // Possibly add Time Zone
+            if (columnFormat.DataType == DataType.DateTime && string.IsNullOrEmpty(readerColumn.TimeZonePart))
+              for (var colTimeZone = 0; colTimeZone < fileReader.FieldCount; colTimeZone++)
               {
-                settingColumn.TimePartFormat = first.Length == 8 ? "HH:mm:ss" : "HH:mm";
-                result.Add($"{settingColumn.Name} – Format : {settingColumn.GetTypeAndFormatDescription()}");
+                var columnTimeZone = fileReader.GetColumn(colTimeZone);
+                var colName = columnTimeZone.Name.NoSpecials().ToUpperInvariant();
+                if (columnTimeZone.ValueFormat.DataType != DataType.String &&
+                    columnTimeZone.ValueFormat.DataType != DataType.Integer ||
+                    colName != "TIMEZONE" && colName != "TIMEZONEID" && colName != "TIME ZONE" &&
+                    colName != "TIME ZONE ID")
+                  continue;
+
+                settingColumn.TimeZonePart = columnTimeZone.Name;
+                Logger.Debug("{column} – Added Time Part : {column2}", readerColumn.Name, columnTimeZone.Name);
               }
 
-              break;
+            if (columnFormat.DataType != DataType.DateTime || !string.IsNullOrEmpty(readerColumn.TimePart) ||
+                columnFormat.DateFormat.IndexOfAny(new[] {':', 'h', 'H', 'm', 's', 't'}) != -1)
+              continue;
+            // We have a date column without time
+            for (var colTime = 0; colTime < fileReader.FieldCount; colTime++)
+            {
+              var columnTime = fileReader.GetColumn(colTime);
+              var settingTime = columnCollection.Get(columnTime.Name);
+              if (settingTime == null) continue;
+              var timeFormat = settingTime.ValueFormat;
+              if (timeFormat.DataType != DataType.DateTime || !string.IsNullOrEmpty(readerColumn.TimePart) ||
+                  timeFormat.DateFormat.IndexOfAny(new[] {'/', 'y', 'M', 'd'}) != -1)
+                continue;
+              // We now have a time column, checked if the names somehow make sense
+              if (!readerColumn.Name.NoSpecials().ToUpperInvariant().Replace("DATE", string.Empty).Equals(
+                columnTime.Name.NoSpecials().ToUpperInvariant().Replace("TIME", string.Empty),
+                StringComparison.Ordinal))
+                continue;
+
+              settingColumn.TimePart = columnTime.Name;
+              settingColumn.TimePartFormat = timeFormat.DateFormat;
+              Logger.Debug("{column} – Added Time Part : {column2}", readerColumn.Name, columnTime.Name);
+            }
+          }
+
+          // Case b) TimeFormat has not been recognized (e.G. all values are 08:00) only look in
+          // adjacent fields
+          for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
+          {
+            cancellationToken.ThrowIfCancellationRequested();
+            var readerColumn = fileReader.GetColumn(colIndex);
+            var settingColumn = columnCollection.Get(readerColumn.Name);
+            if (settingColumn == null) continue;
+            var columnFormat = settingColumn.ValueFormat;
+            if (columnFormat.DataType != DataType.DateTime || !string.IsNullOrEmpty(readerColumn.TimePart) ||
+                columnFormat.DateFormat.IndexOfAny(new[] {':', 'h', 'H', 'm', 's', 't'}) != -1)
+              continue;
+
+            if (colIndex + 1 < fileReader.FieldCount)
+            {
+              var columnTime = fileReader.GetColumn(colIndex + 1);
+
+              if (columnTime.ValueFormat.DataType == DataType.String && readerColumn.Name.NoSpecials()
+                .ToUpperInvariant()
+                .Replace("DATE", string.Empty)
+                .Equals(columnTime.Name.NoSpecials().ToUpperInvariant().Replace("TIME", string.Empty),
+                  StringComparison.OrdinalIgnoreCase))
+              {
+                settingColumn.TimePart = columnTime.Name;
+                {
+                  var samples = sampleList.Keys.Contains(colIndex + 1)
+                    ? sampleList[colIndex + 1]
+                    : (await GetSampleValuesAsync(fileReader, 1, new[] {colIndex + 1}, 1, treatTextAsNull,
+                      cancellationToken).ConfigureAwait(false)).First().Value;
+
+
+                  foreach (var first in samples.Values)
+                  {
+                    if (first.Length == 8 || first.Length == 5)
+                    {
+                      var settingColumnTime = new Column(columnTime,
+                        new ValueFormatMutable(DataType.DateTime)
+                        {
+                          DateFormat = first.Length == 8 ? "HH:mm:ss" : "HH:mm"
+                        });
+
+                      columnCollection.AddIfNew(settingColumnTime);
+                      Logger.Debug("{column} – Format : {format}", columnTime.Name,
+                        columnTime.GetTypeAndFormatDescription());
+                    }
+
+                    break;
+                  }
+                }
+                Logger.Debug("{column} – Added Time Part : {column2}", readerColumn.Name, columnTime.Name);
+                continue;
+              }
             }
 
-            result.Add($"{msgBegin}Added Time Part : {readerColumnTime.Name}");
+            if (colIndex <= 0)
+              continue;
+            {
+              var readerColumnTime = fileReader.GetColumn(colIndex - 1);
+              if (readerColumnTime.ValueFormat.DataType != DataType.String ||
+                  !readerColumn.Name.NoSpecials().ToUpperInvariant().Replace("DATE", string.Empty).Equals(
+                    readerColumnTime.Name.NoSpecials().ToUpperInvariant().Replace("TIME", string.Empty),
+                    StringComparison.Ordinal))
+                continue;
+
+              settingColumn.TimePart = readerColumnTime.Name;
+
+              var samples = sampleList.Keys.Contains(colIndex - 1)
+                ? sampleList[colIndex - 1]
+                : (await GetSampleValuesAsync(fileReader, 1, new[] {colIndex + 1}, 1, treatTextAsNull,
+                  cancellationToken).ConfigureAwait(false)).First().Value;
+              foreach (var first in samples.Values)
+              {
+                if (first.Length == 8 || first.Length == 5)
+                {
+                  settingColumn.TimePartFormat = first.Length == 8 ? "HH:mm:ss" : "HH:mm";
+                  Logger.Debug("{column} – Format : {format}", settingColumn.Name,
+                    settingColumn.GetTypeAndFormatDescription());
+                }
+
+                break;
+              }
+
+              Logger.Debug("{column} – Added Time Part : {column2}", readerColumn.Name, readerColumnTime.Name);
+            }
           }
         }
-      }
 
-      var existing = new Collection<IColumn>();
-      foreach (var colName in columnNamesInFile)
-      foreach (var col in columnCollection)
-      {
-        if (!col.Name.Equals(colName, StringComparison.OrdinalIgnoreCase))
-          continue;
-        existing.Add(col);
-        break;
-      }
-
-      // 2nd columns defined but not in list
-      foreach (var col in columnCollection)
-        if (!existing.Contains(col))
+        var existing = new Collection<IColumn>();
+        foreach (var colName in columnNamesInFile)
+        foreach (var col in columnCollection)
+        {
+          if (!col.Name.Equals(colName, StringComparison.OrdinalIgnoreCase))
+            continue;
           existing.Add(col);
+          break;
+        }
 
-      columnCollection.Clear();
-      // ReSharper disable once InvertIf
-      if (existing != null)
-        foreach (var column in existing)
-          columnCollection.AddIfNew(column);
+        // 2nd columns defined but not in list
+        foreach (var col in columnCollection)
+          if (!existing.Contains(col))
+            existing.Add(col);
+
+        columnCollection.Clear();
+        // ReSharper disable once InvertIf
+        if (existing != null)
+          foreach (var column in existing)
+            columnCollection.AddIfNew(column);
+      }
+      finally
+      {
+        Logger.RemoveLog(CustomLog);
+      }
 
       return result;
     }
@@ -644,8 +629,6 @@ namespace CsvTools
       long maxRecords,
       [NotNull] IEnumerable<int> columns, int enoughSamples, string treatAsNull, CancellationToken cancellationToken)
     {
-      if (fileReader.IsClosed)
-        await fileReader.OpenAsync(cancellationToken).ConfigureAwait(false);
       if (fileReader == null)
         throw new ArgumentNullException(nameof(fileReader));
 
@@ -661,6 +644,11 @@ namespace CsvTools
 
       if (samples.Keys.Count == 0)
         return new Dictionary<int, SampleResult>();
+
+      if (fileReader.IsClosed)
+        await fileReader.OpenAsync(cancellationToken).ConfigureAwait(false);
+
+      Logger.Debug("Getting sample values for {numcolumns} columns", samples.Keys.Count);
 
       var hasWarning = false;
       var remainingShows = 10;
@@ -685,7 +673,7 @@ namespace CsvTools
         // could already be at EOF need to reset
         if (fileReader.EndOfFile && fileReader.SupportsReset)
         {
-          Logger.Debug("Resetting read position to the beginning");
+          Logger.Debug("Resetting position to the beginning");
           fileReader.ResetPositionToFirstDataRow();
         }
 
@@ -755,7 +743,7 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        Debug.WriteLine(ex.InnerExceptionMessages());
+        Logger.Warning(ex, "Reading Samples values");
       }
       finally
       {
