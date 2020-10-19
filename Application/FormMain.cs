@@ -97,7 +97,8 @@ namespace CsvTools
                         + "All files (*.*)|*.*";
 
         if (m_ViewSettings.StoreSettingsByFile)
-          strFilter += "|Setting files (*" + CsvFile.cCsvSettingExtension + ")|*" + CsvFile.cCsvSettingExtension;
+          strFilter += "|Setting files (*" + CsvFile.cCsvSettingExtension + ")|*" + CsvFile.cCsvSettingExtension
+                     + "|Manifest files (*" + CsvFile.cCsvManifestExtension + ")|*" + CsvFile.cCsvManifestExtension;
 
         fileName = WindowsAPICodePackWrapper.Open(".", "Setting File", strFilter, null);
       }
@@ -199,13 +200,21 @@ namespace CsvTools
     /// <param name="fileSetting">The file setting.</param>
     private void AttachPropertyChanged(IFileSetting fileSetting)
     {
-      fileSystemWatcher.EnableRaisingEvents = m_ViewSettings.DetectFileChanges;
-      fileSetting.PropertyChanged += FileSetting_PropertyChanged;
-      fileSetting.FileFormat.PropertyChanged += AnyPropertyChangedReload;
-      foreach (var col in fileSetting.ColumnCollection)
+      try
       {
-        col.PropertyChanged += AnyPropertyChangedReload;
-        col.ValueFormatMutable.PropertyChanged += AnyPropertyChangedReload;
+        fileSetting.PropertyChanged += FileSetting_PropertyChanged;
+        fileSetting.FileFormat.PropertyChanged += AnyPropertyChangedReload;
+        foreach (var col in fileSetting.ColumnCollection)
+        {
+          col.PropertyChanged += AnyPropertyChangedReload;
+          col.ValueFormatMutable.PropertyChanged += AnyPropertyChangedReload;
+        }
+
+        fileSystemWatcher.EnableRaisingEvents = m_ViewSettings.DetectFileChanges;       
+      }
+      catch 
+      {
+        Logger.Information("Adding file system watcher failed");
       }
     }
 
@@ -554,7 +563,7 @@ namespace CsvTools
           foreach (var columnName in m_Headers)
           {
             if (m_FileSetting.ColumnCollection.Get(columnName) == null)
-              m_FileSetting.ColumnCollection.AddIfNew(new Column {Name = columnName});
+              m_FileSetting.ColumnCollection.AddIfNew(new Column { Name = columnName });
           }
 
           FunctionalDI.GetColumnHeader = (dummy1, dummy3) => Task.FromResult(m_Headers);

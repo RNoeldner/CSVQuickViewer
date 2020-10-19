@@ -154,7 +154,7 @@ namespace CsvTools
       var halfTheColumns = (int) Math.Ceiling(avgFieldCount / 2.0);
 
       // use the same routine that is used in readers to determine the names of the columns
-      var columnsAndIssues = BaseFileReader.AdjustColumnName(headerRow, (int) avgFieldCount, null);
+      var columnsAndIssues = BaseFileReader.AdjustColumnName(headerRow, (int) avgFieldCount, null, null);
 
       // looking at the warnings raised
       if (columnsAndIssues.Item2 >= halfTheColumns || columnsAndIssues.Item2 > 5)
@@ -680,7 +680,7 @@ namespace CsvTools
       const int c_RecSep = 4;
       const int c_UnitSep = 5;
 
-      int[] count = {0, 0, 0, 0, 0, 0};
+      int[] count = { 0, 0, 0, 0, 0, 0 };
 
       // \r = CR (Carriage Return) \n = LF (Line Feed)
 
@@ -768,7 +768,7 @@ namespace CsvTools
       if (textReader == null) throw new ArgumentNullException(nameof(textReader));
 
       const int c_MaxLine = 30;
-      var possibleQuotes = new[] {'"', '\''};
+      var possibleQuotes = new[] { '"', '\'' };
       var counter = new int[possibleQuotes.Length];
 
       var textReaderPosition = new ImprovedTextReaderPositionStore(textReader);
@@ -1053,7 +1053,20 @@ namespace CsvTools
 
         return fileSettingSer;
       }
-
+      var posExt = fileName.LastIndexOf('.');
+      if (posExt!=-1)
+      {
+        var manifest = fileName.EndsWith(CsvFile.cCsvManifestExtension, StringComparison.OrdinalIgnoreCase)
+                          ? fileName
+                          : fileName.Substring(0, posExt) + CsvFile.cCsvManifestExtension;
+        if (FileSystemUtils.FileExists(manifest))
+        {
+          Logger.Information(
+                   "Configuration read from manifest file {filename}",
+                   FileSystemUtils.GetShortDisplayFileName(manifest, 40));
+          return ManifestData.ReadManifest(manifest);
+        }
+      }
       // Determine  from file
       var fileSetting = new CsvFile();
       initAction?.Invoke(fileSetting);
@@ -1087,4 +1100,5 @@ namespace CsvTools
       return fileSetting;
     }
   }
+
 }

@@ -73,7 +73,7 @@ namespace CsvTools
       m_Name = name;
       ValueFormatMutable = new ValueFormatMutable(valueFormat);
     }
-
+    
     public Column(string name, DataType dataType = DataType.String)
     {
       m_Name = name;
