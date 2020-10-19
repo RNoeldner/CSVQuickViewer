@@ -83,7 +83,7 @@ namespace CsvTools
 
       textPanel.SuspendLayout();
       textPanel.Dock = DockStyle.Fill;
-      Logger.AddLog = loggerDisplay.AddLog;
+      Logger.AddLog(loggerDisplay.AddLog);
 
       textPanel.ResumeLayout();
       ShowTextPanel(true);
@@ -261,7 +261,8 @@ namespace CsvTools
         m_ToolStripButtonAsText.Enabled = false;
         detailControl.SuspendLayout();
 
-        var store = ViewSetting.StoreViewSetting(detailControl.FilteredDataGridView, new List<ToolStripDataGridViewColumnFilter>());
+        var store = ViewSetting.StoreViewSetting(detailControl.FilteredDataGridView,
+          new List<ToolStripDataGridViewColumnFilter>());
         // Assume data type is not recognize
         if (m_FileSetting.ColumnCollection.Any(x => x.ValueFormat.DataType != DataType.String))
         {
@@ -279,7 +280,8 @@ namespace CsvTools
 
         await OpenDataReaderAsync();
 
-        ViewSetting.ReStoreViewSetting(store, detailControl.FilteredDataGridView.Columns, new List<ToolStripDataGridViewColumnFilter>(), null, null);
+        ViewSetting.ReStoreViewSetting(store, detailControl.FilteredDataGridView.Columns,
+          new List<ToolStripDataGridViewColumnFilter>(), null, null);
         detailControl.ResumeLayout();
       }
       catch (Exception ex)
@@ -471,30 +473,35 @@ namespace CsvTools
         {
           DetachPropertyChanged(m_FileSetting);
 
-          m_FileSetting = await CsvHelper.GetCsvFileSetting(fileName, (csvFile) => ViewSettings.CopyConfiguration(m_ViewSettings, csvFile), m_ViewSettings.AllowJson,
-             m_ViewSettings.GuessDelimiter, m_ViewSettings.GuessQualifier, m_ViewSettings.GuessStartRow, m_ViewSettings.GuessHasHeader, m_ViewSettings.GuessNewLine,
+          m_FileSetting = await CsvHelper.GetCsvFileSetting(fileName,
+            (csvFile) => ViewSettings.CopyConfiguration(m_ViewSettings, csvFile), m_ViewSettings.AllowJson,
+            m_ViewSettings.GuessDelimiter, m_ViewSettings.GuessQualifier, m_ViewSettings.GuessStartRow,
+            m_ViewSettings.GuessHasHeader, m_ViewSettings.GuessNewLine,
             m_ViewSettings.FillGuessSettings, processDisplay);
 
           if (m_FileSetting == null)
             return;
 
-          m_CodePage = new Tuple<EncodingHelper.CodePage, bool>((EncodingHelper.CodePage) m_FileSetting.CodePageId, m_FileSetting.ByteOrderMark);
+          m_CodePage = new Tuple<EncodingHelper.CodePage, bool>((EncodingHelper.CodePage) m_FileSetting.CodePageId,
+            m_FileSetting.ByteOrderMark);
 
           // update the UI
           this.SafeInvoke(() =>
+          {
+            Text =
+              $"{FileSystemUtils.GetShortDisplayFileName(fileName, 40)} - {EncodingHelper.GetEncodingName(m_CodePage.Item1, true, m_CodePage.Item2)} - {AssemblyTitle}";
+
+            m_ToolStripButtonAsText.Visible = !m_FileSetting.JsonFormat &&
+                                              m_FileSetting.ColumnCollection.Any(x =>
+                                                x.ValueFormat.DataType != DataType.String);
+
+            if (m_ViewSettings.DetectFileChanges)
             {
-              Text =
-                $"{FileSystemUtils.GetShortDisplayFileName(fileName, 40)} - {EncodingHelper.GetEncodingName(m_CodePage.Item1, true, m_CodePage.Item2)} - {AssemblyTitle}";
-
-              m_ToolStripButtonAsText.Visible = !m_FileSetting.JsonFormat  && m_FileSetting.ColumnCollection.Any(x => x.ValueFormat.DataType != DataType.String);
-
-              if (m_ViewSettings.DetectFileChanges)
-              {
-                var split = FileSystemUtils.SplitPath(fileName);
-                fileSystemWatcher.Filter = split.FileName;
-                fileSystemWatcher.Path = split.DirectoryName;
-              }
-            });
+              var split = FileSystemUtils.SplitPath(fileName);
+              fileSystemWatcher.Filter = split.FileName;
+              fileSystemWatcher.Path = split.DirectoryName;
+            }
+          });
 
           await OpenDataReaderAsync();
 
@@ -523,7 +530,6 @@ namespace CsvTools
 
       try
       {
-
         var fileNameShort = FileSystemUtils.GetShortDisplayFileName(m_FileSetting.FileName, 60);
 
         using (var processDisplay = new FormProcessDisplay(fileNameShort, false, m_CancellationTokenSource.Token))
@@ -541,13 +547,14 @@ namespace CsvTools
             detailControl.ShowInfoButtons = false;
           });
 
-          await m_DetailControlLoader.StartAsync(m_FileSetting, false, m_ViewSettings.Duration, processDisplay, AddWarning);
+          await m_DetailControlLoader.StartAsync(m_FileSetting, false, m_ViewSettings.Duration, processDisplay,
+            AddWarning);
 
           m_Headers = detailControl.DataTable.GetRealColumns().ToArray();
           foreach (var columnName in m_Headers)
           {
             if (m_FileSetting.ColumnCollection.Get(columnName) == null)
-              m_FileSetting.ColumnCollection.AddIfNew(new Column { Name = columnName });
+              m_FileSetting.ColumnCollection.AddIfNew(new Column {Name = columnName});
           }
 
           FunctionalDI.GetColumnHeader = (dummy1, dummy3) => Task.FromResult(m_Headers);
@@ -560,7 +567,8 @@ namespace CsvTools
         }
 
         // The reader is used when data ist stored through the detailControl
-        FunctionalDI.SQLDataReader = async (settingName, message, timeout, token) => await Task.FromResult(new DataTableWrapper(detailControl.DataTable));
+        FunctionalDI.SQLDataReader = async (settingName, message, timeout, token) =>
+          await Task.FromResult(new DataTableWrapper(detailControl.DataTable));
 
         if (detailControl.DataTable == null)
           Logger.Information("No data to show");

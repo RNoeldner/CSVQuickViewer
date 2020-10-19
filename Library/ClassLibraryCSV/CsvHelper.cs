@@ -75,7 +75,8 @@ namespace CsvTools
       using (var improvedStream = FunctionalDI.OpenRead(setting.FullPath))
       using (var reader = new ImprovedTextReader(improvedStream, setting.CodePageId, setting.SkipRows))
       {
-        setting.HasFieldHeader = GuessHasHeader(reader, setting.FileFormat.CommentLine, setting.FileFormat.FieldDelimiterChar, cancellationToken);
+        setting.HasFieldHeader = GuessHasHeader(reader, setting.FileFormat.CommentLine,
+          setting.FileFormat.FieldDelimiterChar, cancellationToken);
       }
     }
 
@@ -679,7 +680,7 @@ namespace CsvTools
       const int c_RecSep = 4;
       const int c_UnitSep = 5;
 
-      int[] count = { 0, 0, 0, 0, 0, 0 };
+      int[] count = {0, 0, 0, 0, 0, 0};
 
       // \r = CR (Carriage Return) \n = LF (Line Feed)
 
@@ -767,7 +768,7 @@ namespace CsvTools
       if (textReader == null) throw new ArgumentNullException(nameof(textReader));
 
       const int c_MaxLine = 30;
-      var possibleQuotes = new[] { '"', '\'' };
+      var possibleQuotes = new[] {'"', '\''};
       var counter = new int[possibleQuotes.Length];
 
       var textReaderPosition = new ImprovedTextReaderPositionStore(textReader);
@@ -1073,14 +1074,16 @@ namespace CsvTools
 
       if (fileSetting.JsonFormat)
       {
-        fileSetting.SkipRows=0;
+        fileSetting.SkipRows = 0;
       }
+
+      processDisplay.SetProcess("Determining column format by reading samples", -1, true);
 
       await fileSetting.FillGuessColumnFormatReaderAsync(
         true,
         false,
         fillGuessSettings,
-        processDisplay);
+        processDisplay.CancellationToken);
       return fileSetting;
     }
   }

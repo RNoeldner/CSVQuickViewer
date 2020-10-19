@@ -24,18 +24,25 @@ namespace CsvTools
   /// </summary>
   public class LoggerDisplay : FastColoredTextBox
   {
-    private readonly TextStyle timestampStyle = new TextStyle(Brushes.DimGray, Brushes.Lavender, FontStyle.Regular);
+    private readonly TextStyle errorStyle = new TextStyle(Brushes.Red, null, FontStyle.Regular);
     private readonly TextStyle infoStyle = new TextStyle(Brushes.Gray, null, FontStyle.Regular);
     private readonly TextStyle regStyle = new TextStyle(Brushes.Black, null, FontStyle.Regular);
+    private readonly TextStyle timestampStyle = new TextStyle(Brushes.DimGray, Brushes.Lavender, FontStyle.Regular);
     private readonly TextStyle warningStyle = new TextStyle(Brushes.Blue, null, FontStyle.Regular);
-    private readonly TextStyle errorStyle = new TextStyle(Brushes.Red, null, FontStyle.Regular);
 
-    private readonly Action<string, Logger.Level> m_PreviousLog;
     private bool m_Disposed;
 
     private bool m_Initial = true;
 
     private string m_LastMessage = string.Empty;
+
+    public LoggerDisplay()
+    {
+      Multiline = true;
+      ReadOnly = true;
+      ShowLineNumbers = false;
+      Logger.AddLog(AddLog);
+    }
 
     [DefaultValue(120)]
     public int LimitLength
@@ -43,15 +50,6 @@ namespace CsvTools
       get;
       set;
     } = 120;
-
-    public LoggerDisplay()
-    {
-      Multiline = true;
-      ReadOnly = true;
-      ShowLineNumbers = false;
-      m_PreviousLog = Logger.AddLog;
-      Logger.AddLog = AddLog;
-    }
 
     public Logger.Level MinLevel { get; set; } = Logger.Level.Debug;
 
@@ -102,7 +100,7 @@ namespace CsvTools
       if (disposing)
       {
         m_Disposed = true;
-        Logger.AddLog = m_PreviousLog;
+        Logger.RemoveLog(AddLog);
       }
 
       try
@@ -145,6 +143,7 @@ namespace CsvTools
               AppendText($"\n{DateTime.Now:HH:mm:ss}", timestampStyle);
             AppendText(" ");
           }
+
           AppendText(text, style);
 
           //restore user selection
@@ -154,7 +153,7 @@ namespace CsvTools
             Selection.End = userSelection.End;
           }
           else
-            GoEnd();//scroll to end of the text
+            GoEnd(); //scroll to end of the text
 
           Selection.EndUpdate();
           EndUpdate();
