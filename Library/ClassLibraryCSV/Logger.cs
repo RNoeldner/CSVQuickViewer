@@ -59,7 +59,7 @@ namespace CsvTools
       if (!string.IsNullOrEmpty(entryName))
       {
         var folder = Environment.ExpandEnvironmentVariables($"%LocalAppData%\\{entryName}\\");
-        var addTextLog =FileSystemUtils.DirectoryExists(folder);
+        var addTextLog = FileSystemUtils.DirectoryExists(folder);
         if (!addTextLog)
         {
           try
@@ -76,11 +76,11 @@ namespace CsvTools
         {
           loggerConfiguration = loggerConfiguration
                      // Exceptions
-                     .WriteTo.Logger(lc => lc.Filter.ByIncludingOnly(le => le.Exception!=null).WriteTo.File(folder+ "ExceptionLog.txt", outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff}\t{Level}\t\"{Exception:l}\"{NewLine}"))
+                     .WriteTo.Logger(lc => lc.Filter.ByIncludingOnly(le => le.Exception!=null).WriteTo.File(folder+ "ExceptionLog.txt", rollingInterval: RollingInterval.Month, retainedFileCountLimit: 3, outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff}\t{Level}\t\"{Exception:l}\"{NewLine}"))
                    //CSV
-                   .WriteTo.File(folder+ "ApplicationLog.txt", fileSizeLimitBytes: 32768, outputTemplate: "{Timestamp:HH:mm:ss}\t{Level:w3}\t{Message:l}{NewLine}", rollOnFileSizeLimit: true, retainedFileCountLimit: 5)
+                   .WriteTo.File(folder+ "ApplicationLog.txt", rollingInterval: RollingInterval.Day, outputTemplate: "{Timestamp:HH:mm:ss}\t{Level:w3}\t{Message:l}{NewLine}")
                    // Json
-                   .WriteTo.File(formatter: new JsonFormatter(renderMessage: true), path: folder+ "ApplicationLog.json", fileSizeLimitBytes: 32768, rollOnFileSizeLimit: true, retainedFileCountLimit: 5);
+                   .WriteTo.File(formatter: new JsonFormatter(renderMessage: true), path: folder+ "ApplicationLog.json", rollingInterval: RollingInterval.Day);
         }
       }
       // Start logging
