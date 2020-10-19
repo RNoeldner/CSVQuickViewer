@@ -32,11 +32,14 @@ namespace CsvTools
 #else
     private static readonly UserInterfaceSink m_UserInterfaceSink = new UserInterfaceSink(CultureInfo.CurrentCulture);
 
-    public static void ReplaceLog([NotNull] Action<string, Level> value)
+    public static Action<string, Level> UILog
     {
-      if (value == null) throw new ArgumentNullException(nameof(value));
-      m_UserInterfaceSink.Loggers.Clear();
-      m_UserInterfaceSink.Loggers.Add(value);
+      set
+      {
+        if (value == null) throw new ArgumentNullException(nameof(value));
+        m_UserInterfaceSink.Loggers.Clear();
+        m_UserInterfaceSink.Loggers.Add(value);
+      }
     }
 
     public static void AddLog([NotNull] Action<string, Level> value)

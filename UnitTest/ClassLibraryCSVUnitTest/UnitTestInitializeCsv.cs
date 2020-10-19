@@ -41,7 +41,7 @@ namespace CsvTools.Tests
 
       ApplicationDirectory = ApplicationSetting.RootFolder + @"\TestFiles";
 
-      Logger.AddLog = (s, level) => context.WriteLine($"{level} - {s}");
+      Logger.UILog = (s, level) => context.WriteLine($"{level} - {s}");
 
       ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls12;
 

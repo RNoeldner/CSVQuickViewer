@@ -56,6 +56,8 @@ dddd, dd MMMM, yyyy h:mm tt
 dddd, dd. MMMM yyyy h:mm tt
 yyyy,MMMM dd, dddd hh:mm tt
 yyyy,MMMM dd, dddd HH:mm:ss
+yyyy/MM/ddTHH:mm:ss.FFFFFFF
+yyyy/MM/ddTHH:mm:ss.FFFFFFFZ
 dd MMMM yyyy dddd hh:mm tt
 dd MMMM yyyy dddd HH:mm:ss
 ddd d MMM yyyy hh:mm:ss tt

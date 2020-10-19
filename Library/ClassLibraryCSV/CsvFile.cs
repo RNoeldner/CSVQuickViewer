@@ -34,6 +34,7 @@ namespace CsvTools
     ///   File ending for a setting file
     /// </summary>
     public const string cCsvSettingExtension = ".setting";
+    public const string cCsvManifestExtension = ".manifest.json";
 
     private bool m_AllowRowCombining;
 

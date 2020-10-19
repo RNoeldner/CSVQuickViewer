@@ -164,6 +164,7 @@
     <Compile Include="FunctionalDITests.cs" />
     <Compile Include="ImprovedTextReaderPositionStoreTests.cs" />
     <Compile Include="ImprovedTextReaderTests.cs" />
+    <Compile Include="ManifestDataTests.cs" />
     <Compile Include="ProgressEventArgsTimeTests.cs" />
     <Compile Include="ReaderExtensionMethodsTest.cs" />
     <Compile Include="RealignColumnsTest.cs" />
@@ -304,6 +305,12 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="TestFiles\LogFile.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestFiles\training_relation.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestFiles\training_relation.manifest.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="TestFiles\Warnings.txt">

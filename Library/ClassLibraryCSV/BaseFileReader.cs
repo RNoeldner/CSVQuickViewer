@@ -201,7 +201,8 @@ namespace CsvTools
     public static Tuple<IEnumerable<string>, int> AdjustColumnName(
       [NotNull] IEnumerable<string> columns,
       int fieldCount,
-      [CanBeNull] ColumnErrorDictionary warnings)
+      [CanBeNull] ColumnErrorDictionary warnings,
+      [CanBeNull] IEnumerable<IColumn> columnDefinitions)
     {
       var issuesCounter = 0;
       var previousColumns = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -213,7 +214,7 @@ namespace CsvTools
           string resultingName;
           if (string.IsNullOrEmpty(columnName))
           {
-            resultingName = GetDefaultName(counter);
+            resultingName = GetDefaultName(counter, columnDefinitions);
             issuesCounter++;
             warnings?.Add(counter, $"Column title was empty, set to {resultingName}.".AddWarningId());
           }
@@ -250,7 +251,7 @@ namespace CsvTools
 
       return new Tuple<IEnumerable<string>, int>(previousColumns, issuesCounter);
     }
-
+  
     /// <summary>
     ///   Closes the <see cref="IDataReader" /> Object.
     /// </summary>
@@ -807,7 +808,13 @@ namespace CsvTools
       EndOfFile = false;
     }
 
-    private static string GetDefaultName(int i) => $"Column{i + 1}";
+    private static string GetDefaultName(int i, IEnumerable<IColumn> columnDefinitions = null)
+    {
+      var cd = columnDefinitions?.FirstOrDefault(x => x.ColumnOrdinal==i && !string.IsNullOrEmpty(x.Name));
+      if (cd !=null)
+        return cd.Name;
+      return $"Column{i + 1}";
+    }
 
     protected void SetProgressActions([CanBeNull] IProcessDisplay processDisplay)
     {
@@ -1128,7 +1135,7 @@ namespace CsvTools
       m_AssociatedTimeZoneCol = new int[fieldCount];
       for (var counter = 0; counter < fieldCount; counter++)
       {
-        Column[counter] = new ImmutableColumn(GetDefaultName(counter), new ImmutableValueFormat(), counter);
+        Column[counter] = new ImmutableColumn(GetDefaultName(counter, m_ColumnDefinition), new ImmutableValueFormat(), counter);
         AssociatedTimeCol[counter] = -1;
         m_AssociatedTimeZoneCol[counter] = -1;
       }
@@ -1142,7 +1149,7 @@ namespace CsvTools
 
       var issues = new ColumnErrorDictionary();
       var adjusted = hasFieldHeader
-        ? AdjustColumnName(headerRow, Column.Length, issues).Item1
+        ? AdjustColumnName(headerRow, Column.Length, issues, m_ColumnDefinition).Item1
         : Column.Select(x => x.Name);
 
       using (var enumeratorType = dataType.GetEnumerator())
