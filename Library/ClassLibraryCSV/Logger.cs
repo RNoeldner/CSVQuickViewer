@@ -10,10 +10,11 @@ namespace CsvTools
   using Serilog.Core;
   using Serilog.Events;
   using System.Globalization;
+  using Serilog.Formatting.Json;
+  using System.Diagnostics;
+  using System.Reflection;
 #endif
   using System;
-  using Serilog.Formatting.Json;
-
 
 
 #if !NLog
@@ -28,7 +29,8 @@ namespace CsvTools
 #if NLog
     private static readonly NLog.Logger m_Logger = LogManager.GetCurrentClassLogger();
 #else    
-    private static UserInterfaceSink m_UserInterfaceSink = new UserInterfaceSink(CultureInfo.CurrentCulture);
+    private static readonly UserInterfaceSink m_UserInterfaceSink = new UserInterfaceSink(CultureInfo.CurrentCulture);
+
     public static Action<string, Level> AddLog
     {
       get => m_UserInterfaceSink.AddLog;
@@ -45,19 +47,41 @@ namespace CsvTools
     }
     static Logger()
     {
-      Log.Logger = new LoggerConfiguration()
-         .Filter.ByExcluding(logEvent => logEvent.Exception != null
-          && (logEvent.Exception.GetType() == typeof(OperationCanceledException)
-          || logEvent.Exception.GetType() == typeof(ObjectDisposedException)))
-         // UI
-         .WriteTo.Sink(m_UserInterfaceSink)
-         // Exceptions
-         .WriteTo.Logger(lc => lc.Filter.ByIncludingOnly(le => le.Exception!=null).WriteTo.File("Exceptions.log"))
-         //CSV
-         .WriteTo.File("CSVFileValidator.log", fileSizeLimitBytes: 32768, outputTemplate: "{Timestamp:HH:mm:ss}\t{Level:u3}\t{Message}{NewLine}", rollOnFileSizeLimit: true, retainedFileCountLimit: 5)
-         // Json
-         .WriteTo.File(formatter: new JsonFormatter(), path: "CSVQuickViewer.json", fileSizeLimitBytes: 32768, rollOnFileSizeLimit: true, retainedFileCountLimit: 5)
-        .CreateLogger();
+      // Base configuration
+      var loggerConfiguration = new LoggerConfiguration()
+                     .Filter.ByExcluding(logEvent => logEvent.Exception != null
+                      && (logEvent.Exception.GetType() == typeof(OperationCanceledException)
+                      || logEvent.Exception.GetType() == typeof(ObjectDisposedException)))
+                      // UI Logger
+                      .WriteTo.Sink(m_UserInterfaceSink);
+      // File Logger
+      var folder = Environment.ExpandEnvironmentVariables($"%LocalAppData%\\{Assembly.GetExecutingAssembly().GetName().Name}\\");
+      var addTextLog = FileSystemUtils.DirectoryExists(folder);
+      if (!addTextLog)
+      {
+        try
+        {
+          FileSystemUtils.CreateDirectory(folder);
+        }
+        catch (Exception)
+        {
+          addTextLog=false;
+        }
+      }
+
+      if (addTextLog)
+      {
+        loggerConfiguration = loggerConfiguration
+                   // Exceptions
+                   .WriteTo.Logger(lc => lc.Filter.ByIncludingOnly(le => le.Exception!=null).WriteTo.File(folder+ "ExceptionLog.txt", outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff}\t{Level}\t\"{Exception:l}\"{NewLine}"))
+                 //CSV
+                 .WriteTo.File(folder+ "ApplicationLog.txt", fileSizeLimitBytes: 32768, outputTemplate: "{Timestamp:HH:mm:ss}\t{Level:w3}\t{Message:l}{NewLine}", rollOnFileSizeLimit: true, retainedFileCountLimit: 5)
+                 // Json
+                 .WriteTo.File(formatter: new JsonFormatter(renderMessage: true), path: folder+ "ApplicationLog.json", fileSizeLimitBytes: 32768, rollOnFileSizeLimit: true, retainedFileCountLimit: 5);
+      }
+      // Start logging
+      Log.Logger = loggerConfiguration.CreateLogger();
+      Log.Information("Application start");
     }
 
     public static void Debug(string message, params object[] args)
@@ -96,7 +120,7 @@ WriteLog(Level.Error, null, message, args);
 m_Logger.Error(exception, message, args);
 WriteLog(Level.Error, exception, message, args);
 #else
-      Log.Error(exception, message, args);
+      Log.Error(exception?.Demystify(), message, args);
 #endif
 
     }
@@ -126,7 +150,7 @@ WriteLog(Level.Info, null, message, args);
 m_Logger.Warn(exception, message, args);
  WriteLog(Level.Warn, exception, message, args);
 #else
-      Log.Warning(exception, message, args);
+      Log.Warning(exception?.Demystify(), message, args);
 #endif
 
     }
