@@ -94,7 +94,7 @@ namespace CsvTools
         {
           if (m_AssumeLog)
             throw;
-          Logger.Warning(ex, $"Initial try to read the JSON file failed {ex.Message}. Now trying to read it as JSON Log output");
+          Logger.Information("Initial parsing as JSON file failed {message}. Trying to read it as JSON Log output", ex.Message);
           m_AssumeLog = true;
           goto again;
         }
