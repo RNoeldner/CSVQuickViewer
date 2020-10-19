@@ -91,8 +91,8 @@ namespace CsvTools
       // in case there is no filename open a dialog
       if (string.IsNullOrEmpty(fileName) || !FileSystemUtils.FileExists(fileName))
       {
-        var strFilter = "Supported files|*.csv;*.txt;*.tab;*.tsv;*.dat;*.json;*.gz|"
-                        + "Delimited files (*.csv;*.txt;*.tab;*.tsv;*.dat)|*.csv;*.txt;*.tab;*.tsv;*.dat|"
+        var strFilter = "Supported files|*.csv;*.txt;*.tab;*.log;*.tsv;*.dat;*.json;*.gz|"
+                        + "Delimited files (*.csv;*.txt;*.tab;*.tsv;*.dat;*.log)|*.csv;*.txt;*.tab;*.tsv;*.dat;*.log|"
                         + "Json files (*.json)|*.json|"
                         + "All files (*.*)|*.*";
 
