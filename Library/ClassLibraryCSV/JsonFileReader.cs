@@ -335,7 +335,7 @@ namespace CsvTools
     private void ResetPositionToStartOrOpen()
     {
       m_ImprovedStream?.Dispose();
-      m_ImprovedStream = FunctionalDI.OpenRead(FullPath);
+      m_ImprovedStream = FunctionalDI.OpenStream(new SourceAccess(FullPath, true));
 
       // in case we can not seek need to reopen the stream reader
       m_StreamReader?.Close();

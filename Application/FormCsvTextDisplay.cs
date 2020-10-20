@@ -69,7 +69,7 @@ namespace CsvTools
       {
         m_MemoryStream?.Dispose();
         m_MemoryStream = null;
-        m_Stream = new ImprovedStream(m_FullPath, true);
+        m_Stream = new ImprovedStream(new SourceAccess(m_FullPath, true));
         textBox.OpenBindingStream(m_Stream as Stream, Encoding.GetEncoding(m_CodePage));
         HighlightVisibleRange();
         prettyPrintJsonToolStripMenuItem.Checked = false;
@@ -137,7 +137,7 @@ namespace CsvTools
             m_HighLighter =
               new SyntaxHighlighterDelimitedText(textBox, qualifierChar, delimiterChar, escapeChar, comment);
 
-          m_Stream = new ImprovedStream(fullPath, true);
+          m_Stream = new ImprovedStream(new SourceAccess(fullPath, true));
           m_SkipLines = !json ? skipLines : 0;
           m_CodePage = codePage;
 

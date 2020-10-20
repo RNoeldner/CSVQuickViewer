@@ -1197,7 +1197,7 @@ namespace CsvTools
         // in case we skipped lines read them as Header so we do not loose them
         if (FileSetting is ICsvFile src && src.SkipRows > 0 && string.IsNullOrEmpty(writeFile.Header))
         {
-          using (var iStream = FunctionalDI.OpenRead(src.FullPath))
+          using (var iStream = FunctionalDI.OpenStream(new SourceAccess(src, true)))
           using (var sr = new ImprovedTextReader(iStream, src.CodePageId))
           {
             sr.ToBeginning();

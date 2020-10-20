@@ -62,6 +62,7 @@ namespace CsvTools
     private string m_Recipient = string.Empty;
     private long m_RecordLimit;
     private string m_RemoteFileName = string.Empty;
+    private string m_IdentifierInContainer = string.Empty;
     private ObservableCollection<SampleRecordEntry> m_Samples = new ObservableCollection<SampleRecordEntry>();
     private bool m_SetLatestSourceTimeForWrite;
     private bool m_ShowProgress = true;
@@ -179,6 +180,26 @@ namespace CsvTools
 
         m_RemoteFileName = newVal;
         NotifyPropertyChanged(nameof(RemoteFileName));
+      }
+    } /// <summary>
+      ///   Gets or sets the name of the file.
+      /// </summary>
+      /// <value>The name of the file.</value>
+    [XmlAttribute]
+    [DefaultValue("")]
+    public virtual string IdentifierInContainer
+    {
+      [NotNull]
+      get => m_IdentifierInContainer;
+      [CanBeNull]
+      set
+      {
+        var newVal = value ?? string.Empty;
+        if (m_IdentifierInContainer.Equals(newVal, StringComparison.Ordinal))
+          return;
+
+        m_IdentifierInContainer = newVal;
+        NotifyPropertyChanged(nameof(IdentifierInContainer));
       }
     }
 
@@ -1151,6 +1172,7 @@ namespace CsvTools
         fileSettingPhysicalFile.FileSize = FileSize;
         fileSettingPhysicalFile.FileName = FileName;
         fileSettingPhysicalFile.RemoteFileName = RemoteFileName;
+        fileSettingPhysicalFile.IdentifierInContainer = IdentifierInContainer;
         fileSettingPhysicalFile.ThrowErrorIfNotExists = ThrowErrorIfNotExists;
       }
 

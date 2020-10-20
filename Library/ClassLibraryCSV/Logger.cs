@@ -65,15 +65,15 @@ namespace CsvTools
 
     static Logger()
     {
-      // Base configuration
+
       var loggerConfiguration = new LoggerConfiguration()
-        .Filter.ByExcluding(logEvent => logEvent.Exception != null
-                                        && (logEvent.Exception.GetType() == typeof(OperationCanceledException)
-                                            || logEvent.Exception.GetType() == typeof(ObjectDisposedException)))
-        // UI Logger
-        .WriteTo.Sink(m_UserInterfaceSink);
+                          .Filter.ByExcluding(logEvent => logEvent.Exception != null
+                                                          && (logEvent.Exception.GetType() == typeof(OperationCanceledException) || logEvent.Exception.GetType() == typeof(ObjectDisposedException)))
+                          // UI Logger
+                          .WriteTo.Sink(m_UserInterfaceSink);
       // File Logger
       var entryName = Assembly.GetEntryAssembly()?.GetName().Name ?? string.Empty;
+
       if (!string.IsNullOrEmpty(entryName))
       {
         var folder = Environment.ExpandEnvironmentVariables($"%LocalAppData%\\{entryName}\\");
@@ -89,7 +89,6 @@ namespace CsvTools
             addTextLog = false;
           }
         }
-
         if (addTextLog)
         {
           loggerConfiguration = loggerConfiguration
@@ -106,7 +105,7 @@ namespace CsvTools
         }
       }
 
-      // Start logging
+      // Start logging      
       Log.Logger = loggerConfiguration.CreateLogger();
       Log.Information("Application start");
     }

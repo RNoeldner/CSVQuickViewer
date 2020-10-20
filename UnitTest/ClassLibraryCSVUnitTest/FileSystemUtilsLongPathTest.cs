@@ -147,7 +147,7 @@ namespace CsvTools.Tests
       await FileSystemUtils.FileCopy(m_FileName1, m_FileName2 + "2", true,
         new CustomProcessDisplay(UnitTestInitializeCsv.Token));
       Assert.IsTrue(FileSystemUtils.FileExists(m_FileName2 + "2"));
-      FileSystemUtils.FileDelete(m_FileName2 + "2");
+      FileSystemUtils.FileDelete(m_FileName2 + "2");      
     }
 
     [TestMethod]

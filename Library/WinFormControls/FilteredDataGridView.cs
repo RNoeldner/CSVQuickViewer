@@ -1336,7 +1336,7 @@ namespace CsvTools
           m_FileSetting is IFileSettingPhysicalFile phy ? phy.FullPath.GetDirectoryName() : ".", "Save Column Setting",
           "Column Config|*.col;*.conf|All files|*.*", ".col", false, DefFileNameColSetting(m_FileSetting, ".col"));
         if (!string.IsNullOrEmpty(fileName))
-          using (var stream = new ImprovedStream(fileName, false))
+          using (var stream = new ImprovedStream(new SourceAccess(fileName, false)))
           using (var writer = new StreamWriter(stream as Stream, Encoding.UTF8, 1024))
           {
             await writer.WriteAsync(ViewSetting.StoreViewSetting(this, m_Filter));

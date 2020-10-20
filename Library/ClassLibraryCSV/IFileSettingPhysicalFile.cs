@@ -48,6 +48,8 @@ namespace CsvTools
     /// </summary>
     string RemoteFileName { [NotNull] get; [CanBeNull] set; }
 
+    string IdentifierInContainer { [NotNull] get; [CanBeNull] set; }
+
     /// <summary>
     /// In case of creating a file, should the time of the latest source be used?
     /// Default: <c>false</c> - Use the current datetime for the file, otherwise use the time of the latest source

@@ -61,7 +61,7 @@ namespace CsvTools
     /// <remarks>No Error will be thrown, the CodePage and the BOM will bet set</remarks>
     public static async Task GuessCodePageAsync([NotNull] ICsvFile setting, CancellationToken cancellationToken)
     {
-      using (var improvedStream = FunctionalDI.OpenRead(setting.FullPath))
+      using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(setting, true)))
       {
         var result = await GuessCodePageAsync(improvedStream, cancellationToken).ConfigureAwait(false);
         setting.CodePageId = (int) result.Item1;
@@ -72,7 +72,7 @@ namespace CsvTools
 
     public static void GuessHeader([NotNull] ICsvFile setting, CancellationToken cancellationToken)
     {
-      using (var improvedStream = FunctionalDI.OpenRead(setting.FullPath))
+      using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(setting, true)))
       using (var reader = new ImprovedTextReader(improvedStream, setting.CodePageId, setting.SkipRows))
       {
         setting.HasFieldHeader = GuessHasHeader(reader, setting.FileFormat.CommentLine,
@@ -93,7 +93,7 @@ namespace CsvTools
     public static async Task<string> GuessDelimiterAsync([NotNull] ICsvFile setting,
       CancellationToken cancellationToken)
     {
-      using (var improvedStream = FunctionalDI.OpenRead(setting.FullPath))
+      using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(setting, true)))
       using (var textReader =
         new ImprovedTextReader(improvedStream, (await setting.GetEncodingAsync(cancellationToken)).CodePage,
           setting.SkipRows))
@@ -184,7 +184,7 @@ namespace CsvTools
     public static async Task<bool> GuessJsonFileAsync([NotNull] IFileSettingPhysicalFile setting,
       CancellationToken cancellationToken)
     {
-      using (var improvedStream = FunctionalDI.OpenRead(setting.FullPath))
+      using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(setting, true)))
       {
         return await IsJsonReadableAsync(improvedStream, cancellationToken).ConfigureAwait(false);
       }
@@ -203,7 +203,7 @@ namespace CsvTools
       if (setting.CodePageId < 0)
         setting.CodePageId = (await setting.GetEncodingAsync(cancellationToken).ConfigureAwait(false)).CodePage;
 
-      using (var improvedStream = FunctionalDI.OpenRead(setting.FullPath))
+      using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(setting, true)))
       using (var streamReader = new ImprovedTextReader(improvedStream, setting.CodePageId, setting.SkipRows))
       {
         streamReader.ToBeginning();
@@ -224,7 +224,7 @@ namespace CsvTools
       if (setting.CodePageId < 0)
         setting.CodePageId = (await setting.GetEncodingAsync(cancellationToken).ConfigureAwait(false)).CodePage;
 
-      using (var improvedStream = FunctionalDI.OpenRead(setting.FullPath))
+      using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(setting.FullPath, true)))
       using (var streamReader = new ImprovedTextReader(improvedStream, setting.CodePageId, setting.SkipRows))
       {
         streamReader.ToBeginning();
@@ -249,7 +249,7 @@ namespace CsvTools
       if (setting.CodePageId < 0)
         setting.CodePageId = (await setting.GetEncodingAsync(cancellationToken).ConfigureAwait(false)).CodePage;
 
-      using (var improvedStream = FunctionalDI.OpenRead(setting.FullPath))
+      using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(setting, true)))
       using (var streamReader = new ImprovedTextReader(improvedStream, setting.CodePageId))
       {
         streamReader.ToBeginning();
@@ -275,7 +275,7 @@ namespace CsvTools
       if (setting.CodePageId < 0)
         setting.CodePageId = (await setting.GetEncodingAsync(cancellationToken).ConfigureAwait(false)).CodePage;
 
-      using (var improvedStream = FunctionalDI.OpenRead(setting.FullPath))
+      using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(setting, true)))
       using (var streamReader =
         new ImprovedTextReader(improvedStream, setting.CodePageId, setting.SkipRows))
       {
@@ -343,7 +343,7 @@ namespace CsvTools
             guessNewLine))
         return;
 
-      using (var improvedStream = FunctionalDI.OpenRead(setting.FullPath))
+      using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(setting, true)))
       {
         setting.JsonFormat = false;
         if (guessJson)
@@ -1053,20 +1053,22 @@ namespace CsvTools
 
         return fileSettingSer;
       }
-      var posExt = fileName.LastIndexOf('.');
-      if (posExt!=-1)
+
+      var setting = ManifestData.ReadManifestZip(fileName);
+      if (setting !=null)
       {
-        var manifest = fileName.EndsWith(CsvFile.cCsvManifestExtension, StringComparison.OrdinalIgnoreCase)
-                          ? fileName
-                          : fileName.Substring(0, posExt) + CsvFile.cCsvManifestExtension;
-        if (FileSystemUtils.FileExists(manifest))
-        {
-          Logger.Information(
-                   "Configuration read from manifest file {filename}",
-                   FileSystemUtils.GetShortDisplayFileName(manifest, 40));
-          return ManifestData.ReadManifest(manifest);
-        }
+        Logger.Information("Data in zip {filename}", setting.IdentifierInContainer);
+        return setting;
       }
+
+      var settingFS = ManifestData.ReadManifestFileSystem(fileName);
+      if (settingFS !=null)
+      {
+        Logger.Information("Data in zip {filename}", setting.IdentifierInContainer);
+        return settingFS;
+      }
+
+
       // Determine  from file
       var fileSetting = new CsvFile();
       initAction?.Invoke(fileSetting);

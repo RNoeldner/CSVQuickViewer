@@ -16,6 +16,7 @@ using JetBrains.Annotations;
 using System;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -29,28 +30,20 @@ namespace CsvTools
   public class ImprovedStream : Stream, IImprovedStream
   {
     const int CBufferSize = 8192;
-    private readonly bool m_AssumeDeflate;
-    private readonly bool m_AssumeGZip;
-    private readonly bool m_IsReading;
-    [NotNull] private readonly Func<Stream> m_OpenBaseStream;
+    protected readonly SourceAccess m_SourceAccess;
+    private ZipArchive m_ZipArchive;
     private bool m_DisposedValue;
 
-    // ReSharper disable once NotNullMemberIsNotInitialized
-    public ImprovedStream([NotNull] string path, bool isReading) : this(
-      () => new FileStream(path.LongPathPrefix(), isReading ? FileMode.Open : FileMode.Create,
-        isReading ? FileAccess.Read : FileAccess.Write, FileShare.ReadWrite),
-      isReading, path.AssumeGZip(), path.AssumeDeflate())
+    public ImprovedStream([NotNull] SourceAccess sourceAccess)
     {
+      m_SourceAccess= sourceAccess;
+      BaseOpen();
     }
 
-    // ReSharper disable once NotNullMemberIsNotInitialized
-    public ImprovedStream([NotNull] Func<Stream> openStream, bool isReading, bool assumeGZip, bool assumeDeflate)
+    public ImprovedStream([NotNull] Func<Stream> openStream, bool isReading, SourceAccess.FileTypeEnum type)
     {
-      m_IsReading = isReading;
-      m_OpenBaseStream = openStream ?? throw new ArgumentNullException(nameof(openStream));
-      m_AssumeGZip = assumeGZip;
-      m_AssumeDeflate = assumeDeflate;
-      BaseOpen(isReading);
+      m_SourceAccess = new SourceAccess(openStream, isReading, type);
+      BaseOpen();
     }
 
     [NotNull] protected Stream AccessStream { get; set; }
@@ -73,7 +66,7 @@ namespace CsvTools
 
       // Reopen Completely
       Close();
-      ResetStreams(m_IsReading);
+      ResetStreams();
       return 0;
     }
 
@@ -116,6 +109,7 @@ namespace CsvTools
       if (!ReferenceEquals(AccessStream, BaseStream))
         AccessStream.Close();
       BaseStream.Close();
+      m_ZipArchive?.Dispose();
     }
 
     protected override void Dispose(bool disposing)
@@ -143,45 +137,63 @@ namespace CsvTools
       CancellationToken cancellationToken) =>
       AccessStream.CopyToAsync(destination, bufferSize, cancellationToken);
 
-    private void OpenZGipOverBase(bool isReading)
+    private void OpenZGipOverBase()
     {
-      if (isReading)
+      if (m_SourceAccess.Reading)
       {
-        Logger.Debug("Decompressing from GZip {filename}",
-          (BaseStream is FileStream fs) ? FileSystemUtils.GetFileName(fs.Name) : string.Empty);
+        Logger.Debug("Decompressing from GZip {filename}", m_SourceAccess.Identifier);
         AccessStream = new BufferedStream(new GZipStream(BaseStream, CompressionMode.Decompress), CBufferSize);
       }
       else
       {
-        Logger.Debug("Compressing to GZip {filename}",
-          (BaseStream is FileStream fs) ? FileSystemUtils.GetFileName(fs.Name) : string.Empty);
+        Logger.Debug("Compressing to GZip {filename}", m_SourceAccess.Identifier);
         AccessStream = new BufferedStream(new GZipStream(BaseStream, CompressionMode.Compress), CBufferSize);
       }
     }
 
-    private void OpenDeflateOverBase(bool isReading)
+    private void OpenDeflateOverBase()
     {
-      if (isReading)
+      if (m_SourceAccess.Reading)
       {
-        Logger.Debug("Deflating {filename}",
-          (BaseStream is FileStream fs) ? FileSystemUtils.GetFileName(fs.Name) : string.Empty);
+        Logger.Debug("Deflating {filename}", m_SourceAccess.Identifier);
         AccessStream = new BufferedStream(new DeflateStream(BaseStream, CompressionMode.Decompress), CBufferSize);
       }
       else
       {
-        Logger.Debug("Compressing {filename}",
-          (BaseStream is FileStream fs) ? FileSystemUtils.GetFileName(fs.Name) : string.Empty);
+        Logger.Debug("Compressing {filename}", m_SourceAccess.Identifier);
         AccessStream = new BufferedStream(new DeflateStream(BaseStream, CompressionMode.Compress), CBufferSize);
       }
     }
-
-    protected void BaseOpen(bool isReading)
+    private void OpenZipOverBase()
     {
-      BaseStream = m_OpenBaseStream();
-      if (m_AssumeGZip)
-        OpenZGipOverBase(isReading);
-      else if (m_AssumeDeflate)
-        OpenDeflateOverBase(isReading);
+      if (m_SourceAccess.Reading)
+      {
+        Logger.Debug("Unzipping {filename} {incontainer}", m_SourceAccess.Identifier, m_SourceAccess.IdentifierInContainer);
+        m_ZipArchive?.Dispose();
+        m_ZipArchive = new ZipArchive(BaseStream, m_SourceAccess.Reading ? ZipArchiveMode.Read : ZipArchiveMode.Update);
+
+        var entry = m_ZipArchive.GetEntry(m_SourceAccess.IdentifierInContainer);
+        if (entry != null)
+          AccessStream = entry.Open();
+      }
+      else
+      {
+        Logger.Debug("Zipping {incontainer} into {filename}", m_SourceAccess.IdentifierInContainer, m_SourceAccess.Identifier);
+        m_ZipArchive?.Dispose();
+        m_ZipArchive = new ZipArchive(BaseStream, ZipArchiveMode.Update);
+        AccessStream = m_ZipArchive.CreateEntry(m_SourceAccess.IdentifierInContainer).Open();
+      }
+    }
+
+    protected void BaseOpen()
+    {
+      BaseStream = m_SourceAccess.OpenStream();
+      if (m_SourceAccess.FileType== SourceAccess.FileTypeEnum.GZip)
+        OpenZGipOverBase();
+      else if (m_SourceAccess.FileType== SourceAccess.FileTypeEnum.Deflate)
+        OpenDeflateOverBase();
+      else if (m_SourceAccess.FileType== SourceAccess.FileTypeEnum.Zip)
+        OpenZipOverBase();
       else
         AccessStream = BaseStream;
     }
@@ -189,6 +201,6 @@ namespace CsvTools
     /// <summary>
     /// Initializes Stream that will be used for reading / writing the data (after Encryption or compression)
     /// </summary>
-    protected virtual void ResetStreams(bool isReading) => BaseOpen(isReading);
+    protected virtual void ResetStreams() => BaseOpen();
   }
 }

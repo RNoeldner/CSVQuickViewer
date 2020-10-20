@@ -166,13 +166,13 @@ namespace CsvTools.Tests
             columnCollection, false, true, "<NULL>", UnitTestInitializeCsv.Token);
 
           Assert.AreEqual(7, columnCollection.Count, "Recognized columns");
-          Assert.AreEqual(6, res1.Count, "Information Lines");
+          Assert.AreEqual(8, res1.Count, "Information Lines");
 
           var res2 = await reader.FillGuessColumnFormatReaderAsyncReader(fillGuessSettings,
             columnCollection, true, true, "<NULL>", UnitTestInitializeCsv.Token);
           Assert.AreEqual(11, columnCollection.Count);
           // Added 4 text columns,
-          Assert.AreEqual(8, res2.Count);
+          Assert.AreEqual(9, res2.Count);
         }
       }
     }
