@@ -62,16 +62,7 @@ namespace CsvTools
     /// </summary>
     [NotNull]
     // ReSharper disable once FieldCanBeMadeReadOnly.Global
-    public static Func<string, IImprovedStream> OpenRead = (fileName) => new ImprovedStream(fileName, true);
-
-    /// <summary>
-    ///   General function to open a file for writing, it will take care of things like compression
-    ///   and encryption
-    /// </summary>
-    [NotNull]
-    // ReSharper disable once FieldCanBeMadeReadOnly.Global
-    public static Func<string, string, IImprovedStream> OpenWrite = (fileName, dummy) =>
-      new ImprovedStream(fileName, false);
+    public static Func<SourceAccess, IImprovedStream> OpenStream = (fileAccess) => new ImprovedStream(fileAccess);
 
     /// <summary>
     ///   Action to be performed while waiting on a background process, do something like handing

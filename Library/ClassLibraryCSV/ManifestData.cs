@@ -1,40 +1,85 @@
 ﻿using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace CsvTools
 {
   public class ManifestData
   {
-    public class ManifestField
-    {
-      public string pubname;
-      public string heading;
-      public string desc;
-      public string type;
-      public int ordinal;
-    }
-    public string pubname;
-    public string heading;
-    public string desc;
     public bool delta;
-    public string hydration;
-    public bool hasuserdefinedfields;
+    public string desc;
     public ManifestField[] fields;
+    public bool hasuserdefinedfields;
+    public string heading;
+    public string hydration;
+    public string pubname;
 
-    public static ICsvFile ReadManifest(string manifest)
+    private const string cCsvManifestExtension = ".manifest.json";
+   
+    public static ICsvFile ReadManifestFileSystem(string fileName)
     {
-      var mani = JsonConvert.DeserializeObject<ManifestData>(new StreamReader(FileSystemUtils.OpenRead(manifest), Encoding.UTF8, true, 4096, false).ReadToEnd());
-      var fileName = manifest.Replace(CsvFile.cCsvManifestExtension, ".csv");
+      var posExt = fileName.LastIndexOf('.');
+      if (posExt!=-1)
+      {
+        var manifest = fileName.EndsWith(cCsvManifestExtension, StringComparison.OrdinalIgnoreCase)
+                               ? fileName
+                               : fileName.Substring(0, posExt) + cCsvManifestExtension;
+        if (FileSystemUtils.FileExists(manifest))
+        {
+          var dataFile = manifest.ReplaceCaseInsensitive(cCsvManifestExtension, ".csv");
+          if (FileSystemUtils.FileExists(dataFile))
+            return ReadManifestFromStream(FileSystemUtils.OpenRead(manifest), manifest, dataFile, string.Empty);
+
+          dataFile = manifest.ReplaceCaseInsensitive(cCsvManifestExtension, ".txt");
+          if (FileSystemUtils.FileExists(dataFile))
+            return ReadManifestFromStream(FileSystemUtils.OpenRead(manifest), manifest, dataFile, string.Empty);
+        }
+
+      }
+      return null;
+    }
+
+    public static ICsvFile ReadManifestZip(string fileName)
+    {
+      if (!fileName.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
+        return null;
+
+      Logger.Debug("Opening Zip file {filename}", fileName);
+      using (var archive = ZipFile.OpenRead(fileName))
+      {
+        // find Text and Manifest
+        var entryManifest = archive.Entries.FirstOrDefault(x => x.FullName.EndsWith(cCsvManifestExtension, StringComparison.OrdinalIgnoreCase));
+        if (entryManifest ==null)
+        {
+          Logger.Debug("No manifest found");
+          return null;
+        }
+
+        var entryFile = archive.Entries.FirstOrDefault(x => x.FullName.EndsWith(".csv", StringComparison.OrdinalIgnoreCase));
+        if (entryFile != null)
+          return ReadManifestFromStream(entryManifest.Open(), entryManifest.FullName, fileName, entryFile.FullName);
+
+        entryFile = archive.Entries.FirstOrDefault(x => x.FullName.EndsWith(".txt", StringComparison.OrdinalIgnoreCase));
+        if (entryFile != null)
+          return ReadManifestFromStream(entryManifest.Open(), entryManifest.FullName, fileName, entryFile.FullName);
+
+        return null;
+      }
+    }
+
+    private static ICsvFile ReadManifestFromStream(Stream manifestStream, string mainifestName, string fileName, string identifierInContainer)
+    {
+      Logger.Information("Configuration read from manifest file {filename}", mainifestName);
+      var mani = JsonConvert.DeserializeObject<ManifestData>(new StreamReader(manifestStream, Encoding.UTF8, true, 4096, false).ReadToEnd());
       var fileSettingMani = new CsvFile
       {
         FileName = fileName,
         ID = fileName,
         HasFieldHeader = false,
+        IdentifierInContainer = identifierInContainer,
         SkipRows =0
       };
       fileSettingMani.FileFormat.FieldDelimiter =",";
@@ -52,18 +97,22 @@ namespace CsvTools
           case "short":
             vf = new ImmutableValueFormat(DataType.Integer);
             break;
+
           case "decimal":
           case "single":
           case "double":
             vf = new ImmutableValueFormat(DataType.Numeric, decimalSeparatorChar: '.');
             break;
+
           case "uuid":
           case "guid":
             vf = new ImmutableValueFormat(DataType.Guid);
             break;
+
           case "bit":
             vf = new ImmutableValueFormat(DataType.Boolean);
             break;
+
           case "date":
           case "localdate":
             vf = new ImmutableValueFormat(DataType.DateTime, "yyyy/MM/dd", "-");
@@ -73,10 +122,12 @@ namespace CsvTools
           case "localdatetime":
             vf = new ImmutableValueFormat(DataType.DateTime, "yyyy/MM/ddTHH:mm:ss.FFFFFFF", "-");
             break;
+
           case "time":
           case "localtime":
             vf = new ImmutableValueFormat(DataType.DateTime, "HH:mm:ss.FFFFFFF");
             break;
+
           default:
             vf = new ImmutableValueFormat(DataType.String);
             break;
@@ -86,6 +137,13 @@ namespace CsvTools
       return fileSettingMani;
     }
 
+    public class ManifestField
+    {
+      public string desc;
+      public string heading;
+      public int ordinal;
+      public string pubname;
+      public string type;
+    }
   }
 }
-

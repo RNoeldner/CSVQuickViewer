@@ -50,7 +50,7 @@ namespace CsvTools.Tests
     [TestMethod()]
     public async Task ReadManifestAsync()
     {
-      var setting = ManifestData.ReadManifest(UnitTestInitializeCsv.GetTestPath("training_relation.manifest.json"));
+      var setting = ManifestData.ReadManifestFileSystem(UnitTestInitializeCsv.GetTestPath("training_relation.manifest.json"));
 
       Assert.AreEqual(false, setting.HasFieldHeader);
       Assert.AreEqual(19, setting.ColumnCollection.Count);

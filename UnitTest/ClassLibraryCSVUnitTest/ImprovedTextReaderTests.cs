@@ -12,7 +12,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void ImprovedTextReaderTestBOM()
     {
-      using (var impStream = new ImprovedStream(UnitTestInitializeCsv.GetTestPath("BasicCsV.txt"), true))
+      using (var impStream = new ImprovedStream(new SourceAccess(UnitTestInitializeCsv.GetTestPath("BasicCsV.txt"), true)))
       {
         using (var test = new ImprovedTextReader(impStream))
         {
@@ -27,7 +27,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void ImprovedTextReaderTestCodePage()
     {
-      using (var impStream = new ImprovedStream(UnitTestInitializeCsv.GetTestPath("BasicCsV.txt"), true))
+      using (var impStream = new ImprovedStream(new SourceAccess(UnitTestInitializeCsv.GetTestPath("BasicCsV.txt"), true)))
       {
         using (var test = new ImprovedTextReader(impStream, 12000))
         {
@@ -42,7 +42,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void ImprovedTextReaderTestGz()
     {
-      using (var impStream = new ImprovedStream(UnitTestInitializeCsv.GetTestPath("BasicCsV.txt.gz"), true))
+      using (var impStream = new ImprovedStream(new SourceAccess(UnitTestInitializeCsv.GetTestPath("BasicCsV.txt.gz"), true)))
       {
         using (var test = new ImprovedTextReader(impStream, 12000))
         {
@@ -101,7 +101,7 @@ namespace CsvTools.Tests
           }
         }
 
-        using (var impStream = new ImprovedStream(fileName, true))
+        using (var impStream = new ImprovedStream(new SourceAccess(fileName, true)))
         {
           using (var test = new ImprovedTextReader(impStream, type.Item2))
           {
@@ -127,7 +127,7 @@ namespace CsvTools.Tests
     public void ToBeginningTest()
     {
       // use a file with a BOM
-      using (var impStream = new ImprovedStream(UnitTestInitializeCsv.GetTestPath("txTranscripts.txt"), true))
+      using (var impStream = new ImprovedStream(new SourceAccess(UnitTestInitializeCsv.GetTestPath("txTranscripts.txt"), true)))
       {
         using (var test = new ImprovedTextReader(impStream))
         {

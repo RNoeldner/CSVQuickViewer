@@ -180,8 +180,7 @@ namespace CsvTools
     {
       if (string.IsNullOrEmpty(fileName))
         throw new ArgumentException("Path can not be null or empty", nameof(fileName));
-      m_SelfOpenedStream = true;
-
+      m_SelfOpenedStream = true;      
       m_EscapeCharacterChar = escapeCharacterChar;
       m_FieldDelimiterChar = fieldDelimiter.WrittenPunctuationToChar();
       if (fieldDelimiter.Length > 1 && m_FieldDelimiterChar == '\0')
@@ -276,7 +275,10 @@ namespace CsvTools
         fileSetting.WarnUnknownCharacter,
         fileSetting.WarnEmptyTailingColumns, fileSetting.TreatNBSPAsSpace,
         fileSetting.TreatTextAsNull, fileSetting.SkipEmptyLines,
-        fileSetting.ConsecutiveEmptyRows) => SetProgressActions(processDisplay);
+        fileSetting.ConsecutiveEmptyRows)
+    {
+      SetProgressActions(processDisplay);
+    }    
 
     /// <summary>
     ///   Gets a value indicating whether this instance is closed.
@@ -378,7 +380,7 @@ namespace CsvTools
         if (m_SelfOpenedStream)
         {
           m_ImprovedStream?.Dispose();
-          m_ImprovedStream = FunctionalDI.OpenRead(FullPath);
+          m_ImprovedStream = FunctionalDI.OpenStream(new SourceAccess(FullPath, true));
         }
 
         m_TextReader?.Dispose();

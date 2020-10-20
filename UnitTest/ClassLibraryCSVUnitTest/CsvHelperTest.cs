@@ -111,7 +111,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GuessHasHeader()
     {
-      using (var stream = new ImprovedStream(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"), true))
+      using (var stream = new ImprovedStream(new SourceAccess( UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"), true)))
       using (var reader = new ImprovedTextReader(stream))
       {
         reader.ToBeginning();
@@ -119,7 +119,7 @@ namespace CsvTools.Tests
       }
 
       using (var stream =
-        new ImprovedStream(UnitTestInitializeCsv.GetTestPath("HandlingDuplicateColumnNames.txt"), true))
+        new ImprovedStream(new SourceAccess(UnitTestInitializeCsv.GetTestPath("HandlingDuplicateColumnNames.txt"), true)))
       using (var reader = new ImprovedTextReader(stream))
       {
         reader.ToBeginning();

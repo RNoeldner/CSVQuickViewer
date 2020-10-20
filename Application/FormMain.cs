@@ -97,8 +97,7 @@ namespace CsvTools
                         + "All files (*.*)|*.*";
 
         if (m_ViewSettings.StoreSettingsByFile)
-          strFilter += "|Setting files (*" + CsvFile.cCsvSettingExtension + ")|*" + CsvFile.cCsvSettingExtension
-                     + "|Manifest files (*" + CsvFile.cCsvManifestExtension + ")|*" + CsvFile.cCsvManifestExtension;
+          strFilter += "|Setting files (*" + CsvFile.cCsvSettingExtension + ")|*" + CsvFile.cCsvSettingExtension;
 
         fileName = WindowsAPICodePackWrapper.Open(".", "Setting File", strFilter, null);
       }
