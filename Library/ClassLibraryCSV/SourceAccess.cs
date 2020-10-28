@@ -85,7 +85,11 @@ namespace CsvTools
                             isReading ? FileMode.Open : FileMode.Create,
                             isReading ? FileAccess.Read : FileAccess.ReadWrite, FileShare.ReadWrite);
       Reading =isReading;
-      if (FileType == FileTypeEnum.Pgp && isReading && string.IsNullOrEmpty(EncryptedPassphrase))
+      if (FileType == FileTypeEnum.Zip && !isReading)
+        IdentifierInContainer =FileSystemUtils.GetFileName(fileName).ReplaceCaseInsensitive(".zip", "");
+      
+      // for PGP we need a password/ passphrase for Zip we might need one later
+      if (FileType == FileTypeEnum.Pgp && isReading)
         EncryptedPassphrase = FunctionalDI.GetEncryptedPassphraseForFile(fileName);
     }
 
