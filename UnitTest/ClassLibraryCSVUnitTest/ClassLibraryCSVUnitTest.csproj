@@ -298,6 +298,9 @@
     <Content Include="TestFiles\TrimmingHeaders.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <None Include="TestFiles\AllFormatsPipe.zip">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="TestFiles\Larger.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

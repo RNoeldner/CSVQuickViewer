@@ -16,7 +16,6 @@ using JetBrains.Annotations;
 using System;
 using System.IO;
 using System.IO.Compression;
-using ICSharpCode.SharpZipLib.Zip;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -120,6 +119,7 @@ namespace CsvTools
       Close();
       AccessStream.Dispose();
       BaseStream.Dispose();
+      AccessStream=null;
     }
 
     public override void Flush()
@@ -168,25 +168,55 @@ namespace CsvTools
     {
       if (m_SourceAccess.Reading)
       {
-        Logger.Debug("Unzipping {filename} {incontainer}", m_SourceAccess.Identifier, m_SourceAccess.IdentifierInContainer);
 
         m_ZipFile = new ICSharpCode.SharpZipLib.Zip.ZipFile(BaseStream);
 
         if (!string.IsNullOrEmpty(m_SourceAccess.EncryptedPassphrase))
           m_ZipFile.Password = m_SourceAccess.EncryptedPassphrase;
+        var hasFile = false;
+        if (string.IsNullOrEmpty(m_SourceAccess.IdentifierInContainer))
+        {
+          var entryEnumerator = m_ZipFile.GetEnumerator();
+          while (entryEnumerator.MoveNext())
+          {
+            var entry = entryEnumerator.Current as ICSharpCode.SharpZipLib.Zip.ZipEntry;
+            if (entry?.IsFile ?? false)
+            {
+              m_SourceAccess.IdentifierInContainer= entry.Name;
+              Logger.Debug("Unzipping {filename} {container}", m_SourceAccess.Identifier, m_SourceAccess.IdentifierInContainer);
+              AccessStream = m_ZipFile.GetInputStream(entry);
+              hasFile=true;
+              break;
+            }
+          }
+        }
+        else
+        {
 
-        var entry = m_ZipFile.GetEntry(m_SourceAccess.IdentifierInContainer);
-        if (entry != null)
-          AccessStream = m_ZipFile.GetInputStream(entry);
+          var entryIndex = m_ZipFile.FindEntry(m_SourceAccess.IdentifierInContainer, true);
+          if (entryIndex > -1)
+          {
+            Logger.Debug("Unzipping {filename} {container}", m_SourceAccess.Identifier, m_SourceAccess.IdentifierInContainer);
+            AccessStream = m_ZipFile.GetInputStream(entryIndex);
+            hasFile=true;
+          }
+        }
+        if (!hasFile)
+          Logger.Warning("No zip entry found in {filename} {container}", m_SourceAccess.Identifier, m_SourceAccess.IdentifierInContainer);
       }
       else
       {
-        Logger.Debug("Zipping {incontainer} into {filename}", m_SourceAccess.IdentifierInContainer, m_SourceAccess.Identifier);
+        var m_ZipOutputStream = new ICSharpCode.SharpZipLib.Zip.ZipOutputStream(BaseStream, CBufferSize);
+        if (!string.IsNullOrEmpty(m_SourceAccess.EncryptedPassphrase))
+          m_ZipOutputStream.Password = m_SourceAccess.EncryptedPassphrase;
 
-        m_ZipFile = new ICSharpCode.SharpZipLib.Zip.ZipFile(BaseStream);
-        var newEntry = new ZipEntry(ZipEntry.CleanName(m_SourceAccess.IdentifierInContainer));
-        newEntry.DateTime = DateTime.Now;
-        m_ZipFile.PutNextEntry(newEntry);
+        m_ZipOutputStream.SetLevel(8);
+        if (m_SourceAccess.IdentifierInContainer.Length==0)
+          m_SourceAccess.IdentifierInContainer="File1.txt";
+        Logger.Debug("Zipping {container} into {filename}", m_SourceAccess.IdentifierInContainer, m_SourceAccess.Identifier);
+
+        m_ZipOutputStream.PutNextEntry(new ICSharpCode.SharpZipLib.Zip.ZipEntry(m_SourceAccess.IdentifierInContainer));
+        AccessStream = m_ZipOutputStream;
       }
     }
 

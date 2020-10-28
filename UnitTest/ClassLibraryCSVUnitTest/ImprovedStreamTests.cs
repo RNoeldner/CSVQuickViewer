@@ -23,7 +23,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void OpenReadTestSetting()
     {
-      var setting = new CsvFile {FileName = UnitTestInitializeCsv.GetTestPath("BasicCsV.txt")};
+      var setting = new CsvFile { FileName = UnitTestInitializeCsv.GetTestPath("BasicCsV.txt") };
       using (var res = new ImprovedStream(new SourceAccess(setting, true)))
       {
         Assert.IsNotNull(res);
@@ -58,6 +58,47 @@ namespace CsvTools.Tests
         Assert.AreEqual(result1[5], result2[5]);
       }
     }
+
+
+    [TestMethod]
+    public void OpenReadTestZipSmallRead()
+    {
+      var sourceAccess = new SourceAccess(UnitTestInitializeCsv.GetTestPath("AllFormatsPipe.zip"), true);
+
+      // opeing without IdentifierInContainer should return teh first file entry
+      using (var res = new ImprovedStream(sourceAccess))
+      {
+        Assert.AreEqual("AllFormatsPipe.txt", sourceAccess.IdentifierInContainer);
+        Assert.IsNotNull(res);
+        var result1 = new byte[2048];
+        using (var reader = new BinaryReader(res))
+        {
+          reader.Read(result1, 0, result1.Length);
+        }
+
+        // should return to teh start
+        res.Seek(0, SeekOrigin.Begin);
+        var result2 = new byte[2048];
+        using (var reader = new BinaryReader(res))
+        {
+          reader.Read(result2, 0, result2.Length);
+        }
+
+        Assert.AreEqual(result1[0], result2[0]);
+        Assert.AreEqual(result1[1], result2[1]);
+        Assert.AreEqual(result1[2], result2[2]);
+        Assert.AreEqual(result1[3], result2[3]);
+        Assert.AreEqual(result1[4], result2[4]);
+        Assert.AreEqual(result1[5], result2[5]);
+      }
+
+      // now sourceAccess.IdentifierInContainer is set, 
+      using (var res = new ImprovedStream(sourceAccess))
+      {
+        Assert.IsNotNull(res);
+      }
+    }
+
 
     [TestMethod]
     public void OpenReadTestGZipLargeRead()
@@ -100,7 +141,7 @@ namespace CsvTools.Tests
       }
     }
 
-    private void WriteFile(string fileName)
+    private void WriteFile(string fileName, string password)
     {
       var fullname = UnitTestInitializeCsv.GetTestPath(fileName);
 
@@ -109,7 +150,11 @@ namespace CsvTools.Tests
       const string c_Line2 = "Yet another line to be written";
       const string c_Line3 = "A text with non ASCII characters: Raphael Nöldner";
 
-      using (var improvedStream = new ImprovedStream(new SourceAccess(fullname, false)))
+      var sourceAccsss = new SourceAccess(fullname, false);
+      if (string.IsNullOrEmpty(password))
+        sourceAccsss.EncryptedPassphrase=password;
+
+      using (var improvedStream = new ImprovedStream(sourceAccsss))
       {
         using (var writer = new StreamWriter(improvedStream, encoding, 8192))
         {
@@ -124,8 +169,11 @@ namespace CsvTools.Tests
       }
 
       Assert.IsTrue(FileSystemUtils.FileExists(fullname), "Check if File is created" + fileName);
+      sourceAccsss = new SourceAccess(fullname, true);
+      if (string.IsNullOrEmpty(password))
+        sourceAccsss.EncryptedPassphrase=password;
 
-      using (var improvedStream = new ImprovedStream(new SourceAccess(fullname, true)))
+      using (var improvedStream = new ImprovedStream(sourceAccsss))
       {
         using (var textReader = new StreamReader(improvedStream, encoding, true))
         {
@@ -141,10 +189,16 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void OpenWriteTestGZip() => WriteFile("WriteText.gz");
+    public void OpenWriteTestGZip() => WriteFile("WriteText.gz", null);
 
     [TestMethod]
-    public void OpenWriteTestRegular() => WriteFile("WriteText.txt");
+    public void OpenWriteTestRegular() => WriteFile("WriteText.txt", null);
+
+    [TestMethod]
+    public void OpenWriteTestZip() => WriteFile("WriteText.Zip", null);
+
+    [TestMethod]
+    public void OpenWriteTestZipPassword() => WriteFile("WriteText2.Zip", "Test");
 
     [TestMethod]
     public void CloseTest()
