@@ -17,7 +17,7 @@ namespace CsvTools
     [CanBeNull] private DataReaderWrapper m_DataReaderWrapper;
     [CanBeNull] private IFileReader m_FileReader;
 
-    protected TwoStepDataTableLoader([NotNull] Action<DataTable> actionSetDataTable,
+    public TwoStepDataTableLoader([NotNull] Action<DataTable> actionSetDataTable,
       [NotNull] Func<DataTable> getDataTable,
       [CanBeNull] Func<FilterType, CancellationToken, Task> setRefreshDisplayAsync,
       [CanBeNull] Action<Func<IProcessDisplay, Task>> loadNextBatchAsync, [CanBeNull] Action actionBegin,
