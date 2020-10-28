@@ -463,6 +463,8 @@
     <PostBuildEvent>del "$(TargetDir)*.pdb"
 del "$(TargetDir)*.log"
 del "$(TargetDir)*.xml"
+REM Widnows 10: zipping with included tar
+tar.exe -a -c -f $(TargetName).zip $(TargetFileName)
 </PostBuildEvent>
   </PropertyGroup>
 </Project>
