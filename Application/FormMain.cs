@@ -208,10 +208,10 @@ namespace CsvTools
           col.PropertyChanged += AnyPropertyChangedReload;
           col.ValueFormatMutable.PropertyChanged += AnyPropertyChangedReload;
         }
-
-        fileSystemWatcher.EnableRaisingEvents = m_ViewSettings.DetectFileChanges;       
+        if (!string.IsNullOrEmpty(fileSystemWatcher.Path))
+          fileSystemWatcher.EnableRaisingEvents = m_ViewSettings.DetectFileChanges;
       }
-      catch 
+      catch
       {
         Logger.Information("Adding file system watcher failed");
       }
@@ -277,6 +277,9 @@ namespace CsvTools
           Logger.Information("Showing columns as text");
           m_FileSetting.ColumnCollection.CollectionCopy(m_StoreColumns);
           m_FileSetting.ColumnCollection.Clear();
+          // restore header names
+          foreach (var col in m_StoreColumns)
+            m_FileSetting.ColumnCollection.Add(new Column(col.Name) { ColumnOrdinal= col.ColumnOrdinal });
           m_ToolStripButtonAsText.Text = "Values";
         }
         else
