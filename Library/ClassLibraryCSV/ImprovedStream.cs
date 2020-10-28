@@ -28,20 +28,22 @@ namespace CsvTools
   /// </summary>
   public class ImprovedStream : Stream, IImprovedStream
   {
-    const int CBufferSize = 8192;
-    protected readonly SourceAccess m_SourceAccess;
-    private ICSharpCode.SharpZipLib.Zip.ZipFile m_ZipFile;
+    const int c_BufferSize = 8192;
+    protected readonly SourceAccess SourceAccess;
     private bool m_DisposedValue;
+    private ICSharpCode.SharpZipLib.Zip.ZipFile m_ZipFile;
 
+    // ReSharper disable once NotNullMemberIsNotInitialized
     public ImprovedStream([NotNull] SourceAccess sourceAccess)
     {
-      m_SourceAccess= sourceAccess;
+      SourceAccess = sourceAccess;
       BaseOpen();
     }
 
+    // ReSharper disable once NotNullMemberIsNotInitialized
     public ImprovedStream([NotNull] Func<Stream> openStream, bool isReading, SourceAccess.FileTypeEnum type)
     {
-      m_SourceAccess = new SourceAccess(openStream, isReading, type);
+      SourceAccess = new SourceAccess(openStream, isReading, type);
       BaseOpen();
     }
 
@@ -119,7 +121,6 @@ namespace CsvTools
       Close();
       AccessStream.Dispose();
       BaseStream.Dispose();
-      AccessStream=null;
     }
 
     public override void Flush()
@@ -139,42 +140,42 @@ namespace CsvTools
 
     private void OpenZGipOverBase()
     {
-      if (m_SourceAccess.Reading)
+      if (SourceAccess.Reading)
       {
-        Logger.Debug("Decompressing from GZip {filename}", m_SourceAccess.Identifier);
-        AccessStream = new BufferedStream(new GZipStream(BaseStream, CompressionMode.Decompress), CBufferSize);
+        Logger.Debug("Decompressing from GZip {filename}", SourceAccess.Identifier);
+        AccessStream = new BufferedStream(new GZipStream(BaseStream, CompressionMode.Decompress), c_BufferSize);
       }
       else
       {
-        Logger.Debug("Compressing to GZip {filename}", m_SourceAccess.Identifier);
-        AccessStream = new BufferedStream(new GZipStream(BaseStream, CompressionMode.Compress), CBufferSize);
+        Logger.Debug("Compressing to GZip {filename}", SourceAccess.Identifier);
+        AccessStream = new BufferedStream(new GZipStream(BaseStream, CompressionMode.Compress), c_BufferSize);
       }
     }
 
     private void OpenDeflateOverBase()
     {
-      if (m_SourceAccess.Reading)
+      if (SourceAccess.Reading)
       {
-        Logger.Debug("Deflating {filename}", m_SourceAccess.Identifier);
-        AccessStream = new BufferedStream(new DeflateStream(BaseStream, CompressionMode.Decompress), CBufferSize);
+        Logger.Debug("Deflating {filename}", SourceAccess.Identifier);
+        AccessStream = new BufferedStream(new DeflateStream(BaseStream, CompressionMode.Decompress), c_BufferSize);
       }
       else
       {
-        Logger.Debug("Compressing {filename}", m_SourceAccess.Identifier);
-        AccessStream = new BufferedStream(new DeflateStream(BaseStream, CompressionMode.Compress), CBufferSize);
+        Logger.Debug("Compressing {filename}", SourceAccess.Identifier);
+        AccessStream = new BufferedStream(new DeflateStream(BaseStream, CompressionMode.Compress), c_BufferSize);
       }
     }
+
     private void OpenZipOverBase()
     {
-      if (m_SourceAccess.Reading)
+      if (SourceAccess.Reading)
       {
-
         m_ZipFile = new ICSharpCode.SharpZipLib.Zip.ZipFile(BaseStream);
 
-        if (!string.IsNullOrEmpty(m_SourceAccess.EncryptedPassphrase))
-          m_ZipFile.Password = m_SourceAccess.EncryptedPassphrase;
+        if (!string.IsNullOrEmpty(SourceAccess.EncryptedPassphrase))
+          m_ZipFile.Password = SourceAccess.EncryptedPassphrase;
         var hasFile = false;
-        if (string.IsNullOrEmpty(m_SourceAccess.IdentifierInContainer))
+        if (string.IsNullOrEmpty(SourceAccess.IdentifierInContainer))
         {
           var entryEnumerator = m_ZipFile.GetEnumerator();
           while (entryEnumerator.MoveNext())
@@ -182,52 +183,56 @@ namespace CsvTools
             var entry = entryEnumerator.Current as ICSharpCode.SharpZipLib.Zip.ZipEntry;
             if (entry?.IsFile ?? false)
             {
-              m_SourceAccess.IdentifierInContainer= entry.Name;
-              Logger.Debug("Unzipping {filename} {container}", m_SourceAccess.Identifier, m_SourceAccess.IdentifierInContainer);
+              SourceAccess.IdentifierInContainer = entry.Name;
+              Logger.Debug("Unzipping {filename} {container}", SourceAccess.Identifier,
+                SourceAccess.IdentifierInContainer);
               AccessStream = m_ZipFile.GetInputStream(entry);
-              hasFile=true;
+              hasFile = true;
               break;
             }
           }
         }
         else
         {
-
-          var entryIndex = m_ZipFile.FindEntry(m_SourceAccess.IdentifierInContainer, true);
+          var entryIndex = m_ZipFile.FindEntry(SourceAccess.IdentifierInContainer, true);
           if (entryIndex > -1)
           {
-            Logger.Debug("Unzipping {filename} {container}", m_SourceAccess.Identifier, m_SourceAccess.IdentifierInContainer);
+            Logger.Debug("Unzipping {filename} {container}", SourceAccess.Identifier,
+              SourceAccess.IdentifierInContainer);
             AccessStream = m_ZipFile.GetInputStream(entryIndex);
-            hasFile=true;
+            hasFile = true;
           }
         }
+
         if (!hasFile)
-          Logger.Warning("No zip entry found in {filename} {container}", m_SourceAccess.Identifier, m_SourceAccess.IdentifierInContainer);
+          Logger.Warning("No zip entry found in {filename} {container}", SourceAccess.Identifier,
+            SourceAccess.IdentifierInContainer);
       }
       else
       {
-        var m_ZipOutputStream = new ICSharpCode.SharpZipLib.Zip.ZipOutputStream(BaseStream, CBufferSize);
-        if (!string.IsNullOrEmpty(m_SourceAccess.EncryptedPassphrase))
-          m_ZipOutputStream.Password = m_SourceAccess.EncryptedPassphrase;
+        var zipOutputStream = new ICSharpCode.SharpZipLib.Zip.ZipOutputStream(BaseStream, c_BufferSize);
+        if (!string.IsNullOrEmpty(SourceAccess.EncryptedPassphrase))
+          zipOutputStream.Password = SourceAccess.EncryptedPassphrase;
 
-        m_ZipOutputStream.SetLevel(8);
-        if (m_SourceAccess.IdentifierInContainer.Length==0)
-          m_SourceAccess.IdentifierInContainer="File1.txt";
-        Logger.Debug("Zipping {container} into {filename}", m_SourceAccess.IdentifierInContainer, m_SourceAccess.Identifier);
+        zipOutputStream.SetLevel(8);
+        if (SourceAccess.IdentifierInContainer.Length == 0)
+          SourceAccess.IdentifierInContainer = "File1.txt";
+        Logger.Debug("Zipping {container} into {filename}", SourceAccess.IdentifierInContainer,
+          SourceAccess.Identifier);
 
-        m_ZipOutputStream.PutNextEntry(new ICSharpCode.SharpZipLib.Zip.ZipEntry(m_SourceAccess.IdentifierInContainer));
-        AccessStream = m_ZipOutputStream;
+        zipOutputStream.PutNextEntry(new ICSharpCode.SharpZipLib.Zip.ZipEntry(SourceAccess.IdentifierInContainer));
+        AccessStream = zipOutputStream;
       }
     }
 
     protected void BaseOpen()
     {
-      BaseStream = m_SourceAccess.OpenStream();
-      if (m_SourceAccess.FileType== SourceAccess.FileTypeEnum.GZip)
+      BaseStream = SourceAccess.OpenStream();
+      if (SourceAccess.FileType == SourceAccess.FileTypeEnum.GZip)
         OpenZGipOverBase();
-      else if (m_SourceAccess.FileType== SourceAccess.FileTypeEnum.Deflate)
+      else if (SourceAccess.FileType == SourceAccess.FileTypeEnum.Deflate)
         OpenDeflateOverBase();
-      else if (m_SourceAccess.FileType== SourceAccess.FileTypeEnum.Zip)
+      else if (SourceAccess.FileType == SourceAccess.FileTypeEnum.Zip)
         OpenZipOverBase();
       else
         AccessStream = BaseStream;
