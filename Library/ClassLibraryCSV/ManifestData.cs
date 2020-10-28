@@ -1,8 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.IO;
-using System.IO.Compression;
-using System.Linq;
+using ICSharpCode.SharpZipLib.Zip;
 using System.Text;
 
 namespace CsvTools
@@ -18,7 +17,7 @@ namespace CsvTools
     public string pubname;
 
     private const string cCsvManifestExtension = ".manifest.json";
-   
+
     public static ICsvFile ReadManifestFileSystem(string fileName)
     {
       var posExt = fileName.LastIndexOf('.');
@@ -48,26 +47,24 @@ namespace CsvTools
         return null;
 
       Logger.Debug("Opening Zip file {filename}", fileName);
-      using (var archive = ZipFile.OpenRead(fileName))
+
+      using (var archive = new ZipFile(fileName.LongPathPrefix()))
       {
         // find Text and Manifest
-        var entryManifest = archive.Entries.FirstOrDefault(x => x.FullName.EndsWith(cCsvManifestExtension, StringComparison.OrdinalIgnoreCase));
-        if (entryManifest ==null)
+
+        foreach (ZipEntry entryManifest in archive)
         {
-          Logger.Debug("No manifest found");
-          return null;
+          if (!entryManifest.IsFile || !entryManifest.Name.EndsWith(cCsvManifestExtension, StringComparison.OrdinalIgnoreCase))
+            continue;
+          foreach (ZipEntry entryFile in archive)
+          {
+            if (entryManifest==entryFile || !entryFile.IsFile || !entryFile.Name.EndsWith(".csv", StringComparison.OrdinalIgnoreCase))
+              continue;
+            return ReadManifestFromStream(archive.GetInputStream(entryManifest), entryManifest.Name, fileName, entryFile.Name);
+          }
         }
-
-        var entryFile = archive.Entries.FirstOrDefault(x => x.FullName.EndsWith(".csv", StringComparison.OrdinalIgnoreCase));
-        if (entryFile != null)
-          return ReadManifestFromStream(entryManifest.Open(), entryManifest.FullName, fileName, entryFile.FullName);
-
-        entryFile = archive.Entries.FirstOrDefault(x => x.FullName.EndsWith(".txt", StringComparison.OrdinalIgnoreCase));
-        if (entryFile != null)
-          return ReadManifestFromStream(entryManifest.Open(), entryManifest.FullName, fileName, entryFile.FullName);
-
-        return null;
       }
+      return null;
     }
 
     private static ICsvFile ReadManifestFromStream(Stream manifestStream, string mainifestName, string fileName, string identifierInContainer)

@@ -16,7 +16,7 @@ using JetBrains.Annotations;
 using System;
 using System.IO;
 using System.IO.Compression;
-using System.Linq;
+using ICSharpCode.SharpZipLib.Zip;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -31,7 +31,7 @@ namespace CsvTools
   {
     const int CBufferSize = 8192;
     protected readonly SourceAccess m_SourceAccess;
-    private ZipArchive m_ZipArchive;
+    private ICSharpCode.SharpZipLib.Zip.ZipFile m_ZipFile;
     private bool m_DisposedValue;
 
     public ImprovedStream([NotNull] SourceAccess sourceAccess)
@@ -109,7 +109,7 @@ namespace CsvTools
       if (!ReferenceEquals(AccessStream, BaseStream))
         AccessStream.Close();
       BaseStream.Close();
-      m_ZipArchive?.Dispose();
+      //m_ZipArchive?.Dispose();
     }
 
     protected override void Dispose(bool disposing)
@@ -169,19 +169,24 @@ namespace CsvTools
       if (m_SourceAccess.Reading)
       {
         Logger.Debug("Unzipping {filename} {incontainer}", m_SourceAccess.Identifier, m_SourceAccess.IdentifierInContainer);
-        m_ZipArchive?.Dispose();
-        m_ZipArchive = new ZipArchive(BaseStream, m_SourceAccess.Reading ? ZipArchiveMode.Read : ZipArchiveMode.Update);
 
-        var entry = m_ZipArchive.GetEntry(m_SourceAccess.IdentifierInContainer);
+        m_ZipFile = new ICSharpCode.SharpZipLib.Zip.ZipFile(BaseStream);
+
+        if (!string.IsNullOrEmpty(m_SourceAccess.EncryptedPassphrase))
+          m_ZipFile.Password = m_SourceAccess.EncryptedPassphrase;
+
+        var entry = m_ZipFile.GetEntry(m_SourceAccess.IdentifierInContainer);
         if (entry != null)
-          AccessStream = entry.Open();
+          AccessStream = m_ZipFile.GetInputStream(entry);
       }
       else
       {
         Logger.Debug("Zipping {incontainer} into {filename}", m_SourceAccess.IdentifierInContainer, m_SourceAccess.Identifier);
-        m_ZipArchive?.Dispose();
-        m_ZipArchive = new ZipArchive(BaseStream, ZipArchiveMode.Update);
-        AccessStream = m_ZipArchive.CreateEntry(m_SourceAccess.IdentifierInContainer).Open();
+
+        m_ZipFile = new ICSharpCode.SharpZipLib.Zip.ZipFile(BaseStream);
+        var newEntry = new ZipEntry(ZipEntry.CleanName(m_SourceAccess.IdentifierInContainer));
+        newEntry.DateTime = DateTime.Now;
+        m_ZipFile.PutNextEntry(newEntry);
       }
     }
 

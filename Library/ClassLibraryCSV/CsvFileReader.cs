@@ -87,6 +87,7 @@ namespace CsvTools
     private readonly bool m_TreatLfAsSpace;
     private readonly bool m_TreatNbspAsSpace;
     private readonly string m_TreatTextAsNull;
+    private readonly string m_IdentifierInContainer;
     private readonly bool m_TreatUnknownCharacterAsSpace;
     private readonly TrimmingOption m_TrimmingOption;
     private readonly bool m_TryToSolveMoreColumns;
@@ -151,7 +152,7 @@ namespace CsvTools
       alternateQuoting, commentLine, numWarning, duplicateQuotingToEscape, newLinePlaceholder, delimiterPlaceholder,
       quotePlaceholder, skipDuplicateHeader, treatLfAsSpace, treatUnknownCharacterAsSpace, tryToSolveMoreColumns,
       warnDelimiterInValue, warnLineFeed, warnNbsp, warnQuotes, warnUnknownCharacter, warnEmptyTailingColumns,
-      treatNbspAsSpace, treatTextAsNull, skipEmptyLines, consecutiveEmptyRowsMax)
+      treatNbspAsSpace, treatTextAsNull, skipEmptyLines, consecutiveEmptyRowsMax, "")
     {
       m_ImprovedStream = improvedStream;
       m_SelfOpenedStream = false;
@@ -175,7 +176,7 @@ namespace CsvTools
       bool warnEmptyTailingColumns = true,
       bool treatNbspAsSpace = false,
       string treatTextAsNull = BaseSettings.cTreatTextAsNull, bool skipEmptyLines = true,
-      int consecutiveEmptyRowsMax = 4)
+      int consecutiveEmptyRowsMax = 4, string identifierInContainer= "")
       : base(fileName, columnDefinition, recordLimit)
     {
       if (string.IsNullOrEmpty(fileName))
@@ -241,6 +242,7 @@ namespace CsvTools
       m_TreatNbspAsSpace = treatNbspAsSpace;
       m_TrimmingOption = trimmingOption;
       m_TreatTextAsNull = treatTextAsNull;
+      m_IdentifierInContainer = identifierInContainer;
 
       // Either we report the issues regularly or at least log it
       if (warnEmptyTailingColumns)
@@ -275,7 +277,7 @@ namespace CsvTools
         fileSetting.WarnUnknownCharacter,
         fileSetting.WarnEmptyTailingColumns, fileSetting.TreatNBSPAsSpace,
         fileSetting.TreatTextAsNull, fileSetting.SkipEmptyLines,
-        fileSetting.ConsecutiveEmptyRows)
+        fileSetting.ConsecutiveEmptyRows, fileSetting.IdentifierInContainer)
     {
       SetProgressActions(processDisplay);
     }    
@@ -380,7 +382,7 @@ namespace CsvTools
         if (m_SelfOpenedStream)
         {
           m_ImprovedStream?.Dispose();
-          m_ImprovedStream = FunctionalDI.OpenStream(new SourceAccess(FullPath, true));
+          m_ImprovedStream = FunctionalDI.OpenStream(new SourceAccess(FullPath, true) { IdentifierInContainer = m_IdentifierInContainer });
         }
 
         m_TextReader?.Dispose();
