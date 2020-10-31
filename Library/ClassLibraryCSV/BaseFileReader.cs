@@ -251,7 +251,7 @@ namespace CsvTools
 
       return new Tuple<IEnumerable<string>, int>(previousColumns, issuesCounter);
     }
-  
+
     /// <summary>
     ///   Closes the <see cref="IDataReader" /> Object.
     /// </summary>
@@ -810,8 +810,8 @@ namespace CsvTools
 
     private static string GetDefaultName(int i, IEnumerable<IColumn> columnDefinitions = null)
     {
-      var cd = columnDefinitions?.FirstOrDefault(x => x.ColumnOrdinal==i && !string.IsNullOrEmpty(x.Name));
-      if (cd !=null)
+      var cd = columnDefinitions?.FirstOrDefault(x => x.ColumnOrdinal == i && !string.IsNullOrEmpty(x.Name));
+      if (cd != null)
         return cd.Name;
       return $"Column{i + 1}";
     }
@@ -1135,7 +1135,8 @@ namespace CsvTools
       m_AssociatedTimeZoneCol = new int[fieldCount];
       for (var counter = 0; counter < fieldCount; counter++)
       {
-        Column[counter] = new ImmutableColumn(GetDefaultName(counter, m_ColumnDefinition), new ImmutableValueFormat(), counter);
+        Column[counter] = new ImmutableColumn(GetDefaultName(counter, m_ColumnDefinition), new ImmutableValueFormat(),
+          counter);
         AssociatedTimeCol[counter] = -1;
         m_AssociatedTimeZoneCol[counter] = -1;
       }
@@ -1192,15 +1193,16 @@ namespace CsvTools
             break;
           }
 
-        if (!string.IsNullOrEmpty(searchedTimeZonePart))
-          for (var indexPoint = 0; indexPoint < Column.Length; indexPoint++)
-          {
-            if (indexPoint == index) continue;
+        if (string.IsNullOrEmpty(searchedTimeZonePart))
+          continue;
+        for (var indexPoint = 0; indexPoint < Column.Length; indexPoint++)
+        {
+          if (indexPoint == index) continue;
 
-            if (!Column[indexPoint].Name.Equals(searchedTimeZonePart, StringComparison.OrdinalIgnoreCase)) continue;
-            m_AssociatedTimeZoneCol[index] = indexPoint;
-            break;
-          }
+          if (!Column[indexPoint].Name.Equals(searchedTimeZonePart, StringComparison.OrdinalIgnoreCase)) continue;
+          m_AssociatedTimeZoneCol[index] = indexPoint;
+          break;
+        }
       }
 
       // Now can handle possible warning that have been raised adjusting the names
@@ -1212,7 +1214,7 @@ namespace CsvTools
     {
       if (token.IsCancellationRequested) return false;
 
-      var eventArgs = new RetryEventArgs(ex);
+      var eventArgs = new RetryEventArgs(ex) {Retry = false};
       OnAskRetry?.Invoke(this, eventArgs);
       return eventArgs.Retry;
     }
