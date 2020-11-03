@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
@@ -46,6 +46,7 @@ namespace CsvTools
     ///   An array of associated col
     /// </summary>
     protected int[] AssociatedTimeCol;
+    protected bool m_SelfOpenedStream;
 
     /// <summary>
     ///   An array of column
@@ -89,7 +90,7 @@ namespace CsvTools
                              .ToList() ??
                            new List<IColumn>();
 
-      RecordLimit = recordLimit < 1 ? long.MaxValue : recordLimit;
+      RecordLimit = recordLimit < 1 ? long.MaxValue : recordLimit;  
       FullPath = fileName;
       FileName = FileSystemUtils.GetFileName(fileName);
     }
@@ -831,14 +832,14 @@ namespace CsvTools
     /// </summary>
     protected async Task BeforeOpenAsync(string message)
     {
-      SetMaxProcess?.Invoke(this, 0);
 
+      SetMaxProcess?.Invoke(this, 0);
       HandleShowProgress(message);
 
       if (OnOpen != null)
         await OnOpen().ConfigureAwait(false);
 
-      if (!string.IsNullOrEmpty(FullPath))
+      if (m_SelfOpenedStream && !string.IsNullOrEmpty(FullPath))
         // as of now a physical file must exist
         if (!FileSystemUtils.FileExists(FullPath))
           throw new FileNotFoundException(
@@ -1214,7 +1215,7 @@ namespace CsvTools
     {
       if (token.IsCancellationRequested) return false;
 
-      var eventArgs = new RetryEventArgs(ex) {Retry = false};
+      var eventArgs = new RetryEventArgs(ex) { Retry = false };
       OnAskRetry?.Invoke(this, eventArgs);
       return eventArgs.Retry;
     }

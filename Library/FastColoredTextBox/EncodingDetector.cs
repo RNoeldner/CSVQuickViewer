@@ -1,4 +1,4 @@
-﻿// Copyright Tao Klerks, 2010-2012, tao@klerks.biz Licensed under the modified BSD license.
+// Copyright Tao Klerks, 2010-2012, tao@klerks.biz Licensed under the modified BSD license.
 
 using System;
 using System.IO;

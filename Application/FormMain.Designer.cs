@@ -1,4 +1,4 @@
-﻿namespace CsvTools
+namespace CsvTools
 {
   sealed partial class FormMain
   {
