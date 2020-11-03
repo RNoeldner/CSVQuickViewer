@@ -1,4 +1,4 @@
-﻿
+
 namespace CsvTools
 {
   using System.Diagnostics.CodeAnalysis;

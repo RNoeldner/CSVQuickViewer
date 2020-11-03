@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
@@ -29,6 +29,7 @@ namespace CsvTools
   public class ImprovedStream : Stream, IImprovedStream
   {
     const int c_BufferSize = 8192;
+    private bool CloseBaseStream = true;
     protected readonly SourceAccess SourceAccess;
     private bool m_DisposedValue;
     private ICSharpCode.SharpZipLib.Zip.ZipFile m_ZipFile;
@@ -46,7 +47,12 @@ namespace CsvTools
       SourceAccess = new SourceAccess(openStream, isReading, type);
       BaseOpen();
     }
-
+    public ImprovedStream([NotNull] Stream openStream, bool isReading, SourceAccess.FileTypeEnum type)
+    {
+      SourceAccess = new SourceAccess(()=> openStream, isReading, type);
+      CloseBaseStream = false;
+      BaseOpen();
+    }
     [NotNull] protected Stream AccessStream { get; set; }
 
     [NotNull] protected Stream BaseStream { get; private set; }
@@ -109,7 +115,9 @@ namespace CsvTools
     {
       if (!ReferenceEquals(AccessStream, BaseStream))
         AccessStream.Close();
-      BaseStream.Close();
+
+      if (CloseBaseStream)
+        BaseStream.Close();
       //m_ZipArchive?.Dispose();
     }
 
@@ -119,8 +127,10 @@ namespace CsvTools
       if (!disposing) return;
       m_DisposedValue = true;
       Close();
-      AccessStream.Dispose();
-      BaseStream.Dispose();
+      if (!ReferenceEquals(AccessStream, BaseStream))
+        AccessStream.Dispose();
+      if (CloseBaseStream)
+        BaseStream.Dispose();
     }
 
     public override void Flush()
@@ -228,6 +238,11 @@ namespace CsvTools
     protected void BaseOpen()
     {
       BaseStream = SourceAccess.OpenStream();
+
+      // In case the stream is not at the beginning get there
+      if (!CloseBaseStream && BaseStream.CanSeek && BaseStream.Position!=0)
+        BaseStream.Seek(0, SeekOrigin.Begin);
+
       if (SourceAccess.FileType == SourceAccess.FileTypeEnum.GZip)
         OpenZGipOverBase();
       else if (SourceAccess.FileType == SourceAccess.FileTypeEnum.Deflate)

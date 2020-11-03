@@ -1,4 +1,4 @@
-﻿namespace CsvTools
+namespace CsvTools
 {
   using System;
   using System.ComponentModel;

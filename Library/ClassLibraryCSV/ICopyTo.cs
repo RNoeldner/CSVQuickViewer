@@ -1,4 +1,4 @@
-﻿namespace CsvTools
+namespace CsvTools
 {
   public interface ICopyTo<in T>
   {

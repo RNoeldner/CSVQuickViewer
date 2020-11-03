@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
@@ -77,8 +77,7 @@ namespace CsvTools
     private readonly string m_QuotePlaceholder;
 
     // Store the raw text of the record, before split into columns and trimming of the columns
-    private readonly StringBuilder m_RecordSource = new StringBuilder();
-    private readonly bool m_SelfOpenedStream;
+    private readonly StringBuilder m_RecordSource = new StringBuilder();    
 
     private readonly bool m_SkipDuplicateHeader;
     private readonly bool m_SkipEmptyLines;
@@ -147,7 +146,7 @@ namespace CsvTools
       bool warnEmptyTailingColumns = true,
       bool treatNbspAsSpace = false,
       string treatTextAsNull = BaseSettings.cTreatTextAsNull, bool skipEmptyLines = true,
-      int consecutiveEmptyRowsMax = 4) : this("dummy", codePageId, skipRows, hasFieldHeader, columnDefinition,
+      int consecutiveEmptyRowsMax = 4) : this("stream", codePageId, skipRows, hasFieldHeader, columnDefinition,
       trimmingOption, fieldDelimiter, fieldQualifier, escapeCharacterChar, recordLimit, allowRowCombining,
       alternateQuoting, commentLine, numWarning, duplicateQuotingToEscape, newLinePlaceholder, delimiterPlaceholder,
       quotePlaceholder, skipDuplicateHeader, treatLfAsSpace, treatUnknownCharacterAsSpace, tryToSolveMoreColumns,
@@ -176,12 +175,12 @@ namespace CsvTools
       bool warnEmptyTailingColumns = true,
       bool treatNbspAsSpace = false,
       string treatTextAsNull = BaseSettings.cTreatTextAsNull, bool skipEmptyLines = true,
-      int consecutiveEmptyRowsMax = 4, string identifierInContainer= "")
+      int consecutiveEmptyRowsMax = 4, string identifierInContainer = "")
       : base(fileName, columnDefinition, recordLimit)
     {
       if (string.IsNullOrEmpty(fileName))
         throw new ArgumentException("Path can not be null or empty", nameof(fileName));
-      m_SelfOpenedStream = true;      
+      m_SelfOpenedStream = true;
       m_EscapeCharacterChar = escapeCharacterChar;
       m_FieldDelimiterChar = fieldDelimiter.WrittenPunctuationToChar();
       if (fieldDelimiter.Length > 1 && m_FieldDelimiterChar == '\0')
@@ -280,7 +279,7 @@ namespace CsvTools
         fileSetting.ConsecutiveEmptyRows, fileSetting.IdentifierInContainer)
     {
       SetProgressActions(processDisplay);
-    }    
+    }
 
     /// <summary>
     ///   Gets a value indicating whether this instance is closed.
@@ -372,10 +371,9 @@ namespace CsvTools
       //if (m_FieldDelimiter.Length > 1
       //    && m_FieldDelimiter.WrittenPunctuationToChar() == '\0')
       //  HandleWarning(-1, $"Only the first character of '{m_FieldDelimiter}' is used as delimiter.");
-
+      Retry:
       await BeforeOpenAsync($"Opening delimited file \"{FileSystemUtils.GetShortDisplayFileName(FileName)}\"")
         .ConfigureAwait(false);
-      Retry:
       try
       {
         // HandleShowProgress($"Opening text file {FileName}");

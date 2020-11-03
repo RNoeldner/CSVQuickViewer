@@ -1,4 +1,4 @@
-﻿namespace CsvTools
+namespace CsvTools
 {
   /// <summary>
   /// ColumnFormatUI Form from Designer
