@@ -22,13 +22,12 @@ using System.Threading.Tasks;
 namespace CsvTools
 {
   /// <summary>
-  ///   A wrapper around streams to handle pre and post processing, needed for sFTP, Encryption
-  ///   and Compression
+  ///   A wrapper around streams to handle encryption and Compression
+  ///   As some of these additionally used stream do not support seek, someimes seek has to be started from scratch
   /// </summary>
   public class ImprovedStream : Stream, IImprovedStream
   {
-    const int c_BufferSize = 8192;
-    private readonly bool m_LeaveOpen = true;
+    const int c_BufferSize = 8192;    
     protected readonly SourceAccess SourceAccess;
     private bool m_DisposedValue;
     private ICSharpCode.SharpZipLib.Zip.ZipFile m_ZipFile;
@@ -40,17 +39,16 @@ namespace CsvTools
       BaseOpen();
     }
 
-    // ReSharper disable once NotNullMemberIsNotInitialized
-    public ImprovedStream([NotNull] Func<Stream> openStream, bool isReading, SourceAccess.FileTypeEnum type)
+    /// <summary>
+    /// Create an improved stream based on another stream
+    /// </summary>
+    /// <param name="stream">The source stream, the stream must support seek</param>
+    /// <param name="isReading"></param>
+    /// <param name="type"></param>
+    /// <remarks>Make sure the source stream is disposed</remarks>
+    public ImprovedStream([NotNull] Stream stream, bool isReading, SourceAccess.FileTypeEnum type = SourceAccess.FileTypeEnum.Stream)
     {
-      SourceAccess = new SourceAccess(openStream, isReading, type);
-      BaseOpen();
-    }
-
-    public ImprovedStream([NotNull] Stream stream, bool isReading, bool leaveOpen)
-    {
-      SourceAccess = new SourceAccess(stream, isReading);
-      m_LeaveOpen = leaveOpen;
+      SourceAccess = new SourceAccess(stream, isReading, type);      
       BaseOpen();
     }
 
@@ -124,7 +122,7 @@ namespace CsvTools
         if (!ReferenceEquals(AccessStream, BaseStream))
           AccessStream.Close();
 
-        if (!m_LeaveOpen)
+        if (!SourceAccess.LeaveOpen)
           BaseStream.Close();
       }
       catch (Exception ex)
@@ -142,7 +140,7 @@ namespace CsvTools
       Close();
       if (!ReferenceEquals(AccessStream, BaseStream))
         AccessStream.Dispose();
-      if (!m_LeaveOpen)
+      if (!SourceAccess.LeaveOpen)
         BaseStream.Dispose();
     }
 
@@ -174,12 +172,12 @@ namespace CsvTools
       if (SourceAccess.Reading)
       {
         Logger.Debug("Decompressing from GZip {filename}", SourceAccess.Identifier);
-        AccessStream = new BufferedStream(new GZipStream(BaseStream, CompressionMode.Decompress), c_BufferSize);
+        AccessStream = new BufferedStream(new GZipStream(BaseStream, CompressionMode.Decompress, SourceAccess.LeaveOpen), c_BufferSize);
       }
       else
       {
         Logger.Debug("Compressing to GZip {filename}", SourceAccess.Identifier);
-        AccessStream = new BufferedStream(new GZipStream(BaseStream, CompressionMode.Compress), c_BufferSize);
+        AccessStream = new BufferedStream(new GZipStream(BaseStream, CompressionMode.Compress, SourceAccess.LeaveOpen), c_BufferSize);
       }
     }
 
@@ -188,12 +186,12 @@ namespace CsvTools
       if (SourceAccess.Reading)
       {
         Logger.Debug("Deflating {filename}", SourceAccess.Identifier);
-        AccessStream = new BufferedStream(new DeflateStream(BaseStream, CompressionMode.Decompress), c_BufferSize);
+        AccessStream = new BufferedStream(new DeflateStream(BaseStream, CompressionMode.Decompress, SourceAccess.LeaveOpen), c_BufferSize);
       }
       else
       {
         Logger.Debug("Compressing {filename}", SourceAccess.Identifier);
-        AccessStream = new BufferedStream(new DeflateStream(BaseStream, CompressionMode.Compress), c_BufferSize);
+        AccessStream = new BufferedStream(new DeflateStream(BaseStream, CompressionMode.Compress, SourceAccess.LeaveOpen), c_BufferSize);
       }
     }
 
@@ -201,7 +199,7 @@ namespace CsvTools
     {
       if (SourceAccess.Reading)
       {
-        m_ZipFile = new ICSharpCode.SharpZipLib.Zip.ZipFile(BaseStream);
+        m_ZipFile = new ICSharpCode.SharpZipLib.Zip.ZipFile(BaseStream, SourceAccess.LeaveOpen);
 
         if (!string.IsNullOrEmpty(SourceAccess.EncryptedPassphrase))
           m_ZipFile.Password = SourceAccess.EncryptedPassphrase;
