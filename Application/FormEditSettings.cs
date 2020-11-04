@@ -301,7 +301,7 @@ namespace CsvTools
       }
     }
 
-    private void domainUpDownTime_SelectedItemChanged(object sender, EventArgs e)
+    private void DomainUpDownTime_SelectedItemChanged(object sender, EventArgs e)
     {
       if (domainUpDownTime.SelectedIndex == 4)
         m_ViewSettings.LimitDuration = ViewSettings.DurationEnum.Unlimited;
@@ -315,10 +315,12 @@ namespace CsvTools
         m_ViewSettings.LimitDuration = ViewSettings.DurationEnum.HalfSecond;
     }
 
-    private void buttonGuessHeader_Click(object sender, EventArgs e)
+    private void ButtonGuessHeader_Click(object sender, EventArgs e)
     {
-      buttonGuessHeader.RunWithHourglass(() => CsvHelper.GuessHeader(m_ViewSettings, m_CancellationTokenSource.Token));
+      var result = string.Empty;
+      buttonGuessHeader.RunWithHourglass(() => result = CsvHelper.GuessHeader(m_ViewSettings, m_CancellationTokenSource.Token));
       fileSettingBindingSource.ResetBindings(false);
+      _MessageBox.Show(this, result, "Checking headers");
     }
   }
 }

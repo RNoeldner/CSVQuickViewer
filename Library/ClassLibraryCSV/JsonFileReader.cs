@@ -35,6 +35,18 @@ namespace CsvTools
     private JsonTextReader m_JsonTextReader;
     private StreamReader m_StreamReader;
 
+    public JsonFileReader([NotNull]
+          IImprovedStream improvedStream,
+          [CanBeNull] IEnumerable<IColumn> columnDefinition = null,
+          long recordLimit = 0,
+          bool treatNbspAsSpace = false, bool trim = false,
+          string treatTextAsNull = null) :
+          base("stream", columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace)
+    {
+      m_ImprovedStream = improvedStream;
+      m_SelfOpenedStream = false;
+    }
+
     public JsonFileReader([NotNull] string fullPath,
       [CanBeNull] IEnumerable<IColumn> columnDefinition = null,
       long recordLimit = 0,
@@ -43,6 +55,7 @@ namespace CsvTools
       base(fullPath, columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace)
     {
       if (fullPath == null) throw new ArgumentNullException(nameof(fullPath));
+      m_SelfOpenedStream = true;
     }
 
     public JsonFileReader(IFileSettingPhysicalFile fileSetting,
@@ -64,15 +77,17 @@ namespace CsvTools
       m_JsonTextReader?.Close();
       ((IDisposable) m_JsonTextReader)?.Dispose();
       m_StreamReader?.Dispose();
-      m_ImprovedStream?.Dispose();
 
       m_JsonTextReader = null;
       m_StreamReader = null;
+      if (!m_SelfOpenedStream) return;
+      m_ImprovedStream?.Dispose();
       m_ImprovedStream = null;
     }
 
     public override async Task OpenAsync(CancellationToken token)
     {
+      Logger.Information("Opening JSON file {filename}", FileName);
       await BeforeOpenAsync(
           $"Opening JSON file {FileSystemUtils.GetShortDisplayFileName(FileName)}")
         .ConfigureAwait(false);
@@ -334,8 +349,13 @@ namespace CsvTools
     /// </summary>
     private void ResetPositionToStartOrOpen()
     {
-      m_ImprovedStream?.Dispose();
-      m_ImprovedStream = FunctionalDI.OpenStream(new SourceAccess(FullPath, true));
+      if (m_SelfOpenedStream)
+      {
+        m_ImprovedStream?.Dispose();
+        m_ImprovedStream = FunctionalDI.OpenStream(new SourceAccess(FullPath, true));
+      }
+      else
+        m_ImprovedStream.Seek(0, SeekOrigin.Begin);
 
       // in case we can not seek need to reopen the stream reader
       m_StreamReader?.Close();

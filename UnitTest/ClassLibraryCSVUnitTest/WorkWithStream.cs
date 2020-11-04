@@ -23,9 +23,9 @@ namespace CsvTools.Tests
         using (var reader = new CsvFileReader(impStream, result.CodePageId, result.SkipRows, result.HasFieldHeader, columnCollection, TrimmingOption.Unquoted, result.FieldDelimiter, result.FieldQualifier, result.EscapeCharacterChar, 0, false, false, result.CommentLine, 0, true, string.Empty, string.Empty, string.Empty, true, false, true, false, false, false, false, false, false, true, true, "NULL", true, 4))
         {
           await reader.OpenAsync(process.CancellationToken);
-          var res1 = await reader.FillGuessColumnFormatReaderAsyncReader(new FillGuessSettings(), columnCollection, false, true, "null", process.CancellationToken).ConfigureAwait(false);
-          Assert.AreEqual(6, columnCollection.Count, "Recognized columns");
-          Assert.AreEqual(6, res1.Count, "Information Lines");
+          var res1 = await reader.FillGuessColumnFormatReaderAsyncReader(new FillGuessSettings(), columnCollection, false, true, "null", process.CancellationToken);
+          Assert.AreEqual(6, res1.Item2.Count(), "Recognized columns");
+          Assert.AreEqual(6, res1.Item1.Count, "Information Lines");
         }
       }
 
@@ -59,9 +59,9 @@ namespace CsvTools.Tests
           using (var reader = new CsvFileReader(impStream, result.CodePageId, result.SkipRows, result.HasFieldHeader, columnCollection, TrimmingOption.Unquoted, result.FieldDelimiter, result.FieldQualifier, result.EscapeCharacterChar, 0, false, false, result.CommentLine, 0, true, string.Empty, string.Empty, string.Empty, true, false, true, false, false, false, false, false, false, true, true, "NULL", true, 4))
           {
             await reader.OpenAsync(process.CancellationToken);
-            var res1 = await reader.FillGuessColumnFormatReaderAsyncReader(new FillGuessSettings(), columnCollection, false, true, "null", process.CancellationToken).ConfigureAwait(false);
-            Assert.AreEqual(6, columnCollection.Count, "Recognized columns");
-            Assert.AreEqual(6, res1.Count, "Information Lines");
+            var res1 = await reader.FillGuessColumnFormatReaderAsyncReader(new FillGuessSettings(), columnCollection, false, true, "null", process.CancellationToken);
+            Assert.AreEqual(6, res1.Item2.Count(), "Recognized columns");
+            Assert.AreEqual(6, res1.Item1.Count, "Information Lines");
           }
         }
 

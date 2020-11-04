@@ -54,18 +54,15 @@ namespace CsvTools
     private FillGuessSettings m_FillGuessSettings = new FillGuessSettings();
 
     private bool m_GuessDelimiter = true;
-
+    private bool m_GuessCodePage = true;
     private bool m_GuessHasHeader = true;
-
     private bool m_GuessQualifier;
-
     private bool m_GuessStartRow = true;
-
     private bool m_GuessNewLine = true;
     private bool m_MenuDown;
 
     private bool m_StoreSettingsByFile;
-  
+
     [XmlIgnore]
     public TimeSpan Duration
     {
@@ -208,6 +205,21 @@ namespace CsvTools
       }
     }
 
+
+    [XmlAttribute]
+    [DefaultValue(true)]
+    public bool GuessCodePage
+    {
+      get => m_GuessCodePage;
+      set
+      {
+        if (m_GuessCodePage == value)
+          return;
+        GuessCodePage = value;
+        NotifyPropertyChanged(nameof(GuessCodePage));
+      }
+    }
+
     [XmlAttribute]
     [DefaultValue(true)]
     public bool GuessStartRow
@@ -256,6 +268,7 @@ namespace CsvTools
         return;
 
       csvDest.AllowRowCombining = csvSrc.AllowRowCombining;
+      csvDest.CodePageId= csvSrc.CodePageId;
       csvDest.ByteOrderMark = csvSrc.ByteOrderMark;
       csvDest.ConsecutiveEmptyRows = csvSrc.ConsecutiveEmptyRows;
       csvDest.DisplayEndLineNo = csvSrc.DisplayEndLineNo;
