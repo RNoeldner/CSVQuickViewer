@@ -119,6 +119,8 @@ namespace CsvTools
     {
       try
       {
+        m_ZipFile?.Close();
+
         if (!ReferenceEquals(AccessStream, BaseStream))
           AccessStream.Close();
 
@@ -142,9 +144,6 @@ namespace CsvTools
         AccessStream.Dispose();
       if (!m_LeaveOpen)
         BaseStream.Dispose();
-      //TODO Dispose Zip but Dispose is proteced
-      //if (m_ZipFile!=null)
-      //    m_ZipFile.Dispose(disposing);
     }
 
     public override void Flush()
