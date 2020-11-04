@@ -179,7 +179,7 @@
     <Compile Include="ColumnCollectionTest.cs" />
     <Compile Include="ProcessDisplayTimeTest.cs" />
     <Compile Include="TwoStepDataTableLoaderTests.cs" />
-    <Compile Include="UnitTest1.cs" />
+    <Compile Include="WorkWithStream.cs" />
     <Compile Include="WarningEventArgsTest.cs" />
     <Compile Include="ColumnTest.cs" />
     <Compile Include="ExceptionTest.cs" />

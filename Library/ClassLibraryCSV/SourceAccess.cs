@@ -29,7 +29,8 @@ namespace CsvTools
       GZip,
       Deflate,
       Pgp,
-      Zip
+      Zip,
+      Stream
     }
 
     /// <summary>
@@ -101,6 +102,13 @@ namespace CsvTools
       FileType = type;
     }
 
+    public SourceAccess([NotNull] Stream stream, bool isReading)
+    {
+      m_OpenStream = () => stream;
+      Reading = isReading;
+      FileType = FileTypeEnum.Stream;
+    }
+
     private static Func<Stream> GetOpenStreamFunc(string fileName, bool isReading) => () =>
       new FileStream(fileName.LongPathPrefix(),
         isReading ? FileMode.Open : FileMode.Create,
@@ -119,11 +127,18 @@ namespace CsvTools
       return fileName.EndsWith(".zip", StringComparison.OrdinalIgnoreCase) ? FileTypeEnum.Zip : FileTypeEnum.FileSystem;
     }
 
+    /// <summary>
+    ///    Get the stream, in case of a read stream it's attempted to be at the begining of the stream
+    /// </summary>
+    /// <returns></returns>
     public Stream OpenStream()
     {
       var stream = m_OpenStream.Invoke();
+      if (FileType == FileTypeEnum.Stream && Reading && stream.CanSeek && stream.Position!=0)
+        stream.Seek(0, SeekOrigin.Begin);
+
       if (string.IsNullOrEmpty(Identifier))
-        Identifier = (stream is FileStream fs) ? FileSystemUtils.GetShortDisplayFileName(fs.Name) : string.Empty;
+        Identifier = (stream is FileStream fs) ? FileSystemUtils.GetShortDisplayFileName(fs.Name) : FileType == FileTypeEnum.Stream ? stream.GetType().Name : string.Empty;
       return stream;
     }
   }
