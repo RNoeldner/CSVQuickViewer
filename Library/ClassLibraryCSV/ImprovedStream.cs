@@ -19,17 +19,16 @@ using System.IO.Compression;
 using System.Threading;
 using System.Threading.Tasks;
 
-
 namespace CsvTools
 {
   /// <summary>
-  ///   A wrapper around file streams to handle pre and post processing, needed for sFTP, Encryption
+  ///   A wrapper around streams to handle pre and post processing, needed for sFTP, Encryption
   ///   and Compression
   /// </summary>
   public class ImprovedStream : Stream, IImprovedStream
   {
     const int c_BufferSize = 8192;
-    private bool CloseBaseStream = true;
+    private readonly bool m_LeaveOpen = true;
     protected readonly SourceAccess SourceAccess;
     private bool m_DisposedValue;
     private ICSharpCode.SharpZipLib.Zip.ZipFile m_ZipFile;
@@ -47,12 +46,14 @@ namespace CsvTools
       SourceAccess = new SourceAccess(openStream, isReading, type);
       BaseOpen();
     }
-    public ImprovedStream([NotNull] Stream openStream, bool isReading, SourceAccess.FileTypeEnum type)
+
+    public ImprovedStream([NotNull] Stream stream, bool isReading, bool leaveOpen)
     {
-      SourceAccess = new SourceAccess(()=> openStream, isReading, type);
-      CloseBaseStream = false;
+      SourceAccess = new SourceAccess(stream, isReading);
+      m_LeaveOpen = leaveOpen;
       BaseOpen();
     }
+
     [NotNull] protected Stream AccessStream { get; set; }
 
     [NotNull] protected Stream BaseStream { get; private set; }
@@ -64,6 +65,9 @@ namespace CsvTools
 
     public override long Seek(long offset, SeekOrigin origin)
     {
+      if (m_DisposedValue)
+        throw new ObjectDisposedException(nameof(ImprovedStream));
+
       // The stream must support seeking to get or set the position
       if (AccessStream.CanSeek)
         return AccessStream.Seek(offset, origin);
@@ -113,12 +117,19 @@ namespace CsvTools
     /// </summary>
     public override void Close()
     {
-      if (!ReferenceEquals(AccessStream, BaseStream))
-        AccessStream.Close();
+      try
+      {
+        if (!ReferenceEquals(AccessStream, BaseStream))
+          AccessStream.Close();
 
-      if (CloseBaseStream)
-        BaseStream.Close();
-      //m_ZipArchive?.Dispose();
+        if (!m_LeaveOpen)
+          BaseStream.Close();
+      }
+      catch (Exception ex)
+      {
+        Logger.Warning(ex, "ImprovedStream.Close()");
+        // Ignore
+      }
     }
 
     protected override void Dispose(bool disposing)
@@ -129,14 +140,25 @@ namespace CsvTools
       Close();
       if (!ReferenceEquals(AccessStream, BaseStream))
         AccessStream.Dispose();
-      if (CloseBaseStream)
+      if (!m_LeaveOpen)
         BaseStream.Dispose();
+      //TODO Dispose Zip but Dispose is proteced
+      //if (m_ZipFile!=null)
+      //    m_ZipFile.Dispose(disposing);
     }
 
     public override void Flush()
     {
-      AccessStream.Flush();
-      BaseStream.Flush();
+      try
+      {
+        AccessStream.Flush();
+        BaseStream.Flush();
+      }
+      catch (Exception ex)
+      {
+        Logger.Warning(ex, "ImprovedStream.Flush()");
+        // Ignore
+      }
     }
 
     public override Task FlushAsync(CancellationToken cancellationToken) =>
@@ -237,11 +259,9 @@ namespace CsvTools
 
     protected void BaseOpen()
     {
+      if (m_DisposedValue)
+        throw new ObjectDisposedException(nameof(ImprovedStream));
       BaseStream = SourceAccess.OpenStream();
-
-      // In case the stream is not at the beginning get there
-      if (!CloseBaseStream && BaseStream.CanSeek && BaseStream.Position!=0)
-        BaseStream.Seek(0, SeekOrigin.Begin);
 
       if (SourceAccess.FileType == SourceAccess.FileTypeEnum.GZip)
         OpenZGipOverBase();

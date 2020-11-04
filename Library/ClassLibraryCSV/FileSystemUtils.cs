@@ -164,22 +164,31 @@ namespace CsvTools
     [NotNull]
     public static string GetAbsolutePath([CanBeNull] this string fileName, [CanBeNull] string basePath)
     {
-      if (string.IsNullOrEmpty(fileName))
-        return string.Empty;
+      try
+      {
+        if (string.IsNullOrEmpty(fileName))
+          return string.Empty;
 
-      if (Path.IsPathRooted(fileName))
-        return fileName;
+        if (Path.IsPathRooted(fileName))
+          return fileName;
 
-      if (string.IsNullOrEmpty(basePath))
-        return GetFullPath(fileName).RemovePrefix();
+        if (string.IsNullOrEmpty(basePath))
+          basePath = ".";
 
-      var split = fileName.LastIndexOf(Path.DirectorySeparatorChar);
-      if (split == -1)
-        return GetFullPath(Path.Combine(basePath, fileName)).RemovePrefix();
+        var split = fileName.LastIndexOf(Path.DirectorySeparatorChar);
+        if (split == -1)
+          return Path.Combine(GetFullPath(basePath), fileName).RemovePrefix();
 
-      // the filename could contains wildcards, that is not supported when extending relative path
-      return (GetFullPath(Path.Combine(basePath, fileName.Substring(0, split))) + fileName.Substring(split))
-        .RemovePrefix();
+        // the Filename could contains wildcards, that is not supported when extending relative path
+        // the path part though ca not contain wildcards, so combie base and path
+        return (GetFullPath(Path.Combine(basePath, fileName.Substring(0, split))) + fileName.Substring(split))
+          .RemovePrefix();
+      }
+      catch (Exception ex)
+      {
+        Logger.Warning(ex, "Getting absolute path for combination {filename} {root}", fileName, basePath);
+        throw;
+      }
     }
 
     /// <summary>
