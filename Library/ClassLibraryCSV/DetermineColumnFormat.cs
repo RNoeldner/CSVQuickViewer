@@ -55,7 +55,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Fills the Column Format for reader fileSettings
+    ///   Fills the ColumnCollection for reader fileSettings
     /// </summary>
     /// <param name="fileSetting">The file setting to check, and columns to be added</param>
     /// <param name="addTextColumns">if set to <c>true</c> event string columns are added.</param>
@@ -90,10 +90,12 @@ namespace CsvTools
       using (var fileReader = FunctionalDI.GetFileReader(fileSettingCopy, null, prc2))
       {
         await fileReader.OpenAsync(prc2.CancellationToken).ConfigureAwait(false);
-
-        return await FillGuessColumnFormatReaderAsyncReader(fileReader, fillGuessSettings,
+        var res = await FillGuessColumnFormatReaderAsyncReader(fileReader, fillGuessSettings,
           fileSetting.ColumnCollection,
           addTextColumns, checkDoubleToBeInteger, fileSetting.TreatTextAsNull, prc2.CancellationToken);
+        fileSetting.ColumnCollection.CopyFrom(res.Item2);
+
+        return res.Item1;
       }
     }
 
@@ -139,9 +141,9 @@ namespace CsvTools
     /// <param name="cancellationToken">Cancellation support</param>
     /// <returns>A text with the changes that have been made</returns>
     [ItemNotNull]
-    public static async Task<IList<string>> FillGuessColumnFormatReaderAsyncReader(
+    public static async Task<Tuple<IList<string>, IEnumerable<IColumn>>> FillGuessColumnFormatReaderAsyncReader(
       [NotNull] this IFileReader fileReader,
-      [NotNull] FillGuessSettings fillGuessSettings, [NotNull] ColumnCollection columnCollection,
+      [NotNull] FillGuessSettings fillGuessSettings, [NotNull] IEnumerable<IColumn> columnCollectionInput,
       bool addTextColumns,
       bool checkDoubleToBeInteger,
       string treatTextAsNull,
@@ -151,22 +153,24 @@ namespace CsvTools
         throw new ArgumentNullException(nameof(fileReader));
       if (fillGuessSettings == null)
         throw new ArgumentNullException(nameof(fillGuessSettings));
-      if (columnCollection == null)
-        throw new ArgumentNullException(nameof(columnCollection));
+      if (columnCollectionInput == null)
+        throw new ArgumentNullException(nameof(columnCollectionInput));
+
+      var columnCollection = new ColumnCollection(columnCollectionInput);
 
       var result = new List<string>();
       if (!fillGuessSettings.Enabled || !fillGuessSettings.DetectNumbers && !fillGuessSettings.DetectBoolean &&
         !fillGuessSettings.DetectDateTime && !fillGuessSettings.DetectGUID &&
         !fillGuessSettings.DetectPercentage &&
         !fillGuessSettings.SerialDateTime)
-        return result;
+        return new Tuple<IList<string>, IEnumerable<IColumn>>(result, columnCollection.ReadonlyCopy());
 
       if (fileReader.FieldCount == 0)
-        return result;
+        return new Tuple<IList<string>, IEnumerable<IColumn>>(result, columnCollection.ReadonlyCopy());
       if (fileReader.EndOfFile)
         fileReader.ResetPositionToFirstDataRow();
       if (fileReader.EndOfFile) // still end of file
-        return result;
+        return new Tuple<IList<string>, IEnumerable<IColumn>>(result, columnCollection.ReadonlyCopy());
 
       var othersValueFormatDate = CommonDateFormat(columnCollection);
       Logger.Debug("Getting column headers");
@@ -268,7 +272,7 @@ namespace CsvTools
           else
           {
             Logger.Debug("{column} – {values} values found in {records} row. Examining format", readerColumn.Name,
-              samples.Values.Count(), samples.RecordsRead);            
+              samples.Values.Count(), samples.RecordsRead);
           }
 
           var checkResult = GuessValueFormat(samples.Values, fillGuessSettings.MinSamples,
@@ -314,7 +318,7 @@ namespace CsvTools
 
             if (checkResult.FoundValueFormat.Equals(settingColumn.ValueFormat))
             {
-              Logger.Debug("{column} – Format : {format} – not changed", readerColumn.Name, oldValueFormat);              
+              Logger.Debug("{column} – Format : {format} – not changed", readerColumn.Name, oldValueFormat);
             }
             else
             {
@@ -553,7 +557,7 @@ namespace CsvTools
         foreach (var column in existing)
           columnCollection.AddIfNew(column);
 
-      return result;
+      return new Tuple<IList<string>, IEnumerable<IColumn>>(result, columnCollection.ReadonlyCopy());
     }
 
     /// <summary>

@@ -222,7 +222,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="DragEventArgs" /> instance containing the event data.</param>
-    private async void DataGridView_DragDropAsync(object sender, DragEventArgs e)
+    private async void FileDragDrop(object sender, DragEventArgs e)
     {
       // Set the filename
       var files = (string[]) e.Data.GetData(DataFormats.FileDrop);
@@ -236,7 +236,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="DragEventArgs" /> instance containing the event data.</param>
-    private void DataGridView_DragEnter(object sender, DragEventArgs e)
+    private void FileDragEnter(object sender, DragEventArgs e)
     {
       if (e.Data.GetDataPresent(DataFormats.FileDrop, false))
         e.Effect = DragDropEffects.All;
@@ -485,7 +485,7 @@ namespace CsvTools
           DetachPropertyChanged(m_FileSetting);
 
           m_FileSetting = await CsvHelper.GetCsvFileSetting(fileName,
-            (csvFile) => ViewSettings.CopyConfiguration(m_ViewSettings, csvFile), m_ViewSettings.AllowJson,
+            (csvFile) => ViewSettings.CopyConfiguration(m_ViewSettings, csvFile), m_ViewSettings.AllowJson, m_ViewSettings.GuessCodePage,
             m_ViewSettings.GuessDelimiter, m_ViewSettings.GuessQualifier, m_ViewSettings.GuessStartRow,
             m_ViewSettings.GuessHasHeader, m_ViewSettings.GuessNewLine,
             m_ViewSettings.FillGuessSettings, processDisplay);

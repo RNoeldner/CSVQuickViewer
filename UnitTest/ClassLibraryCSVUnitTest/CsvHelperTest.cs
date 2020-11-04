@@ -115,7 +115,7 @@ namespace CsvTools.Tests
       using (var reader = new ImprovedTextReader(stream))
       {
         reader.ToBeginning();
-        Assert.IsTrue(CsvHelper.GuessHasHeader(reader, "#", ',', UnitTestInitializeCsv.Token));
+        Assert.IsTrue(CsvHelper.GuessHasHeader(reader, "#", ',', UnitTestInitializeCsv.Token).Item1);
       }
 
       using (var stream =
@@ -123,7 +123,7 @@ namespace CsvTools.Tests
       using (var reader = new ImprovedTextReader(stream))
       {
         reader.ToBeginning();
-        Assert.IsFalse(CsvHelper.GuessHasHeader(reader, "#", ',', UnitTestInitializeCsv.Token));
+        Assert.IsFalse(CsvHelper.GuessHasHeader(reader, "#", ',', UnitTestInitializeCsv.Token).Item1);
       }
     }
 

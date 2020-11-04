@@ -371,6 +371,7 @@ namespace CsvTools
       //if (m_FieldDelimiter.Length > 1
       //    && m_FieldDelimiter.WrittenPunctuationToChar() == '\0')
       //  HandleWarning(-1, $"Only the first character of '{m_FieldDelimiter}' is used as delimiter.");
+      Logger.Information("Opening delimited file {filename}", FileName);
       Retry:
       await BeforeOpenAsync($"Opening delimited file \"{FileSystemUtils.GetShortDisplayFileName(FileName)}\"")
         .ConfigureAwait(false);

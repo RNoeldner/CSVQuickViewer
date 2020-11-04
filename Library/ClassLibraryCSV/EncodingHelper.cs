@@ -173,7 +173,7 @@ namespace CsvTools
 
     private static readonly Lazy<int[]> m_CommonCodePages = new Lazy<int[]>(() => new[]
     {
-      -1, (int) CodePage.UTF8, (int) CodePage.UTF16Le, (int) CodePage.UTF16Be, (int) CodePage.UTF32Le,
+      (int) CodePage.UTF8, (int) CodePage.UTF16Le, (int) CodePage.UTF16Be, (int) CodePage.UTF32Le,
       (int) CodePage.UTF32Be, 1250, (int) CodePage.WIN1252, 1253, 1255, (int) CodePage.UTF7, 850, 852, 437, 28591,
       10029, 20127, 28597, 50220, 28592, 28595, 28598, 20866, 932, 54936
     });

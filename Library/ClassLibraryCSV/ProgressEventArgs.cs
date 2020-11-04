@@ -27,7 +27,7 @@ namespace CsvTools
     /// <param name="text">The text.</param>
     /// <param name="value">The progress value.</param>
     /// <param name="log"><c>True</c> if progress should be logged, <c>false</c> otherwise.</param>
-    public ProgressEventArgs(string text, long value = -1, bool log = true)
+    public ProgressEventArgs(string text, long value = -1, bool log = false)
     {
       Text = text;
       Value = value;

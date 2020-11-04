@@ -69,14 +69,15 @@ namespace CsvTools
       }
     }
 
-
-    public static void GuessHeader([NotNull] ICsvFile setting, CancellationToken cancellationToken)
+    public static string GuessHeader([NotNull] ICsvFile setting, CancellationToken cancellationToken)
     {
       using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(setting, true)))
       using (var reader = new ImprovedTextReader(improvedStream, setting.CodePageId, setting.SkipRows))
       {
-        setting.HasFieldHeader = GuessHasHeader(reader, setting.FileFormat.CommentLine,
+        var (hasHeader, reason) = GuessHasHeader(reader, setting.FileFormat.CommentLine,
           setting.FileFormat.FieldDelimiterChar, cancellationToken);
+        setting.HasFieldHeader = hasHeader;
+        return reason;
       }
     }
 
@@ -107,9 +108,8 @@ namespace CsvTools
       }
     }
 
-    public static bool GuessHasHeader([NotNull] ImprovedTextReader reader, string comment,
-      char delimiter,
-      CancellationToken cancellationToken)
+    public static Tuple<bool, string> GuessHasHeader([NotNull] ImprovedTextReader reader, string comment,
+      char delimiter, CancellationToken cancellationToken)
     {
       var headerLine = string.Empty;
 
@@ -121,57 +121,75 @@ namespace CsvTools
           headerLine = string.Empty;
       }
 
-      if (string.IsNullOrEmpty(headerLine))
+      try
       {
-        Logger.Information("Without Header Row");
-        return false;
+        if (string.IsNullOrEmpty(headerLine))
+          throw new ApplicationException("Empty Line");
+
+        var headerRow = headerLine.Split(delimiter);
+        // get the average field count looking at the header and 12 additional valid lines
+        var fieldCount = headerRow.Length;
+
+        // if there is only one column the header be number of letter and might be followed by a
+        // single number
+        if (fieldCount < 2)
+        {
+          if (!(headerLine.Length > 2 && Regex.IsMatch(headerLine, @"^[a-zA-Z]+\d?$")))
+            throw new ApplicationException($"Only one column: {headerLine}");
+        }
+        else
+        {
+          var counter = 1;
+          while (counter < 12 && !cancellationToken.IsCancellationRequested && !reader.EndOfStream)
+          {
+            var dataLine = reader.ReadLine();
+            if (string.IsNullOrEmpty(dataLine)
+                || !string.IsNullOrEmpty(comment) && dataLine.TrimStart().StartsWith(comment))
+              continue;
+            counter++;
+            fieldCount += dataLine.Split(delimiter).Length;
+          }
+
+          var avgFieldCount = fieldCount / (double) counter;
+          // The average should not be smaller than the columns in the initial row
+          if (avgFieldCount < headerRow.Length)
+            avgFieldCount = headerRow.Length;
+          var halfTheColumns = (int) Math.Ceiling(avgFieldCount / 2.0);
+
+          // use the same routine that is used in readers to determine the names of the columns
+          var columnsAndIssues = BaseFileReader.AdjustColumnName(headerRow, (int) avgFieldCount, null, null);
+
+          // looking at the warnings raised
+          if (columnsAndIssues.Item2 >= halfTheColumns || columnsAndIssues.Item2 > 5)
+            throw new ApplicationException($"{columnsAndIssues.Item2} header where empty, duplicate or too long");
+
+          // Columns are only one or two char, that does not look descriptive
+          if (columnsAndIssues.Item1.Count(x => x.Length < 3) > halfTheColumns)
+            throw new ApplicationException($"{columnsAndIssues.Item1.Count(x => x.Length < 3)} of {fieldCount} header are shorter then 3 character");
+
+          var countNumeric = 0;
+          var countSpecial = 0;
+          foreach (var header in headerRow)
+          {
+            if (headerLine.NoControlCharacters().Length < headerLine.Length)
+              throw new ApplicationException($"Control Characters in Column {headerLine}");
+
+            if (Regex.IsMatch(header, @"^\d{2,}$"))
+              countNumeric++;
+            else if (Regex.IsMatch(header, @"[^\w\d\-_\s<>,.*\[\]\(\)+?!]"))
+              countSpecial++;
+          }
+          if (countNumeric + countSpecial  >= halfTheColumns)
+            throw new ApplicationException($"{countNumeric} header numeric and {countSpecial} header with uncommon caracters");
+        }
       }
-
-      var headerRow = headerLine.Split(delimiter);
-      // get the average field count looking at the header and 12 additional valid lines
-      var fieldCount = headerRow.Length;
-
-      // if there is only one column the header be number of letter and might be followed by a
-      // single number
-      if (fieldCount < 2)
-        return (headerLine.Length > 2 && Regex.IsMatch(headerLine, @"^[a-zA-Z]+\d?$"));
-
-      var counter = 1;
-      while (counter < 12 && !cancellationToken.IsCancellationRequested && !reader.EndOfStream)
+      catch (ApplicationException ex)
       {
-        var dataLine = reader.ReadLine();
-        if (string.IsNullOrEmpty(dataLine)
-            || !string.IsNullOrEmpty(comment) && dataLine.TrimStart().StartsWith(comment))
-          continue;
-        counter++;
-        fieldCount += dataLine.Split(delimiter).Length;
+        Logger.Information("Without Header Row {reason}", ex.Message);
+        return new Tuple<bool, string>(false, ex.Message);
       }
-
-      var avgFieldCount = fieldCount / (double) counter;
-      // The average should not be smaller than the columns in the initial row
-      if (avgFieldCount < headerRow.Length)
-        avgFieldCount = headerRow.Length;
-      var halfTheColumns = (int) Math.Ceiling(avgFieldCount / 2.0);
-
-      // use the same routine that is used in readers to determine the names of the columns
-      var columnsAndIssues = BaseFileReader.AdjustColumnName(headerRow, (int) avgFieldCount, null, null);
-
-      // looking at the warnings raised
-      if (columnsAndIssues.Item2 >= halfTheColumns || columnsAndIssues.Item2 > 5)
-      {
-        Logger.Information("Without Header Row");
-        return false;
-      }
-
-      // Columns are only one or two char, that does not look descriptive
-      if (columnsAndIssues.Item1.Count(x => x.Length < 3) > halfTheColumns)
-      {
-        Logger.Information("Without Header Row");
-        return false;
-      }
-
       Logger.Information("With Header Row");
-      return true;
+      return new Tuple<bool, string>(true, "Header seems present");
     }
 
     /// <summary>
@@ -442,7 +460,7 @@ namespace CsvTools
           display.SetProcess("Checking for Header Row", -1, false);
 
           detection.HasFieldHeader = GuessHasHeader(textReader, detection.CommentLine,
-            detection.FieldDelimiter.WrittenPunctuationToChar(), display.CancellationToken);
+            detection.FieldDelimiter.WrittenPunctuationToChar(), display.CancellationToken).Item1;
         }
       }
       return detection;
@@ -1082,7 +1100,7 @@ namespace CsvTools
       return false;
     }
 
-    public static async Task<ICsvFile> GetCsvFileSetting(string fileName, Action<ICsvFile> initAction, bool guessJson,
+    public static async Task<ICsvFile> GetCsvFileSetting(string fileName, Action<ICsvFile> initAction, bool guessJson, bool guessCodePage,
       bool guessDelimiter, bool guessQualifier, bool guessStartRow,
       bool guessHasHeader, bool guessNewLine,
       [NotNull] FillGuessSettings fillGuessSettings, [NotNull] IProcessDisplay processDisplay)
@@ -1147,7 +1165,7 @@ namespace CsvTools
       await fileSetting.RefreshCsvFileAsync(
         processDisplay,
         guessJson,
-        true,
+        guessCodePage,
         guessDelimiter,
         guessQualifier,
         guessStartRow,

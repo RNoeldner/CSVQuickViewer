@@ -45,7 +45,7 @@ namespace CsvTools
       m_FileReader = FunctionalDI.GetFileReader(fileSetting, TimeZoneInfo.Local.Id, processDisplay);
       if (m_FileReader == null)
         throw new FileReaderException($"Could not get reader for {fileSetting}");
-
+            
       RowErrorCollection warningList = null;
       if (addWarning != null)
       {
@@ -54,6 +54,7 @@ namespace CsvTools
         m_FileReader.Warning -= warningList.Add;
       }
 
+      Logger.Information("Reading data for display");
       await m_FileReader.OpenAsync(processDisplay.CancellationToken).ConfigureAwait(false);
 
       if (addWarning != null)

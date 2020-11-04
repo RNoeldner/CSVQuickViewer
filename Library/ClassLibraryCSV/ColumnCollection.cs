@@ -10,6 +10,25 @@ namespace CsvTools
   public sealed class ColumnCollection : ObservableCollection<Column>, ICloneable<ColumnCollection>,
     IEquatable<ColumnCollection>
   {
+    public ColumnCollection()
+    {
+    }
+
+    public ColumnCollection(IEnumerable<IColumn> items)
+    {
+      foreach (var col in items)
+        AddIfNew(col);
+    }
+
+    public void CopyFrom(IEnumerable<IColumn> items)
+    {
+      CheckReentrancy();
+      ClearItems();
+      foreach (var col in items)
+        AddIfNew(col);  
+  }
+     
+
     /// <summary>
     ///   Clones this instance into a new instance of the same type
     /// </summary>

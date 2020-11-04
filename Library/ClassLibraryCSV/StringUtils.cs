@@ -289,7 +289,7 @@ namespace CsvTools
     /// <param name="testFunction">The test function called on each individual char</param>
     /// <returns>A test with only allowed characters</returns>
     [NotNull]
-    public static string ProcessByCategory([NotNull] string original,
+    public static string ProcessByCategory([NotNull] this string original,
       [NotNull] Func<UnicodeCategory, bool> testFunction)
     {
       if (string.IsNullOrEmpty(original))
